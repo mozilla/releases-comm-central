@@ -1,0 +1,17 @@
+.pseudo { 
+  font-weight: bold;
+  color: rgb(80,80,200);
+}
+
+.date {
+  font-family: Verdana, Arial, sans-serif;
+  font-size: small;
+}
+
+p {
+  margin: 1px auto;
+}
+
+#welcome { 
+  text-align: center;
+}

@@ -1,0 +1,17 @@
+#browser, #conv-bottom { 
+  margin: 5px 5px;
+  border: solid 1px rgb(128, 128, 128);
+  padding: 1px 1px;
+  min-height:100px;
+}
+
+.splitter {
+  margin: 0 5px;
+  border-style: none;
+  background-color: rgb(192,192,192);
+  height: 3px;
+}
+
+#conv-toolbar {
+  border-style:none;
+}
