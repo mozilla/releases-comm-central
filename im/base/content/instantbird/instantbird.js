@@ -84,7 +84,9 @@ function editorDoCommand(aCmd, aHtml)
 function debug_enumerateProtocols()
 {
   dump("trying to enumerate protocols:\n");
-  var protocols = obj.getProtocols();
+  var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                      .getService(Ci.purpleICoreService);
+  var protocols = pcs.getProtocols();
   while (protocols.hasMoreElements()) {
     var proto = protocols.getNext()
                          .QueryInterface(Ci.purpleIProtocol);
@@ -129,10 +131,10 @@ function debug_connectAccount(aProto, aName, aPassword)
 function initPurpleCore()
 {
   try {
-    var obj = Components.classes["@instantbird.org/purple/core;1"]
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Components.interfaces.purpleICoreService);
-    setStatus("libpurple version " + obj.version + " loaded!");
-    obj.init();
+    setStatus("libpurple version " + pcs.version + " loaded!");
+    pcs.init();
     var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
                                     .getService(Components.interfaces.nsIObserverService);
     ObserverService.addObserver(msgObserver, "new message", false);
@@ -207,12 +209,12 @@ function uninitPurpleCore()
   try {
     dump("toto s'en va : ");
     var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
-                                    .getService(Components.interfaces.nsIObserverService);
+                                    .getService(Ci.nsIObserverService);
     ObserverService.removeObserver(msgObserver, "new message");
     ObserverService.removeObserver(msgObserver, "new text");
-    var obj = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Components.interfaces.purpleICoreService);
-    obj.quit();
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    pcs.quit();
   }
   catch (e) {
     alert(e);
