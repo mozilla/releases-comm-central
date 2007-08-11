@@ -8,9 +8,8 @@ var account = {
     var protocols = pcs.getProtocols();
     while (protocols.hasMoreElements()) {
       var proto = protocols.getNext().QueryInterface(Ci.purpleIProtocol);
-      dump(" " + proto.name + " " + proto.id + "\n");
       var id = proto.id;
-      var item = protoList.appendItem(proto.name, id, "toto");
+      var item = protoList.appendItem(proto.name, id, id);
       item.setAttribute("image", "chrome://instantbird/skin/prpl/" + id + ".png");
       item.setAttribute("class", "menuitem-iconic");
     }
