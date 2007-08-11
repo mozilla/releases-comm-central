@@ -4,18 +4,46 @@
 
 <!DOCTYPE window SYSTEM "chrome://instantbird/locale/account.dtd">
 
-<window
+<dialog
   id     = "account"
   title  = "&accountWindow.title;"
+  buttons= "accept,cancel"
   width  = "300"
   height = "600"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  onload="account.onload()">
+  onload = "account.onload()">
   <script src="chrome://instantbird/content/account.js"/>
   <script src="chrome://venkman/content/venkman-overlay.js"/>
-
+  <stringbundle id="prplbundle" src="chrome://instantbird/locale/prpl.properties"/>
   <menulist id="protolist" onselect="account.select()"/>
-  <groupbox id="protoSpecific">
+  <vbox flex="1" style="overflow:auto">
   
-  </groupbox>
-</window>
+   <groupbox>
+    <caption label="&account.general;"/>
+    <vbox id="nameBox">
+     <label value="&account.name;" control="name"/>
+     <textbox id="name"/>
+    </vbox>
+  
+    <vbox id="passwordBox">
+     <label value="&account.password;" control="password"/>
+     <textbox id="password" type="password"/>
+     <checkbox id="rememberPassword" label="&account.rememberPassword;"/>
+    </vbox>
+  
+    <vbox id="aliasBox">
+     <label value="&account.alias;" control="alias" />
+     <textbox id="alias"/>
+    </vbox>
+
+    <checkbox id="newMailNotification" label="&account.newMailNotification;"/>
+   </groupbox>  
+
+   <groupbox id="advanced">
+    <caption label="&account.advanced;"/>
+    <vbox id="protoSpecific"/>
+   </groupbox>
+  
+   <spacer flex="1"/>
+  </vbox>
+</dialog>
