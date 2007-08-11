@@ -26,17 +26,19 @@ var account = {
     this.populateProtoSpecificBox(proto);
   },
 
-  createTextbox: function account_createTextbox(aType, aValue, aLabel) {
+  createTextbox: function account_createTextbox(aType, aValue, aLabel, aName) {
     var box = document.createElement("vbox");
 
     var label = document.createElement("label");
     label.setAttribute("value", aLabel);
+    label.setAttribute("control", aName);
     box.appendChild(label);
 
     var textbox = document.createElement("textbox");
     if (aType)
       textbox.setAttribute("type", aType);
     textbox.setAttribute("value", aValue);
+    textbox.setAttribute("id", aName);
 
     box.appendChild(textbox);
     return box;
@@ -54,22 +56,25 @@ var account = {
       var opt = opts.getNext()
                     .QueryInterface(Ci.purpleIPref);
       var text = bundle.getString(id + "." + opt.name);
+      var name = id + "-" + opt.name;
       switch (opt.type) {
       case opt.typeBool:
 	var chk = document.createElement("checkbox");
 	chk.check = opt.getBool();
 	chk.setAttribute("label", text);
+	chk.setAttribute("id", name);
 	gbox.appendChild(chk);
 	break;
       case opt.typeInt:
-	gbox.appendChild(this.createTextbox("number", opt.getInt(), text));
+	gbox.appendChild(this.createTextbox("number", opt.getInt(),
+					    text, name));
 	break;
       case opt.typeString:
 	var str = "";
 	try {
 	  str = opt.getString();
 	} catch(e) { }
-	gbox.appendChild(this.createTextbox(null, str, text));
+	gbox.appendChild(this.createTextbox(null, str, text, name));
 	break;
       default:
 	throw "unknown preference type " + opt.type;
