@@ -11,7 +11,8 @@
   width  = "300"
   height = "600"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  onload = "account.onload()">
+  onload = "account.onload()"
+  ondialogaccept="account.create()">
   <script src="chrome://instantbird/content/account.js"/>
   <script src="chrome://venkman/content/venkman-overlay.js"/>
   <stringbundle id="prplbundle" src="chrome://instantbird/locale/prpl.properties"/>

@@ -19,11 +19,12 @@ var account = {
   select: function account_select() {
     var protoList = document.getElementById("protolist");
     var id = protoList.selectedItem.value;
-    var proto  = this.pcs.getProtocolById(id);
-    document.getElementById("passwordBox").hidden = proto.noPassword;
-    document.getElementById("newMailNotification").hidden = !proto.newMailNotification;
+    this.proto = this.pcs.getProtocolById(id);
+    document.getElementById("passwordBox").hidden = this.proto.noPassword;
+    document.getElementById("newMailNotification").hidden =
+      !this.proto.newMailNotification;
 
-    this.populateProtoSpecificBox(proto);
+    this.populateProtoSpecificBox();
   },
 
   createTextbox: function account_createTextbox(aType, aValue, aLabel, aName) {
@@ -44,14 +45,14 @@ var account = {
     return box;
   },
 
-  populateProtoSpecificBox: function account_populate(aProto) {
+  populateProtoSpecificBox: function account_populate() {
     var gbox = document.getElementById("protoSpecific");
     var bundle = document.getElementById("prplbundle");
-    var id = aProto.id;
+    var id = this.proto.id;
     var child;
     while (child = gbox.firstChild)
       gbox.removeChild(child);
-    var opts = aProto.getOptions();
+    var opts = this.proto.getOptions();
     while (opts.hasMoreElements()) {
       var opt = opts.getNext()
                     .QueryInterface(Ci.purpleIPref);
@@ -80,5 +81,45 @@ var account = {
 	throw "unknown preference type " + opt.type;
       }
     }
+  },
+
+  getValue: function account_getValue(aId) {
+    var elt = document.getElementById(aId);
+    return elt.value;
+  },
+
+  create: function account_create() {
+    var acc = this.pcs.createAccount(this.getValue("name"), this.proto);
+    acc.password = this.getValue("password");
+    
+    var opts = this.proto.getOptions();
+    while (opts.hasMoreElements()) {
+      var opt = opts.getNext()
+                    .QueryInterface(Ci.purpleIPref);
+      var name = this.proto.id + "-" + opt.name;
+      var val = this.getValue(name);
+      switch (opt.type) {
+      case opt.typeBool:
+	if (val != opt.getBool())
+	  acc.setBool(opt.name, val);
+	break;
+      case opt.typeInt:
+	if (val != opt.getInt())
+	  acc.setInt(opt.name, val);
+	break;
+      case opt.typeString:
+	var str = "";
+	try {
+	  str = opt.getString();
+	} catch(e) { }
+	if (val != str)
+	  acc.setString(opt.name, val);
+	break;
+      default:
+	throw "unknown preference type " + opt.type;
+      }
+    }
+   
+    acc.connect();
   }
 };
