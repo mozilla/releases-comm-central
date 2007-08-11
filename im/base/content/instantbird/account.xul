@@ -14,5 +14,8 @@
   <script src="chrome://instantbird/content/account.js"/>
   <script src="chrome://venkman/content/venkman-overlay.js"/>
 
-  <menulist id="protolist"/>
+  <menulist id="protolist" onselect="account.select()"/>
+  <groupbox id="protoSpecific">
+  
+  </groupbox>
 </window>

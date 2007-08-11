@@ -3,9 +3,9 @@ const Ci = Components.interfaces;
 var account = {
   onload: function account_onload() {
     var protoList = document.getElementById("protolist");
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    var protocols = pcs.getProtocols();
+    this.pcs = Components.classes["@instantbird.org/purple/core;1"]
+                         .getService(Ci.purpleICoreService);
+    var protocols = this.pcs.getProtocols();
     while (protocols.hasMoreElements()) {
       var proto = protocols.getNext().QueryInterface(Ci.purpleIProtocol);
       var id = proto.id;
@@ -14,5 +14,12 @@ var account = {
       item.setAttribute("class", "menuitem-iconic");
     }
     protoList.selectedIndex = 0;
+  },
+  select: function account_select() {
+    var protoList = document.getElementById("protolist");
+    var id = protoList.selectedItem.value;
+    var proto  = this.pcs.getProtocolById(id);
+    dump(proto.name);
+    
   }
 };
