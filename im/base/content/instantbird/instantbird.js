@@ -99,15 +99,9 @@ function debug_enumerateProtocols()
       type[opt.typeBool] = ["bool", opt.getBool];
       type[opt.typeInt] = ["int", opt.getInt];
       type[opt.typeString] = ["string", opt.getString];
-      try {
-	dump("  ("+ type[opt.type][0] + ") "  +
-	     opt.name + (opt.masked ? "(masked)" : "") + "\t" +
-	     type[opt.type][1]() + "\n");
-      }
-      catch (e) {
-	dump("  (empty "+ type[opt.type][0] + ") "  +
-	     opt.name + (opt.masked ? "(masked)" : "") + "\n")
-      }
+      dump("  ("+ type[opt.type][0] + ") "  +
+	   opt.name + (opt.masked ? "(masked)" : "") + "\t" +
+	   type[opt.type][1]() + "\n");
     }
   }
 }
@@ -139,8 +133,6 @@ function initPurpleCore()
                                     .getService(Components.interfaces.nsIObserverService);
     ObserverService.addObserver(msgObserver, "new message", false);
     ObserverService.addObserver(msgObserver, "new text", false);
-
-    debug_connectAccount("prpl-irc", "instantbirdtest@irc.freenode.net", "");
   }
   catch (e) {
     alert(e);

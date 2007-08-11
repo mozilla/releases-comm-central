@@ -71,11 +71,8 @@ var account = {
 					    text, name));
 	break;
       case opt.typeString:
-	var str = "";
-	try {
-	  str = opt.getString();
-	} catch(e) { }
-	gbox.appendChild(this.createTextbox(null, str, text, name));
+	gbox.appendChild(this.createTextbox(null, opt.getString(),
+					    text, name));
 	break;
       default:
 	throw "unknown preference type " + opt.type;
@@ -108,11 +105,7 @@ var account = {
 	  acc.setInt(opt.name, val);
 	break;
       case opt.typeString:
-	var str = "";
-	try {
-	  str = opt.getString();
-	} catch(e) { }
-	if (val != str)
+	if (val != opt.getString())
 	  acc.setString(opt.name, val);
 	break;
       default:
