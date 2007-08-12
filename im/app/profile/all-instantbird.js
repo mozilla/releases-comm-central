@@ -4,3 +4,5 @@ pref("accessibility.browsewithcaret", true);
 
 pref("javascript.options.showInConsole", true);
 pref("javascript.options.strict", true);
+
+pref("messenger.accounts", "");

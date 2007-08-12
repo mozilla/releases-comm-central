@@ -82,11 +82,13 @@ var account = {
 
   getValue: function account_getValue(aId) {
     var elt = document.getElementById(aId);
+    if ("checked" in elt)
+      return elt.checked;
     return elt.value;
   },
 
   create: function account_create() {
-    var acc = this.pcs.createAccount(this.getValue("name"), this.proto);
+    var acc = this.pcs.createAccount(this.getValue("name"), this.proto.id);
     acc.password = this.getValue("password");
     
     var opts = this.proto.getOptions();
@@ -112,7 +114,7 @@ var account = {
 	throw "unknown preference type " + opt.type;
       }
     }
-   
+    acc.save();
     acc.connect();
   }
 };
