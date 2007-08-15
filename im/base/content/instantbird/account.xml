@@ -35,7 +35,9 @@
           </xul:vbox>
         </xul:hbox>
         <xul:hbox flex="1" class="account-buttons">
-          <xul:checkbox label="&account.autoSignOn;"/>
+          <xul:checkbox label="&account.autoSignOn;"
+			xbl:inherits="checked=autologin"
+			oncommand="gAccountManager.autologin()"/>
           <xul:spacer flex="1"/>
           <xul:button label="&account.connect.label;"
 		      accesskey="&account.connect.accesskey;"
@@ -65,6 +67,7 @@
         this.setAttribute("prplicon", "chrome://instantbird/skin/prpl/" +
                                       proto.id + "-48.png");
         this.setAttribute("state", "Connecting...");
+        this.autoLogin = aAccount.autoLogin;
       ]]>
       </body>
      </method>
@@ -97,6 +100,25 @@
       ]]>
       </body>
      </method>
+
+     <property name="autoLogin">
+       <getter>
+         <![CDATA[
+           return this.hasAttribute("autologin");
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           if (val)
+             this.setAttribute("autologin", "true");
+           else
+             this.removeAttribute("autologin");
+           this._account.autoLogin = val;
+           return val;
+         ]]>
+       </setter>
+     </property>
+
     </implementation>
   </binding>
 </bindings>
