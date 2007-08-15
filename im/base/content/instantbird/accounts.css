@@ -1,0 +1,7 @@
+richlistitem { 
+  -moz-binding: url("chrome://instantbird/content/account.xml#account");
+}
+
+richlistitem:not([selected="true"]) .account-buttons {
+  display: none;
+}

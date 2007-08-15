@@ -29,6 +29,6 @@
   <statusbar>
     <statusbarpanel id="status" label="" crop="end" flex="1"/>
     <button oncommand="start_venkman()" label="&venkman.button;"/>
-    <button oncommand="window.openDialog('chrome://instantbird/content/account.xul');" label="+"/>
+    <button oncommand="openAccountManager()" label="&accountManager;"/>
   </statusbar>
 </window>

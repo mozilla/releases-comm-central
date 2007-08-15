@@ -90,7 +90,10 @@ var account = {
   create: function account_create() {
     var acc = this.pcs.createAccount(this.getValue("name"), this.proto.id);
     acc.password = this.getValue("password");
-    
+    var alias = this.getValue("alias");
+    if (alias)
+      acc.alias = alias;
+
     var opts = this.proto.getOptions();
     while (opts.hasMoreElements()) {
       var opt = opts.getNext()

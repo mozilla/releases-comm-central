@@ -1,0 +1,71 @@
+/* large parts copied from the addon manager */
+
+#accountManager {
+  background-color: ThreeDFace;
+}
+
+#accountlist {
+  margin: 10px 10px 0px 10px;
+  min-width: 1px;
+}
+
+#bottombuttons {
+  margin: 3px 5px 1px 5px;
+}
+
+richlistbox {
+  border: 2px solid;
+  -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
+  -moz-border-right-colors: ThreeDHighlight ThreeDLightShadow;
+  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
+  -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
+}
+
+/* List Items */
+richlistitem {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  -moz-padding-start: 7px;
+  -moz-padding-end: 7px;
+  min-height: 25px;
+  border-bottom: 1px dotted #C0C0C0;
+}
+
+richlistitem[state="disconnected"] .accountIcon {
+  opacity: 0.3;
+}
+
+richlistitem[state="disconnected"] {
+  color: GrayText;
+}
+
+richlistitem[selected="true"] {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+richlistbox[focused] richlistitem[selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+.accountName {
+  font-weight: bold;
+}
+
+richlistitem:not([alias]) .accountAliasBox {
+  display: none;
+}
+
+.accountAlias {
+  font-style: italic;
+}
+
+.accountIcon {
+  -moz-margin-end: 5px; 
+  -moz-margin-start: 5px;
+  width: 32px;
+  max-width: 32px;
+  height: 32px;
+  max-height: 32px;
+}

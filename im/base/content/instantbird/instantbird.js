@@ -122,6 +122,12 @@ function debug_connectAccount(aProto, aName, aPassword)
   acc.connect();
 }
 
+function openAccountManager()
+{
+  window.open("chrome://instantbird/content/accounts.xul", "_blank",
+	      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+}
+
 function initPurpleCore()
 {
   try {

@@ -1,0 +1,28 @@
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/accounts.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/accounts.css" type="text/css"?>
+
+<!DOCTYPE window [
+ <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accounts.dtd">
+ %accountsDTD;
+]>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	id="accountManager"
+        onload="gAccountManager.load()"
+	title="&accountManager.title;"
+	height="300"
+	width="500">
+ <script type="application/javascript" src="chrome://instantbird/content/accounts.js"/>
+
+ <richlistbox id="accountlist" flex="1"/>
+ <hbox id="bottombuttons">
+  <button id="newaccount" oncommand="gAccountManager.new()"
+	  label="&accountManager.newAccount.label;"
+	  accesskey="&accountManager.newAccount.accesskey;"/>
+  <spacer flex="1"/>
+  <button id="close" oncommand="gAccountManager.close()"
+	  label="&accountManager.close.label;"
+	  accesskey="&accountManager.close.accesskey;"/>
+ </hbox>
+</window> 

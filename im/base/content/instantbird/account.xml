@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE bindings [
+  <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accounts.dtd">
+  %accountsDTD;
+]>
+
+<bindings id="accountBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="account" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:vbox flex="1">
+        <xul:hbox flex="1">
+          <xul:vbox flex="1">
+
+           <xul:hbox>
+            <xul:label value="&account.name;"/>
+            <xul:label flex="1" xbl:inherits="value=name"
+                         class="accountName"/>
+           </xul:hbox>
+           <xul:hbox class="accountAliasBox">
+            <xul:label value="&account.alias;"/>
+            <xul:label flex="1" xbl:inherits="value=alias"
+                         class="accountAlias"/>
+           </xul:hbox>
+           <xul:label xbl:inherits="value=state"/>
+           <xul:spacer flex="1"/>
+          </xul:vbox>
+          <xul:vbox align="center">
+            <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
+            <xul:label xbl:inherits="value=protocol"/>
+          </xul:vbox>
+        </xul:hbox>
+        <xul:hbox flex="1" class="account-buttons">
+          <xul:checkbox label="&account.autoSignOn;"/>
+          <xul:spacer flex="1"/>
+          <xul:button label="&account.connect.label;"
+		      accesskey="&account.connect.accesskey;"
+                      oncommand="gAccountManager.connect()"/>
+          <xul:button label="&account.delete.label;"
+		      accesskey="&account.delete.accesskey;"
+                      oncommand="gAccountManager.delete()"/>
+          <xul:button label="&account.edit.label;"
+		      accesskey="&account.edit.accesskey;"
+                      oncommand="gAccountManager.edit()"/>
+        </xul:hbox> 
+      </xul:vbox>
+    </content>
+    <implementation>
+     <method name="build">
+      <parameter name="aAccount"/>
+      <body>
+      <![CDATA[
+        this._account = aAccount;
+        this.setAttribute("name", aAccount.name);
+        this.setAttribute("id", aAccount.id);
+        var alias = aAccount.alias; 
+        if (alias)
+          this.setAttribute("alias", alias);
+        var proto = aAccount.protocol;
+        this.setAttribute("protocol", proto.name);
+        this.setAttribute("prplicon", "chrome://instantbird/skin/prpl/" +
+                                      proto.id + "-48.png");
+        this.setAttribute("state", "Connecting...");
+      ]]>
+      </body>
+     </method>
+
+     <method name="connect">
+      <body>
+      <![CDATA[
+        if (this._account.disconnected)
+          this._account.connect();
+      ]]>
+      </body>
+     </method>
+
+     <method name="disconnect">
+      <body>
+      <![CDATA[
+        var acc = this._account;
+        if (acc.connected || acc.connecting)
+          this._account.disconnect();
+      ]]>
+      </body>
+     </method>
+
+     <method name="delete">
+      <body>
+      <![CDATA[
+        var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                            .getService(Ci.purpleICoreService);
+        pcs.deleteAccount(this._account.id);
+      ]]>
+      </body>
+     </method>
+    </implementation>
+  </binding>
+</bindings>
