@@ -48,7 +48,7 @@ var gAccountManager = {
       }
       // The currently selected element is removed,
       // ensure another element gets selected (if the list is not empty)
-      var selectedIndex = accountList.selectedIndex;
+      var selectedIndex = this.accountList.selectedIndex;
       this.accountList.removeChild(elt);
       var count = this.accountList.getRowCount();
       if (!count)
