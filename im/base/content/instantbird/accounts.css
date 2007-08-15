@@ -5,3 +5,15 @@ richlistitem {
 richlistitem:not([selected="true"]) .account-buttons {
   display: none;
 }
+
+richlistitem:not([state="connected"]) .connected,
+richlistitem:not([state="connecting"]) .connecting,
+richlistitem:not([state="disconnected"]) .disconnected,
+richlistitem:not([state="disconnecting"]) .disconnecting,
+richlistitem:not([state="disconnected"]) .connectButton,
+richlistitem[state="disconnected"] .disconnectButton,
+richlistitem[state="disconnecting"] .disconnectButton
+{
+  display: none;
+}
+

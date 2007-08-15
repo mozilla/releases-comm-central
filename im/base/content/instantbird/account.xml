@@ -26,12 +26,15 @@
             <xul:label flex="1" xbl:inherits="value=alias"
                          class="accountAlias"/>
            </xul:hbox>
-           <xul:label xbl:inherits="value=state"/>
+           <xul:label class="connecting" value="&account.connecting;"/>
+           <xul:label class="connected" value="&account.connected;"/>
+           <xul:label class="disconnecting" value="&account.disconnecting;"/>
+           <xul:label class="disconnected" value="&account.disconnected;"/>
            <xul:spacer flex="1"/>
           </xul:vbox>
           <xul:vbox align="center">
             <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
-            <xul:label xbl:inherits="value=protocol"/>
+            <xul:label xbl:inherits="value=protocol" class="prplName"/>
           </xul:vbox>
         </xul:hbox>
         <xul:hbox flex="1" class="account-buttons">
@@ -39,7 +42,12 @@
 			xbl:inherits="checked=autologin"
 			oncommand="gAccountManager.autologin()"/>
           <xul:spacer flex="1"/>
-          <xul:button label="&account.connect.label;"
+          <xul:button class="disconnectButton"
+		      label="&account.disconnect.label;"
+		      accesskey="&account.disconnect.accesskey;"
+                      oncommand="gAccountManager.disconnect()"/>
+          <xul:button class="connectButton"
+		      label="&account.connect.label;"
 		      accesskey="&account.connect.accesskey;"
                       oncommand="gAccountManager.connect()"/>
           <xul:button label="&account.delete.label;"
@@ -66,7 +74,18 @@
         this.setAttribute("protocol", proto.name);
         this.setAttribute("prplicon", "chrome://instantbird/skin/prpl/" +
                                       proto.id + "-48.png");
-        this.setAttribute("state", "Connecting...");
+        var state = "Unknown";
+        if (this._account.connected) {
+          state = "connected"
+        } else if (this._account.disconnected) {
+          state = "disconnected"
+        } else if (this._account.connecting) {
+          state = "connecting"
+        } else if (this._account.disconnecting) {
+          state = "connected"
+        }
+        //dump("state = " + state + "\n");
+        this.setAttribute("state", state);
         this.autoLogin = aAccount.autoLogin;
       ]]>
       </body>

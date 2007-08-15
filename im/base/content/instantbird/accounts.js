@@ -1,5 +1,15 @@
 const Ci = Components.interfaces;
 
+const events = [
+  "account-added",
+  "account-removed",
+  "account-connected",
+  "account-connecting",
+  "account-disconnected",
+  "account-disconnecting"
+];
+
+
 var gAccountManager = {
   load: function am_load() {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
@@ -9,7 +19,7 @@ var gAccountManager = {
     while (accounts.hasMoreElements()) {
       var acc = accounts.getNext()
                         .QueryInterface(Ci.purpleIAccount);
-      dump(acc.id + ": " + acc.name + "\n");
+      //dump(acc.id + ": " + acc.name + "\n");
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(acc);
@@ -17,21 +27,21 @@ var gAccountManager = {
     this.accountList.selectedIndex = 0;
     var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
                                     .getService(Components.interfaces.nsIObserverService);
-    ObserverService.addObserver(this, "new account", false);
-    ObserverService.addObserver(this, "deleting account", false);
+    for (var i = 0; i < events.length; ++i)
+      ObserverService.addObserver(this, events[i], false);
     window.addEventListener("unload", this.unload, false);
   },
   unload: function am_unload() {
     var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
                                     .getService(Ci.nsIObserverService);
-    ObserverService.removeObserver(gAccountManager, "new account");
-    ObserverService.removeObserver(gAccountManager, "deleting account");
+    for (var i = 0; i < events.length; ++i)
+      ObserverService.removeObserver(gAccountManager, events[i]);
   },
   observe: function am_observe(aObject, aTopic, aData) {
     if (!(aObject instanceof Ci.purpleIAccount))
       throw "Bad notification.";
 
-    if (aTopic == "new account") {
+    if (aTopic == "account-added") {
       dump("new account : " + aObject.id + ": " + aObject.name + "\n");
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
@@ -39,7 +49,7 @@ var gAccountManager = {
       if (this.accountList.getRowCount() == 1)
 	this.accountList.selectedIndex = 0;
     }
-    else if (aTopic == "deleting account") {
+    else if (aTopic == "account-removed") {
       dump("deleting account : " + aObject.id + ": " + aObject.name + "\n");
       var elt = document.getElementById(aObject.id);
       if (!elt.selected) {
@@ -58,6 +68,16 @@ var gAccountManager = {
       this.accountList.selectedIndex = selectedIndex;
       dump("new selected index : " + selectedIndex + "\n");
     }
+
+    const stateEvents = {
+      "account-connected": "connected",
+      "account-connecting": "connecting",
+      "account-disconnected": "disconnected",
+      "account-disconnecting": "disconnecting"
+    };
+    if (aTopic in stateEvents)
+      document.getElementById(aObject.id)
+              .setAttribute("state", stateEvents[aTopic]);
   },
   connect: function am_connect() {
     this.accountList.selectedItem.connect();
