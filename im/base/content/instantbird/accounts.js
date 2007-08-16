@@ -85,6 +85,14 @@ var gAccountManager = {
 	boolean attribute |deleting| to purpleIAccount? */
 	return;
       }
+
+      /* handle protocol icon animation while connecting */
+      var icon = document.getAnonymousElementByAttribute(elt, "anonid", "prplicon")
+      if (aTopic == "account-connecting")
+        icon.animate();
+      else
+	icon.stop();
+
       elt.setAttribute("state", stateEvents[aTopic]);
     }
   },

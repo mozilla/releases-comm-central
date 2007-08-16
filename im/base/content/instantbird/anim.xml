@@ -11,15 +11,6 @@
 
   <binding id="anim" extends="chrome://global/content/bindings/general.xml#image">
     <implementation implements="nsITimerCallback">
-     <constructor>
-      <![CDATA[
-        const Ci = Components.interfaces;
-        this._animateTimer = Components.classes["@mozilla.org/timer;1"]
-                                       .createInstance(Ci.nsITimer);
-        this._animateTimer.initWithCallback(this, this._animateDelay,
-                                            Ci.nsITimer.TYPE_REPEATING_SLACK);
-     ]]>
-     </constructor>
      <destructor>
       <![CDATA[
         if (this._animateTimer) {
@@ -63,6 +54,25 @@
              this._animateStep = this._animatePercents.length - 1;
            }
          }
+       ]]></body>
+     </method>
+
+     <method name="animate">
+      <body><![CDATA[
+        const Ci = Components.interfaces;
+        this._animateTimer = Components.classes["@mozilla.org/timer;1"]
+                                       .createInstance(Ci.nsITimer);
+        this._animateTimer.initWithCallback(this, this._animateDelay,
+                                            Ci.nsITimer.TYPE_REPEATING_SLACK);
+       ]]></body>
+     </method>
+
+     <method name="stop">
+      <body><![CDATA[
+        if (this._animateTimer) {
+          this._animateTimer.cancel();
+          this._animateTimer = null;
+        }
        ]]></body>
      </method>
     </implementation>
