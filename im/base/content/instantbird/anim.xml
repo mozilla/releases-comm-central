@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE bindings>
+
+<bindings id="animBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+<!-- inspired from "chrome://global/content/bindings/tabbox.xml#tabbrowser-tabs"> -->
+
+  <binding id="anim" extends="chrome://global/content/bindings/general.xml#image">
+    <implementation implements="nsITimerCallback">
+     <constructor>
+      <![CDATA[
+        const Ci = Components.interfaces;
+        this._animateTimer = Components.classes["@mozilla.org/timer;1"]
+                                       .createInstance(Ci.nsITimer);
+        this._animateTimer.initWithCallback(this, this._animateDelay,
+                                            Ci.nsITimer.TYPE_REPEATING_SLACK);
+     ]]>
+     </constructor>
+     <destructor>
+      <![CDATA[
+        if (this._animateTimer) {
+          this._animateTimer.cancel();
+          this._animateTimer = null;
+        }
+     ]]>
+     </destructor>
+
+     <field name="_animateTimer">null</field>
+     <field name="_animateStep">24</field>
+     <field name="_animateDelay">45</field>
+     <field name="_animateDown">true</field>
+     <field name="_animatePercents">
+      [1.00, 0.85, 0.80, 0.75, 0.71,
+       0.68, 0.65, 0.62, 0.59, 0.57,
+       0.54, 0.52, 0.50, 0.47, 0.45,
+       0.44, 0.42, 0.40, 0.38, 0.37,
+       0.35, 0.34, 0.32, 0.31, 0.30]
+     </field>
+
+     <method name="notify">
+      <parameter name="aTimer"/>
+       <body><![CDATA[
+         if (!document) {
+           aTimer.cancel();
+           this._animateTimer = null;
+         }
+         var percent = this._animatePercents[this._animateStep];
+         this.style.opacity = percent;
+ 
+         if (this._animateDown) {
+           if (--this._animateStep < 0) {
+             this._animateDown = false;
+             this._animateStep = 0;
+           }
+         }
+         else {
+           if (++this._animateStep > this._animatePercents.length - 1) {
+             this._animateDown = true;
+             this._animateStep = this._animatePercents.length - 1;
+           }
+         }
+       ]]></body>
+     </method>
+    </implementation>
+  </binding>
+</bindings>

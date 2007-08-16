@@ -34,8 +34,12 @@ richlistitem {
 richlistitem[state="disconnected"] .accountIcon {
   opacity: 0.3;
 }
-richlistitem[state="connecting"] .accountIcon {
-  opacity: 0.7;
+.accountIconAnim {
+  -moz-binding: url("chrome://instantbird/content/anim.xml#anim")
+}
+richlistitem[state="connecting"] .accountIcon,
+richlistitem:not([state="connecting"]) .accountIconAnim {
+  display: none;
 }
 
 richlistitem[state="disconnected"] {
@@ -64,7 +68,8 @@ richlistitem:not([alias]) .accountAliasBox {
   font-style: italic;
 }
 
-.accountIcon {
+.accountIcon,
+.accountIconAnim {
   -moz-margin-end: 5px; 
   -moz-margin-start: 5px;
   width: 32px;

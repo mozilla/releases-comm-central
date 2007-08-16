@@ -34,6 +34,7 @@
           </xul:vbox>
           <xul:vbox align="center">
             <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
+            <xul:image xbl:inherits="src=prplicon" class="accountIconAnim"/>
             <xul:label xbl:inherits="value=protocol" class="prplName"/>
           </xul:vbox>
         </xul:hbox>
