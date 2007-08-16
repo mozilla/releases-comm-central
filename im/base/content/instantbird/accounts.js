@@ -75,9 +75,18 @@ var gAccountManager = {
       "account-disconnected": "disconnected",
       "account-disconnecting": "disconnecting"
     };
-    if (aTopic in stateEvents)
-      document.getElementById(aObject.id)
-              .setAttribute("state", stateEvents[aTopic]);
+    if (aTopic in stateEvents) {
+      var elt = document.getElementById(aObject.id);
+      if (!elt) {
+	/* The listitem associated with this account could not be
+	found. This happens when the account is being deleted. The
+	account-removed signal is fired before account-disconnecting
+	and account-disconnected. Maybe we should add a readonly
+	boolean attribute |deleting| to purpleIAccount? */
+	return;
+      }
+      elt.setAttribute("state", stateEvents[aTopic]);
+    }
   },
   connect: function am_connect() {
     this.accountList.selectedItem.connect();
