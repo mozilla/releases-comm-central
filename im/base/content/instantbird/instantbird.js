@@ -134,7 +134,6 @@ function initPurpleCore()
 function uninitPurpleCore()
 {
   try {
-    dump("toto s'en va : ");
     var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
                                     .getService(Ci.nsIObserverService);
     ObserverService.removeObserver(msgObserver, "new message");

@@ -1,6 +1,8 @@
 const Ci = Components.interfaces;
 
+// This is the list of notifications that the account manager window observes
 const events = [
+  "purple-quit",
   "account-added",
   "account-removed",
   "account-connected",
@@ -38,6 +40,13 @@ var gAccountManager = {
       ObserverService.removeObserver(gAccountManager, events[i]);
   },
   observe: function am_observe(aObject, aTopic, aData) {
+    if (aTopic == "purple-quit") {
+      // libpurple is being uninitialized. We don't need the account
+      // manager window anymore, close it.
+      this.close();
+      return;
+    }
+
     if (!(aObject instanceof Ci.purpleIAccount))
       throw "Bad notification.";
 
