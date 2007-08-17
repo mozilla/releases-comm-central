@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+  %instantbirdDTD;
+]>
+
+<bindings id="conversationBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="conversation">
+    <content>
+      <xul:vbox flex="1">
+        <xul:browser flex="1" anonid="browser" src="chrome://instantbird/content/conv.html" type="content-primary" onload="dump('tralala')"/>
+        <xul:splitter anonid="splitter" class="splitter"/>
+        <xul:deck anonid="conv-bottom" selectedIndex="1">
+          <xul:vbox>
+            <xul:toolbar anonid="conv-toolbar">
+              <xul:toolbarbutton label="Bold" oncommand="this.editorDoCommand('bold');"/>
+              <xul:toolbarbutton label="Italic" oncommand="this.editorDoCommand('italic');"/>
+              <xul:toolbarbutton label="Underline" oncommand="this.editorDoCommand('underline');"/>
+            </xul:toolbar>
+            <xul:editor anonid="editor" editortype="html" src="about:blank" flex="1"/>
+          </xul:vbox>
+          <xul:textbox anonid="input" multiline="true" flex="1"/>
+        </xul:deck>
+      </xul:vbox>
+    </content>
+    <implementation implements="nsIWebProgressListener">
+     <constructor>
+      <![CDATA[
+        var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+        browser.addProgressListener(this);
+       document.getAnonymousElementByAttribute(this, "anonid", "input")
+               .addEventListener("keypress", this.onSendMsg, false);
+       var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
+       editor.addEventListener("keypress", this.onSendHTMLMsg, false);
+       //this doesn't work at the moment
+       //editor.contentDocument.designMode = "on";
+       //setTimeout(function() { editor.contentWindow.focus(); }, 100);
+      ]]>
+     </constructor>
+
+     <field name="loaded">false</field>
+     <field name="messageQueue">[]</field>
+
+     <method name="addTxt">
+      <parameter name="aTxt"/>
+      <body>
+      <![CDATA[
+        if (this.loaded)
+          this._addTxt(aTxt);
+        else
+          this.messageQueue.push(aTxt);
+      ]]>
+      </body>
+     </method>
+
+     <method name="_addTxt">
+      <parameter name="aTxt"/>
+      <body>
+      <![CDATA[
+        if (!this.loaded)
+          throw "Trying to append text to a not yet loaded browser";
+
+        var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+        var doc = browser.contentDocument;
+        var elt = doc.getElementById("ibcontent");
+        var newElt = doc.createElement("p");
+        newElt.innerHTML = aTxt;
+        elt.appendChild(newElt);
+        newElt.scrollIntoView(true);
+      ]]>
+      </body>
+     </method>
+
+     <method name="sendMsg">
+      <parameter name="aMsg"/>
+      <body>
+      <![CDATA[
+        this._conv.sendMsg(aMsg);
+      ]]>
+      </body>
+     </method>
+
+     <method name="onSendMsg">
+      <parameter name="event"/>
+      <body>
+      <![CDATA[
+        if (event.keyCode != 13)
+          return;
+
+        /* this method is called by an eventListener.
+           This points to the textbox element. */
+        var conv = this;
+        while (conv.localName != "conversation")
+          conv = conv.parentNode;
+        if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
+          conv.sendMsg(this.value);
+          this.value = "";
+          event.preventDefault();
+        }
+        else if (!event.shiftKey)
+          this.value += "\n";
+      ]]>
+      </body>
+     </method>
+
+     <method name="onSendHTMLMsg">
+      <parameter name="event"/>
+      <body>
+      <![CDATA[
+        if (event.keyCode != 13)
+          return;
+
+        /* this method is called by an eventListener.
+           This points to the textbox element. */
+        var conv = this;
+        while (conv.localName != "conversation")
+          conv = conv.parentNode;
+
+        var editor = this.getEditor(this.contentWindow);
+        var docRoot = editor.rootElement;
+
+        if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
+          conv.sendMsg(docRoot.innerHTML);
+          docRoot.innerHTML = "";
+          event.preventDefault();
+        }
+        else {
+          if (!event.shiftKey)
+            // unfortunately, this doesn't work
+            this.contentDocument.execCommand("inserthtml", false, "<br>");
+        }
+      ]]>
+      </body>
+     </method>
+
+     <method name="editorDoCommand">
+      <parameter name="aCmd"/>
+      <parameter name="aHtml"/>
+      <body>
+      <![CDATA[
+        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
+        editor.contentDocument.execCommand(aCmd, false, aHtml);
+      ]]>
+      </body>
+     </method>
+
+     <!-- nsIWebProgressListener implementation -->
+     <method name="onStateChange">
+      <parameter name="aProgress"/>
+      <parameter name="aRequest"/>
+      <parameter name="aStateFlags"/>
+      <parameter name="aStatus"/>
+      <body>
+      <![CDATA[
+        const WPL = Components.interfaces.nsIWebProgressListener;
+        if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
+            (aStateFlags & WPL.STATE_STOP)) {
+          var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+          browser.removeProgressListener(this);
+          this.loaded = true;
+          for (var i = 0; i < this.messageQueue.length; ++i)
+            this._addTxt(this.messageQueue[i]);
+          this.messageQueue = null;
+        }
+      ]]>
+      </body>
+     </method>
+
+     <method name="onProgressChange">
+      <parameter name="aProgress"/>
+      <parameter name="aRequest"/>
+      <parameter name="aCurSelf"/>
+      <parameter name="aMaxSelf"/>
+      <parameter name="aCurTotal"/>
+      <parameter name="aMaxTotal"/>
+     </method>
+
+     <method name="onLocationChange">
+      <parameter name="aProgress"/>
+      <parameter name="aRequest"/>
+      <parameter name="aLocation"/>
+     </method>
+
+     <method name="onStatusChange">
+      <parameter name="aProgress"/>
+      <parameter name="aRequest"/>
+      <parameter name="aStatus"/>
+      <parameter name="aMessage"/>
+     </method>
+
+     <method name="onSecurityChange">
+      <parameter name="aProgress"/>
+      <parameter name="aRequest"/>
+      <parameter name="aState"/>
+     </method>
+
+     <property name="convId">
+       <getter>
+         <![CDATA[
+           return this._conv.id;
+         ]]>
+       </getter>
+     </property>
+
+     <property name="conv">
+       <getter>
+         <![CDATA[
+           return this._conv;
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           this._conv = val;
+           return val;
+         ]]>
+       </setter>
+     </property>
+    </implementation>
+  </binding>
+</bindings>

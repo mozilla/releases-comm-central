@@ -1,0 +1,3 @@
+conversation {
+  -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
+}

@@ -11,48 +11,52 @@ const Ci = Components.interfaces;
 const Cc = Components.classes;
 
 var msgObserver = {
+  convs: { },
   // Components.interfaces.nsIObserver
-  observe: function(aObject, aTopic, aData)
-  {
-    var conv;
-    if (aObject instanceof Components.interfaces.purpleIConversation)
-      conv = aObject;
+  observe: function(aObject, aTopic, aData) {
+    if (!(aObject instanceof Ci.purpleIConversation))
+      throw "msgObserver.observe called without conversation";
 
     if (aTopic == "new text") {
-      if (conv) {
-        var date = new Date();
-        var time = ensureTwoDigits(date.getHours()) + ':'
-                 + ensureTwoDigits(date.getMinutes()) + ':'
-                 + ensureTwoDigits(date.getSeconds());
-        aData = '<span class="date">(' + time + ')</span>'
-              + ' <span class="pseudo">' + conv.name + ":</span> " + aData;
-      }
+      var date = new Date();
+      var time = this.ensureTwoDigits(date.getHours()) + ':'
+               + this.ensureTwoDigits(date.getMinutes()) + ':'
+               + this.ensureTwoDigits(date.getSeconds());
+      aData = '<span class="date">(' + time + ')</span>'
+            + ' <span class="pseudo">' + aObject.name + ":</span> "
+            + aData;
 
-      var browser = document.getElementById("browser");
-      var doc = browser.contentDocument;
-      var elt = doc.getElementById("ibcontent");
-      var newElt = doc.createElement("p");
-      newElt.innerHTML = aData;
-      elt.appendChild(newElt);
-      newElt.scrollIntoView(true);
+      var id = aObject.id;
+      var conv = this.convs[id] || this.addConvTab(aObject, aObject.name);
+      conv.addTxt(aData);
     }
     else if (aTopic == "new message") {
-      setStatus(aTopic + " from " + conv.name);
-      //setTimeout(conv.sendMsg, 1, "Message received");
+      setStatus(aTopic + " from " + aObject.name);
     }
+  },
 
+  ensureTwoDigits: function mo_ensureTwoDigits(aNumber) {
+    if (aNumber < 10)
+      return "0" + aNumber;
+    else
+      return aNumber;
+  },
 
-/*
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Components.interfaces.purpleICoreService);
-    dump("conversation array length: " + pcs.conversations.length);
-    for (var i in pcs.conversations)
-      dump(i + "=" + pcs.conversations[i]);
-    dump("type : " + typeof conv + "test: "+ (conv instanceof Components.interfaces.purpleIConversation));
-    dump("title = " + conv.title + " name = " + conv.name + " id = " + conv.idConv);
-*/
+  addConvTab: function mo_addConvTab(aConv, aTitle) {
+    var conv = document.createElement("conversation");
+    var panels = document.getElementById("panels");
+    panels.appendChild(conv);
+
+    var tabs = document.getElementById("tabs");
+    var tab = document.createElement("tab");
+    tab.setAttribute("label", aTitle);
+    tabs.appendChild(tab);
+
+    conv.conv = aConv;
+    this.convs[aConv.id] = conv;
+    return conv;
   }
-}
+};
 
 function setStatus(aMsg)
 {
@@ -60,26 +64,6 @@ function setStatus(aMsg)
   status.setAttribute("label", aMsg);
 }
 
-function ensureTwoDigits(aNumber)
-{
-  if (aNumber < 10)
-    return "0" + aNumber;
-  else
-    return aNumber;
-}
-
-function initEditor()
-{
-  var editor = document.getElementById("editor");
-  editor.contentDocument.designMode = "on";
-  setTimeout(function() { editor.contentWindow.focus(); }, 100);
-}
-
-function editorDoCommand(aCmd, aHtml)
-{
-  var editor = document.getElementById("editor");
-  editor.contentDocument.execCommand(aCmd, false, aHtml);
-}
 
 function debug_enumerateProtocols()
 {
@@ -145,61 +129,6 @@ function initPurpleCore()
   }
 
   this.addEventListener("unload", uninitPurpleCore, false);
-
-  document.getElementById("input").addEventListener("keypress", onSendMsg, false);
-  document.getElementById("editor").addEventListener("keypress", onSendHTMLMsg, false);
-  initEditor();
-
-}
-
-function sendMsg(aMsg)
-{
-  var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                      .getService(Components.interfaces.purpleICoreService);
-  var convs = pcs.conversations;
-  if (convs.length < 1)
-    return false;
-
-  var conv = convs.queryElementAt(convs.length - 1, Components.interfaces.purpleIConversation);
-  conv.sendMsg(aMsg);
-  return true;
-}
-
-function onSendMsg(event)
-{
-  if (event.keyCode != 13)
-    return;
-
-  var input = document.getElementById("input");
-  if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
-    if (sendMsg(input.value))
-      input.value = "";
-    event.preventDefault();
-  }
-  else
-    if (!event.shiftKey)
-      input.value += "\n";
-}
-
-function onSendHTMLMsg(event)
-{
-  if (event.keyCode != 13)
-    return;
-
-  var editorElt = document.getElementById("editor")
-  var editor = editorElt.getEditor(editorElt.contentWindow);
-  var docRoot = editor.rootElement;
-
-  if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
-    if (sendMsg(docRoot.innerHTML))
-      docRoot.innerHTML = "";
-    event.preventDefault();
-  }
-  else {
-    if (!event.shiftKey)
-      // unfortunately, this doesn't work
-      editorElt.contentDocument.execCommand("inserthtml", false, "<br>");
-  }
 }
 
 function uninitPurpleCore()
@@ -222,12 +151,6 @@ function uninitPurpleCore()
 function showConsole() {
   window.open("chrome://global/content/console.xul", "_blank",
     "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
-}
-
-function onload() {
-  const url = "chrome://instantbird/content/conv.html";
-  var browser = document.getElementById("browser");
-  browser.loadURI(url, null, null);
 }
 
 this.addEventListener("load", initPurpleCore, false);
