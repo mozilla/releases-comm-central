@@ -83,6 +83,7 @@
           state = "disconnected"
         } else if (this._account.connecting) {
           state = "connecting"
+          document.getAnonymousElementByAttribute(this, "anonid", "prplicon").animate();
         } else if (this._account.disconnecting) {
           state = "connected"
         }

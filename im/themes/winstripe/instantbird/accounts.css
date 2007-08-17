@@ -31,7 +31,8 @@ richlistitem {
   border-bottom: 1px dotted #C0C0C0;
 }
 
-richlistitem[state="disconnected"] .accountIcon {
+richlistitem[state="disconnected"] .accountIcon,
+richlistitem[state="connecting"] .accountIconAnim {
   opacity: 0.3;
 }
 .accountIconAnim {
