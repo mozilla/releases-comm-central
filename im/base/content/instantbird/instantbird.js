@@ -7,8 +7,7 @@ function toOpenWindowByType(inType, uri) {
 
 // End { For Venkman }
 
-const Ci = Components.interfaces;
-const Cc = Components.classes;
+const events = ["new text", "new message"];
 
 var msgObserver = {
   convs: { },
@@ -70,15 +69,9 @@ function debug_enumerateProtocols()
   dump("trying to enumerate protocols:\n");
   var pcs = Components.classes["@instantbird.org/purple/core;1"]
                       .getService(Ci.purpleICoreService);
-  var protocols = pcs.getProtocols();
-  while (protocols.hasMoreElements()) {
-    var proto = protocols.getNext()
-                         .QueryInterface(Ci.purpleIProtocol);
+  for (let proto in getIter(pcs.getProtocols, Ci.purpleIProtocol)) {
     dump(" " + proto.name + " " + proto.id + "\n");
-    var opts = proto.getOptions();
-    while (opts.hasMoreElements()) {
-      var opt = opts.getNext()
-                    .QueryInterface(Ci.purpleIPref);
+    for (let opt in getIter(proto.getOptions, Ci.purpleIPref)) {
       var type = { };
       type[opt.typeBool] = ["bool", opt.getBool];
       type[opt.typeInt] = ["int", opt.getInt];
@@ -119,10 +112,7 @@ function initPurpleCore()
                         .getService(Components.interfaces.purpleICoreService);
     setStatus("libpurple version " + pcs.version + " loaded!");
     pcs.init();
-    var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
-                                    .getService(Components.interfaces.nsIObserverService);
-    ObserverService.addObserver(msgObserver, "new message", false);
-    ObserverService.addObserver(msgObserver, "new text", false);
+    addObservers(msgObserver, events);
   }
   catch (e) {
     alert(e);
@@ -134,10 +124,7 @@ function initPurpleCore()
 function uninitPurpleCore()
 {
   try {
-    var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
-                                    .getService(Ci.nsIObserverService);
-    ObserverService.removeObserver(msgObserver, "new message");
-    ObserverService.removeObserver(msgObserver, "new text");
+    removeObservers(msgObserver, events);
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Ci.purpleICoreService);
     pcs.quit();

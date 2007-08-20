@@ -1,13 +1,10 @@
-const Ci = Components.interfaces;
 
 var account = {
   onload: function account_onload() {
     var protoList = document.getElementById("protolist");
     this.pcs = Components.classes["@instantbird.org/purple/core;1"]
                          .getService(Ci.purpleICoreService);
-    var protocols = this.pcs.getProtocols();
-    while (protocols.hasMoreElements()) {
-      var proto = protocols.getNext().QueryInterface(Ci.purpleIProtocol);
+    for (let proto in this.getProtocols()) {
       var id = proto.id;
       var item = protoList.appendItem(proto.name, id, id);
       item.setAttribute("image", "chrome://instantbird/skin/prpl/" + id + ".png");
@@ -52,10 +49,7 @@ var account = {
     var child;
     while (child = gbox.firstChild)
       gbox.removeChild(child);
-    var opts = this.proto.getOptions();
-    while (opts.hasMoreElements()) {
-      var opt = opts.getNext()
-                    .QueryInterface(Ci.purpleIPref);
+    for (let opt in this.getProtoOptions()) {
       var text = bundle.getString(id + "." + opt.name);
       var name = id + "-" + opt.name;
       switch (opt.type) {
@@ -95,10 +89,7 @@ var account = {
     if (alias)
       acc.alias = alias;
 
-    var opts = this.proto.getOptions();
-    while (opts.hasMoreElements()) {
-      var opt = opts.getNext()
-                    .QueryInterface(Ci.purpleIPref);
+    for (let opt in this.getProtoOptions()) {
       var name = this.proto.id + "-" + opt.name;
       var val = this.getValue(name);
       switch (opt.type) {
@@ -120,5 +111,12 @@ var account = {
     }
     acc.save();
     acc.connect();
+  },
+
+  getProtocols: function account_getProtocols() {
+    return getIter(this.pcs.getProtocols, Ci.purpleIProtocol);
+  },
+  getProtoOptions: function account_getProtoOptions() {
+    return getIter(this.proto.getOptions, Ci.purpleIPref);
   }
 };

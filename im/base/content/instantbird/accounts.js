@@ -1,5 +1,3 @@
-const Ci = Components.interfaces;
-
 // This is the list of notifications that the account manager window observes
 const events = [
   "purple-quit",
@@ -11,33 +9,21 @@ const events = [
   "account-disconnecting"
 ];
 
-
 var gAccountManager = {
   load: function am_load() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    var accounts = pcs.getAccounts();
     this.accountList = document.getElementById("accountlist");
-    while (accounts.hasMoreElements()) {
-      var acc = accounts.getNext()
-                        .QueryInterface(Ci.purpleIAccount);
+    for (let acc in this.getAccounts()) {
       //dump(acc.id + ": " + acc.name + "\n");
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(acc);
     }
     this.accountList.selectedIndex = 0;
-    var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
-                                    .getService(Components.interfaces.nsIObserverService);
-    for (var i = 0; i < events.length; ++i)
-      ObserverService.addObserver(this, events[i], false);
+    addObservers(this, events);
     window.addEventListener("unload", this.unload, false);
   },
   unload: function am_unload() {
-    var ObserverService = Components.classes["@mozilla.org/observer-service;1"]
-                                    .getService(Ci.nsIObserverService);
-    for (var i = 0; i < events.length; ++i)
-      ObserverService.removeObserver(gAccountManager, events[i]);
+    removeObservers(gAccountManager, events);
   },
   observe: function am_observe(aObject, aTopic, aData) {
     if (aTopic == "purple-quit") {
@@ -126,5 +112,11 @@ var gAccountManager = {
   },
   close: function am_close() {
     window.close();
+  },
+
+  getAccounts: function am_getAccounts() {
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    return getIter(pcs.getAccounts, Ci.purpleIAccount);
   }
 };
