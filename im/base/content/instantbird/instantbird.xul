@@ -9,7 +9,7 @@
   id     = "instantbird"
   windowtype="Messenger:convs"
   title  = "&mainWindow.title;"
-  width  = "800"
+  width  = "500"
   height = "600"
   persist= "width height"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
