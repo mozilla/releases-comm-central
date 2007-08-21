@@ -1,0 +1,13 @@
+buddy[selected="true"] {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+.prplBuddyIcon {
+  -moz-margin-end: 2px; 
+  -moz-margin-start: 3px;
+  width: 16px;
+  max-width: 16px;
+  height: 16px;
+  max-height: 16px;
+}

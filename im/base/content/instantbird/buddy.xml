@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE bindings>
+
+<bindings id="buddyBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:hbox>
+	<xul:image xbl:inherits="src=icon" class="prplBuddyIcon"/>
+	<xul:label xbl:inherits="value=displayname"/>
+	<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>
+      </xul:hbox>
+    </content>
+    <implementation>
+     <constructor>
+      <![CDATA[
+       //dump("constructing buddy\n");
+     ]]>
+     </constructor>
+     <destructor>
+      <![CDATA[
+       //dump("destructing buddy\n");
+     ]]>
+     </destructor>
+
+     <method name="build">
+      <parameter name="aBuddy"/>
+      <body>
+      <![CDATA[
+        this.buddyId = aBuddy.id;
+        this.name = aBuddy.name;
+        this.alias = aBuddy.alias;
+        this.setAttribute("displayname", this.alias || this.name);
+        this.setAttribute("id", "buddy" + this.id);
+        this.prpl = aBuddy.getAccount(0).protocol.id;
+        this.setAttribute("icon", "chrome://instantbird/skin/prpl/" +
+                                      this.prpl + ".png");
+      ]]>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="click" clickcount="2">
+       <![CDATA[
+         var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                             .getService(Components.interfaces.purpleICoreService);
+         var buddy = pcs.getBuddyById(this.buddyId);
+         var conv = buddy.createConversation(0);
+
+         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                            .getService(Components.interfaces.nsIWindowMediator);
+         var convWindow = wm.getMostRecentWindow("Messenger:convs");
+         convWindow.msgObserver.focusConv(conv);
+       ]]>
+     </handler>
+    </handlers>
+  </binding>
+</bindings>

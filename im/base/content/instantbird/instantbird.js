@@ -7,7 +7,7 @@ function toOpenWindowByType(inType, uri) {
 
 // End { For Venkman }
 
-const events = ["new text", "new message"];
+const events = ["new text", "new message", "new-conversation"];
 
 var msgObserver = {
   convs: { },
@@ -15,6 +15,11 @@ var msgObserver = {
   observe: function(aObject, aTopic, aData) {
     if (!(aObject instanceof Ci.purpleIConversation))
       throw "msgObserver.observe called without conversation";
+
+    if (aTopic == "new-conversation") {
+      this.addConvTab(aObject, aObject.name);
+      return;
+    }
 
     if (aTopic == "new text") {
       var date = new Date();
@@ -54,6 +59,16 @@ var msgObserver = {
     conv.conv = aConv;
     this.convs[aConv.id] = conv;
     return conv;
+  },
+
+  focusConv: function mo_focusConv(aConv) {
+    var id = aConv.id;
+    if (!(id in this.convs))
+      return;
+    var panels = document.getElementById("panels");
+    var conv = this.convs[id];
+    panels.selectedPanel = conv;
+    document.getElementById("tabs").selectedIndex = panels.selectedIndex;
   }
 };
 
@@ -113,6 +128,9 @@ function initPurpleCore()
     setStatus("libpurple version " + pcs.version + " loaded!");
     pcs.init();
     addObservers(msgObserver, events);
+
+    window.open("chrome://instantbird/content/blist.xul", "_blank",
+		"chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
   }
   catch (e) {
     alert(e);

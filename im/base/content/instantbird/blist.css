@@ -1,0 +1,3 @@
+buddy {
+  -moz-binding: url("chrome://instantbird/content/buddy.xml#buddy");
+}
