@@ -7,12 +7,36 @@ function toOpenWindowByType(inType, uri) {
 
 // End { For Venkman }
 
-const events = ["new text", "new message", "new-conversation"];
+const events = ["new-text", "new message", "new-conversation"];
 
 var msgObserver = {
   convs: { },
   // Components.interfaces.nsIObserver
-  observe: function(aObject, aTopic, aData) {
+  observe: function mo_observe(aObject, aTopic, aData) {
+    if (aTopic == "new-text") {
+      if (!(aObject instanceof Ci.purpleIMessage))
+	throw "msgObserver.observe called without message";
+     
+      var conv = aObject.conversation;
+      var time = aObject.time;
+      var name = aObject.alias ||aObject.who;
+      var pseudoClass = "pseudo"
+      if (aObject.incoming)
+	pseudoClass += " incoming";
+      else
+	if (aObject.outgoing)
+	  pseudoClass += " outgoing";
+
+      var txt = '<span class="date">' + time + '</span>'
+            + ' <span class="' + pseudoClass + '">' + name  + ":</span> "
+            + aObject.message;
+
+      var id = conv.id;
+      var tab = this.convs[id] || this.addConvTab(conv, conv.name);
+      tab.addTxt(txt);
+      return;
+    }
+
     if (!(aObject instanceof Ci.purpleIConversation))
       throw "msgObserver.observe called without conversation";
 
@@ -21,20 +45,7 @@ var msgObserver = {
       return;
     }
 
-    if (aTopic == "new text") {
-      var date = new Date();
-      var time = this.ensureTwoDigits(date.getHours()) + ':'
-               + this.ensureTwoDigits(date.getMinutes()) + ':'
-               + this.ensureTwoDigits(date.getSeconds());
-      aData = '<span class="date">(' + time + ')</span>'
-            + ' <span class="pseudo">' + aObject.name + ":</span> "
-            + aData;
-
-      var id = aObject.id;
-      var conv = this.convs[id] || this.addConvTab(aObject, aObject.name);
-      conv.addTxt(aData);
-    }
-    else if (aTopic == "new message") {
+    if (aTopic == "new message") {
       setStatus(aTopic + " from " + aObject.name);
     }
   },

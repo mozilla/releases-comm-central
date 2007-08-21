@@ -1,6 +1,13 @@
-.pseudo { 
+.pseudo {
   font-weight: bold;
+}
+
+.outgoing { 
   color: rgb(80,80,200);
+}
+
+.incoming { 
+  color: rgb(200,80,80);
 }
 
 .date {
