@@ -16,7 +16,7 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
-        <xul:browser flex="1" class="browser" anonid="browser" src="chrome://instantbird/content/conv.html" type="content-primary"/>
+        <xul:browser flex="1" class="browser" anonid="browser" src="chrome://instantbird/content/conv.html" type="content"/>
         <xul:splitter anonid="splitter" class="splitter"/>
         <xul:deck anonid="conv-bottom" class="conv-bottom" selectedIndex="1">
           <xul:vbox>
