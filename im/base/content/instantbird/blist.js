@@ -1,4 +1,4 @@
-const events = ["buddy-signed-on", "purple-quit"];
+const events = ["buddy-signed-on", "buddy-signed-off", "purple-quit"];
 
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
@@ -9,6 +9,14 @@ var buddyList = {
       parent.appendChild(elt);
       elt.build(aBuddy.QueryInterface(Ci.purpleIBuddy));
       return;
+    }
+
+    if (aTopic == "buddy-signed-off") {
+      var id = aBuddy.QueryInterface(Ci.purpleIBuddy).id; 
+      var elt = document.getElementById("buddy" + id);
+      if (!elt)
+	throw "Can't get the buddy to remove";
+      elt.parentNode.removeChild(elt);
     }
 
     if (aTopic == "purple-quit")

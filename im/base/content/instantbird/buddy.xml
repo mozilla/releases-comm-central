@@ -35,7 +35,7 @@
         this.name = aBuddy.name;
         this.alias = aBuddy.alias;
         this.setAttribute("displayname", this.alias || this.name);
-        this.setAttribute("id", "buddy" + this.id);
+        this.setAttribute("id", "buddy" + this.buddyId);
         this.prpl = aBuddy.getAccount(0).protocol.id;
         this.setAttribute("icon", "chrome://instantbird/skin/prpl/" +
                                       this.prpl + ".png");
