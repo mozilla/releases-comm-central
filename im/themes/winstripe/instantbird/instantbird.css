@@ -1,14 +1,27 @@
-#browser, #conv-bottom { 
-  margin: 5px 5px;
+.browser, .conv-bottom { 
+  margin: 0 0;
   border: solid 1px rgb(128, 128, 128);
   padding: 1px 1px;
   min-height:100px;
 }
 
+tabbox {
+  margin-top: 3px;
+}
+
+tabpanels {
+  padding: 5px 5px;
+}
+
+conversation,
+textbox {
+  margin: 0 0;
+  padding: 0 0;
+}
+
 .splitter {
-  margin: 0 5px;
+  margin: 0 0px;
   border-style: none;
-  background-color: rgb(192,192,192);
   height: 3px;
 }
 

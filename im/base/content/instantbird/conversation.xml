@@ -11,11 +11,14 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="conversation">
+    <resources>
+      <stylesheet src="chrome://instantbird/skin/instantbird.css"/>
+    </resources>
     <content>
-      <xul:vbox flex="1">
-        <xul:browser flex="1" anonid="browser" src="chrome://instantbird/content/conv.html" type="content-primary" onload="dump('tralala')"/>
+      <xul:vbox class="convBox" flex="1">
+        <xul:browser flex="1" class="browser" anonid="browser" src="chrome://instantbird/content/conv.html" type="content-primary"/>
         <xul:splitter anonid="splitter" class="splitter"/>
-        <xul:deck anonid="conv-bottom" selectedIndex="1">
+        <xul:deck anonid="conv-bottom" class="conv-bottom" selectedIndex="1">
           <xul:vbox>
             <xul:toolbar anonid="conv-toolbar">
               <xul:toolbarbutton label="Bold" oncommand="this.editorDoCommand('bold');"/>

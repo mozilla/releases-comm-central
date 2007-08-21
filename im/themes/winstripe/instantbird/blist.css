@@ -1,3 +1,11 @@
+richlistbox {
+  margin-top: 8px;
+}
+
+buddy {
+  padding: 2px 2px 2px 2px;
+}
+
 buddy[selected="true"] {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
