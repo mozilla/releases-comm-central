@@ -1,3 +1,4 @@
 <!ENTITY mainWindow.title   "InstantBird - the Instant Messaging client reloaded">
 <!ENTITY venkman.button     "Venkman">
 <!ENTITY accountManager     "Account Manager">
+<!ENTITY addonManager       "Addons">

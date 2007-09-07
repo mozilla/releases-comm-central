@@ -9,6 +9,12 @@ function toOpenWindowByType(inType, uri) {
 
 const events = ["new-text", "new message", "new-conversation"];
 
+const addonManagerWindow = "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
+const errorConsoleWindow = "chrome://global/content/console.xul";
+const configWindow = "chrome://global/content/config.xul";
+const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
+const blistWindow = "chrome://instantbird/content/blist.xul";
+
 var msgObserver = {
   convs: { },
   // Components.interfaces.nsIObserver
@@ -125,23 +131,16 @@ function debug_connectAccount(aProto, aName, aPassword)
   acc.connect();
 }
 
-function openAccountManager()
-{
-  window.open("chrome://instantbird/content/accounts.xul", "_blank",
-	      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
-}
-
 function initPurpleCore()
 {
   try {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Components.interfaces.purpleICoreService);
+                        .getService(Ci.purpleICoreService);
     setStatus("libpurple version " + pcs.version + " loaded!");
     pcs.init();
     addObservers(msgObserver, events);
 
-    window.open("chrome://instantbird/content/blist.xul", "_blank",
-		"chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+    openWindow(blistWindow);
   }
   catch (e) {
     alert(e);
@@ -163,8 +162,9 @@ function uninitPurpleCore()
   }
 }
 
-function showConsole() {
-  window.open("chrome://global/content/console.xul", "_blank",
+function openWindow(aUrl)
+{
+  window.open(aUrl, "_blank",
     "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
 }
 
