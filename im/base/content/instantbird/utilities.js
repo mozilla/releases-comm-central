@@ -28,3 +28,10 @@ function removeObservers(aObserver, aTopics)
   for (let i = 0; i < aTopics.length; ++i)
     observerService.removeObserver(aObserver, aTopics[i]);
 }
+
+function makeURI(aURL, aOriginCharset, aBaseURI)
+{
+  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                            .getService(Ci.nsIIOService);
+  return ioService.newURI(aURL, aOriginCharset, aBaseURI);
+}

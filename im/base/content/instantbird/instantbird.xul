@@ -14,6 +14,7 @@
   persist= "width height"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
   <script src="chrome://venkman/content/venkman-overlay.js"/>
   <tabbox flex="1">
@@ -23,6 +24,7 @@
   <statusbar>
     <statusbarpanel id="status" label="" crop="end" flex="1"/>
     <button oncommand="start_venkman()" label="&venkman.button;"/>
+    <button oncommand="openWindow(errorConsoleWindow)" label="Error Console"/>
     <button oncommand="openWindow(configWindow)" label="about:config"/>
     <button oncommand="openWindow(addonManagerWindow)" label="&addonManager;"/>
     <button oncommand="openWindow(accountManagerWindow)" label="&accountManager;"/>

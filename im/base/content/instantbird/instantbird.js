@@ -26,7 +26,7 @@ var msgObserver = {
       var conv = aObject.conversation;
       var time = aObject.time;
       var name = aObject.alias ||aObject.who;
-      var pseudoClass = "pseudo"
+      var pseudoClass = "pseudo";
       if (aObject.incoming)
 	pseudoClass += " incoming";
       else
