@@ -28,3 +28,7 @@ textbox {
 #conv-toolbar {
   border-style:none;
 }
+
+tab[unread] { 
+  color: red;
+}

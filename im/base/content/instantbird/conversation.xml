@@ -75,6 +75,10 @@
         newElt.innerHTML = aTxt;
         elt.appendChild(newElt);
         newElt.scrollIntoView(true);
+
+        if (this.tab && !this.tab.selected) {
+          this.tab.setAttribute("unread", "true");
+        }
       ]]>
       </body>
      </method>
@@ -224,5 +228,24 @@
        </setter>
      </property>
     </implementation>
+    <handlers>
+     <handler event="focus" phase="capturing">
+       <![CDATA[
+         if (event.originalTarget != this)
+           return;
+         if (!this.hasAttribute("focused")) {
+           var input = document.getAnonymousElementByAttribute(this, "anonid", "input");
+           this.setAttribute("focused", "true");
+           //FIXME: check why it doesn't work without this timeout
+           setTimeout(function () {input.focus(); }, 1);
+         }
+        ]]>
+      </handler>
+      <handler event="blur" phase="capturing">
+        <![CDATA[
+          this.removeAttribute("focused");
+        ]]>
+      </handler>
+    </handlers>
   </binding>
 </bindings>

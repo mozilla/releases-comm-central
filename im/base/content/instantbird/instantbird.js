@@ -74,6 +74,7 @@ var msgObserver = {
     tabs.appendChild(tab);
 
     conv.conv = aConv;
+    conv.tab = tab;
     this.convs[aConv.id] = conv;
     return conv;
   },
@@ -86,6 +87,14 @@ var msgObserver = {
     var conv = this.convs[id];
     panels.selectedPanel = conv;
     document.getElementById("tabs").selectedIndex = panels.selectedIndex;
+  },
+
+  onSelectTab: function mo_onSelectTab() {
+    var tabs = document.getElementById("tabs");
+    var tab = tabs.selectedItem;
+    tab.removeAttribute("unread");
+    var panels = document.getElementById("panels");
+    panels.selectedPanel.focus();
   }
 };
 

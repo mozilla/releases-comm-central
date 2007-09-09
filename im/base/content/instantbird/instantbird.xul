@@ -18,7 +18,7 @@
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
   <script src="chrome://venkman/content/venkman-overlay.js"/>
   <tabbox flex="1">
-    <tabs id="tabs"/>
+    <tabs id="tabs" onselect="msgObserver.onSelectTab();"/>
     <tabpanels id="panels" flex="1"/>
   </tabbox>
   <statusbar>
