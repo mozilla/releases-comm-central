@@ -6,7 +6,9 @@ const events = [
   "account-connected",
   "account-connecting",
   "account-disconnected",
-  "account-disconnecting"
+  "account-disconnecting",
+  "account-connect-progress",
+  "account-connect-error"
 ];
 
 var gAccountManager = {
@@ -70,8 +72,8 @@ var gAccountManager = {
       "account-disconnected": "disconnected",
       "account-disconnecting": "disconnecting"
     };
+    var elt = document.getElementById(aObject.id);
     if (aTopic in stateEvents) {
-      var elt = document.getElementById(aObject.id);
       if (!elt) {
 	/* The listitem associated with this account could not be
 	found. This happens when the account is being deleted. The
@@ -82,14 +84,24 @@ var gAccountManager = {
       }
 
       /* handle protocol icon animation while connecting */
-      var icon = document.getAnonymousElementByAttribute(elt, "anonid", "prplicon")
-      if (aTopic == "account-connecting")
+      var icon = document.getAnonymousElementByAttribute(elt, "anonid", "prplicon");
+      if (aTopic == "account-connecting") {
         icon.animate();
+        elt.removeAttribute("error");
+        aObject.connectionStateMsg = "";
+        elt.updateConnectionState(false);
+      }
       else
 	icon.stop();
 
       elt.setAttribute("state", stateEvents[aTopic]);
     }
+    else if (aTopic == "account-connect-progress") {
+      elt.updateConnectionState(false);
+    }    
+    else if (aTopic == "account-connect-error") {
+      elt.updateConnectionState(true);
+    }    
   },
   connect: function am_connect() {
     this.accountList.selectedItem.connect();

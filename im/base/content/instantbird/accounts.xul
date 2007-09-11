@@ -16,6 +16,7 @@
  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
  <script type="application/javascript" src="chrome://instantbird/content/accounts.js"/>
 
+ <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
  <richlistbox id="accountlist" flex="1"/>
  <hbox id="bottombuttons">
   <button id="newaccount" oncommand="gAccountManager.new()"

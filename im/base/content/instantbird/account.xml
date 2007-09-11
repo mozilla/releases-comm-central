@@ -16,8 +16,8 @@
         <xul:hbox flex="1">
           <xul:vbox flex="1">
 
-           <xul:hbox>
-            <xul:label value="&account.name;"/>
+           <xul:hbox class="accountNameBox">
+            <xul:label value="&account.name;" class="accountNameLabel"/>
             <xul:label flex="1" xbl:inherits="value=name"
                          class="accountName"/>
            </xul:hbox>
@@ -26,10 +26,11 @@
             <xul:label flex="1" xbl:inherits="value=alias"
                          class="accountAlias"/>
            </xul:hbox>
-           <xul:label class="connecting" value="&account.connecting;"/>
+           <xul:label class="connecting" anonid="connecting" value="&account.connecting;"/>
            <xul:label class="connected" value="&account.connected;"/>
            <xul:label class="disconnecting" value="&account.disconnecting;"/>
            <xul:label class="disconnected" value="&account.disconnected;"/>
+           <xul:description class="error" anonid="error"/>
            <xul:spacer flex="1"/>
           </xul:vbox>
           <xul:vbox align="center">
@@ -81,9 +82,12 @@
           state = "connected"
         } else if (this._account.disconnected) {
           state = "disconnected"
+          if (this._account.connectionStateMsg)
+            this.updateConnectionState(true);
         } else if (this._account.connecting) {
           state = "connecting"
           document.getAnonymousElementByAttribute(this, "anonid", "prplicon").animate();
+          this.updateConnectionState(false);
         } else if (this._account.disconnecting) {
           state = "connected"
         }
@@ -119,6 +123,30 @@
         var pcs = Components.classes["@instantbird.org/purple/core;1"]
                             .getService(Ci.purpleICoreService);
         pcs.deleteAccount(this._account.id);
+      ]]>
+      </body>
+     </method>
+
+     <method name="updateConnectionState">
+      <parameter name="aIsError"/>
+      <body>
+      <![CDATA[
+        var bundle = document.getElementById("accountsBundle");
+        var key = aIsError ? "account.connection.error"
+                           : "account.connection.progress";
+        var text = this._account.connectionStateMsg;
+        text = text ? bundle.getFormattedString(key, [text])
+                    : "&account.connecting;";
+
+        if (aIsError) {
+          this.setAttribute("error", "true");
+          var error = document.getAnonymousElementByAttribute(this, "anonid", "error");
+          setText(error, text);
+        }
+        else {
+          var progress = document.getAnonymousElementByAttribute(this, "anonid", "connecting");
+          progress.setAttribute("value", text);
+        }
       ]]>
       </body>
      </method>

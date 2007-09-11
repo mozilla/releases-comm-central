@@ -35,3 +35,18 @@ function makeURI(aURL, aOriginCharset, aBaseURI)
                             .getService(Ci.nsIIOService);
   return ioService.newURI(aURL, aOriginCharset, aBaseURI);
 }
+
+function logMsg(aString)
+{
+  Components.classes["@mozilla.org/consoleservice;1"]
+                     .getService(Ci.nsIConsoleService)
+                     .logStringMessage(aString);
+}
+
+function setText(aElt, aTxt)
+{
+  if (aElt.hasChildNodes())
+    aElt.removeChild(aElt.firstChild);
+  var textNode = document.createTextNode(aTxt);
+  aElt.appendChild(textNode);
+}

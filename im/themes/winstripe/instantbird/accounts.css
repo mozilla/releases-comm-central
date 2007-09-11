@@ -47,6 +47,11 @@ richlistitem[state="disconnected"] {
   color: GrayText;
 }
 
+richlistitem[error="true"] .accountNameLabel,
+richlistitem[error="true"] .accountName {
+  color: rgb(150, 0, 0);
+}
+
 richlistitem[selected="true"] {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
@@ -57,6 +62,10 @@ richlistbox[focused] richlistitem[selected="true"] {
   color: HighlightText;
 }
 
+.error {
+  color: rgb(200, 0, 0);
+  margin-left: 6px;
+}
 .accountName {
   font-weight: bold;
 }
