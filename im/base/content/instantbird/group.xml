@@ -64,7 +64,7 @@
           buddyElt.build(aPab.buddy);
           this.buddies.push(buddyElt);
         }
-        buddyElt.addAccount(aPab.account);
+        buddyElt.addAccount(aPab);
       ]]>
       </body>
      </method>
@@ -77,7 +77,7 @@
 
         for (var i = 0; i < this.buddies.length; ++i) {
           if (this.buddies[i].buddyId == buddy.id) {
-            if (this.buddies[i].removeAccount(aPab.account)) {
+            if (this.buddies[i].removeAccount(aPab)) {
               // The buddy should be removed
               this.buddies.splice(i, 1);
               // Check if some buddy remain in the group, if empty remove it

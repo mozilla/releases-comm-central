@@ -39,30 +39,32 @@
         this.prpl = aBuddy.getAccount(0).protocol.id;
         this.setAttribute("icon", "chrome://instantbird/skin/prpl/" +
                                       this.prpl + ".png");
-        this.accounts = [ ];
+        this.accounts = { };
       ]]>
       </body>
      </method>
 
      <method name="addAccount">
-      <parameter name="aAccount"/>
+      <parameter name="aPab"/>
       <body>
       <![CDATA[
-        if (aAccount.id in this.accounts)
+        var id = aPab.account.id;
+        if (id in this.accounts)
           throw "This buddy has already been added";
-        this.accounts[aAccount.id] = aAccount;
+        this.accounts[id] = aPab;
       ]]>
       </body>
      </method>
 
      <method name="removeAccount">
-      <parameter name="aAccount"/>
+      <parameter name="aPab"/>
       <body>
       <![CDATA[
-        if (!(aAccount.id in this.accounts))
+        var id = aPab.account.id;
+        if (!(id in this.accounts))
           throw "This buddy has not been added";
 
-        delete this.accounts[aAccount.id];
+        delete this.accounts[id];
 
         if (this.accounts.length)
           return false;
@@ -80,7 +82,11 @@
          var pcs = Components.classes["@instantbird.org/purple/core;1"]
                              .getService(Components.interfaces.purpleICoreService);
          var buddy = pcs.getBuddyById(this.buddyId);
-         var conv = buddy.createConversation(0);
+         var conv;
+         for (var id in this.accounts) {
+           conv = this.accounts[id].createConversation();
+           break;
+         }
 
          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
