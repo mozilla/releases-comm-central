@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://instantbird/locale/addbuddy.dtd">
+
+<dialog
+  id     = "account"
+  title  = "&addBuddyWindow.title;"
+  buttons= "accept,cancel"
+  width  = "300"
+  height = "150"
+  xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  onload = "addBuddy.onload()"
+  ondialogaccept="addBuddy.create()">
+  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/addbuddy.js"/>
+
+  <grid>
+   <columns>
+    <column/>
+    <column flex="1"/>
+   </columns>
+   <rows>
+
+    <row id="nameBox">
+     <label value="&name.label;" control="name"/>
+     <textbox id="name"/>
+    </row>
+
+    <row id="accountBox">
+     <label value="&account.label;" control="accountlist"/>
+     <menulist id="accountlist"/>
+    </row>
+
+    <row id="tagBox">
+     <label value="&tag.label;" control="taglist"/>
+     <menulist id="taglist"/>
+    </row>
+
+   </rows>
+  </grid>
+</dialog>
