@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE bindings>
+
+<bindings id="groupBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="group" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:hbox>
+	<xul:label xbl:inherits="value=name"/>
+	<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>
+      </xul:hbox>
+    </content>
+    <implementation>
+     <constructor>
+      <![CDATA[
+       //dump("constructing group\n");
+     ]]>
+     </constructor>
+     <destructor>
+      <![CDATA[
+       //dump("destructing group\n");
+     ]]>
+     </destructor>
+
+     <method name="build">
+      <parameter name="aGroup"/>
+      <body>
+      <![CDATA[
+        this.groupId = aGroup.id;
+        this.name = aGroup.name;
+        this.buddies = [ ];
+        this.setAttribute("id", "group" + this.groupId);
+        this.setAttribute("name", this.name);
+      ]]>
+      </body>
+     </method>
+
+     <method name="addBuddy">
+      <parameter name="aPab"/>
+      <body>
+      <![CDATA[
+        var buddy = aPab.buddy;
+
+        var buddyElt;
+        for (var i = 0; i < this.buddies.length; ++i) {
+          if (this.buddies[i].buddyId == buddy.id) {
+            buddyElt = this.buddies[i];
+            break;
+          }
+        }
+
+        if (!buddyElt) {
+          buddyElt = document.createElement("buddy");
+
+          var last = this;
+          if (this.buddies.length)
+            last = this.buddies[this.buddies.length - 1];
+
+          this.parentNode.insertBefore(buddyElt, last.nextSibling);
+          buddyElt.build(aPab.buddy);
+          this.buddies.push(buddyElt);
+        }
+        buddyElt.addAccount(aPab.account);
+      ]]>
+      </body>
+     </method>
+
+     <method name="signedOff">
+      <parameter name="aPab"/>
+      <body>
+      <![CDATA[
+        var buddy = aPab.buddy;
+
+        for (var i = 0; i < this.buddies.length; ++i) {
+          if (this.buddies[i].buddyId == buddy.id) {
+            if (this.buddies[i].removeAccount(aPab.account)) {
+              // The buddy should be removed
+              this.buddies.splice(i, 1);
+              // Check if some buddy remain in the group, if empty remove it
+              if (!this.buddies.length)
+                this.parentNode.removeChild(this);
+            }
+            return;
+          }
+        }
+      ]]>
+      </body>
+     </method>
+    </implementation>
+  </binding>
+</bindings>

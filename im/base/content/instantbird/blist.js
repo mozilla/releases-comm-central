@@ -1,26 +1,36 @@
-const events = ["buddy-signed-on", "buddy-signed-off", "purple-quit"];
+const events = ["buddy-signed-on",
+                "buddy-signed-off",
+                "buddy-removed",
+                "purple-quit"];
 
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
     //dump("received signal: " + aTopic + "\n");
-    if (aTopic == "buddy-signed-on") {
-      var elt = document.createElement("buddy");
-      var parent = document.getElementById("buddylistbox");
-      parent.appendChild(elt);
-      elt.build(aBuddy.QueryInterface(Ci.purpleIBuddy));
+
+    if (aTopic == "purple-quit") {
+      window.close();
       return;
     }
 
-    if (aTopic == "buddy-signed-off") {
-      var id = aBuddy.QueryInterface(Ci.purpleIBuddy).id; 
-      var elt = document.getElementById("buddy" + id);
-      if (!elt)
-	throw "Can't get the buddy to remove";
-      elt.parentNode.removeChild(elt);
+    var pab = aBuddy.QueryInterface(Ci.purpleIAccountBuddy);
+    var group = pab.tag;
+    var groupId = "group" + group.id;
+    var groupElt = document.getElementById(groupId);
+    if (aTopic == "buddy-signed-on") {
+      if (!groupElt) {
+        groupElt = document.createElement("group");
+        var parent = document.getElementById("buddylistbox");
+        parent.appendChild(groupElt);
+        groupElt.build(group);
+      }
+      groupElt.addBuddy(pab);
+      return;
     }
 
-    if (aTopic == "purple-quit")
-      window.close();
+    if (aTopic == "buddy-signed-off" ||
+        (aTopic == "buddy-removed" && groupElt)) {
+      groupElt.signedOff(pab);
+    }
   },
   load: function bl_load() {
     addObservers(buddyList, events);

@@ -2,11 +2,13 @@ richlistbox {
   margin-top: 8px;
 }
 
-buddy {
+buddy,
+group {
   padding: 2px 2px 2px 2px;
 }
 
-buddy[selected="true"] {
+buddy[selected="true"],
+group[selected="true"] {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
 }
@@ -18,4 +20,8 @@ buddy[selected="true"] {
   max-width: 16px;
   height: 16px;
   max-height: 16px;
+}
+
+group label { 
+  font-weight: bold;
 }

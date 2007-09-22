@@ -35,10 +35,41 @@
         this.name = aBuddy.name;
         this.alias = aBuddy.alias;
         this.setAttribute("displayname", this.alias || this.name);
-        this.setAttribute("id", "buddy" + this.buddyId);
+        //this.setAttribute("id", "buddy" + this.buddyId);
         this.prpl = aBuddy.getAccount(0).protocol.id;
         this.setAttribute("icon", "chrome://instantbird/skin/prpl/" +
                                       this.prpl + ".png");
+        this.accounts = [ ];
+      ]]>
+      </body>
+     </method>
+
+     <method name="addAccount">
+      <parameter name="aAccount"/>
+      <body>
+      <![CDATA[
+        if (aAccount.id in this.accounts)
+          throw "This buddy has already been added";
+        this.accounts[aAccount.id] = aAccount;
+      ]]>
+      </body>
+     </method>
+
+     <method name="removeAccount">
+      <parameter name="aAccount"/>
+      <body>
+      <![CDATA[
+        if (!(aAccount.id in this.accounts))
+          throw "This buddy has not been added";
+
+        delete this.accounts[aAccount.id];
+
+        if (this.accounts.length)
+          return false;
+
+        // No account left, this node is now useless, remove it
+        this.parentNode.removeChild(this);
+        return true;
       ]]>
       </body>
      </method>
