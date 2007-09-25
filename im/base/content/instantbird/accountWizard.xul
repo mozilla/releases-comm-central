@@ -38,6 +38,7 @@
       <label value="&accountUsernameField.label;" control="name"/>
       <textbox id="name" oninput="accountWizard.checkUsername();"/>
     </hbox>
+    <separator/>
     <description id="jabberusername" hidden="true">&accountUsernameJabberInfo.label;</description>
     <description id="ircusername" hidden="true">&accountUsernameIrcInfo.label;</description>
   </wizardpage>

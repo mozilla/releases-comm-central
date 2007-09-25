@@ -225,6 +225,12 @@ var accountWizard = {
     if (autologin)
       acc.connect();
 
+    if (window.opener) {
+      var am = window.opener.gAccountManager;
+      if (am)
+        am.selectAccount(acc.id);
+    }
+
     return true;
   },
 

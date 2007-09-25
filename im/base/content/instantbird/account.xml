@@ -73,6 +73,8 @@
         var alias = aAccount.alias; 
         if (alias)
           this.setAttribute("alias", alias);
+        else
+          this.removeAttribute("alias");
         var proto = aAccount.protocol;
         this.setAttribute("protocol", proto.name);
         this.setAttribute("prplicon", "chrome://instantbird/skin/prpl/" +
@@ -163,7 +165,8 @@
              this.setAttribute("autologin", "true");
            else
              this.removeAttribute("autologin");
-           this._account.autoLogin = val;
+           if (this._account.autoLogin != val)
+             this._account.autoLogin = val;
            return val;
          ]]>
        </setter>

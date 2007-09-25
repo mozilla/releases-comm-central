@@ -2,6 +2,7 @@
 const events = [
   "purple-quit",
   "account-added",
+  "account-updated",
   "account-removed",
   "account-connected",
   "account-connecting",
@@ -65,6 +66,11 @@ var gAccountManager = {
       this.accountList.selectedIndex = selectedIndex;
       dump("new selected index : " + selectedIndex + "\n");
     }
+    else if (aTopic == "account-updated") {
+      var elt = document.getElementById(aObject.id);
+      elt.build(aObject);
+      return;
+    }
 
     const stateEvents = {
       "account-connected": "connected",
@@ -113,10 +119,11 @@ var gAccountManager = {
     this.accountList.selectedItem.delete();
   },
   new: function am_new() {
-    window.openDialog("chrome://instantbird/content/account.xul");
+    this.openDialog("chrome://instantbird/content/accountWizard.xul");
   },
   edit: function am_edit() {
-    alert("not implemented yet!");
+    this.openDialog("chrome://instantbird/content/account.xul",
+                    this.accountList.selectedItem.account);
   },
   autologin: function am_autologin() {
     var elt = this.accountList.selectedItem;
@@ -126,9 +133,20 @@ var gAccountManager = {
     window.close();
   },
 
+  selectAccount: function am_selectAccount(aAccountId) {
+    this.accountList.selectedItem = document.getElementById(aAccountId);
+    this.accountList.ensureSelectedElementIsVisible();
+  },
+
   getAccounts: function am_getAccounts() {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Ci.purpleICoreService);
     return getIter(pcs.getAccounts, Ci.purpleIAccount);
+  },
+
+  openDialog: function am_openDialog(aUrl, aArgs) {
+    window.openDialog(aUrl, "",
+                      "chrome,modal,titlebar,centerscreen",
+                      aArgs);
   }
 };
