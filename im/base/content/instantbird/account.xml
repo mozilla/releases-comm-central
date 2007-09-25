@@ -169,6 +169,14 @@
        </setter>
      </property>
 
+     <property name="account">
+       <getter>
+         <![CDATA[
+           return this._account;
+         ]]>
+       </getter>
+     </property>
+
     </implementation>
   </binding>
 </bindings>

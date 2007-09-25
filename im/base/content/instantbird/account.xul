@@ -9,43 +9,53 @@
   title  = "&accountWindow.title;"
   buttons= "accept,cancel"
   width  = "300"
-  height = "600"
+  height = "400"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   onload = "account.onload()"
   ondialogaccept="account.create()">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/account.js"/>
-  <script src="chrome://venkman/content/venkman-overlay.js"/>
+
   <stringbundle id="prplbundle" src="chrome://instantbird/locale/prpl.properties"/>
-  <menulist id="protolist" onselect="account.select()"/>
-  <vbox flex="1" style="overflow:auto">
-  
-   <groupbox>
-    <caption label="&account.general;"/>
-    <vbox id="nameBox">
-     <label value="&account.name;" control="name"/>
-     <textbox id="name"/>
-    </vbox>
-  
-    <vbox id="passwordBox">
-     <label value="&account.password;" control="password"/>
-     <textbox id="password" type="password"/>
-     <checkbox id="rememberPassword" label="&account.rememberPassword;"/>
-    </vbox>
-  
-    <vbox id="aliasBox">
-     <label value="&account.alias;" control="alias" />
-     <textbox id="alias"/>
-    </vbox>
 
-    <checkbox id="newMailNotification" label="&account.newMailNotification;"/>
-   </groupbox>  
+  <hbox>
+    <image id="protocolIcon"/>
+    <vbox>
+      <label id="accountName" class="header"/>
+      <label id="protocolName"/>
+    </vbox>
+  </hbox>
+  <separator/>
 
-   <groupbox id="advanced">
-    <caption label="&account.advanced;"/>
-    <vbox id="protoSpecific"/>
-   </groupbox>
+  <tabbox flex="1">
+    <tabs id="tabs">
+      <tab id="generalTab" label="&account.general;"/>
+      <tab id="advancedTab" label="&account.advanced;"/>
+    </tabs>
+    <tabpanels id="panels" flex="1">
+      <tabpanel orient="vertical" flex="1" style="overflow:auto;">
+        <hbox id="passwordBox" equalsize="always" align="baseline">
+          <label value="&account.password;" control="password" flex="1"/>
+          <textbox id="password" flex="1" type="password"/>
+        </hbox>
+        <checkbox id="rememberPassword" label="&account.rememberPassword;" hidden="true"/>
   
-   <spacer flex="1"/>
-  </vbox>
+        <separator class="groove"/>
+
+        <hbox id="aliasBox" equalsize="always" align="baseline">
+          <label value="&account.alias;" control="alias" flex="1"/>
+          <textbox id="alias" flex="1"/>
+        </hbox>
+
+        <separator class="groove" hidden="true"/>
+
+        <checkbox id="newMailNotification" label="&account.newMailNotification;" hidden="true"/>
+      </tabpanel>  
+
+      <tabpanel id="advanced" flex="1" style="overflow:auto;">
+        <vbox id="protoSpecific" flex="1"/>
+      </tabpanel>
+  
+    </tabpanels>
+  </tabbox>
 </dialog>
