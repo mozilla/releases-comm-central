@@ -1,3 +1,7 @@
 conversation {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
 }
+
+convtab {
+  -moz-binding: url("chrome://instantbird/content/conversation.xml#convtab");
+}

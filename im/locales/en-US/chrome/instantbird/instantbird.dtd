@@ -2,3 +2,4 @@
 <!ENTITY venkman.button     "Venkman">
 <!ENTITY accountManager     "Account Manager">
 <!ENTITY addonManager       "Addons">
+<!ENTITY conversation.contextMenu.close "Close Tab">

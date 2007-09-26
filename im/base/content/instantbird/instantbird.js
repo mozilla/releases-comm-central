@@ -14,6 +14,7 @@ const errorConsoleWindow = "chrome://global/content/console.xul";
 const configWindow = "chrome://global/content/config.xul";
 const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
 const blistWindow = "chrome://instantbird/content/blist.xul";
+const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 
 var msgObserver = {
   convs: { },
@@ -69,7 +70,7 @@ var msgObserver = {
     panels.appendChild(conv);
 
     var tabs = document.getElementById("tabs");
-    var tab = document.createElement("tab");
+    var tab = document.createElement("convtab");
     tab.setAttribute("label", aTitle);
     tabs.appendChild(tab);
 
@@ -81,8 +82,13 @@ var msgObserver = {
 
   focusConv: function mo_focusConv(aConv) {
     var id = aConv.id;
-    if (!(id in this.convs))
-      return;
+    if (!(id in this.convs)) {
+      // We only support a single chat window ATM so we can safely
+      // re-add a closed conversation tab
+      this.addConvTab(aConv, aConv.name);
+      if (!(id in this.convs))
+        throw "Can't find the conversation, even after trying to add it again!";
+    }
     var panels = document.getElementById("panels");
     var conv = this.convs[id];
     panels.selectedPanel = conv;
@@ -95,6 +101,55 @@ var msgObserver = {
     tab.removeAttribute("unread");
     var panels = document.getElementById("panels");
     panels.selectedPanel.focus();
+  },
+
+  closeTab: function mo_closeTab(aTab) {
+    var tabs = aTab.parentNode.childNodes;
+    var i = aTab.parentNode.getIndexOfItem(aTab);
+    if (i == -1)
+      throw "Can't find the tab that should be closed";
+
+    var panels = document.getElementById("panels");
+    var conv = panels.childNodes[i];
+    if (!conv)
+      throw "Can't find the conversation associated with the tab.";
+    delete this.convs[conv.convId];
+
+    if (aTab.selected) {
+      if (i) {
+        // we are not on the first tab
+        aTab.parentNode.selectedItem = aTab.previousSibling;
+        panels.selectedPanel = conv.previousSibling;
+      }
+      else {
+        // we remove the first tab, which is selected
+        if (aTab.nextSibling) {
+          // at least a tab remain
+          aTab.parentNode.selectedItem = aTab.nextSibling;
+          panels.selectedPanel = conv.nextSibling;
+        }
+        else {
+          // we should close the window!
+        }
+      }
+    }
+
+    panels.removeChild(conv);
+    // Workaround an ugly bug: when removing a panel, the selected panel disappears
+    panels.selectedPanel = panels.selectedPanel;
+
+    aTab.parentNode.removeChild(aTab);
+  },
+
+  onPopupShowing: function mo_onPopupShowing(aEvent) {
+    if (aEvent.explicitOriginalTarget.localName == "convtab")
+      this.contextTab = aEvent.explicitOriginalTarget;
+    else
+      aEvent.preventDefault();
+  },
+
+  onCommandClose: function mo_onCommandClose(aEvent) {
+    this.closeTab(this.contextTab);
   }
 };
 
