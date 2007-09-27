@@ -16,7 +16,7 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
-        <xul:browser flex="1" class="browser" anonid="browser" src="chrome://instantbird/content/conv.html" type="content"/>
+        <xul:browser flex="1" class="browser" anonid="browser" type="content"/>
         <xul:splitter anonid="splitter" class="splitter"/>
         <xul:deck anonid="conv-bottom" class="conv-bottom" selectedIndex="1">
           <xul:vbox>
@@ -34,10 +34,22 @@
     <implementation implements="nsIWebProgressListener">
      <constructor>
       <![CDATA[
-        var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
-        browser.addProgressListener(this);
        document.getAnonymousElementByAttribute(this, "anonid", "input")
                .addEventListener("keypress", this.onSendMsg, false);
+
+       var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+       var docShell = browser.docShell;
+       docShell.allowJavascript = false;
+       docShell.allowAuth = false;
+       docShell.allowPlugins = false;
+       docShell.allowMetaRedirects = false;
+       docShell.allowSubframes = false;
+       docShell.allowImages = false;
+       var url = 'data:text/html,<html><head><link rel="stylesheet" type="text/css" href="chrome://instantbird/skin/conv.css" /></head>';
+       url += '<body id="ibcontent"></body></html>';
+       browser.setAttribute("src", url);//"chrome://instantbird/content/conv.html"
+       browser.addProgressListener(this);
+
        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
        editor.addEventListener("keypress", this.onSendHTMLMsg, false);
        //this doesn't work at the moment
