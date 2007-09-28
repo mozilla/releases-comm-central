@@ -62,7 +62,9 @@
       <![CDATA[
         var id = aPab.account.id;
         if (!(id in this.accounts))
-          throw "This buddy has not been added";
+          return; // this used to throw, but this seems to be harmless
+          //throw "This buddy (" + aPab.buddy.name +
+                  ") has not been added for account " + aPab.account.name;
 
         delete this.accounts[id];
 
