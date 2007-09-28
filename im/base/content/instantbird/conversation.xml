@@ -99,7 +99,15 @@
       <parameter name="aMsg"/>
       <body>
       <![CDATA[
-        this._conv.sendMsg(aMsg);
+        var re = /^\/raw (.*)/;
+        var msg = aMsg.match(re);
+        if (msg)
+          msg = msg[1];
+        else
+          msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
+                          .getService(Ci.mozITXTToHTMLConv)
+                          .scanTXT(aMsg, 0);
+        this._conv.sendMsg(msg);
       ]]>
       </body>
      </method>
