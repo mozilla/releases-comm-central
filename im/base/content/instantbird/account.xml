@@ -138,7 +138,7 @@
                            : "account.connection.progress";
         var text = this._account.connectionStateMsg;
         text = text ? bundle.getFormattedString(key, [text])
-                    : "&account.connecting;";
+                    : bundle.getString("account.connecting");
 
         if (aIsError) {
           this.setAttribute("error", "true");
