@@ -78,7 +78,7 @@
         var proto = aAccount.protocol;
         this.setAttribute("protocol", proto.name);
         this.setAttribute("prplicon", "chrome://instantbird/skin/prpl/" +
-                                      proto.id + "-48.png");
+                                      proto.id + "-32.png");
         var state = "Unknown";
         if (this._account.connected) {
           state = "connected"
