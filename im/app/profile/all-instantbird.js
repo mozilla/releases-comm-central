@@ -1,4 +1,4 @@
-pref("toolkit.defaultChromeURI", "chrome://instantbird/content/instantbird.xul");
+pref("toolkit.defaultChromeURI", "chrome://instantbird/content/blist.xul");
 pref("general.useragent.extra.instantbird", "InstantBird/0.1");
 pref("accessibility.browsewithcaret", true);
 

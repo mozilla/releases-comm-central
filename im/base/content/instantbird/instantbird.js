@@ -1,25 +1,17 @@
-// For Venkman
-
-function toOpenWindowByType(inType, uri) {
-  var winopts = "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar";
-  window.open(uri, "_blank", winopts);
-}
-
-// End { For Venkman }
-
-const events = ["new-text", "new message", "new-conversation"];
-
-const addonManagerWindow = "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
-const errorConsoleWindow = "chrome://global/content/console.xul";
-const configWindow = "chrome://global/content/config.xul";
-const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
-const blistWindow = "chrome://instantbird/content/blist.xul";
-const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
+const events = ["new-text",
+//              "new message",
+                "new-conversation",
+                "purple-quit"];
 
 var msgObserver = {
   convs: { },
   // Components.interfaces.nsIObserver
   observe: function mo_observe(aObject, aTopic, aData) {
+    if (aTopic == "purple-quit") {
+      window.close();
+      return;
+    }
+
     if (aTopic == "new-text") {
       if (!(aObject instanceof Ci.purpleIMessage))
 	throw "msgObserver.observe called without message";
@@ -52,9 +44,11 @@ var msgObserver = {
       return;
     }
 
+    /*
     if (aTopic == "new message") {
       setStatus(aTopic + " from " + aObject.name);
     }
+    */
   },
 
   ensureTwoDigits: function mo_ensureTwoDigits(aNumber) {
@@ -73,6 +67,8 @@ var msgObserver = {
     var tab = document.createElement("convtab");
     tab.setAttribute("label", aTitle);
     tabs.appendChild(tab);
+    if (!tabs.selectedItem)
+      tabs.selectedItem = tab;
 
     conv.conv = aConv;
     conv.tab = tab;
@@ -150,86 +146,31 @@ var msgObserver = {
 
   onCommandClose: function mo_onCommandClose(aEvent) {
     this.closeTab(this.contextTab);
+  },
+
+  load: function mo_load() {
+    addObservers(msgObserver, events);
+    if (window.pendingNotifications) {
+      let notifications = window.pendingNotifications;
+      for (let i = 0; i < notifications.length; ++i) {
+        let notif = notifications[i];
+        msgObserver.observe(notif.object, notif.topic, notif.msg);
+      }
+      delete window.pendingNotifications;
+    }
+    window.addEventListener("unload", msgObserver.unload, false);
+  },
+  unload: function mo_unload() {
+    removeObservers(msgObserver, events);
   }
 };
 
+/*
 function setStatus(aMsg)
 {
   var status = document.getElementById("status");
   status.setAttribute("label", aMsg);
 }
+*/
 
-
-function debug_enumerateProtocols()
-{
-  dump("trying to enumerate protocols:\n");
-  var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                      .getService(Ci.purpleICoreService);
-  for (let proto in getIter(pcs.getProtocols, Ci.purpleIProtocol)) {
-    dump(" " + proto.name + " " + proto.id + "\n");
-    for (let opt in getIter(proto.getOptions, Ci.purpleIPref)) {
-      var type = { };
-      type[opt.typeBool] = ["bool", opt.getBool];
-      type[opt.typeInt] = ["int", opt.getInt];
-      type[opt.typeString] = ["string", opt.getString];
-      dump("  ("+ type[opt.type][0] + ") "  +
-	   opt.name + (opt.masked ? "(masked)" : "") + "\t" +
-	   type[opt.type][1]() + "\n");
-    }
-  }
-}
-
-function debug_connectAccount(aProto, aName, aPassword)
-{
-  var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                      .getService(Ci.purpleICoreService);
-
-  var proto = pcs.getProtocolById(aProto);
-  if (!proto)
-    throw "Couldn't get protocol " + aProto;
-
-  var acc = pcs.createAccount(aName, proto);
-  acc.password = aPassword;
-  dump("trying to connect to " + proto.name +
-       " (" + proto.id + ") with " + aName + "\n");
-  acc.connect();
-}
-
-function initPurpleCore()
-{
-  try {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    setStatus("libpurple version " + pcs.version + " loaded!");
-    pcs.init();
-    addObservers(msgObserver, events);
-
-    openWindow(blistWindow);
-  }
-  catch (e) {
-    alert(e);
-  }
-
-  this.addEventListener("unload", uninitPurpleCore, false);
-}
-
-function uninitPurpleCore()
-{
-  try {
-    removeObservers(msgObserver, events);
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    pcs.quit();
-  }
-  catch (e) {
-    alert(e);
-  }
-}
-
-function openWindow(aUrl)
-{
-  window.open(aUrl, "_blank",
-    "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
-}
-
-this.addEventListener("load", initPurpleCore, false);
+this.addEventListener("load", msgObserver.load, false);

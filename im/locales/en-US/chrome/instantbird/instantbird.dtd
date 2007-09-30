@@ -1,5 +1,10 @@
-<!ENTITY mainWindow.title   "InstantBird - the Instant Messaging client reloaded">
-<!ENTITY venkman.button     "Venkman">
-<!ENTITY accountManager     "Account Manager">
-<!ENTITY addonManager       "Addons">
+<!ENTITY convWindow.title   "&brandShortName; - Conversations">
+<!ENTITY blist.title        "&brandShortName; - Buddy list">
+<!ENTITY file.menu          "File">
+<!ENTITY addBuddy           "Add Buddy">
+<!ENTITY tools.menu         "Tools">
+<!ENTITY accountManager     "Accounts">
+<!ENTITY addonManager       "Add-ons">
+<!ENTITY help.menu          "?">
+<!ENTITY about.menu         "About &brandShortName;">
 <!ENTITY conversation.contextMenu.close "Close Tab">

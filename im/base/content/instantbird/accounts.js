@@ -21,8 +21,13 @@ var gAccountManager = {
       this.accountList.appendChild(elt);
       elt.build(acc);
     }
-    this.accountList.selectedIndex = 0;
     addObservers(this, events);
+    if (!this.accountList.getRowCount())
+      // This is horrible, but it works. Otherwise (at least on mac)
+      // the wizard is not centered relatively to the account manager
+      setTimeout(function() { gAccountManager.new(); }, 0);
+    else
+      this.accountList.selectedIndex = 0;
     window.addEventListener("unload", this.unload, false);
   },
   unload: function am_unload() {

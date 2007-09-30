@@ -18,9 +18,8 @@ var addBuddy = {
       item.setAttribute("class", "menuitem-iconic");
     }
     if (!accountList.itemCount) {
-      window.close();
-      alert("No connected account!");
-      return;
+      document.getElementById("addBuddyDialog").cancelDialog();
+      throw "No connected account!";
     }
     accountList.selectedIndex = 0;
   },

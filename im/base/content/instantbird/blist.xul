@@ -4,17 +4,44 @@
 <?xml-stylesheet href="chrome://instantbird/content/blist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/blist.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+<!DOCTYPE window [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %instantbirdDTD;
+  %brandDTD;
+]>
 
 <window
   id     = "instantbird"
-  title  = "&mainWindow.title;"
+  title  = "&blist.title;"
   width  = "200"
   height = "600"
-  persist= "width height"
+  persist= "width height screenX screenY"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/menus.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
+
+  <menubar id="blistMenubar">
+    <menu label="&file.menu;" id="fileMenu">
+      <menupopup>
+        <menuitem id="addBuddyMenuItem" label="&addBuddy;" oncommand="menus.addBuddy()"/>
+      </menupopup>
+    </menu>
+    <menu label="&tools.menu;" id="toolsMenu">
+      <menupopup>
+        <menuitem id="accountsMenuItem" label="&accountManager;" oncommand="menus.accounts()"/>
+        <menuseparator/>
+        <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
+      </menupopup>
+    </menu>
+    <menu label="&help.menu;" hidden="true" id="helpMenu">
+      <menupopup>
+        <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
+      </menupopup>
+    </menu>
+  </menubar>
 
   <richlistbox id="buddylistbox" flex="1"/>
 

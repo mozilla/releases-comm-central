@@ -50,6 +50,7 @@
 <dialog xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="aboutDialog"
+        windowtype="Messenger:About"
         buttons="accept,extra2"
         onload="onLoad();"
         title="&aboutDialog.title;" creditslabel="&credits.label;" creditsaccesskey="&credits.accesskey;"

@@ -4,7 +4,7 @@
 <!DOCTYPE window SYSTEM "chrome://instantbird/locale/addbuddy.dtd">
 
 <dialog
-  id     = "account"
+  id     = "addBuddyDialog"
   title  = "&addBuddyWindow.title;"
   buttons= "accept,cancel"
   width  = "300"
