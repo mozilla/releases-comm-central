@@ -19,6 +19,16 @@
  <script type="application/javascript" src="chrome://instantbird/content/accounts.js"/>
 
  <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
+
+ <commandset id="accountsCommands">
+   <command id="cmd_close" oncommand="gAccountManager.close()"/>
+ </commandset>
+
+ <keyset id="accountsKeys">
+   <key id="key_close1" key="w" modifiers="accel" command="cmd_close"/>
+   <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
+ </keyset>
+
  <richlistbox id="accountlist" flex="1"/>
  <hbox id="bottombuttons">
   <button id="newaccount" oncommand="gAccountManager.new()"

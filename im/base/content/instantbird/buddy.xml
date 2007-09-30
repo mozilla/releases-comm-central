@@ -95,6 +95,12 @@
          var convWindow = wm.getMostRecentWindow("Messenger:convs");
          if (convWindow)
            convWindow.msgObserver.focusConv(conv);
+         else {
+           // the conversation window has been closed. Force reopening.
+           var os = Components.classes["@mozilla.org/observer-service;1"]
+                              .getService(Components.interfaces.nsIObserverService);
+           os.notifyObservers(conv, "new-conversation", null);
+         }
        ]]>
      </handler>
     </handlers>

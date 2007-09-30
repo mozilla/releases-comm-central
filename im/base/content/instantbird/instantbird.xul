@@ -20,6 +20,15 @@
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
+
+  <commandset id="conversationsCommands">
+    <command id="cmd_close" oncommand="msgObserver.closeCurrentTab()"/>
+  </commandset>
+
+  <keyset id="conversationsKeys">
+    <key id="key_close" key="w" modifiers="accel" command="cmd_close"/>
+  </keyset>
+
   <tabbox flex="1">
     <tabs id="tabs" context="tabs-context-menu" onselect="msgObserver.onSelectTab();"/>
     <tabpanels id="panels" flex="1"/>

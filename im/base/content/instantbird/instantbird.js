@@ -59,6 +59,9 @@ var msgObserver = {
   },
 
   addConvTab: function mo_addConvTab(aConv, aTitle) {
+    if (aConv.id in this.convs)
+      return this.convs[aConv.id];
+
     var conv = document.createElement("conversation");
     var panels = document.getElementById("panels");
     panels.appendChild(conv);
@@ -99,6 +102,11 @@ var msgObserver = {
     panels.selectedPanel.focus();
   },
 
+  closeCurrentTab: function mo_closeCurrentTab() {
+    var tabs = document.getElementById("tabs");
+    this.closeTab(tabs.selectedItem);
+  },
+
   closeTab: function mo_closeTab(aTab) {
     var tabs = aTab.parentNode.childNodes;
     var i = aTab.parentNode.getIndexOfItem(aTab);
@@ -125,7 +133,7 @@ var msgObserver = {
           panels.selectedPanel = conv.nextSibling;
         }
         else {
-          // we should close the window!
+          window.close();
         }
       }
     }
