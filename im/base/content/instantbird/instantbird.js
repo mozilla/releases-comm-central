@@ -102,6 +102,11 @@ var msgObserver = {
     panels.selectedPanel.focus();
   },
 
+  onClickTab: function mo_onClickTab(aEvent) {
+    if (aEvent.button == 1 && aEvent.target.localName == "convtab")
+      this.closeTab(aEvent.target);
+  },
+
   closeCurrentTab: function mo_closeCurrentTab() {
     var tabs = document.getElementById("tabs");
     this.closeTab(tabs.selectedItem);

@@ -30,7 +30,8 @@
   </keyset>
 
   <tabbox flex="1">
-    <tabs id="tabs" context="tabs-context-menu" onselect="msgObserver.onSelectTab();"/>
+    <tabs id="tabs" context="tabs-context-menu"
+          onselect="msgObserver.onSelectTab();" onclick="msgObserver.onClickTab(event)"/>
     <tabpanels id="panels" flex="1"/>
   </tabbox>
   <menupopup id="tabs-context-menu" onpopupshowing="msgObserver.onPopupShowing(event);">
