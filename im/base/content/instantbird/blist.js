@@ -24,21 +24,15 @@ var buddyList = {
 */
       if (this.win && this.win.closed)
         this.win = null;
+
       if (!this.win) {
-        dump("openwindow\n");
         this.win = window.open(convWindow, "Conversations", "chrome,resizable");
-//        win.pendingNotifications = [ ];
         this.win.pendingNotifications = [{object: aBuddy, topic: aTopic, msg: aMsg}];
-        dump("adding pending not " + aTopic + "\n");
-        return;
       }
-      if (this.win.pendingNotifications) {
+      else if (this.win.pendingNotifications)
         this.win.pendingNotifications.push({object: aBuddy, topic: aTopic, msg: aMsg});
-        dump("appending not " + aTopic + " \n");
-      }
-      dump("plop\n");
+
       return;
-      
     }
 
     if (aTopic == "account-connected" || aTopic == "account-disconnected") {
