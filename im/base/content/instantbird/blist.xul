@@ -36,7 +36,7 @@
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
       </menupopup>
     </menu>
-    <menu label="&help.menu;" hidden="true" id="helpMenu">
+    <menu label="&help.menu;" id="aboutSeparator"> <!-- this id ensure it gets hidden on mac -->
       <menupopup>
         <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
       </menupopup>
