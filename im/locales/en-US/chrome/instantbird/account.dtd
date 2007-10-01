@@ -1,4 +1,4 @@
-<!ENTITY accountWindow.title           "InstantBird - create account">
+<!ENTITY accountWindow.title           "Instantbird - account properties">
 <!ENTITY account.general               "General">
 <!ENTITY account.advanced              "Advanced Options">
 <!ENTITY account.name                  "Username:">

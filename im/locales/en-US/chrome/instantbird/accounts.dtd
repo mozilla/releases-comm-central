@@ -1,4 +1,4 @@
-<!ENTITY accountManager.title                "InstantBird - Account manager">
+<!ENTITY accountManager.title                "Instantbird - Account manager">
 <!ENTITY accountManager.newAccount.label     "New Account">
 <!ENTITY accountManager.newAccount.accesskey "N">
 <!ENTITY accountManager.close.label          "Close">
