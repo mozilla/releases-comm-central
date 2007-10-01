@@ -139,7 +139,7 @@
       </vbox>
 
       <vbox flex="1" id="creditsBox">
-        <html:iframe style="border: 0px;" id="creditsIframe" src="chrome://messenger/content/credits.xhtml" flex="1"/>
+        <html:iframe style="border: 0px;" id="creditsIframe" flex="1"/>
       </vbox> 
     </deck>   
   
