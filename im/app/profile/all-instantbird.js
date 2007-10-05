@@ -17,11 +17,11 @@ pref("extensions.dss.switchPending", false);
 pref("extensions.ignoreMTimeChanges", false);
 pref("extensions.logging.enabled", false);
 pref("general.skins.selectedSkin", "classic/1.0");
-// NB these point at AMO
-pref("extensions.update.url", "chrome://mozapps/locale/extensions/extensions.properties");
-pref("extensions.getMoreExtensionsURL", "chrome://mozapps/locale/extensions/extensions.properties");
-pref("extensions.getMoreThemesURL", "chrome://mozapps/locale/extensions/extensions.properties");
-
+// NB these point at addons.instantbird.org
+pref("extensions.update.url", "https://addons.instantbird.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%");
+pref("extensions.getMoreExtensionsURL", "http://addons.instantbird.org/%LOCALE%/%VERSION%/extensions/");
+pref("extensions.getMoreThemesURL", "http://addons.instantbird.org/%LOCALE%/%VERSION%/themes/");
+pref("extensions.getMorePluginsURL", "http://addons.instantbird.org/%LOCALE%/%VERSION%/plugins/");
 // suppress external-load warning for standard browser schemes
 pref("network.protocol-handler.warn-external.http", false);
 pref("network.protocol-handler.warn-external.https", false);
