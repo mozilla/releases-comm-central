@@ -2,9 +2,6 @@ pref("toolkit.defaultChromeURI", "chrome://instantbird/content/blist.xul");
 pref("general.useragent.extra.instantbird", "Instantbird/0.1");
 pref("accessibility.browsewithcaret", true);
 
-pref("javascript.options.showInConsole", true);
-pref("javascript.options.strict", true);
-
 pref("messenger.accounts", "");
 
 /* Extension manager */
