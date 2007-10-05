@@ -25,6 +25,8 @@
               onpageadvanced="return accountWizard.selectProtocol();">
     <description>&accountProtocolInfo.label;</description>
     <separator/>
+    <label value="&accountProtocolField.label;" control="protolist"
+           id="protoLabel" hidden="true"/>
     <listbox flex="1" id="protolist"/>
   </wizardpage>
 
@@ -35,7 +37,7 @@
     <description>&accountUsernameInfo.label;</description>
     <separator/>
     <hbox id="nameBox" align="baseline">
-      <label value="&accountUsernameField.label;" control="name"/>
+      <label value="&accountUsernameField.label;" control="name" id="nameLabel"/>
       <textbox id="name" oninput="accountWizard.checkUsername();"/>
     </hbox>
     <separator/>
@@ -48,7 +50,7 @@
     <description>&accountPasswordInfo.label;</description>
     <separator/>
     <hbox id="passwordBox" align="baseline">
-      <label value="&accountPasswordField.label;" control="password"/>
+      <label value="&accountPasswordField.label;" control="password" id="passwordLabel"/>
       <textbox id="password" type="password"/>
     </hbox>
   </wizardpage>
@@ -58,7 +60,7 @@
     <description>&accountAliasInfo.label;</description>
     <separator/>
     <hbox id="aliasBox" align="baseline">
-      <label value="&accountAliasField.label;" control="alias" />
+      <label value="&accountAliasField.label;" control="alias" id="aliasLabel"/>
       <textbox id="alias"/>
     </hbox>
   </wizardpage>

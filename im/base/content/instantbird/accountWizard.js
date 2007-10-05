@@ -141,19 +141,24 @@ var accountWizard = {
     while (child = rows.firstChild)
       rows.removeChild(child);
 
-    rows.appendChild(this.createSummaryRow("Protocol:", this.proto.name));
+    var label = document.getElementById("protoLabel").value;
+    rows.appendChild(this.createSummaryRow(label, this.proto.name));
     this.username = this.getValue("name");
-    rows.appendChild(this.createSummaryRow("Username:", this.username));
+    label = document.getElementById("nameLabel").value;
+    rows.appendChild(this.createSummaryRow(label, this.username));
     if (!this.proto.noPassword) {
       this.password = this.getValue("password");
+      label = document.getElementById("passwordLabel").value;
       var pass = "";
       for (let i = 0; i < this.password.length; ++i)
         pass += "*";
-      rows.appendChild(this.createSummaryRow("Password:", pass));
+      rows.appendChild(this.createSummaryRow(label, pass));
     }
     this.alias = this.getValue("alias");
-    if (this.alias)
-      rows.appendChild(this.createSummaryRow("Alias:", this.alias));
+    if (this.alias) {
+      label = document.getElementById("aliasLabel").value;
+      rows.appendChild(this.createSummaryRow(label, this.alias));
+    }
 
 /* FIXME
     if (this.proto.newMailNotification)
