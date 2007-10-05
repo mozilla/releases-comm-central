@@ -28,7 +28,7 @@ var msgObserver = {
 
       var txt = '<span class="date">' + time + '</span>'
             + ' <span class="' + pseudoClass + '">' + name  + ":</span> "
-            + aObject.message;
+            + aObject.message.replace(/\n/g, "<br/>");
 
       var id = conv.id;
       var tab = this.convs[id] || this.addConvTab(conv, conv.name);
