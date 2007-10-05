@@ -90,6 +90,22 @@
       ]]>
       </body>
      </method>
+
+     <method name="updateBuddy">
+      <parameter name="aPab"/>
+      <body>
+      <![CDATA[
+        var buddy = aPab.buddy;
+
+        for (var i = 0; i < this.buddies.length; ++i) {
+          if (this.buddies[i].buddyId == buddy.id) {
+            this.buddies[i].update();
+            return;
+          }
+        }
+      ]]>
+      </body>
+     </method>
     </implementation>
   </binding>
 </bindings>

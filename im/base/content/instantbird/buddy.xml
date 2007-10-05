@@ -10,8 +10,12 @@
   <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
       <xul:hbox>
-	<xul:image xbl:inherits="src=icon" class="prplBuddyIcon"/>
-	<xul:label xbl:inherits="value=displayname"/>
+        <xul:stack class="prplBuddyIcon">
+	  <xul:image xbl:inherits="src=icon" class="protoIcon"/>
+	  <xul:image src="chrome://instantbird/skin/away.png"
+                     class="statusIcon"/>
+        </xul:stack>
+	<xul:label class="buddyDisplayName" xbl:inherits="value=displayname"/>
 	<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>
       </xul:hbox>
     </content>
@@ -40,6 +44,46 @@
         this.setAttribute("icon", "chrome://instantbird/skin/prpl/" +
                                       this.prpl + ".png");
         this.accounts = { };
+        this.update();
+      ]]>
+      </body>
+     </method>
+
+     <method name="update">
+      <body>
+      <![CDATA[
+        var away = true;
+        for (var id in this.accounts)
+          if (this.accounts[id].available) {
+            away = false;
+            break;
+          }
+        if (away) {
+          var status;
+          for (var id in this.accounts) {
+            status = this.accounts[id].status;
+            if (status)
+              break;
+          }
+          this.setAttribute("away", "true");
+          if (status)
+            this.tooltipText = status;
+        }
+        else {
+          this.removeAttribute("away");
+          this.tooltipText = "";
+        }
+
+        var idle = true;
+        for (var id in this.accounts)
+          if (!this.accounts[id].idle) {
+            idle = false;
+            break;
+          }
+        if (idle)
+          this.setAttribute("idle", "true");
+        else
+          this.removeAttribute("idle");
       ]]>
       </body>
      </method>
@@ -52,6 +96,7 @@
         if (id in this.accounts)
           throw "This buddy has already been added";
         this.accounts[id] = aPab;
+        this.update();
       ]]>
       </body>
      </method>
@@ -68,8 +113,10 @@
 
         delete this.accounts[id];
 
-        if (this.accounts.__count__)
+        if (this.accounts.__count__) {
+          this.update();
           return false;
+        }
 
         // No account left, this node is now useless, remove it
         this.parentNode.removeChild(this);

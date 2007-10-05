@@ -1,6 +1,8 @@
 const events = ["buddy-signed-on",
                 "buddy-signed-off",
                 "buddy-removed",
+                "buddy-away",
+                "buddy-idle",
                 "account-connected",
                 "account-disconnected",
                 "new-text",
@@ -59,6 +61,9 @@ var buddyList = {
         (aTopic == "buddy-removed" && groupElt)) {
       groupElt.signedOff(pab);
     }
+
+    if (aTopic == "buddy-idle" || aTopic == "buddy-away")
+      groupElt.updateBuddy(pab);
   },
 
   getAccounts: function bl_getAccounts() {

@@ -22,6 +22,14 @@ group[selected="true"] {
   max-height: 16px;
 }
 
+buddy:not([away="true"]) .statusIcon {
+  display: none;
+}
+
+buddy[idle="true"] .buddyDisplayName {
+  color: GrayText;
+}
+
 group label { 
   font-weight: bold;
 }
