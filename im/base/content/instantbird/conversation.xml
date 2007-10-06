@@ -27,7 +27,7 @@
             </xul:toolbar>
             <xul:editor anonid="editor" editortype="html" src="about:blank" flex="1"/>
           </xul:vbox>
-          <xul:textbox anonid="input" multiline="true" flex="1"/>
+          <xul:textbox anonid="input" multiline="true" spellcheck="true" flex="1"/>
         </xul:deck>
       </xul:vbox>
     </content>
