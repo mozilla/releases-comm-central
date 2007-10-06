@@ -105,7 +105,8 @@ var msgObserver = {
 
     var tabs = document.getElementById("tabs");
     var tab = document.createElement("convtab");
-    tab.setAttribute("label", aTitle);
+    tab.tooltipText = aTitle;
+    tab.setAttribute("label", aTitle.replace(/@.*/, ""));
     tabs.appendChild(tab);
     if (!tabs.selectedItem)
       tabs.selectedItem = tab;
