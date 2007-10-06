@@ -2,6 +2,7 @@
 <!ENTITY blist.title        "&brandShortName; - Buddy list">
 <!ENTITY file.menu          "File">
 <!ENTITY addBuddy           "Add Buddy">
+<!ENTITY getAway            "Get Away">
 <!ENTITY tools.menu         "Tools">
 <!ENTITY accountManager     "Accounts">
 <!ENTITY addonManager       "Add-ons">

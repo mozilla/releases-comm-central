@@ -36,5 +36,9 @@ var menus = {
   addBuddy: function menu_addBuddy() {
     window.openDialog(addBuddyWindow, "",
                       "chrome,modal,titlebar,centerscreen");
+  },
+
+  getAway: function menu_getAway() {
+    buddyList.getAway();
   }
 };

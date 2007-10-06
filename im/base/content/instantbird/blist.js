@@ -93,6 +93,43 @@ var buddyList = {
   unload: function bl_unload() {
     removeObservers(buddyList, events);
     uninitPurpleCore();
+  },
+
+  getAway: function bl_getAway() {
+    // prompt the user to enter an away message
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                           .getService(Components.interfaces.nsIPromptService);
+    var bundle = document.getElementById("awayBundle");
+    var message = {value: bundle.getString("away.default.message")};
+    if (!prompts.prompt(window, bundle.getString("away.prompt.title"),
+                        bundle.getString("away.prompt.message"), message,
+                        null, {value: false}))
+      return; // the user canceled
+
+    // actually get away
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Components.interfaces.purpleICoreService);
+    pcs.away(message.value);
+
+    // display the notification on the buddy list
+    var buttons = [{
+      accessKey: "",
+      label: bundle.getString("away.back.button"),
+      popup: null,
+      callback: buddyList.getBack
+    }];
+    var nbox = document.getElementById("buddyListMsg");
+    var notif = nbox.appendNotification(message.value, null,
+                                        "chrome://instantbird/skin/away-16.png",
+                                        nbox.PRIORITY_INFO_MEDIUM, buttons);
+    notif.setAttribute("hideclose", "true");
+    document.getElementById("getAwayMenuItem").disabled = true;
+  },
+  getBack: function bl_getBack() {
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Components.interfaces.purpleICoreService);
+    pcs.back(null);
+    document.getElementById("getAwayMenuItem").disabled = false;
   }
 };
 
