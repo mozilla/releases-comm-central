@@ -206,8 +206,8 @@ var accountWizard = {
     var id = this.proto.id;
     this.prefs = [ ];
     for (let opt in this.getProtoOptions()) {
-      let name = id + "-" + opt.name;
-      let val = this.getValue(name);
+      let name = opt.name;
+      let val = this.getValue(id + "-" + name);
       switch (opt.type) {
       case opt.typeBool:
 	if (val != opt.getBool())
@@ -228,7 +228,7 @@ var accountWizard = {
 
     for (let i = 0; i < this.prefs.length; ++i) {
       let opt = this.prefs[i];
-      let text = bundle.getString(id + "." + opt.opt.name);
+      let text = bundle.getString(id + "." + opt.name);
       rows.appendChild(this.createSummaryRow(text, opt.value));
     }
   },
