@@ -64,21 +64,21 @@
 
   <menubar id="blistMenubar">
     <menu label="&file.menu;" id="fileMenu">
-      <menupopup>
+      <menupopup id="fileMenuPopup">
         <menuitem id="addBuddyMenuItem" label="&addBuddy;" oncommand="menus.addBuddy()"/>
         <menuseparator/>
         <menuitem id="getAwayMenuItem" label="&getAway;" oncommand="menus.getAway()"/>
       </menupopup>
     </menu>
     <menu label="&tools.menu;" id="toolsMenu">
-      <menupopup>
+      <menupopup id="toolsMenuPopup">
         <menuitem id="accountsMenuItem" label="&accountManager;" oncommand="menus.accounts()"/>
         <menuseparator/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
       </menupopup>
     </menu>
     <menu label="&help.menu;" id="aboutSeparator"> <!-- this id ensure it gets hidden on mac -->
-      <menupopup>
+      <menupopup id="helpMenuPopup">
         <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
       </menupopup>
     </menu>
