@@ -1,5 +1,5 @@
-<!ENTITY convWindow.title   "&brandShortName; - Conversations">
-<!ENTITY blist.title        "&brandShortName; - Buddy list">
+<!ENTITY convWindow.title   "Conversations - &brandShortName;">
+<!ENTITY blist.title        "Buddy list - &brandShortName;">
 <!ENTITY file.menu          "File">
 <!ENTITY addBuddy           "Add Buddy">
 <!ENTITY getAway            "Get Away">
