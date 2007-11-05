@@ -177,8 +177,10 @@
          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
          var convWindow = wm.getMostRecentWindow("Messenger:convs");
-         if (convWindow)
+         if (convWindow) {
            convWindow.msgObserver.focusConv(conv);
+           convWindow.focus();
+         }
          else {
            // the conversation window has been closed. Force reopening.
            var os = Components.classes["@mozilla.org/observer-service;1"]
