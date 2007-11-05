@@ -76,7 +76,23 @@ var addBuddy = {
   create: function ab_create() {
     var account = this.pcs.getAccountById(this.getValue("accountlist"));
     var tag = this.pcs.getTagById(this.getValue("taglist"));
-    this.pcs.addBuddy(account, tag, this.getValue("name"));
+    var name = this.getValue("name")
+
+    // For now this will allow to join an IRC chan. It should be removed later
+    if (name[0] == "#" && account.protocol.id == "prpl-irc") {
+      var conv = account.joinChat(name);
+      if (!conv)
+        return;
+      var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                         .getService(Components.interfaces.nsIWindowMediator);
+      var convWindow = wm.getMostRecentWindow("Messenger:convs");
+      if (convWindow) {
+        convWindow.msgObserver.focusConv(conv);
+        convWindow.focus();
+      }
+    }
+    else
+      this.pcs.addBuddy(account, tag, name);
   },
 
   getAccounts: function ab_getAccounts() {
