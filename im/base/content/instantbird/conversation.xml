@@ -128,8 +128,10 @@
         var elt = doc.getElementById("ibcontent");
         var newElt = doc.createElement("p");
         newElt.innerHTML = aTxt;
+        var shouldScroll = elt.scrollHeight == elt.scrollTop + elt.clientHeight;
         elt.appendChild(newElt);
-        newElt.scrollIntoView(true);
+        if (shouldScroll)
+          newElt.scrollIntoView(true);
 
         if (this.tab && !this.tab.selected) {
           this.tab.setAttribute("unread", "true");
