@@ -162,6 +162,9 @@ var msgObserver = {
       throw "Can't find the conversation associated with the tab.";
     delete this.convs[conv.convId];
 
+    conv.conv.close(); //FIXME We shouldn't need this, why isn't the destructor
+                       //      of the conversation binding called??
+
     if (aTab.selected) {
       if (i) {
         // we are not on the first tab

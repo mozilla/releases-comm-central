@@ -95,6 +95,12 @@
       ]]>
      </constructor>
 
+     <destructor>
+      <![CDATA[
+        this._conv.close();
+      ]]>
+     </destructor>
+
      <field name="loaded">false</field>
      <field name="messageQueue">[]</field>
 
