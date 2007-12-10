@@ -51,25 +51,39 @@ var msgObserver = {
 
     if (aTopic == "new-text") {
       if (!(aObject instanceof Ci.purpleIMessage))
-	throw "msgObserver.observe called without message";
+        throw "msgObserver.observe called without message";
      
       var conv = aObject.conversation;
       var time = aObject.time;
       var name = aObject.alias ||aObject.who;
       var pseudoClass = "pseudo";
       if (aObject.incoming)
-	pseudoClass += " incoming";
+        pseudoClass += " incoming";
       else
-	if (aObject.outgoing)
-	  pseudoClass += " outgoing";
+        if (aObject.outgoing)
+          pseudoClass += " outgoing";
 
-      var txt = '<span class="date">' + time + '</span>'
-            + ' <span class="' + pseudoClass + '">' + name  + ":</span> "
-            + aObject.message.replace(/\n/g, "<br/>");
+      var msgClass = [];
+      if (aObject.system)
+        msgClass.push("system");
+      if (aObject.containsNick)
+        msgClass.push("nick");
+      var txt = '<span class="date">' + time + '</span> ';
+
+      var me = aObject.message.match("/me(.*)");
+      if (!aObject.system)
+        txt += '<span class="' + pseudoClass + '">' + name  + (me ? "</span> " : ":</span> ");
+      
+      txt += (me ? me[1] : aObject.message).replace(/\n/g, "<br/>");
+      if (me)
+        msgClass.push("me");
 
       var id = conv.id;
       var tab = this.convs[id] || this.addConvTab(conv, conv.name);
-      tab.addTxt(txt);
+      tab.addTxt(txt, msgClass.join(" "));
+
+      if (!aObject.system)
+        window.getAttention();
       return;
     }
 

@@ -50,6 +50,24 @@
 .date {
   font-family: Verdana, Arial, sans-serif;
   font-size: small;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.system {
+  color: gray;
+}
+
+.nick {
+  font-weight: bold;
+}
+
+.nick .pseudo {
+  text-decoration: underline;
+}
+
+.me{
+  font-style: italic;
 }
 
 p {

@@ -106,18 +106,20 @@
 
      <method name="addTxt">
       <parameter name="aTxt"/>
+      <parameter name="aClass"/>
       <body>
       <![CDATA[
         if (this.loaded)
-          this._addTxt(aTxt);
+          this._addTxt(aTxt, aClass);
         else
-          this.messageQueue.push(aTxt);
+          this.messageQueue.push([aTxt, aClass]);
       ]]>
       </body>
      </method>
 
      <method name="_addTxt">
       <parameter name="aTxt"/>
+      <parameter name="aClass"/>
       <body>
       <![CDATA[
         if (!this.loaded)
@@ -128,6 +130,7 @@
         var elt = doc.getElementById("ibcontent");
         var newElt = doc.createElement("p");
         newElt.innerHTML = aTxt;
+        newElt.className = aClass;
         var shouldScroll = elt.scrollHeight == elt.scrollTop + elt.clientHeight;
         elt.appendChild(newElt);
         if (shouldScroll)
@@ -235,8 +238,10 @@
           var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
           browser.removeProgressListener(this);
           this.loaded = true;
-          for (var i = 0; i < this.messageQueue.length; ++i)
-            this._addTxt(this.messageQueue[i]);
+          for (var i = 0; i < this.messageQueue.length; ++i) {
+            var msg = this.messageQueue[i];
+            this._addTxt(msg[0], msg[1]);
+          }
           this.messageQueue = null;
         }
       ]]>
