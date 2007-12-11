@@ -70,7 +70,7 @@ var msgObserver = {
         msgClass.push("nick");
       var txt = '<span class="date">' + time + '</span> ';
 
-      var me = aObject.message.match("/me(.*)");
+      var me = aObject.message.match("^/me(.*)");
       if (!aObject.system)
         txt += '<span class="' + pseudoClass + '">' + name  + (me ? "</span> " : ":</span> ");
       
