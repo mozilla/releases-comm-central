@@ -70,6 +70,10 @@ convtab[unread] {
   color: red !important;
 }
 
+convtab[attention] { 
+  color: blue !important;
+}
+
 convtab > .tab-image-middle > .tab-text {
   border: 1.4pt solid transparent;
 }

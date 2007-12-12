@@ -69,28 +69,29 @@ const soundEvents = ["buddy-signed-on",
 
 var soundObserver = {
   observe: function so_observe(aObject, aTopic, aMsg) {
-    if (aTopic == "buddy-signed-on") {
+    switch(aTopic) {
+    case "buddy-signed-on":
       soundHelper.play("login");
-      return;
-    }
+      break;
 
-    if (aTopic == "buddy-signed-off") {
+    case "buddy-signed-off":
       soundHelper.play("logout");
-      return;
-    }
+      break;
 
-    if (aTopic == "new-text") {
-      if (!(aObject instanceof Ci.purpleIMessage))
-	throw "soundObserver.observe called without message";
-      if (aObject.incoming)
-        soundHelper.play("incoming");
+    case "new-text":
+      aObject.QueryInterface(Ci.purpleIMessage);
+      if (aObject.incoming && !aObject.system) {
+        if (!aObject.conversation.isChat || aObject.containsNick)
+          soundHelper.play("incoming");
+      }
       else
-	if (aObject.outgoing)
+        if (aObject.outgoing)
           soundHelper.play("outgoing");
-      return;
-    }
+      break;
 
-    throw "bad notification";
+    default:
+      throw "bad notification";
+    }
   },
   load: function so_load() {
     addObservers(soundObserver, soundEvents);

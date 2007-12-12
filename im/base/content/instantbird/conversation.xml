@@ -146,8 +146,10 @@
 
         this._addTxt(txt, msgClass.join(" "));
 
-        if (this.tab && !this.tab.selected) {
-          if (!aMsg.system)
+        if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
+          if (aMsg.conversation.isChat && aMsg.containsNick)
+            this.tab.setAttribute("attention", "true");
+          else
             this.tab.setAttribute("unread", "true");
         }
       ]]>

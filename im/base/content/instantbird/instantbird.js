@@ -54,9 +54,10 @@ var msgObserver = {
       var tab = this.convs[conv.id] || this.addConvTab(conv, conv.name);
       tab.addMsg(aObject);
 
-      if (!aObject.system)
+      if (aObject.incoming && !aObject.system &&
+          (!aObject.conversation.isChat || aObject.containsNick))
         window.getAttention();
-      return;
+      break;
 
     case "new-conversation":
       aObject.QueryInterface(Ci.purpleIConversation);
@@ -109,6 +110,7 @@ var msgObserver = {
     var tabs = document.getElementById("tabs");
     var tab = tabs.selectedItem;
     tab.removeAttribute("unread");
+    tab.removeAttribute("attention");
     var panels = document.getElementById("panels");
     panels.selectedPanel.focus();
   },
