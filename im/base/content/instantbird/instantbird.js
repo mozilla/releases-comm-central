@@ -36,7 +36,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 const events = ["new-text",
-//              "new message",
                 "new-conversation",
                 "purple-quit"];
 
@@ -44,69 +43,29 @@ var msgObserver = {
   convs: { },
   // Components.interfaces.nsIObserver
   observe: function mo_observe(aObject, aTopic, aData) {
-    if (aTopic == "purple-quit") {
+    switch(aTopic) {
+    case "purple-quit":
       window.close();
-      return;
-    }
+      break;
 
-    if (aTopic == "new-text") {
-      if (!(aObject instanceof Ci.purpleIMessage))
-        throw "msgObserver.observe called without message";
-     
+    case "new-text":
+      aObject.QueryInterface(Ci.purpleIMessage);
       var conv = aObject.conversation;
-      var time = aObject.time;
-      var name = aObject.alias ||aObject.who;
-      var pseudoClass = "pseudo";
-      if (aObject.incoming)
-        pseudoClass += " incoming";
-      else
-        if (aObject.outgoing)
-          pseudoClass += " outgoing";
-
-      var msgClass = [];
-      if (aObject.system)
-        msgClass.push("system");
-      if (aObject.containsNick)
-        msgClass.push("nick");
-      var txt = '<span class="date">' + time + '</span> ';
-
-      var me = aObject.message.match("^/me(.*)");
-      if (!aObject.system)
-        txt += '<span class="' + pseudoClass + '">' + name  + (me ? "</span> " : ":</span> ");
-      
-      txt += (me ? me[1] : aObject.message).replace(/\n/g, "<br/>");
-      if (me)
-        msgClass.push("me");
-
-      var id = conv.id;
-      var tab = this.convs[id] || this.addConvTab(conv, conv.name);
-      tab.addTxt(txt, msgClass.join(" "));
+      var tab = this.convs[conv.id] || this.addConvTab(conv, conv.name);
+      tab.addMsg(aObject);
 
       if (!aObject.system)
         window.getAttention();
       return;
-    }
 
-    if (!(aObject instanceof Ci.purpleIConversation))
-      throw "msgObserver.observe called without conversation";
-
-    if (aTopic == "new-conversation") {
+    case "new-conversation":
+      aObject.QueryInterface(Ci.purpleIConversation);
       this.addConvTab(aObject, aObject.name);
-      return;
-    }
+      break;
 
-    /*
-    if (aTopic == "new message") {
-      setStatus(aTopic + " from " + aObject.name);
+    default:
+      throw "Bad notification";
     }
-    */
-  },
-
-  ensureTwoDigits: function mo_ensureTwoDigits(aNumber) {
-    if (aNumber < 10)
-      return "0" + aNumber;
-    else
-      return aNumber;
   },
 
   addConvTab: function mo_addConvTab(aConv, aTitle) {

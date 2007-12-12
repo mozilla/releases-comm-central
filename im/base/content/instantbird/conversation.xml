@@ -104,15 +104,52 @@
      <field name="loaded">false</field>
      <field name="messageQueue">[]</field>
 
-     <method name="addTxt">
-      <parameter name="aTxt"/>
-      <parameter name="aClass"/>
+     <method name="addMsg">
+      <parameter name="aMsg"/>
       <body>
       <![CDATA[
         if (this.loaded)
-          this._addTxt(aTxt, aClass);
+          this._addMsg(aMsg);
         else
-          this.messageQueue.push([aTxt, aClass]);
+          this.messageQueue.push(aMsg);
+      ]]>
+      </body>
+     </method>
+
+     <method name="_addMsg">
+      <parameter name="aMsg"/>
+      <body>
+      <![CDATA[
+        var time = aMsg.time;
+        var name = aMsg.alias ||aMsg.who;
+        var pseudoClass = "pseudo";
+        if (aMsg.incoming)
+          pseudoClass += " incoming";
+        else
+          if (aMsg.outgoing)
+            pseudoClass += " outgoing";
+
+        var msgClass = [];
+        if (aMsg.system)
+          msgClass.push("system");
+        if (aMsg.containsNick)
+          msgClass.push("nick");
+        var txt = '<span class="date">' + time + '</span> ';
+
+        var me = aMsg.message.match("^/me(.*)");
+        if (!aMsg.system)
+          txt += '<span class="' + pseudoClass + '">' + name  + (me ? "</span> " : ":</span> ");
+      
+        txt += (me ? me[1] : aMsg.message).replace(/\n/g, "<br/>");
+        if (me)
+          msgClass.push("me");
+
+        this._addTxt(txt, msgClass.join(" "));
+
+        if (this.tab && !this.tab.selected) {
+          if (!aMsg.system)
+            this.tab.setAttribute("unread", "true");
+        }
       ]]>
       </body>
      </method>
@@ -135,10 +172,6 @@
         elt.appendChild(newElt);
         if (shouldScroll)
           newElt.scrollIntoView(true);
-
-        if (this.tab && !this.tab.selected) {
-          this.tab.setAttribute("unread", "true");
-        }
       ]]>
       </body>
      </method>
@@ -238,10 +271,8 @@
           var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
           browser.removeProgressListener(this);
           this.loaded = true;
-          for (var i = 0; i < this.messageQueue.length; ++i) {
-            var msg = this.messageQueue[i];
-            this._addTxt(msg[0], msg[1]);
-          }
+          for (var i = 0; i < this.messageQueue.length; ++i)
+            this._addMsg(this.messageQueue[i]);
           this.messageQueue = null;
         }
       ]]>
