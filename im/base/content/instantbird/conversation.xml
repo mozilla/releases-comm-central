@@ -123,8 +123,27 @@
         var time = aMsg.time;
         var name = aMsg.alias ||aMsg.who;
         var pseudoClass = "pseudo";
-        if (aMsg.incoming)
-          pseudoClass += " incoming";
+        var color = "";
+        if (aMsg.incoming) {
+          var nick = aMsg.conversation.isChat && name.match(/[a-zA-Z0-9]+/);
+          if (nick) {
+            nick = nick[0].toLowerCase();
+            var weight = 10;
+            var res = 0;
+            for (var i = 0; i < nick.length; ++i) {
+               var char = nick.charCodeAt(i) - 47;
+               if (char > 10)
+                 char -= 39;
+               // now char contains a value between 1 and 36
+               res += char * weight;
+               weight *= 0.52; //arbitrary
+            }
+            res = Math.round(res) % 360;
+            color = " style=\"color: hsl(" + res + ", 100%, 50%)\"";
+          }
+          else
+            pseudoClass += " incoming";
+        }
         else
           if (aMsg.outgoing)
             pseudoClass += " outgoing";
@@ -138,7 +157,7 @@
 
         var me = aMsg.message.match("^/me(.*)");
         if (!aMsg.system)
-          txt += '<span class="' + pseudoClass + '">' + name  + (me ? "</span> " : ":</span> ");
+          txt += '<span class="' + pseudoClass + '"' + color + '>' + name  + (me ? "</span> " : ":</span> ");
       
         txt += (me ? me[1] : aMsg.message).replace(/\n/g, "<br/>");
         if (me)
