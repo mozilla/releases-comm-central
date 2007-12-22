@@ -104,11 +104,11 @@
           }
           this.setAttribute("away", "true");
           if (status)
-            this.tooltipText = status;
+            this.tooltipText = this.name + ': ' + status;
         }
         else {
           this.removeAttribute("away");
-          this.tooltipText = "";
+          this.tooltipText = this.name;
         }
 
         var idle = true;
