@@ -45,7 +45,25 @@ var soundHelper = {
     alert: "chrome://instantbird/skin/sounds/alert.wav"
   },
   _soundUri: { },
-  _sound: null,
+  _playingEvents: [ ],
+
+  get _sound() {
+    var sound = Components.classes["@mozilla.org/sound;1"]
+                          .createInstance(Ci.nsISound);
+    sound.init();
+
+    delete this._sound;
+    return (this._sound = sound);
+  },
+
+  _play: function sh__play() {
+    var uri = soundHelper._soundUri[soundHelper._playingEvents[0]];
+    soundHelper._sound.play(uri);
+    soundHelper._playingEvents.shift();
+    if (soundHelper._playingEvents.length)
+      setTimeout(soundHelper._play, 0);
+  },
+
   play: function sh_play(aEvent) {
     if (!(aEvent in this._soundUri)) {
       if (!(aEvent in this.soundFiles))
@@ -53,13 +71,9 @@ var soundHelper = {
       this._soundUri[aEvent] = makeURI(this.soundFiles[aEvent]);
     }
 
-    if (!this._sound) {
-      this._sound = Components.classes["@mozilla.org/sound;1"]
-                              .createInstance(Ci.nsISound);
-      this._sound.init();
-    }      
-
-    this._sound.play(this._soundUri[aEvent]);
+    if (this._playingEvents.indexOf(aEvent) == -1)
+      if (this._playingEvents.push(aEvent) == 1)
+        setTimeout(this._play, 0);
   }
 };
 
