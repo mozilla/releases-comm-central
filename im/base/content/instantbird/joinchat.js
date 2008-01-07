@@ -16,7 +16,7 @@
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2007
+ * Portions created by the Initial Developer are Copyright (C) 2008
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,60 +35,77 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+const autoJoinPref = "autoJoin";
 
-var addBuddy = {
-  onload: function ab_onload() {
+var joinChat = {
+  onload: function jc_onload() {
     this.pcs = Components.classes["@instantbird.org/purple/core;1"]
                          .getService(Ci.purpleICoreService);
     this.buildAccountList();
-    this.buildTagList();
   },
 
-  buildAccountList: function ab_buildAccountList() {
+  buildAccountList: function jc_buildAccountList() {
     var accountList = document.getElementById("accountlist");
     for (let acc in this.getAccounts()) {
       if (!acc.connected)
         continue;
       var proto = acc.protocol;
+      if (proto.id != "prpl-irc")
+        continue;
       var item = accountList.appendItem(acc.name, acc.id, proto.name);
       item.setAttribute("image", "chrome://instantbird/skin/prpl/" + proto.id + ".png");
       item.setAttribute("class", "menuitem-iconic");
     }
     if (!accountList.itemCount) {
-      document.getElementById("addBuddyDialog").cancelDialog();
-      throw "No connected account!";
+      document.getElementById("joinChatDialog").cancelDialog();
+      throw "No connected IRC account!";
     }
     accountList.selectedIndex = 0;
   },
 
-  buildTagList: function ab_buildTagList() {
-    var tagList = document.getElementById("taglist");
-    for (let tag in this.getTags())
-      tagList.appendItem(tag.name, tag.id);
-    tagList.selectedIndex = 0;
-  },
-
-  getValue: function ab_getValue(aId) {
+  getValue: function jc_getValue(aId) {
     var elt = document.getElementById(aId);
     return elt.value;
   },
 
-  create: function ab_create() {
+  join: function jc_join() {
     var account = this.pcs.getAccountById(this.getValue("accountlist"));
-    var tag = this.pcs.getTagById(this.getValue("taglist"));
     var name = this.getValue("name")
+    var conv = account.joinChat(name);
 
-    this.pcs.addBuddy(account, tag, name);
+    if (document.getElementById("autojoin").checked) {
+      var prefBranch = Components.classes["@mozilla.org/preferences-service;1"]
+                                 .getService(Ci.nsIPrefService)
+                                 .getBranch("messenger.account." + account.id + ".");
+      var autojoin = [ ];
+      if (prefBranch.prefHasUserValue(autoJoinPref)) {
+        var prefValue = prefBranch.getCharPref(autoJoinPref);
+        if (prefValue)
+          autojoin = prefValue.split(",");
+      }
+
+      if (autojoin.indexOf(name) == -1) {
+        autojoin.push(name);
+        prefBranch.setCharPref(autoJoinPref, autojoin.join(","));
+      }
+    }
+
+    // if the conversation is being created, |conv| will be null
+    // here. The new-conversation notification should be used to focus
+    // it when done.  If it is already opened, we should focus it now.
+    if (!conv)
+      return;
+
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                       .getService(Components.interfaces.nsIWindowMediator);
+    var convWindow = wm.getMostRecentWindow("Messenger:convs");
+    if (convWindow) {
+      convWindow.msgObserver.focusConv(conv);
+      convWindow.focus();
+    }
   },
 
-  getAccounts: function ab_getAccounts() {
+  getAccounts: function jc_getAccounts() {
     return getIter(this.pcs.getAccounts, Ci.purpleIAccount);
-  },
-  getTags: function ab_getTags() {
-    var DBConn = this.pcs.storageConnection;
-    var statement = DBConn.createStatement("SELECT id, name FROM tags");
-    while (statement.executeStep())
-      yield { id: statement.getInt32(0),
-              name: statement.getUTF8String(1) };
   }
 };

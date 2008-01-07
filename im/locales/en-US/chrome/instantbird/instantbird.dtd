@@ -2,6 +2,7 @@
 <!ENTITY blist.title        "Buddy list - &brandShortName;">
 <!ENTITY file.menu          "File">
 <!ENTITY addBuddy           "Add Buddy">
+<!ENTITY joinChat           "Join Chat">
 <!ENTITY getAway            "Get Away">
 <!ENTITY tools.menu         "Tools">
 <!ENTITY accountManager     "Accounts">

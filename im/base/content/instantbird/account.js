@@ -35,6 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+const autoJoinPref = "autoJoin";
 
 var account = {
   onload: function account_onload() {
@@ -52,14 +53,26 @@ var account = {
 
     document.getElementById("alias").value = this.account.alias;
 
+    this.prefService = Components.classes["@mozilla.org/preferences-service;1"]
+                                 .getService(Ci.nsIPrefService);
+    if (this.proto.id == "prpl-irc") {
+      document.getElementById("optionalSeparator").hidden = false;
+      document.getElementById("autojoinBox").hidden = false;
+      var branch = this.prefService.getBranch("messenger.account." +
+                                              this.account.id + ".");
+      if (branch.prefHasUserValue(autoJoinPref)) {
+        document.getElementById("autojoin").value =
+          branch.getCharPref(autoJoinPref);
+      }
+    }
+
 /* FIXME
     document.getElementById("newMailNotification").hidden =
       !this.proto.newMailNotification;
 */
 
-    this.prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                           .getService(Ci.nsIPrefService)
-                           .getBranch("messenger.account." + this.account.id + ".options.");
+    this.prefs = this.prefService.getBranch("messenger.account." +
+                                            this.account.id + ".options.");
     this.populateProtoSpecificBox();
   },
 
@@ -139,7 +152,7 @@ var account = {
     return elt.value;
   },
 
-  create: function account_create() {
+  save: function account_create() {
     var password = this.getValue("password");
     if (password != this.account.password)
       this.account.password = password;
@@ -149,6 +162,14 @@ var account = {
     var alias = this.getValue("alias");
     if (alias != this.account.alias)
       this.account.alias = alias;
+
+    if (this.proto.id == "prpl-irc") {
+      var branch = this.prefService.getBranch("messenger.account." +
+                                              this.account.id + ".");
+      var autojoin = this.getValue("autojoin");
+      if (autojoin || branch.prefHasUserValue(autoJoinPref))
+        branch.setCharPref(autoJoinPref, autojoin);
+    }
 
     for (let opt in this.getProtoOptions()) {
       var name = this.proto.id + "-" + opt.name;

@@ -6,3 +6,4 @@
 <!ENTITY account.rememberPassword      "remember password">
 <!ENTITY account.alias                 "Alias:">
 <!ENTITY account.newMailNotification   "Notify on new Mail">
+<!ENTITY account.autojoin              "Auto-Joined Channels:">

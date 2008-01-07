@@ -39,6 +39,7 @@ const addonManagerWindow = "chrome://mozapps/content/extensions/extensions.xul?t
 const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
 const blistWindow = "chrome://instantbird/content/blist.xul";
 const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
+const joinChatWindow = "chrome://instantbird/content/joinchat.xul";
 const aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
 const convWindow = "chrome://instantbird/content/instantbird.xul";
 
@@ -72,6 +73,11 @@ var menus = {
 
   addBuddy: function menu_addBuddy() {
     window.openDialog(addBuddyWindow, "",
+                      "chrome,modal,titlebar,centerscreen");
+  },
+
+  joinChat: function menu_joinChat() {
+    window.openDialog(joinChatWindow, "",
                       "chrome,modal,titlebar,centerscreen");
   },
 

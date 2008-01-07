@@ -46,6 +46,8 @@ const events = ["buddy-signed-on",
                 "new-conversation",
                 "purple-quit"];
 
+const autoJoinPref = "autoJoin";
+
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
     //dump("received signal: " + aTopic + "\n");
@@ -75,6 +77,24 @@ var buddyList = {
     }
 
     if (aTopic == "account-connected" || aTopic == "account-disconnected") {
+      var account = aBuddy.QueryInterface(Ci.purpleIAccount);
+      if (account.protocol.id == "prpl-irc") {
+        this.checkForIrcAccount();
+        if (aTopic == "account-connected") {
+          var branch = Components.classes["@mozilla.org/preferences-service;1"]
+                                 .getService(Ci.nsIPrefService)
+                                 .getBranch("messenger.account." +
+                                            account.id + ".");
+          if (branch.prefHasUserValue(autoJoinPref)) {
+            var autojoin = branch.getCharPref(autoJoinPref);
+            if (autojoin) {
+              autojoin = autojoin.split(",");
+              for (var i = 0; i < autojoin.length; ++i)
+                account.joinChat(autojoin[i]);
+            }
+          }
+        }
+      }
       this.checkNotDisconnected();
       return;
     }
@@ -120,10 +140,22 @@ var buddyList = {
     addBuddyItem.disabled = true;
     menus.accounts();
   },
+  checkForIrcAccount: function bl_checkForIrcAccount() {
+    var joinChatItem = document.getElementById("joinChatMenuItem");
+
+    for (let acc in this.getAccounts())
+      if (acc.connected && acc.protocol.id == "prpl-irc") {
+        joinChatItem.disabled = false;
+        return;
+      }
+
+    joinChatItem.disabled = true;
+  },
 
   load: function bl_load() {
     initPurpleCore();
     buddyList.checkNotDisconnected();
+    buddyList.checkForIrcAccount();
     addObservers(buddyList, events);
     this.addEventListener("unload", buddyList.unload, false);
   },

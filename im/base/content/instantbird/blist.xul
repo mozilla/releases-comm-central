@@ -66,6 +66,7 @@
     <menu label="&file.menu;" id="fileMenu">
       <menupopup id="fileMenuPopup">
         <menuitem id="addBuddyMenuItem" label="&addBuddy;" oncommand="menus.addBuddy()"/>
+        <menuitem id="joinChatMenuItem" label="&joinChat;" oncommand="menus.joinChat()"/>
         <menuseparator/>
         <menuitem id="getAwayMenuItem" label="&getAway;" oncommand="menus.getAway()"/>
       </menupopup>
