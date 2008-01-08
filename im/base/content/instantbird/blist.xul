@@ -73,6 +73,7 @@
     </menu>
     <menu label="&tools.menu;" id="toolsMenu">
       <menupopup id="toolsMenuPopup">
+        <menuitem id="soundsMenuItem" label="&sounds;" oncommand="menus.toggleSounds()" type="checkbox"/>
         <menuitem id="accountsMenuItem" label="&accountManager;" oncommand="menus.accounts()"/>
         <menuseparator/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>

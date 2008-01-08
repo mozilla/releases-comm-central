@@ -3,6 +3,7 @@ pref("general.useragent.extra.instantbird", "Instantbird/0.1");
 pref("accessibility.browsewithcaret", true);
 
 pref("messenger.accounts", "");
+pref("messenger.options.playSounds", true);
 
 /* Extension manager */
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");

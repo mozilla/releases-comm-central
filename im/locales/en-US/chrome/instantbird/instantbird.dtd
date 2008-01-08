@@ -6,6 +6,7 @@
 <!ENTITY getAway            "Get Away">
 <!ENTITY tools.menu         "Tools">
 <!ENTITY accountManager     "Accounts">
+<!ENTITY sounds             "Sounds">
 <!ENTITY addonManager       "Add-ons">
 <!ENTITY help.menu          "?">
 <!ENTITY about.menu         "About &brandShortName;">

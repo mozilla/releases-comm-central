@@ -35,6 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+const optPrefBranch = "messenger.options.";
+const soundsPref = "playSounds";
 
 var soundHelper = {
   soundFiles: {
@@ -47,6 +49,16 @@ var soundHelper = {
   _soundUri: { },
   _playingEvents: [ ],
 
+  _muted: false,
+  get muted() {
+    return this._muted;
+  },
+  set muted(val) {
+    this._muted = val;
+    if (val)
+      this._playingEvents = [ ];
+  },
+
   get _sound() {
     var sound = Components.classes["@mozilla.org/sound;1"]
                           .createInstance(Ci.nsISound);
@@ -57,6 +69,9 @@ var soundHelper = {
   },
 
   _play: function sh__play() {
+    if (this._muted)
+      return;
+
     var uri = soundHelper._soundUri[soundHelper._playingEvents[0]];
     soundHelper._sound.play(uri);
     soundHelper._playingEvents.shift();
@@ -65,6 +80,9 @@ var soundHelper = {
   },
 
   play: function sh_play(aEvent) {
+    if (this._muted)
+      return;
+
     if (!(aEvent in this._soundUri)) {
       if (!(aEvent in this.soundFiles))
         throw "bad sound event";
@@ -103,16 +121,30 @@ var soundObserver = {
           soundHelper.play("outgoing");
       break;
 
+    case "nsPref:changed":
+      if (aMsg == soundsPref)
+        soundHelper.muted = !this._prefBranch.getBoolPref(soundsPref);
+      break;
+
     default:
       throw "bad notification";
     }
   },
   load: function so_load() {
     addObservers(soundObserver, soundEvents);
+    soundObserver._prefBranch =
+      Components.classes["@mozilla.org/preferences-service;1"]
+                .getService(Ci.nsIPrefService)
+                .getBranch(optPrefBranch);
+    soundObserver._prefBranch.QueryInterface(Ci.nsIPrefBranch2);
+    soundObserver._prefBranch.addObserver(soundsPref, soundObserver, false);
+    soundHelper.muted = !soundObserver._prefBranch.getBoolPref(soundsPref);
+
     this.addEventListener("unload", soundObserver.unload, false);
   },
   unload: function so_unload() {
     removeObservers(soundObserver, soundEvents);
+    soundObserver._prefBranch.removeObserver(soundsPref, soundObserver);
   }
 };
 
