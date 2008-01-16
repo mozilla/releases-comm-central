@@ -39,7 +39,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/account.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://instantbird/locale/joinchat.dtd">
+<!DOCTYPE window SYSTEM "chrome://instantbird/locale/joinChat.dtd">
 
 <dialog
   id     = "joinChatDialog"
