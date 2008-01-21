@@ -75,8 +75,15 @@ var addBuddy = {
 
   create: function ab_create() {
     var account = this.pcs.getAccountById(this.getValue("accountlist"));
-    var tag = this.pcs.getTagById(this.getValue("taglist"));
-    var name = this.getValue("name")
+    var name = this.getValue("name");
+
+    var tag;
+    var taglist = document.getElementById("taglist");
+    var items = taglist.getElementsByAttribute("label", taglist.label);
+    if (items.length)
+      tag = this.pcs.getTagById(items[0].value);
+    else
+      tag = this.pcs.createTag(taglist.label);
 
     this.pcs.addBuddy(account, tag, name);
   },

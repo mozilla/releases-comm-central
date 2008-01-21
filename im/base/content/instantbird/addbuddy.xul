@@ -72,7 +72,7 @@
 
     <row id="tagBox">
      <label value="&tag.label;" control="taglist"/>
-     <menulist id="taglist"/>
+     <menulist id="taglist" editable="true"/>
     </row>
 
    </rows>
