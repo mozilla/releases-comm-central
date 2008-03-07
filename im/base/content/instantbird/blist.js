@@ -199,6 +199,21 @@ var buddyList = {
                         .getService(Components.interfaces.purpleICoreService);
     pcs.back(null);
     document.getElementById("getAwayMenuItem").disabled = false;
+  },
+
+  // Handle key pressing
+  keyPress: function bl_keyPress(aEvent) {
+    switch (aEvent.keyCode) {
+
+      // If Enter or Return is pressed, open a new conversation
+      case aEvent.DOM_VK_RETURN:
+      case aEvent.DOM_VK_ENTER:
+        var item = document.getElementById("buddylistbox").selectedItem;
+        if (item.localName == "buddy")
+          item.openConversation();
+        break;
+    }
+    return;
   }
 };
 

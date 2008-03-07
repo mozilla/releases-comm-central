@@ -161,9 +161,9 @@
       ]]>
       </body>
      </method>
-    </implementation>
-    <handlers>
-     <handler event="click" clickcount="2">
+
+     <method name="openConversation">
+      <body>
        <![CDATA[
          var pcs = Components.classes["@instantbird.org/purple/core;1"]
                              .getService(Components.interfaces.purpleICoreService);
@@ -188,7 +188,11 @@
            os.notifyObservers(conv, "new-conversation", null);
          }
        ]]>
-     </handler>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="click" clickcount="2" action="openConversation();"/>
     </handlers>
   </binding>
 </bindings>

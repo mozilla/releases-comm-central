@@ -96,7 +96,7 @@
   </menubar>
 
   <notificationbox id="buddyListMsg" flex="1">
-    <richlistbox id="buddylistbox" flex="1"/>
+    <richlistbox id="buddylistbox" flex="1" onkeypress="buddyList.keyPress(event);"/>
   </notificationbox>
 
   <statusbar>
