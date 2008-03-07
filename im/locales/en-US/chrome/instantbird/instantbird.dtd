@@ -1,13 +1,18 @@
 <!ENTITY convWindow.title   "Conversations - &brandShortName;">
 <!ENTITY blist.title        "Buddy list - &brandShortName;">
 <!ENTITY file.menu          "File">
+<!ENTITY file.accesskey     "F">
 <!ENTITY addBuddy           "Add Buddy">
 <!ENTITY joinChat           "Join Chat">
 <!ENTITY getAway            "Get Away">
 <!ENTITY tools.menu         "Tools">
+<!ENTITY tools.accesskey    "T">
 <!ENTITY accountManager     "Accounts">
+<!ENTITY account.commandkey "a">
+<!ENTITY account.accesskey  "A">
 <!ENTITY sounds             "Sounds">
 <!ENTITY addonManager       "Add-ons">
 <!ENTITY help.menu          "?">
 <!ENTITY about.menu         "About &brandShortName;">
+<!ENTITY about.accesskey    "A">
 <!ENTITY conversation.contextMenu.close "Close Tab">

@@ -62,8 +62,17 @@
 
   <stringbundle id="awayBundle" src="chrome://instantbird/locale/away.properties"/>
 
+  <commandset id="maincommandset">
+    <command id="accountmanager" oncommand="menus.accounts()"/>
+  </commandset>
+
+  <keyset id="mainkeyset">
+    <key id="accountsetup" key="&account.commandkey;" command="accountmenu" modifiers="accel"/>
+  </keyset>
+
+
   <menubar id="blistMenubar">
-    <menu label="&file.menu;" id="fileMenu">
+    <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
       <menupopup id="fileMenuPopup">
         <menuitem id="addBuddyMenuItem" label="&addBuddy;" oncommand="menus.addBuddy()"/>
         <menuitem id="joinChatMenuItem" label="&joinChat;" oncommand="menus.joinChat()"/>
@@ -71,10 +80,10 @@
         <menuitem id="getAwayMenuItem" label="&getAway;" oncommand="menus.getAway()"/>
       </menupopup>
     </menu>
-    <menu label="&tools.menu;" id="toolsMenu">
+    <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
       <menupopup id="toolsMenuPopup">
         <menuitem id="soundsMenuItem" label="&sounds;" oncommand="menus.toggleSounds()" type="checkbox"/>
-        <menuitem id="accountsMenuItem" label="&accountManager;" oncommand="menus.accounts()"/>
+        <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
         <menuseparator/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
       </menupopup>
