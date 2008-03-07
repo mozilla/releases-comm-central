@@ -155,10 +155,14 @@
           msgClass.push("nick");
         var txt = '<span class="date">' + time + '</span> ';
 
-        var msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                            .getService(Ci.mozITXTToHTMLConv)
-                            .scanHTML(aMsg.message, 2)
-                            .replace(/&amp;(apos|quot);/g, "&$1;");
+        var msg = aMsg.message;
+        if (!aMsg.noLinkification) {
+          msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
+                          .getService(Ci.mozITXTToHTMLConv)
+                          .scanHTML(msg, 2)
+                          .replace(/&amp;(apos|quot);/g, "&$1;");
+        }
+
         var me = msg.match("^/me(.*)");
         if (!aMsg.system)
           txt += '<span class="' + pseudoClass + '"' + color + '>' + name  + (me ? "</span> " : ":</span> ");
