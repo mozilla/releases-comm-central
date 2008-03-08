@@ -218,5 +218,13 @@
      </property>
 
     </implementation>
+    <handlers>
+      <handler event="dblclick">
+        <![CDATA[
+          gAccountManager.edit();
+          event.stopPropagation();
+        ]]>
+      </handler>
+    </handlers>
   </binding>
 </bindings>

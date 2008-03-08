@@ -66,13 +66,13 @@
    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
  </keyset>
 
- <richlistbox id="accountlist" flex="1"/>
+ <richlistbox id="accountlist" flex="1" ondblclick="gAccountManager.new()"/>
  <hbox id="bottombuttons">
   <button id="newaccount" oncommand="gAccountManager.new()"
 	  label="&accountManager.newAccount.label;"
 	  accesskey="&accountManager.newAccount.accesskey;"/>
   <spacer flex="1"/>
-  <button id="close" oncommand="gAccountManager.close()"
+  <button id="close" command="cmd_close"
 	  label="&accountManager.close.label;"
 	  accesskey="&accountManager.close.accesskey;"/>
  </hbox>
