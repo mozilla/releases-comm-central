@@ -1,0 +1,30 @@
+<!ENTITY windowTitle.label            "Account Wizard">
+
+<!ENTITY accountWelcomeTitle.label   "Welcome">
+<!ENTITY accountWelcomeInfo.label "This wizard will help you in the process of setting up your IM account in order to use it with Instantbird.">
+
+<!ENTITY accountProtocolTitle.label   "Protocol">
+<!ENTITY accountProtocolInfo.label    "Please choose the protocol of your IM account in the following list.">
+<!ENTITY accountProtocolField.label   "Protocol:">
+
+<!ENTITY accountUsernameTitle.label   "Username">
+<!ENTITY accountUsernameInfo.label    "Please enter the username to use in order to connect your account.">
+<!ENTITY accountUsernameField.label   "Username:">
+<!ENTITY accountUsernameJabberInfo.label "For Jabber username, please use the form login@server/location. For example instantbird@gmail.com/Instantbird.">
+<!ENTITY accountUsernameIrcInfo.label "For IRC username, please use the form nick@server. For example instantbird@irc.freenode.net.">
+
+<!ENTITY accountPasswordTitle.label   "Password">
+<!ENTITY accountPasswordInfo.label    "Please enter your password in the box below.">
+<!ENTITY accountPasswordField.label   "Password:">
+
+<!ENTITY accountAliasTitle.label      "Alias">
+<!ENTITY accountAliasInfo.label       "You can now enter the local alias that you want to use for this accounts. This will only be displayed in your conversations when you talk. Remote users won't see it. You can leave this field blank and skip this step if you wish.">
+<!ENTITY accountAliasField.label      "Alias:">
+
+<!ENTITY accountAdvancedTitle.label   "Advanced Options">
+<!ENTITY accountAdvancedInfo.label    "You can now tweak some protocol specific options.">
+<!ENTITY accountAdvanced.newMailNotification.label   "Notify on new Mail">
+
+<!ENTITY accountSummaryTitle.label   "Summary">
+<!ENTITY accountSummaryInfo.label    "A summary of the information you entered is displayed below. Please check it before the account is created.">
+<!ENTITY accountSummary.connectNow.label "Connect this account now.">

@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is the Instantbird messenging client, released
+   - 2007.
+   -
+   - The Initial Developer of the Original Code is
+   - Florian QUEZE <florian@instantbird.org>.
+   - Portions created by the Initial Developer are Copyright (C) 2007
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the GPL or the LGPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+
+<!DOCTYPE bindings>
+
+<bindings id="buddyBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:hbox>
+        <xul:stack class="prplBuddyIcon">
+	  <xul:image xbl:inherits="src=icon" class="protoIcon"/>
+	  <xul:image src="chrome://instantbird/skin/away.png"
+                     class="statusIcon"/>
+        </xul:stack>
+	<xul:label class="buddyDisplayName" xbl:inherits="value=displayname"/>
+	<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>
+      </xul:hbox>
+    </content>
+    <implementation>
+     <constructor>
+      <![CDATA[
+       //dump("constructing buddy\n");
+     ]]>
+     </constructor>
+     <destructor>
+      <![CDATA[
+       //dump("destructing buddy\n");
+     ]]>
+     </destructor>
+
+     <method name="build">
+      <parameter name="aBuddy"/>
+      <body>
+      <![CDATA[
+        this.buddyId = aBuddy.id;
+        this.name = aBuddy.name;
+        this.alias = aBuddy.alias;
+        this.setAttribute("displayname", this.alias || this.name);
+        //this.setAttribute("id", "buddy" + this.buddyId);
+        this.prpl = aBuddy.getAccount(0).protocol.id;
+        this.setAttribute("icon", "chrome://instantbird/skin/prpl/" +
+                                      this.prpl + ".png");
+        this.accounts = { };
+        this.update();
+      ]]>
+      </body>
+     </method>
+
+     <method name="update">
+      <body>
+      <![CDATA[
+        var away = true;
+        for (var id in this.accounts)
+          if (this.accounts[id].available) {
+            away = false;
+            break;
+          }
+        if (away) {
+          var status;
+          for (var id in this.accounts) {
+            status = this.accounts[id].status;
+            if (status)
+              break;
+          }
+          this.setAttribute("away", "true");
+          if (status)
+            this.tooltipText = this.name + ': ' + status;
+        }
+        else {
+          this.removeAttribute("away");
+          this.tooltipText = this.name;
+        }
+
+        var idle = true;
+        for (var id in this.accounts)
+          if (!this.accounts[id].idle) {
+            idle = false;
+            break;
+          }
+        if (idle)
+          this.setAttribute("idle", "true");
+        else
+          this.removeAttribute("idle");
+      ]]>
+      </body>
+     </method>
+
+     <method name="addAccount">
+      <parameter name="aPab"/>
+      <body>
+      <![CDATA[
+        var id = aPab.account.id;
+        if (id in this.accounts)
+          throw "This buddy has already been added";
+        this.accounts[id] = aPab;
+        this.update();
+      ]]>
+      </body>
+     </method>
+
+     <method name="removeAccount">
+      <parameter name="aPab"/>
+      <body>
+      <![CDATA[
+        var id = aPab.account.id;
+        if (!(id in this.accounts))
+          return; // this used to throw, but this seems to be harmless
+          //throw "This buddy (" + aPab.buddy.name +
+                  ") has not been added for account " + aPab.account.name;
+
+        delete this.accounts[id];
+
+        if (this.accounts.__count__) {
+          this.update();
+          return false;
+        }
+
+        // No account left, this node is now useless, remove it
+        this.parentNode.removeChild(this);
+        return true;
+      ]]>
+      </body>
+     </method>
+
+     <method name="openConversation">
+      <body>
+       <![CDATA[
+         var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                             .getService(Components.interfaces.purpleICoreService);
+         var buddy = pcs.getBuddyById(this.buddyId);
+         var conv;
+         for (var id in this.accounts) {
+           conv = this.accounts[id].createConversation();
+           break;
+         }
+
+         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                            .getService(Components.interfaces.nsIWindowMediator);
+         var convWindow = wm.getMostRecentWindow("Messenger:convs");
+         if (convWindow) {
+           convWindow.msgObserver.focusConv(conv);
+           convWindow.focus();
+         }
+         else {
+           // the conversation window has been closed. Force reopening.
+           var os = Components.classes["@mozilla.org/observer-service;1"]
+                              .getService(Components.interfaces.nsIObserverService);
+           os.notifyObservers(conv, "new-conversation", null);
+         }
+       ]]>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="click" clickcount="2" action="openConversation();"/>
+    </handlers>
+  </binding>
+</bindings>

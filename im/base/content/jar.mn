@@ -1,0 +1,45 @@
+instantbird.jar:
+% content branding %content/branding/ xpcnativewrappers=yes
+	content/branding/about-credits.png	(branding/about-credits.png)
+	content/branding/about-footer.png	(branding/about-footer.png)
+	content/branding/about-logo.png		(branding/about-logo.png)
+	content/branding/icon64.png		(branding/icon64.png)
+% content instantbird %content/instantbird/ xpcnativewrappers=yes
+	content/instantbird/aboutDialog.css	(instantbird/aboutDialog.css)
+	content/instantbird/aboutDialog.xul	(instantbird/aboutDialog.xul)
+	content/instantbird/account.js		(instantbird/account.js)
+	content/instantbird/accounts.css	(instantbird/accounts.css)
+	content/instantbird/accounts.js		(instantbird/accounts.js)
+	content/instantbird/accounts.xul	(instantbird/accounts.xul)
+	content/instantbird/accountWizard.js	(instantbird/accountWizard.js)
+	content/instantbird/accountWizard.xul	(instantbird/accountWizard.xul)
+	content/instantbird/account.xml		(instantbird/account.xml)
+	content/instantbird/account.xul		(instantbird/account.xul)
+	content/instantbird/addbuddy.js		(instantbird/addbuddy.js)
+	content/instantbird/addbuddy.xul	(instantbird/addbuddy.xul)
+	content/instantbird/anim.xml		(instantbird/anim.xml)
+	content/instantbird/blist.css		(instantbird/blist.css)
+	content/instantbird/blist.js		(instantbird/blist.js)
+	content/instantbird/blist.xul		(instantbird/blist.xul)
+	content/instantbird/buddy.xml		(instantbird/buddy.xml)
+	content/instantbird/conversation.xml	(instantbird/conversation.xml)
+	content/instantbird/conv.html		(instantbird/conv.html)
+	content/instantbird/credits.xhtml	(instantbird/credits.xhtml)
+	content/instantbird/group.xml		(instantbird/group.xml)
+	content/instantbird/instantbird.css	(instantbird/instantbird.css)
+	content/instantbird/instantbird.js	(instantbird/instantbird.js)
+	content/instantbird/instantbird.xul	(instantbird/instantbird.xul)
+	content/instantbird/joinchat.js		(instantbird/joinchat.js)
+	content/instantbird/joinchat.xul	(instantbird/joinchat.xul)
+	content/instantbird/menus.js		(instantbird/menus.js)
+	content/instantbird/sound.js		(instantbird/sound.js)
+	content/instantbird/utilities.js	(instantbird/utilities.js)
+
+#ifdef DEBUG
+debug.jar:
+% content debug %content/debug/ xpcnativewrappers=yes
+% overlay chrome://instantbird/content/blist.xul chrome://debug/content/debug.xul
+	content/debug/debug.js	(debug/debug.js)
+	content/debug/debug.xul	(debug/debug.xul)
+#endif
+
