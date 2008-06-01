@@ -1,0 +1,93 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Instantbird messenging client, released
+ * 2007.
+ *
+ * The Initial Developer of the Original Code is
+ * Florian QUEZE <florian@instantbird.org>.
+ * Portions created by the Initial Developer are Copyright (C) 2007
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#include "nsISupports.idl"
+#include "nsISimpleEnumerator.idl"
+
+/* 
+ * This is the libpurple protocol
+ */
+
+[scriptable, uuid(0a51b511-4ce7-4f4c-a109-43023b72fc5a)]
+interface purpleIProtocol: nsISupports {
+  readonly attribute AUTF8String name;
+  readonly attribute AUTF8String id;
+
+  // returns an enumerator on a purpleIPref array
+  nsISimpleEnumerator getOptions();
+
+  // These should all be stuff that some plugins can do and others can't.
+  
+  // OPT_PROTO_UNIQUE_CHATNAME Use a unique name, not an alias, for
+  // chat rooms.
+  //  XMPP lets you choose what name you want for chat. So it
+  //  shouldn't be pulling the alias for when you're in chat; it gets
+  //  annoying.
+  readonly attribute boolean uniqueChatName;
+
+  // OPT_PROTO_CHAT_TOPIC Chat rooms have topics.
+  //  IRC and XMPP support this.
+  readonly attribute boolean chatHasTopic;
+
+  // OPT_PROTO_NO_PASSWORD Don't require passwords for sign-in.
+  //  Zephyr doesn't require passwords, so there's no need for a
+  //  password prompt.
+  readonly attribute boolean noPassword;
+
+  // OPT_PROTO_MAIL_CHECK Notify on new mail.
+  //  MSN and Yahoo notify you when you have new mail.
+  readonly attribute boolean newMailNotification;
+
+  // OPT_PROTO_IM_IMAGE Images in IMs.
+  //  Oscar lets you send images in direct IMs.
+  readonly attribute boolean imagesInIM;
+
+  // OPT_PROTO_PASSWORD_OPTIONAL Allow passwords to be optional.
+  //  Passwords in IRC are optional, and are needed for certain
+  //  functionality.
+  readonly attribute boolean passwordOptional;
+
+  // OPT_PROTO_USE_POINTSIZE Allows font size to be specified in sane
+  // point size.
+  //  Probably just XMPP and Y!M
+  readonly attribute boolean usePointSize;
+
+  // OPT_PROTO_REGISTER_NOSCREENNAME Set the Register button active
+  // when screenname is not given.
+  //  Gadu-Gadu doesn't need a screenname to register new account. 
+  readonly attribute boolean registerNoScreenName;
+};
