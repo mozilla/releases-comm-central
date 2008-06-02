@@ -254,11 +254,8 @@ else
 ICON_DIR=$(MOZ_WIDGET_TOOLKIT)
 endif
 
+ifdef INSTALL_GTK_ICONS
 DESKTOP_ICONS = \
-	abcardWindow \
-	addressbookWindow \
-	messengerWindow \
-	msgcomposeWindow \
 	$(NULL) 
 
 ifeq ($(ICON_DIR),gtk)
@@ -272,6 +269,7 @@ libs:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
 
 install:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
 	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/chrome/icons/default
+endif
 endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
