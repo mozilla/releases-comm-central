@@ -11,14 +11,21 @@ classic.jar:
 	skin/winstripe/instantbird/prpl/prpl-aim-32.png		(prpl/prpl-aim-32.png)
 	skin/winstripe/instantbird/prpl/prpl-aim-48.png		(prpl/prpl-aim-48.png)
 	skin/winstripe/instantbird/prpl/prpl-aim.png		(prpl/prpl-aim.png)
+	skin/winstripe/instantbird/prpl/prpl-bilboed-netsoul-32.png	(prpl/prpl-bilboed-netsoul-32.png)
+	skin/winstripe/instantbird/prpl/prpl-bilboed-netsoul-48.png	(prpl/prpl-bilboed-netsoul-48.png)
+	skin/winstripe/instantbird/prpl/prpl-bilboed-netsoul.png	(prpl/prpl-bilboed-netsoul.png)
+#if 0
 	skin/winstripe/instantbird/prpl/prpl-bonjour-32.png	(prpl/prpl-bonjour-32.png)
 	skin/winstripe/instantbird/prpl/prpl-bonjour-48.png	(prpl/prpl-bonjour-48.png)
 	skin/winstripe/instantbird/prpl/prpl-bonjour.png	(prpl/prpl-bonjour.png)
+#endif
 	skin/winstripe/instantbird/prpl/prpl-gg-32.png		(prpl/prpl-gg-32.png)
 	skin/winstripe/instantbird/prpl/prpl-gg-48.png		(prpl/prpl-gg-48.png)
 	skin/winstripe/instantbird/prpl/prpl-gg.png		(prpl/prpl-gg.png)
+#if 0
 	skin/winstripe/instantbird/prpl/prpl-google-talk-32.png	(prpl/prpl-google-talk-32.png)
 	skin/winstripe/instantbird/prpl/prpl-google-talk.png	(prpl/prpl-google-talk.png)
+#endif
 	skin/winstripe/instantbird/prpl/prpl-icq-32.png		(prpl/prpl-icq-32.png)
 	skin/winstripe/instantbird/prpl/prpl-icq-48.png		(prpl/prpl-icq-48.png)
 	skin/winstripe/instantbird/prpl/prpl-icq.png		(prpl/prpl-icq.png)
@@ -28,9 +35,11 @@ classic.jar:
 	skin/winstripe/instantbird/prpl/prpl-jabber-32.png	(prpl/prpl-jabber-32.png)
 	skin/winstripe/instantbird/prpl/prpl-jabber-48.png	(prpl/prpl-jabber-48.png)
 	skin/winstripe/instantbird/prpl/prpl-jabber.png		(prpl/prpl-jabber.png)
+#if 0
 	skin/winstripe/instantbird/prpl/prpl-meanwhile-32.png	(prpl/prpl-meanwhile-32.png)
 	skin/winstripe/instantbird/prpl/prpl-meanwhile-48.png	(prpl/prpl-meanwhile-48.png)
 	skin/winstripe/instantbird/prpl/prpl-meanwhile.png	(prpl/prpl-meanwhile.png)
+#endif
 	skin/winstripe/instantbird/prpl/prpl-msn-32.png		(prpl/prpl-msn-32.png)
 	skin/winstripe/instantbird/prpl/prpl-msn-48.png		(prpl/prpl-msn-48.png)
 	skin/winstripe/instantbird/prpl/prpl-msn.png		(prpl/prpl-msn.png)
@@ -43,18 +52,22 @@ classic.jar:
 	skin/winstripe/instantbird/prpl/prpl-qq-32.png		(prpl/prpl-qq-32.png)
 	skin/winstripe/instantbird/prpl/prpl-qq-48.png		(prpl/prpl-qq-48.png)
 	skin/winstripe/instantbird/prpl/prpl-qq.png		(prpl/prpl-qq.png)
+#if 0
 	skin/winstripe/instantbird/prpl/prpl-silc-32.png	(prpl/prpl-silc-32.png)
 	skin/winstripe/instantbird/prpl/prpl-silc-48.png	(prpl/prpl-silc-48.png)
 	skin/winstripe/instantbird/prpl/prpl-silc.png		(prpl/prpl-silc.png)
+#endif
 	skin/winstripe/instantbird/prpl/prpl-simple-32.png	(prpl/prpl-simple-32.png)
 	skin/winstripe/instantbird/prpl/prpl-simple-48.png	(prpl/prpl-simple-48.png)
 	skin/winstripe/instantbird/prpl/prpl-simple.png		(prpl/prpl-simple.png)
 	skin/winstripe/instantbird/prpl/prpl-yahoo-32.png	(prpl/prpl-yahoo-32.png)
 	skin/winstripe/instantbird/prpl/prpl-yahoo-48.png	(prpl/prpl-yahoo-48.png)
 	skin/winstripe/instantbird/prpl/prpl-yahoo.png		(prpl/prpl-yahoo.png)
+#if 0
 	skin/winstripe/instantbird/prpl/prpl-zephyr-32.png	(prpl/prpl-zephyr-32.png)
 	skin/winstripe/instantbird/prpl/prpl-zephyr-48.png	(prpl/prpl-zephyr-48.png)
 	skin/winstripe/instantbird/prpl/prpl-zephyr.png		(prpl/prpl-zephyr.png)
+#endif
 	skin/winstripe/instantbird/sounds/alert.wav	(sounds/alert.wav)
 	skin/winstripe/instantbird/sounds/login.wav	(sounds/login.wav)
 	skin/winstripe/instantbird/sounds/logout.wav	(sounds/logout.wav)
