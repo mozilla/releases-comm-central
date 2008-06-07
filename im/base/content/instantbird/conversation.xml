@@ -120,12 +120,19 @@
       <parameter name="aMsg"/>
       <body>
       <![CDATA[
+        var conv = aMsg.conversation;
+        if (!conv) {
+          // The conversation has already been destroyed,
+          // probably because the window was closed.
+          // Return without doing anything.
+          return;
+        }
         var time = aMsg.time;
         var name = aMsg.alias ||aMsg.who;
         var pseudoClass = "pseudo";
         var color = "";
         if (aMsg.incoming) {
-          var nick = aMsg.conversation.isChat && name.match(/[a-zA-Z0-9]+/);
+          var nick = conv.isChat && name.match(/[a-zA-Z0-9]+/);
           if (nick) {
             nick = nick[0].toLowerCase();
             var weight = 10;
@@ -174,7 +181,7 @@
         this._addTxt(txt, msgClass.join(" "));
 
         if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
-          if (aMsg.conversation.isChat && aMsg.containsNick)
+          if (conv.isChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
           else
             this.tab.setAttribute("unread", "true");
