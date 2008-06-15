@@ -82,8 +82,18 @@
        docShell.allowMetaRedirects = false;
        docShell.allowSubframes = false;
        docShell.allowImages = false;
-       var url = 'data:text/html,<html><head><link rel="stylesheet" type="text/css" href="chrome://instantbird/skin/conv.css" /></head>';
-       url += '<body id="ibcontent"></body></html>';
+
+       // load the stylesheet through the style sheet service to workaround
+       // a security restriction in 1.9b2+ (bug 397791)
+       var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
+                           .getService(Components.interfaces.nsIStyleSheetService);
+       var uri = Components.classes["@mozilla.org/network/io-service;1"]
+                           .getService(Components.interfaces.nsIIOService)
+                           .newURI("chrome://instantbird/skin/conv.css", null, null);
+       if (!sss.sheetRegistered(uri, sss.USER_SHEET)) 
+         sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+
+       var url = 'data:text/html,<html><head></head><body id="ibcontent"></body></html>';
        browser.setAttribute("src", url);//"chrome://instantbird/content/conv.html"
        browser.addProgressListener(this);
 
