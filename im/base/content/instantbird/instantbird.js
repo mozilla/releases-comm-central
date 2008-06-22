@@ -141,17 +141,17 @@ var msgObserver = {
                        //      of the conversation binding called??
 
     if (aTab.selected) {
-      if (i) {
-        // we are not on the first tab
-        aTab.parentNode.selectedItem = aTab.previousSibling;
-        panels.selectedPanel = conv.previousSibling;
+      if (aTab.nextSibling) {
+        // we are not on the last tab
+        aTab.parentNode.selectedItem = aTab.nextSibling;
+        panels.selectedPanel = conv.nextSibling;
       }
       else {
-        // we remove the first tab, which is selected
-        if (aTab.nextSibling) {
+        // we remove the last tab, which is selected
+        if (aTab.previousSibling) {
           // at least a tab remain
-          aTab.parentNode.selectedItem = aTab.nextSibling;
-          panels.selectedPanel = conv.nextSibling;
+          aTab.parentNode.selectedItem = aTab.previousSibling;
+          panels.selectedPanel = conv.previousSibling;
         }
         else {
           window.close();
