@@ -153,6 +153,18 @@ var buddyList = {
   },
 
   load: function bl_load() {
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                       .getService(Components.interfaces.nsIWindowMediator);
+    var blistWindows = wm.getEnumerator("Messenger:blist");
+    while (blistWindows.hasMoreElements()) {
+      var win = blistWindows.getNext();
+      if (win != window) {
+        win.QueryInterface(Components.interfaces.nsIDOMWindowInternal).focus();
+        window.close();
+        return;
+      }
+    }
+
     initPurpleCore();
     buddyList.checkNotDisconnected();
     buddyList.checkForIrcAccount();

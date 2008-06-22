@@ -50,6 +50,7 @@
 
 <window
   id     = "instantbird"
+  windowtype="Messenger:blist"
   title  = "&blist.title;"
   width  = "200"
   height = "600"
