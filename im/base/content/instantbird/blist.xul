@@ -68,7 +68,7 @@
   </commandset>
 
   <keyset id="mainkeyset">
-    <key id="accountsetup" key="&account.commandkey;" command="accountmenu" modifiers="accel"/>
+    <key id="accountsetup" key="&account.commandkey;" command="accountmanager" modifiers="accel"/>
   </keyset>
 
 
