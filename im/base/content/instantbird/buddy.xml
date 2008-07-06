@@ -70,11 +70,7 @@
                   <xul:column/>
                   <xul:column flex="1"/>
                 </xul:columns>
-                <xul:rows>
-                  <xul:row>
-                    <xul:label value="&buddy.status;" class="header"/>
-                    <xul:label xbl:inherits="value=status"/>
-                  </xul:row>
+                <xul:rows anonid="tooltiprows">
                   <xul:row xbl:inherits="hidden=buddyHidden">
                     <xul:label value="&buddy.screenname;" class="header"/>
                     <xul:label xbl:inherits="value=buddy"/>
@@ -161,12 +157,9 @@
               break;
           }
           this.setAttribute("away", "true");
-          this.setAttribute("status", status ? status : "Away"); //FIXME l10n
         }
-        else {
+        else
           this.removeAttribute("away");
-          this.setAttribute("status", "Available"); //FIXME l10n
-        }
 
         var idle = true;
         for (var id in this.accounts)
@@ -213,6 +206,43 @@
         }
         else
           img.hidden = true;
+
+        var rows = document.getAnonymousElementByAttribute(this, "anonid",
+                                                           "tooltiprows");
+        var row = rows.firstChild;
+        while (row) {
+          var currentRow = row;
+          row = row.nextSibling;
+          if (currentRow.className == "generated")
+            currentRow.parentNode.removeChild(currentRow);
+        }
+        
+        const XULNS =
+          "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+        var tooltipInfo = this._buddy.getTooltipInfo();
+        while (tooltipInfo.hasMoreElements()) {
+          var row = document.createElementNS(XULNS, "row");
+          row.className = "generated";
+          var elt = tooltipInfo.getNext().QueryInterface(Ci.purpleITooltipInfo);
+          switch (elt.type) {
+            case Ci.purpleITooltipInfo.pair:
+            case Ci.purpleITooltipInfo.sectionHeader:
+              var label = document.createElementNS(XULNS, "label");
+              label.className = "header";
+              label.setAttribute("value", elt.label);
+              row.appendChild(label);
+              label = document.createElementNS(XULNS, "label");
+              label.setAttribute("value", elt.value);
+              row.appendChild(label);
+              break;
+            case Ci.purpleITooltipInfo.sectionBreak:
+              var separator = document.createElementNS(XULNS, "separator");
+              separator.className = "thin";
+              row.appendChild(separator);
+              break;
+          }
+          rows.appendChild(row);
+        }
 
         return true;
       ]]>
