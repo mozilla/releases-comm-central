@@ -70,3 +70,8 @@ buddy[idle="true"] .buddyDisplayName {
 group label { 
   font-weight: bold;
 }
+
+.tooltip-header {
+  font-weight: bold;
+  font-size: 14pt;
+}
