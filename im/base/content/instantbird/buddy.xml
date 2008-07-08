@@ -220,6 +220,9 @@
         const XULNS =
           "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
         var tooltipInfo = this._buddy.getTooltipInfo();
+        if (!tooltipInfo)
+          return true;
+
         while (tooltipInfo.hasMoreElements()) {
           var row = document.createElementNS(XULNS, "row");
           row.className = "generated";
