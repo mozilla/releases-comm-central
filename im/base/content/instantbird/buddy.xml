@@ -51,7 +51,7 @@
     <content>
       <xul:hbox tooltip="_child">
 
-        <xul:tooltip onpopupshowing="updateTooltip();">
+        <xul:tooltip onpopupshowing="updateTooltip();" anonid="buddytooltip">
 
           <xul:hbox pack="start" align="start" flex="1">
 
@@ -119,8 +119,6 @@
       <parameter name="aBuddy"/>
       <body>
       <![CDATA[
-        this._buddy = aBuddy;
-
         this.buddyId = aBuddy.id;
         this.name = aBuddy.name;
         this.alias = aBuddy.alias;
@@ -131,11 +129,11 @@
           this.setAttribute("buddyHidden", "true");
         //this.setAttribute("id", "buddy" + this.buddyId);
         this.prpl = aBuddy.getAccount(0).protocol.id;
-        this.setAttribute("accountName", this._buddy.getAccount(0).name);
+        this.setAttribute("accountName", aBuddy.getAccount(0).name);
         this.setAttribute("iconPrpl", "chrome://instantbird/skin/prpl/" +
                                       this.prpl + ".png");
         this.accounts = { };
-        this.update();
+        // We don't call this.update yet because this.accounts is empty
       ]]>
       </body>
      </method>
@@ -172,14 +170,28 @@
         else
           this.removeAttribute("idle");
 
-        this.updateTooltip();
+        var tooltip = document.getAnonymousElementByAttribute(this, "anonid",
+                                                              "buddytooltip");
+        if (tooltip.state == "open")
+          this.updateTooltip();
       ]]>
       </body>
      </method>
      <method name="updateTooltip">
       <body>
       <![CDATA[
-        var loggedIn = this._buddy.loggedIn;
+        // We can't rely on the first purpleAccountBuddy listed in the
+        // purpleBuddy structure because it may not be online
+
+        var buddy;
+        for (var id in this.accounts) {
+          buddy = this.accounts[id];
+          break;
+        }
+        if (!buddy)
+          throw "no account in this buddy!";
+
+        var loggedIn = buddy.loggedIn;
 
         if (loggedIn) {
           this.setAttribute("loggedIn", loggedIn);
@@ -190,7 +202,7 @@
         }
         var img = document.getAnonymousElementByAttribute(this, "anonid",
                                                           "userIcon");
-        var src = this._buddy.buddyIconFilename;
+        var src = buddy.buddyIconFilename;
         if (src) {
           const maxSize = 48;
           img.src = src;
@@ -219,7 +231,7 @@
         
         const XULNS =
           "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-        var tooltipInfo = this._buddy.getTooltipInfo();
+        var tooltipInfo = buddy.getTooltipInfo();
         if (!tooltipInfo)
           return true;
 
