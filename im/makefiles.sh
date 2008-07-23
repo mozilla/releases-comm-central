@@ -14,12 +14,11 @@
 # The Original Code is the Mozilla build system.
 #
 # The Initial Developer of the Original Code is
-# the Mozilla Foundation <http://www.mozilla.org/>.
-# Portions created by the Initial Developer are Copyright (C) 2007
+#  Florian Queze <florian@instantbird.org>
+# Portions created by the Initial Developer are Copyright (C) 2008
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
-#   Henrik Skupin <hskupin@gmail.com>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,33 +34,19 @@
 #
 # ***** END LICENSE BLOCK *****
 
+. "${srcdir}/purple/makefiles.sh"
+
 add_makefiles "
 instantbird/Makefile
 instantbird/app/Makefile
 instantbird/app/profile/Makefile
+instantbird/app/profile/extensions/Makefile
+instantbird/base/Makefile
+instantbird/base/content/Makefile
+instantbird/locales/Makefile
+instantbird/themes/Makefile
+instantbird/themes/winstripe/Makefile
+instantbird/themes/winstripe/instantbird/Makefile
 instantbird/installer/Makefile
 instantbird/installer/windows/Makefile
 "
-
-echo
-"
-instantbird/base/Makefile
-instantbird/locales/Makefile
-instantbird/components/Makefile
-instantbird/components/compose/Makefile
-instantbird/components/addrbook/Makefile
-instantbird/components/preferences/Makefile
-instantbird/components/build/Makefile
-instantbird/components/shell/Makefile
-instantbird/components/shell/public/Makefile
-instantbird/components/phishing/Makefile
-instantbird/extensions/Makefile
-instantbird/extensions/smime/Makefile
-instantbird/themes/Makefile
-instantbird/themes/pinstripe/instantbird/Makefile
-instantbird/themes/pinstripe/editor/Makefile
-instantbird/themes/pinstripe/Makefile
-instantbird/themes/qute/instantbird/Makefile
-instantbird/themes/qute/editor/Makefile
-instantbird/themes/qute/Makefile
-" >/dev/null
