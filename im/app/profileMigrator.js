@@ -45,9 +45,11 @@ InstantbirdProfileMigrator.prototype = {
   import: function() {
     var root = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties)
                                                           .get("DefProfRt", Ci.nsIFile);
-    var oldRoot = root.clone();
-    oldRoot.append("instantbird");
-    var profilesIni = oldRoot.clone();
+    if (root.leafName == "Profiles")
+      root.leafName = "Instantbird";
+    else
+      root.append("instantbird");
+    var profilesIni = root.clone();
     profilesIni.append("profiles.ini");
     if (!profilesIni.exists())
       return;
@@ -69,8 +71,8 @@ InstantbirdProfileMigrator.prototype = {
       var path = parser.getString(section, "Path");
       var prof;
       if (isRelative == "1") {
-        prof = oldRoot.clone().QueryInterface(Ci.nsILocalFile);
-        prof.setRelativeDescriptor(oldRoot, path);
+        prof = root.clone().QueryInterface(Ci.nsILocalFile);
+        prof.setRelativeDescriptor(root, path);
       }
       else {
         prof = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile)
