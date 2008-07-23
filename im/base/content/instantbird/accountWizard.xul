@@ -80,6 +80,7 @@
     <separator/>
     <description id="jabberusername" hidden="true">&accountUsernameJabberInfo.label;</description>
     <description id="ircusername" hidden="true">&accountUsernameIrcInfo.label;</description>
+    <description id="duplicateAccount" hidden="true">&accountUsernameDuplicate.label;</description>
   </wizardpage>
 
   <wizardpage id="accountpassword" pageid="accountpassword" next="accountalias"

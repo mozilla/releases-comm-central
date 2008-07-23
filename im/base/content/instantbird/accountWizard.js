@@ -56,7 +56,16 @@ var accountWizard = {
   checkUsername: function aw_checkUsername() {
     var wizard = document.getElementById("accountWizard");
     var input = document.getElementById("name");
-    wizard.canAdvance = input.value.length > 0;
+    var duplicateWarning = document.getElementById("duplicateAccount");
+    if (!input.value) {
+      wizard.canAdvance = false;
+      duplicateWarning.hidden = true;
+      return;
+    }
+
+    var exists = this.proto.accountExists(input.value);
+    wizard.canAdvance = !exists;
+    duplicateWarning.hidden = !exists;
   },
 
   selectProtocol: function aw_selectProtocol() {
