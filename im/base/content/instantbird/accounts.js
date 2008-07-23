@@ -172,7 +172,11 @@ var gAccountManager = {
     elt.autoLogin = !elt.autoLogin;
   },
   close: function am_close() {
-    window.close();
+    // If a modal dialog is opened, we can't close this window now
+    if (this.modalDialog)
+      setTimeout(function() { window.close();}, 0);
+    else
+      window.close();
   },
 
   selectAccount: function am_selectAccount(aAccountId) {
@@ -187,8 +191,10 @@ var gAccountManager = {
   },
 
   openDialog: function am_openDialog(aUrl, aArgs) {
+    this.modalDialog = true;
     window.openDialog(aUrl, "",
                       "chrome,modal,titlebar,centerscreen",
                       aArgs);
+    this.modalDialog = false;
   }
 };

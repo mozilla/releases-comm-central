@@ -35,6 +35,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+const events = [
+  "purple-quit"
+];
 
 var accountWizard = {
   onload: function aw_onload() {
@@ -51,6 +54,19 @@ var accountWizard = {
     setTimeout(function() {
       protoList.selectedIndex = 0;
     }, 0);
+
+    addObservers(this, events);
+    window.addEventListener("unload", this.unload, false);
+  },
+  unload: function aw_unload() {
+    removeObservers(accountWizard, events);
+  },
+  observe: function am_observe(aObject, aTopic, aData) {
+    if (aTopic == "purple-quit") {
+      // libpurple is being uninitialized. We can't create any new
+      // account so keeping this wizard open would be pointless, close it.
+      window.close();
+    }
   },
 
   checkUsername: function aw_checkUsername() {

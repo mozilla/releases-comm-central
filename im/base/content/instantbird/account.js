@@ -37,6 +37,10 @@
 
 const autoJoinPref = "autoJoin";
 
+const events = [
+  "purple-quit"
+];
+
 var account = {
   onload: function account_onload() {
     this.account = window.arguments[0];
@@ -74,6 +78,18 @@ var account = {
     this.prefs = this.prefService.getBranch("messenger.account." +
                                             this.account.id + ".options.");
     this.populateProtoSpecificBox();
+
+    addObservers(this, events);
+    window.addEventListener("unload", this.unload, false);
+  },
+  unload: function account_unload() {
+    removeObservers(account, events);
+  },
+  observe: function account_observe(aObject, aTopic, aData) {
+    if (aTopic == "purple-quit") {
+      // libpurple is being uninitialized. Close this dialog.
+      window.close();
+    }
   },
 
   createTextbox: function account_createTextbox(aType, aValue, aLabel, aName) {
