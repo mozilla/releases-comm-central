@@ -85,7 +85,7 @@ REQUIRES = \
 	xulapp \
 	$(NULL)
 
-CPPSRCS = nsMailApp.cpp
+CPPSRCS = nsMain.cpp
 
 DIST_FILES = application.ini
 
