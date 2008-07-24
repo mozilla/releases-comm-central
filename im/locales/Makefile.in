@@ -45,8 +45,7 @@ include $(DEPTH)/config/autoconf.mk
 DEFINES += \
 	-DAB_CD=$(AB_CD) \
 	-DMOZ_APP_VERSION=$(APP_VERSION) \
-	-DLOCALE_SRCDIR=$(LOCALE_SRCDIR)toto \
+	-DLOCALE_SRCDIR=$(LOCALE_SRCDIR) \
 	$(NULL)
 
 include $(topsrcdir)/config/rules.mk
-

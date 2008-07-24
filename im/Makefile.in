@@ -20,6 +20,7 @@
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
+#   Florian QUEZE <florian@instantbird.org>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -43,7 +44,6 @@ VPATH		= @srcdir@
 include $(topsrcdir)/config/config.mk
 
 DIRS		= base locales themes app
-# components extensions
 
 include $(topsrcdir)/config/rules.mk
 

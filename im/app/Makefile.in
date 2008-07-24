@@ -377,7 +377,8 @@ endif
 
 $(MAIL_LICENSE_HTML_FILE): $(PLATFORM_LICENSE_FILE) $(MAIL_APP_LICENSE_FILE)
 	$(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py $(DEFINES) $< | \
-	sed -e "s/about:license\#/\#/" > $@
+	sed -e "s/about:license\#/\#/" | \
+	sed -e "s/available under one/available under a subset of it or one/" > $@
 
 libs:: $(MAIL_LICENSE_TXT_FILE) $(MAIL_LICENSE_HTML_FILE)
 ifeq ($(OS_ARCH),WINNT)
