@@ -165,6 +165,11 @@ var buddyList = {
       }
     }
 
+    // Set the Vendor for breakpad only
+    Components.classes["@mozilla.org/xre/app-info;1"]
+              .getService(Components.interfaces.nsICrashReporter)
+              .annotateCrashReport("Vendor", "Instantbird");
+
     initPurpleCore();
     buddyList.checkNotDisconnected();
     buddyList.checkForIrcAccount();
