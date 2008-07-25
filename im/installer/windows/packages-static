@@ -8,20 +8,14 @@
 bin\chrome\@AB_CD@.jar
 bin\chrome\@AB_CD@.manifest
 bin\dictionaries\*
-bin\uninstall\helper.exe
-bin\updater.ini
-bin\isp\@AB_CD@\*
 
 [xpcom]
+bin\xul.dll
 bin\xpcom.dll
-bin\xpcom_core.dll
-bin\components\jar50.dll
 bin\nspr4.dll
 bin\plc4.dll
 bin\plds4.dll
 bin\js3250.dll
-bin\components\jsd3250.dll
-bin\components\xpinstal.dll
 bin\Microsoft.VC80.CRT.manifest
 bin\msvcm80.dll
 bin\msvcp80.dll
@@ -30,15 +24,9 @@ bin\msvcr80.dll
 ; Modules
 bin\modules\*
 
-; Optional RSS extension
-[newsblog]
-bin\chrome\newsblog.jar
-bin\chrome\newsblog.manifest
-bin\components\newsblog.js
+[instantbird]
 
-[mail]
-
-bin\thunderbird.exe
+bin\instantbird.exe
 bin\application.ini
 bin\platform.ini
 bin\LICENSE.txt
@@ -47,30 +35,12 @@ bin\README.txt
 bin\sqlite3.dll
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Mail Specific Files
+; App Specific Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-bin\defaults\messenger\mailViews.dat
 bin\defaults\profile\localstore.rdf
 bin\defaults\profile\prefs.js
 bin\defaults\profile\mimeTypes.rdf
 
-bin\isp\*
-
-bin\components\addrbook.xpt
-bin\components\mime.xpt
-bin\components\mailnews.xpt
-bin\components\msgbase.xpt
-bin\components\msgcompo.xpt
-bin\components\msgdb.xpt
-bin\components\msgimap.xpt
-bin\components\msglocal.xpt
-bin\components\msgnews.xpt
-bin\components\msgsearch.xpt
-bin\components\import.xpt
-bin\components\impComm4xMail.xpt
-bin\components\mailview.xpt
-bin\components\mailprofilemigration.xpt
-bin\components\shellservice.xpt
 bin\components\xpcom_base.xpt
 bin\components\xpcom_system.xpt
 bin\components\xpcom_components.xpt
@@ -84,28 +54,18 @@ bin\chrome\comm.jar
 bin\chrome\comm.manifest
 bin\chrome\pippki.jar
 bin\chrome\pippki.manifest
-bin\chrome\messenger.jar
-bin\chrome\messenger.manifest
-bin\chrome\icons\default\abcardWindow.ico
-bin\chrome\icons\default\addressbookWindow.ico
-bin\chrome\icons\default\messengerWindow.ico
-bin\chrome\icons\default\msgcomposeWindow.ico
+bin\chrome\instantbird.jar
+bin\chrome\instantbird.manifest
 bin\extensions\{972ce4c6-7e08-4474-a285-3208198ce6fd}\install.rdf
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Mail Extensions (smime, etc.)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-bin\MapiProxy.dll
-bin\mozMapi32.dll
-bin\components\mapihook.xpt
-bin\components\nsSetDefaultMail.js
-bin\components\offlineStartup.js
-bin\components\nsMailDefaultHandler.js
+bin\components\purpleloader.dll
+bin\libraries\xml2.dll
+bin\libraries\glib.dll
+bin\libraries\purple.dll
+bin\libraries\purplexpcom.dll
+bin\libraries\prpl\*.dll
 
-bin\components\mdn-service.js
-
-bin\components\smime-service.js
-bin\components\msgsmime.xpt
+bin\components\profileMigrator.js
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Chrome Files
@@ -123,20 +83,8 @@ bin\defaults\pref\*
 bin\greprefs\*
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; App extensions to Mail
+; App extensions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; LDAP components
-bin\components\mozldap.xpt
-bin\components\nsLDAPPrefsService.js
-bin\components\nsAbLDAPAttributeMap.js
-bin\nsldap32v60.dll
-bin\nsldappr32v60.dll
-bin\nsldif32v60.dll
-
-; wallet
-bin\components\wallet.xpt
-bin\components\signonviewer.xpt
 
 ; download progress
 bin\components\nsHelperAppDlg.js
@@ -159,12 +107,6 @@ bin\components\xpinstall.xpt
 bin\defaults\autoconfig\platform.js
 bin\defaults\autoconfig\prefcalls.js
 bin\components\autoconfig.xpt
-
-; Phishing Protection
-bin\components\nsPhishingProtectionApplication.js
-bin\components\nsUrlClassifierListManager.js
-bin\components\nsUrlClassifierLib.js
-bin\components\url-classifier.xpt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Base Package Files
@@ -316,7 +258,6 @@ bin\nssckbi.dll
 bin\nssdbm3.dll
 
 ; core platform files
-bin\components\xpautocomplete.xpt
 bin\components\autocomplete.xpt
 bin\components\alerts.xpt
 bin\components\jsdservice.xpt
@@ -348,6 +289,10 @@ bin\res\ua.css
 bin\res\html.css
 bin\res\quirk.css
 bin\res\forms.css
+bin\res\mathml.css
+bin\res\viewsource.css
+bin\res\contenteditable.css
+bin\res\designmode.css
 bin\res\charsetData.properties
 bin\res\charsetalias.properties
 bin\res\langGroups.properties
@@ -355,6 +300,10 @@ bin\res\language.properties
 bin\res\wincharset.properties
 bin\res\entityTables\*
 bin\res\dtd\xhtml11.dtd
+bin\res\dtd\mathml.dtd
+bin\res\fonts\*
+bin\res\broken-image.gif
+bin\res\html\folder.png
 
 ; editor resource files
 bin\res\EditorOverride.css

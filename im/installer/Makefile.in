@@ -89,7 +89,7 @@ MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
 
 ifneq (,$(BUILD_STATIC_LIBS)$(MOZ_ENABLE_LIBXUL))
 ifeq (WINNT,$(OS_ARCH))
-MOZ_PKG_MANIFEST_P = $(srcdir)/windows/packages-static
+#MOZ_PKG_MANIFEST_P = $(srcdir)/windows/packages-static
 endif
 else
 $(error you need a "--enable-static or --enable-libxul" build to create an installer)
