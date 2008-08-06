@@ -6,7 +6,7 @@
         name="Instantbird"
         type="win32"
 />
-<description>Mozilla Thunderbird</description>
+<description>Instantbird</description>
 <dependency>
         <dependentAssembly>
                 <assemblyIdentity
