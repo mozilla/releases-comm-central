@@ -6,7 +6,8 @@ pref("accessibility.browsewithcaret", true);
 
 pref("messenger.accounts", "");
 pref("messenger.options.playSounds", true);
-
+pref("messenger.proxies", "");
+pref("messenger.globalProxy", "none");
 
 // Whether or not app updates are enabled
 pref("app.update.enabled", true);

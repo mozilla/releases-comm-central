@@ -79,6 +79,9 @@ var account = {
                                             this.account.id + ".options.");
     this.populateProtoSpecificBox();
 
+    this.proxy = this.account.proxyInfo;
+    this.displayProxyDescription();
+
     addObservers(this, events);
     window.addEventListener("unload", this.unload, false);
   },
@@ -90,6 +93,47 @@ var account = {
       // libpurple is being uninitialized. Close this dialog.
       window.close();
     }
+  },
+
+  displayProxyDescription: function aw_displayProxyDescription() {
+    var type = this.proxy.type;
+    var proxy;
+    var result;
+    if (type == Ci.purpleIProxyInfo.useGlobal) {
+      proxy = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService)
+                        .globalProxy;
+      type = proxy.type;
+    }
+    else
+      proxy = this.proxy;
+
+    if (type == Ci.purpleIProxyInfo.noProxy)
+      result = "Direct Connection to the Internet (No Proxy)";
+
+    if (type == Ci.purpleIProxyInfo.useEnvVar)
+      result = "Use environmental settings";
+
+    if (!result) {
+      // At this point, we should have either a socks or http proxy
+      proxy.QueryInterface(Ci.purpleIProxy);
+      var result;
+      if (type == Ci.purpleIProxyInfo.httpProxy)
+        result = "Http ";
+      else if (type == Ci.purpleIProxyInfo.socks4Proxy)
+        result = "Socks 4 ";
+      else if (type == Ci.purpleIProxyInfo.socks5Proxy)
+        result = "Socks 5 ";
+      else
+        throw "Unknown proxy type";
+
+      if (proxy.username)
+        result += proxy.username + "@";
+
+      result += proxy.host + ":" + proxy.port;
+    }
+
+    document.getElementById("proxyDescription").textContent = result;
   },
 
   createTextbox: function account_createTextbox(aType, aValue, aLabel, aName) {
@@ -187,6 +231,8 @@ var account = {
         branch.setCharPref(autoJoinPref, autojoin);
     }
 
+    this.account.proxyInfo = this.proxy;
+
     for (let opt in this.getProtoOptions()) {
       var name = this.proto.id + "-" + opt.name;
       var val = this.getValue(name);
@@ -209,10 +255,14 @@ var account = {
     }
   },
 
-  getProtocols: function account_getProtocols() {
-    return getIter(this.pcs.getProtocols, Ci.purpleIProtocol);
-  },
   getProtoOptions: function account_getProtoOptions() {
     return getIter(this.proto.getOptions, Ci.purpleIPref);
+  },
+
+  openProxySettings: function aw_openProxySettings() {
+    window.openDialog("chrome://instantbird/content/proxies.xul", "",
+                      "chrome,modal,titlebar,centerscreen",
+                      this);
+    this.displayProxyDescription();
   }
 };

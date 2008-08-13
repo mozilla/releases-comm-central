@@ -1,0 +1,5 @@
+<!ENTITY proxiesDialog.title                 "Proxy Settings">
+<!ENTITY proxiesDialogHeader.title           "Proxy Settings">
+<!ENTITY proxiesDialogHeader.description     "For this account">
+
+<!ENTITY proxiesDialog.useAsGlobal.label     "Use these Settings for All Accounts (Change Global Settings)">

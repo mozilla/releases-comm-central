@@ -92,6 +92,18 @@
           <label value="&account.autojoin;" control="autojoin" flex="1"/>
           <textbox id="autojoin" flex="1"/>
         </vbox>
+
+        <separator class="groove" id="proxySeparator"/>
+        <vbox>
+          <label value="Proxy Settings:" flex="1"/>
+          <description id="proxyDescription"/>
+          <hbox>
+            <spacer flex="1"/>
+            <button id="proxySettings" 
+                    label="Change..." accesskey="C" 
+                    oncommand="account.openProxySettings();"/>
+          </hbox>
+        </vbox>
       </tabpanel>
 
       <tabpanel id="advanced" flex="1" style="overflow:auto;">

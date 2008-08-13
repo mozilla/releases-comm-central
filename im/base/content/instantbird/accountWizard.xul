@@ -83,7 +83,7 @@
     <description id="duplicateAccount" hidden="true">&accountUsernameDuplicate.label;</description>
   </wizardpage>
 
-  <wizardpage id="accountpassword" pageid="accountpassword" next="accountalias"
+  <wizardpage id="accountpassword" pageid="accountpassword" next="accountadvanced"
               label="&accountPasswordTitle.label;">
     <description>&accountPasswordInfo.label;</description>
     <separator/>
@@ -93,24 +93,40 @@
     </hbox>
   </wizardpage>
 
-  <wizardpage id="accountalias" pageid="accountalias" next="accountadvanced"
-              label="&accountAliasTitle.label;">
-    <description>&accountAliasInfo.label;</description>
-    <separator/>
-    <hbox id="aliasBox" align="baseline">
-      <label value="&accountAliasField.label;" control="alias" id="aliasLabel"/>
-      <textbox id="alias"/>
-    </hbox>
-  </wizardpage>
-
   <wizardpage id="accountadvanced" pageid="accountadvanced" next="accountsummary"
               label="&accountAdvancedTitle.label;"
               onpageshow="accountWizard.showAdvanced();">
     <description>&accountAdvancedInfo.label;</description>
-    <separator/>
+    <separator class="thin"/>
+    <groupbox id="aliasGroupbox" class="collapsable">
+      <caption id="aliasGroupboxCaption" label="&accountAliasGroupbox.caption;"
+               onclick="accountWizard.toggleGroupbox('aliasGroupbox')"/>
+      <hbox id="aliasBox" align="baseline">
+        <label value="&accountAliasField.label;" control="alias" id="aliasLabel"/>
+        <textbox id="alias"/>
+      </hbox>
+      <description>&accountAliasInfo.label;</description>
+    </groupbox>
+
     <checkbox id="newMailNotification"
               label="&accountAdvanced.newMailNotification.label;" hidden="true"/>
-    <vbox id="protoSpecific" flex="1"/>
+
+    <groupbox id="protoSpecificGroupbox" class="collapsable" closed="true">
+      <caption id="protoSpecificCaption"
+               onclick="accountWizard.toggleGroupbox('protoSpecificGroupbox')"/>
+      <vbox id="protoSpecific" flex="1"/>
+    </groupbox>
+
+    <groupbox id="proxyGroupbox" class="collapsable">
+      <caption id="proxyCaption" label="&accountProxySettings.caption;"
+               onclick="accountWizard.toggleGroupbox('proxyGroupbox')"/>
+      <description id="proxyDescription"/>
+      <hbox>
+        <spacer flex="1"/>
+        <button label="Change..." accesskey="C" 
+                oncommand="accountWizard.openProxySettings();"/>
+      </hbox>
+    </groupbox>
   </wizardpage>
 
   <wizardpage id="accountsummary" pageid="accountsummary"

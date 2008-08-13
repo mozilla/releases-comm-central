@@ -118,6 +118,50 @@ var accountWizard = {
       !this.proto.newMailNotification;
 */
     this.populateProtoSpecificBox();
+
+    this.proxy = Components.classes["@instantbird.org/purple/proxyinfo;1"]
+                           .createInstance(Ci.purpleIProxyInfo);
+    this.proxy.type = Ci.purpleIProxyInfo.useGlobal;
+    this.displayProxyDescription();
+  },
+
+  displayProxyDescription: function aw_displayProxyDescription() {
+    var type = this.proxy.type;
+    var proxy;
+    var result;
+    if (type == Ci.purpleIProxyInfo.useGlobal) {
+      proxy = this.pcs.globalProxy;
+      type = proxy.type;
+    }
+    else
+      proxy = this.proxy;
+
+    if (type == Ci.purpleIProxyInfo.noProxy)
+      result = "Direct Connection to the Internet (No Proxy)";
+
+    if (type == Ci.purpleIProxyInfo.useEnvVar)
+      result = "Use environmental settings";
+
+    if (!result) {
+      // At this point, we should have either a socks or http proxy
+      proxy.QueryInterface(Ci.purpleIProxy);
+      var result;
+      if (type == Ci.purpleIProxyInfo.httpProxy)
+        result = "Http ";
+      else if (type == Ci.purpleIProxyInfo.socks4Proxy)
+        result = "Socks 4 ";
+      else if (type == Ci.purpleIProxyInfo.socks5Proxy)
+        result = "Socks 5 ";
+      else
+        throw "Unknown proxy type";
+
+      if (proxy.username)
+        result += proxy.username + "@";
+
+      result += proxy.host + ":" + proxy.port;
+    }
+
+    document.getElementById("proxyDescription").textContent = result;
   },
 
   createTextbox: function aw_createTextbox(aType, aValue, aLabel, aName) {
@@ -145,6 +189,8 @@ var accountWizard = {
     var id = this.proto.id;
     var box = document.getElementById("protoSpecific");
     var bundle = document.getElementById("prplbundle");
+    document.getElementById("protoSpecificCaption").label =
+      bundle.getFormattedString("protoOptions", [this.proto.name]);
     var child;
     while (child = box.firstChild)
       box.removeChild(child);
@@ -287,6 +333,8 @@ var accountWizard = {
     }
     var autologin = this.getValue("connectNow");
     acc.autoLogin = autologin;
+
+    acc.proxyInfo = this.proxy;
     acc.save();
 
     if (autologin)
@@ -313,5 +361,28 @@ var accountWizard = {
   },
   getProtoOptions: function aw_getProtoOptions() {
     return getIter(this.proto.getOptions, Ci.purpleIPref);
+  },
+
+  toggleGroupbox: function aw_toggleGroupbox(id) {
+    var elt = document.getElementById(id);
+    if (elt.hasAttribute("closed")) {
+      elt.removeAttribute("closed");
+      if (elt.flexWhenOpened)
+        elt.flex = elt.flexWhenOpened;
+    }
+    else {
+      elt.setAttribute("closed", "true");
+      if (elt.flex) {
+        elt.flexWhenOpened = elt.flex;
+        elt.flex = 0;
+      }
+    }
+  },
+
+  openProxySettings: function aw_openProxySettings() {
+    window.openDialog("chrome://instantbird/content/proxies.xul", "",
+                      "chrome,modal,titlebar,centerscreen",
+                      this);
+    this.displayProxyDescription();
   }
 };
