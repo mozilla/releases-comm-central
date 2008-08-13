@@ -75,6 +75,8 @@
                .addEventListener("keypress", this.onSendMsg, false);
 
        var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+       browser.addEventListener("keypress", this.browserKeyPress, false);
+
        var docShell = browser.docShell;
        docShell.allowJavascript = false;
        docShell.allowAuth = false;
@@ -246,18 +248,20 @@
         if (event.keyCode != 13)
           return;
 
-        /* this method is called by an eventListener.
-           This points to the textbox element. */
+        /* "this" can point to the textbox when this method is used by an eventListener,
+            get the conversation element */
         var conv = this;
-        while (conv.localName != "conversation")
-          conv = conv.parentNode;
+        if (this.localName != "conversation")
+          conv = document.getBindingParent(this);
+
+        var input = document.getAnonymousElementByAttribute(conv, "anonid", "input");
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
-          conv.sendMsg(this.value);
-          this.value = "";
+          conv.sendMsg(input.value);
+          input.value = "";
           event.preventDefault();
         }
         else if (!event.shiftKey)
-          this.value += "\n";
+          conv.addString("\n");
       ]]>
       </body>
      </method>
@@ -269,11 +273,11 @@
         if (event.keyCode != 13)
           return;
 
-        /* this method is called by an eventListener.
-           This points to the textbox element. */
+        /* "this" can point to the textbox when this method is used by an eventListener,
+            get the conversation element */
         var conv = this;
-        while (conv.localName != "conversation")
-          conv = conv.parentNode;
+        if (this.localName != "conversation")
+          conv = document.getBindingParent(this);
 
         var editor = this.getEditor(this.contentWindow);
         var docRoot = editor.rootElement;
@@ -301,6 +305,95 @@
         editor.contentDocument.execCommand(aCmd, false, aHtml);
       ]]>
       </body>
+     </method>
+
+     <method name="browserKeyPress">
+     <parameter name="event"/>
+      <body>
+      <![CDATA[
+        // 118 is the decimal code for "v" character, 13 keyCode for "return" key
+        if (((event.ctrlKey && event.charCode != 118) || event.altKey) &&
+            event.keyCode != 13)
+          return;
+
+        var conv = document.getBindingParent(this);
+        var isHtmlMode = conv.isHtmlMode;
+        var editor = conv.editor;
+
+        // "Return" key
+        if (event.keyCode == 13) {
+          editor.focus();
+
+          if (isHtmlMode)
+            conv.onSendHTMLMsg(event);
+          else
+            conv.onSendMsg(event);
+
+          // Alt and Ctrl + return are handled in onSendMsg
+          if (event.shiftKey) {
+            if (!isHtmlMode)
+              conv.addString("\n");
+          }
+        }
+        // "Backspace" key
+        else if (event.keyCode == 8) {
+          editor.focus();
+
+          if (!isHtmlMode) {
+            if (editor.selectionStart > 0 &&
+                editor.selectionStart == editor.selectionEnd)
+              --editor.selectionStart;
+
+            conv.addString("");
+          }
+        }
+        // "Delete" key
+        else if (event.keyCode == 46) {
+          editor.focus();
+
+          if (!isHtmlMode) {
+            var length = editor.textLength;
+            if (editor.selectionStart < length &&
+                editor.selectionStart == editor.selectionEnd)
+              ++editor.selectionEnd;
+
+            conv.addString("");
+          }
+        }
+
+        // CharCode=0 means not a character
+        if (event.charCode == 0)
+          return;
+
+        editor.focus();
+
+        // Returns for Ctrl+V
+        if (event.ctrlKey)
+          return;
+
+        if (!isHtmlMode)
+          conv.addString(String.fromCharCode(event.charCode));
+      ]]>
+      </body>
+     </method>
+
+     <!-- Replace the current selection in the editor by the given string -->
+     <method name="addString">
+       <parameter name="aString"/>
+       <body>
+       <![CDATA[
+         var editor = this.editor;
+         var length = (aString != "")
+                      ? aString.length
+                      : 0;
+
+         var cursorPosition = editor.selectionStart + length;
+
+         editor.value = editor.value.substr(0, editor.selectionStart) + aString +
+                        editor.value.substr(editor.selectionEnd);
+         editor.selectionStart = editor.selectionEnd = cursorPosition;
+       ]]>
+       </body>
      </method>
 
      <!-- nsIWebProgressListener implementation -->
@@ -374,6 +467,28 @@
          ]]>
        </setter>
      </property>
+
+     <property name="isHtmlMode">
+       <getter>
+         <![CDATA[
+           var editorIndex = document.getAnonymousElementByAttribute(this, "anonid", "conv-bottom")
+                                     .selectedIndex;
+           return (editorIndex == "0");
+         ]]>
+       </getter>
+     </property>
+
+     <property name="editor">
+       <getter>
+         <![CDATA[
+          if (this.isHtmlMode)
+            return document.getAnonymousElementByAttribute(this, "anonid", "editor");
+          else
+            return document.getAnonymousElementByAttribute(this, "anonid", "input");
+         ]]>
+       </getter>
+     </property>
+
     </implementation>
     <handlers>
      <handler event="focus" phase="capturing">
