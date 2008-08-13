@@ -44,7 +44,7 @@ components/xpc3250.dll
 components/xppref32.dll
 nsldap32v50.dll
 nsldappr32v50.dll
-#ifdef XP_WIN
+#ifdef XP_WIN_REMOVE_OLD_XPT
 components/accessibility-msaa.xpt
 components/accessibility.xpt
 components/addrbook.xpt
