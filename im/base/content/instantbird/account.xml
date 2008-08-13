@@ -159,6 +159,28 @@
      <method name="delete">
       <body>
       <![CDATA[
+        var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                              .getService(Components.interfaces.nsIPrefBranch);
+
+        var showPrompt = prefs.getBoolPref("messenger.accounts.promptOnDelete");
+        if (showPrompt) {
+          var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                                  .getService(Components.interfaces.nsIPromptService);
+
+          var bundle = document.getElementById("accountsBundle");
+          var promptTitle    = bundle.getString("account.deletePrompt.title");
+          var promptMessage  = bundle.getString("account.deletePrompt.message");
+          var promptCheckbox = bundle.getString("account.deletePrompt.checkbox");
+
+          var checkbox = {};
+          if (!prompts.confirmCheck(window, promptTitle, promptMessage,
+                                    promptCheckbox, checkbox))
+            return;
+
+          if (checkbox.value)
+            prefs.setBoolPref("messenger.accounts.promptOnDelete", false);
+        }
+
         var pcs = Components.classes["@instantbird.org/purple/core;1"]
                             .getService(Ci.purpleICoreService);
         pcs.deleteAccount(this._account.id);

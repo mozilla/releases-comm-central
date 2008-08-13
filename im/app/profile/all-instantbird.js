@@ -5,6 +5,7 @@ pref("toolkit.defaultChromeURI", "chrome://instantbird/content/blist.xul");
 pref("accessibility.browsewithcaret", true);
 
 pref("messenger.accounts", "");
+pref("messenger.accounts.promptOnDelete", true);
 pref("messenger.options.playSounds", true);
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
