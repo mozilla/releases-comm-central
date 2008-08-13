@@ -48,7 +48,6 @@
 }
 
 .date {
-  font-family: Verdana, Arial, sans-serif;
   font-size: small;
   font-style: normal;
   font-weight: normal;
@@ -71,6 +70,7 @@
 }
 
 p {
+  font-family: sans-serif;
   margin: 1px auto;
 }
 
