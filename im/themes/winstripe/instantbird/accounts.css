@@ -94,6 +94,11 @@ richlistitem[selected="true"] {
   color: -moz-DialogText;
 }
 
+/* When the error message was too long, the buttons were too small */
+richlistitem .account-buttons button {
+  min-height: 2.5em;
+}
+
 richlistbox[focused] richlistitem[selected="true"] {
   background-color: Highlight;
   color: HighlightText;
