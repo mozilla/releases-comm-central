@@ -221,7 +221,13 @@
     <handlers>
       <handler event="dblclick">
         <![CDATA[
-          gAccountManager.edit();
+          // If we double clicked on a widget that has already done
+          // something with the first click, we should ignore the event
+          var localName = event.originalTarget.localName;
+          if (localName != "button" && localName != "checkbox")
+            gAccountManager.edit();
+
+          // Prevent from loading an account wizzard
           event.stopPropagation();
         ]]>
       </handler>
