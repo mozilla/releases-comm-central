@@ -56,12 +56,12 @@
            <xul:hbox class="accountNameBox">
             <xul:label value="&account.name;" class="accountNameLabel"/>
             <xul:label flex="1" xbl:inherits="value=name"
-                         class="accountName"/>
+                       class="accountName"/>
            </xul:hbox>
            <xul:hbox class="accountAliasBox">
             <xul:label value="&account.alias;"/>
             <xul:label flex="1" xbl:inherits="value=alias"
-                         class="accountAlias"/>
+                       class="accountAlias"/>
            </xul:hbox>
            <xul:label class="connecting" anonid="connecting" value="&account.connecting;"/>
            <xul:label class="connected" value="&account.connected;"/>
@@ -73,33 +73,37 @@
           <xul:vbox align="center">
             <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
             <xul:image xbl:inherits="src=prplicon" class="accountIconAnim"
-		       anonid="prplicon"/>
+                       anonid="prplicon"/>
             <xul:label xbl:inherits="value=protocol" class="prplName"/>
           </xul:vbox>
         </xul:hbox>
         <xul:hbox flex="1" class="account-buttons">
           <xul:checkbox label="&account.autoSignOn;"
-			xbl:inherits="checked=autologin"
-			oncommand="gAccountManager.autologin()"/>
+                        xbl:inherits="checked=autologin"
+                        oncommand="gAccountManager.autologin()"/>
           <xul:spacer flex="1"/>
           <xul:button class="disconnectButton"
-		      label="&account.disconnect.label;"
-		      accesskey="&account.disconnect.accesskey;"
-                      oncommand="gAccountManager.disconnect()"/>
+                      label="&account.disconnect.label;"
+                      accesskey="&account.disconnect.accesskey;"
+                      oncommand="gAccountManager.disconnect()"
+                      anonid="disconnect"/>
           <xul:button class="connectButton"
-		      label="&account.connect.label;"
-		      accesskey="&account.connect.accesskey;"
-                      oncommand="gAccountManager.connect()"/>
+                      label="&account.connect.label;"
+                      accesskey="&account.connect.accesskey;"
+                      oncommand="gAccountManager.connect()"
+                      anonid="connect"/>
           <xul:button label="&account.delete.label;"
-		      accesskey="&account.delete.accesskey;"
+                      accesskey="&account.delete.accesskey;"
                       oncommand="gAccountManager.delete()"/>
           <xul:button label="&account.edit.label;"
-		      accesskey="&account.edit.accesskey;"
+                      accesskey="&account.edit.accesskey;"
                       oncommand="gAccountManager.edit()"/>
-        </xul:hbox> 
+        </xul:hbox>
       </xul:vbox>
     </content>
     <implementation>
+     <field name="_disabledDelay">500</field>
+
      <method name="build">
       <parameter name="aAccount"/>
       <body>
@@ -140,8 +144,16 @@
      <method name="connect">
       <body>
       <![CDATA[
-        if (this._account.disconnected)
+        if (this._account.disconnected) {
+          var disconnect = document.getAnonymousElementByAttribute(this, "anonid", "disconnect");
+          disconnect.setAttribute("disabled", "true");
+
+          setTimeout(function(aDisconnect) {
+                       aDisconnect.removeAttribute("disabled");
+                     }, this._disabledDelay, disconnect);
+
           this._account.connect();
+        }
       ]]>
       </body>
      </method>
@@ -150,8 +162,16 @@
       <body>
       <![CDATA[
         var acc = this._account;
-        if (acc.connected || acc.connecting)
+        if (acc.connected || acc.connecting) {
+          var connect = document.getAnonymousElementByAttribute(this, "anonid", "connect");
+          connect.setAttribute("disabled", "true");
+
+          setTimeout(function(aConnect) {
+                       aConnect.removeAttribute("disabled");
+                     }, this._disabledDelay, connect);
+
           this._account.disconnect();
+        }
       ]]>
       </body>
      </method>
