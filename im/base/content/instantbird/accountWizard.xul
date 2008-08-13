@@ -64,7 +64,8 @@
     <separator/>
     <label value="&accountProtocolField.label;" control="protolist"
            id="protoLabel" hidden="true"/>
-    <listbox flex="1" id="protolist"/>
+    <listbox flex="1" id="protolist"
+             ondblclick="document.getElementById('accountWizard').advance();"/>
   </wizardpage>
 
   <wizardpage id="accountusername" pageid="accountusername" next="accountpassword"
