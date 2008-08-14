@@ -53,7 +53,6 @@ var gAccountManager = {
   load: function am_load() {
     this.accountList = document.getElementById("accountlist");
     for (let acc in this.getAccounts()) {
-      //dump(acc.id + ": " + acc.name + "\n");
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(acc);
@@ -82,7 +81,6 @@ var gAccountManager = {
       throw "Bad notification.";
 
     if (aTopic == "account-added") {
-      dump("new account : " + aObject.id + ": " + aObject.name + "\n");
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(aObject);
@@ -90,7 +88,6 @@ var gAccountManager = {
 	this.accountList.selectedIndex = 0;
     }
     else if (aTopic == "account-removed") {
-      dump("deleting account : " + aObject.id + ": " + aObject.name + "\n");
       var elt = document.getElementById(aObject.id);
       if (!elt.selected) {
 	this.accountList.removeChild(elt);
@@ -106,7 +103,6 @@ var gAccountManager = {
       if (selectedIndex == count)
 	--selectedIndex;
       this.accountList.selectedIndex = selectedIndex;
-      dump("new selected index : " + selectedIndex + "\n");
     }
     else if (aTopic == "account-updated") {
       var elt = document.getElementById(aObject.id);
