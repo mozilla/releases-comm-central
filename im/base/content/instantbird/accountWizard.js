@@ -279,6 +279,9 @@ var accountWizard = {
     for (let opt in this.getProtoOptions()) {
       let name = opt.name;
       let val = this.getValue(id + "-" + name);
+      // The value will be undefined if the proto specific groupbox has never been opened
+      if (val === undefined)
+        continue;
       switch (opt.type) {
       case opt.typeBool:
 	if (val != opt.getBool())
