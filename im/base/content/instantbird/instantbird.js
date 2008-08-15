@@ -177,6 +177,14 @@ var msgObserver = {
     this.closeTab(this.contextTab);
   },
 
+  onMouseZoom: function mo_onMouseZoom(event) {
+    if (!event.ctrlKey || event.altKey || event.shiftKey || !event.detail)
+      return;
+
+    var cmd = event.detail < 0 ? "cmd_textZoomEnlarge" : "cmd_textZoomReduce";
+    document.getElementById(cmd).doCommand();
+  },
+
   load: function mo_load() {
     addObservers(msgObserver, events);
     if (window.pendingNotifications) {
@@ -188,11 +196,17 @@ var msgObserver = {
       delete window.pendingNotifications;
     }
     window.addEventListener("unload", msgObserver.unload, false);
+    window.addEventListener("DOMMouseScroll", msgObserver.onMouseZoom, false);
   },
   unload: function mo_unload() {
     removeObservers(msgObserver, events);
   }
 };
+
+function getBrowser()
+{
+  return document.getElementById("panels").selectedPanel.browser;
+}
 
 /*
 function setStatus(aMsg)

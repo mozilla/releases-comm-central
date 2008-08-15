@@ -57,13 +57,24 @@
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
+  <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
 
   <commandset id="conversationsCommands">
     <command id="cmd_close" oncommand="msgObserver.closeCurrentTab()"/>
+    <command id="cmd_textZoomReduce" oncommand="ZoomManager.reduce();"/>
+    <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
+    <command id="cmd_textZoomReset" oncommand="ZoomManager.reset();"/>
   </commandset>
 
   <keyset id="conversationsKeys">
     <key id="key_close" key="w" modifiers="accel" command="cmd_close"/>
+    <key id="key_textZoomEnlarge" key="&textEnlarge.commandkey;" command="cmd_textZoomEnlarge" modifiers="accel"/>
+    <key id="key_textZoomEnlarge2" key="&textEnlarge.commandkey2;" command="cmd_textZoomEnlarge" modifiers="accel"/>
+    <key id="key_textZoomEnlarge3" key="&textEnlarge.commandkey3;" command="cmd_textZoomEnlarge" modifiers="accel"/>
+    <key id="key_textZoomReduce"  key="&textReduce.commandkey;" command="cmd_textZoomReduce" modifiers="accel"/>
+    <key id="key_textZoomReduce2"  key="&textReduce.commandkey2;" command="cmd_textZoomReduce" modifiers="accel"/>
+    <key id="key_textZoomReset" key="&textReset.commandkey;" command="cmd_textZoomReset" modifiers="accel"/>
+    <key id="key_textZoomReset2" key="&textReset.commandkey2;" command="cmd_textZoomReset" modifiers="accel"/>
   </keyset>
 
   <tabbox flex="1">

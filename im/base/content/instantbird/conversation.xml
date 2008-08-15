@@ -489,6 +489,14 @@
        </getter>
      </property>
 
+     <property name="browser">
+       <getter>
+         <![CDATA[
+            return document.getAnonymousElementByAttribute(this, "anonid", "browser");
+         ]]>
+       </getter>
+     </property>
+
     </implementation>
     <handlers>
      <handler event="focus" phase="capturing">

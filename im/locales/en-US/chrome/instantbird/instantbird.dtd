@@ -16,3 +16,11 @@
 <!ENTITY about.menu         "About &brandShortName;">
 <!ENTITY about.accesskey    "A">
 <!ENTITY conversation.contextMenu.close "Close Tab">
+
+<!ENTITY textEnlarge.commandkey "+">
+<!ENTITY textEnlarge.commandkey2 "=">
+<!ENTITY textEnlarge.commandkey3 "">
+<!ENTITY textReduce.commandkey "-">
+<!ENTITY textReduce.commandkey2 "">
+<!ENTITY textReset.commandkey "0">
+<!ENTITY textReset.commandkey2 "">
