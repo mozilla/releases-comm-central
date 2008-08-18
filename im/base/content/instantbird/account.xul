@@ -54,6 +54,7 @@
   <script type="application/javascript" src="chrome://instantbird/content/account.js"/>
 
   <stringbundle id="prplbundle" src="chrome://instantbird/locale/prpl.properties"/>
+  <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
 
   <hbox>
     <image id="protocolIcon"/>
@@ -76,7 +77,7 @@
           <textbox id="password" flex="1" type="password"/>
         </hbox>
         <checkbox id="rememberPassword" label="&account.rememberPassword;" hidden="true"/>
-  
+
         <separator class="groove"/>
 
         <hbox id="aliasBox" equalsize="always" align="baseline">
@@ -95,12 +96,13 @@
 
         <separator class="groove" id="proxySeparator"/>
         <vbox>
-          <label value="Proxy Settings:" flex="1"/>
+          <label value="&account.proxySettings.caption;" flex="1"/>
           <description id="proxyDescription"/>
           <hbox>
             <spacer flex="1"/>
-            <button id="proxySettings" 
-                    label="Change..." accesskey="C" 
+            <button id="proxySettings"
+                    label="&account.proxySettings.change.label;"
+                    accesskey="&account.proxySettings.change.accessKey;"
                     oncommand="account.openProxySettings();"/>
           </hbox>
         </vbox>
@@ -109,7 +111,7 @@
       <tabpanel id="advanced" flex="1" style="overflow:auto;">
         <vbox id="protoSpecific" flex="1"/>
       </tabpanel>
-  
+
     </tabpanels>
   </tabbox>
 </dialog>

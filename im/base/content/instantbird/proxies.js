@@ -97,23 +97,28 @@ var gProxies = {
   // instance pointing to the Global Proxy
   getProxyDescription: function proxy_description(aProxy) {
     var type = aProxy.type;
+    var bundle = document.getElementById("proxiesBundle");
+
     if (type == Ci.purpleIProxyInfo.noProxy)
-      return "Direct Connection to the Internet (No Proxy)";
+      return bundle.getString("proxies.directConnexion");
 
     if (type == Ci.purpleIProxyInfo.useEnvVar)
-      return "Use environmental settings";
+      return bundle.getString("proxies.useEnvironemental");
 
     // At this point, we should have either a socks or http proxy
     aProxy.QueryInterface(Ci.purpleIProxy);
     var result;
     if (type == Ci.purpleIProxyInfo.httpProxy)
-      result = "Http ";
+      result = bundle.getString("proxies.http");
     else if (type == Ci.purpleIProxyInfo.socks4Proxy)
-      result = "Socks 4 ";
+      result = bundle.getString("proxies.socks4");
     else if (type == Ci.purpleIProxyInfo.socks5Proxy)
-      result = "Socks 5 ";
+      result = bundle.getString("proxies.socks5");
     else
       throw "Unknown proxy type";
+
+    if (result)
+      result += " ";
 
     if (aProxy.username)
       result += aProxy.username + "@";
@@ -141,7 +146,8 @@ var gProxies = {
       var host = this.getValue("hostname");
       var port = this.getValue("port");
       if (!host || !port) {
-        promptService.alert(window, "Invalid input", "You need to enter at least a valid hostname and port number to add a new proxy.");
+        promptService.alert(window, bundle.getString("proxies.alert.invalidInput.title"),
+                            bundle.getString("proxies.alert.invalidInput.message"));
         return false;
       }
       var user = this.getValue("username");
@@ -154,8 +160,8 @@ var gProxies = {
             item.proxy = proxy;
           }
           else {
-            if (promptService.confirm(window, "Update Proxy Password?",
-                                      "The same proxy alreaady exists with a different password. Update the password?")) {
+            if (promptService.confirm(window, bundle.getString("proxies.confirm.passwordUpdate.title"),
+                                      bundle.getString("proxies.confirm.passwordUpdate.message"))) {
               proxy.password = pass;
               item.proxy = proxy;
             }

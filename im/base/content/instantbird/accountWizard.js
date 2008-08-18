@@ -127,6 +127,7 @@ var accountWizard = {
 
   displayProxyDescription: function aw_displayProxyDescription() {
     var type = this.proxy.type;
+    var bundle = document.getElementById("proxiesBundle");
     var proxy;
     var result;
     if (type == Ci.purpleIProxyInfo.useGlobal) {
@@ -137,23 +138,26 @@ var accountWizard = {
       proxy = this.proxy;
 
     if (type == Ci.purpleIProxyInfo.noProxy)
-      result = "Direct Connection to the Internet (No Proxy)";
+      result = bundle.getString("proxies.directConnexion");
 
     if (type == Ci.purpleIProxyInfo.useEnvVar)
-      result = "Use environmental settings";
+      result = bundle.getString("proxies.useEnvironemental");
 
     if (!result) {
       // At this point, we should have either a socks or http proxy
       proxy.QueryInterface(Ci.purpleIProxy);
       var result;
       if (type == Ci.purpleIProxyInfo.httpProxy)
-        result = "Http ";
+        result = bundle.getString("proxies.http");
       else if (type == Ci.purpleIProxyInfo.socks4Proxy)
-        result = "Socks 4 ";
+        result = bundle.getString("proxies.socks4");
       else if (type == Ci.purpleIProxyInfo.socks5Proxy)
-        result = "Socks 5 ";
+        result = bundle.getString("proxies.socks5");
       else
         throw "Unknown proxy type";
+
+      if (result)
+        result += " ";
 
       if (proxy.username)
         result += proxy.username + "@";
@@ -199,23 +203,23 @@ var accountWizard = {
       var name = id + "-" + opt.name;
       switch (opt.type) {
       case opt.typeBool:
-	var chk = document.createElement("checkbox");
+        var chk = document.createElement("checkbox");
         if (opt.getBool())
-	  chk.setAttribute("checked", "true");
-	chk.setAttribute("label", text);
-	chk.setAttribute("id", name);
-	box.appendChild(chk);
-	break;
+          chk.setAttribute("checked", "true");
+        chk.setAttribute("label", text);
+        chk.setAttribute("id", name);
+        box.appendChild(chk);
+        break;
       case opt.typeInt:
-	box.appendChild(this.createTextbox("number", opt.getInt(),
-					   text, name));
-	break;
+        box.appendChild(this.createTextbox("number", opt.getInt(),
+                                           text, name));
+        break;
       case opt.typeString:
-	box.appendChild(this.createTextbox(null, opt.getString(),
-					   text, name));
-	break;
+        box.appendChild(this.createTextbox(null, opt.getString(),
+                                           text, name));
+        break;
       default:
-	throw "unknown preference type " + opt.type;
+        throw "unknown preference type " + opt.type;
       }
     }
   },
@@ -284,19 +288,19 @@ var accountWizard = {
         continue;
       switch (opt.type) {
       case opt.typeBool:
-	if (val != opt.getBool())
+        if (val != opt.getBool())
           this.prefs.push({opt: opt, name: name, value: val});
-	break;
+        break;
       case opt.typeInt:
-	if (val != opt.getInt())
+        if (val != opt.getInt())
           this.prefs.push({opt: opt, name: name, value: val});
-	break;
+        break;
       case opt.typeString:
-	if (val != opt.getString())
+        if (val != opt.getString())
           this.prefs.push({opt: opt, name: name, value: val});
-	break;
+        break;
       default:
-	throw "unknown preference type " + opt.type;
+        throw "unknown preference type " + opt.type;
       }
     }
 

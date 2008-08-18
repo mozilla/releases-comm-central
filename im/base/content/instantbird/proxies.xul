@@ -57,47 +57,47 @@
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/proxies.js"/>
 
-  <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
+  <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
 
   <dialogheader title="&proxiesDialogHeader.title;" description="&proxiesDialogHeader.description;"/>
 
   <richlistbox id="proxylist" flex="1" onselect="gProxies.onSelect();">
     <richlistitem id="useGlobal" orient="vertical">
-      <description class="header">Use Global Settings</description>
+      <description class="header">&proxiesDialog.useGlobalSettings;</description>
       <description class="indent" id="globalProxy"/>
     </richlistitem>
     <richlistitem id="noProxy" orient="vertical">
-      <description class="header">Direct Connexion to the Internet</description>
-      <description class="indent">(No Proxy)</description>
+      <description class="header">&proxiesDialog.directConnexion;</description>
+      <description class="indent">&proxiesDialog.noProxy;</description>
     </richlistitem>
     <richlistitem id="useEnvironment" orient="vertical">
-      <description class="header">Use Environmental Settings</description>
-      <description class="indent" id="envProxy">No proxy settings found in the environment</description>
+      <description class="header">&proxiesDialog.useEnvironemental;</description>
+      <description class="indent" id="envProxy">&proxiesDialog.noProxyInEnvironment;</description>
     </richlistitem>
     <richlistitem id="newProxy" orient="vertical">
       <hbox align="center">
-	<description class="header">Other...</description>
+        <description class="header">&proxiesDialog.otherSetting;</description>
         <menulist id="proxyType">
           <menupopup>
-             <menuitem label="HTTP" value="1"/>
-             <menuitem label="Socks 4" value="2"/>
-             <menuitem label="Socks 5" value="3"/>
+             <menuitem label="&proxiesDialog.http.label;" value="1"/>
+             <menuitem label="&proxiesDialog.socks4.label;" value="2"/>
+             <menuitem label="&proxiesDialog.socks5.label;" value="3"/>
           </menupopup>
         </menulist>
       </hbox>
 
       <hbox align="center">
-        <label value="Hostname:" control="hostname"/>
+        <label value="&proxiesDialog.hostname.label;" control="hostname"/>
         <textbox id="hostname" emptytext="Hostname" style="width: 7em;"/>
         <spacer flex="1"/>
-        <label value="Port:" control="port"/>
+        <label value="&proxiesDialog.port.label;" control="port"/>
         <textbox id="port" type="number" style="width: 5em;"/>
       </hbox>
       <hbox align="center">
-        <label value="Username:" control="username"/>
+        <label value="&proxiesDialog.username.label;" control="username"/>
         <textbox id="username" style="width: 5em;"/>
         <spacer flex="1"/>
-        <label value="Password:" control="password"/>
+        <label value="&proxiesDialog.password.label;" control="password"/>
         <textbox id="password" type="password" style="width: 5em;"/>
       </hbox>
     </richlistitem>

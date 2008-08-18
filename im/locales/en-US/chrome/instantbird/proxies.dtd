@@ -1,5 +1,18 @@
 <!ENTITY proxiesDialog.title                 "Proxy Settings">
 <!ENTITY proxiesDialogHeader.title           "Proxy Settings">
 <!ENTITY proxiesDialogHeader.description     "For this account">
-
-<!ENTITY proxiesDialog.useAsGlobal.label     "Use these Settings for All Accounts (Change Global Settings)">
+<!ENTITY proxiesDialog.useGlobalSettings     "Use Global Settings">
+<!ENTITY proxiesDialog.directConnexion       "Direct Connexion to the Internet">
+<!ENTITY proxiesDialog.noProxy               "(No Proxy)">
+<!ENTITY proxiesDialog.useEnvironemental     "Use Environemental Settings">
+<!ENTITY proxiesDialog.noProxyInEnvironment  "No proxy settings found in the environment">
+<!ENTITY proxiesDialog.otherSetting          "Other...">
+<!ENTITY proxiesDialog.http.label            "Http">
+<!ENTITY proxiesDialog.socks4.label          "Socks 4">
+<!ENTITY proxiesDialog.socks5.label          "Socks 5">
+<!ENTITY proxiesDialog.hostname.label        "Hostname:">
+<!ENTITY proxiesDialog.hostname.defaultValue "Hostname">
+<!ENTITY proxiesDialog.port.label            "Port:">
+<!ENTITY proxiesDialog.username.label        "Username:">
+<!ENTITY proxiesDialog.password.label        "Password:">
+<!ENTITY proxiesDialog.useAsGlobal.label     "Use these Settings for All Accounts (Change&#160;Global&#160;Settings)">

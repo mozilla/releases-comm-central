@@ -78,26 +78,31 @@
          <![CDATA[
            this._proxy = val;
 
-           // FIXME L10n
-           var typeMapping = { };
-           typeMapping[Ci.purpleIProxyInfo.httpProxy] = "Http";
-           typeMapping[Ci.purpleIProxyInfo.socks4Proxy] = "Socks 4";
-           typeMapping[Ci.purpleIProxyInfo.socks5Proxy] = "Socks 5";
+           var bundle = document.getElementById("proxiesBundle");
+           var type;
+           if (this._proxy.type == Ci.purpleIProxyInfo.httpProxy)
+             type = bundle.getString("proxies.http");
+           else if (this._proxy.type == Ci.purpleIProxyInfo.socks4Proxy)
+             type = bundle.getString("proxies.socks4");
+           else if (this._proxy.type == Ci.purpleIProxyInfo.socks5Proxy)
+             type = bundle.getString("proxies.socks5");
+           else
+             throw "Unknown proxy type";
 
-           this._element("type").textContent = typeMapping[this._proxy.type];
+           this._element("type").textContent = type;
            this._element("host").textContent = this._proxy.host;
-           this._element("port").textContent = "Port: " + this._proxy.port;
+           this._element("port").textContent = bundle.getFormattedString("proxies.port.string", [this._proxy.port]);
+
            var usernameElt = this._element("username");
            var username = this._proxy.username;
            if (username)
-             usernameElt.textContent = "Username: " + this._proxy.username;
+             usernameElt.textContent = bundle.getFormattedString("proxies.username.string", [this._proxy.username]);
            else
              usernameElt.setAttribute("hidden", "true");
 
            return this._proxy;
          ]]>
        </setter>
-
      </property>
 
     </implementation>
