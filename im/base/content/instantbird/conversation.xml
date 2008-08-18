@@ -216,6 +216,7 @@
         var newElt = doc.createElement("p");
         newElt.innerHTML = aTxt;
         newElt.className = aClass;
+        newElt.setAttribute("aria-live", "polite");
         var shouldScroll = elt.scrollHeight == elt.scrollTop + elt.clientHeight;
         elt.appendChild(newElt);
         if (shouldScroll)
