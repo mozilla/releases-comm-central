@@ -34,8 +34,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-. "${srcdir}/purple/makefiles.sh"
-
+if [ "$COMM_BUILD" ]; then
 add_makefiles "
 instantbird/Makefile
 instantbird/app/Makefile
@@ -50,3 +49,4 @@ instantbird/themes/winstripe/instantbird/Makefile
 instantbird/installer/Makefile
 instantbird/installer/windows/Makefile
 "
+fi

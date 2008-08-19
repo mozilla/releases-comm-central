@@ -36,9 +36,15 @@
 #
 # ***** END LICENSE BLOCK *****
 
+ifndef COMM_BUILD
+
 ifndef LIBXUL_SDK
 include $(topsrcdir)/toolkit/toolkit-tiers.mk
 endif
+
+TIERS += app
+
+else
 
 TIERS += app
 
@@ -46,6 +52,8 @@ tier_app_dirs += \
   purple \
   instantbird \
   $(NULL)
+
+endif
 
 
 installer:
