@@ -14,6 +14,7 @@
 	locale/@AB_CD@/instantbird/instantbird.dtd	(%chrome/instantbird/instantbird.dtd)
 	locale/@AB_CD@/instantbird/joinChat.dtd		(%chrome/instantbird/joinChat.dtd)
 	locale/@AB_CD@/instantbird/proxies.dtd		(%chrome/instantbird/proxies.dtd)
+	locale/@AB_CD@/instantbird/proxies.properties	(%chrome/instantbird/proxies.properties)
 	locale/@AB_CD@/instantbird/prpl.properties	(%chrome/instantbird/prpl.properties)
 % locale branding @AB_CD@ %locale/@AB_CD@/branding/
 	locale/@AB_CD@/branding/brand.dtd		(%chrome/branding/brand.dtd)
