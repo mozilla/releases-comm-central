@@ -72,6 +72,8 @@
 p {
   font-family: sans-serif;
   margin: 1px auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 #welcome { 
