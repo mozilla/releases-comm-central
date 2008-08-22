@@ -304,3 +304,12 @@ xpicleanup.exe
 #else
 xpicleanup
 #endif
+#ifdef XP_WIN
+libraries/prpl/msnp9.dll
+#else
+#if XP_MACOSX
+libraries/prpl/libmsnp9.dylib
+#else
+libraries/prpl/libmsnp9.so
+#endif
+#endif
