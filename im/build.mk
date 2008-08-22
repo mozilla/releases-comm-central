@@ -44,6 +44,10 @@ endif
 
 TIERS += app
 
+ifdef MOZ_EXTENSIONS
+tier_app_dirs += extensions
+endif
+
 else
 
 TIERS += app

@@ -2,12 +2,14 @@
 <overlay id="debug" 
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/x-javascript" src="chrome://debug/content/debug.js"/>
-  <script src="chrome://venkman/content/venkman-overlay.js"/>
+  <script type="application/x-javascript" src="chrome://venkman/content/venkman-overlay.js"/>
+  <script type="application/x-javascript" src="chrome://inspector/content/hooks.js"/>
 
   <menubar id="blistMenubar">
     <menu label="Debug" id="debugMenu" insertafter="toolsMenu">
       <menupopup>
         <menuitem id="errorConsoleMenuItem" label="Error Console" oncommand="debug.errors()"/>
+        <menuitem id="domiMenuItem" label="DOM Inspector" oncommand="debug.inspector()"/>
         <menuitem id="venkmanMenuItem" label="Venkman" oncommand="debug.venkman()"/>
         <menuseparator/>
         <menuitem id="configMenuItem" label="about:config" oncommand="debug.config()"/>

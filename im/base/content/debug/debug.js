@@ -25,8 +25,23 @@ var debug = {
 
   venkman: function debug_venkman() {
     start_venkman();
+  },
+
+  inspector: function debug_inspector() {
+    inspectDOMDocument();
+  },
+
+  load: function debug_load() {
+    setTimeout(function() {
+      // Load the Window DataSource so that browser windows opened subsequent to DOM
+      // Inspector show up in the DOM Inspector's window list.
+      var windowDS = Components.classes["@mozilla.org/rdf/datasource;1?name=window-mediator"]
+                               .getService(Components.interfaces.nsIWindowDataSource);
+    }, 0);
   }
 };
+
+window.addEventListener("load", debug.load, false);
 
 function debug_enumerateProtocols()
 {
