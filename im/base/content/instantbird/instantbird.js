@@ -104,9 +104,11 @@ var msgObserver = {
     var conv = this.convs[id];
     panels.selectedPanel = conv;
     document.getElementById("tabs").selectedIndex = panels.selectedIndex;
+    this.focusSelectedTab();
   },
 
-  onSelectTab: function mo_onSelectTab() {
+  focusSelectedTab: function mo_focusSelectedTab() {
+    this.focusTimeoutId = null;
     var tabs = document.getElementById("tabs");
     var tab = tabs.selectedItem;
     tab.removeAttribute("unread");
@@ -115,9 +117,21 @@ var msgObserver = {
     panels.selectedPanel.focus();
   },
 
+  onSelectTab: function mo_onSelectTab() {
+    if (this.focusTimeoutId)
+      clearTimeout(this.focusTimeoutId);
+    this.focusTimeoutId = setTimeout(this.focusSelectedTab, 1000);
+  },
+
   onClickTab: function mo_onClickTab(aEvent) {
-    if (aEvent.button == 1 && aEvent.target.localName == "convtab")
+    if (aEvent.target.localName != "convtab")
+      return;
+
+    if (aEvent.button == 1)
       this.closeTab(aEvent.target);
+
+    if (aEvent.button == 0)
+      this.focusSelectedTab();
   },
 
   closeCurrentTab: function mo_closeCurrentTab() {

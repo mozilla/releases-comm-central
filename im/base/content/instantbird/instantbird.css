@@ -42,3 +42,7 @@ conversation {
 convtab {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#convtab");
 }
+
+convtab[selected="true"] {
+  -moz-user-focus: normal;
+}
