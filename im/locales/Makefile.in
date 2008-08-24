@@ -49,6 +49,7 @@ DEFINES += \
 	$(NULL)
 
 include $(topsrcdir)/config/rules.mk
+include $(call EXPAND_MOZLOCALE_SRCDIR,toolkit/locales)/installer/windows/charset.mk
 
 ifdef MOZ_UPDATER
 libs:: $(addprefix $(LOCALE_SRCDIR)/,updater/updater.ini)
