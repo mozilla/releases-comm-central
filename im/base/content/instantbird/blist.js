@@ -175,7 +175,11 @@ var buddyList = {
       // don't worry too much about this exception.
     }
 
-    initPurpleCore();
+    if (!initPurpleCore()) {
+      window.close();
+      return;
+    }
+
     buddyList.checkNotDisconnected();
     buddyList.checkForIrcAccount();
     addObservers(buddyList, events);
@@ -238,29 +242,5 @@ var buddyList = {
     return;
   }
 };
-
-function initPurpleCore()
-{
-  try {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    pcs.init();
-  }
-  catch (e) {
-    alert(e);
-  }
-}
-
-function uninitPurpleCore()
-{
-  try {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    pcs.quit();
-  }
-  catch (e) {
-    alert(e);
-  }
-}
 
 this.addEventListener("load", buddyList.load, false);

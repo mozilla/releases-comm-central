@@ -10,6 +10,7 @@
 	locale/@AB_CD@/instantbird/addbuddy.dtd		(%chrome/instantbird/addbuddy.dtd)
 	locale/@AB_CD@/instantbird/away.properties	(%chrome/instantbird/away.properties)
 	locale/@AB_CD@/instantbird/buddy.dtd		(%chrome/instantbird/buddy.dtd)
+	locale/@AB_CD@/instantbird/core.properties	(%chrome/instantbird/core.properties)
 	locale/@AB_CD@/instantbird/credits.dtd		(%chrome/instantbird/credits.dtd)
 	locale/@AB_CD@/instantbird/instantbird.dtd	(%chrome/instantbird/instantbird.dtd)
 	locale/@AB_CD@/instantbird/joinChat.dtd		(%chrome/instantbird/joinChat.dtd)
@@ -19,4 +20,3 @@
 % locale branding @AB_CD@ %locale/@AB_CD@/branding/
 	locale/@AB_CD@/branding/brand.dtd		(%chrome/branding/brand.dtd)
 	locale/@AB_CD@/branding/brand.properties	(%chrome/branding/brand.properties)
-

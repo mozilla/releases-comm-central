@@ -57,6 +57,7 @@
   persist= "width height screenX screenY"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/core.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/menus.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
