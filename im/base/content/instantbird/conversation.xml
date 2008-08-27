@@ -312,8 +312,13 @@
      <parameter name="event"/>
       <body>
       <![CDATA[
+#ifndef XP_MACOSX
+        var accelKeyPressed = event.ctrlKey;
+#else
+        var accelKeyPressed = event.metaKey;
+#endif
         // 118 is the decimal code for "v" character, 13 keyCode for "return" key
-        if (((event.ctrlKey && event.charCode != 118) || event.altKey) &&
+        if (((accelKeyPressed && event.charCode != 118) || event.altKey) &&
             event.keyCode != 13)
           return;
 
@@ -369,7 +374,7 @@
         editor.focus();
 
         // Returns for Ctrl+V
-        if (event.ctrlKey)
+        if (accelKeyPressed)
           return;
 
         if (!isHtmlMode)

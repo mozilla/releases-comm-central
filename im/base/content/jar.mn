@@ -23,7 +23,7 @@ instantbird.jar:
 	content/instantbird/blist.xul		(instantbird/blist.xul)
 	content/instantbird/buddy.xml		(instantbird/buddy.xml)
 	content/instantbird/core.js		(instantbird/core.js)
-	content/instantbird/conversation.xml	(instantbird/conversation.xml)
+*	content/instantbird/conversation.xml	(instantbird/conversation.xml)
 	content/instantbird/conv.html		(instantbird/conv.html)
 	content/instantbird/credits.xhtml	(instantbird/credits.xhtml)
 	content/instantbird/group.xml		(instantbird/group.xml)
