@@ -73,6 +73,8 @@ PREF_JS_EXPORTS = \
     $(srcdir)/profile/channel-prefs.js \
     $(NULL)
 
+ifndef LIBXUL_SDK
+
 ifeq ($(USE_SHORT_LIBNAME), 1)
 PROGRAM = instantbird$(BIN_SUFFIX)
 else
@@ -86,6 +88,14 @@ REQUIRES = \
 	$(NULL)
 
 CPPSRCS = nsMain.cpp
+else
+
+ifeq ($(USE_SHORT_LIBNAME), 1)
+STUBNAME = instantbird$(BIN_SUFFIX)
+else
+STUBNAME = instantbird-bin$(BIN_SUFFIX)
+endif
+endif # LIBXUL_SDK
 
 DIST_FILES = application.ini
 
@@ -317,6 +327,11 @@ instantbird:: mozilla.in Makefile.in Makefile $(DEPTH)/config/autoconf.mk
 
 libs:: instantbird
 	$(INSTALL) $< $(DIST)/bin
+
+ifdef LIBXUL_SDK
+libs::
+	cp $(LIBXUL_DIST)/bin/xulrunner-stub$(BIN_SUFFIX) $(DIST)/bin/$(STUBNAME)
+endif
 
 install:: instantbird
 	$(SYSINSTALL) $< $(DESTDIR)$(bindir)
