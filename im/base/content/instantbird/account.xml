@@ -71,9 +71,12 @@
            <xul:spacer flex="1"/>
           </xul:vbox>
           <xul:vbox align="center">
-            <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
-            <xul:image xbl:inherits="src=prplicon" class="accountIconAnim"
-                       anonid="prplicon"/>
+            <xul:stack>
+              <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
+              <xul:image xbl:inherits="src=prplicon" class="accountIconAnim"
+                         anonid="prplicon"/>
+              <xul:image src="chrome://instantbird/skin/accountError.png" class="errorIcon"/>
+            </xul:stack>
             <xul:label xbl:inherits="value=protocol" class="prplName"/>
           </xul:vbox>
         </xul:hbox>

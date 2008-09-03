@@ -48,6 +48,7 @@ richlistitem:not([state="connecting"]) .connecting,
 richlistitem:not([state="disconnected"]) .disconnected,
 richlistitem:not([state="disconnecting"]) .disconnecting,
 richlistitem:not([error="true"]) .error,
+richlistitem:not([error="true"]) .errorIcon,
 richlistitem:not([state="disconnected"]) .error,
 richlistitem[error="true"] .disconnected,
 richlistitem:not([state="disconnected"]) .connectButton,
@@ -56,4 +57,3 @@ richlistitem[state="disconnecting"] .disconnectButton
 {
   display: none;
 }
-
