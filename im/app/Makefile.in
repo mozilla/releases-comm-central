@@ -206,17 +206,6 @@ OS_LIBS += -ltracker -lgame
 endif
 endif
 
-ifeq ($(OS_ARCH),OS2)
-RESFILE=splashos2.res
-RCFLAGS += -DMOZ_INSTANTBIRD
-ifdef BUILD_STATIC_LIBS
-RCFLAGS += -DMOZ_STATIC_BUILD -i $(DIST)/include/widget
-endif
-ifdef DEBUG
-RCFLAGS += -DDEBUG
-endif
-endif
-
 include $(topsrcdir)/config/rules.mk
 
 ifdef MOZILLA_OFFICIAL
@@ -256,8 +245,8 @@ endif
 
 $(PROGRAM): $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
 
-ifneq (,$(filter windows os2 gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
-ifneq (,$(filter windows os2,$(MOZ_WIDGET_TOOLKIT)))
+ifneq (,$(filter windows gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
+ifneq (,$(filter windows,$(MOZ_WIDGET_TOOLKIT)))
 ICON_SUFFIX=.ico
 else
 ICON_SUFFIX=.png
@@ -286,18 +275,12 @@ DESKTOP_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(DESKTOP_ICONS) $(DESKTOP_ICON
 
 libs:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
 	$(INSTALL) $^ $(DIST)/bin/chrome/icons/default
-
-install:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/chrome/icons/default
 endif
 endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 libs::
 	$(INSTALL) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
-
-install::
-	$(SYSINSTALL) $(IFLAGS1) $(DIST)/branding/default16.png $(DESTDIR)$(mozappdir)/chrome/icons/default
 endif
 
 export::
@@ -324,7 +307,7 @@ ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 endif
 endif
 
-ifneq (,$(filter-out OS2 WINNT Darwin,$(OS_ARCH)))
+ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
 instantbird:: mozilla.in Makefile.in Makefile $(DEPTH)/config/autoconf.mk
 	cat $< | sed -e "s|%MOZAPPDIR%|$(mozappdir)|" \
 		-e "s|%MREDIR%|$(mredir)|" \
@@ -338,9 +321,6 @@ ifdef LIBXUL_SDK
 libs::
 	cp $(LIBXUL_DIST)/bin/xulrunner-stub$(BIN_SUFFIX) $(DIST)/bin/$(STUBNAME)
 endif
-
-install:: instantbird
-	$(SYSINSTALL) $< $(DESTDIR)$(bindir)
 
 GARBAGE += instantbird
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-instantbird.js channel-prefs.js)
@@ -356,9 +336,6 @@ ICON_FILES	= \
 
 libs::
 	$(INSTALL) $(ICON_FILES) $(DIST)/bin/icons
-
-install::
-	$(SYSINSTALL) $(IFLAGS1) $(ICON_FILES) $(DESTDIR)$(mozappdir)/icons
 endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),photon)
@@ -377,9 +354,9 @@ endif
 
 libs:: $(PROGRAM)
 	mkdir -p $(DIST)/$(APP_NAME).app/Contents/MacOS
-	rsync -a --exclude CVS --exclude .svn --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(APP_NAME).app --exclude English.lproj
+	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(APP_NAME).app --exclude English.lproj
 	mkdir -p $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
-	rsync -a --exclude CVS --exclude .svn --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
+	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
 	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(APP_NAME).app/Contents/Info.plist
 	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj/InfoPlist.strings
 	rsync -a $(DIST)/bin/ $(DIST)/$(APP_NAME).app/Contents/MacOS
@@ -389,9 +366,6 @@ libs:: $(PROGRAM)
 	rsync -a --copy-unsafe-links $(DIST)/package/PrintPDE.plugin $(DIST)/$(APP_NAME).app/Contents/Plug-Ins
 	cp -RL $(DIST)/branding/instantbird.icns $(DIST)/$(APP_NAME).app/Contents/Resources/instantbird.icns
 	echo -n APPLMOZM > $(DIST)/$(APP_NAME).app/Contents/PkgInfo
-#       remove CVS and .svn dirs from packaged app
-	find $(DIST)/$(APP_NAME).app -type d -name "CVS" -prune -exec rm -rf {} \;
-	find $(DIST)/$(APP_NAME).app -type d -name ".svn" -prune -exec rm -rf {} \;
 
 clean clobber::
 	rm -rf $(DIST)/$(APP_NAME).app
@@ -414,6 +388,3 @@ endif
 
 libs:: $(srcdir)/profile/prefs.js
 	$(INSTALL) $^ $(DIST)/bin/defaults/profile
-
-install:: $(srcdir)/profile/prefs.js
-	$(SYSINSTALL) $(IFLAGS1) $^  $(DESTDIR)$(mozappdir)/defaults/profile
