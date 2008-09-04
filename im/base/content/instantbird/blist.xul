@@ -49,7 +49,7 @@
 ]>
 
 <window
-  id     = "instantbird"
+  id     = "blistWindow"
   windowtype="Messenger:blist"
   title  = "&blist.title;"
   width  = "200"

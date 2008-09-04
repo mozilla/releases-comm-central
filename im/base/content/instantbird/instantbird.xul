@@ -48,7 +48,7 @@
 ]>
 
 <window
-  id     = "instantbird"
+  id     = "convWindow"
   windowtype="Messenger:convs"
   title  = "&convWindow.title;"
   width  = "500"
