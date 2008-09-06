@@ -56,7 +56,7 @@ var msgObserver = {
         tab.addMsg(aObject);
 
       if (aObject.incoming && !aObject.system &&
-          (!aObject.conversation instanceof Ci.purpleIConvChat ||
+          (!(aObject.conversation instanceof Ci.purpleIConvChat) ||
            aObject.containsNick))
         window.getAttention();
       break;
