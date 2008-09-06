@@ -1,0 +1,135 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Instantbird messenging client, released
+ * 2007.
+ *
+ * The Initial Developer of the Original Code is
+ * Florian QUEZE <florian@instantbird.org>.
+ * Portions created by the Initial Developer are Copyright (C) 2007
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+
+#include "nsISupports.idl"
+#include "nsISimpleEnumerator.idl"
+#include "nsIObserver.idl"
+
+interface purpleIAccountBuddy;
+interface purpleIAccount;
+
+/* 
+ * This is the XPCOM purple conversation component, a proxy for PurpleConversation.
+ */
+
+[scriptable, uuid(74fca337-b8e7-4e5d-81cd-8aba3dba9208)]
+interface purpleIConversation: nsISupports {
+
+  /* The account used for this conversation */
+  readonly attribute purpleIAccount account;
+
+  /* The name of the conversation */
+  readonly attribute AUTF8String name;
+
+  /* The 'Window' title */
+  readonly attribute AUTF8String title;
+
+  /* Unique identifier of the conversation (FIXME useless?) */
+  readonly attribute unsigned long id;
+
+  /* Send a message in the conversation */
+  void sendMsg(in AUTF8String aMsg);
+
+  /* Close the conversation */
+  void close();
+
+  /* Method to add or remove an observer */
+  void addObserver(in nsIObserver aObserver);
+  void removeObserver(in nsIObserver aObserver);
+
+  /* Observers will be all receive new-text notifications.
+     aSubject will contain the message (purpleIMessage) */
+};
+
+[scriptable, uuid(0c072a80-103a-4992-b249-8e442b5f0d46)]
+interface purpleIConvIM: purpleIConversation {
+  /* FIXME Typing notifications stuff */
+
+  /* The buddy at the remote end of the conversation */
+  readonly attribute purpleIAccountBuddy buddy;
+};
+
+[scriptable, uuid(c7f11466-f479-4f12-a581-b99713b8ecc0)]
+interface purpleIConvChat: purpleIConversation {
+
+  /* Get an nsISimpleEnumerator of purpleIConvChatBuddy objects:
+     The list of people participating in this chat */
+  nsISimpleEnumerator getParticipants();
+
+  /* The topic of this chat room  (FIXME settable?) */
+  readonly attribute AUTF8String topic;
+
+  /* The name/nick of the person who set the topic */
+  readonly attribute AUTF8String topicSetter;
+
+  /* This is true when we left the chat but kept the conversation open */
+  readonly attribute boolean left;
+
+  /* Observers will receive chat-buddy-add chat-buddy-update and
+     chat-buddy-remove notifications.
+
+     aSubject will be of type purpleIConvChatBuddy for chat-buddy-add
+     and chat-buddy-update. It will be null for chat-buddy-remove.
+
+     aData will contain the old nick for chat-buddy-update and
+     chat-buddy-remove.
+   */
+};
+
+/* This represents a participant in a chat room */
+[scriptable, uuid(33f6ef81-1d23-484e-b4e0-14fffa0c4392)]
+interface purpleIConvChatBuddy: nsISupports {
+
+  /* The name of the buddy */
+  readonly attribute AUTF8String name;
+
+  /* The alias (FIXME: can this be non-null if buddy is null?) */
+  readonly attribute AUTF8String alias;
+
+  /* The purpleIAccountBuddy of our buddy list associated with this chat buddy.
+     This can be null if the buddy is not in our buddy list */
+  readonly attribute purpleIAccountBuddy buddy;
+
+  /* PurpleConvChatBuddyFlags flags; (ops, voice etc.) */
+  readonly attribute boolean noFlags;
+  readonly attribute boolean voiced;
+  readonly attribute boolean halfOp;
+  readonly attribute boolean op;
+  readonly attribute boolean founder;
+  readonly attribute boolean typing;
+};

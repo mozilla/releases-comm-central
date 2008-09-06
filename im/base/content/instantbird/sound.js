@@ -113,7 +113,8 @@ var soundObserver = {
     case "new-text":
       aObject.QueryInterface(Ci.purpleIMessage);
       if (aObject.incoming && !aObject.system) {
-        if (!aObject.conversation.isChat || aObject.containsNick)
+        if (!aObject.conversation instanceof Ci.purpleIConvChat ||
+            aObject.containsNick)
           soundHelper.play("incoming");
       }
       else

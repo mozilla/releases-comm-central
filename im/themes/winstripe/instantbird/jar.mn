@@ -6,6 +6,10 @@ classic.jar:
 *	skin/winstripe/instantbird/accountWizard.css
 	skin/winstripe/instantbird/away-16.png
 	skin/winstripe/instantbird/away.png
+	skin/winstripe/instantbird/founder.png
+	skin/winstripe/instantbird/operator.png
+	skin/winstripe/instantbird/half-operator.png
+	skin/winstripe/instantbird/voice.png
 	skin/winstripe/instantbird/blist.css
 	skin/winstripe/instantbird/conv.css
 	skin/winstripe/instantbird/instantbird.css

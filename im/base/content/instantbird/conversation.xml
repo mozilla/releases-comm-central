@@ -53,8 +53,20 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
-        <xul:browser flex="1" class="browser" anonid="browser" type="content"/>
-        <xul:splitter anonid="splitter" class="splitter"/>
+        <xul:hbox class="topPart" flex="1">
+          <xul:browser flex="5" class="browser" anonid="browser" type="content"/>
+          <xul:splitter anonid="splitter" collapse="after" class="splitter chatOnly">
+            <xul:grippy/>
+          </xul:splitter>
+          <xul:vbox class="chatOnly" width="150">
+            <xul:hbox>
+              <xul:label class="header" value="&chat.participants;"/>
+              <xul:textbox flex="1" readonly="true" class="plain" anonid="participantCount"/>
+            </xul:hbox>
+            <xul:listbox flex="1" anonid="nicklist"/>
+          </xul:vbox>
+        </xul:hbox>
+        <xul:splitter class="splitter"/>
         <xul:deck anonid="conv-bottom" class="conv-bottom" selectedIndex="1">
           <xul:vbox>
             <xul:toolbar anonid="conv-toolbar">
@@ -68,7 +80,7 @@
         </xul:deck>
       </xul:vbox>
     </content>
-    <implementation implements="nsIWebProgressListener">
+    <implementation implements="nsIWebProgressListener,nsIObserver">
      <constructor>
       <![CDATA[
        document.getAnonymousElementByAttribute(this, "anonid", "input")
@@ -110,6 +122,7 @@
      <destructor>
       <![CDATA[
         this._conv.close();
+        this._conv.removeObserver(this);
       ]]>
      </destructor>
 
@@ -141,31 +154,6 @@
         }
         var time = aMsg.time;
         var name = aMsg.alias ||aMsg.who;
-        var pseudoClass = "pseudo";
-        var color = "";
-        if (aMsg.incoming) {
-          var nick = conv.isChat && name.match(/[a-zA-Z0-9]+/);
-          if (nick) {
-            nick = nick[0].toLowerCase();
-            var weight = 10;
-            var res = 0;
-            for (var i = 0; i < nick.length; ++i) {
-               var char = nick.charCodeAt(i) - 47;
-               if (char > 10)
-                 char -= 39;
-               // now char contains a value between 1 and 36
-               res += char * weight;
-               weight *= 0.52; //arbitrary
-            }
-            res = Math.round(res) % 360;
-            color = " style=\"color: hsl(" + res + ", 100%, 50%)\"";
-          }
-          else
-            pseudoClass += " incoming";
-        }
-        else
-          if (aMsg.outgoing)
-            pseudoClass += " outgoing";
 
         var msgClass = [];
         if (aMsg.system)
@@ -183,9 +171,22 @@
         }
 
         var me = msg.match("^/me(.*)");
-        if (!aMsg.system)
+        if (!aMsg.system) {
+          var pseudoClass = "pseudo";
+          var color = "";
+          if (aMsg.incoming) {
+            if (conv instanceof Ci.purpleIConvChat)
+              color = " style=\"color: hsl(" + this.buddies[name].color + ", 100%, 50%)\"";
+            else
+              pseudoClass += " incoming";
+          }
+          else
+            if (aMsg.outgoing)
+              pseudoClass += " outgoing";
+
           txt += '<span class="' + pseudoClass + '"' + color + '>' + name  + (me ? "</span> " : ":</span> ");
-      
+        }
+
         txt += (me ? me[1] : msg).replace(/\n/g, "<br/>");
         if (me)
           msgClass.push("me");
@@ -193,7 +194,7 @@
         this._addTxt(txt, msgClass.join(" "));
 
         if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
-          if (conv.isChat && aMsg.containsNick)
+          if (conv instanceof Ci.purpleIConvChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
           else
             this.tab.setAttribute("unread", "true");
@@ -402,6 +403,157 @@
        </body>
      </method>
 
+     <!-- Update the participant count of a chat conversation -->
+     <method name="updateParticipantCount">
+       <body>
+       <![CDATA[
+         document.getAnonymousElementByAttribute(this, "anonid", "participantCount").value =
+           this.buddies.__count__;
+       ]]>
+       </body>
+     </method>
+
+     <!-- Set the attributes (flags) of a chat buddy -->
+     <method name="setBuddyAttributes">
+       <parameter name="aItem"/>
+       <body>
+       <![CDATA[
+         var buddy = aItem.chatBuddy;
+         var image;
+         if (!buddy.noFlags) {
+           if (buddy.op)
+             image = "operator";
+           else if (buddy.halfOp)
+             image = "half-operator";
+           else if (buddy.voiced)
+             image = "voice";
+           else if (buddy.founder)
+             image = "founder";
+         }
+         if (image)
+           aItem.setAttribute("image", "chrome://instantbird/skin/" + image + ".png");
+         else
+           aItem.removeAttribute("image");
+       ]]>
+       </body>
+     </method>
+
+     <!-- Add a buddy in the visible list of participants -->
+     <method name="addBuddy">
+       <parameter name="aBuddy"/>
+       <body>
+       <![CDATA[
+         var name = aBuddy.name;
+         if (this.buddies.hasOwnProperty(name))
+           throw "Adding a chat buddy twice?!";
+         var item = document.createElement("listitem");
+         item.chatBuddy = aBuddy;
+         item.setAttribute("class", "listitem-iconic");
+         item.setAttribute("label", name);
+         this.setBuddyAttributes(item);
+
+         // Compute the color based on the nick
+         var nick = name.match(/[a-zA-Z0-9]+/)[0].toLowerCase();
+         var weight = 10;
+         var res = 0;
+         for (var i = 0; i < nick.length; ++i) {
+           var char = nick.charCodeAt(i) - 47;
+           if (char > 10)
+             char -= 39;
+           // now char contains a value between 1 and 36
+           res += char * weight;
+           weight *= 0.52; //arbitrary
+         }
+         res = Math.round(res) % 360;
+         var style = "color: hsl(" + res + ", 100%, 50%);";
+         item.setAttribute("style", style);
+         item.color = res;
+
+         this.buddies[name] = item;
+         var nicklist = document.getAnonymousElementByAttribute(this, "anonid", "nicklist");
+         nicklist.appendChild(item); //FIXME insert at the right position
+         this.updateParticipantCount();
+       ]]>
+       </body>
+     </method>
+
+     <!-- Update a buddy in the visible list of participants -->
+     <method name="updateBuddy">
+       <parameter name="aBuddy"/>
+       <parameter name="aOldName"/>
+       <body>
+       <![CDATA[
+         var name = aBuddy.name;
+         if (!aOldName) {
+           // If aOldName is null, we are changing the flags of the buddy
+           var item = this.buddies[name];
+           item.chatBuddy = aBuddy;
+           this.setBuddyAttributes(item);
+           return;
+         }
+
+         // Is aOldName is not null, then we are renaming the buddy
+         if (!this.buddies.hasOwnProperty(aOldName))
+           throw "Updating a chat buddy that does not exist?!";
+
+         if (this.buddies.hasOwnProperty(name))
+           throw "Updating a chat buddy to an already existing one?!";
+
+         var item = this.buddies[aOldName];
+         item.chatBuddy = aBuddy;
+         delete this.buddies[aOldName];
+         this.buddies[name] = item;
+         item.setAttribute("label", name);
+
+         // FIXME: move this item to the right position if its name changed
+       ]]>
+       </body>
+     </method>
+     <method name="removeBuddy">
+       <parameter name="aName"/>
+       <body>
+       <![CDATA[
+         if (!this.buddies.hasOwnProperty(aName))
+           throw "Cannot remove a buddy that was not in the room";
+         var item = this.buddies[aName];
+         item.parentNode.removeChild(item);
+         delete this.buddies[aName];
+         this.updateParticipantCount();
+       ]]>
+       </body>
+     </method>
+
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
+       <body>
+       <![CDATA[
+         if (!this.loaded)
+           return;
+
+         switch(aTopic) {
+         case "new-text":
+           this._addMsg(aSubject.QueryInterface(Ci.purpleIMessage));
+           break;
+
+         case "chat-buddy-add":
+           this.addBuddy(aSubject.QueryInterface(Ci.purpleIConvChatBuddy));
+           break;
+
+         case "chat-buddy-remove":
+           this.removeBuddy(aData);
+           break;
+
+         case "chat-buddy-update":
+           this.updateBuddy(aSubject.QueryInterface(Ci.purpleIConvChatBuddy), aData);
+           break;
+         }
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIWebProgressListener implementation -->
      <method name="onStateChange">
       <parameter name="aProgress"/>
@@ -419,6 +571,14 @@
           for (var i = 0; i < this.messageQueue.length; ++i)
             this._addMsg(this.messageQueue[i]);
           this.messageQueue = null;
+
+          if (this._conv instanceof Components.interfaces.purpleIConvChat) {
+            this.setAttribute("chat", "true");
+            this.buddies = {};
+            var nicks = getIter(this.conv.getParticipants, Ci.purpleIConvChatBuddy);
+            for (n in nicks)
+              this.addBuddy(n);
+          }
         }
       ]]>
       </body>
@@ -468,7 +628,10 @@
        </getter>
        <setter>
          <![CDATA[
+           if (this._conv)
+             throw("Already initialized");
            this._conv = val;
+           this._conv.addObserver(this);
            return val;
          ]]>
        </setter>

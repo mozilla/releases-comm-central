@@ -129,3 +129,16 @@ convtab:not([selected="true"]) > .tab-image-middle {
 convtab:hover:not([selected="true"]) > .tab-image-middle {
   background: url("chrome://instantbird/skin/tabbrowser/tab-middle-hover.png");
 }
+
+conversation:not([chat="true"]) .chatOnly {
+  display: none;
+}
+
+conversation listbox .listcell-icon {
+  min-width: 16px;
+  -moz-margin-end: 0px;
+}
+
+conversation listbox .listcell-label {
+  font-weight: bold;
+}

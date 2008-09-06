@@ -16,6 +16,7 @@
 <!ENTITY about.menu         "About &brandShortName;">
 <!ENTITY about.accesskey    "A">
 <!ENTITY conversation.contextMenu.close "Close Tab">
+<!ENTITY chat.participants  "Participants:">
 
 <!ENTITY textEnlarge.commandkey "+">
 <!ENTITY textEnlarge.commandkey2 "=">

@@ -52,10 +52,12 @@ var msgObserver = {
       aObject.QueryInterface(Ci.purpleIMessage);
       var conv = aObject.conversation;
       var tab = this.convs[conv.id] || this.addConvTab(conv, conv.name);
-      tab.addMsg(aObject);
+      if (!tab.loaded) // until we can load all messages from a conversation
+        tab.addMsg(aObject);
 
       if (aObject.incoming && !aObject.system &&
-          (!aObject.conversation.isChat || aObject.containsNick))
+          (!aObject.conversation instanceof Ci.purpleIConvChat ||
+           aObject.containsNick))
         window.getAttention();
       break;
 
