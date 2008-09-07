@@ -91,11 +91,10 @@
 
        var docShell = browser.docShell;
        docShell.allowJavascript = false;
-       docShell.allowAuth = false;
-       docShell.allowPlugins = false;
-       docShell.allowMetaRedirects = false;
-       docShell.allowSubframes = false;
-       docShell.allowImages = false;
+       // We used to block auth requests, plugins, images, subframes and
+       // redirects here.
+       // We don't need this anymore, our nsIContentPolicy implementation
+       // takes care of it
 
        // load the stylesheet through the style sheet service to workaround
        // a security restriction in 1.9b2+ (bug 397791)
