@@ -4,7 +4,7 @@ mk_add_options MOZILLA_OFFICIAL=1
 export MOZ_DEBUG_SYMBOLS=1
 ac_add_options --enable-debugger-info-modules=yes
 
-export CFLAGS="-GL -wd4624 -wd4952 -wc4018"
+export CFLAGS="-GL -wd4624 -wd4952 -wd4018"
 export CXXFLAGS="-GL -wd4624 -wd4952"
 export LDFLAGS="-LTCG"
 
