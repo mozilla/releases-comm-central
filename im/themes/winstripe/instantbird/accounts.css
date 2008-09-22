@@ -96,7 +96,7 @@ richlistitem[selected="true"] {
 
 /* When the error message was too long, the buttons were too small */
 richlistitem .account-buttons button {
-  min-height: 2.5em;
+  min-height: 2em;
 }
 
 richlistbox[focused] richlistitem[selected="true"] {
