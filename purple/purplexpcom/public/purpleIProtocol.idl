@@ -102,5 +102,10 @@ interface purpleIProtocol: nsISupports {
   //  Gadu-Gadu doesn't need a screenname to register new account. 
   readonly attribute boolean registerNoScreenName;
 
+  // OPT_PROTO_SLASH_COMMANDS_NATIVE  Indicates that slash commands
+  // are native to this protocol.
+  // Used as a hint that unknown commands should not be sent as messages.
+  readonly attribute boolean slashCommandsNative;
+
   [noscript] PurpleNativePluginProtocolInfo getInfo();
 };
