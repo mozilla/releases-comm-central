@@ -54,7 +54,9 @@
     <content>
       <xul:vbox class="convBox" flex="1">
         <xul:hbox class="topPart" flex="1">
-          <xul:browser flex="5" class="browser" anonid="browser" type="content"/>
+          <xul:notificationbox anonid="convNotificationBox" flex="1">
+            <xul:browser flex="5" class="browser" anonid="browser" type="content"/>
+          </xul:notificationbox>
           <xul:splitter anonid="splitter" collapse="after" class="splitter chatOnly">
             <xul:grippy/>
           </xul:splitter>
@@ -522,6 +524,23 @@
        </body>
      </method>
 
+     <method name="updateTopic">
+       <body>
+       <![CDATA[
+          var topic = this._conv.topic;
+          if (topic) {
+            var box = document.getAnonymousElementByAttribute(this, "anonid", "convNotificationBox");
+            var notification = box.getNotificationWithValue("topic");
+            if (notification) {
+              notification.label = topic;
+              return;
+            }
+            box.appendNotification(topic, "topic", null, box.PRIORITY_INFO_LOW, []);
+          }
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIObserver implementation -->
      <method name="observe">
        <parameter name="aSubject"/>
@@ -548,6 +567,9 @@
          case "chat-buddy-update":
            this.updateBuddy(aSubject.QueryInterface(Ci.purpleIConvChatBuddy), aData);
            break;
+         case "chat-update-topic":
+           this.updateTopic();
+           break;
          }
        ]]>
        </body>
@@ -572,10 +594,11 @@
           this.messageQueue = null;
 
           if (this._conv instanceof Components.interfaces.purpleIConvChat) {
+            this.updateTopic();
             this.setAttribute("chat", "true");
             this.buddies = {};
             var nicks = getIter(this.conv.getParticipants, Ci.purpleIConvChatBuddy);
-            for (n in nicks)
+            for (let n in nicks)
               this.addBuddy(n);
           }
         }
