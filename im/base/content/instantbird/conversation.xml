@@ -55,7 +55,10 @@
       <xul:vbox class="convBox" flex="1">
         <xul:hbox class="topPart" flex="1">
           <xul:notificationbox anonid="convNotificationBox" flex="1">
-            <xul:browser flex="5" class="browser" anonid="browser" type="content"/>
+            <xul:vbox flex="1">
+              <xul:browser flex="1" class="browser" anonid="browser" type="content"/>
+              <xul:findbar anonid="FindToolbar" reversed="true"/>
+            </xul:vbox>
           </xul:notificationbox>
           <xul:splitter anonid="splitter" collapse="after" class="splitter chatOnly">
             <xul:grippy/>
@@ -78,7 +81,7 @@
             </xul:toolbar>
             <xul:editor anonid="editor" editortype="html" src="about:blank" flex="1"/>
           </xul:vbox>
-          <xul:textbox anonid="input" multiline="true" spellcheck="true" flex="1"/>
+          <xul:textbox anonid="input" class="conv-textbox" multiline="true" spellcheck="true" flex="1"/>
         </xul:deck>
       </xul:vbox>
     </content>
@@ -88,7 +91,7 @@
        document.getAnonymousElementByAttribute(this, "anonid", "input")
                .addEventListener("keypress", this.onSendMsg, false);
 
-       var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+       var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress, false);
 
        var docShell = browser.docShell;
@@ -117,6 +120,8 @@
        //this doesn't work at the moment
        //editor.contentDocument.designMode = "on";
        //setTimeout(function() { editor.contentWindow.focus(); }, 100);
+
+       this.findbar.browser = browser;
       ]]>
      </constructor>
 
@@ -212,7 +217,7 @@
         if (!this.loaded)
           throw "Trying to append text to a not yet loaded browser";
 
-        var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+        var browser = this.browser;
         var doc = browser.contentDocument;
         var elt = doc.getElementById("ibcontent");
         var newElt = doc.createElement("p");
@@ -586,7 +591,7 @@
         const WPL = Components.interfaces.nsIWebProgressListener;
         if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
             (aStateFlags & WPL.STATE_STOP)) {
-          var browser = document.getAnonymousElementByAttribute(this, "anonid", "browser");
+          var browser = this.browser;
           browser.removeProgressListener(this);
           this.loaded = true;
           for (var i = 0; i < this.messageQueue.length; ++i)
@@ -683,7 +688,15 @@
      <property name="browser">
        <getter>
          <![CDATA[
-            return document.getAnonymousElementByAttribute(this, "anonid", "browser");
+          return document.getAnonymousElementByAttribute(this, "anonid", "browser");
+         ]]>
+       </getter>
+     </property>
+
+     <property name="findbar">
+       <getter>
+         <![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "FindToolbar");
          ]]>
        </getter>
      </property>

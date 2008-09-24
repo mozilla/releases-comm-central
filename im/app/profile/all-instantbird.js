@@ -10,6 +10,11 @@ pref("messenger.options.playSounds", true);
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
 
+pref("accessibility.typeaheadfind", false);
+pref("accessibility.typeaheadfind.timeout", 5000);
+pref("accessibility.typeaheadfind.linksonly", false);
+pref("accessibility.typeaheadfind.flashBar", 1);
+
 // Whether or not app updates are enabled
 pref("app.update.enabled", true);
 

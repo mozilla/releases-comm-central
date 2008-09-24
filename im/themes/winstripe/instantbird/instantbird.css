@@ -51,9 +51,13 @@ tabpanels {
 }
 
 conversation,
-textbox {
+textbox.conv-textbox {
   margin: 0 0;
   padding: 0 0;
+}
+
+notificationbox {
+  overflow-x: hidden;
 }
 
 .splitter {
