@@ -171,7 +171,7 @@
                           .replace(/&amp;(apos|quot);/g, "&$1;");
         }
 
-        var me = msg.match("^/me(.*)");
+        var me = msg.match("^((<[^>]+>)*)/me (.*)$");
         if (!aMsg.system) {
           var pseudoClass = "pseudo";
           var color = "";
@@ -188,7 +188,7 @@
           txt += '<span class="' + pseudoClass + '"' + color + '>' + name  + (me ? "</span> " : ":</span> ");
         }
 
-        txt += (me ? me[1] : msg).replace(/\n/g, "<br/>");
+        txt += (me ? me[1] + me[3] : msg).replace(/\n/g, "<br/>");
         if (me)
           msgClass.push("me");
 
