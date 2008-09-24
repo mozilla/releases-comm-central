@@ -71,6 +71,12 @@ var menus = {
                   "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
   },
 
+  updates: function menu_updates() {
+    Components.classes["@mozilla.org/updates/update-prompt;1"]
+              .getService(Components.interfaces.nsIUpdatePrompt)
+              .checkForUpdates();
+  },
+
   addBuddy: function menu_addBuddy() {
     window.openDialog(addBuddyWindow, "",
                       "chrome,modal,titlebar,centerscreen");

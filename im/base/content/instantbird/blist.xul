@@ -88,6 +88,7 @@
         <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
         <menuseparator/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
+        <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
       </menupopup>
     </menu>
     <menu label="&help.menu;" id="aboutSeparator"> <!-- this id ensure it gets hidden on mac -->
