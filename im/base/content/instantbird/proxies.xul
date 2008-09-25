@@ -88,7 +88,7 @@
 
       <hbox align="center">
         <label value="&proxiesDialog.hostname.label;" control="hostname"/>
-        <textbox id="hostname" emptytext="Hostname" style="width: 7em;"/>
+        <textbox id="hostname" style="width: 7em;"/>
         <spacer flex="1"/>
         <label value="&proxiesDialog.port.label;" control="port"/>
         <textbox id="port" type="number" style="width: 5em;"/>
