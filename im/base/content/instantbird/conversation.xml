@@ -121,7 +121,15 @@
        //editor.contentDocument.designMode = "on";
        //setTimeout(function() { editor.contentWindow.focus(); }, 100);
 
-       this.findbar.browser = browser;
+       try {
+         this.findbar.browser = browser;
+       } catch(e) {
+         // Do nothing. The exception is expected and harmless.
+         // We call the setter of the browser property of the findbar before
+         // the constructor of the findbar is executed.
+         // Don't worry, the constructor of the findbar will set again the
+         // browser property with a setTimeout call.
+       }
       ]]>
      </constructor>
 
