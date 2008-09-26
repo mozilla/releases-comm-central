@@ -14,13 +14,13 @@
     <em:targetApplication>
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-        <em:minVersion>@THUNDERBIRD_VERSION@</em:minVersion>
-        <em:maxVersion>@THUNDERBIRD_VERSION@</em:maxVersion>
+        <em:minVersion>@INSTANTBIRD_VERSION@</em:minVersion>
+        <em:maxVersion>@INSTANTBIRD_VERSION@</em:maxVersion>
       </Description>
     </em:targetApplication>
     
     <!-- Front End MetaData -->
-    <em:name>Thunderbird (default)</em:name>
+    <em:name>Instantbird (default)</em:name>
     <em:description>The default theme</em:description>
 
     <!-- EXTENSION AUTHORS!
