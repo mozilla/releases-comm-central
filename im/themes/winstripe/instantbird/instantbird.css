@@ -35,11 +35,35 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-.browser, .conv-bottom { 
+.browser {
   margin: 0 0;
-  border: solid 1px rgb(128, 128, 128);
-  padding: 1px 1px;
-  min-height:100px;
+}
+
+.conv-bottom, .conv-nicklist {
+  margin: 0 0;
+  min-height: 30px;
+}
+
+.conv-nicklist-header {
+  margin-top: 0;
+  -moz-margin-start: 0;
+  -moz-margin-end: 2px;
+}
+
+.conv-top {
+  min-height: 100px;
+}
+
+.conv-messages {
+  min-width: 150px;
+%ifdef XP_MACOSX
+  border-top: 1px solid #A1A1A1;
+  border-right: 1px solid #C3C3C3;
+  border-bottom: 1px solid #DDDDDD;
+  border-left: 1px solid #C3C3C3;
+%else
+  border: solid 1px GrayText;
+%endif
 }
 
 tabbox {
@@ -50,11 +74,29 @@ tabpanels {
   padding: 5px 5px;
 }
 
-conversation,
-textbox.conv-textbox {
-  margin: 0 0;
+conversation {
+%ifdef XP_MACOSX
+  margin-top: 8px;
+%else
+  margin: -1px -1px;
+%endif
   padding: 0 0;
 }
+
+textbox.conv-textbox {
+%ifdef XP_MACOSX
+  margin: 0 0;
+%else
+  margin: -1px -1px;
+%endif
+  padding: 0 0;
+}
+
+%ifdef XP_MACOSX
+grippy {
+  display: none;
+}
+%endif
 
 notificationbox {
   overflow-x: hidden;
@@ -134,7 +176,7 @@ convtab:hover:not([selected="true"]) > .tab-image-middle {
   background: url("chrome://instantbird/skin/tabbrowser/tab-middle-hover.png");
 }
 
-conversation:not([chat="true"]) .chatOnly {
+conversation:not([chat="true"]) .conv-chat {
   display: none;
 }
 

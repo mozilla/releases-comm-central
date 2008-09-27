@@ -53,22 +53,22 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
-        <xul:hbox class="topPart" flex="1">
-          <xul:notificationbox anonid="convNotificationBox" flex="1">
+        <xul:hbox class="conv-top" flex="1">
+          <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1">
             <xul:vbox flex="1">
               <xul:browser flex="1" class="browser" anonid="browser" type="content"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
             </xul:vbox>
           </xul:notificationbox>
-          <xul:splitter anonid="splitter" collapse="after" class="splitter chatOnly">
+          <xul:splitter anonid="splitter" collapse="after" class="splitter conv-chat">
             <xul:grippy/>
           </xul:splitter>
-          <xul:vbox class="chatOnly" width="150">
+          <xul:vbox class="conv-chat" width="150">
             <xul:hbox>
-              <xul:label class="header" value="&chat.participants;"/>
+              <xul:label class="header conv-nicklist-header" value="&chat.participants;"/>
               <xul:textbox flex="1" readonly="true" class="plain" anonid="participantCount"/>
             </xul:hbox>
-            <xul:listbox flex="1" anonid="nicklist"/>
+            <xul:listbox flex="1" class="conv-nicklist" anonid="nicklist"/>
           </xul:vbox>
         </xul:hbox>
         <xul:splitter class="splitter"/>
