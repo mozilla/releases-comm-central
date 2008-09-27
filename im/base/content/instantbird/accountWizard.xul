@@ -119,7 +119,7 @@
       <vbox id="protoSpecific" flex="1"/>
     </groupbox>
 
-    <groupbox id="proxyGroupbox" class="collapsable">
+    <groupbox id="proxyGroupbox" class="collapsable" closed="true">
       <caption id="proxyCaption" label="&accountProxySettings.caption;"
                onclick="accountWizard.toggleGroupbox('proxyGroupbox')"/>
       <description id="proxyDescription"/>
