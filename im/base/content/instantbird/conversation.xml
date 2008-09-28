@@ -89,7 +89,7 @@
      <constructor>
       <![CDATA[
        document.getAnonymousElementByAttribute(this, "anonid", "input")
-               .addEventListener("keypress", this.onSendMsg, false);
+               .addEventListener("keypress", this.inputKeyPress, false);
 
        var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress, false);
@@ -116,7 +116,7 @@
        browser.addProgressListener(this);
 
        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
-       editor.addEventListener("keypress", this.onSendHTMLMsg, false);
+       editor.addEventListener("keypress", this.editorKeyPress, false);
        //this doesn't work at the moment
        //editor.contentDocument.designMode = "on";
        //setTimeout(function() { editor.contentWindow.focus(); }, 100);
@@ -257,18 +257,30 @@
       </body>
      </method>
 
-     <method name="onSendMsg">
+     <method name="inputKeyPress">
       <parameter name="event"/>
       <body>
       <![CDATA[
-        if (event.keyCode != 13)
-          return;
-
         /* "this" can point to the textbox when this method is used by an eventListener,
             get the conversation element */
         var conv = this;
         if (this.localName != "conversation")
           conv = document.getBindingParent(this);
+
+        if (event.shiftKey && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
+                               event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN)) {
+
+          let direction = (event.keyCode == KeyEvent.DOM_VK_PAGE_UP) ? -1 : 1;
+          conv.browser.docShell
+              .QueryInterface(Components.interfaces.nsITextScroll)
+              .scrollByPages(direction);
+
+          event.preventDefault();
+          return;
+        }
+
+        if (event.keyCode != 13)
+          return;
 
         var input = document.getAnonymousElementByAttribute(conv, "anonid", "input");
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
@@ -282,7 +294,7 @@
       </body>
      </method>
 
-     <method name="onSendHTMLMsg">
+     <method name="editorKeyPress">
       <parameter name="event"/>
       <body>
       <![CDATA[
@@ -346,11 +358,11 @@
           editor.focus();
 
           if (isHtmlMode)
-            conv.onSendHTMLMsg(event);
+            conv.editorKeyPress(event);
           else
-            conv.onSendMsg(event);
+            conv.inputKeyPress(event);
 
-          // Alt and Ctrl + return are handled in onSendMsg
+          // Alt and Ctrl + return are handled in inputKeyPress
           if (event.shiftKey) {
             if (!isHtmlMode)
               conv.addString("\n");
