@@ -35,83 +35,78 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-tabbox {
-  margin-top: 3px;
+.browser {
+  margin: 0 0;
 }
 
-tabpanels {
-  padding: 5px 5px;
+.conv-bottom, .conv-nicklist {
+  margin: 0 0;
+  min-height: 30px;
 }
 
-conversation {
+.conv-top {
+  min-height: 100px;
+}
+
+.conv-messages {
+  min-width: 150px;
 %ifdef XP_MACOSX
-  margin-top: 8px;
+  border-top: 1px solid #A1A1A1;
+  border-right: 1px solid #C3C3C3;
+  border-bottom: 1px solid #DDDDDD;
+  border-left: 1px solid #C3C3C3;
 %else
+  border: solid 1px GrayText;
+%endif
+}
+
+textbox.conv-textbox {
+%ifdef XP_MACOSX
+  margin: 0 0;
+%elifdef XP_UNIX
   margin: -1px -1px;
+%else
+  margin: 0 0;
 %endif
   padding: 0 0;
 }
 
-convtab[unread] { 
-  color: red !important;
+notificationbox {
+  overflow-x: hidden;
 }
 
-convtab[attention] { 
-  color: blue !important;
+%ifdef XP_MACOSX
+grippy {
+  display: none;
+}
+%endif
+
+.splitter {
+  margin: 0 0px;
+  border-style: none;
+  height: 3px;
+  background: transparent;
 }
 
-convtab[selected="true"],
-convtab:hover {
-  color: #000000;
+#conv-toolbar {
+  border-style:none;
 }
 
-convtab:not([selected="true"]) > .tab-image-right {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-right-bkgnd.png") no-repeat;
-  margin-bottom: 1px;
+.conv-nicklist .listcell-label {
+  font-weight: bold;
 }
 
-convtab:not([selected="true"]) > .tab-image-left {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-left-bkgnd.png") no-repeat;
-  margin-bottom: 1px;
+.conv-nicklist .listcell-icon {
+  min-width: 16px;
+  -moz-margin-end: 0px;
 }
 
-convtab:hover:not([selected="true"]) > .tab-image-left {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-left-hover.png") no-repeat;
+.conv-nicklist-header {
+  margin-top: 0;
+  -moz-margin-start: 0;
+  -moz-margin-end: 2px;
 }
 
-convtab:hover:not([selected="true"]) > .tab-image-right {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-right-hover.png") no-repeat;
-}
-
-convtab:not([selected="true"]) > .tab-image-middle {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-middle-bkgnd.png");
-  margin-bottom: 1px;
-}
-
-convtab:hover:not([selected="true"]) > .tab-image-middle {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-middle-hover.png");
-}
-
-convtab >.tab-image-middle > .tab-text {
-  border: 1.4pt solid transparent;
-}
-
-convtab > .tab-image-right {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-right.png") no-repeat;
-}
-
-convtab > .tab-image-left {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-left.png") no-repeat;
-}
-
-convtab > .tab-image-middle {
-  background: url("chrome://instantbird/skin/tabbrowser/tab-middle.png") repeat-x;
-  -moz-box-flex: 0 !important;
-}
-
-.tab-image-left,
-.tab-image-right {
-  width: 8px;
-  margin: 0px;
-  padding: 0px;
+conversation:not([chat="true"]) .conv-chat {
+  display: none;
 }

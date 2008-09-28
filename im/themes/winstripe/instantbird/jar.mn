@@ -12,6 +12,7 @@ classic.jar:
 	skin/winstripe/instantbird/voice.png
 	skin/winstripe/instantbird/blist.css
 	skin/winstripe/instantbird/conv.css
+*	skin/winstripe/instantbird/conversation.css
 *	skin/winstripe/instantbird/instantbird.css
 	skin/winstripe/instantbird/prpl/prpl-aim-32.png		(prpl/prpl-aim-32.png)
 	skin/winstripe/instantbird/prpl/prpl-aim-48.png		(prpl/prpl-aim-48.png)

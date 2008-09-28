@@ -49,7 +49,7 @@
 
   <binding id="conversation">
     <resources>
-      <stylesheet src="chrome://instantbird/skin/instantbird.css"/>
+      <stylesheet src="chrome://instantbird/skin/conversation.css"/>
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
