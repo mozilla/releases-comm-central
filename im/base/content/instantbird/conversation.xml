@@ -135,13 +135,28 @@
 
      <destructor>
       <![CDATA[
-        this._conv.close();
-        this._conv.removeObserver(this);
+        if (this._conv) {
+          this._conv.close();
+          this._conv.removeObserver(this);
+        }
       ]]>
      </destructor>
 
      <field name="loaded">false</field>
      <field name="messageQueue">[]</field>
+
+     <!-- This is used when we want to remove close the conversation binding
+     without closing the associated PurpleConversation.
+     For example when quitting the application, we don't want to close the
+     conversation. -->
+     <method name="unInit">
+      <body>
+      <![CDATA[
+        this._conv.removeObserver(this);
+        this._conv = null;
+      ]]>
+      </body>
+     </method>
 
      <method name="addMsg">
       <parameter name="aMsg"/>

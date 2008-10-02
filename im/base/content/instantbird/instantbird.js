@@ -45,6 +45,8 @@ var msgObserver = {
   observe: function mo_observe(aObject, aTopic, aData) {
     switch(aTopic) {
     case "purple-quit":
+      for (let i in this.convs)
+        this.convs[i].unInit();
       window.close();
       break;
 
