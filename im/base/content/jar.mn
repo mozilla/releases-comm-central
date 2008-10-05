@@ -1,9 +1,4 @@
 instantbird.jar:
-% content branding %content/branding/ xpcnativewrappers=yes
-	content/branding/about-credits.png	(branding/about-credits.png)
-	content/branding/about-footer.png	(branding/about-footer.png)
-	content/branding/about-logo.png		(branding/about-logo.png)
-	content/branding/icon64.png		(branding/icon64.png)
 % content instantbird %content/instantbird/ xpcnativewrappers=yes
 	content/instantbird/aboutDialog.css	(instantbird/aboutDialog.css)
 	content/instantbird/aboutDialog.xul	(instantbird/aboutDialog.xul)

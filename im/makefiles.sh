@@ -42,6 +42,10 @@ instantbird/app/profile/Makefile
 instantbird/app/profile/extensions/Makefile
 instantbird/base/Makefile
 instantbird/base/content/Makefile
+instantbird/branding/nightly/Makefile
+instantbird/branding/nightly/locales/Makefile
+instantbird/branding/release/Makefile
+instantbird/branding/release/locales/Makefile
 instantbird/locales/Makefile
 instantbird/themes/Makefile
 instantbird/themes/winstripe/Makefile

@@ -1,4 +1,3 @@
-#! /bin/sh
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 #
@@ -12,16 +11,14 @@
 # for the specific language governing rights and limitations under the
 # License.
 #
-# The Original Code is Mozilla Build System
+# The Original Code is the Mozilla Installer code.
 #
-# The Initial Developer of the Original Code is
-# Ben Turner <mozilla@songbirdnest.com>
-#
-# Portions created by the Initial Developer are Copyright (C) 2007
+# The Initial Developer of the Original Code is Mozilla Foundation
+# Portions created by the Initial Developer are Copyright (C) 2006
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
-#   Florian QUEZE <florian@instantbird.org>
+#  Robert Strong <robert.bugzilla@gmail.com>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -37,13 +34,14 @@
 #
 # ***** END LICENSE BLOCK *****
 
-MOZ_APP_NAME=instantbird
-MOZ_APP_VERSION=`cat $topsrcdir/$MOZ_BUILD_APP/config/version.txt`
-MOZ_XUL_APP=1
-MOZ_ENABLE_LIBXUL=1
-MOZ_XULRUNNER=1
-MOZ_NO_XPCOM_OBSOLETE=1
-MOZ_UPDATER=1
-MOZ_PLACES=
-MOZ_MORK=
-MOZ_MATHML=
+# NSIS defines for nightly builds.
+# The release build branding.nsi is located in other-license/branding/thunderbird/
+!define BrandShortName        "Instantbird"
+!define BrandFullName         "Instantbird"
+# BrandFullNameInternal is used for some registry and file system values that
+# should not contain release that may be in the BrandFullName (e.g. Beta 1, etc.)
+!define BrandFullNameInternal "Instantbird"
+!define CompanyName           "Instantbird"
+!define URLInfoAbout          "http://www.instantbird.com/"
+!define URLUpdateInfo         "http://www.instantbird.com/"
+

@@ -52,6 +52,12 @@ else
 
 TIERS += app
 
+ifdef MOZ_BRANDING_DIRECTORY
+tier_app_dirs += $(MOZ_BRANDING_DIRECTORY)
+else
+tier_app_dirs += instantbird/branding/nightly
+endif
+
 tier_app_dirs += \
   purple \
   instantbird \

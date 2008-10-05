@@ -254,57 +254,39 @@ endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 ICON_DIR=gtk
-INSTALL_GTK_ICONS=1 #FIXME change when windows icons are ready
 else
 ICON_DIR=$(MOZ_WIDGET_TOOLKIT)
 endif
 
-ifdef INSTALL_GTK_ICONS
 DESKTOP_ICONS = \
+	$(NULL) 
+
+BRANDED_ICONS = \
 	blistWindow \
 	convWindow \
 	default \
-	$(NULL) 
+	$(NULL)
 
 ifeq ($(ICON_DIR),gtk)
 DESKTOP_ICONS_SMALL=$(patsubst %,%16,$(DESKTOP_ICONS))
 DESKTOP_ICONS_LARGE=$(patsubst %,%48,$(DESKTOP_ICONS))
+BRANDED_ICONS_SMALL=$(patsubst %,%16,$(BRANDED_ICONS))
+BRANDED_ICONS_LARGE=$(patsubst %,%48,$(BRANDED_ICONS))
 endif
 
 DESKTOP_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(DESKTOP_ICONS) $(DESKTOP_ICONS_SMALL) $(DESKTOP_ICONS_LARGE))
+BRANDED_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(BRANDED_ICONS) $(BRANDED_ICONS_SMALL) $(BRANDED_ICONS_LARGE))
 
-libs:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
+#libs:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
+#	$(INSTALL) $^ $(DIST)/bin/chrome/icons/default
+
+libs:: $(addprefix $(DIST)/branding/,$(BRANDED_ICON_FILES))
 	$(INSTALL) $^ $(DIST)/bin/chrome/icons/default
-endif
 endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 libs::
 	$(INSTALL) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
-endif
-
-export::
-ifndef MOZ_BRANDING_DIRECTORY
-	$(NSINSTALL) -D $(DIST)/branding
-ifeq ($(OS_ARCH),WINNT)
-	cp $(srcdir)/instantbird.ico   $(DIST)/branding/instantbird.ico
-	cp $(srcdir)/instantbird.ico   $(DIST)/branding/app.ico
-endif
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
-	cp $(srcdir)/macbuild/instantbird.icns  $(DIST)/branding/instantbird.icns
-	cp $(srcdir)/macbuild/dsstore $(DIST)/branding/dsstore
-	cp $(srcdir)/macbuild/background.png $(DIST)/branding/background.png
-	cp $(srcdir)/macbuild/disk.icns $(DIST)/branding/disk.icns
-#	cp $(srcdir)/macbuild/license.r $(DIST)/branding/license.r
-endif
-ifneq (,$(filter gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
-	cp $(srcdir)/mozicon128.png $(DIST)/branding/mozicon128.png
-	cp $(srcdir)/mozicon16.xpm $(DIST)/branding/mozicon16.xpm
-	cp $(srcdir)/mozicon50.xpm $(DIST)/branding/mozicon50.xpm
-endif
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
-	cp $(srcdir)/default16.png   $(DIST)/branding/default16.png
-endif
 endif
 
 ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
