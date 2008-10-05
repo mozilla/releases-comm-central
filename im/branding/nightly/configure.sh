@@ -1,1 +1,1 @@
-MOZ_APP_DISPLAYNAME=Instantbird Nightly
+MOZ_APP_DISPLAYNAME=Instantbird
