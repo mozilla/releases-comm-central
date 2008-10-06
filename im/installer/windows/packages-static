@@ -66,6 +66,7 @@ bin\libraries\purplexpcom.dll
 bin\libraries\prpl\*.dll
 
 bin\components\profileMigrator.js
+bin\components\autoLoginHandler.js
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Chrome Files
