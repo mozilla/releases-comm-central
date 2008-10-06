@@ -36,7 +36,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 richlistbox {
-  margin-top: 8px;
+  margin: 0 0;
+  -moz-appearance: none;
 }
 
 buddy,
