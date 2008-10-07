@@ -368,49 +368,10 @@
         var isHtmlMode = conv.isHtmlMode;
         var editor = conv.editor;
 
-        // "Return" key
-        if (event.keyCode == 13) {
-          editor.focus();
-
-          if (isHtmlMode)
-            conv.editorKeyPress(event);
-          else
-            conv.inputKeyPress(event);
-
-          // Alt and Ctrl + return are handled in inputKeyPress
-          if (event.shiftKey) {
-            if (!isHtmlMode)
-              conv.addString("\n");
-          }
-        }
-        // "Backspace" key
-        else if (event.keyCode == 8) {
-          editor.focus();
-
-          if (!isHtmlMode) {
-            if (editor.selectionStart > 0 &&
-                editor.selectionStart == editor.selectionEnd)
-              --editor.selectionStart;
-
-            conv.addString("");
-          }
-        }
-        // "Delete" key
-        else if (event.keyCode == 46) {
-          editor.focus();
-
-          if (!isHtmlMode) {
-            var length = editor.textLength;
-            if (editor.selectionStart < length &&
-                editor.selectionStart == editor.selectionEnd)
-              ++editor.selectionEnd;
-
-            conv.addString("");
-          }
-        }
-
-        // CharCode=0 means not a character
-        if (event.charCode == 0)
+        if (event.charCode == 0 &&  // it's not a character, it's a command key
+            (event.keyCode != 13 && // Return
+             event.keyCode != 8 &&  // Backspace
+             event.keyCode != 46))  // Delete
           return;
 
         editor.focus();
@@ -419,8 +380,24 @@
         if (accelKeyPressed)
           return;
 
-        if (!isHtmlMode)
-          conv.addString(String.fromCharCode(event.charCode));
+        const masks = Components.interfaces.nsIDOMNSEvent;
+        var modifiers = 0;
+        if (event.shiftKey)
+          modifiers |= masks.SHIFT_MASK;
+        if (event.ctrlKey)
+          modifiers |= masks.CONTROL_MASK;
+        if (event.altKey)
+          modifiers |= masks.ALT_MASK;
+        if (event.metaKey)
+          modifiers |= masks.META_MASK;
+        if (event.accelKey)
+          modifiers |= (navigator.platform.indexOf("Mac") >= 0) ? masks.META_MASK
+                                                                : masks.CONTROL_MASK;
+
+        // resend the event
+        window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+              .getInterface(Components.interfaces.nsIDOMWindowUtils)
+              .sendKeyEvent(event.type, event.keyCode, event.charCode, modifiers);
       ]]>
       </body>
      </method>
