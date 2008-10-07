@@ -47,8 +47,9 @@ autoLoginHandler.prototype = {
     if (!cmdLine.handleFlag("n", false))
       return;
 
-    var pcs = Cc["@instantbird.org/purple/core;1"].getService(Ci.purpleICoreService)
-                                                  .autoLoginEnabled = false;
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService)
+                        .autoLoginStatus = Ci.purpleICoreService.AUTOLOGIN_USER_DISABLED;
   },
 
   // 3 tabs here because there is a misalignment with only 2
