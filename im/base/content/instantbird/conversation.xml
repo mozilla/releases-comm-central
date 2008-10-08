@@ -68,7 +68,9 @@
               <xul:label class="header conv-nicklist-header" value="&chat.participants;"/>
               <xul:textbox flex="1" readonly="true" class="plain" anonid="participantCount"/>
             </xul:hbox>
-            <xul:listbox flex="1" class="conv-nicklist" anonid="nicklist"/>
+            <xul:listbox flex="1" anonid="nicklist" seltype="multiple"
+                         ondblclick="onNickDblClick(event);"
+                         onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>
         </xul:hbox>
         <xul:splitter class="splitter"/>
@@ -108,7 +110,7 @@
        var uri = Components.classes["@mozilla.org/network/io-service;1"]
                            .getService(Components.interfaces.nsIIOService)
                            .newURI("chrome://instantbird/skin/conv.css", null, null);
-       if (!sss.sheetRegistered(uri, sss.USER_SHEET)) 
+       if (!sss.sheetRegistered(uri, sss.USER_SHEET))
          sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
 
        var url = 'data:text/html,<html><head></head><body id="ibcontent"></body></html>';
@@ -649,6 +651,36 @@
       <parameter name="aProgress"/>
       <parameter name="aRequest"/>
       <parameter name="aState"/>
+     </method>
+
+     <method name="onNicklistKeyPress">
+      <parameter name="event"/>
+      <body>
+      <![CDATA[
+        if (event.keyCode != 13)
+          return;
+
+        // Return is pressed
+        var conv = this;
+        if (this.localName != "conversation")
+          conv = document.getBindingParent(this);
+        var listbox = event.originalTarget;
+        for (var i = 0; i < listbox.selectedCount; ++i) {
+          var nick = listbox.getSelectedItem(i).chatBuddy.name;
+          conv._conv.account.createConversation(nick);
+        }
+      ]]>
+      </body>
+     </method>
+
+     <method name="onNickDblClick">
+      <parameter name="event"/>
+      <body>
+      <![CDATA[
+        var nick = event.originalTarget.chatBuddy.name;
+        this._conv.account.createConversation(nick);
+      ]]>
+      </body>
      </method>
 
      <property name="convId">
