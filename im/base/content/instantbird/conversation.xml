@@ -296,10 +296,15 @@
           return;
         }
 
-        if (event.keyCode != 13)
-          return;
-
         var input = document.getAnonymousElementByAttribute(conv, "anonid", "input");
+        if (event.keyCode != 13) {
+          if (conv._conv instanceof Ci.purpleIConvIM)
+            setTimeout(function () {
+              conv._conv.sendTyping(input.value.length);
+            }, 0);
+          return;
+        }
+
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
           conv.sendMsg(input.value);
           input.value = "";

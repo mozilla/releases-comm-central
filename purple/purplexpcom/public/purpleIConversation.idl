@@ -78,10 +78,14 @@ interface purpleIConversation: nsISupports {
 
 [scriptable, uuid(0c072a80-103a-4992-b249-8e442b5f0d46)]
 interface purpleIConvIM: purpleIConversation {
-  /* FIXME Typing notifications stuff */
 
   /* The buddy at the remote end of the conversation */
   readonly attribute purpleIAccountBuddy buddy;
+
+  /* Send information about the current typing state to the server.
+     aLength should contain the length of the content currently in the text field.
+     A length value of 0 will make the method send a NOT_TYPING message. */
+  void sendTyping(in unsigned long aLength);
 };
 
 [scriptable, uuid(c7f11466-f479-4f12-a581-b99713b8ecc0)]
