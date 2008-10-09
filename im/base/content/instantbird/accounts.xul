@@ -45,11 +45,11 @@
 ]>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	id="accountManager"
+        id="accountManager"
         windowtype="Messenger:Accounts"
         onload="gAccountManager.load()"
-	title="&accountManager.title;"
-	height="300"
+        title="&accountManager.title;"
+        height="300"
         width="500"
         persist="screenX screenY">
  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
@@ -66,14 +66,16 @@
    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
  </keyset>
 
- <richlistbox id="accountlist" flex="1" ondblclick="gAccountManager.new()"/>
+ <notificationbox id="accountsNotificationBox" flex="1">
+   <richlistbox id="accountlist" flex="1" ondblclick="gAccountManager.new()"/>
+ </notificationbox>
  <hbox id="bottombuttons">
   <button id="newaccount" oncommand="gAccountManager.new()"
-	  label="&accountManager.newAccount.label;"
-	  accesskey="&accountManager.newAccount.accesskey;"/>
+          label="&accountManager.newAccount.label;"
+          accesskey="&accountManager.newAccount.accesskey;"/>
   <spacer flex="1"/>
   <button id="close" command="cmd_close"
-	  label="&accountManager.close.label;"
-	  accesskey="&accountManager.close.accesskey;"/>
+          label="&accountManager.close.label;"
+          accesskey="&accountManager.close.accesskey;"/>
  </hbox>
-</window> 
+</window>

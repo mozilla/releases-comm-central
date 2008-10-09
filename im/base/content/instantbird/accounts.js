@@ -46,7 +46,8 @@ const events = [
   "account-disconnected",
   "account-disconnecting",
   "account-connect-progress",
-  "account-connect-error"
+  "account-connect-error",
+  "autologin-processed"
 ];
 
 var gAccountManager = {
@@ -64,6 +65,9 @@ var gAccountManager = {
       setTimeout(function() { gAccountManager.new(); }, 0);
     else
       this.accountList.selectedIndex = 0;
+
+    this.setAutoLoginNotification();
+
     window.addEventListener("unload", this.unload, false);
   },
   unload: function am_unload() {
@@ -76,6 +80,13 @@ var gAccountManager = {
       this.close();
       return;
     }
+    else if (aTopic == "autologin-processed") {
+      var notification = document.getElementById("accountsNotificationBox")
+                                 .getNotificationWithValue("autoLoginStatus");
+      if (notification)
+        notification.close();
+      return;
+    }
 
     if (!(aObject instanceof Ci.purpleIAccount))
       throw "Bad notification.";
@@ -85,13 +96,13 @@ var gAccountManager = {
       this.accountList.appendChild(elt);
       elt.build(aObject);
       if (this.accountList.getRowCount() == 1)
-	this.accountList.selectedIndex = 0;
+        this.accountList.selectedIndex = 0;
     }
     else if (aTopic == "account-removed") {
       var elt = document.getElementById(aObject.id);
       if (!elt.selected) {
-	this.accountList.removeChild(elt);
-	return;
+        this.accountList.removeChild(elt);
+        return;
       }
       // The currently selected element is removed,
       // ensure another element gets selected (if the list is not empty)
@@ -99,9 +110,9 @@ var gAccountManager = {
       this.accountList.removeChild(elt);
       var count = this.accountList.getRowCount();
       if (!count)
-	return;
+        return;
       if (selectedIndex == count)
-	--selectedIndex;
+        --selectedIndex;
       this.accountList.selectedIndex = selectedIndex;
     }
     else if (aTopic == "account-updated") {
@@ -119,12 +130,12 @@ var gAccountManager = {
     var elt = document.getElementById(aObject.id);
     if (aTopic in stateEvents) {
       if (!elt) {
-	/* The listitem associated with this account could not be
-	found. This happens when the account is being deleted. The
-	account-removed signal is fired before account-disconnecting
-	and account-disconnected. Maybe we should add a readonly
-	boolean attribute |deleting| to purpleIAccount? */
-	return;
+        /* The listitem associated with this account could not be
+        found. This happens when the account is being deleted. The
+        account-removed signal is fired before account-disconnecting
+        and account-disconnected. Maybe we should add a readonly
+        boolean attribute |deleting| to purpleIAccount? */
+        return;
       }
 
       /* handle protocol icon animation while connecting */
@@ -136,16 +147,16 @@ var gAccountManager = {
         elt.updateConnectionState(false);
       }
       else
-	icon.stop();
+        icon.stop();
 
       elt.setAttribute("state", stateEvents[aTopic]);
     }
     else if (aTopic == "account-connect-progress") {
       elt.updateConnectionState(false);
-    }    
+    }
     else if (aTopic == "account-connect-error") {
       elt.updateConnectionState(true);
-    }    
+    }
   },
   connect: function am_connect() {
     this.accountList.selectedItem.connect();
@@ -192,5 +203,49 @@ var gAccountManager = {
                       "chrome,modal,titlebar,centerscreen",
                       aArgs);
     this.modalDialog = false;
+  },
+  setAutoLoginNotification: function am_setAutoLoginNotification() {
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    var autoLoginStatus = pcs.autoLoginStatus;
+
+    if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED)
+      return;
+
+    var bundle = document.getElementById("accountsBundle");
+    var box = document.getElementById("accountsNotificationBox");
+    var priority = box.PRIORITY_INFO_HIGH;
+    var label;
+
+    switch (autoLoginStatus) {
+      case pcs.AUTOLOGIN_USER_DISABLED:
+        label = bundle.getString("accountsManager.notification.userDisabled.label");
+        break;
+
+      case pcs.AUTOLOGIN_SAFE_MODE:
+        label = bundle.getString("accountsManager.notification.safeMode.label");
+        break;
+
+      case pcs.AUTOLOGIN_CRASH:
+        label = bundle.getString("accountsManager.notification.crash.label");
+        priority = box.PRIORITY_WARNING_MEDIUM;
+        break;
+
+      default:
+        label = bundle.getString("accountsManager.notification.other.label");
+    }
+
+    var connectNowButton = {
+      accessKey: bundle.getString("accountsManager.notification.button.accessKey"),
+      callback: this.processAutoLogin,
+      label: bundle.getString("accountsManager.notification.button.label")
+    }
+
+    box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
+  },
+  processAutoLogin: function am_processAutoLogin() {
+    Components.classes["@instantbird.org/purple/core;1"]
+              .getService(Ci.purpleICoreService)
+              .processAutoLogin();
   }
 };

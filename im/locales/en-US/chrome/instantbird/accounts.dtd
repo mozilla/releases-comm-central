@@ -2,7 +2,7 @@
 <!ENTITY accountManager.newAccount.label     "New Account">
 <!ENTITY accountManager.newAccount.accesskey "N">
 <!ENTITY accountManager.close.label          "Close">
-<!ENTITY accountManager.close.accesskey      "C">
+<!ENTITY accountManager.close.accesskey      "l">
 <!ENTITY account.name                 "Name:">
 <!ENTITY account.alias                "Alias:">
 <!ENTITY account.autoSignOn           "Sign-on at startup">
