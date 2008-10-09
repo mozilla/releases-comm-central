@@ -39,23 +39,37 @@
 
 #accountManager {
   background-color: ThreeDFace;
+%ifdef XP_MACOSX
+  padding: 4px 4px;
+%else
+  margin: 4px 0;
+%endif
+}
+
+#accountsNotificationBox {
+  margin: 8px 8px;
+  -moz-appearance: listbox;
 }
 
 #accountlist {
-  margin: 10px 10px 0px 10px;
-  min-width: 1px;
+  margin: 0 0;
+  -moz-appearance: none;
 }
 
 #bottombuttons {
-  margin: 3px 5px 1px 5px;
+%ifdef XP_MACOSX
+  margin: -2px 8px 3px 8px;
+%else
+  margin: 2px 7px;
+%endif
 }
 
-richlistbox {
-  border: 2px solid;
-  -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
-  -moz-border-right-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
+#newaccount {
+  margin-left: 0;
+}
+
+#close {
+  margin-right: 0;
 }
 
 /* List Items */

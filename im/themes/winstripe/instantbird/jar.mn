@@ -2,7 +2,7 @@ classic.jar:
 % skin instantbird classic/1.0 %skin/winstripe/instantbird/
 	skin/winstripe/instantbird/account.css
 	skin/winstripe/instantbird/accountError.png
-	skin/winstripe/instantbird/accounts.css
+*	skin/winstripe/instantbird/accounts.css
 *	skin/winstripe/instantbird/accountWizard.css
 	skin/winstripe/instantbird/away-16.png
 	skin/winstripe/instantbird/away.png
