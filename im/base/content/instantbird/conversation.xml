@@ -590,13 +590,14 @@
           this.tab.removeAttribute("typed");
           this._statusText = "";
 
+          var name = this._conv.name.replace(/@.*/, "");
           if (typingState == Ci.purpleIConvIM.TYPING) {
             this.tab.setAttribute("typing", "true");
-            this._statusText = this._conv.name + " is typing.";
+            this._statusText = name + " is typing.";
           }
           else if (typingState == Ci.purpleIConvIM.TYPED) {
             this.tab.setAttribute("typed", "true");
-            this._statusText = this._conv.name + " has stopped typing.";
+            this._statusText = name + " has stopped typing.";
           }
 
           this.typingState = typingState;
