@@ -146,6 +146,7 @@
 
      <field name="loaded">false</field>
      <field name="messageQueue">[]</field>
+     <field name="_statusText">""</field>
 
      <!-- This is used when we want to remove close the conversation binding
      without closing the associated PurpleConversation.
@@ -565,6 +566,44 @@
        </body>
      </method>
 
+     <method name="displayStatusText">
+       <body>
+       <![CDATA[
+         if (!this.tab.selected)
+           return;
+
+         if ("setStatusText" in window)
+           window.setStatusText(this._statusText);
+       ]]>
+       </body>
+     </method>
+
+     <method name="updateTyping">
+       <body>
+       <![CDATA[
+          var typingState = this._conv.typingState;
+          if (typingState == this.typingState)
+            return;
+
+          this.tab.removeAttribute("typing");
+          this.tab.removeAttribute("typed");
+          this._statusText = "";
+
+          if (typingState == Ci.purpleIConvIM.TYPING) {
+            this.tab.setAttribute("typing", "true");
+            this._statusText = this._conv.name + " is typing.";
+          }
+          else if (typingState == Ci.purpleIConvIM.TYPED) {
+            this.tab.setAttribute("typed", "true");
+            this._statusText = this._conv.name + " has stopped typing.";
+          }
+
+          this.typingState = typingState;
+          this.displayStatusText();
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIObserver implementation -->
      <method name="observe">
        <parameter name="aSubject"/>
@@ -578,6 +617,10 @@
          switch(aTopic) {
          case "new-text":
            this._addMsg(aSubject.QueryInterface(Ci.purpleIMessage));
+           break;
+
+         case "update-typing":
+           this.updateTyping();
            break;
 
          case "chat-buddy-add":
@@ -759,6 +802,7 @@
          if (!this.hasAttribute("focused")) {
            var input = document.getAnonymousElementByAttribute(this, "anonid", "input");
            this.setAttribute("focused", "true");
+           this.displayStatusText();
            //FIXME: check why it doesn't work without this timeout
            setTimeout(function () {input.focus(); }, 1);
          }

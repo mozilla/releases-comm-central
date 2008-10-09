@@ -56,6 +56,14 @@ convtab[unread] {
   color: red !important;
 }
 
+convtab[typing] { 
+  color: green !important;
+}
+
+convtab[typed] { 
+  color: orange !important;
+}
+
 convtab[attention] { 
   color: blue !important;
 }

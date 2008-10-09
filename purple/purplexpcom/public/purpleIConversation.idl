@@ -82,6 +82,19 @@ interface purpleIConvIM: purpleIConversation {
   /* The buddy at the remote end of the conversation */
   readonly attribute purpleIAccountBuddy buddy;
 
+  /* The remote buddy is not currently typing */
+  const short NOT_TYPING = 0;
+
+  /* The remote buddy is currently typing */
+  const short TYPING = 1;
+
+  /* The remote buddy started typing, but has stopped typing */
+  const short TYPED = 2;
+
+  /* The typing state of the remote buddy.
+     The value is NOT_TYPING, TYPING or TYPED. */
+  readonly attribute short typingState;
+
   /* Send information about the current typing state to the server.
      aLength should contain the length of the content currently in the text field.
      A length value of 0 will make the method send a NOT_TYPING message. */

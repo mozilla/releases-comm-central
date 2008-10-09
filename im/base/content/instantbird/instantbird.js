@@ -226,12 +226,10 @@ function getBrowser()
   return document.getElementById("panels").selectedPanel.browser;
 }
 
-/*
-function setStatus(aMsg)
+function setStatusText(aMsg)
 {
   var status = document.getElementById("status");
   status.setAttribute("label", aMsg);
 }
-*/
 
 this.addEventListener("load", msgObserver.load, false);
