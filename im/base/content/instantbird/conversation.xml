@@ -68,7 +68,8 @@
               <xul:label class="header conv-nicklist-header" value="&chat.participants;"/>
               <xul:textbox flex="1" readonly="true" class="plain" anonid="participantCount"/>
             </xul:hbox>
-            <xul:listbox flex="1" anonid="nicklist" seltype="multiple"
+            <xul:listbox anonid="nicklist" class="conv-nicklist"
+                         flex="1" seltype="multiple"
                          ondblclick="onNickDblClick(event);"
                          onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>
