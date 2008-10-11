@@ -217,7 +217,9 @@
             if (aMsg.outgoing)
               pseudoClass += " outgoing";
 
-          txt += '<span class="' + pseudoClass + '"' + color + '>' + name  + (me ? "</span> " : ":</span> ");
+          txt += '<span class="' + pseudoClass + '"' + color + '>' + name +
+                 (aMsg.autoResponse ? '&lt;' + 'Auto-Reply' + '&gt;': '') +
+                 (me ? '</span> ' : ':</span> ');
         }
 
         txt += (me ? me[1] + me[3] : msg).replace(/\n/g, "<br/>");
