@@ -96,6 +96,8 @@
 
        var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress, false);
+       browser.addEventListener("scroll", this.browserScroll, false);
+       browser.addEventListener("resize", this.browserResize, false);
 
        var docShell = browser.docShell;
        docShell.allowJavascript = false;
@@ -253,10 +255,14 @@
         newElt.innerHTML = aTxt;
         newElt.className = aClass;
         newElt.setAttribute("aria-live", "polite");
-        var shouldScroll = elt.scrollHeight == elt.scrollTop + elt.clientHeight;
+        var shouldScroll = this.lastElement ||
+                           elt.scrollHeight <= elt.scrollTop + elt.clientHeight + 10;
         elt.appendChild(newElt);
-        if (shouldScroll)
+        if (shouldScroll) {
           newElt.scrollIntoView(true);
+          this.lastElement = newElt;
+          this.scrollingIntoView = true;
+        }
       ]]>
       </body>
      </method>
@@ -357,6 +363,49 @@
       <![CDATA[
         var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
         editor.contentDocument.execCommand(aCmd, false, aHtml);
+      ]]>
+      </body>
+     </method>
+
+     <method name="browserScroll">
+     <parameter name="event"/>
+      <body>
+      <![CDATA[
+        var conv = document.getBindingParent(this);
+        if (conv.scrollingIntoView) {
+          // We have explicitely requested a scrollIntoView, ignore the event
+          conv.scrollingIntoView = false;
+          this.lastScrollHeight = event.currentTarget.scrollHeight;
+          this.lastScrollWidth = event.currentTarget.scrollWidth;
+          return;
+        }
+
+        if (this.lastScrollHeight != event.currentTarget.scrollHeight ||
+            this.lastScrollWidth != event.currentTarget.scrollWitdh) {
+          // if the scrollheight changed, we are resizing the content area,
+          // don't stop the auto scroll.
+          this.lastScrollHeight = event.currentTarget.scrollHeight;
+          this.lastScrollWidth = event.currentTarget.scrollWidth;
+          return;
+        }
+
+        // Disable auto-scroll, the user moved the scrollbar
+        conv.lastElement = null;
+      ]]>
+      </body>
+     </method>
+
+     <method name="browserResize">
+     <parameter name="event"/>
+      <body>
+      <![CDATA[
+        var conv = document.getBindingParent(this);
+        if (conv.lastElement) {
+          // The content area was resized and auto-scroll is enabled,
+          // make sure the last inserted element is still visible
+          conv.lastElement.scrollIntoView(true);
+          conv.scrollingIntoView = true;
+        }
       ]]>
       </body>
      </method>
