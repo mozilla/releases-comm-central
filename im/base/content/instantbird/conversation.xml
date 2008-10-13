@@ -531,7 +531,8 @@
          this.setBuddyAttributes(item);
 
          // Compute the color based on the nick
-         var nick = name.match(/[a-zA-Z0-9]+/)[0].toLowerCase();
+         var nick = name.match(/[a-zA-Z0-9]+/);
+         nick = nick ? nick[0].toLowerCase() : nick = name;
          var weight = 10;
          var res = 0;
          for (var i = 0; i < nick.length; ++i) {
