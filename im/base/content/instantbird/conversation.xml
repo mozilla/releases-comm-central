@@ -375,17 +375,17 @@
         if (conv.scrollingIntoView) {
           // We have explicitely requested a scrollIntoView, ignore the event
           conv.scrollingIntoView = false;
-          this.lastScrollHeight = event.currentTarget.scrollHeight;
-          this.lastScrollWidth = event.currentTarget.scrollWidth;
+          this.lastScrollHeight = this.scrollHeight;
+          this.lastScrollWidth = this.scrollWidth;
           return;
         }
 
-        if (this.lastScrollHeight != event.currentTarget.scrollHeight ||
-            this.lastScrollWidth != event.currentTarget.scrollWitdh) {
+        if (this.lastScrollHeight != this.scrollHeight ||
+            this.lastScrollWidth != this.scrollWidth) {
           // if the scrollheight changed, we are resizing the content area,
           // don't stop the auto scroll.
-          this.lastScrollHeight = event.currentTarget.scrollHeight;
-          this.lastScrollWidth = event.currentTarget.scrollWidth;
+          this.lastScrollHeight = this.scrollHeight;
+          this.lastScrollWidth = this.scrollWidth;
           return;
         }
 
