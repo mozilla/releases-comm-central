@@ -226,6 +226,10 @@ var gAccountManager = {
         label = bundle.getString("accountsManager.notification.safeMode.label");
         break;
 
+      case pcs.AUTOLOGIN_START_OFFLINE:
+        label = bundle.getString("accountsManager.notification.startOffline.label");
+        break;
+
       case pcs.AUTOLOGIN_CRASH:
         label = bundle.getString("accountsManager.notification.crash.label");
         priority = box.PRIORITY_WARNING_MEDIUM;
@@ -244,6 +248,13 @@ var gAccountManager = {
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },
   processAutoLogin: function am_processAutoLogin() {
+    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                              .getService(Components.interfaces.nsIIOService2);
+    if (ioService.offline) {
+      ioService.manageOfflineStatus = false;
+      ioService.offline = false;
+    }
+
     Components.classes["@instantbird.org/purple/core;1"]
               .getService(Ci.purpleICoreService)
               .processAutoLogin();
