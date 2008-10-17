@@ -547,11 +547,39 @@
          var style = "color: hsl(" + res + ", 100%, 50%);";
          item.setAttribute("style", style);
          item.color = res;
-
          this.buddies[name] = item;
-         var nicklist = document.getAnonymousElementByAttribute(this, "anonid", "nicklist");
-         nicklist.appendChild(item); //FIXME insert at the right position
+
+         // Insert item at the right position
+         this.addNick(item);
          this.updateParticipantCount();
+       ]]>
+       </body>
+     </method>
+
+     <method name="addNick">
+       <parameter name="aListItem"/>
+       <body>
+       <![CDATA[
+         var nicklist = document.getAnonymousElementByAttribute(this, "anonid", "nicklist");
+         var nick = aListItem.getAttribute("label").toLowerCase();
+
+         // Look for the place of the nick in the list
+         var start = 0;
+         var end = nicklist.itemCount;
+         while (start < end) {
+           var middle = start + Math.floor((end - start) / 2);
+           if (nick < nicklist.getItemAtIndex(middle)
+                              .getAttribute("label").toLowerCase())
+             end = middle;
+           else
+             start = middle + 1;
+         }
+
+         // Now insert the element
+         if (end == nicklist.itemCount)
+           nicklist.appendChild(aListItem);
+         else
+           nicklist.insertBefore(aListItem, nicklist.getItemAtIndex(end));
        ]]>
        </body>
      </method>
@@ -584,7 +612,10 @@
          this.buddies[name] = item;
          item.setAttribute("label", name);
 
-         // FIXME: move this item to the right position if its name changed
+         // Move this item to the right position if its name changed
+         var nicklist = document.getAnonymousElementByAttribute(this, "anonid", "nicklist");
+         nicklist.removeChild(item);
+         this.addNick(item);
        ]]>
        </body>
      </method>
