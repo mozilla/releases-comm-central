@@ -143,7 +143,6 @@ var gAccountManager = {
       if (aTopic == "account-connecting") {
         icon.animate();
         elt.removeAttribute("error");
-        aObject.connectionStateMsg = "";
         elt.updateConnectionState(false);
       }
       else

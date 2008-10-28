@@ -128,7 +128,7 @@
           state = "connected"
         } else if (this._account.disconnected) {
           state = "disconnected"
-          if (this._account.connectionStateMsg)
+          if (this._account.connectionErrorReason != Ci.purpleIAccount.NO_ERROR)
             this.updateConnectionState(true);
         } else if (this._account.connecting) {
           state = "connecting"
@@ -221,7 +221,8 @@
         var bundle = document.getElementById("accountsBundle");
         var key = aIsError ? "account.connection.error"
                            : "account.connection.progress";
-        var text = this._account.connectionStateMsg;
+        var text = aIsError ? this._account.connectionErrorMessage
+                            : this._account.connectionStateMsg;
         text = text ? bundle.getFormattedString(key, [text])
                     : bundle.getString("account.connecting");
 
