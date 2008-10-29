@@ -79,11 +79,3 @@ function logMsg(aString)
                      .getService(Ci.nsIConsoleService)
                      .logStringMessage(aString);
 }
-
-function setText(aElt, aTxt)
-{
-  if (aElt.hasChildNodes())
-    aElt.removeChild(aElt.firstChild);
-  var textNode = document.createTextNode(aTxt);
-  aElt.appendChild(textNode);
-}

@@ -241,7 +241,7 @@
         this.setAttribute("error", "true");
         var error = document.getAnonymousElementByAttribute(this, "anonid",
                                                             "error");
-        setText(error, text);
+        error.textContent = text;
       ]]>
       </body>
      </method>
