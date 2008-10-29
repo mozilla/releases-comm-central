@@ -129,11 +129,11 @@
         } else if (this._account.disconnected) {
           state = "disconnected"
           if (this._account.connectionErrorReason != Ci.purpleIAccount.NO_ERROR)
-            this.updateConnectionState(true);
+            this.updateConnectionError();
         } else if (this._account.connecting) {
           state = "connecting"
           document.getAnonymousElementByAttribute(this, "anonid", "prplicon").animate();
-          this.updateConnectionState(false);
+          this.updateConnectionState();
         } else if (this._account.disconnecting) {
           state = "connected"
         }
@@ -215,25 +215,73 @@
      </method>
 
      <method name="updateConnectionState">
-      <parameter name="aIsError"/>
       <body>
       <![CDATA[
         var bundle = document.getElementById("accountsBundle");
-        var key = aIsError ? "account.connection.error"
-                           : "account.connection.progress";
-        var text = aIsError ? this._account.connectionErrorMessage
-                            : this._account.connectionStateMsg;
+        const key = "account.connection.progress";
+        var text = this._account.connectionStateMsg;
         text = text ? bundle.getFormattedString(key, [text])
                     : bundle.getString("account.connecting");
 
-        if (aIsError) {
-          this.setAttribute("error", "true");
-          var error = document.getAnonymousElementByAttribute(this, "anonid", "error");
-          setText(error, text);
+        var progress = document.getAnonymousElementByAttribute(this, "anonid",
+                                                               "connecting");
+        progress.setAttribute("value", text);
+      ]]>
+      </body>
+     </method>
+
+     <method name="updateConnectionError">
+      <body>
+      <![CDATA[
+        var bundle = document.getElementById("accountsBundle");
+        const key = "account.connection.error";
+        var text = this._account.connectionErrorMessage;
+        text = bundle.getFormattedString(key, [text]);
+
+        this.setAttribute("error", "true");
+        var error = document.getAnonymousElementByAttribute(this, "anonid",
+                                                            "error");
+        setText(error, text);
+      ]]>
+      </body>
+     </method>
+
+     <method name="observe">
+      <parameter name="aSubject"/>
+      <parameter name="aTopic"/>
+      <parameter name="aData"/>
+      <body>
+      <![CDATA[
+        if (aTopic == "account-updated") {
+          this.build(aObject);
+          return;
         }
-        else {
-          var progress = document.getAnonymousElementByAttribute(this, "anonid", "connecting");
-          progress.setAttribute("value", text);
+
+        const stateEvents = {
+          "account-connected": "connected",
+          "account-connecting": "connecting",
+          "account-disconnected": "disconnected",
+          "account-disconnecting": "disconnecting"
+        };
+        if (aTopic in stateEvents) {
+          /* handle protocol icon animation while connecting */
+          var icon = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "prplicon");
+          if (aTopic == "account-connecting") {
+            icon.animate();
+            this.removeAttribute("error");
+            this.updateConnectionState();
+          }
+          else
+            icon.stop();
+
+          this.setAttribute("state", stateEvents[aTopic]);
+        }
+        else if (aTopic == "account-connect-progress") {
+          this.updateConnectionState();
+        }
+        else if (aTopic == "account-connect-error") {
+          this.updateConnectionError();
         }
       ]]>
       </body>

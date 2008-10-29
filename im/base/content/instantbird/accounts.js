@@ -115,46 +115,10 @@ var gAccountManager = {
         --selectedIndex;
       this.accountList.selectedIndex = selectedIndex;
     }
-    else if (aTopic == "account-updated") {
+    else {
       var elt = document.getElementById(aObject.id);
-      elt.build(aObject);
-      return;
-    }
-
-    const stateEvents = {
-      "account-connected": "connected",
-      "account-connecting": "connecting",
-      "account-disconnected": "disconnected",
-      "account-disconnecting": "disconnecting"
-    };
-    var elt = document.getElementById(aObject.id);
-    if (aTopic in stateEvents) {
-      if (!elt) {
-        /* The listitem associated with this account could not be
-        found. This happens when the account is being deleted. The
-        account-removed signal is fired before account-disconnecting
-        and account-disconnected. Maybe we should add a readonly
-        boolean attribute |deleting| to purpleIAccount? */
-        return;
-      }
-
-      /* handle protocol icon animation while connecting */
-      var icon = document.getAnonymousElementByAttribute(elt, "anonid", "prplicon");
-      if (aTopic == "account-connecting") {
-        icon.animate();
-        elt.removeAttribute("error");
-        elt.updateConnectionState(false);
-      }
-      else
-        icon.stop();
-
-      elt.setAttribute("state", stateEvents[aTopic]);
-    }
-    else if (aTopic == "account-connect-progress") {
-      elt.updateConnectionState(false);
-    }
-    else if (aTopic == "account-connect-error") {
-      elt.updateConnectionState(true);
+      if (elt)
+        elt.observe(aObject, aTopic, aData);
     }
   },
   connect: function am_connect() {
