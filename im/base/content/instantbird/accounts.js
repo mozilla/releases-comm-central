@@ -35,6 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
+
 // This is the list of notifications that the account manager window observes
 const events = [
   "purple-quit",

@@ -133,12 +133,17 @@ var buddyList = {
 
     for (let acc in this.getAccounts())
       if (acc.connected || acc.connecting) {
-        addBuddyItem.disabled = false;
+        if (acc.connected)
+          addBuddyItem.disabled = false;
         return;
       }
 
+    /* In case of connection failure after an automatic reconnection attempt,
+       we don't want to popup the account manager */
+    if (!addBuddyItem.disabled)
+      menus.accounts();
+
     addBuddyItem.disabled = true;
-    menus.accounts();
   },
   checkForIrcAccount: function bl_checkForIrcAccount() {
     var joinChatItem = document.getElementById("joinChatMenuItem");

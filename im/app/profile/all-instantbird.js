@@ -6,6 +6,12 @@ pref("accessibility.browsewithcaret", true);
 
 pref("messenger.accounts", "");
 pref("messenger.accounts.promptOnDelete", true);
+
+// The intervals in seconds between automatic reconnection attempts
+// The last value will be reused forever.
+// A value of 0 means that there will be no more reconnection attempts.
+pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
+
 pref("messenger.options.playSounds", true);
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
