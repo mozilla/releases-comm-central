@@ -1,3 +1,6 @@
+<!-- halloween branding -->
+
 <!ENTITY  brandShortName        "Instantbird">
 <!ENTITY  brandFullName         "Instantbird - Nightly">
+<!ENTITY  brandMotto            "Beware of the Witch!">
 <!ENTITY  vendorShortName       "Instantbird">

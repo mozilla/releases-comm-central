@@ -1,3 +1,6 @@
+<!-- release branding -->
+
 <!ENTITY  brandShortName        "Instantbird">
 <!ENTITY  brandFullName         "Instantbird">
+<!ENTITY  brandMotto            "'Cause witches can also type!">
 <!ENTITY  vendorShortName       "Instantbird">
