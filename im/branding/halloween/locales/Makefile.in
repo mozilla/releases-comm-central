@@ -39,7 +39,7 @@ DEPTH          = ../../../..
 topsrcdir      = @top_srcdir@
 srcdir         = @srcdir@
 VPATH          = @srcdir@
-relativesrcdir = instantbird/branding/release/locales
+relativesrcdir = instantbird/branding/halloween/locales
 
 include $(DEPTH)/config/autoconf.mk
 
