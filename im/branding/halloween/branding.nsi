@@ -11,14 +11,14 @@
 # for the specific language governing rights and limitations under the
 # License.
 #
-# The Original Code is the Mozilla build system.
+# The Original Code is the Mozilla Installer code.
 #
-# The Initial Developer of the Original Code is
-#  Florian Queze <florian@instantbird.org>
-# Portions created by the Initial Developer are Copyright (C) 2008
+# The Initial Developer of the Original Code is Mozilla Foundation
+# Portions created by the Initial Developer are Copyright (C) 2006
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
+#  Robert Strong <robert.bugzilla@gmail.com>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -34,25 +34,14 @@
 #
 # ***** END LICENSE BLOCK *****
 
-if [ "$COMM_BUILD" ]; then
-add_makefiles "
-instantbird/Makefile
-instantbird/app/Makefile
-instantbird/app/profile/Makefile
-instantbird/app/profile/extensions/Makefile
-instantbird/base/Makefile
-instantbird/base/content/Makefile
-instantbird/branding/nightly/Makefile
-instantbird/branding/nightly/locales/Makefile
-instantbird/branding/halloween/Makefile
-instantbird/branding/halloween/locales/Makefile
-instantbird/branding/release/Makefile
-instantbird/branding/release/locales/Makefile
-instantbird/locales/Makefile
-instantbird/themes/Makefile
-instantbird/themes/winstripe/Makefile
-instantbird/themes/winstripe/instantbird/Makefile
-instantbird/installer/Makefile
-instantbird/installer/windows/Makefile
-"
-fi
+# NSIS defines for nightly builds.
+# The release build branding.nsi is located in other-license/branding/thunderbird/
+!define BrandShortName        "Instantbird"
+!define BrandFullName         "Instantbird"
+# BrandFullNameInternal is used for some registry and file system values that
+# should not contain release that may be in the BrandFullName (e.g. Beta 1, etc.)
+!define BrandFullNameInternal "Instantbird"
+!define CompanyName           "Instantbird"
+!define URLInfoAbout          "http://www.instantbird.com/"
+!define URLUpdateInfo         "http://www.instantbird.com/"
+
