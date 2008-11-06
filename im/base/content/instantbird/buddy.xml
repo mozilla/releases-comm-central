@@ -51,7 +51,7 @@
     <content>
       <xul:hbox tooltip="_child">
 
-        <xul:tooltip onpopupshowing="updateTooltip();" anonid="buddytooltip">
+        <xul:tooltip onpopupshowing="updateTooltip();" anonid="buddytooltip" noautohide="true">
 
           <xul:hbox pack="start" align="start" flex="1">
 
