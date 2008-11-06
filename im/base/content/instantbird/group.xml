@@ -72,6 +72,19 @@
         this.buddies = [ ];
         this.setAttribute("id", "group" + this.groupId);
         this.setAttribute("name", this.name);
+        this.setAttribute("persist", "closed");
+
+        // restore the potential persisted value
+        var source = Components.classes["@mozilla.org/rdf/datasource;1?name=local-store"]
+                               .getService(Components.interfaces.nsIRDFDataSource);
+        var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
+                            .getService(Components.interfaces.nsIRDFService);
+        var elt = RDF.GetResource(document.location + "#" + this.id);
+        if (source.HasAssertion(elt, RDF.GetResource("closed"),
+                                RDF.GetLiteral("true"), true)) {
+          this.setAttribute("closed", "true");
+          this._updateClosedState(true);
+        }
       ]]>
       </body>
      </method>
@@ -92,6 +105,8 @@
 
         if (!buddyElt) {
           buddyElt = document.createElement("buddy");
+          if (this.hasAttribute("closed"))
+            buddyElt.setAttribute("collapsed", "true");
 
           var last = this;
           if (this.buddies.length)
@@ -143,6 +158,34 @@
       ]]>
       </body>
      </method>
+
+     <method name="_updateClosedState">
+      <parameter name="aClosed"/>
+      <body>
+      <![CDATA[
+        for (let i = 0; i < this.buddies.length; ++i)
+          this.buddies[i].collapsed = aClosed;
+      ]]>
+      </body>
+     </method>
+
+     <method name="close">
+      <body>
+      <![CDATA[
+        if (this.hasAttribute("closed")) {
+          this.removeAttribute("closed");
+          this._updateClosedState(false);
+        }
+        else {
+          this.setAttribute("closed", "true");
+          this._updateClosedState(true);
+        }
+      ]]>
+      </body>
+     </method>
     </implementation>
+    <handlers>
+     <handler event="click" clickcount="2" action="close();"/>
+    </handlers>
   </binding>
 </bindings>
