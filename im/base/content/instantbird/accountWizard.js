@@ -344,8 +344,13 @@ var accountWizard = {
     acc.proxyInfo = this.proxy;
     acc.save();
 
-    if (autologin)
-      acc.connect();
+    try {
+      if (autologin)
+        acc.connect();
+    } catch (e) {
+      // If the connection fails (for example if we are currently in
+      // offline mode), we still want to close the account wizard
+    }
 
     if (window.opener) {
       var am = window.opener.gAccountManager;
