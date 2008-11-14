@@ -51,6 +51,10 @@ group[selected="true"] {
   color: -moz-DialogText;
 }
 
+.buddyDisplayName {
+  -moz-margin-end: 0;
+}
+
 .prplBuddyIcon {
   -moz-margin-end: 2px; 
   -moz-margin-start: 3px;

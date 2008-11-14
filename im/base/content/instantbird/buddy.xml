@@ -49,7 +49,7 @@
 
   <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
-      <xul:hbox tooltip="_child">
+      <xul:hbox tooltip="_child" flex="1">
 
         <xul:tooltip onpopupshowing="updateTooltip();" anonid="buddytooltip" noautohide="true">
 
@@ -99,7 +99,7 @@
           <xul:image src="chrome://instantbird/skin/away.png"
                      class="statusIcon"/>
         </xul:stack>
-        <xul:label class="buddyDisplayName" xbl:inherits="value=displayname"/>
+        <xul:label crop="end" flex="1" class="buddyDisplayName" xbl:inherits="value=displayname"/>
         <!--<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>-->
       </xul:hbox>
     </content>
