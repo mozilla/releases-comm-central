@@ -43,6 +43,11 @@ VPATH		= @srcdir@
 include $(DEPTH)/config/autoconf.mk
 
 NO_PKG_FILES = \
+	dependentlibs.list \
+	IA2Marshal.dll \
+	js \
+	js.exe \
+	js2350.lib \
 	TestGtkEmbed \
 	bloaturls.txt \
 	codesighs* \
