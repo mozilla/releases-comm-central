@@ -1,7 +1,7 @@
 <!ENTITY aboutDialog.title      "About &brandFullName;">
 <!ENTITY credits.label          "Credits">
 <!ENTITY credits.accesskey      "C">
-<!ENTITY aboutLink.label        "&lt; About &brandFullName;">
+<!ENTITY aboutLink.label        "&lt; About &brandShortName;">
 <!ENTITY aboutLink.accesskey    "A">
 <!ENTITY aboutVersion           "version">
 <!ENTITY geckoVersion           "Gecko">

@@ -1,6 +1,7 @@
-<!ENTITY credit.title     "&brandFullName; Credits">
-<!ENTITY credit.leads     "Engineering Leads">
-<!ENTITY credit.thanks    "Special Thanks To">
+<!ENTITY credit.title        "&brandFullName; Credits">
+<!ENTITY credit.lead         "Lead Developer">
+<!ENTITY credit.contributors "Contributors">
+<!ENTITY credit.thanks       "Special Thanks To">
 
 <!-- localization credits look like this: -->
 <!--
