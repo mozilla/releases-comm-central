@@ -44,6 +44,8 @@ const events = ["buddy-signed-on",
                 "account-disconnected",
                 "new-text",
                 "new-conversation",
+                "away",
+                "back",
                 "purple-quit"];
 
 const autoJoinPref = "autoJoin";
@@ -54,6 +56,37 @@ var buddyList = {
 
     if (aTopic == "purple-quit") {
       window.close();
+      return;
+    }
+
+    if (aTopic == "away") {
+      // display the notification on the buddy list
+      var buttons = [{
+        accessKey: "",
+        label: document.getElementById("awayBundle").getString("away.back.button"),
+        popup: null,
+        callback: function() {
+          Components.classes["@instantbird.org/purple/core;1"]
+                    .getService(Components.interfaces.purpleICoreService)
+                    .back(null);
+        }
+      }];
+      var nbox = document.getElementById("buddyListMsg");
+      var notif = nbox.appendNotification(aMsg, "away-message",
+                                          "chrome://instantbird/skin/away-16.png",
+                                          nbox.PRIORITY_INFO_MEDIUM, buttons);
+      notif.setAttribute("hideclose", "true");
+      document.getElementById("getAwayMenuItem").disabled = true;
+      return;
+    }
+
+    if (aTopic == "back") {
+      var nbox = document.getElementById("buddyListMsg");
+      var notification = nbox.getNotificationWithValue("away-message");
+      if (notification)
+        nbox.removeNotification(notification);
+
+      document.getElementById("getAwayMenuItem").disabled = false;
       return;
     }
 
@@ -210,26 +243,6 @@ var buddyList = {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Components.interfaces.purpleICoreService);
     pcs.away(message.value);
-
-    // display the notification on the buddy list
-    var buttons = [{
-      accessKey: "",
-      label: bundle.getString("away.back.button"),
-      popup: null,
-      callback: buddyList.getBack
-    }];
-    var nbox = document.getElementById("buddyListMsg");
-    var notif = nbox.appendNotification(message.value, null,
-                                        "chrome://instantbird/skin/away-16.png",
-                                        nbox.PRIORITY_INFO_MEDIUM, buttons);
-    notif.setAttribute("hideclose", "true");
-    document.getElementById("getAwayMenuItem").disabled = true;
-  },
-  getBack: function bl_getBack() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Components.interfaces.purpleICoreService);
-    pcs.back(null);
-    document.getElementById("getAwayMenuItem").disabled = false;
   },
 
   // Handle key pressing
