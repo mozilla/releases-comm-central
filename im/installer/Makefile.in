@@ -47,7 +47,7 @@ NO_PKG_FILES = \
 	IA2Marshal.dll \
 	js \
 	js.exe \
-	js2350.lib \
+	js3250.lib \
 	TestGtkEmbed \
 	bloaturls.txt \
 	codesighs* \
