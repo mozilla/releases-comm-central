@@ -271,6 +271,9 @@
       <parameter name="aMsg"/>
       <body>
       <![CDATA[
+        if (!aMsg)
+          return;
+
         var re = /^\/raw (.*)/;
         var msg = aMsg.match(re);
         if (msg)
