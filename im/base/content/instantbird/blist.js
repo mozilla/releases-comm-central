@@ -61,6 +61,12 @@ var buddyList = {
 
     if (aTopic == "away") {
       // display the notification on the buddy list
+      var nbox = document.getElementById("buddyListMsg");
+      var notification = nbox.getNotificationWithValue("away-message");
+      if (notification) {
+        notification.label = aMsg;
+        return;
+      }
       var buttons = [{
         accessKey: "",
         label: document.getElementById("awayBundle").getString("away.back.button"),
@@ -71,11 +77,10 @@ var buddyList = {
                     .back(null);
         }
       }];
-      var nbox = document.getElementById("buddyListMsg");
-      var notif = nbox.appendNotification(aMsg, "away-message",
-                                          "chrome://instantbird/skin/away-16.png",
-                                          nbox.PRIORITY_INFO_MEDIUM, buttons);
-      notif.setAttribute("hideclose", "true");
+      notification = nbox.appendNotification(aMsg, "away-message",
+                                             "chrome://instantbird/skin/away-16.png",
+                                             nbox.PRIORITY_INFO_MEDIUM, buttons);
+      notification.setAttribute("hideclose", "true");
       document.getElementById("getAwayMenuItem").disabled = true;
       return;
     }
