@@ -86,6 +86,7 @@ NO_PKG_FILES = \
 	PalmSyncInstall.exe \
 	components/libgkplugin.so \
 	components/gkplugin.dll \
+	components/libpurplexpcom.dylib.dSYM \
 	$(NULL)
 
 include $(topsrcdir)/config/rules.mk

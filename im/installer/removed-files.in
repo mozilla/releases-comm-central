@@ -313,3 +313,7 @@ libraries/prpl/libmsnp9.dylib
 libraries/prpl/libmsnp9.so
 #endif
 #endif
+#if XP_MACOSX
+components/libpurplexpcom.dylib.dSYM/Contents/Info.plist
+components/libpurplexpcom.dylib.dSYM/Contents/Resources/DWARF/libpurplexpcom.dylib
+#endif
