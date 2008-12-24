@@ -199,7 +199,7 @@ var accountWizard = {
     while (child = box.firstChild)
       box.removeChild(child);
     for (let opt in this.getProtoOptions()) {
-      var text = bundle.getString(id + "." + opt.name);
+      var text = opt.label;
       var name = id + "-" + opt.name;
       switch (opt.type) {
       case opt.typeBool:

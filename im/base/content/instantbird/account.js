@@ -181,10 +181,9 @@ var account = {
 
   populateProtoSpecificBox: function account_populate() {
     var gbox = document.getElementById("protoSpecific");
-    var bundle = document.getElementById("prplbundle");
     var id = this.proto.id;
     for (let opt in this.getProtoOptions()) {
-      var text = bundle.getString(id + "." + opt.name);
+      var text = opt.label;
       var name = id + "-" + opt.name;
       switch (opt.type) {
       case opt.typeBool:

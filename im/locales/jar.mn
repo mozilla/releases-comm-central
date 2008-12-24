@@ -16,4 +16,3 @@
 	locale/@AB_CD@/instantbird/joinChat.dtd		(%chrome/instantbird/joinChat.dtd)
 	locale/@AB_CD@/instantbird/proxies.dtd		(%chrome/instantbird/proxies.dtd)
 	locale/@AB_CD@/instantbird/proxies.properties	(%chrome/instantbird/proxies.properties)
-	locale/@AB_CD@/instantbird/prpl.properties	(%chrome/instantbird/prpl.properties)

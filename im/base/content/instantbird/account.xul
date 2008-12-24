@@ -53,7 +53,6 @@
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/account.js"/>
 
-  <stringbundle id="prplbundle" src="chrome://instantbird/locale/prpl.properties"/>
   <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
 
   <hbox>
