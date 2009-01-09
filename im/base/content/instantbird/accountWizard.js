@@ -192,7 +192,7 @@ var accountWizard = {
   populateProtoSpecificBox: function aw_populate() {
     var id = this.proto.id;
     var box = document.getElementById("protoSpecific");
-    var bundle = document.getElementById("prplbundle");
+    var bundle = document.getElementById("accountsBundle");
     document.getElementById("protoSpecificCaption").label =
       bundle.getFormattedString("protoOptions", [this.proto.name]);
     var child;
