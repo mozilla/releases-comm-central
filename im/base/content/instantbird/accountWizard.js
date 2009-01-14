@@ -102,7 +102,7 @@ var accountWizard = {
   hideUsernamePage: function aw_hideUsernamePage() {
     document.getElementById("accountWizard").canAdvance = true;
     var next = "account" +
-      (this.proto.noPassword ? "alias" : "password");
+      (this.proto.noPassword ? "advanced" : "password");
     document.getElementById("accountusername").next = next;
   },
 
