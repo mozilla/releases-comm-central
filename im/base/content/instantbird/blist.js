@@ -152,10 +152,14 @@ var buddyList = {
       return;
     }
 
-    if (aTopic == "buddy-signed-off" ||
-        (aTopic == "buddy-removed" && groupElt)) {
-      groupElt.signedOff(pab);
+    if (!groupElt) {
+      // Ignore weird signals from libpurple. These seem to come
+      // mostly from the oscar prpl.
+      return;
     }
+
+    if (aTopic == "buddy-signed-off" || aTopic == "buddy-removed")
+      groupElt.signedOff(pab);
 
     if (aTopic == "buddy-idle" || aTopic == "buddy-away")
       groupElt.updateBuddy(pab);
