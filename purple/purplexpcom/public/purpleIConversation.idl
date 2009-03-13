@@ -138,9 +138,8 @@ interface purpleIConvChatBuddy: nsISupports {
   /* The alias (FIXME: can this be non-null if buddy is null?) */
   readonly attribute AUTF8String alias;
 
-  /* The purpleIAccountBuddy of our buddy list associated with this chat buddy.
-     This can be null if the buddy is not in our buddy list */
-  readonly attribute purpleIAccountBuddy buddy;
+  /* Indicates if this chat buddy corresponds to a buddy in our buddy list */
+  readonly attribute boolean buddy;
 
   /* PurpleConvChatBuddyFlags flags; (ops, voice etc.) */
   readonly attribute boolean noFlags;
