@@ -16,6 +16,17 @@ pref("messenger.options.playSounds", true);
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
 
+#ifdef XP_WIN
+pref("browser.preferences.instantApply", false);
+#else
+pref("browser.preferences.instantApply", true);
+#endif
+#ifdef XP_MACOSX
+pref("browser.preferences.animateFadeIn", true);
+#else
+pref("browser.preferences.animateFadeIn", false);
+#endif
+
 pref("accessibility.typeaheadfind", false);
 pref("accessibility.typeaheadfind.timeout", 5000);
 pref("accessibility.typeaheadfind.linksonly", false);
