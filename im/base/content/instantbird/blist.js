@@ -108,7 +108,7 @@ var buddyList = {
         this.win = window.open(convWindow, "Conversations", "chrome,resizable");
         this.win.pendingNotifications = [{object: aBuddy, topic: aTopic, msg: aMsg}];
       }
-      else if (this.win.pendingNotifications)
+      else if ("pendingNotifications" in this.win)
         this.win.pendingNotifications.push({object: aBuddy, topic: aTopic, msg: aMsg});
 
       return;
