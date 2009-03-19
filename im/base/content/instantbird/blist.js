@@ -44,8 +44,8 @@ const events = ["buddy-signed-on",
                 "account-disconnected",
                 "new-text",
                 "new-conversation",
-                "away",
-                "back",
+                "status-away",
+                "status-back",
                 "purple-quit"];
 
 const autoJoinPref = "autoJoin";
@@ -59,7 +59,7 @@ var buddyList = {
       return;
     }
 
-    if (aTopic == "away") {
+    if (aTopic == "status-away") {
       // display the notification on the buddy list
       var nbox = document.getElementById("buddyListMsg");
       var notification = nbox.getNotificationWithValue("away-message");
@@ -85,7 +85,7 @@ var buddyList = {
       return;
     }
 
-    if (aTopic == "back") {
+    if (aTopic == "status-back") {
       var nbox = document.getElementById("buddyListMsg");
       var notification = nbox.getNotificationWithValue("away-message");
       if (notification)
