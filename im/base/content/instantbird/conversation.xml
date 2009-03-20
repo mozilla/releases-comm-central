@@ -136,6 +136,9 @@
          // Don't worry, the constructor of the findbar will set again the
          // browser property with a setTimeout call.
        }
+
+       if (!("cleanupImMarkup" in window))
+         Components.utils.import("resource://app/modules/imContentSink.jsm");
       ]]>
      </constructor>
 
@@ -198,7 +201,7 @@
           msgClass.push("nick");
         var txt = '<span class="date">' + time + '</span> ';
 
-        var msg = aMsg.message;
+        var msg = cleanupImMarkup(this.browser.contentDocument, aMsg.message);
         if (!aMsg.noLinkification) {
           msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
                           .getService(Ci.mozITXTToHTMLConv)

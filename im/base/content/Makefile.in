@@ -41,4 +41,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
+EXTRA_JS_MODULES = instantbird/imContentSink.jsm
+
 include $(topsrcdir)/config/rules.mk

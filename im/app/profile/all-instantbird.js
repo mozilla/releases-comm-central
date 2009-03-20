@@ -13,6 +13,13 @@ pref("messenger.accounts.promptOnDelete", true);
 pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
 
 pref("messenger.options.playSounds", true);
+
+// this preference changes how we filter incoming messages
+// 0 = no formattings
+// 1 = basic formattings (bold, italic, underlined)
+// 2 = permissive mode (colors, font face, font size, ...)
+pref("messenger.options.filterMode", 1);
+
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
 
