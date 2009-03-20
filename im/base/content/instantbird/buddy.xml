@@ -309,6 +309,8 @@
          var buddy = pcs.getBuddyById(this.buddyId);
          var conv;
          for (var id in this.accounts) {
+           // this will send a new-conversation notification that will force
+           // opening a conversation window if there isn't one around
            conv = this.accounts[id].createConversation();
            break;
          }
@@ -319,12 +321,6 @@
          if (convWindow) {
            convWindow.msgObserver.focusConv(conv);
            convWindow.focus();
-         }
-         else {
-           // the conversation window has been closed. Force reopening.
-           var os = Components.classes["@mozilla.org/observer-service;1"]
-                              .getService(Components.interfaces.nsIObserverService);
-           os.notifyObservers(conv, "new-conversation", null);
          }
        ]]>
       </body>
