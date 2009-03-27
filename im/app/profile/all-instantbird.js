@@ -20,6 +20,9 @@ pref("messenger.options.playSounds", true);
 // 2 = permissive mode (colors, font face, font size, ...)
 pref("messenger.options.filterMode", 1);
 
+// use "none" to disable
+pref("messenger.options.emoticonsTheme", "default");
+
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
 

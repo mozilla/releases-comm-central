@@ -117,8 +117,9 @@
        if (!sss.sheetRegistered(uri, sss.USER_SHEET))
          sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
 
-       var url = 'data:text/html,<html><head></head><body id="ibcontent"></body></html>';
-       browser.setAttribute("src", url);//"chrome://instantbird/content/conv.html"
+       //'data:text/html,<html><head></head><body id="ibcontent"></body></html>';
+       var url = "chrome://instantbird/content/conv.html";
+       browser.setAttribute("src", url);
        browser.addProgressListener(this);
 
        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
@@ -139,6 +140,8 @@
 
        if (!("cleanupImMarkup" in window))
          Components.utils.import("resource://app/modules/imContentSink.jsm");
+       if (!("smileImMarkup" in window))
+         Components.utils.import("resource://app/modules/imSmileys.jsm");
       ]]>
      </constructor>
 
@@ -208,6 +211,7 @@
                           .scanHTML(msg, 2)
                           .replace(/&amp;(apos|quot);/g, "&$1;");
         }
+        msg = smileImMarkup(this.browser.contentDocument, msg);
 
         var me = msg.match("^((<[^>]+>)*)/me (.*)$");
         if (!aMsg.system) {

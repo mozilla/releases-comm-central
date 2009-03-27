@@ -12,11 +12,11 @@
  * License.
  *
  * The Original Code is the Instantbird messenging client, released
- * 2007.
+ * 2009.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2007
+ * Portions created by the Initial Developer are Copyright (C) 2009
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,57 +35,44 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-.pseudo {
-  font-weight: bold;
-}
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://app/modules/imSmileys.jsm");
 
-.outgoing { 
-  color: rgb(80,80,200);
-}
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+const smileRegexp = /^smile:\/\//;
 
-.incoming { 
-  color: rgb(200,80,80);
-}
+function smileProtocolHandler() { }
 
-.date {
-  font-style: normal;
-  font-weight: normal;
-}
+smileProtocolHandler.prototype = {
+  scheme: "smile",
+  defaultPort: -1,
+  protocolFlags: Ci.nsIProtocolHandler.URI_NORELATIVE |
+                 Ci.nsIProtocolHandler.URI_NOAUTH |
+                 Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE |
+                 Ci.nsIProtocolHandler.URI_IS_LOCAL_RESOURCE,
+  newURI: function SPH_newURI(aSpec, aOriginCharset, aBaseURI) {
+    let uri = Cc["@mozilla.org/network/simple-uri;1"].createInstance(Ci.nsIURI);
+    uri.spec = aSpec;
+    uri.QueryInterface(Ci.nsIMutable);
+    uri.mutable = false;
+    return uri;
+  },
+  newChannel: function SPH_newChannel(aURI) {
+    let smile = aURI.spec.replace(smileRegexp, "");
+    let ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+    let channel = ios.newChannel(getSmileRealURI(smile), null, null);
+    channel.originalURI = aURI;
+    return channel;
+  },
+  allowPort: function  SPH_allowPort(aPort, aScheme) false,
 
-.system {
-  color: gray;
-}
+  classDescription: "Smile Protocol Handler",
+  classID: Components.ID("{04e58eae-dfbc-4c9e-8130-6d9ef19cbff4}"),
+  contractID: "@mozilla.org/network/protocol;1?name=smile",
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler])
+};
 
-.nick {
-  font-weight: bold;
-}
-
-.nick .pseudo {
-  text-decoration: underline;
-}
-
-.me{
-  font-style: italic;
-}
-
-p {
-  font-size: small;
-  font-family: Lucida Grande,Sans,sans-serif;
-  margin: 1px auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-p img {
-  margin-bottom: -3px;
-}
-
-p *:-moz-any-link img {
-  border: none;
-  border-bottom: solid 1px;
-  margin-bottom: -2px;
-}
-
-#welcome { 
-  text-align: center;
+function NSGetModule(aCompMgr, aFileSpec) {
+  return XPCOMUtils.generateModule([smileProtocolHandler]);
 }
