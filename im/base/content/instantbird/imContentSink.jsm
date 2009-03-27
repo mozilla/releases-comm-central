@@ -150,6 +150,7 @@ const kPermissiveMode = {
     'u': true,
     'span': true,
     'br': true,
+    'hr': true,
     'code': true,
     'ul': true,
     'li': true,
@@ -181,8 +182,7 @@ function initGlobalRuleset()
   gGlobalRuleset = newRuleset();
 
   Components.classes["@mozilla.org/preferences-service;1"]
-            .getService(Components.interfaces.nsIPrefService)
-            .QueryInterface(Components.interfaces.nsIPrefBranch2)
+            .getService(Components.interfaces.nsIPrefBranch2)
             .addObserver(modePref, styleObserver, false);
 }
 
