@@ -214,9 +214,11 @@ var buddyList = {
 
     try {
       // Set the Vendor for breakpad only
-      Components.classes["@mozilla.org/xre/app-info;1"]
-                .getService(Components.interfaces.nsICrashReporter)
-                .annotateCrashReport("Vendor", "Instantbird");
+      if ("nsICrashReporter" in Components.interfaces) {
+        Components.classes["@mozilla.org/xre/app-info;1"]
+                  .getService(Components.interfaces.nsICrashReporter)
+                  .annotateCrashReport("Vendor", "Instantbird");
+      }
     } catch(e) {
       // This can fail if breakpad isn't enabled,
       // don't worry too much about this exception.
