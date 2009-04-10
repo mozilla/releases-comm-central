@@ -1,0 +1,56 @@
+#Chat {
+  white-space: normal;
+}
+
+.pseudo {
+  font-weight: bold;
+}
+
+.outgoing .pseudo { 
+  color: rgb(80,80,200);
+}
+
+.incoming .pseudo { 
+  color: rgb(200,80,80);
+}
+
+.date {
+  font-style: normal;
+  font-weight: normal;
+}
+
+.event {
+  color: gray;
+}
+
+.nick {
+  font-weight: bold;
+}
+
+.nick .pseudo {
+  text-decoration: underline;
+}
+
+.action {
+  font-style: italic;
+}
+
+.action .says {
+  display: none;
+}
+
+p {
+  font-size: small;
+  font-family: Lucida Grande,Sans,sans-serif;
+  margin: 0px auto;
+}
+
+p img {
+  margin-bottom: -3px;
+}
+
+p *:-moz-any-link img {
+  border: none;
+  border-bottom: solid 1px;
+  margin-bottom: -2px;
+}

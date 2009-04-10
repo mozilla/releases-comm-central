@@ -114,3 +114,8 @@ classic.jar:
 	skin/winstripe/instantbird/smileys/bored.png             (smileys/bored.png)
 	skin/winstripe/instantbird/smileys/annoyed.png           (smileys/annoyed.png)
 	skin/winstripe/instantbird/smileys/big-eyes.png          (smileys/big-eyes.png)
+	skin/winstripe/instantbird/messages/Info.plist            (messages/Info.plist)
+	skin/winstripe/instantbird/messages/main.css              (messages/main.css)
+	skin/winstripe/instantbird/messages/Status.html           (messages/Status.html)
+	skin/winstripe/instantbird/messages/Incoming/Content.html (messages/Incoming/Content.html)
+	skin/winstripe/instantbird/messages/Variants/Normal.css   (messages/Variants/Normal.css)

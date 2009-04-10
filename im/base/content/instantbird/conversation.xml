@@ -142,6 +142,8 @@
          Components.utils.import("resource://app/modules/imContentSink.jsm");
        if (!("smileImMarkup" in window))
          Components.utils.import("resource://app/modules/imSmileys.jsm");
+       if (!("getCurrentTheme" in window))
+         Components.utils.import("resource://app/modules/imThemes.jsm");
       ]]>
      </constructor>
 
@@ -194,49 +196,28 @@
           // Return without doing anything.
           return;
         }
-        var time = aMsg.time;
-        var name = aMsg.alias ||aMsg.who;
 
-        var msgClass = [];
-        if (aMsg.system)
-          msgClass.push("system");
-        if (aMsg.containsNick)
-          msgClass.push("nick");
-        var txt = '<span class="date">' + time + '</span> ';
-
-        var msg = cleanupImMarkup(this.browser.contentDocument, aMsg.message);
+        let doc = this.browser.contentDocument;
+        let msg = cleanupImMarkup(doc, aMsg.message);
         if (!aMsg.noLinkification) {
           msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
                           .getService(Ci.mozITXTToHTMLConv)
                           .scanHTML(msg, 2)
                           .replace(/&amp;(apos|quot);/g, "&$1;");
         }
-        msg = smileImMarkup(this.browser.contentDocument, msg);
+        // FIXME simplify the /me replacement, we don't need the test anymore
+        let me = msg.match("^((<[^>]+>)*)/me (.*)$");
+        msg = (me ? me[1] + me[3] : msg).replace(/\n/g, "<br/>");
+        aMsg.message = smileImMarkup(doc, msg);
+        let html = getHTMLForMessage(aMsg, this.theme);
 
-        var me = msg.match("^((<[^>]+>)*)/me (.*)$");
-        if (!aMsg.system) {
-          var pseudoClass = "pseudo";
-          var color = "";
-          if (aMsg.incoming) {
-            if (conv instanceof Ci.purpleIConvChat)
-              color = " style=\"color: hsl(" + this.buddies[name].color + ", 100%, 50%)\"";
-            else
-              pseudoClass += " incoming";
-          }
-          else
-            if (aMsg.outgoing)
-              pseudoClass += " outgoing";
+        // FIXME: temporary hack
+        let color = "";
+        if (!aMsg.system && aMsg.incoming && (conv instanceof Ci.purpleIConvChat))
+          color = "color: hsl( " + this.buddies[aMsg.alias || aMsg.who].color + ", 100%, 50%)";
+        html = html.replace(/%senderColor%/g, color);
 
-          txt += '<span class="' + pseudoClass + '"' + color + '>' + name +
-                 (aMsg.autoResponse ? '&lt;' + 'Auto-Reply' + '&gt;': '') +
-                 (me ? '</span> ' : ':</span> ');
-        }
-
-        txt += (me ? me[1] + me[3] : msg).replace(/\n/g, "<br/>");
-        if (me)
-          msgClass.push("me");
-
-        this._addTxt(txt, msgClass.join(" "));
+        this._addTxt(html);
 
         if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
           if (conv instanceof Ci.purpleIConvChat && aMsg.containsNick)
@@ -250,22 +231,16 @@
 
      <method name="_addTxt">
       <parameter name="aTxt"/>
-      <parameter name="aClass"/>
       <body>
       <![CDATA[
         if (!this.loaded)
           throw "Trying to append text to a not yet loaded browser";
 
-        var browser = this.browser;
-        var doc = browser.contentDocument;
-        var elt = doc.getElementById("ibcontent");
-        var newElt = doc.createElement("p");
-        newElt.innerHTML = aTxt;
-        newElt.className = aClass;
-        newElt.setAttribute("aria-live", "polite");
-        var shouldScroll = this.lastElement ||
+        let doc = this.browser.contentDocument;
+        let elt = doc.getElementsByTagName("body")[0];
+        let shouldScroll = this.lastElement ||
                            elt.scrollHeight <= elt.scrollTop + elt.clientHeight + 10;
-        elt.appendChild(newElt);
+        let newElt = appendHTMLtoNode(aTxt, doc.getElementById("Chat"));
         if (shouldScroll) {
           newElt.scrollIntoView(true);
           this.lastElement = newElt;
@@ -751,6 +726,8 @@
             (aStateFlags & WPL.STATE_STOP)) {
           var browser = this.browser;
           browser.removeProgressListener(this);
+          this.theme = getCurrentTheme();
+          initHTMLDocument(this.conv, this.theme, browser.contentDocument);
           this.loaded = true;
           for (var i = 0; i < this.messageQueue.length; ++i)
             this._addMsg(this.messageQueue[i]);

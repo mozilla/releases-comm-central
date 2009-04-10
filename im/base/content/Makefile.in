@@ -41,7 +41,7 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-EXTRA_JS_MODULES = instantbird/imContentSink.jsm instantbird/imSmileys.jsm
+EXTRA_JS_MODULES = instantbird/imContentSink.jsm instantbird/imSmileys.jsm instantbird/imThemes.jsm
 EXTRA_COMPONENTS = instantbird/smileProtocolHandler.js
 
 include $(topsrcdir)/config/rules.mk
