@@ -213,7 +213,7 @@ const headerFooterReplacements = {
 };
 
 const statusMessageReplacements = {
-  message: function(aMsg) aMsg.message,
+  message: function(aMsg) "<span class=\"ib-msg-txt\">" + aMsg.message + "</span>",
   time: function(aMsg, aFormat) aMsg.time,
   shortTime: function(aMsg, aFormat) "FIXME",
   messageClasses: function(aMsg) {

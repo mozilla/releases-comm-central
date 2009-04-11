@@ -35,12 +35,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-* {
+.ib-msg-txt {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
-*:-moz-any-link img {
+.ib-img-smile {
+  margin-bottom: -3px;
+}
+
+*:-moz-any-link .ib-img-smile {
   border: none;
   border-bottom: solid 1px;
+  margin-bottom: -2px;
 }

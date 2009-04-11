@@ -141,7 +141,7 @@ function getRegexp(aIconsHash)
 // unused. May be useful later to process a string instead of an HTML node
 function smileString(aString)
 {
-  const smileFormat = '<img src="smile://$1" alt="$1" title="$1"/>';
+  const smileFormat = '<img class="ib-img-smile" src="smile://$1" alt="$1" title="$1"/>';
   return aString.replace(getRegexp(), smileFormat);
 }
 
@@ -167,6 +167,7 @@ function smileNode(aNode)
         elt.setAttribute("src", "smile://" + smile);
         elt.setAttribute("title", smile);
         elt.setAttribute("alt", smile);
+        elt.setAttribute("class", "ib-img-smile");
         smileNode.parentNode.replaceChild(elt, smileNode);
         exp.lastIndex = 0;
       }
