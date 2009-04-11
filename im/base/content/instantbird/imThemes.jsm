@@ -328,12 +328,14 @@ function initHTMLDocument(aConv, aTheme, aDoc)
 
   // add the main CSS file of the theme
   let head = aDoc.getElementsByTagName("head")[0];
-  if (aTheme.metadata.MessageViewVersion >= 3)
+  let variant = "default"; // FIXME: get the right CSS variant from a pref
+  if (aTheme.metadata.MessageViewVersion >= 3 || variant == "default")
     head.appendChild(createCSSLinkElt(aDoc, "main.css"));
 
-  // FIXME: get the right CSS variant from a pref
-  let variant = "Variants/" + aTheme.metadata.DefaultVariant + ".css";
-  head.appendChild(createCSSLinkElt(aDoc, variant));
+  if (variant == "default" && "DefaultVariant" in aTheme.metadata) {
+    let defaultVariant = "Variants/" + aTheme.metadata.DefaultVariant + ".css";
+    head.appendChild(createCSSLinkElt(aDoc, defaultVariant));
+  }
 
   // We insert the whole content of body: header, chat div, footer
   let body = aDoc.getElementsByTagName("body")[0];
