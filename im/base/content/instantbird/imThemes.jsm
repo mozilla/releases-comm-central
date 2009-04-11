@@ -207,9 +207,9 @@ const headerFooterReplacements = {
   chatName: function(aConv) "",
   sourceName: function(aConv) "",
   destinationName: function(aConv) "",
-  incomingIconPath: function(aConv) "Incoming/buddy_icon.png",
-  outgoingIconPath: function(aConv) "Outgoing/buddy_icon.png",
-  timeOpened: function(aConv, aFormat) "Nan"
+  incomingIconPath: function(aConv) "incoming_icon.png",
+  outgoingIconPath: function(aConv) "outgoing_icon.png",
+  timeOpened: function(aConv, aFormat) (new Date()).toLocaleTimeString()
 };
 
 const statusMessageReplacements = {
@@ -260,7 +260,7 @@ const statusReplacements = {
   __proto__: statusMessageReplacements
 };
 
-const replacementRegExp = /%([^{}%]*)(\{(.*)\})?%/g;
+const replacementRegExp = /%([a-zA-Z]*)(\{(.*)\})?%/g;
 
 function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
 {
