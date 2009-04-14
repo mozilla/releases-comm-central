@@ -48,7 +48,7 @@ var account = {
     document.getElementById("accountName").value = this.account.name;
     document.getElementById("protocolName").value = this.proto.name;
     document.getElementById("protocolIcon").src =
-      "chrome://instantbird/skin/prpl/" + this.proto.id + "-48.png"
+      this.proto.iconBaseURI + "icon48.png"
 
     if (this.proto.noPassword)
       document.getElementById("passwordBox").hidden = true;

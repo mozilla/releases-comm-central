@@ -47,7 +47,7 @@ var accountWizard = {
     for (let proto in this.getProtocols()) {
       var id = proto.id;
       var item = protoList.appendItem(proto.name, id, id);
-      item.setAttribute("image", "chrome://instantbird/skin/prpl/" + id + ".png");
+      item.setAttribute("image", proto.iconBaseURI + "icon.png");
       item.setAttribute("class", "listitem-iconic");
     }
     // there is a strange selection bug without this timeout

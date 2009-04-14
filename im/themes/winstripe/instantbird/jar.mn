@@ -1,121 +1,133 @@
 classic.jar:
-% skin instantbird classic/1.0 %skin/winstripe/instantbird/
-	skin/winstripe/instantbird/account.css
-	skin/winstripe/instantbird/accountError.png
-*	skin/winstripe/instantbird/accounts.css
-*	skin/winstripe/instantbird/accountWizard.css
-	skin/winstripe/instantbird/away-16.png
-	skin/winstripe/instantbird/away.png
-	skin/winstripe/instantbird/founder.png
-	skin/winstripe/instantbird/operator.png
-	skin/winstripe/instantbird/half-operator.png
-	skin/winstripe/instantbird/voice.png
-	skin/winstripe/instantbird/blist.css
-	skin/winstripe/instantbird/conv.css
-*	skin/winstripe/instantbird/conversation.css
-*	skin/winstripe/instantbird/instantbird.css
-	skin/winstripe/instantbird/prpl/prpl-aim-32.png		(prpl/prpl-aim-32.png)
-	skin/winstripe/instantbird/prpl/prpl-aim-48.png		(prpl/prpl-aim-48.png)
-	skin/winstripe/instantbird/prpl/prpl-aim.png		(prpl/prpl-aim.png)
-	skin/winstripe/instantbird/prpl/prpl-bilboed-netsoul-32.png	(prpl/prpl-bilboed-netsoul-32.png)
-	skin/winstripe/instantbird/prpl/prpl-bilboed-netsoul-48.png	(prpl/prpl-bilboed-netsoul-48.png)
-	skin/winstripe/instantbird/prpl/prpl-bilboed-netsoul.png	(prpl/prpl-bilboed-netsoul.png)
+% skin instantbird classic/1.0 %skin/classic/instantbird/
+	skin/classic/instantbird/account.css
+	skin/classic/instantbird/accountError.png
+*	skin/classic/instantbird/accounts.css
+*	skin/classic/instantbird/accountWizard.css
+	skin/classic/instantbird/away-16.png
+	skin/classic/instantbird/away.png
+	skin/classic/instantbird/founder.png
+	skin/classic/instantbird/operator.png
+	skin/classic/instantbird/half-operator.png
+	skin/classic/instantbird/voice.png
+	skin/classic/instantbird/blist.css
+	skin/classic/instantbird/conv.css
+*	skin/classic/instantbird/conversation.css
+*	skin/classic/instantbird/instantbird.css
+	skin/classic/instantbird/prpl-generic/icon32.png	(prpl/prpl-generic-32.png)
+	skin/classic/instantbird/prpl-generic/icon48.png	(prpl/prpl-generic-48.png)
+	skin/classic/instantbird/prpl-generic/icon.png		(prpl/prpl-generic.png)
+% skin prpl-aim classic/1.0 %skin/classic/prpl/aim/
+	skin/classic/prpl/aim/icon32.png	(prpl/prpl-aim-32.png)
+	skin/classic/prpl/aim/icon48.png	(prpl/prpl-aim-48.png)
+	skin/classic/prpl/aim/icon.png		(prpl/prpl-aim.png)
+% skin prpl-gg classic/1.0 %skin/classic/prpl/gg/
+	skin/classic/prpl/gg/icon32.png		(prpl/prpl-gg-32.png)
+	skin/classic/prpl/gg/icon48.png		(prpl/prpl-gg-48.png)
+	skin/classic/prpl/gg/icon.png		(prpl/prpl-gg.png)
+% skin prpl-icq classic/1.0 %skin/classic/prpl/icq/
+	skin/classic/prpl/icq/icon32.png	(prpl/prpl-icq-32.png)
+	skin/classic/prpl/icq/icon48.png	(prpl/prpl-icq-48.png)
+	skin/classic/prpl/icq/icon.png		(prpl/prpl-icq.png)
+% skin prpl-irc classic/1.0 %skin/classic/prpl/irc/
+	skin/classic/prpl/irc/icon32.png	(prpl/prpl-irc-32.png)
+	skin/classic/prpl/irc/icon48.png	(prpl/prpl-irc-48.png)
+	skin/classic/prpl/irc/icon.png		(prpl/prpl-irc.png)
+% skin prpl-jabber classic/1.0 %skin/classic/prpl/jabber/
+	skin/classic/prpl/jabber/icon32.png	(prpl/prpl-jabber-32.png)
+	skin/classic/prpl/jabber/icon48.png	(prpl/prpl-jabber-48.png)
+	skin/classic/prpl/jabber/icon.png	(prpl/prpl-jabber.png)
+% skin prpl-msn classic/1.0 %skin/classic/prpl/msn/
+	skin/classic/prpl/msn/icon32.png	(prpl/prpl-msn-32.png)
+	skin/classic/prpl/msn/icon48.png	(prpl/prpl-msn-48.png)
+	skin/classic/prpl/msn/icon.png		(prpl/prpl-msn.png)
+% skin prpl-myspace classic/1.0 %skin/classic/prpl/myspace/
+	skin/classic/prpl/myspace/icon32.png	(prpl/prpl-myspace-32.png)
+	skin/classic/prpl/myspace/icon48.png	(prpl/prpl-myspace-48.png)
+	skin/classic/prpl/myspace/icon.png	(prpl/prpl-myspace.png)
+% skin prpl-novell classic/1.0 %skin/classic/prpl/novell/
+	skin/classic/prpl/novell/icon32.png	(prpl/prpl-novell-32.png)
+	skin/classic/prpl/novell/icon48.png	(prpl/prpl-novell-48.png)
+	skin/classic/prpl/novell/icon.png	(prpl/prpl-novell.png)
+% skin prpl-qq classic/1.0 %skin/classic/prpl/qq/
+	skin/classic/prpl/qq/icon32.png		(prpl/prpl-qq-32.png)
+	skin/classic/prpl/qq/icon48.png		(prpl/prpl-qq-48.png)
+	skin/classic/prpl/qq/icon.png		(prpl/prpl-qq.png)
+% skin prpl-simple classic/1.0 %skin/classic/prpl/simple/
+	skin/classic/prpl/simple/icon32.png	(prpl/prpl-simple-32.png)
+	skin/classic/prpl/simple/icon48.png	(prpl/prpl-simple-48.png)
+	skin/classic/prpl/simple/icon.png	(prpl/prpl-simple.png)
+% skin prpl-yahoo classic/1.0 %skin/classic/prpl/yahoo/
+	skin/classic/prpl/yahoo/icon32.png	(prpl/prpl-yahoo-32.png)
+	skin/classic/prpl/yahoo/icon48.png	(prpl/prpl-yahoo-48.png)
+	skin/classic/prpl/yahoo/icon.png	(prpl/prpl-yahoo.png)
+% skin prpl-bilboed-netsoul classic/1.0 %skin/classic/prpl/bilboed-netsoul/
+	skin/classic/prpl/bilboed-netsoul/icon32.png	(prpl/prpl-bilboed-netsoul-32.png)
+	skin/classic/prpl/bilboed-netsoul/icon48.png	(prpl/prpl-bilboed-netsoul-48.png)
+	skin/classic/prpl/bilboed-netsoul/icon.png	(prpl/prpl-bilboed-netsoul.png)
 #if 0
-	skin/winstripe/instantbird/prpl/prpl-bonjour-32.png	(prpl/prpl-bonjour-32.png)
-	skin/winstripe/instantbird/prpl/prpl-bonjour-48.png	(prpl/prpl-bonjour-48.png)
-	skin/winstripe/instantbird/prpl/prpl-bonjour.png	(prpl/prpl-bonjour.png)
+% skin prpl-google-talk classic/1.0 %skin/classic/prpl/google-talk/
+	skin/classic/prpl/google-talk/icon32.png	(prpl/prpl-google-talk-32.png)
+	skin/classic/prpl/google-talk/icon.png		(prpl/prpl-google-talk.png)
+% skin prpl-bonjour classic/1.0 %skin/classic/prpl/bonjour/
+	skin/classic/prpl/bonjour/icon32.png	(prpl/prpl-bonjour-32.png)
+	skin/classic/prpl/bonjour/icon48.png	(prpl/prpl-bonjour-48.png)
+	skin/classic/prpl/bonjour/icon.png	(prpl/prpl-bonjour.png)
+% skin prpl-meanwhile classic/1.0 %skin/classic/prpl/meanwhile/
+	skin/classic/prpl/meanwhile/icon32.png	(prpl/prpl-meanwhile-32.png)
+	skin/classic/prpl/meanwhile/icon48.png	(prpl/prpl-meanwhile-48.png)
+	skin/classic/prpl/meanwhile/icon.png	(prpl/prpl-meanwhile.png)
+% skin prpl-silc classic/1.0 %skin/classic/prpl/silc/
+	skin/classic/prpl/silc/icon32.png	(prpl/prpl-silc-32.png)
+	skin/classic/prpl/silc/icon48.png	(prpl/prpl-silc-48.png)
+	skin/classic/prpl/silc/icon.png		(prpl/prpl-silc.png)
+% skin prpl-zephyr classic/1.0 %skin/classic/prpl/zephyr/
+	skin/classic/prpl/zephyr/icon32.png	(prpl/prpl-zephyr-32.png)
+	skin/classic/prpl/zephyr/icon48.png	(prpl/prpl-zephyr-48.png)
+	skin/classic/prpl/zephyr/icon.png	(prpl/prpl-zephyr.png)
 #endif
-	skin/winstripe/instantbird/prpl/prpl-gg-32.png		(prpl/prpl-gg-32.png)
-	skin/winstripe/instantbird/prpl/prpl-gg-48.png		(prpl/prpl-gg-48.png)
-	skin/winstripe/instantbird/prpl/prpl-gg.png		(prpl/prpl-gg.png)
-#if 0
-	skin/winstripe/instantbird/prpl/prpl-google-talk-32.png	(prpl/prpl-google-talk-32.png)
-	skin/winstripe/instantbird/prpl/prpl-google-talk.png	(prpl/prpl-google-talk.png)
-#endif
-	skin/winstripe/instantbird/prpl/prpl-icq-32.png		(prpl/prpl-icq-32.png)
-	skin/winstripe/instantbird/prpl/prpl-icq-48.png		(prpl/prpl-icq-48.png)
-	skin/winstripe/instantbird/prpl/prpl-icq.png		(prpl/prpl-icq.png)
-	skin/winstripe/instantbird/prpl/prpl-irc-32.png		(prpl/prpl-irc-32.png)
-	skin/winstripe/instantbird/prpl/prpl-irc-48.png		(prpl/prpl-irc-48.png)
-	skin/winstripe/instantbird/prpl/prpl-irc.png		(prpl/prpl-irc.png)
-	skin/winstripe/instantbird/prpl/prpl-jabber-32.png	(prpl/prpl-jabber-32.png)
-	skin/winstripe/instantbird/prpl/prpl-jabber-48.png	(prpl/prpl-jabber-48.png)
-	skin/winstripe/instantbird/prpl/prpl-jabber.png		(prpl/prpl-jabber.png)
-#if 0
-	skin/winstripe/instantbird/prpl/prpl-meanwhile-32.png	(prpl/prpl-meanwhile-32.png)
-	skin/winstripe/instantbird/prpl/prpl-meanwhile-48.png	(prpl/prpl-meanwhile-48.png)
-	skin/winstripe/instantbird/prpl/prpl-meanwhile.png	(prpl/prpl-meanwhile.png)
-#endif
-	skin/winstripe/instantbird/prpl/prpl-msn-32.png		(prpl/prpl-msn-32.png)
-	skin/winstripe/instantbird/prpl/prpl-msn-48.png		(prpl/prpl-msn-48.png)
-	skin/winstripe/instantbird/prpl/prpl-msn.png		(prpl/prpl-msn.png)
-	skin/winstripe/instantbird/prpl/prpl-myspace-32.png	(prpl/prpl-myspace-32.png)
-	skin/winstripe/instantbird/prpl/prpl-myspace-48.png	(prpl/prpl-myspace-48.png)
-	skin/winstripe/instantbird/prpl/prpl-myspace.png	(prpl/prpl-myspace.png)
-	skin/winstripe/instantbird/prpl/prpl-novell-32.png	(prpl/prpl-novell-32.png)
-	skin/winstripe/instantbird/prpl/prpl-novell-48.png	(prpl/prpl-novell-48.png)
-	skin/winstripe/instantbird/prpl/prpl-novell.png		(prpl/prpl-novell.png)
-	skin/winstripe/instantbird/prpl/prpl-qq-32.png		(prpl/prpl-qq-32.png)
-	skin/winstripe/instantbird/prpl/prpl-qq-48.png		(prpl/prpl-qq-48.png)
-	skin/winstripe/instantbird/prpl/prpl-qq.png		(prpl/prpl-qq.png)
-#if 0
-	skin/winstripe/instantbird/prpl/prpl-silc-32.png	(prpl/prpl-silc-32.png)
-	skin/winstripe/instantbird/prpl/prpl-silc-48.png	(prpl/prpl-silc-48.png)
-	skin/winstripe/instantbird/prpl/prpl-silc.png		(prpl/prpl-silc.png)
-#endif
-	skin/winstripe/instantbird/prpl/prpl-simple-32.png	(prpl/prpl-simple-32.png)
-	skin/winstripe/instantbird/prpl/prpl-simple-48.png	(prpl/prpl-simple-48.png)
-	skin/winstripe/instantbird/prpl/prpl-simple.png		(prpl/prpl-simple.png)
-	skin/winstripe/instantbird/prpl/prpl-yahoo-32.png	(prpl/prpl-yahoo-32.png)
-	skin/winstripe/instantbird/prpl/prpl-yahoo-48.png	(prpl/prpl-yahoo-48.png)
-	skin/winstripe/instantbird/prpl/prpl-yahoo.png		(prpl/prpl-yahoo.png)
-#if 0
-	skin/winstripe/instantbird/prpl/prpl-zephyr-32.png	(prpl/prpl-zephyr-32.png)
-	skin/winstripe/instantbird/prpl/prpl-zephyr-48.png	(prpl/prpl-zephyr-48.png)
-	skin/winstripe/instantbird/prpl/prpl-zephyr.png		(prpl/prpl-zephyr.png)
-#endif
-	skin/winstripe/instantbird/sounds/alert.wav	(sounds/alert.wav)
-	skin/winstripe/instantbird/sounds/login.wav	(sounds/login.wav)
-	skin/winstripe/instantbird/sounds/logout.wav	(sounds/logout.wav)
-	skin/winstripe/instantbird/sounds/receive.wav	(sounds/receive.wav)
-	skin/winstripe/instantbird/sounds/send.wav	(sounds/send.wav)
-	skin/winstripe/instantbird/tabbrowser/tab-left-bkgnd.png	(tabbrowser/tab-left-bkgnd.png)
-	skin/winstripe/instantbird/tabbrowser/tab-left-hover.png	(tabbrowser/tab-left-hover.png)
-	skin/winstripe/instantbird/tabbrowser/tab-left.png		(tabbrowser/tab-left.png)
-	skin/winstripe/instantbird/tabbrowser/tab-middle-bkgnd.png	(tabbrowser/tab-middle-bkgnd.png)
-	skin/winstripe/instantbird/tabbrowser/tab-middle-hover.png	(tabbrowser/tab-middle-hover.png)
-	skin/winstripe/instantbird/tabbrowser/tab-middle.png		(tabbrowser/tab-middle.png)
-	skin/winstripe/instantbird/tabbrowser/tab-right-bkgnd.png	(tabbrowser/tab-right-bkgnd.png)
-	skin/winstripe/instantbird/tabbrowser/tab-right-hover.png	(tabbrowser/tab-right-hover.png)
-	skin/winstripe/instantbird/tabbrowser/tab-right.png		(tabbrowser/tab-right.png)
-	skin/winstripe/instantbird/smileys/theme.js              (smileys/theme.js)
-	skin/winstripe/instantbird/smileys/smile.png             (smileys/smile.png)
-	skin/winstripe/instantbird/smileys/smile-big.png         (smileys/smile-big.png)
-	skin/winstripe/instantbird/smileys/wink.png              (smileys/wink.png)
-	skin/winstripe/instantbird/smileys/tongue.png            (smileys/tongue.png)
-	skin/winstripe/instantbird/smileys/neutral.png           (smileys/neutral.png)
-	skin/winstripe/instantbird/smileys/thinking.png          (smileys/thinking.png)
-	skin/winstripe/instantbird/smileys/thinking2.png         (smileys/thinking2.png)
-	skin/winstripe/instantbird/smileys/confused.png          (smileys/confused.png)
-	skin/winstripe/instantbird/smileys/crying.png            (smileys/crying.png)
-	skin/winstripe/instantbird/smileys/sad.png               (smileys/sad.png)
-	skin/winstripe/instantbird/smileys/angry.png             (smileys/angry.png)
-	skin/winstripe/instantbird/smileys/shout.png             (smileys/shout.png)
-	skin/winstripe/instantbird/smileys/shock.png             (smileys/shock.png)
-	skin/winstripe/instantbird/smileys/shut-mouth.png        (smileys/shut-mouth.png)
-	skin/winstripe/instantbird/smileys/shy.png               (smileys/shy.png)
-	skin/winstripe/instantbird/smileys/embarrassed.png       (smileys/embarrassed.png)
-	skin/winstripe/instantbird/smileys/laugh.png             (smileys/laugh.png)
-	skin/winstripe/instantbird/smileys/cool.png              (smileys/cool.png)
-	skin/winstripe/instantbird/smileys/kiss.png              (smileys/kiss.png)
-	skin/winstripe/instantbird/smileys/love.png              (smileys/love.png)
-	skin/winstripe/instantbird/smileys/happy.png             (smileys/happy.png)
-	skin/winstripe/instantbird/smileys/embarrassed-laugh.png (smileys/embarrassed-laugh.png)
-	skin/winstripe/instantbird/smileys/bored.png             (smileys/bored.png)
-	skin/winstripe/instantbird/smileys/annoyed.png           (smileys/annoyed.png)
-	skin/winstripe/instantbird/smileys/big-eyes.png          (smileys/big-eyes.png)
-	skin/winstripe/instantbird/messages/Info.plist            (messages/Info.plist)
-	skin/winstripe/instantbird/messages/main.css              (messages/main.css)
-	skin/winstripe/instantbird/messages/Status.html           (messages/Status.html)
-	skin/winstripe/instantbird/messages/Incoming/Content.html (messages/Incoming/Content.html)
-	skin/winstripe/instantbird/messages/Variants/Normal.css   (messages/Variants/Normal.css)
+	skin/classic/instantbird/sounds/alert.wav	(sounds/alert.wav)
+	skin/classic/instantbird/sounds/login.wav	(sounds/login.wav)
+	skin/classic/instantbird/sounds/logout.wav	(sounds/logout.wav)
+	skin/classic/instantbird/sounds/receive.wav	(sounds/receive.wav)
+	skin/classic/instantbird/sounds/send.wav	(sounds/send.wav)
+	skin/classic/instantbird/tabbrowser/tab-left-bkgnd.png	(tabbrowser/tab-left-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tab-left-hover.png	(tabbrowser/tab-left-hover.png)
+	skin/classic/instantbird/tabbrowser/tab-left.png		(tabbrowser/tab-left.png)
+	skin/classic/instantbird/tabbrowser/tab-middle-bkgnd.png	(tabbrowser/tab-middle-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tab-middle-hover.png	(tabbrowser/tab-middle-hover.png)
+	skin/classic/instantbird/tabbrowser/tab-middle.png		(tabbrowser/tab-middle.png)
+	skin/classic/instantbird/tabbrowser/tab-right-bkgnd.png	(tabbrowser/tab-right-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tab-right-hover.png	(tabbrowser/tab-right-hover.png)
+	skin/classic/instantbird/tabbrowser/tab-right.png		(tabbrowser/tab-right.png)
+	skin/classic/instantbird/smileys/theme.js              (smileys/theme.js)
+	skin/classic/instantbird/smileys/smile.png             (smileys/smile.png)
+	skin/classic/instantbird/smileys/smile-big.png         (smileys/smile-big.png)
+	skin/classic/instantbird/smileys/wink.png              (smileys/wink.png)
+	skin/classic/instantbird/smileys/tongue.png            (smileys/tongue.png)
+	skin/classic/instantbird/smileys/neutral.png           (smileys/neutral.png)
+	skin/classic/instantbird/smileys/thinking.png          (smileys/thinking.png)
+	skin/classic/instantbird/smileys/thinking2.png         (smileys/thinking2.png)
+	skin/classic/instantbird/smileys/confused.png          (smileys/confused.png)
+	skin/classic/instantbird/smileys/crying.png            (smileys/crying.png)
+	skin/classic/instantbird/smileys/sad.png               (smileys/sad.png)
+	skin/classic/instantbird/smileys/angry.png             (smileys/angry.png)
+	skin/classic/instantbird/smileys/shout.png             (smileys/shout.png)
+	skin/classic/instantbird/smileys/shock.png             (smileys/shock.png)
+	skin/classic/instantbird/smileys/shut-mouth.png        (smileys/shut-mouth.png)
+	skin/classic/instantbird/smileys/shy.png               (smileys/shy.png)
+	skin/classic/instantbird/smileys/embarrassed.png       (smileys/embarrassed.png)
+	skin/classic/instantbird/smileys/laugh.png             (smileys/laugh.png)
+	skin/classic/instantbird/smileys/cool.png              (smileys/cool.png)
+	skin/classic/instantbird/smileys/kiss.png              (smileys/kiss.png)
+	skin/classic/instantbird/smileys/love.png              (smileys/love.png)
+	skin/classic/instantbird/smileys/happy.png             (smileys/happy.png)
+	skin/classic/instantbird/smileys/embarrassed-laugh.png (smileys/embarrassed-laugh.png)
+	skin/classic/instantbird/smileys/bored.png             (smileys/bored.png)
+	skin/classic/instantbird/smileys/annoyed.png           (smileys/annoyed.png)
+	skin/classic/instantbird/smileys/big-eyes.png          (smileys/big-eyes.png)
+	skin/classic/instantbird/messages/Info.plist            (messages/Info.plist)
+	skin/classic/instantbird/messages/main.css              (messages/main.css)
+	skin/classic/instantbird/messages/Status.html           (messages/Status.html)
+	skin/classic/instantbird/messages/Incoming/Content.html (messages/Incoming/Content.html)
+	skin/classic/instantbird/messages/Variants/Normal.css   (messages/Variants/Normal.css)

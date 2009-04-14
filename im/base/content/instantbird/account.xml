@@ -122,8 +122,7 @@
           this.removeAttribute("alias");
         var proto = aAccount.protocol;
         this.setAttribute("protocol", proto.name);
-        this.setAttribute("prplicon", "chrome://instantbird/skin/prpl/" +
-                                      proto.id + "-32.png");
+        this.setAttribute("prplicon", proto.iconBaseURI + "icon32.png");
         var state = "Unknown";
         if (this._account.connected) {
           state = "connected"

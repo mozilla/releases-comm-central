@@ -128,10 +128,9 @@
         else
           this.setAttribute("buddyHidden", "true");
         //this.setAttribute("id", "buddy" + this.buddyId);
-        this.prpl = aBuddy.getAccount(0).protocol.id;
-        this.setAttribute("accountName", aBuddy.getAccount(0).name);
-        this.setAttribute("iconPrpl", "chrome://instantbird/skin/prpl/" +
-                                      this.prpl + ".png");
+        let account = aBuddy.getAccount(0);
+        this.setAttribute("accountName", account.name);
+        this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
         this.accounts = { };
         // We don't call this.update yet because this.accounts is empty
       ]]>

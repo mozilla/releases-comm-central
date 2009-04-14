@@ -55,6 +55,10 @@ interface purpleIProtocol: nsISupports {
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String id;
 
+  // returns a chrome URI pointing to a folder that contains the files:
+  // icon.png icon32.png and icon48.png
+  readonly attribute AUTF8String iconBaseURI;
+
   // returns an enumerator on a purpleIPref array
   nsISimpleEnumerator getOptions();
 
