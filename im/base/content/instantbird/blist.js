@@ -224,6 +224,10 @@ var buddyList = {
       // don't worry too much about this exception.
     }
 
+    // add observers before we initialize libpurple, otherwise we may
+    // miss some notifications (this happened at least with the nullprpl)
+    addObservers(buddyList, events);
+
     if (!initPurpleCore()) {
       window.close();
       return;
@@ -231,7 +235,6 @@ var buddyList = {
 
     buddyList.checkNotDisconnected();
     buddyList.checkForIrcAccount();
-    addObservers(buddyList, events);
     this.addEventListener("unload", buddyList.unload, false);
   },
   unload: function bl_unload() {
