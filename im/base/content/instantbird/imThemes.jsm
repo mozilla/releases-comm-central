@@ -43,6 +43,7 @@ var EXPORTED_SYMBOLS = [
 ];
 
 const messagesStylePref = "messenger.options.messagesStyle";
+const messagesStyleVariantPref = "messenger.options.messagesStyleVariant";
 
 var gCurrentTheme = null;
 
@@ -185,16 +186,19 @@ function getChromeBaseURI(aThemeName)
 
 function getCurrentTheme()
 {
-  let name =
+  let prefs =
     Components.classes["@mozilla.org/preferences-service;1"]
               .getService(Components.interfaces.nsIPrefBranch)
-              .getCharPref(messagesStylePref);
-  if (gCurrentTheme && gCurrentTheme.name == name)
+  let name = prefs.getCharPref(messagesStylePref);
+  let variant = prefs.getCharPref(messagesStyleVariantPref);
+  if (gCurrentTheme && gCurrentTheme.name == name &&
+      gCurrentTheme.variant == variant)
     return gCurrentTheme;
 
   let baseURI = getChromeBaseURI(name);
   gCurrentTheme = {
     name: name,
+    variant: variant,
     baseURI: baseURI,
     metadata: getInfoPlistContent(baseURI),
     html: new HTMLTheme(baseURI)
@@ -308,13 +312,13 @@ function appendHTMLtoNode(aHTML, aNode)
   return result;
 }
 
-function createCSSLinkElt(aDoc, aHref)
+function addCSS(aHead, aHref)
 {
-  let elt = aDoc.createElement("link");
+  let elt = aHead.ownerDocument.createElement("link");
   elt.type = "text/css";
   elt.rel = "stylesheet";
   elt.href = aHref;
-  return elt;
+  aHead.appendChild(elt);
 }
 
 function initHTMLDocument(aConv, aTheme, aDoc)
@@ -326,16 +330,18 @@ function initHTMLDocument(aConv, aTheme, aDoc)
                       .newURI(aTheme.baseURI, null, null);
   aConv.setBaseURI(aDoc, uri);
 
-  // add the main CSS file of the theme
   let head = aDoc.getElementsByTagName("head")[0];
-  let variant = "default"; // FIXME: get the right CSS variant from a pref
-  if (aTheme.metadata.MessageViewVersion >= 3 || variant == "default")
-    head.appendChild(createCSSLinkElt(aDoc, "main.css"));
 
-  if (variant == "default" && "DefaultVariant" in aTheme.metadata) {
-    let defaultVariant = "Variants/" + aTheme.metadata.DefaultVariant + ".css";
-    head.appendChild(createCSSLinkElt(aDoc, defaultVariant));
-  }
+  // add the main CSS file of the theme
+  if (aTheme.metadata.MessageViewVersion >= 3 || aTheme.variant == "default")
+    addCSS(head, "main.css");
+
+  // add the CSS file of the variant
+  if (aTheme.variant != "default")
+    addCSS(head, "Variants/" + aTheme.variant + ".css");
+  else
+    if ("DefaultVariant" in aTheme.metadata)
+      addCSS(head, "Variants/" + aTheme.metadata.DefaultVariant + ".css");
 
   // We insert the whole content of body: header, chat div, footer
   let body = aDoc.getElementsByTagName("body")[0];

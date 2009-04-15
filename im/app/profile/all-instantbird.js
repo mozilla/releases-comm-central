@@ -23,6 +23,7 @@ pref("messenger.options.filterMode", 1);
 // use "none" to disable
 pref("messenger.options.emoticonsTheme", "default");
 pref("messenger.options.messagesStyle", "default");
+pref("messenger.options.messagesStyleVariant", "default");
 
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
