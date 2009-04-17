@@ -158,6 +158,7 @@
 
      <field name="loaded">false</field>
      <field name="messageQueue">[]</field>
+     <field name="_lastMessage">null</field>
      <field name="_statusText">""</field>
 
      <!-- This is used when we want to remove close the conversation binding
@@ -209,7 +210,8 @@
         let me = msg.match("^((<[^>]+>)*)/me (.*)$");
         msg = (me ? me[1] + me[3] : msg).replace(/\n/g, "<br/>");
         aMsg.message = smileImMarkup(doc, msg);
-        let html = getHTMLForMessage(aMsg, this.theme);
+        let next = isNextMessage(aMsg, this._lastMessage);
+        let html = getHTMLForMessage(aMsg, this.theme, next);
 
         // FIXME: temporary hack
         let color = "";
@@ -217,7 +219,8 @@
           color = "color: hsl( " + this.buddies[aMsg.alias || aMsg.who].color + ", 100%, 50%)";
         html = html.replace(/%senderColor%/g, color);
 
-        this._addTxt(html);
+        this._addTxt(html, next);
+        this._lastMessage = aMsg;
 
         if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
           if (conv instanceof Ci.purpleIConvChat && aMsg.containsNick)
@@ -231,6 +234,7 @@
 
      <method name="_addTxt">
       <parameter name="aTxt"/>
+      <parameter name="aIsNext"/>
       <body>
       <![CDATA[
         if (!this.loaded)
@@ -240,7 +244,7 @@
         let elt = doc.getElementsByTagName("body")[0];
         let shouldScroll = this.lastElement ||
                            elt.scrollHeight <= elt.scrollTop + elt.clientHeight + 10;
-        let newElt = appendHTMLtoNode(aTxt, doc.getElementById("Chat"));
+        let newElt = insertHTMLForMessage(aTxt, doc, aIsNext);
         if (shouldScroll) {
           newElt.scrollIntoView(true);
           this.lastElement = newElt;

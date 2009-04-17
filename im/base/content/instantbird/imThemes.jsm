@@ -38,7 +38,8 @@
 var EXPORTED_SYMBOLS = [
   "getCurrentTheme",
   "getHTMLForMessage",
-  "appendHTMLtoNode",
+  "isNextMessage",
+  "insertHTMLForMessage",
   "initHTMLDocument"
 ];
 
@@ -286,7 +287,15 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
   return result + aHTML.slice(previousIndex);
 }
 
-function getHTMLForMessage(aMsg, aTheme)
+function isNextMessage(aMsg, aPreviousMsg)
+{
+  return (aPreviousMsg && !aMsg.system &&
+          ((aMsg.outgoing && aPreviousMsg.outgoing) ||
+           (aMsg.incoming && aPreviousMsg.incoming &&
+            aMsg.who == aPreviousMsg.who)));
+}
+
+function getHTMLForMessage(aMsg, aTheme, aIsNext)
 {
   let html, replacements;
   if (aMsg.system) {
@@ -294,8 +303,12 @@ function getHTMLForMessage(aMsg, aTheme)
     replacements = statusReplacements;
   }
   else {
-    html = aMsg.incoming ? aTheme.html.incomingContent
-                         : aTheme.html.outgoingContent
+    if (aIsNext)
+      html = aMsg.incoming ? aTheme.html.incomingNextContent
+                           : aTheme.html.outgoingNextContent
+    else  
+      html = aMsg.incoming ? aTheme.html.incomingContent
+                           : aTheme.html.outgoingContent
     replacements = messageReplacements;
   }
 
@@ -309,6 +322,26 @@ function appendHTMLtoNode(aHTML, aNode)
   let documentFragment = range.createContextualFragment(aHTML);
   let result = documentFragment.firstChild;
   aNode.appendChild(documentFragment);
+  return result;
+}
+
+function insertHTMLForMessage(aHTML, aDoc, aIsNext)
+{
+  let insert = aDoc.getElementById("insert");
+  if (insert && !aIsNext) {
+    insert.parentNode.removeChild(insert);
+    insert = null;
+  }
+
+  let range = aDoc.createRange();
+  let parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
+  range.selectNode(parent);
+  let documentFragment = range.createContextualFragment(aHTML);
+  let result = documentFragment.firstChild;
+  if (insert)
+    parent.replaceChild(documentFragment, insert);
+  else
+    parent.appendChild(documentFragment);
   return result;
 }
 
