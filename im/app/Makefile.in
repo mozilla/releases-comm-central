@@ -166,7 +166,15 @@ include $(topsrcdir)/config/config.mk
 ifdef _MSC_VER
 # Always enter a Windows program through wmain, whether or not we're
 # a console application.
+ifdef WINCE
+WIN32_EXE_LDFLAGS += -ENTRY:mainWCRTStartup
+else
 WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
+endif
+endif
+
+ifdef WINCE
+EXTRA_DSO_LDOPTS += $(call EXPAND_LIBNAME,corelibc)
 endif
 
 ifndef BUILD_STATIC_LIBS
@@ -291,7 +299,7 @@ libs::
 	$(INSTALL) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
 endif
 
-ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
+ifneq (,$(filter-out WINNT WINCE Darwin,$(OS_ARCH)))
 instantbird:: mozilla.in Makefile.in Makefile $(DEPTH)/config/autoconf.mk
 	cat $< | sed -e "s|%MOZAPPDIR%|$(mozappdir)|" \
 		-e "s|%MREDIR%|$(mredir)|" \
