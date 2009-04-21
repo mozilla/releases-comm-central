@@ -210,7 +210,7 @@
         let me = msg.match("^((<[^>]+>)*)/me (.*)$");
         msg = (me ? me[1] + me[3] : msg).replace(/\n/g, "<br/>");
         aMsg.message = smileImMarkup(doc, msg);
-        let next = isNextMessage(aMsg, this._lastMessage);
+        let next = isNextMessage(this.theme, aMsg, this._lastMessage);
         let html = getHTMLForMessage(aMsg, this.theme, next);
 
         // FIXME: temporary hack

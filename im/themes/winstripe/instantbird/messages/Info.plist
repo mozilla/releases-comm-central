@@ -16,10 +16,6 @@
 	<string>AdIM</string>
 	<key>DefaultBackgroundColor</key>
 	<string>FFFFFF</string>
-	<key>DefaultFontFamily</key>
-	<string>Lucida Grande</string>
-	<key>DefaultFontSize</key>
-	<integer>10</integer>
 	<key>DefaultVariant</key>
 	<string>Normal</string>
 	<key>DisableCustomBackground</key>

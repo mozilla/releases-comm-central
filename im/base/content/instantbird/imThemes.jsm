@@ -43,8 +43,11 @@ var EXPORTED_SYMBOLS = [
   "initHTMLDocument"
 ];
 
-const messagesStylePref = "messenger.options.messagesStyle";
-const messagesStyleVariantPref = "messenger.options.messagesStyleVariant";
+const messagesStylePrefBranch = "messenger.options.messagesStyle.";
+const themePref = "theme";
+const variantPref = "variant";
+const showHeaderPref = "showHeader";
+const combineConsecutivePref = "combineConsecutive";
 
 var gCurrentTheme = null;
 
@@ -189,9 +192,10 @@ function getCurrentTheme()
 {
   let prefs =
     Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch)
-  let name = prefs.getCharPref(messagesStylePref);
-  let variant = prefs.getCharPref(messagesStyleVariantPref);
+              .getService(Components.interfaces.nsIPrefService)
+              .getBranch(messagesStylePrefBranch);
+  let name = prefs.getCharPref(themePref);
+  let variant = prefs.getCharPref(variantPref);
   if (gCurrentTheme && gCurrentTheme.name == name &&
       gCurrentTheme.variant == variant)
     return gCurrentTheme;
@@ -202,7 +206,9 @@ function getCurrentTheme()
     variant: variant,
     baseURI: baseURI,
     metadata: getInfoPlistContent(baseURI),
-    html: new HTMLTheme(baseURI)
+    html: new HTMLTheme(baseURI),
+    showHeader: prefs.getBoolPref(showHeaderPref),
+    combineConsecutive: prefs.getBoolPref(combineConsecutivePref)
   };
 
   return gCurrentTheme;
@@ -287,8 +293,13 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
   return result + aHTML.slice(previousIndex);
 }
 
-function isNextMessage(aMsg, aPreviousMsg)
+function isNextMessage(aTheme, aMsg, aPreviousMsg)
 {
+  if (!aTheme.combineConsecutive ||
+      ("DisableCombineConsecutive" in aTheme.metadata &&
+       aTheme.metadata.DisableCombineConsecutive))
+    return false;
+
   return (aPreviousMsg && !aMsg.system &&
           ((aMsg.outgoing && aPreviousMsg.outgoing) ||
            (aMsg.incoming && aPreviousMsg.incoming &&
@@ -365,6 +376,15 @@ function initHTMLDocument(aConv, aTheme, aDoc)
 
   let head = aDoc.getElementsByTagName("head")[0];
 
+  // add css to handle DefaultFontFamily and DefaultFontSize
+  let cssText = "";
+  if ("DefaultFontFamily" in aTheme.metadata)
+    cssText += "font-family: " + aTheme.metadata.DefaultFontFamily + ";";
+  if ("DefaultFontSize" in aTheme.metadata)
+    cssText += "font-size: " + aTheme.metadata.DefaultFontSize + ";";
+  if (cssText)
+    addCSS(head, "data:text/css,*{ " + cssText + " }");
+
   // add the main CSS file of the theme
   if (aTheme.metadata.MessageViewVersion >= 3 || aTheme.variant == "default")
     addCSS(head, "main.css");
@@ -378,13 +398,15 @@ function initHTMLDocument(aConv, aTheme, aDoc)
 
   // We insert the whole content of body: header, chat div, footer
   let body = aDoc.getElementsByTagName("body")[0];
-  let html = replaceKeywordsInHTML(aTheme.html.header,
-                                   headerFooterReplacements, aConv);
-  appendHTMLtoNode(html, body);
+  if (aTheme.showHeader) {
+    let html = replaceKeywordsInHTML(aTheme.html.header,
+                                     headerFooterReplacements, aConv);
+    appendHTMLtoNode(html, body);
+  }
   let chat = aDoc.createElement("div");
   chat.id = "Chat";
   body.appendChild(chat);
-  html = replaceKeywordsInHTML(aTheme.html.footer,
-                               headerFooterReplacements, aConv);
+  let html = replaceKeywordsInHTML(aTheme.html.footer,
+                                   headerFooterReplacements, aConv);
   appendHTMLtoNode(html, body);
 }
