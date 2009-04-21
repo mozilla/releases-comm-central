@@ -117,7 +117,7 @@ function getTheme()
   return gTheme;
 }
 
-function getRegexp(aIconsHash)
+function getRegexp()
 {
   let theme = getTheme();
   if (theme.regExp) {
