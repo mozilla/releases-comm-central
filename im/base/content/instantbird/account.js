@@ -46,7 +46,7 @@ var account = {
     this.account = window.arguments[0];
     this.proto = this.account.protocol;
     document.getElementById("accountName").value = this.account.name;
-    document.getElementById("protocolName").value = this.proto.name;
+    document.getElementById("protocolName").value = this.proto.name || this.proto.id;
     document.getElementById("protocolIcon").src =
       this.proto.iconBaseURI + "icon48.png"
 
@@ -206,6 +206,8 @@ var account = {
         throw "unknown preference type " + opt.type;
       }
     }
+    if (!gbox.firstChild)
+      document.getElementById("advancedTab").hidden = true;
   },
 
   getValue: function account_getValue(aId) {

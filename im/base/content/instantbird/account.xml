@@ -238,7 +238,15 @@
         var bundle = document.getElementById("accountsBundle");
         const key = "account.connection.error";
         var account = this._account;
-        var text = account.connectionErrorMessage;
+        var text;
+        if (account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL) {
+          document.getAnonymousElementByAttribute(this, "anonid", "connect")
+                  .setAttribute("disabled", "true");
+          text = bundle.getFormattedString(key + "UnknownPrpl",
+                                           [account.protocol.id]);
+        }
+        else
+          text = account.connectionErrorMessage;
         text = bundle.getFormattedString(key, [text]);
 
         this.setAttribute("error", "true");
