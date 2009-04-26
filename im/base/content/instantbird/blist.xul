@@ -70,8 +70,8 @@
 
   <keyset id="mainkeyset">
     <key id="accountsetup" key="&account.commandkey;" command="accountmanager" modifiers="accel"/>
+    <key id="errorConsoleKey" key="&errorConsoleCmd.commandkey;" oncommand="menus.errors();" modifiers="accel,shift"/>
   </keyset>
-
 
   <menubar id="blistMenubar">
     <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
@@ -87,6 +87,7 @@
         <menuitem id="soundsMenuItem" label="&sounds;" oncommand="menus.toggleSounds()" type="checkbox"/>
         <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
         <menuseparator/>
+        <menuitem id="errorConsoleMenuItem" label="&errorConsoleCmd.label;" oncommand="menus.errors()" key="errorConsoleKey" accesskey="&errorConsoleCmd.accesskey;"/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
         <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
       </menupopup>

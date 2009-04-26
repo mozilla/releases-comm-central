@@ -8,7 +8,6 @@
   <menubar id="blistMenubar">
     <menu label="Debug" id="debugMenu" insertafter="toolsMenu">
       <menupopup>
-        <menuitem id="errorConsoleMenuItem" label="Error Console" oncommand="debug.errors()"/>
         <menuitem id="domiMenuItem" label="DOM Inspector" oncommand="debug.inspector()"/>
         <menuitem id="venkmanMenuItem" label="Venkman" oncommand="debug.venkman()"/>
         <menuseparator/>

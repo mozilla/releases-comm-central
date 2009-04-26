@@ -42,6 +42,7 @@ const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 const joinChatWindow = "chrome://instantbird/content/joinchat.xul";
 const aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
 const convWindow = "chrome://instantbird/content/instantbird.xul";
+const errorConsoleWindow = "chrome://global/content/console.xul";
 
 var menus = {
   focus: function menu_focus(aWindowType) {
@@ -69,6 +70,12 @@ var menus = {
     if (!this.focus("Extension:Manager"))
       window.open(addonManagerWindow, "Addons",
                   "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
+  },
+
+  errors: function debug_errors() {
+    if (!menus.focus("global:console"))
+      window.open(errorConsoleWindow, "Errors",
+                  "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
   },
 
   updates: function menu_updates() {

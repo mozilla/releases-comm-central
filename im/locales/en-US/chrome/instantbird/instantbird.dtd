@@ -19,6 +19,10 @@
 <!ENTITY conversation.contextMenu.close "Close Tab">
 <!ENTITY chat.participants  "Participants:">
 
+<!ENTITY errorConsoleCmd.label        "Error Console">
+<!ENTITY errorConsoleCmd.accesskey    "C">
+<!ENTITY errorConsoleCmd.commandkey   "j">
+
 <!ENTITY textEnlarge.commandkey   "+">
 <!ENTITY textEnlarge.commandkey2  "=">
 <!ENTITY textEnlarge.commandkey3  "">

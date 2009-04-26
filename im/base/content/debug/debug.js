@@ -1,4 +1,3 @@
-const errorConsoleWindow = "chrome://global/content/console.xul";
 const configWindow = "chrome://global/content/config.xul";
 
 // For Venkman
@@ -11,12 +10,6 @@ function toOpenWindowByType(inType, uri) {
 // End { For Venkman }
 
 var debug = {
-  errors: function debug_errors() {
-    if (!menus.focus("global:console"))
-      window.open(errorConsoleWindow, "Errors",
-                  "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
-  },
-
   config: function debug_config() {
     if (!menus.focus("Preferences:ConfigManager"))
       window.open(configWindow, "Config",
