@@ -53,7 +53,7 @@ var msgObserver = {
     case "new-text":
       aObject.QueryInterface(Ci.purpleIMessage);
       var conv = aObject.conversation;
-      var tab = this.convs[conv.id] || this.addConvTab(conv, conv.name);
+      var tab = this.convs[conv.id] || this.addConvTab(conv);
       if (!tab.loaded) // until we can load all messages from a conversation
         tab.addMsg(aObject);
 
@@ -65,7 +65,7 @@ var msgObserver = {
 
     case "new-conversation":
       aObject.QueryInterface(Ci.purpleIConversation);
-      this.addConvTab(aObject, aObject.name);
+      this.addConvTab(aObject);
       break;
 
     default:
@@ -73,7 +73,7 @@ var msgObserver = {
     }
   },
 
-  addConvTab: function mo_addConvTab(aConv, aTitle) {
+  addConvTab: function mo_addConvTab(aConv) {
     if (aConv.id in this.convs)
       return this.convs[aConv.id];
 
@@ -83,8 +83,11 @@ var msgObserver = {
 
     var tabs = document.getElementById("tabs");
     var tab = document.createElement("convtab");
-    tab.tooltipText = aTitle;
-    tab.setAttribute("label", aTitle.replace(/@.*/, ""));
+    tab.tooltipText = aConv.name;
+    let title = aConv.title
+                     .replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1")
+                     .replace(/(.{15}).*/, "$1...");
+    tab.setAttribute("label", title);
     tabs.appendChild(tab);
     if (!tabs.selectedItem)
       tabs.selectedItem = tab;
@@ -100,7 +103,7 @@ var msgObserver = {
     if (!(id in this.convs)) {
       // We only support a single chat window ATM so we can safely
       // re-add a closed conversation tab
-      this.addConvTab(aConv, aConv.name);
+      this.addConvTab(aConv);
       if (!(id in this.convs))
         throw "Can't find the conversation, even after trying to add it again!";
     }

@@ -663,7 +663,7 @@
           this.tab.removeAttribute("typed");
           this._statusText = "";
 
-          var name = this._conv.name.replace(/@.*/, "");
+          var name = this._conv.title.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
           if (typingState == Ci.purpleIConvIM.TYPING) {
             this.tab.setAttribute("typing", "true");
             this._statusText = name + " is typing.";
