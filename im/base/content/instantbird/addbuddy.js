@@ -51,7 +51,7 @@ var addBuddy = {
         continue;
       var proto = acc.protocol;
       var item = accountList.appendItem(acc.name, acc.id, proto.name);
-      item.setAttribute("image", "chrome://instantbird/skin/prpl/" + proto.id + ".png");
+      item.setAttribute("image", proto.iconBaseURI + "icon.png");
       item.setAttribute("class", "menuitem-iconic");
     }
     if (!accountList.itemCount) {
