@@ -20,7 +20,7 @@ instantbird.jar:
 	content/instantbird/core.js		(instantbird/core.js)
 *	content/instantbird/conversation.xml	(instantbird/conversation.xml)
 	content/instantbird/conv.html		(instantbird/conv.html)
-	content/instantbird/credits.xhtml	(instantbird/credits.xhtml)
+*	content/instantbird/credits.xhtml	(instantbird/credits.xhtml)
 	content/instantbird/group.xml		(instantbird/group.xml)
 	content/instantbird/instantbird.css	(instantbird/instantbird.css)
 	content/instantbird/instantbird.js	(instantbird/instantbird.js)
