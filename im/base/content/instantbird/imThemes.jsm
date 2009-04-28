@@ -48,6 +48,7 @@ const themePref = "theme";
 const variantPref = "variant";
 const showHeaderPref = "showHeader";
 const combineConsecutivePref = "combineConsecutive";
+const combineConsecutiveIntervalPref = "combineConsecutiveInterval";
 
 var gCurrentTheme = null;
 
@@ -208,7 +209,8 @@ function getCurrentTheme()
     metadata: getInfoPlistContent(baseURI),
     html: new HTMLTheme(baseURI),
     showHeader: prefs.getBoolPref(showHeaderPref),
-    combineConsecutive: prefs.getBoolPref(combineConsecutivePref)
+    combineConsecutive: prefs.getBoolPref(combineConsecutivePref),
+    combineConsecutiveInterval: prefs.getIntPref(combineConsecutiveIntervalPref)
   };
 
   return gCurrentTheme;
@@ -305,10 +307,15 @@ function isNextMessage(aTheme, aMsg, aPreviousMsg)
        aTheme.metadata.DisableCombineConsecutive))
     return false;
 
-  return (aPreviousMsg && !aMsg.system &&
-          ((aMsg.outgoing && aPreviousMsg.outgoing) ||
-           (aMsg.incoming && aPreviousMsg.incoming &&
-            aMsg.who == aPreviousMsg.who)));
+  if (!aPreviousMsg || aMsg.system ||
+      aMsg.outgoing != aPreviousMsg.outgoing ||
+      aMsg.incoming != aPreviousMsg.incoming ||
+      aMsg.who != aPreviousMsg.who)
+    return false;
+
+  let timeDifference = aMsg.time - aPreviousMsg.time;
+  return (timeDifference >= 0 &&
+          timeDifference <= aTheme.combineConsecutiveInterval);
 }
 
 function getHTMLForMessage(aMsg, aTheme, aIsNext)

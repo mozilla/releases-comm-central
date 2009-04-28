@@ -26,6 +26,9 @@ pref("messenger.options.messagesStyle.theme", "default");
 pref("messenger.options.messagesStyle.variant", "default");
 pref("messenger.options.messagesStyle.showHeader", false);
 pref("messenger.options.messagesStyle.combineConsecutive", true);
+// if the time interval in seconds between two messages is longer than
+// this value, the messages will not be combined
+pref("messenger.options.messagesStyle.combineConsecutiveInterval", 300); // 5 minutes
 
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
