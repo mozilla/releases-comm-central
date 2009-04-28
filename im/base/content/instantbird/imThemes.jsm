@@ -225,8 +225,13 @@ const headerFooterReplacements = {
 
 const statusMessageReplacements = {
   message: function(aMsg) "<span class=\"ib-msg-txt\">" + aMsg.message + "</span>",
-  time: function(aMsg, aFormat) aMsg.time,
-  shortTime: function(aMsg, aFormat) "FIXME",
+  time: function(aMsg, aFormat) {
+    let date = new Date(aMsg.time * 1000);
+    if (aFormat)
+      return date.toLocaleFormat(aFormat);
+    return date.toLocaleTimeString();
+  },
+  shortTime: function(aMsg) (new Date(aMsg.time * 1000)).toLocaleTimeString(),
   messageClasses: function(aMsg) {
     let msgClass = [];
     if (/^(<[^>]+>)*\/me /.test(aMsg.originalMessage))

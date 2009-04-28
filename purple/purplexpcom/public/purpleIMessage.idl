@@ -48,7 +48,7 @@ interface purpleIMessage: nsISupports {
   readonly attribute AUTF8String alias;
   readonly attribute AUTF8String originalMessage;
            attribute AUTF8String message;
-  readonly attribute AUTF8String time;
+  readonly attribute PRTime time;
   readonly attribute purpleIConversation conversation;
 
   /*  PURPLE_MESSAGE_SEND        = 0x0001, /**< Outgoing message. */
