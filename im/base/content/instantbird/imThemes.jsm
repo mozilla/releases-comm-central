@@ -361,6 +361,9 @@ function insertHTMLForMessage(aHTML, aDoc, aIsNext)
   range.selectNode(parent);
   let documentFragment = range.createContextualFragment(aHTML);
   let result = documentFragment.firstChild;
+  // make sure the result is an HTMLElement and not some whitespace...
+  while (result && !(result instanceof Components.interfaces.nsIDOMHTMLElement))
+    result = result.nextSibling;
   if (insert)
     parent.replaceChild(documentFragment, insert);
   else
