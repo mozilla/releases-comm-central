@@ -39,6 +39,13 @@ conversation {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
 }
 
+%ifdef WINCE
+conversation:not([selected="true"])
+{
+  visibility: hidden;
+}
+%endif
+
 convtab {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#convtab");
 }

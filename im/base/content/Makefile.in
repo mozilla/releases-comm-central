@@ -41,6 +41,10 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
+ifdef WINCE
+DEFINES += -DWINCE
+endif
+
 EXTRA_JS_MODULES = instantbird/imContentSink.jsm instantbird/imSmileys.jsm instantbird/imThemes.jsm
 EXTRA_COMPONENTS = instantbird/smileProtocolHandler.js
 
