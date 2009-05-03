@@ -57,6 +57,9 @@
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
+#ifdef XP_MACOSX
+  <script type="application/javascript" src="chrome://instantbird/content/unreadCount.js"/>
+#endif
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
 
   <commandset id="conversationsCommands">

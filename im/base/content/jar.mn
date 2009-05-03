@@ -24,7 +24,7 @@ instantbird.jar:
 	content/instantbird/group.xml		(instantbird/group.xml)
 *	content/instantbird/instantbird.css	(instantbird/instantbird.css)
 *	content/instantbird/instantbird.js	(instantbird/instantbird.js)
-	content/instantbird/instantbird.xul	(instantbird/instantbird.xul)
+*	content/instantbird/instantbird.xul	(instantbird/instantbird.xul)
 	content/instantbird/joinchat.js		(instantbird/joinchat.js)
 	content/instantbird/joinchat.xul	(instantbird/joinchat.xul)
 	content/instantbird/menus.js		(instantbird/menus.js)
@@ -34,6 +34,9 @@ instantbird.jar:
 	content/instantbird/proxy.xml		(instantbird/proxy.xml)
 	content/instantbird/sound.js		(instantbird/sound.js)
 	content/instantbird/utilities.js	(instantbird/utilities.js)
+#ifdef XP_MACOSX
+	content/instantbird/unreadCount.js      (instantbird/unreadCount.js)
+#endif
 
 #ifdef DEBUG
 debug.jar:
