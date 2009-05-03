@@ -78,6 +78,7 @@ function HTMLTheme(aBaseURI)
     footer: "Footer.html",
     header: "Header.html",
     status: "Status.html",
+    statusNext: "NextStatus.html",
     incomingContent: "Incoming/Content.html",
     incomingContext: "Incoming/Context.html",
     incomingNextContent: "Incoming/NextContent.html",
@@ -103,6 +104,7 @@ HTMLTheme_prototype = {
   get footer() "",
   get header() "",
   get status() this.incomingContent,
+  get statusNext() this.status,
   get incomingContent() function() {
     throw "Incoming/Content.html is a required file";
   },
@@ -307,7 +309,7 @@ function isNextMessage(aTheme, aMsg, aPreviousMsg)
        aTheme.metadata.DisableCombineConsecutive))
     return false;
 
-  if (!aPreviousMsg || aMsg.system ||
+  if (!aPreviousMsg ||
       aMsg.outgoing != aPreviousMsg.outgoing ||
       aMsg.incoming != aPreviousMsg.incoming ||
       aMsg.who != aPreviousMsg.who)
@@ -322,7 +324,7 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext)
 {
   let html, replacements;
   if (aMsg.system) {
-    html = aTheme.html.status;
+    html = aIsNext ? aTheme.html.statusNext : aTheme.html.status;
     replacements = statusReplacements;
   }
   else {
