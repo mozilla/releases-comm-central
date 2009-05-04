@@ -79,6 +79,7 @@ var msgObserver = {
 
     var conv = document.createElement("conversation");
     conv.setAttribute("contenttooltip", "aHTMLTooltip");
+    conv.setAttribute("contentcontextmenu", "contentAreaContextMenu");
     var panels = document.getElementById("panels");
     panels.appendChild(conv);
 
