@@ -91,6 +91,10 @@
     <key keycode="&findAgainCmd.commandkey2;"  command="cmd_findPrevious" modifiers="shift"/>
   </keyset>
 
+  <popupset id="mainPopupSet">
+    <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
+  </popupset>
+
   <tabbox flex="1">
     <tabs id="tabs" context="tabs-context-menu"
           onselect="msgObserver.onSelectTab();" onclick="msgObserver.onClickTab(event)"/>
