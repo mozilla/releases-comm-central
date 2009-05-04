@@ -105,6 +105,6 @@
   </menupopup>
 
   <statusbar>
-    <statusbarpanel id="status" label="" crop="end" flex="1"/>
+    <statusbarpanel id="statusbar-display" label="" crop="end" flex="1"/>
   </statusbar>
 </window>

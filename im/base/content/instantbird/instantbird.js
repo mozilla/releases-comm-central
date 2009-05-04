@@ -232,6 +232,12 @@ var msgObserver = {
     }
     window.addEventListener("unload", msgObserver.unload, false);
     window.addEventListener("DOMMouseScroll", msgObserver.onMouseZoom, false);
+    window.QueryInterface(Ci.nsIInterfaceRequestor)
+          .getInterface(Ci.nsIWebNavigation)
+          .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
+          .QueryInterface(Ci.nsIInterfaceRequestor)
+          .getInterface(Ci.nsIXULWindow)
+          .XULBrowserWindow = window.XULBrowserWindow;
   },
   unload: function mo_unload() {
     removeObservers(msgObserver, events);
@@ -241,12 +247,6 @@ var msgObserver = {
 function getBrowser()
 {
   return document.getElementById("panels").selectedPanel.browser;
-}
-
-function setStatusText(aMsg)
-{
-  var status = document.getElementById("status");
-  status.setAttribute("label", aMsg);
 }
 
 // Inspired from the same function in mozilla/browser/base/content/browser.js
@@ -283,6 +283,69 @@ function FillInHTMLTooltip(tipElement)
   }
 
   return false;
+}
+
+// Copied from mozilla/browser/base/content/browser.js (and simplified)
+var XULBrowserWindow = {
+  // Stored Status
+  status: "",
+  defaultStatus: "",
+  jsStatus: "",
+  jsDefaultStatus: "",
+  overLink: "",
+  statusText: "",
+
+  QueryInterface: function (aIID) {
+    if (aIID.equals(Ci.nsISupportsWeakReference) ||
+        aIID.equals(Ci.nsIXULBrowserWindow) ||
+        aIID.equals(Ci.nsISupports))
+      return this;
+    throw Cr.NS_NOINTERFACE;
+  },
+
+  get statusTextField () {
+    delete this.statusTextField;
+    return this.statusTextField = document.getElementById("statusbar-display");
+  },
+
+  setStatus: function (status) {
+    this.status = status;
+    this.updateStatusField();
+  },
+
+  setJSStatus: function (status) {
+    this.jsStatus = status;
+    this.updateStatusField();
+  },
+
+  setJSDefaultStatus: function (status) {
+    this.jsDefaultStatus = status;
+    this.updateStatusField();
+  },
+
+  setDefaultStatus: function (status) {
+    this.defaultStatus = status;
+    this.updateStatusField();
+  },
+
+  setOverLink: function (link, b) {
+    // Encode bidirectional formatting characters.
+    // (RFC 3987 sections 3.2 and 4.1 paragraph 6)
+    this.overLink = link.replace(/[\u200e\u200f\u202a\u202b\u202c\u202d\u202e]/g,
+                                 encodeURIComponent);
+    this.updateStatusField();
+  },
+
+  updateStatusField: function () {
+    var text = this.overLink || this.status || this.jsStatus || this.jsDefaultStatus || this.defaultStatus;
+
+    // check the current value so we don't trigger an attribute change
+    // and cause needless (slow!) UI updates
+    if (this.statusText != text) {
+      this.statusTextField.label = text;
+      this.statusText = text;
+    }
+  }
 }
 
 this.addEventListener("load", msgObserver.load, false);

@@ -646,8 +646,8 @@
          if (!this.tab.selected)
            return;
 
-         if ("setStatusText" in window)
-           window.setStatusText(this._statusText);
+         if ("XULBrowserWindow" in window)
+           window.XULBrowserWindow.setStatus(this._statusText);
        ]]>
        </body>
      </method>
