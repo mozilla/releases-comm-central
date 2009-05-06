@@ -542,7 +542,6 @@
 
          // Insert item at the right position
          this.addNick(item);
-         this.updateParticipantCount();
        ]]>
        </body>
      </method>
@@ -619,7 +618,6 @@
          var item = this.buddies[aName];
          item.parentNode.removeChild(item);
          delete this.buddies[aName];
-         this.updateParticipantCount();
        ]]>
        </body>
      </method>
@@ -700,11 +698,23 @@
            break;
 
          case "chat-buddy-add":
-           this.addBuddy(aSubject.QueryInterface(Ci.purpleIConvChatBuddy));
+           aSubject.QueryInterface(Ci.nsISimpleEnumerator);
+           while (aSubject.hasMoreElements()) {
+             let buddy = aSubject.getNext()
+             buddy.QueryInterface(Ci.purpleIConvChatBuddy);
+             this.addBuddy(buddy);
+           }
+           this.updateParticipantCount();
            break;
 
          case "chat-buddy-remove":
-           this.removeBuddy(aData);
+           aSubject.QueryInterface(Ci.nsISimpleEnumerator);
+           while (aSubject.hasMoreElements()) {
+             let nick = aSubject.getNext();
+             nick.QueryInterface(Ci.nsISupportsString);
+             this.removeBuddy(nick.toString());
+           }
+           this.updateParticipantCount();
            break;
 
          case "chat-buddy-update":
@@ -745,6 +755,7 @@
             var nicks = getIter(this.conv.getParticipants, Ci.purpleIConvChatBuddy);
             for (let n in nicks)
               this.addBuddy(n);
+            this.updateParticipantCount();
           }
         }
       ]]>
