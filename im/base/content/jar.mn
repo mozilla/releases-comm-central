@@ -28,6 +28,7 @@ instantbird.jar:
 	content/instantbird/joinchat.js		(instantbird/joinchat.js)
 	content/instantbird/joinchat.xul	(instantbird/joinchat.xul)
 	content/instantbird/menus.js		(instantbird/menus.js)
+*	content/instantbird/nsContextMenu.js	(instantbird/nsContextMenu.js)
 	content/instantbird/proxies.js		(instantbird/proxies.js)
 	content/instantbird/proxies.xul		(instantbird/proxies.xul)
 	content/instantbird/proxies.css		(instantbird/proxies.css)

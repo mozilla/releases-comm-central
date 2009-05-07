@@ -47,6 +47,19 @@ function getIter(aGetEnumFct, aIface)
   }
 }
 
+__defineGetter__("gPrefService", function() {
+  delete this.gPrefService;
+  return this.gPrefService = Cc["@mozilla.org/preferences-service;1"].
+                             getService(Ci.nsIPrefBranch2);
+});
+
+__defineGetter__("gExtProtoService", function() {
+  delete this.gExtProtoService;
+  return this.gExtProtoService =
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"].
+    getService(Ci.nsIExternalProtocolService);
+});
+
 function getObserverService()
 {
   return Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);

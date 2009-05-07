@@ -66,6 +66,7 @@
 #endif
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/nsContextMenu.js"/>
 
   <commandset id="conversationsCommands">
     <command id="cmd_close" oncommand="msgObserver.closeCurrentTab()"/>
@@ -101,7 +102,23 @@
   <popupset id="mainPopupSet">
     <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
 
-    <popup id="contentAreaContextMenu">
+    <popup id="contentAreaContextMenu"
+           onpopupshowing="if (event.target != this) return true; gContextMenu = new nsContextMenu(this, window.getBrowser()); return gContextMenu.shouldDisplay;"
+           onpopuphiding="if (event.target == this) { gContextMenu = null; }">
+      <menuitem id="context-openlink"
+                label="&openLinkCmd.label;"
+                accesskey="&openLinkCmd.accesskey;"
+                oncommand="gContextMenu.openLink();"/>
+      <menuitem id="context-copyemail"
+                label="&copyEmailCmd.label;"
+                accesskey="&copyEmailCmd.accesskey;"
+                oncommand="gContextMenu.copyEmail();"/>
+      <menuitem id="context-copylink"
+                label="&copyLinkCmd.label;"
+                accesskey="&copyLinkCmd.accesskey;"
+                oncommand="goDoCommand('cmd_copyLink');"/>
+      <menuseparator id="context-sep-copylink"/>
+
       <menuitem id="context-copy"
                 label="&copyCmd.label;"
                 accesskey="&copyCmd.accesskey;"
@@ -109,7 +126,10 @@
       <menuitem id="context-selectall"
                 label="&selectAllCmd.label;"
                 accesskey="&selectAllCmd.accesskey;"
-                command="cmd_selectAll"/>      
+                command="cmd_selectAll"/>
+      <menuseparator id="context-sep-selectall"/>
+      <menuitem id="context-searchselect"
+                oncommand="BrowserSearch.loadSearch(getBrowserSelection(), true);"/>
     </popup>
   </popupset>
 
