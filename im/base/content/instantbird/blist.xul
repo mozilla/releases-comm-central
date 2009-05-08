@@ -92,12 +92,35 @@
         <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
       </menupopup>
     </menu>
+#ifdef XP_MACOSX
+<!-- Mac window menu -->
+#include ../../../../mozilla/toolkit/content/macWindowMenu.inc
+#endif
     <menu label="&help.menu;" id="aboutSeparator"> <!-- this id ensure it gets hidden on mac -->
       <menupopup id="helpMenuPopup">
         <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
       </menupopup>
     </menu>
   </menubar>
+
+#ifdef XP_MACOSX
+  <!-- nsMenuBarX hides these and uses them to build the Application menu. -->
+  <menupopup id="menu_ToolsPopup">
+    <menuitem id="menu_mac_services" label="&servicesMenuMac.label;"/>
+    <menuitem id="menu_mac_hide_app" label="&hideThisAppCmdMac.label;" key="key_hideThisAppCmdMac"/>
+    <menuitem id="menu_mac_hide_others" label="&hideOtherAppsCmdMac.label;" key="key_hideOtherAppsCmdMac"/>
+    <menuitem id="menu_mac_show_all" label="&showAllAppsCmdMac.label;"/>
+  </menupopup>
+  <!-- These are used to build the Application menu under Cocoa widgets -->
+  <keyset id="baseMenuKeyset">
+    <key id="key_hideThisAppCmdMac"
+         key="&hideThisAppCmdMac.commandkey;"
+         modifiers="accel"/>
+    <key id="key_hideOtherAppsCmdMac"
+         key="&hideOtherAppsCmdMac.commandkey;"
+         modifiers="accel,alt"/>
+  </keyset>
+#endif
 
   <notificationbox id="buddyListMsg" flex="1">
     <richlistbox id="buddylistbox" flex="1" onkeypress="buddyList.keyPress(event);"/>
