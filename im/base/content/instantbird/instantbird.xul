@@ -99,6 +99,10 @@
     <key keycode="&findAgainCmd.commandkey2;"  command="cmd_findPrevious" modifiers="shift"/>
   </keyset>
 
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="bundle_instantbird" src="chrome://instantbird/locale/instantbird.properties"/>
+  </stringbundleset>
+
   <popupset id="mainPopupSet">
     <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
 
@@ -129,7 +133,7 @@
                 command="cmd_selectAll"/>
       <menuseparator id="context-sep-selectall"/>
       <menuitem id="context-searchselect"
-                oncommand="BrowserSearch.loadSearch(getBrowserSelection(), true);"/>
+                oncommand="gContextMenu.searchSelection()"/>
     </popup>
   </popupset>
 

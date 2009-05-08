@@ -194,8 +194,26 @@ nsContextMenu.prototype = {
              this.linkProtocol == "snews"      );
   },
 
+  searchSelection: function(aEngine) {
+    if (!aEngine) {
+      aEngine = Cc["@mozilla.org/browser/search-service;1"].
+                getService(Ci.nsIBrowserSearchService).
+                defaultEngine;
+    }
+  
+    var submission = aEngine.getSubmission(getBrowserSelection(), null);
+    // getSubmission can return null if the engine doesn't have a URL
+    // with a text/html response type.  This is unlikely (since
+    // SearchService._addEngineToStore() should fail for such an engine),
+    // but let's be on the safe side.
+    if (!submission)
+      return;
+  
+    gExtProtoService.loadURI(submission.uri, window)
+  },
+
   // Open linked-to URL in a new window.
-  openLink : function () {
+  openLink: function () {
     gExtProtoService.loadURI(this.linkURI, window);
   },
 
@@ -328,12 +346,13 @@ nsContextMenu.prototype = {
       return false;
 
     // format "Search <engine> for <selection>" string to show in menu
-    var menuLabel = gNavigatorBundle.getFormattedString("contextMenuSearchText",
-                                                        [engine.name,
-                                                         selectedText]);
+    var bundle = document.getElementById("bundle_instantbird");
+    var menuLabel = bundle.getFormattedString("contextMenuSearchText",
+                                              [engine.name,
+                                               selectedText]);
     document.getElementById("context-searchselect").label = menuLabel;
     document.getElementById("context-searchselect").accessKey =
-             gNavigatorBundle.getString("contextMenuSearchText.accesskey");
+      bundle.getString("contextMenuSearchText.accesskey");
 
     return true;
   },

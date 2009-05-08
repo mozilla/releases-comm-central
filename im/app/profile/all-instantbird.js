@@ -118,6 +118,27 @@ pref("app.update.showInstalledUI", true);
 //     versions.
 pref("app.update.incompatible.mode", 0);
 
+// search engines URL
+pref("browser.search.searchEnginesURL",      "https://%LOCALE%.add-ons.instantbird.org/%LOCALE%/instantbird/%VERSION%/search-engines/");
+
+// pointer to the default engine name
+pref("browser.search.defaultenginename",      "chrome://instantbird/locale/region.properties");
+
+// disable logging for the search service by default
+pref("browser.search.log", false);
+
+// Ordering of Search Engines in the Engine list. 
+pref("browser.search.order.1",                "chrome://instantbird/locale/region.properties");
+pref("browser.search.order.2",                "chrome://instantbird/locale/region.properties");
+
+// send ping to the server to update
+pref("browser.search.update", true);
+
+// disable logging for the search service update system by default
+pref("browser.search.update.log", false);
+
+// Check whether we need to perform engine updates every 6 hours
+pref("browser.search.updateinterval", 6);
 
 /* Extension manager */
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");

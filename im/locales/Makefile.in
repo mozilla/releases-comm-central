@@ -42,6 +42,9 @@ relativesrcdir  = instantbird/locales
 
 include $(DEPTH)/config/autoconf.mk
 
+vpath %.xml @srcdir@/en-US/searchplugins
+vpath %.xml $(LOCALE_SRCDIR)/searchplugins
+
 DEFINES += \
 	-DAB_CD=$(AB_CD) \
 	-DMOZ_APP_VERSION=$(APP_VERSION) \
@@ -49,6 +52,11 @@ DEFINES += \
 	$(NULL)
 
 include $(topsrcdir)/config/rules.mk
+
+SEARCH_PLUGINS = $(shell cat $(LOCALE_SRCDIR)/searchplugins/list.txt)
+
+libs:: $(addsuffix .xml,$(SEARCH_PLUGINS))
+	if [ -n "$^" ]; then $(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/searchplugins; fi
 
 ifdef MOZ_UPDATER
 libs:: $(addprefix $(LOCALE_SRCDIR)/,updater/updater.ini)

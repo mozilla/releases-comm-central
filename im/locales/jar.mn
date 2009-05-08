@@ -13,6 +13,8 @@
 	locale/@AB_CD@/instantbird/core.properties	(%chrome/instantbird/core.properties)
 	locale/@AB_CD@/instantbird/credits.dtd		(%chrome/instantbird/credits.dtd)
 	locale/@AB_CD@/instantbird/instantbird.dtd	(%chrome/instantbird/instantbird.dtd)
+	locale/@AB_CD@/instantbird/instantbird.properties (%chrome/instantbird/instantbird.properties)
 	locale/@AB_CD@/instantbird/joinChat.dtd		(%chrome/instantbird/joinChat.dtd)
 	locale/@AB_CD@/instantbird/proxies.dtd		(%chrome/instantbird/proxies.dtd)
 	locale/@AB_CD@/instantbird/proxies.properties	(%chrome/instantbird/proxies.properties)
+	locale/@AB_CD@/instantbird/region.properties	(%chrome/instantbird/region.properties)
