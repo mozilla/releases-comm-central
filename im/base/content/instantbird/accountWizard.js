@@ -189,6 +189,30 @@ var accountWizard = {
     return box;
   },
 
+  createMenulist: function aw_createMenulist(aList, aLabel, aName) {
+    var box = document.createElement("hbox");
+    box.setAttribute("align", "baseline");
+
+    var label = document.createElement("label");
+    label.setAttribute("value", aLabel);
+    label.setAttribute("control", aName);
+    box.appendChild(label);
+
+    aList.QueryInterface(Ci.nsISimpleEnumerator);
+    var menulist = document.createElement("menulist");
+    menulist.setAttribute("id", aName);
+    var popup = menulist.appendChild(document.createElement("menupopup"));
+    while (aList.hasMoreElements()) {
+      let elt = aList.getNext().QueryInterface(Ci.purpleIKeyValuePair);
+      let item = document.createElement("menuitem");
+      item.setAttribute("label", elt.name);
+      item.setAttribute("value", elt.value);
+      popup.appendChild(item);
+    }
+    box.appendChild(menulist);
+    return box;
+  },
+
   populateProtoSpecificBox: function aw_populate() {
     var id = this.proto.id;
     var box = document.getElementById("protoSpecific");
@@ -217,6 +241,9 @@ var accountWizard = {
       case opt.typeString:
         box.appendChild(this.createTextbox(null, opt.getString(),
                                            text, name));
+        break;
+      case opt.typeList:
+        box.appendChild(this.createMenulist(opt.getList(), text, name));
         break;
       default:
         throw "unknown preference type " + opt.type;
@@ -299,6 +326,13 @@ var accountWizard = {
         if (val != opt.getString())
           this.prefs.push({opt: opt, name: name, value: val});
         break;
+      case opt.typeList:
+        var list = opt.getList().QueryInterface(Ci.nsISimpleEnumerator);
+        var defaultVal = list.hasMoreElements() &&
+          list.getNext().QueryInterface(Ci.purpleIKeyValuePair).value || "";
+        if (val != defaultVal)
+          this.prefs.push({opt: opt, name: name, value: val});
+        break;
       default:
         throw "unknown preference type " + opt.type;
       }
@@ -306,8 +340,7 @@ var accountWizard = {
 
     for (let i = 0; i < this.prefs.length; ++i) {
       let opt = this.prefs[i];
-      let text = bundle.getString(id + "." + opt.name);
-      rows.appendChild(this.createSummaryRow(text, opt.value));
+      rows.appendChild(this.createSummaryRow(opt.opt.label, opt.value));
     }
   },
 
@@ -332,6 +365,7 @@ var accountWizard = {
         acc.setInt(option.name, option.value);
         break;
       case opt.typeString:
+      case opt.typeList:
         acc.setString(option.name, option.value);
         break;
       default:

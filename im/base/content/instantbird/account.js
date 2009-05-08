@@ -158,6 +158,30 @@ var account = {
     return box;
   },
 
+  createMenulist: function account_createMenulist(aList, aLabel, aName) {
+    var box = document.createElement("hbox");
+    box.setAttribute("align", "baseline");
+
+    var label = document.createElement("label");
+    label.setAttribute("value", aLabel);
+    label.setAttribute("control", aName);
+    box.appendChild(label);
+
+    aList.QueryInterface(Ci.nsISimpleEnumerator);
+    var menulist = document.createElement("menulist");
+    menulist.setAttribute("id", aName);
+    var popup = menulist.appendChild(document.createElement("menupopup"));
+    while (aList.hasMoreElements()) {
+      let elt = aList.getNext().QueryInterface(Ci.purpleIKeyValuePair);
+      let item = document.createElement("menuitem");
+      item.setAttribute("label", elt.name);
+      item.setAttribute("value", elt.value);
+      popup.appendChild(item);
+    }
+    box.appendChild(menulist);
+    return box;
+  },
+
   getBool: function account_getBool(aOpt) {
     if (this.prefs.prefHasUserValue(aOpt.name))
       return this.prefs.getBoolPref(aOpt.name);
@@ -177,6 +201,15 @@ var account = {
       return this.prefs.getCharPref(aOpt.name);
 
     return aOpt.getString();
+  },
+
+  getListValue: function account_getListValue(aOpt) {
+    if (this.prefs.prefHasUserValue(aOpt.name))
+      return this.prefs.getCharPref(aOpt.name);
+
+    var list = aOpt.getList().QueryInterface(Ci.nsISimpleEnumerator);
+    return list.hasMoreElements() &&
+           list.getNext().QueryInterface(Ci.purpleIKeyValuePair).value || "";
   },
 
   populateProtoSpecificBox: function account_populate() {
@@ -201,6 +234,10 @@ var account = {
       case opt.typeString:
         gbox.appendChild(this.createTextbox(null, this.getString(opt),
                                             text, name));
+        break;
+      case opt.typeList:
+        gbox.appendChild(this.createMenulist(opt.getList(), text, name));
+        document.getElementById(name).value = this.getListValue(opt);
         break;
       default:
         throw "unknown preference type " + opt.type;
@@ -252,6 +289,10 @@ var account = {
         break;
       case opt.typeString:
         if (val != this.getString(opt))
+          this.account.setString(opt.name, val);
+        break;
+      case opt.typeList:
+        if (val != this.getListValue(opt))
           this.account.setString(opt.name, val);
         break;
       default:

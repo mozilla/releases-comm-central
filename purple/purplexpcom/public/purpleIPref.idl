@@ -36,6 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
+#include "nsISimpleEnumerator.idl"
 
 /* 
  * This is a proxy for libpurple PurpleAccountOption
@@ -46,6 +47,7 @@ interface purpleIPref: nsISupports {
   const short typeBool   = 1;
   const short typeInt    = 2;
   const short typeString = 3;
+  const short typeList   = 4;
 
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String label;
@@ -55,4 +57,12 @@ interface purpleIPref: nsISupports {
   boolean     getBool();
   long        getInt();
   AUTF8String getString();
+  // enumerator of purpleIKeyValuePair
+  nsISimpleEnumerator getList();
+};
+
+[scriptable, uuid(8fc16882-ba8e-432a-999f-0d4dc104234b)]
+interface purpleIKeyValuePair: nsISupports {
+  readonly attribute AUTF8String name;
+  readonly attribute AUTF8String value;
 };
