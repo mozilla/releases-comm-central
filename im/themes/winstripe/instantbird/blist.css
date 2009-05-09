@@ -80,3 +80,7 @@ group label {
   font-weight: bold;
   font-size: 14pt;
 }
+
+#updatesMenuItem[loading="true"] {
+  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+}

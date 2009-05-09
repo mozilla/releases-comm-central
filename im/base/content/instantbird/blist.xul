@@ -62,7 +62,10 @@
   <script type="application/javascript" src="chrome://instantbird/content/menus.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
 
-  <stringbundle id="awayBundle" src="chrome://instantbird/locale/away.properties"/>
+  <stringbundleset id="blistStringBundleSet">
+    <stringbundle id="awayBundle" src="chrome://instantbird/locale/away.properties"/>
+    <stringbundle id="updatesBundle" src="chrome://instantbird/locale/updates.properties"/>
+  </stringbundleset>
 
   <commandset id="maincommandset">
     <command id="accountmanager" oncommand="menus.accounts()"/>
@@ -83,7 +86,7 @@
       </menupopup>
     </menu>
     <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
-      <menupopup id="toolsMenuPopup">
+      <menupopup id="toolsMenuPopup" onpopupshowing="menus.displayUpdateStatus();">
         <menuitem id="soundsMenuItem" label="&sounds;" oncommand="menus.toggleSounds()" type="checkbox"/>
         <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
         <menuseparator/>

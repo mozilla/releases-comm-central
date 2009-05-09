@@ -18,3 +18,4 @@
 	locale/@AB_CD@/instantbird/proxies.dtd		(%chrome/instantbird/proxies.dtd)
 	locale/@AB_CD@/instantbird/proxies.properties	(%chrome/instantbird/proxies.properties)
 	locale/@AB_CD@/instantbird/region.properties	(%chrome/instantbird/region.properties)
+	locale/@AB_CD@/instantbird/updates.properties	(%chrome/instantbird/updates.properties)
