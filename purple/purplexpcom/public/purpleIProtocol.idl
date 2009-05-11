@@ -59,8 +59,11 @@ interface purpleIProtocol: nsISupports {
   // icon.png icon32.png and icon48.png
   readonly attribute AUTF8String iconBaseURI;
 
-  // returns an enumerator on a purpleIPref array
+  // returns an enumerator of purpleIPref
   nsISimpleEnumerator getOptions();
+
+  // returns an enumerator of purpleIUsernameSplit
+  nsISimpleEnumerator getUsernameSplit();
 
   // Use this function to avoid attempting to create duplicate accounts
   boolean accountExists(in AUTF8String aName);
@@ -112,4 +115,15 @@ interface purpleIProtocol: nsISupports {
   readonly attribute boolean slashCommandsNative;
 
   [noscript] PurpleNativePluginProtocolInfo getInfo();
+};
+
+[scriptable, uuid(20c4971a-f7c2-4781-8e85-69fee7b83a3d)]
+interface purpleIUsernameSplit: nsISupports {
+  readonly attribute AUTF8String label;
+  readonly attribute AUTF8String defaultValue;
+  readonly attribute char separator;
+
+  /* reverse is PR_TRUE if the separator should be found starting at
+     the end of the string, PR_FALSE otherwise. */
+  readonly attribute PRBool reverse;
 };
