@@ -21,6 +21,8 @@ instantbird.jar:
 *	content/instantbird/conversation.xml	(instantbird/conversation.xml)
 	content/instantbird/conv.html		(instantbird/conv.html)
 *	content/instantbird/credits.xhtml	(instantbird/credits.xhtml)
+*	content/instantbird/engineManager.js	(instantbird/engineManager.js)
+*	content/instantbird/engineManager.xul	(instantbird/engineManager.xul)
 	content/instantbird/group.xml		(instantbird/group.xml)
 *	content/instantbird/instantbird.css	(instantbird/instantbird.css)
 *	content/instantbird/instantbird.js	(instantbird/instantbird.js)

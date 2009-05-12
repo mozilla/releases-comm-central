@@ -119,10 +119,11 @@ pref("app.update.showInstalledUI", true);
 pref("app.update.incompatible.mode", 0);
 
 // search engines URL
-pref("browser.search.searchEnginesURL",      "https://%LOCALE%.add-ons.instantbird.org/%LOCALE%/instantbird/%VERSION%/search-engines/");
+pref("browser.search.searchEnginesURL",      "https://addons.instantbird.org/%LOCALE%/instantbird/%VERSION%/search-engines/");
 
-// pointer to the default engine name
-pref("browser.search.defaultenginename",      "chrome://instantbird/locale/region.properties");
+// pointer to the default engine name. Keep this empty so that the
+// first engine listed in the engine manager is used instead
+pref("browser.search.defaultenginename",      "");
 
 // disable logging for the search service by default
 pref("browser.search.log", false);

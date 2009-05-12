@@ -41,6 +41,7 @@
 <!ENTITY copyLinkCmd.accesskey        "a">
 <!ENTITY copyEmailCmd.label           "Copy Email Address">
 <!ENTITY copyEmailCmd.accesskey       "E">
+<!ENTITY engineManagerCmd.label       "Manage Search Engines…">
 
 <!--  Mac OS X Window Menu -->
 <!ENTITY windowMenu.label "Window">

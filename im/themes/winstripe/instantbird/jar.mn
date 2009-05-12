@@ -13,6 +13,7 @@ classic.jar:
 	skin/classic/instantbird/blist.css
 	skin/classic/instantbird/conv.css
 *	skin/classic/instantbird/conversation.css
+*	skin/classic/instantbird/engineManager.css
 *	skin/classic/instantbird/instantbird.css
 	skin/classic/instantbird/prpl-generic/icon32.png	(prpl/prpl-generic-32.png)
 	skin/classic/instantbird/prpl-generic/icon48.png	(prpl/prpl-generic-48.png)

@@ -108,6 +108,7 @@ nsContextMenu.prototype = {
     this.showItem("context-savelink", shouldShow);
 
     this.showItem("context-searchselect", this.isTextSelected);
+    this.showItem("context-searchselect-with", this.isTextSelected);
 
     // Copy depends on whether there is selected text.
     // Enabling this context menu item is now done through the global
@@ -192,6 +193,39 @@ nsContextMenu.prototype = {
              this.linkProtocol == "javascript" ||
              this.linkProtocol == "news"       ||
              this.linkProtocol == "snews"      );
+  },
+
+  openEngineManager: function() {
+    openDialog('chrome://instantbird/content/engineManager.xul',
+               '_blank', 'chrome,dialog,modal,centerscreen');
+  },
+
+  buildSearchEngineList: function() {
+    let popup = document.getElementById("context-popup-searchselect-with");
+    // remove the menuitems added last time we opened the popup
+    while (popup.firstChild && popup.firstChild.localName != "menuseparator")
+      popup.removeChild(popup.firstChild);
+
+    let engines = Components.classes["@mozilla.org/browser/search-service;1"]
+                            .getService(Ci.nsIBrowserSearchService)
+                            .getVisibleEngines({});
+
+    for (let i = engines.length - 1; i >= 0; --i) {
+      let menuitem = document.createElement("menuitem");
+      let name = engines[i].name;
+      menuitem.setAttribute("label", name);
+      menuitem.setAttribute("class", "menuitem-iconic");
+      if (engines[i].iconURI)
+        menuitem.setAttribute("src", engines[i].iconURI.spec);
+      popup.insertBefore(menuitem, popup.firstChild);
+      menuitem.engine = engines[i];
+    }
+  },
+
+  searchSelectionWith: function(aEvent) {
+    var engine = aEvent.originalTarget.engine;
+    if (engine)
+      this.searchSelection(engine);
   },
 
   searchSelection: function(aEngine) {
@@ -353,6 +387,9 @@ nsContextMenu.prototype = {
     document.getElementById("context-searchselect").label = menuLabel;
     document.getElementById("context-searchselect").accessKey =
       bundle.getString("contextMenuSearchText.accesskey");
+    menuLabel = bundle.getFormattedString("contextMenuSearchWith",
+                                          [selectedText]);
+    document.getElementById("context-searchselect-with").label = menuLabel;
 
     return true;
   },

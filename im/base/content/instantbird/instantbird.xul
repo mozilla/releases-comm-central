@@ -133,7 +133,17 @@
                 command="cmd_selectAll"/>
       <menuseparator id="context-sep-selectall"/>
       <menuitem id="context-searchselect"
-                oncommand="gContextMenu.searchSelection()"/>
+                oncommand="gContextMenu.searchSelection();"/>
+      <menu id="context-searchselect-with">
+        <menupopup id="context-popup-searchselect-with"
+                   onpopupshowing="gContextMenu.buildSearchEngineList();"
+                   oncommand="gContextMenu.searchSelectionWith(event)">
+          <menuseparator id="context-sep-enignemanager"/>
+          <menuitem id="context-enginemanager"
+                    label="&engineManagerCmd.label;"
+                    oncommand="gContextMenu.openEngineManager();"/>
+        </menupopup>
+      </menu>
     </popup>
   </popupset>
 
