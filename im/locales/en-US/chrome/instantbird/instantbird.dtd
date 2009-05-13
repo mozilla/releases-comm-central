@@ -43,6 +43,7 @@
 <!ENTITY copyEmailCmd.accesskey       "E">
 <!ENTITY engineManagerCmd.label       "Manage Search Engines…">
 
+<!-- Copied from mozilla/browser/locales/en-US/chrome/browser/baseMenuOverlay.dtd -->
 <!--  Mac OS X Window Menu -->
 <!ENTITY windowMenu.label "Window">
 <!ENTITY minimizeWindow.label "Minimize">
@@ -53,12 +54,9 @@
 <!-- Mac OS X Application Menu (Cocoa widgets) -->
 <!ENTITY preferencesCmdMac.label        "Preferences…">
 <!ENTITY preferencesCmdMac.commandkey   ",">
-<!ENTITY preferencesCmdMac.modifiers    "accel">
 <!ENTITY servicesMenuMac.label          "Services">
 <!ENTITY hideThisAppCmdMac.label        "Hide &brandShortName;">
 <!ENTITY hideThisAppCmdMac.commandkey   "H">
-<!ENTITY hideThisAppCmdMac.modifiers    "accel">
 <!ENTITY hideOtherAppsCmdMac.label      "Hide Others">
 <!ENTITY hideOtherAppsCmdMac.commandkey "H">
-<!ENTITY hideOtherAppsCmdMac.modifiers  "accel,alt">
 <!ENTITY showAllAppsCmdMac.label        "Show All">
