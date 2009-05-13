@@ -68,3 +68,10 @@ else
           sed -e "s/%AB_CD%/$(AB_CD)/" > $(FINAL_TARGET)/updater.ini
 endif
 endif
+
+merge-%:
+ifdef LOCALE_MERGEDIR
+	$(RM) -rf $(LOCALE_MERGEDIR)
+	MACOSX_DEPLOYMENT_TARGET= compare-locales -m $(LOCALE_MERGEDIR) $(srcdir)/l10n.ini $(L10NBASEDIR) $*
+endif
+	@echo
