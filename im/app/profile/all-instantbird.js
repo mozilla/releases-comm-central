@@ -168,3 +168,6 @@ pref("network.protocol-handler.warn-external.ftp", false);
 
 // don't load links inside Instantbird
 pref("network.protocol-handler.expose-all", false);
+
+// The breakpad report server to link to in about:crashes
+pref("breakpad.reportURL", "http://crash-stats.instantbird.com/report/index/");
