@@ -9,9 +9,6 @@
 
 <!ENTITY accountUsernameTitle.label   "Username">
 <!ENTITY accountUsernameInfo.label    "Please enter the username to use in order to connect your account.">
-<!ENTITY accountUsernameField.label   "Username:">
-<!ENTITY accountUsernameJabberInfo.label "For Jabber username, please use the form login@server/location. For example instantbird@gmail.com/Instantbird.">
-<!ENTITY accountUsernameIrcInfo.label "For IRC username, please use the form nick@server. For example instantbird@irc.freenode.net.">
 <!ENTITY accountUsernameDuplicate.label "This account is already configured!">
 
 <!ENTITY accountPasswordTitle.label   "Password">

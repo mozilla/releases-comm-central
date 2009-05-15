@@ -69,17 +69,26 @@ var accountWizard = {
     }
   },
 
+  getUsername: function aw_getUsername() {
+    // If the first username textbox is empty, make sure we return an empty
+    // string so that it blocks the 'next' button of the wizard.
+    if (!this.userNameBoxes[0].value)
+      return "";
+
+    return this.userNameBoxes.reduce(function(prev, elt) prev + elt.value, "");
+  },
+
   checkUsername: function aw_checkUsername() {
     var wizard = document.getElementById("accountWizard");
-    var input = document.getElementById("name");
+    var name = accountWizard.getUsername();
     var duplicateWarning = document.getElementById("duplicateAccount");
-    if (!input.value) {
+    if (!name) {
       wizard.canAdvance = false;
       duplicateWarning.hidden = true;
       return;
     }
 
-    var exists = this.proto.accountExists(input.value);
+    var exists = accountWizard.proto.accountExists(name);
     wizard.canAdvance = !exists;
     duplicateWarning.hidden = !exists;
   },
@@ -92,11 +101,66 @@ var accountWizard = {
     return true;
   },
 
+
+  insertUsernameField: function aw_insertUsernameField(aName, aLabel, aParent,
+                                                       aDefaultValue) {
+    var hbox = document.createElement("hbox");
+    hbox.setAttribute("id", aName + "-hbox");
+    hbox.setAttribute("align", "baseline");
+    hbox.setAttribute("equalsize", "always");
+
+    var label = document.createElement("label");
+    label.setAttribute("value", aLabel);
+    label.setAttribute("control", aName);
+    label.setAttribute("id", aName + "-label");
+    hbox.appendChild(label);
+
+    var textbox = document.createElement("textbox");
+    textbox.setAttribute("id", aName);
+    if (aDefaultValue)
+      textbox.setAttribute("value", aDefaultValue);
+    textbox.addEventListener("input", accountWizard.checkUsername, false);
+    hbox.appendChild(textbox);
+
+    aParent.appendChild(hbox);
+    return textbox;
+  },
+
   showUsernamePage: function aw_showUsernamePage() {
-    this.checkUsername();
     var proto = this.proto.id;
-    document.getElementById("jabberusername").hidden = proto != "prpl-jabber";
-    document.getElementById("ircusername").hidden = proto != "prpl-irc";
+    if (this.userNameProto == proto) {
+      this.checkUsername();
+      return;
+    }
+
+    var bundle = document.getElementById("accountsBundle");
+    document.getElementById("usernameInfo").textContent =
+      bundle.getFormattedString("accountUsernameInfo", [this.proto.name]);
+
+    var vbox = document.getElementById("userNameBox");
+    // remove anything that may be there for another protocol
+    var child;
+    while (child = vbox.firstChild)
+      vbox.removeChild(child);
+
+    var splits = [];
+    for (let split in this.getProtoUserSplits())
+      splits.push(split);
+
+    var label = bundle.getString("accountUsername");
+    this.userNameBoxes = [this.insertUsernameField("name", label, vbox)];
+
+    for (let i = 0; i < splits.length; ++i) {
+      this.userNameBoxes.push({value: splits[i].separator});
+      label = bundle.getFormattedString("accountColon", [splits[i].label]);
+      let defaultVal = splits[i].defaultValue;
+      this.userNameBoxes.push(this.insertUsernameField("username-split-" + i,
+                                                       label, vbox,
+                                                       defaultVal));
+    }
+    this.userNameBoxes[0].focus();
+    this.userNameProto = proto;
+    this.checkUsername();
   },
 
   hideUsernamePage: function aw_hideUsernamePage() {
@@ -275,15 +339,15 @@ var accountWizard = {
 
   showSummary: function aw_showSummary() {
     var rows = document.getElementById("summaryRows");
-    var bundle = document.getElementById("prplbundle");
+    var bundle = document.getElementById("accountsBundle");
     var child;
     while (child = rows.firstChild)
       rows.removeChild(child);
 
     var label = document.getElementById("protoLabel").value;
     rows.appendChild(this.createSummaryRow(label, this.proto.name));
-    this.username = this.getValue("name");
-    label = document.getElementById("nameLabel").value;
+    this.username = this.getUsername();
+    label = bundle.getString("accountUsername");
     rows.appendChild(this.createSummaryRow(label, this.username));
     if (!this.proto.noPassword) {
       this.password = this.getValue("password");
@@ -340,7 +404,8 @@ var accountWizard = {
 
     for (let i = 0; i < this.prefs.length; ++i) {
       let opt = this.prefs[i];
-      rows.appendChild(this.createSummaryRow(opt.opt.label, opt.value));
+      let label = bundle.getFormattedString("accountColon", [opt.opt.label]);
+      rows.appendChild(this.createSummaryRow(label, opt.value));
     }
   },
 
@@ -407,6 +472,9 @@ var accountWizard = {
   },
   getProtoOptions: function aw_getProtoOptions() {
     return getIter(this.proto.getOptions, Ci.purpleIPref);
+  },
+  getProtoUserSplits: function aw_getProtoUserSplits() {
+    return getIter(this.proto.getUsernameSplit, Ci.purpleIUsernameSplit);
   },
 
   toggleGroupbox: function aw_toggleGroupbox(id) {

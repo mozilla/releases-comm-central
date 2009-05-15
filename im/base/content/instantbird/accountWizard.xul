@@ -73,15 +73,10 @@
               label="&accountUsernameTitle.label;"
               onpageshow="accountWizard.showUsernamePage();"
               onpagehide="accountWizard.hideUsernamePage();">
-    <description>&accountUsernameInfo.label;</description>
+    <description id="usernameInfo"/>
     <separator/>
-    <hbox id="nameBox" align="baseline">
-      <label value="&accountUsernameField.label;" control="name" id="nameLabel"/>
-      <textbox id="name" oninput="accountWizard.checkUsername();"/>
-    </hbox>
+    <vbox id="userNameBox"/>
     <separator/>
-    <description id="jabberusername" hidden="true">&accountUsernameJabberInfo.label;</description>
-    <description id="ircusername" hidden="true">&accountUsernameIrcInfo.label;</description>
     <description id="duplicateAccount" hidden="true">&accountUsernameDuplicate.label;</description>
   </wizardpage>
 
