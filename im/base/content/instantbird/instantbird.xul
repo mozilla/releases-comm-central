@@ -63,6 +63,7 @@
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
 #ifdef XP_MACOSX
   <script type="application/javascript" src="chrome://instantbird/content/unreadCount.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/macgestures.js"/>
 #endif
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
