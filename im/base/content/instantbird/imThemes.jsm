@@ -38,6 +38,7 @@
 var EXPORTED_SYMBOLS = [
   "getCurrentTheme",
   "getHTMLForMessage",
+  "getThemeVariants",
   "isNextMessage",
   "insertHTMLForMessage",
   "initHTMLDocument"
@@ -216,6 +217,72 @@ function getCurrentTheme()
   };
 
   return gCurrentTheme;
+}
+
+function getDirectoryEntries(aDir)
+{
+  let ios = Components.classes["@mozilla.org/network/io-service;1"]
+                      .getService(Components.interfaces.nsIIOService);
+  let uri = ios.newURI(aDir, null, null);
+  let cr = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
+                     .getService(Components.interfaces.nsIXULChromeRegistry);
+  while (uri.scheme == "chrome")
+    uri = cr.convertChromeURL(uri);
+
+  // remove any trailing file name added by convertChromeURL
+  let spec = uri.spec.replace(/[^\/]+$/, "");
+  uri = ios.newURI(spec, null, null);
+
+  let results = [];
+  if (uri.scheme == "jar") {
+    uri.QueryInterface(Components.interfaces.nsIJARURI);
+    var strEntry = uri.JAREntry;
+    if (!strEntry)
+      return [];
+
+    let zr = Components.classes["@mozilla.org/libjar/zip-reader;1"]
+                       .createInstance(Components.interfaces.nsIZipReader);
+    zr.open(uri.JARFile.QueryInterface(Components.interfaces.nsIFileURL).file);
+    var realEntry = zr.getEntry(strEntry);
+    if (!realEntry.isDirectory) {
+      zr.close();
+      return [];
+    }
+
+    var escapedEntry = strEntry.replace(/([*?$[\]^~()\\])/g, "\\$1");
+    var filter = escapedEntry + "?*~" + escapedEntry + "?*/?*";
+    var entries = zr.findEntries(filter);
+
+    let parentLength = strEntry.length;
+    while (entries.hasMore())
+      results.push(entries.getNext().substring(parentLength));
+    zr.close();
+  }
+  else if (uri.scheme == "file") {
+    uri.QueryInterface(Components.interfaces.nsIFileURL);
+    var dir = uri.file;
+
+    if (!dir.exists() || !dir.isDirectory())
+      return [];
+
+    let children = dir.directoryEntries;
+    while (children.hasMoreElements()) {
+      let file = children.getNext()
+                         .QueryInterface(Components.interfaces.nsIFile);
+      results.push(file.leafName);
+    }
+  }
+
+  return results;
+}
+
+function getThemeVariants(aTheme)
+{
+  let variants = getDirectoryEntries(aTheme.baseURI + "Variants/");
+  let cssRe = /\.css$/;
+  variants = variants.filter(function(v) cssRe.test(v))
+                     .map(function(v) v.replace(cssRe, ""));
+  return variants;
 }
 
 const headerFooterReplacements = {
