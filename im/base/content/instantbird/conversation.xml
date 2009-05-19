@@ -247,9 +247,6 @@
                            elt.scrollHeight <= elt.scrollTop + elt.clientHeight + 10;
         let newElt = insertHTMLForMessage(aTxt, doc, aIsNext);
         if (shouldScroll) {
-          // do a layout flush to work around bug 492760
-          newElt.getBoundingClientRect();
-
           newElt.scrollIntoView(true);
           this.lastElement = newElt;
           this.scrollingIntoView = true;
