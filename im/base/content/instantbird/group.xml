@@ -46,10 +46,7 @@
 
   <binding id="group" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
-      <xul:hbox>
-	<xul:label xbl:inherits="value=name"/>
-	<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>
-      </xul:hbox>
+      <xul:label flex="1" crop="end" xbl:inherits="value=name"/>
     </content>
     <implementation>
      <constructor>
