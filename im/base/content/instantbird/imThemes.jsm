@@ -243,8 +243,7 @@ function getDirectoryEntries(aDir)
     let zr = Components.classes["@mozilla.org/libjar/zip-reader;1"]
                        .createInstance(Components.interfaces.nsIZipReader);
     zr.open(uri.JARFile.QueryInterface(Components.interfaces.nsIFileURL).file);
-    var realEntry = zr.getEntry(strEntry);
-    if (!realEntry.isDirectory) {
+    if (!zr.hasEntry(strEntry) || !zr.getEntry(strEntry).isDirectory) {
       zr.close();
       return [];
     }
