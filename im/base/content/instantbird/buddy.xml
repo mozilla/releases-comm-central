@@ -56,7 +56,7 @@
           <xul:hbox pack="start" align="start" flex="1">
 
             <xul:vbox flex="1">
-              <xul:hbox pack="start" align="center" flex="1">
+              <xul:hbox crop="end" align="center" flex="1">
                 <xul:stack class="prplBuddyIcon">
                   <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
                   <xul:image src="chrome://instantbird/skin/away.png"
@@ -73,15 +73,15 @@
                 <xul:rows anonid="tooltiprows">
                   <xul:row xbl:inherits="hidden=buddyHidden">
                     <xul:label value="&buddy.screenname;" class="header"/>
-                    <xul:label xbl:inherits="value=buddy"/>
+                    <xul:description><xul:text xbl:inherits="value=buddy"/></xul:description>
                   </xul:row>
                   <xul:row xbl:inherits="hidden=loggedInHidden">
                     <xul:label value="&buddy.loggedIn;" class="header"/>
-                    <xul:label xbl:inherits="value=loggedIn"/>
+                    <xul:description><xul:text xbl:inherits="value=loggedIn"/></xul:description>
                   </xul:row>
                   <xul:row>
                     <xul:label value="&buddy.account;" class="header"/>
-                    <xul:label xbl:inherits="value=accountName"/>
+                    <xul:description><xul:text xbl:inherits="value=accountName"/></xul:description>
                   </xul:row>
                 </xul:rows>
               </xul:grid>
@@ -245,8 +245,8 @@
               label.className = "header";
               label.setAttribute("value", elt.label);
               row.appendChild(label);
-              label = document.createElementNS(XULNS, "label");
-              label.setAttribute("value", elt.value);
+              label = document.createElementNS(XULNS, "description");
+              label.textContent = elt.value;
               row.appendChild(label);
               break;
             case Ci.purpleITooltipInfo.sectionBreak:

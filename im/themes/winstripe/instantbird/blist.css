@@ -81,6 +81,10 @@ group label {
   font-size: 14pt;
 }
 
+tooltip label {
+  margin-top: 0;
+}
+
 #updatesMenuItem[loading="true"] {
   list-style-image: url("chrome://global/skin/icons/loading_16.png");
 }
