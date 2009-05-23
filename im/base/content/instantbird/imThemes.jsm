@@ -106,7 +106,7 @@ HTMLTheme_prototype = {
   get header() "",
   get status() this.incomingContent,
   get statusNext() this.status,
-  get incomingContent() function() {
+  get incomingContent() {
     throw "Incoming/Content.html is a required file";
   },
   get incomingNextContent() this.incomingContent,
