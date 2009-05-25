@@ -129,7 +129,7 @@ function getRegexp()
   for (let emoticon in theme.iconsHash)
     emoticonList.push(emoticon);
 
-  let exp = /([\][)(\\|?^*+])/g;
+  let exp = /([\][)(\\|?^$*+])/g;
   emoticonList = emoticonList.sort()
                              .reverse()
                              .map(function(x) x.replace(exp, "\\$1"));
