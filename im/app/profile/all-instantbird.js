@@ -118,8 +118,11 @@ pref("app.update.showInstalledUI", true);
 //     versions.
 pref("app.update.incompatible.mode", 0);
 
+// Dictionary download preference
+pref("browser.dictionaries.download.url", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/dictionaries/");
+
 // search engines URL
-pref("browser.search.searchEnginesURL",      "https://addons.instantbird.org/%LOCALE%/instantbird/%VERSION%/search-engines/");
+pref("browser.search.searchEnginesURL",      "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/search-engines/");
 
 // pointer to the default engine name. Keep this empty so that the
 // first engine listed in the engine manager is used instead
@@ -156,11 +159,20 @@ pref("extensions.logging.enabled", false);
 pref("general.skins.selectedSkin", "classic/1.0");
 // NB these point at addons.instantbird.org
 pref("extensions.update.enabled", false);
-pref("extensions.update.url", "https://versioncheck.addons.instantbird.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%");
+pref("extensions.update.url", "https://addons.instantbird.org/services/update.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%");
 
-pref("extensions.getMoreExtensionsURL", "http://addons.instantbird.org/%LOCALE%/%VERSION%/extensions/");
-pref("extensions.getMoreThemesURL", "http://addons.instantbird.org/%LOCALE%/%VERSION%/themes/");
-pref("extensions.getMorePluginsURL", "http://addons.instantbird.org/%LOCALE%/%VERSION%/plugins/");
+// Preferences for the Get Add-ons pane
+pref("extensions.getAddons.showPane", true);
+pref("extensions.getAddons.browseAddons", "https://addons.instantbird.org/%LOCALE%/%APP%");
+pref("extensions.getAddons.maxResults", 5);
+pref("extensions.getAddons.recommended.browseURL", "https://addons.instantbird.org/%LOCALE%/%APP%/recommended");
+pref("extensions.getAddons.recommended.url", "https://services.instantbird.org/%LOCALE%/%APP%/api/%API_VERSION%/list/featured/all/10/%OS%/%VERSION%");
+pref("extensions.getAddons.search.browseURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/search?q=%TERMS%");
+pref("extensions.getAddons.search.url", "https://services.instantbird.org/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/10/%OS%/%VERSION%");
+
+pref("extensions.getMoreExtensionsURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/extensions/");
+pref("extensions.getMoreThemesURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/themes/");
+pref("extensions.getMorePluginsURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/plugins/");
 // suppress external-load warning for standard browser schemes
 pref("network.protocol-handler.warn-external.http", false);
 pref("network.protocol-handler.warn-external.https", false);
