@@ -4,8 +4,14 @@ classic.jar:
 	skin/classic/instantbird/accountError.png
 *	skin/classic/instantbird/accounts.css
 *	skin/classic/instantbird/accountWizard.css
+	skin/classic/instantbird/available-16.png
+	skin/classic/instantbird/available.png
 	skin/classic/instantbird/away-16.png
 	skin/classic/instantbird/away.png
+	skin/classic/instantbird/idle-16.png
+	skin/classic/instantbird/idle.png
+	skin/classic/instantbird/offline-16.png
+	skin/classic/instantbird/offline.png
 	skin/classic/instantbird/founder.png
 	skin/classic/instantbird/operator.png
 	skin/classic/instantbird/half-operator.png
