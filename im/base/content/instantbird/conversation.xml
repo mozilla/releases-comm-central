@@ -301,7 +301,16 @@
         if (event.keyCode != 13) {
           if (conv._conv instanceof Ci.purpleIConvIM)
             setTimeout(function () {
-              conv._conv.sendTyping(input.value.length);
+              let text = input.value;
+              // try to avoid sending typing notifications when the user is
+              // typing a command in the conversation.
+              // These checks are not perfect (especially if non-existing
+              // commands are sent as regular messages on the in-use prpl).
+              if (! /^\//.test(text))
+                conv._conv.sendTyping(text.length);
+              else
+                if (/^\/me /.test(text))
+                  conv._conv.sendTyping(text.length - 4);
             }, 0);
           return;
         }
