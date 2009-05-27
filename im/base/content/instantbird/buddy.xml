@@ -59,8 +59,7 @@
               <xul:hbox crop="end" align="center" flex="1">
                 <xul:stack class="prplBuddyIcon">
                   <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
-                  <xul:image src="chrome://instantbird/skin/away.png"
-                             class="statusIcon"/>
+                  <xul:image class="statusIcon"/>
                 </xul:stack>
                 <xul:description xbl:inherits="value=displayname" class="tooltip-header"/>
               </xul:hbox>
@@ -96,8 +95,7 @@
 
         <xul:stack class="prplBuddyIcon">
           <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
-          <xul:image src="chrome://instantbird/skin/away.png"
-                     class="statusIcon"/>
+          <xul:image class="statusIcon"/>
         </xul:stack>
         <xul:label crop="end" flex="1" class="buddyDisplayName" xbl:inherits="value=displayname"/>
         <!--<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>-->

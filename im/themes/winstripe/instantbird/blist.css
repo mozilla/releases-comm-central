@@ -64,8 +64,17 @@ group[selected="true"] {
   max-height: 16px;
 }
 
-buddy:not([away="true"]) .statusIcon {
-  display: none;
+.prplBuddyIcon, .statusIcon {
+  width: 16px;
+  height: 16px;
+}
+
+buddy[away="true"] .statusIcon {
+  background-image: url('chrome://instantbird/skin/away.png');
+}
+
+buddy[idle="true"] .statusIcon {
+  background-image: url('chrome://instantbird/skin/idle.png');
 }
 
 buddy[idle="true"] .buddyDisplayName {
