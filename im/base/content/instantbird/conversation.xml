@@ -207,9 +207,7 @@
                           .scanHTML(msg, 2)
                           .replace(/&amp;(apos|quot);/g, "&$1;");
         }
-        // FIXME simplify the /me replacement, we don't need the test anymore
-        let me = msg.match("^((<[^>]+>)*)/me (.*)$");
-        msg = (me ? me[1] + me[3] : msg).replace(/\n/g, "<br/>");
+        msg = msg.replace(/^((<[^>]+>)*)\/me /, "$1").replace(/\n/g, "<br/>");
         aMsg.message = smileImMarkup(doc, msg);
         let next = isNextMessage(this.theme, aMsg, this._lastMessage);
         let html = getHTMLForMessage(aMsg, this.theme, next);
