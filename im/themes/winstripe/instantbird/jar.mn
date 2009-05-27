@@ -12,6 +12,7 @@ classic.jar:
 	skin/classic/instantbird/idle.png
 	skin/classic/instantbird/offline-16.png
 	skin/classic/instantbird/offline.png
+	skin/classic/instantbird/unknown-16.png
 	skin/classic/instantbird/founder.png
 	skin/classic/instantbird/operator.png
 	skin/classic/instantbird/half-operator.png

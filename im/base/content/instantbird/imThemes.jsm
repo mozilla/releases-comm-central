@@ -284,11 +284,25 @@ function getThemeVariants(aTheme)
   return variants;
 }
 
+/* helper function for replacements in messages */
+function getBuddyFromMessage(aMsg)
+{
+  if (aMsg.incoming) {
+    let conv = aMsg.conversation;
+    if (conv instanceof Components.interfaces.purpleIConvIM)
+      return conv.buddy;
+  }
+
+  return null;
+}
+
 const headerFooterReplacements = {
-  chatName: function(aConv) "",
-  sourceName: function(aConv) "",
-  destinationName: function(aConv) "",
-  incomingIconPath: function(aConv) "incoming_icon.png",
+  chatName: function(aConv) aConv.title,
+  sourceName: function(aConv) aConv.account.alias || aConv.account.name,
+  destinationName: function(aConv) aConv.name,
+  incomingIconPath: function(aConv)
+    ((aConv instanceof Components.interfaces.purpleIConvIM) &&
+     aConv.buddy.buddyIconFilename) || "incoming_icon.png",
   outgoingIconPath: function(aConv) "outgoing_icon.png",
   timeOpened: function(aConv, aFormat) (new Date()).toLocaleTimeString()
 };
@@ -329,20 +343,43 @@ const statusMessageReplacements = {
 };
 
 const messageReplacements = {
-  userIconPath: function (aMsg) (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png",
-  senderScreenName: function(aMsg) "FIXME",
+  userIconPath: function (aMsg) {
+    if (!aMsg.incoming)
+      return "Outgoing/buddy_icon.png"; //FIXME
+
+    let buddy = getBuddyFromMessage(aMsg);
+    return (buddy && buddy.buddyIconFilename) || "Incoming/buddy_icon.png";
+  },
+  senderScreenName: function(aMsg) aMsg.who,
   sender: function(aMsg) aMsg.alias || aMsg.who,
-  senderColor: function(aMsg) "%senderColor%", // let conversation.xml handle that for now
-  senderStatusIcon: function(aMsg) "FIXME",
+  // FIXME: conversation.xml handles the senderColor replacement for now
+  senderColor: function(aMsg) "%senderColor%",
+  senderStatusIcon: function(aMsg) {
+    let status = "unknown";
+    let buddy = getBuddyFromMessage(aMsg);
+    if (buddy) {
+      if (!buddy.online)
+        status = "offline";
+      else if (buddy.idle)
+        status = "idle";
+      else if (!buddy.available)
+        status = "away";
+      else
+        status = "available";
+    }
+    return "chrome://instantbird/skin/" + status + "-16.png";
+  },
   messageDirection: function(aMsg) "ltr",
-  senderDisplayName: function(aMsg) "FIXME",
-  service: function(aMsg) "AIMSN",
-  textbackgroundcolor: function(aMsg, aFormat) "FIXME",
+  // no theme actually use this, don't bother making sure this is the real
+  // serverside alias
+  senderDisplayName: function(aMsg) aMsg.alias || aMsg.who, 
+  service: function(aMsg) aMsg.conversation.account.protocol.name,
+  textbackgroundcolor: function(aMsg, aFormat) "transparent", // FIXME?
   __proto__: statusMessageReplacements
 };
 
 const statusReplacements = {
-  status: function(aMsg) "FIXME",
+  status: function(aMsg) "", //FIXME
   __proto__: statusMessageReplacements
 };
 
