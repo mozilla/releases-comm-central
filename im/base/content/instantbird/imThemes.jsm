@@ -346,7 +346,7 @@ const statusReplacements = {
   __proto__: statusMessageReplacements
 };
 
-const replacementRegExp = /%([a-zA-Z]*)(\{(.*)\})?%/g;
+const replacementRegExp = /%([a-zA-Z]*)(\{([^\}]*)\})?%/g;
 
 function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
 {
@@ -357,7 +357,7 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
   while (match = replacementRegExp(aHTML)) {
     let content = "";
     if (match[1] in aReplacements)
-      content = aReplacements[match[1]](aReplacementArg, match[2]);
+      content = aReplacements[match[1]](aReplacementArg, match[3]);
     else
       Components.utils.reportError("Unknown replacement string %" + 
                                    match[1] + "% in message styles.");
