@@ -450,6 +450,13 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext)
       html = aMsg.incoming ? aTheme.html.incomingContent
                            : aTheme.html.outgoingContent
     replacements = messageReplacements;
+    let meRegExp = /^((<[^>]+>)*)\/me /;
+    if (meRegExp.test(aMsg.message)) {
+      aMsg.message = aMsg.message.replace(meRegExp, "$1");
+      if (hasMetadataKey(aTheme, "ActionMessageTemplate"))
+        html = html.replace(/%message%/g,
+                            getMetadata(aTheme, "ActionMessageTemplate"));
+    }
   }
 
   return replaceKeywordsInHTML(html, replacements, aMsg);

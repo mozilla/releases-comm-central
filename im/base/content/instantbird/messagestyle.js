@@ -281,8 +281,7 @@ var previewObserver = {
                       .scanHTML(msg, 2)
                       .replace(/&amp;(apos|quot);/g, "&$1;");
     }
-    msg = msg.replace(/^((<[^>]+>)*)\/me /, "$1").replace(/\n/g, "<br/>");
-    aMsg.message = smileImMarkup(doc, msg);
+    aMsg.message = smileImMarkup(doc, msg.replace(/\n/g, "<br/>"));
     let next = isNextMessage(this.theme, aMsg, this._lastMessage);
     let html = getHTMLForMessage(aMsg, this.theme, next);
     let elt = doc.getElementsByTagName("body")[0];
