@@ -1,0 +1,5 @@
+<!ENTITY messageStyleWindow.title "Message Styles - &brandShortName;">
+<!ENTITY previewLabel "Preview:">
+<!ENTITY themeLabel   "Theme:">
+<!ENTITY variantLabel "Variant:">
+<!ENTITY showHeaderLabel "Show Header">

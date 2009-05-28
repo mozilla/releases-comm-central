@@ -37,6 +37,7 @@
 
 const addonManagerWindow = "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
 const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
+const messageStyleWindow = "chrome://instantbird/content/messagestyle.xul";
 const blistWindow = "chrome://instantbird/content/blist.xul";
 const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 const joinChatWindow = "chrome://instantbird/content/joinchat.xul";
@@ -70,6 +71,11 @@ var menus = {
     if (!this.focus("Extension:Manager"))
       window.open(addonManagerWindow, "Addons",
                   "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
+  },
+
+  messageStyle: function menu_messageStyle() {
+    if (!this.focus("Messenger:messageStyle"))
+      window.open(messageStyleWindow, "Message Styles", "chrome,resizable");
   },
 
   errors: function debug_errors() {
