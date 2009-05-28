@@ -317,6 +317,7 @@ const headerFooterReplacements = {
   chatName: function(aConv) aConv.title,
   sourceName: function(aConv) aConv.account.alias || aConv.account.name,
   destinationName: function(aConv) aConv.name,
+  destinationDisplayName: function(aConv) aConv.title,
   incomingIconPath: function(aConv)
     ((aConv instanceof Components.interfaces.purpleIConvIM) &&
      aConv.buddy.buddyIconFilename) || "incoming_icon.png",
