@@ -419,8 +419,8 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
 function isNextMessage(aTheme, aMsg, aPreviousMsg)
 {
   if (!aTheme.combineConsecutive ||
-      ("DisableCombineConsecutive" in aTheme.metadata &&
-       aTheme.metadata.DisableCombineConsecutive))
+      (hasMetadataKey(aTheme, "DisableCombineConsecutive") &&
+       getMetadata(aTheme, "DisableCombineConsecutive")))
     return false;
 
   if (!aPreviousMsg ||
@@ -487,6 +487,28 @@ function insertHTMLForMessage(aHTML, aDoc, aIsNext)
   return result;
 }
 
+function hasMetadataKey(aTheme, aKey)
+{
+  return (aKey in aTheme.metadata) ||
+         ((aTheme.variant != "default") &&
+          (aKey + ":" + aTheme.variant) in aTheme.metadata) ||
+         (("DefaultVariant" in aTheme.metadata) &&
+          ((aKey + ":" + aTheme.metadata.DefaultVariant) in aTheme.metadata));
+}
+
+function getMetadata(aTheme, aKey)
+{
+  if ((aTheme.variant != "default") &&
+      (aKey + ":" + aTheme.variant) in aTheme.metadata)
+    return aTheme.metadata[aKey + ":" + aTheme.variant];
+
+  if (("DefaultVariant" in aTheme.metadata) &&
+      ((aKey + ":" + aTheme.metadata.DefaultVariant) in aTheme.metadata))
+    return aTheme.metadata[aKey + ":" + aTheme.metadata.DefaultVariant];
+
+  return aTheme.metadata[aKey];
+}
+
 function addCSS(aHead, aHref)
 {
   let elt = aHead.ownerDocument.createElement("link");
@@ -509,10 +531,10 @@ function initHTMLDocument(aConv, aTheme, aDoc)
 
   // add css to handle DefaultFontFamily and DefaultFontSize
   let cssText = "";
-  if ("DefaultFontFamily" in aTheme.metadata)
-    cssText += "font-family: " + aTheme.metadata.DefaultFontFamily + ";";
-  if ("DefaultFontSize" in aTheme.metadata)
-    cssText += "font-size: " + aTheme.metadata.DefaultFontSize + ";";
+  if (hasMetadataKey(aTheme, "DefaultFontFamily"))
+    cssText += "font-family: " + getMetadata(aTheme, "DefaultFontFamily") + ";";
+  if (hasMetadataKey(aTheme, "DefaultFontSize"))
+    cssText += "font-size: " + getMetadata(aTheme, "DefaultFontSize") + ";";
   if (cssText)
     addCSS(head, "data:text/css,*{ " + cssText + " }");
 
