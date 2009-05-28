@@ -296,6 +296,23 @@ function getBuddyFromMessage(aMsg)
   return null;
 }
 
+function getStatusIconFromBuddy(aBuddy)
+{
+  let status = "unknown";
+  if (aBuddy) {
+    if (!aBuddy.online)
+      status = "offline";
+    else if (aBuddy.idle)
+      status = "idle";
+    else if (!aBuddy.available)
+      status = "away";
+    else
+      status = "available";
+  }
+
+  return "chrome://instantbird/skin/" + status + "-16.png";
+}
+
 const headerFooterReplacements = {
   chatName: function(aConv) aConv.title,
   sourceName: function(aConv) aConv.account.alias || aConv.account.name,
@@ -354,21 +371,8 @@ const messageReplacements = {
   sender: function(aMsg) aMsg.alias || aMsg.who,
   // FIXME: conversation.xml handles the senderColor replacement for now
   senderColor: function(aMsg) "%senderColor%",
-  senderStatusIcon: function(aMsg) {
-    let status = "unknown";
-    let buddy = getBuddyFromMessage(aMsg);
-    if (buddy) {
-      if (!buddy.online)
-        status = "offline";
-      else if (buddy.idle)
-        status = "idle";
-      else if (!buddy.available)
-        status = "away";
-      else
-        status = "available";
-    }
-    return "chrome://instantbird/skin/" + status + "-16.png";
-  },
+  senderStatusIcon: function(aMsg)
+    getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
   messageDirection: function(aMsg) "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
@@ -380,6 +384,13 @@ const messageReplacements = {
 
 const statusReplacements = {
   status: function(aMsg) "", //FIXME
+  statusIcon: function(aMsg) {
+    let conv = aMsg.conversation;
+    let buddy = null;
+    if (conv instanceof Components.interfaces.purpleIConvIM)
+      buddy = conv.buddy;
+    return getStatusIconFromBuddy(buddy);
+  },
   __proto__: statusMessageReplacements
 };
 
