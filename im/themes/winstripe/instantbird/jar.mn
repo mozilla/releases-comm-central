@@ -48,6 +48,10 @@ classic.jar:
 	skin/classic/prpl/jabber/icon32.png	(prpl/prpl-jabber-32.png)
 	skin/classic/prpl/jabber/icon48.png	(prpl/prpl-jabber-48.png)
 	skin/classic/prpl/jabber/icon.png	(prpl/prpl-jabber.png)
+% skin prpl-gtalk classic/1.0 %skin/classic/prpl/gtalk/
+	skin/classic/prpl/gtalk/icon32.png	(prpl/prpl-gtalk-32.png)
+	skin/classic/prpl/gtalk/icon48.png	(prpl/prpl-gtalk-48.png)
+	skin/classic/prpl/gtalk/icon.png	(prpl/prpl-gtalk.png)
 % skin prpl-msn classic/1.0 %skin/classic/prpl/msn/
 	skin/classic/prpl/msn/icon32.png	(prpl/prpl-msn-32.png)
 	skin/classic/prpl/msn/icon48.png	(prpl/prpl-msn-48.png)
