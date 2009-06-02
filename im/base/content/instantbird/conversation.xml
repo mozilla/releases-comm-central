@@ -263,10 +263,13 @@
         var msg = aMsg.match(re);
         if (msg)
           msg = msg[1];
-        else
+        else {
           msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
                           .getService(Ci.mozITXTToHTMLConv)
                           .scanTXT(aMsg, 0);
+          if (this._conv.account.HTMLEnabled)
+            msg = msg.replace(/\n/g, "<br/>");
+        }
         this._conv.sendMsg(msg);
       ]]>
       </body>
