@@ -187,3 +187,15 @@ pref("network.protocol-handler.expose.javascript", true);
 
 // The breakpad report server to link to in about:crashes
 pref("breakpad.reportURL", "http://crash-stats.instantbird.com/report/index/");
+
+// We have an Error Console menu item by default so let's display chrome errors
+pref("javascript.options.showInConsole", true);
+#ifdef DEBUG
+// In debug builds, also display warnings by default
+pref("javascript.options.strict", true);
+
+// Having to click through the "I'll be careful" button all the time
+// is annoying, and users of debug builds are expected to know what
+// they are doing...
+pref("general.warnOnAboutConfig", false);
+#endif
