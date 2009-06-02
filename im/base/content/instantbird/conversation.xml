@@ -200,13 +200,14 @@
         }
 
         let doc = this.browser.contentDocument;
-        let msg = cleanupImMarkup(doc, aMsg.message);
+        let msg = aMsg.message;
         if (!aMsg.noLinkification) {
           msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
                           .getService(Ci.mozITXTToHTMLConv)
                           .scanHTML(msg, 2)
                           .replace(/&amp;(apos|quot);/g, "&$1;");
         }
+        msg = cleanupImMarkup(doc, msg);
         aMsg.message = smileImMarkup(doc, msg.replace(/\n/g, "<br/>"));
         let next = isNextMessage(this.theme, aMsg, this._lastMessage);
         let html = getHTMLForMessage(aMsg, this.theme, next);
