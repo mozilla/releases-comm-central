@@ -111,7 +111,6 @@ var soundObserver = {
       break;
 
     case "new-text":
-      aObject.QueryInterface(Ci.purpleIMessage);
       if (aObject.incoming && !aObject.system) {
         if (!(aObject.conversation instanceof Ci.purpleIConvChat) ||
             aObject.containsNick)

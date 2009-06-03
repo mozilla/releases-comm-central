@@ -38,13 +38,10 @@
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-function getIter(aGetEnumFct, aIface)
+function getIter(aEnumerator)
 {
-  var enumerator = aGetEnumFct();
-  while (enumerator.hasMoreElements()) {
-    let item = enumerator.getNext();
-    yield item.QueryInterface(aIface);
-  }
+  while (aEnumerator.hasMoreElements())
+    yield aEnumerator.getNext();
 }
 
 __defineGetter__("gPrefService", function() {

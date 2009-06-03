@@ -89,7 +89,7 @@ var addBuddy = {
   },
 
   getAccounts: function ab_getAccounts() {
-    return getIter(this.pcs.getAccounts, Ci.purpleIAccount);
+    return getIter(this.pcs.getAccounts());
   },
   getTags: function ab_getTags() {
     var DBConn = this.pcs.storageConnection;

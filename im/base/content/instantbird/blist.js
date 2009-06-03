@@ -168,7 +168,7 @@ var buddyList = {
   getAccounts: function bl_getAccounts() {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Ci.purpleICoreService);
-    return getIter(pcs.getAccounts, Ci.purpleIAccount);
+    return getIter(pcs.getAccounts());
   },
   checkNotDisconnected: function bl_checkNotDisconnected() {
     var addBuddyItem = document.getElementById("addBuddyMenuItem");

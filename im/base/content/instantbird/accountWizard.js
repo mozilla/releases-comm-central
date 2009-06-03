@@ -214,7 +214,6 @@ var accountWizard = {
 
     if (!result) {
       // At this point, we should have either a socks or http proxy
-      proxy.QueryInterface(Ci.purpleIProxy);
       var result;
       if (type == Ci.purpleIProxyInfo.httpProxy)
         result = bundle.getString("proxies.http");
@@ -272,7 +271,7 @@ var accountWizard = {
     menulist.setAttribute("id", aName);
     var popup = menulist.appendChild(document.createElement("menupopup"));
     while (aList.hasMoreElements()) {
-      let elt = aList.getNext().QueryInterface(Ci.purpleIKeyValuePair);
+      let elt = aList.getNext();
       let item = document.createElement("menuitem");
       item.setAttribute("label", elt.name);
       item.setAttribute("value", elt.value);
@@ -398,7 +397,7 @@ var accountWizard = {
       case opt.typeList:
         var list = opt.getList().QueryInterface(Ci.nsISimpleEnumerator);
         var defaultVal = list.hasMoreElements() &&
-          list.getNext().QueryInterface(Ci.purpleIKeyValuePair).value || "";
+          list.getNext().value || "";
         if (val != defaultVal)
           this.prefs.push({opt: opt, name: name, value: val});
         break;
@@ -473,13 +472,13 @@ var accountWizard = {
   },
 
   getProtocols: function aw_getProtocols() {
-    return getIter(this.pcs.getProtocols, Ci.purpleIProtocol);
+    return getIter(this.pcs.getProtocols());
   },
   getProtoOptions: function aw_getProtoOptions() {
-    return getIter(this.proto.getOptions, Ci.purpleIPref);
+    return getIter(this.proto.getOptions());
   },
   getProtoUserSplits: function aw_getProtoUserSplits() {
-    return getIter(this.proto.getUsernameSplit, Ci.purpleIUsernameSplit);
+    return getIter(this.proto.getUsernameSplit());
   },
 
   toggleGroupbox: function aw_toggleGroupbox(id) {

@@ -117,7 +117,6 @@ var account = {
 
     if (!result) {
       // At this point, we should have either a socks or http proxy
-      proxy.QueryInterface(Ci.purpleIProxy);
       var result;
       if (type == Ci.purpleIProxyInfo.httpProxy)
         result = bundle.getString("proxies.http");
@@ -172,7 +171,7 @@ var account = {
     menulist.setAttribute("id", aName);
     var popup = menulist.appendChild(document.createElement("menupopup"));
     while (aList.hasMoreElements()) {
-      let elt = aList.getNext().QueryInterface(Ci.purpleIKeyValuePair);
+      let elt = aList.getNext();
       let item = document.createElement("menuitem");
       item.setAttribute("label", elt.name);
       item.setAttribute("value", elt.value);
@@ -209,7 +208,7 @@ var account = {
 
     var list = aOpt.getList().QueryInterface(Ci.nsISimpleEnumerator);
     return list.hasMoreElements() &&
-           list.getNext().QueryInterface(Ci.purpleIKeyValuePair).value || "";
+           list.getNext().value || "";
   },
 
   populateProtoSpecificBox: function account_populate() {
@@ -302,7 +301,7 @@ var account = {
   },
 
   getProtoOptions: function account_getProtoOptions() {
-    return getIter(this.proto.getOptions, Ci.purpleIPref);
+    return getIter(this.proto.getOptions());
   },
 
   openProxySettings: function aw_openProxySettings() {

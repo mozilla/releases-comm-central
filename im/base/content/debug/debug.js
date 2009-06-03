@@ -41,9 +41,9 @@ function debug_enumerateProtocols()
   dump("trying to enumerate protocols:\n");
   var pcs = Components.classes["@instantbird.org/purple/core;1"]
                       .getService(Ci.purpleICoreService);
-  for (let proto in getIter(pcs.getProtocols, Ci.purpleIProtocol)) {
+  for (let proto in getIter(pcs.getProtocols())) {
     dump(" " + proto.name + " " + proto.id + "\n");
-    for (let opt in getIter(proto.getOptions, Ci.purpleIPref)) {
+    for (let opt in getIter(proto.getOptions())) {
       var type = { };
       type[opt.typeBool] = ["bool", opt.getBool];
       type[opt.typeInt] = ["int", opt.getInt];

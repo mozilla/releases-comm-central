@@ -159,7 +159,7 @@ var gAccountManager = {
   getAccounts: function am_getAccounts() {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Ci.purpleICoreService);
-    return getIter(pcs.getAccounts, Ci.purpleIAccount);
+    return getIter(pcs.getAccounts());
   },
 
   openDialog: function am_openDialog(aUrl, aArgs) {

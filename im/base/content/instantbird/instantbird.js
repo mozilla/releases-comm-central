@@ -51,7 +51,6 @@ var msgObserver = {
       break;
 
     case "new-text":
-      aObject.QueryInterface(Ci.purpleIMessage);
       var conv = aObject.conversation;
       var tab = this.convs[conv.id] || this.addConvTab(conv);
       if (!tab.loaded) // until we can load all messages from a conversation
@@ -64,7 +63,6 @@ var msgObserver = {
       break;
 
     case "new-conversation":
-      aObject.QueryInterface(Ci.purpleIConversation);
       this.addConvTab(aObject);
       break;
 

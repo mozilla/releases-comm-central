@@ -70,7 +70,7 @@ var gProxies = {
     if (envproxy)
       document.getElementById("envProxy").textContent = envproxy;
 
-    var proxies = getIter(pcs.getProxies, Ci.purpleIProxy);
+    var proxies = getIter(pcs.getProxies());
     var proxyList = document.getElementById("proxylist");
     for (let proxy in proxies) {
       let item = document.createElement("richlistitem");
@@ -106,7 +106,6 @@ var gProxies = {
       return bundle.getString("proxies.useEnvironemental");
 
     // At this point, we should have either a socks or http proxy
-    aProxy.QueryInterface(Ci.purpleIProxy);
     var result;
     if (type == Ci.purpleIProxyInfo.httpProxy)
       result = bundle.getString("proxies.http");
@@ -152,7 +151,7 @@ var gProxies = {
       }
       var user = this.getValue("username");
       var pass = this.getValue("password");
-      var proxies = getIter(pcs.getProxies, Ci.purpleIProxy);
+      var proxies = getIter(pcs.getProxies());
       for (let proxy in proxies) {
         if (proxy.type == type && proxy.port == port &&
             proxy.host == host && proxy.username == user) {
@@ -175,7 +174,6 @@ var gProxies = {
         item.proxy = pcs.createProxy(type, host, port, user, pass);
     }
 
-    item.proxy.QueryInterface(Ci.purpleIProxyInfo);
     var globalCheckbox = document.getElementById("useAsGlobalSettings");
     if (!globalCheckbox.disabled && globalCheckbox.checked) {
       pcs.globalProxy = item.proxy;

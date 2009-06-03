@@ -270,7 +270,9 @@
                           .scanTXT(aMsg, 0);
         var account = this._conv.account;
         if (account.noNewlines)
-          msg.split("\n").forEach(this._conv.sendMsg);
+          // 'Illegal operation on WrappedNative prototype object' if the this
+          // object is not specified (since nsIClassInfo was added to this._conv)
+          msg.split("\n").forEach(this._conv.sendMsg, this._conv);
         else if (account.HTMLEnabled)
           this._conv.sendMsg(msg.replace(/\n/g, "<br/>"));
         else
@@ -703,7 +705,7 @@
 
          switch(aTopic) {
          case "new-text":
-           this._addMsg(aSubject.QueryInterface(Ci.purpleIMessage));
+           this._addMsg(aSubject);
            break;
 
          case "update-typing":
@@ -712,11 +714,8 @@
 
          case "chat-buddy-add":
            aSubject.QueryInterface(Ci.nsISimpleEnumerator);
-           while (aSubject.hasMoreElements()) {
-             let buddy = aSubject.getNext()
-             buddy.QueryInterface(Ci.purpleIConvChatBuddy);
-             this.addBuddy(buddy);
-           }
+           while (aSubject.hasMoreElements())
+             this.addBuddy(aSubject.getNext());
            this.updateParticipantCount();
            break;
 
@@ -731,7 +730,7 @@
            break;
 
          case "chat-buddy-update":
-           this.updateBuddy(aSubject.QueryInterface(Ci.purpleIConvChatBuddy), aData);
+           this.updateBuddy(aSubject, aData);
            break;
          case "chat-update-topic":
            this.updateTopic();
@@ -765,7 +764,7 @@
             this.updateTopic();
             this.setAttribute("chat", "true");
             this.buddies = {};
-            var nicks = getIter(this.conv.getParticipants, Ci.purpleIConvChatBuddy);
+            var nicks = getIter(this.conv.getParticipants());
             for (let n in nicks)
               this.addBuddy(n);
             this.updateParticipantCount();

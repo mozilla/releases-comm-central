@@ -81,7 +81,6 @@ var unreadCountKeeper = {
   observe: function uck_observe(aObject, aTopic, aData) {
     switch(aTopic) {
     case "new-text":
-      aObject.QueryInterface(Ci.purpleIMessage);
       if (!document.hasFocus() && aObject.incoming && !aObject.system &&
           (!(aObject.conversation instanceof Ci.purpleIConvChat) ||
            aObject.containsNick))

@@ -106,6 +106,6 @@ var joinChat = {
   },
 
   getAccounts: function jc_getAccounts() {
-    return getIter(this.pcs.getAccounts, Ci.purpleIAccount);
+    return getIter(this.pcs.getAccounts());
   }
 };
