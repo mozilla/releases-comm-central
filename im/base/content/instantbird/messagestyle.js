@@ -157,7 +157,6 @@ var previewObserver = {
     Components.utils.import("resource://app/modules/imSmileys.jsm");
     Components.utils.import("resource://app/modules/imThemes.jsm");
 
-    let conv = new Conversation("Florian");
     let makeDate = function(aDateString) {
       let array = aDateString.split(":");
       return (new Date(2009, 11, 8, array[0], array[1], array[2])) / 1000;
@@ -168,6 +167,7 @@ var previewObserver = {
      "message1", "message2", "message3"].forEach(function(aText) {
       msg[aText] = bundle.getString(aText);
     });
+    let conv = new Conversation(msg.nick2);
     conv.messages = [
       new Message(makeDate("10:42:22"), msg.nick1, msg.message1, {outgoing: true, conversation: conv, who: msg.buddy1}),
       new Message(makeDate("10:42:25"), msg.nick1, msg.message2, {outgoing: true, conversation: conv, who: msg.buddy1}),
