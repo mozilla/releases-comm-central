@@ -45,12 +45,7 @@ p {
   margin: 0px auto;
 }
 
-p img {
-  margin-bottom: -3px;
-}
-
 p *:-moz-any-link img {
-  border: none;
+  margin-bottom: 1px;
   border-bottom: solid 1px;
-  margin-bottom: -2px;
 }

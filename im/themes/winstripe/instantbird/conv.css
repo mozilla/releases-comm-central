@@ -41,11 +41,11 @@
 }
 
 .ib-img-smile {
-  margin-bottom: -3px;
+  vertical-align: text-bottom;
 }
 
 *:-moz-any-link .ib-img-smile {
   border: none;
   border-bottom: solid 1px;
-  margin-bottom: -2px;
+  margin-bottom: 1px;
 }
