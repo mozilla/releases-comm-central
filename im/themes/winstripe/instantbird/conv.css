@@ -49,3 +49,12 @@
   border-bottom: solid 1px;
   margin-bottom: 1px;
 }
+
+/* disable overflow in themes until bug 42676 is fixed in Mozilla */
+#Chat {
+  overflow: hidden !important;
+}
+
+#Chat * {
+  overflow: visible !important;
+}
