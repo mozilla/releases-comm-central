@@ -318,9 +318,12 @@ const headerFooterReplacements = {
   sourceName: function(aConv) aConv.account.alias || aConv.account.name,
   destinationName: function(aConv) aConv.name,
   destinationDisplayName: function(aConv) aConv.title,
-  incomingIconPath: function(aConv)
-    ((aConv instanceof Components.interfaces.purpleIConvIM) &&
-     aConv.buddy.buddyIconFilename) || "incoming_icon.png",
+  incomingIconPath: function(aConv) {
+    var buddy;
+    return ((aConv instanceof Components.interfaces.purpleIConvIM) &&
+            (buddy = aConv.buddy) && buddy.buddyIconFilename) ||
+           "incoming_icon.png";
+  },
   outgoingIconPath: function(aConv) "outgoing_icon.png",
   timeOpened: function(aConv, aFormat) (new Date()).toLocaleTimeString()
 };
