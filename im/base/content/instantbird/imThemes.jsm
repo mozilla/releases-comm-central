@@ -472,7 +472,7 @@ function appendHTMLtoNode(aHTML, aNode)
   return result;
 }
 
-function insertHTMLForMessage(aHTML, aDoc, aIsNext)
+function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
 {
   let insert = aDoc.getElementById("insert");
   if (insert && !aIsNext) {
@@ -485,6 +485,14 @@ function insertHTMLForMessage(aHTML, aDoc, aIsNext)
   range.selectNode(parent);
   let documentFragment = range.createContextualFragment(aHTML);
   let result = documentFragment.firstChild;
+
+  // store the purpleIMessage object in each of the "root" node that
+  // will be inserted into the document, so that selection code can
+  // retrieve the message by just looking at the parent node until it
+  // finds something.
+  for (let root = result; root; root = root.nextSibling)
+    root._originalMsg = aMsg;
+
   // make sure the result is an HTMLElement and not some whitespace...
   while (result && !(result instanceof Components.interfaces.nsIDOMHTMLElement))
     result = result.nextSibling;

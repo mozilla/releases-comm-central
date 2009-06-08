@@ -287,7 +287,7 @@ var previewObserver = {
     let elt = doc.getElementsByTagName("body")[0];
     let shouldScroll = this.lastElement ||
                        elt.scrollHeight <= elt.scrollTop + elt.clientHeight + 10;
-    let newElt = insertHTMLForMessage(html, doc, next);
+    let newElt = insertHTMLForMessage(aMsg, html, doc, next);
     if (shouldScroll) {
       newElt.scrollIntoView(true);
       this.lastElement = newElt;

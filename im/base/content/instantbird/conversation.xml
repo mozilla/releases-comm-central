@@ -218,7 +218,15 @@
           color = "color: hsl( " + this.buddies[aMsg.alias || aMsg.who].color + ", 100%, 50%)";
         html = html.replace(/%senderColor%/g, color);
 
-        this._addTxt(html, next);
+        let body = doc.getElementsByTagName("body")[0];
+        let shouldScroll = this.lastElement ||
+                           body.scrollHeight <= body.scrollTop + body.clientHeight + 10;
+        let newElt = insertHTMLForMessage(aMsg, html, doc, next);
+        if (shouldScroll) {
+          newElt.scrollIntoView(true);
+          this.lastElement = newElt;
+          this.scrollingIntoView = true;
+        }
         this._lastMessage = aMsg;
 
         if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
@@ -226,28 +234,6 @@
             this.tab.setAttribute("attention", "true");
           else
             this.tab.setAttribute("unread", "true");
-        }
-      ]]>
-      </body>
-     </method>
-
-     <method name="_addTxt">
-      <parameter name="aTxt"/>
-      <parameter name="aIsNext"/>
-      <body>
-      <![CDATA[
-        if (!this.loaded)
-          throw "Trying to append text to a not yet loaded browser";
-
-        let doc = this.browser.contentDocument;
-        let elt = doc.getElementsByTagName("body")[0];
-        let shouldScroll = this.lastElement ||
-                           elt.scrollHeight <= elt.scrollTop + elt.clientHeight + 10;
-        let newElt = insertHTMLForMessage(aTxt, doc, aIsNext);
-        if (shouldScroll) {
-          newElt.scrollIntoView(true);
-          this.lastElement = newElt;
-          this.scrollingIntoView = true;
         }
       ]]>
       </body>
