@@ -895,7 +895,10 @@ function getMessagesForRange(aRange)
 
     if (aNode._originalMsg) {
       // store the result
-      if (!(aNode._originalMsg in messages)) {
+
+      // the second line of the test is not needed on debug builds
+      if (!(aNode._originalMsg in messages) ||
+          messages[aNode._originalMsg].msg != aNode._originalMsg) {
         // we've found a new message!
         let newMessage = new SelectedMessage(aNode, aRange);
         messages[aNode._originalMsg] = newMessage;
