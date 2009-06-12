@@ -41,7 +41,8 @@ var EXPORTED_SYMBOLS = [
   "getThemeVariants",
   "isNextMessage",
   "insertHTMLForMessage",
-  "initHTMLDocument"
+  "initHTMLDocument",
+  "serializeSelection"
 ];
 
 const messagesStylePrefBranch = "messenger.options.messagesStyle.";
@@ -581,4 +582,389 @@ function initHTMLDocument(aConv, aTheme, aDoc)
   let html = replaceKeywordsInHTML(aTheme.html.footer,
                                    headerFooterReplacements, aConv);
   appendHTMLtoNode(html, body);
+}
+
+/* Selection stuff */
+function getEllipsis()
+{
+  let ellipsis = "[\u2026]";
+
+  try {
+    ellipsis =
+      Components.classes["@mozilla.org/preferences-service;1"]
+                .getService(Components.interfaces.nsIPrefBranch2)
+                .getComplexValue("messenger.conversations.selections.ellipsis",
+                                 Components.interfaces.nsIPrefLocalizedString).data;
+  } catch (e) { }
+  return ellipsis;
+}
+
+function serializeRange(aRange)
+{
+  const type = "text/plain";
+  var encoder =
+    Components.classes["@mozilla.org/layout/documentEncoder;1?type=" + type]
+              .createInstance(Components.interfaces.nsIDocumentEncoder);
+  encoder.init(aRange.startContainer.ownerDocument, type, 0);
+  encoder.setRange(aRange);
+  let result = encoder.encodeToString();
+  return result;
+}
+
+/* This function is used to pretty print a selection inside a conversation area */
+function serializeSelection(aSelection)
+{
+  // We have to kinds of selection serialization:
+  //  - The short version, used when only a part of message is
+  //    selected, or if nothing interesting is selected
+  var shortSelection = "";
+
+  //  - The long version, which is used:
+  //      * when both some of the message text and some of the context
+  //        (sender, time, ...) is selected;
+  //      * when several messages are selected at once
+  //    This version uses an array, with each message formatted
+  //    through the theme system.
+  var longSelection = [];
+
+  // We first assume that we are going to use the short version, but
+  // while working on creating the short version, we prepare
+  // everything to be able to switch to the long version if we later
+  // discover that it is in fact needed.
+  var shortVersionPossible = true;
+
+  // Sometimes we need to know if a selection range is inside the same
+  // message as the previous selection range, so we keep track of the
+  // last message we have processed.
+  var lastMessage = null;
+
+  for (let i = 0; i < aSelection.rangeCount; ++i) {
+    let range = aSelection.getRangeAt(i);
+    let messages = getMessagesForRange(range);
+
+    // If there are multiple messages touched by the selection, check
+    // if the first and/or last messages of the selection are bogus
+    if (messages.length > 1) {
+      if (!messages[0].isTextSelected())
+        messages.shift();
+      if (messages.length && !messages[messages.length - 1].isTextSelected())
+        messages.pop();
+
+      // If we removed both the first and last selected messages and
+      // they were the only messages, it means that the selection
+      // doesn't touch the text of any message.
+      // Handle this like if no message was touched by the selection.
+    }
+
+    if (!messages.length) {
+      // Do it only if it wouldn't override a better already found selection
+      if (!shortSelection)
+        shortSelection = serializeRange(range);
+      continue;
+    }
+
+    if (shortVersionPossible && messages.length == 1 &&
+        (!messages[0].isTextSelected() || messages[0].onlyTextSelected()) &&
+        (!lastMessage || lastMessage.msg == messages[0].msg ||
+         lastMessage.msg.who == messages[0].msg.who)) {
+      if (shortSelection) {
+        if (lastMessage.msg != messages[0].msg) {
+          // Add the ellipsis only if the previous message was cut
+          if (lastMessage.cutEnd)
+            shortSelection += getEllipsis();
+          shortSelection += "\n";
+        }
+        else
+          shortSelection += getEllipsis();
+      }
+      shortSelection += serializeRange(range);
+      longSelection.push(messages[0].getFormattedMessage());
+    }
+    else {
+      shortVersionPossible = false;
+      for (let m = 0; m < messages.length; ++m) {
+        let message = messages[m];
+        if (m == 0 && lastMessage && lastMessage.msg == message.msg) {
+          let text = message.getSelectedText();
+          if (message.cutEnd)
+            text += getEllipsis();
+          longSelection[longSelection.length - 1] += text;
+        }
+        else
+          longSelection.push(message.getFormattedMessage());
+      }
+    }
+    lastMessage = messages[messages.length - 1];
+  }
+
+  if (shortVersionPossible)
+    return shortSelection || aSelection.toString();
+  else
+    return longSelection.join("\n");
+}
+
+function SelectedMessage(aRootNode, aRange)
+{
+  this._rootNodes = [aRootNode];
+  this._range = aRange;
+}
+
+SelectedMessage.prototype = {
+  get msg() this._rootNodes[0]._originalMsg,
+  addRoot: function(aRootNode) {
+    this._rootNodes.push(aRootNode);
+  },
+
+  // Helper function that returns the first span node of class
+  // ib-msg-text under the rootNodes of the selected message.
+  _getSpanNode: function() {
+    // first use the cached value if any
+    if (this._spanNode)
+      return this._spanNode;
+
+    let spanNode = null;
+    const NodeFilter = Components.interfaces.nsIDOMNodeFilter;
+    // helper filter function for the tree walker
+    let filter = function(node) {
+      return node.className == "ib-msg-txt" ? NodeFilter.FILTER_ACCEPT
+                                            : NodeFilter.FILTER_SKIP;
+    };
+    // walk the DOM subtrees of each root, keep the first correct span node
+    for (let i = 0; !spanNode && i < this._rootNodes.length; ++i) {
+      let rootNode = this._rootNodes[i];
+      // the TreeWalker doesn't test the root node, special case it first
+      if (filter(rootNode) == NodeFilter.FILTER_ACCEPT) {
+        spanNode = rootNode;
+        break;
+      }
+      let treeWalker =
+        rootNode.ownerDocument.createTreeWalker(rootNode,
+                                                NodeFilter.SHOW_ELEMENT,
+                                                {acceptNode: filter}, false);
+      spanNode = treeWalker.nextNode();
+    }
+
+    return (this._spanNode = spanNode);
+  },
+
+  // Initialize _textSelected, _selectedText, _otherSelected and _cutBegin/End
+  _initSelectedText: function() {
+    if ("_textSelected" in this)
+      return; // already initialized
+
+    let spanNode = this._getSpanNode();
+    if (!spanNode) {
+      // can happen if the message text is under a separate root node
+      // that isn't selected at all
+      this._textSelected = false;
+      this._otherSelected = true;
+      return;
+    }
+    let startPoint = this._range.comparePoint(spanNode, 0);
+    let endPoint = this._range.comparePoint(spanNode,
+                                            spanNode.childNodes.length);
+    if (startPoint <= 0 && endPoint >= 0) {
+      let range = this._range.cloneRange();
+      if (startPoint >= 0)
+        range.setStart(spanNode, 0);
+      if (endPoint <= 0)
+        range.setEnd(spanNode, spanNode.childNodes.length);
+      this._selectedText = serializeRange(range);
+
+      // if the selected text is empty, set _selectedText to false
+      // this happens if the carret is at the offset 0 in the span node
+      this._textSelected = this._selectedText != "";
+    }
+    if (this._textSelected) {
+      // to check if the start or end is cut, the result of
+      // comparePoint is not enough because the selection range may
+      // start or end in a text node instead of the span node
+
+      if (startPoint == -1) {
+        let range = spanNode.ownerDocument.createRange();
+        range.setStart(spanNode, 0);
+        range.setEnd(this._range.startContainer, this._range.startOffset);
+        this._cutBegin = serializeRange(range) != "";
+      }
+      else
+        this._cutBegin = false;
+
+      if (endPoint == 1) {
+        let range = spanNode.ownerDocument.createRange();
+        range.setStart(this._range.endContainer, this._range.endOffset);
+        range.setEnd(spanNode, spanNode.childNodes.length);
+        this._cutEnd = serializeRange(range) != "";
+      }
+      else
+        this._cutEnd = false;
+    }
+    this._otherSelected =
+      (startPoint >= 0 || endPoint <= 0) && // eliminate most negative cases
+      (!this._textSelected ||
+       serializeRange(this._range).length > this._selectedText.length);
+  },
+  get cutBegin() {
+    this._initSelectedText();
+    return this._cutBegin;
+  },
+  get cutEnd() {
+    this._initSelectedText();
+    return this._cutEnd;
+  },
+  isTextSelected: function() {
+    this._initSelectedText();
+    return this._textSelected;
+  },
+  onlyTextSelected: function() {
+    this._initSelectedText();
+    return !this._otherSelected;
+  },
+  getSelectedText: function() {
+    this._initSelectedText();
+    if (!this._textSelected)
+      return "";
+
+    return this._selectedText;
+  },
+  getFormattedMessage: function() {
+    // First, get the selected text
+    this._initSelectedText();
+    let msg = this.msg;
+    let text;
+    if (this._textSelected) {
+      // Add ellipsis is needed
+      text = (this._cutBegin ? getEllipsis() : "") +
+             this._selectedText +
+             (this._cutEnd ? getEllipsis() : "");
+    }
+    else
+      text = msg.message; //FIXME strip HTML
+
+    // then get the suitable replacements and templates for this message
+    let prefBranch =
+      Components.classes["@mozilla.org/preferences-service;1"]
+                .getService(Components.interfaces.nsIPrefService)
+                .getBranch("messenger.conversations.selections.");
+    const nsIPrefLocalizedString = Components.interfaces.nsIPrefLocalizedString;
+    let html, replacements;
+    if (msg.system) {
+      replacements = statusReplacements;
+      html = "%time% - %message%";
+      try {
+        html = prefBranch.getComplexValue("systemMessagesTemplate",
+                                          nsIPrefLocalizedString).data;
+      } catch(e) { }
+    }
+    else {
+      replacements = messageReplacements;
+      html = "%time% - %sender%: %message%";
+      try {
+        html = prefBranch.getComplexValue("contentMessagesTemplate",
+                                          nsIPrefLocalizedString).data;
+      } catch(e) { }
+    }
+
+    // override the default %message% replacement so that it doesn't
+    // add a span node.
+    // Also, this uses directly the text variable so that we don't
+    // have to change the content of msg.message and revert it
+    // afterwards.
+    replacements = {
+      message: function(aMsg) text,
+      __proto__: replacements
+    };
+
+    // Finally, let the theme system do the magic!
+    return replaceKeywordsInHTML(html, replacements, msg);
+  }
+};
+
+function getMessagesForRange(aRange)
+{
+  let result = []; // will hold the final result
+  let messages = {}; // used to prevent duplicate messages in the result array
+
+  // cache the range boundaries, they will be used a lot
+  let endNode = aRange.endContainer;
+  let startNode = aRange.startContainer;
+
+  // Helper function to recursively look for _originalMsg JS
+  // properties on DOM nodes, and stop when endNode is reached.
+  // Found nodes are pushed into the rootNodes array.
+  let processSubtree = function(aNode) {
+
+    if (aNode._originalMsg) {
+      // store the result
+      if (!(aNode._originalMsg in messages)) {
+        // we've found a new message!
+        let newMessage = new SelectedMessage(aNode, aRange);
+        messages[aNode._originalMsg] = newMessage;
+        result.push(newMessage);
+      }
+      else {
+        // we've found another root of an already known message
+        messages[aNode._originalMsg].addRoot(aNode);
+      }
+    }
+
+    // check if we have reached the end node
+    if (aNode == endNode)
+      return true;
+
+    // recurse through children
+    if (aNode instanceof Components.interfaces.nsIDOMHTMLElement) {
+      for (let i = 0; i < aNode.childNodes.length; ++i)
+        if (processSubtree(aNode.childNodes[i]))
+          return true;
+    }
+
+    return false;
+  };
+
+  let currentNode = aRange.commonAncestorContainer;
+  if (currentNode instanceof Components.interfaces.nsIDOMHTMLElement) {
+    // Determine the index of the first and last children of currentNode
+    // that we should process.
+    let found = false;
+    let start = 0;
+    if (currentNode == startNode) {
+      // we want to process all children
+      found = true;
+      start = aRange.startOffset;
+    }
+    else {
+      // startNode needs to be a direct child of currentNode
+      while (startNode.parentNode != currentNode)
+        startNode = startNode.parentNode;
+    }
+    let end;
+    if (currentNode == endNode)
+      end = aRange.endOffset;
+    else
+      end = currentNode.childNodes.length;
+
+    for (let i = start; i < end; ++i) {
+      let node = currentNode.childNodes[i];
+
+      // don't do anything until we find the startNode
+      found = found || node == startNode;
+      if (!found)
+        continue;
+
+      if (processSubtree(node))
+        break;
+    }
+  }
+
+  // The selection may not include any root node of the first touched
+  // message, in this case, the DOM traversal of the DOM range
+  // couldn't give us the first message. Make sure we actually have
+  // the message in which the range starts.
+  let firstRoot = aRange.startContainer;
+  while (firstRoot && !firstRoot._originalMsg)
+    firstRoot = firstRoot.parentNode;
+  if (firstRoot && !(firstRoot._originalMsg in messages))
+    result.unshift(new SelectedMessage(firstRoot, aRange));
+
+  return result;
 }

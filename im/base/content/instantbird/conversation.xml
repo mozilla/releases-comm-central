@@ -90,7 +90,7 @@
         </xul:deck>
       </xul:vbox>
     </content>
-    <implementation implements="nsIWebProgressListener,nsIObserver">
+    <implementation implements="nsIWebProgressListener,nsIObserver,nsIController">
      <constructor>
       <![CDATA[
        document.getAnonymousElementByAttribute(this, "anonid", "input")
@@ -122,6 +122,7 @@
        var url = "chrome://instantbird/content/conv.html";
        browser.setAttribute("src", url);
        browser.addProgressListener(this);
+       this.contentWindow.controllers.insertControllerAt(0, this);
 
        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
        editor.addEventListener("keypress", this.editorKeyPress, false);
@@ -153,6 +154,7 @@
         if (this._conv) {
           this._conv.close();
           this._conv.removeObserver(this);
+          this.contentWindow.controllers.removeController(this);
         }
       ]]>
      </destructor>
@@ -726,6 +728,41 @@
        </body>
      </method>
 
+     <!-- nsIController implementation -->
+     <method name="supportsCommand">
+      <parameter name="aCommand"/>
+      <body>
+      <![CDATA[
+         return aCommand == "cmd_copy";
+       ]]>
+       </body>
+     </method>
+
+     <method name="isCommandEnabled">
+      <parameter name="aCommand"/>
+      <body>
+      <![CDATA[
+         return !this.contentWindow.getSelection().isCollapsed;
+       ]]>
+       </body>
+     </method>
+
+     <method name="doCommand">
+      <parameter name="aCommand"/>
+      <body>
+      <![CDATA[
+         let selection = this.contentWindow.getSelection();
+         Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                   .getService(Ci.nsIClipboardHelper)
+                   .copyString(serializeSelection(selection));
+       ]]>
+       </body>
+     </method>
+
+     <method name="onEvent">
+      <parameter name="aCommand"/>
+     </method>
+
      <!-- nsIWebProgressListener implementation -->
      <method name="onStateChange">
       <parameter name="aProgress"/>
@@ -871,6 +908,8 @@
          ]]>
        </getter>
      </property>
+
+     <property name="contentWindow" onget="return this.browser.contentWindow;"/>
 
      <property name="findbar">
        <getter>

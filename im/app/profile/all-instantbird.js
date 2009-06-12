@@ -12,6 +12,11 @@ pref("messenger.accounts.promptOnDelete", true);
 // A value of 0 means that there will be no more reconnection attempts.
 pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
 
+
+pref("messenger.conversations.selections.ellipsis", "chrome://instantbird/locale/instantbird.properties");
+pref("messenger.conversations.selections.systemMessagesTemplate", "chrome://instantbird/locale/instantbird.properties");
+pref("messenger.conversations.selections.contentMessagesTemplate", "chrome://instantbird/locale/instantbird.properties");
+
 pref("messenger.options.playSounds", true);
 
 // this preference changes how we filter incoming messages
