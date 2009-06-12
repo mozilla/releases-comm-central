@@ -8,7 +8,6 @@
 <!ENTITY accountProtocolField.label   "Protocol:">
 
 <!ENTITY accountUsernameTitle.label   "Username">
-<!ENTITY accountUsernameInfo.label    "Please enter the username to use in order to connect your account.">
 <!ENTITY accountUsernameDuplicate.label "This account is already configured!">
 
 <!ENTITY accountPasswordTitle.label   "Password">
