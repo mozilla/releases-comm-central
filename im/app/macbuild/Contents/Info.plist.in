@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>instantbird-bin</string>
 	<key>CFBundleGetInfoString</key>
-	<string>%APP_NAME% %APP_VERSION%, © 1998-2008 Contributors</string>
+	<string>%APP_NAME% %APP_VERSION%, © 1998-2009 Contributors</string>
 	<key>CFBundleIconFile</key>
 	<string>instantbird</string>
 	<key>CFBundleIdentifier</key>
@@ -24,33 +24,6 @@
 	<string>MOZM</string>
 	<key>CFBundleVersion</key>
 	<string>%APP_VERSION%</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>Email Address URL</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>mailto</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>News URL</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>news</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>RSS / ATOM URL</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>feed</string>
-			</array>
-		</dict>
-	</array>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
 	<key>CGDisableCoalescedUpdates</key>
