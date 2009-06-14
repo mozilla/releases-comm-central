@@ -52,7 +52,7 @@ vpath %.xml $(LOCALE_SRCDIR)/searchplugins
 DEFINES += \
 	-DAB_CD=$(AB_CD) \
 	-DMOZ_LANGPACK_EID=langpack-$(AB_CD)@addons.instantbird.org \
-	-DMOZ_APP_VERSION=$(APP_VERSION) \
+	-DMOZ_APP_VERSION=$(MOZ_APP_VERSION) \
 	-DLOCALE_SRCDIR=$(LOCALE_SRCDIR) \
 	$(NULL)
 
@@ -97,8 +97,10 @@ libs-%:
 	@$(MAKE) -C ../../purple/locales libs-$* AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 	@$(MAKE) -C ../../mozilla/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref BOTH_MANIFESTS=1
-	@$(MAKE) tests AB_CD=$*
+ifdef MOZ_BRANDING_DIRECTORY
 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
+endif
+	@$(MAKE) tests AB_CD=$*
 
 langpack-%: LANGPACK_FILE=$(_ABS_DIST)/$(PKG_LANGPACK_PATH)$(PKG_LANGPACK_BASENAME).xpi
 langpack-%: AB_CD=$*
