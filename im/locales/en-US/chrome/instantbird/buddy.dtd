@@ -1,4 +1,4 @@
-<!ENTITY buddy.status                "Status:">
-<!ENTITY buddy.screenname            "Buddy:">
-<!ENTITY buddy.loggedIn              "Logged In:">
-<!ENTITY buddy.account               "Account:">
+<!ENTITY buddy.status                "Status">
+<!ENTITY buddy.screenname            "Buddy">
+<!ENTITY buddy.loggedIn              "Logged In">
+<!ENTITY buddy.account               "Account">
