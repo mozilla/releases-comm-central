@@ -671,11 +671,11 @@ function serializeSelection(aSelection)
         if (lastMessage.msg != messages[0].msg) {
           // Add the ellipsis only if the previous message was cut
           if (lastMessage.cutEnd)
-            shortSelection += getEllipsis();
+            shortSelection += " " + getEllipsis();
           shortSelection += "\n";
         }
         else
-          shortSelection += getEllipsis();
+          shortSelection += " " + getEllipsis() + " ";
       }
       shortSelection += serializeRange(range);
       longSelection.push(messages[0].getFormattedMessage());
@@ -687,8 +687,8 @@ function serializeSelection(aSelection)
         if (m == 0 && lastMessage && lastMessage.msg == message.msg) {
           let text = message.getSelectedText();
           if (message.cutEnd)
-            text += getEllipsis();
-          longSelection[longSelection.length - 1] += text;
+            text += " " + getEllipsis();
+          longSelection[longSelection.length - 1] += " " + text;
         }
         else
           longSelection.push(message.getFormattedMessage());
@@ -833,9 +833,9 @@ SelectedMessage.prototype = {
     let text;
     if (this._textSelected) {
       // Add ellipsis is needed
-      text = (this._cutBegin ? getEllipsis() : "") +
+      text = (this._cutBegin ? getEllipsis() + " " : "") +
              this._selectedText +
-             (this._cutEnd ? getEllipsis() : "");
+             (this._cutEnd ? " " + getEllipsis() : "");
     }
     else
       text = msg.message; //FIXME strip HTML
