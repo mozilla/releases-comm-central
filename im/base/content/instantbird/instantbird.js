@@ -80,6 +80,7 @@ var msgObserver = {
     conv.setAttribute("contentcontextmenu", "contentAreaContextMenu");
     var panels = document.getElementById("panels");
     panels.appendChild(conv);
+    conv.conv = aConv;
 
     var tabs = document.getElementById("tabs");
     var tab = document.createElement("convtab");
@@ -89,11 +90,13 @@ var msgObserver = {
                      .replace(/(.{15}).*/, "$1...");
     tab.setAttribute("label", title);
     tabs.appendChild(tab);
-    if (!tabs.selectedItem)
-      tabs.selectedItem = tab;
-
-    conv.conv = aConv;
     conv.tab = tab;
+
+    if (!tabs.selectedItem) {
+      tabs.selectedItem = tab;
+      panels.selectedPanel.focus();
+    }
+
     this.convs[aConv.id] = conv;
     return conv;
   },
@@ -115,7 +118,10 @@ var msgObserver = {
   },
 
   focusSelectedTab: function mo_focusSelectedTab() {
-    this.focusTimeoutId = null;
+    if (this.focusTimeoutId) {
+      clearTimeout(this.focusTimeoutId);
+      this.focusTimeoutId = null;
+    }
     var tabs = document.getElementById("tabs");
     var tab = tabs.selectedItem;
     tab.removeAttribute("unread");

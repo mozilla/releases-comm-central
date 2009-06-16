@@ -169,9 +169,11 @@ let gGestureSupport = {
 	break;
       case "twist-left":
 	document.getElementById("tabs").selectedIndex--;
+        msgObserver.focusSelectedTab();
 	break;
       case "twist-right":
 	document.getElementById("tabs").selectedIndex++;
+        msgObserver.focusSelectedTab();
 	break;
       case "swipe-down":
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
@@ -185,8 +187,10 @@ let gGestureSupport = {
 	break;
       case "swipe-left":
       case "swipe-right":
-	if (this._lastSelectedTab)
+        if (this._lastSelectedTab) {
           document.getElementById("tabs").selectedItem = this._lastSelectedTab;
+          msgObserver.focusSelectedTab();
+        }
         break;
       default:
         dump("mac gesture: "+ gesture +"\n");

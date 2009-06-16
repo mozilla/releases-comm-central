@@ -642,6 +642,15 @@
        </body>
      </method>
 
+     <method name="focus">
+       <body>
+       <![CDATA[
+         this.editor.focus();
+         this.displayStatusText();
+       ]]>
+       </body>
+     </method>
+
      <method name="displayStatusText">
        <body>
        <![CDATA[
@@ -920,26 +929,6 @@
      </property>
 
     </implementation>
-    <handlers>
-     <handler event="focus" phase="capturing">
-       <![CDATA[
-         if (event.originalTarget != this)
-           return;
-         if (!this.hasAttribute("focused")) {
-           var input = document.getAnonymousElementByAttribute(this, "anonid", "input");
-           this.setAttribute("focused", "true");
-           this.displayStatusText();
-           //FIXME: check why it doesn't work without this timeout
-           setTimeout(function () {input.focus(); }, 1);
-         }
-        ]]>
-      </handler>
-      <handler event="blur" phase="capturing">
-        <![CDATA[
-          this.removeAttribute("focused");
-        ]]>
-      </handler>
-    </handlers>
   </binding>
 
   <binding id="convtab" extends="chrome://global/content/bindings/tabbox.xml#tab">
