@@ -206,3 +206,25 @@ pref("javascript.options.strict", true);
 // they are doing...
 pref("general.warnOnAboutConfig", false);
 #endif
+
+// loglevel is the minimum severity level that a libpurple message
+// must have to be reported in the Error Console.
+//
+// The possible values are:
+//   0  Show all libpurple messages (PURPLE_DEBUG_ALL)
+//   1  Very verbose (PURPLE_DEBUG_MISC)
+//   2  Verbose (PURPLE_DEBUG_INFO)
+//   3  Show warnings (PURPLE_DEBUG_WARNING)
+//   4  Show errors (PURPLE_DEBUG_ERROR)
+//   5  Show only fatal errors (PURPLE_DEBUG_FATAL)
+
+// Setting the loglevel to a value smaller than 2 will cause messages
+// with an INFO or MISC severity to be displayed as warnings so that
+// their file URL is clickable
+#ifndef DEBUG
+// By default, show only warning and errors
+pref("purple.debug.loglevel", 3);
+#else
+// On debug builds, show warning, errors and debug information.
+pref("purple.debug.loglevel", 2);
+#endif
