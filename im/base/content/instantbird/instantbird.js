@@ -118,10 +118,11 @@ var msgObserver = {
   },
 
   focusSelectedTab: function mo_focusSelectedTab() {
-    if (this.focusTimeoutId) {
-      clearTimeout(this.focusTimeoutId);
-      this.focusTimeoutId = null;
+    if (msgObserver.focusTimeoutId) {
+      clearTimeout(msgObserver.focusTimeoutId);
+      msgObserver.focusTimeoutId = null;
     }
+    msgObserver.focusClickTimeoutId = null;
     var tabs = document.getElementById("tabs");
     var tab = tabs.selectedItem;
     tab.removeAttribute("unread");
@@ -131,6 +132,12 @@ var msgObserver = {
   },
 
   onSelectTab: function mo_onSelectTab() {
+    if (this.focusClickTimeoutId) {
+      // if a click event already started a shorter timeout to focus
+      // the tab, ignore the select event
+      return;
+    }
+
     if (this.focusTimeoutId)
       clearTimeout(this.focusTimeoutId);
 
@@ -156,8 +163,12 @@ var msgObserver = {
     if (aEvent.button == 1)
       this.closeTab(aEvent.target);
 
+    // the call to focusSelectedTab needs to be delayed because we
+    // want it to always happen after the onselect event is dispatched
+    // (and tabbox.xml selects the new tab after the mousedown event
+    // with a timeout)
     if (aEvent.button == 0)
-      this.focusSelectedTab();
+      this.focusClickTimeoutId = setTimeout(this.focusSelectedTab, 0);
   },
 
   closeCurrentTab: function mo_closeCurrentTab() {
