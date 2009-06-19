@@ -60,6 +60,9 @@
      ]]>
      </destructor>
 
+     <!-- delay between each frame of the animation, in milliseconds -->
+     <field name="animationInterval">20</field>
+
      <method name="build">
       <parameter name="aGroup"/>
       <body>
@@ -110,10 +113,19 @@
             last = this.buddies[this.buddies.length - 1];
 
           this.parentNode.insertBefore(buddyElt, last.nextSibling);
-          buddyElt.build(aPab.buddy);
+          buddyElt.build(aPab.buddy, this);
           this.buddies.push(buddyElt);
         }
         buddyElt.addAccount(aPab);
+
+        if (this.hasAttribute("collapsing")) {
+          this.removeAttribute("collapsing");
+          if (this.animInterval) {
+            clearInterval(this.animInterval);
+            delete this.animInterval;
+            delete this.animHeight;
+          }
+        }
       ]]>
       </body>
      </method>
@@ -126,16 +138,49 @@
 
         for (var i = 0; i < this.buddies.length; ++i) {
           if (this.buddies[i].buddyId == buddy.id) {
-            if (this.buddies[i].removeAccount(aPab)) {
-              // The buddy should be removed
-              this.buddies.splice(i, 1);
-              // Check if some buddy remain in the group, if empty remove it
-              if (!this.buddies.length)
-                this.parentNode.removeChild(this);
-            }
+            this.buddies[i].removeAccount(aPab);
             return;
           }
         }
+      ]]>
+      </body>
+     </method>
+
+     <method name="removeBuddy">
+      <parameter name="aBuddy"/>
+      <body>
+      <![CDATA[
+        var i = this.buddies.indexOf(aBuddy);
+        if (i == -1)
+          throw "Removing a buddy that doesn't exist?";
+
+        // remove the buddy from the array
+        this.buddies.splice(i, 1);
+
+        // Check if some buddy remain in the group, if empty remove it
+        if (!this.buddies.length) {
+          this.style.height = (this.animHeight = this.clientHeight) + "px";
+          this.setAttribute("collapsing", "true");
+          this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
+        }
+      ]]>
+      </body>
+     </method>
+
+     <method name="_animateCollapse">
+      <parameter name="aThis"/>
+      <body>
+       <![CDATA[
+         const collapsingStep = 3;
+         if (aThis.animHeight > collapsingStep) {
+           aThis.animHeight -= collapsingStep;
+           aThis.style.height = aThis.animHeight + "px";
+         }
+         else {
+           clearInterval(aThis.animInterval);
+           delete aThis.animInterval;
+           aThis.parentNode.removeChild(aThis);
+         }
       ]]>
       </body>
      </method>

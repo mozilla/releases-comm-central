@@ -113,10 +113,18 @@
      ]]>
      </destructor>
 
+     <!-- delay in milliseconds before starting the fade out animation -->
+     <field name="animationDelay">1000</field>
+
+     <!-- delay between each frame of the animation, in milliseconds -->
+     <field name="animationInterval">20</field>
+
      <method name="build">
       <parameter name="aBuddy"/>
+      <parameter name="aGroup"/>
       <body>
       <![CDATA[
+        this.group = aGroup;
         this.buddyId = aBuddy.id;
         this.name = aBuddy.name;
         this.alias = aBuddy.alias;
@@ -131,6 +139,9 @@
         this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
         this.accounts = { };
         // We don't call this.update yet because this.accounts is empty
+        this.style.height = (this.animHeight = 0) + "px";
+        this.setAttribute("expanding", "true");
+        this.animInterval = setInterval(this._animateExpand, this.animationInterval, this);
       ]]>
       </body>
      </method>
@@ -270,6 +281,23 @@
           throw "This buddy has already been added";
         this.accounts[id] = aPab;
         this.update();
+
+        if (this.hasAttribute("removing")) {
+          this.removeAttribute("offline");
+          this.removeAttribute("removing");
+          this.removeAttribute("collapsing");
+          if (this.animTimeout) {
+            clearTimeout(this.animTimeout);
+            delete this.animTimeout;
+          }
+          if (this.animInterval) {
+            clearInterval(this.animInterval);
+            delete this.animTimeout;
+            delete this.animOpacity;
+            delete this.animHeight;
+            this.style.opacity = 1;
+          }
+        }
       ]]>
       </body>
      </method>
@@ -288,12 +316,90 @@
 
         if (this.accounts.__count__) {
           this.update();
-          return false;
+          return;
         }
 
         // No account left, this node is now useless, remove it
-        this.parentNode.removeChild(this);
-        return true;
+        this.removing = true;
+        if (this.hasAttribute("expanding")) {
+           // We are still doing the expand animation!
+           clearInterval(this.animInterval);
+           this.setAttribute("collapsing", "true");
+           this.removeAttribute("expanding", "true");
+           this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
+           this.group.removeBuddy(this);
+        }
+        else
+          this.animTimeout = setTimeout(this._startAnimation, this.animationDelay, this);
+        this.setAttribute("offline", "true");
+        this.setAttribute("removing", "true");
+      ]]>
+      </body>
+     </method>
+
+     <method name="_startAnimation">
+      <parameter name="aThis"/>
+      <body>
+       <![CDATA[
+        aThis.animInterval = setInterval(aThis._animateFade, this.animationInterval, aThis);
+        delete aThis.animTimeout;
+        aThis.animOpacity = 1;
+       ]]>
+      </body>
+     </method>
+
+     <method name="_animateFade">
+      <parameter name="aThis"/>
+      <body>
+       <![CDATA[
+         const opacityStep = 0.05;
+         if (aThis.animOpacity > opacityStep) {
+           aThis.animOpacity -= opacityStep;
+           aThis.style.opacity = aThis.animOpacity;
+         }
+         else {
+           clearInterval(aThis.animInterval);
+           aThis.style.height = (aThis.animHeight = aThis.clientHeight) + "px";
+           aThis.setAttribute("collapsing", "true");
+           aThis.animInterval = setInterval(aThis._animateCollapse, this.animationInterval, aThis);
+           aThis.group.removeBuddy(aThis);
+         }
+      ]]>
+      </body>
+     </method>
+
+     <method name="_animateCollapse">
+      <parameter name="aThis"/>
+      <body>
+       <![CDATA[
+         const collapsingStep = 3;
+         if (aThis.animHeight > collapsingStep) {
+           aThis.animHeight -= collapsingStep;
+           aThis.style.height = aThis.animHeight + "px";
+         }
+         else {
+           clearInterval(aThis.animInterval);
+           delete aThis.animInterval;
+           aThis.parentNode.removeChild(aThis);
+         }
+      ]]>
+      </body>
+     </method>
+
+     <method name="_animateExpand">
+      <parameter name="aThis"/>
+      <body>
+       <![CDATA[
+         const expandingStep = 3;
+         if (aThis.animHeight < 20 - expandingStep) {
+           aThis.animHeight += expandingStep;
+           aThis.style.height = aThis.animHeight + "px";
+         }
+         else {
+           clearInterval(aThis.animInterval);
+           delete aThis.animInterval;
+           aThis.removeAttribute("expanding");
+         }
       ]]>
       </body>
      </method>

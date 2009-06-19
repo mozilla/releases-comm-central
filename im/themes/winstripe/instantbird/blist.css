@@ -81,6 +81,21 @@ buddy[idle="true"] .buddyDisplayName {
   color: GrayText;
 }
 
+buddy[offline="true"] .statusIcon {
+  background-image: url('chrome://instantbird/skin/offline.png');
+}
+
+buddy[removing="true"] .buddyDisplayName {
+  color: GrayText;
+  font-style: italic;
+}
+
+buddy[collapsing="true"] *,
+buddy[expanding="true"] *,
+group[collapsing="true"] * {
+  display: none;
+}
+
 group label { 
   font-weight: bold;
 }
