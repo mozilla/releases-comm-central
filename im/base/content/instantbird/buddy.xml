@@ -138,6 +138,7 @@
         this.setAttribute("accountName", account.name);
         this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
         this.accounts = { };
+        this.accountsCount = 0;
         // We don't call this.update yet because this.accounts is empty
         this.style.height = (this.animHeight = 0) + "px";
         this.setAttribute("expanding", "true");
@@ -280,6 +281,7 @@
         if (id in this.accounts)
           throw "This buddy has already been added";
         this.accounts[id] = aPab;
+        ++this.accountsCount;
         this.update();
 
         if (this.hasAttribute("removing")) {
@@ -313,8 +315,9 @@
                   ") has not been added for account " + aPab.account.name;
 
         delete this.accounts[id];
+        --this.accountsCount;
 
-        if (this.accounts.__count__) {
+        if (this.accountsCount) {
           this.update();
           return;
         }
