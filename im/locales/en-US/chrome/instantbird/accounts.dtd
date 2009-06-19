@@ -14,7 +14,7 @@
 <!ENTITY account.delete.accesskey     "D">
 <!ENTITY account.edit.label           "Properties">
 <!ENTITY account.edit.accesskey       "P">
-<!ENTITY account.connecting           "Connecting...">
+<!ENTITY account.connecting           "Connecting…">
 <!ENTITY account.connected            "Connected">
-<!ENTITY account.disconnecting        "Disconnecting...">
+<!ENTITY account.disconnecting        "Disconnecting…">
 <!ENTITY account.disconnected         "Not Connected">

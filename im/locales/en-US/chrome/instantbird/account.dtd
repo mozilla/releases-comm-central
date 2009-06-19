@@ -8,5 +8,5 @@
 <!ENTITY account.newMailNotification   "Notify on new Mail">
 <!ENTITY account.autojoin              "Auto-Joined Channels:">
 <!ENTITY account.proxySettings.caption "Proxy Settings:">
-<!ENTITY account.proxySettings.change.label     "Change...">
+<!ENTITY account.proxySettings.change.label     "Change…">
 <!ENTITY account.proxySettings.change.accessKey "C">

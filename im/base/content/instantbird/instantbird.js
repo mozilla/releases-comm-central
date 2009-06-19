@@ -87,7 +87,7 @@ var msgObserver = {
     tab.tooltipText = aConv.name;
     let title = aConv.title
                      .replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1")
-                     .replace(/(.{15}).*/, "$1...");
+                     .replace(/(.{15}).*/, "$1…");
     tab.setAttribute("label", title);
     tabs.appendChild(tab);
     conv.tab = tab;

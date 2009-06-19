@@ -6,7 +6,7 @@
 <!ENTITY proxiesDialog.noProxy               "(No Proxy)">
 <!ENTITY proxiesDialog.useEnvironemental     "Use Environemental Settings">
 <!ENTITY proxiesDialog.noProxyInEnvironment  "No proxy settings found in the environment">
-<!ENTITY proxiesDialog.otherSetting          "Other...">
+<!ENTITY proxiesDialog.otherSetting          "Other…">
 <!ENTITY proxiesDialog.http.label            "Http">
 <!ENTITY proxiesDialog.socks4.label          "Socks 4">
 <!ENTITY proxiesDialog.socks5.label          "Socks 5">

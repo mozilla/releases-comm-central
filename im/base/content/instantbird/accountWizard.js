@@ -327,7 +327,7 @@ var accountWizard = {
     label.setAttribute("class", "header");
     if (aLabel.length > 20) {
       aLabel = aLabel.substring(0, 20);
-      aLabel += "...";
+      aLabel += "…";
     }
     label.setAttribute("value", aLabel);
     row.appendChild(label);

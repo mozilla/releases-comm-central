@@ -21,7 +21,7 @@
 <!ENTITY accountAliasField.label      "Alias:">
 <!ENTITY accountAliasInfo.label       "This will only be displayed in your conversations when you talk, remote buddies won't see it.">
 <!ENTITY accountProxySettings.caption "Proxy Settings">
-<!ENTITY accountProxySettings.change.label     "Change...">
+<!ENTITY accountProxySettings.change.label     "Change…">
 <!ENTITY accountProxySettings.change.accessKey "C">
 
 <!ENTITY accountSummaryTitle.label   "Summary">
