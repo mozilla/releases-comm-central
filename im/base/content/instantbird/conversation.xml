@@ -90,7 +90,7 @@
         </xul:deck>
       </xul:vbox>
     </content>
-    <implementation implements="nsIWebProgressListener,nsIObserver,nsIController">
+    <implementation implements="nsIWebProgressListener,nsIObserver,nsIController,nsISelectionListener">
      <constructor>
       <![CDATA[
        document.getAnonymousElementByAttribute(this, "anonid", "input")
@@ -772,6 +772,26 @@
       <parameter name="aCommand"/>
      </method>
 
+     <!-- nsISelectionListener implementation -->
+     <method name="notifySelectionChanged">
+      <parameter name="aDocument"/>
+      <parameter name="aSelection"/>
+      <parameter name="aReason"/>
+      <body>
+      <![CDATA[
+         if (!(aReason & Ci.nsISelectionListener.MOUSEUP_REASON   || 
+               aReason & Ci.nsISelectionListener.SELECTALL_REASON ||
+               aReason & Ci.nsISelectionListener.KEYPRESS_REASON))
+           return; // we are still dragging, don't bother with the selection
+
+         Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                   .getService(Ci.nsIClipboardHelper)
+                   .copyStringToClipboard(serializeSelection(aSelection),
+                                          Ci.nsIClipboard.kSelectionClipboard);
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIWebProgressListener implementation -->
      <method name="onStateChange">
       <parameter name="aProgress"/>
@@ -788,6 +808,15 @@
           this.theme = getCurrentTheme();
           initHTMLDocument(this.conv, this.theme, browser.contentDocument);
           this.loaded = true;
+
+          var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
+                                    .getService(Ci.nsIClipboard);
+          if (clipboard.supportsSelectionClipboard()) {
+            this.contentWindow.getSelection()
+                .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                .addSelectionListener(this);
+          }
+
           for (var i = 0; i < this.messageQueue.length; ++i)
             this._addMsg(this.messageQueue[i]);
           this.messageQueue = null;
