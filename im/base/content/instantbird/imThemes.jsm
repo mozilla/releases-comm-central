@@ -642,19 +642,12 @@ function serializeSelection(aSelection)
     let range = aSelection.getRangeAt(i);
     let messages = getMessagesForRange(range);
 
-    // If there are multiple messages touched by the selection, check
-    // if the first and/or last messages of the selection are bogus
-    if (messages.length > 1) {
-      if (!messages[0].isTextSelected())
-        messages.shift();
-      if (messages.length && !messages[messages.length - 1].isTextSelected())
-        messages.pop();
-
-      // If we removed both the first and last selected messages and
-      // they were the only messages, it means that the selection
-      // doesn't touch the text of any message.
-      // Handle this like if no message was touched by the selection.
-    }
+    // If at least one selected message has some of its text selected,
+    // remove from the selection all the messages that have no text
+    // selected
+    let testFunction = function(msg) msg.isTextSelected();
+    if (messages.some(testFunction))
+      messages = messages.filter(testFunction);
 
     if (!messages.length) {
       // Do it only if it wouldn't override a better already found selection
