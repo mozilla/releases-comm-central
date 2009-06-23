@@ -123,3 +123,12 @@ convtab > .tab-image-middle {
   margin: 0px;
   padding: 0px;
 }
+
+statusbar {
+  min-height: 16px;
+}
+
+statusbarpanel {
+  -moz-appearance: none;
+  border: none;
+}
