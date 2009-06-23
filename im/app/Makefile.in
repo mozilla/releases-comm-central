@@ -391,5 +391,10 @@ endif
 module.ver: module.ver.in $(DEPTH)/config/autoconf.mk
 	sed 's/@''MODULE_PRODUCTVERSION@/'`echo $(INSTANTBIRD_VERSION) | sed 's/[a-z].*//; s/\./,/g; s/^\([0-9]*,[0-9]*\)$$/\1,0/; s/^\([0-9]*,[0-9]*,[0-9]*\)$$/\1,0/'`'/;s/@''MODULE_PRODUCTVERSION_STRING@/$(INSTANTBIRD_VERSION)/' $< > $@
 
+_RC_STRING += -SRCDIR .
+module.rc: module.ver
+
+GARBAGE += module.ver
+
 libs:: $(srcdir)/profile/prefs.js
 	$(INSTALL) $^ $(DIST)/bin/defaults/profile
