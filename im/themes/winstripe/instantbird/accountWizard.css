@@ -35,8 +35,23 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+groupbox.collapsable {
+  -moz-user-focus: normal;
+}
+
+%ifdef XP_WIN
+groupbox.collapsable .caption-text {
+  border: 1px solid transparent;
+}
+
+groupbox.collapsable:focus .caption-text {
+  border: 1px dotted ThreeDDarkShadow;
+}
+%endif
+
 groupbox.collapsable[closed="true"] {
   border: none;
+  -moz-appearance: none;
 }
 
 groupbox[closed="true"] > .groupbox-body {

@@ -192,6 +192,8 @@ var accountWizard = {
                            .createInstance(Ci.purpleIProxyInfo);
     this.proxy.type = Ci.purpleIProxyInfo.useGlobal;
     this.displayProxyDescription();
+
+    document.getElementById("alias").focus();
   },
 
   displayProxyDescription: function aw_displayProxyDescription() {
@@ -479,6 +481,15 @@ var accountWizard = {
   },
   getProtoUserSplits: function aw_getProtoUserSplits() {
     return getIter(this.proto.getUsernameSplit());
+  },
+
+  onGroupboxKeypress: function aw_onGroupboxKeypress(aEvent) {
+    var target = aEvent.target;
+    var code = aEvent.charCode || aEvent.keyCode;
+    if (code == KeyEvent.DOM_VK_SPACE ||
+        (code == KeyEvent.DOM_VK_LEFT && !target.hasAttribute("closed")) ||
+	(code == KeyEvent.DOM_VK_RIGHT && target.hasAttribute("closed")))
+        this.toggleGroupbox(target.id);
   },
 
   toggleGroupbox: function aw_toggleGroupbox(id) {
