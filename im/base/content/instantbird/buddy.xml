@@ -425,8 +425,8 @@
                             .getService(Components.interfaces.nsIWindowMediator);
          var convWindow = wm.getMostRecentWindow("Messenger:convs");
          if (convWindow) {
-           convWindow.msgObserver.focusConv(conv);
            convWindow.focus();
+           convWindow.msgObserver.focusConv(conv);
          }
        ]]>
       </body>
