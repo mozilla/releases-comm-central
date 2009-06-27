@@ -36,16 +36,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma GCC visibility push(default)
-#include <stdio.h>
-#include <stdarg.h>
-#pragma GCC visibility pop
-
 #include "nsXULAppAPI.h"
 #ifdef XP_WIN
 #include <windows.h>
 #include <stdlib.h>
 #endif
+
+#include <stdio.h>
+#include <stdarg.h>
 
 #include "nsCOMPtr.h"
 #include "nsILocalFile.h"
