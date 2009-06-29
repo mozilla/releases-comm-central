@@ -74,6 +74,7 @@ function Message(aTime, aWho, aMessage, aObject)
   this.alias = aWho;
   this.who = aWho;
   this.message = aMessage;
+  this.originalMessage = aMessage;
 
   if (aObject)
     for (let i in aObject)
@@ -87,6 +88,9 @@ Message.prototype = {
     throw Components.results.NS_ERROR_NO_INTERFACE;
   },
 
+  reset: function m_reset() {
+    this.message = this.originalMessage;
+  },
   conversation: null,
   outgoing: false,
   incoming: false,
@@ -265,6 +269,7 @@ var previewObserver = {
   },
 
   reloadPreview: function() {
+    this.conv.messages.forEach(function (m) { m.reset(); });
     let browser = document.getElementById("browser");
     browser.addProgressListener(previewObserver);
     browser.reload();
