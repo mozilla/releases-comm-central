@@ -148,7 +148,7 @@
     </popup>
   </popupset>
 
-  <tabbox flex="1">
+  <tabbox flex="1" onkeypress="msgObserver.onTabboxKeyPress(event);">
     <tabs id="tabs" context="tabs-context-menu"
           onselect="msgObserver.onSelectTab();" onclick="msgObserver.onClickTab(event)"/>
     <tabpanels id="panels" flex="1"/>

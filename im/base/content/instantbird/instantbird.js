@@ -131,6 +131,15 @@ var msgObserver = {
     panels.selectedPanel.focus();
   },
 
+  onTabboxKeyPress: function mo_onTabboxKeyPress(aEvent) {
+    // When switching tab with ctrl(+shift)+tab, we need to set the
+    // focus immediatly to the textbox
+    if (aEvent.keyCode == aEvent.DOM_VK_TAB &&
+        aEvent.ctrlKey && !aEvent.altKey && !aEvent.metaKey) {
+      msgObserver.focusClickTimeoutId = setTimeout(msgObserver.focusSelectedTab, 0);
+    }
+  },
+
   onSelectTab: function mo_onSelectTab() {
     if (this.focusClickTimeoutId) {
       // if a click event already started a shorter timeout to focus
