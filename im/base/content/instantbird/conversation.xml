@@ -209,8 +209,8 @@
                           .scanHTML(msg, 2)
                           .replace(/&amp;(apos|quot);/g, "&$1;");
         }
-        msg = cleanupImMarkup(doc, msg);
-        aMsg.message = smileImMarkup(doc, msg.replace(/\n/g, "<br/>"));
+        aMsg.message = cleanupImMarkup(doc, msg.replace(/\n/g, "<br/>"), null,
+                                       [smileTextNode]);
         let next = isNextMessage(this.theme, aMsg, this._lastMessage);
         let html = getHTMLForMessage(aMsg, this.theme, next);
 

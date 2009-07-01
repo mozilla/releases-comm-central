@@ -37,7 +37,9 @@
 
 var EXPORTED_SYMBOLS = [
   "smileImMarkup", // used to add smile:// img tags into IM markup.
-  "getSmileRealURI", // used to retrive the chrome URI for a smile:// URI
+  "smileTextNode", // used to add smile:// img tags to the content of a textnode
+  "smileString", // used to add smile:// img tags into a string without parsing it as HTML. Be sure the string doesn't contain HTML tags.
+  "getSmileRealURI" // used to retrive the chrome URI for a smile:// URI
 ];
 
 const emoticonsThemePref = "messenger.options.emoticonsTheme";
@@ -125,6 +127,10 @@ function getRegexp()
     return theme.regExp;
   }
 
+  // return null if smileys are disabled
+  if (!theme.iconsHash)
+    return null;
+
   let emoticonList = [];
   for (let emoticon in theme.iconsHash)
     emoticonList.push(emoticon);
@@ -142,7 +148,36 @@ function getRegexp()
 function smileString(aString)
 {
   const smileFormat = '<img class="ib-img-smile" src="smile://$1" alt="$1" title="$1"/>';
-  return aString.replace(getRegexp(), smileFormat);
+
+  let exp = getRegexp();
+  return exp ? aString.replace(exp, smileFormat) : aString;
+}
+
+function smileTextNode(aNode)
+{
+  let result = 0;
+  let exp = getRegexp();
+  if (!exp)
+    return result;
+
+  let match;
+  while ((match = exp(aNode.data))) {
+    let smileNode = aNode.splitText(match.index);
+    aNode = smileNode.splitText(exp.lastIndex - match.index);
+    // at this point, smileNode is a text node with only the text
+    // of the smiley and aNode is a text node with the text after
+    // the smiley. The text in aNode hasn't been processed yet.
+    let smile = smileNode.data;
+    let elt = aNode.ownerDocument.createElement("img");
+    elt.setAttribute("src", "smile://" + smile);
+    elt.setAttribute("title", smile);
+    elt.setAttribute("alt", smile);
+    elt.setAttribute("class", "ib-img-smile");
+    smileNode.parentNode.replaceChild(elt, smileNode);
+    result += 2;
+    exp.lastIndex = 0;
+  }
+  return result;
 }
 
 function smileNode(aNode)
@@ -154,23 +189,7 @@ function smileNode(aNode)
       smileNode(node);
     } else if (node instanceof Components.interfaces.nsIDOMText) {
       // we are on a text node, process it
-      let exp = getRegexp();
-      let match;
-      while (match = exp(node.data)) {
-        let smileNode = node.splitText(match.index);
-        node = smileNode.splitText(exp.lastIndex - match.index);
-        // at this point, smileNode is a text node with only the text
-        // of the smiley and node is a text node with the text after
-        // the smiley. The text in node hasn't been processed yet.
-        let smile = smileNode.data;
-        let elt = node.ownerDocument.createElement("img");
-        elt.setAttribute("src", "smile://" + smile);
-        elt.setAttribute("title", smile);
-        elt.setAttribute("alt", smile);
-        elt.setAttribute("class", "ib-img-smile");
-        smileNode.parentNode.replaceChild(elt, smileNode);
-        exp.lastIndex = 0;
-      }
+      smileTextNode(node);
     }
   }
 }

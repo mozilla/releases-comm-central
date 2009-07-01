@@ -264,7 +264,7 @@ function removeGlobalAllowedStyleRule(aStyle)
   delete gGlobalRuleset.styles[aStyle];
 }
 
-function cleanupNode(aNode, aRules)
+function cleanupNode(aNode, aRules, aTextModifiers)
 {
   for (var i = 0; i < aNode.childNodes.length; ++i) {
     let node = aNode.childNodes[i];
@@ -283,7 +283,7 @@ function cleanupNode(aNode, aRules)
       }
 
       // we are going to keep this child node, clean up its children
-      cleanupNode(node, aRules);
+      cleanupNode(node, aRules, aTextModifiers);
 
       // cleanup attributes
       var attrs = node.attributes;
@@ -317,10 +317,44 @@ function cleanupNode(aNode, aRules)
         }
       }
     }
+    else {
+      // We are on a text node, we need to apply the functions
+      // provided in the aTextModifiers array.
+
+      // Each of these function should return the number of nodes added:
+      //  * -1 if the current textnode was deleted
+      //  * 0 if the node count is unchanged
+      //  * positive value if nodes were added.
+      //     For instance, adding an <img> tag for a smiley adds 2 nodes:
+      //      - the img tag
+      //      - the new text node after the img tag.
+
+      // This is the number of nodes we need to process. If new nodes
+      // are created, the next text modifier functions have more nodes
+      // to process.
+      var textNodeCount = 1;
+      for each (var modifier in aTextModifiers)
+        for (var n = 0; n < textNodeCount; ++n) {
+          let textNode = aNode.childNodes[i + n];
+
+          // If we are processing nodes created by one of the previous
+          // text modifier function, some of the nodes are likely not
+          // text node, skip them.
+          if (!(textNode instanceof Components.interfaces.nsIDOMText))
+            continue;
+
+          let result = modifier(textNode);
+          textNodeCount += result;
+          n += result;
+        }
+
+      // newly created nodes should not be filtered, be sure we skip them!
+      i += textNodeCount - 1;
+    }
   }
 }
 
-function cleanupImMarkup(aDocument, aText, aRuleset)
+function cleanupImMarkup(aDocument, aText, aRuleset, aTextModifiers)
 {
   if (!aDocument)
     throw "providing an HTML document is required";
@@ -330,6 +364,6 @@ function cleanupImMarkup(aDocument, aText, aRuleset)
 
   var div = aDocument.createElement("div");
   div.innerHTML = aText;
-  cleanupNode(div, aRuleset || gGlobalRuleset);
+  cleanupNode(div, aRuleset || gGlobalRuleset, aTextModifiers || []);
   return div.innerHTML;
 }
