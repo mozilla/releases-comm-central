@@ -367,7 +367,7 @@ libs:: $(PROGRAM)
 	mkdir -p $(DIST)/$(APP_NAME).app/Contents/Plug-Ins
 	rsync -a --copy-unsafe-links $(DIST)/package/PrintPDE.plugin $(DIST)/$(APP_NAME).app/Contents/Plug-Ins
 	cp -RL $(DIST)/branding/instantbird.icns $(DIST)/$(APP_NAME).app/Contents/Resources/instantbird.icns
-	echo -n APPLMOZM > $(DIST)/$(APP_NAME).app/Contents/PkgInfo
+	printf APPLMOZM > $(DIST)/$(APP_NAME).app/Contents/PkgInfo
 
 clean clobber::
 	rm -rf $(DIST)/$(APP_NAME).app
