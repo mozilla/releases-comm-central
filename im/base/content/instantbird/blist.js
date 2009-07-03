@@ -96,17 +96,13 @@ var buddyList = {
     }
 
     if (aTopic == "new-text" || aTopic == "new-conversation") {
-/*
-      var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                        .getService(Components.interfaces.nsIWindowMediator);
-      var win = wm.getMostRecentWindow("Messenger:convs");
-*/
-      if (this.win && this.win.closed)
-        this.win = null;
-
       if (!this.win) {
         this.win = window.open(convWindow, "Conversations", "chrome,resizable");
         this.win.pendingNotifications = [{object: aBuddy, topic: aTopic, msg: aMsg}];
+        this.win.addEventListener("unload", function(aEvent) {
+          if (aEvent.target.location.href == convWindow)
+            buddyList.win = null;
+        }, false);
       }
       else if ("pendingNotifications" in this.win)
         this.win.pendingNotifications.push({object: aBuddy, topic: aTopic, msg: aMsg});
