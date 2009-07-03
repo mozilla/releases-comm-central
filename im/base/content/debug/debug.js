@@ -24,6 +24,12 @@ var debug = {
     inspectDOMDocument();
   },
 
+  garbageCollect: function debug_garbageCollect() {
+    window.QueryInterface(Ci.nsIInterfaceRequestor)
+          .getInterface(Ci.nsIDOMWindowUtils)
+          .garbageCollect(); 
+  },
+
   load: function debug_load() {
     setTimeout(function() {
       // Load the Window DataSource so that browser windows opened subsequent to DOM

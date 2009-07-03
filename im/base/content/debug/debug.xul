@@ -5,11 +5,24 @@
   <script type="application/x-javascript" src="chrome://venkman/content/venkman-overlay.js"/>
   <script type="application/x-javascript" src="chrome://inspector/content/hooks.js"/>
 
+  <commandset id="maincommandset">
+    <command id="domiCommand" oncommand="debug.inspector()"/>
+    <command id="gcCommand" oncommand="debug.garbageCollect()"/>
+    <command id="venkmanCommand" oncommand="debug.venkman()"/>
+  </commandset>
+
+  <keyset id="mainkeyset">
+    <key id="domiKey" key="I" command="domiCommand" modifiers="accel,shift"/>
+    <key id="gcKey" key="C" command="gcCommand" modifiers="accel,shift"/>
+    <key id="venkmanKey" key="V" command="venkmanCommand" modifiers="accel,shift"/>
+  </keyset>
+
   <menubar id="blistMenubar">
     <menu label="Debug" id="debugMenu" insertafter="toolsMenu">
       <menupopup>
-        <menuitem id="domiMenuItem" label="DOM Inspector" oncommand="debug.inspector()"/>
-        <menuitem id="venkmanMenuItem" label="Venkman" oncommand="debug.venkman()"/>
+        <menuitem id="domiMenuItem" label="DOM Inspector" key="domiKey" command="domiCommand"/>
+        <menuitem id="gcMenuItem" label="Force Garbage Collection" key="gcKey" command="gcCommand"/>
+        <menuitem id="venkmanMenuItem" label="Venkman" key="venkmanKey" command="venkman"/>
         <menuseparator/>
         <menuitem id="configMenuItem" label="about:config" oncommand="debug.config()"/>
       </menupopup>
