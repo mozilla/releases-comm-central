@@ -263,6 +263,18 @@
          </body>
       </method>
 
+      <field name="_textModifiers">[smileTextNode]</field>
+
+      <method name="addTextModifier">
+        <parameter name="aModifier"/>
+        <body>
+          <![CDATA[
+            if (this._textModifiers.indexOf(aModifier) == -1)
+              this._textModifiers.push(aModifier);
+          ]]>
+        </body>
+      </method>
+
       <method name="appendMessage">
         <parameter name="aMsg"/>
         <body>
@@ -276,7 +288,7 @@
                               .replace(/&amp;(apos|quot);/g, "&$1;");
             }
             aMsg.message = cleanupImMarkup(doc, msg.replace(/\n/g, "<br/>"), null,
-                                           [smileTextNode]);
+                                           this._textModifiers);
             let next = isNextMessage(this.theme, aMsg, this._lastMessage);
             let html = getHTMLForMessage(aMsg, this.theme, next);
 
