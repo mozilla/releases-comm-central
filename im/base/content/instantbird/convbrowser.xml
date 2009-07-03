@@ -1,0 +1,685 @@
+<?xml version="1.0"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is this file as it was released on March 28, 2001.
+   -
+   - The Initial Developer of the Original Code is
+   - Peter Annema.
+   - Portions created by the Initial Developer are Copyright (C) 2001
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -   Peter Annema <disttsc@bart.nl> (Original Author of <browser>)
+   -   Peter Parente <parente@cs.unc.edu>
+   -   Christopher Thomas <cst@yecc.com>
+   -   Michael Ventnor <m.ventnor@gmail.com>
+   -   Florian Queze <florian@instantbird.org>
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the GPL or the LGPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<bindings id="browserBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="browser">
+    <implementation type="application/javascript"
+                    implements="nsIAccessibleProvider, nsIDOMEventListener,
+                                nsIWebProgressListener, nsIController,
+                                nsISelectionListener">
+      <property name="accessibleType" readonly="true">
+        <getter>
+          <![CDATA[
+            return Components.interfaces.nsIAccessibleProvider.OuterDoc;
+          ]]>
+        </getter>
+      </property>
+
+      <property name="autoscrollEnabled">
+        <getter>
+          <![CDATA[
+            if (this.getAttribute("autoscroll") == "false")
+              return false;
+
+            var enabled = true;
+            try {
+              enabled = this.mPrefs.getBoolPref("general.autoScroll");
+            }
+            catch(ex) {
+            }
+
+            return enabled;
+          ]]>
+        </getter>
+      </property>
+
+      <field name="_theme">null</field>
+
+      <property name="theme"
+                readonly="true"
+                onget="return this._theme || (this._theme = getCurrentTheme());;"/>
+
+      <field name="_conv">null</field>
+
+      <method name="init">
+        <parameter name="aConversation"/>
+        <body>
+          <![CDATA[
+            this._conv = aConversation;
+            this._theme = null;
+
+            const URI = "chrome://instantbird/content/conv.html";
+            const flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
+            this.webNavigation.loadURI(URI, flag, null, null, null);
+            this.addProgressListener(this);
+
+            if (this._scrollingView)
+              this._autoScrollPopup.hidePopup();
+          ]]>
+        </body>
+      </method>
+
+      <property name="currentURI"
+                onget="return this.webNavigation.currentURI;"
+                readonly="true"/>
+
+      <field name="_docShell">null</field>
+
+      <property name="docShell"
+                onget="return this._docShell || (this._docShell = this.boxObject.QueryInterface(Components.interfaces.nsIContainerBoxObject).docShell);"
+                readonly="true"/>
+
+      <field name="_webNavigation">null</field>
+
+      <property name="webNavigation"
+                onget="return this._webNavigation || (this._webNavigation = this.docShell.QueryInterface(Components.interfaces.nsIWebNavigation));"
+                readonly="true"/>
+
+
+      <field name="_fastFind">null</field>
+      <property name="fastFind"
+                readonly="true">
+        <getter>
+        <![CDATA[
+          if (!this._fastFind) {
+            if (!("@mozilla.org/typeaheadfind;1" in Components.classes))
+              return null;
+
+            if (!this.docShell)
+              return null;
+
+            this._fastFind = Components.classes["@mozilla.org/typeaheadfind;1"]
+                                       .createInstance(Components.interfaces.nsITypeAheadFind);
+            this._fastFind.init(this.docShell);
+          }
+          return this._fastFind;
+        ]]>
+        </getter>
+      </property>
+
+      <property name="webProgress"
+                readonly="true"
+                onget="return this.docShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebProgress);"/>
+
+      <field name="_contentWindow">null</field>
+
+      <property name="contentWindow"
+                readonly="true"
+                onget="return this._contentWindow || (this._contentWindow = this.docShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow));"/>
+
+      <property name="contentDocument"
+                onget="return this.webNavigation.document;"
+                readonly="true"/>
+
+      <field name="mPrefs" readonly="true">
+        Components.classes['@mozilla.org/preferences-service;1']
+                  .getService(Components.interfaces.nsIPrefService)
+                  .getBranch(null);
+      </field>
+
+      <method name="addProgressListener">
+        <parameter name="aListener"/>
+        <body>
+          <![CDATA[
+            this.webProgress.addProgressListener(aListener, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+          ]]>
+        </body>
+      </method>
+
+      <method name="removeProgressListener">
+        <parameter name="aListener"/>
+        <body>
+          <![CDATA[
+            this.webProgress.removeProgressListener(aListener);
+         ]]>
+        </body>
+      </method>
+
+      <field name="mDestroyed">false</field>
+
+      <constructor>
+        <![CDATA[
+          try {
+            this.mDragDropHandler = Components.classes["@mozilla.org:/content/content-area-dragdrop;1"]
+                                              .createInstance(Components.interfaces.nsIDragDropHandler);
+            this.mDragDropHandler.hookupTo(this, null);
+          }
+          catch (e) {
+          }
+
+          this.addEventListener("scroll", this.browserScroll, false);
+          this.addEventListener("resize", this.browserResize, false);
+          this.contentWindow.controllers.insertControllerAt(0, this);
+
+          if (!("cleanupImMarkup" in window))
+            Components.utils.import("resource://app/modules/imContentSink.jsm");
+          if (!("smileImMarkup" in window))
+            Components.utils.import("resource://app/modules/imSmileys.jsm");
+          if (!("getCurrentTheme" in window))
+            Components.utils.import("resource://app/modules/imThemes.jsm");
+        ]]>
+      </constructor>
+
+      <destructor>
+        <![CDATA[
+          this.destroy();
+        ]]>
+      </destructor>
+
+      <!-- This is necessary because the destructor doesn't always get called when
+           we are removed from a tabbrowser. This will be explicitly called by tabbrowser -->
+      <method name="destroy">
+        <body>
+          <![CDATA[
+            if (this.mDestroyed)
+              return;
+            this.mDestroyed = true;
+
+            if (this.mDragDropHandler)
+              this.mDragDropHandler.detach();
+            this.mDragDropHandler = null;
+
+            this._fastFind = null;
+            this._webBrowserFind = null;
+
+            if (this._autoScrollNeedsCleanup) {
+              // we polluted the global scope, so clean it up
+              this._autoScrollPopup.parentNode.removeChild(this._autoScrollPopup);
+            }
+
+            this.contentWindow.controllers.removeController(this);
+          ]]>
+        </body>
+      </method>
+
+      <method name="appendMessage">
+        <parameter name="aMsg"/>
+        <body>
+          <![CDATA[
+            let doc = this.contentDocument;
+            let msg = aMsg.message;
+            if (!aMsg.noLinkification) {
+              msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
+                              .getService(Ci.mozITXTToHTMLConv)
+                              .scanHTML(msg, 2)
+                              .replace(/&amp;(apos|quot);/g, "&$1;");
+            }
+            aMsg.message = cleanupImMarkup(doc, msg.replace(/\n/g, "<br/>"), null,
+                                           [smileTextNode]);
+            let next = isNextMessage(this.theme, aMsg, this._lastMessage);
+            let html = getHTMLForMessage(aMsg, this.theme, next);
+
+            // FIXME: temporary hack
+            let color = "";
+            if (!aMsg.system && aMsg.incoming && (aMsg.conversation instanceof Ci.purpleIConvChat))
+              color = "color: hsl( " + this.buddies[aMsg.alias || aMsg.who].color + ", 100%, 50%)";
+            html = html.replace(/%senderColor%/g, color);
+
+            let body = doc.getElementsByTagName("body")[0];
+            let shouldScroll = this._lastElement ||
+                               body.scrollHeight <= body.scrollTop + body.clientHeight + 10;
+            let newElt = insertHTMLForMessage(aMsg, html, doc, next);
+            if (shouldScroll) {
+              newElt.scrollIntoView(true);
+              this._lastElement = newElt;
+              this._scrollingIntoView = true;
+            }
+            this._lastMessage = aMsg;
+          ]]>
+        </body>
+      </method>
+
+      <method name="browserScroll">
+        <parameter name="event"/>
+        <body>
+          <![CDATA[
+            if (this._scrollingIntoView) {
+              // We have explicitely requested a scrollIntoView, ignore the event
+              this._scrollingIntoView = false;
+              this._lastScrollHeight = this.scrollHeight;
+              this._lastScrollWidth = this.scrollWidth;
+              return;
+            }
+
+            if (this._lastScrollHeight != this.scrollHeight ||
+                this._lastScrollWidth != this.scrollWidth) {
+              // if the scrollheight changed, we are resizing the content area,
+              // don't stop the auto scroll.
+              this._lastScrollHeight = this.scrollHeight;
+              this._lastScrollWidth = this.scrollWidth;
+              return;
+            }
+
+            // Disable auto-scroll, the user moved the scrollbar
+            this._lastElement = null;
+          ]]>
+         </body>
+      </method>
+
+      <method name="browserResize">
+        <parameter name="event"/>
+        <body>
+          <![CDATA[
+            if (this._lastElement) {
+              // The content area was resized and auto-scroll is enabled,
+              // make sure the last inserted element is still visible
+              this._lastElement.scrollIntoView(true);
+              this._scrollingIntoView = true;
+            }
+          ]]>
+        </body>
+      </method>
+
+
+      <!-- nsIController implementation -->
+      <method name="supportsCommand">
+        <parameter name="aCommand"/>
+        <body>
+          <![CDATA[
+            return aCommand == "cmd_copy";
+          ]]>
+        </body>
+      </method>
+
+      <method name="isCommandEnabled">
+        <parameter name="aCommand"/>
+        <body>
+          <![CDATA[
+            return !this.contentWindow.getSelection().isCollapsed;
+          ]]>
+        </body>
+      </method>
+
+      <method name="doCommand">
+        <parameter name="aCommand"/>
+        <body>
+          <![CDATA[
+            let selection = this.contentWindow.getSelection();
+            Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                      .getService(Ci.nsIClipboardHelper)
+                      .copyString(serializeSelection(selection));
+          ]]>
+        </body>
+      </method>
+
+      <method name="onEvent">
+        <parameter name="aCommand"/>
+      </method>
+
+      <!-- nsISelectionListener implementation -->
+      <method name="notifySelectionChanged">
+        <parameter name="aDocument"/>
+        <parameter name="aSelection"/>
+        <parameter name="aReason"/>
+        <body>
+          <![CDATA[
+            if (!(aReason & Ci.nsISelectionListener.MOUSEUP_REASON   ||
+                  aReason & Ci.nsISelectionListener.SELECTALL_REASON ||
+                  aReason & Ci.nsISelectionListener.KEYPRESS_REASON))
+              return; // we are still dragging, don't bother with the selection
+
+            Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                      .getService(Ci.nsIClipboardHelper)
+                      .copyStringToClipboard(serializeSelection(aSelection),
+                                             Ci.nsIClipboard.kSelectionClipboard);
+          ]]>
+        </body>
+      </method>
+
+      <!-- nsIWebProgressListener implementation -->
+      <method name="onStateChange">
+        <parameter name="aProgress"/>
+        <parameter name="aRequest"/>
+        <parameter name="aStateFlags"/>
+        <parameter name="aStatus"/>
+        <body>
+          <![CDATA[
+            const WPL = Components.interfaces.nsIWebProgressListener;
+            if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
+            (aStateFlags & WPL.STATE_STOP)) {
+              this.removeProgressListener(this);
+              initHTMLDocument(this._conv, this.theme, this.contentDocument);
+
+              var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
+                                        .getService(Ci.nsIClipboard);
+              if (clipboard.supportsSelectionClipboard()) {
+                this.contentWindow.getSelection()
+                    .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                    .addSelectionListener(this);
+              }
+
+              Components.classes["@mozilla.org/observer-service;1"]
+                        .getService(Components.interfaces.nsIObserverService)
+                        .notifyObservers(this, "conversation-loaded", null);
+            }
+          ]]>
+        </body>
+      </method>
+
+      <method name="onProgressChange">
+        <parameter name="aProgress"/>
+        <parameter name="aRequest"/>
+        <parameter name="aCurSelf"/>
+        <parameter name="aMaxSelf"/>
+        <parameter name="aCurTotal"/>
+        <parameter name="aMaxTotal"/>
+      </method>
+
+      <method name="onLocationChange">
+        <parameter name="aProgress"/>
+        <parameter name="aRequest"/>
+        <parameter name="aLocation"/>
+      </method>
+
+      <method name="onStatusChange">
+        <parameter name="aProgress"/>
+        <parameter name="aRequest"/>
+        <parameter name="aStatus"/>
+        <parameter name="aMessage"/>
+      </method>
+
+      <method name="onSecurityChange">
+        <parameter name="aProgress"/>
+        <parameter name="aRequest"/>
+        <parameter name="aState"/>
+      </method>
+
+
+      <!-- autoscroll stuff -->
+      <field name="_AUTOSCROLL_SPEED">3</field>
+      <field name="_AUTOSCROLL_SNAP">10</field>
+      <field name="_scrollingView">null</field>
+      <field name="_autoScrollTimer">null</field>
+      <field name="_startX">null</field>
+      <field name="_startY">null</field>
+      <field name="_screenX">null</field>
+      <field name="_screenY">null</field>
+      <field name="_autoScrollPopup">null</field>
+      <field name="_autoScrollNeedsCleanup">false</field>
+
+      <method name="stopScroll">
+        <body>
+          <![CDATA[
+            if (this._scrollingView) {
+              this._scrollingView = null;
+              window.removeEventListener("mousemove", this, true);
+              window.removeEventListener("mousedown", this, true);
+              window.removeEventListener("mouseup", this, true);
+              window.removeEventListener("contextmenu", this, true);
+              clearInterval(this._autoScrollTimer);
+            }
+         ]]>
+       </body>
+      </method>
+
+      <method name="_createAutoScrollPopup">
+        <body>
+          <![CDATA[
+            const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+            var popup = document.createElementNS(XUL_NS, "popup");
+            popup.className = "autoscroller";
+            return popup;
+          ]]>
+        </body>
+      </method>
+
+      <method name="startScroll">
+        <parameter name="event"/>
+        <body>
+          <![CDATA[
+            if (!this._autoScrollPopup) {
+              if (this.hasAttribute("autoscrollpopup")) {
+                // our creator provided a popup to share
+                this._autoScrollPopup = document.getElementById(this.getAttribute("autoscrollpopup"));
+              }
+              else {
+                // we weren't provided a popup; we have to use the global scope
+                this._autoScrollPopup = this._createAutoScrollPopup();
+                document.documentElement.appendChild(this._autoScrollPopup);
+                this._autoScrollNeedsCleanup = true;
+              }
+            }
+
+            this._autoScrollPopup.addEventListener("popuphidden", this, true);
+
+            // we need these attributes so themers don't need to create per-platform packages
+            if (screen.colorDepth > 8) { // need high color for transparency
+              // Exclude second-rate platforms
+              this._autoScrollPopup.setAttribute("transparent", !/BeOS|OS\/2|Photon/.test(navigator.appVersion));
+              // Enable translucency on Windows and Mac
+              this._autoScrollPopup.setAttribute("translucent", /Win|Mac/.test(navigator.platform));
+            }
+
+            this._scrollingView = event.originalTarget.ownerDocument.defaultView;
+            if (this._scrollingView.scrollMaxX > 0) {
+              this._autoScrollPopup.setAttribute("scrolldir", this._scrollingView.scrollMaxY > 0 ? "NSEW" : "EW");
+            }
+            else if (this._scrollingView.scrollMaxY > 0) {
+              this._autoScrollPopup.setAttribute("scrolldir", "NS");
+            }
+            else {
+              this._scrollingView = null; // abort scrolling
+              return;
+            }
+
+            document.popupNode = null;
+            this._autoScrollPopup.showPopup(document.documentElement,
+                                            event.screenX,
+                                            event.screenY,
+                                            "popup", null, null);
+            this._ignoreMouseEvents = true;
+            this._startX = event.screenX;
+            this._startY = event.screenY;
+            this._screenX = event.screenX;
+            this._screenY = event.screenY;
+
+            window.addEventListener("mousemove", this, true);
+            window.addEventListener("mousedown", this, true);
+            window.addEventListener("mouseup", this, true);
+            window.addEventListener("contextmenu", this, true);
+
+            this._scrollErrorX = 0;
+            this._scrollErrorY = 0;
+
+            this._autoScrollTimer = setInterval(function(self) { self.autoScrollLoop(); },
+                                                20, this);
+         ]]>
+        </body>
+      </method>
+
+      <method name="_roundToZero">
+        <parameter name="num"/>
+        <body>
+          <![CDATA[
+            if (num > 0)
+              return Math.floor(num);
+            return Math.ceil(num);
+          ]]>
+        </body>
+      </method>
+
+      <method name="_accelerate">
+        <parameter name="curr"/>
+        <parameter name="start"/>
+        <body>
+          <![CDATA[
+            const speed = 12;
+            var val = (curr - start) / speed;
+
+            if (val > 1)
+              return val * Math.sqrt(val) - 1;
+            if (val < -1)
+              return val * Math.sqrt(-val) + 1;
+            return 0;
+          ]]>
+        </body>
+      </method>
+
+      <method name="autoScrollLoop">
+        <body>
+          <![CDATA[
+            var x = this._accelerate(this._screenX, this._startX);
+            var y = this._accelerate(this._screenY, this._startY);
+
+            var desiredScrollX = this._scrollErrorX + x;
+            var actualScrollX = this._roundToZero(desiredScrollX);
+            this._scrollErrorX = (desiredScrollX - actualScrollX);
+            var desiredScrollY = this._scrollErrorY + y;
+            var actualScrollY = this._roundToZero(desiredScrollY);
+            this._scrollErrorY = (desiredScrollY - actualScrollY);
+
+            this._scrollingView.scrollBy(actualScrollX, actualScrollY);
+          ]]>
+        </body>
+      </method>
+
+      <method name="isAutoscrollBlocker">
+        <parameter name="node"/>
+        <body>
+          <![CDATA[
+            var mmPaste = false;
+            var mmScrollbarPosition = false;
+
+            try {
+              mmPaste = this.mPrefs.getBoolPref("middlemouse.paste");
+            }
+            catch (ex) {
+            }
+
+            try {
+              mmScrollbarPosition = this.mPrefs.getBoolPref("middlemouse.scrollbarPosition");
+            }
+            catch (ex) {
+            }
+
+            while (node) {
+              if ((node instanceof HTMLAnchorElement || node instanceof HTMLAreaElement) && node.hasAttribute("href"))
+                return true;
+
+              if (mmPaste && (node instanceof HTMLInputElement || node instanceof HTMLTextAreaElement))
+                return true;
+
+              if (node instanceof XULElement && mmScrollbarPosition
+                  && (node.localName == "scrollbar" || node.localName == "scrollcorner"))
+                return true;
+
+              node = node.parentNode;
+            }
+            return false;
+          ]]>
+        </body>
+      </method>
+
+      <method name="handleEvent">
+        <parameter name="aEvent"/>
+        <body>
+          <![CDATA[
+            if (this._scrollingView) {
+              switch(aEvent.type) {
+                case "mousemove": {
+                  this._screenX = aEvent.screenX;
+                  this._screenY = aEvent.screenY;
+
+                  var x = this._screenX - this._startX;
+                  var y = this._screenY - this._startY;
+
+                  if ((x > this._AUTOSCROLL_SNAP || x < -this._AUTOSCROLL_SNAP) ||
+                      (y > this._AUTOSCROLL_SNAP || y < -this._AUTOSCROLL_SNAP))
+                    this._ignoreMouseEvents = false;
+                  break;
+                }
+                case "mouseup":
+                case "mousedown":
+                case "contextmenu": {
+                  if (!this._ignoreMouseEvents)
+                    this._autoScrollPopup.hidePopup();
+                  this._ignoreMouseEvents = false;
+                  break;
+                }
+                case "popuphidden": {
+                  this._autoScrollPopup.removeEventListener("popuphidden", this, true);
+                  this.stopScroll();
+                  break;
+                }
+              }
+            }
+          ]]>
+        </body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="keypress" keycode="VK_F7" group="system">
+        <![CDATA[
+          if (event.getPreventDefault() || !event.isTrusted)
+            return;
+
+          var isEnabled = this.mPrefs.getBoolPref("accessibility.browsewithcaret_shortcut.enabled");
+          if (!isEnabled)
+            return;
+
+          // Toggle browse with caret mode
+          try {
+            var browseWithCaretOn = this.mPrefs.getBoolPref("accessibility.browsewithcaret");
+            this.mPrefs.setBoolPref("accessibility.browsewithcaret",!browseWithCaretOn);
+          } catch (ex) {
+          }
+        ]]>
+      </handler>
+      <handler event="mousedown" phase="capturing">
+        <![CDATA[
+          if (!this._scrollingView && event.button == 1) {
+            if (!this.autoscrollEnabled  ||
+                this.isAutoscrollBlocker(event.originalTarget))
+              return;
+
+            this.startScroll(event);
+          }
+        ]]>
+      </handler>
+    </handlers>
+  </binding>
+</bindings>

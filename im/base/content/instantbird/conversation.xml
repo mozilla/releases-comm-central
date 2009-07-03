@@ -56,8 +56,7 @@
         <xul:hbox class="conv-top" flex="1">
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1">
             <xul:vbox flex="1">
-              <xul:browser class="browser" anonid="browser" type="content"
-                           flex="1" disablehistory="true"
+              <xul:browser anonid="browser" type="content-conversation" flex="1"
                            xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
             </xul:vbox>
@@ -90,45 +89,23 @@
         </xul:deck>
       </xul:vbox>
     </content>
-    <implementation implements="nsIWebProgressListener,nsIObserver,nsIController,nsISelectionListener">
+    <implementation implements="nsIObserver">
      <constructor>
       <![CDATA[
        document.getAnonymousElementByAttribute(this, "anonid", "input")
                .addEventListener("keypress", this.inputKeyPress, false);
-
-       var browser = this.browser;
-       browser.addEventListener("keypress", this.browserKeyPress, false);
-       browser.addEventListener("scroll", this.browserScroll, false);
-       browser.addEventListener("resize", this.browserResize, false);
-
-       var docShell = browser.docShell;
-       docShell.allowJavascript = false;
-       // We used to block auth requests, plugins, images, subframes and
-       // redirects here.
-       // We don't need this anymore, our nsIContentPolicy implementation
-       // takes care of it
-
-       // load the stylesheet through the style sheet service to workaround
-       // a security restriction in 1.9b2+ (bug 397791)
-       var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
-                           .getService(Components.interfaces.nsIStyleSheetService);
-       var uri = Components.classes["@mozilla.org/network/io-service;1"]
-                           .getService(Components.interfaces.nsIIOService)
-                           .newURI("chrome://instantbird/skin/conv.css", null, null);
-       if (!sss.sheetRegistered(uri, sss.USER_SHEET))
-         sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
-
-       //'data:text/html,<html><head></head><body id="ibcontent"></body></html>';
-       var url = "chrome://instantbird/content/conv.html";
-       browser.setAttribute("src", url);
-       browser.addProgressListener(this);
-       this.contentWindow.controllers.insertControllerAt(0, this);
 
        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
        editor.addEventListener("keypress", this.editorKeyPress, false);
        //this doesn't work at the moment
        //editor.contentDocument.designMode = "on";
        //setTimeout(function() { editor.contentWindow.focus(); }, 100);
+
+       var browser = this.browser;
+       browser.addEventListener("keypress", this.browserKeyPress, false);
+       Components.classes["@mozilla.org/observer-service;1"]
+                 .getService(Components.interfaces.nsIObserverService)
+                 .addObserver(this, "conversation-loaded", false);
 
        try {
          this.findbar.browser = browser;
@@ -139,13 +116,6 @@
          // Don't worry, the constructor of the findbar will set again the
          // browser property with a setTimeout call.
        }
-
-       if (!("cleanupImMarkup" in window))
-         Components.utils.import("resource://app/modules/imContentSink.jsm");
-       if (!("smileImMarkup" in window))
-         Components.utils.import("resource://app/modules/imSmileys.jsm");
-       if (!("getCurrentTheme" in window))
-         Components.utils.import("resource://app/modules/imThemes.jsm");
       ]]>
      </constructor>
 
@@ -154,13 +124,24 @@
         if (this._conv) {
           this._conv.close();
           this._conv.removeObserver(this);
-          this.contentWindow.controllers.removeController(this);
         }
       ]]>
      </destructor>
 
      <field name="loaded">false</field>
      <field name="messageQueue">[]</field>
+
+     <method name="_emptyMessageQueue">
+      <body>
+      <![CDATA[
+        this.loaded = true;
+        for each(var m in this.messageQueue)
+          this._addMsg(m);
+        this.messageQueue = null;
+      ]]>
+      </body>
+     </method>
+
      <field name="_lastMessage">null</field>
      <field name="_statusText">""</field>
 
@@ -201,36 +182,7 @@
           return;
         }
 
-        let doc = this.browser.contentDocument;
-        let msg = aMsg.message;
-        if (!aMsg.noLinkification) {
-          msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                          .getService(Ci.mozITXTToHTMLConv)
-                          .scanHTML(msg, 2)
-                          .replace(/&amp;(apos|quot);/g, "&$1;");
-        }
-        aMsg.message = cleanupImMarkup(doc, msg.replace(/\n/g, "<br/>"), null,
-                                       [smileTextNode]);
-        let next = isNextMessage(this.theme, aMsg, this._lastMessage);
-        let html = getHTMLForMessage(aMsg, this.theme, next);
-
-        // FIXME: temporary hack
-        let color = "";
-        if (!aMsg.system && aMsg.incoming && (conv instanceof Ci.purpleIConvChat))
-          color = "color: hsl( " + this.buddies[aMsg.alias || aMsg.who].color + ", 100%, 50%)";
-        html = html.replace(/%senderColor%/g, color);
-
-        let body = doc.getElementsByTagName("body")[0];
-        let shouldScroll = this.lastElement ||
-                           body.scrollHeight <= body.scrollTop + body.clientHeight + 10;
-        let newElt = insertHTMLForMessage(aMsg, html, doc, next);
-        if (shouldScroll) {
-          newElt.scrollIntoView(true);
-          this.lastElement = newElt;
-          this.scrollingIntoView = true;
-        }
-        this._lastMessage = aMsg;
-
+        this.browser.appendMessage(aMsg);
         if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
           if (conv instanceof Ci.purpleIConvChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
@@ -357,49 +309,6 @@
       <![CDATA[
         var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
         editor.contentDocument.execCommand(aCmd, false, aHtml);
-      ]]>
-      </body>
-     </method>
-
-     <method name="browserScroll">
-     <parameter name="event"/>
-      <body>
-      <![CDATA[
-        var conv = document.getBindingParent(this);
-        if (conv.scrollingIntoView) {
-          // We have explicitely requested a scrollIntoView, ignore the event
-          conv.scrollingIntoView = false;
-          this.lastScrollHeight = this.scrollHeight;
-          this.lastScrollWidth = this.scrollWidth;
-          return;
-        }
-
-        if (this.lastScrollHeight != this.scrollHeight ||
-            this.lastScrollWidth != this.scrollWidth) {
-          // if the scrollheight changed, we are resizing the content area,
-          // don't stop the auto scroll.
-          this.lastScrollHeight = this.scrollHeight;
-          this.lastScrollWidth = this.scrollWidth;
-          return;
-        }
-
-        // Disable auto-scroll, the user moved the scrollbar
-        conv.lastElement = null;
-      ]]>
-      </body>
-     </method>
-
-     <method name="browserResize">
-     <parameter name="event"/>
-      <body>
-      <![CDATA[
-        var conv = document.getBindingParent(this);
-        if (conv.lastElement) {
-          // The content area was resized and auto-scroll is enabled,
-          // make sure the last inserted element is still visible
-          conv.lastElement.scrollIntoView(true);
-          conv.scrollingIntoView = true;
-        }
       ]]>
       </body>
      </method>
@@ -705,6 +614,31 @@
        <parameter name="aData"/>
        <body>
        <![CDATA[
+         if (aTopic == "conversation-loaded") {
+           if (aSubject != this.browser)
+             return;
+
+           // Display all queued messages. Use a timeout so that message text
+           // modifiers can be added with observers for this notification.
+           setTimeout(function(aSelf) { aSelf._emptyMessageQueue(); }, 0, this);
+
+           if (this._conv instanceof Components.interfaces.purpleIConvChat) {
+             this.updateTopic();
+             this.setAttribute("chat", "true");
+             this.buddies = {};
+             var nicks = getIter(this.conv.getParticipants());
+             for (let n in nicks)
+               this.addBuddy(n);
+             this.updateParticipantCount();
+             this.browser.buddies = this.buddies;
+           }
+
+           Components.classes["@mozilla.org/observer-service;1"]
+                     .getService(Components.interfaces.nsIObserverService)
+                     .removeObserver(this, "conversation-loaded");
+           return;
+         }
+
          if (!this.loaded)
            return;
 
@@ -743,132 +677,6 @@
          }
        ]]>
        </body>
-     </method>
-
-     <!-- nsIController implementation -->
-     <method name="supportsCommand">
-      <parameter name="aCommand"/>
-      <body>
-      <![CDATA[
-         return aCommand == "cmd_copy";
-       ]]>
-       </body>
-     </method>
-
-     <method name="isCommandEnabled">
-      <parameter name="aCommand"/>
-      <body>
-      <![CDATA[
-         return !this.contentWindow.getSelection().isCollapsed;
-       ]]>
-       </body>
-     </method>
-
-     <method name="doCommand">
-      <parameter name="aCommand"/>
-      <body>
-      <![CDATA[
-         let selection = this.contentWindow.getSelection();
-         Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                   .getService(Ci.nsIClipboardHelper)
-                   .copyString(serializeSelection(selection));
-       ]]>
-       </body>
-     </method>
-
-     <method name="onEvent">
-      <parameter name="aCommand"/>
-     </method>
-
-     <!-- nsISelectionListener implementation -->
-     <method name="notifySelectionChanged">
-      <parameter name="aDocument"/>
-      <parameter name="aSelection"/>
-      <parameter name="aReason"/>
-      <body>
-      <![CDATA[
-         if (!(aReason & Ci.nsISelectionListener.MOUSEUP_REASON   || 
-               aReason & Ci.nsISelectionListener.SELECTALL_REASON ||
-               aReason & Ci.nsISelectionListener.KEYPRESS_REASON))
-           return; // we are still dragging, don't bother with the selection
-
-         Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                   .getService(Ci.nsIClipboardHelper)
-                   .copyStringToClipboard(serializeSelection(aSelection),
-                                          Ci.nsIClipboard.kSelectionClipboard);
-       ]]>
-       </body>
-     </method>
-
-     <!-- nsIWebProgressListener implementation -->
-     <method name="onStateChange">
-      <parameter name="aProgress"/>
-      <parameter name="aRequest"/>
-      <parameter name="aStateFlags"/>
-      <parameter name="aStatus"/>
-      <body>
-      <![CDATA[
-        const WPL = Components.interfaces.nsIWebProgressListener;
-        if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
-            (aStateFlags & WPL.STATE_STOP)) {
-          var browser = this.browser;
-          browser.removeProgressListener(this);
-          this.theme = getCurrentTheme();
-          initHTMLDocument(this.conv, this.theme, browser.contentDocument);
-          this.loaded = true;
-
-          var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
-                                    .getService(Ci.nsIClipboard);
-          if (clipboard.supportsSelectionClipboard()) {
-            this.contentWindow.getSelection()
-                .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                .addSelectionListener(this);
-          }
-
-          for (var i = 0; i < this.messageQueue.length; ++i)
-            this._addMsg(this.messageQueue[i]);
-          this.messageQueue = null;
-
-          if (this._conv instanceof Components.interfaces.purpleIConvChat) {
-            this.updateTopic();
-            this.setAttribute("chat", "true");
-            this.buddies = {};
-            var nicks = getIter(this.conv.getParticipants());
-            for (let n in nicks)
-              this.addBuddy(n);
-            this.updateParticipantCount();
-          }
-        }
-      ]]>
-      </body>
-     </method>
-
-     <method name="onProgressChange">
-      <parameter name="aProgress"/>
-      <parameter name="aRequest"/>
-      <parameter name="aCurSelf"/>
-      <parameter name="aMaxSelf"/>
-      <parameter name="aCurTotal"/>
-      <parameter name="aMaxTotal"/>
-     </method>
-
-     <method name="onLocationChange">
-      <parameter name="aProgress"/>
-      <parameter name="aRequest"/>
-      <parameter name="aLocation"/>
-     </method>
-
-     <method name="onStatusChange">
-      <parameter name="aProgress"/>
-      <parameter name="aRequest"/>
-      <parameter name="aStatus"/>
-      <parameter name="aMessage"/>
-     </method>
-
-     <method name="onSecurityChange">
-      <parameter name="aProgress"/>
-      <parameter name="aRequest"/>
-      <parameter name="aState"/>
      </method>
 
      <method name="onNicklistKeyPress">
@@ -921,6 +729,7 @@
              throw("Already initialized");
            this._conv = val;
            this._conv.addObserver(this);
+           this.browser.init(this._conv);
            return val;
          ]]>
        </setter>

@@ -144,23 +144,6 @@ var previewObserver = {
                 .getService(Components.interfaces.nsIPrefService)
                 .getBranch(messagesStylePrefBranch);
 
-    // load the stylesheet through the style sheet service to workaround
-    // a security restriction in 1.9b2+ (bug 397791)
-    var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
-                        .getService(Components.interfaces.nsIStyleSheetService);
-    var uri = Components.classes["@mozilla.org/network/io-service;1"]
-                        .getService(Components.interfaces.nsIIOService)
-                        .newURI("chrome://instantbird/skin/conv.css", null, null);
-    if (!sss.sheetRegistered(uri, sss.USER_SHEET))
-      sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
-
-    var browser = document.getElementById("browser");
-    browser.docShell.allowJavascript = false;
-
-    Components.utils.import("resource://app/modules/imContentSink.jsm");
-    Components.utils.import("resource://app/modules/imSmileys.jsm");
-    Components.utils.import("resource://app/modules/imThemes.jsm");
-
     let makeDate = function(aDateString) {
       let array = aDateString.split(":");
       return (new Date(2009, 11, 8, array[0], array[1], array[2])) / 1000;
@@ -183,6 +166,7 @@ var previewObserver = {
       previewObserver.prefs.getCharPref(themePref);
     document.getElementById("showHeaderCheckbox").checked =
       previewObserver.prefs.getBoolPref(showHeaderPref);
+    previewObserver.browser = document.getElementById("browser");
     previewObserver.displayCurrentTheme();
   },
   QueryInterface: function(aIid) {
@@ -270,54 +254,26 @@ var previewObserver = {
 
   reloadPreview: function() {
     this.conv.messages.forEach(function (m) { m.reset(); });
-    let browser = document.getElementById("browser");
-    browser.addProgressListener(previewObserver);
-    browser.reload();
+    this.browser.init(this.conv);
+    Components.classes["@mozilla.org/observer-service;1"]
+              .getService(Components.interfaces.nsIObserverService)
+              .addObserver(this, "conversation-loaded", false);
   },
 
-  _addMsg: function(aMsg) {
-    var conv = aMsg.conversation;
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic != "conversation-loaded" || aSubject != this.browser)
+      return;
 
-    let doc = document.getElementById("browser").contentDocument;
-    let msg = cleanupImMarkup(doc, aMsg.message);
-    if (!aMsg.noLinkification) {
-      msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                      .getService(Ci.mozITXTToHTMLConv)
-                      .scanHTML(msg, 2)
-                      .replace(/&amp;(apos|quot);/g, "&$1;");
-    }
-    aMsg.message = smileImMarkup(doc, msg.replace(/\n/g, "<br/>"));
-    let next = isNextMessage(this.theme, aMsg, this._lastMessage);
-    let html = getHTMLForMessage(aMsg, this.theme, next);
-    let elt = doc.getElementsByTagName("body")[0];
-    let shouldScroll = this.lastElement ||
-                       elt.scrollHeight <= elt.scrollTop + elt.clientHeight + 10;
-    let newElt = insertHTMLForMessage(aMsg, html, doc, next);
-    if (shouldScroll) {
-      newElt.scrollIntoView(true);
-      this.lastElement = newElt;
-      this.scrollingIntoView = true;
-    }
-    this._lastMessage = aMsg;
-  },
+    // Display all queued messages. Use a timeout so that message text
+    // modifiers can be added with observers for this notification.
+    setTimeout(function(aSelf) {
+      aSelf.conv.messages.forEach(aSelf.browser.appendMessage, aSelf.browser);
+    }, 0, this);
 
-  onStateChange: function(aProgress, aRequest, aStateFlags, aStatus) {
-    const WPL = Components.interfaces.nsIWebProgressListener;
-    if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
-        (aStateFlags & WPL.STATE_STOP)) {
-      var browser = document.getElementById("browser");
-      browser.removeProgressListener(this);
-      try {
-        initHTMLDocument(this.conv, this.theme, browser.contentDocument);
-        this.conv.messages.forEach(this._addMsg, this);
-      } catch(e) {dump(e + "\n");}
-    }
-  },
-
-  onProgressChange: function(aProgress, aRequest, aCurSelf, aMaxSelf, aCurTotal, aMaxTotal) {},
-  onLocationChange: function(aProgress, aRequest, aLocation) {},
-  onStatusChange: function(aProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange: function(aProgress, aRequest, aState) {}
+    Components.classes["@mozilla.org/observer-service;1"]
+              .getService(Components.interfaces.nsIObserverService)
+              .removeObserver(this, "conversation-loaded");
+  }
 };
 
 this.addEventListener("load", previewObserver.load, false);

@@ -64,9 +64,7 @@
   </stringbundleset>
 
   <label value="&previewLabel;"/>
-  <browser flex="1" class="browser" id="browser" type="content"
-           disablehistory="true"
-           src="chrome://instantbird/content/conv.html"/>
+  <browser flex="1" id="browser" type="content-conversation"/>
 
   <hbox align="baseline">
     <label value="&themeLabel;" control="themename"/>
