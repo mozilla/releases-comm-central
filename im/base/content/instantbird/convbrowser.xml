@@ -239,6 +239,30 @@
         </body>
       </method>
 
+      <field name="_autoScrollEnabled">true</field>
+
+      <method name="_updateAutoScrollEnabled">
+        <body>
+          <![CDATA[
+            // Enable auto-scroll if the scrollbar is at the bottom.
+            let body = this.contentDocument.getElementsByTagName("body")[0];
+            this._autoScrollEnabled =
+              body.scrollHeight <= body.scrollTop + body.clientHeight + 10;
+            return this._autoScrollEnabled;
+          ]]>
+         </body>
+      </method>
+
+      <method name="_scrollToElement">
+        <parameter name="aElt"/>
+        <body>
+          <![CDATA[
+            aElt.scrollIntoView(true);
+            this._scrollingIntoView = true;
+          ]]>
+         </body>
+      </method>
+
       <method name="appendMessage">
         <parameter name="aMsg"/>
         <body>
@@ -263,14 +287,10 @@
             html = html.replace(/%senderColor%/g, color);
 
             let body = doc.getElementsByTagName("body")[0];
-            let shouldScroll = this._lastElement ||
-                               body.scrollHeight <= body.scrollTop + body.clientHeight + 10;
             let newElt = insertHTMLForMessage(aMsg, html, doc, next);
-            if (shouldScroll) {
-              newElt.scrollIntoView(true);
-              this._lastElement = newElt;
-              this._scrollingIntoView = true;
-            }
+            if (this._autoScrollEnabled || this._updateAutoScrollEnabled())
+              this._scrollToElement(newElt);
+            this._lastElement = newElt;
             this._lastMessage = aMsg;
           ]]>
         </body>
@@ -297,8 +317,8 @@
               return;
             }
 
-            // Disable auto-scroll, the user moved the scrollbar
-            this._lastElement = null;
+            // Enable or disable auto-scroll based on the scrollbar position
+            this._updateAutoScrollEnabled();
           ]]>
          </body>
       </method>
@@ -307,11 +327,10 @@
         <parameter name="event"/>
         <body>
           <![CDATA[
-            if (this._lastElement) {
+            if (this._autoScrollEnabled && this._lastElement) {
               // The content area was resized and auto-scroll is enabled,
               // make sure the last inserted element is still visible
-              this._lastElement.scrollIntoView(true);
-              this._scrollingIntoView = true;
+              this._scrollToElement(this._lastElement);
             }
           ]]>
         </body>
