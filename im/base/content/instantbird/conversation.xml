@@ -121,12 +121,25 @@
 
      <destructor>
       <![CDATA[
-        if (this._conv) {
-          this._conv.close();
-          this._conv.removeObserver(this);
-        }
+        this.destroy();
       ]]>
      </destructor>
+
+     <!-- This is necessary because the destructor doesn't always get
+          called when we are removed from a tabbox.  This needs to be
+          explicitly called before removing the DOM node. -->
+     <method name="destroy">
+       <body>
+         <![CDATA[
+           if (this._conv) {
+             this._conv.close();
+             this._conv.removeObserver(this);
+             delete this._conv;
+             this.browser.destroy();
+           }
+         ]]>
+       </body>
+     </method>
 
      <field name="loaded">false</field>
      <field name="messageQueue">[]</field>

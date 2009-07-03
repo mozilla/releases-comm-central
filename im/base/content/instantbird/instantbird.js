@@ -197,8 +197,12 @@ var msgObserver = {
       throw "Can't find the conversation associated with the tab.";
     delete this.convs[conv.convId];
 
-    conv.conv.close(); //FIXME We shouldn't need this, why isn't the destructor
-                       //      of the conversation binding called??
+    // Because of the way XBL works (fields just set JS
+    // properties on the element) and the code in place
+    // to preserve the JS objects for any elements that have
+    // JS properties set on them, the conversation element won't be
+    // destroyed until the document goes away.  Force a cleanup.
+    conv.destroy();
 
     if (aTab.selected) {
       if (aTab.nextSibling) {
