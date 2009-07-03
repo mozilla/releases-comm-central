@@ -154,6 +154,10 @@
                 onget="return this.webNavigation.document;"
                 readonly="true"/>
 
+      <property name="markupDocumentViewer"
+                onget="return this.docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);"
+                readonly="true"/>
+
       <field name="mPrefs" readonly="true">
         Components.classes['@mozilla.org/preferences-service;1']
                   .getService(Components.interfaces.nsIPrefService)
