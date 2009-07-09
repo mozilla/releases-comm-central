@@ -93,6 +93,7 @@
         <menuitem id="errorConsoleMenuItem" label="&errorConsoleCmd.label;" oncommand="menus.errors()" key="errorConsoleKey" accesskey="&errorConsoleCmd.accesskey;"/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
         <menuitem id="messageStyleMenuItem" label="&messageStyle;" oncommand="menus.messageStyle()"/>
+        <menuitem id="smileysMenuItem" label="&smileys;" oncommand="menus.smileys()"/>
         <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
       </menupopup>
     </menu>

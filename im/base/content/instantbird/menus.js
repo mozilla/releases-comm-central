@@ -38,6 +38,7 @@
 const addonManagerWindow = "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
 const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
 const messageStyleWindow = "chrome://instantbird/content/messagestyle.xul";
+const smileysWindow = "chrome://instantbird/content/smileys.xul";
 const blistWindow = "chrome://instantbird/content/blist.xul";
 const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 const joinChatWindow = "chrome://instantbird/content/joinchat.xul";
@@ -76,6 +77,11 @@ var menus = {
   messageStyle: function menu_messageStyle() {
     if (!this.focus("Messenger:messageStyle"))
       window.open(messageStyleWindow, "Message Styles", "chrome,resizable");
+  },
+
+  smileys: function menu_smileys() {
+    if (!this.focus("Messenger:smileys"))
+      window.open(smileysWindow, "Smileys", "chrome,resizable");
   },
 
   errors: function debug_errors() {

@@ -39,7 +39,8 @@ var EXPORTED_SYMBOLS = [
   "smileImMarkup", // used to add smile:// img tags into IM markup.
   "smileTextNode", // used to add smile:// img tags to the content of a textnode
   "smileString", // used to add smile:// img tags into a string without parsing it as HTML. Be sure the string doesn't contain HTML tags.
-  "getSmileRealURI" // used to retrive the chrome URI for a smile:// URI
+  "getSmileRealURI", // used to retrive the chrome URI for a smile:// URI
+  "getSmileyList" // used to display a list of smileys in the UI
 ];
 
 const emoticonsThemePref = "messenger.options.emoticonsTheme";
@@ -76,10 +77,27 @@ function getSmileRealURI(aSmile)
   throw "Invalid smile!";
 }
 
+function getSmileyList(aTheme) {
+  if (!aTheme)
+    aTheme = getTheme();
+
+  if (!aTheme.json)
+    return null;
+
+  let addAbsoluteUrls = function(aSmiley) {
+    return {filename: aSmiley.filename,
+            src: aTheme.baseUri + aSmiley.filename,
+            texts: aSmiley.texts};
+  };
+  return aTheme.json.smileys.map(addAbsoluteUrls);
+}
+
 function getTheme()
 {
   if (gTheme)
     return gTheme;
+
+  gPrefObserver.init();
 
   gTheme = {
     name: "default",
@@ -198,8 +216,6 @@ function smileImMarkup(aDocument, aText)
 {
   if (!aDocument)
     throw "providing an HTML document is required";
-
-  gPrefObserver.init();
 
   // return early if smileys are disabled
   if (!getTheme().iconsHash)

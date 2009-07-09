@@ -1,0 +1,7 @@
+<!ENTITY smileysWindow.title "Smileys - &brandShortName;">
+<!ENTITY themeLabel          "Emoticons Theme:">
+<!ENTITY defaultTheme.label  "Default">
+<!ENTITY disabled.label      "Disabled">
+<!ENTITY previewDescription  "This lists shows the texts you can type to see these emoticons in your conversations:">
+<!ENTITY imageColumn.label   "Emoticon">
+<!ENTITY textsColumn.label   "Texts">
