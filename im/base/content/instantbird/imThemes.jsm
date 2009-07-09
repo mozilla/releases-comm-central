@@ -786,7 +786,7 @@ SelectedMessage.prototype = {
         let range = spanNode.ownerDocument.createRange();
         range.setStart(this._range.endContainer, this._range.endOffset);
         range.setEnd(spanNode, spanNode.childNodes.length);
-        this._cutEnd = serializeRange(range) != "";
+        this._cutEnd = !/^\n?$/.test(serializeRange(range));
       }
       else
         this._cutEnd = false;
