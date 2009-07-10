@@ -457,9 +457,10 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext)
     let meRegExp = /^((<[^>]+>)*)\/me /;
     if (meRegExp.test(aMsg.message)) {
       aMsg.message = aMsg.message.replace(meRegExp, "$1");
+      let actionMessageTemplate = "* %message% *";
       if (hasMetadataKey(aTheme, "ActionMessageTemplate"))
-        html = html.replace(/%message%/g,
-                            getMetadata(aTheme, "ActionMessageTemplate"));
+        actionMessageTemplate = getMetadata(aTheme, "ActionMessageTemplate");
+      html = html.replace(/%message%/g, actionMessageTemplate);
     }
   }
 
