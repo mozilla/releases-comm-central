@@ -600,16 +600,28 @@ function getEllipsis()
   return ellipsis;
 }
 
-function serializeRange(aRange)
+function _serializeDOMObject(aDocument, aInitFunction)
 {
   const type = "text/plain";
   var encoder =
     Components.classes["@mozilla.org/layout/documentEncoder;1?type=" + type]
               .createInstance(Components.interfaces.nsIDocumentEncoder);
-  encoder.init(aRange.startContainer.ownerDocument, type, 0);
-  encoder.setRange(aRange);
+  encoder.init(aDocument, type, 0);
+  aInitFunction(encoder);
   let result = encoder.encodeToString();
   return result;
+}
+
+function serializeRange(aRange)
+{
+  return _serializeDOMObject(aRange.startContainer.ownerDocument,
+                             function(aEncoder) { aEncoder.setRange(aRange); });
+}
+
+function serializeNode(aNode)
+{
+  return _serializeDOMObject(aNode.ownerDocument,
+                             function(aEncoder) { aEncoder.setNode(aNode); });
 }
 
 /* This function is used to pretty print a selection inside a conversation area */
@@ -831,8 +843,11 @@ SelectedMessage.prototype = {
              this._selectedText +
              (this._cutEnd ? " " + getEllipsis() : "");
     }
-    else
-      text = msg.message; //FIXME strip HTML
+    else {
+      let div = this._rootNodes[0].ownerDocument.createElement("div");
+      div.innerHTML = msg.message;
+      text = serializeNode(div);
+    }
 
     // then get the suitable replacements and templates for this message
     let getLocalizedPrefWithDefault = function (aName, aDefault) {
