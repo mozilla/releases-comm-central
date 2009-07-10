@@ -4,8 +4,6 @@ pref("toolkit.singletonWindowType", "Messenger:blist");
 #expand pref("general.useragent.extra.instantbird", "Instantbird/__APP_VERSION__");
 #expand pref("general.useragent.locale", "__AB_CD__");
 
-pref("accessibility.browsewithcaret", true);
-
 pref("messenger.accounts", "");
 pref("messenger.accounts.promptOnDelete", true);
 
