@@ -76,7 +76,7 @@ var menus = {
 
   messageStyle: function menu_messageStyle() {
     if (!this.focus("Messenger:messageStyle"))
-      window.open(messageStyleWindow, "Message Styles", "chrome,resizable");
+      window.open(messageStyleWindow, "Message_Styles", "chrome,resizable");
   },
 
   smileys: function menu_smileys() {
