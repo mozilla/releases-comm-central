@@ -22,7 +22,7 @@
       <menupopup>
         <menuitem id="domiMenuItem" label="DOM Inspector" key="domiKey" command="domiCommand"/>
         <menuitem id="gcMenuItem" label="Force Garbage Collection" key="gcKey" command="gcCommand"/>
-        <menuitem id="venkmanMenuItem" label="Venkman" key="venkmanKey" command="venkman"/>
+        <menuitem id="venkmanMenuItem" label="Venkman" key="venkmanKey" command="venkmanCommand"/>
         <menuseparator/>
         <menuitem id="configMenuItem" label="about:config" oncommand="debug.config()"/>
       </menupopup>
