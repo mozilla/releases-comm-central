@@ -300,6 +300,7 @@
 
             let body = doc.getElementsByTagName("body")[0];
             let newElt = insertHTMLForMessage(aMsg, html, doc, next);
+            newElt.getBoundingClientRect(); // avoid ireflow bugs
             if (this._autoScrollEnabled || this._updateAutoScrollEnabled())
               this._scrollToElement(newElt);
             this._lastElement = newElt;
