@@ -56,6 +56,7 @@
   height = "600"
   persist= "width height screenX screenY"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/core.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
@@ -69,11 +70,15 @@
 
   <commandset id="maincommandset">
     <command id="accountmanager" oncommand="menus.accounts()"/>
+    <command id="cmd_quitApplication" oncommand="goQuitApplication()"/>
   </commandset>
 
   <keyset id="mainkeyset">
     <key id="accountsetup" key="&account.commandkey;" command="accountmanager" modifiers="accel"/>
     <key id="errorConsoleKey" key="&errorConsoleCmd.commandkey;" oncommand="menus.errors();" modifiers="accel,shift"/>
+#ifdef XP_UNIX
+    <key id="key_quitApplication" key="&quitApplicationCmdMac.key;" command="cmd_quitApplication" modifiers="accel"/>
+#endif
   </keyset>
 
   <menubar id="blistMenubar">
@@ -83,6 +88,23 @@
         <menuitem id="joinChatMenuItem" label="&joinChat;" oncommand="menus.joinChat()"/>
         <menuseparator/>
         <menuitem id="getAwayMenuItem" label="&getAway;" oncommand="menus.getAway()"/>
+        <menuseparator id="menu_FileQuitSeparator"/>
+        <menuitem id="menu_FileQuitItem"
+#ifdef XP_WIN
+                  label="&quitApplicationCmdWin.label;"
+                  accesskey="&quitApplicationCmdWin.accesskey;"
+#else
+#ifdef XP_MACOSX
+                  label="&quitApplicationCmdMac.label;"
+#else
+                  label="&quitApplicationCmd.label;"
+                  accesskey="&quitApplicationCmd.accesskey;"
+#endif
+#ifdef XP_UNIX
+                  key="key_quitApplication"
+#endif
+#endif
+                  command="cmd_quitApplication"/>
       </menupopup>
     </menu>
     <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
