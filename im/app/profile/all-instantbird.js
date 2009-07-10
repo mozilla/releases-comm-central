@@ -4,6 +4,19 @@ pref("toolkit.singletonWindowType", "Messenger:blist");
 #expand pref("general.useragent.extra.instantbird", "Instantbird/__APP_VERSION__");
 #expand pref("general.useragent.locale", "__AB_CD__");
 
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+#define UNIX_BUT_NOT_MAC
+#endif
+#endif
+
+pref("general.smoothScroll", false);
+#ifdef UNIX_BUT_NOT_MAC
+pref("general.autoScroll", false);
+#else
+pref("general.autoScroll", true);
+#endif
+
 pref("messenger.accounts", "");
 pref("messenger.accounts.promptOnDelete", true);
 
