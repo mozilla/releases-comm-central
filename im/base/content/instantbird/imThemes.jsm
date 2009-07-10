@@ -834,27 +834,35 @@ SelectedMessage.prototype = {
       text = msg.message; //FIXME strip HTML
 
     // then get the suitable replacements and templates for this message
-    let prefBranch =
-      Components.classes["@mozilla.org/preferences-service;1"]
-                .getService(Components.interfaces.nsIPrefService)
-                .getBranch("messenger.conversations.selections.");
-    const nsIPrefLocalizedString = Components.interfaces.nsIPrefLocalizedString;
+    let getLocalizedPrefWithDefault = function (aName, aDefault) {
+      try {
+        let prefBranch =
+          Components.classes["@mozilla.org/preferences-service;1"]
+                    .getService(Components.interfaces.nsIPrefService)
+                    .getBranch("messenger.conversations.selections.");
+        const nsIPrefLocalizedString = Components.interfaces.nsIPrefLocalizedString;
+        return prefBranch.getComplexValue(aName,
+                                          nsIPrefLocalizedString).data;
+      } catch(e) {
+        return aDefault;
+      }
+    };
     let html, replacements;
     if (msg.system) {
       replacements = statusReplacements;
-      html = "%time% - %message%";
-      try {
-        html = prefBranch.getComplexValue("systemMessagesTemplate",
-                                          nsIPrefLocalizedString).data;
-      } catch(e) { }
+      html = getLocalizedPrefWithDefault("systemMessagesTemplate",
+                                         "%time% - %message%");
     }
     else {
       replacements = messageReplacements;
-      html = "%time% - %sender%: %message%";
-      try {
-        html = prefBranch.getComplexValue("contentMessagesTemplate",
-                                          nsIPrefLocalizedString).data;
-      } catch(e) { }
+      if (/^(<[^>]+>)*\/me /.test(msg.originalMessage)) {
+        html = getLocalizedPrefWithDefault("actionMessagesTemplate",
+                                           "%time% * %sender% %message%");
+      }
+      else {
+        html = getLocalizedPrefWithDefault("contentMessagesTemplate",
+                                           "%time% - %sender%: %message%");
+      }
     }
 
     // override the default %message% replacement so that it doesn't
