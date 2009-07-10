@@ -169,13 +169,6 @@ var previewObserver = {
     previewObserver.browser = document.getElementById("browser");
     previewObserver.displayCurrentTheme();
   },
-  QueryInterface: function(aIid) {
-    if (aIid.equals(Components.interfaces.nsISupports) ||
-        aIid.equals(Components.interfaces.nsISupportsWeakReference) ||
-        aIid.equals(Components.interfaces.nsIWebProgressListener))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
 
   showHeaderChanged: function() {
     let newValue = document.getElementById("showHeaderCheckbox").checked;
