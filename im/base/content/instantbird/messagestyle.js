@@ -118,24 +118,18 @@ var previewObserver = {
                 .getService(Components.interfaces.nsIExtensionManager)
                 .getItemList(Components.interfaces.nsIUpdateItem.TYPE_EXTENSION, {})
                 .filter(function(item) /^messagestyle-/.test(item.id));
-    let createMenuItem = function(aItem) {
-      let item = document.createElement("menuitem");
-      item.setAttribute("label", aItem.name);
-      item.setAttribute("value",
-                        aItem.id.replace(/^messagestyle-([^@]+)@.*/, "$1"));
-      return item;
-    };
+
     let menulist = document.getElementById("themename");
-    let popup = menulist.appendChild(document.createElement("menupopup"));
-    let menuitem = document.createElement("menuitem");
-    let defaultText = document.getElementById("messageStyleBundle")
-                              .getString("default");
-    menuitem.setAttribute("label", defaultText);
-    menuitem.setAttribute("value", "default");
-    popup.appendChild(menuitem);
-    popup.appendChild(document.createElement("menuseparator"));
-    themeList.map(createMenuItem)
-             .forEach(function (e) { popup.appendChild(e); });
+    if (!themeList.length) {
+      menulist.disabled = true;
+      return;
+    }
+
+    menulist.menupopup.appendChild(document.createElement("menuseparator"));
+    themeList.forEach(function(aItem) {
+      menulist.appendItem(aItem.name,
+                          aItem.id.replace(/^messagestyle-([^@]+)@.*/, "$1"));
+    });
   },
   load: function() {
     previewObserver.buildThemeList();

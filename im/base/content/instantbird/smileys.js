@@ -47,15 +47,11 @@ var smileysPreview = {
     if (!themeList.length)
       return;
 
-    let popup = document.getElementById("theme-menupopup");
-    popup.appendChild(document.createElement("menuseparator"));
-
+    let menulist = document.getElementById("themename");
+    menulist.menupopup.appendChild(document.createElement("menuseparator"));
     themeList.forEach(function(aItem) {
-      let item = document.createElement("menuitem");
-      item.setAttribute("label", aItem.name);
-      item.setAttribute("value",
-                        aItem.id.replace(/^emoticons-([^@]+)@.*/, "$1"));
-      popup.appendChild(item);
+      menulist.appendItem(aItem.name,
+                          aItem.id.replace(/^emoticons-([^@]+)@.*/, "$1"));
     });
   },
   load: function() {

@@ -69,7 +69,13 @@
   <hbox align="baseline">
     <label value="&themeLabel;" control="themename"/>
     <menulist id="themename"
-              oncommand="previewObserver.currentThemeChanged();"/>
+              oncommand="previewObserver.currentThemeChanged();">
+      <menupopup id="theme-menupopup">
+        <menuitem id="default-menuitem"
+                  label="&defaultThemeLabel;"
+                  value="default"/>
+      </menupopup>
+    </menulist>
   </hbox>
   <hbox align="baseline">
     <label value="&variantLabel;" control="themevariant"/>
