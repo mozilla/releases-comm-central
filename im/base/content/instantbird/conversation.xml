@@ -136,6 +136,11 @@
              this._conv.removeObserver(this);
              delete this._conv;
              this.browser.destroy();
+
+             // We can remove this test once we are sure we will only run on
+             // mozilla plateforms that include the fix for bug 503048.
+             if ("destroy" in this.findbar)
+               this.findbar.destroy();
            }
          ]]>
        </body>
