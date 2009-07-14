@@ -572,14 +572,6 @@
      <method name="focus">
        <body>
        <![CDATA[
-#ifdef XP_WIN
-         // workaround Windows-only focus bug that appeared recently:
-         // Focusing a window breaks the focus in the currently
-         // focused textfield. We have to remove and reset the focus to
-         // work around this. Fortunately, on Windows textboxes have no
-         // visible focus ring to this hack isn't visible to the user
-         this.editor.blur();
-#endif
          this.editor.focus();
          this.displayStatusText();
        ]]>
