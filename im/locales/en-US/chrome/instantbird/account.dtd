@@ -1,4 +1,5 @@
-<!ENTITY accountWindow.title           "Instantbird - account properties">
+<!ENTITY accountWindow.title           "Account properties">
+<!ENTITY accountWindow.width           "300">
 <!ENTITY account.general               "General">
 <!ENTITY account.advanced              "Advanced Options">
 <!ENTITY account.name                  "Username:">

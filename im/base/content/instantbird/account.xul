@@ -45,7 +45,7 @@
   id     = "account"
   title  = "&accountWindow.title;"
   buttons= "accept,cancel"
-  width  = "300"
+  width  = "&accountWindow.width;"
   height = "400"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   onload = "account.onload()"

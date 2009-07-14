@@ -1,4 +1,5 @@
-<!ENTITY accountManager.title                "Account manager - Instantbird">
+<!ENTITY accountManager.title                "Account manager - &brandShortName;">
+<!ENTITY accountManager.width                "500">
 <!ENTITY accountManager.newAccount.label     "New Account">
 <!ENTITY accountManager.newAccount.accesskey "N">
 <!ENTITY accountManager.close.label          "Close">

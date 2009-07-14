@@ -45,7 +45,7 @@
   id     = "joinChatDialog"
   title  = "&joinChatWindow.title;"
   buttons= "accept,cancel"
-  width  = "300"
+  width  = "&joinChatWindow.width;"
   height = "150"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   onload = "joinChat.onload()"

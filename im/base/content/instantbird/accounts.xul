@@ -41,7 +41,9 @@
 
 <!DOCTYPE window [
  <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accounts.dtd">
+ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
  %accountsDTD;
+ %brandDTD;
 ]>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -50,7 +52,7 @@
         onload="gAccountManager.load()"
         title="&accountManager.title;"
         height="300"
-        width="500"
+        width="&accountManager.width;"
         persist="screenX screenY">
  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
  <script type="application/javascript" src="chrome://instantbird/content/accounts.js"/>

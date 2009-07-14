@@ -40,7 +40,12 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/accountWizard.css" type="text/css"?>
 
-<!DOCTYPE wizard SYSTEM "chrome://instantbird/locale/accountWizard.dtd">
+<!DOCTYPE wizard [
+  <!ENTITY % accountWizardDTD SYSTEM "chrome://instantbird/locale/accountWizard.dtd">
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %accountWizardDTD;
+  %brandDTD;
+]>
 
 <wizard id="accountWizard" title="&windowTitle.label;"
         onwizardfinish="return accountWizard.createAccount();"

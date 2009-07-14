@@ -1,4 +1,4 @@
-<!ENTITY addBuddyWindow.title           "Instantbird - add buddy">
+<!ENTITY addBuddyWindow.title           "Add buddy">
 <!ENTITY name.label                     "Username">
 <!ENTITY account.label                  "Account">
 <!ENTITY tag.label                      "Group">
