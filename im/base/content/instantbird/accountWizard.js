@@ -112,6 +112,7 @@ var accountWizard = {
     var hbox = document.createElement("hbox");
     hbox.setAttribute("id", aName + "-hbox");
     hbox.setAttribute("align", "baseline");
+    setTimeout(this.fixBaseline, 0, hbox);
     hbox.setAttribute("equalsize", "always");
 
     var label = document.createElement("label");
@@ -172,6 +173,7 @@ var accountWizard = {
     document.getElementById("accountWizard").canAdvance = true;
     var next = "account" +
       (this.proto.noPassword ? "advanced" : "password");
+    setTimeout(this.fixBaseline, 0, document.getElementById("password"));
     document.getElementById("accountusername").next = next;
   },
 
@@ -193,7 +195,9 @@ var accountWizard = {
     this.proxy.type = Ci.purpleIProxyInfo.useGlobal;
     this.displayProxyDescription();
 
-    document.getElementById("alias").focus();
+    let alias = document.getElementById("alias");
+    setTimeout(this.fixBaseline, 0, alias);
+    alias.focus();
   },
 
   displayProxyDescription: function aw_displayProxyDescription() {
@@ -241,6 +245,7 @@ var accountWizard = {
   createTextbox: function aw_createTextbox(aType, aValue, aLabel, aName) {
     var box = document.createElement("hbox");
     box.setAttribute("align", "baseline");
+    setTimeout(this.fixBaseline, 0, box);
     box.setAttribute("equalsize", "always");
 
     var label = document.createElement("label");
@@ -262,6 +267,7 @@ var accountWizard = {
   createMenulist: function aw_createMenulist(aList, aLabel, aName) {
     var box = document.createElement("hbox");
     box.setAttribute("align", "baseline");
+    setTimeout(this.fixBaseline, 0, box);
 
     var label = document.createElement("label");
     label.setAttribute("value", aLabel);
@@ -321,9 +327,16 @@ var accountWizard = {
     }
   },
 
+  fixBaseline: function aw_fixBaseline(aElement) {
+    // Remove this when bug 494901 is fixed
+    aElement.setAttribute("align", "start");
+    aElement.setAttribute("align", "baseline");
+  },
+
   createSummaryRow: function aw_createSummaryRow(aLabel, aValue) {
     var row = document.createElement("row");
     row.setAttribute("align", "baseline");
+    setTimeout(this.fixBaseline, 0, row);
 
     var label = document.createElement("label");
     label.setAttribute("class", "header");
