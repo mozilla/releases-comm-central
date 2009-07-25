@@ -343,6 +343,15 @@ libs::
 	$(INSTALL) $(ICON_FILES) $(DIST)/bin/icons
 endif
 
+ifdef MOZ_SPLASHSCREEN
+ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
+libs::
+	if test -f $(DIST)/branding/splash.bmp; then \
+	  $(INSTALL) $(IFLAGS1) $(DIST)/branding/splash.bmp $(DIST)/bin; \
+        fi
+endif
+endif
+
 ifeq ($(MOZ_WIDGET_TOOLKIT),photon)
 LIBS += -lphexlib
 endif

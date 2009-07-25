@@ -57,6 +57,11 @@ ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
 	cp $(srcdir)/instantbird.ico   $(DIST)/branding/app.ico
 	cp $(srcdir)/branding.nsi      $(DIST)/branding/branding.nsi
 endif
+ifdef MOZ_SPLASHSCREEN
+ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
+	cp $(srcdir)/splash.bmp       $(DIST)/branding/splash.bmp
+endif
+endif
 ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
 	cp $(srcdir)/instantbird.icns  $(DIST)/branding/instantbird.icns
 	cp $(srcdir)/dsstore           $(DIST)/branding/dsstore
