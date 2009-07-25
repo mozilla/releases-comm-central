@@ -141,15 +141,6 @@ var msgObserver = {
   },
 
   onSelectTab: function mo_onSelectTab() {
-    if (this.focusClickTimeoutId) {
-      // if a click event already started a shorter timeout to focus
-      // the tab, ignore the select event
-      return;
-    }
-
-    if (this.focusTimeoutId)
-      clearTimeout(this.focusTimeoutId);
-
 #ifdef WINCE
     // work around the brokenness of tabpanels / display:-moz-deck on WinCE
     let panels = document.getElementById("panels");
@@ -160,8 +151,16 @@ var msgObserver = {
       else
         panel.removeAttribute("selected");
     } 
-#endif
 
+#endif
+    if (this.focusClickTimeoutId) {
+      // if a click event already started a shorter timeout to focus
+      // the tab, ignore the select event
+      return;
+    }
+
+    if (this.focusTimeoutId)
+      clearTimeout(this.focusTimeoutId);
     this.focusTimeoutId = setTimeout(this.focusSelectedTab, 1000);
   },
 

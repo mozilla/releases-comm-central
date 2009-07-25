@@ -44,7 +44,7 @@ browser[type="content-conversation"] {
 }
 
 %ifdef WINCE
-conversation:not([selected="true"])
+conversation:not([selected="true"]) browser
 {
   visibility: hidden;
 }
