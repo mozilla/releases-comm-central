@@ -40,7 +40,14 @@
 
 1 24 "instantbird.exe.manifest" 
 
+#define IDI_APPICON 1
+#define IDI_DOCUMENT 2
+#ifndef IDI_APPLICATION
+#define IDI_APPLICATION 32512
+#endif
+
 // Program icon.
+IDI_APPICON  ICON  INSTANTBIRD_ICO
 IDI_APPLICATION ICON INSTANTBIRD_ICO
 
 STRINGTABLE DISCARDABLE
@@ -83,9 +90,4 @@ IDC_COLRESIZE           CURSOR  DISCARDABLE     "../../widget/src/build/res/col_
 IDC_ROWRESIZE           CURSOR  DISCARDABLE     "../../widget/src/build/res/row_resize.cur"
 IDC_VERTICALTEXT        CURSOR  DISCARDABLE     "../../widget/src/build/res/vertical_text.cur"
 IDC_NONE                CURSOR  DISCARDABLE     "../../widget/src/build/res/none.cur"
-
-#define IDI_APPICON 100
-IDI_APPICON  ICON  INSTANTBIRD_ICO
-
 #endif
-
