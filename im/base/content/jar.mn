@@ -16,7 +16,7 @@ instantbird.jar:
 	content/instantbird/blist.css		(instantbird/blist.css)
 	content/instantbird/blist.js		(instantbird/blist.js)
 *	content/instantbird/blist.xul		(instantbird/blist.xul)
-	content/instantbird/buddy.xml		(instantbird/buddy.xml)
+*	content/instantbird/buddy.xml		(instantbird/buddy.xml)
 	content/instantbird/core.js		(instantbird/core.js)
 *	content/instantbird/conversation.xml	(instantbird/conversation.xml)
 	content/instantbird/convbrowser.xml	(instantbird/convbrowser.xml)

@@ -140,9 +140,11 @@
         this.accounts = { };
         this.accountsCount = 0;
         // We don't call this.update yet because this.accounts is empty
+#ifndef WINCE
         this.style.height = (this.animHeight = 0) + "px";
         this.setAttribute("expanding", "true");
         this.animInterval = setInterval(this._animateExpand, this.animationInterval, this);
+#endif
       ]]>
       </body>
      </method>
