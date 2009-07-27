@@ -100,6 +100,37 @@ group label {
   font-weight: bold;
 }
 
+%ifdef XP_WIN
+group .twisty {
+  padding-top: 1px;
+  width: 9px; /* The image's width is 9 pixels */
+  background: url("chrome://global/skin/tree/twisty-open.png") no-repeat center;
+}
+
+group[closed] .twisty {
+  background: url("chrome://global/skin/tree/twisty-clsd.png") no-repeat center;
+}
+%else
+%ifdef XP_MACOSX
+group .twisty {
+  width: 9px;
+  background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
+}
+
+group[closed] .twisty {
+  background: url("chrome://global/skin/arrow/arrow-rit-sharp.gif") no-repeat center;
+}
+%else
+group .twisty {
+  -moz-appearance: treetwistyopen;
+}
+
+group[closed] .twisty {
+  -moz-appearance: treetwisty;
+}
+%endif
+%endif
+
 .tooltip-header {
   font-weight: bold;
   font-size: 14pt;

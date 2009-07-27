@@ -46,6 +46,7 @@
 
   <binding id="group" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
+      <xul:image class="twisty"/>
       <xul:label flex="1" crop="end" xbl:inherits="value=name"/>
     </content>
     <implementation>
@@ -83,6 +84,7 @@
         if (source.HasAssertion(elt, RDF.GetResource("closed"),
                                 RDF.GetLiteral("true"), true)) {
           this.setAttribute("closed", "true");
+          this._updateGroupLabel();
           this._updateClosedState(true);
         }
       ]]>
@@ -105,7 +107,8 @@
 
         if (!buddyElt) {
           buddyElt = document.createElement("buddy");
-          if (this.hasAttribute("closed"))
+          let groupIsHidden = this.hasAttribute("closed");
+          if (groupIsHidden)
             buddyElt.setAttribute("collapsed", "true");
 
           var last = this;
@@ -115,6 +118,9 @@
           this.parentNode.insertBefore(buddyElt, last.nextSibling);
           buddyElt.build(aPab.buddy, this);
           this.buddies.push(buddyElt);
+
+          if (groupIsHidden)
+            this._updateGroupLabel();
         }
         buddyElt.addAccount(aPab);
 
@@ -163,6 +169,8 @@
           this.setAttribute("collapsing", "true");
           this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
         }
+        else
+          this._updateGroupLabel();
       ]]>
       </body>
      </method>
@@ -222,12 +230,33 @@
           this.setAttribute("closed", "true");
           this._updateClosedState(true);
         }
+
+        this._updateGroupLabel();
+      ]]>
+      </body>
+     </method>
+
+     <method name="_updateGroupLabel">
+      <body>
+      <![CDATA[
+        let name = this.name;
+        if (this.hasAttribute("closed"))
+          name += " (" + this.buddies.length + ")";
+
+        this.setAttribute("name", name);
       ]]>
       </body>
      </method>
     </implementation>
     <handlers>
-     <handler event="click" clickcount="2" action="close();"/>
+     <handler event="click">
+     <![CDATA[
+        // Check if there was 1 click on the image or 2 clicks on the label
+        if ((event.detail == 1 && event.originalTarget.localName == "image") ||
+            (event.detail == 2 && event.originalTarget.localName == "label"))
+          this.close();
+     ]]>
+     </handler>
     </handlers>
   </binding>
 </bindings>
