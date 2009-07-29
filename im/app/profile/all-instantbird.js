@@ -129,7 +129,7 @@ pref("app.update.timer", 600000);
 // upgrade start page instead! Other apps may wish to show this UI, and supply
 // a whatsNewURL field in their brand.properties that contains a link to a page
 // which tells users what's new in this new update.
-pref("app.update.showInstalledUI", true);
+pref("app.update.showInstalledUI", false);
 
 // 0 = suppress prompting for incompatibilities if there are updates available
 //     to newer versions of installed addons that resolve them.
