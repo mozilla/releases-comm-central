@@ -46,13 +46,19 @@ const events = ["buddy-signed-on",
                 "new-conversation",
                 "status-away",
                 "status-back",
-                "purple-quit"];
+                "purple-quit",
+                "quit-application-requested"];
 
 const autoJoinPref = "autoJoin";
 
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
     //dump("received signal: " + aTopic + "\n");
+
+    if (aTopic == "quit-application-requested") {
+      this._onQuitRequest(aBuddy, aMsg);
+      return;
+    }
 
     if (aTopic == "purple-quit") {
       window.close();
@@ -232,10 +238,16 @@ var buddyList = {
     buddyList.checkNotDisconnected();
     buddyList.checkForIrcAccount();
     this.addEventListener("unload", buddyList.unload, false);
+    this.addEventListener("close", buddyList.close, false);
   },
   unload: function bl_unload() {
     removeObservers(buddyList, events);
     uninitPurpleCore();
+   },
+
+  close: function bl_close(event) {
+    event.preventDefault();
+    goQuitApplication();
   },
 
   getAway: function bl_getAway() {
@@ -268,6 +280,75 @@ var buddyList = {
         break;
     }
     return;
+  },
+
+  _onQuitRequest: function (aCancelQuit, aQuitType) {
+    // The request has already been canceled somewhere else
+    if ((aCancelQuit instanceof Ci.nsISupportsPRBool) && aCancelQuit.data)
+      return;
+
+    let prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefBranch);
+    if (!prefs.getBoolPref("messenger.warnOnQuit"))
+      return;
+
+    let unreadConvsCount = 0;
+    let attachedWindow;
+
+    // We would like the windows to be sorted by Z-Order
+    // See Bugs 156333 and 450576 on mozilla about getZOrderDOMWindowEnumerator
+    let enumerator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                               .getService(Components.interfaces.nsIWindowMediator)
+                               .getEnumerator("Messenger:convs");
+    while (enumerator.hasMoreElements()) {
+      let convWindow = enumerator.getNext();
+      let tabs = convWindow.document.getElementById("tabs");
+      let panels = convWindow.document.getElementById("panels");
+      if (tabs) {
+        for (let i = 0; i < tabs.itemCount; ++i) {
+          let tab = tabs.getItemAtIndex(i);
+          let panel = panels.children[i];
+          // For chats: attention, for simple conversations: unread
+          if ((panel.getAttribute("chat") == "true" && tab.hasAttribute("attention")) ||
+              tab.hasAttribute("unread")) {
+            ++unreadConvsCount;
+            attachedWindow = convWindow;
+          }
+        }
+      }
+    }
+
+    if (unreadConvsCount == 0)
+      return;
+
+    let bundle =
+      Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://instantbird/locale/quitDialog.properties");
+    let promptTitle    = bundle.GetStringFromName("dialogTitle");
+    let promptMessage  = bundle.GetStringFromName("message");
+    let promptCheckbox = bundle.GetStringFromName("checkbox");
+    let quitButton     = bundle.GetStringFromName("quitButton");
+
+    if (!("PluralForm" in window))
+      Components.utils.import("resource://gre/modules/PluralForm.jsm");
+    promptMessage = PluralForm.get(unreadConvsCount, promptMessage)
+                              .replace("#1", unreadConvsCount);
+
+    let prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
+                prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
+                prompts.BUTTON_POS_1_DEFAULT;
+    let checkbox = {value: false};
+    if (prompts.confirmEx(attachedWindow, promptTitle, promptMessage, flags,
+                          quitButton, null, null, promptCheckbox, checkbox)) {
+      aCancelQuit.data = true;
+      return;
+    }
+
+    if (checkbox.value)
+      prefs.setBoolPref("messenger.warnOnQuit", false);
   }
 };
 

@@ -51,6 +51,7 @@ pref("messenger.options.messagesStyle.combineConsecutiveInterval", 300); // 5 mi
 
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
+pref("messenger.warnOnQuit", true);
 
 #ifdef XP_WIN
 pref("browser.preferences.instantApply", false);
