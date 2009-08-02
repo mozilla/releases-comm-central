@@ -319,6 +319,15 @@
       </body>
      </method>
 
+     <method name="setButtonFocus">
+      <body>
+      <![CDATA[
+        let focusElt = (this._account.disconnected) ? "connect" : "disconnect";
+        document.getAnonymousElementByAttribute(this, "anonid", focusElt).focus();
+      ]]>
+      </body>
+     </method>
+
      <property name="autoLogin">
        <getter>
          <![CDATA[

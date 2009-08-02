@@ -155,6 +155,12 @@ var gAccountManager = {
     this.accountList.selectedItem = document.getElementById(aAccountId);
     this.accountList.ensureSelectedElementIsVisible();
   },
+  onAccountSelect: function am_onAccountSelect() {
+    // Horrible hack here too, see Bug 177
+    setTimeout(function(aThis) {
+      aThis.accountList.selectedItem.setButtonFocus();
+    }, 0, this);
+  },
 
   getAccounts: function am_getAccounts() {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]

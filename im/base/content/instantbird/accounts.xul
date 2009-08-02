@@ -69,7 +69,8 @@
  </keyset>
 
  <notificationbox id="accountsNotificationBox" flex="1">
-   <richlistbox id="accountlist" flex="1" ondblclick="gAccountManager.new()"/>
+   <richlistbox id="accountlist" flex="1" ondblclick="gAccountManager.new()"
+                onselect="gAccountManager.onAccountSelect();"/>
  </notificationbox>
  <hbox id="bottombuttons">
   <button id="newaccount" oncommand="gAccountManager.new()"
