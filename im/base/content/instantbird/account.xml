@@ -198,7 +198,8 @@
 
           var checkbox = {};
           var flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
-                      prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1;
+                      prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
+                      prompts.BUTTON_POS_1_DEFAULT;
           if (prompts.confirmEx(window, promptTitle, promptMessage, flags,
                                 deleteButton, null, null, promptCheckbox, checkbox))
             return;
