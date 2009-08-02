@@ -70,6 +70,7 @@ var gAccountManager = {
 
     this.setAutoLoginNotification();
 
+    this.accountList.addEventListener("keypress", this.onKeyPress, true);
     window.addEventListener("unload", this.unload, false);
   },
   unload: function am_unload() {
@@ -160,6 +161,23 @@ var gAccountManager = {
     setTimeout(function(aThis) {
       aThis.accountList.selectedItem.setButtonFocus();
     }, 0, this);
+  },
+
+  onKeyPress: function am_onKeyPress(event) {
+    // As we stop propagation, the default action applies to the richlistbox
+    // so that the selected account is changed with this default action
+    if (event.keyCode == event.DOM_VK_DOWN) {
+      if (this.selectedIndex < this.itemCount - 1)
+        this.ensureIndexIsVisible(this.selectedIndex + 1);
+      event.stopPropagation();
+      return;
+    }
+
+    if (event.keyCode == event.DOM_VK_UP) {
+      if (this.selectedIndex > 0)
+        this.ensureIndexIsVisible(this.selectedIndex - 1);
+      event.stopPropagation();
+    }
   },
 
   getAccounts: function am_getAccounts() {
