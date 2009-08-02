@@ -151,9 +151,12 @@
           var disconnect = document.getAnonymousElementByAttribute(this, "anonid", "disconnect");
           disconnect.setAttribute("disabled", "true");
 
-          setTimeout(function(aDisconnect) {
-                       aDisconnect.removeAttribute("disabled");
-                     }, this._disabledDelay, disconnect);
+          setTimeout(function(aDisconnect, aConnect) {
+            aDisconnect.removeAttribute("disabled");
+            if (document.activeElement == aConnect)
+              aDisconnect.focus();
+          }, this._disabledDelay, disconnect,
+          document.getAnonymousElementByAttribute(this, "anonid", "connect"));
 
           this._account.connect();
         }
@@ -169,9 +172,12 @@
           var connect = document.getAnonymousElementByAttribute(this, "anonid", "connect");
           connect.setAttribute("disabled", "true");
 
-          setTimeout(function(aConnect) {
-                       aConnect.removeAttribute("disabled");
-                     }, this._disabledDelay, connect);
+          setTimeout(function(aConnect, aDisconnect) {
+            aConnect.removeAttribute("disabled");
+            if (document.activeElement == aDisconnect)
+              aConnect.focus();
+          }, this._disabledDelay, connect,
+          document.getAnonymousElementByAttribute(this, "anonid", "disconnect"));
 
           this._account.disconnect();
         }
