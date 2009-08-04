@@ -123,6 +123,7 @@ var accountWizard = {
 
     var textbox = document.createElement("textbox");
     textbox.setAttribute("id", aName);
+    textbox.setAttribute("flex", 1);
     if (aDefaultValue)
       textbox.setAttribute("value", aDefaultValue);
     textbox.addEventListener("input", accountWizard.checkUsername, false);
