@@ -328,8 +328,12 @@
      <method name="setButtonFocus">
       <body>
       <![CDATA[
-        let focusElt = (this._account.disconnected) ? "connect" : "disconnect";
-        document.getAnonymousElementByAttribute(this, "anonid", focusElt).focus();
+        let action = this._account.disconnected ? "connect" : "disconnect";
+        let focusTarget =
+          document.getAnonymousElementByAttribute(this, "anonid", action);
+        if (focusTarget.disabled)
+          focusTarget = document.getElementById("accountlist");
+        focusTarget.focus();
       ]]>
       </body>
      </method>
