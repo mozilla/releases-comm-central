@@ -338,6 +338,15 @@
       </body>
      </method>
 
+     <method name="proceedDefaultAction">
+      <body>
+      <![CDATA[
+        let action = this._account.disconnected ? "connect" : "disconnect";
+        document.getAnonymousElementByAttribute(this, "anonid", action).click();
+      ]]>
+      </body>
+     </method>
+
      <property name="autoLogin">
        <getter>
          <![CDATA[
@@ -373,7 +382,7 @@
           // something with the first click, we should ignore the event
           var localName = event.originalTarget.localName;
           if (localName != "button" && localName != "checkbox")
-            gAccountManager.edit();
+            this.proceedDefaultAction();
 
           // Prevent from loading an account wizzard
           event.stopPropagation();

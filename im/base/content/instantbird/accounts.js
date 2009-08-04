@@ -177,6 +177,15 @@ var gAccountManager = {
       if (this.selectedIndex > 0)
         this.ensureIndexIsVisible(this.selectedIndex - 1);
       event.stopPropagation();
+      return;
+    }
+
+    if (event.keyCode == event.DOM_VK_RETURN) {
+      let target = event.originalTarget;
+      if (target.localName != "checkbox" &&
+          (target.localName != "button" ||
+           /^(dis)?connect$/.test(target.getAttribute("anonid"))))
+        this.selectedItem.proceedDefaultAction();
     }
   },
 
