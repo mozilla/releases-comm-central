@@ -254,9 +254,12 @@ var account = {
   },
 
   save: function account_create() {
+    let connectionInfoHasChanged = false;
     var password = this.getValue("password");
-    if (password != this.account.password)
+    if (password != this.account.password) {
       this.account.password = password;
+      connectionInfoHasChanged = true;
+    }
 
     //acc.rememberPassword = this.getValue("rememberPassword");
 
@@ -272,30 +275,52 @@ var account = {
         branch.setCharPref(autoJoinPref, autojoin);
     }
 
-    this.account.proxyInfo = this.proxy;
+    if (this.account.proxyInfo.key != this.proxy.key) {
+      this.account.proxyInfo = this.proxy;
+      connectionInfoHasChanged = true;
+    }
 
     for (let opt in this.getProtoOptions()) {
       var name = this.proto.id + "-" + opt.name;
       var val = this.getValue(name);
       switch (opt.type) {
       case opt.typeBool:
-        if (val != this.getBool(opt))
+        if (val != this.getBool(opt)) {
           this.account.setBool(opt.name, val);
+          connectionInfoHasChanged = true;
+        }
         break;
       case opt.typeInt:
-        if (val != this.getInt(opt))
+        if (val != this.getInt(opt)) {
           this.account.setInt(opt.name, val);
+          connectionInfoHasChanged = true;
+        }
         break;
       case opt.typeString:
-        if (val != this.getString(opt))
+        if (val != this.getString(opt)) {
           this.account.setString(opt.name, val);
+          connectionInfoHasChanged = true;
+        }
         break;
       case opt.typeList:
-        if (val != this.getListValue(opt))
+        if (val != this.getListValue(opt)) {
           this.account.setString(opt.name, val);
+          connectionInfoHasChanged = true;
+        }
         break;
       default:
         throw "unknown preference type " + opt.type;
+      }
+    }
+
+    if (connectionInfoHasChanged) {
+      if (this.account.connecting) {
+        this.account.disconnect();
+        this.account.connect();
+      }
+      else if (this.account.disconnected &&
+               this.account.connectionErrorReason != Ci.purpleIAccount.NO_ERROR) {
+        this.account.connect();
       }
     }
   },
