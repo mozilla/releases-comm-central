@@ -309,8 +309,8 @@ var buddyList = {
           let tab = tabs.getItemAtIndex(i);
           let panel = panels.children[i];
           // For chats: attention, for simple conversations: unread
-          if ((panel.getAttribute("chat") == "true" && tab.hasAttribute("attention")) ||
-              tab.hasAttribute("unread")) {
+          if (tab.hasAttribute("unread") &&
+              (!panel.hasAttribute("chat") || tab.hasAttribute("attention"))) {
             ++unreadConvsCount;
             attachedWindow = convWindow;
           }
