@@ -49,7 +49,8 @@ const events = [
   "account-disconnecting",
   "account-connect-progress",
   "account-connect-error",
-  "autologin-processed"
+  "autologin-processed",
+  "network:offline-status-changed"
 ];
 
 var gAccountManager = {
@@ -90,6 +91,10 @@ var gAccountManager = {
         notification.close();
       return;
     }
+    else if (aTopic == "network:offline-status-changed") {
+      this.setOffline(aData == "offline");
+      return;
+    }
 
     if (!(aObject instanceof Ci.purpleIAccount))
       throw "Bad notification.";
@@ -98,6 +103,7 @@ var gAccountManager = {
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(aObject);
+      elt.offline = this.isOffline;
       if (this.accountList.getRowCount() == 1)
         this.accountList.selectedIndex = 0;
     }
@@ -215,6 +221,7 @@ var gAccountManager = {
     var priority = box.PRIORITY_INFO_HIGH;
     var label;
 
+    let isOffline = false;
     switch (autoLoginStatus) {
       case pcs.AUTOLOGIN_USER_DISABLED:
         label = bundle.getString("accountsManager.notification.userDisabled.label");
@@ -226,6 +233,7 @@ var gAccountManager = {
 
       case pcs.AUTOLOGIN_START_OFFLINE:
         label = bundle.getString("accountsManager.notification.startOffline.label");
+        isOffline = true;
         break;
 
       case pcs.AUTOLOGIN_CRASH:
@@ -236,6 +244,7 @@ var gAccountManager = {
       default:
         label = bundle.getString("accountsManager.notification.other.label");
     }
+    this.setOffline(isOffline);
 
     var connectNowButton = {
       accessKey: bundle.getString("accountsManager.notification.button.accessKey"),
@@ -256,5 +265,11 @@ var gAccountManager = {
     Components.classes["@instantbird.org/purple/core;1"]
               .getService(Ci.purpleICoreService)
               .processAutoLogin();
+  },
+  setOffline: function am_setOffline(aState) {
+    this.isOffline = aState;
+    let accountListElt = document.getElementById("accountlist");
+    for (let i = 0; i < accountListElt.itemCount; ++i)
+      accountListElt.getItemAtIndex(i).offline = aState;
   }
 };

@@ -246,12 +246,9 @@
         const key = "account.connection.error";
         var account = this._account;
         var text;
-        if (account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL) {
-          document.getAnonymousElementByAttribute(this, "anonid", "connect")
-                  .setAttribute("disabled", "true");
+        if (account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL)
           text = bundle.getFormattedString(key + "UnknownPrpl",
                                            [account.protocol.id]);
-        }
         else
           text = account.connectionErrorMessage;
         text = bundle.getFormattedString(key, [text]);
@@ -346,6 +343,33 @@
       ]]>
       </body>
      </method>
+
+     <property name="offline">
+       <getter>
+         <![CDATA[
+           return this.hasAttribute("offline");
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           if (val)
+             this.setAttribute("offline", "true");
+           else
+             this.removeAttribute("offline");
+
+           let button =
+             document.getAnonymousElementByAttribute(this, "anonid", "connect");
+           if (val ||
+               (this._account.disconnected &&
+                this._account.connectionErrorReason == Ci.purpleIAccount
+                                                         .ERROR_UNKNOWN_PRPL))
+             button.setAttribute("disabled", "true");
+           else
+             button.removeAttribute("disabled");
+           return val;
+         ]]>
+       </setter>
+     </property>
 
      <property name="autoLogin">
        <getter>
