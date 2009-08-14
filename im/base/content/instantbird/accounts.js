@@ -212,16 +212,18 @@ var gAccountManager = {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Ci.purpleICoreService);
     var autoLoginStatus = pcs.autoLoginStatus;
+    let isOffline = false;
 
-    if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED)
+    if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED) {
+      this.setOffline(isOffline);
       return;
+    }
 
     var bundle = document.getElementById("accountsBundle");
     var box = document.getElementById("accountsNotificationBox");
     var priority = box.PRIORITY_INFO_HIGH;
     var label;
 
-    let isOffline = false;
     switch (autoLoginStatus) {
       case pcs.AUTOLOGIN_USER_DISABLED:
         label = bundle.getString("accountsManager.notification.userDisabled.label");
@@ -250,7 +252,7 @@ var gAccountManager = {
       accessKey: bundle.getString("accountsManager.notification.button.accessKey"),
       callback: this.processAutoLogin,
       label: bundle.getString("accountsManager.notification.button.label")
-    }
+    };
 
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },
