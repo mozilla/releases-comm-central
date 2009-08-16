@@ -35,12 +35,15 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-richlistitem { 
+richlistitem {
   -moz-binding: url("chrome://instantbird/content/account.xml#account");
 }
 
-richlistitem:not([selected="true"]) .account-buttons {
-  display: none;
+richlistitem .account-buttons {
+  -moz-binding: url("chrome://instantbird/content/account.xml#nobuttons");
+}
+richlistitem[selected="true"] .account-buttons {
+  -moz-binding: url("chrome://instantbird/content/account.xml#buttons");
 }
 
 richlistitem:not([state="connected"]) .connected,
@@ -51,9 +54,9 @@ richlistitem:not([error="true"]) .error,
 richlistitem:not([error="true"]) .errorIcon,
 richlistitem:not([state="disconnected"]) .error,
 richlistitem[error="true"] .disconnected,
-richlistitem:not([state="disconnected"]) .connectButton,
-richlistitem[state="disconnected"] .disconnectButton,
-richlistitem[state="disconnecting"] .disconnectButton
+richlistitem[selected="true"]:not([state="disconnected"]) .connectButton,
+richlistitem[selected="true"][state="disconnected"] .disconnectButton,
+richlistitem[selected="true"][state="disconnecting"] .disconnectButton
 {
   display: none;
 }

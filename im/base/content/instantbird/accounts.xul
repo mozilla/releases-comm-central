@@ -60,7 +60,30 @@
  <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
 
  <commandset id="accountsCommands">
-   <command id="cmd_close" oncommand="gAccountManager.close()"/>
+   <command id="cmd_connect"
+            accesskey="&account.connect.accesskey;"
+            label="&account.connect.label;"
+            oncommand="gAccountManager.connect()"/>
+   <command id="cmd_disconnect"
+            label="&account.disconnect.label;"
+            accesskey="&account.disconnect.accesskey;"
+            oncommand="gAccountManager.disconnect()"/>
+   <command id="cmd_delete"
+            label="&account.delete.label;"
+            accesskey="&account.delete.accesskey;"
+            oncommand="gAccountManager.delete()"/>
+   <command id="cmd_edit"
+            label="&account.edit.label;"
+            accesskey="&account.edit.accesskey;"
+            oncommand="gAccountManager.edit()"/>
+   <command id="cmd_new"
+            label="&accountManager.newAccount.label;"
+            accesskey="&accountManager.newAccount.accesskey;"
+            oncommand="gAccountManager.new()"/>
+   <command id="cmd_close"
+            label="&accountManager.close.label;"
+            accesskey="&accountManager.close.accesskey;"
+            oncommand="gAccountManager.close()"/>
  </commandset>
 
  <keyset id="accountsKeys">
@@ -68,17 +91,33 @@
    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
  </keyset>
 
+ <broadcasterset>
+   <broadcaster id="contextAccountsItems"/>
+ </broadcasterset>
+
+ <menupopup id="accountsContextMenu"
+            onpopupshowing="gAccountManager.onContextMenuShowing()">
+   <menuitem id="context_connect"
+             command="cmd_connect"
+             observes="contextAccountsItems"/>
+   <menuitem id="context_disconnect"
+             command="cmd_disconnect"
+             observes="contextAccountsItems"/>
+   <menuseparator observes="contextAccountsItems"/>
+   <menuitem command="cmd_new"/>
+   <menuitem command="cmd_delete" observes="contextAccountsItems"/>
+   <menuseparator observes="contextAccountsItems"/>
+   <menuitem command="cmd_edit" observes="contextAccountsItems"/>
+ </menupopup>
+
  <notificationbox id="accountsNotificationBox" flex="1">
    <richlistbox id="accountlist" flex="1" ondblclick="gAccountManager.new()"
-                onselect="gAccountManager.onAccountSelect();"/>
+                onselect="gAccountManager.onAccountSelect();"
+                context="accountsContextMenu"/>
  </notificationbox>
  <hbox id="bottombuttons">
-  <button id="newaccount" oncommand="gAccountManager.new()"
-          label="&accountManager.newAccount.label;"
-          accesskey="&accountManager.newAccount.accesskey;"/>
+  <button id="newaccount" command="cmd_new"/>
   <spacer flex="1"/>
-  <button id="close" command="cmd_close"
-          label="&accountManager.close.label;"
-          accesskey="&accountManager.close.accesskey;"/>
+  <button id="close" command="cmd_close"/>
  </hbox>
 </window>

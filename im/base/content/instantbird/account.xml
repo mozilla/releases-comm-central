@@ -81,33 +81,11 @@
             <xul:label xbl:inherits="value=protocol" class="prplName"/>
           </xul:vbox>
         </xul:hbox>
-        <xul:hbox flex="1" class="account-buttons">
-          <xul:checkbox label="&account.autoSignOn;"
-                        xbl:inherits="checked=autologin"
-                        oncommand="gAccountManager.autologin()"/>
-          <xul:spacer flex="1"/>
-          <xul:button class="disconnectButton"
-                      label="&account.disconnect.label;"
-                      accesskey="&account.disconnect.accesskey;"
-                      oncommand="gAccountManager.disconnect()"
-                      anonid="disconnect"/>
-          <xul:button class="connectButton"
-                      label="&account.connect.label;"
-                      accesskey="&account.connect.accesskey;"
-                      oncommand="gAccountManager.connect()"
-                      anonid="connect"/>
-          <xul:button label="&account.delete.label;"
-                      accesskey="&account.delete.accesskey;"
-                      oncommand="gAccountManager.delete()"/>
-          <xul:button label="&account.edit.label;"
-                      accesskey="&account.edit.accesskey;"
-                      oncommand="gAccountManager.edit()"/>
-        </xul:hbox>
+        <xul:hbox flex="1" class="account-buttons" anonid="buttons"
+                  xbl:inherits="autologin"/>
       </xul:vbox>
     </content>
     <implementation>
-     <field name="_disabledDelay">500</field>
-
      <method name="build">
       <parameter name="aAccount"/>
       <body>
@@ -137,86 +115,8 @@
         } else if (this._account.disconnecting) {
           state = "connected"
         }
-        //dump("state = " + state + "\n");
         this.setAttribute("state", state);
         this.autoLogin = aAccount.autoLogin;
-      ]]>
-      </body>
-     </method>
-
-     <method name="connect">
-      <body>
-      <![CDATA[
-        if (this._account.disconnected) {
-          var disconnect = document.getAnonymousElementByAttribute(this, "anonid", "disconnect");
-          disconnect.setAttribute("disabled", "true");
-
-          setTimeout(function(aDisconnect, aConnect) {
-            aDisconnect.removeAttribute("disabled");
-            if (document.activeElement == aConnect)
-              aDisconnect.focus();
-          }, this._disabledDelay, disconnect,
-          document.getAnonymousElementByAttribute(this, "anonid", "connect"));
-
-          this._account.connect();
-        }
-      ]]>
-      </body>
-     </method>
-
-     <method name="disconnect">
-      <body>
-      <![CDATA[
-        var acc = this._account;
-        if (acc.connected || acc.connecting) {
-          var connect = document.getAnonymousElementByAttribute(this, "anonid", "connect");
-          connect.setAttribute("disabled", "true");
-
-          setTimeout(function(aConnect, aDisconnect) {
-            aConnect.removeAttribute("disabled");
-            if (document.activeElement == aDisconnect)
-              aConnect.focus();
-          }, this._disabledDelay, connect,
-          document.getAnonymousElementByAttribute(this, "anonid", "disconnect"));
-
-          this._account.disconnect();
-        }
-      ]]>
-      </body>
-     </method>
-
-     <method name="delete">
-      <body>
-      <![CDATA[
-        var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                              .getService(Components.interfaces.nsIPrefBranch);
-
-        var showPrompt = prefs.getBoolPref("messenger.accounts.promptOnDelete");
-        if (showPrompt) {
-          var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                  .getService(Components.interfaces.nsIPromptService);
-
-          var bundle = document.getElementById("accountsBundle");
-          var promptTitle    = bundle.getString("account.deletePrompt.title");
-          var promptMessage  = bundle.getString("account.deletePrompt.message");
-          var promptCheckbox = bundle.getString("account.deletePrompt.checkbox");
-          var deleteButton   = bundle.getString("account.deletePrompt.button");
-
-          var checkbox = {};
-          var flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
-                      prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
-                      prompts.BUTTON_POS_1_DEFAULT;
-          if (prompts.confirmEx(window, promptTitle, promptMessage, flags,
-                                deleteButton, null, null, promptCheckbox, checkbox))
-            return;
-
-          if (checkbox.value)
-            prefs.setBoolPref("messenger.accounts.promptOnDelete", false);
-        }
-
-        var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                            .getService(Ci.purpleICoreService);
-        pcs.deleteAccount(this._account.id);
       ]]>
       </body>
      </method>
@@ -264,7 +164,13 @@
           var date = Math.round((account.timeOfNextReconnect - Date.now()) / 1000);
           let reconnect = "";
           if (date > 0) {
-            let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
+            let val1, unit1, val2, unit2;
+            try {
+              [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
+            } catch (e) {
+              /* Hack for bug 506491 on bugzilla@mozilla */
+              [val1, unit1] = [date, "seconds"];
+            }
             if (!val2)
               reconnect = bundle.getFormattedString("account.reconnectInSingle",
                                                     [val1, unit1])
@@ -280,96 +186,6 @@
       ]]>
       </body>
      </method>
-
-     <method name="observe">
-      <parameter name="aSubject"/>
-      <parameter name="aTopic"/>
-      <parameter name="aData"/>
-      <body>
-      <![CDATA[
-        if (aTopic == "account-updated") {
-          this.build(aSubject);
-          return;
-        }
-
-        const stateEvents = {
-          "account-connected": "connected",
-          "account-connecting": "connecting",
-          "account-disconnected": "disconnected",
-          "account-disconnecting": "disconnecting"
-        };
-        if (aTopic in stateEvents) {
-          /* handle protocol icon animation while connecting */
-          var icon = document.getAnonymousElementByAttribute(this, "anonid",
-                                                             "prplicon");
-          if (aTopic == "account-connecting") {
-            icon.animate();
-            this.removeAttribute("error");
-            this.updateConnectionState();
-          }
-          else
-            icon.stop();
-
-          this.setAttribute("state", stateEvents[aTopic]);
-        }
-        else if (aTopic == "account-connect-progress") {
-          this.updateConnectionState();
-        }
-        else if (aTopic == "account-connect-error") {
-          this.updateConnectionError();
-        }
-      ]]>
-      </body>
-     </method>
-
-     <method name="setButtonFocus">
-      <body>
-      <![CDATA[
-        let action = this._account.disconnected ? "connect" : "disconnect";
-        let focusTarget =
-          document.getAnonymousElementByAttribute(this, "anonid", action);
-        if (focusTarget.disabled)
-          focusTarget = document.getElementById("accountlist");
-        focusTarget.focus();
-      ]]>
-      </body>
-     </method>
-
-     <method name="proceedDefaultAction">
-      <body>
-      <![CDATA[
-        let action = this._account.disconnected ? "connect" : "disconnect";
-        document.getAnonymousElementByAttribute(this, "anonid", action).click();
-      ]]>
-      </body>
-     </method>
-
-     <property name="offline">
-       <getter>
-         <![CDATA[
-           return this.hasAttribute("offline");
-         ]]>
-       </getter>
-       <setter>
-         <![CDATA[
-           if (val)
-             this.setAttribute("offline", "true");
-           else
-             this.removeAttribute("offline");
-
-           let button =
-             document.getAnonymousElementByAttribute(this, "anonid", "connect");
-           if (val ||
-               (this._account.disconnected &&
-                this._account.connectionErrorReason == Ci.purpleIAccount
-                                                         .ERROR_UNKNOWN_PRPL))
-             button.setAttribute("disabled", "true");
-           else
-             button.removeAttribute("disabled");
-           return val;
-         ]]>
-       </setter>
-     </property>
 
      <property name="autoLogin">
        <getter>
@@ -390,10 +206,26 @@
        </setter>
      </property>
 
-     <property name="account">
+     <property name="account" onget="return this._account;"/>
+
+     <property name="buttons">
        <getter>
          <![CDATA[
-           return this._account;
+           if (!this._buttons)
+             this._buttons =
+               document.getAnonymousElementByAttribute(this, "anonid", "buttons");
+           return this._buttons;
+         ]]>
+       </getter>
+     </property>
+
+     <property name="icon">
+       <getter>
+         <![CDATA[
+           if (!this._icon)
+             this._icon =
+               document.getAnonymousElementByAttribute(this, "anonid", "prplicon");
+           return this._icon;
          ]]>
        </getter>
      </property>
@@ -402,11 +234,13 @@
     <handlers>
       <handler event="dblclick">
         <![CDATA[
-          // If we double clicked on a widget that has already done
-          // something with the first click, we should ignore the event
-          var localName = event.originalTarget.localName;
-          if (localName != "button" && localName != "checkbox")
-            this.proceedDefaultAction();
+          if (event.button == 0) {
+            // If we double clicked on a widget that has already done
+            // something with the first click, we should ignore the event
+            var localName = event.originalTarget.localName;
+            if (localName != "button" && localName != "checkbox")
+              this.buttons.proceedDefaultAction();
+          }
 
           // Prevent from loading an account wizzard
           event.stopPropagation();
@@ -414,4 +248,54 @@
       </handler>
     </handlers>
   </binding>
+
+  <binding id="buttons" extends="xul:hbox">
+    <content>
+      <xul:checkbox label="&account.autoSignOn;"
+                    xbl:inherits="checked=autologin"
+                    oncommand="gAccountManager.autologin()"/>
+      <xul:spacer flex="1"/>
+      <xul:button class="disconnectButton"
+                  command="cmd_disconnect"
+                  anonid="disconnect"/>
+      <xul:button class="connectButton"
+                  command="cmd_connect"
+                  anonid="connect"/>
+      <xul:button command="cmd_delete"/>
+      <xul:button command="cmd_edit"/>
+    </content>
+    <implementation>
+     <property name="activeButton" readonly="true">
+       <getter>
+       <![CDATA[
+         let action =
+           document.getBindingParent(this).account.disconnected ? "connect"
+                                                                : "disconnect";
+         return document.getAnonymousElementByAttribute(this, "anonid", action);
+       ]]>
+       </getter>
+     </property>
+
+     <method name="setFocus">
+      <body>
+      <![CDATA[
+        let focusTarget = this.activeButton;
+        if (focusTarget.disabled)
+          focusTarget = document.getElementById("accountlist");
+        focusTarget.focus();
+      ]]>
+      </body>
+     </method>
+
+     <method name="proceedDefaultAction">
+      <body>
+      <![CDATA[
+        this.activeButton.click();
+      ]]>
+      </body>
+     </method>
+    </implementation>
+  </binding>
+
+  <binding id="nobuttons" extends="xul:hbox"/>
 </bindings>

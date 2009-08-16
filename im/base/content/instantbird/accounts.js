@@ -54,6 +54,10 @@ const events = [
 ];
 
 var gAccountManager = {
+  // Sets the delay after connect() or disconnect() during which
+  // it is impossible to perform disconnect() and connect()
+  _disabledDelay: 500,
+  disableTimerID: 0,
   load: function am_load() {
     this.accountList = document.getElementById("accountlist");
     for (let acc in this.getAccounts()) {
@@ -103,7 +107,6 @@ var gAccountManager = {
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(aObject);
-      elt.offline = this.isOffline;
       if (this.accountList.getRowCount() == 1)
         this.accountList.selectedIndex = 0;
     }
@@ -116,6 +119,8 @@ var gAccountManager = {
       // The currently selected element is removed,
       // ensure another element gets selected (if the list is not empty)
       var selectedIndex = this.accountList.selectedIndex;
+      // Prevent errors if the timer is active and the account deleted
+      clearTimeout(this.disableTimerID);
       this.accountList.removeChild(elt);
       var count = this.accountList.getRowCount();
       if (!count)
@@ -124,20 +129,92 @@ var gAccountManager = {
         --selectedIndex;
       this.accountList.selectedIndex = selectedIndex;
     }
+    else if (aTopic == "account-updated")
+      document.getElementById(aObject.id).build(aObject);
+    else if (aTopic == "account-connect-progress")
+      document.getElementById(aObject.id).updateConnectionState();
+    else if (aTopic == "account-connect-error")
+      document.getElementById(aObject.id).updateConnectionError();
     else {
-      var elt = document.getElementById(aObject.id);
-      if (elt)
-        elt.observe(aObject, aTopic, aData);
+      const stateEvents = {
+        "account-connected": "connected",
+        "account-connecting": "connecting",
+        "account-disconnected": "disconnected",
+        "account-disconnecting": "disconnecting"
+      };
+      if (aTopic in stateEvents) {
+        let elt = document.getElementById(aObject.id);
+        if (aTopic == "account-connecting") {
+          elt.icon.animate();
+          elt.removeAttribute("error");
+          elt.updateConnectionState();
+        }
+        else
+          elt.icon.stop();
+
+        elt.setAttribute("state", stateEvents[aTopic]);
+      }
     }
   },
   connect: function am_connect() {
-    this.accountList.selectedItem.connect();
+    let account = this.accountList.selectedItem.account;
+    if (account.disconnected) {
+      let disconnect = document.getElementById("cmd_disconnect");
+      disconnect.setAttribute("disabled", "true");
+      this.restoreButtonTimer();
+      account.connect();
+    }
   },
   disconnect: function am_disconnect() {
-    this.accountList.selectedItem.disconnect();
+    let account = this.accountList.selectedItem.account;
+    if (account.connected || account.connecting) {
+      let connect = document.getElementById("cmd_connect");
+      connect.setAttribute("disabled", "true");
+      this.restoreButtonTimer();
+      account.disconnect();
+    }
   },
+  /* This function restores the disabled attribute of the currently visible
+     button (and context menu item) after `this._disabledDelay` ms */
+  restoreButtonTimer: function am_restoreButtonTimer() {
+    clearTimeout(this.disableTimerID);
+    this.accountList.focus();
+    this.disableTimerID = setTimeout(function(aItem) {
+      gAccountManager.disableCommandItems();
+      aItem.buttons.setFocus();
+    }, this._disabledDelay, this.accountList.selectedItem);
+  },
+
   delete: function am_delete() {
-    this.accountList.selectedItem.delete();
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefBranch);
+
+    var showPrompt = prefs.getBoolPref("messenger.accounts.promptOnDelete");
+    if (showPrompt) {
+      var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                              .getService(Components.interfaces.nsIPromptService);
+
+      var bundle = document.getElementById("accountsBundle");
+      var promptTitle    = bundle.getString("account.deletePrompt.title");
+      var promptMessage  = bundle.getString("account.deletePrompt.message");
+      var promptCheckbox = bundle.getString("account.deletePrompt.checkbox");
+      var deleteButton   = bundle.getString("account.deletePrompt.button");
+
+      var checkbox = {};
+      var flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
+                  prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
+                  prompts.BUTTON_POS_1_DEFAULT;
+      if (prompts.confirmEx(window, promptTitle, promptMessage, flags,
+                            deleteButton, null, null, promptCheckbox, checkbox))
+        return;
+
+      if (checkbox.value)
+        prefs.setBoolPref("messenger.accounts.promptOnDelete", false);
+    }
+
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    pcs.deleteAccount(this.accountList.selectedItem.id);
   },
   new: function am_new() {
     this.openDialog("chrome://instantbird/content/accountWizard.xul");
@@ -158,14 +235,52 @@ var gAccountManager = {
       window.close();
   },
 
+  /* This function disables or enables the currently selected button and
+     the corresponding context menu item */
+  disableCommandItems: function am_disableCommandItems() {
+    let account = this.accountList.selectedItem.account;
+    let activeCommandName = account.disconnected ? "connect" : "disconnect";
+    let activeCommandElt = document.getElementById("cmd_" + activeCommandName);
+    if (this.isOffline ||
+        (account.disconnected &&
+         account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL))
+      activeCommandElt.setAttribute("disabled", "true");
+    else
+      activeCommandElt.removeAttribute("disabled");
+  },
+  onContextMenuShowing: function am_onContextMenuShowing() {
+    let targetElt = document.popupNode;
+    let isAccount = targetElt instanceof Ci.nsIDOMXULSelectControlItemElement;
+    document.getElementById("contextAccountsItems").hidden = !isAccount;
+    if (isAccount) {
+       /* we want to hide either "connect" or "disconnect" depending on the
+          context and we can't use the broadcast of the command element here
+          because the item already observes "contextAccountsItems" */
+      let itemNameToHide, itemNameToShow;
+      if (targetElt.account.disconnected)
+        [itemNameToHide, itemNameToShow] = ["disconnect",  "connect"];
+      else
+        [itemNameToHide, itemNameToShow] = ["connect", "disconnect"];
+      document.getElementById("context_" + itemNameToHide).hidden = true;
+      document.getElementById("context_" + itemNameToShow).hidden = false;
+    }
+  },
+
   selectAccount: function am_selectAccount(aAccountId) {
     this.accountList.selectedItem = document.getElementById(aAccountId);
     this.accountList.ensureSelectedElementIsVisible();
   },
   onAccountSelect: function am_onAccountSelect() {
+    clearTimeout(this.disableTimerID);
+    this.disableCommandItems();
     // Horrible hack here too, see Bug 177
     setTimeout(function(aThis) {
-      aThis.accountList.selectedItem.setButtonFocus();
+      try {
+        aThis.accountList.selectedItem.buttons.setFocus();
+      } catch (e) {
+        /* Sometimes if the user goes too fast with VK_UP or VK_DOWN, the
+           selectedItem doesn't have the expected binding attached */
+      }
     }, 0, this);
   },
 
@@ -191,8 +306,12 @@ var gAccountManager = {
       if (target.localName != "checkbox" &&
           (target.localName != "button" ||
            /^(dis)?connect$/.test(target.getAttribute("anonid"))))
-        this.selectedItem.proceedDefaultAction();
+        this.selectedItem.buttons.proceedDefaultAction();
+      return;
     }
+
+    if (event.keyCode == event.DOM_VK_DELETE)
+       document.getElementById("cmd_delete").doCommand();
   },
 
   getAccounts: function am_getAccounts() {
@@ -203,9 +322,7 @@ var gAccountManager = {
 
   openDialog: function am_openDialog(aUrl, aArgs) {
     this.modalDialog = true;
-    window.openDialog(aUrl, "",
-                      "chrome,modal,titlebar,centerscreen",
-                      aArgs);
+    window.openDialog(aUrl, "", "chrome,modal,titlebar,centerscreen", aArgs);
     this.modalDialog = false;
   },
   setAutoLoginNotification: function am_setAutoLoginNotification() {
@@ -270,8 +387,10 @@ var gAccountManager = {
   },
   setOffline: function am_setOffline(aState) {
     this.isOffline = aState;
-    let accountListElt = document.getElementById("accountlist");
-    for (let i = 0; i < accountListElt.itemCount; ++i)
-      accountListElt.getItemAtIndex(i).offline = aState;
+    if (aState)
+      this.accountList.setAttribute("offline", "true");
+    else
+      this.accountList.removeAttribute("offline");
+    this.disableCommandItems();
   }
 };
