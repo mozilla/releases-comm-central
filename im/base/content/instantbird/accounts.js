@@ -156,6 +156,9 @@ var gAccountManager = {
       }
     }
   },
+  cancelReconnection: function am_cancelReconnection() {
+    this.accountList.selectedItem.cancelReconnection();
+  },
   connect: function am_connect() {
     let account = this.accountList.selectedItem.account;
     if (account.disconnected) {
@@ -238,7 +241,14 @@ var gAccountManager = {
   /* This function disables or enables the currently selected button and
      the corresponding context menu item */
   disableCommandItems: function am_disableCommandItems() {
-    let account = this.accountList.selectedItem.account;
+    let selectedItem = this.accountList.selectedItem;
+    // When opening the account manager, if accounts have errors, we
+    // can be called during build(), before any item is selected.
+    // In this case, just return early.
+    if (!selectedItem)
+      return;
+
+    let account = selectedItem.account;
     let activeCommandName = account.disconnected ? "connect" : "disconnect";
     let activeCommandElt = document.getElementById("cmd_" + activeCommandName);
     if (this.isOffline ||
@@ -263,6 +273,9 @@ var gAccountManager = {
         [itemNameToHide, itemNameToShow] = ["connect", "disconnect"];
       document.getElementById("context_" + itemNameToHide).hidden = true;
       document.getElementById("context_" + itemNameToShow).hidden = false;
+
+      document.getElementById("context_cancelReconnection").hidden =
+        !targetElt.hasAttribute("reconnectPending");
     }
   },
 

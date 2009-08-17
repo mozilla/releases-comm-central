@@ -68,6 +68,10 @@
             label="&account.disconnect.label;"
             accesskey="&account.disconnect.accesskey;"
             oncommand="gAccountManager.disconnect()"/>
+   <command id="cmd_cancelReconnection"
+            label="&account.cancelReconnection.label;"
+            accesskey="&account.cancelReconnection.accesskey;"
+            oncommand="gAccountManager.cancelReconnection()"/>
    <command id="cmd_delete"
             label="&account.delete.label;"
             accesskey="&account.delete.accesskey;"
@@ -102,6 +106,9 @@
              observes="contextAccountsItems"/>
    <menuitem id="context_disconnect"
              command="cmd_disconnect"
+             observes="contextAccountsItems"/>
+   <menuitem id="context_cancelReconnection"
+             command="cmd_cancelReconnection"
              observes="contextAccountsItems"/>
    <menuseparator observes="contextAccountsItems"/>
    <menuitem command="cmd_new"/>

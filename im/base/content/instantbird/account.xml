@@ -133,8 +133,7 @@
         var progress = document.getAnonymousElementByAttribute(this, "anonid",
                                                                "connecting");
         progress.setAttribute("value", text);
-        clearInterval(this.reconnectUpdateInterval);
-        delete this.reconnectUpdateInterval;
+        this._cancelReconnectTimer();
       ]]>
       </body>
      </method>
@@ -181,10 +180,35 @@
           reconnectElt.textContent = reconnect;
           return reconnect;
         };
-        if (updateReconnect() && !this.reconnectUpdateInterval)
+        if (updateReconnect() && !this.reconnectUpdateInterval) {
+          this.setAttribute("reconnectPending", "true");
           this.reconnectUpdateInterval = setInterval(updateReconnect, 1000);
+          gAccountManager.disableCommandItems();
+        }
       ]]>
       </body>
+     </method>
+
+     <method name="_cancelReconnectTimer">
+       <body>
+       <![CDATA[
+         this.removeAttribute("reconnectPending");
+         clearInterval(this.reconnectUpdateInterval);
+         delete this.reconnectUpdateInterval;
+         gAccountManager.disableCommandItems();
+       ]]>
+       </body>
+     </method>
+
+     <method name="cancelReconnection">
+       <body>
+       <![CDATA[
+         if (this.reconnectUpdateInterval) {
+           this._cancelReconnectTimer();
+           this._account.cancelReconnection();
+         }
+       ]]>
+       </body>
      </method>
 
      <property name="autoLogin">

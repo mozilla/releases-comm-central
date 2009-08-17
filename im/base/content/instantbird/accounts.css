@@ -56,7 +56,8 @@ richlistitem:not([state="disconnected"]) .error,
 richlistitem[error="true"] .disconnected,
 richlistitem[selected="true"]:not([state="disconnected"]) .connectButton,
 richlistitem[selected="true"][state="disconnected"] .disconnectButton,
-richlistitem[selected="true"][state="disconnecting"] .disconnectButton
+richlistitem[selected="true"][state="disconnecting"] .disconnectButton,
+richlistitem:not([reconnectPending="true"]) description[anonid="reconnect"]
 {
   display: none;
 }
