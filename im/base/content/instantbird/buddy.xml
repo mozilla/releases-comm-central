@@ -141,6 +141,10 @@
         this.accountsCount = 0;
         // We don't call this.update yet because this.accounts is empty
 #ifndef WINCE
+        // Don't do the animation if inside a closed group
+        if (this.hasAttribute("collapsed"))
+          return;
+
         this.style.height = (this.animHeight = 0) + "px";
         this.setAttribute("expanding", "true");
         this.animInterval = setInterval(this._animateExpand, this.animationInterval, this);
@@ -334,6 +338,9 @@
            this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
            this.group.removeBuddy(this);
         }
+        else if (this.hasAttribute("collapsed"))
+          // If the buddy is not visible, remove it immediately (without animation)
+          this.group.removeBuddy(this);
         else
           this.animTimeout = setTimeout(this._startAnimation, this.animationDelay, this);
         this.setAttribute("offline", "true");
