@@ -265,6 +265,11 @@
         if (event.keyCode != 13) {
           if (conv._conv instanceof Ci.purpleIConvIM)
             setTimeout(function () {
+              // By the time the timeout is executed, the conversation may have
+              // been closed.
+              if (!conv._conv)
+                return;
+
               let text = input.value;
               // try to avoid sending typing notifications when the user is
               // typing a command in the conversation.
