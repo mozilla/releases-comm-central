@@ -66,7 +66,9 @@
           </xul:splitter>
           <xul:vbox class="conv-chat" width="150">
             <xul:hbox>
-              <xul:label class="header conv-nicklist-header" value="&chat.participants;"/>
+              <xul:label class="header conv-nicklist-header"
+                         anonid="participantLabel"
+                         value="&chat.participants;"/>
               <xul:textbox flex="1" readonly="true" class="plain" anonid="participantCount"/>
             </xul:hbox>
             <xul:listbox anonid="nicklist" class="conv-nicklist"
@@ -642,6 +644,15 @@
            if (this._conv instanceof Components.interfaces.purpleIConvChat) {
              this.updateTopic();
              this.setAttribute("chat", "true");
+
+             // Set an id on the participant count for accessibility reasons (see bug 216)
+             let id = "pc" + Date.now();
+             document.getAnonymousElementByAttribute(this, "anonid", "participantLabel")
+                     .setAttribute("control", id);
+             document.getAnonymousElementByAttribute(this, "anonid", "participantCount")
+                     .setAttribute("id", id);
+
+             // Populate the nicklist
              this.buddies = {};
              var nicks = getIter(this.conv.getParticipants());
              for (let n in nicks)
