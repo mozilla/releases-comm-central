@@ -417,7 +417,11 @@
             if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
             (aStateFlags & WPL.STATE_STOP)) {
               this.removeProgressListener(this);
-              initHTMLDocument(this._conv, this.theme, this.contentDocument);
+              try {
+                initHTMLDocument(this._conv, this.theme, this.contentDocument);
+              } catch(e) {
+                Components.utils.reportError(e);
+              }
 
               var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
                                         .getService(Ci.nsIClipboard);
