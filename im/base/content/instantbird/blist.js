@@ -269,17 +269,30 @@ var buddyList = {
 
   // Handle key pressing
   keyPress: function bl_keyPress(aEvent) {
-    switch (aEvent.keyCode) {
+    var item = document.getElementById("buddylistbox").selectedItem;
+    if (!item) // the list is empty
+      return;
 
+    switch (aEvent.keyCode) {
       // If Enter or Return is pressed, open a new conversation
       case aEvent.DOM_VK_RETURN:
       case aEvent.DOM_VK_ENTER:
-        var item = document.getElementById("buddylistbox").selectedItem;
         if (item.localName == "buddy")
           item.openConversation();
+        else if (item.localName == "group")
+          item.close();
+        break;
+
+      case aEvent.DOM_VK_LEFT:
+        if (item.localName == "group" && !item.hasAttribute("closed"))
+          item.close();
+        break;
+
+      case aEvent.DOM_VK_RIGHT:
+        if (item.localName == "group" && item.hasAttribute("closed"))
+          item.close();
         break;
     }
-    return;
   },
 
   _onQuitRequest: function (aCancelQuit, aQuitType) {
