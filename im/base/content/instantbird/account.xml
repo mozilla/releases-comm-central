@@ -148,6 +148,8 @@
         if (account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL)
           text = bundle.getFormattedString(key + "UnknownPrpl",
                                            [account.protocol.id]);
+        else if (account.connectionErrorReason == Ci.purpleIAccount.ERROR_CRASHED)
+          text = bundle.getString(key + "CrashedAccount");
         else
           text = account.connectionErrorMessage;
         text = bundle.getFormattedString(key, [text]);

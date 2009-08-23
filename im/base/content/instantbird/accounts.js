@@ -60,18 +60,25 @@ var gAccountManager = {
   disableTimerID: 0,
   load: function am_load() {
     this.accountList = document.getElementById("accountlist");
+    let defaultID;
     for (let acc in this.getAccounts()) {
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(acc);
+      if (!defaultID && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
+        defaultID = acc.id;
     }
     addObservers(this, events);
     if (!this.accountList.getRowCount())
       // This is horrible, but it works. Otherwise (at least on mac)
       // the wizard is not centered relatively to the account manager
       setTimeout(function() { gAccountManager.new(); }, 0);
-    else
+    else if (!defaultID) {
       this.accountList.selectedIndex = 0;
+      this.accountList.ensureSelectedElementIsVisible();
+    }
+    else
+      this.selectAccount(defaultID);
 
     this.setAutoLoginNotification();
 
@@ -343,8 +350,12 @@ var gAccountManager = {
                         .getService(Ci.purpleICoreService);
     var autoLoginStatus = pcs.autoLoginStatus;
     let isOffline = false;
+    let crashCount = 0;
+    for (let acc in this.getAccounts())
+      if (acc.autoLogin && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
+        ++crashCount;
 
-    if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED) {
+    if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED && crashCount == 0) {
       this.setOffline(isOffline);
       return;
     }
@@ -352,6 +363,11 @@ var gAccountManager = {
     var bundle = document.getElementById("accountsBundle");
     var box = document.getElementById("accountsNotificationBox");
     var priority = box.PRIORITY_INFO_HIGH;
+    var connectNowButton = {
+      accessKey: bundle.getString("accountsManager.notification.button.accessKey"),
+      callback: this.processAutoLogin,
+      label: bundle.getString("accountsManager.notification.button.label")
+    };
     var label;
 
     switch (autoLoginStatus) {
@@ -373,16 +389,21 @@ var gAccountManager = {
         priority = box.PRIORITY_WARNING_MEDIUM;
         break;
 
+      /* One or more accounts made the application crash during their connection.
+         If none, this function has already returned */
+      case pcs.AUTOLOGIN_ENABLED:
+        if (!("PluralForm" in window))
+          Components.utils.import("resource://gre/modules/PluralForm.jsm");
+        label = bundle.getString("accountsManager.notification.singleCrash.label");
+        label = PluralForm.get(crashCount, label).replace("#1", crashCount);
+        priority = box.PRIORITY_WARNING_MEDIUM;
+        connectNowButton.callback = this.processCrashedAccountsLogin;
+        break;
+
       default:
         label = bundle.getString("accountsManager.notification.other.label");
     }
     this.setOffline(isOffline);
-
-    var connectNowButton = {
-      accessKey: bundle.getString("accountsManager.notification.button.accessKey"),
-      callback: this.processAutoLogin,
-      label: bundle.getString("accountsManager.notification.button.label")
-    };
 
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },
@@ -397,6 +418,21 @@ var gAccountManager = {
     Components.classes["@instantbird.org/purple/core;1"]
               .getService(Ci.purpleICoreService)
               .processAutoLogin();
+
+    gAccountManager.accountList.selectedItem.buttons.setFocus();
+  },
+  processCrashedAccountsLogin: function am_processCrashedAccountsLogin() {
+    for (let acc in gAccountManager.getAccounts())
+      if (acc.disconnected && acc.autoLogin &&
+          acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
+        acc.connect();
+
+    let notification = document.getElementById("accountsNotificationBox")
+                               .getNotificationWithValue("autoLoginStatus");
+    if (notification)
+      notification.close();
+
+    gAccountManager.accountList.selectedItem.buttons.setFocus();
   },
   setOffline: function am_setOffline(aState) {
     this.isOffline = aState;

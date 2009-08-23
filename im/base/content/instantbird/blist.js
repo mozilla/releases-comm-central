@@ -172,22 +172,38 @@ var buddyList = {
                         .getService(Ci.purpleICoreService);
     return getIter(pcs.getAccounts());
   },
-  checkNotDisconnected: function bl_checkNotDisconnected() {
+  /* This function is called with aIsStarting = true when the application starts
+     (in this case the crashed accounts are checked), and when an account is
+     connected or disconnected (without parameter), so that it only checks if
+     there is a connected account. */
+  checkNotDisconnected: function bl_checkNotDisconnected(aIsStarting) {
     var addBuddyItem = document.getElementById("addBuddyMenuItem");
 
-    for (let acc in this.getAccounts())
+    let hasActiveAccount = false;
+    let hasCrachedAccount = false;
+    for (let acc in this.getAccounts()) {
       if (acc.connected || acc.connecting) {
         if (acc.connected)
           addBuddyItem.disabled = false;
-        return;
+        hasActiveAccount = true;
       }
 
-    /* In case of connection failure after an automatic reconnection attempt,
+      // We only check for crashed accounts on startup.
+      if (aIsStarting && acc.autoLogin &&
+          acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
+        hasCrachedAccount = true;
+    }
+
+    /* We only display the account manager on startup if an account has crashed
+       or if all accounts are disconnected
+       In case of connection failure after an automatic reconnection attempt,
        we don't want to popup the account manager */
-    if (!addBuddyItem.disabled)
+    if ((!addBuddyItem.disabled && !hasActiveAccount) ||
+        (aIsStarting && hasCrachedAccount))
       menus.accounts();
 
-    addBuddyItem.disabled = true;
+    if (!hasActiveAccount)
+      addBuddyItem.disabled = true;
   },
   checkForIrcAccount: function bl_checkForIrcAccount() {
     var joinChatItem = document.getElementById("joinChatMenuItem");
@@ -235,7 +251,7 @@ var buddyList = {
       return;
     }
 
-    buddyList.checkNotDisconnected();
+    buddyList.checkNotDisconnected(true);
     buddyList.checkForIrcAccount();
     this.addEventListener("unload", buddyList.unload, false);
     this.addEventListener("close", buddyList.close, false);

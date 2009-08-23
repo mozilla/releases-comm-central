@@ -314,12 +314,18 @@ var account = {
     }
 
     if (connectionInfoHasChanged) {
+      /* This is the first time we try to connect with these parameters */
+      this.account.firstConnectionState = this.account.FIRST_CONNECTION_SET;
+
       if (this.account.connecting) {
         this.account.disconnect();
         this.account.connect();
       }
-      else if (this.account.disconnected &&
-               this.account.connectionErrorReason != Ci.purpleIAccount.NO_ERROR) {
+      let errorReason = this.account.connectionErrorReason;
+      if (this.account.disconnected &&
+          errorReason != Ci.purpleIAccount.NO_ERROR &&
+          errorReason != Ci.purpleIAccount.ERROR_CRASHED &&
+          errorReason != Ci.purpleIAccount.ERROR_UNKNOWN_PRPL) {
         this.account.connect();
       }
     }
