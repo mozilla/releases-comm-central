@@ -141,8 +141,18 @@ var accountWizard = {
     }
 
     var bundle = document.getElementById("accountsBundle");
-    document.getElementById("usernameInfo").textContent =
-      bundle.getFormattedString("accountUsernameInfo", [this.proto.name]);
+    var usernameInfo;
+    var emptyText = this.proto.usernameEmptyText;
+    if (emptyText) {
+      usernameInfo =
+        bundle.getFormattedString("accountUsernameInfoWithDescription",
+                                  [emptyText, this.proto.name]);
+    }
+    else {
+      usernameInfo =
+        bundle.getFormattedString("accountUsernameInfo", [this.proto.name]);
+    }
+    document.getElementById("usernameInfo").textContent = usernameInfo;
 
     var vbox = document.getElementById("userNameBox");
     // remove anything that may be there for another protocol
@@ -156,6 +166,7 @@ var accountWizard = {
 
     var label = bundle.getString("accountUsername");
     this.userNameBoxes = [this.insertUsernameField("name", label, vbox)];
+    this.userNameBoxes[0].emptyText = emptyText;
 
     for (let i = 0; i < splits.length; ++i) {
       this.userNameBoxes.push({value: splits[i].separator});

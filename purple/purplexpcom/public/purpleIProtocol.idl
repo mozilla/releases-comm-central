@@ -67,6 +67,9 @@ interface purpleIProtocol: nsISupports {
   // returns an enumerator of purpleIUsernameSplit
   nsISimpleEnumerator getUsernameSplit();
 
+  // descriptive text to put in the username input box when it is empty
+  readonly attribute AUTF8String usernameEmptyText;
+
   // Use this function to avoid attempting to create duplicate accounts
   boolean accountExists(in AUTF8String aName);
 
