@@ -126,6 +126,7 @@ var gAccountManager = {
       var selectedIndex = this.accountList.selectedIndex;
       // Prevent errors if the timer is active and the account deleted
       clearTimeout(this.disableTimerID);
+      delete this.disableTimerID;
       this.accountList.removeChild(elt);
       var count = this.accountList.getRowCount();
       if (!count)
@@ -188,6 +189,7 @@ var gAccountManager = {
     clearTimeout(this.disableTimerID);
     this.accountList.focus();
     this.disableTimerID = setTimeout(function(aItem) {
+      delete gAccountManager.disableTimerID;
       gAccountManager.disableCommandItems();
       aItem.buttons.setFocus();
     }, this._disabledDelay, this.accountList.selectedItem);
@@ -253,6 +255,11 @@ var gAccountManager = {
     if (!selectedItem)
       return;
 
+    // If the timer that disables the button (for a short time) already exists,
+    // we don't want to interfere and set the button as enabled.
+    if (this.disableTimerID)
+      return;
+
     let account = selectedItem.account;
     let activeCommandName = account.disconnected ? "connect" : "disconnect";
     let activeCommandElt = document.getElementById("cmd_" + activeCommandName);
@@ -290,6 +297,7 @@ var gAccountManager = {
   },
   onAccountSelect: function am_onAccountSelect() {
     clearTimeout(this.disableTimerID);
+    delete this.disableTimerID;
     this.disableCommandItems();
     // Horrible hack here too, see Bug 177
     setTimeout(function(aThis) {
