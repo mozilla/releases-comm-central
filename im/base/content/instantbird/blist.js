@@ -357,7 +357,8 @@ var buddyList = {
     let promptTitle    = bundle.GetStringFromName("dialogTitle");
     let promptMessage  = bundle.GetStringFromName("message");
     let promptCheckbox = bundle.GetStringFromName("checkbox");
-    let quitButton     = bundle.GetStringFromName("quitButton");
+    let action         = aQuitType == "restart" ? "restart" : "quit";
+    let button         = bundle.GetStringFromName(action + "Button");
 
     if (!("PluralForm" in window))
       Components.utils.import("resource://gre/modules/PluralForm.jsm");
@@ -371,7 +372,7 @@ var buddyList = {
                 prompts.BUTTON_POS_1_DEFAULT;
     let checkbox = {value: false};
     if (prompts.confirmEx(attachedWindow, promptTitle, promptMessage, flags,
-                          quitButton, null, null, promptCheckbox, checkbox)) {
+                          button, null, null, promptCheckbox, checkbox)) {
       aCancelQuit.data = true;
       return;
     }
