@@ -2,14 +2,14 @@
 <!ENTITY proxiesDialogHeader.title           "Proxy Settings">
 <!ENTITY proxiesDialogHeader.description     "For this account">
 <!ENTITY proxiesDialog.useGlobalSettings     "Use Global Settings">
-<!ENTITY proxiesDialog.directConnexion       "Direct Connexion to the Internet">
+<!ENTITY proxiesDialog.directConnection      "Direct Connection to the Internet">
 <!ENTITY proxiesDialog.noProxy               "(No Proxy)">
-<!ENTITY proxiesDialog.useEnvironemental     "Use Environemental Settings">
+<!ENTITY proxiesDialog.useEnvironment        "Use Environment Settings">
 <!ENTITY proxiesDialog.noProxyInEnvironment  "No proxy settings found in the environment">
 <!ENTITY proxiesDialog.otherSetting          "Other…">
-<!ENTITY proxiesDialog.http.label            "Http">
-<!ENTITY proxiesDialog.socks4.label          "Socks 4">
-<!ENTITY proxiesDialog.socks5.label          "Socks 5">
+<!ENTITY proxiesDialog.http.label            "HTTP">
+<!ENTITY proxiesDialog.socks4.label          "SOCKS 4">
+<!ENTITY proxiesDialog.socks5.label          "SOCKS 5">
 <!ENTITY proxiesDialog.hostname.label        "Hostname:">
 <!ENTITY proxiesDialog.hostname.defaultValue "Hostname">
 <!ENTITY proxiesDialog.port.label            "Port:">

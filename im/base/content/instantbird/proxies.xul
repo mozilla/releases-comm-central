@@ -67,11 +67,11 @@
       <description class="indent" id="globalProxy"/>
     </richlistitem>
     <richlistitem id="noProxy" orient="vertical">
-      <description class="header">&proxiesDialog.directConnexion;</description>
+      <description class="header">&proxiesDialog.directConnection;</description>
       <description class="indent">&proxiesDialog.noProxy;</description>
     </richlistitem>
     <richlistitem id="useEnvironment" orient="vertical">
-      <description class="header">&proxiesDialog.useEnvironemental;</description>
+      <description class="header">&proxiesDialog.useEnvironment;</description>
       <description class="indent" id="envProxy">&proxiesDialog.noProxyInEnvironment;</description>
     </richlistitem>
     <richlistitem id="newProxy" orient="vertical">

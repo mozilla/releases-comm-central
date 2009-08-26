@@ -22,9 +22,15 @@
 <!ENTITY sounds             "Sounds">
 <!ENTITY addonManager       "Add-ons">
 <!ENTITY messageStyle       "Message Styles…">
-<!ENTITY smileys            "Smileys…">
+<!ENTITY smileys            "Emoticons…">
 <!ENTITY checkForUpdates    "Check for Updates">
-<!ENTITY help.menu          "?">
+<!ENTITY help.menu          "Help">
+<!ENTITY help.accesskey     "H">
+<!-- LOCALIZATION NOTE (helpWin.menu):
+    Some localizations of Windows (e.g. French, German) use "?" for the help
+    button in the menubar. -->
+<!ENTITY helpWin.menu       "Help">
+<!ENTITY helpWin.accesskey  "H">
 <!ENTITY about.menu         "About &brandShortName;">
 <!ENTITY about.accesskey    "A">
 <!ENTITY conversation.contextMenu.close "Close Tab">

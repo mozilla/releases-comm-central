@@ -87,7 +87,7 @@ function getSmileyList(aTheme) {
   let addAbsoluteUrls = function(aSmiley) {
     return {filename: aSmiley.filename,
             src: aTheme.baseUri + aSmiley.filename,
-            texts: aSmiley.texts};
+            textCodes: aSmiley.textCodes};
   };
   return aTheme.json.smileys.map(addAbsoluteUrls);
 }
@@ -127,9 +127,9 @@ function getTheme()
     gTheme.json = json.decodeFromStream(stream, stream.available());
     stream.close();
     gTheme.iconsHash = {};
-    for each (smile in gTheme.json.smileys) {
-      for each (text in smile.texts)
-        gTheme.iconsHash[text] = smile;
+    for each (smiley in gTheme.json.smileys) {
+      for each (textCode in smiley.textCodes)
+        gTheme.iconsHash[textCode] = smiley;
     }
   } catch(e) {
     Components.utils.reportError(e);

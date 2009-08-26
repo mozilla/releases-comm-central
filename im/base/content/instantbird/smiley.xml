@@ -49,7 +49,7 @@
         <xul:hbox flex="1">
           <xul:image class="smileyImage" xbl:inherits="src=smileyImage"/>
         </xul:hbox>
-        <xul:label flex="1" class="smileyTexts" crop="end" xbl:inherits="value=smileyTexts"/>
+        <xul:label flex="1" class="smileyTextCodes" crop="end" xbl:inherits="value=smileyTextCodes"/>
       </xul:hbox>
     </content>
   </binding>

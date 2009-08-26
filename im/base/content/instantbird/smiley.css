@@ -53,7 +53,7 @@ smiley:nth-child(odd) {
   background-color: -moz-oddtreerow;
 }
 
-.smileyTexts {
+.smileyTextCodes {
   font-family: monospace;
 }
 

@@ -79,7 +79,7 @@
   <richlistbox flex="1" id="preview">
     <listheader equalsize="always">
       <treecol id="imageColumn" label="&imageColumn.label;" flex="1"/>
-      <treecol id="textsColumn" label="&textsColumn.label;" flex="1"/>
+      <treecol id="textCodesColumn" label="&textCodesColumn.label;" flex="1"/>
     </listheader>
   </richlistbox>
 </window>

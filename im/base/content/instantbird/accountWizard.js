@@ -225,10 +225,10 @@ var accountWizard = {
       proxy = this.proxy;
 
     if (type == Ci.purpleIProxyInfo.noProxy)
-      result = bundle.getString("proxies.directConnexion");
+      result = bundle.getString("proxies.directConnection");
 
     if (type == Ci.purpleIProxyInfo.useEnvVar)
-      result = bundle.getString("proxies.useEnvironemental");
+      result = bundle.getString("proxies.useEnvironment");
 
     if (!result) {
       // At this point, we should have either a socks or http proxy

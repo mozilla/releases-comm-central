@@ -122,8 +122,14 @@
 #ifdef XP_MACOSX
 <!-- Mac window menu -->
 #include ../../../../mozilla/toolkit/content/macWindowMenu.inc
+    <menu label="&help.menu;" id="aboutSeparator" accesskey="&help.accesskey;"><!-- This ID ensures it gets hidden. -->
+#else
+#ifdef XP_WIN
+    <menu label="&helpWin.menu;" id="helpMenu" accesskey="&helpWin.accesskey;">
+#else
+    <menu label="&help.menu;" id="helpMenu" accesskey="&help.accesskey;">
 #endif
-    <menu label="&help.menu;" id="aboutSeparator"> <!-- this id ensure it gets hidden on mac -->
+#endif
       <menupopup id="helpMenuPopup">
         <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
       </menupopup>

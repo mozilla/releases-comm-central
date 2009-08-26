@@ -100,12 +100,12 @@ var gProxies = {
     var bundle = document.getElementById("proxiesBundle");
 
     if (type == Ci.purpleIProxyInfo.noProxy)
-      return bundle.getString("proxies.directConnexion");
+      return bundle.getString("proxies.directConnection");
 
     if (type == Ci.purpleIProxyInfo.useEnvVar)
-      return bundle.getString("proxies.useEnvironemental");
+      return bundle.getString("proxies.useEnvironment");
 
-    // At this point, we should have either a socks or http proxy
+    // At this point, we should have either a SOCKS or HTTP proxy.
     var result;
     if (type == Ci.purpleIProxyInfo.httpProxy)
       result = bundle.getString("proxies.http");

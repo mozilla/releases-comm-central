@@ -90,7 +90,7 @@ var smileysPreview = {
       for each (let smiley in this.smileyList) {
         let item = document.createElement("smiley");
         item.setAttribute("smileyImage", smiley.src);
-        item.setAttribute("smileyTexts", smiley.texts.join(" "));
+        item.setAttribute("smileyTextCodes", smiley.textCodes.join(" "));
         list.appendChild(item);
       }
     }
