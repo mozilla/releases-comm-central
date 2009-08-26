@@ -118,9 +118,19 @@
  </menupopup>
 
  <notificationbox id="accountsNotificationBox" flex="1">
-   <richlistbox id="accountlist" flex="1" ondblclick="gAccountManager.new()"
-                onselect="gAccountManager.onAccountSelect();"
-                context="accountsContextMenu"/>
+  <deck flex="1" id="accountsDesk" ondblclick="gAccountManager.new();">
+    <vbox flex="1" id="noAccountScreen" align="center" pack="center">
+      <hbox id="noAccountBox" align="top">
+        <image id="noAccountImage"/>
+        <vbox id="noAccountInnerBox" flex="1">
+          <label id="noAccountTitle" value="&accountManager.noAccount.title;"/>
+          <description id="noAccountDesc">&accountManager.noAccount.description;</description>
+        </vbox>
+      </hbox>
+    </vbox>
+    <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
+                 onselect="gAccountManager.onAccountSelect();"/>
+  </deck>
  </notificationbox>
  <hbox id="bottombuttons">
   <button id="newaccount" command="cmd_new"/>

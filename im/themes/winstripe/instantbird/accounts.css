@@ -51,6 +51,35 @@
   -moz-appearance: listbox;
 }
 
+#noAccountScreen {
+  background-color: -moz-Dialog;
+}
+#noAccountBox {
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+  border: 1px solid ThreeDShadow;
+  -moz-border-radius: 10px;
+  padding: 1.1em;
+  -moz-padding-start: 20px;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+#noAccountImage {
+  list-style-image: url("chrome://global/skin/icons/information-64.png");
+  -moz-margin-end: 1.2em;
+}
+#noAccountInnerBox {
+  max-width: 25em;
+}
+#noAccountTitle {
+  margin: 0 1em 0.6em 0;
+  font-size: 160%;
+  border-bottom: 1px solid ThreeDLightShadow
+}
+#noAccountDesc {
+  font-size: 110%;
+}
+
 #accountlist {
   margin: 0 0;
   -moz-appearance: none;

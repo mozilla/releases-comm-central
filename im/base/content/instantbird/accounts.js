@@ -73,10 +73,16 @@ var gAccountManager = {
       // This is horrible, but it works. Otherwise (at least on mac)
       // the wizard is not centered relatively to the account manager
       setTimeout(function() { gAccountManager.new(); }, 0);
-    else if (!defaultID)
-      this.accountList.selectedIndex = 0;
-    else
-      this.selectAccount(defaultID);
+    else {
+      // we have accounts, show the list
+      document.getElementById("accountsDesk").selectedIndex = 1;
+
+      // ensure an account is selected
+      if (defaultID)
+        this.selectAccount(defaultID);
+      else
+        this.accountList.selectedIndex = 0;
+    }
 
     this.setAutoLoginNotification();
 
@@ -109,6 +115,7 @@ var gAccountManager = {
       throw "Bad notification.";
 
     if (aTopic == "account-added") {
+      document.getElementById("accountsDesk").selectedIndex = 1;
       var elt = document.createElement("richlistitem");
       this.accountList.appendChild(elt);
       elt.build(aObject);
@@ -129,8 +136,10 @@ var gAccountManager = {
       delete this.disableTimerID;
       this.accountList.removeChild(elt);
       var count = this.accountList.getRowCount();
-      if (!count)
+      if (!count) {
+        document.getElementById("accountsDesk").selectedIndex = 0;
         return;
+      }
       if (selectedIndex == count)
         --selectedIndex;
       this.accountList.selectedIndex = selectedIndex;
