@@ -165,13 +165,7 @@
           var date = Math.round((account.timeOfNextReconnect - Date.now()) / 1000);
           let reconnect = "";
           if (date > 0) {
-            let val1, unit1, val2, unit2;
-            try {
-              [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
-            } catch (e) {
-              /* Hack for bug 506491 on bugzilla@mozilla */
-              [val1, unit1] = [date, "seconds"];
-            }
+            let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
             if (!val2)
               reconnect = bundle.getFormattedString("account.reconnectInSingle",
                                                     [val1, unit1])
