@@ -21,6 +21,7 @@
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s):
+   -   Romain Bezut <romain@bezut.info>
    -
    - Alternatively, the contents of this file may be used under the terms of
    - either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -56,6 +57,8 @@
         persist="screenX screenY">
  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
  <script type="application/javascript" src="chrome://instantbird/content/accounts.js"/>
+ <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js" />
+ <script type="application/javascript" src="chrome://global/content/nsTransferable.js" />
 
  <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
 
@@ -72,6 +75,12 @@
             label="&account.cancelReconnection.label;"
             accesskey="&account.cancelReconnection.accesskey;"
             oncommand="gAccountManager.cancelReconnection()"/>
+   <command id="cmd_moveup"
+            label="&account.moveup.label;"
+            oncommand="gAccountManager.moveCurrentItem(-1)"/>
+   <command id="cmd_movedown"
+            label="&account.movedown.label;"
+            oncommand="gAccountManager.moveCurrentItem(1)"/>
    <command id="cmd_delete"
             label="&account.delete.label;"
             accesskey="&account.delete.accesskey;"
@@ -114,6 +123,9 @@
    <menuitem command="cmd_new"/>
    <menuitem command="cmd_delete" observes="contextAccountsItems"/>
    <menuseparator observes="contextAccountsItems"/>
+   <menuitem command="cmd_moveup" observes="contextAccountsItems"/>
+   <menuitem command="cmd_movedown" observes="contextAccountsItems"/>
+   <menuseparator observes="contextAccountsItems"/>
    <menuitem command="cmd_edit" observes="contextAccountsItems"/>
  </menupopup>
 
@@ -129,7 +141,11 @@
       </hbox>
     </vbox>
     <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
-                 onselect="gAccountManager.onAccountSelect();"/>
+                 onselect="gAccountManager.onAccountSelect();"
+                 ondragstart="nsDragAndDrop.startDrag(event, gAMDragAndDrop);"
+                 ondragover="nsDragAndDrop.dragOver(event, gAMDragAndDrop);"
+                 ondragend="gAMDragAndDrop.cleanBorders(true);"
+                 ondragdrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
   </deck>
  </notificationbox>
  <hbox id="bottombuttons">

@@ -21,6 +21,7 @@
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s):
+   -   Romain Bezut <romain@bezut.info>
    -
    - Alternatively, the contents of this file may be used under the terms of
    - either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -110,7 +111,7 @@
             this.updateConnectionError();
         } else if (this._account.connecting) {
           state = "connecting"
-          document.getAnonymousElementByAttribute(this, "anonid", "prplicon").animate();
+          this.icon.animate();
           this.updateConnectionState();
         } else if (this._account.disconnecting) {
           state = "connected"
@@ -159,8 +160,7 @@
                                                             "error");
         error.textContent = text;
 
-        var reconnectElt = document.getAnonymousElementByAttribute(this,"anonid",
-                                                                   "reconnect");
+        var self = this;
         var updateReconnect = function() {
           var date = Math.round((account.timeOfNextReconnect - Date.now()) / 1000);
           let reconnect = "";
@@ -179,7 +179,8 @@
               reconnect = bundle.getFormattedString("account.reconnectInDouble",
                                                     [val1, unit1, val2, unit2])
           }
-          reconnectElt.textContent = reconnect;
+          document.getAnonymousElementByAttribute(self, "anonid", "reconnect")
+                  .textContent = reconnect;
           return reconnect;
         };
         if (updateReconnect() && !this.reconnectUpdateInterval) {
@@ -209,6 +210,31 @@
            this._cancelReconnectTimer();
            this._account.cancelReconnection();
          }
+       ]]>
+       </body>
+     </method>
+
+     <method name="pauseItems">
+       <body>
+       <![CDATA[
+         // Called before a removal of this binding (removeChild())
+         this.icon.stop();
+       ]]>
+       </body>
+     </method>
+
+     <method name="restoreItems">
+       <body>
+       <![CDATA[
+         // Called after a removal and reinsertion of the binding
+         this._buttons = null;
+         this._icon = null;
+         if (this._account.connectionErrorReason == Ci.purpleIAccount.NO_ERROR)
+           this.updateConnectionState();
+         else
+           this.updateConnectionError();
+         if (this._account.connecting)
+           this.icon.animate();
        ]]>
        </body>
      </method>

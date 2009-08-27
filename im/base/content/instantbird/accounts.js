@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *   Romain Bezut <romain@bezut.info>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -40,6 +41,7 @@ Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 // This is the list of notifications that the account manager window observes
 const events = [
   "purple-quit",
+  "account-list-updated",
   "account-added",
   "account-updated",
   "account-removed",
@@ -92,6 +94,28 @@ var gAccountManager = {
   unload: function am_unload() {
     removeObservers(gAccountManager, events);
   },
+  _updateAccountList: function am__updateAccountList(aPcs) {
+    let accountList = this.accountList;
+    let i = 0;
+    for (let acc in getIter(aPcs.getAccounts())) {
+      let oldItem = accountList.getItemAtIndex(i);
+      if (oldItem.id != acc.id) {
+        let accElt = document.getElementById(acc.id);
+        accElt.pauseItems();
+        accountList.removeChild(accElt);
+        accountList.insertBefore(accElt, oldItem);
+        accElt.restoreItems();
+      }
+      ++i;
+    }
+
+    // The selected item is still selected
+    accountList.selectedItem.buttons.setFocus();
+    accountList.ensureSelectedElementIsVisible();
+
+    // We need to refresh the disabled menu items
+    this.disableCommandItems();
+  },
   observe: function am_observe(aObject, aTopic, aData) {
     if (aTopic == "purple-quit") {
       // libpurple is being uninitialized. We don't need the account
@@ -108,6 +132,10 @@ var gAccountManager = {
     }
     else if (aTopic == "network:offline-status-changed") {
       this.setOffline(aData == "offline");
+      return;
+    }
+    else if (aTopic == "account-list-updated") {
+      this._updateAccountList(aObject);
       return;
     }
 
@@ -205,6 +233,10 @@ var gAccountManager = {
   },
 
   delete: function am_delete() {
+    var selectedItem = this.accountList.selectedItem;
+    if (!selectedItem)
+      return;
+
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
                           .getService(Components.interfaces.nsIPrefBranch);
 
@@ -233,7 +265,7 @@ var gAccountManager = {
 
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Ci.purpleICoreService);
-    pcs.deleteAccount(this.accountList.selectedItem.id);
+    pcs.deleteAccount(selectedItem.id);
   },
   new: function am_new() {
     this.openDialog("chrome://instantbird/content/accountWizard.xul");
@@ -257,7 +289,8 @@ var gAccountManager = {
   /* This function disables or enables the currently selected button and
      the corresponding context menu item */
   disableCommandItems: function am_disableCommandItems() {
-    let selectedItem = this.accountList.selectedItem;
+    let accountList = this.accountList;
+    let selectedItem = accountList.selectedItem;
     // When opening the account manager, if accounts have errors, we
     // can be called during build(), before any item is selected.
     // In this case, just return early.
@@ -272,12 +305,22 @@ var gAccountManager = {
     let account = selectedItem.account;
     let activeCommandName = account.disconnected ? "connect" : "disconnect";
     let activeCommandElt = document.getElementById("cmd_" + activeCommandName);
-    if (this.isOffline ||
-        (account.disconnected &&
-         account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL))
-      activeCommandElt.setAttribute("disabled", "true");
-    else
-      activeCommandElt.removeAttribute("disabled");
+    let isCommandDisabled =
+      (this.isOffline ||
+       (account.disconnected &&
+        account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL));
+
+    [[activeCommandElt, isCommandDisabled],
+     [document.getElementById("cmd_moveup"), accountList.selectedIndex == 0],
+     [document.getElementById("cmd_movedown"),
+      accountList.selectedIndex == accountList.itemCount - 1]
+    ].forEach(function (aEltArray) {
+      let [elt, state] = aEltArray;
+      if (state)
+        elt.setAttribute("disabled", "true");
+      else
+        elt.removeAttribute("disabled");
+    });
   },
   onContextMenuShowing: function am_onContextMenuShowing() {
     let targetElt = document.popupNode;
@@ -320,6 +363,18 @@ var gAccountManager = {
   },
 
   onKeyPress: function am_onKeyPress(event) {
+    if (!this.selectedItem)
+      return;
+
+    if (event.shiftKey &&
+        (event.keyCode == event.DOM_VK_DOWN || event.keyCode == event.DOM_VK_UP)) {
+      let offset = event.keyCode == event.DOM_VK_DOWN ? 1 : -1;
+      gAccountManager.moveCurrentItem(offset);
+      event.stopPropagation();
+      event.preventDefault();
+      return;
+    }
+
     // As we stop propagation, the default action applies to the richlistbox
     // so that the selected account is changed with this default action
     if (event.keyCode == event.DOM_VK_DOWN) {
@@ -347,6 +402,31 @@ var gAccountManager = {
 
     if (event.keyCode == event.DOM_VK_DELETE)
        document.getElementById("cmd_delete").doCommand();
+  },
+
+  moveCurrentItem: function am_moveCurrentItem(aOffset) {
+    let accountList = this.accountList;
+    if (!aOffset || !accountList.selectedItem)
+      return;
+
+    // Create the new preference value from the richlistbox list
+    let items = accountList.children;
+    let selectedID = accountList.selectedItem.id;
+    let array = [];
+    for (let i in items)
+      if (items[i].id != selectedID)
+        array.push(items[i].id);
+
+    let newIndex = accountList.selectedIndex + aOffset;
+    if (newIndex < 0)
+      newIndex = 0;
+    else if (newIndex >= accountList.itemCount)
+      newIndex = accountList.itemCount - 1;
+    array.splice(newIndex, 0, selectedID);
+
+    Components.classes["@mozilla.org/preferences-service;1"]
+              .getService(Components.interfaces.nsIPrefBranch)
+              .setCharPref("messenger.accounts", array.join(","));
   },
 
   getAccounts: function am_getAccounts() {
@@ -456,5 +536,143 @@ var gAccountManager = {
     else
       this.accountList.removeAttribute("offline");
     this.disableCommandItems();
+  }
+};
+
+
+let gAMDragAndDrop = {
+  ACCOUNT_MIME_TYPE: "application/x-moz-richlistitem",
+  // Size of the scroll zone on the top and on the bottom of the account list
+  MAGIC_SCROLL_HEIGHT: 20,
+
+  // A preference already exists to define scroll speed, let's use it.
+  get SCROLL_SPEED() {
+    delete this.SCROLL_SPEED;
+    try {
+      this.SCROLL_SPEED = Cc["@mozilla.org/preferences-service;1"]
+                            .getService(Ci.nsIPrefBranch2)
+                            .getIntPref("toolkit.scrollbox.scrollIncrement");
+    }
+    catch (e) {
+      this.SCROLL_SPEED = 20;
+    }
+    return this.SCROLL_SPEED;
+  },
+
+  onDragStart: function amdnd_onDragStart(aEvent, aTransferData, aAction) {
+    let accountElement = aEvent.explicitOriginalTarget;
+    // This stops the dragging session.
+    if (!(accountElement instanceof Ci.nsIDOMXULSelectControlItemElement))
+      throw "Element is not draggable!";
+    if (gAccountManager.accountList.itemCount == 1)
+      throw "Can't drag while there is only one account!";
+
+    // Transferdata is never used, but we need to transfer something.
+    aTransferData.data = new TransferData();
+    aTransferData.data.addDataForFlavour(this.ACCOUNT_MIME_TYPE, accountElement);
+  },
+
+  onDragOver: function amdnd_onDragOver(aEvent, aFlavour, aSession) {
+    let accountElement = aEvent.explicitOriginalTarget;
+    // We are dragging over the account manager, consider it is the same as
+    // the last element.
+    if (accountElement == gAccountManager.accountList)
+      accountElement = gAccountManager.accountList.lastChild;
+
+    // Auto scroll the account list if we are dragging at the top/bottom
+    this.checkForMagicScroll(aEvent.clientY);
+
+    // The hovered element has changed, change the border too
+    if (this._accountElement && this._accountElement != accountElement)
+      this.cleanBorders();
+
+    if (!aSession.canDrop) {
+      aEvent.dataTransfer.dropEffect = "none";
+      return;
+    }
+    aEvent.dataTransfer.dropEffect = "move";
+
+    if (aEvent.clientY < accountElement.getBoundingClientRect().top +
+                         accountElement.clientHeight / 2) {
+      // we don't want the previous item to show its default bottom-border
+      let previousItem = accountElement.previousSibling;
+      if (previousItem)
+        previousItem.style.borderBottom = "none";
+      accountElement.setAttribute("dragover", "up");
+    }
+    else {
+      if (this._accountElement == accountElement &&
+          accountElement.getAttribute("dragover") == "up")
+        this.cleanBorders();
+      accountElement.setAttribute("dragover", "down");
+    }
+
+    this._accountElement = accountElement;
+  },
+
+  cleanBorders: function amdnd_cleanBorders(aIsEnd) {
+    if (!this._accountElement)
+      return;
+
+    this._accountElement.removeAttribute("dragover");
+    // reset the border of the previous element
+    let previousItem = this._accountElement.previousSibling;
+    if (previousItem) {
+      if (aIsEnd && previousItem.selected && previousItem.previousSibling)
+        previousItem = previousItem.previousSibling;
+      previousItem.style.borderBottom = "";
+    }
+
+    if (aIsEnd)
+      delete this._accountElement;
+  },
+
+  canDrop: function amdnd_canDrop(aEvent, aSession) {
+    let accountElement = aEvent.explicitOriginalTarget;
+    if (accountElement == gAccountManager.accountList)
+      accountElement = gAccountManager.accountList.lastChild;
+    return (accountElement != gAccountManager.accountList.selectedItem);
+  },
+
+  checkForMagicScroll: function amdnd_checkForMagicScroll(aClientY) {
+    let accountList = gAccountManager.accountList;
+    let listSize = accountList.getBoundingClientRect();
+    let direction = 1;
+    if (aClientY < listSize.top + this.MAGIC_SCROLL_HEIGHT)
+      direction = -1;
+    else if (aClientY < listSize.bottom - this.MAGIC_SCROLL_HEIGHT)
+      // We are not on a scroll zone
+      return;
+
+    accountList._scrollbox.scrollTop += direction * this.SCROLL_SPEED;
+  },
+
+  onDrop: function amdnd_onDrop(aEvent, aTransferData, aSession) {
+    let accountElement = aEvent.explicitOriginalTarget;
+    if (accountElement == gAccountManager.accountList)
+      accountElement = gAccountManager.accountList.lastChild;
+
+     if (!aSession.canDrop)
+      return;
+
+    // compute the destination
+    let accountList = gAccountManager.accountList;
+    let offset = accountList.getIndexOfItem(accountElement) -
+                 accountList.selectedIndex;
+    let isDroppingAbove =
+      aEvent.clientY < accountElement.getBoundingClientRect().top +
+                       accountElement.clientHeight / 2;
+    if (offset > 0)
+      offset -= isDroppingAbove;
+    else
+      offset += !isDroppingAbove;
+    gAccountManager.moveCurrentItem(offset);
+  },
+
+  getSupportedFlavours: function amdnd_getSupportedFlavours() {
+    var flavours = new FlavourSet();
+    flavours.appendFlavour(this.ACCOUNT_MIME_TYPE,
+                           "nsIDOMXULSelectControlItemElement");
+    return flavours;
   }
 };

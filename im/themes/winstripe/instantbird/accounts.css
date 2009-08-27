@@ -154,6 +154,13 @@ richlistbox[focused] richlistitem[selected="true"] {
   color: HighlightText;
 }
 
+richlistitem[dragover="down"] {
+  border-bottom: 3px solid HighLight;
+}
+richlistitem[dragover="up"] {
+  border-top: 3px solid HighLight;
+}
+
 .error {
   color: rgb(200, 0, 0);
   margin-left: 6px;
