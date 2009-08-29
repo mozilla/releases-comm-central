@@ -96,13 +96,8 @@ var joinChat = {
     if (!conv)
       return;
 
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                       .getService(Components.interfaces.nsIWindowMediator);
-    var convWindow = wm.getMostRecentWindow("Messenger:convs");
-    if (convWindow) {
-      convWindow.msgObserver.focusConv(conv);
-      convWindow.focus();
-    }
+    Components.utils.import("resource://app/modules/imWindows.jsm");
+    Conversations.focusConversation(conv);
   },
 
   getAccounts: function jc_getAccounts() {

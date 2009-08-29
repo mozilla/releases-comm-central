@@ -44,6 +44,8 @@ instantbird.jar:
 	content/instantbird/proxies.css		(instantbird/proxies.css)
 	content/instantbird/proxy.xml		(instantbird/proxy.xml)
 	content/instantbird/sound.js		(instantbird/sound.js)
+*	content/instantbird/tabbrowser.xml	(instantbird/tabbrowser.xml)
+	content/instantbird/tabbrowser.css	(instantbird/tabbrowser.css)
 	content/instantbird/utilities.js	(instantbird/utilities.js)
 #ifdef XP_MACOSX
 	content/instantbird/unreadCount.js      (instantbird/unreadCount.js)

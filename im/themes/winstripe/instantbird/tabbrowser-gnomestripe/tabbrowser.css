@@ -1,0 +1,206 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is mozilla.org code.
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998-1999
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Joe Hewitt (hewitt@netscape.com)
+ *   Jason Kersey (kerz@netscape.com)
+ *   Pierre Chanial (chanial@noos.fr)
+ *   Dean Tessman (dean_tessman@hotmail.com)
+ *   Blake Ross (blake@cs.stanford.edu)
+ *   Pamela Greene (pamg.bugs@gmail.com)
+ *   Dão Gottwald (dao@mozilla.com)
+ *   Florian Quèze (florian@instantbird.org)
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+/* Tabs */
+.tabbrowser-tab {
+  border: none !important;
+  padding: 0px;
+  margin-bottom: 1px;
+}
+
+.tabbrowser-tab[selected="true"] {
+  margin-bottom: 0px;
+}
+
+.tab-icon-image {
+  width: 16px;
+  height: 16px;
+  -moz-margin-start: 4px;
+  -moz-margin-end: 3px;
+}
+
+.tabs-bottom {
+  border-bottom: 1px solid threedshadow;
+}
+
+#context_newTab {
+  list-style-image: url("chrome://browser/skin/Toolbar-small.png");
+  -moz-image-region: rect(0px 64px 16px 48px);
+}
+
+#context_newTab[disabled] {
+  -moz-image-region: rect(16px 64px 32px 48px);
+}
+
+#context_reloadTab {
+  list-style-image: url("moz-icon://stock/gtk-refresh?size=menu");
+}
+
+#context_closeOtherTabs {
+  list-style-image: url("moz-icon://stock/gtk-clear?size=menu");
+}
+
+#context_closeOtherTabs[disabled] {
+  list-style-image: url("moz-icon://stock/gtk-clear?size=menu&state=disabled");
+}
+
+#context_undoCloseTab {
+  list-style-image: url("moz-icon://stock/gtk-undelete?size=menu");
+}
+
+#context_closeTab {
+  /*XXX Avoiding size=menu as some themes (e.g. Human) don't provide the icon
+        at 16*16px (bug 426930), and upscaled images are ugly (bug 422179). */
+  list-style-image: url("moz-icon://stock/gtk-close?size=toolbar");
+}
+
+/* tabbrowser-tab focus ring */
+.tabbrowser-tab > .tab-text {
+  border: 1px dotted transparent;
+}
+
+.tabbrowser-tab[selected="true"]:focus > .tab-text {
+  border: 1px dotted -moz-DialogText;
+}
+
+/* Tab drag and drop */
+.tab-drop-indicator-bar {
+  height: 11px;
+  margin-top: -11px;
+  position: relative;
+  /* set -moz-margin-start to -1/2 indicator width: */
+  -moz-margin-start: -5px;
+}
+
+.tab-drop-indicator {
+  height: 11px;
+  width: 11px;
+  margin-bottom: -5px;
+  position: relative;
+  background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator.png') 50% 50% no-repeat;
+}
+
+/* In-tab close button */
+.tab-close-button > .toolbarbutton-icon {
+  /* XXX Buttons have padding in widget/ that we don't want here but can't override with good CSS, so we must
+     use evil CSS to give the impression of smaller content */
+  margin: -3px !important;
+}
+
+.tab-close-button {
+  -moz-margin-end: 6px;
+  padding: 0px;
+  border: none;
+  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
+}
+
+.tabbrowser-tab[selected="true"] > .tab-close-button {
+  /* Make this button focusable so clicking on it will not focus the tab while
+     it's getting closed */
+  -moz-user-focus: normal;
+}
+
+.tab-close-button:focus {
+  outline: none !important;
+}
+
+/* Tabstrip new tab button */
+.tabs-newtab-button {
+  list-style-image: url("moz-icon://stock/gtk-add?size=menu");
+  border: none;
+  margin-bottom: 1px;
+}
+
+.tabbrowser-arrowscrollbox > .tabs-newtab-button {
+  width: 32px;
+}
+
+.tabs-newtab-button > .toolbarbutton-icon {
+  margin-top: -2px;
+  margin-bottom: -2px;
+}
+
+/* Tabstrip close button */
+.tabs-closebutton {
+  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
+  border: none;
+  margin-bottom: 1px;
+}
+
+.tabs-closebutton > .toolbarbutton-icon {
+  margin: 0;
+}
+
+/* Tabbrowser arrowscrollbox arrows */
+.tabbrowser-arrowscrollbox > .scrollbutton-up {
+  -moz-appearance: tab-scroll-arrow-back;
+  margin: 0px;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down {
+  -moz-appearance: tab-scroll-arrow-forward;
+  margin: 0px;
+}
+
+.tabs-alltabs-box-animate {
+  background-color: Highlight;
+  opacity: 0.0;
+}
+
+/* All tabs menupopup */
+.alltabs-item[selected="true"] {
+  font-weight: bold;
+}
+
+.tabs-alltabs-button {
+  margin-bottom: 1px;
+}
+
+.tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
+  margin-bottom: -1px;
+}
+
+.tabs-alltabs-button > .toolbarbutton-icon {
+  display: none;
+}

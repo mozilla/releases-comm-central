@@ -39,6 +39,8 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/instantbird.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/tabbrowser.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/tabbrowser.css" type="text/css"?>
 
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 
@@ -55,6 +57,8 @@
   id     = "convWindow"
   windowtype="Messenger:convs"
   title  = "&convWindow.title;"
+  titlemenuseparator="&convWindow.titlemodifiermenuseparator;"
+  titlemodifier="&convWindow.titlemodifier;"
   width  = "500"
   height = "600"
   persist= "width height screenX screenY"
@@ -63,14 +67,15 @@
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
 #ifdef XP_MACOSX
   <script type="application/javascript" src="chrome://instantbird/content/unreadCount.js"/>
+#if 0
   <script type="application/javascript" src="chrome://instantbird/content/macgestures.js"/>
+#endif
 #endif
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/nsContextMenu.js"/>
 
   <commandset id="conversationsCommands">
-    <command id="cmd_close" oncommand="msgObserver.closeCurrentTab()"/>
     <command id="cmd_textZoomReduce" oncommand="ZoomManager.reduce();"/>
     <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
     <command id="cmd_textZoomReset" oncommand="ZoomManager.reset();"/>
@@ -148,14 +153,9 @@
     </popup>
   </popupset>
 
-  <tabbox flex="1" onkeypress="msgObserver.onTabboxKeyPress(event);">
-    <tabs id="tabs" context="tabs-context-menu"
-          onselect="msgObserver.onSelectTab();" onclick="msgObserver.onClickTab(event)"/>
-    <tabpanels id="panels" flex="1"/>
-  </tabbox>
-  <menupopup id="tabs-context-menu" onpopupshowing="msgObserver.onPopupShowing(event);">
-    <menuitem label="&conversation.contextMenu.close;" oncommand="msgObserver.onCommandClose(event)"/>
-  </menupopup>
+  <tabconversation id="conversations" flex="1"
+                   contenttooltip="aHTMLTooltip"
+                   contentcontextmenu="contentAreaContextMenu"/>
 
   <statusbar>
     <statusbarpanel id="statusbar-display" label="" crop="end" flex="1"/>

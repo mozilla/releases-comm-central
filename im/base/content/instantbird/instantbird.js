@@ -35,209 +35,22 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const events = ["new-text",
-                "new-conversation",
-                "purple-quit"];
 
-var msgObserver = {
-  convs: { },
+var TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
+
+const events = ["purple-quit"];
+
+var convWindow = {
   // Components.interfaces.nsIObserver
   observe: function mo_observe(aObject, aTopic, aData) {
     switch(aTopic) {
     case "purple-quit":
-      for (let i in this.convs)
-        this.convs[i].unInit();
       window.close();
-      break;
-
-    case "new-text":
-      var conv = aObject.conversation;
-      var tab = this.convs[conv.id] || this.addConvTab(conv);
-      if (!tab.loaded) // until we can load all messages from a conversation
-        tab.addMsg(aObject);
-
-      if (aObject.incoming && !aObject.system &&
-          (!(aObject.conversation instanceof Ci.purpleIConvChat) ||
-           aObject.containsNick))
-        window.getAttention();
-      break;
-
-    case "new-conversation":
-      this.addConvTab(aObject);
       break;
 
     default:
       throw "Bad notification";
     }
-  },
-
-  addConvTab: function mo_addConvTab(aConv) {
-    if (aConv.id in this.convs)
-      return this.convs[aConv.id];
-
-    var conv = document.createElement("conversation");
-    conv.setAttribute("contenttooltip", "aHTMLTooltip");
-    conv.setAttribute("contentcontextmenu", "contentAreaContextMenu");
-    var panels = document.getElementById("panels");
-    panels.appendChild(conv);
-    conv.conv = aConv;
-
-    var tabs = document.getElementById("tabs");
-    var tab = document.createElement("convtab");
-    tab.tooltipText = aConv.name;
-    let title = aConv.title
-                     .replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1")
-                     .replace(/(.{15}).*/, "$1…");
-    tab.setAttribute("label", title);
-    tabs.appendChild(tab);
-    conv.tab = tab;
-
-    if (!tabs.selectedItem) {
-      tabs.selectedItem = tab;
-      panels.selectedPanel.focus();
-    }
-
-    this.convs[aConv.id] = conv;
-    return conv;
-  },
-
-  focusConv: function mo_focusConv(aConv) {
-    var id = aConv.id;
-    if (!(id in this.convs)) {
-      // We only support a single chat window ATM so we can safely
-      // re-add a closed conversation tab
-      this.addConvTab(aConv);
-      if (!(id in this.convs))
-        throw "Can't find the conversation, even after trying to add it again!";
-    }
-    var panels = document.getElementById("panels");
-    var conv = this.convs[id];
-    panels.selectedPanel = conv;
-    document.getElementById("tabs").selectedIndex = panels.selectedIndex;
-    this.focusSelectedTab();
-  },
-
-  focusSelectedTab: function mo_focusSelectedTab() {
-    if (msgObserver.focusTimeoutId) {
-      clearTimeout(msgObserver.focusTimeoutId);
-      msgObserver.focusTimeoutId = null;
-    }
-    msgObserver.focusClickTimeoutId = null;
-    var tabs = document.getElementById("tabs");
-    var tab = tabs.selectedItem;
-    tab.removeAttribute("unread");
-    tab.removeAttribute("attention");
-    var panels = document.getElementById("panels");
-    panels.selectedPanel.focus();
-  },
-
-  onTabboxKeyPress: function mo_onTabboxKeyPress(aEvent) {
-    // When switching tab with ctrl(+shift)+tab, we need to set the
-    // focus immediatly to the textbox
-    if (aEvent.keyCode == aEvent.DOM_VK_TAB &&
-        aEvent.ctrlKey && !aEvent.altKey && !aEvent.metaKey) {
-      msgObserver.focusClickTimeoutId = setTimeout(msgObserver.focusSelectedTab, 0);
-    }
-  },
-
-  onSelectTab: function mo_onSelectTab() {
-#ifdef WINCE
-    // work around the brokenness of tabpanels / display:-moz-deck on WinCE
-    let panels = document.getElementById("panels");
-    let selectedPanel = panels.selectedPanel;
-    for (var panel = panels.firstChild; panel; panel = panel.nextSibling) {
-      if (panel == selectedPanel)
-        panel.setAttribute("selected", "true");
-      else
-        panel.removeAttribute("selected");
-    } 
-
-#endif
-    if (this.focusClickTimeoutId) {
-      // if a click event already started a shorter timeout to focus
-      // the tab, ignore the select event
-      return;
-    }
-
-    if (this.focusTimeoutId)
-      clearTimeout(this.focusTimeoutId);
-    this.focusTimeoutId = setTimeout(this.focusSelectedTab, 1000);
-  },
-
-  onClickTab: function mo_onClickTab(aEvent) {
-    if (aEvent.target.localName != "convtab")
-      return;
-
-    if (aEvent.button == 1)
-      this.closeTab(aEvent.target);
-
-    // the call to focusSelectedTab needs to be delayed because we
-    // want it to always happen after the onselect event is dispatched
-    // (and tabbox.xml selects the new tab after the mousedown event
-    // with a timeout)
-    if (aEvent.button == 0)
-      this.focusClickTimeoutId = setTimeout(this.focusSelectedTab, 0);
-  },
-
-  closeCurrentTab: function mo_closeCurrentTab() {
-    var tabs = document.getElementById("tabs");
-    this.closeTab(tabs.selectedItem);
-  },
-
-  closeTab: function mo_closeTab(aTab) {
-    var tabs = aTab.parentNode.childNodes;
-    var i = aTab.parentNode.getIndexOfItem(aTab);
-    if (i == -1)
-      throw "Can't find the tab that should be closed";
-
-    var panels = document.getElementById("panels");
-    var conv = panels.childNodes[i];
-    if (!conv)
-      throw "Can't find the conversation associated with the tab.";
-    delete this.convs[conv.convId];
-
-    // Because of the way XBL works (fields just set JS
-    // properties on the element) and the code in place
-    // to preserve the JS objects for any elements that have
-    // JS properties set on them, the conversation element won't be
-    // destroyed until the document goes away.  Force a cleanup.
-    conv.destroy();
-
-    if (aTab.selected) {
-      if (aTab.nextSibling) {
-        // we are not on the last tab
-        aTab.parentNode.selectedItem = aTab.nextSibling;
-        panels.selectedPanel = conv.nextSibling;
-      }
-      else {
-        // we remove the last tab, which is selected
-        if (aTab.previousSibling) {
-          // at least a tab remain
-          aTab.parentNode.selectedItem = aTab.previousSibling;
-          panels.selectedPanel = conv.previousSibling;
-        }
-        else {
-          window.close();
-        }
-      }
-    }
-
-    panels.removeChild(conv);
-    // Workaround an ugly bug: when removing a panel, the selected panel disappears
-    panels.selectedPanel = panels.selectedPanel;
-
-    aTab.parentNode.removeChild(aTab);
-  },
-
-  onPopupShowing: function mo_onPopupShowing(aEvent) {
-    if (aEvent.explicitOriginalTarget.localName == "convtab")
-      this.contextTab = aEvent.explicitOriginalTarget;
-    else
-      aEvent.preventDefault();
-  },
-
-  onCommandClose: function mo_onCommandClose(aEvent) {
-    this.closeTab(this.contextTab);
   },
 
   onMouseZoom: function mo_onMouseZoom(event) {
@@ -249,17 +62,20 @@ var msgObserver = {
   },
 
   load: function mo_load() {
-    addObservers(msgObserver, events);
-    if (window.pendingNotifications) {
-      let notifications = window.pendingNotifications;
-      for (let i = 0; i < notifications.length; ++i) {
-        let notif = notifications[i];
-        msgObserver.observe(notif.object, notif.topic, notif.msg);
-      }
-      delete window.pendingNotifications;
+    Components.utils.import("resource://app/modules/imWindows.jsm");
+    Conversations.registerWindow(window);
+
+    addObservers(convWindow, events);
+
+    if ("arguments" in window && window.arguments[0] instanceof XULElement) {
+      // swap the given tab with the default dummy conversation tab
+      // and then close the original tab in the other window.
+      document.getElementById("conversations")
+              .importConversation(window.arguments[0]);
     }
-    window.addEventListener("unload", msgObserver.unload, false);
-    window.addEventListener("DOMMouseScroll", msgObserver.onMouseZoom, false);
+
+    window.addEventListener("unload", convWindow.unload, false);
+    window.addEventListener("DOMMouseScroll", convWindow.onMouseZoom, false);
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIWebNavigation)
           .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
@@ -268,13 +84,16 @@ var msgObserver = {
           .XULBrowserWindow = window.XULBrowserWindow;
   },
   unload: function mo_unload() {
-    removeObservers(msgObserver, events);
+    removeObservers(convWindow, events);
+    Conversations.unregisterWindow(window);
   }
 };
 
+function getConvWindowURL() "chrome://instantbird/content/instantbird.xul"
+
 function getBrowser()
 {
-  return document.getElementById("panels").selectedPanel.browser;
+  return document.getElementById("conversations");
 }
 
 // Inspired from the same function in mozilla/browser/base/content/browser.js
@@ -376,4 +195,4 @@ var XULBrowserWindow = {
   }
 }
 
-this.addEventListener("load", msgObserver.load, false);
+this.addEventListener("load", convWindow.load, false);

@@ -1,0 +1,11 @@
+<!ENTITY  untitledTab            "(Untitled)">
+<!ENTITY  newTab.label           "New Tab">
+<!ENTITY  newTab.accesskey       "N">
+<!ENTITY  closeTab.label         "Close Tab">
+<!ENTITY  closeTab.accesskey     "c">
+<!ENTITY  closeOtherTabs.accesskey "o">
+<!ENTITY  closeOtherTabs.label     "Close Other Tabs">
+<!ENTITY  openTabInNewWindow.label     "Open in a New Window">
+<!ENTITY  openTabInNewWindow.accesskey "W">
+<!ENTITY  listAllTabs.label      "List all tabs">
+<!ENTITY  newTabButton.tooltip   "Open a new tab">

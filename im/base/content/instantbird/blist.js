@@ -42,8 +42,6 @@ const events = ["buddy-signed-on",
                 "buddy-idle",
                 "account-connected",
                 "account-disconnected",
-                "new-text",
-                "new-conversation",
                 "status-away",
                 "status-back",
                 "purple-quit",
@@ -53,7 +51,6 @@ const autoJoinPref = "autoJoin";
 
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
-    //dump("received signal: " + aTopic + "\n");
 
     if (aTopic == "quit-application-requested") {
       this._onQuitRequest(aBuddy, aMsg);
@@ -98,21 +95,6 @@ var buddyList = {
         nbox.removeNotification(notification);
 
       document.getElementById("getAwayMenuItem").disabled = false;
-      return;
-    }
-
-    if (aTopic == "new-text" || aTopic == "new-conversation") {
-      if (!this.win) {
-        this.win = window.open(convWindow, "Conversations", "chrome,resizable");
-        this.win.pendingNotifications = [{object: aBuddy, topic: aTopic, msg: aMsg}];
-        this.win.addEventListener("unload", function(aEvent) {
-          if (aEvent.target.location.href == convWindow)
-            buddyList.win = null;
-        }, false);
-      }
-      else if ("pendingNotifications" in this.win)
-        this.win.pendingNotifications.push({object: aBuddy, topic: aTopic, msg: aMsg});
-
       return;
     }
 
@@ -250,6 +232,9 @@ var buddyList = {
       window.close();
       return;
     }
+
+    Components.utils.import("resource://app/modules/imWindows.jsm");
+    Conversations.init();
 
     buddyList.checkNotDisconnected(true);
     buddyList.checkForIrcAccount();

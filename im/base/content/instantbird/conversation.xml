@@ -136,6 +136,7 @@
            if (this._conv) {
              this._conv.close();
              this._conv.removeObserver(this);
+             Conversations.unregisterConversation(this);
              delete this._conv;
              this.browser.destroy();
 
@@ -144,6 +145,14 @@
              if ("destroy" in this.findbar)
                this.findbar.destroy();
            }
+         ]]>
+       </body>
+     </method>
+
+     <method name="finishImport">
+       <body>
+         <![CDATA[
+           this.observe(this.browser, "conversation-loaded", null);
          ]]>
        </body>
      </method>
@@ -173,6 +182,7 @@
       <body>
       <![CDATA[
         this._conv.removeObserver(this);
+        Conversations.unregisterConversation(this);
         this._conv = null;
       ]]>
       </body>
@@ -580,6 +590,8 @@
        <body>
        <![CDATA[
          this.editor.focus();
+         this.tab.removeAttribute("unread");
+         this.tab.removeAttribute("attention");
          this.displayStatusText();
        ]]>
        </body>
@@ -626,6 +638,25 @@
        </body>
      </method>
 
+     <method name="updateBuddyStatus">
+       <body>
+       <![CDATA[
+          let buddy = this._conv.buddy;
+          if (!buddy)
+            return;
+
+          if (!buddy.online)
+            this.tab.removeAttribute("status");
+          else if (buddy.idle)
+            this.tab.setAttribute("status", "idle");
+          else if (buddy.available)
+            this.tab.setAttribute("status", "available");
+          else
+            this.tab.setAttribute("status", "away");
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIObserver implementation -->
      <method name="observe">
        <parameter name="aSubject"/>
@@ -644,6 +675,7 @@
            if (this._conv instanceof Components.interfaces.purpleIConvChat) {
              this.updateTopic();
              this.setAttribute("chat", "true");
+             this.tab.setAttribute("chat", "true");
 
              // Set an id on the participant count for accessibility reasons (see bug 216)
              let id = "pc" + Date.now();
@@ -660,6 +692,8 @@
              this.updateParticipantCount();
              this.browser.buddies = this.buddies;
            }
+           else
+             this.updateBuddyStatus();
 
            Components.classes["@mozilla.org/observer-service;1"]
                      .getService(Components.interfaces.nsIObserverService)
@@ -677,6 +711,10 @@
 
          case "update-typing":
            this.updateTyping();
+           break;
+
+         case "update-buddy-status":
+           this.updateBuddyStatus();
            break;
 
          case "chat-buddy-add":
@@ -753,10 +791,27 @@
        </getter>
        <setter>
          <![CDATA[
-           if (this._conv)
+           if (this._conv && val)
              throw("Already initialized");
+           if (!val) {
+             // this conversation has probably been moved to another
+             // tab. Forget the purpleConversation so that it isn't
+             // closed when destroying this binding.
+             this._conv.removeObserver(this);
+             Conversations.unregisterConversation(this);
+             delete this._conv;
+             this.browser.destroy();
+
+             // We can remove this test once we are sure we will only run on
+             // mozilla plateforms that include the fix for bug 503048.
+             if ("destroy" in this.findbar)
+               this.findbar.destroy();
+
+             return val;
+           }
            this._conv = val;
            this._conv.addObserver(this);
+           Conversations.registerConversation(this);
            this.browser.init(this._conv);
            return val;
          ]]>

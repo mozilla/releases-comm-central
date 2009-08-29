@@ -415,7 +415,7 @@
           <![CDATA[
             const WPL = Components.interfaces.nsIWebProgressListener;
             if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
-            (aStateFlags & WPL.STATE_STOP)) {
+                (aStateFlags & WPL.STATE_STOP)) {
               this.removeProgressListener(this);
               try {
                 initHTMLDocument(this._conv, this.theme, this.contentDocument);
@@ -687,6 +687,42 @@
               }
             }
           ]]>
+        </body>
+      </method>
+
+      <method name="swapDocShells">
+        <parameter name="aOtherBrowser"/>
+        <body>
+        <![CDATA[
+          aOtherBrowser.destroy();
+
+          // We need to remove the controller before _contentWindow is changed
+          this.contentWindow.controllers.removeController(this);
+
+          // We need to swap fields that are tied to our docshell or related to
+          // the loaded page
+          // Fields which are built as a result of notifactions (pageshow/hide,
+          // DOMLinkAdded/Removed, onStateChange) should not be swapped here,
+          // because these notifications are dispatched again once the docshells
+          // are swapped.
+          var fieldsToSwap = [ "_docShell", "_webBrowserFind", "_contentWindow", "_webNavigation"];
+
+          var ourFieldValues = {};
+          var otherFieldValues = {};
+          for each (var field in fieldsToSwap) {
+            ourFieldValues[field] = this[field];
+            otherFieldValues[field] = aOtherBrowser[field];
+          }
+          this.QueryInterface(Components.interfaces.nsIFrameLoaderOwner)
+              .swapFrameLoaders(aOtherBrowser);
+          for each (var field in fieldsToSwap) {
+            this[field] = otherFieldValues[field];
+            aOtherBrowser[field] = ourFieldValues[field];
+          }
+
+          // Now that we have the new _contentWindow, we can add back our controller
+          this.contentWindow.controllers.insertControllerAt(0, this);
+        ]]>
         </body>
       </method>
     </implementation>

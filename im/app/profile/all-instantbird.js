@@ -240,3 +240,24 @@ pref("purple.debug.loglevel", 3);
 // On debug builds, show warning, errors and debug information.
 pref("purple.debug.loglevel", 2);
 #endif
+
+// Tabbed browser
+pref("browser.tabs.autoHide", false);
+pref("browser.tabs.warnOnClose", true);
+pref("browser.tabs.warnOnOpen", true);
+pref("browser.tabs.maxOpenBeforeWarn", 15);
+pref("browser.tabs.loadInBackground", true);
+pref("browser.tabs.loadFolderAndReplace", true);
+pref("browser.tabs.opentabfor.middleclick", true);
+pref("browser.tabs.loadDivertedInBackground", false);
+pref("browser.tabs.loadBookmarksInBackground", false);
+pref("browser.tabs.tabMinWidth", 100);
+pref("browser.tabs.tabMaxWidth", 250);
+pref("browser.tabs.tabClipWidth", 140);
+
+// Where to show tab close buttons:
+// 0  on active tab only
+// 1  on all tabs until tabClipWidth is reached, then active tab only
+// 2  no close buttons at all
+// 3  at the end of the tabstrip
+pref("browser.tabs.closeButtons", 1);

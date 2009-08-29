@@ -1,0 +1,348 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is mozilla.org code.
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998-1999
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Joe Hewitt (hewitt@netscape.com)
+ *   Jason Kersey (kerz@netscape.com)
+ *   Pierre Chanial (chanial@noos.fr)
+ *   Kevin Gerich (kevin@kmgerich.com)
+ *   Pamela Greene (pamg.bugs@gmail.com)
+ *   Dão Gottwald (dao@mozilla.com)
+ *   Stephen Horlander (stephen@noved.org)
+ *   Florian Quèze (florian@instantbird.org)
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+statusbarpanel#statusbar-display {
+  -moz-padding-start: 0;
+}
+
+.statusbarpanel-text {
+  margin-top: 2px;
+  margin-bottom: 0;
+}
+
+/* ::::: tabbrowser ::::: */
+
+tabbrowser > tabbox {
+  margin: 0;
+}
+
+.tab-icon-image {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.tabbrowser-tab:not(:hover):not([selected="true"]) > .tab-icon-image {
+  opacity: .6;
+}
+
+.tab-text {
+  margin-top: 3px;
+  margin-bottom: 0;
+  font: message-box;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.tabbrowser-tab,
+.tabbrowser-arrowscrollbox > .tabs-newtab-button {
+  -moz-appearance: none;
+  -moz-border-radius: 0 0 6px 6px;
+  color: #222;
+  margin: 0 0 1px;
+  padding: 0 5px;
+  border-style: none solid solid;
+  border-width: 3px;
+  -moz-border-right-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-border-bottom-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-border-left-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-background-clip: padding;
+  min-width: 1px !important;
+  text-align: center;
+  height: 24px;
+  background-image: url(chrome://instantbird/skin/tabbrowser/tab-bkgnd.png);
+}
+
+.tabbrowser-arrowscrollbox > .tabs-newtab-button {
+  width: 34px;
+  padding-top: 1px;
+}
+
+.tabbrowser-tab[selected="true"] {
+  -moz-user-focus: normal;
+  padding: 0 6px 1px;
+  border-width: 2px;
+  -moz-border-left-colors: rgba(0, 0, 0, .1) rgba(0, 0, 0, .2);
+  -moz-border-bottom-colors: rgba(0, 0, 0, .1) rgba(0, 0, 0, .2);
+  -moz-border-right-colors: rgba(0, 0, 0, .1) rgba(0, 0, 0, .2);
+  background-image: none;
+  background-color: -moz-mac-chrome-active;
+}
+
+.tabbrowser-tab[selected="true"]:focus > .tab-text {
+  -moz-box-shadow: 0 0 4px -moz-mac-focusring,
+                   0 0 4px -moz-mac-focusring,
+                   0 0 3px -moz-mac-focusring,
+                   0 0 2px -moz-mac-focusring inset,
+                   0 0 3px -moz-mac-focusring inset;
+}
+
+.tabbrowser-tab[selected="true"],
+.tabbrowser-tab:hover {
+  color: #000000;
+}
+
+.tabbrowser-strip {
+  margin-top: -1px;
+  border-bottom: 1px solid #404040;
+  background-color: #9B9B9B;
+}
+
+.tabbrowser-tabs {
+  border: none;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  background: url("chrome://instantbird/skin/tabbrowser/tabbrowser-tabs-bkgnd.png") repeat-x;
+  height: 25px;
+  margin-bottom: 0;
+}
+
+.tabs-left {
+  display: -moz-box;
+  width: 3px;
+}
+
+.tabbrowser-tabs[overflow="true"] .tabs-left {
+  display: none;
+}
+
+tabbrowser > tabbox > tabpanels {
+  -moz-appearance: none !important;
+}
+
+/**
+ * Tab Drag and Drop
+ */
+
+.tab-drop-indicator-bar {
+  height: 10px;
+  margin-top: -10px;
+  position: relative;
+  /* set -moz-margin-start to -1/2 indicator width: */
+  -moz-margin-start: -4px;
+}
+
+.tab-drop-indicator {
+  height: 33px;
+  width: 10px;
+  margin-bottom: -24px;
+  position: relative;
+  background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator.png') 50% 40% no-repeat;
+}
+
+/**
+ * In-tab close button
+ */
+
+.tab-close-button > .toolbarbutton-icon {
+  -moz-margin-end: 0px !important;
+  margin-top: 1px;
+  padding: 0;
+}
+
+.tab-close-button {
+  list-style-image: url("chrome://global/skin/icons/closetab.png");
+  -moz-appearance: none;
+  border: none !important;
+  padding: 0;
+  margin: 1px 0 0;
+  background: none;
+  cursor: default;
+}
+
+.tab-close-button:hover,
+.tabbrowser-tab[selected="true"] > .tab-close-button:hover {
+  list-style-image: url("chrome://global/skin/icons/closetab-hover.png");
+}
+
+.tab-close-button:hover:active,
+.tabbrowser-tab[selected="true"] > .tab-close-button:hover:active {
+  list-style-image: url("chrome://global/skin/icons/closetab-active.png");
+}
+
+.tabbrowser-tab[selected="true"] > .tab-close-button {
+  /* Make this button focusable so clicking on it will not focus the tab while
+     it's getting closed */
+  -moz-user-focus: normal;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up,
+.tabbrowser-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down {
+  -moz-image-region: rect(0, 11px, 17px, 0);
+  margin: 0;
+  padding: 0 1px;
+  border: none;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up[chromedir="ltr"],
+.tabbrowser-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down[chromedir="rtl"] {
+  border-right: 2px solid;
+  -moz-border-right-colors: rgba(0,0,0,0.25) rgba(255,255,255,0.15);
+  list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-left.png");
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down[chromedir="ltr"],
+.tabbrowser-arrowscrollbox > .scrollbutton-up[chromedir="rtl"] {
+  border-left: 2px solid;
+  -moz-border-left-colors: rgba(0,0,0,0.25) rgba(255,255,255,0.15);
+  list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-right.png");
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:hover,
+.tabbrowser-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down:hover {
+  -moz-image-region: rect(0, 22px, 17px, 11px);
+  background-color: rgba(0,0,0,0.10);
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:hover:active,
+.tabbrowser-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down:hover:active {
+  -moz-image-region: rect(0, 44px, 17px, 33px);
+  background-color: rgba(0,0,0,0.20);
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up[disabled="true"],
+.tabbrowser-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down[disabled="true"] {
+  -moz-image-region: rect(0, 33px, 17px, 22px) !important;
+  background-color: transparent !important; 
+}
+
+
+/**
+ * Tabstrip New Tab & All Tabs Buttons
+ */
+.tabs-alltabs-box {
+  margin: 0;
+}
+
+.tabs-container > .tabs-newtab-button,
+.tabs-alltabs-button {
+  -moz-border-start: 2px solid;
+  -moz-border-end: none;
+  -moz-border-left-colors: rgba(0,0,0,0.25) rgba(255,255,255,0.15);
+  -moz-border-right-colors: rgba(0,0,0,0.25) rgba(255,255,255,0.15);
+  margin: 0;
+  padding: 0;
+}
+.tabs-newtab-button > .toolbarbutton-icon,
+.tabs-alltabs-button > .toolbarbutton-icon {
+  padding: 0;
+}
+.tabs-newtab-button {
+  list-style-image: url(chrome://instantbird/skin/tabbrowser/newtab.png);
+  -moz-image-region: rect(0, 18px, 20px, 0);
+}
+.tabs-newtab-button:hover {
+  -moz-image-region: rect(0, 36px, 20px, 18px);
+}
+.tabs-newtab-button:hover:active {
+  -moz-image-region: rect(0, 54px, 20px, 36px);
+}
+.tabs-alltabs-button {
+  list-style-image: url(chrome://instantbird/skin/tabbrowser/alltabs-box-bkgnd-icon.png);
+  -moz-image-region: rect(0, 22px, 20px, 0);
+}
+.tabs-alltabs-button:hover {
+  -moz-image-region: rect(0, 44px, 20px, 22px);
+}
+.tabs-alltabs-button[open="true"] {
+  -moz-image-region: rect(0, 66px, 20px, 44px);
+}
+.tabs-container > .tabs-newtab-button:hover,
+.tabs-alltabs-button:hover {
+  background-color: rgba(0,0,0,0.10);
+}
+.tabs-container > .tabs-newtab-button:hover:active,
+.tabs-alltabs-button[open="true"],
+.tabs-alltabs-button:hover:active{
+  background-color: rgba(0,0,0,0.20);
+}
+
+.tabs-alltabs-button > .toolbarbutton-menu-dropmarker,
+.tabs-alltabs-button > .toolbarbutton-text {
+  display: none;
+}
+
+.tabs-alltabs-button > .toolbarbutton-icon {
+  -moz-margin-end: 2px;
+}
+
+.tabs-alltabs-box-animate {
+  margin: 1px 0px 0px 0px;
+  width: 25px;
+  background-image: url("chrome://instantbird/skin/tabbrowser/alltabs-box-overflow-bkgnd-animate.png");
+  background-repeat: no-repeat;
+  opacity: 0.0;
+}
+
+/**
+ * All Tabs Menupopup 
+ */
+
+.alltabs-item > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://global/skin/tree/item.png");
+}
+
+.alltabs-item[selected="true"] {
+  font-weight: bold;
+}
+
+.tabs-closebutton {
+  padding-right: 4px;
+  list-style-image: url("chrome://global/skin/icons/closetab.png") !important;
+  list-style-image: none;
+  border: none;
+  -moz-box-align: stretch;
+}
+
+.tabs-closebutton:hover > .toolbarbutton-icon {
+	background-image: none !important;
+}
+
+.tabs-closebutton:hover:active {
+	list-style-image: url("chrome://global/skin/icons/closetab-active.png") !important;
+}
+
+tabpanels.plain {
+	background-color: #fff !important;
+}

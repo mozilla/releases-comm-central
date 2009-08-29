@@ -13,6 +13,7 @@ classic.jar:
 	skin/classic/instantbird/offline-16.png
 	skin/classic/instantbird/offline.png
 	skin/classic/instantbird/unknown-16.png
+	skin/classic/instantbird/chat-16.png
 	skin/classic/instantbird/founder.png
 	skin/classic/instantbird/operator.png
 	skin/classic/instantbird/half-operator.png
@@ -106,15 +107,36 @@ classic.jar:
 	skin/classic/instantbird/sounds/logout.wav	(sounds/logout.wav)
 	skin/classic/instantbird/sounds/receive.wav	(sounds/receive.wav)
 	skin/classic/instantbird/sounds/send.wav	(sounds/send.wav)
-	skin/classic/instantbird/tabbrowser/tab-left-bkgnd.png	(tabbrowser/tab-left-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tab-left-hover.png	(tabbrowser/tab-left-hover.png)
-	skin/classic/instantbird/tabbrowser/tab-left.png		(tabbrowser/tab-left.png)
-	skin/classic/instantbird/tabbrowser/tab-middle-bkgnd.png	(tabbrowser/tab-middle-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tab-middle-hover.png	(tabbrowser/tab-middle-hover.png)
-	skin/classic/instantbird/tabbrowser/tab-middle.png		(tabbrowser/tab-middle.png)
-	skin/classic/instantbird/tabbrowser/tab-right-bkgnd.png	(tabbrowser/tab-right-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tab-right-hover.png	(tabbrowser/tab-right-hover.png)
-	skin/classic/instantbird/tabbrowser/tab-right.png		(tabbrowser/tab-right.png)
+#ifdef XP_UNIX
+#ifdef XP_MACOSX
+	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-pinstripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-pinstripe/newtab.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-pinstripe/tab-arrow-left.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-pinstripe/tab-arrow-right.png)
+	skin/classic/instantbird/tabbrowser/tab-bkgnd.png		(tabbrowser-pinstripe/tab-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabbrowser-tabs-bkgnd.png	(tabbrowser-pinstripe/tabbrowser-tabs-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-pinstripe/tabDragIndicator.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-bkgnd-animate.png (tabbrowser-pinstripe/alltabs-box-overflow-bkgnd-animate.png)
+#else
+	skin/classic/instantbird/tabbrowser.css	(tabbrowser-gnomestripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-gnomestripe/tabDragIndicator.png)
+#endif
+#else
+	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-winstripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-winstripe/newtab.png)
+	skin/classic/instantbird/tabbrowser/tab-active-bkgnd.png	(tabbrowser-winstripe/tab-active-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-winstripe/tab-arrow-left.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-winstripe/tab-arrow-right.png)
+	skin/classic/instantbird/tabbrowser/tab-bkgnd.png		(tabbrowser-winstripe/tab-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabbrowser-tabs-bkgnd.png	(tabbrowser-winstripe/tabbrowser-tabs-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-winstripe/tabDragIndicator.png)
+	skin/classic/instantbird/tabbrowser/tab-hover-bkgnd.png		(tabbrowser-winstripe/tab-hover-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabstrip-bottom.png		(tabbrowser-winstripe/tabstrip-bottom.png)
+	skin/classic/instantbird/tabbrowser/mainwindow-dropdown-arrow.png	(tabbrowser-winstripe/mainwindow-dropdown-arrow.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-end-bkgnd-animate.png  	(tabbrowser-winstripe/alltabs-box-overflow-end-bkgnd-animate.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-start-bkgnd-animate.png	(tabbrowser-winstripe/alltabs-box-overflow-start-bkgnd-animate.png)
+#endif
 	skin/classic/instantbird/smileys/theme.js              (smileys/theme.js)
 	skin/classic/instantbird/smileys/smile.png             (smileys/smile.png)
 	skin/classic/instantbird/smileys/smile-big.png         (smileys/smile-big.png)

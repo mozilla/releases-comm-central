@@ -430,13 +430,7 @@
            break;
          }
 
-         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                            .getService(Components.interfaces.nsIWindowMediator);
-         var convWindow = wm.getMostRecentWindow("Messenger:convs");
-         if (convWindow) {
-           convWindow.msgObserver.focusConv(conv);
-           convWindow.focus();
-         }
+         Conversations.focusConversation(conv);
        ]]>
       </body>
      </method>
