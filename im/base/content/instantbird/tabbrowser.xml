@@ -1172,6 +1172,10 @@
                 onget="return this.mCurrentBrowser.contentTitle;"
                 readonly="true"/>
 
+      <property name="findbar"
+                onget="return this.mCurrentConversation.findbar;"
+                readonly="true"/>
+
       <method name="dragDropSecurityCheck">
         <parameter name="aEvent"/>
         <parameter name="aDragSession"/>
