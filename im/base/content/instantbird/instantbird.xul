@@ -73,12 +73,13 @@
 #endif
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/convZoom.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/nsContextMenu.js"/>
 
   <commandset id="conversationsCommands">
-    <command id="cmd_textZoomReduce" oncommand="ZoomManager.reduce();"/>
-    <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
-    <command id="cmd_textZoomReset" oncommand="ZoomManager.reset();"/>
+    <command id="cmd_textZoomReduce" oncommand="FullZoom.reduce();"/>
+    <command id="cmd_textZoomEnlarge" oncommand="FullZoom.enlarge();"/>
+    <command id="cmd_textZoomReset" oncommand="FullZoom.reset();"/>
     <command id="cmd_find"
              oncommand="document.getElementById('panels').selectedPanel.findbar.onFindCommand();"/>
     <command id="cmd_findAgain"

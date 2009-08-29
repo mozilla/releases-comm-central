@@ -53,14 +53,6 @@ var convWindow = {
     }
   },
 
-  onMouseZoom: function mo_onMouseZoom(event) {
-    if (!event.ctrlKey || event.altKey || event.shiftKey || !event.detail)
-      return;
-
-    var cmd = event.detail < 0 ? "cmd_textZoomEnlarge" : "cmd_textZoomReduce";
-    document.getElementById(cmd).doCommand();
-  },
-
   load: function mo_load() {
     Components.utils.import("resource://app/modules/imWindows.jsm");
     Conversations.registerWindow(window);
@@ -75,7 +67,6 @@ var convWindow = {
     }
 
     window.addEventListener("unload", convWindow.unload, false);
-    window.addEventListener("DOMMouseScroll", convWindow.onMouseZoom, false);
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIWebNavigation)
           .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner

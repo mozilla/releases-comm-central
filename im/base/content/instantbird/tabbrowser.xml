@@ -108,6 +108,7 @@
           <xul:tabs class="tabbrowser-tabs" flex="1"
                     anonid="tabcontainer"
                     setfocus="false"
+                    onselect="FullZoom.setSettingValue();"
                     onclick="this.parentNode.parentNode.parentNode.onTabClick(event);"
                     xbl:inherits="onnewtab"
                     ondblclick="this.parentNode.parentNode.parentNode.onTabBarDblClick(event);"
@@ -122,7 +123,7 @@
           </xul:tabs>
         </xul:hbox>
         <xul:tabpanels flex="1" class="plain" selectedIndex="0" anonid="panelcontainer">
-	  <xul:conversation/>
+          <xul:conversation/>
         </xul:tabpanels>
       </xul:tabbox>
       <children/>

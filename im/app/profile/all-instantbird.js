@@ -65,6 +65,7 @@ pref("browser.preferences.animateFadeIn", false);
 #endif
 
 pref("browser.zoom.full", true);
+pref("conversation.zoomLevel", "1.0");
 
 pref("accessibility.typeaheadfind", false);
 pref("accessibility.typeaheadfind.timeout", 5000);
