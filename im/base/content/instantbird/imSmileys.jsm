@@ -149,6 +149,13 @@ function getRegexp()
   if (!theme.iconsHash)
     return null;
 
+  if ("" in theme.iconsHash) {
+    Components.utils.reportError("Emoticon " +
+                                 theme.iconsHash[""].filename +
+                                 " matches the empty string!");
+    delete theme.iconsHash[""];
+  }
+
   let emoticonList = [];
   for (let emoticon in theme.iconsHash)
     emoticonList.push(emoticon);
@@ -157,6 +164,13 @@ function getRegexp()
   emoticonList = emoticonList.sort()
                              .reverse()
                              .map(function(x) x.replace(exp, "\\$1"));
+
+  if (!emoticonList.length) {
+    // the theme contains no valid emoticon, make sure we will return
+    // early next time
+    theme.iconsHash = null;
+    return null;
+  }
 
   theme.regExp = new RegExp('(' + emoticonList.join('|') + ')', 'g');
   return theme.regExp;
