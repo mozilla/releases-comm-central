@@ -77,6 +77,7 @@
   <script type="application/javascript" src="chrome://instantbird/content/nsContextMenu.js"/>
 
   <commandset id="conversationsCommands">
+    <command id="cmd_close" oncommand="document.getElementById('conversations').removeCurrentTab()"/>
     <command id="cmd_textZoomReduce" oncommand="FullZoom.reduce();"/>
     <command id="cmd_textZoomEnlarge" oncommand="FullZoom.enlarge();"/>
     <command id="cmd_textZoomReset" oncommand="FullZoom.reset();"/>
