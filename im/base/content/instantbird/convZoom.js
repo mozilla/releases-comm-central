@@ -51,8 +51,11 @@ var FullZoom = {
   init: function FullZoom_init() {
     window.addEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled, false);
     window.addEventListener("unload", FullZoom.destroy, false);
+    document.getElementById("conversations").tabContainer
+            .addEventListener("select", FullZoom.setSettingValue, false);
 
     FullZoom._prefBranch.addObserver(FullZoom.prefName, FullZoom, false);
+    FullZoom.getPrefValue();
   },
 
   destroy: function FullZoom_destroy() {
@@ -80,6 +83,7 @@ var FullZoom = {
 
     switch(aData) {
       case this.prefName:
+        this.getPrefValue();
         this.setSettingValue();
         break;
     }
@@ -102,9 +106,11 @@ var FullZoom = {
   applySettingToPref: function FullZoom_applySettingToPref() {
     this._prefBranch.setCharPref(this.prefName, ZoomManager.zoom);
   },
+  getPrefValue: function FullZoom_getPrefValue() {
+    this._value = parseFloat(this._prefBranch.getCharPref(this.prefName));
+  },
   setSettingValue: function FullZoom_setSettingValue() {
-    let value = parseFloat(this._prefBranch.getCharPref(this.prefName));
-    this._applyPrefToSetting(value);
+    FullZoom._applyPrefToSetting(FullZoom._value);
   },
   /**
    * Set the zoom level for the current tab.
