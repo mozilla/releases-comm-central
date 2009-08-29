@@ -44,13 +44,14 @@ let gGestureSupport = {
   load: function GS_load() {
     gGestureSupport.init(true);
 
-    let tabs = document.getElementById("tabs");
+    let tabs = document.getElementById("conversations").tabContainer;
     let selectHandler = function() {
       gGestureSupport._lastSelectedTab = gGestureSupport._selectedTab;
       gGestureSupport._selectedTab = this.selectedItem;
     };
     tabs.addEventListener("select", selectHandler, false);
     gGestureSupport._selectedTab = tabs.selectedItem;
+    gGestureSupport._tabs = tabs;
   },
 
   /**
@@ -168,12 +169,10 @@ let gGestureSupport = {
 	document.getElementById("cmd_textZoomReduce").doCommand();
 	break;
       case "twist-left":
-	document.getElementById("tabs").selectedIndex--;
-        msgObserver.focusSelectedTab();
+	this._tabs.selectedIndex--;
 	break;
       case "twist-right":
-	document.getElementById("tabs").selectedIndex++;
-        msgObserver.focusSelectedTab();
+	this._tabs.selectedIndex++;
 	break;
       case "swipe-down":
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
@@ -188,8 +187,7 @@ let gGestureSupport = {
       case "swipe-left":
       case "swipe-right":
         if (this._lastSelectedTab) {
-          document.getElementById("tabs").selectedItem = this._lastSelectedTab;
-          msgObserver.focusSelectedTab();
+          this._tabs.selectedItem = this._lastSelectedTab;
         }
         break;
       default:
