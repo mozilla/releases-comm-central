@@ -110,6 +110,7 @@ classic.jar:
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
 	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-pinstripe/tabbrowser.css)
+	skin/classic/instantbird/unified.xml                            (tabbrowser-pinstripe/unified.xml)
 	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-pinstripe/newtab.png)
 	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-pinstripe/tab-arrow-left.png)
 	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-pinstripe/tab-arrow-right.png)
