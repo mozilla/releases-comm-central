@@ -42,7 +42,7 @@ var Conversations = {
   _windows: [],
   registerWindow: function(aWindow) {
     if (this._windows.indexOf(aWindow) == -1)
-      this._windows.push(aWindow);
+      this._windows.unshift(aWindow);
 
     if (this._pendingNotifications) {
       this._pendingNotifications.forEach(function(aNotif) {
@@ -125,15 +125,22 @@ var Conversations = {
                 prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
                 prompts.BUTTON_POS_1_DEFAULT;
     let checkbox = {value: false};
-    if (prompts.confirmEx(this._windows[this._windows.length - 1], promptTitle,
-                          promptMessage, flags, button, null, null,
-                          promptCheckbox, checkbox)) {
+    if (prompts.confirmEx(this._windows[0], promptTitle, promptMessage, flags,
+                          button, null, null, promptCheckbox, checkbox)) {
       aCancelQuit.data = true;
       return;
     }
 
     if (checkbox.value)
       prefs.setBoolPref("messenger.warnOnQuit", false);
+  },
+
+  onWindowFocus: function (aWindow) {
+    let position = this._windows.indexOf(aWindow);
+    if (position != -1) {
+      this._windows.splice(position, 1);
+      this._windows.unshift(aWindow);
+    }
   },
 
   init: function() {
@@ -178,8 +185,8 @@ var Conversations = {
 
     let conv = aTopic == "new-conversation" ? aSubject : aSubject.conversation;
     if (!(conv.id in this._purpleConv)) {
-      this._windows[this._windows.length - 1].document
-          .getElementById("conversations").addConversation(conv);
+      this._windows[0].document.getElementById("conversations")
+          .addConversation(conv);
     }
 
     if (aTopic == "new-text") {

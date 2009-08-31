@@ -67,6 +67,7 @@ var convWindow = {
     }
 
     window.addEventListener("unload", convWindow.unload, false);
+    window.addEventListener("focus", convWindow.onfocus, false);
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIWebNavigation)
           .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
@@ -77,6 +78,9 @@ var convWindow = {
   unload: function mo_unload() {
     removeObservers(convWindow, events);
     Conversations.unregisterWindow(window);
+  },
+  onfocus: function mo_onfocus() {
+    Conversations.onWindowFocus(window);
   }
 };
 
