@@ -85,15 +85,74 @@ var Conversations = {
     }
   },
 
+  _onQuitRequest: function (aCancelQuit, aQuitType) {
+    // The request has already been canceled somewhere else
+    if ((aCancelQuit instanceof Components.interfaces.nsISupportsPRBool)
+         && aCancelQuit.data)
+      return;
+
+    let prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefBranch);
+    if (!prefs.getBoolPref("messenger.warnOnQuit"))
+      return;
+
+    let unreadConvsCount = this._conversations.filter(function(conv) {
+      let tab = conv.tab;
+      return tab.hasAttribute("unread") &&
+             (!tab.hasAttribute("chat") || tab.hasAttribute("attention"));
+    }).length;
+
+    if (unreadConvsCount == 0)
+      return;
+
+    let bundle =
+      Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://instantbird/locale/quitDialog.properties");
+    let promptTitle    = bundle.GetStringFromName("dialogTitle");
+    let promptMessage  = bundle.GetStringFromName("message");
+    let promptCheckbox = bundle.GetStringFromName("checkbox");
+    let action         = aQuitType == "restart" ? "restart" : "quit";
+    let button         = bundle.GetStringFromName(action + "Button");
+
+    Components.utils.import("resource://gre/modules/PluralForm.jsm");
+    promptMessage = PluralForm.get(unreadConvsCount, promptMessage)
+                              .replace("#1", unreadConvsCount);
+
+    let prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
+                prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
+                prompts.BUTTON_POS_1_DEFAULT;
+    let checkbox = {value: false};
+    if (prompts.confirmEx(this._windows[this._windows.length - 1], promptTitle,
+                          promptMessage, flags, button, null, null,
+                          promptCheckbox, checkbox)) {
+      aCancelQuit.data = true;
+      return;
+    }
+
+    if (checkbox.value)
+      prefs.setBoolPref("messenger.warnOnQuit", false);
+  },
+
   init: function() {
     let os = Components.classes["@mozilla.org/observer-service;1"]
                        .getService(Components.interfaces.nsIObserverService);
-    ["new-text", "new-conversation", "purple-quit"].forEach(function (aTopic) {
+    ["new-text",
+     "new-conversation",
+     "purple-quit",
+     "quit-application-requested"].forEach(function (aTopic) {
       os.addObserver(Conversations, aTopic, false);
     });
   },
 
   observe: function(aSubject, aTopic, aMsg) {
+    if (aTopic == "quit-application-requested") {
+      this._onQuitRequest(aSubject, aMsg);
+      return;
+    }
+
     if (aTopic == "purple-quit") {
       for (let id in this._purpleConv)
         this._purpleConv[id].unInit();

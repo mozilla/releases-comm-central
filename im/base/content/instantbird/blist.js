@@ -44,19 +44,12 @@ const events = ["buddy-signed-on",
                 "account-disconnected",
                 "status-away",
                 "status-back",
-                "purple-quit",
-                "quit-application-requested"];
+                "purple-quit"];
 
 const autoJoinPref = "autoJoin";
 
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
-
-    if (aTopic == "quit-application-requested") {
-      this._onQuitRequest(aBuddy, aMsg);
-      return;
-    }
-
     if (aTopic == "purple-quit") {
       window.close();
       return;
@@ -295,76 +288,6 @@ var buddyList = {
         break;
     }
   },
-
-  _onQuitRequest: function (aCancelQuit, aQuitType) {
-    // The request has already been canceled somewhere else
-    if ((aCancelQuit instanceof Ci.nsISupportsPRBool) && aCancelQuit.data)
-      return;
-
-    let prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefBranch);
-    if (!prefs.getBoolPref("messenger.warnOnQuit"))
-      return;
-
-    let unreadConvsCount = 0;
-    let attachedWindow;
-
-    // We would like the windows to be sorted by Z-Order
-    // See Bugs 156333 and 450576 on mozilla about getZOrderDOMWindowEnumerator
-    let enumerator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                               .getService(Components.interfaces.nsIWindowMediator)
-                               .getEnumerator("Messenger:convs");
-    while (enumerator.hasMoreElements()) {
-      let convWindow = enumerator.getNext();
-      let tabs = convWindow.document.getElementById("tabs");
-      let panels = convWindow.document.getElementById("panels");
-      if (tabs) {
-        for (let i = 0; i < tabs.itemCount; ++i) {
-          let tab = tabs.getItemAtIndex(i);
-          let panel = panels.children[i];
-          // For chats: attention, for simple conversations: unread
-          if (tab.hasAttribute("unread") &&
-              (!panel.hasAttribute("chat") || tab.hasAttribute("attention"))) {
-            ++unreadConvsCount;
-            attachedWindow = convWindow;
-          }
-        }
-      }
-    }
-
-    if (unreadConvsCount == 0)
-      return;
-
-    let bundle =
-      Components.classes["@mozilla.org/intl/stringbundle;1"]
-                .getService(Components.interfaces.nsIStringBundleService)
-                .createBundle("chrome://instantbird/locale/quitDialog.properties");
-    let promptTitle    = bundle.GetStringFromName("dialogTitle");
-    let promptMessage  = bundle.GetStringFromName("message");
-    let promptCheckbox = bundle.GetStringFromName("checkbox");
-    let action         = aQuitType == "restart" ? "restart" : "quit";
-    let button         = bundle.GetStringFromName(action + "Button");
-
-    if (!("PluralForm" in window))
-      Components.utils.import("resource://gre/modules/PluralForm.jsm");
-    promptMessage = PluralForm.get(unreadConvsCount, promptMessage)
-                              .replace("#1", unreadConvsCount);
-
-    let prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-    let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
-                prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
-                prompts.BUTTON_POS_1_DEFAULT;
-    let checkbox = {value: false};
-    if (prompts.confirmEx(attachedWindow, promptTitle, promptMessage, flags,
-                          button, null, null, promptCheckbox, checkbox)) {
-      aCancelQuit.data = true;
-      return;
-    }
-
-    if (checkbox.value)
-      prefs.setBoolPref("messenger.warnOnQuit", false);
-  }
 };
 
 this.addEventListener("load", buddyList.load, false);
