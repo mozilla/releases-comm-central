@@ -87,7 +87,7 @@ var gEngineManagerDialog = {
     // Commit the changes
     gEngineView._engineStore.commit();
   },
-  
+
   onCancel: function engineManager_onCancel() {
     // Remove the observer
     var os = Cc["@mozilla.org/observer-service;1"].
@@ -166,7 +166,7 @@ var gEngineManagerDialog = {
         // Check for duplicates in changes we haven't committed yet
         let engines = gEngineView._engineStore.engines;
         for each (let engine in engines) {
-          if (engine.alias == alias.value && 
+          if (engine.alias == alias.value &&
               engine.name != selectedEngine.name) {
             eduplicate = true;
             break;
@@ -382,7 +382,7 @@ EngineStore.prototype = {
     var index = this._getIndexForEngine(aEngine);
     if (index == -1)
       throw new Error("invalid engine?");
- 
+
     this._engines.splice(index, 1);
     this._ops.push(new EngineRemoveOp(aEngine));
     if (this._defaultEngines.some(this._isSameEngine, aEngine))
@@ -525,7 +525,7 @@ EngineView.prototype = {
         dropIndex--;
     } else {
       if (orientation == Ci.nsITreeView.DROP_AFTER)
-        dropIndex++;    
+        dropIndex++;
     }
 
     this._engineStore.moveEngine(sourceEngine, dropIndex);

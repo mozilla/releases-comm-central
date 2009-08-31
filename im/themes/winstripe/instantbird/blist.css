@@ -56,7 +56,7 @@ group[selected="true"] {
 }
 
 .prplBuddyIcon {
-  -moz-margin-end: 3px; 
+  -moz-margin-end: 3px;
   -moz-margin-start: 3px;
   width: 16px;
   max-width: 16px;
@@ -102,7 +102,7 @@ group[collapsing="true"] * {
   display: none;
 }
 
-group label { 
+group label {
   font-weight: bold;
 }
 
@@ -120,7 +120,7 @@ group[closed] .twisty {
 %ifdef XP_MACOSX
 group .twisty {
   width: 9px;
-  -moz-margin-end: 3px; 
+  -moz-margin-end: 3px;
   -moz-margin-start: 3px;
   background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
 }

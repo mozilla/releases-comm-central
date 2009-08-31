@@ -234,7 +234,7 @@ nsContextMenu.prototype = {
                 getService(Ci.nsIBrowserSearchService).
                 defaultEngine;
     }
-  
+
     var submission = aEngine.getSubmission(getBrowserSelection(), null);
     // getSubmission can return null if the engine doesn't have a URL
     // with a text/html response type.  This is unlikely (since
@@ -242,7 +242,7 @@ nsContextMenu.prototype = {
     // but let's be on the safe side.
     if (!submission)
       return;
-  
+
     gExtProtoService.loadURI(submission.uri, window)
   },
 

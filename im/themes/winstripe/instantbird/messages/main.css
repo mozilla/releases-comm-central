@@ -6,11 +6,11 @@
   font-weight: bold;
 }
 
-.outgoing .pseudo { 
+.outgoing .pseudo {
   color: rgb(80,80,200);
 }
 
-.incoming .pseudo { 
+.incoming .pseudo {
   color: rgb(200,80,80);
 }
 

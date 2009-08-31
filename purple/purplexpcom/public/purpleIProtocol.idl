@@ -38,7 +38,7 @@
 #include "nsISupports.idl"
 #include "nsISimpleEnumerator.idl"
 
-/* 
+/*
  * This is the libpurple protocol
  */
 
@@ -74,7 +74,7 @@ interface purpleIProtocol: nsISupports {
   boolean accountExists(in AUTF8String aName);
 
   // These should all be stuff that some plugins can do and others can't.
-  
+
   // OPT_PROTO_UNIQUE_CHATNAME Use a unique name, not an alias, for
   // chat rooms.
   //  XMPP lets you choose what name you want for chat. So it
@@ -111,7 +111,7 @@ interface purpleIProtocol: nsISupports {
 
   // OPT_PROTO_REGISTER_NOSCREENNAME Set the Register button active
   // when screenname is not given.
-  //  Gadu-Gadu doesn't need a screenname to register new account. 
+  //  Gadu-Gadu doesn't need a screenname to register new account.
   readonly attribute boolean registerNoScreenName;
 
   // OPT_PROTO_SLASH_COMMANDS_NATIVE  Indicates that slash commands

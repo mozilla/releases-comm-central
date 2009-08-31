@@ -339,7 +339,7 @@
             t.setAttribute("label", aConv.title);
 
             // invalidate cache, because mTabContainer is about to change
-            this._browsers = null; 
+            this._browsers = null;
             this._conversations = null;
 
             //b.setAttribute("autoscrollpopup", this._autoScrollPopup.id); FIXME
@@ -863,12 +863,12 @@
             var minMargin = tabStripBoxObject.x - this.boxObject.x;
             // make sure we don't place the tab drop indicator past the
             // edge, or the containing box will flex and stretch
-            // the tab drop indicator bar, which will flex the url bar.  
+            // the tab drop indicator bar, which will flex the url bar.
             // XXX todo
             // just use first value if you can figure out how to get
             // the tab drop indicator to crop instead of flex and stretch
             // the tab drop indicator bar.
-            var maxMargin = Math.min(minMargin + tabStripBoxObject.width, 
+            var maxMargin = Math.min(minMargin + tabStripBoxObject.width,
                                      ib.boxObject.x + ib.boxObject.width -
                                      ind.boxObject.width);
             if (!ltr)
@@ -1064,7 +1064,7 @@
             var i;
             if (window.getComputedStyle(this.parentNode, null).direction == "ltr") {
               for (i = aEvent.target.localName == "tab" ? aEvent.target._tPos : 0; i < this.mTabs.length; i++)
-                if (aEvent.screenX < this.mTabs[i].boxObject.screenX + this.mTabs[i].boxObject.width / 2) 
+                if (aEvent.screenX < this.mTabs[i].boxObject.screenX + this.mTabs[i].boxObject.width / 2)
                   return i;
             } else {
               for (i = aEvent.target.localName == "tab" ? aEvent.target._tPos : 0; i < this.mTabs.length; i++)
@@ -1354,8 +1354,8 @@
 #ifdef XP_MACOSX
       <handler event="UpdatedScrollButtonsDisabledState"><![CDATA[
         // fix for bug #352353
-        // unlike the scrollup button on the tab strip (which is a 
-        // simple toolbarbutton) the scrolldown button is 
+        // unlike the scrollup button on the tab strip (which is a
+        // simple toolbarbutton) the scrolldown button is
         // a more complicated stack of boxes and a toolbarbutton
         // so that we can animate when a tab is opened offscreen.
         // in order to style the box with the actual background image
@@ -1383,9 +1383,9 @@
         <children/>
       </xul:scrollbox>
       <xul:stack align="center" pack="end" class="scrollbutton-down-stack">
-        <xul:hbox flex="1" class="scrollbutton-down-box" 
+        <xul:hbox flex="1" class="scrollbutton-down-box"
                            collapsed="true" anonid="down-box"/>
-        <xul:hbox flex="1" class="scrollbutton-down-box-animate" 
+        <xul:hbox flex="1" class="scrollbutton-down-box-animate"
                            collapsed="true" anonid="down-box-animate"/>
         <xul:toolbarbutton class="scrollbutton-down" collapsed="true"
                            xbl:inherits="orient"
@@ -1478,7 +1478,7 @@
           } catch (e) {
           }
 
-          pb2.addObserver("browser.tabs.closeButtons", 
+          pb2.addObserver("browser.tabs.closeButtons",
                           this._prefObserver, false);
 
           window.addEventListener("resize", this, false);
@@ -1516,7 +1516,7 @@
 
       <field name="_prefObserver">({
         tabbox: this,
-  
+
         observe: function(subject, topic, data)
         {
           if (topic == "nsPref:changed") {
@@ -1529,7 +1529,7 @@
             }
           }
         },
-  
+
         QueryInterface: function(aIID)
         {
           if (aIID.equals(Components.interfaces.nsIObserver) ||
@@ -1634,7 +1634,7 @@
           this.mTabstripClosebutton.collapsed = this.mCloseButtons != 3;
         ]]></body>
       </method>
-        
+
       <field name="_mPrefs">null</field>
       <property name="mPrefs" readonly="true">
         <getter>
@@ -1695,12 +1695,12 @@
       </method>
 
       <field name="mAllTabsPopup">
-        document.getAnonymousElementByAttribute(this, 
+        document.getAnonymousElementByAttribute(this,
                                                 "anonid", "alltabs-popup");
       </field>
 
       <field name="mAllTabsBoxAnimate">
-        document.getAnonymousElementByAttribute(this, 
+        document.getAnonymousElementByAttribute(this,
                                                 "anonid",
                                                 "alltabs-box-animate");
       </field>
@@ -1737,7 +1737,7 @@
           }
         ]]></body>
       </method>
-      
+
       <method name="_notifyBackgroundTab">
         <parameter name="aTab"/>
         <body><![CDATA[
@@ -1770,7 +1770,7 @@
           // start the flash timer
           this._animateStep = 0;
 
-          if (!this._animateTimer) 
+          if (!this._animateTimer)
             this._animateTimer =
               Components.classes["@mozilla.org/timer;1"]
                         .createInstance(Components.interfaces.nsITimer);
@@ -1781,7 +1781,7 @@
                                               this._animateTimer.TYPE_REPEATING_SLACK);
         ]]></body>
       </method>
-      
+
       <method name="notify">
         <parameter name="aTimer"/>
         <body><![CDATA[
@@ -1825,7 +1825,7 @@
         // We cannot cache the XULBrowserWindow object itself since it might
         // be set after this binding is constructed.
         try {
-          this._xulWindow = 
+          this._xulWindow =
             window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                   .getInterface(Components.interfaces.nsIWebNavigation)
                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -1919,7 +1919,7 @@
             var curTabBO = this.childNodes[i].tab.boxObject;
             if (curTabBO.screenX >= tabstripBO.screenX &&
                 curTabBO.screenX + curTabBO.width <= tabstripBO.screenX + tabstripBO.width)
-              this.childNodes[i].setAttribute("tabIsVisible", "true"); 
+              this.childNodes[i].setAttribute("tabIsVisible", "true");
             else
               this.childNodes[i].removeAttribute("tabIsVisible");
           }
@@ -1931,7 +1931,7 @@
         <parameter name="aTab"/>
         <body><![CDATA[
           var menuItem = document.createElementNS(
-            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", 
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
             "menuitem");
 
           menuItem.setAttribute("class", "menuitem-iconic alltabs-item");

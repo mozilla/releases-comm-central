@@ -78,7 +78,7 @@
          }
          var percent = this._animatePercents[this._animateStep];
          this.style.opacity = percent;
- 
+
          if (this._animateDown) {
            if (--this._animateStep < 0) {
              this._animateDown = false;

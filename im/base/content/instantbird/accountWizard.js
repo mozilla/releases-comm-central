@@ -513,7 +513,7 @@ var accountWizard = {
     var code = aEvent.charCode || aEvent.keyCode;
     if (code == KeyEvent.DOM_VK_SPACE ||
         (code == KeyEvent.DOM_VK_LEFT && !target.hasAttribute("closed")) ||
-	(code == KeyEvent.DOM_VK_RIGHT && target.hasAttribute("closed")))
+        (code == KeyEvent.DOM_VK_RIGHT && target.hasAttribute("closed")))
         this.toggleGroupbox(target.id);
   },
 

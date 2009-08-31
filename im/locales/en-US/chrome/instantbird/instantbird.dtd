@@ -6,9 +6,9 @@
 <!ENTITY file.accesskey     "F">
 
 <!-- Copied from mozilla/browser/locales/en-US/chrome/browser/browser.dtd -->
-<!ENTITY quitApplicationCmdWin.label       "Exit"> 
+<!ENTITY quitApplicationCmdWin.label       "Exit">
 <!ENTITY quitApplicationCmdWin.accesskey   "x">
-<!ENTITY quitApplicationCmd.label       "Quit"> 
+<!ENTITY quitApplicationCmd.label       "Quit">
 <!ENTITY quitApplicationCmd.accesskey   "Q">
 <!ENTITY quitApplicationCmdMac.label    "Quit &brandShortName;">
 <!ENTITY quitApplicationCmdMac.key      "Q">

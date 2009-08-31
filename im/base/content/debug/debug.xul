@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<overlay id="debug" 
+<overlay id="debug"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/x-javascript" src="chrome://debug/content/debug.js"/>
   <script type="application/x-javascript" src="chrome://venkman/content/venkman-overlay.js"/>

@@ -94,10 +94,10 @@ function HTMLTheme(aBaseURI)
   for (let id in files) {
     let html = getChromeFile(aBaseURI + files[id]);
     if (html)
-      this[id] = html; 
+      this[id] = html;
   }
 
-  // We set the prototype this way to workaround the 
+  // We set the prototype this way to workaround the
   // 'setting a property that has only a getter' error.
   this.__proto__ = HTMLTheme_prototype;
 }
@@ -179,7 +179,7 @@ function getInfoPlistContent(aBaseURI)
       node = node.nextSibling;
     if (!node || node.localName != "dict")
       throw "Empty or invalid Info.plist file";
-    return plistToJSON(node); 
+    return plistToJSON(node);
   } catch(e) {
     Components.utils.reportError(e);
     return null;
@@ -381,7 +381,7 @@ const messageReplacements = {
   messageDirection: function(aMsg) "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
-  senderDisplayName: function(aMsg) aMsg.alias || aMsg.who, 
+  senderDisplayName: function(aMsg) aMsg.alias || aMsg.who,
   service: function(aMsg) aMsg.conversation.account.protocol.name,
   textbackgroundcolor: function(aMsg, aFormat) "transparent", // FIXME?
   __proto__: statusMessageReplacements
@@ -412,7 +412,7 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
     if (match[1] in aReplacements)
       content = aReplacements[match[1]](aReplacementArg, match[3]);
     else
-      Components.utils.reportError("Unknown replacement string %" + 
+      Components.utils.reportError("Unknown replacement string %" +
                                    match[1] + "% in message styles.");
     result += aHTML.substring(previousIndex, match.index) + content;
     previousIndex = replacementRegExp.lastIndex;
@@ -450,7 +450,7 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext)
     if (aIsNext)
       html = aMsg.incoming ? aTheme.html.incomingNextContent
                            : aTheme.html.outgoingNextContent
-    else  
+    else
       html = aMsg.incoming ? aTheme.html.incomingContent
                            : aTheme.html.outgoingContent
     replacements = messageReplacements;

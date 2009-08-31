@@ -43,7 +43,7 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-AB_CD = $(MOZ_UI_LOCALE) 
+AB_CD = $(MOZ_UI_LOCALE)
 
 GRE_MILESTONE = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build Milestone)
 GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build BuildID)
@@ -282,7 +282,7 @@ ICON_DIR=$(MOZ_WIDGET_TOOLKIT)
 endif
 
 DESKTOP_ICONS = \
-	$(NULL) 
+	$(NULL)
 
 BRANDED_ICONS = \
 	blistWindow \

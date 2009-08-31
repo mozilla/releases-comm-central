@@ -163,27 +163,27 @@ let gGestureSupport = {
     let gesture = aGesture.join("-");
     switch (gesture) {
       case "pinch-out":
-	document.getElementById("cmd_textZoomEnlarge").doCommand();
-	break;
+        document.getElementById("cmd_textZoomEnlarge").doCommand();
+        break;
       case "pinch-in":
-	document.getElementById("cmd_textZoomReduce").doCommand();
-	break;
+        document.getElementById("cmd_textZoomReduce").doCommand();
+        break;
       case "twist-left":
-	this._tabs.selectedIndex--;
-	break;
+        this._tabs.selectedIndex--;
+        break;
       case "twist-right":
-	this._tabs.selectedIndex++;
-	break;
+        this._tabs.selectedIndex++;
+        break;
       case "swipe-down":
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
         goDoCommand("cmd_scrollBottom");
-	break;
+        break;
       case "swipe-up":
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
         goDoCommand("cmd_scrollTop");
-	break;
+        break;
       case "swipe-left":
       case "swipe-right":
         if (this._lastSelectedTab) {
@@ -212,7 +212,7 @@ let gGestureSupport = {
    *        The swipe event to handle
    */
   onSwipe: function GS_onSwipe(aEvent) {
-    // Figure out which one (and only one) direction was triggered 
+    // Figure out which one (and only one) direction was triggered
     for each (let dir in ["UP", "RIGHT", "DOWN", "LEFT"])
       if (aEvent.direction == aEvent["DIRECTION_" + dir])
         return this._doAction(aEvent, ["swipe", dir.toLowerCase()]);

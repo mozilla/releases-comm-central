@@ -38,7 +38,7 @@
 #include "nsISupports.idl"
 #include "nsISimpleEnumerator.idl"
 
-/* 
+/*
  * This is a proxy for libpurple PurpleAccountOption
  */
 

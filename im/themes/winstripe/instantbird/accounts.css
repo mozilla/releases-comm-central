@@ -180,7 +180,7 @@ richlistitem:not([alias]) .accountAliasBox {
 .accountIcon,
 .accountIconAnim,
 .errorIcon {
-  -moz-margin-end: 5px; 
+  -moz-margin-end: 5px;
   -moz-margin-start: 5px;
   width: 32px;
   max-width: 32px;

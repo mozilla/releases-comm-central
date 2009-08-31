@@ -152,7 +152,7 @@ pref("browser.search.defaultenginename",      "");
 // disable logging for the search service by default
 pref("browser.search.log", false);
 
-// Ordering of Search Engines in the Engine list. 
+// Ordering of Search Engines in the Engine list.
 pref("browser.search.order.1",                "chrome://instantbird/locale/region.properties");
 pref("browser.search.order.2",                "chrome://instantbird/locale/region.properties");
 

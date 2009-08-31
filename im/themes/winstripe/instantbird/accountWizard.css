@@ -72,7 +72,7 @@ groupbox.collapsable[closed="true"] caption .caption-icon {
   background-image: url("chrome://global/skin/arrow/arrow-rit.gif");
 }
 %else
-groupbox.collapsable caption .caption-icon { 
+groupbox.collapsable caption .caption-icon {
   width: 9px;
   height: 9px;
   background-repeat: no-repeat;
@@ -82,8 +82,8 @@ groupbox.collapsable caption .caption-icon {
   background-image: url("chrome://global/skin/tree/twisty-open.png");
 }
 
- 
-groupbox.collapsable[closed="true"] caption .caption-icon { 
+
+groupbox.collapsable[closed="true"] caption .caption-icon {
   background-image: url("chrome://global/skin/tree/twisty-clsd.png");
 }
 %endif

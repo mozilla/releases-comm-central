@@ -27,7 +27,7 @@ var debug = {
   garbageCollect: function debug_garbageCollect() {
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIDOMWindowUtils)
-          .garbageCollect(); 
+          .garbageCollect();
   },
 
   load: function debug_load() {
@@ -55,8 +55,8 @@ function debug_enumerateProtocols()
       type[opt.typeInt] = ["int", opt.getInt];
       type[opt.typeString] = ["string", opt.getString];
       dump("  ("+ type[opt.type][0] + ") "  +
-	   opt.name + (opt.masked ? "(masked)" : "") + "\t" +
-	   type[opt.type][1]() + "\n");
+           opt.name + (opt.masked ? "(masked)" : "") + "\t" +
+           type[opt.type][1]() + "\n");
     }
   }
 }

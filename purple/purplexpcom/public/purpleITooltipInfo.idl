@@ -35,6 +35,20 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-richlistitem[proxy] {
-  -moz-binding: url("chrome://instantbird/content/proxy.xml#proxy");
-}
+#include "nsISupports.idl"
+
+/*
+ * This interface provides access to the content of a
+ * PurpleNotifyUserInfoEntry structure.
+ */
+
+[scriptable, uuid(dd535741-4b04-49ca-8df6-08f8577fe52b)]
+interface purpleITooltipInfo: nsISupports {
+  const short pair          = 0;
+  const short sectionBreak  = 1;
+  const short sectionHeader = 2;
+
+  readonly attribute short type;
+  readonly attribute AUTF8String label;
+  readonly attribute AUTF8String value;
+};

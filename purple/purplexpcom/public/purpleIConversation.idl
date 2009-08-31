@@ -45,7 +45,7 @@ interface purpleIAccount;
 interface nsIURI;
 interface nsIDOMDocument;
 
-/* 
+/*
  * This is the XPCOM purple conversation component, a proxy for PurpleConversation.
  */
 

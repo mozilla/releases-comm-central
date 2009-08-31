@@ -65,7 +65,7 @@ conversation {
 
 /* Tab colors */
 tab[unread],
-.alltabs-item[unread] { 
+.alltabs-item[unread] {
   color: red !important;
 }
 
@@ -75,12 +75,12 @@ tab[typing],
 }
 
 tab[typed],
-.alltabs-item[typed] { 
+.alltabs-item[typed] {
   color: orange !important;
 }
 
 tab[attention],
-.alltabs-item[attention] { 
+.alltabs-item[attention] {
   color: blue !important;
 }
 

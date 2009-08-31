@@ -94,7 +94,7 @@
         this._account = aAccount;
         this.setAttribute("name", aAccount.name);
         this.setAttribute("id", aAccount.id);
-        var alias = aAccount.alias; 
+        var alias = aAccount.alias;
         if (alias)
           this.setAttribute("alias", alias);
         else

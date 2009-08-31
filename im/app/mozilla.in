@@ -37,12 +37,12 @@
 # ***** END LICENSE BLOCK *****
 
 ## $Id: mozilla.in,v 1.8 2008/01/07 23:17:04 reed%reedloden.com Exp $
-## 
+##
 ## Usage:
 ##
 ## $ mozilla [args]
 ##
-## This script is meant to run the mozilla-bin binary from either 
+## This script is meant to run the mozilla-bin binary from either
 ## mozilla/xpfe/bootstrap or mozilla/dist/bin.
 ##
 ## The script will setup all the environment voodoo needed to make
@@ -90,7 +90,7 @@ if [ $found = 0 ]; then
   # Check default compile-time libdir
   if [ -x "$moz_libdir/run-mozilla.sh" ]; then
     dist_bin="$moz_libdir"
-  else 
+  else
     echo "Cannot find mozilla runtime directory. Exiting."
     exit 1
   fi

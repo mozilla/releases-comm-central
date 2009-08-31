@@ -267,7 +267,7 @@ tabbrowser > tabbox > tabpanels {
 .tabbrowser-arrowscrollbox > .scrollbutton-up[disabled="true"],
 .tabbrowser-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down[disabled="true"] {
   -moz-image-region: rect(0, 33px, 17px, 22px) !important;
-  background-color: transparent !important; 
+  background-color: transparent !important;
 }
 
 
@@ -339,7 +339,7 @@ tabbrowser > tabbox > tabpanels {
 }
 
 /**
- * All Tabs Menupopup 
+ * All Tabs Menupopup
  */
 
 .alltabs-item > .menu-iconic-left > .menu-iconic-icon {
@@ -359,11 +359,11 @@ tabbrowser > tabbox > tabpanels {
 }
 
 .tabs-closebutton:hover > .toolbarbutton-icon {
-	background-image: none !important;
+  background-image: none !important;
 }
 
 .tabs-closebutton:hover:active {
-	list-style-image: url("chrome://global/skin/icons/closetab-active.png") !important;
+  list-style-image: url("chrome://global/skin/icons/closetab-active.png") !important;
 }
 
 tabpanels.plain {

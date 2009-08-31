@@ -59,7 +59,7 @@ INSTALLER_FILES_CONV = \
 	nsis/uninstaller.nsi \
 	nsis/shared.nsh \
 	$(NULL)
- 
+
 INSTALLER_FILES = \
 	app.tag \
 	$(NULL)
