@@ -1461,12 +1461,15 @@
               Components.classes['@mozilla.org/preferences-service;1'].
               getService(Components.interfaces.nsIPrefBranch2);
 
+          let tab = this.firstChild;
           try {
             this.mTabMinWidth = pb2.getIntPref("browser.tabs.tabMinWidth");
+            tab.minWidth = this.mTabMinWidth;
           } catch (e) {
           }
           try {
             this.mTabMaxWidth = pb2.getIntPref("browser.tabs.tabMaxWidth");
+            tab.maxWidth = this.mTabMaxWidth;
           } catch (e) {
           }
           try {
@@ -1559,10 +1562,6 @@
           tab.className = "tabbrowser-tab";
 
           this.appendChild(tab);
-
-          // ugly workaround for bug 472020
-          if (this.firstChild.className == "dummytab")
-            this.removeChild(this.firstChild);
 
           if (document.defaultView.getComputedStyle(this, "").direction == "rtl") {
             /* In RTL UI, the tab is visually added to the left side of the
