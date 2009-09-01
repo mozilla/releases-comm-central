@@ -245,13 +245,6 @@ pref("purple.debug.loglevel", 2);
 // Tabbed browser
 pref("browser.tabs.autoHide", false);
 pref("browser.tabs.warnOnClose", true);
-pref("browser.tabs.warnOnOpen", true);
-pref("browser.tabs.maxOpenBeforeWarn", 15);
-pref("browser.tabs.loadInBackground", true);
-pref("browser.tabs.loadFolderAndReplace", true);
-pref("browser.tabs.opentabfor.middleclick", true);
-pref("browser.tabs.loadDivertedInBackground", false);
-pref("browser.tabs.loadBookmarksInBackground", false);
 pref("browser.tabs.tabMinWidth", 100);
 pref("browser.tabs.tabMaxWidth", 250);
 pref("browser.tabs.tabClipWidth", 140);
