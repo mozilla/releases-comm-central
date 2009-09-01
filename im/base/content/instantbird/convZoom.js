@@ -56,6 +56,7 @@ var FullZoom = {
 
     FullZoom._prefBranch.addObserver(FullZoom.prefName, FullZoom, false);
     FullZoom.getPrefValue();
+    FullZoom.setSettingValue();
   },
 
   destroy: function FullZoom_destroy() {
