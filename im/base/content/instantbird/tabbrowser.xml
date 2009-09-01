@@ -122,7 +122,7 @@
           </xul:tabs>
         </xul:hbox>
         <xul:tabpanels flex="1" class="plain" selectedIndex="0" anonid="panelcontainer">
-          <xul:conversation/>
+          <xul:conversation selected="true"/>
         </xul:tabpanels>
       </xul:tabbox>
       <children/>
@@ -2149,6 +2149,15 @@
       </handler>
       <handler event="mouseup">
         this.style.MozUserFocus = '';
+      </handler>
+      <handler event="DOMAttrModified">
+        if (event.attrName != "selected")
+          return;
+
+        if (event.attrChange == event.REMOVAL)
+          this.linkedConversation.removeAttribute("selected");
+        else
+          this.linkedConversation.setAttribute("selected", event.newValue);
       </handler>
     </handlers>
   </binding>
