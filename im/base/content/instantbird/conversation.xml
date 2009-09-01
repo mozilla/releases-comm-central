@@ -658,6 +658,35 @@
        </body>
      </method>
 
+     <method name="initConversationUI">
+       <body>
+       <![CDATA[
+         if (this._conv instanceof Components.interfaces.purpleIConvChat) {
+           this.updateTopic();
+           this.setAttribute("chat", "true");
+           this.tab.setAttribute("chat", "true");
+
+           // Set an id on the participant count for accessibility reasons (see bug 216)
+           let id = "pc" + Date.now();
+           document.getAnonymousElementByAttribute(this, "anonid", "participantLabel")
+                   .setAttribute("control", id);
+           document.getAnonymousElementByAttribute(this, "anonid", "participantCount")
+                   .setAttribute("id", id);
+
+           // Populate the nicklist
+           this.buddies = {};
+           var nicks = getIter(this.conv.getParticipants());
+           for (let n in nicks)
+             this.addBuddy(n);
+           this.updateParticipantCount();
+           this.browser.buddies = this.buddies;
+         }
+         else
+           this.updateBuddyStatus();
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIObserver implementation -->
      <method name="observe">
        <parameter name="aSubject"/>
@@ -672,29 +701,6 @@
            // Display all queued messages. Use a timeout so that message text
            // modifiers can be added with observers for this notification.
            setTimeout(function(aSelf) { aSelf._emptyMessageQueue(); }, 0, this);
-
-           if (this._conv instanceof Components.interfaces.purpleIConvChat) {
-             this.updateTopic();
-             this.setAttribute("chat", "true");
-             this.tab.setAttribute("chat", "true");
-
-             // Set an id on the participant count for accessibility reasons (see bug 216)
-             let id = "pc" + Date.now();
-             document.getAnonymousElementByAttribute(this, "anonid", "participantLabel")
-                     .setAttribute("control", id);
-             document.getAnonymousElementByAttribute(this, "anonid", "participantCount")
-                     .setAttribute("id", id);
-
-             // Populate the nicklist
-             this.buddies = {};
-             var nicks = getIter(this.conv.getParticipants());
-             for (let n in nicks)
-               this.addBuddy(n);
-             this.updateParticipantCount();
-             this.browser.buddies = this.buddies;
-           }
-           else
-             this.updateBuddyStatus();
 
            Components.classes["@mozilla.org/observer-service;1"]
                      .getService(Components.interfaces.nsIObserverService)
@@ -814,6 +820,7 @@
            this._conv.addObserver(this);
            Conversations.registerConversation(this);
            this.browser.init(this._conv);
+           this.initConversationUI();
            return val;
          ]]>
        </setter>

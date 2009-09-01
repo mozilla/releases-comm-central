@@ -328,16 +328,6 @@
         <parameter name="aConv"/>
         <body>
           <![CDATA[
-            this._browsers = null; // invalidate caches
-            this._conversations = null;
-
-            var t;
-            if (this.mFirstTabIsDummy)
-              t = this.mTabContainer.firstChild;
-            else
-              t = this.mTabContainer.addTab();
-            t.setAttribute("label", aConv.title);
-
             // invalidate cache, because mTabContainer is about to change
             this._browsers = null;
             this._conversations = null;
@@ -357,8 +347,15 @@
             }
             conv.setAttribute("contenttooltip", this.getAttribute("contenttooltip"));
             conv.setAttribute("contentcontextmenu", this.getAttribute("contentcontextmenu"));
-            conv.conv = aConv;
+
+            var t;
+            if (this.mFirstTabIsDummy)
+              t = this.mTabContainer.firstChild;
+            else
+              t = this.mTabContainer.addTab();
+            t.setAttribute("label", aConv.title);
             conv.tab = t;
+            conv.conv = aConv;
 
             if (this.mStrip.collapsed &&
                 !this.mPrefs.getBoolPref("browser.tabs.autoHide"))
