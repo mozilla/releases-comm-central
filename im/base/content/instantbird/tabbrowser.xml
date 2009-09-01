@@ -744,6 +744,10 @@
                 onget="return this.mCurrentBrowser;"
                 readonly="true"/>
 
+      <property name="selectedConversation"
+                onget="return this.mCurrentConversation;"
+                readonly="true"/>
+
       <property name="browsers" readonly="true">
        <getter>
           <![CDATA[

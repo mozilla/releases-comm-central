@@ -67,7 +67,7 @@ var convWindow = {
     }
 
     window.addEventListener("unload", convWindow.unload, false);
-    window.addEventListener("focus", convWindow.onfocus, false);
+    window.addEventListener("DOMAttrModified", convWindow.onactivate, true);
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIWebNavigation)
           .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
@@ -79,8 +79,12 @@ var convWindow = {
     removeObservers(convWindow, events);
     Conversations.unregisterWindow(window);
   },
-  onfocus: function mo_onfocus() {
+  onactivate: function mo_onactivate(aEvent) {
+    if (aEvent.attrName != "active" || aEvent.newValue != "true")
+      return;
+
     Conversations.onWindowFocus(window);
+    getBrowser().selectedConversation.focus();
   }
 };
 

@@ -213,7 +213,8 @@
         }
 
         this.browser.appendMessage(aMsg);
-        if (this.tab && !this.tab.selected && aMsg.incoming && !aMsg.system) {
+        if (this.tab && aMsg.incoming && !aMsg.system &&
+            (!this.tab.selected || !document.hasFocus())) {
           if (conv instanceof Ci.purpleIConvChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
           else
