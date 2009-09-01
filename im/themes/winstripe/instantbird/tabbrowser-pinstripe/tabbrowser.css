@@ -86,10 +86,6 @@ tabbrowser > tabbox {
   margin-top: 2px;
 }
 
-.tabbrowser-tab:not(:hover):not([selected="true"]) > .tab-icon-image {
-  opacity: .6;
-}
-
 .tab-text {
   margin-top: 3px;
   margin-bottom: 0;

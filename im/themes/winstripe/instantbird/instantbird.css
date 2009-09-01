@@ -91,6 +91,14 @@ tab[attention],
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
 
+.tabbrowser-tab {
+  text-align: center;
+}
+
+.tabbrowser-tab:not(:hover):not([selected="true"]) > .tab-icon-image {
+  opacity: .6;
+}
+
 .tabbrowser-tab[chat] > .tab-icon-image,
 .alltabs-item[chat] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://instantbird/skin/chat-16.png") !important;
