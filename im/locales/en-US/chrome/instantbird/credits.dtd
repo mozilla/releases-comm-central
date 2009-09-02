@@ -3,6 +3,8 @@
 <!ENTITY credit.contributors "Contributors">
 <!ENTITY credit.thanks       "Special Thanks To">
 
+<!ENTITY credit.license      "license">
+
 <!-- localization credits look like this: -->
 <!--
 <!ENTITY credit.translation
