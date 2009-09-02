@@ -489,13 +489,15 @@
             }
 
             var closeWindow = false;
-            if (this.mTabs.length - this._removingTabs.length == 1) {
+            var l = this.mTabs.length - this._removingTabs.length;
+            if (l == 1) {
               closeWindow = true;
               if (aCloseWindowFastpath &&
                   this._removingTabs.length == 0 &&
                   (this._windowIsClosing = window.closeWindow(true)))
                 return null;
-
+            }
+            if (l == 2) {
               let autohide = this.mPrefs.getBoolPref("browser.tabs.autoHide");
               let tabStripHide = !window.toolbar.visible;
               if (autohide || tabStripHide)
