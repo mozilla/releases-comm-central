@@ -65,7 +65,7 @@
                        class="accountAlias"/>
            </xul:hbox>
            <xul:label class="connecting" anonid="connecting" value="&account.connecting;"/>
-           <xul:label class="connected" value="&account.connected;"/>
+           <xul:label class="connected" anonid="connected"/>
            <xul:label class="disconnecting" value="&account.disconnecting;"/>
            <xul:label class="disconnected" value="&account.disconnected;"/>
            <xul:description class="error" anonid="error"/>
@@ -104,17 +104,18 @@
         this.setAttribute("prplicon", proto.iconBaseURI + "icon32.png");
         var state = "Unknown";
         if (this._account.connected) {
-          state = "connected"
+          state = "connected";
+          this.refreshConnectedLabel();
         } else if (this._account.disconnected) {
-          state = "disconnected"
+          state = "disconnected";
           if (this._account.connectionErrorReason != Ci.purpleIAccount.NO_ERROR)
             this.updateConnectionError();
         } else if (this._account.connecting) {
-          state = "connecting"
+          state = "connecting";
           this.icon.animate();
           this.updateConnectionState();
         } else if (this._account.disconnecting) {
-          state = "connected"
+          state = "connected";
         }
         this.setAttribute("state", state);
         this.autoLogin = aAccount.autoLogin;
@@ -186,6 +187,29 @@
       </body>
      </method>
 
+     <method name="refreshConnectedLabel">
+       <body>
+       <![CDATA[
+         var bundle = document.getElementById("accountsBundle");
+         var date =
+           60 * Math.floor((Date.now() - this._account.timeOfLastConnect) / 60000);
+         let value;
+         if (date > 0) {
+           let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
+           if (!val2)
+             value = bundle.getFormattedString("account.connectedForSingle",
+                                               [val1, unit1])
+           else
+             value = bundle.getFormattedString("account.connectedForDouble",
+                                               [val1, unit1, val2, unit2])
+         }
+         else
+           value = bundle.getString("account.connectedForSeconds");
+         this.connectedLabel.value = value;
+       ]]>
+       </body>
+     </method>
+
      <method name="_cancelReconnectTimer">
        <body>
        <![CDATA[
@@ -223,6 +247,7 @@
          // Called after a removal and reinsertion of the binding
          this._buttons = null;
          this._icon = null;
+         this._connectedLabel = null;
          if (this._account.connectionErrorReason == Ci.purpleIAccount.NO_ERROR)
            this.updateConnectionState();
          else
@@ -253,6 +278,17 @@
      </property>
 
      <property name="account" onget="return this._account;"/>
+
+     <property name="connectedLabel">
+       <getter>
+         <![CDATA[
+           if (!this._connectedLabel)
+             this._connectedLabel =
+               document.getAnonymousElementByAttribute(this, "anonid", "connected");
+           return this._connectedLabel;
+         ]]>
+       </getter>
+     </property>
 
      <property name="buttons">
        <getter>

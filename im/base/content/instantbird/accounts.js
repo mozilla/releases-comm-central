@@ -90,8 +90,10 @@ var gAccountManager = {
 
     this.accountList.addEventListener("keypress", this.onKeyPress, true);
     window.addEventListener("unload", this.unload, false);
+    this._connectedLabelInterval = setInterval(this.updateConnectedLabels, 60000);
   },
   unload: function am_unload() {
+    clearInterval(this._connectedLabelInterval);
     removeObservers(gAccountManager, events);
   },
   _updateAccountList: function am__updateAccountList(aPcs) {
@@ -192,8 +194,11 @@ var gAccountManager = {
           elt.removeAttribute("error");
           elt.updateConnectionState();
         }
-        else
+        else {
+          if (aTopic == "account-connected")
+            elt.refreshConnectedLabel();
           elt.icon.stop();
+        }
 
         elt.setAttribute("state", stateEvents[aTopic]);
       }
@@ -218,6 +223,13 @@ var gAccountManager = {
       connect.setAttribute("disabled", "true");
       this.restoreButtonTimer();
       account.disconnect();
+    }
+  },
+  updateConnectedLabels: function am_updateConnectedLabels() {
+    for (let i = 0; i < gAccountManager.accountList.itemCount; ++i) {
+      let item = gAccountManager.accountList.getItemAtIndex(i);
+      if (item.account.connected)
+        item.refreshConnectedLabel();
     }
   },
   /* This function restores the disabled attribute of the currently visible
