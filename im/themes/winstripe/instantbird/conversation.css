@@ -71,6 +71,7 @@ textbox.conv-textbox {
   padding: 0 0;
 }
 
+.textbox-textarea,
 notificationbox {
   overflow-x: hidden;
 }
