@@ -35,6 +35,7 @@ tabconversation {
 }
 
 .tabs-container:not([overflow="true"]) > .tabs-newtab-button,
+.tabs-container:not([overflow="true"]) > .tabs-alltabs-stack,
 .tabs-container[overflow="true"] > .tabbrowser-arrowscrollbox > .tabs-newtab-button {
   visibility: collapse;
 }

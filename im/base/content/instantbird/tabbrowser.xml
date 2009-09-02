@@ -1434,10 +1434,15 @@
                                command="cmd_newNavigatorTab" chromedir="&locale.dir;"
                                tooltiptext="&newTabButton.tooltip;"/>
           </xul:arrowscrollbox>
+#ifdef XP_MACOSX
+          <xul:stack>
+            <xul:spacer class="tabs-right"/>
+          </xul:stack>
+#endif
           <xul:toolbarbutton class="tabs-newtab-button" anonid="newtab-button"
                              command="cmd_newNavigatorTab" chromedir="&locale.dir;"
                              tooltiptext="&newTabButton.tooltip;"/>
-          <xul:stack align="center" pack="end" chromedir="&locale.dir;">
+          <xul:stack class="tabs-alltabs-stack" align="center" pack="end" chromedir="&locale.dir;">
             <xul:hbox flex="1" class="tabs-alltabs-box" anonid="alltabs-box"/>
             <xul:hbox flex="1" class="tabs-alltabs-box-animate" anonid="alltabs-box-animate"/>
             <xul:toolbarbutton class="tabs-alltabs-button" type="menu" anonid="alltabs-button"

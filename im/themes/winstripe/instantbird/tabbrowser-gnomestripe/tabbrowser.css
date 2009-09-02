@@ -53,6 +53,10 @@
   margin-bottom: 0px;
 }
 
+.tabs-container {
+  min-height: 27px;
+}
+
 .tab-icon-image {
   width: 16px;
   height: 16px;

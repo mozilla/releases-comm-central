@@ -157,11 +157,13 @@ tabbrowser > tabbox {
   margin-bottom: 0;
 }
 
+.tabs-right,
 .tabs-left {
   display: -moz-box;
   width: 3px;
 }
 
+.tabbrowser-tabs[overflow="true"] .tabs-right,
 .tabbrowser-tabs[overflow="true"] .tabs-left {
   display: none;
 }
