@@ -708,12 +708,10 @@
            return;
          }
 
-         if (!this.loaded)
-           return;
-
          switch(aTopic) {
          case "new-text":
-           this._addMsg(aSubject);
+           if (this.loaded)
+             this._addMsg(aSubject);
            break;
 
          case "update-typing":
