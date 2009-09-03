@@ -2108,8 +2108,8 @@
            extends="chrome://global/content/bindings/tabbox.xml#tab">
     <content chromedir="&locale.dir;"
              closetabtext="&closeTab.label;">
-      <xul:image xbl:inherits="validate,src=image" class="tab-icon-image"/>
-      <xul:label flex="1" xbl:inherits="value=label,crop,accesskey" class="tab-text"/>
+      <xul:image mousethrough="always" xbl:inherits="validate,src=image" class="tab-icon-image"/>
+      <xul:label mousethrough="always" flex="1" xbl:inherits="value=label,crop,accesskey" class="tab-text"/>
       <xul:toolbarbutton anonid="close-button" tabindex="-1" class="tab-close-button"/>
     </content>
 
