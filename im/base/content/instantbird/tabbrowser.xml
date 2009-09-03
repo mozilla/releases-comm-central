@@ -957,6 +957,9 @@
             // isn't dispatched when the tab is moved within the tabstrip,
             // see bug 460801.
 
+            // Collapse the drop indicator, just to be sure...
+            this.mTabDropIndicatorBar.collapsed = true;
+
             // * mozUserCancelled = the user pressed ESC to cancel the drag
             var dt = aEvent.dataTransfer;
             if (dt.mozUserCancelled || dt.dropEffect != "none")
@@ -1008,13 +1011,6 @@
         <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            // This does not work at all (see bug 458613)
-            var target = aEvent.relatedTarget;
-            while (target && target != this)
-              target = target.parentNode;
-            if (target)
-              return;
-
             this.mTabDropIndicatorBar.collapsed = true;
             aEvent.stopPropagation();
           ]]>
