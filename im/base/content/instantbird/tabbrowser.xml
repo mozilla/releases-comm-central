@@ -775,9 +775,6 @@
             var dt = aEvent.dataTransfer;
             dt.mozSetDataAt(TAB_DROP_TYPE, target, 0);
 
-            // Set the cursor to an arrow during tab drags.
-            dt.mozCursor = "default";
-
             aEvent.stopPropagation();
           }
 
