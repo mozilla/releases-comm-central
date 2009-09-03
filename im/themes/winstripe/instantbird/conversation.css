@@ -51,12 +51,17 @@
 .conv-messages {
   min-width: 150px;
 %ifdef XP_MACOSX
-  border-top: 1px solid #A1A1A1;
-  border-right: 1px solid #C3C3C3;
   border-bottom: 1px solid #DDDDDD;
-  border-left: 1px solid #C3C3C3;
 %else
-  border: solid 1px GrayText;
+  border-bottom: solid 1px GrayText;
+%endif
+}
+
+conversation[chat="true"] .conv-messages {
+%ifdef XP_MACOSX
+  border-right: 1px solid #C3C3C3;
+%else
+  border-right: solid 1px GrayText;
 %endif
 }
 
@@ -103,9 +108,8 @@ grippy {
 }
 
 .conv-nicklist-header {
-  margin-top: 0;
-  -moz-margin-start: 0;
-  -moz-margin-end: 2px;
+  -moz-margin-start: 0 !important;
+  -moz-margin-end: 2px !important;
 }
 
 conversation:not([chat="true"]) .conv-chat {

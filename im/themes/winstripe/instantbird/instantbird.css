@@ -58,8 +58,9 @@ statusbarpanel {
 }
 
 %ifndef XP_MACOSX
-conversation {
-  margin-top: -1px;
+notification > hbox {
+  border: none !important;
+  border-bottom: 1px solid ThreeDShadow !important;
 }
 %endif
 
