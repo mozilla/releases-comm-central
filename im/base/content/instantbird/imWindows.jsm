@@ -39,6 +39,42 @@ const CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
 var EXPORTED_SYMBOLS = ["Conversations"];
 
 var Conversations = {
+#ifdef XP_MACOSX
+  _unreadCount: 0,
+  _badgeTimeout: null,
+  get dockBadgeService() {
+    let badgeService =
+      Components.classes["@instantbird.org/purple/nsdockbadgeservice;1"]
+                .getService(Components.interfaces.nsIDockBadgeService);
+    delete this.dockBadgeService;
+    return this.dockBadgeService = badgeService;
+  },
+  _showUnreadCount: function c_showUnreadCount() {
+    Conversations._badgeTimeout = null;
+    Conversations.dockBadgeService.badgeText = Conversations._unreadCount;
+  },
+  _incrementUnreadCount: function c_incrementUnreadCount() {
+    this._unreadCount++;
+    if (this._unreadCount == 1)
+      this._badgeTimeout =
+        this._windows[0].setTimeout(this._showUnreadCount, 1000);
+    else
+      if (!this._badgeTimeout)
+        this._showUnreadCount();
+  },
+  _clearUnreadCount: function c_clearUnreadCount() {
+    if (!this._unreadCount)
+      return;
+
+    this._unreadCount = 0;
+    if (this._badgeTimeout) {
+      this._windows[0].clearTimeout(this._badgeTimeout);
+      this._badgeTimeout = null;
+    }
+    else
+      this.dockBadgeService.badgeText = "";
+  },
+#endif
   _windows: [],
   registerWindow: function(aWindow) {
     if (this._windows.indexOf(aWindow) == -1)
@@ -141,6 +177,9 @@ var Conversations = {
       this._windows.splice(position, 1);
       this._windows.unshift(aWindow);
     }
+#ifdef XP_MACOSX
+    this._clearUnreadCount();
+#endif
   },
 
   init: function() {
@@ -195,8 +234,13 @@ var Conversations = {
         conv.addMsg(aSubject);
       if (aSubject.incoming && !aSubject.system &&
           (!(aSubject.conversation instanceof Components.interfaces.purpleIConvChat) ||
-           aSubject.containsNick))
+           aSubject.containsNick)) {
         conv.ownerDocument.defaultView.getAttention();
+#ifdef XP_MACOSX
+        if (!this._windows[0].document.hasFocus())
+          this._incrementUnreadCount();
+#endif
+      }
     }
   }
 };

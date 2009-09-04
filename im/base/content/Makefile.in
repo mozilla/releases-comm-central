@@ -45,7 +45,8 @@ ifdef WINCE
 DEFINES += -DWINCE
 endif
 
-EXTRA_JS_MODULES = instantbird/imContentSink.jsm instantbird/imSmileys.jsm instantbird/imThemes.jsm instantbird/imWindows.jsm
+EXTRA_JS_MODULES = instantbird/imContentSink.jsm instantbird/imSmileys.jsm instantbird/imThemes.jsm
+EXTRA_PP_JS_MODULES = instantbird/imWindows.jsm
 EXTRA_COMPONENTS = instantbird/smileProtocolHandler.js
 
 include $(topsrcdir)/config/rules.mk
