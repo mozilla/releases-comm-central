@@ -51,7 +51,7 @@
 .conv-messages {
   min-width: 150px;
 %ifdef XP_MACOSX
-  border-bottom: 1px solid #DDDDDD;
+  border-bottom: 1px solid #888;
 %else
   border-bottom: solid 1px GrayText;
 %endif
