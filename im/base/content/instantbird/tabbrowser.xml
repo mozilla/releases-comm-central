@@ -939,8 +939,10 @@
               // it in the other window (making it seem to have moved between
               // windows)
 
+              // Compute the new index *before* we add a tab
+              newIndex = this.getNewIndex(aEvent);
               var conv = this.importConversation(draggedTab);
-              this.moveTabTo(conv.tab, this.getNewIndex(aEvent));
+              this.moveTabTo(conv.tab, newIndex);
 
               // We need to set selectedTab after we've swapped the docShells
               this.selectedTab = conv.tab;
