@@ -698,6 +698,8 @@
 
           // We need to remove the controller before _contentWindow is changed
           this.contentWindow.controllers.removeController(this);
+          // and the progress listener too!
+          this.removeProgressListener(this);
 
           // We need to swap fields that are tied to our docshell or related to
           // the loaded page
