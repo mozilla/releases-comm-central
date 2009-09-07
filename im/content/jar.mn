@@ -1,0 +1,62 @@
+instantbird.jar:
+% content instantbird %instantbird/ xpcnativewrappers=yes
+	instantbird/aboutDialog.css	(instantbird/aboutDialog.css)
+	instantbird/aboutDialog.xul	(instantbird/aboutDialog.xul)
+	instantbird/account.js		(instantbird/account.js)
+	instantbird/accounts.css	(instantbird/accounts.css)
+	instantbird/accounts.js		(instantbird/accounts.js)
+	instantbird/accounts.xul	(instantbird/accounts.xul)
+	instantbird/accountWizard.js	(instantbird/accountWizard.js)
+	instantbird/accountWizard.xul	(instantbird/accountWizard.xul)
+	instantbird/account.xml		(instantbird/account.xml)
+	instantbird/account.xul		(instantbird/account.xul)
+	instantbird/addbuddy.js		(instantbird/addbuddy.js)
+	instantbird/addbuddy.xul	(instantbird/addbuddy.xul)
+	instantbird/anim.xml		(instantbird/anim.xml)
+	instantbird/blist.css		(instantbird/blist.css)
+	instantbird/blist.js		(instantbird/blist.js)
+*	instantbird/blist.xul		(instantbird/blist.xul)
+*	instantbird/buddy.xml		(instantbird/buddy.xml)
+	instantbird/core.js		(instantbird/core.js)
+	instantbird/topicNotification.xml	(instantbird/topicNotification.xml)
+*	instantbird/conversation.xml	(instantbird/conversation.xml)
+	instantbird/convbrowser.xml	(instantbird/convbrowser.xml)
+	instantbird/conv.html		(instantbird/conv.html)
+*	instantbird/credits.xhtml	(instantbird/credits.xhtml)
+*	instantbird/engineManager.js	(instantbird/engineManager.js)
+*	instantbird/engineManager.xul	(instantbird/engineManager.xul)
+	instantbird/group.xml		(instantbird/group.xml)
+*	instantbird/instantbird.css	(instantbird/instantbird.css)
+*	instantbird/instantbird.js	(instantbird/instantbird.js)
+*	instantbird/instantbird.xul	(instantbird/instantbird.xul)
+	instantbird/convZoom.js		(instantbird/convZoom.js)
+	instantbird/joinchat.js		(instantbird/joinchat.js)
+	instantbird/joinchat.xul	(instantbird/joinchat.xul)
+	instantbird/menus.js		(instantbird/menus.js)
+	instantbird/messagestyle.js	(instantbird/messagestyle.js)
+	instantbird/messagestyle.xul	(instantbird/messagestyle.xul)
+	instantbird/smileys.js		(instantbird/smileys.js)
+	instantbird/smileys.xul		(instantbird/smileys.xul)
+	instantbird/smiley.css		(instantbird/smiley.css)
+	instantbird/smiley.xml		(instantbird/smiley.xml)
+*	instantbird/nsContextMenu.js	(instantbird/nsContextMenu.js)
+	instantbird/proxies.js		(instantbird/proxies.js)
+	instantbird/proxies.xul		(instantbird/proxies.xul)
+	instantbird/proxies.css		(instantbird/proxies.css)
+	instantbird/proxy.xml		(instantbird/proxy.xml)
+	instantbird/sound.js		(instantbird/sound.js)
+*	instantbird/tabbrowser.xml	(instantbird/tabbrowser.xml)
+	instantbird/tabbrowser.css	(instantbird/tabbrowser.css)
+	instantbird/utilities.js	(instantbird/utilities.js)
+#ifdef XP_MACOSX
+	instantbird/macgestures.js      (instantbird/macgestures.js)
+#endif
+
+#ifdef DEBUG
+debug.jar:
+% content debug %debug/ xpcnativewrappers=yes
+% overlay chrome://instantbird/content/blist.xul chrome://debug/content/debug.xul
+	debug/debug.js	(debug/debug.js)
+	debug/debug.xul	(debug/debug.xul)
+#endif
+

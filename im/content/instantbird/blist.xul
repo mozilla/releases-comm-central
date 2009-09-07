@@ -121,7 +121,7 @@
     </menu>
 #ifdef XP_MACOSX
 <!-- Mac window menu -->
-#include ../../../../mozilla/toolkit/content/macWindowMenu.inc
+#include ../../../mozilla/toolkit/content/macWindowMenu.inc
     <menu label="&help.menu;" id="aboutSeparator" accesskey="&help.accesskey;"><!-- This ID ensures it gets hidden. -->
 #else
 #ifdef XP_WIN

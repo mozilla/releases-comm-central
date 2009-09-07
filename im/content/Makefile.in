@@ -34,7 +34,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-DEPTH		= ../../..
+DEPTH		= ../..
 topsrcdir	= @top_srcdir@
 srcdir		= @srcdir@
 VPATH		= @srcdir@
@@ -45,7 +45,11 @@ ifdef WINCE
 DEFINES += -DWINCE
 endif
 
-EXTRA_JS_MODULES = instantbird/imContentSink.jsm instantbird/imSmileys.jsm instantbird/imThemes.jsm
+EXTRA_JS_MODULES = \
+	instantbird/imContentSink.jsm \
+	instantbird/imSmileys.jsm \
+	instantbird/imThemes.jsm \
+	$(NULL)
 EXTRA_PP_JS_MODULES = instantbird/imWindows.jsm
 EXTRA_COMPONENTS = instantbird/smileProtocolHandler.js
 

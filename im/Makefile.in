@@ -43,7 +43,7 @@ VPATH		= @srcdir@
 
 include $(topsrcdir)/config/config.mk
 
-DIRS		= base locales themes app
+DIRS		= content locales themes app
 
 ifeq ($(OS_ARCH),WINNT)
 ifdef MOZ_INSTALLER
