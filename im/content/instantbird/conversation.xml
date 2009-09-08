@@ -57,7 +57,7 @@
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1">
             <xul:vbox flex="1">
               <xul:browser anonid="browser" type="content-conversation" flex="1"
-                           xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu"/>
+                           xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
             </xul:vbox>
           </xul:notificationbox>

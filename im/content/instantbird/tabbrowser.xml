@@ -329,8 +329,6 @@
             this._browsers = null;
             this._conversations = null;
 
-            //b.setAttribute("autoscrollpopup", this._autoScrollPopup.id); FIXME
-
             var conv;
             if (this.mFirstTabIsDummy)
               conv = this.mPanelContainer.firstChild;
@@ -344,6 +342,7 @@
             }
             conv.setAttribute("contenttooltip", this.getAttribute("contenttooltip"));
             conv.setAttribute("contentcontextmenu", this.getAttribute("contentcontextmenu"));
+            conv.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
 
             var t;
             if (this.mFirstTabIsDummy)
@@ -1289,6 +1288,7 @@
 
           // set up the shared autoscroll popup
           this._autoScrollPopup = this.mCurrentBrowser._createAutoScrollPopup();
+          this._autoScrollPopup.id = "autoscroller";
           this.appendChild(this._autoScrollPopup);
           this.mCurrentBrowser.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
         ]]>
