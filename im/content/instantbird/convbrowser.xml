@@ -227,7 +227,6 @@
             this.mDragDropHandler = null;
 
             this._fastFind = null;
-            this._webBrowserFind = null;
 
             if (this._autoScrollNeedsCleanup) {
               // we polluted the global scope, so clean it up
@@ -707,7 +706,7 @@
           // DOMLinkAdded/Removed, onStateChange) should not be swapped here,
           // because these notifications are dispatched again once the docshells
           // are swapped.
-          var fieldsToSwap = [ "_docShell", "_webBrowserFind", "_contentWindow", "_webNavigation"];
+          var fieldsToSwap = [ "_docShell", "_fastFind", "_contentWindow", "_webNavigation"];
 
           var ourFieldValues = {};
           var otherFieldValues = {};
