@@ -53,7 +53,7 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
-        <xul:hbox class="conv-top" flex="1">
+        <xul:hbox class="conv-top" flex="1" anonid="conv-top">
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1">
             <xul:vbox flex="1">
               <xul:browser anonid="browser" type="content-conversation" flex="1"
@@ -77,25 +77,39 @@
                          onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>
         </xul:hbox>
-        <xul:splitter class="splitter"/>
+        <xul:splitter class="splitter" anonid="splitter-bottom"/>
         <xul:deck anonid="conv-bottom" class="conv-bottom" selectedIndex="1">
           <xul:vbox>
+<!--
             <xul:toolbar anonid="conv-toolbar">
               <xul:toolbarbutton label="Bold" oncommand="this.editorDoCommand('bold');"/>
               <xul:toolbarbutton label="Italic" oncommand="this.editorDoCommand('italic');"/>
               <xul:toolbarbutton label="Underline" oncommand="this.editorDoCommand('underline');"/>
             </xul:toolbar>
+-->
             <xul:editor anonid="editor" editortype="html" src="about:blank" flex="1"/>
           </xul:vbox>
-          <xul:textbox anonid="input" class="conv-textbox" multiline="true" spellcheck="true" flex="1"/>
+          <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true"
+                       spellcheck="true" flex="1"/>
         </xul:deck>
       </xul:vbox>
     </content>
     <implementation implements="nsIObserver">
      <constructor>
       <![CDATA[
-       document.getAnonymousElementByAttribute(this, "anonid", "input")
-               .addEventListener("keypress", this.inputKeyPress, false);
+       let textbox = document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+       textbox.addEventListener("keypress", this.inputKeyPress, false);
+       textbox.addEventListener("overflow", this.inputExpand, true);
+       textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
+
+       document.getAnonymousElementByAttribute(this, "anonid", "splitter-bottom")
+               .addEventListener("DOMAttrModified", this._onSplitterChange, false);
+
+       // The window is not ready yet, add a listener.
+       if (window.outerHeight <= 1)
+         this.addEventListener("DOMContentLoaded", this._DOMLoaded, true);
+       else
+         this._DOMLoaded();
 
        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
        editor.addEventListener("keypress", this.editorKeyPress, false);
@@ -153,6 +167,28 @@
        <body>
          <![CDATA[
            this.observe(this.browser, "conversation-loaded", null);
+         ]]>
+       </body>
+     </method>
+
+     <method name="_DOMLoaded">
+       <parameter name="aEvent"/>
+       <body>
+         <![CDATA[
+           // The sizes have not been calculated yet.
+           if (window.outerHeight <= 1)
+            return;
+
+           // Textbox related initializations.
+           let textbox = this.calculateTextboxDefaultHeight();
+           textbox.parentNode.height = textbox.defaultHeight;
+
+           document.getAnonymousElementByAttribute(textbox, "anonid", "input")
+                   .style.overflowY = "hidden";
+
+           // if called from the event handler, remove the event
+           if (aEvent)
+             this.removeEventListener("DOMContentLoaded", this._DOMLoaded, true);
          ]]>
        </body>
      </method>
@@ -252,6 +288,54 @@
       </body>
      </method>
 
+     <method name="_onSplitterChange">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        if (aEvent.attrName != "state" || aEvent.prevValue != "dragging")
+          return;
+
+        let textbox =
+          document.getAnonymousElementByAttribute(document.getBindingParent(this),
+                                                  "anonid", "inputBox");
+        // set the default height as the deck height (modified by the splitter)
+        textbox.defaultHeight = parseInt(textbox.parentNode.height);
+      ]]>
+      </body>
+     </method>
+
+     <field name="_TEXTBOX_VERTICAL_OVERHEAD" readonly="true">6</field>
+     <field name="_TEXTBOX_MAX_EMPTY_LINES" readonly="true">5</field>
+     <field name="_TEXTBOX_AUTOLINES_FACTOR" readonly="true">10</field>
+
+     <method name="calculateTextboxDefaultHeight">
+      <body>
+      <![CDATA[
+        let totalSpace = parseInt(window.getComputedStyle(this, null)
+                                        .getPropertyValue("height"));
+        let textbox =
+          document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+        let lineHeight = parseInt(window.getComputedStyle(textbox, null)
+                                        .getPropertyValue("line-height"));
+        // Calculate the number of lines to display.
+        let numberOfLines =
+          Math.round(totalSpace / (this._TEXTBOX_AUTOLINES_FACTOR * lineHeight));
+        if (numberOfLines <= 0)
+          numberOfLines = 1;
+        else if (numberOfLines > this._TEXTBOX_MAX_EMPTY_LINES)
+          numberOfLines = this._TEXTBOX_MAX_EMPTY_LINES;
+        textbox.defaultHeight = numberOfLines * lineHeight +
+                                this._TEXTBOX_VERTICAL_OVERHEAD;
+
+        // set minimum height (in case the user moves the splitter)
+        textbox.minHeight = lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+
+        // can be used by the caller function (avoid recomputing "textbox")
+        return textbox;
+      ]]>
+      </body>
+     </method>
+
      <method name="inputKeyPress">
       <parameter name="event"/>
       <body>
@@ -274,7 +358,8 @@
           return;
         }
 
-        var input = document.getAnonymousElementByAttribute(conv, "anonid", "input");
+        var inputBox =
+          document.getAnonymousElementByAttribute(conv, "anonid", "inputBox");
         if (event.keyCode != 13) {
           if (conv._conv instanceof Ci.purpleIConvIM)
             setTimeout(function () {
@@ -283,7 +368,7 @@
               if (!conv._conv)
                 return;
 
-              let text = input.value;
+              let text = inputBox.value;
               // try to avoid sending typing notifications when the user is
               // typing a command in the conversation.
               // These checks are not perfect (especially if non-existing
@@ -298,12 +383,112 @@
         }
 
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
-          conv.sendMsg(input.value);
-          input.value = "";
+          conv.sendMsg(inputBox.value);
+          conv.resetInput();
           event.preventDefault();
         }
         else if (!event.shiftKey)
           conv.addString("\n");
+      ]]>
+      </body>
+     </method>
+
+     <method name="resetInput">
+      <body>
+      <![CDATA[
+        var inputBox =
+          document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+        inputBox.value = "";
+        let overflow = "";
+        if (Conversations.textboxAutoResize) {
+          document.getAnonymousElementByAttribute(this, "anonid", "conv-bottom")
+                  .height = inputBox.defaultHeight;
+          overflow = "hidden";
+        }
+
+        document.getAnonymousElementByAttribute(inputBox, "anonid", "input")
+                .style.overflowY = overflow;
+      ]]>
+      </body>
+     </method>
+
+     <method name="inputExpand">
+      <parameter name="event"/>
+      <body>
+      <![CDATA[
+        let self;
+        let bindingElt;
+        // In case it is called from the binding itself
+        if (!(this instanceof Components.interfaces.nsIDOMXULControlElement)) {
+          self = document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+          bindingElt = this;
+        }
+        else {
+          self = this;
+          bindingElt = document.getBindingParent(this);
+        }
+
+        let input = document.getAnonymousElementByAttribute(self, "anonid", "input");
+
+        // This feature has been disabled, or the user is currently dragging
+        // the splitter and the textbox has received an overflow event
+        if (!Conversations.textboxAutoResize ||
+            document.getAnonymousElementByAttribute(bindingElt, "anonid", "splitter-bottom")
+                    .getAttribute("state") == "dragging") {
+          input.style.overflowY = "";
+          return;
+        }
+
+        // Check whether we can increase the height without hidding the status bar
+        // (ensure the min-height property on the top part of this dialog)
+        let topBox =
+          document.getAnonymousElementByAttribute(bindingElt, "anonid", "conv-top");
+        let topBoxStyle = window.getComputedStyle(topBox, null);
+        let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
+        let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
+        let deck = self.parentNode;
+        let oldDeckHeight = parseInt(deck.height);
+        let newDeckHeight =
+          parseInt(input.scrollHeight) + bindingElt._TEXTBOX_VERTICAL_OVERHEAD;
+
+        if (!topMinSize || topSize - topMinSize > newDeckHeight - oldDeckHeight) {
+          // Hide a possible vertical scrollbar.
+          input.style.overflowY = "hidden";
+          deck.height = newDeckHeight;
+        }
+        else {
+          input.style.overflowY = "";
+          // Set it to the maximum possible value.
+          deck.height = oldDeckHeight + (topSize - topMinSize);
+        }
+      ]]>
+      </body>
+     </method>
+
+     <method name="onConvResize">
+      <parameter name="event"/>
+      <body>
+      <![CDATA[
+        let splitter =
+          document.getAnonymousElementByAttribute(this, "anonid", "splitter-bottom");
+        if (!splitter.hasAttribute("state")) {
+          let textbox = this.calculateTextboxDefaultHeight();
+          textbox.parentNode.height = textbox.defaultHeight;
+        }
+        if (Conversations.textboxAutoResize)
+          this.inputExpand();
+      ]]>
+      </body>
+     </method>
+
+     <method name="_onTextboxUnderflow">
+      <parameter name="event"/>
+      <body>
+      <![CDATA[
+        if (Conversations.textboxAutoResize) {
+          document.getAnonymousElementByAttribute(this, "anonid", "input")
+                  .style.overflowY = "hidden";
+        }
       ]]>
       </body>
      </method>
@@ -840,7 +1025,7 @@
           if (this.isHtmlMode)
             return document.getAnonymousElementByAttribute(this, "anonid", "editor");
           else
-            return document.getAnonymousElementByAttribute(this, "anonid", "input");
+            return document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
          ]]>
        </getter>
      </property>

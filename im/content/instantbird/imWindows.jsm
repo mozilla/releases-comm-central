@@ -76,6 +76,18 @@ var Conversations = {
   },
 #endif
   _windows: [],
+  _textboxAutoResizePrefName: "messenger.options.enableTextboxAutoResize",
+  get _prefBranch () {
+    delete this._prefBranch;
+    return this._prefBranch =
+      Components.classes["@mozilla.org/preferences-service;1"]
+                .getService(Components.interfaces.nsIPrefBranch2);
+  },
+  textboxAutoResize: function() {
+    delete this.textboxAutoResize;
+    return this.textboxAutoResize =
+      this._prefBranch.getBoolPref(this._textboxAutoResizePrefName);
+  },
   registerWindow: function(aWindow) {
     if (this._windows.indexOf(aWindow) == -1)
       this._windows.unshift(aWindow);
@@ -127,9 +139,7 @@ var Conversations = {
          && aCancelQuit.data)
       return;
 
-    let prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefBranch);
-    if (!prefs.getBoolPref("messenger.warnOnQuit"))
+    if (!this._prefBranch.getBoolPref("messenger.warnOnQuit"))
       return;
 
     let unreadConvsCount = this._conversations.filter(function(conv) {
@@ -168,7 +178,7 @@ var Conversations = {
     }
 
     if (checkbox.value)
-      prefs.setBoolPref("messenger.warnOnQuit", false);
+      this._prefBranch.setBoolPref("messenger.warnOnQuit", false);
   },
 
   onWindowFocus: function (aWindow) {
@@ -191,6 +201,7 @@ var Conversations = {
      "quit-application-requested"].forEach(function (aTopic) {
       os.addObserver(Conversations, aTopic, false);
     });
+    this._prefBranch.addObserver(this._textboxAutoResizePrefName, this, false);
   },
 
   observe: function(aSubject, aTopic, aMsg) {
@@ -202,6 +213,13 @@ var Conversations = {
     if (aTopic == "purple-quit") {
       for (let id in this._purpleConv)
         this._purpleConv[id].unInit();
+      this._prefBranch.removeObserver(Conversations._textboxAutoResizePrefName,
+                                      Conversations);
+    }
+
+    if (aTopic == "nsPref:changed" &&
+        aMsg == this._textboxAutoResizePrefName) {
+      this.textboxAutoResize = this._prefBranch.getBoolPref(aMsg);
     }
 
     if (aTopic != "new-text" && aTopic != "new-conversation")

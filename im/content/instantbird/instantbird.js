@@ -67,6 +67,7 @@ var convWindow = {
     }
 
     window.addEventListener("unload", convWindow.unload, false);
+    window.addEventListener("resize", convWindow.onresize, false);
     window.addEventListener("DOMAttrModified", convWindow.onactivate, true);
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIWebNavigation)
@@ -85,6 +86,15 @@ var convWindow = {
 
     Conversations.onWindowFocus(window);
     getBrowser().selectedConversation.focus();
+  },
+  onresize: function mo_onresize(aEvent) {
+    if (aEvent.originalTarget != window)
+      return;
+
+    // Resize each textbox (if the splitter has not been used).
+    let convs = getBrowser().conversations;
+    for each (let conv in convs)
+      conv.onConvResize(aEvent);
   }
 };
 

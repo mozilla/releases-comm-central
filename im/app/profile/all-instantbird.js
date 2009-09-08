@@ -31,6 +31,8 @@ pref("messenger.conversations.selections.systemMessagesTemplate", "chrome://inst
 pref("messenger.conversations.selections.contentMessagesTemplate", "chrome://instantbird/locale/instantbird.properties");
 pref("messenger.conversations.selections.actionMessagesTemplate", "chrome://instantbird/locale/instantbird.properties");
 
+pref("messenger.options.enableTextboxAutoResize", true);
+
 pref("messenger.options.playSounds", true);
 
 // this preference changes how we filter incoming messages
