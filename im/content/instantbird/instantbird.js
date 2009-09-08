@@ -85,7 +85,13 @@ var convWindow = {
       return;
 
     Conversations.onWindowFocus(window);
-    getBrowser().selectedConversation.focus();
+    setTimeout(function () {
+      // setting the focus to the textbox just after the window is
+      // activated puts the textbox in an unconsistant state, some
+      // special characters like ^ don't work, so delay the focus
+      // operation...
+      getBrowser().selectedConversation.focus();
+    }, 0);
   },
   onresize: function mo_onresize(aEvent) {
     if (aEvent.originalTarget != window)
