@@ -772,6 +772,9 @@
             dt.mozSetDataAt(TAB_DROP_TYPE, target, 0);
 
             aEvent.stopPropagation();
+            target._dragOffsetX =
+              aEvent.screenX - window.screenX - target.getBoundingClientRect().left;
+            target._dragOffsetY = aEvent.screenY - window.screenY;
           }
 
           this._dragLeftWindow = false;
@@ -966,19 +969,23 @@
             // Disable detach within the browser toolbox
             var eX = aEvent.screenX;
             var wX = window.screenX;
+            var eY = aEvent.screenY;
             // check if the drop point is horizontally within the window
             if (eX > wX && eX < (wX + window.outerWidth)) {
               var bo = this.mTabContainer.mTabstrip.boxObject;
               // also avoid detaching if the the tab was dropped too close to
               // the tabbar (half a tab)
               var endScreenY = bo.screenY + 1.5 * bo.height;
-              var eY = aEvent.screenY;
               if (eY < endScreenY && eY > window.screenY)
                 return;
             }
 
             var draggedTab = dt.mozGetDataAt(TAB_DROP_TYPE, 0);
-            this.replaceTabWithWindow(draggedTab);
+            let win = this.replaceTabWithWindow(draggedTab);
+            if (win) {
+              win.moveTo(eX - draggedTab._dragOffsetX,
+                         eY - draggedTab._dragOffsetY);
+            }
             aEvent.stopPropagation();
           ]]>
         </body>
