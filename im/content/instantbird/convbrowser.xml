@@ -697,6 +697,16 @@
 
           // We need to remove the controller before _contentWindow is changed
           this.contentWindow.controllers.removeController(this);
+
+          // the selection listener (unix only)
+          var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
+                                    .getService(Ci.nsIClipboard);
+          if (clipboard.supportsSelectionClipboard()) {
+            aOtherBrowser.contentWindow.getSelection()
+                         .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                         .removeSelectionListener(aOtherBrowser);
+          }
+
           // and the progress listener too!
           this.removeProgressListener(this);
 
@@ -723,6 +733,13 @@
 
           // Now that we have the new _contentWindow, we can add back our controller
           this.contentWindow.controllers.insertControllerAt(0, this);
+
+          // and our selection listener!
+          if (clipboard.supportsSelectionClipboard()) {
+            this.contentWindow.getSelection()
+                .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                .addSelectionListener(this);
+          }
         ]]>
         </body>
       </method>
