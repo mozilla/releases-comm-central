@@ -17,6 +17,12 @@ pref("general.autoScroll", false);
 pref("general.autoScroll", true);
 #endif
 
+// What to do when starting up
+//  0 = do not connect / show the account manager
+//  1 = connect automatically
+//  Other values will be added later, for example to start minimized
+pref("messenger.startup.action", 1);
+
 pref("messenger.accounts", "");
 pref("messenger.accounts.promptOnDelete", true);
 
