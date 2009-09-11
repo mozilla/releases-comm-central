@@ -339,11 +339,6 @@ tabbrowser > tabbox > tabpanels {
 /**
  * All Tabs Menupopup
  */
-
-.alltabs-item > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://global/skin/tree/item.png");
-}
-
 .alltabs-item[selected="true"] {
   font-weight: bold;
 }

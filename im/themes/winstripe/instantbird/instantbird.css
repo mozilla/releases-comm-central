@@ -88,7 +88,7 @@ tab[attention],
 /* Tab icons */
 .tab-icon-image,
 .alltabs-item > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/offline-16.png");
+  list-style-image: url("chrome://instantbird/skin/unknown-16.png");
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
 
@@ -105,6 +105,10 @@ tab[attention],
   list-style-image: url("chrome://instantbird/skin/chat-16.png") !important;
 }
 
+.tabbrowser-tab[status="offline"] > .tab-icon-image,
+.alltabs-item[status="offline"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://instantbird/skin/offline-16.png") !important;
+}
 .tabbrowser-tab[status="available"] > .tab-icon-image,
 .alltabs-item[status="available"] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://instantbird/skin/available-16.png") !important;
@@ -120,5 +124,10 @@ tab[attention],
 
 .tabbrowser-tab[typing] > .tab-icon-image,
 .alltabs-item[typing] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png") !important;
+  list-style-image: url("chrome://instantbird/skin/typing-16.png") !important;
+}
+
+.tabbrowser-tab[typed] > .tab-icon-image,
+.alltabs-item[typed] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://instantbird/skin/typed-16.png") !important;
 }

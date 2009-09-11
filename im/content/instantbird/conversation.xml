@@ -835,11 +835,18 @@
        <body>
        <![CDATA[
           let buddy = this._conv.buddy;
-          if (!buddy)
-            return;
-
-          if (!buddy.online)
+          if (!buddy || !buddy.account.connected) {
             this.tab.removeAttribute("status");
+
+            // This is ugly, but when an account gets disconnected libpurple
+            // doesn't reset the typing state... :(
+            this.tab.removeAttribute("typing");
+            this.tab.removeAttribute("typed");
+            this._statusText = "";
+            this.displayStatusText();
+          }
+          else if (!buddy.online)
+            this.tab.setAttribute("status", "offline");
           else if (buddy.idle)
             this.tab.setAttribute("status", "idle");
           else if (buddy.available)
