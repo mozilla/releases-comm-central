@@ -76,7 +76,7 @@ var Conversations = {
   },
 #endif
   _windows: [],
-  _textboxAutoResizePrefName: "messenger.options.enableTextboxAutoResize",
+  _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get _prefBranch () {
     delete this._prefBranch;
     return this._prefBranch =

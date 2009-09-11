@@ -305,7 +305,6 @@
      </method>
 
      <field name="_TEXTBOX_VERTICAL_OVERHEAD" readonly="true">6</field>
-     <field name="_TEXTBOX_MAX_EMPTY_LINES" readonly="true">5</field>
      <field name="_TEXTBOX_AUTOLINES_FACTOR" readonly="true">10</field>
 
      <method name="calculateTextboxDefaultHeight">
@@ -322,8 +321,16 @@
           Math.round(totalSpace / (this._TEXTBOX_AUTOLINES_FACTOR * lineHeight));
         if (numberOfLines <= 0)
           numberOfLines = 1;
-        else if (numberOfLines > this._TEXTBOX_MAX_EMPTY_LINES)
-          numberOfLines = this._TEXTBOX_MAX_EMPTY_LINES;
+
+        if (!this._maxEmptyLines) {
+          this._maxEmptyLines =
+            Components.classes["@mozilla.org/preferences-service;1"]
+                      .getService(Components.interfaces.nsIPrefBranch)
+                      .getIntPref("messenger.conversations.textbox.defaultMaxLines");
+        }
+
+        if (numberOfLines > this._maxEmptyLines)
+          numberOfLines = this._maxEmptyLines;
         textbox.defaultHeight = numberOfLines * lineHeight +
                                 this._TEXTBOX_VERTICAL_OVERHEAD;
 
