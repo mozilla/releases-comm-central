@@ -408,6 +408,9 @@
         inputBox.value = "";
         let overflow = "";
         if (Conversations.textboxAutoResize) {
+          let currHeight = parseInt(inputBox.parentNode.height);
+          if (inputBox.defaultHeight > currHeight)
+            inputBox.defaultHeight = currHeight;
           document.getAnonymousElementByAttribute(this, "anonid", "conv-bottom")
                   .height = inputBox.defaultHeight;
           overflow = "hidden";
@@ -478,10 +481,31 @@
       <![CDATA[
         let splitter =
           document.getAnonymousElementByAttribute(this, "anonid", "splitter-bottom");
+        let textbox =
+          document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+
         if (!splitter.hasAttribute("state")) {
-          let textbox = this.calculateTextboxDefaultHeight();
+          this.calculateTextboxDefaultHeight();
           textbox.parentNode.height = textbox.defaultHeight;
         }
+        else {
+          // Used in case the browser is already on its min-height, resize the
+          // textbox to avoid hidding the status bar.
+          let convTop =
+            document.getAnonymousElementByAttribute(this, "anonid", "conv-top");
+          let convTopStyle = window.getComputedStyle(convTop, null);
+          let convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
+          let convTopMinHeight =
+            parseInt(convTopStyle.getPropertyValue("min-height"));
+
+          if (convTopHeight == convTopMinHeight) {
+            textbox.parentNode.height = parseInt(textbox.minHeight);
+            convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
+            textbox.parentNode.height = parseInt(textbox.minHeight) +
+                                        (convTopHeight - convTopMinHeight);
+          }
+        }
+
         if (Conversations.textboxAutoResize)
           this.inputExpand();
       ]]>
