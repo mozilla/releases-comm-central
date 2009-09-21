@@ -56,7 +56,8 @@ var Conversations = {
     if (!this._prefBranch.getBoolPref(this._showDockBadgePrefName))
       return;
 
-    if (this._unreadCount == 1)
+    if (this._unreadCount == 1 &&
+        this._prefBranch.getBoolPref(this._getAttentionPrefName))
       // We use a timeout because it looks better to add the dock
       // badge only after the dock item has stopped jumping.
       this._badgeTimeout =
@@ -94,6 +95,7 @@ var Conversations = {
 #endif
   },
   _windows: [],
+  _getAttentionPrefName: "messenger.options.getAttentionOnNewMessages",
   _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get _prefBranch () {
     delete this._prefBranch;
@@ -285,7 +287,8 @@ var Conversations = {
       if (aSubject.incoming && !aSubject.system &&
           (!(aSubject.conversation instanceof Components.interfaces.purpleIConvChat) ||
            aSubject.containsNick)) {
-        conv.ownerDocument.defaultView.getAttention();
+        if (this._prefBranch.getBoolPref(this._getAttentionPrefName))
+          conv.ownerDocument.defaultView.getAttention();
         if (!this._windows[0].document.hasFocus())
           this._incrementUnreadCount();
       }
