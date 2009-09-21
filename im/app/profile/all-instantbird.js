@@ -40,6 +40,9 @@ pref("messenger.conversations.selections.actionMessagesTemplate", "chrome://inst
 pref("messenger.conversations.textbox.autoResize", true);
 pref("messenger.conversations.textbox.defaultMaxLines", 5);
 
+#ifdef XP_MACOSX
+pref("messenger.options.showUnreadCountInDock", true);
+#endif
 pref("messenger.options.playSounds", true);
 
 // this preference changes how we filter incoming messages

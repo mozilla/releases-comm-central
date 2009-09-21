@@ -40,8 +40,8 @@ var EXPORTED_SYMBOLS = ["Conversations"];
 
 var Conversations = {
 #ifdef XP_MACOSX
-  _unreadCount: 0,
   _badgeTimeout: null,
+  _showDockBadgePrefName: "messenger.options.showUnreadCountInDock",
   get dockBadgeService() {
     let badgeService =
       Components.classes["@instantbird.org/purple/nsdockbadgeservice;1"]
@@ -50,23 +50,25 @@ var Conversations = {
     return this.dockBadgeService = badgeService;
   },
   _showUnreadCount: function c_showUnreadCount() {
-    Conversations._badgeTimeout = null;
     Conversations.dockBadgeService.badgeText = Conversations._unreadCount;
   },
-  _incrementUnreadCount: function c_incrementUnreadCount() {
-    this._unreadCount++;
+  _displayUnreadCountInDockBadge: function c_displayUnreadCountInDockBadge() {
+    if (!this._prefBranch.getBoolPref(this._showDockBadgePrefName))
+      return;
+
     if (this._unreadCount == 1)
+      // We use a timeout because it looks better to add the dock
+      // badge only after the dock item has stopped jumping.
       this._badgeTimeout =
-        this._windows[0].setTimeout(this._showUnreadCount, 1000);
+        this._windows[0].setTimeout(function () {
+          Conversations._badgeTimeout = null;
+          Conversations._showUnreadCount();
+        }, 1000);
     else
       if (!this._badgeTimeout)
         this._showUnreadCount();
   },
-  _clearUnreadCount: function c_clearUnreadCount() {
-    if (!this._unreadCount)
-      return;
-
-    this._unreadCount = 0;
+  _hideUnreadCountDockBadge: function c_hideUnreadCountDockBadge() {
     if (this._badgeTimeout) {
       this._windows[0].clearTimeout(this._badgeTimeout);
       this._badgeTimeout = null;
@@ -75,6 +77,22 @@ var Conversations = {
       this.dockBadgeService.badgeText = "";
   },
 #endif
+  _unreadCount: 0,
+  _incrementUnreadCount: function c_incrementUnreadCount() {
+    this._unreadCount++;
+#ifdef XP_MACOSX
+    this._displayUnreadCountInDockBadge();
+#endif
+  },
+  _clearUnreadCount: function c_clearUnreadCount() {
+    if (!this._unreadCount)
+      return;
+
+    this._unreadCount = 0;
+#ifdef XP_MACOSX
+    this._hideUnreadCountDockBadge();
+#endif
+  },
   _windows: [],
   _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get _prefBranch () {
@@ -187,9 +205,7 @@ var Conversations = {
       this._windows.splice(position, 1);
       this._windows.unshift(aWindow);
     }
-#ifdef XP_MACOSX
     this._clearUnreadCount();
-#endif
   },
 
   init: function() {
@@ -202,6 +218,9 @@ var Conversations = {
       os.addObserver(Conversations, aTopic, false);
     });
     this._prefBranch.addObserver(this._textboxAutoResizePrefName, this, false);
+#ifdef XP_MACOSX
+    this._prefBranch.addObserver(this._showDockBadgePrefName, this, false);
+#endif
   },
 
   observe: function(aSubject, aTopic, aMsg) {
@@ -215,11 +234,24 @@ var Conversations = {
         this._purpleConv[id].unInit();
       this._prefBranch.removeObserver(Conversations._textboxAutoResizePrefName,
                                       Conversations);
+#ifdef XP_MACOSX
+      this._prefBranch.removeObserver(Conversations._showDockBadgePrefName,
+                                      Conversations);
+#endif
     }
 
-    if (aTopic == "nsPref:changed" &&
-        aMsg == this._textboxAutoResizePrefName) {
-      this.textboxAutoResize = this._prefBranch.getBoolPref(aMsg);
+    if (aTopic == "nsPref:changed") {
+      if (aMsg == this._textboxAutoResizePrefName)
+        this.textboxAutoResize = this._prefBranch.getBoolPref(aMsg);
+#ifdef XP_MACOSX
+      if (aMsg == this._showDockBadgePrefName) {
+        if (this._prefBranch.getBoolPref(aMsg))
+          this._showUnreadCount();
+        else
+          this._hideUnreadCountDockBadge();
+      }
+#endif
+      return;
     }
 
     if (aTopic != "new-text" && aTopic != "new-conversation")
@@ -254,10 +286,8 @@ var Conversations = {
           (!(aSubject.conversation instanceof Components.interfaces.purpleIConvChat) ||
            aSubject.containsNick)) {
         conv.ownerDocument.defaultView.getAttention();
-#ifdef XP_MACOSX
         if (!this._windows[0].document.hasFocus())
           this._incrementUnreadCount();
-#endif
       }
     }
   }
