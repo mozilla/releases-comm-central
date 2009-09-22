@@ -50,7 +50,8 @@ var Conversations = {
     return this.dockBadgeService = badgeService;
   },
   _showUnreadCount: function c_showUnreadCount() {
-    Conversations.dockBadgeService.badgeText = Conversations._unreadCount;
+    let text = Conversations._unreadCount || "";
+    Conversations.dockBadgeService.badgeText = text;
   },
   _displayUnreadCountInDockBadge: function c_displayUnreadCountInDockBadge() {
     if (!this._prefBranch.getBoolPref(this._showDockBadgePrefName))
