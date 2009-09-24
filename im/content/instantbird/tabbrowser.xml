@@ -129,8 +129,7 @@
     <implementation>
       <field name="mPrefs" readonly="true">
         Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefService)
-                  .getBranch(null);
+                  .getService(Components.interfaces.nsIPrefBranch2);
       </field>
       <field name="mTabBox" readonly="true">
         document.getAnonymousElementByAttribute(this, "anonid", "tabbox");
@@ -292,6 +291,35 @@
           ]]>
         </body>
       </method>
+
+      <field name="_prefObserver">({
+        tabbrowser: this,
+
+        observe: function(subject, topic, data)
+        {
+          if (topic == "nsPref:changed") {
+            switch (data) {
+            case "browser.tabs.autoHide":
+              if (this.tabbrowser.tabContainer.childNodes.length == 1 &amp;&amp;
+                  window.toolbar.visible) {
+                let visible =
+                  !this.tabbrowser.mPrefs.getBoolPref("browser.tabs.autoHide");
+                this.tabbrowser.setStripVisibilityTo(visible);
+              }
+              break;
+            }
+          }
+        },
+
+        QueryInterface: function(aIID)
+        {
+          if (aIID.equals(Components.interfaces.nsIObserver) ||
+              aIID.equals(Components.interfaces.nsISupports))
+            return this;
+          throw Components.results.NS_NOINTERFACE;
+        }
+        });
+      </field>
 
       <method name="setStripVisibilityTo">
         <parameter name="aShow"/>
@@ -1298,12 +1326,14 @@
           this._autoScrollPopup.id = "autoscroller";
           this.appendChild(this._autoScrollPopup);
           this.mCurrentBrowser.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
+          this.mPrefs.addObserver("browser.tabs.autoHide", this._prefObserver, false);
         ]]>
       </constructor>
 
       <destructor>
         <![CDATA[
           document.removeEventListener("keypress", this._keyEventHandler, false);
+          this.mPrefs.removeObserver("browser.tabs.autoHide", this._prefObserver);
         ]]>
       </destructor>
     </implementation>
