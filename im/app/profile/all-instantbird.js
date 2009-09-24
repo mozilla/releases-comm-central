@@ -41,6 +41,7 @@ pref("messenger.conversations.textbox.autoResize", true);
 pref("messenger.conversations.textbox.defaultMaxLines", 5);
 
 pref("messenger.options.getAttentionOnNewMessages", true);
+pref("messenger.options.notifyOfNewMessages", false);
 #ifdef XP_MACOSX
 pref("messenger.options.showUnreadCountInDock", true);
 #endif

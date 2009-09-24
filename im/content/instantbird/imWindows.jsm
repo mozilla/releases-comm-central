@@ -97,6 +97,7 @@ var Conversations = {
   },
   _windows: [],
   _getAttentionPrefName: "messenger.options.getAttentionOnNewMessages",
+  _notificationPrefName: "messenger.options.notifyOfNewMessages",
   _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get _prefBranch () {
     delete this._prefBranch;
@@ -211,6 +212,66 @@ var Conversations = {
     this._clearUnreadCount();
   },
 
+  get ellipsis () {
+    let ellipsis = "[\u2026]";
+
+    try {
+      ellipsis =
+        this._prefBranch.getComplexValue("intl.ellipsis",
+                                         Components.interfaces.nsIPrefLocalizedString).data;
+    } catch (e) { }
+    return ellipsis;
+  },
+
+  _showMessageNotification: function (aMessage) {
+    // Get the hidden window. We need it to create a DOM node.
+    let win = Components.classes["@mozilla.org/appshell/appShellService;1"]
+                        .getService(Components.interfaces.nsIAppShellService)
+                        .hiddenDOMWindow;
+
+    // Put the message content into a div node.
+    let xhtmlElement = win.document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+    xhtmlElement.innerHTML = aMessage.message;
+
+    // Convert the div node content to plain text.
+    let encoder =
+      Components.classes["@mozilla.org/layout/documentEncoder;1?type=text/plain"]
+                .createInstance(Components.interfaces.nsIDocumentEncoder);
+    encoder.init(win.document, "text/plain", 0);
+    encoder.setNode(xhtmlElement);
+    let messageText = encoder.encodeToString().replace(/\s+/g, " ");
+
+    // Crop the end of the text if needed.
+    if (messageText.length > 50)
+      messageText = messageText.substr(0, 50) + this.ellipsis;
+
+    // Use the buddy icon if available for the icon of the notification.
+    let icon;
+    let conv = aMessage.conversation;
+    if (conv instanceof Components.interfaces.purpleIConvIM) {
+      let buddy = conv.buddy;
+      if (buddy)
+        icon = buddy.buddyIconFilename;
+    }
+    if (!icon)
+      icon = "chrome://instantbird/skin/newMessage.png";
+
+    // Prepare an observer to focus the conversation if the
+    // notification is clicked.
+    let observer = {
+      observe: function(aSubject, aTopic, aData) {
+        if (aTopic == "alertclickcallback")
+          Conversations.focusConversation(aMessage.conversation);
+      }
+    };
+
+    // Finally show the notification!
+    Components.classes["@mozilla.org/alerts-service;1"]
+              .getService(Components.interfaces.nsIAlertsService)
+              .showAlertNotification(icon, aMessage.alias || aMessage.who,
+                                     messageText, false, "", observer);
+  },
+
   init: function() {
     let os = Components.classes["@mozilla.org/observer-service;1"]
                        .getService(Components.interfaces.nsIObserverService);
@@ -290,8 +351,11 @@ var Conversations = {
            aSubject.containsNick)) {
         if (this._prefBranch.getBoolPref(this._getAttentionPrefName))
           conv.ownerDocument.defaultView.getAttention();
-        if (!this._windows[0].document.hasFocus())
+        if (!this._windows[0].document.hasFocus()) {
           this._incrementUnreadCount();
+          if (this._prefBranch.getBoolPref(this._notificationPrefName))
+            this._showMessageNotification(aSubject);
+        }
       }
     }
   }
