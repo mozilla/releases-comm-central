@@ -67,7 +67,7 @@
     </resources>
 
     <content>
-<!--      <xul:stringbundle anonid="tbstringbundle" src="chrome://browser/locale/tabbrowser.properties"/>-->
+      <xul:stringbundle anonid="tbstringbundle" src="chrome://instantbird/locale/tabbrowser.properties"/>
       <xul:tabbox anonid="tabbox" flex="1" eventnode="document" xbl:inherits="handleCtrlPageUpDown"
                   onselect="if (!('updateCurrentBrowser' in this.parentNode) || event.target.localName != 'tabpanels') return; this.parentNode.updateCurrentBrowser();">
         <xul:hbox class="tab-drop-indicator-bar" collapsed="true" chromedir="&locale.dir;"
@@ -149,11 +149,9 @@
       <field name="mTabs" readonly="true">
         this.mTabContainer.childNodes
       </field>
-#if 0
       <field name="mStringBundle">
         document.getAnonymousElementByAttribute(this, "anonid", "tbstringbundle");
       </field>
-#endif
       <field name="mCurrentTab">
         null
       </field>
@@ -434,15 +432,21 @@
       <parameter name="aAll"/>
       <body>
         <![CDATA[
-          return true;
-#if 0
           var numTabs = this.mTabContainer.childNodes.length;
           var reallyClose = true;
           if (numTabs <= 1)
             return reallyClose;
 
+          let unreadConvsCount = this.conversations.filter(function(conv) {
+            let tab = conv.tab;
+            return tab.hasAttribute("unread") &&
+                   (!tab.hasAttribute("chat") || tab.hasAttribute("attention"));
+          }).length;
+          if (!unreadConvsCount)
+            return reallyClose;
+
           const pref = "browser.tabs.warnOnClose";
-          var shouldPrompt = false; // FIXME this.mPrefs.getBoolPref(pref);
+          var shouldPrompt = this.mPrefs.getBoolPref(pref);
 
           if (shouldPrompt) {
             var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
@@ -451,12 +455,8 @@
             //default to true: if it were false, we wouldn't get this far
             var warnOnClose = { value:true };
             var bundle = this.mStringBundle;
-            var tabsToClose = numTabs;  //number of tabs to be removed
-            if (!aAll)
-              --tabsToClose;
-
-            var messageKey = (tabsToClose == 1) ? "tabs.closeWarningOneTab" : "tabs.closeWarningMultipleTabs";
-            var closeKey = (tabsToClose == 1) ? "tabs.closeButtonOne" : "tabs.closeButtonMultiple";
+            var messageKey = (unreadConvsCount == 1) ? "tabs.closeWarningOneConversation" : "tabs.closeWarningMultipleConversations";
+            var closeKey = (unreadConvsCount == 1) ? "tabs.closeButtonOne" : "tabs.closeButtonMultiple";
             // focus the window before prompting.
             // this will raise any minimized window, which will
             // make it obvious which window the prompt is for and will
@@ -465,7 +465,7 @@
             window.focus();
             var buttonPressed = promptService.confirmEx(window,
                                                         bundle.getString('tabs.closeWarningTitle'),
-                                                        bundle.getFormattedString(messageKey, [tabsToClose]),
+                                                        bundle.getFormattedString(messageKey, [unreadConvsCount]),
                                                         (promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_0)
                                                         + (promptService.BUTTON_TITLE_CANCEL * promptService.BUTTON_POS_1),
                                                         bundle.getString(closeKey),
@@ -478,7 +478,6 @@
               this.mPrefs.setBoolPref(pref, false);
           }
           return reallyClose;
-#endif
         ]]>
       </body>
       </method>
