@@ -59,11 +59,13 @@ var convWindow = {
 
     addObservers(convWindow, events);
 
-    if ("arguments" in window && window.arguments[0] instanceof XULElement) {
-      // swap the given tab with the default dummy conversation tab
-      // and then close the original tab in the other window.
-      document.getElementById("conversations")
-              .importConversation(window.arguments[0]);
+    if ("arguments" in window) {
+      while (window.arguments[0] instanceof XULElement) {
+        // swap the given tab with the default dummy conversation tab
+        // and then close the original tab in the other window.
+        let tab = window.arguments.shift();
+        document.getElementById("conversations").importConversation(tab);
+      }
     }
 
     window.addEventListener("unload", convWindow.unload, false);

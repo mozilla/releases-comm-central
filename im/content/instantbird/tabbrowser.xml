@@ -97,7 +97,7 @@
                           accesskey="&openTabInNewWindow.accesskey;"
                           tbattr="tabbrowser-multiple"
                           oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
-                                     tabbrowser.replaceTabWithWindow(tabbrowser.mContextTab);"/>
+                                     tabbrowser.replaceTabsWithWindow([tabbrowser.mContextTab]);"/>
             <xul:menuseparator/>
             <xul:menuitem id="context_closeTab" label="&closeTab.label;" accesskey="&closeTab.accesskey;"
                           oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
@@ -307,6 +307,20 @@
                 this.tabbrowser.setStripVisibilityTo(visible);
               }
               break;
+
+            case "messenger.conversations.useSeparateWindowsForMUCs":
+              if (this.tabbrowser.tabContainer.childNodes.length > 1 &amp;&amp;
+                  this.tabbrowser.mPrefs.getBoolPref("messenger.conversations.useSeparateWindowsForMUCs")) {
+                let convs = this.tabbrowser.conversations;
+                let firstIsChat = convs[0].hasAttribute("chat");
+                let movedTabs = [];
+                for (let i = 1; i &lt; convs.length; ++i)
+                  if (convs[i].hasAttribute("chat") != firstIsChat)
+                    movedTabs.push(convs[i].tab);
+                if (movedTabs.length)
+                  this.tabbrowser.replaceTabsWithWindow(movedTabs);
+              }
+              break;
             }
           }
         },
@@ -353,9 +367,14 @@
         <parameter name="aConv"/>
         <body>
           <![CDATA[
-            if (!this.mFirstTabIsDummy &&
-                !this.mPrefs.getBoolPref("messenger.conversations.openInTabs"))
-              return null;
+            if (!this.mFirstTabIsDummy) {
+              if (!this.mPrefs.getBoolPref("messenger.conversations.openInTabs"))
+                return null;
+
+              if (this.mPrefs.getBoolPref("messenger.conversations.useSeparateWindowsForMUCs") &&
+                  (aConv instanceof Ci.purpleIConvChat) != this.conversations[0].hasAttribute("chat"))
+                return null;
+            }
 
             return this._addConversation(aConv);
         ]]>
@@ -692,7 +711,7 @@
             remoteBrowser._endRemoveTab(endRemoveArgs);
 
             // If the tab was already selected (this happpens in the scenario
-            // of replaceTabWithWindow), notify onLocationChange, etc.
+            // of replaceTabsWithWindow), notify onLocationChange, etc.
             if (aOurTab == this.selectedTab)
               this.updateCurrentBrowser(true);
 
@@ -1022,7 +1041,7 @@
             }
 
             var draggedTab = dt.mozGetDataAt(TAB_DROP_TYPE, 0);
-            let win = this.replaceTabWithWindow(draggedTab);
+            let win = this.replaceTabsWithWindow([draggedTab]);
             if (win) {
               win.moveTo(eX - draggedTab._dragOffsetX,
                          eY - draggedTab._dragOffsetY);
@@ -1034,12 +1053,16 @@
 
       <!-- Moves a tab to a new browser window, unless it's already the only tab
            in the current window, in which case this will do nothing. -->
-      <method name="replaceTabWithWindow">
-        <parameter name="aTab"/>
+      <method name="replaceTabsWithWindow">
+        <parameter name="aTabs"/>
         <body>
           <![CDATA[
             if (this.mTabs.length == 1)
               return;
+
+            var sa = Components.classes["@mozilla.org/supports-array;1"]
+                               .createInstance(Components.interfaces.nsISupportsArray);
+            aTabs.forEach(function(aTab) { sa.AppendElement(aTab); });
 
             // tell a new window to take the "dropped" tab
             var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].
@@ -1048,7 +1071,7 @@
                                  getConvWindowURL(),
                                  null,
                                  "chrome,dialog=no,all",
-                                 aTab);
+                                 sa);
           ]]>
         </body>
       </method>
@@ -1340,6 +1363,7 @@
           this.appendChild(this._autoScrollPopup);
           this.mCurrentBrowser.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
           this.mPrefs.addObserver("browser.tabs.autoHide", this._prefObserver, false);
+          this.mPrefs.addObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver, false);
         ]]>
       </constructor>
 
@@ -1347,6 +1371,7 @@
         <![CDATA[
           document.removeEventListener("keypress", this._keyEventHandler, false);
           this.mPrefs.removeObserver("browser.tabs.autoHide", this._prefObserver);
+          this.mPrefs.removeObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver);
         ]]>
       </destructor>
     </implementation>
