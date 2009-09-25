@@ -115,10 +115,14 @@ var Conversations = {
       this._windows.unshift(aWindow);
 
     if (this._pendingNotifications) {
-      this._pendingNotifications.forEach(function(aNotif) {
+      // Cache in a variable and delete the existing notification array
+      // before redispatching the notifications so that the observe
+      // method can recreate it.
+      let notifications = this._pendingNotifications;
+      delete this._pendingNotifications;
+      notifications.forEach(function(aNotif) {
         this.observe(aNotif.object, aNotif.topic, aNotif.msg);
       }, this);
-      delete this._pendingNotifications;
     }
   },
   unregisterWindow: function(aWindow) {
@@ -321,25 +325,29 @@ var Conversations = {
     if (aTopic != "new-text" && aTopic != "new-conversation")
       return;
 
-    if (!this._windows.length) {
+    let conv = aTopic == "new-conversation" ? aSubject : aSubject.conversation;
+    if (!(conv.id in this._purpleConv)) {
+      // The conversation is not displayed anywhere yet.
+      // First, check if an existing conversation window can accept it.
+      for each (let win in this._windows)
+        if (win.document.getElementById("conversations").addConversation(conv))
+          return;
+
+      // At this point, no existing registered window can accept the conversation.
+      // If we are already creating a window, append the notification.
       if (this._pendingNotifications) {
         this._pendingNotifications.push({object: aSubject, topic: aTopic,
                                          msg: aMsg});
         return;
       }
 
+      // We need to create a new window.
       var wwatch = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
                              .getService(Components.interfaces.nsIWindowWatcher);
       wwatch.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
                         "chrome,toolbar,resizable", null);
       this._pendingNotifications = [{object: aSubject, topic: aTopic, msg: aMsg}];
       return;
-    }
-
-    let conv = aTopic == "new-conversation" ? aSubject : aSubject.conversation;
-    if (!(conv.id in this._purpleConv)) {
-      this._windows[0].document.getElementById("conversations")
-          .addConversation(conv);
     }
 
     if (aTopic == "new-text") {
