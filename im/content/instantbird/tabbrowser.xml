@@ -353,6 +353,19 @@
         <parameter name="aConv"/>
         <body>
           <![CDATA[
+            if (!this.mFirstTabIsDummy &&
+                !this.mPrefs.getBoolPref("messenger.conversations.openInTabs"))
+              return null;
+
+            return this._addConversation(aConv);
+        ]]>
+        </body>
+      </method>
+
+      <method name="_addConversation">
+        <parameter name="aConv"/>
+        <body>
+          <![CDATA[
             // invalidate cache, because mTabContainer is about to change
             this._browsers = null;
             this._conversations = null;
@@ -663,7 +676,7 @@
             var endRemoveArgs = remoteBrowser._beginRemoveTab(aOtherTab, true);
 
 
-            var conv = this.addConversation(aOtherTab.linkedConversation.conv);
+            var conv = this._addConversation(aOtherTab.linkedConversation.conv);
 
             var aOurTab = conv.tab;
             var ourBrowser = this.getBrowserForTab(aOurTab);
