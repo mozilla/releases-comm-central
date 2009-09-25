@@ -998,7 +998,8 @@
       <body>
       <![CDATA[
         var nick = event.originalTarget.chatBuddy.name;
-        this._conv.account.createConversation(nick);
+        let newConv = this._conv.account.createConversation(nick);
+        Conversations.focusConversation(newConv);
       ]]>
       </body>
      </method>
