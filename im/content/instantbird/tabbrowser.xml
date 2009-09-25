@@ -2073,6 +2073,7 @@
         var tabcontainer = document.getBindingParent(this);
         tabcontainer.mTabstrip.removeEventListener("scroll", this, false);
         tabcontainer.removeEventListener("TabOpen", this, false);
+        window.XULBrowserWindow.setOverLink("", null);
       ]]></handler>
 
       <handler event="DOMMenuItemActive">
