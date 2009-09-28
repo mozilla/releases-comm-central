@@ -419,8 +419,6 @@
      <method name="openConversation">
       <body>
        <![CDATA[
-         var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                             .getService(Components.interfaces.purpleICoreService);
          var conv;
          for (var id in this.accounts) {
            // this will send a new-conversation notification that will force
