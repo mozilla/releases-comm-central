@@ -59,7 +59,8 @@
 
   <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
 
-  <dialogheader title="&proxiesDialogHeader.title;" description="&proxiesDialogHeader.description;"/>
+  <dialogheader id="proxyDialogHeader" title="&proxiesDialogHeader.title;"
+                description="&proxiesDialogHeader.description;"/>
 
   <richlistbox id="proxylist" flex="1" onselect="gProxies.onSelect();">
     <richlistitem id="useGlobal" orient="vertical">

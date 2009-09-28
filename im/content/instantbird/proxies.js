@@ -47,12 +47,22 @@ var gProxies = {
 
     var proxyInfoCtr = Components.Constructor("@instantbird.org/purple/proxyinfo;1",
                                               "purpleIProxyInfo");
-    var proxyInfo = new proxyInfoCtr();
-    proxyInfo.type = Ci.purpleIProxyInfo.useGlobal;
-    document.getElementById("useGlobal").proxy = proxyInfo;
-    var globalProxy = pcs.globalProxy;
-    document.getElementById("globalProxy").textContent =
-      this.getProxyDescription(globalProxy);
+    var proxyInfo;
+    var account = window.arguments[0];
+    if (account) {
+      proxyInfo = new proxyInfoCtr();
+      proxyInfo.type = Ci.purpleIProxyInfo.useGlobal;
+      document.getElementById("useGlobal").proxy = proxyInfo;
+      var globalProxy = pcs.globalProxy;
+      document.getElementById("globalProxy").textContent =
+        this.getProxyDescription(globalProxy);
+    }
+    else {
+      let global = document.getElementById("useGlobal");
+      global.parentNode.removeChild(global);
+      document.getElementById("useAsGlobalSettings").collapsed = true;
+      document.getElementById("proxyDialogHeader").collapsed = true;
+    }
 
     proxyInfo = new proxyInfoCtr();
     proxyInfo.type = Ci.purpleIProxyInfo.noProxy;
@@ -79,8 +89,13 @@ var gProxies = {
       item.proxy = proxy;
     }
 
-    if (window.arguments[0].proxy) {
-      var key = window.arguments[0].proxy.key;
+    var key = null;
+    if (!account)
+      key = pcs.globalProxy.key;
+    else if (account.proxy)
+      key = account.proxy.key;
+
+    if (key) {
       var items = proxyList.children;
       for (let i = 0; i < items.length; ++i) {
         if (items[i].proxy.key == key) {
@@ -126,8 +141,11 @@ var gProxies = {
   },
 
   onSelect: function proxy_select() {
-    document.getElementById("useAsGlobalSettings").disabled =
-      document.getElementById("proxylist").selectedItem.id == "useGlobal";
+    let selectedItem = document.getElementById("proxylist").selectedItem;
+    if (selectedItem) {
+      document.getElementById("useAsGlobalSettings").disabled =
+        selectedItem.id == "useGlobal";
+    }
   },
 
   getValue: function proxy_getValue(aId) {
@@ -174,12 +192,19 @@ var gProxies = {
         item.proxy = pcs.createProxy(type, host, port, user, pass);
     }
 
+    var account = window.arguments[0];
+    if (!account) {
+      pcs.globalProxy = item.proxy;
+      return true;
+    }
+      
     var globalCheckbox = document.getElementById("useAsGlobalSettings");
     if (!globalCheckbox.disabled && globalCheckbox.checked) {
       pcs.globalProxy = item.proxy;
-      window.arguments[0].proxy = document.getElementById("useGlobal").proxy;
+      account.proxy = document.getElementById("useGlobal").proxy;
     }
     else
-      window.arguments[0].proxy = item.proxy;
+      account.proxy = item.proxy;
+    return true;
   }
 };
