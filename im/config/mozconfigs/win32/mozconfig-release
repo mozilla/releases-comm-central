@@ -18,4 +18,5 @@ ac_add_options --disable-debug
 ac_add_options --disable-tests
 ac_add_options --enable-update-packaging
 ac_add_options --enable-jemalloc
+ac_add_options --with-windows-version=600
 ac_add_options --enable-official-branding
