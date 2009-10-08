@@ -40,14 +40,13 @@ instantbird/Makefile
 instantbird/app/Makefile
 instantbird/app/profile/Makefile
 instantbird/app/profile/extensions/Makefile
-instantbird/base/Makefile
-instantbird/base/content/Makefile
 instantbird/branding/nightly/Makefile
 instantbird/branding/nightly/locales/Makefile
 instantbird/branding/halloween/Makefile
 instantbird/branding/halloween/locales/Makefile
 instantbird/branding/release/Makefile
 instantbird/branding/release/locales/Makefile
+instantbird/content/Makefile
 instantbird/locales/Makefile
 instantbird/themes/Makefile
 instantbird/themes/winstripe/Makefile
