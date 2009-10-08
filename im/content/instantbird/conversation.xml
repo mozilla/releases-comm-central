@@ -873,6 +873,8 @@
             this.tab.setAttribute("status", "offline");
           else if (buddy.idle)
             this.tab.setAttribute("status", "idle");
+          else if (buddy.mobile)
+            this.tab.setAttribute("status", "mobile");
           else if (buddy.available)
             this.tab.setAttribute("status", "available");
           else

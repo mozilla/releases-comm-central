@@ -10,6 +10,8 @@ classic.jar:
 	skin/classic/instantbird/away.png
 	skin/classic/instantbird/idle-16.png
 	skin/classic/instantbird/idle.png
+	skin/classic/instantbird/mobile-16.png
+	skin/classic/instantbird/mobile.png
 	skin/classic/instantbird/offline-16.png
 	skin/classic/instantbird/offline.png
 	skin/classic/instantbird/typing-16.png

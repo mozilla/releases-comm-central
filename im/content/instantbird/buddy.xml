@@ -185,6 +185,17 @@
         else
           this.removeAttribute("idle");
 
+        var mobile = true;
+        for (var id in this.accounts)
+          if (!this.accounts[id].mobile) {
+            mobile = false;
+            break;
+          }
+        if (mobile)
+          this.setAttribute("mobile", "true");
+        else
+          this.removeAttribute("mobile");
+
         var tooltip = document.getAnonymousElementByAttribute(this, "anonid",
                                                               "buddytooltip");
         if (tooltip.state == "open")

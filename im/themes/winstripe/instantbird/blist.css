@@ -83,6 +83,10 @@ buddy[idle="true"] .statusIcon {
   background-image: url('chrome://instantbird/skin/idle.png');
 }
 
+buddy[mobile="true"] .statusIcon {
+  background-image: url('chrome://instantbird/skin/mobile.png');
+}
+
 buddy[idle="true"] .buddyDisplayName {
   color: GrayText;
 }

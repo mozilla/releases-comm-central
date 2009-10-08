@@ -121,6 +121,10 @@ tab[attention],
 .alltabs-item[status="idle"] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://instantbird/skin/idle-16.png") !important;
 }
+.tabbrowser-tab[status="mobile"] > .tab-icon-image,
+.alltabs-item[status="mobile"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://instantbird/skin/mobile-16.png") !important;
+}
 
 .tabbrowser-tab[typing] > .tab-icon-image,
 .alltabs-item[typing] > .menu-iconic-left > .menu-iconic-icon {
