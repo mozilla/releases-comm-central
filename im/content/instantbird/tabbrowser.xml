@@ -704,7 +704,7 @@
             // Swap the docshells
             ourBrowser.swapDocShells(aOtherTab.linkedBrowser);
             aOtherTab.linkedConversation.conv = null;
-            conv.finishImport();
+            conv.finishImport(aOtherTab.linkedConversation);
 
             // Finish tearing down the tab that's going away.
             remoteBrowser._endRemoveTab(endRemoveArgs);

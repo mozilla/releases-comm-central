@@ -164,8 +164,12 @@
      </method>
 
      <method name="finishImport">
+       <parameter name="aConversation"/>
        <body>
          <![CDATA[
+           this.editor.value = aConversation.editor.value;
+           this.browser.browserResize();
+           this.updateTyping();
            this.observe(this.browser, "conversation-loaded", null);
          ]]>
        </body>
@@ -207,7 +211,6 @@
       </body>
      </method>
 
-     <field name="_lastMessage">null</field>
      <field name="_statusText">""</field>
 
      <!-- This is used when we want to remove close the conversation binding

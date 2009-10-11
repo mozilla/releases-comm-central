@@ -89,7 +89,6 @@
         <body>
           <![CDATA[
             this._conv = aConversation;
-            this._theme = null;
 
             const URI = "chrome://instantbird/content/conv.html";
             const flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
@@ -273,6 +272,8 @@
           ]]>
         </body>
       </method>
+
+      <field name="_lastMessage">null</field>
 
       <method name="appendMessage">
         <parameter name="aMsg"/>
@@ -716,7 +717,9 @@
           // DOMLinkAdded/Removed, onStateChange) should not be swapped here,
           // because these notifications are dispatched again once the docshells
           // are swapped.
-          var fieldsToSwap = [ "_docShell", "_fastFind", "_contentWindow", "_webNavigation"];
+          var fieldsToSwap = ["_docShell", "_fastFind", "_contentWindow", "_webNavigation",
+                              "_theme", "_textModifiers", "_autoScrollEnabled",
+                              "_lastElement", "_lastMessage"];
 
           var ourFieldValues = {};
           var otherFieldValues = {};
