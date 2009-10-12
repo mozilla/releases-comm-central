@@ -90,6 +90,10 @@
           <![CDATA[
             this._conv = aConversation;
 
+            // init is called when the message style preview is
+            // reloaded so we need to reset _theme.
+            this._theme = null;
+
             const URI = "chrome://instantbird/content/conv.html";
             const flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
             this.webNavigation.loadURI(URI, flag, null, null, null);
