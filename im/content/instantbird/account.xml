@@ -51,18 +51,21 @@
   <binding id="account" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
       <xul:vbox flex="1">
-        <xul:hbox flex="1">
+        <xul:hbox flex="1" align="top">
+          <xul:vbox>
+            <xul:stack xbl:inherits="tooltiptext=protocol">
+              <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
+              <xul:image class="accountStateIcon"/>
+            </xul:stack>
+            <xul:spacer flex="1"/>
+          </xul:vbox>
           <xul:vbox flex="1">
-
            <xul:hbox class="accountNameBox">
-            <xul:label value="&account.name;" class="accountNameLabel"/>
-            <xul:label flex="1" xbl:inherits="value=name"
-                       class="accountName"/>
-           </xul:hbox>
-           <xul:hbox class="accountAliasBox">
-            <xul:label value="&account.alias;"/>
-            <xul:label flex="1" xbl:inherits="value=alias"
-                       class="accountAlias"/>
+            <xul:label xbl:inherits="value=name" class="accountName"/>
+            <xul:hbox class="accountAliasBox">
+              <xul:label value="&account.alias;"/>
+              <xul:label xbl:inherits="value=alias" class="accountAlias"/>
+            </xul:hbox>
            </xul:hbox>
            <xul:label class="connecting" anonid="connecting" value="&account.connecting;"/>
            <xul:label class="connected" anonid="connected"/>
@@ -72,15 +75,9 @@
            <xul:description class="error" anonid="reconnect"/>
            <xul:spacer flex="1"/>
           </xul:vbox>
-          <xul:vbox align="center">
-            <xul:stack>
-              <xul:image xbl:inherits="src=prplicon" class="accountIcon"/>
-              <xul:image xbl:inherits="src=prplicon" class="accountIconAnim"
-                         anonid="prplicon"/>
-              <xul:image src="chrome://instantbird/skin/accountError.png" class="errorIcon"/>
-            </xul:stack>
-            <xul:label xbl:inherits="value=protocol" class="prplName"/>
-          </xul:vbox>
+          <xul:checkbox label="&account.autoSignOn;" dir="reverse"
+                        xbl:inherits="checked=autologin" class="autoSignOn"
+                        oncommand="gAccountManager.autologin()"/>
         </xul:hbox>
         <xul:hbox flex="1" class="account-buttons" anonid="buttons"
                   xbl:inherits="autologin"/>
@@ -112,7 +109,6 @@
             this.updateConnectionError();
         } else if (this._account.connecting) {
           state = "connecting";
-          this.icon.animate();
           this.updateConnectionState();
         } else if (this._account.disconnecting) {
           state = "connected";
@@ -232,28 +228,16 @@
        </body>
      </method>
 
-     <method name="pauseItems">
-       <body>
-       <![CDATA[
-         // Called before a removal of this binding (removeChild())
-         this.icon.stop();
-       ]]>
-       </body>
-     </method>
-
      <method name="restoreItems">
        <body>
        <![CDATA[
          // Called after a removal and reinsertion of the binding
          this._buttons = null;
-         this._icon = null;
          this._connectedLabel = null;
          if (this._account.connectionErrorReason == Ci.purpleIAccount.NO_ERROR)
            this.updateConnectionState();
          else
            this.updateConnectionError();
-         if (this._account.connecting)
-           this.icon.animate();
        ]]>
        </body>
      </method>
@@ -301,17 +285,6 @@
        </getter>
      </property>
 
-     <property name="icon">
-       <getter>
-         <![CDATA[
-           if (!this._icon)
-             this._icon =
-               document.getAnonymousElementByAttribute(this, "anonid", "prplicon");
-           return this._icon;
-         ]]>
-       </getter>
-     </property>
-
     </implementation>
     <handlers>
       <handler event="dblclick">
@@ -333,16 +306,13 @@
 
   <binding id="buttons" extends="xul:hbox">
     <content>
-      <xul:checkbox label="&account.autoSignOn;"
-                    xbl:inherits="checked=autologin"
-                    oncommand="gAccountManager.autologin()"/>
-      <xul:spacer flex="1"/>
       <xul:button class="disconnectButton"
                   command="cmd_disconnect"
                   anonid="disconnect"/>
       <xul:button class="connectButton"
                   command="cmd_connect"
                   anonid="connect"/>
+      <xul:spacer flex="1"/>
       <xul:button command="cmd_delete"/>
       <xul:button command="cmd_edit"/>
     </content>

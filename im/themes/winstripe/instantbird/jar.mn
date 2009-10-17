@@ -1,7 +1,6 @@
 classic.jar:
 % skin instantbird classic/1.0 %skin/classic/instantbird/
 	skin/classic/instantbird/account.css
-	skin/classic/instantbird/accountError.png
 *	skin/classic/instantbird/accounts.css
 *	skin/classic/instantbird/accountWizard.css
 	skin/classic/instantbird/available-16.png

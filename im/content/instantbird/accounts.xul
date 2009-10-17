@@ -148,9 +148,9 @@
                  ondragdrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
   </deck>
  </notificationbox>
- <hbox id="bottombuttons">
+ <windowdragbox id="bottombuttons" align="center">
   <button id="newaccount" command="cmd_new"/>
   <spacer flex="1"/>
   <button id="close" command="cmd_close"/>
- </hbox>
+ </windowdragbox>
 </window>

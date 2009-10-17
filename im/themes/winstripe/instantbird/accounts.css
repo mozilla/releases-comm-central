@@ -39,11 +39,8 @@
 
 #accountManager {
   background-color: ThreeDFace;
-%ifdef XP_MACOSX
-  padding: 4px 4px;
-%else
-  margin: 4px 0;
-%endif
+  padding: 0 0;
+  margin: 0 0;
 }
 
 %ifndef XP_MACOSX
@@ -54,12 +51,13 @@ notification > hbox {
 %endif
 
 #accountsNotificationBox {
-  margin: 8px 8px;
-  -moz-appearance: listbox;
+  margin: 0 0;
+  -moz-appearance: none;
 }
 
 #noAccountScreen {
   background-color: -moz-Dialog;
+  overflow: auto;
 }
 #noAccountBox {
   background-color: -moz-Field;
@@ -89,6 +87,7 @@ notification > hbox {
 
 #accountlist {
   margin: 0 0;
+
   -moz-appearance: none;
 %ifdef WINCE
   border: 2px solid;
@@ -96,17 +95,79 @@ notification > hbox {
   -moz-border-right-colors: ThreeDHighlight ThreeDLightShadow;
   -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
   -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
+%else
+%ifndef XP_MACOSX
+  border-bottom: 2px solid;
+  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
 %endif
 }
 
 #bottombuttons {
 %ifdef XP_MACOSX
-  margin: -2px 8px 3px 8px;
+  -moz-box-pack: end;
+  -moz-padding-start: 2px;
+  -moz-padding-end: 11px;
+  -moz-appearance: statusbar;
+  min-height: 28px;
 %else
-  margin: 2px 7px;
+  margin: 0 0;
 %endif
 }
 
+%ifdef XP_MACOSX
+
+%filter substitution
+%define loweredShadow 0 1px rgba(255, 255, 255, .4)
+%define focusRingShadow 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring, 0 0 2px 1px -moz-mac-focusring
+
+%define roundButtonShadow 0 1px rgba(255, 255, 255, .4)
+%define roundButtonPressedShadow inset 0 1px 4px rgba(0, 0, 0, .2), 0 1px rgba(255, 255, 255, .4)
+
+%define toolbarbuttonBorderColor rgba(59, 59, 59, 0.9)
+%define toolbarbuttonCornerRadius 3px
+%define toolbarbuttonBackground -moz-linear-gradient(top, bottom, from(#FFF), to(#ADADAD)) repeat-x
+%define toolbarbuttonPressedInnerShadow inset rgba(0, 0, 0, 0.3) 0 -6px 14px, inset #000 0 1px 4px, inset rgba(0, 0, 0, 0.2) 0 1px 4px
+%define toolbarbuttonPressedBackgroundColor #B5B5B5
+%define toolbarbuttonInactiveBorderColor rgba(146, 146, 146, 0.84)
+%define toolbarbuttonInactiveFontColor #7C7C7C
+%define toolbarbuttonInactiveBackgroundImage -moz-linear-gradient(top, bottom, from(#FFF), to(#CCC))
+
+button {
+  -moz-appearance: none;
+  min-height: 18px;
+  min-width: 0;
+  margin: 0 3px;
+  padding: 0 2px;
+  text-shadow: @loweredShadow@;
+  border: 1px solid @toolbarbuttonBorderColor@;
+  -moz-border-radius: @toolbarbuttonCornerRadius@;
+  -moz-box-shadow: @loweredShadow@;
+  background: @toolbarbuttonBackground@;
+  -moz-background-origin: border;
+}
+
+button:focus {
+  -moz-box-shadow: @focusRingShadow@, @roundButtonShadow@;
+}
+
+button:active:hover:focus {
+  -moz-box-shadow: @focusRingShadow@, @roundButtonPressedShadow@;
+}
+ 
+button:hover:active:not([disabled="true"]) {
+  background: @toolbarbuttonPressedBackgroundColor@;
+  text-shadow: @loweredShadow@;
+  -moz-box-shadow: @toolbarbuttonPressedInnerShadow@, @loweredShadow@;
+}
+
+:root:not([active]) #bottombuttons button {
+  color: @toolbarbuttonInactiveFontColor@ !important; /* remove this when we support click-through, bug 392188 */
+  border-color: @toolbarbuttonInactiveBorderColor@;
+  background-image: @toolbarbuttonInactiveBackgroundImage@;
+  opacity: 0.7;
+}
+%else
+%ifndef XP_WIN
 #newaccount {
   margin-left: 0;
 }
@@ -114,30 +175,39 @@ notification > hbox {
 #close {
   margin-right: 0;
 }
+%endif
+%endif
 
 /* List Items */
 richlistitem {
   padding-top: 6px;
   padding-bottom: 6px;
-  -moz-padding-start: 7px;
-  -moz-padding-end: 7px;
+  -moz-padding-start: 4px;
+  -moz-padding-end: 4px;
   min-height: 25px;
+%ifndef XP_MACOSX
+%ifdef XP_WIN
+  border-bottom: 1px solid ThreeDLightShadow;
+%else
   border-bottom: 1px dotted #C0C0C0;
+%endif
+%endif
 }
 
-richlistitem[state="disconnected"] .accountIcon,
-richlistitem[state="connecting"] .accountIconAnim {
+%ifdef XP_MACOSX
+richlistitem:not([selected="true"]):nth-child(odd) {
+  background-color: -moz-oddtreerow;
+}
+%endif
+
+richlistitem[state="disconnected"] .accountIcon {
   opacity: 0.3;
 }
-.accountIconAnim {
-  -moz-binding: url("chrome://instantbird/content/anim.xml#anim")
-}
 richlistitem[state="connecting"] .accountIcon,
-richlistitem:not([state="connecting"]) .accountIconAnim {
-  display: none;
+richlistitem[state="disconnected"][selected="true"] .accountIcon {
+  opacity: 0.7;
 }
-
-richlistitem[state="disconnected"] {
+richlistitem[state="disconnected"]:not([selected="true"]) {
   color: GrayText;
 }
 
@@ -146,19 +216,43 @@ richlistitem[error="true"] .accountName {
   color: rgb(150, 0, 0);
 }
 
+%ifdef XP_WIN
+richlistitem[selected="true"] {
+  background-image: url(chrome://mozapps/skin/extensions/itemEnabledFader.png);
+}
+
+:root[active] richlistitem[selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+%else
+%ifdef XP_MACOSX
+:root[active] richlistitem[selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+%else
 richlistitem[selected="true"] {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
 }
+%endif
+%endif
 
+%ifndef XP_MACOSX
 /* When the error message was too long, the buttons were too small */
 richlistitem .account-buttons button {
   min-height: 2em;
 }
+%endif
 
-richlistbox[focused] richlistitem[selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
+richlistitem .account-buttons {
+  margin-top: 2px;
+%ifdef XP_MACOSX
+  margin-left: 35px;
+%else
+  margin-left: 32px;
+%endif
 }
 
 richlistitem[dragover="down"] {
@@ -184,13 +278,29 @@ richlistitem:not([alias]) .accountAliasBox {
   font-style: italic;
 }
 
-.accountIcon,
-.accountIconAnim,
-.errorIcon {
-  -moz-margin-end: 5px;
-  -moz-margin-start: 5px;
+.accountIcon {
   width: 32px;
   max-width: 32px;
   height: 32px;
   max-height: 32px;
+}
+
+.accountStateIcon {
+  -moz-margin-start: 16px;
+  margin-top: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+richlistitem[state="connected"] .accountStateIcon {
+  list-style-image: url("chrome://instantbird/skin/available-16.png");
+}
+richlistitem[state="disconnected"] .accountStateIcon {
+  list-style-image: url("chrome://instantbird/skin/offline-16.png");
+}
+richlistitem[state="connecting"] .accountStateIcon {
+  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+}
+richlistitem[error="true"] .accountStateIcon {
+  list-style-image: url("chrome://global/skin/icons/warning-16.png");
 }

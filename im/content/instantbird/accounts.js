@@ -103,7 +103,6 @@ var gAccountManager = {
       let oldItem = accountList.getItemAtIndex(i);
       if (oldItem.id != acc.id) {
         let accElt = document.getElementById(acc.id);
-        accElt.pauseItems();
         accountList.removeChild(accElt);
         accountList.insertBefore(accElt, oldItem);
         accElt.restoreItems();
@@ -190,14 +189,12 @@ var gAccountManager = {
       if (aTopic in stateEvents) {
         let elt = document.getElementById(aObject.id);
         if (aTopic == "account-connecting") {
-          elt.icon.animate();
           elt.removeAttribute("error");
           elt.updateConnectionState();
         }
         else {
           if (aTopic == "account-connected")
             elt.refreshConnectedLabel();
-          elt.icon.stop();
         }
 
         elt.setAttribute("state", stateEvents[aTopic]);
