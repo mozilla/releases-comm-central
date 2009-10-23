@@ -57,17 +57,21 @@
     <columns>
       <column/>
       <column flex="1"/>
+      <column id="optionalcolumn" labeltxt="&optional.label;"/>
     </columns>
     <rows>
+      <row id="accountBox">
+        <label value="&account.label;" control="accountlist"/>
+        <menulist id="accountlist" onselect="joinChat.onAccountSelect();"/>
+      </row>
+      <row id="separatorRow1">
+        <separator class="thin"/>
+      </row>
       <row id="nameBox">
         <label value="&name.label;" control="name"/>
         <textbox id="name"/>
       </row>
-      <row id="accountBox">
-        <label value="&account.label;" control="accountlist"/>
-        <menulist id="accountlist"/>
-      </row>
-      <row>
+      <row id="separatorRow2">
         <separator class="thin"/>
       </row>
       <row id="autojoinBox">

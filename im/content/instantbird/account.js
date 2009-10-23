@@ -59,7 +59,9 @@ var account = {
 
     this.prefService = Components.classes["@mozilla.org/preferences-service;1"]
                                  .getService(Ci.nsIPrefService);
-    if (this.proto.id == "prpl-irc") {
+    let protoId = this.proto.id;
+    if (protoId == "prpl-irc" || protoId == "prpl-jabber" ||
+        protoId == "prpl-gtalk") {
       document.getElementById("optionalSeparator").hidden = false;
       document.getElementById("autojoinBox").hidden = false;
       var branch = this.prefService.getBranch("messenger.account." +
@@ -267,7 +269,9 @@ var account = {
     if (alias != this.account.alias)
       this.account.alias = alias;
 
-    if (this.proto.id == "prpl-irc") {
+    let protoId = this.proto.id;
+    if (protoId == "prpl-irc" || protoId == "prpl-jabber" ||
+        protoId == "prpl-gtalk") {
       var branch = this.prefService.getBranch("messenger.account." +
                                               this.account.id + ".");
       var autojoin = this.getValue("autojoin");

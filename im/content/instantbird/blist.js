@@ -93,8 +93,8 @@ var buddyList = {
 
     if (aTopic == "account-connected" || aTopic == "account-disconnected") {
       var account = aBuddy.QueryInterface(Ci.purpleIAccount);
-      if (account.protocol.id == "prpl-irc") {
-        this.checkForIrcAccount();
+      if (account.canJoinChat) {
+        this.checkForMUCEnabledAccount();
         if (aTopic == "account-connected") {
           var branch = Components.classes["@mozilla.org/preferences-service;1"]
                                  .getService(Ci.nsIPrefService)
@@ -104,8 +104,10 @@ var buddyList = {
             var autojoin = branch.getCharPref(autoJoinPref);
             if (autojoin) {
               autojoin = autojoin.split(",");
-              for (var i = 0; i < autojoin.length; ++i)
-                account.joinChat(autojoin[i]);
+              for (var i = 0; i < autojoin.length; ++i) {
+                let values = account.getChatRoomDefaultFieldValues(autojoin[i]);
+                account.joinChat(values);
+              }
             }
           }
         }
@@ -180,11 +182,11 @@ var buddyList = {
     if (!hasActiveAccount)
       addBuddyItem.disabled = true;
   },
-  checkForIrcAccount: function bl_checkForIrcAccount() {
+  checkForMUCEnabledAccount: function bl_checkForMUCEnabledAccount() {
     var joinChatItem = document.getElementById("joinChatMenuItem");
 
     for (let acc in this.getAccounts())
-      if (acc.connected && acc.protocol.id == "prpl-irc") {
+      if (acc.connected && acc.canJoinChat) {
         joinChatItem.disabled = false;
         return;
       }
@@ -230,7 +232,7 @@ var buddyList = {
     Conversations.init();
 
     buddyList.checkNotDisconnected(true);
-    buddyList.checkForIrcAccount();
+    buddyList.checkForMUCEnabledAccount();
     this.addEventListener("unload", buddyList.unload, false);
     this.addEventListener("close", buddyList.close, false);
   },

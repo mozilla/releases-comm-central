@@ -1,6 +1,7 @@
 <!ENTITY joinChatWindow.title           "Join chat">
 <!ENTITY joinChatWindow.width           "300">
 <!ENTITY name.label                     "Room">
+<!ENTITY optional.label                 "(optional)">
 <!ENTITY account.label                  "Account">
 <!ENTITY autojoin.label                 "Auto-join this Chat Room">
 <!ENTITY autojoin.accesskey             "A">

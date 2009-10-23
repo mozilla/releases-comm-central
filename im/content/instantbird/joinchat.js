@@ -47,39 +47,114 @@ var joinChat = {
   buildAccountList: function jc_buildAccountList() {
     var accountList = document.getElementById("accountlist");
     for (let acc in this.getAccounts()) {
-      if (!acc.connected)
+      if (!acc.connected || !acc.canJoinChat)
         continue;
       var proto = acc.protocol;
-      if (proto.id != "prpl-irc")
-        continue;
       var item = accountList.appendItem(acc.name, acc.id, proto.name);
       item.setAttribute("image", proto.iconBaseURI + "icon.png");
       item.setAttribute("class", "menuitem-iconic");
+      item.account = acc;
     }
     if (!accountList.itemCount) {
       document.getElementById("joinChatDialog").cancelDialog();
-      throw "No connected IRC account!";
+      throw "No connected MUC enabled account!";
     }
     accountList.selectedIndex = 0;
   },
 
-  getValue: function jc_getValue(aId) {
-    var elt = document.getElementById(aId);
-    return elt.value;
+  onAccountSelect: function jc_onAccountSelect() {
+    let ab = document.getElementById("separatorRow1");
+    while (ab.nextSibling && ab.nextSibling.id != "separatorRow2")
+      ab.parentNode.removeChild(ab.nextSibling);
+
+    let acc = document.getElementById("accountlist").selectedItem.account;
+    let sep = document.getElementById("separatorRow2");
+    let defaultValues = acc.getChatRoomDefaultFieldValues();
+    joinChat._values = defaultValues;
+    joinChat._fields = [];
+    joinChat._account = acc;
+
+    let protoId = acc.protocol.id;
+    document.getElementById("autojoin").visible = 
+      protoId == "prpl-irc" || protoId == "prpl-jabber" ||
+      protoId == "prpl-gtalk";
+
+    for (let field in getIter(acc.getChatRoomFields())) {
+      let row = document.createElement("row");
+
+      let label = document.createElement("label");
+      let text = field.label;
+      let match = /_(.)/(text);
+      if (match) {
+        label.setAttribute("accesskey", match[1]);
+        text = text.replace(/_/, "");
+      }
+      label.setAttribute("value", text);
+      label.setAttribute("control", "field-" + field.identifier);
+      row.appendChild(label);
+
+      let textbox = document.createElement("textbox");
+      textbox.setAttribute("id", "field-" + field.identifier);
+      let val = defaultValues.getValue(field.identifier);
+      if (val)
+        textbox.setAttribute("value", val);
+      if (field.type == Ci.purpleIChatRoomField.TYPE_PASSWORD)
+        textbox.setAttribute("type", "password");
+      else if (field.type == Ci.purpleIChatRoomField.TYPE_INT) {
+        textbox.setAttribute("type", "number");
+        textbox.setAttribute("min", field.min);
+        textbox.setAttribute("max", field.max);
+      }
+      row.appendChild(textbox);
+
+      if (!field.required) {
+        label = document.createElement("label");
+        text = document.getElementById("optionalcolumn")
+                       .getAttribute("labeltxt");
+        label.setAttribute("value", text);
+        row.appendChild(label);
+      }
+
+      sep.parentNode.insertBefore(row, sep);
+      joinChat._fields.push({field: field, textbox: textbox});
+    }
+
+    window.sizeToContent();
   },
 
   join: function jc_join() {
-    var account = this.pcs.getAccountById(this.getValue("accountlist"));
-    var name = this.getValue("name")
-    var conv = account.joinChat(name);
+    let values = joinChat._values;
+    for each (let field in joinChat._fields) {
+      let val = field.textbox.value;
+      if (!val && field.field.required) {
+        field.textbox.focus();
+        //FIXME: why isn't the return false enough?
+        throw "Some required fields are empty!";
+        return false;
+      }
+      if (val)
+        values.setValue(field.field.identifier, val);
+    }
+    let account = joinChat._account;
+    account.joinChat(values);
 
-    if (document.getElementById("autojoin").checked) {
-      var prefBranch = Components.classes["@mozilla.org/preferences-service;1"]
+    let protoId = account.protocol.id;
+    if ((protoId == "prpl-irc" || protoId == "prpl-jabber" ||
+         protoId == "prpl-gtalk") &&
+        document.getElementById("autojoin").checked) {
+      let name;
+      if (protoId == "prpl-irc")
+        name = values.getValue("channel");
+      else
+        name = values.getValue("room") + "@" +
+               values.getValue("server") + "/" + values.getValue("handle");
+
+      let prefBranch = Components.classes["@mozilla.org/preferences-service;1"]
                                  .getService(Ci.nsIPrefService)
                                  .getBranch("messenger.account." + account.id + ".");
-      var autojoin = [ ];
+      let autojoin = [ ];
       if (prefBranch.prefHasUserValue(autoJoinPref)) {
-        var prefValue = prefBranch.getCharPref(autoJoinPref);
+        let prefValue = prefBranch.getCharPref(autoJoinPref);
         if (prefValue)
           autojoin = prefValue.split(",");
       }
@@ -90,14 +165,7 @@ var joinChat = {
       }
     }
 
-    // if the conversation is being created, |conv| will be null
-    // here. The new-conversation notification should be used to focus
-    // it when done.  If it is already opened, we should focus it now.
-    if (!conv)
-      return;
-
-    Components.utils.import("resource://app/modules/imWindows.jsm");
-    Conversations.focusConversation(conv);
+    return true;
   },
 
   getAccounts: function jc_getAccounts() {
