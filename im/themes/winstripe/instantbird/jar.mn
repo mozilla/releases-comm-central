@@ -87,9 +87,6 @@ classic.jar:
 	skin/classic/prpl/bilboed-netsoul/icon48.png	(prpl/prpl-bilboed-netsoul-48.png)
 	skin/classic/prpl/bilboed-netsoul/icon.png	(prpl/prpl-bilboed-netsoul.png)
 #if 0
-% skin prpl-google-talk classic/1.0 %skin/classic/prpl/google-talk/
-	skin/classic/prpl/google-talk/icon32.png	(prpl/prpl-google-talk-32.png)
-	skin/classic/prpl/google-talk/icon.png		(prpl/prpl-google-talk.png)
 % skin prpl-bonjour classic/1.0 %skin/classic/prpl/bonjour/
 	skin/classic/prpl/bonjour/icon32.png	(prpl/prpl-bonjour-32.png)
 	skin/classic/prpl/bonjour/icon48.png	(prpl/prpl-bonjour-48.png)
