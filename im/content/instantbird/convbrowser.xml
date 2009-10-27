@@ -288,8 +288,8 @@
             if (!aMsg.noLinkification) {
               msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
                               .getService(Ci.mozITXTToHTMLConv)
-                              .scanHTML(msg, 2)
-                              .replace(/&amp;(apos|quot);/g, "&$1;");
+                              .scanHTML(msg.replace(/&/g, "&amp;"), 2)
+                              .replace(/&amp;/g, "&");
             }
             aMsg.message = cleanupImMarkup(doc, msg.replace(/\n/g, "<br/>"), null,
                                            this._textModifiers);
