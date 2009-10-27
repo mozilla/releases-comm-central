@@ -60,13 +60,7 @@
             <xul:spacer flex="1"/>
           </xul:vbox>
           <xul:vbox flex="1">
-           <xul:hbox class="accountNameBox">
-            <xul:label xbl:inherits="value=name" class="accountName"/>
-            <xul:hbox class="accountAliasBox">
-              <xul:label value="&account.alias;"/>
-              <xul:label xbl:inherits="value=alias" class="accountAlias"/>
-            </xul:hbox>
-           </xul:hbox>
+           <xul:label xbl:inherits="value=name" class="accountName"/>
            <xul:label class="connecting" anonid="connecting" value="&account.connecting;"/>
            <xul:label class="connected" anonid="connected"/>
            <xul:label class="disconnecting" value="&account.disconnecting;"/>
@@ -91,11 +85,6 @@
         this._account = aAccount;
         this.setAttribute("name", aAccount.name);
         this.setAttribute("id", aAccount.id);
-        var alias = aAccount.alias;
-        if (alias)
-          this.setAttribute("alias", alias);
-        else
-          this.removeAttribute("alias");
         var proto = aAccount.protocol;
         this.setAttribute("protocol", proto.name);
         this.setAttribute("prplicon", proto.iconBaseURI + "icon32.png");

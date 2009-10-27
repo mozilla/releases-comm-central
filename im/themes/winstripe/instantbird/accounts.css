@@ -211,7 +211,6 @@ richlistitem[state="disconnected"]:not([selected="true"]) {
   color: GrayText;
 }
 
-richlistitem[error="true"] .accountNameLabel,
 richlistitem[error="true"] .accountName {
   color: rgb(150, 0, 0);
 }
@@ -268,14 +267,6 @@ richlistitem[dragover="up"] {
 }
 .accountName {
   font-weight: bold;
-}
-
-richlistitem:not([alias]) .accountAliasBox {
-  display: none;
-}
-
-.accountAlias {
-  font-style: italic;
 }
 
 .accountIcon {

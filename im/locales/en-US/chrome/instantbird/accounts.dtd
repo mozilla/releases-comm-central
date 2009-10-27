@@ -1,5 +1,5 @@
 <!ENTITY accountManager.title                "Account manager - &brandShortName;">
-<!ENTITY accountManager.width                "400">
+<!ENTITY accountManager.width                "450">
 <!ENTITY accountManager.newAccount.label     "New Account">
 <!ENTITY accountManager.newAccount.accesskey "N">
 <!ENTITY accountManager.close.label          "Close">
@@ -7,7 +7,6 @@
 <!-- This title must be short, displayed with a big font size -->
 <!ENTITY accountManager.noAccount.title      "No account configured yet!">
 <!ENTITY accountManager.noAccount.description "Click on the &accountManager.newAccount.label; button to let &brandShortName; guide you through the process of configuring one.">
-<!ENTITY account.alias                "Alias:">
 <!ENTITY account.autoSignOn           "Sign-on at startup">
 <!ENTITY account.connect.label        "Connect">
 <!ENTITY account.connect.accesskey    "o">
