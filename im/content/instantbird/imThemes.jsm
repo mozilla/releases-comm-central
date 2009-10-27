@@ -333,7 +333,12 @@ const headerFooterReplacements = {
            "incoming_icon.png";
   },
   outgoingIconPath: function(aConv) "outgoing_icon.png",
-  timeOpened: function(aConv, aFormat) (new Date()).toLocaleTimeString()
+  timeOpened: function(aConv, aFormat) {
+    if (aFormat)
+      return (new Date()).toLocaleFormat(aFormat);
+    else
+      return (new Date()).toLocaleTimeString();
+  }
 };
 
 const statusMessageReplacements = {
