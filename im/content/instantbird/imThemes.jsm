@@ -35,6 +35,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#filter substitution
+#ifdef XP_WIN
+#define LINE_BREAK \r\n
+#else
+#define LINE_BREAK \n
+#endif
+
 var EXPORTED_SYMBOLS = [
   "getCurrentTheme",
   "getHTMLForMessage",
@@ -678,7 +685,7 @@ function serializeSelection(aSelection)
           // Add the ellipsis only if the previous message was cut
           if (lastMessage.cutEnd)
             shortSelection += " " + getEllipsis();
-          shortSelection += "\n";
+          shortSelection += "@LINE_BREAK@";
         }
         else
           shortSelection += " " + getEllipsis() + " ";
@@ -706,7 +713,7 @@ function serializeSelection(aSelection)
   if (shortVersionPossible)
     return shortSelection || aSelection.toString();
   else
-    return longSelection.join("\n");
+    return longSelection.join("@LINE_BREAK@");
 }
 
 function SelectedMessage(aRootNode, aRange)
@@ -799,7 +806,7 @@ SelectedMessage.prototype = {
         let range = spanNode.ownerDocument.createRange();
         range.setStart(this._range.endContainer, this._range.endOffset);
         range.setEnd(spanNode, spanNode.childNodes.length);
-        this._cutEnd = !/^\n?$/.test(serializeRange(range));
+        this._cutEnd = !/^(@LINE_BREAK@)?$/.test(serializeRange(range));
       }
       else
         this._cutEnd = false;
