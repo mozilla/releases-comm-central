@@ -38,26 +38,10 @@
 
 var TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
 
-const events = ["purple-quit"];
-
 var convWindow = {
-  // Components.interfaces.nsIObserver
-  observe: function mo_observe(aObject, aTopic, aData) {
-    switch(aTopic) {
-    case "purple-quit":
-      window.close();
-      break;
-
-    default:
-      throw "Bad notification";
-    }
-  },
-
   load: function mo_load() {
     Components.utils.import("resource://app/modules/imWindows.jsm");
     Conversations.registerWindow(window);
-
-    addObservers(convWindow, events);
 
     if ("arguments" in window) {
       while (window.arguments[0] instanceof XULElement) {
@@ -79,7 +63,6 @@ var convWindow = {
           .XULBrowserWindow = window.XULBrowserWindow;
   },
   unload: function mo_unload() {
-    removeObservers(convWindow, events);
     Conversations.unregisterWindow(window);
   },
   onactivate: function mo_onactivate(aEvent) {
