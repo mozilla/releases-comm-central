@@ -65,14 +65,9 @@ conversation[chat="true"] .conv-messages {
 }
 
 textbox.conv-textbox {
-%ifdef XP_MACOSX
   margin: 0 0;
-%elifdef XP_UNIX
-  margin: -1px -1px;
-%else
-  margin: 0 0;
-%endif
   padding: 0 0;
+  -moz-box-sizing: content-box;
 }
 
 .textbox-textarea,

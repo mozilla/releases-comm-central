@@ -185,8 +185,8 @@
 
            // Textbox related initializations.
            let textbox = this.calculateTextboxDefaultHeight();
-           textbox.parentNode.height = textbox.defaultHeight;
-
+           textbox.parentNode.height = textbox.defaultHeight +
+                                       this._TEXTBOX_VERTICAL_OVERHEAD;
            document.getAnonymousElementByAttribute(textbox, "anonid", "input")
                    .style.overflowY = "hidden";
 
@@ -287,6 +287,8 @@
           this._conv.sendMsg(msg.replace(/\n/g, "<br/>"));
         else
           this._conv.sendMsg(msg);
+        // reset the textbox to its original size
+        this.resetInput();
       ]]>
       </body>
      </method>
@@ -302,13 +304,24 @@
           document.getAnonymousElementByAttribute(document.getBindingParent(this),
                                                   "anonid", "inputBox");
         // set the default height as the deck height (modified by the splitter)
-        textbox.defaultHeight = parseInt(textbox.parentNode.height);
+        textbox.defaultHeight = parseInt(textbox.parentNode.height) -
+          document.getBindingParent(this)._TEXTBOX_VERTICAL_OVERHEAD;
       ]]>
       </body>
      </method>
 
-     <field name="_TEXTBOX_VERTICAL_OVERHEAD" readonly="true">6</field>
-     <field name="_TEXTBOX_AUTOLINES_FACTOR" readonly="true">10</field>
+     <!--
+      This value represents the difference between the deck's height and the
+      textbox's content height (borders, margins, paddings).
+      Differ according to the Operating System native theme.
+     -->
+     <field name="_TEXTBOX_VERTICAL_OVERHEAD">0</field>
+     <!--
+       Ratio textbox height / conversation height.
+       0.1 means that the textbox's height is 10% of the conversation's height.
+     -->
+     <field name="_TEXTBOX_RATIO" readonly="true">0.1</field>
+
 
      <method name="calculateTextboxDefaultHeight">
       <body>
@@ -317,11 +330,18 @@
                                         .getPropertyValue("height"));
         let textbox =
           document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
-        let lineHeight = parseInt(window.getComputedStyle(textbox, null)
-                                        .getPropertyValue("line-height"));
+        let textboxStyle = window.getComputedStyle(textbox, null);
+        let lineHeight = parseInt(textboxStyle.getPropertyValue("line-height"));
+
+        // Compute the overhead size.
+        let textboxHeight = parseInt(textboxStyle.getPropertyValue("height"));
+        let deckHeight = parseInt(window.getComputedStyle(textbox.parentNode, null)
+                                        .getPropertyValue("height"));
+        this._TEXTBOX_VERTICAL_OVERHEAD = deckHeight - textboxHeight;
+
         // Calculate the number of lines to display.
         let numberOfLines =
-          Math.round(totalSpace / (this._TEXTBOX_AUTOLINES_FACTOR * lineHeight));
+          Math.round(totalSpace * this._TEXTBOX_RATIO / lineHeight);
         if (numberOfLines <= 0)
           numberOfLines = 1;
 
@@ -334,8 +354,7 @@
 
         if (numberOfLines > this._maxEmptyLines)
           numberOfLines = this._maxEmptyLines;
-        textbox.defaultHeight = numberOfLines * lineHeight +
-                                this._TEXTBOX_VERTICAL_OVERHEAD;
+        textbox.defaultHeight = numberOfLines * lineHeight;
 
         // set minimum height (in case the user moves the splitter)
         textbox.minHeight = lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
@@ -394,7 +413,6 @@
 
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
           conv.sendMsg(inputBox.value);
-          conv.resetInput();
           event.preventDefault();
         }
         else if (!event.shiftKey)
@@ -412,10 +430,10 @@
         let overflow = "";
         if (Conversations.textboxAutoResize) {
           let currHeight = parseInt(inputBox.parentNode.height);
-          if (inputBox.defaultHeight > currHeight)
-            inputBox.defaultHeight = currHeight;
+          if (inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD > currHeight)
+            inputBox.defaultHeight = currHeight - this._TEXTBOX_VERTICAL_OVERHEAD;
           document.getAnonymousElementByAttribute(this, "anonid", "conv-bottom")
-                  .height = inputBox.defaultHeight;
+                  .height = inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
           overflow = "hidden";
         }
 
@@ -489,7 +507,8 @@
 
         if (!splitter.hasAttribute("state")) {
           this.calculateTextboxDefaultHeight();
-          textbox.parentNode.height = textbox.defaultHeight;
+          textbox.parentNode.height = textbox.defaultHeight +
+                                      this._TEXTBOX_VERTICAL_OVERHEAD;
         }
         else {
           // Used in case the browser is already on its min-height, resize the
