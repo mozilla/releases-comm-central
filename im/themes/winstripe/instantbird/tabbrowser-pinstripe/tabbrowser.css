@@ -157,15 +157,8 @@ tabbrowser > tabbox {
   margin-bottom: 0;
 }
 
-.tabs-right,
-.tabs-left {
-  display: -moz-box;
-  width: 3px;
-}
-
-.tabbrowser-tabs[overflow="true"] .tabs-right,
-.tabbrowser-tabs[overflow="true"] .tabs-left {
-  display: none;
+.tabs-container:not([overflow="true"]) {
+  padding: 0 3px;
 }
 
 tabbrowser > tabbox > tabpanels {
@@ -181,7 +174,8 @@ tabbrowser > tabbox > tabpanels {
   margin-top: -10px;
   position: relative;
   /* set -moz-margin-start to -1/2 indicator width: */
-  -moz-margin-start: -4px;
+  -moz-margin-start: -5px;
+  -moz-margin-end: -8px;
 }
 
 .tab-drop-indicator {

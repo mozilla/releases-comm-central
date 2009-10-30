@@ -49,13 +49,14 @@
 }
 
 .tabs-container:not([overflow="true"]) {
-  -moz-padding-start: 3px;
+  padding: 0 3px;
 }
 
 /* Tabs */
 .tabbrowser-tab {
   -moz-appearance: none;
   background: url("chrome://instantbird/skin/tabbrowser/tab-bkgnd.png") repeat-x;
+  height: 22px;
   margin: 3px 0px 4px;
   padding: 0px 1px 1px 0px;
   border: 2px solid;
@@ -71,6 +72,7 @@
 .tabbrowser-tab:hover,
 .tabbrowser-tab[selected="true"] {
   border-width: 1px;
+  height: 23px;
   -moz-border-radius-topleft: 4px;
   -moz-border-radius-topright: 4px;
   -moz-border-top-colors: ThreeDShadow;
@@ -129,12 +131,14 @@ tabpanels {
   position: relative;
   /* set -moz-margin-start to -1/2 indicator width: */
   -moz-margin-start: -5px;
+  -moz-margin-end: -8px;
 }
 
 .tab-drop-indicator {
+  margin-top: 11px;
   height: 11px;
   width: 11px;
-  margin-bottom: -5px;
+  margin-bottom: -11px;
   position: relative;
   background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator.png') 50% 50% no-repeat;
 }

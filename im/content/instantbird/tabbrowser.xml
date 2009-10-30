@@ -1479,11 +1479,6 @@
           <xul:hbox class="tabs-bottom" align="center"/>
         </xul:vbox>
         <xul:hbox xbl:inherits="overflow" class="tabs-container">
-#ifdef XP_MACOSX
-          <xul:stack>
-            <xul:spacer class="tabs-left"/>
-          </xul:stack>
-#endif
           <xul:arrowscrollbox anonid="arrowscrollbox" orient="horizontal" flex="1"
                               style="min-width: 1px;" chromedir="&locale.dir;"
 #ifndef XP_MACOSX
@@ -1500,11 +1495,6 @@
                                command="cmd_newNavigatorTab" chromedir="&locale.dir;"
                                tooltiptext="&newTabButton.tooltip;"/>
           </xul:arrowscrollbox>
-#ifdef XP_MACOSX
-          <xul:stack>
-            <xul:spacer class="tabs-right"/>
-          </xul:stack>
-#endif
           <xul:toolbarbutton class="tabs-newtab-button" anonid="newtab-button"
                              command="cmd_newNavigatorTab" chromedir="&locale.dir;"
                              tooltiptext="&newTabButton.tooltip;"/>

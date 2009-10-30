@@ -115,9 +115,12 @@
   position: relative;
   /* set -moz-margin-start to -1/2 indicator width: */
   -moz-margin-start: -5px;
+  -moz-margin-end: -11px;
 }
 
 .tab-drop-indicator {
+  z-index: 1;
+  margin-top: 5px;
   height: 11px;
   width: 11px;
   margin-bottom: -5px;
