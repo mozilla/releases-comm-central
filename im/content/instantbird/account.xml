@@ -223,6 +223,8 @@
          // Called after a removal and reinsertion of the binding
          this._buttons = null;
          this._connectedLabel = null;
+         if (this._account.connected)
+           this.refreshConnectedLabel();
          if (this._account.connectionErrorReason == Ci.purpleIAccount.NO_ERROR)
            this.updateConnectionState();
          else

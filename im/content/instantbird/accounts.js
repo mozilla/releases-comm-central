@@ -103,7 +103,6 @@ var gAccountManager = {
       let oldItem = accountList.getItemAtIndex(i);
       if (oldItem.id != acc.id) {
         let accElt = document.getElementById(acc.id);
-        accountList.removeChild(accElt);
         accountList.insertBefore(accElt, oldItem);
         accElt.restoreItems();
       }
