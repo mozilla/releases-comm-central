@@ -627,7 +627,7 @@ let gAMDragAndDrop = {
     // reset the border of the previous element
     let previousItem = this._accountElement.previousSibling;
     if (previousItem) {
-      if (aIsEnd && previousItem.selected && previousItem.previousSibling)
+      if (aIsEnd && !previousItem.style.borderBottom && previousItem.previousSibling)
         previousItem = previousItem.previousSibling;
       previousItem.style.borderBottom = "";
     }
