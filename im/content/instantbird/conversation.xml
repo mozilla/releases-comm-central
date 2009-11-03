@@ -439,7 +439,7 @@
             },
             styleTextbox: function mf_styleTextbox(aTextbox) {
               aTextbox.style.color = this._getColor();
-              aTextbox.style.fontSize = this._values.fontSize + "pt";
+              aTextbox.style.fontSize = this._values.fontSize + "px";
               aTextbox.style.fontFamily = this._values.font;
             },
             getMessageStyle: function mf_getMessageStyle() {
@@ -450,7 +450,7 @@
                 result.push("color: " + color);
 
               if (!this._values.fontSizeIsDefault)
-                result.push("font-size: " + this._values.fontSize + "pt");
+                result.push("font-size: " + this._values.fontSize + "px");
 
               if (!this._values.fontIsDefault)
                 result.push("font-family: " + this._values.font);
