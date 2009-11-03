@@ -42,6 +42,8 @@ pref("messenger.conversations.selections.actionMessagesTemplate", "chrome://inst
 pref("messenger.conversations.textbox.autoResize", true);
 pref("messenger.conversations.textbox.defaultMaxLines", 5);
 
+pref("messenger.conversations.sendFormat", true);
+
 pref("messenger.options.getAttentionOnNewMessages", true);
 pref("messenger.options.notifyOfNewMessages", false);
 #ifdef XP_MACOSX
@@ -54,6 +56,15 @@ pref("messenger.options.playSounds", true);
 // 1 = basic formattings (bold, italic, underlined)
 // 2 = permissive mode (colors, font face, font size, ...)
 pref("messenger.options.filterMode", 1);
+
+pref("font.default.x-western", "sans-serif");
+pref("font.default.x-unicode", "sans-serif");
+#ifdef XP_MACOSX
+pref("font.name.sans-serif.x-unicode", "Lucida Grande");
+pref("font.name.sans-serif.x-western", "Lucida Grande");
+#endif
+pref("font.size.variable.x-western", 13);
+pref("font.size.variable.x-unicode", 13);
 
 // use "none" to disable
 pref("messenger.options.emoticonsTheme", "default");
