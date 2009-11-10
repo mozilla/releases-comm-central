@@ -36,7 +36,7 @@
    -
    - ***** END LICENSE BLOCK ***** -->
 
-<?xml-stylesheet href="chrome://instantbird/skin/accounts.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/richlistbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/proxies.css" type="text/css"?>
 
 <!DOCTYPE window [

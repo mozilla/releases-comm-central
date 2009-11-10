@@ -87,7 +87,6 @@ notification > hbox {
 
 #accountlist {
   margin: 0 0;
-
   -moz-appearance: none;
 %ifdef WINCE
   border: 2px solid;
@@ -179,27 +178,6 @@ button:hover:active:not([disabled="true"]) {
 %endif
 
 /* List Items */
-richlistitem {
-  padding-top: 6px;
-  padding-bottom: 6px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 4px;
-  min-height: 25px;
-%ifndef XP_MACOSX
-%ifdef XP_WIN
-  border-bottom: 1px solid ThreeDLightShadow;
-%else
-  border-bottom: 1px dotted #C0C0C0;
-%endif
-%endif
-}
-
-%ifdef XP_MACOSX
-richlistitem:not([selected="true"]):nth-child(odd) {
-  background-color: -moz-oddtreerow;
-}
-%endif
-
 richlistitem[state="disconnected"] .accountIcon {
   opacity: 0.3;
 }
@@ -214,29 +192,6 @@ richlistitem[state="disconnected"]:not([selected="true"]) {
 richlistitem[error="true"] .accountName {
   color: rgb(150, 0, 0);
 }
-
-%ifdef XP_WIN
-richlistitem[selected="true"] {
-  background-image: url(chrome://mozapps/skin/extensions/itemEnabledFader.png);
-}
-
-:root[active] richlistitem[selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-%else
-%ifdef XP_MACOSX
-:root[active] richlistitem[selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-%else
-richlistitem[selected="true"] {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-%endif
-%endif
 
 %ifndef XP_MACOSX
 /* When the error message was too long, the buttons were too small */
