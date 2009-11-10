@@ -1,0 +1,11 @@
+<!ENTITY openConversationsInTabs.label       "Open new conversations in tabs instead of windows">
+<!ENTITY openConversationsInTabs.accesskey   "t">
+
+<!ENTITY useSeparateWindowsForMUCs.label     "Use separate windows for Multi-User Chats">
+<!ENTITY useSeparateWindowsForMUCs.accesskey "s">
+
+<!ENTITY showTabBar.label                    "Always show the tab bar">
+<!ENTITY showTabBar.accesskey                "b">
+
+<!ENTITY warnCloseMultipleTabs.label         "Warn me when closing multiple tabs if there are unread messages">
+<!ENTITY warnCloseMultipleTabs.accesskey     "m">

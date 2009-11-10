@@ -35,6 +35,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+const purpleIConversation = Components.interfaces.purpleIConversation;
+const purpleIConvIM = Components.interfaces.purpleIConvIM;
+const purpleIConvChat = Components.interfaces.purpleIConvChat;
+
 function Conversation(aName, aIsChat)
 {
   this.name = aName;
@@ -44,7 +48,7 @@ Conversation.prototype = {
   QueryInterface: function(aIid) {
     if (aIid.equals(Components.interfaces.nsISupports) ||
         aIid.equals(Components.interfaces.purpleIConversation) ||
-        aIid.equals(this.isChat ? Ci.purpleIConvChat : Ci.purpleIConvIM))
+        aIid.equals(this.isChat ? purpleIConvChat : purpleIConvIM))
       return this;
 
     throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -58,12 +62,12 @@ Conversation.prototype = {
   get title() this.name,
     account: {protocol: {name: "Fake Protocol"}, name: "Fake Account"},
   buddy: null,
-  typingStage: Ci.purpleIConvIM.NO_TYPING,
+  typingStage: purpleIConvIM.NO_TYPING,
   topic: "Fake Conversation",
 
   setBaseURI: function (aDoc, aURI) {
     Components.classes["@instantbird.org/purple/convim;1"]
-              .createInstance(Ci.purpleIConversation)
+              .createInstance(purpleIConversation)
               .setBaseURI(aDoc, aURI);
   }
 };
@@ -262,5 +266,3 @@ var previewObserver = {
               .removeObserver(this, "conversation-loaded");
   }
 };
-
-this.addEventListener("load", previewObserver.load, false);

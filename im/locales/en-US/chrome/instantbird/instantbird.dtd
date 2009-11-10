@@ -23,8 +23,6 @@
 <!ENTITY account.accesskey  "A">
 <!ENTITY sounds             "Sounds">
 <!ENTITY addonManager       "Add-ons">
-<!ENTITY messageStyle       "Message Styles…">
-<!ENTITY smileys            "Emoticons…">
 <!ENTITY checkForUpdates    "Check for Updates">
 <!ENTITY help.menu          "Help">
 <!ENTITY help.accesskey     "H">
@@ -44,6 +42,11 @@
 <!ENTITY errorConsoleCmd.label        "Error Console">
 <!ENTITY errorConsoleCmd.accesskey    "C">
 <!ENTITY errorConsoleCmd.commandkey   "j">
+
+<!ENTITY preferencesCmd.label         "Options…">
+<!ENTITY preferencesCmd.accesskey     "O"> 
+<!ENTITY preferencesCmdUnix.label     "Preferences">
+<!ENTITY preferencesCmdUnix.accesskey "n"> 
 
 <!ENTITY textEnlarge.commandkey   "+">
 <!ENTITY textEnlarge.commandkey2  "=">
@@ -82,3 +85,5 @@
 <!ENTITY hideOtherAppsCmdMac.label      "Hide Others">
 <!ENTITY hideOtherAppsCmdMac.commandkey "H">
 <!ENTITY showAllAppsCmdMac.label        "Show All">
+<!ENTITY preferencesCmdMac.label        "Preferences…">
+<!ENTITY preferencesCmdMac.commandkey   ",">

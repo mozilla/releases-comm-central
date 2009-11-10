@@ -115,12 +115,23 @@
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
         <menuseparator/>
         <menuitem id="errorConsoleMenuItem" label="&errorConsoleCmd.label;" oncommand="menus.errors()" key="errorConsoleKey" accesskey="&errorConsoleCmd.accesskey;"/>
-        <menuseparator/>
-        <menuitem id="messageStyleMenuItem" label="&messageStyle;" oncommand="menus.messageStyle()"/>
-        <menuitem id="smileysMenuItem" label="&smileys;" oncommand="menus.smileys()"/>
+#ifdef XP_UNIX
 #ifdef XP_MACOSX
         <menuseparator/>
         <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
+#else
+        <menuseparator id="prefSep"/>
+        <menuitem id="menu_preferences"
+                  label="&preferencesCmdUnix.label;"
+                  accesskey="&preferencesCmdUnix.accesskey;"
+                  oncommand="menus.preferences();"/>
+#endif
+#else
+        <menuseparator id="prefSep"/>
+        <menuitem id="menu_preferences"
+                  label="&preferencesCmd.label;"
+                  accesskey="&preferencesCmd.accesskey;"
+                  oncommand="menus.preferences();"/>
 #endif
       </menupopup>
     </menu>
@@ -148,6 +159,7 @@
 #ifdef XP_MACOSX
   <!-- nsMenuBarX hides these and uses them to build the Application menu. -->
   <menupopup id="menu_ToolsPopup">
+    <menuitem id="menu_preferences" label="&preferencesCmdMac.label;" key="key_preferencesCmdMac" oncommand="menus.preferences();"/>
     <menuitem id="menu_mac_services" label="&servicesMenuMac.label;"/>
     <menuitem id="menu_mac_hide_app" label="&hideThisAppCmdMac.label;" key="key_hideThisAppCmdMac"/>
     <menuitem id="menu_mac_hide_others" label="&hideOtherAppsCmdMac.label;" key="key_hideOtherAppsCmdMac"/>
@@ -155,6 +167,9 @@
   </menupopup>
   <!-- These are used to build the Application menu under Cocoa widgets -->
   <keyset id="baseMenuKeyset">
+    <key id="key_preferencesCmdMac"
+         key="&preferencesCmdMac.commandkey;"
+         modifiers="accel"/>
     <key id="key_hideThisAppCmdMac"
          key="&hideThisAppCmdMac.commandkey;"
          modifiers="accel"/>

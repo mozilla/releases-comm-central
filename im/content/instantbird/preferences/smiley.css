@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 smiley {
-  -moz-binding: url("chrome://instantbird/content/smiley.xml#smiley");
+  -moz-binding: url("chrome://instantbird/content/preferences/smiley.xml#smiley");
 }
 
 listheader {
@@ -46,7 +46,7 @@ listheader {
 }
 
 treecol {
-  -moz-binding: url("chrome://instantbird/content/smiley.xml#treecol");
+  -moz-binding: url("chrome://instantbird/content/preferences/smiley.xml#treecol");
 }
 
 smiley:nth-child(odd) {

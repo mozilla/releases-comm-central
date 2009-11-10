@@ -1,4 +1,4 @@
-<!ENTITY messageStyleWindow.title "Message Styles - &brandShortName;">
+<!ENTITY messageStyleTab.title "Message Styles">
 <!ENTITY previewLabel "Preview:">
 <!ENTITY themeLabel   "Theme:">
 <!ENTITY defaultThemeLabel "Default">

@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+
+# -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
+#
+# The contents of this file are subject to the Mozilla Public License Version
+# 1.1 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+#
+# Software distributed under the License is distributed on an "AS IS" basis,
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+# for the specific language governing rights and limitations under the
+# License.
+#
+# The Original Code is the Instantbird Preferences window.
+#
+# The Initial Developer of the Original Code is
+# Florian Queze <florian@instantbird.org>.
+# Portions created by the Initial Developer are Copyright (C) 2009
+# the Initial Developer. All Rights Reserved.
+#
+# Contributor(s):
+#
+# Alternatively, the contents of this file may be used under the terms of
+# either the GNU General Public License Version 2 or later (the "GPL"), or
+# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+# in which case the provisions of the GPL or the LGPL are applicable instead
+# of those above. If you wish to allow use of your version of this file only
+# under the terms of either the GPL or the LGPL, and not to allow others to
+# use your version of this file under the terms of the MPL, indicate your
+# decision by deleting the provisions above and replace them with the notice
+# and other provisions required by the GPL or the LGPL. If you do not delete
+# the provisions above, a recipient may use your version of this file under
+# the terms of any one of the MPL, the GPL or the LGPL.
+#
+# ***** END LICENSE BLOCK *****
+
+<!DOCTYPE overlay [
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  <!ENTITY % messageStyleDTD SYSTEM "chrome://instantbird/locale/messagestyle.dtd">
+  <!ENTITY % smileysDTD SYSTEM "chrome://instantbird/locale/smileys.dtd">
+  %brandDTD;
+  %messageStyleDTD;
+  %smileysDTD;
+]>
+
+<overlay id="ThemesPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="paneThemes"
+            onpaneload="previewObserver.load(); smileysPreview.load();"
+            flex="1">
+
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/messagestyle.js"/>
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/smileys.js"/>
+
+    <stringbundleset id="stringbundleset">
+      <stringbundle id="messageStyleBundle"
+                    src="chrome://instantbird/locale/messagestyle.properties"/>
+    </stringbundleset>
+
+    <tabbox flex="1">
+      <tabs>
+        <tab label="&messageStyleTab.title;"/>
+        <tab label="&emoticonsTab.title;"/>
+        <!--<tab label="Sounds"/>-->
+      </tabs>
+      <tabpanels flex="1">
+        <tabpanel orient="vertical" flex="1">
+          <label value="&previewLabel;"/>
+          <browser style="min-height: 250px;" flex="1" id="browser" type="content-conversation" onload="window.sizeToContent()"/>
+          <hbox align="baseline">
+            <label value="&themeLabel;" control="themename"/>
+            <menulist id="themename"
+                      oncommand="previewObserver.currentThemeChanged();">
+              <menupopup id="theme-menupopup">
+                <menuitem id="default-menuitem"
+                          label="&defaultThemeLabel;"
+                          value="default"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <hbox align="baseline">
+            <label value="&variantLabel;" control="themevariant"/>
+            <menulist id="themevariant"
+                      oncommand="previewObserver.currentVariantChanged();"/>
+          </hbox>
+          <checkbox id="showHeaderCheckbox" label="&showHeaderLabel;"
+                    oncommand="previewObserver.showHeaderChanged()"/>
+        </tabpanel>
+
+        <tabpanel orient="vertical" flex="1">
+          <hbox align="baseline">
+            <label value="&themeLabel;" control="smileythemename"/>
+            <menulist id="smileythemename"
+                      oncommand="smileysPreview.currentThemeChanged();">
+              <menupopup id="theme-menupopup">
+                <menuitem id="default-menuitem"
+                          label="&defaultTheme.label;"
+                          value="default"/>
+                <menuitem id="none-menuitem"
+                          label="&disabled.label;"
+                          value="none"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <separator class="thin"/>
+          <description>&previewDescription;</description>
+          <richlistbox orient="vertical" id="smileysPreview">
+            <listheader equalsize="always">
+              <treecol id="imageColumn" label="&imageColumn.label;" flex="1"/>
+              <treecol id="textCodesColumn" label="&textCodesColumn.label;" flex="1"/>
+            </listheader>
+          </richlistbox>
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+  </prefpane>
+</overlay>

@@ -37,14 +37,13 @@
 
 const addonManagerWindow = "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
 const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
-const messageStyleWindow = "chrome://instantbird/content/messagestyle.xul";
-const smileysWindow = "chrome://instantbird/content/smileys.xul";
 const blistWindow = "chrome://instantbird/content/blist.xul";
 const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 const joinChatWindow = "chrome://instantbird/content/joinchat.xul";
 const aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
 const convWindow = "chrome://instantbird/content/instantbird.xul";
 const errorConsoleWindow = "chrome://global/content/console.xul";
+const preferencesWindow = "chrome://instantbird/content/preferences/preferences.xul";
 
 var menus = {
   focus: function menu_focus(aWindowType) {
@@ -68,20 +67,16 @@ var menus = {
                   "chrome,resizable");
   },
 
+  preferences: function menu_preferences() {
+    if (!this.focus("Messenger:Preferences"))
+      window.open(preferencesWindow, "Preferences",
+                  "chrome,titlebar,toolbar,centerscreen,dialog=no");
+  },
+
   addons: function menu_addons() {
     if (!this.focus("Extension:Manager"))
       window.open(addonManagerWindow, "Addons",
                   "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
-  },
-
-  messageStyle: function menu_messageStyle() {
-    if (!this.focus("Messenger:messageStyle"))
-      window.open(messageStyleWindow, "Message_Styles", "chrome,resizable");
-  },
-
-  smileys: function menu_smileys() {
-    if (!this.focus("Messenger:smileys"))
-      window.open(smileysWindow, "Smileys", "chrome,resizable");
   },
 
   errors: function debug_errors() {

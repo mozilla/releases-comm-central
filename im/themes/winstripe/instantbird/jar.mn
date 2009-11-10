@@ -27,6 +27,30 @@ classic.jar:
 *	skin/classic/instantbird/engineManager.css
 *	skin/classic/instantbird/instantbird.css
 	skin/classic/instantbird/newMessage.png
+#ifdef XP_UNIX
+#ifdef XP_MACOSX
+	skin/classic/instantbird/preferences/Options.png        (preferences-pinstripe/Options.png)
+	skin/classic/instantbird/preferences/alwaysAsk.png      (preferences-pinstripe/alwaysAsk.png)
+	skin/classic/instantbird/preferences/application.png    (preferences-pinstripe/application.png)
+	skin/classic/instantbird/preferences/applications.css   (preferences-pinstripe/applications.css)
+	skin/classic/instantbird/preferences/preferences.css    (preferences-pinstripe/preferences.css)
+	skin/classic/instantbird/preferences/saveFile.png       (preferences-pinstripe/saveFile.png)
+#else
+	skin/classic/instantbird/preferences/Options.png        (preferences-gnomestripe/Options.png)
+	skin/classic/instantbird/preferences/alwaysAsk.png      (preferences-gnomestripe/alwaysAsk.png)
+	skin/classic/instantbird/preferences/applications.css   (preferences-gnomestripe/applications.css)
+	skin/classic/instantbird/preferences/preferences.css    (preferences-gnomestripe/preferences.css)
+	skin/classic/instantbird/preferences/mail.png           (preferences-gnomestripe/mail.png)
+#endif
+#else
+	skin/classic/instantbird/preferences/Options.png        (preferences-winstripe/Options.png)
+	skin/classic/instantbird/preferences/alwaysAsk.png      (preferences-winstripe/alwaysAsk.png)
+	skin/classic/instantbird/preferences/application.png    (preferences-winstripe/application.png)
+	skin/classic/instantbird/preferences/applications.css   (preferences-winstripe/applications.css)
+	skin/classic/instantbird/preferences/preferences.css    (preferences-winstripe/preferences.css)
+	skin/classic/instantbird/preferences/saveFile.png       (preferences-winstripe/saveFile.png)
+	skin/classic/instantbird/preferences/mail.png           (preferences-winstripe/mail.png)
+#endif
 	skin/classic/instantbird/prpl-generic/icon32.png	(prpl/prpl-generic-32.png)
 	skin/classic/instantbird/prpl-generic/icon48.png	(prpl/prpl-generic-48.png)
 	skin/classic/instantbird/prpl-generic/icon.png		(prpl/prpl-generic.png)

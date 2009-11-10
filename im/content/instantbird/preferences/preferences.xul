@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+# -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
+#
+# The contents of this file are subject to the Mozilla Public License Version
+# 1.1 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+#
+# Software distributed under the License is distributed on an "AS IS" basis,
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+# for the specific language governing rights and limitations under the
+# License.
+#
+# The Original Code is the Firefox Preferences System.
+#
+# The Initial Developer of the Original Code is
+# Ben Goodger.
+# Portions created by the Initial Developer are Copyright (C) 2005
+# the Initial Developer. All Rights Reserved.
+#
+# Contributor(s):
+#   Ben Goodger <ben@mozilla.org>
+#   Jeff Walden <jwalden+bmo@mit.edu>
+#
+# Alternatively, the contents of this file may be used under the terms of
+# either the GNU General Public License Version 2 or later (the "GPL"), or
+# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+# in which case the provisions of the GPL or the LGPL are applicable instead
+# of those above. If you wish to allow use of your version of this file only
+# under the terms of either the GPL or the LGPL, and not to allow others to
+# use your version of this file under the terms of the MPL, indicate your
+# decision by deleting the provisions above and replace them with the notice
+# and other provisions required by the GPL or the LGPL. If you do not delete
+# the provisions above, a recipient may use your version of this file under
+# the terms of any one of the MPL, the GPL or the LGPL.
+#
+# ***** END LICENSE BLOCK *****
+
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
+<?xml-stylesheet href="chrome://mozapps/content/preferences/preferences.css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/preferences/preferences.css"?>
+
+<!-- XXX This should be in applications.xul, but bug 393953 means putting it
+   - there causes the Applications pane not to work the first time you open
+   - the Preferences dialog in a browsing session, so we work around the problem
+   - by putting it here instead.
+   -->
+<?xml-stylesheet href="chrome://instantbird/content/preferences/handlers.css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/preferences/applications.css"?>
+<!-- XXX and this should be in themes.xul. Same issue and workaround... -->
+<?xml-stylesheet href="chrome://instantbird/content/instantbird.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/preferences/smiley.css" type="text/css"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+<!ENTITY % preferencesDTD SYSTEM "chrome://instantbird/locale/preferences/preferences.dtd">
+%brandDTD;
+%preferencesDTD;
+]>
+
+#ifdef XP_WIN
+#define USE_WIN_TITLE_STYLE
+#endif
+#ifdef XP_OS2
+#define USE_WIN_TITLE_STYLE
+#endif
+
+<prefwindow type="prefwindow"
+            id="BrowserPreferences"
+            windowtype="Messenger:Preferences"
+#ifdef USE_WIN_TITLE_STYLE
+            title="&prefWindow.titleWin;"
+#else
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+            title="&prefWindow.titleGNOME;"
+#endif
+#endif
+#endif
+            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+#ifdef USE_WIN_TITLE_STYLE
+            style="&prefWinMinSize.styleWin2;">
+#else
+#ifdef XP_MACOSX
+            style="&prefWinMinSize.styleMac;">
+#else
+            style="&prefWinMinSize.styleGNOME;">
+#endif
+#endif
+
+    <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+
+    <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
+    <stringbundle id="bundlePreferences"
+                  src="chrome://instantbird/locale/preferences/preferences.properties"/>
+
+    <prefpane id="paneMain" label="&paneGeneral.title;"
+              src="chrome://instantbird/content/preferences/main.xul"/>
+    <prefpane id="paneTabs" label="&paneTabs.title;"
+              src="chrome://instantbird/content/preferences/tabs.xul"/>
+    <prefpane id="paneContent" label="&paneContent.title;"
+              src="chrome://instantbird/content/preferences/content.xul"/>
+    <prefpane id="paneApplications" label="&paneApplications.title;"
+              src="chrome://instantbird/content/preferences/applications.xul"/>
+    <prefpane id="panePrivacy" label="&panePrivacy.title;"
+              src="chrome://instantbird/content/preferences/privacy.xul"/>
+    <prefpane id="paneThemes" label="&paneThemes.title;"
+              src="chrome://instantbird/content/preferences/themes.xul"/>
+    <prefpane id="paneAdvanced" label="&paneAdvanced.title;"
+              src="chrome://instantbird/content/preferences/advanced.xul"/>
+
+</prefwindow>

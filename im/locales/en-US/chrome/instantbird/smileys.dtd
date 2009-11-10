@@ -1,4 +1,4 @@
-<!ENTITY smileysWindow.title "Emoticons - &brandShortName;">
+<!ENTITY emoticonsTab.title  "Emoticons">
 <!ENTITY themeLabel          "Emoticon Theme:">
 <!ENTITY defaultTheme.label  "Default">
 <!ENTITY disabled.label      "Disabled">

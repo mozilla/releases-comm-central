@@ -1,0 +1,18 @@
+<!ENTITY  status.label                  "Status">
+
+<!ENTITY  sendTyping.label              "Send typing notifications in conversations">
+<!ENTITY  sendTyping.accesskey          "t">
+
+<!ENTITY  reportIdleTime.label          "Let my contacts know when I am Idle">
+<!ENTITY  reportIdleTime.accesskey      "I">
+
+<!ENTITY  autoAway.label                "Set my status to Away after I have been Idle for">
+<!ENTITY  autoAway.accesskey            "A">
+<!ENTITY  awayAfter                     "minutes">
+
+<!ENTITY  logsGroup.label               "Records">
+
+<!ENTITY  logConversations.label        "Keep records of my conversations">
+<!ENTITY  logConversations.accesskey    "r">
+<!ENTITY  logSystem.label               "Record connections, disconnections and status changes">
+<!ENTITY  logSystem.accesskey           "c">

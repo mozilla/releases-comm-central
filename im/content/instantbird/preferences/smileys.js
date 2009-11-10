@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const themePref = "messenger.options.emoticonsTheme";
+const smileyThemePref = "messenger.options.emoticonsTheme";
 
 var smileysPreview = {
   buildThemeList: function() {
@@ -47,7 +47,7 @@ var smileysPreview = {
     if (!themeList.length)
       return;
 
-    let menulist = document.getElementById("themename");
+    let menulist = document.getElementById("smileythemename");
     menulist.menupopup.appendChild(document.createElement("menuseparator"));
     themeList.forEach(function(aItem) {
       menulist.appendItem(aItem.name,
@@ -62,23 +62,23 @@ var smileysPreview = {
       Components.classes["@mozilla.org/preferences-service;1"]
                 .getService(Components.interfaces.nsIPrefBranch);
 
-    let menulist = document.getElementById("themename").value =
-      smileysPreview.prefs.getCharPref(themePref);
+    let menulist = document.getElementById("smileythemename").value =
+      smileysPreview.prefs.getCharPref(smileyThemePref);
 
     smileysPreview.displayCurrentTheme();
   },
   currentThemeChanged: function() {
-    let currentTheme = document.getElementById("themename").value;
+    let currentTheme = document.getElementById("smileythemename").value;
     if (!currentTheme)
       return;
 
-    smileysPreview.prefs.setCharPref(themePref, currentTheme);
+    smileysPreview.prefs.setCharPref(smileyThemePref, currentTheme);
     this.displayCurrentTheme();
   },
 
   displayCurrentTheme: function() {
     this.smileyList = getSmileyList();
-    let list = document.getElementById("preview");
+    let list = document.getElementById("smileysPreview");
     let item = list.firstChild.nextSibling;
     while (item) {
       let next = item.nextSibling;
@@ -96,5 +96,3 @@ var smileysPreview = {
     }
   }
 };
-
-this.addEventListener("load", smileysPreview.load, false);
