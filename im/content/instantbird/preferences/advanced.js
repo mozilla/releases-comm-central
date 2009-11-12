@@ -65,7 +65,6 @@ var gAdvancedPane = {
     this.updateAutoItems();
     this.updateModeItems();
 #endif
-    this.updateOfflineApps();
   },
 
   /**
