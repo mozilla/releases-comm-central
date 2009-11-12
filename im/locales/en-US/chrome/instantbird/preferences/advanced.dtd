@@ -18,6 +18,10 @@
 <!ENTITY checkSpelling.label             "Check my spelling as I type">
 <!ENTITY checkSpelling.accesskey         "t">
 
+<!ENTITY configEditDesc.label            "Advanced Configuration">
+<!ENTITY configEdit.label                "Config Editor…">
+<!ENTITY configEdit.accesskey            "C">
+
 <!ENTITY networkTab.label                "Network">
 
 <!ENTITY connection.label                "Connection">

@@ -189,6 +189,16 @@
             </hbox>
           </groupbox>
 #endif
+
+          <!-- Advanced Configuration -->
+          <groupbox>
+            <caption label="&configEditDesc.label;"/>
+            <hbox pack="end">
+              <button id="configEditor" label="&configEdit.label;"
+                      accesskey="&configEdit.accesskey;"
+                      oncommand="gAdvancedPane.showConfigEdit();"/>
+            </hbox>
+          </groupbox>
         </tabpanel>
 
         <!-- Network -->

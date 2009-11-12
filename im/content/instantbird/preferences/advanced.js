@@ -138,6 +138,13 @@ var gAdvancedPane = {
     return checkbox.checked ? (this._storedSpellCheck == 2 ? 2 : 1) : 0;
   },
 
+  showConfigEdit: function()
+  {
+    document.documentElement.openWindow("Preferences:ConfigManager",
+                                        "chrome://global/content/config.xul",
+                                        "", null);
+  },
+
   // NETWORK TAB
 
   /*
