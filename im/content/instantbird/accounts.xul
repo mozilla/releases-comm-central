@@ -55,7 +55,7 @@
         title="&accountManager.title;"
         height="300"
         width="&accountManager.width;"
-        persist="screenX screenY">
+        persist="width height screenX screenY">
  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
  <script type="application/javascript" src="chrome://instantbird/content/accounts.js"/>
  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js" />
