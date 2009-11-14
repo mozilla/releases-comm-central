@@ -40,13 +40,10 @@ const events = ["buddy-signed-on",
                 "buddy-removed",
                 "buddy-away",
                 "buddy-idle",
-                "account-connected",
                 "account-disconnected",
                 "status-away",
                 "status-back",
                 "purple-quit"];
-
-const autoJoinPref = "autoJoin";
 
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
@@ -91,28 +88,10 @@ var buddyList = {
       return;
     }
 
-    if (aTopic == "account-connected" || aTopic == "account-disconnected") {
-      var account = aBuddy.QueryInterface(Ci.purpleIAccount);
-      if (account.canJoinChat) {
-        this.checkForMUCEnabledAccount();
-        if (aTopic == "account-connected") {
-          var branch = Components.classes["@mozilla.org/preferences-service;1"]
-                                 .getService(Ci.nsIPrefService)
-                                 .getBranch("messenger.account." +
-                                            account.id + ".");
-          if (branch.prefHasUserValue(autoJoinPref)) {
-            var autojoin = branch.getCharPref(autoJoinPref);
-            if (autojoin) {
-              autojoin = autojoin.split(",");
-              for (var i = 0; i < autojoin.length; ++i) {
-                let values = account.getChatRoomDefaultFieldValues(autojoin[i]);
-                account.joinChat(values);
-              }
-            }
-          }
-        }
-      }
-      this.checkNotDisconnected();
+    if (aTopic == "account-disconnected") {
+      let account = aBuddy.QueryInterface(Ci.purpleIAccount);
+      if (account.reconnectAttempt <= 1)
+        this.showAccountManagerIfNeeded(false);
       return;
     }
 
@@ -149,21 +128,18 @@ var buddyList = {
                         .getService(Ci.purpleICoreService);
     return getIter(pcs.getAccounts());
   },
-  /* This function is called with aIsStarting = true when the application starts
-     (in this case the crashed accounts are checked), and when an account is
-     connected or disconnected (without parameter), so that it only checks if
-     there is a connected account. */
-  checkNotDisconnected: function bl_checkNotDisconnected(aIsStarting) {
-    var addBuddyItem = document.getElementById("addBuddyMenuItem");
 
+  /* This function pops up the account manager is no account is
+   * connected or connecting.
+   * When called during startup (aIsStarting == true), it will also
+   * look for crashed accounts.
+   */
+  showAccountManagerIfNeeded: function bl_showAccountManagerIfNeeded(aIsStarting) {
     let hasActiveAccount = false;
     let hasCrachedAccount = false;
     for (let acc in this.getAccounts()) {
-      if (acc.connected || acc.connecting) {
-        if (acc.connected)
-          addBuddyItem.disabled = false;
+      if (acc.connected || acc.connecting)
         hasActiveAccount = true;
-      }
 
       // We only check for crashed accounts on startup.
       if (aIsStarting && acc.autoLogin &&
@@ -175,23 +151,8 @@ var buddyList = {
        or if all accounts are disconnected
        In case of connection failure after an automatic reconnection attempt,
        we don't want to popup the account manager */
-    if ((!addBuddyItem.disabled && !hasActiveAccount) ||
-        (aIsStarting && hasCrachedAccount))
+    if (!hasActiveAccount || (aIsStarting && hasCrachedAccount))
       menus.accounts();
-
-    if (!hasActiveAccount)
-      addBuddyItem.disabled = true;
-  },
-  checkForMUCEnabledAccount: function bl_checkForMUCEnabledAccount() {
-    var joinChatItem = document.getElementById("joinChatMenuItem");
-
-    for (let acc in this.getAccounts())
-      if (acc.connected && acc.canJoinChat) {
-        joinChatItem.disabled = false;
-        return;
-      }
-
-    joinChatItem.disabled = true;
   },
 
   load: function bl_load() {
@@ -231,8 +192,7 @@ var buddyList = {
     Components.utils.import("resource://app/modules/imWindows.jsm");
     Conversations.init();
 
-    buddyList.checkNotDisconnected(true);
-    buddyList.checkForMUCEnabledAccount();
+    buddyList.showAccountManagerIfNeeded(true);
     this.addEventListener("unload", buddyList.unload, false);
     this.addEventListener("close", buddyList.close, false);
   },

@@ -281,6 +281,7 @@ var Conversations = {
                        .getService(Components.interfaces.nsIObserverService);
     ["new-text",
      "new-conversation",
+     "account-connected",
      "purple-quit",
      "quit-application-requested"].forEach(function (aTopic) {
       os.addObserver(Conversations, aTopic, false);
@@ -319,6 +320,25 @@ var Conversations = {
           this._hideUnreadCountDockBadge();
       }
 #endif
+      return;
+    }
+
+    if (aTopic == "account-connected") {
+      let account = aSubject.QueryInterface(Components.interfaces.purpleIAccount);
+      if (!account.canJoinChat)
+        return;
+
+      let pref = "messenger.account." + account.id + ".autoJoin";
+      if (this._prefBranch.prefHasUserValue(pref)) {
+        let autojoin = this._prefBranch.getCharPref(pref);
+        if (autojoin) {
+          autojoin = autojoin.split(",");
+          for (let i = 0; i < autojoin.length; ++i) {
+            let values = account.getChatRoomDefaultFieldValues(autojoin[i]);
+            account.joinChat(values);
+          }
+        }
+      }
       return;
     }
 

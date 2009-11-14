@@ -83,7 +83,7 @@
 
   <menubar id="blistMenubar">
     <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
-      <menupopup id="fileMenuPopup">
+      <menupopup id="fileMenuPopup" onpopupshowing="menus.updateFileMenuitems();">
         <menuitem id="addBuddyMenuItem" label="&addBuddy;" oncommand="menus.addBuddy()"/>
         <menuitem id="joinChatMenuItem" label="&joinChat;" oncommand="menus.joinChat()"/>
         <menuseparator/>

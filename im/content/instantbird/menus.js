@@ -156,6 +156,26 @@ var menus = {
       checkForUpdates.removeAttribute("loading");
   },
 
+  getAccounts: function bl_getAccounts() {
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    return getIter(pcs.getAccounts());
+  },
+  updateFileMenuitems: function menu_updateFileMenuitems() {
+    let hasConnectedAccount = false;
+    let canJoinChat = false;
+    for (let acc in this.getAccounts()) {
+      if (acc.connected) {
+        hasConnectedAccount = true;
+        if (acc.canJoinChat)
+          canJoinChat = true;
+      }
+    }
+
+    document.getElementById("addBuddyMenuItem").disabled = !hasConnectedAccount;
+    document.getElementById("joinChatMenuItem").disabled = !canJoinChat;
+  },
+
   addBuddy: function menu_addBuddy() {
     window.openDialog(addBuddyWindow, "",
                       "chrome,modal,titlebar,centerscreen");
@@ -168,6 +188,5 @@ var menus = {
 
   getAway: function menu_getAway() {
     buddyList.getAway();
-  },
-
+  }
 };
