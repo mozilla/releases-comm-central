@@ -108,7 +108,11 @@
       </menupopup>
     </menu>
     <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
+#ifdef XP_MACOSX
       <menupopup id="toolsMenuPopup" onpopupshowing="menus.displayUpdateStatus();">
+#else
+      <menupopup id="toolsMenuPopup">
+#endif
         <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
         <menuseparator/>
@@ -144,10 +148,12 @@
     <menu label="&help.menu;" id="helpMenu" accesskey="&help.accesskey;">
 #endif
 #endif
-      <menupopup id="helpMenuPopup">
 #ifndef XP_MACOSX
+      <menupopup id="helpMenuPopup" onpopupshowing="menus.displayUpdateStatus();">
         <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
         <menuseparator/>
+#else
+      <menupopup id="helpMenuPopup">
 #endif
         <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
       </menupopup>
