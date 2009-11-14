@@ -138,6 +138,19 @@ var gAdvancedPane = {
     return checkbox.checked ? (this._storedSpellCheck == 2 ? 2 : 1) : 0;
   },
 
+  showSearchEngineManager: function()
+  {
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                       .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("Browser:SearchManager");
+    if (window)
+      window.focus();
+    else {
+      openDialog("chrome://instantbird/content/engineManager.xul",
+                 "_blank", "chrome,dialog,modal,centerscreen");
+    }
+  },
+  
   showConfigEdit: function()
   {
     document.documentElement.openWindow("Preferences:ConfigManager",

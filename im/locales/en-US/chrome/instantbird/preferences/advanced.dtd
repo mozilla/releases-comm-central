@@ -18,6 +18,11 @@
 <!ENTITY checkSpelling.label             "Check my spelling as I type">
 <!ENTITY checkSpelling.accesskey         "t">
 
+<!ENTITY searchEnginesGroup.label        "Search engines">
+<!ENTITY searchEnginesDesc.label         "Change options for your search engines">
+<!ENTITY searchEngines.label             "Manage search engines">
+<!ENTITY searchEngines.accesskey         "s">
+
 <!ENTITY configEditDesc.label            "Advanced Configuration">
 <!ENTITY configEdit.label                "Config Editor…">
 <!ENTITY configEdit.accesskey            "C">

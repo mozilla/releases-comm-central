@@ -196,8 +196,15 @@ nsContextMenu.prototype = {
   },
 
   openEngineManager: function() {
-    openDialog('chrome://instantbird/content/engineManager.xul',
-               '_blank', 'chrome,dialog,modal,centerscreen');
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                       .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("Browser:SearchManager");
+    if (window)
+      window.focus();
+    else {
+      openDialog("chrome://instantbird/content/engineManager.xul",
+                 "_blank", "chrome,dialog,modal,centerscreen");
+    }
   },
 
   buildSearchEngineList: function() {
