@@ -137,8 +137,8 @@ var menus = {
       switch (activeUpdate.state) {
       case "downloading":
         // If we're downloading an update at present, show the text:
-        // "Downloading Firefox x.x..." otherwise we're paused, and show
-        // "Resume Downloading Firefox x.x..."
+        // "Downloading Instantbird x.x..." otherwise we're paused, and show
+        // "Resume Downloading Instantbird x.x..."
         key = updates.isDownloading ? "downloading" : "resume";
         break;
       case "pending":
@@ -170,43 +170,4 @@ var menus = {
     buddyList.getAway();
   },
 
-  toggleSounds: function menu_toggleSounds() {
-    var checked = document.getElementById("soundsMenuItem")
-                          .getAttribute("checked") == "true";
-    this._prefBranch.setBoolPref(soundsPref, checked);
-  },
-
-  uninit: function menu_uninit() {
-    menus._prefBranch.removeObserver(soundsPref, menus);
-  },
-
-  init: function menu_init() {
-    var branch =  Components.classes["@mozilla.org/preferences-service;1"]
-                            .getService(Ci.nsIPrefService)
-                            .getBranch(optPrefBranch);
-    branch.QueryInterface(Ci.nsIPrefBranch2);
-    menus._prefBranch = branch;
-
-    branch.addObserver(soundsPref, menus, false);
-    var menuitem = document.getElementById("soundsMenuItem");
-    if (branch.getBoolPref(soundsPref))
-      menuitem.setAttribute("checked", "true");
-    else
-      menuitem.removeAttribute("checked");
-
-    this.addEventListener("unload", menus.uninit, false);
-  },
-
-  observe: function menu_observe(aSubject, aTopic, aData) {
-    if (aTopic != "nsPref:changed" || aData != soundsPref)
-      return;
-
-    var menuitem = document.getElementById("soundsMenuItem");
-    if (this._prefBranch.getBoolPref(soundsPref))
-      menuitem.setAttribute("checked", "true");
-    else
-      menuitem.removeAttribute("checked");
-  }
 };
-
-this.addEventListener("load", menus.init, false);

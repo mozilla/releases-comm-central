@@ -109,8 +109,6 @@
     </menu>
     <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
       <menupopup id="toolsMenuPopup" onpopupshowing="menus.displayUpdateStatus();">
-        <menuitem id="soundsMenuItem" label="&sounds;" oncommand="menus.toggleSounds()" type="checkbox"/>
-        <menuseparator/>
         <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
         <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
         <menuseparator/>

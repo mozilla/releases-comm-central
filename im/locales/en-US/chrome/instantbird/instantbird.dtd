@@ -21,7 +21,6 @@
 <!ENTITY accountManager     "Accounts">
 <!ENTITY account.commandkey "a">
 <!ENTITY account.accesskey  "A">
-<!ENTITY sounds             "Sounds">
 <!ENTITY addonManager       "Add-ons">
 <!ENTITY checkForUpdates    "Check for Updates">
 <!ENTITY help.menu          "Help">
