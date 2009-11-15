@@ -1,5 +1,4 @@
 <?xml version="1.0"?> <!-- -*- Mode: HTML -*- -->
-<!--
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 #
@@ -35,7 +34,7 @@
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
 #
-# ***** END LICENSE BLOCK ***** -->
+# ***** END LICENSE BLOCK *****
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/aboutDialog.css" type="text/css"?>
@@ -45,6 +44,10 @@
 %brandDTD;
 <!ENTITY % aboutDialogDTD SYSTEM "chrome://instantbird/locale/aboutDialog.dtd" >
 %aboutDialogDTD;
+#ifdef XP_MACOSX
+ <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+ %instantbirdDTD;
+#endif
 ]>
 
 <dialog xmlns:html="http://www.w3.org/1999/xhtml"
@@ -56,6 +59,10 @@
         title="&aboutDialog.title;" creditslabel="&credits.label;" creditsaccesskey="&credits.accesskey;"
         aboutlabel="&aboutLink.label;" aboutaccesskey="&aboutLink.accesskey;" versionlabel="&aboutVersion;"
         style="width: 299px; height: 330px;">
+
+#ifdef XP_MACOSX
+#include menus.xul.inc
+#endif
 
     <script type="application/x-javascript">
       <![CDATA[

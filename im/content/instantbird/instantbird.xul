@@ -67,11 +67,16 @@
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
 #ifdef XP_MACOSX
   <script type="application/javascript" src="chrome://instantbird/content/macgestures.js"/>
-#endif
+#else
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+#endif
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/convZoom.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/nsContextMenu.js"/>
+
+#ifdef XP_MACOSX
+#include menus.xul.inc
+#endif
 
   <commandset id="conversationsCommands">
     <command id="cmd_close" oncommand="document.getElementById('conversations').removeCurrentTab()"/>

@@ -59,6 +59,10 @@
 <!ENTITY % preferencesDTD SYSTEM "chrome://instantbird/locale/preferences/preferences.dtd">
 %brandDTD;
 %preferencesDTD;
+#ifdef XP_MACOSX
+<!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+%instantbirdDTD;
+#endif
 ]>
 
 #ifdef XP_WIN
@@ -92,6 +96,10 @@
 #endif
 
     <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+
+#ifdef XP_MACOSX
+#include ../menus.xul.inc
+#endif
 
     <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
     <stringbundle id="bundlePreferences"

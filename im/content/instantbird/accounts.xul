@@ -46,6 +46,10 @@
  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
  %accountsDTD;
  %brandDTD;
+#ifdef XP_MACOSX
+ <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+ %instantbirdDTD;
+#endif
 ]>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -60,6 +64,10 @@
  <script type="application/javascript" src="chrome://instantbird/content/accounts.js"/>
  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js" />
  <script type="application/javascript" src="chrome://global/content/nsTransferable.js" />
+
+#ifdef XP_MACOSX
+#include menus.xul.inc
+#endif
 
  <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
 

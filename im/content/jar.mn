@@ -1,11 +1,11 @@
 instantbird.jar:
 % content instantbird %instantbird/ xpcnativewrappers=yes
 	instantbird/aboutDialog.css	(instantbird/aboutDialog.css)
-	instantbird/aboutDialog.xul	(instantbird/aboutDialog.xul)
+*	instantbird/aboutDialog.xul	(instantbird/aboutDialog.xul)
 	instantbird/account.js		(instantbird/account.js)
 	instantbird/accounts.css	(instantbird/accounts.css)
 	instantbird/accounts.js		(instantbird/accounts.js)
-	instantbird/accounts.xul	(instantbird/accounts.xul)
+*	instantbird/accounts.xul	(instantbird/accounts.xul)
 	instantbird/accountWizard.js	(instantbird/accountWizard.js)
 	instantbird/accountWizard.xul	(instantbird/accountWizard.xul)
 	instantbird/account.xml		(instantbird/account.xml)

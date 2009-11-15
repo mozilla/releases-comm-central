@@ -41,7 +41,6 @@ const blistWindow = "chrome://instantbird/content/blist.xul";
 const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 const joinChatWindow = "chrome://instantbird/content/joinchat.xul";
 const aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
-const convWindow = "chrome://instantbird/content/instantbird.xul";
 const errorConsoleWindow = "chrome://global/content/console.xul";
 const preferencesWindow = "chrome://instantbird/content/preferences/preferences.xul";
 
