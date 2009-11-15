@@ -136,7 +136,7 @@ var buddyList = {
    */
   showAccountManagerIfNeeded: function bl_showAccountManagerIfNeeded(aIsStarting) {
     let hasActiveAccount = false;
-    let hasCrachedAccount = false;
+    let hasCrashedAccount = false;
     for (let acc in this.getAccounts()) {
       if (acc.connected || acc.connecting)
         hasActiveAccount = true;
@@ -144,14 +144,14 @@ var buddyList = {
       // We only check for crashed accounts on startup.
       if (aIsStarting && acc.autoLogin &&
           acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
-        hasCrachedAccount = true;
+        hasCrashedAccount = true;
     }
 
     /* We only display the account manager on startup if an account has crashed
        or if all accounts are disconnected
        In case of connection failure after an automatic reconnection attempt,
        we don't want to popup the account manager */
-    if (!hasActiveAccount || (aIsStarting && hasCrachedAccount))
+    if (!hasActiveAccount || (aIsStarting && hasCrashedAccount))
       menus.accounts();
   },
 
