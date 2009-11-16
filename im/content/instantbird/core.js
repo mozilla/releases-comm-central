@@ -88,16 +88,42 @@ function uninitPurpleCore()
 }
 
 function promptError(aKeyString, aMessage) {
+  const nsIPromptService = Components.interfaces.nsIPromptService;
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Components.interfaces.nsIPromptService);
+                          .getService(nsIPromptService);
 
-  var bundle =  Components.classes["@mozilla.org/intl/stringbundle;1"]
-                          .getService(Components.interfaces.nsIStringBundleService)
-                          .createBundle("chrome://instantbird/locale/core.properties");
+  var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                         .getService(Components.interfaces.nsIStringBundleService)
+                         .createBundle("chrome://instantbird/locale/core.properties");
 
   var title = bundle.GetStringFromName("startupFailure.title");
-  var message = bundle.GetStringFromName("startupFailure.apologize") + "\n\n";
-  message += aMessage ? bundle.formatStringFromName(aKeyString, [aMessage], 1)
-                      : bundle.GetStringFromName(aKeyString);
-  prompts.alert(null, title, message);
+  var message =
+    bundle.GetStringFromName("startupFailure.apologize") + "\n\n" +
+    (aMessage ? bundle.formatStringFromName(aKeyString, [aMessage], 1)
+              : bundle.GetStringFromName(aKeyString)) + "\n\n" +
+    bundle.GetStringFromName("startupFailure.update");
+  const flags =
+    nsIPromptService.BUTTON_POS_1 * nsIPromptService.BUTTON_TITLE_IS_STRING +
+    nsIPromptService.BUTTON_POS_0 * nsIPromptService.BUTTON_TITLE_IS_STRING;
+
+  if (!prompts.confirmEx(null, title, message, flags,
+                         bundle.GetStringFromName("startupFailure.buttonUpdate"),
+                         bundle.GetStringFromName("startupFailure.buttonClose"),
+                         null, null, {})) {
+    // copied from checkForUpdates in mozilla/browser/base/content/utilityOverlay.js
+    var um =
+      Components.classes["@mozilla.org/updates/update-manager;1"]
+                .getService(Components.interfaces.nsIUpdateManager);
+    var prompter =
+      Components.classes["@mozilla.org/updates/update-prompt;1"]
+                .createInstance(Components.interfaces.nsIUpdatePrompt);
+
+    // If there's an update ready to be applied, show the "Update Downloaded"
+    // UI instead and let the user know they have to restart the browser for
+    // the changes to be applied.
+    if (um.activeUpdate && um.activeUpdate.state == "pending")
+      prompter.showUpdateDownloaded(um.activeUpdate);
+    else
+      prompter.checkForUpdates();
+  }
 }
