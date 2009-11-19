@@ -17,7 +17,6 @@ components/i18n.dll
 components/imgicon.dll
 components/imglib2.dll
 components/import.dll
-components/mail.dll
 components/mork.dll
 components/mozfind.dll
 components/mozldap.dll
@@ -97,9 +96,6 @@ components/layout_xul.xpt
 components/layout_xul_tree.xpt
 components/locale.xpt
 components/lwbrk.xpt
-components/mailnews.xpt
-components/mailview.xpt
-components/mapihook.xpt
 components/mime.xpt
 components/mimetype.xpt
 components/mozbrwsr.xpt
@@ -162,7 +158,6 @@ components/xuldoc.xpt
 components/xultmpl.xpt
 components/downloadmanager.xpt
 #endif
-components/nsUnsetDefaultMail.js
 components/nsBackgroundUpdateService.js
 components/nsCloseAllWindows.js
 components/nsDownloadProgressListener.js
@@ -171,11 +166,9 @@ component.reg
 chrome/installed-chrome.txt
 chrome/chrome.rdf
 chrome/app-chrome.manifest
-chrome/mail.jar
 chrome/qute.jar
 chrome/offline.jar
 chrome/offline.manifest
-chrome/en-US-mail.jar
 chrome/overlayinfo/
 defaults/pref/all.js
 defaults/pref/security-prefs.js
@@ -187,17 +180,6 @@ defaults/profile/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/
 defaults/profile/extensions/Extensions.rdf
 defaults/profile/extensions/installed-extensions.txt
 defaults/profile/extensions/
-defaults/messenger/SpamAssassin.sfd
-defaults/messenger/SpamPal.sfd
-defaults/isp/rss.rdf
-defaults/isp/movemail.rdf
-defaults/isp/dotmac.rdf
-defaults/isp/en-US/rss.rdf
-defaults/isp/en-US/movemail.rdf
-defaults/isp/en-US/dotmac.rdf
-defaults/isp/en-US/
-defaults/isp/
-isp/gmail.rdf
 
 components/@DLL_PREFIX@xpcom_compat_c@DLL_SUFFIX@
 @DLL_PREFIX@xpcom_compat@DLL_SUFFIX@

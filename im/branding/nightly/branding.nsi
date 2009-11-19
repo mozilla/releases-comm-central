@@ -35,9 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 # NSIS defines for nightly builds.
-# The release build branding.nsi is located in other-license/branding/thunderbird/
-!define BrandShortName        "Instantbird"
-!define BrandFullName         "Instantbird"
+
 # BrandFullNameInternal is used for some registry and file system values that
 # should not contain release that may be in the BrandFullName (e.g. Beta 1, etc.)
 !define BrandFullNameInternal "Instantbird"
