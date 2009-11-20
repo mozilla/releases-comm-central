@@ -93,7 +93,9 @@ include $(topsrcdir)/config/rules.mk
 MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
 
 ifdef MOZ_ENABLE_LIBXUL
+ifeq (WINNT,$(OS_ARCH))
 MOZ_PKG_MANIFEST_P = $(srcdir)/windows/packages-static
+endif
 else
 define message
 You need to build with --enable-libxul (the default, unless you specify
@@ -143,9 +145,9 @@ MOZ_PKG_MAC_ICON=branding/disk.icns
 MOZ_PKG_MAC_EXTRA=--symlink "/Applications:/ "
 endif
 
-ifndef LIBXUL_SDK
-INSTALL_SDK = 1
-endif
+# On mozilla-central, packager.mk uses core_abspath to redefine DIST
+# As the comm-central config.mk doesn't set it, do it ourselves instead
+core_abspath = $(if $(findstring :,$(1)),$(1),$(if $(filter /%,$(1)),$(1),$(CURDIR)/$(1)))
 
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
 
