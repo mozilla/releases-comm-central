@@ -121,7 +121,12 @@ var previewObserver = {
       Components.classes["@mozilla.org/extensions/manager;1"]
                 .getService(Components.interfaces.nsIExtensionManager)
                 .getItemList(Components.interfaces.nsIUpdateItem.TYPE_EXTENSION, {})
-                .filter(function(item) /^messagestyle-/.test(item.id));
+                .filter(function(item) /^messagestyle-/.test(item.id))
+                .sort(function(item1, item2) {
+                  let name1 = item1.name.toLowerCase();
+                  let name2 = item2.name.toLowerCase();
+                  return name1 < name2 ? -1 : name1 > name2 ? 1 : 0;
+                });
 
     let menulist = document.getElementById("themename");
     if (!themeList.length) {
