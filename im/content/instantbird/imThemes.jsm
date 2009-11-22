@@ -924,18 +924,15 @@ function getMessagesForRange(aRange)
 
     if (aNode._originalMsg) {
       // store the result
-
-      // the second line of the test is not needed on debug builds
-      if (!(aNode._originalMsg in messages) ||
-          messages[aNode._originalMsg].msg != aNode._originalMsg) {
+      if (!(aNode._originalMsg.id in messages)) {
         // we've found a new message!
         let newMessage = new SelectedMessage(aNode, aRange);
-        messages[aNode._originalMsg] = newMessage;
+        messages[aNode._originalMsg.id] = newMessage;
         result.push(newMessage);
       }
       else {
         // we've found another root of an already known message
-        messages[aNode._originalMsg].addRoot(aNode);
+        messages[aNode._originalMsg.id].addRoot(aNode);
       }
     }
 
@@ -995,7 +992,7 @@ function getMessagesForRange(aRange)
   let firstRoot = aRange.startContainer;
   while (firstRoot && !firstRoot._originalMsg)
     firstRoot = firstRoot.parentNode;
-  if (firstRoot && !(firstRoot._originalMsg in messages))
+  if (firstRoot && !(firstRoot._originalMsg.id in messages))
     result.unshift(new SelectedMessage(firstRoot, aRange));
 
   return result;

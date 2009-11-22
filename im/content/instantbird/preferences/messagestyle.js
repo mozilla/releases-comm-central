@@ -74,6 +74,7 @@ Conversation.prototype = {
 
 function Message(aTime, aWho, aMessage, aObject)
 {
+  this.id = ++Message.prototype._lastId;
   this.time = aTime;
   this.alias = aWho;
   this.who = aWho;
@@ -85,6 +86,7 @@ function Message(aTime, aWho, aMessage, aObject)
       this[i] = aObject[i];
 }
 Message.prototype = {
+  _lastId: 0,
   QueryInterface: function(aIid) {
     if (aIid.equals(Components.interfaces.nsISupports) ||
         aIid.equals(Components.interfaces.purpleIMessage))

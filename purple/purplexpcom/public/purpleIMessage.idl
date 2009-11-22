@@ -44,6 +44,10 @@
 
 [scriptable, uuid(d9f0ca7f-ee59-4657-a3dd-f458c204ca45)]
 interface purpleIMessage: nsISupports {
+  /* The unicity of the message id is only guaranteed across messages
+     of a conversation, not across all messages created during the
+     execution of the application. */
+  readonly attribute PRUint32 id;
   readonly attribute AUTF8String who;
   readonly attribute AUTF8String alias;
   readonly attribute AUTF8String originalMessage;
