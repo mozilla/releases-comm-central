@@ -61,10 +61,6 @@
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
 
-  <stringbundleset id="blistStringBundleSet">
-    <stringbundle id="awayBundle" src="chrome://instantbird/locale/away.properties"/>
-  </stringbundleset>
-
 #include menus.xul.inc
 
   <notificationbox id="buddyListMsg" flex="1">

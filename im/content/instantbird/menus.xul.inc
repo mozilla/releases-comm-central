@@ -39,6 +39,7 @@
   <script type="application/javascript" src="chrome://instantbird/content/menus.js"/>
 
   <stringbundle id="updatesBundle" src="chrome://instantbird/locale/updates.properties"/>
+  <stringbundle id="awayBundle" src="chrome://instantbird/locale/away.properties"/>
 
   <commandset id="maincommandset">
     <command id="accountmanager" oncommand="menus.accounts()"/>

@@ -206,23 +206,6 @@ var buddyList = {
     goQuitApplication();
   },
 
-  getAway: function bl_getAway() {
-    // prompt the user to enter an away message
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                           .getService(Components.interfaces.nsIPromptService);
-    var bundle = document.getElementById("awayBundle");
-    var message = {value: bundle.getString("away.default.message")};
-    if (!prompts.prompt(window, bundle.getString("away.prompt.title"),
-                        bundle.getString("away.prompt.message"), message,
-                        null, {value: false}))
-      return; // the user canceled
-
-    // actually get away
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Components.interfaces.purpleICoreService);
-    pcs.away(message.value);
-  },
-
   // Handle key pressing
   keyPress: function bl_keyPress(aEvent) {
     var item = document.getElementById("buddylistbox").selectedItem;
@@ -249,7 +232,7 @@ var buddyList = {
           item.close();
         break;
     }
-  },
+  }
 };
 
 this.addEventListener("load", buddyList.load, false);
