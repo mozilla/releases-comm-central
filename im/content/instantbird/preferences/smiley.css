@@ -57,6 +57,10 @@ smiley:nth-child(odd) {
   font-family: monospace;
 }
 
+.smileyImageBox {
+  -moz-box-align: center;
+}
+
 .smileyImage {
   margin: 1px 1em;
 }
