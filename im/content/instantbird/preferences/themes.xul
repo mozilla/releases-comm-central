@@ -50,7 +50,7 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <prefpane id="paneThemes"
-            onpaneload="previewObserver.load(); smileysPreview.load();"
+            onpaneload="previewObserver.load(); setTimeout(function() { smileysPreview.load(); }, 10);"
             flex="1">
 
     <script type="application/javascript" src="chrome://instantbird/content/preferences/messagestyle.js"/>
@@ -70,7 +70,7 @@
       <tabpanels flex="1">
         <tabpanel orient="vertical" flex="1">
           <label value="&previewLabel;"/>
-          <browser style="min-height: 250px;" flex="1" id="browser" type="content-conversation" onload="window.sizeToContent()"/>
+          <browser flex="1" id="browser" type="content-conversation"/>
           <hbox align="baseline">
             <label value="&themeLabel;" control="themename"/>
             <menulist id="themename"
