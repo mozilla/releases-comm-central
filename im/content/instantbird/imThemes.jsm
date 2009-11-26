@@ -44,6 +44,7 @@
 
 var EXPORTED_SYMBOLS = [
   "getCurrentTheme",
+  "getThemeByName",
   "getHTMLForMessage",
   "getThemeVariants",
   "isNextMessage",
@@ -58,6 +59,14 @@ const variantPref = "variant";
 const showHeaderPref = "showHeader";
 const combineConsecutivePref = "combineConsecutive";
 const combineConsecutiveIntervalPref = "combineConsecutiveInterval";
+
+__defineGetter__("gPrefBranch", function() {
+  delete this.gPrefBranch;
+  return this.gPrefBranch = 
+    Components.classes["@mozilla.org/preferences-service;1"]
+              .getService(Components.interfaces.nsIPrefService)
+              .getBranch(messagesStylePrefBranch);
+});
 
 var gCurrentTheme = null;
 
@@ -103,6 +112,9 @@ function HTMLTheme(aBaseURI)
     if (html)
       this[id] = html;
   }
+
+  if (!("incomingContent" in files))
+    throw "Invalid theme: Incoming/Content.html is missing!";
 
   // We set the prototype this way to workaround the
   // 'setting a property that has only a getter' error.
@@ -200,29 +212,41 @@ function getChromeBaseURI(aThemeName)
   return "chrome://" + aThemeName + "/skin/";
 }
 
+function getThemeByName(aName)
+{
+  let baseURI = getChromeBaseURI(aName);
+  let metadata = getInfoPlistContent(baseURI);
+  if (!metadata)
+    throw "Cannot load theme " + aName;
+
+  return {
+    name: aName,
+    variant: "default",
+    baseURI: baseURI,
+    metadata: metadata,
+    html: new HTMLTheme(baseURI),
+    showHeader: gPrefBranch.getBoolPref(showHeaderPref),
+    combineConsecutive: gPrefBranch.getBoolPref(combineConsecutivePref),
+    combineConsecutiveInterval: gPrefBranch.getIntPref(combineConsecutiveIntervalPref)
+  };
+}
+
 function getCurrentTheme()
 {
-  let prefs =
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefService)
-              .getBranch(messagesStylePrefBranch);
-  let name = prefs.getCharPref(themePref);
-  let variant = prefs.getCharPref(variantPref);
+  let name = gPrefBranch.getCharPref(themePref);
+  let variant = gPrefBranch.getCharPref(variantPref);
   if (gCurrentTheme && gCurrentTheme.name == name &&
       gCurrentTheme.variant == variant)
     return gCurrentTheme;
 
-  let baseURI = getChromeBaseURI(name);
-  gCurrentTheme = {
-    name: name,
-    variant: variant,
-    baseURI: baseURI,
-    metadata: getInfoPlistContent(baseURI),
-    html: new HTMLTheme(baseURI),
-    showHeader: prefs.getBoolPref(showHeaderPref),
-    combineConsecutive: prefs.getBoolPref(combineConsecutivePref),
-    combineConsecutiveInterval: prefs.getIntPref(combineConsecutiveIntervalPref)
-  };
+  try {
+    gCurrentTheme = getThemeByName(name);
+    gCurrentTheme.variant = variant;
+  } catch(e) {
+    Components.utils.reportError(e);
+    gCurrentTheme = getThemeByName("default");
+    gCurrentTheme.variant = "default";
+  }
 
   return gCurrentTheme;
 }
