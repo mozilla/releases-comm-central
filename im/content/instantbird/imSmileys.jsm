@@ -46,118 +46,113 @@ var EXPORTED_SYMBOLS = [
 const emoticonsThemePref = "messenger.options.emoticonsTheme";
 const themeFile = "theme.js";
 
-var gTheme = null;
+__defineGetter__("gTheme", function() {
+  delete this.gTheme;
+  gPrefObserver.init();
+  return this.gTheme = getTheme();
+});
 
 var gPrefObserver = {
   init: function po_init() {
     Components.classes["@mozilla.org/preferences-service;1"]
               .getService(Components.interfaces.nsIPrefBranch2)
               .addObserver(emoticonsThemePref, gPrefObserver, false);
-    // We want to add this observer only once, make this method a no-op
-    gPrefObserver.init = function() {};
   },
 
   observe: function so_observe(aObject, aTopic, aMsg) {
     if (aTopic != "nsPref:changed" || aMsg != emoticonsThemePref)
       throw "bad notification";
 
-    gTheme = null;
+    gTheme = getTheme();
   }
 };
 
 function getSmileRealURI(aSmile)
 {
-  let theme = getTheme();
   aSmile = Components.classes["@mozilla.org/intl/texttosuburi;1"]
                      .getService(Components.interfaces.nsITextToSubURI)
                      .unEscapeURIForUI("UTF-8", aSmile);
-  if (aSmile in theme.iconsHash)
-    return theme.baseUri + theme.iconsHash[aSmile].filename;
+  if (aSmile in gTheme.iconsHash)
+    return gTheme.baseUri + gTheme.iconsHash[aSmile].filename;
 
   throw "Invalid smile!";
 }
 
-function getSmileyList(aTheme) {
-  if (!aTheme)
-    aTheme = getTheme();
-
-  if (!aTheme.json)
+function getSmileyList(aThemeName)
+{
+  let theme = aThemeName == gTheme.name ? gTheme : getTheme(aThemeName);
+  if (!theme.json)
     return null;
 
   let addAbsoluteUrls = function(aSmiley) {
     return {filename: aSmiley.filename,
-            src: aTheme.baseUri + aSmiley.filename,
+            src: theme.baseUri + aSmiley.filename,
             textCodes: aSmiley.textCodes};
   };
-  return aTheme.json.smileys.map(addAbsoluteUrls);
+  return theme.json.smileys.map(addAbsoluteUrls);
 }
 
-function getTheme()
+function getTheme(aName)
 {
-  if (gTheme)
-    return gTheme;
+  let name = aName ||
+    Components.classes["@mozilla.org/preferences-service;1"]
+              .getService(Components.interfaces.nsIPrefBranch)
+              .getCharPref(emoticonsThemePref);
 
-  gPrefObserver.init();
-
-  gTheme = {
-    name: "default",
+  let theme = {
+    name: "name",
     iconsHash: null,
     json: null,
     regExp: null
   };
 
-  gTheme.name =
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch)
-              .getCharPref(emoticonsThemePref);
-  if (gTheme.name == "none")
-    return gTheme;
+  if (name == "none")
+    return theme;
 
-  if (gTheme.name == "default")
-    gTheme.baseUri = "chrome://instantbird/skin/smileys/";
+  if (name == "default")
+    theme.baseUri = "chrome://instantbird/skin/smileys/";
   else
-    gTheme.baseUri = "chrome://" + gTheme.name + "/skin/";
+    theme.baseUri = "chrome://" + theme.name + "/skin/";
   let ios = Components.classes["@mozilla.org/network/io-service;1"]
                       .getService(Components.interfaces.nsIIOService);
   try {
-    let channel = ios.newChannel(gTheme.baseUri + themeFile, null, null);
+    let channel = ios.newChannel(theme.baseUri + themeFile, null, null);
     let stream = channel.open();
     let json = Components.classes["@mozilla.org/dom/json;1"]
                          .createInstance(Components.interfaces.nsIJSON);
-    gTheme.json = json.decodeFromStream(stream, stream.available());
+    theme.json = json.decodeFromStream(stream, stream.available());
     stream.close();
-    gTheme.iconsHash = {};
-    for each (smiley in gTheme.json.smileys) {
+    theme.iconsHash = {};
+    for each (smiley in theme.json.smileys) {
       for each (textCode in smiley.textCodes)
-        gTheme.iconsHash[textCode] = smiley;
+        theme.iconsHash[textCode] = smiley;
     }
   } catch(e) {
     Components.utils.reportError(e);
   }
-  return gTheme;
+  return theme;
 }
 
 function getRegexp()
 {
-  let theme = getTheme();
-  if (theme.regExp) {
-    theme.regExp.lastIndex = 0;
-    return theme.regExp;
+  if (gTheme.regExp) {
+    gTheme.regExp.lastIndex = 0;
+    return gTheme.regExp;
   }
 
   // return null if smileys are disabled
-  if (!theme.iconsHash)
+  if (!gTheme.iconsHash)
     return null;
 
-  if ("" in theme.iconsHash) {
+  if ("" in gTheme.iconsHash) {
     Components.utils.reportError("Emoticon " +
-                                 theme.iconsHash[""].filename +
+                                 gTheme.iconsHash[""].filename +
                                  " matches the empty string!");
-    delete theme.iconsHash[""];
+    delete gTheme.iconsHash[""];
   }
 
   let emoticonList = [];
-  for (let emoticon in theme.iconsHash)
+  for (let emoticon in gTheme.iconsHash)
     emoticonList.push(emoticon);
 
   let exp = /([\][)(\\|?^$*+])/g;
@@ -168,12 +163,12 @@ function getRegexp()
   if (!emoticonList.length) {
     // the theme contains no valid emoticon, make sure we will return
     // early next time
-    theme.iconsHash = null;
+    gTheme.iconsHash = null;
     return null;
   }
 
-  theme.regExp = new RegExp('(' + emoticonList.join('|') + ')', 'g');
-  return theme.regExp;
+  gTheme.regExp = new RegExp('(' + emoticonList.join('|') + ')', 'g');
+  return gTheme.regExp;
 }
 
 // unused. May be useful later to process a string instead of an HTML node
@@ -232,7 +227,7 @@ function smileImMarkup(aDocument, aText)
     throw "providing an HTML document is required";
 
   // return early if smileys are disabled
-  if (!getTheme().iconsHash)
+  if (!gTheme.iconsHash)
     return aText;
 
   var div = aDocument.createElement("div");
