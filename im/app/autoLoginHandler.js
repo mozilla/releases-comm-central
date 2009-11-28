@@ -44,6 +44,15 @@ function autoLoginHandler() { }
 
 autoLoginHandler.prototype = {
   handle: function clh_handle(cmdLine) {
+    if (cmdLine.handleFlag("preferences", false)) {
+      var features = "chrome,titlebar,toolbar,centerscreen,dialog=no";
+      var url = "chrome://instantbird/content/preferences/preferences.xul";
+      Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+                .getService(Components.interfaces.nsIWindowWatcher)
+                .openWindow(null, url, "_blank", features, null);
+      cmdLine.preventDefault = true;
+    }
+
     if (!cmdLine.handleFlag("n", false))
       return;
 
@@ -53,7 +62,8 @@ autoLoginHandler.prototype = {
   },
 
   // 3 tabs here because there is a misalignment with only 2
-  helpInfo: "\t-n\t\t\tDisables auto-login.\n",
+  helpInfo: "  -n                 Disables auto-login.\n" +
+            "  -preferences       Open only the preferences window.",
 
   classDescription: "AutoLogin Handler",
   classID: Components.ID("{9e5d5160-d61d-4d57-ae0d-81bee4380269}"),
