@@ -394,7 +394,13 @@ const statusMessageReplacements = {
       msgClass.push("event");
 
     if (aMsg.containsNick)
-       msgClass.push("nick");
+      msgClass.push("nick");
+    if (aMsg.error)
+      msgClass.push("error");
+    if (aMsg.delayed)
+      msgClass.push("delayed");
+    if (aMsg.notification)
+      msgClass.push("notification");
 
     return msgClass.join(" ");
   }
