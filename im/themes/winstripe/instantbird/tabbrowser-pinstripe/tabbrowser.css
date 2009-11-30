@@ -64,6 +64,7 @@ statusbarpanel#statusbar-display {
 
 #convWindow:not([active="true"]) .tabbrowser-strip {
   background-color: #e2e2e2;
+  border-bottom-color: rgba(0,0,0,0.35);
 }
 
 #convWindow:not([active="true"]) .tabbrowser-tab {

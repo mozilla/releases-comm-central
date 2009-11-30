@@ -49,17 +49,13 @@
 
 .conv-messages {
   min-width: 150px;
-%ifdef XP_MACOSX
-  border-bottom: 1px solid #888;
-%else
+%ifndef XP_MACOSX
   border-bottom: solid 1px GrayText;
 %endif
 }
 
 conversation[chat="true"] .conv-messages {
-%ifdef XP_MACOSX
-  border-right: 1px solid #C3C3C3;
-%else
+%ifndef XP_MACOSX
   border-right: solid 1px GrayText;
 %endif
 }
@@ -85,6 +81,9 @@ grippy {
   margin: 0 0px;
   border-style: none;
   height: 3px;
+%ifdef XP_MACOSX
+  min-height: 7px;
+%endif
   background: transparent;
 }
 
@@ -94,18 +93,69 @@ grippy {
 
 .conv-nicklist .listcell-label {
   font-weight: bold;
+  -moz-padding-start: 1px;
+%ifdef XP_MACOSX
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+%endif
 }
 
 .conv-nicklist .listcell-icon {
   min-width: 16px;
-  -moz-margin-end: 0px;
+  margin: 0 2px;
 }
 
+%ifdef XP_MACOSX
 .conv-nicklist-header {
+  -moz-appearance: treeheadercell;
+}
+
+%endif
+.conv-nicklist-header-label {
+%ifdef XP_MACOSX
+  -moz-margin-start: 3px !important;
+%else
+  font-weight: bold;
   -moz-margin-start: 0 !important;
+%endif
   -moz-margin-end: 2px !important;
 }
 
 conversation:not([chat="true"]) .conv-chat {
   display: none;
 }
+
+%ifdef XP_MACOSX
+.splitter.conv-chat {
+  -moz-border-end: none !important;
+  -moz-border-start: 1px solid #404040;
+  min-width: 1px;
+  width: 1px;
+}
+
+:root:not([active="true"]) .splitter.conv-chat {
+  border-color: rgba(0,0,0,0.35);
+}
+
+.splitter.conv-chat[state="collapsed"] {
+  width: 3px;
+}
+
+.conv-nicklist {
+  -moz-appearance: none;
+  background-color: #d2d8e2;
+  width: 160px;
+  border: 0px;
+}
+
+:root:not([active="true"]) .conv-nicklist {
+  background-color: #e8e8e8;
+}
+
+.conv-top {
+  border-bottom: 1px solid #404040;
+}
+
+:root:not([active="true"]) .conv-top {
+  border-bottom-color: rgba(0,0,0,0.35);
+}
+%endif

@@ -65,8 +65,8 @@
             <xul:grippy/>
           </xul:splitter>
           <xul:vbox class="conv-chat" width="150">
-            <xul:hbox>
-              <xul:label class="header conv-nicklist-header"
+            <xul:hbox align="baseline" class="conv-nicklist-header">
+              <xul:label class="conv-nicklist-header-label"
                          anonid="participantLabel"
                          value="&chat.participants;"/>
               <xul:textbox flex="1" readonly="true" class="plain" anonid="participantCount"/>
@@ -849,7 +849,7 @@
            weight *= 0.52; //arbitrary
          }
          res = Math.round(res) % 360;
-         var style = "color: hsl(" + res + ", 100%, 50%);";
+         var style = "color: hsl(" + res + ", 100%, 40%);";
          item.setAttribute("style", style);
          item.color = res;
          this.buddies[name] = item;
