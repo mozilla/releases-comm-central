@@ -100,7 +100,7 @@ function getTheme(aName)
               .getCharPref(emoticonsThemePref);
 
   let theme = {
-    name: "name",
+    name: name,
     iconsHash: null,
     json: null,
     regExp: null
