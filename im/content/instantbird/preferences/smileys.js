@@ -35,9 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const smileyThemePref = "messenger.options.emoticonsTheme";
-
 var smileysPreview = {
+  _loaded: false,
   buildThemeList: function() {
     let themeList =
       Components.classes["@mozilla.org/extensions/manager;1"]
@@ -63,26 +62,19 @@ var smileysPreview = {
     Components.utils.import("resource://app/modules/imSmileys.jsm");
 
     smileysPreview.buildThemeList();
-    smileysPreview.prefs =
-      Components.classes["@mozilla.org/preferences-service;1"]
-                .getService(Components.interfaces.nsIPrefBranch);
-
-    let menulist = document.getElementById("smileythemename").value =
-      smileysPreview.prefs.getCharPref(smileyThemePref);
-
-    smileysPreview.displayCurrentTheme();
-  },
-  currentThemeChanged: function() {
-    let currentTheme = document.getElementById("smileythemename").value;
-    if (!currentTheme)
-      return;
-
-    smileysPreview.prefs.setCharPref(smileyThemePref, currentTheme);
+    let themeName = document.getElementById("smileythemename");
+    // force the setter to execute again now that the menuitem exists
+    themeName.value = themeName.value;
+    this._loaded = true;
     this.displayCurrentTheme();
   },
 
   displayCurrentTheme: function() {
-    this.smileyList = getSmileyList();
+    if (!this._loaded)
+      return;
+
+    let themeName = document.getElementById("smileythemename").value;
+    this.smileyList = getSmileyList(themeName);
     let list = document.getElementById("smileysPreview");
     let item = list.firstChild.nextSibling;
     while (item) {

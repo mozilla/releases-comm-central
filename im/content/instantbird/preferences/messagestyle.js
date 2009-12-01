@@ -112,11 +112,6 @@ Message.prototype = {
   noLinkification: false
 };
 
-const messagesStylePrefBranch = "messenger.options.messagesStyle.";
-const themePref = "theme";
-const variantPref = "variant";
-const showHeaderPref = "showHeader";
-
 var previewObserver = {
   buildThemeList: function() {
     let themeList =
@@ -142,12 +137,9 @@ var previewObserver = {
                           aItem.id.replace(/^messagestyle-([^@]+)@.*/, "$1"));
     });
   },
+  _loaded: false,
   load: function() {
     previewObserver.buildThemeList();
-    previewObserver.prefs =
-      Components.classes["@mozilla.org/preferences-service;1"]
-                .getService(Components.interfaces.nsIPrefService)
-                .getBranch(messagesStylePrefBranch);
 
     let makeDate = function(aDateString) {
       let array = aDateString.split(":");
@@ -167,43 +159,55 @@ var previewObserver = {
     ];
     previewObserver.conv = conv;
 
-    let menulist = document.getElementById("themename").value =
-      previewObserver.prefs.getCharPref(themePref);
-    document.getElementById("showHeaderCheckbox").checked =
-      previewObserver.prefs.getBoolPref(showHeaderPref);
+    let themeName = document.getElementById("themename");
+    if (themeName.value && !themeName.selectedItem)
+      themeName.value = themeName.value;
     previewObserver.browser = document.getElementById("browser");
+    previewObserver.theme = getCurrentTheme();
+    document.getElementById("showHeaderCheckbox")
+            .addEventListener("CheckboxStateChange",
+                              previewObserver.showHeaderChanged, false);
+    this._loaded = true;
     previewObserver.displayCurrentTheme();
   },
 
   showHeaderChanged: function() {
-    let newValue = document.getElementById("showHeaderCheckbox").checked;
-    previewObserver.prefs.setBoolPref(showHeaderPref, newValue);
-    this.theme.showHeader = newValue;
-    this.reloadPreview();
+    if (!previewObserver._loaded)
+      return;
+
+    previewObserver.theme.showHeader = this.checked;
+    previewObserver.reloadPreview();
   },
 
   currentThemeChanged: function() {
+    if (!this._loaded)
+      return;
+
     let currentTheme = document.getElementById("themename").value;
     if (!currentTheme)
       return;
 
-    previewObserver.prefs.setCharPref(themePref, currentTheme);
-    previewObserver.prefs.setCharPref(variantPref, "default");
+    this.theme = getThemeByName(currentTheme);
+    let menuList = document.getElementById("themevariant");
+    menuList.value = "default";
+    document.getElementById("paneThemes").userChangedValue(menuList);
     this.displayCurrentTheme();
   },
 
+  _ignoreVariantChange: false,
   currentVariantChanged: function() {
+    if (!this._loaded || this._ignoreVariantChange)
+      return;
+
     let variant = document.getElementById("themevariant").value;
     if (!variant)
       return;
 
-    previewObserver.prefs.setCharPref(variantPref, variant);
     this.theme.variant = variant;
     this.reloadPreview();
   },
 
   displayCurrentTheme: function() {
-    this.theme = getCurrentTheme();
     let menulist = document.getElementById("themevariant");
     if (menulist.firstChild)
       menulist.removeChild(menulist.firstChild);
@@ -237,7 +241,9 @@ var previewObserver = {
         popup.appendChild(menuitem);
       }
     });
+    this._ignoreVariantChange = true;
     menulist.value = this.theme.variant;
+    this._ignoreVariantChange = false;
 
     // disable the variant menulist if there's no variant, or only one
     // which is the default
@@ -253,6 +259,7 @@ var previewObserver = {
   reloadPreview: function() {
     this.conv.messages.forEach(function (m) { m.reset(); });
     this.browser.init(this.conv);
+    this.browser._theme = this.theme;
     Components.classes["@mozilla.org/observer-service;1"]
               .getService(Components.interfaces.nsIObserverService)
               .addObserver(this, "conversation-loaded", false);

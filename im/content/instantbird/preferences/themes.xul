@@ -56,6 +56,13 @@
     <script type="application/javascript" src="chrome://instantbird/content/preferences/messagestyle.js"/>
     <script type="application/javascript" src="chrome://instantbird/content/preferences/smileys.js"/>
 
+    <preferences id="themesPreferences">
+      <preference id="messenger.options.messagesStyle.theme"      name="messenger.options.messagesStyle.theme"      type="string"/>
+      <preference id="messenger.options.messagesStyle.variant"    name="messenger.options.messagesStyle.variant"    type="string"/>
+      <preference id="messenger.options.messagesStyle.showHeader" name="messenger.options.messagesStyle.showHeader" type="bool"/>
+      <preference id="messenger.options.emoticonsTheme"           name="messenger.options.emoticonsTheme"           type="string"/>
+    </preferences>
+
     <stringbundleset id="stringbundleset">
       <stringbundle id="messageStyleBundle"
                     src="chrome://instantbird/locale/messagestyle.properties"/>
@@ -69,12 +76,11 @@
       </tabs>
       <tabpanels flex="1">
         <tabpanel orient="vertical" flex="1">
-          <label value="&previewLabel;"/>
-          <browser flex="1" id="browser" type="content-conversation"/>
           <hbox align="baseline">
             <label value="&themeLabel;" control="themename"/>
             <menulist id="themename"
-                      oncommand="previewObserver.currentThemeChanged();">
+                      preference="messenger.options.messagesStyle.theme"
+                      onselect="previewObserver.currentThemeChanged();">
               <menupopup id="theme-menupopup">
                 <menuitem id="default-menuitem"
                           label="&defaultThemeLabel;"
@@ -82,20 +88,25 @@
               </menupopup>
             </menulist>
           </hbox>
+          <separator class="thin"/>
+          <label value="&previewLabel;"/>
+          <browser flex="1" id="browser" type="content-conversation"/>
           <hbox align="baseline">
             <label value="&variantLabel;" control="themevariant"/>
             <menulist id="themevariant"
-                      oncommand="previewObserver.currentVariantChanged();"/>
+                      preference="messenger.options.messagesStyle.variant"
+                      onselect="previewObserver.currentVariantChanged();"/>
           </hbox>
           <checkbox id="showHeaderCheckbox" label="&showHeaderLabel;"
-                    oncommand="previewObserver.showHeaderChanged()"/>
+                    preference="messenger.options.messagesStyle.showHeader"/>
         </tabpanel>
 
         <tabpanel orient="vertical" flex="1">
           <hbox align="baseline">
             <label value="&themeLabel;" control="smileythemename"/>
             <menulist id="smileythemename"
-                      oncommand="smileysPreview.currentThemeChanged();">
+                      preference="messenger.options.emoticonsTheme"
+                      onselect="smileysPreview.displayCurrentTheme();">
               <menupopup id="theme-menupopup">
                 <menuitem id="default-menuitem"
                           label="&defaultTheme.label;"
