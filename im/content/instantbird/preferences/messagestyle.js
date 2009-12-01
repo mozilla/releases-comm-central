@@ -163,12 +163,11 @@ var previewObserver = {
     if (themeName.value && !themeName.selectedItem)
       themeName.value = themeName.value;
     previewObserver.browser = document.getElementById("browser");
-    previewObserver.theme = getCurrentTheme();
     document.getElementById("showHeaderCheckbox")
             .addEventListener("CheckboxStateChange",
                               previewObserver.showHeaderChanged, false);
     this._loaded = true;
-    previewObserver.displayCurrentTheme();
+    previewObserver.displayTheme(themeName.value);
   },
 
   showHeaderChanged: function() {
@@ -187,11 +186,10 @@ var previewObserver = {
     if (!currentTheme)
       return;
 
-    this.theme = getThemeByName(currentTheme);
     let menuList = document.getElementById("themevariant");
     menuList.value = "default";
     document.getElementById("paneThemes").userChangedValue(menuList);
-    this.displayCurrentTheme();
+    this.displayTheme(currentTheme);
   },
 
   _ignoreVariantChange: false,
@@ -207,7 +205,15 @@ var previewObserver = {
     this.reloadPreview();
   },
 
-  displayCurrentTheme: function() {
+  displayTheme: function(aTheme) {
+    try {
+      this.theme = getThemeByName(aTheme);
+    }
+    catch(e) {
+      document.getElementById("previewDeck").selectedIndex = 0;
+      return;
+    }
+
     let menulist = document.getElementById("themevariant");
     if (menulist.firstChild)
       menulist.removeChild(menulist.firstChild);
@@ -254,6 +260,7 @@ var previewObserver = {
       !this.theme.html.hasOwnProperty("header");
 
     this.reloadPreview();
+    document.getElementById("previewDeck").selectedIndex = 1;
   },
 
   reloadPreview: function() {

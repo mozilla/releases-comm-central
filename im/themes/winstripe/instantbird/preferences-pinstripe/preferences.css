@@ -254,3 +254,36 @@ caption {
 #SanitizeDialogPane > groupbox {
   margin-top: 0;
 }
+
+/**
+ * No message theme preview message box
+ */
+#noPreviewScreen {
+  background-color: -moz-Dialog;
+  overflow: auto;
+}
+#noPreviewBox {
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+  border: 1px solid ThreeDShadow;
+  -moz-border-radius: 10px;
+  padding: 1.1em;
+  -moz-padding-start: 20px;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+#noPreviewImage {
+  list-style-image: url("chrome://global/skin/icons/information-64.png");
+  -moz-margin-end: 1.2em;
+}
+#noPreviewInnerBox {
+  max-width: 25em;
+}
+#noPreviewTitle {
+  margin: 0 1em 0.6em 0;
+  font-size: 160%;
+  border-bottom: 1px solid ThreeDLightShadow
+}
+#noPreviewDesc {
+  font-size: 110%;
+}

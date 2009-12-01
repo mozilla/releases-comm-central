@@ -90,7 +90,18 @@
           </hbox>
           <separator class="thin"/>
           <label value="&previewLabel;"/>
-          <browser flex="1" id="browser" type="content-conversation"/>
+          <deck flex="1" id="previewDeck" selectedIndex="1">
+            <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
+              <hbox id="noPreviewBox" align="top">
+                <image id="noPreviewImage"/>
+                <vbox id="noPreviewInnerBox" flex="1">
+                  <label id="noPreviewTitle" value="&noPreview.title;"/>
+                  <description id="noAccountDesc">&noPreview.description;</description>
+                </vbox>
+              </hbox>
+            </vbox>
+            <browser flex="1" id="browser" type="content-conversation"/>
+          </deck>
           <hbox align="baseline">
             <label value="&variantLabel;" control="themevariant"/>
             <menulist id="themevariant"

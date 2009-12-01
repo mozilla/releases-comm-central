@@ -4,3 +4,5 @@
 <!ENTITY defaultThemeLabel "Default">
 <!ENTITY variantLabel "Variant:">
 <!ENTITY showHeaderLabel "Show Header">
+<!ENTITY noPreview.title "No preview available">
+<!ENTITY noPreview.description "This theme is not valid or is currently unavailable (disabled addon, safe-mode, …).">
