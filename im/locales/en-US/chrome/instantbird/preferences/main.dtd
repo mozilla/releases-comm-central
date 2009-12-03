@@ -21,7 +21,7 @@
 <!ENTITY notifyOfNewMessages.accesskey "N">
 
 <!ENTITY sounds.label                  "Sounds">
-<!ENTITY playSounds.label              "Use sound for events such as receiving/sending an IM, or when a buddy signs on/off">
+<!ENTITY playSounds.label              "Play sounds on messaging or buddy list events">
 <!ENTITY playSounds.accesskey          "S">
 
 <!ENTITY addonsMgr.label               "Add-ons">
