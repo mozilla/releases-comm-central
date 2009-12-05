@@ -1,7 +1,0 @@
-<!ENTITY emoticonsTab.title  "Emoticons">
-<!ENTITY themeLabel          "Emoticon Theme:">
-<!ENTITY defaultTheme.label  "Default">
-<!ENTITY disabled.label      "Disabled">
-<!ENTITY previewDescription  "These text codes are shown as emoticons in your conversations:">
-<!ENTITY imageColumn.label   "Emoticon">
-<!ENTITY textCodesColumn.label  "Text Codes">

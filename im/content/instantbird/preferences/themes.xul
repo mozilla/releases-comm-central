@@ -38,12 +38,8 @@
 # ***** END LICENSE BLOCK *****
 
 <!DOCTYPE overlay [
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-  <!ENTITY % messageStyleDTD SYSTEM "chrome://instantbird/locale/messagestyle.dtd">
-  <!ENTITY % smileysDTD SYSTEM "chrome://instantbird/locale/smileys.dtd">
-  %brandDTD;
-  %messageStyleDTD;
-  %smileysDTD;
+  <!ENTITY % themesDTD SYSTEM "chrome://instantbird/locale/preferences/themes.dtd">
+  %themesDTD;
 ]>
 
 <overlay id="ThemesPaneOverlay"
@@ -65,7 +61,7 @@
 
     <stringbundleset id="stringbundleset">
       <stringbundle id="messageStyleBundle"
-                    src="chrome://instantbird/locale/messagestyle.properties"/>
+                    src="chrome://instantbird/locale/preferences/messagestyle.properties"/>
     </stringbundleset>
 
     <tabbox flex="1">
@@ -77,63 +73,63 @@
       <tabpanels flex="1">
         <tabpanel orient="vertical" flex="1">
           <hbox align="baseline">
-            <label value="&themeLabel;" control="themename"/>
+            <label value="&messageStyleTheme.label;" control="themename"/>
             <menulist id="themename"
                       preference="messenger.options.messagesStyle.theme"
                       onselect="previewObserver.currentThemeChanged();">
               <menupopup id="theme-menupopup">
                 <menuitem id="default-menuitem"
-                          label="&defaultThemeLabel;"
+                          label="&messageStyleDefaultTheme.label;"
                           value="default"/>
               </menupopup>
             </menulist>
           </hbox>
           <separator class="thin"/>
-          <label value="&previewLabel;"/>
+          <label value="&messageStylePreview.label;"/>
           <deck flex="1" id="previewDeck" selectedIndex="1">
             <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
               <hbox id="noPreviewBox" align="top">
                 <image id="noPreviewImage"/>
                 <vbox id="noPreviewInnerBox" flex="1">
-                  <label id="noPreviewTitle" value="&noPreview.title;"/>
-                  <description id="noAccountDesc">&noPreview.description;</description>
+                  <label id="noPreviewTitle" value="&messageStyleNoPreview.title;"/>
+                  <description id="noAccountDesc">&messageStyleNoPreview.description;</description>
                 </vbox>
               </hbox>
             </vbox>
             <browser flex="1" id="browser" type="content-conversation"/>
           </deck>
           <hbox align="baseline">
-            <label value="&variantLabel;" control="themevariant"/>
+            <label value="&messageStyleVariant.label;" control="themevariant"/>
             <menulist id="themevariant"
                       preference="messenger.options.messagesStyle.variant"
                       onselect="previewObserver.currentVariantChanged();"/>
           </hbox>
-          <checkbox id="showHeaderCheckbox" label="&showHeaderLabel;"
+          <checkbox id="showHeaderCheckbox" label="&messageStyleShowHeader.label;"
                     preference="messenger.options.messagesStyle.showHeader"/>
         </tabpanel>
 
         <tabpanel orient="vertical" flex="1">
           <hbox align="baseline">
-            <label value="&themeLabel;" control="smileythemename"/>
+            <label value="&emoticonsTheme.label;" control="smileythemename"/>
             <menulist id="smileythemename"
                       preference="messenger.options.emoticonsTheme"
                       onselect="smileysPreview.displayCurrentTheme();">
               <menupopup id="theme-menupopup">
                 <menuitem id="default-menuitem"
-                          label="&defaultTheme.label;"
+                          label="&emoticonsDefaultTheme.label;"
                           value="default"/>
                 <menuitem id="none-menuitem"
-                          label="&disabled.label;"
+                          label="&emoticonsDisabled.label;"
                           value="none"/>
               </menupopup>
             </menulist>
           </hbox>
           <separator class="thin"/>
-          <description>&previewDescription;</description>
+          <description>&emoticonsPreview.description;</description>
           <richlistbox orient="vertical" id="smileysPreview">
             <listheader equalsize="always">
-              <treecol id="imageColumn" label="&imageColumn.label;" flex="1"/>
-              <treecol id="textCodesColumn" label="&textCodesColumn.label;" flex="1"/>
+              <treecol id="imageColumn" label="&emoticonsImageColumn.label;" flex="1"/>
+              <treecol id="textCodesColumn" label="&emoticonsTextCodesColumn.label;" flex="1"/>
             </listheader>
           </richlistbox>
         </tabpanel>
