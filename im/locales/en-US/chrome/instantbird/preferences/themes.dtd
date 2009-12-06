@@ -6,6 +6,7 @@
 <!ENTITY messageStyleShowHeader.label      "Show Header">
 <!ENTITY messageStyleNoPreview.title       "No preview available">
 <!ENTITY messageStyleNoPreview.description "This theme is not valid or is currently unavailable (disabled addon, safe-mode, …).">
+<!ENTITY messageStyleGetMore.label         "Get more message styles…">
 
 <!ENTITY emoticonsTab.title             "Emoticons">
 <!ENTITY emoticonsTheme.label           "Emoticon Theme:">
@@ -14,3 +15,4 @@
 <!ENTITY emoticonsPreview.description   "These text codes are shown as emoticons in your conversations:">
 <!ENTITY emoticonsImageColumn.label     "Emoticon">
 <!ENTITY emoticonsTextCodesColumn.label "Text Codes">
+<!ENTITY emoticonsGetMore.label         "Get more emoticons…">

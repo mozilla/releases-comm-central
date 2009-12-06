@@ -46,11 +46,13 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <prefpane id="paneThemes"
-            onpaneload="previewObserver.load(); setTimeout(function() { smileysPreview.load(); }, 10);"
+            onpaneload="gThemePane.init();"
             flex="1">
 
     <script type="application/javascript" src="chrome://instantbird/content/preferences/messagestyle.js"/>
     <script type="application/javascript" src="chrome://instantbird/content/preferences/smileys.js"/>
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/themes.js"/>
+    <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
 
     <preferences id="themesPreferences">
       <preference id="messenger.options.messagesStyle.theme"      name="messenger.options.messagesStyle.theme"      type="string"/>
@@ -83,6 +85,9 @@
                           value="default"/>
               </menupopup>
             </menulist>
+            <spacer flex="1"/>
+            <label id="getMoreMessageStyles" class="text-link" value="&messageStyleGetMore.label;"
+                  onclick="if (event.button == 0) { openURL(this.getAttribute('getMoreURL'));}"/>
           </hbox>
           <separator class="thin"/>
           <label value="&messageStylePreview.label;"/>
@@ -123,6 +128,9 @@
                           value="none"/>
               </menupopup>
             </menulist>
+            <spacer flex="1"/>
+            <label id="getMoreEmoticons" class="text-link" value="&emoticonsGetMore.label;"
+                  onclick="if (event.button == 0) { openURL(this.getAttribute('getMoreURL')); }"/>
           </hbox>
           <separator class="thin"/>
           <description>&emoticonsPreview.description;</description>
