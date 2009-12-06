@@ -47,7 +47,9 @@ instantbird/branding/halloween/locales/Makefile
 instantbird/branding/release/Makefile
 instantbird/branding/release/locales/Makefile
 instantbird/content/Makefile
+instantbird/components/Makefile
 instantbird/locales/Makefile
+instantbird/modules/Makefile
 instantbird/themes/Makefile
 instantbird/installer/Makefile
 instantbird/installer/windows/Makefile

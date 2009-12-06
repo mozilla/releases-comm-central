@@ -111,12 +111,6 @@ DIST_FILES = application.ini
 
 LOCAL_INCLUDES += -I$(MOZILLA_SRCDIR)/toolkit/xre
 
-EXTRA_COMPONENTS = autoLoginHandler.js
-
-ifeq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
-EXTRA_COMPONENTS += profileMigrator.js
-endif
-
 ifdef BUILD_STATIC_LIBS
 ifdef _MSC_VER
 STATIC_COMPONENTS_LINKER_PATH = -LIBPATH:$(DEPTH)/staticlib
