@@ -170,6 +170,12 @@ radio[pane=paneAdvanced] {
   margin-top: 0;
 }
 
+/* Display the message theme preview browser with borders like a listbox */
+#previewbrowser {
+  -moz-appearance: listbox;
+  margin: 2px 4px;
+}
+
 /**
  * No message theme preview message box
  */

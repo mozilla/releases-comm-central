@@ -96,7 +96,7 @@
                 </vbox>
               </hbox>
             </vbox>
-            <browser flex="1" id="browser" type="content-conversation"/>
+            <browser flex="1" id="previewbrowser" type="content-conversation"/>
           </deck>
           <hbox align="baseline">
             <label value="&messageStyleVariant.label;" control="themevariant"/>

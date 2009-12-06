@@ -162,7 +162,7 @@ var previewObserver = {
     let themeName = document.getElementById("themename");
     if (themeName.value && !themeName.selectedItem)
       themeName.value = themeName.value;
-    previewObserver.browser = document.getElementById("browser");
+    previewObserver.browser = document.getElementById("previewbrowser");
     document.getElementById("showHeaderCheckbox")
             .addEventListener("CheckboxStateChange",
                               previewObserver.showHeaderChanged, false);
