@@ -46,16 +46,16 @@ DEFINES += -DWINCE
 endif
 
 EXTRA_JS_MODULES = \
-	instantbird/imContentSink.jsm \
-	instantbird/imSmileys.jsm \
+	imContentSink.jsm \
+	imSmileys.jsm \
 	$(NULL)
 
 EXTRA_PP_JS_MODULES = \
-	instantbird/imThemes.jsm \
-	instantbird/imWindows.jsm \
+	imThemes.jsm \
+	imWindows.jsm \
 	$(NULL)
 
-EXTRA_COMPONENTS = instantbird/smileProtocolHandler.js
+EXTRA_COMPONENTS = smileProtocolHandler.js
 
 include $(topsrcdir)/config/rules.mk
 
