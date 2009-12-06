@@ -49,8 +49,6 @@ instantbird/branding/release/locales/Makefile
 instantbird/content/Makefile
 instantbird/locales/Makefile
 instantbird/themes/Makefile
-instantbird/themes/winstripe/Makefile
-instantbird/themes/winstripe/instantbird/Makefile
 instantbird/installer/Makefile
 instantbird/installer/windows/Makefile
 "
