@@ -359,7 +359,7 @@
         <parameter name="aCommand"/>
         <body>
           <![CDATA[
-            return aCommand == "cmd_copy";
+            return aCommand == "cmd_copy" || aCommand == "cmd_cut";
           ]]>
         </body>
       </method>
@@ -368,7 +368,8 @@
         <parameter name="aCommand"/>
         <body>
           <![CDATA[
-            return !this.contentWindow.getSelection().isCollapsed;
+            return aCommand == "cmd_copy" &&
+                   !this.contentWindow.getSelection().isCollapsed;
           ]]>
         </body>
       </method>
@@ -378,6 +379,9 @@
         <body>
           <![CDATA[
             let selection = this.contentWindow.getSelection();
+            if (selection.isCollapsed)
+              return;
+
             Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                       .getService(Ci.nsIClipboardHelper)
                       .copyString(serializeSelection(selection));
