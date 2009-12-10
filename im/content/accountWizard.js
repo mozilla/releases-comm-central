@@ -156,7 +156,7 @@ var accountWizard = {
     var vbox = document.getElementById("userNameBox");
     // remove anything that may be there for another protocol
     var child;
-    while (child = vbox.firstChild)
+    while ((child = vbox.firstChild))
       vbox.removeChild(child);
 
     var splits = [];
@@ -229,7 +229,6 @@ var accountWizard = {
 
     if (!result) {
       // At this point, we should have either a socks or http proxy
-      var result;
       if (type == Ci.purpleIProxyInfo.httpProxy)
         result = bundle.getString("proxies.http");
       else if (type == Ci.purpleIProxyInfo.socks4Proxy)
@@ -303,7 +302,7 @@ var accountWizard = {
     document.getElementById("protoSpecificCaption").label =
       bundle.getFormattedString("protoOptions", [this.proto.name]);
     var child;
-    while (child = box.firstChild)
+    while ((child = box.firstChild))
       box.removeChild(child);
     for (let opt in this.getProtoOptions()) {
       var text = opt.label;
@@ -360,7 +359,7 @@ var accountWizard = {
     var rows = document.getElementById("summaryRows");
     var bundle = document.getElementById("accountsBundle");
     var child;
-    while (child = rows.firstChild)
+    while ((child = rows.firstChild))
       rows.removeChild(child);
 
     var label = document.getElementById("protoLabel").value;

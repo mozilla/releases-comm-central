@@ -48,7 +48,7 @@ var account = {
     document.getElementById("accountName").value = this.account.name;
     document.getElementById("protocolName").value = this.proto.name || this.proto.id;
     document.getElementById("protocolIcon").src =
-      this.proto.iconBaseURI + "icon48.png"
+      this.proto.iconBaseURI + "icon48.png";
 
     if (this.proto.noPassword)
       document.getElementById("passwordBox").hidden = true;
@@ -119,7 +119,6 @@ var account = {
 
     if (!result) {
       // At this point, we should have either a socks or http proxy
-      var result;
       if (type == Ci.purpleIProxyInfo.httpProxy)
         result = bundle.getString("proxies.http");
       else if (type == Ci.purpleIProxyInfo.socks4Proxy)

@@ -250,7 +250,7 @@ nsContextMenu.prototype = {
     if (!submission)
       return;
 
-    gExtProtoService.loadURI(submission.uri, window)
+    gExtProtoService.loadURI(submission.uri, window);
   },
 
   // Open linked-to URL in a new window.

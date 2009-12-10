@@ -121,7 +121,7 @@ function HTMLTheme(aBaseURI)
   this.__proto__ = HTMLTheme_prototype;
 }
 
-HTMLTheme_prototype = {
+const HTMLTheme_prototype = {
   get footer() "",
   get header() "",
   get status() this.incomingContent,
@@ -159,7 +159,7 @@ function plistToJSON(aElt)
       for (let i = 0; i < nodes.length; ++i) {
         if (nodes[i].nodeName == 'key') {
           let key = nodes[i].textContent;
-          ++i
+          ++i;
           while (!(nodes[i] instanceof Components.interfaces.nsIDOMElement))
             ++i;
           res[key] = plistToJSON(nodes[i]);
@@ -448,7 +448,7 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
   let previousIndex = 0;
   let result = "";
   let match;
-  while (match = replacementRegExp(aHTML)) {
+  while ((match = replacementRegExp(aHTML))) {
     let content = "";
     if (match[1] in aReplacements)
       content = aReplacements[match[1]](aReplacementArg, match[3]);
@@ -490,10 +490,10 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext)
   else {
     if (aIsNext)
       html = aMsg.incoming ? aTheme.html.incomingNextContent
-                           : aTheme.html.outgoingNextContent
+                           : aTheme.html.outgoingNextContent;
     else
       html = aMsg.incoming ? aTheme.html.incomingContent
-                           : aTheme.html.outgoingContent
+                           : aTheme.html.outgoingContent;
     replacements = messageReplacements;
     let meRegExp = /^((<[^>]+>)*)\/me /;
     if (meRegExp.test(aMsg.message)) {
