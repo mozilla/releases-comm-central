@@ -55,6 +55,10 @@ interface purpleIMessage: nsISupports {
   readonly attribute PRTime time;
   readonly attribute purpleIConversation conversation;
 
+  /* Holds the sender color for Chats.
+     Empty string by default, it is set by the conversation binding. */
+           attribute AUTF8String color;
+
   /*  PURPLE_MESSAGE_SEND        = 0x0001, /**< Outgoing message. */
   readonly attribute boolean outgoing;
   /*  PURPLE_MESSAGE_RECV        = 0x0002, /**< Incoming message. */

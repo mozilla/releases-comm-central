@@ -257,6 +257,13 @@
           return;
         }
 
+        // Ugly hack... :(
+        if (!aMsg.system && aMsg.incoming &&
+            (conv instanceof Ci.purpleIConvChat)) {
+          let name = aMsg.alias || aMsg.who;
+          aMsg.color = this.buddies[name].getAttribute("style");
+        }
+
         this.browser.appendMessage(aMsg);
         if (this.tab && aMsg.incoming && !aMsg.system &&
             (!this.tab.selected || !document.hasFocus())) {
@@ -1054,7 +1061,6 @@
            for (let n in nicks)
              this.addBuddy(n);
            this.updateParticipantCount();
-           this.browser.buddies = this.buddies;
          }
          else
            this.updateBuddyStatus();

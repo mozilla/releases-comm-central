@@ -295,13 +295,6 @@
                                            this._textModifiers);
             let next = isNextMessage(this.theme, aMsg, this._lastMessage);
             let html = getHTMLForMessage(aMsg, this.theme, next);
-
-            // FIXME: temporary hack
-            let color = "";
-            if (!aMsg.system && aMsg.incoming && (aMsg.conversation instanceof Ci.purpleIConvChat))
-              color = "color: hsl( " + this.buddies[aMsg.alias || aMsg.who].color + ", 100%, 40%)";
-            html = html.replace(/%senderColor%/g, color);
-
             let body = doc.getElementsByTagName("body")[0];
             let newElt = insertHTMLForMessage(aMsg, html, doc, next);
             newElt.getBoundingClientRect(); // avoid ireflow bugs

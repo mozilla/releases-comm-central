@@ -416,8 +416,7 @@ const messageReplacements = {
   },
   senderScreenName: function(aMsg) aMsg.who,
   sender: function(aMsg) aMsg.alias || aMsg.who,
-  // FIXME: conversation.xml handles the senderColor replacement for now
-  senderColor: function(aMsg) "%senderColor%",
+  senderColor: function(aMsg) aMsg.color,
   senderStatusIcon: function(aMsg)
     getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
   messageDirection: function(aMsg) "ltr",
