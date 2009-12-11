@@ -23,6 +23,7 @@ classic.jar:
 	skin/classic/instantbird/half-operator.png
 	skin/classic/instantbird/voice.png
 *	skin/classic/instantbird/blist.css
+	skin/classic/instantbird/buddytooltip.css
 	skin/classic/instantbird/conv.css
 *	skin/classic/instantbird/conversation.css
 *	skin/classic/instantbird/engineManager.css

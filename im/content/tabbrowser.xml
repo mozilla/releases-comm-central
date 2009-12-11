@@ -64,6 +64,7 @@
   <binding id="tabbrowser">
     <resources>
       <stylesheet src="chrome://instantbird/content/tabbrowser.css"/>
+      <stylesheet src="chrome://instantbird/content/blist.css"/>
     </resources>
 
     <content>
@@ -83,7 +84,7 @@
                   ondrop="this.parentNode.parentNode._onDrop(event);"
                   ondragend="this.parentNode.parentNode._onDragEnd(event);"
                   ondragleave="this.parentNode.parentNode._onDragLeave(event);">
-          <xul:tooltip onpopupshowing="return this.parentNode.parentNode.parentNode.createTooltip(event);"/>
+          <xul:tooltip type="buddy"/>
           <xul:menupopup anonid="tabContextMenu" onpopupshowing="this.parentNode.parentNode.parentNode.updatePopupMenu(this);">
             <xul:menuitem id="context_newTab" label="&newTab.label;" accesskey="&newTab.accesskey;"
                           xbl:inherits="oncommand=onnewtab"/>
@@ -1322,27 +1323,6 @@
       })]]>
       </field>
 
-      <method name="createTooltip">
-        <parameter name="event"/>
-        <body>
-          <![CDATA[
-            event.stopPropagation();
-            var tn = document.tooltipNode;
-            if (tn.localName != "tab")
-              return false; // Not a tab, so cancel the tooltip
-            if ("mOverCloseButton" in tn && tn.mOverCloseButton) {
-              event.target.setAttribute("label", tn.getAttribute("closetabtext"));
-              return true;
-            }
-            if (tn.hasAttribute("label")) {
-              event.target.setAttribute("label", tn.getAttribute("label"));
-              return true;
-            }
-            return false;
-          ]]>
-        </body>
-      </method>
-
       <constructor>
         <![CDATA[
           this.mCurrentBrowser = this.mPanelContainer.childNodes[0].browser;
@@ -1511,7 +1491,9 @@
           <xul:hbox anonid="tabstrip-closebutton" class="tabs-closebutton-box" align="center" pack="end" chromedir="&locale.dir;">
 #endif
           <xul:toolbarbutton anonid="tabs-closebutton"
-                             class="close-button tabs-closebutton" chromedir="&locale.dir;"/>
+                             class="close-button tabs-closebutton"
+                             chromedir="&locale.dir;"
+                             tooltiptext="&closeTab.label;"/>
 #ifdef XP_MACOSX
           </xul:hbox>
 #endif
@@ -2163,11 +2145,10 @@
 
   <binding id="tabbrowser-tab" display="xul:hbox"
            extends="chrome://global/content/bindings/tabbox.xml#tab">
-    <content chromedir="&locale.dir;"
-             closetabtext="&closeTab.label;">
+    <content chromedir="&locale.dir;">
       <xul:image mousethrough="always" xbl:inherits="validate,src=image" class="tab-icon-image"/>
       <xul:label mousethrough="always" flex="1" xbl:inherits="value=label,crop,accesskey" class="tab-text"/>
-      <xul:toolbarbutton anonid="close-button" tabindex="-1" class="tab-close-button"/>
+      <xul:toolbarbutton anonid="close-button" tabindex="-1" class="tab-close-button" tooltiptext="&closeTab.label;"/>
     </content>
 
     <implementation>

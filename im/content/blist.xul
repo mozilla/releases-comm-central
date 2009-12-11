@@ -63,8 +63,11 @@
 
 #include menus.xul.inc
 
+  <tooltip id="buddyTooltip" type="buddy"/>
   <notificationbox id="buddyListMsg" flex="1">
-    <richlistbox id="buddylistbox" flex="1" onkeypress="buddyList.keyPress(event);"/>
+    <richlistbox id="buddylistbox" flex="1"
+                 onkeypress="buddyList.keyPress(event);"
+                 tooltip="buddyTooltip"/>
   </notificationbox>
 
   <statusbar>

@@ -1,0 +1,288 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is the Instantbird messenging client, released
+   - 2007.
+   -
+   - The Initial Developer of the Original Code is
+   - Florian QUEZE <florian@instantbird.org>.
+   - Portions created by the Initial Developer are Copyright (C) 2007
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the GPL or the LGPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<!DOCTYPE bindings>
+
+<bindings id="buddyTooltipBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <binding id="tooltip" extends="chrome://global/content/bindings/popup.xml#tooltip">
+    <resources>
+      <stylesheet src="chrome://instantbird/skin/buddytooltip.css"/>
+    </resources>
+    <content noautohide="true" orient="horizontal">
+      <xul:vbox flex="1">
+        <xul:hbox crop="end" align="center" flex="1">
+          <xul:stack class="prplTooltipBuddyIcon">
+            <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
+            <xul:image class="statusIcon"/>
+          </xul:stack>
+          <xul:description xbl:inherits="value=displayname" class="tooltip-header"/>
+        </xul:hbox>
+
+        <xul:grid>
+          <xul:columns>
+            <xul:column/>
+            <xul:column flex="1"/>
+          </xul:columns>
+          <xul:rows anonid="tooltiprows"/>
+        </xul:grid>
+      </xul:vbox>
+
+      <xul:vbox align="end" pack="start" flex="1" style="margin: 0 0; display:block;">
+        <html:img anonid="userIcon"/>
+      </xul:vbox>
+    </content>
+    <implementation implements="nsIObserver, nsIDOMEventListener">
+     <property name="bundle">
+       <getter>
+         <![CDATA[
+          if (!this._bundle) {
+            this._bundle =
+              Components.classes["@mozilla.org/intl/stringbundle;1"]
+                        .getService(Components.interfaces.nsIStringBundleService)
+                        .createBundle("chrome://instantbird/locale/buddytooltip.properties");
+          }
+          return this._bundle;
+         ]]>
+       </getter>
+     </property>
+
+     <property name="buddy">
+       <getter>
+         <![CDATA[
+           return this._buddy;
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           if (val == this._buddy)
+             return val;
+
+           let os =
+             Components.classes["@mozilla.org/observer-service;1"]
+                       .getService(Components.interfaces.nsIObserverService);
+           const events = [
+             "buddy-update",
+             "buddy-idle",
+             "buddy-away"
+           ];
+
+           if (!val)
+             events.forEach(function(aName) { os.removeObserver(this, aName); }, this);
+           else
+             events.forEach(function(aName) { os.addObserver(this, aName, false); }, this);
+           return (this._buddy = val);
+         ]]>
+       </setter>
+     </property>
+
+     <method name="handleEvent">
+       <parameter name="aEvent"/>
+       <body>
+       <![CDATA[
+         if (aEvent.type == "DOMAttrModified" && aEvent.attrName == "status") {
+           if (aEvent.attrChange == aEvent.REMOVAL)
+             this.removeAttribute("status");
+           else
+             this.setAttribute("status", aEvent.newValue);
+         }
+        ]]></body>
+      </method>
+
+     <property name="elt">
+       <getter>
+         <![CDATA[
+           return this._elt;
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           if (val == this._elt)
+             return val;
+
+           if (this._elt)
+             this._elt.removeEventListener("DOMAttrModified", this, false);
+           else
+             val.addEventListener("DOMAttrModified", this, false);
+           return (this._elt = val);
+         ]]>
+       </setter>
+     </property>
+
+     <method name="updateTooltip">
+       <parameter name="aBuddy"/>
+       <parameter name="aElt"/>
+       <body>
+       <![CDATA[
+         this.buddy = aBuddy;
+         this.elt = aElt;
+
+         let name = aBuddy.buddyName;
+         let alias = aBuddy.buddyAlias;
+         this.setAttribute("displayname", alias || name);
+         let account = aBuddy.account;
+         this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
+         if (aElt.hasAttribute("status"))
+           this.setAttribute("status", aElt.getAttribute("status"));
+         var img = document.getAnonymousElementByAttribute(this, "anonid",
+                                                           "userIcon");
+         var src = aBuddy.buddyIconFilename;
+         if (src) {
+           const maxSize = 48;
+           img.src = src;
+           var height = img.naturalHeight || maxSize;
+           var width = img.naturalWidth || maxSize;
+           if (height > maxSize || width > maxSize) {
+             var ratio = Math.max(height, width);
+             height = height / ratio * maxSize;
+             width  = width  / ratio * maxSize;
+           }
+           img.parentNode.width = width; //XXXFLo hack to workaround a bug
+           img.height = height;
+           img.parentNode.collapsed = false;
+         }
+         else
+           img.parentNode.collapsed = true;
+
+         var rows = document.getAnonymousElementByAttribute(this, "anonid",
+                                                            "tooltiprows");
+         var row;
+         while ((row = rows.firstChild))
+           rows.removeChild(row);
+
+         const XULNS =
+           "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+         let addRow = function(aLabel, aValue) {
+           var row = document.createElementNS(XULNS, "row");
+           var label = document.createElementNS(XULNS, "label");
+           label.className = "header";
+           label.setAttribute("value", aLabel);
+           row.appendChild(label);
+           label = document.createElementNS(XULNS, "description");
+           label.textContent = aValue;
+           row.appendChild(label);
+           row.setAttribute("align", "baseline");
+           rows.appendChild(row);
+         };
+
+         if (alias != name)
+           addRow(this.bundle.GetStringFromName("buddy.screenname"), name);
+
+         addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
+
+         var loggedIn = aBuddy.loggedIn;
+         if (loggedIn)
+           addRow(this.bundle.GetStringFromName("buddy.loggedIn"), loggedIn);
+
+         var tooltipInfo = aBuddy.getTooltipInfo();
+         if (!tooltipInfo)
+           return true;
+
+         while (tooltipInfo.hasMoreElements()) {
+           var elt = tooltipInfo.getNext().QueryInterface(Ci.purpleITooltipInfo);
+           switch (elt.type) {
+             case Ci.purpleITooltipInfo.pair:
+             case Ci.purpleITooltipInfo.sectionHeader:
+               addRow(elt.label, elt.value);
+               break;
+             case Ci.purpleITooltipInfo.sectionBreak:
+               var row = document.createElementNS(XULNS, "row");
+               var separator = document.createElementNS(XULNS, "separator");
+               separator.className = "thin";
+               row.appendChild(separator);
+               rows.appendChild(row);
+               break;
+           }
+         }
+
+         return true;
+       ]]>
+       </body>
+     </method>
+
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
+       <body>
+       <![CDATA[
+         if (aSubject == this.buddy)
+           this.updateTooltip(this.buddy, this.elt);
+       ]]>
+       </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="popupshowing">
+       <![CDATA[
+         let elt = document.tooltipNode;
+         if (elt.localName == "tab") {
+           let conv = elt.linkedConversation.conv;
+           if (conv instanceof Components.interfaces.purpleIConvIM)
+             return updateTooltip(conv.buddy, elt);
+           return false;
+         }
+
+         if (elt.localName != "buddy")
+           return false;
+
+         var buddy;
+         for (var id in elt.accounts) {
+           buddy = elt.accounts[id];
+           break;
+         }
+         if (!buddy)
+           throw "no account in this buddy!";
+
+         return updateTooltip(buddy, elt);
+       ]]>
+     </handler>
+     <handler event="popuphiding">
+       this.buddy = null;
+       this.elt = null;
+     </handler>
+     <handler event="click" clickcount="2" action="openConversation();"/>
+    </handlers>
+  </binding>
+</bindings>

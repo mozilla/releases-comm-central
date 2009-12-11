@@ -50,16 +50,6 @@
       <xul:label flex="1" crop="end" xbl:inherits="value=name"/>
     </content>
     <implementation>
-     <constructor>
-      <![CDATA[
-       //dump("constructing group\n");
-     ]]>
-     </constructor>
-     <destructor>
-      <![CDATA[
-       //dump("destructing group\n");
-     ]]>
-     </destructor>
 
      <!-- delay between each frame of the animation, in milliseconds -->
      <field name="animationInterval">20</field>

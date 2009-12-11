@@ -35,114 +35,29 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-richlistbox {
-  margin: 0 0;
-  -moz-appearance: none;
-}
-
-buddy,
-group {
-  padding: 2px 2px 2px 2px;
-}
-
-buddy[selected="true"],
-group[selected="true"] {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-
-.buddyDisplayName {
-  -moz-margin-end: 0;
-}
-
-.prplBuddyIcon {
-  -moz-margin-end: 3px;
-  -moz-margin-start: 3px;
-  width: 16px;
-  max-width: 16px;
-  height: 16px;
-  max-height: 16px;
-}
-
-.protoIcon, .statusIcon {
-  width: 16px;
-  height: 16px;
-  min-height: 16px;
-}
-
-group label,
-.buddyDisplayName {
-  margin: 0 2px;
-}
-
-buddy[status="away"] .statusIcon {
+tooltip[status="away"] .statusIcon {
   background-image: url('chrome://instantbird/skin/away.png');
 }
 
-buddy[status="idle"] .statusIcon {
+tooltip[status="idle"] .statusIcon {
   background-image: url('chrome://instantbird/skin/idle.png');
 }
 
-buddy[status="mobile"] .statusIcon {
+tooltip[status="mobile"] .statusIcon {
   background-image: url('chrome://instantbird/skin/mobile.png');
 }
 
-buddy[idle="true"] .buddyDisplayName {
-  color: GrayText;
-}
-
-buddy[status="offline"] .statusIcon {
+tooltip[status="offline"] .statusIcon {
   background-image: url('chrome://instantbird/skin/offline.png');
 }
 
-buddy[removing="true"] .buddyDisplayName {
-  color: GrayText;
-  font-style: italic;
-}
-
-buddy[collapsing="true"] *,
-buddy[expanding="true"] *,
-group[collapsing="true"] * {
-  display: none;
-}
-
-group label {
+.tooltip-header {
   font-weight: bold;
-}
-
-%ifdef XP_WIN
-group .twisty {
-  padding-top: 1px;
-  width: 9px; /* The image's width is 9 pixels */
-  background: url("chrome://global/skin/tree/twisty-open.png") no-repeat center;
-}
-
-group[closed] .twisty {
-  background: url("chrome://global/skin/tree/twisty-clsd.png") no-repeat center;
-}
-%else
-%ifdef XP_MACOSX
-group .twisty {
-  width: 9px;
+  font-size: 14pt;
   -moz-margin-end: 3px;
-  -moz-margin-start: 3px;
-  background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
+  margin-bottom: 0 !important;
 }
 
-group[closed] .twisty {
-  background: url("chrome://global/skin/arrow/arrow-rit-sharp.gif") no-repeat center;
-}
-%else
-group .twisty {
-  -moz-appearance: treetwistyopen;
-}
-
-group[closed] .twisty {
-  -moz-appearance: treetwisty;
-}
-%endif
-%endif
-
-#updatesMenuItem[loading="true"] {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+.prplTooltipBuddyIcon {
+  margin: 0 6px;
 }

@@ -42,3 +42,7 @@ buddy {
 group {
   -moz-binding: url("chrome://instantbird/content/group.xml#group");
 }
+
+tooltip[type="buddy"] {
+  -moz-binding: url("chrome://instantbird/content/buddytooltip.xml#tooltip");
+}

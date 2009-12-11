@@ -36,10 +36,7 @@
    -
    - ***** END LICENSE BLOCK ***** -->
 
-<!DOCTYPE bindings [
-  <!ENTITY % buddyDTD SYSTEM "chrome://instantbird/locale/buddy.dtd">
-  %buddyDTD;
-]>
+<!DOCTYPE bindings>
 
 <bindings id="buddyBindings"
           xmlns="http://www.mozilla.org/xbl"
@@ -49,69 +46,13 @@
 
   <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
-      <xul:hbox tooltip="_child" flex="1">
-
-        <xul:tooltip onpopupshowing="updateTooltip();" anonid="buddytooltip" noautohide="true">
-
-          <xul:hbox pack="start" align="start" flex="1">
-
-            <xul:vbox flex="1">
-              <xul:hbox crop="end" align="center" flex="1">
-                <xul:stack class="prplBuddyIcon">
-                  <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
-                  <xul:image class="statusIcon"/>
-                </xul:stack>
-                <xul:description xbl:inherits="value=displayname" class="tooltip-header"/>
-              </xul:hbox>
-
-              <xul:grid>
-                <xul:columns>
-                  <xul:column/>
-                  <xul:column flex="1"/>
-                </xul:columns>
-                <xul:rows anonid="tooltiprows">
-                  <xul:row xbl:inherits="hidden=buddyHidden">
-                    <xul:label value="&buddy.screenname;" class="header"/>
-                    <xul:description><xul:text xbl:inherits="value=buddy"/></xul:description>
-                  </xul:row>
-                  <xul:row xbl:inherits="hidden=loggedInHidden">
-                    <xul:label value="&buddy.loggedIn;" class="header"/>
-                    <xul:description><xul:text xbl:inherits="value=loggedIn"/></xul:description>
-                  </xul:row>
-                  <xul:row>
-                    <xul:label value="&buddy.account;" class="header"/>
-                    <xul:description><xul:text xbl:inherits="value=accountName"/></xul:description>
-                  </xul:row>
-                </xul:rows>
-              </xul:grid>
-            </xul:vbox>
-
-            <xul:vbox align="end" pack="start" flex="1" style="margin: 0 0; display:block;">
-              <html:img anonid="userIcon"/>
-            </xul:vbox>
-          </xul:hbox>
-
-        </xul:tooltip>
-
-        <xul:stack class="prplBuddyIcon">
-          <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
-          <xul:image class="statusIcon"/>
-        </xul:stack>
-        <xul:label crop="end" flex="1" class="buddyDisplayName" xbl:inherits="value=displayname"/>
-        <!--<xul:textbox collapsed="true" class="plain" xbl:inherits="value=displayname"/>-->
-      </xul:hbox>
+      <xul:stack class="prplBuddyIcon">
+        <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
+        <xul:image class="statusIcon"/>
+      </xul:stack>
+      <xul:label crop="end" flex="1" class="buddyDisplayName" xbl:inherits="value=displayname"/>
     </content>
     <implementation>
-     <constructor>
-      <![CDATA[
-       //dump("constructing buddy\n");
-     ]]>
-     </constructor>
-     <destructor>
-      <![CDATA[
-       //dump("destructing buddy\n");
-     ]]>
-     </destructor>
 
      <!-- delay in milliseconds before starting the fade out animation -->
      <field name="animationDelay">1000</field>
@@ -129,14 +70,9 @@
         this.name = aBuddy.name;
         this.alias = aBuddy.alias;
         this.setAttribute("displayname", this.alias || this.name);
-        if (this.alias != this.name)
-          this.setAttribute("buddy", this.name);
-        else
-          this.setAttribute("buddyHidden", "true");
         //this.setAttribute("id", "buddy" + this.buddyId);
-        let account = aBuddy.getAccount(0);
-        this.setAttribute("accountName", account.name);
-        this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
+        this.setAttribute("iconPrpl",
+                          aBuddy.getAccount(0).protocol.iconBaseURI + "icon.png");
         this.accounts = { };
         this.accountsCount = 0;
         // We don't call this.update yet because this.accounts is empty
@@ -156,136 +92,21 @@
      <method name="update">
       <body>
       <![CDATA[
-        var away = true;
+        var accounts = [];
         for (var id in this.accounts)
-          if (this.accounts[id].available) {
-            away = false;
-            break;
-          }
-        if (away) {
-          var status;
-          for (var id in this.accounts) {
-            status = this.accounts[id].status;
-            if (status)
-              break;
-          }
-          this.setAttribute("away", "true");
-        }
-        else
-          this.removeAttribute("away");
+          accounts.push(this.accounts[id]);
 
-        var idle = true;
-        for (var id in this.accounts)
-          if (!this.accounts[id].idle) {
-            idle = false;
-            break;
-          }
-        if (idle)
+        // Note: update is never called on an offline account
+        let status = "available";
+        if (accounts.every(function(pab) !pab.available))
+          status = "away";
+        else if (accounts.every(function(pab) pab.idle)) {
+          status = "idle";
           this.setAttribute("idle", "true");
-        else
-          this.removeAttribute("idle");
-
-        var mobile = true;
-        for (var id in this.accounts)
-          if (!this.accounts[id].mobile) {
-            mobile = false;
-            break;
-          }
-        if (mobile)
-          this.setAttribute("mobile", "true");
-        else
-          this.removeAttribute("mobile");
-
-        var tooltip = document.getAnonymousElementByAttribute(this, "anonid",
-                                                              "buddytooltip");
-        if (tooltip.state == "open")
-          this.updateTooltip();
-      ]]>
-      </body>
-     </method>
-     <method name="updateTooltip">
-      <body>
-      <![CDATA[
-        // We can't rely on the first purpleAccountBuddy listed in the
-        // purpleBuddy structure because it may not be online
-
-        var buddy;
-        for (var id in this.accounts) {
-          buddy = this.accounts[id];
-          break;
         }
-        if (!buddy)
-          throw "no account in this buddy!";
-
-        var loggedIn = buddy.loggedIn;
-
-        if (loggedIn) {
-          this.setAttribute("loggedIn", loggedIn);
-          this.setAttribute("loggedInHidden", false);
-        } else {
-          this.setAttribute("loggedInHidden", true);
-          this.removeAttribute("loggedIn");
-        }
-        var img = document.getAnonymousElementByAttribute(this, "anonid",
-                                                          "userIcon");
-        var src = buddy.buddyIconFilename;
-        if (src) {
-          const maxSize = 48;
-          img.src = src;
-          var height = img.naturalHeight || maxSize;
-          var width = img.naturalWidth || maxSize;
-          if (height > maxSize || width > maxSize) {
-            var ratio = Math.max(height, width);
-            height = height / ratio * maxSize;
-            width  = width  / ratio * maxSize;
-          }
-          img.parentNode.width = width; //XXXFLo hack to workaround a bug
-          img.height = height;
-        }
-        else
-          img.hidden = true;
-
-        var rows = document.getAnonymousElementByAttribute(this, "anonid",
-                                                           "tooltiprows");
-        var row = rows.firstChild;
-        while (row) {
-          var currentRow = row;
-          row = row.nextSibling;
-          if (currentRow.className == "generated")
-            currentRow.parentNode.removeChild(currentRow);
-        }
-
-        const XULNS =
-          "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-        var tooltipInfo = buddy.getTooltipInfo();
-        if (!tooltipInfo)
-          return true;
-
-        while (tooltipInfo.hasMoreElements()) {
-          var row = document.createElementNS(XULNS, "row");
-          row.className = "generated";
-          var elt = tooltipInfo.getNext().QueryInterface(Ci.purpleITooltipInfo);
-          switch (elt.type) {
-            case Ci.purpleITooltipInfo.pair:
-            case Ci.purpleITooltipInfo.sectionHeader:
-              var label = document.createElementNS(XULNS, "label");
-              label.className = "header";
-              label.setAttribute("value", elt.label);
-              row.appendChild(label);
-              label = document.createElementNS(XULNS, "description");
-              label.textContent = elt.value;
-              row.appendChild(label);
-              break;
-            case Ci.purpleITooltipInfo.sectionBreak:
-              var separator = document.createElementNS(XULNS, "separator");
-              separator.className = "thin";
-              row.appendChild(separator);
-              break;
-          }
-          rows.appendChild(row);
-        }
-
-        return true;
+        else if (accounts.every(function(pab) pab.mobile))
+          status = "mobile";
+        this.setAttribute("status", status);
       ]]>
       </body>
      </method>
@@ -302,7 +123,6 @@
         this.update();
 
         if (this.hasAttribute("removing")) {
-          this.removeAttribute("offline");
           this.removeAttribute("removing");
           this.removeAttribute("collapsing");
           if (this.animTimeout) {
@@ -354,7 +174,7 @@
           this.group.removeBuddy(this);
         else
           this.animTimeout = setTimeout(this._startAnimation, this.animationDelay, this);
-        this.setAttribute("offline", "true");
+        this.setAttribute("status", "offline");
         this.setAttribute("removing", "true");
       ]]>
       </body>
