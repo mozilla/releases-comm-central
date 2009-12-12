@@ -98,14 +98,14 @@
 
         // Note: update is never called on an offline account
         let status = "available";
-        if (accounts.every(function(pab) !pab.available))
-          status = "away";
-        else if (accounts.every(function(pab) pab.idle)) {
+        if (accounts.every(function(pab) pab.idle)) {
           status = "idle";
           this.setAttribute("idle", "true");
         }
         else if (accounts.every(function(pab) pab.mobile))
           status = "mobile";
+        else if (accounts.every(function(pab) !pab.available))
+          status = "away";
         this.setAttribute("status", status);
       ]]>
       </body>
