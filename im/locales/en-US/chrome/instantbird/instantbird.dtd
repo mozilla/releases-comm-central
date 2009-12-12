@@ -67,6 +67,9 @@
 <!ENTITY copyEmailCmd.accesskey       "E">
 <!ENTITY engineManagerCmd.label       "Manage Search Engines…">
 
+<!ENTITY openConversationCmd.label     "Start a conversation">
+<!ENTITY openConversationCmd.accesskey "c">
+
 <!-- Copied from mozilla/browser/locales/en-US/chrome/browser/baseMenuOverlay.dtd -->
 <!--  Mac OS X Window Menu -->
 <!ENTITY windowMenu.label "Window">

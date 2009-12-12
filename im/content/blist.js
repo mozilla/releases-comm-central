@@ -45,6 +45,23 @@ const events = ["buddy-signed-on",
                 "status-back",
                 "purple-quit"];
 
+var gBuddyListContextMenu = null;
+
+function buddyListContextMenu(aXulMenu) {
+  this.target  = document.popupNode;
+  this.menu    = aXulMenu;
+  this.onBuddy = this.target.localName == "buddy";
+  this.shouldDisplay = this.onBuddy;
+}
+
+// Prototype for buddyListContextMenu "class."
+buddyListContextMenu.prototype = {
+  openConversation: function blcm_openConversation() {
+    if (this.onBuddy)
+      this.target.openConversation();
+  }
+};
+
 var buddyList = {
   observe: function bl_observe(aBuddy, aTopic, aMsg) {
     if (aTopic == "purple-quit") {

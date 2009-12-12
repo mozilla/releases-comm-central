@@ -94,8 +94,7 @@ nsContextMenu.prototype = {
     this.browser = aBrowser;
 
     // Get contextual info.
-    this.setTarget(document.popupNode, document.popupRangeParent,
-                   document.popupRangeOffset);
+    this.setTarget(document.popupNode);
 
     this.isTextSelected = this.isTextSelection();
     this.isContentSelected = this.isContentSelection();

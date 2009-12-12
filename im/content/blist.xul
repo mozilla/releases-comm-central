@@ -63,10 +63,23 @@
 
 #include menus.xul.inc
 
-  <tooltip id="buddyTooltip" type="buddy"/>
+  <popupset id="mainPopupSet">
+    <tooltip id="buddyTooltip" type="buddy"/>
+
+    <popup id="buddyListContextMenu"
+           onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
+           onpopuphiding="if (event.target == this) { gBuddyListContextMenu = null; }">
+      <menuitem id="context-openconversation"
+                label="&openConversationCmd.label;"
+                accesskey="&openConversationCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.openConversation();"/>
+    </popup>
+  </popupset>
+
   <notificationbox id="buddyListMsg" flex="1">
     <richlistbox id="buddylistbox" flex="1"
                  onkeypress="buddyList.keyPress(event);"
+                 context="buddyListContextMenu"
                  tooltip="buddyTooltip"/>
   </notificationbox>
 
