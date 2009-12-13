@@ -115,6 +115,7 @@ var joinChat = {
         row.appendChild(label);
       }
 
+      row.setAttribute("align", "baseline");
       sep.parentNode.insertBefore(row, sep);
       joinChat._fields.push({field: field, textbox: textbox});
     }
