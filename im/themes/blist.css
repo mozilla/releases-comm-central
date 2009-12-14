@@ -87,7 +87,7 @@ buddy[status="mobile"] .statusIcon {
   background-image: url('chrome://instantbird/skin/mobile.png');
 }
 
-buddy[idle="true"] .buddyDisplayName {
+buddy[status="idle"] .buddyDisplayName {
   color: GrayText;
 }
 
