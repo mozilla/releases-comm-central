@@ -148,27 +148,28 @@
        </setter>
      </property>
 
-     <method name="updateTooltip">
-       <parameter name="aBuddy"/>
-       <parameter name="aElt"/>
+     <property name="rows">
+       <getter>
+         <![CDATA[
+           if (!("_rows" in this)) {
+             this._rows =
+               document.getAnonymousElementByAttribute(this, "anonid",
+                                                       "tooltiprows");
+           }
+           return this._rows;
+         ]]>
+       </getter>
+     </property>
+
+     <method name="setBuddyIcon">
+       <parameter name="aSrc"/>
        <body>
        <![CDATA[
-         this.buddy = aBuddy;
-         this.elt = aElt;
-
-         let name = aBuddy.buddyName;
-         let alias = aBuddy.buddyAlias;
-         this.setAttribute("displayname", alias || name);
-         let account = aBuddy.account;
-         this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-         if (aElt.hasAttribute("status"))
-           this.setAttribute("status", aElt.getAttribute("status"));
          var img = document.getAnonymousElementByAttribute(this, "anonid",
                                                            "userIcon");
-         var src = aBuddy.buddyIconFilename;
-         if (src) {
+         if (aSrc) {
            const maxSize = 48;
-           img.src = src;
+           img.src = aSrc;
            var height = img.naturalHeight || maxSize;
            var width = img.naturalWidth || maxSize;
            if (height > maxSize || width > maxSize) {
@@ -182,37 +183,83 @@
          }
          else
            img.parentNode.collapsed = true;
+       ]]>
+       </body>
+     </method>
 
-         var rows = document.getAnonymousElementByAttribute(this, "anonid",
-                                                            "tooltiprows");
+     <method name="reset">
+       <body>
+       <![CDATA[
          var row;
-         while ((row = rows.firstChild))
-           rows.removeChild(row);
+         while ((row = this.rows.firstChild))
+           this.rows.removeChild(row);
+       ]]>
+       </body>
+     </method>
 
+     <method name="addRow">
+       <parameter name="aLabel"/>
+       <parameter name="aValue"/>
+       <body>
+       <![CDATA[
          const XULNS =
            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
-         let addRow = function(aLabel, aValue) {
-           var row = document.createElementNS(XULNS, "row");
-           var label = document.createElementNS(XULNS, "label");
-           label.className = "header";
-           label.setAttribute("value", aLabel);
-           row.appendChild(label);
-           label = document.createElementNS(XULNS, "description");
-           label.textContent = aValue;
-           row.appendChild(label);
-           row.setAttribute("align", "baseline");
-           rows.appendChild(row);
-         };
+         var row = document.createElementNS(XULNS, "row");
+         var label = document.createElementNS(XULNS, "label");
+         label.className = "header";
+         label.setAttribute("value", aLabel);
+         row.appendChild(label);
+         label = document.createElementNS(XULNS, "description");
+         label.textContent = aValue;
+         row.appendChild(label);
+         row.setAttribute("align", "baseline");
+         this.rows.appendChild(row);
+       ]]>
+       </body>
+     </method>
+
+     <method name="addSeparator">
+       <body>
+       <![CDATA[
+         const XULNS =
+           "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+         var row = document.createElementNS(XULNS, "row");
+         var separator = document.createElementNS(XULNS, "separator");
+         separator.className = "thin";
+         row.appendChild(separator);
+         this.rows.appendChild(row);
+       ]]>
+       </body>
+     </method>
+
+     <method name="updateTooltipFromBuddy">
+       <parameter name="aBuddy"/>
+       <parameter name="aElt"/>
+       <body>
+       <![CDATA[
+         this.buddy = aBuddy;
+         this.elt = aElt;
+
+         this.reset();
+         let name = aBuddy.buddyName;
+         let alias = aBuddy.buddyAlias;
+         this.setAttribute("displayname", alias || name);
+         let account = aBuddy.account;
+         this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
+         if (aElt.hasAttribute("status"))
+           this.setAttribute("status", aElt.getAttribute("status"));
+         this.setBuddyIcon(aBuddy.buddyIconFilename);
 
          if (alias != name)
-           addRow(this.bundle.GetStringFromName("buddy.screenname"), name);
+           this.addRow(this.bundle.GetStringFromName("buddy.screenname"), name);
 
-         addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
+         this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
 
          var loggedIn = aBuddy.loggedIn;
          if (loggedIn)
-           addRow(this.bundle.GetStringFromName("buddy.loggedIn"), loggedIn);
+           this.addRow(this.bundle.GetStringFromName("buddy.loggedIn"), loggedIn);
 
          var tooltipInfo = aBuddy.getTooltipInfo();
          if (!tooltipInfo)
@@ -223,18 +270,34 @@
            switch (elt.type) {
              case Ci.purpleITooltipInfo.pair:
              case Ci.purpleITooltipInfo.sectionHeader:
-               addRow(elt.label, elt.value);
+               this.addRow(elt.label, elt.value);
                break;
              case Ci.purpleITooltipInfo.sectionBreak:
-               var row = document.createElementNS(XULNS, "row");
-               var separator = document.createElementNS(XULNS, "separator");
-               separator.className = "thin";
-               row.appendChild(separator);
-               rows.appendChild(row);
+               this.addSeparator();
                break;
            }
          }
 
+         return true;
+       ]]>
+       </body>
+     </method>
+
+     <method name="updateTooltipFromConversation">
+       <parameter name="aConv"/>
+       <parameter name="aElt"/>
+       <body>
+       <![CDATA[
+         if (aConv instanceof Components.interfaces.purpleIConvIM && aConv.buddy)
+           return this.updateTooltipFromBuddy(aConv.buddy, elt);
+
+         this.elt = aElt;
+         this.reset();
+         this.setAttribute("displayname", aConv.name);
+         let account = aConv.account;
+         this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
+         this.setBuddyIcon(null);
+         this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
          return true;
        ]]>
        </body>
@@ -248,7 +311,7 @@
        <body>
        <![CDATA[
          if (aSubject == this.buddy)
-           this.updateTooltip(this.buddy, this.elt);
+           this.updateTooltipFromBuddy(this.buddy, this.elt);
        ]]>
        </body>
      </method>
@@ -259,8 +322,8 @@
          let elt = document.tooltipNode;
          if (elt.localName == "tab") {
            let conv = elt.linkedConversation.conv;
-           if (conv instanceof Components.interfaces.purpleIConvIM)
-             return updateTooltip(conv.buddy, elt);
+           if (conv)
+             return updateTooltipFromConversation(conv);
            return false;
          }
 
@@ -275,14 +338,13 @@
          if (!buddy)
            throw "no account in this buddy!";
 
-         return updateTooltip(buddy, elt);
+         return updateTooltipFromBuddy(buddy, elt);
        ]]>
      </handler>
      <handler event="popuphiding">
        this.buddy = null;
        this.elt = null;
      </handler>
-     <handler event="click" clickcount="2" action="openConversation();"/>
     </handlers>
   </binding>
 </bindings>
