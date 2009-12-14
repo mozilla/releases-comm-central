@@ -66,6 +66,7 @@ instantbird.jar:
 *	instantbird/preferences/themes.xul              (preferences/themes.xul)
 	instantbird/preferences/themes.js               (preferences/themes.js)
 *	instantbird/preferences/tabs.xul                (preferences/tabs.xul)
+	instantbird/preferences/tabs.js                 (preferences/tabs.js)
 	instantbird/preferences/messagestyle.js	        (preferences/messagestyle.js)
 	instantbird/preferences/smileys.js		(preferences/smileys.js)
 	instantbird/preferences/smiley.css		(preferences/smiley.css)

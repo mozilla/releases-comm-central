@@ -47,14 +47,17 @@
 <overlay id="TabsPaneOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <prefpane id="paneTabs">
+  <prefpane id="paneTabs" onpaneload="gTabsPane.init();">
 
     <preferences id="tabsPreferences">
-      <preference id="messenger.conversations.openInTabs" name="messenger.conversations.openInTabs" type="bool"/>
+      <preference id="messenger.conversations.openInTabs"     name="messenger.conversations.openInTabs"     type="bool"
+                  onchange="gTabsPane.updateMUCWindowSetting();"/>
       <preference id="messenger.conversations.useSeparateWindowsForMUCs" name="messenger.conversations.useSeparateWindowsForMUCs" type="bool"/>
       <preference id="browser.tabs.autoHide"                  name="browser.tabs.autoHide"                  type="bool" inverted="true"/>
       <preference id="browser.tabs.warnOnClose"               name="browser.tabs.warnOnClose"               type="bool"/>
     </preferences>
+
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/tabs.js"/>
 
     <!-- XXX flex below is a hack because wrapping checkboxes don't reflow
              properly; see bug 349098 -->
