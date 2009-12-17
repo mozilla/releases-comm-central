@@ -7,5 +7,7 @@
 <!ENTITY  closeOtherTabs.label     "Close Other Tabs">
 <!ENTITY  openTabInNewWindow.label     "Open in a New Window">
 <!ENTITY  openTabInNewWindow.accesskey "W">
+<!ENTITY  showLogs.label         "Show Logs">
+<!ENTITY  showLogs.accesskey     "L">
 <!ENTITY  listAllTabs.label      "List all tabs">
 <!ENTITY  newTabButton.tooltip   "Open a new tab">

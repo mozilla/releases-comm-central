@@ -28,6 +28,7 @@ classic.jar:
 *	skin/classic/instantbird/conversation.css
 *	skin/classic/instantbird/engineManager.css
 *	skin/classic/instantbird/instantbird.css
+*	skin/classic/instantbird/viewlog.css
 	skin/classic/instantbird/newMessage.png
 #ifdef XP_UNIX
 #ifdef XP_MACOSX

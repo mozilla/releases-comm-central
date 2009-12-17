@@ -80,6 +80,11 @@ interface purpleIConversation: nsISupports {
 
   /* Scriptable way to set the baseURI of an HTML document */
   void setBaseURI(in nsIDOMDocument aDocument, in nsIURI aURI);
+
+
+  /* enumerator of purpleILog */
+  // Warning: this will leak if not fully enumerated
+  nsISimpleEnumerator getLogs();
 };
 
 [scriptable, uuid(0c072a80-103a-4992-b249-8e442b5f0d46)]

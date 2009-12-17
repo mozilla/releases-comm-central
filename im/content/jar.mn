@@ -43,6 +43,8 @@ instantbird.jar:
 *	instantbird/tabbrowser.xml
 	instantbird/tabbrowser.css
 	instantbird/utilities.js
+*	instantbird/viewlog.xul
+	instantbird/viewlog.js
 #ifdef XP_MACOSX
 	instantbird/macgestures.js
 #endif

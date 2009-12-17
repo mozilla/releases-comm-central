@@ -51,8 +51,11 @@ var FullZoom = {
   init: function FullZoom_init() {
     window.addEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled, false);
     window.addEventListener("unload", FullZoom.destroy, false);
-    document.getElementById("conversations").tabContainer
-            .addEventListener("select", FullZoom.setSettingValue, false);
+    let conversations = document.getElementById("conversations");
+    if (conversations) {
+      conversations.tabContainer
+                   .addEventListener("select", FullZoom.setSettingValue, false);
+    }
 
     FullZoom._prefBranch.addObserver(FullZoom.prefName, FullZoom, false);
     FullZoom.getPrefValue();

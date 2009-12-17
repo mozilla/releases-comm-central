@@ -41,17 +41,23 @@
 // Shamelessly taken from the implementation in browser/base/content/browser.js
 
 let gGestureSupport = {
+  _tabs: null,
+  _lastSelectedTab: null,
+
   load: function GS_load() {
     gGestureSupport.init(true);
 
-    let tabs = document.getElementById("conversations").tabContainer;
-    let selectHandler = function() {
-      gGestureSupport._lastSelectedTab = gGestureSupport._selectedTab;
-      gGestureSupport._selectedTab = this.selectedItem;
-    };
-    tabs.addEventListener("select", selectHandler, false);
-    gGestureSupport._selectedTab = tabs.selectedItem;
-    gGestureSupport._tabs = tabs;
+    let conversations = document.getElementById("conversations");
+    if (conversations) {
+      let tabs = conversations.tabContainer;
+      let selectHandler = function() {
+        gGestureSupport._lastSelectedTab = gGestureSupport._selectedTab;
+        gGestureSupport._selectedTab = this.selectedItem;
+      };
+      tabs.addEventListener("select", selectHandler, false);
+      gGestureSupport._selectedTab = tabs.selectedItem;
+      gGestureSupport._tabs = tabs;
+    }
   },
 
   /**
@@ -169,10 +175,12 @@ let gGestureSupport = {
         document.getElementById("cmd_textZoomReduce").doCommand();
         break;
       case "twist-left":
-        this._tabs.selectedIndex--;
+        if (this._tabs)
+          this._tabs.selectedIndex--;
         break;
       case "twist-right":
-        this._tabs.selectedIndex++;
+        if (this._tabs)
+          this._tabs.selectedIndex++;
         break;
       case "swipe-down":
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
@@ -186,9 +194,8 @@ let gGestureSupport = {
         break;
       case "swipe-left":
       case "swipe-right":
-        if (this._lastSelectedTab) {
+        if (this._lastSelectedTab)
           this._tabs.selectedItem = this._lastSelectedTab;
-        }
         break;
       default:
         dump("mac gesture: "+ gesture +"\n");

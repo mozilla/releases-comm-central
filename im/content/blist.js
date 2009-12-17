@@ -59,6 +59,21 @@ buddyListContextMenu.prototype = {
   openConversation: function blcm_openConversation() {
     if (this.onBuddy)
       this.target.openConversation();
+  },
+  showLogs: function blcm_showLogs() {
+    if (!this.onBuddy)
+      return;
+
+    var logs = [];
+    for (accountId in this.target.accounts) {
+      let account = this.target.accounts[accountId];
+      for (let log in getIter(account.getLogs()))
+        logs.push(log);
+    }
+    logs.sort(function(log1, log2) log1.time - log2.time);
+    window.openDialog("chrome://instantbird/content/viewlog.xul",
+                      "Logs", "chrome,resizable", {logs: logs},
+                      this.target.getAttribute("displayname"));
   }
 };
 
