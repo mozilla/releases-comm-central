@@ -289,7 +289,7 @@
        <body>
        <![CDATA[
          if (aConv instanceof Components.interfaces.purpleIConvIM && aConv.buddy)
-           return this.updateTooltipFromBuddy(aConv.buddy, elt);
+           return this.updateTooltipFromBuddy(aConv.buddy, aElt);
 
          this.elt = aElt;
          this.reset();
@@ -323,7 +323,7 @@
          if (elt.localName == "tab") {
            let conv = elt.linkedConversation.conv;
            if (conv)
-             return updateTooltipFromConversation(conv);
+             return updateTooltipFromConversation(conv, elt);
            return false;
          }
 
