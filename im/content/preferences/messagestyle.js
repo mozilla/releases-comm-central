@@ -98,6 +98,7 @@ Message.prototype = {
     this.message = this.originalMessage;
   },
   conversation: null,
+  color: "",
   outgoing: false,
   incoming: false,
   system: false,
