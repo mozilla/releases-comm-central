@@ -103,7 +103,12 @@ var FullZoom = {
   },
   reset: function FullZoom_ZoomReset() {
     ZoomManager.reset();
-    this._prefBranch.clearUserPref(this.prefName);
+    try {
+      // Can throw an exception when the preference does not exist or is
+      // already at its default value.
+      this._prefBranch.clearUserPref(this.prefName);
+    }
+    catch (ex) {}
   },
 
   // Settings and Prefs
