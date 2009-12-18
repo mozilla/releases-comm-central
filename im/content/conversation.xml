@@ -261,7 +261,7 @@
         if (!aMsg.system && aMsg.incoming &&
             (conv instanceof Ci.purpleIConvChat)) {
           let name = aMsg.alias || aMsg.who;
-          aMsg.color = this.buddies[name].getAttribute("style");
+          aMsg.color = "color: hsl(" + this.buddies[name].color + ", 100%, 40%);";
         }
 
         this.browser.appendMessage(aMsg);
