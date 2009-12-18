@@ -70,7 +70,7 @@ buddyListContextMenu.prototype = {
       for (let log in getIter(account.getLogs()))
         logs.push(log);
     }
-    logs.sort(function(log1, log2) log1.time - log2.time);
+    logs.sort(function(log1, log2) log2.time - log1.time);
     window.openDialog("chrome://instantbird/content/viewlog.xul",
                       "Logs", "chrome,resizable", {logs: logs},
                       this.target.getAttribute("displayname"));
