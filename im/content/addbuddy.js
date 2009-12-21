@@ -63,15 +63,13 @@ var addBuddy = {
 
   buildTagList: function ab_buildTagList() {
     var tagList = document.getElementById("taglist");
-    for (let tag in this.getTags())
+    this.pcs.getTags().forEach(function (tag) {
       tagList.appendItem(tag.name, tag.id);
+    });
     tagList.selectedIndex = 0;
   },
 
-  getValue: function ab_getValue(aId) {
-    var elt = document.getElementById(aId);
-    return elt.value;
-  },
+  getValue: function ab_getValue(aId) document.getElementById(aId).value,
 
   create: function ab_create() {
     var account = this.pcs.getAccountById(this.getValue("accountlist"));
@@ -90,12 +88,5 @@ var addBuddy = {
 
   getAccounts: function ab_getAccounts() {
     return getIter(this.pcs.getAccounts());
-  },
-  getTags: function ab_getTags() {
-    var DBConn = this.pcs.storageConnection;
-    var statement = DBConn.createStatement("SELECT id, name FROM tags");
-    while (statement.executeStep())
-      yield { id: statement.getInt32(0),
-              name: statement.getUTF8String(1) };
   }
 };
