@@ -1118,6 +1118,11 @@
            this.updateBuddyStatus();
            break;
 
+         case "update-conv-title":
+           if (this.tab)
+             this.tab.setAttribute("label", this.conv.title);
+           break;
+
          case "chat-buddy-add":
            aSubject.QueryInterface(Ci.nsISimpleEnumerator);
            while (aSubject.hasMoreElements())

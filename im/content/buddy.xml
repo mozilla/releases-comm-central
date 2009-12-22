@@ -105,6 +105,7 @@
         else if (accounts.every(function(pab) !pab.available))
           status = "away";
         this.setAttribute("status", status);
+        this.setAttribute("displayname", this.alias || this.name);
       ]]>
       </body>
      </method>

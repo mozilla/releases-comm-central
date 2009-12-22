@@ -109,7 +109,7 @@
            this.addBuddy(aSubject);
          else if (aTopic == "buddy-signed-off" || aTopic == "buddy-removed")
            this.signedOff(aSubject);
-         else if (aTopic == "buddy-idle" || aTopic == "buddy-away")
+         else if (aTopic == "buddy-idle" || aTopic == "buddy-away" || aTopic == "buddy-alias")
            this.updateBuddy(aSubject);
        ]]>
        </body>
