@@ -49,7 +49,16 @@
       <xul:image class="twisty"/>
       <xul:label flex="1" crop="end" xbl:inherits="value=name"/>
     </content>
-    <implementation>
+    <implementation implements="nsIObserver">
+
+     <destructor>
+      <![CDATA[
+        if (this.tag) {
+          this.tag.removeObserver(this);
+          delete this.tag;
+        }
+      ]]>
+     </destructor>
 
      <!-- delay between each frame of the animation, in milliseconds -->
      <field name="animationInterval">20</field>
@@ -59,6 +68,8 @@
       <body>
       <![CDATA[
         this.groupId = aGroup.id;
+        this.tag = aGroup;
+        this.tag.addObserver(this);
         this.name = aGroup.name;
         this.buddies = [ ];
         this.setAttribute("id", "group" + this.groupId);
@@ -77,8 +88,31 @@
           this._updateGroupLabel();
           this._updateClosedState(true);
         }
+
+        this.tag.getBuddies().forEach(function (aBuddy) {
+          aBuddy.getAccountBuddies()
+                .filter(function (b) b.online && b.tag.id == this.groupId, this)
+                .forEach(function(b) { this.addBuddy(b); }, this);
+        }, this);
       ]]>
       </body>
+     </method>
+
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
+       <body>
+       <![CDATA[
+         if (aTopic == "buddy-signed-on")
+           this.addBuddy(aSubject);
+         else if (aTopic == "buddy-signed-off" || aTopic == "buddy-removed")
+           this.signedOff(aSubject);
+         else if (aTopic == "buddy-idle" || aTopic == "buddy-away")
+           this.updateBuddy(aSubject);
+       ]]>
+       </body>
      </method>
 
      <method name="addBuddy">
@@ -177,6 +211,7 @@
          else {
            clearInterval(aThis.animInterval);
            delete aThis.animInterval;
+           aThis.tag.removeObserver(aThis);
            aThis.parentNode.removeChild(aThis);
          }
       ]]>

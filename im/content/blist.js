@@ -36,10 +36,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 const events = ["buddy-signed-on",
-                "buddy-signed-off",
-                "buddy-removed",
-                "buddy-away",
-                "buddy-idle",
                 "account-disconnected",
                 "status-away",
                 "status-back",
@@ -130,29 +126,11 @@ var buddyList = {
     var pab = aBuddy.QueryInterface(Ci.purpleIAccountBuddy);
     var group = pab.tag;
     var groupId = "group" + group.id;
-    var groupElt = document.getElementById(groupId);
-    if (aTopic == "buddy-signed-on") {
-      if (!groupElt) {
-        groupElt = document.createElement("group");
-        var parent = document.getElementById("buddylistbox");
-        parent.appendChild(groupElt);
-        groupElt.build(group);
-      }
-      groupElt.addBuddy(pab);
-      return;
+    if (aTopic == "buddy-signed-on" && !document.getElementById(groupId)) {
+      let groupElt = document.createElement("group");
+      document.getElementById("buddylistbox").appendChild(groupElt);
+      groupElt.build(group);
     }
-
-    if (!groupElt) {
-      // Ignore weird signals from libpurple. These seem to come
-      // mostly from the oscar prpl.
-      return;
-    }
-
-    if (aTopic == "buddy-signed-off" || aTopic == "buddy-removed")
-      groupElt.signedOff(pab);
-
-    if (aTopic == "buddy-idle" || aTopic == "buddy-away")
-      groupElt.updateBuddy(pab);
   },
 
   getAccounts: function bl_getAccounts() {
