@@ -76,3 +76,12 @@ function debug_connectAccount(aProto, aName, aPassword)
        " (" + proto.id + ") with " + aName + "\n");
   acc.connect();
 }
+
+function debug_dumpBuddyList()
+{
+  var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                      .getService(Ci.purpleICoreService);
+  let formatBuddy = (function(buddy) "  " + buddy.name + "\n   " + buddy.getAccounts().map(function(a) a.name).join(" "));
+  let formatGroup = (function(aGroup) " Group " + aGroup.id + ": " + aGroup.name + "\n" + aGroup.getBuddies().map(formatBuddy).join("\n"));
+  dump("Buddy list:\n\n" + pcs.getTags().map(formatGroup).join("\n\n") + "\n\n");
+}
