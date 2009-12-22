@@ -43,14 +43,6 @@ browser[type="content-conversation"] {
   -moz-binding: url("chrome://instantbird/content/convbrowser.xml#browser");
 }
 
-convtab {
-  -moz-binding: url("chrome://instantbird/content/conversation.xml#convtab");
-}
-
-convtab[selected="true"] {
-  -moz-user-focus: normal;
-}
-
 notification[value="topic"] {
   -moz-binding: url("chrome://instantbird/content/topicNotification.xml#topicnotification");
 }
