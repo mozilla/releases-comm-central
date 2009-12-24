@@ -105,12 +105,6 @@
        document.getAnonymousElementByAttribute(this, "anonid", "splitter-bottom")
                .addEventListener("DOMAttrModified", this._onSplitterChange, false);
 
-       // The window is not ready yet, add a listener.
-       if (window.outerHeight <= 1)
-         this.addEventListener("DOMContentLoaded", this._DOMLoaded, true);
-       else
-         this._DOMLoaded();
-
        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
        editor.addEventListener("keypress", this.editorKeyPress, false);
        //this doesn't work at the moment
@@ -177,28 +171,6 @@
            this.browser.browserResize();
            this.updateTyping();
            this.observe(this.browser, "conversation-loaded", null);
-         ]]>
-       </body>
-     </method>
-
-     <method name="_DOMLoaded">
-       <parameter name="aEvent"/>
-       <body>
-         <![CDATA[
-           // The sizes have not been calculated yet.
-           if (window.outerHeight <= 1)
-            return;
-
-           // Textbox related initializations.
-           let textbox = this.calculateTextboxDefaultHeight();
-           textbox.parentNode.height = textbox.defaultHeight +
-                                       this._TEXTBOX_VERTICAL_OVERHEAD;
-           document.getAnonymousElementByAttribute(textbox, "anonid", "input")
-                   .style.overflowY = "hidden";
-
-           // if called from the event handler, remove the event
-           if (aEvent)
-             this.removeEventListener("DOMContentLoaded", this._DOMLoaded, true);
          ]]>
        </body>
      </method>
@@ -373,9 +345,6 @@
 
         // set minimum height (in case the user moves the splitter)
         textbox.minHeight = lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
-
-        // can be used by the caller function (avoid recomputing "textbox")
-        return textbox;
       ]]>
       </body>
      </method>
@@ -496,6 +465,13 @@
         }
 
         window._messageFormat.registerTextbox(textbox);
+
+        // Init the textbox size
+        this.calculateTextboxDefaultHeight();
+        textbox.parentNode.height = textbox.defaultHeight +
+                                    this._TEXTBOX_VERTICAL_OVERHEAD;
+        document.getAnonymousElementByAttribute(textbox, "anonid", "input")
+                .style.overflowY = "hidden";
       ]]>
       </body>
      </method>
