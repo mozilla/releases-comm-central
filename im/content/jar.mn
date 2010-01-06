@@ -78,7 +78,9 @@ instantbird.jar:
 debug.jar:
 % content debug %debug/ xpcnativewrappers=yes
 % overlay chrome://instantbird/content/blist.xul chrome://debug/content/debug.xul
+% overlay chrome://instantbird/content/instantbird.xul chrome://debug/content/viewselectionsource.xul
 	debug/debug.js	(debug/debug.js)
 	debug/debug.xul	(debug/debug.xul)
+	debug/viewselectionsource.xul (debug/viewselectionsource.xul)
 #endif
 
