@@ -248,6 +248,13 @@ pref("javascript.options.strict", true);
 // is annoying, and users of debug builds are expected to know what
 // they are doing...
 pref("general.warnOnAboutConfig", false);
+
+// In debug builds, disable the XUL cache by default
+pref("nglayout.debug.disable_xul_cache", true);
+pref("nglayout.debug.disable_xul_fastload", true);
+#else
+// So that we can enable dump easily from about:config...
+pref("browser.dom.window.dump.enabled", false);
 #endif
 
 // loglevel is the minimum severity level that a libpurple message
