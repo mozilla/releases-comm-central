@@ -47,7 +47,7 @@
   </commandset>
 
   <keyset id="mainkeyset">
-    <key id="accountsetup" key="&account.commandkey;" command="accountmanager" modifiers="accel"/>
+    <key id="accountsetup" key="&account.commandkey;" command="accountmanager" modifiers="accel,shift"/>
     <key id="errorConsoleKey" key="&errorConsoleCmd.commandkey;" oncommand="menus.errors();" modifiers="accel,shift"/>
 #ifdef XP_UNIX
     <key id="key_quitApplication" key="&quitApplicationCmdMac.key;" command="cmd_quitApplication" modifiers="accel"/>

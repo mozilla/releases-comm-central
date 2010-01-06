@@ -65,10 +65,6 @@
  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js" />
  <script type="application/javascript" src="chrome://global/content/nsTransferable.js" />
 
-#ifdef XP_MACOSX
-#include menus.xul.inc
-#endif
-
  <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
 
  <commandset id="accountsCommands">
@@ -111,7 +107,13 @@
  <keyset id="accountsKeys">
    <key id="key_close1" key="w" modifiers="accel" command="cmd_close"/>
    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
+   <key id="key_close3" command="cmd_close"
+        key="&accountManager.close.commandkey;" modifiers="accel,shift"/>
  </keyset>
+
+#ifdef XP_MACOSX
+#include menus.xul.inc
+#endif
 
  <broadcasterset>
    <broadcaster id="contextAccountsItems"/>
