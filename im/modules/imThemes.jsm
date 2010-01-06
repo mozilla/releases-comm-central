@@ -50,6 +50,7 @@ var EXPORTED_SYMBOLS = [
   "isNextMessage",
   "insertHTMLForMessage",
   "initHTMLDocument",
+  "getMessagesForRange",
   "serializeSelection"
 ];
 
