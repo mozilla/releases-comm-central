@@ -34,6 +34,7 @@ pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
 pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);
 
+pref("messenger.conversations.selections.magicCopyEnabled", true);
 pref("messenger.conversations.selections.ellipsis", "chrome://instantbird/locale/instantbird.properties");
 pref("messenger.conversations.selections.systemMessagesTemplate", "chrome://instantbird/locale/instantbird.properties");
 pref("messenger.conversations.selections.contentMessagesTemplate", "chrome://instantbird/locale/instantbird.properties");

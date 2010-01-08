@@ -49,7 +49,7 @@
     <implementation type="application/javascript"
                     implements="nsIAccessibleProvider, nsIDOMEventListener,
                                 nsIWebProgressListener, nsIController,
-                                nsISelectionListener">
+                                nsISelectionListener, nsIObserver">
       <property name="accessibleType" readonly="true">
         <getter>
           <![CDATA[
@@ -161,10 +161,15 @@
                 onget="return this.docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);"
                 readonly="true"/>
 
+      <field name="magicCopyPref" readonly="true">"messenger.conversations.selections.magicCopyEnabled"</field>
+
+      <property name="magicCopyEnabled"
+                onget="return this.mPrefs.getBoolPref(this.magicCopyPref);"
+                readonly="true"/>
+
       <field name="mPrefs" readonly="true">
         Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefService)
-                  .getBranch(null);
+                  .getService(Components.interfaces.nsIPrefBranch2);
       </field>
 
       <method name="addProgressListener">
@@ -199,7 +204,7 @@
 
           this.addEventListener("scroll", this.browserScroll, false);
           this.addEventListener("resize", this.browserResize, false);
-          this.contentWindow.controllers.insertControllerAt(0, this);
+          this.mPrefs.addObserver(this.magicCopyPref, this, false);
 
           if (!("cleanupImMarkup" in window))
             Components.utils.import("resource://app/modules/imContentSink.jsm");
@@ -236,6 +241,7 @@
               this._autoScrollPopup.parentNode.removeChild(this._autoScrollPopup);
             }
 
+            this.mPrefs.removeObserver(this.magicCopyPref, this);
             this.contentWindow.controllers.removeController(this);
           ]]>
         </body>
@@ -346,6 +352,39 @@
         </body>
       </method>
 
+      <!-- nsIObserver implementation -->
+      <method name="observe">
+        <parameter name="aSubject"/>
+        <parameter name="aTopic"/>
+        <parameter name="aData"/>
+        <body>
+        <![CDATA[
+          if (aTopic != "nsPref:changed")
+            throw "Bad notification";
+
+          var clipboard =
+            Components.classes["@mozilla.org/widget/clipboard;1"]
+                      .getService(Components.interfaces.nsIClipboard);
+
+          if (this.magicCopyEnabled) {
+            this.contentWindow.controllers.insertControllerAt(0, this);
+            if (clipboard.supportsSelectionClipboard()) {
+              this.contentWindow.getSelection()
+                  .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                  .addSelectionListener(this);
+            }
+          }
+          else {
+            this.contentWindow.controllers.removeController(this);
+            if (clipboard.supportsSelectionClipboard()) {
+               this.contentWindow.getSelection()
+                   .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                   .removeSelectionListener(this);
+            }
+          }
+        ]]>
+        </body>
+      </method>
 
       <!-- nsIController implementation -->
       <method name="supportsCommand">
@@ -424,12 +463,17 @@
                 Components.utils.reportError(e);
               }
 
-              var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
-                                        .getService(Ci.nsIClipboard);
-              if (clipboard.supportsSelectionClipboard()) {
-                this.contentWindow.getSelection()
-                    .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                    .addSelectionListener(this);
+              if (this.magicCopyEnabled) {
+                this.contentWindow.controllers.insertControllerAt(0, this);
+
+                var clipboard =
+                  Components.classes["@mozilla.org/widget/clipboard;1"]
+                            .getService(Components.interfaces.nsIClipboard);
+                if (clipboard.supportsSelectionClipboard()) {
+                  this.contentWindow.getSelection()
+                      .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                      .addSelectionListener(this);
+                }
               }
 
               Components.classes["@mozilla.org/observer-service;1"]
@@ -697,16 +741,20 @@
         <![CDATA[
           aOtherBrowser.destroy();
 
-          // We need to remove the controller before _contentWindow is changed
-          this.contentWindow.controllers.removeController(this);
+          var magicCopyEnabled = this.magicCopyEnabled;
 
-          // the selection listener (unix only)
-          var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
-                                    .getService(Ci.nsIClipboard);
-          if (clipboard.supportsSelectionClipboard()) {
-            aOtherBrowser.contentWindow.getSelection()
-                         .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                         .removeSelectionListener(aOtherBrowser);
+          if (magicCopyEnabled) {
+            // We need to remove the controller before _contentWindow is changed
+            this.contentWindow.controllers.removeController(this);
+
+            // the selection listener (unix only)
+            var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
+                                      .getService(Ci.nsIClipboard);
+            if (clipboard.supportsSelectionClipboard()) {
+              aOtherBrowser.contentWindow.getSelection()
+                           .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                           .removeSelectionListener(aOtherBrowser);
+            }
           }
 
           // and the progress listener too!
@@ -734,6 +782,9 @@
             this[field] = otherFieldValues[field];
             aOtherBrowser[field] = ourFieldValues[field];
           }
+
+          if (!magicCopyEnabled)
+            return;
 
           // Now that we have the new _contentWindow, we can add back our controller
           this.contentWindow.controllers.insertControllerAt(0, this);
