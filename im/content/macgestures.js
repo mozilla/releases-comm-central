@@ -194,8 +194,13 @@ let gGestureSupport = {
         break;
       case "swipe-left":
       case "swipe-right":
+        var newIndex = -1;
         if (this._lastSelectedTab)
-          this._tabs.selectedItem = this._lastSelectedTab;
+          newIndex = this._tabs.getIndexOfItem(this._lastSelectedTab);
+        if (newIndex == -1)
+          newIndex =
+            gesture == "swipe-right" ? this._tabs.childNodes.length - 1 : 0;
+        this._tabs.selectedIndex = newIndex;
         break;
       default:
         dump("mac gesture: "+ gesture +"\n");
