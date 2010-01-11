@@ -255,14 +255,25 @@
         if (!aMsg)
           return;
 
-        var re = /^\/raw (.*)/;
-        var msg = aMsg.match(re);
-        if (msg)
-          msg = msg[1];
+        // the /say command is used to bypass command processing
+        var msg = aMsg.match(/^\/say (.*)/);
+        if (!msg) {
+          try {
+            if (this._conv.doCommand(aMsg)) {
+              if (this._conv instanceof Ci.purpleIConvIM)
+                this._conv.sendTyping(0);
+              this.resetInput();
+              return;
+            }
+          } catch(e) { }
+        }
         else
-          msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                          .getService(Ci.mozITXTToHTMLConv)
-                          .scanTXT(aMsg, 0);
+          aMsg = msg[1];
+
+        msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
+                        .getService(Ci.mozITXTToHTMLConv)
+                        .scanTXT(aMsg, 0);
+
         var account = this._conv.account;
         if (account.noNewlines)
           // 'Illegal operation on WrappedNative prototype object' if the this
