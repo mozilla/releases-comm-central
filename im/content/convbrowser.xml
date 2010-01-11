@@ -242,7 +242,8 @@
             }
 
             this.mPrefs.removeObserver(this.magicCopyPref, this);
-            this.contentWindow.controllers.removeController(this);
+            if (this.magicCopyEnabled)
+              this.contentWindow.controllers.removeController(this);
           ]]>
         </body>
       </method>
@@ -744,10 +745,8 @@
           var magicCopyEnabled = this.magicCopyEnabled;
 
           if (magicCopyEnabled) {
-            // We need to remove the controller before _contentWindow is changed
-            this.contentWindow.controllers.removeController(this);
-
-            // the selection listener (unix only)
+            // We need to remove the selection listener (unix only)
+            // before _contentWindow is changed.
             var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
                                       .getService(Ci.nsIClipboard);
             if (clipboard.supportsSelectionClipboard()) {
