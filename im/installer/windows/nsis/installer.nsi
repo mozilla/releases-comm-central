@@ -108,7 +108,6 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 !insertmacro FindSMProgramsDir
 !insertmacro GetPathFromString
 !insertmacro GetParent
-!insertmacro IsHandlerForInstallDir
 !insertmacro ManualCloseAppPrompt
 !insertmacro RegCleanMain
 !insertmacro RegCleanUninstall
@@ -727,40 +726,10 @@ Function preSummary
   ; should be displayed.
   DeleteINISec "$PLUGINSDIR\summary.ini" "Field 4"
 
-  ; Check if it is possible to write to HKLM
-  ClearErrors
-  WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
-  ${Unless} ${Errors}
-    DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
-    ; Check if Firefox is already the handler for http. This is set on all
-    ; versions of Windows.
-    ${IsHandlerForInstallDir} "http" $R9
-    ${If} "$R9" != "true"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Settings" NumFields "4"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" Type   "checkbox"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" Text   "$(SUMMARY_TAKE_DEFAULTS)"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" Left   "0"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" Right  "-1"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" State  "1"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" Top    "32"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" Bottom "53"
-    ${EndIf}
-  ${EndUnless}
-
   ${If} "$TmpVal" == "true"
-    ; If there is already a Type entry in the "Field 4" section with a value of
-    ; checkbox then the set as the default browser checkbox is displayed and
-    ; this text must be moved below it.
-    ReadINIStr $0 "$PLUGINSDIR\summary.ini" "Field 4" "Type"
-    ${If} "$0" == "checkbox"
-      StrCpy $0 "5"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field $0" Top    "53"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field $0" Bottom "68"
-    ${Else}
-      StrCpy $0 "4"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field $0" Top    "35"
-      WriteINIStr "$PLUGINSDIR\summary.ini" "Field $0" Bottom "50"
-    ${EndIf}
+    StrCpy $0 "4"
+    WriteINIStr "$PLUGINSDIR\summary.ini" "Field $0" Top    "35"
+    WriteINIStr "$PLUGINSDIR\summary.ini" "Field $0" Bottom "50"
     WriteINIStr "$PLUGINSDIR\summary.ini" "Settings" NumFields "$0"
 
     WriteINIStr "$PLUGINSDIR\summary.ini" "Field $0" Type   "label"
@@ -816,29 +785,32 @@ Function .onInit
   !insertmacro InitInstallOptionsFile "shortcuts.ini"
   !insertmacro InitInstallOptionsFile "summary.ini"
 
-  ClearErrors
-  ${If} ${AtLeastWinVista}
-    WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
-  ${EndIf}
-  ${If} ${Errors}
-    ; Setup the options.ini file for the Custom Options Page without the option
-    ; to set as default for Vista and above since the installer is unable to
-    ; write to HKLM.
-    WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "5"
-  ${Else}
-    DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
-    ; Setup the options.ini file for the Custom Options Page with the option
-    ; to set as default
-    WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "6"
+  ; Disable the Make Default IM Client for now...
+  WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "5"
 
-    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Type   "checkbox"
-    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Text   "$(OPTIONS_MAKE_DEFAULT)"
-    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Left   "0"
-    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Right  "-1"
-    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Top    "124"
-    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Bottom "145"
-    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" State  "1"
-  ${EndIf}
+;  ClearErrors
+;  ${If} ${AtLeastWinVista}
+;    WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
+;  ${EndIf}
+;  ${If} ${Errors}
+;    ; Setup the options.ini file for the Custom Options Page without the option
+;    ; to set as default for Vista and above since the installer is unable to
+;    ; write to HKLM.
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "5"
+;  ${Else}
+;    DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
+;    ; Setup the options.ini file for the Custom Options Page with the option
+;    ; to set as default
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "6"
+;
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Type   "checkbox"
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Text   "$(OPTIONS_MAKE_DEFAULT)"
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Left   "0"
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Right  "-1"
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Top    "124"
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Bottom "145"
+;    WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" State  "1"
+;  ${EndIf}
 
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 1" Type   "label"
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 1" Text   "$(OPTIONS_SUMMARY)"
