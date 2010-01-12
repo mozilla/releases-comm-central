@@ -239,7 +239,7 @@ Section "Uninstall"
     ${un.GetSecondInstallPath} "Software\Mozilla" $R9
   ${EndIf}
 
-  StrCpy $0 "Software\Clients\IM\${FileMainEXE}\shell\open\command"
+  StrCpy $0 "Software\Clients\IM\${ClientsRegName}\shell\open\command"
   ReadRegStr $R1 HKLM "$0" ""
   ${un.RemoveQuotesFromPath} "$R1" $R1
   ${un.GetParent} "$R1" $R1
@@ -252,7 +252,7 @@ Section "Uninstall"
   ; default IM app. Now the key is always updated on install but it is only
   ; removed if it refers to this install location.
   ${If} "$INSTDIR" == "$R1"
-    DeleteRegKey HKLM "Software\Clients\IM\${FileMainEXE}"
+    DeleteRegKey HKLM "Software\Clients\IM\${ClientsRegName}"
     DeleteRegValue HKLM "Software\RegisteredApplications" "${AppRegName}"
   ${EndIf}
 
