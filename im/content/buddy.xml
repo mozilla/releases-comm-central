@@ -264,6 +264,21 @@
        ]]>
       </body>
      </method>
+
+     <method name="keyPress">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        switch (aEvent.keyCode) {
+          // If Enter or Return is pressed, open a new conversation
+          case aEvent.DOM_VK_RETURN:
+          case aEvent.DOM_VK_ENTER:
+            this.openConversation();
+            break;
+        }
+      ]]>
+      </body>
+     </method>
     </implementation>
     <handlers>
      <handler event="click" clickcount="2" action="openConversation();"/>

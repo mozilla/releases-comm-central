@@ -221,27 +221,7 @@ var buddyList = {
     var item = document.getElementById("buddylistbox").selectedItem;
     if (!item) // the list is empty
       return;
-
-    switch (aEvent.keyCode) {
-      // If Enter or Return is pressed, open a new conversation
-      case aEvent.DOM_VK_RETURN:
-      case aEvent.DOM_VK_ENTER:
-        if (item.localName == "buddy")
-          item.openConversation();
-        else if (item.localName == "group")
-          item.close();
-        break;
-
-      case aEvent.DOM_VK_LEFT:
-        if (item.localName == "group" && !item.hasAttribute("closed"))
-          item.close();
-        break;
-
-      case aEvent.DOM_VK_RIGHT:
-        if (item.localName == "group" && item.hasAttribute("closed"))
-          item.close();
-        break;
-    }
+    item.keyPress(aEvent);
   }
 };
 

@@ -272,6 +272,30 @@
       ]]>
       </body>
      </method>
+
+     <method name="keyPress">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        switch (aEvent.keyCode) {
+          case aEvent.DOM_VK_RETURN:
+          case aEvent.DOM_VK_ENTER:
+            this.close();
+            break;
+
+          case aEvent.DOM_VK_LEFT:
+            if (!this.hasAttribute("closed"))
+              this.close();
+            break;
+
+          case aEvent.DOM_VK_RIGHT:
+            if (this.hasAttribute("closed"))
+              this.close();
+            break;
+        }
+      ]]>
+      </body>
+     </method>
     </implementation>
     <handlers>
      <handler event="click">
