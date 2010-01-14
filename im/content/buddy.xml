@@ -68,8 +68,7 @@
         this.group = aGroup;
         this.buddyId = aBuddy.id;
         this.name = aBuddy.name;
-        this.alias = aBuddy.alias;
-        this.setAttribute("displayname", this.alias || this.name);
+        this.setAttribute("displayname", aBuddy.alias || this.name);
         //this.setAttribute("id", "buddy" + this.buddyId);
         this.setAttribute("iconPrpl",
                           aBuddy.getAccount(0).protocol.iconBaseURI + "icon.png");
@@ -105,7 +104,11 @@
         else if (accounts.every(function(pab) !pab.available))
           status = "away";
         this.setAttribute("status", status);
-        this.setAttribute("displayname", this.alias || this.name);
+        let accountsWithAlias = accounts.filter(function(pab) pab.buddyAlias);
+        let alias;
+        if (accountsWithAlias.length)
+          alias = accountsWithAlias[0].buddyAlias;
+        this.setAttribute("displayname", alias || this.name);
       ]]>
       </body>
      </method>
