@@ -45,12 +45,14 @@
           xmlns:html="http://www.w3.org/1999/xhtml">
 
   <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
-    <content>
+    <content align="center">
       <xul:stack class="prplBuddyIcon">
         <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
         <xul:image class="statusIcon"/>
       </xul:stack>
-      <xul:label crop="end" flex="1" class="buddyDisplayName" xbl:inherits="value=displayname"/>
+      <xul:label crop="end" flex="1"
+                 anonid="displayname" class="buddyDisplayName"
+                 xbl:inherits="value=displayname"/>
     </content>
     <implementation>
 
@@ -66,7 +68,8 @@
       <body>
       <![CDATA[
         this.group = aGroup;
-        this.buddyId = aBuddy.id;
+        this.buddy = aBuddy;
+        this.buddyId = aBuddy.id; // used by group.xml
         this.name = aBuddy.name;
         this.setAttribute("displayname", aBuddy.alias || this.name);
         //this.setAttribute("id", "buddy" + this.buddyId);
@@ -182,6 +185,32 @@
       </body>
      </method>
 
+     <method name="startAliasing">
+      <body>
+      <![CDATA[
+        this.setAttribute("aliasing", "true");
+        let textbox =
+          document.getAnonymousElementByAttribute(this, "anonid", "displayname");
+        textbox.getBoundingClientRect(); // force binding attachmant by forcing layout
+        textbox.select();
+      ]]>
+      </body>
+     </method>
+
+     <method name="finishAliasing">
+      <parameter name="aSave"/>
+      <body>
+      <![CDATA[
+        if (aSave) {
+          this.buddy.alias =
+            document.getAnonymousElementByAttribute(this, "anonid", "displayname").value;
+        }
+        this.removeAttribute("aliasing");
+        this.parentNode.focus();
+      ]]>
+      </body>
+     </method>
+
      <method name="_startAnimation">
       <parameter name="aThis"/>
       <body>
@@ -273,7 +302,18 @@
           // If Enter or Return is pressed, open a new conversation
           case aEvent.DOM_VK_RETURN:
           case aEvent.DOM_VK_ENTER:
-            this.openConversation();
+            if (this.hasAttribute("aliasing"))
+              this.finishAliasing(true);
+            else
+              this.openConversation();
+            break;
+
+          case aEvent.DOM_VK_F2:
+            this.startAliasing();
+            break;
+
+          case aEvent.DOM_VK_ESCAPE:
+            this.finishAliasing(false);
             break;
         }
       ]]>
@@ -281,7 +321,11 @@
      </method>
     </implementation>
     <handlers>
-     <handler event="click" clickcount="2" action="openConversation();"/>
+     <handler event="blur"
+              action="if (this.hasAttribute('aliasing')) finishAliasing(true);"/>
+
+     <handler event="click" clickcount="2"
+              action="if (!this.hasAttribute('aliasing')) openConversation();"/>
     </handlers>
   </binding>
 </bindings>

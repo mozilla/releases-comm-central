@@ -73,6 +73,10 @@
                 label="&openConversationCmd.label;"
                 accesskey="&openConversationCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.openConversation();"/>
+      <menuitem id="context-alias"
+                label="&aliasCmd.label;"
+                accesskey="&aliasCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.alias();"/>
       <menuitem id="context-showlogs"
                 label="&showLogsCmd.label;"
                 accesskey="&showLogsCmd.accesskey;"

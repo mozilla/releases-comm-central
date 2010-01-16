@@ -56,6 +56,10 @@ buddyListContextMenu.prototype = {
     if (this.onBuddy)
       this.target.openConversation();
   },
+  alias: function blcm_alias() {
+    if (this.onBuddy)
+      this.target.startAliasing();
+  },
   showLogs: function blcm_showLogs() {
     if (!this.onBuddy)
       return;
