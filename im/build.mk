@@ -74,3 +74,7 @@ package:
 
 install::
 	@$(MAKE) -C instantbird/installer install
+
+ib::
+	@$(MAKE) -C purple export libs
+	@$(MAKE) -C instantbird libs
