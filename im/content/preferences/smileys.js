@@ -51,8 +51,9 @@ var smileysPreview = {
     if (!themeList.length)
       return;
 
+    document.getElementById("noemoticons-menuitem").setAttribute("hidden", "true");
+
     let menulist = document.getElementById("smileythemename");
-    menulist.menupopup.appendChild(document.createElement("menuseparator"));
     themeList.forEach(function(aItem) {
       menulist.appendItem(aItem.name,
                           aItem.id.replace(/^emoticons-([^@]+)@.*/, "$1"));

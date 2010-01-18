@@ -127,12 +127,11 @@ var previewObserver = {
                 });
 
     let menulist = document.getElementById("themename");
-    if (!themeList.length) {
-      menulist.disabled = true;
+    if (!themeList.length)
       return;
-    }
 
-    menulist.menupopup.appendChild(document.createElement("menuseparator"));
+    document.getElementById("nomessagestyles-menuitem").setAttribute("hidden", "true");
+
     themeList.forEach(function(aItem) {
       menulist.appendItem(aItem.name,
                           aItem.id.replace(/^messagestyle-([^@]+)@.*/, "$1"));

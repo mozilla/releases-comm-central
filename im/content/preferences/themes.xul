@@ -83,6 +83,9 @@
                 <menuitem id="default-menuitem"
                           label="&messageStyleDefaultTheme.label;"
                           value="default"/>
+                <menuseparator/>
+                <menuitem id="nomessagestyles-menuitem" label="&messageStyleNoThemes.label;"
+                          disabled="true"/>
               </menupopup>
             </menulist>
             <spacer flex="1"/>
@@ -126,6 +129,9 @@
                 <menuitem id="none-menuitem"
                           label="&emoticonsDisabled.label;"
                           value="none"/>
+                <menuseparator/>
+                <menuitem id="noemoticons-menuitem" label="&emoticonsNoThemes.label;"
+                          disabled="true"/>
               </menupopup>
             </menulist>
             <spacer flex="1"/>
