@@ -50,6 +50,8 @@
 
   <prefpane id="panePrivacy">
 
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/privacy.js"/>
+
     <preferences id="privacyPreferences">
       <preference id="purple.conversations.im.send_typing" name="purple.conversations.im.send_typing" type="bool"/>
       <preference id="purple.away.mins_before_away"        name="purple.away.mins_before_away"        type="int"/>
@@ -91,6 +93,13 @@
       <checkbox id="logSystem" label="&logSystem.label;"
                 accesskey="&logSystem.accesskey;"
                 preference="purple.logging.log_system"/>
+      <separator class="thin"/>
+      <hbox>
+        <description control="openLogFolder"
+                     flex="1">&logShowFolder.description;</description>
+        <button id="openLogFolder" label="&logShowFolderButton.label;"
+                oncommand="gPrivacyPane.openLogFolder();"/>
+      </hbox>
     </groupbox>
 
   </prefpane>
