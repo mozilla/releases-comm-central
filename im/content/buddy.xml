@@ -193,6 +193,9 @@
           document.getAnonymousElementByAttribute(this, "anonid", "displayname");
         textbox.getBoundingClientRect(); // force binding attachmant by forcing layout
         textbox.select();
+        var self = this;
+        this._parentSelectListener = function() { self.finishAliasing(true); };
+        this.parentNode.addEventListener("select", this._parentSelectListener, false);
       ]]>
       </body>
      </method>
@@ -206,6 +209,8 @@
             document.getAnonymousElementByAttribute(this, "anonid", "displayname").value;
         }
         this.removeAttribute("aliasing");
+        this.parentNode.removeEventListener("select", this._parentSelectListener, false);
+        delete this._parentSelectListener;
         this.parentNode.focus();
       ]]>
       </body>
