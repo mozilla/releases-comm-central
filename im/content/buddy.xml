@@ -326,8 +326,13 @@
      </method>
     </implementation>
     <handlers>
-     <handler event="blur"
-              action="if (this.hasAttribute('aliasing')) finishAliasing(true);"/>
+     <handler event="blur">
+       <![CDATA[
+         if (this.hasAttribute("aliasing") &&
+             document.documentElement.hasAttribute("active"))
+           finishAliasing(true);
+       ]]>
+     </handler>
 
      <handler event="click" clickcount="2"
               action="if (!this.hasAttribute('aliasing')) openConversation();"/>
