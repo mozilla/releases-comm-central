@@ -72,7 +72,7 @@ statusbarpanel#statusbar-display {
 }
 
 #convWindow:not([active="true"]) .tabbrowser-tab[selected="true"] {
-  background-color: -moz-mac-chrome-inactive;
+  background-color: #CACACA;
 }
 
 /* ::::: tabbrowser ::::: */
@@ -127,7 +127,7 @@ tabbrowser > tabbox {
   -moz-border-bottom-colors: rgba(0, 0, 0, .1) rgba(0, 0, 0, .2);
   -moz-border-right-colors: rgba(0, 0, 0, .1) rgba(0, 0, 0, .2);
   background-image: none;
-  background-color: -moz-mac-chrome-active;
+  background-color: #969696;
 }
 
 .tabbrowser-tab[selected="true"]:focus > .tab-text {
