@@ -166,8 +166,8 @@ var previewObserver = {
     document.getElementById("showHeaderCheckbox")
             .addEventListener("CheckboxStateChange",
                               previewObserver.showHeaderChanged, false);
-    this._loaded = true;
     previewObserver.displayTheme(themeName.value);
+    this._loaded = true;
   },
 
   showHeaderChanged: function() {
@@ -186,9 +186,6 @@ var previewObserver = {
     if (!currentTheme)
       return;
 
-    let menuList = document.getElementById("themevariant");
-    menuList.value = "default";
-    document.getElementById("paneThemes").userChangedValue(menuList);
     this.displayTheme(currentTheme);
   },
 
@@ -248,7 +245,12 @@ var previewObserver = {
       }
     });
     this._ignoreVariantChange = true;
-    menulist.value = this.theme.variant;
+    if (!this._loaded)
+      menulist.value = this.theme.variant = menulist.value;
+    else {
+      menulist.value = this.theme.variant; // (reset to "default")
+      document.getElementById("paneThemes").userChangedValue(menulist);
+    }
     this._ignoreVariantChange = false;
 
     // disable the variant menulist if there's no variant, or only one
