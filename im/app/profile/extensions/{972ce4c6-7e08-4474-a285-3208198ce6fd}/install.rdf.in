@@ -7,7 +7,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>{972ce4c6-7e08-4474-a285-3208198ce6fd}</em:id>
-    <em:version>2.0</em:version>
+    <em:version>@INSTANTBIRD_VERSION@</em:version>
 
     <!-- Target Application this theme can install into,
          with minimum and maximum supported versions. -->
@@ -21,7 +21,7 @@
 
     <!-- Front End MetaData -->
     <em:name>Instantbird (default)</em:name>
-    <em:description>The default theme</em:description>
+    <em:description>The default theme.</em:description>
 
     <!-- EXTENSION AUTHORS!
          DO NOT COPY THIS PROPERTY INTO YOUR INSTALL RDF FILES
@@ -34,13 +34,8 @@
     <em:locked>true</em:locked>
 
     <!-- Front End Integration Hooks (used by Theme Manager)-->
-    <!-- XXXben - preprocess this file to use different info for mac version -->
-#ifdef XP_MACOSX
-    <em:creator>Kevin Gerich and Stephen Horlander</em:creator>
-#else
-    <em:creator>Arvid Axelsson</em:creator>
-#endif
-    <em:contributor>Mozilla Contributors</em:contributor>
+    <em:creator>Instantbird</em:creator>
+    <em:contributor>Mozilla, Instantbird and Pidgin Contributors</em:contributor>
 
     <em:internalName>classic/1.0</em:internalName>
   </Description>
