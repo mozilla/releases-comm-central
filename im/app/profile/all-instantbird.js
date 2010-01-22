@@ -56,7 +56,7 @@ pref("messenger.options.playSounds", true);
 // 0 = no formattings
 // 1 = basic formattings (bold, italic, underlined)
 // 2 = permissive mode (colors, font face, font size, ...)
-pref("messenger.options.filterMode", 1);
+pref("messenger.options.filterMode", 2);
 
 pref("font.default.x-western", "sans-serif");
 pref("font.default.x-unicode", "sans-serif");
