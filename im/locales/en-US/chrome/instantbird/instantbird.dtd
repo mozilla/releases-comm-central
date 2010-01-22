@@ -94,5 +94,3 @@
 <!ENTITY hideOtherAppsCmdMac.label      "Hide Others">
 <!ENTITY hideOtherAppsCmdMac.commandkey "H">
 <!ENTITY showAllAppsCmdMac.label        "Show All">
-<!ENTITY preferencesCmdMac.label        "Preferences…">
-<!ENTITY preferencesCmdMac.commandkey   ",">
