@@ -142,14 +142,17 @@ interface purpleIConvChat: purpleIConversation {
   /* This is true when we left the chat but kept the conversation open */
   readonly attribute boolean left;
 
-  /* Observers will receive chat-buddy-add chat-buddy-update and
-     chat-buddy-remove notifications.
+  /* Observers will receive chat-buddy-add, chat-buddy-update,
+     chat-buddy-remove and chat-update-topic notifications.
 
-     aSubject will be of type purpleIConvChatBuddy for chat-buddy-add
-     and chat-buddy-update. It will be null for chat-buddy-remove.
+     aSubject will be of type:
+       nsISimpleEnumerator of purpleIConvChatBuddy for chat-buddy-add,
+       nsISimpleEnumerator of nsISupportsString for chat-buddy-remove,
+       purpleIConvChatBuddy for chat-buddy-update,
+       null for chat-update-topic.
 
-     aData will contain the old nick for chat-buddy-update and
-     chat-buddy-remove.
+     aData will contain the old nick for chat-buddy-update if the name
+     has changed.
    */
 };
 
