@@ -91,6 +91,7 @@
 
   <keyset id="logsKeys">
     <key id="key_close" key="w" modifiers="accel" command="cmd_close"/>
+    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
     <key id="key_textZoomEnlarge" key="&textEnlarge.commandkey;" command="cmd_textZoomEnlarge" modifiers="accel"/>
     <key id="key_textZoomEnlarge2" key="&textEnlarge.commandkey2;" command="cmd_textZoomEnlarge" modifiers="accel"/>
     <key id="key_textZoomEnlarge3" key="&textEnlarge.commandkey3;" command="cmd_textZoomEnlarge" modifiers="accel"/>
