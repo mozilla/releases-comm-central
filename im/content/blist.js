@@ -73,7 +73,14 @@ buddyListContextMenu.prototype = {
     let groupId = this.target.group.groupId;
     let pcs = Components.classes["@instantbird.org/purple/core;1"]
                         .getService(Ci.purpleICoreService);
-    pcs.getTags().forEach(function (aTag) {
+
+    let sortFunction = function (a, b) {
+      let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
+      return a < b ? -1 : a > b ? 1 : 0;
+    };
+    pcs.getTags()
+       .sort(sortFunction)
+       .forEach(function (aTag) {
       item = document.createElement("menuitem");
       item.setAttribute("label", aTag.name);
       item.setAttribute("type", "radio");
