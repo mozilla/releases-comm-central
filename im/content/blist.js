@@ -36,6 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 const events = ["buddy-signed-on",
+                "buddy-added",
                 "account-disconnected",
                 "status-away",
                 "status-back",
@@ -59,6 +60,33 @@ buddyListContextMenu.prototype = {
   alias: function blcm_alias() {
     if (this.onBuddy)
       this.target.startAliasing();
+  },
+  moveToPopupShowing: function blcm_moveToPopupShowing() {
+    if (!this.onBuddy)
+      return;
+
+    let popup = document.getElementById("context-moveto-popup");
+    let item;
+    while ((item = popup.firstChild))
+      popup.removeChild(item);
+
+    let groupId = this.target.group.groupId;
+    let pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    pcs.getTags().forEach(function (aTag) {
+      item = document.createElement("menuitem");
+      item.setAttribute("label", aTag.name);
+      item.setAttribute("type", "radio");
+      let id = aTag.id;
+      item.groupId = id;
+      if (groupId == id)
+        item.setAttribute("checked", "true");
+      popup.appendChild(item);
+    });
+  },
+  moveTo: function blcm_moveTo(aEvent) {
+    let item = aEvent.originalTarget;
+    this.target.moveTo(item.groupId);
   },
   showLogs: function blcm_showLogs() {
     if (!this.onBuddy)
@@ -130,7 +158,9 @@ var buddyList = {
     var pab = aBuddy.QueryInterface(Ci.purpleIAccountBuddy);
     var group = pab.tag;
     var groupId = "group" + group.id;
-    if (aTopic == "buddy-signed-on" && !document.getElementById(groupId)) {
+    if ((aTopic == "buddy-signed-on" ||
+        (aTopic == "buddy-added" && pab.online)) &&
+        !document.getElementById(groupId)) {
       let groupElt = document.createElement("group");
       document.getElementById("buddylistbox").appendChild(groupElt);
       groupElt.build(group);

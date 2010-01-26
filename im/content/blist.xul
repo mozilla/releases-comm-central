@@ -77,6 +77,13 @@
                 label="&aliasCmd.label;"
                 accesskey="&aliasCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.alias();"/>
+      <menu id="context-moveto"
+            label="&moveCmd.label;"
+            accesskey="&moveCmd.accesskey;">
+        <menupopup id="context-moveto-popup"
+                   oncommand="gBuddyListContextMenu.moveTo(event);"
+                   onpopupshowing="gBuddyListContextMenu.moveToPopupShowing();"/>
+      </menu>
       <menuitem id="context-showlogs"
                 label="&showLogsCmd.label;"
                 accesskey="&showLogsCmd.accesskey;"

@@ -74,6 +74,8 @@
 <!ENTITY openConversationCmd.accesskey "c">
 <!ENTITY aliasCmd.label                "Rename">
 <!ENTITY aliasCmd.accesskey            "R">
+<!ENTITY moveCmd.label                 "Move to…">
+<!ENTITY moveCmd.accesskey             "M">
 <!ENTITY showLogsCmd.label             "Show Logs">
 <!ENTITY showLogsCmd.accesskey         "L">
 

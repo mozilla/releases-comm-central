@@ -105,7 +105,7 @@
        <parameter name="aData"/>
        <body>
        <![CDATA[
-         if (aTopic == "buddy-signed-on")
+         if (aTopic == "buddy-signed-on" || (aTopic == "buddy-added" && aSubject.online))
            this.addBuddy(aSubject);
          else if (aTopic == "buddy-signed-off" || aTopic == "buddy-removed")
            this.signedOff(aSubject);
