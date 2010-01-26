@@ -82,7 +82,13 @@
             accesskey="&moveCmd.accesskey;">
         <menupopup id="context-moveto-popup"
                    oncommand="gBuddyListContextMenu.moveTo(event);"
-                   onpopupshowing="gBuddyListContextMenu.moveToPopupShowing();"/>
+                   onpopupshowing="gBuddyListContextMenu.moveToPopupShowing();">
+          <menuseparator id="context-create-tag-separator"/>
+          <menuitem id="context-create-tag"
+                    label="&moveNewTagCmd.label;"
+                    accesskey="&moveNewTagCmd.accesskey;"
+                    oncommand="gBuddyListContextMenu.moveToNewTag();"/>
+        </menupopup>
       </menu>
       <menuitem id="context-showlogs"
                 label="&showLogsCmd.label;"

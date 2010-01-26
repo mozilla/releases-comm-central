@@ -67,7 +67,7 @@ buddyListContextMenu.prototype = {
 
     let popup = document.getElementById("context-moveto-popup");
     let item;
-    while ((item = popup.firstChild))
+    while ((item = popup.firstChild) && item.localName != "menuseparator")
       popup.removeChild(item);
 
     let groupId = this.target.group.groupId;
@@ -76,7 +76,7 @@ buddyListContextMenu.prototype = {
 
     let sortFunction = function (a, b) {
       let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
-      return a < b ? -1 : a > b ? 1 : 0;
+      return a < b ? 1 : a > b ? -1 : 0;
     };
     pcs.getTags()
        .sort(sortFunction)
@@ -88,12 +88,33 @@ buddyListContextMenu.prototype = {
       item.groupId = id;
       if (groupId == id)
         item.setAttribute("checked", "true");
-      popup.appendChild(item);
+      popup.insertBefore(item, popup.firstChild);
     });
   },
   moveTo: function blcm_moveTo(aEvent) {
     let item = aEvent.originalTarget;
-    this.target.moveTo(item.groupId);
+    if (item.groupId)
+      this.target.moveTo(item.groupId);
+  },
+  moveToNewTag: function blcm_moveToNewTag() {
+    let prompts =
+      Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                .getService(Components.interfaces.nsIPromptService);
+    let bundle =
+      Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://instantbird/locale/instantbird.properties");
+    let title = bundle.GetStringFromName("newGroupPromptTitle");
+    let message = bundle.GetStringFromName("newGroupPromptMessage");
+    let name = {};
+    if (!prompts.prompt(window, title, message, name, null,
+                        {value: false}) || !name.value)
+      return; // the user canceled
+
+    let pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    let tag = pcs.getTagByName(name.value) || pcs.createTag(name.value);
+    this.target.moveTo(tag.id);
   },
   showLogs: function blcm_showLogs() {
     if (!this.onBuddy)

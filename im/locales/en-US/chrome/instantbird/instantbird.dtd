@@ -76,6 +76,8 @@
 <!ENTITY aliasCmd.accesskey            "R">
 <!ENTITY moveCmd.label                 "Move to…">
 <!ENTITY moveCmd.accesskey             "M">
+<!ENTITY moveNewTagCmd.label           "New Group…">
+<!ENTITY moveNewTagCmd.accesskey       "N">
 <!ENTITY showLogsCmd.label             "Show Logs">
 <!ENTITY showLogsCmd.accesskey         "L">
 
