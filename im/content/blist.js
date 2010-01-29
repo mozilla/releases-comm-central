@@ -42,13 +42,33 @@ const events = ["buddy-signed-on",
                 "status-back",
                 "purple-quit"];
 
+const showOfflineBuddiesPref = "messenger.buddies.showOffline";
+
 var gBuddyListContextMenu = null;
 
 function buddyListContextMenu(aXulMenu) {
   this.target  = document.popupNode;
   this.menu    = aXulMenu;
   this.onBuddy = this.target.localName == "buddy";
-  this.shouldDisplay = this.onBuddy;
+  this.onGroup = this.target.localName == "group";
+  this.shouldDisplay = true;
+
+  [ "context-openconversation",
+    "context-alias",
+    "context-moveto",
+    "context-moveto-popup",
+    "context-create-tag-separator",
+    "context-create-tag",
+    "context-showlogs",
+    "context-show-offline-buddies-separator"
+  ].forEach(function (aId) {
+    document.getElementById(aId).hidden = !this.onBuddy;
+  }, this);
+
+  if (this.onBuddy) {
+    document.getElementById("context-openconversation").disabled =
+      !this.target.canOpenConversation();
+  }
 }
 
 // Prototype for buddyListContextMenu "class."
@@ -130,6 +150,14 @@ buddyListContextMenu.prototype = {
     window.openDialog("chrome://instantbird/content/viewlog.xul",
                       "Logs", "chrome,resizable", {logs: logs},
                       this.target.getAttribute("displayname"));
+  },
+  toggleShowOfflineBuddies: function blcm_toggleShowOfflineBuddies() {
+    let newValue =
+      !!document.getElementById("context-show-offline-buddies")
+                .getAttribute("checked");
+    Components.classes["@mozilla.org/preferences-service;1"]
+              .getService(Components.interfaces.nsIPrefBranch2)
+              .setBoolPref(showOfflineBuddiesPref, newValue);
   }
 };
 
@@ -138,6 +166,35 @@ var buddyList = {
     if (aTopic == "purple-quit") {
       window.close();
       return;
+    }
+
+    if (aTopic == "nsPref:changed" && aMsg == showOfflineBuddiesPref) {
+      let prefBranch =
+        Components.classes["@mozilla.org/preferences-service;1"]
+                  .getService(Components.interfaces.nsIPrefBranch2);
+      let showOffline = prefBranch.getBoolPref(showOfflineBuddiesPref);
+      this._showOffline = showOffline;
+      let item = document.getElementById("context-show-offline-buddies");
+      if (showOffline)
+        item.setAttribute("checked", "true");
+      else
+        item.removeAttribute("checked");
+
+      var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                          .getService(Ci.purpleICoreService);
+      let blistBox = document.getElementById("buddylistbox");
+      pcs.getTags().forEach(function (aTag) {
+        let elt = document.getElementById("group" + aTag.id);
+        if (!elt && showOffline) {
+          elt = document.createElement("group");
+          blistBox.appendChild(elt);
+          elt._showOffline = true;
+          if (!elt.build(aTag))
+            blistBox.removeChild(elt);
+        }
+        if (elt)
+          elt.showOffline = showOffline;
+      });
     }
 
     if (aTopic == "status-away") {
@@ -187,10 +244,12 @@ var buddyList = {
     var group = pab.tag;
     var groupId = "group" + group.id;
     if ((aTopic == "buddy-signed-on" ||
-        (aTopic == "buddy-added" && pab.online)) &&
+        (aTopic == "buddy-added" && (this._showOffline || pab.online))) &&
         !document.getElementById(groupId)) {
       let groupElt = document.createElement("group");
       document.getElementById("buddylistbox").appendChild(groupElt);
+      if (this._showOffline)
+        groupElt._showOffline = true;
       groupElt.build(group);
     }
   },
@@ -252,14 +311,34 @@ var buddyList = {
       // don't worry too much about this exception.
     }
 
-    // add observers before we initialize libpurple, otherwise we may
-    // miss some notifications (this happened at least with the nullprpl)
-    addObservers(buddyList, events);
-
     if (!initPurpleCore()) {
       window.close();
       return;
     }
+
+    let prefBranch =
+      Components.classes["@mozilla.org/preferences-service;1"]
+                .getService(Components.interfaces.nsIPrefBranch2);
+    buddyList._showOffline = prefBranch.getBoolPref(showOfflineBuddiesPref);
+    if (buddyList._showOffline) {
+      document.getElementById("context-show-offline-buddies")
+              .setAttribute("checked", "true");
+    }
+
+    let pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    let blistBox = document.getElementById("buddylistbox");
+    pcs.getTags().forEach(function (aTag) {
+      let groupElt = document.createElement("group");
+      blistBox.appendChild(groupElt);
+      if (buddyList._showOffline)
+        groupElt._showOffline = true;
+      if (!groupElt.build(aTag))
+        blistBox.removeChild(groupElt);
+    });
+
+    prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
+    addObservers(buddyList, events);
 
     Components.utils.import("resource://app/modules/imWindows.jsm");
     Conversations.init();
@@ -270,6 +349,9 @@ var buddyList = {
   },
   unload: function bl_unload() {
     removeObservers(buddyList, events);
+    Components.classes["@mozilla.org/preferences-service;1"]
+              .getService(Components.interfaces.nsIPrefBranch2)
+              .removeObserver(showOfflineBuddiesPref, buddyList);
     uninitPurpleCore();
    },
 

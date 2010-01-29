@@ -69,7 +69,6 @@
       <![CDATA[
         this.groupId = aGroup.id;
         this.tag = aGroup;
-        this.tag.addObserver(this);
         this.name = aGroup.name;
         this.buddies = [ ];
         this.setAttribute("id", "group" + this.groupId);
@@ -89,14 +88,45 @@
           this._updateClosedState(true);
         }
 
+        let empty = true;
         this.tag.getBuddies().forEach(function (aBuddy) {
           aBuddy.getAccountBuddies()
-                .filter(function (b) b.online && b.tag.id == this.groupId, this)
-                .forEach(function(b) { this.addBuddy(b); }, this);
+                .filter(function (b) (this.showOffline || b.online) && b.tag.id == this.groupId, this)
+                .forEach(function(b) { this.addBuddy(b); empty = false; }, this);
         }, this);
+
+        if (!empty)
+          this.tag.addObserver(this);
+        return !empty;
       ]]>
       </body>
      </method>
+
+     <property name="showOffline">
+       <getter>
+         <![CDATA[
+           return this._showOffline;
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           this._showOffline = val;
+           if (val) {
+             this.tag.getBuddies().forEach(function (aBuddy) {
+               aBuddy.getAccountBuddies()
+                     .filter(function (b) !b.online && b.tag.id == this.groupId, this)
+                     .forEach(function(b) { this.addBuddy(b); }, this);
+             }, this);
+           }
+           else {
+             this.buddies.filter(function (b) b.offline)
+                         .forEach(function (b) { b.parentNode.removeChild(b);
+                                                 this.removeBuddy(b); }, this);
+           }
+           return val;
+         ]]>
+       </setter>
+     </property>
 
      <!-- nsIObserver implementation -->
      <method name="observe">
@@ -105,6 +135,16 @@
        <parameter name="aData"/>
        <body>
        <![CDATA[
+         if (this.showOffline) {
+           if (aTopic == "buddy-added")
+             this.addBuddy(aSubject);
+           else if (aTopic == "buddy-deleted")
+             this.signedOff(aSubject);
+           else
+             this.updateBuddy(aSubject);
+           return;
+         }
+
          if (aTopic == "buddy-signed-on" || (aTopic == "buddy-added" && aSubject.online))
            this.addBuddy(aSubject);
          else if (aTopic == "buddy-signed-off" || aTopic == "buddy-removed")

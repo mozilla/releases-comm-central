@@ -94,6 +94,12 @@
                 label="&showLogsCmd.label;"
                 accesskey="&showLogsCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.showLogs();"/>
+      <menuseparator id="context-show-offline-buddies-separator"/>
+      <menuitem id="context-show-offline-buddies"
+                label="&showOfflineBuddiesCmd.label;"
+                accesskey="&showOfflineBuddiesCmd.accesskey;"
+                type="checkbox"
+                oncommand="gBuddyListContextMenu.toggleShowOfflineBuddies();"/>
     </popup>
   </popupset>
 

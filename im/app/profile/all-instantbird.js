@@ -31,6 +31,8 @@ pref("messenger.accounts.promptOnDelete", true);
 // A value of 0 means that there will be no more reconnection attempts.
 pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
 
+pref("messenger.buddies.showOffline", false);
+
 pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);
 

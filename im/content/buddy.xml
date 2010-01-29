@@ -91,6 +91,17 @@
       </body>
      </method>
 
+     <property name="offline">
+       <getter>
+         <![CDATA[
+           for (var id in this.accounts)
+             if (this.accounts[id].online)
+               return false;
+           return true;
+         ]]>
+       </getter>
+     </property>
+
      <method name="update">
       <body>
       <![CDATA[
@@ -98,14 +109,17 @@
         for (var id in this.accounts)
           accounts.push(this.accounts[id]);
 
-        // Note: update is never called on an offline account
-        let status = "available";
-        if (accounts.every(function(pab) pab.idle))
+        let status;
+        if (accounts.every(function(pab) !pab.online))
+          status = "offline";
+        else if (accounts.every(function(pab) pab.idle))
           status = "idle";
         else if (accounts.every(function(pab) pab.mobile))
           status = "mobile";
         else if (accounts.every(function(pab) !pab.available))
           status = "away";
+        else
+          status = "available";
         this.setAttribute("status", status);
         let accountsWithAlias = accounts.filter(function(pab) pab.buddyAlias);
         let alias;
@@ -122,7 +136,7 @@
       <![CDATA[
         var id = aPab.account.id;
         if (id in this.accounts)
-          throw "This buddy has already been added";
+          return;
         this.accounts[id] = aPab;
         ++this.accountsCount;
         this.update();
@@ -303,11 +317,25 @@
       </body>
      </method>
 
+     <method name="canOpenConversation">
+      <body>
+       <![CDATA[
+         for (var id in this.accounts)
+           if (this.accounts[id].canSendMessage)
+             return true;
+         return false;
+       ]]>
+      </body>
+     </method>
+
      <method name="openConversation">
       <body>
        <![CDATA[
          var conv;
          for (var id in this.accounts) {
+           if (!this.accounts[id].canSendMessage)
+             continue;
+
            // this will send a new-conversation notification that will force
            // opening a conversation window if there isn't one around
            conv = this.accounts[id].createConversation();
@@ -329,7 +357,7 @@
           case aEvent.DOM_VK_ENTER:
             if (this.hasAttribute("aliasing"))
               this.finishAliasing(true);
-            else
+            else if (this.canOpenConversation())
               this.openConversation();
             break;
 
@@ -354,8 +382,12 @@
        ]]>
      </handler>
 
-     <handler event="click" clickcount="2"
-              action="if (!this.hasAttribute('aliasing')) openConversation();"/>
+     <handler event="click" clickcount="2">
+       <![CDATA[
+         if (!this.hasAttribute("aliasing") && canOpenConversation())
+           openConversation();
+       ]]>
+     </handler>
     </handlers>
   </binding>
 </bindings>
