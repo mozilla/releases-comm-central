@@ -16,9 +16,9 @@
 <!ENTITY quitApplicationCmdMac.label    "Quit &brandShortName;">
 <!ENTITY quitApplicationCmdMac.key      "Q">
 
-<!ENTITY addBuddy           "Add Buddy">
-<!ENTITY joinChat           "Join Chat">
-<!ENTITY getAway            "Get Away">
+<!ENTITY addBuddy           "Add Buddy…">
+<!ENTITY joinChat           "Join Chat…">
+<!ENTITY getAway            "Get Away…">
 <!ENTITY tools.menu         "Tools">
 <!ENTITY tools.accesskey    "T">
 <!ENTITY accountManager     "Accounts">
