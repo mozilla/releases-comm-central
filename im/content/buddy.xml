@@ -202,6 +202,9 @@
      <method name="startAliasing">
       <body>
       <![CDATA[
+        if (this.hasAttribute("aliasing"))
+          return; // prevent re-entry.
+
         this.setAttribute("aliasing", "true");
         let textbox =
           document.getAnonymousElementByAttribute(this, "anonid", "displayname");
@@ -362,11 +365,13 @@
             break;
 
           case aEvent.DOM_VK_F2:
-            this.startAliasing();
+            if (!this.hasAttribute("aliasing"))
+              this.startAliasing();
             break;
 
           case aEvent.DOM_VK_ESCAPE:
-            this.finishAliasing(false);
+            if (this.hasAttribute("aliasing"))
+              this.finishAliasing(false);
             break;
         }
       ]]>
