@@ -148,7 +148,7 @@
         <menupopup id="context-popup-searchselect-with"
                    onpopupshowing="gContextMenu.buildSearchEngineList();"
                    oncommand="gContextMenu.searchSelectionWith(event)">
-          <menuseparator id="context-sep-enignemanager"/>
+          <menuseparator id="context-sep-enginemanager"/>
           <menuitem id="context-enginemanager"
                     label="&engineManagerCmd.label;"
                     oncommand="gContextMenu.openEngineManager();"/>
