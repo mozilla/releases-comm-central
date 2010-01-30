@@ -472,8 +472,13 @@ function isNextMessage(aTheme, aMsg, aPreviousMsg)
 
   if (!aPreviousMsg ||
       aMsg.outgoing != aPreviousMsg.outgoing ||
-      aMsg.incoming != aPreviousMsg.incoming ||
-      aMsg.who != aPreviousMsg.who)
+      aMsg.incoming != aPreviousMsg.incoming)
+    return false;
+
+  if (aMsg.system && aPreviousMsg.system)
+    return true;
+
+  if (aMsg.who != aPreviousMsg.who)
     return false;
 
   let timeDifference = aMsg.time - aPreviousMsg.time;
