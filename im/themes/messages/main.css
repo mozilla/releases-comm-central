@@ -19,6 +19,26 @@
   font-weight: normal;
 }
 
+span.date:after {
+  content: " - ";
+}
+
+.action span.date:after {
+  content: " * ";
+}
+
+span.ib-msg-txt:before {
+  content: ": ";
+}
+
+.action span.ib-msg-txt:before {
+  content: " ";
+}
+
+.event span.ib-msg-txt:before {
+  content: none;
+}
+
 .event {
   color: gray;
 }
@@ -33,10 +53,6 @@
 
 .action {
   font-style: italic;
-}
-
-.action .sender {
-  display: none;
 }
 
 p {

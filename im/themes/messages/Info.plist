@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>ActionMessageTemplate</key>
-	<string>&lt;span class="pseudo" style="%senderColor%"&gt;%sender%&lt;/span&gt; %message%</string>
+	<string>%message%</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleGetInfoString</key>
