@@ -322,7 +322,7 @@ function getBuddyFromMessage(aMsg)
 {
   if (aMsg.incoming) {
     let conv = aMsg.conversation;
-    if (conv instanceof Components.interfaces.purpleIConvIM)
+    if (!conv.isChat)
       return conv.buddy;
   }
 
@@ -353,9 +353,8 @@ const headerFooterReplacements = {
   destinationDisplayName: function(aConv) aConv.title,
   incomingIconPath: function(aConv) {
     var buddy;
-    return ((aConv instanceof Components.interfaces.purpleIConvIM) &&
-            (buddy = aConv.buddy) && buddy.buddyIconFilename) ||
-           "incoming_icon.png";
+    return (!aConv.isChat && (buddy = aConv.buddy) &&
+            buddy.buddyIconFilename) || "incoming_icon.png";
   },
   outgoingIconPath: function(aConv) "outgoing_icon.png",
   timeOpened: function(aConv, aFormat) {
@@ -434,7 +433,7 @@ const statusReplacements = {
   statusIcon: function(aMsg) {
     let conv = aMsg.conversation;
     let buddy = null;
-    if (conv instanceof Components.interfaces.purpleIConvIM)
+    if (!conv.isChat)
       buddy = conv.buddy;
     return getStatusIconFromBuddy(buddy);
   },

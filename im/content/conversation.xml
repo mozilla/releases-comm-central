@@ -230,8 +230,7 @@
         }
 
         // Ugly hack... :(
-        if (!aMsg.system && aMsg.incoming &&
-            (conv instanceof Ci.purpleIConvChat)) {
+        if (!aMsg.system && aMsg.incoming && conv.isChat) {
           let name = aMsg.alias || aMsg.who;
           aMsg.color = "color: hsl(" + this.buddies[name].color + ", 100%, 40%);";
         }
@@ -239,7 +238,7 @@
         this.browser.appendMessage(aMsg);
         if (this.tab && aMsg.incoming && !aMsg.system &&
             (!this.tab.selected || !document.hasFocus())) {
-          if (conv instanceof Ci.purpleIConvChat && aMsg.containsNick)
+          if (conv.isChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
           else
             this.tab.setAttribute("unread", "true");
@@ -260,7 +259,7 @@
         if (!msg) {
           try {
             if (this._conv.doCommand(aMsg)) {
-              if (this._conv instanceof Ci.purpleIConvIM)
+              if (!this._conv.isChat)
                 this._conv.sendTyping(0);
               this.resetInput();
               return;
@@ -512,7 +511,7 @@
         var inputBox =
           document.getAnonymousElementByAttribute(conv, "anonid", "inputBox");
         if (event.keyCode != 13) {
-          if (conv._conv instanceof Ci.purpleIConvIM)
+          if (!conv._conv.isChat)
             setTimeout(function () {
               // By the time the timeout is executed, the conversation may have
               // been closed.
@@ -1043,7 +1042,7 @@
      <method name="initConversationUI">
        <body>
        <![CDATA[
-         if (this._conv instanceof Components.interfaces.purpleIConvChat) {
+         if (this._conv.isChat) {
            this.updateTopic();
            this.setAttribute("chat", "true");
            this.tab.setAttribute("chat", "true");

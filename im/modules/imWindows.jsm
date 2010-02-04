@@ -252,7 +252,7 @@ var Conversations = {
     // Use the buddy icon if available for the icon of the notification.
     let icon;
     let conv = aMessage.conversation;
-    if (conv instanceof Components.interfaces.purpleIConvIM) {
+    if (!conv.isChat) {
       let buddy = conv.buddy;
       if (buddy)
         icon = buddy.buddyIconFilename;
@@ -375,8 +375,7 @@ var Conversations = {
       if (!conv.loaded)
         conv.addMsg(aSubject);
       if (aSubject.incoming && !aSubject.system &&
-          (!(aSubject.conversation instanceof Components.interfaces.purpleIConvChat) ||
-           aSubject.containsNick)) {
+          (!aSubject.conversation.isChat || aSubject.containsNick)) {
         if (this._prefBranch.getBoolPref(this._getAttentionPrefName))
           conv.ownerDocument.defaultView.getAttention();
         if (!this._windows[0].document.hasFocus()) {

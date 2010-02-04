@@ -52,6 +52,9 @@ interface nsIDOMDocument;
 [scriptable, uuid(74fca337-b8e7-4e5d-81cd-8aba3dba9208)]
 interface purpleIConversation: nsISupports {
 
+  /* Indicate if this conversation implements purpleIConvIM or purpleIConvChat */
+  readonly attribute boolean isChat;
+
   /* The account used for this conversation */
   readonly attribute purpleIAccount account;
 

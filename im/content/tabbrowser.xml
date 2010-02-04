@@ -374,7 +374,7 @@
                 return null;
 
               if (this.mPrefs.getBoolPref("messenger.conversations.useSeparateWindowsForMUCs") &&
-                  (aConv instanceof Ci.purpleIConvChat) != this.conversations[0].hasAttribute("chat"))
+                  aConv.isChat != this.conversations[0].hasAttribute("chat"))
                 return null;
             }
 

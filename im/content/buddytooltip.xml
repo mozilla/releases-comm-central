@@ -288,7 +288,7 @@
        <parameter name="aElt"/>
        <body>
        <![CDATA[
-         if (aConv instanceof Components.interfaces.purpleIConvIM && aConv.buddy)
+         if (!aConv.isChat && aConv.buddy)
            return this.updateTooltipFromBuddy(aConv.buddy, aElt);
 
          this.elt = aElt;

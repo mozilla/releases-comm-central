@@ -112,8 +112,7 @@ var soundObserver = {
 
     case "new-text":
       if (aObject.incoming && !aObject.system) {
-        if (!(aObject.conversation instanceof Ci.purpleIConvChat) ||
-            aObject.containsNick)
+        if (!aObject.conversation.isChat || aObject.containsNick)
           soundHelper.play("incoming");
       }
       else
