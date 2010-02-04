@@ -7,12 +7,16 @@
 
   <commandset id="maincommandset">
     <command id="domiCommand" oncommand="debug.inspector()"/>
+    <command id="configCommand" oncommand="debug.config()"/>
     <command id="gcCommand" oncommand="debug.garbageCollect()"/>
     <command id="venkmanCommand" oncommand="debug.venkman()"/>
   </commandset>
 
   <keyset id="mainkeyset">
     <key id="domiKey" key="I" command="domiCommand" modifiers="accel,shift"/>
+    <key id="configKey" key="," command="configCommand" modifiers="accel,shift"/>
+    <!-- shift + ',' is '?' on a French keyboard... -->
+    <key id="configKey2" key="?" command="configCommand" modifiers="accel"/>
     <key id="gcKey" key="C" command="gcCommand" modifiers="accel,shift"/>
     <key id="venkmanKey" key="V" command="venkmanCommand" modifiers="accel,shift"/>
   </keyset>
@@ -24,7 +28,7 @@
         <menuitem id="gcMenuItem" label="Force Garbage Collection" key="gcKey" command="gcCommand"/>
         <menuitem id="venkmanMenuItem" label="Venkman" key="venkmanKey" command="venkmanCommand"/>
         <menuseparator/>
-        <menuitem id="configMenuItem" label="about:config" oncommand="debug.config()"/>
+        <menuitem id="configMenuItem" label="about:config" key="configKey" command="configCommand"/>
       </menupopup>
     </menu>
   </menubar>
