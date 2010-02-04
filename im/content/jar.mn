@@ -83,5 +83,9 @@ debug.jar:
 	debug/debug.js	(debug/debug.js)
 	debug/debug.xul	(debug/debug.xul)
 	debug/viewselectionsource.xul (debug/viewselectionsource.xul)
+% content fake %fake/ xpcnativewrappers=yes
+% overlay chrome://instantbird/content/blist.xul chrome://fake/content/fake.xul
+	fake/fake.js (debug/fake/fake.js)
+	fake/fake.xul (debug/fake/fake.xul)
 #endif
 
