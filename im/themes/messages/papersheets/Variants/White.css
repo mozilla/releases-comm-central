@@ -1,0 +1,18 @@
+div.outgoing { 
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 255, 255, 1) 15px, rgba(255, 255, 255, 1));
+}
+
+div.incoming { 
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 255, 255, 1) 15px, rgba(255, 255, 255, 1));
+}
+
+
+
+/* used by javascript */
+.outgoing-color {
+  background-color: rgb(255, 255, 255);
+}
+
+.incoming-color {
+  background-color: rgb(255, 255, 255);
+}

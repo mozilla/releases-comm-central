@@ -1,0 +1,113 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Instantbird messenging client, released
+ * 2009.
+ *
+ * The Initial Developer of the Original Code is
+ * Quentin Castier <idechix@instantbird.org>.
+ * Portions created by the Initial Developer are Copyright (C) 2009
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: black;
+}
+
+p {
+  font-family: Lucida Grande,Sans,sans-serif;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+p.message {
+  margin: 0;
+  padding: 4px 15px 6px 15px;
+  border-bottom: 1px solid black;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.07) 30px);
+}
+
+span.message-style,
+p.event-messages {
+  font-size: 90%;
+}
+
+p.event-messages {
+  margin: 5px 0px 5px 0px;
+  text-align: center;
+  opacity: 0.4;
+}
+
+.message-style {
+  display: block;
+}
+
+.pseudo {
+  margin-bottom: 3px;
+  font-weight: bold;
+  color: white;
+  display: block;
+}
+
+.nick>.message-style {
+  font-weight: bold;
+}
+
+.action>.message-style {
+  font-style: italic;
+}
+
+.action>.message-style:before {
+  content: "*** ";
+}
+
+a,
+a:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+a:active {
+  color: rgba(255, 255, 255, 1);
+}
+
+a:visited {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+#Chat {
+  white-space: normal;
+}
+
+p *:-moz-any-link img {
+  margin-bottom: 1px;
+  border-bottom: solid 1px;
+}

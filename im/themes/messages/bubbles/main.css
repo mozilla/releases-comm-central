@@ -1,0 +1,149 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Instantbird messenging client, released
+ * 2010.
+ *
+ * The Initial Developer of the Original Code is
+ * Quentin Castier <idechix@instantbird.org>.
+ * Portions created by the Initial Developer are Copyright (C) 2010
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+body {
+  margin: 0;
+  padding: 0;
+  background: -moz-linear-gradient(top, ThreeDLightShadow, -moz-background-color) fixed !important;
+  background: -moz-linear-gradient(top, ThreeDLightShadow, white) fixed;
+}
+
+p {
+  font-family: Lucida Grande,Sans,sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+div.bubble {
+  margin: 20px;
+  padding: 0;
+  border-width: 2px;
+  border-style: solid;
+  -moz-border-radius: 10px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
+}
+
+div.bubble>div.indicator {
+  margin: 0;
+  padding: 9px 15px 10px 15px;
+}
+
+div.bubble.event {
+  padding: 5px 15px 4px 15px;
+  background-color: hsl(0, 0%, 99%);
+  border-color: hsl(0, 0%, 85%);
+  -moz-box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
+}
+
+div.bubble p.pseudo {
+  font-size: smaller;
+  font-weight: bold;
+  margin: -9px 0px 3px -15px;
+}
+
+div.bubble p.pseudo>span {
+  padding: 0px 15px 1px 15px;
+  -moz-border-radius-topleft: 10px;
+  -moz-border-radius-bottomright: 10px;
+}
+
+div.bubble hr {
+  margin: 3px 0px 1px 0px;
+  height: 2px;
+  border-style: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+p.nick {
+  font-weight: bold;
+}
+
+p.action {
+  font-style: italic;
+}
+
+p.action:before {
+  content: "*** ";
+}
+
+p.event {
+  color: hsl(0, 0%, 60%);
+}
+
+#Chat {
+  white-space: normal;
+}
+
+p *:-moz-any-link img {
+  margin-bottom: 1px;
+  border-bottom: solid 1px;
+}
+
+
+
+/* used by javascript */
+p.button {
+  cursor: pointer;
+  min-height: 20px;
+  margin-left: -24px;
+  margin-bottom: -3px;
+  padding-left: 24px;
+}
+
+p.hide {
+  background: url('Bitmaps/plus.png') no-repeat left top;
+}
+
+p.hide:hover {
+  background: url('Bitmaps/plus-hover.png') no-repeat left top;
+}
+
+p.hide:after {
+  content: "...";
+  color: hsl(0, 0%, 60%);
+}
+
+p.show {
+  background: url('Bitmaps/minus.png') no-repeat left top;
+  margin-bottom: -20px;
+  width: 0;
+}
+
+p.show:hover {
+  background: url('Bitmaps/minus-hover.png') no-repeat left top;
+}

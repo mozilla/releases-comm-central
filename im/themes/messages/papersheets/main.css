@@ -1,0 +1,179 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Instantbird messenging client, released
+ * 2009.
+ *
+ * The Initial Developer of the Original Code is
+ * Quentin Castier <idechix@instantbird.org>.
+ * Portions created by the Initial Developer are Copyright (C) 2009
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  font-family: Lucida Grande,Sans,sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+div.messages-group {
+  margin: -15px 0 0 0;
+  padding: 18px 5px 20px 5px;
+}
+
+div.outgoing { 
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(245, 245, 255, 1) 15px, rgba(245, 245, 255, 1));
+}
+
+div.incoming { 
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 245, 245, 1) 15px, rgba(255, 245, 245, 1));
+}
+
+div.event { 
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 255, 240, 1) 15px, rgba(255, 255, 240, 1));
+}
+
+div.messages-group:last-child {
+  padding-bottom: 10px;
+}
+
+div.messages-group>hr {
+  margin: 3px 50px 0px 20px;
+  background-color: rgba(0, 0, 0, 0.05);
+  height: 1px;
+  border: 0;
+}
+
+span.message-style {
+  margin: 2px 50px 0px 20px;
+  display: block;
+  float: none;
+}
+
+span.date {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: smaller;
+  text-align: right;
+  float: right;
+  display: block;
+}
+
+span.date-next {
+  opacity: 0.4;
+  margin-top: -6px;
+}
+
+span.pseudo {
+  font-weight: bold;
+  float: none;
+  display: block;
+}
+
+p.outgoing>span.pseudo { 
+  color: rgb(80,80,200);
+}
+
+p.incoming>span.pseudo { 
+  color: rgb(200,80,80);
+}
+
+p.nick>span.message-style {
+  font-weight: bold;
+}
+
+p.action>span.message-style {
+  font-style: italic;
+}
+
+p.action>span.message-style:before {
+  content: "*** ";
+}
+
+p.event {
+  margin-left: 0px;
+  min-height: 16px;
+  background: url('Bitmaps/information.png') no-repeat top left;
+}
+
+p.event>span.message-style {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+#Chat {
+  white-space: normal;
+}
+
+p *:-moz-any-link img {
+  margin-bottom: 1px;
+  border-bottom: solid 1px;
+}
+
+
+
+/* used by javascript */
+.outgoing-color {
+  background-color: rgb(245, 245, 255);
+}
+
+.incoming-color {
+  background-color: rgb(255, 245, 245);
+}
+
+.event-color {
+  background-color: rgb(255, 255, 240);
+}
+
+.button {
+  margin-top: -2px;
+  margin-left: -4px;
+  height: 9px;
+  width: 9px;
+  cursor: pointer;
+}
+
+.hide
+{
+  background: url('Bitmaps/plus.png') no-repeat left top;
+}
+
+.show
+{
+  background: url('Bitmaps/minus.png') no-repeat left top;
+}
+
+.first-event:after {
+  content: "[...]";
+  margin-left: 1em;
+  color: #5a7ac6;
+  font-size: smaller;
+}

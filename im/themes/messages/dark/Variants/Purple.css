@@ -1,0 +1,4 @@
+p.outgoing {
+  border-top: 1px solid rgba(220, 170, 255, 0.4);
+  background: -moz-linear-gradient(top, rgba(220, 170, 255, 0.3), rgba(215, 165, 255, 0.1) 30px);
+}

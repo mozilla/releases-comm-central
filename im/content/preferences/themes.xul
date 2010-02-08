@@ -80,9 +80,18 @@
                       preference="messenger.options.messagesStyle.theme"
                       onselect="previewObserver.currentThemeChanged();">
               <menupopup id="theme-menupopup">
-                <menuitem id="default-menuitem"
-                          label="&messageStyleDefaultTheme.label;"
-                          value="default"/>
+                <menuitem id="bubbles-menuitem"
+                          label="&messageStyleBubblesTheme.label;"
+                          value="bubbles"/>
+                <menuitem id="dark-menuitem"
+                          label="&messageStyleDarkTheme.label;"
+                          value="dark"/>
+                <menuitem id="papersheets-menuitem"
+                          label="&messageStylePaperSheetsTheme.label;"
+                          value="papersheets"/>
+                <menuitem id="simple-menuitem"
+                          label="&messageStyleSimpleTheme.label;"
+                          value="simple"/>
                 <menuseparator/>
                 <menuitem id="nomessagestyles-menuitem" label="&messageStyleNoThemes.label;"
                           disabled="true"/>

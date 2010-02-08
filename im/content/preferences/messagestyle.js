@@ -220,7 +220,7 @@ var previewObserver = {
     let defaultVariant = "";
     if (("DefaultVariant" in this.theme.metadata) &&
         variants.indexOf(this.theme.metadata.DefaultVariant) != -1)
-      defaultVariant = this.theme.metadata.DefaultVariant;
+      defaultVariant = this.theme.metadata.DefaultVariant.replace(/_/g, " ");
 
     let defaultText = defaultVariant;
     if (!defaultText && ("DisplayNameForNoVariant" in this.theme.metadata))
@@ -239,7 +239,7 @@ var previewObserver = {
     variants.forEach(function(aVariantName) {
       if (aVariantName != defaultVariant) {
         let menuitem = document.createElement("menuitem");
-        menuitem.setAttribute("label", aVariantName);
+        menuitem.setAttribute("label", aVariantName.replace(/_/g, " "));
         menuitem.setAttribute("value", aVariantName);
         popup.appendChild(menuitem);
       }

@@ -1,6 +1,10 @@
 <!ENTITY messageStyleTab.title             "Message Styles">
 <!ENTITY messageStylePreview.label         "Preview:">
 <!ENTITY messageStyleTheme.label           "Theme:">
+<!ENTITY messageStyleBubblesTheme.label    "Bubbles">
+<!ENTITY messageStyleDarkTheme.label       "Dark">
+<!ENTITY messageStylePaperSheetsTheme.label "Paper Sheets">
+<!ENTITY messageStyleSimpleTheme.label     "Simple">
 <!ENTITY messageStyleDefaultTheme.label    "Default">
 <!ENTITY messageStyleVariant.label         "Variant:">
 <!ENTITY messageStyleShowHeader.label      "Show Header">

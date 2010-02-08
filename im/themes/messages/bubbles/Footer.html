@@ -1,0 +1,145 @@
+
+<script type="text/javascript">
+/* [pseudo_color, pseudo_background, bubble_borders] */
+const elements_lightness = [[75, 94, 80], [75, 94, 80], [70, 93, 75], [65, 92, 70], [55, 90, 65], [48, 90, 60], [44, 86, 50], [44, 88, 60], [45, 88, 70], [45, 90, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [60, 92, 70], [70, 93, 75], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80]];
+
+const bubble_background = "hsl(#, 100%, 97%)";
+const bubble_borders = "hsl(#, 100%, #%)";
+const pseudo_color = "hsl(#, 100%, #%)";
+const pseudo_background = "hsl(#, 100%, #%)";
+
+function setColors(target)
+{
+  var senderColor = target.getAttribute("senderColor");
+
+  if (!senderColor)
+    return;
+
+  var regexp = /color:\s*hsl\(\s*(\d{1,3})\s*,\s*\d{1,3}\%\s*,\s*\d{1,3}\%\s*\)/;
+  var parsed = regexp.exec(senderColor);
+
+  if (!parsed)
+    return;
+
+  var senderHue = ((Math.round(parsed[1]/10))*10)%360;
+  var lightness = elements_lightness[senderHue/10];
+
+  target.style.backgroundColor = bubble_background.replace("#", senderHue);
+  target.style.borderColor = bubble_borders.replace("#", senderHue)
+                                           .replace("#", lightness[2]);
+
+  var span_pseudo = target.getElementsByClassName("pseudo")[0].firstChild;
+  span_pseudo.style.color = pseudo_color.replace("#", senderHue)
+                                        .replace("#", lightness[0]);
+  span_pseudo.style.backgroundColor = pseudo_background.replace("#", senderHue)
+                                                       .replace("#", lightness[1]);
+
+  var div_indicator = target.getElementsByClassName("indicator")[0];
+  var imageURL = document.defaultView.getComputedStyle(div_indicator, null).backgroundImage;
+
+  var regexp2 = /(indicator_)(\d{1,3})([_.])/;
+  div_indicator.style.backgroundImage = imageURL.replace(regexp2, "$1" + senderHue + "$3");
+}
+
+
+const fade_speed = 30;
+
+var smoothDisplay = {
+  start: function SDstart(target) {
+    target.style.opacity = 0;
+
+    setTimeout(smoothDisplay.progress, fade_speed, target);
+  },
+
+  progress: function SDprogress(target) {
+    var targetOpacity = parseFloat(document.defaultView.getComputedStyle(target, null).opacity);
+
+    if (targetOpacity < 1.0) {
+      target.style.opacity = targetOpacity + 0.1;
+      setTimeout(smoothDisplay.progress, fade_speed, target);
+    }
+  }
+}
+
+
+function groupEvents(parent)
+{
+  var P_list = parent.getElementsByClassName("event");
+
+  if (P_list.length < 4)
+    return;
+
+  var HR_list = parent.getElementsByTagName("hr");
+
+  if (P_list[1].hasAttribute("style"))
+  {
+    var prevStyle = P_list[1].style.display;
+    var nbEvents = P_list.length;
+
+    P_list[nbEvents-2].style.display = prevStyle;
+    HR_list[nbEvents-3].style.display = prevStyle;
+  }
+  else
+  {
+    var nbEvents = P_list.length;
+
+    for (var i=1; i < (nbEvents-2); i++)
+    {
+      P_list[i].style.display = "none";
+      HR_list[i].style.display = "none";
+    }
+    P_list[i].style.display = "none";
+
+    var p = document.createElement("p");
+    p.setAttribute("onclick", "toggle_groupEvents(this)");
+    p.setAttribute("class", "button hide");
+    parent.insertBefore(p, P_list[1]);
+  }
+}
+
+
+function toggle_groupEvents(target)
+{
+  var P_list = target.parentNode.getElementsByClassName("event");
+  var HR_list = target.parentNode.getElementsByTagName("hr");
+  var nbEvents = P_list.length;
+
+  if (target.className == "button hide") {
+    for (var i=1; i < (nbEvents-2); i++) {
+      P_list[i].style.display = "block";
+      HR_list[i].style.display = "block";
+    }
+    P_list[i].style.display = "block";
+
+    target.className = "button show";
+  }
+  else {
+    for (var i=1; i < (nbEvents-2); i++) {
+      P_list[i].style.display = "none";
+      HR_list[i].style.display = "none";
+    }
+    P_list[i].style.display = "none";
+
+    target.className = "button hide";
+  }
+}
+
+
+function checkNewText(aEvent)
+{
+  var target = aEvent.originalTarget;
+  if (!(target instanceof HTMLElement))
+    return;
+
+  if (target.tagName == "DIV" && target.className.substring(0, 6) == "bubble") {
+    setColors(target);
+    smoothDisplay.start(target);
+  }
+  else if (target.tagName == "P" && target.className == "event") {
+    groupEvents(target.parentNode);
+  }
+}
+
+document.getElementById("ibcontent")
+        .addEventListener("DOMNodeInserted", checkNewText, false);
+</script>

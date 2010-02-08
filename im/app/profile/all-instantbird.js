@@ -71,7 +71,7 @@ pref("font.size.variable.x-unicode", 13);
 
 // use "none" to disable
 pref("messenger.options.emoticonsTheme", "default");
-pref("messenger.options.messagesStyle.theme", "default");
+pref("messenger.options.messagesStyle.theme", "bubbles");
 pref("messenger.options.messagesStyle.variant", "default");
 pref("messenger.options.messagesStyle.showHeader", false);
 pref("messenger.options.messagesStyle.combineConsecutive", true);

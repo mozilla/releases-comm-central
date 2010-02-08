@@ -1,0 +1,32 @@
+div.bubble.outgoing {
+  background-color: hsl(320, 100%, 97%);
+  border-color: hsl(320, 100%, 80%);
+}
+
+div.bubble.outgoing p.pseudo>span {
+  color: hsl(320, 100%, 75%);
+  background-color: hsl(320, 100%, 94%);
+}
+
+div.bubble.outgoing>div.indicator {
+  margin-left: -17px;
+  padding-left: 32px;
+  background: url('../Bitmaps/indicator_320.png') no-repeat center left;
+}
+
+
+div.bubble.incoming {
+  background-color: hsl(270, 100%, 97%);
+  border-color: hsl(270, 100%, 80%);
+}
+
+div.bubble.incoming p.pseudo>span {
+  color: hsl(270, 100%, 75%);
+  background-color: hsl(270, 100%, 94%);
+}
+
+div.bubble.incoming>div.indicator {
+  margin-left: -17px;
+  padding-left: 32px;
+  background: url('../Bitmaps/indicator_270.png') no-repeat center left;
+}

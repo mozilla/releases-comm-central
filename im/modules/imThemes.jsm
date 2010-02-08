@@ -61,6 +61,9 @@ const showHeaderPref = "showHeader";
 const combineConsecutivePref = "combineConsecutive";
 const combineConsecutiveIntervalPref = "combineConsecutiveInterval";
 
+const DEFAULT_THEME = "bubbles";
+const DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
+
 __defineGetter__("gPrefBranch", function() {
   delete this.gPrefBranch;
   return this.gPrefBranch = 
@@ -208,8 +211,8 @@ function getInfoPlistContent(aBaseURI)
 
 function getChromeBaseURI(aThemeName)
 {
-  if (aThemeName == "default")
-    return "chrome://instantbird/skin/messages/";
+  if (DEFAULT_THEMES.indexOf(aThemeName) != -1)
+    return "chrome://instantbird/skin/messages/" + aThemeName + "/";
   return "chrome://" + aThemeName + "/skin/";
 }
 
@@ -245,7 +248,7 @@ function getCurrentTheme()
     gCurrentTheme.variant = variant;
   } catch(e) {
     Components.utils.reportError(e);
-    gCurrentTheme = getThemeByName("default");
+    gCurrentTheme = getThemeByName(DEFAULT_THEME);
     gCurrentTheme.variant = "default";
   }
 
