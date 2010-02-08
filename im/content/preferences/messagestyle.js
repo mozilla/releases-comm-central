@@ -236,7 +236,7 @@ var previewObserver = {
     popup.appendChild(menuitem);
     popup.appendChild(document.createElement("menuseparator"));
 
-    variants.forEach(function(aVariantName) {
+    variants.sort().forEach(function(aVariantName) {
       if (aVariantName != defaultVariant) {
         let menuitem = document.createElement("menuitem");
         menuitem.setAttribute("label", aVariantName.replace(/_/g, " "));
