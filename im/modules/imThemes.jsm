@@ -472,15 +472,15 @@ function isNextMessage(aTheme, aMsg, aPreviousMsg)
        getMetadata(aTheme, "DisableCombineConsecutive")))
     return false;
 
-  if (!aPreviousMsg ||
-      aMsg.outgoing != aPreviousMsg.outgoing ||
-      aMsg.incoming != aPreviousMsg.incoming)
+  if (!aPreviousMsg)
     return false;
 
   if (aMsg.system && aPreviousMsg.system)
     return true;
 
-  if (aMsg.who != aPreviousMsg.who)
+  if (aMsg.who != aPreviousMsg.who ||
+      aMsg.outgoing != aPreviousMsg.outgoing ||
+      aMsg.incoming != aPreviousMsg.incoming)
     return false;
 
   let timeDifference = aMsg.time - aPreviousMsg.time;
