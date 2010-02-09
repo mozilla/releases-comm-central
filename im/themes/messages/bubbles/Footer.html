@@ -91,15 +91,19 @@ function groupEvents(parent)
     P_list[i].style.display = "none";
 
     var p = document.createElement("p");
-    p.setAttribute("onclick", "toggle_groupEvents(this)");
+    p.addEventListener("click", toggle_groupEvents, false);
     p.setAttribute("class", "button hide");
     parent.insertBefore(p, P_list[1]);
   }
 }
 
 
-function toggle_groupEvents(target)
+function toggle_groupEvents(aEvent)
 {
+  if (aEvent.detail > 1)
+    return;
+
+  var target = aEvent.target;
   var P_list = target.parentNode.getElementsByClassName("event");
   var HR_list = target.parentNode.getElementsByTagName("hr");
   var nbEvents = P_list.length;
