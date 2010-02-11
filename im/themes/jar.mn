@@ -84,6 +84,10 @@ classic.jar:
 	skin/classic/prpl/gtalk/icon32.png	(prpl/prpl-gtalk-32.png)
 	skin/classic/prpl/gtalk/icon48.png	(prpl/prpl-gtalk-48.png)
 	skin/classic/prpl/gtalk/icon.png	(prpl/prpl-gtalk.png)
+% skin prpl-facebook classic/1.0 %skin/classic/prpl/facebook/
+	skin/classic/prpl/facebook/icon32.png	(prpl/prpl-facebook-32.png)
+	skin/classic/prpl/facebook/icon48.png	(prpl/prpl-facebook-48.png)
+	skin/classic/prpl/facebook/icon.png	(prpl/prpl-facebook.png)
 % skin prpl-msn classic/1.0 %skin/classic/prpl/msn/
 	skin/classic/prpl/msn/icon32.png	(prpl/prpl-msn-32.png)
 	skin/classic/prpl/msn/icon48.png	(prpl/prpl-msn-48.png)

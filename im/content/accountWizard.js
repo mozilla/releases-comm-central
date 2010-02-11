@@ -310,7 +310,8 @@ var accountWizard = {
       switch (opt.type) {
       case opt.typeBool:
         var chk = document.createElement("checkbox");
-        if (opt.getBool())
+        // FIXME remove the facebook specific test as soon as possible...
+        if (opt.getBool() && name != "prpl-facebook-require_tls")
           chk.setAttribute("checked", "true");
         chk.setAttribute("label", text);
         chk.setAttribute("id", name);
@@ -391,14 +392,15 @@ var accountWizard = {
     this.prefs = [ ];
     for (let opt in this.getProtoOptions()) {
       let name = opt.name;
-      let val = this.getValue(id + "-" + name);
+      let eltName = id + "-" + name;
+      let val = this.getValue(eltName);
       // The value will be undefined if the proto specific groupbox has never been opened
-      if (val === undefined)
+      if (val === undefined && eltName != "prpl-facebook-require_tls")
         continue;
       switch (opt.type) {
       case opt.typeBool:
         if (val != opt.getBool())
-          this.prefs.push({opt: opt, name: name, value: val});
+          this.prefs.push({opt: opt, name: name, value: !!val});
         break;
       case opt.typeInt:
         if (val != opt.getInt())
