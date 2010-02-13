@@ -57,8 +57,8 @@
 
   <hbox>
     <image id="protocolIcon"/>
-    <vbox>
-      <label id="accountName" class="header"/>
+    <vbox flex="1">
+      <label id="accountName" crop="end" class="header"/>
       <label id="protocolName"/>
     </vbox>
   </hbox>

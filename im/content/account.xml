@@ -60,11 +60,11 @@
             <xul:spacer flex="1"/>
           </xul:vbox>
           <xul:vbox flex="1">
-           <xul:label xbl:inherits="value=name" class="accountName"/>
-           <xul:label class="connecting" anonid="connecting" value="&account.connecting;"/>
-           <xul:label class="connected" anonid="connected"/>
-           <xul:label class="disconnecting" value="&account.disconnecting;"/>
-           <xul:label class="disconnected" value="&account.disconnected;"/>
+           <xul:label xbl:inherits="value=name" crop="end" class="accountName"/>
+           <xul:label class="connecting" crop="end" anonid="connecting" value="&account.connecting;"/>
+           <xul:label class="connected" crop="end" anonid="connected"/>
+           <xul:label class="disconnecting" crop="end" value="&account.disconnecting;"/>
+           <xul:label class="disconnected" crop="end" value="&account.disconnected;"/>
            <xul:description class="error" anonid="error"/>
            <xul:description class="error" anonid="reconnect"/>
            <xul:spacer flex="1"/>
