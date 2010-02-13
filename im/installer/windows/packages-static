@@ -88,6 +88,7 @@ bin\components\yahoo.dll
 
 bin\components\profileMigrator.js
 bin\components\autoLoginHandler.js
+bin\components\facebookOverrideProtocol.js
 bin\components\gtalkOverrideProtocol.js
 bin\components\smileProtocolHandler.js
 
