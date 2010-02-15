@@ -100,6 +100,9 @@ classic.jar:
 	skin/classic/prpl/novell/icon32.png	(prpl/prpl-novell-32.png)
 	skin/classic/prpl/novell/icon48.png	(prpl/prpl-novell-48.png)
 	skin/classic/prpl/novell/icon.png	(prpl/prpl-novell.png)
+#ifdef DEBUG
+% skin prpl-null classic/1.0 %skin/classic/instantbird/prpl-generic/
+#endif
 % skin prpl-qq classic/1.0 %skin/classic/prpl/qq/
 	skin/classic/prpl/qq/icon32.png		(prpl/prpl-qq-32.png)
 	skin/classic/prpl/qq/icon48.png		(prpl/prpl-qq-48.png)
