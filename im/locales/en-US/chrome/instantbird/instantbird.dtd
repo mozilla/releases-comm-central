@@ -18,7 +18,10 @@
 
 <!ENTITY addBuddy           "Add Buddy…">
 <!ENTITY joinChat           "Join Chat…">
-<!ENTITY getAway            "Get Away…">
+<!ENTITY setStatusTo        "Set Status to…">
+<!ENTITY available          "Available">
+<!ENTITY unavailable        "Unavailable">
+<!ENTITY offline            "Offline">
 <!ENTITY tools.menu         "Tools">
 <!ENTITY tools.accesskey    "T">
 <!ENTITY accountManager     "Accounts">

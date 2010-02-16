@@ -185,20 +185,39 @@ var menus = {
                       "chrome,modal,titlebar,centerscreen");
   },
 
-  getAway: function menu_getAway() {
-    // prompt the user to enter an away message
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                           .getService(Components.interfaces.nsIPromptService);
-    var bundle = document.getElementById("awayBundle");
-    var message = {value: bundle.getString("away.default.message")};
-    if (!prompts.prompt(window, bundle.getString("away.prompt.title"),
-                        bundle.getString("away.prompt.message"), message,
-                        null, {value: false}))
-      return; // the user canceled
-
-    // actually get away
+  checkCurrentStatusType: function menu_checkCurrentStatusType(aItems) {
     var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Components.interfaces.purpleICoreService);
-    pcs.away(message.value);
+                        .getService(Ci.purpleICoreService);
+    let status = "unknown";
+    let statusType = pcs.currentStatusType;
+    if (statusType == Ci.purpleICoreService.STATUS_AVAILABLE)
+      status = "available";
+    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE)
+      status = "unavailable";
+    else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE)
+      status = "offline";
+
+    aItems.forEach(function (aId) {
+      let elt = document.getElementById(aId);
+      if (elt.getAttribute("status") == status)
+        elt.setAttribute("checked", "true");
+      else
+        elt.removeAttribute("checked");
+    });
+  },
+
+  onStatusPopupShowing: function menu_onStatusPopupShowing() {
+    this.checkCurrentStatusType(["statusAvailable",
+                                 "statusUnavailable",
+                                 "statusOffline"]);
+  },
+
+  setStatus: function menu_setStatus(aEvent) {
+    let status = aEvent.originalTarget.getAttribute("status");
+    if (!status)
+      return; // is this really possible?
+
+    let blist = this.focus("Messenger:blist");
+    blist.buddyList.startEditStatus(status);
   }
 };

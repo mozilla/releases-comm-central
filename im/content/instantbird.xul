@@ -41,6 +41,9 @@
 <?xml-stylesheet href="chrome://instantbird/content/instantbird.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/tabbrowser.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/tabbrowser.css" type="text/css"?>
+#ifdef XP_MACOSX
+<?xml-stylesheet href="chrome://instantbird/skin/menus.css" type="text/css"?>
+#endif
 
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 

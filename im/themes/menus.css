@@ -12,11 +12,11 @@
  * License.
  *
  * The Original Code is the Instantbird messenging client, released
- * 2007.
+ * 2010.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2007
+ * Portions created by the Initial Developer are Copyright (C) 2010
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,27 +35,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-buddy {
-  -moz-binding: url("chrome://instantbird/content/buddy.xml#buddy");
+#statusAvailable {
+  list-style-image: url('chrome://instantbird/skin/available-16.png');
 }
 
-buddy[aliasing] .buddyDisplayName {
-  -moz-binding: url("chrome://global/content/bindings/textbox.xml#textbox");
+#statusUnavailable {
+  list-style-image: url('chrome://instantbird/skin/away-16.png');
 }
 
-group {
-  -moz-binding: url("chrome://instantbird/content/group.xml#group");
-}
-
-tooltip[type="buddy"] {
-  -moz-binding: url("chrome://instantbird/content/buddytooltip.xml#tooltip");
-}
-
-#statusMessage {
-  cursor: text;
-}
-
-#statusMessage[editing] {
-  -moz-appearance: textfield;
-  -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
+#statusOffline {
+  list-style-image: url('chrome://instantbird/skin/offline-16.png');
 }

@@ -39,7 +39,6 @@
   <script type="application/javascript" src="chrome://instantbird/content/menus.js"/>
 
   <stringbundle id="updatesBundle" src="chrome://instantbird/locale/updates.properties"/>
-  <stringbundle id="awayBundle" src="chrome://instantbird/locale/away.properties"/>
 
   <commandset id="maincommandset">
     <command id="accountmanager" oncommand="menus.accounts()"/>
@@ -60,7 +59,12 @@
         <menuitem id="addBuddyMenuItem" label="&addBuddy;" oncommand="menus.addBuddy()"/>
         <menuitem id="joinChatMenuItem" label="&joinChat;" oncommand="menus.joinChat()"/>
         <menuseparator/>
-        <menuitem id="getAwayMenuItem" label="&getAway;" oncommand="menus.getAway()"/>
+        <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);">
+          <menupopup id="setStatusMenupopup" onpopupshowing="menus.onStatusPopupShowing();">
+            <menuitem id="statusAvailable" status="available" label="&available;" class="menuitem-iconic" checked="true"/>
+            <menuitem id="statusUnavailable" status="unavailable" label="&unavailable;" class="menuitem-iconic"/>
+          </menupopup>
+        </menu>
         <menuseparator id="menu_FileQuitSeparator"/>
         <menuitem id="menu_FileQuitItem"
 #ifdef XP_WIN

@@ -38,8 +38,7 @@
 const events = ["buddy-signed-on",
                 "buddy-added",
                 "account-disconnected",
-                "status-away",
-                "status-back",
+                "status-changed",
                 "purple-quit"];
 
 const showOfflineBuddiesPref = "messenger.buddies.showOffline";
@@ -162,7 +161,7 @@ buddyListContextMenu.prototype = {
 };
 
 var buddyList = {
-  observe: function bl_observe(aBuddy, aTopic, aMsg) {
+  observe: function bl_observe(aSubject, aTopic, aMsg) {
     if (aTopic == "purple-quit") {
       window.close();
       return;
@@ -197,50 +196,19 @@ var buddyList = {
       });
     }
 
-    if (aTopic == "status-away") {
-      // display the notification on the buddy list
-      var nbox = document.getElementById("buddyListMsg");
-      var notification = nbox.getNotificationWithValue("away-message");
-      if (notification) {
-        notification.label = aMsg;
-        return;
-      }
-      var buttons = [{
-        accessKey: "",
-        label: document.getElementById("awayBundle").getString("away.back.button"),
-        popup: null,
-        callback: function() {
-          Components.classes["@instantbird.org/purple/core;1"]
-                    .getService(Components.interfaces.purpleICoreService)
-                    .back(null);
-        }
-      }];
-      notification = nbox.appendNotification(aMsg, "away-message",
-                                             "chrome://instantbird/skin/away-16.png",
-                                             nbox.PRIORITY_INFO_MEDIUM, buttons);
-      notification.setAttribute("hideclose", "true");
-      document.getElementById("getAwayMenuItem").disabled = true;
-      return;
-    }
-
-    if (aTopic == "status-back") {
-      var nbox = document.getElementById("buddyListMsg");
-      var notification = nbox.getNotificationWithValue("away-message");
-      if (notification)
-        nbox.removeNotification(notification);
-
-      document.getElementById("getAwayMenuItem").disabled = false;
+    if (aTopic == "status-changed") {
+      this.displayCurrentStatus();
       return;
     }
 
     if (aTopic == "account-disconnected") {
-      let account = aBuddy.QueryInterface(Ci.purpleIAccount);
+      let account = aSubject.QueryInterface(Ci.purpleIAccount);
       if (account.reconnectAttempt <= 1)
         this.showAccountManagerIfNeeded(false);
       return;
     }
 
-    var pab = aBuddy.QueryInterface(Ci.purpleIAccountBuddy);
+    var pab = aSubject.QueryInterface(Ci.purpleIAccountBuddy);
     var group = pab.tag;
     var groupId = "group" + group.id;
     if ((aTopic == "buddy-signed-on" ||
@@ -252,6 +220,156 @@ var buddyList = {
         groupElt._showOffline = true;
       groupElt.build(group);
     }
+  },
+
+  displayStatusType: function bl_displayStatusType(aStatusType) {
+    let bundle =
+      Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://instantbird/locale/instantbird.properties");
+    let statusString;
+    try {
+      // In some odd cases, this function could be called for an
+      // unknown status type.
+      statusString = bundle.GetStringFromName(aStatusType + "StatusType");
+    } catch (e) { }
+    let statusTypeIcon = document.getElementById("statusTypeIcon");
+    statusTypeIcon.setAttribute("status", aStatusType);
+    statusTypeIcon.setAttribute("tooltiptext", statusString);
+    return statusString;
+  },
+
+  displayCurrentStatus: function bl_displayCurrentStatus() {
+    var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    let message = pcs.currentStatusMessage;
+    let status = "unknown";
+    let statusType = pcs.currentStatusType;
+    if (statusType == Ci.purpleICoreService.STATUS_AVAILABLE)
+      status = "available";
+    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE)
+      status = "unavailable";
+    else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE)
+      status = "offline";
+    let statusString = this.displayStatusType(status);
+    let statusMessage = document.getElementById("statusMessage");
+    if (message)
+      statusMessage.removeAttribute("usingDefault");
+    else {
+      statusMessage.setAttribute("usingDefault", statusString);
+      message = statusString;
+    }
+    statusMessage.setAttribute("value", message);
+    statusMessage.setAttribute("tooltiptext", message);
+  },
+
+  onStatusPopupShowing: function bl_onStatusPopupShowing() {
+    menus.checkCurrentStatusType(["statusTypeAvailable",
+                                  "statusTypeUnavailable",
+                                  "statusTypeOffline"]);
+  },
+
+  editStatus: function bl_editStatus(aEvent) {
+    let status = aEvent.originalTarget.getAttribute("status");
+    if (status == "offline") {
+      Components.classes["@instantbird.org/purple/core;1"]
+                .getService(Ci.purpleICoreService)
+                .setStatus(Ci.purpleICoreService.STATUS_OFFLINE, "");
+    }
+    else if (status)
+      this.startEditStatus(status);
+  },
+
+  startEditStatus: function bl_startEditStatus(aStatusType) {
+    let currentStatusType =
+      document.getElementById("statusTypeIcon").getAttribute("status");
+    if (aStatusType != currentStatusType) {
+      this._statusTypeBeforeEditing = currentStatusType;
+      this._statusTypeEditing = aStatusType;
+      this.displayStatusType(aStatusType);
+    }
+    this.statusMessageClick();
+  },
+
+  statusMessageClick: function bl_statusMessageClick() {
+    let elt = document.getElementById("statusMessage");
+    if (!elt.hasAttribute("editing")) {
+      elt.setAttribute("editing", "true");
+      elt.addEventListener("keypress", this.statusMessageKeyPress, false);
+      elt.addEventListener("blur", this.statusMessageBlur, false);
+      if (elt.hasAttribute("usingDefault")) {
+        elt.removeAttribute("value");
+      }
+      // force binding attachmant by forcing layout
+      elt.getBoundingClientRect();
+      elt.select();
+    }
+
+    this.statusMessageRefreshTimer();
+  },
+
+  statusMessageRefreshTimer: function bl_statusMessageRefreshTimer() {
+    const timeBeforeAutoValidate = 20 * 1000;
+    clearTimeout(this._stopEditStatusTimeout);
+    this._stopEditStatusTimeout = setTimeout(this.finishEditStatusMessage,
+                                             timeBeforeAutoValidate, true);
+  },
+
+  statusMessageBlur: function bl_statusMessageBlur(aEvent) {
+    if (aEvent.originalTarget == document.getElementById("statusMessage").inputField)
+      buddyList.finishEditStatusMessage(true);
+  },
+
+  statusMessageKeyPress: function bl_statusMessageKeyPress(aEvent) {
+    switch (aEvent.keyCode) {
+      case aEvent.DOM_VK_RETURN:
+      case aEvent.DOM_VK_ENTER:
+        buddyList.finishEditStatusMessage(true);
+        break;
+
+      case aEvent.DOM_VK_ESCAPE:
+        buddyList.finishEditStatusMessage(false);
+        break;
+
+      default:
+        buddyList.statusMessageRefreshTimer();
+    }
+  },
+
+  finishEditStatusMessage: function bl_finishEditStatusMessage(aSave) {
+    clearTimeout(this._stopEditStatusTimeout);
+    let elt = document.getElementById("statusMessage");
+    if (aSave) {
+      var pcs = Components.classes["@instantbird.org/purple/core;1"]
+                          .getService(Ci.purpleICoreService);
+      let newStatus = Ci.purpleICoreService.STATUS_UNSET;
+      if ("_statusTypeEditing" in this) {
+        let statusType = this._statusTypeEditing;
+        if (statusType == "available")
+          newStatus = Ci.purpleICoreService.STATUS_AVAILABLE;
+        else if (statusType == "unavailable")
+          newStatus = Ci.purpleICoreService.STATUS_UNAVAILABLE;
+        else if (statusType == "offline")
+          newStatus = Ci.purpleICoreService.STATUS_OFFLINE;
+        delete this._statusTypeBeforeEditing;
+        delete this._statusTypeEditing;
+      }
+      // apply the new status only if it is different from the current one
+      if (newStatus != Ci.purpleICoreService.STATUS_UNSET ||
+          elt.value != elt.getAttribute("value"))
+        pcs.setStatus(newStatus, elt.value);
+    }
+    else if ("_statusTypeBeforeEditing" in this) {
+      this.displayStatusType(this._statusTypeBeforeEditing);
+      delete this._statusTypeBeforeEditing;
+      delete this._statusTypeEditing;
+    }
+
+    if (elt.hasAttribute("usingDefault"))
+      elt.setAttribute("value", elt.getAttribute("usingDefault"));
+    elt.removeAttribute("editing");
+    elt.removeEventListener("keypress", this.statusMessageKeyPress, false);
+    elt.removeEventListener("blur", this.statusMessageBlur, false);
   },
 
   getAccounts: function bl_getAccounts() {
@@ -315,6 +433,13 @@ var buddyList = {
       window.close();
       return;
     }
+
+    // TODO remove this once we cleanup the way the menus are inserted
+    let menubar = document.getElementById("blistMenubar");
+    let statusArea = document.getElementById("statusArea");
+    statusArea.parentNode.insertBefore(menubar, statusArea);
+
+    buddyList.displayCurrentStatus();
 
     let prefBranch =
       Components.classes["@mozilla.org/preferences-service;1"]

@@ -40,6 +40,9 @@
 <?xml-stylesheet href="chrome://instantbird/content/accounts.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/richlistbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/accounts.css" type="text/css"?>
+#ifdef XP_MACOSX
+<?xml-stylesheet href="chrome://instantbird/skin/menus.css" type="text/css"?>
+#endif
 
 <!DOCTYPE window [
  <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accounts.dtd">

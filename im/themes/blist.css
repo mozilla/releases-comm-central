@@ -146,3 +146,68 @@ group[closed] .twisty {
 #updatesMenuItem[loading="true"] {
   list-style-image: url("chrome://global/skin/icons/loading_16.png");
 }
+
+#statusArea {
+  margin: 0 0;
+  padding: 0 0;
+  -moz-box-align: center;
+}
+
+#statusTypeIcon {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  cursor: pointer;
+  -moz-appearance: none;
+  border: none;
+  margin: 3px 5px;
+}
+
+#statusTypeIcon dropmarker {
+  display: none;
+}
+
+%ifdef XP_WIN
+#statusTypeIcon .button-box {
+  padding: 0 0;
+  border: none;
+}
+%endif
+
+#statusTypeIcon[status="available"],
+#statusTypeAvailable {
+  list-style-image: url('chrome://instantbird/skin/available-16.png');
+}
+
+#statusTypeIcon[status="unavailable"],
+#statusTypeUnavailable {
+  list-style-image: url('chrome://instantbird/skin/away-16.png');
+}
+
+#statusTypeIcon[status="offline"],
+#statusTypeOffline {
+  list-style-image: url('chrome://instantbird/skin/offline-16.png');
+}
+
+%ifdef XP_MACOSX
+#statusMessage {
+  margin: 0 0;
+}
+
+#statusMessage[editing] {
+  margin: 0 2px 0 -4px;
+}
+%else
+#statusMessage {
+  margin: 3px 0;
+}
+
+#statusMessage[editing] {
+%ifdef XP_WIN
+  margin: 0 1px 0 -2px;
+%else
+  margin: 0 0 0 -4px;
+%endif
+}
+%endif

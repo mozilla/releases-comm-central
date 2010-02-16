@@ -8,7 +8,6 @@
 	locale/@AB_CD@/instantbird/accounts.properties	(%chrome/instantbird/accounts.properties)
 	locale/@AB_CD@/instantbird/accountWizard.dtd	(%chrome/instantbird/accountWizard.dtd)
 	locale/@AB_CD@/instantbird/addbuddy.dtd		(%chrome/instantbird/addbuddy.dtd)
-	locale/@AB_CD@/instantbird/away.properties	(%chrome/instantbird/away.properties)
 	locale/@AB_CD@/instantbird/buddytooltip.properties (%chrome/instantbird/buddytooltip.properties)
 	locale/@AB_CD@/instantbird/core.properties	(%chrome/instantbird/core.properties)
 	locale/@AB_CD@/instantbird/credits.dtd		(%chrome/instantbird/credits.dtd)

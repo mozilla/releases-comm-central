@@ -40,6 +40,7 @@
 <?xml-stylesheet href="chrome://instantbird/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/blist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/blist.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/menus.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
@@ -102,6 +103,23 @@
                 oncommand="gBuddyListContextMenu.toggleShowOfflineBuddies();"/>
     </popup>
   </popupset>
+
+  <toolbox id="mainToolbox">
+    <toolbar id="statusArea">
+      <button type="menu" id="statusTypeIcon" status="available">
+        <menupopup id="setStatusTypeMenupopup"
+                   onpopupshowing="buddyList.onStatusPopupShowing();"
+                   oncommand="buddyList.editStatus(event);">
+          <menuitem id="statusTypeAvailable" label="&available;"
+                    status="available" class="menuitem-iconic"/>
+          <menuitem id="statusTypeUnavailable" label="&unavailable;"
+                    status="unavailable" class="menuitem-iconic"/>
+        </menupopup>
+      </button>
+      <label id="statusMessage" flex="1" crop="end" value=""
+             onclick="buddyList.statusMessageClick();"/>
+    </toolbar>
+  </toolbox>
 
   <notificationbox id="buddyListMsg" flex="1">
     <richlistbox id="buddylistbox" flex="1"
