@@ -52,10 +52,12 @@ statusbar {
   min-height: 16px;
 }
 
+%ifdef XP_WIN
 statusbarpanel {
   -moz-appearance: none;
   border: none;
 }
+%endif
 
 %ifndef XP_MACOSX
 notification > hbox {
