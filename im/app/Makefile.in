@@ -58,7 +58,7 @@ DEFINES += \
   -DAB_CD=$(AB_CD) \
   -DGRE_MILESTONE=$(GRE_MILESTONE) \
   -DGRE_BUILDID=$(GRE_BUILDID) \
-  -DAPP_EULA_BLOCK=$(MAIL_APP_LICENSE_FILE) \
+  -DAPP_LICENSE_BLOCK=$(MAIL_APP_LICENSE_FILE) \
    $(NULL)
 
 SOURCE_STAMP := $(shell cd $(topsrcdir) ; hg identify -i 2>/dev/null | cut -f1 -d' ')
