@@ -1,6 +1,18 @@
-FOR TRANSLATIONS OF THIS LICENSE INTO SELECTED LANGUAGES, PLEASE VISIT WWW.INSTANTBIRD.ORG/LICENSING.
+Official *binaries* of this product released by the Instantbird team
+(http://www.instantbird.com/) are made available under the GNU General
+Public License GPL version 2.0 or later.
 
-INSTANTBIRD END-USER SOFTWARE LICENSE AGREEMENT
-Version 1.0
+All of the *source code* to this product is available under licenses
+which are both free and open source.
 
+Most is available under any one of the following: the Mozilla Public
+License (MPL), the GNU General Public License (GPL) and the GNU Lesser
+General Public License (LGPL). That is, you may copy and distribute
+such software according to the terms of any one of those three
+licenses.
 
+The remainder of the software which is not under the MPL/LGPL/GPL
+tri-license is available under a subset of it or one of a variety of
+more permissive licenses.
+
+See license.html for details.
