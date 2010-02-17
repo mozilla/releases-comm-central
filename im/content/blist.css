@@ -51,7 +51,7 @@ tooltip[type="buddy"] {
   -moz-binding: url("chrome://instantbird/content/buddytooltip.xml#tooltip");
 }
 
-#statusMessage {
+#statusMessage:not([statusType="offline"]) {
   cursor: text;
 }
 

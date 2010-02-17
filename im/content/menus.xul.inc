@@ -63,6 +63,7 @@
           <menupopup id="setStatusMenupopup" onpopupshowing="menus.onStatusPopupShowing();">
             <menuitem id="statusAvailable" status="available" label="&available;" class="menuitem-iconic" checked="true"/>
             <menuitem id="statusUnavailable" status="unavailable" label="&unavailable;" class="menuitem-iconic"/>
+            <menuitem id="statusOffline" status="offline" label="&offline;" class="menuitem-iconic"/>
           </menupopup>
         </menu>
         <menuseparator id="menu_FileQuitSeparator"/>

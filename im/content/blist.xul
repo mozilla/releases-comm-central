@@ -114,6 +114,8 @@
                     status="available" class="menuitem-iconic"/>
           <menuitem id="statusTypeUnavailable" label="&unavailable;"
                     status="unavailable" class="menuitem-iconic"/>
+          <menuitem id="statusTypeOffline" label="&offline;"
+                    status="offline" class="menuitem-iconic"/>
         </menupopup>
       </button>
       <label id="statusMessage" flex="1" crop="end" value=""

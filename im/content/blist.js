@@ -198,6 +198,7 @@ var buddyList = {
 
     if (aTopic == "status-changed") {
       this.displayCurrentStatus();
+      this.showAccountManagerIfNeeded(false);
       return;
     }
 
@@ -223,6 +224,9 @@ var buddyList = {
   },
 
   displayStatusType: function bl_displayStatusType(aStatusType) {
+    document.getElementById("statusMessage")
+            .setAttribute("statusType", aStatusType);
+
     let bundle =
       Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
@@ -292,6 +296,11 @@ var buddyList = {
   },
 
   statusMessageClick: function bl_statusMessageClick() {
+    let statusType =
+      document.getElementById("statusTypeIcon").getAttribute("status");
+    if (statusType == "offline")
+      return;
+
     let elt = document.getElementById("statusMessage");
     if (!elt.hasAttribute("editing")) {
       elt.setAttribute("editing", "true");
@@ -384,6 +393,13 @@ var buddyList = {
    * look for crashed accounts.
    */
   showAccountManagerIfNeeded: function bl_showAccountManagerIfNeeded(aIsStarting) {
+    // If the current status is offline, we don't need the account manager
+    let pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+    let isOffline = pcs.currentStatusType == pcs.STATUS_OFFLINE;
+    if (isOffline && !aIsStarting)
+      return;
+
     let hasActiveAccount = false;
     let hasCrashedAccount = false;
     for (let acc in this.getAccounts()) {
@@ -400,7 +416,7 @@ var buddyList = {
        or if all accounts are disconnected
        In case of connection failure after an automatic reconnection attempt,
        we don't want to popup the account manager */
-    if (!hasActiveAccount || (aIsStarting && hasCrashedAccount))
+    if ((!hasActiveAccount && !isOffline) || (aIsStarting && hasCrashedAccount))
       menus.accounts();
   },
 

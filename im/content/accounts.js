@@ -52,6 +52,7 @@ const events = [
   "account-connect-progress",
   "account-connect-error",
   "autologin-processed",
+  "status-changed",
   "network:offline-status-changed"
 ];
 
@@ -132,6 +133,10 @@ var gAccountManager = {
     }
     else if (aTopic == "network:offline-status-changed") {
       this.setOffline(aData == "offline");
+      return;
+    }
+    else if (aTopic == "status-changed") {
+      this.setOffline(aObject.currentStatusType == aObject.STATUS_OFFLINE);
       return;
     }
     else if (aTopic == "account-list-updated") {
@@ -459,7 +464,7 @@ var gAccountManager = {
         ++crashCount;
 
     if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED && crashCount == 0) {
-      this.setOffline(isOffline);
+      this.setOffline(isOffline || pcs.currentStatusType == pcs.STATUS_OFFLINE);
       return;
     }
 
@@ -506,7 +511,7 @@ var gAccountManager = {
       default:
         label = bundle.getString("accountsManager.notification.other.label");
     }
-    this.setOffline(isOffline);
+    this.setOffline(isOffline || pcs.currentStatusType == pcs.STATUS_OFFLINE);
 
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },
