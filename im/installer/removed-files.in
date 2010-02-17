@@ -301,3 +301,14 @@ components/libpurplexpcom.dylib.dSYM/Contents/Resources/DWARF/libpurplexpcom.dyl
 #endif
 @DLL_PREFIX@glib@DLL_SUFFIX@
 @DLL_PREFIX@xml2@DLL_SUFFIX@
+components/@DLL_PREFIX@gg@DLL_SUFFIX@
+components/@DLL_PREFIX@irc@DLL_SUFFIX@
+components/@DLL_PREFIX@jabber@DLL_SUFFIX@
+components/@DLL_PREFIX@msn@DLL_SUFFIX@
+components/@DLL_PREFIX@myspace@DLL_SUFFIX@
+components/@DLL_PREFIX@netsoul@DLL_SUFFIX@
+components/@DLL_PREFIX@novell@DLL_SUFFIX@
+components/@DLL_PREFIX@oscar@DLL_SUFFIX@
+components/@DLL_PREFIX@qq@DLL_SUFFIX@
+components/@DLL_PREFIX@simple@DLL_SUFFIX@
+components/@DLL_PREFIX@yahoo@DLL_SUFFIX@
