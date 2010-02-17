@@ -299,3 +299,5 @@ libraries/prpl/libmsnp9.so
 components/libpurplexpcom.dylib.dSYM/Contents/Info.plist
 components/libpurplexpcom.dylib.dSYM/Contents/Resources/DWARF/libpurplexpcom.dylib
 #endif
+@DLL_PREFIX@glib@DLL_SUFFIX@
+@DLL_PREFIX@xml2@DLL_SUFFIX@
