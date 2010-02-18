@@ -160,6 +160,7 @@ group[closed] .twisty {
   min-width: 16px;
   cursor: pointer;
   -moz-appearance: none;
+  background-color: transparent;
   border: none;
   margin: 3px 5px;
 }
