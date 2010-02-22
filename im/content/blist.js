@@ -251,7 +251,8 @@ var buddyList = {
     let statusType = pcs.currentStatusType;
     if (statusType == Ci.purpleICoreService.STATUS_AVAILABLE)
       status = "available";
-    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE)
+    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE ||
+             statusType == Ci.purpleICoreService.STATUS_AWAY)
       status = "unavailable";
     else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE)
       status = "offline";
