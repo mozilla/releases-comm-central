@@ -182,11 +182,13 @@ group[closed] .twisty {
 }
 
 #statusTypeIcon[status="unavailable"],
+#statusTypeIcon[status="away"],
 #statusTypeUnavailable {
   list-style-image: url('chrome://instantbird/skin/away-16.png');
 }
 
 #statusTypeIcon[status="offline"],
+#statusTypeIcon[status="invisible"],
 #statusTypeOffline {
   list-style-image: url('chrome://instantbird/skin/offline-16.png');
 }

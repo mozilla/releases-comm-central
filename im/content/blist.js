@@ -251,11 +251,14 @@ var buddyList = {
     let statusType = pcs.currentStatusType;
     if (statusType == Ci.purpleICoreService.STATUS_AVAILABLE)
       status = "available";
-    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE ||
-             statusType == Ci.purpleICoreService.STATUS_AWAY)
+    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE)
       status = "unavailable";
+    else if (statusType == Ci.purpleICoreService.STATUS_AWAY)
+      status = "away";
     else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE)
       status = "offline";
+    else if (statusType == Ci.purpleICoreService.STATUS_INVISIBLE)
+      status = "invisible";
     let statusString = this.displayStatusType(status);
     let statusMessage = document.getElementById("statusMessage");
     if (message)
