@@ -141,7 +141,7 @@
               onpageshow="accountWizard.showSummary();">
     <description>&accountSummaryInfo.label;</description>
     <separator/>
-    <grid flex="1" style="overflow:auto;">
+    <grid id="summarygrid" flex="1">
       <columns>
         <column/>
         <column flex="1"/>

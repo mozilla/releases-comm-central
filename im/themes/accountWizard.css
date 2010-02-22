@@ -35,6 +35,15 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#accountprotocol,
+#accountsummary {
+  overflow: visible;
+}
+
+#summarygrid {
+  overflow: auto;
+}
+
 groupbox.collapsable {
   -moz-user-focus: normal;
 }
