@@ -81,7 +81,7 @@
     </groupbox>
 
 
-    <groupbox id="accountsMgrGroup" orient="horizontal">
+    <groupbox id="accountsMgrGroup" orient="horizontal" align="center">
       <caption label="&accountsMgr.label;"/>
 
       <description control="manageAccounts"
@@ -126,7 +126,7 @@
     </groupbox>
 
     <hbox class="bottomBox">
-      <groupbox id="addonsMgrGroup" orient="horizontal" flex="1">
+      <groupbox id="addonsMgrGroup" orient="horizontal" align="center" flex="1">
         <caption label="&addonsMgr.label;"/>
 
         <description control="manageAddons"

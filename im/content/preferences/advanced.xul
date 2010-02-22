@@ -174,7 +174,7 @@
           </groupbox>
 
           <!-- Search engines -->
-          <groupbox id="searchEnginesGroup" orient="horizontal">
+          <groupbox id="searchEnginesGroup" orient="horizontal" align="center">
             <caption label="&searchEnginesGroup.label;"/>
 
             <description control="manageSearchEnginesButton"

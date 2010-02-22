@@ -94,7 +94,7 @@
                 accesskey="&logSystem.accesskey;"
                 preference="purple.logging.log_system"/>
       <separator class="thin"/>
-      <hbox>
+      <hbox align="center">
         <description control="openLogFolder"
                      flex="1">&logShowFolder.description;</description>
         <button id="openLogFolder" label="&logShowFolderButton.label;"
