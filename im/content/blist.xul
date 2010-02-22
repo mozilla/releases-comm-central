@@ -114,6 +114,7 @@
                     status="available" class="menuitem-iconic"/>
           <menuitem id="statusTypeUnavailable" label="&unavailable;"
                     status="unavailable" class="menuitem-iconic"/>
+          <menuseparator id="statusTypeOfflineSeparator"/>
           <menuitem id="statusTypeOffline" label="&offline;"
                     status="offline" class="menuitem-iconic"/>
         </menupopup>
