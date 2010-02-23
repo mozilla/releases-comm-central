@@ -3,12 +3,12 @@
 <!ENTITY  sendTyping.label              "Send typing notifications in conversations">
 <!ENTITY  sendTyping.accesskey          "t">
 
-<!ENTITY  reportIdleTime.label          "Let my contacts know when I am Idle">
-<!ENTITY  reportIdleTime.accesskey      "I">
+<!ENTITY  reportIdleAfter.label         "Let my contacts know that I am Idle after">
+<!ENTITY  reportIdleAfter.accesskey     "I">
+<!ENTITY  idleTime                      "minutes of inactivity">
 
-<!ENTITY  autoAway.label                "Set my status to Away after I have been Idle for">
-<!ENTITY  autoAway.accesskey            "A">
-<!ENTITY  awayAfter                     "minutes">
+<!ENTITY  andSetStatusToAway.label      "and set my status to Away with this status message:">
+<!ENTITY  andSetStatusToAway.accesskey  "A">
 
 <!ENTITY  logsGroup.label               "Records">
 

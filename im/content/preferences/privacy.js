@@ -36,6 +36,31 @@
  * ***** END LICENSE BLOCK ***** */
 
 var gPrivacyPane = {
+  init: function ()
+  {
+    this.updateDisabledState();
+  },
+
+  updateDisabledState: function ()
+  {
+    let broadcaster = document.getElementById("idleReportingEnabled");
+    if (document.getElementById("messenger.status.reportIdle").value) {
+      broadcaster.removeAttribute("disabled");
+      this.updateMessageDisabledState();
+    }
+    else
+      broadcaster.setAttribute("disabled", "true");
+  },
+
+  updateMessageDisabledState: function ()
+  {
+    let textbox = document.getElementById("defaultIdleAwayMessage");
+    if (document.getElementById("messenger.status.awayWhenIdle").value)
+      textbox.removeAttribute("disabled");
+    else
+      textbox.setAttribute("disabled", "true");
+  },
+
   openLogFolder: function ()
   {
     let Cc = Components.classes;

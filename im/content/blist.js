@@ -253,6 +253,8 @@ var buddyList = {
       status = "available";
     else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE)
       status = "unavailable";
+    else if (statusType == Ci.purpleICoreService.STATUS_IDLE)
+      status = "idle";
     else if (statusType == Ci.purpleICoreService.STATUS_AWAY)
       status = "away";
     else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE)

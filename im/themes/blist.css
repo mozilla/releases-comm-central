@@ -193,6 +193,10 @@ group[closed] .twisty {
   list-style-image: url('chrome://instantbird/skin/offline-16.png');
 }
 
+#statusTypeIcon[status="idle"] {
+  list-style-image: url('chrome://instantbird/skin/idle-16.png');
+}
+
 %ifdef XP_MACOSX
 #statusMessage {
   margin: 0 0;

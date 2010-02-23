@@ -79,6 +79,11 @@ pref("messenger.options.messagesStyle.combineConsecutive", true);
 // this value, the messages will not be combined
 pref("messenger.options.messagesStyle.combineConsecutiveInterval", 300); // 5 minutes
 
+pref("messenger.status.reportIdle", true);
+pref("messenger.status.timeBeforeIdle", 300); // 5 minutes
+pref("messenger.status.awayWhenIdle", true);
+pref("messenger.status.defaultIdleAwayMessage", "chrome://instantbird/locale/instantbird.properties");
+
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");
 pref("messenger.warnOnQuit", true);
