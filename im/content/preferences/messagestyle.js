@@ -237,9 +237,10 @@ var previewObserver = {
     popup.appendChild(document.createElement("menuseparator"));
 
     variants.sort().forEach(function(aVariantName) {
-      if (aVariantName != defaultVariant) {
+      let displayName = aVariantName.replace(/_/g, " ");
+      if (displayName != defaultVariant) {
         let menuitem = document.createElement("menuitem");
-        menuitem.setAttribute("label", aVariantName.replace(/_/g, " "));
+        menuitem.setAttribute("label", displayName);
         menuitem.setAttribute("value", aVariantName);
         popup.appendChild(menuitem);
       }
