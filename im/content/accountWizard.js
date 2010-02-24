@@ -322,8 +322,10 @@ var accountWizard = {
                                            text, name));
         break;
       case opt.typeString:
-        box.appendChild(this.createTextbox(null, opt.getString(),
-                                           text, name));
+        let val = opt.getString();
+        if (name == "prpl-gtalk-connect_server")
+          val = "talk.google.com";
+        box.appendChild(this.createTextbox(null, val, text, name));
         break;
       case opt.typeList:
         box.appendChild(this.createMenulist(opt.getList(), text, name));
@@ -395,8 +397,12 @@ var accountWizard = {
       let eltName = id + "-" + name;
       let val = this.getValue(eltName);
       // The value will be undefined if the proto specific groupbox has never been opened
-      if (val === undefined && eltName != "prpl-facebook-require_tls")
-        continue;
+      if (val === undefined) {
+        if (eltName == "prpl-gtalk-connect_server")
+          val = "talk.google.com";
+        else if (eltName != "prpl-facebook-require_tls")
+          continue;
+      }
       switch (opt.type) {
       case opt.typeBool:
         if (val != opt.getBool())
