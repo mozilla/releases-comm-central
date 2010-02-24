@@ -164,7 +164,7 @@
                    contenttooltip="aHTMLTooltip"
                    contentcontextmenu="contentAreaContextMenu"/>
 
-  <statusbar>
+  <statusbar id="convWindow-statusbar">
     <statusbarpanel id="statusbar-display" label="" crop="end" flex="1"/>
   </statusbar>
 </window>
