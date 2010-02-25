@@ -138,7 +138,7 @@
          if (this.showOffline) {
            if (aTopic == "buddy-added")
              this.addBuddy(aSubject);
-           else if (aTopic == "buddy-deleted")
+           else if (aTopic == "buddy-deleted" || aTopic == "buddy-removed-from-group")
              this.signedOff(aSubject);
            else
              this.updateBuddy(aSubject);
