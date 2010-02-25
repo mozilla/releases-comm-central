@@ -119,7 +119,7 @@
              }, this);
            }
            else {
-             this.buddies.filter(function (b) b.offline)
+             this.buddies.filter(function (b) b.removeOfflineAccounts())
                          .forEach(function (b) { b.parentNode.removeChild(b);
                                                  this.removeBuddy(b); }, this);
            }

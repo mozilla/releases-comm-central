@@ -102,6 +102,26 @@
        </getter>
      </property>
 
+     <!-- returns true if no account remain and the buddy should be removed from the list -->
+     <method name="removeOfflineAccounts">
+       <body>
+         <![CDATA[
+           let offlineAccounts = [];
+           for (var id in this.accounts)
+             if (!this.accounts[id].online)
+               offlineAccounts.push(id);
+
+           if (offlineAccounts.length == this.accountsCount)
+             return true;
+
+           offlineAccounts.forEach(function (aId) { delete this.accounts[aId]; }, this);
+           this.accountsCount -= offlineAccounts.length;
+           this.update();
+           return false;
+         ]]>
+       </body>
+     </method>
+
      <method name="update">
       <body>
       <![CDATA[
