@@ -102,7 +102,7 @@ function FillInHTMLTooltip(tipElement)
   if (tipElement.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul")
     return false;
 
-  var defView = tipElement.ownerDocument.defaultView;
+  var defView = tipElement.ownerDocument && tipElement.ownerDocument.defaultView;
   // XXX Work around bug 350679:
   // "Tooltips can be fired in documents with no view".
   if (!defView)
