@@ -273,6 +273,19 @@
       </body>
      </method>
 
+     <method name="remove">
+      <body>
+      <![CDATA[
+        let currentGroupId = this.group.groupId;
+        for (var id in this.accounts) {
+          let pab = this.accounts[id];
+          if (pab.tag.id == currentGroupId)
+            pab.remove();
+        }
+      ]]>
+      </body>
+     </method>
+
      <method name="_startAnimation">
       <parameter name="aThis"/>
       <body>

@@ -54,6 +54,7 @@ function buddyListContextMenu(aXulMenu) {
 
   [ "context-openconversation",
     "context-alias",
+    "context-delete",
     "context-moveto",
     "context-moveto-popup",
     "context-create-tag-separator",
@@ -79,6 +80,32 @@ buddyListContextMenu.prototype = {
   alias: function blcm_alias() {
     if (this.onBuddy)
       this.target.startAliasing();
+  },
+  delete: function blcm_delete() {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    let bundle =
+      Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://instantbird/locale/instantbird.properties");
+    let buddy = this.target.buddy;
+    let displayName = buddy.alias || buddy.name;
+    let promptTitle = bundle.formatStringFromName("buddy.deletePrompt.title",
+                                                  [displayName], 1);
+    if (displayName != buddy.name)
+      displayName += " (" + buddy.name + ")";
+    let proto = buddy.getAccount(0).protocol.name;
+    let promptMessage = bundle.formatStringFromName("buddy.deletePrompt.message",
+                                                    [displayName, proto], 2);
+    let deleteButton = bundle.GetStringFromName("buddy.deletePrompt.button");
+    let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
+                prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
+                prompts.BUTTON_POS_1_DEFAULT;
+    if (prompts.confirmEx(window, promptTitle, promptMessage, flags,
+                          deleteButton, null, null, null, {}))
+      return;
+
+    this.target.remove();
   },
   moveToPopupShowing: function blcm_moveToPopupShowing() {
     if (!this.onBuddy)

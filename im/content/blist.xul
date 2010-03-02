@@ -78,6 +78,10 @@
                 label="&aliasCmd.label;"
                 accesskey="&aliasCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.alias();"/>
+      <menuitem id="context-delete"
+                label="&deleteCmd.label;"
+                accesskey="&deleteCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.delete();"/>
       <menu id="context-moveto"
             label="&moveCmd.label;"
             accesskey="&moveCmd.accesskey;">
