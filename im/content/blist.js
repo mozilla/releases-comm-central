@@ -284,8 +284,10 @@ var buddyList = {
       status = "idle";
     else if (statusType == Ci.purpleICoreService.STATUS_AWAY)
       status = "away";
-    else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE)
+    else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE) {
       status = "offline";
+      message = "";
+    }
     else if (statusType == Ci.purpleICoreService.STATUS_INVISIBLE)
       status = "invisible";
     let statusString = this.displayStatusType(status);
@@ -340,7 +342,14 @@ var buddyList = {
       elt.addEventListener("keypress", this.statusMessageKeyPress, false);
       elt.addEventListener("blur", this.statusMessageBlur, false);
       if (elt.hasAttribute("usingDefault")) {
-        elt.removeAttribute("value");
+        if ("_statusTypeBeforeEditing" in this &&
+            this._statusTypeBeforeEditing == "offline") {
+          let pcs = Components.classes["@instantbird.org/purple/core;1"]
+                        .getService(Ci.purpleICoreService);
+          elt.setAttribute("value", pcs.currentStatusMessage);
+        }
+        else
+          elt.removeAttribute("value");
       }
       // force binding attachmant by forcing layout
       elt.getBoundingClientRect();
