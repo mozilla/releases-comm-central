@@ -72,7 +72,7 @@ var gThemePane = {
                                    .getService(Components.interfaces.nsIURLFormatter)
                                    .formatURLPref(prefURL);
         getMore.setAttribute("getMoreURL", getMoreURL);
-        showGetMore = getMoreURL == "about:blank" ? false : true;
+        showGetMore = getMoreURL != "about:blank";
       }
       catch (e) { }
     }

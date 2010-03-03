@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *   Benedikt P.
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,12 +36,16 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+const PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
+
 const events = [
   "purple-quit"
 ];
 
 var accountWizard = {
   onload: function aw_onload() {
+    accountWizard.setGetMoreProtocols();
+
     var protoList = document.getElementById("protolist");
     this.pcs = Components.classes["@instantbird.org/purple/core;1"]
                          .getService(Ci.purpleICoreService);
@@ -533,5 +538,29 @@ var accountWizard = {
                       "chrome,modal,titlebar,centerscreen",
                       this);
     this.displayProxyDescription();
+  },
+
+  /* Check for correctness and set URL for the "Get more protocols..."-link
+   *  Stripped down code from preferences/themes.js
+   */
+  setGetMoreProtocols: function (){
+    let prefURL = PREF_EXTENSIONS_GETMOREPROTOCOLSURL;
+    var getMore = document.getElementById("getMoreProtocols");
+    var showGetMore = false;
+    const nsIPrefBranch2 = Components.interfaces.nsIPrefBranch2;
+
+    if (Components.classes["@mozilla.org/preferences-service;1"]
+                  .getService(nsIPrefBranch2)
+                  .getPrefType(prefURL) != nsIPrefBranch2.PREF_INVALID) {
+      try {
+        var getMoreURL = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
+                                   .getService(Components.interfaces.nsIURLFormatter)
+                                   .formatURLPref(prefURL);
+        getMore.setAttribute("getMoreURL", getMoreURL);
+        showGetMore = getMoreURL != "about:blank";
+      }
+      catch (e) { }
+    }
+    getMore.hidden = !showGetMore;
   }
 };

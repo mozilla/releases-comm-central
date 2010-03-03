@@ -6,6 +6,7 @@
 <!ENTITY accountProtocolTitle.label   "Protocol">
 <!ENTITY accountProtocolInfo.label    "Please choose the protocol of your IM account in the following list.">
 <!ENTITY accountProtocolField.label   "Protocol:">
+<!ENTITY accountProtocolGetMore.label "Get more…">
 
 <!ENTITY accountUsernameTitle.label   "Username">
 <!ENTITY accountUsernameDuplicate.label "This account is already configured!">

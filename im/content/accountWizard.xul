@@ -21,6 +21,7 @@
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s):
+   -   Benedikt P.
    -
    - Alternatively, the contents of this file may be used under the terms of
    - either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -55,6 +56,7 @@
 
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/accountWizard.js"/>
+  <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
   <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
   <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
 
@@ -73,6 +75,10 @@
            id="protoLabel" hidden="true"/>
     <listbox flex="1" id="protolist"
              ondblclick="document.getElementById('accountWizard').advance();"/>
+    <hbox pack="end">
+      <label id="getMoreProtocols" class="text-link" value="&accountProtocolGetMore.label;"
+             onclick="if (event.button == 0) { openURL(this.getAttribute('getMoreURL'));}"/>
+    </hbox>
   </wizardpage>
 
   <wizardpage id="accountusername" pageid="accountusername" next="accountpassword"
