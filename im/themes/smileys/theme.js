@@ -10,7 +10,7 @@
     {"filename": "slant2.png", "textCodes": [":-\\"], "hidden": true},
     {"filename": "angry.png", "textCodes": ["x-("]},
     {"filename": "sad.png", "textCodes": [":-(", ":(", ")-:", "):"]},
-    {"filename": "cool.png", "textCodes": ["B-)"]},
+    {"filename": "cool.png", "textCodes": ["B-)", "8-)"]},
     {"filename": "tongue.png", "textCodes": [":-P", ":P"]},
     {"filename": "heart.png", "textCodes": ["<3"]},
     {"filename": "straight_face.png", "textCodes": [":-|"]},
