@@ -368,8 +368,19 @@ const headerFooterReplacements = {
   }
 };
 
+function formatAutoResponce(aTxt)
+{
+  let bundle =
+    Components.classes["@mozilla.org/intl/stringbundle;1"]
+              .getService(Components.interfaces.nsIStringBundleService)
+              .createBundle("chrome://instantbird/locale/instantbird.properties");
+  return bundle.formatStringFromName("autoReply", [aTxt], 1);
+}
+
 const statusMessageReplacements = {
-  message: function(aMsg) "<span class=\"ib-msg-txt\">" + aMsg.message + "</span>",
+  message: function(aMsg) "<span class=\"ib-msg-txt\">" +
+                          (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
+                          "</span>",
   time: function(aMsg, aFormat) {
     let date = new Date(aMsg.time * 1000);
     if (aFormat)
@@ -894,7 +905,7 @@ SelectedMessage.prototype = {
     }
     else {
       let div = this._rootNodes[0].ownerDocument.createElement("div");
-      div.innerHTML = msg.message;
+      div.innerHTML = msg.autoResponse ? formatAutoResponce(msg.message) : msg.message;
       text = serializeNode(div);
     }
 
