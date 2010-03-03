@@ -93,7 +93,7 @@
                           label="&messageStyleSimpleTheme.label;"
                           value="simple"/>
                 <menuseparator/>
-                <menuitem id="nomessagestyles-menuitem" label="&messageStyleNoThemes.label;"
+                <menuitem id="nomessagestyles-menuitem" label="&messageStyleNoExtraThemes.label;"
                           disabled="true"/>
               </menupopup>
             </menulist>
@@ -139,7 +139,7 @@
                           label="&emoticonsDisabled.label;"
                           value="none"/>
                 <menuseparator/>
-                <menuitem id="noemoticons-menuitem" label="&emoticonsNoThemes.label;"
+                <menuitem id="noemoticons-menuitem" label="&emoticonsNoExtraThemes.label;"
                           disabled="true"/>
               </menupopup>
             </menulist>
