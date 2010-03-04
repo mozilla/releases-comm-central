@@ -30,6 +30,13 @@ var debug = {
           .garbageCollect();
   },
 
+  forceOnline: function debug_forceOnline() {
+    var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                        .getService(Components.interfaces.nsIIOService2);
+    ios.manageOfflineStatus = false;
+    ios.offline = false;
+  },
+
   load: function debug_load() {
     setTimeout(function() {
       // Load the Window DataSource so that browser windows opened subsequent to DOM

@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
 <overlay id="debug"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/x-javascript" src="chrome://debug/content/debug.js"/>
-  <script type="application/x-javascript" src="chrome://venkman/content/venkman-overlay.js"/>
-  <script type="application/x-javascript" src="chrome://inspector/content/hooks.js"/>
+  <script type="application/javascript" src="chrome://debug/content/debug.js"/>
+  <script type="application/javascript" src="chrome://venkman/content/venkman-overlay.js"/>
+  <script type="application/javascript" src="chrome://inspector/content/hooks.js"/>
 
   <commandset id="maincommandset">
     <command id="domiCommand" oncommand="debug.inspector()"/>
     <command id="configCommand" oncommand="debug.config()"/>
     <command id="gcCommand" oncommand="debug.garbageCollect()"/>
+    <command id="forceOnlineCommand" oncommand="debug.forceOnline()"/>
     <command id="venkmanCommand" oncommand="debug.venkman()"/>
   </commandset>
 
@@ -18,6 +19,7 @@
     <!-- shift + ',' is '?' on a French keyboard... -->
     <key id="configKey2" key="?" command="configCommand" modifiers="accel"/>
     <key id="gcKey" key="C" command="gcCommand" modifiers="accel,shift"/>
+    <key id="forceOnlineKey" key="O" command="forceOnlineCommand" modifiers="accel,shift"/>
     <key id="venkmanKey" key="V" command="venkmanCommand" modifiers="accel,shift"/>
   </keyset>
 
@@ -26,6 +28,7 @@
       <menupopup>
         <menuitem id="domiMenuItem" label="DOM Inspector" key="domiKey" command="domiCommand"/>
         <menuitem id="gcMenuItem" label="Force Garbage Collection" key="gcKey" command="gcCommand"/>
+        <menuitem id="forceOnlineMenuItem" label="Force Online" key="forceOnlineKey" command="forceOnlineCommand"/>
         <menuitem id="venkmanMenuItem" label="Venkman" key="venkmanKey" command="venkmanCommand"/>
         <menuseparator/>
         <menuitem id="configMenuItem" label="about:config" key="configKey" command="configCommand"/>
