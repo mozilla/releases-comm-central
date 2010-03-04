@@ -323,10 +323,12 @@ var account = {
       if (this.account.connecting) {
         this.account.disconnect();
         this.account.connect();
+        return;
       }
       let errorReason = this.account.connectionErrorReason;
       if (this.account.disconnected &&
           errorReason != Ci.purpleIAccount.NO_ERROR &&
+          errorReason != Ci.purpleIAccount.ERROR_MISSING_PASSWORD &&
           errorReason != Ci.purpleIAccount.ERROR_CRASHED &&
           errorReason != Ci.purpleIAccount.ERROR_UNKNOWN_PRPL) {
         this.account.connect();

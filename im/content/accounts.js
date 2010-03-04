@@ -177,8 +177,10 @@ var gAccountManager = {
         --selectedIndex;
       this.accountList.selectedIndex = selectedIndex;
     }
-    else if (aTopic == "account-updated")
+    else if (aTopic == "account-updated") {
       document.getElementById(aObject.id).build(aObject);
+      this.disableCommandItems();
+    }
     else if (aTopic == "account-connect-progress")
       document.getElementById(aObject.id).updateConnectionState();
     else if (aTopic == "account-connect-error")
@@ -321,7 +323,8 @@ var gAccountManager = {
     let isCommandDisabled =
       (this.isOffline ||
        (account.disconnected &&
-        account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL));
+        (account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL ||
+         account.connectionErrorReason == Ci.purpleIAccount.ERROR_MISSING_PASSWORD)));
 
     [[activeCommandElt, isCommandDisabled],
      [document.getElementById("cmd_moveup"), accountList.selectedIndex == 0],
