@@ -64,6 +64,7 @@
   titlemodifier="&convWindow.titlemodifier;"
   width  = "500"
   height = "600"
+  onclose= "return getBrowser().warnAboutClosingTabs(true);"
   persist= "width height screenX screenY"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
