@@ -732,7 +732,10 @@
              event.keyCode != 46))  // Delete
           return;
 
-        editor.focus();
+        let prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                              .getService(Components.interfaces.nsIPrefBranch);
+        if (accelKeyPressed || !prefs.getBoolPref("accessibility.typeaheadfind"))
+          editor.focus();
 
         // Returns for Ctrl+V
         if (accelKeyPressed)
