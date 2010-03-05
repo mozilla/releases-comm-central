@@ -48,15 +48,11 @@ var gAppManagerDialog = {
 
     var bundle = document.getElementById("appManagerBundle");
     var contentText;
-    if (this.handlerInfo.type == TYPE_MAYBE_FEED)
-      contentText = bundle.getString("handleWebFeeds");
-    else {
-      var description = gApplicationsPane._describeType(this.handlerInfo);
-      var key =
-        (this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) ? "handleFile"
-                                                                        : "handleProtocol";
-        contentText = bundle.getFormattedString(key, [description]);
-    }
+    var description = gApplicationsPane._describeType(this.handlerInfo);
+    var key =
+      (this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) ? "handleFile"
+                                                                      : "handleProtocol";
+    contentText = bundle.getFormattedString(key, [description]);
     contentText = bundle.getFormattedString("descriptionApplications", [contentText]);
     document.getElementById("appDescription").textContent = contentText;
 
