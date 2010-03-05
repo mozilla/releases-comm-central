@@ -459,8 +459,11 @@
             //default to true: if it were false, we wouldn't get this far
             var warnOnClose = { value:true };
             var bundle = this.mStringBundle;
-            var messageKey = (unreadConvsCount == 1) ? "tabs.closeWarningOneConversation" : "tabs.closeWarningMultipleConversations";
-            var closeKey = (unreadConvsCount == 1) ? "tabs.closeButtonOne" : "tabs.closeButtonMultiple";
+            if (!("PluralForm" in window))
+              Components.utils.import("resource://gre/modules/PluralForm.jsm");
+            var promptMessage = PluralForm.get(unreadConvsCount, bundle.getString("tabs.closeWarningMessage"))
+                                          .replace("#1", unreadConvsCount);
+            var closeButton = PluralForm.get(unreadConvsCount, bundle.getString("tabs.closeButton"));
             // focus the window before prompting.
             // this will raise any minimized window, which will
             // make it obvious which window the prompt is for and will
@@ -469,10 +472,10 @@
             window.focus();
             var buttonPressed = promptService.confirmEx(window,
                                                         bundle.getString('tabs.closeWarningTitle'),
-                                                        bundle.getFormattedString(messageKey, [unreadConvsCount]),
+                                                        promptMessage,
                                                         (promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_0)
                                                         + (promptService.BUTTON_TITLE_CANCEL * promptService.BUTTON_POS_1),
-                                                        bundle.getString(closeKey),
+                                                        closeButton,
                                                         null, null,
                                                         bundle.getString('tabs.closeWarningPromptMe'),
                                                         warnOnClose);
