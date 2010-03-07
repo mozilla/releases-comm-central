@@ -89,8 +89,7 @@
 -->
             <xul:editor anonid="editor" editortype="html" src="about:blank" flex="1"/>
           </xul:vbox>
-          <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true"
-                       spellcheck="true" flex="1"/>
+          <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"/>
         </xul:deck>
       </xul:vbox>
     </content>
@@ -482,6 +481,12 @@
                                     this._TEXTBOX_VERTICAL_OVERHEAD;
         document.getAnonymousElementByAttribute(textbox, "anonid", "input")
                 .style.overflowY = "hidden";
+
+        // Delay the initialization of the spellchecker until after
+        // the checkbox is initialized, otherwise the spellchecker is
+        // broken in conversations added to the window before it is
+        // visible (bug 295).
+        textbox.setAttribute("spellcheck", "true");
       ]]>
       </body>
      </method>
