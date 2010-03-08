@@ -95,6 +95,14 @@ buddy[status="offline"] .statusIcon {
   background-image: url('chrome://instantbird/skin/offline.png');
 }
 
+buddy[status="offline"] .protoIcon {
+  opacity: 0.3;
+}
+
+buddy[status="offline"][selected="true"] .protoIcon {
+  opacity: 0.7;
+}
+
 buddy[removing="true"] .buddyDisplayName {
   color: GrayText;
   font-style: italic;
