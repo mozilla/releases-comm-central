@@ -218,3 +218,14 @@ group[closed] .twisty {
 %endif
 }
 %endif
+
+%ifdef XP_WIN
+.menu-iconic-left {
+  margin-left: -16px;
+}
+
+.menu-iconic-left > .menu-iconic-icon {
+  margin-left: 32px;
+  display: -moz-box;
+}
+%endif
