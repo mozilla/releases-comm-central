@@ -50,6 +50,10 @@ _ABS_DIST := $(shell cd $(DIST) && pwd)
 vpath %.xml @srcdir@/en-US/searchplugins
 vpath %.xml $(LOCALE_SRCDIR)/searchplugins
 
+ifndef MOZ_BRANDING_DIRECTORY
+MOZ_BRANDING_DIRECTORY = instantbird/branding/nightly
+endif
+
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales/Makefile \
@@ -120,10 +124,8 @@ libs-%:
 	@$(MAKE) -C ../../purple/locales libs-$* AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 	@$(MAKE) -C ../../mozilla/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref BOTH_MANIFESTS=1
-ifdef MOZ_BRANDING_DIRECTORY
-	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
-endif
 	@$(MAKE) tests AB_CD=$*
+	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 
 ifneq (,$(filter cocoa,$(MOZ_WIDGET_TOOLKIT)))
 MOZ_PKG_MAC_DSSTORE=$(_ABS_DIST)/branding/dsstore
