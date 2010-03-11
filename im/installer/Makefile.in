@@ -129,6 +129,10 @@ ifdef MOZ_UPDATER
 DEFINES += -DMOZ_UPDATER=1
 endif
 
+ifdef MOZ_MEMORY
+DEFINES += -DMOZ_MEMORY=1
+endif
+
 ifdef MOZ_PKG_MANIFEST_P
 MOZ_PKG_MANIFEST = packages-static
 
