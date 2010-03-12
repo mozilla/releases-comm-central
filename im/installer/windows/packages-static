@@ -7,7 +7,17 @@
 [@AB_CD@]
 bin\chrome\@AB_CD@.jar
 bin\chrome\@AB_CD@.manifest
+bin\defaults\pref\all-l10n.js
 bin\dictionaries\*
+bin\searchplugins\*.xml
+bin\update.locale
+bin\updater.ini
+#ifdef XP_WIN32
+#ifndef WINCE
+bin\uninstall\helper.exe
+#endif
+#endif
+bin\crashreporter.ini
 
 [xpcom]
 bin\xul.dll
@@ -27,9 +37,6 @@ bin\mozcrt19.dll
 
 ; Modules
 bin\modules\*
-
-; Search engines
-bin\searchplugins\*.xml
 
 [instantbird]
 
@@ -91,7 +98,9 @@ bin\chrome\classic.manifest
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; default pref files
-bin\defaults\pref\*
+bin\defaults\pref\all-instantbird.js
+bin\defaults\pref\purple-prefs.js
+bin\defaults\pref\channel-prefs.js
 bin\greprefs\*
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -366,12 +375,6 @@ bin\components\dom_svg.xpt
 
 ; [Updater]
 bin\updater.exe
-bin\update.locale
-bin\updater.ini
-
-; [Uninstall]
-bin\uninstall\helper.exe
 
 ; [crash reporter]
 bin\crashreporter.exe
-bin\crashreporter.ini
