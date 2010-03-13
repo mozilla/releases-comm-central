@@ -60,8 +60,12 @@
         <menuitem id="joinChatMenuItem" label="&joinChat;" oncommand="menus.joinChat()"/>
         <menuseparator/>
         <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);">
+#ifdef XP_MACOSX
           <menupopup id="setStatusMenupopup" onpopupshowing="menus.onStatusPopupShowing();">
-            <menuitem id="statusAvailable" status="available" label="&available;" class="menuitem-iconic" checked="true"/>
+#else
+          <menupopup id="setStatusMenupopup">
+#endif
+            <menuitem id="statusAvailable" status="available" label="&available;" class="menuitem-iconic"/>
             <menuitem id="statusUnavailable" status="unavailable" label="&unavailable;" class="menuitem-iconic"/>
             <menuseparator id="statusOfflineSeparator"/>
             <menuitem id="statusOffline" status="offline" label="&offline;" class="menuitem-iconic"/>

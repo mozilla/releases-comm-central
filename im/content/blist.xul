@@ -112,7 +112,6 @@
     <toolbar id="statusArea">
       <button type="menu" id="statusTypeIcon" status="available">
         <menupopup id="setStatusTypeMenupopup"
-                   onpopupshowing="buddyList.onStatusPopupShowing();"
                    oncommand="buddyList.editStatus(event);">
           <menuitem id="statusTypeAvailable" label="&available;"
                     status="available" class="menuitem-iconic"/>

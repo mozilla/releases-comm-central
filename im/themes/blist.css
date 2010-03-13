@@ -226,16 +226,3 @@ group[closed] .twisty {
 %endif
 }
 %endif
-
-%ifdef XP_WIN
-#setStatusMenupopup .menu-iconic-left,
-#setStatusTypeMenupopup .menu-iconic-left {
-  margin-left: -16px;
-}
-
-#setStatusMenupopup .menu-iconic-left > .menu-iconic-icon,
-#setStatusTypeMenupopup .menu-iconic-left > .menu-iconic-icon {
-  margin-left: 32px;
-  display: -moz-box;
-}
-%endif

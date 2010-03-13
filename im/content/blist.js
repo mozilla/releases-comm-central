@@ -302,12 +302,6 @@ var buddyList = {
     statusMessage.setAttribute("tooltiptext", message);
   },
 
-  onStatusPopupShowing: function bl_onStatusPopupShowing() {
-    menus.checkCurrentStatusType(["statusTypeAvailable",
-                                  "statusTypeUnavailable",
-                                  "statusTypeOffline"]);
-  },
-
   editStatus: function bl_editStatus(aEvent) {
     let status = aEvent.originalTarget.getAttribute("status");
     if (status == "offline") {
