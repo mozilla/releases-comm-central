@@ -136,6 +136,7 @@ endif
 
 PACKAGER_NO_LIBS = 1
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
+PKG_INST_PATH =
 
 repackage-win32-installer: WIN32_INSTALLER_OUT="$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe"
 repackage-win32-installer: $(WIN32_INSTALLER_IN) $(SUBMAKEFILES)
@@ -377,3 +378,27 @@ ifdef LOCALE_MERGEDIR
 	MACOSX_DEPLOYMENT_TARGET= compare-locales -m $(LOCALE_MERGEDIR) $(srcdir)/l10n.ini $(L10NBASEDIR) $*
 endif
 	@echo
+
+IB_L10N_REPO_BASE = https://hg.instantbird.org/l10n
+MOZ_L10N_REPO_BASE = http://hg.mozilla.org/releases/l10n-mozilla-1.9.2
+
+checkout-%: AB_CD=$*
+checkout-%:
+	mkdir -p $(L10NBASEDIR)
+	if test ! -d $(L10NBASEDIR)/$(AB_CD); then \
+	  hg clone $(IB_L10N_REPO_BASE)/$(AB_CD) $(L10NBASEDIR)/$(AB_CD) ; \
+	else \
+	  hg pull -R $(L10NBASEDIR)/$(AB_CD) $(IB_L10N_REPO_BASE)/$(AB_CD) ; \
+	fi
+	if test ! -d $(L10NBASEDIR)/moz-$(AB_CD); then \
+	  hg clone $(MOZ_L10N_REPO_BASE)/$(AB_CD) $(L10NBASEDIR)/moz-$(AB_CD) ; \
+	else \
+	  hg pull -R $(L10NBASEDIR)/moz-$(AB_CD) $(MOZ_L10N_REPO_BASE)/$(AB_CD) ; \
+	fi
+	cp -r $(L10NBASEDIR)/moz-$(AB_CD)/{dom,extensions,netwerk,security,toolkit} $(L10NBASEDIR)/$(AB_CD)/
+
+repack-%: AB_CD=$*
+repack-%:
+	make checkout-$(AB_CD)
+	make merge-$(AB_CD)
+	make installers-$(AB_CD)

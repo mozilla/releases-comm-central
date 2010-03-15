@@ -47,6 +47,7 @@ include $(DEPTH)/config/autoconf.mk
 
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/package-name.mk
 
+PKG_INST_PATH =
 CONFIG_DIR = instgen
 SFX_MODULE = $(topsrcdir)/other-licenses/7zstub/instantbird/7zSD.sfx
 DEFINES += -DMOZ_APP_VERSION=$(MOZ_APP_VERSION)
