@@ -77,7 +77,8 @@
         <textbox id="timeBeforeAway" type="number"
                  observes="idleReportingEnabled"
                  preference="messenger.status.timeBeforeIdle"
-                 onsyncfrompreference="return document.getElementById(this.getAttribute('preference')).valueFromPreferences / 60;"
+                 onsyncfrompreference="var elt = document.getElementById(this.getAttribute('preference'));
+                                       return (elt.instantApply ? elt.valueFromPreferences : elt.value) / 60;"
                  onsynctopreference="return this.value * 60;"/>
         <label value="&idleTime;" control="timeBeforeAway"/>
       </hbox>
