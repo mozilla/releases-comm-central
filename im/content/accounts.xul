@@ -143,25 +143,25 @@
    <menuitem command="cmd_edit" observes="contextAccountsItems"/>
  </menupopup>
 
- <notificationbox id="accountsNotificationBox" flex="1">
-  <deck flex="1" id="accountsDesk" ondblclick="gAccountManager.new();">
-    <vbox flex="1" id="noAccountScreen" align="center" pack="center">
-      <hbox id="noAccountBox" align="top">
-        <image id="noAccountImage"/>
-        <vbox id="noAccountInnerBox" flex="1">
-          <label id="noAccountTitle" value="&accountManager.noAccount.title;"/>
-          <description id="noAccountDesc">&accountManager.noAccount.description;</description>
-        </vbox>
-      </hbox>
-    </vbox>
-    <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
-                 onselect="gAccountManager.onAccountSelect();"
-                 ondragstart="nsDragAndDrop.startDrag(event, gAMDragAndDrop);"
-                 ondragover="nsDragAndDrop.dragOver(event, gAMDragAndDrop);"
-                 ondragend="gAMDragAndDrop.cleanBorders(true);"
-                 ondragdrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
-  </deck>
- </notificationbox>
+ <deck flex="1" id="accountsDesk" ondblclick="gAccountManager.new();">
+   <vbox flex="1" id="noAccountScreen" align="center" pack="center">
+     <hbox id="noAccountBox" align="top">
+       <image id="noAccountImage"/>
+       <vbox id="noAccountInnerBox" flex="1">
+         <label id="noAccountTitle" value="&accountManager.noAccount.title;"/>
+         <description id="noAccountDesc">&accountManager.noAccount.description;</description>
+       </vbox>
+     </hbox>
+   </vbox>
+   <notificationbox id="accountsNotificationBox" flex="1">
+     <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
+                  onselect="gAccountManager.onAccountSelect();"
+                  ondragstart="nsDragAndDrop.startDrag(event, gAMDragAndDrop);"
+                  ondragover="nsDragAndDrop.dragOver(event, gAMDragAndDrop);"
+                  ondragend="gAMDragAndDrop.cleanBorders(true);"
+                  ondragdrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
+   </notificationbox>
+ </deck>
  <windowdragbox id="bottombuttons" align="center">
   <button id="newaccount" command="cmd_new"/>
   <spacer flex="1"/>
