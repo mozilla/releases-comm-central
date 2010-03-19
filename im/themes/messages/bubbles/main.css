@@ -63,7 +63,7 @@ div.bubble>div.indicator {
 }
 
 div.bubble.event {
-  padding: 5px 15px 4px 15px;
+  padding: 4px 15px 4px 15px;
   background-color: hsl(0, 0%, 99%);
   border-color: hsl(0, 0%, 85%);
   -moz-box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
