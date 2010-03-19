@@ -2,7 +2,6 @@ pref("toolkit.defaultChromeURI", "chrome://instantbird/content/blist.xul");
 pref("toolkit.singletonWindowType", "Messenger:blist");
 
 #expand pref("general.useragent.extra.instantbird", "Instantbird/__APP_VERSION__");
-#expand pref("general.useragent.locale", "__AB_CD__");
 
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
