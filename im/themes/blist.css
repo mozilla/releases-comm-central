@@ -122,6 +122,8 @@ group label {
 group .twisty {
   padding-top: 1px;
   width: 9px; /* The image's width is 9 pixels */
+  -moz-margin-end: 3px;
+  -moz-margin-start: 3px;
   background: url("chrome://global/skin/tree/twisty-open.png") no-repeat center;
 }
 
