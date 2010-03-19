@@ -77,5 +77,16 @@ var gThemePane = {
       catch (e) { }
     }
     getMore.hidden = !showGetMore;
+  },
+
+  // Get extension list (slow) and cache it for use by messagestyle.js and smileys.js
+  getExtensionList: function () {
+    if (!this.extensionList) {
+      this.extensionList =
+        Components.classes["@mozilla.org/extensions/manager;1"]
+                  .getService(Components.interfaces.nsIExtensionManager)
+                  .getItemList(Components.interfaces.nsIUpdateItem.TYPE_EXTENSION, {});
+    }
+    return this.extensionList;
   }
-}
+};

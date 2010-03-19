@@ -116,9 +116,7 @@ Message.prototype = {
 var previewObserver = {
   buildThemeList: function() {
     let themeList =
-      Components.classes["@mozilla.org/extensions/manager;1"]
-                .getService(Components.interfaces.nsIExtensionManager)
-                .getItemList(Components.interfaces.nsIUpdateItem.TYPE_EXTENSION, {})
+      gThemePane.getExtensionList()
                 .filter(function(item) /^messagestyle-/.test(item.id))
                 .sort(function(item1, item2) {
                   let name1 = item1.name.toLowerCase();
