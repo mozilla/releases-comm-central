@@ -129,14 +129,13 @@ conversation:not([chat="true"]) .conv-chat {
 
 %ifdef XP_MACOSX
 .splitter.conv-chat {
-  -moz-border-end: none !important;
-  -moz-border-start: 1px solid #404040;
+  background: -moz-linear-gradient(top, #404040, rgba(0,0,0,0.35));
   min-width: 1px;
   width: 1px;
 }
 
 :root:not([active="true"]) .splitter.conv-chat {
-  border-color: rgba(0,0,0,0.35);
+  background: rgba(0,0,0,0.35);
 }
 
 .splitter.conv-chat[state="collapsed"] {
@@ -145,20 +144,16 @@ conversation:not([chat="true"]) .conv-chat {
 
 .conv-nicklist {
   -moz-appearance: none;
-  background-color: #d2d8e2;
+  background: -moz-linear-gradient(top, #d2d8e2, #e8e8e8);
   width: 160px;
   border: 0px;
 }
 
 :root:not([active="true"]) .conv-nicklist {
-  background-color: #e8e8e8;
+  background: #e8e8e8;
 }
 
 .conv-top {
-  border-bottom: 1px solid #404040;
-}
-
-:root:not([active="true"]) .conv-top {
-  border-bottom-color: rgba(0,0,0,0.35);
+  border-bottom: 1px solid rgba(0,0,0,0.35);
 }
 %endif
