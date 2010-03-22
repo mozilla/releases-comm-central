@@ -230,8 +230,15 @@
           document.getAnonymousElementByAttribute(this, "anonid", "displayname");
         textbox.getBoundingClientRect(); // force binding attachmant by forcing layout
         textbox.select();
+
+        // Some keys (home/end for example) can make the selected item
+        // of the richlistbox change without producing a blur event on
+        // our textbox. Make sure we watch richlistbox selection changes.
         var self = this;
-        this._parentSelectListener = function() { self.finishAliasing(true); };
+        this._parentSelectListener = function(aEvent) {
+          if (aEvent.target == self.parentNode)
+            self.finishAliasing(true);
+        };
         this.parentNode.addEventListener("select", this._parentSelectListener, false);
       ]]>
       </body>
