@@ -250,6 +250,8 @@
          this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
          if (aElt.hasAttribute("status"))
            this.setAttribute("status", aElt.getAttribute("status"));
+         else
+           this.removeAttribute("status");
          this.setBuddyIcon(aBuddy.buddyIconFilename);
 
          if (alias != name)
