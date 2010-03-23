@@ -139,6 +139,7 @@ classic.jar:
 	skin/classic/prpl/zephyr/icon48.png	(prpl/prpl-zephyr-48.png)
 	skin/classic/prpl/zephyr/icon.png	(prpl/prpl-zephyr.png)
 #endif
+% skin instantbird-sounds classic/1.0 %skin/classic/instantbird/sounds/
 	skin/classic/instantbird/sounds/alert.wav	(sounds/alert.wav)
 	skin/classic/instantbird/sounds/login.wav	(sounds/login.wav)
 	skin/classic/instantbird/sounds/logout.wav	(sounds/logout.wav)
@@ -175,6 +176,7 @@ classic.jar:
 	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-end-bkgnd-animate.png  	(tabbrowser-winstripe/alltabs-box-overflow-end-bkgnd-animate.png)
 	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-start-bkgnd-animate.png	(tabbrowser-winstripe/alltabs-box-overflow-start-bkgnd-animate.png)
 #endif
+% skin instantbird-emoticons classic/1.0 %skin/classic/instantbird/smileys/
 	skin/classic/instantbird/smileys/theme.js              (smileys/theme.js)
 	skin/classic/instantbird/smileys/angry.png             (smileys/angry.png)
 	skin/classic/instantbird/smileys/confused.png          (smileys/confused.png)
@@ -196,6 +198,7 @@ classic.jar:
 	skin/classic/instantbird/smileys/straight_face.png     (smileys/straight_face.png)
 	skin/classic/instantbird/smileys/tongue.png            (smileys/tongue.png)
 	skin/classic/instantbird/smileys/wink.png              (smileys/wink.png)
+% skin instantbird-messagestyles classic/1.0 %skin/classic/instantbird/messages/
 	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_0.png       (messages/bubbles/Bitmaps/indicator_0.png)
 	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_0_alt.png   (messages/bubbles/Bitmaps/indicator_0_alt.png)
 	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_10.png      (messages/bubbles/Bitmaps/indicator_10.png)

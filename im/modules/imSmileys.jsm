@@ -110,7 +110,7 @@ function getTheme(aName)
     return theme;
 
   if (name == "default")
-    theme.baseUri = "chrome://instantbird/skin/smileys/";
+    theme.baseUri = "chrome://instantbird-emoticons/skin/";
   else
     theme.baseUri = "chrome://" + theme.name + "/skin/";
   let ios = Components.classes["@mozilla.org/network/io-service;1"]

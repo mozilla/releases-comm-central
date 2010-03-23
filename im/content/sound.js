@@ -40,11 +40,11 @@ const soundsPref = "playSounds";
 
 var soundHelper = {
   soundFiles: {
-    incoming: "chrome://instantbird/skin/sounds/receive.wav",
-    outgoing: "chrome://instantbird/skin/sounds/send.wav",
-    login: "chrome://instantbird/skin/sounds/login.wav",
-    logout: "chrome://instantbird/skin/sounds/logout.wav",
-    alert: "chrome://instantbird/skin/sounds/alert.wav"
+    incoming: "chrome://instantbird-sounds/skin/receive.wav",
+    outgoing: "chrome://instantbird-sounds/skin/send.wav",
+    login: "chrome://instantbird-sounds/skin/login.wav",
+    logout: "chrome://instantbird-sounds/skin/logout.wav",
+    alert: "chrome://instantbird-sounds/skin/alert.wav"
   },
   _soundUri: { },
   _playingEvents: [ ],

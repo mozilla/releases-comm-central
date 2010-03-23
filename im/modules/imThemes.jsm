@@ -212,7 +212,7 @@ function getInfoPlistContent(aBaseURI)
 function getChromeBaseURI(aThemeName)
 {
   if (DEFAULT_THEMES.indexOf(aThemeName) != -1)
-    return "chrome://instantbird/skin/messages/" + aThemeName + "/";
+    return "chrome://instantbird-messagestyles/skin/" + aThemeName + "/";
   return "chrome://" + aThemeName + "/skin/";
 }
 
