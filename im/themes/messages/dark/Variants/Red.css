@@ -1,4 +1,4 @@
-p.outgoing {
-  border-top: 1px solid rgba(255, 170, 170, 0.4);
-  background: -moz-linear-gradient(top, rgba(255, 170, 170, 0.3), rgba(255, 165, 165, 0.1) 30px);
+p.incoming {
+  border-top: 1px solid hsla(0, 100%, 80%, 0.4);
+  background: -moz-linear-gradient(top, hsla(0, 100%, 80%, 0.3), hsla(0, 100%, 80%, 0.1) 30px);
 }

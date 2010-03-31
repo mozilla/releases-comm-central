@@ -1,5 +1,28 @@
 
 <script type="text/javascript">
+const p_border_top = "1px solid hsla(#, 100%, 80%, 0.4)";
+const p_background = "-moz-linear-gradient(top, hsla(#, 100%, 80%, 0.3), hsla(#, 100%, 80%, 0.1) 30px)";
+
+function setColors(target)
+{
+  var senderColor = target.getAttribute("senderColor");
+
+  if (!senderColor)
+    return;
+
+  var regexp = /color:\s*hsl\(\s*(\d{1,3})\s*,\s*\d{1,3}\%\s*,\s*\d{1,3}\%\s*\)/;
+  var parsed = regexp.exec(senderColor);
+
+  if (!parsed)
+    return;
+
+  var senderHue = parsed[1];
+
+  target.style.borderTop = p_border_top.replace("#", senderHue);
+  target.style.background = p_background.replace("#", senderHue, "g");
+}
+
+
 const fade_speed = 30;
 
 var smoothDisplay = {
@@ -30,4 +53,18 @@ var smoothDisplay = {
     }
   }
 };
+
+
+function checkNewText(aEvent)
+{
+  var target = aEvent.originalTarget;
+  if (!(target instanceof HTMLElement))
+    return;
+
+  if (target.tagName == "P" && target.className != "event-messages")
+    setColors(target);
+}
+
+document.getElementById("ibcontent")
+        .addEventListener("DOMNodeInserted", checkNewText, false);
 </script>
