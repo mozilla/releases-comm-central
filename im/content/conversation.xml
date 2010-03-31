@@ -279,7 +279,61 @@
           msg.split("\n").forEach(this._conv.sendMsg, this._conv);
         else if (account.HTMLEnabled) {
           msg = msg.replace(/\n/g, "<br/>");
-          this._conv.sendMsg(window._messageFormat.styleOutgoingMessage(msg));
+          let prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                                .getService(Components.interfaces.nsIPrefBranch);
+          if (prefs.getBoolPref("messenger.conversations.sendFormat")) {
+            let style = window._messageFormat.getMessageStyle();
+            let proto = this._conv.account.protocol.id;
+            if (proto == "prpl-msn") {
+              if ("color" in style)
+                msg = "<font color=\"" + style.color + "\">" + msg + "</font>";
+              if ("fontFamily" in style)
+                msg = "<font face=\"" + style.fontFamily + "\">" + msg + "</font>";
+              // MSN doesn't support font size info in messages...
+            }
+            else if (proto == "prpl-aim" || proto == "prpl-icq" ||
+                     proto == "prpl-yahoo" || proto == "prpl-yahoojp") {
+              let styleAttributes = ""
+              if ("color" in style)
+                styleAttributes += " color=\"" + style.color + "\"";
+              if ("fontFamily" in style)
+                styleAttributes += " face=\"" + style.fontFamily + "\"";
+              if ("fontSize" in style) {
+                let size = style.fontSize - style.defaultFontSize;
+                if (size < -4)
+                  size = 1;
+                else if (size < 0)
+                  size = 2;
+                else if (size < 3)
+                  size = 3
+                else if (size < 7)
+                  size = 4;
+                else if (size < 15)
+                  size = 5;
+                else if (size < 25)
+                  size = 6;
+                else
+                  size = 7;
+                styleAttributes += " size=\"" + size + "\""
+                                 + " style=\"font-size: " + style.fontSize + "px;\"";
+              }
+              if (styleAttributes)
+                msg = "<font" + styleAttributes + ">" + msg + "</font>";
+            }
+            else {
+              let styleProperties = [];
+              if ("color" in style)
+                styleProperties.push("color: " + style.color);
+              if ("fontFamily" in style)
+                styleProperties.push("font-family: " + style.fontFamily);
+              if ("fontSize" in style)
+                styleProperties.push("font-size: " + style.fontSize + "px");
+              style = styleProperties.join("; ");
+              if (style)
+                msg = "<span style=\"" + style + "\">" + msg + "</span>";
+            }
+          }
+          this._conv.sendMsg(msg);
         }
         else
           this._conv.sendMsg(msg);
@@ -370,7 +424,7 @@
             build: function mf_build() {
               this.prefs =
                 Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefBranch);
+                          .getService(Components.interfaces.nsIPrefService);
               this.getValues();
             },
 
@@ -390,6 +444,7 @@
                 fontIsDefault: !prefs.prefHasUserValue(fontPref),
                 fontSize: prefs.getIntPref(fontSizePref),
                 fontSizeIsDefault: !prefs.prefHasUserValue(fontSizePref),
+                defaultFontSize: prefs.getDefaultBranch(null).getIntPref(fontSizePref),
                 foregroundColor: prefs.getCharPref("browser.display.foreground_color"),
                 foregroundColorIsDefault:
                   !prefs.prefHasUserValue("browser.display.foreground_color"),
@@ -405,7 +460,7 @@
                 "browser.display.use_system_colors"
               ];
               for each (let name in this._observedPrefs)
-                this.prefs.addObserver(name, this, false);
+                prefs.addObserver(name, this, false);
             },
             unregisterObservers: function mf_unregisterObservers() {
               for each (let name in this._observedPrefs)
@@ -428,28 +483,21 @@
               aTextbox.style.fontFamily = this._values.font;
             },
             getMessageStyle: function mf_getMessageStyle() {
-              let result = [];
+              let result = {};
 
               let color = this._getColor();
               if (color)
-                result.push("color: " + color);
+                result.color = color;
 
-              if (!this._values.fontSizeIsDefault)
-                result.push("font-size: " + this._values.fontSize + "px");
-
-              if (!this._values.fontIsDefault)
-                result.push("font-family: " + this._values.font);
-
-              return result.join("; ");
-            },
-            styleOutgoingMessage: function mf_styleOutgoingMessage(aMsg) {
-              if (this.prefs.getBoolPref("messenger.conversations.sendFormat")) {
-                let style = this.getMessageStyle();
-                if (style)
-                  return "<span style=\"" + style + "\">" + aMsg + "</span>";
+              if (!this._values.fontSizeIsDefault) {
+                result.fontSize = this._values.fontSize;
+                result.defaultFontSize = this._values.defaultFontSize;
               }
 
-              return aMsg;
+              if (!this._values.fontIsDefault)
+                result.fontFamily = this._values.font;
+
+              return result;
             },
             _textboxes: [],
             registerTextbox: function mf_registerTextbox(aTextbox) {
