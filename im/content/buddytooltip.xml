@@ -298,6 +298,7 @@
          this.setAttribute("displayname", aConv.name);
          let account = aConv.account;
          this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
+         this.removeAttribute("status");
          this.setBuddyIcon(null);
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
          return true;
