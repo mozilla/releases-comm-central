@@ -298,7 +298,7 @@
                               .scanHTML(msg.replace(/&/g, "&amp;"), 2)
                               .replace(/&amp;/g, "&");
             }
-            aMsg.message = cleanupImMarkup(doc, msg.replace(/\n/g, "<br/>"), null,
+            aMsg.message = cleanupImMarkup(doc, msg.replace(/\r?\n/g, "<br/>"), null,
                                            this._textModifiers);
             let next = isNextMessage(this.theme, aMsg, this._lastMessage);
             let html = getHTMLForMessage(aMsg, this.theme, next);
