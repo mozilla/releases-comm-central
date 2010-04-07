@@ -387,6 +387,7 @@ const statusMessageReplacements = {
       return date.toLocaleFormat(aFormat);
     return date.toLocaleTimeString();
   },
+  timestamp: function(aMsg) aMsg.time,
   shortTime: function(aMsg) (new Date(aMsg.time * 1000)).toLocaleTimeString(),
   messageClasses: function(aMsg) {
     let msgClass = [];
