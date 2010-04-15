@@ -153,5 +153,5 @@ interface purpleIOverrideProtocol: purpleIProtocol {
 };
 
 %{C++
-#define PURPLE_OVERRIDE_PROTOCOL_CATEGORY "purple-override-protocol"
+#define JS_PROTOCOL_PLUGIN_CATEGORY "js-protocol-plugin"
 %}

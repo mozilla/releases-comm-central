@@ -138,7 +138,7 @@ facebookProtocol.prototype = {
   classID: Components.ID("{61bc3528-df53-4481-a61a-74c3a2e8c9fd}"),
   contractID: "@instantbird.org/purple/facebook;1",
   QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol]),
-  _xpcom_categories: [{category: "purple-override-protocol"}],
+  _xpcom_categories: [{category: "js-protocol-plugin"}],
   _xpcom_factory: {
     createInstance: function(outer, iid) {
       if (outer != null)

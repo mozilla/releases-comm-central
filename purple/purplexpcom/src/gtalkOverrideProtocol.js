@@ -65,7 +65,7 @@ gtalkProtocol.prototype = {
   classID: Components.ID("{ad8a6454-2f5a-40c2-86ca-30062408125e}"),
   contractID: "@instantbird.org/purple/gtalk;1",
   QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol]),
-  _xpcom_categories: [{category: "purple-override-protocol"}],
+  _xpcom_categories: [{category: "js-protocol-plugin"}],
   _xpcom_factory: {
     createInstance: function(outer, iid) {
       if (outer != null)
