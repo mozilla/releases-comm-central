@@ -1,5 +1,11 @@
 classic.jar:
+#ifndef XP_WIN
 % skin instantbird classic/1.0 %skin/classic/instantbird/
+#else
+% skin instantbird classic/1.0 %skin/classic/instantbird/ os=WINNT osversion<6
+% skin instantbird classic/1.0 %skin/classic/instantbird/ os!=WINNT
+% skin instantbird classic/1.0 %skin/classic/aero/instantbird/ os=WINNT osversion>=6
+#endif
 	skin/classic/instantbird/account.css
 *	skin/classic/instantbird/accounts.css
 *	skin/classic/instantbird/richlistbox.css
@@ -31,6 +37,12 @@ classic.jar:
 	skin/classic/instantbird/menus.css
 *	skin/classic/instantbird/viewlog.css
 	skin/classic/instantbird/newMessage.png
+	skin/classic/instantbird/prpl-generic/icon32.png	(prpl/prpl-generic-32.png)
+	skin/classic/instantbird/prpl-generic/icon48.png	(prpl/prpl-generic-48.png)
+	skin/classic/instantbird/prpl-generic/icon.png		(prpl/prpl-generic.png)
+	skin/classic/instantbird/prpl-unknown/icon32.png	(prpl/prpl-unknown-32.png)
+	skin/classic/instantbird/prpl-unknown/icon48.png	(prpl/prpl-unknown-48.png)
+	skin/classic/instantbird/prpl-unknown/icon.png		(prpl/prpl-unknown.png)
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
 	skin/classic/instantbird/preferences/Options.png        (preferences-pinstripe/Options.png)
@@ -55,12 +67,96 @@ classic.jar:
 	skin/classic/instantbird/preferences/saveFile.png       (preferences-winstripe/saveFile.png)
 	skin/classic/instantbird/preferences/mail.png           (preferences-winstripe/mail.png)
 #endif
-	skin/classic/instantbird/prpl-generic/icon32.png	(prpl/prpl-generic-32.png)
-	skin/classic/instantbird/prpl-generic/icon48.png	(prpl/prpl-generic-48.png)
-	skin/classic/instantbird/prpl-generic/icon.png		(prpl/prpl-generic.png)
-	skin/classic/instantbird/prpl-unknown/icon32.png	(prpl/prpl-unknown-32.png)
-	skin/classic/instantbird/prpl-unknown/icon48.png	(prpl/prpl-unknown-48.png)
-	skin/classic/instantbird/prpl-unknown/icon.png		(prpl/prpl-unknown.png)
+#ifdef XP_UNIX
+#ifdef XP_MACOSX
+	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-pinstripe/tabbrowser.css)
+	skin/classic/instantbird/unified.xml                            (tabbrowser-pinstripe/unified.xml)
+	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-pinstripe/newtab.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-pinstripe/tab-arrow-left.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-pinstripe/tab-arrow-right.png)
+	skin/classic/instantbird/tabbrowser/tab-bkgnd.png		(tabbrowser-pinstripe/tab-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabbrowser-tabs-bkgnd.png	(tabbrowser-pinstripe/tabbrowser-tabs-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-pinstripe/tabDragIndicator.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-bkgnd-animate.png (tabbrowser-pinstripe/alltabs-box-overflow-bkgnd-animate.png)
+#else
+	skin/classic/instantbird/tabbrowser.css	(tabbrowser-gnomestripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-gnomestripe/tabDragIndicator.png)
+#endif
+#else
+	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-winstripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-winstripe/newtab.png)
+	skin/classic/instantbird/tabbrowser/tab-active-bkgnd.png	(tabbrowser-winstripe/tab-active-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-winstripe/tab-arrow-left.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-winstripe/tab-arrow-right.png)
+	skin/classic/instantbird/tabbrowser/tab-bkgnd.png		(tabbrowser-winstripe/tab-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabbrowser-tabs-bkgnd.png	(tabbrowser-winstripe/tabbrowser-tabs-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-winstripe/tabDragIndicator.png)
+	skin/classic/instantbird/tabbrowser/tab-hover-bkgnd.png		(tabbrowser-winstripe/tab-hover-bkgnd.png)
+	skin/classic/instantbird/tabbrowser/tabstrip-bottom.png		(tabbrowser-winstripe/tabstrip-bottom.png)
+	skin/classic/instantbird/tabbrowser/mainwindow-dropdown-arrow.png	(tabbrowser-winstripe/mainwindow-dropdown-arrow.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-end-bkgnd-animate.png  	(tabbrowser-winstripe/alltabs-box-overflow-end-bkgnd-animate.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-start-bkgnd-animate.png	(tabbrowser-winstripe/alltabs-box-overflow-start-bkgnd-animate.png)
+#endif
+#ifdef XP_WIN
+	skin/classic/aero/instantbird/account.css
+*	skin/classic/aero/instantbird/accounts.css
+*	skin/classic/aero/instantbird/richlistbox.css
+*	skin/classic/aero/instantbird/accountWizard.css
+	skin/classic/aero/instantbird/available-16.png
+	skin/classic/aero/instantbird/available.png
+	skin/classic/aero/instantbird/away-16.png
+	skin/classic/aero/instantbird/away.png
+	skin/classic/aero/instantbird/idle-16.png
+	skin/classic/aero/instantbird/idle.png
+	skin/classic/aero/instantbird/mobile-16.png
+	skin/classic/aero/instantbird/mobile.png
+	skin/classic/aero/instantbird/offline-16.png
+	skin/classic/aero/instantbird/offline.png
+	skin/classic/aero/instantbird/typing-16.png
+	skin/classic/aero/instantbird/typed-16.png
+	skin/classic/aero/instantbird/unknown-16.png
+	skin/classic/aero/instantbird/chat-16.png
+	skin/classic/aero/instantbird/founder.png
+	skin/classic/aero/instantbird/operator.png
+	skin/classic/aero/instantbird/half-operator.png
+	skin/classic/aero/instantbird/voice.png
+*	skin/classic/aero/instantbird/blist.css
+	skin/classic/aero/instantbird/buddytooltip.css
+	skin/classic/aero/instantbird/conv.css
+*	skin/classic/aero/instantbird/conversation.css
+*	skin/classic/aero/instantbird/engineManager.css
+*	skin/classic/aero/instantbird/instantbird.css
+	skin/classic/aero/instantbird/menus.css
+*	skin/classic/aero/instantbird/viewlog.css
+	skin/classic/aero/instantbird/newMessage.png
+	skin/classic/aero/instantbird/prpl-generic/icon32.png   (prpl/prpl-generic-32.png)
+	skin/classic/aero/instantbird/prpl-generic/icon48.png   (prpl/prpl-generic-48.png)
+	skin/classic/aero/instantbird/prpl-generic/icon.png     (prpl/prpl-generic.png)
+	skin/classic/aero/instantbird/prpl-unknown/icon32.png   (prpl/prpl-unknown-32.png)
+	skin/classic/aero/instantbird/prpl-unknown/icon48.png   (prpl/prpl-unknown-48.png)
+	skin/classic/aero/instantbird/prpl-unknown/icon.png     (prpl/prpl-unknown.png)
+	skin/classic/aero/instantbird/preferences/Options.png        (preferences-winstripe/Options-aero.png)
+	skin/classic/aero/instantbird/preferences/alwaysAsk.png      (preferences-winstripe/alwaysAsk-aero.png)
+	skin/classic/aero/instantbird/preferences/application.png    (preferences-winstripe/application-aero.png)
+	skin/classic/aero/instantbird/preferences/applications.css   (preferences-winstripe/applications.css)
+	skin/classic/aero/instantbird/preferences/preferences.css    (preferences-winstripe/preferences.css)
+	skin/classic/aero/instantbird/preferences/saveFile.png       (preferences-winstripe/saveFile-aero.png)
+	skin/classic/aero/instantbird/preferences/mail.png           (preferences-winstripe/mail-aero.png)
+	skin/classic/aero/instantbird/tabbrowser.css                            (tabbrowser-winstripe/tabbrowser.css)
+	skin/classic/aero/instantbird/tabbrowser/newtab.png                     (tabbrowser-winstripe/newtab-aero.png)
+	skin/classic/aero/instantbird/tabbrowser/tab-active-bkgnd.png           (tabbrowser-winstripe/tab-active-bkgnd.png)
+	skin/classic/aero/instantbird/tabbrowser/tab-arrow-left.png             (tabbrowser-winstripe/tab-arrow-left-aero.png)
+	skin/classic/aero/instantbird/tabbrowser/tab-arrow-right.png            (tabbrowser-winstripe/tab-arrow-right-aero.png)
+	skin/classic/aero/instantbird/tabbrowser/tab-bkgnd.png                  (tabbrowser-winstripe/tab-bkgnd.png)
+	skin/classic/aero/instantbird/tabbrowser/tabbrowser-tabs-bkgnd.png      (tabbrowser-winstripe/tabbrowser-tabs-bkgnd.png)
+	skin/classic/aero/instantbird/tabbrowser/tabDragIndicator.png           (tabbrowser-winstripe/tabDragIndicator-aero.png)
+	skin/classic/aero/instantbird/tabbrowser/tab-hover-bkgnd.png            (tabbrowser-winstripe/tab-hover-bkgnd.png)
+	skin/classic/aero/instantbird/tabbrowser/tabstrip-bottom.png            (tabbrowser-winstripe/tabstrip-bottom.png)
+	skin/classic/aero/instantbird/tabbrowser/mainwindow-dropdown-arrow.png  (tabbrowser-winstripe/mainwindow-dropdown-arrow.png)
+	skin/classic/aero/instantbird/tabbrowser/alltabs-box-overflow-end-bkgnd-animate.png     (tabbrowser-winstripe/alltabs-box-overflow-end-bkgnd-animate.png)
+	skin/classic/aero/instantbird/tabbrowser/alltabs-box-overflow-start-bkgnd-animate.png   (tabbrowser-winstripe/alltabs-box-overflow-start-bkgnd-animate.png)
+#endif
 % skin prpl-aim classic/1.0 %skin/classic/prpl/aim/
 	skin/classic/prpl/aim/icon32.png	(prpl/prpl-aim-32.png)
 	skin/classic/prpl/aim/icon48.png	(prpl/prpl-aim-48.png)
@@ -145,37 +241,6 @@ classic.jar:
 	skin/classic/instantbird/sounds/logout.wav	(sounds/logout.wav)
 	skin/classic/instantbird/sounds/receive.wav	(sounds/receive.wav)
 	skin/classic/instantbird/sounds/send.wav	(sounds/send.wav)
-#ifdef XP_UNIX
-#ifdef XP_MACOSX
-	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-pinstripe/tabbrowser.css)
-	skin/classic/instantbird/unified.xml                            (tabbrowser-pinstripe/unified.xml)
-	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-pinstripe/newtab.png)
-	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-pinstripe/tab-arrow-left.png)
-	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-pinstripe/tab-arrow-right.png)
-	skin/classic/instantbird/tabbrowser/tab-bkgnd.png		(tabbrowser-pinstripe/tab-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tabbrowser-tabs-bkgnd.png	(tabbrowser-pinstripe/tabbrowser-tabs-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-pinstripe/tabDragIndicator.png)
-	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon.png)
-	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-bkgnd-animate.png (tabbrowser-pinstripe/alltabs-box-overflow-bkgnd-animate.png)
-#else
-	skin/classic/instantbird/tabbrowser.css	(tabbrowser-gnomestripe/tabbrowser.css)
-	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-gnomestripe/tabDragIndicator.png)
-#endif
-#else
-	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-winstripe/tabbrowser.css)
-	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-winstripe/newtab.png)
-	skin/classic/instantbird/tabbrowser/tab-active-bkgnd.png	(tabbrowser-winstripe/tab-active-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-winstripe/tab-arrow-left.png)
-	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-winstripe/tab-arrow-right.png)
-	skin/classic/instantbird/tabbrowser/tab-bkgnd.png		(tabbrowser-winstripe/tab-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tabbrowser-tabs-bkgnd.png	(tabbrowser-winstripe/tabbrowser-tabs-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-winstripe/tabDragIndicator.png)
-	skin/classic/instantbird/tabbrowser/tab-hover-bkgnd.png		(tabbrowser-winstripe/tab-hover-bkgnd.png)
-	skin/classic/instantbird/tabbrowser/tabstrip-bottom.png		(tabbrowser-winstripe/tabstrip-bottom.png)
-	skin/classic/instantbird/tabbrowser/mainwindow-dropdown-arrow.png	(tabbrowser-winstripe/mainwindow-dropdown-arrow.png)
-	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-end-bkgnd-animate.png  	(tabbrowser-winstripe/alltabs-box-overflow-end-bkgnd-animate.png)
-	skin/classic/instantbird/tabbrowser/alltabs-box-overflow-start-bkgnd-animate.png	(tabbrowser-winstripe/alltabs-box-overflow-start-bkgnd-animate.png)
-#endif
 % skin instantbird-emoticons classic/1.0 %skin/classic/instantbird/smileys/
 	skin/classic/instantbird/smileys/theme.js              (smileys/theme.js)
 	skin/classic/instantbird/smileys/angry.png             (smileys/angry.png)
