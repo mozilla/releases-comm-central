@@ -89,7 +89,7 @@ var addBuddy = {
     else
       tag = this.pcs.createTag(taglist.label);
 
-    this.pcs.addBuddy(account, tag, name);
+    account.addBuddy(tag, name);
   },
 
   getAccounts: function ab_getAccounts() {
