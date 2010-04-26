@@ -56,6 +56,7 @@ interface purpleIAccount;
 interface purpleIProtocol: nsISupports {
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String id;
+  readonly attribute AUTF8String normalizedName;
 
   // returns a chrome URI pointing to a folder that contains the files:
   // icon.png icon32.png and icon48.png

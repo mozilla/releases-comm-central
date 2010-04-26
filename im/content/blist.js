@@ -166,10 +166,12 @@ buddyListContextMenu.prototype = {
     if (!this.onBuddy)
       return;
 
+    var logger = Components.classes["@instantbird.org/logger;1"]
+                           .getService(Ci.ibILogger);
     var logs = [];
     for (accountId in this.target.accounts) {
       let account = this.target.accounts[accountId];
-      for (let log in getIter(account.getLogs()))
+      for (let log in getIter(logger.getLogsForBuddy(account)))
         logs.push(log);
     }
     logs.sort(function(log1, log2) log2.time - log1.time);

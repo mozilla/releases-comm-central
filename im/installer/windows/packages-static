@@ -81,11 +81,13 @@ bin\purple.dll
 bin\components\purplexpcom.dll
 bin\components\purplexpcom.xpt
 
+bin\components\instantbird.xpt
 bin\components\profileMigrator.js
 bin\components\autoLoginHandler.js
 bin\components\facebookOverrideProtocol.js
 bin\components\gtalkOverrideProtocol.js
 bin\components\smileProtocolHandler.js
+bin\components\logger.js
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Chrome Files
