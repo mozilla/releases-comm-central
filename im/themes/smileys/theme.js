@@ -11,7 +11,7 @@
     {"filename": "angry.png", "textCodes": ["x-("]},
     {"filename": "sad.png", "textCodes": [":-(", ":(", ")-:", "):"]},
     {"filename": "cool.png", "textCodes": ["B-)", "8-)"]},
-    {"filename": "tongue.png", "textCodes": [":-P", ":P"]},
+    {"filename": "tongue.png", "textCodes": [":-P", ":P", ":-p", ":p"]},
     {"filename": "heart.png", "textCodes": ["<3"]},
     {"filename": "straight_face.png", "textCodes": [":-|"]},
     {"filename": "manga_smile.png", "textCodes": ["^^"]},
