@@ -10,6 +10,9 @@ export MOZILLA_OFFICIAL=1
 export CFLAGS="-gdwarf-2 -W -Wno-unused-parameter -Wno-sign-compare"
 export CXXFLAGS="-gdwarf-2 -W -Wno-unused-parameter -Wno-missing-field-initializers"
 
+# For NSS symbols
+export MOZ_DEBUG_SYMBOLS=1
+
 # Enable parallel compiling
 mk_add_options MOZ_MAKE_FLAGS="-j4"
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj-instantbird

@@ -8,6 +8,9 @@ export CFLAGS="-GL -wd4624 -wd4952 -wd4018"
 export CXXFLAGS="-GL -wd4624 -wd4952"
 export LDFLAGS="-LTCG"
 
+# For NSS symbols
+export MOZ_DEBUG_SYMBOLS=1
+
 mk_add_options MOZ_MAKE_FLAGS="-j4"
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj-instantbird
 
