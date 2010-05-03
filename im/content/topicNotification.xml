@@ -53,7 +53,7 @@
         <xul:hbox anonid="details" align="center" flex="1">
           <xul:deck anonid="notificationdeck" selectedIndex="0" flex="1">
             <xul:hbox flex="1" align="center" ondblclick="editTopic();">
-              <xul:image anonid="messageImage" 
+              <xul:image anonid="messageImage"
                          class="messageImage"
                          xbl:inherits="src=image"/>
               <xul:description anonid="messageText"
@@ -118,7 +118,7 @@
 
       <method name="closeBar">
         <body>
-          <![CDATA[ 
+          <![CDATA[
             // Actions on the close button:
             //  if in edit mode, change back to the topic display
             //  otherwise close the bar as usual
