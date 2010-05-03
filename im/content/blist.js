@@ -345,6 +345,9 @@ var buddyList = {
         else
           elt.removeAttribute("value");
       }
+      if (!("TextboxSpellChecker" in window))
+        Components.utils.import("resource://app/modules/imTextboxUtils.jsm");
+      TextboxSpellChecker.registerTextbox(elt);
       // force binding attachmant by forcing layout
       elt.getBoundingClientRect();
       elt.select();
@@ -412,6 +415,7 @@ var buddyList = {
 
     if (elt.hasAttribute("usingDefault"))
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
+    TextboxSpellChecker.unregisterTextbox(elt);
     elt.removeAttribute("editing");
     elt.removeEventListener("keypress", this.statusMessageKeyPress, false);
     elt.removeEventListener("blur", this.statusMessageBlur, false);
