@@ -98,17 +98,11 @@ var Conversations = {
   _windows: [],
   _getAttentionPrefName: "messenger.options.getAttentionOnNewMessages",
   _notificationPrefName: "messenger.options.notifyOfNewMessages",
-  _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get _prefBranch () {
     delete this._prefBranch;
     return this._prefBranch =
       Components.classes["@mozilla.org/preferences-service;1"]
                 .getService(Components.interfaces.nsIPrefBranch2);
-  },
-  textboxAutoResize: function() {
-    delete this.textboxAutoResize;
-    return this.textboxAutoResize =
-      this._prefBranch.getBoolPref(this._textboxAutoResizePrefName);
   },
   registerWindow: function(aWindow) {
     if (this._windows.indexOf(aWindow) == -1)
@@ -286,7 +280,6 @@ var Conversations = {
      "quit-application-requested"].forEach(function (aTopic) {
       os.addObserver(Conversations, aTopic, false);
     });
-    this._prefBranch.addObserver(this._textboxAutoResizePrefName, this, false);
 #ifdef XP_MACOSX
     this._prefBranch.addObserver(this._showDockBadgePrefName, this, false);
 #endif
@@ -301,27 +294,23 @@ var Conversations = {
     if (aTopic == "purple-quit") {
       for (let id in this._purpleConv)
         this._purpleConv[id].unInit();
-      this._prefBranch.removeObserver(Conversations._textboxAutoResizePrefName,
-                                      Conversations);
 #ifdef XP_MACOSX
       this._prefBranch.removeObserver(Conversations._showDockBadgePrefName,
                                       Conversations);
 #endif
     }
 
-    if (aTopic == "nsPref:changed") {
-      if (aMsg == this._textboxAutoResizePrefName)
-        this.textboxAutoResize = this._prefBranch.getBoolPref(aMsg);
 #ifdef XP_MACOSX
+    if (aTopic == "nsPref:changed") {
       if (aMsg == this._showDockBadgePrefName) {
         if (this._prefBranch.getBoolPref(aMsg))
           this._showUnreadCount();
         else
           this._hideUnreadCountDockBadge();
       }
-#endif
       return;
     }
+#endif
 
     if (aTopic == "account-connected") {
       let account = aSubject.QueryInterface(Components.interfaces.purpleIAccount);

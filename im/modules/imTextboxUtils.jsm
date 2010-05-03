@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["MessageFormat"];
+var EXPORTED_SYMBOLS = ["MessageFormat", "TextboxSize"];
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -136,5 +136,19 @@ let MessageFormat = {
 
     if (!this._textboxes.length)
       this.unregisterObservers();
+  }
+};
+
+let TextboxSize = {
+  _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
+  get autoResize() {
+    delete this.autoResize;
+    prefs.addObserver(this._textboxAutoResizePrefName, this, false);
+    return this.autoResize =
+      prefs.getBoolPref(this._textboxAutoResizePrefName);
+  },
+  observe: function(aSubject, aTopic, aMsg) {
+    if (aTopic == "nsPref:changed" && aMsg == this._textboxAutoResizePrefName)
+      this.autoResize = prefs.getBoolPref(aMsg);
   }
 };

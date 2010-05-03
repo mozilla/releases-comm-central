@@ -501,7 +501,7 @@
           document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
         inputBox.value = "";
         let overflow = "";
-        if (Conversations.textboxAutoResize) {
+        if (TextboxSize.autoResize) {
           let currHeight = parseInt(inputBox.parentNode.height);
           if (inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD > currHeight)
             inputBox.defaultHeight = currHeight - this._TEXTBOX_VERTICAL_OVERHEAD;
@@ -536,7 +536,7 @@
 
         // This feature has been disabled, or the user is currently dragging
         // the splitter and the textbox has received an overflow event
-        if (!Conversations.textboxAutoResize ||
+        if (!TextboxSize.autoResize ||
             document.getAnonymousElementByAttribute(bindingElt, "anonid", "splitter-bottom")
                     .getAttribute("state") == "dragging") {
           input.style.overflowY = "";
@@ -601,7 +601,7 @@
           }
         }
 
-        if (Conversations.textboxAutoResize)
+        if (TextboxSize.autoResize)
           this.inputExpand();
       ]]>
       </body>
@@ -611,7 +611,7 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        if (Conversations.textboxAutoResize) {
+        if (TextboxSize.autoResize) {
           document.getAnonymousElementByAttribute(this, "anonid", "input")
                   .style.overflowY = "hidden";
         }
