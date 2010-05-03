@@ -96,7 +96,7 @@
     <implementation implements="nsIObserver">
      <constructor>
       <![CDATA[
-       let textbox = document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+       let textbox = this.editor;
        textbox.addEventListener("keypress", this.inputKeyPress, false);
        textbox.addEventListener("overflow", this.inputExpand, true);
        textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
@@ -153,11 +153,8 @@
                this.findbar.destroy();
            }
 
-           if ("MessageFormat" in window) {
-             let textbox =
-               document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
-             MessageFormat.unregisterTextbox(textbox);
-           }
+           if ("MessageFormat" in window)
+             MessageFormat.unregisterTextbox(this.editor);
          ]]>
        </body>
      </method>
@@ -350,9 +347,7 @@
         if (aEvent.attrName != "state" || aEvent.prevValue != "dragging")
           return;
 
-        let textbox =
-          document.getAnonymousElementByAttribute(document.getBindingParent(this),
-                                                  "anonid", "inputBox");
+        let textbox = document.getBindingParent(this).editor;
         // set the default height as the deck height (modified by the splitter)
         textbox.defaultHeight = parseInt(textbox.parentNode.height) -
           document.getBindingParent(this)._TEXTBOX_VERTICAL_OVERHEAD;
@@ -378,8 +373,7 @@
       <![CDATA[
         let totalSpace = parseInt(window.getComputedStyle(this, null)
                                         .getPropertyValue("height"));
-        let textbox =
-          document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+        let textbox = this.editor;
         let textboxStyle = window.getComputedStyle(textbox, null);
         let lineHeight = parseInt(textboxStyle.getPropertyValue("line-height"));
 
@@ -415,8 +409,7 @@
      <method name="initTextboxFormat">
       <body>
       <![CDATA[
-        let textbox =
-          document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+        let textbox = this.editor;
 
         if (!("MessageFormat" in window))
           Components.utils.import("resource://app/modules/imTextboxUtils.jsm");
@@ -460,8 +453,7 @@
           return;
         }
 
-        var inputBox =
-          document.getAnonymousElementByAttribute(conv, "anonid", "inputBox");
+        var inputBox = conv.editor;
         if (event.keyCode != 13) {
           if (!conv._conv.isChat)
             setTimeout(function () {
@@ -497,8 +489,7 @@
      <method name="resetInput">
       <body>
       <![CDATA[
-        var inputBox =
-          document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+        var inputBox = this.editor;
         inputBox.value = "";
         let overflow = "";
         if (TextboxSize.autoResize) {
@@ -520,24 +511,18 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        let self;
-        let bindingElt;
+        let textbox, conv;
         // In case it is called from the binding itself
-        if (!(this instanceof Components.interfaces.nsIDOMXULControlElement)) {
-          self = document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
-          bindingElt = this;
-        }
-        else {
-          self = this;
-          bindingElt = document.getBindingParent(this);
-        }
-
-        let input = document.getAnonymousElementByAttribute(self, "anonid", "input");
+        if (!(this instanceof Components.interfaces.nsIDOMXULControlElement))
+          [textbox, conv] = [this.editor, this];
+        else
+          [textbox, conv] = [this, document.getBindingParent(this)];
+        let input = document.getAnonymousElementByAttribute(textbox, "anonid", "input");
 
         // This feature has been disabled, or the user is currently dragging
         // the splitter and the textbox has received an overflow event
         if (!TextboxSize.autoResize ||
-            document.getAnonymousElementByAttribute(bindingElt, "anonid", "splitter-bottom")
+            document.getAnonymousElementByAttribute(conv, "anonid", "splitter-bottom")
                     .getAttribute("state") == "dragging") {
           input.style.overflowY = "";
           return;
@@ -546,14 +531,14 @@
         // Check whether we can increase the height without hidding the status bar
         // (ensure the min-height property on the top part of this dialog)
         let topBox =
-          document.getAnonymousElementByAttribute(bindingElt, "anonid", "conv-top");
+          document.getAnonymousElementByAttribute(conv, "anonid", "conv-top");
         let topBoxStyle = window.getComputedStyle(topBox, null);
         let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
         let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
-        let deck = self.parentNode;
+        let deck = textbox.parentNode;
         let oldDeckHeight = parseInt(deck.height);
         let newDeckHeight =
-          parseInt(input.scrollHeight) + bindingElt._TEXTBOX_VERTICAL_OVERHEAD;
+          parseInt(input.scrollHeight) + conv._TEXTBOX_VERTICAL_OVERHEAD;
 
         if (!topMinSize || topSize - topMinSize > newDeckHeight - oldDeckHeight) {
           // Hide a possible vertical scrollbar.
@@ -575,8 +560,7 @@
       <![CDATA[
         let splitter =
           document.getAnonymousElementByAttribute(this, "anonid", "splitter-bottom");
-        let textbox =
-          document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+        let textbox = this.editor;
 
         if (!splitter.hasAttribute("state")) {
           this.calculateTextboxDefaultHeight();
@@ -1177,13 +1161,16 @@
        </getter>
      </property>
 
+     <field name="_editor">null</field>
      <property name="editor">
        <getter>
          <![CDATA[
-          if (this.isHtmlMode)
-            return document.getAnonymousElementByAttribute(this, "anonid", "editor");
-          else
-            return document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
+          if (!this._editor) {
+            let anonid = this.isHtmlMode ? "editor" : "inputBox";
+            this._editor =
+              document.getAnonymousElementByAttribute(this, "anonid", anonid);
+          }
+          return this._editor;
          ]]>
        </getter>
      </property>
