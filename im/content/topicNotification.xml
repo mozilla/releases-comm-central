@@ -67,7 +67,7 @@
               <xul:image anonid="messageImage"
                          class="messageImage"
                          xbl:inherits="src=image"/>
-              <xul:textbox anonid="newtopictextbox" flex="1" spellcheck="true"/>
+              <xul:textbox anonid="newtopictextbox" flex="1"/>
               <xul:button label="&topicBar.button.label;" oncommand="setTopic();"
                           accesskey="&topicBar.button.accesskey;"/>
             </xul:hbox>
@@ -93,6 +93,9 @@
             let textboxElt = this.textbox;
             textboxElt.value = this.label;
             textboxElt.focus();
+            if (!("TextboxSpellChecker" in window))
+              Components.utils.import("resource://app/modules/imTextboxUtils.jsm");
+            TextboxSpellChecker.registerTextbox(textboxElt);
           ]]>
         </body>
       </method>
@@ -112,6 +115,7 @@
           <![CDATA[
             this.deck.selectedIndex = 0;
             document.getBindingParent(this).focus();
+            TextboxSpellChecker.unregisterTextbox(this.textbox);
           ]]>
         </body>
       </method>
