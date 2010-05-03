@@ -8,6 +8,8 @@ classic.jar:
 #endif
 	skin/classic/instantbird/account.css
 *	skin/classic/instantbird/accounts.css
+	skin/classic/instantbird/alert.css
+% style chrome://global/content/alerts/alert.xul chrome://instantbird/skin/alert.css
 *	skin/classic/instantbird/richlistbox.css
 *	skin/classic/instantbird/accountWizard.css
 	skin/classic/instantbird/available-16.png
@@ -101,6 +103,7 @@ classic.jar:
 #ifdef XP_WIN
 	skin/classic/aero/instantbird/account.css
 *	skin/classic/aero/instantbird/accounts.css
+	skin/classic/aero/instantbird/alert.css
 *	skin/classic/aero/instantbird/richlistbox.css
 *	skin/classic/aero/instantbird/accountWizard.css
 	skin/classic/aero/instantbird/available-16.png

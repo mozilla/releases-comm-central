@@ -267,7 +267,7 @@ var Conversations = {
     Components.classes["@mozilla.org/alerts-service;1"]
               .getService(Components.interfaces.nsIAlertsService)
               .showAlertNotification(icon, aMessage.alias || aMessage.who,
-                                     messageText, false, "", observer);
+                                     messageText, true, "", observer);
   },
 
   init: function() {
