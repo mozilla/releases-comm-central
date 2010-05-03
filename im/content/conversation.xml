@@ -154,7 +154,8 @@
            }
 
            if ("MessageFormat" in window) {
-             MessageFormat.unregisterTextbox(this.editor);
+             let textbox = this.editor;
+             MessageFormat.unregisterTextbox(textbox);
              TextboxSpellChecker.unregisterTextbox(textbox);
            }
          ]]>
