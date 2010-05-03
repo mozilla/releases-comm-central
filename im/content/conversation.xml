@@ -153,10 +153,10 @@
                this.findbar.destroy();
            }
 
-           if ("_messageFormat" in window) {
+           if ("MessageFormat" in window) {
              let textbox =
                document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
-             window._messageFormat.unregisterTextbox(textbox);
+             MessageFormat.unregisterTextbox(textbox);
            }
          ]]>
        </body>
@@ -282,7 +282,7 @@
           let prefs = Components.classes["@mozilla.org/preferences-service;1"]
                                 .getService(Components.interfaces.nsIPrefBranch);
           if (prefs.getBoolPref("messenger.conversations.sendFormat")) {
-            let style = window._messageFormat.getMessageStyle();
+            let style = MessageFormat.getMessageStyle();
             let proto = this._conv.account.protocol.id;
             if (proto == "prpl-msn") {
               if ("color" in style)
@@ -418,110 +418,9 @@
         let textbox =
           document.getAnonymousElementByAttribute(this, "anonid", "inputBox");
 
-        if (!("_messageFormat" in window)) {
-          let messageFormat = {
-            _observedPrefs: [],
-            build: function mf_build() {
-              this.prefs =
-                Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefService);
-              this.getValues();
-            },
-
-            getValues: function mf_getValues() {
-              this.unregisterObservers();
-              let prefs = this.prefs;
-              let langGroup = 
-                prefs.getComplexValue("font.language.group",
-                                      Components.interfaces.nsIPrefLocalizedString).data;
-              let fontGroup = prefs.getCharPref("font.default." + langGroup);
-              let fontPref = "font.name." + fontGroup + "." + langGroup;
-              let fontSizePref = "font.size.variable." + langGroup;
-              this._values = {
-                langGroup: langGroup,
-                fontGroup: fontGroup,
-                font: prefs.getCharPref(fontPref),
-                fontIsDefault: !prefs.prefHasUserValue(fontPref),
-                fontSize: prefs.getIntPref(fontSizePref),
-                fontSizeIsDefault: !prefs.prefHasUserValue(fontSizePref),
-                defaultFontSize: prefs.getDefaultBranch(null).getIntPref(fontSizePref),
-                foregroundColor: prefs.getCharPref("browser.display.foreground_color"),
-                foregroundColorIsDefault:
-                  !prefs.prefHasUserValue("browser.display.foreground_color"),
-                useSystemColor: prefs.getBoolPref("browser.display.use_system_colors")
-              };
-
-              this._observedPrefs = [
-                "font.language.group",
-                "font.default." + langGroup,
-                "font.name." + fontGroup + "." + langGroup,
-                "font.size.variable." + langGroup,
-                "browser.display.foreground_color",
-                "browser.display.use_system_colors"
-              ];
-              for each (let name in this._observedPrefs)
-                prefs.addObserver(name, this, false);
-            },
-            unregisterObservers: function mf_unregisterObservers() {
-              for each (let name in this._observedPrefs)
-                this.prefs.removeObserver(name, this);
-              this._observedPrefs = [];
-            },
-            observe: function(aSubject, aTopic, aMsg) {
-              this.getValues();
-              for each (let textbox in this._textboxes)
-                this.styleTextbox(textbox);
-            },
-            _getColor: function mf__getColor() {
-              if (this._values.foregroundColorIsDefault || this._values.useSystemColor)
-                return "";
-              return this._values.foregroundColor;
-            },
-            styleTextbox: function mf_styleTextbox(aTextbox) {
-              aTextbox.style.color = this._getColor();
-              aTextbox.style.fontSize = this._values.fontSize + "px";
-              aTextbox.style.fontFamily = this._values.font;
-            },
-            getMessageStyle: function mf_getMessageStyle() {
-              let result = {};
-
-              let color = this._getColor();
-              if (color)
-                result.color = color;
-
-              if (!this._values.fontSizeIsDefault) {
-                result.fontSize = this._values.fontSize;
-                result.defaultFontSize = this._values.defaultFontSize;
-              }
-
-              if (!this._values.fontIsDefault)
-                result.fontFamily = this._values.font;
-
-              return result;
-            },
-            _textboxes: [],
-            registerTextbox: function mf_registerTextbox(aTextbox) {
-              if (this._textboxes.indexOf(aTextbox) == -1)
-                this._textboxes.push(aTextbox);
-
-              this.styleTextbox(aTextbox);
-            },
-            unregisterTextbox: function(aTextbox) {
-              let index = this._textboxes.indexOf(aTextbox);
-              if (index != -1)
-                this._textboxes.splice(index, 1);
-
-              if (!this._textboxes.length) {
-                this.unregisterObservers();
-                delete window._messageFormat;
-              }
-            }
-          };
-          messageFormat.build();
-          window._messageFormat = messageFormat;
-        }
-
-        window._messageFormat.registerTextbox(textbox);
+        if (!("MessageFormat" in window))
+          Components.utils.import("resource://app/modules/imTextboxUtils.jsm");
+        MessageFormat.registerTextbox(textbox);
 
         // Init the textbox size
         this.calculateTextboxDefaultHeight();
