@@ -81,13 +81,16 @@
       </xul:hbox>
     </content>
     <implementation>
+      <property name="deck"
+                onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'notificationdeck');"/>
+      <property name="textbox"
+                onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'newtopictextbox');"/>
+
       <method name="editTopic">
         <body>
           <![CDATA[
-            document.getAnonymousElementByAttribute(this, "anonid", "notificationdeck")
-                    .selectedIndex = 1;
-            let textboxElt =
-              document.getAnonymousElementByAttribute(this, "anonid", "newtopictextbox");
+            this.deck.selectedIndex = 1;
+            let textboxElt = this.textbox;
             textboxElt.value = this.label;
             textboxElt.focus();
           ]]>
@@ -97,9 +100,7 @@
       <method name="setTopic">
         <body>
           <![CDATA[
-            var changeCmdString = "/topic " +
-              document.getAnonymousElementByAttribute(this, "anonid", "newtopictextbox")
-                      .value;
+            var changeCmdString = "/topic " + this.textbox.value;
             document.getBindingParent(this).sendMsg(changeCmdString);
             this.stopEdit();
           ]]>
@@ -109,8 +110,7 @@
       <method name="stopEdit">
         <body>
           <![CDATA[
-            document.getAnonymousElementByAttribute (this, "anonid", "notificationdeck")
-                    .selectedIndex = 0;
+            this.deck.selectedIndex = 0;
             document.getBindingParent(this).focus();
           ]]>
         </body>
@@ -122,8 +122,7 @@
             // Actions on the close button:
             //  if in edit mode, change back to the topic display
             //  otherwise close the bar as usual
-            if (document.getAnonymousElementByAttribute(this, "anonid", "notificationdeck")
-                        .selectedIndex == 1)
+            if (this.deck.selectedIndex == 1)
               this.stopEdit();
             else
               this.close();
