@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["MessageFormat", "TextboxSize"];
+var EXPORTED_SYMBOLS = ["MessageFormat", "TextboxSize", "TextboxSpellChecker"];
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -150,5 +150,45 @@ let TextboxSize = {
   observe: function(aSubject, aTopic, aMsg) {
     if (aTopic == "nsPref:changed" && aMsg == this._textboxAutoResizePrefName)
       this.autoResize = prefs.getBoolPref(aMsg);
+  }
+};
+
+let TextboxSpellChecker = {
+  _spellCheckPrefName: "layout.spellcheckDefault",
+  _enabled: false,
+ getValue: function tsc_getValue() {
+    this._enabled = !!prefs.getIntPref(this._spellCheckPrefName);
+  },
+  applyValue: function tsc_applyValue(aTextbox) {
+    if (this._enabled)
+      aTextbox.setAttribute("spellcheck", "true");
+    else
+      aTextbox.removeAttribute("spellcheck");
+  },
+
+  _textboxes: [],
+  registerTextbox: function tsc_registerTextbox(aTextbox) {
+    if (this._textboxes.indexOf(aTextbox) == -1)
+      this._textboxes.push(aTextbox);
+
+    if (this._textboxes.length == 1) {
+      prefs.addObserver(this._spellCheckPrefName, this, false);
+      this.getValue();
+    }
+
+    this.applyValue(aTextbox);
+  },
+  unregisterTextbox: function tsc_unregisterTextbox(aTextbox) {
+    let index = this._textboxes.indexOf(aTextbox);
+    if (index != -1)
+      this._textboxes.splice(index, 1);
+
+    if (!this._textboxes.length)
+      prefs.removeObserver(this._spellCheckPrefName, this);
+  },
+  observe: function tsc_observe(aSubject, aTopic, aMsg) {
+    this.getValue();
+    for each (let textbox in this._textboxes)
+      this.applyValue(textbox);
   }
 };

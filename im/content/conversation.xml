@@ -153,8 +153,10 @@
                this.findbar.destroy();
            }
 
-           if ("MessageFormat" in window)
+           if ("MessageFormat" in window) {
              MessageFormat.unregisterTextbox(this.editor);
+             TextboxSpellChecker.unregisterTextbox(textbox);
+           }
          ]]>
        </body>
      </method>
@@ -426,7 +428,7 @@
         // the checkbox is initialized, otherwise the spellchecker is
         // broken in conversations added to the window before it is
         // visible (bug 295).
-        textbox.setAttribute("spellcheck", "true");
+        TextboxSpellChecker.registerTextbox(textbox);
       ]]>
       </body>
      </method>
