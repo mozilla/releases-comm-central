@@ -2,14 +2,15 @@ Official *binaries* of this product released by the Instantbird team
 (http://www.instantbird.com/) are made available under the GNU General
 Public License GPL version 2.0 or later.
 
-All of the *source code* to this product is available under licenses
+All of the *source code* for this product is available under licenses
 which are both free and open source.
 
-Most is available under any one of the following: the Mozilla Public
-License (MPL), the GNU General Public License (GPL) and the GNU Lesser
-General Public License (LGPL). That is, you may copy and distribute
-such software according to the terms of any one of those three
-licenses.
+Most is available under any one of the following:
+ - the Mozilla Public License (MPL) 1.1,
+ - the GNU General Public License (GPL) 2.0 or later,
+ - the GNU Lesser General Public License (LGPL) 2.1 or later.
+That is, you may copy and distribute such software according to the
+terms of any one of those three licenses.
 
 The remainder of the software which is not under the MPL/LGPL/GPL
 tri-license is available under a subset of it or one of a variety of
