@@ -68,12 +68,15 @@ pref("messenger.options.filterMode", 2);
 
 pref("font.default.x-western", "sans-serif");
 pref("font.default.x-unicode", "sans-serif");
+pref("font.default.x-central-euro", "sans-serif");
 #ifdef XP_MACOSX
 pref("font.name.sans-serif.x-unicode", "Lucida Grande");
 pref("font.name.sans-serif.x-western", "Lucida Grande");
+pref("font.name.sans-serif.x-central-euro", "Lucida Grande");
 #endif
 pref("font.size.variable.x-western", 13);
 pref("font.size.variable.x-unicode", 13);
+pref("font.size.variable.x-central-euro", 13);
 
 // use "none" to disable
 pref("messenger.options.emoticonsTheme", "default");
