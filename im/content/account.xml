@@ -257,6 +257,9 @@
        </setter>
      </property>
 
+     <!-- override the default accessible name -->
+     <property name="label" onget="return this.getAttribute('name');"/>
+
      <property name="account" onget="return this._account;"/>
 
      <property name="connectedLabel">
