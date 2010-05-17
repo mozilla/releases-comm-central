@@ -232,7 +232,7 @@ endif
 	$(NSINSTALL) -D $(DIST)/l10n-stage/$(PKG_PATH)
 	cd $(DIST)/l10n-stage; \
 	  $(MAKE_PACKAGE)
-ifdef MOZ_MAKE_COMPLETE_MAR
+ifdef MOZ_UPDATE_PACKAGING
 	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update AB_CD=$(AB_CD) \
 	  MOZ_PKG_PRETTYNAMES=$(MOZ_PKG_PRETTYNAMES) \
 	  PACKAGE_BASE_DIR="$(_ABS_DIST)/l10n-stage" \
@@ -398,7 +398,8 @@ checkout-%:
 	else \
 	  hg pull -R $(L10NBASEDIR)/moz-$(AB_CD) $(MOZ_L10N_REPO_BASE)/$(AB_CD) ; \
 	fi
-	cp -r $(L10NBASEDIR)/moz-$(AB_CD)/{dom,extensions,netwerk,security,toolkit} $(L10NBASEDIR)/$(AB_CD)/
+	$(foreach dir,dom extensions netwerk security toolkit,\
+	  cp -r $(L10NBASEDIR)/moz-$(AB_CD)/$(dir) $(L10NBASEDIR)/$(AB_CD)/ ;)
 
 repack-%: AB_CD=$*
 repack-%:
