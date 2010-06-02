@@ -348,7 +348,7 @@ Conversation.prototype = {
   get title() this.name,
   account: null,
   buddy: null,
-  typingStage: Ci.purpleIConvIM.NO_TYPING,
+  typingState: Ci.purpleIConvIM.NOT_TYPING,
   topic: "Fake Conversation",
   addChatBuddy: function(aBuddy) {
     this._chatBuddies.push(aBuddy);
