@@ -12,11 +12,11 @@
  * License.
  *
  * The Original Code is the Instantbird messenging client, released
- * 2009.
+ * 2010.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2009
+ * Portions created by the Initial Developer are Copyright (C) 2010
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -36,139 +36,35 @@
  * ***** END LICENSE BLOCK ***** */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+Components.utils.import("resource://app/modules/jsProtoHelper.jsm");
 
-/**
- * Constructs an nsISimpleEnumerator for the given array of items.
- * Copied from netwerk/test/httpserver/httpd.js
- *
- * @param items : Array
- *   the items, which must all implement nsISupports
- */
-function nsSimpleEnumerator(items)
+function Conversation(aAccount)
 {
-  this._items = items;
-  this._nextIndex = 0;
+  this._init(aAccount);
 }
-nsSimpleEnumerator.prototype = {
-  hasMoreElements: function() this._nextIndex < this._items.length,
-  getNext: function() {
-    if (!this.hasMoreElements())
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
-
-    return this._items[this._nextIndex++];
+Conversation.prototype = {
+  _disconnected: false,
+  _setDisconnected: function() {
+    this._disconnected = true;
   },
-  QueryInterface: function(aIID) {
-    if (Ci.nsISimpleEnumerator.equals(aIID) ||
-        Ci.nsISupports.equals(aIID))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
-};
-
-const EmptyEnumerator = {
-  hasMoreElements: function() false,
-  getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
-  QueryInterface: function(aIID) {
-    if (Ci.nsISimpleEnumerator.equals(aIID) ||
-        Ci.nsISupports.equals(aIID))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
-};
-
-
-XPCOMUtils.defineLazyGetter(this, "AccountBase", function()
-  Components.Constructor("@instantbird.org/purple/account;1",
-                         "purpleIAccountBase")
-);
-
-const GenericAccountPrototype = {
-  _init: function _init(aProtoInstance, aKey, aName) {
-    this._base = new AccountBase();
-    this._base.concreteAccount = this;
-    if (aName)
-      this._base.create(aName, aProtoInstance, aKey);
-    else
-      this._base.load(aKey, aProtoInstance, true);
+  close: function() {
+    if (!this._disconnected)
+      this.account.disconnect(true);
   },
-  get base() this._base.purpleIAccountBase,
+  sendMsg: function (aMsg) {
+    if (this._disconnected) {
+      this.writeMessage("jstest", "This message could not be sent because the conversation is no longer active: " + aMsg, {system: true, error: true});
+      return;
+    }
 
-  checkAutoLogin: function() this._base.checkAutoLogin(),
-  remove: function() this._base.remove(),
-  UnInit: function() this._base.UnInit(),
-  connect: function() this._base.connect(),
-  disconnect: function() this._base.disconnect(),
-  cancelReconnection: function() this._base.cancelReconnection(),
-  createConversation: function(aName) this._base.createConversation(aName),
-  addBuddy: function(aTag, aName) this._base.addBuddy(aTag, aName),
-  loadBuddy: function(aBuddy, aName, aAlias, aServerAlias, aTag)
-    this._base.loadBuddy(aBuddy, aName, aAlias, aServerAlias, aTag),
-  getChatRoomFields: function() this._base.getChatRoomFields(),
-  getChatRoomDefaultFieldValues: function(aDefaultChatName)
-    this._base.getChatRoomDefaultFieldValues(aDefaultChatName),
-  joinChat: function(aComponents) this._base.joinChat(aComponents),
-  setBool: function(aName, aVal) this._base.setBool(aName, aVal),
-  setInt: function(aName, aVal) this._base.setInt(aName, aVal),
-  setString: function(aName, aVal) this._base.setString(aName, aVal),
-  save: function() this._base.save(),
-
-  // grep attribute purpleIAccount.idl |sed 's/.* //;s/;//;s/\(.*\)/  get \1() this._base.\1,/'
-  get canJoinChat() this._base.canJoinChat,
-  get name() this._base.name,
-  get normalizedName() this._base.normalizedName,
-  get id() this._base.id,
-  get numericId() this._base.id,
-  get protocol() this._base.protocol,
-  get autoLogin() this._base.autoLogin,
-  get firstConnectionState() this._base.firstConnectionState,
-  get password() this._base.password,
-  get rememberPassword() this._base.rememberPassword,
-  get alias() this._base.alias,
-  get proxyInfo() this._base.proxyInfo,
-  get connectionStateMsg() this._base.connectionStateMsg,
-  get connectionErrorReason() this._base.connectionErrorReason,
-  get reconnectAttempt() this._base.reconnectAttempt,
-  get timeOfNextReconnect() this._base.timeOfNextReconnect,
-  get timeOfLastConnect() this._base.timeOfLastConnect,
-  get connectionErrorMessage() this._base.connectionErrorMessage,
-  get connectionState() this._base.connectionState,
-  get disconnected() this._base.disconnected,
-  get connected() this._base.connected,
-  get connecting() this._base.connecting,
-  get disconnecting() this._base.disconnecting,
-  get HTMLEnabled() this._base.HTMLEnabled,
-  get noBackgroundColors() this._base.noBackgroundColors,
-  get autoResponses() this._base.autoResponses,
-  get singleFormatting() this._base.singleFormatting,
-  get noNewlines() this._base.noNewlines,
-  get noFontSizes() this._base.noFontSizes,
-  get noUrlDesc() this._base.noUrlDesc,
-  get noImages() this._base.noImages,
-
-  // grep attribute purpleIAccount.idl |grep -v readonly |sed 's/.* //;s/;//;s/\(.*\)/  set \1(val) { this._base.\1 = val; },/'
-  set autoLogin(val) { this._base.autoLogin = val; },
-  set firstConnectionState(val) { this._base.firstConnectionState = val; },
-  set password(val) { this._base.password = val; },
-  set rememberPassword(val) { this._base.rememberPassword = val; },
-  set alias(val) { this._base.alias = val; },
-  set proxyInfo(val) { this._base.proxyInfo = val; },
-
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIAccount];
-    countRef.value = interfaces.length;
-    return interfaces;
+    this.writeMessage("You", aMsg, {outgoing: true});
+    this.writeMessage("/dev/null", "Thanks! I appreciate your attention.",
+                      {incoming: true, autoResponse: true});
   },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIAccount, Ci.nsIClassInfo])
-};
 
+  get name() "/dev/null",
+};
+Conversation.prototype.__proto__ = GenericConversationPrototype;
 
 function Account(aProtoInstance, aKey, aName)
 {
@@ -176,60 +72,36 @@ function Account(aProtoInstance, aKey, aName)
 }
 Account.prototype = {
   connect: function() {
-    dump("connecting " + this.name + "\n");
     this.base.connecting();
+    // do something here
     this.base.connected();
+    let self = this;
+    setTimeout(function() {
+      self._conv = new Conversation(self);
+      self._conv.writeMessage("jstest", "You are now talking to /dev/null", {system: true});
+    }, 0);
   },
-  disconnect: function() {
-    dump("disconnecting " + this.name + "\n");
-    this.base.disconnecting(this._base.NO_ERROR);
+  _conv: null,
+  disconnect: function(aSilent) {
+    this.base.disconnecting(this._base.NO_ERROR, "");
+    if (!aSilent)
+      this._conv.writeMessage("jstest", "You have disconnected.", {system: true});
+    if (this._conv) {
+      this._conv._setDisconnected();
+      delete this._conv;
+    }
     this.base.disconnected();
-  },
-  get normalizedName() this.name.toLowerCase()
+  }
 };
 Account.prototype.__proto__ = GenericAccountPrototype;
 
 function jsTestProtocol() { }
-
 jsTestProtocol.prototype = {
-  get id() "prpl-jstest",
   get name() "JS Test",
-  get normalizedName() "jstest",
-  get iconBaseURI() "chrome://instantbird/skin/prpl-generic/",
-
   loadAccount: function(aKey) new Account(this, aKey),
   createAccount: function(aName, aKey) new Account(this, aKey, aName),
-
-  // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
-  getOptions: function() EmptyEnumerator,
-  getUsernameSplit: function() EmptyEnumerator,
-  accountExists: function() false, //FIXME
-
-  get uniqueChatName() false,
-  get chatHasTopic() false,
-  get noPassword() false,
-  get newMailNotification() false,
-  get imagesInIM() false,
-  get passwordOptional() true,
-  get usePointSize() true,
-  get registerNoScreenName() false,
-  get slashCommandsNative() false,
-
-  classDescription: "JS Test Protocol",
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
-  contractID: "@instantbird.org/purple/jstest;1",
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIProtocol];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol, Ci.nsIClassInfo]),
-  _xpcom_categories: [{category: "js-protocol-plugin"}],
 };
+jsTestProtocol.prototype.__proto__ = GenericProtocolPrototype;
 
-function NSGetModule(aCompMgr, aFileSpec) {
-  return XPCOMUtils.generateModule([jsTestProtocol]);
-}
+var NSGetModule = XPCOMUtils.generateNSGetModule([jsTestProtocol]);
