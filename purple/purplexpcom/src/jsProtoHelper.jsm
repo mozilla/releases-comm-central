@@ -120,10 +120,7 @@ const GenericAccountPrototype = {
   _init: function _init(aProtoInstance, aKey, aName) {
     this._base = new AccountBase();
     this._base.concreteAccount = this;
-    if (aName)
-      this._base.create(aName, aProtoInstance, aKey);
-    else
-      this._base.load(aKey, aProtoInstance, true);
+    this._base.init(aKey, aName, aProtoInstance);
   },
   get base() this._base.purpleIAccountBase,
 
@@ -334,8 +331,7 @@ const GenericProtocolPrototype = {
   get normalizedName() this.name.replace(/[^a-z0-0]/gi, "").toLowerCase(),
   get iconBaseURI() "chrome://instantbird/skin/prpl-generic/",
 
-  loadAccount: function(aKey) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  createAccount: function(aName, aKey) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  getAccount: function(aKey, aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
   // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
   getOptions: function() EmptyEnumerator,

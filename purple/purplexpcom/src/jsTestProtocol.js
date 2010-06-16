@@ -98,8 +98,7 @@ Account.prototype.__proto__ = GenericAccountPrototype;
 function jsTestProtocol() { }
 jsTestProtocol.prototype = {
   get name() "JS Test",
-  loadAccount: function(aKey) new Account(this, aKey),
-  createAccount: function(aName, aKey) new Account(this, aKey, aName),
+  getAccount: function(aKey, aName) new Account(this, aKey, aName),
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
 jsTestProtocol.prototype.__proto__ = GenericProtocolPrototype;

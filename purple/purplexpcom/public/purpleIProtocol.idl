@@ -124,9 +124,7 @@ interface purpleIProtocol: nsISupports {
 
   // The key is the unique identifier needed to get account data
   // stored in the preferences.
-  purpleIAccount loadAccount(in AUTF8String aKey);
-
-  purpleIAccount createAccount(in AUTF8String aName, in AUTF8String aKey);
+  purpleIAccount getAccount(in AUTF8String aKey, in AUTF8String aName);
 
   [noscript] PurpleNativeAccount createPurpleAccount(in AUTF8String aName,
                                                      in purpleIAccount aAccount);
