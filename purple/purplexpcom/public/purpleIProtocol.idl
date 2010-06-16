@@ -119,8 +119,6 @@ interface purpleIProtocol: nsISupports {
   // Used as a hint that unknown commands should not be sent as messages.
   readonly attribute boolean slashCommandsNative;
 
-  [noscript] PurpleNativePluginProtocolInfo getInfo();
-
   // The key is the unique identifier needed to get account data
   // stored in the preferences.
   purpleIAccount getAccount(in AUTF8String aKey, in AUTF8String aName);
