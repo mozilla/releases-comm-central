@@ -36,53 +36,16 @@
  * ***** END LICENSE BLOCK ***** */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+Components.utils.import("resource://app/modules/jsProtoHelper.jsm");
 
 function gtalkProtocol() { }
-
 gtalkProtocol.prototype = {
-  get id() "prpl-gtalk",
+  get normalizedName() "gtalk",
   get name() "Google Talk",
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
-
-  // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
-  getOptions: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  getUsernameSplit: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  accountExists: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get uniqueChatName() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get chatHasTopic() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get noPassword() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get newMailNotification() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get imagesInIM() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get passwordOptional() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get usePointSize() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get registerNoScreenName() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get slashCommandsNative() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-
-  classDescription: "Google Talk Override Protocol",
-  classID: Components.ID("{ad8a6454-2f5a-40c2-86ca-30062408125e}"),
-  contractID: "@instantbird.org/purple/gtalk;1",
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol]),
-  _xpcom_categories: [{category: "js-protocol-plugin"}],
-  _xpcom_factory: {
-    createInstance: function(outer, iid) {
-      if (outer != null)
-        throw Cr.NS_ERROR_NO_AGGREGATION;
-
-      var override = new gtalkProtocol();
-      var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                          .getService(Ci.purpleICoreService);
-      var base = pcs.getProtocolById("prpl-jabber");
-      var proto = Components.classes["@instantbird.org/purple/overrideprotocol;1"]
-                            .createInstance(Ci.purpleIOverrideProtocol);
-      proto.init(base, override);
-      return proto.QueryInterface(Ci.purpleIProtocol);
-    }
-  }
+  get baseId() "prpl-jabber",
+  classID: Components.ID("{ad8a6454-2f5a-40c2-86ca-30062408125e}")
 };
+gtalkProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
-function NSGetModule(aCompMgr, aFileSpec) {
-  return XPCOMUtils.generateModule([gtalkProtocol]);
-}
+var NSGetModule = XPCOMUtils.generateNSGetModule([gtalkProtocol]);

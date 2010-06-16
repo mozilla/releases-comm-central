@@ -43,6 +43,7 @@ var EXPORTED_SYMBOLS = [
   "GenericAccountPrototype",
   "GenericConversationPrototype",
   "GenericProtocolPrototype",
+  "ForwardProtocolPrototype",
   "Message",
   "doXHRequest"
 ];
@@ -148,7 +149,7 @@ const GenericAccountPrototype = {
   get name() this._base.name,
   get normalizedName() this.name.toLowerCase(),
   get id() this._base.id,
-  get numericId() this._base.id,
+  get numericId() this._base.numericId,
   get protocol() this._base.protocol,
   get autoLogin() this._base.autoLogin,
   get firstConnectionState() this._base.firstConnectionState,
@@ -348,9 +349,8 @@ const GenericProtocolPrototype = {
   get registerNoScreenName() false,
   get slashCommandsNative() false,
 
-  classDescription: this.name + " Protocol",
-  classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
-  contractID: "@instantbird.org/purple/" + this.normalizedName + ";1",
+  get classDescription() this.name + " Protocol",
+  get contractID() "@instantbird.org/purple/" + this.normalizedName + ";1",
   getInterfaces: function(countRef) {
     var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIProtocol];
     countRef.value = interfaces.length;
@@ -362,6 +362,46 @@ const GenericProtocolPrototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol, Ci.nsIClassInfo]),
   _xpcom_categories: [{category: "js-protocol-plugin"}],
 };
+
+// the baseId property should be set to the prpl id of the base protocol plugin
+// and the name getter is required.
+const ForwardProtocolPrototype = {
+  get base() {
+    if (!this.hasOwnProperty("_base")) {
+      this._base =
+        Cc["@instantbird.org/purple/core;1"].getService(Ci.purpleICoreService)
+                                            .getProtocolById(this.baseId);
+
+    }
+    return this._base;
+  },
+  getAccount: function(aKey, aName) {
+    let proto = this;
+    let account = {
+      _base: this.base.getAccount(aKey, aName),
+      get normalizedName() this._base.normalizedName,
+      get protocol() proto
+    };
+    account.__proto__ = GenericAccountPrototype;
+    account._base.concreteAccount = account;
+    return account;
+  },
+
+  get iconBaseURI() this.base.iconBaseURI,
+  getOptions: function() this.base.getOptions(),
+  getUsernameSplit: function() this.base.getUsernameSplit(),
+  accountExists: function(aName) this.base.accountExists(aName),
+  get uniqueChatName() this.base.uniqueChatName,
+  get chatHasTopic() this.base.chatHasTopic,
+  get noPassword() this.base.noPassword,
+  get newMailNotification() this.base.newMailNotification,
+  get imagesInIM() this.base.imagesInIM,
+  get passwordOptional() this.base.passwordOptional,
+  get usePointSize() this.base.usePointSize,
+  get registerNoScreenName() this.base.registerNoScreenName,
+  get slashCommandsNative() this.base.slashCommandsNative
+};
+ForwardProtocolPrototype.__proto__ = GenericProtocolPrototype;
 
 function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
   var xhr = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]

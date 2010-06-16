@@ -36,38 +36,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-const Cc = Components.classes;
+Components.utils.import("resource://app/modules/jsProtoHelper.jsm");
 const Ci = Components.interfaces;
-const Cr = Components.results;
-
-/**
- * Constructs an nsISimpleEnumerator for the given array of items.
- * Copied from netwerk/test/httpserver/httpd.js
- *
- * @param items : Array
- *   the items, which must all implement nsISupports
- */
-function nsSimpleEnumerator(items)
-{
-  this._items = items;
-  this._nextIndex = 0;
-}
-nsSimpleEnumerator.prototype = {
-  hasMoreElements: function() this._nextIndex < this._items.length,
-  getNext: function() {
-    if (!this.hasMoreElements())
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
-
-    return this._items[this._nextIndex++];
-  },
-  QueryInterface: function(aIID) {
-    if (Ci.nsISimpleEnumerator.equals(aIID) ||
-        Ci.nsISupports.equals(aIID))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
-};
 
 function UsernameSplit(aBase, aDefaultValue)
 {
@@ -75,14 +45,8 @@ function UsernameSplit(aBase, aDefaultValue)
   this.defaultValue = aDefaultValue;
 }
 UsernameSplit.prototype = {
-  QueryInterface: function(aIid) {
-    if (aIid.equals(Components.interfaces.nsISupports) ||
-        aIid.equals(Components.interfaces.nsIClassInfo) ||
-        aIid.equals(Components.interfaces.purpleIUsernameSplit))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIUsernameSplit,
+                                         Ci.nsIClassInfo]),
   getInterfaces: function(countRef) {
     var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIUsernameSplit];
     countRef.value = interfaces.length;
@@ -101,18 +65,14 @@ UsernameSplit.prototype = {
 }
 
 function facebookProtocol() { }
-
 facebookProtocol.prototype = {
-  get id() "prpl-facebook",
+  get normalizedName() "facebook",
   get name() "Facebook Chat",
   get iconBaseURI() "chrome://prpl-facebook/skin/",
+  get baseId() "prpl-jabber",
 
-  // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
-  getOptions: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
   getUsernameSplit: function() {
-    var splits = Components.classes["@instantbird.org/purple/core;1"]
-                           .getService(Ci.purpleICoreService)
-                           .getProtocolById("prpl-jabber").getUsernameSplit();
+    var splits = this.base.getUsernameSplit();
     let newSplits = [];
     while (splits.hasMoreElements()) {
       let split = splits.getNext();
@@ -123,39 +83,9 @@ facebookProtocol.prototype = {
     }
     return new nsSimpleEnumerator(newSplits);
   },
-  accountExists: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get uniqueChatName() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get chatHasTopic() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get noPassword() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get newMailNotification() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get imagesInIM() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get passwordOptional() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get usePointSize() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get registerNoScreenName() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get slashCommandsNative() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
-  classDescription: "Facebook Chat Override Protocol",
-  classID: Components.ID("{61bc3528-df53-4481-a61a-74c3a2e8c9fd}"),
-  contractID: "@instantbird.org/purple/facebook;1",
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol]),
-  _xpcom_categories: [{category: "js-protocol-plugin"}],
-  _xpcom_factory: {
-    createInstance: function(outer, iid) {
-      if (outer != null)
-        throw Cr.NS_ERROR_NO_AGGREGATION;
-
-      var override = new facebookProtocol();
-      var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                          .getService(Ci.purpleICoreService);
-      var base = pcs.getProtocolById("prpl-jabber");
-      var proto = Components.classes["@instantbird.org/purple/overrideprotocol;1"]
-                            .createInstance(Ci.purpleIOverrideProtocol);
-      proto.init(base, override);
-      return proto.QueryInterface(Ci.purpleIProtocol);
-    }
-  }
+  classID: Components.ID("{61bc3528-df53-4481-a61a-74c3a2e8c9fd}")
 };
+facebookProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
-function NSGetModule(aCompMgr, aFileSpec) {
-  return XPCOMUtils.generateModule([facebookProtocol]);
-}
+var NSGetModule = XPCOMUtils.generateNSGetModule([facebookProtocol]);

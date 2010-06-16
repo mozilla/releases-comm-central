@@ -103,4 +103,15 @@ jsTestProtocol.prototype = {
 };
 jsTestProtocol.prototype.__proto__ = GenericProtocolPrototype;
 
-var NSGetModule = XPCOMUtils.generateNSGetModule([jsTestProtocol]);
+function overrideTestProtocol() { }
+overrideTestProtocol.prototype = {
+  get normalizedName() "override",
+  get name() "Override Test",
+  get iconBaseURI() "chrome://prpl-qq/skin/",
+  get baseId() "prpl-null",
+  classID: Components.ID("{88795348-8a4b-4018-890d-5314cb08ec4d}")
+};
+overrideTestProtocol.prototype.__proto__ = ForwardProtocolPrototype;
+
+var NSGetModule = XPCOMUtils.generateNSGetModule([jsTestProtocol,
+                                                  overrideTestProtocol]);
