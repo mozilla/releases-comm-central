@@ -268,9 +268,9 @@
         if (currentGroupId == aGroupId)
           return;
 
-        var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                            .getService(Ci.purpleICoreService);
-        let newGroup = pcs.getTagById(aGroupId);
+        let pts = Components.classes["@instantbird.org/purple/tags;1"]
+                            .getService(Ci.purpleITagsService);
+        let newGroup = pts.getTagById(aGroupId);
         for (var id in this.accounts) {
           let pab = this.accounts[id];
           if (pab.tag.id == currentGroupId)

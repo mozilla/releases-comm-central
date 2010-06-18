@@ -117,14 +117,14 @@ buddyListContextMenu.prototype = {
       popup.removeChild(item);
 
     let groupId = this.target.group.groupId;
-    let pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
+    let pts = Components.classes["@instantbird.org/purple/tags;1"]
+                        .getService(Ci.purpleITagsService);
 
     let sortFunction = function (a, b) {
       let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
       return a < b ? 1 : a > b ? -1 : 0;
     };
-    pcs.getTags()
+    pts.getTags()
        .sort(sortFunction)
        .forEach(function (aTag) {
       item = document.createElement("menuitem");
@@ -157,9 +157,9 @@ buddyListContextMenu.prototype = {
                         {value: false}) || !name.value)
       return; // the user canceled
 
-    let pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    let tag = pcs.getTagByName(name.value) || pcs.createTag(name.value);
+    let pts = Components.classes["@instantbird.org/purple/tags;1"]
+                        .getService(Ci.purpleITagsService);
+    let tag = pts.getTagByName(name.value) || pts.createTag(name.value);
     this.target.moveTo(tag.id);
   },
   showLogs: function blcm_showLogs() {
@@ -207,10 +207,10 @@ var buddyList = {
       else
         item.removeAttribute("checked");
 
-      var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                          .getService(Ci.purpleICoreService);
+      let pts = Components.classes["@instantbird.org/purple/tags;1"]
+                          .getService(Ci.purpleITagsService);
       let blistBox = document.getElementById("buddylistbox");
-      pcs.getTags().forEach(function (aTag) {
+      pts.getTags().forEach(function (aTag) {
         let elt = document.getElementById("group" + aTag.id);
         if (!elt && showOffline) {
           elt = document.createElement("group");
@@ -503,10 +503,10 @@ var buddyList = {
               .setAttribute("checked", "true");
     }
 
-    let pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
+    let pts = Components.classes["@instantbird.org/purple/tags;1"]
+                        .getService(Ci.purpleITagsService);
     let blistBox = document.getElementById("buddylistbox");
-    pcs.getTags().forEach(function (aTag) {
+    pts.getTags().forEach(function (aTag) {
       let groupElt = document.createElement("group");
       blistBox.appendChild(groupElt);
       if (buddyList._showOffline)
