@@ -33,7 +33,8 @@ var fake = {
                      new Account("msn@instantbird.org", "prpl-msn"),
                      new Account("instantbird@gmail.com/instantbird",
                                  "prpl-jabber"),
-                     new Account("8493208", "prpl-icq")];
+                     new Account("8493208", "prpl-icq"),
+                     new Account("ibuser@irc.mozilla.org", "prpl-irc")];
     this.createFakeAccounts();
 
     var win = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -52,12 +53,13 @@ var fake = {
                     new Buddy("Alexandre", this.accounts[2], this.groups[2])];
     this.createFakeBuddies();
 
-    var chat = new Conversation("#fake", true);
+    var chat = new Conversation("#fake", this.accounts[4], true);
     chat.topic = "This is a fake conversation";
 
-    this.convs = [new Conversation("Florian", false, this.buddies[0]),
-                  chat,
-                  new Conversation("Tata")];
+    this.convs =
+      [new Conversation("Florian", this.accounts[2], false, this.buddies[0]),
+       chat,
+       new Conversation("Tata", this.accounts[0])];
     this.createFakeConversations();
 
     var chatBuddy;
@@ -174,6 +176,7 @@ Account.prototype = {
   connectionStageMsg: "",
   connectionErrorReason: -1,
   timeOfNextReconnect: 0,
+  timeOfLastConnect: new Date(),
   connectionErrorMessage: "",
   disconnecting: false,
   disconnected: false,
@@ -241,6 +244,8 @@ Buddy.prototype = {
   get buddy() this,
   getTooltipInfo: function() null,
 
+  get buddyName() this.name,
+
   alias: "",
   available: true,
   online: true,
@@ -279,9 +284,10 @@ nsSimpleEnumerator.prototype = {
 };
 
 var gLastConversationId = 0;
-function Conversation(aName, aIsChat, aBuddy)
+function Conversation(aName, aAccount, aIsChat, aBuddy)
 {
   this.name = aName;
+  this.account = aAccount;
   this.isChat = aIsChat;
   if (aIsChat)
     this._chatBuddies = [];
