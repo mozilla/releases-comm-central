@@ -180,10 +180,7 @@ SHIPPED_LOCALES_FILE = $(topsrcdir)/instantbird/locales/shipped-locales
 SHIPPED_LOCALES := $(shell if test -f $(SHIPPED_LOCALES_FILE); then cat $(SHIPPED_LOCALES_FILE); fi)
 
 package:
-	@$(MAKE) -C instantbird/installer libs installer
-ifdef L10NBASEDIR
-	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C instantbird/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir ;)
-endif
+	@$(MAKE) -C instantbird/installer
 
 install::
 	@$(MAKE) -C instantbird/installer install
