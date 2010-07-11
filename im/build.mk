@@ -149,6 +149,7 @@ ifdef MOZ_UPDATE_PACKAGING
 ifdef LIST_PREVIOUS_MAR_CMD
 	rm -rf $(PREVIOUS_MAR_DIR) $(PATCH_FILE)
 	mkdir $(PREVIOUS_MAR_DIR)
+	touch $(PATCH_FILE)
 	$(foreach marline,$(shell $(LIST_PREVIOUS_MAR_CMD)),\
 	  $(foreach MAR_FILE_SRC,$(shell echo $(marline) |cut -d : -f 3),\
 	    $(foreach AB_CD,$(filter $(shell echo $(marline) |cut -d : -f 2),$(AB_CD) $(SHIPPED_LOCALES)),\
@@ -156,7 +157,7 @@ ifdef LIST_PREVIOUS_MAR_CMD
 		mkdir -p $(PREVIOUS_MAR_DIR)/$(buildid) ; \
 	        $(DOWNLOAD_MAR_CMD) ; \
 		echo "$(MAR_FILE_DEST),$(DIST)/$(COMPLETE_MAR),$(DIST)/$(PKG_UPDATE_PATH)$(PKG_UPDATE_BASENAME).partial.from-$(buildid).mar,$(FORCE_UPDATE)" >> $(PATCH_FILE) ;))))
-	PATH=$(call core_abspath,$(LIBXUL_DIST))/host/bin:$(PATH) $(PYTHON) $(MOZILLA_SRCDIR)/tools/update-packaging/make_incremental_updates.py -f $(PATCH_FILE)
+	PATH="$(call core_abspath,$(LIBXUL_DIST))/host/bin:$(PATH)" $(PYTHON) $(MOZILLA_SRCDIR)/tools/update-packaging/make_incremental_updates.py -f $(PATCH_FILE)
 endif
 endif
 ifdef SYMBOL_SERVER_HOST
