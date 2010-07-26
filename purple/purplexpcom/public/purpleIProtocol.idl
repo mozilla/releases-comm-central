@@ -49,13 +49,13 @@
 %}
 
 [ptr] native PurpleNativePluginProtocolInfo(PurplePluginProtocolInfo);
-[ptr] native PurpleNativeAccount(PurpleAccount);
 interface purpleIAccount;
 
 [scriptable, uuid(0a51b511-4ce7-4f4c-a109-43023b72fc5a)]
 interface purpleIProtocol: nsISupports {
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String id;
+  readonly attribute AUTF8String normalizedName;
 
   // returns a chrome URI pointing to a folder that contains the files:
   // icon.png icon32.png and icon48.png
@@ -119,10 +119,9 @@ interface purpleIProtocol: nsISupports {
   // Used as a hint that unknown commands should not be sent as messages.
   readonly attribute boolean slashCommandsNative;
 
-  [noscript] PurpleNativePluginProtocolInfo getInfo();
-
-  [noscript] PurpleNativeAccount createPurpleAccount(in AUTF8String aName,
-                                                     in purpleIAccount aAccount);
+  // The key is the unique identifier needed to get account data
+  // stored in the preferences.
+  purpleIAccount getAccount(in AUTF8String aKey, in AUTF8String aName);
 };
 
 [scriptable, uuid(20c4971a-f7c2-4781-8e85-69fee7b83a3d)]
@@ -153,5 +152,5 @@ interface purpleIOverrideProtocol: purpleIProtocol {
 };
 
 %{C++
-#define PURPLE_OVERRIDE_PROTOCOL_CATEGORY "purple-override-protocol"
+#define JS_PROTOCOL_PLUGIN_CATEGORY "js-protocol-plugin"
 %}

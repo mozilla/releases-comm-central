@@ -62,7 +62,7 @@ Conversation.prototype = {
   get title() this.name,
     account: {protocol: {name: "Fake Protocol"}, name: "Fake Account"},
   buddy: null,
-  typingStage: purpleIConvIM.NO_TYPING,
+  typingState: purpleIConvIM.NOT_TYPING,
   topic: "Fake Conversation",
 
   setBaseURI: function (aDoc, aURI) {

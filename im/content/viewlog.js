@@ -43,6 +43,7 @@ function getBrowser() {
 var logWindow = {
   load: function mo_load() {
     let logs = window.arguments[0].logs;
+    logs.sort(function(log1, log2) log2.time - log1.time);
     let displayname = window.arguments[1];
     if (displayname) {
       let bundle = document.getElementById("bundle_instantbird");

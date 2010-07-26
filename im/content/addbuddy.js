@@ -40,6 +40,8 @@ var addBuddy = {
   onload: function ab_onload() {
     this.pcs = Components.classes["@instantbird.org/purple/core;1"]
                          .getService(Ci.purpleICoreService);
+    this.pts = Components.classes["@instantbird.org/purple/tags;1"]
+                         .getService(Ci.purpleITagsService);
     this.buildAccountList();
     this.buildTagList();
   },
@@ -63,10 +65,10 @@ var addBuddy = {
 
   buildTagList: function ab_buildTagList() {
     var tagList = document.getElementById("taglist");
-    let tags = this.pcs.getTags();
+    let tags = this.pts.getTags();
     if (!tags.length) {
       let bundle = document.getElementById("instantbirdBundle");
-      tags.push(this.pcs.createTag(bundle.getString("defaultGroup")));
+      tags.push(this.pts.createTag(bundle.getString("defaultGroup")));
     }
 
     tags.forEach(function (tag) {
@@ -85,11 +87,11 @@ var addBuddy = {
     var taglist = document.getElementById("taglist");
     var items = taglist.getElementsByAttribute("label", taglist.label);
     if (items.length)
-      tag = this.pcs.getTagById(items[0].value);
+      tag = this.pts.getTagById(items[0].value);
     else
-      tag = this.pcs.createTag(taglist.label);
+      tag = this.pts.createTag(taglist.label);
 
-    this.pcs.addBuddy(account, tag, name);
+    account.addBuddy(tag, name);
   },
 
   getAccounts: function ab_getAccounts() {

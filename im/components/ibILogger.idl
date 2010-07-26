@@ -12,11 +12,11 @@
  * License.
  *
  * The Original Code is the Instantbird messenging client, released
- * 2009.
+ * 2010.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2009
+ * Portions created by the Initial Developer are Copyright (C) 2010
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,17 +35,22 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://app/modules/jsProtoHelper.jsm");
+#include "nsISupports.idl"
+#include "nsISimpleEnumerator.idl"
 
-function gtalkProtocol() { }
-gtalkProtocol.prototype = {
-  get normalizedName() "gtalk",
-  get name() "Google Talk",
-  get iconBaseURI() "chrome://prpl-gtalk/skin/",
-  get baseId() "prpl-jabber",
-  classID: Components.ID("{ad8a6454-2f5a-40c2-86ca-30062408125e}")
+interface purpleIAccount;
+interface purpleIAccountBuddy;
+interface purpleIConversation;
+
+[scriptable, uuid(164ff6c3-ca64-4880-b8f3-67eb1817955f)]
+interface ibILog: nsISupports {
+  readonly attribute AUTF8String path;
+  readonly attribute PRTime time;
 };
-gtalkProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
-var NSGetModule = XPCOMUtils.generateNSGetModule([gtalkProtocol]);
+[scriptable, uuid(ab38c01c-2245-4279-9437-1d6bcc69d556)]
+interface ibILogger: nsISupports {
+  nsISimpleEnumerator getLogsForBuddy(in purpleIAccountBuddy aBuddy);
+  nsISimpleEnumerator getLogsForConversation(in purpleIConversation aConversation);
+  nsISimpleEnumerator getSystemLogsForAccount(in purpleIAccount aAccount);
+};

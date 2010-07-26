@@ -41,9 +41,14 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
+MODULE		= instantbird
+
+XPIDLSRCS	= ibILogger.idl
+
 EXTRA_COMPONENTS = \
 	smileProtocolHandler.js \
 	autoLoginHandler.js \
+	logger.js \
 	$(NULL)
 
 ifeq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
