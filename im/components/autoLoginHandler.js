@@ -68,10 +68,7 @@ autoLoginHandler.prototype = {
   classDescription: "AutoLogin Handler",
   classID: Components.ID("{9e5d5160-d61d-4d57-ae0d-81bee4380269}"),
   contractID: "@instantbird.org/autologin-handler;1",
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler]),
-  _xpcom_categories: [{category: "command-line-handler", entry: "b-n"}]
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler])
 };
 
-function NSGetModule(aCompMgr, aFileSpec) {
-  return XPCOMUtils.generateModule([autoLoginHandler]);
-}
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([autoLoginHandler]);

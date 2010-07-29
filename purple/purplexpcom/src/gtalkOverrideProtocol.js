@@ -48,4 +48,4 @@ gtalkProtocol.prototype = {
 };
 gtalkProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
-var NSGetModule = XPCOMUtils.generateNSGetModule([gtalkProtocol]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([gtalkProtocol]);

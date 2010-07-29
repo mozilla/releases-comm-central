@@ -194,14 +194,6 @@
 
       <constructor>
         <![CDATA[
-          try {
-            this.mDragDropHandler = Components.classes["@mozilla.org:/content/content-area-dragdrop;1"]
-                                              .createInstance(Components.interfaces.nsIDragDropHandler);
-            this.mDragDropHandler.hookupTo(this, null);
-          }
-          catch (e) {
-          }
-
           this.addEventListener("scroll", this.browserScroll, false);
           this.addEventListener("resize", this.browserResize, false);
           this.mPrefs.addObserver(this.magicCopyPref, this, false);

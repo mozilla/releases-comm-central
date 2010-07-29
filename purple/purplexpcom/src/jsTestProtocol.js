@@ -113,5 +113,5 @@ overrideTestProtocol.prototype = {
 };
 overrideTestProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
-var NSGetModule = XPCOMUtils.generateNSGetModule([jsTestProtocol,
-                                                  overrideTestProtocol]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([jsTestProtocol,
+                                                      overrideTestProtocol]);

@@ -73,6 +73,4 @@ smileProtocolHandler.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler])
 };
 
-function NSGetModule(aCompMgr, aFileSpec) {
-  return XPCOMUtils.generateModule([smileProtocolHandler]);
-}
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([smileProtocolHandler]);

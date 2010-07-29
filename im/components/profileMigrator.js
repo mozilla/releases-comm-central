@@ -91,9 +91,8 @@ InstantbirdProfileMigrator.prototype = {
   classDescription: "Instantbird Profile Migrator",
   classID: Components.ID("028ab7f2-5c83-4643-b846-09119c702faa"),
   contractID: "@mozilla.org/toolkit/profile-migrator;1",
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProfileMigrator]),
-}
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProfileMigrator])
+};
 
-function NSGetModule(aCompMgr, aFileSpec) {
-  return XPCOMUtils.generateModule([InstantbirdProfileMigrator]);
-}
+const NSGetFactory =
+  XPCOMUtils.generateNSGetFactory([InstantbirdProfileMigrator]);

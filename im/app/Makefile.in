@@ -61,14 +61,18 @@ DEFINES += \
   -DAPP_LICENSE_BLOCK=$(MAIL_APP_LICENSE_FILE) \
    $(NULL)
 
-SOURCE_STAMP := $(shell cd $(topsrcdir) ; hg identify -i 2>/dev/null | cut -f1 -d' ')
-ifdef SOURCE_STAMP
-DEFINES += -DMOZ_SOURCE_STAMP="$(SOURCE_STAMP)"
+MOZ_SOURCE_STAMP ?= $(firstword $(shell hg -R $(topsrcdir) parent --template="{node|short}\n" 2>/dev/null))
+ifdef MOZ_SOURCE_STAMP
+DEFINES += -DMOZ_SOURCE_STAMP="$(MOZ_SOURCE_STAMP)"
 endif
 
 SOURCE_REPO := $(shell hg -R $(topsrcdir) showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/http:/")
 ifdef SOURCE_REPO
 DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
+endif
+
+ifdef MOZILLA_OFFICIAL
+DEFINES += -DOFFICIAL_BUILD=1
 endif
 
 DIRS		= profile
@@ -85,25 +89,20 @@ PREF_JS_EXPORTS = \
 
 ifndef LIBXUL_SDK
 
-ifeq ($(USE_SHORT_LIBNAME), 1)
-PROGRAM = instantbird$(BIN_SUFFIX)
+ifneq (,$(filter OS2 WINCE WINNT,$(OS_ARCH)))
+PROGRAM = $(MOZ_APP_NAME)$(BIN_SUFFIX)
 else
-PROGRAM = instantbird-bin$(BIN_SUFFIX)
+PROGRAM = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
 endif
 
-REQUIRES = \
-	xpcom \
-	string \
-	xulapp \
-	$(NULL)
 
 CPPSRCS = nsMain.cpp
 else
 
-ifeq ($(USE_SHORT_LIBNAME), 1)
-STUBNAME = instantbird$(BIN_SUFFIX)
+ifneq (,$(filter OS2 WINCE WINNT,$(OS_ARCH)))
+STUBNAME = $(MOZ_APP_NAME)$(BIN_SUFFIX)
 else
-STUBNAME = instantbird-bin$(BIN_SUFFIX)
+STUBNAME = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
 endif
 endif # LIBXUL_SDK
 
@@ -113,21 +112,24 @@ LOCAL_INCLUDES += -I$(MOZILLA_SRCDIR)/toolkit/xre
 
 ifdef BUILD_STATIC_LIBS
 ifdef _MSC_VER
-STATIC_COMPONENTS_LINKER_PATH = -LIBPATH:$(DEPTH)/staticlib
+STATIC_COMPONENTS_LINKER_PATH = -LIBPATH:$(MOZDEPTH)/staticlib
 else
-STATIC_COMPONENTS_LINKER_PATH = -L$(DEPTH)/staticlib
+STATIC_COMPONENTS_LINKER_PATH = -L$(MOZDEPTH)/staticlib
 endif
-LIBS += $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
+LIBS += $(MOZDEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
 else
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 LIBS += $(DIST)/bin/XUL
 else
 EXTRA_DSO_LIBS += xul
 endif
 endif
 
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 TK_LIBS := -framework Cocoa $(TK_LIBS)
+ifdef BUILD_STATIC_LIBS
+TK_LIBS := -framework SystemConfiguration $(TK_LIBS)
+endif
 endif
 
 ifdef MOZ_ENABLE_LIBXUL
@@ -155,6 +157,16 @@ ifdef MOZ_JPROF
 LIBS += -ljprof
 endif
 
+ifdef MOZ_ENABLE_DBUS
+LIBS += $(MOZ_DBUS_GLIB_LIBS)
+endif
+
+ifndef MOZ_ENABLE_LIBXUL
+ifdef MOZ_NATIVE_HUNSPELL
+LIBS += $(MOZ_HUNSPELL_LIBS)
+endif
+endif
+
 ifndef MOZ_WINCONSOLE
 ifdef MOZ_DEBUG
 MOZ_WINCONSOLE = 1
@@ -163,6 +175,8 @@ MOZ_WINCONSOLE = 0
 endif
 endif
 
+# This switches $(INSTALL) to copy mode, like $(SYSINSTALL), so things that
+# shouldn't get 755 perms need $(IFLAGS1) for either way of calling nsinstall.
 NSDISTMODE = copy
 
 include $(topsrcdir)/config/config.mk
@@ -196,9 +210,17 @@ EXTRA_DEPS	+= \
 DEFINES		+= $(STATIC_DEFINES)
 CPPSRCS		+= $(STATIC_CPPSRCS)
 EXTRA_DSO_LIBS	+= $(STATIC_EXTRA_DSO_LIBS)
-REQUIRES	+= $(STATIC_REQUIRES)
-EXTRA_LIBS	+= $(STATIC_EXTRA_LIBS)
+EXTRA_LIBS	+= \
+	$(STATIC_EXTRA_LIBS) \
+	$(MOZ_HARFBUZZ_LIBS) \
+	$(NULL)
+
+# OpenGL is required by (mozilla/)content/canvas: see (mozilla/)layout/build/Makefile.in.
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+OS_LIBS += -framework OpenGL
 endif
+
+endif # BUILD_STATIC_LIBS
 
 ifeq ($(OS_ARCH),WINNT)
 OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 version winspool)
@@ -214,6 +236,7 @@ RCFLAGS += -DMOZ_INSTANTBIRD --include-dir $(srcdir)
 endif
 ifdef BUILD_STATIC_LIBS
 RCFLAGS += -DMOZ_STATIC_BUILD
+OS_LIBS += $(call EXPAND_LIBNAME,shlwapi)
 endif
 endif
 
@@ -222,6 +245,20 @@ ifdef BUILD_STATIC_LIBS
 OS_LIBS += -ltracker -lgame
 endif
 endif
+
+ifeq ($(OS_ARCH),OS2)
+RESFILE=splashos2.res
+RCFLAGS += -DMOZ_INSTANTBIRD
+ifdef BUILD_STATIC_LIBS
+RCFLAGS += -DMOZ_STATIC_BUILD -i $(DIST)/include
+endif
+ifdef DEBUG
+RCFLAGS += -DDEBUG
+endif
+RCFLAGS += -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\"
+endif
+
+LIBS += $(JEMALLOC_LIBS)
 
 include $(topsrcdir)/config/rules.mk
 
@@ -235,13 +272,14 @@ include $(topsrcdir)/config/static-rules.mk
 DEFINES	+= -DIMPL_XREAPI
 endif
 
-APP_VERSION = $(shell cat $(srcdir)/../config/version.txt)
-DEFINES += -DAPP_VERSION="$(APP_VERSION)"
+APP_UA_NAME = $(shell echo $(MOZ_APP_DISPLAYNAME) | sed -e's/[^A-Za-z]//g')
+DEFINES += -DAPP_VERSION="$(MOZ_APP_VERSION)" -DAPP_UA_NAME="$(APP_UA_NAME)"
 
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 ifdef BUILD_STATIC_LIBS
-LIBS	+= -lcups -framework AddressBook
+LIBS	+= -lcups
 endif
+LIBS	+= -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework Carbon
 endif
 
 ifeq ($(OS_ARCH),WINNT)
@@ -257,6 +295,12 @@ ifeq ($(OS_ARCH),WINNT)
 #
 ifndef GNU_CC
 LDFLAGS += /HEAP:0x40000
+endif
+endif
+
+ifeq ($(OS_ARCH),AIX)
+ifdef BUILD_STATIC_LIBS
+LDFLAGS += -bbigtoc
 endif
 endif
 
@@ -306,22 +350,24 @@ libs::
 	$(INSTALL) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
 endif
 
-ifneq (,$(filter-out WINNT WINCE Darwin,$(OS_ARCH)))
-instantbird:: mozilla.in Makefile.in Makefile $(DEPTH)/config/autoconf.mk
-	cat $< | sed -e "s|%MOZAPPDIR%|$(mozappdir)|" \
-		-e "s|%MREDIR%|$(mredir)|" \
-		-e "s|%MOZILLA-BIN%|$(PROGRAM)|g" > $@
+ifneq (,$(filter-out OS2 WINNT WINCE Darwin,$(OS_ARCH)))
+$(MOZ_APP_NAME):: $(MOZILLA_DIR)/build/unix/mozilla.in $(GLOBAL_DEPS) $(DEPTH)/config/autoconf.mk
+	cat $< | sed -e "s|%MOZAPPDIR%|$(installdir)|" \
+		-e "s|%MOZ_APP_DISPLAYNAME%|$(MOZ_APP_DISPLAYNAME)|" > $@
 	chmod +x $@
 
-libs:: instantbird
+libs:: $(MOZ_APP_NAME)
 	$(INSTALL) $< $(DIST)/bin
+
+install:: $(MOZ_APP_NAME)
+	$(SYSINSTALL) $< $(DESTDIR)$(bindir)
 
 ifdef LIBXUL_SDK
 libs::
 	cp $(LIBXUL_DIST)/bin/xulrunner-stub$(BIN_SUFFIX) $(DIST)/bin/$(STUBNAME)
 endif
 
-GARBAGE += instantbird
+GARBAGE +=  $(MOZ_APP_NAME)
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-instantbird.js channel-prefs.js)
 endif
 
@@ -374,25 +420,25 @@ module.rc: module.ver
 GARBAGE += module.ver
 
 libs:: $(srcdir)/profile/prefs.js
-	$(INSTALL) $^ $(DIST)/bin/defaults/profile
+	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/defaults/profile
 
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 
 AB := $(firstword $(subst -, ,$(AB_CD)))
 
+APP_NAME = $(MOZ_APP_DISPLAYNAME)
+
 ifdef MOZ_DEBUG
-APP_NAME = InstantbirdDebug
-else
-APP_NAME = Instantbird
+APP_NAME := $(APP_NAME)Debug
 endif
 
 libs:: $(PROGRAM)
 	mkdir -p $(DIST)/$(APP_NAME).app/Contents/MacOS
-	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(APP_NAME).app --exclude English.lproj
+	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(APP_NAME).app --exclude English.lproj
 	mkdir -p $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
-	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
-	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(APP_NAME).app/Contents/Info.plist
-	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj/InfoPlist.strings
+	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
+	sed -e "s/%APP_VERSION%/$(MOZ_APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(APP_NAME).app/Contents/Info.plist
+	sed -e "s/%APP_VERSION%/$(MOZ_APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj/InfoPlist.strings
 	rsync -a $(DIST)/bin/ $(DIST)/$(APP_NAME).app/Contents/MacOS
 	rm -f $(DIST)/$(APP_NAME).app/Contents/MacOS/$(PROGRAM)
 	rsync -aL $(PROGRAM) $(DIST)/$(APP_NAME).app/Contents/MacOS
@@ -402,3 +448,6 @@ libs:: $(PROGRAM)
 clean clobber::
 	rm -rf $(DIST)/$(APP_NAME).app
 endif
+
+# Note that anything you do to dist/ down here isn't going to make it into the
+# Mac build, since it's already been copied over to the .app, above.

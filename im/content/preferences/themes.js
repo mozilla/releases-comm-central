@@ -35,15 +35,20 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+Components.utils.import("resource://gre/modules/AddonManager.jsm");  
+
 const PREF_EXTENSIONS_GETMOREMESSAGESTYLESURL = "extensions.getMoreMessageStylesURL";
 const PREF_EXTENSIONS_GETMOREEMOTICONSURL     = "extensions.getMoreEmoticonsURL";
 
 var gThemePane = {
   init: function (){
+    AddonManager.getAllAddons(function(aAddons) {
+      gThemePane.extensionList = aAddons;
+      previewObserver.load();
+      smileysPreview.load();
+    });
     gThemePane.setGetMore("Emoticons");
     gThemePane.setGetMore("MessageStyles");
-    previewObserver.load();
-    setTimeout(function() { smileysPreview.load(); }, 10);
   },
 
   /* Set the correct URL for the "Get more ..."-links */
@@ -81,12 +86,8 @@ var gThemePane = {
 
   // Get extension list (slow) and cache it for use by messagestyle.js and smileys.js
   getExtensionList: function () {
-    if (!this.extensionList) {
-      this.extensionList =
-        Components.classes["@mozilla.org/extensions/manager;1"]
-                  .getService(Components.interfaces.nsIExtensionManager)
-                  .getItemList(Components.interfaces.nsIUpdateItem.TYPE_EXTENSION, {});
-    }
+    if (!this.extensionList)
+      throw "The add-ons list should be loaded by now...";
     return this.extensionList;
   }
 };

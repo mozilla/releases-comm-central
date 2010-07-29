@@ -88,4 +88,4 @@ facebookProtocol.prototype = {
 };
 facebookProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
-var NSGetModule = XPCOMUtils.generateNSGetModule([facebookProtocol]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([facebookProtocol]);
