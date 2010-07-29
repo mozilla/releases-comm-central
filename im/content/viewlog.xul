@@ -111,7 +111,7 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
-    <popup id="contentAreaContextMenu">
+    <menupopup id="contentAreaContextMenu">
       <menuitem id="context-copy"
                 label="&copyCmd.label;"
                 accesskey="&copyCmd.accesskey;"
@@ -120,7 +120,7 @@
                 label="&selectAllCmd.label;"
                 accesskey="&selectAllCmd.accesskey;"
                 command="cmd_selectAll"/>
-    </popup>
+    </menupopup>
   </popupset>
 
   <hbox flex="1">
