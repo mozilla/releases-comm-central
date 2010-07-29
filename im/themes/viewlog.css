@@ -43,7 +43,7 @@
   margin: 0 0;
 }
 
-:root:not([active="true"]) #logList {
+#logList:-moz-window-inactive {
   background-color: #e8e8e8;
 }
 
@@ -54,7 +54,7 @@ splitter {
   width: 1px;
 }
 
-:root:not([active="true"]) splitter {
+splitter:-moz-window-inactive {
   border-color: rgba(0,0,0,0.35);
 }
 %else

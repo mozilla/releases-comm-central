@@ -421,8 +421,14 @@
     <handlers>
      <handler event="blur">
        <![CDATA[
-         if (this.hasAttribute("aliasing") &&
-             document.documentElement.hasAttribute("active"))
+         if (!this.hasAttribute("aliasing"))
+           return;
+
+         let win =
+           Components.classes["@mozilla.org/focus-manager;1"]
+                     .getService(Components.interfaces.nsIFocusManager)
+                     .activeWindow;
+         if (win == document.defaultView)
            finishAliasing(true);
        ]]>
      </handler>

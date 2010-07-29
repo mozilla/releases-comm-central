@@ -134,7 +134,7 @@ conversation:not([chat="true"]) .conv-chat {
   width: 1px;
 }
 
-:root:not([active="true"]) .splitter.conv-chat {
+.splitter.conv-chat:-moz-window-inactive {
   background: rgba(0,0,0,0.35);
 }
 
@@ -149,7 +149,7 @@ conversation:not([chat="true"]) .conv-chat {
   border: 0px;
 }
 
-:root:not([active="true"]) .conv-nicklist {
+.conv-nicklist:-moz-window-inactive {
   background: #e8e8e8;
 }
 
