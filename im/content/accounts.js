@@ -97,10 +97,10 @@ var gAccountManager = {
     clearInterval(this._connectedLabelInterval);
     removeObservers(gAccountManager, events);
   },
-  _updateAccountList: function am__updateAccountList(aPcs) {
+  _updateAccountList: function am__updateAccountList() {
     let accountList = this.accountList;
     let i = 0;
-    for (let acc in getIter(aPcs.getAccounts())) {
+    for (let acc in this.getAccounts()) {
       let oldItem = accountList.getItemAtIndex(i);
       if (oldItem.id != acc.id) {
         let accElt = document.getElementById(acc.id);
@@ -140,7 +140,7 @@ var gAccountManager = {
       return;
     }
     else if (aTopic == "account-list-updated") {
-      this._updateAccountList(aObject);
+      this._updateAccountList();
       return;
     }
 
