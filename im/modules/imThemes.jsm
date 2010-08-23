@@ -528,16 +528,6 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext)
   return replaceKeywordsInHTML(html, replacements, aMsg);
 }
 
-function appendHTMLtoNode(aHTML, aNode)
-{
-  let range = aNode.ownerDocument.createRange();
-  range.selectNode(aNode);
-  let documentFragment = range.createContextualFragment(aHTML);
-  let result = documentFragment.firstChild;
-  aNode.appendChild(documentFragment);
-  return result;
-}
-
 function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
 {
   let insert = aDoc.getElementById("insert");
@@ -591,25 +581,23 @@ function getMetadata(aTheme, aKey)
   return aTheme.metadata[aKey];
 }
 
-function addCSS(aHead, aHref)
-{
-  let elt = aHead.ownerDocument.createElement("link");
-  elt.type = "text/css";
-  elt.rel = "stylesheet";
-  elt.href = aHref;
-  aHead.appendChild(elt);
-}
-
 function initHTMLDocument(aConv, aTheme, aDoc)
 {
+  var HTML = "<html><head>";
+
+  function addCSS(aHref)
+  {
+    HTML += "<link rel=\"stylesheet\" href=\"" + aHref + "\" type=\"text/css\"/>";
+  }
+  addCSS("chrome://instantbird/skin/conv.css");
+
+  aDoc.open();
   // First, fix the baseURI of the HTML document
   // Unfortunately, the baseURI setter is not scriptable
   let uri = Components.classes["@mozilla.org/network/io-service;1"]
                       .getService(Components.interfaces.nsIIOService)
                       .newURI(aTheme.baseURI, null, null);
   aConv.setBaseURI(aDoc, uri);
-
-  let head = aDoc.getElementsByTagName("head")[0];
 
   // add css to handle DefaultFontFamily and DefaultFontSize
   let cssText = "";
@@ -618,32 +606,31 @@ function initHTMLDocument(aConv, aTheme, aDoc)
   if (hasMetadataKey(aTheme, "DefaultFontSize"))
     cssText += "font-size: " + getMetadata(aTheme, "DefaultFontSize") + ";";
   if (cssText)
-    addCSS(head, "data:text/css,*{ " + cssText + " }");
+    addCSS("data:text/css,*{ " + cssText + " }");
 
   // add the main CSS file of the theme
   if (aTheme.metadata.MessageViewVersion >= 3 || aTheme.variant == "default")
-    addCSS(head, "main.css");
+    addCSS("main.css");
 
   // add the CSS file of the variant
   if (aTheme.variant != "default")
-    addCSS(head, "Variants/" + aTheme.variant + ".css");
+    addCSS("Variants/" + aTheme.variant + ".css");
   else
     if ("DefaultVariant" in aTheme.metadata)
-      addCSS(head, "Variants/" + aTheme.metadata.DefaultVariant + ".css");
+      addCSS("Variants/" + aTheme.metadata.DefaultVariant + ".css");
+
+  HTML += "</head><body id=\"ibcontent\">";
 
   // We insert the whole content of body: header, chat div, footer
-  let body = aDoc.getElementsByTagName("body")[0];
   if (aTheme.showHeader) {
-    let html = replaceKeywordsInHTML(aTheme.html.header,
-                                     headerFooterReplacements, aConv);
-    appendHTMLtoNode(html, body);
+    HTML += replaceKeywordsInHTML(aTheme.html.header,
+                                  headerFooterReplacements, aConv);
   }
-  let chat = aDoc.createElement("div");
-  chat.id = "Chat";
-  body.appendChild(chat);
-  let html = replaceKeywordsInHTML(aTheme.html.footer,
-                                   headerFooterReplacements, aConv);
-  appendHTMLtoNode(html, body);
+  HTML += "<div id=\"Chat\"/>";
+  HTML += replaceKeywordsInHTML(aTheme.html.footer,
+                                headerFooterReplacements, aConv);
+  aDoc.write(HTML + "</body></html>");
+  aDoc.close();
 }
 
 /* Selection stuff */
