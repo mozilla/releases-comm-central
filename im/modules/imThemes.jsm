@@ -626,7 +626,7 @@ function initHTMLDocument(aConv, aTheme, aDoc)
     HTML += replaceKeywordsInHTML(aTheme.html.header,
                                   headerFooterReplacements, aConv);
   }
-  HTML += "<div id=\"Chat\"/>";
+  HTML += "<div id=\"Chat\"></div>";
   HTML += replaceKeywordsInHTML(aTheme.html.footer,
                                 headerFooterReplacements, aConv);
   aDoc.write(HTML + "</body></html>");

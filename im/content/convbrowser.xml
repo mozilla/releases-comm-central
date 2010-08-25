@@ -84,6 +84,8 @@
 
       <field name="_conv">null</field>
 
+      <field name="_loadState">0</field>
+
       <method name="init">
         <parameter name="aConversation"/>
         <body>
@@ -93,6 +95,10 @@
             // init is called when the message style preview is
             // reloaded so we need to reset _theme.
             this._theme = null;
+
+            // _loadState is 0 while loading conv.html and 1 while
+            // loading the real conversation HTML.
+            this._loadState = 0;
 
             const URI = "chrome://instantbird/content/conv.html";
             const flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
@@ -449,12 +455,16 @@
             const WPL = Components.interfaces.nsIWebProgressListener;
             if ((aStateFlags & WPL.STATE_IS_DOCUMENT) &&
                 (aStateFlags & WPL.STATE_STOP)) {
-              this.removeProgressListener(this);
-              try {
-                initHTMLDocument(this._conv, this.theme, this.contentDocument);
-              } catch(e) {
-                Components.utils.reportError(e);
+              if (!this._loadState) {
+                try {
+                  initHTMLDocument(this._conv, this.theme, this.contentDocument);
+                } catch(e) {
+                  Components.utils.reportError(e);
+                }
+                this._loadState = 1;
+                return;
               }
+              this.removeProgressListener(this);
 
               if (this.magicCopyEnabled) {
                 this.contentWindow.controllers.insertControllerAt(0, this);
