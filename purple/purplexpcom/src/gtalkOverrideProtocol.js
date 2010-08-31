@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://app/modules/jsProtoHelper.jsm");
+Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
 function gtalkProtocol() { }
 gtalkProtocol.prototype = {

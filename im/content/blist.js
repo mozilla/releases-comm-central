@@ -347,7 +347,7 @@ var buddyList = {
           elt.removeAttribute("value");
       }
       if (!("TextboxSpellChecker" in window))
-        Components.utils.import("resource://app/modules/imTextboxUtils.jsm");
+        Components.utils.import("resource:///modules/imTextboxUtils.jsm");
       TextboxSpellChecker.registerTextbox(elt);
       // force binding attachmant by forcing layout
       elt.getBoundingClientRect();
@@ -522,7 +522,7 @@ var buddyList = {
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
 
-    Components.utils.import("resource://app/modules/imWindows.jsm");
+    Components.utils.import("resource:///modules/imWindows.jsm");
     Conversations.init();
 
     buddyList.showAccountManagerIfNeeded(true);

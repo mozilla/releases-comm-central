@@ -205,11 +205,11 @@
           this.mPrefs.addObserver(this.magicCopyPref, this, false);
 
           if (!("cleanupImMarkup" in window))
-            Components.utils.import("resource://app/modules/imContentSink.jsm");
+            Components.utils.import("resource:///modules/imContentSink.jsm");
           if (!("smileImMarkup" in window))
-            Components.utils.import("resource://app/modules/imSmileys.jsm");
+            Components.utils.import("resource:///modules/imSmileys.jsm");
           if (!("getCurrentTheme" in window))
-            Components.utils.import("resource://app/modules/imThemes.jsm");
+            Components.utils.import("resource:///modules/imThemes.jsm");
         ]]>
       </constructor>
 

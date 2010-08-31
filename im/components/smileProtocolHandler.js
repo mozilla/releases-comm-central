@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://app/modules/imSmileys.jsm");
+Components.utils.import("resource:///modules/imSmileys.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

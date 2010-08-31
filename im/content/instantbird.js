@@ -40,7 +40,7 @@ var TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
 
 var convWindow = {
   load: function mo_load() {
-    Components.utils.import("resource://app/modules/imWindows.jsm");
+    Components.utils.import("resource:///modules/imWindows.jsm");
     Conversations.registerWindow(window);
 
     if ("arguments" in window) {

@@ -58,7 +58,7 @@ var smileysPreview = {
     });
   },
   load: function() {
-    Components.utils.import("resource://app/modules/imSmileys.jsm");
+    Components.utils.import("resource:///modules/imSmileys.jsm");
 
     smileysPreview.buildThemeList();
     let themeName = document.getElementById("smileythemename");

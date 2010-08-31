@@ -94,7 +94,7 @@
             textboxElt.value = this.label;
             textboxElt.focus();
             if (!("TextboxSpellChecker" in window))
-              Components.utils.import("resource://app/modules/imTextboxUtils.jsm");
+              Components.utils.import("resource:///modules/imTextboxUtils.jsm");
             TextboxSpellChecker.registerTextbox(textboxElt);
           ]]>
         </body>
