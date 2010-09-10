@@ -43,67 +43,11 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-NO_PKG_FILES = \
-	$(MOZ_APP_NAME)-config \
-	$(MOZ_APP_NAME)-bin.elf \
-	nspr-config \
-	regchrome* \
-	dependentlibs.list \
-	IA2Marshal.dll \
-	js \
-	js.exe \
-	js3250.lib \
-	TestGtkEmbed \
-	bloaturls.txt \
-	codesighs* \
-	elf-dynstr-gc \
-	mangle* \
-	maptsv* \
-	mfc* \
-	mkdepend* \
-	msdump* \
-	msmap* \
-	nm2tsv* \
-	nsinstall* \
-	regxpcom* \
-	xpcshell* \
-	xpidl* \
-	xpt_dump* \
-	xpt_link* \
-	dirver* \
-	plugins \
-	res/arrow.gif \
-	res/arrowd.gif \
-	res/bloatcycle.html \
-	res/html \
-	res/loading-image.gif \
-	res/rdf \
-	res/viewer.properties \
-	res/viewsource.css \
-	chrome/chromelist.txt \
-	chrome/embed-sample.jar \
-	PalmSyncInstall.exe \
-	components/libgkplugin.so \
-	components/gkplugin.dll \
-	components/libpurplexpcom.dylib.dSYM \
-	$(NULL)
-
 include $(topsrcdir)/config/rules.mk
 
 MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
 
-ifdef MOZ_ENABLE_LIBXUL
-ifeq (WINNT,$(OS_ARCH))
-MOZ_PKG_MANIFEST_P = $(srcdir)/windows/packages-static
-endif
-else
-define message
-You need to build with --enable-libxul (the default, unless you specify
---disable-libxul or --enable-shared or --enable-debug) to package a build.
-endef
-default libs installer::
-	$(error $(message))
-endif
+MOZ_PKG_MANIFEST_P = $(srcdir)/package-manifest.in
 
 MOZ_NONLOCALIZED_PKG_LIST = \
 	xpcom \
@@ -133,8 +77,22 @@ ifdef MOZ_MEMORY
 DEFINES += -DMOZ_MEMORY=1
 endif
 
+ifdef _MSC_VER
+DEFINES += -D_MSC_VER=$(_MSC_VER)
+endif
+
+ifeq ($(MOZ_CHROME_FILE_FORMAT),jar)
+DEFINES += -DJAREXT=.jar
+else
+DEFINES += -DJAREXT=
+endif
+
+# Don't ifdef MOZ_IPC this because mac ppc needs it too.
+include $(MOZILLA_SRCDIR)/ipc/app/defs.mk
+DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
+
 ifdef MOZ_PKG_MANIFEST_P
-MOZ_PKG_MANIFEST = packages-static
+MOZ_PKG_MANIFEST = package-manifest
 
 $(MOZ_PKG_MANIFEST): $(MOZ_PKG_MANIFEST_P)
 	$(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py $(DEFINES) $(ACDEFINES) $< > $@
@@ -149,31 +107,38 @@ MOZ_PKG_MAC_ICON=branding/disk.icns
 MOZ_PKG_MAC_EXTRA=--symlink "/Applications:/ "
 endif
 
-# On mozilla-central, packager.mk uses core_abspath to redefine DIST
-# As the comm-central config.mk doesn't set it, do it ourselves instead
-core_abspath = $(if $(findstring :,$(1)),$(1),$(if $(filter /%,$(1)),$(1),$(CURDIR)/$(1)))
-
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
 
-ifeq (Darwin, $(OS_ARCH))
-DEFINES += \
-  -DBINPATH=$(_BINPATH) \
-  -DAPPNAME=$(_APPNAME) \
-  $(NULL)
+ifdef MOZ_PKG_PRETTYNAMES
+libs::
+	$(MAKE) -C $(DEPTH)/instantbird/locales langpack-$(AB_CD)
+
+UPLOAD_EXTRA_FILES += $(LANGPACK)
 else
-# Every other platform just winds up in dist/bin
-DEFINES += -DBINPATH=bin
+libs::
+	$(MAKE) -C $(DEPTH)/instantbird/locales langpack-$(AB_CD) PKG_LANGPACK_PATH=
+
+UPLOAD_EXTRA_FILES += $(PKG_LANGPACK_BASENAME).xpi
 endif
 
-ifeq ($(OS_TARGET),WINCE)
-VSINSTALLDIR ?= $(error VSINSTALLDIR not set, must be set to the Visual Studio install directory)
 
-UNPACKAGE = $(LIBXUL_DIST)/xulrunner*$(PKG_SUFFIX)
+ifeq (Darwin, $(OS_ARCH))
+BINPATH = $(_BINPATH)
+DEFINES += -DAPPNAME=$(_APPNAME)
+else
+BINPATH = bin
+endif
+DEFINES += -DBINPATH=$(BINPATH)
 
-installer: stage-package
-	$(NSINSTALL) -D $(DIST)/$(PKG_PATH)
-	cd $(DIST) && $(PYTHON) $(MOZILLA_SRCDIR)/build/package/wince/make_wince_cab.py -s "$(VSINSTALLDIR)/SmartDevices/SDK/SDKTools/cabwiz.exe" "$(MOZ_PKG_DIR)" "$(MOZ_APP_DISPLAYNAME)" "$(PKG_PATH)$(PKG_BASENAME).cab" && $(ZIP) -r9D $(PACKAGE) $(MOZ_PKG_DIR)
-	@echo Installer $(PKG_PATH)$(PKG_BASENAME).cab created!
+ifeq (WINNT,$(OS_ARCH))
+PKGCOMP_FIND_OPTS = 
+else
+PKGCOMP_FIND_OPTS = -L
+endif
+ifeq (Darwin, $(OS_ARCH))
+FINDPATH = $(_APPNAME)/Contents/MacOS
+else
+FINDPATH=bin
 endif
 
 package-compare:: $(MOZ_PKG_MANIFEST)
@@ -184,7 +149,7 @@ ifdef MOZ_PKG_MANIFEST_P
 	rm -f $(DIST)/pack-list.txt $(DIST)/bin-list.txt
 endif
 
-installer:: removed-files
-ifeq ($(OS_ARCH),WINNT)
-	$(MAKE) -C windows
+installer: removed-files
+ifdef INSTALLER_DIR
+	$(MAKE) -C $(INSTALLER_DIR)
 endif

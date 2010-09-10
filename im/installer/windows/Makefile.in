@@ -58,10 +58,6 @@ ifdef MOZ_UPDATER
 DEFINES += -DMOZ_UPDATER=1
 endif
 
-PP_LOCALIZED_FILES = \
-	packages-static \
-	$(NULL)
-
 INSTALLER_FILES = \
 	app.tag \
 	nsis/installer.nsi \
@@ -95,10 +91,6 @@ uninstaller::
 	$(RM) -rf $(CONFIG_DIR) && mkdir $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(srcdir)/,$(INSTALLER_FILES)) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(DIST)/branding/,$(BRANDING_FILES)) $(CONFIG_DIR)
-	$(EXIT_ON_ERROR) \
-	for i in $(PP_LOCALIZED_FILES); do \
-	  $(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py $(DEFINES) $(ACDEFINES) $(srcdir)/$$i > $(CONFIG_DIR)/$$i; \
-	done
 	$(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py -Fsubstitution $(DEFINES) $(ACDEFINES) \
 	  $(srcdir)/nsis/defines.nsi.in > $(CONFIG_DIR)/defines.nsi
 	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
@@ -109,10 +101,6 @@ $(CONFIG_DIR)/setup.exe::
 	$(RM) -rf $(CONFIG_DIR) && mkdir $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(srcdir)/,$(INSTALLER_FILES)) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(DIST)/branding/,$(BRANDING_FILES)) $(CONFIG_DIR)
-	$(EXIT_ON_ERROR) \
-	for i in $(PP_LOCALIZED_FILES); do \
-	  $(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py $(DEFINES) $(ACDEFINES) $(srcdir)/$$i > $(CONFIG_DIR)/$$i; \
-	done
 	$(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py -Fsubstitution $(DEFINES) $(ACDEFINES) \
 	  $(srcdir)/nsis/defines.nsi.in > $(CONFIG_DIR)/defines.nsi
 	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
