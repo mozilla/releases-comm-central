@@ -1,5 +1,5 @@
 instantbird.jar:
-% content instantbird %instantbird/ xpcnativewrappers=yes
+% content instantbird %instantbird/
 	instantbird/aboutDialog.css
 *	instantbird/aboutDialog.xul
 	instantbird/account.js
@@ -77,13 +77,13 @@ instantbird.jar:
 
 #ifdef DEBUG
 debug.jar:
-% content debug %debug/ xpcnativewrappers=yes
+% content debug %debug/
 % overlay chrome://instantbird/content/blist.xul chrome://debug/content/debug.xul
 % overlay chrome://instantbird/content/instantbird.xul chrome://debug/content/viewselectionsource.xul
 	debug/debug.js	(debug/debug.js)
 	debug/debug.xul	(debug/debug.xul)
 	debug/viewselectionsource.xul (debug/viewselectionsource.xul)
-% content fake %fake/ xpcnativewrappers=yes
+% content fake %fake/
 % overlay chrome://instantbird/content/blist.xul chrome://fake/content/fake.xul
 	fake/fake.js (debug/fake/fake.js)
 	fake/fake.xul (debug/fake/fake.xul)

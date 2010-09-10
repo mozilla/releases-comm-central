@@ -67,9 +67,9 @@
   <popupset id="mainPopupSet">
     <tooltip id="buddyTooltip" type="buddy"/>
 
-    <popup id="buddyListContextMenu"
-           onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
-           onpopuphiding="if (event.target == this) { gBuddyListContextMenu = null; }">
+    <menupopup id="buddyListContextMenu"
+               onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
+               onpopuphiding="if (event.target == this) { gBuddyListContextMenu = null; }">
       <menuitem id="context-openconversation"
                 label="&openConversationCmd.label;"
                 accesskey="&openConversationCmd.accesskey;"
@@ -105,7 +105,7 @@
                 accesskey="&showOfflineBuddiesCmd.accesskey;"
                 type="checkbox"
                 oncommand="gBuddyListContextMenu.toggleShowOfflineBuddies();"/>
-    </popup>
+    </menupopup>
   </popupset>
 
   <toolbox id="mainToolbox">

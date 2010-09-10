@@ -89,7 +89,7 @@ var logWindow = {
     doc.getElementsByTagName("head")[0].appendChild(link);
 
     if (!("smileTextNode" in window))
-      Components.utils.import("resource://app/modules/imSmileys.jsm");
+      Components.utils.import("resource:///modules/imSmileys.jsm");
     smileTextNode(doc.getElementsByTagName("pre")[0].firstChild);
   }
 };

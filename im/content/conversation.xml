@@ -415,7 +415,7 @@
         let textbox = this.editor;
 
         if (!("MessageFormat" in window))
-          Components.utils.import("resource://app/modules/imTextboxUtils.jsm");
+          Components.utils.import("resource:///modules/imTextboxUtils.jsm");
         MessageFormat.registerTextbox(textbox);
 
         // Init the textbox size

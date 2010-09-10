@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://app/modules/jsProtoHelper.jsm");
+Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
 function Conversation(aAccount)
 {
@@ -113,5 +113,5 @@ overrideTestProtocol.prototype = {
 };
 overrideTestProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
-var NSGetModule = XPCOMUtils.generateNSGetModule([jsTestProtocol,
-                                                  overrideTestProtocol]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([jsTestProtocol,
+                                                      overrideTestProtocol]);

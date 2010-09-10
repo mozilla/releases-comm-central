@@ -1,4 +1,4 @@
-classic.jar:
+instantbird.jar:
 #ifndef XP_WIN
 % skin instantbird classic/1.0 %skin/classic/instantbird/
 #else

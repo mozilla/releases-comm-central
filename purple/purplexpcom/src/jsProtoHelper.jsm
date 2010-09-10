@@ -359,8 +359,7 @@ const GenericProtocolPrototype = {
   getHelperForLanguage: function(language) null,
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol, Ci.nsIClassInfo]),
-  _xpcom_categories: [{category: "js-protocol-plugin"}],
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol, Ci.nsIClassInfo])
 };
 
 // the baseId property should be set to the prpl id of the base protocol plugin

@@ -346,7 +346,7 @@ Logger.prototype = {
 
   observe: function logger_observe(aSubject, aTopic, aData) {
     switch (aTopic) {
-    case "app-startup":
+    case "profile-after-change":
       obs.addObserver(this, "final-ui-startup", false);
       break;
     case "final-ui-startup":
@@ -407,10 +407,7 @@ Logger.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver, Ci.ibILogger]),
   classDescription: "Logger",
   classID: Components.ID("{fb0dc220-2c7a-4216-9f19-6b8f3480eae9}"),
-  contractID: "@instantbird.org/logger;1",
-
-  // get this contractID registered for certain categories via XPCOMUtils
-  _xpcom_categories: [{ category: "app-startup", service: true}]
+  contractID: "@instantbird.org/logger;1"
 };
 
-function NSGetModule(aCompMgr, aFileSpec) XPCOMUtils.generateModule([Logger]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([Logger]);

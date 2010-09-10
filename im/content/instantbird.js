@@ -40,7 +40,7 @@ var TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
 
 var convWindow = {
   load: function mo_load() {
-    Components.utils.import("resource://app/modules/imWindows.jsm");
+    Components.utils.import("resource:///modules/imWindows.jsm");
     Conversations.registerWindow(window);
 
     if ("arguments" in window) {
@@ -54,7 +54,7 @@ var convWindow = {
 
     window.addEventListener("unload", convWindow.unload, false);
     window.addEventListener("resize", convWindow.onresize, false);
-    window.addEventListener("DOMAttrModified", convWindow.onactivate, true);
+    window.addEventListener("activate", convWindow.onactivate, true);
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIWebNavigation)
           .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
@@ -66,9 +66,6 @@ var convWindow = {
     Conversations.unregisterWindow(window);
   },
   onactivate: function mo_onactivate(aEvent) {
-    if (aEvent.attrName != "active" || aEvent.newValue != "true")
-      return;
-
     Conversations.onWindowFocus(window);
     setTimeout(function () {
       // setting the focus to the textbox just after the window is

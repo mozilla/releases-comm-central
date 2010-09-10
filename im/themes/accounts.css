@@ -159,7 +159,7 @@ button:hover:active:not([disabled="true"]) {
   -moz-box-shadow: @toolbarbuttonPressedInnerShadow@, @loweredShadow@;
 }
 
-:root:not([active]) #bottombuttons button {
+#bottombuttons button:-moz-window-inactive {
   color: @toolbarbuttonInactiveFontColor@ !important; /* remove this when we support click-through, bug 392188 */
   border-color: @toolbarbuttonInactiveBorderColor@;
   background-image: @toolbarbuttonInactiveBackgroundImage@;

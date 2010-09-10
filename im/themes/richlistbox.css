@@ -64,13 +64,13 @@ richlistitem[selected="true"] {
   background-image: url(chrome://mozapps/skin/extensions/itemEnabledFader.png);
 }
 
-:root[active] richlistitem[selected="true"] {
+richlistitem[selected="true"]:not(:-moz-window-inactive) {
   background-color: Highlight;
   color: HighlightText;
 }
 %else
 %ifdef XP_MACOSX
-:root[active] richlistitem[selected="true"] {
+richlistitem[selected="true"]:not(:-moz-window-inactive) {
   background-color: Highlight;
   color: HighlightText;
 }

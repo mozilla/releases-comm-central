@@ -1,0 +1,3 @@
+component {9e5d5160-d61d-4d57-ae0d-81bee4380269} autoLoginHandler.js
+contract @instantbird.org/autologin-handler;1 {9e5d5160-d61d-4d57-ae0d-81bee4380269}
+category command-line-handler b-n @instantbird.org/autologin-handler;1
