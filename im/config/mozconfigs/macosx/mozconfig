@@ -1,7 +1,13 @@
-if test -e "$topsrcdir/mozilla/build/macosx/universal/mozconfig"; then
-. $topsrcdir/mozilla/build/macosx/universal/mozconfig
+# ppc/i386 Universal Build mozconfig
+
+# As used here, arguments in $MOZ_BUILD_PROJECTS are suitable as arguments
+# to gcc's -arch parameter.
+mk_add_options MOZ_BUILD_PROJECTS="ppc i386"
+
+if test -e "$topsrcdir/mozilla/build/macosx/universal/mozconfig.common"; then
+. $topsrcdir/mozilla/build/macosx/universal/mozconfig.common
 else
-. $topsrcdir/build/macosx/universal/mozconfig
+. $topsrcdir/build/macosx/universal/mozconfig.common
 fi
 
 # Needed to enable breakpad in application.ini
