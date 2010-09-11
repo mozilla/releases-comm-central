@@ -42,9 +42,11 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-XPCOMUtils.defineLazyServiceGetter(this, "prefs",
-                                   "@mozilla.org/preferences-service;1",
-                                   "nsIPrefService");
+XPCOMUtils.defineLazyGetter(this, "prefs", function() {
+  return Cc["@mozilla.org/preferences-service;1"]
+           .getService(Ci.nsIPrefService)
+           .QueryInterface(Ci.nsIPrefBranch2);
+});
 
 let MessageFormat = {
   _observedPrefs: [],
