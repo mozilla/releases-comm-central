@@ -374,8 +374,14 @@
 @BINPATH@/chrome/toolkit.manifest
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
+@BINPATH@/chrome/icons/default/blistWindow.png
+@BINPATH@/chrome/icons/default/blistWindow16.png
+@BINPATH@/chrome/icons/default/blistWindow48.png
+@BINPATH@/chrome/icons/default/convWindow.png
+@BINPATH@/chrome/icons/default/convWindow16.png
+@BINPATH@/chrome/icons/default/convWindow48.png
+@BINPATH@/chrome/icons/default/default.png
 @BINPATH@/chrome/icons/default/default16.png
-@BINPATH@/chrome/icons/default/default32.png
 @BINPATH@/chrome/icons/default/default48.png
 #endif
 #else
@@ -399,12 +405,17 @@
 
 #ifndef XP_MACOSX
 @BINPATH@/components/profileMigrator.js
+@BINPATH@/components/profileMigrator.manifest
 #endif
 @BINPATH@/components/autoLoginHandler.js
+@BINPATH@/components/autoLoginHandler.manifest
 @BINPATH@/components/facebookOverrideProtocol.js
 @BINPATH@/components/gtalkOverrideProtocol.js
+@BINPATH@/components/overrideProtocols.manifest
 @BINPATH@/components/smileProtocolHandler.js
+@BINPATH@/components/smileProtocolHandler.manifest
 @BINPATH@/components/logger.js
+@BINPATH@/components/logger.manifest
 
 ; [Default Preferences]
 ; All the pref files must be part of base to prevent migration bugs
