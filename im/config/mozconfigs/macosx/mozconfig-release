@@ -1,13 +1,14 @@
-# ppc/i386 Universal Build mozconfig
+if test -e "$topsrcdir/mozilla/build/macosx/universal/mozconfig"; then
+  # We need some hackery to deal with the mozilla/ build system calling this
+  # mozconfig.
+  oldtopsrcdir=$topsrcdir
+  export topsrcdir=$topsrcdir/mozilla
+fi
 
-# As used here, arguments in $MOZ_BUILD_PROJECTS are suitable as arguments
-# to gcc's -arch parameter.
-mk_add_options MOZ_BUILD_PROJECTS="ppc i386"
+. $topsrcdir/build/macosx/universal/mozconfig
 
-if test -e "$topsrcdir/mozilla/build/macosx/universal/mozconfig.common"; then
-. $topsrcdir/mozilla/build/macosx/universal/mozconfig.common
-else
-. $topsrcdir/build/macosx/universal/mozconfig.common
+if test -n $oldtopsrcdir; then
+  export topsrcdir=$oldtopsrcdir
 fi
 
 # Needed to enable breakpad in application.ini
