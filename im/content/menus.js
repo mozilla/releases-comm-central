@@ -114,9 +114,9 @@ var menus = {
     // Disable the UI if the update enabled pref has been locked by the
     // administrator or if we cannot update for some other reason
     var checkForUpdates = document.getElementById("updatesMenuItem");
-    var canUpdate = updates.canUpdate;
-    checkForUpdates.setAttribute("disabled", !canUpdate);
-    if (!canUpdate)
+    var canCheckForUpdates = updates.canCheckForUpdates;
+    checkForUpdates.setAttribute("disabled", !canCheckForUpdates);
+    if (!canCheckForUpdates)
       return;
 
     var strings = document.getElementById("updatesBundle");
