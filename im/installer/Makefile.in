@@ -150,6 +150,6 @@ ifdef MOZ_PKG_MANIFEST_P
 endif
 
 installer: removed-files
-ifdef INSTALLER_DIR
-	$(MAKE) -C $(INSTALLER_DIR)
+ifeq ($(OS_ARCH),WINNT)
+	$(MAKE) -C windows
 endif
