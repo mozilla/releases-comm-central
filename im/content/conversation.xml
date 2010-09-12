@@ -726,7 +726,7 @@
        <body>
        <![CDATA[
          document.getAnonymousElementByAttribute(this, "anonid", "participantCount").value =
-           this.buddies.__count__;
+           Object.keys(this.buddies).length;
        ]]>
        </body>
      </method>
