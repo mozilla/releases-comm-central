@@ -13,3 +13,11 @@
 <!ENTITY credit.translation "">
 
 <!ENTITY credit.poweredByGecko "Powered by Gecko&trade; and libpurple">
+
+<!-- copied from what used to be
+toolkit/locales/en-US/chrome/global/license.dtd in mozilla 1.9.2 -->
+<!ENTITY license.part0     "is copyright">
+<!ENTITY license.part1     "by its">
+<!ENTITY license.contrib   "contributors">
+<!ENTITY license.part2     "according to terms set out in the">
+<!ENTITY license.part3     "document. All Rights Reserved.">
