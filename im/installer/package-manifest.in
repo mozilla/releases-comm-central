@@ -416,6 +416,7 @@
 @BINPATH@/components/smileProtocolHandler.manifest
 @BINPATH@/components/logger.js
 @BINPATH@/components/logger.manifest
+@BINPATH@/components/instantbird.xpt
 
 ; [Default Preferences]
 ; All the pref files must be part of base to prevent migration bugs
