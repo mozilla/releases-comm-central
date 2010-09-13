@@ -45,6 +45,7 @@ instantbird.jar:
 	instantbird/utilities.js
 *	instantbird/viewlog.xul
 	instantbird/viewlog.js
+	instantbird/viewlog.css
 #ifdef XP_MACOSX
 	instantbird/macgestures.js
 #endif

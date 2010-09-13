@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *  Benedikt P. <leeraccount@yahoo.de>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -61,6 +62,12 @@ var logWindow = {
     });
     listbox.selectedIndex = 0;
     listbox.focus();
+
+    let findbar = document.getElementById("findbar");
+    // Prevent closing the findbar, go back to list instead
+    findbar.close = function() { listbox.focus(); };
+    findbar.open();
+
     let browser = getBrowser();
     browser.addEventListener("DOMContentLoaded", logWindow.contentLoaded, true);
   },
