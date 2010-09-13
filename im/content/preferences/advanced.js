@@ -250,7 +250,7 @@ var gAdvancedPane = {
     var enabledPref = document.getElementById("app.update.enabled");
     var enableAppUpdate = document.getElementById("enableAppUpdate");
 
-    enableAppUpdate.disabled = !aus.canUpdate || enabledPref.locked;
+    enableAppUpdate.disabled = !aus.canCheckForUpdates || enabledPref.locked;
   },
 
   /**
