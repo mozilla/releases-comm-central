@@ -38,8 +38,8 @@
 body {
   margin: 0;
   padding: 0;
-  background: -moz-linear-gradient(top, ThreeDLightShadow, -moz-background-color) fixed !important;
-  background: -moz-linear-gradient(top, ThreeDLightShadow, white) fixed;
+  background: -moz-linear-gradient(top, -moz-dialog, -moz-background-color) fixed !important;
+  background: -moz-linear-gradient(top, -moz-dialog, white) fixed;
 }
 
 p {
