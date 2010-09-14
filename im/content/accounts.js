@@ -110,6 +110,14 @@ var gAccountManager = {
       ++i;
     }
 
+    if (accountList.itemCount == 0) {
+      // Focus the "New Account" button if there are no accounts left.
+      document.getElementById("newaccount").focus();
+      // Return early, otherwise we'll run into an 'undefined property' strict
+      //  warning when trying to focus the buttons. Fixes bug 408.
+      return;
+    }
+
     // The selected item is still selected
     accountList.selectedItem.buttons.setFocus();
     accountList.ensureSelectedElementIsVisible();
