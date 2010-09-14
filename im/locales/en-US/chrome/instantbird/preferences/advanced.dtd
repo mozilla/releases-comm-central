@@ -20,12 +20,12 @@
 
 <!ENTITY searchEnginesGroup.label        "Search engines">
 <!ENTITY searchEnginesDesc.label         "Change options for your search engines">
-<!ENTITY searchEngines.label             "Manage search engines">
-<!ENTITY searchEngines.accesskey         "s">
+<!ENTITY searchEngines.label             "Manage Search Engines…">
+<!ENTITY searchEngines.accesskey         "S">
 
 <!ENTITY configEditDesc.label            "Advanced Configuration">
 <!ENTITY configEdit.label                "Config Editor…">
-<!ENTITY configEdit.accesskey            "C">
+<!ENTITY configEdit.accesskey            "E">
 
 <!ENTITY networkTab.label                "Network">
 

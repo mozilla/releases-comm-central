@@ -17,4 +17,5 @@
 <!ENTITY  logSystem.label               "Record connections, disconnections and status changes">
 <!ENTITY  logSystem.accesskey           "c">
 <!ENTITY  logShowFolder.description     "Open the folder containing the record files">
-<!ENTITY  logShowFolderButton.label     "Show log folder…">
+<!ENTITY  logShowFolderButton.label     "Show Log Folder…">
+<!ENTITY  logShowFolderButton.accesskey "L">

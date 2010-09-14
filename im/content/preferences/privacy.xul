@@ -112,6 +112,7 @@
         <description control="openLogFolder"
                      flex="1">&logShowFolder.description;</description>
         <button id="openLogFolder" label="&logShowFolderButton.label;"
+                accesskey="&logShowFolderButton.accesskey;"
                 oncommand="gPrivacyPane.openLogFolder();"/>
       </hbox>
     </groupbox>
