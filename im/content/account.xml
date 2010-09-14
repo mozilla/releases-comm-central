@@ -238,6 +238,18 @@
        </body>
      </method>
 
+     <method name="destroy">
+       <body>
+       <![CDATA[
+         // If we have a reconnect timer, stop it:
+         // it will throw errors otherwise (see bug 480).
+         // clearInterval is harmless if the timer doesn't exist.
+         clearInterval(this.reconnectUpdateInterval);
+         delete this.reconnectUpdateInterval;
+       ]]>
+       </body>
+     </method>
+
      <property name="autoLogin">
        <getter>
          <![CDATA[

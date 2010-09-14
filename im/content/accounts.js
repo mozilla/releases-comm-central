@@ -165,6 +165,7 @@ var gAccountManager = {
     }
     else if (aTopic == "account-removed") {
       var elt = document.getElementById(aObject.id);
+      elt.destroy();
       if (!elt.selected) {
         this.accountList.removeChild(elt);
         return;
