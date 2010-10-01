@@ -5,7 +5,9 @@ if test -e "$topsrcdir/mozilla/build/macosx/universal/mozconfig"; then
   export topsrcdir=$topsrcdir/mozilla
 fi
 
-. $topsrcdir/build/macosx/universal/mozconfig
+mk_add_options MOZ_BUILD_PROJECTS="ppc i386"
+. $topsrcdir/build/macosx/universal/mozconfig.common
+export MOZ_PKG_PLATFORM=mac
 
 if test -n $oldtopsrcdir; then
   export topsrcdir=$oldtopsrcdir
