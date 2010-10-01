@@ -296,12 +296,6 @@ const GenericConversationPrototype = {
   close: function() { },
   sendTyping: function(aLength) { },
 
-  setBaseURI: function(aDocument, aURI) {
-    Components.classes["@instantbird.org/purple/convim;1"]
-              .createInstance(Ci.purpleIConvIM)
-              .setBaseURI(aDocument, aURI);
-  },
-
   updateTyping: function(aState) {
     if (aState == this.typingState)
       return;

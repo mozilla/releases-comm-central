@@ -583,21 +583,13 @@ function getMetadata(aTheme, aKey)
 
 function initHTMLDocument(aConv, aTheme, aDoc)
 {
-  var HTML = "<html><head>";
+  var HTML = "<html><head><base href=\"" + aTheme.baseURI + "\"/>";
 
   function addCSS(aHref)
   {
     HTML += "<link rel=\"stylesheet\" href=\"" + aHref + "\" type=\"text/css\"/>";
   }
   addCSS("chrome://instantbird/skin/conv.css");
-
-  aDoc.open();
-  // First, fix the baseURI of the HTML document
-  // Unfortunately, the baseURI setter is not scriptable
-  let uri = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService)
-                      .newURI(aTheme.baseURI, null, null);
-  aConv.setBaseURI(aDoc, uri);
 
   // add css to handle DefaultFontFamily and DefaultFontSize
   let cssText = "";
@@ -629,6 +621,7 @@ function initHTMLDocument(aConv, aTheme, aDoc)
   HTML += "<div id=\"Chat\"></div>";
   HTML += replaceKeywordsInHTML(aTheme.html.footer,
                                 headerFooterReplacements, aConv);
+  aDoc.open();
   aDoc.write(HTML + "</body></html>");
   aDoc.close();
 }

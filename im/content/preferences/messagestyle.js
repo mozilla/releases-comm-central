@@ -63,13 +63,7 @@ Conversation.prototype = {
     account: {protocol: {name: "Fake Protocol"}, name: "Fake Account"},
   buddy: null,
   typingState: purpleIConvIM.NOT_TYPING,
-  topic: "Fake Conversation",
-
-  setBaseURI: function (aDoc, aURI) {
-    Components.classes["@instantbird.org/purple/convim;1"]
-              .createInstance(purpleIConversation)
-              .setBaseURI(aDoc, aURI);
-  }
+  topic: "Fake Conversation"
 };
 
 function Message(aTime, aWho, aMessage, aObject)

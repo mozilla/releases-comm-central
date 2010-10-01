@@ -344,13 +344,6 @@ Conversation.prototype = {
   close: function() null,
   sendTyping: function() null,
 
-  _nativeConv:
-    Components.classes["@instantbird.org/purple/convim;1"]
-              .createInstance(Ci.purpleIConvIM),
-  setBaseURI: function(aDocument, aURI) {
-    this._nativeConv.setBaseURI(aDocument, aURI);
-  },
-
   get title() this.name,
   account: null,
   buddy: null,
