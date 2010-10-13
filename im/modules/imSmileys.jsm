@@ -182,6 +182,23 @@ function smileString(aString)
 
 function smileTextNode(aNode)
 {
+  /*
+   * Skip text nodes that contain the href in the child text node.
+   * We must check both the testNode.textContent and the aNode.data since they
+   * cover different cases:
+   *   textContent: The URL is split over multiple nodes for some reason
+   *   data: The URL is not the only content in the link, skip only the one node
+   * Check the class name to skip any autolinked nodes from mozTXTToHTMLConv.
+   */
+  let testNode = aNode;
+  while ((testNode = testNode.parentNode)) {
+    if (testNode instanceof Components.interfaces.nsIDOMHTMLAnchorElement &&
+        (testNode.getAttribute("href") == testNode.textContent.trim() ||
+         testNode.getAttribute("href") == aNode.data.trim() ||
+         testNode.className.indexOf("moz-txt-link-") != -1))
+      return 0;
+  }
+
   let result = 0;
   let exp = getRegexp();
   if (!exp)
