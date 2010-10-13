@@ -76,15 +76,11 @@ var gMainPane = {
    */
   showAddonsMgr: function ()
   {
-    const EMTYPE = "Extension:Manager";
-    var theEM = this.focus(EMTYPE);
-    if (theEM) {
-      theEM.showView("extensions");
-      return;
-    }
+    const EMURL =
+      "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
 
-    const EMURL = "chrome://mozapps/content/extensions/extensions.xul";
-    const EMFEATURES = "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable";
-    window.openDialog(EMURL, "", EMFEATURES, "extensions");
+    if (!this.focus("Extension:Manager"))
+      window.open(EMURL, "Addons",
+                  "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
   }
 };
