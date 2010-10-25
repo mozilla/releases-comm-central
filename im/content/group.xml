@@ -45,7 +45,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="group" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
-    <content>
+    <content persist="closed">
       <xul:image class="twisty"/>
       <xul:label flex="1" crop="end" xbl:inherits="value=name"/>
     </content>
@@ -67,13 +67,17 @@
       <parameter name="aGroup"/>
       <body>
       <![CDATA[
-        this.groupId = aGroup.id;
         this.tag = aGroup;
-        this.name = aGroup.name;
-        this.buddies = [ ];
+        let contacts = this.tag.getContacts();
+        if (!this.showOffline)
+          contacts = contacts.filter((function (c) c.online), this);
+        if (!contacts.length)
+          return false;
+
+        this.groupId = aGroup.id;
+        this.contacts = [ ];
+        this.contactsById = {};
         this.setAttribute("id", "group" + this.groupId);
-        this.setAttribute("name", this.name);
-        this.setAttribute("persist", "closed");
 
         // restore the potential persisted value
         var source = Components.classes["@mozilla.org/rdf/datasource;1?name=local-store"]
@@ -82,22 +86,13 @@
                             .getService(Components.interfaces.nsIRDFService);
         var elt = RDF.GetResource(document.location + "#" + this.id);
         if (source.HasAssertion(elt, RDF.GetResource("closed"),
-                                RDF.GetLiteral("true"), true)) {
+                                RDF.GetLiteral("true"), true))
           this.setAttribute("closed", "true");
-          this._updateGroupLabel();
-          this._updateClosedState(true);
-        }
 
-        let empty = true;
-        this.tag.getBuddies().forEach(function (aBuddy) {
-          aBuddy.getAccountBuddies()
-                .filter(function (b) (this.showOffline || b.online) && b.tag.id == this.groupId, this)
-                .forEach(function(b) { this.addBuddy(b); empty = false; }, this);
-        }, this);
-
-        if (!empty)
-          this.tag.addObserver(this);
-        return !empty;
+        contacts.forEach(this.addContact, this);
+        this._updateGroupLabel();
+        this.tag.addObserver(this);
+        return true;
       ]]>
       </body>
      </method>
@@ -112,16 +107,16 @@
          <![CDATA[
            this._showOffline = val;
            if (val) {
-             this.tag.getBuddies().forEach(function (aBuddy) {
-               aBuddy.getAccountBuddies()
-                     .filter(function (b) !b.online && b.tag.id == this.groupId, this)
-                     .forEach(function(b) { this.addBuddy(b); }, this);
-             }, this);
+             this.tag.getContacts().filter(function (c) !c.online)
+                                   .forEach(this.addContact, this);
+             this._updateGroupLabel();
            }
            else {
-             this.buddies.filter(function (b) b.removeOfflineAccounts())
-                         .forEach(function (b) { b.parentNode.removeChild(b);
-                                                 this.removeBuddy(b); }, this);
+             this.contacts.filter(function (b) !b.contact.online)
+                          .forEach(function (b) {
+               b.finishRemoveNode();
+               b.parentNode.removeChild(b);
+             }, this);
            }
            return val;
          ]]>
@@ -135,58 +130,49 @@
        <parameter name="aData"/>
        <body>
        <![CDATA[
-         if (this.showOffline) {
-           if (aTopic == "buddy-added")
-             this.addBuddy(aSubject);
-           else if (aTopic == "buddy-deleted" || aTopic == "buddy-removed-from-group")
-             this.signedOff(aSubject);
-           else
-             this.updateBuddy(aSubject);
+         if (this.showOffline && (aTopic == "contact-added" ||
+                                  aTopic == "contact-moved-in") ||
+             !this.showOffline && aSubject.online &&
+             (aTopic == "contact-availability-changed" ||
+              aTopic == "contact-added" ||
+              aTopic == "contact-moved-in")) {
+           this.addContact(aSubject);
+           this._updateGroupLabel();
            return;
          }
 
-         if (aTopic == "buddy-signed-on" || (aTopic == "buddy-added" && aSubject.online))
-           this.addBuddy(aSubject);
-         else if (aTopic == "buddy-signed-off" || aTopic == "buddy-removed")
-           this.signedOff(aSubject);
-         else if (aTopic == "buddy-idle" || aTopic == "buddy-away" || aTopic == "buddy-alias")
-           this.updateBuddy(aSubject);
+         if (aTopic == "contact-no-longer-dummy") {
+           let oldId = parseInt(aData);
+           if (this.contactsById.hasOwnProperty(oldId)) {
+             let contact = this.contactsById[oldId];
+             delete this.contactsById[oldId];
+             this.contactsById[contact.contact.id] = contact;
+           }
+           return;
+         }
        ]]>
        </body>
      </method>
 
-     <method name="addBuddy">
-      <parameter name="aPab"/>
+     <method name="addContact">
+      <parameter name="aContact"/>
       <body>
       <![CDATA[
-        var buddy = aPab.buddy;
+        if (this.contactsById.hasOwnProperty(aContact.id))
+          return;
 
-        var buddyElt;
-        for (var i = 0; i < this.buddies.length; ++i) {
-          if (this.buddies[i].buddyId == buddy.id) {
-            buddyElt = this.buddies[i];
-            break;
-          }
-        }
+        var buddyElt = document.createElement("buddy");
+        if (this.hasAttribute("closed"))
+          buddyElt.setAttribute("collapsed", "true");
 
-        if (!buddyElt) {
-          buddyElt = document.createElement("buddy");
-          let groupIsHidden = this.hasAttribute("closed");
-          if (groupIsHidden)
-            buddyElt.setAttribute("collapsed", "true");
+        var last = this;
+        if (this.contacts.length)
+          last = this.contacts[this.contacts.length - 1];
 
-          var last = this;
-          if (this.buddies.length)
-            last = this.buddies[this.buddies.length - 1];
-
-          this.parentNode.insertBefore(buddyElt, last.nextSibling);
-          buddyElt.build(aPab.buddy, this);
-          this.buddies.push(buddyElt);
-
-          if (groupIsHidden)
-            this._updateGroupLabel();
-        }
-        buddyElt.addAccount(aPab);
+        this.parentNode.insertBefore(buddyElt, last.nextSibling);
+        buddyElt.build(aContact, this);
+        this.contacts.push(buddyElt);
+        this.contactsById[aContact.id] = buddyElt;
 
         if (this.hasAttribute("collapsing")) {
           this.removeAttribute("collapsing");
@@ -200,35 +186,20 @@
       </body>
      </method>
 
-     <method name="signedOff">
-      <parameter name="aPab"/>
+     <method name="removeContact">
+      <parameter name="aContact"/>
       <body>
       <![CDATA[
-        var buddy = aPab.buddy;
-
-        for (var i = 0; i < this.buddies.length; ++i) {
-          if (this.buddies[i].buddyId == buddy.id) {
-            this.buddies[i].removeAccount(aPab);
-            return;
-          }
-        }
-      ]]>
-      </body>
-     </method>
-
-     <method name="removeBuddy">
-      <parameter name="aBuddy"/>
-      <body>
-      <![CDATA[
-        var i = this.buddies.indexOf(aBuddy);
+        var i = this.contacts.indexOf(aContact);
         if (i == -1)
-          throw "Removing a buddy that doesn't exist?";
+          throw "Removing a contact that doesn't exist?";
 
-        // remove the buddy from the array
-        this.buddies.splice(i, 1);
+        // remove the contact from the array
+        this.contacts.splice(i, 1);
+        delete this.contactsById[aContact.contact.id];
 
-        // Check if some buddy remain in the group, if empty remove it
-        if (!this.buddies.length) {
+        // Check if some contacts remain in the group, if empty remove it
+        if (!this.contacts.length) {
           this.style.height = (this.animHeight = this.clientHeight) + "px";
           this.setAttribute("collapsing", "true");
           this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
@@ -258,28 +229,12 @@
       </body>
      </method>
 
-     <method name="updateBuddy">
-      <parameter name="aPab"/>
-      <body>
-      <![CDATA[
-        var buddy = aPab.buddy;
-
-        for (var i = 0; i < this.buddies.length; ++i) {
-          if (this.buddies[i].buddyId == buddy.id) {
-            this.buddies[i].update();
-            return;
-          }
-        }
-      ]]>
-      </body>
-     </method>
-
      <method name="_updateClosedState">
       <parameter name="aClosed"/>
       <body>
       <![CDATA[
-        for (let i = 0; i < this.buddies.length; ++i)
-          this.buddies[i].collapsed = aClosed;
+        for each (let contact in this.contacts)
+          contact.collapsed = aClosed;
       ]]>
       </body>
      </method>
@@ -304,9 +259,9 @@
      <method name="_updateGroupLabel">
       <body>
       <![CDATA[
-        let name = this.name;
+        let name = this.tag.name;
         if (this.hasAttribute("closed"))
-          name += " (" + this.buddies.length + ")";
+          name += " (" + this.contacts.length + ")";
 
         this.setAttribute("name", name);
       ]]>

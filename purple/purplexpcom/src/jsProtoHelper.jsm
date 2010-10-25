@@ -41,6 +41,7 @@ var EXPORTED_SYMBOLS = [
   "nsSimpleEnumerator",
   "EmptyEnumerator",
   "GenericAccountPrototype",
+  "GenericAccountBuddyPrototype",
   "GenericConversationPrototype",
   "GenericProtocolPrototype",
   "ForwardProtocolPrototype",
@@ -133,8 +134,14 @@ const GenericAccountPrototype = {
   cancelReconnection: function() this._base.cancelReconnection(),
   createConversation: function(aName) this._base.createConversation(aName),
   addBuddy: function(aTag, aName) this._base.addBuddy(aTag, aName),
-  loadBuddy: function(aBuddy, aName, aAlias, aServerAlias, aTag)
-    this._base.loadBuddy(aBuddy, aName, aAlias, aServerAlias, aTag),
+  loadBuddy: function(aBuddy, aTag) {
+   try {
+     return new AccountBuddy(this, aBuddy, aTag) ;
+   } catch (x) {
+     dump(x + "\n");
+     return null;
+   }
+  },
   getChatRoomFields: function() this._base.getChatRoomFields(),
   getChatRoomDefaultFieldValues: function(aDefaultChatName)
     this._base.getChatRoomDefaultFieldValues(aDefaultChatName),
@@ -195,6 +202,133 @@ const GenericAccountPrototype = {
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.purpleIAccount, Ci.nsIClassInfo])
 };
+
+
+var GenericAccountBuddyPrototype = {
+  _init: function(aAccount, aBuddy, aTag) {
+    this._tag = aTag;
+    this._account = aAccount;
+    this._buddy = aBuddy;
+  },
+
+  get account() this._account,
+  set buddy(aBuddy) {
+    if (this._buddy)
+      throw Components.results.NS_ERROR_ALREADY_INITIALIZED;
+    this._buddy = aBuddy;
+  },
+  get buddy() this._buddy,
+  get tag() this._tag,
+  set tag(aNewTag) {
+    let oldTag = this._tag;
+    this._tag = aNewTag;
+    Components.classes["@instantbird.org/purple/contacts-service;1"]
+              .getService(Ci.imIContactsService)
+              .accountBuddyMoved(this, oldTag, aNewTag);
+  },
+
+  _notifyObservers: function(aTopic, aData) {
+    this._buddy.observe(this, "account-buddy-" + aTopic, aData);
+  },
+
+  get userName() this._buddy.userName, // FIXME
+  get normalizedName() this._buddy.normalizedName, //FIXME
+  _serverAlias: "",
+  get serverAlias() this._serverAlias,
+  set serverAlias(aNewAlias) {
+    let old = this.displayName;
+    this._serverAlias = aNewAlias;
+    this._notifyObservers("display-name-changed", old);
+  },
+
+  remove: function() {
+    Components.classes["@instantbird.org/purple/contacts-service;1"]
+              .getService(Ci.imIContactsService)
+              .accountBuddyRemoved(this);
+  },
+
+  // imIStatusInfo implementation
+  get displayName() this.serverAlias || this.userName,
+  _buddyIconFileName: "",
+  get buddyIconFilename() this._buddyIconFileName,
+  set buddyIconFilename(aNewFileName) {
+    this._buddyIconFileName = aNewFileName;
+    this._notifyObservers("icon-changed");
+  },
+  _statusType: 0,
+  get statusType() this._statusType,
+  get online() this._statusType > Ci.imIStatusInfo.STATUS_OFFLINE,
+  get available() this._statusType == Ci.imIStatusInfo.STATUS_AVAILABLE,
+  get idle() this._statusType == Ci.imIStatusInfo.STATUS_IDLE,
+  get mobile() this._statusType == Ci.imIStatusInfo.STATUS_MOBILE,
+  _statusText: "",
+  get statusText() this._statusText,
+
+  // This is for use by the protocol plugin, it's not exposed in the
+  // imIStatusInfo interface.
+  // All parameters are optional and will be ignored if they are null
+  // or undefined.
+  setStatus: function(aStatusType, aStatusText, aAvailabilityDetails) {
+    // Ignore omitted parameters.
+    if (aStatusType === undefined || aStatusType === null)
+      aStatusType = this._statusType;
+    if (aStatusText === undefined || aStatusText === null)
+      aStatusText = this._statusText;
+    if (aAvailabilityDetails === undefined || aAvailabilityDetails === null)
+      aAvailabilityDetails = this._availabilityDetails;
+
+    // Decide which notifications should be fired.
+    let notifications = [];
+    if (this._statusType != aStatusType ||
+        this._availabilityDetails != aAvailabilityDetails)
+      notifications.push("availability-changed");
+    if (this._statusType != aStatusType ||
+        this._statusText != aStatusText) {
+      notifications.push("status-changed");
+      if (this.online && aStatusType <= Ci.imIStatusInfo.STATUS_OFFLINE)
+        notifications.push("signed-off");
+      if (!this.online && aStatusType > Ci.imIStatusInfo.STATUS_OFFLINE)
+        notifications.push("signed-on");
+    }
+
+    // Actually change the stored status.
+    [this._statusType, this._statusText, this._availabilityDetails] =
+      [aStatusType, aStatusText, aAvailabilityDetails];
+
+    // Fire the notifications.
+    notifications.forEach(function(aTopic) {
+      this._notifyObservers(aTopic);
+    }, this);
+  },
+
+  _availabilityDetails: 0,
+  get availabilityDetails() this._availabilityDetails,
+
+  get canSendMessage() this.online /*|| this.account.canSendOfflineMessage(this) */,
+
+  getTooltipInfo: function() {
+    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+  },
+  createConversation: function() {
+    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+  },
+
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIAccountBuddy];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+  QueryInterface: XPCOMUtils.generateQI([Ci.imIAccountBuddy, Ci.nsIClassInfo])
+};
+
+function AccountBuddy(aAccount, aBuddy, aTag) {
+  this._init(aAccount, aBuddy, aTag);
+}
+AccountBuddy.prototype = GenericAccountBuddyPrototype;
+
 
 function Message(aWho, aMessage, aObject)
 {
@@ -372,6 +506,7 @@ const ForwardProtocolPrototype = {
     let proto = this;
     let account = {
       _base: this.base.getAccount(aKey, aName),
+      loadBuddy: function(aBuddy, aTag) this._base.loadBuddy(aBuddy, aTag),
       get normalizedName() this._base.normalizedName,
       get protocol() proto
     };

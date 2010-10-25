@@ -97,19 +97,11 @@
            if (val == this._buddy)
              return val;
 
-           let os =
-             Components.classes["@mozilla.org/observer-service;1"]
-                       .getService(Components.interfaces.nsIObserverService);
-           const events = [
-             "buddy-update",
-             "buddy-idle",
-             "buddy-away"
-           ];
-
            if (!val)
-             events.forEach(function(aName) { os.removeObserver(this, aName); }, this);
+             this._buddy.buddy.removeObserver(this);
            else
-             events.forEach(function(aName) { os.addObserver(this, aName, false); }, this);
+             val.buddy.addObserver(this);
+
            return (this._buddy = val);
          ]]>
        </setter>
@@ -243,9 +235,9 @@
          this.elt = aElt;
 
          this.reset();
-         let name = aBuddy.buddyName;
-         let alias = aBuddy.buddyAlias;
-         this.setAttribute("displayname", alias || name);
+         let name = aBuddy.userName;
+         let displayName = aBuddy.displayName;
+         this.setAttribute("displayname", displayName);
          let account = aBuddy.account;
          this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
          if (aElt.hasAttribute("status"))
@@ -254,7 +246,7 @@
            this.removeAttribute("status");
          this.setBuddyIcon(aBuddy.buddyIconFilename);
 
-         if (alias != name)
+         if (displayName != name)
            this.addRow(this.bundle.GetStringFromName("buddy.screenname"), name);
 
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
@@ -313,7 +305,10 @@
        <parameter name="aData"/>
        <body>
        <![CDATA[
-         if (aSubject == this.buddy)
+         if (aSubject == this.buddy &&
+             (aTopic == "account-buddy-status-changed" ||
+              aTopic == "account-display-name-changed" ||
+              aTopic == "account-buddy-icon-changed"))
            this.updateTooltipFromBuddy(this.buddy, this.elt);
        ]]>
        </body>
@@ -333,14 +328,7 @@
          if (elt.localName != "buddy")
            return false;
 
-         var buddy;
-         for (var id in elt.accounts) {
-           buddy = elt.accounts[id];
-           break;
-         }
-         if (!buddy)
-           throw "no account in this buddy!";
-
+         let buddy = elt.contact.preferredBuddy.preferredAccountBuddy;
          return updateTooltipFromBuddy(buddy, elt);
        ]]>
      </handler>

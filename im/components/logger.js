@@ -354,8 +354,7 @@ Logger.prototype = {
       ["new-conversation", "new-text",
        "conversation-closed", "conversation-left-chat",
        "account-connected", "account-disconnected",
-       "buddy-signed-on", "buddy-signed-off",
-       "buddy-away", "buddy-idle"].forEach(function(aEvent) {
+       "account-buddy-status-changed"].forEach(function(aEvent) {
         obs.addObserver(this, aEvent, false);
       }, this);
       break;
@@ -381,7 +380,7 @@ Logger.prototype = {
                                           " signed off");
       closeLogForAccount(aSubject);
       break;
-    default:
+    case "account-buddy-status-changed":
       let status;
       if (!aSubject.online)
         status = "Offline";
@@ -394,13 +393,15 @@ Logger.prototype = {
       else
         status = "Unavailable";
 
-      let statusText = aSubject.status;
+      let statusText = aSubject.statusText;
       if (statusText)
         status += " (\"" + statusText + "\")";
 
-      let name = aSubject.buddyName;
-      let nameText = (aSubject.buddyAlias || name) + " (" + name + ")";
+      let nameText = aSubject.displayName + " (" + aSubject.userName + ")";
       getLogForAccount(aSubject.account).logEvent(nameText + " is now " + status);
+      break;
+    default:
+      throw "Unexpected notification " + aTopic;
     }
   },
 

@@ -35,8 +35,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const events = ["buddy-signed-on",
-                "buddy-added",
+const events = ["contact-availability-changed",
+                "contact-added",
+                "contact-moved",
                 "account-disconnected",
                 "status-changed",
                 "purple-quit"];
@@ -88,13 +89,14 @@ buddyListContextMenu.prototype = {
       Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://instantbird/locale/instantbird.properties");
-    let buddy = this.target.buddy;
-    let displayName = buddy.alias || buddy.name;
+    let contact = this.target.contact;
+    let displayName = contact.displayName;
     let promptTitle = bundle.formatStringFromName("buddy.deletePrompt.title",
                                                   [displayName], 1);
-    if (displayName != buddy.name)
-      displayName += " (" + buddy.name + ")";
-    let proto = buddy.getAccount(0).protocol.name;
+    let userName = contact.preferredBuddy.userName;
+    if (displayName != userName)
+      displayName += " (" + userName + ")";
+    let proto = contact.preferredBuddy.protocol.name; // FIXME build a list
     let promptMessage = bundle.formatStringFromName("buddy.deletePrompt.message",
                                                     [displayName, proto], 2);
     let deleteButton = bundle.GetStringFromName("buddy.deletePrompt.button");
@@ -117,8 +119,8 @@ buddyListContextMenu.prototype = {
       popup.removeChild(item);
 
     let groupId = this.target.group.groupId;
-    let pts = Components.classes["@instantbird.org/purple/tags;1"]
-                        .getService(Ci.purpleITagsService);
+    let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
+                        .getService(Ci.imITagsService);
 
     let sortFunction = function (a, b) {
       let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
@@ -157,8 +159,8 @@ buddyListContextMenu.prototype = {
                         {value: false}) || !name.value)
       return; // the user canceled
 
-    let pts = Components.classes["@instantbird.org/purple/tags;1"]
-                        .getService(Ci.purpleITagsService);
+    let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
+                        .getService(Ci.imITagsService);
     let tag = pts.getTagByName(name.value) || pts.createTag(name.value);
     this.target.moveTo(tag.id);
   },
@@ -207,21 +209,22 @@ var buddyList = {
       else
         item.removeAttribute("checked");
 
-      let pts = Components.classes["@instantbird.org/purple/tags;1"]
-                          .getService(Ci.purpleITagsService);
+      let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
+                          .getService(Ci.imITagsService);
       let blistBox = document.getElementById("buddylistbox");
       pts.getTags().forEach(function (aTag) {
         let elt = document.getElementById("group" + aTag.id);
-        if (!elt && showOffline) {
+        if (elt)
+          elt.showOffline = showOffline;
+        else if (showOffline) {
           elt = document.createElement("group");
           blistBox.appendChild(elt);
           elt._showOffline = true;
           if (!elt.build(aTag))
             blistBox.removeChild(elt);
         }
-        if (elt)
-          elt.showOffline = showOffline;
       });
+      return;
     }
 
     if (aTopic == "status-changed") {
@@ -237,17 +240,24 @@ var buddyList = {
       return;
     }
 
-    var pab = aSubject.QueryInterface(Ci.purpleIAccountBuddy);
-    var group = pab.tag;
-    var groupId = "group" + group.id;
-    if ((aTopic == "buddy-signed-on" ||
-        (aTopic == "buddy-added" && (this._showOffline || pab.online))) &&
-        !document.getElementById(groupId)) {
-      let groupElt = document.createElement("group");
-      document.getElementById("buddylistbox").appendChild(groupElt);
-      if (this._showOffline)
-        groupElt._showOffline = true;
-      groupElt.build(group);
+    // aSubject is an imIContact
+    if (aSubject.online || this._showOffline) {
+      aSubject.getTags().forEach(function (aTag) {
+        if (!document.getElementById("group" + aTag.id)) {
+          let groupElt = document.createElement("group");
+          let blistBox = document.getElementById("buddylistbox");
+          blistBox.appendChild(groupElt);
+          if (this._showOffline)
+            groupElt._showOffline = true;
+          if (!groupElt.build(aTag)) {
+            // Broken group or notification?
+            // This should never happen as there will always be at least
+            // one contact shown.
+            // (We test the aSubject.online || this._showOffline to ensure it.)
+            blistBox.removeChild(groupElt);
+          }
+        }
+      }, this);
     }
   },
 
@@ -507,8 +517,8 @@ var buddyList = {
               .setAttribute("checked", "true");
     }
 
-    let pts = Components.classes["@instantbird.org/purple/tags;1"]
-                        .getService(Ci.purpleITagsService);
+    let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
+                        .getService(Ci.imITagsService);
     let blistBox = document.getElementById("buddylistbox");
     pts.getTags().forEach(function (aTag) {
       let groupElt = document.createElement("group");

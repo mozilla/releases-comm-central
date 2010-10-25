@@ -54,7 +54,16 @@
                  anonid="displayname" class="buddyDisplayName"
                  xbl:inherits="value=displayname"/>
     </content>
-    <implementation>
+    <implementation implements="nsIObserver">
+
+     <destructor>
+      <![CDATA[
+        if (this.contact) {
+          this.contact.removeObserver(this);
+          delete this.contact;
+        }
+      ]]>
+     </destructor>
 
      <!-- delay in milliseconds before starting the fade out animation -->
      <field name="animationDelay">1000</field>
@@ -63,22 +72,16 @@
      <field name="animationInterval">20</field>
 
      <method name="build">
-      <parameter name="aBuddy"/>
+      <parameter name="aContact"/>
       <parameter name="aGroup"/>
       <body>
       <![CDATA[
         this.group = aGroup;
-        this.buddy = aBuddy;
-        this.buddyId = aBuddy.id; // used by group.xml
-        this.name = aBuddy.name;
-        this.setAttribute("displayname", aBuddy.alias || this.name);
-        //this.setAttribute("id", "buddy" + this.buddyId);
-        this.setAttribute("iconPrpl",
-                          aBuddy.getAccount(0).protocol.iconBaseURI + "icon.png");
-        this.accounts = { };
-        this.accountsCount = 0;
-        // We don't call this.update yet because this.accounts is empty
+        this.contact = aContact;
+        this.update();
+        this.contact.addObserver(this);
 #ifndef WINCE
+
         // Don't do the animation if inside a closed group
         if (this.hasAttribute("collapsed"))
           return;
@@ -91,76 +94,56 @@
       </body>
      </method>
 
-     <property name="offline">
-       <getter>
-         <![CDATA[
-           for (var id in this.accounts)
-             if (this.accounts[id].online)
-               return false;
-           return true;
-         ]]>
-       </getter>
-     </property>
-
-     <!-- returns true if no account remain and the buddy should be removed from the list -->
-     <method name="removeOfflineAccounts">
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
        <body>
-         <![CDATA[
-           let offlineAccounts = [];
-           for (var id in this.accounts)
-             if (!this.accounts[id].online)
-               offlineAccounts.push(id);
-
-           if (offlineAccounts.length == this.accountsCount)
-             return true;
-
-           offlineAccounts.forEach(function (aId) { delete this.accounts[aId]; }, this);
-           this.accountsCount -= offlineAccounts.length;
+       <![CDATA[
+         if (aTopic == "contact-preferred-buddy-changed" ||
+             aTopic == "contact-display-name-changed" ||
+             aTopic == "contact-availability-changed") {
            this.update();
-           return false;
-         ]]>
+           return;
+         }
+
+         if (aTopic == "contact-signed-on")
+           this.cancelRemoveNode();
+         else if (aTopic == "contact-removed" ||
+                  (aTopic == "contact-moved-out" && aSubject.id == this.group.tag.id) ||
+                  (aTopic == "contact-signed-off" && !this.group.showOffline))
+           this.removeNode();
+       ]]>
        </body>
      </method>
 
      <method name="update">
       <body>
       <![CDATA[
-        var accounts = [];
-        for (var id in this.accounts)
-          accounts.push(this.accounts[id]);
+        this.setAttribute("displayname", this.contact.displayName);
 
-        let status;
-        if (accounts.every(function(pab) !pab.online))
-          status = "offline";
-        else if (accounts.every(function(pab) pab.idle))
-          status = "idle";
-        else if (accounts.every(function(pab) pab.mobile))
-          status = "mobile";
-        else if (accounts.every(function(pab) !pab.available))
-          status = "away";
-        else
-          status = "available";
-        this.setAttribute("status", status);
-        let accountsWithAlias = accounts.filter(function(pab) pab.buddyAlias);
-        let alias;
-        if (accountsWithAlias.length)
-          alias = accountsWithAlias[0].buddyAlias;
-        this.setAttribute("displayname", alias || this.name);
+        const imIStatusInfo = Components.interfaces.imIStatusInfo;
+        let statusNames = {};
+        statusNames[imIStatusInfo.STATUS_UNKNOWN] = "offline"; // Should not happen
+        statusNames[imIStatusInfo.STATUS_OFFLINE] = "offline";
+        statusNames[imIStatusInfo.STATUS_MOBILE] = "mobile";
+        statusNames[imIStatusInfo.STATUS_IDLE] = "idle";
+        statusNames[imIStatusInfo.STATUS_AWAY] = "away";
+        //XXX should UNAVAILABLE (= busy) make a difference?
+        statusNames[imIStatusInfo.STATUS_UNAVAILABLE] = "away";
+        statusNames[imIStatusInfo.STATUS_AVAILABLE] = "available";
+        this.setAttribute("status", statusNames[this.contact.statusType]);
+
+        let proto = this.contact.preferredBuddy.protocol;
+        this.setAttribute("iconPrpl", proto.iconBaseURI + "icon.png");
       ]]>
       </body>
      </method>
 
-     <method name="addAccount">
-      <parameter name="aPab"/>
+     <method name="cancelRemoveNode">
       <body>
       <![CDATA[
-        var id = aPab.account.id;
-        if (id in this.accounts)
-          return;
-        this.accounts[id] = aPab;
-        ++this.accountsCount;
-        this.update();
-
         if (this.hasAttribute("removing")) {
           this.removeAttribute("removing");
           this.removeAttribute("collapsing");
@@ -180,40 +163,31 @@
       </body>
      </method>
 
-     <method name="removeAccount">
-      <parameter name="aPab"/>
+     <method name="finishRemoveNode">
       <body>
       <![CDATA[
-        var id = aPab.account.id;
-        if (!(id in this.accounts))
-          return; // this used to throw, but this seems to be harmless
-          //throw "This buddy (" + aPab.buddy.name +
-                  ") has not been added for account " + aPab.account.name;
+        this.contact.removeObserver(this);
+        this.group.removeContact(this);
+      ]]>
+      </body>
+     </method>
 
-        delete this.accounts[id];
-        --this.accountsCount;
-
-        if (this.accountsCount) {
-          this.update();
-          return;
-        }
-
-        // No account left, this node is now useless, remove it
-        this.removing = true;
+     <method name="removeNode">
+      <body>
+      <![CDATA[
         if (this.hasAttribute("expanding")) {
            // We are still doing the expand animation!
            clearInterval(this.animInterval);
            this.setAttribute("collapsing", "true");
            this.removeAttribute("expanding", "true");
            this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
-           this.group.removeBuddy(this);
+           this.finishRemoveNode();
         }
         else if (this.hasAttribute("collapsed"))
           // If the buddy is not visible, remove it immediately (without animation)
-          this.group.removeBuddy(this);
+          this.finishRemoveNode();
         else
           this.animTimeout = setTimeout(this._startAnimation, this.animationDelay, this);
-        this.setAttribute("status", "offline");
         this.setAttribute("removing", "true");
       ]]>
       </body>
@@ -249,7 +223,7 @@
       <body>
       <![CDATA[
         if (aSave) {
-          this.buddy.alias =
+          this.contact.alias =
             document.getAnonymousElementByAttribute(this, "anonid", "displayname").value;
         }
         this.removeAttribute("aliasing");
@@ -268,14 +242,9 @@
         if (currentGroupId == aGroupId)
           return;
 
-        let pts = Components.classes["@instantbird.org/purple/tags;1"]
-                            .getService(Ci.purpleITagsService);
-        let newGroup = pts.getTagById(aGroupId);
-        for (var id in this.accounts) {
-          let pab = this.accounts[id];
-          if (pab.tag.id == currentGroupId)
-            pab.tag = newGroup;
-        }
+        let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
+                            .getService(Ci.imITagsService);
+        this.contact.move(this.group.tag, pts.getTagById(aGroupId));
       ]]>
       </body>
      </method>
@@ -283,12 +252,7 @@
      <method name="remove">
       <body>
       <![CDATA[
-        let currentGroupId = this.group.groupId;
-        for (var id in this.accounts) {
-          let pab = this.accounts[id];
-          if (pab.tag.id == currentGroupId)
-            pab.remove();
-        }
+        this.contact.remove();
       ]]>
       </body>
      </method>
@@ -318,7 +282,7 @@
            aThis.style.height = (aThis.animHeight = aThis.clientHeight) + "px";
            aThis.setAttribute("collapsing", "true");
            aThis.animInterval = setInterval(aThis._animateCollapse, this.animationInterval, aThis);
-           aThis.group.removeBuddy(aThis);
+           aThis.finishRemoveNode();
          }
       ]]>
       </body>
@@ -363,10 +327,7 @@
      <method name="canOpenConversation">
       <body>
        <![CDATA[
-         for (var id in this.accounts)
-           if (this.accounts[id].canSendMessage)
-             return true;
-         return false;
+         return this.contact.canSendMessage;
        ]]>
       </body>
      </method>
@@ -374,18 +335,7 @@
      <method name="openConversation">
       <body>
        <![CDATA[
-         var conv;
-         for (var id in this.accounts) {
-           if (!this.accounts[id].canSendMessage)
-             continue;
-
-           // this will send a new-conversation notification that will force
-           // opening a conversation window if there isn't one around
-           conv = this.accounts[id].createConversation();
-           break;
-         }
-
-         Conversations.focusConversation(conv);
+         Conversations.focusConversation(this.contact.createConversation());
        ]]>
       </body>
      </method>

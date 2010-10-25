@@ -40,7 +40,7 @@
 #include "nsISimpleEnumerator.idl"
 #include "nsIObserver.idl"
 
-interface purpleIAccountBuddy;
+interface imIAccountBuddy;
 interface purpleIAccount;
 interface nsIURI;
 interface nsIDOMDocument;
@@ -102,7 +102,7 @@ interface purpleIConversation: nsISupports {
 interface purpleIConvIM: purpleIConversation {
 
   /* The buddy at the remote end of the conversation */
-  readonly attribute purpleIAccountBuddy buddy;
+  readonly attribute imIAccountBuddy buddy;
 
   /* The remote buddy is not currently typing */
   const short NOT_TYPING = 0;

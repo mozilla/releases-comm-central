@@ -40,8 +40,8 @@ var addBuddy = {
   onload: function ab_onload() {
     this.pcs = Components.classes["@instantbird.org/purple/core;1"]
                          .getService(Ci.purpleICoreService);
-    this.pts = Components.classes["@instantbird.org/purple/tags;1"]
-                         .getService(Ci.purpleITagsService);
+    this.pts = Components.classes["@instantbird.org/purple/tags-service;1"]
+                         .getService(Ci.imITagsService);
     this.buildAccountList();
     this.buildTagList();
   },
