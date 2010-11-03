@@ -39,7 +39,8 @@
 #include "nsISimpleEnumerator.idl"
 
 interface purpleIAccount;
-interface purpleIAccountBuddy;
+interface imIAccountBuddy;
+interface imIContact;
 interface purpleIConversation;
 
 [scriptable, uuid(164ff6c3-ca64-4880-b8f3-67eb1817955f)]
@@ -50,7 +51,8 @@ interface ibILog: nsISupports {
 
 [scriptable, uuid(ab38c01c-2245-4279-9437-1d6bcc69d556)]
 interface ibILogger: nsISupports {
-  nsISimpleEnumerator getLogsForBuddy(in purpleIAccountBuddy aBuddy);
+  nsISimpleEnumerator getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy);
+  nsISimpleEnumerator getLogsForContact(in imIContact aContact);
   nsISimpleEnumerator getLogsForConversation(in purpleIConversation aConversation);
   nsISimpleEnumerator getSystemLogsForAccount(in purpleIAccount aAccount);
 };

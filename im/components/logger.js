@@ -321,9 +321,14 @@ function LogEnumerator(aEntries)
   this._entries = aEntries;
 }
 LogEnumerator.prototype = {
-  hasMoreElements: function() this._entries.hasMoreElements(),
+  _entries: [],
+  hasMoreElements: function() {
+    while (this._entries.length > 0 && !this._entries[0].hasMoreElements())
+      this._entries.shift();
+    return this._entries.length > 0;
+  },
   getNext: function()
-    new Log(this._entries.getNext().QueryInterface(Ci.nsIFile)),
+    new Log(this._entries[0].getNext().QueryInterface(Ci.nsIFile)),
   QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
 };
 
@@ -335,10 +340,22 @@ Logger.prototype = {
     if (!file.exists())
       return EmptyEnumerator;
 
-    return new LogEnumerator(file.directoryEntries);
+    return new LogEnumerator([file.directoryEntries]);
   },
-  getLogsForBuddy: function logger_getLogsForBuddy(aBuddy)
-    this._enumerateLogs(aBuddy.account, aBuddy.normalizedName),
+  getLogsForContact: function logger_getLogsForContact(aContact) {
+    let entries = [];
+    aContact.getBuddies().forEach(function (aBuddy) {
+      aBuddy.getAccountBuddies().forEach(function (aAccountBuddy) {
+        let file = getLogFolderForAccount(aAccountBuddy.account);
+        file.append(aAccountBuddy.normalizedName);
+        if (file.exists())
+          entries.push(file.directoryEntries);
+      });
+    });
+    return new LogEnumerator(entries);
+  },
+  getLogsForAccountBuddy: function logger_getLogsForAccountBuddy(aAccountBuddy)
+    this._enumerateLogs(aAccountBuddy.account, aAccountBuddy.normalizedName),
   getLogsForConversation: function logger_getLogsForConversation(aConversation)
     this._enumerateLogs(aConversation.account, aConversation.normalizedName),
   getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount)

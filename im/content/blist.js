@@ -171,11 +171,8 @@ buddyListContextMenu.prototype = {
     var logger = Components.classes["@instantbird.org/logger;1"]
                            .getService(Ci.ibILogger);
     var logs = [];
-    for (let accountId in this.target.accounts) {
-      let account = this.target.accounts[accountId];
-      for (let log in getIter(logger.getLogsForBuddy(account)))
-        logs.push(log);
-    }
+    for (let log in getIter(logger.getLogsForContact(this.target.contact)))
+      logs.push(log);
     window.openDialog("chrome://instantbird/content/viewlog.xul",
                       "Logs", "chrome,resizable", {logs: logs},
                       this.target.getAttribute("displayname"));
