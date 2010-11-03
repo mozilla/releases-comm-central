@@ -50,6 +50,10 @@
   margin-bottom: 1px;
 }
 
+.moz-txt-underscore {
+  text-decoration: underline;
+}
+
 /* disable overflow in themes until bug 42676 is fixed in Mozilla */
 #Chat {
   overflow: hidden !important;

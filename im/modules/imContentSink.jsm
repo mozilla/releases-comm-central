@@ -74,6 +74,9 @@ var EXPORTED_SYMBOLS = [
  */
 
 const kAllowedURLs = function(aValue) /^(https?|ftp):/.test(aValue);
+const kAllowedMozClasses =
+  function(aClassName) aClassName == "moz-txt-underscore" ||
+                       aClassName == "moz-txt-tag";
 
 // in strict mode, remove all formatings. Keep only links and line breaks.
 const kStrictMode = {
@@ -108,7 +111,9 @@ const kStandardMode = {
     'b': true,
     'i': true,
     'u': true,
-    'span': true,
+    'span': {
+      'class': kAllowedMozClasses
+    },
     'br': true,
     'code': true,
     'ul': true,
@@ -148,7 +153,9 @@ const kPermissiveMode = {
     'b': true,
     'i': true,
     'u': true,
-    'span': true,
+    'span': {
+      'class': kAllowedMozClasses
+    },
     'br': true,
     'hr': true,
     'code': true,

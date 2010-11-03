@@ -289,15 +289,21 @@
         <body>
           <![CDATA[
             let doc = this.contentDocument;
-            let msg = aMsg.message;
-            if (!aMsg.noLinkification) {
-              msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                              .getService(Ci.mozITXTToHTMLConv)
-                              .scanHTML(msg.replace(/&/g, "&amp;"), 2)
-                              .replace(/&amp;/g, "&");
-            }
-            aMsg.message = cleanupImMarkup(doc, msg.replace(/\r?\n/g, "<br/>"), null,
-                                           this._textModifiers);
+            let cs = Components.classes["@mozilla.org/txttohtmlconv;1"]
+                               .getService(Ci.mozITXTToHTMLConv);
+            /*
+             * kStructPhrase creates tags for plaintext-markup like *bold*,
+             * /italics/, etc. We always use this; the content filter will
+             * filter it out if the user does not want styling.
+             */
+            let csFlags = cs.kStructPhrase;
+            // Automatically find and link freetext URLs
+            if (!aMsg.noLinkification)
+              csFlags |= cs.kURLs;
+            let msg = cs.scanHTML(aMsg.message.replace(/&/, "&amp;"), csFlags)
+                        .replace(/&amp;/g, "&");
+            aMsg.message = cleanupImMarkup(doc, msg.replace(/\r?\n/g, "<br/>"),
+                                           null, this._textModifiers);
             let next = isNextMessage(this.theme, aMsg, this._lastMessage);
             let html = getHTMLForMessage(aMsg, this.theme, next);
             let body = doc.getElementsByTagName("body")[0];
