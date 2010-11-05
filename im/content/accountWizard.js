@@ -47,8 +47,6 @@ var accountWizard = {
     accountWizard.setGetMoreProtocols();
 
     var protoList = document.getElementById("protolist");
-    this.pcs = Components.classes["@instantbird.org/purple/core;1"]
-                         .getService(Ci.purpleICoreService);
     var protos = [];
     for (let proto in this.getProtocols())
       protos.push(proto);
@@ -106,7 +104,7 @@ var accountWizard = {
   selectProtocol: function aw_selectProtocol() {
     var protoList = document.getElementById("protolist");
     var id = protoList.selectedItem.value;
-    this.proto = this.pcs.getProtocolById(id);
+    this.proto = Services.core.getProtocolById(id);
 
     return true;
   },
@@ -220,7 +218,7 @@ var accountWizard = {
     var proxy;
     var result;
     if (type == Ci.purpleIProxyInfo.useGlobal) {
-      proxy = this.pcs.globalProxy;
+      proxy = Services.core.globalProxy;
       type = proxy.type;
     }
     else
@@ -441,7 +439,7 @@ var accountWizard = {
   },
 
   createAccount: function aw_createAccount() {
-    var acc = this.pcs.createAccount(this.username, this.proto.id);
+    var acc = Services.core.createAccount(this.username, this.proto.id);
     if (!this.proto.noPassword) {
       acc.password = this.password;
       acc.rememberPassword = true;
@@ -499,7 +497,7 @@ var accountWizard = {
   },
 
   getProtocols: function aw_getProtocols() {
-    return getIter(this.pcs.getProtocols());
+    return getIter(Services.core.getProtocols());
   },
   getProtoOptions: function aw_getProtoOptions() {
     return getIter(this.proto.getOptions());
@@ -549,9 +547,7 @@ var accountWizard = {
     var showGetMore = false;
     const nsIPrefBranch2 = Components.interfaces.nsIPrefBranch2;
 
-    if (Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(nsIPrefBranch2)
-                  .getPrefType(prefURL) != nsIPrefBranch2.PREF_INVALID) {
+    if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch2.PREF_INVALID) {
       try {
         var getMoreURL = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
                                    .getService(Components.interfaces.nsIURLFormatter)

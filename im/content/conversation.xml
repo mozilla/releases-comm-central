@@ -112,9 +112,7 @@
 
        var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress, false);
-       Components.classes["@mozilla.org/observer-service;1"]
-                 .getService(Components.interfaces.nsIObserverService)
-                 .addObserver(this, "conversation-loaded", false);
+       Services.obs.addObserver(this, "conversation-loaded", false);
 
        try {
          this.findbar.browser = browser;
@@ -279,9 +277,7 @@
           msg.split("\n").forEach(this._conv.sendMsg, this._conv);
         else if (account.HTMLEnabled) {
           msg = msg.replace(/\n/g, "<br/>");
-          let prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                                .getService(Components.interfaces.nsIPrefBranch);
-          if (prefs.getBoolPref("messenger.conversations.sendFormat")) {
+          if (Services.prefs.getBoolPref("messenger.conversations.sendFormat")) {
             let style = MessageFormat.getMessageStyle();
             let proto = this._conv.account.protocol.id;
             if (proto == "prpl-msn") {
@@ -394,9 +390,7 @@
 
         if (!this._maxEmptyLines) {
           this._maxEmptyLines =
-            Components.classes["@mozilla.org/preferences-service;1"]
-                      .getService(Components.interfaces.nsIPrefBranch)
-                      .getIntPref("messenger.conversations.textbox.defaultMaxLines");
+            Services.prefs.getIntPref("messenger.conversations.textbox.defaultMaxLines");
         }
 
         if (numberOfLines > this._maxEmptyLines)
@@ -671,9 +665,8 @@
              event.keyCode != 46))  // Delete
           return;
 
-        let prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                              .getService(Components.interfaces.nsIPrefBranch);
-        if (accelKeyPressed || !prefs.getBoolPref("accessibility.typeaheadfind"))
+        if (accelKeyPressed ||
+            !Services.prefs.getBoolPref("accessibility.typeaheadfind"))
           editor.focus();
 
         // Returns for Ctrl+V
@@ -902,10 +895,8 @@
      <method name="showLogs">
        <body>
        <![CDATA[
-         var logger = Components.classes["@instantbird.org/logger;1"]
-                                .getService(Ci.ibILogger);
          var logs = [];
-         for (let log in getIter(logger.getLogsForConversation(this.conv)))
+         for (let log in getIter(Services.logs.getLogsForConversation(this.conv)))
            logs.push(log);
          window.openDialog("chrome://instantbird/content/viewlog.xul",
                            "Logs", "chrome,resizable", {logs: logs},
@@ -1028,9 +1019,7 @@
            // modifiers can be added with observers for this notification.
            setTimeout(function(aSelf) { aSelf._emptyMessageQueue(); }, 0, this);
 
-           Components.classes["@mozilla.org/observer-service;1"]
-                     .getService(Components.interfaces.nsIObserverService)
-                     .removeObserver(this, "conversation-loaded");
+           Services.obs.removeObserver(this, "conversation-loaded");
            return;
          }
 
@@ -1203,9 +1192,7 @@
          <![CDATA[
           if (!this._bundle) {
             this._bundle =
-              Components.classes["@mozilla.org/intl/stringbundle;1"]
-                        .getService(Components.interfaces.nsIStringBundleService)
-                        .createBundle("chrome://instantbird/locale/instantbird.properties");
+              Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
           }
           return this._bundle;
          ]]>

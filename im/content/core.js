@@ -49,8 +49,7 @@ function initPurpleCore()
   }
 
   try {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
+    var pcs = Services.core;
     pcs.init();
   }
   catch (e) {
@@ -75,26 +74,17 @@ function initPurpleCore()
 function uninitPurpleCore()
 {
   try {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    pcs.quit();
+    Services.core.quit();
   }
   catch (e) {
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-
-    prompts.alert(null, "Shutdown Error", "An error occurred while shutting down purplexpcom: " + e);
+    Services.prompt.alert(null, "Shutdown Error",
+                          "An error occurred while shutting down purplexpcom: " + e);
   }
 }
 
 function promptError(aKeyString, aMessage) {
-  const nsIPromptService = Components.interfaces.nsIPromptService;
-  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(nsIPromptService);
-
-  var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                         .getService(Components.interfaces.nsIStringBundleService)
-                         .createBundle("chrome://instantbird/locale/core.properties");
+  var bundle =
+    Services.strings.createBundle("chrome://instantbird/locale/core.properties");
 
   var title = bundle.GetStringFromName("startupFailure.title");
   var message =
@@ -102,10 +92,12 @@ function promptError(aKeyString, aMessage) {
     (aMessage ? bundle.formatStringFromName(aKeyString, [aMessage], 1)
               : bundle.GetStringFromName(aKeyString)) + "\n\n" +
     bundle.GetStringFromName("startupFailure.update");
+  const nsIPromptService = Components.interfaces.nsIPromptService;
   const flags =
     nsIPromptService.BUTTON_POS_1 * nsIPromptService.BUTTON_TITLE_IS_STRING +
     nsIPromptService.BUTTON_POS_0 * nsIPromptService.BUTTON_TITLE_IS_STRING;
 
+  var prompts = Services.prompt;
   if (!prompts.confirmEx(null, title, message, flags,
                          bundle.GetStringFromName("startupFailure.buttonUpdate"),
                          bundle.GetStringFromName("startupFailure.buttonClose"),

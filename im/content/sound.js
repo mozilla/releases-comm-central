@@ -86,7 +86,8 @@ var soundHelper = {
     if (!(aEvent in this._soundUri)) {
       if (!(aEvent in this.soundFiles))
         throw "bad sound event";
-      this._soundUri[aEvent] = makeURI(this.soundFiles[aEvent]);
+      this._soundUri[aEvent] =
+        Services.io.newURI(this.soundFiles[aEvent], null, null);
     }
 
     if (this._playingEvents.indexOf(aEvent) == -1)
@@ -131,10 +132,7 @@ var soundObserver = {
   },
   load: function so_load() {
     addObservers(soundObserver, soundEvents);
-    soundObserver._prefBranch =
-      Components.classes["@mozilla.org/preferences-service;1"]
-                .getService(Ci.nsIPrefService)
-                .getBranch(optPrefBranch);
+    soundObserver._prefBranch = Services.prefs.getBranch(optPrefBranch);
     soundObserver._prefBranch.QueryInterface(Ci.nsIPrefBranch2);
     soundObserver._prefBranch.addObserver(soundsPref, soundObserver, false);
     soundHelper.muted = !soundObserver._prefBranch.getBoolPref(soundsPref);

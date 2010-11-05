@@ -66,7 +66,7 @@
 
             var enabled = true;
             try {
-              enabled = this.mPrefs.getBoolPref("general.autoScroll");
+              enabled = Services.prefs.getBoolPref("general.autoScroll");
             }
             catch(ex) {
             }
@@ -170,13 +170,8 @@
       <field name="magicCopyPref" readonly="true">"messenger.conversations.selections.magicCopyEnabled"</field>
 
       <property name="magicCopyEnabled"
-                onget="return this.mPrefs.getBoolPref(this.magicCopyPref);"
+                onget="return Services.prefs.getBoolPref(this.magicCopyPref);"
                 readonly="true"/>
-
-      <field name="mPrefs" readonly="true">
-        Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefBranch2);
-      </field>
 
       <method name="addProgressListener">
         <parameter name="aListener"/>
@@ -202,7 +197,7 @@
         <![CDATA[
           this.addEventListener("scroll", this.browserScroll, false);
           this.addEventListener("resize", this.browserResize, false);
-          this.mPrefs.addObserver(this.magicCopyPref, this, false);
+          Services.prefs.addObserver(this.magicCopyPref, this, false);
 
           if (!("cleanupImMarkup" in window))
             Components.utils.import("resource:///modules/imContentSink.jsm");
@@ -239,7 +234,7 @@
               this._autoScrollPopup.parentNode.removeChild(this._autoScrollPopup);
             }
 
-            this.mPrefs.removeObserver(this.magicCopyPref, this);
+            Services.prefs.removeObserver(this.magicCopyPref, this);
             if (this.magicCopyEnabled)
               this.contentWindow.controllers.removeController(this);
           ]]>
@@ -485,9 +480,7 @@
                 }
               }
 
-              Components.classes["@mozilla.org/observer-service;1"]
-                        .getService(Components.interfaces.nsIObserverService)
-                        .notifyObservers(this, "conversation-loaded", null);
+              Services.obs.notifyObservers(this, "conversation-loaded", null);
             }
           ]]>
         </body>
@@ -678,13 +671,13 @@
             var mmScrollbarPosition = false;
 
             try {
-              mmPaste = this.mPrefs.getBoolPref("middlemouse.paste");
+              mmPaste = Services.prefs.getBoolPref("middlemouse.paste");
             }
             catch (ex) {
             }
 
             try {
-              mmScrollbarPosition = this.mPrefs.getBoolPref("middlemouse.scrollbarPosition");
+              mmScrollbarPosition = Services.prefs.getBoolPref("middlemouse.scrollbarPosition");
             }
             catch (ex) {
             }
@@ -813,14 +806,14 @@
           if (event.getPreventDefault() || !event.isTrusted)
             return;
 
-          var isEnabled = this.mPrefs.getBoolPref("accessibility.browsewithcaret_shortcut.enabled");
+          var isEnabled = Services.prefs.getBoolPref("accessibility.browsewithcaret_shortcut.enabled");
           if (!isEnabled)
             return;
 
           // Toggle browse with caret mode
           try {
-            var browseWithCaretOn = this.mPrefs.getBoolPref("accessibility.browsewithcaret");
-            this.mPrefs.setBoolPref("accessibility.browsewithcaret",!browseWithCaretOn);
+            var browseWithCaretOn = Services.prefs.getBoolPref("accessibility.browsewithcaret");
+            Services.prefs.setBoolPref("accessibility.browsewithcaret", !browseWithCaretOn);
           } catch (ex) {
           }
         ]]>

@@ -57,15 +57,13 @@ var account = {
 
     document.getElementById("alias").value = this.account.alias;
 
-    this.prefService = Components.classes["@mozilla.org/preferences-service;1"]
-                                 .getService(Ci.nsIPrefService);
     let protoId = this.proto.id;
     if (protoId == "prpl-irc" || protoId == "prpl-jabber" ||
         protoId == "prpl-gtalk") {
       document.getElementById("optionalSeparator").hidden = false;
       document.getElementById("autojoinBox").hidden = false;
-      var branch = this.prefService.getBranch("messenger.account." +
-                                              this.account.id + ".");
+      var branch = Services.prefs.getBranch("messenger.account." +
+                                            this.account.id + ".");
       if (branch.prefHasUserValue(autoJoinPref)) {
         document.getElementById("autojoin").value =
           branch.getCharPref(autoJoinPref);
@@ -77,8 +75,8 @@ var account = {
       !this.proto.newMailNotification;
 */
 
-    this.prefs = this.prefService.getBranch("messenger.account." +
-                                            this.account.id + ".options.");
+    this.prefs = Services.prefs.getBranch("messenger.account." +
+                                          this.account.id + ".options.");
     this.populateProtoSpecificBox();
 
     this.proxy = this.account.proxyInfo;
@@ -103,9 +101,7 @@ var account = {
     var proxy;
     var result;
     if (type == Ci.purpleIProxyInfo.useGlobal) {
-      proxy = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService)
-                        .globalProxy;
+      proxy = Services.core.globalProxy;
       type = proxy.type;
     }
     else
@@ -271,8 +267,8 @@ var account = {
     let protoId = this.proto.id;
     if (protoId == "prpl-irc" || protoId == "prpl-jabber" ||
         protoId == "prpl-gtalk") {
-      var branch = this.prefService.getBranch("messenger.account." +
-                                              this.account.id + ".");
+      var branch = Services.prefs.getBranch("messenger.account." +
+                                            this.account.id + ".");
       var autojoin = this.getValue("autojoin");
       if (autojoin || branch.prefHasUserValue(autoJoinPref))
         branch.setCharPref(autoJoinPref, autojoin);

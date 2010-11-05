@@ -80,10 +80,7 @@ var logWindow = {
     let file = Components.classes["@mozilla.org/file/local;1"]
                          .createInstance(Components.interfaces.nsILocalFile);
     file.initWithPath(path);
-    let url = Components.classes["@mozilla.org/network/io-service;1"]
-                        .getService(Components.interfaces.nsIIOService)
-                        .newFileURI(file).spec;
-    browser.loadURI(url);
+    browser.loadURI(Services.io.newFileURI(file).spec);
   },
 
   contentLoaded: function lw_contentLoaded() {

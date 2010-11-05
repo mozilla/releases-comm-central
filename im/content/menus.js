@@ -44,11 +44,12 @@ const aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
 const errorConsoleWindow = "chrome://global/content/console.xul";
 const preferencesWindow = "chrome://instantbird/content/preferences/preferences.xul";
 
+if (!("Services" in window))
+  Components.utils.import("resource:///modules/imServices.jsm");
+
 var menus = {
   focus: function menu_focus(aWindowType) {
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                       .getService(Components.interfaces.nsIWindowMediator);
-    var win = wm.getMostRecentWindow(aWindowType);
+    var win = Services.wm.getMostRecentWindow(aWindowType);
     if (win)
       win.focus();
     return win;
@@ -156,9 +157,7 @@ var menus = {
   },
 
   getAccounts: function bl_getAccounts() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    return getIter(pcs.getAccounts());
+    return getIter(Services.core.getAccounts());
   },
   updateFileMenuitems: function menu_updateFileMenuitems() {
     let hasConnectedAccount = false;
@@ -186,10 +185,8 @@ var menus = {
   },
 
   checkCurrentStatusType: function menu_checkCurrentStatusType(aItems) {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
     let status = "unknown";
-    let statusType = pcs.currentStatusType;
+    let statusType = Services.core.currentStatusType;
     if (statusType == Ci.purpleICoreService.STATUS_AVAILABLE)
       status = "available";
     else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE ||

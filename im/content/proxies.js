@@ -42,8 +42,7 @@ var gProxies = {
   // see what the global settings are
   // build a list of existing proxies
 
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
+    var pcs = Services.core;
 
     var proxyInfoCtr = Components.Constructor("@instantbird.org/purple/proxyinfo;1",
                                               "purpleIProxyInfo");
@@ -153,10 +152,8 @@ var gProxies = {
   },
 
   accept: function proxy_accept() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                  .getService(Ci.nsIPromptService);
+    var pcs = Services.core;
+    var promptService = Services.prompt;
     var item = document.getElementById("proxylist").selectedItem;
     if (item.id == "newProxy") {
       var type = this.getValue("proxyType");

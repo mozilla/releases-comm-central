@@ -43,6 +43,7 @@ include $(DEPTH)/config/autoconf.mk
 
 EXTRA_JS_MODULES = \
 	imContentSink.jsm \
+	imServices.jsm \
 	imSmileys.jsm \
 	$(NULL)
 

@@ -37,16 +37,8 @@
 
 var EXPORTED_SYMBOLS = ["MessageFormat", "TextboxSize", "TextboxSpellChecker"];
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-const Cc = Components.classes;
+Components.utils.import("resource:///modules/imServices.jsm");
 const Ci = Components.interfaces;
-
-XPCOMUtils.defineLazyGetter(this, "prefs", function() {
-  return Cc["@mozilla.org/preferences-service;1"]
-           .getService(Ci.nsIPrefService)
-           .QueryInterface(Ci.nsIPrefBranch2);
-});
 
 let MessageFormat = {
   _observedPrefs: [],
@@ -54,23 +46,26 @@ let MessageFormat = {
   getValues: function mf_getValues() {
     this.unregisterObservers();
     let langGroup =
-      prefs.getComplexValue("font.language.group",
-                            Components.interfaces.nsIPrefLocalizedString).data;
-    let fontGroup = prefs.getCharPref("font.default." + langGroup);
+      Services.prefs.getComplexValue("font.language.group",
+                                     Ci.nsIPrefLocalizedString).data;
+    let fontGroup = Services.prefs.getCharPref("font.default." + langGroup);
     let fontPref = "font.name." + fontGroup + "." + langGroup;
     let fontSizePref = "font.size.variable." + langGroup;
     this._values = {
       langGroup: langGroup,
       fontGroup: fontGroup,
-      font: prefs.getCharPref(fontPref),
-      fontIsDefault: !prefs.prefHasUserValue(fontPref),
-      fontSize: prefs.getIntPref(fontSizePref),
-      fontSizeIsDefault: !prefs.prefHasUserValue(fontSizePref),
-      defaultFontSize: prefs.getDefaultBranch(null).getIntPref(fontSizePref),
-      foregroundColor: prefs.getCharPref("browser.display.foreground_color"),
+      font: Services.prefs.getCharPref(fontPref),
+      fontIsDefault: !Services.prefs.prefHasUserValue(fontPref),
+      fontSize: Services.prefs.getIntPref(fontSizePref),
+      fontSizeIsDefault: !Services.prefs.prefHasUserValue(fontSizePref),
+      defaultFontSize:
+        Services.prefs.getDefaultBranch(null).getIntPref(fontSizePref),
+      foregroundColor:
+        Services.prefs.getCharPref("browser.display.foreground_color"),
       foregroundColorIsDefault:
-        !prefs.prefHasUserValue("browser.display.foreground_color"),
-      useSystemColor: prefs.getBoolPref("browser.display.use_system_colors")
+        !Services.prefs.prefHasUserValue("browser.display.foreground_color"),
+      useSystemColor:
+        Services.prefs.getBoolPref("browser.display.use_system_colors")
     };
 
     this._observedPrefs = [
@@ -82,11 +77,11 @@ let MessageFormat = {
       "browser.display.use_system_colors"
     ];
     for each (let name in this._observedPrefs)
-      prefs.addObserver(name, this, false);
+      Services.prefs.addObserver(name, this, false);
   },
   unregisterObservers: function mf_unregisterObservers() {
     for each (let name in this._observedPrefs)
-      prefs.removeObserver(name, this);
+      Services.prefs.removeObserver(name, this);
     this._observedPrefs = [];
   },
   observe: function(aSubject, aTopic, aMsg) {
@@ -145,13 +140,13 @@ let TextboxSize = {
   _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get autoResize() {
     delete this.autoResize;
-    prefs.addObserver(this._textboxAutoResizePrefName, this, false);
+    Services.prefs.addObserver(this._textboxAutoResizePrefName, this, false);
     return this.autoResize =
-      prefs.getBoolPref(this._textboxAutoResizePrefName);
+      Services.prefs.getBoolPref(this._textboxAutoResizePrefName);
   },
   observe: function(aSubject, aTopic, aMsg) {
     if (aTopic == "nsPref:changed" && aMsg == this._textboxAutoResizePrefName)
-      this.autoResize = prefs.getBoolPref(aMsg);
+      this.autoResize = Services.prefs.getBoolPref(aMsg);
   }
 };
 
@@ -159,7 +154,7 @@ let TextboxSpellChecker = {
   _spellCheckPrefName: "layout.spellcheckDefault",
   _enabled: false,
  getValue: function tsc_getValue() {
-    this._enabled = !!prefs.getIntPref(this._spellCheckPrefName);
+    this._enabled = !!Services.prefs.getIntPref(this._spellCheckPrefName);
   },
   applyValue: function tsc_applyValue(aTextbox) {
     if (this._enabled)
@@ -174,7 +169,7 @@ let TextboxSpellChecker = {
       this._textboxes.push(aTextbox);
 
     if (this._textboxes.length == 1) {
-      prefs.addObserver(this._spellCheckPrefName, this, false);
+      Services.prefs.addObserver(this._spellCheckPrefName, this, false);
       this.getValue();
     }
 
@@ -186,7 +181,7 @@ let TextboxSpellChecker = {
       this._textboxes.splice(index, 1);
 
     if (!this._textboxes.length)
-      prefs.removeObserver(this._spellCheckPrefName, this);
+      Services.prefs.removeObserver(this._spellCheckPrefName, this);
   },
   observe: function tsc_observe(aSubject, aTopic, aMsg) {
     this.getValue();

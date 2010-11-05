@@ -42,12 +42,6 @@
 var FullZoom = {
   prefName: "conversation.zoomLevel",
 
-  get _prefBranch() {
-    delete this._prefBranch;
-    return this._prefBranch = Cc["@mozilla.org/preferences-service;1"]
-                              .getService(Ci.nsIPrefBranch2);
-  },
-
   init: function FullZoom_init() {
     window.addEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled, false);
     window.addEventListener("unload", FullZoom.destroy, false);
@@ -57,13 +51,13 @@ var FullZoom = {
                    .addEventListener("select", FullZoom.setSettingValue, false);
     }
 
-    FullZoom._prefBranch.addObserver(FullZoom.prefName, FullZoom, false);
+    Services.prefs.addObserver(FullZoom.prefName, FullZoom, false);
     FullZoom.getPrefValue();
     FullZoom.setSettingValue();
   },
 
   destroy: function FullZoom_destroy() {
-    FullZoom._prefBranch.removeObserver(FullZoom.prefName, FullZoom);
+    Services.prefs.removeObserver(FullZoom.prefName, FullZoom);
     window.removeEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled, false);
   },
 
@@ -106,17 +100,17 @@ var FullZoom = {
     try {
       // Can throw an exception when the preference does not exist or is
       // already at its default value.
-      this._prefBranch.clearUserPref(this.prefName);
+      Services.prefs.clearUserPref(this.prefName);
     }
     catch (ex) {}
   },
 
   // Settings and Prefs
   applySettingToPref: function FullZoom_applySettingToPref() {
-    this._prefBranch.setCharPref(this.prefName, ZoomManager.zoom);
+    Services.prefs.setCharPref(this.prefName, ZoomManager.zoom);
   },
   getPrefValue: function FullZoom_getPrefValue() {
-    this._value = parseFloat(this._prefBranch.getCharPref(this.prefName));
+    this._value = parseFloat(Services.prefs.getCharPref(this.prefName));
   },
   setSettingValue: function FullZoom_setSettingValue() {
     FullZoom._applyPrefToSetting(FullZoom._value);

@@ -78,8 +78,9 @@ function nsContextMenu(aXulMenu, aBrowser) {
   this.ellipsis = "\u2026";
 
   try {
-    this.ellipsis = gPrefService.getComplexValue("intl.ellipsis",
-                                                 Ci.nsIPrefLocalizedString).data;
+    this.ellipsis =
+      Services.prefs.getComplexValue("intl.ellipsis",
+                                     Ci.nsIPrefLocalizedString).data;
   } catch (e) { }
 
   // Initialize new menu.
@@ -195,9 +196,7 @@ nsContextMenu.prototype = {
   },
 
   openEngineManager: function() {
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                       .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("Browser:SearchManager");
+    var window = Services.wm.getMostRecentWindow("Browser:SearchManager");
     if (window)
       window.focus();
     else {
@@ -212,9 +211,7 @@ nsContextMenu.prototype = {
     while (popup.firstChild && popup.firstChild.localName != "menuseparator")
       popup.removeChild(popup.firstChild);
 
-    let engines = Components.classes["@mozilla.org/browser/search-service;1"]
-                            .getService(Ci.nsIBrowserSearchService)
-                            .getVisibleEngines({});
+    let engines = Services.search.getVisibleEngines({});
 
     for (let i = engines.length - 1; i >= 0; --i) {
       let menuitem = document.createElement("menuitem");
@@ -236,9 +233,7 @@ nsContextMenu.prototype = {
 
   searchSelection: function(aEngine) {
     if (!aEngine) {
-      aEngine = Cc["@mozilla.org/browser/search-service;1"].
-                getService(Ci.nsIBrowserSearchService).
-                defaultEngine;
+      aEngine = Services.search.defaultEngine;
     }
 
     var submission = aEngine.getSubmission(getBrowserSelection(), null);
@@ -249,12 +244,14 @@ nsContextMenu.prototype = {
     if (!submission)
       return;
 
-    gExtProtoService.loadURI(submission.uri, window);
+    this.openLink(submission.uri);
   },
 
   // Open linked-to URL in a new window.
-  openLink: function () {
-    gExtProtoService.loadURI(this.linkURI, window);
+  openLink: function (aURI) {
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"].
+    getService(Ci.nsIExternalProtocolService).
+    loadURI(aURI || this.linkURI, window);
   },
 
   // Generate email address and put it on clipboard.
@@ -333,10 +330,8 @@ nsContextMenu.prototype = {
   },
 
   getLinkURI: function() {
-    var ioService = Cc["@mozilla.org/network/io-service;1"].
-                    getService(Ci.nsIIOService);
     try {
-      return ioService.newURI(this.linkURL, null, null);
+      return Services.io.newURI(this.linkURL, null, null);
     }
     catch (ex) {
      // e.g. empty URL string
@@ -379,9 +374,7 @@ nsContextMenu.prototype = {
     if (selectedText.length > 15)
       selectedText = selectedText.substr(0,15) + this.ellipsis;
 
-    var engine = Cc["@mozilla.org/browser/search-service;1"].
-                 getService(Ci.nsIBrowserSearchService).
-                 defaultEngine;
+    var engine = Services.search.defaultEngine;
     if (!engine)
       return false;
 

@@ -38,17 +38,13 @@
 
 var addBuddy = {
   onload: function ab_onload() {
-    this.pcs = Components.classes["@instantbird.org/purple/core;1"]
-                         .getService(Ci.purpleICoreService);
-    this.pts = Components.classes["@instantbird.org/purple/tags-service;1"]
-                         .getService(Ci.imITagsService);
     this.buildAccountList();
     this.buildTagList();
   },
 
   buildAccountList: function ab_buildAccountList() {
     var accountList = document.getElementById("accountlist");
-    for (let acc in this.getAccounts()) {
+    for (let acc in getIter(Services.core.getAccounts())) {
       if (!acc.connected)
         continue;
       var proto = acc.protocol;
@@ -65,10 +61,10 @@ var addBuddy = {
 
   buildTagList: function ab_buildTagList() {
     var tagList = document.getElementById("taglist");
-    let tags = this.pts.getTags();
+    let tags = Services.tags.getTags();
     if (!tags.length) {
       let bundle = document.getElementById("instantbirdBundle");
-      tags.push(this.pts.createTag(bundle.getString("defaultGroup")));
+      tags.push(Services.tags.createTag(bundle.getString("defaultGroup")));
     }
 
     tags.forEach(function (tag) {
@@ -80,21 +76,17 @@ var addBuddy = {
   getValue: function ab_getValue(aId) document.getElementById(aId).value,
 
   create: function ab_create() {
-    var account = this.pcs.getAccountById(this.getValue("accountlist"));
+    var account = Services.core.getAccountById(this.getValue("accountlist"));
     var name = this.getValue("name");
 
     var tag;
     var taglist = document.getElementById("taglist");
     var items = taglist.getElementsByAttribute("label", taglist.label);
     if (items.length)
-      tag = this.pts.getTagById(items[0].value);
+      tag = Services.tags.getTagById(items[0].value);
     else
-      tag = this.pts.createTag(taglist.label);
+      tag = Services.tags.createTag(taglist.label);
 
     account.addBuddy(tag, name);
-  },
-
-  getAccounts: function ab_getAccounts() {
-    return getIter(this.pcs.getAccounts());
   }
 };

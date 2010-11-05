@@ -35,6 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+Components.utils.import("resource:///modules/imServices.jsm");
+
 var EXPORTED_SYMBOLS = [
   "cleanupImMarkup", // used to clean up incoming IMs.
                      // This will use the global ruleset of acceptable stuff
@@ -188,9 +190,7 @@ function initGlobalRuleset()
 {
   gGlobalRuleset = newRuleset();
 
-  Components.classes["@mozilla.org/preferences-service;1"]
-            .getService(Components.interfaces.nsIPrefBranch2)
-            .addObserver(modePref, styleObserver, false);
+  Services.prefs.addObserver(modePref, styleObserver, false);
 }
 
 var styleObserver = {
@@ -207,10 +207,7 @@ var styleObserver = {
 
 function getModePref()
 {
-  let baseNum =
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch)
-              .getIntPref(modePref);
+  let baseNum = Services.prefs.getIntPref(modePref);
   if (baseNum < 0 || baseNum > 2)
     baseNum = 1;
 

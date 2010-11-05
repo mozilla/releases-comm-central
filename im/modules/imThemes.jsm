@@ -54,6 +54,9 @@ var EXPORTED_SYMBOLS = [
   "serializeSelection"
 ];
 
+Components.utils.import("resource:///modules/imServices.jsm");
+const Ci = Components.interfaces;
+
 const messagesStylePrefBranch = "messenger.options.messagesStyle.";
 const themePref = "theme";
 const variantPref = "variant";
@@ -66,23 +69,18 @@ const DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
 
 __defineGetter__("gPrefBranch", function() {
   delete this.gPrefBranch;
-  return this.gPrefBranch = 
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefService)
-              .getBranch(messagesStylePrefBranch);
+  return this.gPrefBranch = Services.prefs.getBranch(messagesStylePrefBranch);
 });
 
 var gCurrentTheme = null;
 
 function getChromeFile(aURI)
 {
-  let ios = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService);
   try {
-    let channel = ios.newChannel(aURI, null, null);
+    let channel = Services.io.newChannel(aURI, null, null);
     let stream = channel.open();
     let sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
-                            .createInstance(Components.interfaces.nsIScriptableInputStream);
+                            .createInstance(Ci.nsIScriptableInputStream);
     sstream.init(stream);
     let text = sstream.read(sstream.available());
     sstream.close();
@@ -164,7 +162,7 @@ function plistToJSON(aElt)
         if (nodes[i].nodeName == 'key') {
           let key = nodes[i].textContent;
           ++i;
-          while (!(nodes[i] instanceof Components.interfaces.nsIDOMElement))
+          while (!(nodes[i] instanceof Ci.nsIDOMElement))
             ++i;
           res[key] = plistToJSON(nodes[i]);
         }
@@ -175,7 +173,7 @@ function plistToJSON(aElt)
       let array = [];
       nodes = aElt.childNodes;
       for (let i = 0; i < nodes.length; ++i) {
-        if (nodes[i] instanceof Components.interfaces.nsIDOMElement)
+        if (nodes[i] instanceof Ci.nsIDOMElement)
           array.push(plistToJSON(nodes[i]));
       }
       return array;
@@ -187,18 +185,16 @@ function plistToJSON(aElt)
 
 function getInfoPlistContent(aBaseURI)
 {
-  let ios = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService);
   try {
-    let channel = ios.newChannel(aBaseURI + "Info.plist", null, null);
+    let channel = Services.io.newChannel(aBaseURI + "Info.plist", null, null);
     let stream = channel.open();
     let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-                           .createInstance(Components.interfaces.nsIDOMParser);
+                           .createInstance(Ci.nsIDOMParser);
     let doc = parser.parseFromStream(stream, null, stream.available(), "text/xml");
     if (doc.documentElement.localName != "plist")
       throw "Invalid Info.plist file";
     let node = doc.documentElement.firstChild;
-    while (node && !(node instanceof Components.interfaces.nsIDOMElement))
+    while (node && !(node instanceof Ci.nsIDOMElement))
       node = node.nextSibling;
     if (!node || node.localName != "dict")
       throw "Empty or invalid Info.plist file";
@@ -257,11 +253,10 @@ function getCurrentTheme()
 
 function getDirectoryEntries(aDir)
 {
-  let ios = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService);
+  let ios = Services.io;
   let uri = ios.newURI(aDir, null, null);
   let cr = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
-                     .getService(Components.interfaces.nsIXULChromeRegistry);
+                     .getService(Ci.nsIXULChromeRegistry);
   while (uri.scheme == "chrome")
     uri = cr.convertChromeURL(uri);
 
@@ -271,22 +266,22 @@ function getDirectoryEntries(aDir)
 
   let results = [];
   if (uri.scheme == "jar") {
-    uri.QueryInterface(Components.interfaces.nsIJARURI);
+    uri.QueryInterface(Ci.nsIJARURI);
     var strEntry = uri.JAREntry;
     if (!strEntry)
       return [];
 
     let zr = Components.classes["@mozilla.org/libjar/zip-reader;1"]
-                       .createInstance(Components.interfaces.nsIZipReader);
+                       .createInstance(Ci.nsIZipReader);
     let jarFile = uri.JARFile;
-    if (jarFile instanceof Components.interfaces.nsIJARURI) {
+    if (jarFile instanceof Ci.nsIJARURI) {
       let innerZr = Components.classes["@mozilla.org/libjar/zip-reader;1"]
-                              .createInstance(Components.interfaces.nsIZipReader);
-      innerZr.open(jarFile.JARFile.QueryInterface(Components.interfaces.nsIFileURL).file);
+                              .createInstance(Ci.nsIZipReader);
+      innerZr.open(jarFile.JARFile.QueryInterface(Ci.nsIFileURL).file);
       zr.openInner(innerZr, jarFile.JAREntry);
     }
     else
-      zr.open(jarFile.QueryInterface(Components.interfaces.nsIFileURL).file);
+      zr.open(jarFile.QueryInterface(Ci.nsIFileURL).file);
 
     if (!zr.hasEntry(strEntry) || !zr.getEntry(strEntry).isDirectory) {
       zr.close();
@@ -303,7 +298,7 @@ function getDirectoryEntries(aDir)
     zr.close();
   }
   else if (uri.scheme == "file") {
-    uri.QueryInterface(Components.interfaces.nsIFileURL);
+    uri.QueryInterface(Ci.nsIFileURL);
     var dir = uri.file;
 
     if (!dir.exists() || !dir.isDirectory())
@@ -312,7 +307,7 @@ function getDirectoryEntries(aDir)
     let children = dir.directoryEntries;
     while (children.hasMoreElements()) {
       let file = children.getNext()
-                         .QueryInterface(Components.interfaces.nsIFile);
+                         .QueryInterface(Ci.nsIFile);
       results.push(file.leafName);
     }
   }
@@ -378,13 +373,9 @@ const headerFooterReplacements = {
 };
 
 function formatAutoResponce(aTxt)
-{
-  let bundle =
-    Components.classes["@mozilla.org/intl/stringbundle;1"]
-              .getService(Components.interfaces.nsIStringBundleService)
-              .createBundle("chrome://instantbird/locale/instantbird.properties");
-  return bundle.formatStringFromName("autoReply", [aTxt], 1);
-}
+  Services.strings
+          .createBundle("chrome://instantbird/locale/instantbird.properties")
+          .formatStringFromName("autoReply", [aTxt], 1)
 
 const statusMessageReplacements = {
   message: function(aMsg) "<span class=\"ib-msg-txt\">" +
@@ -559,7 +550,7 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
     root._originalMsg = aMsg;
 
   // make sure the result is an HTMLElement and not some whitespace...
-  while (result && !(result instanceof Components.interfaces.nsIDOMHTMLElement))
+  while (result && !(result instanceof Ci.nsIDOMHTMLElement))
     result = result.nextSibling;
   if (insert)
     parent.replaceChild(documentFragment, insert);
@@ -642,10 +633,9 @@ function getEllipsis()
 
   try {
     ellipsis =
-      Components.classes["@mozilla.org/preferences-service;1"]
-                .getService(Components.interfaces.nsIPrefBranch2)
-                .getComplexValue("messenger.conversations.selections.ellipsis",
-                                 Components.interfaces.nsIPrefLocalizedString).data;
+      Services.prefs
+              .getComplexValue("messenger.conversations.selections.ellipsis",
+                               Ci.nsIPrefLocalizedString).data;
   } catch (e) { }
   return ellipsis;
 }
@@ -655,7 +645,7 @@ function _serializeDOMObject(aDocument, aInitFunction)
   const type = "text/plain";
   var encoder =
     Components.classes["@mozilla.org/layout/documentEncoder;1?type=" + type]
-              .createInstance(Components.interfaces.nsIDocumentEncoder);
+              .createInstance(Ci.nsIDocumentEncoder);
   encoder.init(aDocument, type, 0);
   aInitFunction(encoder);
   let result = encoder.encodeToString();
@@ -779,7 +769,7 @@ SelectedMessage.prototype = {
       return this._spanNode;
 
     let spanNode = null;
-    const NodeFilter = Components.interfaces.nsIDOMNodeFilter;
+    const NodeFilter = Ci.nsIDOMNodeFilter;
     // helper filter function for the tree walker
     let filter = function(node) {
       return node.className == "ib-msg-txt" ? NodeFilter.FILTER_ACCEPT
@@ -903,12 +893,9 @@ SelectedMessage.prototype = {
     let getLocalizedPrefWithDefault = function (aName, aDefault) {
       try {
         let prefBranch =
-          Components.classes["@mozilla.org/preferences-service;1"]
-                    .getService(Components.interfaces.nsIPrefService)
-                    .getBranch("messenger.conversations.selections.");
-        const nsIPrefLocalizedString = Components.interfaces.nsIPrefLocalizedString;
+          Services.prefs.getBranch("messenger.conversations.selections.");
         return prefBranch.getComplexValue(aName,
-                                          nsIPrefLocalizedString).data;
+                                          Ci.nsIPrefLocalizedString).data;
       } catch(e) {
         return aDefault;
       }
@@ -979,7 +966,7 @@ function getMessagesForRange(aRange)
       return true;
 
     // recurse through children
-    if (aNode instanceof Components.interfaces.nsIDOMHTMLElement) {
+    if (aNode instanceof Ci.nsIDOMHTMLElement) {
       for (let i = 0; i < aNode.childNodes.length; ++i)
         if (processSubtree(aNode.childNodes[i]))
           return true;
@@ -989,7 +976,7 @@ function getMessagesForRange(aRange)
   };
 
   let currentNode = aRange.commonAncestorContainer;
-  if (currentNode instanceof Components.interfaces.nsIDOMHTMLElement) {
+  if (currentNode instanceof Ci.nsIDOMHTMLElement) {
     // Determine the index of the first and last children of currentNode
     // that we should process.
     let found = false;

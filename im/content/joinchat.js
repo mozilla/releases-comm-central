@@ -39,12 +39,6 @@ const autoJoinPref = "autoJoin";
 
 var joinChat = {
   onload: function jc_onload() {
-    this.pcs = Components.classes["@instantbird.org/purple/core;1"]
-                         .getService(Ci.purpleICoreService);
-    this.buildAccountList();
-  },
-
-  buildAccountList: function jc_buildAccountList() {
     var accountList = document.getElementById("accountlist");
     for (let acc in this.getAccounts()) {
       if (!acc.connected || !acc.canJoinChat)
@@ -150,9 +144,8 @@ var joinChat = {
         name = values.getValue("room") + "@" +
                values.getValue("server") + "/" + values.getValue("handle");
 
-      let prefBranch = Components.classes["@mozilla.org/preferences-service;1"]
-                                 .getService(Ci.nsIPrefService)
-                                 .getBranch("messenger.account." + account.id + ".");
+      let prefBranch =
+        Services.prefs.getBranch("messenger.account." + account.id + ".");
       let autojoin = [ ];
       if (prefBranch.prefHasUserValue(autoJoinPref)) {
         let prefValue = prefBranch.getCharPref(autoJoinPref);
@@ -169,7 +162,5 @@ var joinChat = {
     return true;
   },
 
-  getAccounts: function jc_getAccounts() {
-    return getIter(this.pcs.getAccounts());
-  }
+  getAccounts: function jc_getAccounts() getIter(Services.core.getAccounts()
 };

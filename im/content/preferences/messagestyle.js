@@ -262,9 +262,7 @@ var previewObserver = {
     this.conv.messages.forEach(function (m) { m.reset(); });
     this.browser.init(this.conv);
     this.browser._theme = this.theme;
-    Components.classes["@mozilla.org/observer-service;1"]
-              .getService(Components.interfaces.nsIObserverService)
-              .addObserver(this, "conversation-loaded", false);
+    Services.obs.addObserver(this, "conversation-loaded", false);
   },
 
   observe: function(aSubject, aTopic, aData) {
@@ -277,8 +275,6 @@ var previewObserver = {
       aSelf.conv.messages.forEach(aSelf.browser.appendMessage, aSelf.browser);
     }, 0, this);
 
-    Components.classes["@mozilla.org/observer-service;1"]
-              .getService(Components.interfaces.nsIObserverService)
-              .removeObserver(this, "conversation-loaded");
+    Services.obs.removeObserver(this, "conversation-loaded");
   }
 };

@@ -77,9 +77,7 @@
          <![CDATA[
           if (!this._bundle) {
             this._bundle =
-              Components.classes["@mozilla.org/intl/stringbundle;1"]
-                        .getService(Components.interfaces.nsIStringBundleService)
-                        .createBundle("chrome://instantbird/locale/buddytooltip.properties");
+              Services.strings.createBundle("chrome://instantbird/locale/buddytooltip.properties");
           }
           return this._bundle;
          ]]>

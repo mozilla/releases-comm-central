@@ -67,9 +67,7 @@ var gPrivacyPane = {
     let Ci = Components.interfaces;
     
     // Log folder is "'profile directory'/logs"
-    var logFolder = Cc["@mozilla.org/file/directory_service;1"].
-                    getService(Ci.nsIProperties).
-                    get("ProfD", Ci.nsILocalFile);
+    var logFolder = Services.dirsvc.get("ProfD", Ci.nsILocalFile);
     logFolder.append("logs");
 
     try {
@@ -86,8 +84,7 @@ var gPrivacyPane = {
       } catch (e) {
        // If launch also fails (probably because it's not implemented), let the
        // OS handler try to open the parent
-       let uri = Cc["@mozilla.org/network/io-service;1"].
-                 getService(Ci.nsIIOService).newFileURI(parent);
+       let uri = Services.io.newFileURI(parent);
        let protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"].
                          getService(Ci.nsIExternalProtocolService);
        protocolSvc.loadUrl(uri);

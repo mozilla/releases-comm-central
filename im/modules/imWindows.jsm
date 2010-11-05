@@ -38,6 +38,8 @@
 const CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
 var EXPORTED_SYMBOLS = ["Conversations"];
 
+Components.utils.import("resource:///modules/imServices.jsm");
+
 var Conversations = {
 #ifdef XP_MACOSX
   _badgeTimeout: null,
@@ -54,11 +56,11 @@ var Conversations = {
     Conversations.dockBadgeService.badgeText = text;
   },
   _displayUnreadCountInDockBadge: function c_displayUnreadCountInDockBadge() {
-    if (!this._prefBranch.getBoolPref(this._showDockBadgePrefName))
+    if (!Services.prefs.getBoolPref(this._showDockBadgePrefName))
       return;
 
     if (this._unreadCount == 1 &&
-        this._prefBranch.getBoolPref(this._getAttentionPrefName))
+        Services.prefs.getBoolPref(this._getAttentionPrefName))
       // We use a timeout because it looks better to add the dock
       // badge only after the dock item has stopped jumping.
       this._badgeTimeout =
@@ -98,12 +100,6 @@ var Conversations = {
   _windows: [],
   _getAttentionPrefName: "messenger.options.getAttentionOnNewMessages",
   _notificationPrefName: "messenger.options.notifyOfNewMessages",
-  get _prefBranch () {
-    delete this._prefBranch;
-    return this._prefBranch =
-      Components.classes["@mozilla.org/preferences-service;1"]
-                .getService(Components.interfaces.nsIPrefBranch2);
-  },
   registerWindow: function(aWindow) {
     if (this._windows.indexOf(aWindow) == -1)
       this._windows.unshift(aWindow);
@@ -159,7 +155,7 @@ var Conversations = {
          && aCancelQuit.data)
       return;
 
-    if (!this._prefBranch.getBoolPref("messenger.warnOnQuit"))
+    if (!Services.prefs.getBoolPref("messenger.warnOnQuit"))
       return;
 
     let unreadConvsCount = this._conversations.filter(function(conv) {
@@ -172,9 +168,7 @@ var Conversations = {
       return;
 
     let bundle =
-      Components.classes["@mozilla.org/intl/stringbundle;1"]
-                .getService(Components.interfaces.nsIStringBundleService)
-                .createBundle("chrome://instantbird/locale/quitDialog.properties");
+      Services.strings.createBundle("chrome://instantbird/locale/quitDialog.properties");
     let promptTitle    = bundle.GetStringFromName("dialogTitle");
     let promptMessage  = bundle.GetStringFromName("message");
     let promptCheckbox = bundle.GetStringFromName("checkbox");
@@ -185,8 +179,7 @@ var Conversations = {
     promptMessage = PluralForm.get(unreadConvsCount, promptMessage)
                               .replace("#1", unreadConvsCount);
 
-    let prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
+    let prompts = Services.prompt;
     let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
                 prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
                 prompts.BUTTON_POS_1_DEFAULT;
@@ -198,7 +191,7 @@ var Conversations = {
     }
 
     if (checkbox.value)
-      this._prefBranch.setBoolPref("messenger.warnOnQuit", false);
+      Services.prefs.setBoolPref("messenger.warnOnQuit", false);
   },
 
   onWindowFocus: function (aWindow) {
@@ -215,8 +208,8 @@ var Conversations = {
 
     try {
       ellipsis =
-        this._prefBranch.getComplexValue("intl.ellipsis",
-                                         Components.interfaces.nsIPrefLocalizedString).data;
+        Services.prefs.getComplexValue("intl.ellipsis",
+                                       Components.interfaces.nsIPrefLocalizedString).data;
     } catch (e) { }
     return ellipsis;
   },
@@ -271,8 +264,7 @@ var Conversations = {
   },
 
   init: function() {
-    let os = Components.classes["@mozilla.org/observer-service;1"]
-                       .getService(Components.interfaces.nsIObserverService);
+    let os = Services.obs;
     ["new-text",
      "new-conversation",
      "account-connected",
@@ -281,7 +273,7 @@ var Conversations = {
       os.addObserver(Conversations, aTopic, false);
     });
 #ifdef XP_MACOSX
-    this._prefBranch.addObserver(this._showDockBadgePrefName, this, false);
+    Services.prefs.addObserver(this._showDockBadgePrefName, this, false);
 #endif
   },
 
@@ -295,15 +287,15 @@ var Conversations = {
       for (let id in this._purpleConv)
         this._purpleConv[id].unInit();
 #ifdef XP_MACOSX
-      this._prefBranch.removeObserver(Conversations._showDockBadgePrefName,
-                                      Conversations);
+      Services.prefs.removeObserver(Conversations._showDockBadgePrefName,
+                                    Conversations);
 #endif
     }
 
 #ifdef XP_MACOSX
     if (aTopic == "nsPref:changed") {
       if (aMsg == this._showDockBadgePrefName) {
-        if (this._prefBranch.getBoolPref(aMsg))
+        if (Services.prefs.getBoolPref(aMsg))
           this._showUnreadCount();
         else
           this._hideUnreadCountDockBadge();
@@ -318,8 +310,8 @@ var Conversations = {
         return;
 
       let pref = "messenger.account." + account.id + ".autoJoin";
-      if (this._prefBranch.prefHasUserValue(pref)) {
-        let autojoin = this._prefBranch.getCharPref(pref);
+      if (Services.prefs.prefHasUserValue(pref)) {
+        let autojoin = Services.prefs.getCharPref(pref);
         if (autojoin) {
           autojoin = autojoin.split(",");
           for (let i = 0; i < autojoin.length; ++i) {
@@ -351,10 +343,8 @@ var Conversations = {
       }
 
       // We need to create a new window.
-      var wwatch = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                             .getService(Components.interfaces.nsIWindowWatcher);
-      wwatch.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
-                        "chrome,toolbar,resizable", null);
+      Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
+                             "chrome,toolbar,resizable", null);
       this._pendingNotifications = [{object: aSubject, topic: aTopic, msg: aMsg}];
       return;
     }
@@ -365,11 +355,11 @@ var Conversations = {
         conv.addMsg(aSubject);
       if (aSubject.incoming && !aSubject.system &&
           (!aSubject.conversation.isChat || aSubject.containsNick)) {
-        if (this._prefBranch.getBoolPref(this._getAttentionPrefName))
+        if (Services.prefs.getBoolPref(this._getAttentionPrefName))
           conv.ownerDocument.defaultView.getAttention();
         if (!this._windows[0].document.hasFocus()) {
           this._incrementUnreadCount();
-          if (this._prefBranch.getBoolPref(this._notificationPrefName))
+          if (Services.prefs.getBoolPref(this._notificationPrefName))
             this._showMessageNotification(aSubject);
         }
       }

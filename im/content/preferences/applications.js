@@ -93,11 +93,7 @@ function getDisplayNameForFile(aFile) {
 #endif
 */
 
-  return Cc["@mozilla.org/network/io-service;1"].
-         getService(Ci.nsIIOService).
-         newFileURI(aFile).
-         QueryInterface(Ci.nsIURL).
-         fileName;
+  return Services.io.newFileURI(aFile).QueryInterface(Ci.nsIURL).fileName;
 }
 
 function getLocalHandlerApp(aFile) {
@@ -167,12 +163,6 @@ HandlerInfoWrapper.prototype = {
 
   _handlerSvc: Cc["@mozilla.org/uriloader/handler-service;1"].
                getService(Ci.nsIHandlerService),
-
-  // Retrieve this as nsIPrefBranch and then immediately QI to nsIPrefBranch2
-  // so both interfaces are available to callers.
-  _prefSvc: Cc["@mozilla.org/preferences-service;1"].
-            getService(Ci.nsIPrefBranch).
-            QueryInterface(Ci.nsIPrefBranch2),
 
   _categoryMgr: Cc["@mozilla.org/categorymanager;1"].
                 getService(Ci.nsICategoryManager),
@@ -378,12 +368,6 @@ var gApplicationsPane = {
   _list           : null,
   _filter         : null,
 
-  // Retrieve this as nsIPrefBranch and then immediately QI to nsIPrefBranch2
-  // so both interfaces are available to callers.
-  _prefSvc      : Cc["@mozilla.org/preferences-service;1"].
-                  getService(Ci.nsIPrefBranch).
-                  QueryInterface(Ci.nsIPrefBranch2),
-
   _mimeSvc      : Cc["@mozilla.org/mime;1"].
                   getService(Ci.nsIMIMEService),
 
@@ -392,9 +376,6 @@ var gApplicationsPane = {
 
   _handlerSvc   : Cc["@mozilla.org/uriloader/handler-service;1"].
                   getService(Ci.nsIHandlerService),
-
-  _ioSvc        : Cc["@mozilla.org/network/io-service;1"].
-                  getService(Ci.nsIIOService),
 
 
   //**************************************************************************//
@@ -439,8 +420,7 @@ var gApplicationsPane = {
       self._rebuildView();
 
       // Notify observers that the UI is now ready
-      Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService).
-      notifyObservers(window, "app-handler-pane-loaded", null);
+      Services.obs.notifyObservers(window, "app-handler-pane-loaded", null);
     };
     setTimeout(_delayedPaneLoad, 0, this);
   },
@@ -1128,7 +1108,7 @@ var gApplicationsPane = {
   },
 
   _getIconURLForFile: function(aFile) {
-    var fph = this._ioSvc.getProtocolHandler("file").
+    var fph = Services.io.getProtocolHandler("file").
               QueryInterface(Ci.nsIFileProtocolHandler);
     var urlSpec = fph.getURLSpecFromFile(aFile);
 
@@ -1136,7 +1116,7 @@ var gApplicationsPane = {
   },
 
   _getIconURLForWebApp: function(aWebAppURITemplate) {
-    var uri = this._ioSvc.newURI(aWebAppURITemplate, null, null);
+    var uri = Services.io.newURI(aWebAppURITemplate, null, null);
 
     // Unfortunately we can't use the favicon service to get the favicon,
     // because the service looks in the annotations table for a record with
@@ -1145,7 +1125,7 @@ var gApplicationsPane = {
     // they'll only visit URLs derived from that template (i.e. with %s
     // in the template replaced by the URL of the content being handled).
 
-    if (/^https?/.test(uri.scheme) && this._prefSvc.getBoolPref("browser.chrome.favicons"))
+    if (/^https?/.test(uri.scheme) && Services.prefs.getBoolPref("browser.chrome.favicons"))
       return uri.prePath + "/favicon.ico";
 
     return "";

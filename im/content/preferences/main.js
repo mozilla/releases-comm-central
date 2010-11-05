@@ -53,9 +53,7 @@ var gMainPane = {
    * Helper to focus an already existing window before opening a new one.
    */
   focus: function (aWindowType) {
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                       .getService(Components.interfaces.nsIWindowMediator);
-    var win = wm.getMostRecentWindow(aWindowType);
+    var win = Services.wm.getMostRecentWindow(aWindowType);
     if (win)
       win.focus();
     return win;

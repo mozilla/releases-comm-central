@@ -68,10 +68,7 @@ var gThemePane = {
     var getMore = document.getElementById("getMore" + aType);
     var showGetMore = false;
     const nsIPrefBranch2 = Components.interfaces.nsIPrefBranch2;
-
-    if (Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(nsIPrefBranch2)
-                  .getPrefType(prefURL) != nsIPrefBranch2.PREF_INVALID) {
+    if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch2.PREF_INVALID) {
       try {
         var getMoreURL = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
                                    .getService(Components.interfaces.nsIURLFormatter)

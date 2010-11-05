@@ -112,9 +112,7 @@ var gConnectionsDialog = {
     var typedURL = document.getElementById("networkProxyAutoconfigURL").value;
     var proxyTypeCur = document.getElementById("network.proxy.type").value;
 
-    var prefs =
-        Components.classes["@mozilla.org/preferences-service;1"].
-        getService(Components.interfaces.nsIPrefBranch);
+    var prefs = Services.prefs;
     var pacURL = prefs.getCharPref("network.proxy.autoconfig_url");
     var proxyType = prefs.getIntPref("network.proxy.type");
 

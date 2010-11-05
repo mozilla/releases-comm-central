@@ -31,8 +31,7 @@ var debug = {
   },
 
   forceOnline: function debug_forceOnline() {
-    var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                        .getService(Components.interfaces.nsIIOService2);
+    var ios = Services.io;
     ios.manageOfflineStatus = false;
     ios.offline = false;
   },
@@ -52,9 +51,7 @@ window.addEventListener("load", debug.load, false);
 function debug_enumerateProtocols()
 {
   dump("trying to enumerate protocols:\n");
-  var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                      .getService(Ci.purpleICoreService);
-  for (let proto in getIter(pcs.getProtocols())) {
+  for (let proto in getIter(Services.core.getProtocols())) {
     dump(" " + proto.name + " " + proto.id + "\n");
     for (let opt in getIter(proto.getOptions())) {
       var type = { };
@@ -70,9 +67,7 @@ function debug_enumerateProtocols()
 
 function debug_connectAccount(aProto, aName, aPassword)
 {
-  var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                      .getService(Ci.purpleICoreService);
-
+  var pcs = Services.core;
   var proto = pcs.getProtocolById(aProto);
   if (!proto)
     throw "Couldn't get protocol " + aProto;
@@ -86,9 +81,7 @@ function debug_connectAccount(aProto, aName, aPassword)
 
 function debug_dumpBuddyList()
 {
-  var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                      .getService(Ci.purpleICoreService);
   let formatBuddy = (function(buddy) "  " + buddy.name + "\n   " + buddy.getAccounts().map(function(a) a.name).join(" "));
   let formatGroup = (function(aGroup) " Group " + aGroup.id + ": " + aGroup.name + "\n" + aGroup.getBuddies().map(formatBuddy).join("\n"));
-  dump("Buddy list:\n\n" + pcs.getTags().map(formatGroup).join("\n\n") + "\n\n");
+  dump("Buddy list:\n\n" + Services.core.getTags().map(formatGroup).join("\n\n") + "\n\n");
 }

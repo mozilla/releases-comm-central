@@ -261,14 +261,10 @@ var gAccountManager = {
     if (!selectedItem)
       return;
 
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefBranch);
-
-    var showPrompt = prefs.getBoolPref("messenger.accounts.promptOnDelete");
+    var showPrompt =
+      Services.prefs.getBoolPref("messenger.accounts.promptOnDelete");
     if (showPrompt) {
-      var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                              .getService(Components.interfaces.nsIPromptService);
-
+      var prompts = Services.prompt;
       var bundle = document.getElementById("accountsBundle");
       var promptTitle    = bundle.getString("account.deletePrompt.title");
       var promptMessage  = bundle.getString("account.deletePrompt.message");
@@ -284,12 +280,10 @@ var gAccountManager = {
         return;
 
       if (checkbox.value)
-        prefs.setBoolPref("messenger.accounts.promptOnDelete", false);
+        Services.prefs.setBoolPref("messenger.accounts.promptOnDelete", false);
     }
 
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    pcs.deleteAccount(selectedItem.id);
+    Services.core.deleteAccount(selectedItem.id);
   },
   new: function am_new() {
     this.openDialog("chrome://instantbird/content/accountWizard.xul");
@@ -449,16 +443,10 @@ var gAccountManager = {
       newIndex = accountList.itemCount - 1;
     array.splice(newIndex, 0, selectedID);
 
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch)
-              .setCharPref("messenger.accounts", array.join(","));
+    Services.prefs.setCharPref("messenger.accounts", array.join(","));
   },
 
-  getAccounts: function am_getAccounts() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    return getIter(pcs.getAccounts());
-  },
+  getAccounts: function am_getAccounts() getIter(Services.core.getAccounts()),
 
   openDialog: function am_openDialog(aUrl, aArgs) {
     this.modalDialog = true;
@@ -466,8 +454,7 @@ var gAccountManager = {
     this.modalDialog = false;
   },
   setAutoLoginNotification: function am_setAutoLoginNotification() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
+    var pcs = Services.core;
     var autoLoginStatus = pcs.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
@@ -528,16 +515,13 @@ var gAccountManager = {
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },
   processAutoLogin: function am_processAutoLogin() {
-    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                              .getService(Components.interfaces.nsIIOService2);
+    var ioService = Services.io;
     if (ioService.offline) {
       ioService.manageOfflineStatus = false;
       ioService.offline = false;
     }
 
-    Components.classes["@instantbird.org/purple/core;1"]
-              .getService(Ci.purpleICoreService)
-              .processAutoLogin();
+    Services.core.processAutoLogin();
 
     gAccountManager.accountList.selectedItem.buttons.setFocus();
   },
@@ -574,9 +558,8 @@ let gAMDragAndDrop = {
   get SCROLL_SPEED() {
     delete this.SCROLL_SPEED;
     try {
-      this.SCROLL_SPEED = Cc["@mozilla.org/preferences-service;1"]
-                            .getService(Ci.nsIPrefBranch2)
-                            .getIntPref("toolkit.scrollbox.scrollIncrement");
+      this.SCROLL_SPEED =
+        Services.prefs.getIntPref("toolkit.scrollbox.scrollIncrement");
     }
     catch (e) {
       this.SCROLL_SPEED = 20;

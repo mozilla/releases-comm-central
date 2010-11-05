@@ -242,9 +242,7 @@
         if (currentGroupId == aGroupId)
           return;
 
-        let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
-                            .getService(Ci.imITagsService);
-        this.contact.move(this.group.tag, pts.getTagById(aGroupId));
+        this.contact.move(this.group.tag, Services.tags.getTagById(aGroupId));
       ]]>
       </body>
      </method>

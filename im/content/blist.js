@@ -83,12 +83,8 @@ buddyListContextMenu.prototype = {
       this.target.startAliasing();
   },
   delete: function blcm_delete() {
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
     let bundle =
-      Components.classes["@mozilla.org/intl/stringbundle;1"]
-                .getService(Components.interfaces.nsIStringBundleService)
-                .createBundle("chrome://instantbird/locale/instantbird.properties");
+      Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
     let contact = this.target.contact;
     let displayName = contact.displayName;
     let promptTitle = bundle.formatStringFromName("buddy.deletePrompt.title",
@@ -100,6 +96,7 @@ buddyListContextMenu.prototype = {
     let promptMessage = bundle.formatStringFromName("buddy.deletePrompt.message",
                                                     [displayName, proto], 2);
     let deleteButton = bundle.GetStringFromName("buddy.deletePrompt.button");
+    let prompts = Services.prompt;
     let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
                 prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
                 prompts.BUTTON_POS_1_DEFAULT;
@@ -119,16 +116,13 @@ buddyListContextMenu.prototype = {
       popup.removeChild(item);
 
     let groupId = this.target.group.groupId;
-    let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
-                        .getService(Ci.imITagsService);
-
     let sortFunction = function (a, b) {
       let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
       return a < b ? 1 : a > b ? -1 : 0;
     };
-    pts.getTags()
-       .sort(sortFunction)
-       .forEach(function (aTag) {
+    Services.tags.getTags()
+            .sort(sortFunction)
+            .forEach(function (aTag) {
       item = document.createElement("menuitem");
       item.setAttribute("label", aTag.name);
       item.setAttribute("type", "radio");
@@ -145,33 +139,25 @@ buddyListContextMenu.prototype = {
       this.target.moveTo(item.groupId);
   },
   moveToNewTag: function blcm_moveToNewTag() {
-    let prompts =
-      Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                .getService(Components.interfaces.nsIPromptService);
     let bundle =
-      Components.classes["@mozilla.org/intl/stringbundle;1"]
-                .getService(Components.interfaces.nsIStringBundleService)
-                .createBundle("chrome://instantbird/locale/instantbird.properties");
+      Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
     let title = bundle.GetStringFromName("newGroupPromptTitle");
     let message = bundle.GetStringFromName("newGroupPromptMessage");
     let name = {};
-    if (!prompts.prompt(window, title, message, name, null,
-                        {value: false}) || !name.value)
+    if (!Services.prompt.prompt(window, title, message, name, null,
+                                {value: false}) || !name.value)
       return; // the user canceled
 
-    let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
-                        .getService(Ci.imITagsService);
-    let tag = pts.getTagByName(name.value) || pts.createTag(name.value);
-    this.target.moveTo(tag.id);
+    // If the tag already exists, createTag will return it.
+    this.target.moveTo(Services.tags.createTag(name.value).id);
   },
   showLogs: function blcm_showLogs() {
     if (!this.onBuddy)
       return;
 
-    var logger = Components.classes["@instantbird.org/logger;1"]
-                           .getService(Ci.ibILogger);
     var logs = [];
-    for (let log in getIter(logger.getLogsForContact(this.target.contact)))
+    let contact = this.target.contact;
+    for (let log in getIter(Services.logs.getLogsForContact(contact)))
       logs.push(log);
     window.openDialog("chrome://instantbird/content/viewlog.xul",
                       "Logs", "chrome,resizable", {logs: logs},
@@ -181,9 +167,7 @@ buddyListContextMenu.prototype = {
     let newValue =
       !!document.getElementById("context-show-offline-buddies")
                 .getAttribute("checked");
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch2)
-              .setBoolPref(showOfflineBuddiesPref, newValue);
+    Services.prefs.setBoolPref(showOfflineBuddiesPref, newValue);
   }
 };
 
@@ -195,10 +179,7 @@ var buddyList = {
     }
 
     if (aTopic == "nsPref:changed" && aMsg == showOfflineBuddiesPref) {
-      let prefBranch =
-        Components.classes["@mozilla.org/preferences-service;1"]
-                  .getService(Components.interfaces.nsIPrefBranch2);
-      let showOffline = prefBranch.getBoolPref(showOfflineBuddiesPref);
+      let showOffline = Services.prefs.getBoolPref(showOfflineBuddiesPref);
       this._showOffline = showOffline;
       let item = document.getElementById("context-show-offline-buddies");
       if (showOffline)
@@ -206,10 +187,8 @@ var buddyList = {
       else
         item.removeAttribute("checked");
 
-      let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
-                          .getService(Ci.imITagsService);
       let blistBox = document.getElementById("buddylistbox");
-      pts.getTags().forEach(function (aTag) {
+      Services.tags.getTags().forEach(function (aTag) {
         let elt = document.getElementById("group" + aTag.id);
         if (elt)
           elt.showOffline = showOffline;
@@ -263,9 +242,7 @@ var buddyList = {
             .setAttribute("statusType", aStatusType);
 
     let bundle =
-      Components.classes["@mozilla.org/intl/stringbundle;1"]
-                .getService(Components.interfaces.nsIStringBundleService)
-                .createBundle("chrome://instantbird/locale/instantbird.properties");
+      Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
     let statusString;
     try {
       // In some odd cases, this function could be called for an
@@ -279,8 +256,7 @@ var buddyList = {
   },
 
   displayCurrentStatus: function bl_displayCurrentStatus() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
+    let pcs = Services.core;
     let message = pcs.currentStatusMessage;
     let status = "unknown";
     let statusType = pcs.currentStatusType;
@@ -312,11 +288,8 @@ var buddyList = {
 
   editStatus: function bl_editStatus(aEvent) {
     let status = aEvent.originalTarget.getAttribute("status");
-    if (status == "offline") {
-      Components.classes["@instantbird.org/purple/core;1"]
-                .getService(Ci.purpleICoreService)
-                .setStatus(Ci.purpleICoreService.STATUS_OFFLINE, "");
-    }
+    if (status == "offline")
+      Services.core.setStatus(Ci.purpleICoreService.STATUS_OFFLINE, "");
     else if (status)
       this.startEditStatus(status);
   },
@@ -345,11 +318,8 @@ var buddyList = {
       elt.addEventListener("blur", this.statusMessageBlur, false);
       if (elt.hasAttribute("usingDefault")) {
         if ("_statusTypeBeforeEditing" in this &&
-            this._statusTypeBeforeEditing == "offline") {
-          let pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-          elt.setAttribute("value", pcs.currentStatusMessage);
-        }
+            this._statusTypeBeforeEditing == "offline")
+          elt.setAttribute("value", Services.core.currentStatusMessage);
         else
           elt.removeAttribute("value");
       }
@@ -396,8 +366,6 @@ var buddyList = {
     clearTimeout(this._stopEditStatusTimeout);
     let elt = document.getElementById("statusMessage");
     if (aSave) {
-      var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                          .getService(Ci.purpleICoreService);
       let newStatus = Ci.purpleICoreService.STATUS_UNSET;
       if ("_statusTypeEditing" in this) {
         let statusType = this._statusTypeEditing;
@@ -413,7 +381,7 @@ var buddyList = {
       // apply the new status only if it is different from the current one
       if (newStatus != Ci.purpleICoreService.STATUS_UNSET ||
           elt.value != elt.getAttribute("value"))
-        pcs.setStatus(newStatus, elt.value);
+        Services.core.setStatus(newStatus, elt.value);
     }
     else if ("_statusTypeBeforeEditing" in this) {
       this.displayStatusType(this._statusTypeBeforeEditing);
@@ -429,11 +397,7 @@ var buddyList = {
     elt.removeEventListener("blur", this.statusMessageBlur, false);
   },
 
-  getAccounts: function bl_getAccounts() {
-    var pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    return getIter(pcs.getAccounts());
-  },
+  getAccounts: function bl_getAccounts() getIter(Services.core.getAccounts()),
 
   /* This function pops up the account manager is no account is
    * connected or connecting.
@@ -442,9 +406,8 @@ var buddyList = {
    */
   showAccountManagerIfNeeded: function bl_showAccountManagerIfNeeded(aIsStarting) {
     // If the current status is offline, we don't need the account manager
-    let pcs = Components.classes["@instantbird.org/purple/core;1"]
-                        .getService(Ci.purpleICoreService);
-    let isOffline = pcs.currentStatusType == pcs.STATUS_OFFLINE;
+    let isOffline =
+      Services.core.currentStatusType == Ci.purpleICoreService.STATUS_OFFLINE;
     if (isOffline && !aIsStarting)
       return;
 
@@ -469,13 +432,11 @@ var buddyList = {
   },
 
   load: function bl_load() {
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                       .getService(Components.interfaces.nsIWindowMediator);
-    var blistWindows = wm.getEnumerator("Messenger:blist");
+    var blistWindows = Services.wm.getEnumerator("Messenger:blist");
     while (blistWindows.hasMoreElements()) {
       var win = blistWindows.getNext();
       if (win != window) {
-        win.QueryInterface(Components.interfaces.nsIDOMWindowInternal).focus();
+        win.QueryInterface(Ci.nsIDOMWindowInternal).focus();
         window.close();
         return;
       }
@@ -483,9 +444,9 @@ var buddyList = {
 
     try {
       // Set the Vendor for breakpad only
-      if ("nsICrashReporter" in Components.interfaces) {
+      if ("nsICrashReporter" in Ci) {
         Components.classes["@mozilla.org/xre/app-info;1"]
-                  .getService(Components.interfaces.nsICrashReporter)
+                  .getService(Ci.nsICrashReporter)
                   .annotateCrashReport("Vendor", "Instantbird");
       }
     } catch(e) {
@@ -505,19 +466,15 @@ var buddyList = {
 
     buddyList.displayCurrentStatus();
 
-    let prefBranch =
-      Components.classes["@mozilla.org/preferences-service;1"]
-                .getService(Components.interfaces.nsIPrefBranch2);
+    let prefBranch = Services.prefs;
     buddyList._showOffline = prefBranch.getBoolPref(showOfflineBuddiesPref);
     if (buddyList._showOffline) {
       document.getElementById("context-show-offline-buddies")
               .setAttribute("checked", "true");
     }
 
-    let pts = Components.classes["@instantbird.org/purple/tags-service;1"]
-                        .getService(Ci.imITagsService);
     let blistBox = document.getElementById("buddylistbox");
-    pts.getTags().forEach(function (aTag) {
+    Services.tags.getTags().forEach(function (aTag) {
       let groupElt = document.createElement("group");
       blistBox.appendChild(groupElt);
       if (buddyList._showOffline)
@@ -538,9 +495,7 @@ var buddyList = {
   },
   unload: function bl_unload() {
     removeObservers(buddyList, events);
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch2)
-              .removeObserver(showOfflineBuddiesPref, buddyList);
+    Services.prefs.removeObserver(showOfflineBuddiesPref, buddyList);
     uninitPurpleCore();
    },
 

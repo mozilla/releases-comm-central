@@ -12,11 +12,11 @@
  * License.
  *
  * The Original Code is the Instantbird messenging client, released
- * 2007.
+ * 2010.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2007
+ * Portions created by the Initial Developer are Copyright (C) 2010
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,26 +35,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-Components.utils.import("resource:///modules/imServices.jsm");
+let EXPORTED_SYMBOLS = ["Services"];
 
-function getIter(aEnumerator)
-{
-  while (aEnumerator.hasMoreElements())
-    yield aEnumerator.getNext();
-}
+Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-function addObservers(aObserver, aTopics)
-{
-  let observerService = Services.obs;
-  for (let i = 0; i < aTopics.length; ++i)
-    observerService.addObserver(aObserver, aTopics[i], false);
-}
-
-function removeObservers(aObserver, aTopics)
-{
-  let observerService = Services.obs;
-  for (let i = 0; i < aTopics.length; ++i)
-    observerService.removeObserver(aObserver, aTopics[i]);
-}
+XPCOMUtils.defineLazyServiceGetter(Services, "core",
+                                   "@instantbird.org/purple/core;1",
+                                   "purpleICoreService");
+XPCOMUtils.defineLazyServiceGetter(Services, "tags",
+                                   "@instantbird.org/purple/tags-service;1",
+                                   "imITagsService");
+XPCOMUtils.defineLazyServiceGetter(Services, "logs",
+                                   "@instantbird.org/logger;1",
+                                   "ibILogger");

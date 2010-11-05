@@ -35,6 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+Components.utils.import("resource:///modules/imServices.jsm");
+
 var EXPORTED_SYMBOLS = [
   "smileImMarkup", // used to add smile:// img tags into IM markup.
   "smileTextNode", // used to add smile:// img tags to the content of a textnode
@@ -54,9 +56,7 @@ __defineGetter__("gTheme", function() {
 
 var gPrefObserver = {
   init: function po_init() {
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch2)
-              .addObserver(emoticonsThemePref, gPrefObserver, false);
+    Services.prefs.addObserver(emoticonsThemePref, gPrefObserver, false);
   },
 
   observe: function so_observe(aObject, aTopic, aMsg) {
@@ -94,10 +94,7 @@ function getSmileyList(aThemeName)
 
 function getTheme(aName)
 {
-  let name = aName ||
-    Components.classes["@mozilla.org/preferences-service;1"]
-              .getService(Components.interfaces.nsIPrefBranch)
-              .getCharPref(emoticonsThemePref);
+  let name = aName || Services.prefs.getCharPref(emoticonsThemePref);
 
   let theme = {
     name: name,
@@ -113,10 +110,8 @@ function getTheme(aName)
     theme.baseUri = "chrome://instantbird-emoticons/skin/";
   else
     theme.baseUri = "chrome://" + theme.name + "/skin/";
-  let ios = Components.classes["@mozilla.org/network/io-service;1"]
-                      .getService(Components.interfaces.nsIIOService);
   try {
-    let channel = ios.newChannel(theme.baseUri + themeFile, null, null);
+    let channel = Services.io.newChannel(theme.baseUri + themeFile, null, null);
     let stream = channel.open();
     let json = Components.classes["@mozilla.org/dom/json;1"]
                          .createInstance(Components.interfaces.nsIJSON);

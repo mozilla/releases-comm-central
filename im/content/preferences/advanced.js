@@ -140,9 +140,7 @@ var gAdvancedPane = {
 
   showSearchEngineManager: function()
   {
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                       .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("Browser:SearchManager");
+    var window = Services.wm.getMostRecentWindow("Browser:SearchManager");
     if (window)
       window.focus();
     else {
@@ -435,14 +433,12 @@ var gAdvancedPane = {
     var brandShortName = brandBundle.getString("brandShortName");
     var promptTitle = shellBundle.getString("setDefaultBrowserTitle");
     var promptMessage;
-    const IPS = Components.interfaces.nsIPromptService;
-    var psvc = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                         .getService(IPS);
+    var psvc = Services.prompt;
     if (!shellSvc.isDefaultBrowser(false)) {
       promptMessage = shellBundle.getFormattedString("setDefaultBrowserMessage", 
                                                      [brandShortName]);
       var rv = psvc.confirmEx(window, promptTitle, promptMessage, 
-                              IPS.STD_YES_NO_BUTTONS,
+                              psvc.STD_YES_NO_BUTTONS,
                               null, null, null, null, { });
       if (rv == 0)
         shellSvc.setDefaultBrowser(true, false);
