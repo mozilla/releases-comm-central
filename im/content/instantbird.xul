@@ -161,6 +161,9 @@
     </menupopup>
   </popupset>
 
+#ifdef XP_MACOSX
+  <windowdragbox id="unified-toolbar"/>
+#endif
   <tabconversation id="conversations" flex="1"
                    contenttooltip="aHTMLTooltip"
                    contentcontextmenu="contentAreaContextMenu"/>

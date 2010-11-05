@@ -52,8 +52,13 @@ statusbarpanel#statusbar-display {
 }
 
 #convWindow {
-  -moz-binding: url("chrome://instantbird/skin/unified.xml#unifiedWindow");
+  -moz-appearance: none;
   background-color: #eeeeee;
+}
+
+#unified-toolbar {
+  height: 1px;
+  -moz-appearance: -moz-mac-unified-toolbar;
 }
 
 /* ----- INACTIVE WINDOW ----- */
@@ -72,7 +77,7 @@ statusbarpanel#statusbar-display {
 }
 
 .tabbrowser-tab[selected="true"]:-moz-window-inactive {
-  background-color: #CACACA;
+  background-color: -moz-mac-chrome-inactive;
 }
 
 /* ::::: tabbrowser ::::: */
@@ -127,7 +132,7 @@ tabbrowser > tabbox {
   -moz-border-bottom-colors: rgba(0, 0, 0, .1) rgba(0, 0, 0, .2);
   -moz-border-right-colors: rgba(0, 0, 0, .1) rgba(0, 0, 0, .2);
   background-image: none;
-  background-color: #969696;
+  background-color: -moz-mac-chrome-active;
 }
 
 .tabbrowser-tab[selected="true"]:focus > .tab-text {
