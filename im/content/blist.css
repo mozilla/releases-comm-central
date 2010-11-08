@@ -47,6 +47,43 @@ group {
   -moz-binding: url("chrome://instantbird/content/group.xml#group");
 }
 
+buddy,
+group {
+  height: 1em;
+}
+
+/* Possible values of the |state| attribute:
+ - not set: the binding is not initialized yet,
+ - showing: during the expand animation,
+ - visible: the buddy is visible to the user,
+ - fading: the buddy has signed-off, during the fade out animation,
+ - collapsing: collapse animation (before the node is removed from the DOM),
+ - collapsed: the buddy is inside a closed group.
+ */
+buddy:not([state]) {
+  height: 0;
+}
+buddy[state="showing"] {
+  -moz-transition: height .4s ease-in;
+}
+
+buddy[state="fading"] {
+  opacity: 0;
+  -moz-transition: opacity .4s ease-in 1s;
+}
+
+buddy[state="collapsing"],
+group[collapsing="true"] {
+  height: 0;
+  -moz-transition: height .2s ease-in;
+}
+
+buddy[state="collapsing"] *,
+buddy[state="showing"] *,
+group[collapsing="true"] * {
+  display: none;
+}
+
 tooltip[type="buddy"] {
   -moz-binding: url("chrome://instantbird/content/buddytooltip.xml#tooltip");
 }

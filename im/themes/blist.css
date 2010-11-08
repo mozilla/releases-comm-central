@@ -42,7 +42,14 @@ richlistbox {
 
 buddy,
 group {
-  padding: 2px 2px 2px 2px;
+  padding: 0 2px;
+}
+
+/* The vertical padding directly on the binding would not be animated. */
+buddy>*,
+group>* {
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 
 buddy[selected="true"],
@@ -103,15 +110,9 @@ buddy[status="offline"][selected="true"] .protoIcon {
   opacity: 0.7;
 }
 
-buddy[removing="true"] .buddyDisplayName {
+buddy[state="fading"] .buddyDisplayName {
   color: GrayText;
   font-style: italic;
-}
-
-buddy[collapsing="true"] *,
-buddy[expanding="true"] *,
-group[collapsing="true"] * {
-  display: none;
 }
 
 group label {

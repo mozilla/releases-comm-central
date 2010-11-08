@@ -65,12 +65,6 @@
       ]]>
      </destructor>
 
-     <!-- delay in milliseconds before starting the fade out animation -->
-     <field name="animationDelay">1000</field>
-
-     <!-- delay between each frame of the animation, in milliseconds -->
-     <field name="animationInterval">20</field>
-
      <method name="build">
       <parameter name="aContact"/>
       <parameter name="aGroup"/>
@@ -78,21 +72,41 @@
       <![CDATA[
         this.group = aGroup;
         this.contact = aContact;
-        this.update();
         this.contact.addObserver(this);
-#ifndef WINCE
 
         // Don't do the animation if inside a closed group
-        if (this.hasAttribute("collapsed"))
+        if (this.hasAttribute("collapsed")) {
+          this.state = "collapsed";
           return;
+        }
 
-        this.style.height = (this.animHeight = 0) + "px";
-        this.setAttribute("expanding", "true");
-        this.animInterval = setInterval(this._animateExpand, this.animationInterval, this);
-#endif
+        this.state = "showing";
+        this.addEventListener("transitionend", this._transitionEnd, true);
       ]]>
       </body>
      </method>
+
+     <property name="state"
+               onget="return this.getAttribute('state');"
+               onset="this.setAttribute('state', val); return val;"/>
+
+     <property name="collapsed"
+               onget="return !!this.getAttribute('collapsed');">
+       <setter>
+         <![CDATA[
+           if (val) {
+             this.setAttribute("collapsed", val);
+             this.state = "collapsed";
+           }
+           else {
+             this.removeAttribute("collapsed");
+             this.state = "visible";
+             this.update();
+           }
+           return val;
+         ]]>
+       </setter>
+     </property>
 
      <!-- nsIObserver implementation -->
      <method name="observe">
@@ -108,8 +122,10 @@
            return;
          }
 
-         if (aTopic == "contact-signed-on")
-           this.cancelRemoveNode();
+         if (aTopic == "contact-signed-on") {
+           if (this.state == "fading")
+             this.state = "visible";
+         }
          else if (aTopic == "contact-removed" ||
                   (aTopic == "contact-moved-out" && aSubject.id == this.group.tag.id) ||
                   (aTopic == "contact-signed-off" && !this.group.showOffline))
@@ -141,24 +157,20 @@
       </body>
      </method>
 
-     <method name="cancelRemoveNode">
+     <method name="_transitionEnd">
       <body>
       <![CDATA[
-        if (this.hasAttribute("removing")) {
-          this.removeAttribute("removing");
-          this.removeAttribute("collapsing");
-          if (this.animTimeout) {
-            clearTimeout(this.animTimeout);
-            delete this.animTimeout;
-          }
-          if (this.animInterval) {
-            clearInterval(this.animInterval);
-            delete this.animTimeout;
-            delete this.animOpacity;
-            delete this.animHeight;
-            this.style.opacity = 1;
-          }
+        let state = this.state;
+        if (state == "showing") {
+          this.update();
+          this.state = "visible";
         }
+        else if (state == "fading") {
+          this.state = "collapsing";
+          this.finishRemoveNode();
+        }
+        else if (state == "collapsing")
+          this.parentNode.removeChild(this);
       ]]>
       </body>
      </method>
@@ -175,20 +187,19 @@
      <method name="removeNode">
       <body>
       <![CDATA[
-        if (this.hasAttribute("expanding")) {
-           // We are still doing the expand animation!
-           clearInterval(this.animInterval);
-           this.setAttribute("collapsing", "true");
-           this.removeAttribute("expanding", "true");
-           this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
-           this.finishRemoveNode();
+        let state = this.state;
+        if (state == "showing") {
+          // We are still doing the expand animation!
+          this.state = "collapsing";
+          this.finishRemoveNode();
         }
-        else if (this.hasAttribute("collapsed"))
+        else if (this.hasAttribute("collapsed")) {
           // If the buddy is not visible, remove it immediately (without animation)
           this.finishRemoveNode();
+          this.parentNode.removeChild(this);
+        }
         else
-          this.animTimeout = setTimeout(this._startAnimation, this.animationDelay, this);
-        this.setAttribute("removing", "true");
+          this.state = "fading";
       ]]>
       </body>
      </method>
@@ -251,73 +262,6 @@
       <body>
       <![CDATA[
         this.contact.remove();
-      ]]>
-      </body>
-     </method>
-
-     <method name="_startAnimation">
-      <parameter name="aThis"/>
-      <body>
-       <![CDATA[
-        aThis.animInterval = setInterval(aThis._animateFade, this.animationInterval, aThis);
-        delete aThis.animTimeout;
-        aThis.animOpacity = 1;
-       ]]>
-      </body>
-     </method>
-
-     <method name="_animateFade">
-      <parameter name="aThis"/>
-      <body>
-       <![CDATA[
-         const opacityStep = 0.05;
-         if (aThis.animOpacity > opacityStep) {
-           aThis.animOpacity -= opacityStep;
-           aThis.style.opacity = aThis.animOpacity;
-         }
-         else {
-           clearInterval(aThis.animInterval);
-           aThis.style.height = (aThis.animHeight = aThis.clientHeight) + "px";
-           aThis.setAttribute("collapsing", "true");
-           aThis.animInterval = setInterval(aThis._animateCollapse, this.animationInterval, aThis);
-           aThis.finishRemoveNode();
-         }
-      ]]>
-      </body>
-     </method>
-
-     <method name="_animateCollapse">
-      <parameter name="aThis"/>
-      <body>
-       <![CDATA[
-         const collapsingStep = 3;
-         if (aThis.animHeight > collapsingStep) {
-           aThis.animHeight -= collapsingStep;
-           aThis.style.height = aThis.animHeight + "px";
-         }
-         else {
-           clearInterval(aThis.animInterval);
-           delete aThis.animInterval;
-           aThis.parentNode.removeChild(aThis);
-         }
-      ]]>
-      </body>
-     </method>
-
-     <method name="_animateExpand">
-      <parameter name="aThis"/>
-      <body>
-       <![CDATA[
-         const expandingStep = 3;
-         if (aThis.animHeight < 20 - expandingStep) {
-           aThis.animHeight += expandingStep;
-           aThis.style.height = aThis.animHeight + "px";
-         }
-         else {
-           clearInterval(aThis.animInterval);
-           delete aThis.animInterval;
-           aThis.removeAttribute("expanding");
-         }
       ]]>
       </body>
      </method>

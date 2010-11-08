@@ -174,14 +174,8 @@
         this.contacts.push(buddyElt);
         this.contactsById[aContact.id] = buddyElt;
 
-        if (this.hasAttribute("collapsing")) {
+        if (this.hasAttribute("collapsing"))
           this.removeAttribute("collapsing");
-          if (this.animInterval) {
-            clearInterval(this.animInterval);
-            delete this.animInterval;
-            delete this.animHeight;
-          }
-        }
       ]]>
       </body>
      </method>
@@ -200,9 +194,8 @@
 
         // Check if some contacts remain in the group, if empty remove it
         if (!this.contacts.length) {
-          this.style.height = (this.animHeight = this.clientHeight) + "px";
           this.setAttribute("collapsing", "true");
-          this.animInterval = setInterval(this._animateCollapse, this.animationInterval, this);
+          this.addEventListener("transitionend", this._transitionEnd, true);
         }
         else
           this._updateGroupLabel();
@@ -210,21 +203,13 @@
       </body>
      </method>
 
-     <method name="_animateCollapse">
-      <parameter name="aThis"/>
+     <method name="_transitionEnd">
       <body>
-       <![CDATA[
-         const collapsingStep = 3;
-         if (aThis.animHeight > collapsingStep) {
-           aThis.animHeight -= collapsingStep;
-           aThis.style.height = aThis.animHeight + "px";
-         }
-         else {
-           clearInterval(aThis.animInterval);
-           delete aThis.animInterval;
-           aThis.tag.removeObserver(aThis);
-           aThis.parentNode.removeChild(aThis);
-         }
+      <![CDATA[
+        if (!this.hasAttribute("collapsing"))
+          return;
+        this.tag.removeObserver(this);
+        this.parentNode.removeChild(this);
       ]]>
       </body>
      </method>
