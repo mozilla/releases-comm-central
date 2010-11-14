@@ -465,6 +465,7 @@ const GenericProtocolPrototype = {
   // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
   getOptions: function() EmptyEnumerator,
   getUsernameSplit: function() EmptyEnumerator,
+  get usernameEmptyText() "",
   accountExists: function() false, //FIXME
 
   get uniqueChatName() false,
