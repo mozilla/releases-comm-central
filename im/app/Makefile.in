@@ -108,7 +108,10 @@ endif # LIBXUL_SDK
 
 DIST_FILES = application.ini
 
-LOCAL_INCLUDES += -I$(MOZILLA_SRCDIR)/toolkit/xre
+LOCAL_INCLUDES += \
+  -I$(MOZILLA_SRCDIR)/toolkit/xre \
+  -I$(MOZILLA_SRCDIR)/xpcom/base \
+  $(NULL)
 
 ifdef BUILD_STATIC_LIBS
 ifdef _MSC_VER
