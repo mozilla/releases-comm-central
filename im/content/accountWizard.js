@@ -301,12 +301,10 @@ var accountWizard = {
   populateProtoSpecificBox: function aw_populate() {
     var id = this.proto.id;
     var box = document.getElementById("protoSpecific");
-    var bundle = document.getElementById("accountsBundle");
-    document.getElementById("protoSpecificCaption").label =
-      bundle.getFormattedString("protoOptions", [this.proto.name]);
     var child;
     while ((child = box.firstChild))
       box.removeChild(child);
+    var visible = false;
     for (let opt in this.getProtoOptions()) {
       var text = opt.label;
       var name = id + "-" + opt.name;
@@ -336,6 +334,13 @@ var accountWizard = {
       default:
         throw "unknown preference type " + opt.type;
       }
+      visible = true;
+    }
+    document.getElementById("protoSpecificGroupbox").hidden = !visible;
+    if (visible) {
+      var bundle = document.getElementById("accountsBundle");
+      document.getElementById("protoSpecificCaption").label =
+        bundle.getFormattedString("protoOptions", [this.proto.name]);
     }
   },
 
