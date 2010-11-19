@@ -563,5 +563,11 @@ var accountWizard = {
       catch (e) { }
     }
     getMore.hidden = !showGetMore;
+  },
+
+  openURL: function (aURL) {
+    Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+              .getService(Components.interfaces.nsIExternalProtocolService)
+              .loadUrl(Services.io.newURI(aURL, null, null));
   }
 };

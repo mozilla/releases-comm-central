@@ -56,7 +56,6 @@
 
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/accountWizard.js"/>
-  <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
   <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
   <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
 
@@ -77,7 +76,7 @@
              ondblclick="document.getElementById('accountWizard').advance();"/>
     <hbox pack="end">
       <label id="getMoreProtocols" class="text-link" value="&accountProtocolGetMore.label;"
-             onclick="if (event.button == 0) { openURL(this.getAttribute('getMoreURL'));}"/>
+             onclick="if (event.button == 0) { accountWizard.openURL(this.getAttribute('getMoreURL')); }"/>
     </hbox>
   </wizardpage>
 

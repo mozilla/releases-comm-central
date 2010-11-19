@@ -81,6 +81,12 @@ var gThemePane = {
     getMore.hidden = !showGetMore;
   },
 
+  openURL: function (aURL) {
+    Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+              .getService(Components.interfaces.nsIExternalProtocolService)
+              .loadUrl(Services.io.newURI(aURL, null, null));
+  },
+
   // Get extension list (slow) and cache it for use by messagestyle.js and smileys.js
   getExtensionList: function () {
     if (!this.extensionList)

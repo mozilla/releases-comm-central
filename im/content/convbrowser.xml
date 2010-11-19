@@ -801,6 +801,30 @@
     </implementation>
 
     <handlers>
+      <handler event="click">
+        <![CDATA[
+          // The 'click' event is fired even when the link is
+          // activated with the keyboard.
+
+          let url = event.target.href;
+          if (url !== undefined) {
+            let uri = Services.io.newURI(url, null, null);
+
+            // http and https are the only schemes that are both
+            // allowed by our IM filters and exposed.
+            if (!uri.schemeIs("http") && !uri.schemeIs("https"))
+              return;
+
+            Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                      .getService(Components.interfaces.nsIExternalProtocolService)
+                      .loadUrl(uri);
+
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        ]]>
+      </handler>
+
       <handler event="keypress" keycode="VK_F7" group="system">
         <![CDATA[
           if (event.getPreventDefault() || !event.isTrusted)
