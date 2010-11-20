@@ -412,7 +412,7 @@ Contact.prototype = {
     }, this);
   },
   get displayName() this._alias || this.preferredBuddy.displayName,
-  get buddyIconFilename() this.preferredBuddy.buddyIconFileName,
+  get buddyIconFilename() this.preferredBuddy.buddyIconFilename,
   _statusType: 0,
   get statusType() this._statusType,
   get online() this.statusType > Ci.imIStatusInfo.STATUS_OFFLINE,
@@ -661,7 +661,7 @@ Buddy.prototype = {
   },
   get displayName() this._preferredAccount && this._preferredAccount.displayName ||
                     this._srvAlias || this._name,
-  get buddyIconFilename() this._preferredAccount.buddyIconFileName,
+  get buddyIconFilename() this._preferredAccount.buddyIconFilename,
   _statusType: 0,
   get statusType() this._statusType,
   get online() this.statusType > Ci.imIStatusInfo.STATUS_OFFLINE,
