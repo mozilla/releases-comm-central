@@ -803,6 +803,10 @@
     <handlers>
       <handler event="click">
         <![CDATA[
+          // Right click should open the context menu.
+          if (event.button == 2)
+            return;
+
           // The 'click' event is fired even when the link is
           // activated with the keyboard.
 
