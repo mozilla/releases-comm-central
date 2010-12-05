@@ -65,6 +65,12 @@ textbox.conv-textbox {
   padding: 0 0;
   -moz-box-sizing: content-box;
 }
+%ifndef XP_MACOSX
+
+.textbox-input-box {
+  background: inherit;
+}
+%endif
 
 .textbox-textarea,
 notificationbox {
@@ -128,6 +134,19 @@ conversation:not([chat="true"]) .conv-chat {
 }
 
 %ifdef XP_MACOSX
+textbox.conv-textbox {
+  padding: 3px;
+  border: none;
+  -moz-appearance: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+textbox.conv-textbox[focused="true"] {
+  box-shadow: inset 0 0 2px 1px rgba(40, 120, 212, 0.7),
+                    0 0 4px 1px rgb(40, 120, 212),
+              inset 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
 .splitter.conv-chat {
   background: -moz-linear-gradient(top, #404040, rgba(0,0,0,0.35));
   min-width: 1px;
