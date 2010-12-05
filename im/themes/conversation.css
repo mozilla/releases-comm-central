@@ -84,13 +84,15 @@ grippy {
 %endif
 
 .splitter {
-  margin: 0 0px;
+  margin: 0;
   border-style: none;
-  height: 3px;
 %ifdef XP_MACOSX
-  min-height: 7px;
-%endif
+  min-height: 2px;
+  background: -moz-linear-gradient(top, rgba(0,0,0,0.35), transparent);
+%else
+  height: 3px;
   background: transparent;
+%endif
 }
 
 #conv-toolbar {
@@ -170,9 +172,5 @@ textbox.conv-textbox[focused="true"] {
 
 .conv-nicklist:-moz-window-inactive {
   background: #e8e8e8;
-}
-
-.conv-top {
-  border-bottom: 1px solid rgba(0,0,0,0.35);
 }
 %endif
