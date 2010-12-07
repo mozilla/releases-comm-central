@@ -52,6 +52,12 @@ statusbar {
   min-height: 16px;
 }
 
+@media all and (max-height: 230px) {
+  statusbar {
+    display: none;
+  }
+}
+
 %ifdef XP_WIN
 statusbarpanel {
   -moz-appearance: none;
