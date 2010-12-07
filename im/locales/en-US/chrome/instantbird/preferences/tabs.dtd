@@ -1,8 +1,8 @@
-<!ENTITY openConversationsInTabs.label       "Open new conversations in tabs instead of windows">
-<!ENTITY openConversationsInTabs.accesskey   "t">
+<!ENTITY enableTabbedConversations.label     "Enable tabbed conversations">
+<!ENTITY enableTabbedConversations.accesskey "t">
 
-<!ENTITY useSeparateWindowsForMUCs.label     "Use separate windows for Multi-User Chats">
-<!ENTITY useSeparateWindowsForMUCs.accesskey "s">
+<!ENTITY groupMUCsInSeparateWindow.label     "Group Multi-User Chats in a separate window">
+<!ENTITY groupMUCsInSeparateWindow.accesskey "G">
 
 <!ENTITY showTabBar.label                    "Always show the tab bar">
 <!ENTITY showTabBar.accesskey                "b">

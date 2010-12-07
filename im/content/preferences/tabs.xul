@@ -62,12 +62,12 @@
     <!-- XXX flex below is a hack because wrapping checkboxes don't reflow
              properly; see bug 349098 -->
     <vbox id="tabPrefsBox" align="start" flex="1">
-      <checkbox id="openInTabs" label="&openConversationsInTabs.label;"
-                accesskey="&openConversationsInTabs.accesskey;"
+      <checkbox id="openInTabs" label="&enableTabbedConversations.label;"
+                accesskey="&enableTabbedConversations.accesskey;"
                 preference="messenger.conversations.openInTabs"/>
       <checkbox id="useSeparateWindowsForMUCs" class="indent"
-                label="&useSeparateWindowsForMUCs.label;"
-                accesskey="&useSeparateWindowsForMUCs.accesskey;"
+                label="&groupMUCsInSeparateWindow.label;"
+                accesskey="&groupMUCsInSeparateWindow.accesskey;"
                 preference="messenger.conversations.useSeparateWindowsForMUCs"/>
       <checkbox id="showTabBar" label="&showTabBar.label;"
                 accesskey="&showTabBar.accesskey;"
