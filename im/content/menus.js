@@ -120,15 +120,17 @@ var menus = {
     if (!canCheckForUpdates)
       return;
 
-    var strings = document.getElementById("updatesBundle");
+    var strings =
+      Services.strings
+              .createBundle("chrome://instantbird/locale/updates.properties");
     var activeUpdate = um.activeUpdate;
 
     // If there's an active update, substitute its name into the label
     // we show for this item, otherwise display a generic label.
     function getStringWithUpdateName(key) {
       if (activeUpdate && activeUpdate.name)
-        return strings.getFormattedString(key, [activeUpdate.name]);
-      return strings.getString(key + "Fallback");
+        return strings.formatStringFromName(key, [activeUpdate.name], 1);
+      return strings.GetStringFromName(key + "Fallback");
     }
 
     // By default, show "Check for Updates..."
@@ -149,7 +151,8 @@ var menus = {
       }
     }
     checkForUpdates.label = getStringWithUpdateName("updatesItem_" + key);
-    checkForUpdates.accessKey = strings.getString("updatesItem_" + key + ".accesskey");
+    checkForUpdates.accessKey =
+      strings.GetStringFromName("updatesItem_" + key + ".accesskey");
     if (um.activeUpdate && updates.isDownloading)
       checkForUpdates.setAttribute("loading", "true");
     else

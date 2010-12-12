@@ -41,7 +41,7 @@
 <?xml-stylesheet href="chrome://instantbird/skin/richlistbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/accounts.css" type="text/css"?>
 #ifdef XP_MACOSX
-<?xml-stylesheet href="chrome://instantbird/skin/menus.css" type="text/css"?>
+<?xul-overlay href="chrome://instantbird/content/menus.xul"?>
 #endif
 
 <!DOCTYPE window [

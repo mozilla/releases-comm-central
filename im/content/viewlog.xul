@@ -42,6 +42,9 @@
 <?xml-stylesheet href="chrome://instantbird/content/viewlog.css" type="text/css"?>
 
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
+#ifdef XP_MACOSX
+<?xul-overlay href="chrome://instantbird/content/menus.xul"?>
+#endif
 
 <!DOCTYPE window [
   <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">

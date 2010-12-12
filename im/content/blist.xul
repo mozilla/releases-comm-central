@@ -40,7 +40,7 @@
 <?xml-stylesheet href="chrome://instantbird/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/blist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/blist.css" type="text/css"?>
-<?xml-stylesheet href="chrome://instantbird/skin/menus.css" type="text/css"?>
+<?xul-overlay href="chrome://instantbird/content/menus.xul"?>
 
 <!DOCTYPE window [
   <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">

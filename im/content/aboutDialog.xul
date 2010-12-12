@@ -38,6 +38,9 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/aboutDialog.css" type="text/css"?>
+#ifdef XP_MACOSX
+<?xul-overlay href="chrome://instantbird/content/menus.xul"?>
+#endif
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >

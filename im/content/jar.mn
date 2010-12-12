@@ -33,6 +33,7 @@ instantbird.jar:
 	instantbird/convZoom.js
 	instantbird/joinchat.js
 	instantbird/joinchat.xul
+*	instantbird/menus.xul
 	instantbird/menus.js
 *	instantbird/nsContextMenu.js
 	instantbird/proxies.js
@@ -47,7 +48,12 @@ instantbird.jar:
 	instantbird/viewlog.js
 	instantbird/viewlog.css
 #ifdef XP_MACOSX
+	instantbird/menus-mac.xul
 	instantbird/macgestures.js
+#elifdef XP_WIN
+	instantbird/menus-win.xul
+#else
+	instantbird/menus-unix.xul
 #endif
 *	instantbird/preferences/advanced.xul            (preferences/advanced.xul)
 *	instantbird/preferences/advanced.js             (preferences/advanced.js)
@@ -79,7 +85,7 @@ instantbird.jar:
 #ifdef DEBUG
 debug.jar:
 % content debug %debug/
-% overlay chrome://instantbird/content/blist.xul chrome://debug/content/debug.xul
+% overlay chrome://instantbird/content/menus.xul chrome://debug/content/debug.xul
 % overlay chrome://instantbird/content/instantbird.xul chrome://debug/content/viewselectionsource.xul
 	debug/debug.js	(debug/debug.js)
 	debug/debug.xul	(debug/debug.xul)
