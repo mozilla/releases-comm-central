@@ -67,7 +67,7 @@ textbox.conv-textbox {
 }
 %ifndef XP_MACOSX
 
-.textbox-input-box {
+.conv-textbox .textbox-input-box {
   background: inherit;
 }
 %endif
