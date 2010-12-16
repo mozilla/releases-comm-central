@@ -65,12 +65,12 @@
   <!-- bottom of the tools menu -->
   <menuseparator id="prefSep" removeelement="true"/>
   <menuitem id="menu_preferences" removeelement="true"/>
-  <menu id="toolsMenu">
+  <menupopup id="toolsMenuPopup">
     <menuseparator id="updatesSep"/>
     <menuitem id="updatesMenuItem"
               label="&checkForUpdates;"
               oncommand="menus.updates()"/>
-  </menu>
+  </menupopup>
 
   <menu id="helpMenu" hidden="true"/>
 
