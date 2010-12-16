@@ -64,7 +64,7 @@ Conversation.prototype = {
 
   get name() "/dev/null",
 };
-Conversation.prototype.__proto__ = GenericConversationPrototype;
+Conversation.prototype.__proto__ = GenericConvIMPrototype;
 
 function Account(aProtoInstance, aKey, aName)
 {

@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *   Patrick Cloke <clokep@gmail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -42,7 +43,9 @@ var EXPORTED_SYMBOLS = [
   "EmptyEnumerator",
   "GenericAccountPrototype",
   "GenericAccountBuddyPrototype",
-  "GenericConversationPrototype",
+  "GenericConvIMPrototype",
+  "GenericConvChatPrototype",
+  "GenericConvChatBuddyPrototype",
   "GenericProtocolPrototype",
   "ForwardProtocolPrototype",
   "Message",
@@ -204,7 +207,7 @@ const GenericAccountPrototype = {
 };
 
 
-var GenericAccountBuddyPrototype = {
+const GenericAccountBuddyPrototype = {
   _init: function(aAccount, aBuddy, aTag) {
     this._tag = aTag;
     this._account = aAccount;
@@ -386,22 +389,15 @@ Message.prototype = {
 
 const GenericConversationPrototype = {
   _lastId: 0,
-  _init: function(aAccount) {
+  _init: function(aAccount, aName) {
     this.account = aAccount;
+    this._name = aName;
     this.id = ++GenericConversationPrototype._lastId;
 
     this._observers = [];
     obs.notifyObservers(this, "new-conversation", null);
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIConversation, Ci.purpleIConvIM, Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [
-      Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIConversation, Ci.purpleIConvIM
-    ];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
   getHelperForLanguage: function(language) null,
   contractID: null,
   classDescription: "Conversation object",
@@ -428,6 +424,29 @@ const GenericConversationPrototype = {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   close: function() { },
+
+  writeMessage: function(aWho, aText, aProperties) {
+    (new Message(aWho, aText, aProperties)).conversation = this;
+  },
+
+  get name() this._name,
+  get normalizedName() this.name.toLowerCase(),
+  get title() this.name,
+  account: null
+};
+
+const GenericConvIMPrototype = {
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIConversation,
+                                         Ci.purpleIConvIM, Ci.nsIClassInfo]),
+  getInterfaces: function(countRef) {
+    var interfaces = [
+      Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIConversation, Ci.purpleIConvIM
+    ];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  classDescription: "ConvIM object",
+
   sendTyping: function(aLength) { },
 
   updateTyping: function(aState) {
@@ -440,18 +459,73 @@ const GenericConversationPrototype = {
       this.typingState = aState;
     this.notifyObservers(null, "update-typing", null);
   },
-  writeMessage: function(aWho, aText, aProperties) {
-    (new Message(aWho, aText, aProperties)).conversation = this;
+
+  get isChat() false,
+  buddy: null,
+  typingState: Ci.purpleIConvIM.NOT_TYPING
+};
+GenericConvIMPrototype.__proto__ = GenericConversationPrototype;
+
+const GenericConvChatPrototype = {
+  _topic: null,
+  _topicSetter: null,
+
+  _init: function(aAccount, aName) {
+    this._participants = {};
+    GenericConversationPrototype._init.apply(this, arguments);
   },
 
-  get name() "Conversation",
-  get normalizedName() this.name.toLowerCase(),
-  get title() this.name,
-  get isChat() false,
-  account: null,
-  buddy: null,
-  typingState: Ci.purpleIConvIM.NOT_TYPING,
-  getParticipants: function() null
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIConversation,
+                                         Ci.purpleIConvChat, Ci.nsIClassInfo]),
+  getInterfaces: function(countRef) {
+    var interfaces = [
+      Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIConversation, Ci.purpleIConvChat
+    ];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  classDescription: "ConvChat object",
+
+  get isChat() true,
+  get topic() this._topic,
+  get topicSetter() this._topicSetter,
+  get left() false,
+
+  getParticipants: function() {
+    return new nsSimpleEnumerator(
+      Object.keys(this._participants)
+            .map(function(key) this._participants[key], this)
+    );
+  }
+};
+GenericConvChatPrototype.__proto__ = GenericConversationPrototype;
+
+const GenericConvChatBuddyPrototype = {
+  get classDescription() "ConvChatBuddy object",
+  get contractID() null,
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIConvChatBuddy];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIConvChatBuddy,
+                                         Ci.nsIClassInfo]),
+
+  _name: "",
+  get name() this._name,
+  alias: "",
+  buddy: false,
+
+  get noFlags() !(this.voiced || this.halfOp || this.op ||
+                  this.founder || this.typing),
+  voiced: false,
+  halfOp: false,
+  op: false,
+  founder: false,
+  typing: false
 };
 
 // the name getter needs to be implemented
