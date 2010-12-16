@@ -48,8 +48,10 @@ XPIDLSRCS	= ibILogger.idl
 EXTRA_COMPONENTS = \
 	smileProtocolHandler.js smileProtocolHandler.manifest \
 	autoLoginHandler.js autoLoginHandler.manifest \
-	logger.js logger.manifest \
+	logger.manifest \
 	$(NULL)
+
+EXTRA_PP_COMPONENTS = logger.js
 
 ifeq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
 EXTRA_COMPONENTS += profileMigrator.js profileMigrator.manifest

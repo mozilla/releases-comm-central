@@ -35,6 +35,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#filter substitution
+#ifdef XP_WIN
+#define LINE_BREAK \r\n
+#else
+#define LINE_BREAK \n
+#endif
+
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const Cc = Components.classes;
@@ -119,7 +126,7 @@ ConversationLog.prototype = {
     return "Conversation with " + this._conv.name +
            " at " + (new Date).toLocaleString() +
            " on " + account.name +
-           " (" + account.protocol.normalizedName + ")\n";
+           " (" + account.protocol.normalizedName + ")@LINE_BREAK@";
   },
   _serialize: function cl_serialize(aString) {
     // TODO cleanup once bug 102699 is fixed
@@ -164,7 +171,7 @@ ConversationLog.prototype = {
           line += sender + ": " + msg;
       }
     }
-    this._log.writeString(line + "\n");
+    this._log.writeString(line + "@LINE_BREAK@");
   },
 
   close: function cl_close() {
@@ -211,7 +218,7 @@ function SystemLog(aAccount)
   this._log.writeString("System log for account " + aAccount.name +
                         " (" + aAccount.protocol.normalizedName +
                         ") connected at " +
-                        (new Date()).toLocaleFormat("%c") + "\n");
+                        (new Date()).toLocaleFormat("%c") + "@LINE_BREAK@");
 }
 SystemLog.prototype = {
   _log: null,
@@ -238,7 +245,7 @@ SystemLog.prototype = {
       this._init();
 
     let date = (new Date()).toLocaleFormat("%x %X");
-    this._log.writeString("---- " + aString + " @ " + date + " ----\n");
+    this._log.writeString("---- " + aString + " @ " + date + " ----@LINE_BREAK@");
   },
 
   close: function sl_close() {
