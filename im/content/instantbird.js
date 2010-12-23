@@ -180,6 +180,11 @@ var XULBrowserWindow = {
     this.updateStatusField();
   },
 
+  // Called before links are navigated to, allows us to retarget them if needed.
+  onBeforeLinkTraversal: function(originalTarget, linkURI, linkNode, isAppTab) {
+    return originalTarget;
+  },
+
   updateStatusField: function () {
     var text = this.overLink || this.status || this.jsStatus || this.jsDefaultStatus || this.defaultStatus;
 
