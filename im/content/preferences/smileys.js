@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *  Benedikt P. <benediktp@ymail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -37,31 +38,11 @@
 
 var smileysPreview = {
   _loaded: false,
-  buildThemeList: function() {
-    let themeList =
-      gThemePane.getExtensionList()
-                .filter(function(item) /^emoticons-/.test(item.id))
-                .sort(function(item1, item2) {
-                  let name1 = item1.name.toLowerCase();
-                  let name2 = item2.name.toLowerCase();
-                  return name1 < name2 ? -1 : name1 > name2 ? 1 : 0;
-                });
-    if (!themeList.length)
-      return;
-
-    document.getElementById("noemoticons-menuitem").setAttribute("hidden", "true");
-
-    let menulist = document.getElementById("smileythemename");
-    themeList.forEach(function(aItem) {
-      menulist.appendItem(aItem.name,
-                          aItem.id.replace(/^emoticons-([^@]+)@.*/, "$1"));
-    });
-  },
   load: function() {
     Components.utils.import("resource:///modules/imSmileys.jsm");
 
-    smileysPreview.buildThemeList();
-    let themeName = document.getElementById("smileythemename");
+    gThemePane.buildThemeList("emoticons");
+    let themeName = document.getElementById("emoticons-themename");
     // force the setter to execute again now that the menuitem exists
     themeName.value = themeName.value;
     this._loaded = true;
@@ -72,7 +53,7 @@ var smileysPreview = {
     if (!this._loaded)
       return;
 
-    let themeName = document.getElementById("smileythemename").value;
+    let themeName = document.getElementById("emoticons-themename").value;
     this.smileyList = getSmileyList(themeName);
     let list = document.getElementById("smileysPreview");
     let item = list.firstChild.nextSibling;

@@ -22,6 +22,7 @@
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
+#  Benedikt P. <benediktp@ymail.com>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -61,8 +62,8 @@
     </preferences>
 
     <stringbundleset id="stringbundleset">
-      <stringbundle id="messageStyleBundle"
-                    src="chrome://instantbird/locale/preferences/messagestyle.properties"/>
+      <stringbundle id="themesBundle"
+                    src="chrome://instantbird/locale/preferences/themes.properties"/>
     </stringbundleset>
 
     <tabbox flex="1">
@@ -76,7 +77,7 @@
           <hbox align="baseline">
             <label value="&messageStyleTheme.label;" control="themename"
                    accesskey="&messageStyleTheme.accesskey;"/>
-            <menulist id="themename"
+            <menulist id="messagestyle-themename"
                       preference="messenger.options.messagesStyle.theme"
                       onselect="previewObserver.currentThemeChanged();">
               <menupopup id="theme-menupopup">
@@ -93,7 +94,7 @@
                           label="&messageStyleSimpleTheme.label;"
                           value="simple"/>
                 <menuseparator/>
-                <menuitem id="nomessagestyles-menuitem" label="&messageStyleNoExtraThemes.label;"
+                <menuitem id="no-messagestyle-menuitem" label="&messageStyleNoExtraThemes.label;"
                           disabled="true"/>
               </menupopup>
             </menulist>
@@ -131,7 +132,7 @@
           <hbox align="baseline">
             <label value="&emoticonsTheme.label;" control="smileythemename"
                    accesskey="&emoticonsTheme.accesskey;"/>
-            <menulist id="smileythemename"
+            <menulist id="emoticons-themename"
                       preference="messenger.options.emoticonsTheme"
                       onselect="smileysPreview.displayCurrentTheme();">
               <menupopup id="theme-menupopup">
@@ -142,7 +143,7 @@
                           label="&emoticonsDisabled.label;"
                           value="none"/>
                 <menuseparator/>
-                <menuitem id="noemoticons-menuitem" label="&emoticonsNoExtraThemes.label;"
+                <menuitem id="no-emoticons-menuitem" label="&emoticonsNoExtraThemes.label;"
                           disabled="true"/>
               </menupopup>
             </menulist>

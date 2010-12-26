@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *  Benedikt P. <benediktp@ymail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -108,36 +109,15 @@ Message.prototype = {
 };
 
 var previewObserver = {
-  buildThemeList: function() {
-    let themeList =
-      gThemePane.getExtensionList()
-                .filter(function(item) /^messagestyle-/.test(item.id))
-                .sort(function(item1, item2) {
-                  let name1 = item1.name.toLowerCase();
-                  let name2 = item2.name.toLowerCase();
-                  return name1 < name2 ? -1 : name1 > name2 ? 1 : 0;
-                });
-
-    let menulist = document.getElementById("themename");
-    if (!themeList.length)
-      return;
-
-    document.getElementById("nomessagestyles-menuitem").setAttribute("hidden", "true");
-
-    themeList.forEach(function(aItem) {
-      menulist.appendItem(aItem.name,
-                          aItem.id.replace(/^messagestyle-([^@]+)@.*/, "$1"));
-    });
-  },
   _loaded: false,
   load: function() {
-    previewObserver.buildThemeList();
+    gThemePane.buildThemeList("messagestyle");
 
     let makeDate = function(aDateString) {
       let array = aDateString.split(":");
       return (new Date(2009, 11, 8, array[0], array[1], array[2])) / 1000;
     };
-    let bundle = document.getElementById("messageStyleBundle");
+    let bundle = document.getElementById("themesBundle");
     let msg = {};
     ["nick1", "buddy1", "nick2", "buddy2",
      "message1", "message2", "message3"].forEach(function(aText) {
@@ -151,7 +131,7 @@ var previewObserver = {
     ];
     previewObserver.conv = conv;
 
-    let themeName = document.getElementById("themename");
+    let themeName = document.getElementById("messagestyle-themename");
     if (themeName.value && !themeName.selectedItem)
       themeName.value = themeName.value;
     previewObserver.browser = document.getElementById("previewbrowser");
@@ -174,7 +154,7 @@ var previewObserver = {
     if (!this._loaded)
       return;
 
-    let currentTheme = document.getElementById("themename").value;
+    let currentTheme = document.getElementById("messagestyle-themename").value;
     if (!currentTheme)
       return;
 
@@ -219,8 +199,7 @@ var previewObserver = {
       defaultText = this.theme.metadata.DisplayNameForNoVariant;
     // if the name in the metadata is 'Default', use the localized version
     if (!defaultText || defaultText.toLowerCase() == "default")
-      defaultText = document.getElementById("messageStyleBundle")
-                            .getString("default");
+      defaultText = document.getElementById("themesBundle").getString("default");
 
     let menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label", defaultText);
