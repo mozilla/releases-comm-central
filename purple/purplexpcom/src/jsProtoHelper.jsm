@@ -58,20 +58,15 @@ var EXPORTED_SYMBOLS = [
 */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource:///modules/imServices.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
 
-XPCOMUtils.defineLazyServiceGetter(this, "obs",
-                                   "@mozilla.org/observer-service;1",
-                                   "nsIObserverService");
-XPCOMUtils.defineLazyServiceGetter(this, "cs",
-                                   "@mozilla.org/consoleservice;1",
-                                   "nsIConsoleService");
 function LOG(aString)
 {
-  cs.logStringMessage(aString);
+  Services.console.logStringMessage(aString);
 }
 
 function setTimeout(aFunction, aDelay)
@@ -125,6 +120,7 @@ const GenericAccountPrototype = {
   _init: function _init(aProtoInstance, aKey, aName) {
     this._base = new AccountBase();
     this._base.concreteAccount = this;
+    this._protocol = aProtoInstance;
     this._base.init(aKey, aName, aProtoInstance);
   },
   get base() this._base.purpleIAccountBase,
@@ -152,7 +148,18 @@ const GenericAccountPrototype = {
   setBool: function(aName, aVal) this._base.setBool(aName, aVal),
   setInt: function(aName, aVal) this._base.setInt(aName, aVal),
   setString: function(aName, aVal) this._base.setString(aName, aVal),
+  getPref: function (aName, aType)
+    this.prefs.prefHasUserValue(aName) ?
+      this.prefs["get" + aType + "Pref"](aName) :
+      this.protocol._getOptionDefault(aName),
+  getInt: function(aName) this.getPref(aName, "Int"),
+  getString: function(aName) this.getPref(aName, "Char"),
+  getBool: function(aName) this.getPref(aName, "Bool"),
   save: function() this._base.save(),
+
+  get prefs() this._prefs ||
+    (this._prefs = Services.prefs.getBranch("messenger.account." + this.id +
+                                            ".options.")),
 
   // grep attribute purpleIAccount.idl |sed 's/.* //;s/;//;s/\(.*\)/  get \1() this._base.\1,/'
   get canJoinChat() this._base.canJoinChat,
@@ -160,7 +167,7 @@ const GenericAccountPrototype = {
   get normalizedName() this.name.toLowerCase(),
   get id() this._base.id,
   get numericId() this._base.numericId,
-  get protocol() this._base.protocol,
+  get protocol() this._protocol,
   get autoLogin() this._base.autoLogin,
   get firstConnectionState() this._base.firstConnectionState,
   get password() this._base.password,
@@ -369,7 +376,7 @@ Message.prototype = {
   set conversation(aConv) {
     this._conversation = aConv;
     aConv.notifyObservers(this, "new-text", null);
-    obs.notifyObservers(this, "new-text", null);
+    Services.obs.notifyObservers(this, "new-text", null);
   },
 
   outgoing: false,
@@ -395,7 +402,7 @@ const GenericConversationPrototype = {
     this.id = ++GenericConversationPrototype._lastId;
 
     this._observers = [];
-    obs.notifyObservers(this, "new-conversation", null);
+    Services.obs.notifyObservers(this, "new-conversation", null);
   },
 
   getHelperForLanguage: function(language) null,
@@ -528,6 +535,60 @@ const GenericConvChatBuddyPrototype = {
   typing: false
 };
 
+function purplePref(aName, aLabel, aType, aDefaultValue, aMasked) {
+  this.name = aName; // Preference name
+  this.label = aLabel; // Text to display
+  this.type = aType;
+  this._defaultValue = aDefaultValue;
+  this.masked = !!aMasked; // Obscured from view, ensure boolean
+}
+purplePref.prototype = {
+  // Default value
+  getBool: function() this._defaultValue,
+  getInt: function() this._defaultValue,
+  getString: function() this._defaultValue,
+  getList: function() {
+    // Convert a JavaScript object map {"value 1": "label 1", ...}
+    let keys = Object.keys(this._defaultValue);
+    if (!keys.length)
+      return EmptyEnumerator;
+
+    return new nsSimpleEnumerator(
+      keys.map(function(key) new purpleKeyValuePair(this[key], key),
+               this._defaultValue)
+    );
+  },
+
+  get classDescription() "Preference for Account Options",
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIPref];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIPref, Ci.nsIClassInfo])
+};
+
+function purpleKeyValuePair(aName, aValue) {
+  this.name = aName;
+  this.value = aValue;
+}
+purpleKeyValuePair.prototype = {
+  get classDescription() "Key Value Pair for Preferences",
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIKeyValuePair];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIKeyValuePair,
+                                         Ci.nsIClassInfo])
+};
+
 // the name getter needs to be implemented
 const GenericProtocolPrototype = {
   get id() "prpl-" + this.normalizedName,
@@ -536,8 +597,31 @@ const GenericProtocolPrototype = {
 
   getAccount: function(aKey, aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
+  _getOptionDefault: function(aName) {
+    if (this.options && this.options.hasOwnProperty(aName))
+      return this.options[aName].default;
+    throw aName + " has no default value in " + this.id + ".";
+  },
+  getOptions: function() {
+    if (!this.options)
+      return EmptyEnumerator;
+
+    const types =
+      {boolean: "Bool", string: "String", number: "Int", object: "List"};
+
+    let purplePrefs = [];
+    for (let optionName in this.options) {
+      let option = this.options[optionName];
+      if (!((typeof option.default) in types))
+        throw "Invalid type for preference: " + optionName + ".";
+
+      let type = Ci.purpleIPref["type" + types[typeof option.default]];
+      purplePrefs.push(new purplePref(optionName, option.label, type,
+                                      option.default, option.masked));
+    }
+    return new nsSimpleEnumerator(purplePrefs);
+  },
   // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
-  getOptions: function() EmptyEnumerator,
   getUsernameSplit: function() EmptyEnumerator,
   get usernameEmptyText() "",
   accountExists: function() false, //FIXME

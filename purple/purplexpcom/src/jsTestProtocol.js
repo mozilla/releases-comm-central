@@ -98,6 +98,13 @@ Account.prototype.__proto__ = GenericAccountPrototype;
 function jsTestProtocol() { }
 jsTestProtocol.prototype = {
   get name() "JS Test",
+  options: {
+    "text": {label: "Text option",    default: "foo"},
+    "bool": {label: "Boolean option", default: true},
+    "int" : {label: "Integer option", default: 42},
+    "list": {label: "Select option",  default: {"option1": "Default option",
+                                                "option2": "Other option"}}
+  },
   getAccount: function(aKey, aName) new Account(this, aKey, aName),
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
