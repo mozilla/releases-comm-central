@@ -589,6 +589,30 @@ purpleKeyValuePair.prototype = {
                                          Ci.nsIClassInfo])
 };
 
+function UsernameSplit(aValues) {
+  this._values = aValues;
+}
+UsernameSplit.prototype = {
+  get label() this._values.label,
+  get separator() this._values.separator,
+  get defaultValue() this._values.defaultValue,
+  get reverse() !!this._values.reverse, // Ensure boolean
+
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIUsernameSplit,
+                                         Ci.nsIClassInfo]),
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIUsernameSplit];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  contractID: null,
+  classDescription: "Username Split object",
+  classID: null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0
+};
+
 // the name getter needs to be implemented
 const GenericProtocolPrototype = {
   get id() "prpl-" + this.normalizedName,
@@ -621,8 +645,15 @@ const GenericProtocolPrototype = {
     }
     return new nsSimpleEnumerator(purplePrefs);
   },
+  getUsernameSplit: function() {
+    if (!this.usernameSplits || !this.usernameSplits.length)
+      return EmptyEnumerator;
+
+    return new nsSimpleEnumerator(
+      this.usernameSplits.map(function(split) new UsernameSplit(split)));
+  },
+
   // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
-  getUsernameSplit: function() EmptyEnumerator,
   get usernameEmptyText() "",
   accountExists: function() false, //FIXME
 

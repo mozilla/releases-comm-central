@@ -105,6 +105,10 @@ jsTestProtocol.prototype = {
     "list": {label: "Select option",  default: {"option1": "Default option",
                                                 "option2": "Other option"}}
   },
+  usernameSplits: [
+    {label: "Server", separator: "@", defaultValue: "default.server",
+     reverse: true}
+  ],
   getAccount: function(aKey, aName) new Account(this, aKey, aName),
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
