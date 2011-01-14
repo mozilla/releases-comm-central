@@ -82,6 +82,43 @@ function clearTimeout(aTimer)
   aTimer.cancel();
 }
 
+/* Common nsIClassInfo and QueryInterface implementation
+ * shared by all generic objects implemented in this file. */
+function ClassInfo(aInterfaces, aDescription)
+{
+  if (!(this instanceof ClassInfo))
+    return new ClassInfo(aInterfaces, aDescription);
+
+  if (!(aInterfaces instanceof Array))
+    aInterfaces = [aInterfaces];
+  this._interfaces =
+    aInterfaces.map(function (i) typeof i == "string" ? Ci[i] : i);
+
+  this.classDescription = aDescription || "JS Proto Object";
+}
+ClassInfo.prototype = {
+  QueryInterface: function ClassInfo_QueryInterface(iid) {
+    if (iid.equals(Ci.nsISupports) || iid.equals(Ci.nsIClassInfo) ||
+        this._interfaces.some(function(i) i.equals(iid)))
+      return this;
+
+    throw Cr.NS_ERROR_NO_INTERFACE;
+  },
+  getInterfaces: function(countRef) {
+    var interfaces =
+      [Ci.nsIClassInfo, Ci.nsISupports].concat(this._interfaces);
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  contractID: null,
+  classID: null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0
+};
+
+
+
 /**
  * Constructs an nsISimpleEnumerator for the given array of items.
  * Copied from netwerk/test/httpserver/httpd.js
@@ -117,6 +154,7 @@ XPCOMUtils.defineLazyGetter(this, "AccountBase", function()
 );
 
 const GenericAccountPrototype = {
+  __proto__: ClassInfo("purpleIAccount", "generic account object"),
   _init: function _init(aProtoInstance, aKey, aName) {
     this._base = new AccountBase();
     this._base.concreteAccount = this;
@@ -217,21 +255,12 @@ const GenericAccountPrototype = {
   set password(val) { this._base.password = val; },
   set rememberPassword(val) { this._base.rememberPassword = val; },
   set alias(val) { this._base.alias = val; },
-  set proxyInfo(val) { this._base.proxyInfo = val; },
-
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIAccount];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIAccount, Ci.nsIClassInfo])
+  set proxyInfo(val) { this._base.proxyInfo = val; }
 };
 
 
 const GenericAccountBuddyPrototype = {
+  __proto__: ClassInfo("imIAccountBuddy", "generic account buddy object"),
   _init: function(aAccount, aBuddy, aTag) {
     this._tag = aTag;
     this._account = aAccount;
@@ -338,17 +367,7 @@ const GenericAccountBuddyPrototype = {
   },
   createConversation: function() {
     throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-  },
-
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIAccountBuddy];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.imIAccountBuddy, Ci.nsIClassInfo])
+  }
 };
 
 function AccountBuddy(aAccount, aBuddy, aTag) {
@@ -370,22 +389,10 @@ function Message(aWho, aMessage, aObject)
       this[i] = aObject[i];
 }
 Message.prototype = {
-  _lastId: 0,
-
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIMessage, Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [
-      Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIMessage
-    ];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classDescription: "Message object",
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  __proto__: ClassInfo("purpleIMessage", "generic message object"),
   flags: Ci.nsIClassInfo.DOM_OBJECT,
+
+  _lastId: 0,
 
   get alias() this.who,
   _conversation: null,
@@ -412,6 +419,9 @@ Message.prototype = {
 
 
 const GenericConversationPrototype = {
+  __proto__: ClassInfo("purpleIConversation", "generic conversation object"),
+  flags: Ci.nsIClassInfo.DOM_OBJECT,
+
   _lastId: 0,
   _init: function(aAccount, aName) {
     this.account = aAccount;
@@ -421,13 +431,6 @@ const GenericConversationPrototype = {
     this._observers = [];
     Services.obs.notifyObservers(this, "new-conversation", null);
   },
-
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classDescription: "Conversation object",
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: Ci.nsIClassInfo.DOM_OBJECT,
 
   addObserver: function(aObserver) {
     if (this._observers.indexOf(aObserver) == -1)
@@ -460,16 +463,9 @@ const GenericConversationPrototype = {
 };
 
 const GenericConvIMPrototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIConversation,
-                                         Ci.purpleIConvIM, Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [
-      Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIConversation, Ci.purpleIConvIM
-    ];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  classDescription: "ConvIM object",
+  __proto__: GenericConversationPrototype,
+  _interfaces: [Ci.purpleIConversation, Ci.purpleIConvIM],
+  classDescription: "generic ConvIM object",
 
   sendTyping: function(aLength) { },
 
@@ -488,9 +484,12 @@ const GenericConvIMPrototype = {
   buddy: null,
   typingState: Ci.purpleIConvIM.NOT_TYPING
 };
-GenericConvIMPrototype.__proto__ = GenericConversationPrototype;
 
 const GenericConvChatPrototype = {
+  __proto__: GenericConversationPrototype,
+  _interfaces: [Ci.purpleIConversation, Ci.purpleIConvChat],
+  classDescription: "generic ConvChat object",
+
   _topic: null,
   _topicSetter: null,
 
@@ -498,17 +497,6 @@ const GenericConvChatPrototype = {
     this._participants = {};
     GenericConversationPrototype._init.apply(this, arguments);
   },
-
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIConversation,
-                                         Ci.purpleIConvChat, Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [
-      Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIConversation, Ci.purpleIConvChat
-    ];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  classDescription: "ConvChat object",
 
   get isChat() true,
   get topic() this._topic,
@@ -522,21 +510,9 @@ const GenericConvChatPrototype = {
     );
   }
 };
-GenericConvChatPrototype.__proto__ = GenericConversationPrototype;
 
 const GenericConvChatBuddyPrototype = {
-  get classDescription() "ConvChatBuddy object",
-  get contractID() null,
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIConvChatBuddy];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIConvChatBuddy,
-                                         Ci.nsIClassInfo]),
+  __proto__: ClassInfo("purpleIConvChatBuddy", "generic ConvChatBuddy object"),
 
   _name: "",
   get name() this._name,
@@ -560,6 +536,8 @@ function purplePref(aName, aLabel, aType, aDefaultValue, aMasked) {
   this.masked = !!aMasked; // Obscured from view, ensure boolean
 }
 purplePref.prototype = {
+  __proto__: ClassInfo("purpleIPref", "generic account option preference"),
+
   // Default value
   getBool: function() this._defaultValue,
   getInt: function() this._defaultValue,
@@ -574,60 +552,26 @@ purplePref.prototype = {
       keys.map(function(key) new purpleKeyValuePair(this[key], key),
                this._defaultValue)
     );
-  },
-
-  get classDescription() "Preference for Account Options",
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIPref];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIPref, Ci.nsIClassInfo])
+  }
 };
 
 function purpleKeyValuePair(aName, aValue) {
   this.name = aName;
   this.value = aValue;
 }
-purpleKeyValuePair.prototype = {
-  get classDescription() "Key Value Pair for Preferences",
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIKeyValuePair];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIKeyValuePair,
-                                         Ci.nsIClassInfo])
-};
+purpleKeyValuePair.prototype =
+  ClassInfo("purpleIKeyValuePair", "generic Key Value Pair");
 
 function UsernameSplit(aValues) {
   this._values = aValues;
 }
 UsernameSplit.prototype = {
+  __proto__: ClassInfo("purpleIUsernameSplit", "username split object"),
+
   get label() this._values.label,
   get separator() this._values.separator,
   get defaultValue() this._values.defaultValue,
-  get reverse() !!this._values.reverse, // Ensure boolean
-
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIUsernameSplit,
-                                         Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIUsernameSplit];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classDescription: "Username Split object",
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0
+  get reverse() !!this._values.reverse // Ensure boolean
 };
 
 function ChatRoomField(aIdentifier, aField) {
@@ -645,40 +589,14 @@ function ChatRoomField(aIdentifier, aField) {
     type = "PASSWORD";
   this.type = Ci.purpleIChatRoomField["TYPE_" + type];
 }
-ChatRoomField.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIChatRoomField,
-                                         Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIChatRoomField];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classDescription: "ChatRoomField object",
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0
-};
+ChatRoomField.prototype =
+  ClassInfo("purpleIChatRoomField", "ChatRoomField object");
 
 function ChatRoomFieldValues(aMap) {
   this.values = aMap;
 }
 ChatRoomFieldValues.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIChatRoomFieldValues,
-                                         Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports,
-                      Ci.purpleIChatRoomFieldValues];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classDescription: "ChatRoomFieldValues object",
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
+  __proto__: ClassInfo("purpleIChatRoomFieldValues", "ChatRoomFieldValues"),
 
   getValue: function(aIdentifier)
     this.values.hasOwnProperty(aIdentifier) ? this.values[aIdentifier] : null,
@@ -689,6 +607,8 @@ ChatRoomFieldValues.prototype = {
 
 // the name getter needs to be implemented
 const GenericProtocolPrototype = {
+  __proto__: ClassInfo("purpleIProtocol", "Generic protocol object"),
+
   get id() "prpl-" + this.normalizedName,
   get normalizedName() this.name.replace(/[^a-z0-0]/gi, "").toLowerCase(),
   get iconBaseURI() "chrome://instantbird/skin/prpl-generic/",
@@ -742,21 +662,14 @@ const GenericProtocolPrototype = {
   get slashCommandsNative() false,
 
   get classDescription() this.name + " Protocol",
-  get contractID() "@instantbird.org/purple/" + this.normalizedName + ";1",
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIProtocol];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0,
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIProtocol, Ci.nsIClassInfo])
+  get contractID() "@instantbird.org/purple/" + this.normalizedName + ";1"
 };
 
 // the baseId property should be set to the prpl id of the base protocol plugin
 // and the name getter is required.
 const ForwardProtocolPrototype = {
+  __proto__: GenericProtocolPrototype,
+
   get base() {
     if (!this.hasOwnProperty("_base")) {
       this._base =
@@ -769,12 +682,12 @@ const ForwardProtocolPrototype = {
   getAccount: function(aKey, aName) {
     let proto = this;
     let account = {
+      __proto__: GenericAccountPrototype,
       _base: this.base.getAccount(aKey, aName),
       loadBuddy: function(aBuddy, aTag) this._base.loadBuddy(aBuddy, aTag),
       get normalizedName() this._base.normalizedName,
       get protocol() proto
     };
-    account.__proto__ = GenericAccountPrototype;
     account._base.concreteAccount = account;
     return account;
   },
@@ -793,7 +706,6 @@ const ForwardProtocolPrototype = {
   get registerNoScreenName() this.base.registerNoScreenName,
   get slashCommandsNative() this.base.slashCommandsNative
 };
-ForwardProtocolPrototype.__proto__ = GenericProtocolPrototype;
 
 function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
   var xhr = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
