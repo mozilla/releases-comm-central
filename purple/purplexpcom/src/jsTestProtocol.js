@@ -91,6 +91,16 @@ Account.prototype = {
       delete this._conv;
     }
     this.base.disconnected();
+  },
+
+  get canJoinChat() true,
+  chatRoomFields: {
+    channel: {label: "_Channel Field", required: true},
+    channelDefault: {label: "_Field with default", default: "Default Value"},
+    password: {label: "_Password Field", default: "", isPassword: true,
+               required: false},
+    sampleIntField: {label: "_Int Field", default: 4, min: 0, max: 10,
+                     required: true}
   }
 };
 Account.prototype.__proto__ = GenericAccountPrototype;

@@ -141,9 +141,26 @@ const GenericAccountPrototype = {
      return null;
    }
   },
-  getChatRoomFields: function() this._base.getChatRoomFields(),
-  getChatRoomDefaultFieldValues: function(aDefaultChatName)
-    this._base.getChatRoomDefaultFieldValues(aDefaultChatName),
+  getChatRoomFields: function() {
+    if (!this.chatRoomFields)
+      return EmptyEnumerator;
+
+    let fields = [];
+    for (let fieldName in this.chatRoomFields)
+      fields.push(new ChatRoomField(fieldName, this.chatRoomFields[fieldName]));
+    return new nsSimpleEnumerator(fields);
+  },
+  getChatRoomDefaultFieldValues: function(aDefaultChatName) {
+    //FIXME: support aDefaultChatName once there's a use case in the UI.
+
+    if (!this.chatRoomFields)
+      return EmptyEnumerator;
+
+    let defaultFieldValues = [];
+    for (let fieldName in this.chatRoomFields)
+      defaultFieldValues[fieldName] = this.chatRoomFields[fieldName].default;
+    return new ChatRoomFieldValues(defaultFieldValues);
+  },
   joinChat: function(aComponents) this._base.joinChat(aComponents),
   setBool: function(aName, aVal) this._base.setBool(aName, aVal),
   setInt: function(aName, aVal) this._base.setInt(aName, aVal),
@@ -611,6 +628,63 @@ UsernameSplit.prototype = {
   classID: null,
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0
+};
+
+function ChatRoomField(aIdentifier, aField) {
+  this.identifier = aIdentifier;
+  this.label = aField.label;
+  this.required = !!aField.required;
+
+  let type = "TEXT";
+  if ((typeof aField.default) == "number") {
+    type = "INT";
+    this.min = aField.min;
+    this.max = aField.max;
+  }
+  else if (aField.isPassword)
+    type = "PASSWORD";
+  this.type = Ci.purpleIChatRoomField["TYPE_" + type];
+}
+ChatRoomField.prototype = {
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIChatRoomField,
+                                         Ci.nsIClassInfo]),
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIChatRoomField];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  contractID: null,
+  classDescription: "ChatRoomField object",
+  classID: null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0
+};
+
+function ChatRoomFieldValues(aMap) {
+  this.values = aMap;
+}
+ChatRoomFieldValues.prototype = {
+  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIChatRoomFieldValues,
+                                         Ci.nsIClassInfo]),
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports,
+                      Ci.purpleIChatRoomFieldValues];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  contractID: null,
+  classDescription: "ChatRoomFieldValues object",
+  classID: null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+
+  getValue: function(aIdentifier)
+    this.values.hasOwnProperty(aIdentifier) ? this.values[aIdentifier] : null,
+  setValue: function(aIdentifier, aValue) {
+    this.values[aIdentifier] = aValue;
+  }
 };
 
 // the name getter needs to be implemented
