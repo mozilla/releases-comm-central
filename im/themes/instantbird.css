@@ -112,6 +112,10 @@ tab[attention],
 .alltabs-item[chat] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://instantbird/skin/chat-16.png") !important;
 }
+.tabbrowser-tab[chat][status="left"] > .tab-icon-image,
+.alltabs-item[chat][status="left"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://instantbird/skin/chat-left-16.png") !important;
+}
 
 .tabbrowser-tab[status="offline"] > .tab-icon-image,
 .alltabs-item[status="offline"] > .menu-iconic-left > .menu-iconic-icon {

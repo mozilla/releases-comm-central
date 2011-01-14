@@ -942,30 +942,38 @@
        </body>
      </method>
 
-     <method name="updateBuddyStatus">
+     <method name="updateConvStatus">
        <body>
        <![CDATA[
-          let buddy = this._conv.buddy;
-          if (!buddy || !buddy.account.connected) {
-            this.tab.removeAttribute("status");
-
-            // This is ugly, but when an account gets disconnected libpurple
-            // doesn't reset the typing state... :(
-            this.tab.removeAttribute("typing");
-            this.tab.removeAttribute("typed");
-            this._statusText = "";
-            this.displayStatusText();
+          if (this._conv.isChat) {
+            if (!this._conv.account.connected || this._conv.left)
+              this.tab.setAttribute("status", "left");
+            else
+              this.tab.removeAttribute("status");
           }
-          else if (!buddy.online)
-            this.tab.setAttribute("status", "offline");
-          else if (buddy.idle)
-            this.tab.setAttribute("status", "idle");
-          else if (buddy.mobile)
-            this.tab.setAttribute("status", "mobile");
-          else if (buddy.available)
-            this.tab.setAttribute("status", "available");
-          else
-            this.tab.setAttribute("status", "away");
+          else {
+            let buddy = this._conv.buddy;
+            if (!buddy || !buddy.account.connected) {
+              this.tab.removeAttribute("status");
+
+              // This is ugly, but when an account gets disconnected libpurple
+              // doesn't reset the typing state... :(
+              this.tab.removeAttribute("typing");
+              this.tab.removeAttribute("typed");
+              this._statusText = "";
+              this.displayStatusText();
+            }
+            else if (!buddy.online)
+              this.tab.setAttribute("status", "offline");
+            else if (buddy.idle)
+              this.tab.setAttribute("status", "idle");
+            else if (buddy.mobile)
+              this.tab.setAttribute("status", "mobile");
+            else if (buddy.available)
+              this.tab.setAttribute("status", "available");
+            else
+              this.tab.setAttribute("status", "away");
+          }
        ]]>
        </body>
      </method>
@@ -992,9 +1000,8 @@
              this.addBuddy(n);
            this.updateParticipantCount();
          }
-         else
-           this.updateBuddyStatus();
 
+         this.updateConvStatus();
          this.initTextboxFormat();
        ]]>
        </body>
@@ -1030,7 +1037,8 @@
            break;
 
          case "update-buddy-status":
-           this.updateBuddyStatus();
+         case "update-conv-chatleft":
+           this.updateConvStatus();
            break;
 
          case "update-conv-title":

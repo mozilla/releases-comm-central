@@ -26,6 +26,7 @@ instantbird.jar:
 	skin/classic/instantbird/typed-16.png
 	skin/classic/instantbird/unknown-16.png
 	skin/classic/instantbird/chat-16.png
+	skin/classic/instantbird/chat-left-16.png
 	skin/classic/instantbird/founder.png
 	skin/classic/instantbird/operator.png
 	skin/classic/instantbird/half-operator.png
@@ -119,6 +120,7 @@ instantbird.jar:
 	skin/classic/aero/instantbird/typed-16.png
 	skin/classic/aero/instantbird/unknown-16.png
 	skin/classic/aero/instantbird/chat-16.png
+	skin/classic/aero/instantbird/chat-left-16.png
 	skin/classic/aero/instantbird/founder.png
 	skin/classic/aero/instantbird/operator.png
 	skin/classic/aero/instantbird/half-operator.png
