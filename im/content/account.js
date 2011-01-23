@@ -79,8 +79,13 @@ var account = {
                                           this.account.id + ".options.");
     this.populateProtoSpecificBox();
 
-    this.proxy = this.account.proxyInfo;
-    this.displayProxyDescription();
+    let proxyVisible = this.proto.usePurpleProxy;
+    if (proxyVisible) {
+      this.proxy = this.account.proxyInfo;
+      this.displayProxyDescription();
+    }
+    document.getElementById("proxyBox").hidden = !proxyVisible;
+    document.getElementById("proxySeparator").hidden = !proxyVisible;
 
     addObservers(this, events);
     window.addEventListener("unload", this.unload, false);
@@ -274,7 +279,8 @@ var account = {
         branch.setCharPref(autoJoinPref, autojoin);
     }
 
-    if (this.account.proxyInfo.key != this.proxy.key) {
+    if (this.proto.usePurpleProxy &&
+        this.account.proxyInfo.key != this.proxy.key) {
       this.account.proxyInfo = this.proxy;
       connectionInfoHasChanged = true;
     }

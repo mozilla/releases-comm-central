@@ -94,7 +94,7 @@
         </vbox>
 
         <separator class="groove" id="proxySeparator"/>
-        <vbox>
+        <vbox id="proxyBox">
           <label value="&account.proxySettings.caption;" flex="1"/>
           <description id="proxyDescription"/>
           <hbox>

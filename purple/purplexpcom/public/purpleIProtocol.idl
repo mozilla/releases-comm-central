@@ -119,6 +119,10 @@ interface purpleIProtocol: nsISupports {
   // Used as a hint that unknown commands should not be sent as messages.
   readonly attribute boolean slashCommandsNative;
 
+  // Indicates if the protocol plugin can use a purpleIProxy for the
+  // account, or uses the Mozilla proxy settings for all accounts.
+  readonly attribute boolean usePurpleProxy;
+
   // The key is the unique identifier needed to get account data
   // stored in the preferences.
   purpleIAccount getAccount(in AUTF8String aKey, in AUTF8String aName);

@@ -203,10 +203,14 @@ var accountWizard = {
 */
     this.populateProtoSpecificBox();
 
-    this.proxy = Components.classes["@instantbird.org/purple/proxyinfo;1"]
-                           .createInstance(Ci.purpleIProxyInfo);
-    this.proxy.type = Ci.purpleIProxyInfo.useGlobal;
-    this.displayProxyDescription();
+    let proxyVisible = this.proto.usePurpleProxy;
+    if (proxyVisible) {
+      this.proxy = Components.classes["@instantbird.org/purple/proxyinfo;1"]
+                             .createInstance(Ci.purpleIProxyInfo);
+      this.proxy.type = Ci.purpleIProxyInfo.useGlobal;
+      this.displayProxyDescription();
+    }
+    document.getElementById("proxyGroupbox").hidden = !proxyVisible;
 
     let alias = document.getElementById("alias");
     alias.focus();
@@ -474,7 +478,9 @@ var accountWizard = {
     var autologin = this.getValue("connectNow");
     acc.autoLogin = autologin;
 
-    acc.proxyInfo = this.proxy;
+    if (this.proto.usePurpleProxy)
+      acc.proxyInfo = this.proxy;
+
     acc.save();
 
     try {
