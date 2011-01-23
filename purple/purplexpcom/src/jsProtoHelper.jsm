@@ -153,13 +153,12 @@ XPCOMUtils.defineLazyGetter(this, "AccountBase", function()
                          "purpleIAccountBase")
 );
 
-const GenericAccountPrototype = {
+const ForwardAccountPrototype = {
   __proto__: ClassInfo("purpleIAccount", "generic account object"),
-  _init: function _init(aProtoInstance, aKey, aName) {
-    this._base = new AccountBase();
+  _init: function _init(aProtoInstance, aBase) {
+    this._base = aBase;
     this._base.concreteAccount = this;
     this._protocol = aProtoInstance;
-    this._base.init(aKey, aName, aProtoInstance);
   },
   get base() this._base.purpleIAccountBase,
 
@@ -171,6 +170,66 @@ const GenericAccountPrototype = {
   cancelReconnection: function() this._base.cancelReconnection(),
   createConversation: function(aName) this._base.createConversation(aName),
   addBuddy: function(aTag, aName) this._base.addBuddy(aTag, aName),
+  loadBuddy: function(aBuddy, aTag) this._base.loadBuddy(aBuddy, aTag),
+  getChatRoomFields: function() this._base.getChatRoomFields(),
+  getChatRoomDefaultFieldValues: function(aDefaultChatName)
+    this._base.getChatRoomDefaultFieldValues(aDefaultChatName),
+  joinChat: function(aComponents) this._base.joinChat(aComponents),
+  setBool: function(aName, aVal) this._base.setBool(aName, aVal),
+  setInt: function(aName, aVal) this._base.setInt(aName, aVal),
+  setString: function(aName, aVal) this._base.setString(aName, aVal),
+  save: function() this._base.save(),
+
+  // grep attribute purpleIAccount.idl |sed 's/.* //;s/;//;s/\(.*\)/  get \1() this._base.\1,/'
+  // Exception: the protocol getter is handled locally.
+  get canJoinChat() this._base.canJoinChat,
+  get name() this._base.name,
+  get normalizedName() this._base.normalizedName,
+  get id() this._base.id,
+  get numericId() this._base.numericId,
+  get protocol() this._protocol,
+  get autoLogin() this._base.autoLogin,
+  get firstConnectionState() this._base.firstConnectionState,
+  get password() this._base.password,
+  get rememberPassword() this._base.rememberPassword,
+  get alias() this._base.alias,
+  get proxyInfo() this._base.proxyInfo,
+  get connectionStateMsg() this._base.connectionStateMsg,
+  get connectionErrorReason() this._base.connectionErrorReason,
+  get reconnectAttempt() this._base.reconnectAttempt,
+  get timeOfNextReconnect() this._base.timeOfNextReconnect,
+  get timeOfLastConnect() this._base.timeOfLastConnect,
+  get connectionErrorMessage() this._base.connectionErrorMessage,
+  get connectionState() this._base.connectionState,
+  get disconnected() this._base.disconnected,
+  get connected() this._base.connected,
+  get connecting() this._base.connecting,
+  get disconnecting() this._base.disconnecting,
+  get HTMLEnabled() this._base.HTMLEnabled,
+  get noBackgroundColors() this._base.noBackgroundColors,
+  get autoResponses() this._base.autoResponses,
+  get singleFormatting() this._base.singleFormatting,
+  get noNewlines() this._base.noNewlines,
+  get noFontSizes() this._base.noFontSizes,
+  get noUrlDesc() this._base.noUrlDesc,
+  get noImages() this._base.noImages,
+
+  // grep attribute purpleIAccount.idl |grep -v readonly |sed 's/.* //;s/;//;s/\(.*\)/  set \1(val) { this._base.\1 = val; },/'
+  set autoLogin(val) { this._base.autoLogin = val; },
+  set firstConnectionState(val) { this._base.firstConnectionState = val; },
+  set password(val) { this._base.password = val; },
+  set rememberPassword(val) { this._base.rememberPassword = val; },
+  set alias(val) { this._base.alias = val; },
+  set proxyInfo(val) { this._base.proxyInfo = val; }
+};
+
+const GenericAccountPrototype = {
+  __proto__: ForwardAccountPrototype,
+  _init: function _init(aProtoInstance, aKey, aName) {
+    ForwardAccountPrototype._init.call(this, aProtoInstance, new AccountBase());
+    this._base.init(aKey, aName, aProtoInstance);
+  },
+
   loadBuddy: function(aBuddy, aTag) {
    try {
      return new AccountBuddy(this, aBuddy, aTag) ;
@@ -199,10 +258,7 @@ const GenericAccountPrototype = {
       defaultFieldValues[fieldName] = this.chatRoomFields[fieldName].default;
     return new ChatRoomFieldValues(defaultFieldValues);
   },
-  joinChat: function(aComponents) this._base.joinChat(aComponents),
-  setBool: function(aName, aVal) this._base.setBool(aName, aVal),
-  setInt: function(aName, aVal) this._base.setInt(aName, aVal),
-  setString: function(aName, aVal) this._base.setString(aName, aVal),
+
   getPref: function (aName, aType)
     this.prefs.prefHasUserValue(aName) ?
       this.prefs["get" + aType + "Pref"](aName) :
@@ -210,51 +266,13 @@ const GenericAccountPrototype = {
   getInt: function(aName) this.getPref(aName, "Int"),
   getString: function(aName) this.getPref(aName, "Char"),
   getBool: function(aName) this.getPref(aName, "Bool"),
-  save: function() this._base.save(),
 
   get prefs() this._prefs ||
     (this._prefs = Services.prefs.getBranch("messenger.account." + this.id +
                                             ".options.")),
 
-  // grep attribute purpleIAccount.idl |sed 's/.* //;s/;//;s/\(.*\)/  get \1() this._base.\1,/'
-  get canJoinChat() this._base.canJoinChat,
-  get name() this._base.name,
   get normalizedName() this.name.toLowerCase(),
-  get id() this._base.id,
-  get numericId() this._base.numericId,
-  get protocol() this._protocol,
-  get autoLogin() this._base.autoLogin,
-  get firstConnectionState() this._base.firstConnectionState,
-  get password() this._base.password,
-  get rememberPassword() this._base.rememberPassword,
-  get alias() this._base.alias,
   get proxyInfo() { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
-  get connectionStateMsg() this._base.connectionStateMsg,
-  get connectionErrorReason() this._base.connectionErrorReason,
-  get reconnectAttempt() this._base.reconnectAttempt,
-  get timeOfNextReconnect() this._base.timeOfNextReconnect,
-  get timeOfLastConnect() this._base.timeOfLastConnect,
-  get connectionErrorMessage() this._base.connectionErrorMessage,
-  get connectionState() this._base.connectionState,
-  get disconnected() this._base.disconnected,
-  get connected() this._base.connected,
-  get connecting() this._base.connecting,
-  get disconnecting() this._base.disconnecting,
-  get HTMLEnabled() this._base.HTMLEnabled,
-  get noBackgroundColors() this._base.noBackgroundColors,
-  get autoResponses() this._base.autoResponses,
-  get singleFormatting() this._base.singleFormatting,
-  get noNewlines() this._base.noNewlines,
-  get noFontSizes() this._base.noFontSizes,
-  get noUrlDesc() this._base.noUrlDesc,
-  get noImages() this._base.noImages,
-
-  // grep attribute purpleIAccount.idl |grep -v readonly |sed 's/.* //;s/;//;s/\(.*\)/  set \1(val) { this._base.\1 = val; },/'
-  set autoLogin(val) { this._base.autoLogin = val; },
-  set firstConnectionState(val) { this._base.firstConnectionState = val; },
-  set password(val) { this._base.password = val; },
-  set rememberPassword(val) { this._base.rememberPassword = val; },
-  set alias(val) { this._base.alias = val; },
   set proxyInfo(val) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; }
 };
 
@@ -666,6 +684,12 @@ const GenericProtocolPrototype = {
   get contractID() "@instantbird.org/purple/" + this.normalizedName + ";1"
 };
 
+function ForwardAccount(aProtocol, aBaseAccount)
+{
+  this._init(aProtocol, aBaseAccount);
+}
+ForwardAccount.prototype = ForwardAccountPrototype;
+
 // the baseId property should be set to the prpl id of the base protocol plugin
 // and the name getter is required.
 const ForwardProtocolPrototype = {
@@ -680,18 +704,8 @@ const ForwardProtocolPrototype = {
     }
     return this._base;
   },
-  getAccount: function(aKey, aName) {
-    let proto = this;
-    let account = {
-      __proto__: GenericAccountPrototype,
-      _base: this.base.getAccount(aKey, aName),
-      loadBuddy: function(aBuddy, aTag) this._base.loadBuddy(aBuddy, aTag),
-      get normalizedName() this._base.normalizedName,
-      get protocol() proto
-    };
-    account._base.concreteAccount = account;
-    return account;
-  },
+  getAccount: function(aKey, aName)
+    new ForwardAccount(this, this.base.getAccount(aKey, aName)),
 
   get iconBaseURI() this.base.iconBaseURI,
   getOptions: function() this.base.getOptions(),
