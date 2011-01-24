@@ -136,6 +136,9 @@ interface purpleIConvChat: purpleIConversation {
   /* The name/nick of the person who set the topic */
   readonly attribute AUTF8String topicSetter;
 
+  /* The nick seen by other people in the room */
+  readonly attribute AUTF8String nick;
+
   /* This is true when we left the chat but kept the conversation open */
   readonly attribute boolean left;
 

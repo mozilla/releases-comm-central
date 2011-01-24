@@ -508,15 +508,18 @@ const GenericConvChatPrototype = {
   _interfaces: [Ci.purpleIConversation, Ci.purpleIConvChat],
   classDescription: "generic ConvChat object",
 
+  _nick: null,
   _topic: null,
   _topicSetter: null,
 
-  _init: function(aAccount, aName) {
+  _init: function(aAccount, aName, aNick) {
     this._participants = {};
-    GenericConversationPrototype._init.apply(this, arguments);
+    this._nick = aNick;
+    GenericConversationPrototype._init.call(this, aAccount, aName);
   },
 
   get isChat() true,
+  get nick() this._nick,
   get topic() this._topic,
   get topicSetter() this._topicSetter,
   get left() false,
@@ -526,6 +529,11 @@ const GenericConvChatPrototype = {
       Object.keys(this._participants)
             .map(function(key) this._participants[key], this)
     );
+  },
+
+  writeMessage: function (aWho, aText, aProperties) {
+    aProperties.containsNick = aText.indexOf(this.nick) != -1;
+    GenericConversationPrototype.writeMessage.apply(this, arguments);
   }
 };
 
