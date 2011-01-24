@@ -69,8 +69,9 @@
            <xul:description class="error" anonid="reconnect"/>
            <xul:spacer flex="1"/>
           </xul:vbox>
-          <xul:checkbox label="&account.autoSignOn;" dir="reverse"
+          <xul:checkbox label="&account.autoSignOn.label;" dir="reverse"
                         xbl:inherits="checked=autologin" class="autoSignOn"
+                        accesskey="&account.autoSignOn.accesskey;"
                         oncommand="gAccountManager.autologin()"/>
         </xul:hbox>
         <xul:hbox flex="1" class="account-buttons" anonid="buttons"
