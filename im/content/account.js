@@ -100,7 +100,7 @@ var account = {
     }
   },
 
-  displayProxyDescription: function aw_displayProxyDescription() {
+  displayProxyDescription: function account_displayProxyDescription() {
     var type = this.proxy.type;
     var bundle = document.getElementById("proxiesBundle");
     var proxy;
@@ -255,12 +255,14 @@ var account = {
     return elt.value;
   },
 
-  save: function account_create() {
+  save: function account_save() {
     let connectionInfoHasChanged = false;
-    var password = this.getValue("password");
-    if (password != this.account.password) {
-      this.account.password = password;
-      connectionInfoHasChanged = true;
+    if (!this.proto.noPassword) {
+      var password = this.getValue("password");
+      if (password != this.account.password) {
+        this.account.password = password;
+        connectionInfoHasChanged = true;
+      }
     }
 
     //acc.rememberPassword = this.getValue("rememberPassword");
@@ -342,7 +344,7 @@ var account = {
     return getIter(this.proto.getOptions());
   },
 
-  openProxySettings: function aw_openProxySettings() {
+  openProxySettings: function account_openProxySettings() {
     window.openDialog("chrome://instantbird/content/proxies.xul", "",
                       "chrome,modal,titlebar,centerscreen",
                       this);
