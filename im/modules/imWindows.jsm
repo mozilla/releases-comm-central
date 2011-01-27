@@ -36,6 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 const CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
+const BROWSER_REQUEST_WINDOW_URI = "chrome://instantbird/content/browserRequest.xul";
 var EXPORTED_SYMBOLS = ["Conversations"];
 
 Components.utils.import("resource:///modules/imServices.jsm");
@@ -265,7 +266,8 @@ var Conversations = {
 
   init: function() {
     let os = Services.obs;
-    ["new-text",
+    ["browser-request",
+     "new-text",
      "new-conversation",
      "account-connected",
      "purple-quit",
@@ -320,6 +322,12 @@ var Conversations = {
           }
         }
       }
+      return;
+    }
+
+    if (aTopic == "browser-request") {
+      Services.ww.openWindow(null, BROWSER_REQUEST_WINDOW_URI, null,
+                             "chrome", aSubject);
       return;
     }
 

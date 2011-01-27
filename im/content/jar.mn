@@ -18,6 +18,8 @@ instantbird.jar:
 *	instantbird/blist.xul
 *	instantbird/buddy.xml
 	instantbird/buddytooltip.xml
+        instantbird/browserRequest.js
+        instantbird/browserRequest.xul
 	instantbird/core.js
 	instantbird/topicNotification.xml
 *	instantbird/conversation.xml

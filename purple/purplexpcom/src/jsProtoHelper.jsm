@@ -734,8 +734,10 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
   var xhr = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
                       .createInstance(Ci.nsIXMLHttpRequest);
   xhr.mozBackgroundRequest = true; // no error dialogs
-  xhr.open("POST", aUrl);
-  xhr.channel.loadFlags = Ci.nsIChannel.LOAD_ANONYMOUS; // don't send cookies
+  xhr.open(aPOSTData ? "POST" : "GET", aUrl);
+  xhr.channel.loadFlags = Ci.nsIChannel.LOAD_ANONYMOUS | // don't send cookies
+                          Ci.nsIChannel.LOAD_BYPASS_CACHE |
+                          Ci.nsIChannel.INHIBIT_CACHING;
   xhr.onerror = function(aProgressEvent) {
     if (aOnError) {
       // adapted from toolkit/mozapps/extensions/nsBlocklistService.js
@@ -762,11 +764,11 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
       if (target.status != 200)
         throw target.status + " - " + target.statusText;
       if (aOnLoad)
-        aOnLoad.call(aThis, aRequest.target.responseText);
+        aOnLoad.call(aThis, target.responseText);
     } catch (e) {
       Components.utils.reportError(e);
       if (aOnError)
-        aOnError.call(aThis, e);
+        aOnError.call(aThis, e, aRequest.target.responseText);
     }
   };
 
@@ -775,9 +777,14 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
       xhr.setRequestHeader(header[0], header[1]);
     });
   }
-  let POSTData =
-    (aPOSTData || []).map(function(aParam) aParam[0] + "=" + encodeURI(aParam[1]))
-                     .join("&");
+
+  let POSTData = "";
+  if (aPOSTData) {
+    xhr.setRequestHeader("Content-Type",
+                         "application/x-www-form-urlencoded; charset=utf-8");
+    POSTData = aPOSTData.map(function(p) p[0] + "=" + encodeURIComponent(p[1]))
+                        .join("&");
+  }
 
   LOG("sending request to " + aUrl + " (POSTData = " + POSTData + ")");
   xhr.send(POSTData);
