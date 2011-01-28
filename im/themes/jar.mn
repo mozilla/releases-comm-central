@@ -218,6 +218,10 @@ instantbird.jar:
 	skin/classic/prpl/simple/icon32.png	(prpl/prpl-simple-32.png)
 	skin/classic/prpl/simple/icon48.png	(prpl/prpl-simple-48.png)
 	skin/classic/prpl/simple/icon.png	(prpl/prpl-simple.png)
+% skin prpl-twitter classic/1.0 %skin/classic/prpl/twitter/
+	skin/classic/prpl/twitter/icon32.png	(prpl/prpl-twitter-32.png)
+	skin/classic/prpl/twitter/icon48.png	(prpl/prpl-twitter-48.png)
+	skin/classic/prpl/twitter/icon.png	(prpl/prpl-twitter.png)
 % skin prpl-yahoo classic/1.0 %skin/classic/prpl/yahoo/
 % skin prpl-yahoojp classic/1.0 %skin/classic/prpl/yahoo/
 	skin/classic/prpl/yahoo/icon32.png	(prpl/prpl-yahoo-32.png)

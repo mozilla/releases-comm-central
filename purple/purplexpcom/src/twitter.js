@@ -401,6 +401,7 @@ function TwitterProtocol() { }
 TwitterProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get name() "Twitter",
+  get iconBaseURI() "chrome://prpl-twitter/skin/",
   get noPassword() true,
   options: {
     "track": {label: "Tracked keywords", default: ""}
