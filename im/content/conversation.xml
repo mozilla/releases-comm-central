@@ -140,11 +140,7 @@
          <![CDATA[
            if (this._conv) {
              this._conv.close();
-             this._conv.removeObserver(this);
-             Conversations.unregisterConversation(this);
-             delete this._conv;
-             this.browser.destroy();
-             this.findbar.destroy();
+             this._forgetConv();
            }
 
            if ("MessageFormat" in window) {
@@ -153,6 +149,18 @@
              TextboxSpellChecker.unregisterTextbox(textbox);
            }
          ]]>
+       </body>
+     </method>
+
+     <method name="_forgetConv">
+       <body>
+        <![CDATA[
+           this._conv.removeObserver(this);
+           Conversations.unregisterConversation(this);
+           delete this._conv;
+           this.browser.destroy();
+           this.findbar.destroy();
+        ]]>
        </body>
      </method>
 
@@ -1127,11 +1135,7 @@
              // this conversation has probably been moved to another
              // tab. Forget the purpleConversation so that it isn't
              // closed when destroying this binding.
-             this._conv.removeObserver(this);
-             Conversations.unregisterConversation(this);
-             delete this._conv;
-             this.browser.destroy();
-             this.findbar.destroy();
+             this._forgetConv();
              return val;
            }
            this._conv = val;
