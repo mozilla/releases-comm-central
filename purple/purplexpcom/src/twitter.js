@@ -37,7 +37,7 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource://app/modules/jsProtoHelper.jsm");
+Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 const Ci = Components.interfaces;
 const Cc = Components.classes;
 
