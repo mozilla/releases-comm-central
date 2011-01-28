@@ -414,6 +414,8 @@
 @BINPATH@/components/facebookOverrideProtocol.js
 @BINPATH@/components/gtalkOverrideProtocol.js
 @BINPATH@/components/overrideProtocols.manifest
+@BINPATH@/components/twitter.js
+@BINPATH@/components/twitter.manifest
 @BINPATH@/components/smileProtocolHandler.js
 @BINPATH@/components/smileProtocolHandler.manifest
 @BINPATH@/components/logger.js
