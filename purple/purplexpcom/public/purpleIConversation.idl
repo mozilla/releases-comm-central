@@ -67,8 +67,9 @@ interface purpleIConversation: nsISupports {
   /* The 'Window' title */
   readonly attribute AUTF8String title;
 
-  /* Unique identifier of the conversation (FIXME useless?) */
-  readonly attribute unsigned long id;
+  /* Unique identifier of the conversation */
+  /* Setable only once by purpleCoreService while calling addConversation. */
+           attribute unsigned long id;
 
   /* Send a message in the conversation */
   void sendMsg(in AUTF8String aMsg);
@@ -86,6 +87,11 @@ interface purpleIConversation: nsISupports {
      arguments or failed to execute for any other reason.
   */
   boolean doCommand(in AUTF8String aMsg);
+
+  /* Un-initialize the conversation. Will be called by
+     purpleCoreService::RemoveConversation when the conversation is
+     closed or by purpleCoreService::Quit while exiting. */
+  void unInit();
 
   /* Close the conversation */
   void close();

@@ -440,14 +440,19 @@ const GenericConversationPrototype = {
   __proto__: ClassInfo("purpleIConversation", "generic conversation object"),
   flags: Ci.nsIClassInfo.DOM_OBJECT,
 
-  _lastId: 0,
   _init: function(aAccount, aName) {
     this.account = aAccount;
     this._name = aName;
-    this.id = ++GenericConversationPrototype._lastId;
-
     this._observers = [];
-    Services.obs.notifyObservers(this, "new-conversation", null);
+    Services.core.addConversation(this);
+  },
+
+  _id: 0,
+  get id() this._id,
+  set id(aId) {
+    if (this._id)
+      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+    this._id = aId;
   },
 
   addObserver: function(aObserver) {
@@ -468,7 +473,10 @@ const GenericConversationPrototype = {
   sendMsg: function (aMsg) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
-  close: function() { },
+  close: function() {
+    Services.core.removeConversation(this);
+  },
+  unInit: function() { },
 
   writeMessage: function(aWho, aText, aProperties) {
     (new Message(aWho, aText, aProperties)).conversation = this;

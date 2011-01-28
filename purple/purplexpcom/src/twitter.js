@@ -53,7 +53,7 @@ function Conversation(aAccount)
 }
 Conversation.prototype = {
   __proto__: GenericConvChatPrototype,
-  close: function() { delete this.account._timeline; },
+  unInit: function() { delete this.account._timeline; },
   sendMsg: function (aMsg) {
     this.account.tweet(aMsg, this.onSentCallback, function(aException, aData) {
       let error = "";
