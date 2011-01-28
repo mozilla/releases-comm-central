@@ -99,6 +99,7 @@ function Account(aProtoInstance, aKey, aName)
 Account.prototype = {
   __proto__: GenericAccountPrototype,
 
+  get HTMLEnabled() false,
   consumerKey: "TSuyS1ieRAkB3qWv8yyEw",
   consumerSecret: "DKtKaSf5a7pBNhdBsSZHTnI5Y03hRlPFYWmb4xXBlkU",
   completionURI: "http://oauthcallback.local/",
