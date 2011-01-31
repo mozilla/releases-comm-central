@@ -87,8 +87,8 @@ Conversation.prototype = {
     this.notifyObservers(new nsSimpleEnumerator([chatBuddy]),
                          "chat-buddy-add");
   },
-  get name() "Twitter timeline",
-  get nick() this.account.name
+  get name() this.nick + " timeline",
+  get nick() "@" + this.account.name
 };
 
 function Account(aProtoInstance, aKey, aName)
