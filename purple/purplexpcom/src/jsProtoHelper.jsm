@@ -248,14 +248,19 @@ const GenericAccountPrototype = {
     return new nsSimpleEnumerator(fields);
   },
   getChatRoomDefaultFieldValues: function(aDefaultChatName) {
-    //FIXME: support aDefaultChatName once there's a use case in the UI.
-
     if (!this.chatRoomFields)
       return EmptyEnumerator;
 
     let defaultFieldValues = [];
     for (let fieldName in this.chatRoomFields)
       defaultFieldValues[fieldName] = this.chatRoomFields[fieldName].default;
+
+    if (aDefaultChatName && "parseDefaultChatName" in this) {
+      let parsedDefaultChatName = this.parseDefaultChatName(aDefaultChatName);
+      for (let field in parsedDefaultChatName)
+        defaultFieldValues[field] = parsedDefaultChatName[field];
+    }
+
     return new ChatRoomFieldValues(defaultFieldValues);
   },
 
