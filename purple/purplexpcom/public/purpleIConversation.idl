@@ -74,20 +74,6 @@ interface purpleIConversation: nsISupports {
   /* Send a message in the conversation */
   void sendMsg(in AUTF8String aMsg);
 
-  /* Handle commands from a potential message.
-
-     Will return true if the message as been handled as a command and
-     should not be sent as a message, false if the message should be sent.
-
-     Will fail (NS_ERROR_FAILURE) if the message starts with / which
-     is the native command character of the protocol but is not a
-     valid command.
-
-     Will also fail (NS_ERROR_FAILURE) if a valid command had wrong
-     arguments or failed to execute for any other reason.
-  */
-  boolean doCommand(in AUTF8String aMsg);
-
   /* Un-initialize the conversation. Will be called by
      purpleCoreService::RemoveConversation when the conversation is
      closed or by purpleCoreService::Quit while exiting. */

@@ -459,6 +459,25 @@ var buddyList = {
       return;
     }
 
+    let status = {
+      back: "AVAILABLE",
+      away: "AWAY",
+      busy: "UNAVAILABLE",
+      dnd: "UNAVAILABLE",
+      offline: "OFFLINE"
+    };
+    for (let cmd in status) {
+      let statusValue = Ci.purpleICoreService["STATUS_" + status[cmd]];
+      Services.cmd.registerCommand({
+        name: cmd,
+        priority: Ci.imICommand.PRIORITY_HIGH,
+        run: function(aMsg) {
+          Services.core.setStatus(statusValue, aMsg);
+          return true;
+        }
+      });
+    }
+
     // TODO remove this once we cleanup the way the menus are inserted
     let menubar = document.getElementById("blistMenubar");
     let statusArea = document.getElementById("statusArea");

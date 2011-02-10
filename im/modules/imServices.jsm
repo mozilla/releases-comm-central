@@ -43,6 +43,9 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyServiceGetter(Services, "core",
                                    "@instantbird.org/purple/core;1",
                                    "purpleICoreService");
+XPCOMUtils.defineLazyServiceGetter(Services, "cmd",
+                                   "@instantbird.org/purple/commands-service;1",
+                                   "imICommandsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "tags",
                                    "@instantbird.org/purple/tags-service;1",
                                    "imITagsService");
