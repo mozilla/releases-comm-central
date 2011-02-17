@@ -686,6 +686,19 @@ const GenericProtocolPrototype = {
       this.usernameSplits.map(function(split) new UsernameSplit(split)));
   },
 
+  registerCommands: function() {
+    if (!this.commands)
+      return;
+
+    this.commands.forEach(function(command) {
+      if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run"))
+          throw "Every command must have a name and a run function.";
+      if (!command.hasOwnProperty("priority"))
+        command.priority = Ci.imICommand.PRIORITY_PRPL;
+      Services.cmd.registerCommand(command, this.id);
+    }, this)
+  },
+
   // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
   get usernameEmptyText() "",
   accountExists: function() false, //FIXME
