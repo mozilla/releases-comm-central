@@ -478,6 +478,7 @@ const GenericConversationPrototype = {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   close: function() {
+    Services.obs.notifyObservers(this, "closing-conversation", null);
     Services.core.removeConversation(this);
   },
   unInit: function() { },
