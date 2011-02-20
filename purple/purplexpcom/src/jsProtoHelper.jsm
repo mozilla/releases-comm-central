@@ -82,6 +82,8 @@ function clearTimeout(aTimer)
   aTimer.cancel();
 }
 
+function normalize(aString) aString.replace(/[^a-z0-9]/gi, "").toLowerCase()
+
 /* Common nsIClassInfo and QueryInterface implementation
  * shared by all generic objects implemented in this file. */
 function ClassInfo(aInterfaces, aDescription)
@@ -230,6 +232,11 @@ const GenericAccountPrototype = {
     this._base.init(aKey, aName, aProtoInstance);
   },
 
+  addBuddy: function(aTag, aName) {
+    Components.classes["@instantbird.org/purple/contacts-service;1"]
+              .getService(Ci.imIContactsService)
+              .accountBuddyAdded(new AccountBuddy(this, null, aTag, aName));
+  },
   loadBuddy: function(aBuddy, aTag) {
    try {
      return new AccountBuddy(this, aBuddy, aTag) ;
@@ -276,7 +283,7 @@ const GenericAccountPrototype = {
     (this._prefs = Services.prefs.getBranch("messenger.account." + this.id +
                                             ".options.")),
 
-  get normalizedName() this.name.toLowerCase(),
+  get normalizedName() normalize(this.name),
   get proxyInfo() { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
   set proxyInfo(val) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; }
 };
@@ -284,10 +291,14 @@ const GenericAccountPrototype = {
 
 const GenericAccountBuddyPrototype = {
   __proto__: ClassInfo("imIAccountBuddy", "generic account buddy object"),
-  _init: function(aAccount, aBuddy, aTag) {
+  _init: function(aAccount, aBuddy, aTag, aUserName) {
+    if (!aBuddy && !aUserName)
+      throw "aUserName is required when aBuddy is null";
+
     this._tag = aTag;
     this._account = aAccount;
     this._buddy = aBuddy;
+    this._userName = aUserName;
   },
 
   get account() this._account,
@@ -310,8 +321,10 @@ const GenericAccountBuddyPrototype = {
     this._buddy.observe(this, "account-buddy-" + aTopic, aData);
   },
 
-  get userName() this._buddy.userName, // FIXME
-  get normalizedName() this._buddy.normalizedName, //FIXME
+  _userName: "",
+  get userName() this._userName || this._buddy.userName,
+  get normalizedName()
+    this._userName ? normalize(this._userName) : this._buddy.normalizedName,
   _serverAlias: "",
   get serverAlias() this._serverAlias,
   set serverAlias(aNewAlias) {
@@ -393,8 +406,9 @@ const GenericAccountBuddyPrototype = {
   }
 };
 
-function AccountBuddy(aAccount, aBuddy, aTag) {
-  this._init(aAccount, aBuddy, aTag);
+// aUserName is required only if aBuddy is null (= we are adding a buddy)
+function AccountBuddy(aAccount, aBuddy, aTag, aUserName) {
+  this._init(aAccount, aBuddy, aTag, aUserName);
 }
 AccountBuddy.prototype = GenericAccountBuddyPrototype;
 
@@ -488,7 +502,7 @@ const GenericConversationPrototype = {
   },
 
   get name() this._name,
-  get normalizedName() this.name.toLowerCase(),
+  get normalizedName() normalize(this.name),
   get title() this.name,
   account: null
 };
@@ -649,7 +663,7 @@ const GenericProtocolPrototype = {
   __proto__: ClassInfo("purpleIProtocol", "Generic protocol object"),
 
   get id() "prpl-" + this.normalizedName,
-  get normalizedName() this.name.replace(/[^a-z0-0]/gi, "").toLowerCase(),
+  get normalizedName() normalize(this.name),
   get iconBaseURI() "chrome://instantbird/skin/prpl-generic/",
 
   getAccount: function(aKey, aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
