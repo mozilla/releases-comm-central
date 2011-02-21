@@ -36,76 +36,15 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const purpleIConversation = Components.interfaces.purpleIConversation;
-const purpleIConvIM = Components.interfaces.purpleIConvIM;
-const purpleIConvChat = Components.interfaces.purpleIConvChat;
+Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
-function Conversation(aName, aIsChat)
+function Conversation(aName)
 {
   this.name = aName;
-  this.isChat = aIsChat;
 }
 Conversation.prototype = {
-  QueryInterface: function(aIid) {
-    if (aIid.equals(Components.interfaces.nsISupports) ||
-        aIid.equals(Components.interfaces.purpleIConversation) ||
-        aIid.equals(this.isChat ? purpleIConvChat : purpleIConvIM))
-      return this;
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-
-  addObserver: function(aObserver) { },
-  removeObserver: function() { },
-  close: function() null,
-  sendTyping: function() null,
-
-  get title() this.name,
-    account: {protocol: {name: "Fake Protocol"}, name: "Fake Account"},
-  buddy: null,
-  typingState: purpleIConvIM.NOT_TYPING,
-  topic: "Fake Conversation"
-};
-
-function Message(aTime, aWho, aMessage, aObject)
-{
-  this.id = ++Message.prototype._lastId;
-  this.time = aTime;
-  this.alias = aWho;
-  this.who = aWho;
-  this.message = aMessage;
-  this.originalMessage = aMessage;
-
-  if (aObject)
-    for (let i in aObject)
-      this[i] = aObject[i];
-}
-Message.prototype = {
-  _lastId: 0,
-  QueryInterface: function(aIid) {
-    if (aIid.equals(Components.interfaces.nsISupports) ||
-        aIid.equals(Components.interfaces.purpleIMessage))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-
-  reset: function m_reset() {
-    this.message = this.originalMessage;
-  },
-  conversation: null,
-  color: "",
-  outgoing: false,
-  incoming: false,
-  system: false,
-  autoResponse: false,
-  containsNick: false,
-  noLog: false,
-  error: false,
-  delayed: false,
-  noFormat: false,
-  containsImages: false,
-  notification: false,
-  noLinkification: false
+  __proto__: GenericConvIMPrototype,
+  account: {protocol: {name: "Fake Protocol"}, name: "Fake Account"}
 };
 
 var previewObserver = {
@@ -125,9 +64,9 @@ var previewObserver = {
     });
     let conv = new Conversation(msg.nick2);
     conv.messages = [
-      new Message(makeDate("10:42:22"), msg.nick1, msg.message1, {outgoing: true, conversation: conv, who: msg.buddy1}),
-      new Message(makeDate("10:42:25"), msg.nick1, msg.message2, {outgoing: true, conversation: conv, who: msg.buddy1}),
-      new Message(makeDate("10:43:01"), msg.nick2, msg.message3, {incoming: true, conversation: conv, who: msg.buddy2})
+      new Message(msg.nick1, msg.message1, {outgoing: true, who: msg.buddy1, time: makeDate("10:42:22"), _conversation: conv}),
+      new Message(msg.nick1, msg.message2, {outgoing: true, who: msg.buddy1, time: makeDate("10:42:25"), _conversation: conv}),
+      new Message(msg.nick2, msg.message3, {incoming: true, who: msg.buddy2, time: makeDate("10:43:01"), _conversation: conv})
     ];
     previewObserver.conv = conv;
 
@@ -238,7 +177,7 @@ var previewObserver = {
   },
 
   reloadPreview: function() {
-    this.conv.messages.forEach(function (m) { m.reset(); });
+    this.conv.messages.forEach(function (m) { m.message = m.originalMessage; });
     this.browser.init(this.conv);
     this.browser._theme = this.theme;
     Services.obs.addObserver(this, "conversation-loaded", false);
@@ -250,9 +189,9 @@ var previewObserver = {
 
     // Display all queued messages. Use a timeout so that message text
     // modifiers can be added with observers for this notification.
-    setTimeout(function(aSelf) {
-      aSelf.conv.messages.forEach(aSelf.browser.appendMessage, aSelf.browser);
-    }, 0, this);
+    setTimeout(function() {
+      previewObserver.conv.messages.forEach(aSubject.appendMessage, aSubject);
+    }, 0);
 
     Services.obs.removeObserver(this, "conversation-loaded");
   }
