@@ -501,6 +501,7 @@ var buddyList = {
       if (!groupElt.build(aTag))
         blistBox.removeChild(groupElt);
     });
+    blistBox.focus();
 
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
