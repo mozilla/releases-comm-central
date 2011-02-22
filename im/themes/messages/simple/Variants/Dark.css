@@ -1,0 +1,16 @@
+body {
+  background: #222;
+  color: #eee;
+}
+.outgoing .pseudo {
+  color: #7878dc;
+}
+.incoming .pseudo {
+  color: #dc7878;
+}
+.event {
+  color: #d3d3d3;
+}
+a {
+  color: #5497ea;
+}

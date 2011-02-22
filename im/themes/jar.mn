@@ -425,3 +425,4 @@ instantbird.jar:
 	skin/classic/instantbird/messages/simple/main.css              (messages/simple/main.css)
 	skin/classic/instantbird/messages/simple/Status.html           (messages/simple/Status.html)
 	skin/classic/instantbird/messages/simple/Variants/Normal.css   (messages/simple/Variants/Normal.css)
+	skin/classic/instantbird/messages/simple/Variants/Dark.css     (messages/simple/Variants/Dark.css)
