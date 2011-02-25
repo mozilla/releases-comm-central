@@ -172,6 +172,14 @@ interface imIContact: imIStatusInfo {
   void getBuddies([optional] out unsigned long buddyCount,
                   [retval, array, size_is(buddyCount)] out imIBuddy buddies);
 
+  void mergeContact(in imIContact aContact);
+  void adoptBuddy(in imIBuddy aBuddy);
+
+  // Returns a new contact that contains only aBuddy, and has the same
+  // list of tags.
+  // Will throw if aBuddy is not a buddy of the contact.
+  imIContact detachBuddy(in imIBuddy aBuddy);
+
   // remove the contact from the buddy list. Will also remove the
   // associated buddies.
   void remove();

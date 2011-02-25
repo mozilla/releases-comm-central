@@ -46,11 +46,11 @@
 
   <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content align="center">
-      <xul:stack class="prplBuddyIcon">
+      <xul:stack class="prplBuddyIcon" mousethrough="always">
         <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
         <xul:image class="statusIcon"/>
       </xul:stack>
-      <xul:label crop="end" flex="1"
+      <xul:label crop="end" flex="1" mousethrough="always"
                  anonid="displayname" class="buddyDisplayName"
                  xbl:inherits="value=displayname"/>
     </content>
@@ -329,6 +329,35 @@
        <![CDATA[
          if (!this.hasAttribute("aliasing") && canOpenConversation())
            openConversation();
+       ]]>
+     </handler>
+
+     <handler event="dragstart">
+       <![CDATA[
+         event.dataTransfer.setData("application/x-ib-contact",
+                                    this.contact.id);
+         event.stopPropagation();
+       ]]>
+     </handler>
+     <handler event="drop">
+       <![CDATA[
+         let id = event.dataTransfer.getData("application/x-ib-contact");
+         let from = Services.contacts.getContactById(id);
+         this.contact.mergeContact(from);
+       ]]>
+     </handler>
+     <handler event="dragenter">
+       <![CDATA[
+         if (event.dataTransfer.types.contains("application/x-ib-contact") &&
+             event.dataTransfer.getData("application/x-ib-contact") != this.contact.id)
+           event.preventDefault()
+       ]]>
+     </handler>
+     <handler event="dragover">
+       <![CDATA[
+         if (event.dataTransfer.types.contains("application/x-ib-contact") &&
+             event.dataTransfer.getData("application/x-ib-contact") != this.contact.id)
+           event.preventDefault()
        ]]>
      </handler>
     </handlers>

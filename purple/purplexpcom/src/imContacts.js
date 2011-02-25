@@ -188,28 +188,13 @@ Contact.prototype = {
   get id() this._id,
   get alias() this._alias,
   set alias(aNewAlias) {
-    if (this._id < 0) {
-      // Create a real contact for this dummy contact
-      let statement = DBConn.createStatement("INSERT INTO contacts (alias) VALUES(:alias)");
-      statement.params.alias = aNewAlias;
-      statement.execute();
-      delete ContactsById[this._id];
-      let oldId = this._id;
-      this._id = DBConn.lastInsertRowID;
-      ContactsById[this._id] = this;
-      this._notifyObservers("no-longer-dummy", oldId.toString());
-      // Update the contact_id for the single existing buddy of this contact
-      statement = DBConn.createStatement("UPDATE buddies SET contact_id = :id WHERE id = :buddy_id");
-      statement.params.id = this._id;
-      statement.params.buddy_id = this._buddies[0].id;
-      statement.execute();
-    }
-    else {
-      let statement = DBConn.createStatement("UPDATE contacts SET alias = :alias WHERE id = :id");
-      statement.params.alias = aNewAlias;
-      statement.params.id = this._id;
-      statement.execute();
-    }
+    this._ensureNotDummy();
+
+    let statement = DBConn.createStatement("UPDATE contacts SET alias = :alias WHERE id = :id");
+    statement.params.alias = aNewAlias;
+    statement.params.id = this._id;
+    statement.executeAsync();
+
     let oldDisplayName = this.displayName;
     this._alias = aNewAlias;
     this._notifyObservers("display-name-changed", oldDisplayName);
@@ -218,11 +203,50 @@ Contact.prototype = {
         accountBuddy.serverAlias = aNewAlias;
     return aNewAlias;
   },
+  _ensureNotDummy: function() {
+    if (this._id >= 0)
+      return;
+
+    // Create a real contact for this dummy contact
+    let statement = DBConn.createStatement("INSERT INTO contacts DEFAULT VALUES");
+    statement.execute();
+    delete ContactsById[this._id];
+    let oldId = this._id;
+    this._id = DBConn.lastInsertRowID;
+    ContactsById[this._id] = this;
+    this._notifyObservers("no-longer-dummy", oldId.toString());
+    // Update the contact_id for the single existing buddy of this contact
+    statement = DBConn.createStatement("UPDATE buddies SET contact_id = :id WHERE id = :buddy_id");
+    statement.params.id = this._id;
+    statement.params.buddy_id = this._buddies[0].id;
+    statement.executeAsync();
+  },
 
   getTags: function(aTagCount) {
     if (aTagCount)
       aTagCount.value = this._tags.length;
     return this._tags;
+  },
+  addTag: function(aTag, aInherited) {
+    if (this.hasTag(aTag))
+      return;
+
+    if (!aInherited) {
+      let statement =
+        DBConn.createStatement("INSERT INTO contact_tag (contact_id, tag_id) " +
+                               "VALUES(:contactId, :tagId)");
+      statement.params.contactId = this.id;
+      statement.params.tagId = aTag.id;
+      statement.executeAsync();
+    }
+
+    this._tags.push(aTag);
+    aTag._addContact(this);
+
+    aTag.notifyObservers(this, "contact-moved-in");
+    for each (let observer in this._observers)
+      observer.observe(aTag, "contact-moved-in");
+    obs.notifyObservers(this, "contact-tagged", aTag.id);
   },
   hasTag: function(aTag) this._tags.some(function (t) t.id == aTag.id),
   _massMove: false,
@@ -318,6 +342,85 @@ Contact.prototype = {
   get _empty() this._buddies.length == 0 ||
                this._buddies.every(function(b) b._empty),
 
+  mergeContact: function(aContact) {
+    if (aContact.id == this.id)
+      throw Components.results.NS_ERROR_INVALID_ARG;
+
+    this._ensureNotDummy();
+    let contact = ContactsById[aContact.id]; // remove XPConnect wrapper
+
+    // Copy all the contact-only tags first, otherwise they would be lost.
+    for each (let tag in contact.getTags())
+      if (!contact._isTagInherited(tag))
+        this.addTag(tag);
+
+    // Adopt each buddy. Removing the last one will delete the contact.
+    for each (let buddy in contact.getBuddies())
+      buddy.contact = this;
+    this._updatePreferredBuddy();
+  },
+  adoptBuddy: function(aBuddy) {
+    if (aBuddy.contact.id == this.id)
+      throw Components.results.NS_ERROR_INVALID_ARG;
+
+    let buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
+    buddy.contact = this;
+    this._updatePreferredBuddy(buddy);
+  },
+  _removeBuddy: function(aBuddy) {
+    if (this._buddies.length == 1) {
+      if (this._id > 0) {
+        let statement =
+          DBConn.createStatement("DELETE FROM contacts WHERE id = :id");
+        statement.params.id = this._id;
+        statement.executeAsync();
+      }
+      this._notifyObservers("removed");
+      delete ContactsById[this._id];
+
+      for each (let tag in this._tags)
+        tag._removeContact(this);
+      let statement =
+        DBConn.createStatement("DELETE FROM contact_tag WHERE contact_id = :id");
+      statement.params.id = this._id;
+      statement.executeAsync();
+
+      delete this._tags;
+      delete this._buddies;
+      delete this._observers;
+    }
+    else {
+      let index = this._buddies.indexOf(aBuddy);
+      if (index != -1)
+        this._buddies.splice(index, 1);
+      else
+        throw "Removing an unknown buddy from contact " + this._id;
+      if (this._preferredBuddy.id == aBuddy.id) {
+        this._preferredBuddy = null;
+        this._updatePreferredBuddy();
+      }
+    }
+  },
+
+  detachBuddy: function(aBuddy) {
+    // Should return a new contact with the same list of tags.
+    let buddy = BuddiesById[aBuddy.id];
+    if (buddy.contact.id != this.id)
+      throw Components.results.NS_ERROR_INVALID_ARG;
+
+    // Save the list of tags, it may be destoyed if the buddy was the last one.
+    let tags = buddy.contact.getTags();
+
+    // Create a new dummy contact and use it for the detached buddy.
+    buddy.contact = new Contact();
+
+    // The first tag was inherited during the contact setter.
+    // This will copy the remaining tags.
+    for each (let tag in tags)
+      buddy.contact.addTag(tag);
+
+    return buddy.contact;
+  },
   remove: function() {
     for each (let buddy in this._buddies)
       buddy.remove();
@@ -344,6 +447,8 @@ Contact.prototype = {
   // aBuddy indicate which buddy's availability has changed.
   _updatePreferredBuddy: function(aBuddy) {
     if (aBuddy) {
+      aBuddy = BuddiesById[aBuddy.id]; // remove potential XPConnect wrapper
+
       if (!this._preferredBuddy) {
         this.preferredBuddy = aBuddy;
         return;
@@ -364,17 +469,20 @@ Contact.prototype = {
       }
       else {
         // The suggested buddy is not currently preferred. If it is
-        // more available, prefer it!
+        // more available or at a better position, prefer it!
         if (aBuddy.statusType > this._statusType ||
             (aBuddy.statusType == this._statusType &&
-             aBuddy.availabilityDetails > this._availabilityDetails))
+             (aBuddy.availabilityDetails > this._availabilityDetails ||
+              (aBuddy.availabilityDetails == this._availabilityDetails &&
+               this._buddies.indexOf(aBuddy) < this._buddies.indexOf(this.preferredBuddy)))))
           this.preferredBuddy = aBuddy;
         return;
       }
     }
 
     let preferred;
-    //TODO take into account the order of the buddies in the contact.
+    // |this._buddies| is ordered by user preference, so in case of
+    // equal availability, keep the current value of |preferred|.
     for each (let buddy in this._buddies) {
       if (!preferred || preferred.statusType < buddy.statusType ||
           (preferred.statusType == buddy.statusType &&
@@ -477,33 +585,7 @@ Contact.prototype = {
         this._notifyObservers("added");
         break;
       case "buddy-removed":
-        if (this._buddies.length == 1) {
-          if (this._id > 0) {
-            let statement =
-              DBConn.createStatement("DELETE FROM contacts WHERE id = :id");
-            statement.params.id = this._id;
-            statement.execute();
-          }
-          this._notifyObservers("removed");
-
-          delete ContactsById[this._id];
-          for each (let tag in this._tags)
-            tag._removeContact(this);
-          delete this._tags;
-          delete this._buddies;
-          delete this._observers;
-        }
-        else {
-          let index = this._buddies.indexOf(aSubject);
-          if (index != -1)
-            this._buddies.splice(index, 1);
-          else
-            throw "Removing an unknown buddy from contact " + this._id;
-          if (this._preferredBuddy.id == aSubject.id) {
-            this._preferredBuddy = null;
-            this._updatePreferredBuddy();
-          }
-        }
+        this._removeBuddy(aSubject);
     }
   },
 
@@ -550,6 +632,32 @@ Buddy.prototype = {
   _srvAlias: "",
   _contact: null,
   get contact() this._contact,
+  set contact(aContact) /* not in imIBuddy */ {
+    if (aContact.id == this._contact.id)
+      throw Components.results.NS_ERROR_INVALID_ARG;
+
+    this._notifyObservers("moved-out-of-contact");
+    this._contact._removeBuddy(this);
+
+    this._contact = aContact;
+    this._contact._buddies.push(this);
+
+    // Ensure all the inherited tags are in the new contact.
+    for each (let accountBuddy in this._accounts)
+      this._contact.addTag(TagsById[accountBuddy.tag.id], true);
+
+    let statement =
+      DBConn.createStatement("UPDATE buddies SET contact_id = :contactId, " +
+                             "position = :position " +
+                             "WHERE id = :buddyId");
+    statement.params.contactId = aContact.id;
+    statement.params.position = aContact._buddies.length - 1;
+    statement.params.buddyId = this.id;
+    statement.executeAsync();
+
+    this._notifyObservers("moved-into-contact");
+    return aContact;
+  },
   getAccountBuddies: function(aAccountBuddyCount) {
     if (aAccountBuddyCount)
       aAccountBuddyCount.value = this._accounts.length;
@@ -833,7 +941,7 @@ ContactsService.prototype = {
 
   getContactById: function(aId) ContactsById[aId],
   getBuddyById: function(aId) BuddiesById[aId],
-  getBuddyByNameAndProtocol: function (aNormalizedName, aPrpl) {
+  getBuddyByNameAndProtocol: function(aNormalizedName, aPrpl) {
     let statement =
       DBConn.createStatement("SELECT b.id FROM buddies b " +
                              "JOIN account_buddy ab ON buddy_id = b.id " +

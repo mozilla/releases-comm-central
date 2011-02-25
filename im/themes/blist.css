@@ -58,6 +58,10 @@ group[selected="true"] {
   color: -moz-DialogText;
 }
 
+buddy:-moz-drag-over {
+  background-color: -moz-dragtargetzone;
+}
+
 .buddyDisplayName {
   -moz-margin-end: 0;
 }
