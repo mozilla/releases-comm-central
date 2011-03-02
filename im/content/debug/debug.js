@@ -21,7 +21,7 @@ var debug = {
   },
 
   inspector: function debug_inspector() {
-    inspectDOMDocument();
+    inspectDOMDocument(document);
   },
 
   garbageCollect: function debug_garbageCollect() {
