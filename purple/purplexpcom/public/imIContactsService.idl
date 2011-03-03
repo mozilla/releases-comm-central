@@ -172,7 +172,18 @@ interface imIContact: imIStatusInfo {
   void getBuddies([optional] out unsigned long buddyCount,
                   [retval, array, size_is(buddyCount)] out imIBuddy buddies);
 
+  // Move all the buddies of aContact into the current contact,
+  // and copy all its tags.
   void mergeContact(in imIContact aContact);
+
+  // Change the position of aBuddy in the current contact.
+  // The new position is the current position of aBeforeBuddy if it is
+  // specified, or at the end otherwise.
+  void moveBuddyBefore(in imIBuddy aBuddy, [optional] in imIBuddy aBeforeBuddy);
+
+  // Remove aBuddy from its current contact and append it to the list
+  // of buddies of the current contact.
+  // aBuddy should not already be attached to the current contact.
   void adoptBuddy(in imIBuddy aBuddy);
 
   // Returns a new contact that contains only aBuddy, and has the same

@@ -1,0 +1,568 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is the Instantbird messenging client, released
+   - 2007.
+   -
+   - The Initial Developer of the Original Code is
+   - Florian QUEZE <florian@instantbird.org>.
+   - Portions created by the Initial Developer are Copyright (C) 2007
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the GPL or the LGPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd" >
+  %instantbirdDTD;
+]>
+
+<bindings id="contactBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <binding id="contact" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:stack class="prplBuddyIcon" mousethrough="always">
+        <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
+        <xul:image class="statusIcon"/>
+      </xul:stack>
+      <xul:hbox flex="1" class="contact-hbox" mousethrough="always">
+        <xul:label crop="end" flex="1" mousethrough="always"
+                   anonid="displayname" class="contactDisplayName"
+                   xbl:inherits="value=displayname"/>
+        <xul:label crop="end" flex="100000" mousethrough="always"
+                   anonid="statusText" class="contactStatusText"
+                   xbl:inherits="value=statusTextWithDash"/>
+        <xul:button anonid="startChatBubble" class="startChatBubble"
+                    tooltiptext="&openConversationCmd.label;"/>
+      </xul:hbox>
+    </content>
+    <implementation implements="nsIObserver">
+
+     <destructor>
+      <![CDATA[
+        if (this.contact) {
+          this.contact.removeObserver(this);
+          delete this.contact;
+        }
+      ]]>
+     </destructor>
+
+     <method name="build">
+      <parameter name="aContact"/>
+      <parameter name="aGroup"/>
+      <body>
+      <![CDATA[
+        this.group = aGroup;
+        this.contact = aContact;
+        this.contact.addObserver(this);
+
+        // Don't do the animation if inside a closed group
+        if (this.hasAttribute("collapsed")) {
+          this.state = "collapsed";
+          return;
+        }
+
+        this.state = "showing";
+        this.addEventListener("transitionend", this._transitionEnd, true);
+      ]]>
+      </body>
+     </method>
+
+     <property name="displayName"
+               onget="return this.contact.displayName;"/>
+
+     <property name="state"
+               onget="return this.getAttribute('state');"
+               onset="this.setAttribute('state', val); return val;"/>
+
+     <property name="collapsed"
+               onget="return !!this.getAttribute('collapsed');">
+       <setter>
+         <![CDATA[
+           if (val) {
+             this.setAttribute("collapsed", val);
+             this.state = "collapsed";
+           }
+           else {
+             this.removeAttribute("collapsed");
+             this.state = "visible";
+             this.update();
+           }
+           return val;
+         ]]>
+       </setter>
+     </property>
+
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
+       <body>
+       <![CDATA[
+         if (aTopic == "contact-preferred-buddy-changed" ||
+             aTopic == "contact-display-name-changed" ||
+             aTopic == "contact-status-changed")
+           this.update();
+         else if (aTopic == "contact-signed-on") {
+           if (this.state == "fading")
+             this.state = "visible";
+         }
+         else if (aTopic == "contact-removed" ||
+                  (aTopic == "contact-moved-out" && aSubject.id == this.group.tag.id) ||
+                  (aTopic == "contact-signed-off" && !this.group.showOffline))
+           this.removeNode();
+         else if (aTopic == "buddy-moved-into-contact" && this.hasAttribute("open")) {
+           let buddyElt = document.createElement("buddy");
+           this.appendChild(buddyElt);
+           buddyElt.build(aSubject, this);
+         }
+         else if (aTopic == "buddy-position-changed" && this.hasAttribute("open")) {
+           let id = aSubject.id;
+           for (let i = 0; i < this.childNodes.length; ++i) {
+             if (this.childNodes[i].buddy.id == id) {
+               this.childNodes[i].removeNode();
+               let newPosition = Number(aData);
+               if (newPosition > i)
+                 ++newPosition;
+               let ref = null;
+               if (newPosition < this.childNodes.length)
+                 ref = this.childNodes[newPosition];
+               let buddyElt = document.createElement("buddy");
+               this.insertBefore(buddyElt, ref);
+               buddyElt.build(aSubject, this);
+               break;
+             }
+           }
+         }
+       ]]>
+       </body>
+     </method>
+
+     <method name="update">
+      <body>
+      <![CDATA[
+        this.setAttribute("displayname", this.contact.displayName);
+
+        let statusText = this.contact.statusText;
+        this.setAttribute("statusText", statusText);
+        if (statusText)
+          statusText = " - " + statusText;
+        this.setAttribute("statusTextWithDash", statusText);
+
+        if (this.contact.canSendMessage)
+          this.setAttribute("cansend", "true");
+        else
+          this.removeAttribute("cansend");
+
+        const imIStatusInfo = Components.interfaces.imIStatusInfo;
+        let statusNames = {};
+        statusNames[imIStatusInfo.STATUS_UNKNOWN] = "offline"; // Should not happen
+        statusNames[imIStatusInfo.STATUS_OFFLINE] = "offline";
+        statusNames[imIStatusInfo.STATUS_MOBILE] = "mobile";
+        statusNames[imIStatusInfo.STATUS_IDLE] = "idle";
+        statusNames[imIStatusInfo.STATUS_AWAY] = "away";
+        //XXX should UNAVAILABLE (= busy) make a difference?
+        statusNames[imIStatusInfo.STATUS_UNAVAILABLE] = "away";
+        statusNames[imIStatusInfo.STATUS_AVAILABLE] = "available";
+        this.setAttribute("status", statusNames[this.contact.statusType]);
+
+        let proto = this.contact.preferredBuddy.protocol;
+        this.setAttribute("iconPrpl", proto.iconBaseURI + "icon.png");
+      ]]>
+      </body>
+     </method>
+
+     <method name="_transitionEnd">
+      <body>
+      <![CDATA[
+        let state = this.state;
+        if (state == "showing") {
+          this.update();
+          this.state = "visible";
+        }
+        else if (state == "fading") {
+          this.state = "collapsing";
+          this.finishRemoveNode();
+        }
+        else if (state == "collapsing")
+          this.parentNode.removeChild(this);
+      ]]>
+      </body>
+     </method>
+
+     <method name="finishRemoveNode">
+      <body>
+      <![CDATA[
+        this.contact.removeObserver(this);
+        this.group.removeContact(this);
+        delete this.contact;
+      ]]>
+      </body>
+     </method>
+
+     <method name="removeNode">
+      <body>
+      <![CDATA[
+        let state = this.state;
+        if (state == "showing") {
+          // We are still doing the expand animation!
+          this.state = "collapsing";
+          this.finishRemoveNode();
+        }
+        else if (this.hasAttribute("collapsed")) {
+          // If the contact is not visible, remove it immediately (without animation)
+          this.finishRemoveNode();
+          this.parentNode.removeChild(this);
+        }
+        else
+          this.state = "fading";
+      ]]>
+      </body>
+     </method>
+
+     <method name="startAliasing">
+      <body>
+      <![CDATA[
+        if (this.hasAttribute("aliasing"))
+          return; // prevent re-entry.
+
+        this.setAttribute("aliasing", "true");
+        let textbox =
+          document.getAnonymousElementByAttribute(this, "anonid", "displayname");
+        textbox.getBoundingClientRect(); // force binding attachmant by forcing layout
+        textbox.select();
+
+        // Some keys (home/end for example) can make the selected item
+        // of the richlistbox change without producing a blur event on
+        // our textbox. Make sure we watch richlistbox selection changes.
+        var self = this;
+        this._parentSelectListener = function(aEvent) {
+          if (aEvent.target == self.parentNode)
+            self.finishAliasing(true);
+        };
+        this.parentNode.addEventListener("select", this._parentSelectListener, false);
+      ]]>
+      </body>
+     </method>
+
+     <method name="finishAliasing">
+      <parameter name="aSave"/>
+      <body>
+      <![CDATA[
+        if (aSave) {
+          this.contact.alias =
+            document.getAnonymousElementByAttribute(this, "anonid", "displayname").value;
+        }
+        this.removeAttribute("aliasing");
+        this.parentNode.removeEventListener("select", this._parentSelectListener, false);
+        delete this._parentSelectListener;
+        this.parentNode.focus();
+      ]]>
+      </body>
+     </method>
+
+     <method name="moveTo">
+      <parameter name="aGroupId"/>
+      <body>
+      <![CDATA[
+        let currentGroupId = this.group.groupId;
+        if (currentGroupId == aGroupId)
+          return;
+
+        this.contact.move(this.group.tag, Services.tags.getTagById(aGroupId));
+      ]]>
+      </body>
+     </method>
+
+     <method name="remove">
+      <body>
+      <![CDATA[
+        this.contact.remove();
+      ]]>
+      </body>
+     </method>
+
+     <method name="canOpenConversation">
+      <body>
+       <![CDATA[
+         return this.contact.canSendMessage;
+       ]]>
+      </body>
+     </method>
+
+     <method name="openConversation">
+      <body>
+       <![CDATA[
+         Conversations.focusConversation(this.contact.createConversation());
+       ]]>
+      </body>
+     </method>
+
+     <method name="keyPress">
+      <parameter name="aEvent"/>
+      <body>this._keyPress(aEvent);</body>
+     </method>
+     <method name="_keyPress">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        switch (aEvent.keyCode) {
+          // If Enter or Return is pressed, open a new conversation
+          case aEvent.DOM_VK_RETURN:
+          case aEvent.DOM_VK_ENTER:
+            if (this.hasAttribute("aliasing"))
+              this.finishAliasing(true);
+            else if (this.canOpenConversation())
+              this.openConversation();
+            break;
+
+          case aEvent.DOM_VK_F2:
+            if (!this.hasAttribute("aliasing"))
+              this.startAliasing();
+            break;
+
+          case aEvent.DOM_VK_ESCAPE:
+            if (this.hasAttribute("aliasing"))
+              this.finishAliasing(false);
+            break;
+        }
+      ]]>
+      </body>
+     </method>
+
+     <method name="_DragOk">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        aEvent.preventDefault();
+        if (this.hasAttribute("droptarget"))
+          return;
+        if ("_droptarget" in window)
+          window._droptarget.removeAttribute("droptarget");
+        window._droptarget = this;
+        this.setAttribute("droptarget", "true");
+      ]]>
+      </body>
+     </method>
+     <method name="_DragLeave">
+      <body>
+      <![CDATA[
+        if (!this.hasAttribute("droptarget"))
+          return;
+        delete window._droptarget;
+        this.removeAttribute("droptarget");
+      ]]>
+      </body>
+     </method>
+     <method name="_checkDrag">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        let dt = aEvent.dataTransfer;
+        if (dt.types.contains("application/x-ib-contact")) {
+          if (dt.getData("application/x-ib-contact") != this.contact.id)
+            this._DragOk(aEvent);
+          else
+            aEvent.stopPropagation();
+        }
+        else if (dt.types.contains("application/x-ib-buddy"))
+          this._DragOk(aEvent);
+      ]]>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="blur">
+       <![CDATA[
+         if (!this.hasAttribute("aliasing"))
+           return;
+
+         let win =
+           Components.classes["@mozilla.org/focus-manager;1"]
+                     .getService(Components.interfaces.nsIFocusManager)
+                     .activeWindow;
+         if (win == document.defaultView)
+           finishAliasing(true);
+       ]]>
+     </handler>
+
+     <handler event="mousedown">
+       <![CDATA[
+         if (!this.hasAttribute("aliasing") && canOpenConversation() &&
+             event.originalTarget.getAttribute("anonid") == "startChatBubble")
+           openConversation();
+       ]]>
+     </handler>
+
+     <handler event="click">
+       <![CDATA[
+         if (!this.hasAttribute("aliasing") && canOpenConversation() &&
+             event.detail == 2 &&
+             event.originalTarget.getAttribute("anonid") != "expander")
+           openConversation();
+       ]]>
+     </handler>
+
+     <handler event="dragstart">
+       <![CDATA[
+         event.dataTransfer.setData("application/x-ib-contact",
+                                    this.contact.id);
+         event.stopPropagation();
+       ]]>
+     </handler>
+     <handler event="drop">
+       <![CDATA[
+         let dt = event.dataTransfer;
+         if (dt.types.contains("application/x-ib-contact")) {
+           let id = dt.getData("application/x-ib-contact");
+           this.contact.mergeContact(Services.contacts.getContactById(id));
+         }
+         else if (dt.types.contains("application/x-ib-buddy")) {
+           let id = dt.getData("application/x-ib-buddy");
+           let from = Services.contacts.getBuddyById(id);
+           if (from.contact.id != this.contact.id)
+             contact.adoptBuddy(from);
+           else
+             contact.moveBuddyBefore(from);
+         }
+         else
+           throw "Invalid drop on buddy!";
+         this._DragLeave();
+       ]]>
+     </handler>
+     <handler event="dragenter">
+       <![CDATA[
+         this._checkDrag(event);
+       ]]>
+     </handler>
+     <handler event="dragover">
+       <![CDATA[
+         this._checkDrag(event);
+       ]]>
+     </handler>
+     <handler event="dragleave">
+       <![CDATA[
+         this._DragLeave();
+       ]]>
+     </handler>
+    </handlers>
+  </binding>
+
+  <binding id="contact-big" extends="chrome://instantbird/content/contact.xml#contact">
+    <content>
+      <xul:hbox flex="1" mousethrough="always">
+        <xul:stack class="prplBuddyIcon" mousethrough="always">
+          <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
+          <xul:image class="statusIcon"/>
+        </xul:stack>
+        <xul:vbox flex="1" class="contact-vbox" mousethrough="always">
+          <xul:hbox class="contact-hbox" mousethrough="always">
+            <xul:label crop="end" flex="1" mousethrough="always"
+                       anonid="displayname" class="contactDisplayName"
+                       xbl:inherits="value=displayname"/>
+            <xul:button anonid="startChatBubble" class="startChatBubble"
+                        tooltiptext="&openConversationCmd.label;"/>
+          </xul:hbox>
+          <xul:hbox class="contact-hbox" mousethrough="always">
+            <xul:label crop="end" flex="1" mousethrough="always"
+                       anonid="statusText" class="contactStatusText"
+                       xbl:inherits="value=statusText"/>
+            <xul:button anonid="expander" class="expander-down"
+                        tooltiptextexpand="&expandContactTooltip;"
+                        tooltiptextcollapse="&collapseContactTooltip;"
+                        tooltiptext="&expandContactTooltip;"/>
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+      <xul:vbox anonid="contactBuddies" class="contactBuddies">
+        <children/>
+      </xul:vbox>
+    </content>
+    <implementation>
+     <method name="open">
+      <body>
+      <![CDATA[
+        let className, tooltip;
+        if (!this.hasAttribute("open")) {
+          for each (let buddy in this.contact.getBuddies()) {
+            let buddyElt = document.createElement("buddy");
+            this.appendChild(buddyElt);
+            buddyElt.build(buddy, this);
+          }
+          this.setAttribute("open", "true");
+          [className, tooltip] = ["expander-up", "tooltiptextcollapse"];
+        }
+        else {
+          for (let i = 0; i < this.childNodes.length; ++i)
+            this.childNodes[i].removeNode();
+          this.removeAttribute("open");
+          [className, tooltip] = ["expander-down", "tooltiptextexpand"];
+        }
+
+        let expander = document.getAnonymousElementByAttribute(this, "anonid",
+                                                               "expander");
+        expander.setAttribute("class", className);
+        expander.setAttribute("tooltiptext", expander.getAttribute(tooltip));
+      ]]>
+      </body>
+     </method>
+
+     <method name="keyPress">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        switch (aEvent.keyCode) {
+          case aEvent.DOM_VK_LEFT:
+            if (this.hasAttribute("open"))
+              this.open();
+            break;
+
+          case aEvent.DOM_VK_RIGHT:
+            if (!this.hasAttribute("open"))
+              this.open();
+            break;
+        }
+        this._keyPress(aEvent); // inherited actions.
+      ]]>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="click">
+       <![CDATA[
+         if (event.originalTarget.getAttribute("anonid") == "expander")
+           this.open();
+       ]]>
+     </handler>
+    </handlers>
+  </binding>
+</bindings>

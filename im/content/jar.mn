@@ -16,12 +16,13 @@ instantbird.jar:
 	instantbird/blist.css
 	instantbird/blist.js
 *	instantbird/blist.xul
-*	instantbird/buddy.xml
+	instantbird/buddy.xml
 	instantbird/buddytooltip.xml
         instantbird/browserRequest.js
         instantbird/browserRequest.xul
 	instantbird/core.js
 	instantbird/topicNotification.xml
+	instantbird/contact.xml
 *	instantbird/conversation.xml
 	instantbird/convbrowser.xml
 	instantbird/conv.html

@@ -65,7 +65,8 @@
 #include menus.xul.inc
 
   <popupset id="mainPopupSet">
-    <tooltip id="buddyTooltip" type="buddy"/>
+    <tooltip id="buddyTooltip" type="buddy"
+             onpopupshowing="if ('_droptarget' in window) return false;"/>
 
     <menupopup id="buddyListContextMenu"
                onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
@@ -74,10 +75,19 @@
                 label="&openConversationCmd.label;"
                 accesskey="&openConversationCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.openConversation();"/>
+      <menuitem id="context-showlogs"
+                label="&showLogsCmd.label;"
+                accesskey="&showLogsCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.showLogs();"/>
+      <menuseparator id="context-edit-buddy-separator"/>
       <menuitem id="context-alias"
                 label="&aliasCmd.label;"
                 accesskey="&aliasCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.alias();"/>
+      <menuitem id="context-detach"
+                label="&detachCmd.label;"
+                accesskey="&detachCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.detach();"/>
       <menuitem id="context-delete"
                 label="&deleteCmd.label;"
                 accesskey="&deleteCmd.accesskey;"
@@ -95,10 +105,6 @@
                     oncommand="gBuddyListContextMenu.moveToNewTag();"/>
         </menupopup>
       </menu>
-      <menuitem id="context-showlogs"
-                label="&showLogsCmd.label;"
-                accesskey="&showLogsCmd.accesskey;"
-                oncommand="gBuddyListContextMenu.showLogs();"/>
       <menuseparator id="context-show-offline-buddies-separator"/>
       <menuitem id="context-show-offline-buddies"
                 label="&showOfflineBuddiesCmd.label;"

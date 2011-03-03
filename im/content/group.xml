@@ -161,18 +161,18 @@
         if (this.contactsById.hasOwnProperty(aContact.id))
           return;
 
-        var buddyElt = document.createElement("buddy");
+        var contactElt = document.createElement("contact");
         if (this.hasAttribute("closed"))
-          buddyElt.setAttribute("collapsed", "true");
+          contactElt.setAttribute("collapsed", "true");
 
         var last = this;
         if (this.contacts.length)
           last = this.contacts[this.contacts.length - 1];
 
-        this.parentNode.insertBefore(buddyElt, last.nextSibling);
-        buddyElt.build(aContact, this);
-        this.contacts.push(buddyElt);
-        this.contactsById[aContact.id] = buddyElt;
+        this.parentNode.insertBefore(contactElt, last.nextSibling);
+        contactElt.build(aContact, this);
+        this.contacts.push(contactElt);
+        this.contactsById[aContact.id] = contactElt;
 
         if (this.hasAttribute("collapsing"))
           this.removeAttribute("collapsing");

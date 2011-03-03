@@ -77,6 +77,8 @@
 <!ENTITY openConversationCmd.accesskey "c">
 <!ENTITY aliasCmd.label                "Rename">
 <!ENTITY aliasCmd.accesskey            "R">
+<!ENTITY detachCmd.label               "Detach from contact">
+<!ENTITY detachCmd.accesskey           "D">
 <!ENTITY deleteCmd.label               "Remove">
 <!ENTITY deleteCmd.accesskey           "v">
 <!ENTITY moveCmd.label                 "Move to…">
@@ -87,6 +89,9 @@
 <!ENTITY showLogsCmd.accesskey         "L">
 <!ENTITY showOfflineBuddiesCmd.label   "Show offline buddies">
 <!ENTITY showOfflineBuddiesCmd.accesskey "o">
+
+<!ENTITY expandContactTooltip          "Expand">
+<!ENTITY collapseContactTooltip        "Collapse">
 
 <!-- Copied from mozilla/browser/locales/en-US/chrome/browser/baseMenuOverlay.dtd -->
 <!--  Mac OS X Window Menu -->

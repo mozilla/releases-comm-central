@@ -232,6 +232,7 @@ Contact.prototype = {
       return;
 
     if (!aInherited) {
+      this._ensureNotDummy();
       let statement =
         DBConn.createStatement("INSERT INTO contact_tag (contact_id, tag_id) " +
                                "VALUES(:contactId, :tagId)");
@@ -240,6 +241,7 @@ Contact.prototype = {
       statement.executeAsync();
     }
 
+    aTag = TagsById[aTag.id];
     this._tags.push(aTag);
     aTag._addContact(this);
 
@@ -248,16 +250,31 @@ Contact.prototype = {
       observer.observe(aTag, "contact-moved-in");
     obs.notifyObservers(this, "contact-tagged", aTag.id);
   },
+  /* Remove a tag from the local tags of the contact. */
+  _removeTag: function(aTag) {
+    if (!this.hasTag(aTag) || this._isTagInherited(aTag))
+      return;
+
+    let statement = DBConn.createStatement("DELETE FROM contact_tag " +
+                                           "WHERE contact_id = :contactId " +
+                                           "AND tag_id = :tagId");
+    statement.params.contactId = this.id;
+    statement.params.tagId = aTag.id;
+    statement.executeAsync();
+
+    this._tags = this._tags.filter(function(tag) tag.id != aTag.id);
+    aTag = TagsById[aTag.id];
+    aTag._removeContact(this);
+
+    aTag.notifyObservers(this, "contact-moved-out");
+    for each (let observer in this._observers)
+      observer.observe(aTag, "contact-moved-out");
+  },
   hasTag: function(aTag) this._tags.some(function (t) t.id == aTag.id),
   _massMove: false,
   move: function(aOldTag, aNewtag) {
     if (!this.hasTag(aOldTag))
       throw "Attempting to remove a tag that the contact doesn't have";
-
-    // FIXME: If the old tag is part of the local tags, just change that tag.
-    // Doesn't matter as long as there's no UI to add a tag to a contact.
-    // Later we will want to keep 2 arrays (one for local tags and one
-    // for inherited tags) and concatenate them during getTags calls.
 
     this._massMove = true;
     let moved = false;
@@ -284,6 +301,12 @@ Contact.prototype = {
     this._massMove = false;
     if (moved)
       this._moved(aOldTag, aNewtag);
+    else {
+      // If we are here, the old tag is not inherited from a buddy, so
+      // just add the new tag as a local tag.
+      this.addTag(aNewtag);
+      this._removeTag(aOldTag);
+    }
   },
   _isTagInherited: function(aTag) {
     for each (let buddy in this._buddies)
@@ -359,6 +382,28 @@ Contact.prototype = {
       buddy.contact = this;
     this._updatePreferredBuddy();
   },
+  moveBuddyBefore: function(aBuddy, aBeforeBuddy) {
+    let buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
+    let oldPosition = this._buddies.indexOf(buddy);
+    if (oldPosition == -1)
+      throw "aBuddy isn't attached to this contact";
+
+    let newPosition = -1;
+    if (aBeforeBuddy)
+      newPosition = this._buddies.indexOf(BuddiesById[aBeforeBuddy.id]);
+    if (newPosition == -1)
+      newPosition = this._buddies.length - 1;
+
+    if (oldPosition == newPosition)
+      return;
+
+    this._buddies.splice(oldPosition, 1);
+    this._buddies.splice(newPosition, 0, buddy);
+    this._updatePositions(Math.min(oldPosition, newPosition),
+                          Math.max(oldPosition, newPosition));
+    buddy._notifyObservers("position-changed", String(newPosition));
+    this._updatePreferredBuddy(buddy);
+  },
   adoptBuddy: function(aBuddy) {
     if (aBuddy.contact.id == this.id)
       throw Components.results.NS_ERROR_INVALID_ARG;
@@ -367,6 +412,7 @@ Contact.prototype = {
     buddy.contact = this;
     this._updatePreferredBuddy(buddy);
   },
+  _massRemove: false,
   _removeBuddy: function(aBuddy) {
     if (this._buddies.length == 1) {
       if (this._id > 0) {
@@ -391,14 +437,37 @@ Contact.prototype = {
     }
     else {
       let index = this._buddies.indexOf(aBuddy);
-      if (index != -1)
-        this._buddies.splice(index, 1);
-      else
+      if (index == -1)
         throw "Removing an unknown buddy from contact " + this._id;
-      if (this._preferredBuddy.id == aBuddy.id) {
-        this._preferredBuddy = null;
+
+      this._buddies.splice(index, 1);
+
+      // If we are actually removing the whole contact, don't bother updating
+      // the positions or the preferred buddy.
+      if (this._massRemove)
+        return;
+
+      // No position to update if the removed buddy is at the last position.
+      if (index < this._buddies.length)
+        this._updatePositions(index);
+
+      if (this._preferredBuddy.id == aBuddy.id)
         this._updatePreferredBuddy();
-      }
+    }
+  },
+  _updatePositions: function(aIndexBegin, aIndexEnd) {
+    if (aIndexEnd === undefined)
+      aIndexEnd = this._buddies.length - 1;
+    if (aIndexBegin > aIndexEnd)
+      throw "_updatePositions: Invalid indexes";
+
+    let statement =
+      DBConn.createStatement("UPDATE buddies SET position = :position " +
+                             "WHERE id = :buddyId");
+    for (let i = aIndexBegin; i <= aIndexEnd; ++i) {
+      statement.params.position = i;
+      statement.params.buddyId = this._buddies[i].id;
+      statement.executeAsync();
     }
   },
 
@@ -407,6 +476,8 @@ Contact.prototype = {
     let buddy = BuddiesById[aBuddy.id];
     if (buddy.contact.id != this.id)
       throw Components.results.NS_ERROR_INVALID_ARG;
+    if (buddy.contact._buddies.length == 1)
+      throw Components.results.NS_ERROR_UNEXPECTED;
 
     // Save the list of tags, it may be destoyed if the buddy was the last one.
     let tags = buddy.contact.getTags();
@@ -422,6 +493,7 @@ Contact.prototype = {
     return buddy.contact;
   },
   remove: function() {
+    this._massRemove = true;
     for each (let buddy in this._buddies)
       buddy.remove();
   },
@@ -650,7 +722,7 @@ Buddy.prototype = {
       DBConn.createStatement("UPDATE buddies SET contact_id = :contactId, " +
                              "position = :position " +
                              "WHERE id = :buddyId");
-    statement.params.contactId = aContact.id;
+    statement.params.contactId = aContact.id > 0 ? aContact.id : 0;
     statement.params.position = aContact._buddies.length - 1;
     statement.params.buddyId = this.id;
     statement.executeAsync();
@@ -898,12 +970,12 @@ ContactsService.prototype = {
       DBConn.createStatement("SELECT contact_id, tag_id FROM contact_tag");
     while (statement.executeStep()) {
       let contact = ContactsById[statement.getInt32(0)];
-      let tag = TagsById(statement.getInt32(1));
+      let tag = TagsById[statement.getInt32(1)];
       contact._tags.push(tag);
       tag._addContact(contact);
     }
 
-    statement = DBConn.createStatement("SELECT id, key, name, srv_alias, contact_id FROM buddies");
+    statement = DBConn.createStatement("SELECT id, key, name, srv_alias, contact_id FROM buddies ORDER BY position");
     while (statement.executeStep())
       new Buddy(statement.getInt32(0), statement.getUTF8String(1),
                 statement.getUTF8String(2), statement.getUTF8String(3),

@@ -53,32 +53,29 @@
       <xul:label crop="end" flex="1" mousethrough="always"
                  anonid="displayname" class="buddyDisplayName"
                  xbl:inherits="value=displayname"/>
+      <xul:label crop="end" flex="100000" mousethrough="always"
+                 anonid="statusText" class="buddyStatusText"
+                 xbl:inherits="value=statusText"/>
     </content>
     <implementation implements="nsIObserver">
 
      <destructor>
       <![CDATA[
-        if (this.contact) {
-          this.contact.removeObserver(this);
-          delete this.contact;
+        if (this.buddy) {
+          this.buddy.removeObserver(this);
+          delete this.buddy;
         }
       ]]>
      </destructor>
 
      <method name="build">
+      <parameter name="aBuddy"/>
       <parameter name="aContact"/>
-      <parameter name="aGroup"/>
       <body>
       <![CDATA[
-        this.group = aGroup;
+        this.buddy = aBuddy;
         this.contact = aContact;
-        this.contact.addObserver(this);
-
-        // Don't do the animation if inside a closed group
-        if (this.hasAttribute("collapsed")) {
-          this.state = "collapsed";
-          return;
-        }
+        this.buddy.addObserver(this);
 
         this.state = "showing";
         this.addEventListener("transitionend", this._transitionEnd, true);
@@ -86,27 +83,12 @@
       </body>
      </method>
 
+     <property name="displayName"
+               onget="return this.buddy.displayName;"/>
+
      <property name="state"
                onget="return this.getAttribute('state');"
                onset="this.setAttribute('state', val); return val;"/>
-
-     <property name="collapsed"
-               onget="return !!this.getAttribute('collapsed');">
-       <setter>
-         <![CDATA[
-           if (val) {
-             this.setAttribute("collapsed", val);
-             this.state = "collapsed";
-           }
-           else {
-             this.removeAttribute("collapsed");
-             this.state = "visible";
-             this.update();
-           }
-           return val;
-         ]]>
-       </setter>
-     </property>
 
      <!-- nsIObserver implementation -->
      <method name="observe">
@@ -115,20 +97,14 @@
        <parameter name="aData"/>
        <body>
        <![CDATA[
-         if (aTopic == "contact-preferred-buddy-changed" ||
-             aTopic == "contact-display-name-changed" ||
-             aTopic == "contact-availability-changed") {
+         if (aTopic == "buddy-display-name-changed" ||
+             aTopic == "buddy-status-changed") {
            this.update();
            return;
          }
 
-         if (aTopic == "contact-signed-on") {
-           if (this.state == "fading")
-             this.state = "visible";
-         }
-         else if (aTopic == "contact-removed" ||
-                  (aTopic == "contact-moved-out" && aSubject.id == this.group.tag.id) ||
-                  (aTopic == "contact-signed-off" && !this.group.showOffline))
+         if (aTopic == "buddy-removed" ||
+             aTopic == "buddy-moved-out-of-contact")
            this.removeNode();
        ]]>
        </body>
@@ -137,7 +113,12 @@
      <method name="update">
       <body>
       <![CDATA[
-        this.setAttribute("displayname", this.contact.displayName);
+        this.setAttribute("displayname", this.buddy.displayName);
+
+        let statusText = this.buddy.statusText;
+        if (statusText)
+          statusText = " - " + statusText;
+        this.setAttribute("statusText", statusText);
 
         const imIStatusInfo = Components.interfaces.imIStatusInfo;
         let statusNames = {};
@@ -149,9 +130,9 @@
         //XXX should UNAVAILABLE (= busy) make a difference?
         statusNames[imIStatusInfo.STATUS_UNAVAILABLE] = "away";
         statusNames[imIStatusInfo.STATUS_AVAILABLE] = "available";
-        this.setAttribute("status", statusNames[this.contact.statusType]);
+        this.setAttribute("status", statusNames[this.buddy.statusType]);
 
-        let proto = this.contact.preferredBuddy.protocol;
+        let proto = this.buddy.protocol;
         this.setAttribute("iconPrpl", proto.iconBaseURI + "icon.png");
       ]]>
       </body>
@@ -165,21 +146,8 @@
           this.update();
           this.state = "visible";
         }
-        else if (state == "fading") {
-          this.state = "collapsing";
-          this.finishRemoveNode();
-        }
         else if (state == "collapsing")
           this.parentNode.removeChild(this);
-      ]]>
-      </body>
-     </method>
-
-     <method name="finishRemoveNode">
-      <body>
-      <![CDATA[
-        this.contact.removeObserver(this);
-        this.group.removeContact(this);
       ]]>
       </body>
      </method>
@@ -187,60 +155,12 @@
      <method name="removeNode">
       <body>
       <![CDATA[
-        let state = this.state;
-        if (state == "showing") {
-          // We are still doing the expand animation!
+        this.buddy.removeObserver(this);
+        delete this.buddy;
+        if (this.state == "visible") // FIXME check the heigh instead
           this.state = "collapsing";
-          this.finishRemoveNode();
-        }
-        else if (this.hasAttribute("collapsed")) {
-          // If the buddy is not visible, remove it immediately (without animation)
-          this.finishRemoveNode();
-          this.parentNode.removeChild(this);
-        }
         else
-          this.state = "fading";
-      ]]>
-      </body>
-     </method>
-
-     <method name="startAliasing">
-      <body>
-      <![CDATA[
-        if (this.hasAttribute("aliasing"))
-          return; // prevent re-entry.
-
-        this.setAttribute("aliasing", "true");
-        let textbox =
-          document.getAnonymousElementByAttribute(this, "anonid", "displayname");
-        textbox.getBoundingClientRect(); // force binding attachmant by forcing layout
-        textbox.select();
-
-        // Some keys (home/end for example) can make the selected item
-        // of the richlistbox change without producing a blur event on
-        // our textbox. Make sure we watch richlistbox selection changes.
-        var self = this;
-        this._parentSelectListener = function(aEvent) {
-          if (aEvent.target == self.parentNode)
-            self.finishAliasing(true);
-        };
-        this.parentNode.addEventListener("select", this._parentSelectListener, false);
-      ]]>
-      </body>
-     </method>
-
-     <method name="finishAliasing">
-      <parameter name="aSave"/>
-      <body>
-      <![CDATA[
-        if (aSave) {
-          this.contact.alias =
-            document.getAnonymousElementByAttribute(this, "anonid", "displayname").value;
-        }
-        this.removeAttribute("aliasing");
-        this.parentNode.removeEventListener("select", this._parentSelectListener, false);
-        delete this._parentSelectListener;
-        this.parentNode.focus();
+          this.parentNode.removeChild(this);
       ]]>
       </body>
      </method>
@@ -249,11 +169,11 @@
       <parameter name="aGroupId"/>
       <body>
       <![CDATA[
-        let currentGroupId = this.group.groupId;
-        if (currentGroupId == aGroupId)
+        let group = this.contact.group;
+        if (group.groupId == aGroupId)
           return;
 
-        this.contact.move(this.group.tag, Services.tags.getTagById(aGroupId));
+        this.buddy.contact.move(group.tag, Services.tags.getTagById(aGroupId));
       ]]>
       </body>
      </method>
@@ -261,7 +181,7 @@
      <method name="remove">
       <body>
       <![CDATA[
-        this.contact.remove();
+        this.buddy.remove();
       ]]>
       </body>
      </method>
@@ -269,7 +189,7 @@
      <method name="canOpenConversation">
       <body>
        <![CDATA[
-         return this.contact.canSendMessage;
+         return this.buddy.canSendMessage;
        ]]>
       </body>
      </method>
@@ -277,87 +197,104 @@
      <method name="openConversation">
       <body>
        <![CDATA[
-         Conversations.focusConversation(this.contact.createConversation());
+         Conversations.focusConversation(this.buddy.createConversation());
        ]]>
       </body>
      </method>
 
-     <method name="keyPress">
+     <method name="_DragOk">
       <parameter name="aEvent"/>
       <body>
       <![CDATA[
-        switch (aEvent.keyCode) {
-          // If Enter or Return is pressed, open a new conversation
-          case aEvent.DOM_VK_RETURN:
-          case aEvent.DOM_VK_ENTER:
-            if (this.hasAttribute("aliasing"))
-              this.finishAliasing(true);
-            else if (this.canOpenConversation())
-              this.openConversation();
-            break;
-
-          case aEvent.DOM_VK_F2:
-            if (!this.hasAttribute("aliasing"))
-              this.startAliasing();
-            break;
-
-          case aEvent.DOM_VK_ESCAPE:
-            if (this.hasAttribute("aliasing"))
-              this.finishAliasing(false);
-            break;
+        aEvent.preventDefault();
+        if (this.hasAttribute("droptarget"))
+          return;
+        if ("_droptarget" in window)
+          window._droptarget.removeAttribute("droptarget");
+        window._droptarget = this;
+        this.setAttribute("droptarget", "true");
+      ]]>
+      </body>
+     </method>
+     <method name="_DragLeave">
+      <body>
+      <![CDATA[
+        if (!this.hasAttribute("droptarget"))
+          return;
+        delete window._droptarget;
+        this.removeAttribute("droptarget");
+      ]]>
+      </body>
+     </method>
+     <method name="_checkDrag">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        let dt = aEvent.dataTransfer;
+        if (dt.types.contains("application/x-ib-contact")) {
+          if (dt.getData("application/x-ib-contact") != this.buddy.contact.id)
+            this._DragOk(aEvent);
+          aEvent.stopPropagation();
+        }
+        else if (dt.types.contains("application/x-ib-buddy")) {
+          if (dt.getData("application/x-ib-buddy") != this.buddy.id)
+            this._DragOk(aEvent);
+          aEvent.stopPropagation();
         }
       ]]>
       </body>
      </method>
     </implementation>
     <handlers>
-     <handler event="blur">
-       <![CDATA[
-         if (!this.hasAttribute("aliasing"))
-           return;
-
-         let win =
-           Components.classes["@mozilla.org/focus-manager;1"]
-                     .getService(Components.interfaces.nsIFocusManager)
-                     .activeWindow;
-         if (win == document.defaultView)
-           finishAliasing(true);
-       ]]>
-     </handler>
-
      <handler event="click" clickcount="2">
        <![CDATA[
-         if (!this.hasAttribute("aliasing") && canOpenConversation())
+         if (canOpenConversation())
            openConversation();
+         event.stopPropagation();
        ]]>
      </handler>
 
      <handler event="dragstart">
        <![CDATA[
-         event.dataTransfer.setData("application/x-ib-contact",
-                                    this.contact.id);
+         event.dataTransfer.setData("application/x-ib-buddy",
+                                    this.buddy.id);
          event.stopPropagation();
        ]]>
      </handler>
      <handler event="drop">
        <![CDATA[
-         let id = event.dataTransfer.getData("application/x-ib-contact");
-         let from = Services.contacts.getContactById(id);
-         this.contact.mergeContact(from);
+         let contact = this.buddy.contact;
+         let dt = event.dataTransfer;
+         if (dt.types.contains("application/x-ib-contact")) {
+           let id = dt.getData("application/x-ib-contact");
+           contact.mergeContact(Services.contacts.getContactById(id));
+         }
+         else if (dt.types.contains("application/x-ib-buddy")) {
+           let id = dt.getData("application/x-ib-buddy");
+           let from = Services.contacts.getBuddyById(id);
+           if (from.contact.id != contact.id)
+             contact.adoptBuddy(from);
+           contact.moveBuddyBefore(from, this.buddy);
+         }
+         else
+           throw "Invalid drop on buddy!";
+         event.stopPropagation();
+         this._DragLeave();
        ]]>
      </handler>
      <handler event="dragenter">
        <![CDATA[
-         if (event.dataTransfer.types.contains("application/x-ib-contact") &&
-             event.dataTransfer.getData("application/x-ib-contact") != this.contact.id)
-           event.preventDefault()
+         this._checkDrag(event);
        ]]>
      </handler>
      <handler event="dragover">
        <![CDATA[
-         if (event.dataTransfer.types.contains("application/x-ib-contact") &&
-             event.dataTransfer.getData("application/x-ib-contact") != this.contact.id)
-           event.preventDefault()
+         this._checkDrag(event);
+       ]]>
+     </handler>
+     <handler event="dragleave">
+       <![CDATA[
+         this._DragLeave();
        ]]>
      </handler>
     </handlers>

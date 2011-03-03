@@ -323,11 +323,15 @@
            return false;
          }
 
-         if (elt.localName != "buddy")
+         let buddy;
+         if (elt.localName == "buddy")
+           buddy = elt.buddy;
+         else if (elt.localName == "contact")
+           buddy = elt.contact.preferredBuddy;
+         else
            return false;
 
-         let buddy = elt.contact.preferredBuddy.preferredAccountBuddy;
-         return updateTooltipFromBuddy(buddy, elt);
+         return updateTooltipFromBuddy(buddy.preferredAccountBuddy, elt);
        ]]>
      </handler>
      <handler event="popuphiding">

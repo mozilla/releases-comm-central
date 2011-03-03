@@ -35,18 +35,33 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-buddy {
-  -moz-binding: url("chrome://instantbird/content/buddy.xml#buddy");
+contact {
+  -moz-binding: url("chrome://instantbird/content/contact.xml#contact");
+  -moz-box-align: center;
+}
+contact[open],
+contact[selected] {
+  -moz-binding: url("chrome://instantbird/content/contact.xml#contact-big");
+  -moz-box-orient: vertical;
+  -moz-box-align: stretch;
 }
 
-buddy[aliasing] .buddyDisplayName {
+contact[aliasing] .contactDisplayName {
   -moz-binding: url("chrome://global/content/bindings/textbox.xml#textbox");
+}
+
+buddy {
+  -moz-binding: url("chrome://instantbird/content/buddy.xml#buddy");
 }
 
 group {
   -moz-binding: url("chrome://instantbird/content/group.xml#group");
 }
 
+/* The height is required for the animation to work. The skin can
+ * specify an additionnal min-height value if there are things of
+ * constant size (icons + padding) */
+contact,
 buddy,
 group {
   height: 1em;
@@ -60,24 +75,33 @@ group {
  - collapsing: collapse animation (before the node is removed from the DOM),
  - collapsed: the buddy is inside a closed group.
  */
+contact:not([state]),
 buddy:not([state]) {
   height: 0;
 }
-buddy[state="showing"] {
+contact[state="showing"] {
   -moz-transition: height .4s ease-in;
 }
+buddy[state="showing"] {
+  /* Should match the transition effect for buddy collapsing so that
+     buddy position changes don't make the whole list jump. */
+  -moz-transition: height .2s ease-in;
+}
 
-buddy[state="fading"] {
+contact[state="fading"] {
   opacity: 0;
   -moz-transition: opacity .4s ease-in 1s;
 }
 
+contact[state="collapsing"],
 buddy[state="collapsing"],
 group[collapsing="true"] {
   height: 0;
   -moz-transition: height .2s ease-in;
 }
 
+contact[state="collapsing"] *,
+contact[state="showing"] *,
 buddy[state="collapsing"] *,
 buddy[state="showing"] *,
 group[collapsing="true"] * {
@@ -88,6 +112,10 @@ tooltip[type="buddy"] {
   -moz-binding: url("chrome://instantbird/content/buddytooltip.xml#tooltip");
 }
 
+#statusTypeIcon {
+  cursor: pointer;
+}
+
 #statusMessage:not([statusType="offline"]) {
   cursor: text;
 }
@@ -95,4 +123,19 @@ tooltip[type="buddy"] {
 #statusMessage[editing] {
   -moz-appearance: textfield;
   -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
+}
+
+.startChatBubble,
+.expander-up,
+.expander-down {
+  cursor: pointer;
+}
+
+.startChatBubble {
+  display: none;
+}
+
+contact[cansend]:hover .startChatBubble,
+contact[cansend][selected] .startChatBubble {
+  display: -moz-box;
 }

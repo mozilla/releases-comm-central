@@ -49,50 +49,73 @@ var gBuddyListContextMenu = null;
 function buddyListContextMenu(aXulMenu) {
   this.target  = document.popupNode;
   this.menu    = aXulMenu;
-  this.onBuddy = this.target.localName == "buddy";
-  this.onGroup = this.target.localName == "group";
+  let localName = this.target.localName;
+  this.onContact = localName == "contact";
+  this.onBuddy = localName == "buddy";
+  this.onGroup = localName == "group";
   this.shouldDisplay = true;
 
+  let hide = !(this.onContact || this.onBuddy);
   [ "context-openconversation",
+    "context-showlogs",
+    "context-edit-buddy-separator",
     "context-alias",
     "context-delete",
     "context-moveto",
     "context-moveto-popup",
     "context-create-tag-separator",
     "context-create-tag",
-    "context-showlogs",
     "context-show-offline-buddies-separator"
   ].forEach(function (aId) {
-    document.getElementById(aId).hidden = !this.onBuddy;
+    document.getElementById(aId).hidden = hide;
   }, this);
 
-  if (this.onBuddy) {
-    document.getElementById("context-openconversation").disabled =
-      !this.target.canOpenConversation();
-  }
+  let detach = document.getElementById("context-detach");
+  detach.hidden = !this.onBuddy;
+  if (this.onBuddy)
+    detach.disabled = this.target.buddy.contact.getBuddies().length == 1;
+
+  document.getElementById("context-openconversation").disabled =
+    !hide && !this.target.canOpenConversation();
 }
 
 // Prototype for buddyListContextMenu "class."
 buddyListContextMenu.prototype = {
   openConversation: function blcm_openConversation() {
-    if (this.onBuddy)
+    if (this.onContact || this.onBuddy)
       this.target.openConversation();
   },
   alias: function blcm_alias() {
-    if (this.onBuddy)
+    if (this.onContact)
       this.target.startAliasing();
+    else if (this.onBuddy)
+      this.target.contact.startAliasing();
+  },
+  detach: function blcm_detach() {
+    if (!this.onBuddy)
+      return;
+
+    let buddy = this.target.buddy;
+    buddy.contact.detachBuddy(buddy);
   },
   delete: function blcm_delete() {
+    let buddy;
+    if (this.onContact)
+      buddy = this.target.contact.preferredBuddy;
+    else if (this.onBuddy)
+      buddy = this.target.buddy;
+    else
+      return;
+
     let bundle =
       Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
-    let contact = this.target.contact;
-    let displayName = contact.displayName;
+    let displayName = this.target.displayName;
     let promptTitle = bundle.formatStringFromName("buddy.deletePrompt.title",
                                                   [displayName], 1);
-    let userName = contact.preferredBuddy.userName;
+    let userName = buddy.userName;
     if (displayName != userName)
       displayName += " (" + userName + ")";
-    let proto = contact.preferredBuddy.protocol.name; // FIXME build a list
+    let proto = buddy.protocol.name; // FIXME build a list
     let promptMessage = bundle.formatStringFromName("buddy.deletePrompt.message",
                                                     [displayName, proto], 2);
     let deleteButton = bundle.GetStringFromName("buddy.deletePrompt.button");
@@ -107,7 +130,7 @@ buddyListContextMenu.prototype = {
     this.target.remove();
   },
   moveToPopupShowing: function blcm_moveToPopupShowing() {
-    if (!this.onBuddy)
+    if (!this.onContact && !this.onBuddy)
       return;
 
     let popup = document.getElementById("context-moveto-popup");
@@ -115,7 +138,8 @@ buddyListContextMenu.prototype = {
     while ((item = popup.firstChild) && item.localName != "menuseparator")
       popup.removeChild(item);
 
-    let groupId = this.target.group.groupId;
+    let groupId =
+      (this.onBuddy ? this.target.contact : this.target).group.groupId;
     let sortFunction = function (a, b) {
       let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
       return a < b ? 1 : a > b ? -1 : 0;
@@ -152,16 +176,20 @@ buddyListContextMenu.prototype = {
     this.target.moveTo(Services.tags.createTag(name.value).id);
   },
   showLogs: function blcm_showLogs() {
-    if (!this.onBuddy)
+    let enumerator;
+    if (this.onContact)
+      enumerator = Services.logs.getLogsForContact(this.target.contact);
+    else if (this.onBuddy)
+      enumerator = Services.logs.getLogsForBuddy(this.target.buddy);
+    else
       return;
 
     var logs = [];
-    let contact = this.target.contact;
-    for (let log in getIter(Services.logs.getLogsForContact(contact)))
+    for (let log in getIter(enumerator))
       logs.push(log);
     window.openDialog("chrome://instantbird/content/viewlog.xul",
                       "Logs", "chrome,resizable", {logs: logs},
-                      this.target.getAttribute("displayname"));
+                      this.target.displayName);
   },
   toggleShowOfflineBuddies: function blcm_toggleShowOfflineBuddies() {
     let newValue =

@@ -40,6 +40,7 @@
 
 interface purpleIAccount;
 interface imIAccountBuddy;
+interface imIBuddy;
 interface imIContact;
 interface purpleIConversation;
 
@@ -52,6 +53,7 @@ interface ibILog: nsISupports {
 [scriptable, uuid(ab38c01c-2245-4279-9437-1d6bcc69d556)]
 interface ibILogger: nsISupports {
   nsISimpleEnumerator getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy);
+  nsISimpleEnumerator getLogsForBuddy(in imIBuddy aBuddy);
   nsISimpleEnumerator getLogsForContact(in imIContact aContact);
   nsISimpleEnumerator getLogsForConversation(in purpleIConversation aConversation);
   nsISimpleEnumerator getSystemLogsForAccount(in purpleIAccount aAccount);

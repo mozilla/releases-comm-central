@@ -361,6 +361,16 @@ Logger.prototype = {
     });
     return new LogEnumerator(entries);
   },
+  getLogsForBuddy: function logger_getLogsForBuddy(aBuddy) {
+    let entries = [];
+    aBuddy.getAccountBuddies().forEach(function (aAccountBuddy) {
+      let file = getLogFolderForAccount(aAccountBuddy.account);
+      file.append(aAccountBuddy.normalizedName);
+      if (file.exists())
+        entries.push(file.directoryEntries);
+    });
+    return new LogEnumerator(entries);
+  },
   getLogsForAccountBuddy: function logger_getLogsForAccountBuddy(aAccountBuddy)
     this._enumerateLogs(aAccountBuddy.account, aAccountBuddy.normalizedName),
   getLogsForConversation: function logger_getLogsForConversation(aConversation)
