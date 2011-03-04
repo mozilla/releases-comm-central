@@ -63,7 +63,12 @@ group[selected="true"] {
 }
 
 :-moz-any(contact, buddy)[droptarget] {
-  background-color: -moz-dragtargetzone;
+  background-color: Highlight;
+}
+
+contact[droptarget] .contact-hbox,
+buddy[droptarget] {
+  color: HighlightText;
 }
 
 .contactStatusText,
@@ -94,22 +99,19 @@ group[selected="true"] {
   min-height: 40px;
 }
 
-.startChatBubble {
-  margin: 0 3px;
-  padding: 0;
-  -moz-appearance: none;
-  list-style-image: url('chrome://instantbird/skin/prpl-generic/icon.png');
-}
-
-:-moz-any(.startChatBubble, .expander-up, .expander-down)>.button-box>* {
-  margin: 0;
-}
-
+.startChatBubble,
 .expander-up,
 .expander-down {
   margin: 0 3px;
   padding: 0;
+  border: none;
+  background: transparent;
+  -moz-binding: url('chrome://global/content/bindings/button.xml#button-image');
   -moz-appearance: none;
+}
+
+.startChatBubble {
+  list-style-image: url('chrome://instantbird/skin/prpl-generic/icon.png');
 }
 
 .expander-up {
