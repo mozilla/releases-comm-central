@@ -203,8 +203,9 @@ tabbrowser > tabbox > tabpanels {
 }
 
 .tab-close-button {
-  list-style-image: url("chrome://global/skin/icons/closetab.png");
+  list-style-image: url("chrome://global/skin/icons/close.png");
   -moz-appearance: none;
+  -moz-image-region: rect(0, 16px, 16px, 0);
   border: none !important;
   padding: 0;
   margin: 1px 0 0;
@@ -214,12 +215,12 @@ tabbrowser > tabbox > tabpanels {
 
 .tab-close-button:hover,
 .tabbrowser-tab[selected="true"] > .tab-close-button:hover {
-  list-style-image: url("chrome://global/skin/icons/closetab-hover.png");
+  -moz-image-region: rect(0, 32px, 16px, 16px);
 }
 
 .tab-close-button:hover:active,
 .tabbrowser-tab[selected="true"] > .tab-close-button:hover:active {
-  list-style-image: url("chrome://global/skin/icons/closetab-active.png");
+  -moz-image-region: rect(0, 48px, 16px, 32px);
 }
 
 .tabbrowser-tab[selected="true"] > .tab-close-button {
@@ -345,10 +346,11 @@ tabbrowser > tabbox > tabpanels {
 
 .tabs-closebutton {
   padding-right: 4px;
-  list-style-image: url("chrome://global/skin/icons/closetab.png") !important;
+  list-style-image: url("chrome://global/skin/icons/close.png") !important;
   list-style-image: none;
   border: none;
   -moz-box-align: stretch;
+  -moz-image-region: rect(0, 16px, 16px, 0);
 }
 
 .tabs-closebutton:hover > .toolbarbutton-icon {
@@ -356,7 +358,7 @@ tabbrowser > tabbox > tabpanels {
 }
 
 .tabs-closebutton:hover:active {
-  list-style-image: url("chrome://global/skin/icons/closetab-active.png") !important;
+  -moz-image-region: rect(0, 48px, 16px, 32px);
 }
 
 tabpanels.plain {
