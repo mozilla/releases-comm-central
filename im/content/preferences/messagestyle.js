@@ -64,9 +64,9 @@ var previewObserver = {
     });
     let conv = new Conversation(msg.nick2);
     conv.messages = [
-      new Message(msg.nick1, msg.message1, {outgoing: true, who: msg.buddy1, time: makeDate("10:42:22"), _conversation: conv}),
-      new Message(msg.nick1, msg.message2, {outgoing: true, who: msg.buddy1, time: makeDate("10:42:25"), _conversation: conv}),
-      new Message(msg.nick2, msg.message3, {incoming: true, who: msg.buddy2, time: makeDate("10:43:01"), _conversation: conv})
+      new Message(msg.buddy1, msg.message1, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:22"), _conversation: conv}),
+      new Message(msg.buddy1, msg.message2, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:25"), _conversation: conv}),
+      new Message(msg.buddy2, msg.message3, {incoming: true, _alias: msg.nick2, time: makeDate("10:43:01"), _conversation: conv})
     ];
     previewObserver.conv = conv;
 

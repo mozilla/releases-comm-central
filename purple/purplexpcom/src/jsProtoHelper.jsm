@@ -431,7 +431,8 @@ Message.prototype = {
 
   _lastId: 0,
 
-  get alias() this.who,
+  _alias: "",
+  get alias() this._alias || this.who,
   _conversation: null,
   get conversation() this._conversation,
   set conversation(aConv) {
