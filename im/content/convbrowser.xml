@@ -819,12 +819,13 @@
             if (!uri.schemeIs("http") && !uri.schemeIs("https"))
               return;
 
+            event.preventDefault();
+            event.stopPropagation();
+
+            // loadUrl can throw if the default browser is misconfigured.
             Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                       .getService(Components.interfaces.nsIExternalProtocolService)
                       .loadUrl(uri);
-
-            event.preventDefault();
-            event.stopPropagation();
           }
         ]]>
       </handler>
