@@ -35,6 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+Components.utils.import("resource:///modules/imStatusUtils.jsm");
+
 const events = ["contact-availability-changed",
                 "contact-added",
                 "contact-moved",
@@ -268,15 +270,7 @@ var buddyList = {
   displayStatusType: function bl_displayStatusType(aStatusType) {
     document.getElementById("statusMessage")
             .setAttribute("statusType", aStatusType);
-
-    let bundle =
-      Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
-    let statusString;
-    try {
-      // In some odd cases, this function could be called for an
-      // unknown status type.
-      statusString = bundle.GetStringFromName(aStatusType + "StatusType");
-    } catch (e) { }
+    let statusString = Status.toLabel(aStatusType);
     let statusTypeIcon = document.getElementById("statusTypeIcon");
     statusTypeIcon.setAttribute("status", aStatusType);
     statusTypeIcon.setAttribute("tooltiptext", statusString);
@@ -285,23 +279,8 @@ var buddyList = {
 
   displayCurrentStatus: function bl_displayCurrentStatus() {
     let pcs = Services.core;
-    let message = pcs.currentStatusMessage;
-    let status = "unknown";
-    let statusType = pcs.currentStatusType;
-    if (statusType == Ci.purpleICoreService.STATUS_AVAILABLE)
-      status = "available";
-    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE)
-      status = "unavailable";
-    else if (statusType == Ci.purpleICoreService.STATUS_IDLE)
-      status = "idle";
-    else if (statusType == Ci.purpleICoreService.STATUS_AWAY)
-      status = "away";
-    else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE) {
-      status = "offline";
-      message = "";
-    }
-    else if (statusType == Ci.purpleICoreService.STATUS_INVISIBLE)
-      status = "invisible";
+    let status = Status.toAttribute(pcs.currentStatusType);
+    let message = status == "offline" ? "" : pcs.currentStatusMessage;
     let statusString = this.displayStatusType(status);
     let statusMessage = document.getElementById("statusMessage");
     if (message)
@@ -317,7 +296,7 @@ var buddyList = {
   editStatus: function bl_editStatus(aEvent) {
     let status = aEvent.originalTarget.getAttribute("status");
     if (status == "offline")
-      Services.core.setStatus(Ci.purpleICoreService.STATUS_OFFLINE, "");
+      Services.core.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
     else if (status)
       this.startEditStatus(status);
   },
@@ -394,20 +373,20 @@ var buddyList = {
     clearTimeout(this._stopEditStatusTimeout);
     let elt = document.getElementById("statusMessage");
     if (aSave) {
-      let newStatus = Ci.purpleICoreService.STATUS_UNSET;
+      let newStatus = Ci.imIStatusInfo.STATUS_UNKNOWN;
       if ("_statusTypeEditing" in this) {
         let statusType = this._statusTypeEditing;
         if (statusType == "available")
-          newStatus = Ci.purpleICoreService.STATUS_AVAILABLE;
+          newStatus = Ci.imIStatusInfo.STATUS_AVAILABLE;
         else if (statusType == "unavailable")
-          newStatus = Ci.purpleICoreService.STATUS_UNAVAILABLE;
+          newStatus = Ci.imIStatusInfo.STATUS_UNAVAILABLE;
         else if (statusType == "offline")
-          newStatus = Ci.purpleICoreService.STATUS_OFFLINE;
+          newStatus = Ci.imIStatusInfo.STATUS_OFFLINE;
         delete this._statusTypeBeforeEditing;
         delete this._statusTypeEditing;
       }
       // apply the new status only if it is different from the current one
-      if (newStatus != Ci.purpleICoreService.STATUS_UNSET ||
+      if (newStatus != Ci.imIStatusInfo.STATUS_UNKNOWN ||
           elt.value != elt.getAttribute("value"))
         Services.core.setStatus(newStatus, elt.value);
     }
@@ -435,7 +414,7 @@ var buddyList = {
   showAccountManagerIfNeeded: function bl_showAccountManagerIfNeeded(aIsStarting) {
     // If the current status is offline, we don't need the account manager
     let isOffline =
-      Services.core.currentStatusType == Ci.purpleICoreService.STATUS_OFFLINE;
+      Services.core.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE;
     if (isOffline && !aIsStarting)
       return;
 
@@ -495,7 +474,7 @@ var buddyList = {
       offline: "OFFLINE"
     };
     for (let cmd in status) {
-      let statusValue = Ci.purpleICoreService["STATUS_" + status[cmd]];
+      let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
       Services.cmd.registerCommand({
         name: cmd,
         priority: Ci.imICommand.PRIORITY_HIGH,

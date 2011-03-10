@@ -119,18 +119,7 @@
         if (statusText)
           statusText = " - " + statusText;
         this.setAttribute("statusText", statusText);
-
-        const imIStatusInfo = Components.interfaces.imIStatusInfo;
-        let statusNames = {};
-        statusNames[imIStatusInfo.STATUS_UNKNOWN] = "offline"; // Should not happen
-        statusNames[imIStatusInfo.STATUS_OFFLINE] = "offline";
-        statusNames[imIStatusInfo.STATUS_MOBILE] = "mobile";
-        statusNames[imIStatusInfo.STATUS_IDLE] = "idle";
-        statusNames[imIStatusInfo.STATUS_AWAY] = "away";
-        //XXX should UNAVAILABLE (= busy) make a difference?
-        statusNames[imIStatusInfo.STATUS_UNAVAILABLE] = "away";
-        statusNames[imIStatusInfo.STATUS_AVAILABLE] = "available";
-        this.setAttribute("status", statusNames[this.buddy.statusType]);
+        this.setAttribute("status", Status.toAttribute(this.buddy.statusType));
 
         let proto = this.buddy.protocol;
         this.setAttribute("iconPrpl", proto.iconBaseURI + "icon.png");

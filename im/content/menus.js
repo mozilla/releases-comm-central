@@ -188,15 +188,11 @@ var menus = {
   },
 
   checkCurrentStatusType: function menu_checkCurrentStatusType(aItems) {
-    let status = "unknown";
-    let statusType = Services.core.currentStatusType;
-    if (statusType == Ci.purpleICoreService.STATUS_AVAILABLE)
-      status = "available";
-    else if (statusType == Ci.purpleICoreService.STATUS_UNAVAILABLE ||
-             statusType == Ci.purpleICoreService.STATUS_AWAY)
+    if (!("Status" in window))
+      Components.utils.import("resource:///modules/imStatusUtils.jsm");
+    let status = Status.toAttribute(Services.core.currentStatusType);
+    if (status == "away")
       status = "unavailable";
-    else if (statusType == Ci.purpleICoreService.STATUS_OFFLINE)
-      status = "offline";
 
     aItems.forEach(function (aId) {
       let elt = document.getElementById(aId);

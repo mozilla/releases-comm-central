@@ -907,6 +907,7 @@ Buddy.prototype = {
           // Add the new account in the empty buddy instance.
           // The TagsById hack is to bypass the xpconnect wrapper.
           this._addAccount(aSubject, TagsById[aSubject.tag.id]);
+          this._updateStatus();
           this._notifyObservers("added");
         }
         else {

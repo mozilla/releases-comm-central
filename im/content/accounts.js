@@ -144,7 +144,7 @@ var gAccountManager = {
       return;
     }
     else if (aTopic == "status-changed") {
-      this.setOffline(aObject.currentStatusType == aObject.STATUS_OFFLINE);
+      this.setOffline(aObject.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
     }
     else if (aTopic == "account-list-updated") {
@@ -463,7 +463,8 @@ var gAccountManager = {
         ++crashCount;
 
     if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED && crashCount == 0) {
-      this.setOffline(isOffline || pcs.currentStatusType == pcs.STATUS_OFFLINE);
+      this.setOffline(isOffline ||
+                      pcs.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
     }
 
@@ -510,7 +511,8 @@ var gAccountManager = {
       default:
         label = bundle.getString("accountsManager.notification.other.label");
     }
-    this.setOffline(isOffline || pcs.currentStatusType == pcs.STATUS_OFFLINE);
+    this.setOffline(isOffline ||
+                    pcs.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE);
 
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },

@@ -173,27 +173,17 @@
         this.setAttribute("displayname", this.contact.displayName);
 
         let statusText = this.contact.statusText;
-        this.setAttribute("statusText", statusText);
         if (statusText)
           statusText = " - " + statusText;
         this.setAttribute("statusTextWithDash", statusText);
+        let statusType = this.contact.statusType;
+        this.setAttribute("statusText", Status.toLabel(statusType) + statusText);
+        this.setAttribute("status", Status.toAttribute(statusType));
 
         if (this.contact.canSendMessage)
           this.setAttribute("cansend", "true");
         else
           this.removeAttribute("cansend");
-
-        const imIStatusInfo = Components.interfaces.imIStatusInfo;
-        let statusNames = {};
-        statusNames[imIStatusInfo.STATUS_UNKNOWN] = "offline"; // Should not happen
-        statusNames[imIStatusInfo.STATUS_OFFLINE] = "offline";
-        statusNames[imIStatusInfo.STATUS_MOBILE] = "mobile";
-        statusNames[imIStatusInfo.STATUS_IDLE] = "idle";
-        statusNames[imIStatusInfo.STATUS_AWAY] = "away";
-        //XXX should UNAVAILABLE (= busy) make a difference?
-        statusNames[imIStatusInfo.STATUS_UNAVAILABLE] = "away";
-        statusNames[imIStatusInfo.STATUS_AVAILABLE] = "available";
-        this.setAttribute("status", statusNames[this.contact.statusType]);
 
         let proto = this.contact.preferredBuddy.protocol;
         this.setAttribute("iconPrpl", proto.iconBaseURI + "icon.png");

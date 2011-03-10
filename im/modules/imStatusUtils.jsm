@@ -11,12 +11,11 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is the Instantbird messenging client, released
- * 2007.
+ * The Original Code is the Instantbird messenging client.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2007
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,29 +34,35 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-tooltip:-moz-any([status="away"], [status="unavailable"]) .statusIcon {
-  background-image: url('chrome://instantbird/skin/away.png');
-}
+var EXPORTED_SYMBOLS = ["Status"];
 
-tooltip[status="idle"] .statusIcon {
-  background-image: url('chrome://instantbird/skin/idle.png');
-}
+Components.utils.import("resource:///modules/imServices.jsm");
 
-tooltip[status="mobile"] .statusIcon {
-  background-image: url('chrome://instantbird/skin/mobile.png');
-}
+const imIStatusInfo = Components.interfaces.imIStatusInfo;
+let statusNames = {};
+statusNames[imIStatusInfo.STATUS_UNKNOWN] = "unknown";
+statusNames[imIStatusInfo.STATUS_OFFLINE] = "offline";
+statusNames[imIStatusInfo.STATUS_INVISIBLE] = "invisible";
+statusNames[imIStatusInfo.STATUS_MOBILE] = "mobile";
+statusNames[imIStatusInfo.STATUS_IDLE] = "idle";
+statusNames[imIStatusInfo.STATUS_AWAY] = "away";
+statusNames[imIStatusInfo.STATUS_UNAVAILABLE] = "unavailable";
+statusNames[imIStatusInfo.STATUS_AVAILABLE] = "available";
 
-tooltip:-moz-any([status="offline"], [status="unknown"]) .statusIcon {
-  background-image: url('chrome://instantbird/skin/offline.png');
-}
+const Status = {
+  toAttribute: function(aStatusType)
+    aStatusType in statusNames ? statusNames[aStatusType] : "unknown",
 
-.tooltip-header {
-  font-weight: bold;
-  font-size: 14pt;
-  -moz-margin-end: 3px;
-  margin-bottom: 0 !important;
-}
+  _labels: {},
+  toLabel: function(aStatusType) {
+    if (!(typeof aStatusType == "string"))
+      aStatusType = this.toAttribute(aStatusType);
 
-.prplTooltipBuddyIcon {
-  margin: 0 6px;
-}
+    if (!(aStatusType in this._labels)) {
+      this._labels[aStatusType] =
+        Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties")
+                .GetStringFromName(aStatusType + "StatusType");
+    }
+    return this._labels[aStatusType];
+  }
+};
