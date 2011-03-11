@@ -12,7 +12,6 @@ instantbird.jar:
 	instantbird/account.xul
 	instantbird/addbuddy.js
 	instantbird/addbuddy.xul
-	instantbird/anim.xml
 	instantbird/blist.css
 	instantbird/blist.js
 *	instantbird/blist.xul
