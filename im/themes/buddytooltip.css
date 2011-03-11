@@ -47,8 +47,16 @@ tooltip[status="mobile"] .statusIcon {
   background-image: url('chrome://instantbird/skin/mobile.png');
 }
 
-tooltip:-moz-any([status="offline"], [status="unknown"]) .statusIcon {
+tooltip[status="offline"] .statusIcon {
   background-image: url('chrome://instantbird/skin/offline.png');
+}
+
+tooltip[status="unknown"] .statusIcon {
+  background-image: url('chrome://instantbird/skin/unknown.png');
+}
+
+tooltip[status="unknown"] .protoIcon {
+  opacity: 0.7;
 }
 
 .tooltip-header {

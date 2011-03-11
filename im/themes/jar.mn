@@ -25,6 +25,7 @@ instantbird.jar:
 	skin/classic/instantbird/offline.png
 	skin/classic/instantbird/typing-16.png
 	skin/classic/instantbird/typed-16.png
+	skin/classic/instantbird/unknown.png
 	skin/classic/instantbird/unknown-16.png
 	skin/classic/instantbird/chat-16.png
 	skin/classic/instantbird/chat-left-16.png
