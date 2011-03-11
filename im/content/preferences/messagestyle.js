@@ -36,14 +36,15 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource:///modules/jsProtoHelper.jsm");
+let jsProtoHelper = {};
+Components.utils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
 
 function Conversation(aName)
 {
   this.name = aName;
 }
 Conversation.prototype = {
-  __proto__: GenericConvIMPrototype,
+  __proto__: jsProtoHelper.GenericConvIMPrototype,
   account: {protocol: {name: "Fake Protocol"}, name: "Fake Account"}
 };
 
@@ -63,6 +64,7 @@ var previewObserver = {
       msg[aText] = bundle.getString(aText);
     });
     let conv = new Conversation(msg.nick2);
+    const Message = jsProtoHelper.Message;
     conv.messages = [
       new Message(msg.buddy1, msg.message1, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:22"), _conversation: conv}),
       new Message(msg.buddy1, msg.message2, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:25"), _conversation: conv}),

@@ -73,8 +73,13 @@ function setTimeout(aFunction, aDelay)
 {
   var timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
   var args = Array.prototype.slice.call(arguments, 2);
-  timer.initWithCallback(function (aTimer) { aFunction.call(null, args); } ,
-                         aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
+  // A reference to the timer should be kept to ensure it won't be
+  // GC'ed before firing the callback.
+  var callback = {
+    _timer: timer,
+    notify: function (aTimer) { aFunction.apply(null, args); delete this._timer; }
+  };
+  timer.initWithCallback(callback, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
   return timer;
 }
 function clearTimeout(aTimer)
