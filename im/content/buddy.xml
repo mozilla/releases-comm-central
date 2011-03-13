@@ -219,6 +219,9 @@
       <parameter name="aEvent"/>
       <body>
       <![CDATA[
+        if (this.state != "visible")
+          return;
+
         let dt = aEvent.dataTransfer;
         if (dt.types.contains("application/x-ib-contact")) {
           if (dt.getData("application/x-ib-contact") != this.buddy.contact.id)
@@ -245,6 +248,9 @@
 
      <handler event="dragstart">
        <![CDATA[
+         if (this.state != "visible")
+           return;
+
          event.dataTransfer.setData("application/x-ib-buddy",
                                     this.buddy.id);
          event.stopPropagation();

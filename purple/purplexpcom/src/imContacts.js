@@ -366,7 +366,9 @@ Contact.prototype = {
                this._buddies.every(function(b) b._empty),
 
   mergeContact: function(aContact) {
-    if (aContact.id == this.id)
+    // Avoid merging the contact with itself or merging into an
+    // already removed contact.
+    if (aContact.id == this.id || !(this.id in ContactsById))
       throw Components.results.NS_ERROR_INVALID_ARG;
 
     this._ensureNotDummy();
@@ -684,7 +686,8 @@ function Buddy(aId, aKey, aName, aSrvAlias, aContactId) {
 
   if (aContactId)
     this._contact = ContactsById[aContactId];
-  else
+  // Avoid failure if aContactId was invalid.
+  if (!this._contact)
     this._contact = new Contact(null, null);
 
   this._contact._buddies.push(this);
