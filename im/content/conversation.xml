@@ -233,7 +233,12 @@
         // Ugly hack... :(
         if (!aMsg.system && aMsg.incoming && conv.isChat) {
           let name = aMsg.alias || aMsg.who;
-          aMsg.color = "color: hsl(" + this.buddies[name].color + ", 100%, 40%);";
+          let color;
+          if (this.buddies.hasOwnProperty(name))
+            color = this.buddies[name].color;
+          else
+            color = this._computeColor(name);
+          aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
         }
 
         this.browser.appendMessage(aMsg);
@@ -751,6 +756,29 @@
        </body>
      </method>
 
+     <!-- compute color for a nick -->
+     <method name="_computeColor">
+       <parameter name="aName"/>
+       <body>
+       <![CDATA[
+         // Compute the color based on the nick
+         var nick = aName.match(/[a-zA-Z0-9]+/);
+         nick = nick ? nick[0].toLowerCase() : nick = aName;
+         var weight = 10;
+         var res = 0;
+         for (var i = 0; i < nick.length; ++i) {
+           var char = nick.charCodeAt(i) - 47;
+           if (char > 10)
+             char -= 39;
+           // now char contains a value between 1 and 36
+           res += char * weight;
+           weight *= 0.52; //arbitrary
+         }
+         return Math.round(res) % 360;
+       ]]>
+       </body>
+     </method>
+
      <!-- Add a buddy in the visible list of participants -->
      <method name="addBuddy">
        <parameter name="aBuddy"/>
@@ -765,23 +793,10 @@
          item.setAttribute("label", name);
          this.setBuddyAttributes(item);
 
-         // Compute the color based on the nick
-         var nick = name.match(/[a-zA-Z0-9]+/);
-         nick = nick ? nick[0].toLowerCase() : nick = name;
-         var weight = 10;
-         var res = 0;
-         for (var i = 0; i < nick.length; ++i) {
-           var char = nick.charCodeAt(i) - 47;
-           if (char > 10)
-             char -= 39;
-           // now char contains a value between 1 and 36
-           res += char * weight;
-           weight *= 0.52; //arbitrary
-         }
-         res = Math.round(res) % 360;
-         var style = "color: hsl(" + res + ", 100%, 40%);";
+         var color = this._computeColor(name);
+         var style = "color: hsl(" + color + ", 100%, 40%);";
          item.setAttribute("style", style);
-         item.color = res;
+         item.color = color;
          this.buddies[name] = item;
 
          // Insert item at the right position
