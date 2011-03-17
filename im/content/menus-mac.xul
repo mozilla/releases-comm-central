@@ -45,6 +45,19 @@
 <overlay id="menusOverlayMac"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+  <commandset id="maincommandset">
+    <command id="cmd_contacts"
+             oncommand="if (window.location.href == 'chrome://instantbird/content/blist.xul')
+                          window.close();
+                        else
+                          Core.showContacts();"/>
+  </commandset>
+
+  <keyset id="mainkeyset">
+    <key id="contactskey" command="cmd_contacts"
+         key="&contacts.commandkey;" modifiers="accel,shift"/>
+  </keyset>
+
   <!-- adds the onpopupshowing attributes -->
   <menupopup id="setStatusMenupopup"
              onpopupshowing="menus.onStatusPopupShowing();"/>
@@ -66,6 +79,9 @@
   <menuseparator id="prefSep" removeelement="true"/>
   <menuitem id="menu_preferences" removeelement="true"/>
   <menupopup id="toolsMenuPopup">
+    <menuitem id="contactsMenuItem" insertbefore="addonsMenuItem"
+              label="&contacts.label;" accesskey="&contacts.accesskey;"
+              command="cmd_contacts" key="contactskey"/>
     <menuseparator id="updatesSep"/>
     <menuitem id="updatesMenuItem"
               label="&checkForUpdates;"

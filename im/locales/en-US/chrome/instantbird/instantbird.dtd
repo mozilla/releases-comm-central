@@ -27,6 +27,9 @@
 <!ENTITY accountManager     "Accounts">
 <!ENTITY account.commandkey "a">
 <!ENTITY account.accesskey  "A">
+<!ENTITY contacts.label     "Contacts">
+<!ENTITY contacts.commandkey "c">
+<!ENTITY contacts.accesskey "C">
 <!ENTITY addonManager       "Add-ons">
 <!ENTITY checkForUpdates    "Check for Updates">
 <!ENTITY help.menu          "Help">

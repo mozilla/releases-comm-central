@@ -133,7 +133,7 @@ ConversationLog.prototype = {
     let doc = Cc["@mozilla.org/appshell/appShellService;1"]
                .getService(Ci.nsIAppShellService)
                .hiddenDOMWindow.document;
-    let div = doc.createElement("div");
+    let div = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
     div.innerHTML = aString.replace(/\r?\n/g, "<br/>");
     const type = "text/plain";
     let encoder =

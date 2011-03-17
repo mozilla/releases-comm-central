@@ -46,6 +46,8 @@ const preferencesWindow = "chrome://instantbird/content/preferences/preferences.
 
 if (!("Services" in window))
   Components.utils.import("resource:///modules/imServices.jsm");
+if (!("Core" in window))
+  Components.utils.import("resource:///modules/ibCore.jsm");
 
 var menus = {
   focus: function menu_focus(aWindowType) {
@@ -62,15 +64,11 @@ var menus = {
   },
 
   accounts: function menu_accounts() {
-    if (!this.focus("Messenger:Accounts"))
-      window.open(accountManagerWindow, "Accounts",
-                  "chrome,resizable");
+    Core.showAccounts();
   },
 
   preferences: function menu_preferences() {
-    if (!this.focus("Messenger:Preferences"))
-      window.open(preferencesWindow, "Preferences",
-                  "chrome,titlebar,toolbar,centerscreen,dialog=no");
+    Core.showPreferences();
   },
 
   addons: function menu_addons() {
@@ -86,21 +84,7 @@ var menus = {
   },
 
   updates: function menu_updates() {
-    // copied from checkForUpdates in mozilla/browser/base/content/utilityOverlay.js
-    var um =
-      Components.classes["@mozilla.org/updates/update-manager;1"]
-                .getService(Components.interfaces.nsIUpdateManager);
-    var prompter =
-      Components.classes["@mozilla.org/updates/update-prompt;1"]
-                .createInstance(Components.interfaces.nsIUpdatePrompt);
-
-    // If there's an update ready to be applied, show the "Update Downloaded"
-    // UI instead and let the user know they have to restart the browser for
-    // the changes to be applied.
-    if (um.activeUpdate && um.activeUpdate.state == "pending")
-      prompter.showUpdateDownloaded(um.activeUpdate);
-    else
-      prompter.checkForUpdates();
+    Core.showUpdates();
   },
 
   displayUpdateStatus: function menu_displayUpdateStatus() {
@@ -159,17 +143,18 @@ var menus = {
       checkForUpdates.removeAttribute("loading");
   },
 
-  getAccounts: function bl_getAccounts() {
-    return getIter(Services.core.getAccounts());
-  },
   updateFileMenuitems: function menu_updateFileMenuitems() {
     let hasConnectedAccount = false;
     let canJoinChat = false;
-    for (let acc in this.getAccounts()) {
+    let enumerator = Services.core.getAccounts();
+    while (enumerator.hasMoreElements()) {
+      let acc = enumerator.getNext();
       if (acc.connected) {
         hasConnectedAccount = true;
-        if (acc.canJoinChat)
+        if (acc.canJoinChat) {
           canJoinChat = true;
+          break;
+        }
       }
     }
 

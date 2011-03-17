@@ -40,7 +40,6 @@ Components.utils.import("resource:///modules/imStatusUtils.jsm");
 const events = ["contact-availability-changed",
                 "contact-added",
                 "contact-moved",
-                "account-disconnected",
                 "status-changed",
                 "purple-quit"];
 
@@ -235,14 +234,6 @@ var buddyList = {
 
     if (aTopic == "status-changed") {
       this.displayCurrentStatus();
-      this.showAccountManagerIfNeeded(false);
-      return;
-    }
-
-    if (aTopic == "account-disconnected") {
-      let account = aSubject.QueryInterface(Ci.purpleIAccount);
-      if (account.reconnectAttempt <= 1)
-        this.showAccountManagerIfNeeded(false);
       return;
     }
 
@@ -404,40 +395,6 @@ var buddyList = {
     elt.removeEventListener("blur", this.statusMessageBlur, false);
   },
 
-  getAccounts: function bl_getAccounts() getIter(Services.core.getAccounts()),
-
-  /* This function pops up the account manager is no account is
-   * connected or connecting.
-   * When called during startup (aIsStarting == true), it will also
-   * look for crashed accounts.
-   */
-  showAccountManagerIfNeeded: function bl_showAccountManagerIfNeeded(aIsStarting) {
-    // If the current status is offline, we don't need the account manager
-    let isOffline =
-      Services.core.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE;
-    if (isOffline && !aIsStarting)
-      return;
-
-    let hasActiveAccount = false;
-    let hasCrashedAccount = false;
-    for (let acc in this.getAccounts()) {
-      if (acc.connected || acc.connecting)
-        hasActiveAccount = true;
-
-      // We only check for crashed accounts on startup.
-      if (aIsStarting && acc.autoLogin &&
-          acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
-        hasCrashedAccount = true;
-    }
-
-    /* We only display the account manager on startup if an account has crashed
-       or if all accounts are disconnected
-       In case of connection failure after an automatic reconnection attempt,
-       we don't want to popup the account manager */
-    if ((!hasActiveAccount && !isOffline) || (aIsStarting && hasCrashedAccount))
-      menus.accounts();
-  },
-
   load: function bl_load() {
     var blistWindows = Services.wm.getEnumerator("Messenger:blist");
     while (blistWindows.hasMoreElements()) {
@@ -447,42 +404,6 @@ var buddyList = {
         window.close();
         return;
       }
-    }
-
-    try {
-      // Set the Vendor for breakpad only
-      if ("nsICrashReporter" in Ci) {
-        Components.classes["@mozilla.org/xre/app-info;1"]
-                  .getService(Ci.nsICrashReporter)
-                  .annotateCrashReport("Vendor", "Instantbird");
-      }
-    } catch(e) {
-      // This can fail if breakpad isn't enabled,
-      // don't worry too much about this exception.
-    }
-
-    if (!initPurpleCore()) {
-      window.close();
-      return;
-    }
-
-    let status = {
-      back: "AVAILABLE",
-      away: "AWAY",
-      busy: "UNAVAILABLE",
-      dnd: "UNAVAILABLE",
-      offline: "OFFLINE"
-    };
-    for (let cmd in status) {
-      let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
-      Services.cmd.registerCommand({
-        name: cmd,
-        priority: Ci.imICommand.PRIORITY_HIGH,
-        run: function(aMsg) {
-          Services.core.setStatus(statusValue, aMsg);
-          return true;
-        }
-      });
     }
 
     // TODO remove this once we cleanup the way the menus are inserted
@@ -513,23 +434,12 @@ var buddyList = {
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
 
-    Components.utils.import("resource:///modules/imWindows.jsm");
-    Conversations.init();
-
-    buddyList.showAccountManagerIfNeeded(true);
     this.addEventListener("unload", buddyList.unload, false);
-    this.addEventListener("close", buddyList.close, false);
   },
   unload: function bl_unload() {
     removeObservers(buddyList, events);
     Services.prefs.removeObserver(showOfflineBuddiesPref, buddyList);
-    uninitPurpleCore();
    },
-
-  close: function bl_close(event) {
-    event.preventDefault();
-    goQuitApplication();
-  },
 
   // Handle key pressing
   keyPress: function bl_keyPress(aEvent) {

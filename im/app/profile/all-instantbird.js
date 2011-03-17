@@ -1,5 +1,8 @@
 pref("toolkit.defaultChromeURI", "chrome://instantbird/content/blist.xul");
 pref("toolkit.singletonWindowType", "Messenger:blist");
+#ifdef XP_MACOSX
+pref("browser.hiddenWindowChromeURL", "chrome://instantbird/content/hiddenWindow.xul");
+#endif
 
 #expand pref("general.useragent.extra.instantbird", "Instantbird/__APP_VERSION__");
 

@@ -25,8 +25,8 @@ var debug = {
   },
 
   garbageCollect: function debug_garbageCollect() {
-    window.QueryInterface(Ci.nsIInterfaceRequestor)
-          .getInterface(Ci.nsIDOMWindowUtils)
+    window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+          .getInterface(Components.interfaces.nsIDOMWindowUtils)
           .garbageCollect();
   },
 

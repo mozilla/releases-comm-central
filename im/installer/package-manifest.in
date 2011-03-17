@@ -411,8 +411,8 @@
 @BINPATH@/components/profileMigrator.js
 @BINPATH@/components/profileMigrator.manifest
 #endif
-@BINPATH@/components/autoLoginHandler.js
-@BINPATH@/components/autoLoginHandler.manifest
+@BINPATH@/components/ibCommandLineHandler.js
+@BINPATH@/components/ibCommandLineHandler.manifest
 @BINPATH@/components/facebookOverrideProtocol.js
 @BINPATH@/components/gtalkOverrideProtocol.js
 @BINPATH@/components/overrideProtocols.manifest

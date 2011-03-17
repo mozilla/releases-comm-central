@@ -36,7 +36,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 const CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
-const BROWSER_REQUEST_WINDOW_URI = "chrome://instantbird/content/browserRequest.xul";
 var EXPORTED_SYMBOLS = ["Conversations"];
 
 Components.utils.import("resource:///modules/imServices.jsm");
@@ -150,49 +149,12 @@ var Conversations = {
     }
   },
 
-  _onQuitRequest: function (aCancelQuit, aQuitType) {
-    // The request has already been canceled somewhere else
-    if ((aCancelQuit instanceof Components.interfaces.nsISupportsPRBool)
-         && aCancelQuit.data)
-      return;
-
-    if (!Services.prefs.getBoolPref("messenger.warnOnQuit"))
-      return;
-
-    let unreadConvsCount = this._conversations.filter(function(conv) {
+  get unreadConvsCount() {
+    return this._conversations.filter(function(conv) {
       let tab = conv.tab;
       return tab.hasAttribute("unread") &&
              (!tab.hasAttribute("chat") || tab.hasAttribute("attention"));
     }).length;
-
-    if (unreadConvsCount == 0)
-      return;
-
-    let bundle =
-      Services.strings.createBundle("chrome://instantbird/locale/quitDialog.properties");
-    let promptTitle    = bundle.GetStringFromName("dialogTitle");
-    let promptMessage  = bundle.GetStringFromName("message");
-    let promptCheckbox = bundle.GetStringFromName("checkbox");
-    let action         = aQuitType == "restart" ? "restart" : "quit";
-    let button         = bundle.GetStringFromName(action + "Button");
-
-    Components.utils.import("resource://gre/modules/PluralForm.jsm");
-    promptMessage = PluralForm.get(unreadConvsCount, promptMessage)
-                              .replace("#1", unreadConvsCount);
-
-    let prompts = Services.prompt;
-    let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
-                prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
-                prompts.BUTTON_POS_1_DEFAULT;
-    let checkbox = {value: false};
-    if (prompts.confirmEx(this._windows[0], promptTitle, promptMessage, flags,
-                          button, null, null, promptCheckbox, checkbox)) {
-      aCancelQuit.data = true;
-      return;
-    }
-
-    if (checkbox.value)
-      Services.prefs.setBoolPref("messenger.warnOnQuit", false);
   },
 
   onWindowFocus: function (aWindow) {
@@ -266,12 +228,9 @@ var Conversations = {
 
   init: function() {
     let os = Services.obs;
-    ["browser-request",
-     "new-text",
+    ["new-text",
      "new-conversation",
-     "account-connected",
-     "purple-quit",
-     "quit-application-requested"].forEach(function (aTopic) {
+     "purple-quit"].forEach(function (aTopic) {
       os.addObserver(Conversations, aTopic, false);
     });
 #ifdef XP_MACOSX
@@ -280,11 +239,6 @@ var Conversations = {
   },
 
   observe: function(aSubject, aTopic, aMsg) {
-    if (aTopic == "quit-application-requested") {
-      this._onQuitRequest(aSubject, aMsg);
-      return;
-    }
-
     if (aTopic == "purple-quit") {
       for (let id in this._purpleConv)
         this._purpleConv[id].unInit();
@@ -305,31 +259,6 @@ var Conversations = {
       return;
     }
 #endif
-
-    if (aTopic == "account-connected") {
-      let account = aSubject.QueryInterface(Components.interfaces.purpleIAccount);
-      if (!account.canJoinChat)
-        return;
-
-      let pref = "messenger.account." + account.id + ".autoJoin";
-      if (Services.prefs.prefHasUserValue(pref)) {
-        let autojoin = Services.prefs.getCharPref(pref);
-        if (autojoin) {
-          autojoin = autojoin.split(",");
-          for (let i = 0; i < autojoin.length; ++i) {
-            let values = account.getChatRoomDefaultFieldValues(autojoin[i]);
-            account.joinChat(values);
-          }
-        }
-      }
-      return;
-    }
-
-    if (aTopic == "browser-request") {
-      Services.ww.openWindow(null, BROWSER_REQUEST_WINDOW_URI, null,
-                             "chrome", aSubject);
-      return;
-    }
 
     if (aTopic != "new-text" && aTopic != "new-conversation")
       return;

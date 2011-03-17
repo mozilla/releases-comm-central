@@ -17,9 +17,8 @@ instantbird.jar:
 *	instantbird/blist.xul
 	instantbird/buddy.xml
 	instantbird/buddytooltip.xml
-        instantbird/browserRequest.js
-        instantbird/browserRequest.xul
-	instantbird/core.js
+	instantbird/browserRequest.js
+	instantbird/browserRequest.xul
 	instantbird/topicNotification.xml
 	instantbird/contact.xml
 *	instantbird/conversation.xml
@@ -50,6 +49,7 @@ instantbird.jar:
 	instantbird/viewlog.js
 	instantbird/viewlog.css
 #ifdef XP_MACOSX
+*	instantbird/hiddenWindow.xul
 	instantbird/menus-mac.xul
 	instantbird/macgestures.js
 #elifdef XP_WIN

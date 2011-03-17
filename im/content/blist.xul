@@ -56,14 +56,26 @@
   width  = "200"
   height = "600"
   persist= "width height screenX screenY"
+#ifndef XP_MACOSX
+  onclose= "event.preventDefault(); goQuitApplication();"
+#endif
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
-  <script type="application/javascript" src="chrome://instantbird/content/core.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
 
 #include menus.xul.inc
 
+#ifdef XP_MACOSX
+  <commandset id="blistCommands">
+    <command id="cmd_close" oncommand="window.close();"/>
+  </commandset>
+
+  <keyset id="blistKeys">
+    <key id="key_close" key="w" modifiers="accel" command="cmd_close"/>
+  </keyset>
+
+#endif
   <popupset id="mainPopupSet">
     <tooltip id="buddyTooltip" type="buddy"
              onpopupshowing="if ('_droptarget' in window) return false;"/>

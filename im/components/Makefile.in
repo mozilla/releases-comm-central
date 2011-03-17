@@ -46,12 +46,15 @@ MODULE		= instantbird
 XPIDLSRCS	= ibILogger.idl
 
 EXTRA_COMPONENTS = \
-	smileProtocolHandler.js smileProtocolHandler.manifest \
-	autoLoginHandler.js autoLoginHandler.manifest \
+	ibCommandLineHandler.manifest \
 	logger.manifest \
+	smileProtocolHandler.js smileProtocolHandler.manifest \
 	$(NULL)
 
-EXTRA_PP_COMPONENTS = logger.js
+EXTRA_PP_COMPONENTS = \
+	ibCommandLineHandler.js \
+	logger.js \
+	$(NULL)
 
 ifeq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
 EXTRA_COMPONENTS += profileMigrator.js profileMigrator.manifest
