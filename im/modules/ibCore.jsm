@@ -41,6 +41,7 @@ const EXPORTED_SYMBOLS = ["Core"];
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imWindows.jsm");
+Cu.import("resource:///modules/ibNotifications.jsm");
 
 var Core = {
   _events: [
@@ -113,6 +114,7 @@ var Core = {
     }
 
     Conversations.init();
+    Notifications.init();
 
     this._events.forEach(function (aTopic) {
       Services.obs.addObserver(Core, aTopic, false);

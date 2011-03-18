@@ -43,6 +43,7 @@ include $(DEPTH)/config/autoconf.mk
 
 EXTRA_JS_MODULES = \
 	ibCore.jsm \
+	ibNotifications.jsm \
 	imContentSink.jsm \
 	imServices.jsm \
 	imSmileys.jsm \
