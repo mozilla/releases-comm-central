@@ -407,7 +407,10 @@
 @BINPATH@/components/imContacts.js
 @BINPATH@/components/imContacts.manifest
 
-#ifndef XP_MACOSX
+#ifdef XP_MACOSX
+@BINPATH@/components/ibDockBadge.js
+@BINPATH@/components/ibDockBadge.manifest
+#else
 @BINPATH@/components/profileMigrator.js
 @BINPATH@/components/profileMigrator.manifest
 #endif

@@ -41,61 +41,13 @@ var EXPORTED_SYMBOLS = ["Conversations"];
 Components.utils.import("resource:///modules/imServices.jsm");
 
 var Conversations = {
-#ifdef XP_MACOSX
-  _badgeTimeout: null,
-  _showDockBadgePrefName: "messenger.options.showUnreadCountInDock",
-  get dockBadgeService() {
-    let badgeService =
-      Components.classes["@instantbird.org/purple/nsdockbadgeservice;1"]
-                .getService(Components.interfaces.nsIDockBadgeService);
-    delete this.dockBadgeService;
-    return this.dockBadgeService = badgeService;
-  },
-  _showUnreadCount: function c_showUnreadCount() {
-    let text = Conversations._unreadCount || "";
-    Conversations.dockBadgeService.badgeText = text;
-  },
-  _displayUnreadCountInDockBadge: function c_displayUnreadCountInDockBadge() {
-    if (!Services.prefs.getBoolPref(this._showDockBadgePrefName))
-      return;
-
-    if (this._unreadCount == 1 &&
-        Services.prefs.getBoolPref(this._getAttentionPrefName))
-      // We use a timeout because it looks better to add the dock
-      // badge only after the dock item has stopped jumping.
-      this._badgeTimeout =
-        this._windows[0].setTimeout(function () {
-          Conversations._badgeTimeout = null;
-          Conversations._showUnreadCount();
-        }, 1000);
-    else
-      if (!this._badgeTimeout)
-        this._showUnreadCount();
-  },
-  _hideUnreadCountDockBadge: function c_hideUnreadCountDockBadge() {
-    if (this._badgeTimeout) {
-      this._windows[0].clearTimeout(this._badgeTimeout);
-      this._badgeTimeout = null;
-    }
-    else
-      this.dockBadgeService.badgeText = "";
-  },
-#endif
   _unreadCount: 0,
-  _incrementUnreadCount: function c_incrementUnreadCount() {
-    this._unreadCount++;
-#ifdef XP_MACOSX
-    this._displayUnreadCountInDockBadge();
-#endif
-  },
-  _clearUnreadCount: function c_clearUnreadCount() {
-    if (!this._unreadCount)
-      return;
-
-    this._unreadCount = 0;
-#ifdef XP_MACOSX
-    this._hideUnreadCountDockBadge();
-#endif
+  get unreadCount() this._unreadCount,
+  set unreadCount(val) {
+    if (val == this._unreadCount)
+      return val;
+    Services.obs.notifyObservers(null, "unread-im-count-changed", val);
+    return (this._unreadCount = val);
   },
   _windows: [],
   _getAttentionPrefName: "messenger.options.getAttentionOnNewMessages",
@@ -164,7 +116,7 @@ var Conversations = {
       this._windows.splice(position, 1);
       this._windows.unshift(aWindow);
     }
-    this._clearUnreadCount();
+    this.unreadCount = 0;
   },
 
   init: function() {
@@ -174,32 +126,13 @@ var Conversations = {
      "purple-quit"].forEach(function (aTopic) {
       os.addObserver(Conversations, aTopic, false);
     });
-#ifdef XP_MACOSX
-    Services.prefs.addObserver(this._showDockBadgePrefName, this, false);
-#endif
   },
 
   observe: function(aSubject, aTopic, aMsg) {
     if (aTopic == "purple-quit") {
       for (let id in this._purpleConv)
         this._purpleConv[id].unInit();
-#ifdef XP_MACOSX
-      Services.prefs.removeObserver(Conversations._showDockBadgePrefName,
-                                    Conversations);
-#endif
     }
-
-#ifdef XP_MACOSX
-    if (aTopic == "nsPref:changed") {
-      if (aMsg == this._showDockBadgePrefName) {
-        if (Services.prefs.getBoolPref(aMsg))
-          this._showUnreadCount();
-        else
-          this._hideUnreadCountDockBadge();
-      }
-      return;
-    }
-#endif
 
     if (aTopic != "new-text" && aTopic != "new-conversation")
       return;
@@ -236,7 +169,7 @@ var Conversations = {
         if (Services.prefs.getBoolPref(this._getAttentionPrefName))
           conv.ownerDocument.defaultView.getAttention();
         if (!this.isConversationWindowFocused())
-          this._incrementUnreadCount();
+          ++this.unreadCount;
       }
     }
   }
