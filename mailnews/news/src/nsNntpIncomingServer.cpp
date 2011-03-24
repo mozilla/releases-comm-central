@@ -1696,6 +1696,14 @@ nsNntpIncomingServer::GetSupportsSubscribeSearch(bool *retVal)
 }
 
 NS_IMETHODIMP
+nsNntpIncomingServer::GetFolderView(nsITreeView **aView)
+{
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetFolderView(aView);
+}
+
+NS_IMETHODIMP
 nsNntpIncomingServer::GetRowCount(int32_t *aRowCount)
 {
   *aRowCount = mSubscribeSearchResult.Length();
