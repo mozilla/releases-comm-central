@@ -10,6 +10,7 @@ interface nsIMsgIncomingServer;
 interface nsIRDFResource;
 interface nsIRDFNode;
 interface nsISimpleEnumerator;
+interface nsITreeView;
 
 [scriptable, uuid(61a08c3a-1dd2-11b2-b64f-c4b2de1cf129)]
 interface nsISubscribeDataSource : nsISupports {
@@ -17,11 +18,14 @@ interface nsISubscribeDataSource : nsISupports {
     void NotifyObservers(in nsIRDFResource subject, in nsIRDFResource property, in nsIRDFNode object, in boolean isAssert, in boolean isChange);
 };
 
+/**
+ * A listener to receive notification of the subscribable folders of a server.
+ */
 [scriptable, uuid(f337b84a-1dd1-11b2-97c7-fb8b2e3f2280)]
 interface nsISubscribeListener : nsISupports {
-  // Announce a new item found on the server.
-  void OnItemDiscovered(in AUTF8String aPath, in boolean aSubscribable);
-  // Announce finish of discovering server items.
+  /**
+   * The server has finished finding all folders to subscribe to.
+   */
   void OnDonePopulating();
 };
 
@@ -75,5 +79,6 @@ interface nsISubscribableServer : nsISupports {
   // for searching
   void setSearchValue(in AString searchValue);
   readonly attribute boolean supportsSubscribeSearch;
+  readonly attribute nsITreeView folderView;
 };
 

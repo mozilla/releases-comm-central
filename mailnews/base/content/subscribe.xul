@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/subscribe.css" type="text/css"?>
 <!-- <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?> -->
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/subscribe.dtd">
 

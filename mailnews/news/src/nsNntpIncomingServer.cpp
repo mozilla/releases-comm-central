@@ -947,7 +947,7 @@ nsNntpIncomingServer::StartPopulating(nsIMsgWindow *aMsgWindow, bool aForceToSer
   mGetOnlyNew = aGetOnlyNew;
 
   if (!aForceToServer) {
-  rv = LoadHostInfoFile();
+    rv = LoadHostInfoFile();
     if (NS_FAILED(rv)) return rv;
   }
 
@@ -955,16 +955,16 @@ nsNntpIncomingServer::StartPopulating(nsIMsgWindow *aMsgWindow, bool aForceToSer
   if (aForceToServer || !mHostInfoLoaded || (mVersion != VALID_VERSION)) {
     // set these to true, so when we are done and we call WriteHostInfoFile()
     // we'll write out to hostinfo.dat
-  mHostInfoHasChanged = true;
-  mVersion = VALID_VERSION;
+    mHostInfoHasChanged = true;
+    mVersion = VALID_VERSION;
 
-  mGroupsOnServer.Clear();
-  rv = nntpService->GetListOfGroupsOnServer(this, aMsgWindow, aGetOnlyNew);
-  if (NS_FAILED(rv)) return rv;
+    mGroupsOnServer.Clear();
+    rv = nntpService->GetListOfGroupsOnServer(this, aMsgWindow, aGetOnlyNew);
+    if (NS_FAILED(rv)) return rv;
   }
   else {
-  rv = StopPopulating(aMsgWindow);
-  if (NS_FAILED(rv)) return rv;
+    rv = StopPopulating(aMsgWindow);
+    if (NS_FAILED(rv)) return rv;
   }
 
   return NS_OK;
@@ -1115,16 +1115,6 @@ NS_IMETHODIMP
 nsNntpIncomingServer::StopPopulating(nsIMsgWindow *aMsgWindow)
 {
   nsresult rv = NS_OK;
-
-  nsCOMPtr<nsISubscribeListener> listener;
-  rv = GetSubscribeListener(getter_AddRefs(listener));
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  if (!listener)
-    return NS_ERROR_FAILURE;
-
-  rv = listener->OnDonePopulating();
-  NS_ENSURE_SUCCESS(rv,rv);
 
   rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv,rv);
@@ -1693,6 +1683,14 @@ nsNntpIncomingServer::GetSupportsSubscribeSearch(bool *retVal)
 {
   *retVal = true;
   return NS_OK;
+}
+
+NS_IMETHODIMP
+nsNntpIncomingServer::GetFolderView(nsITreeView **aView)
+{
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetFolderView(aView);
 }
 
 NS_IMETHODIMP

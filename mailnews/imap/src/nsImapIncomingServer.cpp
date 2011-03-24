@@ -2502,12 +2502,6 @@ nsImapIncomingServer::AddTo(const nsACString &aName, bool addAsSubscribed,
 NS_IMETHODIMP
 nsImapIncomingServer::StopPopulating(nsIMsgWindow *aMsgWindow)
 {
-  nsCOMPtr<nsISubscribeListener> listener;
-  (void) GetSubscribeListener(getter_AddRefs(listener));
-
-  if (listener)
-    listener->OnDonePopulating();
-
   nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv,rv);
   return mInner->StopPopulating(aMsgWindow);
@@ -2989,6 +2983,14 @@ nsImapIncomingServer::GetSupportsSubscribeSearch(bool *retVal)
   NS_ENSURE_ARG_POINTER(retVal);
   *retVal = false;
   return NS_OK;
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::GetFolderView(nsITreeView **aView)
+{
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetFolderView(aView);
 }
 
 NS_IMETHODIMP

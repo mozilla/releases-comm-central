@@ -18,12 +18,10 @@ var gStatusFeedback;
 var gSubscribeDeck = null;
 var gSearchView = null;
 var gSearchTreeBoxObject = null;
-var gItemsFound = new Map();
 var gSubscribeBundle;
 
 function Stop()
 {
-  //dump("Stop()\n")
   if (gSubscribableServer) {
     gSubscribableServer.stopPopulating(msgWindow);
   }
@@ -59,64 +57,14 @@ function onServerClick(aFolder)
 }
 
 var MySubscribeListener = {
-  OnItemDiscovered: function(aPath, aSubscribable) {
-    if (!gItemsFound.has(aPath))
-      gItemsFound.set(aPath, gSubscribableServer.getLeafName(aPath));
-  },
-
   OnDonePopulating: function() {
-    createSubscribeTree();
     gStatusFeedback._stopMeteors();
     document.getElementById("stopButton").disabled = true;
-
-// XXX what does this do? Is this needed without RDF/template?
-    // Only re-root the tree, if it is null.
-    // Otherwise, we are in here because we are populating a part of the tree.
-/*    let refValue = gSubscribeTree.getAttribute('ref');
-    if (!refValue) {
-      //dump("root subscribe tree at: "+ gServerURI +"\n");
-      gSubscribeTree.database.AddDataSource(subscribeDS);
-      gSubscribeTree.setAttribute('ref',gServerURI);
-    }
-*/
-
     document.getElementById("refreshButton").disabled = false;
     document.getElementById("currentListTab").disabled = false;
     document.getElementById("newGroupsTab").disabled = false;
   }
 };
-
-function setSubscribableCellState(aSubscribeCell, aSubscribed, aSubscribable) {
-  aSubscribeCell.setAttribute("properties", "subscribed-" + aSubscribed +
-                                            " subscribable-" + aSubscribable);
-  aSubscribeCell.setAttribute("value", aSubscribed);
-}
-
-/**
- * Populate the subscribe tree with the items found on the server.
- */
-function createSubscribeTree() {
-  let items = toArray(gItemsFound.entries());
-  items.sort((a,b) => a[0].localeCompare(b[0]));
-
-  for (let [path, name] of items) {
-    let subscribed = gSubscribableServer.isSubscribed(path);
-    let subscribable = gSubscribableServer.isSubscribable(path);
-    let itemEl = document.createElement("treeitem");
-    let rowEl = document.createElement("treerow");
-    let nameEl = document.createElement("treecell");
-    let subscribeEl = document.createElement("treecell");
-    nameEl.setAttribute("label", name);
-    nameEl.setAttribute("value", path);
-    nameEl.setAttribute("properties", "serverType-" + gSubscribableServer.type +
-                                      " subscribable-" + subscribable);
-    setSubscribableCellState(subscribeEl, subscribed, subscribable);
-    rowEl.appendChild(nameEl);
-    rowEl.appendChild(subscribeEl);
-    itemEl.appendChild(rowEl);
-    gSubscribeBody.appendChild(itemEl);
- }
-}
 
 function SetUpTree(forceToServer, getOnlyNew)
 {
@@ -128,7 +76,6 @@ function SetUpTree(forceToServer, getOnlyNew)
   {
     CleanUpSearchView();
     gSubscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
-    gSubscribeTree.setAttribute('ref', ''); // XXX: what is this?
 
     // enable (or disable) the search related UI
     EnableSearchUI();
@@ -139,11 +86,10 @@ function SetUpTree(forceToServer, getOnlyNew)
     // since there is no text, switch to the non-search view...
     SwitchToNormalView();
 
-    // Clear the subscribe tree.
-    while (gSubscribeBody.hasChildNodes())
-      gSubscribeBody.lastChild.remove();
-
-    gSubscribableServer.subscribeListener = MySubscribeListener;
+    if (!gSubscribableServer.subscribeListener) {
+      gSubscribeTree.view = gSubscribableServer.folderView;
+      gSubscribableServer.subscribeListener = MySubscribeListener;
+    }
 
     var currentListTab = document.getElementById("currentListTab");
     if (currentListTab.selected)
@@ -154,15 +100,21 @@ function SetUpTree(forceToServer, getOnlyNew)
     document.getElementById("refreshButton").disabled = true;
 
     gStatusFeedback._startMeteors();
+    gStatusFeedback.setStatusString("");
     gStatusFeedback.showStatusString(gSubscribeBundle.getString("pleaseWaitString"));
-    document.getElementById("stopButton").removeAttribute("disabled");
+    document.getElementById("stopButton").disabled = false;
 
-    gItemsFound.clear();
     gSubscribableServer.startPopulating(msgWindow, forceToServer, getOnlyNew);
   }
-  catch (ex)
+  catch (e)
   {
-    dump("failed to populate subscribe ds: " + ex + "\n");
+    if (e.result == 0x80550014) {  // NS_MSG_ERROR_OFFLINE
+      gStatusFeedback.setStatusString(gSubscribeBundle.getString("offlineState"));
+    } else {
+      Cu.reportError("Failed to populate subscribe tree: " + e);
+      gStatusFeedback.setStatusString(gSubscribeBundle.getString("errorPopulating"));
+    }
+    Stop();
   }
 }
 
@@ -173,7 +125,7 @@ function SubscribeOnUnload()
     CleanUpSearchView();
   }
   catch (ex) {
-    dump("failed to remove the subscribe ds: " + ex + "\n");
+    dump("Failed to remove the subscribe tree: " + ex + "\n");
   }
 }
 
@@ -191,7 +143,6 @@ function EnableSearchUI()
 
 function SubscribeOnLoad()
 {
-  //dump("SubscribeOnLoad()\n");
   gSubscribeBundle = document.getElementById("bundle_subscribe");
 
   gSubscribeTree = document.getElementById("subscribeTree");
@@ -264,7 +215,6 @@ function SubscribeOnLoad()
 
 function subscribeOK()
 {
-  //dump("in subscribeOK()\n")
   if (top.okCallback) {
     top.okCallback(top.gChangeTable);
   }
@@ -284,32 +234,11 @@ function subscribeCancel()
   return true;
 }
 
-function SetState(name, state, aRow)
+function SetState(name, state)
 {
   var changed = gSubscribableServer.setState(name, state);
   if (changed)
     StateChanged(name, state);
-
-  let subscribeCell;
-  if (aRow === undefined) {
-    // XXX This won't work when multiple levels of children are implemented
-    for (let row of gSubscribeBody.children) {
-      if (row.children[0].children[0].getAttribute("value") == name) {
-        subscribeCell = row;
-        break;
-      }
-    }
-  } else {
-    subscribeCell = gSubscribeBody.children[aRow];
-  }
-  setSubscribableCellState(subscribeCell.children[0].children[1], state, true);
-}
-
-function changeTableRecord(server, name, state)
-{
-  this.server = server;
-  this.name = name;
-  this.state = state;
 }
 
 function StateChanged(name,state)
@@ -418,7 +347,6 @@ function SetSubscribeState(state)
 function ReverseStateFromNode(row)
 {
   let name = gSubscribeTree.view.getCellValue(row, gSubscribeTree.columns["nameColumn"]);
-
   SetState(name, !gSubscribableServer.isSubscribed(name), row);
 }
 
@@ -443,21 +371,9 @@ function SubscribeOnClick(event)
   }
   else if (event.detail == 1)
   {
-    if (obj.value == "twisty") {
-        if (gSubscribeTree.view.isContainerOpen(row.value)) {
-          var uri = gSubscribeTree.builderView.getResourceAtIndex(row.value).Value;
-
-          gStatusFeedback._startMeteors();
-          gStatusFeedback.showStatusString(gSubscribeBundle.getString("pleaseWaitString"));
-
-          gSubscribableServer.startPopulatingWithUri(msgWindow, true /* force to server */, uri);
-        }
-    }
-    else {
-      // if the user single clicks on the subscribe check box, we handle it here
-      if (col.value.id == "subscribedColumn")
-        ReverseStateFromNode(row.value);
-    }
+    // if the user single clicks on the subscribe check box, we handle it here
+    if (col.value.id == "subscribedColumn")
+      ReverseStateFromNode(row.value);
   }
 }
 
