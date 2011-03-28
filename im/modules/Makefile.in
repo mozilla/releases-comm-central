@@ -48,12 +48,12 @@ EXTRA_JS_MODULES = \
 	imServices.jsm \
 	imSmileys.jsm \
 	imStatusUtils.jsm \
+	imWindows.jsm \
 	$(NULL)
 
 EXTRA_PP_JS_MODULES = \
 	imThemes.jsm \
 	imTextboxUtils.jsm \
-	imWindows.jsm \
 	$(NULL)
 
 include $(topsrcdir)/config/rules.mk

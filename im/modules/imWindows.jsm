@@ -50,20 +50,18 @@ var Conversations = {
     return (this._unreadCount = val);
   },
   _windows: [],
-  _getAttentionPrefName: "messenger.options.getAttentionOnNewMessages",
   registerWindow: function(aWindow) {
     if (this._windows.indexOf(aWindow) == -1)
       this._windows.unshift(aWindow);
 
-    if (this._pendingNotifications) {
+    if (this._pendingConversations) {
       // Cache in a variable and delete the existing notification array
       // before redispatching the notifications so that the observe
       // method can recreate it.
-      let notifications = this._pendingNotifications;
-      delete this._pendingNotifications;
-      notifications.forEach(function(aNotif) {
-        this.observe(aNotif.object, aNotif.topic, aNotif.msg);
-      }, this);
+      let notifications = this._pendingConversations;
+      this._pendingConversations = null;
+      for each (let conv in notifications)
+        this.observe(conv, "new-ui-conversation");
     }
   },
   unregisterWindow: function(aWindow) {
@@ -72,34 +70,37 @@ var Conversations = {
       this._windows.splice(index, 1);
   },
 
-  _purpleConv: {},
+  _uiConv: {},
   _conversations: [],
   registerConversation: function(aConversation) {
     if (this._conversations.indexOf(aConversation) == -1)
       this._conversations.push(aConversation);
 
-    this._purpleConv[aConversation.conv.id] = aConversation;
+    this._uiConv[aConversation.conv.id] = aConversation;
   },
   unregisterConversation: function(aConversation) {
     let index = this._conversations.indexOf(aConversation);
     if (index != -1)
       this._conversations.splice(index, 1);
 
-    if (this._purpleConv[aConversation.conv.id] == aConversation)
-      delete this._purpleConv[aConversation.conv.id];
+    if (this._uiConv[aConversation.conv.id] == aConversation)
+      delete this._uiConv[aConversation.conv.id];
   },
 
   isConversationWindowFocused: function()
     this._windows.length > 0 && this._windows[0].document.hasFocus(),
   focusConversation: function(aConv) {
-    let id = aConv.id;
-    if (id in this._purpleConv) {
-      let conv = this._purpleConv[id];
+    let uiConv = Services.conversations.getUIConversation(aConv);
+    uiConv.target = aConv;
+    let id = uiConv.id;
+    if (id in this._uiConv) {
+      let conv = this._uiConv[id];
       let doc = conv.ownerDocument;
       doc.getElementById("conversations").selectedTab = conv.tab;
       conv.focus();
       doc.defaultView.focus();
     }
+    return uiConv;
   },
 
   get unreadConvsCount() {
@@ -122,54 +123,42 @@ var Conversations = {
   init: function() {
     let os = Services.obs;
     ["new-text",
-     "new-conversation",
-     "purple-quit"].forEach(function (aTopic) {
-      os.addObserver(Conversations, aTopic, false);
-    });
+     "new-ui-conversation"].forEach(function (aTopic) {
+      os.addObserver(this, aTopic, false);
+    }, this);
   },
 
+  _pendingConversations: null,
   observe: function(aSubject, aTopic, aMsg) {
-    if (aTopic == "purple-quit") {
-      for (let id in this._purpleConv)
-        this._purpleConv[id].unInit();
+    if (aTopic == "new-text") {
+      if (aSubject.incoming && !aSubject.system &&
+          (!aSubject.conversation.isChat || aSubject.containsNick) &&
+          !this.isConversationWindowFocused())
+        ++this.unreadCount;
+      return;
     }
 
-    if (aTopic != "new-text" && aTopic != "new-conversation")
+    if (aTopic != "new-ui-conversation")
       return;
 
-    let conv = aTopic == "new-conversation" ? aSubject : aSubject.conversation;
-    if (!(conv.id in this._purpleConv)) {
+    let conv = aSubject;
+    if (!(aSubject.id in this._uiConv)) {
       // The conversation is not displayed anywhere yet.
       // First, check if an existing conversation window can accept it.
       for each (let win in this._windows)
-        if (win.document.getElementById("conversations").addConversation(conv))
+        if (win.document.getElementById("conversations").addConversation(aSubject))
           return;
 
       // At this point, no existing registered window can accept the conversation.
-      // If we are already creating a window, append the notification.
-      if (this._pendingNotifications) {
-        this._pendingNotifications.push({object: aSubject, topic: aTopic,
-                                         msg: aMsg});
-        return;
+      if (this._pendingConversations) {
+        // If we are already creating a window, append the notification.
+        this._pendingConversations.push(aSubject);
       }
-
-      // We need to create a new window.
-      Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
-                             "chrome,toolbar,resizable", null);
-      this._pendingNotifications = [{object: aSubject, topic: aTopic, msg: aMsg}];
-      return;
-    }
-
-    if (aTopic == "new-text") {
-      let conv = this._purpleConv[aSubject.conversation.id];
-      if (!conv.loaded)
-        conv.addMsg(aSubject);
-      if (aSubject.incoming && !aSubject.system &&
-          (!aSubject.conversation.isChat || aSubject.containsNick)) {
-        if (Services.prefs.getBoolPref(this._getAttentionPrefName))
-          conv.ownerDocument.defaultView.getAttention();
-        if (!this.isConversationWindowFocused())
-          ++this.unreadCount;
+      else {
+        // We need to create a new window.
+        this._pendingConversations = [aSubject];
+        Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
+                               "chrome,toolbar,resizable", null);
       }
     }
   }

@@ -406,6 +406,8 @@
 @BINPATH@/components/imCommands.manifest
 @BINPATH@/components/imContacts.js
 @BINPATH@/components/imContacts.manifest
+@BINPATH@/components/imConversations.js
+@BINPATH@/components/imConversations.manifest
 
 #ifdef XP_MACOSX
 @BINPATH@/components/ibDockBadge.js

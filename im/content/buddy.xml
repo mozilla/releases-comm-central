@@ -186,6 +186,8 @@
      <method name="openConversation">
       <body>
        <![CDATA[
+         if (!("Conversations" in window))
+           Components.utils.import("resource:///modules/imWindows.jsm");
          Conversations.focusConversation(this.buddy.createConversation());
        ]]>
       </body>

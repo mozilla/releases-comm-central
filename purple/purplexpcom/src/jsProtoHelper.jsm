@@ -41,6 +41,7 @@ var EXPORTED_SYMBOLS = [
   "clearTimeout",
   "nsSimpleEnumerator",
   "EmptyEnumerator",
+  "ClassInfo",
   "GenericAccountPrototype",
   "GenericAccountBuddyPrototype",
   "GenericConvIMPrototype",
@@ -96,7 +97,7 @@ function ClassInfo(aInterfaces, aDescription)
   if (!(this instanceof ClassInfo))
     return new ClassInfo(aInterfaces, aDescription);
 
-  if (!(aInterfaces instanceof Array))
+  if (!Array.isArray(aInterfaces))
     aInterfaces = [aInterfaces];
   this._interfaces =
     aInterfaces.map(function (i) typeof i == "string" ? Ci[i] : i);
@@ -469,7 +470,7 @@ const GenericConversationPrototype = {
     this.account = aAccount;
     this._name = aName;
     this._observers = [];
-    Services.core.addConversation(this);
+    Services.conversations.addConversation(this);
   },
 
   _id: 0,

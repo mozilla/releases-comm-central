@@ -11,12 +11,11 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is the Instantbird messenging client, released
- * 2010.
+ * The Original Code is the Instantbird messenging client.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,26 +34,31 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-let EXPORTED_SYMBOLS = ["Services"];
+#include "nsISupports.idl"
+#include "purpleIConversation.idl"
+#include "imIContactsService.idl"
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+[scriptable, uuid(a09faf46-bb9d-402f-b460-89f8d7827ff1)]
+interface imIConversation: purpleIConversation {
+  // Will be null for MUCs and IMs from people not in the contacts list.
+  readonly attribute imIContact contact;
 
-XPCOMUtils.defineLazyServiceGetter(Services, "core",
-                                   "@instantbird.org/purple/core;1",
-                                   "purpleICoreService");
-XPCOMUtils.defineLazyServiceGetter(Services, "cmd",
-                                   "@instantbird.org/purple/commands-service;1",
-                                   "imICommandsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "contacts",
-                                   "@instantbird.org/purple/contacts-service;1",
-                                   "imIContactsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "conversations",
-                                   "@instantbird.org/purple/conversations-service;1",
-                                   "imIConversationsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "tags",
-                                   "@instantbird.org/purple/tags-service;1",
-                                   "imITagsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "logs",
-                                   "@instantbird.org/logger;1",
-                                   "ibILogger");
+  attribute purpleIConversation target;
+};
+
+[scriptable, uuid(984e182c-d395-4fba-ba6e-cc80c71f57bf)]
+interface imIConversationsService: nsISupports {
+  void initConversations();
+  void unInitConversations();
+
+  // register a conversation. This will create a unique id for the
+  // conversation and set it.
+  void addConversation(in purpleIConversation aConversation);
+  void removeConversation(in purpleIConversation aConversation);
+
+  imIConversation getUIConversation(in purpleIConversation aConversation);
+  imIConversation getUIConversationByContactId(in unsigned long aId);
+
+  nsISimpleEnumerator getConversations();
+  purpleIConversation getConversationById(in unsigned long aId);
+};

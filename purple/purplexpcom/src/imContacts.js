@@ -35,22 +35,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource:///modules/imServices.jsm");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-
-XPCOMUtils.defineLazyServiceGetter(this, "obs",
-                                   "@mozilla.org/observer-service;1",
-                                   "nsIObserverService");
-XPCOMUtils.defineLazyServiceGetter(this, "prefs",
-                                   "@mozilla.org/preferences-service;1",
-                                   "nsIPrefBranch");
-XPCOMUtils.defineLazyServiceGetter(this, "pcs",
-                                   "@instantbird.org/purple/core;1",
-                                   "purpleICoreService");
-XPCOMUtils.defineLazyGetter(this, "DBConn", function() pcs.storageConnection);
-
+XPCOMUtils.defineLazyGetter(this, "DBConn",
+                            function() Services.core.storageConnection);
 
 var AccountsById = { };
 function getAccountById(aId) {
@@ -59,7 +49,7 @@ function getAccountById(aId) {
 
   let account = null;
   try {
-    account = pcs.getAccountByNumericId(aId);
+    account = Services.core.getAccountByNumericId(aId);
   } catch (x) { /* Not found */ }
 
   AccountsById[aId] = account;
@@ -248,7 +238,7 @@ Contact.prototype = {
     aTag.notifyObservers(this, "contact-moved-in");
     for each (let observer in this._observers)
       observer.observe(aTag, "contact-moved-in");
-    obs.notifyObservers(this, "contact-tagged", aTag.id);
+    Services.obs.notifyObservers(this, "contact-tagged", aTag.id);
   },
   /* Remove a tag from the local tags of the contact. */
   _removeTag: function(aTag) {
@@ -354,7 +344,7 @@ Contact.prototype = {
       for each (let observer in this._observers)
         observer.observe(aNewTag, "contact-moved-in");
     }
-    obs.notifyObservers(this, "contact-moved", null);
+    Services.obs.notifyObservers(this, "contact-moved", null);
   },
 
   getBuddies: function(aBuddyCount) {
@@ -608,7 +598,12 @@ Contact.prototype = {
   get canSendMessage() this.preferredBuddy.canSendMessage,
   //XXX should we list the buddies in the tooltip?
   getTooltipInfo: function() this.preferredBuddy.getTooltipInfo(),
-  createConversation: function() this.preferredBuddy.createConversation(),
+  createConversation: function() {
+    let uiConv = Services.conversations.getUIConversationByContactId(this.id);
+    if (uiConv)
+      return uiConv.target;
+    return this.preferredBuddy.createConversation();
+  },
 
   addObserver: function(aObserver) {
     if (this._observers.indexOf(aObserver) == -1)
@@ -628,7 +623,7 @@ Contact.prototype = {
       observer.observe(aSubject, aTopic, aData);
     for each (let tag in this._tags)
       tag.notifyObservers(aSubject, aTopic, aData);
-    obs.notifyObservers(aSubject, aTopic, aData);
+    Services.obs.notifyObservers(aSubject, aTopic, aData);
   },
   _notifyObservers: function(aTopic, aData) {
     this.notifyObservers(this, "contact-" + aTopic, aData);

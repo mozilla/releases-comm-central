@@ -113,6 +113,7 @@ var Core = {
       });
     }
 
+    Services.conversations.initConversations();
     Conversations.init();
     Notifications.init();
 

@@ -241,6 +241,11 @@
           aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
         }
 
+        if (aMsg.incoming && !aMsg.system &&
+            (!aMsg.conversation.isChat || aMsg.containsNick) &&
+            Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages"))
+          window.getAttention();
+
         this.browser.appendMessage(aMsg);
         if (this.tab && aMsg.incoming && !aMsg.system &&
             (!this.tab.selected || !document.hasFocus())) {
@@ -1049,8 +1054,7 @@
 
          switch(aTopic) {
          case "new-text":
-           if (this.loaded)
-             this._addMsg(aSubject);
+           this.addMsg(aSubject);
            break;
 
          case "update-typing":
@@ -1062,6 +1066,9 @@
            this.updateConvStatus();
            break;
 
+         case "target-purple-conversation-changed":
+           this.updateConvStatus();
+           // We want to update the tab title too, so no 'break' here.
          case "update-conv-title":
            if (this.tab)
              this.tab.setAttribute("label", this.conv.title);
