@@ -206,6 +206,9 @@
       <method name="updateTitlebar">
         <body>
           <![CDATA[
+            if (!this.mCurrentConversation) // tabbrowser not initialized yet
+              return;
+
             var newTitle = "";
             var docTitle;
             var docElement = this.ownerDocument.documentElement;
@@ -2172,6 +2175,10 @@
         this.style.MozUserFocus = '';
       </handler>
       <handler event="DOMAttrModified">
+       <![CDATA[
+        if (event.attrName == "label" && ("getBrowser" in window))
+          getBrowser().updateTitlebar();
+
         if (event.attrName != "selected")
           return;
 
@@ -2179,6 +2186,7 @@
           this.linkedConversation.removeAttribute("selected");
         else
           this.linkedConversation.setAttribute("selected", event.newValue);
+       ]]>
       </handler>
     </handlers>
   </binding>
