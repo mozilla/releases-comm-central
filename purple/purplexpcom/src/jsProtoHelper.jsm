@@ -486,9 +486,7 @@ const GenericConversationPrototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    let index = this._observers.indexOf(aObserver);
-    if (index != -1)
-      this._observers.splice(index, 1);
+    this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
     for each (let observer in this._observers)

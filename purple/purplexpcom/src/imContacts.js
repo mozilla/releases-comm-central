@@ -141,9 +141,7 @@ Tag.prototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    let index = this._observers.indexOf(aObserver);
-    if (index != -1)
-      this._observers.splice(index, 1);
+    this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
     for each (let observer in this._observers)
@@ -432,7 +430,7 @@ Contact.prototype = {
       if (index == -1)
         throw "Removing an unknown buddy from contact " + this._id;
 
-      this._buddies.splice(index, 1);
+      this._buddies = this._buddies.filter(function(b) b !== aBuddy);
 
       // If we are actually removing the whole contact, don't bother updating
       // the positions or the preferred buddy.
@@ -613,9 +611,7 @@ Contact.prototype = {
     if (!this.hasOwnProperty("_observers"))
       return;
 
-    let index = this._observers.indexOf(aObserver);
-    if (index != -1)
-      this._observers.splice(index, 1);
+    this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {
@@ -860,9 +856,7 @@ Buddy.prototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    let index = this._observers.indexOf(aObserver);
-    if (index != -1)
-      this._observers.splice(index, 1);
+    this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {

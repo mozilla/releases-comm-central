@@ -188,8 +188,8 @@
         if (i == -1)
           throw "Removing a contact that doesn't exist?";
 
-        // remove the contact from the array
-        this.contacts.splice(i, 1);
+        // create a new array to remove without breaking for each loops.
+        this.contacts = this.contacts.filter(function(c) c !== aContact);
         delete this.contactsById[aContact.contact.id];
 
         // Check if some contacts remain in the group, if empty remove it

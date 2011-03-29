@@ -151,9 +151,7 @@ UIConversation.prototype = {
     }
   },
   removeObserver: function(aObserver) {
-    let index = this._observers.indexOf(aObserver);
-    if (index != -1)
-      this._observers.splice(index, 1);
+    this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
     for each (let observer in this._observers)
@@ -237,9 +235,8 @@ ConversationsService.prototype = {
     }
     aPurpleConversation.unInit();
 
-    let index = this._purpleConversations.indexOf(aPurpleConversation);
-    if (index != -1)
-      this._purpleConversations.splice(index, 1);
+    this._purpleConversations =
+      this._purpleConversations.filter(function(c) c !== aPurpleConversation);
   },
 
   getUIConversation: function(aPurpleConversation) {
