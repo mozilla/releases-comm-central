@@ -108,6 +108,13 @@
        <setter>
          <![CDATA[
            if (val) {
+             let state = this.state;
+             if (state == "fading" || state == "collapsing") {
+               if (state == "fading")
+                 this.finishRemoveNode();
+               this.parentNode.removeChild(this);
+               return;
+             }
              this.setAttribute("collapsed", val);
              this.state = "collapsed";
            }
