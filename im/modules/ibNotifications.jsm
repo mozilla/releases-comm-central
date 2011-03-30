@@ -60,7 +60,7 @@ var Notifications = {
 
     // Put the message content into a div node.
     let xhtmlElement = win.document.createElementNS("http://www.w3.org/1999/xhtml", "div");
-    xhtmlElement.innerHTML = aMessage.message;
+    xhtmlElement.innerHTML = aMessage.message.replace(/<br>/gi, "<br/>");
 
     // Convert the div node content to plain text.
     let encoder =

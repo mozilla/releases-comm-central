@@ -134,7 +134,7 @@ ConversationLog.prototype = {
                .getService(Ci.nsIAppShellService)
                .hiddenDOMWindow.document;
     let div = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
-    div.innerHTML = aString.replace(/\r?\n/g, "<br/>");
+    div.innerHTML = aString.replace(/\r?\n/g, "<br/>").replace(/<br>/gi, "<br/>");
     const type = "text/plain";
     let encoder =
       Components.classes["@mozilla.org/layout/documentEncoder;1?type=" + type]
