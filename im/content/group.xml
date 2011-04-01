@@ -36,8 +36,10 @@
    -
    - ***** END LICENSE BLOCK ***** -->
 
-
-<!DOCTYPE bindings>
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd" >
+  %instantbirdDTD;
+]>
 
 <bindings id="groupBindings"
           xmlns="http://www.mozilla.org/xbl"
@@ -48,6 +50,8 @@
     <content persist="closed">
       <xul:image class="twisty"/>
       <xul:label flex="1" crop="end" xbl:inherits="value=name"/>
+      <xul:button anonid="hideGroupButton" class="hideGroupButton"
+                  tooltiptext="&hideGroupTooltip;"/>
     </content>
     <implementation implements="nsIObserver">
 
@@ -90,6 +94,15 @@
           this.setAttribute("closed", "true");
 
         contacts.forEach(this.addContact, this);
+
+        let name;
+        if (this.tag.id != -1)
+          name = this.tag.name;
+        else {
+          name = Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties")
+                         .GetStringFromName("group.otherContacts.name");
+        }
+        this.displayName = name;
         this._updateGroupLabel();
         this.tag.addObserver(this);
         return true;
@@ -147,6 +160,16 @@
              let contact = this.contactsById[oldId];
              delete this.contactsById[oldId];
              this.contactsById[contact.contact.id] = contact;
+           }
+           return;
+         }
+
+         if (aTopic == "tag-hidden") {
+           this.setAttribute("collapsing", "true");
+           this.addEventListener("transitionend", this._transitionEnd, true);
+           for each (let contact in this.contacts) {
+             contact.state = "collapsing";
+             contact.finishRemoveNode();
            }
            return;
          }
@@ -214,6 +237,38 @@
       </body>
      </method>
 
+     <method name="hide">
+      <body>
+      <![CDATA[
+        const promptPrefName = "messenger.buddies.hideTagPrompt";
+        if (Services.prefs.getBoolPref(promptPrefName)) {
+          let bundle =
+            Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
+          let name = this.displayName;
+          let promptTitle =
+            bundle.formatStringFromName("group.hidePrompt.title", [name], 1);
+          let promptMessage =
+            bundle.formatStringFromName("group.hidePrompt.message", [name], 1);
+          let hideButton = bundle.GetStringFromName("group.hidePrompt.button");
+          let promptCheckbox =
+            bundle.GetStringFromName("group.hidePrompt.checkbox");
+          let prompts = Services.prompt;
+          let checkbox = {};
+          let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
+                      prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
+                      prompts.BUTTON_POS_0_DEFAULT;
+          if (prompts.confirmEx(window, promptTitle, promptMessage, flags,
+                                hideButton, null, null, promptCheckbox, checkbox))
+            return;
+
+          if (!checkbox.value)
+            Services.prefs.setBoolPref(promptPrefName, false);
+        }
+        Services.tags.hideTag(this.tag);
+      ]]>
+      </body>
+     </method>
+
      <method name="_updateClosedState">
       <parameter name="aClosed"/>
       <body>
@@ -241,10 +296,11 @@
       </body>
      </method>
 
+     <field name="displayName"></field>
      <method name="_updateGroupLabel">
       <body>
       <![CDATA[
-        let name = this.tag.name;
+        let name = this.displayName;
         if (this.hasAttribute("closed"))
           name += " (" + this.contacts.length + ")";
 
@@ -284,6 +340,9 @@
         if ((event.detail == 1 && event.originalTarget.localName == "image") ||
             (event.detail == 2 && event.originalTarget.localName == "label"))
           this.close();
+
+        if (event.originalTarget.localName == "button")
+          this.hide();
      ]]>
      </handler>
     </handlers>

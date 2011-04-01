@@ -77,6 +77,12 @@ interface imITagsService: nsISupports {
   // Get an array of all existing tags.
   void getTags([optional] out unsigned long tagCount,
                [retval, array, size_is(tagCount)] out imITag tags);
+
+  boolean isTagHidden(in imITag aTag);
+  void hideTag(in imITag aTag);
+  void showTag(in imITag aTag);
+
+  readonly attribute imITag otherContactsTag;
 };
 
 [scriptable, uuid(c211e5e2-f0a4-4a86-9e4c-3f6b905628a5)]

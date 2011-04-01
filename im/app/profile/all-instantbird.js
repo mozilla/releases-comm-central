@@ -41,6 +41,8 @@ pref("messenger.accounts.promptOnDelete", true);
 pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
 
 pref("messenger.buddies.showOffline", false);
+pref("messenger.buddies.hiddenTags", "");
+pref("messenger.buddies.hideTagPrompt", true);
 
 pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);

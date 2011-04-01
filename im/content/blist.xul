@@ -117,6 +117,21 @@
                     oncommand="gBuddyListContextMenu.moveToNewTag();"/>
         </menupopup>
       </menu>
+      <menuitem id="context-hide-tag"
+                label="&hideTagCmd.label;"
+                accesskey="&hideTagCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.hideTag();"/>
+      <menu id="context-visible-tags"
+            label="&visibleTagsCmd.label;"
+            accesskey="&visibleTagsCmd.accesskey;">
+        <menupopup id="context-visible-tags-popup"
+                   oncommand="gBuddyListContextMenu.visibleTags(event);"
+                   onpopupshowing="gBuddyListContextMenu.visibleTagsPopupShowing();">
+          <menuseparator id="context-other-contacts-tag-separator"/>
+          <menuitem id="context-other-contacts-tag"
+                    checked="true" disabled="true"/>
+        </menupopup>
+      </menu>
       <menuseparator id="context-show-offline-buddies-separator"/>
       <menuitem id="context-show-offline-buddies"
                 label="&showOfflineBuddiesCmd.label;"

@@ -56,6 +56,7 @@ buddy {
 
 group {
   -moz-binding: url("chrome://instantbird/content/group.xml#group");
+  -moz-box-align: center;
 }
 
 /* The height is required for the animation to work. The skin can
@@ -125,16 +126,20 @@ tooltip[type="buddy"] {
   -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
 }
 
+.hideGroupButton,
 .startChatBubble,
 .expander-up,
 .expander-down {
   cursor: pointer;
 }
 
-.startChatBubble {
+.hideGroupButton,
+.startChatBubble
+{
   display: none;
 }
 
+group:not([id="group-1"]):hover .hideGroupButton,
 contact[cansend]:hover .startChatBubble,
 contact[cansend][selected] .startChatBubble {
   display: -moz-box;

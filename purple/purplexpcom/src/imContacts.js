@@ -91,6 +91,14 @@ TagsService.prototype = {
     return Tags;
   },
 
+  isTagHidden: function(aTag) aTag.id in otherContactsTag._hiddenTags,
+  hideTag: function(aTag) { otherContactsTag.hideTag(aTag); },
+  showTag: function(aTag) { otherContactsTag.showTag(aTag); },
+  get otherContactsTag() {
+    otherContactsTag._initContacts();
+    return otherContactsTag;
+  },
+
   QueryInterface: XPCOMUtils.generateQI([Ci.imITagsService]),
   classDescription: "Tags",
   classID: Components.ID("{1fa92237-4303-4384-b8ac-4e65b50810a5}"),
@@ -158,6 +166,134 @@ Tag.prototype = {
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIClassInfo])
 };
+
+
+var otherContactsTag = {
+  hiddenTagsPref: "messenger.buddies.hiddenTags",
+  _hiddenTags: {},
+  _contactsInitialized: false,
+  _saveHiddenTagsPref: function() {
+    Services.prefs.setCharPref(this.hiddenTagsPref,
+                               [id for (id in this._hiddenTags)].join(","));
+  },
+  showTag: function(aTag) {
+    aTag.removeObserver(this);
+    let id = aTag.id;
+    delete this._hiddenTags[id];
+    for each (let contact in this._contacts)
+      if (contact.getTags().some(function(t) t.id == id))
+        this._removeContact(contact);
+
+    aTag.notifyObservers(aTag, "tag-shown", null);
+    Services.obs.notifyObservers(aTag, "tag-shown", null);
+    this._saveHiddenTagsPref();
+  },
+  hideTag: function(aTag) {
+    if (aTag.id < 0 || aTag.id in otherContactsTag._hiddenTags)
+      return;
+
+    this._hiddenTags[aTag.id] = aTag;
+    if (this._contactsInitialized)
+      this._hideTag(aTag);
+
+    aTag.notifyObservers(aTag, "tag-hidden", null);
+    Services.obs.notifyObservers(aTag, "tag-hidden", null);
+    this._saveHiddenTagsPref();
+  },
+  _hideTag: function(aTag) {
+    for each (let contact in aTag.getContacts())
+      if (!(contact.id in this._contacts) &&
+          contact.getTags().every(function(t) t.id in this._hiddenTags, this))
+        this._addContact(contact);
+    aTag.addObserver(this);
+  },
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic != "contact-moved-in" && aTopic != "contact-moved-out")
+      return;
+
+    try {
+      aSubject.QueryInterface(Ci.imIContact);
+    } catch (e) {
+      // TODO Most likely, aSubject is a tag. If a tag was added to a
+      // contact we currently track, we should check that the new tag
+      // is hidden, and if it is not, remove the contact from the
+      // 'other contacts' group.
+    }
+
+    if (aTopic == "contact-moved-in" && !(aSubject.id in this._contacts) &&
+        aSubject.getTags().every(function(t) t.id in this._hiddenTags, this))
+      this._addContact(aSubject);
+    else if (aTopic == "contact-moved-out" && aSubject.id in this._contacts &&
+             aSubject.getTags().some(function(t) !(t.id in this._hiddenTags)))
+      this._removeContact(aSubject);
+  },
+
+  _initHiddenTags: function() {
+    let pref = Services.prefs.getCharPref(this.hiddenTagsPref);
+    if (!pref)
+      return;
+    for each (let tagId in pref.split(","))
+      this._hiddenTags[tagId] = TagsById[tagId];
+  },
+  _initContacts: function() {
+    if (this._contactsInitialized)
+      return;
+    this._observers = [];
+    this._observer = {observe: this.notifyObservers.bind(this)};
+    this._contacts = {};
+    this._contactsInitialized = true;
+    for each (let tag in this._hiddenTags)
+      this._hideTag(tag);
+  },
+
+  // imITag implementation
+  get id() -1,
+  get name() "__others__",
+  set name(aNewName) { throw Cr.NS_ERROR_NOT_AVAILABLE; },
+  getContacts: function(aContactCount) {
+    let contacts = [contact for each (contact in this._contacts)];
+    if (aContactCount)
+      aContactCount.value = contacts.length;
+    return contacts;
+  },
+  _addContact: function (aContact) {
+    this._contacts[aContact.id] = aContact;
+    this.notifyObservers(aContact, "contact-moved-in");
+    for each (let observer in ContactsById[aContact.id]._observers)
+      observer.observe(this, "contact-moved-in", null);
+    aContact.addObserver(this._observer);
+  },
+  _removeContact: function (aContact) {
+    delete this._contacts[aContact.id];
+    aContact.removeObserver(this._observer);
+    this.notifyObservers(aContact, "contact-moved-out");
+    for each (let observer in ContactsById[aContact.id]._observers)
+      observer.observe(this, "contact-moved-out", null);
+  },
+
+  addObserver: function(aObserver) {
+    if (this._observers.indexOf(aObserver) == -1)
+      this._observers.push(aObserver);
+  },
+  removeObserver: function(aObserver) {
+    this._observers = this._observers.filter(function(o) o !== aObserver);
+  },
+  notifyObservers: function(aSubject, aTopic, aData) {
+    for each (let observer in this._observers)
+      observer.observe(aSubject, aTopic, aData);
+  },
+
+  getInterfaces: function(countRef) {
+    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.nsIObserver, Ci.imITag];
+    countRef.value = interfaces.length;
+    return interfaces;
+  },
+  getHelperForLanguage: function(language) null,
+  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
+  flags: 0,
+  QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIObserver, Ci.nsIClassInfo])
+};
+
 
 var ContactsById = { };
 var LastDummyContactId = 0;
@@ -991,6 +1127,8 @@ ContactsService.prototype = {
         dump(e + "\n");
       }
     }
+
+    otherContactsTag._initHiddenTags();
   },
   unInitContacts: function() {
     AccountsById = { };

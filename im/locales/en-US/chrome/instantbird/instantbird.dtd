@@ -90,11 +90,17 @@
 <!ENTITY moveNewTagCmd.accesskey       "N">
 <!ENTITY showLogsCmd.label             "Show Logs">
 <!ENTITY showLogsCmd.accesskey         "L">
+<!ENTITY hideTagCmd.label              "Hide Tag">
+<!ENTITY hideTagCmd.accesskey          "H">
+<!ENTITY visibleTagsCmd.label          "Visible Tags…">
+<!ENTITY visibleTagsCmd.accesskey      "V">
 <!ENTITY showOfflineBuddiesCmd.label   "Show offline buddies">
 <!ENTITY showOfflineBuddiesCmd.accesskey "o">
 
 <!ENTITY expandContactTooltip          "Expand">
 <!ENTITY collapseContactTooltip        "Collapse">
+
+<!ENTITY hideGroupTooltip              "Hide">
 
 <!-- Copied from mozilla/browser/locales/en-US/chrome/browser/baseMenuOverlay.dtd -->
 <!--  Mac OS X Window Menu -->

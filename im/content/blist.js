@@ -41,6 +41,8 @@ const events = ["contact-availability-changed",
                 "contact-added",
                 "contact-moved",
                 "status-changed",
+                "tag-hidden",
+                "tag-shown",
                 "purple-quit"];
 
 const showOfflineBuddiesPref = "messenger.buddies.showOffline";
@@ -69,7 +71,21 @@ function buddyListContextMenu(aXulMenu) {
     "context-show-offline-buddies-separator"
   ].forEach(function (aId) {
     document.getElementById(aId).hidden = hide;
+  });
+
+  [ "context-hide-tag",
+    "context-visible-tags"
+  ].forEach(function (aId) {
+    document.getElementById(aId).hidden = !this.onGroup;
   }, this);
+
+  if (this.onGroup) {
+    document.getElementById("context-hide-tag").disabled =
+      this.target.tag.id == -1;
+  }
+
+  document.getElementById("context-show-offline-buddies-separator").hidden =
+    hide && !this.onGroup;
 
   let detach = document.getElementById("context-detach");
   detach.hidden = !this.onBuddy;
@@ -192,6 +208,62 @@ buddyListContextMenu.prototype = {
                       "Logs", "chrome,resizable", {logs: logs},
                       this.target.displayName);
   },
+  hideTag: function blcm_hideTag() {
+    if (!this.onGroup || this.target.tag.id == -1)
+      return;
+
+    this.target.hide();
+  },
+  visibleTagsPopupShowing: function blcm_visibleTagsPopupShowing() {
+    if (!this.onGroup)
+      return;
+
+    let popup = document.getElementById("context-visible-tags-popup");
+    let item;
+    while ((item = popup.firstChild) && item.localName != "menuseparator")
+      popup.removeChild(item);
+
+    let sortFunction = function (a, b) {
+      let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
+      return a < b ? 1 : a > b ? -1 : 0;
+    };
+    Services.tags.getTags()
+            .sort(sortFunction)
+            .forEach(function (aTag) {
+      item = document.createElement("menuitem");
+      item.setAttribute("label", aTag.name);
+      item.setAttribute("type", "checkbox");
+      let id = aTag.id;
+      item.groupId = id;
+      if (!Services.tags.isTagHidden(aTag))
+        item.setAttribute("checked", "true");
+      popup.insertBefore(item, popup.firstChild);
+    });
+
+    let otherContactsTag = document.getElementById("group-1");
+    [ "context-other-contacts-tag-separator",
+      "context-other-contacts-tag"
+    ].forEach(function (aId) {
+      document.getElementById(aId).hidden = !otherContactsTag;
+    });
+    if (otherContactsTag) {
+      // This avoids having the localizable "Other Contacts" string in
+      // both a .dtd and .properties file.
+      document.getElementById("context-other-contacts-tag").label =
+        otherContactsTag.displayName;
+    }
+  },
+  visibleTags: function blcm_visibleTags(aEvent) {
+    let id = aEvent.originalTarget.groupId;
+    if (!id)
+      return;
+    let tags = Services.tags;
+    let tag = tags.getTagById(id);
+    if (tags.isTagHidden(tag))
+      tags.showTag(tag);
+    else
+      tags.hideTag(tag);
+  },
   toggleShowOfflineBuddies: function blcm_toggleShowOfflineBuddies() {
     let newValue =
       !!document.getElementById("context-show-offline-buddies")
@@ -216,19 +288,20 @@ var buddyList = {
       else
         item.removeAttribute("checked");
 
-      let blistBox = document.getElementById("buddylistbox");
       Services.tags.getTags().forEach(function (aTag) {
         let elt = document.getElementById("group" + aTag.id);
         if (elt)
           elt.showOffline = showOffline;
         else if (showOffline) {
-          elt = document.createElement("group");
-          blistBox.appendChild(elt);
-          elt._showOffline = true;
-          if (!elt.build(aTag))
-            blistBox.removeChild(elt);
+          if (Services.tags.isTagHidden(aTag))
+            this.showOtherContacts();
+          else
+            this.displayGroup(aTag);
         }
-      });
+      }, this);
+      let elt = document.getElementById("group-1"); // "Other contacts""
+      if (elt)
+        elt.showOffline = showOffline;
       return;
     }
 
@@ -237,23 +310,24 @@ var buddyList = {
       return;
     }
 
+    if (aTopic == "tag-hidden") {
+      this.showOtherContacts();
+      return;
+    }
+
+    if (aTopic == "tag-shown") {
+      if (!document.getElementById("group" + aSubject.id))
+        this.displayGroup(aSubject);
+      return;
+    }
+
     // aSubject is an imIContact
     if (aSubject.online || this._showOffline) {
       aSubject.getTags().forEach(function (aTag) {
-        if (!document.getElementById("group" + aTag.id)) {
-          let groupElt = document.createElement("group");
-          let blistBox = document.getElementById("buddylistbox");
-          blistBox.appendChild(groupElt);
-          if (this._showOffline)
-            groupElt._showOffline = true;
-          if (!groupElt.build(aTag)) {
-            // Broken group or notification?
-            // This should never happen as there will always be at least
-            // one contact shown.
-            // (We test the aSubject.online || this._showOffline to ensure it.)
-            blistBox.removeChild(groupElt);
-          }
-        }
+        if (Services.tags.isTagHidden(aTag))
+          this.showOtherContacts();
+        else if (!document.getElementById("group" + aTag.id))
+          this.displayGroup(aTag);
       }, this);
     }
   },
@@ -420,21 +494,34 @@ var buddyList = {
               .setAttribute("checked", "true");
     }
 
-    let blistBox = document.getElementById("buddylistbox");
+    let showOtherContacts = false;
     Services.tags.getTags().forEach(function (aTag) {
-      let groupElt = document.createElement("group");
-      blistBox.appendChild(groupElt);
-      if (buddyList._showOffline)
-        groupElt._showOffline = true;
-      if (!groupElt.build(aTag))
-        blistBox.removeChild(groupElt);
+      if (Services.tags.isTagHidden(aTag))
+        showOtherContacts = true;
+      else
+        buddyList.displayGroup(aTag);
     });
-    blistBox.focus();
+    if (showOtherContacts)
+      buddyList.showOtherContacts();
+    document.getElementById("buddylistbox").focus();
 
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
 
     this.addEventListener("unload", buddyList.unload, false);
+  },
+  displayGroup: function(aTag) {
+    let blistBox = document.getElementById("buddylistbox");
+    let groupElt = document.createElement("group");
+    blistBox.insertBefore(groupElt, document.getElementById("group-1"));
+    if (this._showOffline)
+      groupElt._showOffline = true;
+    if (!groupElt.build(aTag))
+      blistBox.removeChild(groupElt);
+  },
+  showOtherContacts: function bl_showOtherContacts() {
+    if (!document.getElementById("group-1"))
+      this.displayGroup(Services.tags.otherContactsTag);
   },
   unload: function bl_unload() {
     removeObservers(buddyList, events);
