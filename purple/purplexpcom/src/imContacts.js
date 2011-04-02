@@ -371,7 +371,7 @@ Contact.prototype = {
 
     aTag.notifyObservers(this, "contact-moved-in");
     for each (let observer in this._observers)
-      observer.observe(aTag, "contact-moved-in");
+      observer.observe(aTag, "contact-moved-in", null);
     Services.obs.notifyObservers(this, "contact-tagged", aTag.id);
   },
   /* Remove a tag from the local tags of the contact. */
@@ -392,7 +392,7 @@ Contact.prototype = {
 
     aTag.notifyObservers(this, "contact-moved-out");
     for each (let observer in this._observers)
-      observer.observe(aTag, "contact-moved-out");
+      observer.observe(aTag, "contact-moved-out", null);
   },
   hasTag: function(aTag) this._tags.some(function (t) t.id == aTag.id),
   _massMove: false,
@@ -471,12 +471,12 @@ Contact.prototype = {
     if (shouldRemove) {
       aOldTag.notifyObservers(this, "contact-moved-out");
       for each (let observer in this._observers)
-        observer.observe(aOldTag, "contact-moved-out");
+        observer.observe(aOldTag, "contact-moved-out", null);
     }
     if (shouldAdd) {
       aNewTag.notifyObservers(this, "contact-moved-in");
       for each (let observer in this._observers)
-        observer.observe(aNewTag, "contact-moved-in");
+        observer.observe(aNewTag, "contact-moved-in", null);
     }
     Services.obs.notifyObservers(this, "contact-moved", null);
   },
