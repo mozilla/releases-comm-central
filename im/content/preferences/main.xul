@@ -60,6 +60,8 @@
       <preference id="messenger.options.getAttentionOnNewMessages" name="messenger.options.getAttentionOnNewMessages" type="bool"/>
 #ifdef XP_MACOSX
       <preference id="messenger.options.showUnreadCountInDock" name="messenger.options.showUnreadCountInDock" type="bool"/>
+#else
+      <preference id="extensions.mintrayr.minimizeon" name="extensions.mintrayr.minimizeon" type="int"/>
 #endif
       <preference id="messenger.options.notifyOfNewMessages" name="messenger.options.notifyOfNewMessages" type="bool"/>
     </preferences>
@@ -125,6 +127,26 @@
                 preference="messenger.options.playSounds"/>
     </groupbox>
 
+#ifndef XP_MACOSX
+    <groupbox id="systrayGroup">
+      <caption label="&systray.label;"/>
+
+      <hbox align="center">
+        <label value="&minimizeToTray.label;"
+               accesskey="&minimizeToTray.accesskey;"
+               control="minimizeOn"/>
+        <menulist id="minimizeOn" preference="extensions.mintrayr.minimizeon">
+          <menupopup>
+            <menuitem label="&minimizeOn.never.label;"    value="0"/>
+            <menuitem label="&minimizeOn.minimize.label;" value="1"/>
+            <menuitem label="&minimizeOn.close.label;"    value="2"/>
+            <menuitem label="&minimizeOn.both.label;"     value="3"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </groupbox>
+
+#endif
     <hbox class="bottomBox">
       <groupbox id="addonsMgrGroup" orient="horizontal" align="center" flex="1">
         <caption label="&addonsMgr.label;"/>

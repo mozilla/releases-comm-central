@@ -413,6 +413,8 @@
 @BINPATH@/components/ibDockBadge.js
 @BINPATH@/components/ibDockBadge.manifest
 #else
+@BINPATH@/components/@DLL_PREFIX@trayToolkit@DLL_SUFFIX@
+@BINPATH@/components/trayToolkit.xpt
 @BINPATH@/components/profileMigrator.js
 @BINPATH@/components/profileMigrator.manifest
 #endif

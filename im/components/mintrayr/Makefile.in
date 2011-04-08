@@ -11,14 +11,15 @@
 # for the specific language governing rights and limitations under the
 # License.
 #
-# The Original Code is the Mozilla build system.
+# The Original Code is the TrayToolkit
 #
 # The Initial Developer of the Original Code is
-#  Florian Queze <florian@instantbird.org>
+# Nils Maier
 # Portions created by the Initial Developer are Copyright (C) 2008
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
+#   Nils Maier <MaierMan@web.de>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -34,25 +35,51 @@
 #
 # ***** END LICENSE BLOCK *****
 
-if [ "$COMM_BUILD" ]; then
-add_makefiles "
-instantbird/Makefile
-instantbird/app/Makefile
-instantbird/app/profile/Makefile
-instantbird/app/profile/extensions/Makefile
-instantbird/branding/nightly/Makefile
-instantbird/branding/nightly/locales/Makefile
-instantbird/branding/halloween/Makefile
-instantbird/branding/halloween/locales/Makefile
-instantbird/branding/release/Makefile
-instantbird/branding/release/locales/Makefile
-instantbird/content/Makefile
-instantbird/components/Makefile
-instantbird/components/mintrayr/Makefile
-instantbird/locales/Makefile
-instantbird/modules/Makefile
-instantbird/themes/Makefile
-instantbird/installer/Makefile
-instantbird/installer/windows/Makefile
-"
-fi
+DEPTH		= ../../..
+topsrcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+
+include $(DEPTH)/config/autoconf.mk
+
+IS_COMPONENT = 1
+MODULE = mintrayr
+LIBRARY_NAME = trayToolkit
+XPIDL_MODULE = trayToolkit
+
+EXPORTS = \
+		trayToolkit.h \
+		$(NULL)
+
+XPIDLSRCS = \
+		trayIToolkit.idl \
+		$(NULL)
+
+CPPSRCS = trayModule.cpp trayToolkit.cpp
+
+# Platform specific stuff
+ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
+CPPSRCS += trayPlatformWin.cpp
+OS_LIBS += shell32.lib
+RCFILE = resources.rc
+RESFILE = resources.res
+
+else
+
+ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+
+CPPSRCS += trayPlatformGtk2.cpp
+LOCAL_INCLUDES += $(MOZ_GTK2_CFLAGS)
+OS_LIBS += $(TK_LIBS) $(XLIBS)
+
+endif # gtk2
+endif # windows
+
+#USE_STATIC_LIBS = 1
+EXTRA_DSO_LDOPTS += $(XPCOM_GLUE_LDOPTS) $(MOZ_COMPONENT_NSPR_LIBS)
+#EXTRA_DSO_LDOPTS += \
+		$(XPCOM_GLUE_LDOPTS) \
+		$(NSPR_LIBS) \
+		$(NULL)
+
+include $(topsrcdir)/config/rules.mk

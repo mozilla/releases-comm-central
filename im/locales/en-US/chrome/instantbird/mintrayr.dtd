@@ -1,0 +1,5 @@
+<!ENTITY mintrayr.minimize "Minimize to Tray">
+<!ENTITY mintrayr.minimize.tip "Minimizes the current window to the system tray">
+<!ENTITY mintrayr.restore "Restore">
+<!ENTITY mintrayr.keys.minimize.keycode "VK_F9">
+<!ENTITY mintrayr.keys.minimize.modifiers "">

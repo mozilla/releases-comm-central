@@ -41,6 +41,10 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
+ifneq ($(MOZ_WIDGET_TOOLKIT),cocoa)
+DIRS = mintrayr
+endif
+
 MODULE		= instantbird
 
 XPIDLSRCS	= ibILogger.idl

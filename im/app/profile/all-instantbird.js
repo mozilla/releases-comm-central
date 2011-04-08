@@ -62,6 +62,8 @@ pref("messenger.options.getAttentionOnNewMessages", true);
 pref("messenger.options.notifyOfNewMessages", false);
 #ifdef XP_MACOSX
 pref("messenger.options.showUnreadCountInDock", true);
+#else
+pref("extensions.mintrayr.minimizeon", 2);
 #endif
 pref("messenger.options.playSounds", true);
 

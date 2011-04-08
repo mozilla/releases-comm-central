@@ -1,0 +1,5 @@
+instantbird.jar:
+% content instantbird %instantbird/
+	instantbird/mintrayr.js   (content/mintrayr.js)
+	instantbird/mintrayr.xul  (content/mintrayr.xul)
+% overlay chrome://instantbird/content/blist.xul chrome://instantbird/content/mintrayr.xul
