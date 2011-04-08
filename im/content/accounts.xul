@@ -59,7 +59,7 @@
         id="accountManager"
         windowtype="Messenger:Accounts"
         onload="gAccountManager.load()"
-        title="&accountManager.title;"
+        title="&accounts.title;"
         height="300"
         width="&accountManager.width;"
         persist="width height screenX screenY">

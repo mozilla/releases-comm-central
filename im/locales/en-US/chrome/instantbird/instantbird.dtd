@@ -4,7 +4,7 @@
 <!ENTITY logsWindow.title   "Conversation logs - &brandShortName;">
 <!ENTITY logsWindow.titlemodifiermenuseparator " - ">
 <!ENTITY logsWindow.titlemodifier "&brandShortName;">
-<!ENTITY blist.title        "Buddy list - &brandShortName;">
+<!ENTITY contacts.title     "Contacts - &brandShortName;">
 <!ENTITY file.menu          "File">
 <!ENTITY file.accesskey     "F">
 

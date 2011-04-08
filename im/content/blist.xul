@@ -52,7 +52,7 @@
 <window
   id     = "blistWindow"
   windowtype="Messenger:blist"
-  title  = "&blist.title;"
+  title  = "&contacts.title;"
   width  = "200"
   height = "600"
   persist= "width height screenX screenY"

@@ -1,4 +1,4 @@
-<!ENTITY accountManager.title                "Account manager - &brandShortName;">
+<!ENTITY accounts.title                "Accounts - &brandShortName;">
 <!ENTITY accountManager.width                "450">
 <!ENTITY accountManager.newAccount.label     "New Account">
 <!ENTITY accountManager.newAccount.accesskey "N">
