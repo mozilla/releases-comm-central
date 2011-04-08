@@ -65,6 +65,8 @@
           </xul:columns>
           <xul:rows anonid="tooltiprows"/>
         </xul:grid>
+
+        <xul:vbox anonid="buddies"/>
       </xul:vbox>
 
       <xul:vbox align="end" pack="start" flex="1" style="margin: 0 0; display:block;">
@@ -84,12 +86,7 @@
        </getter>
      </property>
 
-     <property name="buddy">
-       <getter>
-         <![CDATA[
-           return this._buddy;
-         ]]>
-       </getter>
+     <property name="buddy" onget="return this._buddy;">
        <setter>
          <![CDATA[
            if (val == this._buddy)
@@ -101,6 +98,22 @@
              val.buddy.addObserver(this);
 
            return (this._buddy = val);
+         ]]>
+       </setter>
+     </property>
+
+     <property name="contact" onget="return this._contact;">
+       <setter>
+         <![CDATA[
+           if (val == this._contact)
+             return val;
+
+           if (!val)
+             this._contact.removeObserver(this);
+           else
+             val.addObserver(this);
+
+           return (this._contact = val);
          ]]>
        </setter>
      </property>
@@ -275,6 +288,37 @@
        </body>
      </method>
 
+     <method name="updateTooltipFromContact">
+       <parameter name="aContact"/>
+       <parameter name="aElt"/>
+       <body>
+       <![CDATA[
+         this.contact = aContact;
+         this.elt = aElt;
+
+         this.updateTooltipFromBuddy(aContact.preferredBuddy.preferredAccountBuddy, aElt);
+
+         let buddies = this.contact.getBuddies();
+         if (buddies.length <= 1)
+           return true;
+
+         let buddiesElt = document.getAnonymousElementByAttribute(this, "anonid",
+                                                                  "buddies");
+         let sep = document.createElement("separator");
+         sep.setAttribute("class", "groove");
+         buddiesElt.appendChild(sep);
+
+         for each (let buddy in buddies) {
+           let buddyElt = document.createElement("buddy");
+           buddiesElt.appendChild(buddyElt);
+           buddyElt.build(buddy, this);
+         }
+
+         return true;
+       ]]>
+       </body>
+     </method>
+
      <method name="updateTooltipFromConversation">
        <parameter name="aConv"/>
        <parameter name="aElt"/>
@@ -305,9 +349,14 @@
        <![CDATA[
          if (aSubject == this.buddy &&
              (aTopic == "account-buddy-status-changed" ||
-              aTopic == "account-display-name-changed" ||
+              aTopic == "account-buddy-display-name-changed" ||
               aTopic == "account-buddy-icon-changed"))
            this.updateTooltipFromBuddy(this.buddy, this.elt);
+         else if (aTopic == "contact-preferred-buddy-changed" &&
+                  aSubject.id == this.contact.id) {
+           let buddy = this.contact.preferredBuddy;
+           this.updateTooltipFromBuddy(buddy.preferredAccountBuddy, this.elt);
+         }
        ]]>
        </body>
      </method>
@@ -323,20 +372,24 @@
            return false;
          }
 
-         let buddy;
          if (elt.localName == "buddy")
-           buddy = elt.buddy;
-         else if (elt.localName == "contact")
-           buddy = elt.contact.preferredBuddy;
-         else
-           return false;
+           return updateTooltipFromBuddy(elt.buddy.preferredAccountBuddy, elt);
 
-         return updateTooltipFromBuddy(buddy.preferredAccountBuddy, elt);
+         if (elt.localName == "contact")
+           return updateTooltipFromContact(elt.contact, elt);
+
+         return false;
        ]]>
      </handler>
      <handler event="popuphiding">
        this.buddy = null;
+       this.contact = null;
        this.elt = null;
+       let buddies = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "buddies");
+       let buddy;
+       while ((buddy = buddies.firstChild))
+         buddies.removeChild(buddy);
      </handler>
     </handlers>
   </binding>
