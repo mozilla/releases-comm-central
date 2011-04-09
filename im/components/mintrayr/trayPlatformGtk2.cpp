@@ -4,6 +4,11 @@
 #include "nsCOMPtr.h"
 #include "nsServiceManagerUtils.h"
 
+/* gtk_status_icon_set_tooltip was added in GTK+ 2.10 and deprecated in 2.16 */
+#if !GTK_CHECK_VERSION(2,16,0)
+#define gtk_status_icon_set_tooltip_text gtk_status_icon_set_tooltip
+#endif
+
 namespace mintrayr {
 namespace platform {
 
