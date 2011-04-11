@@ -498,7 +498,7 @@ const GenericConversationPrototype = {
   },
   close: function() {
     Services.obs.notifyObservers(this, "closing-conversation", null);
-    Services.core.removeConversation(this);
+    Services.conversations.removeConversation(this);
   },
   unInit: function() { },
 
