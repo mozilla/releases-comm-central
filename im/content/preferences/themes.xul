@@ -78,6 +78,7 @@
             <label value="&messageStyleTheme.label;" control="themename"
                    accesskey="&messageStyleTheme.accesskey;"/>
             <menulist id="messagestyle-themename"
+                      flex="1" crop="end"
                       preference="messenger.options.messagesStyle.theme"
                       onselect="previewObserver.currentThemeChanged();">
               <menupopup id="theme-menupopup">
@@ -98,7 +99,7 @@
                           disabled="true"/>
               </menupopup>
             </menulist>
-            <spacer flex="1"/>
+            <separator orient="vertical" class="thin"/>
             <label id="getMoreMessageStyles" class="text-link" value="&messageStyleGetMore.label;"
                    onclick="if (event.button == 0) { gThemePane.openURL(this.getAttribute('getMoreURL')); }"/>
           </hbox>
@@ -133,6 +134,7 @@
             <label value="&emoticonsTheme.label;" control="smileythemename"
                    accesskey="&emoticonsTheme.accesskey;"/>
             <menulist id="emoticons-themename"
+                      flex="1" crop="end"
                       preference="messenger.options.emoticonsTheme"
                       onselect="smileysPreview.displayCurrentTheme();">
               <menupopup id="theme-menupopup">
@@ -147,7 +149,7 @@
                           disabled="true"/>
               </menupopup>
             </menulist>
-            <spacer flex="1"/>
+            <separator orient="vertical" class="thin"/>
             <label id="getMoreEmoticons" class="text-link" value="&emoticonsGetMore.label;"
                    onclick="if (event.button == 0) { gThemePane.openURL(this.getAttribute('getMoreURL')); }"/>
           </hbox>
