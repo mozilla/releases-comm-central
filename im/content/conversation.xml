@@ -268,7 +268,7 @@
         // the /say command is used to bypass command processing
         var msg = aMsg.match(/^\/say (.*)/);
         if (!msg) {
-          if (Services.cmd.executeCommand(aMsg, this._conv)) {
+          if (Services.cmd.executeCommand(aMsg, this._conv.target)) {
             if (!this._conv.isChat)
               this._conv.sendTyping(0);
             this.resetInput();
