@@ -27,6 +27,8 @@ instantbird.jar:
 *	instantbird/credits.xhtml
 *	instantbird/engineManager.js
 *	instantbird/engineManager.xul
+	instantbird/extensions.js
+*	instantbird/extensions.xul
 	instantbird/group.xml
 *	instantbird/instantbird.css
 *	instantbird/instantbird.js
@@ -97,4 +99,3 @@ debug.jar:
 	fake/fake.js (debug/fake/fake.js)
 	fake/fake.xul (debug/fake/fake.xul)
 #endif
-

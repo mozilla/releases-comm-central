@@ -74,11 +74,10 @@ var gMainPane = {
    */
   showAddonsMgr: function ()
   {
-    const EMURL =
-      "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
+    const AMURL = "chrome://instantbird/content/extensions.xul";
 
-    if (!this.focus("Extension:Manager"))
-      window.open(EMURL, "Addons",
+    if (!this.focus("Addons:Manager"))
+      window.open(AMURL, "Addons",
                   "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
   }
 };

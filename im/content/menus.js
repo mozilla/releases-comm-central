@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const addonManagerWindow = "chrome://mozapps/content/extensions/extensions.xul?type=extensions";
+const addonManagerWindow = "chrome://instantbird/content/extensions.xul";
 const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
 const blistWindow = "chrome://instantbird/content/blist.xul";
 const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
@@ -72,7 +72,7 @@ var menus = {
   },
 
   addons: function menu_addons() {
-    if (!this.focus("Extension:Manager"))
+    if (!this.focus("Addons:Manager"))
       window.open(addonManagerWindow, "Addons",
                   "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
   },
