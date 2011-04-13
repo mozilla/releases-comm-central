@@ -60,7 +60,7 @@ const Status = {
 
     if (!(aStatusType in this._labels)) {
       this._labels[aStatusType] =
-        Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties")
+        Services.strings.createBundle("chrome://purple/locale/status.properties")
                 .GetStringFromName(aStatusType + "StatusType");
     }
     return this._labels[aStatusType];

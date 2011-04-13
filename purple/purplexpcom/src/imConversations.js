@@ -39,6 +39,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
+Cu.import("resource:///modules/imStatusUtils.jsm");
 
 var gLastUIConvId = 0;
 var gLastPurpleConvId = 0;
@@ -47,28 +48,33 @@ XPCOMUtils.defineLazyGetter(this, "bundle", function()
   Services.strings.createBundle("chrome://purple/locale/conversations.properties")
 );
 
-function UIConversation(aPurpleConversation, aContactId)
+function UIConversation(aPurpleConversation)
 {
   this._purpleConv = {};
   this.id = ++gLastUIConvId;
   this._observers = [];
   this._pendingMessages = [];
   this.changeTargetTo(aPurpleConversation);
-  if (aContactId)
-    this.contactId = aContactId;
   let iface = Ci["purpleIConv" + (aPurpleConversation.isChat ? "Chat" : "IM")];
   this._interfaces = this._interfaces.concat(iface);
+  let contact = this.contact;
+  if (contact) {
+    // XPConnect will create a wrapper around 'this' here,
+    // so the list of exposed interfaces shouldn't change anymore.
+    contact.addObserver(this);
+    this._observedContact = contact;
+  }
   Services.obs.notifyObservers(this, "new-ui-conversation", null);
 }
 
 UIConversation.prototype = {
   __proto__: ClassInfo(["imIConversation", "purpleIConversation", "nsIObserver"],
                        "UI conversation"),
-  contactId: null,
+  _observedContact: null,
   get contact() {
     let target = this.target;
     if (!target.isChat && target.buddy)
-      return target.buddy.contact;
+      return target.buddy.buddy.contact;
     return null;
   },
   get target() this._purpleConv[this._currentTargetId],
@@ -97,21 +103,85 @@ UIConversation.prototype = {
     }
   },
   // Returns a boolean indicating if the ui-conversation was closed.
-  removeTarget: function(aPurpleConversation) {
+  // If the conversation was closed, aContactId.value is set to the contact id
+  // or 0 if no contact was associated with the conversation.
+  removeTarget: function(aPurpleConversation, aContactId) {
     let id = aPurpleConversation.id;
     if (!(id in this._purpleConv))
       throw "unknown purple conversation";
 
     delete this._purpleConv[id];
-    if (this._currentTargetId == id) {
-      for (let newId in this._purpleConv) {
-        this.changeTargetTo(this._purpleConv[newId]);
-        return false;
-      }
-      this.notifyObservers(this, "ui-conversation-closed");
-      Services.obs.notifyObservers(this, "ui-conversation-closed", null);
-      return true;
+    if (this._currentTargetId != id)
+      return false;
+
+    for (let newId in this._purpleConv) {
+      this.changeTargetTo(this._purpleConv[newId]);
+      return false;
     }
+
+    if (this._observedContact) {
+      this._observedContact.removeObserver(this);
+      aContactId.value = this._observedContact.id;
+      delete this._observedContact;
+    }
+    else
+      aContactId.value = 0;
+
+    this.notifyObservers(this, "ui-conversation-closed");
+    Services.obs.notifyObservers(this, "ui-conversation-closed", null);
+    return true;
+  },
+
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic == "contact-no-longer-dummy") {
+      let oldId = parseInt(aData);
+      // gConversationsService is ugly... :(
+      delete gConversationsService._uiConvByContactId[oldId];
+      gConversationsService._uiConvByContactId[aSubject.id] = this;
+      return;
+    }
+
+    if (aTopic != "account-buddy-status-changed" ||
+        aSubject.account.id != this.account.id ||
+        aSubject.buddy.id != this.buddy.buddy.id)
+      return;
+
+    this.notifyObservers(this, "update-buddy-status");
+    let statusType = aSubject.buddy.statusType;
+    let msg;
+    if (statusType == Ci.imIStatusInfo.STATUS_UNKNOWN)
+      msg = bundle.formatStringFromName("statusUnknown", [this.title], 1);
+    else {
+      let status = Status.toLabel(statusType);
+      let statusText = aSubject.buddy.statusText;
+      if (statusText) {
+        msg = bundle.formatStringFromName("statusChangedWithStatusText",
+                                          [this.title, status, statusText],
+                                          3);
+      }
+      else {
+        msg = bundle.formatStringFromName("statusChanged",
+                                          [this.title, status], 2);
+      }
+    }
+    this.systemMessage(msg);
+  },
+
+  _disconnected: false,
+  disconnecting: function() {
+    if (this._disconnected)
+      return;
+
+    this._disconnected = true;
+    if (this.contact)
+      return; // handled by the contact observer.
+
+    this.systemMessage(bundle.GetStringFromName("accountDisconnected"));
+    this.notifyObservers(this, "update-buddy-status");
+  },
+  connected: function() {
+    delete this._disconnected;
+    this.notifyObservers(this, "update-buddy-status");
   },
 
   observeConv: function(aTargetId, aSubject, aTopic, aData) {
@@ -173,12 +243,15 @@ UIConversation.prototype = {
   get left() this.target.left
 };
 
-function ConversationsService() { }
+var gConversationsService;
+function ConversationsService() { gConversationsService = this; }
 ConversationsService.prototype = {
   initConversations: function() {
     this._uiConv = {};
     this._uiConvByContactId = {};
     this._purpleConversations = [];
+    Services.obs.addObserver(this, "account-disconnecting", false);
+    Services.obs.addObserver(this, "account-connected", false);
   },
 
   unInitConversations: function() {
@@ -190,6 +263,23 @@ ConversationsService.prototype = {
     for each (let purpleConv in this._purpleConversations)
       purpleConv.unInit();
     delete this._purpleConversations;
+    Services.obs.removeObserver(this, "account-disconnecting");
+    Services.obs.removeObserver(this, "account-connected");
+  },
+
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic == "account-connected") {
+      for each (let conv in this._uiConv) {
+        if (conv.account.id == aSubject.id)
+          conv.connected();
+      }
+    }
+    else if (aTopic == "account-disconnecting") {
+      for each (let conv in this._uiConv) {
+        if (conv.account.id == aSubject.id)
+          conv.disconnecting();
+      }
+    }
   },
 
   addConversation: function(aPurpleConversation) {
@@ -217,9 +307,7 @@ ConversationsService.prototype = {
       }
     }
 
-    // We store the contactId in the UIConversation because we can't reliably
-    // get it from purpleIConvIM objects during removeConversation calls.
-    let newUIConv = new UIConversation(aPurpleConversation, contactId);
+    let newUIConv = new UIConversation(aPurpleConversation);
     this._uiConv[aPurpleConversation.id] = newUIConv;
     if (contactId)
       this._uiConvByContactId[contactId] = newUIConv;
@@ -228,10 +316,11 @@ ConversationsService.prototype = {
     Services.obs.notifyObservers(aPurpleConversation, "conversation-closed", null);
 
     let uiConv = this.getUIConversation(aPurpleConversation);
-    if (uiConv.removeTarget(aPurpleConversation)) {
+    let contactId = {};
+    if (uiConv.removeTarget(aPurpleConversation, contactId)) {
       delete this._uiConv[aPurpleConversation.id];
-      if (uiConv.contactId)
-        delete this._uiConvByContactId[uiConv.contactId];
+      if (contactId.value)
+        delete this._uiConvByContactId[contactId.value];
     }
     aPurpleConversation.unInit();
 

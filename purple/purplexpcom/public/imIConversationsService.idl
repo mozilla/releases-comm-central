@@ -57,7 +57,7 @@ interface imIConversationsService: nsISupports {
   void removeConversation(in purpleIConversation aConversation);
 
   imIConversation getUIConversation(in purpleIConversation aConversation);
-  imIConversation getUIConversationByContactId(in unsigned long aId);
+  imIConversation getUIConversationByContactId(in long aId);
 
   nsISimpleEnumerator getConversations();
   purpleIConversation getConversationById(in unsigned long aId);

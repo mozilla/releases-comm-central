@@ -47,7 +47,6 @@ EXTRA_JS_MODULES = \
 	imContentSink.jsm \
 	imServices.jsm \
 	imSmileys.jsm \
-	imStatusUtils.jsm \
 	imWindows.jsm \
 	$(NULL)
 
