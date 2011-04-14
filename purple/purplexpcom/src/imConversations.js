@@ -138,22 +138,37 @@ UIConversation.prototype = {
       // gConversationsService is ugly... :(
       delete gConversationsService._uiConvByContactId[oldId];
       gConversationsService._uiConvByContactId[aSubject.id] = this;
-      return;
     }
+    else if (aTopic == "account-buddy-status-changed") {
+      if (!this._statusUpdatePending &&
+          aSubject.account.id == this.account.id &&
+          aSubject.buddy.id == this.buddy.buddy.id) {
+        Services.tm.mainThread.dispatch(this.updateBuddyStatus.bind(this),
+                                        Ci.nsIEventTarget.DISPATCH_NORMAL);
+      }
+    }
+  },
 
-    if (aTopic != "account-buddy-status-changed" ||
-        aSubject.account.id != this.account.id ||
-        aSubject.buddy.id != this.buddy.buddy.id)
+  _statusUpdatePending: false,
+  updateBuddyStatus: function() {
+    delete this._statusUpdatePending;
+    let statusType = this.buddy.statusType;
+    let statusText = this.buddy.statusText;
+
+    if (("statusType" in this) && this.statusType == statusType &&
+        this.statusText == statusText)
       return;
+
+    this.statusType = statusType;
+    this.statusText = statusText;
 
     this.notifyObservers(this, "update-buddy-status");
-    let statusType = aSubject.buddy.statusType;
+
     let msg;
     if (statusType == Ci.imIStatusInfo.STATUS_UNKNOWN)
       msg = bundle.formatStringFromName("statusUnknown", [this.title], 1);
     else {
       let status = Status.toLabel(statusType);
-      let statusText = aSubject.buddy.statusText;
       if (statusText) {
         msg = bundle.formatStringFromName("statusChangedWithStatusText",
                                           [this.title, status, statusText],
