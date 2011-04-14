@@ -129,7 +129,7 @@
                    onpopupshowing="gBuddyListContextMenu.visibleTagsPopupShowing();">
           <menuseparator id="context-other-contacts-tag-separator"/>
           <menuitem id="context-other-contacts-tag"
-                    checked="true" disabled="true"/>
+                    type="checkbox" checked="true" disabled="true"/>
         </menupopup>
       </menu>
       <menuseparator id="context-show-offline-buddies-separator"/>

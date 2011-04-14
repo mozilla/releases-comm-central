@@ -299,7 +299,7 @@ var buddyList = {
             this.displayGroup(aTag);
         }
       }, this);
-      let elt = document.getElementById("group-1"); // "Other contacts""
+      let elt = document.getElementById("group-1"); // "Other contacts"
       if (elt)
         elt.showOffline = showOffline;
       return;
@@ -494,6 +494,13 @@ var buddyList = {
               .setAttribute("checked", "true");
     }
 
+    let blistBox = document.getElementById("buddylistbox");
+    blistBox.removeGroup = function(aGroupElt) {
+      let index = buddyList._displayedGroups.indexOf(aGroupElt);
+      if (index != -1)
+        buddyList._displayedGroups.splice(index, 1);
+      this.removeChild(aGroupElt);
+    };
     let showOtherContacts = false;
     Services.tags.getTags().forEach(function (aTag) {
       if (Services.tags.isTagHidden(aTag))
@@ -503,21 +510,47 @@ var buddyList = {
     });
     if (showOtherContacts)
       buddyList.showOtherContacts();
-    document.getElementById("buddylistbox").focus();
+    blistBox.focus();
 
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
 
     this.addEventListener("unload", buddyList.unload, false);
   },
+  _displayedGroups: [],
+  _getGroupIndex: function(aName) {
+    let start = 0;
+    let end = this._displayedGroups.length;
+    let name = aName.toLowerCase();
+    while (start < end) {
+      let middle = start + Math.floor((end - start) / 2);
+      if (name < this._displayedGroups[middle].displayName.toLowerCase())
+        end = middle;
+      else
+        start = middle + 1;
+    }
+    return end;
+  },
   displayGroup: function(aTag) {
     let blistBox = document.getElementById("buddylistbox");
     let groupElt = document.createElement("group");
-    blistBox.insertBefore(groupElt, document.getElementById("group-1"));
+    let index;
+    let ref = null;
+    if (aTag.id != -1) {
+      index = this._getGroupIndex(aTag.name);
+      if (index == this._displayedGroups.length)
+        ref = document.getElementById("group-1"); // 'Other Contacts'
+      else
+        ref = this._displayedGroups[index];
+    }
+    blistBox.insertBefore(groupElt, ref);
+
     if (this._showOffline)
       groupElt._showOffline = true;
     if (!groupElt.build(aTag))
       blistBox.removeChild(groupElt);
+    else if (index !== undefined)
+      this._displayedGroups.splice(index, 0, groupElt);
   },
   showOtherContacts: function bl_showOtherContacts() {
     if (!document.getElementById("group-1"))

@@ -232,7 +232,7 @@
         if (!this.hasAttribute("collapsing"))
           return;
         this.tag.removeObserver(this);
-        this.parentNode.removeChild(this);
+        this.parentNode.removeGroup(this);
       ]]>
       </body>
      </method>
