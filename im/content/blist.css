@@ -80,12 +80,10 @@ contact:not([state]),
 buddy:not([state]) {
   height: 0;
 }
-contact[state="showing"] {
-  -moz-transition: height .4s ease-in;
-}
+contact[state="showing"],
 buddy[state="showing"] {
-  /* Should match the transition effect for buddy collapsing so that
-     buddy position changes don't make the whole list jump. */
+  /* Should match the transition effect for contact/buddy collapsing so
+     that reordering doesn't make the whole list jump. */
   -moz-transition: height .2s ease-in;
 }
 

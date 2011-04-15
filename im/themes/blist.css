@@ -45,6 +45,7 @@ group {
   padding: 0 2px;
 }
 
+contact,
 buddy {
   height: 20px; /* 16+2+2px for the protocol icon, padding top and bottom */
 }

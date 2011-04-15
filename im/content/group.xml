@@ -93,7 +93,11 @@
                                 RDF.GetLiteral("true"), true))
           this.setAttribute("closed", "true");
 
-        contacts.forEach(this.addContact, this);
+        contacts.sort(function (a, b) {
+          a = a.displayName.toLowerCase();
+          b = b.displayName.toLowerCase();
+          return a < b ? -1 : a > b ? 1 : 0;
+        }).forEach(this.addContact, this);
 
         let name;
         if (this.tag.id != -1)
@@ -136,6 +140,38 @@
        </setter>
      </property>
 
+     <field name="_selectListener">null</field>
+     <field name="_pendingReorders">[]</field>
+     <method name="_reorderContactLater">
+       <parameter name="aContactElt"/>
+       <body>
+       <![CDATA[
+         if (this._pendingReorders.indexOf(aContactElt) != -1)
+           return;
+
+         this._pendingReorders.push(aContactElt);
+         if (!this._selectListener) {
+           this._selectListener = (function() {
+             let remaining = [];
+             for each (let contactElt in this._pendingReorders) {
+               if (!contactElt.hasAttribute("selected") &&
+                   !contactElt.hasAttribute("open"))
+                 this.observe(contactElt.contact, "contact-display-name-changed");
+               else
+                 remaining.push(contactElt);
+             }
+             this._pendingReorders = remaining;
+             if (remaining.length == 0) {
+               this.parentNode.removeEventListener("select", this._selectListener, false);
+               this._selectListener = null;
+             }
+           }).bind(this);
+           this.parentNode.addEventListener("select", this._selectListener, false);
+         }
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIObserver implementation -->
      <method name="observe">
        <parameter name="aSubject"/>
@@ -164,6 +200,30 @@
            return;
          }
 
+         if (aTopic == "contact-display-name-changed") {
+           let contactElt = this.contactsById[aSubject.id];
+           let name = aSubject.displayName.toLowerCase();
+           let index = this.contacts.indexOf(contactElt);
+           // See if the position of the contact should be changed.
+           if (index != 0 &&
+               name < this.contacts[index - 1].sortName ||
+               index != this.contacts.length - 1 &&
+               name > this.contacts[index + 1].sortName) {
+             // Check if something prevents us from moving the contact now.
+             if (contactElt.hasAttribute("selected") ||
+                 contactElt.hasAttribute("open"))
+               this._reorderContactLater(contactElt);
+             else {
+               contactElt.state = "collapsing";
+               contactElt.finishRemoveNode();
+               this.addContact(aSubject);
+             }
+           }
+           else
+             contactElt.sortName = name;
+           return;
+         }
+
          if (aTopic == "tag-hidden") {
            this.setAttribute("collapsing", "true");
            this.addEventListener("transitionend", this._transitionEnd, true);
@@ -188,13 +248,25 @@
         if (this.hasAttribute("closed"))
           contactElt.setAttribute("collapsed", "true");
 
-        var last = this;
-        if (this.contacts.length)
-          last = this.contacts[this.contacts.length - 1];
-
+        let end = this.contacts.length;
+        let name = aContact.displayName.toLowerCase();
+        // Avoid the binary search loop if the contacts were already sorted.
+        if (end != 0 &&
+            name < this.contacts[end - 1].sortName) {
+          let start = 0;
+          while (start < end) {
+            let middle = start + Math.floor((end - start) / 2);
+            if (name < this.contacts[middle].sortName)
+              end = middle;
+            else
+              start = middle + 1;
+          }
+        }
+        var last = end == 0 ? this : this.contacts[end - 1];
         this.parentNode.insertBefore(contactElt, last.nextSibling);
         contactElt.build(aContact, this);
-        this.contacts.push(contactElt);
+        contactElt.sortName = name;
+        this.contacts.splice(end, 0, contactElt);
         this.contactsById[aContact.id] = contactElt;
 
         if (this.hasAttribute("collapsing"))
