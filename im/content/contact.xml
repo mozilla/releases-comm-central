@@ -545,16 +545,18 @@
       <parameter name="aEvent"/>
       <body>
       <![CDATA[
-        switch (aEvent.keyCode) {
-          case aEvent.DOM_VK_LEFT:
-            if (this.hasAttribute("open"))
-              this.open();
-            break;
+        if (!this.hasAttribute("aliasing")) {
+          switch (aEvent.keyCode) {
+            case aEvent.DOM_VK_LEFT:
+              if (this.hasAttribute("open"))
+                this.open();
+              break;
 
-          case aEvent.DOM_VK_RIGHT:
-            if (!this.hasAttribute("open"))
-              this.open();
-            break;
+            case aEvent.DOM_VK_RIGHT:
+              if (!this.hasAttribute("open"))
+                this.open();
+              break;
+          }
         }
         this._keyPress(aEvent); // inherited actions.
       ]]>
