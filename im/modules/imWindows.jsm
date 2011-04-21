@@ -99,6 +99,11 @@ var Conversations = {
       doc.getElementById("conversations").selectedTab = conv.tab;
       conv.focus();
       doc.defaultView.focus();
+#ifdef XP_MACOSX
+      Components.classes["@mozilla.org/widget/macdocksupport;1"]
+                .getService(Components.interfaces.nsIMacDockSupport)
+                .activateApplication(true);
+#endif
     }
     return uiConv;
   },
