@@ -445,11 +445,8 @@ Account.prototype = {
       this._streamingRequest.abort();
       delete this._streamingRequest;
     }
-    if (this._timeline && connected) {
-      this._timeline.writeMessage("twitter", "Your account is disconnected.",
-                                  {system: true});
+    if (this._timeline && connected)
       this._timeline.notifyObservers(this._timeline, "update-conv-chatleft");
-    }
     this.base.disconnected();
   },
   disconnect: function() {
