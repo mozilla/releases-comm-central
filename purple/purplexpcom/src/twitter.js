@@ -105,6 +105,11 @@ Account.prototype = {
   completionURI: "http://oauthcallback.local/",
   baseURI: "https://api.twitter.com/",
 
+  // Use this to keep track of the pending timeline requests. We attempt to fetch
+  // home_timeline, @ mentions and tracked keywords (i.e. 3 timelines)
+  _pendingRequests: [],
+  _timelineBuffer: [],
+
   token: "",
   tokenSecret: "",
   connect: function() {
@@ -132,7 +137,7 @@ Account.prototype = {
       return;
     }
 
-    this.getTimeline();
+    this.getTimelines();
   },
 
 
@@ -209,9 +214,22 @@ Account.prototype = {
                      aOnSent, aOnError, aThis);
   },
 
-  getTimeline: function() {
-    this.signAndSend("1/statuses/home_timeline.json", null, null,
-                     this.onTimelineReceived, this.onError, this);
+  getTimelines: function() {
+    this._pendingRequests = [
+      this.signAndSend("1/statuses/home_timeline.json", null, null,
+                       this.onTimelineReceived, this.onTimelineError, this),
+      this.signAndSend("1/statuses/mentions.json", null, null,
+                       this.onTimelineReceived, this.onTimelineError, this)
+    ];
+
+    let track = this.getString("track");
+    if (track) {
+      let url = "http://search.twitter.com/search.json?q=" +
+                track.split(",").join(" OR ");
+      this._pendingRequests.push(doXHRequest(url, null, null,
+                                             this.onTimelineReceived,
+                                             this.onTimelineError, this));
+    }
   },
 
   get timeline() this._timeline || (this._timeline = new Conversation(this)),
@@ -225,14 +243,54 @@ Account.prototype = {
     }
   },
 
-  onTimelineReceived: function(aData) {
+  onTimelineError: function(aError, aResponseText, aRequest) {
+    // TODO show the error in the console...
+    this._doneWithTimelineRequest(aRequest);
+  },
+
+  onTimelineReceived: function(aData, aRequest) {
+    // Parse the returned data
+    let data = JSON.parse(aData);
+    // Fix the results from the search API to match those of the REST API
+    if ("results" in data) {
+      data = data.results;
+      for each (let tweet in data) {
+        if (!("user" in tweet) && "from_user" in tweet)
+          tweet.user = {screen_name: tweet.from_user};
+      }
+    }
+    this._timelineBuffer = this._timelineBuffer.concat(data);
+
+    this._doneWithTimelineRequest(aRequest);
+  },
+
+  _doneWithTimelineRequest: function(aRequest) {
+    this._pendingRequests =
+      this._pendingRequests.filter(function (r) r !== aRequest);
+
+    // If we are still waiting for more data, return early
+    if (this._pendingRequests.length != 0)
+      return;
+
     this.base.connected();
+
     // If the conversation already exists, notify it we are back online.
     if (this._timeline)
       this._timeline.notifyObservers(this._timeline, "update-buddy-status");
-    this.displayMessages(JSON.parse(aData).reverse());
+
+    this._timelineBuffer.sort(this.sortByDate);
+    this.displayMessages(this._timelineBuffer);
+
+    // Reset in case we get disconnected
+    delete this._timelineBuffer;
+    delete this._pendingRequests;
+
+    // Open the streams to get the live data.
     this.openStream();
   },
+
+  sortByDate: function(a, b)
+    (new Date(a["created_at"])) - (new Date(b["created_at"])),
 
   _streamingRequest: null,
   _pendingData: "",
@@ -369,7 +427,7 @@ Account.prototype = {
     this.token = result.oauth_token;
     this.tokenSecret = result.oauth_token_secret;
 
-    this.getTimeline();
+    this.getTimelines();
   },
 
 
@@ -378,6 +436,11 @@ Account.prototype = {
       aError = this._base.NO_ERROR;
     let connected = this.connected;
     this.base.disconnecting(aError, aErrorMessage);
+    if (this._pendingRequests.length != 0) {
+      for each (let request in this._pendingRequests)
+        request.abort();
+      delete this._pendingRequests;
+    }
     if (this._streamingRequest) {
       this._streamingRequest.abort();
       delete this._streamingRequest;

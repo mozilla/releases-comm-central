@@ -799,7 +799,7 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
       // When status is 0 we don't have a valid channel.
       let statusText = status ? request.statusText
                               : "nsIXMLHttpRequest channel unavailable";
-      aOnError.call(aThis, statusText);
+      aOnError.call(aThis, statusText, null, this);
     }
   };
   xhr.onload = function (aRequest) {
@@ -809,11 +809,11 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
       if (target.status != 200)
         throw target.status + " - " + target.statusText;
       if (aOnLoad)
-        aOnLoad.call(aThis, target.responseText);
+        aOnLoad.call(aThis, target.responseText, this);
     } catch (e) {
       Components.utils.reportError(e);
       if (aOnError)
-        aOnError.call(aThis, e, aRequest.target.responseText);
+        aOnError.call(aThis, e, aRequest.target.responseText, this);
     }
   };
 
