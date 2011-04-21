@@ -141,14 +141,6 @@ var reporterListener = {
   }
 }
 
-var userClosed = true;
-
-function finishRequest()
-{
-  userClosed = false;
-  window.close();
-}
-
 function cancelRequest()
 {
   reportUserClosed();
@@ -157,12 +149,9 @@ function cancelRequest()
 
 function reportUserClosed()
 {
-  if (!userClosed)
-    return;
-
   let request = window.arguments[0];
   request.QueryInterface(Components.interfaces.purpleIRequestBrowser);
-  request.cancelled(request);
+  request.cancelled();
 }
 
 function loadRequestedUrl()
@@ -183,5 +172,5 @@ function loadRequestedUrl()
   if (url != "") {
     browser.setAttribute("src", url);
   }
-  request.loaded(request, window, browser.webProgress);
+  request.loaded(window, browser.webProgress);
 }

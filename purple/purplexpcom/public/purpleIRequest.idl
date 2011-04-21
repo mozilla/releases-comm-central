@@ -46,8 +46,7 @@ interface purpleIRequestBrowser: nsISupports {
   readonly attribute AUTF8String promptText;
   readonly attribute purpleIAccount account;
   readonly attribute AUTF8String url;
-  void cancelled(in purpleIRequestBrowser aRequest);
-  void loaded(in purpleIRequestBrowser aRequest,
-              in nsIDOMWindowInternal aWindow,
+  void cancelled();
+  void loaded(in nsIDOMWindowInternal aWindow,
               in nsIWebProgress aWebProgress);
 };

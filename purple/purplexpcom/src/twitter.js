@@ -351,13 +351,16 @@ Account.prototype = {
   _progressListener: {
     QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
                                            Ci.nsISupportsWeakReference]),
+    _cleanUp: function() {
+      this.webProgress.removeProgressListener(this);
+      this.window.close();
+      delete this.window;
+    },
     _checkForRedirect: function(aURL) {
       if (aURL.indexOf(this._parent.completionURI) != 0)
         return;
 
-      this.webProgress.removeProgressListener(this);
-      this.window.close();
-      delete this.window;
+      this._parent.finishAuthorizationRequest();
       this._parent.onAuthorizationReceived(aURL);
     },
     onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
@@ -374,15 +377,22 @@ Account.prototype = {
   },
   requestAuthorization: function() {
     const url = this.baseURI + "oauth/authorize?oauth_token=";
-    let browserRequest = {
+    this._browserRequest = {
       promptText: "Give permission to use your Twitter account",
       account: this,
       url: url + this.token,
+      _active: true,
       cancelled: function() {
+        if (!this._active)
+          return;
+
         this.account.gotDisconnected(this.account._base.ERROR_AUTHENTICATION_FAILED,
                                      "Authorization process cancelled.");
       },
-      loaded: function(aRequest, aWindow, aWebProgress) {
+      loaded: function(aWindow, aWebProgress) {
+        if (!this._active)
+          return;
+
         let listener = this.account._progressListener;
         listener.window = aWindow;
         listener.webProgress = aWebProgress;
@@ -392,7 +402,16 @@ Account.prototype = {
       },
       QueryInterface: XPCOMUtils.generateQI([Ci.purpleIRequestBrowser])
     };
-    Services.obs.notifyObservers(browserRequest, "browser-request", null);
+    Services.obs.notifyObservers(this._browserRequest, "browser-request", null);
+  },
+  finishAuthorizationRequest: function() {
+    if (!("_browserRequest" in this))
+      return;
+
+    this._browserRequest._active = false;
+    if ("window" in this._progressListener)
+      this._progressListener._cleanUp();
+    delete this._browserRequest;
   },
   onAuthorizationReceived: function(aData) {
     let data = this._parseURLData(aData.split("?")[1]);
@@ -436,6 +455,7 @@ Account.prototype = {
       aError = this._base.NO_ERROR;
     let connected = this.connected;
     this.base.disconnecting(aError, aErrorMessage);
+    this.finishAuthorizationRequest();
     if (this._pendingRequests.length != 0) {
       for each (let request in this._pendingRequests)
         request.abort();
@@ -445,6 +465,8 @@ Account.prototype = {
       this._streamingRequest.abort();
       delete this._streamingRequest;
     }
+    delete this.token;
+    delete this.tokenSecret;
     if (this._timeline && connected)
       this._timeline.notifyObservers(this._timeline, "update-conv-chatleft");
     this.base.disconnected();
