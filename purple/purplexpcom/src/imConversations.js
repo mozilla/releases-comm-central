@@ -222,6 +222,7 @@ UIConversation.prototype = {
   unInit: function() {
     for each (let conv in this._purpleConv)
       conv.unInit();
+    this._purpleConv = {}; // Prevent .close from failing.
   },
   close: function() {
     for each (let conv in this._purpleConv)
