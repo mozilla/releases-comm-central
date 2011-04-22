@@ -1278,8 +1278,21 @@
                 aEvent.preventDefault();
                 return;
             }
-            if ('shiftKey' in aEvent && aEvent.shiftKey)
+            if ('shiftKey' in aEvent && aEvent.shiftKey) {
+              var offset = 1;
+              switch (aEvent.keyCode) {
+                case KeyEvent.DOM_VK_RIGHT:
+                  offset *= -1;
+                case KeyEvent.DOM_VK_LEFT:
+                  if (window.getComputedStyle(this.tabbrowser, null).direction == "ltr")
+                    offset *= -1;
+
+                  this.tabbrowser.mTabContainer.advanceSelectedTab(offset, true);
+                  aEvent.stopPropagation();
+                  aEvent.preventDefault();
+              }
               return;
+            }
 #else
           if (('ctrlKey' in aEvent && aEvent.ctrlKey) &&
               !('shiftKey' in aEvent && aEvent.shiftKey) &&
