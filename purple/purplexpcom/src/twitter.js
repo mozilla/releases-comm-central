@@ -348,33 +348,6 @@ Account.prototype = {
 
     this.requestAuthorization();
   },
-  _progressListener: {
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
-                                           Ci.nsISupportsWeakReference]),
-    _cleanUp: function() {
-      this.webProgress.removeProgressListener(this);
-      this.window.close();
-      delete this.window;
-    },
-    _checkForRedirect: function(aURL) {
-      if (aURL.indexOf(this._parent.completionURI) != 0)
-        return;
-
-      this._parent.finishAuthorizationRequest();
-      this._parent.onAuthorizationReceived(aURL);
-    },
-    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
-      const wpl = Ci.nsIWebProgressListener;
-      if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK))
-        this._checkForRedirect(aRequest.name);
-    },
-    onLocationChange: function(aWebProgress, aRequest, aLocation) {
-      this._checkForRedirect(aLocation.spec);
-    },
-    onProgressChange: function() {},
-    onStatusChange: function() {},
-    onSecurityChange: function() {}
-  },
   requestAuthorization: function() {
     const url = this.baseURI + "oauth/authorize?oauth_token=";
     this._browserRequest = {
@@ -393,11 +366,38 @@ Account.prototype = {
         if (!this._active)
           return;
 
-        let listener = this.account._progressListener;
-        listener.window = aWindow;
-        listener.webProgress = aWebProgress;
-        listener._parent = this.account;
-        aWebProgress.addProgressListener(listener,
+        this._listener = {
+          QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
+                                                 Ci.nsISupportsWeakReference]),
+          _cleanUp: function() {
+            this.webProgress.removeProgressListener(this);
+            this.window.close();
+            delete this.window;
+          },
+          _checkForRedirect: function(aURL) {
+            if (aURL.indexOf(this._parent.completionURI) != 0)
+              return;
+
+            this._parent.finishAuthorizationRequest();
+            this._parent.onAuthorizationReceived(aURL);
+          },
+          onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+            const wpl = Ci.nsIWebProgressListener;
+            if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK))
+              this._checkForRedirect(aRequest.name);
+          },
+          onLocationChange: function(aWebProgress, aRequest, aLocation) {
+            this._checkForRedirect(aLocation.spec);
+          },
+          onProgressChange: function() {},
+          onStatusChange: function() {},
+          onSecurityChange: function() {},
+
+          window: aWindow,
+          webProgress: aWebProgress,
+          _parent: this.account
+        };
+        aWebProgress.addProgressListener(this._listener,
                                          Ci.nsIWebProgress.NOTIFY_ALL);
       },
       QueryInterface: XPCOMUtils.generateQI([Ci.purpleIRequestBrowser])
@@ -409,8 +409,8 @@ Account.prototype = {
       return;
 
     this._browserRequest._active = false;
-    if ("window" in this._progressListener)
-      this._progressListener._cleanUp();
+    if ("_listener" in this._browserRequest)
+      this._browserRequest._listener._cleanUp();
     delete this._browserRequest;
   },
   onAuthorizationReceived: function(aData) {
