@@ -450,11 +450,7 @@ Account.prototype = {
   },
 
 
-  gotDisconnected: function(aError, aErrorMessage) {
-    if (aError === undefined)
-      aError = this._base.NO_ERROR;
-    let connected = this.connected;
-    this.base.disconnecting(aError, aErrorMessage);
+  cleanUp: function() {
     this.finishAuthorizationRequest();
     if (this._pendingRequests.length != 0) {
       for each (let request in this._pendingRequests)
@@ -467,9 +463,20 @@ Account.prototype = {
     }
     delete this.token;
     delete this.tokenSecret;
+  },
+  gotDisconnected: function(aError, aErrorMessage) {
+    if (aError === undefined)
+      aError = this._base.NO_ERROR;
+    let connected = this.connected;
+    this.base.disconnecting(aError, aErrorMessage);
+    this.cleanUp();
     if (this._timeline && connected)
       this._timeline.notifyObservers(this._timeline, "update-conv-chatleft");
     this.base.disconnected();
+  },
+  UnInit: function() {
+    this.cleanUp();
+    this._base.UnInit();
   },
   disconnect: function() {
     this.gotDisconnected();
