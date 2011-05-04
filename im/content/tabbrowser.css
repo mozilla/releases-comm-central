@@ -26,16 +26,16 @@ tabconversation {
   display: none;
 }
 
-.tabbrowser-tabs:not([closebuttons="noclose"]):not([closebuttons="closeatend"]) > .tabbrowser-tab[selected="true"] > .tab-close-button {
+.tabbrowser-tabs:not([closebuttons="noclose"]):not([closebuttons="closeatend"]) > .tabbrowser-tab[selected="true"] > * > * > .tab-close-button {
   display: -moz-box;
 }
 
-.tabbrowser-tabs[closebuttons="alltabs"] > .tabbrowser-tab:not(:only-child) > .tab-close-button {
+.tabbrowser-tabs[closebuttons="alltabs"] > .tabbrowser-tab:not(:only-child) > * > * > .tab-close-button {
   display: -moz-box;
 }
 
 .tabs-container:not([overflow="true"]) > .tabs-newtab-button,
-.tabs-container:not([overflow="true"]) > .tabs-alltabs-stack,
+.tabs-container:not([overflow="true"]) > .tabs-alltabs-button,
 .tabs-container[overflow="true"] > .tabbrowser-arrowscrollbox > .tabs-newtab-button {
   visibility: collapse;
 }

@@ -124,7 +124,7 @@
                      class="tabbrowser-tab" label="&untitledTab;" crop="end"/>
           </xul:tabs>
         </xul:hbox>
-        <xul:tabpanels flex="1" class="plain" selectedIndex="0" anonid="panelcontainer">
+        <xul:tabpanels flex="1" class="tabbrowser-tabpanels plain" selectedIndex="0" anonid="panelcontainer">
           <xul:conversation selected="true"/>
         </xul:tabpanels>
       </xul:tabbox>
@@ -1379,14 +1379,6 @@
           return document.getBindingParent(this).childNodes;
         ]]></body>
       </method>
-#ifdef XP_MACOSX
-      <field name="_scrollButtonDownBox">
-        document.getAnonymousElementByAttribute(this, "anonid", "down-box");
-      </field>
-      <field name="_scrollButtonDownBoxAnimate">
-        document.getAnonymousElementByAttribute(this, "anonid", "down-box-animate");
-      </field>
-#endif
     </implementation>
 
     <handlers>
@@ -1396,10 +1388,6 @@
 
          var tabs = document.getBindingParent(this);
          tabs.removeAttribute("overflow");
-#ifdef XP_MACOSX
-         this._scrollButtonDownBox.collapsed = true;
-         this._scrollButtonDownBoxAnimate.collapsed = true;
-#endif
       ]]></handler>
       <handler event="overflow"><![CDATA[
          if (event.detail == 0)
@@ -1407,114 +1395,46 @@
 
          var tabs = document.getBindingParent(this);
          tabs.setAttribute("overflow", "true");
-#ifdef XP_MACOSX
-         this._scrollButtonDownBox.collapsed = false;
-         this._scrollButtonDownBoxAnimate.collapsed = false;
-#endif
          this.scrollBoxObject.ensureElementIsVisible(tabs.selectedItem);
       ]]></handler>
-
-#ifdef XP_MACOSX
-      <handler event="UpdatedScrollButtonsDisabledState"><![CDATA[
-        // fix for bug #352353
-        // unlike the scrollup button on the tab strip (which is a
-        // simple toolbarbutton) the scrolldown button is
-        // a more complicated stack of boxes and a toolbarbutton
-        // so that we can animate when a tab is opened offscreen.
-        // in order to style the box with the actual background image
-        // we need to manually set the disable state to match the
-        // disable state of the toolbarbutton.
-        this._scrollButtonDownBox
-            .setAttribute("disabled", this._scrollButtonDown.disabled);
-      ]]></handler>
-#endif
-
     </handlers>
-
-#ifdef XP_MACOSX
-    <content>
-      <xul:toolbarbutton class="scrollbutton-up" collapsed="true"
-                         xbl:inherits="orient"
-                         anonid="scrollbutton-up"
-                         onclick="_distanceScroll(event);"
-                         onmousedown="_startScroll(-1);"
-                         onmouseover="_continueScroll(-1);"
-                         onmouseup="_stopScroll();"
-                         onmouseout="_pauseScroll();"
-                         chromedir="&locale.dir;"/>
-      <xul:scrollbox xbl:inherits="orient,align,pack,dir" flex="1" anonid="scrollbox">
-        <children/>
-      </xul:scrollbox>
-      <xul:stack align="center" pack="end" class="scrollbutton-down-stack">
-        <xul:hbox flex="1" class="scrollbutton-down-box"
-                           collapsed="true" anonid="down-box"/>
-        <xul:hbox flex="1" class="scrollbutton-down-box-animate"
-                           collapsed="true" anonid="down-box-animate"/>
-        <xul:toolbarbutton class="scrollbutton-down" collapsed="true"
-                           xbl:inherits="orient"
-                           anonid="scrollbutton-down"
-                           onclick="_distanceScroll(event);"
-                           onmousedown="_startScroll(1);"
-                           onmouseover="_continueScroll(1);"
-                           onmouseup="_stopScroll();"
-                           onmouseout="_pauseScroll();"
-                           chromedir="&locale.dir;"/>
-      </xul:stack>
-    </content>
-#endif
   </binding>
 
   <binding id="tabbrowser-tabs"
            extends="chrome://global/content/bindings/tabbox.xml#tabs">
     <content>
-      <xul:stack flex="1" class="tabs-stack">
-        <xul:vbox>
-          <xul:spacer flex="1"/>
-          <xul:hbox class="tabs-bottom" align="center"/>
-        </xul:vbox>
-        <xul:hbox xbl:inherits="overflow" class="tabs-container">
-          <xul:arrowscrollbox anonid="arrowscrollbox" orient="horizontal" flex="1"
-                              style="min-width: 1px;" chromedir="&locale.dir;"
+      <xul:hbox xbl:inherits="overflow,flex" class="tabs-container">
+        <xul:arrowscrollbox anonid="arrowscrollbox" orient="horizontal" flex="1"
+                            style="min-width: 1px;" chromedir="&locale.dir;"
 #ifndef XP_MACOSX
-                              clicktoscroll="true"
+                            clicktoscroll="true"
 #endif
-                              class="tabbrowser-arrowscrollbox">
+                            class="tabbrowser-arrowscrollbox">
 # This is a hack to circumvent bug 472020, otherwise the tabs show up on the
 # right of the newtab button.
-            <children includes="tab"/>
+          <children includes="tab"/>
 # This is to ensure anything extensions put here will go before the newtab
 # button, necessary due to the previous hack.
-            <children/>
-            <xul:toolbarbutton class="tabs-newtab-button"
-                               command="cmd_newNavigatorTab" chromedir="&locale.dir;"
-                               tooltiptext="&newTabButton.tooltip;"/>
-          </xul:arrowscrollbox>
-          <xul:toolbarbutton class="tabs-newtab-button" anonid="newtab-button"
+          <children/>
+          <xul:toolbarbutton class="tabs-newtab-button"
                              command="cmd_newNavigatorTab" chromedir="&locale.dir;"
                              tooltiptext="&newTabButton.tooltip;"/>
-          <xul:stack class="tabs-alltabs-stack" align="center" pack="end" chromedir="&locale.dir;">
-            <xul:hbox flex="1" class="tabs-alltabs-box" anonid="alltabs-box"/>
-            <xul:hbox flex="1" class="tabs-alltabs-box-animate" anonid="alltabs-box-animate"/>
-            <xul:toolbarbutton class="tabs-alltabs-button" type="menu" anonid="alltabs-button"
-                               tooltiptext="&listAllTabs.label;">
-             <xul:menupopup class="tabs-alltabs-popup" anonid="alltabs-popup"
-                            position="after_end"/>
-            </xul:toolbarbutton>
-          </xul:stack>
-#ifdef XP_MACOSX
-          <xul:hbox anonid="tabstrip-closebutton" class="tabs-closebutton-box" align="center" pack="end" chromedir="&locale.dir;">
-#endif
-          <xul:toolbarbutton anonid="tabs-closebutton"
-                             class="close-button tabs-closebutton"
-                             chromedir="&locale.dir;"
-                             tooltiptext="&closeTab.label;"/>
-#ifdef XP_MACOSX
-          </xul:hbox>
-#endif
-        </xul:hbox>
-      </xul:stack>
+        </xul:arrowscrollbox>
+        <xul:toolbarbutton class="tabs-newtab-button" anonid="newtab-button"
+                           command="cmd_newNavigatorTab" chromedir="&locale.dir;"
+                           tooltiptext="&newTabButton.tooltip;"/>
+        <xul:toolbarbutton class="tabs-alltabs-button" type="menu" anonid="alltabs-button"
+                           tooltiptext="&listAllTabs.label;">
+          <xul:menupopup class="tabs-alltabs-popup" anonid="alltabs-popup"
+                         position="after_end"/>
+        </xul:toolbarbutton>
+        <xul:toolbarbutton anonid="tabs-closebutton"
+                           class="close-button tabs-closebutton"
+                           chromedir="&locale.dir;"
+                           tooltiptext="&closeTab.label;"/>
+      </xul:hbox>
     </content>
-    <implementation implements="nsITimerCallback, nsIDOMEventListener">
+    <implementation implements="nsIDOMEventListener">
       <constructor>
         <![CDATA[
           var pb2 = Services.prefs;
@@ -1549,12 +1469,6 @@
         <![CDATA[
           Services.prefs.removeObserver("browser.tabs.closeButtons",
                                         this._prefObserver);
-
-          // Release timer to avoid reference cycles.
-          if (this._animateTimer) {
-            this._animateTimer.cancel();
-            this._animateTimer = null;
-          }
         ]]>
       </destructor>
 
@@ -1565,11 +1479,7 @@
       </field>
 
       <field name="mTabstripClosebutton">
-#ifdef XP_MACOSX
-        document.getAnonymousElementByAttribute(this, "anonid", "tabstrip-closebutton");
-#else
         document.getAnonymousElementByAttribute(this, "anonid", "tabs-closebutton");
-#endif
       </field>
 
       <field name="_prefObserver">({
@@ -1659,7 +1569,6 @@
         ]]></body>
       </method>
 
-
       <method name="adjustTabstrip">
         <body><![CDATA[
           // modes for tabstrip
@@ -1739,44 +1648,9 @@
                                                 "anonid", "alltabs-popup");
       </field>
 
-      <field name="mAllTabsBoxAnimate">
-        document.getAnonymousElementByAttribute(this,
-                                                "anonid",
-                                                "alltabs-box-animate");
+      <field name="_animateElement">
+        this.mTabstrip._scrollButtonDown;
       </field>
-
-#ifdef XP_MACOSX
-      <field name="mDownBoxAnimate">
-        this.mTabstrip._scrollButtonDownBoxAnimate;
-      </field>
-#endif
-
-      <field name="_animateTimer">null</field>
-      <field name="_animateStep">-1</field>
-      <field name="_animateDelay">25</field>
-      <field name="_animatePercents">
-       [1.00, 0.85, 0.80, 0.75, 0.71, 0.68, 0.65, 0.62, 0.59, 0.57,
-        0.54, 0.52, 0.50, 0.47, 0.45, 0.44, 0.42, 0.40, 0.38, 0.37,
-        0.35, 0.34, 0.32, 0.31, 0.30, 0.29, 0.28, 0.27, 0.26, 0.25,
-        0.24, 0.23, 0.23, 0.22, 0.22, 0.21, 0.21, 0.21, 0.20, 0.20,
-        0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.19, 0.19, 0.19, 0.18,
-        0.18, 0.17, 0.17, 0.16, 0.15, 0.14, 0.13, 0.11, 0.09, 0.06]
-      </field>
-
-      <method name="_stopAnimation">
-        <body><![CDATA[
-          if (this._animateStep != -1) {
-            if (this._animateTimer)
-              this._animateTimer.cancel();
-
-            this._animateStep = -1;
-            this.mAllTabsBoxAnimate.style.opacity = 0.0;
-#ifdef XP_MACOSX
-            this.mDownBoxAnimate.style.opacity = 0.0;
-#endif
-          }
-        ]]></body>
-      </method>
 
       <method name="_notifyBackgroundTab">
         <parameter name="aTab"/>
@@ -1807,37 +1681,12 @@
                                                  selStart - tsboStart : selEnd - tsboEnd);
           }
 
-          // start the flash timer
-          this._animateStep = 0;
-
-          if (!this._animateTimer)
-            this._animateTimer =
-              Components.classes["@mozilla.org/timer;1"]
-                        .createInstance(Components.interfaces.nsITimer);
-          else
-             this._animateTimer.cancel();
-
-          this._animateTimer.initWithCallback(this, this._animateDelay,
-                                              this._animateTimer.TYPE_REPEATING_SLACK);
-        ]]></body>
-      </method>
-
-      <method name="notify">
-        <parameter name="aTimer"/>
-        <body><![CDATA[
-          if (!document)
-            aTimer.cancel();
-
-          var percent = this._animatePercents[this._animateStep];
-          this.mAllTabsBoxAnimate.style.opacity = percent;
-#ifdef XP_MACOSX
-          this.mDownBoxAnimate.style.opacity = percent;
-#endif
-
-          if (this._animateStep < (this._animatePercents.length - 1))
-            this._animateStep++;
-          else
-            this._stopAnimation();
+          if (!this._animateElement.hasAttribute("notifybgtab")) {
+            this._animateElement.setAttribute("notifybgtab", "true");
+            setTimeout(function (ele) {
+              ele.removeAttribute("notifybgtab");
+            }, 150, this._animateElement);
+          }
         ]]></body>
       </method>
     </implementation>
@@ -2016,10 +1865,6 @@
         tabcontainer.addEventListener("TabOpen", this, false);
         tabcontainer.mTabstrip.addEventListener("scroll", this, false);
 
-        // if an animation is in progress and the user
-        // clicks on the "all tabs" button, stop the animation
-        tabcontainer._stopAnimation();
-
         for (var i = 0; i < tabs.length; i++) {
           this._createTabMenuItem(tabs[i]);
         }
@@ -2141,9 +1986,18 @@
   <binding id="tabbrowser-tab" display="xul:hbox"
            extends="chrome://global/content/bindings/tabbox.xml#tab">
     <content chromedir="&locale.dir;">
-      <xul:image mousethrough="always" xbl:inherits="validate,src=image" class="tab-icon-image"/>
-      <xul:label mousethrough="always" flex="1" xbl:inherits="value=label,crop,accesskey" class="tab-text"/>
-      <xul:toolbarbutton anonid="close-button" tabindex="-1" class="tab-close-button" tooltiptext="&closeTab.label;"/>
+      <xul:stack mousethrough="always" class="tab-stack" flex="1">
+        <xul:hbox xbl:inherits="selected" class="tab-background">
+          <xul:hbox xbl:inherits="selected" class="tab-background-start"/>
+          <xul:hbox xbl:inherits="selected" class="tab-background-middle"/>
+          <xul:hbox xbl:inherits="selected" class="tab-background-end"/>
+        </xul:hbox>
+        <xul:hbox mousethrough="always" xbl:inherits="selected" class="tab-content" align="center">
+          <xul:image mousethrough="always" xbl:inherits="selected,validate,src=image" class="tab-icon-image"/>
+          <xul:label mousethrough="always" flex="1" xbl:inherits="value=label,crop,accesskey" class="tab-text"/>
+          <xul:toolbarbutton anonid="close-button" tabindex="-1" class="tab-close-button" tooltiptext="&closeTab.label;"/>
+        </xul:hbox>
+      </xul:stack>
     </content>
 
     <implementation>

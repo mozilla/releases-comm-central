@@ -66,6 +66,7 @@
   height = "600"
   onclose= "return getBrowser().warnAboutClosingTabs(true);"
   persist= "width height screenX screenY"
+  xmlns:svg="http://www.w3.org/2000/svg"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/instantbird.js"/>
@@ -183,12 +184,30 @@
     </menupopup>
   </popupset>
 
-#ifdef XP_MACOSX
-  <windowdragbox id="unified-toolbar"/>
-#endif
   <tabconversation id="conversations" flex="1"
                    contenttooltip="aHTMLTooltip"
                    contentcontextmenu="contentAreaContextMenu"/>
+
+#ifdef XP_MACOSX
+  <svg:svg height="0">
+    <svg:mask id="pinstripe-tab-left-curve-mask" maskContentUnits="userSpaceOnUse">
+      <svg:circle cx="9" cy="3" r="3" fill="white"/>
+      <svg:rect x="9" y="0" width="3" height="3" fill="white"/>
+      <svg:rect x="6" y="3" width="6" height="19" fill="white"/>
+      <svg:rect x="1" y="17" width="5" height="5" fill="white"/>
+      <svg:circle cx="1" cy="17" r="5"/>
+      <svg:rect x="0" y="22" width="12" height="1" fill="white"/>
+    </svg:mask>
+    <svg:mask id="pinstripe-tab-right-curve-mask" maskContentUnits="userSpaceOnUse">
+      <svg:circle cx="3" cy="3" r="3" fill="white"/>
+      <svg:rect x="0" y="0" width="3" height="3" fill="white"/>
+      <svg:rect x="0" y="3" width="6" height="19" fill="white"/>
+      <svg:rect x="6" y="17" width="5" height="5" fill="white"/>
+      <svg:circle cx="11" cy="17" r="5"/>
+      <svg:rect x="0" y="22" width="12" height="1" fill="white"/>
+    </svg:mask>
+  </svg:svg>
+#endif
 
   <statusbar id="convWindow-statusbar">
     <statusbarpanel id="statusbar-display" label="" crop="end" flex="1"/>

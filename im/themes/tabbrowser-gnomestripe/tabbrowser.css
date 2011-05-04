@@ -1,3 +1,4 @@
+%if 0
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -26,6 +27,7 @@
  *   Blake Ross (blake@cs.stanford.edu)
  *   Pamela Greene (pamg.bugs@gmail.com)
  *   Dão Gottwald (dao@mozilla.com)
+ *   Drew Willcoxon (adw@mozilla.com)
  *   Florian Quèze (florian@instantbird.org)
  *
  * Alternatively, the contents of this file may be used under the terms of
@@ -41,44 +43,99 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+%endif
 
-/* Tabs */
-.tabbrowser-tab {
-  border: none !important;
-  padding: 0px;
-  margin-bottom: 1px;
+@import url("chrome://global/skin/");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+%filter substitution
+%define toolbarHighlight rgba(255,255,255,.3)
+%define selectedTabHighlight rgba(255,255,255,.8) 1px, rgba(255,255,255,.5) 3px
+
+/* Tabstrip */
+
+.tabbrowser-strip {
+  min-height: 0;
+  padding: 0;
+}
+
+.tabbrowser-strip:not(:-moz-lwtheme) {
+  -moz-appearance: menubar;
+  color: -moz-menubartext;
+}
+
+.tabbrowser-strip:not(:-moz-lwtheme):-moz-system-metric(menubar-drag) {
+  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+}
+
+.tabbrowser-tab,
+.tabs-newtab-button {
+  position: static;
+  -moz-appearance: none;
+  background: -moz-linear-gradient(hsla(0,0%,100%,.2), hsla(0,0%,45%,.2) 2px, hsla(0,0%,32%,.2) 80%);
+  background-origin: border-box;
+  background-position: 1px 2px;
+  background-size: 100% -moz-calc(100% - 2px);
+  background-repeat: no-repeat;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+  -moz-border-image: url(tabbrowser/tab.png) 4 5 3 6 / 4px 5px 3px 6px repeat stretch;
+  border-radius: 10px 8px 0 0;
+  min-height: 25px; /* reserve space for the sometimes hidden close button */
+}
+
+.tabbrowser-tab:hover,
+.tabs-newtab-button:hover {
+  background-image: -moz-linear-gradient(hsla(0,0%,100%,.6), hsla(0,0%,100%,.2) 4px, hsla(0,0%,75%,.2) 80%);
 }
 
 .tabbrowser-tab[selected="true"] {
-  margin-bottom: 0px;
+  background-image: -moz-linear-gradient(@selectedTabHighlight@, @toolbarHighlight@ 32%),
+                    -moz-linear-gradient(-moz-dialog, -moz-dialog);
+  color: -moz-dialogtext;
 }
 
-.tabs-container {
-  min-height: 27px;
+.tabbrowser-tab[selected="true"]:-moz-lwtheme {
+  background-image: -moz-linear-gradient(@selectedTabHighlight@, @toolbarHighlight@ 32%);
+  color: inherit;
+}
+
+.tabbrowser-tab:-moz-lwtheme-brighttext:not([selected="true"]),
+.tabs-newtab-button:-moz-lwtheme-brighttext {
+  background-image: -moz-linear-gradient(hsla(0,0%,60%,.6), hsla(0,0%,40%,.6) 4px, hsla(0,0%,30%,.6) 80%);
+}
+
+.tabbrowser-tab:-moz-lwtheme-brighttext:not([selected="true"]):hover,
+.tabs-newtab-button:-moz-lwtheme-brighttext:hover {
+  background-image: -moz-linear-gradient(hsla(0,0%,80%,.6), hsla(0,0%,60%,.6) 4px, hsla(0,0%,45%,.6) 80%);
+}
+
+.tabbrowser-tab:-moz-lwtheme-darktext:not([selected="true"]),
+.tabs-newtab-button:-moz-lwtheme-darktext {
+  background-image: -moz-linear-gradient(hsla(0,0%,100%,.5), hsla(0,0%,60%,.5) 4px, hsla(0,0%,45%,.5) 80%);
+}
+
+.tabbrowser-tab:-moz-lwtheme-darktext:not([selected="true"]):hover,
+.tabs-newtab-button:-moz-lwtheme-darktext:hover {
+  background-image: -moz-linear-gradient(hsla(0,0%,100%,.5), hsla(0,0%,80%,.5) 4px, hsla(0,0%,60%,.5) 80%);
+}
+
+.tabbrowser-tab:focus > .tab-stack {
+  outline: 1px dotted;
 }
 
 .tab-icon-image {
   width: 16px;
   height: 16px;
-  -moz-margin-start: 4px;
   -moz-margin-end: 3px;
 }
 
-.tabs-bottom {
-  border-bottom: 1px solid threedshadow;
-}
-
-#context_newTab {
-  list-style-image: url("chrome://browser/skin/Toolbar-small.png");
-  -moz-image-region: rect(0px 64px 16px 48px);
-}
-
-#context_newTab[disabled] {
-  -moz-image-region: rect(16px 64px 32px 48px);
-}
-
-#context_reloadTab {
-  list-style-image: url("moz-icon://stock/gtk-refresh?size=menu");
+.tabs-newtab-button > .toolbarbutton-icon {
+  -moz-margin-start: 2px;
+  -moz-margin-end: 2px;
 }
 
 #context_closeOtherTabs {
@@ -89,23 +146,8 @@
   list-style-image: url("moz-icon://stock/gtk-clear?size=menu&state=disabled");
 }
 
-#context_undoCloseTab {
-  list-style-image: url("moz-icon://stock/gtk-undelete?size=menu");
-}
-
 #context_closeTab {
-  /*XXX Avoiding size=menu as some themes (e.g. Human) don't provide the icon
-        at 16*16px (bug 426930), and upscaled images are ugly (bug 422179). */
-  list-style-image: url("moz-icon://stock/gtk-close?size=toolbar");
-}
-
-/* tabbrowser-tab focus ring */
-.tabbrowser-tab > .tab-text {
-  border: 1px dotted transparent;
-}
-
-.tabbrowser-tab[selected="true"]:focus > .tab-text {
-  border: 1px dotted -moz-DialogText;
+  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
 }
 
 /* Tab drag and drop */
@@ -120,10 +162,10 @@
 
 .tab-drop-indicator {
   z-index: 1;
-  margin-top: 5px;
+  margin-top: 30px;
   height: 11px;
   width: 11px;
-  margin-bottom: -5px;
+  margin-bottom: -30px;
   position: relative;
   background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator.png') 50% 50% no-repeat;
 }
@@ -132,82 +174,80 @@
 .tab-close-button > .toolbarbutton-icon {
   /* XXX Buttons have padding in widget/ that we don't want here but can't override with good CSS, so we must
      use evil CSS to give the impression of smaller content */
-  margin: -3px !important;
+  margin: -4px;
 }
 
 .tab-close-button {
-  -moz-margin-end: 6px;
-  padding: 0px;
-  border: none;
+  padding: 0;
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
-}
-
-.tabbrowser-tab[selected="true"] > .tab-close-button {
-  /* Make this button focusable so clicking on it will not focus the tab while
-     it's getting closed */
-  -moz-user-focus: normal;
-}
-
-.tab-close-button:focus {
-  outline: none !important;
+  margin-top: -1px;
+  margin-bottom: -1px;
+  -moz-margin-end: -1px;
 }
 
 /* Tabstrip new tab button */
 .tabs-newtab-button {
   list-style-image: url("moz-icon://stock/gtk-add?size=menu");
-  border: none;
-  margin-bottom: 1px;
-}
-
-.tabbrowser-arrowscrollbox > .tabs-newtab-button {
-  width: 32px;
-}
-
-.tabs-newtab-button > .toolbarbutton-icon {
-  margin-top: -2px;
-  margin-bottom: -2px;
+  -moz-image-region: auto;
 }
 
 /* Tabstrip close button */
 .tabs-closebutton {
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
-  border: none;
-  margin-bottom: 1px;
 }
 
 .tabs-closebutton > .toolbarbutton-icon {
-  margin: 0;
+  /* XXX Buttons have padding in widget/ that we don't want here but can't override with good CSS, so we must
+     use evil CSS to give the impression of smaller content */
+  margin: -2px;
 }
 
 /* Tabbrowser arrowscrollbox arrows */
+.tabbrowser-arrowscrollbox > .scrollbutton-up,
+.tabbrowser-arrowscrollbox > .scrollbutton-down {
+  -moz-appearance: none;
+  margin: 0;
+}
+
 .tabbrowser-arrowscrollbox > .scrollbutton-up {
-  -moz-appearance: tab-scroll-arrow-back;
-  margin: 0px;
+  -moz-border-start: 0;
+  -moz-border-end: 2px solid transparent;
 }
 
 .tabbrowser-arrowscrollbox > .scrollbutton-down {
-  -moz-appearance: tab-scroll-arrow-forward;
-  margin: 0px;
+  -moz-border-start: 2px solid transparent;
+  -moz-border-end: 0;
+  -moz-transition: 1s box-shadow ease-out;
+  border-radius: 4px;
 }
 
-.tabs-alltabs-box-animate {
-  background-color: Highlight;
-  opacity: 0.0;
+.tabbrowser-arrowscrollbox > .scrollbutton-down[notifybgtab] {
+  box-shadow: 0 0 5px 5px Highlight inset;
+  -moz-transition: none;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]):-moz-locale-dir(ltr),
+.tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]):-moz-locale-dir(rtl) {
+  -moz-border-image: url("chrome://instantbird/skin/tabbrowser/tab-overflow-border.png") 0 2 0 2 / 0 2px 0 0;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]):-moz-locale-dir(ltr),
+.tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]):-moz-locale-dir(rtl) {
+  -moz-border-image: url("chrome://instantbird/skin/tabbrowser/tab-overflow-border.png") 0 2 0 2 / 0 0 0 2px;
+}
+
+.tabs-alltabs-button > .toolbarbutton-icon,
+.tabs-alltabs-button > .toolbarbutton-menu-dropmarker,
+.tabs-alltabs-button > .toolbarbutton-menubutton-button > .toolbarbutton-icon {
+  margin-top: -2px;
+  margin-bottom: -2px;
+}
+
+.tabs-alltabs-button > .toolbarbutton-icon {
+  display: none;
 }
 
 /* All tabs menupopup */
 .alltabs-item[selected="true"] {
   font-weight: bold;
-}
-
-.tabs-alltabs-button {
-  margin-bottom: 1px;
-}
-
-.tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
-  margin-bottom: -1px;
-}
-
-.tabs-alltabs-button > .toolbarbutton-icon {
-  display: none;
 }
