@@ -208,7 +208,8 @@ var otherContactsTag = {
     aTag.addObserver(this);
   },
   observe: function(aSubject, aTopic, aData) {
-    if (aTopic != "contact-moved-in" && aTopic != "contact-moved-out")
+    if (aTopic != "contact-moved-in" && aTopic != "contact-moved-out" &&
+        aTopic != "contact-removed")
       return;
 
     try {
@@ -218,13 +219,15 @@ var otherContactsTag = {
       // contact we currently track, we should check that the new tag
       // is hidden, and if it is not, remove the contact from the
       // 'other contacts' group.
+      return;
     }
 
     if (aTopic == "contact-moved-in" && !(aSubject.id in this._contacts) &&
         aSubject.getTags().every(function(t) t.id in this._hiddenTags, this))
       this._addContact(aSubject);
-    else if (aTopic == "contact-moved-out" && aSubject.id in this._contacts &&
-             aSubject.getTags().some(function(t) !(t.id in this._hiddenTags)))
+    else if (aTopic == "contact-removed" && aSubject.id in this._contacts ||
+             (aTopic == "contact-moved-out" && aSubject.id in this._contacts &&
+              aSubject.getTags().some(function(t) !(t.id in this._hiddenTags))))
       this._removeContact(aSubject);
   },
 
@@ -239,7 +242,15 @@ var otherContactsTag = {
     if (this._contactsInitialized)
       return;
     this._observers = [];
-    this._observer = {observe: this.notifyObservers.bind(this)};
+    this._observer = {
+      self: this,
+      observe: function(aSubject, aTopic, aData) {
+        if (aTopic == "contact-moved-in" && !(aSubject instanceof Contact))
+          return;
+
+        this.self.notifyObservers(aSubject, aTopic, aData);
+      }
+    };
     this._contacts = {};
     this._contactsInitialized = true;
     for each (let tag in this._hiddenTags)
