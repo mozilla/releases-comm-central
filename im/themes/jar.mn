@@ -124,6 +124,7 @@ instantbird.jar:
 	skin/classic/aero/instantbird/offline.png
 	skin/classic/aero/instantbird/typing-16.png
 	skin/classic/aero/instantbird/typed-16.png
+	skin/classic/aero/instantbird/unknown.png
 	skin/classic/aero/instantbird/unknown-16.png
 	skin/classic/aero/instantbird/chat-16.png
 	skin/classic/aero/instantbird/chat-left-16.png
