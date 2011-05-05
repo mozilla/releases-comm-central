@@ -1007,9 +1007,13 @@ Buddy.prototype = {
   },
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {
-    for each (let observer in this._observers)
-      observer.observe(aSubject, aTopic, aData);
-    this._contact._observe(aSubject, aTopic, aData);
+    try {
+      for each (let observer in this._observers)
+        observer.observe(aSubject, aTopic, aData);
+      this._contact._observe(aSubject, aTopic, aData);
+    } catch (e) {
+      Cu.reportError(e);
+    }
   },
   _notifyObservers: function(aTopic, aData) {
     this.notifyObservers(this, "buddy-" + aTopic, aData);
