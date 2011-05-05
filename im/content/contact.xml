@@ -135,6 +135,17 @@
        <parameter name="aData"/>
        <body>
        <![CDATA[
+         if (!("contact" in this)) {
+           /* groups usually receive contact notifications after contacts.
+              However the 'Other Contacts' group uses the contact notifications
+              to fire group notifications, so if we are displayed inside the
+              'Other Contacts' group, we may receive notifications here
+              even though we have already attempted to remove our observer.
+              Just ignore these notifications.
+            */
+           return;
+         }
+
          if (aTopic == "contact-preferred-buddy-changed" ||
              aTopic == "contact-display-name-changed" ||
              aTopic == "contact-status-changed")

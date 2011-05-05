@@ -763,7 +763,8 @@ Contact.prototype = {
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {
     for each (let observer in this._observers)
-      observer.observe(aSubject, aTopic, aData);
+      if ("observe" in observer) // avoid failing on destructed XBL bindings...
+        observer.observe(aSubject, aTopic, aData);
     for each (let tag in this._tags)
       tag.notifyObservers(aSubject, aTopic, aData);
     Services.obs.notifyObservers(aSubject, aTopic, aData);
