@@ -1,101 +1,101 @@
 instantbird.jar:
-% content instantbird %instantbird/
-	instantbird/aboutDialog.css
-*	instantbird/aboutDialog.xul
-	instantbird/account.js
-	instantbird/accounts.css
-	instantbird/accounts.js
-*	instantbird/accounts.xul
-	instantbird/accountWizard.js
-	instantbird/accountWizard.xul
-	instantbird/account.xml
-	instantbird/account.xul
-	instantbird/addbuddy.js
-	instantbird/addbuddy.xul
-	instantbird/blist.css
-	instantbird/blist.js
-*	instantbird/blist.xul
-	instantbird/buddy.xml
-	instantbird/buddytooltip.xml
-	instantbird/browserRequest.js
-	instantbird/browserRequest.xul
-	instantbird/topicNotification.xml
-	instantbird/contact.xml
-*	instantbird/conversation.xml
-	instantbird/convbrowser.xml
-	instantbird/conv.html
-*	instantbird/credits.xhtml
-*	instantbird/engineManager.js
-*	instantbird/engineManager.xul
-	instantbird/extensions.js
-*	instantbird/extensions.xul
-	instantbird/group.xml
-*	instantbird/instantbird.css
-*	instantbird/instantbird.js
-*	instantbird/instantbird.xul
-	instantbird/convZoom.js
-	instantbird/joinchat.js
-	instantbird/joinchat.xul
-*	instantbird/menus.xul
-	instantbird/menus.js
-*	instantbird/nsContextMenu.js
-	instantbird/proxies.js
-	instantbird/proxies.xul
-	instantbird/proxies.css
-	instantbird/proxy.xml
-	instantbird/sound.js
-*	instantbird/tabbrowser.xml
-	instantbird/tabbrowser.css
-	instantbird/utilities.js
-*	instantbird/viewlog.xul
-	instantbird/viewlog.js
-	instantbird/viewlog.css
+% content instantbird %content/instantbird/
+	content/instantbird/aboutDialog.css
+*	content/instantbird/aboutDialog.xul
+	content/instantbird/account.js
+	content/instantbird/accounts.css
+	content/instantbird/accounts.js
+*	content/instantbird/accounts.xul
+	content/instantbird/accountWizard.js
+	content/instantbird/accountWizard.xul
+	content/instantbird/account.xml
+	content/instantbird/account.xul
+	content/instantbird/addbuddy.js
+	content/instantbird/addbuddy.xul
+	content/instantbird/blist.css
+	content/instantbird/blist.js
+*	content/instantbird/blist.xul
+	content/instantbird/buddy.xml
+	content/instantbird/buddytooltip.xml
+	content/instantbird/browserRequest.js
+	content/instantbird/browserRequest.xul
+	content/instantbird/topicNotification.xml
+	content/instantbird/contact.xml
+*	content/instantbird/conversation.xml
+	content/instantbird/convbrowser.xml
+	content/instantbird/conv.html
+*	content/instantbird/credits.xhtml
+*	content/instantbird/engineManager.js
+*	content/instantbird/engineManager.xul
+	content/instantbird/extensions.js
+*	content/instantbird/extensions.xul
+	content/instantbird/group.xml
+*	content/instantbird/instantbird.css
+*	content/instantbird/instantbird.js
+*	content/instantbird/instantbird.xul
+	content/instantbird/convZoom.js
+	content/instantbird/joinchat.js
+	content/instantbird/joinchat.xul
+*	content/instantbird/menus.xul
+	content/instantbird/menus.js
+*	content/instantbird/nsContextMenu.js
+	content/instantbird/proxies.js
+	content/instantbird/proxies.xul
+	content/instantbird/proxies.css
+	content/instantbird/proxy.xml
+	content/instantbird/sound.js
+*	content/instantbird/tabbrowser.xml
+	content/instantbird/tabbrowser.css
+	content/instantbird/utilities.js
+*	content/instantbird/viewlog.xul
+	content/instantbird/viewlog.js
+	content/instantbird/viewlog.css
 #ifdef XP_MACOSX
-*	instantbird/hiddenWindow.xul
-	instantbird/menus-mac.xul
-	instantbird/macgestures.js
+*	content/instantbird/hiddenWindow.xul
+	content/instantbird/menus-mac.xul
+	content/instantbird/macgestures.js
 #elifdef XP_WIN
-	instantbird/menus-win.xul
+	content/instantbird/menus-win.xul
 #else
-	instantbird/menus-unix.xul
+	content/instantbird/menus-unix.xul
 #endif
-*	instantbird/preferences/advanced.xul            (preferences/advanced.xul)
-*	instantbird/preferences/advanced.js             (preferences/advanced.js)
-*	instantbird/preferences/applications.xul        (preferences/applications.xul)
-*	instantbird/preferences/applications.js         (preferences/applications.js)
-*	instantbird/preferences/applicationManager.xul  (preferences/applicationManager.xul)
-*	instantbird/preferences/applicationManager.js   (preferences/applicationManager.js)
-*	instantbird/preferences/colors.xul              (preferences/colors.xul)
-*	instantbird/preferences/content.xul             (preferences/content.xul)
-*	instantbird/preferences/content.js              (preferences/content.js)
-*	instantbird/preferences/connection.xul          (preferences/connection.xul)
-*	instantbird/preferences/connection.js           (preferences/connection.js)
-*	instantbird/preferences/handlers.xml            (preferences/handlers.xml)
-*	instantbird/preferences/handlers.css            (preferences/handlers.css)
-*	instantbird/preferences/main.xul                (preferences/main.xul)
-*	instantbird/preferences/main.js                 (preferences/main.js)
-*	instantbird/preferences/preferences.xul         (preferences/preferences.xul)
-*	instantbird/preferences/privacy.xul             (preferences/privacy.xul)
-*	instantbird/preferences/privacy.js              (preferences/privacy.js)
-*	instantbird/preferences/themes.xul              (preferences/themes.xul)
-	instantbird/preferences/themes.js               (preferences/themes.js)
-*	instantbird/preferences/tabs.xul                (preferences/tabs.xul)
-	instantbird/preferences/tabs.js                 (preferences/tabs.js)
-	instantbird/preferences/messagestyle.js	        (preferences/messagestyle.js)
-	instantbird/preferences/smileys.js		(preferences/smileys.js)
-	instantbird/preferences/smiley.css		(preferences/smiley.css)
-	instantbird/preferences/smiley.xml		(preferences/smiley.xml)
+*	content/instantbird/preferences/advanced.xul            (preferences/advanced.xul)
+*	content/instantbird/preferences/advanced.js             (preferences/advanced.js)
+*	content/instantbird/preferences/applications.xul        (preferences/applications.xul)
+*	content/instantbird/preferences/applications.js         (preferences/applications.js)
+*	content/instantbird/preferences/applicationManager.xul  (preferences/applicationManager.xul)
+*	content/instantbird/preferences/applicationManager.js   (preferences/applicationManager.js)
+*	content/instantbird/preferences/colors.xul              (preferences/colors.xul)
+*	content/instantbird/preferences/content.xul             (preferences/content.xul)
+*	content/instantbird/preferences/content.js              (preferences/content.js)
+*	content/instantbird/preferences/connection.xul          (preferences/connection.xul)
+*	content/instantbird/preferences/connection.js           (preferences/connection.js)
+*	content/instantbird/preferences/handlers.xml            (preferences/handlers.xml)
+*	content/instantbird/preferences/handlers.css            (preferences/handlers.css)
+*	content/instantbird/preferences/main.xul                (preferences/main.xul)
+*	content/instantbird/preferences/main.js                 (preferences/main.js)
+*	content/instantbird/preferences/preferences.xul         (preferences/preferences.xul)
+*	content/instantbird/preferences/privacy.xul             (preferences/privacy.xul)
+*	content/instantbird/preferences/privacy.js              (preferences/privacy.js)
+*	content/instantbird/preferences/themes.xul              (preferences/themes.xul)
+	content/instantbird/preferences/themes.js               (preferences/themes.js)
+*	content/instantbird/preferences/tabs.xul                (preferences/tabs.xul)
+	content/instantbird/preferences/tabs.js                 (preferences/tabs.js)
+	content/instantbird/preferences/messagestyle.js	        (preferences/messagestyle.js)
+	content/instantbird/preferences/smileys.js		(preferences/smileys.js)
+	content/instantbird/preferences/smiley.css		(preferences/smiley.css)
+	content/instantbird/preferences/smiley.xml		(preferences/smiley.xml)
 
 #ifdef DEBUG
 debug.jar:
-% content debug %debug/
+% content debug %content/debug/
 % overlay chrome://instantbird/content/menus.xul chrome://debug/content/debug.xul
 % overlay chrome://instantbird/content/instantbird.xul chrome://debug/content/viewselectionsource.xul
-	debug/debug.js	(debug/debug.js)
-	debug/debug.xul	(debug/debug.xul)
-	debug/viewselectionsource.xul (debug/viewselectionsource.xul)
-% content fake %fake/
+	content/debug/debug.js	(debug/debug.js)
+	content/debug/debug.xul	(debug/debug.xul)
+	content/debug/viewselectionsource.xul (debug/viewselectionsource.xul)
+% content fake %content/fake/
 % overlay chrome://instantbird/content/blist.xul chrome://fake/content/fake.xul
-	fake/fake.js (debug/fake/fake.js)
-	fake/fake.xul (debug/fake/fake.xul)
+	content/fake/fake.js (debug/fake/fake.js)
+	content/fake/fake.xul (debug/fake/fake.xul)
 #endif
