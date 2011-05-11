@@ -13,7 +13,7 @@
          with minimum and maximum supported versions. -->
     <em:targetApplication>
       <Description>
-        <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
+        <em:id>{33cb9019-c295-46dd-be21-8c4936574bee}</em:id>
         <em:minVersion>@INSTANTBIRD_VERSION@</em:minVersion>
         <em:maxVersion>@INSTANTBIRD_VERSION@</em:maxVersion>
       </Description>
