@@ -43,6 +43,8 @@ const events = ["contact-availability-changed",
                 "status-changed",
                 "tag-hidden",
                 "tag-shown",
+                "user-display-name-changed",
+                "user-icon-changed",
                 "purple-quit"];
 
 const showOfflineBuddiesPref = "messenger.buddies.showOffline";
@@ -124,8 +126,7 @@ buddyListContextMenu.prototype = {
     else
       return;
 
-    let bundle =
-      Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
+    let bundle = document.getElementById("instantbirdBundle").stringBundle;
     let displayName = this.target.displayName;
     let promptTitle = bundle.formatStringFromName("buddy.deletePrompt.title",
                                                   [displayName], 1);
@@ -180,8 +181,7 @@ buddyListContextMenu.prototype = {
       this.target.moveTo(item.groupId);
   },
   moveToNewTag: function blcm_moveToNewTag() {
-    let bundle =
-      Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
+    let bundle = document.getElementById("instantbirdBundle").stringBundle;
     let title = bundle.GetStringFromName("newGroupPromptTitle");
     let message = bundle.GetStringFromName("newGroupPromptMessage");
     let name = {};
@@ -321,6 +321,16 @@ var buddyList = {
       return;
     }
 
+    if (aTopic == "user-icon-changed") {
+      this.displayUserIcon();
+      return;
+    }
+
+    if (aTopic == "user-display-name-changed") {
+      this.displayUserDisplayName();
+      return;
+    }
+
     // aSubject is an imIContact
     if (aSubject.online || this._showOffline) {
       aSubject.getTags().forEach(function (aTag) {
@@ -330,6 +340,24 @@ var buddyList = {
           this.displayGroup(aTag);
       }, this);
     }
+  },
+
+  displayUserIcon: function bl_displayUserIcon() {
+    let icon = Services.core.getUserIcon();
+    document.getElementById("userIcon").src = icon ? icon.spec : "";
+  },
+
+  displayUserDisplayName: function bl_displayUserDisplayName() {
+    let displayName = Services.core.userDisplayName;
+    let elt = document.getElementById("displayName");
+    if (displayName)
+      elt.removeAttribute("usingDefault");
+    else {
+      let bundle = document.getElementById("instantbirdBundle");
+      displayName = bundle.getString("displayNameEmptyText");
+      elt.setAttribute("usingDefault", displayName);
+    }
+    elt.setAttribute("value", displayName);
   },
 
   displayStatusType: function bl_displayStatusType(aStatusType) {
@@ -469,6 +497,78 @@ var buddyList = {
     elt.removeEventListener("blur", this.statusMessageBlur, false);
   },
 
+  userIconClick: function bl_userIconClick() {
+    const nsIFilePicker = Components.interfaces.nsIFilePicker;
+    let fp = Components.classes["@mozilla.org/filepicker;1"]
+                       .createInstance(nsIFilePicker);
+    let bundle = document.getElementById("instantbirdBundle");
+    fp.init(window, bundle.getString("userIconFilePickerTitle"),
+            nsIFilePicker.modeOpen);
+    fp.appendFilters(nsIFilePicker.filterImages);
+    if (fp.show() == nsIFilePicker.returnOK)
+      Services.core.setUserIcon(fp.file);
+  },
+
+  displayNameClick: function bl_displayNameClick() {
+    let elt = document.getElementById("displayName");
+    if (!elt.hasAttribute("editing")) {
+      elt.setAttribute("editing", "true");
+      if (elt.hasAttribute("usingDefault"))
+        elt.removeAttribute("value");
+      elt.addEventListener("keypress", this.displayNameKeyPress, false);
+      elt.addEventListener("blur", this.displayNameBlur, false);
+      // force binding attachmant by forcing layout
+      elt.getBoundingClientRect();
+      elt.select();
+    }
+
+    this.displayNameRefreshTimer();
+  },
+
+  displayNameRefreshTimer: function bl_displayNameRefreshTimer() {
+    const timeBeforeAutoValidate = 20 * 1000;
+    clearTimeout(this._stopEditDisplayNameTimeout);
+    this._stopEditDisplayNameTimeout =
+      setTimeout(this.finishEditDisplayName, timeBeforeAutoValidate, true);
+  },
+
+  displayNameBlur: function bl_displayNameBlur(aEvent) {
+    if (aEvent.originalTarget == document.getElementById("displayName").inputField)
+      buddyList.finishEditDisplayName(true);
+  },
+
+  displayNameKeyPress: function bl_displayNameKeyPress(aEvent) {
+    switch (aEvent.keyCode) {
+      case aEvent.DOM_VK_RETURN:
+      case aEvent.DOM_VK_ENTER:
+        buddyList.finishEditDisplayName(true);
+        break;
+
+      case aEvent.DOM_VK_ESCAPE:
+        buddyList.finishEditDisplayName(false);
+        break;
+
+      default:
+        buddyList.displayNameRefreshTimer();
+    }
+  },
+
+  finishEditDisplayName: function bl_finishEditDisplayName(aSave) {
+    clearTimeout(this._stopEditDisplayNameTimeout);
+    let elt = document.getElementById("displayName");
+    if (aSave) {
+      // apply the new display name only if it is different from the current one
+      if (elt.value != elt.getAttribute("value"))
+        Services.core.userDisplayName = elt.value;
+    }
+    else if (elt.hasAttribute("usingDefault"))
+      elt.setAttribute("value", elt.getAttribute("usingDefault"));
+
+    elt.removeAttribute("editing");
+    elt.removeEventListener("keypress", this.displayNameKeyPress, false);
+    elt.removeEventListener("blur", this.displayNameBlur, false);
+  },
+
   load: function bl_load() {
     var blistWindows = Services.wm.getEnumerator("Messenger:blist");
     while (blistWindows.hasMoreElements()) {
@@ -486,6 +586,8 @@ var buddyList = {
     statusArea.parentNode.insertBefore(menubar, statusArea);
 
     buddyList.displayCurrentStatus();
+    buddyList.displayUserDisplayName();
+    buddyList.displayUserIcon();
 
     let prefBranch = Services.prefs;
     buddyList._showOffline = prefBranch.getBoolPref(showOfflineBuddiesPref);

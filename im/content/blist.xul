@@ -64,6 +64,8 @@
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
 
+  <stringbundle id="instantbirdBundle" src="chrome://instantbird/locale/instantbird.properties"/>
+
 #include menus.xul.inc
 
 #ifdef XP_MACOSX
@@ -143,20 +145,28 @@
 
   <toolbox id="mainToolbox">
     <toolbar id="statusArea">
-      <button type="menu" id="statusTypeIcon" status="available">
-        <menupopup id="setStatusTypeMenupopup"
-                   oncommand="buddyList.editStatus(event);">
-          <menuitem id="statusTypeAvailable" label="&available;"
-                    status="available" class="menuitem-iconic"/>
-          <menuitem id="statusTypeUnavailable" label="&unavailable;"
-                    status="unavailable" class="menuitem-iconic"/>
-          <menuseparator id="statusTypeOfflineSeparator"/>
-          <menuitem id="statusTypeOffline" label="&offline;"
-                    status="offline" class="menuitem-iconic"/>
-        </menupopup>
-      </button>
-      <label id="statusMessage" flex="1" crop="end" value=""
-             onclick="buddyList.statusMessageClick();"/>
+      <stack id="statusImageStack">
+        <image id="userIcon" onclick="buddyList.userIconClick();"/>
+        <button type="menu" id="statusTypeIcon" status="available">
+          <menupopup id="setStatusTypeMenupopup"
+                     oncommand="buddyList.editStatus(event);">
+            <menuitem id="statusTypeAvailable" label="&available;"
+                      status="available" class="menuitem-iconic"/>
+            <menuitem id="statusTypeUnavailable" label="&unavailable;"
+                      status="unavailable" class="menuitem-iconic"/>
+            <menuseparator id="statusTypeOfflineSeparator"/>
+            <menuitem id="statusTypeOffline" label="&offline;"
+                      status="offline" class="menuitem-iconic"/>
+          </menupopup>
+        </button>
+      </stack>
+      <stack id="displayNameAndstatusMessageStack" flex="1">
+        <vbox flex="1" pack="center">
+          <label id="displayName" onclick="buddyList.displayNameClick();"/>
+        </vbox>
+        <label id="statusMessage" crop="end" value=""
+               onclick="buddyList.statusMessageClick();"/>
+      </stack>
     </toolbar>
   </toolbox>
 

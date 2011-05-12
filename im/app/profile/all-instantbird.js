@@ -99,6 +99,8 @@ pref("messenger.status.reportIdle", true);
 pref("messenger.status.timeBeforeIdle", 300); // 5 minutes
 pref("messenger.status.awayWhenIdle", true);
 pref("messenger.status.defaultIdleAwayMessage", "chrome://instantbird/locale/instantbird.properties");
+pref("messenger.status.userIconFileName", "");
+pref("messenger.status.userDisplayName", "");
 
 pref("messenger.proxies", "");
 pref("messenger.globalProxy", "none");

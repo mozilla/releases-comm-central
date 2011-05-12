@@ -261,10 +261,41 @@ group[closed] .twisty {
 #statusArea {
   margin: 0 0;
   padding: 0 0;
-  -moz-box-align: center;
+}
+
+#displayName {
+  font-size: large;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  margin: 0 0 16px;
+}
+
+#displayName[usingDefault]:not([editing]) {
+  color: GrayText;
+}
+
+#userIcon {
+  border: 2px solid rgba(0,0,0,0.15);
+  -moz-border-radius: 5px;
+  max-width: 48px;
+  max-height: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+#userIcon[src=""] {
+  background-image: url("chrome://branding/content/icon64.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+#userIcon:hover {
+  border-color: rgba(0,0,0,0.35);
+  background-color: rgba(0,0,0,0.35);
+  opacity: .4;
 }
 
 #statusTypeIcon {
+  margin: 32px 0 0 32px;
   width: 16px;
   height: 16px;
   min-height: 16px;
@@ -272,7 +303,11 @@ group[closed] .twisty {
   -moz-appearance: none;
   background-color: transparent;
   border: none;
-  margin: 3px 5px;
+}
+
+#statusImageStack,
+#displayNameAndstatusMessageStack {
+  margin: 3px 2px;
 }
 
 #statusTypeIcon dropmarker {
@@ -309,22 +344,37 @@ group[closed] .twisty {
 
 %ifdef XP_MACOSX
 #statusMessage {
-  margin: 0 0;
+  margin: 32px 0 0;
+  min-height: 16px;
 }
 
 #statusMessage[editing] {
-  margin: 0 2px 0 -4px;
+  margin: 29px 2px 0 -4px;
+}
+
+#displayName[editing] {
+  margin-left: -4px;
 }
 %else
 #statusMessage {
-  margin: 3px 0;
+  margin: 32px 0 0;
 }
 
 #statusMessage[editing] {
 %ifdef XP_WIN
-  margin: 0 1px 0 -2px;
+  margin: 30px 0 1px -2px;
 %else
-  margin: 0 0 0 -4px;
+  margin: 30px -2px -2px -4px;
 %endif
+}
+
+#displayName[editing] {
+%ifdef XP_WIN
+  margin-left: -2px;
+%else
+  margin-left: -4px;
+  margin-right: -2px;
+%endif
+  margin-bottom: 18px;
 }
 %endif
