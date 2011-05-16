@@ -556,11 +556,9 @@ var buddyList = {
   finishEditDisplayName: function bl_finishEditDisplayName(aSave) {
     clearTimeout(this._stopEditDisplayNameTimeout);
     let elt = document.getElementById("displayName");
-    if (aSave) {
-      // apply the new display name only if it is different from the current one
-      if (elt.value != elt.getAttribute("value"))
-        Services.core.userDisplayName = elt.value;
-    }
+    // Apply the new display name only if it is different from the current one.
+    if (aSave && elt.value != elt.getAttribute("value"))
+      Services.core.userDisplayName = elt.value;
     else if (elt.hasAttribute("usingDefault"))
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
 
