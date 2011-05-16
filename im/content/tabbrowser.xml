@@ -1462,6 +1462,14 @@
                           this._prefObserver, false);
 
           window.addEventListener("resize", this, false);
+#ifdef XP_MACOSX
+
+          if (!("WindowDraggingElement" in window))
+            Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
+          let draghandle = new WindowDraggingElement(this.mTabstrip, window);
+          draghandle.mouseDownCheck =
+            function(aEvent) aEvent.originalTarget.localName != "tab";
+#endif
         ]]>
       </constructor>
 
