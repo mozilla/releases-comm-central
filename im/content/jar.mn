@@ -43,7 +43,6 @@ instantbird.jar:
 	content/instantbird/proxies.xul
 	content/instantbird/proxies.css
 	content/instantbird/proxy.xml
-	content/instantbird/sound.js
 *	content/instantbird/tabbrowser.xml
 	content/instantbird/tabbrowser.css
 	content/instantbird/utilities.js

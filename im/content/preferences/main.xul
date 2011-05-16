@@ -56,7 +56,8 @@
 
     <preferences id="mainPreferences">
       <preference id="messenger.startup.action"     name="messenger.startup.action"     type="int"/>
-      <preference id="messenger.options.playSounds" name="messenger.options.playSounds" type="bool"/>
+      <preference id="messenger.options.playSounds.blist"   name="messenger.options.playSounds.blist"   type="bool"/>
+      <preference id="messenger.options.playSounds.message" name="messenger.options.playSounds.message" type="bool"/>
       <preference id="messenger.options.getAttentionOnNewMessages" name="messenger.options.getAttentionOnNewMessages" type="bool"/>
 #ifdef XP_MACOSX
       <preference id="messenger.options.showUnreadCountInDock" name="messenger.options.showUnreadCountInDock" type="bool"/>
@@ -122,9 +123,12 @@
 
     <groupbox id="soundsGroup">
       <caption label="&sounds.label;"/>
-      <checkbox id="playSounds" label="&playSounds.label;"
-                accesskey="&playSounds.accesskey;"
-                preference="messenger.options.playSounds"/>
+      <checkbox id="playSoundsMessage" label="&playSoundsMessage.label;"
+                accesskey="&playSoundsMessage.accesskey;"
+                preference="messenger.options.playSounds.message"/>
+      <checkbox id="playSoundsBlist" label="&playSoundsBlist.label;"
+                accesskey="&playSoundsBlist.accesskey;"
+                preference="messenger.options.playSounds.blist"/>
     </groupbox>
 
 #ifndef XP_MACOSX

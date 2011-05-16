@@ -65,7 +65,8 @@ pref("messenger.options.showUnreadCountInDock", true);
 #else
 pref("extensions.mintrayr.minimizeon", 2);
 #endif
-pref("messenger.options.playSounds", true);
+pref("messenger.options.playSounds.message", true);
+pref("messenger.options.playSounds.blist", false);
 
 // this preference changes how we filter incoming messages
 // 0 = no formattings

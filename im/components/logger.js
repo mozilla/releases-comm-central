@@ -43,6 +43,7 @@
 #endif
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource:///modules/hiddenWindow.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -130,9 +131,7 @@ ConversationLog.prototype = {
   },
   _serialize: function cl_serialize(aString) {
     // TODO cleanup once bug 102699 is fixed
-    let doc = Cc["@mozilla.org/appshell/appShellService;1"]
-               .getService(Ci.nsIAppShellService)
-               .hiddenDOMWindow.document;
+    let doc = getHiddenHTMLWindow().document;
     let div = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
     div.innerHTML = aString.replace(/\r?\n/g, "<br/>").replace(/<br>/gi, "<br/>");
     const type = "text/plain";

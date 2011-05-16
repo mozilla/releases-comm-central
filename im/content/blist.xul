@@ -62,7 +62,6 @@
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
-  <script type="application/javascript" src="chrome://instantbird/content/sound.js"/>
 
   <stringbundle id="instantbirdBundle" src="chrome://instantbird/locale/instantbird.properties"/>
 

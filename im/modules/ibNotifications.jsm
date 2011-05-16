@@ -39,6 +39,7 @@ const EXPORTED_SYMBOLS = ["Notifications"];
 
 Components.utils.import("resource:///modules/imServices.jsm");
 Components.utils.import("resource:///modules/imWindows.jsm");
+Components.utils.import("resource:///modules/hiddenWindow.jsm");
 
 var Notifications = {
   get ellipsis () {
@@ -53,20 +54,16 @@ var Notifications = {
   },
 
   _showMessageNotification: function (aMessage) {
-    // Get the hidden window. We need it to create a DOM node.
-    let win = Components.classes["@mozilla.org/appshell/appShellService;1"]
-                        .getService(Components.interfaces.nsIAppShellService)
-                        .hiddenDOMWindow;
-
-    // Put the message content into a div node.
-    let xhtmlElement = win.document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+    // Put the message content into a div node of the hidden HTML window.
+    let doc = getHiddenHTMLWindow().document;
+    let xhtmlElement = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
     xhtmlElement.innerHTML = aMessage.message.replace(/<br>/gi, "<br/>");
 
     // Convert the div node content to plain text.
     let encoder =
       Components.classes["@mozilla.org/layout/documentEncoder;1?type=text/plain"]
                 .createInstance(Components.interfaces.nsIDocumentEncoder);
-    encoder.init(win.document, "text/plain", 0);
+    encoder.init(doc, "text/plain", 0);
     encoder.setNode(xhtmlElement);
     let messageText = encoder.encodeToString().replace(/\s+/g, " ");
 

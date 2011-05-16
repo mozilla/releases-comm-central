@@ -62,6 +62,8 @@
   }, false);
 </script>
 
+<browser id="hiddenBrowser"/>
+
 </window>
 
 #endif

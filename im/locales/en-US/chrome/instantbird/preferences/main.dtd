@@ -21,8 +21,10 @@
 <!ENTITY notifyOfNewMessages.accesskey "N">
 
 <!ENTITY sounds.label                  "Sounds">
-<!ENTITY playSounds.label              "Play sounds on messaging or buddy list events">
-<!ENTITY playSounds.accesskey          "P">
+<!ENTITY playSoundsMessage.label       "Play sounds on messaging events">
+<!ENTITY playSoundsMessage.accesskey   "P">
+<!ENTITY playSoundsBlist.label         "Play sounds on buddy list events">
+<!ENTITY playSoundsBlist.accesskey     "b">
 
 <!ENTITY systray.label                 "System Tray Icon">
 <!ENTITY minimizeToTray.label          "Minimize Contacts window to Tray:">
