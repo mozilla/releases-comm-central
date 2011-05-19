@@ -270,7 +270,9 @@ UIConversation.prototype = {
   // Chat only
   getParticipants: function() this.target.getParticipants(),
   get topic() this.target.topic,
+  set topic(aTopic) { this.target.topic = aTopic; },
   get topicSetter() this.target.topicSetter,
+  get topicSettable() this.target.topicSettable,
   get nick() this.target.nick,
   get left() this.target.left
 };

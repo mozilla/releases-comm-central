@@ -554,6 +554,7 @@ const GenericConvChatPrototype = {
   get nick() this._nick,
   get topic() this._topic,
   get topicSetter() this._topicSetter,
+  get topicSettable() false,
   get left() false,
 
   getParticipants: function() {

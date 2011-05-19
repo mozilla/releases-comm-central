@@ -122,11 +122,15 @@ interface purpleIConvChat: purpleIConversation {
      The list of people participating in this chat */
   nsISimpleEnumerator getParticipants();
 
-  /* The topic of this chat room  (FIXME settable?) */
-  readonly attribute AUTF8String topic;
+  /* The topic of this chat room */
+           attribute AUTF8String topic;
 
   /* The name/nick of the person who set the topic */
   readonly attribute AUTF8String topicSetter;
+
+  /* Whether the protocol plugin can set a topic. Doesn't check that
+     the user has the necessary rights in the current conversation. */
+  readonly attribute boolean topicSettable;
 
   /* The nick seen by other people in the room */
   readonly attribute AUTF8String nick;
