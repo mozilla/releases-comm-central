@@ -423,8 +423,13 @@ const statusMessageReplacements = {
 
 const messageReplacements = {
   userIconPath: function (aMsg) {
+    if (aMsg.outgoing) {
+      let iconURL = Services.core.getUserIcon();
+      if (iconURL)
+        return iconURL.spec;
+    }
     if (!aMsg.incoming)
-      return "Outgoing/buddy_icon.png"; //FIXME
+      return "Outgoing/buddy_icon.png"; // Safe default...
 
     let buddy = getBuddyFromMessage(aMsg);
     return (buddy && buddy.buddyIconFilename) || "Incoming/buddy_icon.png";
