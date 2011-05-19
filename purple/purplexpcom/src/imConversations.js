@@ -143,10 +143,26 @@ UIConversation.prototype = {
       if (!this._statusUpdatePending &&
           aSubject.account.id == this.account.id &&
           aSubject.buddy.id == this.buddy.buddy.id) {
+        this._statusUpdatePending = true;
         Services.tm.mainThread.dispatch(this.updateBuddyStatus.bind(this),
                                         Ci.nsIEventTarget.DISPATCH_NORMAL);
       }
     }
+    else if (aTopic == "account-buddy-icon-changed") {
+      if (!this._statusUpdatePending &&
+          aSubject.account.id == this.account.id &&
+          aSubject.buddy.id == this.buddy.buddy.id) {
+        this._iconUpdatePending = true;
+        Services.tm.mainThread.dispatch(this.updateIcon.bind(this),
+                                        Ci.nsIEventTarget.DISPATCH_NORMAL);
+      }
+    }
+  },
+
+  _iconUpdatePending: false,
+  updateIcon: function() {
+    delete this._iconUpdatePending;
+    this.notifyObservers(this, "update-buddy-icon");
   },
 
   _statusUpdatePending: false,

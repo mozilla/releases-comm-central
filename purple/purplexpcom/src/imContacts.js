@@ -792,6 +792,10 @@ Contact.prototype = {
         if (isPreferredBuddy && !this._alias)
           this._notifyObservers("display-name-changed", aData);
         break;
+      case "buddy-icon-changed":
+        if (isPreferredBuddy)
+          this._notifyObservers("icon-changed");
+        break;
       case "buddy-added":
         // Currently buddies are always added in dummy empty contacts,
         // later we may want to check this._buddies.length == 1.
@@ -1045,6 +1049,10 @@ Buddy.prototype = {
           statement.executeAsync();
           this._notifyObservers("display-name-changed", aData);
         }
+        break;
+      case "account-buddy-icon-changed":
+        if (this._isPreferredAccount(aSubject))
+          this._notifyObservers("icon-changed");
         break;
       case "account-buddy-added":
         if (this._accounts.length == 0) {

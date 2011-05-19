@@ -232,6 +232,7 @@ interface imIContact: imIStatusInfo {
    *     When a real contact is created to replace a dummy contact.
    *     The old (negative) id will be given in aData.
    *     See also the comment above the 'id' attribute.
+   *   contact-icon-changed
    *
    * Observers will also receive all the (forwarded) notifications
    * from the linked buddies (imIBuddy instances) and their account
@@ -281,6 +282,7 @@ interface imIBuddy: imIStatusInfo {
    *     The old display name is provided in aData.
    *   buddy-preferred-account-changed
    *     The account that would be favored to start a conversation has changed.
+   *   buddy-icon-changed
    *
    * Observers will also receive all the (forwarded) notifications
    * from the linked account buddies (imIAccountBuddy instances).
@@ -314,6 +316,7 @@ interface imIBuddy: imIStatusInfo {
  *  account-buddy-display-name-changed
  *    when the serverAlias has changed.
  *    The old display name is provided in aData.
+ *  account-buddy-icon-changed
  *
  * All notifications (even unsupported ones) will be forwarded to the contact,
  * its tags and nsObserverService.
