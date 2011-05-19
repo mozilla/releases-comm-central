@@ -101,10 +101,10 @@
        textbox.addEventListener("overflow", this.inputExpand, true);
        textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
-       document.getAnonymousElementByAttribute(this, "anonid", "splitter-bottom")
-               .addEventListener("DOMAttrModified", this._onSplitterChange, false);
+       this.getElt("splitter-bottom")
+           .addEventListener("DOMAttrModified", this._onSplitterChange, false);
 
-       var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
+       var editor = this.getElt("editor");
        editor.addEventListener("keypress", this.editorKeyPress, false);
        //this doesn't work at the moment
        //editor.contentDocument.designMode = "on";
@@ -428,8 +428,7 @@
         this.calculateTextboxDefaultHeight();
         textbox.parentNode.height = textbox.defaultHeight +
                                     this._TEXTBOX_VERTICAL_OVERHEAD;
-        document.getAnonymousElementByAttribute(textbox, "anonid", "input")
-                .style.overflowY = "hidden";
+        textbox.inputField.style.overflowY = "hidden";
 
         // Delay the initialization of the spellchecker until after
         // the checkbox is initialized, otherwise the spellchecker is
@@ -505,13 +504,12 @@
           let currHeight = parseInt(inputBox.parentNode.height);
           if (inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD > currHeight)
             inputBox.defaultHeight = currHeight - this._TEXTBOX_VERTICAL_OVERHEAD;
-          document.getAnonymousElementByAttribute(this, "anonid", "conv-bottom")
-                  .height = inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+          this.getElt("conv-bottom").height =
+            inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
           overflow = "hidden";
         }
 
-        document.getAnonymousElementByAttribute(inputBox, "anonid", "input")
-                .style.overflowY = overflow;
+        inputBox.inputField.style.overflowY = overflow;
       ]]>
       </body>
      </method>
@@ -526,21 +524,19 @@
           [textbox, conv] = [this.editor, this];
         else
           [textbox, conv] = [this, document.getBindingParent(this)];
-        let input = document.getAnonymousElementByAttribute(textbox, "anonid", "input");
+        let input = textbox.inputField;
 
         // This feature has been disabled, or the user is currently dragging
         // the splitter and the textbox has received an overflow event
         if (!TextboxSize.autoResize ||
-            document.getAnonymousElementByAttribute(conv, "anonid", "splitter-bottom")
-                    .getAttribute("state") == "dragging") {
+            conv.getElt("splitter-bottom").getAttribute("state") == "dragging") {
           input.style.overflowY = "";
           return;
         }
 
         // Check whether we can increase the height without hidding the status bar
         // (ensure the min-height property on the top part of this dialog)
-        let topBox =
-          document.getAnonymousElementByAttribute(conv, "anonid", "conv-top");
+        let topBox = conv.getElt("conv-top");
         let topBoxStyle = window.getComputedStyle(topBox, null);
         let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
         let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
@@ -567,8 +563,7 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        let splitter =
-          document.getAnonymousElementByAttribute(this, "anonid", "splitter-bottom");
+        let splitter = this.getElt("splitter-bottom");
         let textbox = this.editor;
 
         if (!splitter.hasAttribute("state")) {
@@ -579,8 +574,7 @@
         else {
           // Used in case the browser is already on its min-height, resize the
           // textbox to avoid hidding the status bar.
-          let convTop =
-            document.getAnonymousElementByAttribute(this, "anonid", "conv-top");
+          let convTop = this.getElt("conv-top");
           let convTopStyle = window.getComputedStyle(convTop, null);
           let convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
           let convTopMinHeight =
@@ -604,10 +598,8 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        if (TextboxSize.autoResize) {
-          document.getAnonymousElementByAttribute(this, "anonid", "input")
-                  .style.overflowY = "hidden";
-        }
+        if (TextboxSize.autoResize)
+          this.inputField.style.overflowY = "hidden";
       ]]>
       </body>
      </method>
@@ -647,8 +639,7 @@
       <parameter name="aHtml"/>
       <body>
       <![CDATA[
-        var editor = document.getAnonymousElementByAttribute(this, "anonid", "editor");
-        editor.contentDocument.execCommand(aCmd, false, aHtml);
+        this.getElt("editor").contentDocument.execCommand(aCmd, false, aHtml);
       ]]>
       </body>
      </method>
@@ -730,7 +721,7 @@
      <method name="updateParticipantCount">
        <body>
        <![CDATA[
-         document.getAnonymousElementByAttribute(this, "anonid", "participantCount").value =
+         this.getElt("participantCount").value =
            Object.keys(this.buddies).length;
        ]]>
        </body>
@@ -814,7 +805,7 @@
        <parameter name="aListItem"/>
        <body>
        <![CDATA[
-         var nicklist = document.getAnonymousElementByAttribute(this, "anonid", "nicklist");
+         var nicklist = this.getElt("nicklist");
          var nick = aListItem.getAttribute("label").toLowerCase();
 
          // Look for the place of the nick in the list
@@ -867,8 +858,7 @@
          item.setAttribute("label", name);
 
          // Move this item to the right position if its name changed
-         var nicklist = document.getAnonymousElementByAttribute(this, "anonid", "nicklist");
-         nicklist.removeChild(item);
+         this.getElt("nicklist").removeChild(item);
          this.addNick(item);
        ]]>
        </body>
@@ -891,7 +881,7 @@
        <![CDATA[
           var topic = this._conv.topic;
           if (topic) {
-            var box = document.getAnonymousElementByAttribute(this, "anonid", "convNotificationBox");
+            var box = this.getElt("convNotificationBox");
             var notification = box.getNotificationWithValue("topic");
             if (notification) {
               notification.label = topic;
@@ -968,6 +958,15 @@
        </body>
      </method>
 
+     <method name="getElt">
+       <parameter name="aAnonId"/>
+       <body>
+       <![CDATA[
+         return document.getAnonymousElementByAttribute(this, "anonid", aAnonId);
+       ]]>
+       </body>
+     </method>
+
      <method name="updateConvStatus">
        <body>
        <![CDATA[
@@ -1014,10 +1013,8 @@
 
            // Set an id on the participant count for accessibility reasons (see bug 216)
            let id = "pc" + Date.now();
-           document.getAnonymousElementByAttribute(this, "anonid", "participantLabel")
-                   .setAttribute("control", id);
-           document.getAnonymousElementByAttribute(this, "anonid", "participantCount")
-                   .setAttribute("id", id);
+           this.getElt("participantLabel").setAttribute("control", id);
+           this.getElt("participantCount").setAttribute("id", id);
 
            // Populate the nicklist
            this.buddies = {};
@@ -1171,9 +1168,7 @@
      <property name="isHtmlMode">
        <getter>
          <![CDATA[
-           var editorIndex = document.getAnonymousElementByAttribute(this, "anonid", "conv-bottom")
-                                     .selectedIndex;
-           return (editorIndex == "0");
+           return (this.getElt("conv-bottom").selectedIndex == "0");
          ]]>
        </getter>
      </property>
@@ -1182,33 +1177,16 @@
      <property name="editor">
        <getter>
          <![CDATA[
-          if (!this._editor) {
-            let anonid = this.isHtmlMode ? "editor" : "inputBox";
-            this._editor =
-              document.getAnonymousElementByAttribute(this, "anonid", anonid);
-          }
+          if (!this._editor)
+            this._editor = this.getElt(this.isHtmlMode ? "editor" : "inputBox");
           return this._editor;
          ]]>
        </getter>
      </property>
 
-     <property name="browser">
-       <getter>
-         <![CDATA[
-          return document.getAnonymousElementByAttribute(this, "anonid", "browser");
-         ]]>
-       </getter>
-     </property>
-
+     <property name="browser" onget="return this.getElt('browser');"/>
      <property name="contentWindow" onget="return this.browser.contentWindow;"/>
-
-     <property name="findbar">
-       <getter>
-         <![CDATA[
-          return document.getAnonymousElementByAttribute(this, "anonid", "FindToolbar");
-         ]]>
-       </getter>
-     </property>
+     <property name="findbar" onget="return this.getElt('FindToolbar');"/>
 
      <property name="bundle">
        <getter>
