@@ -122,7 +122,9 @@ tab[attention],
   list-style-image: url("chrome://instantbird/skin/available-16.png") !important;
 }
 .tabbrowser-tab[status="away"],
-.alltabs-item[status="away"] > .menu-iconic-left > .menu-iconic-icon {
+.tabbrowser-tab[status="unavailable"],
+.alltabs-item[status="away"] > .menu-iconic-left > .menu-iconic-icon,
+.alltabs-item[status="unavailable"] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://instantbird/skin/away-16.png") !important;
 }
 .tabbrowser-tab[status="idle"],

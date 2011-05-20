@@ -47,6 +47,191 @@
   min-height: 115px;
 }
 
+.conv-top-info {
+  margin: 0 0;
+  padding: 0 0;
+  border-style: none;
+  -moz-appearance: none;
+%ifdef XP_MACOSX
+  background-color: -moz-mac-chrome-active;
+  background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+}
+
+.conv-top-info:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: rgba(0, 0, 0, 0.32);
+%else
+  background-color: -moz-Dialog;
+%ifdef XP_WIN
+  background-image: -moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+%else
+  background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
+%endif
+  border-bottom: 1px solid ThreeDShadow;
+%endif
+}
+
+.userIcon {
+  border: 2px solid rgba(0,0,0,0.15);
+  -moz-border-radius: 5px;
+  max-width: 48px;
+  max-height: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.userIcon:not([src]) {
+  display: none;
+}
+
+.userIcon[src=""] {
+  background-image: url("chrome://branding/content/icon64.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.statusTypeIcon {
+  margin: 0 0;
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: none;
+}
+
+.statusTypeIcon[status="unknown"] {
+  list-style-image: url('chrome://instantbird/skin/unknown-16.png');
+}
+
+.statusTypeIcon[status="chat"] {
+  list-style-image: url('chrome://instantbird/skin/chat-16.png');
+}
+
+.statusTypeIcon[status="available"] {
+  list-style-image: url('chrome://instantbird/skin/available-16.png');
+}
+
+.statusTypeIcon[status="unavailable"],
+.statusTypeIcon[status="away"] {
+  list-style-image: url('chrome://instantbird/skin/away-16.png');
+}
+
+.statusTypeIcon[status="offline"],
+.statusTypeIcon[status="invisible"] {
+  list-style-image: url('chrome://instantbird/skin/offline-16.png');
+}
+
+.statusTypeIcon[status="idle"] {
+  list-style-image: url('chrome://instantbird/skin/idle-16.png');
+}
+
+.statusMessage {
+  margin: 0 0 !important;
+%ifdef XP_MACOSX
+  min-height: 16px;
+%endif
+}
+
+.statusMessage[editable],
+.statusMessage[editable] + .statusMessageWithDash {
+  cursor: text !important;
+}
+
+.statusMessage[editing] {
+  -moz-appearance: textfield;
+  -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
+}
+
+@media all and (min-height: 401px) {
+  .statusImageStack,
+  .displayNameAndstatusMessageStack {
+    margin: 2px 2px;
+  }
+
+  .statusMessage {
+    margin-top: 32px !important;
+  }
+
+  .statusMessage[editing] {
+%ifdef XP_MACOSX
+    margin: 29px 0 -1px -4px !important;
+%else
+%ifdef XP_WIN
+    margin: 28px 0 -1px -2px !important;
+%else
+    margin: 31px 0 -2px -4px !important;
+%endif
+%endif
+  }
+
+  .displayName {
+    font-size: large;
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+    margin: 0 0 16px !important;
+  }
+
+  .statusMessageWithDash {
+    display: none;
+  }
+
+  .statusTypeIcon {
+    margin: 32px 0 0;
+  }
+
+  .userIcon[src] + .statusTypeIcon {
+    margin-left: 32px;
+  }
+}
+
+@media all and (max-height: 400px) {
+  .statusImageStack,
+  .displayNameAndstatusMessageStack {
+    margin: 0 0;
+  }
+
+  .displayName,
+  .statusMessageWithDash {
+    margin: 2px 0 !important;
+  }
+
+  .userIcon,
+  .statusMessage:not([editing]),
+  .statusMessage[editing] + .statusMessageWithDash {
+    display: none;
+  }
+
+  .statusMessage[editing] {
+%ifdef XP_WIN
+    margin: -3px 2px -1px 8px !important;
+%else
+    margin: -3px 0 -1px 9px !important;
+%endif
+  }
+
+  .statusTypeIcon {
+    margin: 1px 3px;
+  }
+
+  .statusImageStack {
+    display: -moz-box;
+    -moz-box-align: center;
+  }
+
+  .displayNameAndstatusMessageStack {
+    display: -moz-box;
+    -moz-box-align: baseline;
+  }
+}
+
+@media all and (max-height: 230px) {
+  .conv-top-info {
+    display: none;
+  }
+}
+
 .conv-messages {
   min-width: 150px;
 %ifndef XP_MACOSX

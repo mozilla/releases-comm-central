@@ -43,9 +43,6 @@
 <!ENTITY about.accesskey    "A">
 <!ENTITY conversation.contextMenu.close "Close Tab">
 <!ENTITY chat.participants  "Participants:">
-<!ENTITY topicBar.tooltip   "Double click to change topic">
-<!ENTITY topicBar.button.label        "Change">
-<!ENTITY topicBar.button.accesskey    "C">
 
 <!ENTITY errorConsoleCmd.label        "Error Console">
 <!ENTITY errorConsoleCmd.accesskey    "C">

@@ -53,6 +53,24 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
+        <xul:toolbar class="conv-top-info">
+          <xul:stack anonid="statusImageStack" class="statusImageStack">
+            <xul:image anonid="userIcon" class="userIcon"/>
+            <xul:image anonid="statusTypeIcon" class="statusTypeIcon"/>
+          </xul:stack>
+          <xul:stack class="displayNameAndstatusMessageStack" flex="1">
+            <xul:vbox flex="1" pack="center">
+              <xul:description anonid="displayName" class="displayName"
+                               crop="end"/>
+            </xul:vbox>
+            <xul:description anonid="statusMessage" class="statusMessage"
+                             crop="end" flex="100000" value=""/>
+            <xul:description anonid="statusMessageWithDash"
+                             class="statusMessageWithDash"
+                             crop="end" flex="100000" value=""/>
+          </xul:stack>
+        </xul:toolbar>
+
         <xul:hbox class="conv-top" flex="1" anonid="conv-top">
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1">
             <xul:vbox flex="1">
@@ -880,15 +898,92 @@
        <body>
        <![CDATA[
           var topic = this._conv.topic;
+          let statusMessage = this.getElt("statusMessage");
+          statusMessage.setAttribute("value", topic);
+          if (this._conv.topicSettable)
+            statusMessage.setAttribute("editable", "true");
+          else
+            statusMessage.removeAttribute("editable");
+
+          let statusMessageWithDash = this.getElt("statusMessageWithDash");
           if (topic) {
-            var box = this.getElt("convNotificationBox");
-            var notification = box.getNotificationWithValue("topic");
-            if (notification) {
-              notification.label = topic;
-              return;
-            }
-            box.appendNotification(topic, "topic", null, box.PRIORITY_INFO_LOW, []);
+            statusMessage.setAttribute("tooltiptext", topic);
+            statusMessageWithDash.setAttribute("tooltiptext", topic);
+            topic = " - " + topic;
           }
+          else {
+            statusMessage.removeAttribute("tooltiptext");
+            statusMessageWithDash.removeAttribute("tooltiptext");
+          }
+          statusMessageWithDash.setAttribute("value", topic);
+       ]]>
+       </body>
+     </method>
+
+     <method name="finishEditTopic">
+       <parameter name="aSave"/>
+       <body>
+       <![CDATA[
+         let elt = this.getElt("statusMessage");
+         if (aSave) {
+           // apply the new topic only if it is different from the current one
+           if (elt.value != elt.getAttribute("value"))
+             this._conv.topic = elt.value;
+         }
+         elt.removeAttribute("editing");
+         elt.removeEventListener("keypress", this._topicKeyPress, true);
+         delete this._topicKeyPress;
+         elt.removeEventListener("blur", this._topicBlur, false);
+         delete this._topicBlur;
+       ]]>
+       </body>
+     </method>
+
+     <method name="topicKeyPress">
+       <parameter name="aEvent"/>
+       <body>
+       <![CDATA[
+         switch (aEvent.keyCode) {
+           case aEvent.DOM_VK_RETURN:
+           case aEvent.DOM_VK_ENTER:
+             this.finishEditTopic(true);
+             break;
+
+           case aEvent.DOM_VK_ESCAPE:
+             this.finishEditTopic(false);
+             aEvent.stopPropagation();
+             aEvent.preventDefault();
+             break;
+         }
+       ]]>
+       </body>
+     </method>
+
+     <method name="topicBlur">
+       <parameter name="aEvent"/>
+       <body>
+       <![CDATA[
+         if (aEvent.originalTarget == this.getElt("statusMessage").inputField)
+           this.finishEditTopic(true);
+       ]]>
+       </body>
+     </method>
+
+     <method name="startEditTopic">
+       <body>
+       <![CDATA[
+          let elt = this.getElt("statusMessage");
+          if (!elt.hasAttribute("editable") || elt.hasAttribute("editing"))
+            return;
+
+          elt.setAttribute("editing", "true");
+          this._topicKeyPress = this.topicKeyPress.bind(this);
+          elt.addEventListener("keypress", this._topicKeyPress, false);
+          this._topicBlur = this.topicBlur.bind(this);
+          elt.addEventListener("blur", this._topicBlur, false);
+          // force binding attachmant by forcing layout
+          elt.getBoundingClientRect();
+          elt.select();
        ]]>
        </body>
      </method>
@@ -977,6 +1072,10 @@
               this.tab.removeAttribute("status");
           }
           else {
+            let displayName = this._conv.title;
+            let statusText = "";
+            let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
+
             let buddy = this._conv.buddy;
             if (!buddy || !buddy.account.connected) {
               this.tab.removeAttribute("status");
@@ -988,16 +1087,23 @@
               this._statusText = "";
               this.displayStatusText();
             }
-            else if (!buddy.online)
-              this.tab.setAttribute("status", "offline");
-            else if (buddy.idle)
-              this.tab.setAttribute("status", "idle");
-            else if (buddy.mobile)
-              this.tab.setAttribute("status", "mobile");
-            else if (buddy.available)
-              this.tab.setAttribute("status", "available");
-            else
-              this.tab.setAttribute("status", "away");
+            else {
+              displayName = buddy.displayName;
+              statusText = buddy.statusText;
+              statusType = buddy.statusType;
+              this.tab.setAttribute("status", Status.toAttribute(statusType));
+              this.getElt("userIcon").src = buddy.buddyIconFilename;
+            }
+
+            this.getElt("displayName").setAttribute("value", displayName);
+            if (statusText)
+              statusText = " - " + statusText;
+            this.getElt("statusMessageWithDash").setAttribute("value", statusText);
+            let statusString = Status.toLabel(statusType);
+            this.getElt("statusMessage").setAttribute("value", statusString + statusText);
+            let statusTypeIcon = this.getElt("statusTypeIcon");
+            statusTypeIcon.setAttribute("status", Status.toAttribute(statusType));
+            statusTypeIcon.setAttribute("tooltiptext", statusString);
           }
        ]]>
        </body>
@@ -1010,6 +1116,14 @@
            this.updateTopic();
            this.setAttribute("chat", "true");
            this.tab.setAttribute("chat", "true");
+
+           this.getElt("displayName").setAttribute("value", this._conv.title);
+           this.getElt("statusTypeIcon").setAttribute("status", "chat");
+           let startEditTopic = this.startEditTopic.bind(this);
+           this.getElt("statusMessage")
+               .addEventListener("click", startEditTopic, false);
+           this.getElt("statusMessageWithDash")
+               .addEventListener("click", startEditTopic, false);
 
            // Set an id on the participant count for accessibility reasons (see bug 216)
            let id = "pc" + Date.now();
@@ -1024,6 +1138,8 @@
            this.updateParticipantCount();
          }
 
+         if (!("Status" in window))
+           Components.utils.import("resource:///modules/imStatusUtils.jsm");
          this.updateConvStatus();
          this.initTextboxFormat();
        ]]>
@@ -1058,17 +1174,15 @@
            this.updateTyping();
            break;
 
-         case "update-buddy-status":
-         case "update-conv-chatleft":
-           this.updateConvStatus();
-           break;
-
          case "target-purple-conversation-changed":
-           this.updateConvStatus();
-           // We want to update the tab title too, so no 'break' here.
          case "update-conv-title":
            if (this.tab)
              this.tab.setAttribute("label", this.conv.title);
+           // Update the status too.
+         case "update-buddy-status":
+         case "update-buddy-icon":
+         case "update-conv-chatleft":
+           this.updateConvStatus();
            break;
 
          case "chat-buddy-add":

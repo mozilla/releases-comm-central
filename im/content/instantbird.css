@@ -42,12 +42,3 @@ conversation {
 browser[type="content-conversation"] {
   -moz-binding: url("chrome://instantbird/content/convbrowser.xml#browser");
 }
-
-notification[value="topic"] {
-  -moz-binding: url("chrome://instantbird/content/topicNotification.xml#topicnotification");
-}
-
-notification[value="topic"] deck[selectedIndex="0"] > :nth-child(2) *,
-notification[value="topic"] deck[selectedIndex="1"] > :nth-child(1) * {
-  display: none;
-}

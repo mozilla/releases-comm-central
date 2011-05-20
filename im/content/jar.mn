@@ -19,7 +19,6 @@ instantbird.jar:
 	content/instantbird/buddytooltip.xml
 	content/instantbird/browserRequest.js
 	content/instantbird/browserRequest.xul
-	content/instantbird/topicNotification.xml
 	content/instantbird/contact.xml
 *	content/instantbird/conversation.xml
 	content/instantbird/convbrowser.xml
