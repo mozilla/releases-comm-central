@@ -331,7 +331,7 @@ toolbarbutton > .toolbarbutton-icon {
   margin: 3px 0;
 }
 
-.tabs-alltabs-button > .toolbarbutton-text
+.tabs-alltabs-button > .toolbarbutton-text,
 .tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
   display: none;
 }
