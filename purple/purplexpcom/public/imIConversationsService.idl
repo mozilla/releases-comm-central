@@ -43,6 +43,9 @@ interface imIConversation: purpleIConversation {
   // Will be null for MUCs and IMs from people not in the contacts list.
   readonly attribute imIContact contact;
 
+  // Write a system message into the conversation.
+  void systemMessage(in AUTF8String aMessage);
+
   attribute purpleIConversation target;
 };
 

@@ -36,6 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource:///modules/imServices.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -44,6 +45,10 @@ const Cr = Components.results;
 XPCOMUtils.defineLazyServiceGetter(this, "obs",
                                    "@mozilla.org/observer-service;1",
                                    "nsIObserverService");
+
+XPCOMUtils.defineLazyGetter(this, "bundle", function()
+  Services.strings.createBundle("chrome://purple/locale/commands.properties")
+);
 
 function CommandsService() { }
 CommandsService.prototype = {
@@ -54,6 +59,57 @@ CommandsService.prototype = {
       priority: Ci.imICommand.PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
         aConv.sendMsg(aMsg);
+        return true;
+      }
+    });
+
+    this.registerCommand({
+      // Reference the command service so we can use the internal properties
+      // directly.
+      cmdSrv: this,
+
+      name:"help",
+      priority: Ci.imICommand.PRIORITY_DEFAULT,
+      run: function(aMsg, aConv) {
+        let conv = Services.conversations.getUIConversation(aConv);
+        if (!conv)
+          return false;
+
+        // Handle when no command is given, list all possible commands that are
+        // available for this conversation (alphabetically).
+        if (!aMsg) {
+          let commands = this.cmdSrv.listCommands(aConv, {});
+          if (!commands.length)
+            return false;
+
+          // Concatenate the command names (separated by a comma and space).
+          let cmds = commands.map(function(aCmd) aCmd.name).sort().join(", ");
+          let message = bundle.formatStringFromName("commands", [cmds], 1);
+
+          // Display the message
+          conv.systemMessage(message);
+          return true;
+        }
+
+        // A command name was given, find the commands that match.
+        let cmdArray = this.cmdSrv._findCommands(aConv, aMsg);
+
+        if (!cmdArray.length) {
+          // No command that matches.
+          let message = bundle.formatStringFromName("noCommand", [aMsg], 1);
+          conv.systemMessage(message);
+          return true;
+        }
+
+        // Only show the help for the one of the highest priority.
+        let cmd = cmdArray[0];
+
+        let text = cmd.helpString;
+        if (!text)
+          text = bundle.formatStringFromName("noHelp", [cmd.name], 1);
+
+        // Display the message.
+        conv.systemMessage(text);
         return true;
       }
     });
@@ -94,6 +150,25 @@ CommandsService.prototype = {
     commandCount.value = result.length;
     return result;
   },
+  _findCommands: function(aConversation, aName) {
+    if (!(this._commands.hasOwnProperty(aName)))
+      return [];
+
+    // Get the 2 possible commands (the global and the proto specific)
+    let cmdArray = [];
+    let commands = this._commands[aName];
+    if (commands.hasOwnProperty(""))
+      cmdArray.push(commands[""]);
+
+    if (aConversation) {
+      let prplId = aConversation.account.protocol.id;
+      if (commands.hasOwnProperty(prplId))
+        cmdArray.push(commands[prplId]);
+    }
+
+    // Sort the matching commands by priority before returning the array.
+    return cmdArray.sort(function(a, b) b.priority - a.priority);
+  },
   executeCommand: function (aMessage, aConversation) {
     if (!aMessage)
       throw Cr.NS_ERROR_INVALID_ARG;
@@ -104,24 +179,14 @@ CommandsService.prototype = {
       return false;
 
     let [, name, args] = matchResult;
-    if (!(this._commands.hasOwnProperty(name)))
+
+    let cmdArray = this._findCommands(aConversation, name);
+    if (!cmdArray.length)
       return false;
 
-    // Get the 2 possible commands (the global and the proto specific)
-    let cmdArray = [];
-    let commands = this._commands[name];
-    if (commands.hasOwnProperty(""))
-      cmdArray.push(commands[""]);
-
-    if (aConversation) {
-      let prplId = aConversation.account.protocol.id;
-      if (commands.hasOwnProperty(prplId))
-        cmdArray.push(commands[prplId]);
-    }
-
-    // Attempt to apply them in order until one succeeds.
-    return cmdArray.sort(function(a, b) b.priority - a.priority)
-                   .some(function (aCmd) aCmd.run(args, aConversation));
+    // cmdArray contains commands sorted by priority, attempt to apply
+    // them in order until one succeeds.
+    return cmdArray.some(function (aCmd) aCmd.run(args, aConversation));
   },
 
   QueryInterface: XPCOMUtils.generateQI([Ci.imICommandsService]),
