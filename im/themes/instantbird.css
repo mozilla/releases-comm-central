@@ -37,11 +37,6 @@
 
 tabbox {
   margin: 0 0;
-%ifdef XP_UNIX
-%ifndef XP_MACOSX
-  margin-top: 3px;
-%endif
-%endif
 }
 
 tabpanels {
