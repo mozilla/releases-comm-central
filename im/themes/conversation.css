@@ -145,6 +145,47 @@
   -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
 }
 
+.alltargets-button {
+  min-width: 16px;
+  padding: 0 0;
+  -moz-appearance: none;
+  border: none;
+}
+
+.alltargets-button > .toolbarbutton-text,
+.alltargets-button > .toolbarbutton-menu-dropmarker {
+  display: none;
+}
+
+.alltargets-button[type="menu"] {
+  cursor: pointer;
+}
+
+.alltargets-item[selected="true"] {
+  font-weight: bold;
+}
+
+.status-overlay-icon[status="away"],
+.status-overlay-icon[status="unavailable"] {
+  list-style-image: url('chrome://instantbird/skin/away.png');
+}
+
+.status-overlay-icon[status="idle"] {
+  list-style-image: url('chrome://instantbird/skin/idle.png');
+}
+
+.status-overlay-icon[status="mobile"] {
+  list-style-image: url('chrome://instantbird/skin/mobile.png');
+}
+
+.status-overlay-icon[status="offline"] {
+  list-style-image: url('chrome://instantbird/skin/offline.png');
+}
+
+.status-overlay-icon[status="unknown"] {
+  list-style-image: url('chrome://instantbird/skin/unknown.png');
+}
+
 @media all and (min-height: 401px) {
   .statusImageStack,
   .displayNameAndstatusMessageStack {
@@ -171,6 +212,11 @@
     font-size: large;
     border-bottom: 1px solid rgba(0,0,0,0.25);
     margin: 0 0 16px !important;
+    padding-right: 20px;
+  }
+
+  .prplIcon {
+    margin: 0 1px 16px !important;
   }
 
   .statusMessageWithDash {
@@ -195,6 +241,11 @@
   .displayName,
   .statusMessageWithDash {
     margin: 2px 0 !important;
+  }
+
+  .prplIcon {
+    margin: 1px 3px !important;
+    padding: 0 0;
   }
 
   .userIcon,

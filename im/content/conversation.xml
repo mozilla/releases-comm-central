@@ -68,6 +68,14 @@
             <xul:description anonid="statusMessageWithDash"
                              class="statusMessageWithDash"
                              crop="end" flex="100000" value=""/>
+            <xul:hbox pack="end" align="center">
+              <xul:toolbarbutton class="prplIcon alltargets-button"
+                                 anonid="targetPrplIcon">
+                <xul:menupopup class="all-targets-popup"
+                               anonid="all-targets-popup"
+                               position="after_end"/>
+              </xul:toolbarbutton>
+            </xul:hbox>
           </xul:stack>
         </xul:toolbar>
 
@@ -1065,6 +1073,9 @@
      <method name="updateConvStatus">
        <body>
        <![CDATA[
+          this.getElt("targetPrplIcon")
+              .setAttribute("image", this._conv.account.protocol.iconBaseURI + "icon.png");
+
           if (this._conv.isChat) {
             if (!this._conv.account.connected || this._conv.left)
               this.tab.setAttribute("status", "left");
@@ -1137,11 +1148,72 @@
              this.addBuddy(n);
            this.updateParticipantCount();
          }
+         else if (this._conv.contact) {
+           this.getElt("targetPrplIcon").setAttribute("type", "menu");
+           let popup = this.getElt("all-targets-popup");
+           popup.addEventListener("popupshowing", this.showAllTargets.bind(this), false);
+           popup.addEventListener("popuphiding", this.hideAllTargets, false);
+         }
 
          if (!("Status" in window))
            Components.utils.import("resource:///modules/imStatusUtils.jsm");
          this.updateConvStatus();
          this.initTextboxFormat();
+       ]]>
+       </body>
+     </method>
+
+     <method name="showAllTargets">
+       <body>
+       <![CDATA[
+         let popup = this.getElt("all-targets-popup");
+         if (!this._conv.contact)
+           return;
+         let currentBuddyId = this._conv.target.buddy.buddy.id;
+         let buddies = this._conv.contact.getBuddies();
+         for each (let buddy in buddies) {
+           let menuItem = document.createElementNS(
+             "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+             "menuitem");
+           menuItem.setAttribute("class", "menuitem-iconic alltargets-item");
+           menuItem.setAttribute("label", buddy.displayName);
+           menuItem.setAttribute("crop", "end");
+           menuItem.setAttribute("image", buddy.protocol.iconBaseURI + "icon.png");
+           if (buddy.id == currentBuddyId)
+             menuItem.setAttribute("selected", "true");
+           if (!buddy.canSendMessage)
+             menuItem.setAttribute("disabled", "true");
+           let statusText = buddy.statusText;
+           if (statusText)
+             menuItem.setAttribute("description", statusText);
+           menuItem.setAttribute("status", Status.toAttribute(buddy.statusType));
+           menuItem.buddy = buddy;
+           popup.appendChild(menuItem);
+         }
+         popup.addEventListener("command", this.changeTargetCommand, false);
+       ]]>
+       </body>
+     </method>
+
+     <method name="changeTargetCommand">
+       <parameter name="aEvent"/>
+       <body>
+       <![CDATA[
+          let buddy = aEvent.originalTarget.buddy;
+          if (buddy.canSendMessage) {
+            let conv = buddy.createConversation();
+            Services.conversations.getUIConversation(conv).target = conv;
+          }
+       ]]>
+       </body>
+     </method>
+
+     <method name="hideAllTargets">
+       <body>
+       <![CDATA[
+          while (this.hasChildNodes())
+            this.removeChild(this.lastChild);
+         this.removeEventListener("command", this.changeTargetCommand, false);
        ]]>
        </body>
      </method>
@@ -1314,5 +1386,17 @@
        </getter>
      </property>
     </implementation>
+  </binding>
+
+  <binding id="menuitem-target" extends="chrome://global/content/bindings/menu.xml#menuitem">
+    <content>
+      <xul:stack class="menu-iconic-left" align="center" pack="center"
+                xbl:inherits="selected,disabled,checked">
+        <xul:image class="menu-iconic-icon" xbl:inherits="src=image,validate,src"/>
+        <xul:image class="menu-iconic-icon status-overlay-icon" xbl:inherits="status"/>
+      </xul:stack>
+      <xul:label class="menu-iconic-text" xbl:inherits="value=label,accesskey,crop" crop="right" flex="1"/>
+      <xul:label class="menu-iconic-text menu-description" xbl:inherits="value=description" crop="right" flex="100000"/>
+    </content>
   </binding>
 </bindings>

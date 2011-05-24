@@ -39,6 +39,10 @@ conversation {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
 }
 
+.alltargets-item {
+  -moz-binding: url("chrome://instantbird/content/conversation.xml#menuitem-target");
+}
+
 browser[type="content-conversation"] {
   -moz-binding: url("chrome://instantbird/content/convbrowser.xml#browser");
 }
