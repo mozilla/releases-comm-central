@@ -95,25 +95,6 @@ var Core = {
       return false;
     }
 
-    let status = {
-      back: "AVAILABLE",
-      away: "AWAY",
-      busy: "UNAVAILABLE",
-      dnd: "UNAVAILABLE",
-      offline: "OFFLINE"
-    };
-    for (let cmd in status) {
-      let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
-      Services.cmd.registerCommand({
-        name: cmd,
-        priority: Ci.imICommand.PRIORITY_HIGH,
-        run: function(aMsg) {
-          Services.core.setStatus(statusValue, aMsg);
-          return true;
-        }
-      });
-    }
-
     Services.conversations.initConversations();
     Conversations.init();
     Notifications.init();

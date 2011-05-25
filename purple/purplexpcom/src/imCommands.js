@@ -56,6 +56,7 @@ CommandsService.prototype = {
     this._commands = {};
     this.registerCommand({
       name: "raw",
+      get helpString() bundle.GetStringFromName("rawHelpString"),
       priority: Ci.imICommand.PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
         aConv.sendMsg(aMsg);
@@ -68,7 +69,8 @@ CommandsService.prototype = {
       // directly.
       cmdSrv: this,
 
-      name:"help",
+      name: "help",
+      get helpString() bundle.GetStringFromName("helpHelpString"),
       priority: Ci.imICommand.PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
         let conv = Services.conversations.getUIConversation(aConv);
@@ -113,6 +115,31 @@ CommandsService.prototype = {
         return true;
       }
     });
+
+    // Status commands
+    let status = {
+      back: "AVAILABLE",
+      away: "AWAY",
+      busy: "UNAVAILABLE",
+      dnd: "UNAVAILABLE",
+      offline: "OFFLINE"
+    };
+    for (let cmd in status) {
+      let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
+      this.registerCommand({
+        name: cmd,
+        get helpString()
+          bundle.formatStringFromName("statusCommand",
+                                      [this.name,
+                                       bundle.GetStringFromName(this.name)],
+                                      2),
+        priority: Ci.imICommand.PRIORITY_HIGH,
+        run: function(aMsg) {
+          Services.core.setStatus(statusValue, aMsg);
+          return true;
+        }
+      });
+    }
   },
   unInitCommands: function() {
     delete this._commands;
