@@ -365,6 +365,13 @@
         // set the default height as the deck height (modified by the splitter)
         textbox.defaultHeight = parseInt(textbox.parentNode.height) -
           this._TEXTBOX_VERTICAL_OVERHEAD;
+
+        // When moved, the splitter takes the child frames (rather
+        // than DOM nodes) of the resized area, and for each, it sets the
+        // current (=after resize) frame height as the height attribute
+        // of the associated content (DOM) node.
+        // This height attribute is clearly undesirable here.
+        this.getElt("conv-top-info").removeAttribute("height");
       ]]>
       </body>
      </method>
