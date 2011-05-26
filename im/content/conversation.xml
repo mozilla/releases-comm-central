@@ -980,6 +980,12 @@
               this.tab.setAttribute("status", "left");
             else
               this.tab.removeAttribute("status");
+            let account = this._conv.account;
+            let targetTooltip =
+              this.bundle.formatStringFromName("targetTooltipChat",
+                                               [this._conv.name, account.name,
+                                                account.protocol.name], 3);
+            cti.setAttribute("targetTooltiptext",  targetTooltip);
           }
           else {
             let displayName = this._conv.title;
@@ -1004,6 +1010,14 @@
               this.tab.setAttribute("status", Status.toAttribute(statusType));
               cti.setAttribute("userIcon", buddy.buddyIconFilename);
             }
+
+            let targetTooltip =
+              this.bundle.formatStringFromName("targetTooltipIM",
+                                               [this._conv.name,
+                                                this._conv.account.protocol.name], 2);
+            if (buddy && buddy.buddy.contact)
+              targetTooltip += this.bundle.GetStringFromName("targetChangeable");
+            cti.setAttribute("targetTooltiptext", targetTooltip);
 
             cti.setAttribute("displayName", displayName);
             if (statusText)
@@ -1237,7 +1251,7 @@
                            crop="end" xbl:inherits="value=displayName"/>
           <xul:toolbarbutton class="prplIcon alltargets-button"
                              anonid="targetPrplIcon"
-                             xbl:inherits="image=prplIcon">
+                             xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
             <xul:menupopup class="all-targets-popup"
                            anonid="all-targets-popup"
                            position="after_end"/>
@@ -1436,7 +1450,7 @@
                        xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing"
                        crop="end" flex="100000"/>
       <xul:toolbarbutton class="prplIcon alltargets-button" mousethrough="always"
-                         anonid="targetPrplIcon" xbl:inherits="image=prplIcon">
+                         anonid="targetPrplIcon" xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
         <xul:menupopup class="all-targets-popup"
                        anonid="all-targets-popup"
                        position="after_end"/>
