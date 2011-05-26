@@ -135,16 +135,6 @@
 %endif
 }
 
-.statusMessage[editable],
-.statusMessage[editable] + .statusMessageWithDash {
-  cursor: text !important;
-}
-
-.statusMessage[editing] {
-  -moz-appearance: textfield;
-  -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
-}
-
 .alltargets-button {
   min-width: 16px;
   padding: 0 0;
@@ -203,7 +193,7 @@
 %ifdef XP_WIN
     margin: 28px 0 -1px -2px !important;
 %else
-    margin: 31px 0 -2px -4px !important;
+    margin: 29px 0 -3px -4px !important;
 %endif
 %endif
   }
@@ -216,11 +206,7 @@
   }
 
   .prplIcon {
-    margin: 0 1px 16px !important;
-  }
-
-  .statusMessageWithDash {
-    display: none;
+    margin: 0 1px 16px -16px !important;
   }
 
   .statusTypeIcon {
@@ -233,11 +219,6 @@
 }
 
 @media all and (max-height: 400px) {
-  .statusImageStack,
-  .displayNameAndstatusMessageStack {
-    margin: 0 0;
-  }
-
   .displayName,
   .statusMessageWithDash {
     margin: 2px 0 !important;
@@ -248,15 +229,9 @@
     padding: 0 0;
   }
 
-  .userIcon,
-  .statusMessage:not([editing]),
-  .statusMessage[editing] + .statusMessageWithDash {
-    display: none;
-  }
-
   .statusMessage[editing] {
 %ifdef XP_WIN
-    margin: -3px 2px -1px 8px !important;
+    margin: -1px 2px 0px 8px !important;
 %else
     margin: -3px 0 -1px 9px !important;
 %endif
@@ -264,22 +239,6 @@
 
   .statusTypeIcon {
     margin: 1px 3px;
-  }
-
-  .statusImageStack {
-    display: -moz-box;
-    -moz-box-align: center;
-  }
-
-  .displayNameAndstatusMessageStack {
-    display: -moz-box;
-    -moz-box-align: baseline;
-  }
-}
-
-@media all and (max-height: 230px) {
-  .conv-top-info {
-    display: none;
   }
 }
 

@@ -53,31 +53,7 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
-        <xul:toolbar class="conv-top-info">
-          <xul:stack anonid="statusImageStack" class="statusImageStack">
-            <xul:image anonid="userIcon" class="userIcon"/>
-            <xul:image anonid="statusTypeIcon" class="statusTypeIcon"/>
-          </xul:stack>
-          <xul:stack class="displayNameAndstatusMessageStack" flex="1">
-            <xul:vbox flex="1" pack="center">
-              <xul:description anonid="displayName" class="displayName"
-                               crop="end"/>
-            </xul:vbox>
-            <xul:description anonid="statusMessage" class="statusMessage"
-                             crop="end" flex="100000" value=""/>
-            <xul:description anonid="statusMessageWithDash"
-                             class="statusMessageWithDash"
-                             crop="end" flex="100000" value=""/>
-            <xul:hbox pack="end" align="center">
-              <xul:toolbarbutton class="prplIcon alltargets-button"
-                                 anonid="targetPrplIcon">
-                <xul:menupopup class="all-targets-popup"
-                               anonid="all-targets-popup"
-                               position="after_end"/>
-              </xul:toolbarbutton>
-            </xul:hbox>
-          </xul:stack>
-        </xul:toolbar>
+        <xul:toolbar class="conv-top-info" anonid="conv-top-info"/>
 
         <xul:hbox class="conv-top" flex="1" anonid="conv-top">
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1">
@@ -892,92 +868,22 @@
        <body>
        <![CDATA[
           var topic = this._conv.topic;
+          let cti = this.getElt("conv-top-info");
           let statusMessage = this.getElt("statusMessage");
-          statusMessage.setAttribute("value", topic);
+          cti.setAttribute("statusMessage", topic);
           if (this._conv.topicSettable)
-            statusMessage.setAttribute("editable", "true");
+            cti.setAttribute("topicEditable", "true");
           else
-            statusMessage.removeAttribute("editable");
+            cti.removeAttribute("topicEditable");
 
           let statusMessageWithDash = this.getElt("statusMessageWithDash");
           if (topic) {
-            statusMessage.setAttribute("tooltiptext", topic);
-            statusMessageWithDash.setAttribute("tooltiptext", topic);
+            cti.setAttribute("statusTooltiptext", topic);
             topic = " - " + topic;
           }
-          else {
-            statusMessage.removeAttribute("tooltiptext");
-            statusMessageWithDash.removeAttribute("tooltiptext");
-          }
-          statusMessageWithDash.setAttribute("value", topic);
-       ]]>
-       </body>
-     </method>
-
-     <method name="finishEditTopic">
-       <parameter name="aSave"/>
-       <body>
-       <![CDATA[
-         let elt = this.getElt("statusMessage");
-         if (aSave) {
-           // apply the new topic only if it is different from the current one
-           if (elt.value != elt.getAttribute("value"))
-             this._conv.topic = elt.value;
-         }
-         elt.removeAttribute("editing");
-         elt.removeEventListener("keypress", this._topicKeyPress, true);
-         delete this._topicKeyPress;
-         elt.removeEventListener("blur", this._topicBlur, false);
-         delete this._topicBlur;
-       ]]>
-       </body>
-     </method>
-
-     <method name="topicKeyPress">
-       <parameter name="aEvent"/>
-       <body>
-       <![CDATA[
-         switch (aEvent.keyCode) {
-           case aEvent.DOM_VK_RETURN:
-           case aEvent.DOM_VK_ENTER:
-             this.finishEditTopic(true);
-             break;
-
-           case aEvent.DOM_VK_ESCAPE:
-             this.finishEditTopic(false);
-             aEvent.stopPropagation();
-             aEvent.preventDefault();
-             break;
-         }
-       ]]>
-       </body>
-     </method>
-
-     <method name="topicBlur">
-       <parameter name="aEvent"/>
-       <body>
-       <![CDATA[
-         if (aEvent.originalTarget == this.getElt("statusMessage").inputField)
-           this.finishEditTopic(true);
-       ]]>
-       </body>
-     </method>
-
-     <method name="startEditTopic">
-       <body>
-       <![CDATA[
-          let elt = this.getElt("statusMessage");
-          if (!elt.hasAttribute("editable") || elt.hasAttribute("editing"))
-            return;
-
-          elt.setAttribute("editing", "true");
-          this._topicKeyPress = this.topicKeyPress.bind(this);
-          elt.addEventListener("keypress", this._topicKeyPress, false);
-          this._topicBlur = this.topicBlur.bind(this);
-          elt.addEventListener("blur", this._topicBlur, false);
-          // force binding attachmant by forcing layout
-          elt.getBoundingClientRect();
-          elt.select();
+          else
+            cti.removeAttribute("statusTooltiptext");
+          cti.setAttribute("statusMessageWithDash", topic);
        ]]>
        </body>
      </method>
@@ -1059,8 +965,8 @@
      <method name="updateConvStatus">
        <body>
        <![CDATA[
-          this.getElt("targetPrplIcon")
-              .setAttribute("image", this._conv.account.protocol.iconBaseURI + "icon.png");
+          let cti = this.getElt("conv-top-info");
+          cti.setAttribute("prplIcon", this._conv.account.protocol.iconBaseURI + "icon.png");
 
           if (this._conv.isChat) {
             if (!this._conv.account.connected || this._conv.left)
@@ -1089,18 +995,17 @@
               statusText = buddy.statusText;
               statusType = buddy.statusType;
               this.tab.setAttribute("status", Status.toAttribute(statusType));
-              this.getElt("userIcon").src = buddy.buddyIconFilename;
+              cti.setAttribute("userIcon", buddy.buddyIconFilename);
             }
 
-            this.getElt("displayName").setAttribute("value", displayName);
+            cti.setAttribute("displayName", displayName);
             if (statusText)
               statusText = " - " + statusText;
-            this.getElt("statusMessageWithDash").setAttribute("value", statusText);
+            cti.setAttribute("statusMessageWithDash", statusText);
             let statusString = Status.toLabel(statusType);
-            this.getElt("statusMessage").setAttribute("value", statusString + statusText);
-            let statusTypeIcon = this.getElt("statusTypeIcon");
-            statusTypeIcon.setAttribute("status", Status.toAttribute(statusType));
-            statusTypeIcon.setAttribute("tooltiptext", statusString);
+            cti.setAttribute("statusMessage", statusString + statusText);
+            cti.setAttribute("status", Status.toAttribute(statusType));
+            cti.setAttribute("statusTypeTooltiptext", statusString);
           }
        ]]>
        </body>
@@ -1114,13 +1019,9 @@
            this.setAttribute("chat", "true");
            this.tab.setAttribute("chat", "true");
 
-           this.getElt("displayName").setAttribute("value", this._conv.title);
-           this.getElt("statusTypeIcon").setAttribute("status", "chat");
-           let startEditTopic = this.startEditTopic.bind(this);
-           this.getElt("statusMessage")
-               .addEventListener("click", startEditTopic, false);
-           this.getElt("statusMessageWithDash")
-               .addEventListener("click", startEditTopic, false);
+           let cti = this.getElt("conv-top-info");
+           cti.setAttribute("displayName", this._conv.title);
+           cti.setAttribute("status", "chat");
 
            // Set an id on the participant count for accessibility reasons (see bug 216)
            let id = "pc" + Date.now();
@@ -1134,72 +1035,13 @@
              this.addBuddy(n);
            this.updateParticipantCount();
          }
-         else if (this._conv.contact) {
-           this.getElt("targetPrplIcon").setAttribute("type", "menu");
-           let popup = this.getElt("all-targets-popup");
-           popup.addEventListener("popupshowing", this.showAllTargets.bind(this), false);
-           popup.addEventListener("popuphiding", this.hideAllTargets, false);
-         }
+         else if (this._conv.contact)
+           this.getElt("conv-top-info").allowTargetChange();
 
          if (!("Status" in window))
            Components.utils.import("resource:///modules/imStatusUtils.jsm");
          this.updateConvStatus();
          this.initTextboxFormat();
-       ]]>
-       </body>
-     </method>
-
-     <method name="showAllTargets">
-       <body>
-       <![CDATA[
-         let popup = this.getElt("all-targets-popup");
-         if (!this._conv.contact)
-           return;
-         let currentBuddyId = this._conv.target.buddy.buddy.id;
-         let buddies = this._conv.contact.getBuddies();
-         for each (let buddy in buddies) {
-           let menuItem = document.createElementNS(
-             "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-             "menuitem");
-           menuItem.setAttribute("class", "menuitem-iconic alltargets-item");
-           menuItem.setAttribute("label", buddy.displayName);
-           menuItem.setAttribute("crop", "end");
-           menuItem.setAttribute("image", buddy.protocol.iconBaseURI + "icon.png");
-           if (buddy.id == currentBuddyId)
-             menuItem.setAttribute("selected", "true");
-           if (!buddy.canSendMessage)
-             menuItem.setAttribute("disabled", "true");
-           let statusText = buddy.statusText;
-           if (statusText)
-             menuItem.setAttribute("description", statusText);
-           menuItem.setAttribute("status", Status.toAttribute(buddy.statusType));
-           menuItem.buddy = buddy;
-           popup.appendChild(menuItem);
-         }
-         popup.addEventListener("command", this.changeTargetCommand, false);
-       ]]>
-       </body>
-     </method>
-
-     <method name="changeTargetCommand">
-       <parameter name="aEvent"/>
-       <body>
-       <![CDATA[
-          let buddy = aEvent.originalTarget.buddy;
-          if (buddy.canSendMessage) {
-            let conv = buddy.createConversation();
-            Services.conversations.getUIConversation(conv).target = conv;
-          }
-       ]]>
-       </body>
-     </method>
-
-     <method name="hideAllTargets">
-       <body>
-       <![CDATA[
-          while (this.hasChildNodes())
-            this.removeChild(this.lastChild);
-         this.removeEventListener("command", this.changeTargetCommand, false);
        ]]>
        </body>
      </method>
@@ -1369,6 +1211,237 @@
          ]]>
        </getter>
      </property>
+    </implementation>
+  </binding>
+
+  <binding id="conv-info-large"
+           extends="chrome://global/content/bindings/toolbar.xml#toolbar">
+    <content>
+      <xul:stack anonid="statusImageStack" class="statusImageStack">
+        <xul:image anonid="userIcon" class="userIcon" mousethrough="always"
+                   xbl:inherits="src=userIcon"/>
+        <xul:image anonid="statusTypeIcon" class="statusTypeIcon"
+                   xbl:inherits="status,tooltiptext=statusTypeTooltiptext"/>
+      </xul:stack>
+      <xul:stack class="displayNameAndstatusMessageStack"
+                 mousethrough="always" flex="1">
+        <xul:hbox align="center" flex="1">
+          <xul:description anonid="displayName" class="displayName" flex="1"
+                           crop="end" xbl:inherits="value=displayName"/>
+          <xul:toolbarbutton class="prplIcon alltargets-button"
+                             anonid="targetPrplIcon"
+                             xbl:inherits="image=prplIcon">
+            <xul:menupopup class="all-targets-popup"
+                           anonid="all-targets-popup"
+                           position="after_end"/>
+          </xul:toolbarbutton>
+        </xul:hbox>
+        <xul:description anonid="statusMessage" class="statusMessage"
+                         xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing"
+                         mousethrough="never" crop="end" flex="100000"/>
+      </xul:stack>
+    </content>
+    <implementation>
+     <constructor>
+      <![CDATA[
+        this.topic
+            .addEventListener("click", this.startEditTopic.bind(this), false);
+        if (this.hasAttribute("allowTargetChange"))
+          this.allowTargetChange();
+        // Cancel any ongoing edit if the binding changes.
+        this.removeAttribute("editing");
+#ifdef XP_MACOSX
+
+        if ("draghandle" in this)
+          return;
+        if (!("WindowDraggingElement" in window))
+          Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
+        this.draghandle = new WindowDraggingElement(this, window);
+#endif
+      ]]>
+     </constructor>
+
+     <property name="topic">
+       <getter>
+         <![CDATA[
+           return document.getAnonymousElementByAttribute(this, "anonid",
+                                                          "statusMessage");
+         ]]>
+       </getter>
+     </property>
+
+     <method name="finishEditTopic">
+       <parameter name="aSave"/>
+       <body>
+       <![CDATA[
+         let elt = this.topic;
+         if (aSave) {
+           // apply the new topic only if it is different from the current one
+           if (elt.value != elt.getAttribute("value"))
+             document.getBindingParent(this)._conv.topic = elt.value;
+         }
+         this.removeAttribute("editing");
+         elt.removeEventListener("keypress", this._topicKeyPress, true);
+         delete this._topicKeyPress;
+         elt.removeEventListener("blur", this._topicBlur, false);
+         delete this._topicBlur;
+       ]]>
+       </body>
+     </method>
+
+     <method name="topicKeyPress">
+       <parameter name="aEvent"/>
+       <body>
+       <![CDATA[
+         switch (aEvent.keyCode) {
+           case aEvent.DOM_VK_RETURN:
+           case aEvent.DOM_VK_ENTER:
+             this.finishEditTopic(true);
+             break;
+
+           case aEvent.DOM_VK_ESCAPE:
+             this.finishEditTopic(false);
+             aEvent.stopPropagation();
+             aEvent.preventDefault();
+             break;
+         }
+       ]]>
+       </body>
+     </method>
+
+     <method name="topicBlur">
+       <parameter name="aEvent"/>
+       <body>
+       <![CDATA[
+         if (aEvent.originalTarget == this.topic.inputField)
+           this.finishEditTopic(true);
+       ]]>
+       </body>
+     </method>
+
+     <method name="startEditTopic">
+       <body>
+       <![CDATA[
+          let elt = this.topic;
+          if (!elt.hasAttribute("editable") || this.hasAttribute("editing"))
+            return;
+
+          this.setAttribute("editing", "true");
+          this._topicKeyPress = this.topicKeyPress.bind(this);
+          elt.addEventListener("keypress", this._topicKeyPress, false);
+          this._topicBlur = this.topicBlur.bind(this);
+          elt.addEventListener("blur", this._topicBlur, false);
+          // force binding attachmant by forcing layout
+          elt.getBoundingClientRect();
+          elt.select();
+       ]]>
+       </body>
+     </method>
+
+     <method name="allowTargetChange">
+       <body>
+       <![CDATA[
+         let targetButton =
+           document.getAnonymousElementByAttribute(this, "anonid", "targetPrplIcon");
+         targetButton.setAttribute("type", "menu");
+         targetButton.setAttribute("mousethrough", "never");
+         this.setAttribute("allowTargetChange", "true");
+         let popup = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "all-targets-popup");
+         popup.addEventListener("popupshowing", this.showAllTargets.bind(this), false);
+         popup.addEventListener("popuphiding", this.hideAllTargets, false);
+       ]]>
+       </body>
+     </method>
+
+     <method name="showAllTargets">
+       <body>
+       <![CDATA[
+         let popup = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "all-targets-popup");
+         let _conv = document.getBindingParent(this)._conv;
+         if (!_conv.contact)
+           return;
+         let currentBuddyId = _conv.target.buddy.buddy.id;
+         let buddies = _conv.contact.getBuddies();
+         for each (let buddy in buddies) {
+           let menuItem = document.createElementNS(
+             "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+             "menuitem");
+           menuItem.setAttribute("class", "menuitem-iconic alltargets-item");
+           menuItem.setAttribute("label", buddy.displayName);
+           menuItem.setAttribute("crop", "end");
+           menuItem.setAttribute("image", buddy.protocol.iconBaseURI + "icon.png");
+           if (buddy.id == currentBuddyId)
+             menuItem.setAttribute("selected", "true");
+           if (!buddy.canSendMessage)
+             menuItem.setAttribute("disabled", "true");
+           let statusText = buddy.statusText;
+           if (statusText)
+             menuItem.setAttribute("description", statusText);
+           menuItem.setAttribute("status", Status.toAttribute(buddy.statusType));
+           menuItem.buddy = buddy;
+           popup.appendChild(menuItem);
+         }
+         popup.addEventListener("command", this.changeTargetCommand, false);
+       ]]>
+       </body>
+     </method>
+
+     <method name="changeTargetCommand">
+       <parameter name="aEvent"/>
+       <body>
+       <![CDATA[
+          let buddy = aEvent.originalTarget.buddy;
+          if (buddy.canSendMessage) {
+            let conv = buddy.createConversation();
+            Services.conversations.getUIConversation(conv).target = conv;
+          }
+       ]]>
+       </body>
+     </method>
+
+     <method name="hideAllTargets">
+       <body>
+       <![CDATA[
+          while (this.hasChildNodes())
+            this.removeChild(this.lastChild);
+         this.removeEventListener("command", this.changeTargetCommand, false);
+       ]]>
+       </body>
+     </method>
+    </implementation>
+  </binding>
+
+  <binding id="conv-info-small"
+           extends="chrome://instantbird/content/conversation.xml#conv-info-large">
+    <content>
+      <xul:image anonid="statusTypeIcon" class="statusTypeIcon"
+                 xbl:inherits="status,tooltiptext=statusTypeTooltiptext"/>
+      <xul:description anonid="displayName" class="displayName"
+                       mousethrough="always" flex="1" crop="end"
+                       xbl:inherits="value=displayName"/>
+      <xul:description anonid="statusMessage" class="statusMessage"
+                       xbl:inherits="value=statusMessage,editable=topicEditable,editing"
+                       crop="end" flex="100000"/>
+      <xul:description anonid="statusMessageWithDash"
+                       class="statusMessageWithDash"
+                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing"
+                       crop="end" flex="100000"/>
+      <xul:toolbarbutton class="prplIcon alltargets-button" mousethrough="always"
+                         anonid="targetPrplIcon" xbl:inherits="image=prplIcon">
+        <xul:menupopup class="all-targets-popup"
+                       anonid="all-targets-popup"
+                       position="after_end"/>
+      </xul:toolbarbutton>
+    </content>
+    <implementation>
+      <constructor>
+      <![CDATA[
+        document.getAnonymousElementByAttribute(this, "anonid", "statusMessageWithDash")
+                .addEventListener("click", this.startEditTopic.bind(this), false);
+      ]]>
+     </constructor>
     </implementation>
   </binding>
 

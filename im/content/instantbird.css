@@ -39,6 +39,39 @@ conversation {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
 }
 
+.statusMessage[editable],
+.statusMessageWithDash[editable] {
+  cursor: text !important;
+}
+
+.statusMessage[editing] {
+  -moz-appearance: textfield;
+  -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
+}
+
+@media all and (min-height: 401px) {
+  .conv-top-info {
+    -moz-binding: url("chrome://instantbird/content/conversation.xml#conv-info-large") !important;
+  }
+}
+
+@media all and (max-height: 400px) {
+  .conv-top-info {
+    -moz-binding: url("chrome://instantbird/content/conversation.xml#conv-info-small") !important;
+  }
+
+  .statusMessage:not([editing]),
+  .statusMessageWithDash[editing] {
+    display: none;
+  }
+}
+
+@media all and (max-height: 230px) {
+  .conv-top-info {
+    display: none;
+  }
+}
+
 .alltargets-item {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#menuitem-target");
 }
