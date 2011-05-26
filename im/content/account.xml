@@ -152,8 +152,7 @@
                                                             "error");
         error.textContent = text;
 
-        var self = this;
-        var updateReconnect = function() {
+        var updateReconnect = (function() {
           var date = Math.round((account.timeOfNextReconnect - Date.now()) / 1000);
           let reconnect = "";
           if (date > 0) {
@@ -165,10 +164,10 @@
               reconnect = bundle.getFormattedString("account.reconnectInDouble",
                                                     [val1, unit1, val2, unit2])
           }
-          document.getAnonymousElementByAttribute(self, "anonid", "reconnect")
+          document.getAnonymousElementByAttribute(this, "anonid", "reconnect")
                   .textContent = reconnect;
           return reconnect;
-        };
+        }).bind(this);
         if (updateReconnect() && !this.reconnectUpdateInterval) {
           this.setAttribute("reconnectPending", "true");
           this.reconnectUpdateInterval = setInterval(updateReconnect, 1000);

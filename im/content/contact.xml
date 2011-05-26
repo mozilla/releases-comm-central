@@ -272,11 +272,10 @@
         // Some keys (home/end for example) can make the selected item
         // of the richlistbox change without producing a blur event on
         // our textbox. Make sure we watch richlistbox selection changes.
-        var self = this;
-        this._parentSelectListener = function(aEvent) {
-          if (aEvent.target == self.parentNode)
-            self.finishAliasing(true);
-        };
+        this._parentSelectListener = (function(aEvent) {
+          if (aEvent.target == this.parentNode)
+            this.finishAliasing(true);
+        }).bind(this);
         this.parentNode.addEventListener("select", this._parentSelectListener, false);
       ]]>
       </body>

@@ -123,12 +123,13 @@
      <constructor>
       <![CDATA[
        let textbox = this.editor;
-       textbox.addEventListener("keypress", this.inputKeyPress, false);
-       textbox.addEventListener("overflow", this.inputExpand, true);
+       textbox.addEventListener("keypress", this.inputKeyPress.bind(this), false);
+       textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
        textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
        this.getElt("splitter-bottom")
-           .addEventListener("DOMAttrModified", this._onSplitterChange, false);
+           .addEventListener("DOMAttrModified",
+                             this._onSplitterChange.bind(this), false);
 
        var editor = this.getElt("editor");
        editor.addEventListener("keypress", this.editorKeyPress, false);
@@ -384,10 +385,10 @@
         if (aEvent.attrName != "state" || aEvent.prevValue != "dragging")
           return;
 
-        let textbox = document.getBindingParent(this).editor;
+        let textbox = this.editor;
         // set the default height as the deck height (modified by the splitter)
         textbox.defaultHeight = parseInt(textbox.parentNode.height) -
-          document.getBindingParent(this)._TEXTBOX_VERTICAL_OVERHEAD;
+          this._TEXTBOX_VERTICAL_OVERHEAD;
       ]]>
       </body>
      </method>
@@ -469,17 +470,11 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        /* "this" can point to the textbox when this method is used by an eventListener,
-            get the conversation element */
-        var conv = this;
-        if (this.localName != "conversation")
-          conv = document.getBindingParent(this);
-
         if (event.shiftKey && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
                                event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN)) {
 
           let direction = (event.keyCode == KeyEvent.DOM_VK_PAGE_UP) ? -1 : 1;
-          conv.browser.docShell
+          this.browser.docShell
               .QueryInterface(Components.interfaces.nsITextScroll)
               .scrollByPages(direction);
 
@@ -487,13 +482,13 @@
           return;
         }
 
-        var inputBox = conv.editor;
+        var inputBox = this.editor;
         if (event.keyCode != 13) {
-          if (!conv._conv.isChat)
+          if (!this._conv.isChat)
             setTimeout(function () {
               // By the time the timeout is executed, the conversation may have
               // been closed.
-              if (!conv._conv)
+              if (!this._conv)
                 return;
 
               let text = inputBox.value;
@@ -502,20 +497,20 @@
               // These checks are not perfect (especially if non-existing
               // commands are sent as regular messages on the in-use prpl).
               if (! /^\//.test(text))
-                conv._conv.sendTyping(text.length);
+                this._conv.sendTyping(text.length);
               else
                 if (/^\/me /.test(text))
-                  conv._conv.sendTyping(text.length - 4);
+                  this._conv.sendTyping(text.length - 4);
             }, 0);
           return;
         }
 
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
-          conv.sendMsg(inputBox.value);
+          this.sendMsg(inputBox.value);
           event.preventDefault();
         }
         else if (!event.shiftKey)
-          conv.addString("\n");
+          this.addString("\n");
       ]]>
       </body>
      </method>
@@ -544,32 +539,27 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        let textbox, conv;
-        // In case it is called from the binding itself
-        if (!(this instanceof Components.interfaces.nsIDOMXULControlElement))
-          [textbox, conv] = [this.editor, this];
-        else
-          [textbox, conv] = [this, document.getBindingParent(this)];
+        let textbox = this.editor;
         let input = textbox.inputField;
 
         // This feature has been disabled, or the user is currently dragging
         // the splitter and the textbox has received an overflow event
         if (!TextboxSize.autoResize ||
-            conv.getElt("splitter-bottom").getAttribute("state") == "dragging") {
+            this.getElt("splitter-bottom").getAttribute("state") == "dragging") {
           input.style.overflowY = "";
           return;
         }
 
         // Check whether we can increase the height without hidding the status bar
         // (ensure the min-height property on the top part of this dialog)
-        let topBox = conv.getElt("conv-top");
+        let topBox = this.getElt("conv-top");
         let topBoxStyle = window.getComputedStyle(topBox, null);
         let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
         let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
         let deck = textbox.parentNode;
         let oldDeckHeight = parseInt(deck.height);
         let newDeckHeight =
-          parseInt(input.scrollHeight) + conv._TEXTBOX_VERTICAL_OVERHEAD;
+          parseInt(input.scrollHeight) + this._TEXTBOX_VERTICAL_OVERHEAD;
 
         if (!topMinSize || topSize - topMinSize > newDeckHeight - oldDeckHeight) {
           // Hide a possible vertical scrollbar.
@@ -637,12 +627,8 @@
         if (event.keyCode != 13)
           return;
 
-        /* "this" can point to the textbox when this method is used by an eventListener,
-            get the conversation element */
-        var conv = this;
-        if (this.localName != "conversation")
-          conv = document.getBindingParent(this);
-
+        // "this" points to the textbox, get the conversation element.
+        var conv = document.getBindingParent(this);
         var editor = this.getEditor(this.contentWindow);
         var docRoot = editor.rootElement;
 
@@ -1293,9 +1279,7 @@
           return;
 
         // Return is pressed
-        var conv = this;
-        if (this.localName != "conversation")
-          conv = document.getBindingParent(this);
+        var conv = document.getBindingParent(this);
         var listbox = event.originalTarget;
         for (var i = 0; i < listbox.selectedCount; ++i) {
           var nick = listbox.getSelectedItem(i).chatBuddy.name;

@@ -75,11 +75,10 @@ Account.prototype = {
     this.base.connecting();
     // do something here
     this.base.connected();
-    let self = this;
-    setTimeout(function() {
-      self._conv = new Conversation(self);
-      self._conv.writeMessage("jstest", "You are now talking to /dev/null", {system: true});
-    }, 0);
+    setTimeout((function() {
+      this._conv = new Conversation(this);
+      this._conv.writeMessage("jstest", "You are now talking to /dev/null", {system: true});
+    }).bind(this), 0);
   },
   _conv: null,
   disconnect: function(aSilent) {
