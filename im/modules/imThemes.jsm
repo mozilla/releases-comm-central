@@ -423,16 +423,20 @@ const statusMessageReplacements = {
 
 const messageReplacements = {
   userIconPath: function (aMsg) {
+    // If the protocol plugin provides an icon for the message, use it.
+    let iconURL = aMsg.iconURL;
+    if (iconURL)
+      return iconURL;
+
+    // For outgoing messages, use the current user icon.
     if (aMsg.outgoing) {
-      let iconURL = Services.core.getUserIcon();
+      iconURL = Services.core.getUserIcon();
       if (iconURL)
         return iconURL.spec;
     }
-    if (!aMsg.incoming)
-      return "Outgoing/buddy_icon.png"; // Safe default...
 
-    let buddy = getBuddyFromMessage(aMsg);
-    return (buddy && buddy.buddyIconFilename) || "Incoming/buddy_icon.png";
+    // Fallback to the theme's default icons.
+    return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png";
   },
   senderScreenName: function(aMsg) aMsg.who,
   sender: function(aMsg) aMsg.alias || aMsg.who,

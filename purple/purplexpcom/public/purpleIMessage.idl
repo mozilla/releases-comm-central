@@ -52,6 +52,7 @@ interface purpleIMessage: nsISupports {
   readonly attribute AUTF8String alias;
   readonly attribute AUTF8String originalMessage;
            attribute AUTF8String message;
+  readonly attribute AUTF8String iconURL;
   readonly attribute PRTime time;
   readonly attribute purpleIConversation conversation;
 

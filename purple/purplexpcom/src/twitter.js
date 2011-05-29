@@ -76,6 +76,7 @@ Conversation.prototype = {
     let flags =
       name == this.account.name ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
+    flags.iconURL = aTweet.user.profile_image_url;
     this.writeMessage(name, aTweet.text, flags);
   },
   _ensureParticipantExists: function(aNick) {
@@ -255,8 +256,10 @@ Account.prototype = {
     if ("results" in data) {
       data = data.results;
       for each (let tweet in data) {
-        if (!("user" in tweet) && "from_user" in tweet)
-          tweet.user = {screen_name: tweet.from_user};
+        if (!("user" in tweet) && "from_user" in tweet) {
+          tweet.user = {screen_name: tweet.from_user,
+                        profile_image_url: tweet.profile_image_url};
+        }
       }
     }
     this._timelineBuffer = this._timelineBuffer.concat(data);

@@ -439,6 +439,7 @@ Message.prototype = {
 
   _alias: "",
   get alias() this._alias || this.who,
+  iconURL: "",
   _conversation: null,
   get conversation() this._conversation,
   set conversation(aConv) {
