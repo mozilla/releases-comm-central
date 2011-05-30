@@ -41,7 +41,7 @@ Components.utils.import("resource:///modules/hiddenWindow.jsm");
 Components.utils.import("resource:///modules/imServices.jsm");
 
 var Sounds = {
-  soundEvents: ["buddy-signed-on", "buddy-signed-off", "new-text"],
+  soundEvents: ["contact-signed-on", "contact-signed-off", "new-text"],
   soundFiles: {
     incoming: "chrome://instantbird-sounds/skin/receive.wav",
     outgoing: "chrome://instantbird-sounds/skin/send.wav",
@@ -60,11 +60,11 @@ var Sounds = {
 
   observe: function(aObject, aTopic, aMsg) {
     switch(aTopic) {
-    case "buddy-signed-on":
+    case "contact-signed-on":
       this.play("login", "blist");
       break;
 
-    case "buddy-signed-off":
+    case "contact-signed-off":
       this.play("logout", "blist");
       break;
 
