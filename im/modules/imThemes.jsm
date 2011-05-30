@@ -55,6 +55,7 @@ var EXPORTED_SYMBOLS = [
 ];
 
 Components.utils.import("resource:///modules/imServices.jsm");
+Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 const Ci = Components.interfaces;
 
 const messagesStylePrefBranch = "messenger.options.messagesStyle.";
@@ -633,6 +634,7 @@ function initHTMLDocument(aConv, aTheme, aDoc)
   aDoc.open();
   aDoc.write(HTML + "</body></html>");
   aDoc.close();
+  aDoc.defaultView.convertTimeUnits = DownloadUtils.convertTimeUnits;
 }
 
 /* Selection stuff */

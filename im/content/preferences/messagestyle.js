@@ -55,7 +55,9 @@ var previewObserver = {
 
     let makeDate = function(aDateString) {
       let array = aDateString.split(":");
-      return (new Date(2009, 11, 8, array[0], array[1], array[2])) / 1000;
+      let now = new Date();
+      return (new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                       array[0], array[1], array[2])) / 1000;
     };
     let bundle = document.getElementById("themesBundle");
     let msg = {};

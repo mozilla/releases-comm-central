@@ -49,7 +49,7 @@ p {
 }
 
 div.bubble {
-  margin: 20px;
+  margin: 20px 20px 3px 20px;
   padding: 0;
   border-width: 2px;
   border-style: solid;
@@ -81,12 +81,34 @@ div.bubble p.pseudo>span {
   -moz-border-radius-bottomright: 10px;
 }
 
+div.bubble p.pseudo>span>span.time {
+  display: none;
+}
+
+div.bubble:hover p.pseudo>span>span.time {
+  display: inline;
+}
+div.bubble:hover p.pseudo>span>span.time:before {
+  content: " - ";
+}
+
 div.bubble hr {
   margin: 3px 0px 1px 0px;
   height: 2px;
   border-style: none;
   border-top: 1px solid rgba(0, 0, 0, 0.07);
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+p.interval {
+  text-align: center;
+  color: hsl(0, 0%, 60%);
+}
+
+#lastMessage {
+  line-height: 20px;
+  text-align: center;
+  color: hsl(0, 0%, 60%);
 }
 
 p.nick {
