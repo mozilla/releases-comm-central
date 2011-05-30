@@ -774,7 +774,8 @@ const ForwardProtocolPrototype = {
   get passwordOptional() this.base.passwordOptional,
   get usePointSize() this.base.usePointSize,
   get registerNoScreenName() this.base.registerNoScreenName,
-  get slashCommandsNative() this.base.slashCommandsNative
+  get slashCommandsNative() this.base.slashCommandsNative,
+  get usePurpleProxy() this.base.usePurpleProxy
 };
 
 function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
