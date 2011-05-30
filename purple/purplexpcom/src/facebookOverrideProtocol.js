@@ -71,6 +71,13 @@ facebookProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-facebook/skin/",
   get baseId() "prpl-jabber",
 
+  getAccount: function(aKey, aName) {
+    let account = ForwardProtocolPrototype.getAccount.call(this, aKey, aName);
+    account.__defineGetter__("canJoinChat", function() false);
+    account.setString("connection_security", "opportunistic_tls");
+    return account;
+  },
+  getOptions: function() EmptyEnumerator,
   getUsernameSplit: function() {
     var splits = this.base.getUsernameSplit();
     let newSplits = [];

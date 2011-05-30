@@ -315,9 +315,6 @@ var accountWizard = {
       switch (opt.type) {
       case opt.typeBool:
         var chk = document.createElement("checkbox");
-        // FIXME remove the facebook specific test as soon as possible...
-        if (opt.getBool() && name != "prpl-facebook-require_tls")
-          chk.setAttribute("checked", "true");
         chk.setAttribute("label", text);
         chk.setAttribute("id", name);
         box.appendChild(chk);
@@ -327,10 +324,7 @@ var accountWizard = {
                                            text, name));
         break;
       case opt.typeString:
-        let val = opt.getString();
-        if (name == "prpl-gtalk-connect_server")
-          val = "talk.google.com";
-        box.appendChild(this.createTextbox(null, val, text, name));
+        box.appendChild(this.createTextbox(null, opt.getString(), text, name));
         break;
       case opt.typeList:
         box.appendChild(this.createMenulist(opt.getList(), text, name));
@@ -409,12 +403,8 @@ var accountWizard = {
       let eltName = id + "-" + name;
       let val = this.getValue(eltName);
       // The value will be undefined if the proto specific groupbox has never been opened
-      if (val === undefined) {
-        if (eltName == "prpl-gtalk-connect_server")
-          val = "talk.google.com";
-        else if (eltName != "prpl-facebook-require_tls")
-          continue;
-      }
+      if (val === undefined)
+        continue;
       switch (opt.type) {
       case opt.typeBool:
         if (val != opt.getBool())

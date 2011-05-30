@@ -44,6 +44,14 @@ gtalkProtocol.prototype = {
   get name() "Google Talk",
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
   get baseId() "prpl-jabber",
+
+  getAccount: function(aKey, aName) {
+    let account = ForwardProtocolPrototype.getAccount.call(this, aKey, aName);
+    account.setString("connect_server", "talk.google.com");
+    return account;
+  },
+  getOptions: function() EmptyEnumerator,
+
   classID: Components.ID("{ad8a6454-2f5a-40c2-86ca-30062408125e}")
 };
 gtalkProtocol.prototype.__proto__ = ForwardProtocolPrototype;
