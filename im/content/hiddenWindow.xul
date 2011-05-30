@@ -62,7 +62,7 @@
   }, false);
 </script>
 
-<browser id="hiddenBrowser"/>
+<browser id="hiddenBrowser" disablehistory="true"/>
 
 </window>
 
