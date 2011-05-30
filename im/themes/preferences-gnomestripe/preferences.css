@@ -152,7 +152,7 @@ radio[pane=paneAdvanced] {
 
 #cookieInfoBox {
   border: 1px solid ThreeDShadow;
-  -moz-border-radius: 0px;
+  border-radius: 0px;
   margin: 4px;
   padding: 0px;
 }
@@ -187,7 +187,7 @@ radio[pane=paneAdvanced] {
   background-color: -moz-Field;
   color: -moz-FieldText;
   border: 1px solid ThreeDShadow;
-  -moz-border-radius: 10px;
+  border-radius: 10px;
   padding: 1.1em;
   -moz-padding-start: 20px;
   margin-left: 1em;

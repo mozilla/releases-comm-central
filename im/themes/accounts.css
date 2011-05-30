@@ -63,7 +63,7 @@ notification > hbox {
   background-color: -moz-Field;
   color: -moz-FieldText;
   border: 1px solid ThreeDShadow;
-  -moz-border-radius: 10px;
+  border-radius: 10px;
   padding: 1.1em;
   -moz-padding-start: 20px;
   margin-left: 1em;
@@ -117,15 +117,15 @@ notification > hbox {
 
 %filter substitution
 %define loweredShadow 0 1px rgba(255, 255, 255, .4)
-%define focusRingShadow 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring, 0 0 2px 1px -moz-mac-focusring
+%define focusRingShadow 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring, 0 0 1.5px 1px -moz-mac-focusring
 
 %define roundButtonShadow 0 1px rgba(255, 255, 255, .4)
-%define roundButtonPressedShadow inset 0 1px 4px rgba(0, 0, 0, .2), 0 1px rgba(255, 255, 255, .4)
+%define roundButtonPressedShadow inset 0 1px 3px rgba(0, 0, 0, .2), 0 1px rgba(255, 255, 255, .4)
 
 %define toolbarbuttonBorderColor rgba(59, 59, 59, 0.9)
 %define toolbarbuttonCornerRadius 3px
 %define toolbarbuttonBackground -moz-linear-gradient(top, #FFF, #ADADAD) repeat-x
-%define toolbarbuttonPressedInnerShadow inset rgba(0, 0, 0, 0.3) 0 -6px 14px, inset #000 0 1px 4px, inset rgba(0, 0, 0, 0.2) 0 1px 4px
+%define toolbarbuttonPressedInnerShadow inset rgba(0, 0, 0, 0.3) 0 -6px 10px, inset #000 0 1px 3px, inset rgba(0, 0, 0, 0.2) 0 1px 3px
 %define toolbarbuttonPressedBackgroundColor #B5B5B5
 %define toolbarbuttonInactiveBorderColor rgba(146, 146, 146, 0.84)
 %define toolbarbuttonInactiveFontColor #7C7C7C
@@ -139,24 +139,24 @@ button {
   padding: 0 2px;
   text-shadow: @loweredShadow@;
   border: 1px solid @toolbarbuttonBorderColor@;
-  -moz-border-radius: @toolbarbuttonCornerRadius@;
-  -moz-box-shadow: @loweredShadow@;
+  border-radius: @toolbarbuttonCornerRadius@;
+  box-shadow: @loweredShadow@;
   background: @toolbarbuttonBackground@;
-  -moz-background-origin: border;
+  background-origin: border-box;
 }
 
 button:focus {
-  -moz-box-shadow: @focusRingShadow@, @roundButtonShadow@;
+  box-shadow: @focusRingShadow@, @roundButtonShadow@;
 }
 
 button:active:hover:focus {
-  -moz-box-shadow: @focusRingShadow@, @roundButtonPressedShadow@;
+  box-shadow: @focusRingShadow@, @roundButtonPressedShadow@;
 }
  
 button:hover:active:not([disabled="true"]) {
   background: @toolbarbuttonPressedBackgroundColor@;
   text-shadow: @loweredShadow@;
-  -moz-box-shadow: @toolbarbuttonPressedInnerShadow@, @loweredShadow@;
+  box-shadow: @toolbarbuttonPressedInnerShadow@, @loweredShadow@;
 }
 
 #bottombuttons button:-moz-window-inactive {

@@ -53,8 +53,8 @@ div.bubble {
   padding: 0;
   border-width: 2px;
   border-style: solid;
-  -moz-border-radius: 10px;
-  -moz-box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
 }
 
 div.bubble>div.indicator {
@@ -66,7 +66,7 @@ div.bubble.event {
   padding: 4px 15px 4px 15px;
   background-color: hsl(0, 0%, 99%);
   border-color: hsl(0, 0%, 85%);
-  -moz-box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
+  box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
 }
 
 div.bubble p.pseudo {
@@ -77,8 +77,8 @@ div.bubble p.pseudo {
 
 div.bubble p.pseudo>span {
   padding: 0px 15px 1px 15px;
-  -moz-border-radius-topleft: 10px;
-  -moz-border-radius-bottomright: 10px;
+  border-top-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 div.bubble p.pseudo>span>span.time {

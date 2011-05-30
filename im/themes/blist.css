@@ -275,7 +275,7 @@ group[closed] .twisty {
 
 #userIcon {
   border: 2px solid rgba(0,0,0,0.15);
-  -moz-border-radius: 5px;
+  border-radius: 5px;
   max-width: 48px;
   max-height: 48px;
   width: 48px;
