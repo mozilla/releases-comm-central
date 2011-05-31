@@ -481,7 +481,8 @@
             if (maxLength) {
               let left = maxLength - text.length;
               // 200 is a 'magic' constant to avoid showing big numbers.
-              this._statusTextEnd = left < 200 ? left.toString() : "";
+              this._statusTextEnd =
+                left < Math.min(200, maxLength) ? left.toString() : "";
               this._statusTextEndIsError = left < 0;
               this.displayStatusText();
             }
