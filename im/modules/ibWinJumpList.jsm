@@ -122,8 +122,6 @@ var WinJumpList = {
                                        currentItem.parameter,
                                        currentItem.iconIndex);
       }
-      else if (currentItem.type == "link")
-        item = this._getLinkItem(currentItem.uri, currentItem.uriTitle);
       else
         throw "Unknown jumplist item type: " + currentItem.type;
 
