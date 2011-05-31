@@ -1,0 +1,55 @@
+%include blist.css
+
+/* This applies only if Glass is available. */
+@media all and (-moz-windows-compositor) {
+  #blistWindow {
+    -moz-appearance: -moz-win-borderless-glass;
+    background: transparent;
+  }
+}
+
+/* Our fallback for Aero Basic: set the background color appropriately. */
+@media not all and (-moz-windows-compositor) {
+  #blistWindow:-moz-system-metric(windows-default-theme) {
+    background-color: rgb(185, 209, 234);
+  }
+  #blistWindow:-moz-system-metric(windows-default-theme):-moz-window-inactive {
+    background-color: rgb(215, 228, 242);
+  }
+}
+
+/* Used by both Aero themes */
+@media all and (-moz-windows-theme: aero) {
+  #blistWindow-statusbar {
+    -moz-appearance: none;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 0 0 5px 5px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+  }
+
+  #status {
+    -moz-appearance: none;
+    background: transparent;
+    border: none;
+  }
+
+  /* This thing has a border we need to remove. */
+  #mainToolbox {
+    -moz-appearance: none;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 5px 5px 0 0;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+  }
+
+  #statusArea {
+    -moz-appearance: none;
+    margin-left: 1px;
+    margin-right: 1px;
+    border: none;
+  }
+
+  richlistbox {
+    border-left: 1px solid rgba(0, 0, 0, 0.25);
+    border-right: 1px solid rgba(0, 0, 0, 0.25);
+  }
+}
