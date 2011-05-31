@@ -221,6 +221,7 @@ const ForwardAccountPrototype = {
   get noFontSizes() this._base.noFontSizes,
   get noUrlDesc() this._base.noUrlDesc,
   get noImages() this._base.noImages,
+  get maxMessageLength() this._base.maxMessageLength,
 
   // grep attribute purpleIAccount.idl |grep -v readonly |sed 's/.* //;s/;//;s/\(.*\)/  set \1(val) { this._base.\1 = val; },/'
   set autoLogin(val) { this._base.autoLogin = val; },

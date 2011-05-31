@@ -185,6 +185,16 @@ var XULBrowserWindow = {
     return originalTarget;
   },
 
+  setStatusEnd: function (aStatusEndText, aError) {
+    let field = document.getElementById("statusbar-display-end");
+    field.label = aStatusEndText;
+    field.hidden = !aStatusEndText;
+    if (aError)
+      field.setAttribute("error", "true");
+    else
+      field.removeAttribute("error");
+  },
+
   updateStatusField: function () {
     var text = this.overLink || this.status || this.jsStatus || this.jsDefaultStatus || this.defaultStatus;
 

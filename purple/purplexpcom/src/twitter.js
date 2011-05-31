@@ -55,14 +55,20 @@ Conversation.prototype = {
   __proto__: GenericConvChatPrototype,
   unInit: function() { delete this.account._timeline; },
   sendMsg: function (aMsg) {
+    if (aMsg.length > this.account.maxMessageLength) {
+      this.writeError("Status is over 140 characters.");
+      throw Cr.NS_ERROR_INVALID_ARG;
+    }
     this.account.tweet(aMsg, this.onSentCallback, function(aException, aData) {
       let error = "";
       try {
         error = "(" + JSON.parse(aData).error + ") ";
       } catch(e) {}
-      let msg = "An error " + error + "occured while sending: " + aMsg;
-      this.writeMessage("twitter.com", msg, {system: true});
+      this.writeError("An error " + error + "occured while sending: " + aMsg);
     }, this);
+  },
+  writeError: function(aErrorMessage) {
+    this.writeMessage("twitter.com", aErrorMessage, {system: true});
   },
   onSentCallback: function(aData) {
     let tweet = JSON.parse(aData);
@@ -101,6 +107,8 @@ Account.prototype = {
   __proto__: GenericAccountPrototype,
 
   get HTMLEnabled() false,
+  get maxMessageLength() 140,
+
   consumerKey: "TSuyS1ieRAkB3qWv8yyEw",
   consumerSecret: "DKtKaSf5a7pBNhdBsSZHTnI5Y03hRlPFYWmb4xXBlkU",
   completionURI: "http://oauthcallback.local/",

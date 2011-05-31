@@ -194,6 +194,8 @@
      </method>
 
      <field name="_statusText">""</field>
+     <field name="_statusTextEnd">""</field>
+     <field name="_statusTextEndIsError">false</field>
 
      <!-- This is used when we want to remove close the conversation binding
      without closing the associated PurpleConversation.
@@ -467,14 +469,24 @@
 
         var inputBox = this.editor;
         if (event.keyCode != 13) {
-          if (!this._conv.isChat)
-            setTimeout(function () {
-              // By the time the timeout is executed, the conversation may have
-              // been closed.
-              if (!this._conv)
-                return;
+          setTimeout((function () {
+            // By the time the timeout is executed, the conversation may have
+            // been closed.
+            if (!this._conv)
+              return;
 
-              let text = inputBox.value;
+            let text = inputBox.value;
+
+            let maxLength = this._conv.account.maxMessageLength;
+            if (maxLength) {
+              let left = maxLength - text.length;
+              // 200 is a 'magic' constant to avoid showing big numbers.
+              this._statusTextEnd = left < 200 ? left.toString() : "";
+              this._statusTextEndIsError = left < 0;
+              this.displayStatusText();
+            }
+
+            if (!this._conv.isChat)
               // try to avoid sending typing notifications when the user is
               // typing a command in the conversation.
               // These checks are not perfect (especially if non-existing
@@ -484,13 +496,15 @@
               else
                 if (/^\/me /.test(text))
                   this._conv.sendTyping(text.length - 4);
-            }, 0);
+          }).bind(this), 0);
           return;
         }
 
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
-          this.sendMsg(inputBox.value);
+          // Prevent the default action before calling sendMsg to avoid having
+          // a line break inserted in the textbox if sendMsg throws.
           event.preventDefault();
+          this.sendMsg(inputBox.value);
         }
         else if (!event.shiftKey)
           this.addString("\n");
@@ -503,6 +517,10 @@
       <![CDATA[
         var inputBox = this.editor;
         inputBox.value = "";
+        this._statusTextEnd = "";
+        this._statusTextEndIsError = false;
+        this.displayStatusText();
+
         let overflow = "";
         if (TextboxSize.autoResize) {
           let currHeight = parseInt(inputBox.parentNode.height);
@@ -925,8 +943,12 @@
          if (!this.tab.selected)
            return;
 
-         if ("XULBrowserWindow" in window)
+         if ("XULBrowserWindow" in window) {
            window.XULBrowserWindow.setStatus(this._statusText);
+           if ("setStatusEnd" in window.XULBrowserWindow)
+             window.XULBrowserWindow.setStatusEnd(this._statusTextEnd,
+                                                  this._statusTextEndIsError);
+         }
        ]]>
        </body>
      </method>
