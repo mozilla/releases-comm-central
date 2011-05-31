@@ -19,6 +19,7 @@
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
+#   Patrick Cloke <clokep@gmail.com>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -51,6 +52,7 @@ XPIDLSRCS	= ibILogger.idl
 
 EXTRA_COMPONENTS = \
 	ibCommandLineHandler.manifest \
+	ibStatusCommandLineHandler.js ibStatusCommandLineHandler.manifest \
 	logger.manifest \
 	smileProtocolHandler.js smileProtocolHandler.manifest \
 	$(NULL)

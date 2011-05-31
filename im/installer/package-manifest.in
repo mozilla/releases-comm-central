@@ -420,6 +420,8 @@
 #endif
 @BINPATH@/components/ibCommandLineHandler.js
 @BINPATH@/components/ibCommandLineHandler.manifest
+@BINPATH@/components/ibStatusCommandLineHandler.js
+@BINPATH@/components/ibStatusCommandLineHandler.manifest
 @BINPATH@/components/facebookOverrideProtocol.js
 @BINPATH@/components/gtalkOverrideProtocol.js
 @BINPATH@/components/overrideProtocols.manifest

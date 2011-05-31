@@ -21,6 +21,8 @@
  *
  * Contributor(s):
  *   Bill Law       law@netscape.com
+ *   Florian Quèze <florian@instantbird.org>
+ *   Patrick Cloke <clokep@gmail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -38,7 +40,7 @@
 #include <windows.h>
 #include "nsNativeAppSupportWin.h"
 
-1 24 "instantbird.exe.manifest" 
+1 24 "instantbird.exe.manifest"
 
 #define IDI_APPICON 1
 #define IDI_DOCUMENT 2
@@ -48,6 +50,9 @@
 
 // Program icon.
 IDI_APPICON  ICON  INSTANTBIRD_ICO
+2  ICON  "../themes/available-16.ico"
+3  ICON  "../themes/away-16.ico"
+4  ICON  "../themes/offline-16.ico"
 IDI_APPLICATION ICON INSTANTBIRD_ICO
 
 STRINGTABLE DISCARDABLE

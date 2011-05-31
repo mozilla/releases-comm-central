@@ -99,6 +99,16 @@ var Core = {
     Conversations.init();
     Notifications.init();
     Sounds.init();
+#ifdef XP_WIN
+    // For windows seven, initialize the jump list module.
+    const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
+    if (WINTASKBAR_CONTRACTID in Cc &&
+        Cc[WINTASKBAR_CONTRACTID].getService(Ci.nsIWinTaskbar).available) {
+      let temp = {};
+      Cu.import("resource:///modules/ibWinJumpList.jsm", temp);
+      temp.WinJumpList.init();
+    }
+#endif
 
     this._events.forEach(function (aTopic) {
       Services.obs.addObserver(Core, aTopic, false);

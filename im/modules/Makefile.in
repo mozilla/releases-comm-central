@@ -42,7 +42,6 @@ VPATH		= @srcdir@
 include $(DEPTH)/config/autoconf.mk
 
 EXTRA_JS_MODULES = \
-	ibCore.jsm \
 	ibNotifications.jsm \
 	ibSounds.jsm \
 	imContentSink.jsm \
@@ -51,10 +50,15 @@ EXTRA_JS_MODULES = \
 	$(NULL)
 
 EXTRA_PP_JS_MODULES = \
+	ibCore.jsm \
 	hiddenWindow.jsm \
 	imThemes.jsm \
 	imTextboxUtils.jsm \
 	imWindows.jsm \
 	$(NULL)
+
+ifeq ($(OS_ARCH),WINNT)
+EXTRA_JS_MODULES += ibWinJumpList.jsm
+endif
 
 include $(topsrcdir)/config/rules.mk
