@@ -81,10 +81,10 @@
 <!ENTITY detachCmd.accesskey           "D">
 <!ENTITY deleteCmd.label               "Remove">
 <!ENTITY deleteCmd.accesskey           "v">
-<!ENTITY moveCmd.label                 "Move to…">
-<!ENTITY moveCmd.accesskey             "M">
-<!ENTITY moveNewTagCmd.label           "New Group…">
-<!ENTITY moveNewTagCmd.accesskey       "N">
+<!ENTITY tagsCmd.label                 "Tags…">
+<!ENTITY tagsCmd.accesskey             "T">
+<!ENTITY addNewTagCmd.label            "Add New Tag…">
+<!ENTITY addNewTagCmd.accesskey        "N">
 <!ENTITY showLogsCmd.label             "Show Logs">
 <!ENTITY showLogsCmd.accesskey         "L">
 <!ENTITY hideTagCmd.label              "Hide Tag">

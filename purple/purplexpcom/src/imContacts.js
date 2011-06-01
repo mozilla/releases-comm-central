@@ -407,24 +407,32 @@ Contact.prototype = {
   },
   hasTag: function(aTag) this._tags.some(function (t) t.id == aTag.id),
   _massMove: false,
-  move: function(aOldTag, aNewtag) {
-    if (!this.hasTag(aOldTag))
+  removeTag: function(aTag) {
+    if (!this.hasTag(aTag))
       throw "Attempting to remove a tag that the contact doesn't have";
+    if (this._tags.length == 1)
+      throw "Attempting to remove the last tag of a contact";
 
     this._massMove = true;
+    let hasTag = this.hasTag.bind(this);
+    let newTag = this._tags[this._tags[0].id != aTag.id ? 0 : 1];
     let moved = false;
     this._buddies.forEach(function (aBuddy) {
       aBuddy._accounts.forEach(function (aAccountBuddy) {
-        if (aAccountBuddy.tag.id == aOldTag.id) {
+        if (aAccountBuddy.tag.id == aTag.id) {
           if (aBuddy._accounts.some(function(ab)
                ab.account.numericId == aAccountBuddy.account.numericId &&
-               ab.tag.id == aNewtag.id)) {
+               ab.tag.id != aTag.id && hasTag(ab.tag))) {
+            // A buddy that already has an accountBuddy of the same
+            // account with another tag of the contact shouldn't be
+            // moved to newTag, just remove the accountBuddy
+            // associated to the tag we are removing.
             aAccountBuddy.remove();
             moved = true;
           }
           else {
             try {
-              aAccountBuddy.tag = aNewtag;
+              aAccountBuddy.tag = newTag;
               moved = true;
             } catch (e) {
               // Ignore failures. Some protocol plugins may not implement this.
@@ -435,12 +443,11 @@ Contact.prototype = {
     });
     this._massMove = false;
     if (moved)
-      this._moved(aOldTag, aNewtag);
+      this._moved(aTag, newTag);
     else {
       // If we are here, the old tag is not inherited from a buddy, so
-      // just add the new tag as a local tag.
-      this.addTag(aNewtag);
-      this._removeTag(aOldTag);
+      // just remove the local tag.
+      this._removeTag(aTag);
     }
   },
   _isTagInherited: function(aTag) {

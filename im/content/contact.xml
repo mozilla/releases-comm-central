@@ -297,19 +297,6 @@
       </body>
      </method>
 
-     <method name="moveTo">
-      <parameter name="aGroupId"/>
-      <body>
-      <![CDATA[
-        let currentGroupId = this.group.groupId;
-        if (currentGroupId == aGroupId)
-          return;
-
-        this.contact.move(this.group.tag, Services.tags.getTagById(aGroupId));
-      ]]>
-      </body>
-     </method>
-
      <method name="remove">
       <body>
       <![CDATA[

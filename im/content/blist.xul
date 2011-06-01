@@ -105,17 +105,17 @@
                 label="&deleteCmd.label;"
                 accesskey="&deleteCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.delete();"/>
-      <menu id="context-moveto"
-            label="&moveCmd.label;"
-            accesskey="&moveCmd.accesskey;">
-        <menupopup id="context-moveto-popup"
-                   oncommand="gBuddyListContextMenu.moveTo(event);"
-                   onpopupshowing="gBuddyListContextMenu.moveToPopupShowing();">
+      <menu id="context-tags"
+            label="&tagsCmd.label;"
+            accesskey="&tagsCmd.accesskey;">
+        <menupopup id="context-tags-popup"
+                   oncommand="gBuddyListContextMenu.tag(event);"
+                   onpopupshowing="gBuddyListContextMenu.tagsPopupShowing();">
           <menuseparator id="context-create-tag-separator"/>
           <menuitem id="context-create-tag"
-                    label="&moveNewTagCmd.label;"
-                    accesskey="&moveNewTagCmd.accesskey;"
-                    oncommand="gBuddyListContextMenu.moveToNewTag();"/>
+                    label="&addNewTagCmd.label;"
+                    accesskey="&addNewTagCmd.accesskey;"
+                    oncommand="gBuddyListContextMenu.addNewTag();"/>
         </menupopup>
       </menu>
       <menuitem id="context-hide-tag"

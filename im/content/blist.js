@@ -40,6 +40,7 @@ Components.utils.import("resource:///modules/imStatusUtils.jsm");
 const events = ["contact-availability-changed",
                 "contact-added",
                 "contact-moved",
+                "contact-tagged",
                 "status-changed",
                 "tag-hidden",
                 "tag-shown",
@@ -66,10 +67,7 @@ function buddyListContextMenu(aXulMenu) {
     "context-edit-buddy-separator",
     "context-alias",
     "context-delete",
-    "context-moveto",
-    "context-moveto-popup",
-    "context-create-tag-separator",
-    "context-create-tag",
+    "context-tags",
     "context-show-offline-buddies-separator"
   ].forEach(function (aId) {
     document.getElementById(aId).hidden = hide;
@@ -147,15 +145,17 @@ buddyListContextMenu.prototype = {
 
     this.target.remove();
   },
-  moveToPopupShowing: function blcm_moveToPopupShowing() {
+  tagsPopupShowing: function blcm_tagsPopupShowing() {
     if (!this.onContact && !this.onBuddy)
       return;
 
-    let popup = document.getElementById("context-moveto-popup");
+    let popup = document.getElementById("context-tags-popup");
     let item;
     while ((item = popup.firstChild) && item.localName != "menuseparator")
       popup.removeChild(item);
 
+    let contact = (this.onBuddy ? this.target.contact : this.target).contact;
+    let tags = contact.getTags();
     let groupId =
       (this.onBuddy ? this.target.contact : this.target).group.groupId;
     let sortFunction = function (a, b) {
@@ -167,30 +167,42 @@ buddyListContextMenu.prototype = {
             .forEach(function (aTag) {
       item = document.createElement("menuitem");
       item.setAttribute("label", aTag.name);
-      item.setAttribute("type", "radio");
+      item.setAttribute("type", "checkbox");
       let id = aTag.id;
       item.groupId = id;
-      if (groupId == id)
+      if (tags.some(function (t) t.id == id)) {
         item.setAttribute("checked", "true");
+        if (tags.length == 1)
+          item.setAttribute("disabled", "true"); // can't remove the last tag.
+      }
       popup.insertBefore(item, popup.firstChild);
     });
   },
-  moveTo: function blcm_moveTo(aEvent) {
-    let item = aEvent.originalTarget;
-    if (item.groupId)
-      this.target.moveTo(item.groupId);
+  tag: function blcm_tag(aEvent) {
+    let id = aEvent.originalTarget.groupId;
+    if (!id)
+      return;
+
+    let tag = Services.tags.getTagById(id);
+    let contact = (this.onBuddy ? this.target.contact : this.target).contact;
+    if (contact.getTags().some(function (t) t.id == id))
+      contact.removeTag(tag);
+    else
+      contact.addTag(tag);
   },
-  moveToNewTag: function blcm_moveToNewTag() {
+  addNewTag: function blcm_addNewTag() {
     let bundle = document.getElementById("instantbirdBundle").stringBundle;
-    let title = bundle.GetStringFromName("newGroupPromptTitle");
-    let message = bundle.GetStringFromName("newGroupPromptMessage");
+    let title = bundle.GetStringFromName("newTagPromptTitle");
+    let message = bundle.GetStringFromName("newTagPromptMessage");
     let name = {};
     if (!Services.prompt.prompt(window, title, message, name, null,
                                 {value: false}) || !name.value)
       return; // the user canceled
 
-    // If the tag already exists, createTag will return it.
-    this.target.moveTo(Services.tags.createTag(name.value).id);
+    let contact = (this.onBuddy ? this.target.contact : this.target).contact;
+    // If the tag already exists, createTag will return it, and if the
+    // contact already has it, addTag will return early.
+    contact.addTag(Services.tags.createTag(name.value));
   },
   showLogs: function blcm_showLogs() {
     let enumerator;

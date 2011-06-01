@@ -154,19 +154,6 @@
       </body>
      </method>
 
-     <method name="moveTo">
-      <parameter name="aGroupId"/>
-      <body>
-      <![CDATA[
-        let group = this.contact.group;
-        if (group.groupId == aGroupId)
-          return;
-
-        this.buddy.contact.move(group.tag, Services.tags.getTagById(aGroupId));
-      ]]>
-      </body>
-     </method>
-
      <method name="remove">
       <body>
       <![CDATA[

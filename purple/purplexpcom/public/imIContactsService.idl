@@ -172,7 +172,10 @@ interface imIContact: imIStatusInfo {
   void getTags([optional] out unsigned long tagCount,
                [retval, array, size_is(tagCount)] out imITag tags);
 
-  void move(in imITag aOldTag, in imITag aNewtag);
+  // Will do nothing if the contact already has aTag.
+  void addTag(in imITag aTag);
+  // Will throw if the contact doesn't have aTag or doesn't have any other tag.
+  void removeTag(in imITag aTag);
 
   readonly attribute imIBuddy preferredBuddy;
   void getBuddies([optional] out unsigned long buddyCount,
