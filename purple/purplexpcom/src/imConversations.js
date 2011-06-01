@@ -175,6 +175,7 @@ UIConversation.prototype = {
         this.statusText == statusText)
       return;
 
+    let wasUnknown = this.statusType == Ci.imIStatusInfo.STATUS_UNKNOWN;
     this.statusType = statusType;
     this.statusText = statusText;
 
@@ -185,15 +186,14 @@ UIConversation.prototype = {
       msg = bundle.formatStringFromName("statusUnknown", [this.title], 1);
     else {
       let status = Status.toLabel(statusType);
+      let stringId = wasUnknown ? "statusChangedFromUnknown" : "statusChanged";
       if (statusText) {
-        msg = bundle.formatStringFromName("statusChangedWithStatusText",
+        msg = bundle.formatStringFromName(stringId + "WithStatusText",
                                           [this.title, status, statusText],
                                           3);
       }
-      else {
-        msg = bundle.formatStringFromName("statusChanged",
-                                          [this.title, status], 2);
-      }
+      else
+        msg = bundle.formatStringFromName(stringId, [this.title, status], 2);
     }
     this.systemMessage(msg);
   },
