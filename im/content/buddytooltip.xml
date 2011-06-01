@@ -298,6 +298,9 @@
 
          this.updateTooltipFromBuddy(aContact.preferredBuddy.preferredAccountBuddy, aElt);
 
+         this.addRow(this.bundle.GetStringFromName("contact.tags"),
+                     aContact.getTags().map(function (t) t.name).join(", "));
+
          let buddies = this.contact.getBuddies();
          if (buddies.length <= 1)
            return true;
