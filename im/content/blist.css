@@ -53,6 +53,9 @@ contact[aliasing] .contactDisplayName {
 buddy {
   -moz-binding: url("chrome://instantbird/content/buddy.xml#buddy");
 }
+buddy[dummy] {
+  -moz-binding: url("chrome://instantbird/content/buddy.xml#buddy-dummy");
+}
 
 group {
   -moz-binding: url("chrome://instantbird/content/group.xml#group");

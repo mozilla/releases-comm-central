@@ -73,6 +73,11 @@ buddy[droptarget] {
   color: HighlightText;
 }
 
+contact[droptarget] > buddy[dummy] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
 .contactStatusText,
 .buddyStatusText {
   color: GrayText;
@@ -150,7 +155,13 @@ buddy[droptarget] {
 
 .contactBuddies {
   background: -moz-linear-gradient(left, -moz-Dialog, white);
-  -moz-padding-start: 23px
+  -moz-padding-start: 23px;
+}
+
+buddy[dummy] {
+  -moz-margin-start: -23px;
+  -moz-padding-start: 18px;
+  background-color: -moz-Dialog;
 }
 
 .prplBuddyIcon {

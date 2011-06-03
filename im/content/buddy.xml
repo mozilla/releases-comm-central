@@ -36,7 +36,10 @@
    -
    - ***** END LICENSE BLOCK ***** -->
 
-<!DOCTYPE bindings>
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd" >
+  %instantbirdDTD;
+]>
 
 <bindings id="buddyBindings"
           xmlns="http://www.mozilla.org/xbl"
@@ -282,5 +285,21 @@
        ]]>
      </handler>
     </handlers>
+  </binding>
+
+  <binding id="buddy-dummy" extends="chrome://instantbird/content/buddy.xml#buddy">
+    <content align="center" mousethrough="always">
+      <xul:label crop="end" flex="1" mousethrough="always"
+                 value="&contactDropTarget;"/>
+    </content>
+    <implementation>
+     <method name="removeNode">
+      <body>
+      <![CDATA[
+        this.parentNode.removeChild(this);
+      ]]>
+      </body>
+     </method>
+    </implementation>
   </binding>
 </bindings>

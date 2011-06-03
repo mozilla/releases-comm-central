@@ -97,6 +97,8 @@
 <!ENTITY expandContactTooltip          "Expand">
 <!ENTITY collapseContactTooltip        "Collapse">
 
+<!ENTITY contactDropTarget             "drop a contact here to merge it">
+
 <!ENTITY hideGroupTooltip              "Hide">
 
 <!-- Copied from mozilla/browser/locales/en-US/chrome/browser/baseMenuOverlay.dtd -->

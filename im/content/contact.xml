@@ -160,6 +160,8 @@
            this.removeNode();
          else if (aTopic == "buddy-moved-into-contact" && this.hasAttribute("open")) {
            let buddyElt = document.createElement("buddy");
+           if (this.childNodes[1].hasAttribute("dummy"))
+             this.removeChild(this.childNodes[1]);
            this.appendChild(buddyElt);
            buddyElt.build(aSubject, this);
          }
@@ -515,10 +517,16 @@
       <![CDATA[
         let className, tooltip;
         if (!this.hasAttribute("open")) {
-          for each (let buddy in this.contact.getBuddies()) {
+          let buddies = this.contact.getBuddies();
+          for each (let buddy in buddies) {
             let buddyElt = document.createElement("buddy");
             this.appendChild(buddyElt);
             buddyElt.build(buddy, this);
+          }
+          if (buddies.length == 1) {
+            let buddyElt = document.createElement("buddy");
+            buddyElt.setAttribute("dummy", "true");
+            this.appendChild(buddyElt);
           }
           this.setAttribute("open", "true");
           [className, tooltip] = ["expander-up", "tooltiptextcollapse"];
