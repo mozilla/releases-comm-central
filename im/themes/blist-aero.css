@@ -6,6 +6,17 @@
     -moz-appearance: -moz-win-borderless-glass;
     background: transparent;
   }
+
+  #mainToolbox {
+    text-shadow: 0 0 1px Menu,
+                 0 0 1px Menu,
+                 0 0 2px Menu,
+                 0 0 5px Menu;
+  }
+
+  #blistMenubar > menu:-moz-window-inactive {
+    color: GrayText;
+  }
 }
 
 /* Our fallback for Aero Basic: set the background color appropriately. */
