@@ -893,23 +893,25 @@
      <method name="updateTopic">
        <body>
        <![CDATA[
-          var topic = this._conv.topic;
           let cti = this.getElt("conv-top-info");
           let statusMessage = this.getElt("statusMessage");
-          cti.setAttribute("statusMessage", topic);
           if (this._conv.topicSettable)
             cti.setAttribute("topicEditable", "true");
           else
             cti.removeAttribute("topicEditable");
 
-          let statusMessageWithDash = this.getElt("statusMessageWithDash");
+          var topic = this._conv.topic;
           if (topic) {
             cti.setAttribute("statusTooltiptext", topic);
-            topic = " - " + topic;
+            cti.removeAttribute("noTopic");
           }
-          else
+          else {
             cti.removeAttribute("statusTooltiptext");
-          cti.setAttribute("statusMessageWithDash", topic);
+            cti.setAttribute("noTopic", "true");
+            topic = this.bundle.GetStringFromName("noTopic");
+          }
+          cti.setAttribute("statusMessage", topic);
+          cti.setAttribute("statusMessageWithDash", " - " + topic);
        ]]>
        </body>
      </method>
@@ -1281,7 +1283,7 @@
           </xul:toolbarbutton>
         </xul:hbox>
         <xul:description anonid="statusMessage" class="statusMessage"
-                         xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing"
+                         xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic"
                          mousethrough="never" crop="end" flex="100000"/>
       </xul:stack>
     </content>
@@ -1377,6 +1379,8 @@
           elt.addEventListener("blur", this._topicBlur, false);
           // force binding attachmant by forcing layout
           elt.getBoundingClientRect();
+          if (this.hasAttribute("noTopic"))
+            elt.value = "";
           elt.select();
        ]]>
        </body>
@@ -1470,7 +1474,7 @@
                        crop="end" flex="100000"/>
       <xul:description anonid="statusMessageWithDash"
                        class="statusMessageWithDash"
-                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing"
+                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic"
                        crop="end" flex="100000"/>
       <xul:toolbarbutton class="prplIcon alltargets-button" mousethrough="always"
                          anonid="targetPrplIcon" xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
