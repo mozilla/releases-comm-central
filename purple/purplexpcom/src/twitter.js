@@ -41,6 +41,10 @@ Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 const Ci = Components.interfaces;
 const Cc = Components.classes;
 
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://purple/locale/twitter.properties")
+);
+
 function ChatBuddy(aName) {
   this._name = aName;
 }
@@ -56,7 +60,7 @@ Conversation.prototype = {
   unInit: function() { delete this.account._timeline; },
   sendMsg: function (aMsg) {
     if (aMsg.length > this.account.maxMessageLength) {
-      this.writeError("Status is over 140 characters.");
+      this.writeError(_("error.tooLong"));
       throw Cr.NS_ERROR_INVALID_ARG;
     }
     this.account.tweet(aMsg, this.onSentCallback, function(aException, aData) {
@@ -64,7 +68,7 @@ Conversation.prototype = {
       try {
         error = "(" + JSON.parse(aData).error + ") ";
       } catch(e) {}
-      this.writeError("An error " + error + "occured while sending: " + aMsg);
+      this.writeError(_("error.general", error, aMsg));
     }, this);
   },
   writeError: function(aErrorMessage) {
@@ -94,7 +98,7 @@ Conversation.prototype = {
     this.notifyObservers(new nsSimpleEnumerator([chatBuddy]),
                          "chat-buddy-add");
   },
-  get name() this.nick + " timeline",
+  get name() _("timeline", this.nick),
   get nick() "@" + this.account.name
 };
 
@@ -135,7 +139,7 @@ Account.prototype = {
       this.token = result.oauth_token;
       this.tokenSecret = result.oauth_token_secret;
       if (result.screen_name && result.screen_name != this.name) {
-        this.onError("Username mismatch.");
+        this.onError(_("connection.error.userMismatch"));
         return;
       }
     }
@@ -224,6 +228,8 @@ Account.prototype = {
   },
 
   getTimelines: function() {
+    this.base
+        .connecting(_("connection.requestTimelines"));
     this._pendingRequests = [
       this.signAndSend("1/statuses/home_timeline.json", null, null,
                        this.onTimelineReceived, this.onTimelineError, this),
@@ -339,6 +345,7 @@ Account.prototype = {
   },
 
   requestToken: function() {
+    this.base.connecting(_("connection.initAuth"));
     let oauthParams =
       [["oauth_callback", encodeURIComponent(this.completionURI)]];
     this.signAndSend("oauth/request_token", null, [],
@@ -346,12 +353,12 @@ Account.prototype = {
                      oauthParams);
   },
   onRequestTokenReceived: function(aData) {
-    this.base.connecting("Received request token.");
+    LOG("Received request token.");
     let data = this._parseURLData(aData);
     if (!data.oauth_callback_confirmed ||
         !data.oauth_token || !data.oauth_token_secret) {
       this.gotDisconnected(this._base.ERROR_OTHER_ERROR,
-                           "Failed to get request token.");
+                           _("connection.failedToken"));
       return;
     }
     this.token = data.oauth_token;
@@ -360,9 +367,10 @@ Account.prototype = {
     this.requestAuthorization();
   },
   requestAuthorization: function() {
+    this.base.connecting(_("connection.requestAuth"));
     const url = this.baseURI + "oauth/authorize?oauth_token=";
     this._browserRequest = {
-      promptText: "Give permission to use your Twitter account",
+      get promptText() _("authPrompt"),
       account: this,
       url: url + this.token,
       _active: true,
@@ -370,8 +378,9 @@ Account.prototype = {
         if (!this._active)
           return;
 
-        this.account.gotDisconnected(this.account._base.ERROR_AUTHENTICATION_FAILED,
-                                     "Authorization process cancelled.");
+        this.account
+            .gotDisconnected(this.account._base.ERROR_AUTHENTICATION_FAILED,
+                             _("connection.error.authCancelled"));
       },
       loaded: function(aWindow, aWebProgress) {
         if (!this._active)
@@ -428,21 +437,22 @@ Account.prototype = {
     let data = this._parseURLData(aData.split("?")[1]);
     if (data.oauth_token != this.token || !data.oauth_verifier) {
       this.gotDisconnected(this._base.ERROR_OTHER_ERROR,
-                           "Failed to get authorization.");
+                           _("connection.error.authFailed"));
       return;
     }
     this.requestAccessToken(data.oauth_verifier);
   },
   requestAccessToken: function(aTokenVerifier) {
+    this.base.connecting(_("connection.requestAccess"));
     this.signAndSend("oauth/access_token", null, [],
                      this.onAccessTokenReceived, this.onError, this,
                      [["oauth_verifier", aTokenVerifier]]);
   },
   onAccessTokenReceived: function(aData) {
-    this.base.connecting("Received access token.");
+    LOG("Received access token.");
     let result = this._parseURLData(aData);
     if (result.screen_name && result.screen_name != this.name) {
-      this.onError("Username mismatch.");
+      this.onError(_("connection.error.userMismatch"));
       return;
     }
 
@@ -494,7 +504,12 @@ Account.prototype = {
   },
 
   onError: function(aException) {
-    this.gotDisconnected(this._base.ERROR_OTHER_ERROR, aException.toString());
+    if (aException == "offline") {
+      this.gotDisconnected(this._base.ERROR_NETWORK_ERROR,
+                           _("connection.error.noNetwork"));
+    }
+    else
+      this.gotDisconnected(this._base.ERROR_OTHER_ERROR, aException.toString());
   }
 };
 
@@ -505,7 +520,7 @@ TwitterProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-twitter/skin/",
   get noPassword() true,
   options: {
-    "track": {label: "Tracked keywords", default: ""}
+    "track": {get label() _("options.track"), default: ""}
   },
   getAccount: function(aKey, aName) new Account(this, aKey, aName),
   classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}"),

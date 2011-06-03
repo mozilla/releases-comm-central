@@ -42,6 +42,7 @@ var EXPORTED_SYMBOLS = [
   "nsSimpleEnumerator",
   "EmptyEnumerator",
   "ClassInfo",
+  "l10nHelper",
   "GenericAccountPrototype",
   "GenericAccountBuddyPrototype",
   "GenericConvIMPrototype",
@@ -125,7 +126,17 @@ ClassInfo.prototype = {
   flags: 0
 };
 
-
+function l10nHelper(aChromeURL)
+{
+  let bundle = Services.strings.createBundle(aChromeURL);
+  return function (aStringId) {
+    if (arguments.length == 1)
+      return bundle.GetStringFromName(aStringId);
+    return bundle.formatStringFromName(aStringId,
+                                       Array.prototype.slice.call(arguments, 1),
+                                       arguments.length - 1);
+  };
+}
 
 /**
  * Constructs an nsISimpleEnumerator for the given array of items.
@@ -801,8 +812,7 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
         status = request.status;
       }
       // When status is 0 we don't have a valid channel.
-      let statusText = status ? request.statusText
-                              : "nsIXMLHttpRequest channel unavailable";
+      let statusText = status ? request.statusText : "offline";
       aOnError.call(aThis, statusText, null, this);
     }
   };
