@@ -401,9 +401,8 @@
         let lineHeight = parseInt(textboxStyle.getPropertyValue("line-height"));
 
         // Compute the overhead size.
-        let textboxHeight = parseInt(textboxStyle.getPropertyValue("height"));
-        let deckHeight = parseInt(window.getComputedStyle(textbox.parentNode, null)
-                                        .getPropertyValue("height"));
+        let textboxHeight = textbox.inputField.clientHeight;
+        let deckHeight = textbox.parentNode.boxObject.height;
         this._TEXTBOX_VERTICAL_OVERHEAD = deckHeight - textboxHeight;
 
         // Calculate the number of lines to display.
@@ -422,7 +421,8 @@
         textbox.defaultHeight = numberOfLines * lineHeight;
 
         // set minimum height (in case the user moves the splitter)
-        textbox.minHeight = lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+        textbox.parentNode.minHeight =
+          lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
       ]]>
       </body>
      </method>
@@ -599,9 +599,9 @@
             parseInt(convTopStyle.getPropertyValue("min-height"));
 
           if (convTopHeight == convTopMinHeight) {
-            textbox.parentNode.height = parseInt(textbox.minHeight);
+            textbox.parentNode.height = parseInt(textbox.parentNode.minHeight);
             convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
-            textbox.parentNode.height = parseInt(textbox.minHeight) +
+            textbox.parentNode.height = parseInt(textbox.parentNode.minHeight) +
                                         (convTopHeight - convTopMinHeight);
           }
         }
