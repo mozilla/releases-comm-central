@@ -38,7 +38,9 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
-function gtalkProtocol() { }
+function gtalkProtocol() {
+  this.registerCommands();
+}
 gtalkProtocol.prototype = {
   get normalizedName() "gtalk",
   get name() "Google Talk",

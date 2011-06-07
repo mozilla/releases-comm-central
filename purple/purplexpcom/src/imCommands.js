@@ -80,7 +80,7 @@ CommandsService.prototype = {
         // Handle when no command is given, list all possible commands that are
         // available for this conversation (alphabetically).
         if (!aMsg) {
-          let commands = this.cmdSrv.listCommands(aConv, {});
+          let commands = this.cmdSrv.listCommandsForConversation(aConv, {});
           if (!commands.length)
             return false;
 
@@ -164,7 +164,7 @@ CommandsService.prototype = {
         delete this._commands[aCommandName];
     }
   },
-  listCommands: function(aConversation, commandCount) {
+  listCommandsForConversation: function(aConversation, commandCount) {
     let result = [];
     let prplId = aConversation && aConversation.account.protocol.id;
     for (let name in this._commands) {
@@ -173,6 +173,20 @@ CommandsService.prototype = {
         result.push(commands[""]);
       if (prplId && commands.hasOwnProperty(prplId))
         result.push(commands[prplId]);
+    }
+    commandCount.value = result.length;
+    return result;
+  },
+  // List only the commands for a protocol (excluding the global commands).
+  listCommandsForProtocol: function(aPrplId, commandCount) {
+    if (!aPrplId)
+      throw "You must provide a prpl ID.";
+
+    let result = [];
+    for (let name in this._commands) {
+      let commands = this._commands[name];
+      if (commands.hasOwnProperty(aPrplId))
+        result.push(commands[aPrplId]);
     }
     commandCount.value = result.length;
     return result;

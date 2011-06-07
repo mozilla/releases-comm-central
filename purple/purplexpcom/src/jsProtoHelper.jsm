@@ -787,7 +787,13 @@ const ForwardProtocolPrototype = {
   get usePointSize() this.base.usePointSize,
   get registerNoScreenName() this.base.registerNoScreenName,
   get slashCommandsNative() this.base.slashCommandsNative,
-  get usePurpleProxy() this.base.usePurpleProxy
+  get usePurpleProxy() this.base.usePurpleProxy,
+
+  registerCommands: function() {
+    // Get the base protocol's commands and re-register them for this protocol.
+    for each (let command in Services.cmd.listCommandsForProtocol(this.baseId))
+      Services.cmd.registerCommand(command, this.id);
+  }
 };
 
 function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
