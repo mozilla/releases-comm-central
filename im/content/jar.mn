@@ -28,6 +28,8 @@ instantbird.jar:
 *	content/instantbird/engineManager.xul
 	content/instantbird/extensions.js
 *	content/instantbird/extensions.xul
+	content/instantbird/extensions-discover.js
+	content/instantbird/extensions-discover.xul
 	content/instantbird/group.xml
 *	content/instantbird/instantbird.css
 *	content/instantbird/instantbird.js

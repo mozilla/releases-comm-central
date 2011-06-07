@@ -236,13 +236,14 @@ pref("extensions.update.interval", 86400);
 pref("extensions.update.url", "https://addons.instantbird.org/services/update.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%");
 
 // Preferences for the Get Add-ons pane
-pref("extensions.getAddons.showPane", true);
+pref("extensions.getAddons.cache.enabled", false);
 pref("extensions.getAddons.browseAddons", "https://addons.instantbird.org/%LOCALE%/%APP%");
 pref("extensions.getAddons.maxResults", 5);
 pref("extensions.getAddons.recommended.browseURL", "https://addons.instantbird.org/%LOCALE%/%APP%/recommended");
 pref("extensions.getAddons.recommended.url", "https://services.instantbird.org/%LOCALE%/%APP%/api/%API_VERSION%/list/featured/all/10/%OS%/%VERSION%");
 pref("extensions.getAddons.search.browseURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/search?q=%TERMS%");
 pref("extensions.getAddons.search.url", "https://services.instantbird.org/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/10/%OS%/%VERSION%");
+pref("extensions.webservice.discoverURL", "chrome://instantbird/content/extensions-discover.xul");
 
 pref("extensions.getMoreExtensionsURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/extensions/");
 pref("extensions.getMoreThemesURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/themes/");

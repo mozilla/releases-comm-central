@@ -14,6 +14,7 @@
 	locale/@AB_CD@/instantbird/engineManager.dtd	(%chrome/instantbird/engineManager.dtd)
 	locale/@AB_CD@/instantbird/engineManager.properties (%chrome/instantbird/engineManager.properties)
 	locale/@AB_CD@/instantbird/extensions.properties (%chrome/instantbird/extensions.properties)
+	locale/@AB_CD@/instantbird/extensions-discover.dtd (%chrome/instantbird/extensions-discover.dtd)
 	locale/@AB_CD@/instantbird/instantbird.dtd	(%chrome/instantbird/instantbird.dtd)
 	locale/@AB_CD@/instantbird/instantbird.properties (%chrome/instantbird/instantbird.properties)
 	locale/@AB_CD@/instantbird/joinChat.dtd		(%chrome/instantbird/joinChat.dtd)
