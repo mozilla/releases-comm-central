@@ -85,3 +85,17 @@ function debug_dumpBuddyList()
   let formatGroup = (function(aGroup) " Group " + aGroup.id + ": " + aGroup.name + "\n" + aGroup.getBuddies().map(formatBuddy).join("\n"));
   dump("Buddy list:\n\n" + Services.core.getTags().map(formatGroup).join("\n\n") + "\n\n");
 }
+
+function dumpStack(offset, max_depth)
+{
+  if (!offset || offset<0) offset = 0;
+  if (!max_depth) max_depth = 10;
+  var frame = Components.stack;
+  while(--max_depth && (frame=frame.caller)) {
+    if (!offset)
+      dump(frame+"\n");
+    else
+      --offset;
+  }
+  dump("\n");
+}
