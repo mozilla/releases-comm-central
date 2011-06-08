@@ -39,8 +39,24 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "DBConn",
-                            function() Services.core.storageConnection);
+// Wrap all the usage of DBConn inside a transaction that will be
+// commited automatically at the end of the event loop spin so that
+// we flush buddy list data to disk only once per event loop spin.
+var gDBConnWithPendingTransaction = null;
+this.__defineGetter__("DBConn", function() {
+  if (gDBConnWithPendingTransaction)
+    return gDBConnWithPendingTransaction;
+
+  let conn = Services.core.storageConnection;
+  gDBConnWithPendingTransaction = conn;
+  conn.beginTransaction();
+  let tm = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager);
+  tm.mainThread.dispatch(function() {
+    gDBConnWithPendingTransaction.commitTransaction();
+    gDBConnWithPendingTransaction = null;
+  }, tm.DISPATCH_NORMAL);
+  return conn;
+});
 
 var AccountsById = { };
 function getAccountById(aId) {
