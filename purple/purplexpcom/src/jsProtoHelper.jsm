@@ -43,6 +43,7 @@ var EXPORTED_SYMBOLS = [
   "EmptyEnumerator",
   "ClassInfo",
   "l10nHelper",
+  "LOG",
   "GenericAccountPrototype",
   "GenericAccountBuddyPrototype",
   "GenericConvIMPrototype",
