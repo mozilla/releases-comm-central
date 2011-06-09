@@ -44,6 +44,7 @@ instantbird.jar:
 	skin/classic/instantbird/newMessage.png
 	skin/classic/instantbird/expand.png
 	skin/classic/instantbird/collapse.png
+	skin/classic/instantbird/userIcon.png
 	skin/classic/instantbird/prpl-generic/icon32.png	(prpl/prpl-generic-32.png)
 	skin/classic/instantbird/prpl-generic/icon48.png	(prpl/prpl-generic-48.png)
 	skin/classic/instantbird/prpl-generic/icon.png		(prpl/prpl-generic.png)
@@ -143,6 +144,7 @@ instantbird.jar:
 	skin/classic/aero/instantbird/newMessage.png
 	skin/classic/aero/instantbird/expand.png
 	skin/classic/aero/instantbird/collapse.png
+	skin/classic/aero/instantbird/userIcon.png
 	skin/classic/aero/instantbird/prpl-generic/icon32.png   (prpl/prpl-generic-32.png)
 	skin/classic/aero/instantbird/prpl-generic/icon48.png   (prpl/prpl-generic-48.png)
 	skin/classic/aero/instantbird/prpl-generic/icon.png     (prpl/prpl-generic.png)

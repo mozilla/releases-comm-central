@@ -91,7 +91,7 @@
 }
 
 .userIcon[src=""] {
-  background-image: url("chrome://branding/content/icon64.png");
+  background-image: url("chrome://instantbird/skin/userIcon.png");
   background-size: contain;
   background-repeat: no-repeat;
 }
