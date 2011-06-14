@@ -63,6 +63,7 @@ SUBMAKEFILES += \
 # build non-default locales to non-default dist/ locations. Be aware!
 
 AB = $(firstword $(subst -, ,$(AB_CD)))
+PWD := $(CURDIR)
 
 # These are defaulted to be compatible with the files the wget-en-US target
 # pulls. You may override them if you provide your own files. You _must_
@@ -101,20 +102,6 @@ else
 endif
 endif
 
-tests:
-ifeq (WINNT,$(OS_ARCH))
-ifneq (en-US, $(AB_CD))
-	@echo "Verifying $(AB_CD) installer variable usage"
-	@$(PERL) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/check-locales.pl $(LOCALE_SRCDIR)/installer
-endif
-endif
-
-ifneq (en-US,$(AB_CD))
-libs realchrome::
-	@echo "Comparing $(AB_CD) to en-US"
-	@$(PERL) $(MOZILLA_SRCDIR)/toolkit/locales/compare-locales.pl $(srcdir)/en-US/chrome $(LOCALE_SRCDIR)/chrome
-endif
-
 clobber-%:
 	$(RM) -rf $(DIST)/xpi-stage/locale-$*
 
@@ -124,7 +111,6 @@ libs-%:
 	@$(MAKE) -C ../../purple/locales libs-$* AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 	@$(MAKE) -C ../../mozilla/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref BOTH_MANIFESTS=1
-	@$(MAKE) tests AB_CD=$*
 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 
 ifneq (,$(filter cocoa,$(MOZ_WIDGET_TOOLKIT)))
@@ -166,6 +152,9 @@ STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/MacO
 else
 STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_DIR)
 endif
+
+# During repackaging, we never have an universal/ subfolder.
+STAGEPATH =
 
 $(STAGEDIST): AB_CD:=en-US
 $(STAGEDIST): UNPACKAGE=$(ZIP_IN)
@@ -211,6 +200,7 @@ endif
 # those are just for language packs
 	cd $(DIST)/xpi-stage/locale-$(AB_CD) && \
 	  tar --exclude=install.rdf --exclude=chrome.manifest $(TAR_CREATE_FLAGS) - * | ( cd $(STAGEDIST) && tar -xf - )
+	mv $(STAGEDIST)/chrome/$(AB_CD).manifest $(STAGEDIST)/chrome/localized.manifest
 ifneq (en,$(AB))
 ifneq (,$(filter cocoa,$(MOZ_WIDGET_TOOLKIT)))
 	mv $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/Resources/en.lproj $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/Resources/$(AB).lproj
@@ -230,6 +220,9 @@ ifneq (en,$(AB))
 ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
 	mv $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/Resources/$(AB).lproj $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/Resources/en.lproj
 endif
+endif
+ifdef MOZ_OMNIJAR
+	@(cd $(STAGEDIST) && $(UNPACK_OMNIJAR))
 endif
 	$(MAKE) clobber-zip AB_CD=$(AB_CD)
 	$(NSINSTALL) -D $(DIST)/$(PKG_PATH)
@@ -370,7 +363,7 @@ endif
 	@echo
 
 IB_L10N_REPO_BASE = https://hg.instantbird.org/l10n
-MOZ_L10N_REPO_BASE = http://hg.mozilla.org/releases/l10n-mozilla-1.9.2
+MOZ_L10N_REPO_BASE = http://hg.mozilla.org/releases/l10n-mozilla-2.0
 
 checkout-%: AB_CD=$*
 checkout-%:
@@ -379,11 +372,13 @@ checkout-%:
 	  hg clone $(IB_L10N_REPO_BASE)/$(AB_CD) $(L10NBASEDIR)/$(AB_CD) ; \
 	else \
 	  hg pull -R $(L10NBASEDIR)/$(AB_CD) $(IB_L10N_REPO_BASE)/$(AB_CD) ; \
+	  hg update -R $(L10NBASEDIR)/$(AB_CD) -C default ; \
 	fi
 	if test ! -d $(L10NBASEDIR)/moz-$(AB_CD); then \
 	  hg clone $(MOZ_L10N_REPO_BASE)/$(AB_CD) $(L10NBASEDIR)/moz-$(AB_CD) ; \
 	else \
 	  hg pull -R $(L10NBASEDIR)/moz-$(AB_CD) $(MOZ_L10N_REPO_BASE)/$(AB_CD) ; \
+	  hg update -R $(L10NBASEDIR)/moz-$(AB_CD) -C default ; \
 	fi
 	$(foreach dir,dom extensions netwerk security toolkit,\
 	  cp -r $(L10NBASEDIR)/moz-$(AB_CD)/$(dir) $(L10NBASEDIR)/$(AB_CD)/ ;)
