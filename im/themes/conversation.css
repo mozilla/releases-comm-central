@@ -186,7 +186,7 @@
   list-style-image: url('chrome://instantbird/skin/unknown.png');
 }
 
-@media all and (min-height: 401px) {
+@media all and (min-height: 251px) {
   .statusImageStack,
   .displayNameAndstatusMessageStack {
     margin: 2px 2px;
@@ -228,7 +228,7 @@
   }
 }
 
-@media all and (max-height: 400px) {
+@media all and (max-height: 250px) {
   .displayName,
   .statusMessageWithDash {
     margin: 2px 0 !important;

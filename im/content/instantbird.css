@@ -49,13 +49,13 @@ conversation {
   -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
 }
 
-@media all and (min-height: 401px) {
+@media all and (min-height: 251px) {
   .conv-top-info {
     -moz-binding: url("chrome://instantbird/content/conversation.xml#conv-info-large") !important;
   }
 }
 
-@media all and (max-height: 400px) {
+@media all and (max-height: 250px) {
   .conv-top-info {
     -moz-binding: url("chrome://instantbird/content/conversation.xml#conv-info-small") !important;
   }
@@ -66,7 +66,7 @@ conversation {
   }
 }
 
-@media all and (max-height: 230px) {
+@media all and (max-height: 200px) {
   .conv-top-info {
     display: none;
   }

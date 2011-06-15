@@ -48,7 +48,7 @@ statusbar {
   min-height: 16px;
 }
 
-@media all and (max-height: 230px) {
+@media all and (max-height: 350px) {
   statusbar {
     display: none;
   }
