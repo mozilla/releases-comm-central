@@ -64,5 +64,11 @@ const Status = {
                 .GetStringFromName(aStatusType + "StatusType");
     }
     return this._labels[aStatusType];
+  },
+  toFlag: function(aAttribute) {
+    for (let flag in statusNames)
+      if (statusNames[flag] == aAttribute)
+        return flag;
+    return imIStatusInfo.STATUS_UNKNOWN;
   }
 };

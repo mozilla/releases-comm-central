@@ -200,6 +200,11 @@ var menus = {
       return; // is this really possible?
 
     let blist = this.focus("Messenger:blist");
-    blist.buddyList.startEditStatus(status);
+    if (blist)
+      blist.buddyList.startEditStatus(status);
+    else {
+      Services.core.setStatus(Status.toFlag(status),
+                              Services.core.currentStatusMessage);
+    }
   }
 };
