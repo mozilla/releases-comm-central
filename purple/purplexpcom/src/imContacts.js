@@ -193,7 +193,6 @@ var otherContactsTag = {
                                [id for (id in this._hiddenTags)].join(","));
   },
   showTag: function(aTag) {
-    aTag.removeObserver(this);
     let id = aTag.id;
     delete this._hiddenTags[id];
     for each (let contact in this._contacts)
@@ -221,29 +220,19 @@ var otherContactsTag = {
       if (!(contact.id in this._contacts) &&
           contact.getTags().every(function(t) t.id in this._hiddenTags, this))
         this._addContact(contact);
-    aTag.addObserver(this);
   },
   observe: function(aSubject, aTopic, aData) {
-    if (aTopic != "contact-moved-in" && aTopic != "contact-moved-out" &&
-        aTopic != "contact-removed")
-      return;
-
-    try {
-      aSubject.QueryInterface(Ci.imIContact);
-    } catch (e) {
-      // TODO Most likely, aSubject is a tag. If a tag was added to a
-      // contact we currently track, we should check that the new tag
-      // is hidden, and if it is not, remove the contact from the
-      // 'other contacts' group.
-      return;
+    aSubject.QueryInterface(Ci.imIContact);
+    if (aTopic == "contact-tag-removed") {
+      if (!(aSubject.id in this._contacts) &&
+          !(parseInt(aData) in this._hiddenTags) &&
+          aSubject.getTags().every(function(t) t.id in this._hiddenTags, this))
+        this._addContact(aSubject);
     }
-
-    if (aTopic == "contact-moved-in" && !(aSubject.id in this._contacts) &&
-        aSubject.getTags().every(function(t) t.id in this._hiddenTags, this))
-      this._addContact(aSubject);
-    else if (aTopic == "contact-removed" && aSubject.id in this._contacts ||
-             (aTopic == "contact-moved-out" && aSubject.id in this._contacts &&
-              aSubject.getTags().some(function(t) !(t.id in this._hiddenTags))))
+    else if (aSubject.id in this._contacts &&
+             (aTopic == "contact-removed" ||
+              (aTopic == "contact-tag-added" &&
+              !(parseInt(aData) in this._hiddenTags))))
       this._removeContact(aSubject);
   },
 
@@ -271,6 +260,9 @@ var otherContactsTag = {
     this._contactsInitialized = true;
     for each (let tag in this._hiddenTags)
       this._hideTag(tag);
+    Services.obs.addObserver(this, "contact-tag-added", false);
+    Services.obs.addObserver(this, "contact-tag-removed", false);
+    Services.obs.addObserver(this, "contact-removed", false);
   },
 
   // imITag implementation
@@ -399,7 +391,7 @@ Contact.prototype = {
     aTag.notifyObservers(this, "contact-moved-in");
     for each (let observer in this._observers)
       observer.observe(aTag, "contact-moved-in", null);
-    Services.obs.notifyObservers(this, "contact-tagged", aTag.id);
+    Services.obs.notifyObservers(this, "contact-tag-added", aTag.id);
   },
   /* Remove a tag from the local tags of the contact. */
   _removeTag: function(aTag) {
@@ -420,6 +412,7 @@ Contact.prototype = {
     aTag.notifyObservers(this, "contact-moved-out");
     for each (let observer in this._observers)
       observer.observe(aTag, "contact-moved-out", null);
+    Services.obs.notifyObservers(this, "contact-tag-removed", aTag.id);
   },
   hasTag: function(aTag) this._tags.some(function (t) t.id == aTag.id),
   _massMove: false,
@@ -506,11 +499,13 @@ Contact.prototype = {
       aOldTag.notifyObservers(this, "contact-moved-out");
       for each (let observer in this._observers)
         observer.observe(aOldTag, "contact-moved-out", null);
+      Services.obs.notifyObservers(this, "contact-tag-removed", aOldTag.id);
     }
     if (shouldAdd) {
       aNewTag.notifyObservers(this, "contact-moved-in");
       for each (let observer in this._observers)
         observer.observe(aNewTag, "contact-moved-in", null);
+      Services.obs.notifyObservers(this, "contact-tag-added", aNewTag.id);
     }
     Services.obs.notifyObservers(this, "contact-moved", null);
   },

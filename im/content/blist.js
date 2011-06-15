@@ -39,8 +39,7 @@ Components.utils.import("resource:///modules/imStatusUtils.jsm");
 
 const events = ["contact-availability-changed",
                 "contact-added",
-                "contact-moved",
-                "contact-tagged",
+                "contact-tag-added",
                 "status-changed",
                 "tag-hidden",
                 "tag-shown",
