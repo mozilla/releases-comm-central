@@ -43,6 +43,7 @@
 
 <dialog
   id     = "joinChatDialog"
+  windowtype="Messenger:JoinChat"
   title  = "&joinChatWindow.title;"
   buttons= "accept,cancel"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

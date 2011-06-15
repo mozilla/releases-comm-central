@@ -38,7 +38,7 @@ instantbird.jar:
 	content/instantbird/joinchat.js
 	content/instantbird/joinchat.xul
 *	content/instantbird/menus.xul
-	content/instantbird/menus.js
+*	content/instantbird/menus.js
 *	content/instantbird/nsContextMenu.js
 	content/instantbird/proxies.js
 	content/instantbird/proxies.xul

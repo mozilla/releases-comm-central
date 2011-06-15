@@ -148,14 +148,24 @@ var menus = {
     document.getElementById("joinChatMenuItem").disabled = !canJoinChat;
   },
 
+  openDialog: function menu_openDialog(aWindowType, aURL) {
+    let features = "chrome,modal,titlebar,centerscreen";
+#ifdef XP_MACOSX
+    let hiddenWindowUrl =
+      Services.prefs.getCharPref("browser.hiddenWindowChromeURL");
+    if (window.location.href == hiddenWindowUrl) {
+      Core.showWindow(aWindowType, aURL, "", features);
+      return;
+    }
+#endif
+    window.openDialog(addBuddyWindow, "", features);
+  },
   addBuddy: function menu_addBuddy() {
-    window.openDialog(addBuddyWindow, "",
-                      "chrome,modal,titlebar,centerscreen");
+    this.openDialog("Messenger:Addbuddy", addBuddyWindow);
   },
 
   joinChat: function menu_joinChat() {
-    window.openDialog(joinChatWindow, "",
-                      "chrome,modal,titlebar,centerscreen");
+    this.openDialog("Messenger:JoinChat", joinChatWindow);
   },
 
   checkCurrentStatusType: function menu_checkCurrentStatusType(aItems) {

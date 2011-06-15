@@ -43,6 +43,7 @@
 
 <dialog
   id     = "addBuddyDialog"
+  windowtype="Messenger:AddBuddy"
   title  = "&addBuddyWindow.title;"
   buttons= "accept,cancel"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
