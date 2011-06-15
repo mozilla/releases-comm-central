@@ -44,6 +44,7 @@ const Cc = Components.classes;
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://purple/locale/twitter.properties")
 );
+initLogModule("twitter");
 
 function ChatBuddy(aName) {
   this._name = aName;
@@ -150,6 +151,7 @@ Account.prototype = {
       return;
     }
 
+    LOG("Connecting using existing token");
     this.getTimelines();
   },
 
@@ -337,7 +339,7 @@ Account.prototype = {
       try {
         msg = JSON.parse(message);
       } catch (e) {
-        dump("error: " + e + " while parsing " + message + "\n");
+        ERROR(e + " while parsing " + message);
         continue;
       }
       this.displayMessages([msg]);

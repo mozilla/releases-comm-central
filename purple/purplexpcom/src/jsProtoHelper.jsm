@@ -43,7 +43,7 @@ var EXPORTED_SYMBOLS = [
   "EmptyEnumerator",
   "ClassInfo",
   "l10nHelper",
-  "LOG",
+  "initLogModule",
   "GenericAccountPrototype",
   "GenericAccountBuddyPrototype",
   "GenericConvIMPrototype",
@@ -67,10 +67,48 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
 
-function LOG(aString)
-{
-  Services.console.logStringMessage(aString);
+const PURPLE_DEBUG_MISC = 1; // Very verbose (= 'DEBUG')
+const PURPLE_DEBUG_INFO = 2; // Verbose (= 'LOG')
+const PURPLE_DEBUG_WARNING = 3;
+const PURPLE_DEBUG_ERROR = 4;
+
+function scriptError(aModule, aLevel, aMessage) {
+  // Only continue if we want to see this level of logging.
+  let logLevel = Services.prefs.getIntPref("purple.debug.loglevel");
+  if (logLevel > aLevel)
+    return;
+
+  // Log a debug statement.
+  if (aLevel == PURPLE_DEBUG_INFO && logLevel == PURPLE_DEBUG_INFO) {
+    Services.console.logStringMessage(aMessage);
+    return;
+  }
+
+  let flag = Ci.nsIScriptError.warningFlag;
+  if (aLevel >= PURPLE_DEBUG_ERROR)
+    flag = Ci.nsIScriptError.errorFlag;
+
+  let scriptError =
+    Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
+  let caller = Components.stack.caller;
+  let sourceLine = aModule || caller.sourceLine;
+  if (caller.name) {
+    if (sourceLine)
+      sourceLine += ": ";
+    sourceLine += caller.name;
+  }
+  scriptError.init(aMessage, caller.filename, sourceLine, caller.lineNumber,
+                   null, flag, "component javascript");
+  Services.console.logMessage(scriptError);
 }
+function initLogModule(aModule)
+{
+  this.DEBUG = scriptError.bind(this, aModule, PURPLE_DEBUG_MISC);
+  this.LOG   = scriptError.bind(this, aModule, PURPLE_DEBUG_INFO);
+  this.WARN  = scriptError.bind(this, aModule, PURPLE_DEBUG_WARNING);
+  this.ERROR = scriptError.bind(this, aModule, PURPLE_DEBUG_ERROR);
+}
+initLogModule("jsProtoHelper");
 
 function setTimeout(aFunction, aDelay)
 {
@@ -826,7 +864,7 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
   xhr.onload = function (aRequest) {
     try {
       let target = aRequest.target;
-      LOG("Received response: " + target.responseText);
+      DEBUG("Received response: " + target.responseText);
       if (target.status != 200)
         throw target.status + " - " + target.statusText;
       if (aOnLoad)
