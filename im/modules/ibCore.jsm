@@ -130,7 +130,12 @@ var Core = {
   showAccounts: function() {
     this.showWindow("Messenger:Accounts",
                     "chrome://instantbird/content/accounts.xul", "Accounts",
-                    "chrome,resizable");
+                    "chrome,resizable,centerscreen");
+  },
+  showAddons: function() {
+    this.showWindow("Addons:Manager",
+                    "chrome://instantbird/content/extensions.xul", "Addons",
+                    "chrome,menubar,extrachrome,toolbar,dialog=no,resizable,centerscreen");
   },
   showContacts: function() {
     this.showWindow("Messenger:blist",

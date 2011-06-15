@@ -54,7 +54,6 @@
   windowtype="Messenger:blist"
   title  = "&contacts.title;"
   width  = "200"
-  height = "600"
   persist= "width height screenX screenY"
 #ifndef XP_MACOSX
   onclose= "event.preventDefault(); goQuitApplication();"

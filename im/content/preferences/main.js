@@ -38,6 +38,9 @@
 #
 # ***** END LICENSE BLOCK *****
 
+if (!("Core" in window))
+  Components.utils.import("resource:///modules/ibCore.jsm");
+
 var gMainPane = {
   _pane: null,
 
@@ -50,23 +53,11 @@ var gMainPane = {
   },
 
   /**
-   * Helper to focus an already existing window before opening a new one.
-   */
-  focus: function (aWindowType) {
-    var win = Services.wm.getMostRecentWindow(aWindowType);
-    if (win)
-      win.focus();
-    return win;
-  },
-
-  /**
    * Displays the Add-ons Manager.
    */
   showAccountsMgr: function ()
   {
-    if (!this.focus("Messenger:Accounts"))
-      window.open("chrome://instantbird/content/accounts.xul", "Accounts",
-                  "chrome,resizable");
+    Core.showAccounts();
   },
 
   /**
@@ -74,10 +65,6 @@ var gMainPane = {
    */
   showAddonsMgr: function ()
   {
-    const AMURL = "chrome://instantbird/content/extensions.xul";
-
-    if (!this.focus("Addons:Manager"))
-      window.open(AMURL, "Addons",
-                  "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
+    Core.showAddons();
   }
 };

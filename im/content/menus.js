@@ -35,9 +35,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const addonManagerWindow = "chrome://instantbird/content/extensions.xul";
-const accountManagerWindow = "chrome://instantbird/content/accounts.xul";
-const blistWindow = "chrome://instantbird/content/blist.xul";
 const addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 const joinChatWindow = "chrome://instantbird/content/joinchat.xul";
 const aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
@@ -50,17 +47,9 @@ if (!("Core" in window))
   Components.utils.import("resource:///modules/ibCore.jsm");
 
 var menus = {
-  focus: function menu_focus(aWindowType) {
-    var win = Services.wm.getMostRecentWindow(aWindowType);
-    if (win)
-      win.focus();
-    return win;
-  },
-
   about: function menu_about() {
-    if (!this.focus("Messenger:About"))
-      window.open(aboutWindow, "About",
-                  "chrome,resizable=no,minimizable=no,centerscreen");
+    Core.showWindow("Messenger:About", aboutWindow, "About",
+                    "chrome,resizable=no,minimizable=no,centerscreen");
   },
 
   accounts: function menu_accounts() {
@@ -72,15 +61,12 @@ var menus = {
   },
 
   addons: function menu_addons() {
-    if (!this.focus("Addons:Manager"))
-      window.open(addonManagerWindow, "Addons",
-                  "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable");
+    Core.showAddons();
   },
 
   errors: function debug_errors() {
-    if (!menus.focus("global:console"))
-      window.open(errorConsoleWindow, "Errors",
-                  "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+    Core.showWindow("global:console", errorConsoleWindow, "Errors",
+                    "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
   },
 
   updates: function menu_updates() {
@@ -199,9 +185,11 @@ var menus = {
     if (!status)
       return; // is this really possible?
 
-    let blist = this.focus("Messenger:blist");
-    if (blist)
+    let blist = Services.wm.getMostRecentWindow("Messenger:blist");
+    if (blist) {
+      blist.focus();
       blist.buddyList.startEditStatus(status);
+    }
     else {
       Services.core.setStatus(Status.toFlag(status),
                               Services.core.currentStatusMessage);

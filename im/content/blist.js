@@ -592,6 +592,14 @@ var buddyList = {
       }
     }
 
+    // Move the window to the right of the screen on new profiles.
+    let docElt = document.documentElement;
+    if (!docElt.hasAttribute("height")) {
+      docElt.setAttribute("height", screen.availHeight || 600);
+      let width = parseInt(docElt.getAttribute("width"));
+      window.moveTo(screen.availLeft + screen.availWidth - width, 0);
+    }
+
     // TODO remove this once we cleanup the way the menus are inserted
     let menubar = document.getElementById("blistMenubar");
     let statusArea = document.getElementById("statusArea");
