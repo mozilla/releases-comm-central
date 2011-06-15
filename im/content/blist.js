@@ -448,7 +448,8 @@ var buddyList = {
 
   statusMessageRefreshTimer: function bl_statusMessageRefreshTimer() {
     const timeBeforeAutoValidate = 20 * 1000;
-    clearTimeout(this._stopEditStatusTimeout);
+    if ("_stopEditStatusTimeout" in this)
+      clearTimeout(this._stopEditStatusTimeout);
     this._stopEditStatusTimeout = setTimeout(this.finishEditStatusMessage,
                                              timeBeforeAutoValidate, true);
   },
@@ -476,6 +477,7 @@ var buddyList = {
 
   finishEditStatusMessage: function bl_finishEditStatusMessage(aSave) {
     clearTimeout(this._stopEditStatusTimeout);
+    delete this._stopEditStatusTimeout;
     let elt = document.getElementById("statusMessage");
     if (aSave) {
       let newStatus = Ci.imIStatusInfo.STATUS_UNKNOWN;
