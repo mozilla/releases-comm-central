@@ -468,6 +468,19 @@
         }
 
         var inputBox = this.editor;
+#ifndef XP_MACOSX
+        var accelKeyPressed = event.ctrlKey;
+#else
+        var accelKeyPressed = event.metaKey;
+#endif
+        // When attempting to copy an empty selection, copy the
+        // browser selection instead (see bug 693).
+        if (event.charCode == 99 /* 'c' */ && accelKeyPressed &&
+            inputBox.selectionStart == inputBox.selectionEnd) {
+          this.browser.doCommand();
+          return;
+        }
+
         if (event.keyCode != 13) {
           setTimeout((function () {
             // By the time the timeout is executed, the conversation may have
