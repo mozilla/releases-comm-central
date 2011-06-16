@@ -80,19 +80,9 @@
           </xul:vbox>
         </xul:hbox>
         <xul:splitter class="splitter" anonid="splitter-bottom"/>
-        <xul:deck anonid="conv-bottom" class="conv-bottom" selectedIndex="1">
-          <xul:vbox>
-<!--
-            <xul:toolbar anonid="conv-toolbar">
-              <xul:toolbarbutton label="Bold" oncommand="this.editorDoCommand('bold');"/>
-              <xul:toolbarbutton label="Italic" oncommand="this.editorDoCommand('italic');"/>
-              <xul:toolbarbutton label="Underline" oncommand="this.editorDoCommand('underline');"/>
-            </xul:toolbar>
--->
-            <xul:editor anonid="editor" editortype="html" src="about:blank" flex="1"/>
-          </xul:vbox>
+        <xul:vbox anonid="conv-bottom" class="conv-bottom">
           <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"/>
-        </xul:deck>
+        </xul:vbox>
       </xul:vbox>
     </content>
     <implementation implements="nsIObserver">
@@ -106,12 +96,6 @@
        this.getElt("splitter-bottom")
            .addEventListener("DOMAttrModified",
                              this._onSplitterChange.bind(this), false);
-
-       var editor = this.getElt("editor");
-       editor.addEventListener("keypress", this.editorKeyPress, false);
-       //this doesn't work at the moment
-       //editor.contentDocument.designMode = "on";
-       //setTimeout(function() { editor.contentWindow.focus(); }, 100);
 
        var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress, false);
@@ -635,42 +619,6 @@
       </body>
      </method>
 
-     <method name="editorKeyPress">
-      <parameter name="event"/>
-      <body>
-      <![CDATA[
-        if (event.keyCode != 13)
-          return;
-
-        // "this" points to the textbox, get the conversation element.
-        var conv = document.getBindingParent(this);
-        var editor = this.getEditor(this.contentWindow);
-        var docRoot = editor.rootElement;
-
-        if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
-          conv.sendMsg(docRoot.innerHTML);
-          docRoot.innerHTML = "";
-          event.preventDefault();
-        }
-        else {
-          if (!event.shiftKey)
-            // unfortunately, this doesn't work
-            this.contentDocument.execCommand("inserthtml", false, "<br>");
-        }
-      ]]>
-      </body>
-     </method>
-
-     <method name="editorDoCommand">
-      <parameter name="aCmd"/>
-      <parameter name="aHtml"/>
-      <body>
-      <![CDATA[
-        this.getElt("editor").contentDocument.execCommand(aCmd, false, aHtml);
-      ]]>
-      </body>
-     </method>
-
      <method name="browserKeyPress">
      <parameter name="event"/>
       <body>
@@ -685,10 +633,6 @@
             event.keyCode != 13)
           return;
 
-        var conv = document.getBindingParent(this);
-        var isHtmlMode = conv.isHtmlMode;
-        var editor = conv.editor;
-
         if (event.charCode == 0 &&  // it's not a character, it's a command key
             (event.keyCode != 13 && // Return
              event.keyCode != 8 &&  // Backspace
@@ -697,7 +641,7 @@
 
         if (accelKeyPressed ||
             !Services.prefs.getBoolPref("accessibility.typeaheadfind"))
-          editor.focus();
+          document.getBindingParent(this).editor.focus();
 
         // Returns for Ctrl+V
         if (accelKeyPressed)
@@ -1236,20 +1180,12 @@
        </setter>
      </property>
 
-     <property name="isHtmlMode">
-       <getter>
-         <![CDATA[
-           return (this.getElt("conv-bottom").selectedIndex == "0");
-         ]]>
-       </getter>
-     </property>
-
      <field name="_editor">null</field>
      <property name="editor">
        <getter>
          <![CDATA[
           if (!this._editor)
-            this._editor = this.getElt(this.isHtmlMode ? "editor" : "inputBox");
+            this._editor = this.getElt("inputBox");
           return this._editor;
          ]]>
        </getter>
