@@ -452,14 +452,16 @@
         }
 
         var inputBox = this.editor;
-#ifndef XP_MACOSX
-        var accelKeyPressed = event.ctrlKey;
-#else
-        var accelKeyPressed = event.metaKey;
-#endif
         // When attempting to copy an empty selection, copy the
         // browser selection instead (see bug 693).
-        if (event.charCode == 99 /* 'c' */ && accelKeyPressed &&
+        // The 'C' won't be lowercase if caps lock is enabled.
+        if ((event.charCode == 99 /* 'c' */ ||
+             (event.charCode == 67 /* 'C' */ && !event.shiftKey)) &&
+#ifndef XP_MACOSX
+            event.ctrlKey &&
+#else
+            event.metaKey &&
+#endif
             inputBox.selectionStart == inputBox.selectionEnd) {
           this.browser.doCommand();
           return;
