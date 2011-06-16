@@ -39,6 +39,7 @@ const {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource:///modules/imStatusUtils.jsm");
 
 function StatusCLH() { }
 StatusCLH.prototype = {
@@ -53,24 +54,13 @@ StatusCLH.prototype = {
     if (statusIndex == -1 || cmdLine.length <= statusIndex + 1)
       return;
 
-    let requestedStatus;
     let statusParam = cmdLine.getArgument(statusIndex + 1).toLowerCase();
-    if (statusParam == "available")
-      requestedStatus = Ci.imIStatusInfo.STATUS_AVAILABLE;
-    else if (statusParam == "away")
-      requestedStatus = Ci.imIStatusInfo.STATUS_AWAY;
-    else if (statusParam == "offline")
-      requestedStatus = Ci.imIStatusInfo.STATUS_OFFLINE;
-    else {
-      // Return so other statuses could be handled by an extension.
-      return;
-    }
 
     // Remove the arguments since they've been handled.
     cmdLine.removeArguments(statusIndex, statusIndex + 1);
 
     // We're keeping the old status message here.
-    Services.core.setStatus(requestedStatus,
+    Services.core.setStatus(Status.toFlag(statusParam),
                             Services.core.currentStatusMessage);
 
     // Only perform the default action (i.e. loading the buddy list) if

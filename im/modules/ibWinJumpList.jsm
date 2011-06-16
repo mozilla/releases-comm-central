@@ -39,12 +39,8 @@ const EXPORTED_SYMBOLS = ["WinJumpList"];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
-
-XPCOMUtils.defineLazyGetter(this, "bundle", function()
-  Services.strings.createBundle("chrome://instantbird/locale/winjumplist.properties")
-);
+Cu.import("resource:///modules/imStatusUtils.jsm");
 
 var WinJumpList = {
   winJumpListBuilder: null,
@@ -67,22 +63,22 @@ var WinJumpList = {
   jumplistEntries: [
     { type: "shortcut",
       id: "status_available",
-      get label() bundle.GetStringFromName("available.label"),
-      get description() bundle.GetStringFromName("available.tooltip"),
+      get label() Status.toLabel("available"),
+      description: null,
       parameter: "-status available",
       iconIndex: 1
     },
     { type: "shortcut",
-      id: "status_away",
-      get label() bundle.GetStringFromName("away.label"),
-      get description() bundle.GetStringFromName("away.tooltip"),
-      parameter: "-status away",
+      id: "status_unavailable",
+      get label() Status.toLabel("unavailable"),
+      description: null,
+      parameter: "-status unavailable",
       iconIndex: 2
     },
     { type: "shortcut",
       id: "status_offline",
-      get label() bundle.GetStringFromName("offline.label"),
-      get description() bundle.GetStringFromName("offline.tooltip"),
+      get label() Status.toLabel("offline"),
+      description: null,
       parameter: "-status offline",
       iconIndex: 3
     }
