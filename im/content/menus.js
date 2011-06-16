@@ -158,7 +158,7 @@ var menus = {
       return;
     }
 #endif
-    window.openDialog(addBuddyWindow, "", features);
+    window.openDialog(aURL, "", features);
   },
   addBuddy: function menu_addBuddy() {
     this.openDialog("Messenger:Addbuddy", addBuddyWindow);
