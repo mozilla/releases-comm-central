@@ -82,6 +82,11 @@ function buddyListContextMenu(aXulMenu) {
     document.getElementById("context-hide-tag").disabled =
       this.target.tag.id == -1;
   }
+  else {
+    let enumerator = this._getLogs();
+    document.getElementById("context-showlogs").disabled =
+      !enumerator || !enumerator.hasMoreElements();
+  }
 
   document.getElementById("context-show-offline-buddies-separator").hidden =
     hide && !this.onGroup;
@@ -203,13 +208,16 @@ buddyListContextMenu.prototype = {
     // contact already has it, addTag will return early.
     contact.addTag(Services.tags.createTag(name.value));
   },
-  showLogs: function blcm_showLogs() {
-    let enumerator;
+  _getLogs: function blcm_getLogs() {
     if (this.onContact)
-      enumerator = Services.logs.getLogsForContact(this.target.contact);
-    else if (this.onBuddy)
-      enumerator = Services.logs.getLogsForBuddy(this.target.buddy);
-    else
+      return Services.logs.getLogsForContact(this.target.contact);
+    if (this.onBuddy)
+      return Services.logs.getLogsForBuddy(this.target.buddy);
+    return null;
+  },
+  showLogs: function blcm_showLogs() {
+    let enumerator = this._getLogs();
+    if (!enumerator)
       return;
 
     var logs = [];
