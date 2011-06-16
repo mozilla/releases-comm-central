@@ -229,6 +229,10 @@
 }
 
 @media all and (max-height: 250px) {
+  .conv-top-info {
+    -moz-box-align: baseline;
+  }
+
   .displayName,
   .statusMessageWithDash {
     margin: 2px 0 !important;
