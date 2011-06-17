@@ -108,6 +108,8 @@ function Account(aProtoInstance, aKey, aName)
 {
   this._init(aProtoInstance, aKey, aName);
   this._knownMessageIds = {};
+
+  Services.obs.addObserver(this, "status-changed", false);
 }
 Account.prototype = {
   __proto__: GenericAccountPrototype,
@@ -125,10 +127,14 @@ Account.prototype = {
   _pendingRequests: [],
   _timelineBuffer: [],
 
+  // Used to know if we should connect when returning from the offline status.
+  _enabled: false,
+
   token: "",
   tokenSecret: "",
   connect: function() {
     this.base.connecting();
+    this._enabled = true;
 
     // Read the OAuth token from the prefs
     let prefName = "messenger.account." + this.id + ".options.oauth";
@@ -156,6 +162,20 @@ Account.prototype = {
     this.getTimelines();
   },
 
+  // Currently only used for "status-changed" notification.
+  observe: function(aSubject, aTopic, aMsg) {
+    if (!this._enabled)
+      return;
+
+    if (aSubject.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
+      // This will remove the _enabled value...
+      this.disconnect();
+      // ...set it again:
+      this._enabled = true;
+    }
+    else if (aSubject.currentStatusType > Ci.imIStatusInfo.STATUS_OFFLINE)
+      this.connect();
+  },
 
   signAndSend: function(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis,
                         aOAuthParams) {
@@ -514,10 +534,12 @@ Account.prototype = {
   },
   UnInit: function() {
     this.cleanUp();
+    Services.obs.removeObserver(this, "status-changed");
     this._base.UnInit();
   },
   disconnect: function() {
     this.gotDisconnected();
+    delete this._enabled;
   },
 
   onError: function(aException) {
