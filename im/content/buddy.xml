@@ -290,7 +290,7 @@
   <binding id="buddy-dummy" extends="chrome://instantbird/content/buddy.xml#buddy">
     <content align="center" mousethrough="always">
       <xul:label crop="end" flex="1" mousethrough="always"
-                 value="&contactDropTarget;"/>
+                 value="&lt;&contactDropTarget;&gt;"/>
     </content>
     <implementation>
      <method name="removeNode">

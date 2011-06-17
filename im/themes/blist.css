@@ -64,6 +64,10 @@ group[selected="true"] {
   color: -moz-DialogText;
 }
 
+contact[open]:not([selected]):not([droptarget]) {
+  background: -moz-linear-gradient(45deg, -moz-Dialog, white 20%, white 80%, -moz-Dialog);
+}
+
 :-moz-any(contact, buddy)[droptarget] {
   background-color: Highlight;
 }
@@ -154,14 +158,12 @@ contact[droptarget] > buddy[dummy] {
 }
 
 .contactBuddies {
-  background: -moz-linear-gradient(left, -moz-Dialog, white);
   -moz-padding-start: 23px;
 }
 
 buddy[dummy] {
   -moz-margin-start: -23px;
-  -moz-padding-start: 18px;
-  background-color: -moz-Dialog;
+  text-align: center;
 }
 
 .prplBuddyIcon {
