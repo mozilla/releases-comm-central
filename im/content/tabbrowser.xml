@@ -244,6 +244,8 @@
             var menuItems = aPopupMenu.getElementsByAttribute("tbattr", "tabbrowser-multiple");
             for (var i = 0; i < menuItems.length; i++)
               menuItems[i].disabled = disabled;
+            document.getElementById("context_showLogs").disabled =
+              !this.mContextTab.linkedConversation.hasLogs();
           ]]>
         </body>
       </method>

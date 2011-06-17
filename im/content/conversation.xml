@@ -886,6 +886,14 @@
        </body>
      </method>
 
+     <method name="hasLogs">
+       <body>
+       <![CDATA[
+         return Services.logs.getLogsForConversation(this.conv).hasMoreElements();
+       ]]>
+       </body>
+     </method>
+
      <method name="showLogs">
        <body>
        <![CDATA[
