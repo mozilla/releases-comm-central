@@ -595,6 +595,16 @@ const GenericConvChatPrototype = {
   _nick: null,
   _topic: null,
   _topicSetter: null,
+  setTopic: function(aTopic, aTopicSetter) {
+    // Only change the topic if the topic and/or topic setter has changed.
+    if (this._topic == aTopic && this._topicSetter == aTopicSetter)
+      return;
+
+    this._topic = aTopic;
+    this._topicSetter = aTopicSetter;
+
+    this.notifyObservers(null, "chat-update-topic");
+  },
 
   _init: function(aAccount, aName, aNick) {
     this._participants = {};

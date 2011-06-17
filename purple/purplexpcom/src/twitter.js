@@ -80,6 +80,7 @@ Conversation.prototype = {
     if (tweet.user.screen_name != this.account.name)
       throw "Wrong screen_name... Uh?";
     this.account.displayMessages([tweet]);
+    this.setTopic(tweet.text, tweet.user.screen_name);
   },
   displayTweet: function(aTweet) {
     let name = aTweet.user.screen_name;
@@ -261,7 +262,7 @@ Account.prototype = {
   },
 
   onTimelineError: function(aError, aResponseText, aRequest) {
-    // TODO show the error in the console...
+    ERROR(aError);
     this._doneWithTimelineRequest(aRequest);
   },
 
@@ -299,6 +300,15 @@ Account.prototype = {
 
     this._timelineBuffer.sort(this.sortByDate);
     this.displayMessages(this._timelineBuffer);
+
+    // Use the users' newest tweet as the topic.
+    for (let i = this._timelineBuffer.length - 1; i >= 0; --i) {
+      let tweet = this._timelineBuffer[i];
+      if (tweet.user.screen_name == this.name) {
+        this.timeline.setTopic(tweet.text, tweet.user.screen_name);
+        break;
+      }
+    }
 
     // Reset in case we get disconnected
     delete this._timelineBuffer;
@@ -343,6 +353,11 @@ Account.prototype = {
         continue;
       }
       this.displayMessages([msg]);
+
+      // If the message is from us, set it as the topic.
+      if (("user" in msg) && ("text" in msg) &&
+          (msg.user.screen_name == this.name))
+        this.timeline.setTopic(msg.text, msg.user.screen_name);
     }
   },
 
