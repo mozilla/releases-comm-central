@@ -1454,8 +1454,9 @@
 
   <binding id="menuitem-target" extends="chrome://global/content/bindings/menu.xml#menuitem">
     <content>
-      <xul:stack class="menu-iconic-left" align="center" pack="center"
-                xbl:inherits="selected,disabled,checked">
+      <xul:stack class="menu-iconic-left alltargets-item-icon-stack"
+                 align="center" pack="center"
+                 xbl:inherits="selected,disabled,checked">
         <xul:image class="menu-iconic-icon" xbl:inherits="src=image,validate,src"/>
         <xul:image class="menu-iconic-icon status-overlay-icon" xbl:inherits="status"/>
       </xul:stack>
