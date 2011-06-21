@@ -133,6 +133,9 @@ Account.prototype = {
   token: "",
   tokenSecret: "",
   connect: function() {
+    if (this.connected || this.connecting)
+      return;
+
     this.base.connecting();
     this._enabled = true;
 
@@ -167,13 +170,14 @@ Account.prototype = {
     if (!this._enabled)
       return;
 
-    if (aSubject.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
+    let statusType = aSubject.currentStatusType;
+    if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
       // This will remove the _enabled value...
       this.disconnect();
       // ...set it again:
       this._enabled = true;
     }
-    else if (aSubject.currentStatusType > Ci.imIStatusInfo.STATUS_OFFLINE)
+    else if (statusType > Ci.imIStatusInfo.STATUS_OFFLINE)
       this.connect();
   },
 
@@ -523,6 +527,9 @@ Account.prototype = {
     delete this.tokenSecret;
   },
   gotDisconnected: function(aError, aErrorMessage) {
+    if (this.disconnected || this.disconnecting)
+      return;
+
     if (aError === undefined)
       aError = this._base.NO_ERROR;
     let connected = this.connected;
@@ -530,6 +537,7 @@ Account.prototype = {
     this.cleanUp();
     if (this._timeline && connected)
       this._timeline.notifyObservers(this._timeline, "update-conv-chatleft");
+    delete this._enabled;
     this.base.disconnected();
   },
   UnInit: function() {
@@ -539,7 +547,6 @@ Account.prototype = {
   },
   disconnect: function() {
     this.gotDisconnected();
-    delete this._enabled;
   },
 
   onError: function(aException) {
