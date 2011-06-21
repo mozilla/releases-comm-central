@@ -875,8 +875,12 @@ function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
     try {
       let target = aRequest.target;
       DEBUG("Received response: " + target.responseText);
-      if (target.status != 200)
-        throw target.status + " - " + target.statusText;
+      if (target.status != 200) {
+        let errorText = target.responseText;
+        if (!errorText || /<(ht|\?x)ml\b/i.test(errorText))
+          errorText = target.statusText;
+        throw target.status + " - " + errorText;
+      }
       if (aOnLoad)
         aOnLoad.call(aThis, target.responseText, this);
     } catch (e) {
