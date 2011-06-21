@@ -83,15 +83,10 @@
         this.group = aGroup;
         this.contact = aContact;
         this.contact.addObserver(this);
+        this.addEventListener("transitionend", this._transitionEnd, true);
 
         // Don't do the animation if inside a closed group
-        if (this.hasAttribute("collapsed")) {
-          this.state = "collapsed";
-          return;
-        }
-
-        this.state = "showing";
-        this.addEventListener("transitionend", this._transitionEnd, true);
+        this.state = this.hasAttribute("collapsed") ? "collapsed" : "showing";
       ]]>
       </body>
      </method>
