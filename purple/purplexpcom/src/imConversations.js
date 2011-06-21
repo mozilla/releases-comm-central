@@ -94,6 +94,11 @@ UIConversation.prototype = {
 
     let shouldNotify = this._currentTargetId;
     this._currentTargetId = id;
+    if (!this.isChat) {
+      let buddy = this.buddy;
+      if (buddy)
+        ({statusType: this.statusType, statusText: this.statusText}) = buddy;
+    }
     if (shouldNotify) {
       this.notifyObservers(this, "target-purple-conversation-changed");
       let target = this.target;
@@ -168,8 +173,7 @@ UIConversation.prototype = {
   _statusUpdatePending: false,
   updateBuddyStatus: function() {
     delete this._statusUpdatePending;
-    let statusType = this.buddy.statusType;
-    let statusText = this.buddy.statusText;
+    let {statusType: statusType, statusText: statusText} = this.buddy;
 
     if (("statusType" in this) && this.statusType == statusType &&
         this.statusText == statusText)
