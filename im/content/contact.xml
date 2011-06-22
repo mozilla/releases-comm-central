@@ -527,7 +527,7 @@
           [className, tooltip] = ["expander-up", "tooltiptextcollapse"];
         }
         else {
-          for (let i = 0; i < this.childNodes.length; ++i)
+          for (let i = this.childNodes.length - 1; i >= 0; --i)
             this.childNodes[i].removeNode();
           this.removeAttribute("open");
           [className, tooltip] = ["expander-down", "tooltiptextexpand"];

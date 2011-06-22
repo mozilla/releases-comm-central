@@ -147,6 +147,8 @@
      <method name="removeNode">
       <body>
       <![CDATA[
+        if (!("buddy" in this))
+          return;
         this.buddy.removeObserver(this);
         delete this.buddy;
         if (this.state == "visible") // FIXME check the heigh instead
