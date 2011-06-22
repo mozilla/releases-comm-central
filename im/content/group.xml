@@ -219,10 +219,7 @@
                  contactElt.hasAttribute("open"))
                this._reorderContactLater(contactElt);
              else {
-               contactElt.state = "collapsing";
-               contactElt.finishRemoveNode();
-               if (window.getComputedStyle(contactElt).height == "0px")
-                 this.parentNode.removeChild(contactElt);
+               contactElt.removeNode();
                this.addContact(aSubject);
              }
            }

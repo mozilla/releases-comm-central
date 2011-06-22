@@ -95,8 +95,31 @@
                onget="return this.contact.displayName;"/>
 
      <property name="state"
-               onget="return this.getAttribute('state');"
-               onset="this.setAttribute('state', val); return val;"/>
+               onget="return this.getAttribute('state');">
+       <setter>
+         <![CDATA[
+           this.setAttribute('state', val);
+           if ("_transitionTimer" in this) {
+             clearTimeout(this._transitionTimer);
+             delete this._transitionTimer;
+           }
+
+           // If the new state will start a transition, add a timer to ensure
+           // it will actually be finished (see bug 675).
+           let delay;
+           if (val == "showing" || val == "collapsing")
+             delay = 200;
+           else if (val == "fading")
+             delay = 400 + 1000; // 400ms + 1000ms before starting
+           else
+             return val;
+
+           this._transitionTimer =
+             setTimeout(this._transitionEnd.bind(this), delay + 100);
+           return val;
+         ]]>
+       </setter>
+     </property>
 
      <property name="collapsed"
                onget="return !!this.getAttribute('collapsed');">
@@ -207,8 +230,14 @@
      </method>
 
      <method name="_transitionEnd">
+      <parameter name="aEvent"/>
       <body>
       <![CDATA[
+        if ("_transitionTimer" in this) {
+          clearTimeout(this._transitionTimer);
+          delete this._transitionTimer;
+        }
+
         let state = this.state;
         if (state == "showing") {
           this.update();
@@ -218,8 +247,13 @@
           this.state = "collapsing";
           this.finishRemoveNode();
         }
-        else if (state == "collapsing")
+        else if (state == "collapsing") {
+          // Ignore events of 'fading' transitions if the timer's already fired.
+          if (aEvent && ("propertyName" in aEvent) &&
+              aEvent.propertyName != "height")
+            return;
           this.parentNode.removeChild(this);
+        }
       ]]>
       </body>
      </method>
@@ -238,17 +272,19 @@
       <body>
       <![CDATA[
         let state = this.state;
-        if (state == "showing") {
+        if (this.hasAttribute("collapsed") ||
+            window.getComputedStyle(this).height == "0px") {
+          // If the contact is not visible, remove it immediately (without animation)
+          this.finishRemoveNode();
+          this.state = "collapsed"; // will remove pending animation timers.
+          this.parentNode.removeChild(this);
+        }
+        else if (state == "showing") {
           // We are still doing the expand animation!
           this.state = "collapsing";
           this.finishRemoveNode();
         }
-        else if (this.hasAttribute("collapsed")) {
-          // If the contact is not visible, remove it immediately (without animation)
-          this.finishRemoveNode();
-          this.parentNode.removeChild(this);
-        }
-        else
+        else if (state != "fading" && state != "collapsing")
           this.state = "fading";
       ]]>
       </body>
