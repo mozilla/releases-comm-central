@@ -473,7 +473,7 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
   let previousIndex = 0;
   let result = "";
   let match;
-  while ((match = replacementRegExp(aHTML))) {
+  while ((match = replacementRegExp.exec(aHTML))) {
     let content = "";
     if (match[1] in aReplacements)
       content = aReplacements[match[1]](aReplacementArg, match[3]);

@@ -200,7 +200,7 @@ function smileTextNode(aNode)
     return result;
 
   let match;
-  while ((match = exp(aNode.data))) {
+  while ((match = exp.exec(aNode.data))) {
     let smileNode = aNode.splitText(match.index);
     aNode = smileNode.splitText(exp.lastIndex - match.index);
     // at this point, smileNode is a text node with only the text
