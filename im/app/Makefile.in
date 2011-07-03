@@ -144,16 +144,22 @@ endif
 
 LIBS += \
 	$(STATIC_COMPONENTS_LINKER_PATH) \
-	$(MOZ_JS_LIBS) \
 	$(EXTRA_DSO_LIBS) \
 	$(APP_XPCOM_LIBS) \
 	$(NSPR_LIBS) \
+	$(NULL)
+
+
+ifdef BUILD_STATIC_LIBS
+LIBS += \
+	$(MOZ_JS_LIBS) \
 	$(TK_LIBS) \
 	$(NULL)
 
 # Add explicit X11 dependency when building against X11 toolkits
 ifneq (,$(filter gtk gtk2 xlib,$(MOZ_WIDGET_TOOLKIT)))
 LIBS += $(XLDFLAGS) $(XLIBS)
+endif
 endif
 
 ifdef MOZ_JPROF
@@ -306,8 +312,6 @@ ifdef BUILD_STATIC_LIBS
 LDFLAGS += -bbigtoc
 endif
 endif
-
-$(PROGRAM): $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
 
 ifneq (,$(filter windows gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
 ifneq (,$(filter windows,$(MOZ_WIDGET_TOOLKIT)))
