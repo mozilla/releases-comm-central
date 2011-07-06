@@ -140,7 +140,7 @@ distribution:
 	@$(MAKE) buildsymbols
 	@$(MAKE) -C instantbird/installer libs installer
 ifdef MOZ_UPDATE_PACKAGING
-	PKG_INST_PATH= $(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update
+	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update PKG_INST_PATH=
 endif
 ifdef L10NBASEDIR
 	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C instantbird/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir ;)
