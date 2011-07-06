@@ -78,7 +78,7 @@ var joinChat = {
 
       let label = document.createElement("label");
       let text = field.label;
-      let match = /_(.)/(text);
+      let match = /_(.)/.exec(text);
       if (match) {
         label.setAttribute("accesskey", match[1]);
         text = text.replace(/_/, "");

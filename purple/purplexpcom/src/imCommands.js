@@ -216,7 +216,7 @@ CommandsService.prototype = {
 
     let matchResult;
     if (aMessage[0] != "/" ||
-        !(matchResult = /^\/([a-z]+)(?: |$)([\s\S]*)/(aMessage)))
+        !(matchResult = /^\/([a-z]+)(?: |$)([\s\S]*)/.exec(aMessage)))
       return false;
 
     let [, name, args] = matchResult;
