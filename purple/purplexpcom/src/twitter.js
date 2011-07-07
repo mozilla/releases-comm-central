@@ -85,11 +85,68 @@ Conversation.prototype = {
   displayTweet: function(aTweet) {
     let name = aTweet.user.screen_name;
     this._ensureParticipantExists(name);
+
+    let text = aTweet.text;
+    if ("entities" in aTweet) {
+      let entities = aTweet.entities;
+      /* entArray is an array of entities ready to be replaced in the tweet,
+       * each entity contains:
+       *  - start: the start index of the entity inside the tweet,
+       *  - end: the end index of the entity inside the tweet,
+       *  - str: the string that should be replaced inside the tweet,
+       *  - href: the url (href attribute) of the created link tag,
+       *  - [optional] text: the text to display for the link,
+       *     The original string (str) will be used if this is not set.
+       *  - [optional] title: the title attribute for the link.
+       */
+      let entArray = [];
+      if ("hashtags" in entities && Array.isArray(entities.hashtags)) {
+        entArray = entArray.concat(entities.hashtags.map(function(h) ({
+          start: h.indices[0],
+          end: h.indices[1],
+          str: "#" + h.text,
+          href: "https://twitter.com/#!/search?q=#" + h.text})));
+      }
+      if ("urls" in entities && Array.isArray(entities.urls)) {
+        entArray = entArray.concat(entities.urls.map(function(u) ({
+          start: u.indices[0],
+          end: u.indices[1],
+          str: u.url,
+          text: u.display_url || u.url,
+          href: u.expanded_url || u.url})));
+      }
+      if ("user_mentions" in entities &&
+          Array.isArray(entities.user_mentions)) {
+        entArray = entArray.concat(entities.user_mentions.map(function(um) ({
+          start: um.indices[0],
+          end: um.indices[1],
+          str: "@" + um.screen_name,
+          title: um.name,
+          href: "https://twitter.com/" + um.screen_name})));
+      }
+      entArray.sort(function(a, b) a.start - b.start);
+      let offset = 0;
+      for each (let entity in entArray) {
+        let str = text.substring(offset + entity.start, offset + entity.end);
+        if (str.toLowerCase() != entity.str.toLowerCase())
+          continue;
+
+        let html = "<a href=\"" + entity.href + "\"";
+        if ("title" in entity)
+          html += " title=\"" + entity.title + "\"";
+        html += ">" + ("text" in entity ? entity.text : entity.str) + "</a>";
+        text = text.slice(0, offset + entity.start) + html +
+               text.slice(offset + entity.end);
+        offset += html.length - (entity.end - entity.start);
+      }
+    }
+
     let flags =
       name == this.account.name ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
     flags.iconURL = aTweet.user.profile_image_url;
-    this.writeMessage(name, aTweet.text, flags);
+
+    this.writeMessage(name, text, flags);
   },
   _ensureParticipantExists: function(aNick) {
     if (this._participants.hasOwnProperty(aNick))
@@ -203,20 +260,27 @@ Account.prototype = {
       encodeURIComponent(aString).replace(/\!|\*|\'|\(|\)/g, function(m)
         ({"!": "%21", "*": "%2A", "'": "%27", "(": "%28", ")": "%29"}[m]))
 
+    let dataParams = [];
     let url = /^https?:/.test(aUrl) ? aUrl : this.baseURI + aUrl;
+    let urlSpec = url;
+    let queryIndex = url.indexOf("?");
+    if (queryIndex != -1) {
+      urlSpec = url.slice(0, queryIndex);
+      dataParams = url.slice(queryIndex + 1).split("&")
+                      .map(function(p) p.split("=").map(percentEncode));
+    }
     let method = "GET";
-    let postParams = [];
     if (aPOSTData) {
       method = "POST";
       aPOSTData.forEach(function (p) {
-        postParams.push([p[0], percentEncode(p[1])]);
+        dataParams.push(p.map(percentEncode));
       });
     }
 
     let signatureKey = this.consumerSecret + "&" + this.tokenSecret;
     let signatureBase =
-      method + "&" + encodeURIComponent(url) + "&" +
-      params.concat(postParams)
+      method + "&" + encodeURIComponent(urlSpec) + "&" +
+      params.concat(dataParams)
             .sort(function(a,b) (a[0] < b[0]) ? -1 : (a[0] > b[0]) ? 1 : 0)
             .map(function(p) p.map(encodeURIComponent).join("%3D"))
             .join("%26");
@@ -258,9 +322,9 @@ Account.prototype = {
     this.base
         .connecting(_("connection.requestTimelines"));
     this._pendingRequests = [
-      this.signAndSend("1/statuses/home_timeline.json", null, null,
+      this.signAndSend("1/statuses/home_timeline.json?include_entities=1", null, null,
                        this.onTimelineReceived, this.onTimelineError, this),
-      this.signAndSend("1/statuses/mentions.json", null, null,
+      this.signAndSend("1/statuses/mentions.json?include_entities=1", null, null,
                        this.onTimelineReceived, this.onTimelineError, this)
     ];
 
@@ -363,6 +427,7 @@ Account.prototype = {
   onDataAvailable: function(aRequest) {
     let text = aRequest.target.responseText;
     let newText = this._pendingData + text.slice(this._receivedLength);
+    DEBUG("Received data: " + newText);
     let messages = newText.split(/\r\n?/);
     this._pendingData = messages.pop();
     this._receivedLength = text.length;
