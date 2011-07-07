@@ -63,7 +63,16 @@ pref("messenger.options.notifyOfNewMessages", false);
 #ifdef XP_MACOSX
 pref("messenger.options.showUnreadCountInDock", true);
 #else
+// For *nix and Windows set the minimize to tray options.
+// Default to minimize on close
 pref("extensions.mintrayr.minimizeon", 2);
+#ifdef XP_UNIX
+// For Linux, use single click.
+pref("extensions.mintrayr.singleClickRestore", true);
+#else
+// For Windows, use double click.
+pref("extensions.mintrayr.singleClickRestore", false);
+#endif
 #endif
 pref("messenger.options.playSounds.message", true);
 pref("messenger.options.playSounds.blist", false);

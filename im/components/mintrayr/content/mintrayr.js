@@ -21,6 +21,7 @@
  * Contributor(s):
  *   Nils Maier <MaierMan@web.de>
  *   Florian Queze <florian@instantbird.org>
+ *   Patrick Cloke <clokep@instantbird.org>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,6 +36,8 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+
+Components.utils.import("resource:///modules/imServices.jsm");
 
 var gMinTrayR = {
   load: function() {
@@ -60,12 +63,18 @@ var gMinTrayR = {
   get menu() document.getElementById("MinTrayR_context"),
   handleEvent: function(aEvent) {
     if (aEvent.type == "TrayClick" && aEvent.button == 2) {
+      // Show the context menu, this occurs on a single right click.
       this.menu.showPopup(document.documentElement,
                           aEvent.screenX, aEvent.screenY,
                           "context", "", "bottomleft");
     }
-    else if (aEvent.type == "TrayDblClick" && aEvent.button == 0)
+    else if (aEvent.button == 0 &&
+             (aEvent.type == "TrayDblClick" ||
+              Services.prefs
+                      .getBoolPref("extensions.mintrayr.singleClickRestore"))) {
+      // Restore the buddy list, this is a single or a double left click.
       this.restore();
+    }
   },
 
   minimize: function MinTrayR_minimize() {
