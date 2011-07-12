@@ -36,6 +36,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+Components.utils.import("resource:///modules/imServices.jsm");
+
 var gConnectionsDialog = {
   beforeAccept: function ()
   {
