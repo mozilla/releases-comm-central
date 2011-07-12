@@ -106,9 +106,13 @@
 #include ../../mozilla/toolkit/content/macWindowMenu.inc
 #endif
     <menu label="&help.menu;" id="helpMenu" accesskey="&help.accesskey;">
+#ifdef MOZ_UPDATER
       <menupopup id="helpMenuPopup" onpopupshowing="menus.displayUpdateStatus();">
         <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
         <menuseparator id="updatesSep"/>
+#else
+      <menupopup id="helpMenuPopup">
+#endif
         <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
       </menupopup>
     </menu>
