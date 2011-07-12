@@ -403,6 +403,7 @@ Icon::~Icon()
 
   // Disable message handling
   ::RemovePropW(mWnd, kIcon);
+  ::RemovePropW(mWnd, kPlatformIcon);
 
   // Remove the icon
   ::Shell_NotifyIconW(NIM_DELETE, &mIconData);
