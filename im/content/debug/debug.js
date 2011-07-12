@@ -11,9 +11,8 @@ function toOpenWindowByType(inType, uri) {
 
 var debug = {
   config: function debug_config() {
-    if (!menus.focus("Preferences:ConfigManager"))
-      window.open(configWindow, "Config",
-                  "chrome,resizable");
+    Core.showWindow("Preferences:ConfigManager", configWindow, "Config",
+                    "chrome,resizable,centerscreen");
   },
 
   venkman: function debug_venkman() {
