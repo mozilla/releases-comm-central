@@ -810,7 +810,15 @@
           // The 'click' event is fired even when the link is
           // activated with the keyboard.
 
-          let url = event.target.href;
+          // The event target may be a descendant of the actual link.
+          let url;
+          for (let elem = event.target; elem; elem = elem.parentNode) {
+            if (elem instanceof HTMLAnchorElement) {
+              url = elem.href;
+              if (url)
+                break;
+            }
+          }
           if (url !== undefined) {
             let uri = Services.io.newURI(url, null, null);
 
