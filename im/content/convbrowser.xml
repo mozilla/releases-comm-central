@@ -295,8 +295,25 @@
             // Automatically find and link freetext URLs
             if (!aMsg.noLinkification)
               csFlags |= cs.kURLs;
-            let msg = cs.scanHTML(aMsg.message.replace(/&/, "&amp;"), csFlags)
-                        .replace(/&amp;/g, "&");
+
+            let msg = aMsg.message;
+
+            // The slash of a leading '/me' should not be used to
+            // format as italic, so we remove the '/me' text before
+            // scanning the HTML, and we add it back later.
+            let meRegExp = /^((<[^>]+>)*)\/me /;
+            let me = false;
+            if (meRegExp.test(msg)) {
+              me = true;
+              msg = msg.replace(meRegExp, "$1");
+            }
+
+            msg = cs.scanHTML(msg.replace(/&/g, "&amp;"), csFlags)
+                    .replace(/&amp;/g, "&");
+
+            if (me)
+              msg = msg.replace(/^((<[^>]+>)*)/, "$1/me ");
+
             aMsg.message = cleanupImMarkup(doc, msg.replace(/\r?\n/g, "<br/>"),
                                            null, this._textModifiers);
             let next = isNextMessage(this.theme, aMsg, this._lastMessage);
