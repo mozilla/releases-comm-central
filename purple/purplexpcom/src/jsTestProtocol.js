@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
 Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
 function Conversation(aAccount)

@@ -37,13 +37,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 var EXPORTED_SYMBOLS = [
-  "setTimeout",
-  "clearTimeout",
-  "nsSimpleEnumerator",
-  "EmptyEnumerator",
-  "ClassInfo",
-  "l10nHelper",
-  "initLogModule",
   "GenericAccountPrototype",
   "GenericAccountBuddyPrototype",
   "GenericConvIMPrototype",
@@ -51,160 +44,17 @@ var EXPORTED_SYMBOLS = [
   "GenericConvChatBuddyPrototype",
   "GenericProtocolPrototype",
   "ForwardProtocolPrototype",
-  "Message",
-  "doXHRequest"
+  "Message"
 ];
 
-/*
- TODO
-  replace doXHRequest with a more generic 'HTTP' object
-*/
+const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource:///modules/imServices.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
+Cu.import("resource:///modules/imServices.jsm");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-
-const PURPLE_DEBUG_MISC = 1; // Very verbose (= 'DEBUG')
-const PURPLE_DEBUG_INFO = 2; // Verbose (= 'LOG')
-const PURPLE_DEBUG_WARNING = 3;
-const PURPLE_DEBUG_ERROR = 4;
-
-function scriptError(aModule, aLevel, aMessage) {
-  // Only continue if we want to see this level of logging.
-  let logLevel = Services.prefs.getIntPref("purple.debug.loglevel");
-  if (logLevel > aLevel)
-    return;
-
-  // Log a debug statement.
-  if (aLevel == PURPLE_DEBUG_INFO && logLevel == PURPLE_DEBUG_INFO) {
-    Services.console.logStringMessage(aMessage);
-    return;
-  }
-
-  let flag = Ci.nsIScriptError.warningFlag;
-  if (aLevel >= PURPLE_DEBUG_ERROR)
-    flag = Ci.nsIScriptError.errorFlag;
-
-  let scriptError =
-    Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
-  let caller = Components.stack.caller;
-  let sourceLine = aModule || caller.sourceLine;
-  if (caller.name) {
-    if (sourceLine)
-      sourceLine += ": ";
-    sourceLine += caller.name;
-  }
-  scriptError.init(aMessage, caller.filename, sourceLine, caller.lineNumber,
-                   null, flag, "component javascript");
-  Services.console.logMessage(scriptError);
-}
-function initLogModule(aModule)
-{
-  this.DEBUG = scriptError.bind(this, aModule, PURPLE_DEBUG_MISC);
-  this.LOG   = scriptError.bind(this, aModule, PURPLE_DEBUG_INFO);
-  this.WARN  = scriptError.bind(this, aModule, PURPLE_DEBUG_WARNING);
-  this.ERROR = scriptError.bind(this, aModule, PURPLE_DEBUG_ERROR);
-}
 initLogModule("jsProtoHelper");
 
-function setTimeout(aFunction, aDelay)
-{
-  var timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-  var args = Array.prototype.slice.call(arguments, 2);
-  // A reference to the timer should be kept to ensure it won't be
-  // GC'ed before firing the callback.
-  var callback = {
-    _timer: timer,
-    notify: function (aTimer) { aFunction.apply(null, args); delete this._timer; }
-  };
-  timer.initWithCallback(callback, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
-  return timer;
-}
-function clearTimeout(aTimer)
-{
-  aTimer.cancel();
-}
-
 function normalize(aString) aString.replace(/[^a-z0-9]/gi, "").toLowerCase()
-
-/* Common nsIClassInfo and QueryInterface implementation
- * shared by all generic objects implemented in this file. */
-function ClassInfo(aInterfaces, aDescription)
-{
-  if (!(this instanceof ClassInfo))
-    return new ClassInfo(aInterfaces, aDescription);
-
-  if (!Array.isArray(aInterfaces))
-    aInterfaces = [aInterfaces];
-  this._interfaces =
-    aInterfaces.map(function (i) typeof i == "string" ? Ci[i] : i);
-
-  this.classDescription = aDescription || "JS Proto Object";
-}
-ClassInfo.prototype = {
-  QueryInterface: function ClassInfo_QueryInterface(iid) {
-    if (iid.equals(Ci.nsISupports) || iid.equals(Ci.nsIClassInfo) ||
-        this._interfaces.some(function(i) i.equals(iid)))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
-  getInterfaces: function(countRef) {
-    var interfaces =
-      [Ci.nsIClassInfo, Ci.nsISupports].concat(this._interfaces);
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0
-};
-
-function l10nHelper(aChromeURL)
-{
-  let bundle = Services.strings.createBundle(aChromeURL);
-  return function (aStringId) {
-    if (arguments.length == 1)
-      return bundle.GetStringFromName(aStringId);
-    return bundle.formatStringFromName(aStringId,
-                                       Array.prototype.slice.call(arguments, 1),
-                                       arguments.length - 1);
-  };
-}
-
-/**
- * Constructs an nsISimpleEnumerator for the given array of items.
- * Copied from netwerk/test/httpserver/httpd.js
- *
- * @param items : Array
- *   the items, which must all implement nsISupports
- */
-function nsSimpleEnumerator(items)
-{
-  this._items = items;
-  this._nextIndex = 0;
-}
-nsSimpleEnumerator.prototype = {
-  hasMoreElements: function() this._nextIndex < this._items.length,
-  getNext: function() {
-    if (!this.hasMoreElements())
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
-
-    return this._items[this._nextIndex++];
-  },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
-};
-
-const EmptyEnumerator = {
-  hasMoreElements: function() false,
-  getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
-};
 
 XPCOMUtils.defineLazyGetter(this, "AccountBase", function()
   Components.Constructor("@instantbird.org/purple/account;1",
@@ -290,9 +140,8 @@ const GenericAccountPrototype = {
   },
 
   addBuddy: function(aTag, aName) {
-    Components.classes["@instantbird.org/purple/contacts-service;1"]
-              .getService(Ci.imIContactsService)
-              .accountBuddyAdded(new AccountBuddy(this, null, aTag, aName));
+    Services.contacts
+            .accountBuddyAdded(new AccountBuddy(this, null, aTag, aName));
   },
   loadBuddy: function(aBuddy, aTag) {
    try {
@@ -341,8 +190,8 @@ const GenericAccountPrototype = {
                                             ".options.")),
 
   get normalizedName() normalize(this.name),
-  get proxyInfo() { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; },
-  set proxyInfo(val) { throw Components.results.NS_ERROR_NOT_IMPLEMENTED; }
+  get proxyInfo() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; }
 };
 
 
@@ -361,7 +210,7 @@ const GenericAccountBuddyPrototype = {
   get account() this._account,
   set buddy(aBuddy) {
     if (this._buddy)
-      throw Components.results.NS_ERROR_ALREADY_INITIALIZED;
+      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
     this._buddy = aBuddy;
   },
   get buddy() this._buddy,
@@ -369,9 +218,7 @@ const GenericAccountBuddyPrototype = {
   set tag(aNewTag) {
     let oldTag = this._tag;
     this._tag = aNewTag;
-    Components.classes["@instantbird.org/purple/contacts-service;1"]
-              .getService(Ci.imIContactsService)
-              .accountBuddyMoved(this, oldTag, aNewTag);
+    Services.contacts.accountBuddyMoved(this, oldTag, aNewTag);
   },
 
   _notifyObservers: function(aTopic, aData) {
@@ -391,9 +238,7 @@ const GenericAccountBuddyPrototype = {
   },
 
   remove: function() {
-    Components.classes["@instantbird.org/purple/contacts-service;1"]
-              .getService(Ci.imIContactsService)
-              .accountBuddyRemoved(this);
+    Services.contacts.accountBuddyRemoved(this);
   },
 
   // imIStatusInfo implementation
@@ -455,12 +300,8 @@ const GenericAccountBuddyPrototype = {
 
   get canSendMessage() this.online /*|| this.account.canSendOfflineMessage(this) */,
 
-  getTooltipInfo: function() {
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-  },
-  createConversation: function() {
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-  }
+  getTooltipInfo: function() EmptyEnumerator,
+  createConversation: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; }
 };
 
 // aUserName is required only if aBuddy is null (= we are adding a buddy)
@@ -812,12 +653,8 @@ const ForwardProtocolPrototype = {
   __proto__: GenericProtocolPrototype,
 
   get base() {
-    if (!this.hasOwnProperty("_base")) {
-      this._base =
-        Cc["@instantbird.org/purple/core;1"].getService(Ci.purpleICoreService)
-                                            .getProtocolById(this.baseId);
-
-    }
+    if (!this.hasOwnProperty("_base"))
+      this._base = Services.core.getProtocolById(this.baseId);
     return this._base;
   },
   getAccount: function(aKey, aName)
@@ -844,67 +681,3 @@ const ForwardProtocolPrototype = {
       Services.cmd.registerCommand(command, this.id);
   }
 };
-
-function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
-  var xhr = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                      .createInstance(Ci.nsIXMLHttpRequest);
-  xhr.mozBackgroundRequest = true; // no error dialogs
-  xhr.open(aPOSTData ? "POST" : "GET", aUrl);
-  xhr.channel.loadFlags = Ci.nsIChannel.LOAD_ANONYMOUS | // don't send cookies
-                          Ci.nsIChannel.LOAD_BYPASS_CACHE |
-                          Ci.nsIChannel.INHIBIT_CACHING;
-  xhr.onerror = function(aProgressEvent) {
-    if (aOnError) {
-      // adapted from toolkit/mozapps/extensions/nsBlocklistService.js
-      let request = aProgressEvent.target;
-      let status;
-      try {
-        // may throw (local file or timeout)
-        status = request.status;
-      }
-      catch (e) {
-        request = request.channel.QueryInterface(Ci.nsIRequest);
-        status = request.status;
-      }
-      // When status is 0 we don't have a valid channel.
-      let statusText = status ? request.statusText : "offline";
-      aOnError.call(aThis, statusText, null, this);
-    }
-  };
-  xhr.onload = function (aRequest) {
-    try {
-      let target = aRequest.target;
-      DEBUG("Received response: " + target.responseText);
-      if (target.status != 200) {
-        let errorText = target.responseText;
-        if (!errorText || /<(ht|\?x)ml\b/i.test(errorText))
-          errorText = target.statusText;
-        throw target.status + " - " + errorText;
-      }
-      if (aOnLoad)
-        aOnLoad.call(aThis, target.responseText, this);
-    } catch (e) {
-      Components.utils.reportError(e);
-      if (aOnError)
-        aOnError.call(aThis, e, aRequest.target.responseText, this);
-    }
-  };
-
-  if (aHeaders) {
-    aHeaders.forEach(function(header) {
-      xhr.setRequestHeader(header[0], header[1]);
-    });
-  }
-
-  let POSTData = "";
-  if (aPOSTData) {
-    xhr.setRequestHeader("Content-Type",
-                         "application/x-www-form-urlencoded; charset=utf-8");
-    POSTData = aPOSTData.map(function(p) p[0] + "=" + encodeURIComponent(p[1]))
-                        .join("&");
-  }
-
-  LOG("sending request to " + aUrl + " (POSTData = " + POSTData + ")");
-  xhr.send(POSTData);
-  return xhr;
-}

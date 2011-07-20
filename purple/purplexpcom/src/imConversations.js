@@ -36,10 +36,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/imStatusUtils.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
 var gLastUIConvId = 0;
 var gLastPurpleConvId = 0;

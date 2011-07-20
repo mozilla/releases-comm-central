@@ -1,5 +1,6 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
 Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
 const away = Ci.imIStatusInfo.STATUS_AWAY;

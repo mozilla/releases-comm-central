@@ -42,8 +42,8 @@
 #define LINE_BREAK \n
 #endif
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/hiddenWindow.jsm");
+Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -291,6 +291,7 @@ function Log(aFile)
   this.time = this._dateFromName(aFile.leafName).valueOf() / 1000;
 }
 Log.prototype = {
+  __proto__: ClassInfo("ibILog", "Log object"),
   _dateFromName: function log_dateFromName(aName) {
     const regexp = /([0-9]{4})-([0-9]{2})-([0-9]{2}).([0-9]{2})([0-9]{2})([0-9]{2})([+-])([0-9]{2})([0-9]{2}).*\.txt/;
     let r = aName.match(regexp);
@@ -299,27 +300,7 @@ Log.prototype = {
     if (r[6] == -1)
       offset *= -1;
     return date; // ignore the timezone offset for now (FIXME)
-  },
-
-  // nsIClassInfo
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIClassInfo, Ci.ibILog]),
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.ibILog];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classDescription: "Log object",
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: 0
-};
-
-const EmptyEnumerator = {
-  hasMoreElements: function() false,
-  getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+  }
 };
 
 function LogEnumerator(aEntries)

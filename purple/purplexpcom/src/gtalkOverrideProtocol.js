@@ -35,13 +35,16 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource:///modules/jsProtoHelper.jsm");
+const Cu = Components.utils;
+
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
+Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 function gtalkProtocol() {
   this.registerCommands();
 }
 gtalkProtocol.prototype = {
+  __proto__: ForwardProtocolPrototype,
   get normalizedName() "gtalk",
   get name() "Google Talk",
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
@@ -56,6 +59,5 @@ gtalkProtocol.prototype = {
 
   classID: Components.ID("{ad8a6454-2f5a-40c2-86ca-30062408125e}")
 };
-gtalkProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([gtalkProtocol]);

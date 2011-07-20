@@ -35,11 +35,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource:///modules/jsProtoHelper.jsm");
-const Ci = Components.interfaces;
-const Cc = Components.classes;
+const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+
+Cu.import("resource:///modules/http.jsm");
+Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
+Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://purple/locale/twitter.properties")
@@ -634,7 +635,7 @@ TwitterProtocol.prototype = {
     "track": {get label() _("options.track"), default: ""}
   },
   getAccount: function(aKey, aName) new Account(this, aKey, aName),
-  classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}"),
+  classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}")
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([TwitterProtocol]);

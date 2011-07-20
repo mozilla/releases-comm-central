@@ -35,9 +35,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource:///modules/jsProtoHelper.jsm");
-const Ci = Components.interfaces;
+const {interfaces: Ci, utils: Cu} = Components;
+
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
+Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 function UsernameSplit(aBase, aDefaultValue)
 {
@@ -45,19 +46,7 @@ function UsernameSplit(aBase, aDefaultValue)
   this.defaultValue = aDefaultValue;
 }
 UsernameSplit.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.purpleIUsernameSplit,
-                                         Ci.nsIClassInfo]),
-  getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.purpleIUsernameSplit];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: function(language) null,
-  contractID: null,
-  classDescription: "Username Split object",
-  classID: null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-  flags: Ci.nsIClassInfo.DOM_OBJECT,
+  __proto__: ClassInfo("purpleIUsernameSplit", "username split object"),
 
   get reverse() this.base.reverse,
   get separator() this.base.separator,
@@ -66,6 +55,7 @@ UsernameSplit.prototype = {
 
 function facebookProtocol() { }
 facebookProtocol.prototype = {
+  __proto__: ForwardProtocolPrototype,
   get normalizedName() "facebook",
   get name() "Facebook Chat",
   get iconBaseURI() "chrome://prpl-facebook/skin/",
@@ -93,6 +83,5 @@ facebookProtocol.prototype = {
 
   classID: Components.ID("{61bc3528-df53-4481-a61a-74c3a2e8c9fd}")
 };
-facebookProtocol.prototype.__proto__ = ForwardProtocolPrototype;
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([facebookProtocol]);
