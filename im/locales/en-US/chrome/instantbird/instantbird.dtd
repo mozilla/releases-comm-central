@@ -16,8 +16,12 @@
 <!ENTITY quitApplicationCmdMac.label    "Quit &brandShortName;">
 <!ENTITY quitApplicationCmdMac.key      "Q">
 
-<!ENTITY addBuddy           "Add Buddy…">
-<!ENTITY joinChat           "Join Chat…">
+<!ENTITY addBuddy            "Add Buddy…">
+<!ENTITY addBuddy.commandkey "b">
+<!ENTITY addBuddy.accesskey  "B">
+<!ENTITY joinChat            "Join Chat…">
+<!ENTITY joinChat.commandkey "i">
+<!ENTITY joinChat.accesskey  "i">
 <!ENTITY setStatusTo        "Set Status to…">
 <!ENTITY available          "Available">
 <!ENTITY unavailable        "Unavailable">
@@ -28,9 +32,10 @@
 <!ENTITY account.commandkey "a">
 <!ENTITY account.accesskey  "A">
 <!ENTITY contacts.label     "Contacts">
-<!ENTITY contacts.commandkey "c">
 <!ENTITY contacts.accesskey "C">
+<!ENTITY contacts.commandkey "c">
 <!ENTITY addonManager       "Add-ons">
+<!ENTITY addonManager.key   "d">
 <!ENTITY checkForUpdates    "Check for Updates">
 <!ENTITY help.menu          "Help">
 <!ENTITY help.accesskey     "H">

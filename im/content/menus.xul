@@ -21,6 +21,7 @@
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
+#   Mouhamadou Moustapha CAMARA <mmkmou@mmkmou.net>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -59,19 +60,25 @@
   <commandset id="maincommandset">
     <command id="accountmanager" oncommand="menus.accounts()"/>
     <command id="cmd_quitApplication" oncommand="goQuitApplication()"/>
+    <command id="cmd_joinchat" oncommand="menus.joinChat()"/>
+    <command id="cmd_addbuddy" oncommand="menus.addBuddy()"/>
+    <command id="cmd_addons" oncommand="menus.addons()"/>
   </commandset>
 
   <keyset id="mainkeyset">
     <key id="accountsetup" key="&account.commandkey;" command="accountmanager" modifiers="accel,shift"/>
     <key id="errorConsoleKey" key="&errorConsoleCmd.commandkey;" oncommand="menus.errors();" modifiers="accel,shift"/>
     <key id="key_quitApplication" key="&quitApplicationCmdMac.key;" command="cmd_quitApplication" modifiers="accel"/>
+    <key id="joinChatkey" key="&joinChat.commandkey;" command="cmd_joinchat" modifiers="accel"/>
+    <key id="addBuddykey" key="&addBuddy.commandkey;" command="cmd_addbuddy" modifiers="accel"/>
+    <key id="addonskey" key="&addonManager.key;" command="cmd_addons" modifiers="accel"/>
   </keyset>
 
   <menubar id="blistMenubar">
     <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
       <menupopup id="fileMenuPopup" onpopupshowing="menus.updateFileMenuitems();">
-        <menuitem id="addBuddyMenuItem" label="&addBuddy;" oncommand="menus.addBuddy()"/>
-        <menuitem id="joinChatMenuItem" label="&joinChat;" oncommand="menus.joinChat()"/>
+        <menuitem id="addBuddyMenuItem" label="&addBuddy;" command="cmd_addbuddy" key="addBuddykey" accesskey="&addBuddy.accesskey;"/>
+        <menuitem id="joinChatMenuItem" label="&joinChat;" command="cmd_joinchat" key="joinChatkey" accesskey="&joinChat.accesskey;"/>
         <menuseparator/>
         <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);">
           <menupopup id="setStatusMenupopup"> <!-- has onpopupshowing on mac -->
@@ -91,7 +98,7 @@
     <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
       <menupopup id="toolsMenuPopup"> <!-- has onpopupshowing on mac -->
         <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
-        <menuitem id="addonsMenuItem" label="&addonManager;" oncommand="menus.addons()"/>
+        <menuitem id="addonsMenuItem" label="&addonManager;" command="cmd_addons" key="addonskey" accesskey="&addonManager.key;"/>
         <menuseparator/>
         <menuitem id="errorConsoleMenuItem" label="&errorConsoleCmd.label;" oncommand="menus.errors()" key="errorConsoleKey" accesskey="&errorConsoleCmd.accesskey;"/>
         <menuseparator id="prefSep"/>
