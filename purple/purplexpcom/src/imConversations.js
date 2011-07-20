@@ -229,7 +229,8 @@ UIConversation.prototype = {
   },
 
   systemMessage: function(aText) {
-    (new Message("system", aText, {system: true})).conversation = this;
+    (new Message("system", aText,
+                 {system: true, noLog: true})).conversation = this;
   },
 
   // purpleIConversation

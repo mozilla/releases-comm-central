@@ -44,6 +44,7 @@ interface imIConversation: purpleIConversation {
   readonly attribute imIContact contact;
 
   // Write a system message into the conversation.
+  // Note: this will not be logged.
   void systemMessage(in AUTF8String aMessage);
 
   attribute purpleIConversation target;
