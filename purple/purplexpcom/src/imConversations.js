@@ -39,6 +39,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imStatusUtils.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
+Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 var gLastUIConvId = 0;
 var gLastPurpleConvId = 0;
