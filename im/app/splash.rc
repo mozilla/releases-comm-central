@@ -15,9 +15,9 @@
 
 // Program icon.
 IDI_APPICON  ICON  INSTANTBIRD_ICO
-2  ICON  "../themes/available-16.ico"
-3  ICON  "../themes/away-16.ico"
-4  ICON  "../themes/offline-16.ico"
+2  ICON  "available-16.ico"
+3  ICON  "away-16.ico"
+4  ICON  "offline-16.ico"
 IDI_APPLICATION ICON INSTANTBIRD_ICO
 
 STRINGTABLE DISCARDABLE

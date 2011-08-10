@@ -130,6 +130,14 @@ EXTRA_DSO_LIBS += tracemalloc
 endif
 
 ifeq ($(OS_ARCH),WINNT)
+# Extract the icons we care about embedding into the EXE
+embedded-icons::
+	$(call png2ico,$(topsrcdir)/chat/themes/available-16.png,0,0,16,available-16.ico)
+	$(call png2ico,$(topsrcdir)/chat/themes/away-16.png,0,0,16,away-16.ico)
+	$(call png2ico,$(topsrcdir)/chat/themes/offline-16.png,0,0,16,offline-16.ico)
+
+GARBAGE += available-16.ico away-16.ico offline-16.ico
+
 OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 version winspool)
 OS_LIBS += $(call EXPAND_LIBNAME,usp10 msimg32)
 endif
@@ -168,6 +176,9 @@ LIBS	+= -framework CoreAudio -framework AudioToolbox -framework AudioUnit -frame
 endif
 
 ifeq ($(OS_ARCH),WINNT)
+
+$(RESFILE): embedded-icons
+
 #
 # Control the default heap size.
 # This is the heap returned by GetProcessHeap().
