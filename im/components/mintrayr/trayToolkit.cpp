@@ -44,10 +44,7 @@
 
 #include "nsIDOMWindow.h"
 #include "nsIDOMDocument.h"
-#include "nsIDOMDocumentView.h"
-#include "nsIDOMAbstractView.h"
 
-#include "nsIDOMDocumentEvent.h"
 #include "nsIDOMEvent.h"
 #include "nsIDOMEventTarget.h"
 #include "nsIPrivateDOMEvent.h"
@@ -124,12 +121,11 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
   rv = aWindow->GetDocument(getter_AddRefs(domDocument));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDOMDocumentEvent> docEvent(do_QueryInterface(domDocument));
   nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(domDocument));
-  NS_ENSURE_TRUE(docEvent && target, NS_ERROR_INVALID_ARG);
+  NS_ENSURE_TRUE(target, NS_ERROR_INVALID_ARG);
 
   nsCOMPtr<nsIDOMEvent> event;
-  rv = docEvent->CreateEvent(NS_LITERAL_STRING("Events"), getter_AddRefs(event));
+  rv = domDocument->CreateEvent(NS_LITERAL_STRING("Events"), getter_AddRefs(event));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIPrivateDOMEvent> privateEvent(do_QueryInterface(event, &rv));
@@ -279,19 +275,11 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
   rv = mWindow->GetDocument(getter_AddRefs(domDocument));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDOMDocumentEvent> docEvent(do_QueryInterface(domDocument));
   nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(domDocument));
-  NS_ENSURE_TRUE(docEvent && target, NS_ERROR_INVALID_ARG);
-
-  nsCOMPtr<nsIDOMDocumentView> docView(do_QueryInterface(domDocument, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIDOMAbstractView> abstractView;
-  rv = docView->GetDefaultView(getter_AddRefs(abstractView));
-  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(target, NS_ERROR_INVALID_ARG);
 
   nsCOMPtr<nsIDOMEvent> event;
-  rv = docEvent->CreateEvent(NS_LITERAL_STRING("MouseEvents"), getter_AddRefs(event));
+  rv = domDocument->CreateEvent(NS_LITERAL_STRING("MouseEvents"), getter_AddRefs(event));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDOMMouseEvent> mouseEvent(do_QueryInterface(event, &rv));
@@ -301,7 +289,7 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
     aEventName,
     PR_FALSE,
     PR_TRUE,
-    abstractView,
+    mWindow,
     0,
     pt.x,
     pt.y,
