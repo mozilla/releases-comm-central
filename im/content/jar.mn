@@ -23,6 +23,7 @@ instantbird.jar:
 *	content/instantbird/conversation.xml
 	content/instantbird/convbrowser.xml
 	content/instantbird/conv.html
+	content/instantbird/conv.xml
 *	content/instantbird/credits.xhtml
 *	content/instantbird/engineManager.js
 *	content/instantbird/engineManager.xul

@@ -53,7 +53,7 @@ function UIConversation(aPurpleConversation)
   this._purpleConv = {};
   this.id = ++gLastUIConvId;
   this._observers = [];
-  this._pendingMessages = [];
+  this._messages = [];
   this.changeTargetTo(aPurpleConversation);
   let iface = Ci["purpleIConv" + (aPurpleConversation.isChat ? "Chat" : "IM")];
   this._interfaces = this._interfaces.concat(iface);
@@ -134,6 +134,37 @@ UIConversation.prototype = {
 
     this.notifyObservers(this, "ui-conversation-closed");
     Services.obs.notifyObservers(this, "ui-conversation-closed", null);
+    return true;
+  },
+
+  _unreadMessageCount: 0,
+  get unreadMessageCount() this._unreadMessageCount,
+  markAsRead: function() {
+    delete this._unreadMessageCount;
+    this._notifyUnreadCountChanged();
+  },
+  _lastNotifiedUnreadCount: 0,
+  _notifyUnreadCountChanged: function() {
+    if (this._unreadMessageCount == this._lastNotifiedUnreadCount)
+      return;
+
+    for each (let observer in this._observers)
+      observer.observe(this, "unread-message-count-changed",
+                       this._unreadMessageCount.toString());
+    this._lastNotifiedUnreadCount = this._unreadMessageCount;
+  },
+  getMessages: function(aMessageCount) {
+    if (aMessageCount)
+      aMessageCount.value = this._messages.length;
+    return this._messages;
+  },
+  checkClose: function() {
+    if (!Services.prefs.getBoolPref("messenger.conversations.alwaysClose") &&
+        (this.isChat && !this.left ||
+         !this.isChat && this.unreadMessageCount != 0))
+      return false;
+
+    this.close();
     return true;
   },
 
@@ -248,23 +279,25 @@ UIConversation.prototype = {
   close: function() {
     for each (let conv in this._purpleConv)
       conv.close();
+    this.notifyObservers(this, "ui-conversation-closed");
+    Services.obs.notifyObservers(this, "ui-conversation-closed", null);
   },
   addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) == -1) {
+    if (this._observers.indexOf(aObserver) == -1)
       this._observers.push(aObserver);
-      if (this._observers.length == 1)
-        while (this._pendingMessages.length)
-          this.notifyObservers(this._pendingMessages.shift(), "new-text");
-    }
   },
   removeObserver: function(aObserver) {
     this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
+    if (aTopic == "new-text") {
+      this._messages.push(aSubject);
+      if (aSubject.incoming && !aSubject.system)
+        ++this._unreadMessageCount;
+    }
     for each (let observer in this._observers)
       observer.observe(aSubject, aTopic, aData);
-    if (!this._observers.length && aTopic == "new-text")
-      this._pendingMessages.push(aSubject);
+    this._notifyUnreadCountChanged();
   },
 
   // purpleIConvIM
@@ -367,6 +400,9 @@ ConversationsService.prototype = {
       this._purpleConversations.filter(function(c) c !== aPurpleConversation);
   },
 
+  getUIConversations: function()
+    new nsSimpleEnumerator(Object.keys(this._uiConv)
+                                 .map(function (k) this._uiConv[k])),
   getUIConversation: function(aPurpleConversation) {
     let id = aPurpleConversation.id;
     if (id in this._uiConv)
@@ -376,7 +412,7 @@ ConversationsService.prototype = {
   getUIConversationByContactId: function(aId)
     (aId in this._uiConvByContactId) ? this._uiConvByContactId[aId] : null,
 
-  getConversations: function() nsSimpleEnumerator(this._purpleConversations),
+  getConversations: function() new nsSimpleEnumerator(this._purpleConversations),
   getConversationById: function(aId) {
     for (let i = 0; i < this._purpleConversations.length; ++i)
       if (this._purpleConversations[i].id == aId)

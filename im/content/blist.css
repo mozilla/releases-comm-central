@@ -147,3 +147,16 @@ contact[cansend]:hover .startChatBubble,
 contact[cansend][selected] .startChatBubble {
   display: -moz-box;
 }
+
+conv {
+  -moz-binding: url("chrome://instantbird/content/conv.xml#conv");
+  -moz-box-align: center;
+}
+
+.convUnreadCount[value="0"] {
+  display: none;
+}
+
+#buddyListMsg[listedConvCount="0"] > .listboxHeader {
+  display: none;
+}

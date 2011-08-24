@@ -125,10 +125,8 @@
      <method name="destroy">
        <body>
          <![CDATA[
-           if (this._conv) {
-             this._conv.close();
+           if (this._conv)
              this._forgetConv();
-           }
 
            if ("MessageFormat" in window) {
              let textbox = this.editor;
@@ -158,21 +156,19 @@
            this.editor.value = aConversation.editor.value;
            this.browser.browserResize();
            this.updateTyping();
+           this.loaded = true;
            this.observe(this.browser, "conversation-loaded", null);
          ]]>
        </body>
      </method>
 
      <field name="loaded">false</field>
-     <field name="messageQueue">[]</field>
 
-     <method name="_emptyMessageQueue">
+     <method name="_showFirstMessages">
       <body>
       <![CDATA[
         this.loaded = true;
-        for each(var m in this.messageQueue)
-          this._addMsg(m);
-        this.messageQueue = null;
+        this._conv.getMessages().forEach(this.addMsg.bind(this));
       ]]>
       </body>
      </method>
@@ -181,36 +177,13 @@
      <field name="_statusTextEnd">""</field>
      <field name="_statusTextEndIsError">false</field>
 
-     <!-- This is used when we want to remove close the conversation binding
-     without closing the associated PurpleConversation.
-     For example when quitting the application, we don't want to close the
-     conversation. -->
-     <method name="unInit">
-      <body>
-      <![CDATA[
-        this._conv.removeObserver(this);
-        Conversations.unregisterConversation(this);
-        this._conv = null;
-      ]]>
-      </body>
-     </method>
-
      <method name="addMsg">
       <parameter name="aMsg"/>
       <body>
       <![CDATA[
-        if (this.loaded)
-          this._addMsg(aMsg);
-        else
-          this.messageQueue.push(aMsg);
-      ]]>
-      </body>
-     </method>
+        if (!this.loaded)
+          throw "Calling addMsg before the browser is ready?";
 
-     <method name="_addMsg">
-      <parameter name="aMsg"/>
-      <body>
-      <![CDATA[
         var conv = aMsg.conversation;
         if (!conv) {
           // The conversation has already been destroyed,
@@ -236,12 +209,15 @@
           window.getAttention();
 
         this.browser.appendMessage(aMsg);
-        if (this.tab && aMsg.incoming && !aMsg.system &&
-            (!this.tab.selected || !document.hasFocus())) {
-          if (conv.isChat && aMsg.containsNick)
-            this.tab.setAttribute("attention", "true");
-          else
-            this.tab.setAttribute("unread", "true");
+        if (this.tab && aMsg.incoming && !aMsg.system) {
+          if (this.tab.selected && document.hasFocus())
+            this._conv.markAsRead();
+          else {
+            if (conv.isChat && aMsg.containsNick)
+              this.tab.setAttribute("attention", "true");
+            else
+              this.tab.setAttribute("unread", "true");
+          }
         }
       ]]>
       </body>
@@ -881,6 +857,7 @@
          this.editor.focus();
          this.tab.removeAttribute("unread");
          this.tab.removeAttribute("attention");
+         this._conv.markAsRead();
          this.displayStatusText();
        ]]>
        </body>
@@ -1072,7 +1049,8 @@
 
            // Display all queued messages. Use a timeout so that message text
            // modifiers can be added with observers for this notification.
-           setTimeout(function(aSelf) { aSelf._emptyMessageQueue(); }, 0, this);
+           if (!this.loaded)
+             setTimeout(this._showFirstMessages.bind(this), 0);
 
            Services.obs.removeObserver(this, "conversation-loaded");
            return;
@@ -1080,7 +1058,8 @@
 
          switch(aTopic) {
          case "new-text":
-           this.addMsg(aSubject);
+           if (this.loaded)
+             this.addMsg(aSubject);
            break;
 
          case "update-typing":

@@ -38,6 +38,8 @@
 #include "purpleIConversation.idl"
 #include "imIContactsService.idl"
 
+interface purpleIMessage;
+
 [scriptable, uuid(a09faf46-bb9d-402f-b460-89f8d7827ff1)]
 interface imIConversation: purpleIConversation {
   // Will be null for MUCs and IMs from people not in the contacts list.
@@ -48,6 +50,22 @@ interface imIConversation: purpleIConversation {
   void systemMessage(in AUTF8String aMessage);
 
   attribute purpleIConversation target;
+
+  // Number of unread incoming messages.
+  readonly attribute PRUint32 unreadMessageCount;
+  // Reset unreadMessageCount.
+  void markAsRead();
+
+  // Call this to give the core an opportunity to close an inactive
+  // conversation.  If the conversation is a left MUC or an IM
+  // conversation without unread message, the implementation will call
+  // close().
+  // The returned value indicates if the conversation was closed.
+  boolean checkClose();
+
+  // Get an array of all messages of the conversation.
+  void getMessages([optional] out unsigned long messageCount,
+                   [retval, array, size_is(messageCount)] out purpleIMessage messages);
 };
 
 [scriptable, uuid(984e182c-d395-4fba-ba6e-cc80c71f57bf)]
@@ -60,6 +78,7 @@ interface imIConversationsService: nsISupports {
   void addConversation(in purpleIConversation aConversation);
   void removeConversation(in purpleIConversation aConversation);
 
+  nsISimpleEnumerator getUIConversations();
   imIConversation getUIConversation(in purpleIConversation aConversation);
   imIConversation getUIConversationByContactId(in long aId);
 

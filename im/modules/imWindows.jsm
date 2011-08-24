@@ -83,12 +83,17 @@ var Conversations = {
     if (index != -1)
       this._conversations.splice(index, 1);
 
-    if (this._uiConv[aConversation.conv.id] == aConversation)
-      delete this._uiConv[aConversation.conv.id];
+    let uiConv = aConversation.conv;
+    if (this._uiConv[uiConv.id] == aConversation) {
+      delete this._uiConv[uiConv.id];
+      if (!uiConv.checkClose())
+        Services.obs.notifyObservers(uiConv, "ui-conversation-hidden", null);
+    }
   },
 
   isConversationWindowFocused: function()
     this._windows.length > 0 && this._windows[0].document.hasFocus(),
+  isUIConversationDisplayed: function(aUIConv) aUIConv in this._uiConv,
   focusConversation: function(aConv) {
     let uiConv = Services.conversations.getUIConversation(aConv);
     uiConv.target = aConv;
@@ -146,25 +151,32 @@ var Conversations = {
     if (aTopic != "new-ui-conversation")
       return;
 
-    let conv = aSubject;
-    if (!(aSubject.id in this._uiConv)) {
+    // TODO: let addons customize this behavior.
+    this.showConversation(aSubject);
+  },
+
+  showConversation: function(aConv) {
+    if (!(aConv.id in this._uiConv)) {
+      Services.obs.notifyObservers(aConv, "showing-ui-conversation", null);
       // The conversation is not displayed anywhere yet.
       // First, check if an existing conversation window can accept it.
       for each (let win in this._windows)
-        if (win.document.getElementById("conversations").addConversation(aSubject))
+        if (win.document.getElementById("conversations").addConversation(aConv))
           return;
 
       // At this point, no existing registered window can accept the conversation.
       if (this._pendingConversations) {
         // If we are already creating a window, append the notification.
-        this._pendingConversations.push(aSubject);
+        this._pendingConversations.push(aConv);
       }
       else {
         // We need to create a new window.
-        this._pendingConversations = [aSubject];
+        this._pendingConversations = [aConv];
         Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
                                "chrome,toolbar,resizable", null);
       }
     }
+    else
+      this.focusConversation(aConv.target);
   }
 };

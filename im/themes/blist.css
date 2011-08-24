@@ -41,6 +41,22 @@ richlistbox {
   -moz-appearance: none;
 }
 
+.listboxHeader {
+  -moz-appearance: treeheadercell;
+  margin: 0 0;
+%ifdef XP_MACOSX
+  margin-right: -1px;
+%endif
+}
+
+.convUnreadCount {
+  background-color:red;
+  padding: 0 7px;
+  border-radius: 50px;
+  color: white;
+  font-weight:bold;
+}
+
 contact,
 group {
   padding: 0 2px;
@@ -89,6 +105,7 @@ contact[droptarget] > buddy[dummy] {
 
 .contactDisplayName,
 .contactStatusText,
+.convDisplayName,
 .buddyDisplayName,
 .buddyStatusText {
   margin: 0;
@@ -98,7 +115,8 @@ contact[droptarget] > buddy[dummy] {
   -moz-margin-start: 2px;
 }
 
-.contact-hbox {
+.contact-hbox,
+.conv-hbox {
   margin: 2px 0;
   -moz-margin-start: 2px;
   min-height: 16px;

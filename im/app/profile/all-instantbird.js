@@ -46,6 +46,7 @@ pref("messenger.buddies.hideTagPrompt", true);
 
 pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);
+pref("messenger.conversations.alwaysClose", true);
 
 pref("messenger.conversations.selections.magicCopyEnabled", true);
 pref("messenger.conversations.selections.ellipsis", "chrome://instantbird/locale/instantbird.properties");

@@ -40,9 +40,11 @@ Components.utils.import("resource:///modules/imStatusUtils.jsm");
 const events = ["contact-availability-changed",
                 "contact-added",
                 "contact-tag-added",
+                "showing-ui-conversation",
                 "status-changed",
                 "tag-hidden",
                 "tag-shown",
+                "ui-conversation-hidden",
                 "user-display-name-changed",
                 "user-icon-changed",
                 "purple-quit"];
@@ -350,6 +352,20 @@ var buddyList = {
       return;
     }
 
+    if (aTopic == "ui-conversation-hidden") {
+      let convElt = document.createElement("conv");
+      this.convBox.appendChild(convElt);
+      convElt.build(aSubject);
+      this._updateListConvCount();
+      return;
+    }
+    else if (aTopic == "showing-ui-conversation") {
+      if (this.convBox.listedConvs.hasOwnProperty(aSubject.id))
+        this.convBox.listedConvs[aSubject.id].removeNode();
+      this._updateListConvCount();
+      return;
+    }
+
     // aSubject is an imIContact
     if (aSubject.online || this._showOffline) {
       aSubject.getTags().forEach(function (aTag) {
@@ -359,6 +375,11 @@ var buddyList = {
           this.displayGroup(aTag);
       }, this);
     }
+  },
+
+  _updateListConvCount: function() {
+    let count = Object.keys(this.convBox.listedConvs).length;
+    this.convBox.parentNode.setAttribute("listedConvCount", count);
   },
 
   displayUserIcon: function bl_displayUserIcon() {
@@ -641,6 +662,21 @@ var buddyList = {
       buddyList.showOtherContacts();
     blistBox.focus();
 
+    buddyList.convBox = document.getElementById("convlistbox");
+    buddyList.convBox.listedConvs = {};
+    let convs = Services.conversations.getUIConversations();
+    if (convs.hasMoreElements()) {
+      if (!("Conversations" in window))
+        Components.utils.import("resource:///modules/imWindows.jsm");
+      for (let conv in getIter(convs)) {
+        if (Conversations.isUIConversationDisplayed(conv)) {
+          let convElt = document.createElement("conv");
+          buddyList.convBox.appendChild(convElt);
+          convElt.build(conv);
+        }
+      }
+      buddyList._updateListConvCount();
+    }
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
 
