@@ -93,7 +93,7 @@ var Conversations = {
 
   isConversationWindowFocused: function()
     this._windows.length > 0 && this._windows[0].document.hasFocus(),
-  isUIConversationDisplayed: function(aUIConv) aUIConv in this._uiConv,
+  isUIConversationDisplayed: function(aUIConv) aUIConv.id in this._uiConv,
   focusConversation: function(aConv) {
     let uiConv = Services.conversations.getUIConversation(aConv);
     uiConv.target = aConv;
@@ -142,9 +142,14 @@ var Conversations = {
   observe: function(aSubject, aTopic, aMsg) {
     if (aTopic == "new-text") {
       if (aSubject.incoming && !aSubject.system &&
-          (!aSubject.conversation.isChat || aSubject.containsNick) &&
-          !this.isConversationWindowFocused())
-        ++this.unreadCount;
+          (!aSubject.conversation.isChat || aSubject.containsNick)) {
+        if (!this.isConversationWindowFocused())
+          ++this.unreadCount;
+        let uiConv =
+          Services.conversations.getUIConversation(aSubject.conversation);
+        if (!this.isUIConversationDisplayed(uiConv))
+          this.showConversation(uiConv);
+      }
       return;
     }
 
