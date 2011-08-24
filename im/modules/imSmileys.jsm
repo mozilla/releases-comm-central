@@ -118,8 +118,8 @@ function getTheme(aName)
     theme.json = json.decodeFromStream(stream, stream.available());
     stream.close();
     theme.iconsHash = {};
-    for each (smiley in theme.json.smileys) {
-      for each (textCode in smiley.textCodes)
+    for each (let smiley in theme.json.smileys) {
+      for each (let textCode in smiley.textCodes)
         theme.iconsHash[textCode] = smiley;
     }
   } catch(e) {
