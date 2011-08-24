@@ -135,7 +135,7 @@
        <![CDATA[
          if (!("Conversations" in window))
            Components.utils.import("resource:///modules/imWindows.jsm");
-         Conversations.showConversation(this.conv);
+         Conversations.focusConversation(this.conv.target);
        ]]>
       </body>
      </method>

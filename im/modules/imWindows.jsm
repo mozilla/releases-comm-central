@@ -97,9 +97,13 @@ var Conversations = {
   focusConversation: function(aConv) {
     let uiConv = Services.conversations.getUIConversation(aConv);
     uiConv.target = aConv;
-    let id = uiConv.id;
-    if (id in this._uiConv) {
-      let conv = this._uiConv[id];
+    if (!this.isUIConversationDisplayed(uiConv))
+      this.showConversation(uiConv);
+    // The conversation may still not be displayed if we are waiting
+    // for a new window. In this case the conversation will be focused
+    // automatically anyway.
+    if (this.isUIConversationDisplayed(uiConv)) {
+      let conv = this._uiConv[uiConv.id];
       let doc = conv.ownerDocument;
       doc.getElementById("conversations").selectedTab = conv.tab;
       conv.focus();
@@ -156,32 +160,34 @@ var Conversations = {
     if (aTopic != "new-ui-conversation")
       return;
 
-    // TODO: let addons customize this behavior.
     this.showConversation(aSubject);
   },
 
   showConversation: function(aConv) {
-    if (!(aConv.id in this._uiConv)) {
-      Services.obs.notifyObservers(aConv, "showing-ui-conversation", null);
-      // The conversation is not displayed anywhere yet.
-      // First, check if an existing conversation window can accept it.
-      for each (let win in this._windows)
-        if (win.document.getElementById("conversations").addConversation(aConv))
-          return;
+    if (this.isUIConversationDisplayed(aConv) ||
+        (this._pendingConversations &&
+        this._pendingConversations.indexOf(aConv) != -1))
+      return;
 
-      // At this point, no existing registered window can accept the conversation.
-      if (this._pendingConversations) {
-        // If we are already creating a window, append the notification.
-        this._pendingConversations.push(aConv);
-      }
-      else {
-        // We need to create a new window.
-        this._pendingConversations = [aConv];
-        Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
-                               "chrome,toolbar,resizable", null);
-      }
+    // TODO: let addons prevent some conversations from being shown.
+
+    Services.obs.notifyObservers(aConv, "showing-ui-conversation", null);
+    // The conversation is not displayed anywhere yet.
+    // First, check if an existing conversation window can accept it.
+    for each (let win in this._windows)
+      if (win.document.getElementById("conversations").addConversation(aConv))
+        return;
+
+    // At this point, no existing registered window can accept the conversation.
+    if (this._pendingConversations) {
+      // If we are already creating a window, append the notification.
+      this._pendingConversations.push(aConv);
     }
-    else
-      this.focusConversation(aConv.target);
+    else {
+      // We need to create a new window.
+      this._pendingConversations = [aConv];
+      Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
+                             "chrome,toolbar,resizable", null);
+    }
   }
 };
