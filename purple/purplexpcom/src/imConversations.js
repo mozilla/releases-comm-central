@@ -402,7 +402,7 @@ ConversationsService.prototype = {
 
   getUIConversations: function()
     new nsSimpleEnumerator(Object.keys(this._uiConv)
-                                 .map(function (k) this._uiConv[k])),
+                                 .map(function (k) this._uiConv[k], this)),
   getUIConversation: function(aPurpleConversation) {
     let id = aPurpleConversation.id;
     if (id in this._uiConv)

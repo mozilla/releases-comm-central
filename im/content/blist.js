@@ -669,7 +669,7 @@ var buddyList = {
       if (!("Conversations" in window))
         Components.utils.import("resource:///modules/imWindows.jsm");
       for (let conv in getIter(convs)) {
-        if (Conversations.isUIConversationDisplayed(conv)) {
+        if (!Conversations.isUIConversationDisplayed(conv)) {
           let convElt = document.createElement("conv");
           buddyList.convBox.appendChild(convElt);
           convElt.build(conv);
