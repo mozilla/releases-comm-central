@@ -44,17 +44,16 @@ richlistbox {
 .listboxHeader {
   -moz-appearance: treeheadercell;
   margin: 0 0;
-%ifdef XP_MACOSX
-  margin-right: -1px;
-%endif
 }
 
 .convUnreadCount {
-  background-color:red;
+  background-color: red;
   padding: 0 7px;
   border-radius: 50px;
   color: white;
-  font-weight:bold;
+  font-weight: bold;
+  font-size: 11px;
+  margin: 1px 3px;
 }
 
 contact,
