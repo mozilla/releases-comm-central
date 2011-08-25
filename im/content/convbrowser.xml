@@ -296,7 +296,7 @@
             if (!aMsg.noLinkification)
               csFlags |= cs.kURLs;
 
-            let msg = aMsg.message;
+            let msg = aMsg.originalMessage;
 
             // The slash of a leading '/me' should not be used to
             // format as italic, so we remove the '/me' text before

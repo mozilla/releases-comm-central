@@ -181,7 +181,6 @@ var previewObserver = {
   },
 
   reloadPreview: function() {
-    this.conv.messages.forEach(function (m) { m.message = m.originalMessage; });
     this.browser.init(this.conv);
     this.browser._theme = this.theme;
     Services.obs.addObserver(this, "conversation-loaded", false);
