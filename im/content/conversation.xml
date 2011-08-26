@@ -864,10 +864,13 @@
        <body>
        <![CDATA[
          this.editor.focus();
+         this.displayStatusText();
+         if (!this.loaded)
+           return;
+
          this.tab.removeAttribute("unread");
          this.tab.removeAttribute("attention");
          this._conv.markAsRead();
-         this.displayStatusText();
        ]]>
        </body>
      </method>
