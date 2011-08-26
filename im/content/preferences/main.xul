@@ -49,7 +49,7 @@
 
 <overlay id="MainPaneOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-           
+
   <prefpane id="paneMain" onpaneload="gMainPane.init();">
 
     <script type="application/javascript" src="chrome://instantbird/content/preferences/main.js"/>
@@ -62,11 +62,12 @@
 #ifdef XP_MACOSX
       <preference id="messenger.options.showUnreadCountInDock" name="messenger.options.showUnreadCountInDock" type="bool"/>
 #else
+      <preference id="extensions.mintrayr.alwaysShowTrayIcon" name="extensions.mintrayr.alwaysShowTrayIcon" type="bool"/>
       <preference id="extensions.mintrayr.minimizeon" name="extensions.mintrayr.minimizeon" type="int"/>
 #endif
       <preference id="messenger.options.notifyOfNewMessages" name="messenger.options.notifyOfNewMessages" type="bool"/>
     </preferences>
-    
+
     <!-- Startup -->
     <groupbox id="startupGroup">
       <caption label="&startup.label;"/>
@@ -135,6 +136,9 @@
     <groupbox id="systrayGroup">
       <caption label="&systray.label;"/>
 
+      <checkbox label="&alwaysShowTrayIcon.label;"
+                accesskey="&alwaysShowTrayIcon.accesskey;"
+                preference="extensions.mintrayr.alwaysShowTrayIcon"/>
       <hbox align="center">
         <label value="&minimizeToTray.label;"
                accesskey="&minimizeToTray.accesskey;"

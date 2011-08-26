@@ -27,6 +27,8 @@
 <!ENTITY playSoundsBlist.accesskey     "b">
 
 <!ENTITY systray.label                 "System Tray Icon">
+<!ENTITY alwaysShowTrayIcon.label      "Always show the system tray icon">
+<!ENTITY alwaysShowTrayIcon.accesskey  "i">
 <!ENTITY minimizeToTray.label          "Minimize Contacts window to Tray:">
 <!ENTITY minimizeToTray.accesskey      "t">
 <!ENTITY minimizeOn.never.label        "Never (only from the menu)">
