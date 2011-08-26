@@ -112,7 +112,7 @@
       <body>
       <![CDATA[
         this.setAttribute("displayname", this.displayName);
-        this.setAttribute("unreadCount", this.conv.unreadMessageCount);
+        this.setAttribute("unreadCount", this.conv.unreadIncomingMessageCount);
         this.setAttribute("iconPrpl",
                           this.conv.account.protocol.iconBaseURI + "icon.png");
       ]]>

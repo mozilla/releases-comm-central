@@ -198,7 +198,8 @@ function checkNewText(aEvent)
 
   if (target.tagName == "DIV" && target.className.substring(0, 6) == "bubble") {
     setColors(target);
-    smoothDisplay.start(target);
+    if (target.className.indexOf("context") == -1)
+      smoothDisplay.start(target);
 
     var insertTime = document.getElementById("insert").getAttribute("time");
     if (lastInsertTime && insertTime >= lastInsertTime) {

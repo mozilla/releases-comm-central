@@ -510,7 +510,7 @@ function isNextMessage(aTheme, aMsg, aPreviousMsg)
           timeDifference <= aTheme.combineConsecutiveInterval);
 }
 
-function getHTMLForMessage(aMsg, aTheme, aIsNext)
+function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext)
 {
   let html, replacements;
   if (aMsg.system) {
@@ -518,12 +518,11 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext)
     replacements = statusReplacements;
   }
   else {
+    html = aMsg.incoming ? "incoming" : "outgoing";
     if (aIsNext)
-      html = aMsg.incoming ? aTheme.html.incomingNextContent
-                           : aTheme.html.outgoingNextContent;
-    else
-      html = aMsg.incoming ? aTheme.html.incomingContent
-                           : aTheme.html.outgoingContent;
+      html += "Next";
+    html += aIsContext ? "Context" : "Content";
+    html = aTheme.html[html];
     replacements = messageReplacements;
     let meRegExp = /^((<[^>]+>)*)\/me /;
     if (meRegExp.test(aMsg.message)) {

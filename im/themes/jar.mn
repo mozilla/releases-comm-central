@@ -359,6 +359,7 @@ instantbird.jar:
 	skin/classic/instantbird/messages/bubbles/Bitmaps/plus.png              (messages/bubbles/Bitmaps/plus.png)
 	skin/classic/instantbird/messages/bubbles/Footer.html                   (messages/bubbles/Footer.html)
 	skin/classic/instantbird/messages/bubbles/Incoming/Content.html         (messages/bubbles/Incoming/Content.html)
+	skin/classic/instantbird/messages/bubbles/Incoming/Context.html         (messages/bubbles/Incoming/Context.html)
 	skin/classic/instantbird/messages/bubbles/Incoming/NextContent.html     (messages/bubbles/Incoming/NextContent.html)
 	skin/classic/instantbird/messages/bubbles/Info.plist                    (messages/bubbles/Info.plist)
 	skin/classic/instantbird/messages/bubbles/main.css                      (messages/bubbles/main.css)

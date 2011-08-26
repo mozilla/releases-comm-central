@@ -281,6 +281,7 @@
 
       <method name="appendMessage">
         <parameter name="aMsg"/>
+        <parameter name="aContext"/>
         <body>
           <![CDATA[
             let doc = this.contentDocument;
@@ -317,7 +318,7 @@
             aMsg.message = cleanupImMarkup(doc, msg.replace(/\r?\n/g, "<br/>"),
                                            null, this._textModifiers);
             let next = isNextMessage(this.theme, aMsg, this._lastMessage);
-            let html = getHTMLForMessage(aMsg, this.theme, next);
+            let html = getHTMLForMessage(aMsg, this.theme, next, aContext);
             let body = doc.getElementsByTagName("body")[0];
             let newElt = insertHTMLForMessage(aMsg, html, doc, next);
             newElt.getBoundingClientRect(); // avoid ireflow bugs

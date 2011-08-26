@@ -164,11 +164,14 @@
 
      <field name="loaded">false</field>
 
+     <field name="_readCount">0</field>
      <method name="_showFirstMessages">
       <body>
       <![CDATA[
         this.loaded = true;
-        this._conv.getMessages().forEach(this.addMsg.bind(this));
+        let messages = this._conv.getMessages();
+        this._readCount = messages.length - this._conv.unreadMessageCount;
+        messages.forEach(this.addMsg.bind(this));
       ]]>
       </body>
      </method>
@@ -203,21 +206,27 @@
           aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
         }
 
+        let read = this._readCount > 0;
+        this.browser.appendMessage(aMsg, read);
+        if (read) {
+          --this._readCount;
+          return;
+        }
+
         if (aMsg.incoming && !aMsg.system &&
             (!aMsg.conversation.isChat || aMsg.containsNick) &&
             Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages"))
           window.getAttention();
 
-        this.browser.appendMessage(aMsg);
-        if (this.tab && aMsg.incoming && !aMsg.system) {
-          if (this.tab.selected && document.hasFocus())
-            this._conv.markAsRead();
-          else {
-            if (conv.isChat && aMsg.containsNick)
-              this.tab.setAttribute("attention", "true");
-            else
-              this.tab.setAttribute("unread", "true");
-          }
+        if (this.tab && this.tab.selected && document.hasFocus())
+          this._conv.markAsRead();
+
+        if (this.tab && aMsg.incoming && !aMsg.system &&
+            (!this.tab.selected || !document.hasFocus())) {
+          if (conv.isChat && aMsg.containsNick)
+            this.tab.setAttribute("attention", "true");
+          else
+            this.tab.setAttribute("unread", "true");
         }
       ]]>
       </body>

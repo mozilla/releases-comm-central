@@ -56,6 +56,10 @@ div.bubble {
   box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
 }
 
+div.bubble.context {
+  opacity: 0.7;
+}
+
 div.bubble>div.indicator {
   margin: 0;
   padding: 9px 15px 10px 15px;

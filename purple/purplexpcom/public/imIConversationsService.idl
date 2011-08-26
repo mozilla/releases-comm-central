@@ -51,9 +51,16 @@ interface imIConversation: purpleIConversation {
 
   attribute purpleIConversation target;
 
-  // Number of unread incoming messages.
+  // Number of unread messages (all messages, including system
+  // messages are counted).
   readonly attribute PRUint32 unreadMessageCount;
-  // Reset unreadMessageCount.
+  // Number of unread incoming messages targeted at the user (= IMs or
+  // message containing the user's nick in MUCs).
+  readonly attribute PRUint32 unreadTargetedMessageCount;
+  // Number of unread incoming messages (both targeted and untargeted
+  // messages are counted).
+  readonly attribute PRUint32 unreadIncomingMessageCount;
+  // Reset all unread message counts.
   void markAsRead();
 
   // Call this to give the core an opportunity to close an inactive

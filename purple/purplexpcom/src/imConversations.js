@@ -139,19 +139,25 @@ UIConversation.prototype = {
 
   _unreadMessageCount: 0,
   get unreadMessageCount() this._unreadMessageCount,
+  _unreadTargetedMessageCount: 0,
+  get unreadTargetedMessageCount() this._unreadTargetedMessageCount,
+  _unreadIncomingMessageCount: 0,
+  get unreadIncomingMessageCount() this._unreadIncomingMessageCount,
   markAsRead: function() {
     delete this._unreadMessageCount;
+    delete this._unreadTargetedMessageCount;
+    delete this._unreadIncomingMessageCount;
     this._notifyUnreadCountChanged();
   },
   _lastNotifiedUnreadCount: 0,
   _notifyUnreadCountChanged: function() {
-    if (this._unreadMessageCount == this._lastNotifiedUnreadCount)
+    if (this._unreadIncomingMessageCount == this._lastNotifiedUnreadCount)
       return;
 
     for each (let observer in this._observers)
       observer.observe(this, "unread-message-count-changed",
-                       this._unreadMessageCount.toString());
-    this._lastNotifiedUnreadCount = this._unreadMessageCount;
+                       this._unreadIncomingMessageCount.toString());
+    this._lastNotifiedUnreadCount = this._unreadIncomingMessageCount;
   },
   getMessages: function(aMessageCount) {
     if (aMessageCount)
@@ -161,7 +167,7 @@ UIConversation.prototype = {
   checkClose: function() {
     if (!Services.prefs.getBoolPref("messenger.conversations.alwaysClose") &&
         (this.isChat && !this.left ||
-         !this.isChat && this.unreadMessageCount != 0))
+         !this.isChat && this.unreadIncomingMessageCount != 0))
       return false;
 
     this.close();
@@ -292,8 +298,12 @@ UIConversation.prototype = {
   notifyObservers: function(aSubject, aTopic, aData) {
     if (aTopic == "new-text") {
       this._messages.push(aSubject);
-      if (aSubject.incoming && !aSubject.system)
-        ++this._unreadMessageCount;
+      ++this._unreadMessageCount;
+      if (aSubject.incoming && !aSubject.system) {
+        ++this._unreadIncomingMessageCount;
+        if (!this.isChat || aSubject.containsNick)
+          ++this._unreadTargetedMessageCount;
+      }
     }
     for each (let observer in this._observers)
       observer.observe(aSubject, aTopic, aData);
