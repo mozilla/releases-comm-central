@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *   Benedikt Pfeifer <benediktp@ymail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -56,8 +57,8 @@ div.bubble {
   box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
 }
 
-div.bubble.context {
-  opacity: 0.7;
+div.bubble.context:not(:hover) {
+  filter: url("bubbles.svg#desaturate");
 }
 
 div.bubble>div.indicator {
