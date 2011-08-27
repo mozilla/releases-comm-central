@@ -57,6 +57,22 @@ div.bubble {
   box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
 }
 
+div.bubble:not(.context):not(.event) {
+  -moz-animation-duration: 0.5s;
+  -moz-animation-name: fadein;
+  -moz-animation-iteration-count: 1;
+}
+
+@-moz-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1.0;
+  }
+}
+
 div.bubble.context:not(:hover) {
   filter: url("bubbles.svg#desaturate");
 }

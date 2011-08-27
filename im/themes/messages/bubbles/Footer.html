@@ -42,26 +42,6 @@ function setColors(target)
 }
 
 
-const fade_speed = 30;
-
-var smoothDisplay = {
-  start: function SDstart(target) {
-    target.style.opacity = 0;
-
-    setTimeout(smoothDisplay.progress, fade_speed, target);
-  },
-
-  progress: function SDprogress(target) {
-    var targetOpacity = parseFloat(document.defaultView.getComputedStyle(target, null).opacity);
-
-    if (targetOpacity < 1.0) {
-      target.style.opacity = targetOpacity + 0.1;
-      setTimeout(smoothDisplay.progress, fade_speed, target);
-    }
-  }
-}
-
-
 function groupEvents(parent)
 {
   var P_list = parent.getElementsByClassName("event");
@@ -198,8 +178,6 @@ function checkNewText(aEvent)
 
   if (target.tagName == "DIV" && target.className.substring(0, 6) == "bubble") {
     setColors(target);
-    if (target.className.indexOf("context") == -1)
-      smoothDisplay.start(target);
 
     var insertTime = document.getElementById("insert").getAttribute("time");
     if (lastInsertTime && insertTime >= lastInsertTime) {
