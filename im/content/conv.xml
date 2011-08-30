@@ -57,6 +57,9 @@
         <xul:label crop="end" flex="1" mousethrough="always"
                    anonid="displayname" class="convDisplayName"
                    xbl:inherits="value=displayname"/>
+        <xul:label crop="end" flex="100000" mousethrough="always"
+                   anonid="statusText" class="convStatusText"
+                   xbl:inherits="value=statusTextWithDash"/>
         <xul:label crop="end" mousethrough="always"
                    anonid="unreadCount" class="convUnreadCount"
                    xbl:inherits="value=unreadCount"/>
@@ -100,7 +103,8 @@
              aTopic == "update-conv-title" ||
              aTopic == "update-buddy-status" ||
              aTopic == "update-buddy-status" ||
-             aTopic == "update-conv-chatleft")
+             aTopic == "update-conv-chatleft" ||
+             aTopic == "chat-update-topic")
            this.update();
          else if (aTopic == "ui-conversation-closed")
            this.removeNode();
@@ -113,6 +117,31 @@
       <![CDATA[
         this.setAttribute("displayname", this.displayName);
         this.setAttribute("unreadCount", this.conv.unreadIncomingMessageCount);
+
+        let statusText = "";
+        if (this.conv.isChat) {
+          if (!this.conv.account.connected || this.conv.left)
+            this.setAttribute("status", "left");
+          else {
+            this.removeAttribute("status");
+            statusText = this.conv.topic;
+          }
+        }
+        else {
+          let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
+          let buddy = this.conv.buddy;
+          if (buddy && buddy.account.connected) {
+            statusText = buddy.statusText;
+            statusType = buddy.statusType;
+          }
+          this.setAttribute("status", Status.toAttribute(statusType));
+        }
+
+        if (statusText)
+          this.setAttribute("statusTextWithDash", " - " + statusText);
+        else
+          this.removeAttribute("statusTextWithDash");
+
         this.setAttribute("iconPrpl",
                           this.conv.account.protocol.iconBaseURI + "icon.png");
       ]]>

@@ -98,6 +98,7 @@ contact[droptarget] > buddy[dummy] {
 }
 
 .contactStatusText,
+.convStatusText,
 .buddyStatusText {
   color: GrayText;
 }
@@ -105,6 +106,7 @@ contact[droptarget] > buddy[dummy] {
 .contactDisplayName,
 .contactStatusText,
 .convDisplayName,
+.convStatusText,
 .buddyDisplayName,
 .buddyStatusText {
   margin: 0;
@@ -205,37 +207,39 @@ group label {
   -moz-margin-end: 0;
 }
 
-:-moz-any(contact, buddy)[status="away"] .statusIcon,
-:-moz-any(contact, buddy)[status="unavailable"] .statusIcon {
+:-moz-any(conv, contact, buddy)[status="away"] .statusIcon,
+:-moz-any(conv, contact, buddy)[status="unavailable"] .statusIcon {
   background-image: url('chrome://instantbird/skin/away.png');
 }
 
-:-moz-any(contact, buddy)[status="idle"] .statusIcon {
+:-moz-any(conv, contact, buddy)[status="idle"] .statusIcon {
   background-image: url('chrome://instantbird/skin/idle.png');
 }
 
-:-moz-any(contact, buddy)[status="mobile"] .statusIcon {
+:-moz-any(conv, contact, buddy)[status="mobile"] .statusIcon {
   background-image: url('chrome://instantbird/skin/mobile.png');
 }
 
-:-moz-any(contact, buddy)[status="idle"] :-moz-any(.contactDisplayName, .buddyDisplayName) {
+:-moz-any(contact, buddy)[status="idle"] :-moz-any(.contactDisplayName, .buddyDisplayName),
+conv[status="idle"] .convDisplayName {
   color: GrayText;
 }
 
-:-moz-any(contact, buddy)[status="offline"] .statusIcon {
+:-moz-any(conv, contact, buddy)[status="offline"] .statusIcon,
+conv[status="left"] .statusIcon {
   background-image: url('chrome://instantbird/skin/offline.png');
 }
 
-:-moz-any(contact, buddy)[status="unknown"] .statusIcon {
+:-moz-any(conv, contact, buddy)[status="unknown"] .statusIcon {
   background-image: url('chrome://instantbird/skin/unknown.png');
 }
 
-:-moz-any(contact, buddy)[status="offline"] .protoIcon,
-:-moz-any(contact, buddy)[status="unknown"] .protoIcon {
+:-moz-any(conv, contact, buddy)[status="offline"] .protoIcon,
+:-moz-any(conv, contact, buddy)[status="unknown"] .protoIcon {
   opacity: 0.3;
 }
 
-contact[status="offline"][selected="true"] .protoIcon {
+:-moz-any(conv, contact)[status="offline"][selected="true"] .protoIcon {
   opacity: 0.7;
 }
 
