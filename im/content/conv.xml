@@ -60,9 +60,10 @@
         <xul:label crop="end" flex="100000" mousethrough="always"
                    anonid="statusText" class="convStatusText"
                    xbl:inherits="value=statusTextWithDash"/>
-        <xul:label crop="end" mousethrough="always"
-                   anonid="unreadCount" class="convUnreadCount"
-                   xbl:inherits="value=unreadCount"/>
+        <xul:label anonid="unreadTargetedCount" class="convUnreadTargetedCount"
+                   crop="end" xbl:inherits="value=unreadTargetedCount"/>
+        <xul:label anonid="unreadCount" class="convUnreadCount"
+                   crop="end" xbl:inherits="value=unreadCount"/>
       </xul:hbox>
     </content>
     <implementation implements="nsIObserver">
@@ -118,8 +119,10 @@
         this.setAttribute("displayname", this.displayName);
         this.setAttribute("unreadCount", this.conv.unreadIncomingMessageCount);
 
+        let pings = 0;
         let statusText = "";
         if (this.conv.isChat) {
+          pings = this.conv.unreadTargetedMessageCount
           if (!this.conv.account.connected || this.conv.left)
             this.setAttribute("status", "left");
           else {
@@ -137,6 +140,7 @@
           this.setAttribute("status", Status.toAttribute(statusType));
         }
 
+        this.setAttribute("unreadTargetedCount", pings);
         if (statusText)
           this.setAttribute("statusTextWithDash", " - " + statusText);
         else

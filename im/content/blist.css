@@ -153,7 +153,8 @@ conv {
   -moz-box-align: center;
 }
 
-.convUnreadCount[value="0"] {
+.convUnreadCount[value="0"],
+.convUnreadTargetedCount[value="0"] {
   display: none;
 }
 
