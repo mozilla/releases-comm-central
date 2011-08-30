@@ -20,6 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *   Patrick Cloke <clokep@instantbird.org>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -198,10 +199,9 @@ Account.prototype = {
     this._enabled = true;
 
     // Read the OAuth token from the prefs
-    let prefName = "messenger.account." + this.id + ".options.oauth";
     let prefValue = {};
     try {
-      prefValue = JSON.parse(Services.prefs.getCharPref(prefName));
+      prefValue = JSON.parse(this.prefs.getCharPref("oauth"));
     } catch(e) { }
     if (prefValue.hasOwnProperty(this.consumerKey)) {
       let result = prefValue[this.consumerKey];
@@ -322,10 +322,15 @@ Account.prototype = {
   getTimelines: function() {
     this.base
         .connecting(_("connection.requestTimelines"));
+
+    // If we have a last known message ID, append it as a get parameter.
+    let getParams = "?include_entities=1&count=200";
+    if (this.prefs.prefHasUserValue("lastMessageId"))
+      getParams += "&since_id=" + this.prefs.getCharPref("lastMessageId");
     this._pendingRequests = [
-      this.signAndSend("1/statuses/home_timeline.json?include_entities=1", null, null,
+      this.signAndSend("1/statuses/home_timeline.json" + getParams, null, null,
                        this.onTimelineReceived, this.onTimelineError, this),
-      this.signAndSend("1/statuses/mentions.json?include_entities=1", null, null,
+      this.signAndSend("1/statuses/mentions.json" + getParams, null, null,
                        this.onTimelineReceived, this.onTimelineError, this)
     ];
 
@@ -563,13 +568,12 @@ Account.prototype = {
       return;
     }
 
-    let prefName = "messenger.account." + this.id + ".options.oauth";
     let prefValue = {};
     try {
-      JSON.parse(Services.prefs.getCharPref(prefName));
+      JSON.parse(this.prefs.getCharPref("oauth"));
     } catch(e) { }
     prefValue[this.consumerKey] = result;
-    Services.prefs.setCharPref(prefName, JSON.stringify(prefValue));
+    this.prefs.setCharPref("oauth", JSON.stringify(prefValue));
 
     this.token = result.oauth_token;
     this.tokenSecret = result.oauth_token_secret;
@@ -608,6 +612,12 @@ Account.prototype = {
   },
   UnInit: function() {
     this.cleanUp();
+    // If we've received any messages, update the last known message.
+    let knownMessageIds = Object.keys(this._knownMessageIds);
+    if (knownMessageIds.length) {
+      this.prefs.setCharPref("lastMessageId",
+                             Math.max.apply(null, knownMessageIds));
+    }
     Services.obs.removeObserver(this, "status-changed");
     this._base.UnInit();
   },
@@ -622,6 +632,13 @@ Account.prototype = {
     }
     else
       this.gotDisconnected(this._base.ERROR_OTHER_ERROR, aException.toString());
+  },
+
+  // Allow us to reopen the timeline via the join chat menu.
+  get canJoinChat() true,
+  joinChat: function(aComponents) {
+    // The 'timeline' getter opens a timeline conversation if none exists.
+    this.timeline;
   }
 };
 
