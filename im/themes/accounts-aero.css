@@ -26,13 +26,15 @@
     border-radius: 0 0 5px 5px;
   }
 
-  #accountsDesk {
-    background-color: rgba(255, 255, 255, 0.8);
+  #accountsDesk > * {
     border-radius: 5px 5px 0 0;
     border-top: 1px solid rgba(0, 0, 0, 0.25);
     border-left: 1px solid rgba(0, 0, 0, 0.25);
     border-right: 1px solid rgba(0, 0, 0, 0.25);
-    padding-top: 5px;
+  }
+
+  #accountsNotificationBox {
+    background-color: rgba(255, 255, 255, 0.8);
   }
 
   #accountlist {
