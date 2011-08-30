@@ -410,9 +410,11 @@ ConversationsService.prototype = {
       this._purpleConversations.filter(function(c) c !== aPurpleConversation);
   },
 
-  getUIConversations: function()
-    new nsSimpleEnumerator(Object.keys(this._uiConv)
-                                 .map(function (k) this._uiConv[k], this)),
+  getUIConversations: function(aConvCount) {
+    let rv = Object.keys(this._uiConv).map(function (k) this._uiConv[k], this);
+    aConvCount.value = rv.length;
+    return rv;
+  },
   getUIConversation: function(aPurpleConversation) {
     let id = aPurpleConversation.id;
     if (id in this._uiConv)

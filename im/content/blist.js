@@ -665,10 +665,10 @@ var buddyList = {
     buddyList.convBox = document.getElementById("convlistbox");
     buddyList.convBox.listedConvs = {};
     let convs = Services.conversations.getUIConversations();
-    if (convs.hasMoreElements()) {
+    if (convs.length != 0) {
       if (!("Conversations" in window))
         Components.utils.import("resource:///modules/imWindows.jsm");
-      for (let conv in getIter(convs)) {
+      for each (let conv in convs) {
         if (!Conversations.isUIConversationDisplayed(conv)) {
           let convElt = document.createElement("conv");
           buddyList.convBox.appendChild(convElt);

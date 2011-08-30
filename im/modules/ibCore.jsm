@@ -263,7 +263,10 @@ var Core = {
     if (!Services.prefs.getBoolPref("messenger.warnOnQuit"))
       return;
 
-    let unreadConvsCount = Conversations.unreadConvsCount;
+    let unreadConvsCount =
+      Services.conversations.getUIConversations()
+              .filter(function(c) c.unreadTargetedMessageCount)
+              .length;
     if (unreadConvsCount == 0)
       return;
 

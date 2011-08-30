@@ -117,14 +117,6 @@ var Conversations = {
     return uiConv;
   },
 
-  get unreadConvsCount() {
-    return this._conversations.filter(function(conv) {
-      let tab = conv.tab;
-      return tab.hasAttribute("unread") &&
-             (!tab.hasAttribute("chat") || tab.hasAttribute("attention"));
-    }).length;
-  },
-
   onWindowFocus: function (aWindow) {
     let position = this._windows.indexOf(aWindow);
     if (position != -1) {
