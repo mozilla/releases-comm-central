@@ -170,7 +170,8 @@
 
   <notificationbox id="buddyListMsg" flex="1" listedConvCount="0">
     <label value="Hidden Conversations" class="listboxHeader"/>
-    <richlistbox id="convlistbox"/>
+    <richlistbox id="convlistbox"
+                 onkeypress="buddyList.keyPress(event);"/>
     <label value="Contacts" class="listboxHeader"/>
     <richlistbox id="buddylistbox" flex="1"
                  onkeypress="buddyList.keyPress(event);"

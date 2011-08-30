@@ -728,7 +728,7 @@ var buddyList = {
 
   // Handle key pressing
   keyPress: function bl_keyPress(aEvent) {
-    var item = document.getElementById("buddylistbox").selectedItem;
+    var item = aEvent.target.selectedItem;
     if (!item || !item.parentNode) // empty list or item no longer in the list
       return;
     item.keyPress(aEvent);
