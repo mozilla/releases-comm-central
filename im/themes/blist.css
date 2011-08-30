@@ -56,11 +56,13 @@ richlistbox {
   margin: 1px 3px;
 }
 
+conv,
 contact,
 group {
   padding: 0 2px;
 }
 
+conv,
 contact,
 buddy {
   height: 20px; /* 16+2+2px for the protocol icon, padding top and bottom */
