@@ -173,7 +173,7 @@
     <richlistbox id="convlistbox"
                  onkeypress="buddyList.keyPress(event);"/>
     <label value="Contacts" class="listboxHeader"/>
-    <richlistbox id="buddylistbox" flex="1"
+    <richlistbox id="buddylistbox"
                  onkeypress="buddyList.keyPress(event);"
                  context="buddyListContextMenu"
                  tooltip="buddyTooltip"/>

@@ -36,6 +36,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#buddyListMsg {
+  overflow-y: auto;
+  background-color: -moz-Field;
+}
+
 richlistbox {
   margin: 0 0;
   -moz-appearance: none;
