@@ -61,9 +61,11 @@
                    anonid="statusText" class="convStatusText"
                    xbl:inherits="value=statusTextWithDash"/>
         <xul:label anonid="unreadTargetedCount" class="convUnreadTargetedCount"
-                   crop="end" xbl:inherits="value=unreadTargetedCount"/>
+                   crop="end" mousethrough="never"
+                   xbl:inherits="value=unreadTargetedCount"/>
         <xul:label anonid="unreadCount" class="convUnreadCount"
-                   crop="end" xbl:inherits="value=unreadCount"/>
+                   crop="end" mousethrough="never"
+                   xbl:inherits="value=unreadCount"/>
       </xul:hbox>
     </content>
     <implementation implements="nsIObserver">
@@ -195,7 +197,8 @@
     <handlers>
      <handler event="mousedown">
        <![CDATA[
-         if (event.originalTarget.getAttribute("anonid") == "unreadCount")
+         let anonid = event.originalTarget.getAttribute("anonid");
+         if (anonid == "unreadCount" || anonid == "unreadTargetedCount")
            openConversation();
        ]]>
      </handler>
