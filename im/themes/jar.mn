@@ -215,6 +215,10 @@ instantbird.jar:
 	skin/classic/prpl/qq/icon32.png		(prpl/prpl-qq-32.png)
 	skin/classic/prpl/qq/icon48.png		(prpl/prpl-qq-48.png)
 	skin/classic/prpl/qq/icon.png		(prpl/prpl-qq.png)
+% skin prpl-meanwhile classic/1.0 %skin/classic/prpl/meanwhile/
+	skin/classic/prpl/meanwhile/icon32.png	(prpl/prpl-meanwhile-32.png)
+	skin/classic/prpl/meanwhile/icon48.png	(prpl/prpl-meanwhile-48.png)
+	skin/classic/prpl/meanwhile/icon.png	(prpl/prpl-meanwhile.png)
 % skin prpl-simple classic/1.0 %skin/classic/prpl/simple/
 	skin/classic/prpl/simple/icon32.png	(prpl/prpl-simple-32.png)
 	skin/classic/prpl/simple/icon48.png	(prpl/prpl-simple-48.png)
@@ -237,10 +241,6 @@ instantbird.jar:
 	skin/classic/prpl/bonjour/icon32.png	(prpl/prpl-bonjour-32.png)
 	skin/classic/prpl/bonjour/icon48.png	(prpl/prpl-bonjour-48.png)
 	skin/classic/prpl/bonjour/icon.png	(prpl/prpl-bonjour.png)
-% skin prpl-meanwhile classic/1.0 %skin/classic/prpl/meanwhile/
-	skin/classic/prpl/meanwhile/icon32.png	(prpl/prpl-meanwhile-32.png)
-	skin/classic/prpl/meanwhile/icon48.png	(prpl/prpl-meanwhile-48.png)
-	skin/classic/prpl/meanwhile/icon.png	(prpl/prpl-meanwhile.png)
 % skin prpl-silc classic/1.0 %skin/classic/prpl/silc/
 	skin/classic/prpl/silc/icon32.png	(prpl/prpl-silc-32.png)
 	skin/classic/prpl/silc/icon48.png	(prpl/prpl-silc-48.png)
