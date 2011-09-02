@@ -42,6 +42,7 @@ Components.utils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
 function Conversation(aName)
 {
   this.name = aName;
+  this._observers = [];
 }
 Conversation.prototype = {
   __proto__: jsProtoHelper.GenericConvIMPrototype,
@@ -193,7 +194,8 @@ var previewObserver = {
     // Display all queued messages. Use a timeout so that message text
     // modifiers can be added with observers for this notification.
     setTimeout(function() {
-      previewObserver.conv.messages.forEach(aSubject.appendMessage, aSubject);
+      for each (let message in previewObserver.conv.messages)
+        aSubject.appendMessage(message, false);
     }, 0);
 
     Services.obs.removeObserver(this, "conversation-loaded");
