@@ -198,8 +198,10 @@
      <handler event="mousedown">
        <![CDATA[
          let anonid = event.originalTarget.getAttribute("anonid");
-         if (anonid == "unreadCount" || anonid == "unreadTargetedCount")
+         if (anonid == "unreadCount" || anonid == "unreadTargetedCount") {
            openConversation();
+           event.preventDefault();
+         }
        ]]>
      </handler>
 
