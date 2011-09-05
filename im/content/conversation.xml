@@ -75,6 +75,7 @@
             </xul:hbox>
             <xul:listbox anonid="nicklist" class="conv-nicklist"
                          flex="1" seltype="multiple"
+                         tooltip="buddyTooltip"
                          ondblclick="onNickDblClick(event);"
                          onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>

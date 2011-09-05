@@ -79,6 +79,7 @@ const ForwardAccountPrototype = {
   createConversation: function(aName) this._base.createConversation(aName),
   addBuddy: function(aTag, aName) this._base.addBuddy(aTag, aName),
   loadBuddy: function(aBuddy, aTag) this._base.loadBuddy(aBuddy, aTag),
+  requestBuddyInfo: function(aBuddyName) this._base.requestBuddyInfo(aBuddyName),
   getChatRoomFields: function() this._base.getChatRoomFields(),
   getChatRoomDefaultFieldValues: function(aDefaultChatName)
     this._base.getChatRoomDefaultFieldValues(aDefaultChatName),
@@ -151,6 +152,7 @@ const GenericAccountPrototype = {
      return null;
    }
   },
+  requestBuddyInfo: function(aBuddyName) EmptyEnumerator,
   getChatRoomFields: function() {
     if (!this.chatRoomFields)
       return EmptyEnumerator;

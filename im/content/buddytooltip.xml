@@ -267,11 +267,20 @@
            this.addRow(this.bundle.GetStringFromName("buddy.loggedIn"), loggedIn);
 
          var tooltipInfo = aBuddy.getTooltipInfo();
-         if (!tooltipInfo)
-           return true;
+         if (tooltipInfo)
+           this.appendTooltipInfo(tooltipInfo);
+         return true;
+       ]]>
+       </body>
+     </method>
 
-         while (tooltipInfo.hasMoreElements()) {
-           var elt = tooltipInfo.getNext().QueryInterface(Ci.purpleITooltipInfo);
+     <method name="appendTooltipInfo">
+       <parameter name="aTooltipInfo"/>
+       <body>
+       <![CDATA[
+         while (aTooltipInfo.hasMoreElements()) {
+           var elt =
+             aTooltipInfo.getNext().QueryInterface(Ci.purpleITooltipInfo);
            switch (elt.type) {
              case Ci.purpleITooltipInfo.pair:
              case Ci.purpleITooltipInfo.sectionHeader:
@@ -282,8 +291,6 @@
                break;
            }
          }
-
-         return true;
        ]]>
        </body>
      </method>
@@ -343,6 +350,29 @@
        </body>
      </method>
 
+     <method name="updateTooltipFromParticipant">
+       <parameter name="aChatBuddy"/>
+       <parameter name="aConv"/>
+       <body>
+       <![CDATA[
+         this.reset();
+         let name = aChatBuddy.name;
+         this.setAttribute("displayname", name);
+         let account = aConv.account;
+         this.setAttribute("iconPrpl",
+                           account.protocol.iconBaseURI + "icon.png");
+         this.removeAttribute("status");
+         this.setBuddyIcon(null);
+         this.addRow(this.bundle.GetStringFromName("buddy.account"),
+                     account.name);
+         this.observingUserInfo = true;
+         Services.obs.addObserver(this, "user-info-received", false);
+         account.requestBuddyInfo(name);
+         return true;
+       ]]>
+       </body>
+     </method>
+
      <!-- nsIObserver implementation -->
      <method name="observe">
        <parameter name="aSubject"/>
@@ -360,6 +390,12 @@
            let buddy = this.contact.preferredBuddy;
            this.updateTooltipFromBuddy(buddy.preferredAccountBuddy, this.elt);
          }
+         else if (aTopic == "user-info-received" &&
+                  aData == this.getAttribute("displayname")) {
+           this.appendTooltipInfo(aSubject.QueryInterface(Ci.nsISimpleEnumerator));
+           Services.obs.removeObserver(this, "user-info-received");
+           delete this.observingUserInfo;
+         }
        ]]>
        </body>
      </method>
@@ -368,34 +404,47 @@
      <handler event="popupshowing">
        <![CDATA[
          let elt = document.tooltipNode;
-         if (elt.localName == "tab") {
+         let localName = elt.localName;
+         if (localName == "tab") {
            let conv = elt.linkedConversation.conv;
            if (conv)
              return updateTooltipFromConversation(conv, elt);
            return false;
          }
 
-         if (elt.localName == "conv")
+         if (localName == "conv")
            return updateTooltipFromConversation(elt.conv, elt);
 
-         if (elt.localName == "buddy")
+         if (localName == "buddy")
            return updateTooltipFromBuddy(elt.buddy.preferredAccountBuddy, elt);
 
-         if (elt.localName == "contact")
+         if (localName == "contact")
            return updateTooltipFromContact(elt.contact, elt);
+
+         if (localName == "listitem") {
+           let conv = document.getBindingParent(elt).conv;
+           return updateTooltipFromParticipant(elt.chatBuddy, conv);
+         }
 
          return false;
        ]]>
      </handler>
      <handler event="popuphiding">
+       <![CDATA[
        this.buddy = null;
        this.contact = null;
        this.elt = null;
+       if ("observingUserInfo" in this && this.observingUserInfo) {
+         Services.obs.removeObserver(this, "user-info-received");
+         delete this.observingUserInfo;
+       }
+
        let buddies = document.getAnonymousElementByAttribute(this, "anonid",
                                                              "buddies");
        let buddy;
        while ((buddy = buddies.firstChild))
          buddies.removeChild(buddy);
+       ]]>
      </handler>
     </handlers>
   </binding>
