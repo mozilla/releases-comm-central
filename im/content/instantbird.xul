@@ -39,6 +39,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/instantbird.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/blist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/tabbrowser.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/tabbrowser.css" type="text/css"?>
 #ifdef XP_MACOSX
@@ -142,6 +143,7 @@
 
   <popupset id="mainPopupSet">
     <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
+    <tooltip id="buddyTooltip" type="buddy"/>
 
     <menupopup id="contentAreaContextMenu"
                onpopupshowing="if (event.target != this) return true; gContextMenu = new nsContextMenu(this, window.getBrowser()); return gContextMenu.shouldDisplay;"

@@ -64,7 +64,6 @@
   <binding id="tabbrowser">
     <resources>
       <stylesheet src="chrome://instantbird/content/tabbrowser.css"/>
-      <stylesheet src="chrome://instantbird/content/blist.css"/>
     </resources>
 
     <content>
@@ -77,14 +76,14 @@
                   ondrop="this.parentNode.parentNode._onDrop(event);">
           <xul:hbox class="tab-drop-indicator" mousethrough="always"/>
         </xul:hbox>
-        <xul:hbox class="tabbrowser-strip" collapsed="true" tooltip="_child" context="_child"
+        <xul:hbox class="tabbrowser-strip" collapsed="true"
+                  tooltip="buddyTooltip" context="_child"
                   anonid="strip"
                   ondragstart="this.parentNode.parentNode._onDragStart(event);"
                   ondragover="this.parentNode.parentNode._onDragOver(event);"
                   ondrop="this.parentNode.parentNode._onDrop(event);"
                   ondragend="this.parentNode.parentNode._onDragEnd(event);"
                   ondragleave="this.parentNode.parentNode._onDragLeave(event);">
-          <xul:tooltip id="buddyTooltip" type="buddy"/>
           <xul:menupopup anonid="tabContextMenu" onpopupshowing="this.parentNode.parentNode.parentNode.updatePopupMenu(this);">
             <xul:menuitem id="context_newTab" label="&newTab.label;" accesskey="&newTab.accesskey;"
                           xbl:inherits="oncommand=onnewtab"/>
