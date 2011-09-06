@@ -152,7 +152,7 @@ const GenericAccountPrototype = {
      return null;
    }
   },
-  requestBuddyInfo: function(aBuddyName) EmptyEnumerator,
+  requestBuddyInfo: function(aBuddyName) {},
   getChatRoomFields: function() {
     if (!this.chatRoomFields)
       return EmptyEnumerator;
