@@ -122,6 +122,10 @@ interface purpleIConvChat: purpleIConversation {
      The list of people participating in this chat */
   nsISimpleEnumerator getParticipants();
 
+  /* The normalized chat buddy name will be suitable for starting a
+     private conversation or calling requestBuddyInfo. */
+  AUTF8String getNormalizedChatBuddyName(in AUTF8String aChatBuddyName);
+
   /* The topic of this chat room */
            attribute AUTF8String topic;
 

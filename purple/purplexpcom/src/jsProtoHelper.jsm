@@ -477,6 +477,7 @@ const GenericConvChatPrototype = {
             .map(function(key) this._participants[key], this)
     );
   },
+  getNormalizedChatBuddyName: function(aChatBuddyName) aChatBuddyName,
 
   writeMessage: function (aWho, aText, aProperties) {
     aProperties.containsNick = aText.indexOf(this.nick) != -1;

@@ -1185,7 +1185,8 @@
       <body>
       <![CDATA[
         var nick = event.originalTarget.chatBuddy.name;
-        let newConv = this._conv.account.createConversation(nick);
+        let name = this._conv.target.getNormalizedChatBuddyName(nick);
+        let newConv = this._conv.account.createConversation(name);
         Conversations.focusConversation(newConv);
       ]]>
       </body>

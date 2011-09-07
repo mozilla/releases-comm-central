@@ -365,9 +365,9 @@
          this.setBuddyIcon(null);
          this.addRow(this.bundle.GetStringFromName("buddy.account"),
                      account.name);
-         this.observingUserInfo = true;
+         this.observedUserInfo = aConv.target.getNormalizedChatBuddyName(name);
          Services.obs.addObserver(this, "user-info-received", false);
-         account.requestBuddyInfo(name);
+         account.requestBuddyInfo(this.observedUserInfo);
          return true;
        ]]>
        </body>
@@ -391,10 +391,10 @@
            this.updateTooltipFromBuddy(buddy.preferredAccountBuddy, this.elt);
          }
          else if (aTopic == "user-info-received" &&
-                  aData == this.getAttribute("displayname")) {
+                  aData == this.observedUserInfo) {
            this.appendTooltipInfo(aSubject.QueryInterface(Ci.nsISimpleEnumerator));
            Services.obs.removeObserver(this, "user-info-received");
-           delete this.observingUserInfo;
+           delete this.observedUserInfo;
          }
        ]]>
        </body>
@@ -434,9 +434,9 @@
        this.buddy = null;
        this.contact = null;
        this.elt = null;
-       if ("observingUserInfo" in this && this.observingUserInfo) {
+       if ("observedUserInfo" in this && this.observedUserInfo) {
          Services.obs.removeObserver(this, "user-info-received");
-         delete this.observingUserInfo;
+         delete this.observedUserInfo;
        }
 
        let buddies = document.getAnonymousElementByAttribute(this, "anonid",
