@@ -42,6 +42,7 @@ var EXPORTED_SYMBOLS = [
   "GenericConvIMPrototype",
   "GenericConvChatPrototype",
   "GenericConvChatBuddyPrototype",
+  "GenericMessagePrototype",
   "GenericProtocolPrototype",
   "ForwardProtocolPrototype",
   "Message"
@@ -312,25 +313,22 @@ function AccountBuddy(aAccount, aBuddy, aTag, aUserName) {
 }
 AccountBuddy.prototype = GenericAccountBuddyPrototype;
 
-
-function Message(aWho, aMessage, aObject)
-{
-  this.id = ++Message.prototype._lastId;
-  this.time = Math.round(new Date() / 1000);
-  this.who = aWho;
-  this.message = aMessage;
-  this.originalMessage = aMessage;
-
-  if (aObject)
-    for (let i in aObject)
-      this[i] = aObject[i];
-}
-Message.prototype = {
+const GenericMessagePrototype = {
   __proto__: ClassInfo("purpleIMessage", "generic message object"),
   flags: Ci.nsIClassInfo.DOM_OBJECT,
 
   _lastId: 0,
+  _init: function (aWho, aMessage, aObject) {
+    this.id = ++GenericMessagePrototype._lastId;
+    this.time = Math.round(new Date() / 1000);
+    this.who = aWho;
+    this.message = aMessage;
+    this.originalMessage = aMessage;
 
+    if (aObject)
+      for (let i in aObject)
+        this[i] = aObject[i];
+  },
   _alias: "",
   get alias() this._alias || this.who,
   iconURL: "",
@@ -353,8 +351,19 @@ Message.prototype = {
   noFormat: false,
   containsImages: false,
   notification: false,
-  noLinkification: false
+  noLinkification: false,
+
+  getActions: function(aCount) {
+    if (aCount)
+      aCount.value = 0;
+    return [];
+  }
 };
+
+function Message(aWho, aMessage, aObject) {
+  this._init(aWho, aMessage, aObject);
+}
+Message.prototype = GenericMessagePrototype;
 
 
 const GenericConversationPrototype = {
@@ -391,6 +400,8 @@ const GenericConversationPrototype = {
   sendMsg: function (aMsg) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
+  sendTyping: function(aLength) { },
+
   close: function() {
     Services.obs.notifyObservers(this, "closing-conversation", null);
     Services.conversations.removeConversation(this);
@@ -411,8 +422,6 @@ const GenericConvIMPrototype = {
   __proto__: GenericConversationPrototype,
   _interfaces: [Ci.purpleIConversation, Ci.purpleIConvIM],
   classDescription: "generic ConvIM object",
-
-  sendTyping: function(aLength) { },
 
   updateTyping: function(aState) {
     if (aState == this.typingState)

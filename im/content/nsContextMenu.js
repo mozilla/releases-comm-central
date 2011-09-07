@@ -89,13 +89,34 @@ function nsContextMenu(aXulMenu, aBrowser) {
 
 // Prototype for nsContextMenu "class."
 nsContextMenu.prototype = {
+  cleanup: function() {
+    let elt = document.getElementById("context-sep-selectall").nextSibling;
+    // remove the action menuitems added last time we opened the popup
+    while (elt && elt.localName != "menuseparator") {
+      let tmp = elt.nextSibling;
+      elt.parentNode.removeChild(elt);
+      elt = tmp;
+    }
+  },
+
   // Initialize context menu.
   initMenu: function CM_initMenu(aPopup, aBrowser) {
     this.menu = aPopup;
     this.browser = aBrowser;
 
     // Get contextual info.
-    this.setTarget(document.popupNode);
+    let node = document.popupNode;
+    this.setTarget(node);
+
+    let actions = [];
+    while (node) {
+      if (node._originalMsg) {
+        let msg = node._originalMsg;
+        actions = msg.getActions();
+        break;
+      }
+      node = node.parentNode;
+    }
 
     this.isTextSelected = this.isTextSelection();
     this.isContentSelected = this.isContentSelection();
@@ -117,7 +138,8 @@ nsContextMenu.prototype = {
 
     this.showItem("context-copy", this.isContentSelected);
     this.showItem("context-selectall", !this.onLink || this.isContentSelected);
-    this.showItem("context-sep-selectall", this.isTextSelected);
+    this.showItem("context-sep-selectall", actions.length);
+    this.showItem("context-sep-messageactions", this.isTextSelected);
 
     // Copy email link depends on whether we're on an email link.
     this.showItem("context-copyemail", this.onMailtoLink);
@@ -125,6 +147,16 @@ nsContextMenu.prototype = {
     // Copy link location depends on whether we're on a non-mailto link.
     this.showItem("context-copylink", this.onLink && !this.onMailtoLink);
     this.showItem("context-sep-copylink", this.onLink && this.isContentSelected);
+
+    // Display action menu items.
+    let before = document.getElementById("context-sep-messageactions");
+    for each (let action in actions) {
+      let menuitem = document.createElement("menuitem");
+      menuitem.setAttribute("label", action.label);
+      menuitem.setAttribute("oncommand", "this.action.run();");
+      menuitem.action = action;
+      before.parentNode.insertBefore(menuitem, before);
+    }
   },
 
   // Set various context menu attributes based on the state of the world.

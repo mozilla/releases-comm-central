@@ -36,11 +36,20 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
+#include "nsIRunnable.idl"
 #include "purpleIConversation.idl"
 
 /*
- * This is the XPCOM purple conversation component, a proxy for PurpleConversation.
+ * An action that the user may perform in relation to a particular message.
  */
+[scriptable, uuid(7e470f0e-d948-4d9a-b8dc-4beecf6554b9)]
+interface purpleIMessageAction: nsIRunnable
+{
+  /* The protocol plugins need to provide a localized label suitable
+     for being shown in the user interface (for example as a context
+     menu item). */
+  readonly attribute ACString label;
+};
 
 [scriptable, uuid(d9f0ca7f-ee59-4657-a3dd-f458c204ca45)]
 interface purpleIMessage: nsISupports {
@@ -94,4 +103,11 @@ interface purpleIMessage: nsISupports {
   readonly attribute boolean notification;
   /*  PURPLE_MESSAGE_NO_LINKIFY  = 0x4000  /**< Message should not be auto-linkified */
   readonly attribute boolean noLinkification;
+
+  /* An array of actions the user may perform on this message.
+     The first action will be the 'default' and may be performed
+     automatically when the message is double clicked.
+     'Reply' is usually a good default action. */
+  void getActions([optional] out unsigned long actionCount,
+                  [retval, array, size_is(actionCount)] out purpleIMessageAction actions);
 };

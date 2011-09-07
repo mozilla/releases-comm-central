@@ -74,6 +74,11 @@ interface purpleIConversation: nsISupports {
   /* Send a message in the conversation */
   void sendMsg(in AUTF8String aMsg);
 
+  /* Send information about the current typing state to the server.
+     aLength should contain the length of the content currently in the text field.
+     A length value of 0 will make the method send a NOT_TYPING message. */
+  void sendTyping(in unsigned long aLength);
+
   /* Un-initialize the conversation. Will be called by
      purpleCoreService::RemoveConversation when the conversation is
      closed or by purpleCoreService::Quit while exiting. */
@@ -108,11 +113,6 @@ interface purpleIConvIM: purpleIConversation {
   /* The typing state of the remote buddy.
      The value is NOT_TYPING, TYPING or TYPED. */
   readonly attribute short typingState;
-
-  /* Send information about the current typing state to the server.
-     aLength should contain the length of the content currently in the text field.
-     A length value of 0 will make the method send a NOT_TYPING message. */
-  void sendTyping(in unsigned long aLength);
 };
 
 [scriptable, uuid(c7f11466-f479-4f12-a581-b99713b8ecc0)]

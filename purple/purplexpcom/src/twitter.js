@@ -53,6 +53,43 @@ function ChatBuddy(aName) {
 }
 ChatBuddy.prototype = GenericConvChatBuddyPrototype;
 
+function Tweet(aTweet, aWho, aMessage, aObject)
+{
+  this._tweet = aTweet;
+  this._init(aWho, aMessage, aObject);
+}
+Tweet.prototype = {
+  __proto__: GenericMessagePrototype,
+  getActions: function(aCount) {
+    let actions = [
+      new Action(_("reply"), function() {
+        this.conversation.startReply(this._tweet);
+      }, this)
+    ];
+    if (this.incoming) {
+      actions.push(
+        new Action(_("retweet"), function() {
+          this.conversation.reTweet(this._tweet);
+        }, this)
+      );
+    }
+    if (aCount)
+      aCount.value = actions.length;
+    return actions;
+  }
+};
+
+function Action(aLabel, aAction, aTweet)
+{
+  this.label = aLabel;
+  this._action = aAction;
+  this._tweet = aTweet;
+}
+Action.prototype = {
+  __proto__: ClassInfo("purpleIMessageAction", "generic message action object"),
+  get run() this._action.bind(this._tweet)
+};
+
 function Conversation(aAccount)
 {
   this._init(aAccount);
@@ -61,18 +98,37 @@ function Conversation(aAccount)
 Conversation.prototype = {
   __proto__: GenericConvChatPrototype,
   unInit: function() { delete this.account._timeline; },
+  inReplyToStatusId: null,
+  startReply: function(aTweet) {
+    this.inReplyToStatusId = aTweet.id_str;
+    this.notifyObservers(null, "replying-to-prompt",
+                         "@" + aTweet.user.screen_name + " ");
+    this.notifyObservers(null, "status-text-changed",
+                         _("replyingToStatusText", aTweet.text));
+  },
+  reTweet: function(aTweet) {
+    this.account.reTweet(aTweet, this.onSentCallback,
+                         function(aException, aData) {
+      this.writeError(_("error.retweet", this._parseError(aData),
+                        aTweet.text));
+    }, this);
+  },
   sendMsg: function (aMsg) {
     if (aMsg.length > this.account.maxMessageLength) {
       this.writeError(_("error.tooLong"));
       throw Cr.NS_ERROR_INVALID_ARG;
     }
-    this.account.tweet(aMsg, this.onSentCallback, function(aException, aData) {
-      let error = "";
-      try {
-        error = "(" + JSON.parse(aData).error + ") ";
-      } catch(e) {}
-      this.writeError(_("error.general", error, aMsg));
+    this.account.tweet(aMsg, this.inReplyToStatusId, this.onSentCallback,
+                       function(aException, aData) {
+      this.writeError(_("error.general", this._parseError(aData), aMsg));
     }, this);
+    this.sendTyping(0);
+  },
+  sendTyping: function(aLength) {
+    if (aLength == 0 && this.inReplyToStatusId) {
+      delete this.inReplyToStatusId;
+      this.notifyObservers(null, "status-text-changed", "");
+    }
   },
   writeError: function(aErrorMessage) {
     this.writeMessage("twitter.com", aErrorMessage, {system: true});
@@ -83,6 +139,19 @@ Conversation.prototype = {
       throw "Wrong screen_name... Uh?";
     this.account.displayMessages([tweet]);
     this.setTopic(tweet.text, tweet.user.screen_name);
+  },
+  _parseError: function(aData) {
+    let error = "";
+    try {
+      let data = JSON.parse(aData);
+      if ("error" in data)
+        error = data.error;
+      else if ("errors" in data)
+        error = data.errors.split("\n")[0];
+      if (error)
+        error = "(" + error + ")";
+    } catch(e) {}
+    return error;
   },
   displayTweet: function(aTweet) {
     let name = aTweet.user.screen_name;
@@ -148,7 +217,7 @@ Conversation.prototype = {
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
     flags.iconURL = aTweet.user.profile_image_url;
 
-    this.writeMessage(name, text, flags);
+    (new Tweet(aTweet, name, text, flags)).conversation = this;
   },
   _ensureParticipantExists: function(aNick) {
     if (this._participants.hasOwnProperty(aNick))
@@ -314,9 +383,16 @@ Account.prototype = {
     return result;
   },
 
-  tweet: function(aMsg, aOnSent, aOnError, aThis) {
-    this.signAndSend("1/statuses/update.json", null, [["status", aMsg]],
+  tweet: function(aMsg, aInReplyToId, aOnSent, aOnError, aThis) {
+    let POSTData = [["status", aMsg]];
+    if (aInReplyToId)
+      POSTData.push(["in_reply_to_status_id", aInReplyToId]);
+    this.signAndSend("1/statuses/update.json", null, POSTData,
                      aOnSent, aOnError, aThis);
+  },
+  reTweet: function(aTweet, aOnSent, aOnError, aThis) {
+    this.signAndSend("1/statuses/retweet/" + aTweet.id_str + ".json",
+                     null, [], aOnSent, aOnError, aThis);
   },
 
   getTimelines: function() {

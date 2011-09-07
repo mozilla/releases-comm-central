@@ -100,6 +100,7 @@
 
        var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress, false);
+       browser.addEventListener("dblclick", this.browserDblClick.bind(this), false);
        Services.obs.addObserver(this, "conversation-loaded", false);
 
        try {
@@ -244,8 +245,7 @@
         var msg = aMsg.match(/^\/say (.*)/);
         if (!msg) {
           if (Services.cmd.executeCommand(aMsg, this._conv.target)) {
-            if (!this._conv.isChat)
-              this._conv.sendTyping(0);
+            this._conv.sendTyping(0);
             this.resetInput();
             return;
           }
@@ -472,16 +472,15 @@
               this.displayStatusText();
             }
 
-            if (!this._conv.isChat)
-              // try to avoid sending typing notifications when the user is
-              // typing a command in the conversation.
-              // These checks are not perfect (especially if non-existing
-              // commands are sent as regular messages on the in-use prpl).
-              if (! /^\//.test(text))
-                this._conv.sendTyping(text.length);
-              else
-                if (/^\/me /.test(text))
-                  this._conv.sendTyping(text.length - 4);
+            // try to avoid sending typing notifications when the user is
+            // typing a command in the conversation.
+            // These checks are not perfect (especially if non-existing
+            // commands are sent as regular messages on the in-use prpl).
+            if (! /^\//.test(text))
+              this._conv.sendTyping(text.length);
+            else
+              if (/^\/me /.test(text))
+                this._conv.sendTyping(text.length - 4);
           }).bind(this), 0);
           return;
         }
@@ -657,6 +656,29 @@
       </body>
      </method>
 
+     <method name="browserDblClick">
+     <parameter name="event"/>
+      <body>
+      <![CDATA[
+        for (let node = event.target; node; node = node.parentNode) {
+          if (node._originalMsg) {
+            let msg = node._originalMsg;
+            let actions = msg.getActions();
+            if (actions.length >= 1) {
+              actions[0].run();
+              return;
+            }
+            if (msg.system || msg.outgoing || !msg.incoming || msg.error ||
+                !this._conv.isChat)
+              return;
+            this.addPrompt(msg.who + ": ");
+            return;
+          }
+        }
+      ]]>
+      </body>
+     </method>
+
      <!-- Replace the current selection in the editor by the given string -->
      <method name="addString">
        <parameter name="aString"/>
@@ -672,6 +694,19 @@
          editor.value = editor.value.substr(0, editor.selectionStart) + aString +
                         editor.value.substr(editor.selectionEnd);
          editor.selectionStart = editor.selectionEnd = cursorPosition;
+       ]]>
+       </body>
+     </method>
+
+     <method name="addPrompt">
+       <parameter name="aPrompt"/>
+       <body>
+       <![CDATA[
+         let editor = this.editor;
+         let currentEditorValue = editor.value;
+         if (currentEditorValue.indexOf(aPrompt) != 0)
+           editor.value = aPrompt + currentEditorValue;
+         editor.focus();
        ]]>
        </body>
      </method>
@@ -1077,6 +1112,15 @@
 
          case "update-typing":
            this.updateTyping();
+           break;
+
+         case "status-text-changed":
+           this._statusText = aData;
+           this.displayStatusText();
+           break;
+
+         case "replying-to-prompt":
+           this.addPrompt(aData);
            break;
 
          case "target-purple-conversation-changed":
