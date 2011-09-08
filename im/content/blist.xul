@@ -168,7 +168,8 @@
     </toolbar>
   </toolbox>
 
-  <notificationbox id="buddyListMsg" flex="1" listedConvCount="0">
+  <notificationbox id="buddyListMsg" flex="1" listedConvCount="0"
+                   context="buddyListContextMenu">
     <label value="Hidden Conversations" class="listboxHeader"/>
     <richlistbox id="convlistbox"
                  onkeypress="buddyList.keyPress(event);"
@@ -176,7 +177,6 @@
     <label value="Contacts" class="listboxHeader"/>
     <richlistbox id="buddylistbox"
                  onkeypress="buddyList.keyPress(event);"
-                 context="buddyListContextMenu"
                  tooltip="buddyTooltip"/>
   </notificationbox>
 
