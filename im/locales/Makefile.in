@@ -367,21 +367,8 @@ MOZ_L10N_REPO_BASE = http://hg.mozilla.org/releases/l10n-mozilla-2.0
 
 checkout-%: AB_CD=$*
 checkout-%:
-	mkdir -p $(L10NBASEDIR)
-	if test ! -d $(L10NBASEDIR)/$(AB_CD); then \
-	  hg clone $(IB_L10N_REPO_BASE)/$(AB_CD) $(L10NBASEDIR)/$(AB_CD) ; \
-	else \
-	  hg pull -R $(L10NBASEDIR)/$(AB_CD) $(IB_L10N_REPO_BASE)/$(AB_CD) ; \
-	  hg update -R $(L10NBASEDIR)/$(AB_CD) -C default ; \
-	fi
-	if test ! -d $(L10NBASEDIR)/moz-$(AB_CD); then \
-	  hg clone $(MOZ_L10N_REPO_BASE)/$(AB_CD) $(L10NBASEDIR)/moz-$(AB_CD) ; \
-	else \
-	  hg pull -R $(L10NBASEDIR)/moz-$(AB_CD) $(MOZ_L10N_REPO_BASE)/$(AB_CD) ; \
-	  hg update -R $(L10NBASEDIR)/moz-$(AB_CD) -C default ; \
-	fi
-	$(foreach dir,dom extensions netwerk security toolkit,\
-	  cp -r $(L10NBASEDIR)/moz-$(AB_CD)/$(dir) $(L10NBASEDIR)/$(AB_CD)/ ;)
+	mkdir -p $(topsrcdir)/$(L10NBASEDIR)
+	$(PYTHON) $(topsrcdir)/client.py checkout-l10n --l10n-base-dir $(L10NBASEDIR) --locale $(AB_CD)
 
 repack-%: AB_CD=$*
 repack-%:
