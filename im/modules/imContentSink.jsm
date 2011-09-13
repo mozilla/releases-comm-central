@@ -75,7 +75,7 @@ var EXPORTED_SYMBOLS = [
  *  See the 3 examples of rulesets below.
  */
 
-const kAllowedURLs = function(aValue) /^(https?|ftp):/.test(aValue);
+const kAllowedURLs = function(aValue) /^(https?|ftp|mailto):/.test(aValue);
 const kAllowedMozClasses =
   function(aClassName) aClassName == "moz-txt-underscore" ||
                        aClassName == "moz-txt-tag";
