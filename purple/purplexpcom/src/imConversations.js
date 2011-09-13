@@ -426,9 +426,16 @@ ConversationsService.prototype = {
 
   getConversations: function() new nsSimpleEnumerator(this._purpleConversations),
   getConversationById: function(aId) {
-    for (let i = 0; i < this._purpleConversations.length; ++i)
-      if (this._purpleConversations[i].id == aId)
-        return this._purpleConversations[i];
+    for each (let conv in this._purpleConversations)
+      if (conv.id == aId)
+        return conv;
+    return null;
+  },
+  getConversationByNameAndAccount: function(aName, aAccount, aIsChat) {
+    for each (let conv in this._purpleConversations)
+      if (conv.name == aName && conv.account.numericId == aAccount.numericId &&
+          conv.isChat == aIsChat)
+        return conv;
     return null;
   },
 

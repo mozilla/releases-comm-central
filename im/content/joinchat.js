@@ -35,6 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+Components.utils.import("resource:///modules/imWindows.jsm");
+
 const autoJoinPref = "autoJoin";
 
 var joinChat = {
@@ -134,15 +136,25 @@ var joinChat = {
     account.joinChat(values);
 
     let protoId = account.protocol.id;
-    if ((protoId == "prpl-irc" || protoId == "prpl-jabber" ||
-         protoId == "prpl-gtalk") &&
-        document.getElementById("autojoin").checked) {
-      let name;
-      if (protoId == "prpl-irc")
-        name = values.getValue("channel");
-      else
-        name = values.getValue("room") + "@" +
-               values.getValue("server") + "/" + values.getValue("handle");
+    if (protoId != "prpl-irc" && protoId != "prpl-jabber" &&
+        protoId != "prpl-gtalk")
+      return true;
+
+    let name;
+    if (protoId == "prpl-irc")
+      name = values.getValue("channel");
+    else
+      name = values.getValue("room") + "@" + values.getValue("server");
+
+    let conv = Services.conversations.getConversationByNameAndAccount(name,
+                                                                      account,
+                                                                      true);
+    if (conv)
+      Conversations.focusConversation(conv);
+
+    if (document.getElementById("autojoin").checked) {
+      if (protoId != "prpl-irc")
+        name += "/" + values.getValue("handle");
 
       let prefBranch =
         Services.prefs.getBranch("messenger.account." + account.id + ".");
