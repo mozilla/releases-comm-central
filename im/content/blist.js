@@ -356,13 +356,12 @@ var buddyList = {
       let convElt = document.createElement("conv");
       this.convBox.appendChild(convElt);
       convElt.build(aSubject);
-      this._updateListConvCount();
+      this.convBox._updateListConvCount();
       return;
     }
     else if (aTopic == "showing-ui-conversation") {
       if (this.convBox.listedConvs.hasOwnProperty(aSubject.id))
         this.convBox.listedConvs[aSubject.id].removeNode();
-      this._updateListConvCount();
       return;
     }
 
@@ -375,11 +374,6 @@ var buddyList = {
           this.displayGroup(aTag);
       }, this);
     }
-  },
-
-  _updateListConvCount: function() {
-    let count = Object.keys(this.convBox.listedConvs).length;
-    this.convBox.parentNode.setAttribute("listedConvCount", count);
   },
 
   displayUserIcon: function bl_displayUserIcon() {
@@ -664,6 +658,12 @@ var buddyList = {
 
     buddyList.convBox = document.getElementById("convlistbox");
     buddyList.convBox.listedConvs = {};
+    buddyList.convBox._updateListConvCount = function() {
+      let count = Object.keys(this.listedConvs).length;
+      this.parentNode.setAttribute("listedConvCount", count);
+    };
+    buddyList.convBox.addEventListener("DOMNodeRemoved",
+                                       buddyList.convBox._updateListConvCount);
     let convs = Services.conversations.getUIConversations();
     if (convs.length != 0) {
       if (!("Conversations" in window))
@@ -675,7 +675,7 @@ var buddyList = {
           convElt.build(conv);
         }
       }
-      buddyList._updateListConvCount();
+      buddyList.convBox._updateListConvCount();
     }
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
