@@ -139,22 +139,6 @@ interface purpleIUsernameSplit: nsISupports {
   readonly attribute PRBool reverse;
 };
 
-/* purpleIOverrideProtocol provides a way to override some properties
-   of a protocol plugin.
-
-   It takes a base protocol plugin and an override.  For each method
-   of purpleIProtocol, it will call the same method of the override if
-   it implements it, otherwise it will fallback to the method of the
-   base.
- */
-[scriptable, uuid(766ae941-9fb6-49e2-9762-8494b288333c)]
-interface purpleIOverrideProtocol: purpleIProtocol {
-  void init(in purpleIProtocol aBase, in purpleIProtocol aOverride);
-
-  readonly attribute purpleIProtocol basePrpl;
-  readonly attribute purpleIProtocol override;
-};
-
 %{C++
 #define JS_PROTOCOL_PLUGIN_CATEGORY "js-protocol-plugin"
 %}
