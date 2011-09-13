@@ -37,7 +37,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ibCore.jsm");
 
 function ibCommandLineHandler() { }
@@ -75,11 +75,7 @@ ibCommandLineHandler.prototype = {
         as.enterLastWindowClosingSurvivalArea();
         // We can exitLastWindowClosingSurvivalArea as soon as the
         // load of our application provided hiddenWindow has begun.
-        let tm = Components.classes["@mozilla.org/thread-manager;1"]
-                           .getService(Components.interfaces.nsIThreadManager);
-        tm.mainThread.dispatch(function() {
-          as.exitLastWindowClosingSurvivalArea();
-        }, tm.DISPATCH_NORMAL);
+        executeSoon(function() { as.exitLastWindowClosingSurvivalArea(); });
       }
 #endif
     }

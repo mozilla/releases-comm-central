@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
 // Wrap all the usage of DBConn inside a transaction that will be
@@ -50,11 +50,10 @@ this.__defineGetter__("DBConn", function() {
   let conn = Services.core.storageConnection;
   gDBConnWithPendingTransaction = conn;
   conn.beginTransaction();
-  let tm = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager);
-  tm.mainThread.dispatch(function() {
+  executeSoon(function() {
     gDBConnWithPendingTransaction.commitTransaction();
     gDBConnWithPendingTransaction = null;
-  }, tm.DISPATCH_NORMAL);
+  });
   return conn;
 });
 

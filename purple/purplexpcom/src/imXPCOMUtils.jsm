@@ -40,6 +40,7 @@ var EXPORTED_SYMBOLS = [
   "XPCOMUtils",
   "setTimeout",
   "clearTimeout",
+  "executeSoon",
   "nsSimpleEnumerator",
   "EmptyEnumerator",
   "ClassInfo",
@@ -110,6 +111,11 @@ function setTimeout(aFunction, aDelay)
 function clearTimeout(aTimer)
 {
   aTimer.cancel();
+}
+
+function executeSoon(aFunction)
+{
+  Services.tm.mainThread.dispatch(aFunction, Services.tm.DISPATCH_NORMAL);
 }
 
 /* Common nsIClassInfo and QueryInterface implementation
