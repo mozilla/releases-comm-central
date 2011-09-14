@@ -39,6 +39,7 @@ const EXPORTED_SYMBOLS = ["Sounds"];
 
 Components.utils.import("resource:///modules/hiddenWindow.jsm");
 Components.utils.import("resource:///modules/imServices.jsm");
+Components.utils.import("resource:///modules/ibInterruptions.jsm");
 
 var Sounds = {
   soundEvents: ["contact-signed-on", "contact-signed-off", "new-text"],
@@ -50,8 +51,9 @@ var Sounds = {
     alert: "chrome://instantbird-sounds/skin/alert.wav"
   },
 
-  play: function sh_play(aEvent, aPref) {
-    if (!Services.prefs.getBoolPref("messenger.options.playSounds." + aPref))
+  play: function sh_play(aEvent, aPref, aSubject, aTopic) {
+    if (!Services.prefs.getBoolPref("messenger.options.playSounds." + aPref) ||
+        !Interruptions.requestInterrupt(aTopic, aSubject, "sound"))
       return;
 
     new getHiddenHTMLWindow().Audio(this.soundFiles[aEvent])
@@ -61,21 +63,21 @@ var Sounds = {
   observe: function(aObject, aTopic, aMsg) {
     switch(aTopic) {
     case "contact-signed-on":
-      this.play("login", "blist");
+      this.play("login", "blist", aObject, aTopic);
       break;
 
     case "contact-signed-off":
-      this.play("logout", "blist");
+      this.play("logout", "blist", aObject, aTopic);
       break;
 
     case "new-text":
       if (aObject.outgoing)
-        this.play("outgoing", "message");
+        this.play("outgoing", "message", aObject, aTopic);
       else if (aObject.incoming && !aObject.system) {
         if (!aObject.conversation.isChat)
-          this.play("incoming", "message");
+          this.play("incoming", "message", aObject, aTopic);
         else if (aObject.containsNick)
-          this.play("alert", "message");
+          this.play("alert", "message", aObject, aTopic);
       }
       break;
 

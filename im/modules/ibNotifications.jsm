@@ -40,6 +40,7 @@ const EXPORTED_SYMBOLS = ["Notifications"];
 Components.utils.import("resource:///modules/imServices.jsm");
 Components.utils.import("resource:///modules/imWindows.jsm");
 Components.utils.import("resource:///modules/hiddenWindow.jsm");
+Components.utils.import("resource:///modules/ibInterruptions.jsm");
 
 var Notifications = {
   get ellipsis () {
@@ -112,7 +113,8 @@ var Notifications = {
       return;
 
     if (!Conversations.isConversationWindowFocused() &&
-        Services.prefs.getBoolPref(this._notificationPrefName))
+        Services.prefs.getBoolPref(this._notificationPrefName) &&
+        Interruptions.requestInterrupt(aTopic, aSubject, "notification"))
       this._showMessageNotification(aSubject);
   }
 };

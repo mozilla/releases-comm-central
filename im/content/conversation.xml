@@ -173,6 +173,8 @@
         this.loaded = true;
         let messages = this._conv.getMessages();
         this._readCount = messages.length - this._conv.unreadMessageCount;
+        if (!("Interruptions" in window))
+          Components.utils.import("resource:///modules/ibInterruptions.jsm");
         messages.forEach(this.addMsg.bind(this));
       ]]>
       </body>
@@ -217,7 +219,8 @@
 
         if (aMsg.incoming && !aMsg.system &&
             (!aMsg.conversation.isChat || aMsg.containsNick) &&
-            Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages"))
+            Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages") &&
+            Interruptions.requestInterrupt("new-text", aMsg, "get-attention"))
           window.getAttention();
 
         if (this.tab && this.tab.selected && document.hasFocus())

@@ -39,6 +39,7 @@ const CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
 var EXPORTED_SYMBOLS = ["Conversations"];
 
 Components.utils.import("resource:///modules/imServices.jsm");
+Components.utils.import("resource:///modules/ibInterruptions.jsm");
 
 var Conversations = {
   _unreadCount: 0,
@@ -61,7 +62,7 @@ var Conversations = {
       let notifications = this._pendingConversations;
       this._pendingConversations = null;
       for each (let conv in notifications)
-        this.observe(conv, "new-ui-conversation");
+        this.showConversation(conv);
     }
   },
   unregisterWindow: function(aWindow) {
@@ -143,7 +144,8 @@ var Conversations = {
           ++this.unreadCount;
         let uiConv =
           Services.conversations.getUIConversation(aSubject.conversation);
-        if (!this.isUIConversationDisplayed(uiConv))
+        if (!this.isUIConversationDisplayed(uiConv) &&
+            Interruptions.requestInterrupt(aTopic, aSubject, "show-conversation"))
           this.showConversation(uiConv);
       }
       return;
@@ -152,7 +154,10 @@ var Conversations = {
     if (aTopic != "new-ui-conversation")
       return;
 
-    this.showConversation(aSubject);
+    if (Interruptions.requestInterrupt(aTopic, aSubject, "show-conversation"))
+      this.showConversation(aSubject);
+    else
+      Services.obs.notifyObservers(aSubject, "ui-conversation-hidden", null);
   },
 
   showConversation: function(aConv) {
@@ -160,8 +165,6 @@ var Conversations = {
         (this._pendingConversations &&
         this._pendingConversations.indexOf(aConv) != -1))
       return;
-
-    // TODO: let addons prevent some conversations from being shown.
 
     Services.obs.notifyObservers(aConv, "showing-ui-conversation", null);
     // The conversation is not displayed anywhere yet.
