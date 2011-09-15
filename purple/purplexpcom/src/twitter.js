@@ -46,6 +46,9 @@ Cu.import("resource:///modules/jsProtoHelper.jsm");
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://purple/locale/twitter.properties")
 );
+XPCOMUtils.defineLazyGetter(this, "_lang", function()
+  l10nHelper("chrome://global/locale/languageNames.properties")
+);
 initLogModule("twitter");
 
 function ChatBuddy(aName) {
@@ -236,6 +239,7 @@ function Account(aProtoInstance, aKey, aName)
 {
   this._init(aProtoInstance, aKey, aName);
   this._knownMessageIds = {};
+  this._userInfo = {};
 
   Services.obs.addObserver(this, "status-changed", false);
 }
@@ -427,6 +431,8 @@ Account.prototype = {
          tweet.id_str in this._knownMessageIds)
         continue;
       this._knownMessageIds[tweet.id_str] = tweet;
+      if ("description" in tweet.user)
+        this._userInfo[tweet.user.screen_name] = tweet.user;
       this.timeline.displayTweet(tweet);
     }
   },
@@ -708,6 +714,60 @@ Account.prototype = {
     }
     else
       this.gotDisconnected(this._base.ERROR_OTHER_ERROR, aException.toString());
+  },
+
+  onRequestedInfoReceived: function(aData) {
+    let user = JSON.parse(aData);
+    this._userInfo[user.screen_name] = user;
+    this.requestBuddyInfo(user.screen_name);
+  },
+  requestBuddyInfo: function(aBuddyName) {
+    if (!this._userInfo.hasOwnProperty(aBuddyName)) {
+      this.signAndSend("1/users/show.json?screen_name=" + aBuddyName, null,
+                       null, this.onRequestedInfoReceived, null, this);
+      return;
+    }
+
+    let userInfo = this._userInfo[aBuddyName];
+
+    // List of the names of the info to actually show in the tooltip and
+    // optionally a transform function to apply to the value.
+    // See https://dev.twitter.com/docs/api/1/get/users/show for the options.
+    let normalizeBool = function(isFollowing) _(isFollowing ? "yes" : "no");
+    const fields = {
+      following: normalizeBool,
+      description: null,
+      url: null,
+      location: null,
+      lang: function(aLang) {
+        try {
+          return _lang(aLang);
+        }
+        catch(e) {
+          return aLang;
+        }
+      },
+      time_zone: null,
+      protected: normalizeBool,
+      created_at: function(aDate) (new Date(aDate)).toLocaleDateString(),
+      statuses_count: null,
+      friends_count: null,
+      followers_count: null,
+      listed_count: null
+    };
+
+    let tooltipInfo = [];
+    for (let field in fields) {
+      if (userInfo.hasOwnProperty(field) && userInfo[field]) {
+        let value = userInfo[field];
+        if (fields[field])
+          value = fields[field](value);
+        tooltipInfo.push(new TooltipInfo(_("tooltip." + field), value));
+      }
+    }
+
+    Services.obs.notifyObservers(new nsSimpleEnumerator(tooltipInfo),
+                                 "user-info-received", aBuddyName);
   },
 
   // Allow us to reopen the timeline via the join chat menu.

@@ -45,7 +45,8 @@ var EXPORTED_SYMBOLS = [
   "GenericMessagePrototype",
   "GenericProtocolPrototype",
   "ForwardProtocolPrototype",
-  "Message"
+  "Message",
+  "TooltipInfo"
 ];
 
 const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
@@ -501,6 +502,22 @@ const GenericConvChatBuddyPrototype = {
   founder: false,
   typing: false
 };
+
+function TooltipInfo(aLabel, aValue)
+{
+  if (aLabel === undefined)
+    this.type = Ci.purpleITooltipInfo.sectionBreak;
+  else {
+    this.label = aLabel;
+    if (aValue === undefined)
+      this.type = Ci.purpleITooltipInfo.sectionHeader;
+    else {
+      this.type = Ci.purpleITooltipInfo.pair;
+      this.value = aValue;
+    }
+  }
+}
+TooltipInfo.prototype = ClassInfo("purpleITooltipInfo", "generic tooltip info");
 
 function purplePref(aName, aLabel, aType, aDefaultValue, aMasked) {
   this.name = aName; // Preference name
