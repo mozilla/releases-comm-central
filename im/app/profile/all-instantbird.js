@@ -279,6 +279,11 @@ pref("network.protocol-handler.expose.https", true);
 // javascript: links inside messages are filtered out.
 pref("network.protocol-handler.expose.javascript", true);
 
+// 0-Accept, 1-dontAcceptForeign, 2-dontUse
+// Reject all cookies, so that several twitter OAuth dialogs can work
+// during the same session. (See bug 875)
+pref("network.cookie.cookieBehavior", 2);
+
 // The breakpad report server to link to in about:crashes
 pref("breakpad.reportURL", "http://crash-stats.instantbird.com/report/index/");
 
