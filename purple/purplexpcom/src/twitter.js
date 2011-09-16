@@ -64,17 +64,31 @@ function Tweet(aTweet, aWho, aMessage, aObject)
 Tweet.prototype = {
   __proto__: GenericMessagePrototype,
   getActions: function(aCount) {
+    let account = this.conversation.account;
+    if (!account.connected) {
+      if (aCount)
+        aCount.value = 0;
+      return [];
+    }
+
     let actions = [
-      new Action(_("reply"), function() {
+      new Action(_("action.reply"), function() {
         this.conversation.startReply(this._tweet);
       }, this)
     ];
     if (this.incoming) {
       actions.push(
-        new Action(_("retweet"), function() {
+        new Action(_("action.retweet"), function() {
           this.conversation.reTweet(this._tweet);
         }, this)
       );
+      let friend = account.isFriend(this._tweet.user);
+      if (friend !== null) {
+        let action = friend ? "stopFollowing" : "follow";
+        let screenName = this._tweet.user.screen_name;
+        actions.push(new Action(_("action." + action, screenName),
+                                function() { account[action](screenName); }));
+      }
     }
     if (aCount)
       aCount.value = actions.length;
@@ -112,18 +126,19 @@ Conversation.prototype = {
   reTweet: function(aTweet) {
     this.account.reTweet(aTweet, this.onSentCallback,
                          function(aException, aData) {
-      this.writeError(_("error.retweet", this._parseError(aData),
-                        aTweet.text));
+      this.systemMessage(_("error.retweet", this._parseError(aData),
+                           aTweet.text), true);
     }, this);
   },
   sendMsg: function (aMsg) {
     if (aMsg.length > this.account.maxMessageLength) {
-      this.writeError(_("error.tooLong"));
+      this.systemMessage(_("error.tooLong"), true);
       throw Cr.NS_ERROR_INVALID_ARG;
     }
     this.account.tweet(aMsg, this.inReplyToStatusId, this.onSentCallback,
                        function(aException, aData) {
-      this.writeError(_("error.general", this._parseError(aData), aMsg));
+      let error = this._parseError(aData);
+      this.systemMessage(_("error.general", error, aMsg), true);
     }, this);
     this.sendTyping(0);
   },
@@ -133,8 +148,13 @@ Conversation.prototype = {
       this.notifyObservers(null, "status-text-changed", "");
     }
   },
-  writeError: function(aErrorMessage) {
-    this.writeMessage("twitter.com", aErrorMessage, {system: true});
+  systemMessage: function(aMessage, aIsError, aDate) {
+    let flags = {system: true};
+    if (aIsError)
+      flags.error = true;
+    if (aDate)
+      flags.time = aDate;
+    this.writeMessage("twitter.com", aMessage, flags);
   },
   onSentCallback: function(aData) {
     let tweet = JSON.parse(aData);
@@ -399,6 +419,37 @@ Account.prototype = {
                      null, [], aOnSent, aOnError, aThis);
   },
 
+  _friends: null,
+  isFriend: function(aUser) {
+    if (!("id" in aUser) || // users from search API tweets don't have an id.
+        !this._friends) // null until data is received from the user stream.
+      return null;
+    //XXX Good enough for now, but if we ever call this from a loop,
+    // we should keep this._friends sorted and do a binary search.
+    return this._friends.indexOf(aUser.id) != -1;
+  },
+  follow: function(aUserName) {
+    this.signAndSend("1/friendships/create.json", null,
+                     [["screen_name", aUserName]]);
+  },
+  stopFollowing: function(aUserName) {
+    // friendships/destroy will return the user in case of success.
+    // Error cases would return a non 200 HTTP code and not call our callback.
+    this.signAndSend("1/friendships/destroy.json", null,
+                     [["screen_name", aUserName]], function(aData, aXHR) {
+      let user = JSON.parse(aData);
+      if (!("id" in user))
+        return; // Unexpected response...
+      this._friends = this._friends.filter(function(id) id != user.id);
+      let date = aXHR.getResponseHeader("Date");
+      this.timeline.systemMessage(_("event.unfollow", user.screen_name), false,
+                                  new Date(date) / 1000);
+    }, null, this);
+  },
+  addBuddy: function(aTag, aName) {
+    this.follow(aName);
+  },
+
   getTimelines: function() {
     this.base
         .connecting(_("connection.requestTimelines"));
@@ -529,12 +580,31 @@ Account.prototype = {
         ERROR(e + " while parsing " + message);
         continue;
       }
-      this.displayMessages([msg]);
-
-      // If the message is from us, set it as the topic.
-      if (("user" in msg) && ("text" in msg) &&
-          (msg.user.screen_name == this.name))
-        this.timeline.setTopic(msg.text, msg.user.screen_name);
+      if ("text" in msg) {
+        this.displayMessages([msg]);
+        // If the message is from us, set it as the topic.
+        if (("user" in msg) && (msg.user.screen_name == this.name))
+          this.timeline.setTopic(msg.text, msg.user.screen_name);
+      }
+      else if ("friends" in msg)
+        this._friends = msg.friends;
+      else if (("event" in msg) && msg.event == "follow") {
+        let user, event;
+        if (msg.source.screen_name == this.name) {
+          this._friends.push(msg.target.id);
+          user = msg.target;
+          event = "follow";
+        }
+        else if (msg.target.screen_name == this.name) {
+          user = msg.source;
+          event = "followed";
+        }
+        if (user) {
+          this._userInfo[user.screen_name] = user;
+          this.timeline.systemMessage(_("event." + event, user.screen_name),
+                                      false, new Date(msg.created_at) / 1000);
+        }
+      }
     }
   },
 
