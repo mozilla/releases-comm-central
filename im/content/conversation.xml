@@ -244,21 +244,35 @@
         if (!aMsg)
           return;
 
-        // the /say command is used to bypass command processing
-        var msg = aMsg.match(/^\/say (.*)/);
-        if (!msg) {
-          if (Services.cmd.executeCommand(aMsg, this._conv.target)) {
+        if (aMsg[0] == "/") {
+          // The /say command is used to bypass command processing
+          // (/say can be shortened to just /).
+          // "/say" or "/say " should be ignored, as should "/" and "/ ".
+          if (aMsg.match(/^\/(?:say)? ?$/)) {
+            this.resetInput();
+            return;
+          }
+          else if (aMsg.match(/^\/(?:say)? .*/))
+            aMsg = aMsg.slice(aMsg.indexOf(" ") + 1);
+          else if (Services.cmd.executeCommand(aMsg, this._conv.target)) {
             this._conv.sendTyping(0);
             this.resetInput();
             return;
           }
+          else if (this._conv.account.protocol.slashCommandsNative) {
+            let cmd = aMsg.match(/^\/[^ ]+/);
+            if (cmd) {
+              this._conv.systemMessage(
+                this.bundle.formatStringFromName("unknownCommand", [cmd], 1),
+                true);
+              return;
+            }
+          }
         }
-        else
-          aMsg = msg[1];
 
-        msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                        .getService(Ci.mozITXTToHTMLConv)
-                        .scanTXT(aMsg, 0);
+        let msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
+                            .getService(Ci.mozITXTToHTMLConv)
+                            .scanTXT(aMsg, 0);
 
         var account = this._conv.account;
         if (account.noNewlines)

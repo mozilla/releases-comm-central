@@ -265,9 +265,9 @@ UIConversation.prototype = {
     this.notifyObservers(aSubject, aTopic, aData);
   },
 
-  systemMessage: function(aText) {
-    (new Message("system", aText,
-                 {system: true, noLog: true})).conversation = this;
+  systemMessage: function(aText, aIsError) {
+    let flags = {system: true, noLog: true, error: !!aIsError};
+    (new Message("system", aText, flags)).conversation = this;
   },
 
   // purpleIConversation

@@ -47,7 +47,7 @@ interface imIConversation: purpleIConversation {
 
   // Write a system message into the conversation.
   // Note: this will not be logged.
-  void systemMessage(in AUTF8String aMessage);
+  void systemMessage(in AUTF8String aMessage, [optional] in boolean aIsError);
 
   attribute purpleIConversation target;
 
