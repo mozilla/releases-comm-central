@@ -455,9 +455,9 @@ Account.prototype = {
         .connecting(_("connection.requestTimelines"));
 
     // If we have a last known message ID, append it as a get parameter.
-    let getParams = "?include_entities=1&count=200";
-    if (this.prefs.prefHasUserValue("lastMessageId"))
-      getParams += "&since_id=" + this.prefs.getCharPref("lastMessageId");
+    let lastMsgParam = this.prefs.prefHasUserValue("lastMessageId") ?
+      "&since_id=" + this.prefs.getCharPref("lastMessageId") : "";
+    let getParams = "?include_entities=1&count=200" + lastMsgParam;
     this._pendingRequests = [
       this.signAndSend("1/statuses/home_timeline.json" + getParams, null, null,
                        this.onTimelineReceived, this.onTimelineError, this),
@@ -467,8 +467,8 @@ Account.prototype = {
 
     let track = this.getString("track");
     if (track) {
-      let url = "http://search.twitter.com/search.json?q=" +
-                track.split(",").join(" OR ");
+      getParams = "?q=" + track.split(",").join(" OR ") + lastMsgParam;
+      let url = "http://search.twitter.com/search.json" + getParams;
       this._pendingRequests.push(doXHRequest(url, null, null,
                                              this.onTimelineReceived,
                                              this.onTimelineError, this));
