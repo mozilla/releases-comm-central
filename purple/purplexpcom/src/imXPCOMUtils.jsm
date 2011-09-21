@@ -115,7 +115,7 @@ function clearTimeout(aTimer)
 
 function executeSoon(aFunction)
 {
-  Services.tm.mainThread.dispatch(aFunction, Services.tm.DISPATCH_NORMAL);
+  Services.tm.mainThread.dispatch(aFunction, Ci.nsIEventTarget.DISPATCH_NORMAL);
 }
 
 /* Common nsIClassInfo and QueryInterface implementation
