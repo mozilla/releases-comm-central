@@ -644,11 +644,13 @@ const GenericProtocolPrototype = {
 
     this.commands.forEach(function(command) {
       if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run"))
-          throw "Every command must have a name and a run function.";
+        throw "Every command must have a name and a run function.";
+      if (!command.hasOwnProperty("usageContext"))
+        command.usageContext = Ci.imICommand.CONTEXT_ALL;
       if (!command.hasOwnProperty("priority"))
         command.priority = Ci.imICommand.PRIORITY_PRPL;
       Services.cmd.registerCommand(command, this.id);
-    }, this)
+    }, this);
   },
 
   // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy

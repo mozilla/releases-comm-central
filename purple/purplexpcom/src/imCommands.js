@@ -57,6 +57,7 @@ CommandsService.prototype = {
     this.registerCommand({
       name: "raw",
       get helpString() bundle.GetStringFromName("rawHelpString"),
+      usageContext: Ci.imICommand.CONTEXT_ALL,
       priority: Ci.imICommand.PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
         aConv.sendMsg(aMsg);
@@ -71,6 +72,7 @@ CommandsService.prototype = {
 
       name: "help",
       get helpString() bundle.GetStringFromName("helpHelpString"),
+      usageContext: Ci.imICommand.CONTEXT_ALL,
       priority: Ci.imICommand.PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
         let conv = Services.conversations.getUIConversation(aConv);
@@ -133,6 +135,7 @@ CommandsService.prototype = {
                                       [this.name,
                                        bundle.GetStringFromName(this.name)],
                                       2),
+        usageContext: Ci.imICommand.CONTEXT_ALL,
         priority: Ci.imICommand.PRIORITY_HIGH,
         run: function(aMsg) {
           Services.core.setStatus(statusValue, aMsg);
@@ -174,6 +177,7 @@ CommandsService.prototype = {
       if (prplId && commands.hasOwnProperty(prplId))
         result.push(commands[prplId]);
     }
+    result = result.filter(this._usageContextFilter(aConversation));
     commandCount.value = result.length;
     return result;
   },
@@ -191,6 +195,11 @@ CommandsService.prototype = {
     commandCount.value = result.length;
     return result;
   },
+  _usageContextFilter: function(aConversation) {
+    let usageContext =
+      Ci.imICommand["CONTEXT_" + (aConversation.isChat ? "CHAT" : "IM")];
+    return function(c) c.usageContext & usageContext;
+  },
   _findCommands: function(aConversation, aName) {
     if (!(this._commands.hasOwnProperty(aName)))
       return [];
@@ -206,6 +215,9 @@ CommandsService.prototype = {
       if (commands.hasOwnProperty(prplId))
         cmdArray.push(commands[prplId]);
     }
+
+    // Remove the commands that can't apply in this context.
+    cmdArray = cmdArray.filter(this._usageContextFilter(aConversation));
 
     // Sort the matching commands by priority before returning the array.
     return cmdArray.sort(function(a, b) b.priority - a.priority);

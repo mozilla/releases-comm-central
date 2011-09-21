@@ -49,6 +49,11 @@ interface imICommand: nsISupports {
   //           parameter."
   readonly attribute AUTF8String helpString;
 
+  const short CONTEXT_IM   = 1;
+  const short CONTEXT_CHAT = 2;
+  const short CONTEXT_ALL  = CONTEXT_IM | CONTEXT_CHAT;
+  readonly attribute PRInt32 usageContext;
+
   const short PRIORITY_LOW     = -1000;
   const short PRIORITY_DEFAULT = 0;
   const short PRIORITY_PRPL    = 1000;
