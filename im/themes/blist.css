@@ -97,19 +97,19 @@ group>* {
   padding-bottom: 2px;
 }
 
-#buddylistbox:focus > contact[selected="true"],
-#buddylistbox:focus > group[selected="true"],
-#convlistbox:focus > conv[selected="true"] {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-
-contact[open]:not([selected]):not([droptarget]) {
+contact[open] {
   background: -moz-linear-gradient(45deg, -moz-Dialog, white 20%, white 80%, -moz-Dialog);
 }
 
+#buddylistbox:focus > contact[selected="true"],
+#buddylistbox:focus > group[selected="true"],
+#convlistbox:focus > conv[selected="true"] {
+  background: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
 :-moz-any(contact, buddy)[droptarget] {
-  background-color: Highlight;
+  background: Highlight;
 }
 
 contact[droptarget] .contact-hbox,
@@ -118,7 +118,7 @@ buddy[droptarget] {
 }
 
 contact[droptarget] > buddy[dummy] {
-  background-color: Highlight;
+  background: Highlight;
   color: HighlightText;
 }
 

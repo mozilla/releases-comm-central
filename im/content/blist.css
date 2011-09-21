@@ -40,7 +40,7 @@ contact {
   -moz-box-align: center;
 }
 contact[open],
-contact[selected] {
+#buddylistbox:focus > contact[selected] {
   -moz-binding: url("chrome://instantbird/content/contact.xml#contact-big");
   -moz-box-orient: vertical;
   -moz-box-align: stretch;
