@@ -765,11 +765,16 @@ Account.prototype = {
   UnInit: function() {
     this.cleanUp();
     // If we've received any messages, update the last known message.
-    let knownMessageIds = Object.keys(this._knownMessageIds);
-    if (knownMessageIds.length) {
-      this.prefs.setCharPref("lastMessageId",
-                             Math.max.apply(null, knownMessageIds));
+    let newestMessageId = "";
+    for (let id in this._knownMessageIds) {
+      // Compare the length of the ids first, and then the text.
+      // This avoids converting tweet ids into rounded numbers.
+      if (id.length > newestMessageId.length ||
+          (id.length == newestMessageId.length && id > newestMessageId))
+        newestMessageId = id;
     }
+    if (newestMessageId)
+      this.prefs.setCharPref("lastMessageId", newestMessageId);
     Services.obs.removeObserver(this, "status-changed");
     this._base.UnInit();
   },
