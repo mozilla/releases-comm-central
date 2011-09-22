@@ -199,7 +199,7 @@ Conversation.prototype = {
           start: h.indices[0],
           end: h.indices[1],
           str: "#" + h.text,
-          href: "https://twitter.com/#!/search?q=#" + h.text})));
+          href: "https://twitter.com/#!/search?q=%23" + h.text})));
       }
       if ("urls" in entities && Array.isArray(entities.urls)) {
         entArray = entArray.concat(entities.urls.map(function(u) ({
