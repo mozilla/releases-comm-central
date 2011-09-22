@@ -21,6 +21,7 @@
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s):
+   -   Douglas Thrift <douglas@douglasthrift.net>
    -
    - Alternatively, the contents of this file may be used under the terms of
    - either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -442,6 +443,7 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
+        // shift + page up/down should scroll the browser.
         if (event.shiftKey && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
                                event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN)) {
 
@@ -470,6 +472,80 @@
           return;
         }
 
+        let text = inputBox.value;
+
+        // Keep the default behavior of the tab key if the input box
+        // is empty or a modifier is used.
+        if (event.keyCode == KeyEvent.DOM_VK_TAB && text.length != 0 &&
+            !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+          event.preventDefault();
+
+          let completions = [];
+          let firstWordSuffix = " ";
+          let word = text.substring(0, inputBox.selectionStart).match(/\S*$/)[0];
+          if (!word)
+            return;
+
+          let isFirstWord = inputBox.selectionStart == word.length;
+          // check if we are completing a command.
+          if (isFirstWord && word[0] == "/") {
+            for each (let cmd in Services.cmd.listCommandsForConversation(this._conv)) {
+              // It's possible to have a global and a protocol specific command
+              // with the same name. Avoid duplicates in the |completions| array.
+              let name = "/" + cmd.name;
+              if (completions.indexOf(name) == -1)
+                completions.push(name);
+            }
+          }
+          else {
+            // If it's not a command, the only thing we can complete is a nick.
+            if (!this._conv.isChat)
+              return;
+
+            // Twitter username mentions start with "@".
+            // TODO: find a less prpl-specific way to handle username prefixes.
+            if (this._conv.account.protocol.id == "prpl-twitter") {
+              if (word[0] != "@")
+                return;
+              word = word.substring(1);
+            }
+            else
+              firstWordSuffix = ": ";
+
+            completions = Object.keys(this.buddies);
+          }
+
+          // Keep only the completions that share |word| as a prefix.
+          completions = completions.filter(function(c) c.indexOf(word) == 0);
+          if (completions.length == 0)
+            return;
+
+          // Only one possible completion? Apply it! :-)
+          if (completions.length == 1) {
+            this.addString(completions[0].substring(word.length) +
+                           (isFirstWord ? firstWordSuffix : " "));
+            return;
+          }
+
+          // We have several possible completions, attempt to find a common prefix.
+          completions.sort();
+          let i = word.length;
+          let maxLength = Math.max(completions[0].length,
+                                   completions[completions.length - 1].length);
+          while (i < maxLength &&
+                 completions[0][i] == completions[completions.length - 1][i])
+            ++i;
+
+          // Apply the common prefix, if any.
+          if (i > word.length)
+            this.addString(completions[0].substring(word.length, i));
+
+          // Finally, display the possible completions in a system message.
+          this._conv.systemMessage(completions.join(" "));
+          return;
+        }
+
+        // Handle typing notifications / character count.
         if (event.keyCode != 13) {
           setTimeout((function () {
             // By the time the timeout is executed, the conversation may have
@@ -506,7 +582,7 @@
           // Prevent the default action before calling sendMsg to avoid having
           // a line break inserted in the textbox if sendMsg throws.
           event.preventDefault();
-          this.sendMsg(inputBox.value);
+          this.sendMsg(text);
         }
         else if (!event.shiftKey)
           this.addString("\n");
