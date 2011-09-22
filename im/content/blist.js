@@ -40,6 +40,7 @@ Components.utils.import("resource:///modules/imStatusUtils.jsm");
 const events = ["contact-availability-changed",
                 "contact-added",
                 "contact-tag-added",
+                "contact-tag-removed",
                 "showing-ui-conversation",
                 "status-changed",
                 "tag-hidden",
@@ -717,9 +718,16 @@ var buddyList = {
     else if (index !== undefined)
       this._displayedGroups.splice(index, 0, groupElt);
   },
+  _showOtherContactsRequested: false,
   showOtherContacts: function bl_showOtherContacts() {
-    if (!document.getElementById("group-1"))
-      this.displayGroup(Services.tags.otherContactsTag);
+    if (this._showOtherContactsRequested)
+      return;
+    this._showOtherContactsRequested = true;
+    setTimeout(function(aSelf) {
+      if (!document.getElementById("group-1"))
+        aSelf.displayGroup(Services.tags.otherContactsTag);
+      aSelf._showOtherContactsRequested = false;
+    }, 0, this);
   },
   unload: function bl_unload() {
     removeObservers(buddyList, events);
