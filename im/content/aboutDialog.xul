@@ -53,8 +53,7 @@
 #endif
 ]>
 
-<dialog xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="aboutDialog"
         windowtype="Messenger:About"
         buttons="accept,extra2"
@@ -149,7 +148,7 @@
       </vbox>
 
       <vbox flex="1" id="creditsBox">
-        <html:iframe style="border: 0px;" id="creditsIframe" flex="1"/>
+        <iframe id="creditsIframe" flex="1"/>
       </vbox>
     </deck>
 
