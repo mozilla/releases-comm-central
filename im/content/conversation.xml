@@ -262,7 +262,7 @@
           }
           else if (this._conv.account.protocol.slashCommandsNative) {
             let cmd = aMsg.match(/^\/[^ ]+/);
-            if (cmd) {
+            if (cmd && cmd != "/me") {
               this._conv.systemMessage(
                 this.bundle.formatStringFromName("unknownCommand", [cmd], 1),
                 true);
