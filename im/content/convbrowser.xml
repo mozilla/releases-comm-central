@@ -278,6 +278,7 @@
       </method>
 
       <field name="_lastMessage">null</field>
+      <field name="_lastMessageIsContext">false</field>
 
       <method name="appendMessage">
         <parameter name="aMsg"/>
@@ -317,7 +318,8 @@
 
             aMsg.message = cleanupImMarkup(doc, msg.replace(/\r?\n/g, "<br/>"),
                                            null, this._textModifiers);
-            let next = isNextMessage(this.theme, aMsg, this._lastMessage);
+            let next = aContext == this._lastMessageIsContext &&
+                       isNextMessage(this.theme, aMsg, this._lastMessage);
             let html = getHTMLForMessage(aMsg, this.theme, next, aContext);
             let body = doc.getElementsByTagName("body")[0];
             let newElt = insertHTMLForMessage(aMsg, html, doc, next);
@@ -326,6 +328,7 @@
               this._scrollToElement(newElt);
             this._lastElement = newElt;
             this._lastMessage = aMsg;
+            this._lastMessageIsContext = aContext;
           ]]>
         </body>
       </method>
@@ -786,7 +789,7 @@
           // are swapped.
           var fieldsToSwap = ["_docShell", "_fastFind", "_contentWindow", "_webNavigation",
                               "_theme", "_textModifiers", "_autoScrollEnabled",
-                              "_lastElement", "_lastMessage"];
+                              "_lastElement", "_lastMessage", "_lastMessageIsContext"];
 
           var ourFieldValues = {};
           var otherFieldValues = {};
