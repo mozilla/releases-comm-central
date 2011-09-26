@@ -177,12 +177,62 @@ Conversation.prototype = {
     return error;
   },
   displayTweet: function(aTweet) {
+    let text = aTweet.text;
+    let entities = {};
+    // Handle retweets: retweeted_status contains the object for the original
+    // tweet that is being retweeted.
+    // If the retweet prefix ("RT @<username>: ") causes the tweet to be over
+    // 140 characters, ellipses will be added (and the truncated property is set
+    // to true). In this case, we want to get the FULL text from the original
+    // tweet and update the entities to match.
+    if ("retweeted_status" in aTweet && "truncated" in aTweet &&
+        aTweet["truncated"]) {
+      let retweet = aTweet["retweeted_status"];
+      // We're going to take portions of the retweeted status and replace parts
+      // of the original tweet, the retweeted status prepends the original
+      // status with "RT @<username>: ", we need to keep the prefix.
+      let offset = text.indexOf(": ") + 2;
+      text = text.slice(0, offset) + retweet.text;
+
+      // Keep any entities that refer to the prefix (we can refer directly to
+      // aTweet for these since they are not edited).
+      if ("entities" in aTweet) {
+        for (let type in aTweet.entities) {
+          let filteredEntities =
+            aTweet.entities[type].filter(function(e) e.indices[0] < offset);
+          if (filteredEntities.length)
+            entities[type] = filteredEntities;
+        }
+      }
+
+      // Add the entities from the retweet (a copy of these must be made since
+      // they will be edited and we do not wish to change aTweet).
+      if ("entities" in retweet) {
+        for (let type in retweet.entities) {
+          if (!(type in entities))
+            entities[type] = [];
+
+          // Append the entities from the original status.
+          entities[type] = entities[type].concat(
+            retweet.entities[type].map(function(aEntity) {
+              let entity = Object.create(aEntity);
+              // Add the offset to the indices to account for the prefix.
+              entity.indices = entity.indices.map(function(i) i + offset);
+              return entity;
+            })
+          );
+        }
+      }
+    } else {
+      // For non-retweets, we just want to use the entities that are given.
+      if ("entities" in aTweet)
+        entities = aTweet.entities;
+    }
+
     let name = aTweet.user.screen_name;
     this._ensureParticipantExists(name);
 
-    let text = aTweet.text;
-    if ("entities" in aTweet) {
-      let entities = aTweet.entities;
+    if (Object.keys(entities).length) {
       /* entArray is an array of entities ready to be replaced in the tweet,
        * each entity contains:
        *  - start: the start index of the entity inside the tweet,
