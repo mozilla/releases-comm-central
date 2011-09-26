@@ -403,6 +403,9 @@
     <handlers>
      <handler event="popupshowing">
        <![CDATA[
+         if (document.popupNode)
+           return false;
+
          let elt = document.tooltipNode;
          let localName = elt.localName;
          if (localName == "tab") {
