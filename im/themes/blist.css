@@ -47,8 +47,48 @@ richlistbox {
 }
 
 .listboxHeader {
-  -moz-appearance: treeheadercell;
   margin: 0 0;
+  padding: 2px 5px;
+  border-style: none;
+  -moz-appearance: none;
+%ifdef XP_MACOSX
+  background-color: -moz-mac-chrome-active;
+  background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+}
+
+.listboxHeader:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: rgba(0, 0, 0, 0.32);
+%else
+  background-color: -moz-Dialog;
+%ifdef XP_WIN
+  background-image: -moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+%else
+  background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
+%endif
+%ifndef XP_WIN
+  border-bottom: 1px solid ThreeDShadow;
+%else
+  border-bottom: none;
+%endif
+%endif
+}
+
+#contactsHeader {
+%ifdef XP_MACOSX
+  border-top: 1px solid rgb(66, 66, 66);
+}
+
+#contactsHeader:-moz-window-inactive {
+  border-top-color: rgb(137, 137, 137);
+%else
+%ifndef XP_WIN
+  border-top: 1px solid ThreeDShadow;
+%else
+  border-top: none;
+%endif
+%endif
 }
 
 .convUnreadCount,

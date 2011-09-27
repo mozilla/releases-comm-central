@@ -178,11 +178,11 @@
 
   <notificationbox id="buddyListMsg" flex="1" listedConvCount="0"
                    context="buddyListContextMenu">
-    <label value="&convsHeader.label;" class="listboxHeader"/>
+    <label id="convsHeader" value="&convsHeader.label;" class="listboxHeader"/>
     <richlistbox id="convlistbox"
                  onkeypress="buddyList.keyPress(event);"
                  tooltip="buddyTooltip"/>
-    <label value="&contactsHeader.label;" class="listboxHeader"/>
+    <label id="contactsHeader" value="&contactsHeader.label;" class="listboxHeader"/>
     <richlistbox id="buddylistbox"
                  onkeypress="buddyList.keyPress(event);"
                  tooltip="buddyTooltip"/>
