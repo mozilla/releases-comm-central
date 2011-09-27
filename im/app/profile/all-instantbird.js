@@ -46,7 +46,7 @@ pref("messenger.buddies.hideTagPrompt", true);
 
 pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);
-pref("messenger.conversations.alwaysClose", true);
+pref("messenger.conversations.alwaysClose", false);
 
 pref("messenger.conversations.doubleClickToReply", true);
 
