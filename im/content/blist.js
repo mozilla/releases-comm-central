@@ -355,7 +355,12 @@ var buddyList = {
 
     if (aTopic == "ui-conversation-hidden") {
       let convElt = document.createElement("conv");
-      this.convBox.appendChild(convElt);
+      let name = aSubject.title.toLowerCase();
+      let ref = this.convBox.firstChild;
+      while (ref &&
+             ref.displayName.toLowerCase().localeCompare(name) < 0)
+        ref = ref.nextSibling;
+      this.convBox.insertBefore(convElt, ref);
       convElt.build(aSubject);
       this.convBox._updateListConvCount();
       return;
@@ -669,6 +674,8 @@ var buddyList = {
     if (convs.length != 0) {
       if (!("Conversations" in window))
         Components.utils.import("resource:///modules/imWindows.jsm");
+      convs.sort(function(a, b)
+        a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
       for each (let conv in convs) {
         if (!Conversations.isUIConversationDisplayed(conv)) {
           let convElt = document.createElement("conv");
