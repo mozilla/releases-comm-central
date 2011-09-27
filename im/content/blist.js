@@ -61,12 +61,11 @@ function buddyListContextMenu(aXulMenu) {
   this.onContact = localName == "contact";
   this.onBuddy = localName == "buddy";
   this.onGroup = localName == "group";
+  this.onConv = localName == "conv";
   this.shouldDisplay = true;
 
   let hide = !(this.onContact || this.onBuddy);
-  [ "context-openconversation",
-    "context-showlogs",
-    "context-edit-buddy-separator",
+  [ "context-edit-buddy-separator",
     "context-alias",
     "context-delete",
     "context-tags",
@@ -81,6 +80,18 @@ function buddyListContextMenu(aXulMenu) {
     document.getElementById(aId).hidden = !this.onGroup;
   }, this);
 
+  let uiConv;
+  if (!hide) {
+    let contact =
+      this.onContact ? this.target.contact : this.target.buddy.contact;
+    uiConv = Services.conversations.getUIConversationByContactId(contact.id);
+  }
+  document.getElementById("context-openconversation").hidden = hide || uiConv;
+  document.getElementById("context-show-conversation").hidden =
+    !this.onConv && !uiConv;
+  document.getElementById("context-close-conversation").hidden = !this.onConv;
+  document.getElementById("context-showlogs").hidden = hide && !this.onConv;
+
   if (this.onGroup) {
     document.getElementById("context-hide-tag").disabled =
       this.target.tag.id == -1;
@@ -92,7 +103,7 @@ function buddyListContextMenu(aXulMenu) {
   }
 
   document.getElementById("context-show-offline-buddies-separator").hidden =
-    hide && !this.onGroup;
+    hide && !this.onGroup && !this.onConv;
 
   let detach = document.getElementById("context-detach");
   detach.hidden = !this.onBuddy;
@@ -106,8 +117,12 @@ function buddyListContextMenu(aXulMenu) {
 // Prototype for buddyListContextMenu "class."
 buddyListContextMenu.prototype = {
   openConversation: function blcm_openConversation() {
-    if (this.onContact || this.onBuddy)
+    if (this.onContact || this.onBuddy || this.onConv)
       this.target.openConversation();
+  },
+  closeConversation: function blcm_closeConversation() {
+    if (this.onConv)
+      this.target.closeConversation();
   },
   alias: function blcm_alias() {
     if (this.onContact)
@@ -216,6 +231,8 @@ buddyListContextMenu.prototype = {
       return Services.logs.getLogsForContact(this.target.contact);
     if (this.onBuddy)
       return Services.logs.getLogsForBuddy(this.target.buddy);
+    if (this.onConv)
+      return Services.logs.getLogsForConversation(this.target.conv);
     return null;
   },
   showLogs: function blcm_showLogs() {

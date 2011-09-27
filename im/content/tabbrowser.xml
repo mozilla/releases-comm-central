@@ -98,6 +98,15 @@
                           oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
                                      tabbrowser.mContextTab.linkedConversation.showLogs();"/>
             <xul:menuseparator/>
+            <xul:menuitem id="context_closeConv" label="&closeConv.label;" accesskey="&closeConv.accesskey;"
+                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
+                                     tabbrowser.mContextTab.linkedConversation.close();
+                                     tabbrowser.removeTab(tabbrowser.mContextTab);"/>
+            <xul:menuitem id="context_hideConv" label="&hideConv.label;" accesskey="&hideConv.accesskey;"
+                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
+                                     tabbrowser.mContextTab.linkedConversation.hide();
+                                     tabbrowser.removeTab(tabbrowser.mContextTab);"/>
+            <xul:menuseparator/>
             <xul:menuitem id="context_closeOtherTabs" label="&closeOtherTabs.label;" accesskey="&closeOtherTabs.accesskey;"
                           tbattr="tabbrowser-multiple"
                           oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;

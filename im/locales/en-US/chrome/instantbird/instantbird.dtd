@@ -4,7 +4,6 @@
 <!ENTITY logsWindow.title   "Conversation logs - &brandShortName;">
 <!ENTITY logsWindow.titlemodifiermenuseparator " - ">
 <!ENTITY logsWindow.titlemodifier "&brandShortName;">
-<!ENTITY contacts.title     "Contacts - &brandShortName;">
 <!ENTITY file.menu          "File">
 <!ENTITY file.accesskey     "F">
 
@@ -78,8 +77,15 @@
 <!ENTITY copyEmailCmd.accesskey       "E">
 <!ENTITY engineManagerCmd.label       "Manage Search Engines…">
 
+<!ENTITY contactsHeader.label          "Contacts">
+<!ENTITY convsHeader.label             "Conversations on hold">
+
 <!ENTITY openConversationCmd.label     "Start a conversation">
 <!ENTITY openConversationCmd.accesskey "c">
+<!ENTITY showConversationCmd.label     "Show conversation">
+<!ENTITY showConversationCmd.accesskey "S">
+<!ENTITY closeConversationCmd.label    "Close conversation">
+<!ENTITY closeConversationCmd.accesskey "C">
 <!ENTITY aliasCmd.label                "Rename">
 <!ENTITY aliasCmd.accesskey            "R">
 <!ENTITY detachCmd.label               "Detach from contact">

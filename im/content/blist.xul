@@ -52,7 +52,7 @@
 <window
   id     = "blistWindow"
   windowtype="Messenger:blist"
-  title  = "&contacts.title;"
+  title  = "&brandShortName;"
   width  = "200"
   persist= "width height screenX screenY"
 #ifndef XP_MACOSX
@@ -87,6 +87,14 @@
                 label="&openConversationCmd.label;"
                 accesskey="&openConversationCmd.accesskey;"
                 oncommand="gBuddyListContextMenu.openConversation();"/>
+      <menuitem id="context-show-conversation"
+                label="&showConversationCmd.label;"
+                accesskey="&showConversationCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.openConversation();"/>
+      <menuitem id="context-close-conversation"
+                label="&closeConversationCmd.label;"
+                accesskey="&closeConversationCmd.accesskey;"
+                oncommand="gBuddyListContextMenu.closeConversation();"/>
       <menuitem id="context-showlogs"
                 label="&showLogsCmd.label;"
                 accesskey="&showLogsCmd.accesskey;"
@@ -170,11 +178,11 @@
 
   <notificationbox id="buddyListMsg" flex="1" listedConvCount="0"
                    context="buddyListContextMenu">
-    <label value="Hidden Conversations" class="listboxHeader"/>
+    <label value="&convsHeader.label;" class="listboxHeader"/>
     <richlistbox id="convlistbox"
                  onkeypress="buddyList.keyPress(event);"
                  tooltip="buddyTooltip"/>
-    <label value="Contacts" class="listboxHeader"/>
+    <label value="&contactsHeader.label;" class="listboxHeader"/>
     <richlistbox id="buddylistbox"
                  onkeypress="buddyList.keyPress(event);"
                  tooltip="buddyTooltip"/>

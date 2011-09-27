@@ -175,6 +175,14 @@
       </body>
      </method>
 
+     <method name="closeConversation">
+      <body>
+       <![CDATA[
+         this.conv.close();
+       ]]>
+      </body>
+     </method>
+
      <method name="keyPress">
       <parameter name="aEvent"/>
       <body>this._keyPress(aEvent);</body>

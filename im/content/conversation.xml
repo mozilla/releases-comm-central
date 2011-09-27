@@ -141,13 +141,30 @@
      </method>
 
      <method name="_forgetConv">
+       <parameter name="aShouldClose"/>
        <body>
         <![CDATA[
            this._conv.removeObserver(this);
-           Conversations.unregisterConversation(this);
+           Conversations.unregisterConversation(this, aShouldClose);
            delete this._conv;
            this.browser.destroy();
            this.findbar.destroy();
+        ]]>
+       </body>
+     </method>
+
+     <method name="close">
+       <body>
+        <![CDATA[
+           this._forgetConv(true);
+        ]]>
+       </body>
+     </method>
+
+     <method name="hide">
+       <body>
+        <![CDATA[
+           this._forgetConv(false);
         ]]>
        </body>
      </method>

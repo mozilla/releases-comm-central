@@ -79,7 +79,7 @@ var Conversations = {
 
     this._uiConv[aConversation.conv.id] = aConversation;
   },
-  unregisterConversation: function(aConversation) {
+  unregisterConversation: function(aConversation, aShouldClose) {
     let index = this._conversations.indexOf(aConversation);
     if (index != -1)
       this._conversations.splice(index, 1);
@@ -87,7 +87,9 @@ var Conversations = {
     let uiConv = aConversation.conv;
     if (this._uiConv[uiConv.id] == aConversation) {
       delete this._uiConv[uiConv.id];
-      if (!uiConv.checkClose())
+      if (aShouldClose === true)
+        uiConv.close();
+      else if (aShouldClose === false || !uiConv.checkClose())
         Services.obs.notifyObservers(uiConv, "ui-conversation-hidden", null);
     }
   },
