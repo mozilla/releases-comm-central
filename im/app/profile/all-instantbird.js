@@ -48,6 +48,8 @@ pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);
 pref("messenger.conversations.alwaysClose", true);
 
+pref("messenger.conversations.doubleClickToReply", true);
+
 pref("messenger.conversations.selections.magicCopyEnabled", true);
 pref("messenger.conversations.selections.ellipsis", "chrome://instantbird/locale/instantbird.properties");
 pref("messenger.conversations.selections.systemMessagesTemplate", "chrome://instantbird/locale/instantbird.properties");

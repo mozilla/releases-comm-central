@@ -753,6 +753,9 @@
      <parameter name="event"/>
       <body>
       <![CDATA[
+        if (!Services.prefs.getBoolPref("messenger.conversations.doubleClickToReply"))
+          return;
+
         for (let node = event.target; node; node = node.parentNode) {
           if (node._originalMsg) {
             let msg = node._originalMsg;
