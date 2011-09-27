@@ -231,8 +231,7 @@
             (!this.tab.selected || !document.hasFocus())) {
           if (conv.isChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
-          else
-            this.tab.setAttribute("unread", "true");
+          this.tab.setAttribute("unread", "true");
         }
       ]]>
       </body>

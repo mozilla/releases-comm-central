@@ -448,9 +448,10 @@
           }).length;
           if (!unreadConvsCount)
             return reallyClose;
-
           const pref = "browser.tabs.warnOnClose";
-          var shouldPrompt = Services.prefs.getBoolPref(pref);
+          var shouldPrompt =
+            Services.prefs.getBoolPref("messenger.conversations.alwaysClose") &&
+            Services.prefs.getBoolPref(pref);
 
           if (shouldPrompt) {
             //default to true: if it were false, we wouldn't get this far

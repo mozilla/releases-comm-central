@@ -39,6 +39,8 @@ var gTabsPane = {
   init: function ()
   {
     this.updateMUCWindowSetting();
+    document.getElementById("warnCloseMultiple").hidden =
+      !document.getElementById("messenger.conversations.alwaysClose").value;
   },
 
   updateMUCWindowSetting: function ()

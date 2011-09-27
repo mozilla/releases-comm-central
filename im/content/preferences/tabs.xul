@@ -55,6 +55,7 @@
       <preference id="messenger.conversations.useSeparateWindowsForMUCs" name="messenger.conversations.useSeparateWindowsForMUCs" type="bool"/>
       <preference id="browser.tabs.autoHide"                  name="browser.tabs.autoHide"                  type="bool" inverted="true"/>
       <preference id="browser.tabs.warnOnClose"               name="browser.tabs.warnOnClose"               type="bool"/>
+      <preference id="messenger.conversations.alwaysClose"    name="messenger.conversations.alwaysClose"    type="bool"/>
     </preferences>
 
     <script type="application/javascript" src="chrome://instantbird/content/preferences/tabs.js"/>
