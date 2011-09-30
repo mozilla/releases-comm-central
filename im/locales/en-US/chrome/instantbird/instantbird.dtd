@@ -19,8 +19,8 @@
 <!ENTITY addBuddy.commandkey "b">
 <!ENTITY addBuddy.accesskey  "B">
 <!ENTITY joinChat            "Join Chat…">
-<!ENTITY joinChat.commandkey "i">
-<!ENTITY joinChat.accesskey  "i">
+<!ENTITY joinChat.commandkey "j">
+<!ENTITY joinChat.accesskey  "J">
 <!ENTITY setStatusTo        "Set Status to…">
 <!ENTITY available          "Available">
 <!ENTITY unavailable        "Unavailable">
