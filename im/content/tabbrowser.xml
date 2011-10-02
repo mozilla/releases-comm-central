@@ -278,10 +278,12 @@
             event.initEvent("TabSelect", true, false);
             this.mCurrentTab.dispatchEvent(event);
 
-            if (document.commandDispatcher.focusedElement &&
-                document.commandDispatcher.focusedElement.parentNode ==
-                this.mCurrentTab.parentNode) {
-              // The focus is on a tab in the same tab panel
+            let focusedElement = document.commandDispatcher.focusedElement;
+            if (focusedElement &&
+                focusedElement.parentNode == this.mCurrentTab.parentNode &&
+                !focusedElement.collapsed) {
+              // The focus is on a tab in the same tab panel and we are not
+              // closing that tab: focus the new tab, not the conversation.
               return;  // If focus was on a tab, switching tabs focuses the new tab
             }
 
