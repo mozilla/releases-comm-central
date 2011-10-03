@@ -332,6 +332,7 @@ Account.prototype = {
   // home_timeline, @ mentions and tracked keywords (i.e. 3 timelines)
   _pendingRequests: [],
   _timelineBuffer: [],
+  _timelineAuthError: 0,
 
   // Used to know if we should connect when returning from the offline status.
   _enabled: false,
@@ -544,6 +545,8 @@ Account.prototype = {
 
   onTimelineError: function(aError, aResponseText, aRequest) {
     ERROR(aError);
+    if (aRequest.status == 401);
+      ++this._timelineAuthError;
     this._doneWithTimelineRequest(aRequest);
   },
 
@@ -612,6 +615,24 @@ Account.prototype = {
     // If we are still waiting for more data, return early
     if (this._pendingRequests.length != 0)
       return;
+
+    if (this._timelineAuthError >= 2) {
+      // 2 out of the 3 timeline requests are authenticated.
+      // With at least 2 '401 - Unauthorized' errors, we are sure
+      // that our OAuth token is consistently rejected.
+      delete this._timelineAuthError;
+      delete this._timelineBuffer;
+      delete this._pendingRequests;
+      delete this.token;
+      delete this.tokenSecret;
+      this.requestToken();
+      return;
+    }
+
+    // Less than 2 auth errors is probably just some flakiness of the
+    // twitter servers, ignore and reset this._timelineAuthError.
+    if (this._timelineAuthError)
+      delete this._timelineAuthError;
 
     this.base.connected();
 
