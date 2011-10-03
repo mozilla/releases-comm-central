@@ -272,6 +272,10 @@ Conversation.prototype = {
       let offset = 0;
       for each (let entity in entArray) {
         let str = text.substring(offset + entity.start, offset + entity.end);
+        if (str[0] == "＠")
+          str = "@" + str.substring(1);
+        if (str[0] == "＃")
+          str = "#" + str.substring(1);
         if (str.toLowerCase() != entity.str.toLowerCase())
           continue;
 
@@ -520,7 +524,7 @@ Account.prototype = {
       getParams = "?q=" + track.split(",").join(" OR ") + lastMsgParam;
       let url = "http://search.twitter.com/search.json" + getParams;
       this._pendingRequests.push(doXHRequest(url, null, null,
-                                             this.onTimelineReceived,
+                                             this.onSearchResultsReceived,
                                              this.onTimelineError, this));
     }
   },
@@ -543,10 +547,11 @@ Account.prototype = {
     this._doneWithTimelineRequest(aRequest);
   },
 
-  onTimelineReceived: function(aData, aRequest) {
+  onSearchResultsReceived: function(aData, aRequest) {
     // Parse the returned data
     let data = JSON.parse(aData);
-    // Fix the results from the search API to match those of the REST API
+    // Fix the results from the search API to match those of the REST API.
+    // See bug 1053.
     if ("results" in data) {
       data = data.results;
       for each (let tweet in data) {
@@ -554,10 +559,49 @@ Account.prototype = {
           tweet.user = {screen_name: tweet.from_user,
                         profile_image_url: tweet.profile_image_url};
         }
+        if (!("entities" in tweet)) {
+          tweet.entities = {};
+          let text = tweet.text;
+          let match;
+          let hashTags = [];
+          // The \B (non-word boundary) ensures that the character
+          // right before the # is not a character commonly found in
+          // words. This should prevent us from matching part of URLs.
+          // For the text of the hashtag, the official ruby(!) implementation
+          // matches an arbitrary number of alphanumeric (or underscore)
+          // characters, but with at least one non-digit character
+          // (not necessarily at the beginning of the tag).
+          let re = /\B[#＃](\w*[A-Za-z_]\w*)/g;
+          while ((match = re.exec(text))) {
+            hashTags.push({text: match[1],
+                           indices: [re.lastIndex - match[0].length,
+                                     re.lastIndex]});
+          }
+          if (hashTags.length)
+            tweet.entities.hashtags = hashTags;
+
+          let mentions = [];
+          // The \B is here to avoid matching parts of email addresses.
+          // For the text of the username, the official ruby implementation
+          // matches 1 to 20 alphanumeric (or underscore) characters.
+          re = /\B[@＠](\w{1,20})/g;
+          while ((match = re.exec(text))) {
+            mentions.push({name: "", screen_name: match[1],
+                           indices: [re.lastIndex - match[0].length,
+                                     re.lastIndex]});
+          }
+          if (mentions.length)
+            tweet.entities.user_mentions = mentions;
+        }
       }
     }
     this._timelineBuffer = this._timelineBuffer.concat(data);
 
+    this._doneWithTimelineRequest(aRequest);
+  },
+
+  onTimelineReceived: function(aData, aRequest) {
+    this._timelineBuffer = this._timelineBuffer.concat(JSON.parse(aData));
     this._doneWithTimelineRequest(aRequest);
   },
 
