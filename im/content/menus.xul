@@ -60,8 +60,8 @@
   <commandset id="maincommandset">
     <command id="accountmanager" oncommand="menus.accounts()"/>
     <command id="cmd_quitApplication" oncommand="goQuitApplication()"/>
-    <command id="cmd_joinchat" oncommand="menus.joinChat()"/>
-    <command id="cmd_addbuddy" oncommand="menus.addBuddy()"/>
+    <command id="cmd_joinchat" oncommand="goDoCommand('cmd_joinchat');"/>
+    <command id="cmd_addbuddy" oncommand="goDoCommand('cmd_addbuddy');"/>
     <command id="cmd_addons" oncommand="menus.addons()"/>
   </commandset>
 

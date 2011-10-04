@@ -47,6 +47,25 @@ if (!("Core" in window))
   Components.utils.import("resource:///modules/ibCore.jsm");
 
 var menus = {
+  supportsCommand: function(aCmd)
+    aCmd == "cmd_addbuddy" || aCmd == "cmd_joinchat",
+  isCommandEnabled: function(aCmd) {
+    let enumerator = Services.core.getAccounts();
+    while (enumerator.hasMoreElements()) {
+      let acc = enumerator.getNext();
+      if (acc.connected && (aCmd == "cmd_addbuddy" || acc.canJoinChat))
+        return true;
+    }
+    return false;
+  },
+  doCommand: function(aCmd) {
+    if (aCmd == "cmd_joinchat")
+      this.joinChat();
+    else if (aCmd == "cmd_addbuddy")
+      this.addBuddy();
+  },
+  onEvent: function(aEventName) {},
+
   about: function menu_about() {
     Core.showWindow("Messenger:About", aboutWindow, "About",
                     "chrome,resizable=no,minimizable=no,centerscreen");
@@ -130,22 +149,8 @@ var menus = {
   },
 
   updateFileMenuitems: function menu_updateFileMenuitems() {
-    let hasConnectedAccount = false;
-    let canJoinChat = false;
-    let enumerator = Services.core.getAccounts();
-    while (enumerator.hasMoreElements()) {
-      let acc = enumerator.getNext();
-      if (acc.connected) {
-        hasConnectedAccount = true;
-        if (acc.canJoinChat) {
-          canJoinChat = true;
-          break;
-        }
-      }
-    }
-
-    document.getElementById("addBuddyMenuItem").disabled = !hasConnectedAccount;
-    document.getElementById("joinChatMenuItem").disabled = !canJoinChat;
+    goUpdateCommand("cmd_joinchat");
+    goUpdateCommand("cmd_addbuddy");
   },
 
   openDialog: function menu_openDialog(aWindowType, aURL) {
@@ -206,3 +211,5 @@ var menus = {
     }
   }
 };
+
+window.addEventListener("load", function() { this.controllers.insertControllerAt(0, menus); }, false);
