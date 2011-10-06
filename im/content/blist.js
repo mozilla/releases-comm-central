@@ -760,7 +760,10 @@ var buddyList = {
 
   // Handle key pressing
   keyPress: function bl_keyPress(aEvent) {
-    var item = aEvent.target.selectedItem;
+    let target = aEvent.target;
+    while (target && target.localName != "richlistbox")
+      target = target.parentNode;
+    var item = target.selectedItem;
     if (!item || !item.parentNode) // empty list or item no longer in the list
       return;
     item.keyPress(aEvent);

@@ -40,6 +40,7 @@ contact {
   -moz-box-align: center;
 }
 contact[open],
+contact[aliasing],
 #buddylistbox:focus > contact[selected] {
   -moz-binding: url("chrome://instantbird/content/contact.xml#contact-big");
   -moz-box-orient: vertical;
@@ -146,7 +147,7 @@ tooltip[type="buddy"] {
 
 group:not([id="group-1"]):hover .hideGroupButton,
 contact[cansend]:hover .startChatBubble,
-contact[cansend][selected] .startChatBubble {
+#buddylistbox:focus > contact[cansend][selected] .startChatBubble {
   display: -moz-box;
 }
 
