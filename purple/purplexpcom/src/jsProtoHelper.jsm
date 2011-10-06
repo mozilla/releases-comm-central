@@ -338,7 +338,6 @@ const GenericMessagePrototype = {
   set conversation(aConv) {
     this._conversation = aConv;
     aConv.notifyObservers(this, "new-text", null);
-    Services.obs.notifyObservers(this, "new-text", null);
   },
 
   outgoing: false,

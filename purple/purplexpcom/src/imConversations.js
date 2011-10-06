@@ -262,6 +262,8 @@ UIConversation.prototype = {
          (aTopic == "update-typing" &&
           this._purpleConv[aTargetId].typingState == Ci.purpleIConvIM.TYPING)))
       this.target = this._purpleConv[aTargetId];
+    if (aTopic == "new-text")
+      Services.obs.notifyObservers(aSubject, aTopic, aData);
     this.notifyObservers(aSubject, aTopic, aData);
   },
 
@@ -328,6 +330,8 @@ UIConversation.prototype = {
 var gConversationsService;
 function ConversationsService() { gConversationsService = this; }
 ConversationsService.prototype = {
+  get wrappedJSObject() this,
+
   initConversations: function() {
     this._uiConv = {};
     this._uiConvByContactId = {};
