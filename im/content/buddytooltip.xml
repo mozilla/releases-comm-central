@@ -403,10 +403,15 @@
     <handlers>
      <handler event="popupshowing">
        <![CDATA[
+         // No tooltip above the context menu.
          if (document.popupNode)
            return false;
 
          let elt = document.tooltipNode;
+         // No tooltip for elements that have already been removed.
+         if (!elt.parentNode)
+           return false;
+
          let localName = elt.localName;
          if (localName == "tab") {
            let conv = elt.linkedConversation.conv;
