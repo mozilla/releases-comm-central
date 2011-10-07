@@ -51,6 +51,7 @@ MODULE		= instantbird
 XPIDLSRCS	= ibILogger.idl
 
 EXTRA_COMPONENTS = \
+	contentHandler.js contentHandler.manifest \
 	ibCommandLineHandler.manifest \
 	ibStatusCommandLineHandler.js ibStatusCommandLineHandler.manifest \
 	logger.manifest \

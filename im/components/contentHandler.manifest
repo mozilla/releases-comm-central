@@ -1,0 +1,3 @@
+component {fda46332-1b03-4940-a30c-0997445d8e34} contentHandler.js
+contract @mozilla.org/uriloader/content-handler;1?type=text/html {fda46332-1b03-4940-a30c-0997445d8e34}
+contract @mozilla.org/uriloader/content-handler;1?type=text/plain {fda46332-1b03-4940-a30c-0997445d8e34}

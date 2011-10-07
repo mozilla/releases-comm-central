@@ -419,6 +419,8 @@
 @BINPATH@/components/profileMigrator.js
 @BINPATH@/components/profileMigrator.manifest
 #endif
+@BINPATH@/components/contentHandler.js
+@BINPATH@/components/contentHandler.manifest
 @BINPATH@/components/ibCommandLineHandler.js
 @BINPATH@/components/ibCommandLineHandler.manifest
 @BINPATH@/components/ibStatusCommandLineHandler.js
