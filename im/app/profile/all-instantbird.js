@@ -44,6 +44,11 @@ pref("messenger.buddies.showOffline", false);
 pref("messenger.buddies.hiddenTags", "");
 pref("messenger.buddies.hideTagPrompt", true);
 
+//  1 accepts invitations automatically,
+//  0 ignores the invitations,
+// -1 rejects the invitations.
+pref("messenger.conversations.autoAcceptChatInvitations", 1);
+
 pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);
 pref("messenger.conversations.alwaysClose", false);
