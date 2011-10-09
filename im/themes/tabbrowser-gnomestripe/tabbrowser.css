@@ -64,6 +64,7 @@
 .tabbrowser-strip:not(:-moz-lwtheme) {
   -moz-appearance: menubar;
   color: -moz-menubartext;
+  box-shadow: 0 -1px 0 rgba(0,0,0,.1) inset;
 }
 
 .tabbrowser-strip:not(:-moz-lwtheme):-moz-system-metric(menubar-drag) {
