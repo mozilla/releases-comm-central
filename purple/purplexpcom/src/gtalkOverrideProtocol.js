@@ -52,7 +52,9 @@ gtalkProtocol.prototype = {
 
   getAccount: function(aKey, aName) {
     let account = ForwardProtocolPrototype.getAccount.call(this, aKey, aName);
-    account.setString("connect_server", "talk.google.com");
+    let connectServer =
+      /@g(oogle)?mail.com(\/|$)/.test(aName) ? "" : "talk.google.com";
+    account.setString("connect_server", connectServer);
     return account;
   },
   getOptions: function() EmptyEnumerator,
