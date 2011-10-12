@@ -186,6 +186,7 @@
     <richlistbox id="buddylistbox"
                  onkeypress="buddyList.keyPress(event);"
                  tooltip="buddyTooltip"/>
+    <spacer id="listSpacer" flex="1"/>
   </notificationbox>
 
   <statusbar id="blistWindow-statusbar">

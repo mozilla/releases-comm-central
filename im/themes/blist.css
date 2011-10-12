@@ -41,6 +41,10 @@
   background-color: -moz-Field;
 }
 
+#listSpacer {
+  background-color: -moz-Field;
+}
+
 richlistbox {
   margin: 0 0;
   -moz-appearance: none;
