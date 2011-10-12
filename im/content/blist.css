@@ -140,6 +140,13 @@ tooltip[type="buddy"] {
 }
 
 .hideGroupButton,
+.startChatBubble,
+.expander-up,
+.expander-down {
+  -moz-user-focus: ignore;
+}
+
+.hideGroupButton,
 .startChatBubble
 {
   display: none;
