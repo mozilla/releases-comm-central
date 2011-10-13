@@ -210,10 +210,12 @@ endif
 	cd $(DIST)/l10n-stage; \
 	  $(MAKE_PACKAGE)
 ifdef MOZ_UPDATE_PACKAGING
+ifneq ($(MOZ_PKG_FORMAT),ZIP)
 	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update AB_CD=$(AB_CD) \
 	  MOZ_PKG_PRETTYNAMES=$(MOZ_PKG_PRETTYNAMES) \
 	  PACKAGE_BASE_DIR="$(_ABS_DIST)/l10n-stage" \
 	  DIST="$(_ABS_DIST)"
+endif
 endif
 # packaging done, undo l10n stuff
 ifneq (en,$(AB))
