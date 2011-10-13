@@ -368,7 +368,7 @@ MOZ_L10N_REPO_BASE = http://hg.mozilla.org/releases/l10n-mozilla-2.0
 checkout-%: AB_CD=$*
 checkout-%:
 	mkdir -p $(topsrcdir)/$(L10NBASEDIR)
-	$(PYTHON) $(topsrcdir)/client.py checkout-l10n --l10n-base-dir $(L10NBASEDIR) --locale $(AB_CD)
+	$(PYTHON) $(topsrcdir)/client.py checkout-l10n --clean --l10n-base-dir $(L10NBASEDIR) --locale $(AB_CD)
 
 repack-%: AB_CD=$*
 repack-%:
