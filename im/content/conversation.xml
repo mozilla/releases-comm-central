@@ -77,7 +77,7 @@
             <xul:listbox anonid="nicklist" class="conv-nicklist"
                          flex="1" seltype="multiple"
                          tooltip="buddyTooltip"
-                         ondblclick="onNickDblClick(event);"
+                         onclick="onNickClick(event);"
                          onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>
         </xul:hbox>
@@ -1292,14 +1292,17 @@
       </body>
      </method>
 
-     <method name="onNickDblClick">
+     <method name="onNickClick">
       <parameter name="event"/>
       <body>
       <![CDATA[
-        var nick = event.originalTarget.chatBuddy.name;
-        let name = this._conv.target.getNormalizedChatBuddyName(nick);
-        let newConv = this._conv.account.createConversation(name);
-        Conversations.focusConversation(newConv);
+        // Open a private conversation in new tab on a middle or double click.
+        if (event.button == 1 || (event.button == 0 && event.detail == 2)) {
+          var nick = event.originalTarget.chatBuddy.name;
+          let name = this._conv.target.getNormalizedChatBuddyName(nick);
+          let newConv = this._conv.account.createConversation(name);
+          Conversations.focusConversation(newConv);
+        }
       ]]>
       </body>
      </method>
