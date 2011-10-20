@@ -64,7 +64,7 @@ var accountWizard = {
     }, 0);
 
     addObservers(this, events);
-    window.addEventListener("unload", this.unload, false);
+    window.addEventListener("unload", this.unload);
   },
   unload: function aw_unload() {
     removeObservers(accountWizard, events);
@@ -128,7 +128,7 @@ var accountWizard = {
     textbox.setAttribute("flex", 1);
     if (aDefaultValue)
       textbox.setAttribute("value", aDefaultValue);
-    textbox.addEventListener("input", accountWizard.checkUsername, false);
+    textbox.addEventListener("input", accountWizard.checkUsername);
     hbox.appendChild(textbox);
 
     aParent.appendChild(hbox);

@@ -175,10 +175,9 @@ function checkNewText(aEvent)
 }
 
 
-window.addEventListener("resize", adaptCSS, false);
+window.addEventListener("resize", adaptCSS);
 adaptCSS(null);
 
 document.getElementById("ibcontent")
-        .addEventListener("DOMNodeInserted", checkNewText, false);
-
+        .addEventListener("DOMNodeInserted", checkNewText);
 </script>

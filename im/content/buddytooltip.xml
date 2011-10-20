@@ -145,7 +145,7 @@
            if (this._elt)
              this._elt.removeEventListener("DOMAttrModified", this, false);
            else
-             val.addEventListener("DOMAttrModified", this, false);
+             val.addEventListener("DOMAttrModified", this);
            return (this._elt = val);
          ]]>
        </setter>

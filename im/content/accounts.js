@@ -90,7 +90,7 @@ var gAccountManager = {
     this.setAutoLoginNotification();
 
     this.accountList.addEventListener("keypress", this.onKeyPress, true);
-    window.addEventListener("unload", this.unload, false);
+    window.addEventListener("unload", this.unload);
     this._connectedLabelInterval = setInterval(this.updateConnectedLabels, 60000);
   },
   unload: function am_unload() {

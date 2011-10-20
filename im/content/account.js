@@ -88,7 +88,7 @@ var account = {
     document.getElementById("proxySeparator").hidden = !proxyVisible;
 
     addObservers(this, events);
-    window.addEventListener("unload", this.unload, false);
+    window.addEventListener("unload", this.unload);
   },
   unload: function account_unload() {
     removeObservers(account, events);

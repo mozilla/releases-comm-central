@@ -98,4 +98,4 @@ var logWindow = {
   }
 };
 
-this.addEventListener("load", logWindow.load, false);
+this.addEventListener("load", logWindow.load);

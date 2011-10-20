@@ -71,7 +71,7 @@ function groupEvents(parent)
     P_list[i].style.display = "none";
 
     var p = document.createElement("p");
-    p.addEventListener("click", toggle_groupEvents, false);
+    p.addEventListener("click", toggle_groupEvents);
     p.setAttribute("class", "button hide");
     parent.insertBefore(p, P_list[1]);
   }
@@ -210,7 +210,7 @@ function checkNewText(aEvent)
 }
 
 document.getElementById("ibcontent")
-        .addEventListener("DOMNodeInserted", checkNewText, false);
+        .addEventListener("DOMNodeInserted", checkNewText);
 </script>
 
 <p id="lastMessage"/>

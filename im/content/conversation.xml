@@ -91,17 +91,17 @@
      <constructor>
       <![CDATA[
        let textbox = this.editor;
-       textbox.addEventListener("keypress", this.inputKeyPress.bind(this), false);
+       textbox.addEventListener("keypress", this.inputKeyPress.bind(this));
        textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
        textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
        this.getElt("splitter-bottom")
            .addEventListener("DOMAttrModified",
-                             this._onSplitterChange.bind(this), false);
+                             this._onSplitterChange.bind(this));
 
        var browser = this.browser;
-       browser.addEventListener("keypress", this.browserKeyPress, false);
-       browser.addEventListener("dblclick", this.browserDblClick.bind(this), false);
+       browser.addEventListener("keypress", this.browserKeyPress);
+       browser.addEventListener("dblclick", this.browserDblClick.bind(this));
        Services.obs.addObserver(this, "conversation-loaded", false);
 
        try {
@@ -1402,7 +1402,7 @@
      <constructor>
       <![CDATA[
         this.topic
-            .addEventListener("click", this.startEditTopic.bind(this), false);
+            .addEventListener("click", this.startEditTopic.bind(this));
         if (this.hasAttribute("allowTargetChange"))
           this.allowTargetChange();
         // Cancel any ongoing edit if the binding changes.
@@ -1485,9 +1485,9 @@
 
           this.setAttribute("editing", "true");
           this._topicKeyPress = this.topicKeyPress.bind(this);
-          elt.addEventListener("keypress", this._topicKeyPress, false);
+          elt.addEventListener("keypress", this._topicKeyPress);
           this._topicBlur = this.topicBlur.bind(this);
-          elt.addEventListener("blur", this._topicBlur, false);
+          elt.addEventListener("blur", this._topicBlur);
           // force binding attachmant by forcing layout
           elt.getBoundingClientRect();
           if (this.hasAttribute("noTopic"))
@@ -1507,8 +1507,8 @@
          this.setAttribute("allowTargetChange", "true");
          let popup = document.getAnonymousElementByAttribute(this, "anonid",
                                                              "all-targets-popup");
-         popup.addEventListener("popupshowing", this.showAllTargets.bind(this), false);
-         popup.addEventListener("popuphiding", this.hideAllTargets, false);
+         popup.addEventListener("popupshowing", this.showAllTargets.bind(this));
+         popup.addEventListener("popuphiding", this.hideAllTargets);
        ]]>
        </body>
      </method>
@@ -1542,7 +1542,7 @@
            menuItem.buddy = buddy;
            popup.appendChild(menuItem);
          }
-         popup.addEventListener("command", this.changeTargetCommand, false);
+         popup.addEventListener("command", this.changeTargetCommand);
        ]]>
        </body>
      </method>
@@ -1598,7 +1598,7 @@
       <constructor>
       <![CDATA[
         document.getAnonymousElementByAttribute(this, "anonid", "statusMessageWithDash")
-                .addEventListener("click", this.startEditTopic.bind(this), false);
+                .addEventListener("click", this.startEditTopic.bind(this));
       ]]>
      </constructor>
     </implementation>

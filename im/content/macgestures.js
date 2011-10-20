@@ -54,7 +54,7 @@ let gGestureSupport = {
         gGestureSupport._lastSelectedTab = gGestureSupport._selectedTab;
         gGestureSupport._selectedTab = this.selectedItem;
       };
-      tabs.addEventListener("select", selectHandler, false);
+      tabs.addEventListener("select", selectHandler);
       gGestureSupport._selectedTab = tabs.selectedItem;
       gGestureSupport._tabs = tabs;
     }
@@ -231,4 +231,4 @@ let gGestureSupport = {
   }
 };
 
-this.addEventListener("load", gGestureSupport.load, false);
+this.addEventListener("load", gGestureSupport.load);

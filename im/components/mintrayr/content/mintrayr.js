@@ -49,7 +49,7 @@ var gMinTrayR = {
     gMinTrayR.init();
   },
   init: function() {
-    window.addEventListener("unload", this.uninit, false);
+    window.addEventListener("unload", this.uninit);
 
     let node = document.getElementById("menu_FileQuitItem").cloneNode(true);
     node.setAttribute('id', 'MinTrayR_' + node.id);

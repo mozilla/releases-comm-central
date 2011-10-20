@@ -52,8 +52,8 @@ var convWindow = {
       }
     }
 
-    window.addEventListener("unload", convWindow.unload, false);
-    window.addEventListener("resize", convWindow.onresize, false);
+    window.addEventListener("unload", convWindow.unload);
+    window.addEventListener("resize", convWindow.onresize);
     window.addEventListener("activate", convWindow.onactivate, true);
     window.QueryInterface(Ci.nsIInterfaceRequestor)
           .getInterface(Ci.nsIWebNavigation)
@@ -207,4 +207,4 @@ var XULBrowserWindow = {
   }
 }
 
-this.addEventListener("load", convWindow.load, false);
+this.addEventListener("load", convWindow.load);

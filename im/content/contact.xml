@@ -309,7 +309,7 @@
           if (aEvent.target == this.parentNode)
             this.finishAliasing(true);
         }).bind(this);
-        this.parentNode.addEventListener("select", this._parentSelectListener, false);
+        this.parentNode.addEventListener("select", this._parentSelectListener);
       ]]>
       </body>
      </method>

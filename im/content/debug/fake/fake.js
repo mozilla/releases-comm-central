@@ -322,7 +322,7 @@ var fake = {
   }
 };
 
-this.addEventListener("load", fake.load, false);
+this.addEventListener("load", fake.load);
 
 var gLastAccountId = 0;
 function Account(aName, aProto)

@@ -94,7 +94,7 @@
           button.setAttribute("label", document.documentElement.getAttribute("creditslabel"));
           button.setAttribute("accesskey", document.documentElement.getAttribute("creditsaccesskey"));
           gSelectedPage = 0;
-          button.addEventListener("command", switchPage, false);
+          button.addEventListener("command", switchPage);
           document.documentElement.getButton("accept").focus();
         }
 

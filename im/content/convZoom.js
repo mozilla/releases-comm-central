@@ -43,12 +43,12 @@ var FullZoom = {
   prefName: "conversation.zoomLevel",
 
   init: function FullZoom_init() {
-    window.addEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled, false);
-    window.addEventListener("unload", FullZoom.destroy, false);
+    window.addEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled);
+    window.addEventListener("unload", FullZoom.destroy);
     let conversations = document.getElementById("conversations");
     if (conversations) {
       conversations.tabContainer
-                   .addEventListener("select", FullZoom.setSettingValue, false);
+                   .addEventListener("select", FullZoom.setSettingValue);
     }
 
     Services.prefs.addObserver(FullZoom.prefName, FullZoom, false);
@@ -146,4 +146,4 @@ var FullZoom = {
   }
 };
 
-this.addEventListener("load", FullZoom.init, false);
+this.addEventListener("load", FullZoom.init);

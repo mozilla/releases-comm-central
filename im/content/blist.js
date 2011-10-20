@@ -471,8 +471,8 @@ var buddyList = {
     let elt = document.getElementById("statusMessage");
     if (!elt.hasAttribute("editing")) {
       elt.setAttribute("editing", "true");
-      elt.addEventListener("keypress", this.statusMessageKeyPress, false);
-      elt.addEventListener("blur", this.statusMessageBlur, false);
+      elt.addEventListener("keypress", this.statusMessageKeyPress);
+      elt.addEventListener("blur", this.statusMessageBlur);
       if (elt.hasAttribute("usingDefault")) {
         if ("_statusTypeBeforeEditing" in this &&
             this._statusTypeBeforeEditing == "offline")
@@ -574,8 +574,8 @@ var buddyList = {
       elt.setAttribute("editing", "true");
       if (elt.hasAttribute("usingDefault"))
         elt.removeAttribute("value");
-      elt.addEventListener("keypress", this.displayNameKeyPress, false);
-      elt.addEventListener("blur", this.displayNameBlur, false);
+      elt.addEventListener("keypress", this.displayNameKeyPress);
+      elt.addEventListener("blur", this.displayNameBlur);
       // force binding attachmant by forcing layout
       elt.getBoundingClientRect();
       elt.select();
@@ -705,7 +705,7 @@ var buddyList = {
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     addObservers(buddyList, events);
 
-    this.addEventListener("unload", buddyList.unload, false);
+    this.addEventListener("unload", buddyList.unload);
   },
   _displayedGroups: [],
   _getGroupIndex: function(aName) {
@@ -770,4 +770,4 @@ var buddyList = {
   }
 };
 
-this.addEventListener("load", buddyList.load, false);
+this.addEventListener("load", buddyList.load);

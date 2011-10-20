@@ -81,7 +81,7 @@ var previewObserver = {
     previewObserver.browser = document.getElementById("previewbrowser");
     document.getElementById("showHeaderCheckbox")
             .addEventListener("CheckboxStateChange",
-                              previewObserver.showHeaderChanged, false);
+                              previewObserver.showHeaderChanged);
     previewObserver.displayTheme(themeName.value);
     this._loaded = true;
   },

@@ -212,4 +212,4 @@ var menus = {
   }
 };
 
-window.addEventListener("load", function() { this.controllers.insertControllerAt(0, menus); }, false);
+window.addEventListener("load", function() { this.controllers.insertControllerAt(0, menus); });

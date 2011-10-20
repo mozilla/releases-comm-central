@@ -59,7 +59,7 @@
 
     // also hide the window-list separator
     document.getElementById("sep-window-list").setAttribute("hidden", "true");
-  }, false);
+  });
 </script>
 
 <browser id="hiddenBrowser" disablehistory="true"/>

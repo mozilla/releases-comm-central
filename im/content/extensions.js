@@ -50,7 +50,7 @@ var addonsRegister = {
     Services.obs.addObserver(addonsRegister, "addon-install-complete", false);
 
     window.removeEventListener("load", addonsRegister.onload, false);
-    window.addEventListener("unload", addonsRegister.onunload, false);
+    window.addEventListener("unload", addonsRegister.onunload);
 
     let win = document.getElementById("dummychromebrowser").contentWindow;
     let open = win.open;
@@ -242,4 +242,4 @@ var addonsRegister = {
   }
 };
 
-window.addEventListener("load", addonsRegister.onload, false);
+window.addEventListener("load", addonsRegister.onload);

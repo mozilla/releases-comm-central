@@ -390,7 +390,7 @@ var gApplicationsPane = {
     this._filter = document.getElementById("filter");
 
     // Listen for window unload so we can remove our preference observers.
-    window.addEventListener("unload", this, false);
+    window.addEventListener("unload", this);
 
     // Figure out how we should be sorting the list.  We persist sort settings
     // across sessions, so we can't assume the default sort column/direction.

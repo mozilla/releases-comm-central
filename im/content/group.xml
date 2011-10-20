@@ -163,7 +163,7 @@
                this._selectListener = null;
              }
            }).bind(this);
-           this.parentNode.addEventListener("select", this._selectListener, false);
+           this.parentNode.addEventListener("select", this._selectListener);
          }
        ]]>
        </body>

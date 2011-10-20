@@ -45,7 +45,7 @@ var debug = {
   }
 };
 
-window.addEventListener("load", debug.load, false);
+window.addEventListener("load", debug.load);
 
 function debug_enumerateProtocols()
 {
