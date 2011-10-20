@@ -83,8 +83,21 @@ pref("extensions.mintrayr.singleClickRestore", true);
 pref("extensions.mintrayr.singleClickRestore", false);
 #endif
 #endif
+
+// Whether message related sounds should be played at all. If this is enabled
+// then the more specific prefs are checked as well.
 pref("messenger.options.playSounds.message", true);
+// Specifies whether each message event should trigger a sound for incoming
+// and outgoing messages, or when your nickname is mentioned in a chat.
+pref("messenger.options.playSounds.outgoing", true);
+pref("messenger.options.playSounds.incoming", true);
+pref("messenger.options.playSounds.alert", true);
+// Whether contact list related sounds should be played at all. If this is
+// enabled then the more specific prefs are checked as well.
 pref("messenger.options.playSounds.blist", false);
+// Specifies whether sounds should be played on login/logout events.
+pref("messenger.options.playSounds.login", true);
+pref("messenger.options.playSounds.logout", true);
 
 // this preference changes how we filter incoming messages
 // 0 = no formattings

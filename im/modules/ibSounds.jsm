@@ -51,8 +51,11 @@ var Sounds = {
     alert: "chrome://instantbird-sounds/skin/alert.wav"
   },
 
+  getBoolPref: function(aPrefName)
+    Services.prefs.getBoolPref("messenger.options.playSounds." + aPrefName),
+
   play: function sh_play(aEvent, aPref, aSubject, aTopic) {
-    if (!Services.prefs.getBoolPref("messenger.options.playSounds." + aPref) ||
+    if (!this.getBoolPref(aPref) || !this.getBoolPref(aEvent) ||
         !Interruptions.requestInterrupt(aTopic, aSubject, "sound"))
       return;
 
