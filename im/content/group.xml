@@ -64,9 +64,6 @@
       ]]>
      </destructor>
 
-     <!-- delay between each frame of the animation, in milliseconds -->
-     <field name="animationInterval">20</field>
-
      <method name="build">
       <parameter name="aGroup"/>
       <body>
