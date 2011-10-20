@@ -58,13 +58,13 @@ interface purpleIConversation: nsISupports {
   /* The account used for this conversation */
   readonly attribute purpleIAccount account;
 
-  /* The name of the conversation */
+  /* The name of the conversation, typically in English */
   readonly attribute AUTF8String name;
 
   /* The normalized name of the conversation (suitable for a log file name) */
   readonly attribute AUTF8String normalizedName;
 
-  /* The 'Window' title */
+  /* The title of the conversation, typically localized */
   readonly attribute AUTF8String title;
 
   /* Unique identifier of the conversation */

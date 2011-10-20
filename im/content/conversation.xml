@@ -1039,7 +1039,7 @@
            logs.push(log);
          window.openDialog("chrome://instantbird/content/viewlog.xul",
                            "Logs", "chrome,resizable", {logs: logs},
-                           this.conv.name);
+                           this.conv.title);
        ]]>
        </body>
      </method>
@@ -1112,7 +1112,7 @@
             let account = this._conv.account;
             let targetTooltip =
               this.bundle.formatStringFromName("targetTooltipChat",
-                                               [this._conv.name, account.name,
+                                               [this._conv.title, account.name,
                                                 account.protocol.name], 3);
             cti.setAttribute("targetTooltiptext",  targetTooltip);
           }
@@ -1142,7 +1142,7 @@
 
             let targetTooltip =
               this.bundle.formatStringFromName("targetTooltipIM",
-                                               [this._conv.name,
+                                               [this._conv.title,
                                                 this._conv.account.protocol.name], 2);
             if (buddy && buddy.buddy.contact)
               targetTooltip += this.bundle.GetStringFromName("targetChangeable");

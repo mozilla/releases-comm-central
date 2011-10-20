@@ -307,7 +307,8 @@ Conversation.prototype = {
     this.notifyObservers(new nsSimpleEnumerator([chatBuddy]),
                          "chat-buddy-add");
   },
-  get name() _("timeline", this.nick),
+  get name() this.nick + " timeline",
+  get title() _("timeline", this.nick),
   get nick() "@" + this.account.name
 };
 
