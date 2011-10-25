@@ -469,12 +469,13 @@ Account.prototype = {
     let POSTData = [["status", aMsg]];
     if (aInReplyToId)
       POSTData.push(["in_reply_to_status_id", aInReplyToId]);
-    this.signAndSend("1/statuses/update.json", null, POSTData,
-                     aOnSent, aOnError, aThis);
+    this.signAndSend("1/statuses/update.json?include_entities=1", null,
+                     POSTData, aOnSent, aOnError, aThis);
   },
   reTweet: function(aTweet, aOnSent, aOnError, aThis) {
-    this.signAndSend("1/statuses/retweet/" + aTweet.id_str + ".json",
-                     null, [], aOnSent, aOnError, aThis);
+    let url =
+      "1/statuses/retweet/" + aTweet.id_str + ".json?include_entities=1";
+    this.signAndSend(url, null, [], aOnSent, aOnError, aThis);
   },
 
   _friends: null,
