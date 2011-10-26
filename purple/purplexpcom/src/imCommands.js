@@ -54,6 +54,19 @@ function CommandsService() { }
 CommandsService.prototype = {
   initCommands: function() {
     this._commands = {};
+    // The say command is directly implemented in the UI layer, but has a
+    // dummy command registered here so it shows up as a command (e.g. when
+    // using the /help command).
+    this.registerCommand({
+      name: "say",
+      get helpString() bundle.GetStringFromName("sayHelpString"),
+      usageContext: Ci.imICommand.CONTEXT_ALL,
+      priority: Ci.imICommand.PRIORITY_HIGH,
+      run: function(aMsg, aConv) {
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      }
+    });
+
     this.registerCommand({
       name: "raw",
       get helpString() bundle.GetStringFromName("rawHelpString"),
