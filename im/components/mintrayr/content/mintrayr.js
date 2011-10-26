@@ -125,6 +125,11 @@ var gMinTrayR = {
       this._icon.restore();
     else
       this._icon.minimize();
+  },
+
+  setStatus: function MinTrayR_setStatus(aStatusParam) {
+    Services.core.setStatus(Status.toFlag(aStatusParam),
+                            Services.core.currentStatusMessage);
   }
 };
 

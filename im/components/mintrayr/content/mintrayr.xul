@@ -39,7 +39,9 @@
 
 <!DOCTYPE overlay [
   <!ENTITY % mintrayrDTD SYSTEM "chrome://instantbird/locale/mintrayr.dtd">
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
   %mintrayrDTD;
+  %instantbirdDTD;
 ]>
 
 <overlay id="MinTrayR_overlay"
@@ -65,7 +67,16 @@
 
   <popupset id="mainpopupset">
     <menupopup id="MinTrayR_context">
-      <menuseparator id="MinTrayR_sep-top" hidden="true"/>
+      <menuitem id="MinTrayR_available"
+                label="&available;"
+                oncommand="gMinTrayR.setStatus('available');"/>
+      <menuitem id="MinTrayR_unavailable"
+                label="&unavailable;"
+                oncommand="gMinTrayR.setStatus('away');"/>
+      <menuitem id="MinTrayR_offline"
+                label="&offline;"
+                oncommand="gMinTrayR.setStatus('offline');"/>
+      <menuseparator id="MinTrayR_sep-top"/>
       <menuitem id="MinTrayR_restore"
                 label="&mintrayr.restore;"
                 oncommand="gMinTrayR.restore();"/>
