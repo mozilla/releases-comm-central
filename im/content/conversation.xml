@@ -532,20 +532,27 @@
           }
 
           // Keep only the completions that share |word| as a prefix.
-          completions = completions.filter(function(c) c.indexOf(word) == 0);
+          // Be case insensitive only if |word| is entirely lower case.
+          let condition;
+          if (word.toLocaleLowerCase() == word)
+            condition = function(c) c.toLocaleLowerCase().indexOf(word) == 0;
+          else
+            condition = function(c) c.indexOf(word) == 0;
+          completions = completions.filter(condition);
           if (completions.length == 0)
             return;
 
           // Only one possible completion? Apply it! :-)
+          // Replace what the user typed as its upper/lowercase may not be correct.
           if (completions.length == 1) {
-            this.addString(completions[0].substring(word.length) +
-                           (isFirstWord ? firstWordSuffix : " "));
+            inputBox.selectionStart -= word.length;
+            this.addString(completions[0] + (isFirstWord ? firstWordSuffix : " "));
             return;
           }
 
           // We have several possible completions, attempt to find a common prefix.
           completions.sort();
-          let i = word.length;
+          let i = 0;
           let maxLength = Math.max(completions[0].length,
                                    completions[completions.length - 1].length);
           while (i < maxLength &&
@@ -553,8 +560,10 @@
             ++i;
 
           // Apply the common prefix, if any.
-          if (i > word.length)
-            this.addString(completions[0].substring(word.length, i));
+          if (i > 0) {
+            inputBox.selectionStart -= word.length;
+            this.addString(completions[0].substring(0, i));
+          }
 
           // Finally, display the possible completions in a system message.
           this._conv.systemMessage(completions.join(" "));
