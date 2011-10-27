@@ -57,7 +57,7 @@
         <xul:label crop="end" flex="1" mousethrough="always"
                    anonid="displayname" class="convDisplayName"
                    xbl:inherits="value=displayname"/>
-        <xul:label crop="end" flex="100000" mousethrough="always"
+        <xul:label crop="end" flex="1000000" mousethrough="always"
                    anonid="statusText" class="convStatusText"
                    xbl:inherits="value=statusTextWithDash"/>
         <xul:label anonid="unreadTargetedCount" class="convUnreadTargetedCount"
