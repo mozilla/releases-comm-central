@@ -1,0 +1,28 @@
+instantbird.jar:
+#ifndef XP_WIN
+% skin instantbird classic/1.0 %skin/classic/instantbird/
+#else
+% skin instantbird classic/1.0 %skin/classic/instantbird/ os=WINNT osversion<6
+% skin instantbird classic/1.0 %skin/classic/instantbird/ os!=WINNT
+% skin instantbird classic/1.0 %skin/classic/aero/instantbird/ os=WINNT osversion>=6
+#endif
+	skin/classic/instantbird/browserRequest.css
+	skin/classic/instantbird/prpl-generic/icon32.png	(icons/prpl-generic-32.png)
+	skin/classic/instantbird/prpl-generic/icon48.png	(icons/prpl-generic-48.png)
+	skin/classic/instantbird/prpl-generic/icon.png		(icons/prpl-generic.png)
+	skin/classic/instantbird/prpl-unknown/icon32.png	(icons/prpl-unknown-32.png)
+	skin/classic/instantbird/prpl-unknown/icon48.png	(icons/prpl-unknown-48.png)
+	skin/classic/instantbird/prpl-unknown/icon.png		(icons/prpl-unknown.png)
+	skin/classic/instantbird/icons/secure.png               (icons/secure.png)
+	skin/classic/instantbird/icons/insecure.png             (icons/insecure.png)
+#ifdef XP_WIN
+	skin/classic/aero/instantbird/browserRequest.css
+	skin/classic/aero/instantbird/prpl-generic/icon32.png   (icons/prpl-generic-32.png)
+	skin/classic/aero/instantbird/prpl-generic/icon48.png   (icons/prpl-generic-48.png)
+	skin/classic/aero/instantbird/prpl-generic/icon.png     (icons/prpl-generic.png)
+	skin/classic/aero/instantbird/prpl-unknown/icon32.png   (icons/prpl-unknown-32.png)
+	skin/classic/aero/instantbird/prpl-unknown/icon48.png   (icons/prpl-unknown-48.png)
+	skin/classic/aero/instantbird/prpl-unknown/icon.png     (icons/prpl-unknown.png)
+	skin/classic/aero/instantbird/icons/secure.png               (icons/secure.png)
+	skin/classic/aero/instantbird/icons/insecure.png             (icons/insecure.png)
+#endif

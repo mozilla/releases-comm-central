@@ -10,7 +10,6 @@ instantbird.jar:
 *	skin/classic/instantbird/accounts.css
 	skin/classic/instantbird/alert.css
 % style chrome://global/content/alerts/alert.xul chrome://instantbird/skin/alert.css
-	skin/classic/instantbird/browserRequest.css
 *	skin/classic/instantbird/richlistbox.css
 *	skin/classic/instantbird/accountWizard.css
 	skin/classic/instantbird/available-16.png
@@ -45,14 +44,6 @@ instantbird.jar:
 	skin/classic/instantbird/expand.png
 	skin/classic/instantbird/collapse.png
 	skin/classic/instantbird/userIcon.png
-	skin/classic/instantbird/prpl-generic/icon32.png	(prpl/prpl-generic-32.png)
-	skin/classic/instantbird/prpl-generic/icon48.png	(prpl/prpl-generic-48.png)
-	skin/classic/instantbird/prpl-generic/icon.png		(prpl/prpl-generic.png)
-	skin/classic/instantbird/prpl-unknown/icon32.png	(prpl/prpl-unknown-32.png)
-	skin/classic/instantbird/prpl-unknown/icon48.png	(prpl/prpl-unknown-48.png)
-	skin/classic/instantbird/prpl-unknown/icon.png		(prpl/prpl-unknown.png)
-	skin/classic/instantbird/icons/secure.png               (icons/secure.png)
-	skin/classic/instantbird/icons/insecure.png             (icons/insecure.png)
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
 	skin/classic/instantbird/preferences/Options.png        (preferences-pinstripe/Options.png)
@@ -110,7 +101,6 @@ instantbird.jar:
 	skin/classic/aero/instantbird/account.css
 *	skin/classic/aero/instantbird/accounts.css		(accounts-aero.css)
 	skin/classic/aero/instantbird/alert.css
-	skin/classic/aero/instantbird/browserRequest.css
 *	skin/classic/aero/instantbird/richlistbox.css
 *	skin/classic/aero/instantbird/accountWizard.css
 	skin/classic/aero/instantbird/available-16.png
@@ -145,14 +135,6 @@ instantbird.jar:
 	skin/classic/aero/instantbird/expand.png
 	skin/classic/aero/instantbird/collapse.png
 	skin/classic/aero/instantbird/userIcon.png
-	skin/classic/aero/instantbird/prpl-generic/icon32.png   (prpl/prpl-generic-32.png)
-	skin/classic/aero/instantbird/prpl-generic/icon48.png   (prpl/prpl-generic-48.png)
-	skin/classic/aero/instantbird/prpl-generic/icon.png     (prpl/prpl-generic.png)
-	skin/classic/aero/instantbird/prpl-unknown/icon32.png   (prpl/prpl-unknown-32.png)
-	skin/classic/aero/instantbird/prpl-unknown/icon48.png   (prpl/prpl-unknown-48.png)
-	skin/classic/aero/instantbird/prpl-unknown/icon.png     (prpl/prpl-unknown.png)
-	skin/classic/aero/instantbird/icons/secure.png               (icons/secure.png)
-	skin/classic/aero/instantbird/icons/insecure.png             (icons/insecure.png)
 	skin/classic/aero/instantbird/preferences/Options.png        (preferences-winstripe/Options-aero.png)
 	skin/classic/aero/instantbird/preferences/alwaysAsk.png      (preferences-winstripe/alwaysAsk-aero.png)
 	skin/classic/aero/instantbird/preferences/application.png    (preferences-winstripe/application-aero.png)
@@ -188,14 +170,6 @@ instantbird.jar:
 	skin/classic/prpl/jabber/icon32.png	(prpl/prpl-jabber-32.png)
 	skin/classic/prpl/jabber/icon48.png	(prpl/prpl-jabber-48.png)
 	skin/classic/prpl/jabber/icon.png	(prpl/prpl-jabber.png)
-% skin prpl-gtalk classic/1.0 %skin/classic/prpl/gtalk/
-	skin/classic/prpl/gtalk/icon32.png	(prpl/prpl-gtalk-32.png)
-	skin/classic/prpl/gtalk/icon48.png	(prpl/prpl-gtalk-48.png)
-	skin/classic/prpl/gtalk/icon.png	(prpl/prpl-gtalk.png)
-% skin prpl-facebook classic/1.0 %skin/classic/prpl/facebook/
-	skin/classic/prpl/facebook/icon32.png	(prpl/prpl-facebook-32.png)
-	skin/classic/prpl/facebook/icon48.png	(prpl/prpl-facebook-48.png)
-	skin/classic/prpl/facebook/icon.png	(prpl/prpl-facebook.png)
 % skin prpl-msn classic/1.0 %skin/classic/prpl/msn/
 	skin/classic/prpl/msn/icon32.png	(prpl/prpl-msn-32.png)
 	skin/classic/prpl/msn/icon48.png	(prpl/prpl-msn-48.png)
@@ -223,10 +197,6 @@ instantbird.jar:
 	skin/classic/prpl/simple/icon32.png	(prpl/prpl-simple-32.png)
 	skin/classic/prpl/simple/icon48.png	(prpl/prpl-simple-48.png)
 	skin/classic/prpl/simple/icon.png	(prpl/prpl-simple.png)
-% skin prpl-twitter classic/1.0 %skin/classic/prpl/twitter/
-	skin/classic/prpl/twitter/icon32.png	(prpl/prpl-twitter-32.png)
-	skin/classic/prpl/twitter/icon48.png	(prpl/prpl-twitter-48.png)
-	skin/classic/prpl/twitter/icon.png	(prpl/prpl-twitter.png)
 % skin prpl-yahoo classic/1.0 %skin/classic/prpl/yahoo/
 % skin prpl-yahoojp classic/1.0 %skin/classic/prpl/yahoo/
 	skin/classic/prpl/yahoo/icon32.png	(prpl/prpl-yahoo-32.png)

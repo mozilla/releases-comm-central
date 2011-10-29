@@ -64,6 +64,7 @@ tier_app_dirs += instantbird/branding/nightly
 endif
 
 tier_app_dirs += \
+  chat \
   purple \
   instantbird \
   $(NULL)

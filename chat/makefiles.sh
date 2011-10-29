@@ -11,15 +11,14 @@
 # for the specific language governing rights and limitations under the
 # License.
 #
-# The Original Code is the Mozilla Browser code.
+# The Original Code is the Mozilla build system.
 #
 # The Initial Developer of the Original Code is
-#   Florian QUEZE <florian@instantbird.org>
+#  Florian Queze <florian@instantbird.org>
 # Portions created by the Initial Developer are Copyright (C) 2008
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
-#   Patrick Cloke <clokep@gmail.com>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,31 +34,15 @@
 #
 # ***** END LICENSE BLOCK *****
 
-DEPTH		= ../..
-topsrcdir	= @top_srcdir@
-srcdir		= @srcdir@
-VPATH		= @srcdir@
-
-include $(DEPTH)/config/autoconf.mk
-
-ifneq ($(MOZ_WIDGET_TOOLKIT),cocoa)
-DIRS = mintrayr
-endif
-
-EXTRA_COMPONENTS = \
-	contentHandler.js contentHandler.manifest \
-	ibCommandLineHandler.manifest \
-	ibStatusCommandLineHandler.js ibStatusCommandLineHandler.manifest \
-	$(NULL)
-
-EXTRA_PP_COMPONENTS = \
-	ibCommandLineHandler.js \
-	$(NULL)
-
-ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
-EXTRA_COMPONENTS += ibDockBadge.js ibDockBadge.manifest
-else
-EXTRA_COMPONENTS += profileMigrator.js profileMigrator.manifest
-endif
-
-include $(topsrcdir)/config/rules.mk
+add_makefiles "
+chat/Makefile
+chat/components/public/Makefile
+chat/components/src/Makefile
+chat/content/Makefile
+chat/locales/Makefile
+chat/modules/Makefile
+chat/protocols/jsTest/Makefile
+chat/protocols/overrides/Makefile
+chat/protocols/twitter/Makefile
+chat/themes/Makefile
+"

@@ -1,0 +1,8 @@
+#filter substitution
+
+@AB_CD@.jar:
+% locale purple @AB_CD@ %locale/@AB_CD@/purple/
+	locale/@AB_CD@/purple/commands.properties (%commands.properties)
+	locale/@AB_CD@/purple/conversations.properties (%conversations.properties)
+	locale/@AB_CD@/purple/status.properties (%status.properties)
+	locale/@AB_CD@/purple/twitter.properties	(%twitter.properties)
