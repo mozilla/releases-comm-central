@@ -115,8 +115,8 @@ Action.prototype = {
 
 function Conversation(aAccount)
 {
-  this._init(aAccount);
   this._account = aAccount;
+  this._init(aAccount);
   this._ensureParticipantExists(aAccount.name);
 }
 Conversation.prototype = {
