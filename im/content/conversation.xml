@@ -218,13 +218,18 @@
         }
 
         // Ugly hack... :(
-        if (!aMsg.system && aMsg.incoming && conv.isChat) {
+        if (!aMsg.system && conv.isChat) {
           let name = aMsg.alias || aMsg.who;
           let color;
-          if (this.buddies.hasOwnProperty(name))
-            color = this.buddies[name].color;
-          else
+          if (this.buddies.hasOwnProperty(name)) {
+            let buddy = this.buddies[name];
+            color = buddy.color;
+            buddy.removeAttribute("inactive");
+          }
+          else {
+            // Buddy no longer in the room
             color = this._computeColor(name);
+          }
           aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
         }
 
@@ -907,6 +912,7 @@
          var color = this._computeColor(name);
          var style = "color: hsl(" + color + ", 100%, 40%);";
          item.setAttribute("style", style);
+         item.setAttribute("inactive", "true");
          item.color = color;
          this.buddies[name] = item;
 
