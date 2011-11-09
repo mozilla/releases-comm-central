@@ -496,7 +496,8 @@ AccountsService.prototype = {
     this._initAutoLoginStatus();
     this._accounts = [];
     this._accountsById = {};
-    for each (let account in this._accountList.split(",")) {
+    let accountList = this._accountList;
+    for each (let account in (accountList ? accountList.split(",") : [])) {
       try {
         account.trim();
         if (!account)
