@@ -72,12 +72,6 @@ Tweet.prototype = {
     }
 
     let actions = [
-      new Action(_("action.copyLink"), function() {
-        let href = "https://twitter.com/#!/" + this._tweet.user.screen_name +
-                   "/status/" + this._tweet.id_str;
-        Cc["@mozilla.org/widget/clipboardhelper;1"]
-          .getService(Ci.nsIClipboardHelper).copyString(href);
-      }, this),
       new Action(_("action.reply"), function() {
         this.conversation.startReply(this._tweet);
       }, this)
@@ -96,6 +90,12 @@ Tweet.prototype = {
                                 function() { account[action](screenName); }));
       }
     }
+    actions.push(new Action(_("action.copyLink"), function() {
+      let href = "https://twitter.com/#!/" + this._tweet.user.screen_name +
+                 "/status/" + this._tweet.id_str;
+      Cc["@mozilla.org/widget/clipboardhelper;1"]
+        .getService(Ci.nsIClipboardHelper).copyString(href);
+    }, this));
     if (aCount)
       aCount.value = actions.length;
     return actions;
