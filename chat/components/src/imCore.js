@@ -289,9 +289,13 @@ CoreService.prototype = {
       }
     });
 
-    Services.accounts.initAccounts();
+    let accounts = Services.accounts;
+    accounts.initAccounts();
     Services.contacts.initContacts();
     Services.conversations.initConversations();
+
+    if (accounts.autoLoginStatus == Ci.imIAccountsService.AUTOLOGIN_ENABLED)
+      accounts.processAutoLogin();
   },
   observe: function(aObject, aTopic, aData) {
     if (aTopic == kQuitApplicationGranted)

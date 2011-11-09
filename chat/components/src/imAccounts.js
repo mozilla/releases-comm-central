@@ -656,7 +656,7 @@ AccountsService.prototype = {
 
     // Notify observers so that any message stating that autologin is
     // disabled can be removed
-    Services.observers(this, "autologin-processed", null);
+    Services.obs.notifyObservers(this, "autologin-processed", null);
   },
 
   getAccountById: function(aAccountId) {
