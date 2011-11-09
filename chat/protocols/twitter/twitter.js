@@ -64,7 +64,7 @@ function Tweet(aTweet, aWho, aMessage, aObject)
 Tweet.prototype = {
   __proto__: GenericMessagePrototype,
   getActions: function(aCount) {
-    let account = this.conversation.account;
+    let account = this.conversation._account;
     if (!account.connected) {
       if (aCount)
         aCount.value = 0;
@@ -116,11 +116,12 @@ Action.prototype = {
 function Conversation(aAccount)
 {
   this._init(aAccount);
+  this._account = aAccount;
   this._ensureParticipantExists(aAccount.name);
 }
 Conversation.prototype = {
   __proto__: GenericConvChatPrototype,
-  unInit: function() { delete this.account._timeline; },
+  unInit: function() { delete this._account._timeline; },
   inReplyToStatusId: null,
   startReply: function(aTweet) {
     this.inReplyToStatusId = aTweet.id_str;
@@ -130,19 +131,19 @@ Conversation.prototype = {
                          _("replyingToStatusText", aTweet.text));
   },
   reTweet: function(aTweet) {
-    this.account.reTweet(aTweet, this.onSentCallback,
-                         function(aException, aData) {
+    this._account.reTweet(aTweet, this.onSentCallback,
+                          function(aException, aData) {
       this.systemMessage(_("error.retweet", this._parseError(aData),
                            aTweet.text), true);
     }, this);
   },
   sendMsg: function (aMsg) {
-    if (aMsg.length > this.account.maxMessageLength) {
+    if (aMsg.length > this._account.maxMessageLength) {
       this.systemMessage(_("error.tooLong"), true);
       throw Cr.NS_ERROR_INVALID_ARG;
     }
-    this.account.tweet(aMsg, this.inReplyToStatusId, this.onSentCallback,
-                       function(aException, aData) {
+    this._account.tweet(aMsg, this.inReplyToStatusId, this.onSentCallback,
+                        function(aException, aData) {
       let error = this._parseError(aData);
       this.systemMessage(_("error.general", error, aMsg), true);
     }, this);
@@ -164,9 +165,9 @@ Conversation.prototype = {
   },
   onSentCallback: function(aData) {
     let tweet = JSON.parse(aData);
-    if (tweet.user.screen_name != this.account.name)
+    if (tweet.user.screen_name != this._account.name)
       throw "Wrong screen_name... Uh?";
-    this.account.displayMessages([tweet]);
+    this._account.displayMessages([tweet]);
     this.setTopic(tweet.text, tweet.user.screen_name);
   },
   _parseError: function(aData) {
@@ -296,7 +297,7 @@ Conversation.prototype = {
     }
 
     let flags =
-      name == this.account.name ? {outgoing: true} : {incoming: true};
+      name == this._account.name ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
     flags.iconURL = aTweet.user.profile_image_url;
     if (text.indexOf(this.nick) != -1)
@@ -315,7 +316,7 @@ Conversation.prototype = {
   },
   get name() this.nick + " timeline",
   get title() _("timeline", this.nick),
-  get nick() "@" + this.account.name
+  get nick() "@" + this._account.name
 };
 
 function Account(aProtocol, aImAccount)
