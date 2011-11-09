@@ -50,7 +50,7 @@ var menus = {
   supportsCommand: function(aCmd)
     aCmd == "cmd_addbuddy" || aCmd == "cmd_joinchat",
   isCommandEnabled: function(aCmd) {
-    let enumerator = Services.core.getAccounts();
+    let enumerator = Services.accounts.getAccounts();
     while (enumerator.hasMoreElements()) {
       let acc = enumerator.getNext();
       if (acc.connected && (aCmd == "cmd_addbuddy" || acc.canJoinChat))
@@ -176,7 +176,7 @@ var menus = {
   checkCurrentStatusType: function menu_checkCurrentStatusType(aItems) {
     if (!("Status" in window))
       Components.utils.import("resource:///modules/imStatusUtils.jsm");
-    let status = Status.toAttribute(Services.core.currentStatusType);
+    let status = Status.toAttribute(Services.core.globalUserStatus.statusType);
     if (status == "away")
       status = "unavailable";
 
@@ -206,8 +206,8 @@ var menus = {
       blist.buddyList.startEditStatus(status);
     }
     else {
-      Services.core.setStatus(Status.toFlag(status),
-                              Services.core.currentStatusMessage);
+      let us = Services.core.globalUserStatus;
+      us.setStatus(Status.toFlag(status), us.statusText);
     }
   }
 };

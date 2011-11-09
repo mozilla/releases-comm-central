@@ -39,7 +39,7 @@
 const PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
 const events = [
-  "purple-quit"
+  "prpl-quit"
 ];
 
 var accountWizard = {
@@ -70,7 +70,7 @@ var accountWizard = {
     removeObservers(accountWizard, events);
   },
   observe: function am_observe(aObject, aTopic, aData) {
-    if (aTopic == "purple-quit") {
+    if (aTopic == "prpl-quit") {
       // libpurple is being uninitialized. We can't create any new
       // account so keeping this wizard open would be pointless, close it.
       window.close();
@@ -222,7 +222,8 @@ var accountWizard = {
     var proxy;
     var result;
     if (type == Ci.purpleIProxyInfo.useGlobal) {
-      proxy = Services.core.globalProxy;
+      proxy = Cc["@instantbird.org/libpurple/core;1"]
+              .getService(Ci.purpleICoreService).globalProxy;
       type = proxy.type;
     }
     else
@@ -438,11 +439,9 @@ var accountWizard = {
   },
 
   createAccount: function aw_createAccount() {
-    var acc = Services.core.createAccount(this.username, this.proto.id);
-    if (!this.proto.noPassword) {
+    var acc = Services.accounts.createAccount(this.username, this.proto.id);
+    if (!this.proto.noPassword)
       acc.password = this.password;
-      acc.rememberPassword = true;
-    }
     if (this.alias)
       acc.alias = this.alias;
     //FIXME: newMailNotification

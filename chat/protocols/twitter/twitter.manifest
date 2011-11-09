@@ -1,3 +1,3 @@
 component {31082ff6-1de8-422b-ab60-ca0ac0b2af13} twitter.js
 contract @instantbird.org/purple/twitter;1 {31082ff6-1de8-422b-ab60-ca0ac0b2af13}
-category js-protocol-plugin @instantbird.org/purple/twitter;1 @instantbird.org/purple/twitter;1
+category im-protocol-plugin prpl-twitter @instantbird.org/purple/twitter;1

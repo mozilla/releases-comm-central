@@ -42,7 +42,8 @@ var gProxies = {
   // see what the global settings are
   // build a list of existing proxies
 
-    var pcs = Services.core;
+    var pcs = Cc["@instantbird.org/libpurple/core;1"]
+              .getService(Ci.purpleICoreService);
 
     var proxyInfoCtr = Components.Constructor("@instantbird.org/purple/proxyinfo;1",
                                               "purpleIProxyInfo");
@@ -152,7 +153,8 @@ var gProxies = {
   },
 
   accept: function proxy_accept() {
-    var pcs = Services.core;
+    var pcs = Cc["@instantbird.org/libpurple/core;1"]
+              .getService(Ci.purpleICoreService);
     var promptService = Services.prompt;
     var item = document.getElementById("proxylist").selectedItem;
     if (item.id == "newProxy") {

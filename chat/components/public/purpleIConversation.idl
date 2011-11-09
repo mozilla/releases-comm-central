@@ -41,7 +41,7 @@
 #include "nsIObserver.idl"
 
 interface imIAccountBuddy;
-interface purpleIAccount;
+interface imIAccount;
 interface nsIURI;
 interface nsIDOMDocument;
 
@@ -56,7 +56,7 @@ interface purpleIConversation: nsISupports {
   readonly attribute boolean isChat;
 
   /* The account used for this conversation */
-  readonly attribute purpleIAccount account;
+  readonly attribute imIAccount account;
 
   /* The name of the conversation, typically in English */
   readonly attribute AUTF8String name;

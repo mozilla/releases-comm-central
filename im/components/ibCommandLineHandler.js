@@ -37,6 +37,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ibCore.jsm");
 
@@ -51,9 +52,8 @@ ibCommandLineHandler.prototype = {
     }
 
     if (cmdLine.handleFlag("n", false)) {
-      Components.classes["@instantbird.org/purple/core;1"]
-                .getService(Ci.purpleICoreService)
-                .autoLoginStatus = Ci.purpleICoreService.AUTOLOGIN_USER_DISABLED;
+      Services.accounts.autoLoginStatus =
+        Ci.imIAccountsService.AUTOLOGIN_USER_DISABLED;
     }
 
     // Initialize the core only at the first real startup,

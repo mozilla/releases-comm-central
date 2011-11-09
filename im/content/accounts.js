@@ -40,7 +40,7 @@ Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 
 // This is the list of notifications that the account manager window observes
 const events = [
-  "purple-quit",
+  "prpl-quit",
   "account-list-updated",
   "account-added",
   "account-updated",
@@ -126,7 +126,7 @@ var gAccountManager = {
     this.disableCommandItems();
   },
   observe: function am_observe(aObject, aTopic, aData) {
-    if (aTopic == "purple-quit") {
+    if (aTopic == "prpl-quit") {
       // libpurple is being uninitialized. We don't need the account
       // manager window anymore, close it.
       this.close();
@@ -144,7 +144,7 @@ var gAccountManager = {
       return;
     }
     else if (aTopic == "status-changed") {
-      this.setOffline(aObject.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE);
+      this.setOffline(aObject.statusType == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
     }
     else if (aTopic == "account-list-updated") {
@@ -152,8 +152,8 @@ var gAccountManager = {
       return;
     }
 
-    if (!(aObject instanceof Ci.purpleIAccount))
-      throw "Bad notification.";
+    // The following notification handlers need an account.
+    aObject.QueryInterface(Ci.imIAccount);
 
     if (aTopic == "account-added") {
       document.getElementById("accountsDesk").selectedIndex = 1;
@@ -203,6 +203,9 @@ var gAccountManager = {
       };
       if (aTopic in stateEvents) {
         let elt = document.getElementById(aObject.id);
+        if (!elt)
+          return; // probably disconnecting a removed account.
+
         if (aTopic == "account-connecting") {
           elt.removeAttribute("error");
           elt.updateConnectionState();
@@ -283,7 +286,7 @@ var gAccountManager = {
         Services.prefs.setBoolPref("messenger.accounts.promptOnDelete", false);
     }
 
-    Services.core.deleteAccount(selectedItem.id);
+    Services.accounts.deleteAccount(selectedItem.id);
   },
   new: function am_new() {
     this.openDialog("chrome://instantbird/content/accountWizard.xul");
@@ -326,8 +329,8 @@ var gAccountManager = {
     let isCommandDisabled =
       (this.isOffline ||
        (account.disconnected &&
-        (account.connectionErrorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL ||
-         account.connectionErrorReason == Ci.purpleIAccount.ERROR_MISSING_PASSWORD)));
+        (account.connectionErrorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL ||
+         account.connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD)));
 
     [[activeCommandElt, isCommandDisabled],
      [document.getElementById("cmd_moveup"), accountList.selectedIndex == 0],
@@ -446,7 +449,7 @@ var gAccountManager = {
     Services.prefs.setCharPref("messenger.accounts", array.join(","));
   },
 
-  getAccounts: function am_getAccounts() getIter(Services.core.getAccounts()),
+  getAccounts: function am_getAccounts() getIter(Services.accounts.getAccounts()),
 
   openDialog: function am_openDialog(aUrl, aArgs) {
     this.modalDialog = true;
@@ -454,17 +457,17 @@ var gAccountManager = {
     this.modalDialog = false;
   },
   setAutoLoginNotification: function am_setAutoLoginNotification() {
-    var pcs = Services.core;
-    var autoLoginStatus = pcs.autoLoginStatus;
+    var as = Services.accounts;
+    var autoLoginStatus = as.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
     for (let acc in this.getAccounts())
       if (acc.autoLogin && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
         ++crashCount;
 
-    if (autoLoginStatus == pcs.AUTOLOGIN_ENABLED && crashCount == 0) {
-      this.setOffline(isOffline ||
-                      pcs.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE);
+    if (autoLoginStatus == as.AUTOLOGIN_ENABLED && crashCount == 0) {
+      let status = Services.core.globalUserStatus.statusType;
+      this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
     }
 
@@ -479,27 +482,27 @@ var gAccountManager = {
     var label;
 
     switch (autoLoginStatus) {
-      case pcs.AUTOLOGIN_USER_DISABLED:
+      case as.AUTOLOGIN_USER_DISABLED:
         label = bundle.getString("accountsManager.notification.userDisabled.label");
         break;
 
-      case pcs.AUTOLOGIN_SAFE_MODE:
+      case as.AUTOLOGIN_SAFE_MODE:
         label = bundle.getString("accountsManager.notification.safeMode.label");
         break;
 
-      case pcs.AUTOLOGIN_START_OFFLINE:
+      case as.AUTOLOGIN_START_OFFLINE:
         label = bundle.getString("accountsManager.notification.startOffline.label");
         isOffline = true;
         break;
 
-      case pcs.AUTOLOGIN_CRASH:
+      case as.AUTOLOGIN_CRASH:
         label = bundle.getString("accountsManager.notification.crash.label");
         priority = box.PRIORITY_WARNING_MEDIUM;
         break;
 
       /* One or more accounts made the application crash during their connection.
          If none, this function has already returned */
-      case pcs.AUTOLOGIN_ENABLED:
+      case as.AUTOLOGIN_ENABLED:
         if (!("PluralForm" in window))
           Components.utils.import("resource://gre/modules/PluralForm.jsm");
         label = bundle.getString("accountsManager.notification.singleCrash.label");
@@ -511,8 +514,8 @@ var gAccountManager = {
       default:
         label = bundle.getString("accountsManager.notification.other.label");
     }
-    this.setOffline(isOffline ||
-                    pcs.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE);
+    let status = Services.core.globalUserStatus.statusType;
+    this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
 
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },
@@ -523,7 +526,7 @@ var gAccountManager = {
       ioService.offline = false;
     }
 
-    Services.core.processAutoLogin();
+    Services.accounts.processAutoLogin();
 
     gAccountManager.accountList.selectedItem.buttons.setFocus();
   },

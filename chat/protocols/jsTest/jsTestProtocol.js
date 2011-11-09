@@ -66,9 +66,9 @@ Conversation.prototype = {
 };
 Conversation.prototype.__proto__ = GenericConvIMPrototype;
 
-function Account(aProtoInstance, aKey, aName)
+function Account(aProtoInstance, aImAccount)
 {
-  this._init(aProtoInstance, aKey, aName);
+  this._init(aProtoInstance, aImAccount);
 }
 Account.prototype = {
   connect: function() {
@@ -118,7 +118,7 @@ jsTestProtocol.prototype = {
     {label: "Server", separator: "@", defaultValue: "default.server",
      reverse: true}
   ],
-  getAccount: function(aKey, aName) new Account(this, aKey, aName),
+  getAccount: function(aImAccount) new Account(this, aImAccount),
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
 jsTestProtocol.prototype.__proto__ = GenericProtocolPrototype;

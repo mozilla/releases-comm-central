@@ -128,8 +128,8 @@ var gMinTrayR = {
   },
 
   setStatus: function MinTrayR_setStatus(aStatusParam) {
-    Services.core.setStatus(Status.toFlag(aStatusParam),
-                            Services.core.currentStatusMessage);
+    let us = Services.core.globalUserStatus;
+    us.setStatus(Status.toFlag(aStatusParam), us.statusText);
   }
 };
 

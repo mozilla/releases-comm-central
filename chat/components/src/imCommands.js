@@ -151,7 +151,7 @@ CommandsService.prototype = {
         usageContext: Ci.imICommand.CONTEXT_ALL,
         priority: Ci.imICommand.PRIORITY_HIGH,
         run: function(aMsg) {
-          Services.core.setStatus(statusValue, aMsg);
+          Services.core.globalUserStatus.setStatus(statusValue, aMsg);
           return true;
         }
       });

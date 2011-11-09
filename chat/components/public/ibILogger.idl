@@ -38,7 +38,7 @@
 #include "nsISupports.idl"
 #include "nsISimpleEnumerator.idl"
 
-interface purpleIAccount;
+interface imIAccount;
 interface imIAccountBuddy;
 interface imIBuddy;
 interface imIContact;
@@ -56,5 +56,5 @@ interface ibILogger: nsISupports {
   nsISimpleEnumerator getLogsForBuddy(in imIBuddy aBuddy);
   nsISimpleEnumerator getLogsForContact(in imIContact aContact);
   nsISimpleEnumerator getLogsForConversation(in purpleIConversation aConversation);
-  nsISimpleEnumerator getSystemLogsForAccount(in purpleIAccount aAccount);
+  nsISimpleEnumerator getSystemLogsForAccount(in imIAccount aAccount);
 };

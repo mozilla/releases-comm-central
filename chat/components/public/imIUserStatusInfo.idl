@@ -35,29 +35,42 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-let EXPORTED_SYMBOLS = ["Services"];
+#include "nsISupports.idl"
+#include "nsIObserver.idl"
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+//forward declarations
+interface nsILocalFile;
+interface nsIFileURL;
 
-XPCOMUtils.defineLazyServiceGetter(Services, "accounts",
-                                   "@instantbird.org/purple/accounts-service;1",
-                                   "imIAccountsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "core",
-                                   "@instantbird.org/purple/core-service;1",
-                                   "imICoreService");
-XPCOMUtils.defineLazyServiceGetter(Services, "cmd",
-                                   "@instantbird.org/purple/commands-service;1",
-                                   "imICommandsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "contacts",
-                                   "@instantbird.org/purple/contacts-service;1",
-                                   "imIContactsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "conversations",
-                                   "@instantbird.org/purple/conversations-service;1",
-                                   "imIConversationsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "tags",
-                                   "@instantbird.org/purple/tags-service;1",
-                                   "imITagsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "logs",
-                                   "@instantbird.org/logger;1",
-                                   "ibILogger");
+[scriptable, uuid(817918fa-1f4b-4254-9cdb-f906da91c45d)]
+interface imIUserStatusInfo: nsISupports {
+
+  readonly attribute AUTF8String statusText;
+
+  // See imIStatusInfo in imIContactsService.idl for the values.
+  readonly attribute short statusType;
+
+  // Only works with STATUS_OFFLINE, STATUS_UNAVAILABLE, STATUS_AWAY,
+  // STATUS_AVAILABLE and STATUS_INVISIBLE.
+  // - When called with the status type STATUS_UNSET, only the status
+  //   message will be changed.
+  // - When called with STATUS_OFFLINE, the aMessage parameter is ignored.
+  void setStatus(in short aStatus, in AUTF8String aMessage);
+
+  /* Will fire an user-icon-changed notificaton. */
+  void setUserIcon(in nsILocalFile aIconFile);
+
+  nsIFileURL getUserIcon();
+
+  /* The setter will fire an user-display-name-changed notificaton. */
+  attribute AUTF8String displayName;
+
+  void addObserver(in nsIObserver aObserver);
+  void removeObserver(in nsIObserver aObserver);
+  /* Observers will receive the following notifications:
+   *   status-changed (when either the status type or text has changed)
+   *   user-icon-changed
+   *   user-display-name-changed
+   *   idle-time-changed
+   */
+};

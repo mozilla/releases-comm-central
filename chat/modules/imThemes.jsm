@@ -431,7 +431,7 @@ const messageReplacements = {
 
     // For outgoing messages, use the current user icon.
     if (aMsg.outgoing) {
-      iconURL = Services.core.getUserIcon();
+      iconURL = aMsg.conversation.account.statusInfo.getUserIcon();
       if (iconURL)
         return iconURL.spec;
     }

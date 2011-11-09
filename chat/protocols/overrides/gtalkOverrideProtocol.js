@@ -50,11 +50,11 @@ gtalkProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
   get baseId() "prpl-jabber",
 
-  getAccount: function(aKey, aName) {
-    let account = ForwardProtocolPrototype.getAccount.call(this, aKey, aName);
+  getAccount: function(aImAccount) {
+    let account = ForwardProtocolPrototype.getAccount.call(this, aImAccount);
     let connectServer =
-      /@g(oogle)?mail.com(\/|$)/.test(aName) ? "" : "talk.google.com";
-    account.setString("connect_server", connectServer);
+      /@g(oogle)?mail.com(\/|$)/.test(aImAccount.name) ? "" : "talk.google.com";
+    aImAccount.setString("connect_server", connectServer);
     return account;
   },
   getOptions: function() EmptyEnumerator,

@@ -38,7 +38,7 @@
 const autoJoinPref = "autoJoin";
 
 const events = [
-  "purple-quit"
+  "prpl-quit"
 ];
 
 var account = {
@@ -94,7 +94,7 @@ var account = {
     removeObservers(account, events);
   },
   observe: function account_observe(aObject, aTopic, aData) {
-    if (aTopic == "purple-quit") {
+    if (aTopic == "prpl-quit") {
       // libpurple is being uninitialized. Close this dialog.
       window.close();
     }
@@ -106,7 +106,8 @@ var account = {
     var proxy;
     var result;
     if (type == Ci.purpleIProxyInfo.useGlobal) {
-      proxy = Services.core.globalProxy;
+      proxy = Cc["@instantbird.org/libpurple/core;1"]
+              .getService(Ci.purpleICoreService).globalProxy;
       type = proxy.type;
     }
     else
@@ -322,7 +323,7 @@ var account = {
 
     if (connectionInfoHasChanged) {
       /* This is the first time we try to connect with these parameters */
-      this.account.firstConnectionState = this.account.FIRST_CONNECTION_SET;
+      this.account.firstConnectionState = this.account.FIRST_CONNECTION_UNKNOWN;
 
       if (this.account.connecting) {
         this.account.disconnect();
@@ -331,10 +332,10 @@ var account = {
       }
       let errorReason = this.account.connectionErrorReason;
       if (this.account.disconnected &&
-          errorReason != Ci.purpleIAccount.NO_ERROR &&
-          errorReason != Ci.purpleIAccount.ERROR_MISSING_PASSWORD &&
-          errorReason != Ci.purpleIAccount.ERROR_CRASHED &&
-          errorReason != Ci.purpleIAccount.ERROR_UNKNOWN_PRPL) {
+          errorReason != Ci.prplIAccount.NO_ERROR &&
+          errorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD &&
+          errorReason != Ci.imIAccount.ERROR_CRASHED &&
+          errorReason != Ci.imIAccount.ERROR_UNKNOWN_PRPL) {
         this.account.connect();
       }
     }

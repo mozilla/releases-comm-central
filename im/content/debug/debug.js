@@ -66,12 +66,11 @@ function debug_enumerateProtocols()
 
 function debug_connectAccount(aProto, aName, aPassword)
 {
-  var pcs = Services.core;
-  var proto = pcs.getProtocolById(aProto);
+  var proto = Services.core.getProtocolById(aProto);
   if (!proto)
     throw "Couldn't get protocol " + aProto;
 
-  var acc = pcs.createAccount(aName, proto);
+  var acc = Services.accounts.createAccount(aName, proto);
   acc.password = aPassword;
   dump("trying to connect to " + proto.name +
        " (" + proto.id + ") with " + aName + "\n");
@@ -82,7 +81,7 @@ function debug_dumpBuddyList()
 {
   let formatBuddy = (function(buddy) "  " + buddy.name + "\n   " + buddy.getAccounts().map(function(a) a.name).join(" "));
   let formatGroup = (function(aGroup) " Group " + aGroup.id + ": " + aGroup.name + "\n" + aGroup.getBuddies().map(formatBuddy).join("\n"));
-  dump("Buddy list:\n\n" + Services.core.getTags().map(formatGroup).join("\n\n") + "\n\n");
+  dump("Buddy list:\n\n" + Services.tags.getTags().map(formatGroup).join("\n\n") + "\n\n");
 }
 
 function dumpStack(offset, max_depth)

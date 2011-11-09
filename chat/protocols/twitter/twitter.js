@@ -318,13 +318,11 @@ Conversation.prototype = {
   get nick() "@" + this.account.name
 };
 
-function Account(aProtoInstance, aKey, aName)
+function Account(aProtocol, aImAccount)
 {
-  this._init(aProtoInstance, aKey, aName);
+  this._init(aProtocol, aImAccount);
   this._knownMessageIds = {};
   this._userInfo = {};
-
-  Services.obs.addObserver(this, "status-changed", false);
 }
 Account.prototype = {
   __proto__: GenericAccountPrototype,
@@ -352,7 +350,7 @@ Account.prototype = {
     if (this.connected || this.connecting)
       return;
 
-    this.base.connecting();
+    this.reportConnecting();
     this._enabled = true;
 
     // Read the OAuth token from the prefs
@@ -380,12 +378,15 @@ Account.prototype = {
     this.getTimelines();
   },
 
-  // Currently only used for "status-changed" notification.
   observe: function(aSubject, aTopic, aMsg) {
+    // Currently only used for "status-changed" notification.
+    if (aTopic != "status-changed")
+      return;
+
     if (!this._enabled)
       return;
 
-    let statusType = aSubject.currentStatusType;
+    let statusType = aSubject.statusType;
     if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
       // This will remove the _enabled value...
       this.disconnect();
@@ -516,8 +517,7 @@ Account.prototype = {
   },
 
   getTimelines: function() {
-    this.base
-        .connecting(_("connection.requestTimelines"));
+    this.reportConnecting(_("connection.requestTimelines"));
 
     // If we have a last known message ID, append it as a get parameter.
     let lastMsgParam = this.prefs.prefHasUserValue("lastMessageId") ?
@@ -644,7 +644,7 @@ Account.prototype = {
     if (this._timelineAuthError)
       delete this._timelineAuthError;
 
-    this.base.connected();
+    this.reportConnected();
 
     // If the conversation already exists, notify it we are back online.
     if (this._timeline)
@@ -686,7 +686,7 @@ Account.prototype = {
   },
   onStreamError: function(aError) {
     delete this._streamingRequest;
-    this.gotDisconnected(this._base.ERROR_NETWORK_ERROR, aError);
+    this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR, aError);
   },
   onDataAvailable: function(aRequest) {
     let text = aRequest.target.responseText;
@@ -734,7 +734,7 @@ Account.prototype = {
   },
 
   requestToken: function() {
-    this.base.connecting(_("connection.initAuth"));
+    this.reportConnecting(_("connection.initAuth"));
     let oauthParams =
       [["oauth_callback", encodeURIComponent(this.completionURI)]];
     this.signAndSend("oauth/request_token", null, [],
@@ -746,7 +746,7 @@ Account.prototype = {
     let data = this._parseURLData(aData);
     if (!data.oauth_callback_confirmed ||
         !data.oauth_token || !data.oauth_token_secret) {
-      this.gotDisconnected(this._base.ERROR_OTHER_ERROR,
+      this.gotDisconnected(Ci.prplIAccount.ERROR_OTHER_ERROR,
                            _("connection.failedToken"));
       return;
     }
@@ -756,7 +756,7 @@ Account.prototype = {
     this.requestAuthorization();
   },
   requestAuthorization: function() {
-    this.base.connecting(_("connection.requestAuth"));
+    this.reportConnecting(_("connection.requestAuth"));
     const url = this.baseURI + "oauth/authorize?oauth_token=";
     this._browserRequest = {
       get promptText() _("authPrompt"),
@@ -768,7 +768,7 @@ Account.prototype = {
           return;
 
         this.account
-            .gotDisconnected(this.account._base.ERROR_AUTHENTICATION_FAILED,
+            .gotDisconnected(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
                              _("connection.error.authCancelled"));
       },
       loaded: function(aWindow, aWebProgress) {
@@ -825,14 +825,14 @@ Account.prototype = {
   onAuthorizationReceived: function(aData) {
     let data = this._parseURLData(aData.split("?")[1]);
     if (data.oauth_token != this.token || !data.oauth_verifier) {
-      this.gotDisconnected(this._base.ERROR_OTHER_ERROR,
+      this.gotDisconnected(Ci.prplIAccount.ERROR_OTHER_ERROR,
                            _("connection.error.authFailed"));
       return;
     }
     this.requestAccessToken(data.oauth_verifier);
   },
   requestAccessToken: function(aTokenVerifier) {
-    this.base.connecting(_("connection.requestAccess"));
+    this.reportConnecting(_("connection.requestAccess"));
     this.signAndSend("oauth/access_token", null, [],
                      this.onAccessTokenReceived, this.onError, this,
                      [["oauth_verifier", aTokenVerifier]]);
@@ -878,16 +878,16 @@ Account.prototype = {
       return;
 
     if (aError === undefined)
-      aError = this._base.NO_ERROR;
+      aError = Ci.prplIAccount.NO_ERROR;
     let connected = this.connected;
-    this.base.disconnecting(aError, aErrorMessage);
+    this.reportDisconnecting(aError, aErrorMessage);
     this.cleanUp();
     if (this._timeline && connected)
       this._timeline.notifyObservers(this._timeline, "update-conv-chatleft");
     delete this._enabled;
-    this.base.disconnected();
+    this.reportDisconnected();
   },
-  UnInit: function() {
+  unInit: function() {
     this.cleanUp();
     // If we've received any messages, update the last known message.
     let newestMessageId = "";
@@ -900,8 +900,6 @@ Account.prototype = {
     }
     if (newestMessageId)
       this.prefs.setCharPref("lastMessageId", newestMessageId);
-    Services.obs.removeObserver(this, "status-changed");
-    this._base.UnInit();
   },
   disconnect: function() {
     this.gotDisconnected();
@@ -909,11 +907,11 @@ Account.prototype = {
 
   onError: function(aException) {
     if (aException == "offline") {
-      this.gotDisconnected(this._base.ERROR_NETWORK_ERROR,
+      this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                            _("connection.error.noNetwork"));
     }
     else
-      this.gotDisconnected(this._base.ERROR_OTHER_ERROR, aException.toString());
+      this.gotDisconnected(Ci.prplIAccount.ERROR_OTHER_ERROR, aException.toString());
   },
 
   onRequestedInfoReceived: function(aData) {
@@ -987,7 +985,7 @@ TwitterProtocol.prototype = {
   options: {
     "track": {get label() _("options.track"), default: ""}
   },
-  getAccount: function(aKey, aName) new Account(this, aKey, aName),
+  getAccount: function(aImAccount) new Account(this, aImAccount),
   classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}")
 };
 

@@ -45,9 +45,14 @@ MODULE		= chat
 
 XPIDLSRCS	= \
 		ibILogger.idl \
+		imIAccount.idl \
+		imIAccountsService.idl \
 		imICommandsService.idl \
 		imIContactsService.idl \
 		imIConversationsService.idl \
+		imICoreService.idl \
+		imIUserStatusInfo.idl \
+		prplIProtocol.idl \
 		purpleIConversation.idl \
 		$(NULL)
 

@@ -70,32 +70,19 @@ var Core = {
       return false;
     }
 
-    if (!Components.classes["@instantbird.org/purple/core;1"]) {
+    if (!Components.classes["@instantbird.org/purple/core-service;1"]) {
       this._promptError("startupFailure.xpcomRegistrationError");
       return false;
     }
 
     try {
-      var pcs = Services.core;
-      pcs.init();
+      Services.core.init();
     }
     catch (e) {
       this._promptError("startupFailure.purplexpcomInitError", e);
       return false;
     }
 
-    if (!pcs.version) {
-      this._promptError("startupFailure.libpurpleError");
-      return false;
-    }
-
-    if (!pcs.getProtocols().hasMoreElements()) {
-      this._promptError("startupFailure.noProtocolLoaded");
-      this.uninitPurpleCore();
-      return false;
-    }
-
-    Services.conversations.initConversations();
     Conversations.init();
     Notifications.init();
     Sounds.init();
@@ -170,7 +157,7 @@ var Core = {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },
-  getAccounts: function() this.getIter(Services.core.getAccounts()),
+  getAccounts: function() this.getIter(Services.accounts.getAccounts()),
 
   /* This function pops up the account manager if no account is
    * connected or connecting.
@@ -180,7 +167,7 @@ var Core = {
   _showAccountManagerIfNeeded: function (aIsStarting) {
     // If the current status is offline, we don't need the account manager
     let isOffline =
-      Services.core.currentStatusType == Ci.imIStatusInfo.STATUS_OFFLINE;
+      Services.core.globalUserStatus.statusType == Ci.imIStatusInfo.STATUS_OFFLINE;
     if (isOffline && !aIsStarting)
       return;
 
@@ -206,7 +193,7 @@ var Core = {
 
   observe: function(aSubject, aTopic, aMsg) {
     if (aTopic == "account-connected") {
-      let account = aSubject.QueryInterface(Components.interfaces.purpleIAccount);
+      let account = aSubject.QueryInterface(Ci.imIAccount);
       if (!account.canJoinChat)
         return;
 
@@ -225,7 +212,7 @@ var Core = {
     }
 
     if (aTopic == "account-disconnected") {
-      let account = aSubject.QueryInterface(Ci.purpleIAccount);
+      let account = aSubject.QueryInterface(Ci.imIAccount);
       if (account.reconnectAttempt <= 1)
         this._showAccountManagerIfNeeded(false);
       return;

@@ -44,7 +44,7 @@ var addBuddy = {
 
   buildAccountList: function ab_buildAccountList() {
     var accountList = document.getElementById("accountlist");
-    for (let acc in getIter(Services.core.getAccounts())) {
+    for (let acc in getIter(Services.accounts.getAccounts())) {
       if (!acc.connected)
         continue;
       var proto = acc.protocol;
@@ -76,7 +76,7 @@ var addBuddy = {
   getValue: function ab_getValue(aId) document.getElementById(aId).value,
 
   create: function ab_create() {
-    var account = Services.core.getAccountById(this.getValue("accountlist"));
+    var account = Services.accounts.getAccountById(this.getValue("accountlist"));
     var name = this.getValue("name");
 
     var tag;

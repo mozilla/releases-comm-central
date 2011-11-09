@@ -48,7 +48,7 @@ const events = ["contact-availability-changed",
                 "ui-conversation-hidden",
                 "user-display-name-changed",
                 "user-icon-changed",
-                "purple-quit"];
+                "prpl-quit"];
 
 const showOfflineBuddiesPref = "messenger.buddies.showOffline";
 
@@ -313,7 +313,7 @@ buddyListContextMenu.prototype = {
 
 var buddyList = {
   observe: function bl_observe(aSubject, aTopic, aMsg) {
-    if (aTopic == "purple-quit") {
+    if (aTopic == "prpl-quit") {
       window.close();
       return;
     }
@@ -400,12 +400,12 @@ var buddyList = {
   },
 
   displayUserIcon: function bl_displayUserIcon() {
-    let icon = Services.core.getUserIcon();
+    let icon = Services.core.globalUserStatus.getUserIcon();
     document.getElementById("userIcon").src = icon ? icon.spec : "";
   },
 
   displayUserDisplayName: function bl_displayUserDisplayName() {
-    let displayName = Services.core.userDisplayName;
+    let displayName = Services.core.globalUserStatus.displayName;
     let elt = document.getElementById("displayName");
     if (displayName)
       elt.removeAttribute("usingDefault");
@@ -428,9 +428,9 @@ var buddyList = {
   },
 
   displayCurrentStatus: function bl_displayCurrentStatus() {
-    let pcs = Services.core;
-    let status = Status.toAttribute(pcs.currentStatusType);
-    let message = status == "offline" ? "" : pcs.currentStatusMessage;
+    let us = Services.core.globalUserStatus;
+    let status = Status.toAttribute(us.statusType);
+    let message = status == "offline" ? "" : us.statusText;
     let statusString = this.displayStatusType(status);
     let statusMessage = document.getElementById("statusMessage");
     if (message)
@@ -446,7 +446,7 @@ var buddyList = {
   editStatus: function bl_editStatus(aEvent) {
     let status = aEvent.originalTarget.getAttribute("status");
     if (status == "offline")
-      Services.core.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
+      Services.core.globalUserStatus.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
     else if (status)
       this.startEditStatus(status);
   },
@@ -476,7 +476,7 @@ var buddyList = {
       if (elt.hasAttribute("usingDefault")) {
         if ("_statusTypeBeforeEditing" in this &&
             this._statusTypeBeforeEditing == "offline")
-          elt.setAttribute("value", Services.core.currentStatusMessage);
+          elt.setAttribute("value", Services.core.globalUserStatus.statusMessage);
         else
           elt.removeAttribute("value");
       }
@@ -540,7 +540,7 @@ var buddyList = {
       // apply the new status only if it is different from the current one
       if (newStatus != Ci.imIStatusInfo.STATUS_UNKNOWN ||
           elt.value != elt.getAttribute("value"))
-        Services.core.setStatus(newStatus, elt.value);
+        Services.core.globalUserStatus.setStatus(newStatus, elt.value);
     }
     else if ("_statusTypeBeforeEditing" in this) {
       this.displayStatusType(this._statusTypeBeforeEditing);
@@ -565,7 +565,7 @@ var buddyList = {
             nsIFilePicker.modeOpen);
     fp.appendFilters(nsIFilePicker.filterImages);
     if (fp.show() == nsIFilePicker.returnOK)
-      Services.core.setUserIcon(fp.file);
+      Services.core.globalUserStatus.setUserIcon(fp.file);
   },
 
   displayNameClick: function bl_displayNameClick() {
@@ -617,7 +617,7 @@ var buddyList = {
     let elt = document.getElementById("displayName");
     // Apply the new display name only if it is different from the current one.
     if (aSave && elt.value != elt.getAttribute("value"))
-      Services.core.userDisplayName = elt.value;
+      Services.core.globalUserStatus.displayName = elt.value;
     else if (elt.hasAttribute("usingDefault"))
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
 

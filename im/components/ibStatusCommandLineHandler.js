@@ -60,8 +60,8 @@ StatusCLH.prototype = {
     cmdLine.removeArguments(statusIndex, statusIndex + 1);
 
     // We're keeping the old status message here.
-    Services.core.setStatus(Status.toFlag(statusParam),
-                            Services.core.currentStatusMessage);
+    let us = Services.core.globalUserStatus;
+    us.setStatus(Status.toFlag(statusParam), us.statusText);
 
     // Only perform the default action (i.e. loading the buddy list) if
     // Instantbird is launched with a status flag.

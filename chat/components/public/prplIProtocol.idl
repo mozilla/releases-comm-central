@@ -37,22 +37,15 @@
 
 #include "nsISupports.idl"
 #include "nsISimpleEnumerator.idl"
+#include "imIAccount.idl"
 
-/*
- * This is the libpurple protocol
- */
+[scriptable, uuid(7d302db0-3813-4c51-8372-c7eb5fc9f3d3)]
+interface prplIProtocol: nsISupports {
+  // aId is the prpl id, this method is used so that classes
+  // implementing several protocol plugins can know which protocol is
+  // desired for this instance.
+  void init(in AUTF8String aId);
 
-%{C++
-#pragma GCC visibility push(default)
-#include <libpurple/prpl.h>
-#pragma GCC visibility pop
-%}
-
-[ptr] native PurpleNativePluginProtocolInfo(PurplePluginProtocolInfo);
-interface purpleIAccount;
-
-[scriptable, uuid(0a51b511-4ce7-4f4c-a109-43023b72fc5a)]
-interface purpleIProtocol: nsISupports {
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String id;
   readonly attribute AUTF8String normalizedName;
@@ -123,9 +116,9 @@ interface purpleIProtocol: nsISupports {
   // account, or uses the Mozilla proxy settings for all accounts.
   readonly attribute boolean usePurpleProxy;
 
-  // The key is the unique identifier needed to get account data
-  // stored in the preferences.
-  purpleIAccount getAccount(in AUTF8String aKey, in AUTF8String aName);
+  // Get the protocol specific part of an already initialized
+  // imIAccount instance.
+  prplIAccount getAccount(in imIAccount aImAccount);
 };
 
 [scriptable, uuid(20c4971a-f7c2-4781-8e85-69fee7b83a3d)]
@@ -138,7 +131,3 @@ interface purpleIUsernameSplit: nsISupports {
      the end of the string, PR_FALSE otherwise. */
   readonly attribute PRBool reverse;
 };
-
-%{C++
-#define JS_PROTOCOL_PLUGIN_CATEGORY "js-protocol-plugin"
-%}

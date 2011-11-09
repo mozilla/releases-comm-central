@@ -37,14 +37,14 @@
 
 #include "nsISupports.idl"
 
-interface purpleIAccount;
+interface imIAccount;
 interface nsIDOMWindowInternal;
 interface nsIWebProgress;
 
 [scriptable, uuid(b89dbb38-0de4-11e0-b3d0-0002e304243c)]
 interface purpleIRequestBrowser: nsISupports {
   readonly attribute AUTF8String promptText;
-  readonly attribute purpleIAccount account;
+  readonly attribute imIAccount account;
   readonly attribute AUTF8String url;
   void cancelled();
   void loaded(in nsIDOMWindowInternal aWindow,

@@ -95,7 +95,7 @@
           this.refreshConnectedLabel();
         } else if (this._account.disconnected) {
           state = "disconnected";
-          if (this._account.connectionErrorReason != Ci.purpleIAccount.NO_ERROR)
+          if (this._account.connectionErrorReason != Ci.prplIAccount.NO_ERROR)
             this.updateConnectionError();
           else
             this.removeAttribute("error");
@@ -136,12 +136,12 @@
         var account = this._account;
         var text;
         let errorReason = account.connectionErrorReason;
-        if (errorReason == Ci.purpleIAccount.ERROR_UNKNOWN_PRPL)
+        if (errorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL)
           text = bundle.getFormattedString(key + "UnknownPrpl",
                                            [account.protocol.id]);
-        else if (errorReason == Ci.purpleIAccount.ERROR_MISSING_PASSWORD)
+        else if (errorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD)
           text = bundle.getString(key + "MissingPassword");
-        else if (errorReason == Ci.purpleIAccount.ERROR_CRASHED)
+        else if (errorReason == Ci.imIAccount.ERROR_CRASHED)
           text = bundle.getString(key + "CrashedAccount");
         else
           text = account.connectionErrorMessage;
@@ -230,7 +230,7 @@
          this._connectedLabel = null;
          if (this._account.connected)
            this.refreshConnectedLabel();
-         if (this._account.connectionErrorReason == Ci.purpleIAccount.NO_ERROR)
+         if (this._account.connectionErrorReason == Ci.prplIAccount.NO_ERROR)
            this.updateConnectionState();
          else
            this.updateConnectionError();

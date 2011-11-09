@@ -303,12 +303,12 @@ var fake = {
     new Message("Florian", "Thanks :)",
                 {time: makeDate("10:44:12"), incoming: true, conversation: chat});
 
-    Services.core.userDisplayName = "Tom Smith";
+    Services.core.globalUserStatus.displayName = "Tom Smith";
     // Ugly :-(
     document.getElementById("userIcon").src = ib_icon_url;
   },
   deleteAccounts: function f_deleteAccounts() {
-    if (!Services.core.getAccounts().hasMoreElements())
+    if (!Services.accounts.getAccounts().hasMoreElements())
       return;
 
     var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
@@ -317,8 +317,8 @@ var fake = {
                          "You are about to delete " + nbaccounts + " accounts. Are you sure?"))
       throw "user aborted the operation";
 
-    for (let acc in getIter(Services.core.getAccounts()))
-      Services.core.deleteAccount(acc.id);
+    for (let acc in getIter(Services.accounts.getAccounts()))
+      Services.accounts.deleteAccount(acc.id);
   }
 };
 
@@ -334,7 +334,7 @@ function Account(aName, aProto)
   dump("account " + aName + " created\n");
 }
 Account.prototype = {
-  __proto__: ClassInfo("purpleIAccount", "generic account object"),
+  __proto__: ClassInfo("imIAccount", "generic account object"),
   protocol: null,
   password: "",
   autoLogin: true,

@@ -58,26 +58,18 @@ initLogModule("jsProtoHelper");
 
 function normalize(aString) aString.replace(/[^a-z0-9]/gi, "").toLowerCase()
 
-XPCOMUtils.defineLazyGetter(this, "AccountBase", function()
-  Components.Constructor("@instantbird.org/purple/account;1",
-                         "purpleIAccountBase")
-);
-
 const ForwardAccountPrototype = {
-  __proto__: ClassInfo("purpleIAccount", "generic account object"),
-  _init: function _init(aProtoInstance, aBase) {
+  __proto__: ClassInfo("prplIAccount", "generic account object"),
+  _init: function _init(aBase) {
     this._base = aBase;
-    this._base.concreteAccount = this;
-    this._protocol = aProtoInstance;
   },
-  get base() this._base.purpleIAccountBase,
 
-  checkAutoLogin: function() this._base.checkAutoLogin(),
-  remove: function() this._base.remove(),
-  UnInit: function() this._base.UnInit(),
+  observe: function(aSubject, aTopic, aData) {
+    this._base.observe(aSubject, aTopic, aData);
+  },
+  unInit: function() this._base.unInit(),
   connect: function() this._base.connect(),
   disconnect: function() this._base.disconnect(),
-  cancelReconnection: function() this._base.cancelReconnection(),
   createConversation: function(aName) this._base.createConversation(aName),
   addBuddy: function(aTag, aName) this._base.addBuddy(aTag, aName),
   loadBuddy: function(aBuddy, aTag) this._base.loadBuddy(aBuddy, aTag),
@@ -89,33 +81,11 @@ const ForwardAccountPrototype = {
   setBool: function(aName, aVal) this._base.setBool(aName, aVal),
   setInt: function(aName, aVal) this._base.setInt(aName, aVal),
   setString: function(aName, aVal) this._base.setString(aName, aVal),
-  save: function() this._base.save(),
 
-  // grep attribute purpleIAccount.idl |sed 's/.* //;s/;//;s/\(.*\)/  get \1() this._base.\1,/'
-  // Exception: the protocol getter is handled locally.
   get canJoinChat() this._base.canJoinChat,
-  get name() this._base.name,
   get normalizedName() this._base.normalizedName,
-  get id() this._base.id,
-  get numericId() this._base.numericId,
-  get protocol() this._protocol,
-  get autoLogin() this._base.autoLogin,
-  get firstConnectionState() this._base.firstConnectionState,
-  get password() this._base.password,
-  get rememberPassword() this._base.rememberPassword,
-  get alias() this._base.alias,
   get proxyInfo() this._base.proxyInfo,
-  get connectionStateMsg() this._base.connectionStateMsg,
   get connectionErrorReason() this._base.connectionErrorReason,
-  get reconnectAttempt() this._base.reconnectAttempt,
-  get timeOfNextReconnect() this._base.timeOfNextReconnect,
-  get timeOfLastConnect() this._base.timeOfLastConnect,
-  get connectionErrorMessage() this._base.connectionErrorMessage,
-  get connectionState() this._base.connectionState,
-  get disconnected() this._base.disconnected,
-  get connected() this._base.connected,
-  get connecting() this._base.connecting,
-  get disconnecting() this._base.disconnecting,
   get HTMLEnabled() this._base.HTMLEnabled,
   get noBackgroundColors() this._base.noBackgroundColors,
   get autoResponses() this._base.autoResponses,
@@ -126,20 +96,48 @@ const ForwardAccountPrototype = {
   get noImages() this._base.noImages,
   get maxMessageLength() this._base.maxMessageLength,
 
-  // grep attribute purpleIAccount.idl |grep -v readonly |sed 's/.* //;s/;//;s/\(.*\)/  set \1(val) { this._base.\1 = val; },/'
-  set autoLogin(val) { this._base.autoLogin = val; },
-  set firstConnectionState(val) { this._base.firstConnectionState = val; },
-  set password(val) { this._base.password = val; },
-  set rememberPassword(val) { this._base.rememberPassword = val; },
-  set alias(val) { this._base.alias = val; },
   set proxyInfo(val) { this._base.proxyInfo = val; }
 };
 
 const GenericAccountPrototype = {
-  __proto__: ForwardAccountPrototype,
-  _init: function _init(aProtoInstance, aKey, aName) {
-    ForwardAccountPrototype._init.call(this, aProtoInstance, new AccountBase());
-    this._base.init(aKey, aName, aProtoInstance);
+  __proto__: ClassInfo("prplIAccount", "generic account object"),
+  _init: function _init(aProtocol, aImAccount) {
+    this.protocol = aProtocol;
+    this.imAccount = aImAccount;
+  },
+  observe: function(aSubject, aTopic, aData) {},
+  unInit: function() {},
+  connect: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  disconnect: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  createConversation: function(aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  joinChat: function(aComponents) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  setBool: function(aName, aVal) {},
+  setInt: function(aName, aVal) {},
+  setString: function(aName, aVal) {},
+
+  get name() this.imAccount.name,
+  get connected() this.imAccount.connected,
+  get connecting() this.imAccount.connecting,
+  get disconnected() this.imAccount.disconnected,
+  get disconnecting() this.imAccount.disconnecting,
+  _connectionErrorReason: Ci.prplIAccount.NO_ERROR,
+  get connectionErrorReason() this._connectionErrorReason,
+
+  reportConnected: function() {
+    this.imAccount.observe(this, "account-connected", null);
+  },
+  reportConnecting: function(aConnectionStateMsg) {
+    if (!this.connecting)
+      this.imAccount.observe(this, "account-connecting", null);
+    if (aConnectionStateMsg)
+      this.imAccount.observe(this, "account-connect-progress", aConnectionStateMsg);
+  },
+  reportDisconnected: function() {
+    this.imAccount.observe(this, "account-disconnected", null);
+  },
+  reportDisconnecting: function(aConnectionErrorReason, aConnectionErrorMessage) {
+    this._connectionErrorReason = aConnectionErrorReason;
+    this.imAccount.observe(this, "account-disconnecting", aConnectionErrorMessage);
   },
 
   addBuddy: function(aTag, aName) {
@@ -148,13 +146,14 @@ const GenericAccountPrototype = {
   },
   loadBuddy: function(aBuddy, aTag) {
    try {
-     return new AccountBuddy(this, aBuddy, aTag) ;
+     return new AccountBuddy(this, aBuddy, aTag);
    } catch (x) {
      dump(x + "\n");
      return null;
    }
   },
   requestBuddyInfo: function(aBuddyName) {},
+  get canJoinChat() false,
   getChatRoomFields: function() {
     if (!this.chatRoomFields)
       return EmptyEnumerator;
@@ -190,12 +189,22 @@ const GenericAccountPrototype = {
   getBool: function(aName) this.getPref(aName, "Bool"),
 
   get prefs() this._prefs ||
-    (this._prefs = Services.prefs.getBranch("messenger.account." + this.id +
-                                            ".options.")),
+    (this._prefs = Services.prefs.getBranch("messenger.account." +
+                                            this.imAccount.id + ".options.")),
 
   get normalizedName() normalize(this.name),
   get proxyInfo() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; }
+  set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+
+  get HTMLEnabled() true,
+  get noBackgroundColors() true,
+  get autoResponses() false,
+  get singleFormatting() false,
+  get noNewlines() false,
+  get noFontSizes() false,
+  get noUrlDesc() false,
+  get noImages() true,
+  get maxMessageLength() 0
 };
 
 
@@ -206,7 +215,7 @@ const GenericAccountBuddyPrototype = {
       throw "aUserName is required when aBuddy is null";
 
     this._tag = aTag;
-    this._account = aAccount;
+    this._account = aAccount.imAccount;
     this._buddy = aBuddy;
     this._userName = aUserName;
   },
@@ -371,7 +380,7 @@ const GenericConversationPrototype = {
   flags: Ci.nsIClassInfo.DOM_OBJECT,
 
   _init: function(aAccount, aName) {
-    this.account = aAccount;
+    this.account = aAccount.imAccount;
     this._name = aName;
     this._observers = [];
     Services.conversations.addConversation(this);
@@ -597,8 +606,12 @@ ChatRoomFieldValues.prototype = {
 
 // the name getter needs to be implemented
 const GenericProtocolPrototype = {
-  __proto__: ClassInfo("purpleIProtocol", "Generic protocol object"),
+  __proto__: ClassInfo("prplIProtocol", "Generic protocol object"),
 
+  init: function(aId) {
+    if (aId != this.id)
+      throw NS_ERROR_NOT_IMPLEMENTED;
+  },
   get id() "prpl-" + this.normalizedName,
   get normalizedName() normalize(this.name),
   get iconBaseURI() "chrome://instantbird/skin/prpl-generic/",
@@ -671,9 +684,9 @@ const GenericProtocolPrototype = {
   get contractID() "@instantbird.org/purple/" + this.normalizedName + ";1"
 };
 
-function ForwardAccount(aProtocol, aBaseAccount)
+function ForwardAccount(aBaseAccount)
 {
-  this._init(aProtocol, aBaseAccount);
+  this._init(aBaseAccount);
 }
 ForwardAccount.prototype = ForwardAccountPrototype;
 
@@ -687,8 +700,8 @@ const ForwardProtocolPrototype = {
       this._base = Services.core.getProtocolById(this.baseId);
     return this._base;
   },
-  getAccount: function(aKey, aName)
-    new ForwardAccount(this, this.base.getAccount(aKey, aName)),
+  getAccount: function(aImAccount)
+    new ForwardAccount(this.base.getAccount(aImAccount)),
 
   get iconBaseURI() this.base.iconBaseURI,
   getOptions: function() this.base.getOptions(),

@@ -127,6 +127,11 @@ function ClassInfo(aInterfaces, aDescription)
 
   if (!Array.isArray(aInterfaces))
     aInterfaces = [aInterfaces];
+
+  for each (let i in aInterfaces)
+    if (typeof i == "string" && !(i in Ci))
+      Services.console.logStringMessage("ClassInfo: unknown interface " + i);
+
   this._interfaces =
     aInterfaces.map(function (i) typeof i == "string" ? Ci[i] : i);
 

@@ -12,11 +12,11 @@
  * License.
  *
  * The Original Code is the Instantbird messenging client, released
- * 2010.
+ * 2007.
  *
  * The Initial Developer of the Original Code is
  * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2007
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,29 +35,20 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-let EXPORTED_SYMBOLS = ["Services"];
+#include "nsISupports.idl"
+#include "imIUserStatusInfo.idl"
+#include "nsISimpleEnumerator.idl"
+#include "prplIProtocol.idl"
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+[scriptable, uuid(205d4b2b-1ccf-4879-9ef1-f08942566151)]
+interface imICoreService: nsISupports {
+  void init();
+  void quit(); // will emit a prpl-quit notification.
 
-XPCOMUtils.defineLazyServiceGetter(Services, "accounts",
-                                   "@instantbird.org/purple/accounts-service;1",
-                                   "imIAccountsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "core",
-                                   "@instantbird.org/purple/core-service;1",
-                                   "imICoreService");
-XPCOMUtils.defineLazyServiceGetter(Services, "cmd",
-                                   "@instantbird.org/purple/commands-service;1",
-                                   "imICommandsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "contacts",
-                                   "@instantbird.org/purple/contacts-service;1",
-                                   "imIContactsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "conversations",
-                                   "@instantbird.org/purple/conversations-service;1",
-                                   "imIConversationsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "tags",
-                                   "@instantbird.org/purple/tags-service;1",
-                                   "imITagsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "logs",
-                                   "@instantbird.org/logger;1",
-                                   "ibILogger");
+  // returns an enumerator on a pplIProtocol array
+  nsISimpleEnumerator getProtocols();
+
+  prplIProtocol getProtocolById(in AUTF8String aProtocolId);
+
+  readonly attribute imIUserStatusInfo globalUserStatus;
+};

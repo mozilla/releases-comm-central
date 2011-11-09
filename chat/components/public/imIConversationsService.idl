@@ -93,6 +93,6 @@ interface imIConversationsService: nsISupports {
   nsISimpleEnumerator getConversations();
   purpleIConversation getConversationById(in unsigned long aId);
   purpleIConversation getConversationByNameAndAccount(in AUTF8String aName,
-                                                      in purpleIAccount aAccount,
+                                                      in imIAccount aAccount,
                                                       in boolean aIsChat);
 };

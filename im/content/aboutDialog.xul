@@ -82,7 +82,7 @@
           versionField.value = versionField.value + xai.platformVersion
                              + ' (' + xai.platformBuildID + ')';
 
-          var pcs = Components.classes["@instantbird.org/purple/core;1"]
+          var pcs = Components.classes["@instantbird.org/libpurple/core;1"]
                               .getService(Components.interfaces.purpleICoreService)
           versionField = document.getElementById("libpurpleVersionField");
           versionField.value = versionField.value + pcs.version;

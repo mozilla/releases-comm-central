@@ -174,5 +174,5 @@ var joinChat = {
     return true;
   },
 
-  getAccounts: function jc_getAccounts() getIter(Services.core.getAccounts())
+  getAccounts: function jc_getAccounts() getIter(Services.accounts.getAccounts())
 };

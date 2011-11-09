@@ -39,6 +39,76 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
+var gDBConnection = null;
+
+function getDBConnection()
+{
+  const NS_APP_USER_PROFILE_50_DIR = "ProfD";
+  let dbFile =
+    Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties)
+    .get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
+  dbFile.append("blist.sqlite");
+
+  let conn =
+    Cc["@mozilla.org/storage/service;1"].getService(Ci.mozIStorageService)
+                                        .openDatabase(dbFile);
+  if (!conn.connectionReady)
+    throw Cr.NS_ERROR_UNEXPECTED;
+
+  // Grow blist db in 512KB increments.
+  conn.setGrowthIncrement(512 * 1024, "");
+
+  // Create tables and indexes.
+  [
+    "CREATE TABLE IF NOT EXISTS accounts (" +
+      "id INTEGER PRIMARY KEY, " +
+      "name VARCHAR, " +
+      "prpl VARCHAR)",
+
+    "CREATE TABLE IF NOT EXISTS contacts (" +
+      "id INTEGER PRIMARY KEY, " +
+      "firstname VARCHAR, " +
+      "lastname VARCHAR, " +
+      "alias VARCHAR)",
+
+    "CREATE TABLE IF NOT EXISTS buddies (" +
+      "id INTEGER PRIMARY KEY, " +
+      "key VARCHAR NOT NULL, " +
+      "name VARCHAR NOT NULL, " +
+      "srv_alias VARCHAR, " +
+      "position INTEGER, " +
+      "icon BLOB, " +
+      "contact_id INTEGER)",
+    "CREATE INDEX IF NOT EXISTS buddies_contactindex " +
+      "ON buddies (contact_id)",
+
+    "CREATE TABLE IF NOT EXISTS tags (" +
+      "id INTEGER PRIMARY KEY, " +
+      "name VARCHAR UNIQUE NOT NULL, " +
+      "position INTEGER)",
+
+    "CREATE TABLE IF NOT EXISTS contact_tag (" +
+      "contact_id INTEGER NOT NULL, " +
+      "tag_id INTEGER NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS contact_tag_contactindex " +
+      "ON contact_tag (contact_id)",
+    "CREATE INDEX IF NOT EXISTS contact_tag_tagindex " +
+      "ON contact_tag (tag_id)",
+
+    "CREATE TABLE IF NOT EXISTS account_buddy (" +
+      "account_id INTEGER NOT NULL, " +
+      "buddy_id INTEGER NOT NULL, " +
+      "status VARCHAR, " +
+      "tag_id INTEGER)",
+    "CREATE INDEX IF NOT EXISTS account_buddy_accountindex " +
+      "ON account_buddy (account_id)",
+    "CREATE INDEX IF NOT EXISTS account_buddy_buddyindex " +
+      "ON account_buddy (buddy_id)"
+  ].forEach(conn.executeSimpleSQL);
+
+  return conn;
+}
+
 // Wrap all the usage of DBConn inside a transaction that will be
 // commited automatically at the end of the event loop spin so that
 // we flush buddy list data to disk only once per event loop spin.
@@ -47,29 +117,16 @@ this.__defineGetter__("DBConn", function() {
   if (gDBConnWithPendingTransaction)
     return gDBConnWithPendingTransaction;
 
-  let conn = Services.core.storageConnection;
-  gDBConnWithPendingTransaction = conn;
-  conn.beginTransaction();
+  if (!gDBConnection)
+    gDBConnection = getDBConnection();
+  gDBConnWithPendingTransaction = gDBConnection;
+  gDBConnection.beginTransaction();
   executeSoon(function() {
     gDBConnWithPendingTransaction.commitTransaction();
     gDBConnWithPendingTransaction = null;
   });
-  return conn;
+  return gDBConnection;
 });
-
-var AccountsById = { };
-function getAccountById(aId) {
-  if (AccountsById.hasOwnProperty(aId))
-    return AccountsById[aId];
-
-  let account = null;
-  try {
-    account = Services.core.getAccountByNumericId(aId);
-  } catch (x) { /* Not found */ }
-
-  AccountsById[aId] = account;
-  return account;
-}
 
 function TagsService() { }
 TagsService.prototype = {
@@ -1154,7 +1211,8 @@ ContactsService.prototype = {
 
     statement = DBConn.createStatement("SELECT account_id, buddy_id, tag_id FROM account_buddy");
     while (statement.executeStep()) {
-      let account = getAccountById(statement.getInt32(0));
+      let account =
+        Services.accounts.getAccountByNumericId(statement.getInt32(0));
       let buddy = BuddiesById[statement.getInt32(1)];
       let tag = TagsById[statement.getInt32(2)];
       try {
@@ -1163,7 +1221,7 @@ ContactsService.prototype = {
           buddy._addAccount(ab, tag);
       } catch (e) {
         // FIXME ab shouldn't be NULL (once purpleAccount is finished)
-        // It currently doesn't work write with unknown protocols.
+        // It currently doesn't work right with unknown protocols.
         Components.utils.reportError(e);
         dump(e + "\n");
       }
@@ -1172,7 +1230,6 @@ ContactsService.prototype = {
     otherContactsTag._initHiddenTags();
   },
   unInitContacts: function() {
-    AccountsById = { };
     Tags = [];
     TagsById = { };
     // Avoid shutdown leaks caused by references to native components
@@ -1264,6 +1321,45 @@ ContactsService.prototype = {
 
     buddy.observe(aAccountBuddy, "account-buddy-moved");
     ContactsById[buddy.contact.id]._moved(aOldTag, aNewTag);
+  },
+
+  storeAccount: function(aId, aUserName, aPrplId) {
+    let statement =
+      DBConn.createStatement("SELECT name, prpl FROM accounts WHERE id = :id");
+    statement.params.id = aId;
+    if (statement.executeStep()) {
+      if (statement.getUTF8String(0) == aUserName &&
+          statement.getUTF8String(1) == aPrplId)
+        return; // The account is already stored correctly.
+      throw Cr.NS_ERROR_UNEXPECTED; // Corrupted database?!?
+    }
+
+    // Actually store the account.
+    statement = DBConn.createStatement("INSERT INTO accounts (id, name, prpl) " +
+                                       "VALUES(:id, :userName, :prplId)");
+    statement.params.id = aId;
+    statement.params.userName = aUserName;
+    statement.params.prplId = aPrplId;
+    statement.execute();
+  },
+  accountIdExists: function(aId) {
+    let statement =
+      DBConn.createStatement("SELECT id FROM accounts WHERE id = :id");
+    statement.params.id = aId;
+    return statement.executeStep();
+  },
+  forgetAccount: function(aId) {
+    let statement =
+      DBConn.createStatement("DELETE FROM accounts WHERE id = :accountId");
+    statement.params.accountId = aId;
+    statement.execute();
+
+    // removing the account from the accounts table is not enought,
+    // we need to remove all the associated account_buddy entries too
+    statement = DBConn.createStatement("DELETE FROM account_buddy " +
+                                       "WHERE account_id = :accountId");
+    statement.params.accountId = aId;
+    statement.execute();
   },
 
   QueryInterface: XPCOMUtils.generateQI([Ci.imIContactsService]),

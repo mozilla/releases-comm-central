@@ -1,6 +1,6 @@
 component {a0774c5a-4aea-458b-9fbc-8d3cbf1a4630} jsTestProtocol.js
 contract @instantbird.org/purple/jstest;1 {a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}
-category js-protocol-plugin @instantbird.org/purple/jstest;1 @instantbird.org/purple/jstest;1
+category im-protocol-plugin prpl-jstest @instantbird.org/purple/jstest;1
 component {88795348-8a4b-4018-890d-5314cb08ec4d} jsTestProtocol.js
 contract @instantbird.org/purple/override;1 {88795348-8a4b-4018-890d-5314cb08ec4d}
-category js-protocol-plugin @instantbird.org/purple/override;1 @instantbird.org/purple/override;1
+category im-protocol-plugin prpl-override @instantbird.org/purple/override;1
