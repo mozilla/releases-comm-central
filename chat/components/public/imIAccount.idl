@@ -37,7 +37,6 @@
 
 #include "nsISupports.idl"
 #include "purpleIConversation.idl"
-#include "purpleIProxy.idl"
 #include "imIUserStatusInfo.idl"
 
 interface imITag;
@@ -45,6 +44,7 @@ interface imIBuddy;
 interface imIAccountBuddy;
 interface imIAccount;
 interface prplIProtocol;
+interface purpleIProxyInfo;
 
 /*
  * Used to join chat rooms.
