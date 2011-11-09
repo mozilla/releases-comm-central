@@ -47,6 +47,7 @@
 %brandDTD;
 <!ENTITY % aboutDialogDTD SYSTEM "chrome://instantbird/locale/aboutDialog.dtd" >
 %aboutDialogDTD;
+<!ENTITY copyrightYear "2011">
 #ifdef XP_MACOSX
  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
  %instantbirdDTD;
@@ -141,7 +142,7 @@
           <textbox id="libpurpleVersionField" readonly="true" class="plain"
                    tabindex="4" value="&libpurpleVersion; "/>
         </vbox>
-        <description id="copyright" flex="1">&copyrightText;</description>
+        <description id="copyright" flex="1">&copyrightText2;</description>
         <separator/>
         <textbox id="userAgentField" readonly="true" class="plain"
                  tabindex="5" multiline="true"/>
