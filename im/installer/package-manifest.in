@@ -403,15 +403,20 @@
 @BINPATH@/@DLL_PREFIX@purple@DLL_SUFFIX@
 @BINPATH@/components/@DLL_PREFIX@purplexpcom@DLL_SUFFIX@
 @BINPATH@/components/purplexpcom.xpt
+@BINPATH@/components/prpl.manifest
 
 ; [chat]
 @BINPATH@/components/chat.xpt
+@BINPATH@/components/imAccounts.js
+@BINPATH@/components/imAccounts.manifest
 @BINPATH@/components/imCommands.js
 @BINPATH@/components/imCommands.manifest
 @BINPATH@/components/imContacts.js
 @BINPATH@/components/imContacts.manifest
 @BINPATH@/components/imConversations.js
 @BINPATH@/components/imConversations.manifest
+@BINPATH@/components/imCore.js
+@BINPATH@/components/imCore.manifest
 
 #ifdef XP_MACOSX
 @BINPATH@/components/ibDockBadge.js
