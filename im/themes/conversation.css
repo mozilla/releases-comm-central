@@ -269,20 +269,20 @@
 %endif
 }
 
-conversation[chat="true"] .conv-messages {
 %ifndef XP_MACOSX
+.conv-messages[chat] {
   border-right: solid 1px GrayText;
-%endif
 }
+%endif
 
-textbox.conv-textbox {
+.conv-textbox {
   margin: 0 0;
   padding: 0 0;
   -moz-box-sizing: content-box;
 }
 %ifndef XP_MACOSX
 
-.conv-textbox .textbox-input-box {
+.conv-textbox > .textbox-input-box {
   background: inherit;
 }
 %endif
@@ -311,10 +311,10 @@ grippy {
 }
 
 #conv-toolbar {
-  border-style:none;
+  border-style: none;
 }
 
-.conv-nicklist .listcell-label {
+.listcell-label {
   font-weight: bold;
   -moz-padding-start: 1px;
 %ifdef XP_MACOSX
@@ -322,7 +322,7 @@ grippy {
 %endif
 }
 
-.conv-nicklist .listcell-icon {
+.listcell-icon {
   min-width: 16px;
   margin: 0 2px;
 }
@@ -346,19 +346,15 @@ grippy {
   -moz-margin-end: 2px !important;
 }
 
-conversation:not([chat="true"]) .conv-chat {
-  display: none;
-}
-
 %ifdef XP_MACOSX
-textbox.conv-textbox {
+.conv-textbox {
   padding: 3px;
   border: none;
   -moz-appearance: none;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
-textbox.conv-textbox[focused="true"] {
+.conv-textbox[focused="true"] {
   box-shadow: inset 0 0 2px 1px rgba(40, 120, 212, 0.7),
                     0 0 4px 1px rgb(40, 120, 212),
               inset 0 1px 2px rgba(0, 0, 0, 0.7);

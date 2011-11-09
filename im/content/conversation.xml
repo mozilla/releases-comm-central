@@ -55,19 +55,18 @@
     <content>
       <xul:vbox class="convBox" flex="1">
         <xul:toolbar class="conv-top-info" anonid="conv-top-info"/>
-
         <xul:hbox class="conv-top" flex="1" anonid="conv-top">
-          <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1">
+          <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1" xbl:inherits="chat">
             <xul:vbox flex="1">
               <xul:browser anonid="browser" type="content-conversation" flex="1"
                            xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
             </xul:vbox>
           </xul:notificationbox>
-          <xul:splitter anonid="splitter" collapse="after" class="splitter conv-chat">
+          <xul:splitter anonid="splitter" collapse="after" class="splitter conv-chat" xbl:inherits="chat">
             <xul:grippy/>
           </xul:splitter>
-          <xul:vbox class="conv-chat" width="150">
+          <xul:vbox class="conv-chat" width="150" xbl:inherits="chat">
             <xul:hbox align="baseline" class="conv-nicklist-header">
               <xul:label class="conv-nicklist-header-label"
                          anonid="participantLabel"

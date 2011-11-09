@@ -39,6 +39,10 @@ conversation {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
 }
 
+.conv-chat:not([chat]) {
+  display: none;
+}
+
 .statusMessage[editable],
 .statusMessageWithDash[editable] {
   cursor: text !important;
