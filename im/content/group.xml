@@ -90,11 +90,7 @@
                                 RDF.GetLiteral("true"), true))
           this.setAttribute("closed", "true");
 
-        contacts.sort(function (a, b) {
-          a = a.displayName.toLowerCase();
-          b = b.displayName.toLowerCase();
-          return a < b ? -1 : a > b ? 1 : 0;
-        }).forEach(this.addContact, this);
+        contacts.sort(this.sortComparator).forEach(this.addContact, this);
 
         let name;
         if (this.tag.id != -1)
@@ -198,30 +194,7 @@
          }
 
          if (aTopic == "contact-display-name-changed") {
-           let contactElt = this.contactsById[aSubject.id];
-           let name = aSubject.displayName.toLowerCase();
-           let index = this.contacts.indexOf(contactElt);
-           if (index == -1) {
-             // Sometimes we get a display-name-changed notification for
-             // an offline contact, if it's not in the list, just ignore it.
-             return;
-           }
-           // See if the position of the contact should be changed.
-           if (index != 0 &&
-               name < this.contacts[index - 1].sortName ||
-               index != this.contacts.length - 1 &&
-               name > this.contacts[index + 1].sortName) {
-             // Check if something prevents us from moving the contact now.
-             if (contactElt.hasAttribute("selected") ||
-                 contactElt.hasAttribute("open"))
-               this._reorderContactLater(contactElt);
-             else {
-               contactElt.removeNode();
-               this.addContact(aSubject);
-             }
-           }
-           else
-             contactElt.sortName = name;
+           this.updateContactPosition(aSubject);
            return;
          }
 
@@ -238,6 +211,22 @@
        </body>
      </method>
 
+     <!-- Takes as input two contact elements (imIContact type) and compares
+          - their nicknames alphabetically (case insensitive). This method
+          - behaves as a callback that Array.sort accepts as a parameter.
+          -->
+     <method name="sortComparator">
+      <parameter name="aContactA"/>
+      <parameter name="aContactB"/>
+      <body>
+      <![CDATA[
+        let a = aContactA.displayName.toLowerCase();
+        let b = aContactB.displayName.toLowerCase();
+        return a.localeCompare(b);
+      ]]>
+      </body>
+     </method>
+
      <method name="addContact">
       <parameter name="aContact"/>
       <body>
@@ -250,14 +239,13 @@
           contactElt.setAttribute("collapsed", "true");
 
         let end = this.contacts.length;
-        let name = aContact.displayName.toLowerCase();
         // Avoid the binary search loop if the contacts were already sorted.
         if (end != 0 &&
-            name < this.contacts[end - 1].sortName) {
+            this.sortComparator(aContact, this.contacts[end - 1]) < 0) {
           let start = 0;
           while (start < end) {
             let middle = start + Math.floor((end - start) / 2);
-            if (name < this.contacts[middle].sortName)
+            if (this.sortComparator(aContact, this.contacts[middle]) < 0)
               end = middle;
             else
               start = middle + 1;
@@ -266,12 +254,41 @@
         var last = end == 0 ? this : this.contacts[end - 1];
         this.parentNode.insertBefore(contactElt, last.nextSibling);
         contactElt.build(aContact, this);
-        contactElt.sortName = name;
         this.contacts.splice(end, 0, contactElt);
         this.contactsById[aContact.id] = contactElt;
 
         if (this.hasAttribute("collapsing"))
           this.removeAttribute("collapsing");
+      ]]>
+      </body>
+     </method>
+
+     <method name="updateContactPosition">
+      <parameter name="aSubject"/>
+      <body>
+      <![CDATA[
+        let contactElt = this.contactsById[aSubject.id];
+        let name = aSubject.displayName.toLowerCase();
+        let index = this.contacts.indexOf(contactElt);
+        if (index == -1) {
+          // Sometimes we get a display-name-changed notification for
+          // an offline contact, if it's not in the list, just ignore it.
+          return;
+        }
+        // See if the position of the contact should be changed.
+        if (index != 0 &&
+            this.sortComparator(contactElt.contact, this.contacts[index - 1].contact) < 0 ||
+            index != this.contacts.length - 1 &&
+            this.sortComparator(contactElt.contact, this.contacts[index + 1].contact) > 0) {
+          // Check if something prevents us from moving the contact now.
+          if (contactElt.hasAttribute("selected") ||
+              contactElt.hasAttribute("open"))
+            this._reorderContactLater(contactElt);
+          else {
+            contactElt.removeNode();
+            this.addContact(aSubject);
+          }
+        }
       ]]>
       </body>
      </method>
