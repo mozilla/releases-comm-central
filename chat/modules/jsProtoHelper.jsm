@@ -604,7 +604,8 @@ ChatRoomFieldValues.prototype = {
   }
 };
 
-// the name getter needs to be implemented
+// the name getter and the getAccount method need to be implemented by
+// protocol plugins.
 const GenericProtocolPrototype = {
   __proto__: ClassInfo("prplIProtocol", "Generic protocol object"),
 
@@ -616,7 +617,7 @@ const GenericProtocolPrototype = {
   get normalizedName() normalize(this.name),
   get iconBaseURI() "chrome://instantbird/skin/prpl-generic/",
 
-  getAccount: function(aKey, aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  getAccount: function(aImAccount) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
   _getOptionDefault: function(aName) {
     if (this.options && this.options.hasOwnProperty(aName))
