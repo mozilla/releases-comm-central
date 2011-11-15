@@ -683,17 +683,16 @@ AccountsService.prototype = {
 
     /* First get a unique id for the new account. */
     let id;
-    let found = true;
-    for (id = 1; found; ++id) {
+    for (id = 1; ; ++id) {
       if (this._accountsById.hasOwnProperty(id))
         continue;
 
       /* id isn't used by a known account, double check it isn't
        already used in the sqlite database. This should never
        happen, except if we have a corrupted profile. */
-      found = Services.contacts.accountIdExists(id);
-      if (found)
-        Services.console.logStringMessage("No account " + id + " but there is some data in the buddy list for an account with this number. Your profile may be corrupted.");
+      if (!Services.contacts.accountIdExists(id))
+        break;
+      Services.console.logStringMessage("No account " + id + " but there is some data in the buddy list for an account with this number. Your profile may be corrupted.");
     }
 
     /* Actually create the new account. */
