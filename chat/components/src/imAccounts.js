@@ -280,7 +280,7 @@ imAccount.prototype = {
 
     let timers =
       Services.prefs.getCharPref("messenger.accounts.reconnectTimer").split(",");
-    let delay = timers[Math.max(this.reconnectAttempt, timers.length - 1)];
+    let delay = timers[Math.min(this.reconnectAttempt, timers.length - 1)];
     let msDelay = parseInt(delay) * 1000;
     ++this.reconnectAttempt;
     this.timeOfNextReconnect = Date.now() + msDelay;
