@@ -46,7 +46,9 @@ function Conversation(aName)
 }
 Conversation.prototype = {
   __proto__: jsProtoHelper.GenericConvIMPrototype,
-  account: {protocol: {name: "Fake Protocol"}, name: "Fake Account"}
+  account: {protocol: {name: "Fake Protocol"},
+            alias: "", name: "Fake Account",
+            statusInfo: Services.core.globalUserStatus}
 };
 
 var previewObserver = {
