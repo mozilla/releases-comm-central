@@ -349,6 +349,8 @@ const GenericMessagePrototype = {
     aConv.notifyObservers(this, "new-text", null);
   },
 
+  color: "",
+
   outgoing: false,
   incoming: false,
   system: false,
