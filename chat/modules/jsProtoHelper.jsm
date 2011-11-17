@@ -140,10 +140,12 @@ const GenericAccountPrototype = {
     this.imAccount.observe(this, "account-disconnecting", aConnectionErrorMessage);
   },
 
+  // Called when the user adds a new buddy from the UI.
   addBuddy: function(aTag, aName) {
     Services.contacts
             .accountBuddyAdded(new AccountBuddy(this, null, aTag, aName));
   },
+  // Called during startup for each of the buddies in the local buddy list.
   loadBuddy: function(aBuddy, aTag) {
    try {
      return new AccountBuddy(this, aBuddy, aTag);
@@ -613,7 +615,7 @@ const GenericProtocolPrototype = {
 
   init: function(aId) {
     if (aId != this.id)
-      throw NS_ERROR_NOT_IMPLEMENTED;
+      throw "Creating an instance of " + aId + " but this object implements " + this.id;
   },
   get id() "prpl-" + this.normalizedName,
   get normalizedName() normalize(this.name),
