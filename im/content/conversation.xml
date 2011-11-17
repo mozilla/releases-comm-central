@@ -546,6 +546,22 @@
           if (completions.length == 0)
             return;
 
+          // If only one of the possible completions is an active nick, take it.
+          let activeNick = null;
+          for each (let c in completions) {
+            if (this.buddies.hasOwnProperty(c) &&
+                !this.buddies[c].hasAttribute("inactive")) {
+              if (!activeNick)
+                activeNick = c;
+              else {
+                activeNick = null;
+                break;
+              }
+            }
+          }
+          if (activeNick)
+            completions = [activeNick];
+
           // Only one possible completion? Apply it! :-)
           // Replace what the user typed as its upper/lowercase may not be correct.
           if (completions.length == 1) {
