@@ -306,7 +306,7 @@ Conversation.prototype = {
     (new Tweet(aTweet, name, text, flags)).conversation = this;
   },
   _ensureParticipantExists: function(aNick) {
-    if (this._participants.hasOwnProperty(aNick))
+    if (hasOwnProperty(this._participants, aNick))
       return;
 
     let chatBuddy = new ChatBuddy(aNick);
@@ -921,7 +921,7 @@ Account.prototype = {
     this.requestBuddyInfo(user.screen_name);
   },
   requestBuddyInfo: function(aBuddyName) {
-    if (!this._userInfo.hasOwnProperty(aBuddyName)) {
+    if (!hasOwnProperty(this._userInfo, aBuddyName)) {
       this.signAndSend("1/users/show.json?screen_name=" + aBuddyName, null,
                        null, this.onRequestedInfoReceived, null, this);
       return;
@@ -957,7 +957,7 @@ Account.prototype = {
 
     let tooltipInfo = [];
     for (let field in fields) {
-      if (userInfo.hasOwnProperty(field) && userInfo[field]) {
+      if (hasOwnProperty(userInfo, field) && userInfo[field]) {
         let value = userInfo[field];
         if (fields[field])
           value = fields[field](value);

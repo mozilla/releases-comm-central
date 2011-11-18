@@ -220,7 +220,7 @@
         if (!aMsg.system && conv.isChat) {
           let name = aMsg.alias || aMsg.who;
           let color;
-          if (this.buddies.hasOwnProperty(name)) {
+          if (this._hasBuddy(name)) {
             let buddy = this.buddies[name];
             color = buddy.color;
             buddy.removeAttribute("inactive");
@@ -549,7 +549,7 @@
           // If only one of the possible completions is an active nick, take it.
           let activeNick = null;
           for each (let c in completions) {
-            if (this.buddies.hasOwnProperty(c) &&
+            if (this._hasBuddy(c) &&
                 !this.buddies[c].hasAttribute("inactive")) {
               if (!activeNick)
                 activeNick = c;
@@ -910,13 +910,24 @@
        </body>
      </method>
 
+     <!-- Test if aBuddyName is known in this.buddies without
+          risking a conflict with an hypothetical hasOwnProperty nick. -->
+     <method name="_hasBuddy">
+       <parameter name="aBuddyName"/>
+       <body>
+       <![CDATA[
+         return Object.prototype.hasOwnProperty.call(this.buddies, aBuddyName);
+       ]]>
+       </body>
+     </method>
+
      <!-- Add a buddy in the visible list of participants -->
      <method name="addBuddy">
        <parameter name="aBuddy"/>
        <body>
        <![CDATA[
          var name = aBuddy.name;
-         if (this.buddies.hasOwnProperty(name))
+         if (this._hasBuddy(name))
            throw "Adding a chat buddy twice?!";
          var item = document.createElement("listitem");
          item.chatBuddy = aBuddy;
@@ -981,10 +992,10 @@
          }
 
          // Is aOldName is not null, then we are renaming the buddy
-         if (!this.buddies.hasOwnProperty(aOldName))
+         if (!this._hasBuddy(aOldName))
            throw "Updating a chat buddy that does not exist?!";
 
-         if (this.buddies.hasOwnProperty(name))
+         if (this._hasBuddy(name))
            throw "Updating a chat buddy to an already existing one?!";
 
          var item = this.buddies[aOldName];
@@ -1003,7 +1014,7 @@
        <parameter name="aName"/>
        <body>
        <![CDATA[
-         if (!this.buddies.hasOwnProperty(aName))
+         if (!this._hasBuddy(aName))
            throw "Cannot remove a buddy that was not in the room";
          var item = this.buddies[aName];
          item.parentNode.removeChild(item);
