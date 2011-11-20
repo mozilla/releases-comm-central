@@ -44,12 +44,12 @@ interface trayITrayIcon : nsISupports {
   /**
    * Associated DOM window
    */
-  [readonly] attribute nsIDOMWindow window;
+  readonly attribute nsIDOMWindow window;
 
-    /**
-     * Window is minimized to tray
-     */
-    [readonly] attribute boolean isMinimized;
+  /**
+   * Window is minimized to tray
+   */
+  readonly attribute boolean isMinimized;
 
   /**
      * Indicates whether icon will be closed if window is restored

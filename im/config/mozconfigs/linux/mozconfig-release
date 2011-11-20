@@ -8,9 +8,10 @@ export CXXFLAGS="-gdwarf-2"
 export MOZ_DEBUG_SYMBOLS=1
 ac_add_options --enable-debug-symbols="-gdwarf-2"
 
-mk_add_options MOZ_MAKE_FLAGS="-j4 CC='ccache gcc' CXX='ccache g++'"
+mk_add_options MOZ_MAKE_FLAGS="-j4"
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj-instantbird
 
+ac_add_options --with-ccache
 ac_add_options --enable-application=instantbird
 ac_add_options --enable-update-channel=release
 ac_add_options --enable-update-packaging

@@ -152,19 +152,12 @@ NS_IMETHODIMP TrayIconImpl::GetWindow(nsIDOMWindow **aWindow)
   NS_ADDREF(*aWindow);
   return NS_OK;
 }
-NS_IMETHODIMP TrayIconImpl::SetWindow(nsIDOMWindow *) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 
 NS_IMETHODIMP TrayIconImpl::GetIsMinimized(PRBool *aIsMinimized)
 {
   NS_ENSURE_ARG_POINTER(aIsMinimized);
   *aIsMinimized = mIsMinimized;
   return NS_OK;
-}
-NS_IMETHODIMP TrayIconImpl::SetIsMinimized(PRBool)
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP TrayIconImpl::GetCloseOnRestore(PRBool *aCloseOnRestore)
