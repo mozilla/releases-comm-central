@@ -631,7 +631,7 @@ var buddyList = {
     while (blistWindows.hasMoreElements()) {
       var win = blistWindows.getNext();
       if (win != window) {
-        win.QueryInterface(Ci.nsIDOMWindowInternal).focus();
+        win.QueryInterface(Ci.nsIDOMWindow).focus();
         window.close();
         return;
       }
