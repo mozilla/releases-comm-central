@@ -508,7 +508,8 @@
 
           let isFirstWord = inputBox.selectionStart == word.length;
           // check if we are completing a command.
-          if (isFirstWord && word[0] == "/") {
+          let completingCommand = isFirstWord && word[0] == "/";
+          if (completingCommand) {
             for each (let cmd in Services.cmd.listCommandsForConversation(this._conv)) {
               // It's possible to have a global and a protocol specific command
               // with the same name. Avoid duplicates in the |completions| array.
@@ -546,21 +547,23 @@
           if (completions.length == 0)
             return;
 
-          // If only one of the possible completions is an active nick, take it.
-          let activeNick = null;
-          for each (let c in completions) {
-            if (this._hasBuddy(c) &&
-                !this.buddies[c].hasAttribute("inactive")) {
-              if (!activeNick)
-                activeNick = c;
-              else {
-                activeNick = null;
-                break;
+          if (this._conv.isChat && !completingCommand) {
+            // If only one of the possible completions is an active nick, take it.
+            let activeNick = null;
+            for each (let c in completions) {
+              if (this._hasBuddy(c) &&
+                  !this.buddies[c].hasAttribute("inactive")) {
+                if (!activeNick)
+                  activeNick = c;
+                else {
+                  activeNick = null;
+                  break;
+                }
               }
             }
+            if (activeNick)
+              completions = [activeNick];
           }
-          if (activeNick)
-            completions = [activeNick];
 
           // Only one possible completion? Apply it! :-)
           // Replace what the user typed as its upper/lowercase may not be correct.
