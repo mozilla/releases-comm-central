@@ -54,7 +54,7 @@ const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-initLogModule("jsProtoHelper");
+initLogModule("jsProtoHelper", this);
 
 function normalize(aString) aString.replace(/[^a-z0-9]/gi, "").toLowerCase()
 

@@ -54,10 +54,10 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-const PURPLE_DEBUG_MISC = 1; // Very verbose (= 'DEBUG')
-const PURPLE_DEBUG_INFO = 2; // Verbose (= 'LOG')
-const PURPLE_DEBUG_WARNING = 3;
-const PURPLE_DEBUG_ERROR = 4;
+const DEBUG_MISC = 1; // Very verbose (= 'DEBUG')
+const DEBUG_INFO = 2; // Verbose (= 'LOG')
+const DEBUG_WARNING = 3;
+const DEBUG_ERROR = 4;
 
 function scriptError(aModule, aLevel, aMessage) {
   // Only continue if we want to see this level of logging.
@@ -66,13 +66,13 @@ function scriptError(aModule, aLevel, aMessage) {
     return;
 
   // Log a debug statement.
-  if (aLevel == PURPLE_DEBUG_INFO && logLevel == PURPLE_DEBUG_INFO) {
+  if (aLevel == DEBUG_INFO && logLevel == DEBUG_INFO) {
     Services.console.logStringMessage(aMessage);
     return;
   }
 
   let flag = Ci.nsIScriptError.warningFlag;
-  if (aLevel >= PURPLE_DEBUG_ERROR)
+  if (aLevel >= DEBUG_ERROR)
     flag = Ci.nsIScriptError.errorFlag;
 
   let scriptError =
@@ -88,12 +88,13 @@ function scriptError(aModule, aLevel, aMessage) {
                    null, flag, "component javascript");
   Services.console.logMessage(scriptError);
 }
-function initLogModule(aModule)
+function initLogModule(aModule, aThis)
 {
-  this.DEBUG = scriptError.bind(this, aModule, PURPLE_DEBUG_MISC);
-  this.LOG   = scriptError.bind(this, aModule, PURPLE_DEBUG_INFO);
-  this.WARN  = scriptError.bind(this, aModule, PURPLE_DEBUG_WARNING);
-  this.ERROR = scriptError.bind(this, aModule, PURPLE_DEBUG_ERROR);
+  aThis = Components.utils.getGlobalForObject(aThis);
+  aThis.DEBUG = scriptError.bind(aThis, aModule, DEBUG_MISC);
+  aThis.LOG   = scriptError.bind(aThis, aModule, DEBUG_INFO);
+  aThis.WARN  = scriptError.bind(aThis, aModule, DEBUG_WARNING);
+  aThis.ERROR = scriptError.bind(aThis, aModule, DEBUG_ERROR);
 }
 
 function setTimeout(aFunction, aDelay)

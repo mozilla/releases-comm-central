@@ -49,7 +49,7 @@ XPCOMUtils.defineLazyGetter(this, "_", function()
 XPCOMUtils.defineLazyGetter(this, "_lang", function()
   l10nHelper("chrome://global/locale/languageNames.properties")
 );
-initLogModule("twitter");
+initLogModule("twitter", this);
 
 function ChatBuddy(aName) {
   this._name = aName;

@@ -46,7 +46,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
-initLogModule("xhr");
+initLogModule("xhr", this);
 
 function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
   var xhr = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
