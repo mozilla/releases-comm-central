@@ -35,14 +35,12 @@
 @BINPATH@/update.locale
 @BINPATH@/updater.ini
 @BINPATH@/dictionaries/*
+@BINPATH@/hyphenation/*
 #ifdef XP_WIN32
-#ifndef WINCE
 @BINPATH@/uninstall/helper.exe
-#endif
 #endif
 
 [xpcom]
-@BINPATH@/dependentlibs.list
 #ifndef MOZ_STATIC_JS
 @BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@
 #endif
@@ -51,22 +49,19 @@
 @BINPATH@/@DLL_PREFIX@xpcom@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@nspr4@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@mozalloc@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@mozutils@DLL_SUFFIX@
 #ifdef XP_MACOSX
 @BINPATH@/XUL
 #else
 @BINPATH@/@DLL_PREFIX@xul@DLL_SUFFIX@
 #endif
-#ifdef MOZ_IPC
 #ifdef XP_MACOSX
 @BINPATH@/@MOZ_CHILD_PROCESS_NAME@.app/
+@BINPATH@/@DLL_PREFIX@plugin_child_interpose@DLL_SUFFIX@
 #else
 @BINPATH@/@MOZ_CHILD_PROCESS_NAME@
 #endif
-#endif
-#ifdef WINCE
-@BINPATH@/mozce_shunt.dll
-#elifdef XP_WIN32
-#ifndef MOZ_MEMORY
+#ifdef XP_WIN32
 #if _MSC_VER == 1400
 @BINPATH@/Microsoft.VC80.CRT.manifest
 @BINPATH@/msvcm80.dll
@@ -81,14 +76,16 @@
 @BINPATH@/msvcp100.dll
 @BINPATH@/msvcr100.dll
 #endif
-#else
-@BINPATH@/mozcrt19.dll
-@BINPATH@/mozcpp19.dll
 #endif
+; ANGLE GLES-on-D3D rendering library
+#ifdef MOZ_ANGLE
+@BINPATH@/libEGL.dll
+@BINPATH@/libGLESv2.dll
+@BINPATH@/@MOZ_D3DX9_DLL@
+@BINPATH@/@MOZ_D3DCOMPILER_DLL@
 #endif
 
 [instantbird]
-; [Base Browser Files]
 #ifndef XP_UNIX
 @BINPATH@/@MOZ_APP_NAME@.exe
 #else
@@ -99,14 +96,14 @@
 #endif
 @BINPATH@/application.ini
 @BINPATH@/platform.ini
-#ifndef XP_OS2
-@BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
+#ifdef XP_OS2
+@BINPATH@/@DLL_PREFIX@mozsqlt3@DLL_SUFFIX@
 #else
-@BINPATH@/mozsqlt3@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
 #endif
 #ifdef XP_UNIX
-@BINPATH@/run-mozilla.sh
 #ifndef XP_MACOSX
+@BINPATH@/run-mozilla.sh
 @BINPATH@/mozilla-xremote-client
 #endif
 #endif
@@ -139,7 +136,6 @@
 @BINPATH@/components/content_canvas.xpt
 @BINPATH@/components/content_htmldoc.xpt
 @BINPATH@/components/content_html.xpt
-@BINPATH@/components/content_xmldoc.xpt
 @BINPATH@/components/content_xslt.xpt
 @BINPATH@/components/content_xtf.xpt
 @BINPATH@/components/cookie.xpt
@@ -154,15 +150,14 @@
 @BINPATH@/components/dom_geolocation.xpt
 @BINPATH@/components/dom_html.xpt
 @BINPATH@/components/dom_indexeddb.xpt
-@BINPATH@/components/dom_offline.xpt
 @BINPATH@/components/dom_json.xpt
+@BINPATH@/components/dom_notification.xpt
+@BINPATH@/components/dom_offline.xpt
 @BINPATH@/components/dom_range.xpt
 @BINPATH@/components/dom_sidebar.xpt
 @BINPATH@/components/dom_storage.xpt
 @BINPATH@/components/dom_stylesheets.xpt
-@BINPATH@/components/dom_threads.xpt
 @BINPATH@/components/dom_traversal.xpt
-@BINPATH@/components/dom_views.xpt
 @BINPATH@/components/dom_xbl.xpt
 @BINPATH@/components/dom_xpath.xpt
 @BINPATH@/components/dom_xul.xpt
@@ -210,7 +205,9 @@
 @BINPATH@/components/necko_socket.xpt
 @BINPATH@/components/necko_strconv.xpt
 @BINPATH@/components/necko_viewsource.xpt
+@BINPATH@/components/necko_websocket.xpt
 @BINPATH@/components/necko_wifi.xpt
+@BINPATH@/components/necko_wyciwyg.xpt
 @BINPATH@/components/necko.xpt
 @BINPATH@/components/loginmgr.xpt
 @BINPATH@/components/parentalcontrols.xpt
@@ -245,7 +242,6 @@
 @BINPATH@/components/urlformatter.xpt
 @BINPATH@/components/webBrowser_core.xpt
 @BINPATH@/components/webbrowserpersist.xpt
-@BINPATH@/components/webshell_idls.xpt
 @BINPATH@/components/widget.xpt
 #ifdef XP_MACOSX
 @BINPATH@/components/widget_cocoa.xpt
@@ -316,7 +312,6 @@
 @BINPATH@/components/toolkitplaces.manifest
 @BINPATH@/components/nsLivemarkService.js
 @BINPATH@/components/nsTaggingService.js
-@BINPATH@/components/nsPlacesDBFlush.js
 @BINPATH@/components/nsPlacesAutoComplete.manifest
 @BINPATH@/components/nsPlacesAutoComplete.js
 @BINPATH@/components/nsPlacesExpiration.js
@@ -557,8 +552,7 @@ bin/libfreebl_32int64_3.so
 @BINPATH@/crashreporter-override.ini
 #endif
 
-; [Extensions]
-;
-#ifdef MOZ_ENABLE_GNOMEVFS
-bin/components/@DLL_PREFIX@nkgnomevfs@DLL_SUFFIX@
+; GNOME hooks
+#ifdef MOZ_ENABLE_GNOME_COMPONENT
+@BINPATH@/components/@DLL_PREFIX@mozgnome@DLL_SUFFIX@
 #endif
