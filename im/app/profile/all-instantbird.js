@@ -264,6 +264,7 @@ pref("general.skins.selectedSkin", "classic/1.0");
 pref("extensions.update.enabled", true);
 pref("extensions.update.interval", 86400);
 pref("extensions.update.url", "https://addons.instantbird.org/services/update.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%");
+pref("extensions.update.autoUpdateDefault", true);
 
 // Preferences for the Get Add-ons pane
 pref("extensions.getAddons.cache.enabled", false);
