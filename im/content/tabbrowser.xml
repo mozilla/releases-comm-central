@@ -1352,16 +1352,18 @@
 
       <constructor>
         <![CDATA[
-          this.mCurrentBrowser = this.mPanelContainer.childNodes[0].browser;
+          this.mCurrentConversation = this.mPanelContainer.firstChild;
+          this.mCurrentBrowser = this.mCurrentConversation.browser;
           this.mCurrentTab = this.mTabContainer.firstChild;
+
           document.addEventListener("keypress", this._keyEventHandler);
 
           var uniqueId = "panel" + Date.now();
-          this.mPanelContainer.childNodes[0].id = uniqueId;
-          this.mTabContainer.childNodes[0].linkedPanel = uniqueId;
-          this.mTabContainer.childNodes[0]._tPos = 0;
-          this.mTabContainer.childNodes[0].linkedConversation = this.mPanelContainer.childNodes[0];
-          this.mTabContainer.childNodes[0].linkedBrowser = this.mPanelContainer.childNodes[0].browser;
+          this.mCurrentConversation.id = uniqueId;
+          this.mCurrentTab.linkedPanel = uniqueId;
+          this.mCurrentTab._tPos = 0;
+          this.mCurrentTab.linkedConversation = this.mCurrentConversation;
+          this.mCurrentTab.linkedBrowser = this.mCurrentBrowser;
 
           // set up the shared autoscroll popup
           this._autoScrollPopup = this.mCurrentBrowser._createAutoScrollPopup();
