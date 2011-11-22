@@ -950,6 +950,13 @@ Buddy.prototype = {
     this._notifyObservers("moved-into-contact");
     return aContact;
   },
+  _hasAccountBuddy: function(aAccountId, aTagId) {
+    for each (let ab in this._accounts) {
+      if (ab.account.numericId == aAccountId && ab.tag.id == aTagId)
+        return true;
+    }
+    return false;
+  },
   getAccountBuddies: function(aAccountBuddyCount) {
     if (aAccountBuddyCount)
       aAccountBuddyCount.value = this._accounts.length;
@@ -977,8 +984,19 @@ Buddy.prototype = {
   // imIStatusInfo implementation
   _preferredAccount: null,
   get preferredAccountBuddy() this._preferredAccount,
-  _isPreferredAccount: function(aAccountBuddy)
-    aAccountBuddy.account.numericId == this._preferredAccount.account.numericId,
+  _isPreferredAccount: function(aAccountBuddy) {
+    if (aAccountBuddy.account.numericId != this._preferredAccount.account.numericId)
+      return false;
+
+    // In case we have more than one accountBuddy for the same buddy
+    // and account (possible if the buddy is in several groups on the
+    // server), the protocol plugin may be broken and not update all
+    // instances, so ensure we handle the notifications on the instance
+    // that is currently being notified of a change:
+    this._preferredAccount = aAccountBuddy;
+
+    return true;
+  },
   set preferredAccount(aAccount) {
     let oldDisplayName =
       this._preferredAccount && this._preferredAccount.displayName;
@@ -1211,10 +1229,19 @@ ContactsService.prototype = {
 
     statement = DBConn.createStatement("SELECT account_id, buddy_id, tag_id FROM account_buddy");
     while (statement.executeStep()) {
-      let account =
-        Services.accounts.getAccountByNumericId(statement.getInt32(0));
-      let buddy = BuddiesById[statement.getInt32(1)];
-      let tag = TagsById[statement.getInt32(2)];
+      let accountId = statement.getInt32(0);
+      let buddyId = statement.getInt32(1);
+      let tagId = statement.getInt32(2);
+      let buddy = BuddiesById[buddyId];
+      if (buddy._hasAccountBuddy(accountId, tagId)) {
+        Cu.reportError("Corrupted database: duplicated account_buddy entry: " +
+                       "account_id = " + accountId + ", buddy_id = " + buddyId +
+                       ", tag_id = " + tagId);
+        continue;
+      }
+
+      let account = Services.accounts.getAccountByNumericId(accountId);
+      let tag = TagsById[tagId];
       try {
         let ab = account.loadBuddy(buddy, tag);
         if (ab)
@@ -1277,14 +1304,24 @@ ContactsService.prototype = {
     // Initialize the 'buddy' field of the imIAccountBuddy instance.
     aAccountBuddy.buddy = buddy;
 
+    // Ensure we aren't storing a duplicate entry.
+    let accountId = account.numericId;
+    let tagId = aAccountBuddy.tag.id;
+    if (buddy._hasAccountBuddy(accountId, tagId)) {
+      Cu.reportError("Attempting to store a duplicate account buddy " +
+                     normalizedName + ", account id = " + accountId +
+                     ", tag id = " + tagId);
+      return;
+    }
+
     // Store the new account buddy.
     let statement =
       DBConn.createStatement("INSERT INTO account_buddy " +
                              "(account_id, buddy_id, tag_id) " +
                              "VALUES(:accountId, :buddyId, :tagId)");
-    statement.params.accountId = account.numericId;
+    statement.params.accountId = accountId;
     statement.params.buddyId = buddy.id;
-    statement.params.tagId = aAccountBuddy.tag.id;
+    statement.params.tagId = tagId;
     statement.execute();
 
     // Fire the notifications.
