@@ -534,6 +534,8 @@
               firstWordSuffix = ": ";
 
             completions = Object.keys(this.buddies);
+            let outgoingNick = this._conv.nick;
+            completions = completions.filter(function(c) c != outgoingNick);
           }
 
           // Keep only the completions that share |word| as a prefix.
