@@ -218,7 +218,7 @@
 
         // Ugly hack... :(
         if (!aMsg.system && conv.isChat) {
-          let name = aMsg.alias || aMsg.who;
+          let name = aMsg.who;
           let color;
           if (this._hasBuddy(name)) {
             let buddy = this.buddies[name];
