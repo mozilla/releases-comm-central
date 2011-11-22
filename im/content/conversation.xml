@@ -578,7 +578,7 @@
           // We have several possible completions, attempt to find a common prefix.
           completions.sort();
           let i = 0;
-          let maxLength = Math.max(completions[0].length,
+          let maxLength = Math.min(completions[0].length,
                                    completions[completions.length - 1].length);
           while (i < maxLength &&
                  completions[0][i] == completions[completions.length - 1][i])
