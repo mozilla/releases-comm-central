@@ -21,6 +21,7 @@
 #include "nsIWebProgressListener.h"
 #include "nsIMsgCompose.h"
 #include "nsIDocShell.h"
+#include "nsIPermissionManager.h"
 
 /* DBFCFDF0-4489-4faa-8122-190FD1EFA16C */
 #define NS_MSGCONTENTPOLICY_CID \
@@ -51,6 +52,7 @@ protected:
   bool     mBlockRemoteImages;
   bool     mAllowPlugins;
   nsCString mTrustedMailDomains;
+  nsCOMPtr<nsIPermissionManager> mPermissionManager;
 
   bool IsTrustedDomain(nsIURI * aContentLocation);
   bool IsSafeRequestingLocation(nsIURI *aRequestingLocation);

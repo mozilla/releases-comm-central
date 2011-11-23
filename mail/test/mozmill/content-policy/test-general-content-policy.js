@@ -30,6 +30,9 @@ Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
 var elib = {};
 Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
 
+Components.utils.import('resource://gre/modules/Services.jsm');
+Components.utils.import("resource:///modules/mailServices.js");
+
 var folder = null;
 var gMsgNo = 0;
 
@@ -258,6 +261,42 @@ function checkAllowFeedMsg(test) {
   ++gMsgNo;
 }
 
+/**
+ * Check remote content is not blocked for a sender with permissions.
+ */
+function checkAllowForSenderWithPerms(test) {
+  let msgDbHdr = addToFolder(test.type + " priv sender test message " + gMsgNo,
+                             msgBodyStart + test.body + msgBodyEnd, folder);
+
+  let addresses = {};
+  MailServices.headerParser.parseHeadersWithArray(msgDbHdr.author, addresses, {}, {});
+  let authorEmailAddress = addresses.value[0];
+
+  let uri = Services.io.newURI("mailto:" + authorEmailAddress, null, null);
+  Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+  assert_true(Services.perms.testPermission(uri, "image") ==
+              Services.perms.ALLOW_ACTION);
+
+  // select the newly created message
+  let msgHdr = select_click_row(gMsgNo);
+
+  assert_equals(msgDbHdr, msgHdr);
+  assert_selected_and_displayed(gMsgNo);
+
+  // Now check that the content hasn't been blocked
+  if (!test.checkForAllowed(mozmill.getMail3PaneController()
+           .window.content.document.getElementById("testelement")))
+    throw new Error(test.type + " has been unexpectedly blocked for sender=" +
+                    authorEmailAddress);
+
+  // Clean up after ourselves, and make sure that worked as expected.
+  Services.perms.remove(authorEmailAddress, "image");
+  assert_true(Services.perms.testPermission(uri, "image") ==
+              Services.perms.UNKNOWN_ACTION);
+
+  ++gMsgNo;
+}
+
 function test_generalContentPolicy() {
   let folderTab = mc.tabmail.currentTabInfo;
   be_in_folder(folder);
@@ -296,5 +335,8 @@ function test_generalContentPolicy() {
 
     // Check allowed in a feed message
     checkAllowFeedMsg(TESTS[i]);
+
+    // Check per sender privileges.
+    checkAllowForSenderWithPerms(TESTS[i]);
   }
 }

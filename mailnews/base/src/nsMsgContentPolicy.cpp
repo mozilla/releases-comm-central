@@ -78,12 +78,17 @@ nsresult nsMsgContentPolicy::Init()
   prefInternal->GetCharPref(kTrustedDomains, getter_Copies(mTrustedMailDomains));
   prefInternal->GetBoolPref(kBlockRemoteImages, &mBlockRemoteImages);
 
+  // Grab a handle on the PermissionManager service for managing allowed remote
+  // content senders.
+  mPermissionManager = do_GetService(NS_PERMISSIONMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   return NS_OK;
 }
 
 /** 
- * returns true if the sender referenced by aMsgHdr is in one one of our local
- * address books and the user has explicitly allowed remote content for the sender
+ * @returns true if the sender referenced by aMsgHdr is explicitly allowed to
+ *          load remote images according to the PermissionManager
  */
 bool
 nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(nsIMsgDBHdr *aMsgHdr)
@@ -101,50 +106,20 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(nsIMsgDBHdr *aMsgHdr)
   if (emailAddress.IsEmpty())
     return false;
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1",
-                                                   &rv);
+  nsCOMPtr<nsIIOService> ios = do_GetService("@mozilla.org/network/io-service;1", &rv);
+  NS_ENSURE_SUCCESS(rv, false);
+  nsCOMPtr<nsIURI> mailURI;
+  emailAddress.Insert("mailto:", 0);
+  rv = ios->NewURI(emailAddress, nullptr, nullptr, getter_AddRefs(mailURI));
   NS_ENSURE_SUCCESS(rv, false);
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = abManager->GetDirectories(getter_AddRefs(enumerator));
+  // check with permission manager
+  uint32_t permission = 0;
+  rv = mPermissionManager->TestPermission(mailURI, "image", &permission);
   NS_ENSURE_SUCCESS(rv, false);
 
-  nsCOMPtr<nsISupports> supports;
-  nsCOMPtr<nsIAbDirectory> directory;
-  nsCOMPtr<nsIAbCard> cardForAddress;
-  bool hasMore;
-
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore &&
-         !cardForAddress)
-  {
-    rv = enumerator->GetNext(getter_AddRefs(supports));
-    NS_ENSURE_SUCCESS(rv, false);
-    directory = do_QueryInterface(supports);
-    if (directory)
-    {
-      bool readOnly;
-      rv = directory->GetReadOnly(&readOnly);
-      NS_ENSURE_SUCCESS(rv, false);
-      // Read-only ABs, don't support the remote content property, so skip
-      // this one.
-      if (readOnly)
-        continue;
-
-      rv = directory->CardForEmailAddress(emailAddress, getter_AddRefs(cardForAddress));
-      if (NS_FAILED(rv) && rv != NS_ERROR_NOT_IMPLEMENTED)
-        return false;
-    }
-  }
-  
-  // If we found a card from the sender, check if the remote content property
-  // is set to allow.
-  if (!cardForAddress)
-    return false;
-
-  bool allowForSender;
-  cardForAddress->GetPropertyAsBool(kAllowRemoteContentProperty,
-                                    &allowForSender);
-  return allowForSender;
+  // Only return true if the permission manager has an explicit allow
+  return (permission == nsIPermissionManager::ALLOW_ACTION);
 }
 
 /**
@@ -457,7 +432,7 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr *aMsgHdr,
   // Case #3, the domain for the remote image is in our white list
   bool trustedDomain = IsTrustedDomain(aContentLocation);
 
-  // Case 4 is expensive as we're looking up items in the address book. So if
+  // Case 4 means looking up items in the permissions database. So if
   // either of the two previous items means we load the data, just do it.
   if (isRSS || remoteContentPolicy == kAllowRemoteContent || trustedDomain)
     return nsIContentPolicy::ACCEPT;
