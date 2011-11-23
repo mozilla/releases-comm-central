@@ -103,15 +103,10 @@
        browser.addEventListener("dblclick", this.browserDblClick.bind(this));
        Services.obs.addObserver(this, "conversation-loaded", false);
 
-       try {
-         this.findbar.browser = browser;
-       } catch(e) {
-         // Do nothing. The exception is expected and harmless.
-         // We call the setter of the browser property of the findbar before
-         // the constructor of the findbar is executed.
-         // Don't worry, the constructor of the findbar will set again the
-         // browser property with a setTimeout call.
-       }
+       // Avoid the browser property setter as the findbar constructor
+       // hasn't been executed yet. The setter will be called by the
+       // constructor in a setTimeout to setup the proper event listeners.
+       this.findbar._browser = browser;
       ]]>
      </constructor>
 
