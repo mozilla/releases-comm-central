@@ -107,6 +107,7 @@
       </body>
      </method>
 
+     <field name="_showOffline">false</field>
      <property name="showOffline">
        <getter>
          <![CDATA[
