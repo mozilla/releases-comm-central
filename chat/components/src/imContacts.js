@@ -1232,6 +1232,14 @@ ContactsService.prototype = {
       let accountId = statement.getInt32(0);
       let buddyId = statement.getInt32(1);
       let tagId = statement.getInt32(2);
+
+      if (!BuddiesById.hasOwnProperty(buddyId)) {
+        Cu.reportError("Corrupted database: account_buddy entry for account " +
+                       accountId + " and tag " + tagId +
+                       " references unknown buddy with id " + buddyId);
+        continue;
+      }
+
       let buddy = BuddiesById[buddyId];
       if (buddy._hasAccountBuddy(accountId, tagId)) {
         Cu.reportError("Corrupted database: duplicated account_buddy entry: " +
