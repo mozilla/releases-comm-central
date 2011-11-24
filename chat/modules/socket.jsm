@@ -59,6 +59,7 @@
  *   .listen(port)
  *   .send(String data)
  *   .isAlive()
+ *   .startTLS()
  * High-level properties:
  *   XXX Need to include properties here
  *
@@ -68,6 +69,7 @@
  *   onConnectionHeard()
  *   onConnectionTimedOut()
  *   onConnectionReset()
+ *   onConnectionClosed()
  *   onDataReceived(data)
  *   onBinaryDataReceived(ArrayBuffer data, int length)
  *   onTransportStatus(nsISocketTransport transport, nsresult status,
@@ -118,7 +120,7 @@ const Socket = {
 
   // Set this for non-binary mode to automatically parse the stream into chunks
   // separated by delimiter.
-  delimiter: null,
+  delimiter: "",
 
   // Set this for binary mode to split after a certain number of bytes have
   // been received.
@@ -134,8 +136,8 @@ const Socket = {
   // Flags used by nsIProxyService when resolving a proxy.
   proxyFlags: Ci.nsIProtocolProxyService.RESOLVE_PREFER_SOCKS_PROXY,
 
-  // Time for nsISocketTransport to continue trying before reporting a failure,
-  // 0 is forever.
+  // Time (in seconds) for nsISocketTransport to continue trying before
+  // reporting a failure, 0 is forever.
   connectTimeout: 0,
   readWriteTimeout: 0,
 
@@ -226,7 +228,7 @@ const Socket = {
 
   // Send data on the output stream.
   sendData: function(/* string */ aData) {
-    this.log("Send data: <" + aData + ">");
+    this.log("Sending:\n" + aData + "\n");
 
     try {
       this._outputStream.write(aData + this.delimiter,
@@ -257,6 +259,10 @@ const Socket = {
     if (!this.transport)
       return false;
     return this.transport.isAlive();
+  },
+
+  startTLS: function() {
+    this.transport.securityInfo.QueryInterface(Ci.nsISSLSocketControl).StartTLS();
   },
 
   /*
@@ -353,6 +359,10 @@ const Socket = {
     this.log("onStopRequest (" + aStatus + ")");
     if (aStatus == NS_ERROR_NET_RESET)
       this.onConnectionReset();
+    else if (aStatus == NS_ERROR_NET_TIMEOUT)
+      this.onConnectionTimedOut();
+    else
+      this.onConnectionClosed();
   },
 
   /*
@@ -406,7 +416,7 @@ const Socket = {
     }
     if (this.readWriteTimeout) {
       this.transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
-                                this.connectTimeout);
+                                this.readWriteTimeout);
     }
 
     this.transport.setEventSink(this, Services.tm.currentThread);
@@ -442,7 +452,7 @@ const Socket = {
                                     false); // Do not close when done
     this.pump.asyncRead(this, this);
 
-    // Notify that connection is finished.
+    // Notify that the connection has been established.
     this.onConnection();
   },
 
@@ -458,11 +468,13 @@ const Socket = {
   onConnectionHeard: function() { },
   // Called when a connection times out.
   onConnectionTimedOut: function() { },
-  // Called when a socket request's network is reset
+  // Called when a socket request's network is reset.
   onConnectionReset: function() { },
+  // Called when the other end has closed the connection.
+  onConnectionClosed: function() { },
 
   // Called when ASCII data is available.
-  onDataReceived: function(/*string */ aData) { },
+  onDataReceived: function(/* string */ aData) { },
 
   // Called when binary data is available.
   onBinaryDataReceived: function(/* ArrayBuffer */ aData) { },
@@ -470,5 +482,18 @@ const Socket = {
   /*
    * nsITransportEventSink methods
    */
-  onTransportStatus: function(aTransport, aStatus, aProgress, aProgressmax) { }
+  onTransportStatus: function(aTransport, aStatus, aProgress, aProgressmax) { },
+
+  _interfaces: [Ci.nsIServerSocketListener, Ci.nsIStreamListener,
+                Ci.nsIRequestObserver, Ci.nsITransportEventSink,
+                Ci.nsIBadCertListener2, Ci.nsISSLErrorListener,
+                Ci.nsIProtocolProxyCallback],
+  QueryInterface: function(iid) {
+    if (iid.equals(Ci.nsISupports) ||
+        this._interfaces.some(function(i) i.equals(iid)))
+      return this;
+
+    throw Cr.NS_ERROR_NO_INTERFACE;
+  },
+  getInterface: function(iid) this.QueryInterface(iid)
 };
