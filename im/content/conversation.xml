@@ -1229,6 +1229,9 @@
          else if (this._conv.contact)
            this.getElt("conv-top-info").allowTargetChange();
 
+         if (this.tab)
+           this.tab.setAttribute("label", this._conv.title);
+
          if (!("Status" in window))
            Components.utils.import("resource:///modules/imStatusUtils.jsm");
          this.updateConvStatus();
@@ -1472,6 +1475,9 @@
        <parameter name="aSave"/>
        <body>
        <![CDATA[
+         if (!this.hasAttribute("editing"))
+           return;
+
          let elt = this.topic;
          if (aSave) {
            // apply the new topic only if it is different from the current one

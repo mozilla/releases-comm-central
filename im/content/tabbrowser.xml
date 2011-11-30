@@ -222,8 +222,8 @@
             var docElement = this.ownerDocument.documentElement;
             var sep = docElement.getAttribute("titlemenuseparator");
 
-            if (this.mCurrentConversation.conv)
-              docTitle = this.mCurrentConversation.conv.title;
+            if (this.mCurrentTab)
+              docTitle = this.mCurrentTab.getAttribute("label");
 
             if (!docTitle)
               docTitle = docElement.getAttribute("titledefault");
@@ -263,7 +263,7 @@
         <body>
           <![CDATA[
             var newConversation = this.getConversationAtIndex(this.mTabContainer.selectedIndex);
-            if (this.mCurrentConversation == newConversation && !aForceUpdate)
+            if (!aForceUpdate && this.mCurrentConversation == newConversation)
               return;
 
             this.mCurrentConversation = newConversation;
@@ -422,7 +422,6 @@
               t = this.mTabContainer.firstChild;
             else
               t = this.mTabContainer.addTab();
-            t.setAttribute("label", aConv.title);
             conv.tab = t;
             conv.conv = aConv;
 
