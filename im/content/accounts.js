@@ -61,6 +61,7 @@ var gAccountManager = {
   // it is impossible to perform disconnect() and connect()
   _disabledDelay: 500,
   disableTimerID: 0,
+  _connectedLabelInterval: 0,
   load: function am_load() {
     this.accountList = document.getElementById("accountlist");
     let defaultID;
@@ -90,7 +91,7 @@ var gAccountManager = {
     this.setAutoLoginNotification();
 
     this.accountList.addEventListener("keypress", this.onKeyPress, true);
-    window.addEventListener("unload", this.unload);
+    window.addEventListener("unload", this.unload.bind(this));
     this._connectedLabelInterval = setInterval(this.updateConnectedLabels, 60000);
   },
   unload: function am_unload() {
@@ -175,7 +176,7 @@ var gAccountManager = {
       var selectedIndex = this.accountList.selectedIndex;
       // Prevent errors if the timer is active and the account deleted
       clearTimeout(this.disableTimerID);
-      delete this.disableTimerID;
+      this.disableTimerID = 0;
       this.accountList.removeChild(elt);
       var count = this.accountList.getRowCount();
       if (!count) {
@@ -253,7 +254,7 @@ var gAccountManager = {
     clearTimeout(this.disableTimerID);
     this.accountList.focus();
     this.disableTimerID = setTimeout(function(aItem) {
-      delete gAccountManager.disableTimerID;
+      gAccountManager.disableTimerID = 0;
       gAccountManager.disableCommandItems();
       aItem.buttons.setFocus();
     }, this._disabledDelay, this.accountList.selectedItem);
@@ -371,7 +372,7 @@ var gAccountManager = {
   },
   onAccountSelect: function am_onAccountSelect() {
     clearTimeout(this.disableTimerID);
-    delete this.disableTimerID;
+    this.disableTimerID = 0;
     this.disableCommandItems();
     // Horrible hack here too, see Bug 177
     setTimeout(function(aThis) {
@@ -596,7 +597,7 @@ let gAMDragAndDrop = {
     this.checkForMagicScroll(aEvent.clientY);
 
     // The hovered element has changed, change the border too
-    if (this._accountElement && this._accountElement != accountElement)
+    if (("_accountElement" in this) && this._accountElement != accountElement)
       this.cleanBorders();
 
     if (!aSession.canDrop) {
@@ -614,7 +615,8 @@ let gAMDragAndDrop = {
       accountElement.setAttribute("dragover", "up");
     }
     else {
-      if (this._accountElement == accountElement &&
+      if (("_accountElement" in this) &&
+          this._accountElement == accountElement &&
           accountElement.getAttribute("dragover") == "up")
         this.cleanBorders();
       accountElement.setAttribute("dragover", "down");
