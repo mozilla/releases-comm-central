@@ -382,6 +382,7 @@
        <![CDATA[
          if (aSubject == this.buddy &&
              (aTopic == "account-buddy-status-changed" ||
+              aTopic == "account-buddy-status-detail-changed" ||
               aTopic == "account-buddy-display-name-changed" ||
               aTopic == "account-buddy-icon-changed"))
            this.updateTooltipFromBuddy(this.buddy, this.elt);

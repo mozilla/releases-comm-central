@@ -477,6 +477,7 @@ imAccount.prototype = {
   save: function() { SavePrefTimer.saveNow(); },
 
   get HTMLEnabled() this._ensurePrplAccount.HTMLEnabled,
+  get HTMLEscapePlainText() this._ensurePrplAccount.HTMLEscapePlainText,
   get noBackgroundColors() this._ensurePrplAccount.noBackgroundColors,
   get autoResponses() this._ensurePrplAccount.autoResponses,
   get singleFormatting() this._ensurePrplAccount.singleFormatting,

@@ -209,9 +209,7 @@ var account = {
     if (this.prefs.prefHasUserValue(aOpt.name))
       return this.prefs.getCharPref(aOpt.name);
 
-    var list = aOpt.getList().QueryInterface(Ci.nsISimpleEnumerator);
-    return list.hasMoreElements() &&
-           list.getNext().value || "";
+    return aOpt.getListDefault();
   },
 
   populateProtoSpecificBox: function account_populate() {

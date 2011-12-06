@@ -59,6 +59,7 @@ interface purpleIPref: nsISupports {
   AUTF8String getString();
   // enumerator of purpleIKeyValuePair
   nsISimpleEnumerator getList();
+  AUTF8String getListDefault();
 };
 
 [scriptable, uuid(8fc16882-ba8e-432a-999f-0d4dc104234b)]

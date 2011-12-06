@@ -115,7 +115,6 @@ Action.prototype = {
 
 function Conversation(aAccount)
 {
-  this._account = aAccount;
   this._init(aAccount);
   this._ensureParticipantExists(aAccount.name);
 }
@@ -328,7 +327,6 @@ function Account(aProtocol, aImAccount)
 Account.prototype = {
   __proto__: GenericAccountPrototype,
 
-  get HTMLEnabled() false,
   get maxMessageLength() 140,
 
   consumerKey: "TSuyS1ieRAkB3qWv8yyEw",

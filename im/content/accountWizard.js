@@ -329,6 +329,7 @@ var accountWizard = {
         break;
       case opt.typeList:
         box.appendChild(this.createMenulist(opt.getList(), text, name));
+        document.getElementById(name).value = opt.getListDefault();
         break;
       default:
         throw "unknown preference type " + opt.type;
@@ -420,10 +421,7 @@ var accountWizard = {
           this.prefs.push({opt: opt, name: name, value: val});
         break;
       case opt.typeList:
-        var list = opt.getList().QueryInterface(Ci.nsISimpleEnumerator);
-        var defaultVal = list.hasMoreElements() &&
-          list.getNext().value || "";
-        if (val != defaultVal)
+        if (val != opt.getListDefault())
           this.prefs.push({opt: opt, name: name, value: val});
         break;
       default:

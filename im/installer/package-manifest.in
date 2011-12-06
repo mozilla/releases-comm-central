@@ -428,11 +428,14 @@
 @BINPATH@/components/ibCommandLineHandler.manifest
 @BINPATH@/components/ibStatusCommandLineHandler.js
 @BINPATH@/components/ibStatusCommandLineHandler.manifest
-@BINPATH@/components/facebookOverrideProtocol.js
-@BINPATH@/components/gtalkOverrideProtocol.js
-@BINPATH@/components/overrideProtocols.manifest
+@BINPATH@/components/facebook.js
+@BINPATH@/components/facebook.manifest
+@BINPATH@/components/gtalk.js
+@BINPATH@/components/gtalk.manifest
 @BINPATH@/components/twitter.js
 @BINPATH@/components/twitter.manifest
+@BINPATH@/components/xmpp.js
+@BINPATH@/components/xmpp.manifest
 @BINPATH@/components/smileProtocolHandler.js
 @BINPATH@/components/smileProtocolHandler.manifest
 @BINPATH@/components/logger.js

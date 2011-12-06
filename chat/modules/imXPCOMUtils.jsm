@@ -65,6 +65,8 @@ function scriptError(aModule, aLevel, aMessage) {
   if (logLevel > aLevel)
     return;
 
+  dump(aModule + ": " + aMessage + "\n");
+
   // Log a debug statement.
   if (aLevel == DEBUG_INFO && logLevel == DEBUG_INFO) {
     Services.console.logStringMessage(aMessage);
@@ -169,11 +171,17 @@ function l10nHelper(aChromeURL)
 {
   let bundle = Services.strings.createBundle(aChromeURL);
   return function (aStringId) {
-    if (arguments.length == 1)
-      return bundle.GetStringFromName(aStringId);
-    return bundle.formatStringFromName(aStringId,
-                                       Array.prototype.slice.call(arguments, 1),
-                                       arguments.length - 1);
+    try {
+      if (arguments.length == 1)
+        return bundle.GetStringFromName(aStringId);
+      return bundle.formatStringFromName(aStringId,
+                                         Array.prototype.slice.call(arguments, 1),
+                                         arguments.length - 1);
+    } catch (e) {
+      Cu.reportError(e);
+      dump("Failed to get " + aStringId + "\n");
+      return aStringId;
+    }
   };
 }
 

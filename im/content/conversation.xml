@@ -352,7 +352,7 @@
           this._conv.sendMsg(msg);
         }
         else
-          this._conv.sendMsg(msg);
+          this._conv.sendMsg(account.HTMLEscapePlainText ? msg : aMsg);
         // reset the textbox to its original size
         this.resetInput();
       ]]>

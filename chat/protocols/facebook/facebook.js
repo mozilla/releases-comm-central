@@ -11,12 +11,11 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is the Instantbird messenging client, released
- * 2009.
+ * The Original Code is Instantbird.
  *
  * The Initial Developer of the Original Code is
- * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2009
+ * Florian Quèze <florian@queze.net>.
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -39,49 +38,48 @@ const {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
+Cu.import("resource:///modules/xmpp.jsm");
+Cu.import("resource:///modules/xmpp-session.jsm");
 
-function UsernameSplit(aBase, aDefaultValue)
-{
-  this.base = aBase;
-  this.defaultValue = aDefaultValue;
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://purple/locale/facebook.properties")
+);
+
+function FacebookAccount(aProtoInstance, aImAccount) {
+  this._init(aProtoInstance, aImAccount);
 }
-UsernameSplit.prototype = {
-  __proto__: ClassInfo("purpleIUsernameSplit", "username split object"),
+FacebookAccount.prototype = {
+  __proto__: XMPPAccountPrototype,
+  get canJoinChat() false,
+  connect: function() {
+    if (this.name.indexOf("@") == -1)
+      this._jid = this._parseJID(this.name + "@chat.facebook.com/instantbird");
+    else {
+      this._jid = this._parseJID(this.name);
+      if (this._jid.domain != "chat.facebook.com") {
+        // We can't use this.onError because this._connection doesn't exist.
+        this.reportDisconnecting(Ci.prplIAccount.ERROR_INVALID_USERNAME,
+                                 _("connection.error.useUsernameNotEmailAddress"));
+        this.reportDisconnected();
+        return;
+      }
+    }
 
-  get reverse() this.base.reverse,
-  get separator() this.base.separator,
-  get label() this.base.label
+    this._connection = new XMPPSession("chat.facebook.com", 5222,
+                                       "opportunistic_tls", this._jid,
+                                       this.imAccount.password, this);
+  }
+};
+
+function FacebookProtocol() {
 }
-
-function facebookProtocol() { }
-facebookProtocol.prototype = {
-  __proto__: ForwardProtocolPrototype,
+FacebookProtocol.prototype = {
+  __proto__: GenericProtocolPrototype,
   get normalizedName() "facebook",
   get name() "Facebook Chat",
   get iconBaseURI() "chrome://prpl-facebook/skin/",
-  get baseId() "prpl-jabber",
-
-  getAccount: function(aImAccount) {
-    let account = ForwardProtocolPrototype.getAccount.call(this, aImAccount);
-    account.__defineGetter__("canJoinChat", function() false);
-    aImAccount.setString("connection_security", "opportunistic_tls");
-    return account;
-  },
-  getOptions: function() EmptyEnumerator,
-  getUsernameSplit: function() {
-    var splits = this.base.getUsernameSplit();
-    let newSplits = [];
-    while (splits.hasMoreElements()) {
-      let split = splits.getNext();
-      if (split.defaultValue != "gmail.com")
-        newSplits.push(split);
-      else
-        newSplits.push(new UsernameSplit(split, "chat.facebook.com"));
-    }
-    return new nsSimpleEnumerator(newSplits);
-  },
-
-  classID: Components.ID("{61bc3528-df53-4481-a61a-74c3a2e8c9fd}")
+  getAccount: function(aImAccount) new FacebookAccount(this, aImAccount),
+  classID: Components.ID("{1d1d0bc5-610c-472f-b2cb-4b89857d80dc}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([facebookProtocol]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([FacebookProtocol]);

@@ -111,8 +111,10 @@ jsTestProtocol.prototype = {
     "text": {label: "Text option",    default: "foo"},
     "bool": {label: "Boolean option", default: true},
     "int" : {label: "Integer option", default: 42},
-    "list": {label: "Select option",  default: {"option1": "Default option",
-                                                "option2": "Other option"}}
+    "list": {label: "Select option",  default: "option2",
+             listValues: {"option1": "First option",
+                          "option2": "Default option",
+                          "option3": "Other option"}}
   },
   usernameSplits: [
     {label: "Server", separator: "@", defaultValue: "default.server",

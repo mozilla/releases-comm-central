@@ -14,8 +14,8 @@
 # The Original Code is mozilla.org code.
 #
 # The Initial Developer of the Original Code is
-#   Florian QUEZE <florian@instantbird.org>
-# Portions created by the Initial Developer are Copyright (C) 2008
+# Florian Quèze <florian@queze.net>.
+# Portions created by the Initial Developer are Copyright (C) 2011
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
@@ -34,32 +34,16 @@
 #
 # ***** END LICENSE BLOCK *****
 
-DEPTH		= ..
+DEPTH		= ../../..
 topsrcdir	= @top_srcdir@
 srcdir		= @srcdir@
 VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-PROTOCOLS = \
-		facebook \
-		gtalk \
-		twitter \
-		xmpp \
-		$(NULL)
-
-ifdef MOZ_DEBUG
-PROTOCOLS += jsTest
-endif
-
-PARALLEL_DIRS	= \
-		components/public \
-		components/src \
-		modules \
-		content \
-		themes \
-		locales \
-		$(foreach proto,$(PROTOCOLS),protocols/$(proto)) \
+EXTRA_COMPONENTS = \
+		facebook.js \
+		facebook.manifest \
 		$(NULL)
 
 include $(topsrcdir)/config/rules.mk

@@ -41,8 +41,10 @@ chat/components/src/Makefile
 chat/content/Makefile
 chat/locales/Makefile
 chat/modules/Makefile
+chat/protocols/facebook/Makefile
+chat/protocols/gtalk/Makefile
 chat/protocols/jsTest/Makefile
-chat/protocols/overrides/Makefile
 chat/protocols/twitter/Makefile
+chat/protocols/xmpp/Makefile
 chat/themes/Makefile
 "

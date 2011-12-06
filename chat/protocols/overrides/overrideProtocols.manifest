@@ -1,6 +1,0 @@
-component {ad8a6454-2f5a-40c2-86ca-30062408125e} gtalkOverrideProtocol.js
-contract @instantbird.org/purple/gtalk;1 {ad8a6454-2f5a-40c2-86ca-30062408125e}
-category im-protocol-plugin prpl-gtalk @instantbird.org/purple/gtalk;1
-component {61bc3528-df53-4481-a61a-74c3a2e8c9fd} facebookOverrideProtocol.js
-contract @instantbird.org/purple/facebook;1 {61bc3528-df53-4481-a61a-74c3a2e8c9fd}
-category im-protocol-plugin prpl-facebook @instantbird.org/purple/facebook;1

@@ -4,5 +4,7 @@
 % locale purple @AB_CD@ %locale/@AB_CD@/purple/
 	locale/@AB_CD@/purple/commands.properties (%commands.properties)
 	locale/@AB_CD@/purple/conversations.properties (%conversations.properties)
+	locale/@AB_CD@/purple/facebook.properties	(%facebook.properties)
 	locale/@AB_CD@/purple/status.properties (%status.properties)
 	locale/@AB_CD@/purple/twitter.properties	(%twitter.properties)
+	locale/@AB_CD@/purple/xmpp.properties	(%xmpp.properties)

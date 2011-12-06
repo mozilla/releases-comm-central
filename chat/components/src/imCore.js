@@ -158,7 +158,7 @@ UserStatus.prototype = {
   _idleStatusText: "",
   _idleStatusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
   _checkIdle: function() {
-    let idleTime = this._idleService.idleTime / 1000;
+    let idleTime = Math.floor(this._idleService.idleTime / 1000);
     let idle = this._timeBeforeIdle && idleTime >= this._timeBeforeIdle;
     if (idle == this._idle)
       return;
@@ -207,7 +207,7 @@ UserStatus.prototype = {
       // Get the extension (remove trailing dots - invalid Windows extension).
       let ext = aIconFile.leafName.replace(/.*(\.[a-z0-9]+)\.*/i, "$1");
       // newName = userIcon-<timestamp(now)>.<aIconFile.extension>
-      newName = "userIcon-" + (Date.now() / 1000) + ext;
+      newName = "userIcon-" + Math.floor(Date.now() / 1000) + ext;
 
       // Copy the new icon file to newName in the profile folder.
       aIconFile.copyTo(folder, newName);
@@ -353,12 +353,20 @@ CoreService.prototype = {
       proto = Cc[cid].createInstance(Ci.prplIProtocol);
     } catch (e) {
       // This is a real error, the protocol is registered and failed to init.
-      Cu.reportError(e);
+      let error = "failed to create an instance of " + cid + ": " + e;
+      dump(error + "\n");
+      Cu.reportError(error);
     }
     if (!proto)
       return null;
 
-    proto.init(aPrplId);
+    try {
+      proto.init(aPrplId);
+    } catch (e) {
+      Cu.reportError(e);
+      return null;
+    }
+
     this._protos[aPrplId] = proto;
     return proto;
   },

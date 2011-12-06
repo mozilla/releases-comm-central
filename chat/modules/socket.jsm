@@ -113,6 +113,9 @@ const ServerSocket =
 const InputStreamPump =
   Components.Constructor("@mozilla.org/network/input-stream-pump;1",
                          "nsIInputStreamPump", "init");
+const ScriptableUnicodeConverter =
+  Components.Constructor("@mozilla.org/intl/scriptableunicodeconverter",
+                         "nsIScriptableUnicodeConverter");
 
 const Socket = {
   // Use this to use binary mode for the
@@ -233,6 +236,19 @@ const Socket = {
     try {
       this._outputStream.write(aData + this.delimiter,
                                aData.length + this.delimiter.length);
+    } catch(e) {
+      Cu.reportError(e);
+    }
+  },
+
+  sendString: function(aString, aEncoding) {
+    this.log("Sending:\n" + aString + "\n");
+
+    let converter = new ScriptableUnicodeConverter();
+    converter.charset = aEncoding || "UTF-8";
+    try {
+      let stream = converter.convertToInputStream(aString);
+      this._outputStream.writeFrom(stream, stream.available());
     } catch(e) {
       Cu.reportError(e);
     }
@@ -377,6 +393,28 @@ const Socket = {
   notifySSLError: function(aSocketInfo, aError, aTargetSite) true,
 
   /*
+   * nsITransportEventSink methods
+   */
+  onTransportStatus: function(aTransport, aStatus, aProgress, aProgressmax) {
+    const nsITransportEventSinkStatus = {
+         0x804b0003: "STATUS_RESOLVING",
+         0x804b000b: "STATUS_RESOLVED",
+         0x804b0007: "STATUS_CONNECTING_TO",
+         0x804b0004: "STATUS_CONNECTED_TO",
+         0x804b0005: "STATUS_SENDING_TO",
+         0x804b000a: "STATUS_WAITING_FOR",
+         0x804b0006: "STATUS_RECEIVING_FROM"
+    };
+    let status = nsITransportEventSinkStatus[aStatus];
+    this.log("onTransportStatus(" + (status || ("0x" + aStatus.toString(16))) +")");
+
+    if (status == "STATUS_CONNECTED_TO") {
+      // Notify that the connection has been established.
+      this.onConnection();
+    }
+  },
+
+  /*
    *****************************************************************************
    ****************************** Private methods ******************************
    *****************************************************************************
@@ -402,7 +440,7 @@ const Socket = {
     this._openStreams();
   },
 
-  // Open the incoming and outgoing sockets.
+  // Open the incoming and outgoing streams, and init the nsISocketTransport.
   _openStreams: function() {
     // Security notification callbacks (must support nsIBadCertListener2 and
     // nsISSLErrorListener for SSL connections, and possibly other interfaces).
@@ -451,9 +489,6 @@ const Socket = {
                                     0, // Use default segment length
                                     false); // Do not close when done
     this.pump.asyncRead(this, this);
-
-    // Notify that the connection has been established.
-    this.onConnection();
   },
 
   /*
@@ -479,11 +514,7 @@ const Socket = {
   // Called when binary data is available.
   onBinaryDataReceived: function(/* ArrayBuffer */ aData) { },
 
-  /*
-   * nsITransportEventSink methods
-   */
-  onTransportStatus: function(aTransport, aStatus, aProgress, aProgressmax) { },
-
+  /* QueryInterface and nsIInterfaceRequestor implementations */
   _interfaces: [Ci.nsIServerSocketListener, Ci.nsIStreamListener,
                 Ci.nsIRequestObserver, Ci.nsITransportEventSink,
                 Ci.nsIBadCertListener2, Ci.nsISSLErrorListener,

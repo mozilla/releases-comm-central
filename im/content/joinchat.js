@@ -71,9 +71,9 @@ var joinChat = {
     joinChat._account = acc;
 
     let protoId = acc.protocol.id;
-    document.getElementById("autojoin").visible = 
-      protoId == "prpl-irc" || protoId == "prpl-jabber" ||
-      protoId == "prpl-gtalk";
+    document.getElementById("autojoin").hidden =
+      !(protoId == "prpl-irc" || protoId == "prpl-jabber" ||
+      protoId == "prpl-gtalk");
 
     for (let field in getIter(acc.getChatRoomFields())) {
       let row = document.createElement("row");
@@ -153,7 +153,9 @@ var joinChat = {
       Conversations.focusConversation(conv);
 
     if (document.getElementById("autojoin").checked) {
-      if (protoId != "prpl-irc")
+      if (protoId == "prpl-gtalk")
+        name += "/" + values.getValue("nick");
+      else if (protoId != "prpl-irc")
         name += "/" + values.getValue("handle");
 
       let prefBranch =

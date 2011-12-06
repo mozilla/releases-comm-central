@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is the Instantbird messenging client, released
- * 2009.
+ * The Original Code is Instantbird.
  *
  * The Initial Developer of the Original Code is
- * Florian QUEZE <florian@instantbird.org>.
- * Portions created by the Initial Developer are Copyright (C) 2009
+ * Varuna JAYASIRI <vpjayasiri@gmail.com>.
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *   Florian Quèze <florian@queze.net>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -39,27 +39,54 @@ const Cu = Components.utils;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
+Cu.import("resource:///modules/xmpp.jsm");
+Cu.import("resource:///modules/xmpp-session.jsm");
 
-function gtalkProtocol() {
-  this.registerCommands();
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://purple/locale/xmpp.properties")
+);
+
+function GTalkAccount(aProtoInstance, aImAccount) {
+  this._init(aProtoInstance, aImAccount);
 }
-gtalkProtocol.prototype = {
-  __proto__: ForwardProtocolPrototype,
+GTalkAccount.prototype = {
+  __proto__: XMPPAccountPrototype,
+  connect: function() {
+    this._jid = this._parseJID(this.name);
+
+    // For the resource, if the user has edited the option to a non
+    // empty value, use that.
+    if (this.prefs.prefHasUserValue("resource")) {
+      let resource = this.getString("resource");
+      if (resource)
+        this._jid.resource = resource;
+    }
+    // Otherwise, if the username doesn't contain a resource, use the
+    // value of the resource option (it will be the default value).
+    // If we set an empty resource, XMPPSession will fallback to "instantbird"
+    if (!this._jid.resource)
+      this._jid.resource = this.getString("resource");
+
+    this._connection =
+      new XMPPSession("talk.google.com", 443,
+                      "require_tls", this._jid,
+                      this.imAccount.password, this);
+  }
+};
+
+function GTalkProtocol() {
+}
+GTalkProtocol.prototype = {
+  __proto__: GenericProtocolPrototype,
   get normalizedName() "gtalk",
   get name() "Google Talk",
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
-  get baseId() "prpl-jabber",
-
-  getAccount: function(aImAccount) {
-    let account = ForwardProtocolPrototype.getAccount.call(this, aImAccount);
-    let connectServer =
-      /@g(oogle)?mail.com(\/|$)/.test(aImAccount.name) ? "" : "talk.google.com";
-    aImAccount.setString("connect_server", connectServer);
-    return account;
+  getAccount: function(aImAccount) new GTalkAccount(this, aImAccount),
+  options: {
+    resource: {get label() _("options.resource"), default: "instantbird"}
   },
-  getOptions: function() EmptyEnumerator,
-
-  classID: Components.ID("{ad8a6454-2f5a-40c2-86ca-30062408125e}")
+  get chatHasTopic() true,
+  classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([gtalkProtocol]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([GTalkProtocol]);

@@ -198,7 +198,8 @@ const GenericAccountPrototype = {
   get proxyInfo() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
   set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
-  get HTMLEnabled() true,
+  get HTMLEnabled() false,
+  get HTMLEscapePlainText() false,
   get noBackgroundColors() true,
   get autoResponses() false,
   get singleFormatting() false,
@@ -217,12 +218,17 @@ const GenericAccountBuddyPrototype = {
       throw "aUserName is required when aBuddy is null";
 
     this._tag = aTag;
-    this._account = aAccount.imAccount;
+    this._account = aAccount;
     this._buddy = aBuddy;
+    if (aBuddy) {
+      let displayName = aBuddy.displayName;
+      if (displayName != aUserName)
+        this._serverAlias = displayName;
+    }
     this._userName = aUserName;
   },
 
-  get account() this._account,
+  get account() this._account.imAccount,
   set buddy(aBuddy) {
     if (this._buddy)
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
@@ -384,7 +390,7 @@ const GenericConversationPrototype = {
   flags: Ci.nsIClassInfo.DOM_OBJECT,
 
   _init: function(aAccount, aName) {
-    this.account = aAccount.imAccount;
+    this._account = aAccount;
     this._name = aName;
     this._observers = [];
     Services.conversations.addConversation(this);
@@ -425,10 +431,10 @@ const GenericConversationPrototype = {
     (new Message(aWho, aText, aProperties)).conversation = this;
   },
 
+  get account() this._account.imAccount,
   get name() this._name,
   get normalizedName() normalize(this.name),
-  get title() this.name,
-  account: null
+  get title() this.name
 };
 
 const GenericConvIMPrototype = {
@@ -531,15 +537,46 @@ function TooltipInfo(aLabel, aValue)
 }
 TooltipInfo.prototype = ClassInfo("purpleITooltipInfo", "generic tooltip info");
 
-function purplePref(aName, aLabel, aType, aDefaultValue, aMasked) {
+/* aOption is an object containing:
+ *  - label: localized text to display (recommended: use a getter with _)
+ *  - default: the default value for this option. The type of the
+ *      option will be determined based on the type of the default value.
+ *      If the default value is a string, the option will be of type
+ *      list if listValues has been provided. In that case the default
+ *      value should be one of the listed values.
+ *  - [optional] listValues: only if this option can only take a list of
+ *      predefined values. This is an object of the form:
+ *        {value1: localizedLabel, value2: ...}.
+ *  - [optional] masked: boolean, if true the UI shouldn't display the value.
+ *      This could typically be used for password field.
+ *      Warning: The UI currently doesn't support this.
+ */
+function purplePref(aName, aOption) {
   this.name = aName; // Preference name
-  this.label = aLabel; // Text to display
-  this.type = aType;
-  this._defaultValue = aDefaultValue;
-  this.masked = !!aMasked; // Obscured from view, ensure boolean
+  this.label = aOption.label; // Text to display
+
+  if (aOption.default === undefined || aOption.default === null)
+    throw "A default value for the option is required to determine its type.";
+  this._defaultValue = aOption.default;
+
+  const types = {boolean: "Bool", string: "String", number: "Int"};
+  let type = types[typeof aOption.default];
+  if (!type)
+    throw "Invalid option type";
+
+  if (type == "String" && ("listValues" in aOption)) {
+    type = "List";
+    this._listValues = aOption.listValues;
+  }
+  this.type = Ci.purpleIPref["type" + type];
+
+  if ("masked" in aOption && aOption.masked)
+    this.masked = true;
 }
 purplePref.prototype = {
   __proto__: ClassInfo("purpleIPref", "generic account option preference"),
+
+  masked: false,
 
   // Default value
   getBool: function() this._defaultValue,
@@ -547,15 +584,16 @@ purplePref.prototype = {
   getString: function() this._defaultValue,
   getList: function() {
     // Convert a JavaScript object map {"value 1": "label 1", ...}
-    let keys = Object.keys(this._defaultValue);
+    let keys = Object.keys(this._listValues);
     if (!keys.length)
       return EmptyEnumerator;
 
     return new nsSimpleEnumerator(
       keys.map(function(key) new purpleKeyValuePair(this[key], key),
-               this._defaultValue)
+               this._listValues)
     );
-  }
+  },
+  getListDefault: function() this._defaultValue
 };
 
 function purpleKeyValuePair(aName, aValue) {
@@ -632,19 +670,9 @@ const GenericProtocolPrototype = {
     if (!this.options)
       return EmptyEnumerator;
 
-    const types =
-      {boolean: "Bool", string: "String", number: "Int", object: "List"};
-
     let purplePrefs = [];
-    for (let optionName in this.options) {
-      let option = this.options[optionName];
-      if (!((typeof option.default) in types))
-        throw "Invalid type for preference: " + optionName + ".";
-
-      let type = Ci.purpleIPref["type" + types[typeof option.default]];
-      purplePrefs.push(new purplePref(optionName, option.label, type,
-                                      option.default, option.masked));
-    }
+    for (let [name, option] in Iterator(this.options))
+      purplePrefs.push(new purplePref(name, option));
     return new nsSimpleEnumerator(purplePrefs);
   },
   getUsernameSplit: function() {
