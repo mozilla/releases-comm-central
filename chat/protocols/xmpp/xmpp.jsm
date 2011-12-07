@@ -415,8 +415,7 @@ const XMPPAccountBuddyPrototype = {
       }
 
       let status = aStanza.getElement(["status"]);
-      if (status)
-        status = status.innerText;
+      status = status ? status.innerText : "";
 
       let priority = aStanza.getElement(["priority"]);
       priority = priority ? parseInt(priority.innerText, 10) : 0;
