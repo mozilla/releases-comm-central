@@ -280,13 +280,13 @@
        <![CDATA[
          while (aTooltipInfo.hasMoreElements()) {
            var elt =
-             aTooltipInfo.getNext().QueryInterface(Ci.purpleITooltipInfo);
+             aTooltipInfo.getNext().QueryInterface(Ci.prplITooltipInfo);
            switch (elt.type) {
-             case Ci.purpleITooltipInfo.pair:
-             case Ci.purpleITooltipInfo.sectionHeader:
+             case Ci.prplITooltipInfo.pair:
+             case Ci.prplITooltipInfo.sectionHeader:
                this.addRow(elt.label, elt.value);
                break;
-             case Ci.purpleITooltipInfo.sectionBreak:
+             case Ci.prplITooltipInfo.sectionBreak:
                this.addSeparator();
                break;
            }

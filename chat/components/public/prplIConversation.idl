@@ -50,9 +50,9 @@ interface nsIDOMDocument;
  */
 
 [scriptable, uuid(74fca337-b8e7-4e5d-81cd-8aba3dba9208)]
-interface purpleIConversation: nsISupports {
+interface prplIConversation: nsISupports {
 
-  /* Indicate if this conversation implements purpleIConvIM or purpleIConvChat */
+  /* Indicate if this conversation implements prplIConvIM or prplIConvChat */
   readonly attribute boolean isChat;
 
   /* The account used for this conversation */
@@ -92,11 +92,11 @@ interface purpleIConversation: nsISupports {
   void removeObserver(in nsIObserver aObserver);
 
   /* Observers will be all receive new-text notifications.
-     aSubject will contain the message (purpleIMessage) */
+     aSubject will contain the message (prplIMessage) */
 };
 
 [scriptable, uuid(0c072a80-103a-4992-b249-8e442b5f0d46)]
-interface purpleIConvIM: purpleIConversation {
+interface prplIConvIM: prplIConversation {
 
   /* The buddy at the remote end of the conversation */
   readonly attribute imIAccountBuddy buddy;
@@ -116,9 +116,9 @@ interface purpleIConvIM: purpleIConversation {
 };
 
 [scriptable, uuid(c7f11466-f479-4f12-a581-b99713b8ecc0)]
-interface purpleIConvChat: purpleIConversation {
+interface prplIConvChat: prplIConversation {
 
-  /* Get an nsISimpleEnumerator of purpleIConvChatBuddy objects:
+  /* Get an nsISimpleEnumerator of prplIConvChatBuddy objects:
      The list of people participating in this chat */
   nsISimpleEnumerator getParticipants();
 
@@ -146,9 +146,9 @@ interface purpleIConvChat: purpleIConversation {
      chat-buddy-remove and chat-update-topic notifications.
 
      aSubject will be of type:
-       nsISimpleEnumerator of purpleIConvChatBuddy for chat-buddy-add,
+       nsISimpleEnumerator of prplIConvChatBuddy for chat-buddy-add,
        nsISimpleEnumerator of nsISupportsString for chat-buddy-remove,
-       purpleIConvChatBuddy for chat-buddy-update,
+       prplIConvChatBuddy for chat-buddy-update,
        null for chat-update-topic.
 
      aData will contain the old nick for chat-buddy-update if the name
@@ -158,7 +158,7 @@ interface purpleIConvChat: purpleIConversation {
 
 /* This represents a participant in a chat room */
 [scriptable, uuid(33f6ef81-1d23-484e-b4e0-14fffa0c4392)]
-interface purpleIConvChatBuddy: nsISupports {
+interface prplIConvChatBuddy: nsISupports {
 
   /* The name of the buddy */
   readonly attribute AUTF8String name;

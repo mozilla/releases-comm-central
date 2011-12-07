@@ -94,9 +94,9 @@ var joinChat = {
       let val = defaultValues.getValue(field.identifier);
       if (val)
         textbox.setAttribute("value", val);
-      if (field.type == Ci.purpleIChatRoomField.TYPE_PASSWORD)
+      if (field.type == Ci.prplIChatRoomField.TYPE_PASSWORD)
         textbox.setAttribute("type", "password");
-      else if (field.type == Ci.purpleIChatRoomField.TYPE_INT) {
+      else if (field.type == Ci.prplIChatRoomField.TYPE_INT) {
         textbox.setAttribute("type", "number");
         textbox.setAttribute("min", field.min);
         textbox.setAttribute("max", field.max);

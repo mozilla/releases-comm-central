@@ -43,7 +43,7 @@
  */
 
 [scriptable, uuid(e781563f-9088-4a96-93e3-4fb6f5ce6a77)]
-interface purpleIPref: nsISupports {
+interface prplIPref: nsISupports {
   const short typeBool   = 1;
   const short typeInt    = 2;
   const short typeString = 3;
@@ -57,13 +57,13 @@ interface purpleIPref: nsISupports {
   boolean     getBool();
   long        getInt();
   AUTF8String getString();
-  // enumerator of purpleIKeyValuePair
+  // enumerator of prplIKeyValuePair
   nsISimpleEnumerator getList();
   AUTF8String getListDefault();
 };
 
 [scriptable, uuid(8fc16882-ba8e-432a-999f-0d4dc104234b)]
-interface purpleIKeyValuePair: nsISupports {
+interface prplIKeyValuePair: nsISupports {
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String value;
 };

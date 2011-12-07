@@ -109,7 +109,7 @@ function Action(aLabel, aAction, aTweet)
   this._tweet = aTweet;
 }
 Action.prototype = {
-  __proto__: ClassInfo("purpleIMessageAction", "generic message action object"),
+  __proto__: ClassInfo("prplIMessageAction", "generic message action object"),
   get run() this._action.bind(this._tweet)
 };
 
@@ -808,7 +808,7 @@ Account.prototype = {
         aWebProgress.addProgressListener(this._listener,
                                          Ci.nsIWebProgress.NOTIFY_ALL);
       },
-      QueryInterface: XPCOMUtils.generateQI([Ci.purpleIRequestBrowser])
+      QueryInterface: XPCOMUtils.generateQI([Ci.prplIRequestBrowser])
     };
     Services.obs.notifyObservers(this._browserRequest, "browser-request", null);
   },

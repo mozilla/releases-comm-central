@@ -332,7 +332,7 @@ function AccountBuddy(aAccount, aBuddy, aTag, aUserName) {
 AccountBuddy.prototype = GenericAccountBuddyPrototype;
 
 const GenericMessagePrototype = {
-  __proto__: ClassInfo("purpleIMessage", "generic message object"),
+  __proto__: ClassInfo("prplIMessage", "generic message object"),
   flags: Ci.nsIClassInfo.DOM_OBJECT,
 
   _lastId: 0,
@@ -386,7 +386,7 @@ Message.prototype = GenericMessagePrototype;
 
 
 const GenericConversationPrototype = {
-  __proto__: ClassInfo("purpleIConversation", "generic conversation object"),
+  __proto__: ClassInfo("prplIConversation", "generic conversation object"),
   flags: Ci.nsIClassInfo.DOM_OBJECT,
 
   _init: function(aAccount, aName) {
@@ -439,14 +439,14 @@ const GenericConversationPrototype = {
 
 const GenericConvIMPrototype = {
   __proto__: GenericConversationPrototype,
-  _interfaces: [Ci.purpleIConversation, Ci.purpleIConvIM],
+  _interfaces: [Ci.prplIConversation, Ci.prplIConvIM],
   classDescription: "generic ConvIM object",
 
   updateTyping: function(aState) {
     if (aState == this.typingState)
       return;
 
-    if (aState == Ci.purpleIConvIM.NOT_TYPING)
+    if (aState == Ci.prplIConvIM.NOT_TYPING)
       delete this.typingState;
     else
       this.typingState = aState;
@@ -455,12 +455,12 @@ const GenericConvIMPrototype = {
 
   get isChat() false,
   buddy: null,
-  typingState: Ci.purpleIConvIM.NOT_TYPING
+  typingState: Ci.prplIConvIM.NOT_TYPING
 };
 
 const GenericConvChatPrototype = {
   __proto__: GenericConversationPrototype,
-  _interfaces: [Ci.purpleIConversation, Ci.purpleIConvChat],
+  _interfaces: [Ci.prplIConversation, Ci.prplIConvChat],
   classDescription: "generic ConvChat object",
 
   _nick: null,
@@ -505,7 +505,7 @@ const GenericConvChatPrototype = {
 };
 
 const GenericConvChatBuddyPrototype = {
-  __proto__: ClassInfo("purpleIConvChatBuddy", "generic ConvChatBuddy object"),
+  __proto__: ClassInfo("prplIConvChatBuddy", "generic ConvChatBuddy object"),
 
   _name: "",
   get name() this._name,
@@ -524,18 +524,18 @@ const GenericConvChatBuddyPrototype = {
 function TooltipInfo(aLabel, aValue)
 {
   if (aLabel === undefined)
-    this.type = Ci.purpleITooltipInfo.sectionBreak;
+    this.type = Ci.prplITooltipInfo.sectionBreak;
   else {
     this.label = aLabel;
     if (aValue === undefined)
-      this.type = Ci.purpleITooltipInfo.sectionHeader;
+      this.type = Ci.prplITooltipInfo.sectionHeader;
     else {
-      this.type = Ci.purpleITooltipInfo.pair;
+      this.type = Ci.prplITooltipInfo.pair;
       this.value = aValue;
     }
   }
 }
-TooltipInfo.prototype = ClassInfo("purpleITooltipInfo", "generic tooltip info");
+TooltipInfo.prototype = ClassInfo("prplITooltipInfo", "generic tooltip info");
 
 /* aOption is an object containing:
  *  - label: localized text to display (recommended: use a getter with _)
@@ -568,13 +568,13 @@ function purplePref(aName, aOption) {
     type = "List";
     this._listValues = aOption.listValues;
   }
-  this.type = Ci.purpleIPref["type" + type];
+  this.type = Ci.prplIPref["type" + type];
 
   if ("masked" in aOption && aOption.masked)
     this.masked = true;
 }
 purplePref.prototype = {
-  __proto__: ClassInfo("purpleIPref", "generic account option preference"),
+  __proto__: ClassInfo("prplIPref", "generic account option preference"),
 
   masked: false,
 
@@ -601,13 +601,13 @@ function purpleKeyValuePair(aName, aValue) {
   this.value = aValue;
 }
 purpleKeyValuePair.prototype =
-  ClassInfo("purpleIKeyValuePair", "generic Key Value Pair");
+  ClassInfo("prplIKeyValuePair", "generic Key Value Pair");
 
 function UsernameSplit(aValues) {
   this._values = aValues;
 }
 UsernameSplit.prototype = {
-  __proto__: ClassInfo("purpleIUsernameSplit", "username split object"),
+  __proto__: ClassInfo("prplIUsernameSplit", "username split object"),
 
   get label() this._values.label,
   get separator() this._values.separator,
@@ -628,16 +628,16 @@ function ChatRoomField(aIdentifier, aField) {
   }
   else if (aField.isPassword)
     type = "PASSWORD";
-  this.type = Ci.purpleIChatRoomField["TYPE_" + type];
+  this.type = Ci.prplIChatRoomField["TYPE_" + type];
 }
 ChatRoomField.prototype =
-  ClassInfo("purpleIChatRoomField", "ChatRoomField object");
+  ClassInfo("prplIChatRoomField", "ChatRoomField object");
 
 function ChatRoomFieldValues(aMap) {
   this.values = aMap;
 }
 ChatRoomFieldValues.prototype = {
-  __proto__: ClassInfo("purpleIChatRoomFieldValues", "ChatRoomFieldValues"),
+  __proto__: ClassInfo("prplIChatRoomFieldValues", "ChatRoomFieldValues"),
 
   getValue: function(aIdentifier)
     this.values.hasOwnProperty(aIdentifier) ? this.values[aIdentifier] : null,

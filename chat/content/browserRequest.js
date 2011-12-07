@@ -150,14 +150,14 @@ function cancelRequest()
 function reportUserClosed()
 {
   let request = window.arguments[0];
-  request.QueryInterface(Components.interfaces.purpleIRequestBrowser);
+  request.QueryInterface(Components.interfaces.prplIRequestBrowser);
   request.cancelled();
 }
 
 function loadRequestedUrl()
 {
   let request = window.arguments[0];
-  request.QueryInterface(Components.interfaces.purpleIRequestBrowser);
+  request.QueryInterface(Components.interfaces.prplIRequestBrowser);
   document.getElementById("headerMessage").textContent = request.promptText;
   let account = request.account;
   document.getElementById("headerLabel").value =

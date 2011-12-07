@@ -55,7 +55,7 @@ function UIConversation(aPurpleConversation)
   this._observers = [];
   this._messages = [];
   this.changeTargetTo(aPurpleConversation);
-  let iface = Ci["purpleIConv" + (aPurpleConversation.isChat ? "Chat" : "IM")];
+  let iface = Ci["prplIConv" + (aPurpleConversation.isChat ? "Chat" : "IM")];
   this._interfaces = this._interfaces.concat(iface);
   let contact = this.contact;
   if (contact) {
@@ -68,7 +68,7 @@ function UIConversation(aPurpleConversation)
 }
 
 UIConversation.prototype = {
-  __proto__: ClassInfo(["imIConversation", "purpleIConversation", "nsIObserver"],
+  __proto__: ClassInfo(["imIConversation", "prplIConversation", "nsIObserver"],
                        "UI conversation"),
   _observedContact: null,
   get contact() {
@@ -264,7 +264,7 @@ UIConversation.prototype = {
     if (aTargetId != this._currentTargetId &&
         (aTopic == "new-text" ||
          (aTopic == "update-typing" &&
-          this._purpleConv[aTargetId].typingState == Ci.purpleIConvIM.TYPING)))
+          this._purpleConv[aTargetId].typingState == Ci.prplIConvIM.TYPING)))
       this.target = this._purpleConv[aTargetId];
     if (aTopic == "new-text")
       Services.obs.notifyObservers(aSubject, aTopic, aData);
@@ -276,7 +276,7 @@ UIConversation.prototype = {
     (new Message("system", aText, flags)).conversation = this;
   },
 
-  // purpleIConversation
+  // prplIConversation
   get isChat() this.target.isChat,
   get account() this.target.account,
   get name() this.target.name,
@@ -317,7 +317,7 @@ UIConversation.prototype = {
     this._notifyUnreadCountChanged();
   },
 
-  // purpleIConvIM
+  // prplIConvIM
   get buddy() this.target.buddy,
   get typingState() this.target.typingState,
   sendTyping: function(aLength) { this.target.sendTyping(aLength); },

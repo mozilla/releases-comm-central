@@ -86,7 +86,7 @@ function MUCParticipant(aNick, aName, aStanza)
   this.stanza = aStanza;
 }
 MUCParticipant.prototype = {
-  __proto__: ClassInfo("purpleIConvChatBuddy", "XMPP ConvChatBuddy object"),
+  __proto__: ClassInfo("prplIConvChatBuddy", "XMPP ConvChatBuddy object"),
 
   buddy: false,
   get alias() this.name,
@@ -693,11 +693,11 @@ const XMPPAccountPrototype = {
     if (state) {
       DEBUG(state);
       if (state == "active")
-        this._conv[norm].updateTyping(Ci.purpleIConvIM.NOT_TYPING);
+        this._conv[norm].updateTyping(Ci.prplIConvIM.NOT_TYPING);
       else if (state == "composing")
-        this._conv[norm].updateTyping(Ci.purpleIConvIM.TYPING);
+        this._conv[norm].updateTyping(Ci.prplIConvIM.TYPING);
       else if (state == "paused")
-        this._conv[norm].updateTyping(Ci.purpleIConvIM.TYPED);
+        this._conv[norm].updateTyping(Ci.prplIConvIM.TYPED);
     }
     else
       this._conv[norm].supportChatStateNotifications = false;

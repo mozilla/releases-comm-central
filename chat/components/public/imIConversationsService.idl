@@ -35,13 +35,13 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
-#include "purpleIConversation.idl"
+#include "prplIConversation.idl"
 #include "imIContactsService.idl"
 
-interface purpleIMessage;
+interface prplIMessage;
 
 [scriptable, uuid(a09faf46-bb9d-402f-b460-89f8d7827ff1)]
-interface imIConversation: purpleIConversation {
+interface imIConversation: prplIConversation {
   // Will be null for MUCs and IMs from people not in the contacts list.
   readonly attribute imIContact contact;
 
@@ -49,7 +49,7 @@ interface imIConversation: purpleIConversation {
   // Note: this will not be logged.
   void systemMessage(in AUTF8String aMessage, [optional] in boolean aIsError);
 
-  attribute purpleIConversation target;
+  attribute prplIConversation target;
 
   // Number of unread messages (all messages, including system
   // messages are counted).
@@ -72,7 +72,7 @@ interface imIConversation: purpleIConversation {
 
   // Get an array of all messages of the conversation.
   void getMessages([optional] out unsigned long messageCount,
-                   [retval, array, size_is(messageCount)] out purpleIMessage messages);
+                   [retval, array, size_is(messageCount)] out prplIMessage messages);
 };
 
 [scriptable, uuid(984e182c-d395-4fba-ba6e-cc80c71f57bf)]
@@ -82,17 +82,17 @@ interface imIConversationsService: nsISupports {
 
   // register a conversation. This will create a unique id for the
   // conversation and set it.
-  void addConversation(in purpleIConversation aConversation);
-  void removeConversation(in purpleIConversation aConversation);
+  void addConversation(in prplIConversation aConversation);
+  void removeConversation(in prplIConversation aConversation);
 
   void getUIConversations([optional] out unsigned long conversationCount,
                           [retval, array, size_is(conversationCount)] out imIConversation conversations);
-  imIConversation getUIConversation(in purpleIConversation aConversation);
+  imIConversation getUIConversation(in prplIConversation aConversation);
   imIConversation getUIConversationByContactId(in long aId);
 
   nsISimpleEnumerator getConversations();
-  purpleIConversation getConversationById(in unsigned long aId);
-  purpleIConversation getConversationByNameAndAccount(in AUTF8String aName,
+  prplIConversation getConversationById(in unsigned long aId);
+  prplIConversation getConversationByNameAndAccount(in AUTF8String aName,
                                                       in imIAccount aAccount,
                                                       in boolean aIsChat);
 };

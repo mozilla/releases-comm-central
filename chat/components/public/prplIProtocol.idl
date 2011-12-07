@@ -54,10 +54,10 @@ interface prplIProtocol: nsISupports {
   // icon.png icon32.png and icon48.png
   readonly attribute AUTF8String iconBaseURI;
 
-  // returns an enumerator of purpleIPref
+  // returns an enumerator of prplIPref
   nsISimpleEnumerator getOptions();
 
-  // returns an enumerator of purpleIUsernameSplit
+  // returns an enumerator of prplIUsernameSplit
   nsISimpleEnumerator getUsernameSplit();
 
   // descriptive text to put in the username input box when it is empty
@@ -122,7 +122,7 @@ interface prplIProtocol: nsISupports {
 };
 
 [scriptable, uuid(20c4971a-f7c2-4781-8e85-69fee7b83a3d)]
-interface purpleIUsernameSplit: nsISupports {
+interface prplIUsernameSplit: nsISupports {
   readonly attribute AUTF8String label;
   readonly attribute AUTF8String defaultValue;
   readonly attribute char separator;

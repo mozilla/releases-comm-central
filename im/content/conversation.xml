@@ -1113,12 +1113,12 @@
           this._statusText = "";
 
           var name = this._conv.title.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
-          if (typingState == Ci.purpleIConvIM.TYPING) {
+          if (typingState == Ci.prplIConvIM.TYPING) {
             this.tab.setAttribute("typing", "true");
             this._statusText = this.bundle.formatStringFromName("isTyping",
                                                                 [name], 1);
           }
-          else if (typingState == Ci.purpleIConvIM.TYPED) {
+          else if (typingState == Ci.prplIConvIM.TYPED) {
             this.tab.setAttribute("typed", "true");
             this._statusText = this.bundle.formatStringFromName("hasStoppedTyping",
                                                                 [name], 1);

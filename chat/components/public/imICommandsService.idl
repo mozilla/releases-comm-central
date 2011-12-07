@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
-interface purpleIConversation;
+interface prplIConversation;
 
 [scriptable, uuid(dae17fae-0d04-4d89-a817-637ef433383f)]
 interface imICommand: nsISupports {
@@ -69,7 +69,7 @@ interface imICommand: nsISupports {
   // The leading slash, the command name and the following space are not included
   // in the aMessage parameter.
   boolean run(in AUTF8String aMessage,
-              [optional] in purpleIConversation aConversation);
+              [optional] in prplIConversation aConversation);
 };
 
 [scriptable, uuid(467709a0-0bed-4f44-9bdc-13f78b9eaeba)]
@@ -89,7 +89,7 @@ interface imICommandsService: nsISupports {
                          [optional] in AUTF8String aPrplId);
 
   void listCommandsForConversation(
-    [optional] in purpleIConversation aConversation,
+    [optional] in prplIConversation aConversation,
     [optional] out unsigned long commandCount,
     [retval, array, size_is(commandCount)] out imICommand commands);
 
@@ -101,7 +101,7 @@ interface imICommandsService: nsISupports {
   // The aConversation parameters is required to execute protocol specific
   // commands. Application global commands will work without it.
   boolean executeCommand(in AUTF8String aMessage,
-                         [optional] in purpleIConversation aConversation);
+                         [optional] in prplIConversation aConversation);
 };
 
 %{ C++

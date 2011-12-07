@@ -43,7 +43,7 @@
  */
 
 [scriptable, uuid(dd535741-4b04-49ca-8df6-08f8577fe52b)]
-interface purpleITooltipInfo: nsISupports {
+interface prplITooltipInfo: nsISupports {
   const short pair          = 0;
   const short sectionBreak  = 1;
   const short sectionHeader = 2;

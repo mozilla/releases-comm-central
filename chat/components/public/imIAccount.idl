@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
-#include "purpleIConversation.idl"
+#include "prplIConversation.idl"
 #include "imIUserStatusInfo.idl"
 
 interface imITag;
@@ -53,7 +53,7 @@ interface purpleIProxyInfo;
 [ptr] native GHashTablePtr(GHashTable);
 
 [scriptable, uuid(ea7ab156-d25e-46cc-93ef-29f77b3c0795)]
-interface purpleIChatRoomFieldValues: nsISupports {
+interface prplIChatRoomFieldValues: nsISupports {
   AUTF8String getValue(in AUTF8String aIdentifier);
   void setValue(in AUTF8String aIdentifier, in AUTF8String aValue);
 
@@ -61,7 +61,7 @@ interface purpleIChatRoomFieldValues: nsISupports {
 };
 
 [scriptable, uuid(19dff981-b125-4a70-bc1a-efc783d07137)]
-interface purpleIChatRoomField: nsISupports {
+interface prplIChatRoomField: nsISupports {
   readonly attribute AUTF8String label;
   readonly attribute AUTF8String identifier;
   readonly attribute boolean required;
@@ -96,7 +96,7 @@ interface prplIAccount: nsISupports {
   void connect();
   void disconnect();
 
-  purpleIConversation createConversation(in AUTF8String aName);
+  prplIConversation createConversation(in AUTF8String aName);
 
   // Used when the user wants to add a buddy to the buddy list
   void addBuddy(in imITag aTag, in AUTF8String aName);
@@ -107,7 +107,7 @@ interface prplIAccount: nsISupports {
   /* Request more info on a buddy (typically a chat buddy).
    * The result (if any) will be provided by a user-info-received
    * notification dispatched through the observer service:
-   *  - aSubject will be an nsISimpleEnumerator of purpleITooltipInfo,
+   *  - aSubject will be an nsISimpleEnumerator of prplITooltipInfo,
    *  Do NOT store aSubject. Use it right away. The memory it points to
    *  will be freed right after the notification is dispatched.
    *  - aData will be aBuddyName.
@@ -116,11 +116,11 @@ interface prplIAccount: nsISupports {
 
   readonly attribute boolean canJoinChat;
   nsISimpleEnumerator getChatRoomFields();
-  purpleIChatRoomFieldValues getChatRoomDefaultFieldValues([optional] in AUTF8String aDefaultChatName);
+  prplIChatRoomFieldValues getChatRoomDefaultFieldValues([optional] in AUTF8String aDefaultChatName);
   /*
    * Create a new chat conversation if it doesn't already exist.
    */
-  void joinChat(in purpleIChatRoomFieldValues aComponents);
+  void joinChat(in prplIChatRoomFieldValues aComponents);
 
   readonly attribute AUTF8String normalizedName;
 

@@ -551,7 +551,7 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
   let documentFragment = range.createContextualFragment(aHTML);
   let result = documentFragment.firstChild;
 
-  // store the purpleIMessage object in each of the "root" node that
+  // store the prplIMessage object in each of the "root" node that
   // will be inserted into the document, so that selection code can
   // retrieve the message by just looking at the parent node until it
   // finds something.

@@ -38,7 +38,7 @@
 #include "nsISupports.idl"
 #include "nsIObserver.idl"
 #include "nsISimpleEnumerator.idl"
-#include "purpleIConversation.idl"
+#include "prplIConversation.idl"
 
 interface imITag;
 interface imIContact;
@@ -174,7 +174,7 @@ interface imIStatusInfo: nsISupports {
   // Will select the buddy automatically based on availability, and
   // the account (if needed) based on the account order in the account
   // manager.
-  purpleIConversation createConversation();
+  prplIConversation createConversation();
 };
 
 
