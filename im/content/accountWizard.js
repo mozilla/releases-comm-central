@@ -137,7 +137,7 @@ var accountWizard = {
 
   showUsernamePage: function aw_showUsernamePage() {
     var proto = this.proto.id;
-    if (this.userNameProto == proto) {
+    if ("userNameBoxes" in this && this.userNameProto == proto) {
       this.checkUsername();
       return;
     }
@@ -193,7 +193,7 @@ var accountWizard = {
   showAdvanced: function aw_showAdvanced() {
     // ensure we don't destroy user data if it's not necessary
     var id = this.proto.id;
-    if (this.protoSpecOptId == id)
+    if ("protoSpecOptId" in this && this.protoSpecOptId == id)
       return;
     this.protoSpecOptId = id;
 
@@ -491,7 +491,12 @@ var accountWizard = {
     var elt = document.getElementById(aId);
     if ("checked" in elt)
       return elt.checked;
-    return elt.value;
+    if ("value" in elt)
+      return elt.value;
+    // If the groupbox has never been opened, the binding isn't attached
+    // so the attributes don't exist. The calling code in showSummary
+    // has a special handling of the undefined value for this case.
+    return undefined;
   },
 
   getProtocols: function aw_getProtocols() {
