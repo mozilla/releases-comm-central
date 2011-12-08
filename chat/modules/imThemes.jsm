@@ -375,7 +375,7 @@ const headerFooterReplacements = {
 
 function formatAutoResponce(aTxt)
   Services.strings
-          .createBundle("chrome://instantbird/locale/instantbird.properties")
+          .createBundle("chrome://purple/locale/conversations.properties")
           .formatStringFromName("autoReply", [aTxt], 1)
 
 const statusMessageReplacements = {

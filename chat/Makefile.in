@@ -52,6 +52,8 @@ ifdef MOZ_DEBUG
 PROTOCOLS += jsTest
 endif
 
+PREF_JS_EXPORTS = $(srcdir)/chat-prefs.js
+
 PARALLEL_DIRS	= \
 		components/public \
 		components/src \

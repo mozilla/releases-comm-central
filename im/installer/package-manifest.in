@@ -444,6 +444,7 @@
 ; [Default Preferences]
 ; All the pref files must be part of base to prevent migration bugs
 @BINPATH@/@PREF_DIR@/all-instantbird.js
+@BINPATH@/@PREF_DIR@/chat-prefs.js
 @BINPATH@/@PREF_DIR@/purple-prefs.js
 @BINPATH@/@PREF_DIR@/channel-prefs.js
 #ifdef MOZ_SERVICES_SYNC
