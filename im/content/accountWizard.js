@@ -317,6 +317,8 @@ var accountWizard = {
         var chk = document.createElement("checkbox");
         chk.setAttribute("label", text);
         chk.setAttribute("id", name);
+        if (opt.getBool())
+          chk.setAttribute("checked", "true");
         box.appendChild(chk);
         break;
       case opt.typeInt:
