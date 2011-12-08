@@ -537,6 +537,7 @@ const XMPPAccountPrototype = {
   get normalizedName() this._normalizeJID(this.name),
 
   _idleSince: 0,
+  _shouldReconnectOnceOnline: false,
   observe: function(aSubject, aTopic, aData) {
     if (aTopic == "idle-time-changed") {
       let idleTime = parseInt(aData, 10);
@@ -869,8 +870,14 @@ const XMPPAccountPrototype = {
   _sendPresence: function() {
     delete this._shouldSendPresenceForIdlenessChange;
 
-    if (!this._connection)
+    if (!this._connection) {
+      if (this._shouldReconnectOnceOnline &&
+          this.imAccount.statusInfo.statusType > Ci.imIStatusInfo.STATUS_OFFLINE) {
+        this.connect();
+        delete this._shouldReconnectOnceOnline;
+      }
       return;
+    }
 
     let si = this.imAccount.statusInfo;
     let statusType = si.statusType;
@@ -882,6 +889,7 @@ const XMPPAccountPrototype = {
       show = "away";
     else if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
       this.disconnect();
+      this._shouldReconnectOnceOnline = true;
       return;
     }
     let children = [];
