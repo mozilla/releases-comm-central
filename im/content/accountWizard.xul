@@ -54,7 +54,6 @@
         onload="accountWizard.onload();"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/accountWizard.js"/>
   <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
   <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>

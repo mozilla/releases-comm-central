@@ -36,11 +36,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+Cu.import("resource:///modules/imServices.jsm");
 
-const events = [
-  "prpl-quit"
-];
+const PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
 var accountWizard = {
   onload: function aw_onload() {
@@ -63,11 +62,11 @@ var accountWizard = {
       protoList.selectedIndex = 0;
     }, 0);
 
-    addObservers(this, events);
+    Services.obs.addObserver(this, "prpl-quit", false);
     window.addEventListener("unload", this.unload);
   },
   unload: function aw_unload() {
-    removeObservers(accountWizard, events);
+    Services.obs.removeObserver(accountWizard, "prpl-quit");
   },
   observe: function am_observe(aObject, aTopic, aData) {
     if (aTopic == "prpl-quit") {
@@ -499,15 +498,16 @@ var accountWizard = {
     return undefined;
   },
 
-  getProtocols: function aw_getProtocols() {
-    return getIter(Services.core.getProtocols());
+  getIter: function(aEnumerator) {
+    while (aEnumerator.hasMoreElements())
+      yield aEnumerator.getNext();
   },
-  getProtoOptions: function aw_getProtoOptions() {
-    return getIter(this.proto.getOptions());
-  },
-  getProtoUserSplits: function aw_getProtoUserSplits() {
-    return getIter(this.proto.getUsernameSplit());
-  },
+  getProtocols: function aw_getProtocols()
+    this.getIter(Services.core.getProtocols()),
+  getProtoOptions: function aw_getProtoOptions()
+    this.getIter(this.proto.getOptions()),
+  getProtoUserSplits: function aw_getProtoUserSplits()
+    this.getIter(this.proto.getUsernameSplit()),
 
   onGroupboxKeypress: function aw_onGroupboxKeypress(aEvent) {
     var target = aEvent.target;

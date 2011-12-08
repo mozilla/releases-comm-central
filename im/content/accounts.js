@@ -36,7 +36,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
+const {interfaces: Ci, utils: Cu} = Components;
+Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource://gre/modules/DownloadUtils.jsm");
 
 // This is the list of notifications that the account manager window observes
 const events = [
@@ -72,7 +74,8 @@ var gAccountManager = {
       if (!defaultID && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
         defaultID = acc.id;
     }
-    addObservers(this, events);
+    for each (let event in events)
+      Services.obs.addObserver(this, event, false);
     if (!this.accountList.getRowCount())
       // This is horrible, but it works. Otherwise (at least on mac)
       // the wizard is not centered relatively to the account manager
@@ -96,7 +99,8 @@ var gAccountManager = {
   },
   unload: function am_unload() {
     clearInterval(this._connectedLabelInterval);
-    removeObservers(gAccountManager, events);
+    for each (let event in events)
+      Services.obs.removeObserver(this, event);
   },
   _updateAccountList: function am__updateAccountList() {
     let accountList = this.accountList;
@@ -450,7 +454,11 @@ var gAccountManager = {
     Services.prefs.setCharPref("messenger.accounts", array.join(","));
   },
 
-  getAccounts: function am_getAccounts() getIter(Services.accounts.getAccounts()),
+  getAccounts: function am_getAccounts() {
+    let accounts = Services.accounts.getAccounts();
+    while (accounts.hasMoreElements())
+      yield accounts.getNext();
+  },
 
   openDialog: function am_openDialog(aUrl, aArgs) {
     this.modalDialog = true;

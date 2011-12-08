@@ -703,7 +703,8 @@ var buddyList = {
       buddyList.convBox._updateListConvCount();
     }
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
-    addObservers(buddyList, events);
+    for each (let event in events)
+      Services.obs.addObserver(buddyList, event, false);
 
     this.addEventListener("unload", buddyList.unload);
   },
@@ -754,7 +755,8 @@ var buddyList = {
     }, 0, this);
   },
   unload: function bl_unload() {
-    removeObservers(buddyList, events);
+    for each (let event in events)
+      Services.obs.removeObserver(buddyList, event);
     Services.prefs.removeObserver(showOfflineBuddiesPref, buddyList);
    },
 

@@ -35,11 +35,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const autoJoinPref = "autoJoin";
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+Cu.import("resource://gre/modules/Services.jsm");
 
-const events = [
-  "prpl-quit"
-];
+const autoJoinPref = "autoJoin";
 
 var account = {
   onload: function account_onload() {
@@ -87,11 +86,11 @@ var account = {
     document.getElementById("proxyBox").hidden = !proxyVisible;
     document.getElementById("proxySeparator").hidden = !proxyVisible;
 
-    addObservers(this, events);
+    Services.obs.addObserver(this, "prpl-quit", false);
     window.addEventListener("unload", this.unload);
   },
   unload: function account_unload() {
-    removeObservers(account, events);
+    Services.obs.removeObserver(account, "prpl-quit");
   },
   observe: function account_observe(aObject, aTopic, aData) {
     if (aTopic == "prpl-quit") {
@@ -340,7 +339,9 @@ var account = {
   },
 
   getProtoOptions: function account_getProtoOptions() {
-    return getIter(this.proto.getOptions());
+    let options = this.proto.getOptions();
+    while (options.hasMoreElements())
+      yield options.getNext();
   },
 
   openProxySettings: function account_openProxySettings() {

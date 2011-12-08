@@ -44,17 +44,3 @@ function getIter(aEnumerator)
   while (aEnumerator.hasMoreElements())
     yield aEnumerator.getNext();
 }
-
-function addObservers(aObserver, aTopics)
-{
-  let observerService = Services.obs;
-  for (let i = 0; i < aTopics.length; ++i)
-    observerService.addObserver(aObserver, aTopics[i], false);
-}
-
-function removeObservers(aObserver, aTopics)
-{
-  let observerService = Services.obs;
-  for (let i = 0; i < aTopics.length; ++i)
-    observerService.removeObserver(aObserver, aTopics[i]);
-}
