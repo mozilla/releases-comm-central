@@ -476,7 +476,7 @@ var buddyList = {
       if (elt.hasAttribute("usingDefault")) {
         if ("_statusTypeBeforeEditing" in this &&
             this._statusTypeBeforeEditing == "offline")
-          elt.setAttribute("value", Services.core.globalUserStatus.statusMessage);
+          elt.setAttribute("value", Services.core.globalUserStatus.statusText);
         else
           elt.removeAttribute("value");
       }
