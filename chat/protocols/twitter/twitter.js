@@ -519,8 +519,16 @@ Account.prototype = {
     this.reportConnecting(_("connection.requestTimelines"));
 
     // If we have a last known message ID, append it as a get parameter.
-    let lastMsgParam = this.prefs.prefHasUserValue("lastMessageId") ?
-      "&since_id=" + this.prefs.getCharPref("lastMessageId") : "";
+    let lastMsgParam = "";
+    if (this.prefs.prefHasUserValue("lastMessageId")) {
+      let lastMsgId = this.prefs.getCharPref("lastMessageId");
+      // Check that the ID is made up of all digits, otherwise the server will
+      // croak on our request.
+      if (/^\d+$/.test(lastMsgId))
+        lastMsgParam = "&since_id=" + lastMsgId;
+      else
+        WARN("invalid value for the lastMessageId preference: " + lastMsgId);
+    }
     let getParams = "?include_entities=1&count=200" + lastMsgParam;
     this._pendingRequests = [
       this.signAndSend("1/statuses/home_timeline.json" + getParams, null, null,
@@ -554,7 +562,7 @@ Account.prototype = {
 
   onTimelineError: function(aError, aResponseText, aRequest) {
     ERROR(aError);
-    if (aRequest.status == 401);
+    if (aRequest.status == 401)
       ++this._timelineAuthError;
     this._doneWithTimelineRequest(aRequest);
   },
