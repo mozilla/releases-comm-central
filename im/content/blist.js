@@ -584,6 +584,7 @@ var buddyList = {
     this.displayNameRefreshTimer();
   },
 
+  _stopEditDisplayNameTimeout: 0,
   displayNameRefreshTimer: function bl_displayNameRefreshTimer() {
     const timeBeforeAutoValidate = 20 * 1000;
     clearTimeout(this._stopEditDisplayNameTimeout);

@@ -86,6 +86,7 @@
        </getter>
      </property>
 
+     <field name="_buddy">null</field>
      <property name="buddy" onget="return this._buddy;">
        <setter>
          <![CDATA[
@@ -102,6 +103,7 @@
        </setter>
      </property>
 
+     <field name="_contact">null</field>
      <property name="contact" onget="return this._contact;">
        <setter>
          <![CDATA[
@@ -131,6 +133,7 @@
         ]]></body>
       </method>
 
+     <field name="_elt">null</field>
      <property name="elt">
        <getter>
          <![CDATA[

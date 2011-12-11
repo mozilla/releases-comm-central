@@ -244,7 +244,8 @@
        <![CDATA[
          // If we have a reconnect timer, stop it:
          // it will throw errors otherwise (see bug 480).
-         // clearInterval is harmless if the timer doesn't exist.
+         if (!this.reconnectUpdateInterval)
+           return;
          clearInterval(this.reconnectUpdateInterval);
          delete this.reconnectUpdateInterval;
        ]]>
