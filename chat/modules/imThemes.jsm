@@ -803,7 +803,8 @@ SelectedMessage.prototype = {
     return (this._spanNode = spanNode);
   },
 
-  // Initialize _textSelected, _selectedText, _otherSelected and _cutBegin/End
+  // Initialize _textSelected and _otherSelected; if _textSelected is true,
+  // also initialize _selectedText and _cutBegin/End.
   _initSelectedText: function() {
     if ("_textSelected" in this)
       return; // already initialized
@@ -831,6 +832,8 @@ SelectedMessage.prototype = {
       // this happens if the carret is at the offset 0 in the span node
       this._textSelected = this._selectedText != "";
     }
+    else
+      this._textSelected = false;
     if (this._textSelected) {
       // to check if the start or end is cut, the result of
       // comparePoint is not enough because the selection range may
@@ -861,11 +864,11 @@ SelectedMessage.prototype = {
   },
   get cutBegin() {
     this._initSelectedText();
-    return this._cutBegin;
+    return this._textSelected && this._cutBegin;
   },
   get cutEnd() {
     this._initSelectedText();
-    return this._cutEnd;
+    return this._textSelected && this._cutEnd;
   },
   isTextSelected: function() {
     this._initSelectedText();
@@ -877,10 +880,7 @@ SelectedMessage.prototype = {
   },
   getSelectedText: function() {
     this._initSelectedText();
-    if (!this._textSelected)
-      return "";
-
-    return this._selectedText;
+    return this._textSelected ? this._selectedText : "";
   },
   getFormattedMessage: function() {
     // First, get the selected text
