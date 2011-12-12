@@ -349,7 +349,20 @@ const GenericMessagePrototype = {
   },
   _alias: "",
   get alias() this._alias || this.who,
-  iconURL: "",
+  _iconURL: "",
+  get iconURL() {
+    // If the protocol plugin has explicitly set an icon for the message, use it.
+    if (this._iconURL)
+      return this._iconURL;
+
+    // Otherwise, attempt to find a buddy for incoming messages, and forward the call.
+    if (this.incoming && this._conversation && !this._conversation.isChat) {
+      let buddy = this._conversation.buddy;
+      if (buddy)
+        return buddy.buddyIconFilename;
+    }
+    return "";
+  },
   _conversation: null,
   get conversation() this._conversation,
   set conversation(aConv) {

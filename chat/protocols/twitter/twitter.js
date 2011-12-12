@@ -298,7 +298,7 @@ Conversation.prototype = {
     let flags =
       name == this._account.name ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
-    flags.iconURL = aTweet.user.profile_image_url;
+    flags._iconURL = aTweet.user.profile_image_url;
     if (text.indexOf(this.nick) != -1)
       flags.containsNick = true;
 
