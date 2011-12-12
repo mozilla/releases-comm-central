@@ -51,6 +51,8 @@ XPIDLSRCS	= \
 		imIContactsService.idl \
 		imIConversationsService.idl \
 		imICoreService.idl \
+		imIStatusInfo.idl \
+		imITagsService.idl \
 		imIUserStatusInfo.idl \
 		prplIConversation.idl \
 		prplIMessage.idl \

@@ -35,12 +35,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#include "imIStatusInfo.idl"
+#include "imITagsService.idl"
 #include "nsISupports.idl"
 #include "nsIObserver.idl"
 #include "nsISimpleEnumerator.idl"
-#include "prplIConversation.idl"
 
-interface imITag;
 interface imIContact;
 interface imIBuddy;
 interface imIAccountBuddy;
@@ -81,102 +81,6 @@ interface imIContactsService: nsISupports {
   // Called when deleting an account to remove it from blist.sqlite.
   void forgetAccount(in PRUint32 aId);
 };
-
-[scriptable, uuid(f799a9c2-23f2-4fd1-96fb-515bad238f8c)]
-interface imITagsService: nsISupports {
-  // Create a new tags or return the existing one if it already exists
-  imITag createTag(in AUTF8String aName);
-  // Get an existing tag by (numeric) id. Returns null if not found.
-  imITag getTagById(in long aId);
-  // Get an existing tag by name (will do an SQL query). Returns null
-  // if not found.
-  imITag getTagByName(in AUTF8String aName);
-  // Get an array of all existing tags.
-  void getTags([optional] out unsigned long tagCount,
-               [retval, array, size_is(tagCount)] out imITag tags);
-
-  boolean isTagHidden(in imITag aTag);
-  void hideTag(in imITag aTag);
-  void showTag(in imITag aTag);
-
-  readonly attribute imITag otherContactsTag;
-};
-
-[scriptable, uuid(c211e5e2-f0a4-4a86-9e4c-3f6b905628a5)]
-interface imITag: nsISupports {
-  readonly attribute long id;
-           attribute AUTF8String name;
-
-  // Get an array of all the contacts associated with this tag.
-  //  Contacts can either "have the tag" (added by user action) or
-  //  have inherited the tag because it was the server side group for
-  //  one of the AccountBuddy of the contact.
-  void getContacts([optional] out unsigned long contactCount,
-                   [retval, array, size_is(contactCount)] out imIContact contacts);
-
-  void addObserver(in nsIObserver aObserver);
-  void removeObserver(in nsIObserver aObserver);
-  /* Observers will be notified of changes related to the contacts
-   * that have the tag: contact-*, buddy-*, account-buddy-*
-   * notifications forwarded respectively from the imIContact,
-   * imIBuddy and imIAccountBuddy instances.
-   */
-
-  // Exposed for add-on authors. All usage by Instantbird will come from
-  // the imITag implementation so it wasn't required to expose this.
-  // This can be used to dispatch custom notifications to the
-  // observers of the tag.
-  void notifyObservers(in nsISupports aObj, in string aEvent,
-                       [optional] in wstring aData);
-};
-
-[scriptable, uuid(f13dc4fc-5334-45cb-aa58-a92851955e55)]
-interface imIStatusInfo: nsISupports {
-  // Name suitable for display in the UI. Can either be the username,
-  // the server side alias, or the user set local alias of the contact.
-  readonly attribute AUTF8String displayName;
-  readonly attribute AUTF8String buddyIconFilename;
-
-  const short STATUS_UNKNOWN = 0;
-  const short STATUS_OFFLINE = 1;
-  const short STATUS_INVISIBLE = 2;
-  const short STATUS_MOBILE = 3;
-  const short STATUS_IDLE = 4;
-  const short STATUS_AWAY = 5;
-  const short STATUS_UNAVAILABLE = 6;
-  const short STATUS_AVAILABLE = 7;
-
-  // numerical value used to compare the availability of two buddies
-  // based on their current status.
-  //  Use it only for immediate comparisons, do not store the value,
-  //  it can change between versions for a same status of the buddy.
-  readonly attribute long statusType;
-
-  readonly attribute boolean online;    // (statusType > STATUS_OFFLINE)
-  readonly attribute boolean available; // (statusType == STATUS_AVAILABLE)
-  readonly attribute boolean idle;      // (statusType == STATUS_IDLE)
-  readonly attribute boolean mobile;    // (statusType == STATUS_MOBILE)
-
-  readonly attribute AUTF8String statusText;
-
-  // Gives more detail to compare the availability of two buddies with the same
-  // status type.
-  //  Example: 2 buddies may have been idle for various amounts of times.
-  readonly attribute long availabilityDetails;
-
-  // True if the buddy is online or if the account supports sending
-  // offline messages to the buddy.
-  readonly attribute boolean canSendMessage;
-
-  // enumerator of purpleTooltipInfo components
-  nsISimpleEnumerator getTooltipInfo();
-
-  // Will select the buddy automatically based on availability, and
-  // the account (if needed) based on the account order in the account
-  // manager.
-  prplIConversation createConversation();
-};
-
 
 [scriptable, uuid(f585b0df-f6ad-40d5-9de4-c58b14af13e4)]
 interface imIContact: imIStatusInfo {

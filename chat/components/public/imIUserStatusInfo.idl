@@ -47,7 +47,7 @@ interface imIUserStatusInfo: nsISupports {
 
   readonly attribute AUTF8String statusText;
 
-  // See imIStatusInfo in imIContactsService.idl for the values.
+  // See imIStatusInfo for the values.
   readonly attribute short statusType;
 
   // Only works with STATUS_OFFLINE, STATUS_UNAVAILABLE, STATUS_AWAY,
