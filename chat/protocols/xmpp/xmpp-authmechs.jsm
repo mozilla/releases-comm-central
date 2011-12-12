@@ -66,10 +66,22 @@ PlainAuth.prototype = {
 /* Handles DIGEST-MD5 authorization mechanism */
 
 // md5 function adapted from netwerk/test/unit/test_authentication.js
-function md5(aString) {
+// If aUTF8 is true, aString will be treated as an UTF8 encoded string,
+// otherwise it can contain binary data.
+function md5(aString, aUTF8) {
   let ch = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
   ch.init(ch.MD5);
-  let data = [aString.charCodeAt(i) for (i in aString)];
+
+  let data;
+  if (aUTF8) {
+    let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                      .createInstance(Ci.nsIScriptableUnicodeConverter);
+    converter.charset = "UTF-8";
+    data = converter.convertToByteArray(aString);
+  }
+  else
+    data = [aString.charCodeAt(i) for (i in aString)];
+
   ch.update(data, data.length);
   return ch.finish(false);
 }
@@ -80,7 +92,7 @@ function md5hex(aString) {
 }
 
 function digestMD5(aName, aRealm, aPassword, aNonce, aCnonce, aDigestUri) {
-  let y = md5(aName + ":" + aRealm + ":" + aPassword);
+  let y = md5(aName + ":" + aRealm + ":" + aPassword, true);
   return md5hex(md5hex(y + ":" + aNonce + ":" + aCnonce) +
                 ":" + aNonce + ":00000001:" + aCnonce + ":auth:" +
                 md5hex("AUTHENTICATE:" + aDigestUri));
@@ -114,7 +126,15 @@ DigestMD5Auth.prototype = {
     }
 
     data.username = this._username;
-    data.cnonce = md5hex(Math.random() * 1234567890);
+
+    const chars =
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+    const nonceLength = 32;
+    let nonce = "";
+    for (let i = 0; i < nonceLength; ++i)
+      nonce += chars[Math.floor(Math.random() * chars.length)];
+
+    data.cnonce = nonce;
     data.nc = "00000001";
     data.qop = "auth",
     data["digest-uri"] = "xmpp/" + this._domain + (data.host ? "/" + host : "");
