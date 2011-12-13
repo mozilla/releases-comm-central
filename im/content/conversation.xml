@@ -497,12 +497,15 @@
 
           let completions = [];
           let firstWordSuffix = " ";
-          let word = text.substring(0, inputBox.selectionStart).match(/\S*$/)[0];
+
+          // Second regex result will contain word without leading special characters.
+          let words = text.substring(0, inputBox.selectionStart).match(/\S*?([\w-]+)?$/);
+          let word = words[0];
           if (!word)
             return;
-
           let isFirstWord = inputBox.selectionStart == word.length;
-          // check if we are completing a command.
+
+          // Check if we are completing a command.
           let completingCommand = isFirstWord && word[0] == "/";
           if (completingCommand) {
             for each (let cmd in Services.cmd.listCommandsForConversation(this._conv)) {
@@ -518,15 +521,7 @@
             if (!this._conv.isChat)
               return;
 
-            // Twitter username mentions start with "@".
-            // TODO: find a less prpl-specific way to handle username prefixes.
-            if (this._conv.account.protocol.id == "prpl-twitter") {
-              if (word[0] != "@")
-                return;
-              word = word.substring(1);
-            }
-            else
-              firstWordSuffix = ": ";
+            firstWordSuffix = ": ";
 
             completions = Object.keys(this.buddies);
             let outgoingNick = this._conv.nick;
@@ -540,9 +535,15 @@
             condition = function(c) c.toLocaleLowerCase().indexOf(word) == 0;
           else
             condition = function(c) c.indexOf(word) == 0;
-          completions = completions.filter(condition);
-          if (completions.length == 0)
+          let matchingCompletions = completions.filter(condition);
+          if (!matchingCompletions.length && words[1]) {
+            word = words[1];
+            firstWordSuffix = " ";
+            matchingCompletions = completions.filter(condition);
+          }
+          if (!matchingCompletions.length)
             return;
+          completions = matchingCompletions;
 
           if (this._conv.isChat && !completingCommand) {
             // If only one of the possible completions is an active nick, take it.
