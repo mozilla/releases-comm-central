@@ -36,6 +36,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+@import url("chrome://instantbird/skin/status.css");
+
 #buddyListMsg {
   overflow-y: auto;
   background-color: -moz-Field;
@@ -263,9 +265,12 @@ buddy[dummy] {
   max-height: 16px;
 }
 
-.protoIcon, .statusIcon,
-.hideGroupButton, .startChatBubble,
-.expander-up, .expander-down {
+.protoIcon,
+.statusIcon,
+.hideGroupButton,
+.startChatBubble,
+.expander-up,
+.expander-down {
   width: 16px;
   height: 16px;
   min-height: 16px;
@@ -277,40 +282,8 @@ group label {
   -moz-margin-end: 0;
 }
 
-:-moz-any(conv, contact, buddy)[status="away"] .statusIcon,
-:-moz-any(conv, contact, buddy)[status="unavailable"] .statusIcon {
-  background-image: url('chrome://instantbird/skin/away.png');
-}
-
-:-moz-any(conv, contact, buddy)[status="idle"] .statusIcon {
-  background-image: url('chrome://instantbird/skin/idle.png');
-}
-
-:-moz-any(conv, contact, buddy)[status="mobile"] .statusIcon {
-  background-image: url('chrome://instantbird/skin/mobile.png');
-}
-
-:-moz-any(contact, buddy)[status="idle"] :-moz-any(.contactDisplayName, .buddyDisplayName),
-conv[status="idle"] .convDisplayName {
+.blistDisplayName[status="idle"] {
   color: GrayText;
-}
-
-:-moz-any(conv, contact, buddy)[status="offline"] .statusIcon,
-conv[status="left"] .statusIcon {
-  background-image: url('chrome://instantbird/skin/offline.png');
-}
-
-:-moz-any(conv, contact, buddy)[status="unknown"] .statusIcon {
-  background-image: url('chrome://instantbird/skin/unknown.png');
-}
-
-:-moz-any(conv, contact, buddy)[status="offline"] .protoIcon,
-:-moz-any(conv, contact, buddy)[status="unknown"] .protoIcon {
-  opacity: 0.3;
-}
-
-:-moz-any(conv, contact)[status="offline"][selected="true"] .protoIcon {
-  opacity: 0.7;
 }
 
 contact[state="fading"] :-moz-any(.contactDisplayName, .buddyDisplayName) {

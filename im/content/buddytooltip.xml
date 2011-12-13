@@ -52,8 +52,8 @@
       <xul:vbox flex="1">
         <xul:hbox crop="end" align="center" flex="1">
           <xul:stack class="prplTooltipBuddyIcon">
-            <xul:image xbl:inherits="src=iconPrpl" class="protoIcon"/>
-            <xul:image class="statusIcon"/>
+            <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
+            <xul:image class="statusIcon" xbl:inherits="status"/>
           </xul:stack>
           <xul:description xbl:inherits="value=displayname" class="tooltip-header"/>
         </xul:hbox>
