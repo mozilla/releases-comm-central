@@ -185,12 +185,12 @@ let gGestureSupport = {
       case "swipe-down":
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
-        goDoCommand("cmd_scrollBottom");
+        getBrowser().selectedBrowser.scrollToNextSection();
         break;
       case "swipe-up":
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
-        goDoCommand("cmd_scrollTop");
+        getBrowser().selectedBrowser.scrollToPreviousSection();
         break;
       case "swipe-left":
       case "swipe-right":

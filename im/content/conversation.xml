@@ -471,6 +471,18 @@
           return;
         }
 
+        if (event.altKey && event.keyCode == KeyEvent.DOM_VK_PAGE_UP) {
+          this.browser.scrollToPreviousSection();
+          event.preventDefault();
+          return;
+        }
+
+        if (event.altKey && event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN) {
+          this.browser.scrollToNextSection();
+          event.preventDefault();
+          return;
+        }
+
         var inputBox = this.editor;
         // When attempting to copy an empty selection, copy the
         // browser selection instead (see bug 693).

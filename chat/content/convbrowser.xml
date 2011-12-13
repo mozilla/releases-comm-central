@@ -278,7 +278,8 @@
       </method>
 
       <field name="_lastMessage">null</field>
-      <field name="_lastMessageIsContext">false</field>
+      <field name="_lastMessageIsContext">true</field>
+      <field name="_firstNonContextElt">null</field>
 
       <method name="appendMessage">
         <parameter name="aMsg"/>
@@ -328,8 +329,43 @@
               this._scrollToElement(newElt);
             this._lastElement = newElt;
             this._lastMessage = aMsg;
+            if (this._lastMessageIsContext != aContext)
+              this._firstNonContextElt = newElt;
             this._lastMessageIsContext = aContext;
           ]]>
+        </body>
+      </method>
+
+      <method name="scrollToPreviousSection">
+        <body>
+        <![CDATA[
+          let nonContextY =
+            this._firstNonContextElt ? this._firstNonContextElt.offsetTop : 0;
+          let sectionY =
+            Math.max(nonContextY - Math.round(this.clientHeight / 2), 0);
+          if (this.contentWindow.scrollY < nonContextY)
+            this.contentWindow.scrollTo(0, 0);
+          else
+            this.contentWindow.scrollTo(0, sectionY);
+          this._updateAutoScrollEnabled();
+        ]]>
+        </body>
+      </method>
+
+      <method name="scrollToNextSection">
+        <body>
+        <![CDATA[
+          let maxY = this.contentWindow.scrollMaxY;
+          let nonContextY =
+            this._firstNonContextElt ? this._firstNonContextElt.offsetTop : maxY;
+          let sectionY =
+             Math.min(nonContextY - Math.round(this.clientHeight / 2), maxY);
+          if (this.contentWindow.scrollY < sectionY)
+            this.contentWindow.scrollTo(0, sectionY);
+          else
+            this.contentWindow.scrollTo(0, maxY);
+          this._updateAutoScrollEnabled();
+        ]]>
         </body>
       </method>
 
@@ -789,7 +825,8 @@
           // are swapped.
           var fieldsToSwap = ["_docShell", "_fastFind", "_contentWindow", "_webNavigation",
                               "_theme", "_textModifiers", "_autoScrollEnabled",
-                              "_lastElement", "_lastMessage", "_lastMessageIsContext"];
+                              "_lastElement", "_lastMessage", "_lastMessageIsContext",
+                              "_firstNonContextElt"];
 
           var ourFieldValues = {};
           var otherFieldValues = {};
