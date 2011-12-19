@@ -72,9 +72,9 @@ function Account(aProtoInstance, aImAccount)
 }
 Account.prototype = {
   connect: function() {
-    this.base.connecting();
+    this.reportConnecting();
     // do something here
-    this.base.connected();
+    this.reportConnected();
     setTimeout((function() {
       this._conv = new Conversation(this);
       this._conv.writeMessage("jstest", "You are now talking to /dev/null", {system: true});
@@ -82,14 +82,14 @@ Account.prototype = {
   },
   _conv: null,
   disconnect: function(aSilent) {
-    this.base.disconnecting(this._base.NO_ERROR, "");
+    this.reportDisconnecting(this._base.NO_ERROR, "");
     if (!aSilent)
       this._conv.writeMessage("jstest", "You have disconnected.", {system: true});
     if (this._conv) {
       this._conv._setDisconnected();
       delete this._conv;
     }
-    this.base.disconnected();
+    this.reportDisconnected();
   },
 
   get canJoinChat() true,
