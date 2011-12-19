@@ -254,16 +254,11 @@ var account = {
   },
 
   save: function account_save() {
-    let connectionInfoHasChanged = false;
     if (!this.proto.noPassword) {
       var password = this.getValue("password");
-      if (password != this.account.password) {
+      if (password != this.account.password)
         this.account.password = password;
-        connectionInfoHasChanged = true;
-      }
     }
-
-    //acc.rememberPassword = this.getValue("rememberPassword");
 
     var alias = this.getValue("alias");
     if (alias != this.account.alias)
@@ -280,60 +275,31 @@ var account = {
     }
 
     if (this.proto.usePurpleProxy &&
-        this.account.proxyInfo.key != this.proxy.key) {
+        this.account.proxyInfo.key != this.proxy.key)
       this.account.proxyInfo = this.proxy;
-      connectionInfoHasChanged = true;
-    }
 
     for (let opt in this.getProtoOptions()) {
       var name = this.proto.id + "-" + opt.name;
       var val = this.getValue(name);
       switch (opt.type) {
       case opt.typeBool:
-        if (val != this.getBool(opt)) {
+        if (val != this.getBool(opt))
           this.account.setBool(opt.name, val);
-          connectionInfoHasChanged = true;
-        }
         break;
       case opt.typeInt:
-        if (val != this.getInt(opt)) {
+        if (val != this.getInt(opt))
           this.account.setInt(opt.name, val);
-          connectionInfoHasChanged = true;
-        }
         break;
       case opt.typeString:
-        if (val != this.getString(opt)) {
+        if (val != this.getString(opt))
           this.account.setString(opt.name, val);
-          connectionInfoHasChanged = true;
-        }
         break;
       case opt.typeList:
-        if (val != this.getListValue(opt)) {
+        if (val != this.getListValue(opt))
           this.account.setString(opt.name, val);
-          connectionInfoHasChanged = true;
-        }
         break;
       default:
         throw "unknown preference type " + opt.type;
-      }
-    }
-
-    if (connectionInfoHasChanged) {
-      /* This is the first time we try to connect with these parameters */
-      this.account.firstConnectionState = this.account.FIRST_CONNECTION_UNKNOWN;
-
-      if (this.account.connecting) {
-        this.account.disconnect();
-        this.account.connect();
-        return;
-      }
-      let errorReason = this.account.connectionErrorReason;
-      if (this.account.disconnected &&
-          errorReason != Ci.prplIAccount.NO_ERROR &&
-          errorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD &&
-          errorReason != Ci.imIAccount.ERROR_CRASHED &&
-          errorReason != Ci.imIAccount.ERROR_UNKNOWN_PRPL) {
-        this.account.connect();
       }
     }
   },

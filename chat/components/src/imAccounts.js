@@ -311,6 +311,38 @@ imAccount.prototype = {
     }
   },
 
+  _pendingReconnectForConnectionInfoChange: false,
+  _connectionInfoChanged: function() {
+    /* This will be the first connection with these parameters */
+    this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_UNKNOWN;
+
+    if (this._pendingReconnectForConnectionInfoChange)
+      return;
+
+    this._pendingReconnectForConnectionInfoChange = true;
+    executeSoon(function () {
+      delete this._pendingReconnectForConnectionInfoChange;
+      // If the connection parameters have changed while we were
+      // trying to connect, cancel the ongoing connection attempt and
+      // try again with the new parameters.
+      if (this.connecting) {
+        this.disconnect();
+        this.connect();
+        return;
+      }
+      // If the account was disconnected because of a non-fatal
+      // connection error, retry now that we have new parameters.
+      let errorReason = this.connectionErrorReason;
+      if (this.disconnected &&
+          errorReason != Ci.prplIAccount.NO_ERROR &&
+          errorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD &&
+          errorReason != Ci.imIAccount.ERROR_CRASHED &&
+          errorReason != Ci.imIAccount.ERROR_UNKNOWN_PRPL) {
+        this.connect();
+      }
+    }.bind(this));
+  },
+
   get normalizedName() this._ensurePrplAccount.normalizedName,
 
   _sendUpdateNotification: function() {
@@ -343,13 +375,10 @@ imAccount.prototype = {
     !this.protocol.noPassword && !this.protocol.passwordOptional,
   set password(aPassword) {
     this.prefBranch.setCharPref(kPrefAccountPassword, aPassword);
+    this._connectionInfoChanged();
     if (aPassword &&
-        this._connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD) {
-      if (this.firstConnectionState == Ci.imIAccount.FIRST_CONNECTION_CRASHED)
-        this._connectionErrorReason = Ci.imIAccount.ERROR_CRASHED;
-      else
-        this._connectionErrorReason = Ci.imIAccount.NO_ERROR;
-    }
+        this._connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD)
+      this._connectionErrorReason = Ci.imIAccount.NO_ERROR;
     else if (!aPassword && this._passwordRequired)
       this._connectionErrorReason = Ci.imIAccount.ERROR_MISSING_PASSWORD;
     this._sendUpdateNotification();
@@ -458,18 +487,21 @@ imAccount.prototype = {
   },
   setBool: function(aName, aVal) {
     this.prefBranch.setBoolPref(kAccountOptionPrefPrefix + aName, aVal);
+    this._connectionInfoChanged();
     if (this.prplAccount)
       this.prplAccount.setBool(aName, aVal);
     SavePrefTimer.initTimer();
   },
   setInt: function(aName, aVal) {
     this.prefBranch.setIntPref(kAccountOptionPrefPrefix + aName, aVal);
+    this._connectionInfoChanged();
     if (this.prplAccount)
       this.prplAccount.setInt(aName, aVal);
     SavePrefTimer.initTimer();
   },
   setString: function(aName, aVal) {
     this.prefBranch.setCharPref(kAccountOptionPrefPrefix + aName, aVal);
+    this._connectionInfoChanged();
     if (this.prplAccount)
       this.prplAccount.setString(aName, aVal);
     SavePrefTimer.initTimer();
@@ -488,7 +520,10 @@ imAccount.prototype = {
   get maxMessageLength() this._ensurePrplAccount.maxMessageLength,
 
   get proxyInfo() this._ensurePrplAccount.proxyInfo,
-  set proxyInfo(val) { this._ensurePrplAccount.proxyInfo = val; }
+  set proxyInfo(val) {
+    this._ensurePrplAccount.proxyInfo = val;
+    this._connectionInfoChanged();
+  }
 };
 
 function AccountsService() { }
