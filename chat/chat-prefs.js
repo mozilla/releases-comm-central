@@ -79,3 +79,8 @@ pref("purple.debug.loglevel", 3);
 // On debug builds, show warning, errors and debug information.
 pref("purple.debug.loglevel", 2);
 #endif
+
+pref("purple.logging.format", "txt");
+pref("purple.logging.log_chats", true);
+pref("purple.logging.log_ims", true);
+pref("purple.logging.log_system", true);
