@@ -155,10 +155,10 @@ UIConversation.prototype = {
     if (this._unreadIncomingMessageCount == this._lastNotifiedUnreadCount)
       return;
 
+    this._lastNotifiedUnreadCount = this._unreadIncomingMessageCount;
     for each (let observer in this._observers)
       observer.observe(this, "unread-message-count-changed",
                        this._unreadIncomingMessageCount.toString());
-    this._lastNotifiedUnreadCount = this._unreadIncomingMessageCount;
   },
   getMessages: function(aMessageCount) {
     if (aMessageCount)
