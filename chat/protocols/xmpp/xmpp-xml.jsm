@@ -326,6 +326,17 @@ function XMPPParser(aListener) {
   this._parser.onStartRequest(this._dummyRequest, null);
 }
 XMPPParser.prototype = {
+  destroy: function() {
+    // Avoid reference cycles
+    this._parser.contentHandler = null;
+    delete this._listener;
+    this._parser.onStopRequest(this._dummyRequest, null, Cr.NS_OK);
+    // Stopping the request causes parse errors (because we parsed
+    // only partial XML documents?), so the error handler is still
+    // needed to avoid the errors being reported to the error console.
+    this._parser.errorHandler = null;
+    delete this._parser;
+  },
   _dummyRequest: {
     cancel: function() { },
     isPending: function() { },
@@ -403,13 +414,16 @@ XMPPParser.prototype = {
 
   /* nsISAXErrorHandler implementation */
   error: function(aLocator, aError) {
-    this._listener.onXMLError("parse-error", aError);
+    if (this._listener)
+      this._listener.onXMLError("parse-error", aError);
   },
   fatalError: function(aLocator, aError) {
-    this._listener.onXMLError("parse-fatal-error", aError);
+    if (this._listener)
+      this._listener.onXMLError("parse-fatal-error", aError);
   },
   ignorableWarning: function(aLocator, aError) {
-    this._listener.onXMLError("parse-warning", aError);
+    if (this._listener)
+      this._listener.onXMLError("parse-warning", aError);
   },
 
   QueryInterface: function(aInterfaceId) {

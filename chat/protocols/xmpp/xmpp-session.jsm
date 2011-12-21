@@ -99,6 +99,15 @@ XMPPSession.prototype = {
       this.send("</stream:stream>");
     delete this.onXmppStanza;
     Socket.disconnect.call(this);
+    if (this._parser) {
+      this._parser.destroy();
+      delete this._parser;
+      if (this._oldParsers) {
+        for each (let parser in this._oldParsers)
+          parser.destroy();
+        delete this._oldParsers;
+      }
+    }
   },
 
   /* Report errors to the account */
@@ -141,6 +150,18 @@ XMPPSession.prototype = {
 
   /* Start the XMPP stream */
   startStream: function() {
+    if (this._parser) {
+      // nsSAXXMLReader (inside XMPPParser) leaks if we don't clean up.
+      // Unfortunately, calling onStopRequest on nsSAXXMLReader damages
+      // something that causes a crash the next time we call onDataAvailable
+      // on another parser instance for the same input stream buffer.
+      // Workaround: keep references to all previous parsers used
+      // for this socket, and call destroy on each of them when we are
+      // done reading from that socket.
+      if (!this._oldParsers)
+        this._oldParsers = [];
+      this._oldParsers.push(this._parser);
+    }
     this._parser = new XMPPParser(this);
     this.send('<?xml version="1.0"?><stream:stream to="' + this._domain +
               '" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">');
