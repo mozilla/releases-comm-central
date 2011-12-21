@@ -216,6 +216,26 @@ imAccount.prototype = {
       if (this.firstConnectionState != Ci.imIAccount.FIRST_CONNECTION_OK)
         this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_OK;
       delete this.connectionStateMsg;
+
+      if (!this._statusObserver) {
+        this._statusObserver = {
+          observe: (function(aSubject, aTopic, aData) {
+            // Disconnect or reconnect the account automatically, otherwise notify
+            // the prplAccount instance.
+            let statusType = aSubject.statusType;
+            if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE &&
+                this.connected)
+              this.prplAccount.disconnect();
+            else if (statusType > Ci.imIStatusInfo.STATUS_OFFLINE &&
+                     this.disconnected)
+              this.prplAccount.connect();
+            else if (this.connected)
+              this.prplAccount.observe(aSubject, aTopic, aData);
+          }).bind(this)
+        };
+
+        this.statusInfo.addObserver(this._statusObserver);
+      }
     }
     else if (aTopic == "account-disconnecting") {
       this.connectionState = Ci.imIAccount.STATE_DISCONNECTING;
@@ -252,15 +272,8 @@ imAccount.prototype = {
     if (this._statusObserver)
       this.statusInfo.removeObserver(this._statusObserver);
     this._observedStatusInfo = aUserStatusInfo;
-    if (!this._statusObserver) {
-      let prplAccount = this.prplAccount;
-      this._statusObserver = {
-        observe: function(aSubject, aTopic, aData) {
-          prplAccount.observe(aSubject, aTopic, aData);
-        }
-      };
-    }
-    this.statusInfo.addObserver(this._statusObserver);
+    if (this._statusObserver)
+      this.statusInfo.addObserver(this._statusObserver);
   },
   get statusInfo() this._observedStatusInfo || Services.core.globalUserStatus,
 
@@ -453,7 +466,13 @@ imAccount.prototype = {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   connect: function() { this._ensurePrplAccount.connect(); },
-  disconnect: function() { this._ensurePrplAccount.disconnect(); },
+  disconnect: function() {
+    if (this._statusObserver) {
+      this.statusInfo.removeObserver(this._statusObserver);
+      delete this._statusObserver;
+    }
+    this._ensurePrplAccount.disconnect();
+  },
 
   get disconnected() this.connectionState == Ci.imIAccount.STATE_DISCONNECTED,
   get connected() this.connectionState == Ci.imIAccount.STATE_CONNECTED,

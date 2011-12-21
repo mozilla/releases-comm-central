@@ -340,9 +340,6 @@ Account.prototype = {
   _timelineBuffer: [],
   _timelineAuthError: 0,
 
-  // Used to know if we should connect when returning from the offline status.
-  _enabled: false,
-
   token: "",
   tokenSecret: "",
   connect: function() {
@@ -350,7 +347,6 @@ Account.prototype = {
       return;
 
     this.reportConnecting();
-    this._enabled = true;
 
     // Read the OAuth token from the prefs
     let prefValue = {};
@@ -377,24 +373,9 @@ Account.prototype = {
     this.getTimelines();
   },
 
-  observe: function(aSubject, aTopic, aMsg) {
-    // Currently only used for "status-changed" notification.
-    if (aTopic != "status-changed")
-      return;
-
-    if (!this._enabled)
-      return;
-
-    let statusType = aSubject.statusType;
-    if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
-      // This will remove the _enabled value...
-      this.disconnect();
-      // ...set it again:
-      this._enabled = true;
-    }
-    else if (statusType > Ci.imIStatusInfo.STATUS_OFFLINE)
-      this.connect();
-  },
+  // Twitter doesn't broadcast the user's availability, so we can ignore
+  // imIUserStatusInfo's status notifications.
+  observe: function(aSubject, aTopic, aMsg) { },
 
   signAndSend: function(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis,
                         aOAuthParams) {
@@ -891,7 +872,6 @@ Account.prototype = {
     this.cleanUp();
     if (this._timeline && connected)
       this._timeline.notifyObservers(this._timeline, "update-conv-chatleft");
-    delete this._enabled;
     this.reportDisconnected();
   },
   unInit: function() {
