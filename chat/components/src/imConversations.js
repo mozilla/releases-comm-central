@@ -285,7 +285,7 @@ UIConversation.prototype = {
   sendMsg: function (aMsg) { this.target.sendMsg(aMsg); },
   unInit: function() {
     for each (let conv in this._purpleConv)
-      conv.unInit();
+      gConversationsService.forgetConversation(conv);
     if (this._observedContact) {
       this._observedContact.removeObserver(this);
       delete this._observedContact;
@@ -418,6 +418,9 @@ ConversationsService.prototype = {
       if (contactId.value)
         delete this._uiConvByContactId[contactId.value];
     }
+    this.forgetConversation(aPurpleConversation);
+  },
+  forgetConversation: function(aPurpleConversation) {
     aPurpleConversation.unInit();
 
     this._purpleConversations =

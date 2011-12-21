@@ -120,7 +120,10 @@ function Conversation(aAccount)
 }
 Conversation.prototype = {
   __proto__: GenericConvChatPrototype,
-  unInit: function() { delete this._account._timeline; },
+  unInit: function() {
+    delete this._account._timeline;
+    GenericConvChatPrototype.unInit.call(this);
+  },
   inReplyToStatusId: null,
   startReply: function(aTweet) {
     this.inReplyToStatusId = aTweet.id_str;

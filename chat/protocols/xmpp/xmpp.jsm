@@ -188,7 +188,10 @@ const XMPPMUCConversationPrototype = {
     this._account.sendStanza(Stanza.presence({to: this.name + "/" + this._nick,
                                              type: "unavailable"}));
     GenericConvChatPrototype.close.call(this);
+  },
+  unInit: function() {
     this._account.removeConversation(this.name);
+    GenericConvChatPrototype.unInit.call(this);
   }
 };
 function XMPPMUCConversation(aAccount, aJID, aNick)
@@ -294,8 +297,13 @@ const XMPPConversationPrototype = {
 
   /* Called when the user closed the conversation */
   close: function() {
+    // TODO send the stanza indicating we have left the conversation?
     GenericConvIMPrototype.close.call(this);
+  },
+  unInit: function() {
     this._account.removeConversation(this.buddy.normalizedName);
+    delete this.buddy;
+    GenericConvIMPrototype.unInit.call(this);
   }
 };
 function XMPPConversation(aAccount, aBuddy)

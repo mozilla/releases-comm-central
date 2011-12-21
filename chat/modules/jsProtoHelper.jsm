@@ -438,7 +438,10 @@ const GenericConversationPrototype = {
     Services.obs.notifyObservers(this, "closing-conversation", null);
     Services.conversations.removeConversation(this);
   },
-  unInit: function() { },
+  unInit: function() {
+    delete this._account;
+    delete this._observers;
+  },
 
   writeMessage: function(aWho, aText, aProperties) {
     (new Message(aWho, aText, aProperties)).conversation = this;
