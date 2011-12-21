@@ -286,7 +286,12 @@ UIConversation.prototype = {
   unInit: function() {
     for each (let conv in this._purpleConv)
       conv.unInit();
+    if (this._observedContact) {
+      this._observedContact.removeObserver(this);
+      delete this._observedContact;
+    }
     this._purpleConv = {}; // Prevent .close from failing.
+    delete this._currentTargetId;
   },
   close: function() {
     for each (let conv in this._purpleConv)
