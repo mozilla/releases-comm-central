@@ -329,7 +329,8 @@ var gAccountManager = {
       return;
 
     let account = selectedItem.account;
-    let activeCommandName = account.disconnected ? "connect" : "disconnect";
+    let activeCommandName =
+      (this.isOffline || account.disconnected) ? "connect" : "disconnect";
     let activeCommandElt = document.getElementById("cmd_" + activeCommandName);
     let isCommandDisabled =
       (this.isOffline ||
