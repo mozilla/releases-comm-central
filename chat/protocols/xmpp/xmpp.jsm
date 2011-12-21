@@ -586,6 +586,15 @@ const XMPPAccountPrototype = {
                       this.imAccount.password, this);
   },
 
+  unInit: function() {
+    if (this._connection)
+      this._disconnect();
+    delete this._jid;
+    delete this._conv;
+    delete this._buddies;
+    delete this._mucs;
+  },
+
   /* Disconnect from the server */
   disconnect: function() {
     this._disconnect();
