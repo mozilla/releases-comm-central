@@ -101,7 +101,7 @@ tab[attention],
 /* Tab icons */
 .tabbrowser-tab,
 .alltabs-item > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/unknown-16.png");
+  list-style-image: url("chrome://chat/skin/unknown-16.png");
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
 
@@ -111,42 +111,42 @@ tab[attention],
 
 .tabbrowser-tab[chat],
 .alltabs-item[chat] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/chat-16.png") !important;
+  list-style-image: url("chrome://chat/skin/chat-16.png") !important;
 }
 .tabbrowser-tab[chat][status="left"],
 .alltabs-item[chat][status="left"] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/chat-left-16.png") !important;
+  list-style-image: url("chrome://chat/skin/chat-left-16.png") !important;
 }
 
 .tabbrowser-tab[status="offline"],
 .alltabs-item[status="offline"] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/offline-16.png") !important;
+  list-style-image: url("chrome://chat/skin/offline-16.png") !important;
 }
 .tabbrowser-tab[status="available"],
 .alltabs-item[status="available"] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/available-16.png") !important;
+  list-style-image: url("chrome://chat/skin/available-16.png") !important;
 }
 .tabbrowser-tab[status="away"],
 .tabbrowser-tab[status="unavailable"],
 .alltabs-item[status="away"] > .menu-iconic-left > .menu-iconic-icon,
 .alltabs-item[status="unavailable"] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/away-16.png") !important;
+  list-style-image: url("chrome://chat/skin/away-16.png") !important;
 }
 .tabbrowser-tab[status="idle"],
 .alltabs-item[status="idle"] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/idle-16.png") !important;
+  list-style-image: url("chrome://chat/skin/idle-16.png") !important;
 }
 .tabbrowser-tab[status="mobile"],
 .alltabs-item[status="mobile"] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/mobile-16.png") !important;
+  list-style-image: url("chrome://chat/skin/mobile-16.png") !important;
 }
 
 .tabbrowser-tab[typing],
 .alltabs-item[typing] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/typing-16.png") !important;
+  list-style-image: url("chrome://chat/skin/typing-16.png") !important;
 }
 
 .tabbrowser-tab[typed],
 .alltabs-item[typed] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/typed-16.png") !important;
+  list-style-image: url("chrome://chat/skin/typed-16.png") !important;
 }

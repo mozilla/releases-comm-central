@@ -47,6 +47,8 @@ EXTRA_JS_MODULES = \
 
 EXTRA_PP_JS_MODULES = \
 	ibCore.jsm \
+	ibInterruptions.jsm \
+	ibSounds.jsm \
 	imWindows.jsm \
 	$(NULL)
 

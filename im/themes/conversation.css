@@ -108,29 +108,29 @@
 }
 
 .statusTypeIcon[status="unknown"] {
-  list-style-image: url('chrome://instantbird/skin/unknown-16.png');
+  list-style-image: url('chrome://chat/skin/unknown-16.png');
 }
 
 .statusTypeIcon[status="chat"] {
-  list-style-image: url('chrome://instantbird/skin/chat-16.png');
+  list-style-image: url('chrome://chat/skin/chat-16.png');
 }
 
 .statusTypeIcon[status="available"] {
-  list-style-image: url('chrome://instantbird/skin/available-16.png');
+  list-style-image: url('chrome://chat/skin/available-16.png');
 }
 
 .statusTypeIcon[status="unavailable"],
 .statusTypeIcon[status="away"] {
-  list-style-image: url('chrome://instantbird/skin/away-16.png');
+  list-style-image: url('chrome://chat/skin/away-16.png');
 }
 
 .statusTypeIcon[status="offline"],
 .statusTypeIcon[status="invisible"] {
-  list-style-image: url('chrome://instantbird/skin/offline-16.png');
+  list-style-image: url('chrome://chat/skin/offline-16.png');
 }
 
 .statusTypeIcon[status="idle"] {
-  list-style-image: url('chrome://instantbird/skin/idle-16.png');
+  list-style-image: url('chrome://chat/skin/idle-16.png');
 }
 
 .statusMessage {
@@ -167,23 +167,23 @@
 
 .status-overlay-icon[status="away"],
 .status-overlay-icon[status="unavailable"] {
-  list-style-image: url('chrome://instantbird/skin/away.png');
+  list-style-image: url('chrome://chat/skin/away.png');
 }
 
 .status-overlay-icon[status="idle"] {
-  list-style-image: url('chrome://instantbird/skin/idle.png');
+  list-style-image: url('chrome://chat/skin/idle.png');
 }
 
 .status-overlay-icon[status="mobile"] {
-  list-style-image: url('chrome://instantbird/skin/mobile.png');
+  list-style-image: url('chrome://chat/skin/mobile.png');
 }
 
 .status-overlay-icon[status="offline"] {
-  list-style-image: url('chrome://instantbird/skin/offline.png');
+  list-style-image: url('chrome://chat/skin/offline.png');
 }
 
 .status-overlay-icon[status="unknown"] {
-  list-style-image: url('chrome://instantbird/skin/unknown.png');
+  list-style-image: url('chrome://chat/skin/unknown.png');
 }
 
 @media all and (min-height: 251px) {

@@ -37,24 +37,24 @@
 
 .statusIcon[status="away"],
 .statusIcon[status="unavailable"] {
-  background-image: url('chrome://instantbird/skin/away.png');
+  background-image: url('chrome://chat/skin/away.png');
 }
 
 .statusIcon[status="idle"] {
-  background-image: url('chrome://instantbird/skin/idle.png');
+  background-image: url('chrome://chat/skin/idle.png');
 }
 
 .statusIcon[status="mobile"] {
-  background-image: url('chrome://instantbird/skin/mobile.png');
+  background-image: url('chrome://chat/skin/mobile.png');
 }
 
 .statusIcon[status="offline"],
 .statusIcon[status="left"] {
-  background-image: url('chrome://instantbird/skin/offline.png');
+  background-image: url('chrome://chat/skin/offline.png');
 }
 
 .statusIcon[status="unknown"] {
-  background-image: url('chrome://instantbird/skin/unknown.png');
+  background-image: url('chrome://chat/skin/unknown.png');
 }
 
 .protoIcon[status="offline"],

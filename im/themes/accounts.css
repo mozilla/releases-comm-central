@@ -245,10 +245,10 @@ richlistitem[dragover="up"] {
 }
 
 richlistitem[state="connected"] .accountStateIcon {
-  list-style-image: url("chrome://instantbird/skin/available-16.png");
+  list-style-image: url("chrome://chat/skin/available-16.png");
 }
 richlistitem[state="disconnected"] .accountStateIcon {
-  list-style-image: url("chrome://instantbird/skin/offline-16.png");
+  list-style-image: url("chrome://chat/skin/offline-16.png");
 }
 richlistitem[state="connecting"] .accountStateIcon {
   list-style-image: url("chrome://global/skin/icons/loading_16.png");

@@ -1,6 +1,6 @@
-instantbird.jar:
-% content instantbird %content/instantbird/
-	content/instantbird/browserRequest.js
-	content/instantbird/browserRequest.xul
-	content/instantbird/convbrowser.xml
-	content/instantbird/conv.html
+chat.jar:
+% content chat %content/chat/
+	content/chat/browserRequest.js
+	content/chat/browserRequest.xul
+	content/chat/convbrowser.xml
+	content/chat/conv.html

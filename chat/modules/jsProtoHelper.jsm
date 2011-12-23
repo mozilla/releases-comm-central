@@ -673,7 +673,7 @@ const GenericProtocolPrototype = {
   },
   get id() "prpl-" + this.normalizedName,
   get normalizedName() normalize(this.name),
-  get iconBaseURI() "chrome://instantbird/skin/prpl-generic/",
+  get iconBaseURI() "chrome://chat/skin/prpl-generic/",
 
   getAccount: function(aImAccount) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 

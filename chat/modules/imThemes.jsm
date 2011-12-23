@@ -351,7 +351,7 @@ function getStatusIconFromBuddy(aBuddy)
       status = "available";
   }
 
-  return "chrome://instantbird/skin/" + status + "-16.png";
+  return "chrome://chat/skin/" + status + "-16.png";
 }
 
 const headerFooterReplacements = {
@@ -598,7 +598,7 @@ function initHTMLDocument(aConv, aTheme, aDoc)
   {
     HTML += "<link rel=\"stylesheet\" href=\"" + aHref + "\" type=\"text/css\"/>";
   }
-  addCSS("chrome://instantbird/skin/conv.css");
+  addCSS("chrome://chat/skin/conv.css");
 
   // add css to handle DefaultFontFamily and DefaultFontSize
   let cssText = "";

@@ -100,7 +100,7 @@
             // loading the real conversation HTML.
             this._loadState = 0;
 
-            const URI = "chrome://instantbird/content/conv.html";
+            const URI = "chrome://chat/content/conv.html";
             const flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
             this.webNavigation.loadURI(URI, flag, null, null, null);
             this.addProgressListener(this);

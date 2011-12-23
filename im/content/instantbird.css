@@ -81,5 +81,5 @@ conversation {
 }
 
 browser[type="content-conversation"] {
-  -moz-binding: url("chrome://instantbird/content/convbrowser.xml#browser");
+  -moz-binding: url("chrome://chat/content/convbrowser.xml#browser");
 }

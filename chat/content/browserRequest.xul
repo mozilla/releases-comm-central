@@ -37,7 +37,7 @@
    - ***** END LICENSE BLOCK ***** -->
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://instantbird/skin/browserRequest.css" type="text/css"?>
+<?xml-stylesheet href="chrome://chat/skin/browserRequest.css" type="text/css"?>
 
 <!DOCTYPE window>
 <window id="browserRequest"
@@ -50,14 +50,14 @@
         height="500"
         orient="vertical">
 
-  <script type="application/javascript" src="chrome://instantbird/content/browserRequest.js"/>
+  <script type="application/javascript" src="chrome://chat/content/browserRequest.js"/>
 
   <keyset id="mainKeyset">
     <key id="key_close"   key="w" modifiers="accel" oncommand="cancelRequest()"/>
     <key id="key_close2"  keycode="VK_ESCAPE" oncommand="cancelRequest()"/>
   </keyset>
   <hbox id="header">
-    <image id="headerImage" src="chrome://instantbird/skin/prpl-generic/icon32.png"/>
+    <image id="headerImage" src="chrome://chat/skin/prpl-generic/icon32.png"/>
     <vbox>
     <label id="headerLabel"/>
     <description id="headerMessage"/>

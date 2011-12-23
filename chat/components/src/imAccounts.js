@@ -97,7 +97,7 @@ UnknownProtocol.prototype = {
   __proto__: ClassInfo("prplIProtocol", "Unknown protocol"),
   get name() "",
   get normalizedName() this.name,
-  get iconBaseURI() "chrome://instantbird/skin/prpl-unknown/",
+  get iconBaseURI() "chrome://chat/skin/prpl-unknown/",
   getOptions: function() EmptyEnumerator,
   getUsernameSplit: function() EmptyEnumerator,
   get usernameEmptyText() "",

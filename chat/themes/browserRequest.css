@@ -46,11 +46,11 @@ statusbar {
 }
 #security-button[level="high"],
 #security-button[level="low"] {
-  background-image: url("chrome://instantbird/skin/icons/secure.png");
+  background-image: url("chrome://chat/skin/icons/secure.png");
 }
 
 #security-button[level="broken"] {
-  background-image: url("chrome://instantbird/skin/icons/insecure.png");
+  background-image: url("chrome://chat/skin/icons/insecure.png");
 }
 
 #header {

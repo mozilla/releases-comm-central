@@ -237,7 +237,7 @@ contact[droptarget] > buddy[dummy] {
 }
 
 .startChatBubble {
-  list-style-image: url('chrome://instantbird/skin/prpl-generic/icon.png');
+  list-style-image: url('chrome://chat/skin/prpl-generic/icon.png');
 }
 
 .expander-up {
@@ -401,23 +401,23 @@ group[closed] .twisty {
 
 #statusTypeIcon[status="available"],
 #statusTypeAvailable {
-  list-style-image: url('chrome://instantbird/skin/available-16.png');
+  list-style-image: url('chrome://chat/skin/available-16.png');
 }
 
 #statusTypeIcon[status="unavailable"],
 #statusTypeIcon[status="away"],
 #statusTypeUnavailable {
-  list-style-image: url('chrome://instantbird/skin/away-16.png');
+  list-style-image: url('chrome://chat/skin/away-16.png');
 }
 
 #statusTypeIcon[status="offline"],
 #statusTypeIcon[status="invisible"],
 #statusTypeOffline {
-  list-style-image: url('chrome://instantbird/skin/offline-16.png');
+  list-style-image: url('chrome://chat/skin/offline-16.png');
 }
 
 #statusTypeIcon[status="idle"] {
-  list-style-image: url('chrome://instantbird/skin/idle-16.png');
+  list-style-image: url('chrome://chat/skin/idle-16.png');
 }
 
 %ifdef XP_MACOSX

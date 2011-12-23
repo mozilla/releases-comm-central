@@ -220,7 +220,7 @@ var Core = {
 
     if (aTopic == "browser-request") {
       Services.ww.openWindow(null,
-                             "chrome://instantbird/content/browserRequest.xul",
+                             "chrome://chat/content/browserRequest.xul",
                              null, "chrome", aSubject);
       return;
     }
