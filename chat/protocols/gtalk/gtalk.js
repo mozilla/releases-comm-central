@@ -43,7 +43,7 @@ Cu.import("resource:///modules/xmpp.jsm");
 Cu.import("resource:///modules/xmpp-session.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
-  l10nHelper("chrome://purple/locale/xmpp.properties")
+  l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
 function GTalkAccount(aProtoInstance, aImAccount) {

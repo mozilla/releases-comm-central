@@ -375,7 +375,7 @@ const headerFooterReplacements = {
 
 function formatAutoResponce(aTxt)
   Services.strings
-          .createBundle("chrome://purple/locale/conversations.properties")
+          .createBundle("chrome://chat/locale/conversations.properties")
           .formatStringFromName("autoReply", [aTxt], 1)
 
 const statusMessageReplacements = {

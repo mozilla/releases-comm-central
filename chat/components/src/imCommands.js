@@ -47,7 +47,7 @@ XPCOMUtils.defineLazyServiceGetter(this, "obs",
                                    "nsIObserverService");
 
 XPCOMUtils.defineLazyGetter(this, "bundle", function()
-  Services.strings.createBundle("chrome://purple/locale/commands.properties")
+  Services.strings.createBundle("chrome://chat/locale/commands.properties")
 );
 
 function CommandsService() { }

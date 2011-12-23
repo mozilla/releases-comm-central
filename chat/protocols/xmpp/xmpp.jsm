@@ -66,7 +66,7 @@ XPCOMUtils.defineLazyGetter(this, "NetUtil", function() {
 initLogModule("xmpp", this);
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
-  l10nHelper("chrome://purple/locale/xmpp.properties")
+  l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
 /* This is an ordered list, used to determine chat buddy flags:

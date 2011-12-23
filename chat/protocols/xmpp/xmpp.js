@@ -42,7 +42,7 @@ Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/xmpp.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
-  l10nHelper("chrome://purple/locale/xmpp.properties")
+  l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
 function XMPPAccount(aProtoInstance, aImAccount) {

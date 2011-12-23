@@ -45,7 +45,7 @@ var gLastUIConvId = 0;
 var gLastPurpleConvId = 0;
 
 XPCOMUtils.defineLazyGetter(this, "bundle", function()
-  Services.strings.createBundle("chrome://purple/locale/conversations.properties")
+  Services.strings.createBundle("chrome://chat/locale/conversations.properties")
 );
 
 function UIConversation(aPurpleConversation)

@@ -44,7 +44,7 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
-  l10nHelper("chrome://purple/locale/twitter.properties")
+  l10nHelper("chrome://chat/locale/twitter.properties")
 );
 XPCOMUtils.defineLazyGetter(this, "_lang", function()
   l10nHelper("chrome://global/locale/languageNames.properties")

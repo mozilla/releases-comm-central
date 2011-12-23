@@ -25,10 +25,10 @@ pref("messenger.conversations.autoAcceptChatInvitations", 1);
 pref("messenger.conversations.alwaysClose", false);
 
 pref("messenger.conversations.selections.magicCopyEnabled", true);
-pref("messenger.conversations.selections.ellipsis", "chrome://purple/locale/conversations.properties");
-pref("messenger.conversations.selections.systemMessagesTemplate", "chrome://purple/locale/conversations.properties");
-pref("messenger.conversations.selections.contentMessagesTemplate", "chrome://purple/locale/conversations.properties");
-pref("messenger.conversations.selections.actionMessagesTemplate", "chrome://purple/locale/conversations.properties");
+pref("messenger.conversations.selections.ellipsis", "chrome://chat/locale/conversations.properties");
+pref("messenger.conversations.selections.systemMessagesTemplate", "chrome://chat/locale/conversations.properties");
+pref("messenger.conversations.selections.contentMessagesTemplate", "chrome://chat/locale/conversations.properties");
+pref("messenger.conversations.selections.actionMessagesTemplate", "chrome://chat/locale/conversations.properties");
 
 pref("messenger.conversations.textbox.autoResize", true);
 pref("messenger.conversations.textbox.defaultMaxLines", 5);
@@ -54,7 +54,7 @@ pref("messenger.options.messagesStyle.combineConsecutiveInterval", 300); // 5 mi
 pref("messenger.status.reportIdle", true);
 pref("messenger.status.timeBeforeIdle", 300); // 5 minutes
 pref("messenger.status.awayWhenIdle", true);
-pref("messenger.status.defaultIdleAwayMessage", "chrome://purple/locale/status.properties");
+pref("messenger.status.defaultIdleAwayMessage", "chrome://chat/locale/status.properties");
 pref("messenger.status.userIconFileName", "");
 pref("messenger.status.userDisplayName", "");
 

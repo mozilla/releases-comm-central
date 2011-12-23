@@ -60,7 +60,7 @@ const Status = {
 
     if (!(aStatusType in this._labels)) {
       this._labels[aStatusType] =
-        Services.strings.createBundle("chrome://purple/locale/status.properties")
+        Services.strings.createBundle("chrome://chat/locale/status.properties")
                 .GetStringFromName(aStatusType + "StatusType");
     }
     return this._labels[aStatusType];
