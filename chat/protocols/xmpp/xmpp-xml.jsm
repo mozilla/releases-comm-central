@@ -326,10 +326,17 @@ function XMPPParser(aListener) {
   this._parser.onStartRequest(this._dummyRequest, null);
 }
 XMPPParser.prototype = {
+  _destroyPending: false,
   destroy: function() {
     // Avoid reference cycles
     this._parser.contentHandler = null;
     delete this._listener;
+    // Calling onStopRequest while we are in an onDataAvailable
+    // callback crashes, don't do it.
+    if (this._inOnDataAvailable) {
+      this._destroyPending = true;
+      return;
+    }
     this._parser.onStopRequest(this._dummyRequest, null, Cr.NS_OK);
     // Stopping the request causes parse errors (because we parsed
     // only partial XML documents?), so the error handler is still
@@ -344,9 +351,14 @@ XMPPParser.prototype = {
     suspend: function() { }
   },
 
+  _inOnDataAvailable: false,
   onDataAvailable: function(aInputStream, aOffset, aCount) {
+    this._inOnDataAvailable = true;
     this._parser.onDataAvailable(this._dummyRequest, null,
                                  aInputStream, aOffset, aCount);
+    delete this._inOnDataAvailable;
+    if (this._destroyPending)
+      this.destroy();
   },
 
   /* nsISAXContentHandler implementation */
