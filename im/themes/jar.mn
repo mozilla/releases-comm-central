@@ -87,29 +87,12 @@ instantbird.jar:
 	skin/classic/aero/instantbird/alert.css
 *	skin/classic/aero/instantbird/richlistbox.css
 *	skin/classic/aero/instantbird/accountWizard.css
-	skin/classic/aero/instantbird/available-16.png
-	skin/classic/aero/instantbird/available.png
-	skin/classic/aero/instantbird/away-16.png
-	skin/classic/aero/instantbird/away.png
-	skin/classic/aero/instantbird/idle-16.png
-	skin/classic/aero/instantbird/idle.png
-	skin/classic/aero/instantbird/mobile-16.png
-	skin/classic/aero/instantbird/mobile.png
-	skin/classic/aero/instantbird/offline-16.png
-	skin/classic/aero/instantbird/offline.png
-	skin/classic/aero/instantbird/typing-16.png
-	skin/classic/aero/instantbird/typed-16.png
-	skin/classic/aero/instantbird/unknown.png
-	skin/classic/aero/instantbird/unknown-16.png
-	skin/classic/aero/instantbird/chat-16.png
-	skin/classic/aero/instantbird/chat-left-16.png
 	skin/classic/aero/instantbird/founder.png
 	skin/classic/aero/instantbird/operator.png
 	skin/classic/aero/instantbird/half-operator.png
 	skin/classic/aero/instantbird/voice.png
 *	skin/classic/aero/instantbird/blist.css			(blist-aero.css)
 	skin/classic/aero/instantbird/buddytooltip.css
-	skin/classic/aero/instantbird/conv.css
 *	skin/classic/aero/instantbird/conversation.css		(conversation-aero.css)
 *	skin/classic/aero/instantbird/engineManager.css
 *	skin/classic/aero/instantbird/instantbird.css		(instantbird-aero.css)
