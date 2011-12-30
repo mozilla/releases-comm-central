@@ -60,6 +60,7 @@
             <xul:vbox flex="1">
               <xul:browser anonid="browser" type="content-conversation" flex="1"
                            xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
+              <xul:progressmeter anonid="browserProgress" value="33" hidden="true"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
             </xul:vbox>
           </xul:notificationbox>
@@ -1263,6 +1264,8 @@
          if (aTopic == "conversation-loaded") {
            if (aSubject != this.browser)
              return;
+
+           this.browser.progressBar = this.getElt("browserProgress");
 
            // Display all queued messages. Use a timeout so that message text
            // modifiers can be added with observers for this notification.

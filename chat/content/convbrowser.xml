@@ -281,9 +281,62 @@
       <field name="_lastMessageIsContext">true</field>
       <field name="_firstNonContextElt">null</field>
 
+      <field name="_pendingMessages">[]</field>
+      <field name="_messageDisplayPending">false</field>
       <method name="appendMessage">
         <parameter name="aMsg"/>
         <parameter name="aContext"/>
+        <body>
+          <![CDATA[
+            this._pendingMessages.push({msg: aMsg, context: aContext});
+            if (this._messageDisplayPending)
+              return;
+            this._messageDisplayPending = true;
+            Services.tm.mainThread.dispatch(this.displayPendingMessages.bind(this),
+                                            Ci.nsIEventTarget.DISPATCH_NORMAL);
+          ]]>
+        </body>
+      </method>
+
+      <field name="progressBar">null</field>
+      <field name="_nextPendingMessageIndex">0</field>
+      <method name="displayPendingMessages">
+        <body>
+          <![CDATA[
+            let max = this._pendingMessages.length;
+            if (this.progressBar) {
+              this.progressBar.hidden = false;
+              this.progressBar.max = this._pendingMessages.length;
+            }
+            let begin = Date.now();
+            let i;
+            for (i = this._nextPendingMessageIndex; i < max; ++i) {
+              let msg = this._pendingMessages[i];
+              this.displayMessage(msg.msg, msg.context, i + 1 < max);
+              if (Date.now() - begin > 40)
+                break;
+            }
+            if (i < max - 1) {
+              this._nextPendingMessageIndex = i + 1;
+              if (this.progressBar)
+                this.progressBar.value = this._nextPendingMessageIndex;
+              Services.tm.mainThread.dispatch(this.displayPendingMessages.bind(this),
+                                              Ci.nsIEventTarget.DISPATCH_NORMAL);
+              return;
+            }
+            this._messageDisplayPending = false;
+            this._pendingMessages = [];
+            this._nextPendingMessageIndex = 0;
+            if (this.progressBar)
+              this.progressBar.hidden = true;
+          ]]>
+        </body>
+      </method>
+
+      <method name="displayMessage">
+        <parameter name="aMsg"/>
+        <parameter name="aContext"/>
+        <parameter name="aNoAutoScroll"/>
         <body>
           <![CDATA[
             let doc = this.contentDocument;
@@ -324,9 +377,11 @@
             let html = getHTMLForMessage(aMsg, this.theme, next, aContext);
             let body = doc.getElementsByTagName("body")[0];
             let newElt = insertHTMLForMessage(aMsg, html, doc, next);
-            newElt.getBoundingClientRect(); // avoid ireflow bugs
-            if (this._autoScrollEnabled || this._updateAutoScrollEnabled())
-              this._scrollToElement(newElt);
+            if (!aNoAutoScroll) {
+              newElt.getBoundingClientRect(); // avoid ireflow bugs
+              if (this._autoScrollEnabled || this._updateAutoScrollEnabled())
+                this._scrollToElement(newElt);
+            }
             this._lastElement = newElt;
             this._lastMessage = aMsg;
             if (this._lastMessageIsContext != aContext)
