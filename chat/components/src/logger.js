@@ -43,10 +43,13 @@
 #endif
 
 Components.utils.import("resource:///modules/hiddenWindow.jsm");
+Components.utils.import("resource:///modules/imServices.jsm");
 Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
+Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
+const CC = Components.Constructor;
 
 XPCOMUtils.defineLazyServiceGetter(this, "obs",
                                    "@mozilla.org/observer-service;1",
@@ -61,6 +64,13 @@ XPCOMUtils.defineLazyGetter(this, "logDir", function() {
   file.append("logs");
   return file;
 });
+
+const FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
+                           "nsIFileInputStream",
+                           "init");
+const ConverterInputStream = CC("@mozilla.org/intl/converter-input-stream;1",
+                                "nsIConverterInputStream",
+                                "init");
 
 function getLogFolderForAccount(aAccount, aCreate)
 {
@@ -77,7 +87,7 @@ function getLogFolderForAccount(aAccount, aCreate)
   return file;
 }
 
-function getNewLogFileName()
+function getNewLogFileName(aFormat)
 {
   let date = new Date();
   let dateTime = date.toLocaleFormat("%Y-%m-%d.%H%M%S");
@@ -92,7 +102,9 @@ function getNewLogFileName()
   offset = (offset - minutes) / 60;
   function twoDigits(aNumber)
     aNumber == 0 ? "00" : aNumber < 10 ? "0" + aNumber : aNumber;
-  return dateTime + twoDigits(offset) + twoDigits(minutes) + ".txt";
+  if (!aFormat)
+    aFormat = "txt";
+  return dateTime + twoDigits(offset) + twoDigits(minutes) + "." + aFormat;
 }
 
 /* Conversation logs stuff */
@@ -102,12 +114,15 @@ function ConversationLog(aConversation)
 }
 ConversationLog.prototype = {
   _log: null,
+  format: "txt",
   _init: function cl_init() {
     let file = getLogFolderForAccount(this._conv.account, true);
     file.append(this._conv.normalizedName);
     if (!file.exists())
       file.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
-    file.append(getNewLogFileName());
+    if (prefs.getCharPref("purple.logging.format") == "json")
+      this.format = "json";
+    file.append(getNewLogFileName(this.format));
     let os = Cc["@mozilla.org/network/file-output-stream;1"].
              createInstance(Ci.nsIFileOutputStream);
     const PR_WRITE_ONLY   = 0x02;
@@ -124,6 +139,14 @@ ConversationLog.prototype = {
   _getHeader: function cl_getHeader()
   {
     let account = this._conv.account;
+    if (this.format == "json") {
+      return JSON.stringify({date: new Date(),
+                             name: this._conv.name,
+                             title: this._conv.title,
+                             account: account.normalizedName,
+                             protocol: account.protocol.normalizedName
+                            }) + "\n";
+    }
     return "Conversation with " + this._conv.name +
            " at " + (new Date).toLocaleString() +
            " on " + account.name +
@@ -154,6 +177,24 @@ ConversationLog.prototype = {
   logMessage: function cl_logMessage(aMessage) {
     if (!this._log)
       this._init();
+
+    if (this.format == "json") {
+      let msg = {
+        date: new Date(aMessage.time * 1000),
+        who: aMessage.who,
+        text: aMessage.originalMessage,
+        flags: ["outgoing", "incoming", "system", "autoResponse",
+                "containsNick", "whispered", "error", "delayed",
+                "noFormat", "containsImages", "notification",
+                "noLinkification"].filter(function(f) aMessage[f])
+      };
+      let alias = aMessage.alias;
+      if (alias && alias != msg.who)
+        msg.alias = alias;
+      this._log.writeString(JSON.stringify(msg) + "\n");
+      return;
+    }
+
     let date = new Date(aMessage.time * 1000);
     let line = "(" + date.toLocaleTimeString() + ") ";
     let msg = this._serialize(aMessage.originalMessage);
@@ -284,22 +325,85 @@ function closeLogForAccount(aAccount)
   delete gSystemLogs[id];
 }
 
+function LogMessage(aData, aConversation)
+{
+  this._init(aData.who, aData.text);
+  this._conversation = aConversation;
+  this.time = Math.round(new Date(aData.date) / 1000);
+  if ("alias" in aData)
+    this._alias = aData.alias;
+  for each (let flag in aData.flags)
+    this[flag] = true;
+}
+LogMessage.prototype = GenericMessagePrototype;
+
+function LogConversation(aLineInputStream)
+{
+  let line = {value: ""};
+  let more = aLineInputStream.readLine(line);
+
+  if (!line.value)
+    throw "bad log file";
+
+  let data = JSON.parse(line.value);
+  this.name = data.name;
+  this.title = data.title;
+  this._accountName = data.account;
+  this._protocolName = data.protocol;
+
+  this._messages = [];
+  while (more) {
+    more = aLineInputStream.readLine(line);
+    if (!line.value)
+      break;
+    let data = JSON.parse(line.value);
+    this._messages.push(new LogMessage(data, this));
+  }
+}
+LogConversation.prototype = {
+  __proto__: ClassInfo("imILogConversation", "Log conversation object"),
+  get isChat() false,
+  get buddy() null,
+  get account() ({
+    alias: "",
+    name: this._accountName,
+    normalizedName: this._accountName,
+    protocol: {name: this._protocolName},
+    statusInfo: Services.core.globalUserStatus
+  }),
+  getMessages: function(aMessageCount) {
+    if (aMessageCount)
+      aMessageCount.value = this._messages.length;
+    return this._messages;
+  }
+};
+
 /* Generic log enumeration stuff */
 function Log(aFile)
 {
+  this.file = aFile;
   this.path = aFile.path;
-  this.time = this._dateFromName(aFile.leafName).valueOf() / 1000;
+  const regexp = /([0-9]{4})-([0-9]{2})-([0-9]{2}).([0-9]{2})([0-9]{2})([0-9]{2})([+-])([0-9]{2})([0-9]{2}).*\.([a-z]+)$/;
+  let r = aFile.leafName.match(regexp);
+  let date = new Date(r[1], r[2] - 1, r[3], r[4], r[5], r[6]);
+  let offset = r[7] * 60 + r[8];
+  if (r[6] == -1)
+    offset *= -1;
+  this.time = date.valueOf() / 1000; // ignore the timezone offset for now (FIXME)
+  this.format = r[10];
 }
 Log.prototype = {
-  __proto__: ClassInfo("ibILog", "Log object"),
-  _dateFromName: function log_dateFromName(aName) {
-    const regexp = /([0-9]{4})-([0-9]{2})-([0-9]{2}).([0-9]{2})([0-9]{2})([0-9]{2})([+-])([0-9]{2})([0-9]{2}).*\.txt/;
-    let r = aName.match(regexp);
-    let date = new Date(r[1], r[2] - 1, r[3], r[4], r[5], r[6]);
-    let offset = r[7] * 60 + r[8];
-    if (r[6] == -1)
-      offset *= -1;
-    return date; // ignore the timezone offset for now (FIXME)
+  __proto__: ClassInfo("imILog", "Log object"),
+  getConversation: function() {
+    if (this.format != "json")
+      return null;
+
+    const PR_RDONLY = 0x01;
+    let fis = new FileInputStream(this.file, PR_RDONLY, 0444,
+                                  Ci.nsIFileInputStream.CLOSE_ON_EOF);
+    let lis = new ConverterInputStream(fis, "UTF-8", 1024, 0x0);
+    lis.QueryInterface(Ci.nsIUnicharLineInputStream);
+    return new LogConversation(lis);
   }
 };
 
@@ -419,7 +523,7 @@ Logger.prototype = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver, Ci.ibILogger]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
   classDescription: "Logger",
   classID: Components.ID("{fb0dc220-2c7a-4216-9f19-6b8f3480eae9}"),
   contractID: "@instantbird.org/logger;1"

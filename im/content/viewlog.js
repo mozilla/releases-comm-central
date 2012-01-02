@@ -38,7 +38,11 @@
 
 // viewZoomOverlay.js uses this
 function getBrowser() {
-  return document.getElementById("browser");
+  let deck = document.getElementById("browserDeck");
+  let id = (parseInt(deck.selectedIndex, 10) ? "conv" : "text") + "-browser";
+  let browser = document.getElementById(id);
+  browser.selectedBrowser = browser; // for macgestures.js
+  return browser;
 }
 
 var logWindow = {
@@ -68,24 +72,81 @@ var logWindow = {
     findbar.close = function() { listbox.focus(); };
     findbar.open();
 
-    let browser = getBrowser();
-    browser.addEventListener("DOMContentLoaded", logWindow.contentLoaded, true);
+    document.getElementById("text-browser")
+            .addEventListener("DOMContentLoaded", logWindow.contentLoaded, true);
+    document.getElementById("conv-browser").progressBar =
+      document.getElementById("browserProgress");
   },
 
+  pendingLoad: false,
   onselect: function lw_onselect() {
-    let browser = getBrowser();
+    let log = document.getElementById("logList").selectedItem.log;
+    let deck = document.getElementById("browserDeck");
+    let findbar = document.getElementById("findbar");
+    let conv = log.getConversation();
+    if (conv) {
+      deck.selectedIndex = 1;
+      let browser = document.getElementById("conv-browser");
+      findbar.browser = browser;
+      FullZoom.setSettingValue();
+      if (this.pendingLoad) {
+        browser._conv = conv;
+        return;
+      }
+      browser.init(conv);
+      this.pendingLoad = true;
+      Services.obs.addObserver(this, "conversation-loaded", false);
+      return;
+    }
+
+    deck.selectedIndex = 0;
+    let browser = document.getElementById("text-browser");
+    findbar.browser = browser;
+    FullZoom.setSettingValue();
     browser.documentCharsetInfo.forcedCharset =
       browser.mAtomService.getAtom("UTF-8");
-    let path = document.getElementById("logList").selectedItem.log.path;
     let file = Components.classes["@mozilla.org/file/local;1"]
                          .createInstance(Components.interfaces.nsILocalFile);
-    file.initWithPath(path);
+    file.initWithPath(log.path);
     browser.loadURI(Services.io.newFileURI(file).spec);
   },
 
-  contentLoaded: function lw_contentLoaded() {
-    let doc = getBrowser().contentDocument;
+  _colorCache: {},
+  // Duplicated code from conversation.xml :-(
+  _computeColor: function(aName) {
+    if (Object.prototype.hasOwnProperty.call(this._colorCache, aName))
+      return this._colorCache[aName];
 
+    // Compute the color based on the nick
+    var nick = aName.match(/[a-zA-Z0-9]+/);
+    nick = nick ? nick[0].toLowerCase() : nick = aName;
+    var weight = 10;
+    var res = 0;
+    for (var i = 0; i < nick.length; ++i) {
+      var char = nick.charCodeAt(i) - 47;
+      if (char > 10)
+        char -= 39;
+      // now char contains a value between 1 and 36
+      res += char * weight;
+           weight *= 0.52; //arbitrary
+    }
+    return (this._colorCache[aName] = Math.round(res) % 360);
+  },
+  observe: function(aSubject, aTopic, aData) {
+    let browser = document.getElementById("conv-browser");
+    if (aTopic != "conversation-loaded" || aSubject != browser)
+      return;
+    for each (let msg in browser._conv.getMessages()) {
+      if (!msg.system)
+        msg.color = "color: hsl(" + this._computeColor(msg.who) + ", 100%, 40%);";
+      browser.appendMessage(msg);
+    }
+    delete this.pendingLoad;
+    Services.obs.removeObserver(this, "conversation-loaded");
+  },
+
+  contentLoaded: function lw_contentLoaded() {
+    let doc = document.getElementById("text-browser").contentDocument;
     let link = doc.createElement("link");
     link.type = "text/css";
     link.rel = "stylesheet";

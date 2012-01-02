@@ -60,4 +60,4 @@ XPCOMUtils.defineLazyServiceGetter(Services, "tags",
                                    "imITagsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "logs",
                                    "@instantbird.org/logger;1",
-                                   "ibILogger");
+                                   "imILogger");

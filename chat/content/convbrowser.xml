@@ -96,12 +96,15 @@
             // reloaded so we need to reset _theme.
             this._theme = null;
 
+            // Prevent ongoing asynchronous message display from continuing.
+            this._messageDisplayPending = false;
+
             // _loadState is 0 while loading conv.html and 1 while
             // loading the real conversation HTML.
             this._loadState = 0;
 
             const URI = "chrome://chat/content/conv.html";
-            const flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
+            const flag = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
             this.webNavigation.loadURI(URI, flag, null, null, null);
             this.addProgressListener(this);
 
@@ -222,6 +225,7 @@
             if (this.mDestroyed)
               return;
             this.mDestroyed = true;
+            this._messageDisplayPending = false;
 
             if (this.mDragDropHandler)
               this.mDragDropHandler.detach();
@@ -303,6 +307,9 @@
       <method name="displayPendingMessages">
         <body>
           <![CDATA[
+            if (!this._messageDisplayPending)
+              return;
+
             let max = this._pendingMessages.length;
             if (this.progressBar) {
               this.progressBar.hidden = false;
@@ -591,6 +598,13 @@
                       .addSelectionListener(this);
                 }
               }
+
+              this._lastMessage = null;
+              this._lastMessageIsContext = true;
+              this._firstNonContextElt = null;
+              this._messageDisplayPending = false;
+              this._pendingMessages = [];
+              this._nextPendingMessageIndex = 0;
 
               Services.obs.notifyObservers(this, "conversation-loaded", null);
             }

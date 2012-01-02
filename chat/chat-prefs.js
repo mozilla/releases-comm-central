@@ -80,7 +80,7 @@ pref("purple.debug.loglevel", 3);
 pref("purple.debug.loglevel", 2);
 #endif
 
-pref("purple.logging.format", "txt");
+pref("purple.logging.format", "json");
 pref("purple.logging.log_chats", true);
 pref("purple.logging.log_ims", true);
 pref("purple.logging.log_system", true);

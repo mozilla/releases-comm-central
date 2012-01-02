@@ -43,15 +43,39 @@ interface imIAccountBuddy;
 interface imIBuddy;
 interface imIContact;
 interface prplIConversation;
+interface prplIMessage;
+
+[scriptable, uuid(5bc06f3b-33a1-412b-a4d8-4fc7ba4c962b)]
+interface imILogConversation: nsISupports {
+  readonly attribute AUTF8String title;
+  readonly attribute AUTF8String name;
+
+  // Simplified account implementation:
+  //  - alias will always be empty
+  //  - name (always the normalizedName)
+  //  - statusInfo will return Services.core.globalUserStatus
+  //  - protocol will only contain a "name" attribute, with the prpl's normalized name.
+  // Other methods/attributes aren't implemented.
+  readonly attribute imIAccount account;
+
+  readonly attribute boolean isChat; // always false (compatibility with prplIConversation).
+  readonly attribute imIAccountBuddy buddy; // always null (compatibility with prplIConvIM).
+
+  void getMessages([optional] out unsigned long messageCount,
+                   [retval, array, size_is(messageCount)] out prplIMessage messages);
+};
 
 [scriptable, uuid(164ff6c3-ca64-4880-b8f3-67eb1817955f)]
-interface ibILog: nsISupports {
+interface imILog: nsISupports {
   readonly attribute AUTF8String path;
   readonly attribute PRTime time;
+  readonly attribute AUTF8String format;
+  // Will return null if the log format isn't json.
+  imILogConversation getConversation();
 };
 
 [scriptable, uuid(ab38c01c-2245-4279-9437-1d6bcc69d556)]
-interface ibILogger: nsISupports {
+interface imILogger: nsISupports {
   nsISimpleEnumerator getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy);
   nsISimpleEnumerator getLogsForBuddy(in imIBuddy aBuddy);
   nsISimpleEnumerator getLogsForContact(in imIContact aContact);

@@ -40,6 +40,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/viewlog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/content/viewlog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/instantbird.css" type="text/css"?>
 
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 #ifdef XP_MACOSX
@@ -132,9 +133,15 @@
     <listbox id="logList" onselect="logWindow.onselect();" width="160"/>
     <splitter/>
     <vbox flex="1">
-      <browser id="browser" type="content" context="contentAreaContextMenu"
-               disablehistory="true" src="about:blank" flex="1"/>
-      <findbar id="findbar" browserid="browser"/>
+      <deck flex="1" id="browserDeck" selectedIndex="0">
+        <browser id="text-browser" type="content" context="contentAreaContextMenu"
+                 disablehistory="true" src="about:blank" flex="1"/>
+        <vbox flex="1">
+          <browser id="conv-browser" type="content-conversation" flex="1"/>
+          <progressmeter id="browserProgress" hidden="true"/>
+        </vbox>
+      </deck>
+      <findbar id="findbar"/>
     </vbox>
   </hbox>
 

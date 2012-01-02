@@ -60,7 +60,7 @@
             <xul:vbox flex="1">
               <xul:browser anonid="browser" type="content-conversation" flex="1"
                            xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
-              <xul:progressmeter anonid="browserProgress" value="33" hidden="true"/>
+              <xul:progressmeter anonid="browserProgress" hidden="true"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
             </xul:vbox>
           </xul:notificationbox>
