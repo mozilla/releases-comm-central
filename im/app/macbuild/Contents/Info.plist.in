@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>instantbird-bin</string>
 	<key>CFBundleGetInfoString</key>
-	<string>%APP_NAME% %APP_VERSION%, © 1998-2011 Contributors</string>
+	<string>%APP_NAME% %APP_VERSION%, © 1998-2012 Contributors</string>
 	<key>CFBundleIconFile</key>
 	<string>instantbird</string>
 	<key>CFBundleIdentifier</key>
