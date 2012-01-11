@@ -37,6 +37,7 @@
 
 #include "nsISupports.idl"
 #include "nsISimpleEnumerator.idl"
+#include "nsIFile.idl"
 
 interface imIAccount;
 interface imIAccountBuddy;
@@ -76,6 +77,7 @@ interface imILog: nsISupports {
 
 [scriptable, uuid(ab38c01c-2245-4279-9437-1d6bcc69d556)]
 interface imILogger: nsISupports {
+  imILog getLogFromFile(in nsIFile aFile);
   nsISimpleEnumerator getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy);
   nsISimpleEnumerator getLogsForBuddy(in imIBuddy aBuddy);
   nsISimpleEnumerator getLogsForContact(in imIContact aContact);

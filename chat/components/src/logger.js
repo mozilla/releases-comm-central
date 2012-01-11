@@ -433,6 +433,7 @@ Logger.prototype = {
 
     return new LogEnumerator([file.directoryEntries]);
   },
+  getLogFromFile: function logger_getLogFromFile(aFile) new Log(aFile),
   getLogsForContact: function logger_getLogsForContact(aContact) {
     let entries = [];
     aContact.getBuddies().forEach(function (aBuddy) {
