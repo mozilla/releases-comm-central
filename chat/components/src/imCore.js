@@ -274,7 +274,7 @@ CoreService.prototype = {
   globalUserStatus: null,
   init: function() {
     if (this._initialized)
-      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+      return;
 
     Services.obs.addObserver(this, kQuitApplicationGranted, false);
     this._initialized = true;
