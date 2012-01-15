@@ -242,11 +242,11 @@
         let end = this.contacts.length;
         // Avoid the binary search loop if the contacts were already sorted.
         if (end != 0 &&
-            this.sortComparator(aContact, this.contacts[end - 1]) < 0) {
+            this.sortComparator(aContact, this.contacts[end - 1].contact) < 0) {
           let start = 0;
           while (start < end) {
             let middle = start + Math.floor((end - start) / 2);
-            if (this.sortComparator(aContact, this.contacts[middle]) < 0)
+            if (this.sortComparator(aContact, this.contacts[middle].contact) < 0)
               end = middle;
             else
               start = middle + 1;
