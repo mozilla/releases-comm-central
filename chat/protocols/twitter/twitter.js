@@ -63,6 +63,7 @@ function Tweet(aTweet, aWho, aMessage, aObject)
 }
 Tweet.prototype = {
   __proto__: GenericMessagePrototype,
+  _deleted: false,
   getActions: function(aCount) {
     let account = this.conversation._account;
     if (!account.connected) {
@@ -90,6 +91,13 @@ Tweet.prototype = {
                                 function() { account[action](screenName); }));
       }
     }
+    else if (this.outgoing && !this._deleted) {
+      actions.push(
+        new Action(_("action.delete"), function() {
+          this.destroy();
+        }, this)
+      );
+    }
     actions.push(new Action(_("action.copyLink"), function() {
       let href = "https://twitter.com/#!/" + this._tweet.user.screen_name +
                  "/status/" + this._tweet.id_str;
@@ -99,6 +107,29 @@ Tweet.prototype = {
     if (aCount)
       aCount.value = actions.length;
     return actions;
+  },
+  destroy: function() {
+    // Mark the tweet as deleted until we receive a response.
+    this._deleted = true;
+
+    this.conversation._account.destroy(this._tweet, this.onDestroyCallback,
+                                       this.onDestroyErrorCallback, this);
+  },
+  onDestroyErrorCallback: function(aException, aData) {
+    // The tweet was not successfully deleted.
+    delete this._deleted;
+    let error = this.conversation._parseError(aData);
+    this.conversation.systemMessage(_("error.delete", error,
+                                      this.originalMessage), true);
+  },
+  onDestroyCallback: function(aData) {
+    let tweet = JSON.parse(aData);
+    // If Twitter responds with an error, throw to call the error callback.
+    if ("error" in tweet)
+      throw tweet.error;
+
+    // Create a new system message saying the tweet has been deleted.
+    this.conversation.systemMessage(_("event.deleted", this.originalMessage));
   }
 };
 
@@ -185,7 +216,7 @@ Conversation.prototype = {
     } catch(e) {}
     return error;
   },
-  displayTweet: function(aTweet) {
+  parseTweet: function(aTweet) {
     let text = aTweet.text;
     let entities = {};
     // Handle retweets: retweeted_status contains the object for the original
@@ -237,9 +268,6 @@ Conversation.prototype = {
       if ("entities" in aTweet)
         entities = aTweet.entities;
     }
-
-    let name = aTweet.user.screen_name;
-    this._ensureParticipantExists(name);
 
     if (Object.keys(entities).length) {
       /* entArray is an array of entities ready to be replaced in the tweet,
@@ -297,6 +325,13 @@ Conversation.prototype = {
         offset += html.length - (entity.end - entity.start);
       }
     }
+
+    return text;
+  },
+  displayTweet: function(aTweet) {
+    let name = aTweet.user.screen_name;
+    this._ensureParticipantExists(name);
+    let text = this.parseTweet(aTweet);
 
     let flags =
       name == this._account.name ? {outgoing: true} : {incoming: true};
@@ -465,6 +500,11 @@ Account.prototype = {
   reTweet: function(aTweet, aOnSent, aOnError, aThis) {
     let url =
       "1/statuses/retweet/" + aTweet.id_str + ".json?include_entities=1";
+    this.signAndSend(url, null, [], aOnSent, aOnError, aThis);
+  },
+  destroy: function(aTweet, aOnSent, aOnError, aThis) {
+    let url =
+      "1/statuses/destroy/" + aTweet.id_str + ".json?include_entities=1";
     this.signAndSend(url, null, [], aOnSent, aOnError, aThis);
   },
 
