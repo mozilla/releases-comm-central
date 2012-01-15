@@ -88,8 +88,6 @@ interface prplIMessage: nsISupports {
   readonly attribute boolean containsNick;
   /*  PURPLE_MESSAGE_NO_LOG      = 0x0040, /**< Do not log.              */
   readonly attribute boolean noLog;
-  /*  PURPLE_MESSAGE_WHISPER     = 0x0080, /**< Whispered message.       */
-  readonly attribute boolean whispered;
   /*  PURPLE_MESSAGE_ERROR       = 0x0200, /**< Error message.           */
   readonly attribute boolean error;
   /*  PURPLE_MESSAGE_DELAYED     = 0x0400, /**< Delayed message.         */

@@ -184,7 +184,7 @@ ConversationLog.prototype = {
         who: aMessage.who,
         text: aMessage.originalMessage,
         flags: ["outgoing", "incoming", "system", "autoResponse",
-                "containsNick", "whispered", "error", "delayed",
+                "containsNick", "error", "delayed",
                 "noFormat", "containsImages", "notification",
                 "noLinkification"].filter(function(f) aMessage[f])
       };
