@@ -421,7 +421,7 @@
           let nonContextY =
             this._firstNonContextElt ? this._firstNonContextElt.offsetTop : maxY;
           let sectionY =
-             Math.min(nonContextY - Math.round(this.clientHeight / 2), maxY);
+            (nonContextY < maxY) ? nonContextY - Math.round(this.clientHeight / 2) : maxY;
           if (this.contentWindow.scrollY < sectionY)
             this.contentWindow.scrollTo(0, sectionY);
           else
