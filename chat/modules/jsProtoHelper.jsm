@@ -227,6 +227,11 @@ const GenericAccountBuddyPrototype = {
     }
     this._userName = aUserName;
   },
+  unInit: function() {
+    delete this._tag;
+    delete this._account;
+    delete this._buddy;
+  },
 
   get account() this._account.imAccount,
   set buddy(aBuddy) {

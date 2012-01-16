@@ -261,4 +261,9 @@ interface imIAccountBuddy: imIStatusInfo {
 
   // remove the buddy from the buddy list of this account.
   void remove();
+
+  // Called by the contacts service during its uninitialization to
+  // notify that all references kept to imIBuddy or imIAccount
+  // instances should be released now.
+  void unInit();
 };

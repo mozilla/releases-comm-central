@@ -914,6 +914,8 @@ function Buddy(aId, aKey, aName, aSrvAlias, aContactId) {
 Buddy.prototype = {
   get id() this._id,
   destroy: function() {
+    for each (let ab in this._accounts)
+      ab.unInit();
     delete this._accounts;
     delete this._observers;
     delete this._preferredAccount;
