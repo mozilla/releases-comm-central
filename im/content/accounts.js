@@ -335,8 +335,7 @@ var gAccountManager = {
     let isCommandDisabled =
       (this.isOffline ||
        (account.disconnected &&
-        (account.connectionErrorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL ||
-         account.connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD)));
+        account.connectionErrorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL));
 
     [[activeCommandElt, isCommandDisabled],
      [document.getElementById("cmd_moveup"), accountList.selectedIndex == 0],

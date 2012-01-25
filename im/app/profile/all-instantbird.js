@@ -26,6 +26,7 @@ pref("general.autoScroll", true);
 // 2 = check multi/single line controls
 pref("layout.spellcheckDefault", 1);
 
+pref("messenger.accounts.convertOldPasswords", true);
 pref("messenger.accounts.promptOnDelete", true);
 
 pref("messenger.buddies.showOffline", false);

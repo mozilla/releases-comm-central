@@ -728,7 +728,7 @@ const GenericProtocolPrototype = {
   get noPassword() false,
   get newMailNotification() false,
   get imagesInIM() false,
-  get passwordOptional() true,
+  get passwordOptional() false,
   get usePointSize() true,
   get registerNoScreenName() false,
   get slashCommandsNative() false,

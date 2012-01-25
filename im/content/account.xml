@@ -141,12 +141,14 @@
           text = bundle.getFormattedString(key + "UnknownPrpl",
                                            [account.protocol.id]);
         else if (errorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD)
-          text = bundle.getString(key + "MissingPassword");
+          text = bundle.getString(key + "EnteringPasswordRequired");
         else if (errorReason == Ci.imIAccount.ERROR_CRASHED)
           text = bundle.getString(key + "CrashedAccount");
         else
           text = account.connectionErrorMessage;
-        text = bundle.getFormattedString(key, [text]);
+
+        if (errorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD)
+          text = bundle.getFormattedString(key, [text]);
 
         this.setAttribute("error", "true");
         var error = document.getAnonymousElementByAttribute(this, "anonid",

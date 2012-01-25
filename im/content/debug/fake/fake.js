@@ -338,7 +338,6 @@ Account.prototype = {
   protocol: null,
   password: "",
   autoLogin: true,
-  rememberPassword: true,
   alias: "",
   proxyInfo: null,
   connectionStageMsg: "",

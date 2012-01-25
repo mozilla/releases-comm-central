@@ -47,10 +47,23 @@ const kAccountKeyPrefix = "account";
 const kAccountOptionPrefPrefix = "options.";
 const kPrefAccountName = "name";
 const kPrefAccountPrpl = "prpl";
-const kPrefAccountPassword = "password";
 const kPrefAccountAutoLogin = "autoLogin";
 const kPrefAccountAlias = "alias";
 const kPrefAccountFirstConnectionState = "firstConnectionState";
+
+const kPrefConvertOldPasswords = "messenger.accounts.convertOldPasswords";
+const kPrefAccountPassword = "password";
+
+XPCOMUtils.defineLazyGetter(this, "LoginManager", function()
+  Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager)
+);
+
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://chat/locale/accounts.properties")
+);
+
+var gUserCanceledMasterPasswordPrompt = false;
+var gConvertingOldPasswords = false;
 
 var SavePrefTimer = {
   saveNow: function() {
@@ -167,6 +180,17 @@ function imAccount(aKey, aName, aPrplId)
   if (this.firstConnectionState == Ci.imIAccount.FIRST_CONNECTION_PENDING)
     this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_CRASHED;
 
+  // Try to convert old passwords stored in the preferences.
+  // Don't try too hard if the user has canceled a master password prompt:
+  // we don't want to display several of theses prompts at startup.
+  if (gConvertingOldPasswords && !this.protocol.noPassword) {
+    try {
+      let password = this.prefBranch.getCharPref(kPrefAccountPassword);
+      if (password && !this.password)
+        this.password = password;
+    } catch (e) { /* No password saved in the prefs for this account. */ }
+  }
+
   // Check for errors that should prevent connection attempts.
   if (this._passwordRequired && !this.password)
     this._connectionErrorReason = Ci.imIAccount.ERROR_MISSING_PASSWORD;
@@ -187,7 +211,9 @@ imAccount.prototype = {
   connectionErrorMessage: "",
   _connectionErrorReason: Ci.prplIAccount.NO_ERROR,
   get connectionErrorReason() {
-    if (this._connectionErrorReason != Ci.prplIAccount.NO_ERROR)
+    if (this._connectionErrorReason != Ci.prplIAccount.NO_ERROR &&
+        (this._connectionErrorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD ||
+         !this._password))
       return this._connectionErrorReason;
     else
       return this.prplAccount.connectionErrorReason;
@@ -377,17 +403,77 @@ imAccount.prototype = {
     }
   },
 
+  _password: "",
   get password() {
+    if (this._password)
+      return this._password;
+
+    // Avoid prompting the user for the master password more than once at startup.
+    if (gUserCanceledMasterPasswordPrompt)
+      return "";
+
+    let passwordURI = "im://" + this.protocol.id;
+    let logins;
     try {
-      return this.prefBranch.getCharPref(kPrefAccountPassword);
+      logins = LoginManager.findLogins({}, passwordURI, null, passwordURI);
     } catch (e) {
+      this._handleMasterPasswordException(e);
       return "";
     }
+    let normalizedName = this.normalizedName;
+    for each (let login in logins) {
+      if (login.username == normalizedName) {
+        this._password = login.password;
+        if (this._connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD) {
+          // We have found a password for an account marked as missing password,
+          // re-check all others accounts missing a password. But first,
+          // remove the error on our own account to avoid re-checking it.
+          delete this._connectionErrorReason;
+          gAccountsService._checkIfPasswordStillMissing();
+        }
+        return this._password;
+      }
+    }
+    return "";
+  },
+  _checkIfPasswordStillMissing: function() {
+    if (this._connectionErrorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD ||
+        !this.password)
+      return;
+
+    delete this._connectionErrorReason;
+    this._sendUpdateNotification();
   },
   get _passwordRequired()
     !this.protocol.noPassword && !this.protocol.passwordOptional,
   set password(aPassword) {
-    this.prefBranch.setCharPref(kPrefAccountPassword, aPassword);
+    this._password = aPassword;
+    if (gUserCanceledMasterPasswordPrompt)
+      return;
+    let newLogin = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                   .createInstance(Ci.nsILoginInfo);
+    let passwordURI = "im://" + this.protocol.id;
+    newLogin.init(passwordURI, null, passwordURI, this.normalizedName,
+                  aPassword, "", "");
+    try {
+      let logins = LoginManager.findLogins({}, passwordURI, null, passwordURI);
+      let saved = false;
+      for each (let login in logins) {
+        if (newLogin.matches(login, true)) {
+          if (aPassword)
+            LoginManager.modifyLogin(login, newLogin);
+          else
+            LoginManager.removeLogin(login);
+          saved = true;
+          break;
+        }
+      }
+      if (!saved && aPassword)
+        LoginManager.addLogin(newLogin);
+    } catch (e) {
+      this._handleMasterPasswordException(e);
+    }
+
     this._connectionInfoChanged();
     if (aPassword &&
         this._connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD)
@@ -395,6 +481,13 @@ imAccount.prototype = {
     else if (!aPassword && this._passwordRequired)
       this._connectionErrorReason = Ci.imIAccount.ERROR_MISSING_PASSWORD;
     this._sendUpdateNotification();
+  },
+  _handleMasterPasswordException: function(aException) {
+    if (aException.result != Components.results.NS_ERROR_ABORT)
+      throw aException;
+
+    gUserCanceledMasterPasswordPrompt = true;
+    executeSoon(function () { gUserCanceledMasterPasswordPrompt = false; });
   },
 
   get autoLogin() {
@@ -435,6 +528,17 @@ imAccount.prototype = {
   },
 
   remove: function() {
+    let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                .createInstance(Ci.nsILoginInfo);
+    let passwordURI = "im://" + this.protocol.id;
+    login.init(passwordURI, null, passwordURI, this.normalizedName, "", "", "");
+    let logins = LoginManager.findLogins({}, passwordURI, null, passwordURI);
+    for each (let l in logins) {
+      if (login.matches(l, true)) {
+        LoginManager.removeLogin(l);
+        break;
+      }
+    }
     this.unInit();
     Services.contacts.forgetAccount(this.numericId);
     this.prefBranch.deleteBranch("");
@@ -465,7 +569,33 @@ imAccount.prototype = {
       return this.prplAccount;
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
-  connect: function() { this._ensurePrplAccount.connect(); },
+  connect: function() {
+    if (this._passwordRequired) {
+      // If the previous connection attempt failed because we have a wrong password,
+      // clear the passwor cache so that if there's no password in the password
+      // manager the user gets prompted again.
+      if (this.connectionErrorReason == Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED)
+        delete this._password;
+
+      let password = this.password;
+      if (!password) {
+        let prompts = Services.prompt;
+        let shouldSave = {value: false};
+        password = {value: ""};
+        if (!prompts.promptPassword(null, _("passwordPromptTitle", this.name),
+                                    _("passwordPromptText", this.name),
+                                    password, _("passwordPromptSaveCheckbox"),
+                                    shouldSave))
+          return;
+
+        if (shouldSave.value)
+          this.password = password.value;
+        else
+          this._password = password.value;
+      }
+    }
+    this._ensurePrplAccount.connect();
+  },
   disconnect: function() {
     if (this._statusObserver) {
       this.statusInfo.removeObserver(this._statusObserver);
@@ -545,12 +675,17 @@ imAccount.prototype = {
   }
 };
 
+var gAccountsService = null;
+
 function AccountsService() { }
 AccountsService.prototype = {
   initAccounts: function() {
     this._initAutoLoginStatus();
     this._accounts = [];
     this._accountsById = {};
+    gAccountsService = this;
+    gConvertingOldPasswords =
+      Services.prefs.getBoolPref(kPrefConvertOldPasswords);
     let accountList = this._accountList;
     for each (let account in (accountList ? accountList.split(",") : [])) {
       try {
@@ -565,6 +700,11 @@ AccountsService.prototype = {
         dump(e + " " + e.toSource() + "\n");
       }
     }
+    // If the user has canceled a master password prompt, we haven't
+    // been able to save any password, so the old password conversion
+    // still needs to happen.
+    if (gConvertingOldPasswords && !gUserCanceledMasterPasswordPrompt)
+      Services.prefs.setBoolPref(kPrefConvertOldPasswords, false);
 
     this._prefObserver = this.observe.bind(this);
     Services.prefs.addObserver(kPrefMessengerAccounts, this._prefObserver, false);
@@ -597,6 +737,7 @@ AccountsService.prototype = {
   unInitAccounts: function() {
     for each (let account in this._accounts)
       account.unInit();
+    gAccountsService = null;
     delete this._accounts;
     delete this._accountsById;
     Services.prefs.removeObserver(kPrefMessengerAccounts, this._prefObserver);
@@ -713,6 +854,18 @@ AccountsService.prototype = {
     // Notify observers so that any message stating that autologin is
     // disabled can be removed
     Services.obs.notifyObservers(this, "autologin-processed", null);
+  },
+
+  _checkingIfPasswordStillMissing: false,
+  _checkIfPasswordStillMissing: function() {
+    // Avoid recursion.
+    if (this._checkingIfPasswordStillMissing)
+      return;
+
+    this._checkingIfPasswordStillMissing = true;
+    for each (let account in this._accounts)
+      account._checkIfPasswordStillMissing();
+    delete this._checkingIfPasswordStillMissing;
   },
 
   getAccountById: function(aAccountId) {

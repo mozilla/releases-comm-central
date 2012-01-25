@@ -37,7 +37,6 @@
 	locale/@AB_CD@/instantbird/preferences/preferences.dtd  (%chrome/instantbird/preferences/preferences.dtd)
 	locale/@AB_CD@/instantbird/preferences/preferences.properties (%chrome/instantbird/preferences/preferences.properties)
 	locale/@AB_CD@/instantbird/preferences/privacy.dtd            (%chrome/instantbird/preferences/privacy.dtd)
-	locale/@AB_CD@/instantbird/preferences/security.dtd           (%chrome/instantbird/preferences/security.dtd)
 	locale/@AB_CD@/instantbird/preferences/tabs.dtd               (%chrome/instantbird/preferences/tabs.dtd)
 	locale/@AB_CD@/instantbird/preferences/themes.dtd             (%chrome/instantbird/preferences/themes.dtd)
 	locale/@AB_CD@/instantbird/preferences/themes.properties      (%chrome/instantbird/preferences/themes.properties)

@@ -4,7 +4,6 @@
 <!ENTITY account.advanced              "Advanced Options">
 <!ENTITY account.name                  "Username:">
 <!ENTITY account.password              "Password:">
-<!ENTITY account.rememberPassword      "remember password">
 <!ENTITY account.alias                 "Alias:">
 <!ENTITY account.newMailNotification   "Notify on new Mail">
 <!ENTITY account.autojoin              "Auto-Joined Channels:">

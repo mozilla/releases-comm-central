@@ -6,6 +6,10 @@ pref("messenger.startup.action", 1);
 
 pref("messenger.accounts", "");
 
+// Should the accounts service stored in the password manager the
+// passwords that are currently stored in the preferences?
+pref("messenger.accounts.convertOldPasswords", false);
+
 // The intervals in seconds between automatic reconnection attempts
 // The last value will be reused forever.
 // A value of 0 means that there will be no more reconnection attempts.

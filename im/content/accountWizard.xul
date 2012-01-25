@@ -98,6 +98,8 @@
       <label value="&accountPasswordField.label;" control="password" id="passwordLabel"/>
       <textbox id="password" type="password"/>
     </hbox>
+    <separator/>
+    <description id="passwordManagerDescription">&accountPasswordManager.label;</description>
   </wizardpage>
 
   <wizardpage id="accountadvanced" pageid="accountadvanced" next="accountsummary"

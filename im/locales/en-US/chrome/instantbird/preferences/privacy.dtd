@@ -19,3 +19,14 @@
 <!ENTITY  logShowFolder.description     "Open the folder containing the record files">
 <!ENTITY  logShowFolderButton.label     "Show Log Folder…">
 <!ENTITY  logShowFolderButton.accesskey "L">
+
+<!-- Passwords, see mail/chrome/messenger/preferences/security.dtd -->
+<!ENTITY  passwords.label               "Passwords">
+<!ENTITY savedPasswords.intro           "&brandShortName; can remember passwords for all of your accounts.">
+<!ENTITY useMasterPassword.label        "Use a master password">
+<!ENTITY useMasterPassword.accesskey    "U">
+<!ENTITY masterPassword.intro           "A Master Password protects all your passwords, but you must enter it once per session.">
+<!ENTITY changeMasterPassword.label     "Change Master Password…">
+<!ENTITY changeMasterPassword.accesskey "C">
+<!ENTITY savedPasswords.label           "Saved Passwords…">
+<!ENTITY savedPasswords.accesskey       "S">

@@ -74,7 +74,6 @@
           <label value="&account.password;" control="password" flex="1"/>
           <textbox id="password" flex="1" type="password"/>
         </hbox>
-        <checkbox id="rememberPassword" label="&account.rememberPassword;" hidden="true"/>
 
         <separator class="groove"/>
 

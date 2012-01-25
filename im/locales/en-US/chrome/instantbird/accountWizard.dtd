@@ -14,6 +14,7 @@
 <!ENTITY accountPasswordTitle.label   "Password">
 <!ENTITY accountPasswordInfo.label    "Please enter your password in the box below.">
 <!ENTITY accountPasswordField.label   "Password:">
+<!ENTITY accountPasswordManager.label "The password entered here will be stored in the Password Manager. Leave this box empty if you want to be prompted for your password each time this account is connected.">
 
 <!ENTITY accountAdvancedTitle.label   "Advanced Options">
 <!ENTITY accountAdvancedInfo.label    "Feel free to skip this step if you want to.">

@@ -381,11 +381,13 @@ var accountWizard = {
     rows.appendChild(this.createSummaryRow(label, this.username));
     if (!this.proto.noPassword) {
       this.password = this.getValue("password");
-      label = document.getElementById("passwordLabel").value;
-      var pass = "";
-      for (let i = 0; i < this.password.length; ++i)
-        pass += "*";
-      rows.appendChild(this.createSummaryRow(label, pass));
+      if (this.password) {
+        label = document.getElementById("passwordLabel").value;
+        var pass = "";
+        for (let i = 0; i < this.password.length; ++i)
+          pass += "*";
+        rows.appendChild(this.createSummaryRow(label, pass));
+      }
     }
     this.alias = this.getValue("alias");
     if (this.alias) {
@@ -439,7 +441,7 @@ var accountWizard = {
 
   createAccount: function aw_createAccount() {
     var acc = Services.accounts.createAccount(this.username, this.proto.id);
-    if (!this.proto.noPassword)
+    if (!this.proto.noPassword && this.password)
       acc.password = this.password;
     if (this.alias)
       acc.alias = this.alias;

@@ -63,6 +63,7 @@
       <preference id="purple.logging.log_chats"            name="purple.logging.log_chats"            type="bool"/>
       <preference id="purple.logging.log_ims"              name="purple.logging.log_ims"              type="bool"/>
       <preference id="purple.logging.log_system"           name="purple.logging.log_system"           type="bool"/>
+      <preference id="pref.privacy.disable_button.view_passwords" name="pref.privacy.disable_button.view_passwords" type="bool"/>
     </preferences>
 
     <broadcaster id="idleReportingEnabled"/>
@@ -114,6 +115,32 @@
         <button id="openLogFolder" label="&logShowFolderButton.label;"
                 accesskey="&logShowFolderButton.accesskey;"
                 oncommand="gPrivacyPane.openLogFolder();"/>
+      </hbox>
+    </groupbox>
+
+    <!-- Passwords -->
+    <groupbox id="passwordsGroup" orient="vertical">
+      <caption label="&passwords.label;"/>
+
+      <description>&savedPasswords.intro;</description>
+      <hbox>
+        <spacer flex="1"/>
+        <button label="&savedPasswords.label;" accesskey="&savedPasswords.accesskey;"
+                oncommand="gPrivacyPane.showPasswords();"
+                preference="pref.privacy.disable_button.view_passwords"/>
+      </hbox>
+
+      <separator class="thin"/>
+
+      <description>&masterPassword.intro;</description>
+      <hbox>
+        <checkbox id="useMasterPassword" flex="1"
+                  label="&useMasterPassword.label;" accesskey="&useMasterPassword.accesskey;"
+                  oncommand="gPrivacyPane.updateMasterPasswordButton();"/>
+
+        <button id="changeMasterPassword"
+                label="&changeMasterPassword.label;" accesskey="&changeMasterPassword.accesskey;"
+                oncommand="gPrivacyPane.changeMasterPassword();"/>
       </hbox>
     </groupbox>
 
