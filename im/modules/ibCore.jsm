@@ -274,8 +274,11 @@ var Core = {
                 prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
                 prompts.BUTTON_POS_1_DEFAULT;
     let checkbox = {value: false};
-    let convWindow = Services.wm.getMostRecentWindow("Messenger:convs");
-    if (prompts.confirmEx(convWindow, promptTitle, promptMessage, flags,
+    let parentWindow = Services.wm.getMostRecentWindow("Messenger:convs") ||
+                       Services.wm.getMostRecentWindow("Messenger:blist");
+    if (parentWindow)
+      parentWindow.focus();
+    if (prompts.confirmEx(parentWindow, promptTitle, promptMessage, flags,
                           button, null, null, promptCheckbox, checkbox)) {
       aCancelQuit.data = true;
       return;
