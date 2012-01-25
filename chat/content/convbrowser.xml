@@ -281,6 +281,7 @@
         </body>
       </method>
 
+      <!-- These variables are reset in onStateChange. -->
       <field name="_lastMessage">null</field>
       <field name="_lastMessageIsContext">true</field>
       <field name="_firstNonContextElt">null</field>
@@ -303,7 +304,9 @@
       </method>
 
       <field name="progressBar">null</field>
+      <!-- These variables are reset in onStateChange. -->
       <field name="_nextPendingMessageIndex">0</field>
+      <field name="_displayPendingMessagesCalls">0</field>
       <method name="displayPendingMessages">
         <body>
           <![CDATA[
@@ -311,10 +314,6 @@
               return;
 
             let max = this._pendingMessages.length;
-            if (this.progressBar) {
-              this.progressBar.hidden = false;
-              this.progressBar.max = this._pendingMessages.length;
-            }
             let begin = Date.now();
             let i;
             for (i = this._nextPendingMessageIndex; i < max; ++i) {
@@ -325,8 +324,15 @@
             }
             if (i < max - 1) {
               this._nextPendingMessageIndex = i + 1;
-              if (this.progressBar)
+              if (this.progressBar) {
+                // Show progress bar if after the third call (ca. 120ms)
+                // less than half the messages have been displayed.
+                if (++this._displayPendingMessagesCalls > 2 &&
+                    max > 2 * this._nextPendingMessageIndex)
+                  this.progressBar.hidden = false;
+                this.progressBar.max = max;
                 this.progressBar.value = this._nextPendingMessageIndex;
+              }
               Services.tm.mainThread.dispatch(this.displayPendingMessages.bind(this),
                                               Ci.nsIEventTarget.DISPATCH_NORMAL);
               return;
@@ -334,6 +340,7 @@
             this._messageDisplayPending = false;
             this._pendingMessages = [];
             this._nextPendingMessageIndex = 0;
+            this._displayPendingMessagesCalls = 0;
             if (this.progressBar)
               this.progressBar.hidden = true;
           ]]>
@@ -599,12 +606,18 @@
                 }
               }
 
+              // We need to reset these variables here to avoid a race
+              // condition if we are starting to display a new conversation
+              // but the display of the previous conversation wasn't finished.
+              // This can happen if the user quickly changes the selected
+              // conversation in the log viewer.
               this._lastMessage = null;
               this._lastMessageIsContext = true;
               this._firstNonContextElt = null;
               this._messageDisplayPending = false;
               this._pendingMessages = [];
               this._nextPendingMessageIndex = 0;
+              this._displayPendingMessagesCalls = 0;
 
               Services.obs.notifyObservers(this, "conversation-loaded", null);
             }
