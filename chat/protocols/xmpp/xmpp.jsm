@@ -596,7 +596,7 @@ const XMPPAccountPrototype = {
 
   unInit: function() {
     if (this._connection)
-      this._disconnect();
+      this._disconnect(undefined, undefined, true);
     delete this._jid;
     delete this._conv;
     delete this._buddies;
@@ -865,7 +865,11 @@ const XMPPAccountPrototype = {
   /* Private methods */
 
   /* Disconnect from the server */
-  _disconnect: function(aError, aErrorMessage) {
+  /* The aError and aErrorMessage parameters are passed to reportDisconnecting
+   * and used by the account manager.
+   * The aQuiet parameter is to avoid sending status change notifications
+   * during the uninitialization of the account. */
+  _disconnect: function(aError, aErrorMessage, aQuiet) {
     if (!this._connection)
       return;
 
@@ -873,8 +877,10 @@ const XMPPAccountPrototype = {
       aError = Ci.prplIAccount.NO_ERROR;
     this.reportDisconnecting(aError, aErrorMessage);
 
-    for each (let b in this._buddies)
-      b.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
+    if (!aQuiet) {
+      for each (let b in this._buddies)
+        b.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
+    }
 
     this._connection.disconnect();
     delete this._connection;
