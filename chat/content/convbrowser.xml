@@ -978,6 +978,30 @@
         ]]>
       </handler>
 
+      <handler event="keypress" modifiers="shift" keycode="VK_PAGE_UP"
+               action="this.docShell.QueryInterface(Components.interfaces.nsITextScroll).scrollByPages(-1);"/>
+
+      <handler event="keypress" modifiers="shift" keycode="VK_PAGE_DOWN"
+               action="this.docShell.QueryInterface(Components.interfaces.nsITextScroll).scrollByPages(1);"/>
+
+      <handler event="keypress" modifiers="alt" keycode="VK_PAGE_UP"
+               action="this.scrollToPreviousSection();"/>
+
+      <handler event="keypress" modifiers="alt" keycode="VK_PAGE_DOWN"
+               action="this.scrollToNextSection();"/>
+
+      <handler event="keypress" keycode="VK_HOME"
+               action="this.scrollToPreviousSection(); event.preventDefault();"/>
+
+      <handler event="keypress" keycode="VK_END"
+               action="this.scrollToNextSection(); event.preventDefault();"/>
+
+      <handler event="keypress" modifiers="control" keycode="VK_HOME"
+               action="this.scrollToPreviousSection(); event.preventDefault();"/>
+
+      <handler event="keypress" modifiers="control" keycode="VK_END"
+               action="this.scrollToNextSection(); event.preventDefault();"/>
+
       <handler event="keypress" keycode="VK_F7" group="system">
         <![CDATA[
           if (event.getPreventDefault() || !event.isTrusted)
@@ -995,6 +1019,7 @@
           }
         ]]>
       </handler>
+
       <handler event="mousedown" phase="capturing">
         <![CDATA[
           if (!this._scrollingView && event.button == 1) {
