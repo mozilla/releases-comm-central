@@ -41,22 +41,22 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(Services, "accounts",
-                                   "@instantbird.org/purple/accounts-service;1",
+                                   "@mozilla.org/chat/accounts-service;1",
                                    "imIAccountsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "core",
-                                   "@instantbird.org/purple/core-service;1",
+                                   "@mozilla.org/chat/core-service;1",
                                    "imICoreService");
 XPCOMUtils.defineLazyServiceGetter(Services, "cmd",
-                                   "@instantbird.org/purple/commands-service;1",
+                                   "@mozilla.org/chat/commands-service;1",
                                    "imICommandsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "contacts",
-                                   "@instantbird.org/purple/contacts-service;1",
+                                   "@mozilla.org/chat/contacts-service;1",
                                    "imIContactsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "conversations",
-                                   "@instantbird.org/purple/conversations-service;1",
+                                   "@mozilla.org/chat/conversations-service;1",
                                    "imIConversationsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "tags",
-                                   "@instantbird.org/purple/tags-service;1",
+                                   "@mozilla.org/chat/tags-service;1",
                                    "imITagsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "logs",
                                    "@instantbird.org/logger;1",

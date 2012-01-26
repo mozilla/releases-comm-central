@@ -106,5 +106,5 @@ interface imICommandsService: nsISupports {
 
 %{ C++
 #define IM_COMMANDS_SERVICE_CONTRACTID \
-  "@instantbird.org/purple/commands-service;1"
+  "@mozilla.org/chat/commands-service;1"
 %}

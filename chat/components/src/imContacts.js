@@ -174,7 +174,7 @@ TagsService.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.imITagsService]),
   classDescription: "Tags",
   classID: Components.ID("{1fa92237-4303-4384-b8ac-4e65b50810a5}"),
-  contractID: "@instantbird.org/purple/tags-service;1"
+  contractID: "@mozilla.org/chat/tags-service;1"
 };
 
 // TODO move into the tagsService
@@ -1412,7 +1412,7 @@ ContactsService.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.imIContactsService]),
   classDescription: "Contacts",
   classID: Components.ID("{8c3725dd-ee26-489d-8135-736015af8c7f}"),
-  contractID: "@instantbird.org/purple/contacts-service;1"
+  contractID: "@mozilla.org/chat/contacts-service;1"
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([ContactsService,

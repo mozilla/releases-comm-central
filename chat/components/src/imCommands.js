@@ -258,7 +258,7 @@ CommandsService.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.imICommandsService]),
   classDescription: "Commands",
   classID: Components.ID("{7cb20c68-ccc8-4a79-b6f1-0b4771ed6c23}"),
-  contractID: "@instantbird.org/purple/commands-service;1"
+  contractID: "@mozilla.org/chat/commands-service;1"
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([CommandsService]);

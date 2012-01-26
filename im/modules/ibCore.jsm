@@ -70,7 +70,7 @@ var Core = {
       return false;
     }
 
-    if (!Components.classes["@instantbird.org/purple/core-service;1"]) {
+    if (!Components.classes["@mozilla.org/chat/core-service;1"]) {
       this._promptError("startupFailure.xpcomRegistrationError");
       return false;
     }

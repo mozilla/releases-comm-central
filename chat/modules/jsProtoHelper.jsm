@@ -735,7 +735,7 @@ const GenericProtocolPrototype = {
   get usePurpleProxy() false,
 
   get classDescription() this.name + " Protocol",
-  get contractID() "@instantbird.org/purple/" + this.normalizedName + ";1"
+  get contractID() "@mozilla.org/chat/" + this.normalizedName + ";1"
 };
 
 function ForwardAccount(aBaseAccount)

@@ -943,7 +943,7 @@ AccountsService.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.imIAccountsService]),
   classDescription: "Accounts",
   classID: Components.ID("{a94b5427-cd8d-40cf-b47e-b67671953e70}"),
-  contractID: "@instantbird.org/purple/accounts-service;1"
+  contractID: "@mozilla.org/chat/accounts-service;1"
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([AccountsService]);

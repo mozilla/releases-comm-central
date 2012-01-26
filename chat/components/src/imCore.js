@@ -374,7 +374,7 @@ CoreService.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.imICoreService]),
   classDescription: "Core",
   classID: Components.ID("{073f5953-853c-4a38-bd81-255510c31c2e}"),
-  contractID: "@instantbird.org/purple/core-service;1"
+  contractID: "@mozilla.org/chat/core-service;1"
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([CoreService]);
