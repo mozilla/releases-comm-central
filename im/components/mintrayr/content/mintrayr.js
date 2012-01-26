@@ -113,6 +113,7 @@ var gMinTrayR = {
   restore: function MinTrayR_restore() {
     // This will also work with alwaysShow.
     this.trayService.restore(window);
+    window.focus();
   },
   toggle: function MinTrayR_toggle() {
     if (!this._icon) {
