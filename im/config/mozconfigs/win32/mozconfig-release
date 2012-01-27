@@ -22,6 +22,3 @@ ac_add_options --enable-update-packaging
 ac_add_options --enable-jemalloc
 ac_add_options --enable-official-branding
 ac_add_options --with-l10n-base=..
-
-# Workaround to let XUL 8.0 compile waiting for bug #1163 to be fixed
-ac_add_options --disable-angle
