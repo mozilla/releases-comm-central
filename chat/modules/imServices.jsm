@@ -59,5 +59,5 @@ XPCOMUtils.defineLazyServiceGetter(Services, "tags",
                                    "@mozilla.org/chat/tags-service;1",
                                    "imITagsService");
 XPCOMUtils.defineLazyServiceGetter(Services, "logs",
-                                   "@instantbird.org/logger;1",
+                                   "@mozilla.org/chat/logger;1",
                                    "imILogger");

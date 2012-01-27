@@ -527,7 +527,7 @@ Logger.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
   classDescription: "Logger",
   classID: Components.ID("{fb0dc220-2c7a-4216-9f19-6b8f3480eae9}"),
-  contractID: "@instantbird.org/logger;1"
+  contractID: "@mozilla.org/chat/logger;1"
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([Logger]);
