@@ -579,7 +579,8 @@ const XMPPAccountPrototype = {
     }
     // Otherwise, if the username doesn't contain a resource, use the
     // value of the resource option (it will be the default value).
-    // If we set an empty resource, XMPPSession will fallback to "instantbird"
+    // If we set an empty resource, XMPPSession will fallback to
+    // XMPPDefaultResource (set to brandShortName).
     if (!this._jid.resource)
       this._jid.resource = this.getString("resource");
 

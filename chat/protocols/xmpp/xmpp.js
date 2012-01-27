@@ -40,6 +40,7 @@ const Cu = Components.utils;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/xmpp.jsm");
+Cu.import("resource:///modules/xmpp-session.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/xmpp.properties")
@@ -59,7 +60,8 @@ XMPPProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-jabber/skin/",
   getAccount: function(aImAccount) new XMPPAccount(this, aImAccount),
   options: {
-    resource: {get label() _("options.resource"), default: "instantbird"},
+    resource: {get label() _("options.resource"),
+               get default() XMPPDefaultResource},
     connection_security: {
       get label() _("options.connectionSecurity"),
       listValues: {

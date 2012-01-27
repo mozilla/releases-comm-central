@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["XMPPSession"];
+var EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
 
 const Cu = Components.utils;
 const Ci = Components.interfaces;
@@ -50,6 +50,12 @@ initLogModule("xmpp-session", this);
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
+
+// Workaround because a lazy getter can't be exported.
+XPCOMUtils.defineLazyGetter(this, "_defaultResource", function()
+  l10nHelper("chrome://branding/locale/brand.properties")("brandShortName")
+);
+__defineGetter__("XMPPDefaultResource", function() _defaultResource);
 
 function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._host = aHost;
@@ -67,7 +73,7 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._account = aAccount;
 
   this._auth = null;
-  this._resource = aJID.resource || "instantbird";
+  this._resource = aJID.resource || XMPPDefaultResource;
   this._handlers = {};
   this._stanzaId = 0;
 

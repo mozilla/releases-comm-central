@@ -63,7 +63,8 @@ GTalkAccount.prototype = {
     }
     // Otherwise, if the username doesn't contain a resource, use the
     // value of the resource option (it will be the default value).
-    // If we set an empty resource, XMPPSession will fallback to "instantbird"
+    // If we set an empty resource, XMPPSession will fallback to
+    // XMPPDefaultResource (set to brandShortName).
     if (!this._jid.resource)
       this._jid.resource = this.getString("resource");
 
@@ -83,7 +84,8 @@ GTalkProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
   getAccount: function(aImAccount) new GTalkAccount(this, aImAccount),
   options: {
-    resource: {get label() _("options.resource"), default: "instantbird"}
+    resource: {get label() _("options.resource"),
+               get default() XMPPDefaultResource}
   },
   get chatHasTopic() true,
   classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}")
