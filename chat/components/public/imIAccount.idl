@@ -107,9 +107,7 @@ interface prplIAccount: nsISupports {
   /* Request more info on a buddy (typically a chat buddy).
    * The result (if any) will be provided by a user-info-received
    * notification dispatched through the observer service:
-   *  - aSubject will be an nsISimpleEnumerator of prplITooltipInfo,
-   *  Do NOT store aSubject. Use it right away. The memory it points to
-   *  will be freed right after the notification is dispatched.
+   *  - aSubject will be an nsISimpleEnumerator of prplITooltipInfo.
    *  - aData will be aBuddyName.
    */
   void requestBuddyInfo(in AUTF8String aBuddyName);
