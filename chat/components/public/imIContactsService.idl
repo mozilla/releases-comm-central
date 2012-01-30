@@ -74,12 +74,12 @@ interface imIContactsService: nsISupports {
   // (to detect database corruption).
   // Will throw if a stored account has the id aId but a different
   // username or prplId.
-  void storeAccount(in PRUint32 aId, in AUTF8String aUserName,
+  void storeAccount(in unsigned long aId, in AUTF8String aUserName,
                     in AUTF8String aPrplId);
   // Check if an account id already exists in the database.
-  boolean accountIdExists(in PRUint32 aId);
+  boolean accountIdExists(in unsigned long aId);
   // Called when deleting an account to remove it from blist.sqlite.
-  void forgetAccount(in PRUint32 aId);
+  void forgetAccount(in unsigned long aId);
 };
 
 [scriptable, uuid(f585b0df-f6ad-40d5-9de4-c58b14af13e4)]

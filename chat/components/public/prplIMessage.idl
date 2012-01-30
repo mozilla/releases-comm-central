@@ -56,7 +56,7 @@ interface prplIMessage: nsISupports {
   /* The uniqueness of the message id is only guaranteed across
      messages of a conversation, not across all messages created
      during the execution of the application. */
-  readonly attribute PRUint32 id;
+  readonly attribute unsigned long id;
   readonly attribute AUTF8String who;
   readonly attribute AUTF8String alias;
   readonly attribute AUTF8String originalMessage;

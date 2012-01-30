@@ -129,5 +129,5 @@ interface prplIUsernameSplit: nsISupports {
 
   /* reverse is PR_TRUE if the separator should be found starting at
      the end of the string, PR_FALSE otherwise. */
-  readonly attribute PRBool reverse;
+  readonly attribute boolean reverse;
 };

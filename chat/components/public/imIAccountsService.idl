@@ -68,7 +68,7 @@ interface imIAccountsService: nsISupports {
   imIAccount getAccountById(in AUTF8String aAccountId);
 
   /* will throw NS_ERROR_FAILURE if not found */
-  imIAccount getAccountByNumericId(in PRUint32 aAccountId);
+  imIAccount getAccountByNumericId(in unsigned long aAccountId);
 
   nsISimpleEnumerator getAccounts();
 

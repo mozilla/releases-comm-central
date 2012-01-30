@@ -52,7 +52,7 @@ interface imICommand: nsISupports {
   const short CONTEXT_IM   = 1;
   const short CONTEXT_CHAT = 2;
   const short CONTEXT_ALL  = CONTEXT_IM | CONTEXT_CHAT;
-  readonly attribute PRInt32 usageContext;
+  readonly attribute long usageContext;
 
   const short PRIORITY_LOW     = -1000;
   const short PRIORITY_DEFAULT = 0;
@@ -63,7 +63,7 @@ interface imICommand: nsISupports {
   //  < 0 is lower priority.
   //  > 0 is higher priority.
   // Commands registered by protocol plugins will usually use PRIORITY_PRPL.
-  readonly attribute PRInt32 priority;
+  readonly attribute long priority;
 
   // Will return true if the command handled the message (it should not be sent).
   // The leading slash, the command name and the following space are not included

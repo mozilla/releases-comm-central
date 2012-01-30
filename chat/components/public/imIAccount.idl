@@ -196,7 +196,7 @@ interface prplIAccount: nsISupports {
   readonly attribute boolean noImages;
 
   // This is currently used only by Twitter.
-  readonly attribute PRInt32 maxMessageLength;
+  readonly attribute long maxMessageLength;
 };
 
 /* This interface should be implemented by the im core. It inherits
@@ -217,7 +217,7 @@ interface imIAccount: prplIAccount {
 
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String id;
-  readonly attribute PRUint32 numericId;
+  readonly attribute unsigned long numericId;
   readonly attribute prplIProtocol protocol;
   readonly attribute prplIAccount prplAccount;
 
@@ -254,13 +254,13 @@ interface imIAccount: prplIAccount {
    *  0 means that no automatic reconnection currently pending
    *  n means the nth reconnection attempt is pending
    */
-  readonly attribute PRUint16 reconnectAttempt;
+  readonly attribute unsigned short reconnectAttempt;
 
   /* Time stamp of the next reconnection attempt */
-  readonly attribute PRInt64 timeOfNextReconnect;
+  readonly attribute long long timeOfNextReconnect;
 
   /* Time stamp of the last connection (value not reliable if not connected) */
-  readonly attribute PRInt64 timeOfLastConnect;
+  readonly attribute long long timeOfLastConnect;
 
   /* Additional possible connection error reasons:
    * (Use a big enough number that it can't conflict with error
