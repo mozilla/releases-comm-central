@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["doXHRequest"];
+const EXPORTED_SYMBOLS = ["doXHRequest"];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 

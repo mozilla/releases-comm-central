@@ -34,7 +34,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["Status"];
+const EXPORTED_SYMBOLS = ["Status"];
 
 Components.utils.import("resource:///modules/imServices.jsm");
 

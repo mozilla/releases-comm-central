@@ -37,7 +37,7 @@
 
 Components.utils.import("resource:///modules/imServices.jsm");
 
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "cleanupImMarkup", // used to clean up incoming IMs.
                      // This will use the global ruleset of acceptable stuff
                      // except if another (custom one) is provided

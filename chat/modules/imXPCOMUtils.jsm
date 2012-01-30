@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "XPCOMUtils",
   "setTimeout",
   "clearTimeout",

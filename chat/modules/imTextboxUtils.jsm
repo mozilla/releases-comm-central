@@ -35,7 +35,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["MessageFormat", "TextboxSize", "TextboxSpellChecker"];
+const EXPORTED_SYMBOLS = [
+  "MessageFormat",
+  "TextboxSize",
+  "TextboxSpellChecker"
+];
 
 Components.utils.import("resource:///modules/imServices.jsm");
 const Ci = Components.interfaces;

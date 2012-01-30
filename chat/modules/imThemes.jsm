@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "getCurrentTheme",
   "getThemeByName",
   "getHTMLForMessage",

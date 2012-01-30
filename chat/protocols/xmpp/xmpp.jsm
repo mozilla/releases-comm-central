@@ -35,10 +35,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["XMPPConversationPrototype",
-                        "XMPPMUCConversationPrototype",
-                        "XMPPAccountBuddyPrototype",
-                        "XMPPAccountPrototype"];
+const EXPORTED_SYMBOLS = [
+  "XMPPConversationPrototype",
+  "XMPPMUCConversationPrototype",
+  "XMPPAccountBuddyPrototype",
+  "XMPPAccountPrototype"
+];
 
 const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 

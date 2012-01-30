@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 const CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
-var EXPORTED_SYMBOLS = ["Conversations"];
+const EXPORTED_SYMBOLS = ["Conversations"];
 
 Components.utils.import("resource:///modules/imServices.jsm");
 Components.utils.import("resource:///modules/ibInterruptions.jsm");

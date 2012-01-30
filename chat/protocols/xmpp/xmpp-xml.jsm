@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["Stanza", "XMPPParser"];
+const EXPORTED_SYMBOLS = ["Stanza", "XMPPParser"];
 
 const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 

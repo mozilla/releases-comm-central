@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
+const EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
 
 const {interfaces: Ci, utils: Cu} = Components;
 

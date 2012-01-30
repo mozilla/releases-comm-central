@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-let EXPORTED_SYMBOLS = ["getHiddenHTMLWindow"];
+const EXPORTED_SYMBOLS = ["getHiddenHTMLWindow"];
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
