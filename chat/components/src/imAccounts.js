@@ -782,7 +782,10 @@ AccountsService.prototype = {
     this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_CRASH;
     prefs.deleteBranch(kPrefAutologinPending);
 
-#ifdef MOZ_CRASHREPORTER
+    // If the crash reporter isn't built, we can't know anything more.
+    if (!("nsICrashReporter" in Ci))
+      return;
+
     try {
       // Try to get more info with breakpad
       let lastCrashTime = 0;
@@ -825,7 +828,7 @@ AccountsService.prototype = {
         } catch (e) {
           // This should fail with NS_ERROR_INVALID_ARG if breakpad is enabled,
           // and NS_ERROR_NOT_INITIALIZED if it is not.
-          if (e != Cr.NS_ERROR_NOT_INITIALIZED)
+          if (e.result != Cr.NS_ERROR_NOT_INITIALIZED)
             this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_ENABLED;
         }
       }
@@ -834,7 +837,6 @@ AccountsService.prototype = {
       // AUTOLOGIN_CRASH value in mAutoLoginStatus and return.
       return;
     }
-#endif
   },
 
   processAutoLogin: function() {

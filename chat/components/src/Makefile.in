@@ -42,17 +42,13 @@ VPATH		= @srcdir@
 include $(DEPTH)/config/autoconf.mk
 
 EXTRA_COMPONENTS = \
-		imAccounts.manifest \
+		imAccounts.js imAccounts.manifest \
 		imCommands.js imCommands.manifest \
 		imContacts.js imContacts.manifest \
 		imConversations.js imConversations.manifest \
 		imCore.js imCore.manifest \
 		logger.js logger.manifest \
 		smileProtocolHandler.js smileProtocolHandler.manifest \
-		$(NULL)
-
-EXTRA_PP_COMPONENTS = \
-		imAccounts.js \
 		$(NULL)
 
 include $(topsrcdir)/config/rules.mk
