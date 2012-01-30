@@ -127,12 +127,12 @@ DigestMD5Auth.prototype = {
 
     data.username = this._username;
 
-    const chars =
+    const kChars =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-    const nonceLength = 32;
+    const kNonceLength = 32;
     let nonce = "";
-    for (let i = 0; i < nonceLength; ++i)
-      nonce += chars[Math.floor(Math.random() * chars.length)];
+    for (let i = 0; i < kNonceLength; ++i)
+      nonce += kChars[Math.floor(Math.random() * kChars.length)];
 
     data.cnonce = nonce;
     data.nc = "00000001";

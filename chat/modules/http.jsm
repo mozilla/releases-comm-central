@@ -37,11 +37,6 @@
 
 var EXPORTED_SYMBOLS = ["doXHRequest"];
 
-/*
- TODO
-  replace doXHRequest with a more generic 'HTTP' object
-*/
-
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
@@ -49,7 +44,7 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 initLogModule("xhr", this);
 
 function doXHRequest(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis) {
-  var xhr = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+  let xhr = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
               .createInstance(Ci.nsIXMLHttpRequest);
   xhr.mozBackgroundRequest = true; // no error dialogs
   xhr.open(aPOSTData ? "POST" : "GET", aUrl);

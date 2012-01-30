@@ -116,6 +116,7 @@ MUCParticipant.prototype = {
   typing: false
 };
 
+// MUC (Multi-User Chat)
 const XMPPMUCConversationPrototype = {
   __proto__: GenericConvChatPrototype,
 
@@ -358,8 +359,8 @@ const XMPPAccountBuddyPrototype = {
 
   _saveIcon: function(aPhotoNode) {
     let type = aPhotoNode.getElement(["TYPE"]).innerText;
-    const ext = {"image/gif": "gif", "image/jpeg": "jpg", "image/png": "png"};
-    if (!ext.hasOwnProperty(type))
+    const kExt = {"image/gif": "gif", "image/jpeg": "jpg", "image/png": "png"};
+    if (!kExt.hasOwnProperty(type))
       return;
 
     let data = aPhotoNode.getElement(["BINVAL"]).innerText;
@@ -368,7 +369,7 @@ const XMPPAccountBuddyPrototype = {
                   .createInstance(Ci.nsIStringInputStream);
     istream.setData(content, content.length);
 
-    let fileName = this.normalizedName + "." + ext[type];
+    let fileName = this.normalizedName + "." + kExt[type];
     let file = FileUtils.getFile("ProfD", ["icons",
                                            this.account.protocol.normalizedName,
                                            this.account.normalizedName,

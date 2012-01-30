@@ -67,7 +67,7 @@ interface prplIMessage: nsISupports {
 
   /* Holds the sender color for Chats.
      Empty string by default, it is set by the conversation binding. */
-           attribute AUTF8String color;
+  attribute AUTF8String color;
 
   /*  PURPLE_MESSAGE_SEND        = 0x0001, /**< Outgoing message. */
   readonly attribute boolean outgoing;

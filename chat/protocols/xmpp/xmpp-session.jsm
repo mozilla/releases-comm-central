@@ -37,8 +37,7 @@
 
 var EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
 
-const Cu = Components.utils;
-const Ci = Components.interfaces;
+const {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/socket.jsm");
@@ -329,9 +328,9 @@ XMPPSession.prototype = {
         return;
       }
 
-      let rv;
+      let result;
       try {
-        rv = this._auth.next(aStanza);
+        result = this._auth.next(aStanza);
       } catch(e) {
         ERROR(e);
         this.onError(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
@@ -339,9 +338,9 @@ XMPPSession.prototype = {
         return;
       }
 
-      if (rv.send)
-        this.send(rv.send.getXML());
-      if (rv.done)
+      if (result.send)
+        this.send(result.send.getXML());
+      if (result.done)
         this.onXmppStanza = this.stanzaListeners.authResult;
     },
     authResult: function(aStanza) {

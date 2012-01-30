@@ -181,7 +181,7 @@ const kPermissiveMode = {
   }
 };
 
-const modePref = "messenger.options.filterMode";
+const kModePref = "messenger.options.filterMode";
 const kModes = [kStrictMode, kStandardMode, kPermissiveMode];
 
 var gGlobalRuleset = null;
@@ -190,12 +190,12 @@ function initGlobalRuleset()
 {
   gGlobalRuleset = newRuleset();
 
-  Services.prefs.addObserver(modePref, styleObserver, false);
+  Services.prefs.addObserver(kModePref, styleObserver, false);
 }
 
 var styleObserver = {
   observe: function so_observe(aObject, aTopic, aMsg) {
-    if (aTopic != "nsPref:changed" || aMsg != modePref)
+    if (aTopic != "nsPref:changed" || aMsg != kModePref)
       throw "bad notification";
 
     if (!gGlobalRuleset)
@@ -207,7 +207,7 @@ var styleObserver = {
 
 function getModePref()
 {
-  let baseNum = Services.prefs.getIntPref(modePref);
+  let baseNum = Services.prefs.getIntPref(kModePref);
   if (baseNum < 0 || baseNum > 2)
     baseNum = 1;
 
@@ -226,7 +226,7 @@ function newRuleset(aBase)
   if (!aBase)
     aBase = getModePref();
 
-  var result = {};
+  let result = {};
   result.tags = {};
   result.attrs = {};
   result.styles = {};
@@ -270,7 +270,7 @@ function removeGlobalAllowedStyleRule(aStyle)
 
 function cleanupNode(aNode, aRules, aTextModifiers)
 {
-  for (var i = 0; i < aNode.childNodes.length; ++i) {
+  for (let i = 0; i < aNode.childNodes.length; ++i) {
     let node = aNode.childNodes[i];
     if (node instanceof Components.interfaces.nsIDOMHTMLElement) {
       // check if node allowed
@@ -290,7 +290,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       cleanupNode(node, aRules, aTextModifiers);
 
       // cleanup attributes
-      var attrs = node.attributes;
+      let attrs = node.attributes;
       let acceptFunction = function(aAttrRules, aAttr) {
         // an attribute is always accepted if its rule is true, or conditionnaly
         // accepted if its rule is a function that evaluates to true
@@ -300,7 +300,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
           return (rule === true ||
                   (rule instanceof Function && rule(aAttr.value)));
       };
-      for (var j = 0; j < attrs.length; ++j) {
+      for (let j = 0; j < attrs.length; ++j) {
         let attr = attrs[j];
         // we check both the list of accepted attributes for all tags
         // and the list of accepted attributes for this specific tag.
@@ -313,8 +313,8 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       }
 
       // cleanup style
-      var style = node.style;
-      for (var j = 0; j < style.length; ++j) {
+      let style = node.style;
+      for (let j = 0; j < style.length; ++j) {
         if (!(style[j] in aRules.styles)) {
           style.removeProperty(style[j]);
           --j;
@@ -336,9 +336,9 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       // This is the number of nodes we need to process. If new nodes
       // are created, the next text modifier functions have more nodes
       // to process.
-      var textNodeCount = 1;
-      for each (var modifier in aTextModifiers)
-        for (var n = 0; n < textNodeCount; ++n) {
+      let textNodeCount = 1;
+      for each (let modifier in aTextModifiers)
+        for (let n = 0; n < textNodeCount; ++n) {
           let textNode = aNode.childNodes[i + n];
 
           // If we are processing nodes created by one of the previous
@@ -366,7 +366,7 @@ function cleanupImMarkup(aDocument, aText, aRuleset, aTextModifiers)
   if (!gGlobalRuleset)
     initGlobalRuleset();
 
-  var div = aDocument.createElement("div");
+  let div = aDocument.createElement("div");
   div.innerHTML = aText;
   cleanupNode(div, aRuleset || gGlobalRuleset, aTextModifiers || []);
   return div.innerHTML;

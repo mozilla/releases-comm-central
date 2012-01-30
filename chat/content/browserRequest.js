@@ -113,8 +113,8 @@ var reporterListener = {
                               wpl.STATE_SECURE_HIGH |
                               wpl.STATE_SECURE_MED |
                               wpl.STATE_SECURE_LOW;
-    var browser = document.getElementById("requestFrame");
-    var level;
+    let browser = document.getElementById("requestFrame");
+    let level;
 
     switch (aState & wpl_security_bits) {
       case wpl.STATE_IS_SECURE | wpl.STATE_SECURE_HIGH:
@@ -165,12 +165,11 @@ function loadRequestedUrl()
   document.getElementById("headerImage").src =
     account.protocol.iconBaseURI + "icon48.png";
 
-  var browser = document.getElementById("requestFrame");
+  let browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener,
                               Components.interfaces.nsIWebProgress.NOTIFY_ALL);
-  var url = request.url;
-  if (url != "") {
+  let url = request.url;
+  if (url != "")
     browser.setAttribute("src", url);
-  }
   request.loaded(window, browser.webProgress);
 }

@@ -44,9 +44,7 @@ var gDBConnection = null;
 function getDBConnection()
 {
   const NS_APP_USER_PROFILE_50_DIR = "ProfD";
-  let dbFile =
-    Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties)
-    .get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
+  let dbFile = Services.dirsvc.get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
   dbFile.append("blist.sqlite");
 
   let conn =
@@ -193,7 +191,7 @@ Tag.prototype = {
   get id() this._id,
   get name() this._name,
   set name(aNewName) {
-    var statement = DBConn.createStatement("UPDATE tags SET name = :name WHERE id = :id");
+    let statement = DBConn.createStatement("UPDATE tags SET name = :name WHERE id = :id");
     statement.params.name = aNewName;
     statement.params.id = this._id;
     statement.execute();
@@ -229,7 +227,7 @@ Tag.prototype = {
   },
 
   getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imITag];
+    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imITag];
     countRef.value = interfaces.length;
     return interfaces;
   },
@@ -359,7 +357,7 @@ var otherContactsTag = {
   },
 
   getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.nsIObserver, Ci.imITag];
+    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.nsIObserver, Ci.imITag];
     countRef.value = interfaces.length;
     return interfaces;
   },
@@ -881,7 +879,7 @@ Contact.prototype = {
   },
 
   getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIContact];
+    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIContact];
     countRef.value = interfaces.length;
     return interfaces;
   },
@@ -1191,7 +1189,7 @@ Buddy.prototype = {
   },
 
   getInterfaces: function(countRef) {
-    var interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIBuddy];
+    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIBuddy];
     countRef.value = interfaces.length;
     return interfaces;
   },
@@ -1205,7 +1203,7 @@ Buddy.prototype = {
 function ContactsService() { }
 ContactsService.prototype = {
   initContacts: function() {
-    var statement = DBConn.createStatement("SELECT id, name FROM tags");
+    let statement = DBConn.createStatement("SELECT id, name FROM tags");
     while (statement.executeStep())
       Tags.push(new Tag(statement.getInt32(0), statement.getUTF8String(1)));
 
@@ -1253,11 +1251,11 @@ ContactsService.prototype = {
       let account = Services.accounts.getAccountByNumericId(accountId);
       let tag = TagsById[tagId];
       try {
-        let ab = account.loadBuddy(buddy, tag);
-        if (ab)
-          buddy._addAccount(ab, tag);
+        let accountBuddy = account.loadBuddy(buddy, tag);
+        if (accountBuddy)
+          buddy._addAccount(accountBuddy, tag);
       } catch (e) {
-        // FIXME ab shouldn't be NULL (once purpleAccount is finished)
+        // FIXME accountBuddy shouldn't be NULL (once imAccounts.js is finished)
         // It currently doesn't work right with unknown protocols.
         Components.utils.reportError(e);
         dump(e + "\n");

@@ -309,9 +309,9 @@ Conversation.prototype = {
       let offset = 0;
       for each (let entity in entArray) {
         let str = text.substring(offset + entity.start, offset + entity.end);
-        if (str[0] == "＠")
+        if (str[0] == "\uFF20") // ＠ - unicode character similar to @
           str = "@" + str.substring(1);
-        if (str[0] == "＃")
+        if (str[0] == "\uFF03") // ＃ - unicode character similar to #
           str = "#" + str.substring(1);
         if (str.toLowerCase() != entity.str.toLowerCase())
           continue;
@@ -417,12 +417,12 @@ Account.prototype = {
 
   signAndSend: function(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis,
                         aOAuthParams) {
-    const chars =
+    const kChars =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-    const nonceLength = 6;
+    const kNonceLength = 6;
     let nonce = "";
-    for (var i = 0; i < nonceLength; ++i)
-      nonce += chars[Math.floor(Math.random() * chars.length)];
+    for (let i = 0; i < kNonceLength; ++i)
+      nonce += kChars[Math.floor(Math.random() * kChars.length)];
 
     let params = (aOAuthParams || []).concat([
       ["oauth_consumer_key", this.consumerKey],
@@ -788,7 +788,7 @@ Account.prototype = {
   },
   requestAuthorization: function() {
     this.reportConnecting(_("connection.requestAuth"));
-    const url = this.baseURI + "oauth/authorize?oauth_token=";
+    let url = this.baseURI + "oauth/authorize?oauth_token=";
     this._browserRequest = {
       get promptText() _("authPrompt"),
       account: this,
@@ -962,7 +962,7 @@ Account.prototype = {
     // optionally a transform function to apply to the value.
     // See https://dev.twitter.com/docs/api/1/get/users/show for the options.
     let normalizeBool = function(isFollowing) _(isFollowing ? "yes" : "no");
-    const fields = {
+    const kFields = {
       following: normalizeBool,
       description: null,
       url: null,
@@ -985,11 +985,11 @@ Account.prototype = {
     };
 
     let tooltipInfo = [];
-    for (let field in fields) {
+    for (let field in kFields) {
       if (hasOwnProperty(userInfo, field) && userInfo[field]) {
         let value = userInfo[field];
-        if (fields[field])
-          value = fields[field](value);
+        if (kFields[field])
+          value = kFields[field](value);
         tooltipInfo.push(new TooltipInfo(_("tooltip." + field), value));
       }
     }

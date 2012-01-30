@@ -197,8 +197,7 @@ UserStatus.prototype = {
   },
 
   _getProfileDir: function()
-    Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties)
-      .get("ProfD" /*NS_APP_USER_PROFILE_50_DIR*/, Ci.nsIFile),
+    Services.dirsvc.get("ProfD", Ci.nsIFile),
   setUserIcon: function(aIconFile) {
     let folder = this._getProfileDir();
 

@@ -35,12 +35,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource:///modules/imSmileys.jsm");
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const smileRegexp = /^smile:\/\//;
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource:///modules/imSmileys.jsm");
+
+const kSmileRegexp = /^smile:\/\//;
 
 function smileProtocolHandler() { }
 
@@ -59,7 +59,7 @@ smileProtocolHandler.prototype = {
     return uri;
   },
   newChannel: function SPH_newChannel(aURI) {
-    let smile = aURI.spec.replace(smileRegexp, "");
+    let smile = aURI.spec.replace(kSmileRegexp, "");
     let ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
     let channel = ios.newChannel(getSmileRealURI(smile), null, null);
     channel.originalURI = aURI;

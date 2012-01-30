@@ -35,19 +35,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource:///modules/imServices.jsm");
+const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyServiceGetter(this, "obs",
-                                   "@mozilla.org/observer-service;1",
-                                   "nsIObserverService");
-
-XPCOMUtils.defineLazyGetter(this, "bundle", function()
-  Services.strings.createBundle("chrome://chat/locale/commands.properties")
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://chat/locale/commands.properties")
 );
 
 function CommandsService() { }
@@ -59,7 +53,7 @@ CommandsService.prototype = {
     // using the /help command).
     this.registerCommand({
       name: "say",
-      get helpString() bundle.GetStringFromName("sayHelpString"),
+      get helpString() _("sayHelpString"),
       usageContext: Ci.imICommand.CONTEXT_ALL,
       priority: Ci.imICommand.PRIORITY_HIGH,
       run: function(aMsg, aConv) {
@@ -69,7 +63,7 @@ CommandsService.prototype = {
 
     this.registerCommand({
       name: "raw",
-      get helpString() bundle.GetStringFromName("rawHelpString"),
+      get helpString() _("rawHelpString"),
       usageContext: Ci.imICommand.CONTEXT_ALL,
       priority: Ci.imICommand.PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
@@ -84,7 +78,7 @@ CommandsService.prototype = {
       cmdSrv: this,
 
       name: "help",
-      get helpString() bundle.GetStringFromName("helpHelpString"),
+      get helpString() _("helpHelpString"),
       usageContext: Ci.imICommand.CONTEXT_ALL,
       priority: Ci.imICommand.PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
@@ -101,7 +95,7 @@ CommandsService.prototype = {
 
           // Concatenate the command names (separated by a comma and space).
           let cmds = commands.map(function(aCmd) aCmd.name).sort().join(", ");
-          let message = bundle.formatStringFromName("commands", [cmds], 1);
+          let message = _("commands", cmds);
 
           // Display the message
           conv.systemMessage(message);
@@ -113,7 +107,7 @@ CommandsService.prototype = {
 
         if (!cmdArray.length) {
           // No command that matches.
-          let message = bundle.formatStringFromName("noCommand", [aMsg], 1);
+          let message = _("noCommand", aMsg);
           conv.systemMessage(message);
           return true;
         }
@@ -123,7 +117,7 @@ CommandsService.prototype = {
 
         let text = cmd.helpString;
         if (!text)
-          text = bundle.formatStringFromName("noHelp", [cmd.name], 1);
+          text = _("noHelp", cmd.name);
 
         // Display the message.
         conv.systemMessage(text);
@@ -143,11 +137,7 @@ CommandsService.prototype = {
       let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
       this.registerCommand({
         name: cmd,
-        get helpString()
-          bundle.formatStringFromName("statusCommand",
-                                      [this.name,
-                                       bundle.GetStringFromName(this.name)],
-                                      2),
+        get helpString() _("statusCommand", this.name, _(this.name)),
         usageContext: Ci.imICommand.CONTEXT_ALL,
         priority: Ci.imICommand.PRIORITY_HIGH,
         run: function(aMsg) {

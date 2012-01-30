@@ -788,9 +788,7 @@ AccountsService.prototype = {
       let lastCrashTime = 0;
 
       /* Locate the LastCrash file */
-      let lastCrash =
-        Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties)
-        .get("UAppData", Ci.nsILocalFile);
+      let lastCrash = Services.dirsvc.get("UAppData", Ci.nsILocalFile);
       lastCrash.append("Crash Reports");
       lastCrash.append("LastCrash");
       if (lastCrash.exists()) {

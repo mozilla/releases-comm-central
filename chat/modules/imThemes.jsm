@@ -35,13 +35,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#filter substitution
-#ifdef XP_WIN
-#define LINE_BREAK \r\n
-#else
-#define LINE_BREAK \n
-#endif
-
 var EXPORTED_SYMBOLS = [
   "getCurrentTheme",
   "getThemeByName",
@@ -54,23 +47,26 @@ var EXPORTED_SYMBOLS = [
   "serializeSelection"
 ];
 
-Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
-const Ci = Components.interfaces;
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-const messagesStylePrefBranch = "messenger.options.messagesStyle.";
-const themePref = "theme";
-const variantPref = "variant";
-const showHeaderPref = "showHeader";
-const combineConsecutivePref = "combineConsecutive";
-const combineConsecutiveIntervalPref = "combineConsecutiveInterval";
+Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource://gre/modules/DownloadUtils.jsm");
+
+const kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
+const kThemePref = "theme";
+const kVariantPref = "variant";
+const kShowHeaderPref = "showHeader";
+const kCombineConsecutivePref = "combineConsecutive";
+const kCombineConsecutiveIntervalPref = "combineConsecutiveInterval";
 
 const DEFAULT_THEME = "bubbles";
 const DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
 
+const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
+
 __defineGetter__("gPrefBranch", function() {
   delete this.gPrefBranch;
-  return this.gPrefBranch = Services.prefs.getBranch(messagesStylePrefBranch);
+  return this.gPrefBranch = Services.prefs.getBranch(kMessagesStylePrefBranch);
 });
 
 var gCurrentTheme = null;
@@ -226,16 +222,16 @@ function getThemeByName(aName)
     baseURI: baseURI,
     metadata: metadata,
     html: new HTMLTheme(baseURI),
-    showHeader: gPrefBranch.getBoolPref(showHeaderPref),
-    combineConsecutive: gPrefBranch.getBoolPref(combineConsecutivePref),
-    combineConsecutiveInterval: gPrefBranch.getIntPref(combineConsecutiveIntervalPref)
+    showHeader: gPrefBranch.getBoolPref(kShowHeaderPref),
+    combineConsecutive: gPrefBranch.getBoolPref(kCombineConsecutivePref),
+    combineConsecutiveInterval: gPrefBranch.getIntPref(kCombineConsecutiveIntervalPref)
   };
 }
 
 function getCurrentTheme()
 {
-  let name = gPrefBranch.getCharPref(themePref);
-  let variant = gPrefBranch.getCharPref(variantPref);
+  let name = gPrefBranch.getCharPref(kThemePref);
+  let variant = gPrefBranch.getCharPref(kVariantPref);
   if (gCurrentTheme && gCurrentTheme.name == name &&
       gCurrentTheme.variant == variant)
     return gCurrentTheme;
@@ -268,7 +264,7 @@ function getDirectoryEntries(aDir)
   let results = [];
   if (uri.scheme == "jar") {
     uri.QueryInterface(Ci.nsIJARURI);
-    var strEntry = uri.JAREntry;
+    let strEntry = uri.JAREntry;
     if (!strEntry)
       return [];
 
@@ -289,9 +285,9 @@ function getDirectoryEntries(aDir)
       return [];
     }
 
-    var escapedEntry = strEntry.replace(/([*?$[\]^~()\\])/g, "\\$1");
-    var filter = escapedEntry + "?*~" + escapedEntry + "?*/?*";
-    var entries = zr.findEntries(filter);
+    let escapedEntry = strEntry.replace(/([*?$[\]^~()\\])/g, "\\$1");
+    let filter = escapedEntry + "?*~" + escapedEntry + "?*/?*";
+    let entries = zr.findEntries(filter);
 
     let parentLength = strEntry.length;
     while (entries.hasMore())
@@ -300,7 +296,7 @@ function getDirectoryEntries(aDir)
   }
   else if (uri.scheme == "file") {
     uri.QueryInterface(Ci.nsIFileURL);
-    var dir = uri.file;
+    let dir = uri.file;
 
     if (!dir.exists() || !dir.isDirectory())
       return [];
@@ -320,9 +316,8 @@ function getThemeVariants(aTheme)
 {
   let variants = getDirectoryEntries(aTheme.baseURI + "Variants/");
   let cssRe = /\.css$/;
-  variants = variants.filter(function(v) cssRe.test(v))
-                     .map(function(v) v.replace(cssRe, ""));
-  return variants;
+  return variants.filter(function(v) cssRe.test(v))
+                 .map(function(v) v.replace(cssRe, ""));
 }
 
 /* helper function for replacements in messages */
@@ -360,7 +355,7 @@ const headerFooterReplacements = {
   destinationName: function(aConv) aConv.name,
   destinationDisplayName: function(aConv) aConv.title,
   incomingIconPath: function(aConv) {
-    var buddy;
+    let buddy;
     return (!aConv.isChat && (buddy = aConv.buddy) &&
             buddy.buddyIconFilename) || "incoming_icon.png";
   },
@@ -465,15 +460,15 @@ const statusReplacements = {
   __proto__: statusMessageReplacements
 };
 
-const replacementRegExp = /%([a-zA-Z]*)(\{([^\}]*)\})?%/g;
+const kReplacementRegExp = /%([a-zA-Z]*)(\{([^\}]*)\})?%/g;
 
 function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
 {
-  replacementRegExp.lastIndex = 0;
+  kReplacementRegExp.lastIndex = 0;
   let previousIndex = 0;
   let result = "";
   let match;
-  while ((match = replacementRegExp.exec(aHTML))) {
+  while ((match = kReplacementRegExp.exec(aHTML))) {
     let content = "";
     if (match[1] in aReplacements)
       content = aReplacements[match[1]](aReplacementArg, match[3]);
@@ -481,7 +476,7 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
       Components.utils.reportError("Unknown replacement string %" +
                                    match[1] + "% in message styles.");
     result += aHTML.substring(previousIndex, match.index) + content;
-    previousIndex = replacementRegExp.lastIndex;
+    previousIndex = kReplacementRegExp.lastIndex;
   }
 
   return result + aHTML.slice(previousIndex);
@@ -592,7 +587,7 @@ function getMetadata(aTheme, aKey)
 
 function initHTMLDocument(aConv, aTheme, aDoc)
 {
-  var HTML = "<html><head><base href=\"" + aTheme.baseURI + "\"/>";
+  let HTML = "<html><head><base href=\"" + aTheme.baseURI + "\"/>";
 
   function addCSS(aHref)
   {
@@ -652,8 +647,11 @@ function getEllipsis()
 
 function _serializeDOMObject(aDocument, aInitFunction)
 {
-  const type = "text/plain";
-  var encoder =
+  // This shouldn't really be a constant, as we want to support
+  // text/html too in the future.
+  const type = "text/plain"; 
+
+  let encoder =
     Components.classes["@mozilla.org/layout/documentEncoder;1?type=" + type]
               .createInstance(Ci.nsIDocumentEncoder);
   encoder.init(aDocument, type, 0);
@@ -677,10 +675,10 @@ function serializeNode(aNode)
 /* This function is used to pretty print a selection inside a conversation area */
 function serializeSelection(aSelection)
 {
-  // We have to kinds of selection serialization:
+  // We have two kinds of selection serialization:
   //  - The short version, used when only a part of message is
   //    selected, or if nothing interesting is selected
-  var shortSelection = "";
+  let shortSelection = "";
 
   //  - The long version, which is used:
   //      * when both some of the message text and some of the context
@@ -688,18 +686,18 @@ function serializeSelection(aSelection)
   //      * when several messages are selected at once
   //    This version uses an array, with each message formatted
   //    through the theme system.
-  var longSelection = [];
+  let longSelection = [];
 
   // We first assume that we are going to use the short version, but
   // while working on creating the short version, we prepare
   // everything to be able to switch to the long version if we later
   // discover that it is in fact needed.
-  var shortVersionPossible = true;
+  let shortVersionPossible = true;
 
   // Sometimes we need to know if a selection range is inside the same
   // message as the previous selection range, so we keep track of the
   // last message we have processed.
-  var lastMessage = null;
+  let lastMessage = null;
 
   for (let i = 0; i < aSelection.rangeCount; ++i) {
     let range = aSelection.getRangeAt(i);
@@ -728,7 +726,7 @@ function serializeSelection(aSelection)
           // Add the ellipsis only if the previous message was cut
           if (lastMessage.cutEnd)
             shortSelection += " " + getEllipsis();
-          shortSelection += "@LINE_BREAK@";
+          shortSelection += kLineBreak;
         }
         else
           shortSelection += " " + getEllipsis() + " ";
@@ -756,7 +754,7 @@ function serializeSelection(aSelection)
   if (shortVersionPossible)
     return shortSelection || aSelection.toString();
   else
-    return longSelection.join("@LINE_BREAK@");
+    return longSelection.join(kLineBreak);
 }
 
 function SelectedMessage(aRootNode, aRange)
@@ -852,7 +850,7 @@ SelectedMessage.prototype = {
         let range = spanNode.ownerDocument.createRange();
         range.setStart(this._range.endContainer, this._range.endOffset);
         range.setEnd(spanNode, spanNode.childNodes.length);
-        this._cutEnd = !/^(@LINE_BREAK@)?$/.test(serializeRange(range));
+        this._cutEnd = !/^(\r?\n)?$/.test(serializeRange(range));
       }
       else
         this._cutEnd = false;

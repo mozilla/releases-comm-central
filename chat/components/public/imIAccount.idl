@@ -211,8 +211,8 @@ interface imIAccount: prplIAccount {
   /* Delete the account (from the preferences, mozStorage, and call unInit). */
   void remove();
 
-  /* Cancel the timer that automatically reconnects the account that were
-     disconnected with a non fatal error */
+  /* Cancel the timer that automatically reconnects the account if it was
+     disconnected because of a non fatal error. */
   void cancelReconnection();
 
   readonly attribute AUTF8String name;

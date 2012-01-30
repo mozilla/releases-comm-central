@@ -45,8 +45,8 @@ var EXPORTED_SYMBOLS = [
   "getSmileyList" // used to display a list of smileys in the UI
 ];
 
-const emoticonsThemePref = "messenger.options.emoticonsTheme";
-const themeFile = "theme.js";
+const kEmoticonsThemePref = "messenger.options.emoticonsTheme";
+const kThemeFile = "theme.js";
 
 __defineGetter__("gTheme", function() {
   delete this.gTheme;
@@ -56,11 +56,11 @@ __defineGetter__("gTheme", function() {
 
 var gPrefObserver = {
   init: function po_init() {
-    Services.prefs.addObserver(emoticonsThemePref, gPrefObserver, false);
+    Services.prefs.addObserver(kEmoticonsThemePref, gPrefObserver, false);
   },
 
   observe: function so_observe(aObject, aTopic, aMsg) {
-    if (aTopic != "nsPref:changed" || aMsg != emoticonsThemePref)
+    if (aTopic != "nsPref:changed" || aMsg != kEmoticonsThemePref)
       throw "bad notification";
 
     gTheme = getTheme();
@@ -94,7 +94,7 @@ function getSmileyList(aThemeName)
 
 function getTheme(aName)
 {
-  let name = aName || Services.prefs.getCharPref(emoticonsThemePref);
+  let name = aName || Services.prefs.getCharPref(kEmoticonsThemePref);
 
   let theme = {
     name: name,
@@ -111,7 +111,7 @@ function getTheme(aName)
   else
     theme.baseUri = "chrome://" + theme.name + "/skin/";
   try {
-    let channel = Services.io.newChannel(theme.baseUri + themeFile, null, null);
+    let channel = Services.io.newChannel(theme.baseUri + kThemeFile, null, null);
     let stream = channel.open();
     let json = Components.classes["@mozilla.org/dom/json;1"]
                          .createInstance(Components.interfaces.nsIJSON);
@@ -169,10 +169,10 @@ function getRegexp()
 // unused. May be useful later to process a string instead of an HTML node
 function smileString(aString)
 {
-  const smileFormat = '<img class="ib-img-smile" src="smile://$1" alt="$1" title="$1"/>';
+  const kSmileFormat = '<img class="ib-img-smile" src="smile://$1" alt="$1" title="$1"/>';
 
   let exp = getRegexp();
-  return exp ? aString.replace(exp, smileFormat) : aString;
+  return exp ? aString.replace(exp, kSmileFormat) : aString;
 }
 
 function smileTextNode(aNode)
@@ -221,7 +221,7 @@ function smileTextNode(aNode)
 
 function smileNode(aNode)
 {
-  for (var i = 0; i < aNode.childNodes.length; ++i) {
+  for (let i = 0; i < aNode.childNodes.length; ++i) {
     let node = aNode.childNodes[i];
     if (node instanceof Components.interfaces.nsIDOMHTMLElement) {
       // we are on a tag, recurse to process its children
@@ -242,7 +242,7 @@ function smileImMarkup(aDocument, aText)
   if (!gTheme.iconsHash)
     return aText;
 
-  var div = aDocument.createElement("div");
+  let div = aDocument.createElement("div");
   div.innerHTML = aText;
   smileNode(div);
   return div.innerHTML;

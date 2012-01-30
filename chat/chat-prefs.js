@@ -10,8 +10,8 @@ pref("messenger.accounts", "");
 // passwords that are currently stored in the preferences?
 pref("messenger.accounts.convertOldPasswords", false);
 
-// The intervals in seconds between automatic reconnection attempts
-// The last value will be reused forever.
+// The intervals in seconds between automatic reconnection attempts.
+// The last value will be reused for the rest of the reconnection attempts.
 // A value of 0 means that there will be no more reconnection attempts.
 pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
 

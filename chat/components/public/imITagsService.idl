@@ -60,8 +60,8 @@ interface imITag: nsISupports {
    * imIBuddy and imIAccountBuddy instances.
    */
 
-  // Exposed for add-on authors. All usage by Instantbird will come from
-  // the imITag implementation so it wasn't required to expose this.
+  // Exposed for add-on authors. All internal calls will come from the
+  // imITag implementation itself so it wasn't required to expose this.
   // This can be used to dispatch custom notifications to the
   // observers of the tag.
   void notifyObservers(in nsISupports aObj, in string aEvent,

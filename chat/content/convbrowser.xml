@@ -772,8 +772,8 @@
         <parameter name="start"/>
         <body>
           <![CDATA[
-            const speed = 12;
-            var val = (curr - start) / speed;
+            const kSpeed = 12;
+            var val = (curr - start) / kSpeed;
 
             if (val > 1)
               return val * Math.sqrt(val) - 1;

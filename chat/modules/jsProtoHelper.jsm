@@ -330,7 +330,7 @@ const GenericAccountBuddyPrototype = {
   createConversation: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; }
 };
 
-// aUserName is required only if aBuddy is null (= we are adding a buddy)
+// aUserName is required only if aBuddy is null, i.e., we are adding a buddy.
 function AccountBuddy(aAccount, aBuddy, aTag, aUserName) {
   this._init(aAccount, aBuddy, aTag, aUserName);
 }
@@ -580,8 +580,8 @@ function purplePref(aName, aOption) {
     throw "A default value for the option is required to determine its type.";
   this._defaultValue = aOption.default;
 
-  const types = {boolean: "Bool", string: "String", number: "Int"};
-  let type = types[typeof aOption.default];
+  const kTypes = {boolean: "Bool", string: "String", number: "Int"};
+  let type = kTypes[typeof aOption.default];
   if (!type)
     throw "Invalid option type";
 

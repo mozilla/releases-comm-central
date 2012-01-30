@@ -163,8 +163,8 @@ interface imIContact: imIStatusInfo {
    * buddies (imIAccountBuddy instances).
    */
 
-  // Exposed for add-on authors. All usage by Instantbird will come from
-  // the imIContact implementation so it wasn't required to expose this.
+  // Exposed for add-on authors. All internal calls will come from the
+  // imIContact implementation itself so it wasn't required to expose this.
   // This can be used to dispatch custom notifications to the
   // observers of the contact and its tags.
   // The notification will also be forwarded to the observer service.
@@ -212,8 +212,8 @@ interface imIBuddy: imIStatusInfo {
    * from the linked account buddies (imIAccountBuddy instances).
    */
 
-  // Exposed for add-on authors. All usage by Instantbird will come from
-  // the imIBuddy implementation so it wasn't required to expose this.
+  // Exposed for add-on authors. All internal calls will come from the
+  // imIBuddy implementation itself so it wasn't required to expose this.
   // This can be used to dispatch custom notifications to the
   // observers of the buddy, its contact and its tags.
   // The contact will forward the notifications to the observer service.

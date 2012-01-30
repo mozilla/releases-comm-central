@@ -385,6 +385,7 @@ const Socket = {
    * nsIBadCertListener2
    */
   // Called when there's an error, return true to suppress the modal alert.
+  // Whatever this function returns, NSS will close the connection.
   notifyCertProblem: function(aSocketInfo, aStatus, aTargetSite) true,
 
   /*

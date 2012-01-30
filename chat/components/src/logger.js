@@ -35,32 +35,15 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#filter substitution
-#ifdef XP_WIN
-#define LINE_BREAK \r\n
-#else
-#define LINE_BREAK \n
-#endif
+const {classes: Cc, interfaces: Ci, utils: Cu, Constructor: CC} = Components;
 
-Components.utils.import("resource:///modules/hiddenWindow.jsm");
-Components.utils.import("resource:///modules/imServices.jsm");
-Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
-Components.utils.import("resource:///modules/jsProtoHelper.jsm");
+Cu.import("resource:///modules/hiddenWindow.jsm");
+Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
+Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const CC = Components.Constructor;
-
-XPCOMUtils.defineLazyServiceGetter(this, "obs",
-                                   "@mozilla.org/observer-service;1",
-                                   "nsIObserverService");
-XPCOMUtils.defineLazyServiceGetter(this, "prefs",
-                                   "@mozilla.org/preferences-service;1",
-                                   "nsIPrefBranch");
 XPCOMUtils.defineLazyGetter(this, "logDir", function() {
-  let file = Components.classes["@mozilla.org/file/directory_service;1"]
-                       .getService(Components.interfaces.nsIProperties)
-                       .get("ProfD", Components.interfaces.nsIFile);
+  let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("logs");
   return file;
 });
@@ -71,6 +54,8 @@ const FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
 const ConverterInputStream = CC("@mozilla.org/intl/converter-input-stream;1",
                                 "nsIConverterInputStream",
                                 "init");
+
+const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
 function getLogFolderForAccount(aAccount, aCreate)
 {
@@ -120,7 +105,7 @@ ConversationLog.prototype = {
     file.append(this._conv.normalizedName);
     if (!file.exists())
       file.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
-    if (prefs.getCharPref("purple.logging.format") == "json")
+    if (Services.prefs.getCharPref("purple.logging.format") == "json")
       this.format = "json";
     file.append(getNewLogFileName(this.format));
     let os = Cc["@mozilla.org/network/file-output-stream;1"].
@@ -150,7 +135,7 @@ ConversationLog.prototype = {
     return "Conversation with " + this._conv.name +
            " at " + (new Date).toLocaleString() +
            " on " + account.name +
-           " (" + account.protocol.normalizedName + ")@LINE_BREAK@";
+           " (" + account.protocol.normalizedName + ")" + kLineBreak;
   },
   _serialize: function cl_serialize(aString) {
     // TODO cleanup once bug 102699 is fixed
@@ -211,7 +196,7 @@ ConversationLog.prototype = {
           line += sender + ": " + msg;
       }
     }
-    this._log.writeString(line + "@LINE_BREAK@");
+    this._log.writeString(line + kLineBreak);
   },
 
   close: function cl_close() {
@@ -234,7 +219,7 @@ function getLogForConversation(aConversation)
   if (!(id in gConversationLogs)) {
     let prefName =
       "purple.logging.log_" + (aConversation.isChat ? "chats" : "ims");
-    if (prefs.getBoolPref(prefName))
+    if (Services.prefs.getBoolPref(prefName))
       gConversationLogs[id] = new ConversationLog(aConversation);
     else
       gConversationLogs[id] = dummyConversationLog;
@@ -258,7 +243,7 @@ function SystemLog(aAccount)
   this._log.writeString("System log for account " + aAccount.name +
                         " (" + aAccount.protocol.normalizedName +
                         ") connected at " +
-                        (new Date()).toLocaleFormat("%c") + "@LINE_BREAK@");
+                        (new Date()).toLocaleFormat("%c") + kLineBreak);
 }
 SystemLog.prototype = {
   _log: null,
@@ -285,7 +270,7 @@ SystemLog.prototype = {
       this._init();
 
     let date = (new Date()).toLocaleFormat("%x %X");
-    this._log.writeString("---- " + aString + " @ " + date + " ----@LINE_BREAK@");
+    this._log.writeString("---- " + aString + " @ " + date + " ----" + kLineBreak);
   },
 
   close: function sl_close() {
@@ -308,7 +293,7 @@ function getLogForAccount(aAccount, aCreate)
   if (aCreate) {
     if (id in gSystemLogs)
       gSystemLogs[id].close();
-    if (!prefs.getBoolPref("purple.logging.log_system"))
+    if (!Services.prefs.getBoolPref("purple.logging.log_system"))
       return dummySystemLog;
     return (gSystemLogs[id] = new SystemLog(aAccount));
   }
@@ -466,15 +451,14 @@ Logger.prototype = {
   observe: function logger_observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":
-      obs.addObserver(this, "final-ui-startup", false);
+      Services.obs.addObserver(this, "final-ui-startup", false);
       break;
     case "final-ui-startup":
-      obs.removeObserver(this, "final-ui-startup");
-      ["new-conversation", "new-text",
-       "conversation-closed", "conversation-left-chat",
+      Services.obs.removeObserver(this, "final-ui-startup");
+      ["new-text", "conversation-closed", "conversation-left-chat",
        "account-connected", "account-disconnected",
        "account-buddy-status-changed"].forEach(function(aEvent) {
-        obs.addObserver(this, aEvent, false);
+        Services.obs.addObserver(this, aEvent, false);
       }, this);
       break;
     case "new-text":
@@ -482,9 +466,6 @@ Logger.prototype = {
         let log = getLogForConversation(aSubject.conversation);
         log.logMessage(aSubject);
       }
-      break;
-    case "new-conversation":
-      //XXX should we create the log file here?
       break;
     case "conversation-closed":
     case "conversation-left-chat":
