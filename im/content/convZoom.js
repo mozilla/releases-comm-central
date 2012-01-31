@@ -48,12 +48,11 @@ var FullZoom = {
     let conversations = document.getElementById("conversations");
     if (conversations) {
       conversations.tabContainer
-                   .addEventListener("select", FullZoom.setSettingValue);
+                   .addEventListener("select", FullZoom.applyPrefValue);
     }
 
     Services.prefs.addObserver(FullZoom.prefName, FullZoom, false);
-    FullZoom.getPrefValue();
-    FullZoom.setSettingValue();
+    FullZoom.applyPrefValue();
   },
 
   destroy: function FullZoom_destroy() {
@@ -71,7 +70,7 @@ var FullZoom = {
     else
       ZoomManager.reduce();
 
-    FullZoom.applySettingToPref();
+    FullZoom.saveCurrentZoomToPref();
   },
 
   // nsIObserver
@@ -81,19 +80,18 @@ var FullZoom = {
 
     switch(aData) {
       case this.prefName:
-        this.getPrefValue();
-        this.setSettingValue();
+        this.applyPrefValue();
         break;
     }
   },
 
   enlarge: function FullZoom_zoomEnlarge() {
     ZoomManager.enlarge();
-    this.applySettingToPref();
+    this.saveCurrentZoomToPref();
   },
   reduce: function FullZoom_zoomReduce() {
     ZoomManager.reduce();
-    this.applySettingToPref();
+    this.saveCurrentZoomToPref();
   },
   reset: function FullZoom_ZoomReset() {
     ZoomManager.reset();
@@ -106,43 +104,26 @@ var FullZoom = {
   },
 
   // Settings and Prefs
-  applySettingToPref: function FullZoom_applySettingToPref() {
+  saveCurrentZoomToPref: function FullZoom_saveCurrentZoomToPref() {
     Services.prefs.setCharPref(this.prefName, ZoomManager.zoom);
   },
-  getPrefValue: function FullZoom_getPrefValue() {
-    this._value = parseFloat(Services.prefs.getCharPref(this.prefName));
-  },
-  setSettingValue: function FullZoom_setSettingValue() {
-    FullZoom._applyPrefToSetting(FullZoom._value);
-  },
   /**
-   * Set the zoom level for the current tab.
+   * Set the zoom level for the current browser.
    *
    * Per nsPresContext::setFullZoom, we can set the zoom to its current value
    * without significant impact on performance, as the setting is only applied
    * if it differs from the current setting.  In fact getting the zoom and then
    * checking ourselves if it differs costs more.
    **/
-  _applyPrefToSetting: function FullZoom__applyPrefToSetting(aValue) {
-    try {
-      if (typeof aValue != "undefined")
-        ZoomManager.zoom = this._ensureValid(aValue);
-      else
-        ZoomManager.zoom = 1;
-     }
-     catch(ex) {}
-  },
-
-  // Utilities
-  _ensureValid: function FullZoom__ensureValid(aValue) {
-    if (isNaN(aValue))
-      return 1;
-
-    if (aValue < ZoomManager.MIN)
-      return ZoomManager.MIN;
-    if (aValue > ZoomManager.MAX)
-      return ZoomManager.MAX;
-    return aValue;
+  applyPrefValue: function FullZoom_applyPrefValue() {
+    let value = parseFloat(Services.prefs.getCharPref(FullZoom.prefName));
+    if (isNaN(value))
+      value = 1;
+    else if (value < ZoomManager.MIN)
+      value = ZoomManager.MIN;
+    else if (value > ZoomManager.MAX)
+      value = ZoomManager.MAX;
+    ZoomManager.zoom = value;
   }
 };
 

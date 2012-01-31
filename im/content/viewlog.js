@@ -88,7 +88,7 @@ var logWindow = {
       deck.selectedIndex = 1;
       let browser = document.getElementById("conv-browser");
       findbar.browser = browser;
-      FullZoom.setSettingValue();
+      FullZoom.applyPrefValue();
       if (this.pendingLoad) {
         browser._conv = conv;
         return;
@@ -102,7 +102,7 @@ var logWindow = {
     deck.selectedIndex = 0;
     let browser = document.getElementById("text-browser");
     findbar.browser = browser;
-    FullZoom.setSettingValue();
+    FullZoom.applyPrefValue();
     browser.documentCharsetInfo.forcedCharset =
       browser.mAtomService.getAtom("UTF-8");
     let file = Components.classes["@mozilla.org/file/local;1"]
