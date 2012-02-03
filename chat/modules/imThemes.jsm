@@ -51,6 +51,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource://gre/modules/DownloadUtils.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
 const kThemePref = "theme";
@@ -64,9 +65,13 @@ const DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
 
 const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
-__defineGetter__("gPrefBranch", function() {
-  delete this.gPrefBranch;
-  return this.gPrefBranch = Services.prefs.getBranch(kMessagesStylePrefBranch);
+XPCOMUtils.defineLazyGetter(this, "gPrefBranch", function()
+  Services.prefs.getBranch(kMessagesStylePrefBranch)
+);
+
+XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
+  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  return function(aTXT) cs.scanTXT(aTXT, cs.kEntities);
 });
 
 var gCurrentTheme = null;
@@ -350,10 +355,10 @@ function getStatusIconFromBuddy(aBuddy)
 }
 
 const headerFooterReplacements = {
-  chatName: function(aConv) aConv.title,
-  sourceName: function(aConv) aConv.account.alias || aConv.account.name,
-  destinationName: function(aConv) aConv.name,
-  destinationDisplayName: function(aConv) aConv.title,
+  chatName: function(aConv) TXTToHTML(aConv.title),
+  sourceName: function(aConv) TXTToHTML(aConv.account.alias || aConv.account.name),
+  destinationName: function(aConv) TXTToHTML(aConv.name),
+  destinationDisplayName: function(aConv) TXTToHTML(aConv.title),
   incomingIconPath: function(aConv) {
     let buddy;
     return (!aConv.isChat && (buddy = aConv.buddy) &&
@@ -434,15 +439,15 @@ const messageReplacements = {
     // Fallback to the theme's default icons.
     return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png";
   },
-  senderScreenName: function(aMsg) aMsg.who,
-  sender: function(aMsg) aMsg.alias || aMsg.who,
+  senderScreenName: function(aMsg) TXTToHTML(aMsg.who),
+  sender: function(aMsg) TXTToHTML(aMsg.alias || aMsg.who),
   senderColor: function(aMsg) aMsg.color,
   senderStatusIcon: function(aMsg)
     getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
   messageDirection: function(aMsg) "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
-  senderDisplayName: function(aMsg) aMsg.alias || aMsg.who,
+  senderDisplayName: function(aMsg) TXTToHTML(aMsg.alias || aMsg.who),
   service: function(aMsg) aMsg.conversation.account.protocol.name,
   textbackgroundcolor: function(aMsg, aFormat) "transparent", // FIXME?
   __proto__: statusMessageReplacements
