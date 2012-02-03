@@ -122,6 +122,10 @@ function FillInHTMLTooltip(tipElement)
         tipNode.setAttribute("label", titleText);
         return true;
       }
+      // When hovering a link, displaying a tooltip for a parent
+      // element is confusing, so we prevent it here.
+      if (tipElement.hasAttribute("href"))
+        return false;
     }
     tipElement = tipElement.parentNode;
   }
