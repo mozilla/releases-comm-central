@@ -959,7 +959,7 @@
                 break;
             }
           }
-          if (url !== undefined) {
+          if (url) {
             let uri = Services.io.newURI(url, null, null);
 
             // http and https are the only schemes that are both
