@@ -148,9 +148,10 @@ XMPPSession.prototype = {
   },
   execHandler: function(aId, aStanza) {
     if (!this._handlers.hasOwnProperty(aId))
-      return;
+      return false;
     this._handlers[aId](aStanza);
     this.removeHandler(aId);
+    return true;
   },
 
   /* Start the XMPP stream */
@@ -385,17 +386,18 @@ XMPPSession.prototype = {
       this.onXmppStanza = this.stanzaListeners.accountListening;
     },
     accountListening: function(aStanza) {
-      this._account.onXmppStanza(aStanza);
+      let handled = false;
+      if (aStanza.attributes.id)
+        handled = this.execHandler(aStanza.attributes.id, aStanza);
+
+      this._account.onXmppStanza(aStanza, handled);
       let name = aStanza.qName;
       if (name == "presence")
-        this._account.onPresenceStanza(aStanza);
+        this._account.onPresenceStanza(aStanza, handled);
       else if (name == "message")
-        this._account.onMessageStanza(aStanza);
+        this._account.onMessageStanza(aStanza, handled);
       else if (name == "iq")
-        this._account.onIQStanza(aStanza);
-
-      if (aStanza.attributes.id)
-        this.execHandler(aStanza.attributes.id, aStanza);
+        this._account.onIQStanza(aStanza, handled);
     }
   },
   onXmppStanza: function(aStanza) {

@@ -260,7 +260,8 @@ const GenericAccountBuddyPrototype = {
   set serverAlias(aNewAlias) {
     let old = this.displayName;
     this._serverAlias = aNewAlias;
-    this._notifyObservers("display-name-changed", old);
+    if (old != this.displayName)
+      this._notifyObservers("display-name-changed", old);
   },
 
   remove: function() {

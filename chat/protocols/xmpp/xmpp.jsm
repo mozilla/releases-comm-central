@@ -359,6 +359,18 @@ const XMPPAccountBuddyPrototype = {
   /* Display name of the buddy */
   get contactDisplayName() this.buddy.contact.displayName || this.displayName,
 
+  remove: function() {
+    if (!this._account.connected)
+      return;
+
+    let s = Stanza.iq("set", null, null,
+                      Stanza.node("query", Stanza.NS.roster, null,
+                                  Stanza.node("item", null,
+                                              {jid: this.normalizedName,
+                                               subscription: "remove"})));
+    this._account._connection.sendStanza(s);
+  },
+
   _saveIcon: function(aPhotoNode) {
     let type = aPhotoNode.getElement(["TYPE"]).innerText;
     const kExt = {"image/gif": "gif", "image/jpeg": "jpg", "image/png": "png"};
@@ -612,6 +624,30 @@ const XMPPAccountPrototype = {
     this._disconnect();
   },
 
+  addBuddy: function(aTag, aName) {
+    if (!this._connection)
+      throw "The account isn't connected";
+
+    let jid = this._normalizeJID(aName);
+    if (!jid || jid.indexOf("@") == -1)
+      throw "Invalid username";
+
+    if (this._buddies.hasOwnProperty(jid)) {
+      DEBUG("not re-adding an existing buddy");
+      // TODO: check if the subscription is ok or if we should resend
+      // a presence subscription request.
+      return;
+    }
+
+    let s = Stanza.iq("set", null, null,
+                      Stanza.node("query", Stanza.NS.roster, null,
+                                  Stanza.node("item", null, {jid: jid},
+                                             Stanza.node("group", null, null,
+                                                         aTag.name))));
+    this._connection.sendStanza(s);
+    this._connection.sendStanza(Stanza.presence({to: jid, type: "subscribe"}));
+  },
+
   /* Loads a buddy from the local storage.
    * Called for each buddy locally stored before connecting
    * to the server. */
@@ -637,7 +673,23 @@ const XMPPAccountPrototype = {
   },
 
   /* Called when a iq stanza is received */
-  onIQStanza: function(aStanza) {
+  onIQStanza: function(aStanza, aHandled) {
+    if (aHandled)
+      return;
+
+    if (aStanza.attributes["type"] == "set") {
+      for each (let qe in aStanza.getChildren("query")) {
+        if (qe.uri != Stanza.NS.roster)
+          continue;
+
+        for each (let item in qe.getChildren("item")) {
+          this._onRosterItem(item, true);
+          let jid = item.attributes["jid"];
+        }
+        return;
+      }
+    }
+
     if (aStanza.attributes["from"] == this._jid.domain) {
       let ping = aStanza.getElement(["ping"]);
       if (ping && ping.uri == Stanza.NS.ping) {
@@ -770,58 +822,84 @@ const XMPPAccountPrototype = {
             resource: match[3]};
   },
 
+  _onRosterItem: function(aItem, aNotifyOfUpdates) {
+    let jid = aItem.attributes["jid"];
+    if (!jid) {
+      WARN("Received a roster item without jid: " + aItem.getXML());
+      return "";
+    }
+    jid = this._normalizeJID(jid);
+
+    let subscription =  "";
+    if ("subscription" in aItem.attributes)
+      subscription = aItem.attributes["subscription"];
+    if (subscription == "both" || subscription == "to") {
+      let s = Stanza.iq("get", null, jid,
+                        Stanza.node("vCard", Stanza.NS.vcard));
+      this._connection.sendStanza(s, this.onVCard, this);
+    }
+    else if (subscription == "remove") {
+      this._forgetRosterItem(jid);
+      return "";
+    }
+
+    let buddy;
+    if (this._buddies.hasOwnProperty(jid))
+      buddy = this._buddies[jid];
+    else {
+      let tagName = _("defaultGroup");
+      for each (let group in aItem.getChildren("group")) {
+        let name = group.innerText;
+        if (name) {
+          tagName = name;
+          break; // TODO we should create an accountBuddy per group,
+                 // but this._buddies would probably not like that...
+        }
+      }
+      let tag = Services.tags.createTag(tagName);
+      buddy = new this._accountBuddyConstructor(this, null, tag, jid);
+    }
+
+    let alias = "name" in aItem.attributes ? aItem.attributes["name"] : "";
+    if (alias) {
+      if (aNotifyOfUpdates && this._buddies.hasOwnProperty(jid))
+        buddy.serverAlias = alias;
+      else
+        buddy._serverAlias = alias;
+    }
+    if (subscription)
+      buddy.subscription = subscription;
+    if (!this._buddies.hasOwnProperty(jid)) {
+      this._buddies[jid] = buddy;
+      Services.contacts.accountBuddyAdded(buddy);
+    }
+    else if (aNotifyOfUpdates)
+      buddy._notifyObservers("status-detail-changed");
+    return jid;
+  },
+  _forgetRosterItem: function(aJID) {
+    Services.contacts.accountBuddyRemoved(this._buddies[aJID]);
+    delete this._buddies[aJID];
+  },
+
   /* When the roster is received */
   onRoster: function(aStanza) {
     for each (let qe in aStanza.getChildren("query")) {
       if (qe.uri != Stanza.NS.roster)
         continue;
 
+      let savedRoster = Object.keys(this._buddies);
+      let newRoster = {};
       for each (let item in qe.getChildren("item")) {
-        let jid = item.attributes["jid"];
-        if (!jid) {
-          WARN("Received a roster item without jid: " + item.getXML());
-          continue;
-        }
-        jid = this._normalizeJID(jid);
-
-        let subscription =  "";
-        if ("subscription" in item.attributes)
-          subscription = item.attributes["subscription"];
-        if (subscription == "both" || subscription == "to") {
-          let s = Stanza.iq("get", null, jid,
-                            Stanza.node("vCard", Stanza.NS.vcard));
-          this._connection.sendStanza(s, this.onVCard, this);
-        }
-        else
-          DEBUG("not subscribed to " + jid + "'s presence");
-
-        let buddy;
-        if (this._buddies.hasOwnProperty(jid))
-          buddy = this._buddies[jid];
-        else {
-          let tagName = _("defaultGroup");
-          for each (let group in item.getChildren("group")) {
-            let name = group.innerText;
-            if (name) {
-              tagName = name;
-              break; // TODO we should create an accountBuddy per group,
-                     // but this._buddies would probably not like that...
-            }
-          }
-          let tag = Services.tags.createTag(tagName);
-          buddy = new this._accountBuddyConstructor(this, null, tag, jid);
-        }
-
-        let alias = "name" in item.attributes ? item.attributes["name"] : "";
-        if (alias)
-          buddy._serverAlias = alias;
-        if (subscription)
-          buddy.subscription = subscription;
-        if (!this._buddies.hasOwnProperty(jid)) {
-          this._buddies[jid] = buddy;
-          Services.contacts.accountBuddyAdded(buddy);
-        }
+        let jid = this._onRosterItem(item);
+        if (jid)
+          newRoster[jid] = true;
       }
+      for each (let jid in savedRoster) {
+        if (!hasOwnProperty(newRoster, jid))
+          this._forgetRosterItem(jid);
+      }
+      break;
     }
 
     this._sendPresence();
