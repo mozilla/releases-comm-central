@@ -407,14 +407,16 @@ const XMPPAccountBuddyPrototype = {
     let resource =
       this._account._parseJID(aStanza.attributes["from"]).resource || "";
 
-    if (aStanza.attributes["type"] == "unavailable") {
+    let type = aStanza.attributes["type"];
+    if (type == "unavailable") {
       if (!this._resources || !(resource in this._resources))
         return; // ignore for already offline resources.
       delete this._resources[resource];
       if (preferred == resource)
         preferred = undefined;
     }
-    else {
+    else if (type != "unsubscribe" && type != "unsubscribed" &&
+             type != "subscribed") {
       let statusType = Ci.imIStatusInfo.STATUS_AVAILABLE;
       let show = aStanza.getElement(["show"]);
       if (show) {
@@ -460,8 +462,8 @@ const XMPPAccountBuddyPrototype = {
         // FIXME also compare priorities...
         preferred = r;
     }
-
-    if (preferred == this._preferredResource && resource != preferred) {
+    if (preferred != undefined && preferred == this._preferredResource &&
+        resource != preferred) {
       // The presence information change is only for an unused resource,
       // only potential buddy tooltips need to be refreshed.
       this._notifyObservers("status-detail-changed");
@@ -477,8 +479,12 @@ const XMPPAccountBuddyPrototype = {
       delete this._account._conv[this.normalizedName]._targetResource;
 
     this._preferredResource = preferred;
-    if (preferred === undefined)
-      this.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
+    if (preferred === undefined) {
+      let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
+      if (type == "unavailable")
+        statusType = Ci.imIStatusInfo.STATUS_OFFLINE;
+      this.setStatus(statusType, "");
+    }
     else {
       preferred = this._resources[preferred];
       this.setStatus(preferred.statusType, preferred.statusText);
@@ -512,6 +518,7 @@ const XMPPAccountPrototype = {
     this._conv = {};
     this._buddies = {};
     this._mucs = {};
+    this._pendingAuthRequests = [];
   },
 
   get canJoinChat() true,
@@ -633,18 +640,20 @@ const XMPPAccountPrototype = {
       throw "Invalid username";
 
     if (this._buddies.hasOwnProperty(jid)) {
-      DEBUG("not re-adding an existing buddy");
-      // TODO: check if the subscription is ok or if we should resend
-      // a presence subscription request.
-      return;
+      let subscription = this._buddies[jid].subscription;
+      if (subscription && (subscription == "both" || subscription == "to")) {
+        DEBUG("not re-adding an existing buddy");
+        return;
+      }
     }
-
-    let s = Stanza.iq("set", null, null,
-                      Stanza.node("query", Stanza.NS.roster, null,
-                                  Stanza.node("item", null, {jid: jid},
-                                             Stanza.node("group", null, null,
-                                                         aTag.name))));
-    this._connection.sendStanza(s);
+    else {
+      let s = Stanza.iq("set", null, null,
+                        Stanza.node("query", Stanza.NS.roster, null,
+                                    Stanza.node("item", null, {jid: jid},
+                                                Stanza.node("group", null, null,
+                                                            aTag.name))));
+      this._connection.sendStanza(s);
+    }
     this._connection.sendStanza(Stanza.presence({to: jid, type: "subscribe"}));
   },
 
@@ -719,6 +728,33 @@ const XMPPAccountPrototype = {
         this._mucs[jid] = new this._MUCConversationConstructor(this, jid, nick);
       }
       this._mucs[jid].onPresenceStanza(aStanza);
+    }
+    else if (aStanza.attributes["type"] == "subscribe") {
+      let authRequest = {
+        _account: this,
+        get account() this._account.imAccount,
+        userName: jid,
+        _sendReply: function(aReply) {
+          let connection = this._account._connection;
+          if (!connection)
+            return;
+          this._account._pendingAuthRequests =
+            this._account._pendingAuthRequests.filter(function(r) r !== this);
+          connection.sendStanza(Stanza.presence({to: this.userName,
+                                                 type: aReply}));
+        },
+        grant: function() { this._sendReply("subscribed"); },
+        deny: function() { this._sendReply("unsubscribed"); },
+        cancel: function() {
+          Services.obs.notifyObservers(this,
+                                       "buddy-authorization-request-canceled",
+                                       null);
+        },
+        QueryInterface: XPCOMUtils.generateQI([Ci.prplIBuddyRequest])
+      };
+      Services.obs.notifyObservers(authRequest, "buddy-authorization-request",
+                                   null);
+      this._pendingAuthRequests.push(authRequest);
     }
     else if (from != this._connection._jid.jid)
       WARN("received presence stanza for unknown buddy " + from);
@@ -963,6 +999,10 @@ const XMPPAccountPrototype = {
       for each (let b in this._buddies)
         b.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
     }
+
+    for each (let request in this._pendingAuthRequests)
+      request.cancel();
+    this._pendingAuthRequests = [];
 
     this._connection.disconnect();
     delete this._connection;

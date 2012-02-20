@@ -171,3 +171,12 @@ conv {
 #buddyListMsg[listedConvCount="0"] > .listboxHeader {
   display: none;
 }
+
+/* Make the notification bar work with narrow windows. */
+.notification-inner > hbox {
+  display: inline-block;
+}
+
+.notification-inner > hbox > .messageImage {
+  display: none;
+}

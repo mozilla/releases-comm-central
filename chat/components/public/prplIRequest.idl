@@ -41,6 +41,9 @@ interface imIAccount;
 interface nsIDOMWindow;
 interface nsIWebProgress;
 
+/* This interface is for use in the browser-request notification, to
+   let protocol plugins open a browser window. This is an unfortunate
+   necessity for protocols that require an OAuth authentication. */
 [scriptable, uuid(b89dbb38-0de4-11e0-b3d0-0002e304243c)]
 interface prplIRequestBrowser: nsISupports {
   readonly attribute AUTF8String promptText;
@@ -49,4 +52,18 @@ interface prplIRequestBrowser: nsISupports {
   void cancelled();
   void loaded(in nsIDOMWindow aWindow,
               in nsIWebProgress aWebProgress);
+};
+
+/* This interface is used for buddy authorization requests, when the
+   user needs to confirm if a remote contact should be allowed to see
+   his presence information.  It is implemented by the aSubject
+   parameter of the buddy-authorization-request and
+   buddy-authorization-request-canceled notifications.
+*/
+[scriptable, uuid(a55c1e24-17cc-4ddc-8c64-3bc315a3c3b1)]
+interface prplIBuddyRequest: nsISupports {
+  readonly attribute imIAccount account;
+  readonly attribute AUTF8String userName;
+  void grant();
+  void deny();
 };

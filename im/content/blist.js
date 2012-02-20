@@ -37,7 +37,9 @@
 
 Components.utils.import("resource:///modules/imStatusUtils.jsm");
 
-const events = ["contact-availability-changed",
+const events = ["buddy-authorization-request",
+                "buddy-authorization-request-canceled",
+                "contact-availability-changed",
                 "contact-added",
                 "contact-tag-added",
                 "contact-tag-removed",
@@ -382,9 +384,44 @@ var buddyList = {
       this.convBox._updateListConvCount();
       return;
     }
-    else if (aTopic == "showing-ui-conversation") {
+    if (aTopic == "showing-ui-conversation") {
       if (this.convBox.listedConvs.hasOwnProperty(aSubject.id))
         this.convBox.listedConvs[aSubject.id].removeNode();
+      return;
+    }
+
+    if (aTopic == "buddy-authorization-request") {
+      aSubject.QueryInterface(Ci.prplIBuddyRequest);
+      let bundle = document.getElementById("instantbirdBundle").stringBundle;
+      let label = bundle.formatStringFromName("buddy.authRequest.label",
+                                              [aSubject.userName], 1);
+      let value =
+        "buddy-auth-request-" + aSubject.account.id + aSubject.userName;
+      let acceptButton = {
+        accessKey: bundle.GetStringFromName("buddy.authRequest.allow.accesskey"),
+        label: bundle.GetStringFromName("buddy.authRequest.allow.label"),
+        callback: function() { aSubject.grant(); }
+      };
+      let denyButton = {
+        accessKey: bundle.GetStringFromName("buddy.authRequest.deny.accesskey"),
+        label: bundle.GetStringFromName("buddy.authRequest.deny.label"),
+        callback: function() { aSubject.deny(); }
+      };
+      let box = document.getElementById("buddyListMsg");
+      box.appendNotification(label, value, null, box.PRIORITY_INFO_HIGH,
+                            [acceptButton, denyButton]);
+      window.getAttention();
+      return;
+    }
+    if (aTopic == "buddy-authorization-request-canceled") {
+      aSubject.QueryInterface(Ci.prplIBuddyRequest);
+      let value =
+        "buddy-auth-request-" + aSubject.account.id + aSubject.userName;
+      let notification =
+        document.getElementById("buddyListMsg")
+                .getNotificationWithValue(value);
+      if (notification)
+        notification.close();
       return;
     }
 
