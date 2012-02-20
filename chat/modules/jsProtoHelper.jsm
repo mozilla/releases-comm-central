@@ -187,8 +187,12 @@ const GenericAccountPrototype = {
       this.prefs["get" + aType + "Pref"](aName) :
       this.protocol._getOptionDefault(aName),
   getInt: function(aName) this.getPref(aName, "Int"),
-  getString: function(aName) this.getPref(aName, "Char"),
   getBool: function(aName) this.getPref(aName, "Bool"),
+  getString: function(aName) {
+    return this.prefs.prefHasUserValue(aName) ?
+             this.prefs.getComplexValue(aName, Ci.nsISupportsString).data :
+             this.protocol._getOptionDefault(aName);
+  },
 
   get prefs() this._prefs ||
     (this._prefs = Services.prefs.getBranch("messenger.account." +

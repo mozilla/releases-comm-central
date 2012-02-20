@@ -199,7 +199,7 @@ var account = {
 
   getString: function account_getString(aOpt) {
     if (this.prefs.prefHasUserValue(aOpt.name))
-      return this.prefs.getCharPref(aOpt.name);
+      return this.prefs.getComplexValue(aOpt.name, Ci.nsISupportsString).data;
 
     return aOpt.getString();
   },

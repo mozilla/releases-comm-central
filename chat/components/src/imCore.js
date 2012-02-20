@@ -247,9 +247,14 @@ UserStatus.prototype = {
     return Services.io.newFileURI(file);
   },
 
-  get displayName() Services.prefs.getCharPref(kPrefUserDisplayname),
+  get displayName() Services.prefs.getComplexValue(kPrefUserDisplayname,
+                                                   Ci.nsISupportsString).data,
   set displayName(aDisplayName) {
-    Services.prefs.setCharPref(kPrefUserDisplayname, aDisplayName);
+    let str = Cc["@mozilla.org/supports-string;1"]
+              .createInstance(Ci.nsISupportsString);
+    str.data = aDisplayName;
+    Services.prefs.setComplexValue(kPrefUserDisplayname, Ci.nsISupportsString,
+                                   str);
     this._notifyObservers("user-display-name-changed", aDisplayName);
   },
 

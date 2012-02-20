@@ -128,7 +128,7 @@ interface prplIAccount: nsISupports {
   // specific options for the PurpleAccount
   void setBool(in string aName, in boolean aVal);
   void setInt(in string aName, in long aVal);
-  void setString(in string aName, in string aVal);
+  void setString(in string aName, in AUTF8String aVal);
 
   /* When a connection error occurred, this value indicates the type of error */
   readonly attribute short connectionErrorReason;
