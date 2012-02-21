@@ -64,13 +64,18 @@ var logWindow = {
       elt.log = aLog;
       listbox.appendChild(elt);
     });
-    listbox.selectedIndex = 0;
     listbox.focus();
-
-    let findbar = document.getElementById("findbar");
-    // Prevent closing the findbar, go back to list instead
-    findbar.close = function() { listbox.focus(); };
-    findbar.open();
+    // Hack: Only select the first log after a brief delay, or the first
+    // listitem never appears selected on Windows and Linux.
+    Services.tm.mainThread.dispatch(function() {
+      listbox.selectedIndex = 0;
+      // Prevent closing the findbar, go back to list instead.
+      let findbar = document.getElementById("findbar");
+      findbar.close = function() { listbox.focus(); };
+      // Requires findbar.browser to be set, which is only the case after
+      // a log has been selected.
+      findbar.open();
+    }, Ci.nsIEventTarget.DISPATCH_NORMAL);
 
     document.getElementById("text-browser")
             .addEventListener("DOMContentLoaded", logWindow.contentLoaded, true);
