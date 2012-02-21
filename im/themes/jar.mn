@@ -6,7 +6,6 @@ instantbird.jar:
 % skin instantbird classic/1.0 %skin/classic/instantbird/ os!=WINNT
 % skin instantbird classic/1.0 %skin/classic/aero/instantbird/ os=WINNT osversion>=6
 #endif
-	skin/classic/instantbird/account.css
 *	skin/classic/instantbird/accounts.css
 	skin/classic/instantbird/alert.css
 % style chrome://global/content/alerts/alert.xul chrome://instantbird/skin/alert.css
@@ -21,6 +20,7 @@ instantbird.jar:
 *	skin/classic/instantbird/conversation.css
 *	skin/classic/instantbird/engineManager.css
 *	skin/classic/instantbird/instantbird.css
+	skin/classic/instantbird/menulist.css
 	skin/classic/instantbird/menus.css
 	skin/classic/instantbird/status.css
 *	skin/classic/instantbird/viewlog.css
@@ -82,7 +82,6 @@ instantbird.jar:
 	skin/classic/instantbird/tabbrowser/mainwindow-dropdown-arrow.png	(tabbrowser-winstripe/mainwindow-dropdown-arrow.png)
 #endif
 #ifdef XP_WIN
-	skin/classic/aero/instantbird/account.css
 *	skin/classic/aero/instantbird/accounts.css		(accounts-aero.css)
 	skin/classic/aero/instantbird/alert.css
 *	skin/classic/aero/instantbird/richlistbox.css
@@ -96,6 +95,7 @@ instantbird.jar:
 *	skin/classic/aero/instantbird/conversation.css		(conversation-aero.css)
 *	skin/classic/aero/instantbird/engineManager.css
 *	skin/classic/aero/instantbird/instantbird.css		(instantbird-aero.css)
+	skin/classic/aero/instantbird/menulist.css
 	skin/classic/aero/instantbird/menus.css
 	skin/classic/aero/instantbird/status.css
 *	skin/classic/aero/instantbird/viewlog.css
