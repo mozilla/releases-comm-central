@@ -250,26 +250,6 @@ imAccount.prototype = {
       if (this.firstConnectionState != Ci.imIAccount.FIRST_CONNECTION_OK)
         this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_OK;
       delete this.connectionStateMsg;
-
-      if (!this._statusObserver) {
-        this._statusObserver = {
-          observe: (function(aSubject, aTopic, aData) {
-            // Disconnect or reconnect the account automatically, otherwise notify
-            // the prplAccount instance.
-            let statusType = aSubject.statusType;
-            if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE &&
-                this.connected)
-              this.prplAccount.disconnect();
-            else if (statusType > Ci.imIStatusInfo.STATUS_OFFLINE &&
-                     this.disconnected)
-              this.prplAccount.connect();
-            else if (this.connected)
-              this.prplAccount.observe(aSubject, aTopic, aData);
-          }).bind(this)
-        };
-
-        this.statusInfo.addObserver(this._statusObserver);
-      }
     }
     else if (aTopic == "account-disconnecting") {
       this.connectionState = Ci.imIAccount.STATE_DISCONNECTING;
@@ -608,6 +588,30 @@ imAccount.prototype = {
           this._password = password.value;
       }
     }
+
+    if (!this._statusObserver) {
+      this._statusObserver = {
+        observe: (function(aSubject, aTopic, aData) {
+          // Disconnect or reconnect the account automatically, otherwise notify
+          // the prplAccount instance.
+          let statusType = aSubject.statusType;
+          if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE &&
+              this.connected)
+            this.prplAccount.disconnect();
+          else if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE &&
+                   this._reconnectTimer)
+            this.cancelReconnection();
+          else if (statusType > Ci.imIStatusInfo.STATUS_OFFLINE &&
+                   this.disconnected)
+            this.prplAccount.connect();
+          else if (this.connected)
+            this.prplAccount.observe(aSubject, aTopic, aData);
+        }).bind(this)
+      };
+
+      this.statusInfo.addObserver(this._statusObserver);
+    }
+
     this._ensurePrplAccount.connect();
   },
   disconnect: function() {

@@ -65,7 +65,7 @@ function UserStatus()
   Services.prefs.addObserver(kPrefReportIdle, this, false);
 
   if (Services.io.offline)
-    this._offline = true;
+    this._offlineStatusType = Ci.imIStatusInfo.STATUS_OFFLINE;
   Services.obs.addObserver(this, NS_IOSERVICE_GOING_OFFLINE_TOPIC, false);
   Services.obs.addObserver(this, NS_IOSERVICE_OFFLINE_STATUS_TOPIC, false);
 }
@@ -129,9 +129,9 @@ UserStatus.prototype = {
         throw Cr.NS_ERROR_UNEXPECTED;
     }
     else if (aTopic == NS_IOSERVICE_GOING_OFFLINE_TOPIC)
-      this._offline = true;
+      this.offline = true;
     else if (aTopic == NS_IOSERVICE_OFFLINE_STATUS_TOPIC && aData == "online")
-      this._offline = false;
+      this.offline = false;
     else
       this._checkIdle();
   },
