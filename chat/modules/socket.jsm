@@ -132,10 +132,6 @@ const Socket = {
   // Set this for the segment size of outgoing binary streams.
   outputSegmentSize: 0,
 
-  // Use this to specify a URI scheme to the hostname when resolving the proxy,
-  // this may be unnecessary for some protocols.
-  uriScheme: "http://",
-
   // Flags used by nsIProxyService when resolving a proxy.
   proxyFlags: Ci.nsIProtocolProxyService.RESOLVE_PREFER_SOCKS_PROXY,
 
@@ -170,9 +166,10 @@ const Socket = {
 
         // Add a URI scheme since, by default, some protocols (i.e. IRC) don't
         // have a URI scheme before the host.
-        let uri = Services.io.newURI(this.uriScheme + this.host, null, null);
+        let uri = Services.io.newURI("http://" + this.host, null, null);
         this._proxyCancel = proxyService.asyncResolve(uri, this.proxyFlags, this);
       } catch(e) {
+        Cu.reportError(e);
         // We had some error getting the proxy service, just don't use one.
         this._createTransport(null);
       }
@@ -229,9 +226,10 @@ const Socket = {
       this.serverSocket.close();
   },
 
-  // Send data on the output stream.
-  sendData: function(/* string */ aData) {
-    this.log("Sending:\n" + aData + "\n");
+  // Send data on the output stream. Provide aLoggedData to log something
+  // different than what is actually sent.
+  sendData: function(/* string */ aData, aLoggedData) {
+    this.log("Sending:\n" + (aLoggedData || aData));
 
     try {
       this._outputStream.write(aData + this.delimiter,
@@ -241,13 +239,15 @@ const Socket = {
     }
   },
 
-  sendString: function(aString, aEncoding) {
-    this.log("Sending:\n" + aString + "\n");
+  // Send a string to the output stream after converting the encoding. Provide
+  // aLoggedData to log something different than what is actually sent.
+  sendString: function(aString, aEncoding, aLoggedData) {
+    this.log("Sending:\n" + (aLoggedData || aString));
 
     let converter = new ScriptableUnicodeConverter();
     converter.charset = aEncoding || "UTF-8";
     try {
-      let stream = converter.convertToInputStream(aString);
+      let stream = converter.convertToInputStream(aString + this.delimiter);
       this._outputStream.writeFrom(stream, stream.available());
     } catch(e) {
       Cu.reportError(e);
@@ -290,6 +290,10 @@ const Socket = {
    * nsIProtocolProxyCallback methods
    */
   onProxyAvailable: function(aRequest, aURI, aProxyInfo, aStatus) {
+    if (aProxyInfo) {
+      this.log("using " + aProxyInfo.type + " proxy: " +
+               aProxyInfo.host + ":" + aProxyInfo.port);
+    }
     this._createTransport(aProxyInfo);
     delete this._proxyCancel;
   },

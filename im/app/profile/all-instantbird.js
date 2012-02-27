@@ -287,3 +287,5 @@ pref("browser.tabs.tabClipWidth", 140);
 // 2  no close buttons at all
 // 3  at the end of the tabstrip
 pref("browser.tabs.closeButtons", 1);
+
+pref("chat.irc.defaultQuitMessage", "Instantbird -- http://www.instantbird.com");

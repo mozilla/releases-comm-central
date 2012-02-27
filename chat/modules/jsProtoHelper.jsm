@@ -101,6 +101,7 @@ const ForwardAccountPrototype = {
 
 const GenericAccountPrototype = {
   __proto__: ClassInfo("prplIAccount", "generic account object"),
+  get wrappedJSObject() this,
   _init: function _init(aProtocol, aImAccount) {
     this.protocol = aProtocol;
     this.imAccount = aImAccount;
@@ -411,6 +412,7 @@ Message.prototype = GenericMessagePrototype;
 const GenericConversationPrototype = {
   __proto__: ClassInfo("prplIConversation", "generic conversation object"),
   flags: Ci.nsIClassInfo.DOM_OBJECT,
+  get wrappedJSObject() this,
 
   _init: function(aAccount, aName) {
     this._account = aAccount;

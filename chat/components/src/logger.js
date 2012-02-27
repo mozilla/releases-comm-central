@@ -102,7 +102,10 @@ ConversationLog.prototype = {
   format: "txt",
   _init: function cl_init() {
     let file = getLogFolderForAccount(this._conv.account, true);
-    file.append(this._conv.normalizedName);
+    let name = this._conv.normalizedName;
+    if (this._conv.isChat && this._conv.account.protocol.id != "prpl-twitter")
+      name += ".chat";
+    file.append(name);
     if (!file.exists())
       file.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
     if (Services.prefs.getCharPref("purple.logging.format") == "json")
@@ -443,8 +446,13 @@ Logger.prototype = {
   },
   getLogsForAccountBuddy: function logger_getLogsForAccountBuddy(aAccountBuddy)
     this._enumerateLogs(aAccountBuddy.account, aAccountBuddy.normalizedName),
-  getLogsForConversation: function logger_getLogsForConversation(aConversation)
-    this._enumerateLogs(aConversation.account, aConversation.normalizedName),
+  getLogsForConversation: function logger_getLogsForConversation(aConversation) {
+    let name = aConversation.normalizedName;
+    if (aConversation.isChat &&
+        aConversation.account.protocol.id != "prpl-twitter")
+      name += ".chat";
+    return this._enumerateLogs(aConversation.account, name);
+  },
   getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount)
     this._enumerateLogs(aAccount, ".system"),
 

@@ -432,6 +432,8 @@
 @BINPATH@/components/ibCommandLineHandler.manifest
 @BINPATH@/components/ibStatusCommandLineHandler.js
 @BINPATH@/components/ibStatusCommandLineHandler.manifest
+@BINPATH@/components/irc.js
+@BINPATH@/components/irc.manifest
 @BINPATH@/components/facebook.js
 @BINPATH@/components/facebook.manifest
 @BINPATH@/components/gtalk.js
@@ -460,7 +462,7 @@
 @BINPATH@/defaults/profile/prefs.js
 
 ; [Layout Engine Resources]
-; Style Sheets, Graphics and other Resources used by the layout engine. 
+; Style Sheets, Graphics and other Resources used by the layout engine.
 @BINPATH@/res/EditorOverride.css
 @BINPATH@/res/contenteditable.css
 @BINPATH@/res/designmode.css

@@ -62,6 +62,9 @@ pref("messenger.status.defaultIdleAwayMessage", "chrome://chat/locale/status.pro
 pref("messenger.status.userIconFileName", "");
 pref("messenger.status.userDisplayName", "");
 
+// Default message used when quitting IRC. This is overridable per account.
+pref("chat.irc.defaultQuitMessage", "");
+
 // loglevel is the minimum severity level that a libpurple message
 // must have to be reported in the Error Console.
 //

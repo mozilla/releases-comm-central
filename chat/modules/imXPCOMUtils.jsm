@@ -114,7 +114,8 @@ function setTimeout(aFunction, aDelay)
 }
 function clearTimeout(aTimer)
 {
-  aTimer.cancel();
+  if (aTimer)
+    aTimer.cancel();
 }
 
 function executeSoon(aFunction)
