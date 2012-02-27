@@ -438,21 +438,15 @@ ircAccount.prototype = {
     return (this.channelPrefixes.indexOf(aStr[0]) != -1);
   },
 
-  // When Instantbird changes status, tell the server. IRC is only away or not
-  // away; consider away, idle and unavailable to be away. This will also
-  // connect or disconnect if set to offline/available.
+  // Tell the server about status changes. IRC is only away or not away;
+  // consider the away, idle and unavailable status type to be away.
   isAway: false,
   observe: function(aSubject, aTopic, aData) {
     if (aTopic != "status-changed")
       return;
 
-    this.updateStatus();
-  },
-  // Update the accounts status when Instantbird requests a status change and
-  // when we receive information from the server that the status has changed.
-  updateStatus: function() {
     let {statusType: type, statusText: text} = this.imAccount.statusInfo;
-    LOG("New status received: " + type + "\r\n" + text);
+    LOG("New status: " + type + ", " + text);
 
     // Tell the server to mark us as away.
     if (type < Ci.imIStatusInfo.STATUS_AVAILABLE && !this.isAway) {
