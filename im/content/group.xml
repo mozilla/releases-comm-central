@@ -125,7 +125,7 @@
            else {
              this.contacts.filter(function (b) !b.contact.online)
                           .forEach(function (b) {
-               b.finishRemoveNode();
+               b.destroy();
                b.parentNode.removeChild(b);
              }, this);
            }
@@ -204,7 +204,7 @@
            this.addEventListener("transitionend", this._transitionEnd, true);
            for each (let contact in this.contacts) {
              contact.state = "collapsing";
-             contact.finishRemoveNode();
+             contact.destroy();
            }
            return;
          }
@@ -290,7 +290,7 @@
               this.parentNode.removeChild(contactElt);
             else
               contactElt.state = "collapsing";
-            contactElt.finishRemoveNode();
+            contactElt.destroy();
             this.addContact(aSubject);
           }
         }

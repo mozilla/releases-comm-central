@@ -129,7 +129,7 @@
              let state = this.state;
              if (state == "fading" || state == "collapsing") {
                if (state == "fading")
-                 this.finishRemoveNode();
+                 this.destroy();
                this.parentNode.removeChild(this);
                return;
              }
@@ -245,7 +245,7 @@
         }
         else if (state == "fading") {
           this.state = "collapsing";
-          this.finishRemoveNode();
+          this.destroy();
         }
         else if (state == "collapsing") {
           // Ignore events of 'fading' transitions if the timer's already fired.
@@ -258,7 +258,7 @@
       </body>
      </method>
 
-     <method name="finishRemoveNode">
+     <method name="destroy">
       <body>
       <![CDATA[
         this.contact.removeObserver(this);
@@ -275,14 +275,14 @@
         if (this.hasAttribute("collapsed") ||
             window.getComputedStyle(this).height == "0px") {
           // If the contact is not visible, remove it immediately (without animation)
-          this.finishRemoveNode();
+          this.destroy();
           this.state = "collapsed"; // will remove pending animation timers.
           this.parentNode.removeChild(this);
         }
         else if (state == "showing") {
           // We are still doing the expand animation!
           this.state = "collapsing";
-          this.finishRemoveNode();
+          this.destroy();
         }
         else if (state != "fading" && state != "collapsing")
           this.state = "fading";
