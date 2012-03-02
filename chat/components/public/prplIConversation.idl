@@ -84,7 +84,7 @@ interface prplIConversation: nsISupports {
      closed or by purpleCoreService::Quit while exiting. */
   void unInit();
 
-  /* Close the conversation */
+  /* When the conversation is closed from the UI. */
   void close();
 
   /* Method to add or remove an observer */

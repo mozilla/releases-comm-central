@@ -116,14 +116,15 @@ ircChannel.prototype = {
     this._account.sendMessage("PART", params);
   },
 
-  unInit: function() {
-    // Tell the server about the part if connected.
-    if (this._account.connected)
+  close: function() {
+    // Part the room if we're connected.
+    if (this._account.connected && !this.left)
       this.part();
+    GenericConvChatPrototype.close.call(this);
+  },
 
-    // Always remove the conversation.
+  unInit: function() {
     this._account.removeConversation(this.name);
-
     GenericConvChatPrototype.unInit.call(this);
   },
 
@@ -205,7 +206,7 @@ ircChannel.prototype = {
     this._account.sendMessage("TOPIC", [this.name, aTopic]);
   },
   get topicSettable() true,
-  
+
   get normalizedName() this._account.normalize(this.name),
 };
 
@@ -377,10 +378,7 @@ ircAccountBuddy.prototype = {
   get canSendMessage() this.account.connected,
 
   // Called when the user wants to chat with the buddy.
-  createConversation: function() {
-ERROR(this.userName);
-    return this._account.createConversation(this.userName);
-  }
+  createConversation: function() this._account.createConversation(this.userName)
 };
 
 function ircAccount(aProtocol, aImAccount) {
