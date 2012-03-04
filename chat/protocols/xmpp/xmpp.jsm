@@ -398,6 +398,10 @@ const XMPPAccountBuddyPrototype = {
 
   _preferredResource: undefined,
   _resources: null,
+  onAccountDisconnected: function() {
+    delete this._preferredResource;
+    delete this._resources;
+  },
   // Called by the account when a presence stanza is received for this buddy.
   onPresenceStanza: function(aStanza) {
     let preferred = this._preferredResource;
@@ -995,9 +999,10 @@ const XMPPAccountPrototype = {
       aError = Ci.prplIAccount.NO_ERROR;
     this.reportDisconnecting(aError, aErrorMessage);
 
-    if (!aQuiet) {
-      for each (let b in this._buddies)
+    for each (let b in this._buddies) {
+      if (!aQuiet)
         b.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
+      b.onAccountDisconnected();
     }
 
     for each (let request in this._pendingAuthRequests)
