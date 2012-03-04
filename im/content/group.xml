@@ -269,7 +269,6 @@
       <body>
       <![CDATA[
         let contactElt = this.contactsById[aSubject.id];
-        let name = aSubject.displayName.toLowerCase();
         let index = this.contacts.indexOf(contactElt);
         if (index == -1) {
           // Sometimes we get a display-name-changed notification for
