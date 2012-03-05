@@ -844,10 +844,13 @@ ircAccount.prototype = {
   },
 
   unInit: function() {
-    delete this.imAccount;
     // Disconnect if we're online while this gets called.
-    if (this._socket)
+    if (this._socket) {
+      if (!this.disconnecting)
+        this.quit();
       this._socket.disconnect();
+    }
+    delete this.imAccount;
     clearTimeout(this._isOnTimer);
     clearTimeout(this._quitTimer);
   }
