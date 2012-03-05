@@ -54,7 +54,7 @@
   windowtype="Messenger:blist"
   title  = "&brandShortName;"
   width  = "200"
-  persist= "width height screenX screenY"
+  persist= "width height screenX screenY storeScreenX storeScreenY"
 #ifndef XP_MACOSX
   onclose= "event.preventDefault(); goQuitApplication();"
 #endif

@@ -58,6 +58,19 @@ var gMinTrayR = {
     window.addEventListener("TrayDblClick", this, true);
     window.addEventListener("TrayClick", this, true);
 
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+    // Workaround for Linux, where mozilla ignores persisted window position.
+    // Need to capture window move and close events.
+    window.addEventListener("deactivate", this, true);
+    // Restore window position after restart.
+    let docElt = window.document.documentElement;
+    if (docElt.hasAttribute("storeScreenX"))
+      window.moveTo(docElt.getAttribute("storeScreenX"),
+                    docElt.getAttribute("storeScreenY"));
+#endif
+#endif
+
     this.trayService =
       Components.classes['@tn123.ath.cx/trayservice;1']
                 .getService(Ci.trayITrayService);
@@ -98,6 +111,15 @@ var gMinTrayR = {
                           aEvent.screenX, aEvent.screenY,
                           "context", "", "bottomleft");
     }
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+    else if (aEvent.type == "deactivate") {
+      let docElt = window.document.documentElement;
+      docElt.setAttribute("storeScreenX", window.screenX);
+      docElt.setAttribute("storeScreenY", window.screenY);
+    }
+#endif
+#endif
     else if (aEvent.button == 0 &&
              (aEvent.type == "TrayDblClick" ||
               this._prefs.getBoolPref("singleClickRestore"))) {
@@ -113,19 +135,26 @@ var gMinTrayR = {
   restore: function MinTrayR_restore() {
     // This will also work with alwaysShow.
     this.trayService.restore(window);
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+    let docElt = window.document.documentElement;
+    window.moveTo(docElt.getAttribute("storeScreenX"),
+                  docElt.getAttribute("storeScreenY"));
+#endif
+#endif
     window.focus();
   },
   toggle: function MinTrayR_toggle() {
-    if (!this._icon) {
-      // When the tray icon isn't always visible.
-      this.restore();
-      return;
+    if (window.windowState == STATE_MINIMIZED) {
+      window.restore();
+      window.focus();
     }
-
-    if (this._icon.isMinimized)
-      this._icon.restore();
+    else if (!this._icon || this._icon.isMinimized) {
+      // this._icon is not set if the tray icon isn't always visible.
+      this.restore();
+    }
     else
-      this._icon.minimize();
+      this.minimize();
   },
 
   setStatus: function MinTrayR_setStatus(aStatusParam) {
