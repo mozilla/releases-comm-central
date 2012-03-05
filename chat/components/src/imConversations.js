@@ -296,6 +296,8 @@ UIConversation.prototype = {
   close: function() {
     for each (let conv in this._purpleConv)
       conv.close();
+    if (!this.hasOwnProperty("_currentTargetId"))
+      return;
     delete this._currentTargetId;
     this.notifyObservers(this, "ui-conversation-closed");
     Services.obs.notifyObservers(this, "ui-conversation-closed", null);
@@ -317,8 +319,11 @@ UIConversation.prototype = {
           ++this._unreadTargetedMessageCount;
       }
     }
-    for each (let observer in this._observers)
+    for each (let observer in this._observers) {
+      if (!observer.observe && this._observers.indexOf(observer) == -1)
+        continue; // observer removed by a previous call to another observer.
       observer.observe(aSubject, aTopic, aData);
+    }
     this._notifyUnreadCountChanged();
   },
 
