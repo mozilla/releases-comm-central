@@ -46,7 +46,6 @@ Cu.import("resource:///modules/ibSounds.jsm");
 
 var Core = {
   _events: [
-    "account-connected",
     "account-disconnected",
     "browser-request",
     "quit-application-requested"
@@ -192,25 +191,6 @@ var Core = {
   },
 
   observe: function(aSubject, aTopic, aMsg) {
-    if (aTopic == "account-connected") {
-      let account = aSubject.QueryInterface(Ci.imIAccount);
-      if (!account.canJoinChat)
-        return;
-
-      let pref = "messenger.account." + account.id + ".autoJoin";
-      if (Services.prefs.prefHasUserValue(pref)) {
-        let autojoin = Services.prefs.getCharPref(pref);
-        if (autojoin) {
-          autojoin = autojoin.split(",");
-          for (let i = 0; i < autojoin.length; ++i) {
-            let values = account.getChatRoomDefaultFieldValues(autojoin[i]);
-            account.joinChat(values);
-          }
-        }
-      }
-      return;
-    }
-
     if (aTopic == "account-disconnected") {
       let account = aSubject.QueryInterface(Ci.imIAccount);
       if (account.reconnectAttempt <= 1)

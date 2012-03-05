@@ -48,6 +48,7 @@ const kAccountOptionPrefPrefix = "options.";
 const kPrefAccountName = "name";
 const kPrefAccountPrpl = "prpl";
 const kPrefAccountAutoLogin = "autoLogin";
+const kPrefAccountAutoJoin = "autoJoin";
 const kPrefAccountAlias = "alias";
 const kPrefAccountFirstConnectionState = "firstConnectionState";
 
@@ -250,6 +251,15 @@ imAccount.prototype = {
       if (this.firstConnectionState != Ci.imIAccount.FIRST_CONNECTION_OK)
         this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_OK;
       delete this.connectionStateMsg;
+
+      if (this.canJoinChat &&
+          this.prefBranch.prefHasUserValue(kPrefAccountAutoJoin)) {
+        let autojoin = this.prefBranch.getCharPref(kPrefAccountAutoJoin);
+        if (autojoin) {
+          for each (let room in autojoin.split(","))
+            this.joinChat(this.getChatRoomDefaultFieldValues(room));
+        }
+      }
     }
     else if (aTopic == "account-disconnecting") {
       this.connectionState = Ci.imIAccount.STATE_DISCONNECTING;
