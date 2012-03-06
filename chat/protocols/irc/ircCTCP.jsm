@@ -243,7 +243,7 @@ var ctcpBase = {
         }
         this.getConversation(aMessage.nickname)
             .writeMessage(aMessage.nickname,
-                          _("ctcp.time.response", aMessage.nickname,
+                          _("ctcp.time", aMessage.nickname,
                             time.toLocaleString()), {system: true});
       }
       return true;
