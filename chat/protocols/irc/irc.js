@@ -591,6 +591,10 @@ ircAccount.prototype = {
   _isOnLength: null,
   // Generate and send an ISON message to poll for each nick's status.
   sendIsOn: function() {
+    // Add any previously pending queue to the end of the ISON queue.
+    if (this.pendingIsOnQueue)
+      this._isOnQueue = this._isOnQueue.concat(this.pendingIsOnQueue);
+
     // If no buddies, just look again after the timeout.
     if (this._isOnQueue.length) {
       // Calculate the possible length of names we can send.
@@ -598,10 +602,6 @@ ircAccount.prototype = {
         let length = this.countBytes(this.buildMessage("ISON", " ")) + 2;
         this._isOnLength = this.maxMessageLength - length + 1;
       }
-
-      // Add any previously pending queue to the end of the ISON queue.
-      if (this.pendingIsOnQueue)
-        this._isOnQueue = this._isOnQueue.concat(this.pendingIsOnQueue);
 
       // Always add the next nickname to the pending queue, this handles a silly
       // case where the next nick is greater than or equal to the maximum
@@ -839,6 +839,10 @@ ircAccount.prototype = {
         this._conversations[conversation].left = true;
       }
     }
+
+    // Mark all contacts on the account as having an unknown status.
+    for each (let buddy in this._buddies)
+      buddy.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
 
     this.reportDisconnected();
   },
