@@ -230,21 +230,12 @@ var ctcpBase = {
       else {
         // TIME :<human-readable-time-string>
         // Received a TIME reply, display it.
-        // Remove the : prefix, if it exists.
-        let time =
-          new Date(aMessage.ctcp.param.slice(aMessage.ctcp.param[0] == ":"));
-
-        // The received timestamp is invalid
-        if (isNaN(time)) {
-          WARN(aMessage.nickname +
-               " returned an invalid date format from CTCP TIME: " +
-               aMessage.ctcp.param);
-          return false;
-        }
+        // Remove the : prefix, if it exists and display the result.
+        let time = aMessage.ctcp.param.slice(aMessage.ctcp.param[0] == ":");
         this.getConversation(aMessage.nickname)
             .writeMessage(aMessage.nickname,
-                          _("ctcp.time", aMessage.nickname,
-                            time.toLocaleString()), {system: true});
+                          _("ctcp.time", aMessage.nickname, time),
+                          {system: true});
       }
       return true;
     },
