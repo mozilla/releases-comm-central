@@ -66,9 +66,13 @@ function kickCommand(aMsg, aConv) {
 // aMsg is <user> <message>
 function messageCommand(aMsg, aConv) {
   let sep = aMsg.indexOf(" ");
-  // If no space in the message or the space is at the end of the message.
-  if (sep == -1 || (sep + 1) == aMsg.length)
-    return false;
+  // If no space in the message or the first space is at the end of the message.
+  if (sep == -1 || (sep + 1) == aMsg.length) {
+    if (!aMsg.length || sep == 0)
+      return false;
+    getAccount(aConv).createConversation(aMsg);
+    return true;
+  }
 
   return privateMessage(aConv, aMsg.slice(sep + 1), aMsg.slice(0, sep));
 }
