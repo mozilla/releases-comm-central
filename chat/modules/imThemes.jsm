@@ -594,6 +594,10 @@ function initHTMLDocument(aConv, aTheme, aDoc)
 {
   let HTML = "<html><head><base href=\"" + aTheme.baseURI + "\"/>";
 
+  // Screen readers may read the title of the document, so provide one
+  // to avoid an ugly fallback to the URL (see bug 1165).
+  HTML += "<title>" + aConv.title + "</title>";
+
   function addCSS(aHref)
   {
     HTML += "<link rel=\"stylesheet\" href=\"" + aHref + "\" type=\"text/css\"/>";
