@@ -531,6 +531,7 @@ imAccount.prototype = {
     AutoLoginCounter.finishedAutoLogin();
   },
 
+  // Delete the account (from the preferences, mozStorage, and call unInit).
   remove: function() {
     let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
                 .createInstance(Ci.nsILoginInfo);
@@ -961,10 +962,10 @@ AccountsService.prototype = {
       throw Cr.NS_ERROR_UNEXPECTED;
 
     let id = account.numericId;
-    Services.obs.notifyObservers(account, "account-removed", null);
     account.remove();
     this._accounts.splice(index, 1);
     delete this._accountsById[id];
+    Services.obs.notifyObservers(account, "account-removed", null);
 
     /* Update the account list pref. */
     let list = this._accountList;

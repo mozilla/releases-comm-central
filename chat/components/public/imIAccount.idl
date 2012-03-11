@@ -206,9 +206,6 @@ interface imIAccount: prplIAccount {
   /* Check if autologin is enabled for this account, connect it now. */
   void checkAutoLogin();
 
-  /* Delete the account (from the preferences, mozStorage, and call unInit). */
-  void remove();
-
   /* Cancel the timer that automatically reconnects the account if it was
      disconnected because of a non fatal error. */
   void cancelReconnection();
