@@ -1553,7 +1553,7 @@
           elt.addEventListener("keypress", this._topicKeyPress);
           this._topicBlur = this.topicBlur.bind(this);
           elt.addEventListener("blur", this._topicBlur);
-          // force binding attachmant by forcing layout
+          // force binding attachment by forcing layout
           elt.getBoundingClientRect();
           if (this.hasAttribute("noTopic"))
             elt.value = "";

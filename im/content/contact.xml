@@ -299,7 +299,7 @@
         this.setAttribute("aliasing", "true");
         let textbox =
           document.getAnonymousElementByAttribute(this, "anonid", "displayname");
-        textbox.getBoundingClientRect(); // force binding attachmant by forcing layout
+        textbox.getBoundingClientRect(); // force binding attachment by forcing layout
         textbox.select();
 
         // Some keys (home/end for example) can make the selected item

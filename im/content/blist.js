@@ -520,7 +520,7 @@ var buddyList = {
       if (!("TextboxSpellChecker" in window))
         Components.utils.import("resource:///modules/imTextboxUtils.jsm");
       TextboxSpellChecker.registerTextbox(elt);
-      // force binding attachmant by forcing layout
+      // force binding attachment by forcing layout
       elt.getBoundingClientRect();
       elt.select();
     }
@@ -613,7 +613,7 @@ var buddyList = {
         elt.removeAttribute("value");
       elt.addEventListener("keypress", this.displayNameKeyPress);
       elt.addEventListener("blur", this.displayNameBlur);
-      // force binding attachmant by forcing layout
+      // force binding attachment by forcing layout
       elt.getBoundingClientRect();
       elt.select();
     }
