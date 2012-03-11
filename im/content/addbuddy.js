@@ -73,6 +73,11 @@ var addBuddy = {
     tagList.selectedIndex = 0;
   },
 
+  oninput: function ab_oninput() {
+    document.documentElement.getButton("accept").disabled =
+      !addBuddy.getValue("name");
+  },
+
   getValue: function ab_getValue(aId) document.getElementById(aId).value,
 
   create: function ab_create() {
