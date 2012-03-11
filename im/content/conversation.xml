@@ -1340,16 +1340,22 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        if (event.keyCode != 13)
+        if (event.keyCode != event.DOM_VK_RETURN &&
+            event.keyCode != event.DOM_VK_ENTER)
           return;
 
-        // Return is pressed
-        var conv = document.getBindingParent(this);
-        var listbox = event.originalTarget;
-        for (var i = 0; i < listbox.selectedCount; ++i) {
-          var nick = listbox.getSelectedItem(i).chatBuddy.name;
-          conv._conv.account.createConversation(nick);
+        let listbox = event.originalTarget;
+        if (listbox.selectedCount == 0)
+          return;
+
+        let newConv;
+        for (let i = 0; i < listbox.selectedCount; ++i) {
+          let nick = listbox.getSelectedItem(i).chatBuddy.name;
+          let name = this._conv.target.getNormalizedChatBuddyName(nick);
+          newConv = this._conv.account.createConversation(name);
         }
+        // Only focus last of the opened conversations.
+        Conversations.focusConversation(newConv);
       ]]>
       </body>
      </method>
