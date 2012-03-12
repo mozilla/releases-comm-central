@@ -82,6 +82,7 @@ GTalkProtocol.prototype = {
   get normalizedName() "gtalk",
   get name() "Google Talk",
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
+  get usernameEmptyText() _("gtalk.usernameHint"),
   getAccount: function(aImAccount) new GTalkAccount(this, aImAccount),
   options: {
     resource: {get label() _("options.resource"),
