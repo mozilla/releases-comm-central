@@ -1,8 +1,8 @@
 def test(mod, path, entity = None):
   import re
-  # ignore anyhting but Instantbird
+  # ignore anything but Instantbird
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
-                 "instantbird", "purple", "extensions/reporter", "extensions/spellcheck",
+                 "instantbird", "chat", "purple", "extensions/reporter", "extensions/spellcheck",
                  "instantbird/branding/release", "instantbird/branding/nightly"):
     return False
   if mod == "instantbird" and path.startswith("branding/"):
