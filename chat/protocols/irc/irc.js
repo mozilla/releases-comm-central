@@ -665,8 +665,7 @@ ircAccount.prototype = {
     if (this.disconnected || this.disconnecting)
        return;
 
-    this.reportDisconnecting(Ci.prplIAccount.NO_ERROR,
-                             _("connection.quitting"));
+    this.reportDisconnecting(Ci.prplIAccount.NO_ERROR);
 
     // Let the server know we're going to disconnect.
     this.quit();
