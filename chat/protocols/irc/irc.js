@@ -755,7 +755,7 @@ ircAccount.prototype = {
   // This sends a message over the socket and catches any errors. Use
   // aLoggedData to log something different than what is actually sent.
   sendRawMessage: function(aMessage, aLoggedData) {
-    // XXX This should escape any characters that can't be used in IRC (e.g.
+    // TODO This should escape any characters that can't be used in IRC (e.g.
     // \001, \r\n).
 
     let length = this.countBytes(aMessage) + 2;
@@ -893,10 +893,10 @@ ircProtocol.prototype = {
   ],
 
   options: {
-    // Default to IRC over SSL.
+    // TODO Default to IRC over SSL.
     "port": {label: _("options.port"), default: 6667},
     "ssl": {label: _("options.ssl"), default: false},
-    // XXX We should attempt to auto-detect encoding instead.
+    // TODO We should attempt to auto-detect encoding instead.
     "encoding": {label: _("options.encoding"), default: "UTF-8"},
     "quitmsg": {label: _("options.quitMessage"),
                 get default() Services.prefs.getCharPref("chat.irc.defaultQuitMessage")},
