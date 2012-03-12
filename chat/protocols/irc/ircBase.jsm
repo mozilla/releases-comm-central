@@ -629,8 +629,9 @@ var ircBase = {
      */
     "311": function(aMessage) { // RPL_WHOISUSER
       // <nick> <user> <host> * :<real name>
-      return setWhoIs(this, aMessage, {user: aMessage.params[2],
-                                       host: aMessage.params[3],
+      // <username>@<hostname>
+      let source = aMessage.params[2] + "@" + aMessage.params[3];
+      return setWhoIs(this, aMessage, {connectedFrom: source,
                                        realname: aMessage.params[5]});
     },
     "312": function(aMessage) { // RPL_WHOISSERVER
