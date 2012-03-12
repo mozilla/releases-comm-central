@@ -366,7 +366,7 @@ function cleanupImMarkup(aDocument, aText, aRuleset, aTextModifiers)
   if (!gGlobalRuleset)
     initGlobalRuleset();
 
-  let div = aDocument.createElement("div");
+  let div = aDocument.implementation.createHTMLDocument("").createElement("div");
   div.innerHTML = aText;
   cleanupNode(div, aRuleset || gGlobalRuleset, aTextModifiers || []);
   return div.innerHTML;
