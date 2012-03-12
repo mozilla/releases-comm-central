@@ -83,4 +83,5 @@ interface imILogger: nsISupports {
   nsISimpleEnumerator getLogsForContact(in imIContact aContact);
   nsISimpleEnumerator getLogsForConversation(in prplIConversation aConversation);
   nsISimpleEnumerator getSystemLogsForAccount(in imIAccount aAccount);
+  nsISimpleEnumerator getSimilarLogs(in imILog aLog);
 };

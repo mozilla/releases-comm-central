@@ -54,6 +54,9 @@ const FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
 const ConverterInputStream = CC("@mozilla.org/intl/converter-input-stream;1",
                                 "nsIConverterInputStream",
                                 "init");
+const LocalFile = CC("@mozilla.org/file/local;1",
+                     "nsILocalFile",
+                     "initWithPath");
 
 const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
@@ -455,6 +458,8 @@ Logger.prototype = {
   },
   getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount)
     this._enumerateLogs(aAccount, ".system"),
+  getSimilarLogs: function(aLog)
+    new LogEnumerator([new LocalFile(aLog.path).parent.directoryEntries]),
 
   observe: function logger_observe(aSubject, aTopic, aData) {
     switch (aTopic) {
