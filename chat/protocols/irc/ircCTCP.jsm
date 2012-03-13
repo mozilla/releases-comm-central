@@ -48,6 +48,11 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 
+XPCOMUtils.defineLazyGetter(this, "PluralForm", function() {
+  Cu.import("resource://gre/modules/PluralForm.jsm");
+  return PluralForm;
+});
+
 function lowLevelDequote(aString) {
   // Dequote (low level) / Low Level Quoting
   // Replace quote char \020 followed by 0, n, r or \020 with a null, line
@@ -203,10 +208,10 @@ var ctcpBase = {
         // Find the delay in seconds.
         let delay = (Date.now() - sentTime) / 1000;
 
+        let message = PluralForm.get(delay, _("ctcp.ping", aMessage.nickname))
+                                .replace("#2", delay);
         this.getConversation(aMessage.nickname)
-            .writeMessage(aMessage.nickname,
-                          _("ctcp.ping.response", delay, aMessage.nickname),
-                          {system: true});
+            .writeMessage(aMessage.nickname, message, {system: true});
       }
       return true;
     },
