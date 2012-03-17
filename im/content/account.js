@@ -49,10 +49,17 @@ var account = {
     document.getElementById("protocolIcon").src =
       this.proto.iconBaseURI + "icon48.png";
 
+    let passwordBox = document.getElementById("passwordBox");
     if (this.proto.noPassword)
-      document.getElementById("passwordBox").hidden = true;
-    else
-      document.getElementById("password").value = this.account.password;
+      passwordBox.hidden = true;
+    else {
+      try {
+        // Will throw if we don't have a protocol plugin for the account.
+        document.getElementById("password").value = this.account.password;
+      } catch (e) {
+        passwordBox.hidden = true;
+      }
+    }
 
     document.getElementById("alias").value = this.account.alias;
 
@@ -254,7 +261,8 @@ var account = {
   },
 
   save: function account_save() {
-    if (!this.proto.noPassword) {
+    if (!this.proto.noPassword &&
+        !document.getElementById("passwordBox").hidden) {
       var password = this.getValue("password");
       if (password != this.account.password)
         this.account.password = password;
