@@ -260,6 +260,7 @@
 @BINPATH@/components/xuldoc.xpt
 @BINPATH@/components/xultmpl.xpt
 @BINPATH@/components/zipwriter.xpt
+@BINPATH@/components/telemetry.xpt
 
 ; JavaScript components
 @BINPATH@/components/FeedProcessor.manifest
@@ -267,8 +268,8 @@
 @BINPATH@/components/toolkitsearch.manifest
 @BINPATH@/components/nsSearchService.js
 @BINPATH@/components/nsSearchSuggestions.js
-@BINPATH@/components/nsTryToClose.manifest
-@BINPATH@/components/nsTryToClose.js
+@BINPATH@/components/TelemetryPing.manifest
+@BINPATH@/components/TelemetryPing.js
 @BINPATH@/components/passwordmgr.manifest
 @BINPATH@/components/nsLoginInfo.js
 @BINPATH@/components/nsLoginManager.js

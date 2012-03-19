@@ -250,3 +250,5 @@ components/@DLL_PREFIX@yahoo@DLL_SUFFIX@
 components/libpurplexpcom.dylib.dSYM/Contents/Info.plist
 components/libpurplexpcom.dylib.dSYM/Contents/Resources/DWARF/libpurplexpcom.dylib
 #endif
+# bug 701875
+omni.jar

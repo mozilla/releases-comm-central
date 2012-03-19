@@ -203,14 +203,14 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
           button = 2;
           break;
       }
-      if (eventName.IsEmpty() == PR_FALSE) {
+      if (eventName.IsEmpty() == false) {
         POINT wpt;
         if (GetCursorPos(&wpt) == TRUE) {
           nsPoint pt((nscoord)wpt.x, (nscoord)wpt.y);
 
-          PRBool ctrlKey = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
-          PRBool altKey = (::GetKeyState(VK_MENU) & 0x8000) != 0;
-          PRBool shiftKey = (::GetKeyState(VK_SHIFT) & 0x8000) != 0;
+          bool ctrlKey = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
+          bool altKey = (::GetKeyState(VK_MENU) & 0x8000) != 0;
+          bool shiftKey = (::GetKeyState(VK_SHIFT) & 0x8000) != 0;
 
           // SFW/PM is a win32 hack, so that the context menu is hidden when loosing focus.
           ::SetForegroundWindow(hwnd);

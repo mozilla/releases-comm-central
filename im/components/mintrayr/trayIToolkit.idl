@@ -98,7 +98,7 @@ interface trayITrayService : nsISupports {
   /**
    * is the window watched
    */
-  PRBool isWatchedWindow(in nsIDOMWindow window);
+  bool isWatchedWindow(in nsIDOMWindow window);
 
   /**
    * minimizes a window to the tray

@@ -208,7 +208,7 @@ void Icon::buttonEvent(GdkEventButton *event)
   nsPoint pt((nscoord)(event->x + event->x_root), (nscoord)(event->y + event->y_root));
 
   // Dispatch the event
-#define HASSTATE(x) (event->state & x ? PR_TRUE : PR_FALSE)
+#define HASSTATE(x) (event->state & x ? true : false)
   mIcon->DispatchMouseEvent(
       eventName,
       event->button - 1,

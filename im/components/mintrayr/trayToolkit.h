@@ -99,10 +99,10 @@ class TrayIconImpl : public trayITrayIcon, nsIDOMEventListener {
   friend class platform::Icon;
 
 private:
-  PRBool mIsMinimized;
+  bool mIsMinimized;
   nsCOMPtr<nsIDOMWindow> mWindow;
 
-  PRBool mCloseOnRestore;
+  bool mCloseOnRestore;
 
   bool mClosed;
   TrayServiceImpl *mService;
@@ -114,14 +114,14 @@ public:
   NS_DECL_TRAYITRAYICON
 
   TrayIconImpl(TrayServiceImpl *aService)
-    : mIsMinimized(PR_FALSE),
-    mCloseOnRestore(PR_FALSE),
+    : mIsMinimized(false),
+    mCloseOnRestore(false),
     mClosed(false),
     mService(aService)
     {}
 
-  NS_IMETHOD Init(nsIDOMWindow *aWindow, PRBool aCloseOnRestore);
-  NS_IMETHOD DispatchMouseEvent(const nsAString& aEventName, PRUint16 aButton, nsPoint& pt, PRBool aCtrlKey, PRBool aAltKey, PRBool aShiftKey);
+  NS_IMETHOD Init(nsIDOMWindow *aWindow, bool aCloseOnRestore);
+  NS_IMETHOD DispatchMouseEvent(const nsAString& aEventName, PRUint16 aButton, nsPoint& pt, bool aCtrlKey, bool aAltKey, bool aShiftKey);
   inline bool IsClosed() const { return mClosed; }
 };
 

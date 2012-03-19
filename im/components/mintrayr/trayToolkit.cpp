@@ -82,7 +82,7 @@ bool DoMinimizeWindow(nsIDOMWindow *window, eMinimizeActions action)
   nsresult rv;
   nsCOMPtr<trayITrayService> traySvc(do_GetService(TRAYSERVICE_CONTRACTID, &rv));
   if (NS_SUCCEEDED(rv)) {
-    traySvc->Minimize(window, PR_TRUE);
+    traySvc->Minimize(window, true);
   }
   return NS_SUCCEEDED(rv);
 }
@@ -131,13 +131,13 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
   nsCOMPtr<nsIPrivateDOMEvent> privateEvent(do_QueryInterface(event, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = event->InitEvent(aEventName, PR_FALSE, PR_TRUE);
+  rv = event->InitEvent(aEventName, false, true);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = privateEvent->SetTrusted(PR_TRUE);
+  rv = privateEvent->SetTrusted(true);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  PRBool dummy;
+  bool dummy;
   return target->DispatchEvent(event, &dummy);
 }
 
@@ -153,20 +153,20 @@ NS_IMETHODIMP TrayIconImpl::GetWindow(nsIDOMWindow **aWindow)
   return NS_OK;
 }
 
-NS_IMETHODIMP TrayIconImpl::GetIsMinimized(PRBool *aIsMinimized)
+NS_IMETHODIMP TrayIconImpl::GetIsMinimized(bool *aIsMinimized)
 {
   NS_ENSURE_ARG_POINTER(aIsMinimized);
   *aIsMinimized = mIsMinimized;
   return NS_OK;
 }
 
-NS_IMETHODIMP TrayIconImpl::GetCloseOnRestore(PRBool *aCloseOnRestore)
+NS_IMETHODIMP TrayIconImpl::GetCloseOnRestore(bool *aCloseOnRestore)
 {
   NS_ENSURE_ARG_POINTER(aCloseOnRestore);
   *aCloseOnRestore = mCloseOnRestore;
   return NS_OK;
 }
-NS_IMETHODIMP TrayIconImpl::SetCloseOnRestore(PRBool aCloseOnRestore)
+NS_IMETHODIMP TrayIconImpl::SetCloseOnRestore(bool aCloseOnRestore)
 {
   mCloseOnRestore = aCloseOnRestore;
   return NS_OK;
@@ -182,7 +182,7 @@ NS_IMETHODIMP TrayIconImpl::Minimize()
     return NS_OK;
   }
   mPlatformIcon->Minimize();
-  mIsMinimized = PR_TRUE;
+  mIsMinimized = true;
   return NS_OK;
 }
 NS_IMETHODIMP TrayIconImpl::Restore()
@@ -200,7 +200,7 @@ NS_IMETHODIMP TrayIconImpl::Restore()
   else {
     mPlatformIcon->Restore();
   }
-  mIsMinimized = PR_FALSE;
+  mIsMinimized = false;
 
   return NS_OK;
 }
@@ -213,12 +213,12 @@ NS_IMETHODIMP TrayIconImpl::Close()
 
   delete mPlatformIcon.forget();
   mService->CloseIcon(this);
-  mIsMinimized = PR_FALSE;
+  mIsMinimized = false;
 
   nsresult rv;
   nsCOMPtr<nsIDOMEventTarget> target = do_QueryInterface(mWindow, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  target->RemoveEventListener(NS_LITERAL_STRING("unload"), this, PR_FALSE);
+  target->RemoveEventListener(NS_LITERAL_STRING("unload"), this, false);
 
   return NS_OK;
 }
@@ -231,7 +231,7 @@ NS_IMETHODIMP TrayIconImpl::HandleEvent(nsIDOMEvent *aEvent)
 }
 
 
-NS_IMETHODIMP TrayIconImpl::Init(nsIDOMWindow *aWindow, PRBool aCloseOnRestore)
+NS_IMETHODIMP TrayIconImpl::Init(nsIDOMWindow *aWindow, bool aCloseOnRestore)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -241,7 +241,7 @@ NS_IMETHODIMP TrayIconImpl::Init(nsIDOMWindow *aWindow, PRBool aCloseOnRestore)
 
   nsCOMPtr<nsIDOMEventTarget> target = do_QueryInterface(aWindow, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = target->AddEventListener(NS_LITERAL_STRING("unload"), this, PR_FALSE);
+  rv = target->AddEventListener(NS_LITERAL_STRING("unload"), this, false);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIBaseWindow> baseWindow;
@@ -260,7 +260,7 @@ NS_IMETHODIMP TrayIconImpl::Init(nsIDOMWindow *aWindow, PRBool aCloseOnRestore)
   return NS_OK;
 }
 
-NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUint16 aButton, nsPoint& pt, PRBool aCtrlKey, PRBool aAltKey, PRBool aShiftKey)
+NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUint16 aButton, nsPoint& pt, bool aCtrlKey, bool aAltKey, bool aShiftKey)
 {
   nsresult rv;
 
@@ -280,8 +280,8 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
 
   rv = mouseEvent->InitMouseEvent(
     aEventName,
-    PR_FALSE,
-    PR_TRUE,
+    false,
+    true,
     mWindow,
     0,
     pt.x,
@@ -291,13 +291,13 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
     aCtrlKey,
     aAltKey,
     aShiftKey,
-    PR_FALSE,
+    false,
     aButton,
     target
     );
   NS_ENSURE_SUCCESS(rv, rv);
 
-  PRBool dummy;
+  bool dummy;
   return target->DispatchEvent(mouseEvent, &dummy);
 }
 
@@ -315,7 +315,7 @@ TrayServiceImpl::TrayServiceImpl()
   nsresult rv;
   nsCOMPtr<nsIObserverService> obs(do_GetService("@mozilla.org/observer-service;1", &rv));
   if (NS_SUCCEEDED(rv)) {
-    obs->AddObserver(static_cast<nsIObserver*>(this), "xpcom-shutdown", PR_FALSE);
+    obs->AddObserver(static_cast<nsIObserver*>(this), "xpcom-shutdown", false);
   }
 
 }
@@ -333,7 +333,7 @@ void TrayServiceImpl::Destroy() {
   mWatches.Clear();
 }
 
-NS_IMETHODIMP TrayServiceImpl::CreateIcon(nsIDOMWindow *aWindow, PRBool aCloseOnRestore, trayITrayIcon **aResult)
+NS_IMETHODIMP TrayServiceImpl::CreateIcon(nsIDOMWindow *aWindow, bool aCloseOnRestore, trayITrayIcon **aResult)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -405,7 +405,7 @@ NS_IMETHODIMP TrayServiceImpl::UnwatchMinimize(nsIDOMWindow *aWindow)
   return NS_OK;
 }
 
-NS_IMETHODIMP TrayServiceImpl::Minimize(nsIDOMWindow *aWindow, PRBool aCloseOnRestore)
+NS_IMETHODIMP TrayServiceImpl::Minimize(nsIDOMWindow *aWindow, bool aCloseOnRestore)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -440,12 +440,12 @@ NS_IMETHODIMP TrayServiceImpl::Restore(nsIDOMWindow *aWindow)
   return NS_ERROR_INVALID_ARG;
 }
 
-NS_IMETHODIMP TrayServiceImpl::IsWatchedWindow(nsIDOMWindow *aWindow, PRBool *aResult)
+NS_IMETHODIMP TrayServiceImpl::IsWatchedWindow(nsIDOMWindow *aWindow, bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
   NS_ENSURE_ARG_POINTER(aResult);
 
-  *aResult = mWatches.IndexOfObject(aWindow) != -1 ? PR_TRUE : PR_FALSE;
+  *aResult = mWatches.IndexOfObject(aWindow) != -1 ? true : false;
   return NS_OK;
 }
 
