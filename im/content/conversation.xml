@@ -944,7 +944,7 @@
        <![CDATA[
          var name = aBuddy.name;
          if (this._hasBuddy(name))
-           throw "Adding a chat buddy twice?!";
+           throw "Adding chat buddy " + name + " twice?!";
          var item = document.createElement("listitem");
          item.chatBuddy = aBuddy;
          item.setAttribute("class", "listitem-iconic");
