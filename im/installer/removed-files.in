@@ -252,3 +252,4 @@ components/libpurplexpcom.dylib.dSYM/Contents/Resources/DWARF/libpurplexpcom.dyl
 #endif
 # bug 701875
 omni.jar
+@DLL_PREFIX@mozutils@DLL_SUFFIX@
