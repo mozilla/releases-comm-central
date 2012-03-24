@@ -142,6 +142,10 @@ NS_IMETHODIMP Icon::Init(nsIDOMWindow *aWindow, const nsString& aTitle)
   GdkPixbuf *buf = gtk_window_get_icon(mGtkWindow);
   if (buf) {
     gtk_status_icon_set_from_pixbuf(mStatusIcon, buf);
+  } else {
+    const gchar *iconname = gtk_window_get_icon_name(mGtkWindow);
+    if (iconname)
+      gtk_status_icon_set_from_icon_name(mStatusIcon, iconname);
   }
 
   // Get and set the title
