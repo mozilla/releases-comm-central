@@ -269,6 +269,9 @@ ircParticipant.prototype = {
 };
 
 function ircConversation(aAccount, aName) {
+  if (aAccount.hasBuddy(aName))
+    this.buddy = aAccount.getBuddy(aName);
+
   this._init(aAccount, aName);
 }
 ircConversation.prototype = {
