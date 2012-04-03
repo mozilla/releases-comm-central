@@ -236,10 +236,13 @@
         }
 
         if (aMsg.incoming && !aMsg.system &&
-            (!aMsg.conversation.isChat || aMsg.containsNick) &&
-            Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages") &&
-            Interruptions.requestInterrupt("new-text", aMsg, "get-attention"))
-          window.getAttention();
+            (!aMsg.conversation.isChat || aMsg.containsNick)) {
+          this._lastPing = aMsg.who;
+          this._lastPingTime = aMsg.time;
+          if (Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages") &&
+              Interruptions.requestInterrupt("new-text", aMsg, "get-attention"))
+            window.getAttention();
+        }
 
         if (this.tab && this.tab.selected && document.hasFocus())
           this._conv.markAsRead();
@@ -561,21 +564,27 @@
           completions = matchingCompletions;
 
           if (this._conv.isChat && !completingCommand) {
+            let preferredNick = null;
             // If only one of the possible completions is an active nick, take it.
-            let activeNick = null;
             for each (let c in completions) {
               if (this._hasBuddy(c) &&
                   !this.buddies[c].hasAttribute("inactive")) {
-                if (!activeNick)
-                  activeNick = c;
+                if (!preferredNick)
+                  preferredNick = c;
                 else {
-                  activeNick = null;
+                  preferredNick = null;
                   break;
                 }
               }
             }
-            if (activeNick)
-              completions = [activeNick];
+            // If one of the completions is the sender of the last ping,
+            // take it, if it was less than an hour ago.
+            if (this._lastPing && this._hasBuddy(this._lastPing) &&
+                completions.indexOf(this._lastPing) != -1 &&
+                (Date.now() / 1000 - this._lastPingTime) < 3600)
+              preferredNick = this._lastPing;
+            if (preferredNick)
+              completions = [preferredNick];
           }
 
           // Only one possible completion? Apply it! :-)
