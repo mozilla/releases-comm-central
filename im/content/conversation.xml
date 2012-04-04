@@ -515,6 +515,7 @@
 
           let completions = [];
           let firstWordSuffix = " ";
+          let secondNick = false;
 
           // Second regex result will contain word without leading special characters.
           let words = text.substring(0, inputBox.selectionStart).match(/\S*?([\w-]+)?$/);
@@ -544,6 +545,19 @@
             completions = Object.keys(this.buddies);
             let outgoingNick = this._conv.nick;
             completions = completions.filter(function(c) c != outgoingNick);
+
+            // Check if the preceding words are a sequence of nick completions.
+            let wordStart = inputBox.selectionStart - word.length;
+            if (wordStart > 2) {
+              let separator = text.substring(wordStart - 2, wordStart);
+              if (separator == ": " || separator == ", ") {
+                let preceding = text.substring(0, wordStart - 2);
+                if (preceding.split(", ").every(function(n) completions.indexOf(n) != -1)) {
+                  secondNick = true;
+                  isFirstWord = true;
+                }
+              }
+            }
           }
 
           // Keep only the completions that share |word| as a prefix.
@@ -591,6 +605,11 @@
           // Replace what the user typed as its upper/lowercase may not be correct.
           if (completions.length == 1) {
             inputBox.selectionStart -= word.length;
+            if (secondNick) {
+              // Replace the trailing colon with a comma before the completed nick.
+              inputBox.selectionStart -= 2;
+              completions[0] = ", " + completions[0];
+            }
             this.addString(completions[0] + (isFirstWord ? firstWordSuffix : " "));
             return;
           }
@@ -607,7 +626,12 @@
           // Apply the common prefix, if any.
           if (i > 0) {
             inputBox.selectionStart -= word.length;
-            this.addString(completions[0].substring(0, i));
+            let completion = completions[0].substring(0, i);
+            if (secondNick) {
+              inputBox.selectionStart -= 2;
+              completion = ", " + completion;
+            }
+            this.addString(completion);
           }
 
           // Finally, display the possible completions in a system message.
