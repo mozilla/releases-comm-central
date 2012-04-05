@@ -680,7 +680,8 @@ var buddyList = {
     if (!docElt.hasAttribute("height")) {
       docElt.setAttribute("height", screen.availHeight || 600);
       let width = parseInt(docElt.getAttribute("width"));
-      window.moveTo(screen.availLeft + screen.availWidth - width, 0);
+      window.moveTo(screen.availLeft + screen.availWidth - width,
+                    screen.availTop);
     }
 
     // TODO remove this once we cleanup the way the menus are inserted
