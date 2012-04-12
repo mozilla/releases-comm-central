@@ -212,6 +212,15 @@
           return;
         }
 
+        let firstUnread = false;
+        let setUnreadFlag = this.tab && aMsg.incoming && !aMsg.system &&
+                            (!this.tab.selected || !document.hasFocus());
+        if (setUnreadFlag &&
+            !this.tab.hasAttribute("unread") && this._isAfterFirstRealMessage) {
+          this.browser.setUnreadRuler();
+          firstUnread = true;
+        }
+
         // Ugly hack... :(
         if (!aMsg.system && conv.isChat) {
           let name = aMsg.who;
@@ -229,11 +238,14 @@
         }
 
         let read = this._readCount > 0;
-        this.browser.appendMessage(aMsg, read);
+        this.browser.appendMessage(aMsg, read, firstUnread);
         if (read) {
           --this._readCount;
           return;
         }
+
+        if (!aMsg.system)
+          this._isAfterFirstRealMessage = true;
 
         if (aMsg.incoming && !aMsg.system &&
             (!aMsg.conversation.isChat || aMsg.containsNick)) {
@@ -247,8 +259,7 @@
         if (this.tab && this.tab.selected && document.hasFocus())
           this._conv.markAsRead();
 
-        if (this.tab && aMsg.incoming && !aMsg.system &&
-            (!this.tab.selected || !document.hasFocus())) {
+        if (setUnreadFlag) {
           if (conv.isChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
           this.tab.setAttribute("unread", "true");

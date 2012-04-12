@@ -2071,8 +2071,13 @@
         if (event.attrName != "selected")
           return;
 
-        if (event.attrChange == event.REMOVAL)
+        if (event.attrChange == event.REMOVAL) {
           this.linkedConversation.removeAttribute("selected");
+          // Remove the unread ruler as we can assume any unread messages have
+          // been seen when the user switches to another tab, so that the
+          // removal of the ruler is not visible.
+          this.linkedBrowser.removeUnreadRuler();
+        }
         else
           this.linkedConversation.setAttribute("selected", event.newValue);
        ]]>
