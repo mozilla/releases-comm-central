@@ -50,8 +50,8 @@
 ]>
 
 <window id="ib-addons-window" title="&addons.windowTitle; - &brandShortName;"
-        width="900" height="600" windowtype="Addons:Manager"
-        disablefastfind="true"
+        width="900" height="600" persist= "width height screenX screenY"
+        windowtype="Addons:Manager" disablefastfind="true"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 #ifdef XP_MACOSX
