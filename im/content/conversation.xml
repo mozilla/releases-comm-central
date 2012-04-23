@@ -518,18 +518,59 @@
           return;
         }
 
+        // Undo tab complete.
+        if (this._completions && event.keyCode == KeyEvent.DOM_VK_BACK_SPACE &&
+            !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+          event.preventDefault();
+
+          // Undo multiple nick completion comma if it exists.
+          let pos = inputBox.selectionStart;
+          if (pos > 5 && text.substring(pos - 2, pos) == ": ") {
+            let completions = Object.keys(this.buddies);
+            // Check if the preceding words are a sequence of nick completions.
+            let preceding = text.substring(0, pos - 2).split(", ");
+            if (preceding.length > 1 &&
+                preceding.every(function(n) completions.indexOf(n) != -1)) {
+              let s = ": " + preceding.pop() + " ";
+              inputBox.selectionStart -= s.length + 1;
+              this.addString(s);
+              if (this._completions[0].slice(-2) == ": ") {
+                this._completions =
+                  this._completions.map(function(c) c.slice(0, -2) + " ");
+              }
+              return;
+            }
+          }
+
+          // Full undo.
+          inputBox.selectionStart = 0;
+          this.addString(this._beforeTabComplete);
+          delete this._completions;
+          return;
+        }
+
+        // Tab complete.
         // Keep the default behavior of the tab key if the input box
         // is empty or a modifier is used.
         if (event.keyCode == KeyEvent.DOM_VK_TAB && text.length != 0 &&
             !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
           event.preventDefault();
 
+          if (this._completions) {
+            // Tab has been pressed more than once.
+            inputBox.selectionStart = this._completionsStart;
+            this.addString(this._completions[this._completionsIndex++]);
+            this._completionsIndex %= this._completions.length;
+            return;
+          }
+
           let completions = [];
           let firstWordSuffix = " ";
           let secondNick = false;
 
           // Second regex result will contain word without leading special characters.
-          let words = text.substring(0, inputBox.selectionStart).match(/\S*?([\w-]+)?$/);
+          this._beforeTabComplete = text.substring(0, inputBox.selectionStart);
+          let words = this._beforeTabComplete.match(/\S*?([\w-]+)?$/);
           let word = words[0];
           if (!word)
             return;
@@ -586,69 +627,78 @@
           }
           if (!matchingCompletions.length)
             return;
-          completions = matchingCompletions;
 
+          // We have possible completions!
+          this._completions = matchingCompletions.sort();
+          this._completionsIndex = 0;
+
+          let preferredNick = false;
           if (this._conv.isChat && !completingCommand) {
-            let preferredNick = null;
-            // If only one of the possible completions is an active nick, take it.
-            for each (let c in completions) {
-              if (this._hasBuddy(c) &&
-                  !this.buddies[c].hasAttribute("inactive")) {
-                if (!preferredNick)
-                  preferredNick = c;
-                else {
-                  preferredNick = null;
-                  break;
-                }
-              }
+            // If one of the possible completions is an active nick, take it.
+            let activeCompletions = this._completions.filter(function(c)
+              this._hasBuddy(c) &&
+              !this.buddies[c].hasAttribute("inactive"), this);
+            if (activeCompletions.length) {
+              preferredNick = true;
+              this._completions = activeCompletions;
             }
+
             // If one of the completions is the sender of the last ping,
             // take it, if it was less than an hour ago.
             if (this._lastPing && this._hasBuddy(this._lastPing) &&
-                completions.indexOf(this._lastPing) != -1 &&
-                (Date.now() / 1000 - this._lastPingTime) < 3600)
-              preferredNick = this._lastPing;
-            if (preferredNick)
-              completions = [preferredNick];
-          }
-
-          // Only one possible completion? Apply it! :-)
-          // Replace what the user typed as its upper/lowercase may not be correct.
-          if (completions.length == 1) {
-            inputBox.selectionStart -= word.length;
-            if (secondNick) {
-              // Replace the trailing colon with a comma before the completed nick.
-              inputBox.selectionStart -= 2;
-              completions[0] = ", " + completions[0];
+                this._completions.indexOf(this._lastPing) != -1 &&
+                (Date.now() / 1000 - this._lastPingTime) < 3600) {
+              preferredNick = true;
+              this._completionsIndex = this._completions.indexOf(this._lastPing);
             }
-            this.addString(completions[0] + (isFirstWord ? firstWordSuffix : " "));
-            return;
           }
 
-          // We have several possible completions, attempt to find a common prefix.
-          completions.sort();
-          let i = 0;
-          let maxLength = Math.min(completions[0].length,
-                                   completions[completions.length - 1].length);
-          while (i < maxLength &&
-                 completions[0][i] == completions[completions.length - 1][i])
-            ++i;
+          // Display the possible completions in a system message.
+          if (this._completions.length > 1)
+            this._conv.systemMessage(this._completions.join(" "));
 
-          // Apply the common prefix, if any.
-          if (i > 0) {
-            inputBox.selectionStart -= word.length;
-            let completion = completions[0].substring(0, i);
-            if (secondNick) {
-              inputBox.selectionStart -= 2;
-              completion = ", " + completion;
+          let suffix = (isFirstWord ? firstWordSuffix : " ");
+          this._completions = this._completions.map(function(c) c + suffix);
+
+          let completion;
+          if (this._completions.length == 1 || preferredNick) {
+            // Only one possible completion? Apply it! :-)
+            completion = this._completions[this._completionsIndex++];
+            this._completionsIndex %= this._completions.length;
+          }
+          else {
+            // We have several possible completions, attempt to find a common prefix.
+            let lastCompletion = this._completions.slice(-1)[0];
+            let maxLength = Math.min(this._completions[0].length,
+                                     lastCompletion.length);
+            let i = 0;
+            while (i < maxLength && this._completions[0][i] == lastCompletion[i])
+              ++i;
+
+            if (i)
+              completion = this._completions[0].substring(0, i);
+            else {
+              // Include this case so that secondNick is applied anyway,
+              // in case a completion is added by another tab press.
+              completion = word;
             }
-            this.addString(completion);
           }
 
-          // Finally, display the possible completions in a system message.
-          this._conv.systemMessage(completions.join(" "));
-          return;
+          // Always replace what the user typed as its upper/lowercase may
+          // not be correct.
+          inputBox.selectionStart -= word.length;
+          this._completionsStart = inputBox.selectionStart;
+
+          if (secondNick) {
+            // Replace the trailing colon with a comma before the completed nick.
+            inputBox.selectionStart -= 2;
+            completion = ", " + completion;
+          }
+
+          this.addString(completion);
         }
+        else if (this._completions)
+          delete this._completions;
 
         // Handle typing notifications / character count.
         if (event.keyCode != 13) {
