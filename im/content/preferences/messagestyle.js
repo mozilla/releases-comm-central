@@ -41,7 +41,7 @@ Components.utils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
 
 function Conversation(aName)
 {
-  this.name = aName;
+  this._name = aName;
   this._observers = [];
 }
 Conversation.prototype = {
