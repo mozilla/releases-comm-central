@@ -634,14 +634,14 @@
 
           let preferredNick = false;
           if (this._conv.isChat && !completingCommand) {
-            // If one of the possible completions is an active nick, take it.
+            // If there are active nicks, prefer those.
             let activeCompletions = this._completions.filter(function(c)
               this._hasBuddy(c) &&
               !this.buddies[c].hasAttribute("inactive"), this);
-            if (activeCompletions.length) {
-              preferredNick = true;
+            if (activeCompletions.length)
               this._completions = activeCompletions;
-            }
+            if (activeCompletions.length == 1)
+              preferredNick = true;
 
             // If one of the completions is the sender of the last ping,
             // take it, if it was less than an hour ago.
