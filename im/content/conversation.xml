@@ -612,10 +612,13 @@
             if (wordStart > 2) {
               let separator = text.substring(wordStart - 2, wordStart);
               if (separator == ": " || separator == ", ") {
-                let preceding = text.substring(0, wordStart - 2);
-                if (preceding.split(", ").every(function(n) completions.indexOf(n) != -1)) {
+                let preceding = text.substring(0, wordStart - 2).split(", ");
+                if (preceding.every(function(n) completions.indexOf(n) != -1)) {
                   secondNick = true;
                   isFirstWord = true;
+                  // Remove preceding completions from possible completions.
+                  completions = completions.filter(function(c)
+                    preceding.indexOf(c) == -1);
                 }
               }
             }
