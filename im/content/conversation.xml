@@ -553,12 +553,21 @@
         // Keep the default behavior of the tab key if the input box
         // is empty or a modifier is used.
         if (event.keyCode == KeyEvent.DOM_VK_TAB && text.length != 0 &&
-            !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+            !event.altKey && !event.ctrlKey && !event.metaKey &&
+            (!event.shiftKey || this._completions)) {
           event.preventDefault();
 
           if (this._completions) {
             // Tab has been pressed more than once.
+            if (this._completions.length == 1)
+              return;
             inputBox.selectionStart = this._completionsStart;
+            if (event.shiftKey) {
+              // Reverse cycle completions.
+              this._completionsIndex -= 2;
+              if (this._completionsIndex < 0)
+                this._completionsIndex += this._completions.length;
+            }
             this.addString(this._completions[this._completionsIndex++]);
             this._completionsIndex %= this._completions.length;
             return;
