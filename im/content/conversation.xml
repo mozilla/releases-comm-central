@@ -669,7 +669,7 @@
           if (this._completions.length > 1)
             this._conv.systemMessage(this._completions.join(" "));
 
-          let suffix = (isFirstWord ? firstWordSuffix : " ");
+          let suffix = (isFirstWord ? firstWordSuffix : "");
           this._completions = this._completions.map(function(c) c + suffix);
 
           let completion;
