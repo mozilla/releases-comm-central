@@ -1685,7 +1685,7 @@
          let popup = document.getAnonymousElementByAttribute(this, "anonid",
                                                              "all-targets-popup");
          popup.addEventListener("popupshowing", this.showAllTargets.bind(this));
-         popup.addEventListener("popuphiding", this.hideAllTargets);
+         popup.addEventListener("popuphiding", this.hideAllTargets.bind(this));
        ]]>
        </body>
      </method>
@@ -1740,9 +1740,11 @@
      <method name="hideAllTargets">
        <body>
        <![CDATA[
-          while (this.hasChildNodes())
-            this.removeChild(this.lastChild);
-         this.removeEventListener("command", this.changeTargetCommand, false);
+         let popup = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "all-targets-popup");
+         while (popup.hasChildNodes())
+            popup.removeChild(popup.lastChild);
+         popup.removeEventListener("command", this.changeTargetCommand);
        ]]>
        </body>
      </method>
