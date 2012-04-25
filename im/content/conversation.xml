@@ -643,6 +643,13 @@
           // We have possible completions!
           this._completions = matchingCompletions.sort();
           this._completionsIndex = 0;
+          // Save now the first and last completions in alphabetical order,
+          // as we will need them to find a common prefix. However they may
+          // not be the first and last completions in the list of completions
+          // actually exposed to the user, as if there are active nicks
+          // they will be moved to the beginning of the list.
+          let firstCompletion = this._completions[0];
+          let lastCompletion = this._completions.slice(-1)[0];
 
           let preferredNick = false;
           if (this._conv.isChat && !completingCommand) {
@@ -650,10 +657,16 @@
             let activeCompletions = this._completions.filter(function(c)
               this._hasBuddy(c) &&
               !this.buddies[c].hasAttribute("inactive"), this);
-            if (activeCompletions.length)
-              this._completions = activeCompletions;
             if (activeCompletions.length == 1)
               preferredNick = true;
+            if (activeCompletions.length) {
+              // Move active nicks to the front of the queue.
+              activeCompletions.reverse();
+              activeCompletions.forEach(function(c) {
+                this._completions.splice(this._completions.indexOf(c), 1);
+                this._completions.unshift(c);
+              }, this);
+            }
 
             // If one of the completions is the sender of the last ping,
             // take it, if it was less than an hour ago.
@@ -680,15 +693,13 @@
           }
           else {
             // We have several possible completions, attempt to find a common prefix.
-            let lastCompletion = this._completions.slice(-1)[0];
-            let maxLength = Math.min(this._completions[0].length,
-                                     lastCompletion.length);
+            let maxLength = Math.min(firstCompletion.length, lastCompletion.length);
             let i = 0;
-            while (i < maxLength && this._completions[0][i] == lastCompletion[i])
+            while (i < maxLength && firstCompletion[i] == lastCompletion[i])
               ++i;
 
             if (i)
-              completion = this._completions[0].substring(0, i);
+              completion = firstCompletion.substring(0, i);
             else {
               // Include this case so that secondNick is applied anyway,
               // in case a completion is added by another tab press.
