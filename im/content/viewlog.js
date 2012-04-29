@@ -141,6 +141,7 @@ var logWindow = {
     let browser = document.getElementById("conv-browser");
     if (aTopic != "conversation-loaded" || aSubject != browser)
       return;
+    browser._autoScrollEnabled = false;
     for each (let msg in browser._conv.getMessages()) {
       if (!msg.system)
         msg.color = "color: hsl(" + this._computeColor(msg.who) + ", 100%, 40%);";
