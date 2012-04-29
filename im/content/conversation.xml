@@ -958,7 +958,20 @@
             if (msg.system || msg.outgoing || !msg.incoming || msg.error ||
                 !this._conv.isChat)
               return;
-            this.addPrompt(msg.who + ": ");
+            // Add msg.who to leading list of nicks.
+            let secondNick = false;
+            let text = this.editor.value;
+            let pos = text.indexOf(":");
+            if (pos != -1) {
+              let completions = Object.keys(this.buddies);
+              // Check if the preceding words are a sequence of nicks.
+              let preceding = text.substring(0, pos).split(", ");
+              if (preceding.every(function(n) completions.indexOf(n) != -1))
+                secondNick = true;
+            }
+            this.addPrompt(msg.who + (secondNick ? ", " : ": "));
+            if (this._completions)
+              delete this._completions;
             return;
           }
         }
