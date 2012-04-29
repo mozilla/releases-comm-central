@@ -177,3 +177,35 @@ p *:-moz-any-link img {
   color: #5a7ac6;
   font-size: smaller;
 }
+
+/* Adapt styles to narrow windows */
+@media all and (max-width: 400px) {
+  div.messages-group > hr {
+    margin-right: 0;
+  }
+
+  span.message-style {
+    margin-right: 0;
+  }
+
+  span.date-next {
+    display: none;
+  }
+}
+
+@media all and (max-width: 200px) {
+  span.date {
+    display: none;
+  }
+}
+
+/* Adapt styles when the window is very low */
+@media all and (max-height: 200px) {
+  div.messages-group {
+    padding-bottom: 8px;
+  }
+
+  div.messages-group:last-child {
+    padding-bottom: 8px;
+  }
+}

@@ -41,42 +41,6 @@ function setColors(target)
 }
 
 
-function addCSS(aFileName, aId)
-{
-  var new_css = document.createElement("link");
-
-  new_css.setAttribute("rel", "stylesheet");
-  new_css.setAttribute("type", "text/css");
-  new_css.setAttribute("href", aFileName);
-  new_css.setAttribute("id", aId);
-
-  document.getElementsByTagName("head")[0].appendChild(new_css);
-}
-
-
-function adaptCSS(aEvent)
-{
-  var medium_css = document.getElementById("medium_css");
-  var minimal_css = document.getElementById("minimal_css");
-  var tight_css = document.getElementById("tight_css");
-
-  if (body.clientWidth < 400 && !medium_css)
-    addCSS("CSS/medium.css", "medium_css");
-  else if (body.clientWidth >= 400 && medium_css)
-    document.getElementsByTagName("head")[0].removeChild(medium_css);
-
-  if (body.clientWidth < 200 && !minimal_css)
-    addCSS("CSS/minimal.css", "minimal_css");
-  else if (body.clientWidth >= 200 && minimal_css)
-    document.getElementsByTagName("head")[0].removeChild(minimal_css);
-
-  if (body.clientHeight < 200 && !tight_css)
-    addCSS("CSS/tight.css", "tight_css");
-  else if (body.clientHeight >= 200 && tight_css)
-    document.getElementsByTagName("head")[0].removeChild(tight_css);
-}
-
-
 function groupEvents(parent)
 {
   var list = parent.getElementsByTagName("p");
@@ -174,9 +138,6 @@ function checkNewText(aEvent)
     groupEvents(target.parentNode);
 }
 
-
-window.addEventListener("resize", adaptCSS);
-adaptCSS(null);
 
 document.getElementById("ibcontent")
         .addEventListener("DOMNodeInserted", checkNewText);
