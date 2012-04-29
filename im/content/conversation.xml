@@ -640,6 +640,19 @@
           if (!matchingCompletions.length)
             return;
 
+          // If the cursor is in the middle of a word, and the word is a nick,
+          // there is no need to complete - just jump to the end of the nick.
+          let wholeWord =
+            text.substring(inputBox.selectionStart - word.length).match(/^[\w-]+/)[0];
+          if (matchingCompletions.indexOf(wholeWord) != -1) {
+            inputBox.selectionStart += wholeWord.length - word.length;
+            let separator = text.substring(inputBox.selectionStart,
+                                           inputBox.selectionStart + 2);
+            if (separator == ": " || separator == ", ")
+              inputBox.selectionStart += 2;
+            return;
+          }
+
           // We have possible completions!
           this._completions = matchingCompletions.sort();
           this._completionsIndex = 0;
