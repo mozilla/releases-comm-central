@@ -22,39 +22,6 @@ function setColors(target)
   target.style.background = p_background.replace("#", senderHue, "g");
 }
 
-
-const fade_speed = 30;
-
-var smoothDisplay = {
-  toggle: function SDtoggle(target, control) {
-    if (!("control" in target) || !("minOpacity" in target)) {
-      target.control = 0;
-      target.minOpacity = parseFloat(document.defaultView.getComputedStyle(target, null).opacity);
-    }
-
-    if (target.control == 0) {
-      target.control = control;
-      setTimeout(smoothDisplay.progress, fade_speed, target);
-    }
-    else {
-      target.control = control;
-    }
-  },
-
-  progress: function SDprogress(target) {
-    var targetOpacity = parseFloat(document.defaultView.getComputedStyle(target, null).opacity);
-
-    if ((target.control < 0 && targetOpacity > target.minOpacity) || (target.control > 0 && targetOpacity < 1.0)) {
-      target.style.opacity = targetOpacity + 0.1 * target.control;
-      setTimeout(smoothDisplay.progress, fade_speed, target);
-    }
-    else {
-      target.control = 0;
-    }
-  }
-};
-
-
 function checkNewText(aEvent)
 {
   var target = aEvent.originalTarget;

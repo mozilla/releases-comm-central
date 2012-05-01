@@ -65,6 +65,12 @@ p.event-messages {
   margin: 5px 0px 5px 0px;
   text-align: center;
   opacity: 0.4;
+  -moz-transition-property: opacity;
+  -moz-transition-duration: 0.3s;
+}
+
+p.event-messages:hover {
+  opacity: 1;
 }
 
 .message-style {
