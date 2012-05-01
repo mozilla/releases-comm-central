@@ -959,8 +959,10 @@
                 !this._conv.isChat)
               return;
             // Add msg.who to leading list of nicks.
-            let secondNick = false;
             let text = this.editor.value;
+            if (text.indexOf(msg.who) != -1)
+              return;
+            let secondNick = false;
             let pos = text.indexOf(":");
             if (pos != -1) {
               let completions = Object.keys(this.buddies);
