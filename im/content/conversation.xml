@@ -212,14 +212,10 @@
           return;
         }
 
-        let firstUnread = false;
         let setUnreadFlag = this.tab && aMsg.incoming && !aMsg.system &&
                             (!this.tab.selected || !document.hasFocus());
-        if (setUnreadFlag &&
-            !this.tab.hasAttribute("unread") && this._isAfterFirstRealMessage) {
-          this.browser.setUnreadRuler();
-          firstUnread = true;
-        }
+        let firstUnread = setUnreadFlag &&
+          !this.tab.hasAttribute("unread") && this._isAfterFirstRealMessage;
 
         // Ugly hack... :(
         if (!aMsg.system && conv.isChat) {
