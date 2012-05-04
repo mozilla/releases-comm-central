@@ -240,6 +240,18 @@
        </body>
      </method>
 
+     <method name="requestBuddyInfo">
+       <parameter name="aAccount"/>
+       <parameter name="aObservedName"/>
+       <body>
+       <![CDATA[
+         this.observedUserInfo = aObservedName;
+         Services.obs.addObserver(this, "user-info-received", false);
+         aAccount.requestBuddyInfo(aObservedName);
+       ]]>
+       </body>
+     </method>
+
      <method name="updateTooltipFromBuddy">
        <parameter name="aBuddy"/>
        <parameter name="aElt"/>
@@ -268,6 +280,13 @@
          var loggedIn = aBuddy.loggedIn;
          if (loggedIn)
            this.addRow(this.bundle.GetStringFromName("buddy.loggedIn"), loggedIn);
+
+         // Technically there is no reason to restrict this to JS-IRC. But
+         // there is currently no filtering mechanism in place to select which
+         // of the returned fields are to be added to the tooltip for the other
+         // protocols (libpurple in particular).
+         if (account.protocol.id == "prpl-irc")
+           this.requestBuddyInfo(account, aBuddy.normalizedName);
 
          var tooltipInfo = aBuddy.getTooltipInfo();
          if (tooltipInfo)
@@ -368,9 +387,8 @@
          this.setBuddyIcon(null);
          this.addRow(this.bundle.GetStringFromName("buddy.account"),
                      account.name);
-         this.observedUserInfo = aConv.target.getNormalizedChatBuddyName(name);
-         Services.obs.addObserver(this, "user-info-received", false);
-         account.requestBuddyInfo(this.observedUserInfo);
+         this.requestBuddyInfo(account,
+                               aConv.target.getNormalizedChatBuddyName(name));
          return true;
        ]]>
        </body>
