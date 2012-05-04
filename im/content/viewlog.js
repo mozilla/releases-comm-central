@@ -20,7 +20,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *  Benedikt P. <leeraccount@yahoo.de>
+ *  Benedikt Pfeifer <benediktp@ymail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,6 +35,8 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 // viewZoomOverlay.js uses this
 function getBrowser() {
@@ -57,10 +59,21 @@ var logWindow = {
         document.documentElement.getAttribute("titlemodifier");
     }
 
+    // Used to show the dates in the log list in the locale of the application.
+    let appLocaleCode = Services.prefs.getCharPref("general.useragent.locale");
+    let dts = Cc["@mozilla.org/intl/scriptabledateformat;1"]
+                .getService(Ci.nsIScriptableDateFormat);
+
     let listbox = document.getElementById("logList");
     logs.forEach(function (aLog) {
       let elt = document.createElement("listitem");
-      elt.setAttribute("label", (new Date(aLog.time * 1000)));
+      let logDate = new Date(aLog.time * 1000);
+      let localizedDateTimeString =
+        dts.FormatDateTime(appLocaleCode, dts.dateFormatLong,
+                           dts.timeFormatNoSeconds, logDate.getFullYear(),
+                           logDate.getMonth() + 1, logDate.getDate(),
+                           logDate.getHours(), logDate.getMinutes(), 0);
+      elt.setAttribute("label", localizedDateTimeString);
       elt.log = aLog;
       listbox.appendChild(elt);
     });
