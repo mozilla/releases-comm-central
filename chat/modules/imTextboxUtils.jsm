@@ -155,10 +155,18 @@ let TextboxSize = {
 };
 
 let TextboxSpellChecker = {
+#ifndef MOZ_THUNDERBIRD
   _spellCheckPrefName: "layout.spellcheckDefault",
+#else
+  _spellCheckPrefName: "mail.spellcheck.inline",
+#endif
   _enabled: false,
  getValue: function tsc_getValue() {
+#ifndef MOZ_THUNDERBIRD
     this._enabled = !!Services.prefs.getIntPref(this._spellCheckPrefName);
+#else
+    this._enabled = Services.prefs.getBoolPref(this._spellCheckPrefName);
+#endif
   },
   applyValue: function tsc_applyValue(aTextbox) {
     if (this._enabled)
