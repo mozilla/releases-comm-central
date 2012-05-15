@@ -1076,7 +1076,6 @@ ircProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-irc/skin/",
   get baseId() "prpl-irc",
 
-  get usernameEmptyText() _("usernameHint"),
   usernameSplits: [
     {label: _("options.server"), separator: "@",
      defaultValue: "chat.freenode.net", reverse: true}
