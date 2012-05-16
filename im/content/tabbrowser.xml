@@ -1349,6 +1349,14 @@
       })]]>
       </field>
 
+      <field name="_windowDeactivateHandler" readonly="true">
+      <![CDATA[({
+        tabbrowser: this,
+        handleEvent: function handleEvent(aEvent)
+          this.tabbrowser.mCurrentBrowser.removeUnreadRuler()
+      })]]>
+      </field>
+
       <constructor>
         <![CDATA[
           this.mCurrentConversation = this.mPanelContainer.firstChild;
@@ -1356,6 +1364,7 @@
           this.mCurrentTab = this.mTabContainer.firstChild;
 
           document.addEventListener("keypress", this._keyEventHandler);
+          window.addEventListener("deactivate", this._windowDeactivateHandler);
 
           var uniqueId = "panel" + Date.now();
           this.mCurrentConversation.id = uniqueId;
@@ -1377,6 +1386,7 @@
       <destructor>
         <![CDATA[
           document.removeEventListener("keypress", this._keyEventHandler, false);
+          window.removeEventListener("deactivate", this._windowDeactivateHandler);
           Services.prefs.removeObserver("browser.tabs.autoHide", this._prefObserver);
           Services.prefs.removeObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver);
         ]]>
