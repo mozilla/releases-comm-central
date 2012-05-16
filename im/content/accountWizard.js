@@ -381,7 +381,7 @@ var accountWizard = {
     while ((child = rows.firstChild))
       rows.removeChild(child);
 
-    var label = document.getElementById("protoLabel").value;
+    var label = bundle.getString("accountProtocol");
     rows.appendChild(this.createSummaryRow(label, this.proto.name));
     this.username = this.getUsername();
     label = bundle.getString("accountUsername");
