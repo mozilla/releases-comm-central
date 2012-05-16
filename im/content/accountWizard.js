@@ -43,24 +43,28 @@ const PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
 var accountWizard = {
   onload: function aw_onload() {
-    accountWizard.setGetMoreProtocols();
+    let topProtoList = document.getElementById("topprotolist");
+    let bundle = document.getElementById("topProtocolsBundle");
+    let topProtocols = bundle.getString("topProtocol.list").split(",");
 
-    var protoList = document.getElementById("protolist");
-    var protos = [];
-    for (let proto in this.getProtocols())
-      protos.push(proto);
-    protos.sort(function(a, b) a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-    protos.forEach(function(proto) {
-      var id = proto.id;
-      var item = protoList.appendItem(proto.name, id, id);
-      item.setAttribute("image", proto.iconBaseURI + "icon.png");
-      item.setAttribute("class", "listitem-iconic");
-    });
+    for each (let topProto in topProtocols) {
+      let proto = Services.core.getProtocolById(topProto);
+      if (proto == null)
+        continue;
 
-    // there is a strange selection bug without this timeout
-    setTimeout(function() {
-      protoList.selectedIndex = 0;
-    }, 0);
+      let item = document.createElement("richlistitem");
+      item.className = "top-protocol";
+      topProtoList.insertBefore(item, document.getElementById("otherListItem"));
+      let desc = bundle.getString("topProtocol." + proto.id + ".description");
+      item.build(proto, desc);
+    }
+
+    if (topProtoList.itemCount < 2) {
+      document.getElementById("accountWizard")
+              .getPageById("accountwelcome").next = "accountprotocol";
+    }
+
+    topProtoList.selectedIndex = -1;
 
     Services.obs.addObserver(this, "prpl-quit", false);
     window.addEventListener("unload", this.unload);
@@ -101,13 +105,16 @@ var accountWizard = {
   },
 
   selectProtocol: function aw_selectProtocol() {
-    var protoList = document.getElementById("protolist");
-    var id = protoList.selectedItem.value;
-    this.proto = Services.core.getProtocolById(id);
+    // A fix for users wanting to return to the list they previously viewed.
+    var pageId = document.getElementById("accountWizard").currentPage.pageid;
+    document.getElementById("accountusername").previous = pageId;
+
+    var listId = pageId == "accounttoplist" ? "topprotolist" : "protolist";
+    var protoList = document.getElementById(listId);
+    this.proto = Services.core.getProtocolById(protoList.selectedItem.value);
 
     return true;
   },
-
 
   insertUsernameField: function aw_insertUsernameField(aName, aLabel, aParent,
                                                        aDefaultValue) {
@@ -571,5 +578,43 @@ var accountWizard = {
     Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
               .getService(Components.interfaces.nsIExternalProtocolService)
               .loadUrl(Services.io.newURI(aURL, null, null));
+  },
+
+  advanceTopProtocolPage: function() {
+    let selectedProtocol = document.getElementById("topprotolist").selectedItem;
+    if (!selectedProtocol || selectedProtocol.id == "otherListItem")
+      return true;
+    accountWizard.selectProtocol();
+    document.getElementById("accountWizard").goTo("accountusername");
+    return false;
+  },
+
+  rewindFromUsernamePage: function() {
+    let wizard = document.getElementById("accountWizard");
+    let previousPage = wizard.getPageById("accountusername").previous;
+    if (previousPage == "accountprotocol")
+      return true;
+    wizard.goTo(previousPage);
+    return false;
+  },
+
+  showProtocolPage: function() {
+    let protoList = document.getElementById("protolist");
+    if (protoList.itemCount > 0)
+      return;
+
+    accountWizard.setGetMoreProtocols();
+    let protos = [];
+    for (let proto in accountWizard.getProtocols())
+      protos.push(proto);
+    protos.sort(function(a, b) a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+
+    protos.forEach(function(proto) {
+      let item = protoList.appendItem(proto.name, proto.id);
+      item.setAttribute("image", proto.iconBaseURI + "icon.png");
+      item.setAttribute("class", "listitem-iconic");
+    });
+
+    protoList.selectedIndex = 0;
   }
 };

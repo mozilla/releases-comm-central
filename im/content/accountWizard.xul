@@ -39,6 +39,7 @@
 
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/accountWizard.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/accountWizard.css" type="text/css"?>
 
 <!DOCTYPE wizard [
@@ -57,20 +58,34 @@
   <script type="application/javascript" src="chrome://instantbird/content/accountWizard.js"/>
   <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
   <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
+  <stringbundle id="topProtocolsBundle" src="chrome://instantbird/locale/accountWizard.properties"/>
 
-  <wizardpage id="accountwelcome" pageid="accountwelcome" next="accountprotocol"
+  <wizardpage id="accountwelcome" pageid="accountwelcome" next="accounttoplist"
               label="&accountWelcomeTitle.label;">
     <description>&accountWelcomeInfo.label;</description>
     <separator/>
   </wizardpage>
 
+  <wizardpage id="accounttoplist" pageid="accounttoplist" next="accountprotocol"
+              label="&accountProtocolTitle.label;"
+              onpageadvanced="return accountWizard.advanceTopProtocolPage();">
+    <description>&accountProtocolInfo.label2;</description>
+    <separator class="thin"/>
+    <richlistbox flex="1" id="topprotolist"
+                 ondblclick="document.getElementById('accountWizard').advance();">
+      <richlistitem id="otherListItem">
+        <description class="top-proto-name" value="&accountProtocolShowMore.label;"/>
+        <description class="top-proto-description" value="&accountProtocolShowMore.description;"/>
+      </richlistitem>
+    </richlistbox>
+  </wizardpage>
+
   <wizardpage id="accountprotocol" pageid="accountprotocol" next="accountusername"
               label="&accountProtocolTitle.label;"
+              onpageshow="accountWizard.showProtocolPage();"
               onpageadvanced="return accountWizard.selectProtocol();">
-    <description>&accountProtocolInfo.label;</description>
-    <separator/>
-    <label value="&accountProtocolField.label;" control="protolist"
-           id="protoLabel" hidden="true"/>
+    <description>&accountProtocolInfo.label2;</description>
+    <separator class="thin"/>
     <listbox flex="1" id="protolist"
              ondblclick="document.getElementById('accountWizard').advance();"/>
     <hbox pack="end">
@@ -82,7 +97,8 @@
   <wizardpage id="accountusername" pageid="accountusername" next="accountpassword"
               label="&accountUsernameTitle.label;"
               onpageshow="accountWizard.showUsernamePage();"
-              onpagehide="accountWizard.hideUsernamePage();">
+              onpagehide="accountWizard.hideUsernamePage();"
+              onpagerewound="return accountWizard.rewindFromUsernamePage();">
     <description id="usernameInfo"/>
     <separator/>
     <vbox id="userNameBox"/>

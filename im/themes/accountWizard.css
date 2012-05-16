@@ -44,6 +44,26 @@
   overflow: auto;
 }
 
+#otherListItem {
+  padding-left: 40px;
+  min-height: 40px;
+  -moz-box-orient: vertical;
+  -moz-box-pack: center;
+}
+
+.top-proto-name {
+  font-size: larger;
+}
+
+.top-proto-description {
+  font-size: smaller;
+  opacity: 0.85;
+}
+
+.top-proto-icon {
+  padding: 4px;
+}
+
 groupbox.collapsable {
   -moz-user-focus: normal;
 }

@@ -6,8 +6,10 @@ instantbird.jar:
 	content/instantbird/accounts.css
 	content/instantbird/accounts.js
 *	content/instantbird/accounts.xul
+	content/instantbird/accountWizard.css
 	content/instantbird/accountWizard.js
 	content/instantbird/accountWizard.xul
+	content/instantbird/accountWizard.xml
 	content/instantbird/account.xml
 	content/instantbird/account.xul
 	content/instantbird/addbuddy.js
