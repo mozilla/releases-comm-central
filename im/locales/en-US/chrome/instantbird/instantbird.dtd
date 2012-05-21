@@ -108,7 +108,7 @@
 <!ENTITY expandContactTooltip          "Expand">
 <!ENTITY collapseContactTooltip        "Collapse">
 
-<!ENTITY contactDropTarget             "drop a contact here to merge it">
+<!ENTITY contactDropTarget2            "Drop another contact here to merge them.">
 
 <!ENTITY hideGroupTooltip              "Hide">
 

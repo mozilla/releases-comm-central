@@ -252,9 +252,14 @@ contact[droptarget] > buddy[dummy] {
   -moz-padding-start: 23px;
 }
 
-buddy[dummy] {
-  -moz-margin-start: -23px;
-  text-align: center;
+.dummyBuddyIcon {
+  margin: 1px 3px;
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
+}
+
+.dummyBuddyLabel {
+  font-style: italic;
+  color: GrayText;
 }
 
 .prplBuddyIcon {
@@ -267,6 +272,7 @@ buddy[dummy] {
 
 .protoIcon,
 .statusIcon,
+.dummyBuddyIcon,
 .hideGroupButton,
 .startChatBubble,
 .expander-up,
