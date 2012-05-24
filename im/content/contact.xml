@@ -146,6 +146,30 @@
        </setter>
      </property>
 
+     <property name="bundle">
+       <getter>
+         <![CDATA[
+          if (!this._bundle) {
+            this._bundle =
+              Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
+          }
+          return this._bundle;
+         ]]>
+       </getter>
+     </property>
+
+     <!-- Textual representation of the contact and its status for accessibility
+          tools -->
+     <property name="label" readonly="true">
+       <getter>
+       <![CDATA[
+         let params = [this.contact.displayName, this.getAttribute("statusText")];
+         return this.bundle.formatStringFromName("contact.collapsed", params,
+                                                 params.length);
+       ]]>
+       </getter>
+     </property>
+
      <!-- nsIObserver implementation -->
      <method name="observe">
        <parameter name="aSubject"/>
@@ -543,6 +567,26 @@
       </xul:vbox>
     </content>
     <implementation>
+     <!-- Textual representation of the contact and its status (and grouped
+          buddies if applicable) for accessibility tools -->
+     <property name="label" readonly="true">
+       <getter>
+       <![CDATA[
+         let propertyName = "contact.collapsed";
+         let params = [this.contact.displayName, this.getAttribute("statusText")];
+         let buddies = this.contact.getBuddies().map(function(b) b.displayName);
+
+         // Add the list of buddies only if there's more than one to avoid un-
+         // necessary duplication of the same name.
+         if (buddies.length > 1) {
+           propertyName = "contact.expanded";
+           params.push(buddies.join(this.bundle.GetStringFromName("contact.buddySeparator")));
+         }
+         return this.bundle.formatStringFromName(propertyName, params, params.length);
+       ]]>
+       </getter>
+     </property>
+
      <method name="open">
       <body>
       <![CDATA[
