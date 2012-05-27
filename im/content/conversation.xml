@@ -583,6 +583,11 @@
             // Tab has been pressed more than once.
             if (this._completions.length == 1)
               return;
+            if (this._shouldListCompletionsLater) {
+              this._conv.systemMessage(this._shouldListCompletionsLater);
+              delete this._shouldListCompletionsLater;
+            }
+
             inputBox.selectionStart = this._completionsStart;
             if (event.shiftKey) {
               // Reverse cycle completions.
@@ -714,8 +719,18 @@
           }
 
           // Display the possible completions in a system message.
-          if (this._completions.length > 1)
-            this._conv.systemMessage(this._completions.join(" "));
+          delete this._shouldListCompletionsLater;
+          if (this._completions.length > 1) {
+            let completionsList = this._completions.join(" ");
+            if (preferredNick) {
+              // If we have a preferred nick (which is completed as a whole
+              // even if there are alternatives), only show the list of
+              // completions on the next <tab> press.
+              this._shouldListCompletionsLater = completionsList;
+            }
+            else
+              this._conv.systemMessage(completionsList);
+          }
 
           let suffix = (isFirstWord ? firstWordSuffix : "");
           this._completions = this._completions.map(function(c) c + suffix);
