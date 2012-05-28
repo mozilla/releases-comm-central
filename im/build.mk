@@ -140,6 +140,9 @@ FORCE_UPDATE := components/components.list|Contents/MacOS/components/components.
 distribution:
 	@$(MAKE) buildsymbols
 	@$(MAKE) -C instantbird/installer libs installer
+ifdef ENABLE_TESTS
+	$(MAKE) xpcshell-tests
+endif
 ifdef MOZ_UPDATE_PACKAGING
 	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update PKG_INST_PATH=
 endif
