@@ -288,6 +288,9 @@
               if (Date.now() - begin > 40)
                 break;
             }
+            let event = document.createEvent("UIEvents");
+            event.initUIEvent("MessagesDisplayed", false, false, window, 0);
+            this.dispatchEvent(event);
             if (i < max - 1) {
               this._nextPendingMessageIndex = i + 1;
               if (this.progressBar) {
