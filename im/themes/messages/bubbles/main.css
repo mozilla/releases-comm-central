@@ -74,9 +74,6 @@ div.bubble p.pseudo>span>span.time {
 div.bubble:hover p.pseudo>span>span.time {
   display: inline;
 }
-div.bubble:hover p.pseudo>span>span.time:before {
-  content: " - ";
-}
 
 div.bubble hr {
   margin: 3px 0px 1px 0px;
