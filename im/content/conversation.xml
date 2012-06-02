@@ -511,20 +511,27 @@
             !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
           event.preventDefault();
 
-          // Undo multiple nick completion comma if it exists.
+          // First undo the comma separating multiple nicks or the suffix.
+          // More than one nick:
+          //   "nick1, nick2: " -> "nick1: nick2"
+          // Single nick: remove the suffix
+          //   "nick1: " -> "nick1"
           let pos = inputBox.selectionStart;
-          if (pos > 5 && text.substring(pos - 2, pos) == ": ") {
+          const suffix = ": ";
+          if (pos > suffix.length &&
+              text.substring(pos - suffix.length, pos) == suffix) {
             let completions = Object.keys(this.buddies);
             // Check if the preceding words are a sequence of nick completions.
-            let preceding = text.substring(0, pos - 2).split(", ");
-            if (preceding.length > 1 &&
-                preceding.every(function(n) completions.indexOf(n) != -1)) {
-              let s = ": " + preceding.pop() + " ";
-              inputBox.selectionStart -= s.length + 1;
+            let preceding = text.substring(0, pos - suffix.length).split(", ");
+            if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+              let s = preceding.pop();
+              if (preceding.length)
+                s = suffix + s;
+              inputBox.selectionStart -= s.length + suffix.length;
               this.addString(s);
-              if (this._completions[0].slice(-2) == ": ") {
+              if (this._completions[0].slice(-suffix.length) == suffix) {
                 this._completions =
-                  this._completions.map(function(c) c.slice(0, -2) + " ");
+                  this._completions.map(function(c) c.slice(0, -suffix.length));
               }
               return;
             }
