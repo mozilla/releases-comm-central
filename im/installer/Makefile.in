@@ -57,6 +57,14 @@ endif
 include $(MOZILLA_SRCDIR)/ipc/app/defs.mk
 DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
 
+ifneq (,$(filter WINNT Darwin Android,$(OS_TARGET)))
+DEFINES += -DMOZ_SHARED_MOZGLUE=1
+endif
+
+ifdef NECKO_WIFI
+DEFINES += -DNECKO_WIFI
+endif
+
 ifdef MOZ_PKG_MANIFEST_P
 MOZ_PKG_MANIFEST = package-manifest
 

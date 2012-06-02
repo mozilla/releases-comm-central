@@ -333,8 +333,10 @@ function cleanupImMarkup(aDocument, aText, aRuleset, aTextModifiers)
   if (!gGlobalRuleset)
     initGlobalRuleset();
 
-  let div = aDocument.implementation.createHTMLDocument("").createElement("div");
-  div.innerHTML = aText;
+  let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
+                         .createInstance(Components.interfaces.nsIDOMParser);
+  let doc = parser.parseFromString(aText, "text/html");
+  let div = doc.getElementsByTagName("body")[0];
   cleanupNode(div, aRuleset || gGlobalRuleset, aTextModifiers || []);
   return div.innerHTML;
 }
