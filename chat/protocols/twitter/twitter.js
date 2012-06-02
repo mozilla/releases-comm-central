@@ -319,7 +319,8 @@ Conversation.prototype = {
   },
   get name() this.nick + " timeline",
   get title() _("timeline", this.nick),
-  get nick() "@" + this._account.name
+  get nick() "@" + this._account.name,
+  set nick(aNick) {}
 };
 
 function Account(aProtocol, aImAccount)
