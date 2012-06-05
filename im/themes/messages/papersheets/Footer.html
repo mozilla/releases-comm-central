@@ -5,6 +5,7 @@
 <script type="text/javascript">
 
 const bg_gradient = "background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, hsla(#, 100%, 98%, 1) 15px, hsla(#, 100%, 98%, 1));";
+const bg_context_gradient = "background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.05) 15px, hsla(#, 20%, 98%, 1) 15px, hsla(#, 20%, 98%, 1));";
 const bg_color = "background-color: hsl(#, 100%, 98%);";
 
 var body = document.getElementById("ibcontent");
@@ -20,7 +21,10 @@ function setColors(target)
 
     if (parsed) {
       var senderHue = parsed[1];
-      target.setAttribute("style", bg_gradient.replace("#", senderHue, "g"));
+      if (target.classList.contains("context"))
+        target.setAttribute("style", bg_context_gradient.replace("#", senderHue, "g"));
+      else
+        target.setAttribute("style", bg_gradient.replace("#", senderHue, "g"));
     }
   }
 
@@ -28,15 +32,15 @@ function setColors(target)
     if (senderHue) {
       body.setAttribute("style", bg_color.replace("#", senderHue));
     }
-    else if (target.className.indexOf("outgoing") > -1) {
+    else if (target.classList.contains("outgoing")) {
       body.className = "outgoing-color";
       body.removeAttribute("style");
     }
-    else if (target.className.indexOf("incoming") > -1) {
+    else if (target.classList.contains("incoming")) {
       body.className = "incoming-color";
       body.removeAttribute("style");
     }
-    else if (target.className.indexOf("event") > -1) {
+    else if (target.classList.contains("event")) {
       body.className = "event-color";
       body.removeAttribute("style");
     }

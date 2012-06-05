@@ -13,8 +13,11 @@ body {
   color: #dc7878;
 }
 .event {
-  color: #d3d3d3;
+  color: #828282;
 }
 a {
   color: #5497ea;
+}
+.context {
+  color: #b2b2b4;
 }

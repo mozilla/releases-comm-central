@@ -44,7 +44,7 @@ span.ib-msg-txt:before {
 }
 
 .event {
-  color: gray;
+  color: rgb(170,170,170);
 }
 
 .nick {
@@ -58,6 +58,15 @@ span.ib-msg-txt:before {
 .action {
   font-style: italic;
 }
+
+.context {
+  color: rgb(91,91,91);
+}
+
+p.context>.pseudo {
+  opacity: 0.7;
+}
+
 
 p {
   margin: 0px auto;
