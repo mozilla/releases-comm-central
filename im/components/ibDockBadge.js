@@ -6,9 +6,9 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-XPCOMUtils.defineLazyServiceGetter(this, "dockBadgeService",
-                                   "@instantbird.org/purple/nsdockbadgeservice;1",
-                                   "nsIDockBadgeService");
+XPCOMUtils.defineLazyServiceGetter(this, "MacDock",
+                                   "@mozilla.org/widget/macdocksupport;1",
+                                   "nsIMacDockSupport");
 
 function DockBadge() { }
 DockBadge.prototype = {
@@ -16,7 +16,7 @@ DockBadge.prototype = {
   _showDockBadgePrefName: "messenger.options.showUnreadCountInDock",
   _getAttentionPrefName: "messenger.options.getAttentionOnNewMessages",
   _showUnreadCount: function() {
-    dockBadgeService.badgeText = this._unreadCount || "";
+    MacDock.badgeText = this._unreadCount || "";
   },
   _displayUnreadCountInDockBadge: function() {
     if (!Services.prefs.getBoolPref(this._showDockBadgePrefName))
@@ -37,7 +37,7 @@ DockBadge.prototype = {
   _hideUnreadCountDockBadge: function() {
     if (this._badgeTimer)
       this._badgeTimer.cancel();
-    dockBadgeService.badgeText = "";
+    MacDock.badgeText = "";
   },
 
   observe: function(aSubject, aTopic, aData) {
