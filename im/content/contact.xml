@@ -35,10 +35,8 @@
 
      <destructor>
       <![CDATA[
-        if (this.contact) {
-          this.contact.removeObserver(this);
-          delete this.contact;
-        }
+        if (this.contact)
+          this.destroy();
       ]]>
      </destructor>
 
@@ -260,6 +258,7 @@
      </method>
 
      <method name="removeNode">
+      <parameter name="aNoFading"/>
       <body>
       <![CDATA[
         let state = this.state;
@@ -270,8 +269,10 @@
           this.state = "collapsed"; // will remove pending animation timers.
           this.parentNode.removeChild(this);
         }
-        else if (state == "showing") {
-          // We are still doing the expand animation!
+        else if (state == "showing" || aNoFading) {
+          // We are still doing the expand animation, or we don't want
+          // the fading animation because we aren't actually removing the
+          // contact, but only reordering contacts within the group.
           this.state = "collapsing";
           this.destroy();
         }

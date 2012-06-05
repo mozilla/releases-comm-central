@@ -252,11 +252,7 @@
               contactElt.hasAttribute("open"))
             this._reorderContactLater(contactElt);
           else {
-            if (window.getComputedStyle(contactElt).height == "0px")
-              this.parentNode.removeChild(contactElt);
-            else
-              contactElt.state = "collapsing";
-            contactElt.destroy();
+            contactElt.removeNode(true);
             this.addContact(aSubject);
           }
         }
