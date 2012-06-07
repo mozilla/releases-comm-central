@@ -535,12 +535,24 @@ nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(nsIURI *aOriginatorLocati
   rv = msgUrl->GetUri(getter_Copies(resourceURI));
   NS_ENSURE_SUCCESS_VOID(rv);
 
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(resourceURI.get(), getter_AddRefs(msgHdr));
-  NS_ENSURE_SUCCESS_VOID(rv);
-
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(aOriginatorLocation, &rv));
   NS_ENSURE_SUCCESS_VOID(rv);
+
+  nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  rv = GetMsgDBHdrFromURI(resourceURI.get(), getter_AddRefs(msgHdr));
+  if (NS_FAILED(rv))
+  {
+    // Maybe we can get a dummy header.
+    nsCOMPtr<nsIMsgWindow> msgWindow;
+    rv = mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
+    if (msgWindow)
+    {
+      nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
+      rv = msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
+      if (msgHdrSink)
+        rv = msgHdrSink->GetDummyMsgHeader(getter_AddRefs(msgHdr));
+    }
+  }
 
   // Get a decision on whether or not to allow remote content for this message
   // header.

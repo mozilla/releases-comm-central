@@ -29,6 +29,8 @@ var jumlib = {};
 Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
 var elib = {};
 Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
+var os = {};
+Components.utils.import('resource://mozmill/stdlib/os.js', os);
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import("resource:///modules/mailServices.js");
@@ -199,6 +201,38 @@ function checkComposeWindow(test, replyType, loadAllowed) {
 
   // Clean up, close the window
   close_message_window(msgc);
+}
+
+/**
+ * Check remote content in stand-alone message window loaded from .eml file.
+ * Make sure there's a notification bar.
+ */
+ function checkEMLMessageWindow(test, emlFile) {
+  let msgc = open_message_from_file(emlFile);
+  if (!msgc.e("msgNotificationBar"))
+    throw new Error(test.type + " has no content notification bar.");
+  if (msgc.e("msgNotificationBar").collapsed)
+    throw new Error(test.type + " content notification bar not shown.");
+
+  // Clean up, close the window
+  close_message_window(msgc);
+}
+
+/**
+ * Helper method to save one of the test files as an .eml file.
+ * @return the file the message was safed to
+ */
+function saveAsEMLFile(msgNo) {
+  let msgHdr = select_click_row(msgNo);
+  let messenger = Cc["@mozilla.org/messenger;1"]
+                      .createInstance(Ci.nsIMessenger);
+  let profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  let file = os.getFileForPath(
+    os.abspath("./content-policy-test-" + msgNo + ".eml", profD));
+  messenger.saveAs(msgHdr.folder.getUriForMsg(msgHdr), true, null, file.path, true);
+  // no listener for saveAs, though we should add one.
+  mc.sleep(5000);
+  return file;
 }
 
 function allowRemoteContentAndCheck(test) {
@@ -385,5 +419,12 @@ function test_generalContentPolicy() {
 
     // Check per host privileges.
     checkAllowForHostsWithPerms(TESTS[i]);
+
+    // Only want to do this for the first test case, which is a remote image.
+    if (i == 0) {
+      let emlFile = saveAsEMLFile(i);
+      checkEMLMessageWindow(TESTS[i], emlFile);
+      emlFile.remove(false);
+    }
   }
 }

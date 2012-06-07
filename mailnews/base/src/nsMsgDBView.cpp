@@ -1138,7 +1138,7 @@ NS_IMETHODIMP nsMsgDBView::LoadMessageByUrl(const char *aUrl)
     NS_ENSURE_SUCCESS(rv, rv);
     messenger->LoadURL(NULL, nsDependentCString(aUrl));
     m_currentlyDisplayedMsgKey = nsMsgKey_None;
-    m_currentlyDisplayedMsgUri.Truncate();
+    m_currentlyDisplayedMsgUri = aUrl;
     m_currentlyDisplayedViewIndex = nsMsgViewIndex_None;
   }
   return NS_OK;
