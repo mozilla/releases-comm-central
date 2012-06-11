@@ -124,9 +124,14 @@ function prettyPrintTime(aValue, aNoSeconds) {
   return valuesAndUnits.join(" ");
 }
 
+// The "shadow" constant is the minimum acceptable margin-bottom for a bubble
+// with a shadow, and the minimum spacing between the bubbles of two messages
+// arriving in the same second. It should match the value of margin-bottom and
+// box-shadow-bottom for the "bubble" class.
 const shadow = 3;
 const coef = 3;
 const timebeforetextdisplay = 5 * 60;
+const kRulerMarginTop = 11;
 
 function computeSpace(aInterval)
   Math.round(coef * Math.log(aInterval + 1))
@@ -182,6 +187,12 @@ function checkNewText(aEvent)
   if (target.tagName == "DIV" && target.className.substring(0, 6) == "bubble") {
     setColors(target);
 
+    var prev = target.previousSibling;
+    var shouldSetUnreadRuler = prev && prev.id && prev.id == "unread-ruler";
+    // We need an extra pixel of margin at the top to make the margins appear
+    // to be of equal size, since the preceding bubble will have a shadow.
+    var rulerMarginBottom = kRulerMarginTop - 1;
+
     var insertTime = document.getElementById("insert").getAttribute("time");
     if (lastInsertTime && insertTime >= lastInsertTime) {
       var interval = insertTime - lastInsertTime;
@@ -196,8 +207,24 @@ function checkNewText(aEvent)
         margin = 0;
       }
       target.style.marginTop = margin + "px";
+      if (shouldSetUnreadRuler) {
+        if (margin > rulerMarginBottom) {
+          // Set the unread ruler margin so it is constant after margin collapse.
+          // See https://developer.mozilla.org/en/CSS/margin_collapsing
+          rulerMarginBottom -= margin;
+        }
+        if (interval >= timebeforetextdisplay) {
+          // If a text display follows, use the minimum bubble margin after the
+          // ruler, taking account of the absence of a shadow on the ruler.
+          rulerMarginBottom = shadow - 1;
+        }
+      }
     }
     lastInsertTime = insertTime;
+    if (shouldSetUnreadRuler) {
+      prev.style.marginBottom = rulerMarginBottom + "px";
+      prev.style.marginTop = kRulerMarginTop + "px";
+    }
   }
   else if (target.tagName == "DIV" && target.id == "insert") {
     lastInsertTime = document.getElementById("insert").getAttribute("time");

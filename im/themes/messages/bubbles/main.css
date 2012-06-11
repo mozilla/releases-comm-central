@@ -120,10 +120,8 @@ p *:-moz-any-link img {
 }
 
 #unread-ruler {
-  margin: 1em 0 !important;
-  height: 2px;
-  border: none !important;
-  background-image: -moz-linear-gradient(center top, rgb(211,211,211) 50%, rgb(255,255,255) 50%);
+  border-top: 1px solid rgba(0, 0, 0, 0.16) !important;
+  border-bottom: 1px solid rgb(255,255,255) !important;
 }
 
 
