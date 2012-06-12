@@ -110,6 +110,10 @@ p.event {
   color: hsl(0, 0%, 60%);
 }
 
+p.event a {
+  color: hsl(0, 0%, 30%);
+}
+
 #Chat {
   white-space: normal;
 }
