@@ -177,16 +177,6 @@ var Core = {
     }
   },
 
-  uninit: function() {
-    try {
-      Services.core.quit();
-    }
-    catch (e) {
-      Services.prompt.alert(null, "Shutdown Error",
-                            "An error occurred while shutting down purplexpcom: " + e);
-    }
-  },
-
   _onQuitRequest: function (aCancelQuit, aQuitType) {
     // The request has already been canceled somewhere else
     if ((aCancelQuit instanceof Components.interfaces.nsISupportsPRBool)
