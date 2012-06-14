@@ -110,7 +110,12 @@ p.event {
   color: hsl(0, 0%, 60%);
 }
 
-p.event a {
+p.event a:not(:hover) {
+  color: hsl(0, 0%, 60%);
+  text-decoration: none;
+}
+
+p.event a:hover {
   color: hsl(0, 0%, 30%);
 }
 
