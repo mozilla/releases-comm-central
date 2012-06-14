@@ -21,6 +21,14 @@
                   tooltiptext="&hideGroupTooltip;"/>
     </content>
     <implementation implements="nsIObserver">
+     <constructor>
+      <![CDATA[
+        if (this.hasAttribute("closed"))
+          this.setAttribute("aria-expanded", "false");
+        else
+          this.setAttribute("aria-expanded", "true");
+      ]]>
+     </constructor>
 
      <destructor>
       <![CDATA[
@@ -341,10 +349,12 @@
       <![CDATA[
         if (this.hasAttribute("closed")) {
           this.removeAttribute("closed");
+          this.setAttribute("aria-expanded", "true");
           this._updateClosedState(false);
         }
         else {
           this.setAttribute("closed", "true");
+          this.setAttribute("aria-expanded", "false");
           this._updateClosedState(true);
         }
 
