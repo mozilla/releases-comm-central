@@ -1356,7 +1356,8 @@
               this.bundle.formatStringFromName("targetTooltipIM",
                                                [this._conv.title,
                                                 this._conv.account.protocol.name], 2);
-            if (buddy && buddy.buddy.contact)
+            if (buddy && buddy.buddy.contact &&
+                buddy.buddy.contact.getBuddies().length > 1)
               targetTooltip += this.bundle.GetStringFromName("targetChangeable");
             cti.setAttribute("targetTooltiptext", targetTooltip);
 
@@ -1397,7 +1398,7 @@
              this.addBuddy(n);
            this.updateParticipantCount();
          }
-         else if (this._conv.contact)
+         else if (this._conv.contact && this._conv.contact.getBuddies().length > 1)
            this.getElt("conv-top-info").allowTargetChange();
 
          if (this.tab)
