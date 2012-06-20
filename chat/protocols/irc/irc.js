@@ -115,6 +115,9 @@ const GenericIRCConversation = {
   _waitingForNick: false,
 
   sendMsg: function(aMessage) {
+    if (!aMessage.length)
+      return;
+
     this._account.sendMessage("PRIVMSG", [this.name, aMessage]);
 
     // Since the server doesn't send us a message back, just assume the message
