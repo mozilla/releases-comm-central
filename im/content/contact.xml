@@ -165,9 +165,15 @@
                   (aTopic == "contact-moved-out" && aSubject.id == this.group.tag.id) ||
                   (aTopic == "contact-signed-off" && !this.group.showOffline))
            this.removeNode();
+         else if (aTopic == "buddy-moved-out-of-contact" && this.hasAttribute("open") &&
+                  this.childNodes.length == 2) {
+           let buddyElt = document.createElement("buddy");
+           buddyElt.setAttribute("dummy", "true");
+           this.appendChild(buddyElt);
+         }
          else if (aTopic == "buddy-moved-into-contact" && this.hasAttribute("open")) {
            let buddyElt = document.createElement("buddy");
-           if (this.childNodes[1].hasAttribute("dummy"))
+           if (this.childNodes.length > 1 && this.childNodes[1].hasAttribute("dummy"))
              this.removeChild(this.childNodes[1]);
            this.appendChild(buddyElt);
            buddyElt.build(aSubject, this);
