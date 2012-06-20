@@ -18,6 +18,11 @@
   -moz-box-pack: center;
 }
 
+.top-proto-name, .top-proto-description {
+  margin: 2px 2px;
+  padding: 0px;
+}
+
 .top-proto-name {
   font-size: larger;
 }

@@ -40,7 +40,7 @@
     <richlistbox flex="1" id="topprotolist"
                  ondblclick="document.getElementById('accountWizard').advance();">
       <richlistitem id="otherListItem">
-        <description class="top-proto-name" value="&accountProtocolShowMore.label;"/>
+        <label class="top-proto-name" value="&accountProtocolShowMore.label;"/>
         <description class="top-proto-description" value="&accountProtocolShowMore.description;"/>
       </richlistitem>
     </richlistbox>
