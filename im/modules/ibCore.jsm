@@ -159,7 +159,7 @@ var Core = {
   observe: function(aSubject, aTopic, aMsg) {
     if (aTopic == "account-disconnected") {
       let account = aSubject.QueryInterface(Ci.imIAccount);
-      if (account.reconnectAttempt <= 1)
+      if (!account.reconnectAttempt)
         this._showAccountManagerIfNeeded(false);
       return;
     }
