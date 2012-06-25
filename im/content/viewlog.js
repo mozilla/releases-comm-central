@@ -87,7 +87,7 @@ var logWindow = {
     let browser = document.getElementById("text-browser");
     findbar.browser = browser;
     FullZoom.applyPrefValue();
-    browser.documentCharsetInfo.forcedCharset =
+    browser.docShell.forcedCharset =
       browser.mAtomService.getAtom("UTF-8");
     let file = Components.classes["@mozilla.org/file/local;1"]
                          .createInstance(Components.interfaces.nsILocalFile);
