@@ -381,3 +381,8 @@ grippy {
 .conv-nicklist:focus > .listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-label {
   color: HighlightText !important;
 }
+
+.alltargets-item-icon {
+  min-width: 16px;
+  min-height: 16px;
+}

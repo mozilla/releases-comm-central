@@ -1838,7 +1838,7 @@
       <xul:stack class="menu-iconic-left alltargets-item-icon-stack"
                  align="center" pack="center"
                  xbl:inherits="selected,disabled,checked">
-        <xul:image class="menu-iconic-icon" xbl:inherits="src=image,validate,src"/>
+        <xul:image class="menu-iconic-icon alltargets-item-icon" xbl:inherits="src=image,validate,src"/>
         <xul:image class="menu-iconic-icon status-overlay-icon" xbl:inherits="status"/>
       </xul:stack>
       <xul:label class="menu-iconic-text" xbl:inherits="value=label,accesskey,crop" crop="right" flex="1"/>
