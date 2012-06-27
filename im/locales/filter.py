@@ -25,6 +25,9 @@ def test(mod, path, entity = None):
   if path == "defines.inc":
     return entity != "MOZ_LANGPACK_CONTRIBUTORS"
 
+  if path == "chrome/instantbird/accountWizard.properties":
+    return not (re.match(r"topProtocol\.[^\.]+\.description", entity))
+
   if path != "chrome/instantbird/region.properties":
     # only region.properties exceptions remain, compare all others
     return True
