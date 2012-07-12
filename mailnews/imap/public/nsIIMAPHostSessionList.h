@@ -36,7 +36,7 @@ public:
 
   // Passwords
   NS_IMETHOD  GetPasswordForHost(const char *serverKey, nsString &result) = 0;
-  NS_IMETHOD  SetPasswordForHost(const char *serverKey, const char *password) = 0;
+  NS_IMETHOD  SetPasswordForHost(const char *serverKey, const nsAString &password) = 0;
   NS_IMETHOD  GetPasswordVerifiedOnline(const char *serverKey, bool &result) = 0;
   NS_IMETHOD  SetPasswordVerifiedOnline(const char *serverKey) = 0;
 

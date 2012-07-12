@@ -775,7 +775,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoCString passwordResult;
+  nsAutoString passwordResult;
 
   // pass the failed password into the password prompt so that
   // it will be pre-filled, in case it failed because of a
@@ -2144,7 +2144,7 @@ int32_t nsPop3Protocol::SendUsername()
     nsAutoCString cmd;
 
     if (m_currentAuthMethod == POP3_HAS_AUTH_NTLM)
-        (void) DoNtlmStep1(m_username.get(), m_passwordResult.get(), cmd);
+        (void) DoNtlmStep1(m_username, m_passwordResult, cmd);
     else if (m_currentAuthMethod == POP3_HAS_AUTH_CRAM_MD5)
         cmd = "AUTH CRAM-MD5";
     else if (m_currentAuthMethod == POP3_HAS_AUTH_PLAIN)
@@ -2212,7 +2212,8 @@ int32_t nsPop3Protocol::SendPassword()
 
     if (decodedChallenge)
       rv = MSGCramMD5(decodedChallenge, strlen(decodedChallenge),
-                      m_passwordResult.get(), m_passwordResult.Length(), digest);
+                      NS_ConvertUTF16toUTF8(m_passwordResult).get(),
+                      m_passwordResult.Length(), digest);
     else
       rv = NS_ERROR_NULL_POINTER;
 
@@ -2244,7 +2245,8 @@ int32_t nsPop3Protocol::SendPassword()
     unsigned char digest[DIGEST_LENGTH];
 
     rv = MSGApopMD5(m_ApopTimestamp.get(), m_ApopTimestamp.Length(),
-                    m_passwordResult.get(), m_passwordResult.Length(), digest);
+                    NS_ConvertUTF16toUTF8(m_passwordResult).get(),  // Or ASCII?
+                    m_passwordResult.Length(), digest);
 
     if (NS_SUCCEEDED(rv))
     {
@@ -2290,8 +2292,9 @@ int32_t nsPop3Protocol::SendPassword()
     PR_snprintf(&plain_string[1], 510, "%s", m_username.get());
     len += m_username.Length();
     len++; /* second <NUL> char */
-    PR_snprintf(&plain_string[len], 511-len, "%s", m_passwordResult.get());
-    len += m_passwordResult.Length();
+    NS_ConvertUTF16toUTF8 uniPassword(m_passwordResult);
+    PR_snprintf(&plain_string[len], 511-len, "%s", uniPassword.get());
+    len += uniPassword.Length();
 
     char *base64Str = PL_Base64Encode(plain_string, len, nullptr);
     cmd = base64Str;
@@ -2300,9 +2303,9 @@ int32_t nsPop3Protocol::SendPassword()
   else if (m_currentAuthMethod == POP3_HAS_AUTH_LOGIN)
   {
     MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("LOGIN password")));
-    char * base64Str =
-        PL_Base64Encode(m_passwordResult.get(), m_passwordResult.Length(),
-                        nullptr);
+    NS_LossyConvertUTF16toASCII asciiPassword(m_passwordResult);
+    char * base64Str = PL_Base64Encode(asciiPassword.get(),
+                                       asciiPassword.Length(), nullptr);
     cmd = base64Str;
     PR_Free(base64Str);
   }
@@ -2310,7 +2313,7 @@ int32_t nsPop3Protocol::SendPassword()
   {
     MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("PASS password")));
     cmd = "PASS ";
-    cmd += m_passwordResult;
+    cmd += NS_LossyConvertUTF16toASCII(m_passwordResult);
   }
   else
   {

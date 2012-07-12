@@ -295,7 +295,7 @@ private:
   nsCString m_GSSAPICache;
 
   // Used for asynchronous password prompts to store the password temporarily.
-  nsCString m_passwordResult;
+  nsString m_passwordResult;
 
   // progress state information
   void UpdateProgressPercent(int64_t totalDone, int64_t total);

@@ -153,14 +153,12 @@ NS_IMETHODIMP nsMsgComposeParams::SetSendListener(nsIMsgSendListener * aSendList
 }
 
 /* attribute string smtpPassword; */
-NS_IMETHODIMP nsMsgComposeParams::GetSmtpPassword(char * *aSmtpPassword)
+NS_IMETHODIMP nsMsgComposeParams::GetSmtpPassword(nsAString &aSmtpPassword)
 {
-  NS_ENSURE_ARG_POINTER(aSmtpPassword);
-
-  *aSmtpPassword = ToNewCString(mSMTPPassword);
+  aSmtpPassword = mSMTPPassword;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetSmtpPassword(const char * aSmtpPassword)
+NS_IMETHODIMP nsMsgComposeParams::SetSmtpPassword(const nsAString &aSmtpPassword)
 {
   mSMTPPassword = aSmtpPassword;
   return NS_OK;

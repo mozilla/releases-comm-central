@@ -285,9 +285,6 @@ nsresult nsMapiHook::BlindSendMail (unsigned long aSession, nsIMsgCompFields * a
   nsMAPIConfiguration * pMapiConfig = nsMAPIConfiguration::GetMAPIConfiguration() ;
   if (!pMapiConfig) return NS_ERROR_FAILURE ;  // get the singelton obj
   char16_t * password = pMapiConfig->GetPassword(aSession) ;
-  // password
-  nsAutoCString smtpPassword;
-  LossyCopyUTF16toASCII(password, smtpPassword);
 
   // Id key
   nsCString MsgIdKey;
@@ -318,7 +315,7 @@ nsresult nsMapiHook::BlindSendMail (unsigned long aSession, nsIMsgCompFields * a
   pMsgComposeParams->SetIdentity(pMsgId);
   pMsgComposeParams->SetComposeFields(aCompFields);
   pMsgComposeParams->SetSendListener(sendListener) ;
-  pMsgComposeParams->SetSmtpPassword(smtpPassword.get());
+  pMsgComposeParams->SetSmtpPassword(nsDependentString(password));
 
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose (do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));

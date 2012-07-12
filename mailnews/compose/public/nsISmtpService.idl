@@ -54,7 +54,7 @@ interface nsISmtpService : nsISupports {
    */
   void sendMailMessage(in nsIFile aFilePath, in string aRecipients, 
                        in nsIMsgIdentity aSenderIdentity,
-                       in string aPassword,
+                       in AString aPassword,
                        in nsIUrlListener aUrlListener, 
                        in nsIMsgStatusFeedback aStatusListener, 
                        in nsIInterfaceRequestor aNotificationCallbacks,

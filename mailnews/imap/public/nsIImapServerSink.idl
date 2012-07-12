@@ -131,7 +131,7 @@ interface nsIImapServerSink : nsISupports {
    */
   void asyncGetPassword(in nsIImapProtocol aProtocol,
                         in boolean aNewPasswordRequested,
-                        out ACString aPassword);
+                        out AString aPassword);
 
   attribute boolean userAuthenticated;
   void setMailServerUrls(in ACString manageMailAccount, in ACString manageLists, in ACString manageFilters);
@@ -155,7 +155,7 @@ interface nsIImapServerSink : nsISupports {
   /// Internal pref key, unique over all servers
   readonly attribute ACString serverKey;
   /// password for server login
-  readonly attribute ACString serverPassword;
+  readonly attribute AString serverPassword;
   /// remove a connection to the server
   void removeServerConnection(in nsIImapProtocol aProtocol);
   /// is the imap server shutting down?

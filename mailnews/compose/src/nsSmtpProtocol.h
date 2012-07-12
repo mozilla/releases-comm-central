@@ -205,11 +205,11 @@ private:
     void SendMessageInFile();
 
     void AppendHelloArgument(nsACString& aResult);
-    nsresult GetPassword(nsCString &aPassword);
-    nsresult GetUsernamePassword(nsACString &aUsername, nsACString &aPassword);
+    nsresult GetPassword(nsString &aPassword);
+    nsresult GetUsernamePassword(nsACString &aUsername, nsAString &aPassword);
     nsresult PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl,
                                const char16_t **formatStrings,
-                               nsACString &aPassword);
+                               nsAString &aPassword);
 
     void    InitPrefAuthMethods(int32_t authMethodPrefValue);
     nsresult ChooseAuthMethod();

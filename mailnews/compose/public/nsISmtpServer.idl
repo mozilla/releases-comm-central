@@ -43,7 +43,7 @@ interface nsISmtpServer : nsISupports {
    * It can be specified/saved here to avoid prompting the user constantly for
    * the sending password.
    */
-  attribute ACString password;
+  attribute AString password;
 
   /// Returns a displayname of the format hostname:port or just hostname
   readonly attribute string displayname;
@@ -89,7 +89,7 @@ interface nsISmtpServer : nsISupports {
    * @return              The password to use (may be null if no password was
    *                      obtained).
    */  
-  ACString getPasswordWithUI(in wstring promptString, in wstring promptTitle,
+  AString getPasswordWithUI(in wstring promptString, in wstring promptTitle,
                            in nsIAuthPrompt netPrompt);
 
   /**
@@ -108,7 +108,7 @@ interface nsISmtpServer : nsISupports {
    */  
   void getUsernamePasswordWithUI(in wstring promptString, in wstring promptTitle,
                                  in nsIAuthPrompt netPrompt, out ACString userid,
-                                 out ACString password);
+                                 out AString password);
 
   /**
    * Calling this will *remove* the saved password for this server from the

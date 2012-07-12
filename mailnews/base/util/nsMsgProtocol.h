@@ -116,7 +116,7 @@ protected:
 
   virtual nsresult InitFromURI(nsIURI *aUrl);
 
-  nsresult DoNtlmStep1(const char *username, const char *password, nsCString &response);
+  nsresult DoNtlmStep1(const nsACString &username, const nsAString &password, nsCString &response);
   nsresult DoNtlmStep2(nsCString &commandResponse, nsCString &response);
 
   nsresult DoGSSAPIStep1(const char *service, const char *username, nsCString &response);
@@ -157,7 +157,7 @@ protected:
   int64_t                     mContentLength;
   nsCOMPtr<nsILoadInfo>       m_loadInfo;
 
-  nsCString m_lastPasswordSent; // used to prefill the password prompt
+  nsString m_lastPasswordSent; // used to prefill the password prompt
 
   // private helper routine used by subclasses to quickly get a reference to the correct prompt dialog
   // for a mailnews url.

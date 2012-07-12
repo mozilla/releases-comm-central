@@ -102,8 +102,8 @@ interface nsIMsgIncomingServer : nsISupports {
   void onUserOrHostNameChanged(in ACString oldName, in ACString newName,
                                in bool hostnameChanged);
 
-  /* cleartext version of the password */
-  attribute ACString password;
+  /// cleartext utf16 version of the password
+  attribute AString password;
 
   /**
    * Attempts to get the password first from the password manager, if that
@@ -121,7 +121,7 @@ interface nsIMsgIncomingServer : nsISupports {
    *       if the prompt was presented to the user but the user cancelled the
    *       prompt.
    */
-  ACString getPasswordWithUI(in AString aPromptString, in AString aPromptTitle,
+  AString getPasswordWithUI(in AString aPromptString, in AString aPromptTitle,
                              in nsIMsgWindow aMsgWindow);
 
   /* forget the password in memory and in single signon database */

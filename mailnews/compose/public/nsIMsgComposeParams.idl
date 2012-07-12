@@ -74,8 +74,8 @@ interface nsIMsgComposeParams : nsISupports {
   attribute nsIMsgCompFields      composeFields;
   attribute boolean               bodyIsLink;
 
-  attribute nsIMsgSendListener	  sendListener;
-  attribute string                smtpPassword;
+  attribute nsIMsgSendListener    sendListener;
+  attribute AString               smtpPassword;
   attribute nsIMsgDBHdr           origMsgHdr;
 
   /**

@@ -91,7 +91,7 @@ private:
   nsCOMPtr<nsIMsgFilterPlugin> mFilterPlugin;  // XXX should be a list
 
 protected:
-  nsCString m_password;
+  nsString m_password;
   bool m_canHaveFilters;
   bool m_displayStartupPage;
   bool mPerformingBiff;

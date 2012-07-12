@@ -80,7 +80,7 @@ NS_IMPL_ISUPPORTS(nsSmtpService, nsISmtpService, nsIProtocolHandler)
 NS_IMETHODIMP nsSmtpService::SendMailMessage(nsIFile * aFilePath,
                                         const char * aRecipients,
                                         nsIMsgIdentity * aSenderIdentity,
-                                        const char * aPassword,
+                                        const nsAString & aPassword,
                                         nsIUrlListener * aUrlListener,
                                         nsIMsgStatusFeedback *aStatusFeedback,
                                         nsIInterfaceRequestor* aNotificationCallbacks,
@@ -96,8 +96,8 @@ NS_IMETHODIMP nsSmtpService::SendMailMessage(nsIFile * aFilePath,
 
   if (NS_SUCCEEDED(rv) && smtpServer)
   {
-    if (aPassword && *aPassword)
-      smtpServer->SetPassword(nsDependentCString(aPassword));
+    if (!aPassword.IsEmpty())
+      smtpServer->SetPassword(aPassword);
 
     // this ref counts urlToRun
     rv = NS_MsgBuildSmtpUrl(aFilePath, smtpServer, aRecipients, aSenderIdentity,

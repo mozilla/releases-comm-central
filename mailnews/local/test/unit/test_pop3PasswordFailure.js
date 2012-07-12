@@ -13,8 +13,11 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
+load("../../../resources/mailTestUtils.js");
+load("../../../resources/asyncTestUtils.js");
 
 var test = null;
 var server;
@@ -93,6 +96,7 @@ var urlListener =
 
       // If we've just cancelled, expect binding aborted rather than success.
       do_check_eq(result, attempt == 2 ? Cr.NS_BINDING_ABORTED : 0);
+      async_driver();
     }
     catch (e) {
       // If we have an error, clean up nicely before we throw it.
@@ -107,19 +111,31 @@ var urlListener =
   }
 };
 
+// Definition of tests
+var tests = [
+  getMail1,
+  getMail2,
+  end_test
+]
+
 function actually_run_test() {
   daemon.setMessages(["message1.eml"]);
+  async_run_tests(tests);
+}
 
+function* getMail1()
+{
   dump("\nGet Mail 1\n");
 
   // Now get mail
   getPopMail();
+  yield false;
 
   dump("\nGot Mail 1\n");
 
   do_check_eq(attempt, 2);
 
-  // Check that we haven't forgetton the login even though we've retried and
+  // Check that we haven't forgotten the login even though we've retried and
   // canceled.
   let count = {};
   let logins = Services.logins.findLogins(count, "mailbox://localhost", null,
@@ -130,21 +146,31 @@ function actually_run_test() {
   do_check_eq(logins[0].password, kInvalidPassword);
 
   server.resetTest();
+  yield true;
+}
 
+function* getMail2()
+{
   dump("\nGet Mail 2\n");
 
   // Now get the mail
   getPopMail();
-
+  yield false;
   dump("\nGot Mail 2\n");
 
   // Now check the new one has been saved.
-  logins = Services.logins.findLogins(count, "mailbox://localhost", null,
-                                      "mailbox://localhost");
+  let count = {};
+  let logins = Services.logins.findLogins(count, "mailbox://localhost", null,
+                                          "mailbox://localhost");
 
   do_check_eq(count.value, 1);
   do_check_eq(logins[0].username, kUserName);
   do_check_eq(logins[0].password, kValidPassword);
+  yield true;
+}
+
+function* end_test()
+{
   do_test_finished();
 }
 

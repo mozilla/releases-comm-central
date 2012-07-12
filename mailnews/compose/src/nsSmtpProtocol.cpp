@@ -1436,7 +1436,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
   nsresult status = NS_OK;
   nsCString username;
   char *base64Str = nullptr;
-  nsAutoCString password;
+  nsAutoString password;
   nsCOMPtr<nsISmtpServer> smtpServer;
   rv = m_runningURL->GetSmtpServer(getter_AddRefs(smtpServer));
   if (NS_FAILED(rv)) return NS_ERROR_FAILURE;
@@ -1463,6 +1463,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
     m_urlErrorState = NS_ERROR_SMTP_PASSWORD_UNDEFINED;
     return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
+  NS_ConvertUTF16toUTF8 uniPassword(password);
 
   if (m_currentAuthMethod == SMTP_AUTH_CRAM_MD5_ENABLED)
   {
@@ -1474,7 +1475,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
   {
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("NTLM/MSN auth, step 1"));
     nsAutoCString response;
-    rv = DoNtlmStep1(username.get(), password.get(), response);
+    rv = DoNtlmStep1(username, password, response);
     PR_snprintf(buffer, sizeof(buffer), TestFlag(SMTP_AUTH_NTLM_ENABLED) ?
                                         "AUTH NTLM %.256s" CRLF :
                                         "%.256s" CRLF, response.get());
@@ -1489,7 +1490,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
     PR_snprintf(&plain_string[1], 510, "%s", username.get());
     len += username.Length();
     len++; /* second <NUL> char */
-    PR_snprintf(&plain_string[len], 511-len, "%s", password.get());
+    PR_snprintf(&plain_string[len], 511-len, "%s", uniPassword.get());
     len += password.Length();
 
     base64Str = PL_Base64Encode(plain_string, len, nullptr);
@@ -1523,14 +1524,15 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
   */
   nsresult status = NS_OK;
   nsresult rv;
-  nsAutoCString password;
+  nsAutoString uniPassword;
 
-  GetPassword(password);
-  if (password.IsEmpty())
+  GetPassword(uniPassword);
+  if (uniPassword.IsEmpty())
   {
     m_urlErrorState = NS_ERROR_SMTP_PASSWORD_UNDEFINED;
     return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
+  NS_ConvertUTF16toUTF8 password(uniPassword);
   MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP AuthLoginStep2"));
 
   if (!password.IsEmpty())
@@ -2148,7 +2150,7 @@ nsresult nsSmtpProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
 }
 
 nsresult
-nsSmtpProtocol::GetPassword(nsCString &aPassword)
+nsSmtpProtocol::GetPassword(nsString &aPassword)
 {
     nsresult rv;
     nsCOMPtr<nsISmtpUrl> smtpUrl = do_QueryInterface(m_runningURL, &rv);
@@ -2201,7 +2203,8 @@ nsSmtpProtocol::GetPassword(nsCString &aPassword)
  * is the username.
  */
 nsresult
-nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl, const char16_t **formatStrings, nsACString &aPassword)
+nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl,
+                                  const char16_t **formatStrings, nsAString &aPassword)
 {
   nsCOMPtr<nsIStringBundleService> stringService =
     mozilla::services::GetStringBundleService();
@@ -2240,7 +2243,7 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
 
 nsresult
 nsSmtpProtocol::GetUsernamePassword(nsACString &aUsername,
-                                    nsACString &aPassword)
+                                    nsAString &aPassword)
 {
     nsresult rv;
     nsCOMPtr<nsISmtpUrl> smtpUrl = do_QueryInterface(m_runningURL, &rv);

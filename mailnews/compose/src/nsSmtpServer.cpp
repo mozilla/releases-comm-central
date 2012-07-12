@@ -254,7 +254,7 @@ nsSmtpServer::SetUsername(const nsACString &aUsername)
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetPassword(nsACString& aPassword)
+nsSmtpServer::GetPassword(nsAString& aPassword)
 {
     if (m_password.IsEmpty() && !m_logonFailed)
     {
@@ -360,7 +360,7 @@ nsSmtpServer::VerifyLogon(nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow
 
 
 NS_IMETHODIMP
-nsSmtpServer::SetPassword(const nsACString& aPassword)
+nsSmtpServer::SetPassword(const nsAString& aPassword)
 {
   m_password = aPassword;
   return NS_OK;
@@ -406,7 +406,7 @@ nsSmtpServer::GetPasswordWithoutUI()
         rv = logins[i]->GetPassword(password);
         NS_ENSURE_SUCCESS(rv, rv);
 
-        LossyCopyUTF16toASCII(password, m_password);
+        m_password = password;
         break;
       }
     }
@@ -419,7 +419,7 @@ NS_IMETHODIMP
 nsSmtpServer::GetPasswordWithUI(const char16_t *aPromptMessage,
                                 const char16_t *aPromptTitle,
                                 nsIAuthPrompt* aDialog,
-                                nsACString &aPassword)
+                                nsAString &aPassword)
 {
   if (!m_password.IsEmpty())
     return GetPassword(aPassword);
@@ -444,12 +444,11 @@ nsSmtpServer::GetPasswordWithUI(const char16_t *aPromptMessage,
   nsCString serverUri(GetServerURIInternal(true));
 
   bool okayValue = true;
-  nsString uniPassword;
 
   rv = aDialog->PromptPassword(aPromptTitle, aPromptMessage,
                                NS_ConvertASCIItoUTF16(serverUri).get(),
                                nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
-                               getter_Copies(uniPassword), &okayValue);
+                               getter_Copies(aPassword), &okayValue);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // If the user pressed cancel, just return an empty string.
@@ -458,13 +457,9 @@ nsSmtpServer::GetPasswordWithUI(const char16_t *aPromptMessage,
     aPassword.Truncate();
     return NS_MSG_PASSWORD_PROMPT_CANCELLED;
   }
-
-  NS_LossyConvertUTF16toASCII password(uniPassword);
-
-  rv = SetPassword(password);
+  rv = SetPassword(aPassword);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  aPassword = password;
   return NS_OK;
 }
 
@@ -473,7 +468,7 @@ nsSmtpServer::GetUsernamePasswordWithUI(const char16_t * aPromptMessage, const
                                 char16_t *aPromptTitle,
                                 nsIAuthPrompt* aDialog,
                                 nsACString &aUsername,
-                                nsACString &aPassword)
+                                nsAString &aPassword)
 {
   nsresult rv;
   if (!m_password.IsEmpty())
@@ -491,14 +486,13 @@ nsSmtpServer::GetUsernamePasswordWithUI(const char16_t * aPromptMessage, const
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString uniUsername;
-  nsString uniPassword;
   bool okayValue = true;
 
   rv = aDialog->PromptUsernameAndPassword(aPromptTitle, aPromptMessage,
                                           NS_ConvertASCIItoUTF16(serverUri).get(),
                                           nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
                                           getter_Copies(uniUsername),
-                                          getter_Copies(uniPassword),
+                                          getter_Copies(aPassword),
                                           &okayValue);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -516,13 +510,10 @@ nsSmtpServer::GetUsernamePasswordWithUI(const char16_t * aPromptMessage, const
   rv = SetUsername(username);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_LossyConvertUTF16toASCII password(uniPassword);
-
-  rv = SetPassword(password);
+  rv = SetPassword(aPassword);
   NS_ENSURE_SUCCESS(rv, rv);
 
   aUsername = username;
-  aPassword = password;
   return NS_OK;
 }
 
@@ -577,7 +568,7 @@ nsSmtpServer::ForgetPassword()
   }
   NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
 
-  rv = SetPassword(EmptyCString());
+  rv = SetPassword(EmptyString());
   m_logonFailed = true;
   return rv;
 }

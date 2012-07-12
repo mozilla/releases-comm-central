@@ -97,7 +97,7 @@ interface nsIImapIncomingServer : nsISupports {
    *       if the prompt was presented to the user but the user cancelled the
    *       prompt.
    */
-  ACString PromptPassword(in nsIMsgWindow aWindow);
+  AString PromptPassword(in nsIMsgWindow aWindow);
   attribute boolean doingLsub;
 
   ACString getUriWithNamespacePrefixIfNecessary(in long namespaceType, in ACString originalUri);

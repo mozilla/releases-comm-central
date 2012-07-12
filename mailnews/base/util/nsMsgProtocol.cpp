@@ -941,7 +941,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse, nsCString &res
     return rv;
 }
 
-nsresult nsMsgProtocol::DoNtlmStep1(const char *username, const char *password, nsCString &response)
+nsresult nsMsgProtocol::DoNtlmStep1(const nsACString &username, const nsAString &password, nsCString &response)
 {
     nsresult rv;
 
@@ -951,7 +951,7 @@ nsresult nsMsgProtocol::DoNtlmStep1(const char *username, const char *password, 
         return rv;
 
     m_authModule->Init(nullptr, 0, nullptr, NS_ConvertUTF8toUTF16(username).get(),
-                       NS_ConvertUTF8toUTF16(password).get());
+                       nsPromiseFlatString(password).get());
 
     void *outBuf;
     uint32_t outBufLen;

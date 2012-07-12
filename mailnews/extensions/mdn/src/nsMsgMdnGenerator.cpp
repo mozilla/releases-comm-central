@@ -855,7 +855,7 @@ nsresult nsMsgMdnGenerator::SendMdnMsg()
 
     nsCOMPtr<nsIRequest> aRequest;
     smtpService->SendMailMessage(m_file, m_dntRrt.get(), m_identity,
-                                     nullptr, this, nullptr, nullptr, false, nullptr,
+                                     EmptyString(), this, nullptr, nullptr, false, nullptr,
                                      getter_AddRefs(aRequest));
 
     return NS_OK;

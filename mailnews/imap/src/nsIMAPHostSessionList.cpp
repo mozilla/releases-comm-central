@@ -23,7 +23,6 @@ nsIMAPHostInfo::nsIMAPHostInfo(const char *serverKey,
   NS_ASSERTION(server, "*** Fatal null imap incoming server...\n");
   server->GetServerDirectory(fOnlineDir);
   fNextHost = NULL;
-  fCachedPassword = NULL;
   fCapabilityFlags = kCapabilityUndefined;
   fHierarchyDelimiters = NULL;
 #ifdef DEBUG_bienvenu1
@@ -51,7 +50,6 @@ nsIMAPHostInfo::nsIMAPHostInfo(const char *serverKey,
 
 nsIMAPHostInfo::~nsIMAPHostInfo()
 {
-  PR_Free(fCachedPassword);
   PR_Free(fHierarchyDelimiters);
   delete fNamespaceList;
   delete fTempNamespaceList;
@@ -155,21 +153,17 @@ NS_IMETHODIMP nsIMAPHostSessionList::GetPasswordForHost(const char *serverKey, n
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo *host = FindHost(serverKey);
   if (host)
-    CopyASCIItoUTF16(nsDependentCString(host->fCachedPassword), result);
+    result = host->fCachedPassword;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
-NS_IMETHODIMP nsIMAPHostSessionList::SetPasswordForHost(const char *serverKey, const char *password)
+NS_IMETHODIMP nsIMAPHostSessionList::SetPasswordForHost(const char *serverKey, const nsAString &password)
 {
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo *host = FindHost(serverKey);
   if (host)
-  {
-    PR_FREEIF(host->fCachedPassword);
-    if (password)
-      host->fCachedPassword = NS_strdup(password);
-  }
+    host->fCachedPassword = password;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }

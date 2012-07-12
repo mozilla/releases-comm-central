@@ -33,7 +33,7 @@ private:
     nsresult GetPasswordWithoutUI();
     nsCString GetServerURIInternal(const bool aIncludeUsername);
 
-    nsCString m_password;
+    nsString m_password;
     bool m_logonFailed;
 };
 

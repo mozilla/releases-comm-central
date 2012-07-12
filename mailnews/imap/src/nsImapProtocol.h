@@ -369,7 +369,7 @@ private:
   // If we get an async password prompt, this is where the UI thread
   // stores the password, before notifying the imap thread of the password
   // via the m_passwordReadyMonitor.
-  nsCString m_password;
+  nsString m_password;
   // Set to the result of nsImapServer::PromptPassword
   nsresult    m_passwordStatus;
 
@@ -478,7 +478,7 @@ private:
   void StartTLS();
 
   // login related methods.
-  nsresult GetPassword(nsCString &password, bool aNewPasswordRequested);
+  nsresult GetPassword(nsString &password, bool aNewPasswordRequested);
   void InitPrefAuthMethods(int32_t authMethodPrefValue,
                            nsIMsgIncomingServer *aServer);
   nsresult ChooseAuthMethod();
@@ -494,7 +494,7 @@ private:
   void Language(); // set the language on the server if it supports it
   void Namespace();
   void InsecureLogin(const char *userName, const nsCString &password);
-  nsresult AuthLogin(const char *userName, const nsCString &password, eIMAPCapabilityFlag flag);
+  nsresult AuthLogin(const char *userName, const nsString &password, eIMAPCapabilityFlag flag);
   void ProcessAuthenticatedStateURL();
   void ProcessAfterAuthenticated();
   void ProcessSelectedStateURL();
@@ -633,13 +633,6 @@ private:
 
   bool m_fromHeaderSeen;
 
-  // these settings allow clients to override various pieces of the connection info from the url
-  bool m_overRideUrlConnectionInfo;
-
-  nsCString m_logonHost;
-  nsCString m_logonCookie;
-  int16_t m_logonPort;
-  
   nsString mAcceptLanguages;
   
   // progress stuff

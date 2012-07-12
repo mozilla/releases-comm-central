@@ -24,7 +24,7 @@ private:
   nsCOMPtr<nsIMsgCompFields>    mComposeFields;
   bool                          mBodyIsLink;
   nsCOMPtr<nsIMsgSendListener>  mSendListener;
-  nsCString                     mSMTPPassword;
+  nsString                     mSMTPPassword;
   nsCOMPtr<nsIMsgDBHdr>         mOrigMsgHdr;
   nsCString                     mHtmlToQuote;
 };

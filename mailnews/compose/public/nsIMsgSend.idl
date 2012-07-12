@@ -219,7 +219,7 @@ interface nsIMsgSend : nsISupports
                               in mozIDOMWindowProxy aParentWindow,
                               in nsIMsgProgress aProgress,
                               in nsIMsgSendListener aListener,
-                              in string aPassword,
+                              in AString aPassword,
                               in AUTF8String aOriginalMsgURI,
                               in MSG_ComposeType aType);
 
@@ -293,7 +293,7 @@ interface nsIMsgSend : nsISupports
                        in nsIMsgDBHdr          aMsgToReplace,
                        in nsIMsgSendListener   aListener,
                        in nsIMsgStatusFeedback aStatusFeedback,
-                       in string               aPassword
+                       in wstring              aPassword
                        ); 
 
     /* Abort current send/save operation */

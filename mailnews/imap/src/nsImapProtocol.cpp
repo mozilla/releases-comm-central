@@ -481,7 +481,6 @@ nsImapProtocol::nsImapProtocol() : nsMsgProtocol(nullptr),
   m_hierarchyNameState = kNoOperationInProgress;
   m_discoveryStatus = eContinue;
 
-  m_overRideUrlConnectionInfo = false;
   // m_dataOutputBuf is used by Send Data
   m_dataOutputBuf = (char *) PR_CALLOC(sizeof(char) * OUTPUT_BUFFER_SIZE);
   m_allocatedSize = OUTPUT_BUFFER_SIZE;
@@ -894,34 +893,21 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo)
   else if (m_socketType == nsMsgSocketType::trySTARTTLS)
     connectionType = "starttls";
 
-  const nsACString *socketHost;
-  uint16_t socketPort;
-
-  if (m_overRideUrlConnectionInfo)
-  {
-    socketHost = &m_logonHost;
-    socketPort = m_logonPort;
-  }
-  else
-  {
-    socketHost = &m_realHostName;
-    int32_t port = -1;
-    nsCOMPtr<nsIURI> uri = do_QueryInterface(m_runningUrl, &rv);
-    if (NS_FAILED(rv))
-      return rv;
-    uri->GetPort(&port);
-    socketPort = port;
-  }
+  int32_t port = -1;
+  nsCOMPtr<nsIURI> uri = do_QueryInterface(m_runningUrl, &rv);
+  if (NS_FAILED(rv))
+    return rv;
+  uri->GetPort(&port);
 
   rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
-                                      *socketHost, socketPort, aProxyInfo,
+                                      m_realHostName, port, aProxyInfo,
                                       getter_AddRefs(m_transport));
   if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
   {
     connectionType = nullptr;
     m_socketType = nsMsgSocketType::plain;
     rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
-                                        *socketHost, socketPort, aProxyInfo,
+                                        m_realHostName, port, aProxyInfo,
                                         getter_AddRefs(m_transport));
   }
 
@@ -5758,14 +5744,14 @@ void nsImapProtocol::ResetAuthMethods()
   m_failedAuthMethods = 0;
 }
 
-nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &password, eIMAPCapabilityFlag flag)
+nsresult nsImapProtocol::AuthLogin(const char *userName, const nsString &aPassword, eIMAPCapabilityFlag flag)
 {
   ProgressEventFunctionUsingName("imapStatusSendingAuthLogin");
   IncrementCommandTagNumber();
 
   char * currentCommand=nullptr;
   nsresult rv;
-
+  NS_ConvertUTF16toUTF8 password(aPassword);
   MOZ_LOG(IMAP, LogLevel::Debug, ("IMAP: trying auth method 0x%" PRIx64, m_currentAuthMethod));
 
   if (flag & kHasAuthExternalCapability)
@@ -5883,7 +5869,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
     if (GetServerStateParser().LastCommandSuccessful())
     {
       nsAutoCString cmd;
-      rv = DoNtlmStep1(userName, password.get(), cmd);
+      rv = DoNtlmStep1(nsDependentCString(userName), aPassword, cmd);
       NS_ENSURE_SUCCESS(rv, rv);
       cmd += CRLF;
       rv = SendData(cmd.get());
@@ -5973,7 +5959,9 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
     // if the password contains a \, login will fail
     // turn foo\bar into foo\\bar
     nsAutoCString correctedPassword;
-    EscapeUserNamePasswordString(password.get(), &correctedPassword);
+    // We're assuming old style login doesn't want UTF-8
+    EscapeUserNamePasswordString(NS_LossyConvertUTF16toASCII(aPassword).get(),
+                                 &correctedPassword);
     command.Append(correctedPassword);
     command.Append("\"" CRLF);
     rv = SendData(command.get(), true /* suppress logging */);
@@ -6021,7 +6009,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
   PR_Free(currentCommand);
   NS_ENSURE_SUCCESS(rv, rv);
   return GetServerStateParser().LastCommandSuccessful() ?
-        NS_OK : NS_ERROR_FAILURE;
+           NS_OK : NS_ERROR_FAILURE;
 }
 
 void nsImapProtocol::OnLSubFolders()
@@ -8460,17 +8448,10 @@ nsresult nsImapProtocol::GetMsgWindow(nsIMsgWindow **aMsgWindow)
  *    (which is NS_SUCCEEDED!) when user cancelled
  *    NS_FAILED(rv) for other errors
  */
-nsresult nsImapProtocol::GetPassword(nsCString &password,
+nsresult nsImapProtocol::GetPassword(nsString &password,
                                      bool newPasswordRequested)
 {
   // we are in the imap thread so *NEVER* try to extract the password with UI
-  // if logon redirection has changed the password, use the cookie as the password
-  if (m_overRideUrlConnectionInfo)
-  {
-    password.Assign(m_logonCookie);
-    return NS_OK;
-  }
-
   NS_ENSURE_TRUE(m_imapServerSink, NS_ERROR_NULL_POINTER);
   NS_ENSURE_TRUE(m_server, NS_ERROR_NULL_POINTER);
   nsresult rv;
@@ -8484,10 +8465,9 @@ nsresult nsImapProtocol::GetPassword(nsCString &password,
     NS_ENSURE_TRUE(msgWindow, NS_ERROR_NOT_AVAILABLE); // biff case
 
     // Get the password from pw manager (harddisk) or user (dialog)
-    nsAutoCString pwd; // GetPasswordWithUI truncates the password on Cancel
-    rv = m_imapServerSink->AsyncGetPassword(this,
-                                                     newPasswordRequested,
-                                                     password);
+    nsAutoString pwd; // GetPasswordWithUI truncates the password on Cancel
+    rv = m_imapServerSink->AsyncGetPassword(this, newPasswordRequested,
+                                            password);
     if (password.IsEmpty())
     {
       PRIntervalTime sleepTime = kImapSleepTime;
@@ -8517,7 +8497,7 @@ nsImapProtocol::OnPromptStart(bool *aResult)
 
   *aResult = false;
   GetMsgWindow(getter_AddRefs(msgWindow));
-  nsCString password = m_lastPasswordSent;
+  nsString password = m_lastPasswordSent;
   rv = imapServer->PromptPassword(msgWindow, password);
   m_password = password;
   m_passwordStatus = rv;
@@ -8559,7 +8539,7 @@ bool nsImapProtocol::TryToLogon()
   NS_ENSURE_TRUE(m_imapServerSink, false);
   bool loginSucceeded = false;
   bool skipLoop = false;
-  nsAutoCString password;
+  nsAutoString password;
   nsAutoCString userName;
 
   nsresult rv = ChooseAuthMethod();
@@ -8713,7 +8693,7 @@ bool nsImapProtocol::TryToLogon()
             MOZ_LOG(IMAP, LogLevel::Warning, ("new password button pressed."));
             // Forget the current password
             password.Truncate();
-            m_hostSessionList->SetPasswordForHost(GetImapServerKey(), nullptr);
+            m_hostSessionList->SetPasswordForHost(GetImapServerKey(), EmptyString());
             m_imapServerSink->ForgetPassword();
             m_password.Truncate();
             MOZ_LOG(IMAP, LogLevel::Warning, ("password resetted (nulled)"));
@@ -8746,7 +8726,7 @@ bool nsImapProtocol::TryToLogon()
   {
     MOZ_LOG(IMAP, LogLevel::Debug, ("login succeeded"));
     bool passwordAlreadyVerified;
-    m_hostSessionList->SetPasswordForHost(GetImapServerKey(), password.get());
+    m_hostSessionList->SetPasswordForHost(GetImapServerKey(), password);
     rv = m_hostSessionList->GetPasswordVerifiedOnline(GetImapServerKey(), passwordAlreadyVerified);
     if (NS_SUCCEEDED(rv) && !passwordAlreadyVerified)
       m_hostSessionList->SetPasswordVerifiedOnline(GetImapServerKey());
@@ -8830,15 +8810,6 @@ nsImapProtocol::GetShowDeletedMessages()
     if (m_hostSessionList)
         m_hostSessionList->GetShowDeletedMessagesForHost(GetImapServerKey(), rv);
     return rv;
-}
-
-NS_IMETHODIMP nsImapProtocol::OverrideConnectionInfo(const char16_t *pHost, uint16_t pPort, const char *pCookieData)
-{
-  m_logonHost = NS_LossyConvertUTF16toASCII(pHost);
-  m_logonPort = pPort;
-  m_logonCookie = pCookieData;
-  m_overRideUrlConnectionInfo = true;
-  return NS_OK;
 }
 
 bool nsImapProtocol::CheckNeeded()

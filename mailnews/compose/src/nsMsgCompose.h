@@ -132,7 +132,7 @@ protected:
   nsMsgDispositionState                     mDraftDisposition;
   nsCOMPtr <nsIMsgDBHdr>                    mOrigMsgHdr;
 
-  nsCString                                 mSmtpPassword;
+  nsString                                  mSmtpPassword;
   nsCString                                 mHtmlToQuote;
 
   nsTObserverArray<nsCOMPtr<nsIMsgComposeStateListener> > mStateListeners;

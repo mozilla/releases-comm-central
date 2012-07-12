@@ -230,7 +230,7 @@ public:
                    const nsACString &attachment1_body,
                    nsIArray   *attachments,
                    nsIArray     *preloaded_attachments,
-                   const char       *password,
+                   const nsAString &password,
                    const nsACString &aOriginalMsgURI,
                    MSG_ComposeType  aType);
 
@@ -395,7 +395,7 @@ protected:
   nsresult AddXForwardedMessageIdHeader();
 
   nsCOMPtr<nsIMsgSendReport>  mSendReport;
-  nsCString                   mSmtpPassword;            // store the smtp Password use during a send
+  nsString                    mSmtpPassword;            // store the smtp Password use during a send
 };
 
 //

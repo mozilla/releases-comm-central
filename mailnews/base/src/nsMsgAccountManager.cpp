@@ -1604,7 +1604,7 @@ nsMsgAccountManager::CleanupOnExit()
         folder = do_QueryInterface(root);
         if (folder)
         {
-          nsCString passwd;
+          nsString passwd;
           bool serverRequiresPasswordForAuthentication = true;
           bool isImap = type.EqualsLiteral("imap");
           if (isImap)

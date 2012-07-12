@@ -25,7 +25,7 @@ public:
   ~nsIMAPHostInfo();
 protected:
   nsCString fServerKey;
-  char *fCachedPassword;
+  nsString fCachedPassword;
   nsCString fOnlineDir;
   nsIMAPHostInfo *fNextHost;
   eIMAPCapabilityFlags fCapabilityFlags;
@@ -68,7 +68,7 @@ public:
 
   // Passwords
   NS_IMETHOD GetPasswordForHost(const char *serverKey, nsString &result) override;
-  NS_IMETHOD SetPasswordForHost(const char *serverKey, const char *password) override;
+  NS_IMETHOD SetPasswordForHost(const char *serverKey, const nsAString &password) override;
   NS_IMETHOD GetPasswordVerifiedOnline(const char *serverKey, bool &result) override;
   NS_IMETHOD SetPasswordVerifiedOnline(const char *serverKey) override;
 
