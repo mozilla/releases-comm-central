@@ -20,7 +20,7 @@
     </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
-        <xul:toolbar class="conv-top-info" anonid="conv-top-info"/>
+        <xul:toolbar class="conv-top-info" anonid="conv-top-info" context="tabContextMenu"/>
         <xul:hbox class="conv-top" flex="1" anonid="conv-top">
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1" xbl:inherits="chat">
             <xul:vbox flex="1">
@@ -1199,10 +1199,14 @@
        <![CDATA[
           let cti = this.getElt("conv-top-info");
           let statusMessage = this.getElt("statusMessage");
-          if (this._conv.topicSettable)
+          if (this._conv.topicSettable) {
             cti.setAttribute("topicEditable", "true");
-          else
+            cti.setAttribute("topicContext", "");
+          }
+          else {
             cti.removeAttribute("topicEditable");
+            cti.setAttribute("topicContext", "tabContextMenu");
+          }
 
           var topic = this._conv.topic;
           if (topic) {
@@ -1618,7 +1622,7 @@
           <xul:description anonid="displayName" class="displayName" flex="1"
                            crop="end" xbl:inherits="value=displayName"/>
           <xul:toolbarbutton class="prplIcon alltargets-button"
-                             anonid="targetPrplIcon"
+                             anonid="targetPrplIcon" context=""
                              xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
             <xul:menupopup class="all-targets-popup"
                            anonid="all-targets-popup"
@@ -1626,7 +1630,7 @@
           </xul:toolbarbutton>
         </xul:hbox>
         <xul:description anonid="statusMessage" class="statusMessage"
-                         xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic"
+                         xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext"
                          mousethrough="never" crop="end" flex="100000"/>
       </xul:stack>
     </content>
@@ -1818,14 +1822,15 @@
                        mousethrough="always" flex="1" crop="end"
                        xbl:inherits="value=displayName"/>
       <xul:description anonid="statusMessage" class="statusMessage"
-                       xbl:inherits="value=statusMessage,editable=topicEditable,editing"
+                       xbl:inherits="value=statusMessage,editable=topicEditable,editing,context=topicContext"
                        crop="end" flex="100000"/>
       <xul:description anonid="statusMessageWithDash"
                        class="statusMessageWithDash"
-                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic"
+                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext"
                        crop="end" flex="100000"/>
       <xul:toolbarbutton class="prplIcon alltargets-button" mousethrough="always"
-                         anonid="targetPrplIcon" xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
+                         anonid="targetPrplIcon" context=""
+                         xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
         <xul:menupopup class="all-targets-popup"
                        anonid="all-targets-popup"
                        position="after_end"/>
