@@ -1220,10 +1220,9 @@
        </body>
      </method>
 
-     <method name="focus">
+     <method name="onSelect">
        <body>
        <![CDATA[
-         this.editor.focus();
          this.displayStatusText();
          if (!this.loaded)
            return;
@@ -1231,6 +1230,15 @@
          this.tab.removeAttribute("unread");
          this.tab.removeAttribute("attention");
          this._conv.markAsRead();
+       ]]>
+       </body>
+     </method>
+
+     <method name="focus">
+       <body>
+       <![CDATA[
+         this.editor.focus();
+         this.onSelect();
        ]]>
        </body>
      </method>

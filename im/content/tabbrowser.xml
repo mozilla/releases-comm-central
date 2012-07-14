@@ -81,7 +81,8 @@
                     onclosetab="var node = this.parentNode;
                                 while (node.localName != 'tabbrowser')
                                   node = node.parentNode;
-                                node.removeCurrentTab();">
+                                node.removeCurrentTab();"
+                    onkeypress="this.parentNode.parentNode.parentNode.onTabKeypress(event);">
             <xul:tab selected="true" validate="never"
                      onerror="this.removeAttribute('image');"
                      maxwidth="250" width="0" minwidth="100" flex="100"
@@ -240,10 +241,61 @@
                 !focusedElement.collapsed) {
               // The focus is on a tab in the same tab panel and we are not
               // closing that tab: focus the new tab, not the conversation.
-              return;  // If focus was on a tab, switching tabs focuses the new tab
+              // Nevertheless update the visible conversation, but only if
+              // the user stays on the tab for more than a moment, to prevent
+              // tabs from being marked as read if the user is just scrolling
+              // past them with the arrow keys. 400ms is between "200ms - a bit
+              // too quick for people who repeat-keypress more slowly than me"
+              // and "600ms - a bit too noticeable already".
+              if (this._tabSelectTimer)
+                clearTimeout(this._tabSelectTimer);
+              this._tabSelectTimer = setTimeout(function() {
+                this.mCurrentConversation.onSelect();
+              }.bind(this), 400);
+              return;
             }
 
+            delete this._tabSelectTimer;
             this.mCurrentConversation.focus();
+          ]]>
+        </body>
+      </method>
+
+      <method name="onTabKeypress">
+        <parameter name="event"/>
+        <body>
+          <![CDATA[
+            const tabKeyCodes = [KeyEvent.DOM_VK_TAB,
+                                 KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
+                                 KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN,
+                                 KeyEvent.DOM_VK_LEFT, KeyEvent.DOM_VK_RIGHT];
+
+            if (tabKeyCodes.indexOf(event.keyCode) != -1)
+              return;
+
+            // Focus the editbox and pass the key to it.
+            event.preventDefault();
+            event.stopPropagation();
+            this.mCurrentConversation.editor.focus();
+
+            const masks = Components.interfaces.nsIDOMNSEvent;
+            var modifiers = 0;
+            if (event.shiftKey)
+              modifiers |= masks.SHIFT_MASK;
+            if (event.ctrlKey)
+              modifiers |= masks.CONTROL_MASK;
+            if (event.altKey)
+              modifiers |= masks.ALT_MASK;
+            if (event.metaKey)
+              modifiers |= masks.META_MASK;
+            if (event.accelKey)
+              modifiers |= (navigator.platform.indexOf("Mac") >= 0) ? masks.META_MASK
+                                                                    : masks.CONTROL_MASK;
+            // Can't use dispatchEvent to the textbox as these refuse untrusted key events.
+            this.mCurrentConversation.ownerDocument.defaultView
+              .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+              .getInterface(Components.interfaces.nsIDOMWindowUtils)
+              .sendKeyEvent(event.type, event.keyCode, event.charCode, modifiers);
           ]]>
         </body>
       </method>
