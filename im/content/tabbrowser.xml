@@ -226,6 +226,7 @@
             this.mCurrentConversation = newConversation;
             this.mCurrentBrowser = newConversation.browser;
             this.mCurrentTab = this.selectedTab;
+            this.mCurrentTab.switchingToTab();
 
             // Update the window title.
             this.updateTitlebar();
@@ -1353,11 +1354,19 @@
       })]]>
       </field>
 
+      <field name="_windowActivateHandler" readonly="true">
+      <![CDATA[({
+        tabbrowser: this,
+        handleEvent: function handleEvent(aEvent)
+          this.tabbrowser.mCurrentTab.switchingToTab()
+      })]]>
+      </field>
+
       <field name="_windowDeactivateHandler" readonly="true">
       <![CDATA[({
         tabbrowser: this,
         handleEvent: function handleEvent(aEvent)
-          this.tabbrowser.mCurrentBrowser.removeUnreadRuler()
+          this.tabbrowser.mCurrentTab.switchingAwayFromTab()
       })]]>
       </field>
 
@@ -1369,6 +1378,7 @@
 
           document.addEventListener("keypress", this._keyEventHandler);
           window.addEventListener("deactivate", this._windowDeactivateHandler);
+          window.addEventListener("activate", this._windowActivateHandler);
 
           var uniqueId = "panel" + Date.now();
           this.mCurrentConversation.id = uniqueId;
@@ -1391,6 +1401,7 @@
         <![CDATA[
           document.removeEventListener("keypress", this._keyEventHandler, false);
           window.removeEventListener("deactivate", this._windowDeactivateHandler);
+          window.removeEventListener("activate", this._windowActivateHandler);
           Services.prefs.removeObserver("browser.tabs.autoHide", this._prefObserver);
           Services.prefs.removeObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver);
         ]]>
@@ -1849,7 +1860,6 @@
               this.childNodes[i].removeAttribute("tabIsVisible");
           }
         ]]></body>
-
       </method>
 
       <method name="_createTabMenuItem">
@@ -2039,6 +2049,40 @@
     <implementation>
       <field name="mOverCloseButton">false</field>
       <field name="mCorrespondingMenuitem">null</field>
+
+      <method name="switchingToTab">
+        <body>
+          <![CDATA[
+            if (this._visibleTimer)
+              return;
+
+            // Start a timer to detect if the tab has been visible to the
+            // user for long enough to actually be seen (as opposed to the
+            // tab only being visible "accidentally in passing").
+            delete this._wasVisible;
+            this._visibleTimer = setTimeout(function() {
+              this._wasVisible = true;
+              delete this._visibleTimer;
+            }.bind(this), 1200);
+          ]]>
+        </body>
+      </method>
+
+      <method name="switchingAwayFromTab">
+        <body>
+          <![CDATA[
+            if (this._visibleTimer) {
+              clearTimeout(this._visibleTimer);
+              delete this._visibleTimer;
+            }
+
+            // Remove the unread ruler if the tab has been visible without
+            // interruptions for sufficiently long.
+            if (this._wasVisible)
+              this.linkedBrowser.removeUnreadRuler();
+          ]]>
+        </body>
+      </method>
     </implementation>
 
     <handlers>
@@ -2087,10 +2131,7 @@
 
         if (event.attrChange == event.REMOVAL) {
           this.linkedConversation.removeAttribute("selected");
-          // Remove the unread ruler as we can assume any unread messages have
-          // been seen when the user switches to another tab, so that the
-          // removal of the ruler is not visible.
-          this.linkedBrowser.removeUnreadRuler();
+          this.switchingAwayFromTab();
         }
         else
           this.linkedConversation.setAttribute("selected", event.newValue);
