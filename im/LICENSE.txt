@@ -5,15 +5,12 @@ Public License GPL version 2.0 or later.
 All of the *source code* for this product is available under licenses
 which are both free and open source.
 
-Most is available under any one of the following:
- - the Mozilla Public License (MPL) 1.1,
+Most is available under one of the following:
+ - the Mozilla Public License (MPL) 2.0,
  - the GNU General Public License (GPL) 2.0 or later,
  - the GNU Lesser General Public License (LGPL) 2.1 or later.
-That is, you may copy and distribute such software according to the
-terms of any one of those three licenses.
 
-The remainder of the software which is not under the MPL/LGPL/GPL
-tri-license is available under a subset of it or one of a variety of
-more permissive licenses.
+The remainder of the software is available under a variety of more permissive
+licenses.
 
-See license.html for details.
+See about:license for details.

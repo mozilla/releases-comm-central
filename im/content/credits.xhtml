@@ -158,31 +158,13 @@
         }
       }
 
-      function loadExternalURI(aURI)
-      {
-        Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                  .getService(Components.interfaces.nsIExternalProtocolService)
-                  .loadUrl(aURI);
-      }
-
       function openContributors(aEvent)
       {
         var ioService = Components.classes["@mozilla.org/network/io-service;1"].
                         getService(Components.interfaces.nsIIOService);
-        loadExternalURI(ioService.newURI(aEvent.target.href, null, null));
-        aEvent.preventDefault();
-      }
-
-      function openLicense(aEvent)
-      {
-        var fileLocator =
-            Components.classes["@mozilla.org/file/directory_service;1"].
-            getService(Components.interfaces.nsIProperties);
-        var appDir = fileLocator.get("XCurProcD", Components.interfaces.nsIFile);
-        appDir.append("license.html");
-        var ioService = Components.classes["@mozilla.org/network/io-service;1"].
-                        getService(Components.interfaces.nsIIOService);
-        loadExternalURI(ioService.newFileURI(appDir));
+        Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                  .getService(Components.interfaces.nsIExternalProtocolService)
+                  .loadUrl(ioService.newURI(aEvent.target.href, null, null));
         aEvent.preventDefault();
       }
 
@@ -235,7 +217,7 @@
           &brandFullName; &license.part0; &copy;2007-2012 &license.part1;
           <a href="http://www.instantbird.com/thanks.html" onclick="openContributors(event);">&license.contrib;</a>,
           &license.part2;
-          <a href="" onclick="openLicense(event);">&credit.license;</a>
+          <a onclick="openDialog('about:license');">&credit.license;</a>
           &license.part3;</p>
 
     </div>
@@ -245,4 +227,3 @@
     </div>
   </body>
 </html>
-

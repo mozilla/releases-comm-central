@@ -28,3 +28,7 @@ DEFINES += \
 ifdef MOZ_UPDATER
 DEFINES += -DMOZ_UPDATER=1
 endif
+
+abs_app_license_path = $(shell cd $(srcdir)/../app && pwd)/app-license.html
+CHROME_DEPS += $(abs_app_license_path)
+DEFINES += -DAPP_LICENSE_BLOCK=$(abs_app_license_path)

@@ -125,6 +125,7 @@
 #ifdef MOZ_SPLASHSCREEN
 @BINPATH@/splash.bmp
 #endif
+@BINPATH@/LICENSE.txt
 
 ; [Components]
 @BINPATH@/components/components.manifest

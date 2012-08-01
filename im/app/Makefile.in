@@ -14,17 +14,13 @@ AB_CD = $(MOZ_UI_LOCALE)
 GRE_MILESTONE = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build Milestone)
 GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build BuildID)
 
-PLATFORM_LICENSE_FILE = $(MOZILLA_SRCDIR)/toolkit/content/license.html
-MAIL_LICENSE_HTML_FILE = ../license.html
-MAIL_LICENSE_TXT_FILE = $(topsrcdir)/instantbird/LICENSE.txt
-MAIL_APP_LICENSE_FILE = $(srcdir)/app-license.html
+LICENSE_TXT_FILE = $(topsrcdir)/instantbird/LICENSE.txt
 
 DEFINES += \
   -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\" \
   -DAB_CD=$(AB_CD) \
   -DGRE_MILESTONE=$(GRE_MILESTONE) \
   -DGRE_BUILDID=$(GRE_BUILDID) \
-  -DAPP_LICENSE_BLOCK=$(MAIL_APP_LICENSE_FILE) \
    $(NULL)
 
 MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(topsrcdir) parent --template="{node|short}\n" 2>/dev/null))
@@ -42,11 +38,6 @@ DEFINES += -DOFFICIAL_BUILD=1
 endif
 
 DIRS		= profile
-
-GARBAGE += \
-	$(MAIL_LICENSE_HTML_FILE) \
-	$(FINAL_TARGET)/license.html \
-	$(NULL)
 
 PREF_JS_EXPORTS = \
     $(srcdir)/profile/all-instantbird.js \
@@ -282,12 +273,7 @@ ifeq ($(MOZ_WIDGET_TOOLKIT),photon)
 LIBS += -lphexlib
 endif
 
-$(MAIL_LICENSE_HTML_FILE): $(PLATFORM_LICENSE_FILE) $(MAIL_APP_LICENSE_FILE)
-	$(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py $(DEFINES) $< | \
-	sed -e "s/about:license\#/\#/" | \
-	sed -e "s/available under one/available under a subset of it or one/" > $@
-
-libs:: $(MAIL_LICENSE_TXT_FILE) $(MAIL_LICENSE_HTML_FILE)
+libs:: $(LICENSE_TXT_FILE)
 ifeq ($(OS_ARCH),WINNT)
 	$(EXIT_ON_ERROR) \
 	for file in $^; do \
