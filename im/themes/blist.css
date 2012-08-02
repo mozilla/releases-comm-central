@@ -39,11 +39,6 @@ richlistbox {
 %else
   background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
 %endif
-%ifndef XP_WIN
-  border-bottom: 1px solid ThreeDShadow;
-%else
-  border-bottom: none;
-%endif
 %endif
 }
 
@@ -55,13 +50,21 @@ richlistbox {
 #contactsHeader:-moz-window-inactive {
   border-top-color: rgb(137, 137, 137);
 %else
-%ifndef XP_WIN
-  border-top: 1px solid ThreeDShadow;
+%ifdef XP_UNIX
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 %else
   border-top: none;
 %endif
 %endif
 }
+
+%ifdef XP_UNIX
+%ifndef XP_MACOSX
+#convsHeader {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+%endif
+%endif
 
 .convUnreadCount,
 .convUnreadTargetedCount {
