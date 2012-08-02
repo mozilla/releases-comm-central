@@ -103,7 +103,8 @@
         <browser id="text-browser" type="content" context="contentAreaContextMenu"
                  disablehistory="true" src="about:blank" flex="1"/>
         <vbox flex="1">
-          <browser id="conv-browser" type="content-conversation" flex="1"/>
+          <browser id="conv-browser" type="content-conversation" flex="1"
+                   context="contentAreaContextMenu"/>
           <progressmeter id="browserProgress" hidden="true"/>
         </vbox>
       </deck>
