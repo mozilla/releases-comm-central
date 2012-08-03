@@ -172,7 +172,7 @@ function handleLastMessage(aGenerator)
   p.style.marginTop = (margin - shadow) + "px";
   var body = document.getElementsByTagName("body")[0];
   if (body.scrollHeight <= body.scrollTop + body.clientHeight + p.clientHeight + 10)
-    p.scrollIntoView(true);
+    scrollToElement(p);
   lastMessageTimeout =
     setTimeout(handleLastMessage, aGenerator.next(), aGenerator);
 }
