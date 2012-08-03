@@ -217,6 +217,12 @@
 
         if (read) {
           --this._readCount;
+          if (!this._readCount && !this._isAfterFirstRealMessage) {
+            // If all the context messages were system messages, we don't want
+            // an unread ruler after the context messages, so we forget that
+            // we had context messages.
+            delete this._writingContextMessages;
+          }
           return;
         }
 
