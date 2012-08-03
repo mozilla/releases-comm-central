@@ -150,7 +150,7 @@ buddyListContextMenu.prototype = {
     let groupId =
       (this.onBuddy ? this.target.contact : this.target).group.groupId;
     let sortFunction = function (a, b) {
-      let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
+      [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
       return a < b ? 1 : a > b ? -1 : 0;
     };
     Services.tags.getTags()
@@ -232,7 +232,7 @@ buddyListContextMenu.prototype = {
       popup.removeChild(item);
 
     let sortFunction = function (a, b) {
-      let [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
+      [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
       return a < b ? 1 : a > b ? -1 : 0;
     };
     Services.tags.getTags()
