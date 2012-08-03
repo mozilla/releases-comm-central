@@ -98,7 +98,8 @@
    <menuitem id="context_cancelReconnection"
              command="cmd_cancelReconnection"
              observes="contextAccountsItems"/>
-   <menuseparator observes="contextAccountsItems"/>
+   <menuseparator id="context_accountsItemsSeparator"
+                  observes="contextAccountsItems"/>
    <menuitem command="cmd_new"/>
    <menuitem command="cmd_delete" observes="contextAccountsItems"/>
    <menuseparator observes="contextAccountsItems"/>
