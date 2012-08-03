@@ -178,6 +178,12 @@ function handleLastMessage(aGenerator)
 }
 
 var lastInsertTime = 0;
+function updateLastInsertTime()
+{
+  let insertTime = document.getElementById("insert").getAttribute("time");
+  if (insertTime > lastInsertTime)
+    lastInsertTime = insertTime;
+}
 function checkNewText(aEvent)
 {
   var target = aEvent.originalTarget;
@@ -220,19 +226,20 @@ function checkNewText(aEvent)
         }
       }
     }
-    lastInsertTime = insertTime;
+    updateLastInsertTime();
     if (shouldSetUnreadRuler) {
       prev.style.marginBottom = rulerMarginBottom + "px";
       prev.style.marginTop = kRulerMarginTop + "px";
     }
   }
   else if (target.tagName == "DIV" && target.id == "insert") {
-    lastInsertTime = document.getElementById("insert").getAttribute("time");
+    updateLastInsertTime();
   }
   else if (target.tagName == "P" && target.className == "event") {
     groupEvents(target.parentNode);
-    lastInsertTime = document.getElementById("insert").getAttribute("time");
+    updateLastInsertTime();
   }
+
   if (lastInsertTime) {
     clearTimeout(lastMessageTimeout);
     lastMessageTimeout = setTimeout(handleLastMessage, 0, refreshIntervals());
