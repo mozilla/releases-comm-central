@@ -122,7 +122,7 @@ var logWindow = {
       return;
     browser._autoScrollEnabled = false;
     for each (let msg in browser._conv.getMessages()) {
-      if (!msg.system)
+      if (!msg.system && browser._conv.isChat)
         msg.color = "color: hsl(" + this._computeColor(msg.who) + ", 100%, 40%);";
       browser.appendMessage(msg);
     }
