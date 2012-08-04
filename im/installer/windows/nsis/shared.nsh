@@ -12,6 +12,9 @@
   ${RegCleanMain} "Software\Mozilla"
   ${RegCleanUninstall}
 
+  ; setup the application model id registration value
+  ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
+
   ClearErrors
   WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
   ${If} ${Errors}
@@ -107,17 +110,29 @@
   ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
     CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
     ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR"
+    ${If} ${AtLeastWin7}
+    ${AndIf} "$AppUserModelID" != ""
+      ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
+    ${EndIf}
     ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
       SetShellVarContext current  ; Set $DESKTOP to the current user's desktop
       ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
         CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
         ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR"
+        ${If} ${AtLeastWin7}
+        ${AndIf} "$AppUserModelID" != ""
+          ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
+        ${EndIf}
       ${EndUnless}
     ${EndUnless}
   ${EndUnless}
   ${Unless} ${FileExists} "$QUICKLAUNCH\${BrandFullName}.lnk"
     CreateShortCut "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
     ShellLink::SetShortCutWorkingDirectory "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR"
+    ${If} ${AtLeastWin7}
+    ${AndIf} "$AppUserModelID" != ""
+      ApplicationID::Set "$QUICKLAUNCH\${BrandFullName}.lnk" "$AppUserModelID"
+    ${EndIf}
   ${EndUnless}
 !macroend
 !define ShowShortcuts "!insertmacro ShowShortcuts"

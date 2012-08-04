@@ -4,6 +4,7 @@
 
 # Required Plugins:
 # AppAssocReg http://nsis.sourceforge.net/Application_Association_Registration_plug-in
+# CityHash    http://mxr.mozilla.org/mozilla-central/source/other-licenses/nsis/Contrib/CityHash
 # ShellLink   http://nsis.sourceforge.net/ShellLink_plug-in
 # UAC         http://nsis.sourceforge.net/UAC_plug-in
 
@@ -62,6 +63,7 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro FindSMProgramsDir
 !insertmacro GetLongPath
 !insertmacro GetPathFromString
+!insertmacro InitHashAppModelId
 !insertmacro RegCleanMain
 !insertmacro RegCleanUninstall
 !insertmacro SetBrandNameVars
@@ -78,6 +80,7 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro un.DeleteShortcuts
 !insertmacro un.GetLongPath
 !insertmacro un.GetSecondInstallPath
+!insertmacro un.InitHashAppModelId
 !insertmacro un.ManualCloseAppPrompt
 !insertmacro un.ParseUninstallLog
 !insertmacro un.RegCleanMain
@@ -174,6 +177,9 @@ Section "Uninstall"
     ClearErrors
   ${EndIf}
 
+  ; setup the application model id registration value
+  ${un.InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
+
   ${MUI_INSTALLOPTIONS_READ} $0 "unconfirm.ini" "Field 3" "State"
   ${If} "$0" == "1"
     ${un.DeleteRelativeProfiles} "Instantbird"
@@ -196,6 +202,16 @@ Section "Uninstall"
     ${un.RegCleanUninstall}
     ${un.DeleteShortcuts}
   ${EndIf}
+
+  ; Unregister resources associated with Win7 taskbar jump lists.
+  ${If} "$AppUserModelID" != ""
+  ${AndIf} ${AtLeastWin7}
+    ApplicationID::UninstallJumpLists "$AppUserModelID"
+  ${EndIf}
+
+  ; Remove any app model id's stored in the registry for this install path
+  DeleteRegValue HKCU "Software\Mozilla\${AppName}\TaskBarIDs" "$INSTDIR"
+  DeleteRegValue HKLM "Software\Mozilla\${AppName}\TaskBarIDs" "$INSTDIR"
 
   ClearErrors
 
@@ -484,6 +500,10 @@ FunctionEnd
 # Initialization Functions
 
 Function .onInit
+  ; We need this set up for most of the helper.exe operations.
+  !ifdef AppName
+  ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
+  !endif
   ${UninstallOnInitCommon}
 FunctionEnd
 

@@ -4,6 +4,7 @@
 
 # Required Plugins:
 # AppAssocReg http://nsis.sourceforge.net/Application_Association_Registration_plug-in
+# CityHash    http://mxr.mozilla.org/mozilla-central/source/other-licenses/nsis/Contrib/CityHash
 # ShellLink   http://nsis.sourceforge.net/ShellLink_plug-in
 # UAC         http://nsis.sourceforge.net/UAC_plug-in
 
@@ -69,6 +70,7 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 !insertmacro FindSMProgramsDir
 !insertmacro GetPathFromString
 !insertmacro GetParent
+!insertmacro InitHashAppModelId
 !insertmacro ManualCloseAppPrompt
 !insertmacro RegCleanMain
 !insertmacro RegCleanUninstall
@@ -258,6 +260,9 @@ Section "-Application" APP_IDX
     ${RegCleanUninstall}
   ${EndIf}
 
+  ; setup the application model id registration value
+  ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
+
   ${RemoveDeprecatedKeys}
 
   ; The previous installer adds several regsitry values to both HKLM and HKCU.
@@ -321,8 +326,16 @@ Section "-Application" APP_IDX
       ${LogMsg} "Added Start Menu Directory: $SMPROGRAMS\$StartMenuDir"
     ${EndUnless}
     CreateShortCut "$SMPROGRAMS\$StartMenuDir\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
+    ${If} ${AtLeastWin7}
+    ${AndIf} "$AppUserModelID" != ""
+      ApplicationID::Set "$SMPROGRAMS\$StartMenuDir\${BrandFullName}.lnk" "$AppUserModelID"
+    ${EndIf}
     ${LogMsg} "Added Shortcut: $SMPROGRAMS\$StartMenuDir\${BrandFullName}.lnk"
     CreateShortCut "$SMPROGRAMS\$StartMenuDir\${BrandFullName} ($(SAFE_MODE)).lnk" "$INSTDIR\${FileMainEXE}" "-safe-mode" "$INSTDIR\${FileMainEXE}" 0
+    ${If} ${AtLeastWin7}
+    ${AndIf} "$AppUserModelID" != ""
+      ApplicationID::Set "$SMPROGRAMS\$StartMenuDir\${BrandFullName} ($(SAFE_MODE)).lnk" "$AppUserModelID"
+    ${EndIf}
     ${LogMsg} "Added Shortcut: $SMPROGRAMS\$StartMenuDir\${BrandFullName} ($(SAFE_MODE)).lnk"
   ${EndIf}
 
@@ -330,6 +343,10 @@ Section "-Application" APP_IDX
 
   ${If} $AddDesktopSC == 1
     CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
+    ${If} ${AtLeastWin7}
+    ${AndIf} "$AppUserModelID" != ""
+      ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
+    ${EndIf}
     ${LogMsg} "Added Shortcut: $DESKTOP\${BrandFullName}.lnk"
   ${EndIf}
 
@@ -415,6 +432,10 @@ SectionEnd
 
 Function AddQuickLaunchShortcut
   CreateShortCut "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
+  ${If} ${AtLeastWin7}
+  ${AndIf} "$AppUserModelID" != ""
+    ApplicationID::Set "$QUICKLAUNCH\${BrandFullName}.lnk" "$AppUserModelID"
+  ${EndIf}
 FunctionEnd
 
 Function CheckExistingInstall
