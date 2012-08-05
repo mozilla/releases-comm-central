@@ -158,8 +158,13 @@
              aTopic == "contact-status-changed")
            this.update();
          else if (aTopic == "contact-signed-on") {
-           if (this.state == "fading")
-             this.state = "visible";
+           if (this.state == "fading") {
+             // If the contact is fading out because it's no longer in this group,
+             // ignore the signed-on notification; otherwise cancel the animation.
+             let groupId = this.group.tag.id;
+             if (this.contact.getTags().some(function(t) t.id == groupId))
+               this.state = "visible";
+           }
          }
          else if (aTopic == "contact-removed" ||
                   (aTopic == "contact-moved-out" && aSubject.id == this.group.tag.id) ||
