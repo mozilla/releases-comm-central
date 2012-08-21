@@ -299,18 +299,19 @@ var gAccountManager = {
       (this.isOffline ||
        (account.disconnected &&
         account.connectionErrorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL));
-    [["connect", isCommandDisabled],
-     ["disconnect", isCommandDisabled],
-     ["moveup", accountList.selectedIndex == 0],
-     ["movedown", accountList.selectedIndex == accountList.itemCount - 1]
-    ].forEach(function (aEltArray) {
-      let [name, state] = aEltArray;
+    let disabledItems = {
+      connect: isCommandDisabled,
+      disconnect: isCommandDisabled,
+      moveup: accountList.selectedIndex == 0,
+      movedown: accountList.selectedIndex == accountList.itemCount - 1
+    };
+    for each (let [name, state] in Iterator(disabledItems)) {
       let elt = document.getElementById("cmd_" + name);
       if (state)
         elt.setAttribute("disabled", "true");
       else
         elt.removeAttribute("disabled");
-    });
+    }
   },
   onContextMenuShowing: function am_onContextMenuShowing() {
     let targetElt = document.popupNode;
