@@ -1677,16 +1677,23 @@
            return;
 
          let elt = this.topic;
+         let convBinding = document.getBindingParent(this);
          if (aSave) {
            // apply the new topic only if it is different from the current one
            if (elt.value != elt.getAttribute("value"))
-             document.getBindingParent(this)._conv.topic = elt.value;
+             convBinding._conv.topic = elt.value;
          }
          this.removeAttribute("editing");
          elt.removeEventListener("keypress", this._topicKeyPress, true);
          delete this._topicKeyPress;
          elt.removeEventListener("blur", this._topicBlur, false);
          delete this._topicBlur;
+         if (!elt.getAttribute("focused"))
+           return;
+         // Shift focus back to the input box. Ideally we would keep the focus
+         // on the topic here, but the conv-top is currently not accessible
+         // via the keyboard, so doing that would leave us stranded.
+         convBinding.editor.focus();
        ]]>
        </body>
      </method>

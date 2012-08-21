@@ -558,6 +558,11 @@ var buddyList = {
     elt.removeAttribute("editing");
     elt.removeEventListener("keypress", this.statusMessageKeyPress, false);
     elt.removeEventListener("blur", this.statusMessageBlur, false);
+    if (!elt.getAttribute("focused"))
+      return;
+    // Force layout to remove input binding.
+    elt.getBoundingClientRect();
+    elt.focus();
   },
 
   userIconClick: function bl_userIconClick() {
@@ -629,6 +634,11 @@ var buddyList = {
     elt.removeAttribute("editing");
     elt.removeEventListener("keypress", this.displayNameKeyPress, false);
     elt.removeEventListener("blur", this.displayNameBlur, false);
+    if (!elt.getAttribute("focused"))
+      return;
+    // Force layout to remove input binding.
+    elt.getBoundingClientRect();
+    elt.focus();
   },
 
   load: function bl_load() {
