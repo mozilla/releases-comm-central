@@ -173,6 +173,7 @@ statusbarpanel#statusbar-display {
 }
 
 .tabbrowser-tab[selected="true"] {
+  color: #000;
   z-index: 1;
   position: relative;
 }
