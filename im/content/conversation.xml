@@ -502,11 +502,7 @@
         // The 'C' won't be lowercase if caps lock is enabled.
         if ((event.charCode == 99 /* 'c' */ ||
              (event.charCode == 67 /* 'C' */ && !event.shiftKey)) &&
-#ifndef XP_MACOSX
-            event.ctrlKey &&
-#else
-            event.metaKey &&
-#endif
+            (navigator.platform.indexOf("Mac") >= 0 ? event.metaKey : event.ctrlKey) &&
             inputBox.selectionStart == inputBox.selectionEnd) {
           this.browser.doCommand();
           return;
@@ -910,11 +906,9 @@
      <parameter name="event"/>
       <body>
       <![CDATA[
-#ifndef XP_MACOSX
-        var accelKeyPressed = event.ctrlKey;
-#else
-        var accelKeyPressed = event.metaKey;
-#endif
+        let isMac = navigator.platform.indexOf("Mac") >= 0;
+        let accelKeyPressed = isMac? event.metaKey : event.ctrlKey;
+
         // 118 is the decimal code for "v" character, 13 keyCode for "return" key
         if (((accelKeyPressed && event.charCode != 118) || event.altKey) &&
             event.keyCode != 13)
@@ -945,8 +939,7 @@
         if (event.metaKey)
           modifiers |= masks.META_MASK;
         if (event.accelKey)
-          modifiers |= (navigator.platform.indexOf("Mac") >= 0) ? masks.META_MASK
-                                                                : masks.CONTROL_MASK;
+          modifiers |= isMac ? masks.META_MASK : masks.CONTROL_MASK;
 
         // resend the event
         window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -1649,14 +1642,14 @@
           this.allowTargetChange();
         // Cancel any ongoing edit if the binding changes.
         this.removeAttribute("editing");
-#ifdef XP_MACOSX
 
-        if ("draghandle" in this)
-          return;
-        if (!("WindowDraggingElement" in window))
-          Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
-        this.draghandle = new WindowDraggingElement(this, window);
-#endif
+        if (navigator.platform.indexOf("Mac") >= 0) {
+          if ("draghandle" in this)
+            return;
+          if (!("WindowDraggingElement" in window))
+            Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
+          this.draghandle = new WindowDraggingElement(this, window);
+        }
       ]]>
      </constructor>
 
