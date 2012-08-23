@@ -24,7 +24,7 @@ instantbird.jar:
 	content/instantbird/buddy.xml
 	content/instantbird/buddytooltip.xml
 	content/instantbird/contact.xml
-*	content/instantbird/conversation.xml
+	content/instantbird/conversation.xml
 	content/instantbird/conv.xml
 *	content/instantbird/credits.xhtml
 *	content/instantbird/engineManager.js
