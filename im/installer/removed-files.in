@@ -212,6 +212,7 @@ libraries/@DLL_PREFIX@xml2@DLL_SUFFIX@
 @DLL_PREFIX@glib@DLL_SUFFIX@
 @DLL_PREFIX@xml2@DLL_SUFFIX@
 #endif /* ! UNIX_BUT_NOT_MAC */
+@DLL_PREFIX@purple@DLL_SUFFIX@
 libraries/prpl/@DLL_PREFIX@gg@DLL_SUFFIX@
 libraries/prpl/@DLL_PREFIX@irc@DLL_SUFFIX@
 libraries/prpl/@DLL_PREFIX@jabber@DLL_SUFFIX@
