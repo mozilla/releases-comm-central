@@ -1650,7 +1650,7 @@
           </xul:toolbarbutton>
         </xul:hbox>
         <xul:description anonid="statusMessage" class="statusMessage"
-                         xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext"
+                         xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext,role=topicRole"
                          mousethrough="never" crop="end" flex="100000"/>
       </xul:stack>
     </content>
@@ -1662,7 +1662,7 @@
         if (this.hasAttribute("allowTargetChange"))
           this.allowTargetChange();
         // Cancel any ongoing edit if the binding changes.
-        this.removeAttribute("editing");
+        this.editing = false;
 
         if (navigator.platform.indexOf("Mac") >= 0) {
           if ("draghandle" in this)
@@ -1683,11 +1683,35 @@
        </getter>
      </property>
 
+     <property name="editing">
+       <getter>
+         <![CDATA[
+           return this.hasAttribute("editing");
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           if (val) {
+             this.setAttribute("editing", "true");
+             this.removeAttribute("topicRole");
+           }
+           else {
+             this.removeAttribute("editing");
+             if (this.topic.hasAttribute("editable")) {
+               // Sets role=button on the topic to denote it is clickable
+               // for accessibility.
+               this.setAttribute("topicRole", "button");
+             }
+           }
+         ]]>
+       </setter>
+     </property>
+
      <method name="finishEditTopic">
        <parameter name="aSave"/>
        <body>
        <![CDATA[
-         if (!this.hasAttribute("editing"))
+         if (!this.editing)
            return;
 
          let elt = this.topic;
@@ -1697,7 +1721,7 @@
            if (elt.value != elt.getAttribute("value"))
              convBinding._conv.topic = elt.value;
          }
-         this.removeAttribute("editing");
+         this.editing = false;
          elt.removeEventListener("keypress", this._topicKeyPress, true);
          delete this._topicKeyPress;
          elt.removeEventListener("blur", this._topicBlur, false);
@@ -1746,10 +1770,10 @@
        <body>
        <![CDATA[
           let elt = this.topic;
-          if (!elt.hasAttribute("editable") || this.hasAttribute("editing"))
+          if (!elt.hasAttribute("editable") || this.editing)
             return;
 
-          this.setAttribute("editing", "true");
+          this.editing = true;
           this._topicKeyPress = this.topicKeyPress.bind(this);
           elt.addEventListener("keypress", this._topicKeyPress);
           this._topicBlur = this.topicBlur.bind(this);
@@ -1849,11 +1873,11 @@
                        mousethrough="always" flex="1" crop="end"
                        xbl:inherits="value=displayName"/>
       <xul:description anonid="statusMessage" class="statusMessage"
-                       xbl:inherits="value=statusMessage,editable=topicEditable,editing,context=topicContext"
+                       xbl:inherits="value=statusMessage,editable=topicEditable,editing,context=topicContext,role=topicRole"
                        crop="end" flex="100000"/>
       <xul:description anonid="statusMessageWithDash"
                        class="statusMessageWithDash"
-                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext"
+                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext,role=topicRole"
                        crop="end" flex="100000"/>
       <xul:toolbarbutton class="prplIcon alltargets-button" mousethrough="always"
                          anonid="targetPrplIcon" context=""
