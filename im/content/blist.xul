@@ -45,7 +45,7 @@
 #endif
   <popupset id="mainPopupSet">
     <tooltip id="buddyTooltip" type="buddy"
-             onpopupshowing="if ('_droptarget' in window) return false;"/>
+             onpopupshowing="return !('_droptarget' in window);"/>
 
     <menupopup id="buddyListContextMenu"
                onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"

@@ -1086,7 +1086,7 @@
         <body>
           <![CDATA[
             if (this.mTabs.length == 1)
-              return;
+              return null;
 
             var sa = Components.classes["@mozilla.org/supports-array;1"]
                                .createInstance(Components.interfaces.nsISupportsArray);
