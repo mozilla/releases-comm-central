@@ -181,14 +181,33 @@
           return;
         }
 
-        // Ugly hack... :(
         if (!aMsg.system && conv.isChat) {
           let name = aMsg.who;
           let color;
           if (this._hasBuddy(name)) {
             let buddy = this.buddies[name];
             color = buddy.color;
-            buddy.removeAttribute("inactive");
+
+            // Set nick to active if the message is not older than
+            // nickActiveTimespan.
+            let nickActiveTimespan =
+              Services.prefs.getIntPref("messenger.conversations.nickActiveTimespan");
+            if (nickActiveTimespan > 0) {
+              let msgAge = Date.now() / 1000 - aMsg.time;
+              let waitBeforeInactive = nickActiveTimespan - msgAge;
+              if (waitBeforeInactive > 0) {
+                // Set a timer so the nick will return to inactive again.
+                if (buddy.activeTimer)
+                  clearTimeout(buddy.activeTimer);
+                buddy.activeTimer = setTimeout(function() {
+                  delete buddy.activeTimer;
+                  buddy.setAttribute("inactive", "true");
+                }, waitBeforeInactive * 1000);
+                buddy.removeAttribute("inactive");
+              }
+            }
+            else
+              buddy.removeAttribute("inactive");
           }
           else {
             // Buddy no longer in the room
@@ -1187,6 +1206,8 @@
          if (!this._hasBuddy(aName))
            throw "Cannot remove a buddy that was not in the room";
          var item = this.buddies[aName];
+         if (item.activeTimer)
+           clearTimeout(item.activeTimer);
          item.parentNode.removeChild(item);
          delete this.buddies[aName];
        ]]>

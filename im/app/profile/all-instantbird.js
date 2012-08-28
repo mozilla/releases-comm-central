@@ -40,6 +40,10 @@ pref("messenger.conversations.openInTabs", true);
 pref("messenger.conversations.useSeparateWindowsForMUCs", false);
 pref("messenger.conversations.doubleClickToReply", true);
 
+// Timespan (in seconds) that a MUC nick is marked active after speaking.
+// -1 = keep active forever
+pref("messenger.conversations.nickActiveTimespan", 3600);
+
 pref("messenger.options.getAttentionOnNewMessages", true);
 pref("messenger.options.notifyOfNewMessages", false);
 #ifdef XP_MACOSX
