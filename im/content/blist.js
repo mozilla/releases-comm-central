@@ -785,6 +785,16 @@ var buddyList = {
     if (!item || !item.parentNode) // empty list or item no longer in the list
       return;
     item.keyPress(aEvent);
+  },
+
+  buddylistboxFocus: function() {
+    let selectedItem = document.getElementById("buddylistbox").selectedItem;
+    if (selectedItem) {
+      // Ensure binding changes immediately to avoid the firing of a
+      // spurious accessibility focus event referring to the old binding that
+      // causes problems for screen readers (BIO bug 1626, BMO bug 786508)
+      selectedItem.getBoundingClientRect();
+    }
   }
 };
 
