@@ -334,6 +334,8 @@
          this.removeAttribute("status");
          this.setBuddyIcon(null);
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
+         if (aConv.topic)
+           this.addRow(this.bundle.GetStringFromName("conversation.topic"), aConv.topic);
          return true;
        ]]>
        </body>
