@@ -231,14 +231,13 @@ var accountWizard = {
   },
 
   createTextbox: function aw_createTextbox(aType, aValue, aLabel, aName) {
-    let box = document.createElement("hbox");
-    box.setAttribute("align", "baseline");
-    box.setAttribute("equalsize", "always");
+    let row = document.createElement("row");
+    row.setAttribute("align", "center");
 
     let label = document.createElement("label");
-    label.setAttribute("value", aLabel);
+    label.textContent = aLabel;
     label.setAttribute("control", aName);
-    box.appendChild(label);
+    row.appendChild(label);
 
     let textbox = document.createElement("textbox");
     if (aType)
@@ -247,18 +246,18 @@ var accountWizard = {
     textbox.setAttribute("id", aName);
     textbox.setAttribute("flex", "1");
 
-    box.appendChild(textbox);
-    return box;
+    row.appendChild(textbox);
+    return row;
   },
 
   createMenulist: function aw_createMenulist(aList, aLabel, aName) {
-    let box = document.createElement("hbox");
-    box.setAttribute("align", "baseline");
+    let vbox = document.createElement("vbox");
+    vbox.setAttribute("flex", "1");
 
     let label = document.createElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
-    box.appendChild(label);
+    vbox.appendChild(label);
 
     aList.QueryInterface(Ci.nsISimpleEnumerator);
     let menulist = document.createElement("menulist");
@@ -271,16 +270,16 @@ var accountWizard = {
       item.setAttribute("value", elt.value);
       popup.appendChild(item);
     }
-    box.appendChild(menulist);
-    return box;
+    vbox.appendChild(menulist);
+    return vbox;
   },
 
   populateProtoSpecificBox: function aw_populate() {
     let id = this.proto.id;
-    let box = document.getElementById("protoSpecific");
+    let rows = document.getElementById("protoSpecific");
     let child;
-    while ((child = box.firstChild))
-      box.removeChild(child);
+    while ((child = rows.firstChild))
+      rows.removeChild(child);
     let visible = false;
     for (let opt in this.getProtoOptions()) {
       let text = opt.label;
@@ -292,17 +291,17 @@ var accountWizard = {
         chk.setAttribute("id", name);
         if (opt.getBool())
           chk.setAttribute("checked", "true");
-        box.appendChild(chk);
+        rows.appendChild(chk);
         break;
       case opt.typeInt:
-        box.appendChild(this.createTextbox("number", opt.getInt(),
-                                           text, name));
+        rows.appendChild(this.createTextbox("number", opt.getInt(),
+                                            text, name));
         break;
       case opt.typeString:
-        box.appendChild(this.createTextbox(null, opt.getString(), text, name));
+        rows.appendChild(this.createTextbox(null, opt.getString(), text, name));
         break;
       case opt.typeList:
-        box.appendChild(this.createMenulist(opt.getList(), text, name));
+        rows.appendChild(this.createMenulist(opt.getList(), text, name));
         document.getElementById(name).value = opt.getListDefault();
         break;
       default:
