@@ -594,10 +594,10 @@ ircSocket.prototype = {
     this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                                   _("connection.error.timeOut"));
   },
-  onCertificationError: function(aSocketInfo, aStatus, aTargetSite) {
-    ERROR("Certification error.");
+  onBadCertificate: function(aNSSErrorMessage) {
+    ERROR("bad certificate: " + aNSSErrorMessage);
     this._account.gotDisconnected(Ci.prplIAccount.ERROR_CERT_OTHER_ERROR,
-                                  _("connection.error.certError"));
+                                  aNSSErrorMessage);
   },
   log: LOG
 };
