@@ -8,6 +8,7 @@
 <!ENTITY logsWindow.title   "Conversation logs - &brandShortName;">
 <!ENTITY logsWindow.titlemodifiermenuseparator " - ">
 <!ENTITY logsWindow.titlemodifier "&brandShortName;">
+<!ENTITY logsWindow.corruptlogfile "Empty or corrupt log file.">
 <!ENTITY file.menu          "File">
 <!ENTITY file.accesskey     "F">
 
@@ -57,9 +58,9 @@
 <!ENTITY errorConsoleCmd.commandkey   "j">
 
 <!ENTITY preferencesCmd.label         "Options…">
-<!ENTITY preferencesCmd.accesskey     "O"> 
+<!ENTITY preferencesCmd.accesskey     "O">
 <!ENTITY preferencesCmdUnix.label     "Preferences">
-<!ENTITY preferencesCmdUnix.accesskey "n"> 
+<!ENTITY preferencesCmdUnix.accesskey "n">
 
 <!ENTITY textEnlarge.commandkey   "+">
 <!ENTITY textEnlarge.commandkey2  "=">

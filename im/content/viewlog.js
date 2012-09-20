@@ -32,6 +32,8 @@ var logWindow = {
 
     let listbox = document.getElementById("logList");
     logs.forEach(function (aLog) {
+      if (aLog.format == "invalid")
+        return;
       let elt = document.createElement("listitem");
       let logDate = new Date(aLog.time * 1000);
       let localizedDateTimeString =
@@ -67,8 +69,17 @@ var logWindow = {
     let log = document.getElementById("logList").selectedItem.log;
     let deck = document.getElementById("browserDeck");
     let findbar = document.getElementById("findbar");
-    let conv = log.getConversation();
-    if (conv) {
+    if (log.format == "json") {
+      let conv = log.getConversation();
+      if (!conv) {
+        // Empty or completely broken json log file.
+        deck.selectedIndex = 2;
+        // Ensure the findbar has something to look at.
+        let browser = document.getElementById("text-browser");
+        findbar.browser = browser;
+        browser.loadURI("about:blank");
+        return;
+      }
       deck.selectedIndex = 1;
       let browser = document.getElementById("conv-browser");
       findbar.browser = browser;
@@ -131,16 +142,25 @@ var logWindow = {
   },
 
   contentLoaded: function lw_contentLoaded() {
-    let doc = document.getElementById("text-browser").contentDocument;
+    let browser = document.getElementById("text-browser");
+    if (browser.currentURI.spec == "about:blank")
+      return;
+    let doc = browser.contentDocument;
     let link = doc.createElement("link");
     link.type = "text/css";
     link.rel = "stylesheet";
     link.href = "data:text/css,pre{white-space: pre-wrap;word-wrap: break-word;}.ib-img-smile {vertical-align: text-bottom;}";
     doc.getElementsByTagName("head")[0].appendChild(link);
 
+    let elt = doc.getElementsByTagName("pre")[0].firstChild;
+    if (!elt) {
+      // Text log file is empty.
+      document.getElementById("browserDeck").selectedIndex = 2;
+      return;
+    }
     if (!("smileTextNode" in window))
       Components.utils.import("resource:///modules/imSmileys.jsm");
-    smileTextNode(doc.getElementsByTagName("pre")[0].firstChild);
+    smileTextNode(elt);
   }
 };
 
