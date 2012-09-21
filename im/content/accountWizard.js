@@ -56,27 +56,27 @@ var accountWizard = {
   },
 
   checkUsername: function aw_checkUsername() {
-    var wizard = document.getElementById("accountWizard");
-    var name = accountWizard.getUsername();
-    var duplicateWarning = document.getElementById("duplicateAccount");
+    let wizard = document.getElementById("accountWizard");
+    let name = accountWizard.getUsername();
+    let duplicateWarning = document.getElementById("duplicateAccount");
     if (!name) {
       wizard.canAdvance = false;
       duplicateWarning.hidden = true;
       return;
     }
 
-    var exists = accountWizard.proto.accountExists(name);
+    let exists = accountWizard.proto.accountExists(name);
     wizard.canAdvance = !exists;
     duplicateWarning.hidden = !exists;
   },
 
   selectProtocol: function aw_selectProtocol() {
     // A fix for users wanting to return to the list they previously viewed.
-    var pageId = document.getElementById("accountWizard").currentPage.pageid;
+    let pageId = document.getElementById("accountWizard").currentPage.pageid;
     document.getElementById("accountusername").previous = pageId;
 
-    var listId = pageId == "accounttoplist" ? "topprotolist" : "protolist";
-    var protoList = document.getElementById(listId);
+    let listId = pageId == "accounttoplist" ? "topprotolist" : "protolist";
+    let protoList = document.getElementById(listId);
     this.proto = Services.core.getProtocolById(protoList.selectedItem.value);
 
     return true;
@@ -84,18 +84,18 @@ var accountWizard = {
 
   insertUsernameField: function aw_insertUsernameField(aName, aLabel, aParent,
                                                        aDefaultValue) {
-    var hbox = document.createElement("hbox");
+    let hbox = document.createElement("hbox");
     hbox.setAttribute("id", aName + "-hbox");
     hbox.setAttribute("align", "baseline");
     hbox.setAttribute("equalsize", "always");
 
-    var label = document.createElement("label");
+    let label = document.createElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     label.setAttribute("id", aName + "-label");
     hbox.appendChild(label);
 
-    var textbox = document.createElement("textbox");
+    let textbox = document.createElement("textbox");
     textbox.setAttribute("id", aName);
     textbox.setAttribute("flex", 1);
     if (aDefaultValue)
@@ -108,15 +108,15 @@ var accountWizard = {
   },
 
   showUsernamePage: function aw_showUsernamePage() {
-    var proto = this.proto.id;
+    let proto = this.proto.id;
     if ("userNameBoxes" in this && this.userNameProto == proto) {
       this.checkUsername();
       return;
     }
 
-    var bundle = document.getElementById("accountsBundle");
-    var usernameInfo;
-    var emptyText = this.proto.usernameEmptyText;
+    let bundle = document.getElementById("accountsBundle");
+    let usernameInfo;
+    let emptyText = this.proto.usernameEmptyText;
     if (emptyText) {
       usernameInfo =
         bundle.getFormattedString("accountUsernameInfoWithDescription",
@@ -128,17 +128,17 @@ var accountWizard = {
     }
     document.getElementById("usernameInfo").textContent = usernameInfo;
 
-    var vbox = document.getElementById("userNameBox");
+    let vbox = document.getElementById("userNameBox");
     // remove anything that may be there for another protocol
-    var child;
+    let child;
     while ((child = vbox.firstChild))
       vbox.removeChild(child);
 
-    var splits = [];
+    let splits = [];
     for (let split in this.getProtoUserSplits())
       splits.push(split);
 
-    var label = bundle.getString("accountUsername");
+    let label = bundle.getString("accountUsername");
     this.userNameBoxes = [this.insertUsernameField("name", label, vbox)];
     this.userNameBoxes[0].emptyText = emptyText;
 
@@ -157,14 +157,14 @@ var accountWizard = {
 
   hideUsernamePage: function aw_hideUsernamePage() {
     document.getElementById("accountWizard").canAdvance = true;
-    var next = "account" +
+    let next = "account" +
       (this.proto.noPassword ? "advanced" : "password");
     document.getElementById("accountusername").next = next;
   },
 
   showAdvanced: function aw_showAdvanced() {
     // ensure we don't destroy user data if it's not necessary
-    var id = this.proto.id;
+    let id = this.proto.id;
     if ("protoSpecOptId" in this && this.protoSpecOptId == id)
       return;
     this.protoSpecOptId = id;
@@ -189,10 +189,10 @@ var accountWizard = {
   },
 
   displayProxyDescription: function aw_displayProxyDescription() {
-    var type = this.proxy.type;
-    var bundle = document.getElementById("proxiesBundle");
-    var proxy;
-    var result;
+    let type = this.proxy.type;
+    let bundle = document.getElementById("proxiesBundle");
+    let proxy;
+    let result;
     if (type == Ci.purpleIProxyInfo.useGlobal) {
       proxy = Cc["@instantbird.org/libpurple/core;1"]
               .getService(Ci.purpleICoreService).globalProxy;
@@ -231,16 +231,16 @@ var accountWizard = {
   },
 
   createTextbox: function aw_createTextbox(aType, aValue, aLabel, aName) {
-    var box = document.createElement("hbox");
+    let box = document.createElement("hbox");
     box.setAttribute("align", "baseline");
     box.setAttribute("equalsize", "always");
 
-    var label = document.createElement("label");
+    let label = document.createElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     box.appendChild(label);
 
-    var textbox = document.createElement("textbox");
+    let textbox = document.createElement("textbox");
     if (aType)
       textbox.setAttribute("type", aType);
     textbox.setAttribute("value", aValue);
@@ -252,18 +252,18 @@ var accountWizard = {
   },
 
   createMenulist: function aw_createMenulist(aList, aLabel, aName) {
-    var box = document.createElement("hbox");
+    let box = document.createElement("hbox");
     box.setAttribute("align", "baseline");
 
-    var label = document.createElement("label");
+    let label = document.createElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     box.appendChild(label);
 
     aList.QueryInterface(Ci.nsISimpleEnumerator);
-    var menulist = document.createElement("menulist");
+    let menulist = document.createElement("menulist");
     menulist.setAttribute("id", aName);
-    var popup = menulist.appendChild(document.createElement("menupopup"));
+    let popup = menulist.appendChild(document.createElement("menupopup"));
     while (aList.hasMoreElements()) {
       let elt = aList.getNext();
       let item = document.createElement("menuitem");
@@ -276,18 +276,18 @@ var accountWizard = {
   },
 
   populateProtoSpecificBox: function aw_populate() {
-    var id = this.proto.id;
-    var box = document.getElementById("protoSpecific");
-    var child;
+    let id = this.proto.id;
+    let box = document.getElementById("protoSpecific");
+    let child;
     while ((child = box.firstChild))
       box.removeChild(child);
-    var visible = false;
+    let visible = false;
     for (let opt in this.getProtoOptions()) {
-      var text = opt.label;
-      var name = id + "-" + opt.name;
+      let text = opt.label;
+      let name = id + "-" + opt.name;
       switch (opt.type) {
       case opt.typeBool:
-        var chk = document.createElement("checkbox");
+        let chk = document.createElement("checkbox");
         chk.setAttribute("label", text);
         chk.setAttribute("id", name);
         if (opt.getBool())
@@ -312,17 +312,17 @@ var accountWizard = {
     }
     document.getElementById("protoSpecificGroupbox").hidden = !visible;
     if (visible) {
-      var bundle = document.getElementById("accountsBundle");
+      let bundle = document.getElementById("accountsBundle");
       document.getElementById("protoSpecificCaption").label =
         bundle.getFormattedString("protoOptions", [this.proto.name]);
     }
   },
 
   createSummaryRow: function aw_createSummaryRow(aLabel, aValue) {
-    var row = document.createElement("row");
+    let row = document.createElement("row");
     row.setAttribute("align", "baseline");
 
-    var label = document.createElement("label");
+    let label = document.createElement("label");
     label.setAttribute("class", "header");
     if (aLabel.length > 20) {
       aLabel = aLabel.substring(0, 20);
@@ -331,7 +331,7 @@ var accountWizard = {
     label.setAttribute("value", aLabel);
     row.appendChild(label);
 
-    var textbox = document.createElement("textbox");
+    let textbox = document.createElement("textbox");
     textbox.setAttribute("value", aValue);
     textbox.setAttribute("class", "plain");
     textbox.setAttribute("readonly", true);
@@ -341,13 +341,13 @@ var accountWizard = {
   },
 
   showSummary: function aw_showSummary() {
-    var rows = document.getElementById("summaryRows");
-    var bundle = document.getElementById("accountsBundle");
-    var child;
+    let rows = document.getElementById("summaryRows");
+    let bundle = document.getElementById("accountsBundle");
+    let child;
     while ((child = rows.firstChild))
       rows.removeChild(child);
 
-    var label = bundle.getString("accountProtocol");
+    let label = bundle.getString("accountProtocol");
     rows.appendChild(this.createSummaryRow(label, this.proto.name));
     this.username = this.getUsername();
     label = bundle.getString("accountUsername");
@@ -356,7 +356,7 @@ var accountWizard = {
       this.password = this.getValue("password");
       if (this.password) {
         label = document.getElementById("passwordLabel").value;
-        var pass = "";
+        let pass = "";
         for (let i = 0; i < this.password.length; ++i)
           pass += "*";
         rows.appendChild(this.createSummaryRow(label, pass));
@@ -374,7 +374,7 @@ var accountWizard = {
                                              this.getValue("newMailNotification")));
 */
 
-    var id = this.proto.id;
+    let id = this.proto.id;
     this.prefs = [ ];
     for (let opt in this.getProtoOptions()) {
       let name = opt.name;
@@ -413,7 +413,7 @@ var accountWizard = {
   },
 
   createAccount: function aw_createAccount() {
-    var acc = Services.accounts.createAccount(this.username, this.proto.id);
+    let acc = Services.accounts.createAccount(this.username, this.proto.id);
     if (!this.proto.noPassword && this.password)
       acc.password = this.password;
     if (this.alias)
@@ -438,7 +438,7 @@ var accountWizard = {
         throw "unknown type";
       }
     }
-    var autologin = this.getValue("connectNow");
+    let autologin = this.getValue("connectNow");
     acc.autoLogin = autologin;
 
     if (this.proto.usePurpleProxy)
@@ -455,7 +455,7 @@ var accountWizard = {
     }
 
     if (window.opener) {
-      var am = window.opener.gAccountManager;
+      let am = window.opener.gAccountManager;
       if (am)
         am.selectAccount(acc.id);
     }
@@ -464,7 +464,7 @@ var accountWizard = {
   },
 
   getValue: function aw_getValue(aId) {
-    var elt = document.getElementById(aId);
+    let elt = document.getElementById(aId);
     if ("selectedItem" in elt)
       return elt.selectedItem.value;
     if ("checked" in elt)
@@ -489,8 +489,8 @@ var accountWizard = {
     this.getIter(this.proto.getUsernameSplit()),
 
   onGroupboxKeypress: function aw_onGroupboxKeypress(aEvent) {
-    var target = aEvent.target;
-    var code = aEvent.charCode || aEvent.keyCode;
+    let target = aEvent.target;
+    let code = aEvent.charCode || aEvent.keyCode;
     if (code == KeyEvent.DOM_VK_SPACE ||
         (code == KeyEvent.DOM_VK_LEFT && !target.hasAttribute("closed")) ||
         (code == KeyEvent.DOM_VK_RIGHT && target.hasAttribute("closed")))
@@ -498,7 +498,7 @@ var accountWizard = {
   },
 
   toggleGroupbox: function aw_toggleGroupbox(id) {
-    var elt = document.getElementById(id);
+    let elt = document.getElementById(id);
     if (elt.hasAttribute("closed")) {
       elt.removeAttribute("closed");
       if (elt.flexWhenOpened)
@@ -525,13 +525,13 @@ var accountWizard = {
    */
   setGetMoreProtocols: function (){
     let prefURL = PREF_EXTENSIONS_GETMOREPROTOCOLSURL;
-    var getMore = document.getElementById("getMoreProtocols");
-    var showGetMore = false;
+    let getMore = document.getElementById("getMoreProtocols");
+    let showGetMore = false;
     const nsIPrefBranch2 = Components.interfaces.nsIPrefBranch2;
 
     if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch2.PREF_INVALID) {
       try {
-        var getMoreURL = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
+        let getMoreURL = Components.classes["@mozilla.org/toolkit/URLFormatterService;1"]
                                    .getService(Components.interfaces.nsIURLFormatter)
                                    .formatURLPref(prefURL);
         getMore.setAttribute("getMoreURL", getMoreURL);
