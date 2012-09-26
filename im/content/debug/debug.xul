@@ -10,6 +10,7 @@
   <script type="application/javascript" src="chrome://inspector/content/hooks.js"/>
 
   <commandset id="maincommandset">
+    <command id="aboutMemoryCommand" oncommand="debug.aboutMemory()"/>
     <command id="domiCommand" oncommand="debug.inspector()"/>
     <command id="configCommand" oncommand="debug.config()"/>
     <command id="gcCommand" oncommand="debug.garbageCollect()"/>
@@ -18,6 +19,7 @@
   </commandset>
 
   <keyset id="mainkeyset">
+    <key id="aboutMemoryKey" key="M" command="aboutMemoryCommand" modifiers="accel,shift"/>
     <key id="domiKey" key="I" command="domiCommand" modifiers="accel,shift"/>
     <key id="configKey" key="," command="configCommand" modifiers="accel,shift"/>
     <!-- shift + ',' is '?' on a French keyboard... -->
@@ -34,6 +36,7 @@
         <menuitem id="gcMenuItem" label="Force Garbage Collection" key="gcKey" command="gcCommand"/>
         <menuitem id="forceOnlineMenuItem" label="Force Online" key="forceOnlineKey" command="forceOnlineCommand"/>
         <menuitem id="venkmanMenuItem" label="Venkman" key="venkmanKey" command="venkmanCommand"/>
+        <menuitem id="aboutMemoryMenuItem" label="about:memory" key="aboutMemoryKey" command="aboutMemoryCommand"/>
         <menuseparator/>
         <menuitem id="configMenuItem" label="about:config" key="configKey" command="configCommand"/>
       </menupopup>

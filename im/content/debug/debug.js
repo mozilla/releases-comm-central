@@ -14,6 +14,10 @@ function toOpenWindowByType(inType, uri) {
 // End { For Venkman }
 
 var debug = {
+  aboutMemory: function debug_aboutMemory() {
+    openDialog("about:memory");
+  },
+
   config: function debug_config() {
     Core.showWindow("Preferences:ConfigManager", configWindow, "Config",
                     "chrome,resizable,centerscreen");
