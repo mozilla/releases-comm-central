@@ -38,7 +38,8 @@
     <description>&accountProtocolInfo.label2;</description>
     <separator class="thin"/>
     <richlistbox flex="1" id="topprotolist"
-                 ondblclick="document.getElementById('accountWizard').advance();">
+                 ondblclick="document.getElementById('accountWizard').advance();"
+                 onkeypress="accountWizard.topProtocolListKeypress();">
       <richlistitem id="otherListItem">
         <label class="top-proto-name" value="&accountProtocolShowMore.label;"/>
         <description class="top-proto-description" value="&accountProtocolShowMore.description;"/>

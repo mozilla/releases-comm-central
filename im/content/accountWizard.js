@@ -584,5 +584,12 @@ var accountWizard = {
     });
 
     protoList.selectedIndex = 0;
+  },
+
+  topProtocolListKeypress: function() {
+    // Override the listbox behavior that sets a negative currentIndex to 0.
+    let topProtoList = document.getElementById("topprotolist");
+    if (topProtoList.selectedIndex < 0)
+      topProtoList.currentIndex = topProtoList.selectedIndex;
   }
 };
