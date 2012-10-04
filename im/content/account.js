@@ -116,12 +116,13 @@ var account = {
   },
 
   createTextbox: function account_createTextbox(aType, aValue, aLabel, aName) {
-    var box = document.createElement("vbox");
+    let row = document.createElement("row");
+    row.setAttribute("align", "center");
 
     var label = document.createElement("label");
-    label.setAttribute("value", aLabel);
+    label.textContent = aLabel;
     label.setAttribute("control", aName);
-    box.appendChild(label);
+    row.appendChild(label);
 
     var textbox = document.createElement("textbox");
     if (aType)
@@ -134,12 +135,13 @@ var account = {
   },
 
   createMenulist: function account_createMenulist(aList, aLabel, aName) {
-    let box = document.createElement("vbox");
+    let vbox = document.createElement("vbox");
+    vbox.setAttribute("flex", "1");
 
     var label = document.createElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
-    box.appendChild(label);
+    vbox.appendChild(label);
 
     aList.QueryInterface(Ci.nsISimpleEnumerator);
     var menulist = document.createElement("menulist");
@@ -152,8 +154,8 @@ var account = {
       item.setAttribute("value", elt.value);
       popup.appendChild(item);
     }
-    box.appendChild(menulist);
-    return box;
+    vbox.appendChild(menulist);
+    return vbox;
   },
 
   getBool: function account_getBool(aOpt) {
@@ -185,7 +187,7 @@ var account = {
   },
 
   populateProtoSpecificBox: function account_populate() {
-    var gbox = document.getElementById("protoSpecific");
+    let rows = document.getElementById("protoSpecific");
     var id = this.proto.id;
     for (let opt in this.getProtoOptions()) {
       var text = opt.label;
@@ -197,25 +199,25 @@ var account = {
           chk.setAttribute("checked", "true");
         chk.setAttribute("label", text);
         chk.setAttribute("id", name);
-        gbox.appendChild(chk);
+        rows.appendChild(chk);
         break;
       case opt.typeInt:
-        gbox.appendChild(this.createTextbox("number", this.getInt(opt),
+        rows.appendChild(this.createTextbox("number", this.getInt(opt),
                                             text, name));
         break;
       case opt.typeString:
-        gbox.appendChild(this.createTextbox(null, this.getString(opt),
+        rows.appendChild(this.createTextbox(null, this.getString(opt),
                                             text, name));
         break;
       case opt.typeList:
-        gbox.appendChild(this.createMenulist(opt.getList(), text, name));
+        rows.appendChild(this.createMenulist(opt.getList(), text, name));
         document.getElementById(name).value = this.getListValue(opt);
         break;
       default:
         throw "unknown preference type " + opt.type;
       }
     }
-    if (!gbox.firstChild)
+    if (!rows.firstChild)
       document.getElementById("advancedTab").hidden = true;
   },
 

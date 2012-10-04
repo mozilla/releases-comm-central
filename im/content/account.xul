@@ -72,7 +72,13 @@
       </tabpanel>
 
       <tabpanel id="advanced" flex="1" style="overflow:auto;">
-        <vbox id="protoSpecific" flex="1"/>
+        <grid flex="1">
+          <columns>
+            <column id="label-column" flex="1"/>
+            <column id="value-column" flex="1"/>
+          </columns>
+          <rows id="protoSpecific"/>
+        </grid>
       </tabpanel>
 
     </tabpanels>
