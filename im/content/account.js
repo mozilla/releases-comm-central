@@ -130,8 +130,8 @@ var account = {
     textbox.setAttribute("value", aValue);
     textbox.setAttribute("id", aName);
 
-    box.appendChild(textbox);
-    return box;
+    row.appendChild(textbox);
+    return row;
   },
 
   createMenulist: function account_createMenulist(aList, aLabel, aName) {
