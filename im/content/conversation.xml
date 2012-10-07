@@ -90,8 +90,15 @@
      <method name="destroy">
        <body>
          <![CDATA[
-           if (this._conv)
+           if (this._conv) {
+             if (this._conv.isChat) {
+               for each (let chatBuddy in this.buddies) {
+                 if (chatBuddy.activeTimer)
+                   clearTimeout(chatBuddy.activeTimer);
+               }
+             }
              this._forgetConv();
+           }
 
            if ("MessageFormat" in window) {
              let textbox = this.editor;
@@ -188,27 +195,7 @@
           if (this._hasBuddy(name)) {
             let buddy = this.buddies[name];
             color = buddy.color;
-
-            // Set nick to active if the message is not older than
-            // nickActiveTimespan.
-            let nickActiveTimespan =
-              Services.prefs.getIntPref("messenger.conversations.nickActiveTimespan");
-            if (nickActiveTimespan > 0) {
-              let msgAge = Date.now() / 1000 - aMsg.time;
-              let waitBeforeInactive = nickActiveTimespan - msgAge;
-              if (waitBeforeInactive > 0) {
-                // Set a timer so the nick will return to inactive again.
-                if (buddy.activeTimer)
-                  clearTimeout(buddy.activeTimer);
-                buddy.activeTimer = setTimeout(function() {
-                  delete buddy.activeTimer;
-                  buddy.setAttribute("inactive", "true");
-                }, waitBeforeInactive * 1000);
-                buddy.removeAttribute("inactive");
-              }
-            }
-            else
-              buddy.removeAttribute("inactive");
+            this._activateBuddy(buddy, aMsg.time);
           }
           else {
             // Buddy no longer in the room
@@ -1103,6 +1090,36 @@
        </body>
      </method>
 
+     <!-- Set nick to active if the last message is not older than
+          nickActiveTimespan. -->
+     <method name="_activateBuddy">
+       <parameter name="aBuddy"/>
+       <parameter name="aLastMsgTime"/>
+       <body>
+       <![CDATA[
+         let nickActiveTimespan =
+           Services.prefs.getIntPref("messenger.conversations.nickActiveTimespan");
+         if (nickActiveTimespan > 0) {
+           let waitBeforeInactive =
+             (aLastMsgTime + nickActiveTimespan) * 1000 - Date.now();
+           // To avoid "blinking" nicks, don't bother setting to active
+           // if there's less than 5s left to go.
+           if (waitBeforeInactive < 5000)
+             return;
+           // Set a timer so the nick will return to inactive again.
+           if (aBuddy.activeTimer)
+             clearTimeout(aBuddy.activeTimer);
+           aBuddy.activeTimer = setTimeout(function() {
+             delete aBuddy.activeTimer;
+             aBuddy.setAttribute("inactive", "true");
+           }, waitBeforeInactive);
+         }
+         aBuddy.lastMsgTime = aLastMsgTime;
+         aBuddy.removeAttribute("inactive");
+       ]]>
+       </body>
+     </method>
+
      <!-- Add a buddy in the visible list of participants -->
      <method name="addBuddy">
        <parameter name="aBuddy"/>
@@ -1111,6 +1128,7 @@
          var name = aBuddy.name;
          if (this._hasBuddy(name))
            throw "Adding chat buddy " + name + " twice?!";
+
          var item = document.createElement("listitem");
          item.chatBuddy = aBuddy;
          item.setAttribute("class", "listitem-iconic");
@@ -1120,11 +1138,22 @@
          var color = this._computeColor(name);
          var style = "color: hsl(" + color + ", 100%, 40%);";
          item.setAttribute("style", style);
-         item.setAttribute("inactive", "true");
          item.color = color;
-         this.buddies[name] = item;
+
+         item.setAttribute("inactive", "true");
+         if (Object.prototype.hasOwnProperty.call(this.partedBuddies, name)) {
+           let parted = this.partedBuddies[name];
+           // If the buddy was absent for less than this timespan (in ms),
+           // it retains its active participant status on rejoining.
+           const kRestoreActiveTimespan = 300000;
+           if (parted.lastMsgTime &&
+               (Date.now() - parted.partTime) < kRestoreActiveTimespan)
+             this._activateBuddy(item, parted.lastMsgTime);
+           delete this.partedBuddies[name];
+         }
 
          // Insert item at the right position
+         this.buddies[name] = item;
          this.addNick(item);
        ]]>
        </body>
@@ -1192,6 +1221,7 @@
        ]]>
        </body>
      </method>
+
      <method name="removeBuddy">
        <parameter name="aName"/>
        <body>
@@ -1199,8 +1229,11 @@
          if (!this._hasBuddy(aName))
            throw "Cannot remove a buddy that was not in the room";
          var item = this.buddies[aName];
-         if (item.activeTimer)
+         this.partedBuddies[aName] = {partTime: Date.now()};
+         if (item.activeTimer) {
            clearTimeout(item.activeTimer);
+           this.partedBuddies[aName].lastMsgTime = item.lastMsgTime;
+         }
          item.parentNode.removeChild(item);
          delete this.buddies[aName];
        ]]>
@@ -1418,6 +1451,7 @@
 
            // Populate the nicklist
            this.buddies = {};
+           this.partedBuddies = {};
            var nicks = getIter(this.conv.getParticipants());
            for (let n in nicks)
              this.addBuddy(n);
