@@ -33,7 +33,7 @@ function scriptError(aModule, aLevel, aMessage) {
   let logLevel = -1;
   let logKeys = ["level"].concat(aModule.split("."));
   for (; logKeys.length > 0; logKeys.pop()) {
-    logKey = logKeys.join(".");
+    let logKey = logKeys.join(".");
     if (logKey in gLogLevels) {
       logLevel = gLogLevels[logKey];
       break;
