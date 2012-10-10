@@ -26,6 +26,7 @@ var gAdvancedPane = {
         advancedPrefs.selectedIndex = preference.value;
     }
 
+    this.updateConnectionGroupbox();
 #ifdef MOZ_UPDATER
     this.updateAppUpdateItems();
     this.updateAutoItems();
@@ -147,6 +148,22 @@ var gAdvancedPane = {
   {
     document.documentElement.openSubDialog("chrome://instantbird/content/proxies.xul",
                                            "", null);
+  },
+
+  /**
+   * Adapt the content of the connection groupbox depending on libpurple being
+   * there or not.
+   */
+  updateConnectionGroupbox: function ()
+  {
+    let hasLibpurple = "@instantbird.org/libpurple/core;1" in Components.classes;
+    // Hide explanatory header and libpurple section.
+    document.getElementById("connectionGroupHeader").hidden = !hasLibpurple;
+    document.getElementById("connectionGroupSeparator").hidden = !hasLibpurple;
+    document.getElementById("purpleConnectionBox").hidden = !hasLibpurple;
+    // Choose appropriate label for the Mozilla proxy options.
+    document.getElementById("mozConnLabelWithoutLibpurple").hidden = hasLibpurple;
+    document.getElementById("mozConnLabelWithLibpurple").hidden = !hasLibpurple;
   },
 
   // UPDATE TAB

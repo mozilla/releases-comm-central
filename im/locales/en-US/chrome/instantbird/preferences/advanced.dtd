@@ -37,7 +37,7 @@
 
 <!ENTITY connectionDesc.label            "Configure how &brandShortName; connects to the Internet">
 <!ENTITY connectionInfoDesc.label        "The two following parts will be merged in a later version.">
-<!ENTITY connectionAccountsDesc.label    "To connect accounts">
+<!ENTITY connectionLibpurpleDesc.label   "For libpurple-based accounts">
 <!ENTITY connectionOtherDesc.label       "For everything else (updates, addons, …)">
 <!ENTITY connectionSettings.label        "Settings…">
 <!ENTITY connectionSettings.accesskey    "e">

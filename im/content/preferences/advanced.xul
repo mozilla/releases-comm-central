@@ -184,7 +184,7 @@
            <groupbox id="connectionGroup">
              <caption label="&connection.label;"/>
 
-             <hbox align="center">
+             <hbox id="connectionGroupHeader" align="center">
                <image style="padding-right: 1em;" src="chrome://global/skin/icons/information-32.png"/>
                <vbox>
                  <description flex="1">&connectionInfoDesc.label;</description>
@@ -192,17 +192,18 @@
                </vbox>
              </hbox>
 
-             <separator class="thin"/>
+             <separator id="connectionGroupSeparator" class="thin"/>
 
              <hbox align="center" id="purpleConnectionBox">
-               <description flex="1" control="connectionSettingsPurple">&connectionAccountsDesc.label;</description>
+               <description flex="1" control="connectionSettingsPurple">&connectionLibpurpleDesc.label;</description>
                <button id="connectionSettingsPurple" icon="network" label="&connectionSettings.label;"
                        accesskey="&connectionSettings.accesskey;"
                        oncommand="gAdvancedPane.showProxies();"/>
              </hbox>
 
              <hbox align="center" id="mozillaConnectionBox">
-               <description flex="1" control="connectionSettings">&connectionOtherDesc.label;</description>
+               <description id="mozConnLabelWithoutLibpurple" flex="1" control="connectionSettings">&connectionDesc.label;</description>
+               <description id="mozConnLabelWithLibpurple" flex="1" control="connectionSettings">&connectionOtherDesc.label;</description>
                <button id="connectionSettings" icon="network" label="&connectionSettings.label;"
                        accesskey="&connectionSettings2.accesskey;"
                        oncommand="gAdvancedPane.showConnections();"/>

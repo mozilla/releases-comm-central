@@ -50,10 +50,15 @@
           versionField.value = versionField.value + xai.platformVersion
                              + ' (' + xai.platformBuildID + ')';
 
-          var pcs = Components.classes["@instantbird.org/libpurple/core;1"]
-                              .getService(Components.interfaces.purpleICoreService)
           versionField = document.getElementById("libpurpleVersionField");
-          versionField.value = versionField.value + pcs.version;
+          if ("@instantbird.org/libpurple/core;1" in Components.classes) {
+            var pcs = Components.classes["@instantbird.org/libpurple/core;1"]
+                                .getService(Components.interfaces.purpleICoreService);
+            versionField.value = versionField.value + pcs.version;
+          }
+          else {
+            versionField.hidden = true;
+          }
 
           versionField = document.getElementById("userAgentField");
           versionField.value = navigator.userAgent;

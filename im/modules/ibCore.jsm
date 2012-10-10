@@ -30,7 +30,7 @@ var Core = {
       // don't worry too much about this exception.
     }
 
-    if (!Ci.purpleICoreService) {
+    if (!Ci.imICoreService) {
       this._promptError("startupFailure.purplexpcomFileError");
       return false;
     }
