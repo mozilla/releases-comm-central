@@ -50,7 +50,7 @@
         <xul:splitter class="splitter" anonid="splitter-bottom"/>
         <xul:vbox anonid="conv-bottom" class="conv-bottom">
           <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"
-                       onclick = "delete _completions;"/>
+                       onclick = "delete document.getBindingParent(this)._completions;"/>
         </xul:vbox>
       </xul:vbox>
     </content>
