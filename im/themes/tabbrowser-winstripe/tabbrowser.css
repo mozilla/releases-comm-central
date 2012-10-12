@@ -84,7 +84,9 @@ toolbarbutton > .toolbarbutton-icon {
   background-repeat: no-repeat;
   margin: 0;
   padding: 0;
-  -moz-border-image: url(tabbrowser/tab.png) 6 3 4 / 6px 3px 4px repeat stretch;
+  border-width: 6px 3px 4px;
+  border-style: solid;
+  border-image: url(tabbrowser/tab.png) 6 3 4 fill repeat stretch;
   border-radius: 7px 7px 0 0;
 }
 
@@ -259,7 +261,9 @@ toolbarbutton > .toolbarbutton-icon {
 
 .tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]),
 .tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]) {
-  -moz-border-image: url("chrome://instantbird/skin/tabbrowser/tab-overflow-border.png") 0 2 0 2 / 0 2px 0 0;
+  border-width: 0 2px 0 0;
+  border-style: solid;
+  border-image: url("chrome://instantbird/skin/tabbrowser/tab-overflow-border.png") 0 2 0 2 fill;
 }
 
 .tabs-newtab-button > .toolbarbutton-icon {
