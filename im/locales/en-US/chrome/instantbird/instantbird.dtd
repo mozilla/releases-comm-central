@@ -39,7 +39,8 @@
 <!ENTITY contacts.accesskey "C">
 <!ENTITY contacts.commandkey "c">
 <!ENTITY addonManager       "Add-ons">
-<!ENTITY addonManager.key   "d">
+<!ENTITY addonManager.accesskey       "d">
+<!ENTITY addonManager.commandkey      "d">
 <!ENTITY checkForUpdates    "Check for Updates">
 <!ENTITY help.menu          "Help">
 <!ENTITY help.accesskey     "H">

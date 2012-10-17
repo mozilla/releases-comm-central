@@ -37,7 +37,7 @@
     <key id="key_quitApplication" key="&quitApplicationCmdMac.key;" command="cmd_quitApplication" modifiers="accel"/>
     <key id="joinChatkey" key="&joinChat.commandkey;" command="cmd_joinchat" modifiers="accel"/>
     <key id="addBuddykey" key="&addBuddy.commandkey;" command="cmd_addbuddy" modifiers="accel"/>
-    <key id="addonskey" key="&addonManager.key;" command="cmd_addons" modifiers="accel"/>
+    <key id="addonskey" key="&addonManager.commandkey;" command="cmd_addons" modifiers="accel"/>
   </keyset>
 
   <menubar id="blistMenubar">
@@ -64,7 +64,7 @@
     <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
       <menupopup id="toolsMenuPopup"> <!-- has onpopupshowing on mac -->
         <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
-        <menuitem id="addonsMenuItem" label="&addonManager;" command="cmd_addons" key="addonskey" accesskey="&addonManager.key;"/>
+        <menuitem id="addonsMenuItem" label="&addonManager;" command="cmd_addons" key="addonskey" accesskey="&addonManager.accesskey;"/>
         <menuseparator/>
         <menuitem id="errorConsoleMenuItem" label="&errorConsoleCmd.label;" oncommand="menus.errors()" key="errorConsoleKey" accesskey="&errorConsoleCmd.accesskey;"/>
         <menuseparator id="prefSep"/>
