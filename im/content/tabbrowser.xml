@@ -1327,7 +1327,7 @@
               return;
             }
 #endif
-            if (aEvent.target.localName == "tabbrowser") {
+            if (aEvent.target.localName == "tabconversation") {
               switch (aEvent.keyCode) {
                 case KeyEvent.DOM_VK_UP:
                   this.tabbrowser.moveTabBackward();
