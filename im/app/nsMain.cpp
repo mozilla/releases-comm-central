@@ -13,7 +13,7 @@
 #include <stdarg.h>
 
 #include "nsCOMPtr.h"
-#include "nsILocalFile.h"
+#include "nsIFile.h"
 #include "nsStringGlue.h"
 
 #ifdef XP_WIN
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 {
   ScopedLogging log;
 
-  nsCOMPtr<nsILocalFile> appini;
+  nsCOMPtr<nsIFile> appini;
   nsresult rv = XRE_GetBinaryPath(argv[0], getter_AddRefs(appini));
   if (NS_FAILED(rv)) {
     Output("Couldn't calculate the application directory.");

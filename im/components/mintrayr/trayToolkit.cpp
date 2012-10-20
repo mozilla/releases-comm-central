@@ -14,7 +14,6 @@
 
 #include "nsIDOMEvent.h"
 #include "nsIDOMEventTarget.h"
-#include "nsIPrivateDOMEvent.h"
 #include "nsIDOMMouseEvent.h"
 
 #include "nsIWebNavigation.h"
@@ -95,13 +94,10 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
   rv = domDocument->CreateEvent(NS_LITERAL_STRING("Events"), getter_AddRefs(event));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIPrivateDOMEvent> privateEvent(do_QueryInterface(event, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   rv = event->InitEvent(aEventName, false, true);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = privateEvent->SetTrusted(true);
+  rv = event->SetTrusted(true);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool dummy;
