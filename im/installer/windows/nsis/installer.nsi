@@ -28,6 +28,7 @@ Var AddStartMenuSC
 Var AddQuickLaunchSC
 Var AddDesktopSC
 Var PageName
+Var InstallMaintenanceService
 
 ; On Vista and above attempt to elevate Standard Users in addition to users that
 ; are a member of the Administrators group.
