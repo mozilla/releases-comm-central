@@ -91,7 +91,7 @@
        <body>
          <![CDATA[
            if (this._conv) {
-             if (this._conv.isChat) {
+             if ("buddies" in this) {
                for each (let chatBuddy in this.buddies) {
                  if (chatBuddy.activeTimer)
                    clearTimeout(chatBuddy.activeTimer);
