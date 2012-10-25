@@ -33,4 +33,4 @@
 
 <!ENTITY accountSummaryTitle.label   "Summary">
 <!ENTITY accountSummaryInfo.label    "A summary of the information you entered is displayed below. Please check it before the account is created.">
-<!ENTITY accountSummary.connectNow.label "Connect this account now.">
+<!ENTITY accountSummary.connectAutomatically.label "Connect this account automatically.">

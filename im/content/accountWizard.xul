@@ -144,7 +144,7 @@
       <rows id="summaryRows"/>
     </grid>
     <separator/>
-    <checkbox id="connectNow" label= "&accountSummary.connectNow.label;" checked="true"/>
+    <checkbox id="connectAutomatically" label= "&accountSummary.connectAutomatically.label;" checked="true"/>
   </wizardpage>
 
 </wizard>

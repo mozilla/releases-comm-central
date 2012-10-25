@@ -437,7 +437,7 @@ var accountWizard = {
         throw "unknown type";
       }
     }
-    let autologin = this.getValue("connectNow");
+    let autologin = this.getValue("connectAutomatically");
     acc.autoLogin = autologin;
 
     if (this.proto.usePurpleProxy)
