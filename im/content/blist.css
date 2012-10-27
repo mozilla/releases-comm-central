@@ -82,8 +82,13 @@ tooltip[type="buddy"] {
   -moz-binding: url("chrome://instantbird/content/buddytooltip.xml#tooltip");
 }
 
+#userIcon {
+  -moz-user-focus: normal;
+}
+
 #statusTypeIcon {
   cursor: pointer;
+  -moz-user-focus: ignore;
 }
 
 #displayName,
@@ -137,6 +142,10 @@ conv {
 
 #buddyListMsg[listedConvCount="0"] > .listboxHeader {
   display: none;
+}
+
+#buddyListMsg[listedConvCount="0"] > #convlistbox {
+  -moz-user-focus: ignore;
 }
 
 /* Make the notification bar work with narrow windows. */

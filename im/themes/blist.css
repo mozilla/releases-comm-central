@@ -341,6 +341,7 @@ group[closed] .twisty {
   background-repeat: no-repeat;
 }
 
+#userIcon:focus,
 #userIcon:hover {
   border-color: rgba(0,0,0,0.35);
   background-color: rgba(0,0,0,0.35);
@@ -431,3 +432,26 @@ group[closed] .twisty {
   margin-bottom: 18px;
 }
 %endif
+
+#statusMessage:-moz-focusring:not([editing]) {
+%ifdef XP_MACOSX
+  margin: 30px -2px -1px -22px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 5px;
+%else
+  margin: 31px -1px -1px -21px;
+  border: dotted 1px -moz-dialogtext;
+%endif
+  padding-left: 20px; /* 16px for the statusTypeIcon and 4px from the margins on the two stacks */
+}
+
+#displayName:-moz-focusring:not([editing]) {
+%ifdef XP_MACOSX
+  margin: -1px -1px 16px -2px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 5px;
+%else
+  margin: -1px -1px 17px;
+  border: dotted 1px -moz-dialogtext;
+%endif
+}

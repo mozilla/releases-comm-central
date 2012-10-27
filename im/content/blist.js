@@ -475,7 +475,8 @@ var buddyList = {
     let elt = document.getElementById("statusMessage");
     if (!elt.hasAttribute("editing")) {
       elt.setAttribute("editing", "true");
-      elt.addEventListener("keypress", this.statusMessageKeyPress);
+      elt.removeAttribute("role");
+      elt.removeAttribute("aria-haspopup");
       elt.addEventListener("blur", this.statusMessageBlur);
       if (elt.hasAttribute("usingDefault")) {
         if ("_statusTypeBeforeEditing" in this &&
@@ -509,6 +510,23 @@ var buddyList = {
   },
 
   statusMessageKeyPress: function bl_statusMessageKeyPress(aEvent) {
+    let editing = document.getElementById("statusMessage").hasAttribute("editing");
+    if (!editing) {
+      switch (aEvent.keyCode) {
+        case aEvent.DOM_VK_DOWN:
+          buddyList.openStatusTypePopup();
+          aEvent.preventDefault();
+          return;
+
+        case aEvent.DOM_VK_TAB:
+          break;
+
+        default:
+          if (aEvent.charCode == aEvent.DOM_VK_SPACE)
+            buddyList.statusMessageClick();
+          return;
+      }
+    }
     switch (aEvent.keyCode) {
       case aEvent.DOM_VK_RETURN:
       case aEvent.DOM_VK_ENTER:
@@ -517,6 +535,14 @@ var buddyList = {
 
       case aEvent.DOM_VK_ESCAPE:
         buddyList.finishEditStatusMessage(false);
+        break;
+
+      case aEvent.DOM_VK_TAB:
+        if (aEvent.shiftKey)
+          break;
+        // Ensure some item is selected when navigating by keyboard.
+        if (!this.selectFirstItem("convlistbox"))
+          this.selectFirstItem("buddylistbox");
         break;
 
       default:
@@ -556,13 +582,47 @@ var buddyList = {
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
     TextboxSpellChecker.unregisterTextbox(elt);
     elt.removeAttribute("editing");
-    elt.removeEventListener("keypress", this.statusMessageKeyPress, false);
+    elt.setAttribute("role", "button");
+    elt.setAttribute("aria-haspopup", "true");
     elt.removeEventListener("blur", this.statusMessageBlur, false);
     if (!elt.getAttribute("focused"))
       return;
     // Force layout to remove input binding.
     elt.getBoundingClientRect();
     elt.focus();
+  },
+
+  openStatusTypePopup: function() {
+    let button = document.getElementById("statusTypeIcon");
+    document.getElementById("setStatusTypeMenupopup").openPopup(button, "after_start");
+  },
+
+  onStatusTypePopupShown: function() {
+    // Without this, the #userIcon gains focus when the popup is opened
+    // from the #statusMessage whenever the #statusMessage has been edited
+    // at least once (thus changing the binding).
+    document.getElementById("statusMessage").focus();
+  },
+
+  userIconKeyPress: function bl_userIconKeyPress(aEvent) {
+    switch (aEvent.keyCode) {
+      case aEvent.DOM_VK_RETURN:
+      case aEvent.DOM_VK_ENTER:
+        this.userIconClick();
+        break;
+
+      case aEvent.DOM_VK_TAB:
+        if (!aEvent.shiftKey)
+          break;
+        // Ensure a contact is selected when navigating by keyboard.
+        this.selectFirstItem("buddylistbox");
+        break;
+
+      default:
+        if (aEvent.charCode == aEvent.DOM_VK_SPACE)
+          this.userIconClick();
+        break;
+    }
   },
 
   userIconClick: function bl_userIconClick() {
@@ -581,9 +641,9 @@ var buddyList = {
     let elt = document.getElementById("displayName");
     if (!elt.hasAttribute("editing")) {
       elt.setAttribute("editing", "true");
+      elt.removeAttribute("role");
       if (elt.hasAttribute("usingDefault"))
         elt.removeAttribute("value");
-      elt.addEventListener("keypress", this.displayNameKeyPress);
       elt.addEventListener("blur", this.displayNameBlur);
       // force binding attachment by forcing layout
       elt.getBoundingClientRect();
@@ -607,6 +667,12 @@ var buddyList = {
   },
 
   displayNameKeyPress: function bl_displayNameKeyPress(aEvent) {
+    let editing = document.getElementById("displayName").hasAttribute("editing");
+    if (!editing) {
+      if (aEvent.charCode == aEvent.DOM_VK_SPACE)
+        buddyList.displayNameClick();
+      return;
+    }
     switch (aEvent.keyCode) {
       case aEvent.DOM_VK_RETURN:
       case aEvent.DOM_VK_ENTER:
@@ -632,7 +698,7 @@ var buddyList = {
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
 
     elt.removeAttribute("editing");
-    elt.removeEventListener("keypress", this.displayNameKeyPress, false);
+    elt.setAttribute("role", "button");
     elt.removeEventListener("blur", this.displayNameBlur, false);
     if (!elt.getAttribute("focused"))
       return;
@@ -776,11 +842,28 @@ var buddyList = {
     Services.prefs.removeObserver(showOfflineBuddiesPref, buddyList);
    },
 
+  selectFirstItem: function (aListboxID) {
+    let listbox = document.getElementById(aListboxID);
+    if (!listbox.itemCount)
+      return false;
+    if (listbox.selectedIndex == -1)
+      listbox.selectedIndex = 0;
+    return true;
+  },
+
   // Handle key pressing
   keyPress: function bl_keyPress(aEvent) {
     let target = aEvent.target;
     while (target && target.localName != "richlistbox")
       target = target.parentNode;
+    if (aEvent.keyCode == aEvent.DOM_VK_TAB) {
+      // Ensure some item is selected when navigating by keyboard.
+      if (target.id == "convlistbox" && !aEvent.shiftKey)
+        this.selectFirstItem("buddylistbox");
+      if (target.id == "buddylistbox" && aEvent.shiftKey)
+        this.selectFirstItem("convlistbox");
+      return;
+    }
     var item = target.selectedItem;
     if (!item || !item.parentNode) // empty list or item no longer in the list
       return;

@@ -83,6 +83,7 @@
 <!ENTITY copyEmailCmd.accesskey       "E">
 <!ENTITY engineManagerCmd.label       "Manage Search Engines…">
 
+<!ENTITY userIcon.label                "Change your icon">
 <!ENTITY contactsHeader.label          "Contacts">
 <!ENTITY convsHeader.label             "Conversations on hold">
 

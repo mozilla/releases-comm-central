@@ -119,9 +119,13 @@
   <toolbox id="mainToolbox">
     <toolbar id="statusArea">
       <stack id="statusImageStack">
-        <image id="userIcon" onclick="buddyList.userIconClick();"/>
+        <image id="userIcon" role="button"
+               aria-label="&userIcon.label;" tooltiptext="&userIcon.label;"
+               onclick="buddyList.userIconClick();"
+               onkeypress="buddyList.userIconKeyPress(event);"/>
         <button type="menu" id="statusTypeIcon" status="available">
           <menupopup id="setStatusTypeMenupopup"
+                     onpopupshown="buddyList.onStatusTypePopupShown();"
                      oncommand="buddyList.editStatus(event);">
             <menuitem id="statusTypeAvailable" label="&available;"
                       status="available" class="menuitem-iconic"/>
@@ -135,10 +139,14 @@
       </stack>
       <stack id="displayNameAndstatusMessageStack" flex="1">
         <vbox flex="1" pack="center">
-          <label id="displayName" onclick="buddyList.displayNameClick();"/>
+          <label id="displayName" role="button"
+                 onclick="buddyList.displayNameClick();"
+                 onkeypress="buddyList.displayNameKeyPress(event);"/>
         </vbox>
         <label id="statusMessage" crop="end" value=""
-               onclick="buddyList.statusMessageClick();"/>
+               aria-haspopup="true" role="button"
+               onclick="buddyList.statusMessageClick();"
+               onkeypress="buddyList.statusMessageKeyPress(event);"/>
       </stack>
     </toolbar>
   </toolbox>
