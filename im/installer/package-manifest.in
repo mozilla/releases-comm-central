@@ -459,6 +459,8 @@
 @BINPATH@/components/gtalk.manifest
 @BINPATH@/components/twitter.js
 @BINPATH@/components/twitter.manifest
+@BINPATH@/components/vkontakte.js
+@BINPATH@/components/vkontakte.manifest
 @BINPATH@/components/xmpp.js
 @BINPATH@/components/xmpp.manifest
 @BINPATH@/components/smileProtocolHandler.js
