@@ -191,17 +191,9 @@
 
         if (!aMsg.system && conv.isChat) {
           let name = aMsg.who;
-          let color;
-          if (this._hasBuddy(name)) {
-            let buddy = this.buddies[name];
-            color = buddy.color;
-            this._activateBuddy(buddy, aMsg.time);
-          }
-          else {
-            // Buddy no longer in the room
-            color = this._computeColor(name);
-          }
-          aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
+          aMsg.color = this._hasBuddy(name) ?
+                       this._activateBuddy(this.buddies[name], aMsg.time) :
+                       this._getColorStyle(this._computeColor(name));
         }
 
         let read = this._readCount > 0;
@@ -1025,8 +1017,7 @@
      <method name="updateParticipantCount">
        <body>
        <![CDATA[
-         this.getElt("participantCount").value =
-           Object.keys(this.buddies).length;
+         this.getElt("participantCount").value = this._nicks.length;
        ]]>
        </body>
      </method>
@@ -1079,6 +1070,30 @@
        </body>
      </method>
 
+     <!-- Returns the CSS color style for a nick color -->
+     <method name="_getColorStyle">
+       <parameter name="aColor"/>
+       <body>
+       <![CDATA[
+         return "color: hsl(" + aColor + ", 100%, 40%);";
+       ]]>
+       </body>
+     </method>
+
+     <!-- Set buddy color attributes -->
+     <method name="_setBuddyColor">
+       <parameter name="aBuddy"/>
+       <body>
+       <![CDATA[
+         let color = this._computeColor(aBuddy.chatBuddy.name);
+         aBuddy.color = color;
+         let style = this._getColorStyle(color);
+         aBuddy.colorStyle = style;
+         aBuddy.setAttribute("style", style);
+       ]]>
+       </body>
+     </method>
+
      <!-- Test if aBuddyName is known in this.buddies without
           risking a conflict with an hypothetical hasOwnProperty nick. -->
      <method name="_hasBuddy">
@@ -1097,6 +1112,8 @@
        <parameter name="aLastMsgTime"/>
        <body>
        <![CDATA[
+         if (!aBuddy.colorStyle)
+           this._setBuddyColor(aBuddy);
          let nickActiveTimespan =
            Services.prefs.getIntPref("messenger.conversations.nickActiveTimespan");
          if (nickActiveTimespan > 0) {
@@ -1105,7 +1122,7 @@
            // To avoid "blinking" nicks, don't bother setting to active
            // if there's less than 5s left to go.
            if (waitBeforeInactive < 5000)
-             return;
+             return aBuddy.colorStyle;
            // Set a timer so the nick will return to inactive again.
            if (aBuddy.activeTimer)
              clearTimeout(aBuddy.activeTimer);
@@ -1116,13 +1133,18 @@
          }
          aBuddy.lastMsgTime = aLastMsgTime;
          aBuddy.removeAttribute("inactive");
+         return aBuddy.colorStyle;
        ]]>
        </body>
      </method>
 
-     <!-- Add a buddy in the visible list of participants -->
+     <!-- Add a buddy in the visible list of participants.
+          If aShouldAppendDirectly is true, the buddy will be added to the end
+          of the participant list, skipping the search for the correct
+          insert position to optimize performance. -->
      <method name="addBuddy">
        <parameter name="aBuddy"/>
+       <parameter name="aShouldAppendDirectly"/>
        <body>
        <![CDATA[
          var name = aBuddy.name;
@@ -1134,11 +1156,6 @@
          item.setAttribute("class", "listitem-iconic");
          item.setAttribute("label", name);
          this.setBuddyAttributes(item);
-
-         var color = this._computeColor(name);
-         var style = "color: hsl(" + color + ", 100%, 40%);";
-         item.setAttribute("style", style);
-         item.color = color;
 
          item.setAttribute("inactive", "true");
          if (Object.prototype.hasOwnProperty.call(this.partedBuddies, name)) {
@@ -1152,37 +1169,52 @@
            delete this.partedBuddies[name];
          }
 
-         // Insert item at the right position
          this.buddies[name] = item;
+         if (aShouldAppendDirectly) {
+           this.nicklistElt.appendChild(item);
+           this._nicks.push(name.toLowerCase());
+           return;
+         }
+         // Insert item at the right position
          this.addNick(item);
        ]]>
        </body>
      </method>
 
+     <!-- Array of lowercase nicks kept in the order in which they are
+          displayed in the participant list.
+          This array is for performance optimization only. To obtain the
+          capitalized list of nicks use Object.keys(this.buddies) -->
+     <field name="_nicks">[]</field>
+
      <method name="addNick">
        <parameter name="aListItem"/>
        <body>
        <![CDATA[
-         var nicklist = this.getElt("nicklist");
-         var nick = aListItem.getAttribute("label").toLowerCase();
+         let nick = aListItem.chatBuddy.name.toLowerCase();
 
          // Look for the place of the nick in the list
-         var start = 0;
-         var end = nicklist.itemCount;
+         let itemCount = this._nicks.length;
+         let start = 0;
+         let end = itemCount;
          while (start < end) {
-           var middle = start + Math.floor((end - start) / 2);
-           if (nick < nicklist.getItemAtIndex(middle)
-                              .getAttribute("label").toLowerCase())
+           let middle = start + Math.floor((end - start) / 2);
+           if (nick < this._nicks[middle])
              end = middle;
            else
              start = middle + 1;
          }
 
          // Now insert the element
-         if (end == nicklist.itemCount)
+         let nicklist = this.nicklistElt;
+         if (end == itemCount) {
            nicklist.appendChild(aListItem);
-         else
+           this._nicks.push(nick);
+         }
+         else {
            nicklist.insertBefore(aListItem, nicklist.getItemAtIndex(end));
+           this._nicks.splice(end, 0, nick);
+         }
        ]]>
        </body>
      </method>
@@ -1216,7 +1248,8 @@
          item.setAttribute("label", name);
 
          // Move this item to the right position if its name changed
-         this.getElt("nicklist").removeChild(item);
+         this._nicks.splice(this._nicks.indexOf(aOldName.toLowerCase()), 1);
+         this.nicklistElt.removeChild(item);
          this.addNick(item);
        ]]>
        </body>
@@ -1234,7 +1267,8 @@
            clearTimeout(item.activeTimer);
            this.partedBuddies[aName].lastMsgTime = item.lastMsgTime;
          }
-         item.parentNode.removeChild(item);
+         this._nicks.splice(this._nicks.indexOf(aName.toLowerCase()), 1);
+         this.nicklistElt.removeChild(item);
          delete this.buddies[aName];
        ]]>
        </body>
@@ -1452,9 +1486,16 @@
            // Populate the nicklist
            this.buddies = {};
            this.partedBuddies = {};
-           var nicks = getIter(this.conv.getParticipants());
-           for (let n in nicks)
-             this.addBuddy(n);
+           this._nicks = [];
+           this.nicklistElt = this.getElt("nicklist");
+           let enumerator = this.conv.getParticipants();
+           let chatBuddies = [];
+           while (enumerator.hasMoreElements()) {
+             let buddy = enumerator.getNext();
+             chatBuddies.push({name: buddy.name.toLowerCase(), buddy: buddy});
+           }
+           chatBuddies.sort(function(a, b) a.name < b.name ? -1 : 1)
+                      .forEach(function(a) this.addBuddy(a.buddy, true), this);
            this.updateParticipantCount();
          }
          else if (this._conv.contact && this._conv.contact.getBuddies().length > 1)
