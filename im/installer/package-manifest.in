@@ -457,6 +457,8 @@
 @BINPATH@/components/facebook.manifest
 @BINPATH@/components/gtalk.js
 @BINPATH@/components/gtalk.manifest
+@BINPATH@/components/odnoklassniki.js
+@BINPATH@/components/odnoklassniki.manifest
 @BINPATH@/components/twitter.js
 @BINPATH@/components/twitter.manifest
 @BINPATH@/components/vkontakte.js
