@@ -25,6 +25,7 @@
   <menupopup id="fileMenuPopup">
     <menuitem id="MinTrayR_minimize"
               label="&mintrayr.minimize;"
+              accesskey="&mintrayr.minimize.accesskey;"
               tooltiptext="&mintrayr.minimize.tip;"
               oncommand="gMinTrayR.minimize();"
               key="MinTrayR_minimize_key"
@@ -35,16 +36,20 @@
     <menupopup id="MinTrayR_context">
       <menuitem id="MinTrayR_available"
                 label="&available;"
+                accesskey="&available.accesskey;"
                 oncommand="gMinTrayR.setStatus('available');"/>
       <menuitem id="MinTrayR_unavailable"
                 label="&unavailable;"
+                accesskey="&unavailable.accesskey;"
                 oncommand="gMinTrayR.setStatus('away');"/>
       <menuitem id="MinTrayR_offline"
                 label="&offline;"
+                accesskey="&offline.accesskey;"
                 oncommand="gMinTrayR.setStatus('offline');"/>
       <menuseparator id="MinTrayR_sep-top"/>
       <menuitem id="MinTrayR_restore"
                 label="&mintrayr.restore;"
+                accesskey="&mintrayr.restore.accesskey;"
                 oncommand="gMinTrayR.restore();"/>
       <menuseparator id="MinTrayR_sep-bottom"/>
     </menupopup>

@@ -128,12 +128,15 @@
                      onpopupshown="buddyList.onStatusTypePopupShown();"
                      oncommand="buddyList.editStatus(event);">
             <menuitem id="statusTypeAvailable" label="&available;"
-                      status="available" class="menuitem-iconic"/>
+                      status="available" class="menuitem-iconic"
+                      accesskey="&available.accesskey;"/>
             <menuitem id="statusTypeUnavailable" label="&unavailable;"
-                      status="unavailable" class="menuitem-iconic"/>
+                      status="unavailable" class="menuitem-iconic"
+                      accesskey="&unavailable.accesskey;"/>
             <menuseparator id="statusTypeOfflineSeparator"/>
             <menuitem id="statusTypeOffline" label="&offline;"
-                      status="offline" class="menuitem-iconic"/>
+                      status="offline" class="menuitem-iconic"
+                      accesskey="&offline.accesskey;"/>
           </menupopup>
         </button>
       </stack>

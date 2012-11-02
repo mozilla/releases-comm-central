@@ -20,37 +20,43 @@
 <!ENTITY quitApplicationCmdMac.label    "Quit &brandShortName;">
 <!ENTITY quitApplicationCmdMac.key      "Q">
 
-<!ENTITY addBuddy            "Add Buddy…">
-<!ENTITY addBuddy.commandkey "b">
-<!ENTITY addBuddy.accesskey  "B">
-<!ENTITY joinChat            "Join Chat…">
-<!ENTITY joinChat.commandkey "j">
-<!ENTITY joinChat.accesskey  "J">
-<!ENTITY setStatusTo        "Set Status to…">
-<!ENTITY available          "Available">
-<!ENTITY unavailable        "Unavailable">
-<!ENTITY offline            "Offline">
-<!ENTITY tools.menu         "Tools">
-<!ENTITY tools.accesskey    "T">
-<!ENTITY accountManager     "Accounts">
-<!ENTITY account.commandkey "a">
-<!ENTITY account.accesskey  "A">
-<!ENTITY contacts.label     "Contacts">
-<!ENTITY contacts.accesskey "C">
-<!ENTITY contacts.commandkey "c">
-<!ENTITY addonManager       "Add-ons">
-<!ENTITY addonManager.accesskey       "d">
-<!ENTITY addonManager.commandkey      "d">
-<!ENTITY checkForUpdates    "Check for Updates">
-<!ENTITY help.menu          "Help">
-<!ENTITY help.accesskey     "H">
+<!ENTITY addBuddy              "Add Buddy…">
+<!ENTITY addBuddy.commandkey   "b">
+<!ENTITY addBuddy.accesskey    "B">
+<!ENTITY joinChat              "Join Chat…">
+<!ENTITY joinChat.commandkey   "j">
+<!ENTITY joinChat.accesskey    "J">
+<!ENTITY setStatusTo           "Set Status to…">
+<!ENTITY setStatusTo.accesskey "S">
+<!ENTITY available             "Available">
+<!ENTITY available.accesskey   "A">
+<!ENTITY unavailable           "Unavailable">
+<!ENTITY unavailable.accesskey "U">
+<!ENTITY offline               "Offline">
+<!ENTITY offline.accesskey     "O">
+<!ENTITY tools.menu            "Tools">
+<!ENTITY tools.accesskey       "T">
+<!ENTITY accountManager        "Accounts">
+<!ENTITY account.commandkey    "a">
+<!ENTITY account.accesskey     "A">
+<!ENTITY contacts.label        "Contacts">
+<!ENTITY contacts.accesskey    "C">
+<!ENTITY contacts.commandkey   "c">
+<!ENTITY addonManager          "Add-ons">
+<!ENTITY addonManager.accesskey "d">
+<!ENTITY addonManager.commandkey "d">
+<!ENTITY addonManager.key      "d">
+<!ENTITY checkForUpdates       "Check for Updates">
+<!ENTITY help.menu             "Help">
+<!ENTITY help.accesskey        "H">
 <!-- LOCALIZATION NOTE (helpWin.menu):
     Some localizations of Windows (e.g. French, German) use "?" for the help
     button in the menubar. -->
-<!ENTITY helpWin.menu       "Help">
-<!ENTITY helpWin.accesskey  "H">
-<!ENTITY about.menu         "About &brandShortName;">
-<!ENTITY about.accesskey    "A">
+<!ENTITY helpWin.menu          "Help">
+<!ENTITY helpWin.accesskey     "H">
+<!ENTITY about.menu            "About &brandShortName;">
+<!ENTITY about.accesskey       "A">
+
 <!ENTITY conversation.contextMenu.close "Close Tab">
 <!ENTITY chat.participants  "Participants:">
 

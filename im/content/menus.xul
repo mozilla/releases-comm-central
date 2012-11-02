@@ -46,12 +46,12 @@
         <menuitem id="addBuddyMenuItem" label="&addBuddy;" command="cmd_addbuddy" key="addBuddykey" accesskey="&addBuddy.accesskey;"/>
         <menuitem id="joinChatMenuItem" label="&joinChat;" command="cmd_joinchat" key="joinChatkey" accesskey="&joinChat.accesskey;"/>
         <menuseparator/>
-        <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);">
+        <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);" accesskey="&setStatusTo.accesskey;" >
           <menupopup id="setStatusMenupopup"> <!-- has onpopupshowing on mac -->
-            <menuitem id="statusAvailable" status="available" label="&available;" class="menuitem-iconic"/>
-            <menuitem id="statusUnavailable" status="unavailable" label="&unavailable;" class="menuitem-iconic"/>
+            <menuitem id="statusAvailable" status="available" label="&available;" accesskey="&available.accesskey;" class="menuitem-iconic"/>
+            <menuitem id="statusUnavailable" status="unavailable" label="&unavailable;" accesskey="&unavailable.accesskey;" class="menuitem-iconic"/>
             <menuseparator id="statusOfflineSeparator"/>
-            <menuitem id="statusOffline" status="offline" label="&offline;" class="menuitem-iconic"/>
+            <menuitem id="statusOffline" status="offline" label="&offline;" accesskey="&offline.accesskey;" class="menuitem-iconic"/>
           </menupopup>
         </menu>
         <menuseparator id="menu_FileQuitSeparator"/>
@@ -86,7 +86,7 @@
 #else
       <menupopup id="helpMenuPopup">
 #endif
-        <menuitem id="aboutName" label="&about.menu;" oncommand="menus.about()"/>
+        <menuitem id="aboutName" label="&about.menu;" accesskey="&about.accesskey;" oncommand="menus.about()"/>
       </menupopup>
     </menu>
   </menubar>
