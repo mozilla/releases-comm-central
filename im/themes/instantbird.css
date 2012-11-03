@@ -83,6 +83,14 @@ tab[attention],
 .alltabs-item[chat][status="left"] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://chat/skin/chat-left-16.png") !important;
 }
+.tabbrowser-tab[chat][prpl="prpl-twitter"],
+.alltabs-item[chat][prpl="prpl-twitter"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://prpl-twitter/skin/icon.png") !important;
+}
+.tabbrowser-tab[chat][prpl="prpl-twitter"][status="left"],
+.alltabs-item[chat][prpl="prpl-twitter"][status="left"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://prpl-twitter/skin/icon-left.png") !important;
+}
 
 .tabbrowser-tab[status="offline"],
 .alltabs-item[status="offline"] > .menu-iconic-left > .menu-iconic-icon {

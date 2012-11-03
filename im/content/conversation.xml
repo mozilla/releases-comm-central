@@ -1473,6 +1473,7 @@
            this.updateTopic();
            this.setAttribute("chat", "true");
            this.tab.setAttribute("chat", "true");
+           this.tab.setAttribute("prpl", this._conv.account.protocol.id);
 
            let cti = this.getElt("conv-top-info");
            cti.setAttribute("displayName", this._conv.title);

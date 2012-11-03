@@ -1802,6 +1802,7 @@
               case "chat":
               case "image":
               case "selected":
+              case "prpl":
                 if (aEvent.attrChange == aEvent.REMOVAL)
                   menuItem.removeAttribute(attrName);
                 else
@@ -1880,7 +1881,7 @@
           menuItem.setAttribute("image", aTab.getAttribute("image"));
 
           ["typing", "typed", "status", "chat",
-           "attention", "unread"].forEach(function (aAttr) {
+           "attention", "unread", "prpl"].forEach(function (aAttr) {
             if (aTab.hasAttribute(aAttr))
               menuItem.setAttribute(aAttr, aTab.getAttribute(aAttr));
           });
