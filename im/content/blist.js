@@ -27,27 +27,29 @@ function buddyListContextMenu(aXulMenu) {
   this.target  = document.popupNode;
   this.menu    = aXulMenu;
   let localName = this.target.localName;
+  let hasVisibleBuddies = !!document.getElementById("buddylistbox").firstChild;
+
+  // Don't display a context menu on the headers.
+  this.shouldDisplay = localName != "label";
+
   this.onContact = localName == "contact";
   this.onBuddy = localName == "buddy";
   this.onGroup = localName == "group";
   this.onConv = localName == "conv";
-  this.shouldDisplay = true;
-
   let hide = !(this.onContact || this.onBuddy);
+
   [ "context-edit-buddy-separator",
     "context-alias",
     "context-delete",
-    "context-tags",
-    "context-show-offline-buddies-separator"
+    "context-tags"
   ].forEach(function (aId) {
     document.getElementById(aId).hidden = hide;
   });
 
-  [ "context-hide-tag",
-    "context-visible-tags"
-  ].forEach(function (aId) {
-    document.getElementById(aId).hidden = !this.onGroup;
-  }, this);
+  document.getElementById("context-hide-tag").hidden = !this.onGroup;
+
+  document.getElementById("context-visible-tags").hidden =
+    !hide || this.onConv || !hasVisibleBuddies;
 
   let uiConv;
   if (!hide) {
@@ -56,8 +58,7 @@ function buddyListContextMenu(aXulMenu) {
     uiConv = Services.conversations.getUIConversationByContactId(contact.id);
   }
   document.getElementById("context-openconversation").hidden = hide || uiConv;
-  document.getElementById("context-show-conversation").hidden =
-    !this.onConv && !uiConv;
+  document.getElementById("context-show-conversation").hidden = !this.onConv && !uiConv;
   document.getElementById("context-close-conversation").hidden = !this.onConv;
   document.getElementById("context-showlogs").hidden = hide && !this.onConv;
 
@@ -72,7 +73,10 @@ function buddyListContextMenu(aXulMenu) {
   }
 
   document.getElementById("context-show-offline-buddies-separator").hidden =
-    hide && !this.onGroup && !this.onConv;
+    this.onConv || !hasVisibleBuddies;
+
+  document.getElementById("context-show-offline-buddies").hidden =
+    this.onConv;
 
   let detach = document.getElementById("context-detach");
   detach.hidden = !this.onBuddy;
@@ -223,7 +227,7 @@ buddyListContextMenu.prototype = {
     this.target.hide();
   },
   visibleTagsPopupShowing: function blcm_visibleTagsPopupShowing() {
-    if (!this.onGroup)
+    if (this.onBuddy || this.onContact || this.onConv)
       return;
 
     let popup = document.getElementById("context-visible-tags-popup");
