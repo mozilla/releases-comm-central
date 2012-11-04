@@ -1148,8 +1148,12 @@
        <body>
        <![CDATA[
          var name = aBuddy.name;
+         if (!name)
+           throw "The empty string isn't a valid nick.";
          if (this._hasBuddy(name))
            throw "Adding chat buddy " + name + " twice?!";
+
+         this.trackNick(name);
 
          var item = document.createElement("listitem");
          item.chatBuddy = aBuddy;
@@ -1226,6 +1230,9 @@
        <body>
        <![CDATA[
          var name = aBuddy.name;
+         if (!name)
+           throw "The empty string isn't a valid nick.";
+
          if (!aOldName) {
            // If aOldName is null, we are changing the flags of the buddy
            var item = this.buddies[name];
@@ -1240,6 +1247,8 @@
 
          if (this._hasBuddy(name))
            throw "Updating a chat buddy to an already existing one?!";
+
+         this.trackNick(name);
 
          var item = this.buddies[aOldName];
          item.chatBuddy = aBuddy;
@@ -1270,6 +1279,75 @@
          this._nicks.splice(this._nicks.indexOf(aName.toLowerCase()), 1);
          this.nicklistElt.removeChild(item);
          delete this.buddies[aName];
+       ]]>
+       </body>
+     </method>
+
+     <field name="_nickEscape">/[[\]{}()*+?.\\^$|]/g</field>
+     <method name="trackNick">
+       <parameter name="aNick"/>
+       <body>
+       <![CDATA[
+         if ("_showNickList" in this) {
+           this._showNickList[aNick.replace(this._nickEscape, "\\$&")] = true;
+           delete this._showNickRegExp;
+         }
+       ]]>
+       </body>
+     </method>
+
+     <method name="getShowNickModifier">
+       <body>
+       <![CDATA[
+         return (function (aNode) {
+           if (!("_showNickRegExp" in this)) {
+             if (!("_showNickList" in this)) {
+               this._showNickList = {};
+               Object.keys(this.buddies).forEach(function(n) {
+                 this._showNickList[n.replace(this._nickEscape, "\\$&")] = true;
+               }, this);
+             }
+
+             // The reverse sort ensures that if we have "foo" and "foobar",
+             // "foobar" will be matched first by the regexp.
+             let nicks = Object.keys(this._showNickList).sort().reverse().join("|");
+             if (nicks)
+               this._showNickRegExp = new RegExp("\\b(" + nicks + ")\\b", "g");
+             else {
+               // nobody, disable...
+               this._showNickRegExp = {exec: function() null};
+               return 0;
+             }
+           }
+           let exp = this._showNickRegExp;
+           exp.lastIndex = 0;
+           let result = 0;
+           let match;
+           while ((match = exp.exec(aNode.data))) {
+             let nickNode = aNode.splitText(match.index);
+             aNode = nickNode.splitText(exp.lastIndex - match.index);
+             // at this point, nickNode is a text node with only the text
+             // of the nick and aNode is a text node with the text after
+             // the nick. The text in aNode hasn't been processed yet.
+             let nick = nickNode.data;
+             let elt = aNode.ownerDocument.createElement("span");
+             elt.setAttribute("class", "ib-nick");
+             if (this._hasBuddy(nick)) {
+               let buddy = this.buddies[nick];
+               if (!buddy.colorStyle)
+                 this._setBuddyColor(buddy);
+               elt.setAttribute("style", buddy.colorStyle);
+               elt.setAttribute("nickColor", buddy.color);
+             }
+             else
+               elt.setAttribute("left", "true");
+             nickNode.parentNode.replaceChild(elt, nickNode);
+             elt.textContent = nick;
+             result += 2;
+             exp.lastIndex = 0;
+           }
+           return result;
+         }).bind(this);
        ]]>
        </body>
      </method>
@@ -1498,6 +1576,8 @@
            chatBuddies.sort(function(a, b) a.name < b.name ? -1 : 1)
                       .forEach(function(a) this.addBuddy(a.buddy, true), this);
            this.updateParticipantCount();
+           if (Services.prefs.getBoolPref("messenger.conversations.showNicks"))
+             this.browser.addTextModifier(this.getShowNickModifier());
          }
          else if (this._conv.contact && this._conv.contact.getBuddies().length > 1)
            this.getElt("conv-top-info").allowTargetChange();

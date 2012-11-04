@@ -165,3 +165,16 @@ p.show {
 p.show:hover {
   background: url('Bitmaps/minus-hover.png') no-repeat left top;
 }
+
+.ib-nick {
+  font-size: smaller;
+  border: 1px solid;
+  border-radius: 500px;
+  padding: 0 0.3em;
+}
+
+.ib-nick[left] {
+  color: hsl(0, 0%, 60%);
+  background-color: hsl(0, 0%, 99%);
+  border-color: hsl(0, 0%, 85%);
+}

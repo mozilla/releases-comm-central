@@ -5,6 +5,7 @@
 <script type="text/javascript">
 const p_border_top = "1px solid hsla(#, 100%, 80%, 0.4)";
 const p_background = "-moz-linear-gradient(top, hsla(#, 100%, 80%, 0.3), hsla(#, 100%, 80%, 0.1) 30px)";
+const nick_background = "-moz-linear-gradient(top, hsla(#, 100%, 80%, 0.3), hsla(#, 100%, 80%, 0.1) 1em)";
 
 function setColors(target)
 {
@@ -33,6 +34,13 @@ function checkNewText(aEvent)
 
   if (target.tagName == "P" && target.className != "event-messages")
     setColors(target);
+
+  var nicks = target.getElementsByClassName("ib-nick");
+  for (var i = 0; i < nicks.length; ++i) {
+    var nick = nicks[i];
+    if (!nick.hasAttribute("left"))
+      nick.style.background = nick_background.replace("#", nick.getAttribute("nickColor"), "g");
+  }
 }
 
 document.getElementById("ibcontent")

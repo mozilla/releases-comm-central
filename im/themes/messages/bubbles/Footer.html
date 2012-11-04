@@ -190,6 +190,19 @@ function checkNewText(aEvent)
   if (!(target instanceof HTMLElement))
     return;
 
+  var nicks = target.getElementsByClassName("ib-nick");
+  for (var i = 0; i < nicks.length; ++i) {
+    var nick = nicks[i];
+    if (nick.hasAttribute("left"))
+      continue;
+    var hue = nick.getAttribute("nickColor");
+    var senderHue = ((Math.round(hue / 10)) * 10) % 360;
+    var lightness = elements_lightness[senderHue / 10];
+    nick.style.backgroundColor = pseudo_background.replace("#", senderHue).replace("#", lightness[1]);
+    nick.style.color = pseudo_color.replace("#", senderHue).replace("#", lightness[0]);
+    nick.style.borderColor = bubble_borders.replace("#", senderHue).replace("#", lightness[2]);
+  }
+
   if (target.tagName == "DIV" && target.className.substring(0, 6) == "bubble") {
     setColors(target);
 
