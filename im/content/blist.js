@@ -121,15 +121,15 @@ buddyListContextMenu.prototype = {
 
     let bundle = document.getElementById("instantbirdBundle").stringBundle;
     let displayName = this.target.displayName;
-    let promptTitle = bundle.formatStringFromName("buddy.deletePrompt.title",
+    let promptTitle = bundle.formatStringFromName("contact.deletePrompt.title",
                                                   [displayName], 1);
     let userName = buddy.userName;
     if (displayName != userName)
       displayName += " (" + userName + ")";
     let proto = buddy.protocol.name; // FIXME build a list
-    let promptMessage = bundle.formatStringFromName("buddy.deletePrompt.message",
+    let promptMessage = bundle.formatStringFromName("contact.deletePrompt.message",
                                                     [displayName, proto], 2);
-    let deleteButton = bundle.GetStringFromName("buddy.deletePrompt.button");
+    let deleteButton = bundle.GetStringFromName("contact.deletePrompt.button");
     let prompts = Services.prompt;
     let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
                 prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +

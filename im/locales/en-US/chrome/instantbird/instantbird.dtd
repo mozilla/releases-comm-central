@@ -20,9 +20,9 @@
 <!ENTITY quitApplicationCmdMac.label    "Quit &brandShortName;">
 <!ENTITY quitApplicationCmdMac.key      "Q">
 
-<!ENTITY addBuddy              "Add Buddy…">
-<!ENTITY addBuddy.commandkey   "b">
-<!ENTITY addBuddy.accesskey    "B">
+<!ENTITY addContact            "Add Contact…">
+<!ENTITY addContact.commandkey "b">
+<!ENTITY addContact.accesskey  "C">
 <!ENTITY joinChat              "Join Chat…">
 <!ENTITY joinChat.commandkey   "j">
 <!ENTITY joinChat.accesskey    "J">
@@ -115,8 +115,8 @@
 <!ENTITY hideTagCmd.accesskey          "H">
 <!ENTITY visibleTagsCmd.label          "Visible Tags…">
 <!ENTITY visibleTagsCmd.accesskey      "V">
-<!ENTITY showOfflineBuddiesCmd.label   "Show offline buddies">
-<!ENTITY showOfflineBuddiesCmd.accesskey "o">
+<!ENTITY showOfflineContactsCmd.label  "Show Offline Contacts">
+<!ENTITY showOfflineContactsCmd.accesskey "O">
 
 <!ENTITY expandContactTooltip          "Expand">
 <!ENTITY collapseContactTooltip        "Collapse">

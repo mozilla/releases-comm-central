@@ -11,7 +11,7 @@
 <dialog
   id     = "addBuddyDialog"
   windowtype="Messenger:AddBuddy"
-  title  = "&addBuddyWindow.title;"
+  title  = "&addContactWindow.title;"
   buttons= "accept,cancel"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   onload = "addBuddy.onload()"

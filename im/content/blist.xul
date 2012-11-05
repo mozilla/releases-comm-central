@@ -109,8 +109,8 @@
       </menu>
       <menuseparator id="context-show-offline-buddies-separator"/>
       <menuitem id="context-show-offline-buddies"
-                label="&showOfflineBuddiesCmd.label;"
-                accesskey="&showOfflineBuddiesCmd.accesskey;"
+                label="&showOfflineContactsCmd.label;"
+                accesskey="&showOfflineContactsCmd.accesskey;"
                 type="checkbox"
                 oncommand="gBuddyListContextMenu.toggleShowOfflineBuddies();"/>
     </menupopup>

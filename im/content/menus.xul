@@ -36,14 +36,14 @@
     <key id="errorConsoleKey" key="&errorConsoleCmd.commandkey;" oncommand="menus.errors();" modifiers="accel,shift"/>
     <key id="key_quitApplication" key="&quitApplicationCmdMac.key;" command="cmd_quitApplication" modifiers="accel"/>
     <key id="joinChatkey" key="&joinChat.commandkey;" command="cmd_joinchat" modifiers="accel"/>
-    <key id="addBuddykey" key="&addBuddy.commandkey;" command="cmd_addbuddy" modifiers="accel"/>
+    <key id="addBuddykey" key="&addContact.commandkey;" command="cmd_addbuddy" modifiers="accel"/>
     <key id="addonskey" key="&addonManager.commandkey;" command="cmd_addons" modifiers="accel"/>
   </keyset>
 
   <menubar id="blistMenubar">
     <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
       <menupopup id="fileMenuPopup" onpopupshowing="menus.updateFileMenuitems();">
-        <menuitem id="addBuddyMenuItem" label="&addBuddy;" command="cmd_addbuddy" key="addBuddykey" accesskey="&addBuddy.accesskey;"/>
+        <menuitem id="addBuddyMenuItem" label="&addContact;" command="cmd_addbuddy" key="addBuddykey" accesskey="&addContact.accesskey;"/>
         <menuitem id="joinChatMenuItem" label="&joinChat;" command="cmd_joinchat" key="joinChatkey" accesskey="&joinChat.accesskey;"/>
         <menuseparator/>
         <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);" accesskey="&setStatusTo.accesskey;" >

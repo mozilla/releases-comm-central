@@ -240,7 +240,7 @@
          this.setBuddyIcon(aBuddy.buddyIconFilename);
 
          if (displayName != name)
-           this.addRow(this.bundle.GetStringFromName("buddy.screenname"), name);
+           this.addRow(this.bundle.GetStringFromName("buddy.username"), name);
 
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
 
