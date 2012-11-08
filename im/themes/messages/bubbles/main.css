@@ -63,7 +63,9 @@ div.bubble p.pseudo {
 
 div.bubble p.pseudo>span {
   padding: 0px 15px 1px 15px;
-  border-top-left-radius: 10px;
+  /* border-top-left-radius = (border-radius - border-width) of div.bubble,
+     see bug 1775 for an explanation */
+  border-top-left-radius: 8px;
   border-bottom-right-radius: 10px;
 }
 
