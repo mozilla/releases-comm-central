@@ -2067,7 +2067,7 @@
             this._visibleTimer = setTimeout(function() {
               this._wasVisible = true;
               delete this._visibleTimer;
-            }.bind(this), 1200);
+            }.bind(this), 1000);
           ]]>
         </body>
       </method>
@@ -2109,6 +2109,15 @@
           event.stopPropagation();
         }
         else {
+          // If this tab is not currently selected, call the onSelect method of
+          // the current tab to mark the conversation as read before leaving it.
+          // This is necessary when Instantbird (and therefore the current tab)
+          // did not have focus before this click.
+          if (!this.linkedConversation.hasAttribute("selected")) {
+            let tabbrowser = document.getBindingParent(this);
+            tabbrowser.mCurrentConversation.onSelect();
+          }
+
           this.style.MozUserFocus = 'ignore';
           this.clientTop; // just using this to flush style updates
         }
