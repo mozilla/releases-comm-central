@@ -160,8 +160,6 @@
         this.loaded = true;
         let messages = this._conv.getMessages();
         this._readCount = messages.length - this._conv.unreadMessageCount;
-        if (!("Interruptions" in window))
-          Components.utils.import("resource:///modules/ibInterruptions.jsm");
         if (this._readCount)
           this._writingContextMessages = true;
         messages.forEach(this.addMsg.bind(this));
@@ -1605,6 +1603,9 @@
              return;
 
            this.browser.progressBar = this.getElt("browserProgress");
+
+           if (!("Interruptions" in window))
+             Components.utils.import("resource:///modules/ibInterruptions.jsm");
 
            // Display all queued messages. Use a timeout so that message text
            // modifiers can be added with observers for this notification.
