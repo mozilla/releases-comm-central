@@ -90,15 +90,13 @@
      <method name="destroy">
        <body>
          <![CDATA[
-           if (this._conv) {
-             if ("buddies" in this) {
-               for each (let chatBuddy in this.buddies) {
-                 if (chatBuddy.activeTimer)
-                   clearTimeout(chatBuddy.activeTimer);
-               }
+           if ("buddies" in this) {
+             for each (let chatBuddy in this.buddies) {
+               if (chatBuddy.activeTimer)
+                 clearTimeout(chatBuddy.activeTimer);
              }
-             this._forgetConv();
            }
+           this._forgetConv();
 
            if ("MessageFormat" in window) {
              let textbox = this.editor;
@@ -113,6 +111,8 @@
        <parameter name="aShouldClose"/>
        <body>
         <![CDATA[
+           if (!this._conv)
+             return;
            this._conv.removeObserver(this);
            Conversations.unregisterConversation(this, aShouldClose);
            delete this._conv;
@@ -1668,6 +1668,11 @@
            break;
          case "chat-update-topic":
            this.updateTopic();
+           break;
+
+         case "ui-conversation-closed":
+         case "ui-conversation-destroyed":
+           this._forgetConv();
            break;
          }
        ]]>
