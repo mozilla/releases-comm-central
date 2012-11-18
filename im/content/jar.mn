@@ -26,23 +26,23 @@ instantbird.jar:
 	content/instantbird/contact.xml
 	content/instantbird/conversation.xml
 	content/instantbird/conv.xml
-*	content/instantbird/credits.xhtml
-*	content/instantbird/engineManager.js
-*	content/instantbird/engineManager.xul
+	content/instantbird/credits.xhtml
+	content/instantbird/engineManager.js
+	content/instantbird/engineManager.xul
 	content/instantbird/extensions.js
 *	content/instantbird/extensions.xul
 	content/instantbird/extensions-discover.js
 	content/instantbird/extensions-discover.xul
 	content/instantbird/group.xml
-*	content/instantbird/instantbird.css
-*	content/instantbird/instantbird.js
+	content/instantbird/instantbird.css
+	content/instantbird/instantbird.js
 *	content/instantbird/instantbird.xul
 	content/instantbird/convZoom.js
 	content/instantbird/joinchat.js
 	content/instantbird/joinchat.xul
 *	content/instantbird/menus.xul
 *	content/instantbird/menus.js
-*	content/instantbird/nsContextMenu.js
+	content/instantbird/nsContextMenu.js
 	content/instantbird/proxies.js
 	content/instantbird/proxies.xul
 	content/instantbird/proxies.css
@@ -64,25 +64,25 @@ instantbird.jar:
 #endif
 *	content/instantbird/preferences/advanced.xul            (preferences/advanced.xul)
 *	content/instantbird/preferences/advanced.js             (preferences/advanced.js)
-*	content/instantbird/preferences/applications.xul        (preferences/applications.xul)
+	content/instantbird/preferences/applications.xul        (preferences/applications.xul)
 *	content/instantbird/preferences/applications.js         (preferences/applications.js)
-*	content/instantbird/preferences/applicationManager.xul  (preferences/applicationManager.xul)
+	content/instantbird/preferences/applicationManager.xul  (preferences/applicationManager.xul)
 *	content/instantbird/preferences/applicationManager.js   (preferences/applicationManager.js)
 *	content/instantbird/preferences/colors.xul              (preferences/colors.xul)
-*	content/instantbird/preferences/content.xul             (preferences/content.xul)
-*	content/instantbird/preferences/content.js              (preferences/content.js)
+	content/instantbird/preferences/content.xul             (preferences/content.xul)
+	content/instantbird/preferences/content.js              (preferences/content.js)
 *	content/instantbird/preferences/connection.xul          (preferences/connection.xul)
-*	content/instantbird/preferences/connection.js           (preferences/connection.js)
-*	content/instantbird/preferences/handlers.xml            (preferences/handlers.xml)
-*	content/instantbird/preferences/handlers.css            (preferences/handlers.css)
+	content/instantbird/preferences/connection.js           (preferences/connection.js)
+	content/instantbird/preferences/handlers.xml            (preferences/handlers.xml)
+	content/instantbird/preferences/handlers.css            (preferences/handlers.css)
 *	content/instantbird/preferences/main.xul                (preferences/main.xul)
-*	content/instantbird/preferences/main.js                 (preferences/main.js)
+	content/instantbird/preferences/main.js                 (preferences/main.js)
 *	content/instantbird/preferences/preferences.xul         (preferences/preferences.xul)
-*	content/instantbird/preferences/privacy.xul             (preferences/privacy.xul)
-*	content/instantbird/preferences/privacy.js              (preferences/privacy.js)
-*	content/instantbird/preferences/themes.xul              (preferences/themes.xul)
+	content/instantbird/preferences/privacy.xul             (preferences/privacy.xul)
+	content/instantbird/preferences/privacy.js              (preferences/privacy.js)
+	content/instantbird/preferences/themes.xul              (preferences/themes.xul)
 	content/instantbird/preferences/themes.js               (preferences/themes.js)
-*	content/instantbird/preferences/tabs.xul                (preferences/tabs.xul)
+	content/instantbird/preferences/tabs.xul                (preferences/tabs.xul)
 	content/instantbird/preferences/tabs.js                 (preferences/tabs.js)
 	content/instantbird/preferences/messagestyle.js	        (preferences/messagestyle.js)
 	content/instantbird/preferences/smileys.js		(preferences/smileys.js)

@@ -10,13 +10,13 @@ VPATH		= @srcdir@
 include $(DEPTH)/config/autoconf.mk
 
 EXTRA_JS_MODULES = \
+	ibInterruptions.jsm \
 	ibNotifications.jsm \
+	ibSounds.jsm \
 	$(NULL)
 
 EXTRA_PP_JS_MODULES = \
 	ibCore.jsm \
-	ibInterruptions.jsm \
-	ibSounds.jsm \
 	imWindows.jsm \
 	$(NULL)
 
