@@ -633,15 +633,16 @@
 
           // If the cursor is in the middle of a word, and the word is a nick,
           // there is no need to complete - just jump to the end of the nick.
-          let wholeWord =
-            text.substring(inputBox.selectionStart - word.length).match(/^[\w\/-]+/)[0];
-          if (wholeWord != word && matchingCompletions.indexOf(wholeWord) != -1) {
-            inputBox.selectionStart += wholeWord.length - word.length;
-            let separator = text.substring(inputBox.selectionStart,
-                                           inputBox.selectionStart + 2);
-            if (separator == ": " || separator == ", ")
-              inputBox.selectionStart += 2;
-            return;
+          let wholeWord = text.substring(inputBox.selectionStart - word.length);
+          for each (let completion in matchingCompletions) {
+            if (wholeWord.lastIndexOf(completion, 0) == 0) {
+              inputBox.selectionStart += completion.length - word.length;
+              let separator = text.substring(inputBox.selectionStart,
+                                             inputBox.selectionStart + 2);
+              if (separator == ": " || separator == ", ")
+                inputBox.selectionStart += 2;
+              return;
+            }
           }
 
           // We have possible completions!
