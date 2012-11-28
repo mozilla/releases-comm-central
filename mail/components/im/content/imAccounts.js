@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {interfaces: Ci, utils: Cu} = Components;
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/iteratorUtils.jsm");
 Cu.import("resource:///modules/mailServices.js");
@@ -210,6 +210,34 @@ var gAccountManager = {
       this.temporarilyDisableButtons();
       account.disconnect();
     }
+  },
+  copyDebugLog: function am_copyDebugLog() {
+    let account = this.accountList.selectedItem.account;
+    let text = account.getDebugMessages().map(function(dbgMsg) {
+      let m = dbgMsg.message;
+      const dateServ = Cc["@mozilla.org/intl/scriptabledateformat;1"]
+                         .getService(Ci.nsIScriptableDateFormat);
+      let time = new Date(m.timeStamp);
+      time = dateServ.FormatDateTime("", dateServ.dateFormatShort,
+                                     dateServ.timeFormatSeconds,
+                                     time.getFullYear(), time.getMonth() + 1,
+                                     time.getDate(), time.getHours(),
+                                     time.getMinutes(), time.getSeconds());
+      let level = dbgMsg.logLevel;
+      if (level == dbgMsg.LEVEL_ERROR)
+        level = "ERROR";
+      else if (level == dbgMsg.LEVEL_WARNING)
+        level = "WARN.";
+      else if (level == dbgMsg.LEVEL_LOG)
+        level = "LOG  ";
+      else
+        level = "DEBUG"
+      return "[" + time + "] " + level + " (@ " + m.sourceLine +
+             " " + m.sourceName + ":" + m.lineNumber + ")\n" +
+             m.errorMessage;
+    }).join("\n");
+    Cc["@mozilla.org/widget/clipboardhelper;1"]
+      .getService(Ci.nsIClipboardHelper).copyString(text);
   },
   updateConnectedLabels: function am_updateConnectedLabels() {
     for (let i = 0; i < gAccountManager.accountList.itemCount; ++i) {
@@ -469,7 +497,7 @@ var gAccountManager = {
          If none, this function has already returned */
       case as.AUTOLOGIN_ENABLED:
         if (!("PluralForm" in window))
-          Components.utils.import("resource://gre/modules/PluralForm.jsm");
+          Cu.import("resource://gre/modules/PluralForm.jsm");
         label = bundle.getString("accountsManager.notification.singleCrash.label");
         label = PluralForm.get(crashCount, label).replace("#1", crashCount);
         priority = box.PRIORITY_WARNING_MEDIUM;
