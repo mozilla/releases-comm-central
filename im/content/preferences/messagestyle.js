@@ -9,6 +9,9 @@ function Conversation(aName)
 {
   this._name = aName;
   this._observers = [];
+  let now = new Date();
+  this._date = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                        10, 42, 22) * 1000;
 }
 Conversation.prototype = {
   __proto__: jsProtoHelper.GenericConvIMPrototype,
