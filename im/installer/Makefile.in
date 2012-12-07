@@ -53,7 +53,6 @@ else
 DEFINES += -DJAREXT=
 endif
 
-# Don't ifdef MOZ_IPC this because mac ppc needs it too.
 include $(MOZILLA_SRCDIR)/ipc/app/defs.mk
 DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
 
