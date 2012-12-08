@@ -138,6 +138,10 @@ pref("app.update.mode", 1);
 // If set to true, the Update Service will present no UI for any event.
 pref("app.update.silent", false);
 
+// If set to true, the Update Service will apply updates in the background
+// when it finishes downloading them.
+pref("app.update.staging.enabled", true);
+
 // Update service URL:
 // You do not need to use all the %VAR% parameters. Use what you need, %PRODUCT%,%VERSION%,%BUILD_ID%,%CHANNEL% for example
 pref("app.update.url", "https://update.instantbird.org/1/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/update.xml");
