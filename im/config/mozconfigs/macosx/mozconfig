@@ -2,20 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if test -e "$topsrcdir/mozilla/build/macosx/universal/mozconfig"; then
-  # We need some hackery to deal with the mozilla/ build system calling this
-  # mozconfig.
-  oldtopsrcdir=$topsrcdir
-  export topsrcdir=$topsrcdir/mozilla
-fi
-
-mk_add_options MOZ_BUILD_PROJECTS="ppc i386"
+mk_add_options MOZ_BUILD_PROJECTS="i386 x86_64"
 . $topsrcdir/build/macosx/universal/mozconfig.common
 export MOZ_PKG_PLATFORM=mac
-
-if test -n $oldtopsrcdir; then
-  export topsrcdir=$oldtopsrcdir
-fi
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
@@ -28,7 +17,7 @@ export MOZ_DEBUG_SYMBOLS=1
 ac_add_options --enable-debug-symbols="-gdwarf-2"
 
 # Enable parallel compiling
-mk_add_options MOZ_MAKE_FLAGS="-j4"
+mk_add_options MOZ_MAKE_FLAGS="-sj10"
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj-instantbird
 
 ac_add_options --enable-application=instantbird
