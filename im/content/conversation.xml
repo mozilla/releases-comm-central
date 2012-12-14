@@ -66,6 +66,9 @@
           this.getElt("splitter-bottom")
               .addEventListener("DOMAttrModified",
                                 this._onSplitterChange.bind(this));
+          this.getElt("splitter")
+              .addEventListener("DOMAttrModified",
+                                this._onNicklistSplitterChange.bind(this));
 
           var browser = this.browser;
           browser.addEventListener("keypress", this.browserKeyPress);
@@ -381,6 +384,31 @@
           // of the associated content (DOM) node.
           // This height attribute is clearly undesirable here.
           this.getElt("conv-top-info").removeAttribute("height");
+        ]]>
+        </body>
+      </method>
+
+      <method name="_onNicklistSplitterChange">
+        <parameter name="aEvent"/>
+        <body>
+        <![CDATA[
+          if (aEvent.attrName != "state" || aEvent.prevValue != "collapsed")
+            return;
+
+          // Workaround for bug 1143: Listitems which are added while the
+          // nicklist is collapsed may not get bound when the nicklist is
+          // reopened, if they were assumed to be visible based on
+          // their position in the nicklist. They then remain missing from the
+          // nicklist, as the DOM believes they were already initialized.
+          // To ensure they get bound, we hide and then redisplay
+          // the listbox.
+          let pos = this.nicklistElt.getIndexOfFirstVisibleRow();
+          this.nicklistElt.style.display = "none";
+          // Force layout by reading a suitable property.
+          let dummy = this.nicklistElt.clientTop;
+          this.nicklistElt.style.display = "";
+          // Restore scroll position.
+          this.nicklistElt.scrollToIndex(pos);
         ]]>
         </body>
       </method>
