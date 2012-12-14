@@ -253,6 +253,7 @@ imAccount.prototype = {
     else if (aTopic == "account-disconnected") {
       this.connectionState = Ci.imIAccount.STATE_DISCONNECTED;
       if (this._statusObserver &&
+          this.prplAccount.connectionErrorReason == Ci.prplIAccount.NO_ERROR &&
           this.statusInfo.statusType > Ci.imIStatusInfo.STATUS_OFFLINE) {
         // If the status changed back to online while an account was still
         // disconnecting, it was not reconnected automatically at that point,
@@ -632,7 +633,8 @@ imAccount.prototype = {
             this._cancelReconnection();
           }
           else if (statusType > Ci.imIStatusInfo.STATUS_OFFLINE &&
-                   this.disconnected)
+                   this.disconnected &&
+                   this.connectionErrorReason == Ci.prplIAccount.NO_ERROR)
             this.prplAccount.connect();
           else if (this.connected)
             this.prplAccount.observe(aSubject, aTopic, aData);
