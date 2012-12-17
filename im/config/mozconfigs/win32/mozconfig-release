@@ -20,7 +20,6 @@ ac_add_options --enable-application=instantbird
 ac_add_options --enable-update-channel=release
 ac_add_options --enable-optimize
 ac_add_options --disable-debug
-ac_add_options --disable-webm
 ac_add_options --enable-update-packaging
 ac_add_options --enable-jemalloc
 ac_add_options --enable-official-branding
