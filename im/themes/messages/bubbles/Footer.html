@@ -11,6 +11,8 @@ const bubble_borders = "hsl(#, 100%, #%)";
 const pseudo_color = "hsl(#, 100%, #%)";
 const pseudo_background = "hsl(#, 100%, #%)";
 
+var alternating = null;
+
 function setColors(target)
 {
   var senderColor = target.getAttribute("senderColor");
@@ -38,10 +40,17 @@ function setColors(target)
                                                        .replace("#", lightness[1]);
 
   var div_indicator = target.getElementsByClassName("indicator")[0];
-  var imageURL = document.defaultView.getComputedStyle(div_indicator, null).backgroundImage;
-
-  var regexp2 = /(indicator_)(\d{1,3})([_.])/;
-  div_indicator.style.backgroundImage = imageURL.replace(regexp2, "$1" + senderHue + "$3");
+  var imageURL = "url('Bitmaps/indicator_" + senderHue;
+  if (target.classList.contains("incoming")) {
+    // getComputedStyle is prohibitively expensive, and we need it only to
+    // know if we are using an alternating variant, so we cache the result.
+    if (alternating === null) {
+      alternating = document.defaultView.getComputedStyle(div_indicator, null)
+                            .backgroundImage.endsWith('_alt.png")') ? "_alt" : "";
+    }
+    imageURL += alternating;
+  }
+  div_indicator.style.backgroundImage = imageURL + ".png')";
 }
 
 
