@@ -179,8 +179,9 @@ var gPhishingDetector = {
     if (aMsgHdr == gFolderDisplay.selectedMessage)
     {
       if (aLocalListStatus == 0 /* PROT_ListWarden.IN_BLACKLIST */ ||
-          (aLocalListStatus == 2 /* PROT_ListWarden.PROT_ListWarden.NOT_FOUND */ && aFailsStaticTests))
+          (aLocalListStatus == 2 /* PROT_ListWarden.PROT_ListWarden.NOT_FOUND */ && aFailsStaticTests)) {
         gMessageNotificationBar.setPhishingMsg();
+      }
     }
   },
 
@@ -246,7 +247,7 @@ var gPhishingDetector = {
   warnOnSuspiciousLinkClick: function(aUrl)
   {
     // if the loaded message has been flagged as a phishing scam, 
-    if (!gMessageNotificationBar.isFlagSet(kMsgNotificationPhishingBar))
+    if (!gMessageNotificationBar.isShowingJunkNotification())
       return true;
 
     var hrefURL;

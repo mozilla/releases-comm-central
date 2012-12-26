@@ -11,17 +11,19 @@ const MODULE_NAME = "test-attachment-reminder";
 const RELATIVE_ROOT = "../shared-modules";
 const MODULE_REQUIRES = ["folder-display-helpers",
                          "compose-helpers",
-                         "window-helpers"];
+                         "window-helpers",
+                         "notificationbox-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-// I'm not sure why this is the ID. But it is. :/
-const kNotificationID = "1";
+const kBoxId = "attachmentNotificationBox";
+const kNotificationId = "attachmentReminder";
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   collector.getModule("compose-helpers").installInto(module);
   collector.getModule("window-helpers").installInto(module);
+  collector.getModule("notificationbox-helpers").installInto(module);
 };
 
 function setupComposeWin(aCwc, toAddr, subj, body) {
@@ -35,27 +37,26 @@ function setupComposeWin(aCwc, toAddr, subj, body) {
  */
 function test_attachment_reminder_appears_properly() {
   let cwc = open_compose_new_mail();
-  let notificationBox = cwc.e("attachmentNotificationBox");
+  let notificationBox = cwc.e(kBoxId);
 
   // There should be no notification yet.
-  assert_notification_displayed(cwc, kNotificationID, false);
+  assert_notification_displayed(cwc, kBoxId, kNotificationId, false);
 
   setupComposeWin(cwc, "test@example.org", "testing attachment reminder!",
                   "Hjello! ");
 
   // Give the notification time to appear. It shouldn't.
   cwc.sleep(1100);
-  if (notificationBox.getNotificationWithValue(kNotificationID))
+  if (notificationBox.getNotificationWithValue(kNotificationId))
     throw new Error("Attachment notification shown when it shouldn't.");
 
   cwc.type(cwc.eid("content-frame"), "Seen this cool attachment?");
 
     // Give the notification time to appear. It should now.
-  wait_for_notification_to_show(cwc, kNotificationID);
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
 
   // Click ok to be notified on send if no attachments are attached.
-  cwc.click(cwc.eid("attachmentNotificationBox",
-            {tagName: "button", label: "Remind Me Later"}));
+  cwc.click(cwc.eid(kBoxId, {tagName: "button", label: "Remind Me Later"}));
 
   // Now try to send, make sure we get the alert.
   plan_for_modal_dialog("commonDialog", click_oh_i_did);
@@ -73,13 +74,13 @@ function test_attachment_reminder_dismissal() {
   let cwc = open_compose_new_mail();
 
   // There should be no notification yet.
-  assert_notification_displayed(cwc, kNotificationID, false);
+  assert_notification_displayed(cwc, kBoxId, kNotificationId, false);
 
   setupComposeWin(cwc, "test@example.org", "popping up, eh?",
                   "Hi there, remember the attachment!");
 
   // Give the notification time to appear.
-  wait_for_notification_to_show(cwc, kNotificationID);
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
 
   // We didn't click the "Remind Me Later" - the alert should pop up
   // on send anyway.
@@ -87,7 +88,7 @@ function test_attachment_reminder_dismissal() {
   cwc.click(cwc.eid("button-send"));
   wait_for_modal_dialog("commonDialog");
 
-  let notification = assert_notification_displayed(cwc, kNotificationID,
+  let notification = assert_notification_displayed(cwc, kBoxId, kNotificationId,
                                                    true);
   notification.close();
   click_send_and_handle_send_error(cwc);
@@ -106,12 +107,12 @@ function test_attachment_reminder_aggressive_pref() {
   let cwc = open_compose_new_mail();
 
   // There should be no notification yet.
-  assert_notification_displayed(cwc, kNotificationID, false);
+  assert_notification_displayed(cwc, kBoxId, kNotificationId, false);
 
   setupComposeWin(cwc, "test@example.org", "aggressive?",
                   "Check this attachment!");
 
-  wait_for_notification_to_show(cwc, kNotificationID);
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
   click_send_and_handle_send_error(cwc);
 
   // Now reset the pref back to original value.
@@ -133,7 +134,7 @@ function test_no_send_now_sends() {
                   "will the 'No, Send Now' button work?",
                   "Hello, i got your attachment!");
 
-  wait_for_notification_to_show(cwc, kNotificationID);
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
 
   // Click the send button again, this time choose "No, Send Now".
   plan_for_modal_dialog("commonDialog", click_no_send_now);

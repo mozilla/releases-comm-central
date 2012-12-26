@@ -7,7 +7,7 @@
 /**
  * The core STEEL object, available in the global scope
  */
-[scriptable, uuid(d8e187c3-6303-474e-a690-c2eef3331f20)]
+[scriptable, uuid(e33b45c3-9b44-45f2-8aa3-c89805695f2b)]
 interface steelIApplication : extIApplication {
   /**
    * Returns true if the application is running on a Mac OS X. This is intended
@@ -21,4 +21,9 @@ interface steelIApplication : extIApplication {
    * Returns true if the application is running on GNU/Linux or on UNIX.
    */
   readonly attribute boolean platformIsLinux;
+
+  /**
+   * Returns true if the application is running on Windows.
+   */
+  readonly attribute boolean platformIsWindows;
 };

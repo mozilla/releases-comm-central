@@ -433,7 +433,6 @@ var messageHeaderSink = {
       gBuiltExpandedView = false;
       gBuildAttachmentsForCurrentMsg = false;
       ClearAttachmentList();
-      ClearEditMessageBox();
       gMessageNotificationBar.clearMsgNotifications();
 
       for (let index in gMessageListeners)
@@ -464,7 +463,7 @@ var messageHeaderSink = {
         UpdateExpandedMessageHeaders();
       }
 
-      ShowEditMessageBox();
+      gMessageNotificationBar.setDraftEditMessage();
       UpdateJunkButton();
 
       for (let index in gMessageListeners)
@@ -1154,7 +1153,7 @@ function HideMessageHeaderPane()
   document.getElementById("attachmentView").collapsed = true;
   document.getElementById("attachment-splitter").collapsed = true;
 
-  ClearEditMessageBox();
+  gMessageNotificationBar.clearMsgNotifications();
 }
 
 /**

@@ -566,6 +566,18 @@
 <!ENTITY buttonMenuForwardAsInline.label "Forward Inline">
 <!ENTITY buttonMenuForwardAsAttachment.label "Forward As Attachment">
 
+<!-- Remote Content Button Popup -->
+<!ENTITY remoteContentOptionsAllowForMsg.label "Show remote content in this message">
+<!ENTITY remoteContentOptionsAllowForMsg.accesskey "S">
+<!ENTITY remoteContentOptionAllowForAddress.label "Show remote content from this sender">
+<!ENTITY remoteContentOptionAllowForAddress.accesskey "f">
+
+<!-- Phishing Button Popup -->
+<!ENTITY phishingOptionIgnore.label "Ignore warning for this message">
+<!ENTITY phishingOptionIgnore.accesskey "n">
+<!ENTITY phishingOptionDisableDetection.label "Disable scam detection for all messages">
+<!ENTITY phishingOptionDisableDetection.accesskey "D">
+
 <!-- AppMenu Popup -->
 <!ENTITY appmenuNewMsgCmd.label "New Message">
 <!ENTITY appmenuNewContactCmd.label "Address Book Contact…">
@@ -787,27 +799,6 @@
 <!ENTITY contextMute.accesskey "M">
 <!ENTITY contextUnmute.label "Unmute">
 <!ENTITY contextUnmute.accesskey "m">
-
-<!-- Junk Bar -->
-<!ENTITY junkBarMessage2.label "&brandShortName; thinks this message is junk mail.">
-<!ENTITY junkBarButton1.label "Not Junk">
-<!ENTITY junkInfoButton.label "?">
-
-<!-- Remote Content Bar -->
-<!ENTITY remoteContentMessage2.label "To protect your privacy, &brandShortName; has blocked remote content in this message.">
-<!ENTITY loadRemoteContentButton3.label "Show Remote Content">
-
-<!-- Phishing Bar -->
-<!ENTITY phishingBarMessage2.label "This message may be a scam.">
-<!ENTITY removePhishingBarButton1.label "Ignore Warning">
-<!ENTITY disablePhishingWarning1.label "Disable scam detection for all messages">
-<!ENTITY reportPhishingError1.label "This message doesn't appear to be a scam.">
-
-<!-- MDN Bar -->
-<!ENTITY mdnBarIgnoreButton2.label "Ignore">
-<!ENTITY mdnBarIgnoreButton2.accesskey "I">
-<!ENTITY mdnBarSendButton2.label "Send Return Receipt">
-<!ENTITY mdnBarSendButton2.accesskey "S">
 
 <!-- Quick Search Bar -->
 <!-- LOCALIZATION NOTE (quickSearchCmd.key):

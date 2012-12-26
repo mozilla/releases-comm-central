@@ -545,22 +545,6 @@ toolbar[iconsize="small"] .button-appmenu[disabled] {
   font-size: 90%;
 }
 
-#junkBarImage {
-  list-style-image: url("chrome://messenger/skin/icons/junk.png");
-}
-
-#junkIcon {
-  list-style-image: url("chrome://messenger/skin/icons/folder-junk.png");
-}
-
-#remoteContentImage {
-  list-style-image: url("chrome://messenger/skin/icons/remote-blocked.png"); 
-}
-
-#phishingBarImage {
-  list-style-image: url("chrome://messenger/skin/icons/phishing.png");
-}
-
 #mdnBarImage {
   list-style-image: url("moz-icon://stock/gtk-dialog-question?size=toolbar");
 }

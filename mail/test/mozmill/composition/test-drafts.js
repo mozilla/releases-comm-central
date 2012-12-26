@@ -17,6 +17,7 @@ const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-he
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
+const kBoxId = "msgNotificationBar";
 var draftsFolder;
 
 function setupModule(module) {
@@ -45,7 +46,7 @@ function test_open_draft_again() {
   let draftMsg = select_click_row(0);
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid("editMessageButton"));
+  mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
   let cwc = wait_for_compose_window();
 
   let cwins = 0;
@@ -55,7 +56,8 @@ function test_open_draft_again() {
     cwins++;
   }
 
-  mc.click(mc.eid("editMessageButton")); // click edit in main win again
+  // click edit in main win again
+  mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
 
   mc.sleep(1000); // wait a sec to see if it caused a new window
 

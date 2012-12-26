@@ -55,7 +55,8 @@ Application.prototype = {
 
   // for steelIApplication
   platformIsMac: "nsILocalFileMac" in Components.interfaces,
-  platformIsLinux: "@mozilla.org/gnome-gconf-service;1" in Components.classes
+  platformIsLinux: "@mozilla.org/gnome-gconf-service;1" in Components.classes,
+  platformIsWindows: "@mozilla.org/windows-registry-key;1" in Components.classes
 };
 
 #include ../../mozilla/toolkit/components/exthelper/extApplication.js

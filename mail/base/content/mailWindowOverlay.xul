@@ -62,6 +62,7 @@
 <script type="application/javascript" src="chrome://messenger-newsblog/content/utils.js"/>
 
 <stringbundleset id="stringbundleset">
+  <stringbundle id="brand_bundle" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
 </stringbundleset>
@@ -969,6 +970,28 @@
               command="cmd_CustomizeMailToolbar"
               label="&customizeToolbar.label;"
               accesskey="&customizeToolbar.accesskey;"/>
+  </menupopup>
+
+  <menupopup id="remoteContentOptions">
+    <menuitem id="remoteContentOptionAllowForMsg"
+              label="&remoteContentOptionsAllowForMsg.label;"
+              accesskey="&remoteContentOptionsAllowForMsg.accesskey;"
+              oncommand="LoadMsgWithRemoteContent();"/>
+    <menuitem id="remoteContentOptionAllowForAddress"
+              label="&remoteContentOptionAllowForAddress.label;"
+              accesskey="&remoteContentOptionAllowForAddress.accesskey;"
+              oncommand="allowRemoteContentForSender();"/>
+  </menupopup>
+
+  <menupopup id="phishingOptions">
+    <menuitem id="phishingOptionIgnore"
+              label="&phishingOptionIgnore.label;"
+              accesskey="&phishingOptionIgnore.accesskey;"
+              oncommand="IgnorePhishingWarning();"/>
+    <menuitem id="phishingOptionDisableDetection"
+              label="&phishingOptionDisableDetection.label;"
+              accesskey="&phishingOptionDisableDetection.accesskey;"
+              oncommand="DisablePhishingWarning();"/>
   </menupopup>
 
 <popupset id="mainPopupSet">
@@ -3298,55 +3321,6 @@
 
   <toolbarset id="customToolbars" context="toolbar-context-menu"/>
 </toolbox>
-
-<!-- The msgNotificationBar appears on top of the message and displays
-     information like: junk, contains remote images, or is a suspected phishing
-     URL.
--->
-<deck id="msgNotificationBar" selectedIndex="0" collapsed="true">
-  <hbox id="msgNotificationNoStatus"/>
-
-  <hbox id="phishingBar" class="msgNotificationBar" align="center">
-    <image id="phishingBarImage"/>
-    <vbox flex="1">
-      <description flex="1" class="msgNotificationBarText">&phishingBarMessage2.label;</description>
-      <label id="disablePhishingWarning" class="msgNotificaton-smallText text-link"
-             value="&disablePhishingWarning1.label;" onclick="DisablePhishingWarning();"/>
-      <label id="reportPhishingError" value="&reportPhishingError1.label;" class="msgNotificaton-smallText text-link" collapsed="true"/>
-    </vbox>
-    <button label="&removePhishingBarButton1.label;" oncommand="IgnorePhishingWarning();"/>
-  </hbox>
-
-  <hbox id="junkBar" class="msgNotificationBar" align="center">
-    <image id="junkBarImage"/>
-    <description flex="1" class="msgNotificationBarText">&junkBarMessage2.label;</description>
-    <button label="&junkBarButton1.label;" oncommand="JunkSelectedMessages(false);"/>
-  </hbox>
-
-  <hbox id="remoteContentBar" class="msgNotificationBar" align="center">
-    <image id="remoteContentImage"/>
-    <vbox flex="1">
-      <description class="msgNotificationBarText">&remoteContentMessage2.label;</description>
-      <label id="allowRemoteContentForAuthorDesc" class="msgNotificaton-smallText text-link"
-             crop="end"
-             onclick="allowRemoteContentForSender();"/>
-    </vbox>
-    <button id="remoteContentBarButton" label="&loadRemoteContentButton3.label;"
-            oncommand="LoadMsgWithRemoteContent();"/>
-  </hbox>
-
-  <hbox id="mdnBar" class="msgNotificationBar" align="center">
-    <image id="mdnBarImage"/>
-    <description id="mdnBarMessage" class="msgNotificationBarText" flex="1"/>
-    <button label="&mdnBarIgnoreButton2.label;"
-            accesskey="&mdnBarIgnoreButton2.accesskey;"
-            oncommand="IgnoreMDNResponse();"/>
-    <button label="&mdnBarSendButton2.label;"
-            accesskey="&mdnBarSendButton2.accesskey;"
-            oncommand="SendMDNResponse();"/>
-  </hbox>
-
-</deck>
 
 <statusbar class="chromeclass-status" id="status-bar">
   <hbox insertbefore="unreadMessageCount"  id="statusTextBox" flex="1">

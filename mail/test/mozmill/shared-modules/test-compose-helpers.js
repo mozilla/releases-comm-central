@@ -50,10 +50,6 @@ function installInto(module) {
   module.get_compose_body = get_compose_body;
   module.type_in_composer = type_in_composer;
   module.assert_previous_text = assert_previous_text;
-  module.assert_notification_displayed = assert_notification_displayed;
-  module.close_notification = close_notification;
-  module.wait_for_notification_to_stop = wait_for_notification_to_stop;
-  module.wait_for_notification_to_show = wait_for_notification_to_show;
 }
 
 /**
@@ -309,86 +305,6 @@ function delete_attachment(aComposeWindow, aIndex) {
 
   aComposeWindow.click(new elib.Elem(node));
   aComposeWindow.window.RemoveSelectedAttachment();
-}
-
-/**
- * A helper function for determining whether or not a notification with
- * a particular value is being displayed in the composer window.
- *
- * @param aController the controller of the compose window to check
- * @param aValue the value of the notification to look for.
- * @param aDisplayed true if the notification should be displayed, false
- *                   otherwise.
- * @returns the notification if we're asserting that the notification is
- *          displayed, and it actually shows up. Returns null otherwise.
- */
-function assert_notification_displayed(aController, aValue, aDisplayed) {
-  let nb = aController.window
-                      .document
-                      .getElementById("attachmentNotificationBox");
-  let hasNotification = false;
-  let notification = nb.getNotificationWithValue(aValue);
-  let hasNotification = (notification != null)
-
-  if (hasNotification != aDisplayed)
-    throw new Error("Expected the notification with value " + aValue +
-                    " to be " + (aDisplayed ? "shown" : "not shown"));
-
-  return notification;
-}
-
-/**
- * A helper function for closing a notification in the compose window if
- * one is currently displayed.
- *
- * @param aController the controller for the compose window with
- *                    the notification.
- * @param aValue the value of the notification to close.
- */
-function close_notification(aController, aValue) {
-  let nb = aController.window
-                      .document
-                      .getElementById("attachmentNotificationBox");
-  let notification = nb.getNotificationWithValue(aValue);
-
-  if (notification)
-    notification.close();
-}
-
-/**
- * A helper function that waits for a notification with value aValue
- * to stop displaying in the compose window.
- *
- * @param aController the controller for the compose window with the
- *                    notification.
- * @param aValue the value of the notification to wait to stop.
- */
-function wait_for_notification_to_stop(aController, aValue) {
-  let nb = aController.window
-                      .document
-                      .getElementById("attachmentNotificationBox");
-
-  aController.waitFor(function() !nb.getNotificationWithValue(aValue),
-                      "Timed out waiting for notification with value " +
-                      aValue + " to stop.");
-}
-
-/**
- * A helper function that waits for a notification with value aValue
- * to show in the compose window.
- *
- * @param aController the controller for the compose window that we want
- *                    the notification to appear in.
- * @param aValue the value of the notification to wait for.
- */
-function wait_for_notification_to_show(aController, aValue) {
-  let nb = aController.window
-                      .document
-                      .getElementById("attachmentNotificationBox");
-
-  aController.waitFor(function() nb.getNotificationWithValue(aValue) != null,
-                      "Timed out waiting for notification with value " +
-                      aValue + " to show.");
 }
 
 /**

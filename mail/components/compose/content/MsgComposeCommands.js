@@ -1783,7 +1783,7 @@ attachmentWorker.onmessage = function(event)
   let keywordsFound = event.data;
   let msg = null;
   let nBox = document.getElementById("attachmentNotificationBox");
-  let notification = nBox.getNotificationWithValue("1");
+  let notification = nBox.getNotificationWithValue("attachmentReminder");
   let removeNotification = false;
 
   if (keywordsFound.length > 0) {
@@ -1852,7 +1852,7 @@ attachmentWorker.onmessage = function(event)
       }
     };
 
-    notification = nBox.appendNotification("", "1",
+    notification = nBox.appendNotification("", "attachmentReminder",
                                  /* fake out the image so we can do it in CSS */
                                  "null",
                                  nBox.PRIORITY_WARNING_MEDIUM,

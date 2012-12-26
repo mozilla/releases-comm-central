@@ -131,6 +131,8 @@
 <menupopup id="attachment-toolbar-context-menu"/>
 <menupopup id="copyUrlPopup"/>
 <menupopup id="toolbar-context-menu"/>
+<menupopup id="remoteContentOptions"/>
+<menupopup id="phishingOptions"/>
 
 <tooltip id="attachmentListTooltip"/>
 
@@ -512,8 +514,10 @@
                              autofind="false"/>
                     <vbox id="singlemessage" flex="1">
                       <hbox id="msgHeaderView"/>
-                      <hbox id="editMessageBox"/>
-                      <deck id="msgNotificationBar"/>
+                      <!-- The msgNotificationBar appears on top of the message
+                           and displays information like: junk, contains remote
+                           images, or is a suspected phishing URL. -->
+                      <notificationbox id="msgNotificationBar"/>
                       <!-- The messagepanewrapper hbox exists to allow
                            extensions to add sidebars to the message. -->
                       <hbox id="messagepanewrapper" flex="1">

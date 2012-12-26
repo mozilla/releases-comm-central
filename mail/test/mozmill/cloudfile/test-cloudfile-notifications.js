@@ -1,9 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
-  * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests the get an account workflow.
+ * Tests that the cloudfile notifications work as they should.
  */
 
 let MODULE_NAME = 'test-cloudfile-notifications';
@@ -13,7 +13,8 @@ let MODULE_REQUIRES = ['folder-display-helpers',
                        'compose-helpers',
                        'cloudfile-helpers',
                        'attachment-helpers',
-                       'prompt-helpers'];
+                       'prompt-helpers', 
+                       'notificationbox-helpers'];
 
 let controller = {};
 let mozmill = {};
@@ -28,12 +29,11 @@ let maxSize, cfh, ah, oldInsertNotificationPref;
 const kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
 const kInsertNotificationPref = "mail.compose.big_attachments.insert_notification";
 
-function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
+const kBoxId = "attachmentNotificationBox";
 
-  let ch = collector.getModule('compose-helpers');
-  ch.installInto(module);
+function setupModule(module) {
+  collector.getModule('folder-display-helpers').installInto(module);
+  collector.getModule('compose-helpers').installInto(module);
 
   cfh = collector.getModule('cloudfile-helpers');
   cfh.installInto(module);
@@ -44,6 +44,7 @@ function setupModule(module) {
   ah.gMockFilePickReg.register();
 
   collector.getModule('prompt-helpers').installInto(module);
+  collector.getModule('notificationbox-helpers').installInto(module);
 
   maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
   oldInsertNotificationPref = Services.prefs
@@ -67,7 +68,7 @@ function teardownModule(module) {
  *                   otherwise.
  */
 function assert_cloudfile_notification_displayed(aController, aDisplayed) {
-  assert_notification_displayed(aController, "bigAttachment", aDisplayed);
+  assert_notification_displayed(aController, kBoxId, "bigAttachment", aDisplayed);
 }
 
 /**
@@ -79,7 +80,7 @@ function assert_cloudfile_notification_displayed(aController, aDisplayed) {
  *                   otherwise.
  */
 function assert_upload_notification_displayed(aController, aDisplayed) {
-  assert_notification_displayed(aController, "bigAttachmentUploading",
+  assert_notification_displayed(aController, kBoxId, "bigAttachmentUploading",
                                 aDisplayed);
 }
 
@@ -92,7 +93,7 @@ function assert_upload_notification_displayed(aController, aDisplayed) {
  *                   otherwise.
  */
 function assert_privacy_warning_notification_displayed(aController, aDisplayed) {
-  assert_notification_displayed(aController, "bigAttachmentPrivacyWarning",
+  assert_notification_displayed(aController, kBoxId, "bigAttachmentPrivacyWarning",
                                 aDisplayed);
 }
 
@@ -100,14 +101,14 @@ function assert_privacy_warning_notification_displayed(aController, aDisplayed) 
  * A helper function to close the Filelink upload notification.
  */
 function close_upload_notification(aController) {
-  close_notification(aController, "bigAttachmentUploading");
+  close_notification(aController, kBoxId, "bigAttachmentUploading");
 }
 
 /**
  * A helper function to close the Filelink privacy warning notification.
  */
 function close_privacy_warning_notification(aController) {
-  close_notification(aController, "bigAttachmentPrivacyWarning");
+  close_notification(aController, kBoxId, "bigAttachmentPrivacyWarning");
 }
 
 function test_no_notification_for_small_file() {
@@ -240,7 +241,7 @@ function test_link_insertion_goes_away_on_error() {
   cwc.window.attachToCloud(provider);
 
   assert_upload_notification_displayed(cwc, true);
-  wait_for_notification_to_stop(cwc, "bigAttachmentUploading");
+  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
   gMockPromptService.unregister();
 }
 
@@ -351,7 +352,7 @@ function test_privacy_warning_notification() {
   cwc.window.attachToCloud(provider);
 
   assert_upload_notification_displayed(cwc, true);
-  wait_for_notification_to_stop(cwc, "bigAttachmentUploading");
+  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the warning is displayed.
   assert_privacy_warning_notification_displayed(cwc, true);
@@ -390,7 +391,7 @@ function test_privacy_warning_notification_no_persist() {
   cwc.window.attachToCloud(provider);
 
   assert_upload_notification_displayed(cwc, true);
-  wait_for_notification_to_stop(cwc, "bigAttachmentUploading");
+  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the warning is displayed.
   assert_privacy_warning_notification_displayed(cwc, true);
@@ -429,7 +430,7 @@ function test_privacy_warning_notification_open_after_close() {
   cwc.window.attachToCloud(provider);
 
   assert_upload_notification_displayed(cwc, true);
-  wait_for_notification_to_stop(cwc, "bigAttachmentUploading");
+  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the warning is displayed.
   assert_privacy_warning_notification_displayed(cwc, true);
@@ -445,7 +446,7 @@ function test_privacy_warning_notification_open_after_close() {
   cwc.window.attachToCloud(provider);
 
   assert_upload_notification_displayed(cwc, true);
-  wait_for_notification_to_stop(cwc, "bigAttachmentUploading");
+  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the privacy warning notification is displayed again.
   assert_privacy_warning_notification_displayed(cwc, true);

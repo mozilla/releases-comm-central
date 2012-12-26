@@ -11,15 +11,18 @@
 const MODULE_NAME = "test-return-receipt";
 
 const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
+                        "notificationbox-helpers"];
 
 var folder;
 
+const kBoxId = "msgNotificationBar";
+const kNotificationValue = "mdnRequested";
+
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
+  collector.getModule("window-helpers").installInto(module);
+  collector.getModule("notificationbox-helpers").installInto(module);
 
   folder = create_folder("ReturnReceiptTest");
 
@@ -84,25 +87,15 @@ function gotoMsg(row) {
  */
 function assert_mdn_shown(shouldShow) {
   let msgNotBar = mc.e("msgNotificationBar");
-  if (shouldShow) {
-    if (msgNotBar.collapsed)
-      throw new Error("msgNotificationBar should show");
-    if (msgNotBar.selectedIndex != 4) // it's not the mdnBar showing
-      throw new Error("msgNotificationBar should show the mdnBar; " +
-                      "msgNotBar.selectedIndex=" + msgNotBar.selectedIndex);
-  }
-  else {
-    if (!msgNotBar.collapsed)
-      throw new Error("mdnBar shouldn't show");
-  }
+  assert_notification_displayed(mc, kBoxId, kNotificationValue, shouldShow);
 }
 
 /**
  * Utility function to make sure the notification contains a certain text.
  */
 function assert_mdn_text_contains(text, shouldContain) {
-  let mdnBar = mc.e("mdnBar");
-  let notificationText = mdnBar.textContent;
+  let nb = mc.window.document.getElementById(kBoxId);
+  let notificationText = nb.currentNotification.label;
   if (shouldContain && !notificationText.contains(text))
     throw new Error("mdnBar should contain text=" + text +
                     "; notificationText=" + notificationText);

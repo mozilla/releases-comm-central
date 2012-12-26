@@ -5,8 +5,6 @@ classic.jar:
   skin/classic/editor/icons/img-align-bottom.gif              (editor/img-align-bottom.gif)
   skin/classic/editor/icons/img-align-left.gif                (editor/img-align-left.gif)
   skin/classic/editor/icons/img-align-middle.gif              (editor/img-align-middle.gif)
-  skin/classic/editor/icons/img-align-right.gif               (editor/img-align-right.gif)
-  skin/classic/editor/icons/img-align-top.gif                 (editor/img-align-top.gif)
 
 # ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION!
 # ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION!
@@ -460,8 +458,8 @@ classic.jar:
   skin/classic/aero/messenger/icons/quick-search-clear.png         (mail/icons/quick-search-clear.png)
   skin/classic/aero/messenger/icons/close-button.png               (mail/icons/close-button.png)
   skin/classic/aero/messenger/icons/closeTab.png                   (mail/icons/closeTab.png)
-  skin/classic/aero/messenger/icons/remote-blocked.png             (mail/icons/remote-blocked.png)
-  skin/classic/aero/messenger/icons/phishing.png                   (mail/icons/phishing.png)
+  skin/classic/aero/messenger/icons/remote-blocked.png             (mail/icons/remote-blocked-aero.png)
+  skin/classic/aero/messenger/icons/phishing.png                   (mail/icons/phishing-aero.png)
   skin/classic/aero/messenger/icons/junk.png                       (mail/icons/junk-aero.png)
   skin/classic/aero/messenger/icons/check.gif                      (mail/icons/check.gif)
   skin/classic/aero/messenger/icons/notchecked.gif                 (mail/icons/notchecked.gif)

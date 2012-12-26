@@ -6,8 +6,9 @@
  * Non-Mac and non-Linux specific version of testing the platformIsLinux
  * part of steelIApplication.
  */
-
 function run_test() {
-  do_check_false(Cc["@mozilla.org/steel/application;1"]
-                   .getService(Ci.steelIApplication).platformIsLinux);
+  let steel = Cc["@mozilla.org/steel/application;1"].getService(Ci.steelIApplication);
+  do_check_false(steel.platformIsLinux);
+  do_check_false(steel.platformIsMac);
+  do_check_true(steel.platformIsWindows);
 }

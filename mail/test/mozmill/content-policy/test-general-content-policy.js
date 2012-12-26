@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /**
  * Checks various remote content policy workings, including:
  *
@@ -12,23 +16,20 @@
  * - Content tab
  */
 
-//
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+// make SOLO_TEST=content-policy/test-general-content-policy.js mozmill-one
 
-var MODULE_NAME = 'test-general-content-policy';
+const MODULE_NAME = 'test-general-content-policy';
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'compose-helpers', 'content-tab-helpers'];
+const RELATIVE_ROOT = '../shared-modules';
+const MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
+                         'compose-helpers', 'content-tab-helpers',
+                         'notificationbox-helpers'];
 var jumlib = {};
 Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
 var elib = {};
 Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
 
 var folder = null;
-var composeHelper = null;
 var gMsgNo = 0;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
@@ -93,14 +94,9 @@ const msgBodyStart = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional/
 const msgBodyEnd = '</body>\n</html>\n';
 
 var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
-  composeHelper = collector.getModule('compose-helpers');
-  composeHelper.installInto(module);
-  let cth = collector.getModule('content-tab-helpers');
-  cth.installInto(module);
+  for (let dep of MODULE_REQUIRES) {
+    collector.getModule(dep).installInto(module);
+  }
 
   folder = create_folder("generalContentPolicy");
 };
@@ -170,8 +166,8 @@ function addMsgToFolderAndCheckContent(folder, test) {
  * @param loadAllowed Whether or not the load is expected to be allowed.
  */
 function checkComposeWindow(test, replyType, loadAllowed) {
-  let replyWindow = replyType ? composeHelper.open_compose_with_reply() :
-                                composeHelper.open_compose_with_forward();
+  let replyWindow = replyType ? open_compose_with_reply() :
+                                open_compose_with_forward();
 
   if (test.checkForAllowed(
         replyWindow.window.document.getElementById("content-frame")
@@ -180,7 +176,7 @@ function checkComposeWindow(test, replyType, loadAllowed) {
                     (loadAllowed ? "allowed" : "blocked") +
                     " in reply window as expected.");
 
-  composeHelper.close_compose_window(replyWindow);
+  close_compose_window(replyWindow);
 }
 
 /**
@@ -201,14 +197,18 @@ function checkComposeWindow(test, replyType, loadAllowed) {
   close_message_window(msgc);
 }
 
-
 function allowRemoteContentAndCheck(test) {
   addMsgToFolderAndCheckContent(folder, test);
 
   plan_for_message_display(mc);
 
   // Click on the allow remote content button
-  mc.click(new elib.ID(mc.window.document, "remoteContentBarButton"));
+  const kBoxId = "msgNotificationBar";
+  const kNotificationValue = "remoteContent";
+  wait_for_notification_to_show(mc, kBoxId, kNotificationValue);
+  mc.click_menus_in_sequence(mc.e("remoteContentOptions"),
+                             [{id: "remoteContentOptionAllowForMsg"}]);
+  wait_for_notification_to_stop(mc, kBoxId, kNotificationValue);
 
   wait_for_message_display_completion(mc, true);
 
