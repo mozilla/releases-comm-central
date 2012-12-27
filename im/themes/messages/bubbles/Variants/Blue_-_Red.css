@@ -2,34 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-div.bubble.outgoing {
+.bubble.outgoing {
   background-color: hsl(240, 100%, 97%);
   border-color: hsl(240, 100%, 80%);
 }
 
-div.bubble.outgoing p.pseudo>span {
+.outgoing > .indicator > .pseudo {
   color: hsl(240, 100%, 75%);
   background-color: hsl(240, 100%, 94%);
 }
 
-div.bubble.outgoing>div.indicator {
+.outgoing > .indicator {
   margin-left: -17px;
   padding-left: 32px;
   background: url('../Bitmaps/indicator_240.png') no-repeat center left;
 }
 
 
-div.bubble.incoming {
+.bubble.incoming {
   background-color: hsl(0, 100%, 97%);
   border-color: hsl(0, 100%, 80%);
 }
 
-div.bubble.incoming p.pseudo>span {
+.incoming > .indicator > .pseudo {
   color: hsl(0, 100%, 75%);
   background-color: hsl(0, 100%, 94%);
 }
 
-div.bubble.incoming>div.indicator {
+.incoming > .indicator {
   margin-left: -17px;
   padding-left: 32px;
   background: url('../Bitmaps/indicator_0.png') no-repeat center left;

@@ -14,8 +14,8 @@ p {
   padding: 0;
 }
 
-div.bubble {
-  margin: 20px 20px 3px 20px;
+.bubble {
+  margin: 20px 20px 3px;
   padding: 0;
   border-width: 2px;
   border-style: solid;
@@ -23,7 +23,7 @@ div.bubble {
   box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
 }
 
-div.bubble:not(.context):not(.event) {
+.bubble:not(.context):not(.event) {
   -moz-animation-duration: 0.5s;
   -moz-animation-name: fadein;
   -moz-animation-iteration-count: 1;
@@ -39,29 +39,27 @@ div.bubble:not(.context):not(.event) {
   }
 }
 
-div.bubble.context:not(:hover) {
+.bubble.context:not(:hover) {
   filter: url("bubbles.svg#desaturate");
 }
 
-div.bubble>div.indicator {
+.indicator {
   margin: 0;
   padding: 9px 15px 10px 15px;
 }
 
-div.bubble.event {
+.bubble.event {
   padding: 4px 15px 4px 15px;
   background-color: hsl(0, 0%, 99%);
   border-color: hsl(0, 0%, 85%);
   box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
 }
 
-div.bubble p.pseudo {
+.pseudo {
+  display: inline-block;
   font-size: smaller;
   font-weight: bold;
   margin: -9px 0px 3px -15px;
-}
-
-div.bubble p.pseudo>span {
   padding: 0px 15px 1px 15px;
   /* border-top-left-radius = (border-radius - border-width) of div.bubble,
      see bug 1775 for an explanation */
@@ -69,15 +67,16 @@ div.bubble p.pseudo>span {
   border-bottom-right-radius: 10px;
 }
 
-div.bubble p.pseudo>span>span.time {
+.pseudo > .time {
   display: none;
 }
 
-div.bubble:hover p.pseudo>span>span.time {
+.bubble:hover > .indicator > .pseudo > .time {
   display: inline;
 }
 
-div.bubble hr {
+.bubble > .indicator > hr,
+.bubble > hr {
   margin: 3px 0px 1px 0px;
   height: 2px;
   border-style: none;
@@ -85,15 +84,13 @@ div.bubble hr {
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-p.interval {
+.interval, #lastMessage {
   text-align: center;
   color: hsl(0, 0%, 60%);
 }
 
 #lastMessage {
   line-height: 20px;
-  text-align: center;
-  color: hsl(0, 0%, 60%);
 }
 
 p.nick {
@@ -137,7 +134,7 @@ p *:-moz-any-link img {
 
 
 /* used by javascript */
-p.button {
+.button {
   cursor: pointer;
   min-height: 20px;
   margin-left: -24px;
@@ -145,27 +142,27 @@ p.button {
   padding-left: 24px;
 }
 
-p.hide {
+.hide {
   background: url('Bitmaps/plus.png') no-repeat left top;
 }
 
-p.hide:hover {
-  background: url('Bitmaps/plus-hover.png') no-repeat left top;
+.hide:hover {
+  background-image: url('Bitmaps/plus-hover.png');
 }
 
-p.hide:after {
+.hide:after {
   content: "...";
   color: hsl(0, 0%, 60%);
 }
 
-p.show {
+.show {
   background: url('Bitmaps/minus.png') no-repeat left top;
   margin-bottom: -20px;
   width: 0;
 }
 
-p.show:hover {
-  background: url('Bitmaps/minus-hover.png') no-repeat left top;
+.show:hover {
+  background-image: url('Bitmaps/minus-hover.png');
 }
 
 .ib-nick {

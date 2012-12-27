@@ -33,11 +33,11 @@ function setColors(target)
   target.style.borderColor = bubble_borders.replace("#", senderHue)
                                            .replace("#", lightness[2]);
 
-  var span_pseudo = target.getElementsByClassName("pseudo")[0].firstChild;
-  span_pseudo.style.color = pseudo_color.replace("#", senderHue)
-                                        .replace("#", lightness[0]);
-  span_pseudo.style.backgroundColor = pseudo_background.replace("#", senderHue)
-                                                       .replace("#", lightness[1]);
+  var pseudo = target.getElementsByClassName("pseudo")[0];
+  pseudo.style.color = pseudo_color.replace("#", senderHue)
+                                   .replace("#", lightness[0]);
+  pseudo.style.backgroundColor = pseudo_background.replace("#", senderHue)
+                                                  .replace("#", lightness[1]);
 
   var div_indicator = target.getElementsByClassName("indicator")[0];
   var imageURL = "url('Bitmaps/indicator_" + senderHue;
@@ -251,7 +251,7 @@ function checkNewText(aEvent)
     nick.style.borderColor = bubble_borders.replace("#", senderHue).replace("#", lightness[2]);
   }
 
-  if (target.tagName == "DIV" && target.className.substring(0, 6) == "bubble") {
+  if (target.tagName == "DIV" && target.classList.contains("bubble")) {
     setColors(target);
 
     var prev = target.previousSibling;
