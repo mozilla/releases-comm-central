@@ -95,7 +95,7 @@
       </xul:tabbox>
       <children/>
     </content>
-    <implementation>
+    <implementation implements="nsIDOMEventListener">
       <field name="mTabBox" readonly="true">
         document.getAnonymousElementByAttribute(this, "anonid", "tabbox");
       </field>
@@ -228,7 +228,12 @@
               return;
 
             this.mCurrentConversation = newConversation;
+
+            this.mCurrentBrowser.docShell.isActive = false;
             this.mCurrentBrowser = newConversation.browser;
+            this.mCurrentBrowser.docShell.isActive =
+              (window.windowState != window.STATE_MINIMIZED);
+
             this.mCurrentTab = this.selectedTab;
             this.mCurrentTab.switchingToTab();
 
@@ -448,6 +453,9 @@
             t.linkedPanel = uniqueId;
             t.linkedConversation = conv;
             t.linkedBrowser = conv.browser;
+            // We start our browsers out as inactive, and then maintain
+            // activeness in updateCurrentBrowser.
+            t.linkedBrowser.docShell.isActive = false;
             this.updateCurrentBrowser(true);
 
             return conv;
@@ -1358,6 +1366,20 @@
       })]]>
       </field>
 
+      <method name="handleEvent">
+        <parameter name="aEvent"/>
+        <body><![CDATA[
+          switch (aEvent.type) {
+            case "sizemodechange":
+              if (aEvent.target == window) {
+                this.mCurrentBrowser.docShell.isActive =
+                  (window.windowState != window.STATE_MINIMIZED);
+              }
+              break;
+          }
+        ]]></body>
+      </method>
+
       <field name="_windowActivateHandler" readonly="true">
       <![CDATA[({
         tabbrowser: this,
@@ -1381,6 +1403,7 @@
           this.mCurrentTab = this.mTabContainer.firstChild;
 
           document.addEventListener("keypress", this._keyEventHandler);
+          document.addEventListener("sizemodechange", this);
           window.addEventListener("deactivate", this._windowDeactivateHandler);
           window.addEventListener("activate", this._windowActivateHandler);
 
@@ -1403,7 +1426,8 @@
 
       <destructor>
         <![CDATA[
-          document.removeEventListener("keypress", this._keyEventHandler, false);
+          document.removeEventListener("keypress", this._keyEventHandler);
+          window.removeEventListener("sizemodechange", this);
           window.removeEventListener("deactivate", this._windowDeactivateHandler);
           window.removeEventListener("activate", this._windowActivateHandler);
           Services.prefs.removeObserver("browser.tabs.autoHide", this._prefObserver);

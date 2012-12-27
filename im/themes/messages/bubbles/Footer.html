@@ -142,34 +142,37 @@ const coef = 3;
 const timebeforetextdisplay = 5 * 60;
 const kRulerMarginTop = 11;
 
+const kMsPerMinute = 60 * 1000;
+const kMsPerHour = 60 * kMsPerMinute;
+const kMsPerDay = 24 * kMsPerHour;
+
 function computeSpace(aInterval)
   Math.round(coef * Math.log(aInterval + 1))
 
 function refreshIntervals()
 {
   var pixels = 1;
-  var previousTime = 0;
   while (true) {
     var time = Math.exp((pixels - 0.49999) / coef) - 1;
     if (time >= timebeforetextdisplay)
       break;
 
-    time = Math.round(time * 1000);
-    var result = time - previousTime;
-    previousTime = time;
-    yield result;
+    yield Math.round(time * 1000);
     ++pixels;
   }
-  while (true)
-    yield 60 * 1000;
 }
 
+var refreshTimes;
 var lastMessageTimeout;
-function handleLastMessage(aGenerator)
+function handleLastMessage()
 {
-  var interval = Math.round(Date.now() / 1000) - lastInsertTime;
+  if (window.messageInsertPending)
+    return;
+
+  var intervalInMs = Date.now() - lastInsertTime * 1000;
+  var interval = Math.round(intervalInMs / 1000);
   var p = document.getElementById("lastMessage");
-  var margin = computeSpace(interval);
+  var margin = computeSpace(Math.max(intervalInMs, 0) / 1000);
   var text = "";
   if (interval >= timebeforetextdisplay) {
     p.style.lineHeight = (margin + shadow) + "px";
@@ -182,8 +185,29 @@ function handleLastMessage(aGenerator)
   var body = document.getElementsByTagName("body")[0];
   if (body.scrollHeight <= body.scrollTop + body.clientHeight + p.clientHeight + 10)
     scrollToElement(p);
+
+  var next = 0;
+  if (interval < timebeforetextdisplay) {
+    if (!refreshTimes)
+      refreshTimes = [i for (i in refreshIntervals())];
+    for (var i = 0; i < refreshTimes.length; ++i) {
+      if (refreshTimes[i] > intervalInMs) {
+        next = refreshTimes[i] - intervalInMs;
+        break;
+      }
+    }
+  }
+  if (!next) {
+    if (intervalInMs > kMsPerDay)
+      next = kMsPerHour - intervalInMs % kMsPerHour;
+    else
+      next = kMsPerMinute - intervalInMs % kMsPerMinute;
+  }
+
+  // The setTimeout callbacks are frequently called a few ms early,
+  // but our code prefers being called a little late, so add 20ms.
   lastMessageTimeout =
-    setTimeout(handleLastMessage, aGenerator.next(), aGenerator);
+    setTimeout(handleLastMessage, next + 20);
 }
 
 var lastInsertTime = 0;
@@ -192,7 +216,22 @@ function updateLastInsertTime()
   let insertTime = document.getElementById("insert").getAttribute("time");
   if (insertTime > lastInsertTime)
     lastInsertTime = insertTime;
+
+  if (lastInsertTime) {
+    clearTimeout(lastMessageTimeout);
+    if (!document.mozHidden)
+      lastMessageTimeout = setTimeout(handleLastMessage, 0);
+  }
 }
+
+function visibilityChanged()
+{
+  if (document.mozHidden)
+    clearTimeout(lastMessageTimeout);
+  else if (lastInsertTime)
+    handleLastMessage();
+}
+
 function checkNewText(aEvent)
 {
   var target = aEvent.originalTarget;
@@ -261,15 +300,11 @@ function checkNewText(aEvent)
     groupEvents(target.parentNode);
     updateLastInsertTime();
   }
-
-  if (lastInsertTime) {
-    clearTimeout(lastMessageTimeout);
-    lastMessageTimeout = setTimeout(handleLastMessage, 0, refreshIntervals());
-  }
 }
 
 document.getElementById("ibcontent")
         .addEventListener("DOMNodeInserted", checkNewText);
+document.addEventListener("mozvisibilitychange", visibilityChanged);
 </script>
 
 <p id="lastMessage"/>
