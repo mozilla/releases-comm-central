@@ -667,13 +667,6 @@ pref("mailnews.ui.junk.manualMarkAsJunkMarksRead", true);
 pref("mail.ui.folderpane.version", 1);
 
 // for manual upgrades of certain UI features.
-#ifdef MOZ_SUITE
-pref("mailnews.ui.threadpane.version", 5);
-#else
-// Thunderbird uses this pref in msgMail3PaneWindow.js for bad reasons.
-pref("mailnews.ui.threadpane.version", 7);
-#endif
-// for manual upgrades of certain UI features.
 // 1 -> 2 is for the ab results pane tree landing
 // to hide the non default columns in the addressbook dialog
 // see abCommon.js and addressbook.js

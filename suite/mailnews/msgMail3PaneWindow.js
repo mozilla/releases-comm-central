@@ -1006,22 +1006,8 @@ function OnLoadFolderPane()
     folderTree.addEventListener("mousedown",TreeOnMouseDown,true);
 }
 
-function UpgradeThreadPaneUI()
-{
-  try
-  {
-    if (Services.prefs.getIntPref("mailnews.ui.threadpane.version") < 6)
-      Services.prefs.setIntPref("mailnews.ui.threadpane.version", 6);
-  }
-  catch (ex) 
-  {
-    dump("UpgradeThreadPane: ex = " + ex + "\n");
-  }
-}
-
 function OnLoadThreadPane()
 {
-  UpgradeThreadPaneUI();
   AddMutationObserver(UpdateAttachmentCol);
 }
 

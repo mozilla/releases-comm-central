@@ -997,34 +997,6 @@ function UnloadPanes()
   UnloadCommandUpdateHandlers();
 }
 
-/**
- * Abuse the threadpane UI version preference to know whether we should mark all
- * IMAP folders as offline.
- *
- * Very important note!  Although I am writing this comment and renamed the
- * function, this is not my doing and by reading this function and not fixing it
- * yourself, you are just as guilty as me, which is not guilty at all, but
- * it certainly won't improve your karma.
- *
- * This used to do things related to updating the visible columns and reordering
- * them, but that is now handled by FolderDisplayWidget.
- */
-function UpgradeProfileAndBeUglyAboutIt()
-{
-  var threadPaneUIVersion;
-
-  try {
-    threadPaneUIVersion = Services.prefs.getIntPref("mailnews.ui.threadpane.version");
-    if (threadPaneUIVersion < 7)
-    {
-      Services.prefs.setIntPref("mailnews.ui.threadpane.version", 7);
-    } // version 7 upgrades
-  }
-  catch (ex) {
-    Components.utils.reportError(ex);
-  }
-}
-
 function OnLoadThreadPane()
 {
   // Use an observer to watch the columns element so that we get a notification
@@ -1037,7 +1009,6 @@ function OnLoadThreadPane()
     subtree: true,
     attributeFilter: ["hidden", "ordinal"]
   });
-  UpgradeProfileAndBeUglyAboutIt();
 }
 
 /* Functions for accessing particular parts of the window*/
