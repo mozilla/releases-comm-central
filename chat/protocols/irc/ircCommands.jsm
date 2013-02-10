@@ -207,7 +207,7 @@ var commands = [
     get helpString() _("command.modeUser", "mode") + "\n" +
                      _("command.modeChannel", "mode"),
     run: function(aMsg, aConv) {
-      function isMode(aString) "+-".indexOf(aString[0]) != -1;
+      function isMode(aString) "+-".contains(aString[0]);
       let params = splitInput(aMsg);
 
       // Check if we have any params, we can't just check params.length, since
@@ -366,7 +366,7 @@ var commands = [
       // Note that this will automatically run whowas if the nick is offline.
       aMsg = aMsg.trim();
       // If multiple parameters are given, this is an error.
-      if (aMsg.indexOf(" ") != -1)
+      if (aMsg.contains(" "))
         return false;
       // If the user does not provide a nick, but is in a private conversation,
       // assume the user is trying to whois the person they are talking to.
