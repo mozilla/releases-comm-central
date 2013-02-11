@@ -59,6 +59,7 @@ function buddyListContextMenu(aXulMenu) {
   }
   document.getElementById("context-openconversation").hidden = hide || uiConv;
   document.getElementById("context-show-conversation").hidden = !this.onConv && !uiConv;
+  document.getElementById("context-close-conversation-separator").hidden = !this.onConv;
   document.getElementById("context-close-conversation").hidden = !this.onConv;
   document.getElementById("context-showlogs").hidden = hide && !this.onConv;
 
