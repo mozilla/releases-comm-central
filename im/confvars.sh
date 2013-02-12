@@ -9,6 +9,8 @@ MOZ_ENABLE_LIBXUL=1
 MOZ_CHROME_FILE_FORMAT=omni
 MOZ_UPDATER=1
 MOZ_MATHML=
+# WebRTC doesn't compile correctly on Mac on Mozilla 18.
+MOZ_WEBRTC=
 
 MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
 MOZ_APP_VERSION=`cat $MOZ_APP_VERSION_TXT`
