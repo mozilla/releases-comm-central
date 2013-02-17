@@ -45,6 +45,19 @@ var gMinTrayR = {
                                 .QueryInterface(Ci.nsIPrefBranch2);
     this._prefs.addObserver("alwaysShowTrayIcon", this, false);
 
+    // Add a listener to minimize the window on startup once it has been
+    // fully created if the corresponding pref is set.
+    if (this._prefs.getBoolPref("startMinimized")) {
+      this._onfocus = function() {
+        if (this._prefs.getIntPref("minimizeon"))
+          this.minimize();
+        else
+          window.minimize();
+        window.removeEventListener("focus", this._onfocus);
+      }.bind(this);
+      window.addEventListener("focus", this._onfocus);
+    }
+
     this.reinitWindow();
   },
 

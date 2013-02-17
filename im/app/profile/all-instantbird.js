@@ -54,6 +54,7 @@ pref("messenger.options.showUnreadCountInDock", true);
 // Default to minimize on close
 pref("extensions.mintrayr.minimizeon", 2);
 pref("extensions.mintrayr.alwaysShowTrayIcon", true);
+pref("extensions.mintrayr.startMinimized", false);
 #ifdef XP_UNIX
 // For Linux, use single click.
 pref("extensions.mintrayr.singleClickRestore", true);
