@@ -1419,6 +1419,7 @@ MimeDisplayOptions::MimeDisplayOptions()
   rot13_p = false;
   part_to_load = nullptr;
 
+  no_output_p = false;
   write_html_p = false;
 
   decrypt_p = false;

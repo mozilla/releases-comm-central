@@ -23,6 +23,10 @@ struct MimeMultipartAlternativeClass {
 
 extern "C" MimeMultipartAlternativeClass mimeMultipartAlternativeClass;
 
+enum priority_t {PRIORITY_UNDISPLAYABLE,
+                 PRIORITY_NORMAL,
+                 PRIORITY_HIGHEST};
+
 struct MimeMultipartAlternative {
   MimeMultipart multipart;      /* superclass variables */
 
@@ -31,6 +35,7 @@ struct MimeMultipartAlternative {
                                          (see mimepbuf.h) */
   int32_t pending_parts;
   int32_t max_parts;
+  priority_t buffered_priority; /* Priority of head of pending parts */
 };
 
 #define MimeMultipartAlternativeClassInitializer(ITYPE,CSUPER) \

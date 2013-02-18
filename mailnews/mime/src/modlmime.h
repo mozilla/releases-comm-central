@@ -163,6 +163,13 @@ public:
   char *part_to_load;    /* The particular part of the multipart which
                  we are extracting.  Set by "?part=3.2.4" */
 
+  bool no_output_p; /* Will never write output when this is true.
+          (When false, output or not may depend on other things.)
+          This needs to be in the options, because the method
+          MimeObject_parse_begin is controlling the property "output_p"
+          (on the MimeObject) so we need a way for other functions to
+          override it and tell that we do not want output. */
+
   bool write_html_p;    /* Whether the output should be HTML, or raw. */
 
   bool decrypt_p;    /* Whether all traces of xlateion should be

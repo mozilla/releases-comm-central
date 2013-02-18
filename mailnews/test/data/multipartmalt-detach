@@ -46,9 +46,4 @@ Content-Disposition: inline; filename="smurf_update_neu.txt"
 
 smurf_update_neu.txt
 --gmxboundary=-1156956072-29266-sub--
---gmxboundary=-1156956072-29266-top
-Content-Type: text/plain
-Content-Disposition: attachment; filename="head_update.txt"
-
-headUpdate.text
 --gmxboundary=-1156956072-29266-top--

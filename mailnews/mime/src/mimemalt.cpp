@@ -72,6 +72,18 @@
   MimeMultipartAlternative_create_child handles it.
 
   - Jonathan Kamens, 2010-07-23
+
+  When the option prefer_plaintext is on, the last text/plain part
+  should be preferred over any other part that can be displayed. But
+  if no text/plain part is found, then the algorithm should go as
+  normal and convert any html part found to text. To achive this I
+  found that the simplest way was to change the function display_part_p
+  into returning priority as an integer instead of boolean can/can't
+  display. Then I also changed the function flush_children so it selects
+  the last part with the highest priority. (Priority 0 means it cannot
+  be displayed and the part is never choosen.)
+
+  - Terje Bråten, 2013-02-16
 */
 
 #include "mimemalt.h"
@@ -97,8 +109,8 @@ static int MimeMultipartAlternative_parse_child_line (MimeObject *, const char *
                             int32_t, bool);
 static int MimeMultipartAlternative_close_child(MimeObject *);
 
-static int MimeMultipartAlternative_flush_children(MimeObject *, bool, bool);
-static bool MimeMultipartAlternative_display_part_p(MimeObject *self,
+static int MimeMultipartAlternative_flush_children(MimeObject *, bool, priority_t);
+static priority_t MimeMultipartAlternative_display_part_p(MimeObject *self,
                              MimeHeaders *sub_hdrs);
 static int MimeMultipartAlternative_display_cached_part(MimeObject *,
                                                         MimeHeaders *,
@@ -130,9 +142,10 @@ MimeMultipartAlternative_initialize (MimeObject *obj)
   NS_ASSERTION(!malt->buffered_hdrs, "object initialized multiple times");
   malt->pending_parts = 0;
   malt->max_parts = 0;
+  malt->buffered_priority = PRIORITY_UNDISPLAYABLE;
   malt->buffered_hdrs = nullptr;
   malt->part_buffers = nullptr;
-  
+
   return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(obj);
 }
 
@@ -149,6 +162,7 @@ MimeMultipartAlternative_cleanup(MimeObject *obj)
   PR_FREEIF(malt->buffered_hdrs);
   PR_FREEIF(malt->part_buffers);
   malt->pending_parts = 0;
+  malt->max_parts = 0;
 }
 
 
@@ -163,27 +177,29 @@ MimeMultipartAlternative_finalize (MimeObject *obj)
 static int
 MimeMultipartAlternative_flush_children(MimeObject *obj,
                                         bool finished,
-                                        bool next_is_displayable)
+                                        priority_t next_priority)
 {
   /*
+    The cache should always have at the head the part with highest priority.
+
     Possible states:
 
     1. Cache contains nothing: do nothing.
 
     2. Finished, and the cache contains one displayable body followed
-       by zero or more non-displayable bodies:
+       by zero or more bodies with lower priority:
 
     3. Finished, and the cache contains one non-displayable body:
        create it with output off.
 
     4. Not finished, and the cache contains one displayable body
-       followed by zero or more non-displayable bodies, and the new
-       body we're about to create is displayable: create all cached
-       bodies with output off.
+       followed by zero or more bodies with lower priority, and the new
+       body we're about to create is higher or equal priority:
+       create all cached bodies with output off.
 
     5. Not finished, and the cache contains one displayable body
-       followed by zero or more non-displayable bodies, and the new
-       body we're about to create is non-displayable: do nothing.
+       followed by zero or more bodies with lower priority, and the new
+       body we're about to create has lower priority: do nothing.
 
     6. Not finished, and the cache contains one non-displayable body:
        create it with output off.
@@ -195,8 +211,7 @@ MimeMultipartAlternative_flush_children(MimeObject *obj,
   if (! malt->pending_parts)
     return 0;
 
-  have_displayable =
-    MimeMultipartAlternative_display_part_p(obj, malt->buffered_hdrs[0]);
+  have_displayable = (malt->buffered_priority > next_priority);
   
   if (finished && have_displayable) {
     /* Case 2 */
@@ -208,17 +223,13 @@ MimeMultipartAlternative_flush_children(MimeObject *obj,
     do_flush = true;
     do_display = false;
   }
-  else if (! finished && have_displayable && next_is_displayable) {
-    /* Case 4 */
-    do_flush = true;
-    do_display = false;
-  }
-  else if (! finished && have_displayable && ! next_is_displayable) {
+  else if (! finished && have_displayable) {
     /* Case 5 */
     do_flush = false;
     do_display = false;
   }
   else if (! finished && ! have_displayable) {
+    /* Case 4 */
     /* Case 6 */
     do_flush = true;
     do_display = false;
@@ -227,7 +238,7 @@ MimeMultipartAlternative_flush_children(MimeObject *obj,
     NS_ERROR("mimemalt.cpp: logic error in flush_children");
     return -1;
   }
-  
+
   if (do_flush) {
     int32_t i;
     for (i = 0; i < malt->pending_parts; i++) {
@@ -254,7 +265,8 @@ MimeMultipartAlternative_parse_eof (MimeObject *obj, bool abort_p)
   if (status < 0) return status;
 
 
-  status = MimeMultipartAlternative_flush_children(obj, true, false);
+  status = MimeMultipartAlternative_flush_children(obj, true,
+                                                   PRIORITY_UNDISPLAYABLE);
   if (status < 0)
     return status;
 
@@ -270,13 +282,18 @@ MimeMultipartAlternative_create_child(MimeObject *obj)
   MimeMultipart *mult = (MimeMultipart *) obj;
   MimeMultipartAlternative *malt = (MimeMultipartAlternative *) obj;
 
-  bool displayable =
+  priority_t priority =
     MimeMultipartAlternative_display_part_p (obj, mult->hdrs);
 
-  MimeMultipartAlternative_flush_children(obj, false, displayable);
+  MimeMultipartAlternative_flush_children(obj, false, priority);
 
   mult->state = MimeMultipartPartFirstLine;
   int32_t i = malt->pending_parts++;
+
+  if (i==0) {
+    malt->buffered_priority = priority;
+  }
+
   if (malt->pending_parts > malt->max_parts) {
     malt->max_parts = malt->pending_parts;
     MimeHeaders **newBuf = (MimeHeaders **)
@@ -342,13 +359,13 @@ MimeMultipartAlternative_close_child(MimeObject *obj)
 }
 
 
-static bool
+static priority_t
 MimeMultipartAlternative_display_part_p(MimeObject *self,
                     MimeHeaders *sub_hdrs)
 {
   char *ct = MimeHeaders_get (sub_hdrs, HEADER_CONTENT_TYPE, true, false);
   if (!ct)
-    return false;
+    return PRIORITY_UNDISPLAYABLE;
 
   /* RFC 1521 says:
      Receiving user agents should pick and display the last format
@@ -356,11 +373,8 @@ MimeMultipartAlternative_display_part_p(MimeObject *self,
      alternatives is itself of type "multipart" and contains unrecognized
      sub-parts, the user agent may choose either to show that alternative,
      an earlier alternative, or both.
-
-   Ugh.  If there is a multipart subtype of alternative, we simply show
-   that, without descending into it to determine if any of its sub-parts
-   are themselves unknown.
    */
+  priority_t priority = PRIORITY_UNDISPLAYABLE;
 
   // prefer_plaintext pref
   nsIPrefBranch *prefBranch = GetPrefBranch(self->options);
@@ -370,21 +384,30 @@ MimeMultipartAlternative_display_part_p(MimeObject *self,
                             &prefer_plaintext);
   if (prefer_plaintext
       && self->options->format_out != nsMimeOutput::nsMimeMessageSaveAs
-      && (!PL_strncasecmp(ct, "text/html", 9) ||
-          !PL_strncasecmp(ct, "text/enriched", 13) ||
-          !PL_strncasecmp(ct, "text/richtext", 13))
+      && !PL_strncasecmp(ct, "text/plain", 10)
      )
-    // if the user prefers plaintext and this is the "rich" (e.g. HTML) part...
+    // if the user prefers plaintext and this is the plaintext part...
   {
-    return false;
+    priority = PRIORITY_HIGHEST;
+  } else {
+    MimeObjectClass *clazz = mime_find_class (ct, sub_hdrs, self->options, true);
+    if (clazz && clazz->displayable_inline_p(clazz, sub_hdrs)) {
+      /* TODO:
+        If the user prefers plaintext and if this is a multipart that
+        contains a text/plain part (and it is not a converted/downgraded
+        text/html part) then the priority should be a bit less than
+        PRIORITY_HIGHEST, but above PRIORITY_NORMAL.
+        (A text/plain part inside a multipart is more likely to be
+        only a part of the message, but if there are multiple multipart
+        sub-parts then one that contains a true text/plain should be chosen
+        over a multipart that does not contain a true text/plain.)
+        But I do not know how to test for this.  - Terje Bråten.
+      */
+      priority = PRIORITY_NORMAL;
+    }
   }
-
-  MimeObjectClass *clazz = mime_find_class (ct, sub_hdrs, self->options, true);
-  bool result = (clazz
-          ? clazz->displayable_inline_p(clazz, sub_hdrs)
-          : false);
   PR_FREEIF(ct);
-  return result;
+  return priority;
 }
 
 static int
@@ -394,6 +417,7 @@ MimeMultipartAlternative_display_cached_part(MimeObject *obj,
                                              bool do_display)
 {
   int status;
+  bool old_options_no_output_p;
 
   char *ct = (hdrs
         ? MimeHeaders_get (hdrs, HEADER_CONTENT_TYPE, true, false)
@@ -418,28 +442,13 @@ MimeMultipartAlternative_display_cached_part(MimeObject *obj,
     mime_free(body);
     return status;
   }
-  /* We need to muck around with the options to prevent output when
-     do_display is false. More about this below. */
   /* add_child assigns body->options from obj->options, but that's
      just a pointer so if we muck with it in the child it'll modify
      the parent as well, which we definitely don't want. Therefore we
-     need to make a copy. */
-  body->options = new MimeDisplayOptions;
-  *body->options = *obj->options;
-  /* But we have to be careful about getting into a situation where
-     memory could be double-freed. All of this is a gross abstraction
-     violation which could be avoided if it were possible to tell
-     parse_begin what output_p should be. */
-  if (body->options->part_to_load)
-    body->options->part_to_load = strdup(body->options->part_to_load);
-  if (body->options->default_charset)
-    body->options->default_charset = strdup(body->options->default_charset);
-  
-  /* parse_begin resets output_p. This is quite annoying. To convince
-     it that we mean business, we set output_fn to null if we don't
-     want output. */
+     need to make a copy of the old value and restore it later. */
+  old_options_no_output_p = obj->options->no_output_p;
   if (! do_display)
-    body->options->output_fn = nullptr;
+    body->options->no_output_p = true;
 
 #ifdef MIME_DRAFTS
   /* if this object is a child of a multipart/related object, the parent is
@@ -467,11 +476,6 @@ MimeMultipartAlternative_display_cached_part(MimeObject *obj,
 
   status = body->clazz->parse_begin(body);
   if (status < 0) return status;
-  /* Now that parse_begin is done mucking with output_p, we can put
-     body->options back to what it's supposed to be. Avoids a memory
-     leak. */
-  delete body->options;
-  body->options = obj->options;
 
 #ifdef MIME_DRAFTS
   if (decomposeFile && !multipartRelatedChild)
@@ -502,6 +506,9 @@ MimeMultipartAlternative_display_cached_part(MimeObject *obj,
     if (status < 0) return status;
   }
 #endif /* MIME_DRAFTS */
+
+  /* Restore options to what parent classes expects. */
+  obj->options->no_output_p = old_options_no_output_p;
 
   return 0;
 }

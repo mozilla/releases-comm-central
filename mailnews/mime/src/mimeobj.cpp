@@ -191,7 +191,7 @@ MimeObject_parse_begin (MimeObject *obj)
   }
 
   /* Decide whether this object should be output or not... */
-  if (!obj->options || !obj->options->output_fn
+  if (!obj->options || obj->options->no_output_p || !obj->options->output_fn
     /* if we are decomposing the message in files and processing a multipart object,
        we must not output it without parsing it first */
      || (obj->options->decompose_file_p && obj->options->decompose_file_output_fn &&
