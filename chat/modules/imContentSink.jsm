@@ -47,6 +47,12 @@ const kAllowedMozClasses =
   function(aClassName) aClassName == "moz-txt-underscore" ||
                        aClassName == "moz-txt-tag";
 
+/* Tags whose content should be fully removed, and reported in the Error Console. */
+const kForbiddenTags = {
+  script: true,
+  style: true
+};
+
 // in strict mode, remove all formatings. Keep only links and line breaks.
 const kStrictMode = {
   attrs: { },
@@ -243,9 +249,15 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       // check if node allowed
       let nodeName = node.localName.toLowerCase();
       if (!(nodeName in aRules.tags)) {
-        // this node is not allowed, replace it with its children
-        while (node.hasChildNodes())
-          aNode.insertBefore(node.removeChild(node.firstChild), node);
+        if (nodeName in kForbiddenTags) {
+          Components.utils.reportError("removing a " + nodeName +
+                                       " tag from a message before display");
+        }
+        else {
+          // this node is not allowed, replace it with its children
+          while (node.hasChildNodes())
+            aNode.insertBefore(node.removeChild(node.firstChild), node);
+        }
         aNode.removeChild(node);
         // We want to process again the node at the index i which is
         // now the first child of the node we removed

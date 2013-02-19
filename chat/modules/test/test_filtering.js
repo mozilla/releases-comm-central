@@ -27,7 +27,7 @@ function test_plainText() {
   const strings = [
     "foo",
     "foo  ", // preserve trailing whitespace
-//TODO    "  foo", // leading indent is currently destroyed, see bio 898
+    "  foo", // preserve leading indent
     "&lt;html&gt;&amp;" // keep escaped characters
   ];
   for each (let string in strings)
@@ -47,6 +47,7 @@ function test_paragraphs() {
 function test_stripScripts() {
   const strings = {
     "<script>alert('hey')</script>": "",
+    "foo <script>alert('hey')</script>": "foo ",
     "<p onclick=\"alert('hey')\">foo</p>": "<p>foo</p>",
     "<p onmouseover=\"alert('hey')\">foo</p>": "<p>foo</p>"
   };
