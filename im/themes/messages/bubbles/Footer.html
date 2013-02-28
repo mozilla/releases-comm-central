@@ -219,14 +219,14 @@ function updateLastInsertTime()
 
   if (lastInsertTime) {
     clearTimeout(lastMessageTimeout);
-    if (!document.mozHidden)
+    if (!document.hidden)
       lastMessageTimeout = setTimeout(handleLastMessage, 0);
   }
 }
 
 function visibilityChanged()
 {
-  if (document.mozHidden)
+  if (document.hidden)
     clearTimeout(lastMessageTimeout);
   else if (lastInsertTime)
     handleLastMessage();
@@ -304,7 +304,7 @@ function checkNewText(aEvent)
 
 document.getElementById("ibcontent")
         .addEventListener("DOMNodeInserted", checkNewText);
-document.addEventListener("mozvisibilitychange", visibilityChanged);
+document.addEventListener("visibilitychange", visibilityChanged);
 </script>
 
 <p id="lastMessage"/>
