@@ -1212,6 +1212,11 @@ ircAccount.prototype = {
       this.ERROR("joinChat called without a channel name.");
       return;
     }
+    // A channel prefix is required. If the user didn't include one,
+    // we prepend # automatically to match the behavior of other
+    // clients. Not doing it used to cause user confusion.
+    if (this.channelPrefixes.indexOf(channel[0]) == -1)
+      channel = "#" + channel;
     let params = [channel];
     let key = aComponents.getValue("password");
     if (key)
