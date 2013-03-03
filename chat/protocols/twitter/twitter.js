@@ -114,6 +114,13 @@ function Conversation(aAccount)
 {
   this._init(aAccount);
   this._ensureParticipantExists(aAccount.name);
+
+  // If the user's info has already been received, update the timeline topic.
+  if (hasOwnProperty(aAccount._userInfo, aAccount.name)) {
+    let userInfo = aAccount._userInfo[aAccount.name];
+    if ("description" in userInfo)
+      this.setTopic(userInfo.description, aAccount.name, true);
+  }
 }
 Conversation.prototype = {
   __proto__: GenericConvChatPrototype,
