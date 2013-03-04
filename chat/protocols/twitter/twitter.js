@@ -697,8 +697,25 @@ Account.prototype = {
       }
       if ("text" in msg)
         this.displayMessages([msg]);
-      else if ("friends" in msg)
+      else if ("friends" in msg) {
+        // Filter out the IDs that info has already been received from (e.g. a
+        // tweet has been received as part of the timeline request).
+        let userInfoIds = new Set();
+        for each (let userInfo in this._userInfo)
+          userInfoIds.add(userInfo.id_str);
+        let ids = msg.friends.filter(
+          function(aId) !userInfoIds.has(aId.toString()), this);
+
+        while (ids.length) {
+          // Take the first 100 elements, turn them into a comma separated list.
+          this.signAndSend("1.1/users/lookup.json", null,
+                           [["user_id", ids.slice(0, 99).join(",")]],
+                           this.onLookupReceived, null, this);
+          // Remove the first 100 elements.
+          ids = ids.slice(100);
+        }
         this._friends = msg.friends.map(function(aId) aId.toString());
+      }
       else if ("event" in msg) {
         let user, event;
         switch(msg.event) {
@@ -994,6 +1011,16 @@ Account.prototype = {
 
     Services.obs.notifyObservers(new nsSimpleEnumerator(tooltipInfo),
                                  "user-info-received", aBuddyName);
+  },
+
+  // Handle the full user info for each received friend. Set the user info and
+  // create the participant.
+  onLookupReceived: function(aData) {
+    let users = JSON.parse(aData);
+    for each (let user in users) {
+      this.setUserInfo(user);
+      this.timeline._ensureParticipantExists(user.screen_name);
+    }
   },
 
   // Allow us to reopen the timeline via the join chat menu.
