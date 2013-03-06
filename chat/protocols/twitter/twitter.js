@@ -472,7 +472,8 @@ Account.prototype = {
       "OAuth " + params.map(function (p) p[0] + "=\"" + p[1] + "\"").join(", ");
     let headers = (aHeaders || []).concat([["Authorization", authorization]]);
 
-    return doXHRequest(url, headers, aPOSTData, aOnLoad, aOnError, aThis, this);
+    return doXHRequest(url, headers, aPOSTData, aOnLoad, aOnError, aThis, null,
+                       this);
   },
   _parseURLData: function(aData) {
     let result = {};
@@ -563,7 +564,8 @@ Account.prototype = {
       let url = "http://search.twitter.com/search.json" + getParams;
       this._pendingRequests.push(doXHRequest(url, null, null,
                                              this.onSearchResultsReceived,
-                                             this.onTimelineError, this, this));
+                                             this.onTimelineError, this, null,
+                                             this));
     }
   },
 
