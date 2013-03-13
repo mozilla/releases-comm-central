@@ -108,6 +108,8 @@ function ctcpCommand(aConv, aTarget, aCommand, aMsg) {
   return true;
 }
 
+// Replace the command name in the help string so translators do not attempt to
+// translate it.
 var commands = [
   {
     name: "action",

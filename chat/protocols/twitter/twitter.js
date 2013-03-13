@@ -1055,7 +1055,12 @@ Account.prototype = {
   }
 };
 
-function TwitterProtocol() { }
+// Shortcut to get the JavaScript account object.
+function getAccount(aConv) aConv.wrappedJSObject._account;
+
+function TwitterProtocol() {
+  this.registerCommands();
+}
 TwitterProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get name() "Twitter",
@@ -1064,6 +1069,34 @@ TwitterProtocol.prototype = {
   options: {
     "track": {get label() _("options.track"), default: ""}
   },
+  // Replace the command name in the help string so translators do not attempt
+  // to translate it.
+  commands: [
+    {
+      name: "follow",
+      get helpString() _("command.follow", "follow"),
+      run: function(aMsg, aConv) {
+        aMsg = aMsg.trim();
+        if (!aMsg)
+          return false;
+        let account = getAccount(aConv);
+        aMsg.split(" ").forEach(account.follow, account);
+        return true;
+      }
+    },
+    {
+      name: "unfollow",
+      get helpString() _("command.unfollow", "unfollow"),
+      run: function(aMsg, aConv) {
+        aMsg = aMsg.trim();
+        if (!aMsg)
+          return false;
+        let account = getAccount(aConv);
+        aMsg.split(" ").forEach(account.stopFollowing, account);
+        return true;
+      }
+    }
+  ],
   getAccount: function(aImAccount) new Account(this, aImAccount),
   classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}")
 };
