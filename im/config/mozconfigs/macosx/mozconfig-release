@@ -6,6 +6,8 @@ mk_add_options MOZ_BUILD_PROJECTS="i386 x86_64"
 . $topsrcdir/build/macosx/universal/mozconfig.common
 export MOZ_PKG_PLATFORM=mac
 
+export PYTHON=/usr/local/bin/python
+
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
