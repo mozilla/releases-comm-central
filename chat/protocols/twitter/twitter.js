@@ -9,6 +9,8 @@ Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
+const NS_PREFBRANCH_PREFCHANGE_TOPIC_ID = "nsPref:changed";
+
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/twitter.properties")
 );
@@ -404,9 +406,19 @@ Account.prototype = {
     this.getTimelines();
   },
 
-  // Twitter doesn't broadcast the user's availability, so we can ignore
-  // imIUserStatusInfo's status notifications.
-  observe: function(aSubject, aTopic, aMsg) { },
+  observe: function(aSubject, aTopic, aMsg) {
+    // Twitter doesn't broadcast the user's availability, so we can ignore
+    // imIUserStatusInfo's status notifications.
+    if (aTopic != NS_PREFBRANCH_PREFCHANGE_TOPIC_ID)
+      return;
+
+    // Reopen the stream with the new tracked keywords.
+    this.DEBUG("Twitter tracked keywords modified: " + this.getString("track"));
+
+    // Close the stream and reopen it.
+    this._streamingRequest.abort();
+    this.openStream();
+  },
 
   signAndSend: function(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis,
                         aOAuthParams) {
@@ -668,6 +680,7 @@ Account.prototype = {
     this._streamingRequest.responseType = "moz-chunked-text";
     this._streamingRequest.onprogress = this.onDataAvailable.bind(this);
     this.resetStreamTimeout();
+    this.prefs.addObserver("track", this, false);
   },
   _streamTimeout: null,
   resetStreamTimeout: function() {
@@ -900,6 +913,10 @@ Account.prototype = {
     if (this._streamTimeout) {
       clearTimeout(this._streamTimeout);
       delete this._streamTimeout;
+      // Remove the preference observer that is added when the user stream is
+      // opened. (This needs to be removed even if an error occurs, in which
+      // case _streamingRequest is immediately deleted.)
+      this.prefs.removeObserver("track", this);
     }
     if (this._streamingRequest) {
       this._streamingRequest.abort();
