@@ -4,6 +4,10 @@
 
 instantbird.jar:
 % content instantbird %content/instantbird/
+#ifdef XP_MACOSX
+% overlay chrome://global/content/console.xul chrome://instantbird/content/jsConsoleOverlay.xul
+% overlay chrome://mozapps/content/update/updates.xul chrome://instantbird/content/softwareUpdateOverlay.xul
+#endif
 	content/instantbird/aboutDialog.css
 *	content/instantbird/aboutDialog.xul
 	content/instantbird/account.js
@@ -57,6 +61,8 @@ instantbird.jar:
 *	content/instantbird/hiddenWindow.xul
 	content/instantbird/menus-mac.xul
 	content/instantbird/macgestures.js
+*	content/instantbird/jsConsoleOverlay.xul
+*	content/instantbird/softwareUpdateOverlay.xul
 #elifdef XP_WIN
 	content/instantbird/menus-win.xul
 #else
