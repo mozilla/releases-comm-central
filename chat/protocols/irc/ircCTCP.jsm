@@ -97,12 +97,19 @@ function ctcpHandleMessage(aMessage) {
     ircHandlers.handleMessage(message);
   }
 
-  let handled = true;
   // Loop over each raw CTCP message.
-  for each (let message in ctcpMessages)
-    handled &= ircHandlers.handleCTCPMessage(this, message);
+  for each (let message in ctcpMessages) {
+    if (!ircHandlers.handleCTCPMessage(this, message)) {
+      this.WARN("Unhandled CTCP message: " + message.ctcp.rawMessage +
+                "\nin IRC message: " + message.rawMessage);
+      this.sendCTCPMessage("ERRMSG",
+                           [message.ctcp.rawMessage, ":Unhandled CTCP command"],
+                           message.params[0], true)
+    }
+  }
 
-  return handled;
+  // We have handled this message as much as we can.
+  return true;
 }
 
 // This is the the basic CTCP protocol.
