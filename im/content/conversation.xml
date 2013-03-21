@@ -526,39 +526,50 @@
           // Undo tab complete.
           if (this._completions && event.keyCode == KeyEvent.DOM_VK_BACK_SPACE &&
               !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
-            event.preventDefault();
-
-            // First undo the comma separating multiple nicks or the suffix.
-            // More than one nick:
-            //   "nick1, nick2: " -> "nick1: nick2"
-            // Single nick: remove the suffix
-            //   "nick1: " -> "nick1"
-            let pos = inputBox.selectionStart;
-            const suffix = ": ";
-            if (pos > suffix.length &&
-                text.substring(pos - suffix.length, pos) == suffix) {
-              let completions = Object.keys(this.buddies);
-              // Check if the preceding words are a sequence of nick completions.
-              let preceding = text.substring(0, pos - suffix.length).split(", ");
-              if (preceding.every(function(n) completions.indexOf(n) != -1)) {
-                let s = preceding.pop();
-                if (preceding.length)
-                  s = suffix + s;
-                inputBox.selectionStart -= s.length + suffix.length;
-                this.addString(s);
-                if (this._completions[0].slice(-suffix.length) == suffix) {
-                  this._completions =
-                    this._completions.map(function(c) c.slice(0, -suffix.length));
-                }
-                return;
-              }
+            if (text == this._beforeTabComplete) {
+              // Nothing to undo, so let backspace act normally.
+              delete this._completions;
             }
+            else {
+              event.preventDefault();
 
-            // Full undo.
-            inputBox.selectionStart = 0;
-            this.addString(this._beforeTabComplete);
-            delete this._completions;
-            return;
+              // First undo the comma separating multiple nicks or the suffix.
+              // More than one nick:
+              //   "nick1, nick2: " -> "nick1: nick2"
+              // Single nick: remove the suffix
+              //   "nick1: " -> "nick1"
+              let pos = inputBox.selectionStart;
+              const suffix = ": ";
+              if (pos > suffix.length &&
+                  text.substring(pos - suffix.length, pos) == suffix) {
+                let completions = Object.keys(this.buddies);
+                // Check if the preceding words are a sequence of nick completions.
+                let preceding = text.substring(0, pos - suffix.length).split(", ");
+                if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+                  let s = preceding.pop();
+                  if (preceding.length)
+                    s = suffix + s;
+                  inputBox.selectionStart -= s.length + suffix.length;
+                  this.addString(s);
+                  if (this._completions[0].slice(-suffix.length) == suffix) {
+                    this._completions =
+                      this._completions.map(function(c) c.slice(0, -suffix.length));
+                  }
+                  if (this._completions.length == 1 &&
+                      inputBox.value == this._beforeTabComplete) {
+                    // Nothing left to undo or to cycle through.
+                    delete this._completions;
+                  }
+                  return;
+                }
+              }
+
+              // Full undo.
+              inputBox.selectionStart = 0;
+              this.addString(this._beforeTabComplete);
+              delete this._completions;
+              return;
+            }
           }
 
           // Tab complete.
@@ -662,11 +673,17 @@
             let wholeWord = text.substring(inputBox.selectionStart - word.length);
             for each (let completion in matchingCompletions) {
               if (wholeWord.lastIndexOf(completion, 0) == 0) {
-                inputBox.selectionStart += completion.length - word.length;
+                let moveCursor = completion.length - word.length;
+                inputBox.selectionStart += moveCursor;
                 let separator = text.substring(inputBox.selectionStart,
                                                inputBox.selectionStart + 2);
                 if (separator == ": " || separator == ", ")
                   inputBox.selectionStart += 2;
+                else if (!moveCursor) {
+                  // If we're already at the end of a nick, carry on to display
+                  // a list of possible alternatives and/or apply punctuation.
+                  break;
+                }
                 return;
               }
             }
