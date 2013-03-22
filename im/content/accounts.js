@@ -366,15 +366,9 @@ var gAccountManager = {
     clearTimeout(this.disableTimerID);
     this.disableTimerID = 0;
     this.disableCommandItems();
-    // Horrible hack here too, see Bug 177
-    setTimeout(function(aThis) {
-      try {
-        aThis.accountList.selectedItem.buttons.setFocus();
-      } catch (e) {
-        /* Sometimes if the user goes too fast with VK_UP or VK_DOWN, the
-           selectedItem doesn't have the expected binding attached */
-      }
-    }, 0, this);
+    let selectedItem = this.accountList.selectedItem;
+    selectedItem.clientHeight; // force synchronous binding attachment
+    selectedItem.buttons.setFocus();
   },
 
   onKeyPress: function am_onKeyPress(event) {
