@@ -4,15 +4,6 @@
 
 const configWindow = "chrome://global/content/config.xul";
 
-// For Venkman
-
-function toOpenWindowByType(inType, uri) {
-  var winopts = "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar";
-  window.open(uri, "_blank", winopts);
-}
-
-// End { For Venkman }
-
 var debug = {
   aboutMemory: function debug_aboutMemory() {
     openDialog("about:memory");
@@ -21,10 +12,6 @@ var debug = {
   config: function debug_config() {
     Core.showWindow("Preferences:ConfigManager", configWindow, "Config",
                     "chrome,resizable,centerscreen");
-  },
-
-  venkman: function debug_venkman() {
-    start_venkman();
   },
 
   inspector: function debug_inspector() {
