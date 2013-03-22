@@ -24,6 +24,8 @@
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "PLDHashTable.h"
+#include "nsDataHashtable.h"
+#include "nsInterfaceHashtable.h"
 #include "nsTArray.h"
 #include "nsTObserverArray.h"
 class ListContext;
@@ -124,8 +126,33 @@ protected:
 namespace mozilla {
 namespace mailnews {
 class MsgDBReporter;
+
+class MsgKeyHashKey : public PLDHashEntryHdr {
+public:
+  typedef const nsMsgKey &KeyType;
+  typedef const nsMsgKey *KeyTypePointer;
+
+  MsgKeyHashKey(KeyTypePointer aKey) : mValue(*aKey) {}
+  MsgKeyHashKey(const MsgKeyHashKey &o) : mValue(o.mValue) {}
+  ~MsgKeyHashKey() {}
+
+  KeyType GetKey() const { return mValue; }
+  bool KeyEquals(KeyTypePointer aKey) const { return *aKey == mValue; }
+
+  static KeyTypePointer KeyToPointer(KeyType aKey) { return &aKey; }
+  static PLDHashNumber HashKey(KeyTypePointer aKey) { return *aKey; }
+  enum { ALLOW_MEMMOVE = true };
+
+private:
+  const nsMsgKey mValue;
+};
+
+static_assert(sizeof(nsMsgKey) == sizeof(uint32_t),
+   "Hashing algorithm for nsMsgKey only good for 32-bit numbers");
 }
 }
+
+typedef mozilla::mailnews::MsgKeyHashKey nsMsgKeyHashKey;
 
 class nsMsgDatabase : public nsIMsgDatabase
 {
@@ -251,7 +278,6 @@ protected:
   nsIMsgThread *  GetThreadForMessageId(nsCString &msgId);
   nsIMsgThread *  GetThreadForThreadId(nsMsgKey threadId);
   nsMsgHdr     *  GetMsgHdrForReference(nsCString &reference);
-  nsIMsgDBHdr  *  GetMsgHdrForSubject(nsCString &subject);
   // threading interfaces
   virtual nsresult CreateNewThread(nsMsgKey key, const char *subject, nsMsgThread **newThread);
   virtual bool    ThreadBySubjectWithoutRe();
@@ -351,16 +377,19 @@ protected:
   mdb_token     m_offlineMsgOffsetColumnToken;
   mdb_token     m_offlineMessageSizeColumnToken;
 
-  // header caching stuff - MRU headers, keeps them around in memory
-  nsresult      AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key);
-  nsresult      ClearHdrCache(bool reInit);
-  nsresult      RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key);
-  // all headers currently instantiated, doesn't hold refs
-  // these get added when msg hdrs get constructed, and removed when they get destroyed.
-  nsresult      GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result);
-  nsresult      AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key);
-  nsresult      ClearUseHdrCache();
-  nsresult      RemoveHdrFromUseCache(nsIMsgDBHdr *hdr, nsMsgKey key);
+  // The following methods use m_cachedHeaders to keep strong references to
+  // recent header objects around.
+  void AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key);
+  void ClearHdrCache();
+  void RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key);
+
+  // These methods maintain a cache of all headers for the same message key.
+  // Adding and removing headers should only be called by the nsMsgHdr
+  // constructor and destructor
+  bool GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result);
+  void AddHdrToUseCache(nsMsgHdr *hdr, nsMsgKey key);
+  void ClearUseHdrCache();
+  void RemoveHdrFromUseCache(nsMsgHdr *hdr, nsMsgKey key);
 
   // not-reference holding array of threads we've handed out.
   // If a db goes away, it will clean up the outstanding threads.
@@ -375,36 +404,18 @@ protected:
 
   void          ClearCachedObjects(bool dbGoingAway);
   void          ClearEnumerators();
-  // all instantiated headers, but doesn't hold refs.
-  PLDHashTable  *m_headersInUse;
-  static PLDHashNumber HashKey(const void* aKey);
-  static bool MatchEntry(const PLDHashEntryHdr* aEntry, const void* aKey);
-  static void MoveEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aFrom, PLDHashEntryHdr* aTo);
-  static void ClearEntry(PLDHashTable* aTable, PLDHashEntryHdr* aEntry);
-  static PLDHashTableOps gMsgDBHashTableOps;
-  struct MsgHdrHashElement : public PLDHashEntryHdr {
-    nsMsgKey       mKey;
-    nsIMsgDBHdr     *mHdr;
-  };
-  PLDHashTable  *m_cachedHeaders;
-  bool          m_bCacheHeaders;
   nsMsgKey  m_cachedThreadId;
   nsCOMPtr <nsIMsgThread> m_cachedThread;
   nsCOMPtr<nsIMdbFactory> mMdbFactory;
 
-  // Message reference hash table
-  static PLDHashTableOps gRefHashTableOps;
-  struct RefHashElement : public PLDHashEntryHdr {
-    const char     *mRef;       // Hash entry key, must come first
-    nsMsgKey        mThreadId;
-    uint32_t        mCount;
-  };
-  PLDHashTable *m_msgReferences;
+  // This contains a lookup key of message IDs to thread IDs so we can quickly
+  // add messages to threads.
+  nsDataHashtable<nsCStringHashKey, nsMsgKey> m_msgReferences;
   nsresult GetRefFromHash(nsCString &reference, nsMsgKey *threadId);
-  nsresult AddRefToHash(nsCString &reference, nsMsgKey threadId);
-  nsresult AddMsgRefsToHash(nsIMsgDBHdr *msgHdr);
-  nsresult RemoveRefFromHash(nsCString &reference);
-  nsresult RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr);
+  void AddRefToHash(nsCString &reference, nsMsgKey threadId);
+  void AddMsgRefsToHash(nsIMsgDBHdr *msgHdr);
+  void RemoveRefFromHash(nsCString &reference);
+  void RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr);
   nsresult InitRefHash();
 
   // not-reference holding array of enumerators we've handed out.
@@ -413,9 +424,6 @@ protected:
 
   // Memory reporter details
 public:
-  static size_t HeaderHashSizeOf(PLDHashEntryHdr *hdr,
-                                 mozilla::MallocSizeOf aMallocSizeOf,
-                                 void *arg);
   virtual size_t SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) const;
   virtual size_t SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) const
   {
@@ -423,6 +431,10 @@ public:
   }
 private:
   uint32_t m_cacheSize;
+  nsInterfaceHashtable<nsMsgKeyHashKey, nsIMsgDBHdr> m_cachedHeaders;
+  // This table contains a non-refcounted reference to all headers that will be
+  // given out.
+  nsDataHashtable<nsMsgKeyHashKey, nsMsgHdr *> m_headersInUse;
   RefPtr<mozilla::mailnews::MsgDBReporter> mMemReporter;
 };
 

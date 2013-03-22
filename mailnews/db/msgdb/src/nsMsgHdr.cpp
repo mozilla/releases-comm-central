@@ -34,7 +34,7 @@ nsMsgHdr::nsMsgHdr(nsMsgDatabase *db, nsIMdbRow *dbRow)
     if (dbRow && NS_SUCCEEDED(dbRow->GetOid(m_mdb->GetEnv(), &outOid)))
     {
       m_messageKey = outOid.mOid_Id;
-      m_mdb->AddHdrToUseCache((nsIMsgDBHdr *) this, m_messageKey);
+      m_mdb->AddHdrToUseCache(this, m_messageKey);
     }
   }
 }
@@ -48,7 +48,7 @@ void nsMsgHdr::Init()
   m_messageSize = 0;
   m_date = 0;
   m_flags = 0;
-  m_mdbRow = NULL;
+  m_mdbRow = nullptr;
   m_threadId = nsMsgKey_None;
   m_threadParent = nsMsgKey_None;
 }
@@ -108,7 +108,7 @@ nsMsgHdr::~nsMsgHdr()
     if (m_mdb)
     {
       NS_RELEASE(m_mdbRow);
-      m_mdb->RemoveHdrFromUseCache((nsIMsgDBHdr *) this, m_messageKey);
+      m_mdb->RemoveHdrFromUseCache(this, m_messageKey);
     }
   }
   NS_IF_RELEASE(m_mdb);
@@ -116,7 +116,7 @@ nsMsgHdr::~nsMsgHdr()
 
 NS_IMETHODIMP nsMsgHdr::GetMessageKey(nsMsgKey *result)
 {
-  if (m_messageKey == nsMsgKey_None && m_mdbRow != NULL)
+  if (m_messageKey == nsMsgKey_None && m_mdbRow != nullptr)
   {
     mdbOid outOid;
     if (NS_SUCCEEDED(m_mdbRow->GetOid(m_mdb->GetEnv(), &outOid)))
