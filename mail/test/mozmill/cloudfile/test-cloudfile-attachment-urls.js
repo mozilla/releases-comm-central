@@ -476,11 +476,10 @@ function subtest_adding_filelinks_to_reply_above(aText) {
   let cw = prepare_some_attachments_and_reply(aText, kFiles);
   let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
 
-  // So, we should have the root, followed by a br
-  let br = root.nextSibling;
-  assert_equals(br.localName, "br",
-                "The attachment URL containment node should be followed by " +
-                " a br");
+  // If there's any text written, then there's only a single break between the
+  // end of the text and the reply. Otherwise, there are two breaks.
+  let br = aText.length > 1 ? assert_next_nodes("br", root, 2)
+                            : assert_next_nodes("br", root, 1);
 
   // ... which is followed by a div with a class of "moz-cite-prefix".
   let div = br.nextSibling;
