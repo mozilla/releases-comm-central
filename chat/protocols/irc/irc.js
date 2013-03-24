@@ -114,16 +114,22 @@ const GenericIRCConversation = {
   _pendingMessage: false,
   _waitingForNick: false,
 
+  // This will calculate the maximum number of bytes that are left for a message
+  // typed by the user by calculate the amount of bytes that would be used by
+  // the IRC messaging.
+  getMaxMessageLength: function() {
+    // Build the shortest possible message that could be sent to other users.
+    let baseMessage = this._account._nickname + this._account.prefix +
+                      " " + this._account.buildMessage("PRIVMSG", this.name) +
+                      " :\r\n";
+    return this._account.maxMessageLength -
+           this._account.countBytes(baseMessage);
+  },
   sendMsg: function(aMessage) {
     // Split the message by line breaks and send each one individually.
     let messages = aMessage.split(/[\r\n]+/);
 
-    // Build the shortest possible message that could be sent.
-    let baseMessage = this._account._nickname + this._account.prefix +
-                      " " + this._account.buildMessage("PRIVMSG", this.name) +
-                      " :\r\n";
-    let maxLength =
-      this._account.maxMessageLength - this._account.countBytes(baseMessage);
+    let maxLength = this.getMaxMessageLength();
 
     // Attempt to smartly split a string into multiple lines (based on the
     // maximum number of characters the message can contain).
@@ -158,6 +164,11 @@ const GenericIRCConversation = {
       this._pendingMessage = true;
     }, this);
   },
+  // IRC doesn't support typing notifications, but it does have a maximum
+  // message length.
+  // XXX Figure out what to do when there are line breaks.
+  sendTyping: function(aString)
+    this.getMaxMessageLength() - this._account.countBytes(aString),
 
   requestBuddyInfo: function(aNick) {
     if (!this._observedNicks.length)

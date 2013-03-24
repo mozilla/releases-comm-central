@@ -8,4 +8,7 @@ EXTRA_COMPONENTS += [
     'twitter.manifest',
 ]
 
+EXTRA_JS_MODULES += [
+    'twitter-text.jsm',
+]
 JAR_MANIFESTS += ['jar.mn']

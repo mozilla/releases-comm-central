@@ -138,8 +138,7 @@ const GenericAccountPrototype = {
   get singleFormatting() false,
   get noFontSizes() false,
   get noUrlDesc() false,
-  get noImages() true,
-  get maxMessageLength() 0
+  get noImages() true
 };
 
 
@@ -382,7 +381,7 @@ const GenericConversationPrototype = {
   sendMsg: function (aMsg) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
-  sendTyping: function(aLength) { },
+  sendTyping: function(aString) Ci.prplIConversation.NO_TYPING_LIMIT,
 
   close: function() {
     Services.obs.notifyObservers(this, "closing-conversation", null);

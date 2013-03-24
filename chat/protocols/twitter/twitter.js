@@ -8,8 +8,10 @@ Cu.import("resource://gre/modules/Http.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
+Cu.import("resource:///modules/twitter-text.jsm");
 
 const NS_PREFBRANCH_PREFCHANGE_TOPIC_ID = "nsPref:changed";
+const kMaxMessageLength = 140;
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/twitter.properties")
@@ -171,13 +173,17 @@ Conversation.prototype = {
       let error = this._parseError(aData);
       this.systemMessage(_("error.general", error, aMsg), true);
     }, this);
-    this.sendTyping(0);
+    this.sendTyping("");
   },
-  sendTyping: function(aLength) {
-    if (aLength == 0 && this.inReplyToStatusId) {
+  sendTyping: function(aString) {
+    if (aString.length == 0 && this.inReplyToStatusId) {
       delete this.inReplyToStatusId;
       this.notifyObservers(null, "status-text-changed", "");
+      return kMaxMessageLength;
     }
+    // Use the Twitter library to calculate the length.
+    return kMaxMessageLength - twttr.txt.getTweetLength(aString,
+                                                        this._account.config);
   },
   systemMessage: function(aMessage, aIsError, aDate) {
     let flags = {system: true};
@@ -363,8 +369,6 @@ function Account(aProtocol, aImAccount)
 Account.prototype = {
   __proto__: GenericAccountPrototype,
 
-  get maxMessageLength() 140,
-
   consumerKey: Services.prefs.getCharPref("chat.twitter.consumerKey"),
   consumerSecret: Services.prefs.getCharPref("chat.twitter.consumerSecret"),
   completionURI: "http://oauthcallback.local/",
@@ -376,6 +380,13 @@ Account.prototype = {
   _pendingRequests: [],
   _timelineBuffer: [],
   _timelineAuthError: 0,
+
+  // Twitter's current internal configuration, received in response to an API
+  // call, see https://dev.twitter.com/docs/api/1.1/get/help/configuration.
+  config: {
+    "short_url_length_https": 23,
+    "short_url_length": 22
+  },
 
   token: "",
   tokenSecret: "",
@@ -406,6 +417,10 @@ Account.prototype = {
 
     this.LOG("Connecting using existing token");
     this.getTimelines();
+
+    // Request the Twitter API configuration.
+    this.signAndSend("1.1/help/configuration.json", null, null,
+                     this.onConfigReceived, this.onError, this);
   },
 
   observe: function(aSubject, aTopic, aMsg) {
@@ -1038,6 +1053,10 @@ Account.prototype = {
       this.setUserInfo(user);
       this.timeline._ensureParticipantExists(user.screen_name);
     }
+  },
+
+  onConfigReceived: function(aData) {
+    this.config = JSON.parse(aData);
   },
 
   // Allow us to reopen the timeline via the join chat menu.

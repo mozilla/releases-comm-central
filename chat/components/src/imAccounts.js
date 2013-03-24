@@ -770,7 +770,6 @@ imAccount.prototype = {
   get noFontSizes() this._ensurePrplAccount.noFontSizes,
   get noUrlDesc() this._ensurePrplAccount.noUrlDesc,
   get noImages() this._ensurePrplAccount.noImages,
-  get maxMessageLength() this._ensurePrplAccount.maxMessageLength,
 
   get proxyInfo() this._ensurePrplAccount.proxyInfo,
   set proxyInfo(val) {

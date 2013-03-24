@@ -319,7 +319,7 @@ UIConversation.prototype = {
   // prplIConvIM
   get buddy() this.target.buddy,
   get typingState() this.target.typingState,
-  sendTyping: function(aLength) { this.target.sendTyping(aLength); },
+  sendTyping: function(aString) this.target.sendTyping(aString),
 
   // Chat only
   getParticipants: function() this.target.getParticipants(),
