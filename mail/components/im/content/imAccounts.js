@@ -238,6 +238,8 @@ var gAccountManager = {
                                      time.getDate(), time.getHours(),
                                      time.getMinutes(), time.getSeconds());
       let level = dbgMsg.logLevel;
+      if (!level)
+        return "(" + m.errorMessage + ")";
       if (level == dbgMsg.LEVEL_ERROR)
         level = "ERROR";
       else if (level == dbgMsg.LEVEL_WARNING)
