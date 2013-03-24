@@ -199,7 +199,7 @@
           else if (aMsg.match(/^\/(?:say)? .*/))
             aMsg = aMsg.slice(aMsg.indexOf(" ") + 1);
           else if (Services.cmd.executeCommand(aMsg, this._conv.target)) {
-            this._conv.sendTyping(0);
+            this._conv.sendTyping("");
             this.resetInput();
             return;
           }
@@ -526,25 +526,28 @@
 
             let text = inputBox.value;
 
-            let maxLength = this._conv.account.maxMessageLength;
-            if (maxLength) {
-              let left = maxLength - text.length;
-              // 200 is a 'magic' constant to avoid showing big numbers.
-              this._statusTextEnd =
-                left < Math.min(200, maxLength) ? left.toString() : "";
-              this._statusTextEndIsError = left < 0;
-              this.displayStatusText();
-            }
-
             // try to avoid sending typing notifications when the user is
             // typing a command in the conversation.
             // These checks are not perfect (especially if non-existing
             // commands are sent as regular messages on the in-use prpl).
-            if (! text.startsWith("/"))
-              this._conv.sendTyping(text.length);
-            else
-              if (text.startsWith("/me "))
-                this._conv.sendTyping(text.length - 4);
+            let left = Ci.prplIConversation.NO_TYPING_LIMIT;
+            if (!text.startsWith("/"))
+              left = this._conv.sendTyping(text);
+            else if (/^\/me /.test(text))
+              left = this._conv.sendTyping(text.slice(4));
+
+            // When the input box is cleared or there is no character limit,
+            // don't show the character limit in the statusbar.
+            if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
+              this._statusTextEnd = "";
+              this._statusTextEndIsError = false;
+            }
+            else {
+              // 200 is a 'magic' constant to avoid showing big numbers.
+              this._statusTextEnd = left < 200 ? left.toString() : "";
+              this._statusTextEndIsError = left < 0;
+            }
+            this.displayStatusText();
           }).bind(this), 0);
           return;
         }
