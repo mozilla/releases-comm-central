@@ -247,8 +247,24 @@ imAccount.prototype = {
     }
     else if (aTopic == "account-disconnected") {
       this.connectionState = Ci.imIAccount.STATE_DISCONNECTED;
+      let connectionErrorReason = this.prplAccount.connectionErrorReason;
+      if (connectionErrorReason != Ci.prplIAccount.NO_ERROR) {
+        // If the account was disconnected with an error, save the debug messages.
+        this._omittedDebugMessagesBeforeError += this._omittedDebugMessages;
+        if (this._debugMessagesBeforeError)
+          this._omittedDebugMessagesBeforeError += this._debugMessagesBeforeError.length;
+        this._debugMessagesBeforeError = this._debugMessages;
+      }
+      else {
+        // After a clean disconnection, drop the debug messages that
+        // could have been left by a previous error.
+        delete this._omittedDebugMessagesBeforeError;
+        delete this._debugMessagesBeforeError;
+      }
+      delete this._omittedDebugMessages;
+      delete this._debugMessages;
       if (this._statusObserver &&
-          this.prplAccount.connectionErrorReason == Ci.prplIAccount.NO_ERROR &&
+          connectionErrorReason == Ci.prplIAccount.NO_ERROR &&
           this.statusInfo.statusType > Ci.imIStatusInfo.STATUS_OFFLINE) {
         // If the status changed back to online while an account was still
         // disconnecting, it was not reconnected automatically at that point,
@@ -265,15 +281,41 @@ imAccount.prototype = {
   },
 
   _debugMessages: null,
+  _omittedDebugMessages: 0,
+  _debugMessagesBeforeError: null,
+  _omittedDebugMessagesBeforeError: 0,
+  _maxDebugMessages: 50,
   logDebugMessage: function(aMessage, aLevel) {
     if (!this._debugMessages)
       this._debugMessages = [];
-    if (this._debugMessages.length >= 50)
+    if (this._debugMessages.length >= this._maxDebugMessages) {
       this._debugMessages.shift();
+      ++this._omittedDebugMessages;
+    }
     this._debugMessages.push({logLevel: aLevel, message: aMessage});
   },
+  _createDebugMessage: function(aMessage) {
+    let scriptError =
+      Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
+    scriptError.init(aMessage, "", "", 0, null, Ci.nsIScriptError.warningFlag,
+                     "component javascript");
+    return {logLevel: 0, message: scriptError};
+  },
   getDebugMessages: function(aCount) {
-    let messages = this._debugMessages || [];
+    let messages = [];
+    if (this._omittedDebugMessagesBeforeError) {
+      let text = this._omittedDebugMessagesBeforeError + " messages omitted";
+      messages.push(this._createDebugMessage(text));
+    }
+    if (this._debugMessagesBeforeError)
+      messages = messages.concat(this._debugMessagesBeforeError);
+    if (this._omittedDebugMessages) {
+      let text = this._omittedDebugMessages + " messages omitted";
+      messages.push(this._createDebugMessage(text));
+    }
+    if (this._debugMessages)
+      messages = messages.concat(this._debugMessages);
+
     if (aCount)
       aCount.value = messages.length;
     return messages;
