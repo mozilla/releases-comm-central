@@ -43,7 +43,7 @@ interface prplIChatRoomField: nsISupports {
 /*
  * This interface should be implemented by the protocol plugin.
  */
-[scriptable, uuid(fb1b29cb-63ba-4335-9f44-63aea3f616a3)]
+[scriptable, uuid(bc540cab-a6e9-4c2c-abff-e95d0d1370a1)]
 interface prplIAccount: nsISupports {
   readonly attribute imIAccount imAccount;
 
@@ -158,9 +158,6 @@ interface prplIAccount: nsISupports {
   //   PURPLE_CONNECTION_NO_IMAGES
   //    Connection does not support sending of images.
   readonly attribute boolean noImages;
-
-  // This is currently used only by Twitter.
-  readonly attribute long maxMessageLength;
 };
 
 

@@ -16,7 +16,7 @@ interface nsIDOMDocument;
  * This is the XPCOM purple conversation component, a proxy for PurpleConversation.
  */
 
-[scriptable, uuid(74fca337-b8e7-4e5d-81cd-8aba3dba9208)]
+[scriptable, uuid(e40dc3e5-c9ff-457b-a6cc-655cce81042c)]
 interface prplIConversation: nsISupports {
 
   /* Indicate if this conversation implements prplIConvIM or prplIConvChat */
@@ -45,9 +45,10 @@ interface prplIConversation: nsISupports {
   void sendMsg(in AUTF8String aMsg);
 
   /* Send information about the current typing state to the server.
-     aLength should contain the length of the content currently in the text field.
-     A length value of 0 will make the method send a NOT_TYPING message. */
-  void sendTyping(in unsigned long aLength);
+     aString should contain the content currently in the text field. The
+     protocol should return the number of characters that can still be typed. */
+  long sendTyping(in AUTF8String aString);
+  const long NO_TYPING_LIMIT = 2147483647; // max int = 2 ^ 31 - 1
 
   /* Un-initialize the conversation. Will be called by
      purpleCoreService::RemoveConversation when the conversation is
