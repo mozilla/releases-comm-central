@@ -104,7 +104,7 @@ function ctcpHandleMessage(aMessage) {
                 "\nin IRC message: " + message.rawMessage);
       this.sendCTCPMessage("ERRMSG",
                            [message.ctcp.rawMessage, ":Unhandled CTCP command"],
-                           message.params[0], true)
+                           message.nickname || message.servername, true);
     }
   }
 
