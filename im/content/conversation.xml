@@ -60,6 +60,7 @@
         <![CDATA[
           let textbox = this.editor;
           textbox.addEventListener("keypress", this.inputKeyPress.bind(this));
+          textbox.addEventListener("input", this.inputInputHandler.bind(this));
           textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
           textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
@@ -781,38 +782,8 @@
           else if (this._completions)
             delete this._completions;
 
-          // Handle typing notifications / character count.
-          if (event.keyCode != 13) {
-            setTimeout((function () {
-              // By the time the timeout is executed, the conversation may have
-              // been closed.
-              if (!this._conv)
-                return;
-
-              let text = inputBox.value;
-
-              let maxLength = this._conv.account.maxMessageLength;
-              if (maxLength) {
-                let left = maxLength - text.length;
-                // 200 is a 'magic' constant to avoid showing big numbers.
-                this._statusTextEnd =
-                  left < Math.min(200, maxLength) ? left.toString() : "";
-                this._statusTextEndIsError = left < 0;
-                this.displayStatusText();
-              }
-
-              // try to avoid sending typing notifications when the user is
-              // typing a command in the conversation.
-              // These checks are not perfect (especially if non-existing
-              // commands are sent as regular messages on the in-use prpl).
-              if (! /^\//.test(text))
-                this._conv.sendTyping(text.length);
-              else
-                if (/^\/me /.test(text))
-                  this._conv.sendTyping(text.length - 4);
-            }).bind(this), 0);
+          if (event.keyCode != 13)
             return;
-          }
 
           if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
             // Prevent the default action before calling sendMsg to avoid having
@@ -822,6 +793,60 @@
           }
           else if (!event.shiftKey)
             this.addString("\n");
+        ]]>
+        </body>
+      </method>
+
+      <field name="_pendingInputHandlerCall">false</field>
+      <method name="inputInputHandler">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          // Delaying typing notifications will avoid sending several updates in
+          // a row if the user is on a slow or overloaded machine that has
+          // trouble to handle keystrokes in a timely fashion.
+          // Make sure only one typing notification call can be pending.
+          if (this._pendingInputHandlerCall)
+            return;
+
+          this._pendingInputHandlerCall = true;
+          Services.tm.mainThread.dispatch(this.delayedInputHandler.bind(this),
+                                          Ci.nsIEventTarget.DISPATCH_NORMAL);
+        ]]>
+        </body>
+      </method>
+
+      <method name="delayedInputHandler">
+        <body>
+        <![CDATA[
+          this._pendingInputHandlerCall = false;
+
+          // By the time this function is executed, the conversation may have
+          // been closed.
+          if (!this._conv)
+            return;
+
+          let text = this.editor.value;
+
+          let maxLength = this._conv.account.maxMessageLength;
+          if (maxLength) {
+            let left = maxLength - text.length;
+            // 200 is a 'magic' constant to avoid showing big numbers.
+            this._statusTextEnd =
+              left < Math.min(200, maxLength) ? left.toString() : "";
+            this._statusTextEndIsError = left < 0;
+            this.displayStatusText();
+          }
+
+          // try to avoid sending typing notifications when the user is
+          // typing a command in the conversation.
+          // These checks are not perfect (especially if non-existing
+          // commands are sent as regular messages on the in-use prpl).
+          if (!text.startsWith("/"))
+            this._conv.sendTyping(text.length);
+          else
+            if (text.startsWith("/me "))
+              this._conv.sendTyping(text.length - 4);
         ]]>
         </body>
       </method>
