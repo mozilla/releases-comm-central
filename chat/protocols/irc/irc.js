@@ -880,11 +880,23 @@ ircAccount.prototype = {
           whoisInformation.serverInfo);
     }
 
+    // Sort the list of channels, ignoring the prefixes of channel and user.
+    let prefixes = this.userPrefixes.concat(this.channelPrefixes);
+    let sortWithoutPrefix = function(a, b) {
+      a = this.normalize(a, prefixes);
+      b = this.normalize(b, prefixes);
+      return a < b ? -1 : a > b ? 1 : 0;
+    }.bind(this);
+    let sortChannels = function(channels)
+      channels.trim().split(/\s+/).sort(sortWithoutPrefix).join(" ");
+
+    // Convert booleans into a human-readable form.
+    let normalizeBool = function(aBool) _(aBool ? "yes" : "no");
+
     // List of the names of the info to actually show in the tooltip and
     // optionally a transform function to apply to the value. Each field here
     // maps to tooltip.<fieldname> in irc.properties.
     // See the various RPL_WHOIS* results for the options.
-    let normalizeBool = function(aBool) _(aBool ? "yes" : "no");
     const kFields = {
       realname: null,
       server: null,
@@ -896,7 +908,7 @@ ircAccount.prototype = {
       ircOp: normalizeBool,
       bot: normalizeBool,
       idleTime: null,
-      channels: null
+      channels: sortChannels
     };
 
     let tooltipInfo = [];
