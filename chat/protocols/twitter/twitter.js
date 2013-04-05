@@ -51,13 +51,11 @@ Tweet.prototype = {
           this.conversation.reTweet(this._tweet);
         }, this)
       );
-      let friend = account.isFriend(this._tweet.user);
-      if (friend !== null) {
-        let action = friend ? "stopFollowing" : "follow";
-        let screenName = this._tweet.user.screen_name;
-        actions.push(new Action(_("action." + action, screenName),
-                                function() { account[action](screenName); }));
-      }
+      let isFriend = account._friends.has(this._tweet.user.id_str);
+      let action = isFriend ? "stopFollowing" : "follow";
+      let screenName = this._tweet.user.screen_name;
+      actions.push(new Action(_("action." + action, screenName),
+                              function() { account[action](screenName); }));
     }
     else if (this.outgoing && !this._deleted) {
       actions.push(
@@ -116,10 +114,15 @@ function Conversation(aAccount)
 {
   this._init(aAccount);
   this._ensureParticipantExists(aAccount.name);
+  // We need the screen names for the IDs in _friends, but _userInfo is
+  // indexed by name, so we build an ID -> name map.
+  let names = new Map([userInfo.id_str, name] for ([name, userInfo] of aAccount._userInfo));
+  for (let id_str of aAccount._friends)
+    this._ensureParticipantExists(names.get(id_str));
 
   // If the user's info has already been received, update the timeline topic.
-  if (hasOwnProperty(aAccount._userInfo, aAccount.name)) {
-    let userInfo = aAccount._userInfo[aAccount.name];
+  if (aAccount._userInfo.has(aAccount.name)) {
+    let userInfo = aAccount._userInfo.get(aAccount.name);
     if ("description" in userInfo)
       this.setTopic(userInfo.description, aAccount.name, true);
   }
@@ -355,8 +358,9 @@ Conversation.prototype = {
 function Account(aProtocol, aImAccount)
 {
   this._init(aProtocol, aImAccount);
-  this._knownMessageIds = {};
-  this._userInfo = {};
+  this._knownMessageIds = new Set();
+  this._userInfo = new Map();
+  this._friends = new Set();
 }
 Account.prototype = {
   __proto__: GenericAccountPrototype,
@@ -515,14 +519,6 @@ Account.prototype = {
   },
 
   _friends: null,
-  isFriend: function(aUser) {
-    if (!("id_str" in aUser) ||
-        !this._friends) // null until data is received from the user stream.
-      return null;
-    //XXX Good enough for now, but if we ever call this from a loop,
-    // we should keep this._friends sorted and do a binary search.
-    return this._friends.indexOf(aUser.id_str) != -1;
-  },
   follow: function(aUserName) {
     this.signAndSend("1.1/friendships/create.json", null,
                      [["screen_name", aUserName]]);
@@ -535,8 +531,7 @@ Account.prototype = {
       let user = JSON.parse(aData);
       if (!("id_str" in user))
         return; // Unexpected response...
-      this._friends =
-        this._friends.filter(function(id_str) id_str != user.id_str);
+      this._friends.delete(user.id_str);
       let date = aXHR.getResponseHeader("Date");
       this.timeline.systemMessage(_("event.unfollow", user.screen_name), false,
                                   new Date(date) / 1000);
@@ -588,7 +583,7 @@ Account.prototype = {
     let lastMsgId = this._lastMsgId;
     for each (let tweet in aMessages) {
       if (!("user" in tweet) || !("text" in tweet) || !("id_str" in tweet) ||
-         tweet.id_str in this._knownMessageIds)
+          this._knownMessageIds.has(tweet.id_str))
         continue;
       let id = tweet.id_str;
       // Update the last known message.
@@ -597,9 +592,8 @@ Account.prototype = {
       if (id.length > lastMsgId.length ||
           (id.length == lastMsgId.length && id > lastMsgId))
         lastMsgId = id;
-      this._knownMessageIds[id] = true;
-      if ("description" in tweet.user)
-        this.setUserInfo(tweet.user);
+      this._knownMessageIds.add(id);
+      this.setUserInfo(tweet.user);
       this.timeline.displayTweet(tweet);
     }
     if (lastMsgId != this._lastMsgId) {
@@ -734,14 +728,16 @@ Account.prototype = {
           // Remove the first 100 elements.
           ids = ids.slice(100);
         }
-        this._friends = msg.friends.map(function(aId) aId.toString());
+
+        // Overwrite the existing _friends list (if any).
+        this._friends = new Set(msg.friends.map(function(aId) aId.toString()));
       }
       else if ("event" in msg) {
         let user, event;
         switch(msg.event) {
           case "follow":
             if (msg.source.screen_name == this.name) {
-              this._friends.push(msg.target.id_str);
+              this._friends.add(msg.target.id_str);
               user = msg.target;
               event = "follow";
             }
@@ -976,7 +972,7 @@ Account.prototype = {
 
   setUserInfo: function(aUser) {
     let nick = aUser.screen_name;
-    this._userInfo[nick] = aUser;
+    this._userInfo.set(nick, aUser);
 
     // If it's the user's userInfo, update the timeline topic.
     if (nick == this.name && "description" in aUser)
@@ -988,13 +984,12 @@ Account.prototype = {
     this.requestBuddyInfo(user.screen_name);
   },
   requestBuddyInfo: function(aBuddyName) {
-    if (!hasOwnProperty(this._userInfo, aBuddyName)) {
+    let userInfo = this._userInfo.get(aBuddyName);
+    if (!userInfo) {
       this.signAndSend("1.1/users/show.json?screen_name=" + aBuddyName, null,
                        null, this.onRequestedInfoReceived, null, this);
       return;
     }
-
-    let userInfo = this._userInfo[aBuddyName];
 
     // List of the names of the info to actually show in the tooltip and
     // optionally a transform function to apply to the value.
