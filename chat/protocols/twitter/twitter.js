@@ -34,35 +34,33 @@ Tweet.prototype = {
   _deleted: false,
   getActions: function(aCount) {
     let account = this.conversation._account;
-    if (!account.connected) {
-      if (aCount)
-        aCount.value = 0;
-      return [];
-    }
+    let actions = [];
 
-    let actions = [
-      new Action(_("action.reply"), function() {
-        this.conversation.startReply(this._tweet);
-      }, this)
-    ];
-    if (this.incoming) {
+    if (account.connected) {
       actions.push(
-        new Action(_("action.retweet"), function() {
-          this.conversation.reTweet(this._tweet);
+        new Action(_("action.reply"), function() {
+          this.conversation.startReply(this._tweet);
         }, this)
       );
-      let isFriend = account._friends.has(this._tweet.user.id_str);
-      let action = isFriend ? "stopFollowing" : "follow";
-      let screenName = this._tweet.user.screen_name;
-      actions.push(new Action(_("action." + action, screenName),
-                              function() { account[action](screenName); }));
-    }
-    else if (this.outgoing && !this._deleted) {
-      actions.push(
-        new Action(_("action.delete"), function() {
-          this.destroy();
-        }, this)
-      );
+      if (this.incoming) {
+        actions.push(
+          new Action(_("action.retweet"), function() {
+            this.conversation.reTweet(this._tweet);
+          }, this)
+        );
+        let isFriend = account._friends.has(this._tweet.user.id_str);
+        let action = isFriend ? "stopFollowing" : "follow";
+        let screenName = this._tweet.user.screen_name;
+        actions.push(new Action(_("action." + action, screenName),
+                                function() { account[action](screenName); }));
+      }
+      else if (this.outgoing && !this._deleted) {
+        actions.push(
+          new Action(_("action.delete"), function() {
+            this.destroy();
+          }, this)
+        );
+      }
     }
     actions.push(new Action(_("action.copyLink"), function() {
       let href = "https://twitter.com/" + this._tweet.user.screen_name +
