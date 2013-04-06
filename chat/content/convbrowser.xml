@@ -322,6 +322,7 @@
         </body>
       </method>
 
+      <field name="_sessions">[]</field>
       <method name="displayMessage">
         <parameter name="aMsg"/>
         <parameter name="aContext"/>
@@ -330,6 +331,23 @@
         <body>
           <![CDATA[
             let doc = this.contentDocument;
+
+            if (aMsg.noLog && aMsg.notification &&
+                aMsg.who == "sessionstart") {
+              // New session log.
+              if (this._lastMessage) {
+                let ruler = doc.createElement("hr");
+                ruler.className = "sessionstart-ruler";
+                doc.getElementById("Chat").appendChild(ruler);
+                this._sessions.push(ruler);
+                // Close any open bubble.
+                this._lastMessage = null;
+              }
+              // Suppress this message unless it was an error message.
+              if (!aMsg.error)
+                return;
+            }
+
             let cs = Components.classes["@mozilla.org/txttohtmlconv;1"]
                                .getService(Ci.mozITXTToHTMLConv);
             /*
@@ -511,6 +529,7 @@
           let ruler = this.contentDocument.getElementById("unread-ruler");
           if (ruler)
             sectionElements.push(ruler);
+          sectionElements = sectionElements.concat(this._sessions);
 
           // Return ordered array of sections with entries
           // [Y, scrollY such that Y is centered]

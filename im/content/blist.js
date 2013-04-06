@@ -202,23 +202,19 @@ buddyListContextMenu.prototype = {
   },
   _getLogs: function blcm_getLogs() {
     if (this.onContact)
-      return Services.logs.getLogsForContact(this.target.contact);
+      return Services.logs.getLogsForContact(this.target.contact, true);
     if (this.onBuddy)
-      return Services.logs.getLogsForBuddy(this.target.buddy);
+      return Services.logs.getLogsForBuddy(this.target.buddy, true);
     if (this.onConv)
-      return Services.logs.getLogsForConversation(this.target.conv);
+      return Services.logs.getLogsForConversation(this.target.conv, true);
     return null;
   },
   showLogs: function blcm_showLogs() {
     let enumerator = this._getLogs();
     if (!enumerator)
       return;
-
-    var logs = [];
-    for (let log in getIter(enumerator))
-      logs.push(log);
     window.openDialog("chrome://instantbird/content/viewlog.xul",
-                      "Logs", "chrome,resizable", {logs: logs},
+                      "Logs", "chrome,resizable", {logs: enumerator},
                       this.target.displayName);
   },
   hideTag: function blcm_hideTag() {

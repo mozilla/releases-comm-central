@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 %ifdef XP_MACOSX
-#logList {
+#logTree {
   -moz-appearance: none;
   background-color: #d2d8e2;
   border: 0px;
   margin: 0 0;
 }
 
-#logList:-moz-window-inactive {
+#logTree:-moz-window-inactive {
   background-color: #e8e8e8;
 }
 
@@ -26,7 +26,7 @@ splitter:-moz-window-inactive {
 }
 %else
 %ifdef XP_WIN
-#logList {
+#logTree {
   -moz-appearance: none;
   border: none;
   margin: 0 0;
@@ -36,7 +36,7 @@ splitter:-moz-window-inactive {
   -moz-appearance: listbox;
 }
 
-#logList {
+#logTree {
   margin: 0 0;
 }
 %endif

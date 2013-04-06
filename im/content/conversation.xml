@@ -1483,9 +1483,9 @@
       <method name="showLogs">
         <body>
         <![CDATA[
-          var logs = [];
-          for (let log in getIter(Services.logs.getLogsForConversation(this.conv)))
-            logs.push(log);
+          let logs = Services.logs.getLogsForConversation(this.conv, true);
+          if (!logs.hasMoreElements())
+            return;
           window.openDialog("chrome://instantbird/content/viewlog.xul",
                             "Logs", "chrome,resizable", {logs: logs},
                             this.conv.title);

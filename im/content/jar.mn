@@ -44,6 +44,7 @@ instantbird.jar:
 	content/instantbird/convZoom.js
 	content/instantbird/joinchat.js
 	content/instantbird/joinchat.xul
+	content/instantbird/jsTreeView.js
 *	content/instantbird/menus.xul
 *	content/instantbird/menus.js
 	content/instantbird/nsContextMenu.js

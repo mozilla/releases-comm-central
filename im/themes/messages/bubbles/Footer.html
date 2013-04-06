@@ -256,6 +256,7 @@ function checkNewText(aEvent)
 
     var prev = target.previousSibling;
     var shouldSetUnreadRuler = prev && prev.id && prev.id == "unread-ruler";
+    var shouldSetSessionRuler = prev && prev.className && prev.className == "sessionstart-ruler";
     // We need an extra pixel of margin at the top to make the margins appear
     // to be of equal size, since the preceding bubble will have a shadow.
     var rulerMarginBottom = kRulerMarginTop - 1;
@@ -264,23 +265,31 @@ function checkNewText(aEvent)
     if (lastInsertTime && insertTime >= lastInsertTime) {
       var interval = insertTime - lastInsertTime;
       var margin = computeSpace(interval);
-      if (interval >= timebeforetextdisplay) {
+      let isTimetext = interval >= timebeforetextdisplay;
+      if (isTimetext) {
         var p = document.createElement("p");
+        p.className = "interval";
+        if (shouldSetSessionRuler) {
+          // Hide the hr and style the time text accordingly instead.
+          p.classList.add("sessionstart-ruler");
+          margin += 6;
+          prev.style.display = "none";
+          prev = p;
+        }
         p.style.lineHeight = (margin + shadow) + "px";
         p.style.marginTop = -shadow + "px";
-        p.setAttribute("class", "interval");
         p.textContent = prettyPrintTime(interval);
         target.parentNode.insertBefore(p, target);
         margin = 0;
       }
       target.style.marginTop = margin + "px";
-      if (shouldSetUnreadRuler) {
+      if (shouldSetUnreadRuler || shouldSetSessionRuler) {
         if (margin > rulerMarginBottom) {
           // Set the unread ruler margin so it is constant after margin collapse.
           // See https://developer.mozilla.org/en/CSS/margin_collapsing
           rulerMarginBottom -= margin;
         }
-        if (interval >= timebeforetextdisplay) {
+        if (isTimetext && shouldSetUnreadRuler) {
           // If a text display follows, use the minimum bubble margin after the
           // ruler, taking account of the absence of a shadow on the ruler.
           rulerMarginBottom = shadow - 1;
@@ -288,7 +297,7 @@ function checkNewText(aEvent)
       }
     }
     updateLastInsertTime();
-    if (shouldSetUnreadRuler) {
+    if (shouldSetUnreadRuler || shouldSetSessionRuler) {
       prev.style.marginBottom = rulerMarginBottom + "px";
       prev.style.marginTop = kRulerMarginTop + "px";
     }

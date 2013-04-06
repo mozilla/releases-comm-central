@@ -15,6 +15,10 @@ XPCOMUtils.defineLazyGetter(this, "logDir", function() {
   return file;
 });
 
+XPCOMUtils.defineLazyGetter(this, "bundle", function()
+  Services.strings.createBundle("chrome://chat/locale/logger.properties")
+);
+
 const FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
                            "nsIFileInputStream",
                            "init");
@@ -333,11 +337,24 @@ function LogConversation(aLineInputStreams)
   let firstFile = true;
 
   for each (let inputStream in aLineInputStreams) {
+    let stream = inputStream.stream;
     let line = {value: ""};
-    let more = inputStream.readLine(line);
-
-    if (!line.value)
-      throw "bad log file";
+    let more = stream.readLine(line);
+    let sessionMsg = {
+      who: "sessionstart",
+      date: getDateFromFilename(inputStream.filename)[0],
+      text: "",
+      flags: ["noLog", "notification"]
+    }
+    if (!line.value) {
+      // Bad log file.
+      sessionMsg.text = bundle.formatStringFromName("badLogfile",
+                                                    [inputStream.filename], 1);
+      sessionMsg.flags.push("error", "system");
+      this._messages.push(new LogMessage(sessionMsg, this));
+      continue;
+    }
+    this._messages.push(new LogMessage(sessionMsg, this));
 
     if (firstFile) {
       let data = JSON.parse(line.value);
@@ -351,7 +368,7 @@ function LogConversation(aLineInputStreams)
     }
 
     while (more) {
-      more = inputStream.readLine(line);
+      more = stream.readLine(line);
       if (!line.value)
         break;
       try {
@@ -363,6 +380,9 @@ function LogConversation(aLineInputStreams)
       }
     }
   }
+
+  if (firstFile)
+    throw "All selected log files are invalid";
 }
 LogConversation.prototype = {
   __proto__: ClassInfo("imILogConversation", "Log conversation object"),
@@ -409,7 +429,10 @@ Log.prototype = {
     let lis = new ConverterInputStream(fis, "UTF-8", 1024, 0x0);
     lis.QueryInterface(Ci.nsIUnicharLineInputStream);
     try {
-      return new LogConversation(lis);
+      return new LogConversation({
+        stream: lis,
+        filename: this.file.leafName
+      });
     } catch (e) {
       // If the file contains some junk (invalid JSON), the
       // LogConversation code will still read the messages it can parse.
@@ -478,21 +501,28 @@ function DailyLogEnumerator(aEntries) {
       if (!(file instanceof Ci.nsIFile))
         continue;
 
-      let [logDate] = getDateFromFilename(file.leafName);
+      let [logDate, logFormat] = getDateFromFilename(file.leafName);
       if (!logDate) {
         // We'll skip this one, since it's got a busted filename.
         continue;
       }
 
-      // We want to cluster all of the logs that occur on the same day
-      // into the same Arrays. We clone the date for the log, reset it to
-      // the 0th hour/minute/second, and use that to construct an ID for the
-      // Array we'll put the log in.
       let dateForID = new Date(logDate);
-      dateForID.setHours(0);
-      dateForID.setMinutes(0);
-      dateForID.setSeconds(0);
-      let dayID = dateForID.toISOString();
+      let dayID;
+      if (logFormat == "json") {
+        // We want to cluster all of the logs that occur on the same day
+        // into the same Arrays. We clone the date for the log, reset it to
+        // the 0th hour/minute/second, and use that to construct an ID for the
+        // Array we'll put the log in.
+        dateForID.setHours(0);
+        dateForID.setMinutes(0);
+        dateForID.setSeconds(0);
+        dayID = dateForID.toISOString();
+      }
+      else {
+        // Add legacy text logs as individual entries.
+        dayID = dateForID.toISOString() + "txt";
+      }
 
       if (!(dayID in this._entries))
         this._entries[dayID] = [];
@@ -512,7 +542,13 @@ DailyLogEnumerator.prototype = {
   _days: [],
   _index: 0,
   hasMoreElements: function() this._index < this._days.length,
-  getNext: function() new LogCluster(this._entries[this._days[this._index++]]),
+  getNext: function() {
+    let dayID = this._days[this._index++];
+    if (dayID.endsWith("txt"))
+      return new Log(this._entries[dayID][0].file);
+    else
+      return new LogCluster(this._entries[dayID]);
+  },
   QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
 };
 
@@ -555,7 +591,10 @@ LogCluster.prototype = {
       // Pass in 0x0 so that we throw exceptions on unknown bytes.
       let lis = new ConverterInputStream(fis, "UTF-8", 1024, 0x0);
       lis.QueryInterface(Ci.nsIUnicharLineInputStream);
-      streams.push(lis);
+      streams.push({
+        stream: lis,
+        filename: entry.file.leafName
+      });
     }
 
     try {

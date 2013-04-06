@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+const Cu = Components.utils;
+
+Cu.import("resource://gre/modules/Services.jsm");
 
 // viewZoomOverlay.js uses this
 function getBrowser() {
@@ -14,9 +16,7 @@ function getBrowser() {
 }
 
 var logWindow = {
-  load: function mo_load() {
-    let logs = window.arguments[0].logs;
-    logs.sort(function(log1, log2) log2.time - log1.time);
+  load: function lw_load() {
     let displayname = window.arguments[1];
     if (displayname) {
       let bundle = document.getElementById("bundle_instantbird");
@@ -25,48 +25,48 @@ var logWindow = {
         document.documentElement.getAttribute("titlemodifier");
     }
 
-    // Used to show the dates in the log list in the locale of the application.
-    let appLocaleCode = Services.prefs.getCharPref("general.useragent.locale");
-    let dts = Cc["@mozilla.org/intl/scriptabledateformat;1"]
-                .getService(Ci.nsIScriptableDateFormat);
-
-    let listbox = document.getElementById("logList");
-    logs.forEach(function (aLog) {
-      if (aLog.format == "invalid")
-        return;
-      let elt = document.createElement("listitem");
-      let logDate = new Date(aLog.time * 1000);
-      let localizedDateTimeString =
-        dts.FormatDateTime(appLocaleCode, dts.dateFormatLong,
-                           dts.timeFormatNoSeconds, logDate.getFullYear(),
-                           logDate.getMonth() + 1, logDate.getDate(),
-                           logDate.getHours(), logDate.getMinutes(), 0);
-      elt.setAttribute("label", localizedDateTimeString);
-      elt.log = aLog;
-      listbox.appendChild(elt);
-    });
-    listbox.focus();
-    // Hack: Only select the first log after a brief delay, or the first
-    // listitem never appears selected on Windows and Linux.
-    Services.tm.mainThread.dispatch(function() {
-      listbox.selectedIndex = 0;
-      // Prevent closing the findbar, go back to list instead.
-      let findbar = document.getElementById("findbar");
-      findbar.close = function() { listbox.focus(); };
-      // Requires findbar.browser to be set, which is only the case after
-      // a log has been selected.
-      findbar.open();
-    }, Ci.nsIEventTarget.DISPATCH_NORMAL);
+    // Prevent closing the findbar, go back to logTree instead.
+    let findbar = document.getElementById("findbar");
+    let logTree = document.getElementById("logTree");
+    findbar.close = function() logTree.focus();
+    // Ensure the findbar has something to look at.
+    let browser = document.getElementById("text-browser");
+    findbar.browser = browser;
+    findbar.open(); // Requires findbar.browser to be set
 
     document.getElementById("text-browser")
             .addEventListener("DOMContentLoaded", logWindow.contentLoaded, true);
     document.getElementById("conv-browser").progressBar =
       document.getElementById("browserProgress");
+
+    logTree.focus();
+    let treeView = logWindow._treeView =
+                   new chatLogTreeView(logTree, window.arguments[0].logs);
+    // Select the first line.
+    let selectIndex = 0;
+    if (treeView.isContainer(selectIndex)) {
+      // If the first line is a group, open it and select the
+      // next line instead.
+      treeView.toggleOpenState(selectIndex++);
+    }
+    logTree.view.selection.select(selectIndex);
   },
 
   pendingLoad: false,
   onselect: function lw_onselect() {
-    let log = document.getElementById("logList").selectedItem.log;
+    let selection = this._treeView.selection;
+    let currentIndex = selection.currentIndex;
+    // The current (focused) row may not be actually selected...
+    if (!selection.isSelected(currentIndex))
+      return;
+
+    let log = this._treeView._rowMap[currentIndex].log;
+    if (!log)
+      return;
+    if (this._displayedLog && this._displayedLog == log.path)
+      return;
+    this._displayedLog = log.path;
+
     let deck = document.getElementById("browserDeck");
     let findbar = document.getElementById("findbar");
     if (log.format == "json") {
@@ -74,7 +74,7 @@ var logWindow = {
       if (!conv) {
         // Empty or completely broken json log file.
         deck.selectedIndex = 2;
-        // Ensure the findbar has something to look at.
+        // Ensure the findbar looks at an empty file.
         let browser = document.getElementById("text-browser");
         findbar.browser = browser;
         browser.loadURI("about:blank");
@@ -91,19 +91,19 @@ var logWindow = {
       browser.init(conv);
       this.pendingLoad = true;
       Services.obs.addObserver(this, "conversation-loaded", false);
-      return;
     }
-
-    deck.selectedIndex = 0;
-    let browser = document.getElementById("text-browser");
-    findbar.browser = browser;
-    FullZoom.applyPrefValue();
-    browser.docShell.forcedCharset =
-      browser.mAtomService.getAtom("UTF-8");
-    let file = Components.classes["@mozilla.org/file/local;1"]
-                         .createInstance(Components.interfaces.nsILocalFile);
-    file.initWithPath(log.path);
-    browser.loadURI(Services.io.newFileURI(file).spec);
+    else {
+      // Legacy text log.
+      deck.selectedIndex = 0;
+      let browser = document.getElementById("text-browser");
+      findbar.browser = browser;
+      FullZoom.applyPrefValue();
+      browser.docShell.forcedCharset =
+        browser.mAtomService.getAtom("UTF-8");
+      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+      file.initWithPath(log.path);
+      browser.loadURI(Services.io.newFileURI(file).spec);
+    }
   },
 
   _colorCache: {},
@@ -159,8 +159,177 @@ var logWindow = {
       return;
     }
     if (!("smileTextNode" in window))
-      Components.utils.import("resource:///modules/imSmileys.jsm");
+      Cu.import("resource:///modules/imSmileys.jsm");
     smileTextNode(elt);
+  }
+};
+
+function chatLogTreeGroupItem(aTitle, aLogItems) {
+  this._title = aTitle;
+  this._children = aLogItems;
+  for each (let child in this._children)
+    child._parent = this;
+  this._open = false;
+}
+chatLogTreeGroupItem.prototype = {
+  getText: function() this._title,
+  get id() this._title,
+  get open() this._open,
+  get level() 0,
+  get _parent() null,
+  get children() this._children,
+  getProperties: function(aProps) {}
+};
+
+function chatLogTreeLogItem(aLog, aText, aLevel) {
+  this.log = aLog;
+  this._text = aText;
+  this._level = aLevel;
+}
+chatLogTreeLogItem.prototype = {
+  getText: function() this._text,
+  get id() this.log.title,
+  get open() false,
+  get level() this._level,
+  get children() [],
+  getProperties: function(aProps) {}
+};
+
+function chatLogTreeView(aTree, aLogs) {
+  this._tree = aTree;
+  this._logs = aLogs;
+  this._tree.view = this;
+  this._rebuild();
+}
+chatLogTreeView.prototype = {
+  __proto__: new PROTO_TREE_VIEW(),
+
+  _rebuild: function cLTV__rebuild() {
+    // Some date helpers...
+    const kDayInMsecs = 24 * 60 * 60 * 1000;
+    const kWeekInMsecs = 7 * kDayInMsecs;
+    const kTwoWeeksInMsecs = 2 * kWeekInMsecs;
+
+    // Drop the old rowMap.
+    if (this._tree)
+      this._tree.rowCountChanged(0, -this._rowMap.length);
+    this._rowMap = [];
+
+    // Used to show the dates in the log list in the locale of the application.
+    let chatBundle = document.getElementById("bundle_instantbird");
+    let dateFormatBundle = document.getElementById("bundle_dateformat");
+    let placesBundle = document.getElementById("bundle_places");
+    let appLocaleCode = Services.prefs.getCharPref("general.useragent.locale");
+    let dts = Cc["@mozilla.org/intl/scriptabledateformat;1"].getService(Ci.nsIScriptableDateFormat);
+    let formatDate = function(aDate) {
+      return dts.FormatDate(appLocaleCode, dts.dateFormatShort, aDate.getFullYear(),
+                            aDate.getMonth() + 1, aDate.getDate());
+    };
+    let formatDateTime = function(aDate) {
+      return dts.FormatDateTime(appLocaleCode, dts.dateFormatShort,
+                                dts.timeFormatNoSeconds, aDate.getFullYear(),
+                                aDate.getMonth() + 1, aDate.getDate(),
+                                aDate.getHours(), aDate.getMinutes(), 0);
+    };
+    let formatMonth = function(aDate) {
+      let month =
+        dateFormatBundle.getString("month." + (aDate.getMonth() + 1) + ".name");
+      return month;
+    };
+    let formatMonthYear = function(aDate) {
+      let month = formatMonth(aDate);
+      return placesBundle.getFormattedString("finduri-MonthYear",
+                                             [month, aDate.getFullYear()]);
+    };
+
+    let nowDate = new Date();
+    let todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(),
+                             nowDate.getDate());
+
+    // The keys used in the 'firstgroups' object should match string ids in
+    // messenger.properties. The order is the reverse of that in which
+    // they will appear in the logTree.
+    let firstgroups = {
+      twoWeeksAgo: [],
+      lastWeek: []
+    };
+
+    // today and yesterday are treated differently, because they represent
+    // individual logs, and are not "groups".
+    let today = null, yesterday = null;
+
+    // Build a chatLogTreeLogItem for each log, and put it in the right group.
+    let groups = {};
+    for each (let log in getIter(this._logs)) {
+      let logDate = new Date(log.time * 1000);
+      let timeFromToday = todayDate - logDate;
+      let title = (log.format == "json" ? formatDate : formatDateTime)(logDate);
+      let group;
+      if (timeFromToday <= 0) {
+        today = new chatLogTreeLogItem(log, chatBundle.getString("log.today"), 0);
+        continue;
+      }
+      else if (timeFromToday <= kDayInMsecs) {
+        yesterday = new chatLogTreeLogItem(log, chatBundle.getString("log.yesterday"), 0);
+        continue;
+      }
+      else if (timeFromToday <= kWeekInMsecs)
+        group = firstgroups.lastWeek;
+      else if (timeFromToday <= kTwoWeeksInMsecs)
+        group = firstgroups.twoWeeksAgo;
+      else {
+        logDate.setHours(0);
+        logDate.setMinutes(0);
+        logDate.setSeconds(0);
+        logDate.setDate(1);
+        let groupID = logDate.toISOString();
+        if (!(groupID in groups)) {
+          let groupname;
+          if (logDate.getFullYear() == nowDate.getFullYear()) {
+            if (logDate.getMonth() == nowDate.getMonth())
+              groupname = placesBundle.getString("finduri-AgeInMonths-is-0");
+            else
+              groupname = formatMonth(logDate);
+          }
+          else
+            groupname = formatMonthYear(logDate);
+          groups[groupID] = {
+            entries: [],
+            name: groupname
+          };
+        }
+        group = groups[groupID].entries;
+      }
+      group.push(new chatLogTreeLogItem(log, title, 1));
+    }
+
+    let groupIDs = Object.keys(groups).sort().reverse();
+
+    // Add firstgroups to groups and groupIDs.
+    for each (let [groupID, group] in Iterator(firstgroups)) {
+      if (!group.length)
+        continue;
+      groupIDs.unshift(groupID);
+      groups[groupID] = {
+        entries: firstgroups[groupID],
+        name: chatBundle.getString("log." + groupID)
+      };
+    }
+
+    // Build tree.
+    if (today)
+      this._rowMap.push(today);
+    if (yesterday)
+      this._rowMap.push(yesterday);
+    groupIDs.forEach(function (aGroupID) {
+      let group = groups[aGroupID];
+      group.entries.sort(function(l1, l2) l2.log.time - l1.log.time);
+      this._rowMap.push(new chatLogTreeGroupItem(group.name, group.entries));
+    }, this);
+
+    // Finally, notify the tree.
+    if (this._tree)
+      this._tree.rowCountChanged(0, this._rowMap.length);
   }
 };
 

@@ -132,6 +132,14 @@ p *:-moz-any-link img {
   border-bottom: 1px solid rgb(255,255,255) !important;
 }
 
+.sessionstart-ruler {
+  margin: 0;
+  width: 100%;
+  border: none;
+  min-height: 13px;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(0,0,0,0.18));
+}
+
 
 /* used by javascript */
 .button {

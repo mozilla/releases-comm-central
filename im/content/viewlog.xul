@@ -33,6 +33,7 @@
   persist= "width height screenX screenY"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/jsTreeView.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/viewlog.js"/>
 #ifdef XP_MACOSX
   <script type="application/javascript" src="chrome://instantbird/content/macgestures.js"/>
@@ -80,6 +81,8 @@
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_instantbird" src="chrome://instantbird/locale/instantbird.properties"/>
+    <stringbundle id="bundle_dateformat" src="chrome://global/locale/dateFormat.properties"/>
+    <stringbundle id="bundle_places" src="chrome://places/locale/places.properties"/>
   </stringbundleset>
 
   <popupset id="mainPopupSet">
@@ -96,7 +99,15 @@
   </popupset>
 
   <hbox flex="1">
-    <listbox id="logList" onselect="logWindow.onselect();" width="160"/>
+    <tree id="logTree" width="160" hidecolumnpicker="true"
+          seltype="single" context="logTreeContext"
+          onselect="logWindow.onselect();">
+      <treecols>
+        <treecol id="logCol" flex="1" primary="true" hideheader="true"
+                 crop="center" ignorecolumnpicker="true"/>
+      </treecols>
+      <treechildren/>
+    </tree>
     <splitter/>
     <vbox flex="1">
       <deck flex="1" id="browserDeck" selectedIndex="0">
