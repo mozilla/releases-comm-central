@@ -14,6 +14,21 @@
   background-color: #e8e8e8;
 }
 
+/* Override the -moz-field background color set by tree.css. */
+treechildren::-moz-tree-row {
+  background-color: transparent;
+}
+
+/* Unfortunately the previous rule also overrides the backgrounds of
+selected rows, so set them again like they are in tree.css. */
+treechildren::-moz-tree-row(selected) {
+  background-color: -moz-mac-secondaryhighlight;
+}
+
+treechildren::-moz-tree-row(selected, focus) {
+  background-color: Highlight;
+}
+
 splitter {
   -moz-border-end: none !important;
   -moz-border-start: 1px solid #404040;
