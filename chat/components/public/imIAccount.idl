@@ -103,6 +103,11 @@ interface prplIAccount: nsISupports {
   /* When a connection error occurred, this value indicates the type of error */
   readonly attribute short connectionErrorReason;
 
+  /* When a certificate error occurs, the host/port that caused a
+   * SSL/certificate error when connecting to it. This is only valid when
+   * connectionErrorReason is one of ERROR_CERT_*. */
+  readonly attribute AUTF8String connectionTarget;
+
   /* Possible connection error reasons:
      ERROR_NETWORK_ERROR and ERROR_ENCRYPTION_ERROR are not fatal and
      should enable the automatic reconnection feature. */

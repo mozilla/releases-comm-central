@@ -35,6 +35,7 @@
  *   connectTimeout (default is no timeout)
  *   readWriteTimeout (default is no timeout)
  *   isConnected
+ *   sslStatus
  *
  * Users should "subclass" this object, i.e. set their .__proto__ to be it. And
  * then implement:
@@ -42,7 +43,7 @@
  *   onConnectionHeard()
  *   onConnectionTimedOut()
  *   onConnectionReset()
- *   onBadCertificate(AString aNSSErrorMessage)
+ *   onBadCertificate(boolean aIsSslError, AString aNSSErrorMessage)
  *   onConnectionClosed()
  *   onDataReceived(String <data>)
  *   <length handled> = onBinaryDataReceived(ArrayBuffer <data>)
@@ -130,6 +131,9 @@ const Socket = {
   // reporting a failure, 0 is forever.
   connectTimeout: 0,
   readWriteTimeout: 0,
+
+  // A nsISSLStatus instance giving details about the certificate error.
+  sslStatus: null,
 
   /*
    *****************************************************************************
@@ -402,12 +406,16 @@ const Socket = {
       this.onConnectionReset();
     else if (aStatus == NS_ERROR_NET_TIMEOUT)
       this.onConnectionTimedOut();
-    else if (aStatus) {
+    else if (!Components.isSuccessCode(aStatus)) {
       let nssErrorsService =
         Cc["@mozilla.org/nss_errors_service;1"].getService(Ci.nsINSSErrorsService);
-      if (aStatus <= nssErrorsService.getXPCOMFromNSSError(nssErrorsService.NSS_SEC_ERROR_BASE) &&
-          aStatus >= nssErrorsService.getXPCOMFromNSSError(nssErrorsService.NSS_SEC_ERROR_LIMIT - 1)) {
-        this.onBadCertificate(nssErrorsService.getErrorMessage(aStatus));
+      if ((aStatus <= nssErrorsService.getXPCOMFromNSSError(nssErrorsService.NSS_SEC_ERROR_BASE) &&
+           aStatus >= nssErrorsService.getXPCOMFromNSSError(nssErrorsService.NSS_SEC_ERROR_LIMIT - 1)) ||
+          (aStatus <= nssErrorsService.getXPCOMFromNSSError(nssErrorsService.NSS_SSL_ERROR_BASE) &&
+           aStatus >= nssErrorsService.getXPCOMFromNSSError(nssErrorsService.NSS_SSL_ERROR_LIMIT - 1))) {
+        this.onBadCertificate(nssErrorsService.getErrorClass(aStatus) ==
+                              nssErrorsService.ERROR_CLASS_SSL_PROTOCOL,
+                              nssErrorsService.getErrorMessage(aStatus));
         return;
       }
     }
@@ -419,12 +427,18 @@ const Socket = {
    */
   // Called when there's an error, return true to suppress the modal alert.
   // Whatever this function returns, NSS will close the connection.
-  notifyCertProblem: function(aSocketInfo, aStatus, aTargetSite) true,
+  notifyCertProblem: function(aSocketInfo, aStatus, aTargetSite) {
+    this.sslStatus = aStatus;
+    return true;
+  },
 
   /*
    * nsISSLErrorListener
    */
-  notifySSLError: function(aSocketInfo, aError, aTargetSite) true,
+  notifySSLError: function(aSocketInfo, aError, aTargetSite) {
+    this.sslStatus = null;
+    return true;
+  },
 
   /*
    * nsITransportEventSink methods

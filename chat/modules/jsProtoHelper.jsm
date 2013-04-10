@@ -52,6 +52,40 @@ const GenericAccountPrototype = {
   _connectionErrorReason: Ci.prplIAccount.NO_ERROR,
   get connectionErrorReason() this._connectionErrorReason,
 
+  handleBadCertificate: function(aSocket, aIsSslError) {
+    this._connectionTarget = aSocket.host + ":" + aSocket.port;
+
+    if (aIsSslError)
+      return Ci.prplIAccount.ERROR_ENCRYPTION_ERROR;
+
+    let sslStatus = aSocket.sslStatus;
+    if (!sslStatus)
+      return Ci.prplIAccount.ERROR_CERT_NOT_PROVIDED;
+
+    if (sslStatus.isUntrusted) {
+      if (sslStatus.serverCert instanceof Ci.nsIX509Cert3 &&
+          sslStatus.serverCert.isSelfSigned)
+        return Ci.prplIAccount.ERROR_CERT_SELF_SIGNED;
+      return Ci.prplIAccount.ERROR_CERT_UNTRUSTED;
+    }
+
+    if (sslStatus.isNotValidAtThisTime) {
+      if (sslStatus.serverCert instanceof Ci.nsIX509Cert3 &&
+          sslStatus.serverCert.validity.notBefore < Date.now() * 1000)
+        return Ci.prplIAccount.ERROR_CERT_NOT_ACTIVATED;
+      return Ci.prplIAccount.ERROR_CERT_EXPIRED;
+    }
+
+    if (sslStatus.isDomainMismatch)
+      return Ci.prplIAccount.ERROR_CERT_HOSTNAME_MISMATCH;
+
+    // XXX ERROR_CERT_FINGERPRINT_MISMATCH
+
+    return Ci.prplIAccount.ERROR_CERT_OTHER_ERROR;
+  },
+  _connectionTarget: "",
+  get connectionTarget() this._connectionTarget,
+
   reportConnected: function() {
     this.imAccount.observe(this, "account-connected", null);
   },
