@@ -674,10 +674,11 @@ ircSocket.prototype = {
     this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                                   _("connection.error.timeOut"));
   },
-  onBadCertificate: function(aNSSErrorMessage) {
-    this.ERROR("bad certificate: " + aNSSErrorMessage);
-    this._account.gotDisconnected(Ci.prplIAccount.ERROR_CERT_OTHER_ERROR,
-                                  aNSSErrorMessage);
+  onBadCertificate: function(aIsSslError, aNSSErrorMessage) {
+    this.ERROR("Bad certificate or SSL connection for " + this._account.name +
+               ":\n" + aNSSErrorMessage);
+    let error = this._account.handleBadCertificate(this, aIsSslError);
+    this._account.gotDisconnected(error, aNSSErrorMessage);
   },
 
   get DEBUG() this._account.DEBUG,
