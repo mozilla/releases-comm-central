@@ -70,6 +70,8 @@
           </hbox>
           <separator class="thin"/>
           <label value="&messageStylePreview.label;"/>
+          <tooltip id="aHTMLTooltip"
+                   onpopupshowing="return getBrowser().FillInHTMLTooltip(document.tooltipNode);"/>
           <deck flex="1" id="previewDeck" selectedIndex="1">
             <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
               <hbox id="noPreviewBox" align="top">
@@ -80,7 +82,7 @@
                 </vbox>
               </hbox>
             </vbox>
-            <browser flex="1" id="previewbrowser" type="content-conversation"/>
+            <browser flex="1" id="previewbrowser" type="content-conversation" tooltip="aHTMLTooltip"/>
           </deck>
           <hbox align="baseline">
             <label value="&messageStyleVariant.label;" control="themevariant"

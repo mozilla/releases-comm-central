@@ -86,6 +86,8 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
+    <tooltip id="aHTMLTooltip"
+             onpopupshowing="return getBrowser().FillInHTMLTooltip(document.tooltipNode);"/>
     <menupopup id="contentAreaContextMenu">
       <menuitem id="context-copy"
                 label="&copyCmd.label;"
@@ -111,11 +113,12 @@
     <splitter/>
     <vbox flex="1">
       <deck flex="1" id="browserDeck" selectedIndex="0">
-        <browser id="text-browser" type="content" context="contentAreaContextMenu"
+        <browser id="text-browser" type="content"
+                 context="contentAreaContextMenu" tooltip="aHTMLTooltip"
                  disablehistory="true" src="about:blank" flex="1"/>
         <vbox flex="1">
           <browser id="conv-browser" type="content-conversation" flex="1"
-                   context="contentAreaContextMenu"/>
+                   context="contentAreaContextMenu" tooltip="aHTMLTooltip"/>
           <progressmeter id="browserProgress" hidden="true"/>
         </vbox>
         <vbox flex="1" id="corruptLogScreen" align="center" pack="center">

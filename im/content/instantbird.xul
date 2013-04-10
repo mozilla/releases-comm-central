@@ -112,7 +112,8 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
-    <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
+    <tooltip id="aHTMLTooltip"
+             onpopupshowing="return getBrowser().selectedBrowser.FillInHTMLTooltip(document.tooltipNode);"/>
     <tooltip id="buddyTooltip" type="buddy"/>
 
     <menupopup id="contentAreaContextMenu"

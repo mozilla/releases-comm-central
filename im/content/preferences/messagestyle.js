@@ -20,6 +20,9 @@ Conversation.prototype = {
             statusInfo: Services.core.globalUserStatus}
 };
 
+// Message style tooltips use this.
+function getBrowser() document.getElementById("previewbrowser");
+
 var previewObserver = {
   _loaded: false,
   load: function() {

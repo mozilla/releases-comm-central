@@ -6,7 +6,7 @@ const Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-// viewZoomOverlay.js uses this
+// viewZoomOverlay.js, macgestures.js and tooltips use this.
 function getBrowser() {
   let deck = document.getElementById("browserDeck");
   let id = (parseInt(deck.selectedIndex, 10) ? "conv" : "text") + "-browser";
