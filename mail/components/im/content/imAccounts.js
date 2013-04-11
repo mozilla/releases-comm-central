@@ -211,6 +211,20 @@ var gAccountManager = {
       account.disconnect();
     }
   },
+  addException: function am_addException() {
+    let account = this.accountList.selectedItem.account;
+    if (!account.disconnected || !account.prplAccount.connectionTarget)
+      return;
+
+    // Open the Gecko SSL exception dialog.
+    let params = {exceptionAdded: false, prefetchCert: true,
+                  location: account.prplAccount.connectionTarget};
+    window.openDialog("chrome://pippki/content/exceptionDialog.xul", "",
+                      "chrome,centerscreen,modal", params);
+    // Reconnect the account if an exception was added.
+    if (params.exceptionAdded)
+      account.connect();
+  },
   copyDebugLog: function am_copyDebugLog() {
     let account = this.accountList.selectedItem.account;
     let text = account.getDebugMessages().map(function(dbgMsg) {
