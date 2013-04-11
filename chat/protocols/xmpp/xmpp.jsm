@@ -202,16 +202,19 @@ const XMPPConversationPrototype = {
   },
 
   /* Called when the user is typing a message
-   * aLength - length of the typed message */
-  sendTyping: function(aLength) {
+   * aString - the currently typed message
+   * Returns the number of characters that can still be typed */
+  sendTyping: function(aString) {
     if (!this.shouldSendTypingNotifications)
-      return;
+      return Ci.prplIConversation.NO_TYPING_LIMIT;
 
     this._cancelTypingTimer();
-    if (aLength)
+    if (aString.length)
       this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
 
-    this._setTypingState(aLength ? "composing" : "active");
+    this._setTypingState(aString.length ? "composing" : "active");
+
+    return Ci.prplIConversation.NO_TYPING_LIMIT;
   },
 
   finishedComposing: function() {
