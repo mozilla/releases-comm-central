@@ -6,7 +6,7 @@ const Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-// viewZoomOverlay.js, macgestures.js and tooltips use this.
+// viewZoomOverlay.js and macgestures.js use this.
 function getBrowser() {
   let deck = document.getElementById("browserDeck");
   let id = (parseInt(deck.selectedIndex, 10) ? "conv" : "text") + "-browser";
@@ -161,6 +161,13 @@ var logWindow = {
     if (!("smileTextNode" in window))
       Cu.import("resource:///modules/imSmileys.jsm");
     smileTextNode(elt);
+  },
+
+  fetchTooltip: function() {
+    // Explicitly use the conv-browser for this as the text-browser
+    // does not have a FillInHTMLTooltip method.
+    return document.getElementById('conv-browser')
+                   .FillInHTMLTooltip(document.tooltipNode);
   }
 };
 

@@ -87,7 +87,7 @@
 
   <popupset id="mainPopupSet">
     <tooltip id="aHTMLTooltip"
-             onpopupshowing="return getBrowser().FillInHTMLTooltip(document.tooltipNode);"/>
+             onpopupshowing="return logWindow.fetchTooltip();"/>
     <menupopup id="contentAreaContextMenu">
       <menuitem id="context-copy"
                 label="&copyCmd.label;"
