@@ -238,16 +238,15 @@ chatLogTreeView.prototype = {
                                 aDate.getMonth() + 1, aDate.getDate(),
                                 aDate.getHours(), aDate.getMinutes(), 0);
     };
-    let formatMonth = function(aDate) {
-      let month =
-        dateFormatBundle.getString("month." + (aDate.getMonth() + 1) + ".name");
-      return month;
-    };
     let formatMonthYear = function(aDate) {
       let month = formatMonth(aDate);
       return placesBundle.getFormattedString("finduri-MonthYear",
                                              [month, aDate.getFullYear()]);
     };
+    let formatMonth = function(aDate)
+      dateFormatBundle.getString("month." + (aDate.getMonth() + 1) + ".name");
+    let formatWeekday = function(aDate)
+      dateFormatBundle.getString("day." + (aDate.getDay() + 1) + ".name");
 
     let nowDate = new Date();
     let todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(),
@@ -280,8 +279,11 @@ chatLogTreeView.prototype = {
         yesterday = new chatLogTreeLogItem(log, chatBundle.getString("log.yesterday"), 0);
         continue;
       }
-      else if (timeFromToday <= kWeekInMsecs)
+      else if (timeFromToday <= kWeekInMsecs) {
         group = firstgroups.lastWeek;
+        if (log.format == "json")
+          title = formatWeekday(logDate);
+      }
       else if (timeFromToday <= kTwoWeeksInMsecs)
         group = firstgroups.twoWeeksAgo;
       else {
