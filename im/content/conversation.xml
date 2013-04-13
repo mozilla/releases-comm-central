@@ -60,7 +60,7 @@
         <![CDATA[
           let textbox = this.editor;
           textbox.addEventListener("keypress", this.inputKeyPress.bind(this));
-          textbox.addEventListener("input", this.inputInputHandler.bind(this));
+          textbox.addEventListener("input", this.inputValueChanged.bind(this));
           textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
           textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
@@ -150,6 +150,7 @@
           this.editor.value = aConversation.editor.value;
           this.browser.browserResize();
           this.updateTyping();
+          this.inputValueChanged();
           this.loaded = true;
           this.observe(this.browser, "conversation-loaded", null);
         ]]>
@@ -797,29 +798,28 @@
         </body>
       </method>
 
-      <field name="_pendingInputHandlerCall">false</field>
-      <method name="inputInputHandler">
-        <parameter name="event"/>
+      <field name="_pendingValueChangedCall">false</field>
+      <method name="inputValueChanged">
         <body>
         <![CDATA[
           // Delaying typing notifications will avoid sending several updates in
           // a row if the user is on a slow or overloaded machine that has
           // trouble to handle keystrokes in a timely fashion.
           // Make sure only one typing notification call can be pending.
-          if (this._pendingInputHandlerCall)
+          if (this._pendingValueChangedCall)
             return;
 
-          this._pendingInputHandlerCall = true;
-          Services.tm.mainThread.dispatch(this.delayedInputHandler.bind(this),
+          this._pendingValueChangedCall = true;
+          Services.tm.mainThread.dispatch(this.delayedInputValueChanged.bind(this),
                                           Ci.nsIEventTarget.DISPATCH_NORMAL);
         ]]>
         </body>
       </method>
 
-      <method name="delayedInputHandler">
+      <method name="delayedInputValueChanged">
         <body>
         <![CDATA[
-          this._pendingInputHandlerCall = false;
+          this._pendingValueChangedCall = false;
 
           // By the time this function is executed, the conversation may have
           // been closed.
@@ -1066,6 +1066,7 @@
           editor.value = editor.value.substr(0, editor.selectionStart) + aString +
                          editor.value.substr(editor.selectionEnd);
           editor.selectionStart = editor.selectionEnd = cursorPosition;
+          this.inputValueChanged();
         ]]>
         </body>
       </method>
@@ -1079,6 +1080,7 @@
           if (currentEditorValue.indexOf(aPrompt) != 0)
             editor.value = aPrompt + currentEditorValue;
           editor.focus();
+          this.inputValueChanged();
         ]]>
         </body>
       </method>
