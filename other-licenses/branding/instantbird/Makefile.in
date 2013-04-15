@@ -19,7 +19,7 @@ include $(topsrcdir)/config/rules.mk
 
 export::
 	$(NSINSTALL) -D $(DIST)/branding
-ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
+ifeq ($(OS_ARCH),WINNT)
 	cp $(srcdir)/instantbird.ico   $(DIST)/branding/instantbird.ico
 	cp $(srcdir)/instantbird.ico   $(DIST)/branding/app.ico
 	cp $(srcdir)/branding.nsi      $(DIST)/branding/branding.nsi
@@ -47,7 +47,7 @@ ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 endif
 
 # Now sort out the branding specific icons
-ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
+ifeq ($(OS_ARCH),WINNT)
 	cp $(srcdir)/windows/blistWindow.ico $(DIST)/branding/blistWindow.ico
 	cp $(srcdir)/windows/convWindow.ico  $(DIST)/branding/convWindow.ico
 	cp $(srcdir)/windows/default.ico     $(DIST)/branding/default.ico

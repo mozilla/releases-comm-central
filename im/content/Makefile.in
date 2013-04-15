@@ -9,10 +9,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-ifdef WINCE
-DEFINES += -DWINCE
-endif
-
 include $(topsrcdir)/config/rules.mk
 
 # defines used for preference window files
