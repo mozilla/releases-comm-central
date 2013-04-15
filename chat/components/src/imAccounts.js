@@ -25,6 +25,10 @@ XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/accounts.properties")
 );
 
+XPCOMUtils.defineLazyGetter(this, "_maxDebugMessages", function()
+  Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
+);
+
 var gUserCanceledMasterPasswordPrompt = false;
 var gConvertingOldPasswords = false;
 
@@ -285,11 +289,11 @@ imAccount.prototype = {
   _omittedDebugMessages: 0,
   _debugMessagesBeforeError: null,
   _omittedDebugMessagesBeforeError: 0,
-  _maxDebugMessages: 50,
   logDebugMessage: function(aMessage, aLevel) {
     if (!this._debugMessages)
       this._debugMessages = [];
-    if (this._debugMessages.length >= this._maxDebugMessages) {
+    if (_maxDebugMessages &&
+        this._debugMessages.length >= _maxDebugMessages) {
       this._debugMessages.shift();
       ++this._omittedDebugMessages;
     }
