@@ -19,6 +19,10 @@ pref("messenger.accounts.convertOldPasswords", false);
 // A value of 0 means that there will be no more reconnection attempts.
 pref("messenger.accounts.reconnectTimer", "1,5,30,60,90,300,600,1200,3600");
 
+// Maximum number of messages in debug logs.
+// 0 = keep all messages
+pref("messenger.accounts.maxDebugMessages", 200);
+
 // List of tags ids whose contacts should be shown in the special
 // "Other contacts" group.
 pref("messenger.buddies.hiddenTags", "");
