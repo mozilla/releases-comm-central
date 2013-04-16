@@ -166,9 +166,11 @@ const GenericIRCConversation = {
   },
   // IRC doesn't support typing notifications, but it does have a maximum
   // message length.
-  // XXX Figure out what to do when there are line breaks.
-  sendTyping: function(aString)
-    this.getMaxMessageLength() - this._account.countBytes(aString),
+  sendTyping: function(aString) {
+    let longestLineLength =
+      Math.max.apply(null, aString.split("\n").map(this._account.countBytes));
+    return this.getMaxMessageLength() - longestLineLength;
+  },
 
   requestBuddyInfo: function(aNick) {
     if (!this._observedNicks.length)
