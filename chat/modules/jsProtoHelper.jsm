@@ -727,9 +727,9 @@ const GenericProtocolPrototype = {
       if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run"))
         throw "Every command must have a name and a run function.";
       if (!command.hasOwnProperty("usageContext"))
-        command.usageContext = Ci.imICommand.CONTEXT_ALL;
+        command.usageContext = Ci.imICommand.CMD_CONTEXT_ALL;
       if (!command.hasOwnProperty("priority"))
-        command.priority = Ci.imICommand.PRIORITY_PRPL;
+        command.priority = Ci.imICommand.CMD_PRIORITY_PRPL;
       Services.cmd.registerCommand(command, this.id);
     }, this);
   },

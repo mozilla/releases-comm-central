@@ -97,8 +97,7 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
   rv = event->InitEvent(aEventName, false, true);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = event->SetTrusted(true);
-  NS_ENSURE_SUCCESS(rv, rv);
+  event->SetTrusted(true);
 
   bool dummy;
   return target->DispatchEvent(event, &dummy);
