@@ -35,9 +35,12 @@ FacebookAccount.prototype = {
       }
     }
 
-    this._connection = new XMPPSession("chat.facebook.com", 5222,
-                                       "opportunistic_tls", this._jid,
-                                       this.imAccount.password, this);
+    let server = "chat.facebook.com";
+    if (this.prefs.prefHasUserValue("server"))
+      server = this.getString("server");
+    this._connection = new XMPPSession(server, 5222, "opportunistic_tls",
+                                       this._jid, this.imAccount.password,
+                                       this);
   }
 };
 
