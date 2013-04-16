@@ -21,8 +21,8 @@ CommandsService.prototype = {
     this.registerCommand({
       name: "say",
       get helpString() _("sayHelpString"),
-      usageContext: Ci.imICommand.CONTEXT_ALL,
-      priority: Ci.imICommand.PRIORITY_HIGH,
+      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
+      priority: Ci.imICommand.CMD_PRIORITY_HIGH,
       run: function(aMsg, aConv) {
         throw Cr.NS_ERROR_NOT_IMPLEMENTED;
       }
@@ -31,8 +31,8 @@ CommandsService.prototype = {
     this.registerCommand({
       name: "raw",
       get helpString() _("rawHelpString"),
-      usageContext: Ci.imICommand.CONTEXT_ALL,
-      priority: Ci.imICommand.PRIORITY_DEFAULT,
+      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
+      priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
         aConv.sendMsg(aMsg);
         return true;
@@ -46,8 +46,8 @@ CommandsService.prototype = {
 
       name: "help",
       get helpString() _("helpHelpString"),
-      usageContext: Ci.imICommand.CONTEXT_ALL,
-      priority: Ci.imICommand.PRIORITY_DEFAULT,
+      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
+      priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
         let conv = Services.conversations.getUIConversation(aConv);
         if (!conv)
@@ -105,8 +105,8 @@ CommandsService.prototype = {
       this.registerCommand({
         name: cmd,
         get helpString() _("statusCommand", this.name, _(this.name)),
-        usageContext: Ci.imICommand.CONTEXT_ALL,
-        priority: Ci.imICommand.PRIORITY_HIGH,
+        usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
+        priority: Ci.imICommand.CMD_PRIORITY_HIGH,
         run: function(aMsg) {
           Services.core.globalUserStatus.setStatus(statusValue, aMsg);
           return true;
@@ -167,7 +167,7 @@ CommandsService.prototype = {
   },
   _usageContextFilter: function(aConversation) {
     let usageContext =
-      Ci.imICommand["CONTEXT_" + (aConversation.isChat ? "CHAT" : "IM")];
+      Ci.imICommand["CMD_CONTEXT_" + (aConversation.isChat ? "CHAT" : "IM")];
     return function(c) c.usageContext & usageContext;
   },
   _findCommands: function(aConversation, aName) {

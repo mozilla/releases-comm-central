@@ -16,15 +16,15 @@ interface imICommand: nsISupports {
   //           parameter."
   readonly attribute AUTF8String helpString;
 
-  const short CONTEXT_IM   = 1;
-  const short CONTEXT_CHAT = 2;
-  const short CONTEXT_ALL  = CONTEXT_IM | CONTEXT_CHAT;
+  const short CMD_CONTEXT_IM   = 1;
+  const short CMD_CONTEXT_CHAT = 2;
+  const short CMD_CONTEXT_ALL  = CMD_CONTEXT_IM | CMD_CONTEXT_CHAT;
   readonly attribute long usageContext;
 
-  const short PRIORITY_LOW     = -1000;
-  const short PRIORITY_DEFAULT = 0;
-  const short PRIORITY_PRPL    = 1000;
-  const short PRIORITY_HIGH    = 4000;
+  const short CMD_PRIORITY_LOW     = -1000;
+  const short CMD_PRIORITY_DEFAULT = 0;
+  const short CMD_PRIORITY_PRPL    = 1000;
+  const short CMD_PRIORITY_HIGH    = 4000;
   // Any integer value is usable as a priority.
   //    0 is the default priority.
   //  < 0 is lower priority.
