@@ -256,8 +256,8 @@ chatLogTreeView.prototype = {
     // messenger.properties. The order is the reverse of that in which
     // they will appear in the logTree.
     let firstgroups = {
-      twoWeeksAgo: [],
-      lastWeek: []
+      previousWeek: [],
+      currentWeek: []
     };
 
     // today and yesterday are treated differently, because they represent
@@ -280,12 +280,12 @@ chatLogTreeView.prototype = {
         continue;
       }
       else if (timeFromToday <= kWeekInMsecs) {
-        group = firstgroups.lastWeek;
+        group = firstgroups.currentWeek;
         if (log.format == "json")
           title = formatWeekday(logDate);
       }
       else if (timeFromToday <= kTwoWeeksInMsecs)
-        group = firstgroups.twoWeeksAgo;
+        group = firstgroups.previousWeek;
       else {
         logDate.setHours(0);
         logDate.setMinutes(0);
