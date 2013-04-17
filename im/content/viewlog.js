@@ -268,6 +268,7 @@ chatLogTreeView.prototype = {
     let groups = {};
     for each (let log in getIter(this._logs)) {
       let logDate = new Date(log.time * 1000);
+      // Calculate elapsed time between the log and 00:00:00 today.
       let timeFromToday = todayDate - logDate;
       let title = (log.format == "json" ? formatDate : formatDateTime)(logDate);
       let group;
@@ -279,12 +280,13 @@ chatLogTreeView.prototype = {
         yesterday = new chatLogTreeLogItem(log, chatBundle.getString("log.yesterday"), 0);
         continue;
       }
-      else if (timeFromToday <= kWeekInMsecs) {
+      // Note that the 7 days of the current week include today.
+      else if (timeFromToday <= kWeekInMsecs - kDayInMsecs) {
         group = firstgroups.currentWeek;
         if (log.format == "json")
           title = formatWeekday(logDate);
       }
-      else if (timeFromToday <= kTwoWeeksInMsecs)
+      else if (timeFromToday <= kTwoWeeksInMsecs - kDayInMsecs)
         group = firstgroups.previousWeek;
       else {
         logDate.setHours(0);
