@@ -376,7 +376,6 @@ var gAccountManager = {
 
   selectAccount: function am_selectAccount(aAccountId) {
     this.accountList.selectedItem = document.getElementById(aAccountId);
-    this.accountList.ensureSelectedElementIsVisible();
   },
   onAccountSelect: function am_onAccountSelect() {
     clearTimeout(this.disableTimerID);
@@ -385,6 +384,9 @@ var gAccountManager = {
     let selectedItem = this.accountList.selectedItem;
     selectedItem.clientHeight; // force synchronous binding attachment
     selectedItem.buttons.setFocus();
+    // Without the following, the account manager is scrolled to the first
+    // (dis)connect button when being opened.
+    this.accountList.ensureSelectedElementIsVisible();
   },
 
   onKeyPress: function am_onKeyPress(event) {
