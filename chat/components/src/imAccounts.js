@@ -337,6 +337,12 @@ imAccount.prototype = {
     if (this._statusObserver)
       this.statusInfo.addObserver(this._statusObserver);
   },
+  _removeStatusObserver: function() {
+    if (this._statusObserver) {
+      this.statusInfo.removeObserver(this._statusObserver);
+      delete this._statusObserver;
+    }
+  },
   get statusInfo() this._observedStatusInfo || Services.core.globalUserStatus,
 
   reconnectAttempt: 0,
@@ -611,6 +617,9 @@ imAccount.prototype = {
     // remove any pending reconnection timer.
     this._cancelReconnection();
 
+    // Keeping a status observer could cause an immediate reconnection.
+    this._removeStatusObserver();
+
     // remove any pending autologin preference used for crash detection.
     this._finishedAutoLogin();
 
@@ -691,10 +700,7 @@ imAccount.prototype = {
       this.prplAccount.connect();
   },
   disconnect: function() {
-    if (this._statusObserver) {
-      this.statusInfo.removeObserver(this._statusObserver);
-      delete this._statusObserver;
-    }
+    this._removeStatusObserver();
     if (!this.disconnected)
       this._ensurePrplAccount.disconnect();
   },
