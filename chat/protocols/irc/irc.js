@@ -168,7 +168,8 @@ const GenericIRCConversation = {
   // message length.
   sendTyping: function(aString) {
     let longestLineLength =
-      Math.max.apply(null, aString.split("\n").map(this._account.countBytes));
+      Math.max.apply(null, aString.split("\n").map(this._account.countBytes,
+                                                   this._account));
     return this.getMaxMessageLength() - longestLineLength;
   },
 
