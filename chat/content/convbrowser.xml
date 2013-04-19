@@ -1098,7 +1098,7 @@
           // because these notifications are dispatched again once the docshells
           // are swapped.
           var fieldsToSwap = ["_docShell", "_fastFind", "_contentWindow", "_webNavigation",
-                              "_theme", "_textModifiers", "_autoScrollEnabled",
+                              "_theme", "_autoScrollEnabled",
                               "_lastElement", "_lastMessage", "_lastMessageIsContext",
                               "_firstNonContextElt"];
 
