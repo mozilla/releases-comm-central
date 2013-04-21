@@ -365,11 +365,8 @@ var ircBase = {
       if (aMessage.params[0] != this._nickname)
         this.changeBuddyNick(this._nickname, aMessage.params[0]);
 
-      // Get our full prefix.
-      this.prefix = aMessage.params[1].slice(
-        aMessage.params[1].lastIndexOf(" ") + 1);
-      // Remove the nick from the prefix.
-      this.prefix = this.prefix.slice(this.prefix.indexOf("!"));
+      // Request our own whois entry so we can set the prefix.
+      this.requestBuddyInfo(this._nickname);
 
       // If our status is Unavailable, tell the server.
       if (this.imAccount.statusInfo.statusType < Ci.imIStatusInfo.STATUS_AVAILABLE)
@@ -713,9 +710,16 @@ var ircBase = {
     "311": function(aMessage) { // RPL_WHOISUSER
       // <nick> <user> <host> * :<real name>
       // <username>@<hostname>
+      let nick = aMessage.params[1];
       let source = aMessage.params[2] + "@" + aMessage.params[3];
-      return this.setWhois(aMessage.params[1], {realname: aMessage.params[5],
-                                                connectedFrom: source});
+      // Some servers obfuscate the host when sending messages. Therefore,
+      // we set the account prefix by using the host from this response.
+      // We store it separately to avoid glitches due to the whois entry
+      // being temporarily deleted during future updates of the entry.
+      if (this.normalize(nick) == this.normalize(this._nickname))
+        this.prefix = "!" + source;
+      return this.setWhois(nick, {realname: aMessage.params[5],
+                                  connectedFrom: source});
     },
     "312": function(aMessage) { // RPL_WHOISSERVER
       // <nick> <server> :<server info>

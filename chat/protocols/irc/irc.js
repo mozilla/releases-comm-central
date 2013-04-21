@@ -119,7 +119,7 @@ const GenericIRCConversation = {
   // the IRC messaging.
   getMaxMessageLength: function() {
     // Build the shortest possible message that could be sent to other users.
-    let baseMessage = this._account._nickname + this._account.prefix +
+    let baseMessage = ":" + this._account._nickname + this._account.prefix +
                       " " + this._account.buildMessage("PRIVMSG", this.name) +
                       " :\r\n";
     return this._account.maxMessageLength -
