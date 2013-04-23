@@ -6,7 +6,7 @@ let irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 const messages = {
-  // Exactly 50 characters.
+  // Exactly 51 characters.
   "This is a test.": ["This is a test."],
   // Too long.
   "This is a message that is too long.":
@@ -23,7 +23,7 @@ irc.GenericIRCConversation._account = {
   __proto__: irc.ircAccount.prototype,
   _nickname: "sender",
   prefix: "!user@host",
-  maxMessageLength: 50, // For convenience.
+  maxMessageLength: 51, // For convenience.
   sendMessage: function(aCommand, aParams) {}
 };
 
