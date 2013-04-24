@@ -1257,8 +1257,8 @@ ircAccount.prototype = {
   },
 
   chatRoomFields: {
-    "channel": {"label": _("joinChat.channel"), "required": true},
-    "password": {"label": _("joinChat.password"), "isPassword": true}
+    "channel": {get label() _("joinChat.channel"), required: true},
+    "password": {get label() _("joinChat.password"), isPassword: true}
   },
 
   parseDefaultChatName: function(aDefaultName) {
@@ -1538,20 +1538,20 @@ ircProtocol.prototype = {
   get baseId() "prpl-irc",
 
   usernameSplits: [
-    {label: _("options.server"), separator: "@",
+    {get label() _("options.server"), separator: "@",
      defaultValue: "chat.freenode.net", reverse: true}
   ],
 
   options: {
     // TODO Default to IRC over SSL.
-    "port": {label: _("options.port"), default: 6667},
-    "ssl": {label: _("options.ssl"), default: false},
+    "port": {get label() _("options.port"), default: 6667},
+    "ssl": {get label() _("options.ssl"), default: false},
     // TODO We should attempt to auto-detect encoding instead.
-    "encoding": {label: _("options.encoding"), default: "UTF-8"},
-    "quitmsg": {label: _("options.quitMessage"),
+    "encoding": {get label() _("options.encoding"), default: "UTF-8"},
+    "quitmsg": {get label() _("options.quitMessage"),
                 get default() Services.prefs.getCharPref("chat.irc.defaultQuitMessage")},
-    "partmsg": {label: _("options.partMessage"), default: ""},
-    "showServerTab": {label: _("options.showServerTab"), default: false}
+    "partmsg": {get label() _("options.partMessage"), default: ""},
+    "showServerTab": {get label() _("options.showServerTab"), default: false}
   },
 
   get chatHasTopic() true,
