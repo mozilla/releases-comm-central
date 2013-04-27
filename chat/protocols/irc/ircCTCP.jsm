@@ -34,7 +34,8 @@ function CTCPMessage(aMessage, aRawCTCPMessage) {
   // with \001 or \134, respectively. Any other character after \134 is replaced
   // with itself.
   let dequotedCTCPMessage = message.ctcp.rawMessage.replace(/\x5C./g,
-    function(aStr) (aStr[1] == "a") ? "\x01" : aStr[1]);
+    function(aStr) aStr[1] == "a" ? "\x01" :
+      aStr[1] == "\x5C" ? "\x5C\x5C" : aStr[1]);
 
   let separator = dequotedCTCPMessage.indexOf(" ");
   // If there's no space, then only a command is given.
