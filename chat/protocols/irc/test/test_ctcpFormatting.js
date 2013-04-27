@@ -50,7 +50,7 @@ function test_ctcpFormatToText() {
   let expectedOutput = "The quick brown fox jumps over the lazy dog.";
 
   let output = input.map(ctcpFormatToText);
-  for (let i = 0; i < output.length; i++)
+  for (let i = 0; i < output.length; ++i)
     do_check_eq(expectedOutput, output[i]);
 
   run_next_test();
