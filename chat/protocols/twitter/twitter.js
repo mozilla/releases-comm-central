@@ -163,8 +163,12 @@ Conversation.prototype = {
                            aTweet.text), true);
     }, this);
   },
+  getTweetLength: function (aString) {
+    // Use the Twitter library to calculate the length.
+    return twttr.txt.getTweetLength(aString, this._account.config);
+  },
   sendMsg: function (aMsg) {
-    if (aMsg.length > this._account.maxMessageLength) {
+    if (this.getTweetLength(aMsg) > kMaxMessageLength) {
       this.systemMessage(_("error.tooLong"), true);
       throw Cr.NS_ERROR_INVALID_ARG;
     }
@@ -181,9 +185,7 @@ Conversation.prototype = {
       this.notifyObservers(null, "status-text-changed", "");
       return kMaxMessageLength;
     }
-    // Use the Twitter library to calculate the length.
-    return kMaxMessageLength - twttr.txt.getTweetLength(aString,
-                                                        this._account.config);
+    return kMaxMessageLength - this.getTweetLength(aString);
   },
   systemMessage: function(aMessage, aIsError, aDate) {
     let flags = {system: true};
