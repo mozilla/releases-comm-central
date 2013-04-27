@@ -25,6 +25,7 @@
 #ifndef XP_MACOSX
   onclose= "event.preventDefault(); goQuitApplication();"
 #endif
+  onblur = "buddyList.onblur();"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>

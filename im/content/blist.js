@@ -837,6 +837,13 @@ var buddyList = {
       aSelf._showOtherContactsRequested = false;
     }, 0, this);
   },
+  onblur: function bl_onblur() {
+    // Clear the buddy list selection. Contacts expand to two lines
+    // when selected, but only when the buddy list has focus. This makes
+    // it hard to select the right contact by clicking on an unfocused
+    // contact list, as the contact will reexpand before the click is handled.
+    document.getElementById("buddylistbox").clearSelection();
+  },
   unload: function bl_unload() {
     for each (let event in events)
       Services.obs.removeObserver(buddyList, event);
