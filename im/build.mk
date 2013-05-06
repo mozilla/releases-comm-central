@@ -113,7 +113,7 @@ ifdef MOZ_UPDATE_PACKAGING
 	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update PKG_INST_PATH=
 endif
 ifdef L10NBASEDIR
-	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C instantbird/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir ;)
+	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C instantbird/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=$(MOZ_UPDATE_PACKAGING) ;)
 endif
 ifdef MOZ_UPDATE_PACKAGING
 ifdef LIST_PREVIOUS_MAR_CMD
