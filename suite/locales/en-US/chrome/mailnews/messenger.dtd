@@ -13,7 +13,7 @@
 <!ENTITY tabmailCloseButton.tooltip "Close current tab">
 <!ENTITY tabmailAllTabs.tooltip "List all tabs">
 
-<!-- menu items:  the . means that the menu item isn't implemented yet -->
+<!-- menu items: the . means that the menu item isn't implemented yet -->
 
 <!-- File menu items -->
 <!ENTITY newMessage.label "New Message">
@@ -452,7 +452,7 @@
 <!ENTITY editRemoteContentSettings.accesskey "E">
 
 <!-- Statusbar -->
-<!ENTITY  statusText.label "Done">
+<!ENTITY statusText.label "Done">
 
 <!-- Thread Pane Context Menu -->
 <!ENTITY contextOpenNewWindow.label "Open Message in New Window">
