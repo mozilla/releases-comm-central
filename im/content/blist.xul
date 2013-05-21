@@ -150,7 +150,7 @@
         </vbox>
         <label id="statusMessage" crop="end" value=""
                aria-haspopup="true" role="button"
-               onclick="buddyList.statusMessageClick();"
+               onclick="buddyList.statusMessageClick(event);"
                onkeypress="buddyList.statusMessageKeyPress(event);"/>
       </stack>
     </toolbar>
@@ -171,7 +171,8 @@
                  onkeypress="buddyList.keyPress(event);"
                  onfocus="buddyList.buddylistboxFocus();"
                  tooltip="buddyTooltip"/>
-    <spacer id="listSpacer" flex="1"/>
+    <spacer id="listSpacer" flex="1"
+            onclick='document.getElementById("buddylistbox").focus();'/>
   </notificationbox>
 
   <statusbar id="blistWindow-statusbar">

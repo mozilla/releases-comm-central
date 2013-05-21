@@ -450,8 +450,12 @@ var buddyList = {
 
   editStatus: function bl_editStatus(aEvent) {
     let status = aEvent.originalTarget.getAttribute("status");
-    if (status == "offline")
+    if (status == "offline") {
+      let statusMessage = document.getElementById("statusMessage");
+      if (statusMessage.hasAttribute("editing"))
+        buddyList.finishEditStatusMessage(false);
       Services.core.globalUserStatus.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
+    }
     else if (status)
       this.startEditStatus(status);
   },
@@ -467,9 +471,20 @@ var buddyList = {
     this.statusMessageClick();
   },
 
-  statusMessageClick: function bl_statusMessageClick() {
-    let statusType =
-      document.getElementById("statusTypeIcon").getAttribute("status");
+  statusMessageClick: function bl_statusMessageClick(event) {
+    let statusTypeIcon = document.getElementById("statusTypeIcon");
+    if (event && event.button == 0) {
+      // If the mouse clicked the statusTypeIcon with the primary
+      // button, we should open the dropdown menu. (The statusMessage
+      // "covers" the icon due to its enlarged focusring.)
+      let box = statusTypeIcon.getBoundingClientRect();
+      if (event.clientX >= box.left && event.clientX < box.right &&
+          event.clientY >= box.top && event.clientY < box.bottom) {
+        this.openStatusTypePopup();
+        return;
+      }
+    }
+    let statusType = statusTypeIcon.getAttribute("status");
     if (statusType == "offline")
       return;
 
