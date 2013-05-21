@@ -759,12 +759,10 @@ var ircBase = {
       // <nick> :End of WHOIS list
       // We've received everything about WHOIS, tell the tooltip that is waiting
       // for this information.
-      let nick = this.normalize(aMessage.params[1]);
+      let nick = this.normalizeNick(aMessage.params[1]);
 
-      if (hasOwnProperty(this.whoisInformation, nick)) {
-        Services.obs.notifyObservers(this.getBuddyInfo(nick),
-                                     "user-info-received", nick);
-      }
+      if (hasOwnProperty(this.whoisInformation, nick))
+        this.notifyWhois(nick);
       else {
         // If there is no whois information stored at this point, the nick
         // is either offline or does not exist, so we run WHOWAS.
@@ -978,9 +976,7 @@ var ircBase = {
       // <nick> :End of WHOWAS
       // We've received everything about WHOWAS, tell the tooltip that is waiting
       // for this information.
-      let nick = this.normalize(aMessage.params[1]);
-      Services.obs.notifyObservers(this.getBuddyInfo(nick),
-                                   "user-info-received", nick);
+      this.notifyWhois(aMessage.params[1]);
       return true;
     },
 
