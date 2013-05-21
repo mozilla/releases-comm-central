@@ -42,7 +42,6 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._password = aPassword;
   this._account = aAccount;
 
-  this._auth = null;
   this._resource = aJID.resource || XMPPDefaultResource;
   this._handlers = {};
   this._stanzaId = 0;
@@ -318,15 +317,16 @@ XMPPSession.prototype = {
                      _("connection.error.noCompatibleAuthMec"));
         return;
       }
-      this._auth = new authMechanisms[selectedMech](this._jid.node,
-                                                    this._password,
-                                                    this._domain);
+      let authMec = new authMechanisms[selectedMech](this._jid.node,
+                                                     this._password,
+                                                     this._domain);
+      this._password = null;
 
       this._account.reportConnecting(_("connection.authenticating"));
-      this.onXmppStanza = this.stanzaListeners.authDialog;
+      this.onXmppStanza = this.stanzaListeners.authDialog.bind(this, authMec);
       this.onXmppStanza(null); // the first auth step doesn't read anything
     },
-    authDialog: function(aStanza) {
+    authDialog: function(aAuthMec, aStanza) {
       if (aStanza && aStanza.localName == "failure") {
         let errorMsg = "authenticationFailure";
         if (aStanza.getElement(["not-authorized"]))
@@ -345,7 +345,7 @@ XMPPSession.prototype = {
 
       let result;
       try {
-        result = this._auth.next(aStanza);
+        result = aAuthMec.next(aStanza);
       } catch(e) {
         this.ERROR(e);
         this.onError(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
@@ -431,6 +431,7 @@ XMPPSession.prototype = {
 
       if (aStanza.children.length == 0) {
         // Success!
+        this._password = null;
         this.startSession();
         return;
       }
