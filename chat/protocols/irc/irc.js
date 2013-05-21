@@ -863,7 +863,7 @@ ircAccount.prototype = {
   _modes: [],
   _userModeReceived: false,
   setUserMode: function(aNick, aNewModes, aSetter, aDisplayFullMode) {
-    if (this.normalize(aNick) != this.normalize(this._nickname)) {
+    if (this.normalizeNick(aNick) != this.normalizeNick(this._nickname)) {
       WARN("Received unexpected mode for " + aNick);
       return false;
     }
