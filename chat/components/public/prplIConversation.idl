@@ -93,8 +93,11 @@ interface prplIConvChat: prplIConversation {
      The list of people participating in this chat */
   nsISimpleEnumerator getParticipants();
 
-  /* The normalized chat buddy name will be suitable for starting a
-     private conversation or calling requestBuddyInfo. */
+  /* The normalized chat buddy name will be suitable for calling
+     createConversation to start a private conversation or calling
+     requestBuddyInfo. Generally this can just be aChatBuddyName, but some
+     protocols (e.g. XMPP) use this to strip out parts of the name (e.g. the
+     resource). */
   AUTF8String getNormalizedChatBuddyName(in AUTF8String aChatBuddyName);
 
   /* The topic of this chat room */

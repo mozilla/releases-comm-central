@@ -176,7 +176,7 @@ const GenericIRCConversation = {
   requestBuddyInfo: function(aNick) {
     if (!this._observedNicks.length)
       Services.obs.addObserver(this, "user-info-received", false);
-    this._observedNicks.push(this._account.normalize(aNick));
+    this._observedNicks.push(this.normalizeNick(aNick));
     this._account.requestBuddyInfo(aNick);
   },
 
@@ -184,25 +184,54 @@ const GenericIRCConversation = {
     if (aTopic != "user-info-received")
       return;
 
-    let nick = this._account.normalize(aData);
+    let nick = this.normalizeNick(aData);
     let nickIndex = this._observedNicks.indexOf(nick);
     if (nickIndex == -1)
       return;
+
+    // Remove the nick from the list of nicks that are being waited to received.
     this._observedNicks.splice(nickIndex, 1);
+
+    // If this is the last nick, remove the observer.
     if (!this._observedNicks.length)
       Services.obs.removeObserver(this, "user-info-received");
 
     // If we are waiting for the conversation name, set it.
+    let account = this._account;
     if (this._waitingForNick && nick == this.normalizedName) {
-      if (hasOwnProperty(this._account.whoisInformation, nick))
-        this.updateNick(this._account.whoisInformation[nick]["nick"]);
+      if (hasOwnProperty(account.whoisInformation, nick))
+        this.updateNick(account.whoisInformation[nick]["nick"]);
       delete this._waitingForNick;
       return;
     }
 
     // Otherwise, print the requested whois information.
-    this._account.writeWhois(this, aData,
-                             aSubject.QueryInterface(Ci.nsISimpleEnumerator));
+    let type = {system: true, noLog: true};
+    // RFC 2812 errors 401 and 406 result in there being no entry for the nick.
+    if (!hasOwnProperty(account.whoisInformation, nick)) {
+      this.writeMessage(null, _("message.unknownNick", nick), type);
+      return;
+    }
+    // If the nick is offline, tell the user. In that case, it's WHOWAS info.
+    let msgType = "message.whois";
+    if ("offline" in account.whoisInformation[nick])
+      msgType = "message.whowas";
+    let msg = _(msgType, account.whoisInformation[nick]["nick"]);
+
+    // Iterate over each field.
+    let tooltipInfo = aSubject.QueryInterface(Ci.nsISimpleEnumerator);
+    while (tooltipInfo.hasMoreElements()) {
+      let elt = tooltipInfo.getNext().QueryInterface(Ci.prplITooltipInfo);
+      switch (elt.type) {
+        case Ci.prplITooltipInfo.pair:
+        case Ci.prplITooltipInfo.sectionHeader:
+          msg += "\n" + _("message.whoisEntry", elt.label, elt.value);
+          break;
+        case Ci.prplITooltipInfo.sectionBreak:
+          break;
+      }
+    }
+    this.writeMessage(null, msg, type);
   },
 
   unInitIRCConversation: function() {
@@ -268,14 +297,16 @@ ircChannel.prototype = {
     GenericConvChatPrototype.unInit.call(this);
   },
 
-  getNormalizedChatBuddyName: function(aNick)
-    this._account.normalize(aNick, this._account.userPrefixes),
+  // Use the normalized nick in order to properly notify the observers.
+  getNormalizedChatBuddyName: function(aNick) this.normalizeNick(aNick),
+
+  normalizeNick: function(aNick) this._account.normalizeNick(aNick),
 
   hasParticipant: function(aNick)
-    hasOwnProperty(this._participants, this.getNormalizedChatBuddyName(aNick)),
+    hasOwnProperty(this._participants, this.normalizeNick(aNick)),
 
   getParticipant: function(aNick, aNotifyObservers) {
-    let normalizedNick = this.getNormalizedChatBuddyName(aNick);
+    let normalizedNick = this.normalizeNick(aNick);
     if (this.hasParticipant(aNick))
       return this._participants[normalizedNick];
 
@@ -283,7 +314,7 @@ ircChannel.prototype = {
     this._participants[normalizedNick] = participant;
 
     // Add the participant to the whois table if it is not already there.
-    this._account.setWhoisFromNick(participant._name);
+    this._account.setWhois(participant._name);
 
     if (aNotifyObservers) {
       this.notifyObservers(new nsSimpleEnumerator([participant]),
@@ -293,7 +324,7 @@ ircChannel.prototype = {
   },
   updateNick: function(aOldNick, aNewNick) {
     let isParticipant = this.hasParticipant(aOldNick);
-    if (this._account.normalize(aOldNick) == this._account.normalize(this.nick)) {
+    if (this.normalizeNick(aOldNick) == this.normalizeNick(this.nick)) {
       // If this is the user's nick, change it.
       this.nick = aNewNick;
       // If the account was disconnected, it's OK the user is not a participant.
@@ -312,7 +343,7 @@ ircChannel.prototype = {
 
     // Update the nickname and add it under the new nick.
     participant._name = aNewNick;
-    this._participants[this.getNormalizedChatBuddyName(aNewNick)] = participant;
+    this._participants[this.normalizeNick(aNewNick)] = participant;
 
     this.notifyObservers(participant, "chat-buddy-update", aOldNick);
   },
@@ -327,7 +358,7 @@ ircChannel.prototype = {
       this.notifyObservers(new nsSimpleEnumerator([stringNickname]),
                            "chat-buddy-remove");
     }
-    delete this._participants[this.getNormalizedChatBuddyName(aNick)];
+    delete this._participants[this.normalizeNick(aNick)];
   },
   // Use this before joining to avoid errors of trying to re-add an existing
   // participant
@@ -381,7 +412,7 @@ ircChannel.prototype = {
           aModeParams.length && this.hasParticipant(peekNextParam())) {
         // Store the new modes for this nick (so each participant's mode is only
         // updated once).
-        let nick = this._account.normalize(getNextParam());
+        let nick = this.normalizeNick(getNextParam());
         if (!hasOwnProperty(userModes, nick))
           userModes[nick] = [];
         userModes[nick].push(aNewMode[i]);
@@ -786,6 +817,7 @@ ircAccount.prototype = {
     return str.replace(this.normalizeExpression,
                        function(c) String.fromCharCode(c.charCodeAt(0) + 0x20));
   },
+  normalizeNick: function(aNick) this.normalize(aNick, this.userPrefixes),
 
   isMUCName: function(aStr) {
     return (this.channelPrefixes.indexOf(aStr[0]) != -1);
@@ -876,6 +908,10 @@ ircAccount.prototype = {
     this.removeBuddyInfo(aBuddyName);
     this.sendMessage("WHOIS", aBuddyName);
   },
+  notifyWhois: function(aNick) {
+    Services.obs.notifyObservers(this.getBuddyInfo(aNick), "user-info-received",
+                                 this.normalizeNick(aNick));
+  },
   // Request WHOWAS information on a buddy when the user requests more
   // information.
   requestOfflineBuddyInfo: function(aBuddyName) {
@@ -884,7 +920,7 @@ ircAccount.prototype = {
   },
   // Return an nsISimpleEnumerator of imITooltipInfo for a given nick.
   getBuddyInfo: function(aNick) {
-    let nick = this.normalize(aNick);
+    let nick = this.normalizeNick(aNick);
     if (!hasOwnProperty(this.whoisInformation, nick))
       return EmptyEnumerator;
 
@@ -940,24 +976,17 @@ ircAccount.prototype = {
   },
   // Remove a WHOIS entry.
   removeBuddyInfo: function(aNick) {
-    let nick = this.normalize(aNick);
+    let nick = this.normalizeNick(aNick);
     if (hasOwnProperty(this.whoisInformation, nick))
       delete this.whoisInformation[nick];
-  },
-  // Set minimal WHOIS entry containing only the capitalized nick,
-  // if no WHOIS info exists already.
-  setWhoisFromNick: function(aNick) {
-    let nick = this.normalize(aNick);
-    if (!hasOwnProperty(this.whoisInformation, nick))
-      this.whoisInformation[nick] = {"nick": aNick};
   },
   // Copies the fields of aFields into the whois table. If the field already
   // exists, that field is ignored (it is assumed that the first server response
   // is the most up to date information, as is the case for 312/314). Note that
   // the whois info for a nick is reset whenever whois information is requested,
   // so the first response from each whois is recorded.
-  setWhois: function(aNick, aFields) {
-    let nick = this.normalize(aNick, this.userPrefixes);
+  setWhois: function(aNick, aFields = {}) {
+    let nick = this.normalizeNick(aNick);
     // If the nickname isn't in the list yet, add it.
     if (!hasOwnProperty(this.whoisInformation, nick))
       this.whoisInformation[nick] = {};
@@ -972,33 +1001,6 @@ ircAccount.prototype = {
     }
 
     return true;
-  },
-  // Write WHOIS information to a conversation.
-  writeWhois: function(aConv, aNick, aTooltipInfo) {
-    let nick = this.normalize(aNick);
-    let type = {system: true, noLog: true};
-    // RFC 2812 errors 401 and 406 result in there being no entry for the nick.
-    if (!hasOwnProperty(this.whoisInformation, nick)) {
-      aConv.writeMessage(null, _("message.unknownNick", nick), type);
-      return;
-    }
-    // If the nick is offline, tell the user. In that case, it's WHOWAS info.
-    let msgType = "message.whois";
-    if ("offline" in this.whoisInformation[nick])
-      msgType = "message.whowas";
-    let msg = _(msgType, this.whoisInformation[nick]["nick"]);
-    while (aTooltipInfo.hasMoreElements()) {
-      let elt = aTooltipInfo.getNext().QueryInterface(Ci.prplITooltipInfo);
-      switch (elt.type) {
-        case Ci.prplITooltipInfo.pair:
-        case Ci.prplITooltipInfo.sectionHeader:
-          msg += "\n" + _("message.whoisEntry", elt.label, elt.value);
-          break;
-        case Ci.prplITooltipInfo.sectionBreak:
-          break;
-      }
-    }
-    aConv.writeMessage(null, msg, type);
   },
 
   trackBuddy: function(aNick) {
@@ -1022,7 +1024,7 @@ ircAccount.prototype = {
     return buddy;
   },
   hasBuddy: function(aName)
-    hasOwnProperty(this._buddies, this.normalize(aName, this.userPrefixes)),
+    hasOwnProperty(this._buddies, this.normalizeNick(aName)),
   // Return an array of buddy names.
   getBuddyNames: function() {
     let buddies = [];
@@ -1032,12 +1034,12 @@ ircAccount.prototype = {
   },
   getBuddy: function(aName) {
     if (this.hasBuddy(aName))
-      return this._buddies[this.normalize(aName, this.userPrefixes)];
+      return this._buddies[this.normalizeNick(aName)];
     return null;
   },
   changeBuddyNick: function(aOldNick, aNewNick) {
     let msg;
-    if (this.normalize(aOldNick) == this.normalize(this._nickname)) {
+    if (this.normalizeNick(aOldNick) == this.normalizeNick(this._nickname)) {
       // Your nickname changed!
       this._nickname = aNewNick;
       msg = _("message.nick.you", aNewNick);
@@ -1061,7 +1063,7 @@ ircAccount.prototype = {
 
     // Adjust the whois table where necessary.
     this.removeBuddyInfo(aOldNick);
-    this.setWhoisFromNick(aNewNick);
+    this.setWhois(aNewNick);
 
     // If a private conversation is open with that user, change its title.
     if (this.hasConversation(aOldNick)) {
@@ -1070,7 +1072,7 @@ ircAccount.prototype = {
 
       // Remove the old reference to the conversation and create a new one.
       this.removeConversation(aOldNick);
-      this._conversations[this.normalize(aNewNick)] = conversation;
+      this._conversations[this.normalizeNick(aNewNick)] = conversation;
 
       conversation.updateNick(aNewNick);
       conversation.writeMessage(aOldNick, msg, {system: true});
@@ -1129,7 +1131,7 @@ ircAccount.prototype = {
       // Attempt to maximize the characters used in each message, this may mean
       // that a specific user gets sent very often since they have a short name!
       let buddiesLength = this.countBytes(this.pendingIsOnQueue[0]);
-      for (let i = 0; i < this.trackQueue.length; i++) {
+      for (let i = 0; i < this.trackQueue.length; ++i) {
         // If we can fit the nick, add it to the current buffer.
         if ((buddiesLength + this.countBytes(this.trackQueue[i])) < this._isOnLength) {
           // Remove the name from the list and add it to the pending queue.
@@ -1278,6 +1280,10 @@ ircAccount.prototype = {
   // Returns a conversation (creates it if it doesn't exist)
   getConversation: function(aName) {
     let name = this.normalize(aName);
+    // If the whois information has been received, we have the proper nick
+    // capitalization.
+    if (hasOwnProperty(this.whoisInformation, name))
+      aName = this.whoisInformation[name].nick;
     if (!this.hasConversation(aName)) {
       let constructor = this.isMUCName(aName) ? ircChannel : ircConversation;
       this._conversations[name] = new constructor(this, aName, this._nickname);
