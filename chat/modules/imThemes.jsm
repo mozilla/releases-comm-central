@@ -359,22 +359,23 @@ const statusMessageReplacements = {
   shortTime: function(aMsg) (new Date(aMsg.time * 1000)).toLocaleTimeString(),
   messageClasses: function(aMsg) {
     let msgClass = [];
-    if (/^(<[^>]+>)*\/me /.test(aMsg.originalMessage))
-      msgClass.push("action");
 
-    if (!aMsg.system) {
+    if (aMsg.system)
+      msgClass.push("event");
+    else {
       msgClass.push("message");
+
       if (aMsg.incoming)
         msgClass.push("incoming");
-      else
-        if (aMsg.outgoing)
-          msgClass.push("outgoing");
+      else if (aMsg.outgoing)
+        msgClass.push("outgoing");
+
+      if (/^(<[^>]+>)*\/me /.test(aMsg.originalMessage))
+        msgClass.push("action");
 
       if (aMsg.autoResponse)
         msgClass.push("autoreply");
     }
-    else
-      msgClass.push("event");
 
     if (aMsg.containsNick)
       msgClass.push("nick");
