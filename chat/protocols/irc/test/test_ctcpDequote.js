@@ -27,26 +27,29 @@ const input = [
 const expectedOutputCommand = "ACTION";
 
 const expectedOutputParam = [
-  "", 
+  "",
   "test",
   "test",
   "test",
+  "test",
+  "\x5Ctest",
+  "te\x5Cst",
   "test\x5C",
-  "\x5C\x5Ctest",
-  "te\x5C\x5Cst",
-  "test\x5C\x5C",
-  "\x5C\x5Ctest",
-  "te\x5C\x5Cst",
-  "test\x5C\x5C\x5C",
+  "\x5Ctest",
+  "te\x5Cst",
+  "test\x5C",
   "\x01test",
   "te\x01st",
   "test\x01",
-  "\x5C\x5C\x01test",
-  "\x5C\x5Catest"
+  "\x5C\x01test",
+  "\x5Catest"
 ];
 
 function run_test() {
   let output = input.map(function(aStr) ircCTCP.CTCPMessage({}, aStr));
+  // Ensure both arrays have the same length.
+  do_check_eq(expectedOutputParam.length, output.length);
+  // Ensure the values in the arrays are equal.
   for (let i = 0; i < output.length; ++i) {
     do_check_eq(expectedOutputParam[i], output[i].ctcp.param);
     do_check_eq(expectedOutputCommand, output[i].ctcp.command);
