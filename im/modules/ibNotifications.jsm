@@ -59,11 +59,15 @@ var Notifications = {
       }
     };
 
+    // Handle third person messages
+    let name = aMessage.alias || aMessage.who;
+    if (messageText.startsWith("/me "))
+      messageText = messageText.replace(/^\/me/, name);
+
     // Finally show the notification!
     Components.classes["@mozilla.org/alerts-service;1"]
               .getService(Components.interfaces.nsIAlertsService)
-              .showAlertNotification(icon, aMessage.alias || aMessage.who,
-                                     messageText, true, "", observer);
+              .showAlertNotification(icon, name, messageText, true, "", observer);
   },
 
   init: function() {
