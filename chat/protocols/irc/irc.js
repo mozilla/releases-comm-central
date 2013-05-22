@@ -114,6 +114,8 @@ const GenericIRCConversation = {
   _pendingMessage: false,
   _waitingForNick: false,
 
+  normalizeNick: function(aNick) this._account.normalizeNick(aNick),
+
   // This will calculate the maximum number of bytes that are left for a message
   // typed by the user by calculate the amount of bytes that would be used by
   // the IRC messaging.
@@ -299,8 +301,6 @@ ircChannel.prototype = {
 
   // Use the normalized nick in order to properly notify the observers.
   getNormalizedChatBuddyName: function(aNick) this.normalizeNick(aNick),
-
-  normalizeNick: function(aNick) this._account.normalizeNick(aNick),
 
   hasParticipant: function(aNick)
     hasOwnProperty(this._participants, this.normalizeNick(aNick)),
