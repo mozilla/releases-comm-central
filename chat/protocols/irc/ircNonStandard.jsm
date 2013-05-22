@@ -14,7 +14,7 @@
  */
 const EXPORTED_SYMBOLS = ["ircNonStandard"];
 
-const Cu = Components.utils;
+const {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
