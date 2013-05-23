@@ -1388,9 +1388,9 @@ ircAccount.prototype = {
 
     // High/CTCP level quoting, replace \134 or \001 with \134\134 or \134a,
     // respectively. This is only done inside the extended data message.
-    const highQuote = {"\x5C": "\x5C", "\x01": "a"};
-    const highRegex = new RegExp("[" + Object.keys(highQuote).join("") + "]", "g");
-    ircParam = ircParam.replace(highRegex, function(aChar) "\x5C" + highQuote[aChar]);
+    const highRegex = /\\|\x01/g;
+    ircParam = ircParam.replace(highRegex,
+      function(aChar) "\\" + (aChar == "\\" ? "\\" : "a"));
 
     // Add the CTCP tagging.
     ircParam = "\x01" + ircParam + "\x01";
