@@ -152,7 +152,7 @@
           this.updateTyping();
           this.inputValueChanged();
           this.loaded = true;
-          this.observe(this.browser, "conversation-loaded", null);
+          Services.obs.notifyObservers(this.browser, "conversation-loaded", null);
         ]]>
         </body>
       </method>
