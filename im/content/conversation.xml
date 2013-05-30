@@ -1383,8 +1383,13 @@
               // The reverse sort ensures that if we have "foo" and "foobar",
               // "foobar" will be matched first by the regexp.
               let nicks = Object.keys(this._showNickList).sort().reverse().join("|");
-              if (nicks)
-                this._showNickRegExp = new RegExp("\\b(" + nicks + ")\\b", "g");
+              if (nicks) {
+                // We use \W to match for word-boundaries, as \b will not match the
+                // nick if it starts/ends with \W characters.
+                // XXX Ideally we would use unicode word boundaries:
+                // http://www.unicode.org/reports/tr29/#Word_Boundaries
+                this._showNickRegExp = new RegExp("\\W(?:" + nicks + ")\\W");
+              }
               else {
                 // nobody, disable...
                 this._showNickRegExp = {exec: function() null};
@@ -1392,12 +1397,17 @@
               }
             }
             let exp = this._showNickRegExp;
-            exp.lastIndex = 0;
             let result = 0;
             let match;
-            while ((match = exp.exec(aNode.data))) {
+            // Add leading/trailing spaces to match at beginning and end of
+            // the string as well. (If we used regex ^ and $, match.index would
+            // not be reliable.)
+            while ((match = exp.exec(" " + aNode.data + " "))) {
+              // \W is not zero-length, but this is cancelled by the
+              // extra leading space here.
               let nickNode = aNode.splitText(match.index);
-              aNode = nickNode.splitText(exp.lastIndex - match.index);
+              // subtract the 2 \W's to get the length of the nick.
+              aNode = nickNode.splitText(match[0].length - 2);
               // at this point, nickNode is a text node with only the text
               // of the nick and aNode is a text node with the text after
               // the nick. The text in aNode hasn't been processed yet.
@@ -1416,7 +1426,6 @@
               nickNode.parentNode.replaceChild(elt, nickNode);
               elt.textContent = nick;
               result += 2;
-              exp.lastIndex = 0;
             }
             return result;
           }).bind(this);
