@@ -429,3 +429,8 @@ statusbarpanel#statusbar-display {
 .tabs-closebutton:hover:active {
   -moz-image-region: rect(0, 48px, 16px, 32px);
 }
+
+.alltabs-item[tabIsVisible] {
+  /* box-shadow instead of background-color to work around native styling */
+  box-shadow: inset -5px 0 ThreeDShadow;
+}

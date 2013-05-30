@@ -308,6 +308,11 @@ toolbarbutton > .toolbarbutton-icon {
   font-weight: bold;
 }
 
+.alltabs-item[tabIsVisible] {
+  /* box-shadow instead of background-color to work around native styling */
+  box-shadow: inset -5px 0 ThreeDShadow;
+}
+
 /* Tabstrip close button */
 .tabs-closebutton {
   -moz-appearance: none;
