@@ -50,6 +50,10 @@ var logWindow = {
       treeView.toggleOpenState(selectIndex++);
     }
     logTree.view.selection.select(selectIndex);
+
+    // If the log viewer window already existed, it may be hidden, so bring
+    // the window to the front.
+    window.focus();
   },
 
   pendingLoad: false,
