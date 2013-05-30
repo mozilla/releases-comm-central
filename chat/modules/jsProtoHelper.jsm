@@ -511,7 +511,7 @@ const GenericConvChatPrototype = {
   set nick(aNick) {
     this._nick = aNick;
     let escapedNick = this._nick.replace(/[[\]{}()*+?.\\^$|]/g, "\\$&");
-    this._pingRegexp = new RegExp("\\b" + escapedNick + "\\b", "i");
+    this._pingRegexp = new RegExp("(?:^|\\W)" + escapedNick + "(?:\\W|$)", "i");
   },
 
   _left: false,
