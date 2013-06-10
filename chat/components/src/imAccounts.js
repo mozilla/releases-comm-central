@@ -221,7 +221,8 @@ imAccount.prototype = {
 
       if (this.canJoinChat &&
           this.prefBranch.prefHasUserValue(kPrefAccountAutoJoin)) {
-        let autojoin = this.prefBranch.getCharPref(kPrefAccountAutoJoin);
+        let autojoin = this.prefBranch.getComplexValue(
+          kPrefAccountAutoJoin, Ci.nsISupportsString).data;
         if (autojoin) {
           for each (let room in autojoin.trim().split(/,\s*/)) {
             if (room)
