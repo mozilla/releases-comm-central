@@ -129,7 +129,8 @@ var joinChat = {
         Services.prefs.getBranch("messenger.account." + account.id + ".");
       let autojoin = [ ];
       if (prefBranch.prefHasUserValue(autoJoinPref)) {
-        let prefValue = prefBranch.getCharPref(autoJoinPref);
+        let prefValue = prefBranch.getComplexPref(autoJoinPref,
+                                                  Ci.nsISupportsString);
         if (prefValue)
           autojoin = prefValue.split(",");
       }

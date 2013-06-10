@@ -39,7 +39,7 @@ var account = {
                                             this.account.id + ".");
       if (branch.prefHasUserValue(autoJoinPref)) {
         document.getElementById("autojoin").value =
-          branch.getCharPref(autoJoinPref);
+          branch.getComplexValue(autoJoinPref, Ci.nsISupportsString).data;
       }
     }
 
@@ -246,8 +246,12 @@ var account = {
       var branch = Services.prefs.getBranch("messenger.account." +
                                             this.account.id + ".");
       var autojoin = this.getValue("autojoin");
-      if (autojoin || branch.prefHasUserValue(autoJoinPref))
-        branch.setCharPref(autoJoinPref, autojoin);
+      if (autojoin || branch.prefHasUserValue(autoJoinPref)) {
+        let str = Cc["@mozilla.org/supports-string;1"]
+                    .createInstance(Ci.nsISupportsString);
+        str.data = autojoin;
+        branch.setComplexValue(autoJoinPref, Ci.nsISupportsString, str);
+      }
     }
 
     if (this.proto.usePurpleProxy &&
