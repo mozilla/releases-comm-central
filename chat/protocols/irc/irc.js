@@ -153,18 +153,23 @@ const GenericIRCConversation = {
     }
 
     // Send each message and display it in the conversation.
-    messages.forEach(function (aMessage) {
-      if (!aMessage.length)
+    for (let message of messages) {
+      if (!message.length)
         return;
 
-      this._account.sendMessage("PRIVMSG", [this.name, aMessage]);
+      if (!this._account.sendMessage("PRIVMSG", [this.name, message])) {
+        this.writeMessage(this._account._currentServerName,
+                          _("error.sendMessageFailed"),
+                          {error: true, system: true});
+        break;
+      }
 
       // Since the server doesn't send us a message back, just assume the
       // message was received and immediately show it.
-      this.writeMessage(this._account._nickname, aMessage, {outgoing: true});
+      this.writeMessage(this._account._nickname, message, {outgoing: true});
 
       this._pendingMessage = true;
-    }, this);
+    }
   },
   // IRC doesn't support typing notifications, but it does have a maximum
   // message length.
@@ -1334,12 +1339,13 @@ ircAccount.prototype = {
 
   // Shortcut method to build & send a message at once. Use aLoggedData to log
   // something different than what is actually sent.
-  sendMessage: function(aCommand, aParams, aLoggedData) {
-    this.sendRawMessage(this.buildMessage(aCommand, aParams), aLoggedData);
-  },
+  // Returns false if the message could not be sent.
+  sendMessage: function(aCommand, aParams, aLoggedData)
+    this.sendRawMessage(this.buildMessage(aCommand, aParams), aLoggedData),
 
   // This sends a message over the socket and catches any errors. Use
   // aLoggedData to log something different than what is actually sent.
+  // Returns false if the message could not be sent.
   sendRawMessage: function(aMessage, aLoggedData) {
     // Low level quoting, replace \0, \n, \r or \020 with \0200, \020n, \020r or
     // \020\020, respectively.
@@ -1363,20 +1369,24 @@ ircAccount.prototype = {
 
     try {
       this._socket.sendString(aMessage, this._encoding, aLoggedData);
+      return true;
     } catch (e) {
       try {
+        this._socket.sendData(aMessage, aLoggedData);
         this.WARN("Failed to convert " + aMessage + " from Unicode to " +
                   this._encoding + ".");
-        this._socket.sendData(aMessage, aLoggedData);
+        return true;
       } catch(e) {
         this.ERROR("Socket error:", e);
         this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                              _("connection.error.lost"));
+        return false;
       }
     }
   },
 
   // CTCP messages are \001<COMMAND> [<parameters>]*\001.
+  // Returns false if the message could not be sent.
   sendCTCPMessage: function(aCommand, aParams, aTarget, aIsNotice) {
     // Combine the CTCP command and parameters into the single IRC param.
     let ircParam = aCommand;
@@ -1396,7 +1406,7 @@ ircAccount.prototype = {
     ircParam = "\x01" + ircParam + "\x01";
 
     // Send the IRC message as a NOTICE or PRIVMSG.
-    this.sendMessage(aIsNotice ? "NOTICE" : "PRIVMSG", [aTarget, ircParam]);
+    return this.sendMessage(aIsNotice ? "NOTICE" : "PRIVMSG", [aTarget, ircParam]);
   },
 
   // Implement section 3.1 of RFC 2812

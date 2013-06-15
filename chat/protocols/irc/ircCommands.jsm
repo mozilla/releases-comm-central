@@ -70,12 +70,17 @@ function actionCommand(aMsg, aConv) {
   // Don't try to send an empty action.
   if (!aMsg || !aMsg.trim().length)
     return false;
-  if (!ctcpCommand(aConv, aConv.name, "ACTION", aMsg))
-    return false;
+
+  let conv = getConv(aConv);
+  let account = getAccount(aConv);
+  if (!ctcpCommand(aConv, aConv.name, "ACTION", aMsg)) {
+    conv.writeMessage(account._currentServerName, _("error.sendMessageFailed"),
+                      {error: true, system: true});
+    return true;
+  }
 
   // Show the action on our conversation.
-  getConv(aConv).writeMessage(getAccount(aConv)._nickname, "/me " + aMsg,
-                              {outgoing: true});
+  conv.writeMessage(account._nickname, "/me " + aMsg, {outgoing: true});
   return true;
 }
 
@@ -100,13 +105,8 @@ function simpleCommand(aConv, aCommand, aParams) {
   return true;
 }
 
-function ctcpCommand(aConv, aTarget, aCommand, aMsg) {
-  if (!aTarget.length)
-    return false;
-
-  getAccount(aConv).sendCTCPMessage(aCommand, aMsg, aTarget, false);
-  return true;
-}
+function ctcpCommand(aConv, aTarget, aCommand, aMsg)
+  getAccount(aConv).sendCTCPMessage(aCommand, aMsg, aTarget, false)
 
 // Replace the command name in the help string so translators do not attempt to
 // translate it.
@@ -121,11 +121,12 @@ var commands = [
     get helpString() _("command.ctcp", "ctcp"),
     run: function(aMsg, aConv) {
       let separator = aMsg.indexOf(" ");
-      if (separator == -1 && (separator + 1) != aMsg.length)
+      // Ensure we have two non-empty parameters.
+      if (separator < 1 || (separator + 1) == aMsg.length)
         return false;
 
-      return ctcpCommand(aConv, aMsg.slice(0, separator),
-                         aMsg.slice(separator + 1));
+      ctcpCommand(aConv, aMsg.slice(0, separator), aMsg.slice(separator + 1));
+      return true;
     }
   },
   {
@@ -302,7 +303,12 @@ var commands = [
   {
     name: "ping",
     get helpString() _("command.ping", "ping"),
-    run: function(aMsg, aConv) ctcpCommand(aConv, aMsg, "PING")
+    run: function(aMsg, aConv) {
+      if (!aMsg || !aMsg.trim().length)
+        return false;
+      ctcpCommand(aConv, aMsg, "PING");
+      return true;
+    }
   },
   {
     name: "query",
@@ -354,7 +360,12 @@ var commands = [
   {
     name: "version",
     get helpString() _("command.version", "version"),
-    run: function(aMsg, aConv) ctcpCommand(aConv, aMsg, "VERSION")
+    run: function(aMsg, aConv) {
+      if (!aMsg || !aMsg.trim().length)
+        return false;
+      ctcpCommand(aConv, aMsg, "VERSION");
+      return true;
+    }
   },
   {
     name: "voice",
