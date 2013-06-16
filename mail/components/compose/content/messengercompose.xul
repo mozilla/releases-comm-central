@@ -845,7 +845,7 @@
   <toolbarset id="customToolbars" context="toolbar-context-menu"/>
   </toolbox>
 
-  <hbox flex="1">
+  <hbox flex="1" id="composeContentBox">
     <vbox id="sidebar-box" persist="sidebarVisible width" hidden="true">
       <sidebarheader id="sidebarHeader" align="center">
         <label id="sidebar-title" value="&addressesSidebarTitle.label;"/>
@@ -915,7 +915,6 @@
                          onkeypress="awRecipientKeyPress(event, this)"
                          onkeydown="awRecipientKeyDown(event, this)"
                          disableonsend="true">
-                  <image class="person-icon" onclick="this.parentNode.select();"/>
                 </textbox>
               </listcell>
             </listitem>
@@ -947,12 +946,7 @@
         </vbox>
       </hbox>
     </toolbar>
-  </toolbox>
 
-  <splitter id="compose-toolbar-sizer" onmousedown="awSizerListen()"/>
-
-  <!-- The mail message body frame -->
-  <vbox id="appcontent" flex="1">
     <!-- These toolbar items get filled out from the editorOverlay -->
     <toolbox id="FormatToolbox" mode="icons">
       <toolbar class="chromeclass-toolbar" id="FormatToolbar" persist="collapsed"
@@ -1019,7 +1013,12 @@
         <spacer flex="1"/>
       </toolbar>
     </toolbox>
+  </toolbox>
 
+  <splitter id="compose-toolbar-sizer" onmousedown="awSizerListen()"/>
+
+  <!-- The mail message body frame -->
+  <vbox id="appcontent" flex="1">
     <editor type="content-primary" id="content-frame" src="about:blank" name="browser.message.body" flex="1"
             ondblclick="EditorDblClick(event);"
             context="msgComposeContext"/>
