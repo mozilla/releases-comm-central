@@ -24,7 +24,7 @@ irc.GenericIRCConversation._account = {
   _nickname: "sender",
   prefix: "!user@host",
   maxMessageLength: 51, // For convenience.
-  sendMessage: function(aCommand, aParams) {}
+  sendMessage: function(aCommand, aParams) true
 };
 
 function run_test() {
