@@ -218,7 +218,11 @@ const GenericAccountBuddyPrototype = {
   },
 
   _notifyObservers: function(aTopic, aData) {
-    this._buddy.observe(this, "account-buddy-" + aTopic, aData);
+    try {
+      this._buddy.observe(this, "account-buddy-" + aTopic, aData);
+    } catch(e) {
+      this.ERROR(e);
+    }
   },
 
   _userName: "",
@@ -408,8 +412,13 @@ const GenericConversationPrototype = {
     this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
-    for each (let observer in this._observers)
-      observer.observe(aSubject, aTopic, aData);
+    for each (let observer in this._observers) {
+      try {
+        observer.observe(aSubject, aTopic, aData);
+      } catch(e) {
+        this.ERROR(e);
+      }
+    }
   },
 
   sendMsg: function (aMsg) {
