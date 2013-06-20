@@ -1315,10 +1315,10 @@
 
           // Is aOldName is not null, then we are renaming the buddy
           if (!this._hasBuddy(aOldName))
-            throw "Updating a chat buddy that does not exist?!";
+            throw "Updating a chat buddy that does not exist: " + aOldName;
 
           if (this._hasBuddy(name))
-            throw "Updating a chat buddy to an already existing one?!";
+            throw "Updating a chat buddy to an already existing one: " + name;
 
           this.trackNick(name);
 
@@ -1341,7 +1341,7 @@
         <body>
         <![CDATA[
           if (!this._hasBuddy(aName))
-            throw "Cannot remove a buddy that was not in the room";
+            throw "Cannot remove a buddy that was not in the room: " + aName;
           var item = this.buddies[aName];
           this.partedBuddies[aName] = {partTime: Date.now()};
           if (item.activeTimer) {
