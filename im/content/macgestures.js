@@ -148,14 +148,26 @@ let gGestureSupport = {
           this._tabs.selectedIndex++;
         break;
       case "swipe-down":
+        // This gesture isn't available if there's no browser.
+        if (!getBrowser())
+          break;
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
-        getBrowser().selectedBrowser.scrollToNextSection();
+        if (getTabBrowser().selectedConversation)
+          getBrowser().scrollToNextSection();
+        else
+          goDoCommand("cmd_scrollBottom");
         break;
       case "swipe-up":
+        // This gesture isn't available if there's no browser.
+        if (!getBrowser())
+          break;
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
-        getBrowser().selectedBrowser.scrollToPreviousSection();
+        if (getTabBrowser().selectedConversation)
+          getBrowser().scrollToPreviousSection();
+        else
+          goDoCommand("cmd_scrollTop");
         break;
       case "swipe-left":
       case "swipe-right":

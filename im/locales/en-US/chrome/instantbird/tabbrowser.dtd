@@ -11,11 +11,5 @@
 <!ENTITY  closeOtherTabs.label     "Close Other Tabs">
 <!ENTITY  openTabInNewWindow.label     "Open in a New Window">
 <!ENTITY  openTabInNewWindow.accesskey "W">
-<!ENTITY  showLogs.label         "Show Logs">
-<!ENTITY  showLogs.accesskey     "L">
-<!ENTITY  closeConv.label        "Close Conversation">
-<!ENTITY  closeConv.accesskey    "v">
-<!ENTITY  hideConv.label         "Put Conversation on Hold">
-<!ENTITY  hideConv.accesskey     "h">
 <!ENTITY  listAllTabs.label      "List all tabs">
 <!ENTITY  newTabButton.tooltip   "Open a new tab">

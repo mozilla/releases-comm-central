@@ -15,7 +15,7 @@ var convWindow = {
         // swap the given tab with the default dummy conversation tab
         // and then close the original tab in the other window.
         let tab = window.arguments.shift();
-        document.getElementById("conversations").importConversation(tab);
+        getTabBrowser().importPanel(tab);
       }
     }
 
@@ -36,10 +36,13 @@ var convWindow = {
     Conversations.onWindowFocus(window);
     setTimeout(function () {
       // setting the focus to the textbox just after the window is
-      // activated puts the textbox in an unconsistant state, some
+      // activated puts the textbox in an inconsistent state, some
       // special characters like ^ don't work, so delay the focus
       // operation...
-      getBrowser().selectedConversation.focus();
+      let panel = getTabBrowser().selectedPanel;
+      panel.focus();
+      if ("onSelect" in panel)
+        panel.onSelect();
     }, 0);
   },
   onresize: function mo_onresize(aEvent) {
@@ -47,18 +50,19 @@ var convWindow = {
       return;
 
     // Resize each textbox (if the splitter has not been used).
-    let convs = getBrowser().conversations;
-    for each (let conv in convs)
-      conv.onConvResize(aEvent);
+    let panels = getTabBrowser().tabPanels;
+    for (let panel of panels) {
+      if ("onResize" in panel)
+        panel.onResize(aEvent);
+    }
   }
 };
 
 function getConvWindowURL() "chrome://instantbird/content/instantbird.xul"
 
-function getBrowser()
-{
-  return document.getElementById("conversations");
-}
+function getTabBrowser() document.getElementById("conversations")
+
+function getBrowser() getTabBrowser().selectedBrowser
 
 // Copied from mozilla/browser/base/content/browser.js (and simplified)
 var XULBrowserWindow = {

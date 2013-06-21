@@ -147,6 +147,10 @@
         <parameter name="aConversation"/>
         <body>
         <![CDATA[
+          // Swap the docshells.
+          this.browser.swapDocShells(aConversation.browser);
+          // Ensure observers are removed.
+          aConversation.conv = null;
           this.editor.value = aConversation.editor.value;
           this.browser.browserResize();
           this.updateTyping();
@@ -918,7 +922,7 @@
         </body>
       </method>
 
-      <method name="onConvResize">
+      <method name="onResize">
         <parameter name="event"/>
         <body>
         <![CDATA[
@@ -1477,12 +1481,82 @@
         </body>
       </method>
 
+      <method name="switchingToPanel">
+        <body>
+        <![CDATA[
+          if (this._visibleTimer)
+            return;
+
+          // Start a timer to detect if the tab has been visible to the
+          // user for long enough to actually be seen (as opposed to the
+          // tab only being visible "accidentally in passing").
+          delete this._wasVisible;
+          this._visibleTimer = setTimeout(function() {
+            this._wasVisible = true;
+            delete this._visibleTimer;
+          }.bind(this), 1000);
+        ]]>
+        </body>
+      </method>
+
       <method name="focus">
         <body>
         <![CDATA[
           this.editor.focus();
-          this.onSelect();
         ]]>
+        </body>
+      </method>
+
+      <method name="switchingAwayFromPanel">
+        <body>
+          <![CDATA[
+            if (this._visibleTimer) {
+              clearTimeout(this._visibleTimer);
+              delete this._visibleTimer;
+            }
+            // Remove the unread ruler if the tab has been visible without
+            // interruptions for sufficiently long.
+            if (this._wasVisible)
+              this.browser.removeUnreadRuler();
+          ]]>
+        </body>
+      </method>
+
+      <method name="getPanelSpecificMenuItems">
+        <body>
+          <![CDATA[
+            let items = [];
+            const XUL_NS =
+              "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+            let bundle =
+              Services.strings.createBundle("chrome://instantbird/locale/conversation.properties");
+            let conv = this;
+            function createMenuItem(aId, aCommandHandler) {
+              let item = document.createElementNS(XUL_NS, "menuitem");
+              item.setAttribute("label", bundle.GetStringFromName(aId + ".label"));
+              item.setAttribute("accesskey", bundle.GetStringFromName(aId + ".accesskey"));
+              item.addEventListener("command", aCommandHandler);
+              return item;
+            }
+            let showLogsItem = createMenuItem("contextShowLogs", function() conv.showLogs());
+            showLogsItem.disabled = !this.hasLogs();
+            items.push(showLogsItem);
+
+            let hideConvItem = createMenuItem("contextHideConv", function() {
+              conv.hide();
+              document.getBindingParent(conv).removeTab(conv.tab);
+            });
+            items.push(hideConvItem);
+
+            let closeConvItem = createMenuItem("contextCloseConv", function() {
+              conv.close();
+              document.getBindingParent(conv).removeTab(conv.tab);
+            });
+            items.push(closeConvItem);
+
+            return items;
+          ]]>
         </body>
       </method>
 
@@ -1663,8 +1737,10 @@
           else if (this._conv.contact && this._conv.contact.getBuddies().length > 1)
             this.getElt("conv-top-info").allowTargetChange();
 
-          if (this.tab)
+          if (this.tab) {
             this.tab.setAttribute("label", this._conv.title);
+            this.tab.setAttribute("tooltip", "buddyTooltip");
+          }
 
           if (!("Status" in window))
             Components.utils.import("resource:///modules/imStatusUtils.jsm");

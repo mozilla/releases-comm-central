@@ -81,6 +81,9 @@ var FullZoom = {
    * checking ourselves if it differs costs more.
    **/
   applyPrefValue: function FullZoom_applyPrefValue() {
+    // If there's no browser (non-conversation tabs), don't do anything.
+    if (!getBrowser())
+      return;
     let value = parseFloat(Services.prefs.getCharPref(FullZoom.prefName));
     if (isNaN(value))
       value = 1;

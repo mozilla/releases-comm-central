@@ -25,64 +25,51 @@
     <content>
       <xul:stringbundle anonid="tbstringbundle" src="chrome://instantbird/locale/tabbrowser.properties"/>
       <xul:tabbox anonid="tabbox" flex="1" eventnode="document" xbl:inherits="handleCtrlPageUpDown"
-                  onselect="if (!('updateCurrentBrowser' in this.parentNode) || event.target.localName != 'tabpanels') return; this.parentNode.updateCurrentBrowser();">
+                  onselect="if (event.target.localName != 'tabpanels') return;
+                            document.getBindingParent(this).updateCurrentTab();">
         <xul:hbox class="tab-drop-indicator-bar" collapsed="true" chromedir="&locale.dir;"
-                  ondragover="this.parentNode.parentNode._onDragOver(event);"
-                  ondragleave="this.parentNode.parentNode._onDragLeave(event);"
-                  ondrop="this.parentNode.parentNode._onDrop(event);">
+                  ondragover="document.getBindingParent(this)._onDragOver(event);"
+                  ondragleave="document.getBindingParent(this)._onDragLeave(event);"
+                  ondrop="document.getBindingParent(this)._onDrop(event);">
           <xul:hbox class="tab-drop-indicator" mousethrough="always"/>
         </xul:hbox>
         <xul:hbox class="tabbrowser-strip" collapsed="true"
-                  tooltip="buddyTooltip" context="_child"
+                  context="_child"
                   anonid="strip"
-                  ondragstart="this.parentNode.parentNode._onDragStart(event);"
-                  ondragover="this.parentNode.parentNode._onDragOver(event);"
-                  ondrop="this.parentNode.parentNode._onDrop(event);"
-                  ondragend="this.parentNode.parentNode._onDragEnd(event);"
-                  ondragleave="this.parentNode.parentNode._onDragLeave(event);">
-          <xul:menupopup id="tabContextMenu" onpopupshowing="return this.parentNode.parentNode.parentNode.updatePopupMenu(this);">
+                  ondragstart="document.getBindingParent(this)._onDragStart(event);"
+                  ondragover="document.getBindingParent(this)._onDragOver(event);"
+                  ondrop="document.getBindingParent(this)._onDrop(event);"
+                  ondragend="document.getBindingParent(this)._onDragEnd(event);"
+                  ondragleave="document.getBindingParent(this)._onDragLeave(event);">
+          <xul:menupopup id="tabContextMenu" onpopupshowing="return document.getBindingParent(this).tabContextMenuShowing(this);"
+                  onpopuphiding="return document.getBindingParent(this).tabContextMenuHiding(this)">
             <xul:menuitem id="context_newTab" label="&newTab.label;" accesskey="&newTab.accesskey;"
                           xbl:inherits="oncommand=onnewtab"/>
             <xul:menuseparator id="context_newTabSeparator"/>
             <xul:menuitem id="context_openTabInWindow" label="&openTabInNewWindow.label;"
                           accesskey="&openTabInNewWindow.accesskey;"
                           tbattr="tabbrowser-multiple"
-                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
+                          oncommand="var tabbrowser = document.getBindingParent(this);
                                      tabbrowser.replaceTabsWithWindow([tabbrowser.mContextTab]);"/>
-            <xul:menuseparator/>
-            <xul:menuitem id="context_showLogs" label="&showLogs.label;" accesskey="&showLogs.accesskey;"
-                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
-                                     tabbrowser.mContextTab.linkedConversation.showLogs();"/>
-            <xul:menuseparator/>
-            <xul:menuitem id="context_closeConv" label="&closeConv.label;" accesskey="&closeConv.accesskey;"
-                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
-                                     tabbrowser.mContextTab.linkedConversation.close();
-                                     tabbrowser.removeTab(tabbrowser.mContextTab);"/>
-            <xul:menuitem id="context_hideConv" label="&hideConv.label;" accesskey="&hideConv.accesskey;"
-                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
-                                     tabbrowser.mContextTab.linkedConversation.hide();
-                                     tabbrowser.removeTab(tabbrowser.mContextTab);"/>
-            <xul:menuseparator/>
+            <xul:menuseparator id="context_tabSpecificStartSeparator"/>
+            <xul:menuseparator id="context_tabSpecificEndSeparator"/>
             <xul:menuitem id="context_closeOtherTabs" label="&closeOtherTabs.label;" accesskey="&closeOtherTabs.accesskey;"
                           tbattr="tabbrowser-multiple"
-                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
+                          oncommand="var tabbrowser = document.getBindingParent(this);
                                      tabbrowser.removeAllTabsBut(tabbrowser.mContextTab);"/>
             <xul:menuitem id="context_closeTab" label="&closeTab.label;" accesskey="&closeTab.accesskey;"
-                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
+                          oncommand="var tabbrowser = document.getBindingParent(this);
                                      tabbrowser.removeTab(tabbrowser.mContextTab);"/>
           </xul:menupopup>
 
           <xul:tabs class="tabbrowser-tabs" flex="1"
                     anonid="tabcontainer"
                     setfocus="false"
-                    onclick="this.parentNode.parentNode.parentNode.onTabClick(event);"
+                    onclick="document.getBindingParent(this).onTabClick(event);"
                     xbl:inherits="onnewtab"
-                    ondblclick="this.parentNode.parentNode.parentNode.onTabBarDblClick(event);"
-                    onclosetab="var node = this.parentNode;
-                                while (node.localName != 'tabbrowser')
-                                  node = node.parentNode;
-                                node.removeCurrentTab();"
-                    onkeypress="this.parentNode.parentNode.parentNode.onTabKeypress(event);">
+                    ondblclick="document.getBindingParent(this).onTabBarDblClick(event);"
+                    onclosetab="document.getBindingParent(this).removeCurrentTab();"
+                    onkeypress="document.getBindingParent(this).onTabKeypress(event);">
             <xul:tab selected="true" validate="never"
                      onerror="this.removeAttribute('image');"
                      maxwidth="250" width="0" minwidth="100" flex="100"
@@ -90,7 +77,7 @@
           </xul:tabs>
         </xul:hbox>
         <xul:tabpanels flex="1" class="tabbrowser-tabpanels plain" selectedIndex="0" anonid="panelcontainer">
-          <xul:conversation selected="true"/>
+          <xul:tabpanel selected="true"/>
         </xul:tabpanels>
       </xul:tabbox>
       <children/>
@@ -120,9 +107,6 @@
       <field name="mCurrentTab">
         null
       </field>
-      <field name="mCurrentBrowser">
-        null
-      </field>
       <field name="mFirstTabIsDummy">
         true
       </field>
@@ -136,10 +120,14 @@
         false
 #endif
       </field>
-      <field name="_browsers">
+
+      <!-- _conversations and _tabPanels are used as caches
+           to avoid creating arrays multiple times
+           (See conversations and tabPanels properties) -->
+      <field name="_conversations">
         null
       </field>
-      <field name="_conversations">
+      <field name="_tabPanels">
         null
       </field>
 
@@ -150,28 +138,10 @@
         null
       </field>
 
-      <method name="getBrowserAtIndex">
-        <parameter name="aIndex"/>
-        <body>
-          <![CDATA[
-            return this.browsers[aIndex];
-          ]]>
-        </body>
-      </method>
-
-      <method name="getConversationAtIndex">
-        <parameter name="aIndex"/>
-        <body>
-          <![CDATA[
-            return this.conversations[aIndex];
-          ]]>
-        </body>
-      </method>
-
       <method name="updateTitlebar">
         <body>
           <![CDATA[
-            if (!this.mCurrentConversation) // tabbrowser not initialized yet
+            if (!this.mCurrentTab) // tabbrowser not initialized yet
               return;
 
             var newTitle = "";
@@ -179,9 +149,7 @@
             var docElement = this.ownerDocument.documentElement;
             var sep = docElement.getAttribute("titlemenuseparator");
 
-            if (this.mCurrentTab)
-              docTitle = this.mCurrentTab.getAttribute("label");
-
+            docTitle = this.mCurrentTab.getAttribute("label");
             if (!docTitle)
               docTitle = docElement.getAttribute("titledefault");
 
@@ -199,7 +167,7 @@
         </body>
       </method>
 
-      <method name="updatePopupMenu">
+      <method name="tabContextMenuShowing">
         <parameter name="aPopupMenu"/>
         <body>
           <![CDATA[
@@ -209,33 +177,66 @@
             this.mContextTab = tagName == "tab" ?
                                document.popupNode : this.selectedTab;
             var disabled = this.mTabs.length == 1;
-            var menuItems = aPopupMenu.getElementsByAttribute("tbattr", "tabbrowser-multiple");
-            for (var i = 0; i < menuItems.length; i++)
-              menuItems[i].disabled = disabled;
-            document.getElementById("context_showLogs").disabled =
-              !this.mContextTab.linkedConversation.hasLogs();
+            var multipleTabMenuItems = aPopupMenu.getElementsByAttribute("tbattr", "tabbrowser-multiple");
+            for (let item of multipleTabMenuItems)
+              item.disabled = disabled;
+            let tabSpecificEndSeparator = document.getElementById("context_tabSpecificEndSeparator");
+            if ("getPanelSpecificMenuItems" in this.mContextTab.linkedTabPanel) {
+              // Add in tab-specific menu items from the tab panel
+              let panelMenuItems = this.mContextTab.linkedTabPanel.getPanelSpecificMenuItems();
+              for (let item of panelMenuItems)
+                aPopupMenu.insertBefore(item, tabSpecificEndSeparator);
+            }
             return true;
           ]]>
         </body>
       </method>
 
-      <method name="updateCurrentBrowser">
+      <method name="tabContextMenuHiding">
+        <parameter name="aPopupMenu"/>
+        <body>
+          <![CDATA[
+            // Remove tab specific menu items added onpopupshowing.
+            let range = document.createRange();
+            range.setStartAfter(document.getElementById("context_tabSpecificStartSeparator"));
+            range.setEndBefore(document.getElementById("context_tabSpecificEndSeparator"));
+            range.deleteContents();
+            return true;
+          ]]>
+        </body>
+      </method>
+
+      <method name="updateCurrentTab">
         <parameter name="aForceUpdate"/>
         <body>
           <![CDATA[
-            var newConversation = this.getConversationAtIndex(this.mTabContainer.selectedIndex);
-            if (!aForceUpdate && this.mCurrentConversation == newConversation)
+            /* This method handles transitioning when switching tabs.
+             * When a new tab is selected, mCurrentTab still refers to the
+             * previously selected tab until we set it in this method.
+             * this.selectedTab always refers to the actual selected tab
+             * (see the "selectedTab" property).
+             * Also, the selected* properties other than selectedTab use
+             * mCurrentTab and not selectedTab. This ensures a newly selected
+             * tab's properties are not accessed till this method is called.
+             */
+            // We check that the currently selected tab is different from
+            // mCurrentTab (i.e.  a different tab was selected) before updating.
+            if (!aForceUpdate && this.mCurrentTab == this.selectedTab)
               return;
 
-            this.mCurrentConversation = newConversation;
-
-            this.mCurrentBrowser.docShell.isActive = false;
-            this.mCurrentBrowser = newConversation.browser;
-            this.mCurrentBrowser.docShell.isActive =
-              (window.windowState != window.STATE_MINIMIZED);
-
+            // Deactivate the previous browser if it existed...
+            if (this.selectedBrowser)
+              this.selectedBrowser.docShell.isActive = false;
+            // ... set mCurrentTab to newly selected tab...
             this.mCurrentTab = this.selectedTab;
-            this.mCurrentTab.switchingToTab();
+            // ... and activate the new browser if it exists.
+            if (this.selectedBrowser) {
+              this.mCurrentTab.linkedBrowser.docShell.isActive =
+                (window.windowState != window.STATE_MINIMIZED);
+            }
+
+            if ("switchingToPanel" in this.selectedPanel)
+              this.selectedPanel.switchingToPanel();
 
             // Update the window title.
             this.updateTitlebar();
@@ -259,14 +260,18 @@
               // and "600ms - a bit too noticeable already".
               if (this._tabSelectTimer)
                 clearTimeout(this._tabSelectTimer);
+              if (!("onSelect" in this.selectedPanel))
+                return;
               this._tabSelectTimer = setTimeout(function() {
-                this.mCurrentConversation.onSelect();
+                this.selectedPanel.onSelect();
               }.bind(this), 400);
               return;
             }
 
             delete this._tabSelectTimer;
-            this.mCurrentConversation.focus();
+            this.selectedPanel.focus();
+            if ("onSelect" in this.selectedPanel)
+              this.selectedPanel.onSelect();
           ]]>
         </body>
       </method>
@@ -283,10 +288,10 @@
             if (tabKeyCodes.indexOf(event.keyCode) != -1)
               return;
 
-            // Focus the editbox and pass the key to it.
+            // Focus the panel and pass the key to it.
             event.preventDefault();
             event.stopPropagation();
-            this.mCurrentConversation.editor.focus();
+            this.selectedPanel.focus();
 
             const masks = Components.interfaces.nsIDOMNSEvent;
             var modifiers = 0;
@@ -302,7 +307,7 @@
               modifiers |= (navigator.platform.indexOf("Mac") >= 0) ? masks.META_MASK
                                                                     : masks.CONTROL_MASK;
             // Can't use dispatchEvent to the textbox as these refuse untrusted key events.
-            this.mCurrentConversation.ownerDocument.defaultView
+            this.selectedPanel.ownerDocument.defaultView
               .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
               .getInterface(Components.interfaces.nsIDOMWindowUtils)
               .sendKeyEvent(event.type, event.keyCode, event.charCode, modifiers);
@@ -399,66 +404,105 @@
         <body>
           <![CDATA[
             if (!this.mFirstTabIsDummy) {
-              if (!Services.prefs.getBoolPref("messenger.conversations.openInTabs"))
-                return null;
-
               if (Services.prefs.getBoolPref("messenger.conversations.useSeparateWindowsForMUCs") &&
-                  aConv.isChat != this.conversations[0].hasAttribute("chat"))
+                  this.conversations[0] && aConv.isChat != this.conversations[0].hasAttribute("chat"))
                 return null;
             }
 
-            return this._addConversation(aConv);
-        ]]>
+            let convPanel = document.createElementNS(
+              "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+              "conversation");
+            return this.addPanel(convPanel, aConv);
+          ]]>
         </body>
       </method>
 
-      <method name="_addConversation">
+      <!-- Adds a tab panel.
+           Conversation specific properties and attributes are set if aConv is defined.
+
+           Note that a panel must focus a child element in its focus method to
+           prevent a previously focused element from retaining focus and continuing
+           to receive input.
+
+           Panels can implement the following methods to customize behavior in certain situations:
+           destroy:
+             Called before panel is removed.
+             The destructor doesn't always get called when the panel is removed,
+             so use this method to force any required cleanup.
+           finishImport:
+             When a tab is moved to a different window, a new instance of the panel
+             is created. This method is called on the new instance after adding it.
+             Use it to initialize the panel from the instance in the previous window,
+             which is passed as a parameter.
+           getPanelSpecificMenuItems:
+             Called before showing the tab's context menu.
+             Use it to return an array of menu items specific to this panel.
+           onResize:
+             Called when the window is resized.
+             Use it to perform any changes required due to the new size.
+           onSelect:
+             Called when the tab is selected and the user is not just scrolling past it.
+             Use it for things like marking conversations as read.
+           switchingToPanel:
+             Called when switching to the panel, even just in passing.
+             Use it to customize behavior when the panel is displayed.
+           switchingAwayFromPanel:
+             Called when switching away from the panel.
+             Use it to customize behavior when the panel is hidden. -->
+      <method name="addPanel">
+        <parameter name="aPanel"/>
         <parameter name="aConv"/>
+        <!-- aPanel is a node containing the content of the panel
+             aConv is an (optional) imIConversation instance -->
         <body>
           <![CDATA[
-            // invalidate cache, because mTabContainer is about to change
-            this._browsers = null;
-            this._conversations = null;
-
-            var conv;
-            if (this.mFirstTabIsDummy)
-              conv = this.mPanelContainer.firstChild;
-            else {
-              conv = document.createElementNS(
-                "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                              "conversation");
-              this.mPanelContainer.appendChild(conv);
-              if (this.mStrip.collapsed)
-                this.setStripVisibilityTo(true);
+            if (!this.mFirstTabIsDummy) {
+              if (!Services.prefs.getBoolPref("messenger.conversations.openInTabs"))
+                return null;
             }
-            conv.setAttribute("contenttooltip", this.getAttribute("contenttooltip"));
-            conv.setAttribute("contentcontextmenu", this.getAttribute("contentcontextmenu"));
-            conv.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
+            // invalidate cache, because mTabContainer is about to change
+            this._conversations = null;
+            this._tabPanels = null;
 
-            var t;
-            if (this.mFirstTabIsDummy)
-              t = this.mTabContainer.firstChild;
-            else
-              t = this.mTabContainer.addTab();
-            conv.tab = t;
-            conv.conv = aConv;
+            this.mPanelContainer.appendChild(aPanel);
 
-            if (this.mStrip.collapsed &&
-                !Services.prefs.getBoolPref("browser.tabs.autoHide"))
-              this.setStripVisibilityTo(true);
-            this.mFirstTabIsDummy = false;
+            var t = this.mTabContainer.addTab();
+            aPanel.tab = t;
+
+            if (aConv) {
+              aConv.QueryInterface(Components.interfaces.imIConversation);
+              // set up the shared autoscroll popup if it doesn't exist yet
+              if (!this._autoScrollPopup) {
+                this._autoScrollPopup = aPanel.browser._createAutoScrollPopup();
+                this._autoScrollPopup.id = "autoscroller";
+                this.appendChild(this._autoScrollPopup);
+              }
+              aPanel.setAttribute("contenttooltip", this.getAttribute("contenttooltip"));
+              aPanel.setAttribute("contentcontextmenu", this.getAttribute("contentcontextmenu"));
+              aPanel.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
+              aPanel.conv = aConv;
+              t.linkedConversation = aPanel;
+              t.linkedBrowser = aPanel.browser;
+              // We start our browsers out as inactive, and then maintain
+              // activeness in updateCurrentTab.
+              aPanel.browser.docShell.isActive = false;
+            }
+
+            this.setStripVisibilityTo(
+              !(this.mFirstTabIsDummy && Services.prefs.getBoolPref("browser.tabs.autoHide")));
 
             var uniqueId = "panel" + Date.now() + t._tPos;
-            this.mPanelContainer.lastChild.id = uniqueId;
+            aPanel.id = uniqueId;
             t.linkedPanel = uniqueId;
-            t.linkedConversation = conv;
-            t.linkedBrowser = conv.browser;
-            // We start our browsers out as inactive, and then maintain
-            // activeness in updateCurrentBrowser.
-            t.linkedBrowser.docShell.isActive = false;
-            this.updateCurrentBrowser(true);
+            t.linkedTabPanel = aPanel;
 
-            return conv;
+            this.updateCurrentTab(true);
+
+            if (this.mFirstTabIsDummy)
+              this.removeTab(this.mTabContainer.firstChild);
+            this.mFirstTabIsDummy = false;
+
+            return aPanel;
           ]]>
         </body>
       </method>
@@ -572,9 +616,9 @@
             if (this._removingTabs.indexOf(aTab) > -1 || this._windowIsClosing)
               return null;
 
-            var browser = this.getBrowserForTab(aTab);
+            var browser = aTab.linkedBrowser;
 
-            if (!aTabWillBeMoved) {
+            if (!aTabWillBeMoved && browser) {
               let ds = browser.docShell;
               if (ds.contentViewer && !ds.contentViewer.permitUnload())
                 return null;
@@ -640,8 +684,7 @@
               setTimeout(_delayedUpdate, 0, this.tabContainer);
             }
 
-            var conversation = this.getConversationForTab(aTab);
-            var browser = this.getBrowserForTab(aTab);
+            var panel = aTab.linkedTabPanel;
 
             // Because of the way XBL works (fields just set JS
             // properties on the element) and the code we have in place
@@ -651,15 +694,12 @@
             // cleanup ourselves.
             // This has to happen before we remove the child so that the
             // XBL implementation of nsIObserver still works.
-            conversation.destroy();
+            if ("destroy" in panel)
+              panel.destroy();
 
-            if (conversation == this.mCurrentConversation)
-              this.mCurrentConversation = null;
-
-            // Invalidate browsers cache, as the tab is removed from the
-            // tab container.
-            this._browsers = null;
+            // Invalidate caches, as the tab is removed from the tab container.
             this._conversations = null;
+            this._tabPanels = null;
 
             // Remove the tab ...
             this.tabContainer.removeChild(aTab);
@@ -677,13 +717,13 @@
             // a consistent state (tab removed, tab positions updated, etc.).
             // Also, it's important that another tab has been selected before
             // the panel is removed; otherwise, a random sibling panel can flash.
-            this.mPanelContainer.removeChild(conversation);
+            this.mPanelContainer.removeChild(panel);
 
             // As the panel is removed, the removal of a dependent document can
             // cause the whole window to close. So at this point, it's possible
             // that the binding is destructed.
             if (this.mTabBox)
-              this.mTabBox.selectedPanel = this.getConversationForTab(this.mCurrentTab);
+              this.mTabBox.selectedPanel = this.selectedPanel;
 
             if (aCloseWindow)
               this._windowIsClosing = closeWindow(true);
@@ -717,41 +757,37 @@
         </body>
       </method>
 
-      <method name="importConversation">
+      <method name="importPanel">
         <parameter name="aOtherTab"/>
         <body>
           <![CDATA[
-            // That's gBrowser for the other window, not the tab's browser!
-            var remoteBrowser =
-              aOtherTab.ownerDocument.defaultView.getBrowser();
+            var remoteTabBrowser = aOtherTab.ownerDocument.defaultView.getTabBrowser();
 
             // First, start teardown of the other browser.  Make sure to not
             // fire the beforeunload event in the process.  Close the other
             // window if this was its last tab.
-            var endRemoveArgs = remoteBrowser._beginRemoveTab(aOtherTab, true);
+            var endRemoveArgs = remoteTabBrowser._beginRemoveTab(aOtherTab, true);
 
+            var newPanel = document.createElementNS(
+              "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+              aOtherTab.linkedTabPanel.nodeName);
+            this.addPanel(newPanel, aOtherTab.linkedTabPanel.conv || null);
 
-            var conv = this._addConversation(aOtherTab.linkedConversation.conv);
+            var aOurTab = newPanel.tab;
 
-            var aOurTab = conv.tab;
-            var ourBrowser = this.getBrowserForTab(aOurTab);
-            // make sure it has a docshell
-            ourBrowser.docShell;
-
-            // Swap the docshells
-            ourBrowser.swapDocShells(aOtherTab.linkedBrowser);
-            aOtherTab.linkedConversation.conv = null;
-            conv.finishImport(aOtherTab.linkedConversation);
+            // Tell the new panel to sync up with the other one.
+            if ("finishImport" in newPanel)
+              newPanel.finishImport(aOtherTab.linkedTabPanel);
 
             // Finish tearing down the tab that's going away.
-            remoteBrowser._endRemoveTab(endRemoveArgs);
+            remoteTabBrowser._endRemoveTab(endRemoveArgs);
 
             // If the tab was already selected (this happpens in the scenario
             // of replaceTabsWithWindow), notify onLocationChange, etc.
             if (aOurTab == this.selectedTab)
-              this.updateCurrentBrowser(true);
+              this.updateCurrentTab(true);
 
-            return conv;
+            return newPanel;
           ]]>
         </body>
       </method>
@@ -769,24 +805,6 @@
               this.dispatchEvent(e);
             }
           ]]>
-        </body>
-      </method>
-
-      <method name="getBrowserForTab">
-        <parameter name="aTab"/>
-        <body>
-        <![CDATA[
-          return aTab.linkedBrowser;
-        ]]>
-        </body>
-      </method>
-
-      <method name="getConversationForTab">
-        <parameter name="aTab"/>
-        <body>
-        <![CDATA[
-          return aTab.linkedConversation;
-        ]]>
         </body>
       </method>
 
@@ -832,28 +850,35 @@
       </property>
 
       <property name="selectedBrowser"
-                onget="return this.mCurrentBrowser;"
+                onget="return this.mCurrentTab.linkedBrowser || null;"
                 readonly="true"/>
 
       <property name="selectedConversation"
-                onget="return this.mCurrentConversation;"
+                onget="return this.mCurrentTab.linkedConversation || null;"
                 readonly="true"/>
 
-      <property name="browsers" readonly="true">
+      <property name="selectedPanel"
+                onget="return this.mCurrentTab.linkedTabPanel || null;"
+                readonly="true"/>
+
+      <property name="tabPanels" readonly="true">
        <getter>
           <![CDATA[
-            return this._browsers ||
-                   (this._browsers = Array.map(this.mTabs, function (tab) tab.linkedBrowser));
+            return this._tabPanels ||
+                   (this._tabPanels = Array.map(this.mTabs, function (tab) tab.linkedTabPanel));
           ]]>
         </getter>
       </property>
 
       <property name="conversations" readonly="true">
        <getter>
-          <![CDATA[
-            return this._conversations ||
-                   (this._conversations = Array.map(this.mTabs, function (tab) tab.linkedConversation));
-          ]]>
+        <![CDATA[
+          if (!this._conversations) {
+            this._conversations = Array.map(this.mTabs, function(aTab) aTab.linkedConversation)
+                                       .filter(function(aConv) aConv);
+          }
+          return this._conversations;
+        ]]>
         </getter>
       </property>
 
@@ -1036,11 +1061,11 @@
 
               // Compute the new index *before* we add a tab
               newIndex = this.getNewIndex(aEvent);
-              var conv = this.importConversation(draggedTab);
-              this.moveTabTo(conv.tab, newIndex);
+              var panel = this.importPanel(draggedTab);
+              this.moveTabTo(panel.tab, newIndex);
 
               // We need to set selectedTab after we've swapped the docShells
-              this.selectedTab = conv.tab;
+              this.selectedTab = panel.tab;
             }
           ]]>
         </body>
@@ -1125,8 +1150,9 @@
         <parameter name="aIndex"/>
         <body>
         <![CDATA[
-          this._browsers = null; // invalidate cache
+          // Invalidate caches.
           this._conversations = null;
+          this._tabPanels = null;
 
           var oldPosition = aTab._tPos;
 
@@ -1136,8 +1162,8 @@
           // bounds: .item() returns null (so it acts like appendChild), but [] throws
           this.mTabContainer.insertBefore(aTab, this.mTabContainer.childNodes.item(aIndex));
           // invalidate cache, because mTabContainer is about to change
-          this._browsers = null;
           this._conversations = null;
+          this._tabPanels = null;
 
           var i;
           for (i = 0; i < this.mTabContainer.childNodes.length; i++) {
@@ -1180,7 +1206,7 @@
         <body>
           <![CDATA[
             var tabPos = this.mCurrentTab._tPos;
-            if (tabPos < this.browsers.length - 1) {
+            if (tabPos < this.mTabs.length - 1) {
               this.moveTabTo(this.mCurrentTab, tabPos + 1);
               this.mCurrentTab.focus();
             }
@@ -1220,9 +1246,8 @@
         <body>
           <![CDATA[
             var tabPos = this.mCurrentTab._tPos;
-            if (tabPos < this.browsers.length - 1) {
-              this.moveTabTo(this.mCurrentTab,
-                             this.browsers.length - 1);
+            if (tabPos < this.mTabs.length - 1) {
+              this.moveTabTo(this.mCurrentTab, this.mTabs.length - 1);
               this.mCurrentTab.focus();
             }
           ]]>
@@ -1242,33 +1267,6 @@
           ]]>
         </body>
       </method>
-
-      <!-- BEGIN FORWARDED BROWSER PROPERTIES.  IF YOU ADD A PROPERTY TO THE BROWSER ELEMENT
-           MAKE SURE TO ADD IT HERE AS WELL. -->
-
-      <property name="docShell"
-                onget="return this.mCurrentBrowser.docShell"
-                readonly="true"/>
-
-      <property name="contentWindow"
-                readonly="true"
-                onget="return this.mCurrentBrowser.contentWindow"/>
-
-      <property name="markupDocumentViewer"
-                onget="return this.mCurrentBrowser.markupDocumentViewer;"
-                readonly="true"/>
-
-      <property name="contentDocument"
-                onget="return this.mCurrentBrowser.contentDocument;"
-                readonly="true"/>
-
-      <property name="contentTitle"
-                onget="return this.mCurrentBrowser.contentTitle;"
-                readonly="true"/>
-
-      <property name="findbar"
-                onget="return this.mCurrentConversation.findbar;"
-                readonly="true"/>
 
       <method name="dragDropSecurityCheck">
         <parameter name="aEvent"/>
@@ -1371,8 +1369,8 @@
         <body><![CDATA[
           switch (aEvent.type) {
             case "sizemodechange":
-              if (aEvent.target == window) {
-                this.mCurrentBrowser.docShell.isActive =
+              if (this.selectedBrowser && aEvent.target == window) {
+                this.selectedBrowser.docShell.isActive =
                   (window.windowState != window.STATE_MINIMIZED);
               }
               break;
@@ -1383,24 +1381,29 @@
       <field name="_windowActivateHandler" readonly="true">
       <![CDATA[({
         tabbrowser: this,
-        handleEvent: function handleEvent(aEvent)
-          this.tabbrowser.mCurrentTab.switchingToTab()
+        handleEvent: function handleEvent() {
+          if ("switchingToPanel" in this.tabbrowser.selectedPanel)
+            this.tabbrowser.selectedPanel.switchingToPanel();
+        }
       })]]>
       </field>
 
       <field name="_windowDeactivateHandler" readonly="true">
       <![CDATA[({
         tabbrowser: this,
-        handleEvent: function handleEvent(aEvent)
-          this.tabbrowser.mCurrentTab.switchingAwayFromTab()
+        handleEvent: function handleEvent() {
+          if ("switchingAwayFromPanel" in this.tabbrowser.selectedPanel)
+            this.tabbrowser.selectedPanel.switchingAwayFromPanel();
+        }
       })]]>
       </field>
 
       <constructor>
         <![CDATA[
-          this.mCurrentConversation = this.mPanelContainer.firstChild;
-          this.mCurrentBrowser = this.mCurrentConversation.browser;
           this.mCurrentTab = this.mTabContainer.firstChild;
+          // Dummy tab is not a conversation
+          this.mCurrentTab.linkedTabPanel = this.mPanelContainer.firstChild;
+          this.mCurrentTab.linkedTabPanel.tab = this.mCurrentTab;
 
           document.addEventListener("keypress", this._keyEventHandler);
           document.addEventListener("sizemodechange", this);
@@ -1408,17 +1411,10 @@
           window.addEventListener("activate", this._windowActivateHandler);
 
           var uniqueId = "panel" + Date.now();
-          this.mCurrentConversation.id = uniqueId;
+          this.mCurrentTab.linkedTabPanel.id = uniqueId;
           this.mCurrentTab.linkedPanel = uniqueId;
           this.mCurrentTab._tPos = 0;
-          this.mCurrentTab.linkedConversation = this.mCurrentConversation;
-          this.mCurrentTab.linkedBrowser = this.mCurrentBrowser;
 
-          // set up the shared autoscroll popup
-          this._autoScrollPopup = this.mCurrentBrowser._createAutoScrollPopup();
-          this._autoScrollPopup.id = "autoscroller";
-          this.appendChild(this._autoScrollPopup);
-          this.mCurrentBrowser.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
           Services.prefs.addObserver("browser.tabs.autoHide", this._prefObserver, false);
           Services.prefs.addObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver, false);
         ]]>
@@ -2077,40 +2073,6 @@
     <implementation>
       <field name="mOverCloseButton">false</field>
       <field name="mCorrespondingMenuitem">null</field>
-
-      <method name="switchingToTab">
-        <body>
-          <![CDATA[
-            if (this._visibleTimer)
-              return;
-
-            // Start a timer to detect if the tab has been visible to the
-            // user for long enough to actually be seen (as opposed to the
-            // tab only being visible "accidentally in passing").
-            delete this._wasVisible;
-            this._visibleTimer = setTimeout(function() {
-              this._wasVisible = true;
-              delete this._visibleTimer;
-            }.bind(this), 1000);
-          ]]>
-        </body>
-      </method>
-
-      <method name="switchingAwayFromTab">
-        <body>
-          <![CDATA[
-            if (this._visibleTimer) {
-              clearTimeout(this._visibleTimer);
-              delete this._visibleTimer;
-            }
-
-            // Remove the unread ruler if the tab has been visible without
-            // interruptions for sufficiently long.
-            if (this._wasVisible)
-              this.linkedBrowser.removeUnreadRuler();
-          ]]>
-        </body>
-      </method>
     </implementation>
 
     <handlers>
@@ -2137,9 +2099,10 @@
           // the current tab to mark the conversation as read before leaving it.
           // This is necessary when Instantbird (and therefore the current tab)
           // did not have focus before this click.
-          if (!this.linkedConversation.hasAttribute("selected")) {
-            let tabbrowser = document.getBindingParent(this);
-            tabbrowser.mCurrentConversation.onSelect();
+          if (!this.linkedTabPanel.hasAttribute("selected")) {
+            let panel = document.getBindingParent(this).selectedPanel;
+            if ("onSelect" in panel)
+              panel.onSelect();
           }
 
           this.style.MozUserFocus = 'ignore';
@@ -2160,18 +2123,32 @@
       </handler>
       <handler event="DOMAttrModified">
        <![CDATA[
-        if (event.attrName == "label" && ("getBrowser" in window))
-          getBrowser().updateTitlebar();
-
-        if (event.attrName != "selected")
-          return;
-
-        if (event.attrChange == event.REMOVAL) {
-          this.linkedConversation.removeAttribute("selected");
-          this.switchingAwayFromTab();
+        if (event.attrName == "label") {
+          if ("getTabBrowser" in window)
+            getTabBrowser().updateTitlebar();
+          // Update our tooltiptext, but only if a tooltip hasn't been set.
+          if (!this.hasAttribute("tooltip"))
+            this.setAttribute("tooltiptext", event.newValue);
         }
-        else
-          this.linkedConversation.setAttribute("selected", event.newValue);
+        else if (event.attrName == "tooltip") {
+          if (event.attrChange == event.ADDITION) {
+            // Tooltip was added. Stop using our tooltiptext attribute.
+            this.removeAttribute("tooltiptext");
+          }
+          else if (event.attrChange == event.REMOVAL) {
+            // Tooltip was removed. Switch to using our label as tooltiptext.
+            this.setAttribute("tooltiptext", this.getAttribute("label"));
+          }
+        }
+        else if (event.attrName == "selected") {
+          if (event.attrChange == event.REMOVAL) {
+            this.linkedTabPanel.removeAttribute("selected");
+            if ("switchingAwayFromPanel" in this.linkedTabPanel)
+              this.linkedTabPanel.switchingAwayFromPanel();
+          }
+          else
+            this.linkedTabPanel.setAttribute("selected", event.newValue);
+        }
        ]]>
       </handler>
     </handlers>

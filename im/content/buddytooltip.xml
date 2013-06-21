@@ -405,10 +405,9 @@
 
          let localName = elt.localName;
          if (localName == "tab") {
-           let conv = elt.linkedConversation.conv;
-           if (conv)
-             return updateTooltipFromConversation(conv, elt);
-           return false;
+           if (!elt.linkedConversation || !elt.linkedConversation.conv)
+             return false;
+           return updateTooltipFromConversation(elt.linkedConversation.conv, elt);
          }
 
          if (localName == "conv")

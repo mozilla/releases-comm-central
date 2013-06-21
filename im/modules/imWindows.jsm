@@ -77,6 +77,8 @@ var Conversations = {
       let doc = conv.ownerDocument;
       doc.getElementById("conversations").selectedTab = conv.tab;
       conv.focus();
+      // Tell it to mark itself as read.
+      conv.onSelect();
       doc.defaultView.focus();
 #ifdef XP_MACOSX
       Components.classes["@mozilla.org/widget/macdocksupport;1"]

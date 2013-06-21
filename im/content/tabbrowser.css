@@ -53,3 +53,8 @@ tabconversation {
 #context_newTabSeparator {
   display: none;
 }
+
+/* Ensure two menuseparators aren't shown together when no tab-specific menuitems exist */
+#context_tabSpecificStartSeparator + #context_tabSpecificEndSeparator {
+  display: none;
+}
