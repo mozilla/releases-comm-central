@@ -31,6 +31,7 @@ EXTRA_PP_JS_MODULES = \
 
 ifdef ENABLE_TESTS
 relativesrcdir = @relativesrcdir@
+TESTING_JS_MODULES := test/appInfoUtils.jsm
 XPCSHELL_TESTS = test
 endif
 

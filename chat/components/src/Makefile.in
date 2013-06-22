@@ -19,4 +19,9 @@ EXTRA_COMPONENTS = \
 		smileProtocolHandler.js smileProtocolHandler.manifest \
 		$(NULL)
 
+ifdef ENABLE_TESTS
+relativesrcdir = @relativesrcdir@
+XPCSHELL_TESTS = test
+endif
+
 include $(topsrcdir)/config/rules.mk
