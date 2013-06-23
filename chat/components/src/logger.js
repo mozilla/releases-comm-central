@@ -612,16 +612,13 @@ LogCluster.prototype = {
 
 function Logger() { }
 Logger.prototype = {
-  _enumerateLogs: function logger__enumerateLogs(aAccount, aNormalizedName,
-                                                 aGroupByDay) {
+  _getLogArray: function logger__getLogArray(aAccount, aNormalizedName) {
+    let entries = [];
     let file = getLogFolderForAccount(aAccount);
     file.append(encodeName(aNormalizedName));
-    if (!file.exists())
-      return EmptyEnumerator;
-
-    let enumerator = aGroupByDay ? DailyLogEnumerator : LogEnumerator;
-
-    return new enumerator([file.directoryEntries]);
+    if (file.exists())
+      entries.push(file.directoryEntries);
+    return entries;
   },
   getLogFromFile: function logger_getLogFromFile(aFile, aGroupByDay) {
     if (aGroupByDay)
@@ -660,45 +657,52 @@ Logger.prototype = {
 
     return new LogCluster(relevantEntries);
   },
+  _getEnumerator: function logger__getEnumerator(aLogArray, aGroupByDay) {
+    let enumerator = aGroupByDay ? DailyLogEnumerator : LogEnumerator;
+    return aLogArray.length ? new enumerator(aLogArray) : EmptyEnumerator;
+  },
   getLogFileForOngoingConversation: function logger_getLogFileForOngoingConversation(aConversation)
     getLogForConversation(aConversation).file,
-  getLogsForContact: function logger_getLogsForContact(aContact) {
-    let entries = [];
-    aContact.getBuddies().forEach(function (aBuddy) {
-      aBuddy.getAccountBuddies().forEach(function (aAccountBuddy) {
-        let file = getLogFolderForAccount(aAccountBuddy.account);
-        file.append(encodeName(aAccountBuddy.normalizedName));
-        if (file.exists())
-          entries.push(file.directoryEntries);
-      });
-    });
-    return new LogEnumerator(entries);
+  getLogsForAccountAndName: function logger_getLogsForAccountAndName(aAccount,
+                                       aNormalizedName, aGroupByDay) {
+    let entries = this._getLogArray(aAccount, aNormalizedName);
+    return this._getEnumerator(entries, aGroupByDay);
   },
-  getLogsForBuddy: function logger_getLogsForBuddy(aBuddy) {
-    let entries = [];
-    aBuddy.getAccountBuddies().forEach(function (aAccountBuddy) {
-      let file = getLogFolderForAccount(aAccountBuddy.account);
-      file.append(encodeName(aAccountBuddy.normalizedName));
-      if (file.exists())
-        entries.push(file.directoryEntries);
-    });
-    return new LogEnumerator(entries);
+  getLogsForAccountBuddy: function logger_getLogsForAccountBuddy(aAccountBuddy,
+                                                                 aGroupByDay) {
+    return this.getLogsForAccountAndName(aAccountBuddy.account,
+                                         aAccountBuddy.normalizedName, aGroupByDay);
   },
-  getLogsForAccountBuddy: function logger_getLogsForAccountBuddy(aAccountBuddy)
-    this._enumerateLogs(aAccountBuddy.account, aAccountBuddy.normalizedName),
+  getLogsForBuddy: function logger_getLogsForBuddy(aBuddy, aGroupByDay) {
+    let entries = [];
+    for (let accountBuddy of aBuddy.getAccountBuddies()) {
+      entries = entries.concat(this._getLogArray(accountBuddy.account,
+                                                 accountBuddy.normalizedName));
+    }
+    return this._getEnumerator(entries, aGroupByDay);
+  },
+  getLogsForContact: function logger_getLogsForContact(aContact, aGroupByDay) {
+    let entries = [];
+    for (let buddy of aContact.getBuddies()) {
+      for (let accountBuddy of buddy.getAccountBuddies()) {
+        entries = entries.concat(this._getLogArray(accountBuddy.account,
+                                                   accountBuddy.normalizedName));
+      }
+    }
+    return this._getEnumerator(entries, aGroupByDay);
+  },
   getLogsForConversation: function logger_getLogsForConversation(aConversation,
                                                                  aGroupByDay) {
     let name = aConversation.normalizedName;
     if (convIsRealMUC(aConversation))
       name += ".chat";
-
-    return this._enumerateLogs(aConversation.account, name, aGroupByDay);
+    return this.getLogsForAccountAndName(aConversation.account, name, aGroupByDay);
   },
   getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount)
-    this._enumerateLogs(aAccount, ".system"),
+    this.getLogsForAccountAndName(aAccount, ".system"),
   getSimilarLogs: function(aLog, aGroupByDay) {
-    let enumerator = aGroupByDay ? DailyLogEnumerator : LogEnumerator;
-    return new enumerator([new LocalFile(aLog.path).parent.directoryEntries]);
+    return this._getEnumerator([new LocalFile(aLog.path).parent.directoryEntries],
+                               aGroupByDay);
   },
 
   observe: function logger_observe(aSubject, aTopic, aData) {
