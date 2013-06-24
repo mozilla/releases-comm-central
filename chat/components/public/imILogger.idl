@@ -55,9 +55,9 @@ interface imILogger: nsISupports {
 
   nsISimpleEnumerator getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy,
                                              [optional] in boolean aGroupByDay);
-  nsISimpleEnumerator getLogsForBuddy(in imIBuddy aBuddy
+  nsISimpleEnumerator getLogsForBuddy(in imIBuddy aBuddy,
                                       [optional] in boolean aGroupByDay);
-  nsISimpleEnumerator getLogsForContact(in imIContact aContact
+  nsISimpleEnumerator getLogsForContact(in imIContact aContact,
                                         [optional] in boolean aGroupByDay);
 
   nsISimpleEnumerator getLogsForConversation(in prplIConversation aConversation,
