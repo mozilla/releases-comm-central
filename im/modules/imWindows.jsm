@@ -75,10 +75,7 @@ var Conversations = {
     if (this.isUIConversationDisplayed(uiConv)) {
       let conv = this._uiConv[uiConv.id];
       let doc = conv.ownerDocument;
-      doc.getElementById("conversations").selectedTab = conv.tab;
-      conv.focus();
-      // Tell it to mark itself as read.
-      conv.onSelect();
+      doc.getElementById("conversations").selectPanel(conv);
       doc.defaultView.focus();
 #ifdef XP_MACOSX
       Components.classes["@mozilla.org/widget/macdocksupport;1"]

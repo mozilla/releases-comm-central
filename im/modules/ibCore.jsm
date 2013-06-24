@@ -106,8 +106,7 @@ var Core = {
           if (!aWindow.getTabBrowser().addPanel(panel))
             return false;
           panel.showAboutPage(aPage);
-          aWindow.getTabBrowser().selectedTab = panel.tab;
-          panel.focus();
+          aWindow.getTabBrowser().selectPanel(panel);
           return true;
         }
         // Try to show the page in win, and open a new window if it didn't work.

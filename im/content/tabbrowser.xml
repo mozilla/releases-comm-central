@@ -808,6 +808,20 @@
         </body>
       </method>
 
+      <method name="selectPanel">
+        <parameter name="aPanel"/>
+        <body>
+        <![CDATA[
+          if (aPanel.parentNode != this.mPanelContainer)
+            throw "Trying to select a panel that's not in this tabbrowser?";
+          this.selectedTab = aPanel.tab;
+          aPanel.focus();
+          if ("onSelect" in aPanel)
+            aPanel.onSelect();
+        ]]>
+        </body>
+      </method>
+
       <method name="selectTabAtIndex">
         <parameter name="aIndex"/>
         <parameter name="aEvent"/>
