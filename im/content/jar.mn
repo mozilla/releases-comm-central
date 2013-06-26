@@ -10,6 +10,7 @@ instantbird.jar:
 #endif
 	content/instantbird/aboutDialog.css
 *	content/instantbird/aboutDialog.xul
+	content/instantbird/aboutPanel.xml
 	content/instantbird/account.js
 	content/instantbird/accounts.css
 	content/instantbird/accounts.js

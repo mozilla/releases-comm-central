@@ -6,6 +6,10 @@ conversation {
   -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
 }
 
+aboutPanel {
+  -moz-binding: url("chrome://instantbird/content/aboutPanel.xml#aboutPanel");
+}
+
 .conv-chat:not([chat]) {
   display: none;
 }

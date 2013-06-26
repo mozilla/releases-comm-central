@@ -9,6 +9,7 @@ Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imWindows.jsm");
 Cu.import("resource:///modules/ibNotifications.jsm");
 Cu.import("resource:///modules/ibSounds.jsm");
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
 var Core = {
   _events: [
@@ -16,6 +17,8 @@ var Core = {
     "browser-request",
     "quit-application-requested"
   ],
+
+  get bundle() l10nHelper("chrome://instantbird/locale/core.properties"),
 
   init: function() {
     try {
@@ -64,6 +67,58 @@ var Core = {
 
     this._events.forEach(function (aTopic) {
       Services.obs.addObserver(Core, aTopic, false);
+    });
+
+    let self = this;
+    Services.cmd.registerCommand({
+      name: "about",
+      get helpString() self.bundle("aboutCommand.help"),
+      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
+      priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
+      run: function(aMsg, aConv) {
+        let page = aMsg.replace(/^about:/, "");
+        let url = "about:" + page;
+        // If the page doesn't exist, we avoid opening a tab.
+        try {
+          Services.io.newChannelFromURI(Services.io.newURI(url, null, null));
+        } catch(e) {
+          if (e.result == Components.results.NS_ERROR_MALFORMED_URI) {
+            Services.conversations.getUIConversation(aConv).systemMessage(
+              self.bundle("aboutCommand.invalidPageMessage", page));
+            return true;
+          }
+          Components.utils.reportError(e); // Log unexpected errors.
+          return false;
+        }
+        // Try to get the most recent conversation window. If no such window exists,
+        // win will be null.
+        let win = Services.wm.getMostRecentWindow("Messenger:convs");
+        // Tries to open an aboutPanel in the specified window.
+        let showPage = function(aWindow, aPage) {
+          // Return false if the window doesn't exist.
+          if (!aWindow)
+            return false;
+          let panel = aWindow.document.createElementNS(
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+            "aboutPanel");
+          // Try to add the panel, and return false if the window couldn't accept
+          // it (e.g. tabbed conversations are disabled).
+          if (!aWindow.getTabBrowser().addPanel(panel))
+            return false;
+          panel.showAboutPage(aPage);
+          aWindow.getTabBrowser().selectedTab = panel.tab;
+          panel.focus();
+          return true;
+        }
+        // Try to show the page in win, and open a new window if it didn't work.
+        if (!showPage(win, page)) {
+          win = Services.ww.openWindow(null, "chrome://instantbird/content/instantbird.xul",
+                                       "_blank", "chrome,toolbar,resizable", null);
+          win.addEventListener("load", showPage.bind(null, win, page));
+          return true;
+        }
+        return true;
+      }
     });
 
     this._showAccountManagerIfNeeded(true);
@@ -225,15 +280,12 @@ var Core = {
   },
 
   _promptError: function(aKeyString, aMessage) {
-    var bundle =
-      Services.strings.createBundle("chrome://instantbird/locale/core.properties");
+    var bundle = this.bundle;
 
-    var title = bundle.GetStringFromName("startupFailure.title");
-    var message =
-      bundle.GetStringFromName("startupFailure.apologize") + "\n\n" +
-      (aMessage ? bundle.formatStringFromName(aKeyString, [aMessage], 1)
-                : bundle.GetStringFromName(aKeyString)) + "\n\n" +
-      bundle.GetStringFromName("startupFailure.update");
+    var title = bundle("startupFailure.title");
+    var message = bundle("startupFailure.apologize") + "\n\n" +
+      (aMessage ? bundle(aKeyString, aMessage)
+                : bundle(aKeyString) + "\n\n" + bundle("startupFailure.update"));
     const nsIPromptService = Components.interfaces.nsIPromptService;
     const flags =
       nsIPromptService.BUTTON_POS_1 * nsIPromptService.BUTTON_TITLE_IS_STRING +
@@ -241,8 +293,8 @@ var Core = {
 
     var prompts = Services.prompt;
     if (!prompts.confirmEx(null, title, message, flags,
-                           bundle.GetStringFromName("startupFailure.buttonUpdate"),
-                           bundle.GetStringFromName("startupFailure.buttonClose"),
+                           bundle("startupFailure.buttonUpdate"),
+                           bundle("startupFailure.buttonClose"),
                            null, null, {}))
       this.showUpdates();
   }
