@@ -14,12 +14,15 @@ interface imIAccountBuddy;
 interface imIAccount;
 interface prplIProtocol;
 
-[scriptable, uuid(f1619b49-310b-47aa-ab1c-238aba084c62)]
+[scriptable, uuid(80e489fd-ba3d-4e4d-906b-4a6e3232efa4)]
 interface imIContactsService: nsISupports {
   void initContacts();
   void unInitContacts();
 
   imIContact getContactById(in long aId);
+  // Get an array of all existing contacts.
+  void getContacts([optional] out unsigned long contactCount,
+                   [retval, array, size_is(contactCount)] out imIContact contacts);
   imIBuddy getBuddyById(in long aId);
   imIBuddy getBuddyByNameAndProtocol(in AUTF8String aNormalizedName,
                                      in prplIProtocol aPrpl);
