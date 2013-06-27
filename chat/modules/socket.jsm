@@ -57,13 +57,13 @@
  *   The ping functionality: Included in the socket object is a higher level
  *   "ping" messaging system, which is commonly used in instant messaging
  *   protocols. The ping functionality works by calling a user defined method,
- *   sendPing(), if resetPingTimeout() is not called after two minutes. If no
+ *   sendPing(), if resetPingTimer() is not called after two minutes. If no
  *   ping response is received after 30 seconds, the socket will disconnect.
  *   Thus, a socket using this functionality should:
  *     1. Implement sendPing() to send an appropriate ping message for the
  *        protocol.
- *     2. Call resetPingTimeout() to start the ping messages.
- *     3. Call resetPingTimeout() each time a message is received (i.e. the
+ *     2. Call resetPingTimer() to start the ping messages.
+ *     3. Call resetPingTimer() each time a message is received (i.e. the
  *        socket is known to still be alive).
  *     4. Call cancelDisconnectTimer() when a ping response is received.
  */
