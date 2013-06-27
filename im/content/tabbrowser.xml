@@ -677,7 +677,7 @@
                 this._endRemoveTab([this._removingTabs[0], false]);
             } else if (!this._windowIsClosing) {
               // see notes in addTab
-              function _delayedUpdate(aTabContainer) {
+              let _delayedUpdate = function (aTabContainer) {
                 aTabContainer.adjustTabstrip();
                 aTabContainer.mTabstrip._updateScrollButtonsDisabledState();
               };
@@ -2044,7 +2044,7 @@
              * (see onTabBarDblClick).
              */
             var clickedOnce = false;
-            function enableDblClick(event) {
+            let enableDblClick = function (event) {
               if (event.detail == 1 && !clickedOnce) {
                 clickedOnce = true;
                 return;
@@ -2053,7 +2053,7 @@
                 tabbedBrowser._blockDblClick = false;
               }, 0);
               tabbedBrowser.removeEventListener("click", enableDblClick, false);
-            }
+            };
             tabbedBrowser.addEventListener("click", enableDblClick);
           }
           else // "tabs"
