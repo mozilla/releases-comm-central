@@ -1304,6 +1304,13 @@ ContactsService.prototype = {
   },
 
   getContactById: function(aId) ContactsById[aId],
+  // Get an array of all existing contacts.
+  getContacts: function(aContactCount) {
+    let contacts = [ContactsById[id] for (id in ContactsById)];
+    if (aContactCount)
+      aContactCount.value = contacts.length;
+    return contacts;
+  },
   getBuddyById: function(aId) BuddiesById[aId],
   getBuddyByNameAndProtocol: function(aNormalizedName, aPrpl) {
     let statement =
