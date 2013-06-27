@@ -46,7 +46,7 @@ function OdnoklassnikiProtocol() {
 OdnoklassnikiProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get normalizedName() "odnoklassniki",
-  get name() "Odnoklassniki",
+  get name() _("odnoklassniki.protocolName"),
   get iconBaseURI() "chrome://prpl-odnoklassniki/skin/",
   get usernameEmptyText() _("odnoklassniki.usernameHint"),
   getAccount: function(aImAccount) new OdnoklassnikiAccount(this, aImAccount),
