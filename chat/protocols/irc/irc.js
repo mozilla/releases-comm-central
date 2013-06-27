@@ -668,7 +668,7 @@ ircSocket.prototype = {
     }
 
     // We've received data and are past the authentication stage.
-    if (this.connected)
+    if (this._account.connected)
       this.resetPingTimer();
 
     // Low level dequote: replace quote character \020 followed by 0, n, r or
