@@ -87,7 +87,7 @@ function GTalkProtocol() {
 GTalkProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get normalizedName() "gtalk",
-  get name() "Google Talk",
+  get name() _("gtalk.protocolName"),
   get iconBaseURI() "chrome://prpl-gtalk/skin/",
   get usernameEmptyText() _("gtalk.usernameHint"),
   getAccount: function(aImAccount) new GTalkAccount(this, aImAccount),

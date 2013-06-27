@@ -46,7 +46,7 @@ function VkontakteProtocol() {
 VkontakteProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get normalizedName() "vkontakte",
-  get name() "Vkontakte",
+  get name() _("vkontakte.protocolName"),
   get iconBaseURI() "chrome://prpl-vkontakte/skin/",
   get usernameEmptyText() _("vkontakte.usernameHint"),
   getAccount: function(aImAccount) new VkontakteAccount(this, aImAccount),
