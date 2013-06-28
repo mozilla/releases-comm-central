@@ -131,8 +131,8 @@ CommandsService.prototype = {
     if (this._commands.hasOwnProperty(aCommandName)) {
       let prplId = aPrplId || "";
       let commands = this._commands[aCommandName];
-      if (commands.hasOwnProperty(aPrplId))
-        delete commands[aPrplId];
+      if (commands.hasOwnProperty(prplId))
+        delete commands[prplId];
       if (!Object.keys(commands).length)
         delete this._commands[aCommandName];
     }
