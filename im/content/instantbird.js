@@ -11,7 +11,8 @@ var convWindow = {
     Conversations.registerWindow(window);
 
     if ("arguments" in window) {
-      while (window.arguments[0] instanceof XULElement) {
+      while (window.arguments[0] &&
+             window.arguments[0] instanceof XULElement) {
         // swap the given tab with the default dummy conversation tab
         // and then close the original tab in the other window.
         let tab = window.arguments.shift();

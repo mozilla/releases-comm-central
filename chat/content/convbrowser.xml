@@ -134,12 +134,63 @@
                 onget="return this.docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);"
                 readonly="true"/>
 
-      <field name="magicCopyPref" readonly="true">"messenger.conversations.selections.magicCopyEnabled"</field>
-      <field name="magicCopyInitialized">false</field>
+      <method name="enableMagicCopy">
+        <body>
+          <![CDATA[
+          this.contentWindow.controllers.insertControllerAt(0, this);
+          if (Services.clipboard.supportsSelectionClipboard()) {
+            this.contentWindow.getSelection()
+                .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                .addSelectionListener(this);
+          }
+          ]]>
+        </body>
+      </method>
 
+      <method name="disableMagicCopy">
+        <body>
+          <![CDATA[
+          this.contentWindow.controllers.removeController(this);
+          if (Services.clipboard.supportsSelectionClipboard()) {
+             this.contentWindow.getSelection()
+                 .QueryInterface(Components.interfaces.nsISelectionPrivate)
+                 .removeSelectionListener(this);
+          }
+          ]]>
+        </body>
+      </method>
+
+      <field name="magicCopyPref" readonly="true">"messenger.conversations.selections.magicCopyEnabled"</field>
       <property name="magicCopyEnabled"
                 onget="return Services.prefs.getBoolPref(this.magicCopyPref);"
                 readonly="true"/>
+      <field name="magicCopyInitialized">false</field>
+
+      <method name="initMagicCopy">
+        <body>
+          <![CDATA[
+          if (this.magicCopyInitialized)
+            return;
+          Services.prefs.addObserver(this.magicCopyPref, this, false);
+          this.magicCopyInitialized = true;
+          if (this.magicCopyEnabled)
+            this.enableMagicCopy();
+          ]]>
+        </body>
+      </method>
+
+      <method name="uninitMagicCopy">
+        <body>
+          <![CDATA[
+          if (!this.magicCopyInitialized)
+            return;
+          Services.prefs.removeObserver(this.magicCopyPref, this);
+          if (this.magicCopyEnabled)
+            this.disableMagicCopy();
+          this.magicCopyInitialized = false;
+          ]]>
+        </body>
+      </method>
 
       <method name="addProgressListener">
         <parameter name="aListener"/>
@@ -202,12 +253,7 @@
               this._autoScrollPopup.parentNode.removeChild(this._autoScrollPopup);
             }
 
-            if (!this.magicCopyInitialized)
-              return;
-
-            Services.prefs.removeObserver(this.magicCopyPref, this);
-            if (this.magicCopyEnabled)
-              this.contentWindow.controllers.removeController(this);
+            this.uninitMagicCopy();
           ]]>
         </body>
       </method>
@@ -682,22 +728,10 @@
           if (aTopic != "nsPref:changed")
             throw "Bad notification";
 
-          if (this.magicCopyEnabled) {
-            this.contentWindow.controllers.insertControllerAt(0, this);
-            if (Services.clipboard.supportsSelectionClipboard()) {
-              this.contentWindow.getSelection()
-                  .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                  .addSelectionListener(this);
-            }
-          }
-          else {
-            this.contentWindow.controllers.removeController(this);
-            if (Services.clipboard.supportsSelectionClipboard()) {
-               this.contentWindow.getSelection()
-                   .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                   .removeSelectionListener(this);
-            }
-          }
+          if (this.magicCopyEnabled)
+            this.enableMagicCopy();
+          else
+            this.disableMagicCopy();
         ]]>
         </body>
       </method>
@@ -786,19 +820,7 @@
               }
               this.removeProgressListener(this);
 
-              if (this.magicCopyEnabled) {
-                this.contentWindow.controllers.insertControllerAt(0, this);
-
-                if (Services.clipboard.supportsSelectionClipboard()) {
-                  this.contentWindow.getSelection()
-                      .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                      .addSelectionListener(this);
-                }
-              }
-              if (!this.magicCopyInitialized) {
-                Services.prefs.addObserver(this.magicCopyPref, this, false);
-                this.magicCopyInitialized = true;
-              }
+              this.initMagicCopy();
 
               // We need to reset these variables here to avoid a race
               // condition if we are starting to display a new conversation
@@ -1076,29 +1098,18 @@
         <![CDATA[
           aOtherBrowser.destroy();
 
-          var magicCopyEnabled = this.magicCopyEnabled;
-
-          if (magicCopyEnabled) {
-            // We need to remove the selection listener (unix only)
-            // before _contentWindow is changed.
-            if (Services.clipboard.supportsSelectionClipboard()) {
-              aOtherBrowser.contentWindow.getSelection()
-                           .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                           .removeSelectionListener(aOtherBrowser);
-            }
-          }
-
-          // and the progress listener too!
+          // Remove the progress listener.
           this.removeProgressListener(this);
 
           // We need to swap fields that are tied to our docshell or related to
-          // the loaded page
-          // Fields which are built as a result of notifactions (pageshow/hide,
+          // the loaded page.
+          // Fields which are built as a result of notifications (pageshow/hide,
           // DOMLinkAdded/Removed, onStateChange) should not be swapped here,
           // because these notifications are dispatched again once the docshells
-          // are swapped.
-          var fieldsToSwap = ["_docShell", "_fastFind", "_contentWindow", "_webNavigation",
-                              "_theme", "_autoScrollEnabled",
+          // are swapped (pageshow/hide, DOMLinkAdded/Removed) or because we
+          // set the missing fields below (onStateChange).
+          var fieldsToSwap = ["_docShell", "_fastFind", "_contentWindow",
+                              "_webNavigation", "_theme", "_autoScrollEnabled",
                               "_lastElement", "_lastMessage", "_lastMessageIsContext",
                               "_firstNonContextElt"];
 
@@ -1115,18 +1126,7 @@
             aOtherBrowser[field] = ourFieldValues[field];
           }
 
-          if (!magicCopyEnabled)
-            return;
-
-          // Now that we have the new _contentWindow, we can add back our controller
-          this.contentWindow.controllers.insertControllerAt(0, this);
-
-          // and our selection listener!
-          if (Services.clipboard.supportsSelectionClipboard()) {
-            this.contentWindow.getSelection()
-                .QueryInterface(Components.interfaces.nsISelectionPrivate)
-                .addSelectionListener(this);
-          }
+          this.initMagicCopy();
         ]]>
         </body>
       </method>
