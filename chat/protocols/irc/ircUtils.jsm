@@ -34,6 +34,7 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
  */
 const CTCP_TAGS = {"\x02": "b", // \002, ^B, Bold
                    "\x16": "i", // \026, ^V, Reverse or Inverse (Italics)
+                   "\x1D": "i", // \035, ^], Italics (mIRC)
                    "\x1F": "u", // \037, ^_, Underline
                    "\x03": mIRCColoring, // \003, ^C, Coloring
                    "\x0F": null}; // \017, ^O, Clear all formatting
