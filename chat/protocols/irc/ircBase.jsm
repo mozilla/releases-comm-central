@@ -1225,8 +1225,11 @@ var ircBase = {
     },
     "443": function(aMessage) { // ERR_USERONCHANNEL
       // <user> <channel> :is already on channel
-      // TODO
-      return false;
+      this.getConversation(aMessage.params[2])
+          .writeMessage(aMessage.servername,
+                        _("message.alreadyInChannel", aMessage.params[1],
+                          aMessage.params[2]), {system: true});
+      return true;
     },
     "444": function(aMessage) { // ERR_NOLOGIN
       // <user> :User not logged in
