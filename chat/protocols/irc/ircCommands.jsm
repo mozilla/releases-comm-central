@@ -146,17 +146,36 @@ var commands = [
   },
   {
     name: "invite",
-    get helpString() _("command.invite", "invite"),
+    get helpString() _("command.invite2", "invite"),
     run: function(aMsg, aConv) {
       let params = splitInput(aMsg);
-      // If no parameters are given.
+
+      // Try to find one, and only one, channel in the list of parameters.
+      let channel;
+      let account = getAccount(aConv);
+      // Find the first param that could be a channel name.
+      for (let i = 0; i < params.length; ++i) {
+        if (account.isMUCName(params[i])) {
+          // If channel is set, two channel names have been found.
+          if (channel)
+            return false;
+
+          // Remove that parameter and store it.
+          channel = params.splice(i, 1)[0];
+        }
+      }
+
+      // If no parameters or only a channel are given.
       if (!params[0].length)
         return false;
-      // If only a nick is given, append the current channel name.
-      if (params.length == 1)
-        params.push(aConv.name);
 
-      return simpleCommand(aConv, "INVITE", params);
+      // Default to using the current conversation as the channel to invite to.
+      if (!channel)
+        channel = aConv.name;
+
+      params.forEach(function(p)
+        simpleCommand(aConv, "INVITE", [p, channel]));
+      return true;
     }
   },
   {
