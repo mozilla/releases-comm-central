@@ -1306,7 +1306,7 @@ ContactsService.prototype = {
   getContactById: function(aId) ContactsById[aId],
   // Get an array of all existing contacts.
   getContacts: function(aContactCount) {
-    let contacts = [ContactsById[id] for (id in ContactsById)];
+    let contacts = [ContactsById[id] for (id in ContactsById) if (!ContactsById[id]._empty)];
     if (aContactCount)
       aContactCount.value = contacts.length;
     return contacts;
