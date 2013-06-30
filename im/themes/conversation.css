@@ -46,6 +46,7 @@
 .userIcon {
   border: 2px solid rgba(0,0,0,0.15);
   border-radius: 5px;
+  overflow: hidden;
   max-width: 48px;
   max-height: 48px;
   width: 48px;
