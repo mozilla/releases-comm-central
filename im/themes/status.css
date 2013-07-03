@@ -24,6 +24,32 @@
   background-image: url('chrome://chat/skin/unknown.png');
 }
 
+.statusTypeIcon[status="unknown"] {
+  list-style-image: url('chrome://chat/skin/unknown-16.png');
+}
+
+.statusTypeIcon[status="chat"] {
+  list-style-image: url('chrome://chat/skin/chat-16.png');
+}
+
+.statusTypeIcon[status="available"] {
+  list-style-image: url('chrome://chat/skin/available-16.png');
+}
+
+.statusTypeIcon[status="unavailable"],
+.statusTypeIcon[status="away"] {
+  list-style-image: url('chrome://chat/skin/away-16.png');
+}
+
+.statusTypeIcon[status="offline"],
+.statusTypeIcon[status="invisible"] {
+  list-style-image: url('chrome://chat/skin/offline-16.png');
+}
+
+.statusTypeIcon[status="idle"] {
+  list-style-image: url('chrome://chat/skin/idle-16.png');
+}
+
 .protoIcon[status="offline"],
 .protoIcon[status="unknown"] {
   opacity: 0.3;
