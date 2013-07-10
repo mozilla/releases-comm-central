@@ -153,7 +153,7 @@ let gGestureSupport = {
           break;
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
-        if (getTabBrowser().selectedConversation)
+        if ("scrollToNextSection" in getBrowser())
           getBrowser().scrollToNextSection();
         else
           goDoCommand("cmd_scrollBottom");
@@ -164,7 +164,7 @@ let gGestureSupport = {
           break;
         if (aEvent.originalTarget.ownerDocument == getBrowser().contentDocument)
           getBrowser().contentWindow.focus();
-        if (getTabBrowser().selectedConversation)
+        if ("scrollToPreviousSection" in getBrowser())
           getBrowser().scrollToPreviousSection();
         else
           goDoCommand("cmd_scrollTop");
