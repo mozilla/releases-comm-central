@@ -30,10 +30,10 @@
           let browser = this.browser;
           this.tab.setAttribute("label",
             browser.contentTitle.replace("\0", "", "g") || browser.currentURI.spec);
-          let imageUri = browser.currentURI.spec == "about:addons" ?
-            "chrome://mozapps/skin/extensions/extensionGeneric-16.png" :
-            "chrome://mozapps/skin/places/defaultFavicon.png";
-          this.tab.setAttribute("image", imageUri);
+          if (browser.currentURI.spec == "about:addons") {
+            // Set the tab type to "addons" so that CSS will set its favicon.
+            this.tab.setAttribute("type", "addons");
+          }
         ]]>
         </body>
       </method>

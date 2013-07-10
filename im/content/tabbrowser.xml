@@ -495,6 +495,7 @@
             aPanel.id = uniqueId;
             t.linkedPanel = uniqueId;
             t.linkedTabPanel = aPanel;
+            t.setAttribute("type", aPanel.nodeName);
 
             this.updateCurrentTab(true);
 
@@ -1915,7 +1916,7 @@
           menuItem.setAttribute("image", aTab.getAttribute("image"));
 
           ["typing", "typed", "status", "chat",
-           "attention", "unread", "prpl"].forEach(function (aAttr) {
+           "attention", "unread", "prpl", "type"].forEach(function (aAttr) {
             if (aTab.hasAttribute(aAttr))
               menuItem.setAttribute(aAttr, aTab.getAttribute(aAttr));
           });

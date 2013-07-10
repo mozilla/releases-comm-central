@@ -69,8 +69,18 @@ tab[attention],
 /* Tab icons */
 .tabbrowser-tab,
 .alltabs-item > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://chat/skin/unknown-16.png");
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
   -moz-image-region: rect(0px, 16px, 16px, 0px);
+}
+
+.tabbrowser-tab[type="conversation"],
+.alltabs-item[type="conversation"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/unknown-16.png");
+}
+
+.tabbrowser-tab[type="addons"],
+.alltabs-item[type="addons"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.png");
 }
 
 .tabbrowser-tab {
