@@ -52,6 +52,7 @@
 #endif
 
   <commandset id="conversationsCommands">
+    <command id="cmd_newtab" oncommand="Conversations.showNewTab()"/>
     <command id="cmd_close" oncommand="getTabBrowser().removeCurrentTab()"/>
     <command id="cmd_putOnHold"
              oncommand="var tabbrowser = getTabBrowser();
@@ -77,6 +78,7 @@
   </commandset>
 
   <keyset id="conversationsKeys">
+    <key id="key_newtab" key="t" modifiers="accel" command="cmd_newtab"/>
     <key id="key_close" key="w" modifiers="accel" command="cmd_close"/>
     <key id="key_putOnHold" keycode="VK_ESCAPE" command="cmd_putOnHold"/>
     <key id="key_showLogs" key="h" modifiers="accel,shift" command="cmd_showLogs"/>

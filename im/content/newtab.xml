@@ -1,0 +1,545 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % newtabDTD SYSTEM "chrome://instantbird/locale/newtab.dtd" >
+  %newtabDTD;
+]>
+
+<bindings id="newtabBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+  <binding id="newtab">
+    <resources>
+      <stylesheet src="chrome://instantbird/skin/newtab.css"/>
+      <stylesheet src="chrome://instantbird/skin/richlistbox.css"/>
+    </resources>
+
+    <content>
+      <xul:stringbundle anonid="newtabbundle"
+                        src="chrome://instantbird/locale/newtab.properties"/>
+      <xul:vbox flex="1">
+        <xul:toolbar class="newtab-toolbar">
+          <xul:textbox class="filterbox" anonid="filterbox" type="search"
+                       placeholder="&filterbox.placeholder;" flex="1"/>
+        </xul:toolbar>
+        <xul:richlistbox anonid="newtab-listbox" class="newtab-listbox" flex="1"/>
+      </xul:vbox>
+    </content>
+
+    <implementation implements="nsIObserver">
+      <property name="filterbox" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "filterbox");
+        </getter>
+      </property>
+
+      <property name="listbox" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "newtab-listbox");
+        </getter>
+      </property>
+
+      <property name="tab">
+        <getter>
+        <![CDATA[
+          return this._tab;
+        ]]>
+        </getter>
+        <setter>
+        <![CDATA[
+          this._tab = val;
+          this._tab.setAttribute("label",
+            document.getAnonymousElementByAttribute(this, "anonid", "newtabbundle")
+                    .getString("newtab.label"));
+        ]]>
+        </setter>
+      </property>
+
+      <field name="kNotificationsToObserve" readonly="true">
+        ["contact-added", "contact-removed", "contact-status-changed",
+         "contact-display-name-changed", "contact-no-longer-dummy",
+         "contact-preferred-buddy-changed", "contact-moved"]
+      </field>
+
+      <constructor>
+      <![CDATA[
+        // Sorted list of contacts.
+        this.contacts = [];
+        // List of contacts by ID, used to check for dupes.
+        this.contactsById = {};
+        // List of currently added contact elements - array version of this.listbox.childNodes.
+        this.contactElts = [];
+      ]]>
+      </constructor>
+
+      <destructor>
+      <![CDATA[
+        this.destroy();
+      ]]>
+      </destructor>
+
+      <method name="focus">
+        <body>
+        <![CDATA[
+          this.filterbox.focus();
+        ]]>
+        </body>
+      </method>
+
+      <method name="onResize">
+        <body>
+        <![CDATA[
+          this.addMoreElements();
+        ]]>
+        </body>
+      </method>
+
+      <!-- Maintains computed number of elements to display. Incremented when the user
+           scrolls near the bottom of the list, unless hasMoreElementsToDisplay is false. -->
+      <field name="numberOfElementsToDisplay">0</field>
+      <field name="hasMoreElementsToDisplay">true</field>
+      <!-- While scrolling, we add more elements when there are three elements left that
+           aren't displayed (the last visible element is fourth from the end of the list). -->
+      <field name="kAddMoreElementsThreshold" readonly="true">3</field>
+      <!-- Try to add this many elements when scrolling past the threshold. -->
+      <field name="kNumElementsIncrement" readonly="true">10</field>
+
+      <!-- Increments numberOfElementsToDisplay and calls refresh(). Used on scrolling/resizing. -->
+      <method name="addMoreElements">
+        <body>
+        <![CDATA[
+          if (!this.hasMoreElementsToDisplay)
+            return;
+          let lastVisibleIndex = this.listbox.getIndexOfFirstVisibleRow() +
+                                   this.listbox.getNumberOfVisibleRows() - 1;
+          // Increment numberOfElementsToDisplay if lastVisibleIndex exceeds the threshold.
+          if (lastVisibleIndex >= this.contactElts.length - this.kAddMoreElementsThreshold) {
+            this.numberOfElementsToDisplay += this.kNumElementsIncrement;
+            this.refresh();
+          }
+        ]]>
+        </body>
+      </method>
+
+      <!-- Remove observers when closing tab. -->
+      <method name="destroy">
+        <body>
+        <![CDATA[
+          // destroy is called from both tabbrowser and the destructor.
+          // We need to ensure we don't remove our observer twice if both call it.
+          if (this._destroyed)
+            return;
+          for (let notification of this.kNotificationsToObserve)
+            Services.obs.removeObserver(this, notification);
+          this._destroyed = true;
+        ]]>
+        </body>
+      </method>
+
+      <method name="finishImport">
+        <parameter name="aOtherNewTab"/>
+        <body>
+        <![CDATA[
+          let filterbox = this.filterbox;
+          let otherFilterbox = aOtherNewTab.filterbox;
+          filterbox.value = otherFilterbox.value;
+          filterbox.selectionStart = otherFilterbox.selectionStart;
+          filterbox.selectionEnd = otherFilterbox.selectionEnd;
+          const kFieldsToImport = ["contacts", "filteredContacts", "contactsById",
+                                   "numberOfElementsToDisplay", "_prevFilterTxt",
+                                   "_contactUpdated", "hasMoreElementsToDisplay"];
+          for (let field of kFieldsToImport)
+            this[field] = aOtherNewTab[field];
+          for (let i = 0; i < aOtherNewTab.contactElts.length; ++i) {
+            this.pushContactElement();
+            if (!aOtherNewTab.contactElts[i].selected)
+              continue;
+            this.listbox.addItemToSelection(this.contactElts[i]);
+          }
+          this._delayedRefresh();
+          this.listbox.scrollToIndex(aOtherNewTab.listbox.getIndexOfFirstVisibleRow());
+          this.addListeners();
+        ]]>
+        </body>
+      </method>
+
+      <!-- This is separated from the constructor because we don't want to init
+           when being imported from another window. -->
+      <method name="init">
+        <body>
+        <![CDATA[
+          let contacts = Services.contacts.getContacts();
+          for (let contact of contacts)
+            this.addContact(contact);
+          this.filteredContacts = this.contacts;
+          this.resetElementsToDisplay();
+          this.refresh();
+          this.addListeners();
+        ]]>
+        </body>
+      </method>
+
+      <method name="addListeners">
+        <body>
+        <![CDATA[
+          this.filterbox.addEventListener("keyup", this.refresh.bind(this));
+          this.listbox.addEventListener("scroll", this.addMoreElements.bind(this));
+          for (let notification of this.kNotificationsToObserve)
+            Services.obs.addObserver(this, notification, false);
+        ]]>
+        </body>
+      </method>
+
+      <!-- Add contact to this.contacts, in its correct position.
+           Does not add to the listbox. -->
+      <method name="addContact">
+        <parameter name="aImContact"/>
+        <body>
+        <![CDATA[
+          if (aImContact.id in this.contactsById) // Already added.
+            return;
+          /* When multiple contacts change at once, we receive notifications for
+           * each of them one by one and so resort them one by one. If we maintain
+           * a list of imIContacts, it would be impossible to resort them properly
+           * because of this, since they would all have changed. To work around
+           * this problem, we maintain a list of custom contact objects, storing
+           * only the lowercase display name and status type for sorting purposes.
+           */
+          let contact = {
+            id: aImContact.id,
+            name: aImContact.displayName.toLowerCase(),
+            status: aImContact.statusType,
+            imContact: aImContact
+          };
+          let pos = this.getPositionToInsert(contact);
+          this.contacts.splice(pos, 0, contact);
+          this.contactsById[contact.id] = contact;
+        ]]>
+        </body>
+      </method>
+
+      <!-- Remove contact from this.contacts. Does not update listbox. -->
+      <method name="removeContact">
+        <parameter name="aId"/>
+        <body>
+        <![CDATA[
+          if (!(aId in this.contactsById))
+            return;
+          this.contacts.splice(this.contacts.indexOf(this.contactsById[aId]), 1);
+          delete this.contactsById[aId];
+        ]]>
+        </body>
+      </method>
+
+      <!-- Binary search to find the correct location for the given contact -->
+      <method name="getPositionToInsert">
+        <parameter name="aContact"/>
+        <body>
+        <![CDATA[
+          let end = this.contacts.length;
+          // Avoid the binary search loop if the contacts were already sorted.
+          if (end != 0 &&
+              this.sortComparator(aContact, this.contacts[end - 1]) < 0) {
+            let start = 0;
+            while (start < end) {
+              let middle = Math.floor((start + end) / 2);
+              if (this.sortComparator(aContact, this.contacts[middle]) < 0)
+                end = middle;
+              else
+                start = middle + 1;
+            }
+          }
+          return end;
+        ]]>
+        </body>
+      </method>
+
+      <!-- Takes two items from contacts list (not imIContacts) and compares first
+           their statusTypes, then their display names. -->
+      <method name="sortComparator">
+        <parameter name="aContactA"/>
+        <parameter name="aContactB"/>
+        <body>
+        <![CDATA[
+          return (aContactB.status - aContactA.status) ||
+            aContactA.name.localeCompare(aContactB.name);
+        ]]>
+        </body>
+      </method>
+
+      <!-- Dispatch a call to _delayedRefresh, to avoid consecutive multiple calls. -->
+      <method name="refresh">
+        <body>
+        <![CDATA[
+          if (this._pendingRefreshCall)
+            return;
+          this._pendingRefreshCall = true;
+          Services.tm.mainThread.dispatch(this._delayedRefresh.bind(this),
+            Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+        ]]>
+        </body>
+      </method>
+
+      <field name="_prevFilterTxt">""</field>
+      <method name="_delayedRefresh">
+        <body>
+        <![CDATA[
+          this._pendingRefreshCall = false;
+          // Don't do anything if the tab has been removed.
+          if (this._destroyed)
+            return;
+          let filterTxt = this.filterbox.value.toLowerCase();
+          // Filtering needs to be done only if either the filter string has
+          // changed, or a contact was updated.
+          if (this._prevFilterTxt != filterTxt || this._contactUpdated) {
+            this.filteredContacts = this.contacts.filter(function(aContact) {
+              return aContact.name.startsWith(filterTxt) ||
+                aContact.name.split(/\s+/).some(function(s) s.startsWith(filterTxt));
+            });
+            // If the filter string has changed, reset number of elements to display.
+            if (this._prevFilterTxt != filterTxt) {
+              this.resetElementsToDisplay();
+              this._prevFilterTxt = filterTxt;
+            }
+          }
+          this._contactUpdated = false;
+          let filteredContacts = this.filteredContacts;
+          if (filteredContacts.length < this.numberOfElementsToDisplay) {
+            this.numberOfElementsToDisplay = filteredContacts.length;
+            this.hasMoreElementsToDisplay = false;
+          }
+          /* Add/remove list elements until we have the number required.
+           * Then rebuild them all from filteredContacts.
+           */
+          while (this.contactElts.length > this.numberOfElementsToDisplay)
+            this.popContactElement();
+          while (this.contactElts.length < this.numberOfElementsToDisplay)
+            this.pushContactElement();
+          for (let i = 0; i < this.contactElts.length; ++i)
+            this.contactElts[i].build(filteredContacts[i].imContact);
+        ]]>
+        </body>
+      </method>
+
+      <method name="resetElementsToDisplay">
+        <body>
+        <![CDATA[
+          let listbox = this.listbox;
+          this.hasMoreElementsToDisplay = this.filteredContacts.length > 0;
+          // We need to have a list item so that we can use its height to compute
+          // the number of elements to display. If we don't have one, we add it,
+          // but only if it will be used (i.e. hasMoreElementsToDisplay is true).
+          if (this.hasMoreElementsToDisplay) {
+            if (!listbox.firstChild)
+              this.pushContactElement();
+            // Add enough elements to fill the visible area, plus kNumElementsIncrement.
+            this.numberOfElementsToDisplay =
+              (listbox.clientHeight / listbox.firstChild.clientHeight) + this.kNumElementsIncrement;
+          }
+          else
+            this.numberOfElementsToDisplay = 0;
+          listbox.scrollToIndex(0);
+          listbox.clearSelection();
+          // Ensure the first element will be selected if the user presses
+          // down (for example) from the filterbox.
+          listbox.selectedIndex = -1;
+        ]]>
+        </body>
+      </method>
+
+      <method name="pushContactElement">
+        <body>
+        <![CDATA[
+          // We use richlistitem as the nodeName so that CSS rules from richlistbox.css
+          // get applied. We use the className to apply the -moz-binding.
+          let elt = document.createElementNS(
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+            "richlistitem");
+          elt.className = "newtab-contact";
+          this.listbox.appendChild(elt);
+          this.contactElts.push(elt);
+          return elt;
+        ]]>
+        </body>
+      </method>
+
+      <method name="popContactElement">
+        <body>
+        <![CDATA[
+          this.listbox.removeChild(this.listbox.lastChild);
+          this.contactElts.pop();
+        ]]>
+        </body>
+      </method>
+
+      <!-- nsIObserver implementation -->
+      <method name="observe">
+        <parameter name="aSubject"/>
+        <parameter name="aTopic"/>
+        <parameter name="aData"/>
+        <body>
+        <![CDATA[
+          if (aTopic == "contact-no-longer-dummy") {
+            // Contact ID changed. aData is the old ID.
+            let oldId = parseInt(aData, 10);
+            let id = aSubject.id;
+            this.contactsById[id] = this.contactsById[oldId];
+            delete this.contactsById[oldId];
+            this.contactsById[id].id = id;
+            return;
+          }
+          else if (aTopic == "contact-added")
+            this.addContact(aSubject);
+          else if (aTopic == "contact-removed")
+            this.removeContact(aSubject.id);
+          else {
+            // A change in the contact's status or display name may cause the
+            // order to change, so we simply remove and re-add it.
+            this.removeContact(aSubject.id);
+            this.addContact(aSubject);
+          }
+          this._contactUpdated = true;
+          this.refresh();
+        ]]>
+        </body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="keydown">
+      <![CDATA[
+        const modifierKeyCodes = [KeyEvent.DOM_VK_ALT, KeyEvent.DOM_VK_META,
+                                  KeyEvent.DOM_VK_SHIFT, KeyEvent.DOM_VK_CONTROL];
+
+        // If the key is a modifier, don't do anything.
+        if (modifierKeyCodes.indexOf(event.keyCode) != -1)
+          return;
+
+        const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
+                             KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
+                             KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN];
+
+        let listbox = this.listbox;
+        let modifiersPressed = event.altKey || event.metaKey || event.shiftKey || event.ctrlKey;
+        // If it's not a navigation key, make sure filterbox has focus and return.
+        if (navKeyCodes.indexOf(event.keyCode) == -1) {
+          this.filterbox.focus();
+          return;
+        }
+        // If modifiers are pressed, let whatever is focused handle the event.
+        if (modifiersPressed)
+          return;
+        // Otherwise, give listbox focus so that it can process the navigation key.
+        listbox.focus();
+        // The selectedIndex is -1 after a new filter. In this case, pressing a
+        // navkey from the filterbox should select the first element on the list.
+        if (listbox.selectedIndex < 0 && listbox.firstChild) {
+          listbox.selectItem(listbox.firstChild);
+          listbox.ensureIndexIsVisible(0);
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      ]]>
+      </handler>
+
+      <handler event="keyup">
+      <![CDATA[
+        if (event.keyCode != event.DOM_VK_ENTER &&
+            event.keyCode != event.DOM_VK_RETURN)
+          return;
+        if (!("Conversations" in window))
+          Components.utils.import("resource:///modules/imWindows.jsm");
+        Conversations.focusConversation(
+          this.listbox.firstChild.contact.createConversation());
+        window.getTabBrowser().removeTab(this.tab);
+      ]]>
+      </handler>
+
+      <handler event="mousedown">
+        // Prevent elements from getting selected. This is to ensure clicked
+        // elements won't stay highlighted.
+        this.listbox.selectedIndex = -1;
+      </handler>
+    </handlers>
+  </binding>
+
+  <binding id="newtab-contact"
+    extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:hbox flex="1">
+        <xul:stack class="buddyStatusIconStack" mousethrough="always">
+          <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,status"/>
+          <xul:image anonid="statusIcon" class="statusTypeIcon" xbl:inherits="status"/>
+        </xul:stack>
+        <xul:vbox flex="1">
+          <xul:spacer flex="1"/>
+          <xul:hbox>
+            <xul:label class="displayName" flex="1" crop="end" xbl:inherits="value=displayName,status"/>
+            <xul:hbox flex="10000">
+              <xul:spacer flex="10000"/>
+              <xul:image class="tagIcon" xbl:inherits="status"/>
+              <xul:label class="tags" flex="1" crop="end" xbl:inherits="value=tags,status"/>
+            </xul:hbox>
+          </xul:hbox>
+          <xul:spacer flex="1"/>
+          <xul:hbox class="statusAndProtoIconBox">
+            <xul:label class="statusText" flex="1" crop="end" xbl:inherits="value=statusText,status"/>
+            <xul:image class="protoIcon" xbl:inherits="src=protoIcon,status"/>
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+
+    <implementation>
+      <field name="contact">null</field>
+
+      <method name="build">
+        <parameter name="aContact"/>
+        <body>
+        <![CDATA[
+          this.contact = aContact;
+          this.setAttribute("displayName", this.contact.displayName);
+          if (!("Status" in window))
+            Components.utils.import("resource:///modules/imStatusUtils.jsm");
+          let status = Status.toLabel(this.contact.statusType);
+          if (this.contact.statusText)
+            status += " - " + this.contact.statusText;
+          this.setAttribute("statusText", status);
+          let tagNames = this.contact.getTags().map(function(aTag) aTag.name);
+          tagNames.sort(function(a, b) a.toLowerCase().localeCompare(b.toLowerCase()));
+          this.setAttribute("tags", tagNames.join(", "));
+          let buddy = this.contact.preferredBuddy;
+          this.setAttribute("protoIcon", buddy.protocol.iconBaseURI + "icon.png");
+          this.setAttribute("buddyIcon", buddy.buddyIconFilename || "");
+          this.setAttribute("status", Status.toAttribute(buddy.statusType));
+        ]]>
+        </body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="mouseup">
+      <![CDATA[
+        if (event.button == 2) // Don't handle right clicks.
+          return;
+        let newtab = document.getBindingParent(this);
+        if (!("Conversations" in window))
+          Components.utils.import("resource:///modules/imWindows.jsm");
+        Conversations.focusConversation(this.contact.createConversation());
+        let tabbrowser = window.getTabBrowser();
+        if (event.button != 1 && !event.controlKey && !event.metaKey)
+          tabbrowser.removeTab(newtab.tab);
+        else {
+          tabbrowser.selectPanel(newtab);
+          newtab.listbox.selectedIndex = -1;
+          newtab.filterbox.focus();
+        }
+      ]]>
+      </handler>
+    </handlers>
+  </binding>
+</bindings>

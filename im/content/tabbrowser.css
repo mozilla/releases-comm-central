@@ -48,12 +48,6 @@ tabconversation {
   display: none;
 }
 
-.tabs-newtab-button,
-#context_newTab,
-#context_newTabSeparator {
-  display: none;
-}
-
 /* Ensure two menuseparators aren't shown together when no tab-specific menuitems exist */
 #context_tabSpecificStartSeparator + #context_tabSpecificEndSeparator {
   display: none;

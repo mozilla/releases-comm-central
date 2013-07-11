@@ -152,5 +152,27 @@ var Conversations = {
       Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
                              "chrome,toolbar,resizable", null);
     }
+  },
+
+  showNewTab: function() {
+    let win = Services.wm.getMostRecentWindow("Messenger:convs");
+    let addNewTab = function(aWindow) {
+      if (!aWindow)
+        return false;
+      let newtab = aWindow.document.createElementNS(
+        "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+        "newtab");
+      if (!aWindow.getTabBrowser().addPanel(newtab))
+        return false;
+      aWindow.getTabBrowser().selectPanel(newtab);
+      newtab.ownerDocument.defaultView.focus();
+      newtab.init();
+      return true;
+    }
+    if (!addNewTab(win)) {
+      win = Services.ww.openWindow(null, CONVERSATION_WINDOW_URI, "_blank",
+                                   "chrome,toolbar,resizable", null);
+      win.addEventListener("load", addNewTab.bind(null, win));
+    }
   }
 };

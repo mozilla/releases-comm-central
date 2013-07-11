@@ -44,7 +44,7 @@
           <xul:menupopup id="tabContextMenu" onpopupshowing="return document.getBindingParent(this).tabContextMenuShowing(this);"
                   onpopuphiding="return document.getBindingParent(this).tabContextMenuHiding(this)">
             <xul:menuitem id="context_newTab" label="&newTab.label;" accesskey="&newTab.accesskey;"
-                          xbl:inherits="oncommand=onnewtab"/>
+                          command="cmd_newtab"/>
             <xul:menuseparator id="context_newTabSeparator"/>
             <xul:menuitem id="context_openTabInWindow" label="&openTabInNewWindow.label;"
                           accesskey="&openTabInNewWindow.accesskey;"
@@ -1495,11 +1495,11 @@
 # button, necessary due to the previous hack.
           <children/>
           <xul:toolbarbutton class="tabs-newtab-button"
-                             command="cmd_newNavigatorTab" chromedir="&locale.dir;"
+                             command="cmd_newtab" chromedir="&locale.dir;"
                              tooltiptext="&newTabButton.tooltip;"/>
         </xul:arrowscrollbox>
         <xul:toolbarbutton class="tabs-newtab-button" anonid="newtab-button"
-                           command="cmd_newNavigatorTab" chromedir="&locale.dir;"
+                           command="cmd_newtab" chromedir="&locale.dir;"
                            tooltiptext="&newTabButton.tooltip;"/>
         <xul:toolbarbutton class="tabs-alltabs-button" type="menu" anonid="alltabs-button"
                            tooltiptext="&listAllTabs.label;">

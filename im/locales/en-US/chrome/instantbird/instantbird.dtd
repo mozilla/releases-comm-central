@@ -26,6 +26,9 @@
 <!ENTITY joinChat              "Join Chat…">
 <!ENTITY joinChat.commandkey   "j">
 <!ENTITY joinChat.accesskey    "J">
+<!ENTITY newtab                "New Conversation…">
+<!ENTITY newtab.commandkey     "t">
+<!ENTITY newtab.accesskey      "n">
 <!ENTITY setStatusTo           "Set Status to…">
 <!ENTITY setStatusTo.accesskey "S">
 <!ENTITY available             "Available">

@@ -28,6 +28,7 @@
     <command id="cmd_quitApplication" oncommand="goQuitApplication()"/>
     <command id="cmd_joinchat" oncommand="goDoCommand('cmd_joinchat');"/>
     <command id="cmd_addbuddy" oncommand="goDoCommand('cmd_addbuddy');"/>
+    <command id="cmd_newtab" oncommand="goDoCommand('cmd_newtab');"/>
     <command id="cmd_addons" oncommand="menus.addons()"/>
   </commandset>
 
@@ -37,6 +38,7 @@
     <key id="key_quitApplication" key="&quitApplicationCmdMac.key;" command="cmd_quitApplication" modifiers="accel"/>
     <key id="joinChatkey" key="&joinChat.commandkey;" command="cmd_joinchat" modifiers="accel"/>
     <key id="addBuddykey" key="&addContact.commandkey;" command="cmd_addbuddy" modifiers="accel"/>
+    <key id="newtabkey" key="&newtab.commandkey;" command="cmd_newtab" modifiers="accel"/>
     <key id="addonskey" key="&addonManager.commandkey;" command="cmd_addons" modifiers="accel"/>
   </keyset>
 
@@ -44,6 +46,7 @@
     <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
       <menupopup id="fileMenuPopup" onpopupshowing="menus.updateFileMenuitems();">
         <menuitem id="addBuddyMenuItem" label="&addContact;" command="cmd_addbuddy" key="addBuddykey" accesskey="&addContact.accesskey;"/>
+        <menuitem id="newTabMenuItem" label="&newtab;" command="cmd_newtab" key="newtabkey" accesskey="&newtab.accesskey;"/>
         <menuitem id="joinChatMenuItem" label="&joinChat;" command="cmd_joinchat" key="joinChatkey" accesskey="&joinChat.accesskey;"/>
         <menuseparator/>
         <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);" accesskey="&setStatusTo.accesskey;" >

@@ -15,12 +15,13 @@ if (!("Core" in window))
 
 var menus = {
   supportsCommand: function(aCmd)
-    aCmd == "cmd_addbuddy" || aCmd == "cmd_joinchat",
+    aCmd == "cmd_addbuddy" || aCmd == "cmd_joinchat" || aCmd == "cmd_newtab",
   isCommandEnabled: function(aCmd) {
     let enumerator = Services.accounts.getAccounts();
     while (enumerator.hasMoreElements()) {
       let acc = enumerator.getNext();
-      if (acc.connected && (aCmd == "cmd_addbuddy" || acc.canJoinChat))
+      if (acc.connected &&
+          (aCmd == "cmd_addbuddy" || aCmd == "cmd_newtab" || acc.canJoinChat))
         return true;
     }
     return false;
@@ -30,6 +31,11 @@ var menus = {
       this.joinChat();
     else if (aCmd == "cmd_addbuddy")
       this.addBuddy();
+    else if (aCmd == "cmd_newtab") {
+      if (!("Conversations" in window))
+        Components.utils.import("resource:///modules/imWindows.jsm");
+      Conversations.showNewTab();
+    }
   },
   onEvent: function(aEventName) {},
 
@@ -118,6 +124,7 @@ var menus = {
   updateFileMenuitems: function menu_updateFileMenuitems() {
     goUpdateCommand("cmd_joinchat");
     goUpdateCommand("cmd_addbuddy");
+    goUpdateCommand("cmd_newtab");
   },
 
   openDialog: function menu_openDialog(aWindowType, aURL) {

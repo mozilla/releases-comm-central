@@ -23,6 +23,7 @@ instantbird.jar:
 	content/instantbird/account.xul
 	content/instantbird/addbuddy.js
 	content/instantbird/addbuddy.xul
+	content/instantbird/newtab.xml
 	content/instantbird/blist.css
 	content/instantbird/blist.js
 *	content/instantbird/blist.xul

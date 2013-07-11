@@ -1,0 +1,123 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.newtab-toolbar {
+  margin: 0;
+  padding: 2px;
+  border-style: none;
+  -moz-appearance: none;
+%ifdef XP_MACOSX
+  background-color: -moz-mac-chrome-active;
+  background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+}
+
+.newtab-toolbar:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: rgba(0, 0, 0, 0.32);
+%else
+  background-color: -moz-Dialog;
+%ifdef XP_WIN
+  background-image: -moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+%else
+  background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
+%endif
+%ifndef XP_WIN
+  border-bottom: 1px solid ThreeDShadow;
+%else
+  border-bottom: none;
+%endif
+%endif
+}
+
+.filterbox {
+  font-size: medium;
+  padding: 2px;
+}
+
+.newtab-listbox {
+  margin: 0;
+  -moz-appearance: none;
+%ifndef XP_MACOSX
+  border-bottom: 2px solid;
+  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
+%endif
+}
+
+.newtab-contact {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+%ifdef XP_WIN
+.newtab-contact:hover {
+  background-image: url(chrome://mozapps/skin/extensions/itemEnabledFader.png);
+  background-color: Highlight;
+  color: HighlightText;
+}
+%else
+%ifdef XP_MACOSX
+.newtab-contact:hover {
+  background-color: Highlight !important;
+  color: HighlightText;
+}
+%else
+.newtab-contact:hover {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+%endif
+%endif
+
+.displayName {
+  font-size: large;
+}
+
+.tags {
+  margin-right: 0px !important;
+}
+
+.buddyIcon {
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 5px;
+  overflow: hidden;
+  max-width: 48px;
+  max-height: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.buddyIcon[src=""] {
+  background-image: url("chrome://instantbird/skin/userIcon.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.statusTypeIcon {
+  margin-top: 32px;
+  margin-left: 32px;
+  width: 16px;
+  height: 16px;
+}
+
+.tagIcon {
+  height: 16px;
+  width: 16px;
+  max-height: 16px;
+  max-width: 16px;
+  background-image: url("chrome://instantbird/skin/tag.png");
+}
+
+.protoIcon {
+  width: 16px;
+  height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  margin-right: 0px;
+}
+
+.newtab-contact [status="offline"]:not(.statusTypeIcon),
+.newtab-contact [status="unknown"]:not(.statusTypeIcon) {
+  opacity: 0.5;
+}
