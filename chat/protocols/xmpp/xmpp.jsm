@@ -183,7 +183,7 @@ const XMPPConversationPrototype = {
   __proto__: GenericConvIMPrototype,
 
   _typingTimer: null,
-  _supportChatStateNotifications: true,
+  supportChatStateNotifications: true,
   _typingState: "active",
 
   _init: function(aAccount, aBuddy) {
@@ -197,9 +197,6 @@ const XMPPConversationPrototype = {
   get shouldSendTypingNotifications()
     this._supportChatStateNotifications &&
     Services.prefs.getBoolPref("purple.conversations.im.send_typing"),
-  set supportChatStateNotifications(val) {
-    this._supportChatStateNotifications = val;
-  },
 
   /* Called when the user is typing a message
    * aString - the currently typed message
@@ -935,21 +932,21 @@ const XMPPAccountPrototype = {
     if (type == "error")
       return;
 
+    let typingState = Ci.prplIConvIM.NOT_TYPING;
     let state;
     let s = aStanza.getChildrenByNS(Stanza.NS.chatstates);
     if (s.length > 0)
       state = s[0].localName;
     if (state) {
       this.DEBUG(state);
-      if (state == "active")
-        this._conv[norm].updateTyping(Ci.prplIConvIM.NOT_TYPING);
-      else if (state == "composing")
-        this._conv[norm].updateTyping(Ci.prplIConvIM.TYPING);
+      if (state == "composing")
+        typingState = Ci.prplIConvIM.TYPING;
       else if (state == "paused")
-        this._conv[norm].updateTyping(Ci.prplIConvIM.TYPED);
+        typingState = Ci.prplIConvIM.TYPED;
     }
-    else
-      this._conv[norm].supportChatStateNotifications = false;
+    let conv = this._conv[norm];
+    conv.updateTyping(typingState);
+    conv.supportChatStateNotifications = !!state;
   },
 
   /* Called when there is an error in the xmpp session */
