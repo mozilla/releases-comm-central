@@ -83,10 +83,9 @@ tab[attention],
   list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.png");
 }
 
-/* New conversation icons */
-.tabbrowser-tab[tabtype="newtab"],
-.alltabs-item[tabtype="newtab"] > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://instantbird/skin/newConversation.png") !important;
+.tabbrowser-tab[type="newtab"],
+.alltabs-item[type="newtab"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://instantbird/skin/newConversation.png");
 }
 
 .tabbrowser-tab {
