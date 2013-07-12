@@ -412,6 +412,11 @@
     <handlers>
       <handler event="keydown">
       <![CDATA[
+        if (event.keyCode == event.DOM_VK_ESCAPE && !this.filterbox.value) {
+          window.getTabBrowser().removeTab(this.tab);
+          return;
+        }
+
         const modifierKeyCodes = [KeyEvent.DOM_VK_ALT, KeyEvent.DOM_VK_META,
                                   KeyEvent.DOM_VK_SHIFT, KeyEvent.DOM_VK_CONTROL];
 
