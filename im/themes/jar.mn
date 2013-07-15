@@ -112,7 +112,7 @@ instantbird.jar:
 *	skin/classic/aero/instantbird/instantbird.css		(instantbird-aero.css)
 	skin/classic/aero/instantbird/menulist.css
 	skin/classic/aero/instantbird/menus.css
-	skin/classic/aero/instantbird/newtab.css
+*	skin/classic/aero/instantbird/newtab.css
 	skin/classic/aero/instantbird/status.css
 *	skin/classic/aero/instantbird/viewlog.css
 	skin/classic/aero/instantbird/newMessage.png
