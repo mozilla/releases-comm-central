@@ -20,6 +20,23 @@ var Core = {
 
   get bundle() l10nHelper("chrome://instantbird/locale/core.properties"),
 
+  initLibpurpleOverrides: function() {
+    let forcePurple = Services.prefs.getCharPref("chat.prpls.forcePurple")
+                              .split(",")
+                              .map(String.trim)
+                              .filter(function(aPrplId) !!aPrplId);
+    if (!forcePurple.length)
+      return;
+
+    let catMan =
+      Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
+    for (let prplId of forcePurple) {
+      catMan.addCategoryEntry("im-protocol-plugin", prplId,
+                              "@instantbird.org/purple/protocol;1",
+                              false, true);
+    }
+  },
+
   init: function() {
     try {
       // Set the Vendor for breakpad only
@@ -42,6 +59,8 @@ var Core = {
       this._promptError("startupFailure.xpcomRegistrationError");
       return false;
     }
+
+    this.initLibpurpleOverrides();
 
     try {
       Services.core.init();

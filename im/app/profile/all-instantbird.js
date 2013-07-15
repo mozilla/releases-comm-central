@@ -306,3 +306,7 @@ pref("browser.tabs.closeButtons", 1);
 
 pref("chat.twitter.consumerKey", "TSuyS1ieRAkB3qWv8yyEw");
 pref("chat.twitter.consumerSecret", "DKtKaSf5a7pBNhdBsSZHTnI5Y03hRlPFYWmb4xXBlkU");
+
+// Comma separated list of prpl ids that should use libpurple even if there is
+// a JS implementation. This is used to land JS-prpls pref'ed off in nightlies.
+pref("chat.prpls.forcePurple", "");
