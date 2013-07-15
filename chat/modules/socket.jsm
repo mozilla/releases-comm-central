@@ -79,6 +79,7 @@ const EXPORTED_SYMBOLS = ["Socket"];
 
 const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource:///modules/ArrayBufferUtils.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
 // Network errors see: xpcom/base/nsError.h
@@ -116,10 +117,6 @@ const Socket = {
   // Set this for non-binary mode to automatically parse the stream into chunks
   // separated by delimiter.
   delimiter: "",
-
-  // Set this for binary mode to split after a certain number of bytes have
-  // been received.
-  inputSegmentSize: 0,
 
   // Set this for the segment size of outgoing binary streams.
   outputSegmentSize: 0,
@@ -252,14 +249,9 @@ const Socket = {
   },
 
   sendBinaryData: function(/* ArrayBuffer */ aData) {
-    this.LOG("Sending binary data data: <" + aData + ">");
+    this.LOG("Sending binary data: <" + ArrayBufferToHexString(aData) + ">");
 
-    let uint8 = Uint8Array(aData);
-
-    // Since there doesn't seem to be a uint8.get() method for the byte array
-    let byteArray = [];
-    for (let i = 0; i < uint8.byteLength; i++)
-      byteArray.push(uint8[i]);
+    let byteArray = ArrayBufferToBytes(aData);
     try {
       // Send the data as a byte array
       this._binaryOutputStream.writeByteArray(byteArray, byteArray.length);
@@ -359,20 +351,21 @@ const Socket = {
                                      .concat(this._binaryInputStream
                                                  .readByteArray(aCount));
 
-      let size = this.inputSegmentSize || this._incomingDataBuffer.length;
-      this.LOG(size + " " + this._incomingDataBuffer.length);
-      while (this._incomingDataBuffer.length >= size) {
-        let buffer = new ArrayBuffer(size);
+      let size = this._incomingDataBuffer.length;
 
-        // Create a new ArraybufferView
-        let uintArray = new Uint8Array(buffer);
+      // Create a new ArrayBuffer.
+      let buffer = new ArrayBuffer(size);
+      let uintArray = new Uint8Array(buffer);
 
-        // Set the data into the array while saving the extra data
-        uintArray.set(this._incomingDataBuffer.splice(0, size));
+      // Set the data into the array while saving the extra data.
+      uintArray.set(this._incomingDataBuffer);
 
-        // Notify we've received data
-        this.onBinaryDataReceived(buffer);
-      }
+      // Notify we've received data.
+      // Variable data size, the callee must return how much data was handled.
+      size = this.onBinaryDataReceived(buffer);
+
+      // Remove the handled data.
+      this._incomingDataBuffer.splice(0, size);
     } else {
       if (this.delimiter) {
         // Load the data from the stream
@@ -509,9 +502,8 @@ const Socket = {
     this.transport.setEventSink(this, Services.tm.currentThread);
 
     // No limit on the output stream buffer
-    this._outputStream = this.transport.openOutputStream(0, // flags
-                                                         this.outputSegmentSize, // Use default segment size
-                                                         -1); // Segment count
+    this._outputStream =
+      this.transport.openOutputStream(0, this.outputSegmentSize, -1);
     if (!this._outputStream)
       throw "Error getting output stream.";
 
