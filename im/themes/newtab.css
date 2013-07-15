@@ -50,26 +50,6 @@
   padding-bottom: 4px;
 }
 
-%ifdef XP_WIN
-.newtab-contact:hover {
-  background-image: url(chrome://mozapps/skin/extensions/itemEnabledFader.png);
-  background-color: Highlight;
-  color: HighlightText;
-}
-%else
-%ifdef XP_MACOSX
-.newtab-contact:hover {
-  background-color: Highlight !important;
-  color: HighlightText;
-}
-%else
-.newtab-contact:hover {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-%endif
-%endif
-
 .displayName {
   font-size: large;
 }

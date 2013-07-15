@@ -453,13 +453,14 @@
 
       <handler event="keyup">
       <![CDATA[
-        if (event.keyCode != event.DOM_VK_ENTER &&
-            event.keyCode != event.DOM_VK_RETURN)
+        if (!this.listbox.firstChild ||
+            (event.keyCode != event.DOM_VK_ENTER &&
+             event.keyCode != event.DOM_VK_RETURN))
           return;
         if (!("Conversations" in window))
           Components.utils.import("resource:///modules/imWindows.jsm");
-        Conversations.focusConversation(
-          this.listbox.firstChild.contact.createConversation());
+        let item = this.listbox.selectedItem || this.listbox.firstChild;
+        Conversations.focusConversation(item.contact.createConversation());
         window.getTabBrowser().removeTab(this.tab);
       ]]>
       </handler>
@@ -543,6 +544,12 @@
           newtab.listbox.selectedIndex = -1;
           newtab.filterbox.focus();
         }
+      ]]>
+      </handler>
+
+      <handler event="mouseover">
+      <![CDATA[
+        document.getBindingParent(this).listbox.selectItem(this);
       ]]>
       </handler>
     </handlers>
