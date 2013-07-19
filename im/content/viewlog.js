@@ -256,16 +256,18 @@ chatLogTreeView.prototype = {
     let todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(),
                              nowDate.getDate());
 
-    // The keys used in the 'firstgroups' object should match string ids in
-    // messenger.properties. The order is the reverse of that in which
-    // they will appear in the logTree.
+    // The keys used in the 'firstgroups' object should match string ids.
+    // The order is the reverse of that in which they will appear
+    // in the logTree.
     let firstgroups = {
       previousWeek: [],
-      currentWeek: []
+      currentWeek: [],
+      yesterday: [],
+      today: []
     };
 
-    // today and yesterday are treated differently, because they represent
-    // individual logs, and are not "groups".
+    // today and yesterday are treated differently, because for JSON logs they
+    // represent individual logs, and are not "groups".
     let today = null, yesterday = null;
 
     // Build a chatLogTreeLogItem for each log, and put it in the right group.
@@ -274,20 +276,27 @@ chatLogTreeView.prototype = {
       let logDate = new Date(log.time * 1000);
       // Calculate elapsed time between the log and 00:00:00 today.
       let timeFromToday = todayDate - logDate;
-      let title = (log.format == "json" ? formatDate : formatDateTime)(logDate);
+      let isJSON = log.format == "json";
+      let title = (isJSON ? formatDate : formatDateTime)(logDate);
       let group;
       if (timeFromToday <= 0) {
-        today = new chatLogTreeLogItem(log, chatBundle.getString("log.today"), 0);
-        continue;
+        if (isJSON) {
+          today = new chatLogTreeLogItem(log, chatBundle.getString("log.today"), 0);
+          continue;
+        }
+        group = firstgroups.today;
       }
       else if (timeFromToday <= kDayInMsecs) {
-        yesterday = new chatLogTreeLogItem(log, chatBundle.getString("log.yesterday"), 0);
-        continue;
+        if (isJSON) {
+          yesterday = new chatLogTreeLogItem(log, chatBundle.getString("log.yesterday"), 0);
+          continue;
+        }
+        group = firstgroups.yesterday;
       }
       // Note that the 7 days of the current week include today.
       else if (timeFromToday <= kWeekInMsecs - kDayInMsecs) {
         group = firstgroups.currentWeek;
-        if (log.format == "json")
+        if (isJSON)
           title = formatWeekday(logDate);
       }
       else if (timeFromToday <= kTwoWeeksInMsecs - kDayInMsecs)
