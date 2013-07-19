@@ -223,7 +223,7 @@ var fake = {
     this.groups = [
       "Contacts",
       "Friends",
-      "Collegues"
+      "Colleagues"
     ].map(function(name) Services.tags.createTag(name));
 
     this.buddies = [
@@ -245,10 +245,10 @@ var fake = {
       Services.contacts.accountBuddyAdded(buddy);
 
     this.convs = [
-      new Conversation("Florian", this.accounts[2], false, this.buddies[6]),
-      new Conversation("#instantbird", this.accounts[4], true),
-      new Conversation("William", this.accounts[2], false, this.buddies[13]),
-      new Conversation("Emma", this.accounts[2], false, this.buddies[7])
+      new Conversation("Florian", this.accounts[2], undefined, this.buddies[6]),
+      new Conversation("#instantbird", this.accounts[4], "Tom"),
+      new Conversation("William", this.accounts[2], undefined, this.buddies[13]),
+      new Conversation("Emma", this.accounts[2], undefined, this.buddies[7])
     ];
 
     let makeDate = function(aDateString) {
@@ -334,11 +334,13 @@ function Account(aName, aProto)
   this.name = aName;
   this.protocol = Services.core.getProtocolById(aProto);
   this.id = "account" + (++gLastAccountId);
+  this.numericId = gLastAccountId;
 
   dump("account " + aName + " created\n");
 }
 Account.prototype = {
   __proto__: ClassInfo("imIAccount", "generic account object"),
+  get imAccount() this,
   protocol: null,
   password: "",
   autoLogin: true,
@@ -369,11 +371,11 @@ AccountBuddy.prototype = {
   _statusType: Ci.imIStatusInfo.STATUS_AVAILABLE
 };
 
-function Conversation(aName, aAccount, aIsChat, aBuddy)
+function Conversation(aName, aAccount, aChatNick, aBuddy)
 {
-  this.__proto__ = aIsChat ? GenericConvChatPrototype : GenericConvIMPrototype;
+  this.__proto__ = aChatNick ? GenericConvChatPrototype : GenericConvIMPrototype;
   this.buddy = aBuddy;
-  this._init(aAccount, aName);
+  this._init(aAccount, aName, aChatNick);
   dump("conversation " + aName + " created\n");
 }
 
