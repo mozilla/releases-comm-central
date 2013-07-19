@@ -53,6 +53,10 @@
         <parameter name="aConversation"/>
         <body>
           <![CDATA[
+            // Magic Copy may be initialized if the convbrowser is already
+            // displaying a conversation.
+            this.uninitMagicCopy();
+
             this._conv = aConversation;
 
             // init is called when the message style preview is
