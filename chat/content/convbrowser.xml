@@ -372,6 +372,7 @@
         </body>
       </method>
 
+      <!-- This is reset in onStateChange. -->
       <field name="_sessions">[]</field>
       <method name="displayMessage">
         <parameter name="aMsg"/>
@@ -838,6 +839,7 @@
               this._pendingMessages = [];
               this._nextPendingMessageIndex = 0;
               this._displayPendingMessagesCalls = 0;
+              this._sessions = [];
 
               Services.obs.notifyObservers(this, "conversation-loaded", null);
             }
