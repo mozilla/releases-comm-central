@@ -271,9 +271,10 @@ function checkNewText(aEvent)
         p.className = "interval";
         if (shouldSetSessionRuler) {
           // Hide the hr and style the time text accordingly instead.
+          prev.classList.remove("sessionstart-ruler");
+          prev.style.border = "none";
           p.classList.add("sessionstart-ruler");
           margin += 6;
-          prev.style.display = "none";
           prev = p;
         }
         p.style.lineHeight = (margin + shadow) + "px";
