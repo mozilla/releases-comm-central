@@ -142,7 +142,9 @@
         <body>
           <![CDATA[
           this.contentWindow.controllers.insertControllerAt(0, this);
-          if (Services.clipboard.supportsSelectionClipboard()) {
+          this.autoCopyEnabled = Services.clipboard.supportsSelectionClipboard() &&
+            Services.prefs.getBoolPref("clipboard.autocopy");
+          if (this.autoCopyEnabled) {
             this.contentWindow.getSelection()
                 .QueryInterface(Components.interfaces.nsISelectionPrivate)
                 .addSelectionListener(this);
@@ -155,7 +157,7 @@
         <body>
           <![CDATA[
           this.contentWindow.controllers.removeController(this);
-          if (Services.clipboard.supportsSelectionClipboard()) {
+          if (this.autoCopyEnabled) {
              this.contentWindow.getSelection()
                  .QueryInterface(Components.interfaces.nsISelectionPrivate)
                  .removeSelectionListener(this);
@@ -164,6 +166,7 @@
         </body>
       </method>
 
+      <field name="autoCopyEnabled">false</field>
       <field name="magicCopyPref" readonly="true">"messenger.conversations.selections.magicCopyEnabled"</field>
       <property name="magicCopyEnabled"
                 onget="return Services.prefs.getBoolPref(this.magicCopyPref);"
