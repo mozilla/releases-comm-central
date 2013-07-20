@@ -86,7 +86,13 @@
   width: 16px;
   max-height: 16px;
   max-width: 16px;
-  background-image: url("chrome://instantbird/skin/tag.png");
+  list-style-image: url("chrome://instantbird/skin/tag.png");
+}
+
+@media (min-resolution: 2dppx) {
+  .tagIcon {
+    list-style-image: url("chrome://instantbird/skin/tag@2x.png");
+  }
 }
 
 .protoIcon {

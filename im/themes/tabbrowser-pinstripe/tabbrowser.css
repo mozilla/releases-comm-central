@@ -364,7 +364,8 @@ statusbarpanel#statusbar-display {
 .tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]):hover,
 .tabs-alltabs-button:not([disabled]):not([open]):hover,
 .tabs-alltabs-button > .toolbarbutton-menubutton-button:not([disabled]):hover,
-.tabs-alltabs-button:not([disabled]):not([buttonover]):hover > .toolbarbutton-menubutton-dropmarker {
+.tabs-alltabs-button:not([disabled]):not([buttonover]):hover > .toolbarbutton-menubutton-dropmarker,
+.tabs-container > .tabs-newtab-button:hover {
   background-image: -moz-linear-gradient(transparent, rgba(0,0,0,.15)) !important;
 }
 
@@ -373,8 +374,13 @@ statusbarpanel#statusbar-display {
 .tabs-alltabs-button:not([disabled]):hover:active,
 .tabs-alltabs-button[open],
 .tabs-alltabs-button > .toolbarbutton-menubutton-button:not([disabled]):hover:active,
-.tabs-alltabs-button[open]:not([disabled]):hover > .toolbarbutton-menubutton-dropmarker {
+.tabs-alltabs-button[open]:not([disabled]):hover > .toolbarbutton-menubutton-dropmarker,
+.tabs-container > .tabs-newtab-button:active {
   background-image: -moz-linear-gradient(transparent, rgba(0,0,0,.3)) !important;
+}
+
+.tabs-container > .tabs-newtab-button {
+  padding: 2px 0;
 }
 
 .tabs-newtab-button {
@@ -388,6 +394,25 @@ statusbarpanel#statusbar-display {
 
 .tabs-newtab-button:hover:active {
   -moz-image-region: rect(0, 54px, 20px, 36px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tabs-newtab-button {
+    list-style-image: url(chrome://instantbird/skin/tabbrowser/newtab@2x.png);
+    -moz-image-region: rect(0, 36px, 40px, 0);
+  }
+
+  .tabs-newtab-button:hover {
+    -moz-image-region: rect(0, 72px, 40px, 36px);
+  }
+
+  .tabs-newtab-button:hover:active {
+    -moz-image-region: rect(0, 108px, 40px, 72px);
+  }
+
+  .tabs-newtab-button > .toolbarbutton-icon {
+    width: 40px;
+  }
 }
 
 .tabs-alltabs-button {

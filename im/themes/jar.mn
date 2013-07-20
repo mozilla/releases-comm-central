@@ -37,6 +37,7 @@ instantbird.jar:
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
 	skin/classic/instantbird/tag.png        (tag-mac.png)
+	skin/classic/instantbird/tag@2x.png     (tag-mac@2x.png)
 #else
 	skin/classic/instantbird/tag.png        (tag-linux.png)
 #endif
@@ -71,6 +72,7 @@ instantbird.jar:
 #ifdef XP_MACOSX
 *	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-pinstripe/tabbrowser.css)
 	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-pinstripe/newtab.png)
+	skin/classic/instantbird/tabbrowser/newtab@2x.png		(tabbrowser-pinstripe/newtab@2x.png)
 	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-pinstripe/tab-arrow-left.png)
 	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-pinstripe/tab-arrow-right.png)
 	skin/classic/instantbird/tabbrowser/tab-overflow-border.png     (tabbrowser-pinstripe/tab-overflow-border.png)
