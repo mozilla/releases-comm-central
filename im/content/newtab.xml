@@ -547,7 +547,7 @@
       ]]>
       </handler>
 
-      <handler event="mouseover">
+      <handler event="mousemove">
       <![CDATA[
         document.getBindingParent(this).listbox.selectItem(this);
       ]]>
