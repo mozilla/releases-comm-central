@@ -522,6 +522,13 @@ const XMPPAccountBuddyPrototype = {
         statusType = Ci.imIStatusInfo.STATUS_IDLE;
       }
 
+      // Mark official Android clients as mobile.
+      const kAndroidNodeURI = "http://www.android.com/gtalk/client/caps";
+      if (aStanza.getChildrenByNS(Stanza.NS.caps)
+                 .some(function(s) s.localName == "c" &&
+                                   s.attributes["node"] == kAndroidNodeURI))
+        statusType = Ci.imIStatusInfo.STATUS_MOBILE;
+
       let status = aStanza.getElement(["status"]);
       status = status ? status.innerText : "";
 
