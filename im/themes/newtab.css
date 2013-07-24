@@ -29,11 +29,7 @@
 %else
   background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
 %endif
-%ifndef XP_WIN
   border-bottom: 1px solid ThreeDShadow;
-%else
-  border-bottom: none;
-%endif
 %endif
 }
 
