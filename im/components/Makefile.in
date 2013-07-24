@@ -16,11 +16,18 @@ endif
 EXTRA_COMPONENTS = \
 	contentHandler.js contentHandler.manifest \
 	ibCommandLineHandler.manifest \
+	ibConvStatsService.js ibConvStatsService.manifest \
 	ibStatusCommandLineHandler.js ibStatusCommandLineHandler.manifest \
 	$(NULL)
 
 EXTRA_PP_COMPONENTS = \
 	ibCommandLineHandler.js \
+	$(NULL)
+
+MODULE = instantbird
+
+XPIDLSRCS = \
+	ibIConvStatsService.idl \
 	$(NULL)
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)

@@ -10,8 +10,8 @@ newtab {
   -moz-binding: url("chrome://instantbird/content/newtab.xml#newtab");
 }
 
-.newtab-contact {
-  -moz-binding: url("chrome://instantbird/content/newtab.xml#newtab-contact");
+.newtab-item {
+  -moz-binding: url("chrome://instantbird/content/newtab.xml#newtab-item");
 }
 
 aboutPanel {

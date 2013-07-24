@@ -449,6 +449,8 @@
 @BINPATH@/components/contentHandler.manifest
 @BINPATH@/components/ibCommandLineHandler.js
 @BINPATH@/components/ibCommandLineHandler.manifest
+@BINPATH@/components/ibConvStatsService.js
+@BINPATH@/components/ibConvStatsService.manifest
 @BINPATH@/components/ibStatusCommandLineHandler.js
 @BINPATH@/components/ibStatusCommandLineHandler.manifest
 @BINPATH@/components/irc.js
