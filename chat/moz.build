@@ -17,6 +17,7 @@ PARALLEL_DIRS += [
     'protocols/twitter',
     'protocols/vkontakte',
     'protocols/xmpp',
+    'protocols/yahoo',
 ]
 
 if CONFIG['MOZ_DEBUG']:
