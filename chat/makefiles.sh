@@ -17,5 +17,6 @@ chat/protocols/odnoklassniki/Makefile
 chat/protocols/twitter/Makefile
 chat/protocols/vkontakte/Makefile
 chat/protocols/xmpp/Makefile
+chat/protocols/yahoo/Makefile
 chat/themes/Makefile
 "

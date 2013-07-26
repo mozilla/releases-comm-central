@@ -9,31 +9,18 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-PROTOCOLS = \
-		facebook \
-		gtalk \
-		irc \
-		odnoklassniki \
-		twitter \
-		vkontakte \
-		xmpp \
-		yahoo \
+EXTRA_COMPONENTS += \
+		yahoo.js \
+		yahoo.manifest \
 		$(NULL)
 
-ifdef MOZ_DEBUG
-PROTOCOLS += jsTest
+EXTRA_JS_MODULES = \
+		yahoo-session.jsm \
+		$(NULL)
+
+ifdef ENABLE_TESTS
+relativesrcdir = @relativesrcdir@
+XPCSHELL_TESTS = test
 endif
-
-PREF_JS_EXPORTS = $(srcdir)/chat-prefs.js
-
-PARALLEL_DIRS	= \
-		components/public \
-		components/src \
-		modules \
-		content \
-		themes \
-		locales \
-		$(foreach proto,$(PROTOCOLS),protocols/$(proto)) \
-		$(NULL)
 
 include $(topsrcdir)/config/rules.mk
