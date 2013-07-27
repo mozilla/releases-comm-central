@@ -445,6 +445,7 @@
 @BINPATH@/components/profileMigrator.js
 @BINPATH@/components/profileMigrator.manifest
 #endif
+@BINPATH@/components/instantbird.xpt
 @BINPATH@/components/contentHandler.js
 @BINPATH@/components/contentHandler.manifest
 @BINPATH@/components/ibCommandLineHandler.js
