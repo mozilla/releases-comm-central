@@ -467,6 +467,8 @@
 @BINPATH@/components/vkontakte.manifest
 @BINPATH@/components/xmpp.js
 @BINPATH@/components/xmpp.manifest
+@BINPATH@/components/yahoo.js
+@BINPATH@/components/yahoo.manifest
 @BINPATH@/components/smileProtocolHandler.js
 @BINPATH@/components/smileProtocolHandler.manifest
 @BINPATH@/components/logger.js
