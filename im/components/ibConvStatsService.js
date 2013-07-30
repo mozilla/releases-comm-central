@@ -158,8 +158,9 @@ ConvStatsService.prototype = {
 let PossibleConversation = {
   get displayName() this._displayName,
   get lowerCaseName() {
-    delete this.lowerCaseName;
-    return  this.lowerCaseName = this._displayName.toLowerCase();
+    if (!this._lowerCaseName)
+      this._lowerCaseName = this._displayName.toLowerCase();
+    return this._lowerCaseName;
   },
   _isChat: false, // False by default. Extensions should override this.
   get isChat() this._isChat,
