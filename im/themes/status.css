@@ -50,6 +50,10 @@
   list-style-image: url('chrome://chat/skin/idle-16.png');
 }
 
+.statusTypeIcon[status="mobile"] {
+  list-style-image: url('chrome://chat/skin/mobile-16.png');
+}
+
 .protoIcon[status="offline"],
 .protoIcon[status="unknown"] {
   opacity: 0.3;
