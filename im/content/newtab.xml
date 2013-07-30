@@ -310,20 +310,24 @@
           return;
 
         const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
-                             KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
                              KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN];
 
-        let listbox = this.listbox;
-        let modifiersPressed = event.altKey || event.metaKey || event.shiftKey || event.ctrlKey;
         // If it's not a navigation key, make sure filterbox has focus and return.
         if (navKeyCodes.indexOf(event.keyCode) == -1) {
           this.filterbox.focus();
           return;
         }
         // If modifiers are pressed, let whatever is focused handle the event.
-        if (modifiersPressed)
+        if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey)
           return;
+        // If the key was Home or End and the filterbox wasn't empty, simply
+        // return so that filterbox can handle it if it had focus.
+        if ((event.keyCode == KeyEvent.DOM_VK_HOME || event.keyCode == KeyEvent.DOM_VK_END) &&
+            this.filterbox.value)
+          return;
+
         // Otherwise, give listbox focus so that it can process the navigation key.
+        let listbox = this.listbox;
         listbox.focus();
         // The selectedIndex is -1 after a new filter. In this case, pressing a
         // navkey from the filterbox should select the first item in the list.
