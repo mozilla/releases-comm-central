@@ -392,15 +392,15 @@
   <binding id="newtab-item"
     extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
-      <xul:hbox flex="1">
+      <xul:hbox class="newtabContent" flex="1" xbl:inherits="status">
         <xul:stack class="buddyStatusIconStack" mousethrough="always">
-          <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,status,chat"/>
+          <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,chat"/>
           <xul:image anonid="statusIcon" class="statusTypeIcon" xbl:inherits="status,chat"/>
         </xul:stack>
         <xul:vbox flex="1">
           <xul:spacer flex="1"/>
           <xul:hbox>
-            <xul:label class="displayName" flex="1" crop="end" xbl:inherits="value=displayName,status"/>
+            <xul:label class="displayName" flex="1" crop="end" xbl:inherits="value=displayName"/>
             <xul:hbox flex="10000">
               <xul:spacer flex="10000"/>
               <xul:image class="infoIcon" xbl:inherits="source,selected"/>
@@ -409,8 +409,8 @@
           </xul:hbox>
           <xul:spacer flex="1"/>
           <xul:hbox class="statusAndProtoIconBox">
-            <xul:label class="statusText" flex="1" crop="end" xbl:inherits="value=statusText,status"/>
-            <xul:image class="protoIcon" xbl:inherits="src=protoIcon,status"/>
+            <xul:label class="statusText" flex="1" crop="end" xbl:inherits="value=statusText"/>
+            <xul:image class="protoIcon" xbl:inherits="src=protoIcon"/>
           </xul:hbox>
         </xul:vbox>
       </xul:hbox>

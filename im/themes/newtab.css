@@ -47,7 +47,7 @@
 %endif
 }
 
-.newtab-contact {
+.newtab-item {
   padding-top: 4px;
   padding-bottom: 4px;
 }
@@ -141,7 +141,7 @@
   margin-right: 0px;
 }
 
-.newtab-contact [status="offline"]:not(.statusTypeIcon),
-.newtab-contact [status="unknown"]:not(.statusTypeIcon) {
+.newtabContent[status="offline"],
+.newtabContent[status="unknown"] {
   opacity: 0.5;
 }
