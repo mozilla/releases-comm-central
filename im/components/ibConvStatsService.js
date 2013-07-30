@@ -203,9 +203,16 @@ function ExistingConversation(aUIConv) {
   }
   else {
     let buddy = aUIConv.buddy;
-    this._statusType = buddy.statusType;
-    this._statusText = buddy.statusText;
-    this._buddyIconFilename = buddy.buddyIconFilename;
+    if (buddy) {
+      this._statusType = buddy.statusType;
+      this._statusText = buddy.statusText;
+      this._buddyIconFilename = buddy.buddyIconFilename;
+    }
+    else {
+      this._statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
+      this._statusText = "";
+      this._buddyIconFilename = "";
+    }
   }
   this._infoText = _newtab("existingConv.infoText");
 }
