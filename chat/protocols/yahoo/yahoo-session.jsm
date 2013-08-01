@@ -842,7 +842,7 @@ const YahooPacketHandler = {
     let authRequest = {
       _account: this,
       _session: this._session,
-      get account() this.imAccount,
+      get account() this,
       userName: aPacket.getValue(4),
       grant: function() {
         let packet = new YahooPacket(kPacketType.BuddyAuth, 0,
@@ -852,7 +852,7 @@ const YahooPacketHandler = {
         // Misc. Unknown flags.
         packet.addValue(13, 1);
         packet.addValue(334, 0);
-        this._session._socket.sendBinaryData(packet.toArrayBuffer());
+        this._session.sendBinaryData(packet.toArrayBuffer());
 
         // TODO - Possibly allow different tags to be used.
         this._account.addBuddy(Services.tags.createTag("Friends"),
@@ -864,7 +864,7 @@ const YahooPacketHandler = {
         packet.addValue(1, this._account.cleanUsername);
         packet.addValue(7, this.userName);
         packet.addValue(14, "");
-        this._session._socket.sendBinaryData(packet.toArrayBuffer());
+        this._session.sendBinaryData(packet.toArrayBuffer());
       },
       cancel: function() {
         Services.obs.notifyObservers(this,
