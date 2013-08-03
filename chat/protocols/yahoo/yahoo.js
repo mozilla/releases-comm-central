@@ -161,6 +161,9 @@ function YahooAccount(aProtoInstance, aImAccount)
   this._converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
       .createInstance(Ci.nsIScriptableUnicodeConverter);
   this._converter.charset = this.getString("local_charset") || "UTF-8";
+
+  // The username stripped of any @yahoo.* domain.
+  this.cleanUsername = this.name.replace(/@yahoo\..+$/, "");
 }
 YahooAccount.prototype = {
   // YahooSession object passed in constructor.
@@ -182,6 +185,8 @@ YahooAccount.prototype = {
   // created. It is appened to the end of the room name when a new room is
   // created, ensuring name uniqueness.
   _roomsCreated: 0,
+  // The username stripped of any @yahoo.* domain.
+  cleanUsername: null,
 
   connect: function() {
     this._session = new YahooSession(this);
@@ -379,9 +384,6 @@ YahooAccount.prototype = {
   },
 
   get canJoinChat() true,
-  // Strip @yahoo.com or @yahoo.co.jp from username. Other email domains
-  // can be left alone.
-  get cleanUsername() this.name.replace(this._protocol.emailSuffix, ""),
   chatRoomFields: {},
   joinChat: function(aComponents) {
     // Use _roomsCreated to append a unique number to the room name. We add 1
@@ -405,7 +407,6 @@ YahooProtocol.prototype = {
   loginTokenGetUrl: "https://login.yahoo.com/config/pwtoken_get",
   loginTokenLoginUrl: "https://login.yahoo.com/config/pwtoken_login",
   buildId: "4194239",
-  emailSuffix: "@yahoo.com",
 
   get id() "prpl-yahoo",
   get name() "Yahoo",
@@ -461,7 +462,6 @@ YahooJapanProtocol.prototype = {
   loginTokenGetUrl: "https://login.yahoo.co.jp/config/pwtoken_get",
   loginTokenLoginUrl: "https://login.yahoo.co.jp/config/pwtoken_login",
   buildId: "4186047",
-  emailSuffix: "@yahoo.co.jp",
 
   get id() "prpl-yahoojp",
   get name() "Yahoo JAPAN",
