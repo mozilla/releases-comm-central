@@ -354,7 +354,7 @@ YahooAccount.prototype = {
     // the message as it is.
     let encodedMsg;
     try {
-      encodedMsg = this._account._converter.ConvertFromUnicode(aMessage);
+      encodedMsg = this._converter.ConvertFromUnicode(aMessage);
     } catch (e) {
       encodedMsg = aMessage;
       this.WARN("Could not encode UTF-16 message into " +
@@ -369,10 +369,10 @@ YahooAccount.prototype = {
     // as it is.
     let decodedMsg;
     try {
-      decodedMsg = this._account._converter.ConvertToUnicode(aMessage);
+      decodedMsg = this._converter.ConvertToUnicode(aMessage);
     } catch (e) {
       decodedMsg = aMessage;
-      this.WARN("Could not deccode " + this._converter.charset +
+      this.WARN("Could not decode " + this._converter.charset +
                 " message into UTF-16. Message: " + aMessage);
     }
     return decodedMsg;
