@@ -759,7 +759,7 @@ const YahooPacketHandler = {
       packet.addValue(430, messageId);
       packet.addValue(303, 430);
       packet.addValue(450, 0);
-      this._session._socket.sendBinaryData(packet.toArrayBuffer());
+      this._session.sendBinaryData(packet.toArrayBuffer());
     }
   },
 
