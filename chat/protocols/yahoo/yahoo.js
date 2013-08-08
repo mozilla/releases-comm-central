@@ -410,6 +410,7 @@ YahooProtocol.prototype = {
 
   get id() "prpl-yahoo",
   get name() "Yahoo",
+  get iconBaseURI() "chrome://prpl-yahoo/skin/",
   options: {
     port: {get label() _("options.pagerPort"), default: 5050},
     //xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
@@ -465,6 +466,7 @@ YahooJapanProtocol.prototype = {
 
   get id() "prpl-yahoojp",
   get name() "Yahoo JAPAN",
+  get iconBaseURI() "chrome://prpl-yahoojp/skin/",
   options: {
     port: {get label() _("options.pagerPort"), default: 5050},
     //xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
