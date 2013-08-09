@@ -442,6 +442,7 @@ YahooProtocol.prototype = {
     {
       name: "invite",
       get helpString() _("command.help.invite"),
+      usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
       run: function(aMsg, aConv) {
         if (aMsg.trim().length == 0)
           return false;
