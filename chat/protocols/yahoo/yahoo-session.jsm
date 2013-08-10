@@ -63,6 +63,7 @@ const kPacketType = {
 };
 
 const kPacketStatuses = {
+  ServerAck: 0x1,
   Typing: 0x16
 };
 
@@ -839,6 +840,12 @@ const YahooPacketHandler = {
 
   // Buddy authorization request.
   0xd6: function(aPacket) {
+    // Whenever we authorize someone to be our buddy, the server will send an
+    // acknowledgement packet. We ignore the ack to prevent the auth request
+    // from showing again.
+    if (aPacket.status == kPacketStatuses.ServerAck)
+      return;
+
     let authRequest = {
       _account: this,
       _session: this._session,
