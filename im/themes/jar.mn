@@ -78,15 +78,23 @@ instantbird.jar:
 	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-pinstripe/newtab.png)
 	skin/classic/instantbird/tabbrowser/newtab@2x.png		(tabbrowser-pinstripe/newtab@2x.png)
 	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-pinstripe/tab-arrow-left.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left@2x.png	(tabbrowser-pinstripe/tab-arrow-left@2x.png)
 	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-pinstripe/tab-arrow-right.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-right@2x.png	(tabbrowser-pinstripe/tab-arrow-right@2x.png)
 	skin/classic/instantbird/tabbrowser/tab-overflow-border.png     (tabbrowser-pinstripe/tab-overflow-border.png)
 	skin/classic/instantbird/tabbrowser/tab-top-hover-active.png    (tabbrowser-pinstripe/tab-top-hover-active.png)
+	skin/classic/instantbird/tabbrowser/tab-top-hover-active@2x.png (tabbrowser-pinstripe/tab-top-hover-active@2x.png)
 	skin/classic/instantbird/tabbrowser/tab-top-normal-active.png   (tabbrowser-pinstripe/tab-top-normal-active.png)
+	skin/classic/instantbird/tabbrowser/tab-top-normal-active@2x.png   (tabbrowser-pinstripe/tab-top-normal-active@2x.png)
 	skin/classic/instantbird/tabbrowser/tab-top-selected-active.png (tabbrowser-pinstripe/tab-top-selected-active.png)
+	skin/classic/instantbird/tabbrowser/tab-top-selected-active@2x.png (tabbrowser-pinstripe/tab-top-selected-active@2x.png)
 	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-pinstripe/tabDragIndicator.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator@2x.png	(tabbrowser-pinstripe/tabDragIndicator@2x.png)
 	skin/classic/instantbird/tabbrowser/tabbar-top-bg-active.png    (tabbrowser-pinstripe/tabbar-top-bg-active.png)
 	skin/classic/instantbird/tabbrowser/tabbar-top-bg-inactive.png  (tabbrowser-pinstripe/tabbar-top-bg-inactive.png)
 	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon.png)
+	skin/classic/instantbird/lion/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon-lion.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon@2x.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon-lion@2x.png)
 #else
 *	skin/classic/instantbird/tabbrowser.css				(tabbrowser-gnomestripe/tabbrowser.css)
 	skin/classic/instantbird/tabbrowser/tab.png			(tabbrowser-gnomestripe/tab.png)
@@ -324,3 +332,7 @@ instantbird.jar:
 	skin/classic/instantbird/messages/simple/Status.html           (messages/simple/Status.html)
 	skin/classic/instantbird/messages/simple/Variants/Normal.css   (messages/simple/Variants/Normal.css)
 	skin/classic/instantbird/messages/simple/Variants/Dark.css     (messages/simple/Variants/Dark.css)
+
+#ifdef XP_MACOSX
+% override chrome://instantbird/skin/tabbrowser/alltabs-box-bkgnd-icon.png     chrome://instantbird/skin/lion/tabbrowser/alltabs-box-bkgnd-icon.png        os=Darwin osversion>=10.7
+#endif

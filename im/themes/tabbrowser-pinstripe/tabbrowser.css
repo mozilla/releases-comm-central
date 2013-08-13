@@ -164,6 +164,30 @@ statusbarpanel#statusbar-display {
     url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-inactive.png);
 }
 
+@media (min-resolution: 2dppx) {
+  .tabbrowser-tab > .tab-stack > .tab-content,
+  .tabbrowser-arrowscrollbox > .tabs-newtab-button > .toolbarbutton-icon {
+    border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-normal-active@2x.png) 0 22 fill repeat stretch;
+  }
+
+  .tabbrowser-tab:hover > .tab-stack > .tab-content:not([selected="true"]),
+  .tabbrowser-arrowscrollbox > .tabs-newtab-button:hover > .toolbarbutton-icon {
+    border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-hover-active@2x.png) 0 22 fill repeat stretch;
+  }
+
+  .tabbrowser-tab > .tab-stack > .tab-content[selected="true"] {
+    border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active@2x.png) 0 22 fill repeat stretch;
+  }
+
+  /* preloading hack */
+  .tabbrowser-strip::after {
+    background-image:
+      url(chrome://instantbird/skin/tabbrowser/tab-top-normal-active@2x.png),
+      url(chrome://instantbird/skin/tabbrowser/tab-top-hover-active@2x.png),
+      url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active@2x.png);
+  }
+}
+
 .tabbrowser-tab:focus > .tab-stack {
   box-shadow: @focusRingShadow@;
 }
@@ -203,13 +227,8 @@ statusbarpanel#statusbar-display {
   background-image: url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-active.png) ;
 }
 
-/* work around the brokenness of the native theming caused by the tab bar
-   not being a toolbar (these 2 rules are not in Firefox). */
 .tabbrowser-tabpanels:not(:-moz-lwtheme) {
-  border-top: 1px solid rgba(150, 150, 150, .43); /*-moz-mac-chrome-active*/
-}
-.tabbrowser-tabpanels:not(:-moz-lwtheme):-moz-window-inactive {
-  border-top-color: rgba(202, 202, 202, .43); /*-moz-mac-chrome-inactive*/
+  border-top: 1px solid transparent;
 }
 
 .tabbrowser-strip:not(:-moz-lwtheme):-moz-window-inactive {
@@ -256,6 +275,13 @@ statusbarpanel#statusbar-display {
   background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator.png') 50% 40% no-repeat;
 }
 
+@media (min-resolution: 2dppx) {
+  .tab-drop-indicator {
+    background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator@2x.png') 50% 40% no-repeat;
+    background-size: 12px 33px;
+  }
+}
+
 /**
  * In-tab close button
  */
@@ -281,6 +307,25 @@ statusbarpanel#statusbar-display {
 
 .tab-close-button:hover:active {
   -moz-image-region: rect(0, 48px, 16px, 32px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tab-close-button {
+    list-style-image: url("chrome://global/skin/icons/close@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  .tab-close-button:hover {
+    -moz-image-region: rect(0, 64px, 32px, 32px);
+  }
+
+  .tab-close-button:hover:active {
+    -moz-image-region: rect(0, 96px, 32px, 64px);
+  }
+
+  .tab-close-button > .toolbarbutton-icon {
+    width: 16px;
+  }
 }
 
 .tabbrowser-arrowscrollbox > .scrollbutton-up,
@@ -328,6 +373,44 @@ statusbarpanel#statusbar-display {
 .tabbrowser-arrowscrollbox > .scrollbutton-up[disabled],
 .tabbrowser-arrowscrollbox > .scrollbutton-down[disabled] {
   -moz-image-region: rect(0, 33px, 17px, 22px) !important;
+}
+
+@media (min-resolution: 2dppx) {
+  .tabbrowser-arrowscrollbox > .scrollbutton-up,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down {
+    -moz-image-region: rect(0, 26px, 40px, 0);
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(ltr),
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(rtl) {
+    list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-left@2x.png");
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(ltr),
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl) {
+    list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-right@2x.png");
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:hover,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:hover {
+    -moz-image-region: rect(0, 52px, 40px, 26px);
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:hover:active,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:hover:active {
+    -moz-image-region: rect(0, 78px, 40px, 52px);
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up[disabled] > .toolbarbutton-icon,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down[disabled] > .toolbarbutton-icon {
+    -moz-image-region: rect(0, 26px, 40px, 0) !important;
+    opacity: 0.5;
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down > .toolbarbutton-icon {
+    width: 13px;
+  }
 }
 
 .tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]):-moz-locale-dir(ltr),
@@ -430,6 +513,25 @@ statusbarpanel#statusbar-display {
   -moz-image-region: rect(0, 51px, 20px, 34px);
 }
 
+@media (min-resolution: 2dppx) {
+  .tabs-alltabs-button {
+    list-style-image: url(chrome://instantbird/skin/tabbrowser/alltabs-box-bkgnd-icon@2x.png);
+    -moz-image-region: rect(0, 34px, 40px, 0);
+  }
+
+  .tabs-alltabs-button:not([disabled="true"]):hover {
+    -moz-image-region: rect(0, 68px, 40px, 34px);
+  }
+
+  .tabs-alltabs-button[type="menu"][open="true"]:not([disabled="true"]),
+  .tabs-alltabs-button:not([disabled="true"]):hover:active {
+    -moz-image-region: rect(0, 102px, 40px, 68px);
+  }
+  .tabs-alltabs-button > .toolbarbutton-icon {
+    width: 17px;
+  }
+}
+
 .tabs-alltabs-button > .toolbarbutton-menu-dropmarker,
 .tabs-alltabs-button > .toolbarbutton-text {
   display: none;
@@ -453,6 +555,22 @@ statusbarpanel#statusbar-display {
 
 .tabs-closebutton:hover:active {
   -moz-image-region: rect(0, 48px, 16px, 32px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tabs-closebutton {
+    -moz-padding-end: 8px;
+    list-style-image: url("chrome://global/skin/icons/close@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  .tabs-closebutton:hover {
+    -moz-image-region: rect(0, 64px, 32px, 32px);
+  }
+
+  .tabs-closebutton:hover:active {
+    -moz-image-region: rect(0, 96px, 32px, 64px);
+  }
 }
 
 .alltabs-item[tabIsVisible] {
