@@ -2080,7 +2080,7 @@
         <xul:hbox mousethrough="always" xbl:inherits="selected" class="tab-content" align="center">
           <xul:image mousethrough="always" xbl:inherits="selected,validate,src=image" class="tab-icon-image"/>
           <xul:label mousethrough="always" flex="1" xbl:inherits="value=label,crop,accesskey" class="tab-text"/>
-          <xul:toolbarbutton anonid="close-button" tabindex="-1" class="tab-close-button" tooltiptext="&closeTab.label;"/>
+          <xul:toolbarbutton anonid="close-button" mousethrough="never" tabindex="-1" class="tab-close-button" tooltiptext="&closeTab.label;"/>
         </xul:hbox>
       </xul:stack>
     </content>
