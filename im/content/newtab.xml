@@ -310,6 +310,7 @@
           return;
 
         const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
+                             KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
                              KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN];
 
         // If it's not a navigation key, make sure filterbox has focus and return.
