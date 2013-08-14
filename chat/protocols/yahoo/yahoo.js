@@ -143,6 +143,8 @@ function YahooAccountBuddy(aAccount, aBuddy, aTag, aUserName)
   this._init(aAccount, aBuddy, aTag, aUserName);
 }
 YahooAccountBuddy.prototype = {
+  iconChecksum: null,
+
   // This removes the buddy locally, and from the Yahoo! servers.
   remove: function() this._account.removeBuddy(this, true),
   // This removes the buddy locally, but keeps him on the servers.
@@ -297,6 +299,9 @@ YahooAccount.prototype = {
     // Set all new buddies as offline because a following status packet will
     // tell their status if they are online.
     buddy.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
+
+    // Request the buddy's picture.
+    this._session.requestBuddyIcon(aName);
   },
 
   // Called when a user removes a contact from within Instantbird.

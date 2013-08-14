@@ -55,6 +55,8 @@ const kPacketType = {
   RemoveBuddy:    0x84,
   // This is sent when you reject a Yahoo! user's buddy request.
   BuddyReqReject: 0x86,
+  // This is sent when we request a buddy icon.
+  Picture:        0xbe,
   // This is sent after a profile picture has been successfully uploaded.
   PictureUpload:  0xc2,
   // This is sent whenever a buddy changes their status.
@@ -312,6 +314,14 @@ YahooSession.prototype = {
                                                   aFileName, image);
       uploader.uploadIcon();
     }).bind(this));
+  },
+
+  requestBuddyIcon: function(aName) {
+    let packet = new YahooPacket(kPacketType.Picture, 0, this.sessionId);
+    packet.addValue(1, this._account.cleanUsername);
+    packet.addValue(5, aName); // The name of the buddy.
+    packet.addValue(13, "1"); // "1" means we wish to request an icon.
+    this.sendBinaryData(packet.toArrayBuffer());
   },
 
   // Callbacks.
@@ -869,6 +879,29 @@ const YahooPacketHandler = {
     }
   },
 
+  // Buddy icon checksum.
+  // TODO - Make use of the icon checksum to allow icon caching.
+  0xbd: function(aPacket) {
+    // Extract the checksum from the URL parameter chksum.
+    let buddyName = aPacket.getValue(4);
+    let url = aPacket.getValue(20);
+    let parameter = "chksum=";
+    // The "chksum" parameter is the only parameter in the URL.
+    let checksum = url.substring(url.indexOf(parameter) + parameter.length);
+    
+    let buddy = this.getBuddy(buddyName);
+    // We only download the new icon if no older checksum exists, or if the
+    // older checksum differs, indicating an updated icon.
+    if (buddy && buddy.iconChecksum !== checksum) {
+      buddy.buddyIconFilename = url;
+      buddy.iconChecksum = checksum;
+    }
+  },
+
+  // Buddy icon request reply. This can be handled in the same way as a buddy
+  // icon checksum packet, so we simply reuse the handler.
+  0xbe: function (aPacket) YahooPacketHandler[0xbd].call(this, aPacket),
+
   // Buddy status update.
   0xc6: function (aPacket) {
     let name = aPacket.getValue(7);
@@ -880,6 +913,19 @@ const YahooPacketHandler = {
       message = aPacket.getValue(19);
 
     this.setBuddyStatus(name, status, message);
+  },
+
+  // Buddy avatar (icon) update.
+  0xc7: function(aPacket) {
+    // Strangely, in some non-official clients, when someone updates their 
+    // profile icon we are sent two avatar update packets: one with a default
+    // status containing little information, and another with a Server Ack
+    // status containing the info we need. So we only accept packets with a
+    // Server Ack status to prevent errors.
+    if (aPacket.status != kPacketStatuses.ServerAck)
+      return;
+    // Key 4 contains the name of the buddy who updated their icon.
+    this._session.requestBuddyIcon(aPacket.getValue(4));
   },
 
   // Buddy authorization request.
@@ -955,6 +1001,7 @@ const YahooPacketHandler = {
       let message = statusMessages ? statusMessages[i] : "";
 
       this.setBuddyStatus(name, status, message);
+      this._session.requestBuddyIcon(name);
     }
   },
 
