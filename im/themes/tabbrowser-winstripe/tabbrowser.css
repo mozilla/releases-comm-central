@@ -74,7 +74,7 @@ toolbarbutton > .toolbarbutton-icon {
 %endif
 
 .tabbrowser-tab,
-.tabs-newtab-button {
+.tabbrowser-arrowscrollbox > .tabs-newtab-button {
   -moz-appearance: none;
   background: @toolbarShadowOnTab@, @bgTabTexture@,
               -moz-linear-gradient(-moz-dialog, -moz-dialog);
