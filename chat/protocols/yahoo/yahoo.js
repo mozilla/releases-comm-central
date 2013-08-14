@@ -271,12 +271,16 @@ YahooAccount.prototype = {
       this._conferences.delete(aName);
   },
 
-  // Called when the user adds a new contact within Instantbird.
+  // Called when the user adds or authorizes a new contact.
   addBuddy: function(aTag, aName) {
     let buddy = new YahooAccountBuddy(this, null, aTag, aName);
     this._buddies.set(buddy.userName, buddy);
     this._session.addBuddyToServer(buddy);
     Services.contacts.accountBuddyAdded(buddy);
+  },
+
+  hasBuddy: function(aName) {
+    return this._buddies.has(aName);
   },
 
   // Called for each buddy that is sent in a list packet from Yahoo! on login.
