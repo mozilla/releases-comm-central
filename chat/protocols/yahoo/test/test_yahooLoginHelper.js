@@ -80,8 +80,8 @@ function test_cookies()
 
   helper._sendPagerAuthResponse = function() {
     do_check_eq(kCrumb, helper._crumb);
-    do_check_eq(kYCookie, helper._yCookie);
-    do_check_eq(kTCookie, helper._tCookie);
+    do_check_eq(kYCookie, helper._session.yCookie);
+    do_check_eq(kTCookie, helper._session.tCookie);
     run_next_test();
   };
 
