@@ -6,6 +6,8 @@ const EXPORTED_SYMBOLS = ["YahooSession"];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
+Cu.import("resource://gre/modules/FileUtils.jsm");
+Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource:///modules/ArrayBufferUtils.jsm");
 Cu.import("resource:///modules/http.jsm");
 Cu.import("resource:///modules/imServices.jsm");
@@ -16,12 +18,16 @@ XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/yahoo.properties")
 );
 
+XPCOMUtils.defineLazyServiceGetter(this, "imgTools",
+                                   "@mozilla.org/image/tools;1", "imgITools");
+
 const kProtocolVersion = 16;
 const kVendorId = 0;
 
 const kPacketDataDelimiter = "\xC0\x80";
 const kPacketIdentifier = "YMSG";
 const kPacketHeaderSize = 20;
+const kProfileIconWidth = 96;
 
 const kPacketType = {
   // Sent by a client when logging off of the Yahoo! network.
@@ -49,8 +55,12 @@ const kPacketType = {
   RemoveBuddy:    0x84,
   // This is sent when you reject a Yahoo! user's buddy request.
   BuddyReqReject: 0x86,
+  // This is sent after a profile picture has been successfully uploaded.
+  PictureUpload:  0xc2,
   // This is sent whenever a buddy changes their status.
   StatusUpdate:   0xc6,
+  // This is sent when we update our icon.
+  AvatarUpdate:   0xc7,
   // This is sent when someone wishes to become your buddy.
   BuddyAuth:      0xd6,
   // Holds the initial status of all buddies when a user first logs in.
@@ -136,6 +146,9 @@ YahooSession.prototype = {
   // The session ID is obtained during the login process and is maintained
   // throughout the session. This helps the pager server identify the client.
   sessionId: null,
+  // The T and Y cookies obtained by the YahooLoginHelper during login.
+  tCookie: null,
+  yCookie: null,
 
   // Public methods.
   login: function() {
@@ -284,6 +297,23 @@ YahooSession.prototype = {
     this.sendBinaryData(packet.toArrayBuffer());
   },
 
+  setProfileIcon: function(aFileName) {
+    // Try to get a handle to the icon file.
+    let file = FileUtils.getFile("ProfD", [aFileName]);
+    let type = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService)
+                                        .getTypeFromFile(file);
+    NetUtil.asyncFetch(file, (function(aStream, aStatus) {
+      if (!Components.isSuccessCode(aStatus)) {
+        throw "Could not access icon file.";
+        return;
+      }
+      let image = imgTools.decodeImage(aStream, type);
+      let uploader = new YahooProfileIconUploader(this._account, this,
+                                                  aFileName, image);
+      uploader.uploadIcon();
+    }).bind(this));
+  },
+
   // Callbacks.
   onLoginComplete: function() {
     this._account.reportConnected();
@@ -391,11 +421,9 @@ YahooLoginHelper.prototype = {
   _challengeString: null,
   // The authentication token sent from Yahoo!'s login server.
   _loginToken: null,
-  // Crumb and cookie strings sent from Yahoo!'s login server, and used in
-  // the final authentication request to the pager server.
+  // Crumb sent from Yahoo!'s login server, and used in the final authentication
+  // request to the pager server.
   _crumb: null,
-  _yCookie: null,
-  _tCookie: null,
 
   // Public methods.
   login: function(aAccount) {
@@ -447,8 +475,8 @@ YahooLoginHelper.prototype = {
     // Build the key/value pairs.
     packet.addValue(1, this._account.cleanUsername);
     packet.addValue(0, this._account.cleanUsername);
-    packet.addValue(277, this._yCookie);
-    packet.addValue(278, this._tCookie);
+    packet.addValue(277, this._session.yCookie);
+    packet.addValue(278, this._session.tCookie);
     packet.addValue(307, response);
     packet.addValue(244, this._account.protocol.buildId);
     packet.addValue(2, this._account.cleanUsername);
@@ -533,8 +561,10 @@ YahooLoginHelper.prototype = {
     }
 
     this._crumb = responseParams[1].replace("crumb=", "");
-    this._yCookie = responseParams[2].substring(2); // Remove the "Y=" bit.
-    this._tCookie = responseParams[3].substring(2); // Remove the "T=" bit.
+    // Remove the "Y=" bit.
+    this._session.yCookie = responseParams[2].substring(2);
+    // Remove the "T=" bit.
+    this._session.tCookie = responseParams[3].substring(2);
     this._sendPagerAuthResponse();
   },
 
@@ -825,6 +855,20 @@ const YahooPacketHandler = {
   // to be authenticated if we are receiving other packets anyway.
   0x57: function(aPacket) {},
 
+  // Picture upload.
+  0xc2: function(aPacket) {
+    let onlineBuddies = this.getOnlineBuddies();
+    // Send a notification to each online buddy that your icon has changed.
+    // Those offline will automatically pick up the change when they log in.
+    for each (let buddy in onlineBuddies) {
+      let packet = new YahooPacket(kPacketType.AvatarUpdate, 0,
+                                   this._session.sessionId);
+      packet.addValue(3, buddy.userName);
+      packet.addValue(213, 2); // A value of 2 means we are using an icon.
+      this._session.sendBinaryData(packet.toArrayBuffer());
+    }
+  },
+
   // Buddy status update.
   0xc6: function (aPacket) {
     let name = aPacket.getValue(7);
@@ -925,5 +969,84 @@ const YahooPacketHandler = {
         this.addBuddyFromServer(Services.tags.createTag(tagName), buddyName);
       }
     }
+  }
+};
+
+/* The YahooProfileIconUploader class is specifically designed to set a profile
+ * image on a Yahoo! Messenger account. The reason this functionality is split
+ * into a separate class is because of the complexity of the operation. Because
+ * of special protocol requirements, it is easier to use raw TCP communication
+ * instead of the doXHRequest() method. */
+function YahooProfileIconUploader(aAccount, aSession, aFileName, aImage)
+{
+  this._account = aAccount;
+  this._session = aSession;
+  this._fileName = aFileName;
+  this._image = aImage;
+  // To upload our icon to Yahoo!, we must go through their file transfer
+  // servers. So we access our file transfer server settings.
+  this._host = this._account.getString("xfer_host");
+  this._port = this._account.getString("xfer_port");
+}
+YahooProfileIconUploader.prototype = {
+  __proto__: Socket,
+  _account: null,
+  _session: null,
+  _fileName: null,
+  _image: null,
+  _host: null,
+  _port: null,
+
+  uploadIcon: function() {
+    // Connect to the file transfer server, and the onConnection callback
+    // will do the rest.
+    this.connect(this._host, this._port);
+  },
+
+  // Socket callbacks.
+  onConnection: function() {
+    // Scale the image down, and make it a PNG. Icon widths are constant, but
+    // their height varies depending on the aspect ratio of the original image.
+    let aspectRatio = this._image.width / this._image.height;
+    let scaledHeight = kProfileIconWidth / aspectRatio;
+    let scaledImage = imgTools.encodeScaledImage(this._image, "image/png",
+                                                 kProfileIconWidth,
+                                                 scaledHeight);
+    let imageData = NetUtil.readInputStreamToString(scaledImage,
+                                                    scaledImage.available());
+
+    // Build the Yahoo packet.
+    let packet = new YahooPacket(kPacketType.Picture, 0, this.sessionId);
+    packet.addValue(1, this._account.cleanUsername);
+    // TODO - Look into how expiration time works for profile icons, and its
+    // purpose. We aren't sure if this refers to seconds, days, years, etc.
+    packet.addValue(38, "604800"); // Expiration time.
+    packet.addValue(0, this._account.cleanUsername);
+    packet.addValue(28, imageData.length); // Picture size in bytes.
+    packet.addValue(27, this._fileName); // Picture filename.
+    packet.addValue(14, ""); // Null string.
+    let packetBuffer = packet.toArrayBuffer();
+
+    // Build the request header.
+    let headers = [
+      ["User-Agent", "Mozilla/5.0"],
+      ["Cookie", "T=" + this._session.tCookie + "; Y=" + this._session.yCookie],
+      ["Host", this._host + ":" + this._port],
+      ["Content-Length", packetBuffer.byteLength + 4 + imageData.length],
+      ["Cache-Control", "no-cache"],
+    ];
+    let headerString = "POST /notifyft HTTP/1.1\r\n";
+    headers.forEach(function(header) {
+      headerString += header[0] + ": " + header[1] + "\r\n";
+    });
+
+    // The POST request uses a special delimeter between the end of the included
+    // Yahoo binary packet, and the image data.
+    let requestPacketEnd = "29" + kPacketDataDelimiter;
+    // Build the complete POST request data.
+    let requestData = headerString + "\r\n" +
+                      ArrayBufferToString(packetBuffer) + requestPacketEnd +
+                      imageData;
+    this.sendData(requestData);
   }
 };

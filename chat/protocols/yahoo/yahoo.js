@@ -206,10 +206,10 @@ YahooAccount.prototype = {
   },
 
   observe: function(aSubject, aTopic, aData) {
-    if (aTopic != "status-changed")
-      return;
-
-    this._session.setStatus(aSubject.statusType, aData);
+    if (aTopic == "status-changed")
+      this._session.setStatus(aSubject.statusType, aData);
+    else if (aTopic == "user-icon-changed")
+      this._session.setProfileIcon(aData);
   },
 
   remove: function() {
@@ -326,6 +326,15 @@ YahooAccount.prototype = {
     return null;
   },
 
+  getOnlineBuddies: function() {
+    let onlineBuddies = [];
+    for (let buddy of this._buddies) {
+      if (buddy[1].statusType != Ci.imIStatusInfo.STATUS_OFFLINE)
+        onlineBuddies.push(buddy[1]);
+    }
+    return onlineBuddies;
+  },
+
   receiveMessage: function(aName, aMessage) {
     let conv;
     // Check if we have an existing converstaion open with this user. If not,
@@ -417,8 +426,8 @@ YahooProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-yahoo/skin/",
   options: {
     port: {get label() _("options.pagerPort"), default: 5050},
-    //xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
-    //xfer_port: {get label() _("options.transferPort"), default: 80},
+    xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
+    xfer_port: {get label() _("options.transferPort"), default: 80},
     //room_list_locale: {get label() _("options.chatLocale"), default: "us"},
     local_charset: {get label() _("options.chatEncoding"), default: "UTF-8"},
     ignore_invites: {get label() _("options.ignoreInvites"), default: false}
@@ -473,8 +482,8 @@ YahooJapanProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-yahoojp/skin/",
   options: {
     port: {get label() _("options.pagerPort"), default: 5050},
-    //xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
-    //xfer_port: {get label() _("options.transferPort"), default: 80},
+    xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
+    xfer_port: {get label() _("options.transferPort"), default: 80},
     //room_list_locale: {get label() _("options.chatLocale"), default: "jp"},
     local_charset: {get label() _("options.chatEncoding"), default: "UTF-8"},
     ignore_invites: {get label() _("options.ignoreInvites"), default: false}
