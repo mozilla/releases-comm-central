@@ -8,6 +8,7 @@
 % locale chat @AB_CD@ %locale/@AB_CD@/chat/
 	locale/@AB_CD@/chat/accounts.properties (%accounts.properties)
 	locale/@AB_CD@/chat/commands.properties (%commands.properties)
+	locale/@AB_CD@/chat/contacts.properties	(%contacts.properties)
 	locale/@AB_CD@/chat/conversations.properties (%conversations.properties)
 	locale/@AB_CD@/chat/facebook.properties	(%facebook.properties)
 	locale/@AB_CD@/chat/irc.properties	(%irc.properties)

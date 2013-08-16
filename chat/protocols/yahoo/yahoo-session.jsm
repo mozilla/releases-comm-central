@@ -952,12 +952,10 @@ const YahooPacketHandler = {
         this._session.sendBinaryData(packet.toArrayBuffer());
 
         // If someone wants to add us as a buddy, place them under the default
-        // "Contacts" tag. Also, we make sure that the buddy doesn't already
-        // exist in the list in case of a server acknowledgement.
-        if (!this._account.hasBuddy(this.userName)) {
-          let tag = Services.tags.createTag(_("buddy.auth.defaultGroup"));
-          this._account.addBuddy(tag, this.userName);
-        }
+        // tag. Also, we make sure that the buddy doesn't already exist in the
+        // list in case of a server acknowledgement.
+        if (!this._account.hasBuddy(this.userName))
+          this._account.addBuddy(Services.tags.defaultTag, this.userName);
       },
       deny: function() {
         let packet = new YahooPacket(kPacketType.BuddyReqReject, 0,

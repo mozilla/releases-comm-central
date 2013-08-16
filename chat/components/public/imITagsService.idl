@@ -35,8 +35,10 @@ interface imITag: nsISupports {
                        [optional] in wstring aData);
 };
 
-[scriptable, uuid(f799a9c2-23f2-4fd1-96fb-515bad238f8c)]
+[scriptable, uuid(993aa8c7-8193-4354-8ee1-d2fd9fca692d)]
 interface imITagsService: nsISupports {
+  // Get the default tag (ie. "Contacts" for en-US).
+  readonly attribute imITag defaultTag;
   // Create a new tags or return the existing one if it already exists
   imITag createTag(in AUTF8String aName);
   // Get an existing tag by (numeric) id. Returns null if not found.

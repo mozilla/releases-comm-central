@@ -6,6 +6,10 @@ const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://chat/locale/contacts.properties")
+);
+
 var gDBConnection = null;
 
 function executeAsyncThenFinalize(statement)
@@ -115,6 +119,7 @@ this.__defineGetter__("DBConn", function() {
 function TagsService() { }
 TagsService.prototype = {
   get wrappedJSObject() this,
+  get defaultTag() this.createTag(_("defaultGroup")),
   createTag: function(aName) {
     // If the tag already exists, we don't want to create a duplicate.
     let tag = this.getTagByName(aName);

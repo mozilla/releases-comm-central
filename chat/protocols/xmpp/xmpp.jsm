@@ -1055,17 +1055,18 @@ const XMPPAccountPrototype = {
       }
     }
     else {
-      let tagName = _("defaultGroup");
+      let tag;
       for each (let group in aItem.getChildren("group")) {
         let name = group.innerText;
         if (name) {
-          tagName = name;
+          tag = Services.tags.createTag(name);
           break; // TODO we should create an accountBuddy per group,
                  // but this._buddies would probably not like that...
         }
       }
-      let tag = Services.tags.createTag(tagName);
-      buddy = new this._accountBuddyConstructor(this, null, tag, jid);
+      buddy = new this._accountBuddyConstructor(this, null,
+                                                tag || Services.tags.defaultTag,
+                                                jid);
     }
 
     // We request the vCard only if we haven't received it yet and are
