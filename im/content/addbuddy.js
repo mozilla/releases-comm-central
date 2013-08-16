@@ -31,7 +31,7 @@ var addBuddy = {
     let tags = Services.tags.getTags();
     if (!tags.length) {
       let bundle = document.getElementById("instantbirdBundle");
-      tags.push(Services.tags.createTag(bundle.getString("defaultGroup")));
+      tags.push(Services.tags.defaultTag);
     }
 
     tags.forEach(function (tag) {
