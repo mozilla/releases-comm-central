@@ -349,7 +349,13 @@ YahooAccount.prototype = {
     else
       conv = this._conversations.get(aName);
 
-    conv.writeMessage(aName, this.decodeMessage(aMessage), {incoming: true});
+    // Certain Yahoo clients, such as the official web client, sends formatted
+    // messages, but the size value is the actual pt size, not the 1 - 7 size
+    // expected from the HTML <font> tag. We replace it with the correct size.
+    let message = this.decodeMessage(aMessage)
+                      .replace(/(<font[^>]+)size=\"(\d+)\"/g, this._fixFontSize);
+
+    conv.writeMessage(aName, message, {incoming: true});
   },
 
   receiveConferenceMessage: function(aName, aRoom, aMessage) {
@@ -411,6 +417,35 @@ YahooAccount.prototype = {
     this._conferences.set(roomName, conf);
     this._session.createConference(roomName);
     this._roomsCreated++;
+  },
+
+  // Private methods.
+
+  // This method is used to fix font sizes given by formatted messages. This
+  // method is designed to be used as a method for a string replace() call.
+  _fixFontSize: function(aMatch, aTagAttributes, aFontSize, aOffset, aString) {
+    // Approximate the font size.
+    let newSize;
+    if (aFontSize <= 8)
+      newSize = "1";
+    else if (aFontSize <= 10)
+      newSize = "2";
+    else if (aFontSize <= 12)
+      newSize = "3";
+    else if (aFontSize <= 14)
+      newSize = "4";
+    else if (aFontSize <= 20)
+      newSize = "5";
+    else if (aFontSize <= 30)
+      newSize = "6";
+    else if (aFontSize <= 40)
+      newSize = "7";
+    else // If we get some gigantic size, just default to the standard 3 size.
+      newSize = "3";
+
+    let sizeAttribute = "size=\"" + newSize + "\"";
+    // We keep any preceding attributes, but replace the size attribute.
+    return aTagAttributes + sizeAttribute;
   }
 };
 YahooAccount.prototype.__proto__ = GenericAccountPrototype;
