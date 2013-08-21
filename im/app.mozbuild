@@ -10,4 +10,4 @@ if not CONFIG['COMM_BUILD']:
     if not CONFIG['LIBXUL_SDK']:
         include('/toolkit/toolkit.mozbuild')
     if CONFIG['MOZ_EXTENSIONS']:
-        add_tier_dir('app', 'toolkit/extensions')
+        add_tier_dir('app', 'extensions')
