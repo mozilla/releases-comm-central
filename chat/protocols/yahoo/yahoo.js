@@ -82,11 +82,18 @@ YahooConference.prototype = {
   _owner: null,
 
   close: function() {
+    this.reportLogoff();
+    this._account.deleteConference(this._roomName);
+    GenericConvChatPrototype.close.call(this);
+  },
+
+  reportLogoff: function() {
+    if (this.left)
+      return;
     this._account._session.sendConferenceLogoff(this._account.cleanUsername,
                                                 this.getParticipantNames(),
                                                 this._roomName);
-    this._account.deleteConference(this._roomName);
-    GenericConvChatPrototype.close.call(this);
+    this.left = true;
   },
 
   sendMsg: function(aMsg) {
@@ -196,6 +203,10 @@ YahooAccount.prototype = {
   },
 
   disconnect: function(aSilent) {
+    // Log out of all of the conferences the user is in.
+    for (let conf of this._conferences)
+      conf[1].reportLogoff();
+
     if (this.connected) {
       this.reportDisconnecting(Ci.prplIAccount.NO_ERROR, "");
       if (this._session.isConnected)
