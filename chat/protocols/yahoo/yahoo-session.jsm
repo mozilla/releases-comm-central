@@ -815,6 +815,11 @@ const YahooPacketHandler = {
 
   // Conference invitation.
   0x18: function(aPacket) {
+    // The server responds with an ack packet that contains a limited amount of
+    // information. To prevent "key not found" errors, we ignore such packets.
+    if (aPacket.status != 0)
+      return;
+
     let owner = aPacket.getValue(50);
     let roomName = aPacket.getValue(57);
     let participants = aPacket.getValues(52);
