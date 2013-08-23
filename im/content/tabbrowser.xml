@@ -316,14 +316,21 @@
       </method>
 
       <method name="onTabClick">
-        <parameter name="event"/>
+        <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            if (event.button != 1 || event.target.localName != 'tab')
+            // We only handle the middle mouse button.
+            if (aEvent.button != 1)
               return;
 
-            this.removeTab(event.target);
-            event.stopPropagation();
+            if (aEvent.target.localName == "tab")
+              this.removeTab(aEvent.target);
+            else if (aEvent.originalTarget.localName == "box")
+              Conversations.showNewTab();
+            else
+              return;
+
+            aEvent.stopPropagation();
           ]]>
         </body>
       </method>
@@ -797,14 +804,11 @@
         <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            // See hack note in the tabbrowser-close-button binding
+            // See hack note in the tabbrowser-close-button binding.
+            // 0 represents the primary mouse button.
             if (!this._blockDblClick && aEvent.button == 0 &&
-                aEvent.originalTarget.localName == "box") {
-              // xxx this needs to check that we're in the empty area of the tabstrip
-              var e = document.createEvent("Events");
-              e.initEvent("NewTab", true, true);
-              this.dispatchEvent(e);
-            }
+                aEvent.originalTarget.localName == "box")
+              Conversations.showNewTab();
           ]]>
         </body>
       </method>
