@@ -187,6 +187,10 @@ var ircBase = {
         this.joinChat(this.getChatRoomDefaultFieldValues(aMessage.params[1]));
         this.LOG("Received invite for " + aMessage.params[1] +
                  ", auto-accepting.");
+        // Set a temporary _chatroomFields value so the JOIN handler does not
+        // think we are rejoining the channel just because its conversation is
+        // already open due to the inviteReceived system message.
+        this.getConversation(aMessage.params[1])._chatRoomFields = true;
       }
       // Otherwise, just notify the user.
       this.getConversation(aMessage.params[1])
