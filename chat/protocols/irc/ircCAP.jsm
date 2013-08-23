@@ -72,8 +72,8 @@ var ircCAP = {
         // Display the list of unhandled CAP messages.
         let unhandledMessages =
           messages.map(function(aMsg) aMsg.cap.parameter).join(" ");
-        this.WARN("Unhandled CAP messages: " + unhandledMessages +
-                  "\nRaw message: " + aMessage.rawMessage);
+        this.LOG("Unhandled CAP messages: " + unhandledMessages +
+                 "\nRaw message: " + aMessage.rawMessage);
       }
 
       // If no CAP handlers were added, just tell the server we're done.
