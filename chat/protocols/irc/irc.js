@@ -1251,6 +1251,11 @@ ircAccount.prototype = {
     // clients. Not doing it used to cause user confusion.
     if (this.channelPrefixes.indexOf(channel[0]) == -1)
       channel = "#" + channel;
+
+    // No need to join a channel we are already in.
+    if (this.hasConversation(channel) && !this.getConversation(channel).left)
+      return;
+
     let params = [channel];
     let key = aComponents.getValue("password");
     if (key)
