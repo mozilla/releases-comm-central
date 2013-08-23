@@ -2,7 +2,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<script type="text/javascript;version=1.7">
+<script type="text/javascript;version=1.8">
 /* [pseudo_color, pseudo_background, bubble_borders] */
 const elements_lightness = [[75, 94, 80], [75, 94, 80], [70, 93, 75], [65, 92, 70], [55, 90, 65], [48, 90, 60], [44, 86, 50], [44, 88, 60], [45, 88, 70], [45, 90, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [45, 92, 70], [60, 92, 70], [70, 93, 75], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80], [75, 94, 80]];
 
@@ -232,12 +232,8 @@ function visibilityChanged()
     handleLastMessage();
 }
 
-function checkNewText(aEvent)
+function checkNewText(target)
 {
-  var target = aEvent.originalTarget;
-  if (!(target instanceof HTMLElement))
-    return;
-
   var nicks = target.getElementsByClassName("ib-nick");
   for (var i = 0; i < nicks.length; ++i) {
     var nick = nicks[i];
@@ -312,8 +308,14 @@ function checkNewText(aEvent)
   }
 }
 
-document.getElementById("ibcontent")
-        .addEventListener("DOMNodeInserted", checkNewText);
+MutationObserver(function(aMutations) {
+  for (let mutation of aMutations)
+    for (let node of mutation.addedNodes)
+      if (node instanceof HTMLElement)
+        checkNewText(node);
+}).observe(document.getElementById("ibcontent"),
+           {childList: true, subtree: true});
+
 document.addEventListener("visibilitychange", visibilityChanged);
 </script>
 

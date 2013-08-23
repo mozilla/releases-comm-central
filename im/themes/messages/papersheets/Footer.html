@@ -2,7 +2,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<script type="text/javascript">
+<script type="text/javascript;version=1.8">
 
 const bg_gradient = "background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, hsla(#, 100%, 98%, 1) 15px, hsla(#, 100%, 98%, 1));";
 const bg_context_gradient = "background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.05) 15px, hsla(#, 20%, 98%, 1) 15px, hsla(#, 20%, 98%, 1));";
@@ -99,12 +99,8 @@ function toggle_groupEvents(aEvent)
 }
 
 
-function checkNewText(aEvent)
+function checkNewText(target)
 {
-  var target = aEvent.originalTarget;
-  if (!(target instanceof HTMLElement))
-    return;
-
   if (target.tagName == "DIV")
     setColors(target);
   else if (target.tagName == "P" && target.className == "event")
@@ -112,6 +108,11 @@ function checkNewText(aEvent)
 }
 
 
-document.getElementById("ibcontent")
-        .addEventListener("DOMNodeInserted", checkNewText);
+MutationObserver(function(aMutations) {
+  for (let mutation of aMutations)
+    for (let node of mutation.addedNodes)
+      if (node instanceof HTMLElement)
+        checkNewText(node);
+}).observe(document.getElementById("ibcontent"),
+           {childList: true, subtree: true});
 </script>
