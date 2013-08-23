@@ -44,7 +44,10 @@ var Conversations = {
     if (this._conversations.indexOf(aConversation) == -1)
       this._conversations.push(aConversation);
 
-    this._uiConv[aConversation.conv.id] = aConversation;
+    let uiConv = aConversation.conv;
+    this._uiConv[uiConv.id] = aConversation;
+
+    this.forgetHiddenConversation(uiConv);
   },
   unregisterConversation: function(aConversation, aShouldClose) {
     let index = this._conversations.indexOf(aConversation);
@@ -54,10 +57,12 @@ var Conversations = {
     let uiConv = aConversation.conv;
     if (this._uiConv[uiConv.id] == aConversation) {
       delete this._uiConv[uiConv.id];
-      if (aShouldClose === true)
+      if (aShouldClose === true) {
+        this.forgetHiddenConversation(uiConv);
         uiConv.close();
+      }
       else if (aShouldClose === false || !uiConv.checkClose())
-        Services.obs.notifyObservers(uiConv, "ui-conversation-hidden", null);
+        this.hideConversation(uiConv);
     }
   },
 
@@ -113,7 +118,7 @@ var Conversations = {
         let uiConv =
           Services.conversations.getUIConversation(aSubject.conversation);
         if (!this.isUIConversationDisplayed(uiConv) &&
-            Interruptions.requestInterrupt(aTopic, aSubject, "show-conversation"))
+            this._shouldShowConversation(uiConv, aTopic, aSubject))
           this.showConversation(uiConv);
       }
       return;
@@ -122,10 +127,60 @@ var Conversations = {
     if (aTopic != "new-ui-conversation")
       return;
 
-    if (Interruptions.requestInterrupt(aTopic, aSubject, "show-conversation"))
+    if (this._shouldShowConversation(aSubject, aTopic, aSubject))
       this.showConversation(aSubject);
     else
-      Services.obs.notifyObservers(aSubject, "ui-conversation-hidden", null);
+      this.hideConversation(aSubject);
+  },
+
+  _hiddenConversationsPref: "messenger.conversations.hiddenConversations",
+  get _hiddenConversations() {
+    let hiddenConvs = {};
+    try {
+      hiddenConvs =
+        JSON.parse(Services.prefs.getCharPref(this._hiddenConversationsPref));
+    } catch(e) {}
+    delete this._hiddenConversations;
+    return (this._hiddenConversations = hiddenConvs);
+  },
+
+  forgetHiddenConversation: function(aConv) {
+    if (this._isConversationHidden(aConv)) {
+      let accountId = aConv.account.id;
+      delete this._hiddenConversations[accountId][aConv.normalizedName];
+      if (Object.keys(this._hiddenConversations[accountId]).length == 0)
+        delete this._hiddenConversations[accountId];
+      this._saveHiddenConversations();
+    }
+  },
+
+  _saveHiddenConversations: function() {
+    Services.prefs.setCharPref(this._hiddenConversationsPref,
+                               JSON.stringify(this._hiddenConversations));
+  },
+
+  hideConversation: function(aConv) {
+    Services.obs.notifyObservers(aConv, "ui-conversation-hidden", null);
+    if (!aConv.isChat)
+      return;
+    let accountId = aConv.account.id;
+    if (!(accountId in this._hiddenConversations))
+      this._hiddenConversations[accountId] = {};
+    this._hiddenConversations[accountId][aConv.normalizedName] = true;
+    this._saveHiddenConversations();
+  },
+
+  _isConversationHidden: function(aConv) {
+    let accountId = aConv.account.id;
+    return aConv.isChat && accountId in this._hiddenConversations &&
+           Object.prototype.hasOwnProperty.call(this._hiddenConversations[accountId],
+                                                aConv.normalizedName);
+  },
+
+  _shouldShowConversation: function(aConv, aTopic, aSubject) {
+    return !this._isConversationHidden(aConv) &&
+           Interruptions.requestInterrupt(aTopic, aSubject,
+                                          "show-conversation");
   },
 
   showConversation: function(aConv) {
