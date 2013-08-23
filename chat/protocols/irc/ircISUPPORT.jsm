@@ -62,8 +62,8 @@ var ircISUPPORT = {
         // Display the list of unhandled ISUPPORT messages.
         let unhandledMessages =
           messages.map(function(aMsg) aMsg.isupport.parameter).join(" ");
-        this.WARN("Unhandled ISUPPORT messages: " + unhandledMessages +
-                  "\nRaw message: " + aMessage.rawMessage);
+        this.LOG("Unhandled ISUPPORT messages: " + unhandledMessages +
+                 "\nRaw message: " + aMessage.rawMessage);
       }
 
       return true;
