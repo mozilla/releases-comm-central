@@ -60,14 +60,18 @@ let gGestureSupport = {
 
     switch (aEvent.type) {
       case "MozSwipeGesture":
-        return this.onSwipe(aEvent);
+        this.onSwipe(aEvent);
+        break;
       case "MozMagnifyGestureStart":
-        return this._setupGesture(aEvent, "pinch", def(150, 1), "out", "in");
+        this._setupGesture(aEvent, "pinch", def(150, 1), "out", "in");
+        break;
       case "MozRotateGestureStart":
-        return this._setupGesture(aEvent, "twist", def(25, 0), "right", "left");
+        this._setupGesture(aEvent, "twist", def(25, 0), "right", "left");
+        break;
       case "MozMagnifyGestureUpdate":
       case "MozRotateGestureUpdate":
-        return this._doUpdate(aEvent);
+        this._doUpdate(aEvent);
+        break;
     }
   },
 
@@ -202,9 +206,12 @@ let gGestureSupport = {
    */
   onSwipe: function GS_onSwipe(aEvent) {
     // Figure out which one (and only one) direction was triggered
-    for each (let dir in ["UP", "RIGHT", "DOWN", "LEFT"])
-      if (aEvent.direction == aEvent["DIRECTION_" + dir])
-        return this._doAction(aEvent, ["swipe", dir.toLowerCase()]);
+    for each (let dir in ["UP", "RIGHT", "DOWN", "LEFT"]) {
+      if (aEvent.direction == aEvent["DIRECTION_" + dir]) {
+        this._doAction(aEvent, ["swipe", dir.toLowerCase()]);
+        return;
+      }
+    }
   }
 };
 
