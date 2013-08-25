@@ -92,6 +92,7 @@ var ircHandlers = {
 
   // Handle a message based on a set of handlers.
   _handleMessage: function(aHandlers, aAccount, aMessage, aCommand) {
+    aAccount.DEBUG(JSON.stringify(aMessage));
     // Loop over each handler and run the command until one handles the message.
     for each (let handler in aHandlers) {
       try {
@@ -100,10 +101,8 @@ var ircHandlers = {
         // Parse the command with the JavaScript account object as "this".
         if (handler.isEnabled.call(aAccount) &&
             hasOwnProperty(handler.commands, aCommand) &&
-            handler.commands[aCommand].call(aAccount, aMessage)) {
-          aAccount.DEBUG(JSON.stringify(aMessage));
+            handler.commands[aCommand].call(aAccount, aMessage))
           return true;
-        }
       } catch (e) {
         // We want to catch an error here because one of our handlers are
         // broken, if we don't catch the error, the whole IRC plug-in will die.
