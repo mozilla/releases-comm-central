@@ -678,6 +678,7 @@ imAccount.prototype = {
           // Disconnect or reconnect the account automatically, otherwise notify
           // the prplAccount instance.
           let statusType = aSubject.statusType;
+          let connectionErrorReason = this.connectionErrorReason;
           if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
             if (this.connected || this.connecting)
               this.prplAccount.disconnect();
@@ -685,7 +686,9 @@ imAccount.prototype = {
           }
           else if (statusType > Ci.imIStatusInfo.STATUS_OFFLINE &&
                    this.disconnected &&
-                   this.connectionErrorReason == Ci.prplIAccount.NO_ERROR)
+                   (connectionErrorReason == Ci.prplIAccount.NO_ERROR ||
+                    connectionErrorReason == Ci.prplIAccount.ERROR_NETWORK_ERROR ||
+                    connectionErrorReason == Ci.prplIAccount.ERROR_ENCRYPTION_ERROR))
             this.prplAccount.connect();
           else if (this.connected)
             this.prplAccount.observe(aSubject, aTopic, aData);
