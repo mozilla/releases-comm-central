@@ -437,6 +437,12 @@ const Socket = {
    * nsITransportEventSink methods
    */
   onTransportStatus: function(aTransport, aStatus, aProgress, aProgressmax) {
+    // Don't send status change notifications after the socket has been closed.
+    // The event sink can't be removed after opening the transport, so we can't
+    // do better than adding a null check here.
+    if (!this.transport)
+      return;
+
     const nsITransportEventSinkStatus = {
          0x804b0003: "STATUS_RESOLVING",
          0x804b000b: "STATUS_RESOLVED",
