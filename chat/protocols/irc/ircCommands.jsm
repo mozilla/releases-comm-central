@@ -338,7 +338,12 @@ var commands = [
     name: "quit",
     get helpString() _("command.quit", "quit"),
     run: function(aMsg, aConv) {
-      getAccount(aConv).quit(aMsg);
+      let account = getAccount(aConv);
+      account.disconnect(aMsg);
+      // While prpls shouldn't usually touch imAccount, this disconnection
+      // is an action the user requested via the UI. Without this call,
+      // the imAccount would immediately reconnect the account.
+      account.imAccount.disconnect();
       return true;
     }
   },

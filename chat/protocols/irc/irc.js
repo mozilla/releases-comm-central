@@ -692,18 +692,21 @@ ircSocket.prototype = {
   onConnection: function() {
     this._account._connectionRegistration.call(this._account);
   },
+  disconnect: function() {
+    if (!this._account)
+      return;
+    Socket.disconnect.call(this);
+    this.onStopRequest = function() {};
+    delete this._account;
+  },
 
   // Throw errors if the socket has issues.
-  onConnectionClosed: function () {
-    if (!this._account.imAccount || this._account.disconnecting ||
-        this._account.disconnected)
-      return;
-
+  onConnectionClosed: function() {
     this.ERROR("Connection closed by server.");
     this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                                   _("connection.error.lost"));
   },
-  onConnectionReset: function () {
+  onConnectionReset: function() {
     this.ERROR("Connection reset.");
     this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                                   _("connection.error.lost"));
@@ -1208,12 +1211,11 @@ ircAccount.prototype = {
     this.sendMessage("QUIT",
                      aMessage || this.getString("quitmsg") || undefined);
   },
-  // When the user clicks "Disconnect" in account manager
-  disconnect: function() {
+  // When the user clicks "Disconnect" in account manager, or uses /quit.
+  // aMessage is an optional parameter containing the quit message.
+  disconnect: function(aMessage) {
     if (this.disconnected || this.disconnecting)
-       return;
-
-    this._reportDisconnecting(Ci.prplIAccount.NO_ERROR);
+      return;
 
     // If there's no socket, disconnect immediately to avoid waiting 2 seconds.
     if (!this._socket || !this._socket.isConnected) {
@@ -1222,7 +1224,7 @@ ircAccount.prototype = {
     }
 
     // Let the server know we're going to disconnect.
-    this.quit();
+    this.quit(aMessage);
 
     // Reset original nickname for the next reconnect.
     this._requestedNickname = this._accountNickname;
