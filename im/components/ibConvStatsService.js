@@ -19,13 +19,14 @@ XPCOMUtils.defineLazyGetter(this, "_instantbird", function()
   l10nHelper("chrome://instantbird/locale/instantbird.properties")
 );
 
-function ConvStatsService() {}
+function ConvStatsService() {
+  this._observers = [];
+}
 ConvStatsService.prototype = {
   // Sorted list of contacts, stored as PossibleConvFromContacts.
   _contacts: [],
   // PossibleConvFromContacts stored by id.
   _contactsById: new Map(),
-  _observers: [],
 
   _initContacts: function() {
     let contacts = Services.contacts.getContacts();
