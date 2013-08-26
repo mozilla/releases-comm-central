@@ -87,39 +87,7 @@
        </setter>
      </property>
 
-     <method name="handleEvent">
-       <parameter name="aEvent"/>
-       <body>
-       <![CDATA[
-         if (aEvent.type == "DOMAttrModified" && aEvent.attrName == "status") {
-           if (aEvent.attrChange == aEvent.REMOVAL)
-             this.removeAttribute("status");
-           else
-             this.setAttribute("status", aEvent.newValue);
-         }
-        ]]></body>
-      </method>
-
-     <field name="_elt">null</field>
-     <property name="elt">
-       <getter>
-         <![CDATA[
-           return this._elt;
-         ]]>
-       </getter>
-       <setter>
-         <![CDATA[
-           if (val == this._elt)
-             return val;
-
-           if (this._elt)
-             this._elt.removeEventListener("DOMAttrModified", this, false);
-           else
-             val.addEventListener("DOMAttrModified", this);
-           return (this._elt = val);
-         ]]>
-       </setter>
-     </property>
+     <field name="elt">null</field>
 
      <property name="rows">
        <getter>

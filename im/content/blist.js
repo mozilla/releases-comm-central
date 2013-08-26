@@ -349,7 +349,6 @@ var buddyList = {
         ref = ref.nextSibling;
       this.convBox.insertBefore(convElt, ref);
       convElt.build(aSubject);
-      this.convBox._updateListConvCount();
       return;
     }
     if (aTopic == "showing-ui-conversation") {
@@ -782,9 +781,7 @@ var buddyList = {
     buddyList.convBox._updateListConvCount = function() {
       let count = Object.keys(this.listedConvs).length;
       this.parentNode.setAttribute("listedConvCount", count);
-    };
-    buddyList.convBox.addEventListener("DOMNodeRemoved",
-                                       buddyList.convBox._updateListConvCount);
+    }.bind(buddyList.convBox);
     let convs = Services.conversations.getUIConversations();
     if (convs.length != 0) {
       if (!("Conversations" in window))
@@ -800,6 +797,9 @@ var buddyList = {
       }
       buddyList.convBox._updateListConvCount();
     }
+    MutationObserver(buddyList.convBox._updateListConvCount)
+      .observe(buddyList.convBox, {childList: true});
+
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
     for each (let event in events)
       Services.obs.addObserver(buddyList, event, false);

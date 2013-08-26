@@ -50,6 +50,17 @@
         this.contact.addObserver(this);
         this.addEventListener("transitionend", this._transitionEnd, true);
 
+        MutationObserver(function(aMutations) {
+          if (!this.getAttribute("selected"))
+            return;
+
+          // Ensure binding changes immediately to avoid the firing of a
+          // spurious accessibility focus event referring to the old binding
+          // that causes problems for screen readers (bugs BIO 1626, BMO 786508)
+          this.getBoundingClientRect();
+        }.bind(this)).observe(this, {attributes: true,
+                                     attributeFilter: ["selected"]});
+
         // Don't do the animation if inside a closed group
         this.state = this.hasAttribute("collapsed") ? "collapsed" : "showing";
       ]]>
@@ -509,16 +520,6 @@
      <handler event="dragleave">
        <![CDATA[
          this._DragLeave();
-       ]]>
-     </handler>
-     <handler event="DOMAttrModified">
-       <![CDATA[
-         if (event.attrName != "selected" || !event.newValue)
-           return;
-         // Ensure binding changes immediately to avoid the firing of a
-         // spurious accessibility focus event referring to the old binding
-         // that causes problems for screen readers (bugs BIO 1626, BMO 786508)
-         this.getBoundingClientRect();
        ]]>
      </handler>
     </handlers>

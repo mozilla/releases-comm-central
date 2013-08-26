@@ -1824,33 +1824,6 @@
         ]]></body>
       </method>
 
-      <method name="_tabOnAttrModified">
-        <parameter name="aEvent"/>
-        <body><![CDATA[
-          var menuItem = aEvent.target.mCorrespondingMenuitem;
-          if (menuItem) {
-            var attrName = aEvent.attrName;
-            switch (attrName) {
-              case "label":
-              case "crop":
-              case "typing":
-              case "typed":
-              case "unread":
-              case "attention":
-              case "status":
-              case "chat":
-              case "image":
-              case "selected":
-              case "prpl":
-                if (aEvent.attrChange == aEvent.REMOVAL)
-                  menuItem.removeAttribute(attrName);
-                else
-                  menuItem.setAttribute(attrName, aEvent.newValue);
-            }
-          }
-        ]]></body>
-      </method>
-
       <method name="_tabOnTabClose">
         <parameter name="aEvent"/>
 
@@ -1870,9 +1843,6 @@
           switch (aEvent.type) {
             case "command":
               this._menuItemOnCommand(aEvent);
-              break;
-            case "DOMAttrModified":
-              this._tabOnAttrModified(aEvent);
               break;
             case "TabClose":
               this._tabOnTabClose(aEvent);
@@ -1932,7 +1902,6 @@
           // Keep some attributes of the menuitem in sync with its
           // corresponding tab (e.g. the tab label)
           aTab.mCorrespondingMenuitem = menuItem;
-          aTab.addEventListener("DOMAttrModified", this);
           aTab.addEventListener("TabClose", this);
           menuItem.tab = aTab;
           menuItem.addEventListener("command", this);
@@ -1966,7 +1935,6 @@
         while (this.hasChildNodes()) {
           var menuItem = this.lastChild;
           menuItem.removeEventListener("command", this, false);
-          menuItem.tab.removeEventListener("DOMAttrModified", this, false);
           menuItem.tab.removeEventListener("TabClose", this, false);
           menuItem.tab.mCorrespondingMenuitem = null;
           this.removeChild(menuItem);
@@ -2092,6 +2060,54 @@
     <implementation>
       <field name="mOverCloseButton">false</field>
       <field name="mCorrespondingMenuitem">null</field>
+
+      <constructor><![CDATA[
+        const kAttrs = ["label", "tooltip", "selected", "crop", "typing",
+                        "typed", "unread", "attention", "status", "chat",
+                        "image", "prpl"];
+        MutationObserver(function(aMutations) {
+          for (let mutation of aMutations) {
+            let attr = mutation.attributeName;
+
+            if (attr == "label") {
+              if (window.getTabBrowser)
+                getTabBrowser().updateTitlebar();
+              // Update our tooltiptext, but only if a tooltip hasn't been set.
+              if (!this.hasAttribute("tooltip"))
+                this.setAttribute("tooltiptext", this.getAttribute(attr));
+            }
+            else if (attr == "tooltip") {
+              if (this.hasAttribute(attr)) {
+                // Tooltip was added. Stop using our label as tooltiptext.
+                this.removeAttribute("tooltiptext");
+              }
+              else {
+                // Tooltip was removed. Switch to using our label as tooltiptext.
+                this.setAttribute("tooltiptext", this.getAttribute("label"));
+              }
+            }
+            else if (attr == "selected") {
+              if (this.hasAttribute(attr))
+                this.linkedTabPanel.setAttribute(attr, this.getAttribute(attr));
+              else {
+                this.linkedTabPanel.removeAttribute(attr);
+                if (this.linkedTabPanel.switchingAwayFromPanel)
+                  this.linkedTabPanel.switchingAwayFromPanel();
+              }
+            }
+
+            // Update the item in the all tabs menu if it's currently shown.
+            let menuitem = this.mCorrespondingMenuitem;
+            if (menuitem && attr != "tooltip") {
+              if (this.hasAttribute(attr))
+                menuitem.setAttribute(attr, this.getAttribute(attr));
+              else
+                menuitem.removeAttribute(attr);
+            }
+          }
+        }.bind(this)).observe(this, {attributes: true,
+                                     attributeFilter: kAttrs});
+      ]]></constructor>
     </implementation>
 
     <handlers>
@@ -2139,36 +2155,6 @@
       </handler>
       <handler event="mouseup">
         this.style.MozUserFocus = '';
-      </handler>
-      <handler event="DOMAttrModified">
-       <![CDATA[
-        if (event.attrName == "label") {
-          if ("getTabBrowser" in window)
-            getTabBrowser().updateTitlebar();
-          // Update our tooltiptext, but only if a tooltip hasn't been set.
-          if (!this.hasAttribute("tooltip"))
-            this.setAttribute("tooltiptext", event.newValue);
-        }
-        else if (event.attrName == "tooltip") {
-          if (event.attrChange == event.ADDITION) {
-            // Tooltip was added. Stop using our tooltiptext attribute.
-            this.removeAttribute("tooltiptext");
-          }
-          else if (event.attrChange == event.REMOVAL) {
-            // Tooltip was removed. Switch to using our label as tooltiptext.
-            this.setAttribute("tooltiptext", this.getAttribute("label"));
-          }
-        }
-        else if (event.attrName == "selected") {
-          if (event.attrChange == event.REMOVAL) {
-            this.linkedTabPanel.removeAttribute("selected");
-            if ("switchingAwayFromPanel" in this.linkedTabPanel)
-              this.linkedTabPanel.switchingAwayFromPanel();
-          }
-          else
-            this.linkedTabPanel.setAttribute("selected", event.newValue);
-        }
-       ]]>
       </handler>
     </handlers>
   </binding>
