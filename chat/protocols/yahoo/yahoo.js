@@ -510,6 +510,10 @@ YahooProtocol.prototype = {
         conf._account._session.inviteToConference(invitees, conf._roomName,
                                                   conf.getParticipantNames(),
                                                   message);
+        conf.writeMessage(conf._roomName,
+                          _("command.feedback.invite", invitees.join(", ")),
+                          {system: true, noLog: true});
+        conf._account.LOG("Sending conference invite to " + invitees);
         return true;
       }
     }
