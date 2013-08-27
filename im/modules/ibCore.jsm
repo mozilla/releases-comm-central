@@ -15,6 +15,7 @@ var Core = {
   _events: [
     "account-disconnected",
     "browser-request",
+    "handle-xul-text-link",
     "quit-application-requested"
   ],
 
@@ -229,7 +230,7 @@ var Core = {
       this.showAccounts();
   },
 
-  observe: function(aSubject, aTopic, aMsg) {
+  observe: function(aSubject, aTopic, aData) {
     if (aTopic == "account-disconnected") {
       let account = aSubject.QueryInterface(Ci.imIAccount);
       if (!account.reconnectAttempt)
@@ -244,8 +245,16 @@ var Core = {
       return;
     }
 
+    if (aTopic == "handle-xul-text-link") {
+      Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+        .getService(Ci.nsIExternalProtocolService)
+        .loadURI(Services.io.newURI(aData, null, null));
+      aSubject.QueryInterface(Ci.nsISupportsPRBool).data = true;
+      return;
+    }
+
     if (aTopic == "quit-application-requested") {
-      this._onQuitRequest(aSubject, aMsg);
+      this._onQuitRequest(aSubject, aData);
       return;
     }
   },
