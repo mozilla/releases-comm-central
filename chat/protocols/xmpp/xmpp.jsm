@@ -881,7 +881,7 @@ const XMPPAccountPrototype = {
       }
       this._mucs[jid].onPresenceStanza(aStanza);
     }
-    else if (from != this._connection._jid.jid)
+    else if (jid != this._normalizeJID(this._connection._jid.jid))
       this.WARN("received presence stanza for unknown buddy " + from);
   },
 
