@@ -213,9 +213,9 @@
           this._connectedLabel = null;
           if (this._account.connected)
             this.refreshConnectedLabel();
-          if (this._account.connectionErrorReason == Ci.prplIAccount.NO_ERROR)
+          else if (this._account.connecting)
             this.updateConnectionState();
-          else
+          else if (this._account.connectionErrorReason != Ci.prplIAccount.NO_ERROR)
             this.updateConnectionError();
         ]]>
         </body>
