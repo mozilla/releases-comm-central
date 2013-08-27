@@ -26,9 +26,6 @@
   <key>DefaultBackgroundColor</key>
   <string>FFFFFF</string>
   
-  <key>DefaultVariant</key>
-  <string>default</string>
-  
   <key>DisableCustomBackground</key>
   <false/>
   
