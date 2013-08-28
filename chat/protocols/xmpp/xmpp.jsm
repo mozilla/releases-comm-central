@@ -620,7 +620,6 @@ const XMPPAccountPrototype = {
     this._conv = {};
     this._buddies = {};
     this._mucs = {};
-    this._pendingAuthRequests = [];
   },
 
   get canJoinChat() true,
@@ -786,6 +785,15 @@ const XMPPAccountPrototype = {
     return buddy;
   },
 
+  /* Replies to a buddy request in order to accept it or deny it. */
+  replyToBuddyRequest: function(aReply, aRequest) {
+    if (!this._connection)
+      return;
+    let s = Stanza.presence({to: aRequest.userName, type: aReply})
+    this._connection.sendStanza(s);
+    this.removeBuddyRequest(aRequest);
+  },
+
   /* XMPPSession events */
   /* Called when the XMPP session is started */
   onConnection: function() {
@@ -834,31 +842,9 @@ const XMPPAccountPrototype = {
     let jid = this._normalizeJID(from);
     let type = aStanza.attributes["type"];
     if (type == "subscribe") {
-      let authRequest = {
-        _account: this,
-        get account() this._account.imAccount,
-        userName: jid,
-        _sendReply: function(aReply) {
-          let connection = this._account._connection;
-          if (!connection)
-            return;
-          this._account._pendingAuthRequests =
-            this._account._pendingAuthRequests.filter(function(r) r !== this);
-          connection.sendStanza(Stanza.presence({to: this.userName,
-                                                 type: aReply}));
-        },
-        grant: function() { this._sendReply("subscribed"); },
-        deny: function() { this._sendReply("unsubscribed"); },
-        cancel: function() {
-          Services.obs.notifyObservers(this,
-                                       "buddy-authorization-request-canceled",
-                                       null);
-        },
-        QueryInterface: XPCOMUtils.generateQI([Ci.prplIBuddyRequest])
-      };
-      Services.obs.notifyObservers(authRequest, "buddy-authorization-request",
-                                   null);
-      this._pendingAuthRequests.push(authRequest);
+      this.addBuddyRequest(jid,
+                           this.replyToBuddyRequest.bind(this, "subscribed"),
+                           this.replyToBuddyRequest.bind(this, "unsubscribed"));
     }
     else if (type == "unsubscribe" || type == "unsubscribed" ||
              type == "subscribed") {
@@ -1195,10 +1181,6 @@ const XMPPAccountPrototype = {
 
     for each (let muc in this._mucs)
       muc.left = true;
-
-    for each (let request in this._pendingAuthRequests)
-      request.cancel();
-    this._pendingAuthRequests = [];
 
     this._connection.disconnect();
     delete this._connection;

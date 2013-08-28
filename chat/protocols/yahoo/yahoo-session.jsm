@@ -324,6 +324,30 @@ YahooSession.prototype = {
     this.sendBinaryData(packet.toArrayBuffer());
   },
 
+  acceptBuddyRequest: function(aRequest) {
+    let packet = new YahooPacket(kPacketType.BuddyAuth, 0, this.sessionId);
+    packet.addValue(1, this._account.cleanUsername);
+    packet.addValue(5, aRequest.userName);
+    // Misc. Unknown flags.
+    packet.addValue(13, 1);
+    packet.addValue(334, 0);
+    this.sendBinaryData(packet.toArrayBuffer());
+
+    // If someone wants to add us as a buddy, place them under the default
+    // tag. Also, we make sure that the buddy doesn't already exist in the
+    // list in case of a server acknowledgement.
+    if (!this._account.hasBuddy(aRequest.userName))
+      this._account.addBuddy(Services.tags.defaultTag, aRequest.userName);
+  },
+
+  denyBuddyRequest: function(aRequest) {
+    let packet = new YahooPacket(kPacketType.BuddyReqReject, 0, this.sessionId);
+    packet.addValue(1, this._account.cleanUsername);
+    packet.addValue(7, aRequest.userName);
+    packet.addValue(14, "");
+    this.sendBinaryData(packet.toArrayBuffer());
+  },
+
   // Callbacks.
   onLoginComplete: function() {
     this._account.reportConnected();
@@ -941,44 +965,10 @@ const YahooPacketHandler = {
     if (aPacket.status == kPacketStatuses.ServerAck)
       return;
 
-    let authRequest = {
-      _account: this,
-      _session: this._session,
-      get account() this,
-      userName: aPacket.getValue(4),
-      grant: function() {
-        let packet = new YahooPacket(kPacketType.BuddyAuth, 0,
-                             this._session.sessionId);
-        packet.addValue(1, this._account.cleanUsername);
-        packet.addValue(5, this.userName);
-        // Misc. Unknown flags.
-        packet.addValue(13, 1);
-        packet.addValue(334, 0);
-        this._session.sendBinaryData(packet.toArrayBuffer());
-
-        // If someone wants to add us as a buddy, place them under the default
-        // tag. Also, we make sure that the buddy doesn't already exist in the
-        // list in case of a server acknowledgement.
-        if (!this._account.hasBuddy(this.userName))
-          this._account.addBuddy(Services.tags.defaultTag, this.userName);
-      },
-      deny: function() {
-        let packet = new YahooPacket(kPacketType.BuddyReqReject, 0,
-                                     this._session.sessionId);
-        packet.addValue(1, this._account.cleanUsername);
-        packet.addValue(7, this.userName);
-        packet.addValue(14, "");
-        this._session.sendBinaryData(packet.toArrayBuffer());
-      },
-      cancel: function() {
-        Services.obs.notifyObservers(this,
-                                     "buddy-authorization-request-canceled",
-                                     null);
-      },
-      QueryInterface: XPCOMUtils.generateQI([Ci.prplIBuddyRequest])
-    };
-    Services.obs.notifyObservers(authRequest, "buddy-authorization-request",
-                                 null);
+    let session = this._session;
+    let userName = aPacket.getValue(4);
+    this.addBuddyRequest(userName, session.acceptBuddyRequest.bind(session),
+                         session.denyBuddyRequest.bind(session));
   },
 
   // XXX: What does this packet do?
