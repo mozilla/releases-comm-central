@@ -155,6 +155,11 @@ TagsService.prototype = {
   },
   // Get an array of all existing tags.
   getTags: function(aTagCount) {
+    if (Tags.length)
+      Tags.sort(function(a, b) a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    else
+      this.defaultTag;
+
     if (aTagCount)
       aTagCount.value = Tags.length;
     return Tags;
