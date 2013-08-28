@@ -101,6 +101,7 @@ const GenericAccountPrototype = {
   reportDisconnecting: function(aConnectionErrorReason, aConnectionErrorMessage) {
     this._connectionErrorReason = aConnectionErrorReason;
     this.imAccount.observe(this, "account-disconnecting", aConnectionErrorMessage);
+    this.cancelPendingBuddyRequests();
   },
 
   // Called when the user adds a new buddy from the UI.
@@ -117,7 +118,58 @@ const GenericAccountPrototype = {
      return null;
    }
   },
+
+  _pendingBuddyRequests: null,
+  addBuddyRequest: function(aUserName, aGrantCallback, aDenyCallback) {
+    if (!this._pendingBuddyRequests)
+      this._pendingBuddyRequests = [];
+    let buddyRequest = {
+      get account() this._account.imAccount,
+      get userName() aUserName,
+      _account: this,
+      // Grant and deny callbacks both receive the auth request object as an
+      // argument for further use.
+      grant: function() {
+        aGrantCallback(this);
+        this._remove();
+      },
+      deny: function() {
+        aDenyCallback(this);
+        this._remove();
+      },
+      cancel: function() {
+        Services.obs.notifyObservers(this,
+                                     "buddy-authorization-request-canceled",
+                                     null);
+        this._remove();
+      },
+      _remove: function() {
+        this._account.removeBuddyRequest(this);
+      },
+      QueryInterface: XPCOMUtils.generateQI([Ci.prplIBuddyRequest])
+    };
+    this._pendingBuddyRequests.push(buddyRequest);
+    Services.obs.notifyObservers(buddyRequest, "buddy-authorization-request",
+                                 null);
+  },
+  removeBuddyRequest: function(aRequest) {
+    if (!this._pendingBuddyRequests)
+      return;
+
+    this._pendingBuddyRequests =
+      this._pendingBuddyRequests.filter(function(r) r !== aRequest);
+  },
+  cancelPendingBuddyRequests: function() {
+    if (!this._pendingBuddyRequests)
+      return;
+
+    for each (let request in this._pendingBuddyRequests)
+      request.cancel();
+    delete this._pendingBuddyRequests;
+  },
+
   requestBuddyInfo: function(aBuddyName) {},
+
   get canJoinChat() false,
   getChatRoomFields: function() {
     if (!this.chatRoomFields)
