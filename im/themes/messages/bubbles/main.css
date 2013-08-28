@@ -142,35 +142,37 @@ p *:-moz-any-link img {
 
 
 /* used by javascript */
-.button {
+.eventToggle {
   cursor: pointer;
   min-height: 20px;
   margin-left: -24px;
-  margin-bottom: -3px;
   padding-left: 24px;
-}
-
-.hide {
-  background: url('Bitmaps/plus.png') no-repeat left top;
-}
-
-.hide:hover {
-  background-image: url('Bitmaps/plus-hover.png');
-}
-
-.hide:after {
-  content: "...";
-  color: hsl(0, 0%, 60%);
-}
-
-.show {
   background: url('Bitmaps/minus.png') no-repeat left top;
   margin-bottom: -20px;
   width: 0;
 }
 
-.show:hover {
+.eventToggle:hover {
   background-image: url('Bitmaps/minus-hover.png');
+}
+
+.hide-children > .eventToggle {
+  width: 100%;
+  margin-bottom: -3px;
+  background-image: url('Bitmaps/plus.png');
+}
+
+.hide-children > .eventToggle:hover {
+  background-image: url('Bitmaps/plus-hover.png');
+}
+
+.hide-children > .eventToggle:after {
+  content: "\2026"; /* &hellip; */
+  color: hsl(0, 0%, 60%);
+}
+
+.hide-children > :-moz-any(p.event, hr):not(:first-of-type):not(:last-of-type) {
+  display: none;
 }
 
 .ib-nick {

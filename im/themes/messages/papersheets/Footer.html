@@ -48,63 +48,24 @@ function setColors(target)
 }
 
 
-function groupEvents(parent)
-{
-  var list = parent.getElementsByTagName("p");
-  if (list.length < 3)
-    return;
-
-  if (list[1].hasAttribute("style")) {
-    var prevStyle = list[1].style.display;
-
-    for (var i = 1; i < (list.length - 1); i++)
-      list[i].style.display = prevStyle;
-  }
-  else {
-    for (var i = 1; i < (list.length - 1); i++)
-      list[i].style.display = "none";
-
-    var div = document.createElement("div");
-    div.setAttribute("onclick", "toggle_groupEvents(event)");
-    div.setAttribute("class", "button hide");
-    parent.insertBefore(div, list[0]);
-
-    list[0].lastChild.className += " first-event";
-  }
-}
-
-
-function toggle_groupEvents(aEvent)
-{
-  var button = aEvent.target;
-  var list = button.parentNode.getElementsByTagName("p");
-
-  if (button.className == "button hide") {
-    for (var i = 1; i < (list.length - 1); i++)
-      list[i].style.display = "block";
-
-    button.className = "button show";
-
-    var oldClass = list[0].lastChild.className;
-    list[0].lastChild.className = oldClass.substr(0, oldClass.length - 12);
-  }
-  else {
-    for (var i = 1; i < (list.length - 1); i++)
-      list[i].style.display = "none";
-
-    button.className = "button hide";
-
-    list[0].lastChild.className += " first-event";
-  }
-}
-
-
 function checkNewText(target)
 {
   if (target.tagName == "DIV")
     setColors(target);
-  else if (target.tagName == "P" && target.className == "event")
-    groupEvents(target.parentNode);
+  else if (target.tagName == "P" && target.className == "event") {
+    let parent = target.parentNode;
+    // We need to start a group with this element if there are at least 3
+    // system messages and they aren't already grouped.
+    if (!parent.grouped && parent.querySelector("p.event:nth-of-type(3)")) {
+      var div = document.createElement("div");
+      div.className = "eventToggle";
+      div.addEventListener("click", function (event)
+        event.target.parentNode.classList.toggle("hide-children"));
+      parent.insertBefore(div, parent.querySelector("p.event:first-of-type"));
+      parent.classList.add("hide-children");
+      parent.grouped = true;
+    }
+  }
 }
 
 

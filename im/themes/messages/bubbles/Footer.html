@@ -54,72 +54,6 @@ function setColors(target)
 }
 
 
-function groupEvents(parent)
-{
-  var P_list = parent.getElementsByClassName("event");
-
-  if (P_list.length < 4)
-    return;
-
-  var HR_list = parent.getElementsByTagName("hr");
-
-  if (P_list[1].hasAttribute("style"))
-  {
-    var prevStyle = P_list[1].style.display;
-    var nbEvents = P_list.length;
-
-    P_list[nbEvents-2].style.display = prevStyle;
-    HR_list[nbEvents-3].style.display = prevStyle;
-  }
-  else
-  {
-    var nbEvents = P_list.length;
-
-    for (var i=1; i < (nbEvents-2); i++)
-    {
-      P_list[i].style.display = "none";
-      HR_list[i].style.display = "none";
-    }
-    P_list[i].style.display = "none";
-
-    var p = document.createElement("p");
-    p.addEventListener("click", toggle_groupEvents);
-    p.setAttribute("class", "button hide");
-    parent.insertBefore(p, P_list[1]);
-  }
-}
-
-
-function toggle_groupEvents(aEvent)
-{
-  if (aEvent.detail > 1)
-    return;
-
-  var target = aEvent.target;
-  var P_list = target.parentNode.getElementsByClassName("event");
-  var HR_list = target.parentNode.getElementsByTagName("hr");
-  var nbEvents = P_list.length;
-
-  if (target.className == "button hide") {
-    for (var i=1; i < (nbEvents-2); i++) {
-      P_list[i].style.display = "block";
-      HR_list[i].style.display = "block";
-    }
-    P_list[i].style.display = "block";
-
-    target.className = "button show";
-  }
-  else {
-    for (var i=1; i < (nbEvents-2); i++) {
-      P_list[i].style.display = "none";
-      HR_list[i].style.display = "none";
-    }
-    P_list[i].style.display = "none";
-
-    target.className = "button hide";
-  }
-}
-
 function prettyPrintTime(aValue, aNoSeconds) {
   if (aValue < 60 && aNoSeconds)
     return "";
@@ -303,7 +237,18 @@ function checkNewText(target)
     updateLastInsertTime();
   }
   else if (target.tagName == "P" && target.className == "event") {
-    groupEvents(target.parentNode);
+    let parent = target.parentNode;
+    // We need to start a group with this element if there are at least 4
+    // system messages and they aren't already grouped.
+    if (!parent.grouped && parent.querySelector("p.event:nth-of-type(4)")) {
+      var p = document.createElement("p");
+      p.className = "eventToggle";
+      p.addEventListener("click", function (event)
+        event.target.parentNode.classList.toggle("hide-children"));
+      parent.insertBefore(p, parent.querySelector("p.event:nth-of-type(2)"));
+      parent.classList.add("hide-children");
+      parent.grouped = true;
+    }
     updateLastInsertTime();
   }
 }

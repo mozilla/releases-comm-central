@@ -134,29 +134,28 @@ p *:-moz-any-link img {
   background-color: rgb(255, 255, 240);
 }
 
-.button {
+.eventToggle {
   margin-top: -2px;
   margin-left: -4px;
   height: 9px;
   width: 9px;
   cursor: pointer;
-}
-
-.hide
-{
-  background: url('Bitmaps/plus.png') no-repeat left top;
-}
-
-.show
-{
   background: url('Bitmaps/minus.png') no-repeat left top;
 }
 
-.first-event:after {
-  content: "[...]";
+.hide-children > .eventToggle {
+  background-image: url('Bitmaps/plus.png');
+}
+
+.hide-children > p.event:first-of-type > .message-style:after {
+  content: "[\2026]"; /* &hellip; */
   margin-left: 1em;
   color: #5a7ac6;
   font-size: smaller;
+}
+
+.hide-children > p.event:not(:first-of-type):not(:last-of-type) {
+  display: none;
 }
 
 /* Adapt styles to narrow windows */
