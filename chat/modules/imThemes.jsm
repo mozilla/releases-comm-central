@@ -408,7 +408,8 @@ const messageReplacements = {
     return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png";
   },
   senderScreenName: function(aMsg) TXTToHTML(aMsg.who),
-  sender: function(aMsg) TXTToHTML(aMsg.alias || aMsg.who),
+  sender: function(aMsg)
+    "<span class=\"ib-sender\">" + TXTToHTML(aMsg.alias || aMsg.who) + "</span>",
   senderColor: function(aMsg) aMsg.color,
   senderStatusIcon: function(aMsg)
     getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),

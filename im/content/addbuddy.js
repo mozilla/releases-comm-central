@@ -28,13 +28,7 @@ var addBuddy = {
 
   buildTagList: function ab_buildTagList() {
     var tagList = document.getElementById("taglist");
-    let tags = Services.tags.getTags();
-    if (!tags.length) {
-      let bundle = document.getElementById("instantbirdBundle");
-      tags.push(Services.tags.defaultTag);
-    }
-
-    tags.forEach(function (tag) {
+    Services.tags.getTags().forEach(function(tag) {
       tagList.appendItem(tag.name, tag.id);
     });
     tagList.selectedIndex = 0;

@@ -42,6 +42,7 @@
             </xul:hbox>
             <xul:listbox anonid="nicklist" class="conv-nicklist"
                          flex="1" seltype="multiple"
+                         xbl:inherits="contextmenu=contentcontextmenu"
                          tooltip="buddyTooltip"
                          onclick="onNickClick(event);"
                          onkeypress="onNicklistKeyPress(event);"/>

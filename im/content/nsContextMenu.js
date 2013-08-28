@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource:///modules/ibTagMenu.jsm");
+
 var gContextMenu = null;
 
 function nsContextMenu(aXulMenu, aBrowser) {
   this.target            = null;
   this.browser           = null;
+  this.conv              = null;
   this.menu              = null;
+  this.tagMenu           = null;
   this.onLink            = false;
   this.onMailtoLink      = false;
   this.onSaveableLink    = false;
@@ -15,16 +19,23 @@ function nsContextMenu(aXulMenu, aBrowser) {
   this.linkURL           = "";
   this.linkURI           = null;
   this.linkProtocol      = null;
+  this.onNick            = false;
+  this.nick              = "";
+  this.buddy             = null;
+  this.isNickOpenConv    = false;
+  this.isNickShowLogs    = false;
+  this.isNickAddContact  = false;
   this.isTextSelected    = false;
   this.isContentSelected = false;
   this.shouldDisplay     = true;
-  this.ellipsis = "\u2026";
 
   try {
     this.ellipsis =
       Services.prefs.getComplexValue("intl.ellipsis",
                                      Ci.nsIPrefLocalizedString).data;
-  } catch (e) { }
+  } catch (e) {
+    this.ellipsis = "\u2026";
+  }
 
   // Initialize new menu.
   this.initMenu(aXulMenu, aBrowser);
@@ -46,10 +57,25 @@ nsContextMenu.prototype = {
   initMenu: function CM_initMenu(aPopup, aBrowser) {
     this.menu = aPopup;
     this.browser = aBrowser;
+    this.conv = this.browser._conv;
 
     // Get contextual info.
     let node = document.popupNode;
+    if (node.localName == "listbox") {
+      // Clicked the participant list, but not a listitem.
+      this.shouldDisplay = false;
+      return;
+    }
     this.setTarget(node);
+
+    let isParticipantList = node.localName == "listitem";
+    let nickActions = this.getNickActions(isParticipantList);
+    this.onNick = nickActions.some(function(action) action.visible);
+    if (isParticipantList && !this.onNick) {
+      // If we're in the participant list, there will be no other entries.
+      this.shouldDisplay = false;
+      return;
+    }
 
     let actions = [];
     while (node) {
@@ -66,7 +92,7 @@ nsContextMenu.prototype = {
 
     // Initialize (disable/remove) menu items.
     // Open/Save/Send link depends on whether we're in a link.
-    var shouldShow = this.onSaveableLink;
+    let shouldShow = this.onSaveableLink;
     this.showItem("context-openlink", shouldShow);
     this.showItem("context-sep-open", shouldShow);
     this.showItem("context-savelink", shouldShow);
@@ -80,7 +106,8 @@ nsContextMenu.prototype = {
     goUpdateGlobalEditMenuItems();
 
     this.showItem("context-copy", this.isContentSelected);
-    this.showItem("context-selectall", !this.onLink || this.isContentSelected);
+    this.showItem("context-selectall", (!this.onNick && !this.onLink) ||
+                                       this.isContentSelected);
     this.showItem("context-sep-selectall", actions.length);
     this.showItem("context-sep-messageactions", this.isTextSelected);
 
@@ -90,6 +117,13 @@ nsContextMenu.prototype = {
     // Copy link location depends on whether we're on a non-mailto link.
     this.showItem("context-copylink", this.onLink && !this.onMailtoLink);
     this.showItem("context-sep-copylink", this.onLink && this.isContentSelected);
+
+    // Display nick menu items.
+    let isNonNickItems = this.isContentSelected || this.isTextSelected ||
+                         this.onLink || actions.length;
+    this.showItem("context-sep-nick", this.onNick && isNonNickItems);
+    for (let action of nickActions)
+      this.showItem(action.id, action.visible);
 
     // Display action menu items.
     let before = document.getElementById("context-sep-messageactions");
@@ -102,17 +136,74 @@ nsContextMenu.prototype = {
     }
   },
 
+  getNormalizedName: function(aNick) {
+    // Unfortunately there is currently no way to obtain the normalizedName
+    // corresponding to the nick (bug 2115).
+    // Therefore we may sometimes not find existing logs for a nick,
+    // and offer "add contact" despite a buddy already existing.
+    return aNick;
+  },
+  getLogsForNick: function(aNick) {
+    return Services.logs.getLogsForAccountAndName(this.conv.account,
+                                                  this.getNormalizedName(aNick),
+                                                  true);
+  },
+  getNickActions: function(aIsParticipantList) {
+    let bundle = document.getElementById("bundle_instantbird");
+    let nick = this.nick;
+    let actions = [];
+    let addAction = function(aId, aVisible) {
+      let domId = "context-nick-" + aId.toLowerCase();
+      let stringId = "contextmenu.nick" + aId;
+      if (!aIsParticipantList)
+        stringId += ".withNick";
+      document.getElementById(domId).label =
+        bundle.getFormattedString(stringId, [nick]);
+      actions.push({id: domId, visible: aVisible});
+    };
+
+    // Special-case twitter. XXX Drop this when twitter DMs work.
+    let isTwitter = this.conv.account.protocol.id == "prpl-twitter";
+
+    addAction("OpenConv", this.onNick && !isTwitter);
+    addAction("ShowLogs", this.onNick && this.getLogsForNick(nick).hasMoreElements());
+    this.buddy = Services.contacts
+                         .getBuddyByNameAndProtocol(this.getNormalizedName(nick),
+                                                    this.conv.account.protocol);
+    let isAddContact = this.onNick && !isTwitter && !this.buddy;
+    if (isAddContact)
+      this.tagMenu = new TagMenu(this, window);
+    addAction("AddContact", isAddContact);
+
+    return actions;
+  },
+  nickOpenConv: function() {
+    let name = this.conv.target.getNormalizedChatBuddyName(this.nick);
+    let newConv = this.conv.account.createConversation(name);
+    Conversations.focusConversation(newConv);
+  },
+  nickAddContact: function(aTag)
+    this.conv.account.addBuddy(aTag, this.nick),
+  nickShowLogs: function() {
+    let nick = this.nick;
+    let enumerator = this.getLogsForNick(nick);
+    if (!enumerator.hasMoreElements())
+      return;
+    window.openDialog("chrome://instantbird/content/viewlog.xul",
+                      "Logs", "chrome,resizable", {logs: enumerator}, nick);
+  },
+
   // Set various context menu attributes based on the state of the world.
-  setTarget: function (aNode) {
-
-    // Initialize contextual info.
-    this.onLink            = false;
-    this.linkURL           = "";
-    this.linkURI           = null;
-    this.linkProtocol      = "";
-
+  setTarget: function(aNode) {
     // Remember the node that was clicked.
     this.target = aNode;
+
+    // Check if we are in the participant list.
+    if (this.target.localName == "listitem") {
+      this.onNick = true;
+      this.nick = this.target.label;
+      return;
+    }
 
     // First, do checks for nodes that never have children.
     // Second, bubble out, looking for items of interest that can have childen.
@@ -154,6 +245,13 @@ nsContextMenu.prototype = {
           this.linkProtocol = this.getLinkProtocol();
           this.onMailtoLink = (this.linkProtocol == "mailto");
           this.onSaveableLink = this.isLinkSaveable(this.link);
+        }
+
+        // Nick?
+        if (!this.onNick && this.conv.isChat &&
+            (elem.classList.contains("ib-nick") || elem.classList.contains("ib-sender"))) {
+          this.nick = elem.textContent;
+          this.onNick = true;
         }
       }
 
@@ -223,7 +321,7 @@ nsContextMenu.prototype = {
   },
 
   // Open linked-to URL in a new window.
-  openLink: function (aURI) {
+  openLink: function(aURI) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"].
     getService(Ci.nsIExternalProtocolService).
     loadURI(aURI || this.linkURI, window);

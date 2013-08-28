@@ -85,13 +85,13 @@
             label="&tagsCmd.label;"
             accesskey="&tagsCmd.accesskey;">
         <menupopup id="context-tags-popup"
-                   oncommand="gBuddyListContextMenu.tag(event);"
-                   onpopupshowing="gBuddyListContextMenu.tagsPopupShowing();">
+                   oncommand="gBuddyListContextMenu.tagMenu.tag(event, gBuddyListContextMenu.toggleTag.bind(gBuddyListContextMenu));"
+                   onpopupshowing="gBuddyListContextMenu.tagMenu.tagsPopupShowing();">
           <menuseparator id="context-create-tag-separator"/>
           <menuitem id="context-create-tag"
                     label="&addNewTagCmd.label;"
                     accesskey="&addNewTagCmd.accesskey;"
-                    oncommand="gBuddyListContextMenu.addNewTag();"/>
+                    oncommand="gBuddyListContextMenu.tagMenu.addNewTag(gBuddyListContextMenu.addTag.bind(gBuddyListContextMenu));"/>
         </menupopup>
       </menu>
       <menuitem id="context-hide-tag"

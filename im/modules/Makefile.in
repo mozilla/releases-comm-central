@@ -13,6 +13,7 @@ EXTRA_JS_MODULES = \
 	ibInterruptions.jsm \
 	ibNotifications.jsm \
 	ibSounds.jsm \
+	ibTagMenu.jsm \
 	$(NULL)
 
 EXTRA_PP_JS_MODULES = \
