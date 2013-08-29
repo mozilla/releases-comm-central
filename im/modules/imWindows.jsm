@@ -118,7 +118,7 @@ var Conversations = {
         let uiConv =
           Services.conversations.getUIConversation(aSubject.conversation);
         if (!this.isUIConversationDisplayed(uiConv) &&
-            this._shouldShowConversation(uiConv, aTopic, aSubject))
+            this._requestShowConversation(aTopic, aSubject))
           this.showConversation(uiConv);
       }
       return;
@@ -127,7 +127,8 @@ var Conversations = {
     if (aTopic != "new-ui-conversation")
       return;
 
-    if (this._shouldShowConversation(aSubject, aTopic, aSubject))
+    if (!this._isConversationHidden(aSubject) &&
+        this._requestShowConversation(aTopic, aSubject))
       this.showConversation(aSubject);
     else
       this.hideConversation(aSubject);
@@ -177,11 +178,8 @@ var Conversations = {
                                                 aConv.normalizedName);
   },
 
-  _shouldShowConversation: function(aConv, aTopic, aSubject) {
-    return !this._isConversationHidden(aConv) &&
-           Interruptions.requestInterrupt(aTopic, aSubject,
-                                          "show-conversation");
-  },
+  _requestShowConversation: function(aTopic, aSubject)
+    Interruptions.requestInterrupt(aTopic, aSubject, "show-conversation"),
 
   showConversation: function(aConv) {
     if (this.isUIConversationDisplayed(aConv) ||
