@@ -35,7 +35,8 @@ YahooConversation.prototype = {
     this._account._session.sendChatMessage(this._buddyUserName,
                                            this._account.encodeMessage(aMsg));
     this.finishedComposing();
-    this.writeMessage(this._account.imAccount.alias, aMsg, {outgoing: true});
+    this.writeMessage(this._account.cleanUsername, aMsg,
+                      {outgoing: true, _alias: this._account.imAccount.alias});
   },
 
   sendTyping: function(aString) {
