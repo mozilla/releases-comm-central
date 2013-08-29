@@ -390,6 +390,8 @@ const statusMessageReplacements = {
   }
 };
 
+function formatSender(aName)
+  "<span class=\"ib-sender\">" + TXTToHTML(aName) + "</span>";
 const messageReplacements = {
   userIconPath: function (aMsg) {
     // If the protocol plugin provides an icon for the message, use it.
@@ -407,16 +409,15 @@ const messageReplacements = {
     // Fallback to the theme's default icons.
     return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png";
   },
-  senderScreenName: function(aMsg) TXTToHTML(aMsg.who),
-  sender: function(aMsg)
-    "<span class=\"ib-sender\">" + TXTToHTML(aMsg.alias || aMsg.who) + "</span>",
+  senderScreenName: function(aMsg) formatSender(aMsg.who),
+  sender: function(aMsg) formatSender(aMsg.alias || aMsg.who),
   senderColor: function(aMsg) aMsg.color,
   senderStatusIcon: function(aMsg)
     getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
   messageDirection: function(aMsg) "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
-  senderDisplayName: function(aMsg) TXTToHTML(aMsg.alias || aMsg.who),
+  senderDisplayName: function(aMsg) formatSender(aMsg.alias || aMsg.who),
   service: function(aMsg) aMsg.conversation.account.protocol.name,
   textbackgroundcolor: function(aMsg, aFormat) "transparent", // FIXME?
   __proto__: statusMessageReplacements
