@@ -57,7 +57,6 @@ DEFINES += \
 	$(NULL)
 endif
 
-include $(MOZILLA_SRCDIR)/ipc/app/defs.mk
 DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
 
 ifneq (,$(filter WINNT Darwin Android,$(OS_TARGET)))
