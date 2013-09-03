@@ -95,9 +95,15 @@
       </method>
 
       <!-- Maintains computed number of items to display. Incremented when the user
-           scrolls near the bottom of the list, unless hasMoreItemsToDisplay is false. -->
+           scrolls near the bottom of the list if we have more conversations. -->
       <field name="numberOfItemsToDisplay">0</field>
-      <field name="hasMoreItemsToDisplay">true</field>
+      <property name="hasMoreConversations" readonly="true">
+        <getter>
+        <![CDATA[
+          return this.filteredConvs && this.filteredConvs.hasMoreElements();
+        ]]>
+        </getter>
+      </property>
       <!-- While scrolling, we add more items when there are three items left that
            aren't displayed (the last visible item is fourth from the end of the list). -->
       <field name="kAddMoreItemsThreshold" readonly="true">3</field>
@@ -108,15 +114,28 @@
       <method name="addMoreItems">
         <body>
         <![CDATA[
-          if (!this.hasMoreItemsToDisplay)
+          if (!this.hasMoreConversations)
             return;
           let lastVisibleIndex = this.listbox.getIndexOfFirstVisibleRow() +
                                    this.listbox.getNumberOfVisibleRows() - 1;
           // Increment numberOfItemsToDisplay if lastVisibleIndex exceeds the threshold.
           if (lastVisibleIndex >= this.listItems.length - this.kAddMoreItemsThreshold) {
             this.numberOfItemsToDisplay += this.kNumItemsIncrement;
-            this.refresh();
+            while (this.hasMoreConversations &&
+                   this.listItems.length < this.numberOfItemsToDisplay)
+              this.pushListItem().build(this.getNextConv());
           }
+        ]]>
+        </body>
+      </method>
+
+      <method name="getNextConv">
+        <body>
+        <![CDATA[
+          if (!this.hasMoreConversations)
+            return null;
+          return this.filteredConvs.getNext()
+                     .QueryInterface(Components.interfaces.ibIPossibleConversation);
         ]]>
         </body>
       </method>
@@ -140,15 +159,13 @@
           filterbox.value = otherFilterbox.value;
           filterbox.selectionStart = otherFilterbox.selectionStart;
           filterbox.selectionEnd = otherFilterbox.selectionEnd;
-          const kFieldsToImport = ["contacts", "filteredConvs", "contactsById",
-                                   "numberOfItemsToDisplay", "_prevFilterTxt",
-                                   "_forceRefresh", "hasMoreItemsToDisplay"];
+          const kFieldsToImport = ["filteredConvs", "numberOfItemsToDisplay",
+                                   "_prevFilterTxt"];
           for (let field of kFieldsToImport)
             this[field] = aOtherNewTab[field];
-          for (let i = 0; i < aOtherNewTab.listItems.length; ++i)
-            this.pushListItem();
+          for (let item of aOtherNewTab.listItems)
+            this.pushListItem().build(item.target);
           this.listbox.selectedIndex = aOtherNewTab.listbox.selectedIndex;
-          this._delayedRefresh();
           this.listbox.scrollToIndex(aOtherNewTab.listbox.getIndexOfFirstVisibleRow());
           this.addListeners();
         ]]>
@@ -160,8 +177,7 @@
       <method name="init">
         <body>
         <![CDATA[
-          this.filteredConvs = this.statsService.getFilteredConvs("");
-          this.resetItemsToDisplay();
+          this._forceRefresh = true;
           this.refresh();
           this.addListeners();
         ]]>
@@ -191,7 +207,7 @@
         </body>
       </method>
 
-      <field name="_prevFilterTxt">""</field>
+      <field name="_prevFilterTxt">null</field>
       <method name="_delayedRefresh">
         <body>
         <![CDATA[
@@ -200,31 +216,23 @@
           if (this._destroyed)
             return;
           let filterTxt = this.filterbox.value.toLowerCase();
-          // Filtering needs to be done only if either the filter string has changed,
-          // or the stats service's list was updated. _forceRefresh is a field as
-          // opposed to a parameter because calls to this function are delayed.
-          if (this._prevFilterTxt != filterTxt || this._forceRefresh) {
-            this.filteredConvs = this._statsService.getFilteredConvs(filterTxt);
-            // If the filter string has changed, reset number of items to display.
-            if (this._prevFilterTxt != filterTxt) {
-              this.resetItemsToDisplay();
-              this._prevFilterTxt = filterTxt;
-            }
+          if (filterTxt == this._prevFilterTxt && !this._forceRefresh)
+            return;
+          this.filteredConvs = this.statsService.getFilteredConvs(filterTxt);
+          if (filterTxt != this._prevFilterTxt) {
+            this.resetItemsToDisplay();
+            this._prevFilterTxt = filterTxt;
           }
-          this._forceRefresh = false;
           let filteredConvs = this.filteredConvs;
-          if (filteredConvs.length < this.numberOfItemsToDisplay) {
-            this.numberOfItemsToDisplay = filteredConvs.length;
-            this.hasMoreItemsToDisplay = false;
+          let i;
+          for (i = 0; i < this.numberOfItemsToDisplay && this.hasMoreConversations; ++i) {
+            if (i == this.listItems.length)
+              this.pushListItem();
+            this.listItems[i].build(this.getNextConv());
           }
-          // Add/remove list items until we have the number required.
-          // Then rebuild them all from filteredConvs.
-          while (this.listItems.length > this.numberOfItemsToDisplay)
+          // Remove excess items.
+          while (this.listItems.length > i)
             this.popListItem();
-          while (this.listItems.length < this.numberOfItemsToDisplay)
-            this.pushListItem();
-          for (let i = 0; i < this.listItems.length; ++i)
-            this.listItems[i].build(filteredConvs[i]);
         ]]>
         </body>
       </method>
@@ -233,11 +241,10 @@
         <body>
         <![CDATA[
           let listbox = this.listbox;
-          this.hasMoreItemsToDisplay = this.filteredConvs.length > 0;
           // We need to have a list item so that we can use its height to compute
           // the number of items to display. If we don't have one, we add it,
-          // but only if it will be used (i.e. hasMoreItemsToDisplay is true).
-          if (this.hasMoreItemsToDisplay) {
+          // but only if it will be used (i.e. this.hasMoreConversations is true).
+          if (this.hasMoreConversations) {
             if (!listbox.firstChild)
               this.pushListItem();
             // Add enough items to fill the visible area, plus kNumItemsIncrement.
@@ -276,6 +283,18 @@
         <![CDATA[
           this.listbox.removeChild(this.listbox.lastChild);
           this.listItems.pop();
+        ]]>
+        </body>
+      </method>
+
+      <method name="startConversation">
+        <parameter name="aNewtabItem"/>
+        <body>
+        <![CDATA[
+          let conv = aNewtabItem.target.createConversation();
+          // If it's a new chat, it won't return the conversation. So don't focus it.
+          if (conv)
+            Conversations.focusConversation(conv);
         ]]>
         </body>
       </method>
@@ -350,7 +369,7 @@
         if (!("Conversations" in window))
           Components.utils.import("resource:///modules/imWindows.jsm");
         let item = this.listbox.selectedItem || this.listbox.firstChild;
-        Conversations.focusConversation(item.target.createConversation());
+        this.startConversation(item);
         window.getTabBrowser().removeTab(this.tab);
       ]]>
       </handler>
@@ -362,8 +381,8 @@
     <content>
       <xul:hbox flex="1">
         <xul:stack class="buddyStatusIconStack" mousethrough="always">
-          <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,status"/>
-          <xul:image anonid="statusIcon" class="statusTypeIcon" xbl:inherits="status"/>
+          <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,status,chat"/>
+          <xul:image anonid="statusIcon" class="statusTypeIcon" xbl:inherits="status,chat"/>
         </xul:stack>
         <xul:vbox flex="1">
           <xul:spacer flex="1"/>
@@ -393,9 +412,19 @@
         <![CDATA[
           this.target = aTarget;
           this.setAttribute("displayName", aTarget.displayName);
-          if (!("Status" in window))
-            Components.utils.import("resource:///modules/imStatusUtils.jsm");
-          this.setAttribute("status", Status.toAttribute(aTarget.statusType));
+          let source = aTarget.source;
+          this.setAttribute("source", source);
+          // Could be an existing conversation or a contact.
+          if (source != "chat") {
+            if (!("Status" in window))
+              Components.utils.import("resource:///modules/imStatusUtils.jsm");
+            this.setAttribute("status", Status.toAttribute(aTarget.statusType));
+          }
+          // Could be a new chat or an existing chat conversation.
+          if (aTarget.isChat)
+            this.setAttribute("chat", true);
+          else
+            this.removeAttribute("chat");
           let status;
           if (aTarget.isChat)
             status = aTarget.statusText;
@@ -409,7 +438,6 @@
           this.setAttribute("infoText", aTarget.infoText);
           this.setAttribute("protoIcon", aTarget.account.protocol.iconBaseURI + "icon.png");
           this.setAttribute("buddyIcon", aTarget.buddyIconFilename);
-          this.setAttribute("source", aTarget.source);
         ]]>
         </body>
       </method>
@@ -423,7 +451,7 @@
         let newtab = document.getBindingParent(this);
         if (!("Conversations" in window))
           Components.utils.import("resource:///modules/imWindows.jsm");
-        Conversations.focusConversation(this.target.createConversation());
+        newtab.startConversation(this);
         let tabbrowser = window.getTabBrowser();
         if (event.button != 1 && !event.controlKey && !event.metaKey)
           tabbrowser.removeTab(newtab.tab);

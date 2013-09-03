@@ -34,6 +34,7 @@ instantbird.jar:
 	skin/classic/instantbird/expand.png
 	skin/classic/instantbird/collapse.png
 	skin/classic/instantbird/userIcon.png
+	skin/classic/instantbird/multiUserIcon.png
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
 	skin/classic/instantbird/tag.png        (tag-mac.png)
@@ -133,6 +134,7 @@ instantbird.jar:
 	skin/classic/aero/instantbird/expand.png
 	skin/classic/aero/instantbird/collapse.png
 	skin/classic/aero/instantbird/userIcon.png
+	skin/classic/aero/instantbird/multiUserIcon.png
 	skin/classic/aero/instantbird/newConversation.png
 	skin/classic/aero/instantbird/tag.png		(tag-aero.png)
 	skin/classic/aero/instantbird/actionicon-tab.png        (actionicon-tab-win.png)

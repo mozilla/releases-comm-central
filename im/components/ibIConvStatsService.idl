@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "nsISimpleEnumerator.idl"
 #include "nsIObserver.idl"
 #include "imIStatusInfo.idl"
 
@@ -13,12 +14,9 @@ interface imIContact;
 
 [scriptable, uuid(1b495592-8512-4443-bcdb-49118f045e42)]
 interface ibIConvStatsService: nsISupports {
-  // Returns an array of PossibleConversations which match the given filter string.
-  void getFilteredConvs(in AUTF8String aFilterStr,
-    [optional] out unsigned long filteredConvCount,
-    [retval, array, size_is(filteredConvCount)] out ibIPossibleConversation filteredConvs);
-  // A stats-service-contact-updated notification is fired when a contact has
-  // been updated and observers need to refresh.
+  // Returns an enumerator of PossibleConversations which match the given filter string.
+  nsISimpleEnumerator getFilteredConvs(in AUTF8String aFilterStr);
+  // A stats-service-updated notification is fired when data has been updated.
   void addObserver(in nsIObserver aObserver);
   void removeObserver(in nsIObserver aObserver);
 };

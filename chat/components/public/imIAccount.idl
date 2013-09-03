@@ -10,6 +10,7 @@ interface imITag;
 interface imIBuddy;
 interface imIAccountBuddy;
 interface imIAccount;
+interface prplIAccount;
 interface prplIProtocol;
 interface purpleIProxyInfo;
 interface nsIScriptError;
@@ -37,6 +38,34 @@ interface prplIChatRoomField: nsISupports {
   readonly attribute short type;
   readonly attribute long min;
   readonly attribute long max;
+};
+
+/*
+ * Information about a chat room and the fields required to join it.
+ */
+[scriptable, uuid(3fc279d9-b280-4f4a-babd-b4e328e65a01)]
+interface prplIRoomInfo: nsISupports {
+  readonly attribute AUTF8String accountId;
+  readonly attribute AUTF8String name;
+  readonly attribute AUTF8String topic;
+  readonly attribute unsigned long participantCount;
+  readonly attribute prplIChatRoomFieldValues chatRoomFieldValues;
+};
+
+/*
+ * Callback passed to an account's requestRoomInfo function.
+ */
+[scriptable, function, uuid(d3c13bde-b852-44a8-a0dc-c781366cf110)]
+interface prplIRoomInfoCallback: nsISupports {
+  /* aRooms is an array containing a batch of prplIRoomInfo. This will be called
+   * multiple times as batches of chat rooms are received. The number of rooms
+   * in each batch is left for the prplIAccount implementation to decide.
+   * aCompleted will be true when aRooms is the last batch.
+   */
+  void onRoomInfoAvailable([array, size_is(aCount)] in prplIRoomInfo aRooms,
+                           in prplIAccount aAccount,
+                           in boolean aCompleted,
+                           in unsigned long aCount);
 };
 
 
@@ -85,6 +114,12 @@ interface prplIAccount: nsISupports {
   readonly attribute boolean canJoinChat;
   nsISimpleEnumerator getChatRoomFields();
   prplIChatRoomFieldValues getChatRoomDefaultFieldValues([optional] in AUTF8String aDefaultChatName);
+  /* Request information on available chat rooms, to be returned via the
+   * callback.
+   */
+  void requestRoomInfo(in prplIRoomInfoCallback aCallback);
+  readonly attribute boolean isRoomInfoStale;
+
   /*
    * Create a new chat conversation if it doesn't already exist.
    */

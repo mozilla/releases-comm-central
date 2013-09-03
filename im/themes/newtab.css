@@ -67,6 +67,9 @@
   list-style-image: url("chrome://instantbird/skin/tag.png");
 }
 
+.infoIcon[source="chat"] {
+  list-style-image: url("chrome://chat/skin/chat-16.png");
+}
 
 .infoIcon[source="existing"] {
   list-style-image: url("chrome://instantbird/skin/actionicon-tab.png");
@@ -115,11 +118,19 @@
   background-repeat: no-repeat;
 }
 
+.buddyIcon[src=""][chat] {
+  background-image: url("chrome://instantbird/skin/multiUserIcon.png");
+}
+
 .statusTypeIcon {
   margin-top: 32px;
   margin-left: 32px;
   width: 16px;
   height: 16px;
+}
+
+.statusTypeIcon[chat] {
+  list-style-image: none !important;
 }
 
 .protoIcon {
