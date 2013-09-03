@@ -10,6 +10,7 @@ const EXPORTED_SYMBOLS = [
   "GenericConvChatBuddyPrototype",
   "GenericMessagePrototype",
   "GenericProtocolPrototype",
+  "RoomInfo",
   "Message",
   "TooltipInfo"
 ];
@@ -196,6 +197,8 @@ const GenericAccountPrototype = {
 
     return new ChatRoomFieldValues(defaultFieldValues);
   },
+  requestRoomInfo: function(aCallback) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  get isRoomInfoStale() false,
 
   getPref: function (aName, aType)
     this.prefs.prefHasUserValue(aName) ?
@@ -711,6 +714,15 @@ UsernameSplit.prototype = {
   get defaultValue() this._values.defaultValue,
   get reverse() !!this._values.reverse // Ensure boolean
 };
+
+function RoomInfo(aName, aTopic, aParticipantCount, aAccountId, aChatRoomFieldValues) {
+  this.name = aName;
+  this.topic = aTopic;
+  this.participantCount = aParticipantCount;
+  this.accountId = aAccountId;
+  this.chatRoomFieldValues = aChatRoomFieldValues;
+}
+RoomInfo.prototype = ClassInfo("prplIRoomInfo", "RoomInfo object");
 
 function ChatRoomField(aIdentifier, aField) {
   this.identifier = aIdentifier;
