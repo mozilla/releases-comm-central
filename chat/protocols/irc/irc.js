@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
@@ -10,6 +10,8 @@ Cu.import("resource:///modules/ircUtils.jsm");
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/socket.jsm");
+
+const kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
 
 /*
  * Parses a raw IRC message into an object (see section 2.3 of RFC 2812). This
@@ -769,6 +771,8 @@ function ircAccount(aProtocol, aImAccount) {
   this.whoisInformation = {};
   this._chatRoomFieldsList = {};
   this._caps = [];
+
+  this._roomInfoCallbacks = new Set();
 }
 ircAccount.prototype = {
   __proto__: GenericAccountPrototype,
@@ -902,6 +906,53 @@ ircAccount.prototype = {
           .writeMessage(this._currentServerName, msg, {system: true});
     }
     return true;
+  },
+
+  // Channels are stored as prplIRoomInfo.
+  _channelList: [],
+  _roomInfoCallbacks: new Set(),
+  // If true, we have sent the LIST request and are waiting for replies.
+  _pendingList: false,
+  // Callbacks receive at most this many channels per call.
+  _channelsPerBatch: 25,
+  _lastListTime: 0,
+  get isRoomInfoStale() Date.now() - this._lastListTime > kListRefreshInterval,
+  // Called by consumers that want a list of available channels, which are
+  // provided through the callback (prplIRoomInfoCallback instance).
+  requestRoomInfo: function(aCallback) {
+    if (!Services.prefs.getBoolPref("chat.irc.automaticList"))
+      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    if (this._roomInfoCallbacks.has(aCallback)) // Callback is not new.
+      return;
+    // Send a LIST request if the channel list is stale and a current request
+    // has not been sent.
+    if (this.isRoomInfoStale && !this._pendingList) {
+      this._channelList = [];
+      this._pendingList = true;
+      this._lastListTime = Date.now();
+      this.sendMessage("LIST");
+    }
+    // Otherwise, pass channels that have already been received to the callback.
+    else {
+      aCallback.onRoomInfoAvailable(this._channelList, this, !this._pendingList,
+                                    this._channelList.length);
+    }
+
+    if (this._pendingList)
+      this._roomInfoCallbacks.add(aCallback);
+  },
+  // Pass room info for any remaining channels to callbacks and clean up.
+  _sendRemainingRoomInfo: function() {
+    let remainingChannelCount = this._channelList.length % this._channelsPerBatch;
+    if (remainingChannelCount) {
+      let remainingChannels = this._channelList.slice(-remainingChannelCount);
+      for (let callback of this._roomInfoCallbacks) {
+        callback.onRoomInfoAvailable(remainingChannels, this, true,
+                                     remainingChannelCount);
+      }
+    }
+    this._roomInfoCallbacks.clear();
+    delete this._pendingList;
   },
 
   // The whois information: nicks are used as keys and refer to a map of field
@@ -1478,6 +1529,11 @@ ircAccount.prototype = {
         conversation.left = true;
       }
     }
+
+    // If we disconnected during a pending LIST request, make sure callbacks
+    // receive any remaining channels.
+    if (this._pendingList)
+      this._sendRemainingRoomInfo();
 
     // Clear whois table.
     this.whoisInformation = {};
