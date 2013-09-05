@@ -25,6 +25,7 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
+Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "DownloadUtils", function() {
   Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
@@ -789,11 +790,28 @@ var ircBase = {
     },
     "322": function(aMessage) { // RPL_LIST
       // <channel> <# visible> :<topic>
-      // TODO parse this for # users & topic.
+      let name = aMessage.params[1];
+      let participantCount = aMessage.params[2];
+      let topic = aMessage.params[3];
+      // Some servers (e.g. Unreal) include the channel's modes before the topic.
+      // Omit this.
+      topic = topic.replace(/^\[\+.*\] /, "");
+
+      this._channelList.push(new RoomInfo(name, topic, participantCount,
+        this.imAccount.id, this.getChatRoomDefaultFieldValues(name)));
+      // Give callbacks a batch of channels of length _channelsPerBatch.
+      if (this._channelList.length % this._channelsPerBatch == 0) {
+        let channelBatch = this._channelList.slice(-this._channelsPerBatch);
+        for (let callback of this._roomInfoCallbacks) {
+          callback.onRoomInfoAvailable(channelBatch, this, false,
+                                       this._channelsPerBatch);
+        }
+      }
       return serverMessage(this, aMessage);
     },
     "323": function(aMessage) { // RPL_LISTEND
       // :End of LIST
+      this._sendRemainingRoomInfo();
       return true;
     },
 
