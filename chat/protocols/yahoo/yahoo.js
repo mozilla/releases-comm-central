@@ -104,6 +104,10 @@ YahooConference.prototype = {
   },
 
   addParticipant: function(aName) {
+    // In case we receive multiple conference logon packets, prevent adding
+    // duplicate buddies.
+    if (this._participants[aName])
+      return;
     let buddy = new YahooConferenceBuddy(aName, this);
     this._participants[aName] = buddy;
     this.notifyObservers(new nsSimpleEnumerator([buddy]), "chat-buddy-add");
