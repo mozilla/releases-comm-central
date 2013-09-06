@@ -158,6 +158,10 @@ YahooSession.prototype = {
     new YahooLoginHelper(this).login(this._account);
   },
 
+  sendPacket: function(aPacket) {
+    this.sendBinaryData(aPacket.toArrayBuffer(), aPacket.toString());
+  },
+
   addBuddyToServer: function(aBuddy) {
     let packet = new YahooPacket(kPacketType.AddBuddy, 0, this.sessionId);
     packet.addValue(14, _("buddy.invite.message"));
@@ -172,7 +176,7 @@ YahooSession.prototype = {
     packet.addValue(334, "0");
     packet.addValue(301, "319");
     packet.addValue(303, "319");
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   removeBuddyFromServer: function(aBuddy) {
@@ -180,7 +184,7 @@ YahooSession.prototype = {
     packet.addValue(1, this._account.cleanUsername);
     packet.addValue(7, aBuddy.userName);
     packet.addValue(65, aBuddy.tag.name);
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   setStatus: function(aStatus, aMessage) {
@@ -228,7 +232,7 @@ YahooSession.prototype = {
     // Otherwise, the value of key 10 is used to determine our status.
     packet.addValue(47, (aStatus == Ci.imIStatusInfo.STATUS_AVAILABLE) ?
                     "0" : "1");
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   sendChatMessage: function(aName, aMessage) {
@@ -239,7 +243,7 @@ YahooSession.prototype = {
     packet.addValue(1, this._account.cleanUsername);
     packet.addValue(5, aName);
     packet.addValue(14, aMessage);
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   sendConferenceMessage: function(aRecipients, aRoom, aMessage) {
@@ -249,7 +253,7 @@ YahooSession.prototype = {
     packet.addValue(57, aRoom);
     packet.addValue(14, aMessage);
     packet.addValue(97, "1"); // Use UTF-8 encoding.
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   sendTypingStatus: function(aBuddyName, aIsTyping) {
@@ -260,7 +264,7 @@ YahooSession.prototype = {
     packet.addValue(13, aIsTyping ? "1" : "0");
     packet.addValue(14, " "); // Key 14 contains a single space.
     packet.addValue(49, "TYPING");
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   acceptConferenceInvite: function(aOwner, aRoom, aParticipants) {
@@ -269,7 +273,7 @@ YahooSession.prototype = {
     packet.addValue(3, this._account.cleanUsername);
     packet.addValue(57, aRoom);
     packet.addValues(3, aParticipants);
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   createConference: function(aRoom) {
@@ -277,7 +281,7 @@ YahooSession.prototype = {
     packet.addValue(1, this._account.cleanUsername);
     packet.addValue(3, this._account.cleanUsername);
     packet.addValue(57, aRoom);
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   inviteToConference: function(aInvitees, aRoom, aParticipants, aMessage) {
@@ -288,7 +292,7 @@ YahooSession.prototype = {
     packet.addValue(57, aRoom);
     packet.addValue(58, aMessage);
     packet.addValue(13, "0");
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   sendConferenceLogoff: function(aName, aParticipants, aRoom) {
@@ -296,7 +300,7 @@ YahooSession.prototype = {
     packet.addValue(1, aName);
     packet.addValues(3, aParticipants);
     packet.addValue(57, aRoom);
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   setProfileIcon: function(aFileName) {
@@ -321,7 +325,7 @@ YahooSession.prototype = {
     packet.addValue(1, this._account.cleanUsername);
     packet.addValue(5, aName); // The name of the buddy.
     packet.addValue(13, "1"); // "1" means we wish to request an icon.
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   acceptBuddyRequest: function(aRequest) {
@@ -331,7 +335,7 @@ YahooSession.prototype = {
     // Misc. Unknown flags.
     packet.addValue(13, 1);
     packet.addValue(334, 0);
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
 
     // If someone wants to add us as a buddy, place them under the default
     // tag. Also, we make sure that the buddy doesn't already exist in the
@@ -345,7 +349,7 @@ YahooSession.prototype = {
     packet.addValue(1, this._account.cleanUsername);
     packet.addValue(7, aRequest.userName);
     packet.addValue(14, "");
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   // Callbacks.
@@ -372,7 +376,7 @@ YahooSession.prototype = {
     // pager server.
     let packet = new YahooPacket(kPacketType.Auth, 0, 0);
     packet.addValue(1, this._account.cleanUsername);
-    this.sendBinaryData(packet.toArrayBuffer());
+    this.sendPacket(packet);
   },
 
   onConnectionTimedOut: function() {
@@ -403,6 +407,7 @@ YahooSession.prototype = {
     }
 
     for each (let packet in packets) {
+      this._account.LOG("Received Packet:\n" + packet.toString());
       if (YahooPacketHandler.hasOwnProperty(packet.service)) {
         try {
           YahooPacketHandler[packet.service].call(this._account, packet);
@@ -516,8 +521,7 @@ YahooLoginHelper.prototype = {
     packet.addValue(2, this._account.cleanUsername);
     packet.addValue(2, "1");
     packet.addValue(98, "us");
-    this._session.sendBinaryData(packet.toArrayBuffer());
-
+    this._session.sendPacket(packet);
     // We want to handle a final login confirmation packet when the server
     // responds.
     this._session.onBinaryDataReceived = this._onFinalLoginResponse.bind(this);
@@ -761,6 +765,21 @@ YahooPacket.prototype = {
         this.keyValuePairs.push(pair);
       }
     }
+  },
+
+  toString: function() {
+    // First, add packet header information.
+    let s = "Service: 0x" + this.service.toString(16) + "\n";
+    s += "Status: 0x" + this.status.toString(16) + "\n";
+    s += "Session ID: 0x" + this.sessionId.toString(16);
+    // Now we add the packet data, if there is some.
+    if (this.keyValuePairs.length) {
+      // Add two preceding newlines for space to make reading easier.
+      s += "\n\nPacket Key-Value Data:\n";
+      for each (let pair in this.keyValuePairs)
+        s += pair.key + ":\t" + pair.value + "\n";
+    }
+    return s;
   }
 };
 YahooPacket.extractPackets = function(aData, aOnNetworkError) {
@@ -824,7 +843,7 @@ const YahooPacketHandler = {
       packet.addValue(430, messageId);
       packet.addValue(303, 430);
       packet.addValue(450, 0);
-      this._session.sendBinaryData(packet.toArrayBuffer());
+      this._session.sendPacket(packet);
     }
   },
 
@@ -904,7 +923,7 @@ const YahooPacketHandler = {
                                    this._session.sessionId);
       packet.addValue(3, buddy.userName);
       packet.addValue(213, 2); // A value of 2 means we are using an icon.
-      this._session.sendBinaryData(packet.toArrayBuffer());
+      this._session.sendPacket(packet);
     }
   },
 

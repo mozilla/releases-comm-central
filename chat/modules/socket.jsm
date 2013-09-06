@@ -248,8 +248,9 @@ const Socket = {
     }
   },
 
-  sendBinaryData: function(/* ArrayBuffer */ aData) {
-    this.LOG("Sending binary data: <" + ArrayBufferToHexString(aData) + ">");
+  sendBinaryData: function(/* ArrayBuffer */ aData, aLoggedData) {
+    this.LOG("Sending binary data:\n" + (aLoggedData ||
+             "<" + ArrayBufferToHexString(aData) + ">"));
 
     let byteArray = ArrayBufferToBytes(aData);
     try {
