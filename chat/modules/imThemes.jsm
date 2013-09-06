@@ -909,13 +909,13 @@ SelectedMessage.prototype = {
       }
     }
 
-    // override the default %message% replacement so that it doesn't
-    // add a span node.
+    // Overrides default replacements so that they don't add a span node.
     // Also, this uses directly the text variable so that we don't
     // have to change the content of msg.message and revert it
     // afterwards.
     replacements = {
       message: function(aMsg) text,
+      sender: function(aMsg) aMsg.alias || aMsg.who,
       __proto__: replacements
     };
 
