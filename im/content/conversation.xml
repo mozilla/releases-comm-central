@@ -646,6 +646,19 @@
               firstWordSuffix = ": ";
 
               completions = Object.keys(this.buddies);
+
+              // Add recently parted nicks.
+              const kIncludeNickTimespan = 300000;
+              let cutoffTime = Date.now() - kIncludeNickTimespan;
+              let partedNicks = Object.keys(this.partedBuddies);
+              let j = partedNicks.length - 1;
+              while (j >= 0 &&
+                     this.partedBuddies[partedNicks[j]].partTime > cutoffTime)
+                --j;
+              ++j; // Index of the first nick we want to keep.
+              if (partedNicks.length > j)
+                completions = completions.concat(partedNicks.slice(j));
+
               let outgoingNick = this._conv.nick;
               completions = completions.filter(function(c) c != outgoingNick);
 
