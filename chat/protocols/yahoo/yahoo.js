@@ -372,6 +372,7 @@ YahooAccount.prototype = {
                       .replace(/(<font[^>]+)size=\"(\d+)\"/g, this._fixFontSize);
 
     conv.writeMessage(aName, message, {incoming: true});
+    conv.updateTyping(Ci.prplIConvIM.NOT_TYPING);
   },
 
   receiveConferenceMessage: function(aName, aRoom, aMessage) {
