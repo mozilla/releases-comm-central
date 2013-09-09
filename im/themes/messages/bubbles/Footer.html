@@ -98,6 +98,7 @@ function refreshIntervals()
 
 var refreshTimes;
 var lastMessageTimeout;
+var lastMessageTimeoutTime = -1;
 function handleLastMessage()
 {
   if (window.messageInsertPending)
@@ -140,8 +141,9 @@ function handleLastMessage()
 
   // The setTimeout callbacks are frequently called a few ms early,
   // but our code prefers being called a little late, so add 20ms.
+  lastMessageTimeoutTime = next + 20;
   lastMessageTimeout =
-    setTimeout(handleLastMessage, next + 20);
+    setTimeout(handleLastMessage, lastMessageTimeoutTime);
 }
 
 var lastInsertTime = 0;
@@ -151,17 +153,19 @@ function updateLastInsertTime()
   if (insertTime > lastInsertTime)
     lastInsertTime = insertTime;
 
-  if (lastInsertTime) {
+  if (lastInsertTime && lastMessageTimeoutTime != 0 && !document.hidden) {
     clearTimeout(lastMessageTimeout);
-    if (!document.hidden)
-      lastMessageTimeout = setTimeout(handleLastMessage, 0);
+    setTimeout(handleLastMessage, 0);
+    lastMessageTimeoutTime = 0;
   }
 }
 
 function visibilityChanged()
 {
-  if (document.hidden)
+  if (document.hidden) {
     clearTimeout(lastMessageTimeout);
+    lastMessageTimeoutTime = -1;
+  }
   else if (lastInsertTime)
     handleLastMessage();
 }
