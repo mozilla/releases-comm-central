@@ -819,7 +819,7 @@ var ircBase = {
                                        this._channelsPerBatch);
         }
       }
-      return serverMessage(this, aMessage);
+      return true;
     },
     "323": function(aMessage) { // RPL_LISTEND
       // :End of LIST
