@@ -10,7 +10,6 @@ const EXPORTED_SYMBOLS = [
   "GenericConvChatBuddyPrototype",
   "GenericMessagePrototype",
   "GenericProtocolPrototype",
-  "RoomInfo",
   "Message",
   "TooltipInfo"
 ];
@@ -714,15 +713,6 @@ UsernameSplit.prototype = {
   get defaultValue() this._values.defaultValue,
   get reverse() !!this._values.reverse // Ensure boolean
 };
-
-function RoomInfo(aName, aTopic, aParticipantCount, aAccountId, aChatRoomFieldValues) {
-  this.name = aName;
-  this.topic = aTopic;
-  this.participantCount = aParticipantCount;
-  this.accountId = aAccountId;
-  this.chatRoomFieldValues = aChatRoomFieldValues;
-}
-RoomInfo.prototype = ClassInfo("prplIRoomInfo", "RoomInfo object");
 
 function ChatRoomField(aIdentifier, aField) {
   this.identifier = aIdentifier;

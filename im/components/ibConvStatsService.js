@@ -225,11 +225,8 @@ ConvStatsService.prototype = {
 
 let PossibleConversation = {
   get displayName() this._displayName,
-  get lowerCaseName() {
-    if (!this._lowerCaseName)
-      this._lowerCaseName = this._displayName.toLowerCase();
-    return this._lowerCaseName;
-  },
+  get lowerCaseName()
+    this._lowerCaseName || (this._lowerCaseName = this._displayName.toLowerCase()),
   _isChat: false, // False by default. Extensions should override this.
   get isChat() this._isChat,
   get statusType() this._statusType,
@@ -260,21 +257,25 @@ PossibleConvFromContact.prototype = {
 };
 
 function PossibleChat(aRoomInfo) {
-  this._accountId = aRoomInfo.accountId;
-  this._displayName = aRoomInfo.name;
-  this._statusText = "(" + aRoomInfo.participantCount + ") " +
-    (aRoomInfo.topic || _instantbird("noTopic"));
-  this._chatRoomFieldValues = aRoomInfo.chatRoomFieldValues;
+  this._roomInfo = aRoomInfo;
 }
 PossibleChat.prototype = {
-  __proto__: PossibleConversation,
-  _isChat: true,
-  _statusType: Ci.imIStatusInfo.STATUS_UNKNOWN,
-  _buddyIconFilename: "",
+  get isChat() true,
+  get statusType() Ci.imIStatusInfo.STATUS_UNKNOWN,
+  get buddyIconFilename() "",
+  get displayName() this._roomInfo.name,
+  get lowerCaseName()
+    this._lowerCaseName || (this._lowerCaseName = this.displayName.toLowerCase()),
+  get statusText() {
+    return "(" + this._roomInfo.participantCount + ") " +
+      (this._roomInfo.topic || _instantbird("noTopic"));
+  },
   get infoText() this.account.normalizedName,
   get source() "chat",
-  get account() Services.accounts.getAccountById(this._accountId),
-  createConversation: function() this.account.joinChat(this._chatRoomFieldValues)
+  get account() Services.accounts.getAccountById(this._roomInfo.accountId),
+  createConversation: function()
+    this.account.joinChat(this._roomInfo.chatRoomFieldValues),
+  QueryInterface: XPCOMUtils.generateQI([Ci.ibIPossibleConversation])
 };
 
 function ExistingConversation(aUIConv) {
