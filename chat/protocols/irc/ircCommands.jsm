@@ -212,7 +212,21 @@ var commands = [
   {
     name: "list",
     get helpString() _("command.list", "list"),
-    run: function(aMsg, aConv) simpleCommand(aConv, "LIST")
+    run: function(aMsg, aConv) {
+      let account = getAccount(aConv);
+      let serverName = account._currentServerName;
+      let serverConv = account.getConversation(serverName);
+      account.requestRoomInfo({onRoomInfoAvailable: function(aRooms) {
+        aRooms.forEach(function(aRoom) {
+          serverConv.writeMessage(serverName,
+                                  aRoom.name +
+                                  " (" + aRoom.participantCount + ") " +
+                                  aRoom.topic,
+                                  {incoming:true, noLog: true});
+        });
+      }});
+      return true;
+    }
   },
   {
     name: "me",
