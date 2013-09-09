@@ -32,6 +32,19 @@ XPCOMUtils.defineLazyGetter(this, "DownloadUtils", function() {
   return DownloadUtils;
 });
 
+function ircRoomInfo(aName, aTopic, aParticipantCount, aAccount) {
+  this.name = aName;
+  this.topic = aTopic;
+  this.participantCount = aParticipantCount;
+  this._account = aAccount;
+}
+ircRoomInfo.prototype = {
+  __proto__: ClassInfo("prplIRoomInfo", "IRC RoomInfo Object"),
+  get accountId() this._account.imAccount.id,
+  get chatRoomFieldValues()
+    this._account.getChatRoomDefaultFieldValues(this.name)
+}
+
 function privmsg(aAccount, aMessage, aIsNotification) {
   let params = {incoming: true};
   if (aIsNotification)
@@ -797,8 +810,7 @@ var ircBase = {
       // Omit this.
       topic = topic.replace(/^\[\+.*\] /, "");
 
-      this._channelList.push(new RoomInfo(name, topic, participantCount,
-        this.imAccount.id, this.getChatRoomDefaultFieldValues(name)));
+      this._channelList.push(new ircRoomInfo(name, topic, participantCount, this));
       // Give callbacks a batch of channels of length _channelsPerBatch.
       if (this._channelList.length % this._channelsPerBatch == 0) {
         let channelBatch = this._channelList.slice(-this._channelsPerBatch);
