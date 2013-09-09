@@ -58,29 +58,51 @@ ConvStatsService.prototype = {
     this._contactsById.delete(aId);
   },
 
-  _addChat: function(aRoomInfo) {
-    let accountId = aRoomInfo.accountId;
-    let chatList = this._chatsByAccountIdAndName.get(accountId);
-    if (!chatList) {
-      chatList = new Map();
-      this._chatsByAccountIdAndName.set(accountId, chatList);
+  // Queue of RoomInfo to be added.
+  _pendingChats: [],
+  // The last time an update notification was sent to observers.
+  _lastUpdateNotification: 0,
+  // Account ids from which chat room info has been requested.
+  // We send an update notification if this is empty after adding chat rooms.
+  _accountsRequestingRoomInfo: new Set(),
+  _addPendingChats: function() {
+    let begin = Date.now();
+    for (let time = 0; time < 40 && this._pendingChats.length;
+         time = Date.now() - begin) {
+      let chat = this._pendingChats.pop();
+      let accountId = chat.accountId;
+      let chatList = this._chatsByAccountIdAndName.get(accountId);
+      if (!chatList) {
+        chatList = new Map();
+        this._chatsByAccountIdAndName.set(accountId, chatList);
+      }
+      // If a chat is already added, we remove it and re-add to refresh.
+      else if (chatList.has(chat.name)) {
+        this._chats.splice(
+          this._chats.indexOf(chatList.get(chat.name)), 1);
+      }
+      let possibleConv = new PossibleChat(chat);
+      let pos = this._getPositionToInsert(possibleConv, this._chats);
+      this._chats.splice(pos, 0, possibleConv);
+      chatList.set(chat.name, possibleConv);
     }
-    // If a chat is already added, we remove it and re-add to refresh.
-    else if (chatList.has(aRoomInfo.name)) {
-      this._chats.splice(
-        this._chats.indexOf(chatList.get(aRoomInfo.name)), 1);
+    if (this._pendingChats.length)
+      executeSoon(this._addPendingChats.bind(this));
+    let now = Date.now();
+    if ((!this._accountsRequestingRoomInfo.size && !this._pendingChats.length) ||
+        now - this._lastUpdateNotification > 100) {
+      this._notifyObservers("updated");
+      this._lastUpdateNotification = now;
     }
-    let possibleConv = new PossibleChat(aRoomInfo);
-    let pos = this._getPositionToInsert(possibleConv, this._chats);
-    this._chats.splice(pos, 0, possibleConv);
-    chatList.set(aRoomInfo.name, possibleConv);
+    delete this._addingPendingChats;
   },
 
   _removeChatsForAccount: function(aAccId) {
     if (!this._chatsByAccountIdAndName.has(aAccId))
       return;
-    this._chats = this._chats.filter(function(c) c._accountId != aAccId);
+    this._chats = this._chats.filter(function(c) c.accountId != aAccId);
     this._chatsByAccountIdAndName.delete(aAccId);
+    this._pendingChats = this._pendingChats.filter(function(c) c.accountId != aAccId);
   },
 
   _getPositionToInsert: function(aPossibleConversation, aArrayToInsert) {
@@ -140,8 +162,6 @@ ConvStatsService.prototype = {
     return new nsSimpleEnumerator(filteredConvs);
   },
 
-  // The last time an update notification was sent to observers.
-  _lastUpdateNotification: 0,
   addObserver: function(aObserver) {
     if (this._observers.indexOf(aObserver) != -1)
       return;
@@ -157,13 +177,15 @@ ConvStatsService.prototype = {
         this._removeChatsForAccount(id);
         try {
           acc.prplAccount.requestRoomInfo(function(aRoomInfo, aPrplAccount, aCompleted) {
-            aRoomInfo.forEach(this._addChat, this);
-            let now = Date.now();
-            if ((now - this._lastUpdateNotification > 100) || aCompleted) {
-              this._notifyObservers("updated");
-              this._lastUpdateNotification = now;
-            }
+            if (aCompleted)
+              this._accountsRequestingRoomInfo.delete(acc.id);
+            this._pendingChats = this._pendingChats.concat(aRoomInfo);
+            if (this._addingPendingChats)
+              return;
+            this._addingPendingChats = true;
+            executeSoon(this._addPendingChats.bind(this));
           }.bind(this));
+          this._accountsRequestingRoomInfo.add(acc.id);
         } catch(e) {
           if (e.result != Cr.NS_ERROR_NOT_IMPLEMENTED)
             Cu.reportError(e);
@@ -212,8 +234,11 @@ ConvStatsService.prototype = {
       this._removeContact(aSubject.id);
       this._addContact(aSubject);
     }
-    else if (aTopic == "account-disconnected")
-      this._removeChatsForAccount(aSubject.id);
+    else if (aTopic == "account-disconnected") {
+      let id = aSubject.id;
+      this._accountsRequestingRoomInfo.delete(id);
+      this._removeChatsForAccount(id);
+    }
     this._notifyObservers("updated");
   },
 
@@ -272,7 +297,8 @@ PossibleChat.prototype = {
   },
   get infoText() this.account.normalizedName,
   get source() "chat",
-  get account() Services.accounts.getAccountById(this._roomInfo.accountId),
+  get accountId() this._roomInfo.accountId,
+  get account() Services.accounts.getAccountById(this.accountId),
   createConversation: function()
     this.account.joinChat(this._roomInfo.chatRoomFieldValues),
   QueryInterface: XPCOMUtils.generateQI([Ci.ibIPossibleConversation])
