@@ -83,7 +83,8 @@ function test_fixFontSize()
   let fakeConversation = {
     writeMessage: function(aName, aMessage, aProperties) {
       do_check_eq(aMessage, messagePair[1]); // Compare to the good message.
-    }
+    },
+    updateTyping: function(aStatus) { }
   };
   
   let yahooAccount = new yahoo.YahooAccount(fakeProtocol, fakeImAccount);
