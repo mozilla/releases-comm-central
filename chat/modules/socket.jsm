@@ -200,6 +200,7 @@ const Socket = {
     if (this._pingTimer) {
       clearTimeout(this._pingTimer);
       delete this._pingTimer;
+      delete this._resetPingTimerPending;
     }
     this.cancelDisconnectTimer();
   },
@@ -271,6 +272,17 @@ const Socket = {
   // received (e.g. when it is known the socket is still open). Calling this for
   // the first time enables the ping functionality.
   resetPingTimer: function() {
+    // Clearing and setting timeouts is expensive, so we do it at most
+      // once per eventloop spin cycle.
+    if (this._resetPingTimerPending)
+      return;
+    this._resetPingTimerPending = true;
+    executeSoon(this._delayedResetPingTimer.bind(this));
+  },
+  _delayedResetPingTimer: function() {
+    if (!this._resetPingTimerPending)
+      return;
+    delete this._resetPingTimerPending;
     if (this._pingTimer)
       clearTimeout(this._pingTimer);
     // Send a ping every 2 minutes if there's no traffic on the socket.
