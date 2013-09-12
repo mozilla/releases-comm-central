@@ -656,13 +656,13 @@ ircSocket.prototype = {
 
   // Implement Section 5 of RFC 2812.
   onDataReceived: function(aRawMessage) {
-    this.DEBUG(aRawMessage);
+    let conversionWarning = "";
     if (this._converter) {
       try {
         aRawMessage = this._converter.ConvertToUnicode(aRawMessage);
       } catch (e) {
-        this.WARN("This message doesn't seem to be " + this._account._encoding +
-                  " encoded: " + aRawMessage);
+        conversionWarning = "\nThis message doesn't seem to be " +
+                            this._account._encoding + " encoded.";
         // Unfortunately, if the unicode converter failed once,
         // it will keep failing so we need to reinitialize it.
         this._initCharsetConverter();
@@ -677,17 +677,24 @@ ircSocket.prototype = {
     // \020 with a \0, \n, \r or \020, respectively. Any other character is
     // replaced with itself.
     const lowDequote = {"0": "\0", "n": "\n", "r": "\r", "\x10": "\x10"};
-    aRawMessage = aRawMessage.replace(/\x10./g,
+    let dequotedMessage = aRawMessage.replace(/\x10./g,
       function(aStr) lowDequote[aStr[1]] || aStr[1]);
 
     try {
-      // If nothing handled the message, throw a warning.
-      if (!ircHandlers.handleMessage(this._account, new ircMessage(aRawMessage)))
-        this.WARN("Unhandled IRC message: " + aRawMessage);
+      let message = new ircMessage(dequotedMessage);
+      let isHandled = ircHandlers.handleMessage(this._account, message);
+      message.rawMessage = aRawMessage; // Log the quoted message.
+      let logEntry = JSON.stringify(message) + conversionWarning;
+      // Log the message if it was handled, otherwise throw a warning.
+      if (isHandled)
+        this.DEBUG(logEntry);
+      else
+        this.WARN("Unhandled IRC message:\n" + logEntry);
     } catch (e) {
       // Catch the error, display it and hope the connection can continue with
       // this message in error. Errors are also caught inside of handleMessage,
       // but we expect to handle message parsing errors here.
+      this.DEBUG(aRawMessage + conversionWarning);
       this.ERROR(e);
     }
   },
