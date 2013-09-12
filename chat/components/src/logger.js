@@ -351,10 +351,10 @@ function LogConversation(aLineInputStreams)
       sessionMsg.text = bundle.formatStringFromName("badLogfile",
                                                     [inputStream.filename], 1);
       sessionMsg.flags.push("error", "system");
-      this._messages.push(new LogMessage(sessionMsg, this));
+      this._messages.push(sessionMsg);
       continue;
     }
-    this._messages.push(new LogMessage(sessionMsg, this));
+    this._messages.push(sessionMsg);
 
     if (firstFile) {
       let data = JSON.parse(line.value);
@@ -372,8 +372,7 @@ function LogConversation(aLineInputStreams)
       if (!line.value)
         break;
       try {
-        let data = JSON.parse(line.value);
-        this._messages.push(new LogMessage(data, this));
+        this._messages.push(JSON.parse(line.value));
       } catch (e) {
         // if a message line contains junk, just ignore the error and
         // continue reading the conversation.
@@ -398,7 +397,20 @@ LogConversation.prototype = {
   getMessages: function(aMessageCount) {
     if (aMessageCount)
       aMessageCount.value = this._messages.length;
-    return this._messages;
+    return this._messages.map(function(m) new LogMessage(m, this), this);
+  },
+  getMessagesEnumerator: function(aMessageCount) {
+    if (aMessageCount)
+      aMessageCount.value = this._messages.length;
+    let enumerator = {
+      _index: 0,
+      _conv: this,
+      _messages: this._messages,
+      hasMoreElements: function() this._index < this._messages.length,
+      getNext: function() new LogMessage(this._messages[this._index++], this._conv),
+      QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+    };
+    return enumerator;
   }
 };
 

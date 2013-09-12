@@ -136,11 +136,22 @@ var logWindow = {
     if (aTopic != "conversation-loaded" || aSubject != browser)
       return;
     browser._autoScrollEnabled = false;
-    for each (let msg in browser._conv.getMessages()) {
+
+    let count = {};
+    let messages = browser._conv.getMessagesEnumerator(count);
+    browser.getPendingMessagesCount = function() count.value;
+    browser.getNextPendingMessage = function() {
+      if (!messages.hasMoreElements()) {
+        delete browser.getNextPendingMessage;
+        return null;
+      }
+
+      let msg = messages.getNext();
       if (!msg.system && browser._conv.isChat)
-        msg.color = "color: hsl(" + this._computeColor(msg.who) + ", 100%, 40%);";
-      browser.appendMessage(msg);
-    }
+        msg.color = "color: hsl(" + logWindow._computeColor(msg.who) + ", 100%, 40%);";
+      return {msg: msg, context: false, firstUnread: false};
+    };
+    browser.delayedDisplayPendingMessages();
     delete this.pendingLoad;
     Services.obs.removeObserver(this, "conversation-loaded");
   },

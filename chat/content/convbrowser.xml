@@ -316,6 +316,14 @@
           <![CDATA[
             this._pendingMessages.push({msg: aMsg, context: aContext,
                                         firstUnread: aFirstUnread});
+            this.delayedDisplayPendingMessages();
+          ]]>
+        </body>
+      </method>
+
+      <method name="delayedDisplayPendingMessages">
+        <body>
+          <![CDATA[
             if (this._messageDisplayPending)
               return;
             this._messageDisplayPending = true;
@@ -327,8 +335,38 @@
       </method>
 
       <field name="progressBar">null</field>
-      <!-- These variables are reset in onStateChange. -->
+
+      <!-- getNextPendingMessage and getPendingMessagesCount are the
+           only 2 methods accessing the this._pendingMessages array
+           directly during the chunked display of messages. It is
+           possible to override these 2 methods to replace the array
+           with something else. The log viewer for example uses an
+           enumerator that creates message objects lazily to avoid
+           jank when displaying lots of messages. -->
+      <!-- This variable is reset in onStateChange. -->
       <field name="_nextPendingMessageIndex">0</field>
+      <method name="getNextPendingMessage">
+        <body>
+          <![CDATA[
+            if (this._nextPendingMessageIndex == this._pendingMessages.length) {
+              this._pendingMessages = [];
+              this._nextPendingMessageIndex = 0;
+              return null;
+            }
+            return this._pendingMessages[this._nextPendingMessageIndex++];
+          ]]>
+        </body>
+      </method>
+      <method name="getPendingMessagesCount">
+        <body>
+          <![CDATA[
+            return this._pendingMessages.length;
+          ]]>
+        </body>
+      </method>
+
+      <!-- These variables are reset in onStateChange. -->
+      <field name="_pendingMessagesDisplayed">0</field>
       <field name="_displayPendingMessagesCalls">0</field>
       <method name="displayPendingMessages">
         <body>
@@ -336,29 +374,27 @@
             if (!this._messageDisplayPending)
               return;
 
-            let max = this._pendingMessages.length;
-            let begin = Date.now();
-            let i;
-            for (i = this._nextPendingMessageIndex; i < max; ++i) {
-              let msg = this._pendingMessages[i];
-              this.displayMessage(msg.msg, msg.context, i + 1 < max,
-                                  msg.firstUnread);
-              if (Date.now() - begin > 40)
+            let max = this.getPendingMessagesCount();
+            for (let begin = Date.now(); Date.now() - begin < 40; ) {
+              let msg = this.getNextPendingMessage();
+              if (!msg)
                 break;
+              this.displayMessage(msg.msg, msg.context,
+                                  ++this._pendingMessagesDisplayed < max,
+                                  msg.firstUnread);
             }
             let event = document.createEvent("UIEvents");
             event.initUIEvent("MessagesDisplayed", false, false, window, 0);
             this.dispatchEvent(event);
-            if (i < max - 1) {
-              this._nextPendingMessageIndex = i + 1;
+            if (this._pendingMessagesDisplayed < max) {
               if (this.progressBar) {
                 // Show progress bar if after the third call (ca. 120ms)
                 // less than half the messages have been displayed.
                 if (++this._displayPendingMessagesCalls > 2 &&
-                    max > 2 * this._nextPendingMessageIndex)
+                    max > 2 * this._pendingMessagesDisplayed)
                   this.progressBar.hidden = false;
                 this.progressBar.max = max;
-                this.progressBar.value = this._nextPendingMessageIndex;
+                this.progressBar.value = this._pendingMessagesDisplayed;
               }
               Services.tm.mainThread.dispatch(this.displayPendingMessages.bind(this),
                                               Ci.nsIEventTarget.DISPATCH_NORMAL);
@@ -366,8 +402,7 @@
             }
             this.contentWindow.messageInsertPending = false;
             this._messageDisplayPending = false;
-            this._pendingMessages = [];
-            this._nextPendingMessageIndex = 0;
+            this._pendingMessagesDisplayed = 0;
             this._displayPendingMessagesCalls = 0;
             if (this.progressBar)
               this.progressBar.hidden = true;
@@ -841,8 +876,11 @@
               this._messageDisplayPending = false;
               this._pendingMessages = [];
               this._nextPendingMessageIndex = 0;
+              this._pendingMessagesDisplayed = 0;
               this._displayPendingMessagesCalls = 0;
               this._sessions = [];
+              if (this.progressBar)
+                this.progressBar.hidden = true;
 
               Services.obs.notifyObservers(this, "conversation-loaded", null);
             }
