@@ -6,7 +6,6 @@ const EXPORTED_SYMBOLS = ["ircHandlers"];
 
 const Cu = Components.utils;
 
-Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 
 var ircHandlers = {
@@ -100,7 +99,7 @@ var ircHandlers = {
         // command.
         // Parse the command with the JavaScript account object as "this".
         if (handler.isEnabled.call(aAccount) &&
-            hasOwnProperty(handler.commands, aCommand) &&
+            Object.prototype.hasOwnProperty.call(handler.commands, aCommand) &&
             handler.commands[aCommand].call(aAccount, aMessage))
           return true;
       } catch (e) {
@@ -153,4 +152,4 @@ var ircHandlers = {
   get LOW_PRIORITY() -100,
   get DEFAULT_PRIORITY() 0,
   get HIGH_PRIORITY() 100
-}
+};

@@ -128,8 +128,7 @@ var ircWATCH = {
   // Slightly above default IRC priority.
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
   // Use WATCH if it is supported.
-  isEnabled: function()
-    this.hasOwnProperty("watchEnabled") && this.watchEnabled,
+  isEnabled: function() !!this.watchEnabled,
 
   commands: {
     "251": function(aMessage) { // RPL_LUSERCLIENT
@@ -310,9 +309,7 @@ var ircMONITOR = {
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
   // Use MONITOR only if MONITOR is enabled and WATCH is not enabled, as WATCH
   // supports more features.
-  isEnabled: function()
-    this.hasOwnProperty("monitorEnabled") && this.monitorEnabled &&
-    !(this.hasOwnProperty("watchEnabled") && this.watchEnabled),
+  isEnabled: function() this.monitorEnabled && !this.watchEnabled,
 
   commands: {
     "251": function(aMessage) { // RPL_LUSERCLIENT
