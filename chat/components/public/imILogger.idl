@@ -32,6 +32,11 @@ interface imILogConversation: nsISupports {
 
   void getMessages([optional] out unsigned long messageCount,
                    [retval, array, size_is(messageCount)] out prplIMessage messages);
+
+  // Callers that process the messages asynchronously should use the enumerator
+  // instead of the array version of the getMessages* methods to avoid paying
+  // up front the cost of xpconnect wrapping all message objects.
+  nsISimpleEnumerator getMessagesEnumerator([optional] out unsigned long messageCount);
 };
 
 [scriptable, uuid(164ff6c3-ca64-4880-b8f3-67eb1817955f)]
