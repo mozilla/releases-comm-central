@@ -91,7 +91,6 @@ var ircHandlers = {
 
   // Handle a message based on a set of handlers.
   _handleMessage: function(aHandlers, aAccount, aMessage, aCommand) {
-    aAccount.DEBUG(JSON.stringify(aMessage));
     // Loop over each handler and run the command until one handles the message.
     for each (let handler in aHandlers) {
       try {
