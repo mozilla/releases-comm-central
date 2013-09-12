@@ -316,6 +316,16 @@
     <handlers>
       <handler event="keydown">
       <![CDATA[
+        if (event.keyCode == event.DOM_VK_ENTER ||
+            event.keyCode == event.DOM_VK_RETURN) {
+          if (!this.listbox.firstChild)
+            return;
+          let item = this.listbox.selectedItem || this.listbox.firstChild;
+          this.startConversation(item);
+          window.getTabBrowser().removeTab(this.tab);
+          return;
+        }
+
         if (event.keyCode == event.DOM_VK_ESCAPE && !this.filterbox.value) {
           window.getTabBrowser().removeTab(this.tab);
           return;
@@ -357,20 +367,6 @@
           event.preventDefault();
           event.stopPropagation();
         }
-      ]]>
-      </handler>
-
-      <handler event="keyup">
-      <![CDATA[
-        if (!this.listbox.firstChild ||
-            (event.keyCode != event.DOM_VK_ENTER &&
-             event.keyCode != event.DOM_VK_RETURN))
-          return;
-        if (!("Conversations" in window))
-          Components.utils.import("resource:///modules/imWindows.jsm");
-        let item = this.listbox.selectedItem || this.listbox.firstChild;
-        this.startConversation(item);
-        window.getTabBrowser().removeTab(this.tab);
       ]]>
       </handler>
     </handlers>
@@ -444,13 +440,11 @@
     </implementation>
 
     <handlers>
-      <handler event="mouseup">
+      <handler event="click">
       <![CDATA[
         if (event.button == 2) // Don't handle right clicks.
           return;
         let newtab = document.getBindingParent(this);
-        if (!("Conversations" in window))
-          Components.utils.import("resource:///modules/imWindows.jsm");
         newtab.startConversation(this);
         let tabbrowser = window.getTabBrowser();
         if (event.button != 1 && !event.controlKey && !event.metaKey)
