@@ -416,6 +416,8 @@
               Components.utils.import("resource:///modules/imStatusUtils.jsm");
             this.setAttribute("status", Status.toAttribute(aTarget.statusType));
           }
+          else
+            this.removeAttribute("status");
           // Could be a new chat or an existing chat conversation.
           if (aTarget.isChat)
             this.setAttribute("chat", true);
