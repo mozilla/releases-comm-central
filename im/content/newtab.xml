@@ -188,6 +188,11 @@
         <body>
         <![CDATA[
           this.filterbox.addEventListener("keyup", this.refresh.bind(this));
+          this.listbox.addEventListener("focus", function(aEvent) {
+            let listbox = this.listbox;
+            if (listbox.selectedIndex == -1)
+              listbox.selectedIndex = listbox.getIndexOfFirstVisibleRow();
+          }.bind(this));
           this.listbox.addEventListener("scroll", this.addMoreItems.bind(this));
           this.statsService.addObserver(this);
         ]]>
@@ -325,6 +330,10 @@
           window.getTabBrowser().removeTab(this.tab);
           return;
         }
+
+        // Don't handle the tab key.
+        if (event.keyCode == event.DOM_VK_TAB)
+          return;
 
         if (event.keyCode == event.DOM_VK_ESCAPE && !this.filterbox.value) {
           window.getTabBrowser().removeTab(this.tab);
