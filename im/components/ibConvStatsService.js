@@ -265,12 +265,12 @@ function PossibleConvFromContact(aContact) {
   this._displayName = aContact.displayName;
   this._statusType = aContact.statusType;
   this._statusText = aContact.statusText;
-  this._buddyIconFilename = aContact.preferredBuddy.buddyIconFilename;
   this._id = aContact.id;
 }
 PossibleConvFromContact.prototype = {
   __proto__: PossibleConversation,
   get source() "contact",
+  get buddyIconFilename() this.contact.buddyIconFilename,
   get infoText() {
     let tagNames = this.contact.getTags().map(function(aTag) aTag.name);
     tagNames.sort(function(a, b) a.toLowerCase().localeCompare(b.toLowerCase()));
