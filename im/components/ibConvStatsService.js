@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {interfaces: Ci, utils: Cu, results: Cr} = Components;
+const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource://gre/modules/osfile.jsm");
 
 const kNotificationsToObserve =
   ["contact-added", "contact-removed","contact-status-changed",
    "contact-display-name-changed", "contact-no-longer-dummy",
-   "contact-preferred-buddy-changed", "contact-moved",
-   "account-disconnected"];
+   "contact-preferred-buddy-changed", "contact-moved", "account-disconnected",
+   "new-conversation", "new-text", "conversation-closed", "prpl-quit"];
 
 XPCOMUtils.defineLazyGetter(this, "_newtab", function()
   l10nHelper("chrome://instantbird/locale/newtab.properties")
@@ -20,18 +21,153 @@ XPCOMUtils.defineLazyGetter(this, "_instantbird", function()
   l10nHelper("chrome://instantbird/locale/instantbird.properties")
 );
 
+// ConversationStats stored by id.
+// A PossibleConversation's id is its protocol, account, and name joined by "/", suffixed
+// with ".chat" for MUCs (identical to the log folder path for the conversation).
+var gStatsByConvId = {};
+
+// The message counts of a contact are the sums of the message counts of the
+// linked buddies.
+// This object serves as a cache for the total stats of contacts.
+// Initialized when gStatsByConvId is ready (i.e. all log files have been parsed
+// or it was loaded from the JSON cache file).
+var gStatsByContactId;
+
+// Recursively sweeps log folders and parses log files for conversation statistics.
+var gLogParser = {
+  _statsService: null,
+  _accounts: [],
+  _logFolders: [],
+
+  // The general path of a log is logs/prpl/account/conv/date.json.
+  // First, sweep the logs folder for prpl folders.
+  sweep: function(aStatsService) {
+    this._statsService = aStatsService;
+    initLogModule("stats-service-log-sweeper", this);
+    let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
+    let iterator = new OS.File.DirectoryIterator(logsPath);
+    iterator.nextBatch().then((function(aEntries) {
+      // Filter out any stray files (e.g. system files).
+      aEntries = aEntries.filter(function(e) e.isDir);
+      this._sweepPrpls(aEntries);
+    }).bind(this), function(aError) {
+      Cu.reportError("Error while sweeping logs folder: " + logsPath + "\n" + aError);
+    });
+  },
+
+  // Sweep each prpl folder for account folders, and add them to this._accounts.
+  _sweepPrpls: function(aPrpls) {
+    if (!aPrpls.length)
+      this._sweepAccounts();
+    let path = aPrpls.shift().path;
+    let iterator = new OS.File.DirectoryIterator(path);
+    iterator.nextBatch().then((function(aEntries) {
+      // Filter out any stray files (e.g. system files).
+      aEntries = aEntries.filter(function(e) e.isDir);
+      this._accounts = this._accounts.concat(aEntries);
+      if (aPrpls.length)
+        this._sweepPrpls(aPrpls);
+      else
+        this._sweepAccounts();
+    }).bind(this), function(aError) {
+      Cu.reportError("Error while sweeping prpl folder: " + path + "\n" + aError);
+    });
+  },
+
+  // Sweep each account folder for conversation log folders, add them to this._logFolders.
+  _sweepAccounts: function() {
+    let path = this._accounts.shift().path;
+    let iterator = new OS.File.DirectoryIterator(path);
+    iterator.nextBatch().then((function(aEntries) {
+      // Filter out any stray files (e.g. system files).
+      aEntries = aEntries.filter(function(e) e.isDir);
+      this._logFolders = this._logFolders.concat(aEntries);
+      if (this._accounts.length)
+        this._sweepAccounts();
+      else
+        this._sweepLogFolders();
+    }).bind(this), function(aError) {
+      Cu.reportError("Error while sweeping account folder: " + path + "\n" + aError);
+    });
+  },
+
+  // Call _sweepLogFolder on the contents of each log folder.
+  _sweepLogFolders: function() {
+    let path = this._logFolders.shift().path;
+    let iterator = new OS.File.DirectoryIterator(path);
+    iterator.nextBatch().then(this._sweepLogFolder.bind(this), function(aError) {
+      Cu.reportError("Error while sweeping log folder: " + path + "\n" + aError);
+    });
+  },
+
+  // Goes through JSON log files in each log folder and parses them for stats.
+  _sweepLogFolder: function(aLogs) {
+    aLogs = aLogs.filter(function(l) l.name.endsWith(".json"));
+    let decoder = new TextDecoder();
+    let __sweepLogFolder = function() {
+      if (!aLogs.length) {
+        if (this._logFolders.length)
+          this._sweepLogFolders();
+        else { // We're done.
+          this._statsService._cacheAllStats(); // Flush stats to JSON cache.
+          gStatsByContactId = {}; // Initialize stats cache for contacts.
+        }
+        return;
+      }
+      let log = aLogs.shift().path;
+      OS.File.read(log).then(function(aArray) {
+        // Try to parse the log file. If anything goes wrong here, the log file
+        // has likely been tampered with so we ignore it and move on.
+        try {
+          let lines = decoder.decode(aArray).split("\n");
+          // The first line is the header which identifies the conversation.
+          let header = JSON.parse(lines.shift());
+          let name = header.name;
+          let protocol = header.protocol;
+          let account = header.account;
+          let date = Date.parse(header.date);
+          let id = getConversationId(protocol, account, name, header.isChat);
+          if (!(id in gStatsByConvId))
+            gStatsByConvId[id] = new ConversationStats(id);
+          let stats = gStatsByConvId[id];
+          lines.pop(); // Ignore the final line break.
+          for (let line of lines) {
+            line = JSON.parse(line);
+            if (line.flags[0] == "system") // Ignore system messages.
+              continue;
+            line.flags[0] == "incoming" ?
+              ++stats.incomingCount : ++stats.outgoingCount;
+          }
+          if (date > stats.lastDate)
+            stats.lastDate = date;
+        }
+        catch(e) {
+          this.WARN("Error parsing log file: " + log + "\n" + e);
+        };
+        __sweepLogFolder();
+      }.bind(this), function(aError) {
+        Cu.reportError("Error reading log file: " + log + "\n" + aError);
+        __sweepLogFolder();
+      });
+    }.bind(this);
+    __sweepLogFolder();
+  }
+};
+
 function ConvStatsService() {
   this._observers = [];
 }
 ConvStatsService.prototype = {
-  // Sorted list of contacts, stored as PossibleConvFromContacts.
-  _contacts: [],
+  // Sorted list of conversations, stored as PossibleConversations.
+  _convs: [],
   // PossibleConvFromContacts stored by id.
   _contactsById: new Map(),
-  // Sorted list of chat rooms, stored as PossibleChats.
-  _chats: [],
   // Keys are account ids. Values are Maps of chat names to PossibleChats.
   _chatsByAccountIdAndName: new Map(),
+  // Timer to update the stats cache.
+  // The cache is updated every 10 minutes, and on quitting.
+  _statsCacheUpdateTimer: null,
+  _statsCacheFilePath: null,
 
   _init: function() {
     let contacts = Services.contacts.getContacts();
@@ -39,22 +175,46 @@ ConvStatsService.prototype = {
       this._addContact(contact);
     for (let notification of kNotificationsToObserve)
       Services.obs.addObserver(this, notification, false);
+
+    // Read all our conversation stats from the cache.
+    this._statsCacheFilePath =
+      OS.Path.join(OS.Constants.Path.profileDir, "statsservicecache.json");
+    OS.File.read(this._statsCacheFilePath).then(function(aArray) {
+      try {
+        gStatsByConvId = JSON.parse((new TextDecoder()).decode(aArray));
+        for each (let stats in gStatsByConvId)
+          stats.__proto__ = ConversationStats.prototype;
+        gStatsByContactId = {};
+      }
+      catch (e) {
+        // Something unexpected was encountered in the file.
+        // (Maybe it was tampered with?) Rebuild the cache from logs.
+        Cu.reportError("Error while parsing conversation stats cache.\n" + e);
+        if (Services.prefs.getBoolPref("statsService.parseLogsForStats"))
+          gLogParser.sweep(this);
+      }
+    }.bind(this), function(aError) {
+      if (!aError.becauseNoSuchFile)
+        Cu.reportError("Error while reading conversation stats cache.\n" + aError);
+      if (Services.prefs.getBoolPref("statsservice.parseLogsForStats"))
+        gLogParser.sweep(this);
+    }.bind(this));
   },
 
   _addContact: function(aContact) {
     if (this._contactsById.has(aContact.id)) // Already added.
       return;
     let possibleConv = new PossibleConvFromContact(aContact);
-    let pos = this._getPositionToInsert(possibleConv, this._contacts);
-    this._contacts.splice(pos, 0, possibleConv);
+    let pos = this._getPositionToInsert(possibleConv, this._convs);
+    this._convs.splice(pos, 0, possibleConv);
     this._contactsById.set(aContact.id, possibleConv);
   },
 
   _removeContact: function(aId) {
     if (!this._contactsById.has(aId))
       return;
-    this._contacts.splice(
-      this._contacts.indexOf(this._contactsById.get(aId)), 1);
+    this._convs.splice(
+      this._convs.indexOf(this._contactsById.get(aId)), 1);
     this._contactsById.delete(aId);
   },
 
@@ -78,12 +238,12 @@ ConvStatsService.prototype = {
       }
       // If a chat is already added, we remove it and re-add to refresh.
       else if (chatList.has(chat.name)) {
-        this._chats.splice(
-          this._chats.indexOf(chatList.get(chat.name)), 1);
+        this._convs.splice(
+          this._convs.indexOf(chatList.get(chat.name)), 1);
       }
       let possibleConv = new PossibleChat(chat);
-      let pos = this._getPositionToInsert(possibleConv, this._chats);
-      this._chats.splice(pos, 0, possibleConv);
+      let pos = this._getPositionToInsert(possibleConv, this._convs);
+      this._convs.splice(pos, 0, possibleConv);
       chatList.set(chat.name, possibleConv);
     }
     if (this._pendingChats.length)
@@ -100,7 +260,9 @@ ConvStatsService.prototype = {
   _removeChatsForAccount: function(aAccId) {
     if (!this._chatsByAccountIdAndName.has(aAccId))
       return;
-    this._chats = this._chats.filter(function(c) c.accountId != aAccId);
+    // Keep only convs that either aren't chats or have a different account id.
+    this._convs = this._convs.filter(function(c)
+      c.source != "chat" || c.accountId != aAccId);
     this._chatsByAccountIdAndName.delete(aAccId);
     this._pendingChats = this._pendingChats.filter(function(c) c.accountId != aAccId);
   },
@@ -123,34 +285,57 @@ ConvStatsService.prototype = {
   },
 
   _sortComparator: function(aPossibleConvA, aPossibleConvB) {
-    return (aPossibleConvB.statusType - aPossibleConvA.statusType) ||
+    let scoreA = aPossibleConvA.computedScore;
+    let scoreB = aPossibleConvB.computedScore;
+    // We want conversations with stats (both contacts and chats) to appear first,
+    // followed by contacts with no stats, and finally chats with no stats.
+    // Conversations with stats have a positive score.
+    // Contacts with no stats get a 0, and chats get -1.
+    let sign = function(x) x > 0 ? 1 : x < 0 ? -1 : 0;
+    return sign(scoreB) - sign(scoreA) ||
+      aPossibleConvB.statusType - aPossibleConvA.statusType ||
+      scoreB - scoreA ||
       aPossibleConvA.lowerCaseName.localeCompare(aPossibleConvB.lowerCaseName);
   },
 
+  _repositionConvsWithUpdatedStats: function() {
+    for (let conv of this._convsWithUpdatedStats) {
+      this._convs.splice(this._convs.indexOf(conv), 1);
+      let pos = this._getPositionToInsert(conv, this._convs);
+      this._convs.splice(pos, 0, conv);
+    }
+    this._convsWithUpdatedStats.clear();
+  },
+
   getFilteredConvs: function(aFilterStr) {
-    let filteredConvs = this._contacts.concat(this._chats);
+    this._repositionConvsWithUpdatedStats();
+
+    // Duplicate this._convs to avoid modifying it while adding existing convs.
+    let filteredConvs = this._convs.slice(0);
     let existingConvs = Services.conversations.getUIConversations().map(
                           function(uiConv) new ExistingConversation(uiConv));
     for (let existingConv of existingConvs) {
-      let pos = this._getPositionToInsert(existingConv, filteredConvs);
-      filteredConvs.splice(pos, 0, existingConv);
-      // Remove any duplicate contact or chat.
       let uiConv = existingConv.uiConv;
       if (existingConv.isChat) {
         let chatList = this._chatsByAccountIdAndName.get(uiConv.account.id);
         if (chatList) {
           let chat = chatList.get(uiConv.name);
-          if (chat)
-            filteredConvs.splice(filteredConvs.indexOf(chat), 1);
+          if (chat) {
+            filteredConvs.splice(filteredConvs.indexOf(chat), 1, existingConv);
+            continue;
+          }
         }
       }
       else {
         let contact = uiConv.contact;
         if (contact && this._contactsById.has(contact.id)) {
           filteredConvs.splice(
-            filteredConvs.indexOf(this._contactsById.get(contact.id)), 1);
+            filteredConvs.indexOf(this._contactsById.get(contact.id)), 1, existingConv);
+          continue;
         }
       }
+      let pos = this._getPositionToInsert(existingConv, filteredConvs);
+      filteredConvs.splice(pos, 0, existingConv);
     }
     if (aFilterStr) {
       aFilterStr = aFilterStr.toLowerCase();
@@ -162,12 +347,26 @@ ConvStatsService.prototype = {
     return new nsSimpleEnumerator(filteredConvs);
   },
 
+  _cacheAllStats: function() {
+    let encoder = new TextEncoder();
+    OS.File.writeAtomic(this._statsCacheFilePath,
+                        encoder.encode(JSON.stringify(gStatsByConvId)),
+                        {tmpPath: this._statsCacheFilePath + ".tmp"});
+    if (this._statsCacheUpdateTimer) {
+      clearTimeout(this._statsCacheUpdateTimer);
+      delete this._statsCacheUpdateTimer;
+    }
+  },
+
   addObserver: function(aObserver) {
     if (this._observers.indexOf(aObserver) != -1)
       return;
     this._observers.push(aObserver);
-    let accounts = Services.accounts.getAccounts();
+
+    this._repositionConvsWithUpdatedStats();
+
     // We request chat lists from accounts when adding new observers.
+    let accounts = Services.accounts.getAccounts();
     while (accounts.hasMoreElements()) {
       let acc = accounts.getNext();
       let id = acc.id;
@@ -206,6 +405,12 @@ ConvStatsService.prototype = {
     }
   },
 
+  // Maps prplConversation ids to their ConversationStats objects.
+  _statsByPrplConvId: new Map(),
+  // Maps prplConversation ids to the corresponding PossibleConversations.
+  _convsByPrplConvId: new Map(),
+  // These will be repositioned to reflect their new scores when a newtab is opened.
+  _convsWithUpdatedStats: new Set(),
   observe: function(aSubject, aTopic, aData) {
     if (aTopic == "profile-after-change")
       Services.obs.addObserver(this, "prpl-init", false);
@@ -213,7 +418,60 @@ ConvStatsService.prototype = {
       executeSoon(this._init.bind(this));
       Services.obs.removeObserver(this, "prpl-init");
     }
-    if (!aTopic.startsWith("contact-") && !aTopic.startsWith("account"))
+    else if (aTopic == "prpl-quit") {
+      // Update the stats cache only if there was already an update scheduled.
+      if (this._statsCacheUpdateTimer)
+        this._cacheAllStats();
+    }
+    else if (aTopic == "new-text") {
+      if (aSubject.system) // We don't care about system messages.
+        return;
+
+      let conv = aSubject.conversation;
+      let stats = this._statsByPrplConvId.get(conv.id);
+      aSubject.outgoing ? ++stats.outgoingCount : ++stats.incomingCount;
+      stats.lastDate = Date.now();
+      // Ensure the score is recomputed next time it's used.
+      delete stats._computedScore;
+
+      let possibleConv = this._convsByPrplConvId.get(conv.id);
+      if (possibleConv) {
+        if (possibleConv.source == "contact" && gStatsByContactId)
+          delete gStatsByContactId[possibleConv._contactId];
+        this._convsWithUpdatedStats.add(possibleConv);
+      }
+
+      // Schedule a cache update in 10 minutes.
+      if (!this._statsCacheUpdateTimer) {
+        this._statsCacheUpdateTimer =
+          setTimeout(this._cacheAllStats.bind(this), 600000);
+      }
+    }
+    else if (aTopic == "new-conversation") {
+      let conv = aSubject;
+      let id = getConversationId(conv.account.protocol.normalizedName,
+                                 conv.account.name, conv.normalizedName, conv.isChat);
+      if (!(id in gStatsByConvId))
+        gStatsByConvId[id] = new ConversationStats(id);
+      this._statsByPrplConvId.set(conv.id, gStatsByConvId[id]);
+
+      let possibleConv = null;
+      if (!conv.isChat) {
+        // First .buddy is an imIAccountBuddy, second one is an imIBuddy.
+        let contact = conv.buddy.buddy.contact;
+        if (contact)
+          possibleConv = this._contactsById.get(contact.id);
+      }
+      else {
+        let chatList = this._chatsByAccountIdAndName.get(conv.account.id);
+        if (chatList && chatList.has(conv.normalizedName))
+          possibleConv = chatList.get(conv.name);
+      }
+      this._convsByPrplConvId.set(conv.id, possibleConv);
+    }
+    else if (aTopic == "conversation-closed")
+      this._statsByPrplConvId.delete(aSubject.id);
+    if (kNotificationsToObserve.indexOf(aTopic) == -1)
       return;
     if (aTopic == "contact-no-longer-dummy") {
       // Contact ID changed. aData is the old ID.
@@ -221,7 +479,7 @@ ConvStatsService.prototype = {
       let oldId = parseInt(aData, 10);
       this._contactsById.set(id, this._contactsById.get(oldId));
       this._contactsById.delete(oldId);
-      this._contactsById.get(id)._id = id;
+      this._contactsById.get(id)._contactId = id;
       return;
     }
     else if (aTopic == "contact-added")
@@ -248,7 +506,57 @@ ConvStatsService.prototype = {
   contractID: "@instantbird.org/conv-stats-service;1"
 };
 
+function getConversationId(aProtocolId, aAccount, aName, aIsChat) {
+  let id = [aProtocolId, aAccount, aName].join("/");
+  if (aIsChat)
+    id += ".chat";
+  return id;
+}
+
+function ConversationStats(aConvId = "", aLastDate = 0,
+                           aIncomingCount = 0, aOutgoingCount = 0) {
+  this.id = aConvId;
+  this.lastDate = aLastDate;
+  this.incomingCount = aIncomingCount;
+  this.outgoingCount = aOutgoingCount;
+}
+ConversationStats.prototype = {
+  id: "",
+  lastDate: 0,
+  ONE_DAY: 24 * 60 * 60 * 1000,
+  get daysBefore() (Date.now() - this.lastDate) / this.ONE_DAY,
+  get msgCount() this.incomingCount + this.outgoingCount,
+  incomingCount: 0,
+  outgoingCount: 0,
+  get frequencyMultiplier()
+    this.outgoingCount / (this.incomingCount || 1),
+  get recencyMultiplier() {
+    let daysBefore = this.daysBefore;
+    if (daysBefore < 4)
+      return 1;
+    if (daysBefore < 14)
+      return 0.7;
+    if (daysBefore < 31)
+      return 0.5;
+    if (daysBefore < 90)
+      return 0.3;
+    return 0.1;
+  },
+  get computedScore() {
+    return this._computedScore || (this._computedScore =
+      this.msgCount * this.frequencyMultiplier * this.recencyMultiplier);
+  },
+  mergeWith: function(aOtherStats) {
+    let stats = new ConversationStats();
+    stats.lastDate = Math.max(this.lastDate, aOtherStats.lastDate);
+    stats.incomingCount = this.incomingCount + aOtherStats.incomingCount;
+    stats.outgoingCount = this.outgoingCount + aOtherStats.outgoingCount;
+    return stats;
+  }
+}
+
 let PossibleConversation = {
+  get id() this._id,
   get displayName() this._displayName,
   get lowerCaseName()
     this._lowerCaseName || (this._lowerCaseName = this._displayName.toLowerCase()),
@@ -265,19 +573,50 @@ function PossibleConvFromContact(aContact) {
   this._displayName = aContact.displayName;
   this._statusType = aContact.statusType;
   this._statusText = aContact.statusText;
-  this._id = aContact.id;
+  let buddy = aContact.preferredBuddy;
+  this._contactId = aContact.id;
+  this._id = getConversationId(buddy.protocol.normalizedName,
+                               buddy.preferredAccountBuddy.account.name,
+                               buddy.normalizedName, false);
 }
 PossibleConvFromContact.prototype = {
   __proto__: PossibleConversation,
+  get statusText() this._statusText,
   get source() "contact",
+  get buddyIds() {
+    let buddies = this.contact.getBuddies();
+    let ids = [];
+    for (let buddy of buddies) {
+      ids.push(getConversationId(buddy.protocol.normalizedName,
+                                 buddy.preferredAccountBuddy.account.name,
+                                 buddy.normalizedName, false));
+    }
+    return ids;
+  },
   get buddyIconFilename() this.contact.buddyIconFilename,
   get infoText() {
     let tagNames = this.contact.getTags().map(function(aTag) aTag.name);
     tagNames.sort(function(a, b) a.toLowerCase().localeCompare(b.toLowerCase()));
     return tagNames.join(", ");
   },
-  get contact() Services.contacts.getContactById(this._id),
+  get contact() Services.contacts.getContactById(this._contactId),
   get account() this.contact.preferredBuddy.preferredAccountBuddy.account,
+  get computedScore() {
+    let id = this._contactId;
+    if (gStatsByContactId && gStatsByContactId[id])
+      return gStatsByContactId[id].computedScore;
+    // Contacts may have multiple buddies attached to them, so we sum their
+    // individual message counts before arriving at the final score.
+    let stats = new ConversationStats();
+    for (let id of this.buddyIds) {
+      let buddyStats = gStatsByConvId[id];
+      if (buddyStats)
+        stats = stats.mergeWith(buddyStats);
+    }
+    if (gStatsByContactId)
+      gStatsByContactId[id] = stats;
+    return stats.computedScore;
+  },
   createConversation: function() this.contact.createConversation()
 };
 
@@ -285,8 +624,13 @@ function PossibleChat(aRoomInfo) {
   this._roomInfo = aRoomInfo;
 }
 PossibleChat.prototype = {
+  get id() {
+    let account = this.account;
+    return getConversationId(account.protocol.normalizedName,
+                             account.name, this.displayName, true);
+  },
   get isChat() true,
-  get statusType() Ci.imIStatusInfo.STATUS_UNKNOWN,
+  get statusType() Ci.imIStatusInfo.STATUS_AVAILABLE,
   get buddyIconFilename() "",
   get displayName() this._roomInfo.name,
   get lowerCaseName()
@@ -301,16 +645,25 @@ PossibleChat.prototype = {
   get account() Services.accounts.getAccountById(this.accountId),
   createConversation: function()
     this.account.joinChat(this._roomInfo.chatRoomFieldValues),
+  get computedScore() {
+    let stats = gStatsByConvId[this.id];
+    if (stats && stats.computedScore)
+      return stats.computedScore;
+    // Force chats without a score to the end of the list.
+    return -1;
+  },
   QueryInterface: XPCOMUtils.generateQI([Ci.ibIPossibleConversation])
 };
 
 function ExistingConversation(aUIConv) {
+  // The id is never used since we don't store stats for existing conversations,
+  // so just use the target prplConversation's id.
   this._id = aUIConv.target.id;
   this._displayName = aUIConv.title;
   this._isChat = aUIConv.isChat;
   if (aUIConv.isChat) {
     this._statusText = aUIConv.topic || _instantbird("noTopic");
-    this._statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
+    this._statusType = PossibleChat.prototype.statusType;
     this._buddyIconFilename = "";
   }
   else {

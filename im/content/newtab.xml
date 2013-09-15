@@ -94,6 +94,14 @@
         </body>
       </method>
 
+      <method name="onSelect">
+        <body>
+        <![CDATA[
+          this.refresh();
+        ]]>
+        </body>
+      </method>
+
       <!-- Maintains computed number of items to display. Incremented when the user
            scrolls near the bottom of the list if we have more conversations. -->
       <field name="numberOfItemsToDisplay">0</field>
