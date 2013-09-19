@@ -4,13 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsMsgHdr.h"
 #include "nsMsgDatabase.h"
 #include "nsMsgUtils.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIMsgThread.h"
 #include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
+
+using namespace mozilla::mailnews;
 
 NS_IMPL_ISUPPORTS1(nsMsgHdr, nsIMsgDBHdr)
 
@@ -404,38 +406,16 @@ nsresult nsMsgHdr::BuildRecipientsFromArray(const char *names, const char *addre
   nsresult ret = NS_OK;
   const char *curName = names;
   const char *curAddress = addresses;
-  nsIMsgHeaderParser *headerParser = m_mdb->GetHeaderParser();
 
   for (uint32_t i = 0; i < numAddresses; i++, curName += strlen(curName) + 1, curAddress += strlen(curAddress) + 1)
   {
     if (i > 0)
       allRecipients += ", ";
 
-    if (headerParser)
-    {
-       nsCString fullAddress;
-       ret = headerParser->MakeFullAddressString(curName, curAddress,
-                                                 getter_Copies(fullAddress));
-       if (NS_SUCCEEDED(ret) && !fullAddress.IsEmpty())
-       {
-          allRecipients += fullAddress;
-          continue;
-       }
-    }
-
-        // Just in case the parser failed...
-    if (strlen(curName))
-    {
-      allRecipients += curName;
-      allRecipients += ' ';
-    }
-
-    if (strlen(curAddress))
-    {
-      allRecipients += '<';
-      allRecipients += curAddress;
-      allRecipients += '>';
-    }
+    nsCString fullAddress;
+    MakeMimeAddress(nsDependentCString(curName),
+      nsDependentCString(curAddress), fullAddress);
+    allRecipients += fullAddress;
   }
 
   return ret;

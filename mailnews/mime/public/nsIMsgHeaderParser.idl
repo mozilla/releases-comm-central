@@ -14,11 +14,43 @@ interface nsISimpleEnumerator;
   "@mozilla.org/messenger/headerparser;1"
 %}
 
+/**
+ * A structured representation of a single address.
+ *
+ * This is meant to be correspond to the address production from RFC 5322.
+ */
+[scriptable, uuid(15f9cc44-afdf-48c8-9de7-3ca0f18fc3b6)]
+interface msgIAddressObject : nsISupports {
+  /// The name of the mailbox.
+  readonly attribute AString name;
+
+  /// The email of the mailbox.
+  readonly attribute AString email;
+
+  /// Return a string form of this object that is suitable for display.
+  AString toString();
+};
+
 /* 
  * nsIMsgRFCParser Interface declaration 
  */ 
-[scriptable, uuid(a67d4d96-e5cb-458d-9311-794d5d1a9832)]
+[scriptable, uuid(4da84fa8-bd45-45e7-9c98-3ba2be88343f)]
 interface nsIMsgHeaderParser : nsISupports {
+  /// Return a structured mailbox object having the given name and email.
+  msgIAddressObject makeMailboxObject(in AString aName, in AString aEmail);
+
+  /**
+   * Return an array of structured mailbox for the given display name string.
+   *
+   * The string is expected to be a comma-separated sequence of strings that
+   * would be produced by msgIAddressObject::toString(). For example, the string
+   * "Bond, James <agent007@mi5.invalid>" would produce one address object,
+   * while the string "webmaster@nowhere.invalid, child@nowhere.invalid" would
+   * produce two address objects.
+   */
+  void makeFromDisplayAddress(in AString aDisplayAddresses,
+                              out unsigned long count,
+                              [retval, array, size_is(count)] out msgIAddressObject addresses);
 
   void parseHeadersWithArray(in wstring aLine, 
                              [array, size_is(count)] out wstring aEmailAddresses,
@@ -108,26 +140,6 @@ interface nsIMsgHeaderParser : nsISupports {
   AUTF8String removeDuplicateAddresses(in AUTF8String aAddrs,
                                        in AUTF8String aOtherAddrs);
 
-  /**
-   * Given an e-mail address and a person's name, cons them together into a
-   * single string, doing all the necessary quoting.
-   *
-   * @param  aName     The name of the sender.
-   * @param  aAddress  The address of the sender.
-   * @return           A string of the form name <address>.
-   */
-  AString makeFullAddress(in AString aName, in AString aAddress);
-
-  /**
-   * Given an e-mail address and a person's name, cons them together into a
-   * single string, doing all the necessary quoting (const char* version).
-   *
-   * @param  aName     The name of the sender. This should be in UTF-8.
-   * @param  aAddress  The address of the sender. This should be in UTF-8.
-   * @return           A string of the form name <address>.
-   */
-  [noscript] string makeFullAddressString(in string aName, in string aAddress);
-
   /* This function removes the quoting if you want to show the
      names to users. e.g. summary file, address book. If preserveIntegrity is set to true,
      quote will not be removed in case the name part of the email contains a comma.
@@ -137,5 +149,13 @@ interface nsIMsgHeaderParser : nsISupports {
 
   /* Given a string, will make it safe to use by adding missing quote and escaping needed quote */
   wstring reformatUnquotedAddresses(in wstring line);
+
+  /**
+   * Given a name and email address, produce a string that is suitable for
+   * emitting in a MIME header (after applying RFC 2047 encoding).
+   *
+   * @note This is a temporary method.
+   */
+  AString makeMimeAddress(in AString aName, in AString aEmail);
 };
 

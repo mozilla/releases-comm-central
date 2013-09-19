@@ -44,6 +44,7 @@
 #include "nsIMsgWindow.h"
 #include "MailNewsTypes2.h" // for nsMsgSocketType and nsMsgAuthMethod
 #include "nsIIDNService.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Services.h"
 #include "nsINetAddr.h"
 
@@ -54,6 +55,8 @@
 #undef PostMessage // avoid to collision with WinUser.h
 
 static PRLogModuleInfo *SMTPLogModule = nullptr;
+
+using namespace mozilla::mailnews;
 
 /* the output_buffer_size must be larger than the largest possible line
  * 2000 seems good for news
@@ -604,17 +607,9 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
     return(NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS);
   }
 
-  nsCOMPtr<nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
   nsCString fullAddress;
-  if (parser)
-  {
-    // pass nullptr for the name, since we just want the email.
-    //
-    // seems a little weird that we are passing in the emailAddress
-    // when that's the out parameter
-    parser->MakeFullAddressString(nullptr, emailAddress.get(),
-                                  getter_Copies(fullAddress));
-  }
+  // Quote the email address before passing it to the SMTP server.
+  MakeMimeAddress(EmptyCString(), emailAddress, fullAddress);
 
   buffer = "MAIL FROM:<";
   buffer += fullAddress;

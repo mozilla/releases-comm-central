@@ -21,7 +21,6 @@
 #include "nsComposeStrings.h"
 #include "nsISmtpServer.h"
 #include "nsIPrompt.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIMsgCompUtils.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -33,6 +32,9 @@
 #include "mozilla/Services.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
+
+using namespace mozilla::mailnews;
 
 #define MDN_NOT_IN_TO_CC          ((int) 0x0001)
 #define MDN_OUTSIDE_DOMAIN        ((int) 0x0002)
@@ -461,16 +463,10 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
     m_identity->GetFullName(fullName);
 
     nsCString fullAddress;
-    nsCOMPtr<nsIMsgHeaderParser> parser (do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID));
-    if (parser)
-    {
-        // convert fullName to UTF8 before passing it to MakeFullAddressString
-        parser->MakeFullAddressString(NS_ConvertUTF16toUTF8(fullName).get(),
-                                      m_email.get(), getter_Copies(fullAddress));
-    }
+    // convert fullName to UTF8 before passing it to MakeMimeAddress
+    MakeMimeAddress(NS_ConvertUTF16toUTF8(fullName), m_email, fullAddress);
 
-    convbuf = nsMsgI18NEncodeMimePartIIStr(
-        (!fullAddress.IsEmpty()) ? fullAddress.get(): m_email.get(),
+    convbuf = nsMsgI18NEncodeMimePartIIStr(fullAddress.get(),
         true, m_charset.get(), 0, conformToStandard);
 
     parm = PR_smprintf("From: %s" CRLF, convbuf ? convbuf : m_email.get());

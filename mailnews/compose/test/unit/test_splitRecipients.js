@@ -18,7 +18,7 @@ const splitRecipientsTests =
     { recipients: '"foo bar" <me@foo.invalid>',
       emailAddressOnly: false,
       count: 1,
-      result: [ '"foo bar" <me@foo.invalid>' ]
+      result: [ 'foo bar <me@foo.invalid>' ]
     },
     { recipients: '"foo bar" <me@foo.invalid>',
       emailAddressOnly: true,
@@ -28,7 +28,7 @@ const splitRecipientsTests =
     { recipients: '"foo bar" <me@foo.invalid>, "bar foo" <me2@foo.invalid>',
       emailAddressOnly: false,
       count: 2,
-      result: [ '"foo bar" <me@foo.invalid>', '"bar foo" <me2@foo.invalid>' ]
+      result: [ 'foo bar <me@foo.invalid>', 'bar foo <me2@foo.invalid>' ]
     },
     { recipients: '"foo bar" <me@foo.invalid>, "bar foo" <me2@foo.invalid>',
       emailAddressOnly: true,
@@ -63,7 +63,7 @@ const splitRecipientsTests =
     { recipients: '"A " <a@xxx.invalid>; b@xxx.invalid',
       emailAddressOnly: false,
       count: 2,
-      result: [ '"A " <a@xxx.invalid>', "b@xxx.invalid" ]
+      result: [ 'A  <a@xxx.invalid>', "b@xxx.invalid" ]
     },
     { recipients: 'A <a@xxx.invalid>; B <b@xxx.invalid>',
       emailAddressOnly: false,
@@ -73,12 +73,12 @@ const splitRecipientsTests =
     { recipients: "A (this: is, a comment;) <a.invalid>; g:   (this: is, <a> comment;) C <c.invalid>, d.invalid;",
       emailAddressOnly: false,
       count: 3,
-      result: [ '"A (this: is, a comment;)" <a.invalid>', '"g: (this: is, <a> comment;) C" <c.invalid>', "d.invalid" ]
+      result: [ 'A (this: is, a comment;) <a.invalid>', 'g: (this: is, <a> comment;) C <c.invalid>', "d.invalid" ]
     },
-    { recipients: 'Mary Smith <mary@x.invalid>, extra:;, group:jdoe@example.invalid; Who? <one@y.invalid>; <boss@nil.invalid>, "Giant; \"Big\" Box" <sysservices@example.invalid>,         ',
+    { recipients: 'Mary Smith <mary@x.invalid>, extra:;, group:jdoe@example.invalid; Who? <one@y.invalid>; <boss@nil.invalid>, "Giant; \\"Big\\" Box" <sysservices@example.invalid>,         ',
       emailAddressOnly: false,
       count: 6,
-      result: [ "Mary Smith <mary@x.invalid>", "extra:;", "group:jdoe@example.invalid;", "Who? <one@y.invalid>", "boss@nil.invalid", '"Giant; \"Big\" Box" <sysservices@example.invalid>' ]
+      result: [ "Mary Smith <mary@x.invalid>", "extra:;", "group:jdoe@example.invalid;", "Who? <one@y.invalid>", "boss@nil.invalid", 'Giant; \"Big\" Box <sysservices@example.invalid>' ]
       },
     { recipients: 'Undisclosed recipients: a@foo.invalid ;;extra:;',
       emailAddressOnly: true,
