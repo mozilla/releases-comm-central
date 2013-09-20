@@ -347,10 +347,19 @@ YahooAccount.prototype = {
     return buddy;
   },
 
+  // Both the status and message can be defined, or only one can be defined.
+  // When defining just the message, set aStatus to undefined.
   setBuddyStatus: function(aName, aStatus, aMessage) {
     if (!this._buddies.has(aName))
       return;
-    this._buddies.get(aName).setStatus(aStatus, aMessage);
+    let buddy = this._buddies.get(aName);
+    // If the message is set as undefined, use the existing message.
+    if (aMessage === undefined)
+      aMessage = buddy.statusText;
+    // If the status is undefined, use the existing status.
+    if (aStatus === undefined)
+      aStatus = buddy.statusType;
+    buddy.setStatus(aStatus, aMessage);
   },
 
   getBuddy: function(aName) {

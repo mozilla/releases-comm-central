@@ -964,13 +964,11 @@ const YahooPacketHandler = {
   // Buddy status update.
   0xc6: function (aPacket) {
     let name = aPacket.getValue(7);
-    // Try to grab a status from the well-used buddy statuses. If we can't
-    // find it there, try the extra ones.
-    let status = kBuddyStatuses[aPacket.getValue(10)];
-    let message = "";
-    if (aPacket.hasKey(19))
-      message = aPacket.getValue(19);
+    // If the user is mobile, use the mobile status.
+    let status = aPacket.hasKey(60) ? Ci.imIStatusInfo.STATUS_MOBILE :
+                                      kBuddyStatuses[aPacket.getValue(10)];
 
+    let message = aPacket.hasKey(19) ? aPacket.getValue(19) : "";
     this.setBuddyStatus(name, status, message);
   },
 
@@ -1006,25 +1004,26 @@ const YahooPacketHandler = {
 
   // Initial user status.
   0xf0: function (aPacket) {
-    // The protocol correctly orders groups of key/values per buddy. So we can
-    // place all occurances of a certain key in each array, and match them up.
-
     // Return early if we find no buddy names.
     if (!aPacket.hasKey(7))
       return;
-    let buddyNames = aPacket.getValues(7);
-    let buddyStatuses = aPacket.getValues(10);
-    let statusMessages;
-    if (aPacket.hasKey(19))
-      statusMessages = aPacket.getValues(19);
 
-    for (let i in buddyNames) {
-      let name = buddyNames[i];
-      let status = kBuddyStatuses[buddyStatuses[i]];
-      let message = statusMessages ? statusMessages[i] : "";
+    // The key/value pairs are in order as sent by the server. So we must
+    // iterate though them to find out information about each buddy. Each
+    // buddy section starts with key 7.
+    let currentBuddy;
+    for (let i = 0; i < aPacket.keyValuePairs.length; ++i) {
+      let {key: key, value: value} = aPacket.keyValuePairs[i];
 
-      this.setBuddyStatus(name, status, message);
-      this._session.requestBuddyIcon(name);
+      if (key == 7) { // Buddy name.
+        currentBuddyName = value;
+        this._session.requestBuddyIcon(currentBuddyName);
+      } else if (key == 10) // Buddy status.
+        this.setBuddyStatus(currentBuddyName, kBuddyStatuses[value]);
+      else if (key == 19) // Buddy status message.
+        this.setBuddyStatus(currentBuddyName, undefined, value);
+      else if (key == 60) // Mobile status.
+        this.setBuddyStatus(currentBuddyName, Ci.imIStatus.STATUS_MOBILE);
     }
   },
 
