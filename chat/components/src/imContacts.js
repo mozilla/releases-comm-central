@@ -1287,13 +1287,9 @@ ContactsService.prototype = {
         let account = Services.accounts.getAccountByNumericId(accountId);
         let tag = TagsById[tagId];
         try {
-          let accountBuddy = account.loadBuddy(buddy, tag);
-          if (accountBuddy)
-            buddy._addAccount(accountBuddy, tag);
+          buddy._addAccount(account.loadBuddy(buddy, tag), tag);
         } catch (e) {
-          // FIXME accountBuddy shouldn't be NULL (once imAccounts.js is finished)
-          // It currently doesn't work right with unknown protocols.
-          Components.utils.reportError(e);
+          Cu.reportError(e);
           dump(e + "\n");
         }
       }

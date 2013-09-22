@@ -5,6 +5,7 @@
 const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
+Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 const kPrefAutologinPending = "messenger.accounts.autoLoginPending";
 const kPrefMessengerAccounts = "messenger.accounts";
@@ -98,6 +99,11 @@ UnknownProtocol.prototype = {
   get slashCommandsNative() false,
   get usePurpleProxy() false
 };
+
+function UnknownAccountBuddy(aAccount, aBuddy, aTag) {
+  this._init({imAccount: aAccount}, aBuddy, aTag);
+}
+UnknownAccountBuddy.prototype = GenericAccountBuddyPrototype;
 
 // aName and aPrplId are provided as parameter only if this is a new
 // account that doesn't exist in the preferences. In this case, these
@@ -440,7 +446,10 @@ imAccount.prototype = {
     }.bind(this));
   },
 
-  get normalizedName() this._ensurePrplAccount.normalizedName,
+  // If the protocol plugin is missing, we can't access the normalizedName,
+  // but in lots of cases this.name is equivalent.
+  get normalizedName()
+    this.prplAccount ? this.prplAccount.normalizedName : this.name,
 
   _sendUpdateNotification: function() {
     this._sendNotification("account-updated");
@@ -596,11 +605,9 @@ imAccount.prototype = {
     let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
                 .createInstance(Ci.nsILoginInfo);
     let passwordURI = "im://" + this.protocol.id;
-    // The password is stored with the normalizedName. If the protocol
-    // plugin is missing, we can't access the normalizedName, but in
-    // lots of cases this.name is equivalent.
-    let name = this.prplAccount ? this.normalizedName : this.name;
-    login.init(passwordURI, null, passwordURI, name, "", "", "");
+    // Note: the normalizedName may not be exactly right if the
+    // protocol plugin is missing.
+    login.init(passwordURI, null, passwordURI, this.normalizedName, "", "", "");
     let logins = Services.logins.findLogins({}, passwordURI, null, passwordURI);
     for each (let l in logins) {
       if (login.matches(l, true)) {
@@ -737,8 +744,12 @@ imAccount.prototype = {
   addBuddy: function(aTag, aName) {
     this._ensurePrplAccount.addBuddy(aTag, aName);
   },
-  loadBuddy: function(aBuddy, aTag)
-    this._ensurePrplAccount.loadBuddy(aBuddy, aTag), // FIXME for unknown proto
+  loadBuddy: function(aBuddy, aTag) {
+    if (this.prplAccount)
+      return this.prplAccount.loadBuddy(aBuddy, aTag);
+    // Generate dummy account buddies for unknown protocols.
+    return new UnknownAccountBuddy(this, aBuddy, aTag);
+  },
   requestBuddyInfo: function(aBuddyName) {
     this._ensurePrplAccount.requestBuddyInfo(aBuddyName);
   },
