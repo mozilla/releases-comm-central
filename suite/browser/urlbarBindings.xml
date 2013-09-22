@@ -25,11 +25,13 @@
             <xul:image class="autocomplete-icon" allowevents="true"/>
           </children>
 
-          <xul:hbox class="textbox-input-box paste-and-go" flex="1" xbl:inherits="context,tooltiptext=inputtooltiptext">
+          <xul:hbox class="textbox-input-box paste-and-go" flex="1" tooltip="_child" xbl:inherits="context">
             <children/>
             <html:input anonid="input" class="autocomplete-textbox textbox-input"
                         allowevents="true"
-                        xbl:inherits="tooltiptext=inputtooltiptext,value,type,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey,mozactionhint,userAction"/>
+                        xbl:inherits="value,type,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey,mozactionhint,userAction"/>
+            <xul:tooltip anonid="tooltip"
+                         onpopupshowing="document.getBindingParent(this)._showTooltip(event);"/>
           </xul:hbox>
           <children includes="hbox"/>
         </xul:hbox>
@@ -47,7 +49,7 @@
       <children includes="menupopup"/>
     </content>
 
-    <implementation>
+    <implementation implements="nsIDOMEventListener">
       <constructor><![CDATA[
         this.mPrefs.addObserver("browser.urlbar", this.mPrefObserver, false);
 
@@ -56,9 +58,13 @@
         this.updatePref("browser.urlbar.showSearch");
         this.updatePref("browser.urlbar.formatting.enabled");
         this.inputField.controllers.insertControllerAt(0, this._editItemsController);
+        this.inputField.addEventListener("overflow", this, false);
+        this.inputField.addEventListener("underflow", this, false);
       ]]></constructor>
 
       <destructor><![CDATA[
+        this.inputField.removeEventListener("underflow", this, false);
+        this.inputField.removeEventListener("overflow", this, false);
         this.inputField.controllers.removeController(this._editItemsController);
         this.mPrefs.removeObserver("browser.urlbar", this.mPrefObserver);
       ]]></destructor>
@@ -93,6 +99,35 @@
             this._formattingEnabled = this.mPrefs.getBoolPref(aPref);
             this._formatValue(this._formattingEnabled && !this.focused);
           }
+        ]]></body>
+      </method>
+
+      <field name="_overflowing">false</field>
+
+      <method name="handleEvent">
+        <parameter name="aEvent"/>
+        <body><![CDATA[
+          switch (aEvent.type) {
+            case "overflow":
+              this._overflowing = true;
+              break;
+            case "underflow":
+              this._overflowing = false;
+              break;
+          }
+        ]]></body>
+      </method>
+
+      <method name="_showTooltip">
+        <parameter name="aEvent"/>
+        <body><![CDATA[
+          var tooltip = aEvent.target;
+          if (this._overflowing)
+            tooltip.label = this.value;
+          else if (this.value)
+            tooltip.label = this.placeholder;
+          else
+            aEvent.preventDefault();
         ]]></body>
       </method>
 

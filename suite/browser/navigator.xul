@@ -262,7 +262,7 @@
                  enablehistory="true" accesskey="&locationBar.accesskey;"
                  defaultSearchEngine="true" tabscrolling="true"
                  showcommentcolumn="true"
-                 inputtooltiptext="&locationBar.tooltip;"
+                 placeholder="&locationBar.tooltip;"
                  newlines="stripsurroundingwhitespace"
                  aria-label="&locationBar.title;"
                  oninput="gBrowser.userTypedValue = this.value;"
