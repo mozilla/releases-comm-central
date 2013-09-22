@@ -29,6 +29,7 @@ function run_test() {
     let account = Services.accounts.getAccountByNumericId(1);
     do_check_true(account instanceof Ci.imIAccount);
     do_check_eq(account.name, kAccountName);
+    do_check_eq(account.normalizedName, kAccountName);
     do_check_eq(account.protocol.id, kPrplId);
     do_check_eq(account.connectionErrorReason, Ci.imIAccount.ERROR_UNKNOWN_PRPL);
   } finally {
