@@ -2055,7 +2055,7 @@
           let convBinding = document.getBindingParent(this);
           if (aSave) {
             // apply the new topic only if it is different from the current one
-            if (elt.value != elt.getAttribute("value"))
+            if (elt.value != convBinding._conv.topic)
               convBinding._conv.topic = elt.value;
           }
           this.editing = false;

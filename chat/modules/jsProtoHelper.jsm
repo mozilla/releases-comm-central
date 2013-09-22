@@ -534,14 +534,15 @@ const GenericConvChatPrototype = {
 
   get isChat() true,
 
-  _topic: null,
+  _topic: "",
   _topicSetter: null,
   get topic() this._topic,
   get topicSettable() false,
   get topicSetter() this._topicSetter,
   setTopic: function(aTopic, aTopicSetter, aQuiet) {
     // Only change the topic if the topic and/or topic setter has changed.
-    if (this._topic == aTopic && this._topicSetter == aTopicSetter)
+    if (this._topic == aTopic &&
+        (!this._topicSetter || this._topicSetter == aTopicSetter))
       return;
 
     this._topic = aTopic;
