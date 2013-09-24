@@ -34,6 +34,8 @@ const kPacketType = {
   Logoff:         0x02,
   // Sent by a client when a message is sent to a buddy.
   Message:        0x06,
+  // Sent to the pager server once per hour.
+  Ping:           0x12,
   // Used for inviting others to a conference.
   ConfInvite:     0x18,
   // Used as a notification when you or someone else joins a conference room.
@@ -55,6 +57,8 @@ const kPacketType = {
   RemoveBuddy:    0x84,
   // This is sent when you reject a Yahoo! user's buddy request.
   BuddyReqReject: 0x86,
+  // Sent to the server once every minute, telling it here are still alive.
+  KeepAlive:      0x8A,
   // This is sent when we request a buddy icon.
   Picture:        0xbe,
   // This is sent after a profile picture has been successfully uploaded.
@@ -352,9 +356,21 @@ YahooSession.prototype = {
     this.sendPacket(packet);
   },
 
+  sendKeepAlive: function() {
+    let packet = new YahooPacket(kPacketType.KeepAlive, 0, this.sessionId);
+    packet.addValue(0, this._account.cleanUsername);
+    this.sendBinaryData(packet.toArrayBuffer());
+  },
+
+  sendPing: function() {
+    let packet = new YahooPacket(kPacketType.Ping, 0, this.sessionId);
+    this.sendBinaryData(packet.toArrayBuffer());
+  },
+
   // Callbacks.
   onLoginComplete: function() {
     this._account.reportConnected();
+    this._account.onLoginComplete();
   },
 
   onSessionError: function(aError, aMessage) {
