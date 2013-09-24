@@ -899,7 +899,8 @@
     <menupopup id="menu_FilePopup" onpopupshowing="file_init();">
       <menu id="menu_New">
         <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();">
-          <menuitem label="&newNewMsgCmd.label;"
+          <menuitem id="newNewMsgCmd"
+                    label="&newNewMsgCmd.label;"
                     accesskey="&newNewMsgCmd.accesskey;"
                     key="key_newMessage"
                     oncommand="MsgNewMessage(null);"/>
@@ -951,7 +952,8 @@
                 accesskey="&getNewMsgCmd.accesskey;"
                 key="key_getNewMessages"
                 command="cmd_getNewMessages"/>
-        <menu label="&getNewMsgForCmd.label;"
+        <menu id="menu_getAllNewMsg"
+              label="&getNewMsgForCmd.label;"
               accesskey="&getNewMsgForCmd.accesskey;"
               sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
               sortDirection="ascending"
