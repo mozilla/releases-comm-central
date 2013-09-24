@@ -13,6 +13,10 @@ XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/yahoo.properties")
 );
 
+// These timeouts are in milliseconds.
+const kKeepAliveTimeout = 60 * 1000; // One minute.
+const kPingTimeout = 3600 * 1000; // One hour.
+
 function YahooConversation(aAccount, aName)
 {
   this._buddyUserName = aName;
@@ -24,6 +28,8 @@ YahooConversation.prototype = {
   _account: null,
   _buddyUserName: null,
   _typingTimer: null,
+  _keepAliveTimer: null,
+  _pingTimer: null,
 
   close: function() {
     this._account.deleteConversation(this._buddyUserName);
@@ -221,6 +227,12 @@ YahooAccount.prototype = {
     // buddy[1] is the actual object.
     for (let buddy of this._buddies)
       buddy[1].setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
+
+    // Clear the timers to avoid memory leaks.
+    this._keepAliveTimer.cancel();
+    delete this._keepAliveTimer;
+    this._pingTimer.cancel();
+    delete this._pingTimer;
   },
 
   observe: function(aSubject, aTopic, aData) {
@@ -434,6 +446,28 @@ YahooAccount.prototype = {
     this._conferences.set(roomName, conf);
     this._session.createConference(roomName);
     this._roomsCreated++;
+  },
+
+  // Callbacks.
+  onLoginComplete: function() {
+    // Now that we are connected, get ready to start to sending pings and
+    // keepalive packets.
+    this._keepAliveTimer = Cc["@mozilla.org/timer;1"]
+                             .createInstance(Ci.nsITimer);
+    this._pingTimer = Cc["@mozilla.org/timer;1"]
+                        .createInstance(Ci.nsITimer);
+
+    // We use slack timers since we don't need millisecond precision when
+    // sending the keepalive and ping packets.
+    let s = this._session;
+    this._keepAliveTimer
+        .initWithCallback(s.sendKeepAlive.bind(s), kKeepAliveTimeout,
+                          this._keepAliveTimer.TYPE_REPEATING_SLACK);
+
+    this._pingTimer
+        .initWithCallback(s.sendPing.bind(s), kPingTimeout,
+                          this._pingTimer.TYPE_REPEATING_SLACK);
+
   },
 
   // Private methods.
