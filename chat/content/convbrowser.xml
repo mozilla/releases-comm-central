@@ -279,6 +279,14 @@
          </body>
       </method>
 
+      <method name="autoScrollEnabled">
+        <body>
+          <![CDATA[
+            return this._autoScrollEnabled || this._updateAutoScrollEnabled();
+          ]]>
+         </body>
+      </method>
+
       <method name="_scrollToElement">
         <parameter name="aElt"/>
         <body>
@@ -518,7 +526,7 @@
 
             if (!aNoAutoScroll) {
               newElt.getBoundingClientRect(); // avoid ireflow bugs
-              if (this._autoScrollEnabled || this._updateAutoScrollEnabled())
+              if (this.autoScrollEnabled())
                 this._scrollToElement(newElt);
             }
             this._lastElement = newElt;
@@ -857,8 +865,10 @@
                 }
                 this._loadState = 1;
 
-                // Expose scrollToElement to the message styles.
+                // Expose scrollToElement and autoScrollEnabled to the
+                // message styles.
                 this.contentWindow.scrollToElement = this._scrollToElement.bind(this);
+                this.contentWindow.autoScrollEnabled = this.autoScrollEnabled.bind(this);
                 return;
               }
               this.removeProgressListener(this);
