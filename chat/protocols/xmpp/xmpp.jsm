@@ -442,7 +442,11 @@ const XMPPAccountBuddyPrototype = {
 
   _photoHash: null,
   _saveIcon: function(aPhotoNode) {
-    let type = aPhotoNode.getElement(["TYPE"]).innerText;
+    // Some servers seem to send a photo node without a type declared.
+    let type = aPhotoNode.getElement(["TYPE"]);
+    if (!type)
+      return;
+    type = type.innerText;
     const kExt = {"image/gif": "gif", "image/jpeg": "jpg", "image/png": "png"};
     if (!kExt.hasOwnProperty(type))
       return;
