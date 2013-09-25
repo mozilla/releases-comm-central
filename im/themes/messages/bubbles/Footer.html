@@ -117,8 +117,7 @@ function handleLastMessage()
   }
   p.textContent = text;
   p.style.marginTop = (margin - shadow) + "px";
-  var body = document.getElementsByTagName("body")[0];
-  if (body.scrollHeight <= body.scrollTop + body.clientHeight + p.clientHeight + 10)
+  if (autoScrollEnabled())
     scrollToElement(p);
 
   var next = 0;
