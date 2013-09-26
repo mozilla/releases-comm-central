@@ -808,7 +808,7 @@ var ircBase = {
       let topic = aMessage.params[3];
       // Some servers (e.g. Unreal) include the channel's modes before the topic.
       // Omit this.
-      topic = topic.replace(/^\[\+.*\] /, "");
+      topic = topic.replace(/^\[\+[a-zA-Z]*\] /, "");
 
       this._channelList.push(new ircRoomInfo(name, topic, participantCount, this));
       // Give callbacks a batch of channels of length _channelsPerBatch.
