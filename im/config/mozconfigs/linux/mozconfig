@@ -25,6 +25,7 @@ ac_add_options --disable-dbus
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-elf-hack
 ac_add_options --disable-gio
+ac_add_options --disable-gstreamer
 
 if [ `date +%m%d` = 1031 -o `date +%m%d` = 1101 ]; then
 ac_add_options --with-branding=instantbird/branding/halloween

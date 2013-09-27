@@ -25,5 +25,6 @@ ac_add_options --disable-dbus
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-elf-hack
 ac_add_options --disable-gio
+ac_add_options --disable-gstreamer
 ac_add_options --enable-official-branding
 ac_add_options --with-l10n-base=..
