@@ -479,6 +479,9 @@ pref("mail.tabs.closeButtons", 1);
 // Allow the tabs to be in the titlebar on supported systems
 pref("mail.tabs.drawInTitlebar", true);
 
+// Allows the tabs to animate on open/close
+pref("mail.tabs.animate", true);
+
 // The breakpad report server to link to in about:crashes
 pref("breakpad.reportURL", "http://crash-stats.mozilla.com/report/index/");
 

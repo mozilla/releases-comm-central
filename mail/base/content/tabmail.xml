@@ -51,12 +51,16 @@
     -       be switched to automatically by tabmail if the new tab is immediately
     -       closed.
     -
-    - * closeTab(aOptionalTabIndexInfoOrTabNode,aNoUndo):
+    - * closeTab(aOptionalTabIndexInfoOrTabNode, aNoUndo, aNoAnimate):
+    -     Hides the tab and then sends finishCloseTab() using the same
+    -     parameters. closeTab() must be called before finishCloseTab().
     -     If no argument is provided, the current tab is closed. The first
     -     argument specifies a specific tab to be closed. It can be a tab index,
     -     a tab info object, or a tab's DOM element. In case the second
     -     argument is true, the closed tab can't be restored by calling
     -     undoCloseTab().
+    -     The third argument is optional, and should be set to true to skip
+    -     animating the tab closing. This argument defaults to false.
     -     Please note, some tabs cannot be closed. Trying to close such tab,
     -     will fail silently.
     - * undoCloseTab():
@@ -161,7 +165,7 @@
     -     index of that tab; otherwise return -1.
     -     aArgs is a set of named parameters (the ones that are later passed to
     -     openTab).
-    - * openTab(aTab, aArgs): Called when a tab of the given mode is in the
+    - * openTab(aTab, aArgs, aNoAnimate): Called when a tab of the given mode is in the
     -     process of being opened.  aTab will have its "mode" attribute
     -     set to the mode definition of the tab mode being opened.  You should
     -     set the "title" attribute on it, and may set any other attributes
@@ -171,6 +175,8 @@
     -     tab type for use by multiple modes and to defer to it.  Any arguments
     -     provided to the caller of tabmail.openTab will be passed to your
     -     function as well, including background.
+    -     The third argument is optional, and should be set to true to skip animating
+    -     the tab opening. This argument defaults to false.
     - * closeTab(aTab): Called when aTab is being closed.  The tab need not be
     -     currently displayed.  You are responsible for properly cleaning up
     -     any state you preserved in aTab.
@@ -438,10 +444,19 @@
 
             this.tabInfo[0] = this.currentTabInfo = firstTab;
 
+            let [iTab, tab, tabNode] =
+              this._getTabContextForTabbyThing(firstTab, true);
+
             let tabOpenFirstFunc = firstTab.mode.openFirstTab ||
                                    firstTab.mode.tabType.openFirstTab;
             tabOpenFirstFunc.call(firstTab.mode.tabType, firstTab);
             this.setTabTitle(null);
+
+            tabNode.setAttribute("fadein", "true");
+            tabNode.style.maxWidth = this.tabContainer.mTabMaxWidth + "px";
+            tabNode.style.minWidth = this.tabContainer.mTabMinWidth + "px";
+            tabNode.removeAttribute("maxwidth");
+            tabNode.removeAttribute("minwidth");
 
             for each (let [i, tabMonitor] in Iterator(this.tabMonitors)) {
               if ("onTabOpened" in tabMonitor)
@@ -454,6 +469,7 @@
       <method name="openTab">
         <parameter name="aTabModeName"/>
         <parameter name="aArgs"/>
+        <parameter name="aNoAnimate"/>
         <body><![CDATA[
         try {
           if (!(aTabModeName in this.tabModes))
@@ -497,8 +513,6 @@
             "tab");
           tab.tabNode = t;
           t.setAttribute("crop", "end");
-          t.maxWidth = this.tabContainer.mTabMaxWidth;
-          t.minWidth = this.tabContainer.mTabMinWidth;
           t.width = 0;
           t.setAttribute("flex", "100");
           t.setAttribute("validate", "never");
@@ -571,6 +585,25 @@
           this._mostRecentTabInfo = null;
 
           t.setAttribute("label", tab.title);
+
+          if (aNoAnimate || !Services.prefs.getBoolPref("mail.tabs.animate")) {
+            t.setAttribute("fadein", "false");
+            this.tabContainer.adjustTabstrip();
+          } else {
+            t.setAttribute("fadein", "true");
+
+            // If the tabs animate then they will appear too small when adjustTabstrip()
+            // is called normally. Therefore we must wait until the animation is finished
+            // and then adjustTabstrip() again.
+
+            t.addEventListener("transitionend", function tabOpenTransitionFinished() {
+              this.tabContainer.adjustTabstrip();
+              t.removeEventListener("transitionend", tabOpenTransitionFinished);
+            }.bind(this), false);
+          }
+
+          t.style.maxWidth = this.tabContainer.mTabMaxWidth + "px";
+          t.style.minWidth = this.tabContainer.mTabMinWidth + "px";
 
           if (!background)
             this.setDocumentTitle(tab);
@@ -681,26 +714,83 @@
       <method name="closeTab">
         <parameter name="aOptTabIndexNodeOrInfo"/>
         <parameter name="aNoUndo" />
+        <parameter name="aNoAnimate" />
         <body><![CDATA[
 
             let [iTab, tab, tabNode] =
               this._getTabContextForTabbyThing(aOptTabIndexNodeOrInfo, true);
 
-            if (!tab.canClose)
+            if (!tab.canClose) {
               return;
+            }
 
+            // First we get the index of the tab being closed and the index of
+            // the currently selected tab. If they match:
+            //   If we have a previously opened tab to go back to, and it's index
+            //   isn't -1, move to that location.
+            //   Otherwise just move to the next lower tab in the index.
+
+            let tabIndex = Array.indexOf(this.tabContainer.childNodes, tabNode);
+            let selectedIndex = this.tabContainer.selectedIndex;
+
+            if (selectedIndex == tabIndex) {
+              let lastTabOpenerIndex = this.tabInfo.indexOf(this.mLastTabOpener);
+              if (this.mLastTabOpener && (lastTabOpenerIndex != -1)) {
+                this.tabContainer.selectedIndex = this.tabInfo.indexOf(this.mLastTabOpener);
+              } else {
+                if (selectedIndex > 0) {
+                  this.tabContainer.selectedIndex = selectedIndex - 1;
+                }
+              }
+            }
+
+            // Don't animate the last tab for aesthetic purposes.
+            if (tabIndex == (this.tabContainer.childNodes.length - 1)) {
+              aNoAnimate == true;
+            }
+
+            if (aNoAnimate || !Services.prefs.getBoolPref("mail.tabs.animate")) {
+              tabNode.setAttribute("fadein", "false");
+              this._finishCloseTab(aOptTabIndexNodeOrInfo, aNoUndo);
+            } else {
+              tabNode.removeAttribute("fadein");
+              let self = this;
+              tabNode.addEventListener("transitionend", function tabCloseTransitionEnded(event) {
+                if (event.propertyName === "max-width") {
+                  tabNode.removeEventListener("transitionend", tabCloseTransitionEnded);
+                  self._finishCloseTab(aOptTabIndexNodeOrInfo, aNoUndo);
+                }
+              }.bind(this), false);
+            }
+          ]]>
+        </body>
+      </method>
+      <method name="_finishCloseTab">
+        <parameter name="aOptTabIndexNodeOrInfo"/>
+        <parameter name="aNoUndo" />
+        <body>
+          <![CDATA[
+            /*  _finishCloseTab(aOptionalTabIndexInfoOrTabNode, aNoUndo):
+            -     Finishes removing the tab when called from closeTab().
+            -     Note: Do NOT call this when trying to close a tab, use closeTab()
+            -     The arguments here are the same as closeTab(), refer to that method
+            -     for more details on the parameters purpose. */
+
+            let [iTab, tab, tabNode] = this._getTabContextForTabbyThing(aOptTabIndexNodeOrInfo, true);
             // Give the tab type a chance to make its own decisions about
             // whether its tabs can be closed or not. For instance, contentTabs
             // and chromeTabs run onbeforeunload event handlers that may
             // exercise their right to prompt the user for confirmation before
             // closing.
             let tryCloseFunc = tab.mode.tryCloseTab || tab.mode.tabType.tryCloseTab;
-            if (tryCloseFunc && !tryCloseFunc.call(tab.mode.tabType, tab))
+            if (tryCloseFunc && !tryCloseFunc.call(tab.mode.tabType, tab)) {
               return;
+            }
 
             for each (let [i, tabMonitor] in Iterator(this.tabMonitors)) {
-              if ("onTabClosing" in tabMonitor)
+              if ("onTabClosing" in tabMonitor) {
                 tabMonitor.onTabClosing(tab);
+              }
             }
 
             if (!aNoUndo) {
@@ -723,23 +813,12 @@
             tab.mode.tabs.splice(tab.mode.tabs.indexOf(tab), 1);
             this.tabContainer.removeChild(tabNode);
 
-            if (this.tabContainer.selectedIndex == -1) {
-              let lastTabOpenerIndex = this.tabInfo.indexOf(this.mLastTabOpener);
-
-              if (this.mLastTabOpener && (lastTabOpenerIndex != -1)) {
-                this.tabContainer.selectedIndex = this.tabInfo.indexOf(this.mLastTabOpener);
-              } else {
-                this.tabContainer.selectedIndex =
-                  (iTab == this.tabContainer.childNodes.length) ? iTab - 1 : iTab;
-              }
-
-            }
-
             // Clear the last tab opener - we don't need this anymore.
             this.mLastTabOpener = null;
 
-            if (this.currentTabInfo == tab)
+            if (this.currentTabInfo == tab) {
               this.updateCurrentTab();
+            }
 
             if (tab.panel) {
               this.panelContainer.removeChild(tab.panel);
@@ -751,8 +830,9 @@
                 this.currentTabInfo.panel || this.currentTabInfo.mode.tabType.panel;
             }
             if (this.tabContainer.childNodes.length == 1 &&
-                this.tabContainer.mAutoHide)
+                this.tabContainer.mAutoHide) {
               this.tabContainer.mCollapseToolbar.collapsed = true;
+            }
           ]]>
         </body>
       </method>
@@ -1688,8 +1768,6 @@
           if (this.mAutoHide)
             this.mCollapseToolbar.collapsed = true;
 
-          this.firstChild.minWidth = this.mTabMinWidth;
-          this.firstChild.maxWidth = this.mTabMaxWidth;
           this.adjustTabstrip();
 
           Services.prefs.addObserver("mail.tabs.", this._prefObserver, false);
