@@ -13,6 +13,10 @@ const kNotificationsToObserve =
    "contact-preferred-buddy-changed", "contact-moved", "account-disconnected",
    "new-conversation", "new-text", "conversation-closed", "prpl-quit"];
 
+// This is incremented when changes to the log sweeping code warrant rebuilding
+// the stats cache file.
+const gStatsCacheVersion = 1;
+
 XPCOMUtils.defineLazyGetter(this, "_newtab", function()
   l10nHelper("chrome://instantbird/locale/newtab.properties")
 );
@@ -109,7 +113,9 @@ var gLogParser = {
         if (this._logFolders.length)
           this._sweepLogFolders();
         else { // We're done.
-          this._statsService._cacheAllStats(); // Flush stats to JSON cache.
+          let statsService = this._statsService;
+          statsService._cacheAllStats(); // Flush stats to JSON cache.
+          statsService._convs.sort(statsService._sortComparator);
           gStatsByContactId = {}; // Initialize stats cache for contacts.
         }
         return;
@@ -143,7 +149,7 @@ var gLogParser = {
         }
         catch(e) {
           this.WARN("Error parsing log file: " + log + "\n" + e);
-        };
+        }
         __sweepLogFolder();
       }.bind(this), function(aError) {
         Cu.reportError("Error reading log file: " + log + "\n" + aError);
@@ -181,7 +187,13 @@ ConvStatsService.prototype = {
       OS.Path.join(OS.Constants.Path.profileDir, "statsservicecache.json");
     OS.File.read(this._statsCacheFilePath).then(function(aArray) {
       try {
-        gStatsByConvId = JSON.parse((new TextDecoder()).decode(aArray));
+        let {version: version, stats: stats} =
+          JSON.parse((new TextDecoder()).decode(aArray));
+        if (version !== gStatsCacheVersion) {
+          gLogParser.sweep(this);
+          return;
+        }
+        gStatsByConvId = stats;
         for each (let stats in gStatsByConvId)
           stats.__proto__ = ConversationStats.prototype;
         gStatsByContactId = {};
@@ -196,7 +208,7 @@ ConvStatsService.prototype = {
     }.bind(this), function(aError) {
       if (!aError.becauseNoSuchFile)
         Cu.reportError("Error while reading conversation stats cache.\n" + aError);
-      if (Services.prefs.getBoolPref("statsservice.parseLogsForStats"))
+      if (Services.prefs.getBoolPref("statsService.parseLogsForStats"))
         gLogParser.sweep(this);
     }.bind(this));
   },
@@ -349,8 +361,9 @@ ConvStatsService.prototype = {
 
   _cacheAllStats: function() {
     let encoder = new TextEncoder();
+    let objToWrite = {version: gStatsCacheVersion, stats: gStatsByConvId};
     OS.File.writeAtomic(this._statsCacheFilePath,
-                        encoder.encode(JSON.stringify(gStatsByConvId)),
+                        encoder.encode(JSON.stringify(objToWrite)),
                         {tmpPath: this._statsCacheFilePath + ".tmp"});
     if (this._statsCacheUpdateTimer) {
       clearTimeout(this._statsCacheUpdateTimer);
