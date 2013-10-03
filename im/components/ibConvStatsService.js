@@ -669,9 +669,11 @@ PossibleChat.prototype = {
 };
 
 function ExistingConversation(aUIConv) {
-  // The id is never used since we don't store stats for existing conversations,
-  // so just use the target prplConversation's id.
-  this._id = aUIConv.target.id;
+  this._convId = aUIConv.target.id;
+  let account = aUIConv.account;
+  this._id = getConversationId(account.protocol.normalizedName,
+                               account.name, aUIConv.normalizedName,
+                               aUIConv.isChat);
   this._displayName = aUIConv.title;
   this._isChat = aUIConv.isChat;
   if (aUIConv.isChat) {
@@ -699,7 +701,7 @@ ExistingConversation.prototype = {
   get source() "existing",
   get uiConv() {
     return Services.conversations.getUIConversation(Services.conversations
-                   .getConversationById(this._id));
+                   .getConversationById(this._convId));
   },
   get account() this.uiConv.account,
   createConversation: function() this.uiConv.target
