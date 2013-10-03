@@ -46,7 +46,7 @@ PREF_JS_EXPORTS = \
 
 ifndef LIBXUL_SDK
 
-ifneq (,$(filter OS2 WINCE WINNT,$(OS_ARCH)))
+ifneq (,$(filter OS2 WINNT,$(OS_ARCH)))
 PROGRAM = $(MOZ_APP_NAME)$(BIN_SUFFIX)
 else
 PROGRAM = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
@@ -56,7 +56,7 @@ endif
 CPPSRCS = nsMain.cpp
 else
 
-ifneq (,$(filter OS2 WINCE WINNT,$(OS_ARCH)))
+ifneq (,$(filter OS2 WINNT,$(OS_ARCH)))
 STUBNAME = $(MOZ_APP_NAME)$(BIN_SUFFIX)
 else
 STUBNAME = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
@@ -114,15 +114,7 @@ include $(topsrcdir)/config/config.mk
 ifdef _MSC_VER
 # Always enter a Windows program through wmain, whether or not we're
 # a console application.
-ifdef WINCE
-WIN32_EXE_LDFLAGS += -ENTRY:mainWCRTStartup
-else
 WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
-endif
-endif
-
-ifdef WINCE
-EXTRA_DSO_LDOPTS += $(call EXPAND_LIBNAME,corelibc)
 endif
 
 ifdef NS_TRACE_MALLOC
@@ -142,7 +134,7 @@ OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 v
 OS_LIBS += $(call EXPAND_LIBNAME,usp10 msimg32)
 endif
 
-ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
+ifeq ($(OS_ARCH),WINNT)
 RCINCLUDE = splash.rc
 ifndef GNU_CC
 RCFLAGS += -DMOZ_INSTANTBIRD -I$(srcdir)

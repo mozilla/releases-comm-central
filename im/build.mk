@@ -34,7 +34,7 @@ ifndef PKG_SUFFIX
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 PKG_SUFFIX = .dmg
 else
-ifeq (,$(filter-out WINNT WINCE, $(OS_ARCH)))
+ifeq ($(OS_ARCH),WINNT)
 PKG_SUFFIX = .zip
 else
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)

@@ -55,13 +55,6 @@ notification > hbox {
 #accountlist {
   margin: 0 0;
   -moz-appearance: none;
-%ifdef WINCE
-  border: 2px solid;
-  -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
-  -moz-border-right-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
-%else
 %ifndef XP_MACOSX
   border-bottom: 2px solid;
   -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
