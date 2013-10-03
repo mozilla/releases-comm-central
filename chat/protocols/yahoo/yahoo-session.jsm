@@ -490,9 +490,11 @@ YahooLoginHelper.prototype = {
 
   // Private methods.
   _getPagerAddress: function() {
-    doXHRequest(this._account._protocol.pagerRequestUrl, null, null,
-                this._onPagerAddressResponse, this._onHttpError, this,
-                "GET", null);
+    let options = {
+      onLoad: this._onPagerAddressResponse.bind(this),
+      onError: this._onHttpError.bind(this)
+    }
+    httpRequest(this._account._protocol.pagerRequestUrl, options);
   },
 
   _getChallengeString: function() {
@@ -511,8 +513,11 @@ YahooLoginHelper.prototype = {
     url += "passwd=" + percentEncode(this._account.imAccount.password) + "&";
     url += "chal=" + percentEncode(this._challengeString);
 
-    doXHRequest(url, null, null, this._onLoginTokenResponse,
-                this._onHttpError, this, "GET", null);
+    let options = {
+      onLoad: this._onLoginTokenResponse.bind(this),
+      onError: this._onHttpError.bind(this)
+    }
+    httpRequest(url, options);
   },
 
   _getCookies: function() {
@@ -521,8 +526,11 @@ YahooLoginHelper.prototype = {
     url += "?src=ymsgr&";
     url += "token=" + this._loginToken;
 
-    doXHRequest(url, null, null, this._onLoginCookiesResponse,
-                this._onHttpError, this, "GET", null);
+    let options = {
+      onLoad: this._onLoginCookiesResponse.bind(this),
+      onError: this._onHttpError.bind(this)
+    }
+    httpRequest(url, options);
   },
 
   _sendPagerAuthResponse: function() {
@@ -1059,7 +1067,7 @@ const YahooPacketHandler = {
  * image on a Yahoo! Messenger account. The reason this functionality is split
  * into a separate class is because of the complexity of the operation. Because
  * of special protocol requirements, it is easier to use raw TCP communication
- * instead of the doXHRequest() method. */
+ * instead of the httpRequest() method. */
 function YahooProfileIconUploader(aAccount, aSession, aFileName, aImage)
 {
   this._account = aAccount;
