@@ -17,6 +17,7 @@
 #include "nsIDOMWindow.h"
 
 #include "trayIToolkit.h"
+#include "trayPlatform.h"
 #include "nsXPCOMStrings.h"
 #include "nsIObserver.h"
 
@@ -33,14 +34,6 @@ typedef enum _eMinimizeActions {
   kTrayOnMinimize = (1 << 0),
   kTrayOnClose = (1 << 1)
 } eMinimizeActions;
-
-/**
- * Need this to hold a pointer to
- * The implementation will be platform specific
- */
-namespace platform {
-  class Icon;
-}
 
 /**
  * Helper for watch: Minimize a window if a configured for the action
