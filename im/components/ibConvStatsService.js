@@ -312,9 +312,14 @@ ConvStatsService.prototype = {
 
   _repositionConvsWithUpdatedStats: function() {
     for (let conv of this._convsWithUpdatedStats) {
-      this._convs.splice(this._convs.indexOf(conv), 1);
-      let pos = this._getPositionToInsert(conv, this._convs);
-      this._convs.splice(pos, 0, conv);
+      let currentPos = this._convs.indexOf(conv);
+      // If the conv is no longer in the list (perhaps the contact was removed),
+      // don't try to reposition it.
+      if (currentPos == -1)
+        continue;
+      this._convs.splice(currentPos, 1);
+      let newPos = this._getPositionToInsert(conv, this._convs);
+      this._convs.splice(newPos, 0, conv);
     }
     this._convsWithUpdatedStats.clear();
   },
