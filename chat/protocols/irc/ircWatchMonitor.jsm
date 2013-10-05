@@ -289,8 +289,7 @@ function trackBuddyMonitor(aNicks) {
 
   let params = [];
   let maxLength = this.maxMessageLength - 2 -
-                  this.countBytes(this.buildMessage("MONITOR",
-                                                    ["+", params.join(",")]));
+                  this.countBytes(this.buildMessage("MONITOR", "+"));
   for each (let nick in nicks) {
     if (this.countBytes(params + " " + nick) >= maxLength) {
       // If the message would be too long, first send this message.
