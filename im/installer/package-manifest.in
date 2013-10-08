@@ -366,6 +366,9 @@
 @BINPATH@/components/WeaveCrypto.manifest
 @BINPATH@/components/WeaveCrypto.js
 #endif
+@BINPATH@/components/ConsoleAPI.js
+@BINPATH@/components/ConsoleAPI.manifest
+@BINPATH@/components/servicesComponents.manifest
 
 ; Modules
 @BINPATH@/modules/*
