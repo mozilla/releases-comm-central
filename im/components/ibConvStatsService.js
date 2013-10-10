@@ -305,8 +305,8 @@ ConvStatsService.prototype = {
     // Contacts with no stats get a 0, and chats get -1.
     let sign = function(x) x > 0 ? 1 : x < 0 ? -1 : 0;
     return sign(scoreB) - sign(scoreA) ||
-      aPossibleConvB.statusType - aPossibleConvA.statusType ||
       scoreB - scoreA ||
+      aPossibleConvB.statusType - aPossibleConvA.statusType ||
       aPossibleConvA.lowerCaseName.localeCompare(aPossibleConvB.lowerCaseName);
   },
 
@@ -337,18 +337,15 @@ ConvStatsService.prototype = {
         let chatList = this._chatsByAccountIdAndName.get(uiConv.account.id);
         if (chatList) {
           let chat = chatList.get(uiConv.name);
-          if (chat) {
-            filteredConvs.splice(filteredConvs.indexOf(chat), 1, existingConv);
-            continue;
-          }
+          if (chat)
+            filteredConvs.splice(filteredConvs.indexOf(chat), 1);
         }
       }
       else {
         let contact = uiConv.contact;
         if (contact && this._contactsById.has(contact.id)) {
           filteredConvs.splice(
-            filteredConvs.indexOf(this._contactsById.get(contact.id)), 1, existingConv);
-          continue;
+            filteredConvs.indexOf(this._contactsById.get(contact.id)), 1);
         }
       }
       let pos = this._getPositionToInsert(existingConv, filteredConvs);
@@ -633,7 +630,14 @@ PossibleConvFromContact.prototype = {
     }
     if (gStatsByContactId)
       gStatsByContactId[id] = stats;
-    return stats.computedScore;
+    let score = stats.computedScore;
+    // We apply a negative bias if statusType / STATUS_AVAILABLE is less than 0.5
+    // (i.e. our status is less than or equal to STATUS_MOBILE), and a positive
+    // one otherwise.
+    score *= 0.5 + this.statusType / Ci.imIStatusInfo.STATUS_AVAILABLE;
+    if (!this.contact.canSendMessage)
+      score *= 0.75;
+    return score;
   },
   createConversation: function() this.contact.createConversation()
 };
@@ -709,6 +713,23 @@ ExistingConversation.prototype = {
                    .getConversationById(this._convId));
   },
   get account() this.uiConv.account,
+  get computedScore() {
+    let stats = gStatsByConvId[this.id];
+    if (!stats) {
+      // Force chats without a score to the end of the list.
+      return this.isChat ? -1 : 0;
+    }
+    let score = stats.computedScore;
+    // Give existing chats a negative bias. It's unlikely the user wants to
+    // reopen them.
+    if (this.isChat)
+      score *= 0.8;
+    // We don't apply the status biasing that PossibleConvFromContact does because
+    // existing conversations are not as likely to be reopened as an available
+    // contact, but are more likely to be reopened than an offline contact.
+    // Averaging this out eliminates the status bias.
+    return score;
+  },
   createConversation: function() this.uiConv.target
 };
 
