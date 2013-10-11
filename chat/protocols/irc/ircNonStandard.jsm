@@ -9,7 +9,7 @@
  * listing the known servers that support this extension.
  *
  * Resources for these commands include:
- *  http://hg.atheme.org/charybdis/file/tip/include/numeric.h
+ *  https://github.com/atheme/charybdis/blob/master/include/numeric.h
  *  http://hg.unrealircd.com/hg/unreal/raw-file/tip/include/numeric.h
  */
 const EXPORTED_SYMBOLS = ["ircNonStandard"];
@@ -45,6 +45,11 @@ var ircNonStandard = {
         this.gotDisconnected(Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
                              _("connection.error.passwordRequired"));
       }
+      return true;
+    },
+
+    "042": function(aMessage) { // RPL_YOURID (IRCnet)
+      // <nick> <id> :your unique ID
       return true;
     },
 
@@ -99,6 +104,13 @@ var ircNonStandard = {
     "335": function(aMessage) { // RPL_WHOISBOT (Unreal)
       // <nick> :is a \002Bot\002 on <network>
       return this.setWhois(aMessage.params[1], {bot: true});
+    },
+
+    "338": function(aMessage) {
+      // RPL_CHANPASSOK
+      // RPL_WHOISACTUALLY (ircu, Bahamut, Charybdis)
+      // <nick> <user> <ip> :actually using host
+      return true;
     },
 
     "378": function(aMessage) { // RPL_WHOISHOST (Unreal & Charybdis)
