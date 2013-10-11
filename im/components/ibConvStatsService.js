@@ -352,10 +352,19 @@ ConvStatsService.prototype = {
       filteredConvs.splice(pos, 0, existingConv);
     }
     if (aFilterStr) {
-      aFilterStr = aFilterStr.toLowerCase();
+      let searchWords = aFilterStr.toLowerCase().split(/\s+/);
       filteredConvs = filteredConvs.filter(function(c) {
-        return c.lowerCaseName.startsWith(aFilterStr) ||
-          c.lowerCaseName.split(/\s+/).some(function(s) s.startsWith(aFilterStr));
+        let words = c.lowerCaseName.split(/\s+/);
+        return searchWords.every(function(s) {
+          return words.some(function(word) {
+            if (word.startsWith(s))
+              return true;
+            if (word.length && "#&+!@_*".indexOf(word[0]) != -1 &&
+                word.substring(1).startsWith(s))
+              return true;
+            return false;
+          });
+        });
       });
     }
     return new nsSimpleEnumerator(filteredConvs);
