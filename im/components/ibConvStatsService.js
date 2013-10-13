@@ -239,7 +239,7 @@ ConvStatsService.prototype = {
   _accountsRequestingRoomInfo: new Set(),
   _addPendingChats: function() {
     let begin = Date.now();
-    for (let time = 0; time < 40 && this._pendingChats.length;
+    for (let time = 0; time < 15 && this._pendingChats.length;
          time = Date.now() - begin) {
       let chat = this._pendingChats.pop();
       let accountId = chat.accountId;
