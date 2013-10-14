@@ -130,7 +130,7 @@ var joinChat = {
       let autojoin = [];
       if (prefBranch.prefHasUserValue(autoJoinPref)) {
         let prefValue =
-          prefBranch.getComplexPref(autoJoinPref, Ci.nsISupportsString).data;
+          prefBranch.getComplexValue(autoJoinPref, Ci.nsISupportsString).data;
         if (prefValue)
           autojoin = prefValue.split(",");
       }
@@ -140,7 +140,7 @@ var joinChat = {
         let str = Cc["@mozilla.org/supports-string;1"]
                     .createInstance(Ci.nsISupportsString);
         str.data = autojoin.join(",");
-        prefBranch.setComplexPref(autoJoinPref, Ci.nsISupportsString, str);
+        prefBranch.setComplexValue(autoJoinPref, Ci.nsISupportsString, str);
       }
     }
 
