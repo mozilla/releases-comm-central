@@ -260,13 +260,14 @@ ConvStatsService.prototype = {
     }
     if (this._pendingChats.length)
       executeSoon(this._addPendingChats.bind(this));
+    else
+      delete this._addingPendingChats;
     let now = Date.now();
     if ((!this._accountsRequestingRoomInfo.size && !this._pendingChats.length) ||
         now - this._lastUpdateNotification > 100) {
       this._notifyObservers("updated");
       this._lastUpdateNotification = now;
     }
-    delete this._addingPendingChats;
   },
 
   _removeChatsForAccount: function(aAccId) {
