@@ -422,6 +422,21 @@
     <implementation>
       <field name="target">null</field>
 
+      <!-- Textual representation of list items for accessibility tools -->
+      <property name="label" readonly="true">
+        <getter>
+        <![CDATA[
+          let description = this.target.displayName;
+          let statusText = this.getAttribute("statusText");
+          if(this.target.isChat)
+            description += " (" + this.target.infoText + "): " + statusText;
+          else
+            description += " (" + statusText + "): " + this.target.infoText;
+          return description;
+        ]]>
+        </getter>
+      </property>
+
       <method name="build">
         <parameter name="aTarget"/>
         <body>
