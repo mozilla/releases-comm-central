@@ -10,8 +10,9 @@ Cu.import("resource://gre/modules/osfile.jsm");
 const kNotificationsToObserve =
   ["contact-added", "contact-removed","contact-status-changed",
    "contact-display-name-changed", "contact-no-longer-dummy",
-   "contact-preferred-buddy-changed", "contact-moved", "account-disconnected",
-   "new-conversation", "new-text", "conversation-closed", "prpl-quit"];
+   "contact-preferred-buddy-changed", "contact-moved",
+   "account-connected", "account-disconnected", "new-conversation",
+   "new-text", "conversation-closed", "prpl-quit"];
 
 // This is incremented when changes to the log sweeping code warrant rebuilding
 // the stats cache file.
@@ -383,14 +384,7 @@ ConvStatsService.prototype = {
     }
   },
 
-  addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) != -1)
-      return;
-    this._observers.push(aObserver);
-
-    this._repositionConvsWithUpdatedStats();
-
-    // We request chat lists from accounts when adding new observers.
+  _requestRoomInfo: function() {
     let accounts = Services.accounts.getAccounts();
     while (accounts.hasMoreElements()) {
       let acc = accounts.getNext();
@@ -417,6 +411,17 @@ ConvStatsService.prototype = {
         }
       }
     }
+  },
+
+  addObserver: function(aObserver) {
+    if (this._observers.indexOf(aObserver) != -1)
+      return;
+    this._observers.push(aObserver);
+
+    this._repositionConvsWithUpdatedStats();
+
+    // We request chat lists from accounts when adding new observers.
+    this._requestRoomInfo();
   },
 
   removeObserver: function(aObserver) {
@@ -516,6 +521,11 @@ ConvStatsService.prototype = {
       // order to change, so we simply remove and re-add it.
       this._removeContact(aSubject.id);
       this._addContact(aSubject);
+    }
+    else if (aTopic == "account-connected" &&
+             this._observers.length) {
+      // Ensure the existing newtabs have roomInfo for this account.
+      this._requestRoomInfo();
     }
     else if (aTopic == "account-disconnected") {
       let id = aSubject.id;
