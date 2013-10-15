@@ -188,12 +188,7 @@ buddyListContextMenu.prototype = {
     while ((item = popup.firstChild) && item.localName != "menuseparator")
       popup.removeChild(item);
 
-    let sortFunction = function (a, b) {
-      [a, b] = [a.name.toLowerCase(), b.name.toLowerCase()];
-      return a < b ? 1 : a > b ? -1 : 0;
-    };
     Services.tags.getTags()
-            .sort(sortFunction)
             .forEach(function (aTag) {
       item = document.createElement("menuitem");
       item.setAttribute("label", aTag.name);
