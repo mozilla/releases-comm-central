@@ -128,10 +128,13 @@
                                    this.listbox.getNumberOfVisibleRows() - 1;
           // Increment numberOfItemsToDisplay if lastVisibleIndex exceeds the threshold.
           if (lastVisibleIndex >= this.listItems.length - this.kAddMoreItemsThreshold) {
-            this.numberOfItemsToDisplay += this.kNumItemsIncrement;
+            let maxNumberOfItemsToDisplay =
+              this.numberOfItemsToDisplay + this.kNumItemsIncrement;
             while (this.hasMoreConversations &&
-                   this.listItems.length < this.numberOfItemsToDisplay)
+                   this.listItems.length < maxNumberOfItemsToDisplay) {
               this.pushListItem().build(this.getNextConv());
+              this.numberOfItemsToDisplay++;
+            }
           }
         ]]>
         </body>
