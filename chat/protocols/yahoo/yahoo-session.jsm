@@ -168,7 +168,9 @@ YahooSession.prototype = {
 
   addBuddyToServer: function(aBuddy) {
     let packet = new YahooPacket(kPacketType.AddBuddy, 0, this.sessionId);
-    packet.addValue(14, _("buddy.invite.message"));
+    // We leave this invite message empty. Any message placed here will
+    // annoyingly be sent to the invitee when they accept the invite.
+    packet.addValue(14, "");
     packet.addValue(65, aBuddy.tag.name);
     packet.addValue(97, "1"); // UTF-8 encoding.
     packet.addValue(1, this._account.cleanUsername);
