@@ -1145,6 +1145,76 @@ ircAccount.prototype = {
     }
   },
 
+  /*
+   * Generate a new nick to change to if the user requested nick is already in
+   * use or is otherwise invalid.
+   *
+   * First try all the alternate nicks that were chosen by the user, and if none
+   * of them work, then generate a new nick by:
+   *  1. If there was not a digit at the end of the nick, append a 1.
+   *  2. If there was a digit, then increment the number.
+   *  3. Add leading 0s back on.
+   *  4. Ensure the nick is an appropriate length.
+   */
+  tryNewNick: function(aOldNick) {
+    // Split the string on commas, remove whitespace around the nicks and
+    // remove empty nicks.
+    let allNicks = this.getString("alternateNicks").split(",")
+                       .map(n => n.trim()).filter(n => !!n);
+    allNicks.unshift(this._accountNickname);
+
+    // If the previously tried nick is in the array and not the last
+    // element, try the next nick in the array.
+    let oldIndex = allNicks.indexOf(aOldNick);
+    if (oldIndex != -1 && oldIndex < allNicks.length - 1) {
+      let newNick = allNicks[oldIndex + 1];
+      this.LOG(aOldNick + " is already in use, trying " + newNick);
+      this.sendMessage("NICK", newNick); // Nick message.
+      return true;
+    }
+
+    // Separate the nick into the text and digits part.
+    let nickParts = /^(.+?)(\d*)$/.exec(aOldNick);
+    let newNick = nickParts[1];
+
+    // No nick found from the user's preferences, so just generating one.
+    // If there is not a digit at the end of the nick, just append 1.
+    let newDigits = "1";
+    // If there is a digit at the end of the nick, increment it.
+    if (nickParts[2]) {
+      newDigits = (parseInt(nickParts[2], 10) + 1).toString();
+      // If there are leading 0s, add them back on, after we've incremented (e.g.
+      // 009 --> 010).
+      let numLeadingZeros = nickParts[2].length - newDigits.length;
+      if (numLeadingZeros > 0)
+        newDigits = "0".repeat(numLeadingZeros) + newDigits;
+    }
+
+    // If the nick will be too long, ensure all the digits fit.
+    if (newNick.length + newDigits.length > this.maxNicknameLength) {
+      // Handle the silly case of a single letter followed by all nines.
+      if (newDigits.length == this.maxNicknameLength)
+        newDigits = newDigits.slice(1);
+      newNick = newNick.slice(0, this.maxNicknameLength - newDigits.length);
+    }
+    // Append the digits.
+    newNick += newDigits;
+
+    if (this.normalize(newNick) == this.normalize(this._nickname)) {
+      // The nick we were about to try next is our current nick. This means
+      // the user attempted to change to a version of the nick with a lower or
+      // absent number suffix, and this failed.
+      let msg = _("message.nick.fail", this._nickname);
+      for each (let conversation in this._conversations)
+        conversation.writeMessage(this._nickname, msg, {system: true});
+      return true;
+    }
+  
+    this.LOG(aOldNick + " is already in use, trying " + newNick);
+    this.sendMessage("NICK", newNick); // Nick message.
+    return true;
+  },
+
   countBytes: function(aStr) {
     // Assume that if it's not UTF-8 then each character is 1 byte.
     if (this._encoding != "UTF-8")
@@ -1637,7 +1707,8 @@ ircProtocol.prototype = {
     "quitmsg": {get label() _("options.quitMessage"),
                 get default() Services.prefs.getCharPref("chat.irc.defaultQuitMessage")},
     "partmsg": {get label() _("options.partMessage"), default: ""},
-    "showServerTab": {get label() _("options.showServerTab"), default: false}
+    "showServerTab": {get label() _("options.showServerTab"), default: false},
+    "alternateNicks": {get label() _("options.alternateNicks"), default: ""}
   },
 
   get chatHasTopic() true,
