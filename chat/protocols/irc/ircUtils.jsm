@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const EXPORTED_SYMBOLS = ["_", "ctcpFormatToText", "ctcpFormatToHTML",
-                          "conversationErrorMessage"];
+                          "conversationErrorMessage", "kListRefreshInterval"];
 
 const {classes: Cc, interfaces: Ci} = Components;
 
@@ -17,6 +17,9 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return function(aTXT) cs.scanTXT(aTXT, cs.kEntities);
 });
+
+// The timespan after which we consider LIST roomInfo to be stale.
+const kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
 
 /*
  * The supported formatting control characters, as described in

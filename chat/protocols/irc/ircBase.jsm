@@ -612,8 +612,18 @@ var ircBase = {
      */
     "263": function(aMessage) { // RPL_TRYAGAIN
       // <command> :Please wait a while and try again.
-      // TODO setTimeout for a minute or so and try again?
-      return false;
+      if (aMessage.params[1] == "LIST" && this._pendingList) {
+        // We may receive this from servers which rate-limit LIST if the
+        // server believes us to be asking for LIST data too soon after the
+        // previous request.
+        // Tidy up as we won't be receiving any more channels.
+        this._sendRemainingRoomInfo();
+        // Fake the last LIST time so that we may try again in one hour.
+        const kHour = 60 * 60 * 1000;
+        this._lastListTime = Date.now() - kListRefreshInterval + kHour;
+        return true;
+      }
+      return serverMessage(this, aMessage);
     },
 
     "265": function(aMessage) { // nonstandard
