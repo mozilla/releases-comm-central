@@ -19,18 +19,12 @@ Cu.import("resource:///modules/socket.jsm");
 Cu.import("resource:///modules/xmpp-xml.jsm");
 Cu.import("resource:///modules/xmpp-session.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "DownloadUtils", function() {
-  Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
-  return DownloadUtils;
-});
-XPCOMUtils.defineLazyGetter(this, "FileUtils", function() {
-  Components.utils.import("resource://gre/modules/FileUtils.jsm");
-  return FileUtils;
-});
-XPCOMUtils.defineLazyGetter(this, "NetUtil", function() {
-  Components.utils.import("resource://gre/modules/NetUtil.jsm");
-  return NetUtil;
-});
+XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils",
+  "resource://gre/modules/DownloadUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "FileUtils",
+  "resource://gre/modules/FileUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
+  "resource://gre/modules/NetUtil.jsm");
 XPCOMUtils.defineLazyServiceGetter(this, "imgTools",
                                    "@mozilla.org/image/tools;1",
                                    "imgITools");
