@@ -11,8 +11,6 @@ Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/socket.jsm");
 
-const kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
-
 /*
  * Parses a raw IRC message into an object (see section 2.3 of RFC 2812). This
  * returns an object with the following fields:
