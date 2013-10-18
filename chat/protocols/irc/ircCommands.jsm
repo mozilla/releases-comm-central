@@ -337,9 +337,14 @@ var commands = [
     name: "ping",
     get helpString() _("command.ping", "ping"),
     run: function(aMsg, aConv) {
-      if (!aMsg || !aMsg.trim().length)
-        return false;
-      ctcpCommand(aConv, aMsg, "PING");
+      // Send a ping to the entered nick using the current time (in
+      // milliseconds) as the param. If no nick is entered, ping the
+      // server.
+      if (aMsg && aMsg.trim().length)
+        ctcpCommand(aConv, aMsg, "PING", Date.now());
+      else
+        getAccount(aConv).sendMessage("PING", Date.now());
+
       return true;
     }
   },

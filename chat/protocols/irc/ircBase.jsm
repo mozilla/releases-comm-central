@@ -276,9 +276,16 @@ var ircBase = {
     },
     "PONG": function(aMessage) {
       // PONG <server> [ <server2> ]
+      let pongTime = aMessage.params[1];
+
       // Ping to keep the connection alive.
-      this._socket.cancelDisconnectTimer();
-      return true;
+      if (pongTime.startsWith("_")) {
+        this._socket.cancelDisconnectTimer();
+        return true;
+      }
+      // Otherwise, the ping was from a user command.
+      else
+        return this.handlePingReply(aMessage.servername, pongTime);
     },
     "PRIVMSG": function(aMessage) {
       // PRIVMSG <msgtarget> <text to be sent>

@@ -11,6 +11,9 @@ Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/socket.jsm");
 
+XPCOMUtils.defineLazyModuleGetter(this, "PluralForm",
+  "resource://gre/modules/PluralForm.jsm");
+
 /*
  * Parses a raw IRC message into an object (see section 2.3 of RFC 2812). This
  * returns an object with the following fields:
@@ -636,8 +639,10 @@ ircSocket.prototype = {
   _converter: null,
 
   sendPing: function() {
-    // Send a ping using the current timestamp as a payload.
-    this._account.sendMessage("PING", Date.now());
+    // Send a ping using the current timestamp as a payload prefixed with
+    // an underscore to signify this was an "automatic" PING (used to avoid
+    // socket timeouts).
+    this._account.sendMessage("PING", "_" + Date.now());
   },
 
   _initCharsetConverter: function() {
@@ -1210,6 +1215,34 @@ ircAccount.prototype = {
   
     this.LOG(aOldNick + " is already in use, trying " + newNick);
     this.sendMessage("NICK", newNick); // Nick message.
+    return true;
+  },
+
+  handlePingReply: function(aSource, aPongTime) {
+    // Received PING response, display to the user.
+    let sentTime = new Date(parseInt(aPongTime, 10));
+
+    // The received timestamp is invalid.
+    if (isNaN(sentTime)) {
+      this.WARN(aMessage.servername +
+                " returned an invalid timestamp from a PING: " + aPongTime);
+      return false;
+    }
+
+    // Find the delay in milliseconds.
+    let delay = Date.now() - sentTime;
+
+    // If the delay is negative or greater than 1 minute, something is
+    // feeding us a crazy value. Don't display this to the user.
+    if (delay < 0 || 60 * 1000 < delay) {
+      this.WARN(aMessage.servername +
+                " returned an invalid delay from a PING: " + delay);
+      return false;
+    }
+
+    let msg = PluralForm.get(delay, _("message.ping", aSource))
+                        .replace("#2", delay);
+    this.getConversation(aSource).writeMessage(aSource, msg, {system: true});
     return true;
   },
 

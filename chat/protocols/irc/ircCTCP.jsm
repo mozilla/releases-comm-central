@@ -17,11 +17,6 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "PluralForm", function() {
-  Cu.import("resource://gre/modules/PluralForm.jsm");
-  return PluralForm;
-});
-
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>
 // The high level dequote is to unescape \001 in the message content.
@@ -147,36 +142,17 @@ var ctcpBase = {
 
     // Used to measure the delay of the IRC network between clients.
     "PING": function(aMessage) {
+      // PING timestamp
       if (aMessage.command == "PRIVMSG") {
-        // PING timestamp
         // Received PING request, send PING response.
         this.LOG("Received PING request from " + aMessage.nickname +
                  ". Sending PING response: \"" + aMessage.ctcp.param + "\".");
         this.sendCTCPMessage("PING", aMessage.ctcp.param, aMessage.nickname,
-                              true);
+                             true);
+        return true;
       }
-      else {
-        // PING timestamp
-        // Received PING response, display to the user.
-        let sentTime = new Date(aMessage.ctcp.param);
-
-        // The received timestamp is invalid
-        if (isNaN(sentTime)) {
-          this.WARN(aMessage.nickname +
-                    " returned an invalid timestamp from a CTCP PING: " +
-                    aMessage.ctcp.param);
-          return false;
-        }
-
-        // Find the delay in seconds.
-        let delay = (Date.now() - sentTime) / 1000;
-
-        let message = PluralForm.get(delay, _("ctcp.ping", aMessage.nickname))
-                                .replace("#2", delay);
-        this.getConversation(aMessage.nickname)
-            .writeMessage(aMessage.nickname, message, {system: true});
-      }
-      return true;
+      else
+        return this.handlePingReply(aMessage.nickname, aMessage.ctcp.param);
     },
 
     // An encryption protocol between clients without any known reference.
