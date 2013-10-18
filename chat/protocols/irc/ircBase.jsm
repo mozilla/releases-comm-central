@@ -123,46 +123,6 @@ function serverErrorMessage(aAccount, aMessage, aError) {
   return writeMessage(aAccount, aMessage, aError, "error")
 }
 
-// Try a new nick if the previous tried nick is already in use.
-function tryNewNick(aAccount, aMessage) {
-  let nickParts = /^(.+?)(\d*)$/.exec(aMessage.params[1]);
-  let newNick = nickParts[1];
-
-  // If there was not a digit at the end of the nick, just append 1.
-  let newDigits = "1";
-  // If there was a digit at the end of the nick, increment it.
-  if (nickParts[2]) {
-    newDigits = (parseInt(nickParts[2], 10) + 1).toString();
-    // If there were leading 0s, add them back on, after we've incremented (e.g.
-    // 009 --> 010).
-    for (let len = nickParts[2].length - newDigits.length; len > 0; --len)
-      newDigits = "0" + newDigits;
-  }
-  // If the nick will be too long, ensure all the digits fit.
-  if (newNick.length + newDigits.length > aAccount.maxNicknameLength) {
-    // Handle the silly case of a single letter followed by all nines.
-    if (newDigits.length == aAccount.maxNicknameLength)
-      newDigits = newDigits.slice(1);
-    newNick = newNick.slice(0, aAccount.maxNicknameLength - newDigits.length);
-  }
-  // Append the digits.
-  newNick += newDigits;
-
-  if (aAccount.normalize(newNick) == aAccount.normalize(aAccount._nickname)) {
-    // The nick we were about to try next is our current nick. This means
-    // the user attempted to change to a version of the nick with a lower or
-    // absent number suffix, and this failed.
-    let msg = _("message.nick.fail", aAccount._nickname);
-    for each (let conversation in aAccount._conversations)
-      conversation.writeMessage(aAccount._nickname, msg, {system: true});
-    return true;
-  }
-
-  aAccount.LOG(aMessage.params[1] + " is already in use, trying " + newNick);
-  aAccount.sendMessage("NICK", newNick); // Nick message.
-  return true;
-}
-
 // See RFCs 2811 & 2812 (which obsoletes RFC 1459) for a description of these
 // commands.
 var ircBase = {
@@ -1234,11 +1194,11 @@ var ircBase = {
     },
     "433": function(aMessage) { // ERR_NICKNAMEINUSE
       // <nick> :Nickname is already in use
-      return tryNewNick(this, aMessage);
+      return this.tryNewNick(aMessage.params[1]);
     },
     "436": function(aMessage) { // ERR_NICKCOLLISION
       // <nick> :Nickname collision KILL from <user>@<host>
-      return tryNewNick(this, aMessage);
+      return this.tryNewNick(aMessage.params[1]);
     },
     "437": function(aMessage) { // ERR_UNAVAILRESOURCE
       // <nick/channel> :Nick/channel is temporarily unavailable
