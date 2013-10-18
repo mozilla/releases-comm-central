@@ -27,10 +27,8 @@ Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "DownloadUtils", function() {
-  Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
-  return DownloadUtils;
-});
+XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils",
+  "resource://gre/modules/DownloadUtils.jsm");
 
 function ircRoomInfo(aName, aTopic, aParticipantCount, aAccount) {
   this.name = aName;
