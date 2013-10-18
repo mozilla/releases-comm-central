@@ -265,7 +265,7 @@ ConvStatsService.prototype = {
       delete this._addingPendingChats;
     let now = Date.now();
     if ((!this._accountsRequestingRoomInfo.size && !this._pendingChats.length) ||
-        now - this._lastUpdateNotification > 100) {
+        now - this._lastUpdateNotification > 500) {
       this._notifyObservers("updated");
       this._lastUpdateNotification = now;
     }
