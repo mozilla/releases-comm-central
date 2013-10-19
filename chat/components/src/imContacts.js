@@ -285,7 +285,7 @@ var otherContactsTag = {
   },
   observe: function(aSubject, aTopic, aData) {
     aSubject.QueryInterface(Ci.imIContact);
-    if (aTopic == "contact-tag-removed") {
+    if (aTopic == "contact-tag-removed" || aTopic == "contact-added") {
       if (!(aSubject.id in this._contacts) &&
           !(parseInt(aData) in this._hiddenTags) &&
           aSubject.getTags().every(function(t) t.id in this._hiddenTags, this))
@@ -324,6 +324,7 @@ var otherContactsTag = {
       this._hideTag(tag);
     Services.obs.addObserver(this, "contact-tag-added", false);
     Services.obs.addObserver(this, "contact-tag-removed", false);
+    Services.obs.addObserver(this, "contact-added", false);
     Services.obs.addObserver(this, "contact-removed", false);
   },
 
@@ -337,14 +338,14 @@ var otherContactsTag = {
       aContactCount.value = contacts.length;
     return contacts;
   },
-  _addContact: function (aContact) {
+  _addContact: function(aContact) {
     this._contacts[aContact.id] = aContact;
     this.notifyObservers(aContact, "contact-moved-in");
     for each (let observer in ContactsById[aContact.id]._observers)
       observer.observe(this, "contact-moved-in", null);
     aContact.addObserver(this._observer);
   },
-  _removeContact: function (aContact) {
+  _removeContact: function(aContact) {
     delete this._contacts[aContact.id];
     aContact.removeObserver(this._observer);
     this.notifyObservers(aContact, "contact-moved-out");
