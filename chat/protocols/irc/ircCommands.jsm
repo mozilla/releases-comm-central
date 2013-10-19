@@ -137,11 +137,13 @@ var commands = [
   {
     name: "deop",
     get helpString() _("command.deop", "deop"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) setMode(aMsg, aConv, "o", false)
   },
   {
     name: "devoice",
     get helpString() _("command.devoice", "devoice"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) setMode(aMsg, aConv, "v", false)
   },
   {
@@ -207,6 +209,7 @@ var commands = [
   {
     name: "kick",
     get helpString() _("command.kick", "kick"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: kickCommand
   },
   {
@@ -318,6 +321,7 @@ var commands = [
   {
     name: "op",
     get helpString() _("command.op", "op"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) setMode(aMsg, aConv, "o", true)
   },
   {
@@ -328,6 +332,7 @@ var commands = [
   {
     name: "part",
     get helpString() _("command.part", "part"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function (aMsg, aConv) {
       getConv(aConv).part(aMsg);
       return true;
@@ -380,6 +385,7 @@ var commands = [
   {
     name: "remove",
     get helpString() _("command.kick", "remove"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: kickCommand
   },
   {
@@ -390,6 +396,7 @@ var commands = [
   {
     name: "topic",
     get helpString() _("command.topic", "topic"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
       aConv.topic = aMsg;
       return true;
@@ -413,6 +420,7 @@ var commands = [
   {
     name: "voice",
     get helpString() _("command.voice", "voice"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) setMode(aMsg, aConv, "v", true)
   },
   {
