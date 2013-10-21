@@ -131,16 +131,20 @@ var joinChat = {
 
       let prefBranch =
         Services.prefs.getBranch("messenger.account." + account.id + ".");
-      let autojoin = [ ];
+      let autojoin = [];
       if (prefBranch.prefHasUserValue(autoJoinPref)) {
-        let prefValue = prefBranch.getCharPref(autoJoinPref);
+        let prefValue =
+          prefBranch.getComplexPref(autoJoinPref, Ci.nsISupportsString).data;
         if (prefValue)
           autojoin = prefValue.split(",");
       }
 
       if (autojoin.indexOf(name) == -1) {
         autojoin.push(name);
-        prefBranch.setCharPref(autoJoinPref, autojoin.join(","));
+        let str = Cc["@mozilla.org/supports-string;1"]
+                    .createInstance(Ci.nsISupportsString);
+        str.data = autojoin.join(",");
+        prefBranch.setComplexPref(autoJoinPref, Ci.nsISupportsString, str);
       }
     }
 

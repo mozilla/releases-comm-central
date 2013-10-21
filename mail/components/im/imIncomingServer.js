@@ -75,14 +75,17 @@ imIncomingServer.prototype = {
   get autojoin() {
     try {
       let prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
-      return Services.prefs.getCharPref(prefName);
+      return Services.prefs.getComplexValue(prefName, Ci.nsISupportsString).data;
     } catch (e) {
       return "";
     }
   },
   set autojoin(aAutojoin) {
     let prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
-    Services.prefs.setCharPref(prefName, aAutojoin);
+    let str = Cc["@mozilla.org/supports-string;1"]
+                .createInstance(Ci.nsISupportsString);
+    str.data = aAutoJoin;
+    Services.prefs.setComplexValue(prefName, Ci.nsISupportsString, str);
   },
 
   // This is used for user-visible advanced preferences.
