@@ -4,27 +4,6 @@
 
 ifdef COMM_BUILD
 
-ifndef MOZILLA_DIR
-MOZILLA_DIR = $(MOZILLA_SRCDIR)
-endif
-include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/package-name.mk
-
-TIERS += app
-
-ifdef MOZ_BRANDING_DIRECTORY
-tier_app_dirs += $(MOZ_BRANDING_DIRECTORY)
-else
-tier_app_dirs += instantbird/branding/nightly
-endif
-
-tier_app_dirs += \
-  chat \
-  purple \
-  instantbird \
-  $(NULL)
-
-endif
-
 BUILD_YEAR := $(shell echo $(BUILDID) | cut -c 1-4)
 BUILD_MONTH := $(shell echo $(BUILDID) | cut -c 5-6)
 BUILD_DAY := $(shell echo $(BUILDID) | cut -c 7-8)
@@ -125,13 +104,6 @@ ifdef UPLOAD_CMD
 	$(MAKE) upload
 endif
 
-upload:
-ifdef UPLOAD_CMD
-	$(PRE_UPLOAD_CMD)
-	$(UPLOAD_CMD)
-	$(POST_UPLOAD_CMD)
-endif
-
 installer:
 	@$(MAKE) -C instantbird/installer installer
 
@@ -144,7 +116,16 @@ package:
 install::
 	@$(MAKE) -C instantbird/installer install
 
+upload:
+ifdef UPLOAD_CMD
+	$(PRE_UPLOAD_CMD)
+	$(UPLOAD_CMD)
+	$(POST_UPLOAD_CMD)
+endif
+
 ib::
 	@$(MAKE) -C chat export libs
 	@$(MAKE) -C purple export libs
 	@$(MAKE) -C instantbird libs
+
+endif # COMM_BUILD

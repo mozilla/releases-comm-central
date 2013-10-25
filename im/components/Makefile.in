@@ -9,10 +9,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-ifneq ($(MOZ_WIDGET_TOOLKIT),cocoa)
-DIRS = mintrayr
-endif
-
 EXTRA_COMPONENTS = \
 	contentHandler.js contentHandler.manifest \
 	ibCommandLineHandler.manifest \

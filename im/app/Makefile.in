@@ -37,8 +37,6 @@ ifdef MOZILLA_OFFICIAL
 DEFINES += -DOFFICIAL_BUILD=1
 endif
 
-DIRS		= profile
-
 PREF_JS_EXPORTS = \
     $(srcdir)/profile/all-instantbird.js \
     $(srcdir)/profile/channel-prefs.js \
