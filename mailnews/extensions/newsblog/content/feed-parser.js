@@ -120,7 +120,6 @@ FeedParser.prototype =
         continue;
       let item = new FeedItem();
       item.feed = aFeed;
-      item.characterSet = "UTF-8";
       item.enclosures = [];
 
       tags = this.childrenByTagNameNS(itemNode, nsURI, "link");
@@ -156,17 +155,33 @@ FeedParser.prototype =
         }
 
         item.id = guid;
-        item.isStoredWithId = true;
       }
 
       item.url = (guid && isPermaLink) ? guid : link ? link : null;
       tags = this.childrenByTagNameNS(itemNode, nsURI, "description");
       item.description = this.getNodeValue(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, nsURI, "title");
-      item.title = this.getNodeValue(tags ? tags[0] : null) ||
-                   (item.description ?
-                      this.stripTags(item.description).substr(0, 150) : null) ||
-                   item.title;
+      item.title = this.getNodeValue(tags ? tags[0] : null);
+      if (!(item.title || item.description))
+      {
+        FeedUtils.log.info("FeedParser.parseAsRSS2: <item> missing mandatory " +
+                           "element, either <title> or <description>; skipping");
+        continue;
+      }
+
+      if (!item.id)
+      {
+        // At this point, if there is no guid, uniqueness cannot be guaranteed
+        // by any of link or date (optional) or title (optional unless there
+        // is no description). Use a big chunk of description; minimize dupes
+        // with url and title if present.
+        item.id = (item.url || item.feed.url) + "#" + item.title + "#" +
+                  (this.stripTags(item.description.substr(0, 150)) || item.title);
+        item.id = item.id.replace(/[\n\r\t\s]+/g, " ");
+      }
+
+      if (!item.title)
+        item.title = this.stripTags(item.description).substr(0, 150);
 
       tags = this.childrenByTagNameNS(itemNode, nsURI, "author");
       if (!tags)
@@ -179,9 +194,6 @@ FeedParser.prototype =
       if (!tags || !this.getNodeValue(tags[0]))
         tags = this.childrenByTagNameNS(itemNode, FeedUtils.DC_NS, "date");
       item.date = this.getNodeValue(tags ? tags[0] : null) || item.date;
-
-      if (!item.id)
-        item.id = item.feed.url + "#" + (item.date || item.title);
 
       // If the date is invalid, users will see the beginning of the epoch
       // unless we reset it here, so they'll see the current time instead.
@@ -271,21 +283,28 @@ FeedParser.prototype =
       let itemResource = items.getNext().QueryInterface(Ci.nsIRDFResource);
       let item = new FeedItem();
       item.feed = aFeed;
-      item.characterSet = "UTF-8";
 
       // Prefer the value of the link tag to the item URI since the URI could be
       // a relative URN.
       let uri = itemResource.Value;
       let link = this.getRDFTargetValue(ds, itemResource, FeedUtils.RSS_LINK);
       item.url = link || uri;
-      item.id = item.url;
       item.description = this.getRDFTargetValue(ds, itemResource,
                                                 FeedUtils.RSS_DESCRIPTION);
       item.title = this.getRDFTargetValue(ds, itemResource, FeedUtils.RSS_TITLE) ||
                    this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_SUBJECT) ||
                    (item.description ?
-                     (this.stripTags(item.description).substr(0, 150)) : null) ||
-                   item.title;
+                     (this.stripTags(item.description).substr(0, 150)) : null);
+      if (!item.url || !item.title)
+      {
+        FeedUtils.log.info("FeedParser.parseAsRSS1: <item> missing mandatory " +
+                           "element <item rdf:about> and <link>, or <title> and " +
+                           "no <description>; skipping");
+        continue;
+      }
+
+      item.id = item.url;
+
       item.author = this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_CREATOR) ||
                     this.getRDFTargetValue(ds, channel, FeedUtils.DC_CREATOR) ||
                     aFeed.title ||
@@ -337,7 +356,6 @@ FeedParser.prototype =
         continue;
       let item = new FeedItem();
       item.feed = aFeed;
-      item.characterSet = "UTF-8";
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "link");
       item.url = this.findAtomLink("alternate", tags);
@@ -348,8 +366,14 @@ FeedParser.prototype =
       item.description = this.getNodeValue(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "title");
       item.title = this.getNodeValue(tags ? tags[0] : null) ||
-                   (item.description ? item.description.substr(0, 150) : null) ||
-                   item.title;
+                   (item.description ? item.description.substr(0, 150) : null);
+      if (!item.title || !item.id)
+      {
+        // We're lenient about other mandatory tags, but insist on these.
+        FeedUtils.log.info("FeedParser.parseAsAtom: <entry> missing mandatory " +
+                           "element <id>, or <title> and no <summary>; skipping");
+        continue;
+      }
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "author");
       if (!tags)
@@ -461,8 +485,6 @@ FeedParser.prototype =
         continue;
       let item = new FeedItem();
       item.feed = aFeed;
-      item.characterSet = "UTF-8";
-      item.isStoredWithId = true;
       item.enclosures = [];
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
@@ -474,8 +496,14 @@ FeedParser.prototype =
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "title");
       item.title = this.stripTags(this.serializeTextConstruct(tags ? tags[0] : null) ||
                                   (item.description ?
-                                     item.description.substr(0, 150) : null) ||
-                                  item.title);
+                                     item.description.substr(0, 150) : null));
+      if (!item.title || !item.id)
+      {
+        // We're lenient about other mandatory tags, but insist on these.
+        FeedUtils.log.info("FeedParser.parseAsAtom: <entry> missing mandatory " +
+                           "element <id>, or <title> and no <summary>; skipping");
+        continue;
+      }
 
       // XXX Support multiple authors.
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "source");
