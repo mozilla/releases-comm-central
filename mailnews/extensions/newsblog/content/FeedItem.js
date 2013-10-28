@@ -109,6 +109,9 @@ FeedItem.prototype =
 
     let stored = false;
     let resource = this.findStoredResource();
+    if (!this.feed.folder)
+      return stored;
+
     if (resource == null)
     {
       resource = FeedUtils.rdf.GetResource(this.itemUniqueURI);

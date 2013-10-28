@@ -67,15 +67,6 @@ Feed.prototype =
 
   get folder()
   {
-    if (!this.mFolder)
-    {
-      try
-      {
-        this.mFolder = this.server.rootMsgFolder.getChildNamed(this.name);
-      }
-      catch (ex) {}
-    }
-
     return this.mFolder;
   },
 
@@ -86,22 +77,24 @@ Feed.prototype =
 
   get name()
   {
+    // Used for the feed's title in Subcribe dialog and opml export.
     let name = this.title || this.description || this.url;
-    if (!name)
-      throw new Error("Feed.name: couldn't compute name, as feed has no title, " +
-                      "description, or URL.");
+    return name.replace(/[\n\r\t]+/g, " ").replace(/[\x00-\x1F]+/g, "");
+  },
 
-    // Make sure the feed name doesn't have any line breaks, since we're going
-    // to use it as the name of the folder in the filesystem.  This may not
-    // be necessary, since Mozilla's mail code seems to handle other forbidden
-    // characters in filenames and can probably handle these as well.
-    name = name.replace(/[\n\r\t]+/g, " ");
+  get folderName()
+  {
+    if (this.mFolderName)
+      return this.mFolderName;
 
-    // Make sure the feed doesn't end in a period to work around bug 117840.
-    // Remove leading/trailing spaces for bug 547543.
-    name = name.replace(/\.+$/, "").trim();
-
-    return name;
+    // Get a unique sanitized name. Use title or description as a base;
+    // these are mandatory by spec. Length of 80 is plenty.
+    let folderName = (this.title || this.description).substr(0,80);
+    let defaultName = FeedUtils.strings.GetStringFromName("ImportFeedsNew");
+    return this.mFolderName = FeedUtils.getSanitizedFolderName(this.server.rootMsgFolder,
+                                                               folderName,
+                                                               defaultName,
+                                                               true);
   },
 
   download: function(aParseItems, aCallback)
@@ -449,15 +442,18 @@ Feed.prototype =
       return;
 
     try {
-      this.folder = this.server.rootMsgFolder.
-                                QueryInterface(Ci.nsIMsgLocalMailFolder).
-                                createLocalSubfolder(this.name);
+      this.folder = this.server.rootMsgFolder
+                               .QueryInterface(Ci.nsIMsgLocalMailFolder)
+                               .createLocalSubfolder(this.folderName);
     }
     catch (ex) {
       // An error creating.
-      FeedUtils.log.error("Feed.createFolder: error creating folder - '"+
-                          this.name+"' in parent folder "+
+      FeedUtils.log.info("Feed.createFolder: error creating folder - '"+
+                          this.folderName+"' in parent folder "+
                           this.server.rootMsgFolder.filePath.path + " -- "+ex);
+      // But its remnants are still there, clean up.
+      let xfolder = this.server.rootMsgFolder.getChildNamed(this.folderName);
+      this.server.rootMsgFolder.propagateDelete(xfolder, true, null);
     }
   },
 
@@ -475,8 +471,11 @@ Feed.prototype =
 
     if (!this.itemsToStore || !this.itemsToStore.length)
     {
+      let code = FeedUtils.kNewsBlogSuccess;
       this.createFolder();
-      this.cleanupParsingState(this, FeedUtils.kNewsBlogSuccess);
+      if (!this.folder)
+        code = FeedUtils.kNewsBlogFileError;
+      this.cleanupParsingState(this, code);
       return;
     }
 
@@ -484,6 +483,12 @@ Feed.prototype =
 
     if (item.store())
       this.itemsStored++;
+
+    if (!this.folder)
+    {
+      this.cleanupParsingState(this, FeedUtils.kNewsBlogFileError);
+      return;
+    }
 
     this.itemsToStoreIndex++;
 

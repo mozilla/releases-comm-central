@@ -85,6 +85,7 @@ var FeedUtils = {
   // There are no new articles for this feed
   kNewsBlogNoNewItems: 4,
   kNewsBlogCancel: 5,
+  kNewsBlogFileError: 6,
 
   CANCEL_REQUESTED: false,
 
@@ -263,8 +264,10 @@ var FeedUtils = {
  * @return array of urls, or null if none.
  */
   getFeedUrlsInFolder: function(aFolder) {
-    if (aFolder.isServer || aFolder.getFlag(Ci.nsMsgFolderFlags.Trash))
-      // There are never any feedUrls in the account folder or trash folder.
+    if (aFolder.isServer || aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+        !aFolder.filePath.exists())
+      // There are never any feedUrls in the account folder or trash folder or
+      // in a ghost folder (nonexistant on disk yet found in aFolder.subFolders).
       return null;
 
     let feedUrlArray = [];
@@ -416,6 +419,56 @@ var FeedUtils = {
                            .replace(this.kFeedUrlDelimiter + "file://",
                                     "\x01file://", "g");
     return urlStr.split("\x01");
+  },
+
+/**
+ * When subscribing to feeds by dnd on, or adding a url to, the account
+ * folder (only), or creating folder structure via opml import, a subfolder is
+ * autocreated and thus the derived/given name must be sanitized to prevent
+ * filesystem errors. Hashing invalid chars based on OS rather than filesystem
+ * is not strictly correct.
+ *
+ * @param  nsIMsgFolder aParentFolder - parent folder
+ * @param  string       aProposedName - proposed name
+ * @param  string       aDefaultName  - default name if proposed sanitizes to
+ *                                      blank, caller ensures sane value
+ * @param  bool         aUnique       - if true, return a unique indexed name.
+ * @return string                     - sanitized unique name
+ */
+  getSanitizedFolderName: function(aParentFolder, aProposedName, aDefaultName, aUnique) {
+    // Clean up the name for the strictest fs (fat) and to ensure portability.
+    // 1) Replace line breaks and tabs '\n\r\t' with a space.
+    // 2) Remove nonprintable ascii.
+    // 3) Remove invalid win chars '* | \ / : < > ? "'.
+    // 4) Remove all '.' as starting/ending with one is trouble on osx/win.
+    let folderName = aProposedName.replace(/[\n\r\t]+/g, " ")
+                                  .replace(/[\x00-\x1F]+/g, "")
+                                  .replace(/[*|\\\/:<>?"]+/g, "")
+                                  .replace(/[\.]+/g, "");
+
+    // Prefix with __ if name is:
+    // 1) a reserved win filename.
+    // 2) an undeletable/unrenameable special folder name (bug 259184).
+    if (folderName.toUpperCase().match(/COM\d|LPT\d|CON|PRN|AUX|NUL|CLOCK\$/) ||
+        folderName.toUpperCase().match(/INBOX|OUTBOX|UNSENT MESSAGES|TRASH/))
+      folderName = "__" + folderName;
+
+    // Use a default if no name is found.
+    if (!folderName)
+      folderName = aDefaultName;
+
+    if (!aUnique)
+      return folderName;
+
+    // Now ensure the folder name is not a dupe; if so append index.
+    let folderNameBase = folderName;
+    let i = 2;
+    while (aParentFolder.containsChildNamed(folderName))
+    {
+      folderName = folderNameBase + "-" + i++;
+    }
+
+    return folderName;
   },
 
   getSubscriptionsDS: function(aServer) {
@@ -764,6 +817,10 @@ var FeedUtils = {
         case FeedUtils.kNewsBlogRequestFailure:
           message = FeedUtils.strings.formatStringFromName(
                       "newsblog-networkError", [feed.url], 1);
+          break;
+        case FeedUtils.kNewsBlogFileError:
+          message = FeedUtils.strings.GetStringFromName(
+                      "subscribe-errorOpeningFile");
           break;
       }
       if (message)

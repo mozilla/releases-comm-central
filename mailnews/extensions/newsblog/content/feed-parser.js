@@ -103,6 +103,13 @@ FeedParser.prototype =
     tags = this.childrenByTagNameNS(channel, nsURI, "link");
     aFeed.link = this.getNodeValue(tags ? tags[0] : null);
 
+    if (!(aFeed.title || aFeed.description) || !aFeed.link)
+    {
+      FeedUtils.log.error("FeedParser.parseAsRSS2: missing mandatory element " +
+                          "<title> and <description>, or <link>");
+      return aFeed.onParseError(aFeed);
+    }
+
     if (!aFeed.parseItems)
       return parsedItems;
 
@@ -260,6 +267,8 @@ FeedParser.prototype =
 
     // Get information about the feed as a whole.
     let channel = ds.GetSource(FeedUtils.RDF_TYPE, FeedUtils.RSS_CHANNEL, true);
+    if (!channel)
+      return aFeed.onParseError(aFeed);
 
     aFeed.title = aFeed.title ||
                   this.getRDFTargetValue(ds, channel, FeedUtils.RSS_TITLE) ||
@@ -268,6 +277,13 @@ FeedParser.prototype =
                         "";
     aFeed.link = this.getRDFTargetValue(ds, channel, FeedUtils.RSS_LINK) ||
                  aFeed.url;
+
+    if (!(aFeed.title || aFeed.description) || !aFeed.link)
+    {
+      FeedUtils.log.error("FeedParser.parseAsRSS1: missing mandatory element " +
+                          "<title> and <description>, or <link>");
+      return aFeed.onParseError(aFeed);
+    }
 
     if (!aFeed.parseItems)
       return parsedItems;
@@ -328,10 +344,7 @@ FeedParser.prototype =
     // Get the first channel (assuming there is only one per Atom File).
     let channel = aDOM.querySelector("feed");
     if (!channel)
-    {
-      aFeed.onParseError(aFeed);
-      return parsedItems;
-    }
+      return aFeed.onParseError(aFeed);
 
     let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "title");
     aFeed.title = aFeed.title ||
@@ -340,6 +353,13 @@ FeedParser.prototype =
     aFeed.description = this.getNodeValue(tags ? tags[0] : null);
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "link");
     aFeed.link = this.findAtomLink("alternate", tags);
+
+    if (!aFeed.title)
+    {
+      FeedUtils.log.error("FeedParser.parseAsAtom: missing mandatory element " +
+                          "<title>");
+      return aFeed.onParseError(aFeed);
+    }
 
     if (!aFeed.parseItems)
       return parsedItems;
@@ -455,10 +475,7 @@ FeedParser.prototype =
     // Get the first channel (assuming there is only one per Atom File).
     let channel = this.childrenByTagNameNS(aDOM, FeedUtils.ATOM_IETF_NS, "feed")[0];
     if (!channel)
-    {
-      aFeed.onParseError(aFeed);
-      return parsedItems;
-    }
+      return aFeed.onParseError(aFeed);
 
     let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "title");
     aFeed.title = aFeed.title ||
@@ -469,6 +486,13 @@ FeedParser.prototype =
 
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "link");
     aFeed.link = this.findAtomLink("alternate", tags);
+
+    if (!aFeed.title)
+    {
+      FeedUtils.log.error("FeedParser.parseAsAtomIETF: missing mandatory element " +
+                          "<title>");
+      return aFeed.onParseError(aFeed);
+    }
 
     if (!aFeed.parseItems)
       return parsedItems;
@@ -611,6 +635,8 @@ FeedParser.prototype =
 
       if (textType == "html")
         content = this.xmlUnescape(content);
+
+      content = content.trim();
     }
 
     // Other parts of the code depend on this being null if there's no content.
@@ -626,7 +652,7 @@ FeedParser.prototype =
       {
         node = node.QueryInterface(Ci.nsIRDFLiteral);
         if (node)
-          return node.Value;
+          return node.Value.trim();
       }
       catch (e)
       {

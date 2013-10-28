@@ -1217,13 +1217,20 @@ var FeedSubscriptions = {
     }
 
     let updated = false;
-    // Check to see if the title value changed.
+    // Check to see if the title value changed, no blank title allowed.
     if (feed.title != editNameValue)
     {
-      feed.title = editNameValue;
-      itemToEdit.name = editNameValue;
-      seln.tree.invalidateRow(seln.currentIndex);
-      updated = true;
+      if (!editNameValue)
+      {
+        document.getElementById("nameValue").value = feed.title;
+      }
+      else
+      {
+        feed.title = editNameValue;
+        itemToEdit.name = editNameValue;
+        seln.tree.invalidateRow(seln.currentIndex);
+        updated = true;
+      }
     }
 
     // Check to see if the quickMode value changed.
@@ -1521,6 +1528,9 @@ var FeedSubscriptions = {
         if (aErrorCode == FeedUtils.kNewsBlogRequestFailure)
           message = FeedUtils.strings.GetStringFromName(
                       "subscribe-networkError");
+        if (aErrorCode == FeedUtils.kNewsBlogFileError)
+          message = FeedUtils.strings.GetStringFromName(
+                      "subscribe-errorOpeningFile");
 
         if (win.mActionMode != win.kUpdateMode)
           // Re-enable the add button if subscribe failed.
@@ -2261,14 +2271,29 @@ var FeedSubscriptions = {
                                  folderURI    : folderURI,
                                  quickMode    : quickMode };
 
-          FeedUtils.log.debug("importOPMLOutlines: importing feed: name, url - "+
-                              outlineName + ", " + feedUrl);
+          FeedUtils.log.info("importOPMLOutlines: importing feed: name, url - "+
+                             outlineName + ", " + feedUrl);
 
           let feed = win.storeFeed(feedProperties);
           if (outline.hasAttribute("htmlUrl"))
             feed.link = outline.getAttribute("htmlUrl");
 
           feed.createFolder();
+          if (!feed.folder)
+          {
+            // Non success. Remove intermediate traces from the feeds database.
+            if (feed && feed.url && feed.server)
+              FeedUtils.deleteFeed(FeedUtils.rdf.GetResource(feed.url),
+                                   feed.server,
+                                   feed.server.rootFolder);
+            FeedUtils.log.info("importOPMLOutlines: skipping, error creating folder - '" +
+                               feed.folderName + "' from outlineName - '" +
+                               outlineName + "' in parent folder " +
+                               aParentFolder.filePath.path);
+            badTag = true;
+            break;
+          }
+
           FeedUtils.updateFolderFeedUrl(feed.folder, feed.url, false);
 
           // addFeed() adds the feed to the datasource, it also flushes the
@@ -2280,28 +2305,37 @@ var FeedSubscriptions = {
         }
         else
         {
-          // A folder outline.
+          // A folder outline. If a folder exists in the account structure at
+          // the same level as in the opml structure, feeds are placed into the
+          // existing folder.
+          let defaultName = FeedUtils.strings.GetStringFromName("ImportFeedsNew");
+          let folderName = FeedUtils.getSanitizedFolderName(aParentFolder,
+                                                            outlineName,
+                                                            defaultName,
+                                                            false);
           try {
-            feedFolder = aParentFolder.getChildNamed(outlineName);
+            feedFolder = aParentFolder.getChildNamed(folderName);
           }
           catch (ex) {
             // Folder not found, create it.
-            FeedUtils.log.debug("importOPMLOutlines: creating folder - '" +
+            FeedUtils.log.info("importOPMLOutlines: creating folder - '" +
+                                folderName + "' from outlineName - '" +
                                 outlineName + "' in parent folder " +
                                 aParentFolder.filePath.path);
             firstFeedInFolderQuickMode = null;
             try {
               feedFolder = aParentFolder.QueryInterface(Ci.nsIMsgLocalMailFolder).
-                                         createLocalSubfolder(outlineName);
+                                         createLocalSubfolder(folderName);
               folderOutlines++;
             }
             catch (ex) {
-              // An error creating.  This can happen in (rare, if user manually
-              // deletes .msf or panacea or such) cases of mismatched folder
-              // names and hashed names and files on disk.  Skip it.
-              FeedUtils.log.error("importOPMLOutlines: skipping, error creating " +
-                                  " folder - '" + outlineName +
-                                  "' in parent folder " + aParentFolder.filePath.path);
+              // An error creating. Skip it.
+              FeedUtils.log.info("importOPMLOutlines: skipping, error creating folder - '" +
+                                  folderName + "' from outlineName - '" +
+                                  outlineName + "' in parent folder " +
+                                  aParentFolder.filePath.path);
+              let xfolder = aParentFolder.getChildNamed(folderName);
+              aParentFolder.propagateDelete(xfolder, true, null);
               badTag = true;
               break;
             }
