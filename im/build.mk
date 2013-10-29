@@ -4,6 +4,11 @@
 
 ifdef COMM_BUILD
 
+ifndef MOZILLA_DIR
+MOZILLA_DIR = $(MOZILLA_SRCDIR)
+endif
+include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/package-name.mk
+
 BUILD_YEAR := $(shell echo $(BUILDID) | cut -c 1-4)
 BUILD_MONTH := $(shell echo $(BUILDID) | cut -c 5-6)
 BUILD_DAY := $(shell echo $(BUILDID) | cut -c 7-8)
