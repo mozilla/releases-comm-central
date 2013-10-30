@@ -216,11 +216,7 @@ def remap_subst(pair):
 substs = map(remap_subst, mozbuildcfg.substs)
 substs.append(('COMM_BUILD', '1'))
 
-dnl These are what we output
-files = ['config/autoconf.mk']
-headers = []
-
-__all__ = ['topobjdir', 'topsrcdir', 'defines', 'non_global_defines', 'substs', 'files', 'headers']
+__all__ = ['topobjdir', 'topsrcdir', 'defines', 'non_global_defines', 'substs']
 
 dnl Do the actual work
 if __name__ == '__main__':

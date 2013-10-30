@@ -517,10 +517,6 @@ HOST_OUTOPTION = -o # eol
 endif
 ################################################################################
 
-# SUBMAKEFILES: List of Makefiles for next level down.
-#   This is used to update or create the Makefiles before invoking them.
-SUBMAKEFILES += $(addsuffix /Makefile, $(DIRS) $(TOOL_DIRS) $(PARALLEL_DIRS))
-
 # The root makefile doesn't want to do a plain export/libs, because
 # of the tiers and because of libxul. Suppress the default rules in favor
 # of something else. Makefiles which use this var *must* provide a sensible
@@ -581,14 +577,6 @@ everything::
 # Add dummy depend target for tinderboxes
 depend::
 
-# Target to only regenerate makefiles
-makefiles: $(SUBMAKEFILES)
-ifneq (,$(DIRS)$(TOOL_DIRS)$(PARALLEL_DIRS))
-	$(LOOP_OVER_PARALLEL_DIRS)
-	$(LOOP_OVER_DIRS)
-	$(LOOP_OVER_TOOL_DIRS)
-endif
-
 #
 # Rule to create list of libraries for final link
 #
@@ -609,9 +597,6 @@ HOST_LIBS_DEPS = $(filter %.$(LIB_SUFFIX),$(HOST_LIBS))
 
 # Dependencies which, if modified, should cause everything to rebuild
 GLOBAL_DEPS += Makefile $(DEPTH)/config/autoconf.mk $(topsrcdir)/config/config.mk
-ifndef NO_MAKEFILE_RULE
-GLOBAL_DEPS += Makefile.in
-endif
 
 ##############################################
 compile:: $(MAKE_DIRS) $(OBJS) $(HOST_OBJS)
@@ -629,7 +614,7 @@ GARBAGE += $(foreach lib,$(LIBRARY),$(EXPORT_LIBRARY)/$(lib))
 endif
 endif # EXPORT_LIBRARY
 
-libs:: $(SUBMAKEFILES) $(MAKE_DIRS) $(HOST_LIBRARY) $(LIBRARY) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(HOST_PROGRAM) $(PROGRAM) $(HOST_SIMPLE_PROGRAMS) $(SIMPLE_PROGRAMS)
+libs:: $(MAKE_DIRS) $(HOST_LIBRARY) $(LIBRARY) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(HOST_PROGRAM) $(PROGRAM) $(HOST_SIMPLE_PROGRAMS) $(SIMPLE_PROGRAMS)
 ifndef NO_DIST_INSTALL
 ifdef LIBRARY
 ifdef EXPORT_LIBRARY # Stage libs that will be linked into a static build
@@ -719,12 +704,12 @@ endif # NO_PROFILE_GUIDED_OPTIMIZE
 checkout:
 	$(PYTHON) $(topsrcdir)/client.py checkout
 
-clean clobber realclean clobber_all:: $(SUBMAKEFILES)
+clean clobber realclean clobber_all::
 	-$(RM) $(ALL_TRASH)
 	-$(RM) -r $(ALL_TRASH_DIRS)
 	$(foreach dir,$(PARALLEL_DIRS) $(DIRS) $(STATIC_DIRS) $(TOOL_DIRS),-$(call SUBMAKE,$@,$(dir)))
 
-distclean:: $(SUBMAKEFILES)
+distclean::
 	$(foreach dir,$(PARALLEL_DIRS) $(DIRS) $(STATIC_DIRS) $(TOOL_DIRS),-$(call SUBMAKE,$@,$(dir)))
 	-$(RM) -r $(ALL_TRASH_DIRS)
 	-$(RM) $(ALL_TRASH)  \
@@ -1123,26 +1108,6 @@ backend.mk: $(BACKEND_INPUT_FILES)
 endif
 
 endif # MOZBUILD_DERIVED
-
-ifndef NO_MAKEFILE_RULE
-Makefile: Makefile.in
-	@$(PYTHON) $(MOZDEPTH)/config.status -n --file=Makefile
-	@$(TOUCH) $@
-endif
-
-ifndef NO_SUBMAKEFILES_RULE
-ifdef SUBMAKEFILES
-# VPATH does not work on some machines in this case, so add $(srcdir)
-$(SUBMAKEFILES): % : $(srcdir)/%.in
-	$(PYTHON) $(MOZDEPTH)/config.status -n --file="$@"
-	@$(TOUCH) $@
-endif
-endif
-
-ifdef AUTOUPDATE_CONFIGURE
-$(topsrcdir)/configure: $(topsrcdir)/configure.in
-	(cd $(topsrcdir) && $(AUTOCONF)) && $(PYTHON) $(MOZDEPTH)/config.status -n --recheck
-endif
 
 ###############################################################################
 # Bunch of things that extend the 'export' rule (in order):
@@ -1606,7 +1571,7 @@ FORCE:
 
 tags: TAGS
 
-TAGS: $(SUBMAKEFILES) $(CSRCS) $(CPPSRCS) $(wildcard *.h)
+TAGS: $(CSRCS) $(CPPSRCS) $(wildcard *.h)
 	-etags $(CSRCS) $(CPPSRCS) $(wildcard *.h)
 	$(LOOP_OVER_PARALLEL_DIRS)
 	$(LOOP_OVER_DIRS)
@@ -1715,7 +1680,7 @@ documentation:
 	$(DOXYGEN) $(DEPTH)/config/doxygen.cfg
 
 ifdef ENABLE_TESTS
-check:: $(SUBMAKEFILES) $(MAKE_DIRS)
+check:: $(MAKE_DIRS)
 	$(LOOP_OVER_PARALLEL_DIRS)
 	$(LOOP_OVER_DIRS)
 	$(LOOP_OVER_TOOL_DIRS)
