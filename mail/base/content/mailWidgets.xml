@@ -2416,17 +2416,25 @@
         <body>
           <![CDATA[
             // skip servers, Trash, Junk folders and newsgroups
-
             if (!aFolder || aFolder.isServer || !aFolder.hasNewMessages ||
                 aFolder.getFlag(Components.interfaces.nsMsgFolderFlags.Junk) ||
                 aFolder.getFlag(Components.interfaces.nsMsgFolderFlags.Trash) ||
                 (aFolder.server instanceof Components.interfaces.nsINntpIncomingServer))
               return false;
             var showPreviewText = this.Services.prefs.getBoolPref("mail.biff.alert.show_preview");
-            var folderArray = new Array;
+            let folderArray = [];
+            let msgDatabase;
+            try {
+              msgDatabase = aFolder.msgDatabase;
+            } catch(e) {
+              // The database for this folder may be missing (e.g. outdated/missing .msf),
+              // so just skip this folder.
+              return false;
+            }
+
             if (aFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)
             {
-              var dbFolderInfo = aFolder.msgDatabase.dBFolderInfo;
+              let dbFolderInfo = msgDatabase.dBFolderInfo;
               var srchFolderUri = dbFolderInfo.getCharProperty("searchFolderUri");
               var srchFolderUriArray = srchFolderUri.split('|');
               var foldersAdded = 0;
@@ -2440,14 +2448,23 @@
                   folderArray[foldersAdded++] = realFolder;
               }
             }
-            else
+            else {
               folderArray[0] = aFolder;
+            }
+
             var foundNewMsg = false;
             for (var folderIndex = 0; folderIndex < folderArray.length; folderIndex++)
             {
               aFolder = folderArray[folderIndex];
               // now get the database
-              var msgDatabase = aFolder.msgDatabase;
+              try {
+                msgDatabase = aFolder.msgDatabase;
+              } catch(e) {
+                // The database for this folder may be missing (e.g. outdated/missing .msf),
+                // then just skip this folder.
+                continue;
+              }
+
               aFolder.msgDatabase = null;
               var msgKeys = {};
               var numMsgKeys = {};
