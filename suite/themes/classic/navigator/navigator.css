@@ -256,8 +256,8 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 .urlbar-security-level[level="high"] {
-  background-color: InfoBackground;
-  color: InfoText;
+  background-color: #FFFFC7;
+  color: #000000;
 }
 
 #wrapper-nav-bar-inner[place="palette"] > #nav-bar-inner

@@ -361,6 +361,9 @@ nsBrowserStatusHandler.prototype =
                               wpl.STATE_IS_BROKEN |
                               wpl.STATE_IS_INSECURE;
 
+    var highlightSecure =
+      Services.prefs.getBoolPref("browser.urlbar.highlight.secure");
+
     /* aState is defined as a bitmask that may be extended in the future.
      * We filter out any unknown bits before testing for known values.
      */
@@ -375,13 +378,19 @@ nsBrowserStatusHandler.prototype =
           gNavigatorBundle.getFormattedString("securityButtonTooltipSecure",
                                               [issuerName]));
         this.securityButton.setAttribute("level", "high");
-        this.urlBar.setAttribute("level", "high");
+        if (highlightSecure)
+          this.urlBar.setAttribute("level", "high");
+        else
+          this.urlBar.removeAttribute("level");
         break;
       case wpl.STATE_IS_BROKEN:
         this.securityButton.setAttribute("tooltiptext",
           gNavigatorBundle.getString("securityButtonTooltipMixedContent"));
         this.securityButton.setAttribute("level", "broken");
-        this.urlBar.setAttribute("level", "broken");
+        if (highlightSecure)
+          this.urlBar.setAttribute("level", "broken");
+        else
+          this.urlBar.removeAttribute("level");
         break;
       case wpl.STATE_IS_INSECURE:
       default:
