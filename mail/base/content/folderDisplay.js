@@ -2316,24 +2316,25 @@ FolderDisplayWidget.prototype = {
   //@{
 
   /**
-   * Number of padding messages before the 'focused' message when it is at the
-   *  top of the thread pane.
-   * @private
+   * Minimum number of lines to display between the 'focused' message and the
+   *  top or bottom of the thread pane.
+   *
+   * @param aPadEnd 1 to get the number of padding rows at the top of the pane,
+   *  0 for the same at the bottom of the pane.
    */
-  TOP_VIEW_PADDING: 1,
-  /**
-   * Number of padding messages after the 'focused' message when it is at the
-   *  bottom of the thread pane and lip padding does not apply.
-   * @private
-   */
-  BOTTOM_VIEW_PADDING: 1,
+   getVisibleRowPadding:
+       function FolderDisplayWidget_getVisibleRowPadding(aPadEnd) {
+    return Services.prefs.getIntPref(aPadEnd ?
+                                     "mail.threadpane.padding.top" :
+                                     "mail.threadpane.padding.bottom");
+  },
 
   /**
-   * Ensure the given view index is visible, preferably with some padding.
+   * Ensure the given view index is visible, optionally with some padding.
    * By padding, we mean that the index will not be the first or last message
    *  displayed, but rather have messages on either side.
    * If we get near the end of the list of messages, we 'snap' to the last page
-   *  of messages.  The intent is that we later implement a
+   *  of messages.
    * We have the concept of a 'lip' when we are at the end of the message
    *  display.  If we are near the end of the display, we want to show an
    *  empty row (at the bottom) so the user knows they are at the end.  Also,
@@ -2372,16 +2373,17 @@ FolderDisplayWidget.prototype = {
 
     let target;
     // If the index is near the end, try and latch on to the bottom.
-    if (aViewIndex + span - this.TOP_VIEW_PADDING > maxIndex)
+    if ((aViewIndex + span - this.getVisibleRowPadding(1)) > maxIndex)
       target = maxIndex - span;
     // If the index is after the last visible guy (with padding), move down
     //  so that the target index is padded in 1 from the bottom.
-    else if (aViewIndex >= last - this.BOTTOM_VIEW_PADDING)
-      target = Math.min(maxIndex, aViewIndex + this.BOTTOM_VIEW_PADDING) -
+    else if (aViewIndex >= (last - this.getVisibleRowPadding(0)))
+      target = Math.min(maxIndex,
+                        (aViewIndex + this.getVisibleRowPadding(0))) -
                  span;
     // If the index is before the first visible guy (with padding), move up
-    else if (aViewIndex <= first + this.TOP_VIEW_PADDING)  // move up
-      target = Math.max(0, aViewIndex - this.TOP_VIEW_PADDING);
+    else if (aViewIndex <= (first + this.getVisibleRowPadding(1)))  // move up
+      target = Math.max(0, (aViewIndex - this.getVisibleRowPadding(1)));
     else // it is already visible
       return;
 
@@ -2424,22 +2426,23 @@ FolderDisplayWidget.prototype = {
     let span = treeBox.getPageLength() - halfVisible;
 
     // bail if the range is already visible with padding constraints handled
-    if ((first + this.TOP_VIEW_PADDING <= aMinRow) &&
-        (last - this.BOTTOM_VIEW_PADDING >= aMaxRow))
+    if (((first + this.getVisibleRowPadding(1)) <= aMinRow) &&
+        ((last - this.getVisibleRowPadding(0)) >= aMaxRow))
       return;
 
     let target;
     // if the range is bigger than we can fit, optimize position for the min row
     //  with padding to make it obvious the range doesn't extend above the row.
-    if (aMaxRow - aMinRow > span)
-      target = Math.max(0, aMinRow - this.TOP_VIEW_PADDING);
-    // So the range must fit, and it's a question of how we want to position it.
-    // For now, the answer is we try and center it, why not.
-    else {
+    if (aMaxRow - aMinRow > span) {
+      target = Math.max(0, (aMinRow - this.getVisibleRowPadding(1)));
+    } else {
+      // So the range must fit, and it's a question of how we want to position
+      //  it.  For now, the answer is we try and center it, why not.
       let rowSpan = aMaxRow - aMinRow + 1;
-      let halfSpare = parseInt((span - rowSpan - this.TOP_VIEW_PADDING -
-                                this.BOTTOM_VIEW_PADDING) / 2);
-      target = aMinRow - halfSpare - this.TOP_VIEW_PADDING;
+      let halfSpare = Math.floor((span - rowSpan -
+                                  this.getVisibleRowPadding(1) -
+                                  this.getVisibleRowPadding(0)) / 2);
+      target = aMinRow - halfSpare - this.getVisibleRowPadding(1);
     }
     treeBox.scrollToRow(target);
   },

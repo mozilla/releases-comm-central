@@ -292,6 +292,12 @@ pref("mail.operate_on_msgs_in_collapsed_threads", true);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);
 
+// When using commands like "next message" or "previous message", leave
+// at least this many visible rows above or below the selected message
+// in the thread pane.
+pref("mail.threadpane.padding.top", 1);
+pref("mail.threadpane.padding.bottom", 1);
+
 // only affects cookies from RSS articles
 // 0-Accept, 1-dontAcceptForeign, 2-dontUse
 pref("network.cookie.cookieBehavior", 0);
