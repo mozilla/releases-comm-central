@@ -559,7 +559,7 @@
           <xul:menupopup popupalign="topright" popupanchor="bottomright"
                          onpopupshowing="onPopup(this)"
                          onpopuphiding="onHide(this)">
-            <xul:timepicker-grids />
+            <xul:timepicker-grids anonid="timepickerGrids"/>
           </xul:menupopup>
         </xul:menulist>
       </xul:hbox>
@@ -578,9 +578,23 @@
             this.value = (new Date(val));
           else
             this.value = (new Date());
+
+          // Change the grids in the timepicker-grids for 12-hours time format.
+          if (this.ampmIndex) {
+            // Find the locale strings for the AM/PM prefix/suffix.
+            let amTime = new Date(2000,0,1,6,12,34);
+            let pmTime = new Date(2000,0,1,18,12,34);
+            amTime = amTime.toLocaleFormat(this.kTimeFormatString);
+            pmTime = pmTime.toLocaleFormat(this.kTimeFormatString);
+            let amLabel = this.parseTimeRegExp.exec(amTime)[this.ampmIndex] || "AM";
+            let pmLabel = this.parseTimeRegExp.exec(pmTime)[this.ampmIndex] || "PM";
+
+            document.getAnonymousElementByAttribute(this, "anonid", "timepickerGrids")
+                    .changeTo12HoursFormat(amLabel, pmLabel);
+          }
         ]]>
       </constructor>
-      
+
       <method name="update">
         <parameter name="aValue"/>
         <parameter name="aRefresh"/>
@@ -780,7 +794,7 @@
       <vbox anonid="time-picker-grids"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
         <!-- Hour Grid -->
-        <grid anonid="time-picker-hour-grid">
+        <grid anonid="time-picker-hour-grid" format12hours="false">
           <columns>
             <column class="time-picker-hour-column-class" flex="1"/>
             <column class="time-picker-hour-column-class" flex="1"/>
@@ -794,9 +808,10 @@
             <column class="time-picker-hour-column-class" flex="1"/>
             <column class="time-picker-hour-column-class" flex="1"/>
             <column class="time-picker-hour-column-class" flex="1"/>
+            <column/>
           </columns>
           <rows>
-            <row flex="1">
+            <row flex="1" class="timepicker-topRow-hour-class">
               <timepicker-hour class="time-picker-hour-box-class" value="0"
                                anonid="time-picker-hour-box-0"    label="0"/>
               <timepicker-hour class="time-picker-hour-box-class" value="1"
@@ -821,8 +836,11 @@
                                anonid="time-picker-hour-box-10"   label="10"/>
               <timepicker-hour class="time-picker-hour-box-class" value="11"
                                anonid="time-picker-hour-box-11"   label="11"/>
+              <hbox anonid="amLabelBox"  class="timepicker-amLabelBox-class" hidden="true">
+                <label/>
+              </hbox>
             </row>
-            <row flex="1">
+            <row flex="1" class="timepicker-bottomRow-hour-class">
               <timepicker-hour class="time-picker-hour-box-class" value="12"
                                anonid="time-picker-hour-box-12"   label="12"/>
               <timepicker-hour class="time-picker-hour-box-class" value="13"
@@ -847,6 +865,9 @@
                                anonid="time-picker-hour-box-22"   label="22"/>
               <timepicker-hour class="time-picker-hour-box-class" value="23"
                                anonid="time-picker-hour-box-23"   label="23"/>
+              <hbox anonid="pmLabelBox"  class="timepicker-pmLabelBox-class" hidden="true">
+                <label/>
+              </hbox>
             </row>
           </rows>
         </grid> <!-- Hour Grid -->
@@ -1358,6 +1379,29 @@
             if (minutesByFive > 59)
               minutesByFive = 55;
             return minutesByFive;
+          ]]>
+        </body>
+      </method>
+
+      <method name="changeTo12HoursFormat">
+        <parameter name="aAmLabel"/>
+        <parameter name="aPmLabel"/>
+        <body>
+          <![CDATA[
+            let amLabelBox = document.getAnonymousElementByAttribute(this, "anonid", "amLabelBox");
+            amLabelBox.removeAttribute("hidden");
+            amLabelBox.firstChild.setAttribute("value", aAmLabel);
+            let pmLabelBox = document.getAnonymousElementByAttribute(this, "anonid", "pmLabelBox");
+            pmLabelBox.removeAttribute("hidden");
+            pmLabelBox.firstChild.setAttribute("value", aPmLabel);
+            document.getAnonymousElementByAttribute(this, "anonid", "time-picker-hour-box-0")
+                    .setAttribute("label", "12");
+            for (let i = 13; i < 24; i++) {
+              document.getAnonymousElementByAttribute(this, "anonid", "time-picker-hour-box-" + i)
+                      .setAttribute("label", i-12);
+            }
+            document.getAnonymousElementByAttribute(this, "anonid", "time-picker-hour-grid")
+                    .setAttribute("format12hours", "true");
           ]]>
         </body>
       </method>
