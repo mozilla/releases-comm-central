@@ -12,6 +12,12 @@ var TodayPane = {
     start: null,
     cwlabel: null,
     previousMode:  null,
+    switchCounter: 0,
+    minidayTimer: null,
+    minidayDrag: {startX: 0,
+                  startY: 0,
+                  distance: 0,
+                  session: false},
 
     /**
      * Load Handler, sets up the today pane controls.
@@ -103,6 +109,159 @@ var TodayPane = {
     },
 
     /**
+     * Go to month/week/day views when double-clicking a label inside miniday
+     */
+    onDoubleClick: function md_onDoubleClick(aEvent) {
+        if (aEvent.button == 0) {
+            if (aEvent.target.id == "datevalue-label") {
+                switchCalendarView("day", true);
+            } else if (aEvent.target.parentNode.id == "weekdayNameContainer") {
+                switchCalendarView("day", true);
+            } else if (aEvent.target.id == "currentWeek-label") {
+                switchCalendarView("week", true);
+            } else if (aEvent.target.parentNode.id == "monthNameContainer") {
+                switchCalendarView("month", true);
+            } else {
+                return;
+            }
+            let title = document.getElementById('calendar-tab-button')
+                            .getAttribute('tooltiptext');
+            document.getElementById('tabmail').openTab('calendar', {title: title});
+            currentView().goToDay(agendaListbox.today.start);
+        }
+    },
+
+    /**
+     * Set conditions about start dragging on day-label or start switching
+     * with time on navigation buttons.
+     */
+    onMousedown: function md_onMousedown(aEvent, aDir) {
+        if (aEvent.button != 0) {
+            return;
+        }
+        let element = aEvent.target;
+        if (element.id == "previous-day-button" ||
+             element.id == "next-day-button") {
+            // Start switching days by pressing, without release, the navigation buttons
+            element.addEventListener("mouseout", TodayPane.stopSwitching, false);
+            element.addEventListener("mouseup", TodayPane.stopSwitching, false);
+            TodayPane.minidayTimer = setTimeout(TodayPane.updateAdvanceTimer.bind(TodayPane, Event, aDir), 500);
+        } else if (element.id == "datevalue-label") {
+            // Start switching days by dragging the mouse with a starting point on the day label
+            window.addEventListener("mousemove", TodayPane.onMousemove, false);
+            window.addEventListener("mouseup", TodayPane.stopSwitching, false);
+            TodayPane.minidayDrag.startX = aEvent.clientX;
+            TodayPane.minidayDrag.startY = aEvent.clientY;
+        }
+    },
+
+    /**
+     * Figure out the mouse distance from the center of the day's label
+     * to the current position.
+     *
+     * NOTE: This function is usually called without the correct this pointer.
+     */
+    onMousemove: function md_onMousemove(aEvent) {
+        const MIN_DRAG_DISTANCE_SQ = 49;
+        let x = aEvent.clientX - TodayPane.minidayDrag.startX;
+        let y = aEvent.clientY - TodayPane.minidayDrag.startY;
+        if (TodayPane.minidayDrag.session) {
+            if (x*x + y*y >= MIN_DRAG_DISTANCE_SQ) {
+                let distance = Math.floor(Math.sqrt(x*x + y*y) - Math.sqrt(MIN_DRAG_DISTANCE_SQ));
+                // Dragging on the left/right side, the day date decrease/increase
+                TodayPane.minidayDrag.distance = (x > 0) ? distance : -distance;
+            } else {
+                TodayPane.minidayDrag.distance = 0;
+            }
+        } else {
+            // move the mouse a bit before starting the drag session
+            if (x*x + y*y > 9) {
+                window.addEventListener("mouseout", TodayPane.stopSwitching, false);
+                TodayPane.minidayDrag.session = true;
+                let dragCenterImage = document.getElementById("dragCenter-image");
+                dragCenterImage.removeAttribute("hidden");
+                // Move the starting point in the center so we have a fixed
+                // point where stopping the day switching while still dragging
+                let centerObj = dragCenterImage.boxObject;
+                TodayPane.minidayDrag.startX = Math.floor(centerObj.x + centerObj.width/2);
+                TodayPane.minidayDrag.startY = Math.floor(centerObj.y + centerObj.height/2);
+
+                TodayPane.updateAdvanceTimer();
+            }
+        }
+    },
+
+    /**
+     * Figure out the days switching speed according to the position (when
+     * dragging) or time elapsed (when pressing buttons).
+     */
+    updateAdvanceTimer: function md_updateAdvanceTimer(aEvent, aDir) {
+        const INITIAL_TIME = 400;
+        const REL_DISTANCE = 8;
+        const MINIMUM_TIME = 100;
+        const ACCELERATE_COUNT_LIMIT = 7;
+        const SECOND_STEP_TIME = 200;
+        if (TodayPane.minidayDrag.session) {
+            // Dragging the day label: days switch with cursor distance and time.
+            let dir = (TodayPane.minidayDrag.distance > 0) - (TodayPane.minidayDrag.distance < 0);
+            TodayPane.advance(dir);
+            let distance = Math.abs(TodayPane.minidayDrag.distance);
+            // Linear relation between distance and switching speed
+            let timeInterval = Math.max(Math.ceil(INITIAL_TIME - distance * REL_DISTANCE), MINIMUM_TIME);
+            TodayPane.minidayTimer = setTimeout(TodayPane.updateAdvanceTimer.bind(TodayPane, null, null), timeInterval);
+        } else {
+            // Keeping pressed next/previous day buttons causes days switching (with
+            // three levels higher speed after some commutations).
+            TodayPane.advance(parseInt(aDir));
+            TodayPane.switchCounter++;
+            let timeInterval = INITIAL_TIME;
+            if (TodayPane.switchCounter > 2 * ACCELERATE_COUNT_LIMIT) {
+                timeInterval = MINIMUM_TIME;
+            } else if (TodayPane.switchCounter > ACCELERATE_COUNT_LIMIT) {
+                timeInterval = SECOND_STEP_TIME;
+            }
+            TodayPane.minidayTimer = setTimeout(TodayPane.updateAdvanceTimer.bind(TodayPane, aEvent, aDir), timeInterval);
+        }
+    },
+
+    /**
+     * Stop automatic days switching when releasing the mouse button or the
+     * position is outside the window.
+     *
+     * NOTE: This function is usually called without the correct this pointer.
+     */
+    stopSwitching: function stopSwitching(aEvent) {
+        let element = aEvent.target;
+        if (TodayPane.minidayDrag.session &&
+            aEvent.type == "mouseout" &&
+             element.id != "messengerWindow") {
+            return;
+        }
+        if (TodayPane.minidayTimer) {
+            clearTimeout(TodayPane.minidayTimer);
+            delete TodayPane.minidayTimer;
+            if (TodayPane.switchCounter == 0 && !TodayPane.minidayDrag.session) {
+                let dir = element.getAttribute('dir');
+                TodayPane.advance(parseInt(dir));
+            }
+        }
+        if (element.id == "previous-day-button" ||
+             element.id == "next-day-button") {
+            TodayPane.switchCounter = 0;
+            let button = document.getElementById(element.id);
+            button.removeEventListener("mouseout", TodayPane.stopSwitching, false);
+        }
+        if (TodayPane.minidayDrag.session) {
+            window.removeEventListener("mouseout", TodayPane.stopSwitching, false);
+            TodayPane.minidayDrag.distance = 0;
+            document.getElementById("dragCenter-image").setAttribute("hidden", "true");
+            TodayPane.minidayDrag.session = false;
+        }
+        window.removeEventListener("mousemove", TodayPane.onMousemove, false);
+        window.removeEventListener("mouseup", TodayPane.stopSwitching, false);
+    },
+
+    /**
      * Helper function to set the month description on the today pane header.
      *
      * @param aMonthLabel       The XUL node to set the month label on.
@@ -115,8 +274,8 @@ var TodayPane = {
         if (this.cwlabel == null) {
             this.cwlabel = cal.calGetString("calendar", "shortcalendarweek");
         }
-        return aMonthLabel.value = cal.getDateFormatter().shortMonthName(aIndex)
-          + " " + aYear +  ", " + this.cwlabel + " " +  aCalWeek;
+        document.getElementById("currentWeek-label").value = this.cwlabel + " " + aCalWeek;
+        return aMonthLabel.value = cal.getDateFormatter().shortMonthName(aIndex) + " " + aYear;
     },
 
     /**
@@ -206,8 +365,10 @@ var TodayPane = {
      *                    backwards in time.
      */
     advance: function advance(aDir) {
-        this.start.day += aDir;
-        this.setDay(this.start);
+        if (aDir != 0) {
+            this.start.day += aDir;
+            this.setDay(this.start);
+        }
     },
 
     /**
@@ -260,7 +421,7 @@ var TodayPane = {
     /**
      * Toggle the today-pane and update its visual appearance.
      *
-     * @param aEvent        The DOM event occuring on activated command.
+     * @param aEvent        The DOM event occurring on activated command.
      */
     toggleVisibility: function toggleVisbility(aEvent) {
         document.getElementById("today-pane-panel").togglePane(aEvent);

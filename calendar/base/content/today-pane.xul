@@ -78,20 +78,25 @@
                        refcontrol="ltnTodayPaneDisplayMiniday"
                        broadcaster="modeBroadcaster"
                        collapsedinmodes=""
-                       persist="collapsedinmodes">
+                       persist="collapsedinmodes"
+                       onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">
                 <stack flex="1">
                   <image id="mini-day-image" flex="1"/>
                   <hbox flex="1">
-                    <deck id="dateContainer" selectedIndex="0">
+                    <stack id="dateContainer">
                       <hbox pack="center">
-                        <label id="datevalue-label" text="55" class="dateValue"/>
+                        <label id="datevalue-label" class="dateValue"
+                               ondblclick="TodayPane.onDoubleClick(event);"
+                               onmousedown="TodayPane.onMousedown(event);"/>
                       </hbox>
-                      <label class="dateValue"/>
-                     </deck>
+                      <hbox flex="1" pack="center" align="center" mousethrough="always">
+                        <image id="dragCenter-image" hidden="true"/>
+                      </hbox>
+                    </stack>
                     <vbox flex="1">
                       <hbox pack="center">
-                        <deck id="weekdayNameContainer"
-                           pack="center">
+                        <deck id="weekdayNameContainer" pack="center"
+                              ondblclick="TodayPane.onDoubleClick(event);">
                           <label/>
                           <label/>
                           <label/>
@@ -105,7 +110,7 @@
                           <toolbarbutton id="previous-day-button"
                                          class="miniday-nav-buttons"
                                          tooltiptext="&onedaybackward.tooltip;"
-                                         oncommand="TodayPane.advance(parseInt(this.getAttribute('dir')));"
+                                         onmousedown="TodayPane.onMousedown(event, parseInt(this.getAttribute('dir')));"
                                          dir="-1"/>
                           <toolbarbutton id="today-button"
                                          class="miniday-nav-buttons"
@@ -114,12 +119,13 @@
                           <toolbarbutton id="next-day-button"
                                          class="miniday-nav-buttons"
                                          tooltiptext="&onedayforward.tooltip;"
-                                         oncommand="TodayPane.advance(parseInt(this.getAttribute('dir')));"
+                                         onmousedown="TodayPane.onMousedown(event, parseInt(this.getAttribute('dir')));"
                                          dir="1"/>
                         </hbox>
                       </hbox>
                       <hbox pack="start">
-                        <deck id ="monthNameContainer" class="monthlabel">
+                        <deck id ="monthNameContainer" class="monthlabel"
+                              ondblclick="TodayPane.onDoubleClick(event);">
                           <label/>
                           <label/>
                           <label/>
@@ -133,6 +139,8 @@
                           <label/>
                           <label/>
                         </deck>
+                        <label id="currentWeek-label" class="monthlabel"
+                               ondblclick="TodayPane.onDoubleClick(event);"/>
                         <spacer flex="1"/>
                       </hbox>
                     </vbox>

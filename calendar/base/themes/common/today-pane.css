@@ -68,6 +68,12 @@
   padding-top: 0px;
   font-size: 36px;
   font-weight: bold;
+  width: 1em;
+  text-align: center;
+}
+
+#dragCenter-image {
+  list-style-image: url("chrome://calendar/skin/widgets/drag-center.svg");
 }
 
 .miniday-nav-buttons {

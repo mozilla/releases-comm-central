@@ -141,6 +141,7 @@ calendar.jar:
     skin/calendar/widgets/nav-today-hov.svg                (themes/common/widgets/images/nav-today-hov.svg)
     skin/calendar/widgets/view-navigation.svg              (themes/common/widgets/images/view-navigation.svg)
     skin/calendar/widgets/view-navigation-hov.svg          (themes/common/widgets/images/view-navigation-hov.svg)
+    skin/calendar/widgets/drag-center.svg                  (themes/common/widgets/images/drag-center.svg)
     skin/calendar/common/calendar-daypicker.css            (themes/common/calendar-daypicker.css)
     skin/calendar/common/calendar-management.css           (themes/common/calendar-management.css)
     skin/calendar/common/calendar-task-view.css            (themes/common/calendar-task-view.css)
