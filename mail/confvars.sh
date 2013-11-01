@@ -29,10 +29,6 @@ MOZ_MEDIA_NAVIGATOR=1
 MOZ_MORK=1
 MAIL_COMPONENT="mail import"
 MAIL_MODULE="MODULE(nsMailModule) MODULE(nsImportServiceModule)"
-if test -n "$MOZ_MAPI_SUPPORT"; then
-  MAIL_COMPONENT="$MAIL_COMPONENT msgMapi"
-  MAIL_MODULE="$MAIL_MODULE MODULE(msgMapiModule)"
-fi
 
 MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
 MOZ_APP_VERSION=`cat $MOZ_APP_VERSION_TXT`
