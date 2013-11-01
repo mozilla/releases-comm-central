@@ -485,8 +485,9 @@ nsFolderCompactState::FinishCompact()
   }
 
   NS_WARN_IF_FALSE(msfRenameSucceeded, "compact failed");
-  rv = ReleaseFolderLock();
-  NS_WARN_IF_FALSE(NS_SUCCEEDED(rv),"folder lock not released successfully");
+  nsresult rvReleaseFolderLock = ReleaseFolderLock();
+  NS_WARN_IF_FALSE(NS_SUCCEEDED(rvReleaseFolderLock),"folder lock not released successfully");
+  rv = NS_FAILED(rv) ? rv : rvReleaseFolderLock;
 
   // Cleanup of nstmp-named compacted files if failure
   if (!folderRenameSucceeded)
@@ -508,6 +509,9 @@ nsFolderCompactState::FinishCompact()
     NS_ENSURE_SUCCESS(rv, rv);
     rv = msgDBService->OpenFolderDB(m_folder, true, getter_AddRefs(m_db));
     NS_ENSURE_TRUE(m_db, NS_FAILED(rv) ? rv : NS_ERROR_FAILURE);
+    // These errors are expected.
+    rv = (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING ||
+          rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) ? NS_OK : rv;
     m_db->SetSummaryValid(true);
     m_folder->SetDBTransferInfo(transferInfo);
 
@@ -533,7 +537,7 @@ nsFolderCompactState::FinishCompact()
   if (m_compactAll)
     rv = CompactNextFolder();
   else
-    CompactCompleted(NS_OK);
+    CompactCompleted(rv);
       
   return rv;
 }
