@@ -706,15 +706,23 @@ ircSocket.prototype = {
     if (!this._account)
       return;
     Socket.disconnect.call(this);
-    this.onStopRequest = function() {};
     delete this._account;
   },
 
   // Throw errors if the socket has issues.
   onConnectionClosed: function() {
-    this.ERROR("Connection closed by server.");
-    this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
-                                  _("connection.error.lost"));
+    const msg = "Connection closed by server.";
+    if (this._account.disconnecting) {
+      // The server closed the connection before we handled the ERROR
+      // response to QUIT.
+      this.LOG(msg);
+      this._account.gotDisconnected();
+    }
+    else {
+      this.ERROR(msg);
+      this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
+                                    _("connection.error.lost"));
+    }
   },
   onConnectionReset: function() {
     this.ERROR("Connection reset.");

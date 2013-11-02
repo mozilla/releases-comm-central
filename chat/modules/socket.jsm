@@ -146,6 +146,9 @@ const Socket = {
     this.host = aHost;
     this.port = aPort;
 
+    this._pendingData = [];
+    delete this._stopRequestStatus;
+
     // Array of security options
     this.security = aSecurity || [];
 
@@ -177,6 +180,9 @@ const Socket = {
   disconnect: function() {
     this.LOG("Disconnect");
 
+    // Don't handle any remaining unhandled data.
+    this._pendingData = [];
+
     // Close all input and output streams.
     if ("_inputStream" in this) {
       this._inputStream.close();
@@ -203,6 +209,8 @@ const Socket = {
       delete this._resetPingTimerPending;
     }
     this.cancelDisconnectTimer();
+
+    delete this.isConnected;
   },
 
   // Listen for a connection on a port.
@@ -358,6 +366,8 @@ const Socket = {
   // onDataAvailable, called by Mozilla's networking code.
   // Buffers the data, and parses it into discrete messages.
   onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
+    if (!this.isConnected)
+      return;
     if (this.binaryMode) {
       // Load the data from the stream
       this._incomingDataBuffer = this._incomingDataBuffer
@@ -379,22 +389,54 @@ const Socket = {
 
       // Remove the handled data.
       this._incomingDataBuffer.splice(0, size);
-    } else {
+    }
+    else {
       if (this.delimiter) {
-        // Load the data from the stream
+        // Load the data from the stream.
         this._incomingDataBuffer += this._scriptableInputStream.read(aCount);
         let data = this._incomingDataBuffer.split(this.delimiter);
 
-        // Store the (possibly) incomplete part
+        // Store the (possibly) incomplete part.
         this._incomingDataBuffer = data.pop();
+        if (!data.length)
+          return;
 
-        // Send each string to the handle data function
-        data.forEach(this.onDataReceived, this);
-      } else {
-        // Send the whole string to the handle data function
-        this.onDataReceived(this._scriptableInputStream.read(aCount));
+        // Add the strings to the queue.
+        this._pendingData = this._pendingData.concat(data);
       }
+      else {
+        // Add the whole string to the queue.
+        this._pendingData.push(this._scriptableInputStream.read(aCount));
+      }
+      this._activateQueue();
     }
+  },
+
+  _pendingData: [],
+  _handlingQueue: false,
+  _activateQueue: function() {
+    if (this._handlingQueue)
+      return;
+    this._handlingQueue = true;
+    this._handleQueue();
+  },
+  // Asynchronously send each string to the handle data function.
+  _handleQueue: function() {
+    let begin = Date.now();
+    while (this._pendingData.length) {
+      this.onDataReceived(this._pendingData.shift());
+      // If more than 10ms have passed, stop blocking the thread.
+      if (Date.now() - begin > 10)
+        break;
+    }
+    if (this._pendingData.length) {
+      executeSoon(this._handleQueue.bind(this));
+      return;
+    }
+    delete this._handlingQueue;
+    // If there was a stop request, handle it.
+    if ("_stopRequestStatus" in this)
+      this._handleStopRequest(this._stopRequestStatus);
   },
 
   /*
@@ -406,7 +448,20 @@ const Socket = {
   },
   // Called to signify the end of an asynchronous request.
   onStopRequest: function(aRequest, aContext, aStatus) {
+    if (!this.isConnected) {
+      // We're already disconnected, so nothing left to do here.
+      return;
+    }
+
     this.DEBUG("onStopRequest (" + aStatus + ")");
+    this._stopRequestStatus = aStatus;
+    // The stop request will be handled when the queue is next empty.
+    this._activateQueue();
+  },
+  // Close the connection after receiving a stop request.
+  _handleStopRequest: function(aStatus) {
+    if (!this.isConnected)
+      return;
     delete this.isConnected;
     if (aStatus == NS_ERROR_NET_RESET)
       this.onConnectionReset();
