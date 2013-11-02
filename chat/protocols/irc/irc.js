@@ -685,14 +685,12 @@ ircSocket.prototype = {
 
     try {
       let message = new ircMessage(dequotedMessage);
-      let isHandled = ircHandlers.handleMessage(this._account, message);
-      message.rawMessage = aRawMessage; // Log the quoted message.
-      let logEntry = JSON.stringify(message) + conversionWarning;
-      // Log the message if it was handled, otherwise throw a warning.
-      if (isHandled)
-        this.DEBUG(logEntry);
-      else
-        this.WARN("Unhandled IRC message:\n" + logEntry);
+      this.DEBUG(JSON.stringify(message) + conversionWarning);
+      if (!ircHandlers.handleMessage(this._account, message)) {
+        // If the message was not handled, throw a warning containing
+        // the original quoted message.
+        this.WARN("Unhandled IRC message:\n" + aRawMessage);
+      }
     } catch (e) {
       // Catch the error, display it and hope the connection can continue with
       // this message in error. Errors are also caught inside of handleMessage,
