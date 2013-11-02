@@ -334,8 +334,12 @@ YahooAccount.prototype = {
 
   // Called when a user removes a contact from within Instantbird.
   removeBuddy: function(aBuddy, aRemoveFromServer) {
-    if (aRemoveFromServer)
+    if (aRemoveFromServer) {
+      // We will remove the buddy locally when we get a server ack packet.
       this._session.removeBuddyFromServer(aBuddy);
+      return;
+    }
+
     this._buddies.delete(aBuddy.userName);
     Services.contacts.accountBuddyRemoved(aBuddy);
   },

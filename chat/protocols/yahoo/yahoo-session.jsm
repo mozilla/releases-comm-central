@@ -926,6 +926,18 @@ const YahooPacketHandler = {
   // to be authenticated if we are receiving other packets anyway.
   0x57: function(aPacket) {},
 
+  // AddBuddy ack packets can be ignored. They do not depend on whether or not
+  // the buddy accepted the invite.
+  0x83: function(aPacket) {},
+
+  // RemoveBuddy ack packets let us know when we should actually remove the
+  // buddy from the list, keeping us in sync with the server.
+  0x84: function(aPacket) {
+   let buddy = this.getBuddy(aPacket.getValue(7));
+   // The buddy is off the server, so remove it locally.
+   this.removeBuddy(buddy, false);
+  },
+
   // Picture upload.
   0xc2: function(aPacket) {
     let onlineBuddies = this.getOnlineBuddies();
