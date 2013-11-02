@@ -692,8 +692,9 @@ Contact.prototype = {
     for (let i = aIndexBegin; i <= aIndexEnd; ++i) {
       statement.params.position = i;
       statement.params.buddyId = this._buddies[i].id;
-      executeAsyncThenFinalize(statement);
+      statement.executeAsync();
     }
+    statement.finalize();
   },
 
   detachBuddy: function(aBuddy) {
