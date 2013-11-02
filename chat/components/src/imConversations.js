@@ -345,7 +345,8 @@ ConversationsService.prototype = {
   },
 
   unInitConversations: function() {
-    for each (let UIConv in this._uiConv)
+    let UIConvs = this.getUIConversations();
+    for (let UIConv of UIConvs)
       UIConv.unInit();
     delete this._uiConv;
     delete this._uiConvByContactId;
@@ -406,9 +407,9 @@ ConversationsService.prototype = {
     Services.obs.notifyObservers(aPrplConversation, "conversation-closed", null);
 
     let uiConv = this.getUIConversation(aPrplConversation);
+    delete this._uiConv[aPrplConversation.id];
     let contactId = {};
     if (uiConv.removeTarget(aPrplConversation, contactId)) {
-      delete this._uiConv[aPrplConversation.id];
       if (contactId.value)
         delete this._uiConvByContactId[contactId.value];
       Services.obs.notifyObservers(uiConv, "ui-conversation-closed", null);
@@ -423,13 +424,23 @@ ConversationsService.prototype = {
   },
 
   getUIConversations: function(aConvCount) {
-    let rv = Object.keys(this._uiConv).map(function (k) this._uiConv[k], this);
+    let rv = [];
+    if (this._uiConv) {
+      for (let prplConvId in this._uiConv) {
+        // Since an UIConversation may be linked to multiple prplConversations,
+        // we must ensure we don't return the same UIConversation twice,
+        // by checking the id matches that of the active prplConversation.
+        let uiConv = this._uiConv[prplConvId];
+        if (prplConvId == uiConv.target.id)
+          rv.push(uiConv);
+      }
+    }
     aConvCount.value = rv.length;
     return rv;
   },
   getUIConversation: function(aPrplConversation) {
     let id = aPrplConversation.id;
-    if (id in this._uiConv)
+    if (this._uiConv && id in this._uiConv)
       return this._uiConv[id];
     throw "Unknown conversation";
   },
