@@ -56,7 +56,8 @@ var gLogParser = {
       aEntries = aEntries.filter(function(e) e.isDir);
       this._sweepPrpls(aEntries);
     }).bind(this), function(aError) {
-      Cu.reportError("Error while sweeping logs folder: " + logsPath + "\n" + aError);
+      if (aError instanceof OS.File.Error && !aError.becauseNoSuchFile)
+        Cu.reportError("Error while sweeping logs folder: " + logsPath + "\n" + aError);
     });
   },
 
