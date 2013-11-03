@@ -435,7 +435,8 @@ ConversationsService.prototype = {
           rv.push(uiConv);
       }
     }
-    aConvCount.value = rv.length;
+    if (aConvCount)
+      aConvCount.value = rv.length;
     return rv;
   },
   getUIConversation: function(aPrplConversation) {
