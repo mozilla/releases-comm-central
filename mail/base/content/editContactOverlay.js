@@ -169,7 +169,7 @@ var editContactInlineUI = {
   },
 
   editDetails: function() {
-    this.panel.hidePopup();
+    this.saveChanges();
 
     window.openDialog("chrome://messenger/content/addressbook/abEditCardDialog.xul",
                       "",
@@ -228,14 +228,14 @@ var editContactInlineUI = {
     else {
       // We changed address books for the card.
 
-      // Delete  it from the old place...
+      // Add it to the chosen address book...
+      this._cardDetails.book.addCard(this._cardDetails.card);
+
+      // ...and delete it from the old place.
       let cardArray = Components.classes["@mozilla.org/array;1"]
                               .createInstance(Components.interfaces.nsIMutableArray);
       cardArray.appendElement(this._cardDetails.card, false);
       originalBook.deleteCards(cardArray);
-
-      // ... and add it to the chosen address book.
-      this._cardDetails.book.addCard(this._cardDetails.card);
     }
 
     this.panel.hidePopup();
