@@ -14,6 +14,7 @@ classic.jar:
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
 #ifdef XP_MACOSX
+  skin/classic/communicator/aboutPrivateBrowsing.css                    (mac/communicator/aboutPrivateBrowsing.css)
   skin/classic/communicator/aboutSessionRestore.css                     (mac/communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (mac/communicator/button.css)
   skin/classic/communicator/communicator.css                            (mac/communicator/communicator.css)
@@ -51,6 +52,7 @@ classic.jar:
   skin/classic/communicator/toolbar/toolbar-gradient22.png              (mac/communicator/toolbar/toolbar-gradient22.png)
   skin/classic/communicator/toolbar/toolbar-gradient34.png              (mac/communicator/toolbar/toolbar-gradient34.png)
 #else
+  skin/classic/communicator/aboutPrivateBrowsing.css                    (communicator/aboutPrivateBrowsing.css)
   skin/classic/communicator/aboutSessionRestore.css                     (communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (communicator/button.css)
   skin/classic/communicator/communicator.css                            (communicator/communicator.css)

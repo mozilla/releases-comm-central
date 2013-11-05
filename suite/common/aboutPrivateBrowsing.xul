@@ -5,6 +5,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/config.css" type="text/css"?>
+<?xml-stylesheet href="chrome://communicator/skin/aboutPrivateBrowsing.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -14,7 +15,6 @@
 ]>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="about:privatebrowsing"
         id="warningScreen"
         align="center"
         onload="onLoad();">
@@ -26,37 +26,49 @@
       if (window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                 .getInterface(Components.interfaces.nsIWebNavigation)
                 .QueryInterface(Components.interfaces.nsILoadContext)
-                .usePrivateBrowsing)
-        document.getElementById("normal").hidden = true;
-      else
-        document.getElementById("private").hidden = true;
+                .usePrivateBrowsing) {
+        document.getElementById("warningBox").className = "private";
+        document.title = document.getElementById("privateTitle").textContent;
+      }
+      else {
+        document.getElementById("warningBox").className = "normal";
+        document.title = document.getElementById("normalTitle").textContent;
+      }
     }
   </script>
   <spacer flex="1"/>
-  <vbox id="warningBox">
-    <label id="warningTitle">&privatebrowsingpage.experimental;</label>
-    <vbox id="warningInnerBox" align="start">
-      <vbox id="warningText">
-        <description>&privatebrowsingpage.description;</description>
-        <description>&privatebrowsingpage.moreinfo;</description>
+  <hbox id="warningBox" align="start">
+    <image id="warningBoxIcon"/>
+    <vbox id="warningOuterBox">
+      <vbox id="warningTitle">
+        <label id="privateTitle" class="private">&privatebrowsingpage.title.private;</label>
+        <label id="normalTitle" class="normal">&privatebrowsingpage.title.normal;</label>
       </vbox>
-      <button label="&privatebrowsingpage.learnmore.label;"
-              accesskey="&privatebrowsingpage.learnmore.accesskey;"
-              oncommand="openHelp('private-browsing', 'chrome://communicator/locale/help/suitehelp.rdf');"/>
-      <vbox id="private" align="start">
-        <description>&privatebrowsingpage.private;</description>
-        <button label="&privatebrowsingpage.switch.label;"
-                accesskey="&privatebrowsingpage.switch.accesskey;"
-                oncommand="toNavigator();"/>
+      <vbox id="warningStatus">
+        <label class="private">&privatebrowsingpage.status.private;</label>
+        <label class="normal">&privatebrowsingpage.status.normal;</label>
       </vbox>
-      <vbox id="normal" align="start">
-        <description>&privatebrowsingpage.normal;</description>
-        <button label="&privatebrowsingpage.private.label;"
+      <vbox id="warningInnerBox" align="start">
+        <description id="warningText">&privatebrowsingpage.common.description;</description>
+        <hbox id="trackWarnBox" class="private">
+          <image id="trackWarnIcon"/>
+          <description flex="1">&privatebrowsingpage.track.warn;</description>
+        </hbox>
+        <button label="&privatebrowsingpage.learnmore.label;"
+                accesskey="&privatebrowsingpage.learnmore.accesskey;"
+                oncommand="openHelp('private-browsing', 'chrome://communicator/locale/help/suitehelp.rdf');"/>
+        <description class="private">&privatebrowsingpage.close.info;</description>
+        <button class="private"
+                label="&privatebrowsingpage.close.label;"
+                accesskey="&privatebrowsingpage.close.accesskey;"
+                oncommand="window.close();"/>
+        <description class="normal">&privatebrowsingpage.start.info;</description>
+        <button class="normal"
+                label="&privatebrowsingpage.private.label;"
                 accesskey="&privatebrowsingpage.private.accesskey;"
                 oncommand="openNewPrivateWith(location.href);"/>
-        <description>&privatebrowsingpage.info;</description>
       </vbox>
     </vbox>
-  </vbox>
+  </hbox>
   <spacer flex="2"/>
 </window>
