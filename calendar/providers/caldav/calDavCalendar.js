@@ -2180,7 +2180,7 @@ calDavCalendar.prototype = {
                 thisCalendar.completeCheckServerInfo(aChangeLogListener);
             }
         };
-        this.sendHttpRequest(this.makeUri(), queryXml, MIME_TEXT_XML, null, (channel) => {
+        this.sendHttpRequest(requestUri, queryXml, MIME_TEXT_XML, null, (channel) => {
             if (queryDepth == 0) {
                 // Set header, doing this for Depth: 1 is not needed since thats the
                 // default.
@@ -2749,11 +2749,11 @@ calDavCalendar.prototype = {
                 }
             };
 
+            let uploadData = serializer.serializeToString();
+            let requestUri = this.makeUri(null, this.outboxUrl);
             if (this.verboseLogging()) {
                 cal.LOG("CalDAV: send(" + requestUri.spec + "): " + uploadData);
             }
-            let uploadData = serializer.serializeToString();
-            let requestUri = this.makeUri(null, this.outboxUrl);
             this.sendHttpRequest(requestUri, uploadData, MIME_TEXT_CALENDAR, null, (channel) => {
                 channel.requestMethod = "POST";
                 channel.setRequestHeader("Originator", this.calendarUserAddress, false);
