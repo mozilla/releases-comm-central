@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Timer.jsm");
 
 /**
  * This is a handler for the etag request in calDavCalendar.js' getUpdatedItem.
@@ -313,6 +314,7 @@ webDavSyncHandler.prototype = {
     unhandledErrors : 0,
     itemsReported: null,
     itemsNeedFetching: null,
+    additionalSyncNeeded: false,
 
     QueryInterface: XPCOMUtils.generateQI([
         Components.interfaces.nsISAXContentHandler,
@@ -497,6 +499,7 @@ webDavSyncHandler.prototype = {
                                                    this.calendar,
                                                    this.baseUri,
                                                    this.newSyncToken,
+                                                   this.additionalSyncNeeded,
                                                    null,
                                                    this.changeLogListener)
             multiget.doMultiGet();
@@ -587,16 +590,26 @@ webDavSyncHandler.prototype = {
                         // Etag mismatch, getting new/updated item.
                         this.itemsNeedFetching.push(r.href);
                     }
-                // If the response element is still not handled, log an error
-                // only if the content-type is text/calendar or the
-                // response status is different than 404 not found.
-                // We don't care about response elements
-                // on non-calendar resources or whose status is not indicating
-                // a deleted resource.
+                } else if (r.status.indexOf(" 507") > -1) {
+                    // webdav-sync says that if a 507 is encountered and the
+                    // url matches the request, the current token should be
+                    // saved and another request should be made. We don't
+                    // actually compare the URL, its too easy to get this
+                    // wrong.
+
+                    // The 507 doesn't mean the data received is invalid, so
+                    // continue processing.
+                    this.additionalSyncNeeded = true;
                 } else if ((r.getcontenttype &&
                             r.getcontenttype.substr(0,13) == "text/calendar") ||
                            (r.status &&
                             r.status.indexOf(" 404") == -1)) {
+                    // If the response element is still not handled, log an
+                    // error only if the content-type is text/calendar or the
+                    // response status is different than 404 not found.  We
+                    // don't care about response elements on non-calendar
+                    // resources or whose status is not indicating a deleted
+                    // resource.
                     cal.WARN("CalDAV: Unexpected response, status: " + r.status + ", href: " + r.href);
                     this.unhandledErrors++;
                 } else {
@@ -631,12 +644,15 @@ webDavSyncHandler.prototype = {
  *                              array of un-encoded paths.
  * @param aCalendar             The (unwrapped) calendar this request belongs to
  * @param aBaseUri              The URI requested (i.e inbox or collection)
+ * @param aAdditionalSyncNeeded (optional) If true, the passed sync token is not the
+ *                                latest, another webdav sync run should be
+ *                                done after completion.
  * @param aNewSyncToken         (optional) new Sync token to set if operation successful
  * @param aListener             (optional) The listener to notify
  * @param aChangeLogListener    (optional) for cached calendars, the listener to
  *                                notify.
  */
-function multigetSyncHandler(aItemsNeedFetching, aCalendar, aBaseUri, aNewSyncToken, aListener, aChangeLogListener) {
+function multigetSyncHandler(aItemsNeedFetching, aCalendar, aBaseUri, aNewSyncToken, aAdditionalSyncNeeded, aListener, aChangeLogListener) {
     this.calendar = aCalendar;
     this.baseUri = aBaseUri;
     this.listener = aListener;
@@ -648,6 +664,7 @@ function multigetSyncHandler(aItemsNeedFetching, aCalendar, aBaseUri, aNewSyncTo
     this._reader.errorHandler = this;
     this._reader.parseAsync(null);
     this.itemsNeedFetching = aItemsNeedFetching;
+    this.additionalSyncNeeded = aAdditionalSyncNeeded;
 }
 multigetSyncHandler.prototype = {
     currentResponse: null,
@@ -660,6 +677,7 @@ multigetSyncHandler.prototype = {
     logXML: null,
     unhandledErrors : 0,
     itemsNeedFetching: null,
+    additionalSyncNeeded: false,
 
     QueryInterface: XPCOMUtils.generateQI([
         Components.interfaces.nsISAXContentHandler,
@@ -754,8 +772,17 @@ multigetSyncHandler.prototype = {
               cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
             }
 
-            this.calendar.finalizeUpdatedItems(this.changeLogListener,
-                                               this.baseUri);
+            if (this.additionalSyncNeeded) {
+                setTimeout(() => {
+                    let wds = new webDavSyncHandler(this.calendar,
+                                                    this.baseUri,
+                                                    this.changeLogListener);
+                    wds.doWebDAVSync();
+                }, 0);
+            } else {
+                this.calendar.finalizeUpdatedItems(this.changeLogListener,
+                                                   this.baseUri);
+            }
         }
         if (!this._reader) {
             // No reader means there was a request error. The error is already
