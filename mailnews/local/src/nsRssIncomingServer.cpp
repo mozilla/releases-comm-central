@@ -193,22 +193,27 @@ NS_IMETHODIMP nsRssIncomingServer::MsgKeyChanged(nsMsgKey aOldKey,
 
 NS_IMETHODIMP nsRssIncomingServer::FolderAdded(nsIMsgFolder *aFolder)
 {
-  return FolderChanged(aFolder, false);
+  // Nothing to do. Not necessary for new folder adds, as a new folder never
+  // has a subscription.
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::FolderDeleted(nsIMsgFolder *aFolder)
 {
-  return FolderChanged(aFolder, true);
+  // Not necessary for folder deletes, which are move to Trash and handled by
+  // movecopy. Virtual folder or trash folder deletes send a folderdeleted,
+  // but these should have no subscriptions already.
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::FolderMoveCopyCompleted(bool aMove, nsIMsgFolder *aSrcFolder, nsIMsgFolder *aDestFolder)
 {
-  return FolderChanged(aDestFolder, false);
+  return FolderChanged(aDestFolder, aSrcFolder);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::FolderRenamed(nsIMsgFolder *aOrigFolder, nsIMsgFolder *aNewFolder)
 {
-  return FolderChanged(aNewFolder, false);
+  return FolderChanged(aNewFolder, nullptr);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::ItemEvent(nsISupports *aItem, const nsACString &aEvent, nsISupports *aData)
@@ -216,7 +221,7 @@ NS_IMETHODIMP nsRssIncomingServer::ItemEvent(nsISupports *aItem, const nsACStrin
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder *aFolder, bool aUnsubscribe)
+nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder *aFolder, nsIMsgFolder *aOrigFolder)
 {
   if (!aFolder)
     return NS_OK;
@@ -229,34 +234,12 @@ nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder *aFolder, bool aUnsubsc
   rv = server->GetType(type);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (type.EqualsLiteral("rss"))
-  {
-    nsCOMPtr <nsINewsBlogFeedDownloader> rssDownloader = do_GetService("@mozilla.org/newsblog-feed-downloader;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rssDownloader->UpdateSubscriptionsDS(aFolder, aUnsubscribe);
+  if (!type.EqualsLiteral("rss"))
+    return rv;
 
-    if (!aUnsubscribe)
-    {
-      // If the user was moving a set of nested folders, we only
-      // get a single notification, so we need to iterate over all of the
-      // descedent folders of the folder whose location has changed.
-      nsCOMPtr<nsIArray> allDescendents;
-      rv = aFolder->GetDescendants(getter_AddRefs(allDescendents));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      uint32_t cnt = 0;
-      allDescendents->GetLength(&cnt);
-
-      nsCOMPtr<nsIMsgFolder> rssFolder;
-
-      for (uint32_t index = 0; index < cnt; index++)
-      {
-        rssFolder = do_QueryElementAt(allDescendents, index, &rv);
-        if (NS_SUCCEEDED(rv) && rssFolder)
-          rssDownloader->UpdateSubscriptionsDS(rssFolder, aUnsubscribe);
-      }
-    }
-  }
+  nsCOMPtr <nsINewsBlogFeedDownloader> rssDownloader = do_GetService("@mozilla.org/newsblog-feed-downloader;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rssDownloader->UpdateSubscriptionsDS(aFolder, aOrigFolder);
   return rv;
 }
 

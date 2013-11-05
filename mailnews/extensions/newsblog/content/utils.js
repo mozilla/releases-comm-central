@@ -181,39 +181,42 @@ var FeedUtils = {
   },
 
 /**
- * Add a feed record to the feeds.rdf database.
- * 
- * @param  string aUrl              - feed url.
- * @param  string aTitle            - feed title.
- * @param  nsIMsgFolder aDestFolder - owning folder.
+ * Add a feed record to the feeds.rdf database and update the folder's feedUrl
+ * property.
+ *
+ * @param  object aFeed - our feed object
  */
-  addFeed: function(aUrl, aTitle, aDestFolder) {
-    let ds = this.getSubscriptionsDS(aDestFolder.server);
+  addFeed: function(aFeed) {
+    let ds = this.getSubscriptionsDS(aFeed.folder.server);
     let feeds = this.getSubscriptionsList(ds);
 
     // Generate a unique ID for the feed.
-    let id = aUrl;
+    let id = aFeed.url;
     let i = 1;
     while (feeds.IndexOf(this.rdf.GetResource(id)) != -1 && ++i < 1000)
-      id = aUrl + i;
+      id = aFeed.url + i;
     if (id == 1000)
       throw new Error("FeedUtils.addFeed: couldn't generate a unique ID " +
-                      "for feed " + aUrl);
+                      "for feed " + aFeed.url);
 
     // Add the feed to the list.
     id = this.rdf.GetResource(id);
     feeds.AppendElement(id);
     ds.Assert(id, this.RDF_TYPE, this.FZ_FEED, true);
-    ds.Assert(id, this.DC_IDENTIFIER, this.rdf.GetLiteral(aUrl), true);
-    if (aTitle)
-      ds.Assert(id, this.DC_TITLE, this.rdf.GetLiteral(aTitle), true);
-    ds.Assert(id, this.FZ_DESTFOLDER, aDestFolder, true);
-    ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
+    ds.Assert(id, this.DC_IDENTIFIER, this.rdf.GetLiteral(aFeed.url), true);
+    if (aFeed.title)
+      ds.Assert(id, this.DC_TITLE, this.rdf.GetLiteral(aFeed.title), true);
+    ds.Assert(id, this.FZ_DESTFOLDER, aFeed.folder, true);
+    ds.Flush();
+
+    // Sync the feedUrl property for the folder.
+    this.syncFeedUrlWithFeedsDS(aFeed.folder);
   },
 
 /**
- * Delete a feed record from the feeds.rdf database.
- * 
+ * Delete a feed record from the feeds.rdf database and update the folder's
+ * feedUrl property.
+ *
  * @param  nsIRDFResource aId           - feed url as rdf resource.
  * @param  nsIMsgIncomingServer aServer - folder's account server.
  * @param  nsIMsgFolder aParentFolder   - owning folder.
@@ -232,34 +235,23 @@ var FeedUtils = {
 
       // Remove all assertions about the feed from the subscriptions database.
       this.removeAssertions(ds, aId);
-      ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
+      ds.Flush();
 
       // Remove all assertions about items in the feed from the items database.
       let itemds = this.getItemsDS(aServer);
       feed.invalidateItems();
       feed.removeInvalidItems(true);
-      itemds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
-  
-      // Finally, make sure to remove the url from the folder's feedUrl
-      // property.  The correct folder is passed in by the Subscribe dialog or
-      // a folder pane folder delete.  The correct current folder cannot be
-      // currently determined from the feed's destFolder in the db, as it is not
-      // synced with folder pane moves.  Do this at the very end.
-      let feedUrl = aId.ValueUTF8;
-      this.updateFolderFeedUrl(aParentFolder, feedUrl, true);
+      itemds.Flush();
+
+      // Sync the feedUrl property for the folder.
+      this.syncFeedUrlWithFeedsDS(aParentFolder);
     }
   },
 
 /**
- * Get the list of feed urls for a folder.  For legacy reasons, we try
- * 1) getStringProperty on the folder;
- * 2) getCharProperty on the folder's msgDatabase.dBFolderInfo;
- * 3) directly from the feeds.rdf subscriptions database, as identified by
- *    the destFolder tag (currently not synced on folder moves in folder pane).
- * 
- * If folder move/renames are fixed, remove msgDatabase accesses and get the
- * list directly from the feeds db.
- * 
+ * Get the list of feed urls for a folder, as identified by the FZ_DESTFOLDER
+ * tag, directly from the primary feeds.rdf subscriptions database.
+ *
  * @param  nsIMsgFolder - the folder.
  * @return array of urls, or null if none.
  */
@@ -272,75 +264,6 @@ var FeedUtils = {
 
     let feedUrlArray = [];
 
-    let feedurls = aFolder.getStringProperty("feedUrl");
-    if (feedurls)
-      return this.splitFeedUrls(feedurls);
-
-    // Go to msgDatabase for the property, make sure to handle errors.
-    // NOTE: the rest of the following code is a migration of the feedUrl
-    // property for pre Tb15 subscriptions.  At some point it can/should be
-    // removed.
-    let msgDb;
-    try {
-      msgDb = aFolder.msgDatabase;
-    }
-    catch (ex) {}
-    if (msgDb && msgDb.dBFolderInfo) {
-      // Clean up the feedUrl string.
-      feedurls = this.splitFeedUrls(msgDb.dBFolderInfo.getCharProperty("feedUrl"));
-      feedurls.forEach(
-        function(url) {
-          if (url && feedUrlArray.indexOf(url) == -1)
-            feedUrlArray.push(url);
-        });
-
-      feedurls = feedUrlArray.join(this.kFeedUrlDelimiter);
-      if (feedurls) {
-        // Do a onetime per folder re-sync of the feeds db here based on the
-        // urls in the feedUrl property.
-        let ds = this.getSubscriptionsDS(aFolder.server);
-        let resource = this.rdf.GetResource(aFolder.URI);
-        feedUrlArray.forEach(
-          function(url) {
-            try {
-              let id = this.rdf.GetResource(url);
-              // Get the node for the current folder URI.
-              let node = ds.GetTarget(id, this.FZ_DESTFOLDER, true);
-              if (node)
-              {
-                ds.Change(id, this.FZ_DESTFOLDER, node, resource);
-                this.log.debug("getFeedUrlsInFolder: sync update folder:url - " +
-                               aFolder.filePath.path + " : " + url);
-              }
-              else
-              {
-                this.addFeed(url, null, aFolder);
-                this.log.debug("getFeedUrlsInFolder: sync add folder:url - " +
-                               aFolder.filePath.path + " : " + url);
-              }
-            }
-            catch (ex) {
-              this.log.debug("getFeedUrlsInFolder: error - " + ex);
-              this.log.debug("getFeedUrlsInFolder: sync failed for folder:url - " +
-                             aFolder.filePath.path + " : " + url);
-            }
-        }, this);
-        ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
-  
-        // Set property on folder so we don't come here ever again.
-        aFolder.setStringProperty("feedUrl", feedurls);
-        aFolder.msgDatabase = null;
-  
-        return feedUrlArray.length ? feedUrlArray : null;
-      }
-    }
-    else {
-      // Forcing a reparse with listener here is the last resort.  Not implemented
-      // as it may be unnecessary once feedUrl is property set on folder and not
-      // msgDatabase, and if eventually feedUrls are derived from the feeds db
-      // directly.
-    }
-  
     // Get the list from the feeds database.
     try {
       let ds = this.getSubscriptionsDS(aFolder.server);
@@ -354,55 +277,119 @@ var FeedUtils = {
     }
     catch(ex)
     {
-      this.log.debug("getFeedUrlsInFolder: feeds db error - " + ex);
-      this.log.debug("getFeedUrlsInFolder: feeds db error for folder - " +
-                     aFolder.filePath.path);
+      this.log.error("getFeedUrlsInFolder: feeds.rdf db error - " + ex);
+      this.log.error("getFeedUrlsInFolder: feeds.rdf db error for account - " +
+                     aFolder.server.serverURI + " : " + aFolder.server.prettyName);
     }
-  
-    feedurls = feedUrlArray.join(this.kFeedUrlDelimiter);
-    if (feedurls)
-    {
-      aFolder.setStringProperty("feedUrl", feedurls);
-      this.log.debug("getFeedUrlsInFolder: got urls from db, folder:feedUrl - " +
-                     aFolder.filePath.path + " : " + feedurls);
-    }
-    else
-      this.log.trace("getFeedUrlsInFolder: no urls from db, folder - " +
-                     aFolder.filePath.path);
-  
+
     return feedUrlArray.length ? feedUrlArray : null;
   },
 
 /**
- * Add or remove urls from feedUrl folder property.  Property is used for
- * access to a folder's feeds in Subscribe dialog and when doing downloadFeed
- * on a folder.  Ensure no dupes.
- * 
- * @param  nsIMsgFolder - the folder.
- * @param  string       - the feed's url.
- * @param  boolean      - true if removing the url.
+ * Update the feeds.rdf database with the new folder's location on name changes
+ * on rename and move/copy. Note that for nested folders to also be reflected
+ * correctly, the feedUrl property *must* be derived from the individual
+ * folder's db, and not from panacea (ie using getStringProperty, which contains
+ * the old name at the time of the notification).
+ *
+ * @param  nsIMsgFolder aFolder      - the folder, new if rename or move/copy
+ * @param  nsIMsgFolder aOrigFolder  - original folder, if move/copy
  */
-  updateFolderFeedUrl: function(aFolder, aFeedUrl, aRemoveUrl) {
-    if (!aFolder || !aFeedUrl)
-      return;
+  updateFolderChangeInFeedsDS: function(aFolder, aOrigFolder) {
+    let sourceFolder = aFolder;
+    if (aOrigFolder && aFolder.server != aOrigFolder.server)
+      // Copied from another account, get the feed urls from that account's
+      // feeds.rdf db.
+      sourceFolder = aOrigFolder;
 
-    let curFeedUrls = this.splitFeedUrls(aFolder.getStringProperty("feedUrl"));
-    let index = curFeedUrls.indexOf(aFeedUrl);
+    this.log.debug("updateFolderChangeInFeedsDS: aFolder      - " +
+                   aFolder.filePath.path);
+    this.log.debug("updateFolderChangeInFeedsDS: sourceFolder - " +
+                   sourceFolder.filePath.path);
 
-    if (aRemoveUrl)
+    let feedUrl = sourceFolder.getStringProperty("feedUrl");
+    let feedUrlArray = feedUrl ? this.splitFeedUrls(feedUrl) : null;
+
+    if (!feedUrlArray)
     {
-      if (index == -1)
-        return;
-      curFeedUrls.splice(index, 1);
-    }
-    else {
-      if (index != -1)
-        return;
-      curFeedUrls.push(aFeedUrl);
+      this.log.debug("updateFolderChangeInFeedsDS: no feedUrls in this folder");
+      return;
     }
 
-    let newFeedUrls = curFeedUrls.join(this.kFeedUrlDelimiter);
-    aFolder.setStringProperty("feedUrl", newFeedUrls);
+    let id, resource, node;
+    let ds = this.getSubscriptionsDS(aFolder.server);
+    for (let feedUrl of feedUrlArray)
+    {
+      if (!feedUrl)
+        continue;
+      this.log.debug("updateFolderChangeInFeedsDS: feedUrl - " + feedUrl);
+
+      id = this.rdf.GetResource(feedUrl);
+      // If move to trash, unsubscribe.
+      if (this.isInTrash(aFolder))
+      {
+        this.deleteFeed(id, aFolder.server, aFolder);
+      }
+      else
+      {
+        resource = this.rdf.GetResource(aFolder.URI);
+        // Get the node for the current folder URI.
+        node = ds.GetTarget(id, this.FZ_DESTFOLDER, true);
+        if (node)
+        {
+          ds.Change(id, this.FZ_DESTFOLDER, node, resource);
+        }
+        else
+        {
+          // If adding a new feed it's a cross account action; get the title
+          // and quickMode from its original datasource, otherwise use the new
+          // folder's name and default server quickMode.
+          let dsSrc = FeedUtils.getSubscriptionsDS(sourceFolder.server);
+          let feedTitle = dsSrc.GetTarget(id, this.DC_TITLE, true);
+          feedTitle = feedTitle ? feedTitle.QueryInterface(Ci.nsIRDFLiteral).Value :
+                      resource.name;
+          let quickMode = dsSrc.GetTarget(id, this.FZ_QUICKMODE, true);
+          quickMode = quickMode.QueryInterface(Ci.nsIRDFLiteral).Value;
+          quickMode = quickMode == "true" ? true :
+                      quickMode == "false" ? false :
+                      aFeed.folder.server.getBoolValue("quickMode");
+
+          let feed = new Feed(id, aFolder.server);
+          feed.folder = aFolder;
+          feed.title = feedTitle;
+          feed.quickMode = quickMode;
+          this.addFeed(feed);
+        }
+      }
+    }
+
+    ds.Flush();
+  },
+
+/**
+ * Sync folder's feedUrl property with the folder's urls in the feeds.rdf
+ * primary database. This secondary location is required for keeping the
+ * primary feeds.rdf db synced with folder pathname changes.
+ *
+ * @param  nsIMsgFolder aFolder - the folder with the feed subscriptions
+ */
+  syncFeedUrlWithFeedsDS: function(aFolder) {
+    if (!aFolder || this.isInTrash(aFolder))
+      return null;
+
+    let feedUrlArray = this.getFeedUrlsInFolder(aFolder);
+    let feedUrls = feedUrlArray ? feedUrlArray.join(this.kFeedUrlDelimiter) : "";
+    let feedUrl = aFolder.getStringProperty("feedUrl");
+    if ((feedUrls && feedUrl != feedUrls) || (!feedUrls && feedUrl))
+    {
+      aFolder.setStringProperty("feedUrl", feedUrls);
+      this.log.debug("syncFeedUrlWithFeedsDS: synced feedUrl for folder - " +
+                     aFolder.filePath.path);
+      this.log.debug("syncFeedUrlWithFeedsDS: setStringProperty - " + feedUrls);
+      this.log.debug("syncFeedUrlWithFeedsDS: getCharProperty   - " +
+                     aFolder.msgDatabase.dBFolderInfo.getCharProperty("feedUrl"));
+    }
+    return feedUrlArray;
   },
 
 /**
@@ -418,7 +405,7 @@ var FeedUtils = {
                                     "\x01https://", "g")
                            .replace(this.kFeedUrlDelimiter + "file://",
                                     "\x01file://", "g");
-    return urlStr.split("\x01");
+    return urlStr ? urlStr.split("\x01") : [];
   },
 
 /**
@@ -441,10 +428,12 @@ var FeedUtils = {
     // 2) Remove nonprintable ascii.
     // 3) Remove invalid win chars '* | \ / : < > ? "'.
     // 4) Remove all '.' as starting/ending with one is trouble on osx/win.
+    // 5) No leading/trailing spaces.
     let folderName = aProposedName.replace(/[\n\r\t]+/g, " ")
                                   .replace(/[\x00-\x1F]+/g, "")
                                   .replace(/[*|\\\/:<>?"]+/g, "")
-                                  .replace(/[\.]+/g, "");
+                                  .replace(/[\.]+/g, "")
+                                  .trim();
 
     // Prefix with __ if name is:
     // 1) a reserved win filename.
@@ -472,6 +461,9 @@ var FeedUtils = {
   },
 
   getSubscriptionsDS: function(aServer) {
+    if (this[aServer.serverURI] && this[aServer.serverURI]["FeedsDS"])
+      return this[aServer.serverURI]["FeedsDS"];
+
     let file = this.getSubscriptionsFile(aServer);
     let url = Services.io.getProtocolHandler("file").
                           QueryInterface(Ci.nsIFileProtocolHandler).
@@ -485,7 +477,9 @@ var FeedUtils = {
       throw new Error("FeedUtils.getSubscriptionsDS: can't get feed " +
                       "subscriptions data source - " + url);
 
-    return ds;
+    this[aServer.serverURI] = {};
+    return this[aServer.serverURI]["FeedsDS"] =
+             ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
   },
 
   getSubscriptionsList: function(aDataSource) {
@@ -519,6 +513,9 @@ var FeedUtils = {
     '</RDF:RDF>\n',
 
   getItemsDS: function(aServer) {
+    if (this[aServer.serverURI] && this[aServer.serverURI]["FeedItemsDS"])
+      return this[aServer.serverURI]["FeedItemsDS"];
+
     let file = this.getItemsFile(aServer);
     let url = Services.io.getProtocolHandler("file").
                           QueryInterface(Ci.nsIFileProtocolHandler).
@@ -535,7 +532,9 @@ var FeedUtils = {
     // You have to QueryInterface it to nsIRDFRemoteDataSource and check
     // its "loaded" property to be sure.  You can also attach an observer
     // which will get notified when the load is complete.
-    return ds;
+    this[aServer.serverURI] = {};
+    return this[aServer.serverURI]["FeedItemsDS"] =
+             ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
   },
 
   getItemsFile: function(aServer) {
@@ -762,13 +761,8 @@ var FeedUtils = {
       {
         if (aErrorCode == FeedUtils.kNewsBlogSuccess)
         {
-          // If we get here we should always have a folder by now, either in
-          // feed.folder or FeedItems created the folder for us.
-          FeedUtils.updateFolderFeedUrl(feed.folder, feed.url, false);
-
-          // Add feed just adds the feed to the subscription UI and flushes the
-          // datasource.
-          FeedUtils.addFeed(feed.url, feed.name, feed.folder);
+          // Add the feed to the databases.
+          FeedUtils.addFeed(feed);
 
           // Nice touch: select the folder that now contains the newly subscribed
           // feed.  This is particularly nice if we just finished subscribing

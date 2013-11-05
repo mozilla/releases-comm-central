@@ -1098,6 +1098,8 @@ var FeedSubscriptions = {
     let locationValue = document.getElementById("locationValue");
     let quickMode = aParams && ("quickMode" in aParams) ?
         aParams.quickMode : document.getElementById("quickMode").checked;
+    let name = aParams && ("name" in aParams) ?
+        aParams.name : document.getElementById("nameValue").value;
 
     if (aFeedLocation)
       locationValue.value = aFeedLocation;
@@ -1140,7 +1142,6 @@ var FeedSubscriptions = {
       return false;
     }
 
-    let name = document.getElementById("nameValue").value;
     let folderURI = addFolder.isServer ? null : addFolder.URI;
     let feedProperties = { feedName     : name,
                            feedLocation : feedLocation,
@@ -1268,7 +1269,7 @@ var FeedSubscriptions = {
     if (!updated)
       return;
 
-    ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
+    ds.Flush();
 
     let message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
     this.updateStatusItem("statusText", message);
@@ -1314,12 +1315,10 @@ var FeedSubscriptions = {
       // Unassert the older URI, add an assertion for the new parent URI.
       ds.Change(resource, FeedUtils.FZ_DESTFOLDER,
                 currentParentResource, newParentResource);
-      ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
-      // Update the feed url attributes on the databases for each folder:
-      // Remove our feed url property from the current folder.
-      FeedUtils.updateFolderFeedUrl(currentFolder, currentItem.url, true);
-      // Add our feed url property to the new folder.
-      FeedUtils.updateFolderFeedUrl(newFolder, currentItem.url, false);
+      ds.Flush();
+      // Sync the feedUrl property for each folder.
+      FeedUtils.syncFeedUrlWithFeedsDS(currentFolder);
+      FeedUtils.syncFeedUrlWithFeedsDS(newFolder);
     }
     else
     {
@@ -1327,7 +1326,8 @@ var FeedSubscriptions = {
       // a new subfolder is created if necessary.
       accountMoveCopy = true;
       let mode = moveFeed ? this.kMoveMode : this.kCopyMode;
-      let params = {quickMode: currentItem.quickMode};
+      let params = {quickMode: currentItem.quickMode,
+                    name:      currentItem.name};
       // Subscribe to the new folder first.  If it already exists in the
       // account or on error, return.
       if (!this.addFeed(currentItem.url, newFolder, false, params, mode))
@@ -1439,13 +1439,8 @@ var FeedSubscriptions = {
       {
         win.updateStatusItem("progressMeter", 100);
 
-        // If we get here we should always have a folder by now, either in
-        // feed.folder or FeedItems created the folder for us.
-        FeedUtils.updateFolderFeedUrl(feed.folder, feed.url, false);
-
-        // Add feed adds the feed to the subscriptions db and flushes the
-        // datasource.
-        FeedUtils.addFeed(feed.url, feed.name, feed.folder); 
+        // Add the feed to the databases.
+        FeedUtils.addFeed(feed);
 
         // Now add the feed to our view.  If adding, the current selection will
         // be a folder; if updating it will be a feed.  No need to rebuild the
@@ -1787,7 +1782,8 @@ var FeedSubscriptions = {
       let indexInView = feedWindow.mView.getItemInViewIndex(aSrcFolder);
       let destIndexInView = feedWindow.mView.getItemInViewIndex(aDestFolder);
       let open = indexInView != null || destIndexInView != null;
-      let parentIndex = feedWindow.mView.getItemInViewIndex(aDestFolder.parent);
+      let parentIndex = feedWindow.mView.getItemInViewIndex(aDestFolder.parent ||
+                                                            aDestFolder);
       let select =
         indexInView == curSelIndex ||
         feedWindow.mView.isIndexChildOfParentIndex(indexInView, curSelIndex);
@@ -2294,11 +2290,8 @@ var FeedSubscriptions = {
             break;
           }
 
-          FeedUtils.updateFolderFeedUrl(feed.folder, feed.url, false);
-
-          // addFeed() adds the feed to the datasource, it also flushes the
-          // subscription datasource.
-          FeedUtils.addFeed(feed.url, feed.name, feed.folder);
+          // Add the feed to the databases.
+          FeedUtils.addFeed(feed);
           // Feed correctly added.
           feedsAdded++;
           lastFolder = feed.folder;

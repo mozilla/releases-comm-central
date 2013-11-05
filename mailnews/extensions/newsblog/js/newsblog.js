@@ -28,8 +28,7 @@ var nsNewsBlogFeedDownloader =
       return;
     }
 
-    let allFolders = Cc["@mozilla.org/array;1"].
-                     createInstance(Ci.nsIMutableArray);
+    let allFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     if (!aFolder.isServer) {
       // Add the base folder; it does not get returned by ListDescendants. Do not
       // add the account folder as it doesn't have the feedUrl property or even
@@ -38,9 +37,6 @@ var nsNewsBlogFeedDownloader =
     }
 
     aFolder.ListDescendants(allFolders);
-
-    let trashFolder =
-        aFolder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
     function feeder() {
       let folder;
@@ -74,12 +70,10 @@ var nsNewsBlogFeedDownloader =
           continue;
         }
 
-        let feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
+        let feedUrlArray = FeedUtils.syncFeedUrlWithFeedsDS(folder);
         // Continue if there are no feedUrls for the folder in the feeds
-        // database.  All folders in Trash are now unsubscribed, so perhaps
-        // we may not want to check that here each biff each folder.
-        if (!feedUrlArray ||
-            (aFolder.isServer && trashFolder && trashFolder.isAncestorOf(folder)))
+        // database.  All folders in Trash are skipped.
+        if (!feedUrlArray)
           continue;
 
         FeedUtils.log.debug("downloadFeed: CONTINUE foldername:urlArray - " +
@@ -217,54 +211,38 @@ var nsNewsBlogFeedDownloader =
     feed.download(true, FeedUtils.progressNotifier);
   },
 
-  updateSubscriptionsDS: function(aFolder, aUnsubscribe)
+  updateSubscriptionsDS: function(aFolder, aOrigFolder)
   {
     if (!gExternalScriptsLoaded)
       loadScripts();
 
-    FeedUtils.log.debug("updateSubscriptionsDS: folder changed, name:unsubscribe - " +
-                        aFolder.filePath.path + ":" + aUnsubscribe);
+    FeedUtils.log.debug("updateSubscriptionsDS: folder changed, aFolder - " +
+                        aFolder.filePath.path);
+    FeedUtils.log.debug("updateSubscriptionsDS: " + (aOrigFolder ?
+                        "move/copy, aOrigFolder  - " + aOrigFolder.filePath.path :
+                        "rename"));
 
-    // An rss folder was just changed, get the folder's feedUrls and update
-    // our feed data source.
-    let feedUrlArray = FeedUtils.getFeedUrlsInFolder(aFolder);
-    if (!feedUrlArray)
-      // No feedUrls in this folder.
+    if ((aOrigFolder && FeedUtils.isInTrash(aOrigFolder)) ||
+        (!aOrigFolder && FeedUtils.isInTrash(aFolder)))
+      // Move within trash, or rename in trash; no subscriptions already.
       return;
 
-    let newFeedUrl, id, resource, node;
-    let ds = FeedUtils.getSubscriptionsDS(aFolder.server);
-    let trashFolder =
-        aFolder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-    for (let url in feedUrlArray)
+    let newFolder = aFolder;
+    if (aOrigFolder)
+      // A folder was moved, get the new folder. Don't process the entire parent!
+      newFolder = aFolder.getChildNamed(aOrigFolder.name);
+
+    FeedUtils.updateFolderChangeInFeedsDS(newFolder, aOrigFolder);
+
+    // There may be subfolders, but we only get a single notification; iterate
+    // over all descendent folders of the folder whose location has changed.
+    let subFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    newFolder.ListDescendants(subFolders);
+    for (let i = 0; i < subFolders.length; i++)
     {
-      newFeedUrl = feedUrlArray[url];
-      if (newFeedUrl)
-      {
-        FeedUtils.log.debug("updateSubscriptionsDS: processing url - " +
-                            newFeedUrl);
-
-        id = FeedUtils.rdf.GetResource(newFeedUrl);
-        // If explicit delete or move to trash, unsubscribe.
-        if (aUnsubscribe ||
-            (trashFolder && trashFolder.isAncestorOf(aFolder)))
-        {
-          FeedUtils.deleteFeed(id, aFolder.server, aFolder);
-        }
-        else
-        {
-          resource = FeedUtils.rdf.GetResource(aFolder.URI);
-          // Get the node for the current folder URI.
-          node = ds.GetTarget(id, FeedUtils.FZ_DESTFOLDER, true);
-          if (node)
-            ds.Change(id, FeedUtils.FZ_DESTFOLDER, node, resource);
-          else
-            FeedUtils.addFeed(newFeedUrl, resource.name, resource);
-        }
-      }
-    } // for each feed url in the folder property
-
-    ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
+      let subFolder = subFolders.queryElementAt(i, Ci.nsIMsgFolder);
+      FeedUtils.updateFolderChangeInFeedsDS(subFolder, aOrigFolder);
+    }
   },
 
   QueryInterface: function(aIID)

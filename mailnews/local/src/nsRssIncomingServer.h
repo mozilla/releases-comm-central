@@ -28,15 +28,14 @@ public:
     NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) MOZ_OVERRIDE;
     NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) MOZ_OVERRIDE;
     NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
-    NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff
-						) MOZ_OVERRIDE;
+    NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) MOZ_OVERRIDE;
     NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) MOZ_OVERRIDE;
     NS_IMETHOD GetSortOrder(int32_t* aSortOrder) MOZ_OVERRIDE;
 
     nsRssIncomingServer();
     virtual ~nsRssIncomingServer();
 protected:
-    nsresult FolderChanged(nsIMsgFolder *aFolder, bool aUnsubscribe);
+    nsresult FolderChanged(nsIMsgFolder *aFolder, nsIMsgFolder *aOrigFolder);
     nsresult FillInDataSourcePath(const nsAString& aDataSourceName, nsIFile ** aLocation);
     static nsrefcnt gInstanceCount;
 };

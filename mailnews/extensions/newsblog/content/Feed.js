@@ -305,7 +305,7 @@ Feed.prototype =
       ds.Assert(this.resource, FeedUtils.DC_LASTMODIFIED, aLastModified, true);
 
     // Do we need to flush every time this property changes?
-    ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
+    ds.Flush();
   },
 
   get quickMode ()
@@ -535,7 +535,7 @@ Feed.prototype =
 
     // Flush any feed item changes to disk.
     let ds = FeedUtils.getItemsDS(aFeed.server);
-    ds.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
+    ds.Flush();
     FeedUtils.log.debug("Feed.cleanupParsingState: items stored - " + this.itemsStored);
 
     if (aFeed.downloadCallback)
