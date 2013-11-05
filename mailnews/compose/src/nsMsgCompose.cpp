@@ -1680,7 +1680,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
     do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (m_identity)
+  if (m_identity && mType != nsIMsgCompType::Draft)
   {
     // Setup reply-to field.
     nsCString replyTo;
