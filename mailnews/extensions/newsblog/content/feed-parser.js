@@ -183,7 +183,9 @@ FeedParser.prototype =
         // is no description). Use a big chunk of description; minimize dupes
         // with url and title if present.
         item.id = (item.url || item.feed.url) + "#" + item.title + "#" +
-                  (this.stripTags(item.description.substr(0, 150)) || item.title);
+                  (this.stripTags(item.description ?
+                                    item.description.substr(0, 150) : null) ||
+                   item.title);
         item.id = item.id.replace(/[\n\r\t\s]+/g, " ");
       }
 
