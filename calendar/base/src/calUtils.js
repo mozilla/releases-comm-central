@@ -430,26 +430,6 @@ function calInstanceOf(aObject, aInterface) {
 }
 
 /**
- * (At least on branch 1.8), the js instanceof operator does not work to test
- * interfaces on direct implementation objects, i.e. non-wrapped objects.
- * This function falla back to using QueryInterface to check whether the interface
- * is implemented.
- */
-function calInstanceOf(aObject, aInterface) {
-    // We first try instanceof which is assumed to be faster than querying the object:
-    if (!(aObject instanceof aInterface)) {
-        // if the passed object in not wrapped (but a plain implementation),
-        // instanceof won't check QueryInterface.
-        try {
-            aObject.QueryInterface(aInterface);
-        } catch (exc) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/**
  * Determines whether or not the aObject is a calIEvent
  *
  * @param aObject  the object to test
