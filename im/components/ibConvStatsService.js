@@ -627,6 +627,14 @@ PossibleConvFromContact.prototype = {
     }
     return ids;
   },
+  get lowerCaseName() {
+    if (!this._lowerCaseName) {
+      let buddies = this.contact.getBuddies();
+      let names = [b.displayName for (b of buddies)].join(" ");
+      this._lowerCaseName = names.toLowerCase();
+    }
+    return this._lowerCaseName;
+  },
   get buddyIconFilename() this.contact.buddyIconFilename,
   get infoText() {
     let tagNames = this.contact.getTags().map(function(aTag) aTag.name);
