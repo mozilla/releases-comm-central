@@ -8,20 +8,6 @@
 
 .tabmail-tab {
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-tab");
-  transition: min-width 200ms ease-out, max-width 230ms ease-out, opacity 50ms ease-out;
-  transition-delay: 0ms, 0ms, 20ms;
-  opacity: 1;
-}
-
-.tabmail-tab[fadein="false"] {
-  transition: none !important;
-}
-
-.tabmail-tab:not([fadein]) {
-  opacity: 0 !important;
-  max-width: 1px !important;
-  min-width: 1px !important;
-  height: 0px !important;
 }
 
 .tabmail-tabbox {
