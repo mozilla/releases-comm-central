@@ -479,6 +479,12 @@
     <handlers>
       <handler event="click">
       <![CDATA[
+        if (document.activeElement.localName != "richlistbox") {
+          // If the newtab had focus before the click, the focus would now be
+          // on the richlistbox. If the window wasn't focused before, this
+          // click should just focus it rather than starting a conversation.
+          return;
+        }
         if (event.button == 2) // Don't handle right clicks.
           return;
         let newtab = document.getBindingParent(this);
