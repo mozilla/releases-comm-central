@@ -591,7 +591,6 @@ ConversationStats.prototype = {
 }
 
 let PossibleConversation = {
-  get id() this._id,
   get displayName() this._displayName,
   get lowerCaseName()
     this._lowerCaseName || (this._lowerCaseName = this._displayName.toLowerCase()),
@@ -610,9 +609,9 @@ function PossibleConvFromContact(aContact) {
   this._statusText = aContact.statusText;
   let buddy = aContact.preferredBuddy;
   this._contactId = aContact.id;
-  this._id = getConversationId(buddy.protocol.normalizedName,
-                               buddy.preferredAccountBuddy.account.name,
-                               buddy.normalizedName, false);
+  this.id = getConversationId(buddy.protocol.normalizedName,
+                              buddy.preferredAccountBuddy.account.name,
+                              buddy.normalizedName, false);
 }
 PossibleConvFromContact.prototype = {
   __proto__: PossibleConversation,
@@ -664,13 +663,11 @@ PossibleConvFromContact.prototype = {
 
 function PossibleChat(aRoomInfo) {
   this._roomInfo = aRoomInfo;
+  let account = this.account;
+  this.id = getConversationId(account.protocol.normalizedName,
+                              account.name, this.displayName, true);
 }
 PossibleChat.prototype = {
-  get id() {
-    let account = this.account;
-    return getConversationId(account.protocol.normalizedName,
-                             account.name, this.displayName, true);
-  },
   get isChat() true,
   get statusType() Ci.imIStatusInfo.STATUS_AVAILABLE,
   get buddyIconFilename() "",
@@ -700,9 +697,9 @@ PossibleChat.prototype = {
 function ExistingConversation(aUIConv) {
   this._convId = aUIConv.target.id;
   let account = aUIConv.account;
-  this._id = getConversationId(account.protocol.normalizedName,
-                               account.name, aUIConv.normalizedName,
-                               aUIConv.isChat);
+  this.id = getConversationId(account.protocol.normalizedName,
+                              account.name, aUIConv.normalizedName,
+                              aUIConv.isChat);
   this._displayName = aUIConv.title;
   this._isChat = aUIConv.isChat;
   if (aUIConv.isChat) {
