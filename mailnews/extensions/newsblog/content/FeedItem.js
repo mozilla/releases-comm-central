@@ -5,7 +5,7 @@
 
 function FeedItem()
 {
-  this.mDate = new Date().toString();
+  this.mDate = FeedUtils.getValidRFC5322Date();
   this.mUnicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
                            createInstance(Ci.nsIScriptableUnicodeConverter);
   this.mParserUtils = Cc["@mozilla.org/parserutils;1"].
@@ -306,6 +306,7 @@ FeedItem.prototype =
       'X-Mozilla-Status: 0000\n' +
       'X-Mozilla-Status2: 00000000\n' +
       'X-Mozilla-Keys: ' + " ".repeat(80) + '\n' +
+      'Received: by localhost; ' + FeedUtils.getValidRFC5322Date() + '\n' +
       'Date: ' + this.mDate + '\n' +
       'Message-Id: ' + this.normalizeMessageID(this.id) + '\n' +
       'From: ' + this.author + '\n' +

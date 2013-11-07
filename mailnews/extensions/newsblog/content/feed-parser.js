@@ -210,7 +210,7 @@ FeedParser.prototype =
       if (item.date)
       {
         item.date = item.date.trim();
-        if (!this.isValidRFC822Date(item.date))
+        if (!FeedUtils.isValidRFC822Date(item.date))
         {
           // XXX Use this on the other formats as well.
           item.date = this.dateRescue(item.date);
@@ -752,18 +752,6 @@ FeedParser.prototype =
     return s;
   },
 
-  // Date validator for RSS feeds
-  FZ_RFC822_RE: "^(((Mon)|(Tue)|(Wed)|(Thu)|(Fri)|(Sat)|(Sun)), *)?\\d\\d?" +
-    " +((Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Oct)|(Nov)|(Dec))" +
-    " +\\d\\d(\\d\\d)? +\\d\\d:\\d\\d(:\\d\\d)? +(([+-]?\\d\\d\\d\\d)|(UT)|(GMT)" +
-    "|(EST)|(EDT)|(CST)|(CDT)|(MST)|(MDT)|(PST)|(PDT)|\\w)$",
-
-  isValidRFC822Date: function(pubDate)
-  {
-    let regex = new RegExp(this.FZ_RFC822_RE);
-    return regex.test(pubDate);
-  },
-
   dateRescue: function(dateString)
   {
     // Deal with various kinds of invalid dates.
@@ -780,11 +768,7 @@ FeedParser.prototype =
         return d.toString();
     }
 
-    if (dateString.search(/^\d\d\d\d/) != -1)
-      //Could be an ISO8601/W3C date.
-      return new Date(dateString).toUTCString();
-
-    // Can't help.  Set to current time.
-    return (new Date()).toString();
+    // Could be an ISO8601/W3C date.  If not, get the current time.
+    return FeedUtils.getValidRFC5322Date(dateString);
   }
 };

@@ -1934,7 +1934,7 @@ var FeedSubscriptions = {
       head.appendChild(title);
       this.generatePPSpace(head, SPACES4);
       let dt = opmlDoc.createElement("dateCreated");
-      dt.appendChild(opmlDoc.createTextNode((new Date()).toGMTString()));
+      dt.appendChild(opmlDoc.createTextNode((new Date()).toUTCString()));
       head.appendChild(dt);
       this.generatePPSpace(head, SPACES2);
       opmlRoot.appendChild(head);

@@ -287,10 +287,7 @@ var FeedUtils = {
 
 /**
  * Update the feeds.rdf database with the new folder's location on name changes
- * on rename and move/copy. Note that for nested folders to also be reflected
- * correctly, the feedUrl property *must* be derived from the individual
- * folder's db, and not from panacea (ie using getStringProperty, which contains
- * the old name at the time of the notification).
+ * on rename and move/copy.
  *
  * @param  nsIMsgFolder aFolder      - the folder, new if rename or move/copy
  * @param  nsIMsgFolder aOrigFolder  - original folder, if move/copy
@@ -715,6 +712,38 @@ var FeedUtils = {
     // Leaf folder last.
     pathParts.push(aFolder.name);
     return pathParts.join("/");
+  },
+
+/**
+ * Date validator for feeds.
+ *
+ * @param  string aDate - date string
+ * @return boolean      - true if passes regex test, false if not
+ */
+  isValidRFC822Date: function(aDate)
+  {
+    const FZ_RFC822_RE = "^(((Mon)|(Tue)|(Wed)|(Thu)|(Fri)|(Sat)|(Sun)), *)?\\d\\d?" +
+    " +((Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Oct)|(Nov)|(Dec))" +
+    " +\\d\\d(\\d\\d)? +\\d\\d:\\d\\d(:\\d\\d)? +(([+-]?\\d\\d\\d\\d)|(UT)|(GMT)" +
+    "|(EST)|(EDT)|(CST)|(CDT)|(MST)|(MDT)|(PST)|(PDT)|\\w)$";
+    let regex = new RegExp(FZ_RFC822_RE);
+    return regex.test(aDate);
+  },
+
+/**
+ * Create rfc5322 date.
+ *
+ * @param  [string] aDateString - optional date string; if null or invalid
+ *                                 date, get the current datetime.
+ * @return string               - an rfc5322 date string
+ */
+  getValidRFC5322Date: function(aDateString)
+  {
+    let d = new Date(aDateString || new Date().getTime());
+    d = isNaN(d.getTime()) ? new Date() : d;
+    let utcDate = d.toUTCString();
+    let tzOffset = d.toTimeString().split("GMT")[1].split(" ")[0];
+    return utcDate.replace(/GMT/, tzOffset);
   },
 
   // Progress glue code.  Acts as a go between the RSS back end and the mail
