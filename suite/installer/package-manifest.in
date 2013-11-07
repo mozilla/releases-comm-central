@@ -447,6 +447,8 @@
 #endif
 @BINPATH@/components/PermissionSettings.js
 @BINPATH@/components/PermissionSettings.manifest
+@BINPATH@/components/PhoneNumberService.js
+@BINPATH@/components/PhoneNumberService.manifest
 @BINPATH@/components/PlacesCategoriesStarter.js
 @BINPATH@/components/pluginGlue.manifest
 @BINPATH@/components/servicesComponents.manifest
