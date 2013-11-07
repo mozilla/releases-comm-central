@@ -77,10 +77,8 @@ ltnMimeConverter.prototype = {
             let item = aItipItem.getItemList({})[0];
             let summary = item.getProperty("SUMMARY") || "";
             let organizer = item.organizer;
-            let organizerString = organizer.toString();
-            if (organizer.commonName) {
-                organizerString = organizer.commonName;
-            }
+            let organizerString = (organizer) ?
+              (organizer.commonName || organizer.toString()) : "";
 
             switch (aItipItem.responseMethod) {
                 case "REQUEST":
