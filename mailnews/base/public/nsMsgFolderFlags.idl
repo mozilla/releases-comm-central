@@ -15,8 +15,8 @@ interface nsMsgFolderFlags {
    */
   /// This folder is a newsgroup folder.
   const nsMsgFolderFlagType Newsgroup       = 0x00000001;
-  /// This folder is a news server.
-  const nsMsgFolderFlagType NewsHost        = 0x00000002;
+  /// Used to be for a folder that is a news server (NewsHost).
+  const nsMsgFolderFlagType Unused3         = 0x00000002;
   /// This folder is a mail folder.
   const nsMsgFolderFlagType Mail            = 0x00000004;
   /** @} */
@@ -41,8 +41,8 @@ interface nsMsgFolderFlags {
    *  nsMsgFolderFlags::Elided bits set.
    *  @{
    */
-  /// Whether this folder represents a subscribed newsgroup.
-  const nsMsgFolderFlagType Subscribed      = 0x00000040;
+  /// Used to be for folders representing a subscribed newsgroup (Subscribed).
+  const nsMsgFolderFlagType Unused5         = 0x00000040;
   /// Used to be for new newsgroups added by the `Check New Groups' command.
   const nsMsgFolderFlagType Unused2         = 0x00000080;
   /** @} */
@@ -74,8 +74,8 @@ interface nsMsgFolderFlags {
   const nsMsgFolderFlagType Unused4         = 0x00010000;
   /// This folder got new msgs
   const nsMsgFolderFlagType GotNew          = 0x00020000;
-  /// This folder is an IMAP server
-  const nsMsgFolderFlagType ImapServer      = 0x00040000;
+  /// Used to be for a folder that is an IMAP server (ImapServer)
+  const nsMsgFolderFlagType Unused6         = 0x00040000;
   /// This folder is an IMAP personal folder
   const nsMsgFolderFlagType ImapPersonal    = 0x00080000;
   /// This folder is an IMAP public folder
@@ -88,7 +88,8 @@ interface nsMsgFolderFlags {
   const nsMsgFolderFlagType PersonalShared  = 0x00800000;
   /// This folder is an IMAP \\Noselect folder
   const nsMsgFolderFlagType ImapNoselect    = 0x01000000;
-  /// This folder created offline
+  /// This folder created offline (this is never set in current code,
+  /// but it is still checked for and obeyed if found on a folder.
   const nsMsgFolderFlagType CreatedOffline  = 0x02000000;
   /// This imap folder cannot have children :-(
   const nsMsgFolderFlagType ImapNoinferiors = 0x04000000;
