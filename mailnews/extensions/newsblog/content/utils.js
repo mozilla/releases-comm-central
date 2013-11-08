@@ -741,9 +741,9 @@ var FeedUtils = {
   {
     let d = new Date(aDateString || new Date().getTime());
     d = isNaN(d.getTime()) ? new Date() : d;
-    let utcDate = d.toUTCString();
-    let tzOffset = d.toTimeString().split("GMT")[1].split(" ")[0];
-    return utcDate.replace(/GMT/, tzOffset);
+    let rfcDate = d.toUTCString().split(" ").slice(0,4).join(" ");
+    let rfcTimeLocal = d.toTimeString().split(" ").slice(0,2).join(" ");
+    return rfcDate + " " + rfcTimeLocal.replace(/GMT/,"");
   },
 
   // Progress glue code.  Acts as a go between the RSS back end and the mail
