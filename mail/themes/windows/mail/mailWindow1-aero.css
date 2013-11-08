@@ -183,11 +183,6 @@ treechildren::-moz-tree-image(news, threadCol, watch) {
   -moz-padding-end: 5px;
 }
 
-#editContactPanel:-moz-system-metric(windows-default-theme) {
-  -moz-appearance: tooltip;
-  color: InfoText;
-}
-
 .treecol-image image {
   -moz-padding-start: 1px;
   -moz-padding-end: 2px;
