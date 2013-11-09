@@ -91,7 +91,7 @@
         <xul:vbox pack="center" flex="1">
           <xul:label anonid="agenda-allDayEvent-date" class="agenda-event-start"
                      crop="end" xbl:inherits="selected" hidden="true"/>
-          <xul:hbox flex="1" align="center">
+          <xul:hbox flex="1" align="start">
             <xul:image anonid="agenda-multiDayEvent-image" class="agenda-multiDayEvent-image"/>
             <xul:calendar-month-day-box-item anonid="allday-item" 
                                              flex="1"

@@ -231,7 +231,7 @@ agenda-allday-richlist-item {
 .agenda-calendar-image {
   list-style-image: url("chrome://calendar/skin/calendar-overlay.png");
   -moz-image-region: rect(0px 10px 10px 0px);
-  margin-top: 3px;
+  margin-top: 0.35em;
   -moz-margin-start: 4px;
   width: 10px;
   height: 10px;
@@ -239,10 +239,15 @@ agenda-allday-richlist-item {
 
 .agenda-multiDayEvent-image {
   list-style-image: url("chrome://calendar/skin/calendar-overlay.png");
+  margin-top: 0.35em;
   -moz-margin-start: 3px;
   width: 10px;
   height: 10px;
   display: none;
+}
+
+.agenda-allday-container-box .agenda-multiDayEvent-image {
+  margin-top: 0.6em;
 }
 
 .agenda-multiDayEvent-image[type="start"] {
