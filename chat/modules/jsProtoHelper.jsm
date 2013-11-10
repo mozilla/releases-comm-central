@@ -23,8 +23,6 @@ XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
-function normalize(aString) aString.replace(/[^a-z0-9]/gi, "").toLowerCase()
-
 const GenericAccountPrototype = {
   __proto__: ClassInfo("prplIAccount", "generic account object"),
   get wrappedJSObject() this,
@@ -215,7 +213,7 @@ const GenericAccountPrototype = {
     (this._prefs = Services.prefs.getBranch("messenger.account." +
                                             this.imAccount.id + ".options.")),
 
-  get normalizedName() normalize(this.name),
+  get normalizedName() this.name.toLowerCase(),
   get proxyInfo() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
   set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
@@ -282,7 +280,7 @@ const GenericAccountBuddyPrototype = {
   _userName: "",
   get userName() this._userName || this._buddy.userName,
   get normalizedName()
-    this._userName ? normalize(this._userName) : this._buddy.normalizedName,
+    this._userName ? this._userName.toLowerCase() : this._buddy.normalizedName,
   _serverAlias: "",
   get serverAlias() this._serverAlias,
   set serverAlias(aNewAlias) {
@@ -495,7 +493,7 @@ const GenericConversationPrototype = {
 
   get account() this._account.imAccount,
   get name() this._name,
-  get normalizedName() normalize(this.name),
+  get normalizedName() this.name.toLowerCase(),
   get title() this.name,
   get startDate() this._date
 };
@@ -756,7 +754,7 @@ const GenericProtocolPrototype = {
       throw "Creating an instance of " + aId + " but this object implements " + this.id;
   },
   get id() "prpl-" + this.normalizedName,
-  get normalizedName() normalize(this.name),
+  get normalizedName() this.name.toLowerCase(),
   get iconBaseURI() "chrome://chat/skin/prpl-generic/",
 
   getAccount: function(aImAccount) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
