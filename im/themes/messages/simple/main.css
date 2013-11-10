@@ -27,19 +27,19 @@ span.date:after {
   content: " - ";
 }
 
-.action span.date:after {
+.action>span.date:after {
   content: " * ";
 }
 
-span.ib-msg-txt:before {
+span.pseudo:after {
   content: ": ";
 }
 
-.action span.ib-msg-txt:before {
+.action>span.pseudo:after {
   content: " ";
 }
 
-.event span.ib-msg-txt:before {
+.event>span.pseudo:after {
   content: none;
 }
 
@@ -49,10 +49,6 @@ span.ib-msg-txt:before {
 
 .nick {
   font-weight: bold;
-}
-
-.nick .pseudo {
-  text-decoration: underline;
 }
 
 .action {
