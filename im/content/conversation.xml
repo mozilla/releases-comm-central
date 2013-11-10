@@ -172,7 +172,10 @@
           this.updateTyping();
           this.inputValueChanged();
           this.loaded = true;
-          Services.obs.notifyObservers(this.browser, "conversation-loaded", null);
+          // Tell observers that this conversation was imported from another
+          // window as they might want to behave differently in this case.
+          Services.obs.notifyObservers(this.browser, "conversation-loaded",
+                                                     "imported");
         ]]>
         </body>
       </method>
