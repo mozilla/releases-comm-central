@@ -710,9 +710,10 @@ var messageHeaderSink = {
           }
 
           img.addEventListener("load", function(event) {
-            if (this.clientWidth > this.parentNode.clientWidth &&
-                this.hasAttribute("shrinktofit"))
-              this.setAttribute("isshrunk", true);
+            if (this.clientWidth > this.parentNode.clientWidth) {
+              img.setAttribute("overflowing", "true");
+              img.setAttribute("shrinktofit", "true");
+            }
           });
         }
       }

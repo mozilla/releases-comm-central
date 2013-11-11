@@ -74,20 +74,21 @@ mailattachcount {
   height: 100%;
 }
 
-/* ::::: attached images ::::: */
-.moz-attached-image {
+/* ::::: images ::::: */
+img {
   image-orientation: from-image;
 }
 
-.moz-attached-image[overflowing="true"] { 
+img[overflowing]:not([shrinktofit]) {
   cursor: zoom-out;
+  width: auto !important;
 }
 
-.moz-attached-image[isshrunk="true"] { 
+img[overflowing][shrinktofit] {
   cursor: zoom-in;
-  max-width: 100%;
+  max-width: 100% !important;
+  height: auto !important;
 }
-
 
 /* ::::: vcard ::::: */
 

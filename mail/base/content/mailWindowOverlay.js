@@ -3163,24 +3163,23 @@ function OnMsgParsed(aUrl)
   if (msgHdr && !msgHdr.getUint32Property("notAPhishMessage"))
     gPhishingDetector.analyzeMsgForPhishingURLs(aUrl);
 
-  // notify anyone (e.g., extensions) who's interested in when a message is loaded.
+  // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
   let selectedMessageUris = gFolderDisplay.selectedMessageUris;
   let msgURI = selectedMessageUris ? selectedMessageUris[0] : null;
   Services.obs.notifyObservers(msgWindow.msgHeaderSink, "MsgMsgDisplayed", msgURI);
 
-  // scale any overflowing images
-  let doc = document.getElementById("messagepane").contentDocument;
-  let imgs = doc.images;
-  for (let i = 0; i < imgs.length; i++)
+  // Scale any overflowing images, exclude http content.
+  let browser = getBrowser();
+  let doc = browser && browser.contentDocument ? browser.contentDocument : null;
+  let imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
+  for (let img of imgs)
   {
-    let img = imgs[i];
-    if (img.className == "moz-attached-image" && img.naturalWidth > doc.body.clientWidth)
-    {
-      if (img.hasAttribute("shrinktofit"))
-        img.setAttribute("isshrunk", "true");
-      else
-        img.setAttribute("overflowing", "true");
-    }
+    if (img.clientWidth - doc.body.offsetWidth >= 0 &&
+        (img.clientWidth <= img.naturalWidth || !img.naturalWidth))
+      img.setAttribute("overflowing", "true");
+
+    // This is the default case for images when a message is loaded.
+    img.setAttribute("shrinktofit", "true");
   }
 }
 

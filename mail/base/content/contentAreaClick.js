@@ -27,6 +27,13 @@
       if (target.hasAttribute("href"))
         href = target.href;
     }
+    else if (target instanceof HTMLImageElement &&
+             target.hasAttribute("overflowing"))
+    {
+      // Return if an image is zoomed, otherwise fall through to see if it has
+      // a link node.
+      return href;
+    }
     else if (!aDontCheckInputElement && target instanceof HTMLInputElement)
     {
       if (target.form && target.form.action)
@@ -34,7 +41,7 @@
     }
     else
     {
-      // we may be nested inside of a link node
+      // We may be nested inside of a link node.
       var linkNode = aEvent.originalTarget;
       while (linkNode && !(linkNode instanceof HTMLAnchorElement))
         linkNode = linkNode.parentNode;
@@ -48,61 +55,47 @@
 
   function messagePaneOnResize(aEvent)
   {
-    // scale any overflowing images
-    let doc = document.getElementById("messagepane").contentDocument;
-    let imgs = doc.querySelectorAll("img.moz-attached-image");
-    for (let i = 0; i < imgs.length; i++)
+    // Scale any overflowing images, exclude http content.
+    let browser = getBrowser();
+    let doc = browser && browser.contentDocument ? browser.contentDocument : null;
+    let imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
+    for (let img of imgs)
     {
-      let img = imgs[i];
-      if (img.naturalWidth <= doc.body.clientWidth)
-      {
-        img.removeAttribute("isshrunk");
-        img.removeAttribute("overflowing");
-      }
-      else if (img.hasAttribute("shrinktofit"))
-      {
-        img.setAttribute("isshrunk", "true");
-        img.removeAttribute("overflowing");
-      }
+      if (img.clientWidth - doc.body.offsetWidth >= 0 &&
+          (img.clientWidth <= img.naturalWidth || !img.naturalWidth))
+        img.setAttribute("overflowing", true);
       else
-      {
-        img.setAttribute("overflowing", "true");
-        img.removeAttribute("isshrunk");
-      }
+        img.removeAttribute("overflowing");
     }
   }
 
 // Called whenever the user clicks in the content area,
-// should always return true for click to go through
+// should always return true for click to go through.
 function contentAreaClick(aEvent)
 {
   let href = hRefForClickEvent(aEvent);
 
   if (!href && !aEvent.button) {
     var target = aEvent.target;
-    // is this an image that we might want to scale?
+    // Is this an image that we might want to scale?
     const Ci = Components.interfaces;
 
     if (target instanceof Ci.nsIImageLoadingContent) {
-      // make sure it loaded successfully
+      // Make sure it loaded successfully. No action if not or a broken link.
       var req = target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
       if (!req || req.imageStatus & Ci.imgIRequest.STATUS_ERROR)
-        return true;
+        return false;
 
-      // is it an inline attachment?
-      if (target.classList.contains("moz-attached-image")) {
-        if (target.hasAttribute("isshrunk")) {
-          // currently shrunk to fit, so unshrink it
-          target.removeAttribute("isshrunk");
+      // Is it an image?
+      if (target.localName == "img" && target.hasAttribute("overflowing")) {
+        if (target.hasAttribute("shrinktofit"))
+          // Currently shrunk to fit, so unshrink it.
           target.removeAttribute("shrinktofit");
-          target.setAttribute("overflowing", "true");
-        }
-        else if (target.hasAttribute("overflowing")) {
-          // user wants to shrink now
-          target.setAttribute("isshrunk", "true");
-          target.setAttribute("shrinktofit", "true");
-          target.removeAttribute("overflowing");
-        }
+        else
+          // User wants to shrink now.
+          target.setAttribute("shrinktofit", true);
+
+        return false;
       }
     }
     return true;
@@ -125,7 +118,7 @@ function contentAreaClick(aEvent)
   // prevent the default action so we don't try and load it here.
   aEvent.preventDefault();
 
-  // let the phishing detector check the link
+  // Let the phishing detector check the link.
   if (!gPhishingDetector.warnOnSuspiciousLinkClick(href))
     return false;
 
