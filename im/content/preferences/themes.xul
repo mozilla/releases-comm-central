@@ -70,8 +70,7 @@
           </hbox>
           <separator class="thin"/>
           <label value="&messageStylePreview.label;"/>
-          <tooltip id="aHTMLTooltip"
-                   onpopupshowing="return getBrowser().FillInHTMLTooltip(document.tooltipNode);"/>
+          <tooltip id="aHTMLTooltip" page="true"/>
           <deck flex="1" id="previewDeck" selectedIndex="1">
             <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
               <hbox id="noPreviewBox" align="top">

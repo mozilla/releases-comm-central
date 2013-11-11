@@ -177,13 +177,6 @@ var logWindow = {
     if (!("smileTextNode" in window))
       Cu.import("resource:///modules/imSmileys.jsm");
     smileTextNode(elt);
-  },
-
-  fetchTooltip: function() {
-    // Explicitly use the conv-browser for this as the text-browser
-    // does not have a FillInHTMLTooltip method.
-    return document.getElementById('conv-browser')
-                   .FillInHTMLTooltip(document.tooltipNode);
   }
 };
 

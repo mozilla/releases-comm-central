@@ -121,8 +121,6 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
-    <tooltip id="aHTMLTooltip"
-             onpopupshowing="return getBrowser().FillInHTMLTooltip(document.tooltipNode);"/>
     <tooltip id="buddyTooltip" type="buddy"/>
 
     <menupopup id="contentAreaContextMenu"
@@ -185,7 +183,7 @@
   </popupset>
 
   <tabconversation id="conversations" flex="1"
-                   contenttooltip="aHTMLTooltip"
+                   contenttooltip="buddyTooltip"
                    contentcontextmenu="contentAreaContextMenu"/>
 
 #ifdef XP_MACOSX

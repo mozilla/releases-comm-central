@@ -17,38 +17,41 @@
       <stylesheet src="chrome://instantbird/skin/buddytooltip.css"/>
     </resources>
     <content noautohide="true" orient="vertical">
-      <xul:hbox align="start" crop="end" flex="1">
-        <xul:vbox flex="1">
-          <xul:stack>
-            <xul:image class="userIcon" anonid="userIcon"/>
-            <xul:image class="statusTypeIcon" xbl:inherits="status,left"/>
-          </xul:stack>
-          <xul:spacer flex="1"/>
-        </xul:vbox>
-        <xul:stack class="displayNameMessageBox" flex="1">
+      <children>
+        <xul:label class="tooltip-label" xbl:inherits="xbl:text=label" flex="1"/>
+      </children>
+      <xul:vbox id="largeTooltip">
+        <xul:hbox align="start" crop="end" flex="1">
           <xul:vbox flex="1">
-            <xul:hbox align="start" flex="1">
-              <xul:description class="tooltipDisplayName" flex="1" crop="end"
-                               xbl:inherits="value=displayname"/>
-              <xul:image class="tooltipProtoIcon"
-                         xbl:inherits="src=iconPrpl,status"/>
-            </xul:hbox>
+            <xul:stack>
+              <xul:image class="userIcon" anonid="userIcon"/>
+              <xul:image class="statusTypeIcon" xbl:inherits="status,left"/>
+            </xul:stack>
             <xul:spacer flex="1"/>
           </xul:vbox>
-          <xul:description class="tooltipMessage" anonid="tooltipMessage"
-                           xbl:inherits="noTopic"/>
-        </xul:stack>
-      </xul:hbox>
-
-      <xul:grid>
-        <xul:columns>
-          <xul:column/>
-          <xul:column flex="1"/>
-        </xul:columns>
-        <xul:rows class="tooltipRows" anonid="tooltiprows"/>
-      </xul:grid>
-
-      <xul:vbox class="tooltipBuddies" anonid="buddies"/>
+          <xul:stack class="displayNameMessageBox" flex="1">
+            <xul:vbox flex="1">
+              <xul:hbox align="start" flex="1">
+                <xul:description class="tooltipDisplayName" flex="1" crop="end"
+                                 xbl:inherits="value=displayname"/>
+                <xul:image class="tooltipProtoIcon"
+                           xbl:inherits="src=iconPrpl,status"/>
+              </xul:hbox>
+              <xul:spacer flex="1"/>
+            </xul:vbox>
+            <xul:description class="tooltipMessage" anonid="tooltipMessage"
+                             xbl:inherits="noTopic"/>
+          </xul:stack>
+        </xul:hbox>
+        <xul:grid>
+          <xul:columns>
+            <xul:column/>
+            <xul:column flex="1"/>
+          </xul:columns>
+          <xul:rows class="tooltipRows" anonid="tooltiprows"/>
+        </xul:grid>
+        <xul:vbox class="tooltipBuddies" anonid="buddies"/>
+      </xul:vbox>
     </content>
     <implementation implements="nsIObserver, nsIDOMEventListener">
      <property name="bundle">
@@ -339,13 +342,12 @@
      </method>
 
      <method name="updateTooltipFromParticipant">
-       <parameter name="aChatBuddy"/>
+       <parameter name="aNick"/>
        <parameter name="aConv"/>
        <body>
        <![CDATA[
          this.reset();
-         let name = aChatBuddy.name;
-         this.setAttribute("displayname", name);
+         this.setAttribute("displayname", aNick);
          let account = aConv.account;
          this.setAttribute("iconPrpl",
                            account.protocol.iconBaseURI + "icon.png");
@@ -355,7 +357,7 @@
          this.addRow(this.bundle.GetStringFromName("buddy.account"),
                      account.name);
          this.requestBuddyInfo(account,
-                               aConv.target.getNormalizedChatBuddyName(name));
+                               aConv.target.getNormalizedChatBuddyName(aNick));
          return true;
        ]]>
        </body>
@@ -401,6 +403,11 @@
          if (!elt.parentNode)
            return false;
 
+         // Reset tooltip.
+         let largeTooltip = document.getElementById("largeTooltip");
+         largeTooltip.hidden = false;
+         this.removeAttribute("label");
+
          let localName = elt.localName;
          if (localName == "tab") {
            if (!elt.linkedConversation || !elt.linkedConversation.conv)
@@ -419,10 +426,22 @@
 
          if (localName == "listitem") {
            let conv = document.getBindingParent(elt).conv;
-           return updateTooltipFromParticipant(elt.chatBuddy, conv);
+           return updateTooltipFromParticipant(elt.chatBuddy.name, conv);
          }
 
-         return false;
+         let classList = elt.classList;
+         if (classList.contains("ib-nick") ||
+             classList.contains("ib-sender")) {
+           let conv = getBrowser()._conv;
+           if (conv.isChat)
+             return updateTooltipFromParticipant(elt.textContent, conv);
+           else if (elt.textContent == conv.name)
+             return updateTooltipFromConversation(conv, elt);
+         }
+
+         // Use the default content tooltip.
+         largeTooltip.hidden = true;
+         return fillInPageTooltip(elt);
        ]]>
      </handler>
      <handler event="popuphiding">

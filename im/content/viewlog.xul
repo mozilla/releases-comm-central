@@ -86,8 +86,7 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
-    <tooltip id="aHTMLTooltip"
-             onpopupshowing="return logWindow.fetchTooltip();"/>
+    <tooltip id="aHTMLTooltip" page="true"/>
     <menupopup id="contentAreaContextMenu">
       <menuitem id="context-copy"
                 label="&copyCmd.label;"
