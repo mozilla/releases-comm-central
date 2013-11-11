@@ -125,6 +125,8 @@ interface prplIAccount: nsISupports {
    */
   void joinChat(in prplIChatRoomFieldValues aComponents);
 
+  // A name that can be used to check for duplicates and is the basis
+  // for the directory name for log storage.
   readonly attribute AUTF8String normalizedName;
 
   attribute purpleIProxyInfo proxyInfo;

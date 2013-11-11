@@ -148,7 +148,9 @@ interface imIBuddy: imIStatusInfo {
   readonly attribute long id;
   readonly attribute prplIProtocol protocol;
   readonly attribute AUTF8String userName; // may be formatted
-  readonly attribute AUTF8String normalizedName; // normalized userName
+  // A name that can be used to check for duplicates and is the basis
+  // for the directory name for log storage.
+  readonly attribute AUTF8String normalizedName;
   // The optional server alias is in displayName (inherited from imIStatusInfo)
   // displayName = serverAlias || userName.
 
@@ -226,6 +228,8 @@ interface imIAccountBuddy: imIStatusInfo {
   // server-stored buddy list.
            attribute imITag tag;
   readonly attribute AUTF8String userName;
+  // A name that can be used to check for duplicates and is the basis
+  // for the directory name for log storage.
   readonly attribute AUTF8String normalizedName;
            attribute AUTF8String serverAlias;
 
