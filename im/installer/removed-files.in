@@ -169,7 +169,6 @@ components/zipwriter.xpt
 components/nsPostUpdateWin.js
 #endif /* XP_WIN */
 components/nsResetPref.js
-dependentlibs.list
 d3dx9_43.dll
 #ifdef XP_WIN
 IA2Marshal.dll
