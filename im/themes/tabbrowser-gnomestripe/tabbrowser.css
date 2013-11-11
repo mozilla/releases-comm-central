@@ -31,7 +31,7 @@
 }
 
 .tabbrowser-tab,
-.tabs-newtab-button {
+.tabbrowser-arrowscrollbox > .tabs-newtab-button {
   position: static;
   -moz-appearance: none;
   background: -moz-linear-gradient(hsla(0,0%,100%,.2), hsla(0,0%,45%,.2) 2px, hsla(0,0%,32%,.2) 80%);
