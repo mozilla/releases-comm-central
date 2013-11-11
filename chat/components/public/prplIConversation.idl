@@ -28,7 +28,8 @@ interface prplIConversation: nsISupports {
   /* The name of the conversation, typically in English */
   readonly attribute AUTF8String name;
 
-  /* The normalized name of the conversation (suitable for a log file name) */
+  /* A name that can be used to check for duplicates and is the basis
+     for the directory name for log storage. */
   readonly attribute AUTF8String normalizedName;
 
   /* The title of the conversation, typically localized */
@@ -36,7 +37,6 @@ interface prplIConversation: nsISupports {
 
   /* The time and date of the conversation's creation */
   readonly attribute PRTime startDate;
-
   /* Unique identifier of the conversation */
   /* Setable only once by purpleCoreService while calling addConversation. */
            attribute unsigned long id;
