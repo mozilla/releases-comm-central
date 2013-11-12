@@ -1149,9 +1149,11 @@
                         label="&printCmd.label;"
                         key="key_print"
                         command="cmd_print"/>
+#ifndef XP_MACOSX
               <menuitem id="appmenu_printPreview"
                         label="&printPreviewCmd.label;"
                         command="cmd_printpreview"/>
+#endif
               <menuitem id="appmenu_printSetup"
                         label="&printSetupCmd.label;"
                         command="cmd_printSetup"/>
