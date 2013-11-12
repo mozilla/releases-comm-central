@@ -482,7 +482,7 @@ SuiteGlue.prototype = {
     if (pagecount < 2)
       return;
 
-    if (aQuitType != "restart")
+    if (aQuitType != "restart" && aQuitType != "lastwindow")
       aQuitType = "quit";
 
     var showPrompt = true;
@@ -512,10 +512,10 @@ SuiteGlue.prototype = {
       if (aQuitType == "restart")
         message = quitBundle.formatStringFromName("messageRestart",
                                                   [appName], 1);
-      else if (windowcount == 1)
+      else if (windowcount == 1)    /* close browser only, or quit application with only 1 browser window */
         message = quitBundle.formatStringFromName("messageNoWindows",
                                                   [appName], 1);
-      else
+      else                          /* quit application with 2 or more windows */
         message = quitBundle.formatStringFromName("message",
                                                   [appName], 1);
 
@@ -532,9 +532,10 @@ SuiteGlue.prototype = {
         button1Title = quitBundle.GetStringFromName("restartLaterTitle");
       } else {
         flags += Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2;
-        button0Title = quitBundle.GetStringFromName("saveTitle");
+        button0Title = quitBundle.GetStringFromName(
+                        (aQuitType == "quit" ? "saveTitle" : "savelastwindowTitle"));
         button1Title = quitBundle.GetStringFromName("cancelTitle");
-        button2Title = quitBundle.GetStringFromName("quitTitle");
+        button2Title = quitBundle.GetStringFromName(aQuitType + "Title"); /* "quitTitle" or "lastwindowTitle" */
       }
 
       var mostRecentBrowserWindow = Services.wm.getMostRecentWindow("navigator:browser");
