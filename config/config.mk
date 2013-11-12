@@ -200,9 +200,6 @@ FINAL_LINK_LIBS = $(MOZDEPTH)/config/final-link-libs
 FINAL_LINK_COMPS = $(MOZDEPTH)/config/final-link-comps
 FINAL_LINK_COMP_NAMES = $(MOZDEPTH)/config/final-link-comp-names
 
-MOZ_UNICHARUTIL_LIBS = $(LIBXUL_DIST)/lib/$(LIB_PREFIX)unicharutil_s.$(LIB_SUFFIX)
-MOZ_WIDGET_SUPPORT_LIBS    = $(DIST)/lib/$(LIB_PREFIX)widgetsupport_s.$(LIB_SUFFIX)
-
 ifdef _MSC_VER
 CC_WRAPPER ?= $(call py_action,cl)
 CXX_WRAPPER ?= $(call py_action,cl)

@@ -44,15 +44,6 @@ SHARED_LIBRARY_LIBS = \
                 ../mime/cthandlers/pgpmime/$(LIB_PREFIX)pgpmime_s.$(LIB_SUFFIX) \
                 $(NULL)
 
-ifdef MOZILLA_INTERNAL_API
-EXTRA_DSO_LDOPTS = \
-		$(MOZDEPTH)/rdf/util/src/internal/$(LIB_PREFIX)rdfutil_s.$(LIB_SUFFIX) \
-		$(MOZ_JS_LIBS) \
-		$(MOZ_UNICHARUTIL_LIBS) \
-		$(MOZ_COMPONENT_LIBS) \
-		$(MOZ_ZLIB_LIBS) \
-		$(NULL)
-else
 EXTRA_DSO_LDOPTS = \
 	$(LIBS_DIR) \
 	$(MOZ_JS_LIBS) \
@@ -66,7 +57,6 @@ ifneq (WINNT,$(OS_ARCH))
 EXTRA_DSO_LDOPTS += \
 	$(MOZ_ZLIB_LIBS) \
 	$(NULL)
-endif
 endif
 
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))

@@ -19,9 +19,7 @@ LOCAL_INCLUDES = \
 		-I$(srcdir)/../src \
 		$(NULL)
 
-ifndef MOZILLA_INTERNAL_API
 LIBS += $(XPCOM_GLUE_LDOPTS)
-endif
 
 LIBS += 	\
 		../src/$(LIB_PREFIX)msgimap_s.$(LIB_SUFFIX) \
