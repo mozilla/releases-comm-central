@@ -459,6 +459,11 @@ mime_generate_headers (nsMsgCompFields *fields,
       PUSH_STRING("DSN=0");
     PUSH_STRING("; ");
     PUSH_STRING("uuencode=0");
+    PUSH_STRING("; ");
+    if (fields->GetAttachmentReminder())
+      PUSH_STRING("attachmentreminder=1");
+    else
+      PUSH_STRING("attachmentreminder=0");
 
     PUSH_NEWLINE ();
   }

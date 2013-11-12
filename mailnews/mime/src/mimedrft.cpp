@@ -1304,6 +1304,12 @@ mime_parse_stream_complete (nsMIMESession *stream)
       if (parm)
         sscanf(parm, "%d", &lineWidth);
       PR_FREEIF(parm);
+      parm = MimeHeaders_get_parameter(draftInfo, "attachmentreminder", NULL, NULL);
+      if (parm && !strcmp(parm, "1"))
+        fields->SetAttachmentReminder(true);
+      else
+        fields->SetAttachmentReminder(false);
+      PR_FREEIF(parm);
 
     }
 

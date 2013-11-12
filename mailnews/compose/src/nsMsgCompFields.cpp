@@ -37,6 +37,7 @@ nsMsgCompFields::nsMsgCompFields()
   m_bodyIsAsciiOnly = false;
   m_forceMsgEncoding = false;
   m_needToCheckCharset = true;
+  m_attachmentReminder = false;
 
   // Get the default charset from pref, use this as a mail charset.
   nsString charset;
@@ -354,6 +355,18 @@ NS_IMETHODIMP nsMsgCompFields::SetAttachVCard(bool value)
 NS_IMETHODIMP nsMsgCompFields::GetAttachVCard(bool *_retval)
 {
   *_retval = m_attachVCard;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompFields::GetAttachmentReminder(bool *_retval)
+{
+  *_retval = m_attachmentReminder;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompFields::SetAttachmentReminder(bool value)
+{
+  m_attachmentReminder = value;
   return NS_OK;
 }
 

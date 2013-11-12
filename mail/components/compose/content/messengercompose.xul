@@ -106,6 +106,7 @@
   <command id="cmd_attachCloud" oncommand="attachToCloud(event.target.cloudProvider); event.stopPropagation();"/>
   <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
   <command id="cmd_attachVCard" checked="false" oncommand="ToggleAttachVCard(event.target)"/>
+  <command id="cmd_remindLater" checked="false" oncommand="toggleAttachmentReminder()"/>
   <command id="cmd_close" oncommand="goDoCommand('cmd_close')"/>
   <command id="cmd_saveDefault" oncommand="goDoCommand('cmd_saveDefault')"/>
   <command id="cmd_saveAsFile" oncommand="goDoCommand('cmd_saveAsFile')"/>
@@ -389,6 +390,12 @@
             label="&attachPage.label;"
             accesskey="&attachPage.accesskey;"
             command="cmd_attachPage"/>
+  <menuseparator id="attachmentListContext_remindLaterSeparator"/>
+  <menuitem id="attachmentListContext_remindLaterItem"
+            type="checkbox"
+            label="&remindLater.label;"
+            accesskey="&remindLater.accesskey;"
+            command="cmd_remindLater"/>
 </menupopup>
 
 <menupopup id="toolbar-context-menu"
@@ -451,6 +458,9 @@
               <menuitem label="&attachPageCmd.label;" accesskey="&attachPageCmd.accesskey;" command="cmd_attachPage"/>
               <menuseparator/>
               <menuitem type="checkbox" label="&attachVCardCmd.label;" accesskey="&attachVCardCmd.accesskey;" command="cmd_attachVCard"/>
+              <menuseparator id="menu_Attach_RemindLaterSeparator"/>
+              <menuitem id="menu_Attach_RemindLaterItem" type="checkbox" label="&remindLater.label;"
+                        accesskey="&remindLater.accesskey;" command="cmd_remindLater"/>
             </menupopup>
           </menu>
           <menuseparator/>
@@ -723,6 +733,12 @@
                   label="&attachVCardCmd.label;"
                   accesskey="&attachVCardCmd.accesskey;"
                   command="cmd_attachVCard"/>
+        <menuseparator id="button-attachPopup_remindLaterSeparator"/>
+        <menuitem id="button-attachPopup_remindLaterItem"
+                  type="checkbox"
+                  label="&remindLater.label;"
+                  accesskey="&remindLater.accesskey;"
+                  command="cmd_remindLater"/>
       </menupopup>
     </toolbarbutton>
 

@@ -69,7 +69,7 @@ var gMsgAddressingWidgetTreeElement;
 var gMsgSubjectElement;
 var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;
-var gRemindLater;
+var gManualAttachmentReminder;
 var gComposeType;
 
 // i18n globals
@@ -123,7 +123,7 @@ function InitializeGlobalVariables()
   gCharsetTitle = null;
   gCharsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1'].getService(Components.interfaces.nsICharsetConverterManager);
   gHideMenus = false;
-  gRemindLater = false;
+  gManualAttachmentReminder = false;
 
   gLastWindowToHaveFocus = null;
   gReceiptOptionChanged = false;
@@ -1835,7 +1835,7 @@ attachmentWorker.onmessage = function(event)
     nBox.removeNotification(notification);
   if (msg) {
     var addButton = {
-      accessKey : getComposeBundle().getString("addAttachmentButton.accessskey"),
+      accessKey : getComposeBundle().getString("addAttachmentButton.accesskey"),
       label: getComposeBundle().getString("addAttachmentButton"),
       callback: function (aNotificationBar, aButton)
       {
@@ -1844,11 +1844,11 @@ attachmentWorker.onmessage = function(event)
     };
 
     var remindButton = {
-      accessKey : getComposeBundle().getString("remindLaterButton.accessskey"),
+      accessKey : getComposeBundle().getString("remindLaterButton.accesskey"),
       label: getComposeBundle().getString("remindLaterButton"),
       callback: function (aNotificationBar, aButton)
       {
-        gRemindLater = true;
+        toggleAttachmentReminder(true);
       }
     };
 
@@ -1933,7 +1933,7 @@ function ShouldShowAttachmentNotification(async)
  */
 function CheckForAttachmentNotification(event)
 {
-  if (!CheckForAttachmentNotification.shouldFire || gRemindLater)
+  if (!CheckForAttachmentNotification.shouldFire || gManualAttachmentReminder)
     return;
   if (!event)
     attachmentWorker.lastMessage = null;
@@ -2106,6 +2106,7 @@ function ComposeStartup(recycled, aParams)
           .setAttribute("checked", gMsgCompose.compFields.DSN);
   document.getElementById("cmd_attachVCard")
           .setAttribute("checked", gMsgCompose.compFields.attachVCard);
+  toggleAttachmentReminder(gMsgCompose.compFields.attachmentReminder);
 
   // If recycle, editor is already created.
   if (!recycled)
@@ -2457,6 +2458,9 @@ function GenericSendMessage(msgType)
   var subject = GetMsgSubjectElement().value;
   msgCompFields.subject = subject;
   Attachments2CompFields(msgCompFields);
+  // Some other msgCompFields have already been updated instantly in their respective
+  // toggle functions, e.g. ToggleReturnReceipt(), ToggleDSN(),  ToggleAttachVCard(),
+  // and toggleAttachmentReminder().
 
   let sending = msgType == nsIMsgCompDeliverMode.Now ||
       msgType == nsIMsgCompDeliverMode.Later ||
@@ -2512,13 +2516,15 @@ function GenericSendMessage(msgType)
       }
     }
 
-    // Alert the user if
-    //  - the button to remind about attachments was clicked, or
-    //  - the aggressive pref is set and the notification was not dismissed
-    // and the message (still) contains attachment keywords.
-    if ((gRemindLater || (getPref("mail.compose.attachment_reminder_aggressive") &&
-          document.getElementById("attachmentNotificationBox").currentNotification)) &&
-        ShouldShowAttachmentNotification(false)) {
+    // Attachment Reminder: Alert the user if
+    //  - the user requested "Remind me later" from either the notification bar or the menu
+    //    (alert regardless of the number of files already attached: we can't guess for how many
+    //    or which files users want the reminder, and guessing wrong will annoy them a lot), OR
+    //  - the aggressive pref is set and the latest notification is still showing (implying
+    //    that the message has no attachment(s) yet, message still contains some attachment
+    //    keywords, and notification was not dismissed).
+    if (gManualAttachmentReminder || (getPref("mail.compose.attachment_reminder_aggressive") &&
+         document.getElementById("attachmentNotificationBox").currentNotification)) {
       let flags = Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
                   Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
       let hadForgotten = Services.prompt.confirmEx(window,
@@ -2528,6 +2534,10 @@ function GenericSendMessage(msgType)
                             getComposeBundle().getString("attachmentReminderFalseAlarm"),
                             getComposeBundle().getString("attachmentReminderYesIForgot"),
                             null, null, {value:0});
+      // Deactivate manual attachment reminder after showing the alert to avoid alert loop.
+      // We also deactivate reminder when user ignores alert with [x] or [ESC].
+      toggleAttachmentReminder(false);
+
       if (hadForgotten)
         return;
     }
@@ -3130,6 +3140,24 @@ function ToggleAttachVCard(target)
     target.setAttribute('checked', msgCompFields.attachVCard);
     gAttachVCardOptionChanged = true;
   }
+}
+
+/**
+ * Toggles or sets the status of manual Attachment Reminder, i.e. whether
+ * the user will get the "Attachment Reminder" alert before sending or not.
+ * Toggles checkmark on "Remind me later" menuitem and internal
+ * gManualAttachmentReminder flag accordingly.
+ *
+ * @param aState (optional) true = activate reminder.
+ *                          false = deactivate reminder.
+ *                          (default) = toggle reminder state.
+ */
+function toggleAttachmentReminder(aState = !gManualAttachmentReminder)
+{
+  gManualAttachmentReminder = aState;
+  document.getElementById("cmd_remindLater")
+          .setAttribute("checked", aState);
+  gMsgCompose.compFields.attachmentReminder = aState;
 }
 
 function ClearIdentityListPopup(popup)

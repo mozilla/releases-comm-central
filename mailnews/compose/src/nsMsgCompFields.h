@@ -139,6 +139,7 @@ public:
   bool GetReturnReceipt() {return m_returnReceipt;}
   bool GetDSN() {return m_DSN;}
   bool GetAttachVCard() {return m_attachVCard;}
+  bool GetAttachmentReminder() {return m_attachmentReminder;}
   bool GetForcePlainText() {return m_forcePlainText;}
   bool GetUseMultipartAlternative() {return m_useMultipartAlternative;}
   bool GetBodyIsAsciiOnly() {return m_bodyIsAsciiOnly;}
@@ -155,6 +156,7 @@ protected:
   nsCString   m_body;
   nsCOMArray<nsIMsgAttachment> m_attachments;
   bool        m_attachVCard;
+  bool        m_attachmentReminder;
   bool        m_forcePlainText;
   bool        m_useMultipartAlternative;
   bool        m_returnReceipt;

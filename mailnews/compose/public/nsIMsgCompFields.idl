@@ -7,7 +7,7 @@
 #include "nsIMsgAttachment.idl"
 #include "nsISimpleEnumerator.idl"
 
-[scriptable, uuid(bfd07df7-6707-47c8-860d-fd4b30934034)]
+[scriptable, uuid(4f803e7a-5bd5-4344-9901-7a9ee89be780)]
 interface nsIMsgCompFields : nsISupports {
 
   attribute AString from;
@@ -44,6 +44,8 @@ interface nsIMsgCompFields : nsISupports {
   attribute boolean useMultipartAlternative;
   attribute boolean bodyIsAsciiOnly;
   attribute boolean forceMsgEncoding;
+  /// Status of manually-activated attachment reminder.
+  attribute boolean attachmentReminder;
 
   attribute AString otherRandomHeaders;
 
