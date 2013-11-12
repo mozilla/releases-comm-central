@@ -89,10 +89,10 @@ BOOKMARKS_XTRA_FILE = $(call MERGE_FILE,profile/bookmarks.extra)
 	$(RM) -rf profile/*bookmarks*
 	$(NSINSTALL) -D profile
 	cp $^ profile/
-	$(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py \
+	$(call py_action,preprocessor, \
 	  -DAB_CD=$(NO_JA_JP_MAC_AB_CD) \
 	  profile/bookmarks.html.in \
-	  > $@
+	  -o $@)
 
 PANELS_XTRA_FILE = $(call MERGE_FILE,profile/panels.extra)
 
@@ -105,8 +105,8 @@ PANELS_XTRA_FILE = $(call MERGE_FILE,profile/panels.extra)
 	sed \
 	  -n 's/.*<RDF:Description about="\(.*\)">.*/        <RDF:li resource="\1"\/>/p' \
 	  profile/panels.extra > profile/panels-urn.inc
-	$(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py \
-	  profile/panels.rdf.in > $@
+	$(call py_action,preprocessor, \
+	  profile/panels.rdf.in -o $@)
 
 libs:: $(FINAL_TARGET)/defaults/profile/bookmarks.html ;
 libs:: $(FINAL_TARGET)/defaults/profile/panels.rdf ;

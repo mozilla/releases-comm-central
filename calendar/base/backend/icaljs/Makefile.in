@@ -36,7 +36,7 @@ libs:: $(BACKEND_MANIFESTS)
 	  fname=`basename $$i`; \
 	  dest=$(FINAL_TARGET)/components/$${fname}; \
 	  $(RM) -f $$dest; \
-	  $(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $$i > $$dest; \
+	  $(PYTHON) -m mozbuild.action.preprocessor $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $$i -o $$dest; \
 	done
 
 # The install target must use SYSINSTALL, which is NSINSTALL in copy mode.

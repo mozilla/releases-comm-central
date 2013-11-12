@@ -1522,7 +1522,7 @@ $(foreach category,$(INSTALL_TARGETS),\
 define preprocess_file_template
 $(2): $(1) $$(GLOBAL_DEPS)
 	$$(RM) "$$@"
-	$$(PYTHON) $$(MOZILLA_DIR)/config/Preprocessor.py $(4) $$(DEFINES) $$(ACDEFINES) $$(XULPPFLAGS) "$$<" -o "$$@"
+	$$(call py_action,preprocessor,$(4) $$(DEFINES) $$(ACDEFINES) $$(XULPPFLAGS) "$$<" -o "$$@")
 $(3):: $(2)
 endef
 

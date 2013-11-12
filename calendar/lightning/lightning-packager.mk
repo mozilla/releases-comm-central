@@ -152,10 +152,10 @@ libs-%:
 # from the locale.
 repack-process-extrafiles: LOCALE_BASEDIR=$(call EXPAND_LOCALE_SRCDIR,calendar/locales)
 repack-process-extrafiles:
-	$(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py \
+	$(call py_action,preprocessor, \
 	  $(XULAPP_DEFINES) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) \
 	  -I $(LOCALE_BASEDIR)/defines.inc \
-	  $(srcdir)/install.rdf > $(XPI_STAGE_PATH)/$(L10N_XPI_NAME)/install.rdf
+	  $(srcdir)/install.rdf -o $(XPI_STAGE_PATH)/$(L10N_XPI_NAME)/install.rdf)
 
 # When repackaging Lightning from the builder, platform.ini is not yet created.
 # Recreate it from the application.ini bundled with the downloaded xpi.

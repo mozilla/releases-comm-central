@@ -23,9 +23,7 @@ FILES = \
 	$(NULL)
 
 libs::
-	$(INSTALL) $(FILES) $(DIST)/bin/extensions/$(CLASSIC_EXTENSION_DIR)
-	$(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py $(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf > $(DIST)/bin/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf
+	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf -o $(DIST)/bin/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf)
 
 install::
-	$(SYSINSTALL) $(IFLAGS1) $(FILES) $(DESTDIR)$(mozappdir)/extensions/$(CLASSIC_EXTENSION_DIR)
-	$(PYTHON) $(MOZILLA_DIR)/config/Preprocessor.py $(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf > $(DESTDIR)$(mozappdir)/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf
+	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf -o $(DESTDIR)$(mozappdir)/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf)

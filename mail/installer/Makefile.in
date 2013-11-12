@@ -82,7 +82,7 @@ ifdef MOZ_PKG_MANIFEST_P
 MOZ_PKG_MANIFEST = package-manifest
 
 $(MOZ_PKG_MANIFEST): $(MOZ_PKG_MANIFEST_P) $(GLOBAL_DEPS)
-	$(PYTHON) $(MOZILLA_SRCDIR)/config/Preprocessor.py $(DEFINES) $(ACDEFINES) $< > $@
+	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $< -o $@)
 endif
 
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
