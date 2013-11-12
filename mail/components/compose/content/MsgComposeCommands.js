@@ -59,7 +59,8 @@ var gContentChanged;
 var gAutoSaving;
 var gCurrentIdentity;
 var defaultSaveOperation;
-var gSendOrSaveOperationInProgress;
+var gSendOperationInProgress;
+var gSaveOperationInProgress
 var gCloseWindowAfterSave;
 var gSavedSendNowKey;
 var gSendFormat;
@@ -114,7 +115,8 @@ function InitializeGlobalVariables()
   gContentChanged = false;
   gCurrentIdentity = null;
   defaultSaveOperation = "draft";
-  gSendOrSaveOperationInProgress = false;
+  gSendOperationInProgress = false;
+  gSaveOperationInProgress = false;
   gAutoSaving = false;
   gCloseWindowAfterSave = false;
   gSavedSendNowKey = null;
@@ -420,7 +422,8 @@ var progressListener = {
 
       if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP)
       {
-        gSendOrSaveOperationInProgress = false;
+        gSendOperationInProgress = false;
+        gSaveOperationInProgress = false;
         document.getElementById('compose-progressmeter').setAttribute( "mode", "normal" );
         document.getElementById('compose-progressmeter').setAttribute( "value", 0 );
         document.getElementById("statusbar-progresspanel").collapsed = true;
@@ -2687,7 +2690,13 @@ function GenericSendMessage(msgType)
     if (progress)
     {
       progress.registerListener(progressListener);
-      gSendOrSaveOperationInProgress = true;
+      if (msgType == nsIMsgCompDeliverMode.Save ||
+          msgType == nsIMsgCompDeliverMode.SaveAsDraft ||
+          msgType == nsIMsgCompDeliverMode.AutoSaveAsDraft ||
+          msgType == nsIMsgCompDeliverMode.SaveAsTemplate)
+        gSaveOperationInProgress = true;
+      else
+        gSendOperationInProgress = true;
     }
     msgWindow.domWindow = window;
     msgWindow.rootDocShell.allowAuth = true;
@@ -3265,14 +3274,19 @@ function ComposeCanClose()
 {
   // Do this early, so ldap sessions have a better chance to
   // cleanup after themselves.
-  if (gSendOrSaveOperationInProgress)
+  if (gSendOperationInProgress || gSaveOperationInProgress)
   {
     let result;
 
     let brandBundle = document.getElementById("brandBundle");
     let brandShortName = brandBundle.getString("brandShortName");
-    let promptTitle = getComposeBundle().getString("quitComposeWindowTitle");
-    let promptMsg = getComposeBundle().getFormattedString("quitComposeWindowMessage2",
+    let promptTitle = gSendOperationInProgress ?
+      getComposeBundle().getString("quitComposeWindowTitle") :
+      getComposeBundle().getString("quitComposeWindowSaveTitle");
+    let promptMsg = gSendOperationInProgress ?
+      getComposeBundle().getFormattedString("quitComposeWindowMessage2",
+        [brandShortName], 1) :
+      getComposeBundle().getFormattedString("quitComposeWindowSaveMessage",
         [brandShortName], 1);
     let quitButtonLabel = getComposeBundle().getString("quitComposeWindowQuitButtonLabel2");
     let waitButtonLabel = getComposeBundle().getString("quitComposeWindowWaitButtonLabel2");
@@ -4491,8 +4505,8 @@ function loadHTMLMsgPrefs()
 
 function AutoSave()
 {
-  if (gMsgCompose.editor && (gContentChanged || gMsgCompose.bodyModified)
-      && !gSendOrSaveOperationInProgress)
+  if (gMsgCompose.editor && (gContentChanged || gMsgCompose.bodyModified) &&
+      !gSendOperationInProgress && !gSaveOperationInProgress)
   {
     GenericSendMessage(nsIMsgCompDeliverMode.AutoSaveAsDraft);
     gAutoSaveKickedIn = true;
