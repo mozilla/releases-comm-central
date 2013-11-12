@@ -256,6 +256,8 @@ function awSetInputAndPopupValue(inputElem, inputValue, popupElem, popupValue, r
     awSetInputAndPopupId(inputElem, popupElem, rowNumber);
 
   _awSetAutoComplete(popupElem, inputElem);
+
+  onRecipientsChanged();
 }
 
 function _awSetInputAndPopup(inputValue, popupValue, parentNode, templateNode)

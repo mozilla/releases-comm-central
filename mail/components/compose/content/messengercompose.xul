@@ -881,8 +881,8 @@
                          minresultsforpopup="3" ignoreblurwhilesearching="true"
                          ontextentered="awRecipientTextCommand(eventParam, this)"
                          onerrorcommand="awRecipientErrorCommand(eventParam, this)"
-                         onchange="onRecipientsInput();"
-                         oninput="onRecipientsInput();"
+                         onchange="onRecipientsChanged();"
+                         oninput="onRecipientsChanged();"
                          onkeypress="awRecipientKeyPress(event, this)"
                          onkeydown="awRecipientKeyDown(event, this)"
                          disableonsend="true">
