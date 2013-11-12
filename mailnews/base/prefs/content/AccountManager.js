@@ -585,8 +585,12 @@ function checkUserServerChanges(showAlert) {
   for (let i = 0; i < pageElements.length; i++) {
     if (pageElements[i].id) {
       if (pageElements[i].id == "server.localPath") {
-        if (!checkDirectoryIsUsable(getFormElementValue(pageElements[i])))
-          return false;
+        if (!checkDirectoryIsUsable(getFormElementValue(pageElements[i]))) {
+//          return false; // Temporarily disable this. Just show warning but do not block. See bug 921371.
+          Components.utils.reportError("Local directory '" +
+            getFormElementValue(pageElements[i]).path + "' of account " +
+            currentAccount.key + " is not safe to use. Consider changing it.");
+        }
         break;
       }
     }
