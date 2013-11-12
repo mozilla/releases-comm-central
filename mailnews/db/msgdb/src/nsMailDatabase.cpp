@@ -26,6 +26,8 @@ struct mdbOid gAllOfflineOpsTableOID;
 nsMailDatabase::nsMailDatabase() : m_reparse(false)
 {
   m_mdbAllOfflineOpsTable = nullptr;
+  m_offlineOpsRowScopeToken = 0;
+  m_offlineOpsTableKindToken = 0;
 }
 
 nsMailDatabase::~nsMailDatabase()
