@@ -2987,7 +2987,7 @@ function onAddressColCommand(aAddressWidgetId)
   updateSendCommands(true);
 }
 
-function onRecipientsChanged()
+function onRecipientsInput()
 {
   gContentChanged = true;
   setupAutocomplete();
@@ -4444,6 +4444,7 @@ function toggleAddressPicker()
 function AddRecipient(recipientType, address)
 {
   awAddRecipient(recipientType, address);
+  onRecipientsInput();
 }
 
 function loadHTMLMsgPrefs()
