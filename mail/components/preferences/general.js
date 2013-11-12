@@ -148,7 +148,11 @@ var gGeneralPane = {
 
   updateCustomizeAlert: function()
   {
-    document.getElementById("customizeMailAlert").disabled =
-      !document.getElementById("newMailNotificationAlert").checked;
+    // The button does not exist on all platforms.
+    let customizeAlertButton = document.getElementById("customizeMailAlert");
+    if (customizeAlertButton) {
+      customizeAlertButton.disabled =
+        !document.getElementById("newMailNotificationAlert").checked;
+    }
   }
 };
