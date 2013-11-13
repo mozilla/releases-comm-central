@@ -128,7 +128,7 @@ function run_test()
 
   function checkSearch(element, index, array) {
     print("Checking " + element);
-    acs.startSearch(element, null, null, obs)
+    acs.startSearch(element, JSON.stringify({ type: "addr_to"  }), null, obs);
 
     do_check_eq(obs._search, acs);
     do_check_eq(obs._result.searchString, element);
@@ -153,7 +153,7 @@ function run_test()
   var lastResult = null;
 
   function checkReductionSearch(element, index, array) {
-    acs.startSearch(element, null, lastResult, obs);
+    acs.startSearch(element, JSON.stringify({ type: "addr_to"  }), lastResult, obs);
 
     do_check_eq(obs._search, acs);
     do_check_eq(obs._result.searchString, element);
