@@ -1821,9 +1821,9 @@ function loadCloudProviders() {
 
         // Add the item to the different places we advertise cloud providers
         if (toolbarPopup) {
-            toolbarPopup.appendChild(item.cloneNode()).cloudProvider = cloudProvider;
+            toolbarPopup.appendChild(item.cloneNode(true)).cloudProvider = cloudProvider;
         }
-        attachmentPopup.appendChild(item.cloneNode()).cloudProvider = cloudProvider;
+        attachmentPopup.appendChild(item.cloneNode(true)).cloudProvider = cloudProvider;
 
         // The last one doesn't need to clone, just use the item itself.
         optionsPopup.appendChild(item).cloudProvider = cloudProvider;
