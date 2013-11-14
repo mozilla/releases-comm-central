@@ -190,7 +190,9 @@
                  disable-on-readonly="true"
                  oncommand="deleteAllAttachments()"/>
         <command id="cmd_timezone"
-                 oncommand="updateDateTime()"/>
+                 persist="checked"
+                 checked="false"
+                 oncommand="toggleTimezoneLinks()"/>
     </commandset>
 
     <keyset id="calendar-event-dialog-keyset">
@@ -444,12 +446,10 @@
                                 command="cmd_attach_url"/>
                     </menupopup>
                   </menu>
-                  <menuitem id="options-timezone-menuitem"
+                  <menuitem id="options-timezones-menuitem"
                             label="&event.menu.options.timezone2.label;"
                             accesskey="&event.menu.options.timezone2.accesskey;"
-                            checked="false"
                             type="checkbox"
-                            persist="checked"
                             command="cmd_timezone"
                             disable-on-readonly="true"/>
                   <menuseparator id="options-menuseparator1"/>
@@ -461,25 +461,25 @@
                           <menuitem id="options-priority-none-menuitem"
                                     label="&event.menu.options.priority.notspecified.label;"
                                     accesskey="&event.menu.options.priority.notspecified.accesskey;"
-                                    type="checkbox"
+                                    type="radio"
                                     command="cmd_priority_none"
                                     disable-on-readonly="true"/>
                           <menuitem id="options-priority-low-menuitem"
                                     label="&event.menu.options.priority.low.label;"
                                     accesskey="&event.menu.options.priority.low.accesskey;"
-                                    type="checkbox"
+                                    type="radio"
                                     command="cmd_priority_low"
                                     disable-on-readonly="true"/>
                           <menuitem id="options-priority-normal-label"
                                     label="&event.menu.options.priority.normal.label;"
                                     accesskey="&event.menu.options.priority.normal.accesskey;"
-                                    type="checkbox"
+                                    type="radio"
                                     command="cmd_priority_normal"
                                     disable-on-readonly="true"/>
                           <menuitem id="options-priority-high-label"
                                     label="&event.menu.options.priority.high.label;"
                                     accesskey="&event.menu.options.priority.high.accesskey;"
-                                    type="checkbox"
+                                    type="radio"
                                     command="cmd_priority_high"
                                     disable-on-readonly="true"/>
                       </menupopup>
@@ -521,25 +521,25 @@
                       <menuitem id="options-status-none-menuitem"
                                 label="&newevent.eventStatus.none.label;"
                                 accesskey="&newevent.eventStatus.none.accesskey;"
-                                type="checkbox"
+                                type="radio"
                                 command="cmd_status_none"
                                 disable-on-readonly="true"/>
                       <menuitem id="options-status-tentative-menuitem"
                                 label="&newevent.status.tentative.label;"
                                 accesskey="&newevent.status.tentative.accesskey;"
-                                type="checkbox"
+                                type="radio"
                                 command="cmd_status_tentative"
                                 disable-on-readonly="true"/>
                       <menuitem id="options-status-confirmed-menuitem"
                                 label="&newevent.status.confirmed.label;"
                                 accesskey="&newevent.status.confirmed.accesskey;"
-                                type="checkbox"
+                                type="radio"
                                 command="cmd_status_confirmed"
                                 disable-on-readonly="true"/>
                       <menuitem id="options-status-canceled-menuitem"
                                 label="&newevent.eventStatus.cancelled.label;"
                                 accesskey="&newevent.eventStatus.cancelled.accesskey;"
-                                type="checkbox"
+                                type="radio"
                                 command="cmd_status_cancelled"
                                 disable-on-readonly="true"/>
                     </menupopup>
@@ -553,13 +553,13 @@
                           <menuitem id="options-freebusy-busy-menuitem"
                                     label="&event.menu.options.show.time.busy.label;"
                                     accesskey="&event.menu.options.show.time.busy.accesskey;"
-                                    type="checkbox"
+                                    type="radio"
                                     command="cmd_showtimeas_busy"
                                     disable-on-readonly="true"/>
                           <menuitem id="options-freebusy-free-menuitem"
                                     label="&event.menu.options.show.time.free.label;"
                                     accesskey="&event.menu.options.show.time.free.accesskey;"
-                                    type="checkbox"
+                                    type="radio"
                                     command="cmd_showtimeas_free"
                                     disable-on-readonly="true"/>
                       </menupopup>
@@ -574,12 +574,14 @@
                            mode="dialog"
                            class="cal-event-toolbarbutton toolbarbutton-1"
                            label="&event.toolbar.save.label;"
+                           tooltiptext="&event.toolbar.save.tooltip;"
                            command="cmd_accept"/>
             <toolbarbutton id="button-attendees"
                            mode="dialog"
                            class="cal-event-toolbarbutton toolbarbutton-1 event-only"
                            disable-on-readonly="true"
                            label="&event.toolbar.attendees.label;"
+                           tooltiptext="&event.toolbar.attendees.tooltip;"
                            command="cmd_attendees"/>
             <toolbarbutton id="button-privacy"
                            mode="dialog"
@@ -587,6 +589,7 @@
                            type="menu-button"
                            disable-on-readonly="true"
                            label="&event.toolbar.privacy.label;"
+                           tooltiptext="&event.toolbar.privacy.tooltip;"
                            oncommand="rotatePrivacy()">
                 <menupopup id="event-privacy-menupopup">
                     <menuitem id="event-privacy-public-menuitem"
@@ -614,6 +617,7 @@
                            mode="dialog"
                            class="cal-event-toolbarbutton toolbarbutton-1"
                            label="&event.attachments.menubutton.label;"
+                           tooltiptext="&event.toolbar.attachments.tooltip;"
                            command="cmd_attach_url"
                            disable-on-readonly="true">
               <menupopup id="button-attach-menupopup">
@@ -626,8 +630,99 @@
                            mode="dialog"
                            class="cal-event-toolbarbutton toolbarbutton-1"
                            label="&event.toolbar.delete.label;"
+                           tooltiptext="&event.toolbar.delete.tooltip;"
                            command="cmd_item_delete"
                            disable-on-readonly="true"/>
+            <toolbarbutton id="button-priority"
+                           mode="dialog"
+                           class="cal-event-toolbarbutton toolbarbutton-1"
+                           type="menu-button"
+                           disable-on-readonly="true"
+                           label="&event.menu.options.priority2.label;"
+                           tooltiptext="&event.toolbar.priority.tooltip;"
+                           oncommand="rotatePriority()">
+                <menupopup id="event-priority-menupopup">
+                    <menuitem id="event-priority-none-menuitem"
+                              name="event-priority-group"
+                              label="&event.menu.options.priority.notspecified.label;"
+                              type="radio"
+                              command="cmd_priority_none"/>
+                    <menuitem id="event-priority-low-menuitem"
+                              name="event-priority-group"
+                              label="&event.menu.options.priority.low.label;"
+                              type="radio"
+                              command="cmd_priority_low"/>
+                    <menuitem id="event-priority-normal-menuitem"
+                              name="event-priority-group"
+                              label="&event.menu.options.priority.normal.label;"
+                              type="radio"
+                              command="cmd_priority_normal"/>
+                    <menuitem id="event-priority-high-menuitem"
+                              name="event-priority-group"
+                              label="&event.menu.options.priority.high.label;"
+                              type="radio"
+                              command="cmd_priority_high"/>
+                </menupopup>
+            </toolbarbutton>
+            <toolbarbutton id="button-status"
+                           mode="dialog"
+                           class="cal-event-toolbarbutton toolbarbutton-1 event-only"
+                           type="menu-button"
+                           disable-on-readonly="true"
+                           label="&newevent.status.label;"
+                           tooltiptext="&event.toolbar.status.tooltip;"
+                           oncommand="rotateStatus()">
+                <menupopup id="event-status-menupopup">
+                    <menuitem id="event-status-none-menuitem"
+                              name="event-status-group"
+                              label="&newevent.eventStatus.none.label;"
+                              type="radio"
+                              command="cmd_status_none"/>
+                    <menuitem id="event-status-tentative-menuitem"
+                              name="event-status-group"
+                              label="&newevent.status.tentative.label;"
+                              type="radio"
+                              command="cmd_status_tentative"/>
+                    <menuitem id="event-status-confirmed-menuitem"
+                              name="event-status-group"
+                              label="&newevent.status.confirmed.label;"
+                              type="radio"
+                              command="cmd_status_confirmed"/>
+                    <menuitem id="event-status-cancelled-menuitem"
+                              name="event-status-group"
+                              label="&newevent.eventStatus.cancelled.label;"
+                              type="radio"
+                              command="cmd_status_cancelled"/>
+                </menupopup>
+            </toolbarbutton>
+            <toolbarbutton id="button-freebusy"
+                           mode="dialog"
+                           class="cal-event-toolbarbutton toolbarbutton-1"
+                           type="menu-button"
+                           disable-on-readonly="true"
+                           label="&event.menu.options.show.time.label;"
+                           tooltiptext="&event.toolbar.freebusy.tooltip;"
+                           oncommand="rotateShowTimeAs()">
+                <menupopup id="event-freebusy-menupopup">
+                    <menuitem id="event-freebusy-busy-menuitem"
+                              name="event-freebusy-group"
+                              label="&event.menu.options.show.time.busy.label;"
+                              type="radio"
+                              command="cmd_showtimeas_busy"/>
+                    <menuitem id="event-freebusy-free-menuitem"
+                              name="event-freebusy-group"
+                              label="&event.menu.options.show.time.free.label;"
+                              type="radio"
+                              command="cmd_showtimeas_free"/>
+                </menupopup>
+            </toolbarbutton>
+            <toolbarbutton id="button-timezones"
+                           mode="dialog"
+                           type="checkbox"
+                           class="cal-event-toolbarbutton toolbarbutton-1"
+                           label="&event.menu.options.timezone2.label;"
+                           tooltiptext="&event.menu.options.timezone2.label;"
+                           command="cmd_timezone"/>
         </toolbarpalette>
 
         <toolbar id="event-toolbar"
@@ -1134,6 +1229,7 @@
                       flex="1"
                       collapsed="true"
                       pack="start">
+        <label value="&event.statusbarpanel.privacy.label;"/>
         <hbox id="status-privacy-public-box" privacy="PUBLIC">
           <label value="&event.menu.options.privacy.public.label;"/>
         </hbox>
@@ -1162,6 +1258,35 @@
                class="cal-statusbar-1"
                collapsed="true"
                value="high"/>
+      </statusbarpanel>
+      <statusbarpanel id="status-status"
+                      align="center"
+                      flex="1"
+                      collapsed="true"
+                      pack="start">
+        <label value="&task.status.label;"/>
+        <label id="status-status-tentative-label"
+               value="&newevent.status.tentative.label;"
+               hidden="true"/>
+        <label id="status-status-confirmed-label"
+               value="&newevent.status.confirmed.label;"
+               hidden="true"/>
+        <label id="status-status-cancelled-label"
+               value="&newevent.eventStatus.cancelled.label;"
+               hidden="true"/>
+      </statusbarpanel>
+      <statusbarpanel id="status-freebusy"
+                      align="center"
+                      flex="1"
+                      collapsed="true"
+                      pack="start">
+        <label value="&event.statusbarpanel.freebusy.label;"/>
+        <label id="status-freebusy-free-label"
+               value="&event.freebusy.legend.free;"
+               hidden="true"/>
+        <label id="status-freebusy-busy-label"
+               value="&event.freebusy.legend.busy;"
+               hidden="true"/>
       </statusbarpanel>
     </statusbar>
 

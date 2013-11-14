@@ -623,7 +623,7 @@ function dateTimeControls2State(aStartDatepicker) {
     var saveEndTime = gEndTime;
     var kDefaultTimezone = calendarDefaultTimezone();
 
-    let timezonesEnabled = document.getElementById('options-timezone-menuitem')
+    let timezonesEnabled = document.getElementById('options-timezones-menuitem')
                            .getAttribute('checked') == 'true';
     if (gStartTime) {
         // jsDate is always in OS timezone, thus we create a calIDateTime
@@ -1163,7 +1163,7 @@ function updateAccept() {
     }
 
     if (startDate && endDate) {
-        var menuItem = document.getElementById('options-timezone-menuitem');
+        var menuItem = document.getElementById('options-timezones-menuitem');
         if (menuItem.getAttribute('checked') == 'true') {
             var startTimezone = gStartTimezone;
             var endTimezone = gEndTimezone;
@@ -1435,7 +1435,7 @@ function editAttendees() {
         endTime.isDate = false;
     }
 
-    var menuItem = document.getElementById('options-timezone-menuitem');
+    var menuItem = document.getElementById('options-timezones-menuitem');
     var displayTimezone = menuItem.getAttribute('checked') == 'true';
 
     var args = new Object();
@@ -1595,6 +1595,26 @@ function updatePrivacy() {
 }
 
 /**
+ * This function rotates the Priority of an item to the next value
+ * following the sequence -> Not specified -> Low -> Normal -> High ->.
+ */
+function rotatePriority() {
+    let hasPriority = capSupported("priority");
+    if (hasPriority) {
+        if (gPriority <= 0 || gPriority > 9) {         // not specified
+            gPriority = 9;
+        } else if (gPriority >= 1 && gPriority <= 4) { // high
+            gPriority = 0;
+        } else if (gPriority == 5) {                   // normal
+            gPriority = 1;
+        } else if (gPriority >= 6 && gPriority <= 9) { // low
+            gPriority = 5;
+        }
+        updatePriority();
+    }
+}
+
+/**
  * Handler function to change the priority from the dialog elements
  *
  * @param target    A XUL node with a value attribute which should be the new
@@ -1606,11 +1626,12 @@ function editPriority(target) {
 }
 
 /**
- * Update the dialog controls related related to priority.
+ * Update the dialog controls related to priority.
  */
 function updatePriority() {
     // Set up capabilities
     var hasPriority = capSupported("priority");
+    setElementValue("button-priority", !hasPriority && "true", "disabled");
     setElementValue("options-priority-menu", !hasPriority && "true", "disabled");
     setElementValue("status-priority", !hasPriority && "true", "collapsed");
 
@@ -1663,6 +1684,16 @@ function updatePriority() {
 }
 
 /**
+ * Rotate the Status of an item to the next value following
+ * the sequence -> NONE -> TENTATIVE -> CONFIRMED -> CANCELLED ->.
+ */
+function rotateStatus() {
+    const states = ["NONE","TENTATIVE","CONFIRMED","CANCELLED"];
+    gStatus = states[(states.indexOf(gStatus) + 1) % states.length];
+    updateStatus();
+}
+
+/**
  * Handler function to change the status from the dialog elements
  *
  * @param target    A XUL node with a value attribute which should be the new
@@ -1674,10 +1705,14 @@ function editStatus(target) {
 }
 
 /**
- * Update the dialog controls related related to status.
+ * Update the dialog controls related to status.
  */
 function updateStatus() {
     let found = false;
+    const statusLabels = ["status-status-tentative-label",
+                          "status-status-confirmed-label",
+                          "status-status-cancelled-label"];
+    setBooleanAttribute("status-status", "collapsed", true);
     [ "cmd_status_none",
       "cmd_status_tentative",
       "cmd_status_confirmed",
@@ -1688,6 +1723,13 @@ function updateStatus() {
               found = found || matches;
 
               node.setAttribute("checked", matches ? "true" : "false");
+
+              if (index > 0) {
+                  setBooleanAttribute(statusLabels[index-1], "hidden", !matches);
+                  if (matches) {
+                      setBooleanAttribute("status-status", "collapsed", false);
+                  }
+              }
           }
       );
     if (!found) {
@@ -1696,6 +1738,16 @@ function updateStatus() {
         gStatus = "NONE";
         updateStatus();
     }
+}
+
+/**
+ * Toggles the transparency (Show Time As property) of an item
+ * from BUSY (Opaque) to FREE (Transparent).
+ */
+function rotateShowTimeAs() {
+    const states = ["OPAQUE", "TRANSPARENT"];
+    gShowTimeAs = states[(states.indexOf(gShowTimeAs) + 1) % states.length];
+    updateShowTimeAs();
 }
 
 /**
@@ -1720,6 +1772,23 @@ function updateShowTimeAs() {
                             gShowTimeAs == "OPAQUE" ? "true" : "false");
     showAsFree.setAttribute("checked",
                             gShowTimeAs == "TRANSPARENT" ? "true" : "false");
+
+    setBooleanAttribute("status-freebusy",
+                        "collapsed",
+                        gShowTimeAs != "OPAQUE" && gShowTimeAs != "TRANSPARENT");
+    setBooleanAttribute("status-freebusy-free-label", "hidden", gShowTimeAs == "OPAQUE")
+    setBooleanAttribute("status-freebusy-busy-label", "hidden", gShowTimeAs == "TRANSPARENT")
+}
+
+/**
+ * Toggles the command that allows to enable the timezone
+ * links in the dialog.
+ */
+function toggleTimezoneLinks() {
+    let cmdTimezone = document.getElementById('cmd_timezone');
+    let isChecked = cmdTimezone.getAttribute("checked") == "true";
+    cmdTimezone.setAttribute("checked", isChecked ? "false" : "true");
+    updateDateTime();
 }
 
 function loadCloudProviders() {
@@ -3021,7 +3090,7 @@ function editTimezone(aElementId,aDateTime,aCallback) {
  * - 'todo-duedate'
  * The date/time-objects are either displayed in their respective
  * timezone or in the default timezone. This decision is based
- * on whether or not 'options-timezone-menuitem' is checked.
+ * on whether or not 'options-timezones-menuitem' is checked.
  * the necessary information is taken from the following variables:
  * - 'gStartTime'
  * - 'gEndTime'
@@ -3031,7 +3100,7 @@ function updateDateTime() {
     gIgnoreUpdate = true;
 
     var item = window.calendarItem;
-    var menuItem = document.getElementById('options-timezone-menuitem');
+    var menuItem = document.getElementById('options-timezones-menuitem');
 
     // Convert to default timezone if the timezone option
     // is *not* checked, otherwise keep the specific timezone
@@ -3170,16 +3239,16 @@ function updateDateTime() {
  * - 'timezone-starttime'
  * - 'timezone-endtime'
  * the timezone-links show the corrosponding names of the
- * start/end times. if 'options-timezone-menuitem' is not checked
+ * start/end times. if 'options-timezones-menuitem' is not checked
  * the links will be collapsed.
  */
 function updateTimezone() {
-    let menuItem = document.getElementById('options-timezone-menuitem');
+    let timezoneCommand = document.getElementById('cmd_timezone');
 
     // convert to default timezone if the timezone option
     // is *not* checked, otherwise keep the specific timezone
     // and display the labels in order to modify the timezone.
-    if (menuItem.getAttribute('checked') == 'true') {
+    if (timezoneCommand.getAttribute('checked') == 'true') {
         let startTimezone = gStartTimezone;
         let endTimezone = gEndTimezone;
 

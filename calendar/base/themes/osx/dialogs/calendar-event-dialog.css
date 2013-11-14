@@ -78,3 +78,47 @@
 #button-delete.cal-event-toolbarbutton:not([disabled]):hover:active {
   -moz-image-region: rect(18px 306px 36px 288px);
 }
+
+/*--------------------------------------------------------------------
+ *   priority button
+ *-------------------------------------------------------------------*/
+
+#button-priority {
+  -moz-image-region: rect(0 432px 18px 414px);
+}
+#button-priority:not([disabled]):active {
+  -moz-image-region: rect(18px 432px 36px 414px);
+}
+
+/*--------------------------------------------------------------------
+ *   status button
+ *-------------------------------------------------------------------*/
+
+#button-status {
+  -moz-image-region: rect(0 450px 18px 432px);
+}
+#button-status:not([disabled]):active {
+  -moz-image-region: rect(18px 450px 36px 432px);
+}
+
+/*--------------------------------------------------------------------
+ *   Show Time AS button
+ *-------------------------------------------------------------------*/
+
+#button-freebusy {
+  -moz-image-region: rect(0 468px 18px 450px);
+}
+#button-freebusy:not([disabled]):active {
+  -moz-image-region: rect(18px 468px 36px 450px);
+}
+
+/*--------------------------------------------------------------------
+ *   timezones button
+ *-------------------------------------------------------------------*/
+
+#button-timezones {
+  -moz-image-region: rect(0 486px 18px 468px);
+}
+#button-timezones:not([disabled]):active {
+  -moz-image-region: rect(18px 486px 36px 468px);
+}

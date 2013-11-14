@@ -64,3 +64,19 @@ toolbar[iconsize="small"] #button-delete.cal-event-toolbarbutton:hover:active {
   list-style-image: url(chrome://calendar/skin/calendar-event-dialog-toolbar-aero.png);
   -moz-image-region: rect(1px 305px 17px 289px);
 }
+
+#button-priority {
+  -moz-image-region: rect(1px 431px 17px 415px);
+}
+
+#button-status {
+  -moz-image-region: rect(1px 449px 17px 433px);
+}
+
+#button-freebusy {
+  -moz-image-region: rect(1px 467px 17px 451px);
+}
+
+#button-timezones {
+  -moz-image-region: rect(1px 485px 17px 469px);
+}

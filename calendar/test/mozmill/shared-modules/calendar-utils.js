@@ -476,7 +476,7 @@ function setData(controller, data) {
   
   // timezone
   if (data.timezone != undefined) {
-    let menuitem = new elementslib.ID(controller.window.document, "options-timezone-menuitem");
+    let menuitem = new elementslib.ID(controller.window.document, "options-timezones-menuitem");
     menuitem.getNode().setAttribute("checked", data.timezone);
     controller.click(menuitem);
   }

@@ -53,7 +53,7 @@ function setTimezone(event, timezone) {
   gTimezone = timezone;
   
   // for some reason setting checked is needed, no other menuitem with checkbox needs it
-  let menuitem = new elementslib.ID(event.window.document, "options-timezone-menuitem");
+  let menuitem = new elementslib.ID(event.window.document, "options-timezones-menuitem");
   event.waitForElement(menuitem);
   menuitem.getNode().setAttribute("checked", "true");
   event.click(menuitem);
