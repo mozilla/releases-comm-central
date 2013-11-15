@@ -19,6 +19,10 @@ description.error {
   -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar");
 }
 
+.toolbar-primary:not(:-moz-lwtheme):-moz-system-metric(menubar-drag) {
+  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+}
+
 toolbar[printpreview="true"] {
   -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
 }
