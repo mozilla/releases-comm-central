@@ -47,7 +47,7 @@ toolbar:only-of-type {
 
 @media (-moz-windows-default-theme) {
   #folderTree {
-    background-image: url("chrome://messenger/skin/grain.png");
+    background-image: url("chrome://messenger/skin/noise.png");
   }
 }
 
