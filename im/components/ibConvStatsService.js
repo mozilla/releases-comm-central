@@ -487,13 +487,13 @@ ConvStatsService.prototype = {
       this._statsByPrplConvId.set(conv.id, gStatsByConvId[id]);
 
       let possibleConv = null;
-      if (!conv.isChat) {
+      if (conv.buddy) {
         // First .buddy is an imIAccountBuddy, second one is an imIBuddy.
         let contact = conv.buddy.buddy.contact;
         if (contact)
           possibleConv = this._contactsById.get(contact.id);
       }
-      else {
+      else if (conv.isChat) {
         let chatList = this._chatsByAccountIdAndName.get(conv.account.id);
         if (chatList && chatList.has(conv.normalizedName))
           possibleConv = chatList.get(conv.name);
