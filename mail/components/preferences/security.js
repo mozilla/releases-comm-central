@@ -69,6 +69,17 @@ var gSecurityPane = {
 
 
   /**
+   * Reload the current message after a preference affecting the view
+   * has been changed and we are in instantApply mode.
+   */
+  reloadMessageInOpener: function()
+  {
+    if(Services.prefs.getBoolPref("browser.preferences.instantApply") &&
+       window.opener && typeof(window.opener.ReloadMessage) == "function")
+      window.opener.ReloadMessage();
+  },
+
+  /**
    * Initializes master password UI: the "use master password" checkbox, selects
    * the master password button to show, and enables/disables it as necessary.
    * The master password is controlled by various bits of NSS functionality,

@@ -988,10 +988,15 @@
               label="&phishingOptionIgnore.label;"
               accesskey="&phishingOptionIgnore.accesskey;"
               oncommand="IgnorePhishingWarning();"/>
-    <menuitem id="phishingOptionDisableDetection"
-              label="&phishingOptionDisableDetection.label;"
-              accesskey="&phishingOptionDisableDetection.accesskey;"
-              oncommand="DisablePhishingWarning();"/>
+    <menuitem id="phishingOptionSettings"
+#ifdef XP_WIN
+              label="&phishingOptionSettings.label;"
+              accesskey="&phishingOptionSettings.accesskey;"
+#else
+              label="&phishingOptionSettingsUnix.label;"
+              accesskey="&phishingOptionSettingsUnix.accesskey;"
+#endif
+              oncommand="OpenPhishingSettings();"/>
   </menupopup>
 
 <popupset id="mainPopupSet">

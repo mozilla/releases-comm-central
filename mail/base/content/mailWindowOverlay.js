@@ -3103,12 +3103,15 @@ function IgnorePhishingWarning()
 }
 
 /**
- *  Allow disabling the scam feature for all messages until lists are in place.
+ *  Open the preferences dialog to allow disabling the scam feature.
+ *  The dialog window will take care of reloading the message when
+ *  invoked in instantApply mode.
  */
-function DisablePhishingWarning()
+function OpenPhishingSettings()
 {
-  Application.prefs.setValue("mail.phishing.detection.enabled", false);
-  ReloadMessage();
+  openOptionsDialog("paneSecurity", "phishingTab");
+  if(!Services.prefs.getBoolPref("browser.preferences.instantApply"))
+    ReloadMessage();
 }
 
 function setMsgHdrPropertyAndReload(aProperty, aValue)
