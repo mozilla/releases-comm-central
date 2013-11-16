@@ -62,3 +62,7 @@ aboutPanel {
 browser[type="content-conversation"] {
   -moz-binding: url("chrome://chat/content/convbrowser.xml#browser");
 }
+
+findbar {
+  overflow-x: hidden;
+}
