@@ -1153,7 +1153,7 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const PRUnichar* aMsg)
      */
     uint32_t i;
     nsMsgAttachmentHandler *next = 0;
-    nsTArray<nsRefPtr<nsMsgAttachmentHandler>> *attachments;
+    nsTArray<nsRefPtr<nsMsgAttachmentHandler> > *attachments;
 
     m_mime_delivery_state->GetAttachmentHandlers(&attachments);
 
