@@ -2667,6 +2667,9 @@
         </getter>
       </property>
 
+      <field name="_lastSearchString">null</field>
+      <field name="_lastSearchHighlight">false</field>
+
       <constructor>
         <![CDATA[
           document.addEventListener("keypress", this._keyEventHandler, false);
