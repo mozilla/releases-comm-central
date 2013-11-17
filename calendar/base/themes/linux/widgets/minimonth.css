@@ -85,12 +85,12 @@ window[systemcolors] .minimonth-month-box {
 }
 
 .minimonth-nav-btns[dir="0"] {
-  list-style-image: url("chrome://calendar/skin/widgets/nav-today.svg");
+  list-style-image: url("chrome://calendar-common/skin/widgets/nav-today.svg");
   max-width: none;
 }
 
 .minimonth-nav-btns[dir="0"]:hover {
-  list-style-image: url("chrome://calendar/skin/widgets/nav-today-hov.svg");
+  list-style-image: url("chrome://calendar-common/skin/widgets/nav-today-hov.svg");
 }
 
 .minimonth-row-header {

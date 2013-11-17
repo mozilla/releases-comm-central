@@ -82,35 +82,35 @@
 }
 
 .calendar-task-tree-col-priority {
-    list-style-image: url(chrome://calendar/skin/task-images.png);
+    list-style-image: url(chrome://calendar-common/skin/task-images.png);
     -moz-image-region: rect(0 13px 13px 0);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, normalpriority),
 .todo-due-image-class {
-    list-style-image: url(chrome://calendar/skin/task-images.png);
+    list-style-image: url(chrome://calendar-common/skin/task-images.png);
     -moz-image-region: rect(0 13px 13px 0);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority),
 .todo-due-image-class[highpriority="true"] {
-    list-style-image: url(chrome://calendar/skin/task-images.png);
+    list-style-image: url(chrome://calendar-common/skin/task-images.png);
     -moz-image-region: rect(0 52px 13px 39px);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority),
 .todo-due-image-class[lowpriority="true"] {
-    list-style-image: url(chrome://calendar/skin/task-images.png);
+    list-style-image: url(chrome://calendar-common/skin/task-images.png);
     -moz-image-region: rect(0 26px 13px 13px);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected, highpriority) {
-    list-style-image: url(chrome://calendar/skin/task-images.png);
+    list-style-image: url(chrome://calendar-common/skin/task-images.png);
     -moz-image-region: rect(0 65px 13px 52px);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected, lowpriority) {
-    list-style-image: url(chrome://calendar/skin/task-images.png);
+    list-style-image: url(chrome://calendar-common/skin/task-images.png);
     -moz-image-region: rect(0 39px 13px 26px);
 }
 

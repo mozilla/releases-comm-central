@@ -53,7 +53,7 @@ minimonth {
 .minimonth-nav-btns {
   padding: 0px;
   min-width: 19px;
-  list-style-image: url("chrome://calendar/skin/widgets/nav-arrow.svg");
+  list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
   -moz-user-focus: normal;
 }
 
@@ -71,7 +71,7 @@ minimonth {
 }
 
 .minimonth-nav-btns[dir="0"] {
-  list-style-image: url("chrome://calendar/skin/widgets/nav-today.svg");
+  list-style-image: url("chrome://calendar-common/skin/widgets/nav-today.svg");
 }
 
 .minimonth-row-header {

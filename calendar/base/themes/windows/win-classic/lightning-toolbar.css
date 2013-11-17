@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url(chrome://lightning/skin/common/lightning-toolbar.css);
+@import url(chrome://lightning-common/skin/lightning-toolbar.css);
 
 /* Lightning "Calendar" Toolbarbutton */
 #lightning-button-calendar {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 24px 24px 0px);
 }
 
@@ -23,7 +23,7 @@ toolbar[iconsize="small"] #lightning-button-calendar[disabled] {
 
 /* Lightning "Tasks" Toolbarbutton */
 #lightning-button-tasks {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 48px 24px 24px);
 }
 

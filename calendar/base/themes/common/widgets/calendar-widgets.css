@@ -28,7 +28,7 @@ treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox
 }
 
 .view-navigation-button {
-  list-style-image: url(chrome://calendar/skin/widgets/view-navigation.svg);
+  list-style-image: url(chrome://calendar-common/skin/widgets/view-navigation.svg);
   -moz-user-focus: normal;
 }
 

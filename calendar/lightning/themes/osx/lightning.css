@@ -22,7 +22,7 @@ radio[pane=paneLightning] {
 
 /* ::: new tab buttons ::: */
 #calendar-tab-button {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 98px 18px 80px);
 }
 
@@ -31,7 +31,7 @@ radio[pane=paneLightning] {
 }
 
 #task-tab-button {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 116px 18px 98px);
 }
 
@@ -42,7 +42,7 @@ radio[pane=paneLightning] {
 /* ::: tab icons ::: */
 .icon-holder[type="calendar"],
 .tabmail-tab[type="calendar"] {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 64px 16px 48px);
 }
 
@@ -53,7 +53,7 @@ radio[pane=paneLightning] {
 
 .icon-holder[type="tasks"],
 .tabmail-tab[type="tasks"] {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 80px 16px 64px);
 }
 

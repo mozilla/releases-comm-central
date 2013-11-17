@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url(chrome://calendar/skin/common/dialogs/calendar-alarm-dialog.css);
+@import url(chrome://calendar-common/skin/dialogs/calendar-alarm-dialog.css);
 
 menupopup[type="snooze-menupopup"] > arrowscrollbox {
     -moz-binding: url(chrome://calendar/content/widgets/calendar-alarm-widget.xml#calendar-snooze-popup);

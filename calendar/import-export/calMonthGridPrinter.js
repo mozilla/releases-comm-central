@@ -31,7 +31,7 @@ calMonthPrinter.prototype = {
     get name() cal.calGetString("calendar", "monthPrinterName"),
 
     formatToHtml: function monthPrint_format(aStream, aStart, aEnd, aCount, aItems, aTitle) {
-        let document = cal.xml.parseFile("chrome://calendar/skin/printing/calMonthGridPrinter.html");
+        let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calMonthGridPrinter.html");
 
         // Set page title
         document.getElementById("title").textContent = aTitle;

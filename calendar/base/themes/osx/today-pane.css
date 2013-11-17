@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url(chrome://calendar/skin/common/today-pane.css);
+@import url(chrome://calendar-common/skin/today-pane.css);
 
 #today-pane-panel:-moz-lwtheme > sidebarheader {
   text-shadow: none;
@@ -11,7 +11,7 @@
 }
 
 .miniday-nav-buttons {
-  list-style-image: url("chrome://calendar/skin/widgets/nav-arrow.svg");
+  list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
 }
 
 #previous-day-button:-moz-locale-dir(ltr),

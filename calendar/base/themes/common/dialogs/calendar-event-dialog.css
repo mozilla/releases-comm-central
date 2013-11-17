@@ -25,7 +25,7 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #keepduration-button {
-    list-style-image: url(chrome://calendar/skin/calendar-event-dialog.png);
+    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog.png);
     -moz-image-region: rect(0px 147px 24px 140px);
     padding-top: 3px;
     padding-bottom: 3px;
@@ -52,7 +52,7 @@ label.label {
 }
 
 .keepduration-link-image {
-    list-style-image: url(chrome://calendar/skin/calendar-event-dialog.png);
+    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog.png);
     -moz-margin-start: -1px;
 }
 
@@ -77,7 +77,7 @@ label.label {
 .cal-statusbar-1 {
     -moz-box-orient: vertical;
     min-width: 0px;
-    list-style-image: url("chrome://calendar/skin/calendar-event-dialog.png");
+    list-style-image: url("chrome://calendar-common/skin/calendar-event-dialog.png");
 }
 
 /*--------------------------------------------------------------------

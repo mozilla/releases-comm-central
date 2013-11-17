@@ -31,7 +31,7 @@ calWeekPrinter.prototype = {
     get name() cal.calGetString("calendar", "weekPrinterName"),
 
     formatToHtml: function weekPrint_format(aStream, aStart, aEnd, aCount, aItems, aTitle) {
-        let document = cal.xml.parseFile("chrome://calendar/skin/printing/calWeekPrinter.html");
+        let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calWeekPrinter.html");
 
         // Set page title
         document.getElementById("title").textContent = aTitle;

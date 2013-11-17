@@ -87,7 +87,7 @@
 .usertype-icon,
 .usertype-icon[cutype="INDIVIDUAL"] {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar/skin/attendee-icons.png);
+    list-style-image: url(chrome://calendar-common/skin/attendee-icons.png);
     -moz-image-region: rect(0px 16px 16px 0px);
 }
 .usertype-icon[disabled="true"],

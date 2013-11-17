@@ -7,7 +7,7 @@
  */
 .reminder-icon {
     /* Initially hide the image, overwrite by setting a correct image region */
-    list-style-image: url(chrome://calendar/skin/alarm-icons.png);
+    list-style-image: url(chrome://calendar-common/skin/alarm-icons.png);
     -moz-image-region: rect(0px 1px 1px 0px);
 }
 
@@ -24,7 +24,7 @@
 }
 
 .alarm-icons-box[flashing="true"] > .reminder-icon[value="DISPLAY"] {
-    list-style-image: url(chrome://calendar/skin/alarm-flashing.png);
+    list-style-image: url(chrome://calendar-common/skin/alarm-flashing.png);
     -moz-image-region: auto;
 }
 

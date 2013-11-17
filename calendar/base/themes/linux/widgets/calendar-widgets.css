@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url(chrome://calendar/skin/common/widgets/calendar-widgets.css);
+@import url(chrome://calendar-common/skin/widgets/calendar-widgets.css);
 
 treenode-checkbox[checked="true"] > .checkbox-check {
   background-image: url(chrome://global/skin/tree/twisty-open.png);
@@ -26,7 +26,7 @@ calendar-list-tree .tree-scrollable-columns {
 }
 
 .view-navigation-button:hover {
-  list-style-image: url(chrome://calendar/skin/widgets/view-navigation-hov.svg);
+  list-style-image: url(chrome://calendar-common/skin/widgets/view-navigation-hov.svg);
 }
 
 .toolbarbutton-icon-begin {

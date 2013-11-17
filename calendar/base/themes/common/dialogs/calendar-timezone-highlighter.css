@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .timezone-highlight {
-   list-style-image: url(chrome://calendar/skin/timezones.png);
+   list-style-image: url(chrome://calendar-common/skin/timezones.png);
 }
 .timezone-highlight[tzid="none"] {
   display: none;

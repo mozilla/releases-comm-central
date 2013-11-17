@@ -19,12 +19,12 @@ calendar-list-tree > tree > treechildren::-moz-tree-cell(calendarname-treecol) {
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readonly) {
-    list-style-image: url(chrome://calendar/skin/calendar-status.png);
+    list-style-image: url(chrome://calendar-common/skin/calendar-status.png);
     -moz-image-region: rect(0px, 14px, 14px, 0px);
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfailed) {
-    list-style-image: url(chrome://calendar/skin/calendar-status.png);
+    list-style-image: url(chrome://calendar-common/skin/calendar-status.png);
     -moz-image-region: rect(0px, 28px, 14px, 14px);
 }
 

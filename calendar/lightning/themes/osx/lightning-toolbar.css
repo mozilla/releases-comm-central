@@ -4,7 +4,7 @@
 
 /* Lightning "Calendar" Toolbarbutton */
 #lightning-button-calendar {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 98px 18px 80px);
 }
 
@@ -14,7 +14,7 @@
 
 /* Lightning "Tasks" Toolbarbutton */
 #lightning-button-tasks {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons.png);
+    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 116px 18px 98px);
 }
 #lightning-button-tasks:not([disabled]):active {
