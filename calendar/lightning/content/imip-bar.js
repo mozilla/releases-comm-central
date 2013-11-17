@@ -133,6 +133,7 @@ var ltnImipBar = {
                 buttonElement.setAttribute("label", data[button].label);
                 buttonElement.setAttribute("oncommand",
                                            "ltnImipBar.executeAction('" + data[button].actionMethod + "')");
+                buttonElement.setAttribute("action", data[button].actionMethod);
 
                 showElement(buttonElement);
             }

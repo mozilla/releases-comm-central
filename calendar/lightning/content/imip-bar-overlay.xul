@@ -34,9 +34,15 @@
                                     collapsed="true"
                                     insertbefore="msgHeaderView"
                                     label="&lightning.imipbar.description;">
-          <button id="imip-button1" hidden="true"/>
-          <button id="imip-button2" hidden="true"/>
-          <button id="imip-button3" hidden="true"/>
+          <button id="imip-button1"
+                  class="imip-button"
+                  hidden="true"/>
+          <button id="imip-button2"
+                  class="imip-button"
+                  hidden="true"/>
+          <button id="imip-button3"
+                  class="imip-button"
+                  hidden="true"/>
         </lightning-notification-bar>
       </vbox>
     </vbox>

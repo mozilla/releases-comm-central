@@ -196,3 +196,18 @@ radio[pane=paneLightning] {
 #calMinimonthBox {
     margin-top: 3px;
 }
+
+.imip-button[action="ACCEPTED"] {
+  list-style-image: url(chrome://lightning/skin/imip.png);
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+.imip-button[action="DECLINED"] {
+  list-style-image: url(chrome://lightning/skin/imip.png);
+  -moz-image-region: rect(0px 32px 16px 16px);
+}
+
+.imip-button[action="TENTATIVE"] {
+  list-style-image: url(chrome://lightning/skin/imip.png);
+  -moz-image-region: rect(0px 48px 16px 32px);
+}

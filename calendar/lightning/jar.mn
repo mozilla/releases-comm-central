@@ -57,6 +57,7 @@ lightning.jar:
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://communicator/skin/communicator.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
     skin/lightning/accountCentral.css                      (themes/@THEME@/accountCentral.css)
     skin/lightning/imip.css                                (themes/@THEME@/imip.css)
+    skin/lightning/imip.png                                (themes/@THEME@/imip.png)
     skin/lightning/lightning.css                           (themes/@THEME@/lightning.css)
     skin/lightning/lightning-toolbar.css                   (themes/@THEME@/lightning-toolbar.css)
     skin/lightning/lightning-widgets.css                   (themes/@THEME@/lightning-widgets.css)
@@ -65,6 +66,7 @@ lightning.jar:
     skin/lightning/common/lightning-toolbar.css            (themes/common/lightning-toolbar.css)
     skin/lightning/mode-switch-icons.png                   (themes/common/images/mode-switch-icons.png)
 #ifdef XP_WIN
+    skin/lightning/imip-aero.png                           (themes/windows/images/imip-aero.png)
     skin/lightning/mode-switch-icons-aero.png              (themes/windows/images/mode-switch-icons-aero.png)
     skin/lightning/mode-switch-icons-inverted.png          (themes/windows/images/mode-switch-icons-inverted.png)
 #endif

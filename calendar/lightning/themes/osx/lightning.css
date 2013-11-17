@@ -189,3 +189,30 @@ radio[pane=paneLightning] {
   -moz-border-end: 1px solid #8B8B8B;
   -moz-margin-end: -3px !important;
 }
+
+.imip-button[action="ACCEPTED"] {
+  list-style-image: url(chrome://lightning/skin/imip.png);
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+.imip-button[action="ACCEPTED"]:active {
+  -moz-image-region: rect(16px 16px 32px 0px);
+}
+
+.imip-button[action="DECLINED"] {
+  list-style-image: url(chrome://lightning/skin/imip.png);
+  -moz-image-region: rect(0px 32px 16px 16px);
+}
+
+.imip-button[action="DECLINED"]:active {
+  -moz-image-region: rect(16px 32px 32px 16px);
+}
+
+.imip-button[action="TENTATIVE"] {
+  list-style-image: url(chrome://lightning/skin/imip.png);
+  -moz-image-region: rect(0px 48px 16px 32px);
+}
+
+.imip-button[action="TENTATIVE"]:active {
+  -moz-image-region: rect(16px 48px 32px 32px);
+}
