@@ -1942,7 +1942,7 @@ function CheckForAttachmentNotification(event)
     attachmentWorker.lastMessage = null;
   CheckForAttachmentNotification.shouldFire = false;
   let nBox = document.getElementById("attachmentNotificationBox");
-  let notification = nBox.getNotificationWithValue("1");
+  let notification = nBox.getNotificationWithValue("attachmentReminder");
   let removeNotification = false;
 
   if (!ShouldShowAttachmentNotification(true)) {
