@@ -60,7 +60,7 @@ var gAutoSaving;
 var gCurrentIdentity;
 var defaultSaveOperation;
 var gSendOperationInProgress;
-var gSaveOperationInProgress
+var gSaveOperationInProgress;
 var gCloseWindowAfterSave;
 var gSavedSendNowKey;
 var gSendFormat;
@@ -3167,6 +3167,10 @@ function toggleAttachmentReminder(aState = !gManualAttachmentReminder)
   document.getElementById("cmd_remindLater")
           .setAttribute("checked", aState);
   gMsgCompose.compFields.attachmentReminder = aState;
+  let nBox = document.getElementById("attachmentNotificationBox");
+  let notification = nBox.getNotificationWithValue("attachmentReminder");
+  if (aState && notification)
+    nBox.removeNotification(notification);
 }
 
 function ClearIdentityListPopup(popup)
