@@ -86,22 +86,58 @@ function test_send_enabled_manual_address() {
 function test_send_enabled_prefilled_address() {
   // Set the prefs to prefill a default CC address when Compose is opened.
   let identity = account.defaultIdentity;
-  let identityBranch = Services.prefs.getBranch("mail.identity." + identity.key + ".");
-  identityBranch.setBoolPref("doCc", true);
-  identityBranch.setCharPref("doCcList", "Auto recipient");
+  identity.doCc = true;
+  identity.doCcList = "Auto@recipient.invalid";
+
   // In that case the recipient is input, enabled Send.
   let cwc = open_compose_new_mail(); // compose controller
   check_send_commands_state(cwc, true);
 
   // Press backspace to remove the recipient. No other valid one is there,
-  // disable Send.
+  // Send should become disabled.
   cwc.e("addressCol2#1").select();
   cwc.keypress(null, "VK_BACK_SPACE", {});
   check_send_commands_state(cwc, false);
 
   close_compose_window(cwc);
-  identityBranch.clearUserPref("doCc");
-  identityBranch.clearUserPref("doCcList");
+  identity.doCcList = "";
+  identity.doCc = false;
+}
+
+/**
+ * Bug 933101
+ * Similar to test_send_enabled_prefilled_address but switched between an identity
+ * that has a CC list and one that doesn't directly in the compose window.
+ */
+function test_send_enabled_prefilled_address_from_identity() {
+  // The first identity will have an automatic CC enabled.
+  let identityWithCC = account.defaultIdentity;
+  identityWithCC.doCc = true;
+  identityWithCC.doCcList = "Auto@recipient.invalid";
+
+  // CC is prefilled, Send enabled.
+  let cwc = open_compose_new_mail();
+  check_send_commands_state(cwc, true);
+
+  let identityPicker = cwc.e("msgIdentity");
+  assert_equals(identityPicker.selectedIndex, 0);
+
+  // Switch to the second identity that has no CC. Send should be disabled.
+  assert_true(account.identities.length >= 2);
+  let identityWithoutCC = account.identities.queryElementAt(1, Ci.nsIMsgIdentity);
+  assert_false(identityWithoutCC.doCc);
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"),
+                              [ { value: identityWithoutCC.key } ]);
+  check_send_commands_state(cwc, false);
+
+  // Check the first identity again.
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"),
+                              [ { value: identityWithCC.key } ]);
+  check_send_commands_state(cwc, true);
+
+  close_compose_window(cwc);
+  identityWithCC.doCcList = "";
+  identityWithCC.doCc = false;
 }
 
 /**
