@@ -353,13 +353,7 @@ net_pop3_write_state(Pop3UidlHost* host, nsIFile *mailDirectory)
     }
   }
   nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(fileOutputStream);
-  NS_ASSERTION(safeStream, "expected a safe output stream!");
-  if (safeStream) {
-    rv = safeStream->Finish();
-    if (NS_FAILED(rv)) {
-      NS_WARNING("failed to save pop state! possible data loss");
-    }
-  }
+  safeStream->Finish();
 }
 
 static void
