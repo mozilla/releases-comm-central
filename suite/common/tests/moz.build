@@ -9,5 +9,3 @@ TEST_DIRS += [
     'preferences',
 ]
 
-MODULE = 'test_suite_common'
-

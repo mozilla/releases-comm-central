@@ -10,5 +10,5 @@ XPIDL_SOURCES += [
     'nsISMimeJSHelper.idl',
 ]
 
-MODULE = 'msgsmime'
+XPIDL_MODULE = 'msgsmime'
 

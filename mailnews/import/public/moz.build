@@ -17,5 +17,5 @@ XPIDL_SOURCES += [
     'nsIImportSettings.idl',
 ]
 
-MODULE = 'import'
+XPIDL_MODULE = 'import'
 

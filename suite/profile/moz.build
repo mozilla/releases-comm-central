@@ -8,8 +8,6 @@ PARALLEL_DIRS += [
     'migration/src',
 ]
 
-MODULE = 'suiteprofile'
-
 SOURCES += [
     'nsSuiteDirectoryProvider.cpp',
 ]

@@ -61,7 +61,7 @@ XPIDL_SOURCES += [
     'nsMsgMessageFlags.idl',
 ]
 
-MODULE = 'msgbase'
+XPIDL_MODULE = 'msgbase'
 
 EXPORTS += [
     'MailNewsTypes.h',

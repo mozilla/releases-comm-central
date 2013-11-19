@@ -5,8 +5,6 @@
 
 DIRS += ['public']
 
-MODULE = 'shellservice'
-
 SOURCES += [
     'DirectoryProvider.cpp',
 ]

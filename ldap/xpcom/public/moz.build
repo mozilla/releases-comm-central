@@ -23,5 +23,5 @@ if CONFIG['MOZ_PREF_EXTENSIONS']:
         'nsILDAPSyncQuery.idl',
     ]
 
-MODULE = 'mozldap'
+XPIDL_MODULE = 'mozldap'
 

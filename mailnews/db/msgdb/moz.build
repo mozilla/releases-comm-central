@@ -10,5 +10,3 @@ PARALLEL_DIRS += [
 
 TEST_DIRS += ['test']
 
-MODULE = 'msgdb'
-

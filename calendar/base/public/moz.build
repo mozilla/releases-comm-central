@@ -47,7 +47,7 @@ XPIDL_SOURCES += [
     'calIWeekInfoService.idl',
 ]
 
-MODULE = 'calbase'
+XPIDL_MODULE = 'calbase'
 
 EXPORTS += [
     'calBaseCID.h',

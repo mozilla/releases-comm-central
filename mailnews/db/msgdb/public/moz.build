@@ -12,7 +12,7 @@ XPIDL_SOURCES += [
     'nsINewsDatabase.idl',
 ]
 
-MODULE = 'msgdb'
+XPIDL_MODULE = 'msgdb'
 
 EXPORTS += [
     'nsDBFolderInfo.h',

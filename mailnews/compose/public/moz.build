@@ -25,7 +25,7 @@ XPIDL_SOURCES += [
     'nsIURLFetcher.idl',
 ]
 
-MODULE = 'msgcompose'
+XPIDL_MODULE = 'msgcompose'
 
 EXPORTS += [
     'nsMsgAttachmentData.h',

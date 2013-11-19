@@ -13,8 +13,6 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     FORCE_STATIC_LIB = True
     LIBRARY_NAME = 'winsearch_s'
 
-MODULE = 'mailwinsearch'
-
 DIRS += ['public']
 
 EXTRA_PP_JS_MODULES += [

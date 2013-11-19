@@ -9,7 +9,7 @@ XPIDL_SOURCES += [
     'nsIActivityManagerUI.idl',
 ]
 
-MODULE = 'activity'
+XPIDL_MODULE = 'activity'
 
 EXTRA_COMPONENTS += [
     'activityComponents.manifest',

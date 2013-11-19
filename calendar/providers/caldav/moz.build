@@ -5,8 +5,6 @@
 
 DIRS += ['public']
 
-MODULE = 'caldav'
-
 EXTRA_COMPONENTS += [
     'calDavCalendar.js',
     'calDavCalendar.manifest',

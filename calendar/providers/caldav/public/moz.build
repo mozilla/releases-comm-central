@@ -7,5 +7,5 @@ XPIDL_SOURCES += [
     'calICalDavCalendar.idl',
 ]
 
-MODULE = 'caldav'
+XPIDL_MODULE = 'caldav'
 

@@ -7,5 +7,5 @@ XPIDL_SOURCES += [
     'nsIFts3Tokenizer.idl',
 ]
 
-MODULE = 'fts3tok'
+XPIDL_MODULE = 'fts3tok'
 

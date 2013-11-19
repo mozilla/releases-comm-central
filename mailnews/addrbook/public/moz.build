@@ -39,7 +39,7 @@ if CONFIG['MOZ_LDAP_XPCOM']:
         'nsIAbLDAPReplicationService.idl',
     ]
 
-MODULE = 'addrbook'
+XPIDL_MODULE = 'addrbook'
 
 EXPORTS += [
     'nsAbBaseCID.h',

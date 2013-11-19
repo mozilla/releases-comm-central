@@ -13,5 +13,3 @@ DIRS += [
     'wcap',
 ]
 
-MODULE = 'calprovs'
-

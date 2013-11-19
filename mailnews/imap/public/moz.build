@@ -23,7 +23,7 @@ XPIDL_SOURCES += [
     'nsIMsgImapMailFolder.idl',
 ]
 
-MODULE = 'msgimap'
+XPIDL_MODULE = 'msgimap'
 
 EXPORTS += [
     'nsIIMAPHostSessionList.h',

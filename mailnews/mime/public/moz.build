@@ -14,7 +14,7 @@ XPIDL_SOURCES += [
     'nsISimpleMimeConverter.idl',
 ]
 
-MODULE = 'mime'
+XPIDL_MODULE = 'mime'
 
 EXPORTS += [
     'nsIMimeContentTypeHandler.h',

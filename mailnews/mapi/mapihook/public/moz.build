@@ -9,5 +9,3 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = 'mapihook'
 
-MODULE = 'msgMapi'
-

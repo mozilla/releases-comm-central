@@ -7,7 +7,7 @@ XPIDL_SOURCES += [
     'nsIMsgCloudFileProvider.idl',
 ]
 
-MODULE = 'cloudfile'
+XPIDL_MODULE = 'cloudfile'
 
 EXTRA_COMPONENTS += [
     'cloudFileComponents.manifest',

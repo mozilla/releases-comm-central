@@ -6,5 +6,3 @@
 DIRS += ['src']
 TEST_DIRS += ['test']
 
-MODULE = 'msgmdn'
-

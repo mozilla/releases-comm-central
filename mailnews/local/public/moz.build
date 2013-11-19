@@ -23,7 +23,7 @@ XPIDL_SOURCES += [
     'nsIRssService.idl',
 ]
 
-MODULE = 'msglocal'
+XPIDL_MODULE = 'msglocal'
 
 EXPORTS += [
     'nsMsgLocalCID.h',
