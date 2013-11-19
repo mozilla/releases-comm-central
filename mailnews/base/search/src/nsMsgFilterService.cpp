@@ -126,23 +126,21 @@ NS_IMETHODIMP  nsMsgFilterService::SaveFilterList(nsIMsgFilterList *filterList, 
   NS_ENSURE_ARG_POINTER(filterFile);
   NS_ENSURE_ARG_POINTER(filterList);
 
-  nsCOMPtr<nsIOutputStream> out;
-  nsresult rv = NS_NewSafeLocalFileOutputStream(getter_AddRefs(out),
-                                                filterFile, -1, 0600);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIOutputStream> strm;
-  rv = NS_NewBufferedOutputStream(getter_AddRefs(strm), out, 4096);
+  nsresult rv = MsgNewSafeBufferedFileOutputStream(getter_AddRefs(strm),
+                                                filterFile, -1, 0600);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filterList->SaveToFile(strm);
 
   nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(strm);
-  NS_ASSERTION(safeStream, "expected a safe output stream");
-  if (NS_SUCCEEDED(rv) && safeStream)
+  NS_ASSERTION(safeStream, "expected a safe output stream!");
+  if (safeStream) {
     rv = safeStream->Finish();
-
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed to save filter file");
+    if (NS_FAILED(rv)) {
+      NS_WARNING("failed to save filter file! possible data loss");
+    }
+  }
   return rv;
 }
 

@@ -912,9 +912,7 @@ nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile *aFile, bool addDummyE
   // have to close the stream before deleting the file, else data
   // would still be written happily into a now non-existing file.
   // (Windows doesn't care, btw, just unixoids do...)
-  aFile->Remove(false);
-
-  nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(m_outputStream),
+  nsresult rv = MsgNewSafeBufferedFileOutputStream(getter_AddRefs(m_outputStream),
                                                aFile, -1, 0666);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -938,7 +936,15 @@ nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile *aFile, bool addDummyE
     result += MSG_LINEBREAK;
     m_outputStream->Write(result.get(), result.Length(), &writeCount);
   }
-
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(m_outputStream);
+  NS_ASSERTION(safeStream, "expected a safe output stream!");
+  if (safeStream) {
+    rv = safeStream->Finish();
+    if (NS_FAILED(rv)) {
+      NS_WARNING("failed to save msg file! possible data loss");
+    }
+  }
   return rv;
 }
 
