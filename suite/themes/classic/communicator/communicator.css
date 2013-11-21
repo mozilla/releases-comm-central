@@ -207,3 +207,12 @@ treecols:-moz-lwtheme {
 .messageImage[value="MixedDisplayContentMessage"] {
   list-style-image: url("chrome://communicator/skin/icons/lock-broken-16.png");
 }
+
+/* ::::: tree rows ::::: */
+
+@media (-moz-windows-default-theme) {
+  treechildren:not(.autocomplete-treebody)::-moz-tree-row {
+    height: 1.3em !important;
+    border-width: 1px !important;
+  }
+}
