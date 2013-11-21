@@ -1363,6 +1363,61 @@
         ]]></body>
       </method>
 
+      <method name="clearMagicScroll">
+        <body><![CDATA[
+          if (this.mMagicScrollTimer) {
+              clearTimeout(this.mMagicScrollTimer);
+              this.mMagicScrollTimer = null;
+          }
+        ]]></body>
+      </method>
+
+      <method name="setupMagicScroll">
+        <parameter name="event"/>
+        <body><![CDATA[
+          this.clearMagicScroll();
+
+          // If we are at the bottom or top of the view (or left/right when
+          // rotated), calculate the difference and start accelerating the
+          // scrollbar.
+          let diffStart, diffEnd;
+          let orient = event.target.getAttribute("orient");
+          let scrollbox = document.getAnonymousElementByAttribute(
+                         event.target, "anonid", "scrollbox");
+          if (orient == "vertical") {
+              diffStart = event.clientY - scrollbox.boxObject.y;
+              diffEnd = scrollbox.boxObject.y + scrollbox.boxObject.height - event.clientY;
+          } else {
+              diffStart = event.clientX - scrollbox.boxObject.x;
+              diffEnd = scrollbox.boxObject.x + scrollbox.boxObject.width - event.clientX;
+          }
+
+          const SCROLLZONE = 55;    // Size (pixels) of the top/bottom view where the scroll starts.
+          const MAXTIMEOUT = 250,   // Max and min time interval (ms) between
+                MINTIMEOUT = 30;    // two consecutive scrolls.
+          const SCROLLBYHOUR = .33; // Part of hour to move for each scroll.
+          let insideScrollZone = 0;
+          let pxPerHr = event.target.mPixPerMin * 60;
+          let scrollBy = Math.floor(pxPerHr * SCROLLBYHOUR);
+          if (diffStart < SCROLLZONE) {
+              insideScrollZone = SCROLLZONE - diffStart;
+              scrollBy *= -1;
+          } else if (diffEnd < SCROLLZONE) {
+              insideScrollZone = SCROLLZONE - diffEnd;
+          }
+
+          if (insideScrollZone) {
+              let sbo = scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);
+              let timeout = MAXTIMEOUT - insideScrollZone * (MAXTIMEOUT - MINTIMEOUT) / SCROLLZONE;
+              this.mMagicScrollTimer = setTimeout(function() {
+                  sbo.scrollBy(orient == "horizontal" && scrollBy,
+                               orient == "vertical" && scrollBy);
+                  this.onEventSweepMouseMove(event);
+              }.bind(this), timeout);
+          }
+        ]]></body>
+      </method>
+
       <!--
          - Event sweep handlers
         -->
@@ -1372,11 +1427,17 @@
           let col = document.calendarEventColumnDragging;
           if (!col) return;
 
+          col.setupMagicScroll(event);
+
           let dragState = col.mDragState;
 
           let lateralColumns = col.firstLastShadowColumns();
           let firstCol = lateralColumns.firstCol;
           let firstIndex = lateralColumns.firstIndex;
+
+          // If we leave the view, then stop our internal sweeping and start a
+          // real drag session. Someday we need to fix the sweep to soely be a
+          // drag session, no sweeping.
           if (event.clientX < (event.target.boxObject.x) ||
               event.clientX > (event.target.boxObject.x + event.target.boxObject.width) ||
               event.clientY < (event.target.boxObject.y) ||
@@ -1567,6 +1628,8 @@
               column = column.nextSibling;
               index++;
           }
+
+          col.clearMagicScroll();
 
           window.removeEventListener("mousemove", col.onEventSweepMouseMove, false);
           window.removeEventListener("mouseup", col.onEventSweepMouseUp, false);
