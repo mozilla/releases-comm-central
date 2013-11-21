@@ -3126,23 +3126,25 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders()
   GetVirtualFoldersFile(file);
 
   // Open a buffered, safe output stream
-  nsCOMPtr<nsIOutputStream> outStreamSink;
-  nsresult rv = NS_NewSafeLocalFileOutputStream(getter_AddRefs(outStreamSink),
-                                                file,
-                                                PR_CREATE_FILE | PR_WRONLY | PR_TRUNCATE,
-                                                0664);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIOutputStream> outStream;
-  rv = NS_NewBufferedOutputStream(getter_AddRefs(outStream), outStreamSink, 4096);
+  nsresult rv = MsgNewSafeBufferedFileOutputStream(getter_AddRefs(outStream),
+                                                   file,
+                                                   PR_CREATE_FILE | PR_WRONLY | PR_TRUNCATE,
+                                                   0664);
   NS_ENSURE_SUCCESS(rv, rv);
 
   WriteLineToOutputStream("version=", "1", outStream);
   m_incomingServers.Enumerate(saveVirtualFolders, &outStream);
 
   nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(outStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return safeStream->Finish();
+  NS_ASSERTION(safeStream, "expected a safe output stream!");
+  if (safeStream) {
+    rv = safeStream->Finish();
+    if (NS_FAILED(rv)) {
+      NS_WARNING("failed to save personal dictionary file! possible data loss");
+    }
+  }
+  return rv;
 }
 
 PLDHashOperator
