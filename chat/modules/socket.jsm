@@ -34,7 +34,7 @@
  *   proxyFlags
  *   connectTimeout (default is no timeout)
  *   readWriteTimeout (default is no timeout)
- *   isConnected
+ *   disconnected
  *   sslStatus
  *
  * Users should "subclass" this object, i.e. set their .__proto__ to be it. And
@@ -145,6 +145,7 @@ const Socket = {
     this.LOG("Connecting to: " + aHost + ":" + aPort);
     this.host = aHost;
     this.port = aPort;
+    this.disconnected = false;
 
     this._pendingData = [];
     delete this._stopRequestStatus;
@@ -210,7 +211,7 @@ const Socket = {
     }
     this.cancelDisconnectTimer();
 
-    delete this.isConnected;
+    this.disconnected = true;
   },
 
   // Listen for a connection on a port.
@@ -270,7 +271,7 @@ const Socket = {
     }
   },
 
-  isConnected: false,
+  disconnected: true,
 
   startTLS: function() {
     this.transport.securityInfo.QueryInterface(Ci.nsISSLSocketControl).StartTLS();
@@ -348,7 +349,6 @@ const Socket = {
     this._resetBuffers();
     this._openStreams();
 
-    this.isConnected = true;
     this.onConnectionHeard();
     this.stopListening();
   },
@@ -366,7 +366,7 @@ const Socket = {
   // onDataAvailable, called by Mozilla's networking code.
   // Buffers the data, and parses it into discrete messages.
   onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
-    if (!this.isConnected)
+    if (this.disconnected)
       return;
     if (this.binaryMode) {
       // Load the data from the stream
@@ -448,7 +448,7 @@ const Socket = {
   },
   // Called to signify the end of an asynchronous request.
   onStopRequest: function(aRequest, aContext, aStatus) {
-    if (!this.isConnected) {
+    if (this.disconnected) {
       // We're already disconnected, so nothing left to do here.
       return;
     }
@@ -460,9 +460,9 @@ const Socket = {
   },
   // Close the connection after receiving a stop request.
   _handleStopRequest: function(aStatus) {
-    if (!this.isConnected)
+    if (this.disconnected)
       return;
-    delete this.isConnected;
+    this.disconnected = true;
     if (aStatus == NS_ERROR_NET_RESET)
       this.onConnectionReset();
     else if (aStatus == NS_ERROR_NET_TIMEOUT)
@@ -524,7 +524,6 @@ const Socket = {
     this.DEBUG("onTransportStatus(" + (status || ("0x" + aStatus.toString(16))) +")");
 
     if (status == "STATUS_CONNECTED_TO") {
-      this.isConnected = true;
       // Notify that the connection has been established.
       this.onConnection();
     }

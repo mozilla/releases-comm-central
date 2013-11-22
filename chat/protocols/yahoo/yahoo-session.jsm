@@ -377,7 +377,7 @@ YahooSession.prototype = {
 
   onSessionError: function(aError, aMessage) {
     this._account.reportDisconnecting(aError, aMessage);
-    if (this.isConnected)
+    if (!this.disconnected)
       this.disconnect();
     this._account.reportDisconnected();
   },
@@ -961,7 +961,7 @@ const YahooPacketHandler = {
     let parameter = "chksum=";
     // The "chksum" parameter is the only parameter in the URL.
     let checksum = url.substring(url.indexOf(parameter) + parameter.length);
-    
+
     let buddy = this.getBuddy(buddyName);
     // We only download the new icon if no older checksum exists, or if the
     // older checksum differs, indicating an updated icon.
@@ -988,7 +988,7 @@ const YahooPacketHandler = {
 
   // Buddy avatar (icon) update.
   0xc7: function(aPacket) {
-    // Strangely, in some non-official clients, when someone updates their 
+    // Strangely, in some non-official clients, when someone updates their
     // profile icon we are sent two avatar update packets: one with a default
     // status containing little information, and another with a Server Ack
     // status containing the info we need. So we only accept packets with a
