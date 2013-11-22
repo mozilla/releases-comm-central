@@ -1218,7 +1218,7 @@ ircAccount.prototype = {
         conversation.writeMessage(this._nickname, msg, {system: true});
       return true;
     }
-  
+
     this.LOG(aOldNick + " is already in use, trying " + newNick);
     this.sendMessage("NICK", newNick); // Nick message.
     return true;
@@ -1383,7 +1383,7 @@ ircAccount.prototype = {
       return;
 
     // If there's no socket, disconnect immediately to avoid waiting 2 seconds.
-    if (!this._socket || !this._socket.isConnected) {
+    if (!this._socket || this._socket.disconnected) {
       this.gotDisconnected();
       return;
     }
@@ -1525,7 +1525,7 @@ ircAccount.prototype = {
     const lowRegex = new RegExp("[" + Object.keys(lowQuote).join("") + "]", "g");
     aMessage = aMessage.replace(lowRegex, function(aChar) "\x10" + lowQuote[aChar]);
 
-    if (!this._socket || !this._socket.isConnected) {
+    if (!this._socket || this._socket.disconnected) {
       this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                            _("connection.error.lost"));
     }
