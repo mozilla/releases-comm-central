@@ -71,3 +71,4 @@ else:
 
 LIBRARY_NAME = 'msgbsutl_s'
 
+DEFINES['_IMPL_NS_MSG_BASE'] = True

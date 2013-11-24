@@ -14,14 +14,6 @@ ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
 MODULE_NAME	= nsMailModule
 endif
 
-ifdef MOZ_LDAP_XPCOM
-DEFINES		+= -DMOZ_LDAP_XPCOM
-endif
-
-ifeq ($(OS_ARCH),WINNT)
-DEFINES		+= -DZLIB_DLL
-endif
-
 SHARED_LIBRARY_LIBS = \
 	        ../base/util/$(LIB_PREFIX)msgbsutl_s.$(LIB_SUFFIX) \
 		../base/src/$(LIB_PREFIX)msgbase_s.$(LIB_SUFFIX) \

@@ -81,3 +81,4 @@ else:
 
 LIBRARY_NAME = 'mime_s'
 
+DEFINES['ENABLE_SMIME'] = True

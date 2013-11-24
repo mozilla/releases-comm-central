@@ -67,10 +67,16 @@ if CONFIG['MOZ_LDAP_XPCOM']:
         'nsAbLDAPReplicationQuery.cpp',
         'nsAbLDAPReplicationService.cpp',
     ]
+    # XXX These files are not being built as they don't work. Bug 311632 should
+    # fix them.
+    # nsAbLDAPChangeLogQuery.cpp
+    # nsAbLDAPChangeLogData.cpp
 
     EXTRA_COMPONENTS += [
         'nsAbLDAPAutoCompleteSearch.js',
     ]
+
+    DEFINES['MOZ_LDAP_XPCOM'] = True
 
 EXTRA_COMPONENTS += [
     'nsAbAutoCompleteMyDomain.js',

@@ -14,14 +14,5 @@ ifeq ($(OS_ARCH),WINNT)
 OS_CXXFLAGS += -DNOMINMAX
 endif
 
-ifdef MOZ_LDAP_XPCOM
-DEFINES += -DMOZ_LDAP_XPCOM
-
-# XXX These files are not being built as they don't work. Bug 311632 should
-# fix them.
-# nsAbLDAPChangeLogQuery.cpp
-# nsAbLDAPChangeLogData.cpp
-endif
-
 include $(topsrcdir)/config/rules.mk
 

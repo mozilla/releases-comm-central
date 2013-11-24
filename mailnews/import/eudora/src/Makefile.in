@@ -10,10 +10,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-ifeq ($(OS_ARCH),WINNT)
-OS_CXXFLAGS += -DNOMINMAX
-endif
-
 LOCAL_INCLUDES += -I$(srcdir)/../../src
 
 include $(topsrcdir)/config/rules.mk
