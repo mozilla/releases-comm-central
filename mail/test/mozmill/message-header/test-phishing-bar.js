@@ -33,6 +33,10 @@ function setupModule(module) {
     contentType: "text/html"
   }}));
   add_message_to_folder(folder, create_message());
+  add_message_to_folder(folder, create_message({body: {
+    body: 'check out http://130.128.4.1. and http://130.128.4.2/.',
+    contentType: "text/plain"
+  }}));
 }
 
 /**
@@ -88,7 +92,6 @@ function test_ignore_phishing_warning_from_eml_attachment() {
 
   // Make sure the root message shows the phishing bar.
   wait_for_notification_to_show(msgc, kBoxId, kNotificationValue);
-  //function assert_notification_displayed(aController, aValue, aDisplayed) 
 
   // Open the attached message.
   plan_for_new_window("mail:messageWindow");
@@ -102,4 +105,15 @@ function test_ignore_phishing_warning_from_eml_attachment() {
   close_window(msgc2);
   close_window(msgc);
 }
+
+/**
+ * Test that when viewing a message with an auto-linked ip address, we don't
+ * get a warning. We'll have http://130.128.4.1 vs. http://130.128.4.1/
+ */
+function test_no_phishing_warning_for_ip_sameish_text() {
+  be_in_folder(folder);
+  select_click_row(2); // Mail with Public IP address.
+  assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
+}
+
 

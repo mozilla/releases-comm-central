@@ -126,8 +126,6 @@ var gPhishingDetector = {
     // this prevents us from flagging imap and other internally handled urls
     if (hrefURL.schemeIs('http') || hrefURL.schemeIs('https'))
     {
-      var linkTextURL = {};
-
       // The link is not suspicious if the visible text is the same as the URL,
       // even if the URL is an IP address. URLs are commonly surrounded by
       // < > or "" (RFC2396E) - so strip those from the link text before comparing.
@@ -135,7 +133,10 @@ var gPhishingDetector = {
         aLinkText = aLinkText.replace(/^<(.+)>$|^"(.+)"$/, "$1$2");
 
       var failsStaticTests = false;
-      if (aLinkText != aUrl)
+      // If the link text and url differs by something other than a trailing
+      // slash, do some further checks.
+      if (aLinkText != aUrl &&
+          aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, ""))
       {
         if (this.mCheckForIPAddresses)
         {
@@ -147,7 +148,7 @@ var gPhishingDetector = {
         if (!failsStaticTests && this.mCheckForMismatchedHosts)
         {
           failsStaticTests = (aLinkText &&
-            this.misMatchedHostWithLinkText(hrefURL, aLinkText, linkTextURL))
+            this.misMatchedHostWithLinkText(hrefURL, aLinkText))
         }
       }
 
@@ -212,10 +213,9 @@ var gPhishingDetector = {
    * url with a host name that differs from the actual href the user would get taken to.
    * i.e. <a href="http://myevilsite.com">http://mozilla.org</a>
    * 
-   * @return true if aHrefURL.host matches the host of the link node text. 
-   * @return aLinkTextURL the nsIURI for the link node text
+   * @return true if aHrefURL.host does NOT match the host of the link node text
    */
-  misMatchedHostWithLinkText: function(aHrefURL, aLinkNodeText, aLinkTextURL)
+  misMatchedHostWithLinkText: function(aHrefURL, aLinkNodeText)
   {
     // gatherTextUnder puts a space between each piece of text it gathers,
     // so strip the spaces out (see bug 326082 for details).
@@ -227,9 +227,9 @@ var gPhishingDetector = {
       // does the link text look like a http url?
        if (aLinkNodeText.search(/(^http:|^https:)/) != -1)
        {
-         aLinkTextURL.value = Services.io.newURI(aLinkNodeText, null, null);
+         let linkURI = Services.io.newURI(aLinkNodeText, null, null);
          // compare hosts, but ignore possible www. prefix
-         return !(aHrefURL.host.replace(/^www\./, "") == aLinkTextURL.value.host.replace(/^www\./, ""));
+         return !(aHrefURL.host.replace(/^www\./, "") == linkURI.host.replace(/^www\./, ""));
        }
     }
 
