@@ -722,6 +722,9 @@ function ExistingConversation(aUIConv) {
       this._statusType = buddy.statusType;
       this._statusText = buddy.statusText;
       this._buddyIconFilename = buddy.buddyIconFilename;
+      this._lowerCaseName = aUIConv.contact.getBuddies()
+                                   .map(b => b.displayName)
+                                   .join(" ").toLowerCase();
     }
     else {
       this._statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
