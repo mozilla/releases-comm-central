@@ -3,9 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include('../bridge/bridge.mozbuild')
+include('/mailnews/mailnews.mozbuild')
 
-add_tier_dir('app', '../mail/components')
+add_tier_dir('app', 'mail/components')
 
 if not CONFIG['LIBXUL_SDK']:
     include('/toolkit/toolkit.mozbuild')
@@ -16,10 +16,10 @@ if CONFIG['MOZ_EXTENSIONS']:
 add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
 
 if CONFIG['MOZ_COMPOSER']:
-    add_tier_dir('app', '../editor/ui')
+    add_tier_dir('app', 'editor/ui')
 
 if CONFIG['MOZ_CALENDAR']:
-    add_tier_dir('app', '../calendar/lightning')
+    add_tier_dir('app', 'calendar/lightning')
 
-add_tier_dir('app', '../chat')
-add_tier_dir('app', '../mail')
+add_tier_dir('app', 'chat')
+add_tier_dir('app', 'mail')

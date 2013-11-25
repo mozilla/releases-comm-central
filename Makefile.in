@@ -41,6 +41,8 @@ config.status: $(topsrcdir)/configure
 	@exit 1
 
 default export libs clean realclean distclean alldep \
+package installer package-compare stage-package install source-package \
+upload source-upload hg-bundle l10n-check \
 maybe_clobber_profiledbuild uploadsymbols all:: $(SUBMAKEFILES)
 	$(MAKE) -C mozilla $@
 
@@ -59,10 +61,8 @@ check-sync-dirs::
 
 check:: check-sync-dirs
 
-ifndef MOZ_THUNDERBIRD
 package-tests:: $(SUBMAKEFILES)
 	$(MAKE) -C mozilla $@
-endif
 endif
 
 # http://bugzilla.mozilla.org/show_bug.cgi?id=450485

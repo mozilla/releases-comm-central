@@ -4,11 +4,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 if CONFIG['MOZ_LDAP_XPCOM']:
-    add_tier_dir('app', '../ldap')
-    add_tier_dir('app', '../ldap/xpcom')
+    add_tier_dir('app', 'ldap')
+    add_tier_dir('app', 'ldap/xpcom')
 
 if CONFIG['MOZ_MORK']:
-    add_tier_dir('app', '../db')
+    add_tier_dir('app', 'db')
 
-add_tier_dir('app', '../mailnews')
+add_tier_dir('app', 'mailnews')
 

@@ -24,12 +24,7 @@ fi
 AC_SUBST(MOZ_MOVEMAIL)
 
 dnl Get other versions (for the calendar plugin)
-if test "$COMM_BUILD" = "1"; then
-  commdir=$topsrcdir
-else
-  commdir=$topsrcdir/..
-fi
-THUNDERBIRD_VERSION=`cat $commdir/mail/config/version.txt`
+THUNDERBIRD_VERSION=`cat $topsrcdir/mail/config/version.txt`
 AC_SUBST(THUNDERBIRD_VERSION)
 
 dnl =========================================================
@@ -106,22 +101,7 @@ if test -n "$COMPILE_ENVIRONMENT" -a -n "$MOZ_LDAP_XPCOM"; then
     _save_ac_configure_args="$ac_configure_args"
     ac_configure_args="$_SUBDIR_CONFIG_ARGS"
 
-    mkdir -p ../ldap/sdks/c-sdk/ldap
-    # these subdirs may not yet have been created in the build tree.
-    # don't use the "-p" switch to mkdir, since not all platforms have it
-    if test ! -d "ldap/sdks/c-sdk/ldap"; then
-        if test ! -d "ldap/sdks/c-sdk"; then
-            if test ! -d "ldap/sdks"; then
-                if test ! -d "ldap"; then
-                    mkdir "ldap"
-                fi
-                mkdir "ldap/sdks"
-            fi
-            mkdir "ldap/sdks/c-sdk"
-        fi
-        mkdir "ldap/sdks/c-sdk/ldap"
-    fi
-
+    mkdir -p ldap/sdks/c-sdk/ldap
     ac_configure_args="$_SUBDIR_CONFIG_ARGS --prefix=$MOZ_BUILD_ROOT/dist --with-dist-prefix=$MOZ_BUILD_ROOT/dist --without-nss --with-mozilla"
     if test -n "$HAVE_64BIT_BUILD"; then
         dnl A 64-bit OS was (auto-)detected: (explicitly) enable 64-bit support.
@@ -135,7 +115,7 @@ if test -n "$COMPILE_ENVIRONMENT" -a -n "$MOZ_LDAP_XPCOM"; then
     cache_file_base=`dirname $cache_file`
     cache_file=`cd $cache_file_base && pwd`/`basename $cache_file`
 
-    AC_OUTPUT_SUBDIRS(../ldap/sdks/c-sdk)
+    AC_OUTPUT_SUBDIRS(ldap/sdks/c-sdk)
     ac_configure_args="$_save_ac_configure_args"
 fi # COMPILE_ENVIRONMENT && MOZ_LDAP_XPCOM
 

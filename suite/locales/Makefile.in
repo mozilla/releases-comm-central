@@ -131,14 +131,14 @@ clobber-%:
 
 libs-%:
 	$(NSINSTALL) -D $(DIST)/install
-	@$(MAKE) -C ../../mozilla/toolkit/locales libs-$*
-	@$(MAKE) -C ../../mozilla/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*
+	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../editor/ui/locales AB_CD=$* XPI_NAME=locale-$*
-	@if test -d ../../mozilla/extensions/irc; then \
-	  $(MAKE) -C ../../mozilla/extensions/irc/locales libs-$*; \
+	@if test -d $(DEPTH)/extensions/irc; then \
+	  $(MAKE) -C $(DEPTH)/extensions/irc/locales libs-$*; \
 	fi
-	@$(MAKE) -C ../../mozilla/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
-	@$(MAKE) -C ../../mozilla/intl/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C $(DEPTH)/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C $(DEPTH)/intl/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref
 
 repackage-win32-installer: WIN32_INSTALLER_OUT=$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
@@ -184,8 +184,8 @@ clobber-zip:
 repackage-zip: repackage-extensions
 
 repackage-extensions: $(STAGEDIST)
-	if test -d ../../mozilla/extensions/irc; then \
-	  $(MAKE) -C ../../mozilla/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST); \
+	if test -d $(DEPTH)/extensions/irc; then \
+	  $(MAKE) -C $(DEPTH)/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST); \
 	fi
 ifdef MOZ_OMNIJAR
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST);

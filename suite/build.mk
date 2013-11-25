@@ -2,13 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-ifdef COMM_BUILD # Mozilla Makefile
-ifndef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
-# workaround Bug 599809 by making these makefiles be generated here
-SUBMAKEFILES += $(addsuffix /Makefile, $(APP_LIBXUL_DIRS) $(APP_LIBXUL_STATICDIRS))
-endif
-endif
-
+ifndef COMM_BUILD
 installer:
 	@$(MAKE) -C suite/installer installer
 
@@ -27,8 +21,6 @@ source-package::
 upload::
 	@$(MAKE) -C suite/installer upload
 
-ifndef COMM_BUILD # Mozilla Makefile
-
 # mochitests need to be run from the Mozilla build system
 ifdef ENABLE_TESTS
 # Backend is implemented in mozilla/testing/testsuite-targets.mk.
@@ -42,5 +34,4 @@ mochitest:: mochitest-browser-chrome
 
 .PHONY: mochitest-browser-chrome
 endif
-
-endif # COMM_BUILD
+endif

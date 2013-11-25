@@ -186,7 +186,7 @@ win_srcdir      := $(srcdir)
 BUILD_TOOLS     = $(MOZILLA_SRCDIR)/build/unix
 endif
 
-CONFIG_TOOLS	= $(MOZ_BUILD_ROOT)/mozilla/config
+CONFIG_TOOLS	= $(MOZ_BUILD_ROOT)/config
 AUTOCONF_TOOLS	= $(MOZILLA_SRCDIR)/build/autoconf
 
 #
