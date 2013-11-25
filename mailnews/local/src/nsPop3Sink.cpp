@@ -860,13 +860,16 @@ nsPop3Sink::IncorporateAbort(bool uidlDownload)
 {
   nsresult rv = m_outFileStream->Close();
   NS_ENSURE_SUCCESS(rv,rv);
-  if (!m_downloadingToTempFile && m_msgStore)
+  if (!m_downloadingToTempFile && m_msgStore && m_newMailParser &&
+      m_newMailParser->m_newMsgHdr)
+  {
       m_msgStore->DiscardNewMessage(m_outFileStream,
                                     m_newMailParser->m_newMsgHdr);
+  }
 #ifdef DEBUG
-    printf("Incorporate message abort.\n");
+  printf("Incorporate message abort.\n");
 #endif
-    return rv;
+  return rv;
 }
 
 nsresult
