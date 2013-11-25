@@ -477,7 +477,11 @@ pref("mail.tabs.closeWindowWithLastTab", true);
 pref("mail.tabs.closeButtons", 1);
 
 // Allow the tabs to be in the titlebar on supported systems
+#ifdef XP_MACOSX
+pref("mail.tabs.drawInTitlebar", false);
+#else
 pref("mail.tabs.drawInTitlebar", true);
+#endif
 
 // The breakpad report server to link to in about:crashes
 pref("breakpad.reportURL", "http://crash-stats.mozilla.com/report/index/");

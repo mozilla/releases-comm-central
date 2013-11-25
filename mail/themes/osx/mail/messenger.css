@@ -21,9 +21,12 @@
   margin-bottom: 0px !important;
 }
 
-#titlebar-buttonbox-container,
-#messengerWindow:not([drawintitlebar=true]) > #titlebar {
+#titlebar:not(:-moz-lwtheme) {
   display: none;
+}
+
+#titlebar:-moz-lwtheme {
+  -moz-appearance: none;
 }
 
 description.error {
