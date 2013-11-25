@@ -29,6 +29,10 @@
             src="chrome://messenger/content/about-support/init.js"/>
     <script type="application/javascript;version=1.7"
             src="chrome://messenger/content/about-support/accounts.js"/>
+#ifdef MOZ_CRASHREPORTER
+    <script type="application/javascript;version=1.7"
+            src="chrome://messenger/content/about-support/crashes.js"/>
+#endif
     <script type="application/javascript;version=1.7"
             src="chrome://messenger/content/about-support/extensions.js"/>
     <script type="application/javascript;version=1.7"
@@ -168,16 +172,6 @@
 
           <tr>
             <th class="column">
-              &aboutSupport.crashes.title;
-            </th>
-
-            <td>
-              <a href="about:crashes" target="_blank">about:crashes</a>
-            </td>
-          </tr>
-
-          <tr>
-            <th class="column">
               &aboutSupport.appBasicsMemoryUse;
             </th>
 
@@ -251,6 +245,33 @@
       </table>
 
       <!-- - - - - - - - - - - - - - - - - - - - - -->
+#ifdef MOZ_CRASHREPORTER
+
+      <h2 class="major-section">
+        &aboutSupport.crashes.title;
+      </h2>
+
+      <table id="crashes-table">
+        <thead>
+          <tr>
+            <th>
+              &aboutSupport.crashes.id;
+            </th>
+            <th>
+              &aboutSupport.crashes.sendDate;
+            </th>
+          </tr>
+        </thead>
+        <tbody id="crashes-tbody">
+        </tbody>
+      </table>
+      <p id="crashes-allReports" class="data-uionly" style="display: none">
+        <a href="about:crashes" id="crashes-allReportsWithPending" style="display: block" target="_blank">&aboutSupport.crashes.allReports;</a>
+      </p>
+      <p id="crashes-noConfig" class="data-uionly" style="display: none">&aboutSupport.crashes.noConfig;</p>
+
+      <!-- - - - - - - - - - - - - - - - - - - - - -->
+#endif
 
       <h2 class="major-section">
         &aboutSupport.extensionsTitle;

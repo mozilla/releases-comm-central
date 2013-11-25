@@ -185,6 +185,14 @@ function generateTextForElement(elem, aHidePrivateData, indent,
     return;
   };
 
+#ifdef MOZ_CRASHREPORTER
+  if (elem.id == "crashes-table")
+  {
+    textFragmentAccumulator.push(getCrashesText(indent));
+    return;
+  }
+#endif
+
   let childCount = elem.childElementCount;
 
   // We're not going to spread a two-column <tr> across multiple lines, so
