@@ -406,7 +406,6 @@ SessionStoreService.prototype = {
 
         Array.forEach(aWindow.getBrowser().tabs, function(aTab) {
           delete aTab.linkedBrowser.__SS_data;
-          delete aTab.linkedBrowser.__SS_tabStillLoading;
           delete aTab.linkedBrowser.__SS_formDataSaved;
           if (aTab.linkedBrowser.__SS_restoreState)
             this._resetTabRestoringState(aTab);
@@ -777,7 +776,6 @@ SessionStoreService.prototype = {
     browser.removeEventListener("DOMAutoComplete", this, true);
 
     delete browser.__SS_data;
-    delete browser.__SS_tabStillLoading;
     delete browser.__SS_formDataSaved;
 
     // If this tab was in the middle of restoring or still needs to be restored,
@@ -850,7 +848,6 @@ SessionStoreService.prototype = {
     }
 
     delete aBrowser.__SS_data;
-    delete aBrowser.__SS_tabStillLoading;
     delete aBrowser.__SS_formDataSaved;
     this.saveStateDelayed(aWindow);
 
@@ -1432,7 +1429,7 @@ SessionStoreService.prototype = {
     if (!browser || !browser.currentURI)
       // can happen when calling this function right after .addTab()
       return tabData;
-    else if (browser.__SS_data && browser.__SS_tabStillLoading) {
+    else if (browser.__SS_data) {
       // use the data to be restored when the tab hasn't been completely loaded
       tabData = browser.__SS_data;
       if (aTab.pinned)
@@ -1746,8 +1743,7 @@ SessionStoreService.prototype = {
     for (var i = 0; i < browsers.length; i++) {
       try {
         var tabData = this._windows[aWindow.__SSi].tabs[i];
-        if (browsers[i].__SS_data &&
-            browsers[i].__SS_tabStillLoading)
+        if (browsers[i].__SS_data)
           continue; // ignore incompletely initialized tabs
         this._updateTextAndScrollDataForTab(aWindow, browsers[i], tabData);
       }
@@ -2493,8 +2489,6 @@ SessionStoreService.prototype = {
       for (let name in tabData.attributes)
         this.xulAttributes[name] = true;
 
-      browser.__SS_tabStillLoading = true;
-
       // keep the data around to prevent dataloss in case
       // a tab gets closed before it's been properly restored
       browser.__SS_data = tabData;
@@ -2560,8 +2554,7 @@ SessionStoreService.prototype = {
     function sss_restoreHistory(aWindow, aTabs, aTabData, aIdMap, aDocIdentMap) {
     var _this = this;
     // if the tab got removed before being completely restored, then skip it
-    while (aTabs.length > 0 && (!aTabs[0].parentNode || !aTabs[0].linkedBrowser ||
-                                !aTabs[0].linkedBrowser.__SS_tabStillLoading)) {
+    while (aTabs.length > 0 && (!aTabs[0].parentNode || !aTabs[0].linkedBrowser)) {
       aTabs.shift();
       aTabData.shift();
     }
