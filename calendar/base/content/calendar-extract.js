@@ -209,6 +209,11 @@ let calendarExtract = {
             // covers selection change in a folder
             let msgTree = window.top.GetThreadTree();
             msgTree.addEventListener("select", this.setState, false);
+
+            window.addEventListener("unload", () => {
+                folderTree.removeEventListener("select", this.setState, false);
+                msgTree.removeEventListener("select", this.setState, false);
+            }, false);
         }
     },
 
@@ -236,4 +241,4 @@ let calendarExtract = {
     }
 };
 
-calendarExtract.addListeners();
+window.addEventListener("load", calendarExtract.addListeners.bind(calendarExtract), false);
