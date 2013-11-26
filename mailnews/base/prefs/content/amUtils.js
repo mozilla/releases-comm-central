@@ -6,6 +6,7 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/MailUtils.js");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
 function BrowseForLocalFolders()
 {
@@ -180,4 +181,25 @@ function openPrefsFromAccountManager(aTBPaneId, aTBTabId, aTBOtherArgs, aSMPaneI
   // If goPreferences() exists, we are in Seamonkey.
   if (typeof win.goPreferences == "function")
     win.goPreferences(aSMPaneId);
+}
+
+/**
+ * Check if the given account name already exists in any account.
+ *
+ * @param aAccountName  The account name string to look for.
+ * @param aAccountKey   Optional. The key of an account that is skipped when
+ *                      searching the name. If unset, do not skip any account.
+ */
+function accountNameExists(aAccountName, aAccountKey)
+{
+  for (let account in fixIterator(MailServices.accounts.accounts,
+                                  Components.interfaces.nsIMsgAccount))
+  {
+    if (account.key != aAccountKey && account.incomingServer &&
+        aAccountName == account.incomingServer.prettyName) {
+      return true;
+    }
+  }
+
+  return false;
 }

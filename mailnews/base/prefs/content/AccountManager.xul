@@ -23,6 +23,7 @@
 <script type="application/javascript" src="chrome://messenger/content/am-prefs.js"/>
 <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
 <script type="application/javascript" src="chrome://messenger/content/am-help.js"/>
+<script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
 
   <hbox flex="1">
     <vbox style="&accountTree.width;">

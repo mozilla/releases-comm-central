@@ -10,6 +10,11 @@ function acctNamePageValidate()
   var accountname = document.getElementById("prettyName").value;
   var canAdvance = accountname ? true : false;
 
+  // Check if this accountname already exists. If so, return false so that
+  // user can enter a different unique account name.
+  if (canAdvance && accountNameExists(accountname))
+    canAdvance = false;
+
   document.documentElement.canAdvance = canAdvance;
 }
 

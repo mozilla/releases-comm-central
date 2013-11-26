@@ -243,6 +243,9 @@ function onAccept(aDoChecks) {
     // Check if user/host have been modified correctly.
     if (!checkUserServerChanges(true))
       return false;
+
+    if (!checkAccountNameIsValid())
+      return false;
   }
 
   if (!onSave())
@@ -629,6 +632,40 @@ function checkUserServerChanges(showAlert) {
   return true;
 }
 
+/**
+ * If account name is not valid, alert the user.
+ */
+function checkAccountNameIsValid() {
+  if (!currentAccount)
+    return true;
+
+  let pageElements = getPageFormElements();
+  if (!pageElements)
+    return true;
+
+  const prefBundle = document.getElementById("bundle_prefs");
+  let alertText = null;
+
+  for (let i = 0; i < pageElements.length; i++) {
+    if (!pageElements[i].id || pageElements[i].id != "server.prettyName")
+      continue;
+
+    let accountName = getFormElementValue(pageElements[i]);
+    if (!accountName)
+      alertText = prefBundle.getString("accountNameEmpty");
+    else if (accountNameExists(accountName, currentAccount.key))
+      alertText = prefBundle.getString("accountNameExists");
+
+    if (alertText) {
+      const alertTitle = prefBundle.getString("accountWizard");
+      Services.prompt.alert(window, alertTitle, alertText);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function onSave() {
   if (pendingPageId) {
     dump("ERROR: " + pendingPageId + " hasn't loaded yet! Not saving.\n");
@@ -1000,6 +1037,15 @@ function onAccountTreeSelect(pageId, account)
 
     if (gRestartNeeded)
       onAccept(false);
+  }
+
+  if (document.getElementById("contentFrame").contentDocument.getElementById("server.prettyName")) {
+    // Check if account name is valid.
+    if (!checkAccountNameIsValid()) {
+      changeView = true;
+      account = currentAccount;
+      pageId = currentPageId;
+    }
   }
 
   if (currentPageId) {
