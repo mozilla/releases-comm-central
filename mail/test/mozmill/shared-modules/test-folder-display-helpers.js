@@ -901,6 +901,33 @@ function _normalize_view_index(aViewIndex, aController) {
 }
 
 /**
+ * Generic method to simulate a left click on a row in a <tree> element.
+ *
+ * @param aTree        The the element.
+ * @param aRowIndex    Index of a row in the tree to click on.
+ * @param aController  Controller object
+ */
+function click_tree_row(aTree, aRowIndex, aController) {
+  if (aRowIndex < 0 || aRowIndex >= aTree.view.rowCount)
+    throw new Error("Row " + aRowIndex + " does not exist in the tree " + aTree.id + "!");
+
+  let selection = aTree.view.selection;
+  selection.select(aRowIndex);
+  aTree.treeBoxObject.ensureRowIsVisible(aRowIndex);
+
+  // get cell coordinates
+  let x = {}, y = {}, width = {}, height = {};
+  let column = aTree.columns[0];
+  aTree.treeBoxObject.getCoordsForCellItem(aRowIndex, column, "text",
+                                           x, y, width, height);
+
+  aController.sleep(0);
+  EventUtils.synthesizeMouse(aTree.body, x.value + 4, y.value + 4,
+                             {}, aTree.ownerDocument.defaultView);
+  aController.sleep(0);
+}
+
+/**
  * Pretend we are clicking on a row with our mouse.
  *
  * @param aViewIndex If >= 0, the view index provided, if < 0, a reference to

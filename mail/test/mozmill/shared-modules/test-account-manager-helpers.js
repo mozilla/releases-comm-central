@@ -74,23 +74,7 @@ function click_account_tree_row(controller, rowIndex) {
 
   let tree = controller.window.document.getElementById("accounttree");
 
-  if (rowIndex < 0 || rowIndex >= tree.view.rowCount)
-    throw new Error("Row " + rowIndex + " does not exist in the account tree!");
-
-  let selection = tree.view.selection;
-  selection.select(rowIndex);
-  tree.treeBoxObject.ensureRowIsVisible(rowIndex);
-
-  // get cell coordinates
-  var x = {}, y = {}, width = {}, height = {};
-  var column = tree.columns[0];
-  tree.treeBoxObject.getCoordsForCellItem(rowIndex, column, "text",
-                                           x, y, width, height);
-
-  controller.sleep(0);
-  EventUtils.synthesizeMouse(tree.body, x.value + 4, y.value + 4,
-                             {}, tree.ownerDocument.defaultView);
-  controller.sleep(0);
+  fdh.click_tree_row(tree, rowIndex, controller);
 
   utils.waitFor(function () controller.window.pendingAccount == null,
                 "Timeout waiting for pendingAccount to become null");
