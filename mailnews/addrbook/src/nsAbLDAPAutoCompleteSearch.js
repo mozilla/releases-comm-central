@@ -112,11 +112,15 @@ nsAbLDAPAutoCompleteSearch.prototype = {
   },
 
   _addToResult: function _addToResult(card) {
-    let emailAddress =
-      this._parser.makeMailboxObject(card.displayName,
-                                     card.isMailList ?
-                                     card.getProperty("Notes", "") || card.displayName :
-                                     card.primaryEmail).toString();
+    var emailAddress =
+      this._parser.makeFullAddress(card.displayName, card.isMailList ?
+        card.getProperty("Notes", "") || card.displayName : card.primaryEmail);
+
+    // The old code used to try it manually. I think if the parser can't work
+    // out the address from what we've supplied, then its busted and we're not
+    // going to do any better doing it manually.
+    if (!emailAddress)
+      return;
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.

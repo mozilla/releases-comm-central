@@ -16,7 +16,6 @@
 #include "nsIMsgHeaderParser.h" /* include the interface we are going to support */
 #include "nsIMimeConverter.h"
 #include "comi18n.h"
-#include "nsCOMArray.h"
 #include "nsCOMPtr.h"
 
  /*

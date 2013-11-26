@@ -549,7 +549,7 @@ function GenerateAddressFromCard(card)
   else
     email = card.primaryEmail;
 
-  return MailServices.headerParser.makeMimeAddress(card.displayName, email);
+  return MailServices.headerParser.makeFullAddress(card.displayName, email);
 }
 
 function GetDirectoryFromURI(uri)

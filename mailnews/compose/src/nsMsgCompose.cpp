@@ -78,10 +78,7 @@
 #include "nsIAbManager.h"
 #include "nsCRT.h"
 #include "mozilla/Services.h"
-#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsISelection.h"
-
-using namespace mozilla::mailnews;
 
 static void GetReplyHeaderInfo(int32_t* reply_header_type,
                                nsString& reply_header_locale,
@@ -1051,7 +1048,12 @@ nsresult nsMsgCompose::_SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity *ide
     identity->GetOrganization(organization);
 
     nsCString sender;
-    MakeMimeAddress(NS_ConvertUTF16toUTF8(fullName), email, sender);
+    nsCOMPtr<nsIMsgHeaderParser> parser (do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID));
+    if (parser) {
+      // convert to UTF8 before passing to MakeFullAddressString
+      parser->MakeFullAddressString(NS_ConvertUTF16toUTF8(fullName).get(),
+                                    email.get(), getter_Copies(sender));
+    }
 
     m_compFields->SetFrom(sender.IsEmpty() ? email.get() : sender.get());
     m_compFields->SetOrganization(organization);
@@ -4755,8 +4757,9 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
                     if (NS_FAILED(rv))
                       return rv;
 
-                    MakeMimeAddress(pDisplayName, newRecipient.mEmail,
-                                    newRecipient.mAddress);
+                    if (parser)
+                      parser->MakeFullAddress(pDisplayName, newRecipient.mEmail,
+                                              newRecipient.mAddress);
 
                     if (newRecipient.mAddress.IsEmpty())
                     {
@@ -5409,13 +5412,16 @@ NS_IMETHODIMP nsMsgCompose::CheckCharsetConversion(nsIMsgIdentity *identity, cha
 nsMsgMailList::nsMsgMailList(nsIAbDirectory* directory) :
   mDirectory(directory)
 {
+  nsCOMPtr<nsIMsgHeaderParser> parser (do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID));
+
   nsString listName, listDescription;
   mDirectory->GetDirName(listName);
   mDirectory->GetDescription(listDescription);
 
-  MakeDisplayAddress(listName,
-                     listDescription.IsEmpty() ? listName : listDescription,
-                     mFullName);
+  if (parser)
+    parser->MakeFullAddress(listName,
+                            listDescription.IsEmpty() ? listName : listDescription,
+                            mFullName);
 
   if (mFullName.IsEmpty())
   {

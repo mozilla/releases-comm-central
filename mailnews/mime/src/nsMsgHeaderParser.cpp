@@ -10,7 +10,6 @@
 #include "prmem.h"
 #include <ctype.h>
 #include "nsAlgorithm.h"
-#include "nsMsgUtils.h"
 #include "nsStringGlue.h"
 #include <algorithm>
 
@@ -70,6 +69,7 @@ nsresult FillResultsArray(const char * aName, const char *aAddress, PRUnichar **
                           PRUnichar ** aOutgoingFullName, nsIMsgHeaderParser *aParser)
 {
   NS_ENSURE_ARG(aParser);
+  nsresult rv = NS_OK;
 
   *aOutgoingFullName = nullptr;
   *aOutgoingEmailAddress = nullptr;
@@ -90,8 +90,9 @@ nsresult FillResultsArray(const char * aName, const char *aAddress, PRUnichar **
 
   nsCString fullAddress;
   nsCString unquotedAddress;
-  fullAddress.Adopt(msg_make_full_address(aName, aAddress));
-  if (!fullAddress.IsEmpty())
+  rv = aParser->MakeFullAddressString(aName, aAddress,
+                                      getter_Copies(fullAddress));
+  if (NS_SUCCEEDED(rv) && !fullAddress.IsEmpty())
   {
     MIME_DecodeMimeHeader(fullAddress.get(), nullptr, false, true, result);
     if (!result.IsEmpty())
@@ -104,7 +105,7 @@ nsresult FillResultsArray(const char * aName, const char *aAddress, PRUnichar **
   else
     *aOutgoingFullName = nullptr;
 
-  return NS_OK;
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgHeaderParser::ParseHeadersWithArray(const PRUnichar * aLine, PRUnichar *** aEmailAddresses,
@@ -194,7 +195,16 @@ nsMsgHeaderParser::RemoveDuplicateAddresses(const nsACString &aAddrs,
 }
 
 NS_IMETHODIMP
-nsMsgHeaderParser::MakeMimeAddress(const nsAString &aName,
+nsMsgHeaderParser::MakeFullAddressString(const char *aName,
+                                         const char *aAddress, char **aResult)
+{
+  NS_ENSURE_ARG_POINTER(aResult);
+  *aResult = msg_make_full_address(aName, aAddress);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgHeaderParser::MakeFullAddress(const nsAString &aName,
                                    const nsAString &aAddress, nsAString &aResult)
 {
   nsCString utf8Str;
@@ -1552,118 +1562,4 @@ msg_make_full_address(const char* name, const char* addr)
   L = (s - buf) + 1;
   buf = (char *)PR_Realloc (buf, L);
   return buf;
-}
-
-class MsgAddressObject MOZ_FINAL : public msgIAddressObject
-{
-public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_MSGIADDRESSOBJECT
-
-  MsgAddressObject(const nsAString &aName, const nsAString &aEmail);
-
-private:
-  nsString mName;
-  nsString mEmail;
-};
-
-MsgAddressObject::MsgAddressObject(const nsAString &aName,
-    const nsAString &aEmail)
-: mName(aName),
-  mEmail(aEmail)
-{
-}
-
-NS_IMPL_ISUPPORTS1(MsgAddressObject, msgIAddressObject)
-
-NS_IMETHODIMP MsgAddressObject::GetName(nsAString &name)
-{
-  name = mName;
-  return NS_OK;
-}
-
-NS_IMETHODIMP MsgAddressObject::GetEmail(nsAString &email)
-{
-  email = mEmail;
-  return NS_OK;
-}
-
-NS_IMETHODIMP MsgAddressObject::ToString(nsAString &display)
-{
-  nsMsgHeaderParser headerParser;
-  nsAutoString quotedString;
-  headerParser.MakeMimeAddress(mName, mEmail, quotedString);
-  headerParser.UnquotePhraseOrAddrWString(quotedString.get(), false,
-    getter_Copies(display));
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgHeaderParser::MakeMailboxObject(const nsAString &aName,
-    const nsAString &aEmail, msgIAddressObject **retval)
-{
-  nsCOMPtr<msgIAddressObject> object = new MsgAddressObject(aName, aEmail);
-  object.forget(retval);
-  return NS_OK;
-}
-
-static MsgAddressObject *MakeSingleAddress(
-    const nsAString &aDisplay)
-{
-  // This is a wasteful copy, but the internal API does not have RFindChar on
-  // nsAString, only nsString.
-  nsString display(aDisplay);
-  // Strip leading/trailing whitespace
-  MsgCompressWhitespace(display);
-  nsCOMPtr<msgIAddressObject> object;
-  int32_t addrstart = display.RFindChar('<');
-  if (addrstart != -1)
-  {
-    // Adjust is used to strip off exactly one space char if it's present.
-    int32_t adjust = addrstart == 0 ? 0 : 1;
-    int32_t addrend = display.RFindChar('>');
-    return new MsgAddressObject(
-      StringHead(display, addrstart - adjust),
-      Substring(display, addrstart + 1, addrend - addrstart - 1));
-  }
-  else
-  {
-    return new MsgAddressObject(EmptyString(), display);
-  }
-}
-
-NS_IMETHODIMP nsMsgHeaderParser::MakeFromDisplayAddress(
-    const nsAString &aDisplay, uint32_t *count, msgIAddressObject ***retval)
-{
-  // We split on every comma, so long as a @ exists before that comma.
-  nsCOMArray<msgIAddressObject> addresses;
-  int32_t lastComma = -1;
-  while (!aDisplay.IsEmpty() && lastComma < (int32_t)aDisplay.Length())
-  {
-    // Find the next , that follows an email address (which must have an @).
-    int32_t atSign = aDisplay.FindChar('@', lastComma + 1);
-    // If there is no @, just consume the rest of the string as the "address"
-    if (atSign == -1)
-      atSign = aDisplay.Length() - 1;
-    int32_t nextComma = aDisplay.FindChar(',', atSign + 1);
-    if (nextComma == -1)
-      nextComma = aDisplay.Length();
-
-    // The substring from [lastComma + 1, nextComma) is an email address.
-    addresses.AppendElement(MakeSingleAddress(
-      Substring(aDisplay, lastComma + 1, nextComma - (lastComma + 1))));
-    
-    // Move lastComma along
-    lastComma = nextComma;
-  }
-
-  // Add all the elements to the output
-  msgIAddressObject **out = (msgIAddressObject **)NS_Alloc(
-    sizeof(msgIAddressObject*) * addresses.Length());
-  for (uint32_t i = 0; i < addresses.Length(); i++)
-    NS_IF_ADDREF(out[i] = addresses[i]);
-
-  *count = addresses.Length();
-  *retval = out;
-  return NS_OK;
 }

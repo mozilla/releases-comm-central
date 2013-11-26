@@ -25,5 +25,4 @@ EXPORTS += [
 
 EXPORTS.mozilla.mailnews += [
     'MimeEncoder.h',
-    'MimeHeaderParser.h',
 ]

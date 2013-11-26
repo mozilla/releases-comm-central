@@ -16,9 +16,6 @@
 #include "nsIMimeConverter.h"
 #include "nsArrayEnumerator.h"
 #include "nsMemory.h"
-#include "mozilla/mailnews/MimeHeaderParser.h"
-
-using namespace mozilla::mailnews;
 
 /* the following macro actually implement addref, release and query interface for our component. */
 NS_IMPL_ISUPPORTS1(nsMsgCompFields, nsIMsgCompFields)
@@ -543,19 +540,25 @@ nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
 
     for (i = 0; i < numAddresses; ++i)
     {
+      nsCString fullAddress;
       nsAutoString recipient;
       if (!aEmailAddressOnly)
       {
-        nsString decodedName;
-        converter->DecodeMimeHeader(pNames, GetCharacterSet(), false, true,
-                                    decodedName);
-        if (decodedName.IsEmpty())
-          CopyUTF8toUTF16(pNames, decodedName);
-        MakeDisplayAddress(decodedName, NS_ConvertUTF8toUTF16(pAddresses),
-                           recipient);
+        nsCString decodedName;
+        converter->DecodeMimeHeaderToUTF8(nsDependentCString(pNames),
+                                          GetCharacterSet(), false, true,
+                                          decodedName);
+        rv = parser->MakeFullAddressString((!decodedName.IsEmpty() ?
+                                            decodedName.get() : pNames),
+                                           pAddresses,
+                                           getter_Copies(fullAddress));
       }
+      if (NS_SUCCEEDED(rv) && !aEmailAddressOnly)
+        rv = ConvertToUnicode("UTF-8", fullAddress, recipient);
       else
-        CopyUTF8toUTF16(pAddresses, recipient);
+        rv = ConvertToUnicode("UTF-8", nsDependentCString(pAddresses), recipient);
+      if (NS_FAILED(rv))
+        break;
 
       result[i] = ToNewUnicode(recipient);
       if (!result[i])
@@ -618,13 +621,18 @@ nsresult nsMsgCompFields::SplitRecipientsEx(const nsAString &recipients,
       converter->DecodeMimeHeaderToUTF8(nsDependentCString(pNames),
                                         GetCharacterSet(), false, true,
                                         decodedName);
-      if (decodedName.IsEmpty())
-        decodedName.Assign(pNames);
-      MakeMimeAddress(decodedName, nsDependentCString(pAddresses), fullAddress);
+      rv = parser->MakeFullAddressString((!decodedName.IsEmpty() ?
+                                          decodedName.get() : pNames),
+                                         pAddresses,
+                                         getter_Copies(fullAddress));
 
       nsMsgRecipient msgRecipient;
 
-      CopyUTF8toUTF16(fullAddress, msgRecipient.mAddress);
+      rv = ConvertToUnicode("UTF-8",
+                            NS_SUCCEEDED(rv) ? fullAddress.get() : pAddresses,
+                            msgRecipient.mAddress);
+      if (NS_FAILED(rv))
+        return rv;
 
       rv = ConvertToUnicode("UTF-8", pAddresses, msgRecipient.mEmail);
       if (NS_FAILED(rv))
