@@ -776,7 +776,6 @@ SessionStoreService.prototype = {
     browser.removeEventListener("DOMAutoComplete", this, true);
 
     delete browser.__SS_data;
-    delete browser.__SS_formDataSaved;
 
     // If this tab was in the middle of restoring or still needs to be restored,
     // we need to reset that state. If the tab was restoring, we will attempt to
@@ -848,7 +847,6 @@ SessionStoreService.prototype = {
     }
 
     delete aBrowser.__SS_data;
-    delete aBrowser.__SS_formDataSaved;
     this.saveStateDelayed(aWindow);
 
     // attempt to update the current URL we send in a crash report
@@ -863,9 +861,6 @@ SessionStoreService.prototype = {
    *        Browser reference
    */
   onTabInput: function sss_onTabInput(aWindow, aBrowser) {
-    // deleting __SS_formDataSaved will cause us to recollect form data
-    delete aBrowser.__SS_formDataSaved;
-
     this.saveStateDelayed(aWindow, 3000);
   },
 
@@ -1779,9 +1774,8 @@ SessionStoreService.prototype = {
 
     this._updateTextAndScrollDataForFrame(aWindow, aBrowser.contentWindow,
                                           aTabData.entries[tabIndex],
-                                          !aBrowser.__SS_formDataSaved, aFullData,
+                                          aFullData,
                                           !!aTabData.pinned);
-    aBrowser.__SS_formDataSaved = true;
     if (aBrowser.currentURI.spec == "about:config")
       aTabData.entries[tabIndex].formdata = {
         "#textbox": aBrowser.contentDocument.getElementById("textbox").value
@@ -1797,8 +1791,6 @@ SessionStoreService.prototype = {
    *        frame reference
    * @param aData
    *        part of a tabData object to add the information to
-   * @param aUpdateFormData
-   *        update all form data for this tab
    * @param aFullData
    *        always return privacy sensitive data (use with care)
    * @param aIsPinned
@@ -1806,24 +1798,22 @@ SessionStoreService.prototype = {
    */
   _updateTextAndScrollDataForFrame:
     function sss_updateTextAndScrollDataForFrame(aWindow, aContent, aData,
-                                                 aUpdateFormData, aFullData, aIsPinned) {
+                                                 aFullData, aIsPinned) {
     for (var i = 0; i < aContent.frames.length; i++) {
       if (aData.children && aData.children[i])
         this._updateTextAndScrollDataForFrame(aWindow, aContent.frames[i],
-                                              aData.children[i], aUpdateFormData,
+                                              aData.children[i],
                                               aFullData, aIsPinned);
     }
     var isHTTPS = this._getURIFromString((aContent.parent || aContent).
                                          document.location.href).schemeIs("https");
     if (aFullData || this._checkPrivacyLevel(isHTTPS, aIsPinned) ||
         aContent.top.document.location.href == "about:sessionrestore") {
-      if (aFullData || aUpdateFormData) {
-        let formData = this._collectFormDataForFrame(aContent.document);
-        if (formData)
-          aData.formdata = formData;
-        else if (aData.formdata)
-          delete aData.formdata;
-      }
+      let formData = this._collectFormDataForFrame(aContent.document);
+      if (formData)
+        aData.formdata = formData;
+      else if (aData.formdata)
+        delete aData.formdata;
 
       // designMode is undefined e.g. for XUL documents (as about:config)
       if ((aContent.document.designMode || "") == "on") {
