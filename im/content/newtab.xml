@@ -24,7 +24,9 @@
           <xul:textbox class="filterbox" anonid="filterbox" type="search"
                        placeholder="&filterbox.placeholder;" flex="1"/>
         </xul:toolbar>
-        <xul:richlistbox anonid="newtab-listbox" class="newtab-listbox" flex="1"/>
+        <xul:notificationbox anonid="newtab-notifications" flex="1">
+          <xul:richlistbox anonid="newtab-listbox" class="newtab-listbox" flex="1"/>
+        </xul:notificationbox>
       </xul:vbox>
     </content>
 
@@ -322,6 +324,21 @@
         <parameter name="aData"/>
         <body>
         <![CDATA[
+          if (aTopic == "stats-service-log-sweeping") {
+            let nb = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "newtab-notifications");
+            let notification = nb.getNotificationWithValue("log-sweeping");
+            if (aData == "ongoing" && !notification) {
+              let notificationText =
+                Services.strings.createBundle("chrome://instantbird/locale/newtab.properties")
+                        .GetStringFromName("newtab.logSweepingInProgress");
+              nb.appendNotification(notificationText, "log-sweeping", "",
+                                    nb.PRIORITY_WARNING_MEDIUM, []);
+            }
+            else if (aData == "done" && notification)
+              nb.removeNotification(notification);
+            return;
+          }
           this._forceRefresh = true;
           this.refresh();
         ]]>

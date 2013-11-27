@@ -154,5 +154,5 @@ conv {
 }
 
 .notification-inner > hbox > .messageImage {
-  display: none;
+  max-width: 0;
 }

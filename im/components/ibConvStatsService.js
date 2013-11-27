@@ -43,12 +43,15 @@ var gLogParser = {
   _statsService: null,
   _accounts: [],
   _logFolders: [],
+  inProgress: false,
 
   // The general path of a log is logs/prpl/account/conv/date.json.
   // First, sweep the logs folder for prpl folders.
   sweep: function(aStatsService) {
-    this._statsService = aStatsService;
     initLogModule("stats-service-log-sweeper", this);
+    this.inProgress = true;
+    this._statsService = aStatsService;
+    this._statsService._notifyObservers("log-sweeping", "ongoing");
     let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
     let iterator = new OS.File.DirectoryIterator(logsPath);
     iterator.nextBatch().then((function(aEntries) {
@@ -115,9 +118,11 @@ var gLogParser = {
         if (this._logFolders.length)
           this._sweepLogFolders();
         else { // We're done.
+          delete this.inProgress;
           let statsService = this._statsService;
           statsService._cacheAllStats(); // Flush stats to JSON cache.
           statsService._convs.sort(statsService._sortComparator);
+          statsService._notifyObservers("log-sweeping", "done");
           gStatsByContactId = {}; // Initialize stats cache for contacts.
         }
         return;
@@ -374,6 +379,11 @@ ConvStatsService.prototype = {
   },
 
   _cacheAllStats: function() {
+    // Don't save anything to the JSON file until log sweeping is done. This is to
+    // ensure that a re-sweep is triggered on next startup if log sweeping could
+    // not complete.
+    if (gLogParser.inProgress)
+      return;
     let encoder = new TextEncoder();
     let objToWrite = {version: gStatsCacheVersion, stats: gStatsByConvId};
     OS.File.writeAtomic(this._statsCacheFilePath,
@@ -419,6 +429,9 @@ ConvStatsService.prototype = {
       return;
     this._observers.push(aObserver);
 
+    if (gLogParser.inProgress)
+      aObserver.observe(this, "stats-service-log-sweeping", "ongoing");
+
     this._repositionConvsWithUpdatedStats();
 
     // We request chat lists from accounts when adding new observers.
@@ -429,10 +442,10 @@ ConvStatsService.prototype = {
     this._observers = this._observers.filter(function(o) o !== aObserver);
   },
 
-  _notifyObservers: function(aTopic) {
+  _notifyObservers: function(aTopic, aData) {
     for each (let observer in this._observers) {
       if ("observe" in observer) // Avoid failing on destructed XBL bindings.
-        observer.observe(this, "stats-service-" + aTopic);
+        observer.observe(this, "stats-service-" + aTopic, aData);
     }
   },
 
@@ -502,9 +515,7 @@ ConvStatsService.prototype = {
     }
     else if (aTopic == "conversation-closed")
       this._statsByPrplConvId.delete(aSubject.id);
-    if (kNotificationsToObserve.indexOf(aTopic) == -1)
-      return;
-    if (aTopic == "contact-no-longer-dummy") {
+    else if (aTopic == "contact-no-longer-dummy") {
       // Contact ID changed. aData is the old ID.
       let id = aSubject.id;
       let oldId = parseInt(aData, 10);
