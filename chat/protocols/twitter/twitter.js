@@ -129,7 +129,6 @@ function Conversation(aAccount)
 }
 Conversation.prototype = {
   __proto__: GenericConvChatPrototype,
-  get normalizedName() this._account.normalize(this.name),
   unInit: function() {
     delete this._account._timeline;
     GenericConvChatPrototype.unInit.call(this);
@@ -371,11 +370,11 @@ function Account(aProtocol, aImAccount)
 }
 Account.prototype = {
   __proto__: GenericAccountPrototype,
+
   // The correct normalization for twitter would be just toLowerCase().
   // Unfortunately, for backwards compatibility we retain this normalization,
   // which can cause edge cases for usernames with underscores.
   normalize: function(aString) aString.replace(/[^a-z0-9]/gi, "").toLowerCase(),
-  get normalizedName() this.normalize(this.name),
 
   consumerKey: Services.prefs.getCharPref("chat.twitter.consumerKey"),
   consumerSecret: Services.prefs.getCharPref("chat.twitter.consumerSecret"),

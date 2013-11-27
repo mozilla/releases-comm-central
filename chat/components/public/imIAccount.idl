@@ -128,6 +128,9 @@ interface prplIAccount: nsISupports {
   // A name that can be used to check for duplicates and is the basis
   // for the directory name for log storage.
   readonly attribute AUTF8String normalizedName;
+  // Request that the account normalizes a name. Use this only when an object
+  // providing a normalizedName doesn't exist yet or isn't accessible.
+  AUTF8String normalize(in AUTF8String aName);
 
   attribute purpleIProxyInfo proxyInfo;
 
