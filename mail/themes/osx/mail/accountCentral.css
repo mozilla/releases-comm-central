@@ -229,7 +229,7 @@ spacer {
   }
 
   #CreateAccountChat {
-    background: url("chrome://chat/skin/chat-32.png") no-repeat;
+    background: url("chrome://messenger/skin/icons/chat-16@2x.png") no-repeat;
     background-size: 16px 16px;
   }
 
