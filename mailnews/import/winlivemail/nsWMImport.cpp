@@ -59,8 +59,8 @@ public:
   /* void GetDefaultLocation (out nsIFile location, out boolean found, out boolean userVerify); */
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
 
-  /* nsISupportsArray FindMailboxes (in nsIFile location); */
-  NS_IMETHOD FindMailboxes(nsIFile *location, nsISupportsArray **_retval);
+  /* nsIArray FindMailboxes (in nsIFile location); */
+  NS_IMETHOD FindMailboxes(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor *source,
                            nsIMsgFolder *dstFolder,
@@ -192,7 +192,7 @@ NS_IMETHODIMP ImportWMMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *found,
 }
 
 NS_IMETHODIMP ImportWMMailImpl::FindMailboxes(nsIFile *pLoc,
-                                              nsISupportsArray **ppArray)
+                                              nsIArray **ppArray)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

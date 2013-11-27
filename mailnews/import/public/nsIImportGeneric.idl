@@ -13,17 +13,17 @@
 
 interface nsISupportsString;
 
-[scriptable, uuid(d64a87b8-aeb4-da40-fe28-57df1e50c64f)]
+[scriptable, uuid(469d7d5f-144c-4f07-9661-e49e40156348)]
 interface nsIImportGeneric : nsISupports
 {
   /* Use these to prepare for the import */
     /*
       "mailInterface" - nsIImportMail interface
-      "mailBoxes" - nsISupportsArray of nsIImportMailboxDescriptors
+      "mailBoxes" - nsIArray of nsIImportMailboxDescriptors
       "mailLocation" - nsIFile, source location for mail
 
       "addressInterface" - nsIImportAddressBooks interface
-      "addressBooks" - nsISupportsArray of nsIImportABDescriptors
+      "addressBooks" - nsIArray of nsIImportABDescriptors
       "addressLocation" - src location of address books (if needed!)
       "addressDestination" - uri of destination address book or null if
                 new address books will be created.

@@ -25,6 +25,7 @@
 #include "nsIMsgCompFields.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgSend.h"
+#include "nsIMutableArray.h"
 #include "nsImportEmbeddedImageData.h"
 #include "nsNetCID.h"
 #include "nsCRT.h"
@@ -294,7 +295,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
     bodyW = msg.GetBody();
   // End Bug 593907
 
-  nsCOMPtr<nsISupportsArray> embeddedObjects;
+  nsCOMPtr<nsIMutableArray> embeddedObjects;
 
   if (msg.BodyIsHtml()) {
     for (unsigned int i = 0; i <msg.EmbeddedAttachmentsCount(); i++) {
@@ -303,13 +304,13 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
       const char* name;
       if (msg.GetEmbeddedAttachmentInfo(i, &uri, &cid, &name)) {
         if (!embeddedObjects) {
-          embeddedObjects = do_CreateInstance(NS_SUPPORTSARRAY_CONTRACTID, &rv);
+          embeddedObjects = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
           NS_ENSURE_SUCCESS(rv, rv);
         }
         nsCOMPtr<nsIMsgEmbeddedImageData> imageData =
           new nsImportEmbeddedImageData(uri, nsDependentCString(cid),
                                      nsDependentCString(name));
-        embeddedObjects->AppendElement(imageData);
+        embeddedObjects->AppendElement(imageData, false);
       }
     }
   }

@@ -30,6 +30,7 @@
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIImportFieldMap.h"
+#include "nsIMutableArray.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
 #include "WabObject.h"
@@ -66,8 +67,8 @@ public:
   /* void GetDefaultLocation (out nsIFile location, out boolean found, out boolean userVerify); */
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
 
-  /* nsISupportsArray FindMailboxes (in nsIFile location); */
-  NS_IMETHOD FindMailboxes(nsIFile *location, nsISupportsArray **_retval);
+  /* nsIArray FindMailboxes (in nsIFile location); */
+  NS_IMETHOD FindMailboxes(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor *source,
                            nsIMsgFolder *dstFolder,
@@ -111,7 +112,7 @@ public:
 
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsISupportsArray **_retval);
+  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap)
     { return NS_ERROR_FAILURE; }
@@ -327,7 +328,7 @@ NS_IMETHODIMP ImportOEMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *found,
 }
 
 
-NS_IMETHODIMP ImportOEMailImpl::FindMailboxes(nsIFile *pLoc, nsISupportsArray **ppArray)
+NS_IMETHODIMP ImportOEMailImpl::FindMailboxes(nsIFile *pLoc, nsIArray **ppArray)
 {
     NS_PRECONDITION(pLoc != nullptr, "null ptr");
     NS_PRECONDITION(ppArray != nullptr, "null ptr");
@@ -521,13 +522,14 @@ NS_IMETHODIMP ImportOEAddressImpl::GetAutoFind(PRUnichar **description, bool *_r
 
 
 
-NS_IMETHODIMP ImportOEAddressImpl::FindAddressBooks(nsIFile *location, nsISupportsArray **_retval)
+NS_IMETHODIMP ImportOEAddressImpl::FindAddressBooks(nsIFile *location, nsIArray **_retval)
 {
   NS_PRECONDITION(_retval != nullptr, "null ptr");
   if (!_retval)
     return NS_ERROR_NULL_POINTER;
 
-  nsresult rv = NS_NewISupportsArray(_retval);
+  nsresult rv;
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv))
     return rv;
 
@@ -567,7 +569,7 @@ NS_IMETHODIMP ImportOEAddressImpl::FindAddressBooks(nsIFile *location, nsISuppor
         pID->SetSize(100);
         pID->SetPreferredName(str);
         rv = pID->QueryInterface(kISupportsIID, (void **) &pInterface);
-        (*_retval)->AppendElement(pInterface);
+        array->AppendElement(pInterface, false);
         pInterface->Release();
         pID->Release();
       }
@@ -578,6 +580,7 @@ NS_IMETHODIMP ImportOEAddressImpl::FindAddressBooks(nsIFile *location, nsISuppor
     delete m_pWab;
     m_pWab = nullptr;
   }
+  array.forget(_retval);
   return NS_OK;
 }
 

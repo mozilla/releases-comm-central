@@ -15,6 +15,7 @@
 #include "nsIImportFieldMap.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIImportABDescriptor.h"
+#include "nsIMutableArray.h"
 #include "nsOutlookStringBundle.h"
 #include "nsABBaseCID.h"
 #include "nsIAbCard.h"
@@ -108,16 +109,17 @@ nsOutlookMail::~nsOutlookMail()
 //  EmptyAttachments();
 }
 
-nsresult nsOutlookMail::GetMailFolders(nsISupportsArray **pArray)
+nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
 {
   if (!m_haveMapi) {
     IMPORT_LOG0("GetMailFolders called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
   }
 
-  nsresult rv = NS_NewISupportsArray(pArray);
+  nsresult rv;
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray for the mail folder list\n");
+    IMPORT_LOG0("FAILED to allocate the nsIMutableArray for the mail folder list\n");
     return rv;
   }
 
@@ -174,12 +176,12 @@ nsresult nsOutlookMail::GetMailFolders(nsISupportsArray **pArray)
 
       pID->SetSize(1000);
       rv = pID->QueryInterface(kISupportsIID, (void **) &pInterface);
-      (*pArray)->AppendElement(pInterface);
+      array->AppendElement(pInterface, false);
       pInterface->Release();
       pID->Release();
     }
   }
-
+  array.forget(pArray);
   return NS_OK;
 }
 
@@ -212,16 +214,17 @@ void nsOutlookMail::MakeAddressBookNameUnique(nsString& name, nsString& list)
   list.AppendLiteral("],");
 }
 
-nsresult nsOutlookMail::GetAddressBooks(nsISupportsArray **pArray)
+nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
 {
   if (!m_haveMapi) {
     IMPORT_LOG0("GetAddressBooks called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
   }
 
-  nsresult rv = NS_NewISupportsArray(pArray);
+  nsresult rv;
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray for the address book list\n");
+    IMPORT_LOG0("FAILED to allocate the nsIMutableArray for the address book list\n");
     return rv;
   }
 
@@ -275,13 +278,13 @@ nsresult nsOutlookMail::GetAddressBooks(nsISupportsArray **pArray)
         pID->SetPreferredName(name);
         pID->SetSize(100);
         rv = pID->QueryInterface(kISupportsIID, (void **) &pInterface);
-        (*pArray)->AppendElement(pInterface);
+        array->AppendElement(pInterface, false);
         pInterface->Release();
         pID->Release();
       }
     }
   }
-
+  array.forget(pArray);
   return NS_OK;
 }
 

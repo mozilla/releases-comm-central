@@ -17,6 +17,7 @@
 #include "nsIImportAddressBooks.h"
 #include "nsIImportFieldMap.h"
 #include "nsIImportGeneric.h"
+#include "nsIMutableArray.h"
 #include "nsCOMPtr.h"
 #include "nsIImportService.h"
 #include "nsIFile.h"
@@ -58,7 +59,7 @@ public:
   NS_IMETHOD GetDefaultLocation(
       nsIFile **location, bool *found, bool *userVerify);
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsISupportsArray **_retval);
+  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap)
   { return NS_ERROR_FAILURE;}
@@ -227,7 +228,7 @@ NS_IMETHODIMP ImportVCardAddressImpl::GetDefaultLocation(
 }
 
 NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
-    nsIFile *pLoc, nsISupportsArray **ppArray)
+    nsIFile *pLoc, nsIArray **ppArray)
 {
   NS_ENSURE_ARG_POINTER(pLoc);
   NS_ENSURE_ARG_POINTER(ppArray);
@@ -246,10 +247,9 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
   m_fileLoc = do_QueryInterface(pLoc);
   
   /* Build an address book descriptor based on the file passed in! */
-  nsCOMPtr<nsISupportsArray> array;
-  rv = NS_NewISupportsArray(getter_AddRefs(array));
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray\n");
+    IMPORT_LOG0("FAILED to allocate the nsIMutableArray\n");
     return rv;
   }
 
@@ -281,16 +281,16 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
     desc->SetSize((uint32_t) sz);
     desc->SetAbFile(m_fileLoc);
     nsCOMPtr<nsISupports> pInterface(do_QueryInterface(desc, &rv));
-    array->AppendElement(pInterface);
+    array->AppendElement(pInterface, false);
   }
   if (NS_FAILED(rv)) {
     IMPORT_LOG0(
         "*** Error creating address book descriptor for vCard import\n");
-  } else {
-    array.swap(*ppArray);
+    return rv;
   }
 
-  return rv;
+  array.forget(ppArray);
+  return NS_OK;
 }
 
 void ImportVCardAddressImpl::ReportSuccess(

@@ -23,6 +23,7 @@
 #include "nsIComponentManager.h"
 #include "nsTextImport.h"
 #include "nsIMemory.h"
+#include "nsIMutableArray.h"
 #include "nsIImportGeneric.h"
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"
@@ -73,7 +74,7 @@ public:
 
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsISupportsArray **_retval);
+  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap);
 
@@ -256,7 +257,7 @@ NS_IMETHODIMP ImportAddressImpl::GetDefaultLocation(nsIFile **ppLoc, bool *found
 
 
 
-NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc, nsISupportsArray **ppArray)
+NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc, nsIArray **ppArray)
 {
   NS_PRECONDITION(pLoc != nullptr, "null ptr");
   NS_PRECONDITION(ppArray != nullptr, "null ptr");
@@ -288,10 +289,9 @@ NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc, nsISupportsArra
   m_fileLoc = do_QueryInterface(pLoc);
 
   /* Build an address book descriptor based on the file passed in! */
-  nsCOMPtr<nsISupportsArray> array;
-  rv = NS_NewISupportsArray(getter_AddRefs(array));
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray\n");
+    IMPORT_LOG0("FAILED to allocate the nsIMutableArray\n");
     return rv;
   }
 
@@ -324,17 +324,15 @@ NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc, nsISupportsArra
     desc->SetSize((uint32_t) sz);
     desc->SetAbFile(m_fileLoc);
     rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-    array->AppendElement(pInterface);
+    array->AppendElement(pInterface, false);
     pInterface->Release();
   }
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error creating address book descriptor for text import\n");
+    return rv;
   }
-  else {
-    rv = array->QueryInterface(NS_GET_IID(nsISupportsArray), (void **) ppArray);
-  }
-
-  return rv;
+  array.forget(ppArray);
+  return NS_OK;
 }
 
 void ImportAddressImpl::ReportSuccess(nsString& name, nsString *pStream,

@@ -15,7 +15,8 @@
 #include "prprf.h"
 #include "nscore.h"
 #include "nsCOMPtr.h"
-#include "nsISupportsArray.h"
+#include "nsIArray.h"
+#include "nsArrayUtils.h"
 
 #include "nsIImportMail.h"
 #include "nsIImportGeneric.h"
@@ -96,8 +97,8 @@ private:
   bool          m_gotLocation;
   bool          m_found;
   bool          m_userVerify;
-  nsIImportMail *    m_pInterface;
-  nsISupportsArray *  m_pMailboxes;
+  nsIImportMail *m_pInterface;
+  nsIArray *  m_pMailboxes;
   nsISupportsString *m_pSuccessLog;
   nsISupportsString *m_pErrorLog;
   uint32_t      m_totalSize;
@@ -117,7 +118,7 @@ public:
   uint32_t        currentSize;
   nsIMsgFolder *      destRoot;
   bool            ownsDestRoot;
-  nsISupportsArray *    boxes;
+  nsIArray *boxes;
   nsIImportMail *      mailImport;
   nsISupportsString *  successLog;
   nsISupportsString *  errorLog;
@@ -282,7 +283,7 @@ NS_IMETHODIMP nsImportGenericMail::SetData(const char *dataId, nsISupports *item
   if (!PL_strcasecmp(dataId, "mailBoxes")) {
     NS_IF_RELEASE(m_pMailboxes);
     if (item)
-      item->QueryInterface(NS_GET_IID(nsISupportsArray), (void **) &m_pMailboxes);
+      item->QueryInterface(NS_GET_IID(nsIArray), (void **) &m_pMailboxes);
   }
 
   if (!PL_strcasecmp(dataId, "mailLocation")) {
@@ -415,7 +416,7 @@ NS_IMETHODIMP nsImportGenericMail::WantsProgress(bool *_retval)
     uint32_t    size;
     uint32_t    totalSize = 0;
 
-    (void) m_pMailboxes->Count(&count);
+    (void) m_pMailboxes->GetLength(&count);
     for (i = 0; i < count; i++) {
       nsCOMPtr<nsIImportMailboxDescriptor> box =
         do_QueryElementAt(m_pMailboxes, i);
@@ -714,7 +715,7 @@ ImportMailThread(void *stuff)
   nsCOMPtr<nsIMsgFolder>    destRoot(pData->destRoot);
 
   uint32_t  count = 0;
-  rv = pData->boxes->Count(&count);
+  rv = pData->boxes->GetLength(&count);
 
   uint32_t    i;
   bool        import;

@@ -133,7 +133,7 @@ bool nsOEScanBoxes::FindMail(nsIFile *pWhere)
   return isDir;
 }
 
-bool nsOEScanBoxes::GetMailboxes(nsIFile *pWhere, nsISupportsArray **pArray)
+bool nsOEScanBoxes::GetMailboxes(nsIFile *pWhere, nsIArray **pArray)
 {
   nsCString path;
   pWhere->GetNativePath(path);
@@ -680,20 +680,22 @@ uint32_t nsOEScanBoxes::CountMailboxes(MailboxEntry *pBox)
   return count;
 }
 
-bool nsOEScanBoxes::GetMailboxList(nsIFile * root, nsISupportsArray **pArray)
+bool nsOEScanBoxes::GetMailboxList(nsIFile * root, nsIArray **pArray)
 {
-  nsresult rv = NS_NewISupportsArray(pArray);
+  nsresult rv;
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray\n");
+    IMPORT_LOG0("FAILED to allocate the nsIArray\n");
     return false;
   }
 
-  BuildMailboxList(nullptr, root, 1, *pArray);
+  BuildMailboxList(nullptr, root, 1, array);
+  array.forget(pArray);
 
   return true;
 }
 
-void nsOEScanBoxes::BuildMailboxList(MailboxEntry *pBox, nsIFile * root, int32_t depth, nsISupportsArray *pArray)
+void nsOEScanBoxes::BuildMailboxList(MailboxEntry *pBox, nsIFile * root, int32_t depth, nsIMutableArray *pArray)
 {
   if (pBox == nullptr) {
     if (m_pFirst != nullptr) {
@@ -740,7 +742,7 @@ void nsOEScanBoxes::BuildMailboxList(MailboxEntry *pBox, nsIFile * root, int32_t
         pID->SetSize(size);
       }
       rv = pID->QueryInterface(kISupportsIID, (void **) &pInterface);
-      pArray->AppendElement(pInterface);
+      pArray->AppendElement(pInterface, false);
       pInterface->Release();
       pID->Release();
     }

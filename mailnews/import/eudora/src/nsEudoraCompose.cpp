@@ -612,7 +612,7 @@ nsresult nsEudoraCompose::SendTheMessage(nsIFile *pMailImportLocation, nsIFile *
   nsCOMPtr<nsIArray> pAttach;
   GetLocalAttachments(getter_AddRefs(pAttach));
   nsEudoraEditor eudoraEditor(m_pBody, pMailImportLocation);
-  nsCOMPtr<nsISupportsArray> embeddedObjects;
+  nsCOMPtr<nsIArray> embeddedObjects;
   if (eudoraEditor.HasEmbeddedContent())
     eudoraEditor.GetEmbeddedObjects(getter_AddRefs(embeddedObjects));
 

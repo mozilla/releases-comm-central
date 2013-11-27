@@ -9,6 +9,7 @@
 #include "nsIServiceManager.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAccount.h"
+#include "nsIMutableArray.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgCompCID.h"
 #include "nsISmtpService.h"
@@ -212,15 +213,9 @@ bool nsEudoraMac::VerifyEudoraLocation(nsIFile **pFolder, bool findIni)
 }
 
 
-nsresult nsEudoraMac::FindMailboxes(nsIFile *pRoot, nsISupportsArray **ppArray)
+nsresult nsEudoraMac::FindMailboxes(nsIFile *pRoot, nsIMutableArray *pArray)
 {
-  nsresult rv = NS_NewISupportsArray(ppArray);
-  if (NS_FAILED(rv))
-  {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray\n");
-    return rv;
-  }
-
+  nsresult rv;
   nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv))
     return rv;
@@ -228,11 +223,11 @@ nsresult nsEudoraMac::FindMailboxes(nsIFile *pRoot, nsISupportsArray **ppArray)
   m_depth = 0;
   m_mailImportLocation = do_QueryInterface(pRoot);
 
-  return ScanMailDir(pRoot, *ppArray, impSvc);
+  return ScanMailDir(pRoot, pArray, impSvc);
 }
 
 
-nsresult nsEudoraMac::ScanMailDir(nsIFile *pFolder, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraMac::ScanMailDir(nsIFile *pFolder, nsIMutableArray *pArray, nsIImportService *pImport)
 {
 
   // On Windows, we look for a descmap file but on Mac we just iterate
@@ -247,7 +242,7 @@ nsresult nsEudoraMac::ScanMailDir(nsIFile *pFolder, nsISupportsArray *pArray, ns
   return rv;
 }
 
-nsresult nsEudoraMac::IterateMailDir(nsIFile *pFolder, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraMac::IterateMailDir(nsIFile *pFolder, nsIMutableArray *pArray, nsIImportService *pImport)
 {
   bool hasMore;
   nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
@@ -312,7 +307,7 @@ nsresult nsEudoraMac::IterateMailDir(nsIFile *pFolder, nsISupportsArray *pArray,
 }
 
 
-nsresult nsEudoraMac::FoundMailbox(nsIFile *mailFile, const char *pName, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraMac::FoundMailbox(nsIFile *mailFile, const char *pName, nsIMutableArray *pArray, nsIImportService *pImport)
 {
   nsAutoString              displayName;
   nsCOMPtr<nsIImportMailboxDescriptor>  desc;
@@ -344,7 +339,7 @@ nsresult nsEudoraMac::FoundMailbox(nsIFile *mailFile, const char *pName, nsISupp
       pLocalFile->InitWithFile(mailFile);
     }
     rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-    pArray->AppendElement(pInterface);
+    pArray->AppendElement(pInterface, false);
     pInterface->Release();
   }
 
@@ -352,7 +347,7 @@ nsresult nsEudoraMac::FoundMailbox(nsIFile *mailFile, const char *pName, nsISupp
 }
 
 
-nsresult nsEudoraMac::FoundMailFolder(nsIFile *mailFolder, const char *pName, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraMac::FoundMailFolder(nsIFile *mailFolder, const char *pName, nsIMutableArray *pArray, nsIImportService *pImport)
 {
   nsAutoString          displayName;
   nsCOMPtr<nsIImportMailboxDescriptor>  desc;
@@ -382,7 +377,7 @@ nsresult nsEudoraMac::FoundMailFolder(nsIFile *mailFolder, const char *pName, ns
     if (pFile)
       pFile->InitWithFile(mailFolder);
     rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-    pArray->AppendElement(pInterface);
+    pArray->AppendElement(pInterface, false);
     pInterface->Release();
   }
 
@@ -1102,7 +1097,7 @@ bool nsEudoraMac::FindAddressFolder(nsIFile **pFolder)
   return FindEudoraLocation(pFolder);
 }
 
-nsresult nsEudoraMac::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppArray)
+nsresult nsEudoraMac::FindAddressBooks(nsIFile *pRoot, nsIMutableArray *pArray)
 {
   // Look for the nicknames file in this folder and then
   // additional files in the Nicknames folder
@@ -1113,12 +1108,6 @@ nsresult nsEudoraMac::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppArra
   rv = file->InitWithFile(pRoot);
   if (NS_FAILED(rv))
     return rv;
-  rv = NS_NewISupportsArray(ppArray);
-  if (NS_FAILED(rv))
-  {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray\n");
-    return rv;
-  }
 
   nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv))
@@ -1153,7 +1142,7 @@ nsresult nsEudoraMac::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppArra
       // SetAbFile will clone the file we pass to it.
       desc->SetAbFile(file);
       rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-      (*ppArray)->AppendElement(pInterface);
+      pArray->AppendElement(pInterface, false);
       pInterface->Release();
     }
     if (NS_FAILED(rv))
@@ -1227,7 +1216,7 @@ nsresult nsEudoraMac::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppArra
               // SetAbFile will clone the file we pass to it.
               desc->SetAbFile(entry);
               rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-              (*ppArray)->AppendElement(pInterface);
+              pArray->AppendElement(pInterface, false);
               pInterface->Release();
             }
             if (NS_FAILED(rv))

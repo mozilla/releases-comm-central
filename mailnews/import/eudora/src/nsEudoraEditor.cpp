@@ -5,7 +5,7 @@
 
 
 #include "nsEudoraEditor.h"
-#include "nsISupportsArray.h"
+#include "nsIArray.h"
 #include "nsComponentManagerUtils.h"
 #include "nsStringGlue.h"
 #include "nsMsgUtils.h"
@@ -57,7 +57,7 @@ nsEudoraEditor::~nsEudoraEditor()
 {
 }
 
-nsresult nsEudoraEditor::GetEmbeddedObjects(nsISupportsArray ** aNodeList)
+nsresult nsEudoraEditor::GetEmbeddedObjects(nsIArray ** aNodeList)
 {
   NS_ENSURE_ARG_POINTER(aNodeList);
 
@@ -69,7 +69,8 @@ nsresult nsEudoraEditor::GetEmbeddedObjects(nsISupportsArray ** aNodeList)
   }
 
   // Create array in m_EmbeddedObjectList
-  nsresult rv = NS_NewISupportsArray(getter_AddRefs(m_EmbeddedObjectList));
+  nsresult rv;
+  m_EmbeddedObjectList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Return m_EmbeddedObjectList in aNodeList and increment ref count - caller
@@ -173,7 +174,7 @@ nsresult nsEudoraEditor::GetEmbeddedObjects(nsISupportsArray ** aNodeList)
         new nsImportEmbeddedImageData(embeddedFileURI, NS_LossyConvertUTF16toASCII(cid));
 
       // Append the embedded image node to the list
-      m_EmbeddedObjectList->AppendElement(imageData);
+      m_EmbeddedObjectList->AppendElement(imageData, false);
 
       int32_t   endEmbeddedContentLine = m_body.Find("\r\n", true, startEmbeddedContentLine+1);
       if (endEmbeddedContentLine != kNotFound)

@@ -22,9 +22,9 @@ interface nsIMsgSendListener;
 interface nsIArray;
 interface nsIMsgIdentity;
 interface nsIMsgCompFields;
-interface nsISupportsArray;
+interface nsIArray;
 
-[scriptable, uuid(16359964-66e3-4412-84f8-2a8d58be8be0)]
+[scriptable, uuid(d0ed4c50-5997-49c9-8a6a-045f0680ed29)]
 interface nsIImportService : nsISupports
 {
     void DiscoverModules();
@@ -47,7 +47,7 @@ interface nsIImportService : nsISupports
                            in ACString aBody,
                            in boolean aCreateAsDraft,
                            in nsIArray aLoadedAttachments,
-                           in nsISupportsArray aEmbeddedObjects,
+                           in nsIArray aEmbeddedObjects,
                            in nsIMsgSendListener aListener);
 
 };

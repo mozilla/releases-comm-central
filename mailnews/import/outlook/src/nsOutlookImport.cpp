@@ -60,8 +60,8 @@ public:
   /* void GetDefaultLocation (out nsIFile location, out boolean found, out boolean userVerify); */
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
 
-  /* nsISupportsArray FindMailboxes (in nsIFile location); */
-  NS_IMETHOD FindMailboxes(nsIFile *location, nsISupportsArray **_retval);
+  /* nsIArray FindMailboxes (in nsIFile location); */
+  NS_IMETHOD FindMailboxes(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor *source,
                            nsIMsgFolder *dstFolder,
@@ -107,7 +107,7 @@ public:
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify)
     { return NS_ERROR_FAILURE;}
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsISupportsArray **_retval);
+  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap)
     { return NS_ERROR_FAILURE; }
@@ -338,7 +338,7 @@ NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *f
 }
 
 
-NS_IMETHODIMP ImportOutlookMailImpl::FindMailboxes(nsIFile *pLoc, nsISupportsArray **ppArray)
+NS_IMETHODIMP ImportOutlookMailImpl::FindMailboxes(nsIFile *pLoc, nsIArray **ppArray)
 {
   NS_PRECONDITION(pLoc != nullptr, "null ptr");
   NS_PRECONDITION(ppArray != nullptr, "null ptr");
@@ -501,7 +501,7 @@ NS_IMETHODIMP ImportOutlookAddressImpl::GetAutoFind(PRUnichar **description, boo
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportOutlookAddressImpl::FindAddressBooks(nsIFile *location, nsISupportsArray **_retval)
+NS_IMETHODIMP ImportOutlookAddressImpl::FindAddressBooks(nsIFile *location, nsIArray **_retval)
 {
   NS_PRECONDITION(_retval != nullptr, "null ptr");
   if (!_retval)

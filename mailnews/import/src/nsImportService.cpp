@@ -37,6 +37,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsIMutableArray.h"
+#include "nsIArray.h"
 #include "nsISupportsArray.h"
 #include "nsIMsgSend.h"
 
@@ -295,7 +296,7 @@ public:
                        const nsACString &attachment1_body,
                        bool aIsDraft,
                        nsIArray *aLoadedAttachments,
-                       nsISupportsArray *aEmbeddedAttachments,
+                       nsIArray *aEmbeddedAttachments,
                        nsIMsgSendListener *aListener);
   NS_DECL_NSIRUNNABLE
 private:
@@ -305,7 +306,7 @@ private:
   nsCString m_bodyType;
   nsCString m_body;
   nsCOMPtr<nsIArray> m_loadedAttachments;
-  nsCOMPtr<nsISupportsArray> m_embeddedAttachments;
+  nsCOMPtr<nsIArray> m_embeddedAttachments;
   nsCOMPtr<nsIMsgSendListener> m_listener;
 
 };
@@ -316,7 +317,7 @@ nsProxySendRunnable::nsProxySendRunnable(nsIMsgIdentity *aIdentity,
                                          const nsACString &aBody,
                                          bool aIsDraft,
                                          nsIArray *aLoadedAttachments,
-                                         nsISupportsArray *aEmbeddedAttachments,
+                                         nsIArray *aEmbeddedAttachments,
                                          nsIMsgSendListener *aListener) :
   m_identity(aIdentity), m_compFields(aMsgFields),
   m_isDraft(aIsDraft), m_bodyType(aBodyType),
@@ -332,10 +333,23 @@ NS_IMETHODIMP nsProxySendRunnable::Run()
   nsCOMPtr<nsIMsgSend> msgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCOMPtr<nsISupportsArray> supportsArray;
+  NS_NewISupportsArray(getter_AddRefs(supportsArray));
+
+  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  m_embeddedAttachments->Enumerate(getter_AddRefs(enumerator));
+
+  bool hasMore;
+  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
+    nsCOMPtr<nsISupports> item;
+    enumerator->GetNext(getter_AddRefs(item));
+    supportsArray->AppendElement(item);
+  }
+
   return msgSend->CreateRFC822Message(m_identity, m_compFields,
                                       m_bodyType.get(), m_body,
                                       m_isDraft, m_loadedAttachments,
-                                      m_embeddedAttachments,
+                                      supportsArray,
                                       m_listener);
 }
 
@@ -347,7 +361,7 @@ nsImportService::CreateRFC822Message(nsIMsgIdentity *aIdentity,
                                      const nsACString &aBody,
                                      bool aIsDraft,
                                      nsIArray *aLoadedAttachments,
-                                     nsISupportsArray *aEmbeddedAttachments,
+                                     nsIArray *aEmbeddedAttachments,
                                      nsIMsgSendListener *aListener)
 {
     nsRefPtr<nsProxySendRunnable> runnable =

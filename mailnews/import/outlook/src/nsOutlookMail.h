@@ -6,7 +6,7 @@
 #ifndef nsOutlookMail_h___
 #define nsOutlookMail_h___
 
-#include "nsISupportsArray.h"
+#include "nsIArray.h"
 #include "nsStringGlue.h"
 #include "nsOutlookCompose.h"
 #include "nsIFile.h"
@@ -22,8 +22,8 @@ public:
   nsOutlookMail();
   ~nsOutlookMail();
   
-  nsresult GetMailFolders(nsISupportsArray **pArray);
-  nsresult GetAddressBooks(nsISupportsArray **pArray);
+  nsresult GetMailFolders(nsIArray **pArray);
+  nsresult GetAddressBooks(nsIArray **pArray);
   nsresult ImportMailbox(uint32_t *pDoneSoFar, bool *pAbort, int32_t index,
                          const PRUnichar *pName, nsIMsgFolder *pDest,
                          int32_t *pMsgCount);

@@ -11,10 +11,10 @@
 #include "nsStringGlue.h"
 #include "nsVoidArray.h"
 #include "nsIFile.h"
-#include "nsISupportsArray.h"
 #include "nsEudoraCompose.h"
 
 class nsIOutputStream;
+class nsIMutableArray;
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ public:
     // retrieve the mail folder
   virtual bool      FindMailFolder(nsIFile **pFolder) { return false;}
     // get the list of mailboxes
-  virtual nsresult  FindMailboxes(nsIFile *pRoot, nsISupportsArray **ppArray) { return NS_ERROR_FAILURE;}
+  virtual nsresult  FindMailboxes(nsIFile *pRoot, nsIMutableArray *pArray) { return NS_ERROR_FAILURE;}
     // get the toc file corresponding to this mailbox
   virtual nsresult  FindTOCFile(nsIFile *pMailFile, nsIFile **pTOCFile, bool *pDeleteToc) { return NS_ERROR_FAILURE;}
     // interpret the attachment line and return the attached file

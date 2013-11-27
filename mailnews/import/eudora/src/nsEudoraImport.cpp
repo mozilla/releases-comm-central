@@ -23,6 +23,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsEudoraImport.h"
 #include "nsIMemory.h"
+#include "nsIMutableArray.h"
 #include "nsIImportService.h"
 #include "nsIImportMail.h"
 #include "nsIImportMailboxDescriptor.h"
@@ -75,8 +76,8 @@ public:
   /* void GetDefaultLocation (out nsIFile location, out boolean found, out boolean userVerify); */
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
 
-  /* nsISupportsArray FindMailboxes (in nsIFile location); */
-  NS_IMETHOD FindMailboxes(nsIFile *location, nsISupportsArray **_retval);
+  /* nsIArray FindMailboxes (in nsIFile location); */
+  NS_IMETHOD FindMailboxes(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor *source,
                            nsIMsgFolder *dstFolder,
@@ -129,7 +130,7 @@ public:
 
   NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsISupportsArray **_retval);
+  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap)
     { return NS_ERROR_FAILURE; }
@@ -423,7 +424,7 @@ NS_IMETHODIMP ImportEudoraMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *fo
 }
 
 
-NS_IMETHODIMP ImportEudoraMailImpl::FindMailboxes(nsIFile *pLoc, nsISupportsArray **ppArray)
+NS_IMETHODIMP ImportEudoraMailImpl::FindMailboxes(nsIFile *pLoc, nsIArray **ppArray)
 {
   NS_PRECONDITION(pLoc != nullptr, "null ptr");
   NS_PRECONDITION(ppArray != nullptr, "null ptr");
@@ -435,11 +436,19 @@ NS_IMETHODIMP ImportEudoraMailImpl::FindMailboxes(nsIFile *pLoc, nsISupportsArra
   if (NS_FAILED(rv) || !exists)
     return NS_ERROR_FAILURE;
 
-  rv = m_eudora.FindMailboxes(pLoc, ppArray);
-  if (NS_FAILED(rv) && *ppArray)
-    NS_RELEASE(*ppArray);
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  if (NS_FAILED(rv))
+  {
+    IMPORT_LOG0("FAILED to allocate the nsIMutableArray\n");
+    return rv;
+  }
+  rv = m_eudora.FindMailboxes(pLoc, array);
+  if (NS_FAILED(rv))
+    return rv;
 
-  return rv;
+  array.forget(ppArray);
+
+  return NS_OK;
 }
 
 void ImportEudoraMailImpl::AddLinebreak(nsString *pStream)
@@ -632,7 +641,7 @@ NS_IMETHODIMP ImportEudoraAddressImpl::GetDefaultLocation(nsIFile **ppLoc, bool 
 
 
 
-NS_IMETHODIMP ImportEudoraAddressImpl::FindAddressBooks(nsIFile *pLoc, nsISupportsArray **ppArray)
+NS_IMETHODIMP ImportEudoraAddressImpl::FindAddressBooks(nsIFile *pLoc, nsIArray **ppArray)
 {
     NS_PRECONDITION(pLoc != nullptr, "null ptr");
     NS_PRECONDITION(ppArray != nullptr, "null ptr");
@@ -644,11 +653,19 @@ NS_IMETHODIMP ImportEudoraAddressImpl::FindAddressBooks(nsIFile *pLoc, nsISuppor
   if (NS_FAILED(rv) || !exists)
     return NS_ERROR_FAILURE;
 
-  rv = m_eudora.FindAddressBooks(pLoc, ppArray);
-  if (NS_FAILED(rv) && *ppArray)
-    NS_RELEASE(*ppArray);
+  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  if (NS_FAILED(rv))
+  {
+    IMPORT_LOG0("FAILED to allocate the nsIMutableArray\n");
+    return rv;
+  }
+  rv = m_eudora.FindAddressBooks(pLoc, array);
+  if (NS_FAILED(rv))
+    return rv;
 
-  return rv;
+  array.forget(ppArray);
+
+  return NS_OK;
 }
 
 

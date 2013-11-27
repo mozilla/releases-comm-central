@@ -10,6 +10,7 @@
 #include "nsIServiceManager.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAccount.h"
+#include "nsIMutableArray.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgCompCID.h"
@@ -150,26 +151,20 @@ bool nsEudoraWin32::FindEudoraLocation(nsIFile **pFolder, bool findIni)
   return result;
 }
 
-nsresult nsEudoraWin32::FindMailboxes(nsIFile *pRoot, nsISupportsArray **ppArray)
+nsresult nsEudoraWin32::FindMailboxes(nsIFile *pRoot, nsIMutableArray *pArray)
 {
-  nsresult rv = NS_NewISupportsArray(ppArray);
-  if (NS_FAILED(rv))
-  {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray\n");
-    return rv;
-  }
-
+  nsresult rv;
   nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv))
     return rv;
 
   m_depth = 0;
   m_mailImportLocation = do_QueryInterface(pRoot);
-  return ScanMailDir(pRoot, *ppArray, impSvc);
+  return ScanMailDir(pRoot, pArray, impSvc);
 }
 
 
-nsresult nsEudoraWin32::ScanMailDir(nsIFile *pFolder, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraWin32::ScanMailDir(nsIFile *pFolder, nsIMutableArray *pArray, nsIImportService *pImport)
 {
   bool            exists = false;
   bool            isFile = false;
@@ -231,7 +226,7 @@ nsresult nsEudoraWin32::ScanMailDir(nsIFile *pFolder, nsISupportsArray *pArray, 
   return rv;
 }
 
-nsresult nsEudoraWin32::IterateMailDir(nsIFile *pFolder, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraWin32::IterateMailDir(nsIFile *pFolder, nsIMutableArray *pArray, nsIImportService *pImport)
 {
   bool hasMore;
   nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
@@ -298,7 +293,7 @@ nsresult nsEudoraWin32::IterateMailDir(nsIFile *pFolder, nsISupportsArray *pArra
   return rv;
 }
 
-nsresult nsEudoraWin32::ScanDescmap(nsIFile *pFolder, nsISupportsArray *pArray, nsIImportService *pImport, const char *pData, int32_t len)
+nsresult nsEudoraWin32::ScanDescmap(nsIFile *pFolder, nsIMutableArray *pArray, nsIImportService *pImport, const char *pData, int32_t len)
 {
   // use this to find stuff in the directory.
 
@@ -425,7 +420,7 @@ nsresult nsEudoraWin32::ScanDescmap(nsIFile *pFolder, nsISupportsArray *pArray, 
 }
 
 
-nsresult nsEudoraWin32::FoundMailbox(nsIFile *mailFile, const char *pName, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraWin32::FoundMailbox(nsIFile *mailFile, const char *pName, nsIMutableArray *pArray, nsIImportService *pImport)
 {
   nsString displayName;
   nsCOMPtr<nsIImportMailboxDescriptor> desc;
@@ -458,7 +453,7 @@ nsresult nsEudoraWin32::FoundMailbox(nsIFile *mailFile, const char *pName, nsISu
       pFile->InitWithFile(mailFile);
     }
     rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-    pArray->AppendElement(pInterface);
+    pArray->AppendElement(pInterface, false);
     pInterface->Release();
   }
 
@@ -466,7 +461,7 @@ nsresult nsEudoraWin32::FoundMailbox(nsIFile *mailFile, const char *pName, nsISu
 }
 
 
-nsresult nsEudoraWin32::FoundMailFolder(nsIFile *mailFolder, const char *pName, nsISupportsArray *pArray, nsIImportService *pImport)
+nsresult nsEudoraWin32::FoundMailFolder(nsIFile *mailFolder, const char *pName, nsIMutableArray *pArray, nsIImportService *pImport)
 {
   nsString                displayName;
   nsCOMPtr<nsIImportMailboxDescriptor>  desc;
@@ -498,7 +493,7 @@ nsresult nsEudoraWin32::FoundMailFolder(nsIFile *mailFolder, const char *pName, 
       pFile->InitWithFile(mailFolder);
     }
     rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-    pArray->AppendElement(pInterface);
+    pArray->AppendElement(pInterface, false);
     pInterface->Release();
   }
 
@@ -1316,20 +1311,13 @@ bool nsEudoraWin32::FindAddressFolder(nsIFile **pFolder)
   return FindEudoraLocation(pFolder);
 }
 
-nsresult nsEudoraWin32::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppArray)
+nsresult nsEudoraWin32::FindAddressBooks(nsIFile *pRoot, nsIMutableArray *pArray)
 {
   nsresult rv;
   nsCOMPtr<nsIFile> file = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = file->InitWithFile(pRoot);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = NS_NewISupportsArray(ppArray);
-  if (NS_FAILED(rv))
-  {
-    IMPORT_LOG0("FAILED to allocate the nsISupportsArray\n");
-    return rv;
-  }
 
   nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv))
@@ -1365,7 +1353,7 @@ nsresult nsEudoraWin32::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppAr
 
   if (exists && isFile)
   {
-    if (NS_FAILED(rv = FoundAddressBook(file, displayName.get(), *ppArray, impSvc)))
+    if (NS_FAILED(rv = FoundAddressBook(file, displayName.get(), pArray, impSvc)))
       return rv;
   }
 
@@ -1382,7 +1370,7 @@ nsresult nsEudoraWin32::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppAr
     rv = file->IsDirectory(&isDir);
   if (exists && isDir)
   {
-    if (NS_FAILED(rv = ScanAddressDir(file, *ppArray, impSvc)))
+    if (NS_FAILED(rv = ScanAddressDir(file, pArray, impSvc)))
       return rv;
   }
 
@@ -1440,7 +1428,7 @@ nsresult nsEudoraWin32::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppAr
         rv = file->IsDirectory(&isDir);
       if (exists && isDir)
       {
-        if (NS_FAILED(rv = ScanAddressDir(file, *ppArray, impSvc)))
+        if (NS_FAILED(rv = ScanAddressDir(file, pArray, impSvc)))
           return rv;
       }
     }
@@ -1458,16 +1446,15 @@ nsresult nsEudoraWin32::FindAddressBooks(nsIFile *pRoot, nsISupportsArray **ppAr
       rv = file->IsDirectory(&isDir);
     if (exists && isDir)
     {
-      if (NS_FAILED(rv = ScanAddressDir(file, *ppArray, impSvc)))
+      if (NS_FAILED(rv = ScanAddressDir(file, pArray, impSvc)))
         return rv;
     }
   }
-
   return NS_OK;
 }
 
 
-nsresult nsEudoraWin32::ScanAddressDir(nsIFile *pDir, nsISupportsArray *pArray, nsIImportService *impSvc)
+nsresult nsEudoraWin32::ScanAddressDir(nsIFile *pDir, nsIMutableArray *pArray, nsIImportService *impSvc)
 {
   bool hasMore;
   nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
@@ -1525,7 +1512,7 @@ nsresult nsEudoraWin32::ScanAddressDir(nsIFile *pDir, nsISupportsArray *pArray, 
 }
 
 
-nsresult nsEudoraWin32::FoundAddressBook(nsIFile *file, const PRUnichar *pName, nsISupportsArray *pArray, nsIImportService *impSvc)
+nsresult nsEudoraWin32::FoundAddressBook(nsIFile *file, const PRUnichar *pName, nsIMutableArray *pArray, nsIImportService *impSvc)
 {
   nsCOMPtr<nsIImportABDescriptor> desc;
   nsISupports *  pInterface;
@@ -1556,7 +1543,7 @@ nsresult nsEudoraWin32::FoundAddressBook(nsIFile *file, const PRUnichar *pName, 
     desc->SetSize((uint32_t) sz);
     desc->SetAbFile(file);
     rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
-    pArray->AppendElement(pInterface);
+    pArray->AppendElement(pInterface, false);
     pInterface->Release();
   }
   if (NS_FAILED(rv))

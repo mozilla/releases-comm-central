@@ -391,11 +391,11 @@ nsresult nsEudoraFilters::LoadServers()
   if (m_pServerArray)
     rv = m_pServerArray->Clear();
   else
-    rv = NS_NewISupportsArray(getter_AddRefs(m_pServerArray));
+    m_pServerArray = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!m_pFilterArray)
-    rv = NS_NewISupportsArray(getter_AddRefs(m_pFilterArray));
+    m_pFilterArray = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccountManager> accountMgr = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -431,7 +431,7 @@ nsresult nsEudoraFilters::LoadServers()
             rv = server->GetFilterList(nullptr, getter_AddRefs(filterList));
             NS_ENSURE_SUCCESS(rv, rv);
 
-            m_pServerArray->AppendElement(server);
+            m_pServerArray->AppendElement(server, false);
           }
         }
       }
@@ -446,7 +446,7 @@ nsresult nsEudoraFilters::SaveFilters()
   nsresult rv;
 
   uint32_t numServers;
-  rv = m_pServerArray->Count(&numServers);
+  rv = m_pServerArray->GetLength(&numServers);
   NS_ENSURE_SUCCESS(rv, rv);
   for (uint32_t serverIndex = 0; serverIndex < numServers; serverIndex++)
   {
@@ -474,7 +474,7 @@ nsresult nsEudoraFilters::CreateNewFilter(const char* pName)
   nsAutoString unicodeName;
   NS_CopyNativeToUnicode(nsCString(pName), unicodeName);
   uint32_t numServers;
-  rv = m_pServerArray->Count(&numServers);
+  rv = m_pServerArray->GetLength(&numServers);
   NS_ENSURE_SUCCESS(rv, rv);
   for (uint32_t serverIndex = 0; serverIndex < numServers; serverIndex++)
   {
@@ -499,7 +499,7 @@ nsresult nsEudoraFilters::CreateNewFilter(const char* pName)
     rv = filterList->InsertFilterAt(count, newFilter);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    m_pFilterArray->AppendElement(newFilter);
+    m_pFilterArray->AppendElement(newFilter, false);
   }
 
   m_isAnd = false;
@@ -539,7 +539,7 @@ nsresult nsEudoraFilters::EnableFilter(bool enable)
   nsresult rv;
 
   uint32_t numFilters;
-  rv = m_pFilterArray->Count(&numFilters);
+  rv = m_pFilterArray->GetLength(&numFilters);
   NS_ENSURE_SUCCESS(rv, rv);
   for (uint32_t filterIndex = 0; filterIndex < numFilters; filterIndex++)
   {
@@ -744,7 +744,7 @@ nsresult nsEudoraFilters::AddTerm(const char* pHeader, const char* pVerb, const 
   }
 
   uint32_t numFilters;
-  rv = m_pFilterArray->Count(&numFilters);
+  rv = m_pFilterArray->GetLength(&numFilters);
   NS_ENSURE_SUCCESS(rv, rv);
   for (uint32_t filterIndex = 0; filterIndex < numFilters; filterIndex++)
   {
@@ -793,7 +793,7 @@ nsresult nsEudoraFilters::AddAction(nsMsgRuleActionType actionType, int32_t junk
   nsresult rv;
 
   uint32_t numFilters;
-  rv = m_pFilterArray->Count(&numFilters);
+  rv = m_pFilterArray->GetLength(&numFilters);
   NS_ENSURE_SUCCESS(rv, rv);
   for (uint32_t filterIndex = 0; filterIndex < numFilters; filterIndex++)
   {

@@ -11,7 +11,6 @@
 #include "nscore.h"
 #include "nsStringGlue.h"
 #include "nsIFile.h"
-#include "nsISupportsArray.h"
 #include "nsEudoraMailbox.h"
 #include "nsEudoraAddress.h"
 
@@ -20,6 +19,7 @@
 class nsIImportService;
 class nsIMsgAccountManager;
 class nsIMsgAccount;
+class nsIMutableArray;
 
 
 class nsEudoraMac : public nsEudoraMailbox, public nsEudoraAddress {
@@ -31,7 +31,7 @@ public:
   virtual bool      FindMailFolder(nsIFile **pFolder) MOZ_OVERRIDE;
     // get the list of mailboxes
   virtual nsresult  FindMailboxes(nsIFile *pRoot,
-                                  nsISupportsArray **ppArray) MOZ_OVERRIDE;
+                                  nsIMutableArray *pArray) MOZ_OVERRIDE;
     // get a TOC file from a mailbox file
   virtual nsresult  FindTOCFile(nsIFile *pMailFile,
                                 nsIFile **pTOCFile,
@@ -46,7 +46,7 @@ public:
   virtual bool      FindAddressFolder(nsIFile **pFolder) MOZ_OVERRIDE;
     // get the list of mailboxes
   virtual nsresult  FindAddressBooks(nsIFile *pRoot,
-                                     nsISupportsArray **ppArray) MOZ_OVERRIDE;
+                                     nsIMutableArray *pArray) MOZ_OVERRIDE;
 
     // import settings
   static bool    ImportSettings(nsIFile *pIniFile,
@@ -66,18 +66,18 @@ private:
 
 
   nsresult  ScanMailDir(nsIFile *pFolder,
-                        nsISupportsArray *pArray,
+                        nsIMutableArray *pArray,
                         nsIImportService *pImport);
   nsresult  IterateMailDir(nsIFile *pFolder,
-                           nsISupportsArray *pArray,
+                           nsIMutableArray *pArray,
                            nsIImportService *pImport);
   nsresult  FoundMailFolder(nsIFile *mailFolder,
                             const char *pName,
-                            nsISupportsArray *pArray,
+                            nsIMutableArray *pArray,
                             nsIImportService *pImport);
   nsresult  FoundMailbox(nsIFile *mailFile,
                          const char *pName,
-                         nsISupportsArray *pArray,
+                         nsIMutableArray *pArray,
                          nsIImportService *pImport);
 
   bool      IsValidMailFolderName(nsCString& name);

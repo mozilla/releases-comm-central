@@ -9,6 +9,7 @@
 #include "nsCOMPtr.h"
 #include "nsStringGlue.h"
 #include "nsIFile.h"
+#include "nsIMutableArray.h"
 
 
 class nsEudoraEditor
@@ -19,11 +20,11 @@ class nsEudoraEditor
 
     bool GetEmbeddedImageCID(uint32_t aCIDHash, const nsAString & aOldRef, nsString &aCID);
     bool HasEmbeddedContent();
-    nsresult GetEmbeddedObjects(nsISupportsArray ** aNodeList);
+    nsresult GetEmbeddedObjects(nsIArray ** aNodeList);
     nsresult GetBody(nsAString & _retval) {_retval = m_body; return NS_OK;}
   protected:
     NS_ConvertASCIItoUTF16      m_body;
     nsCOMPtr <nsIFile>          m_pMailImportLocation;
-    nsCOMPtr<nsISupportsArray>  m_EmbeddedObjectList; // Initialized when GetEmbeddedObjects is called
+    nsCOMPtr<nsIMutableArray>   m_EmbeddedObjectList; // Initialized when GetEmbeddedObjects is called
 };
 
