@@ -88,8 +88,6 @@ const XMPPMUCConversationPrototype = {
     GenericConvChatPrototype._init.call(this, aAccount, aJID, aNick);
   },
 
-  get normalizedName() this.name,
-
   _targetResource: "",
 
   /* Called when the user enters a chat message */
@@ -333,8 +331,6 @@ const XMPPAccountBuddyPrototype = {
 
     return new nsSimpleEnumerator(tooltipInfo);
   },
-
-  get normalizedName() this.userName,
 
   // _rosterAlias is the value stored in the roster on the XMPP
   // server. For most servers we will be read/write.
@@ -667,8 +663,6 @@ const XMPPAccountPrototype = {
     this._connection.sendStanza(Stanza.presence({to: jid + "/" + nick}, x));
   },
 
-  get normalizedName() this._normalizeJID(this.name),
-
   _idleSince: 0,
   observe: function(aSubject, aTopic, aData) {
     if (aTopic == "idle-time-changed") {
@@ -752,7 +746,7 @@ const XMPPAccountPrototype = {
     if (!this._connection)
       throw "The account isn't connected";
 
-    let jid = this._normalizeJID(aName);
+    let jid = this.normalize(aName);
     if (!jid || !jid.contains("@"))
       throw "Invalid username";
 
@@ -837,7 +831,7 @@ const XMPPAccountPrototype = {
     let from = aStanza.attributes["from"];
     this.DEBUG("Received presence stanza for " + from);
 
-    let jid = this._normalizeJID(from);
+    let jid = this.normalize(from);
     let type = aStanza.attributes["type"];
     if (type == "subscribe") {
       this.addBuddyRequest(jid,
@@ -865,13 +859,13 @@ const XMPPAccountPrototype = {
       }
       this._mucs[jid].onPresenceStanza(aStanza);
     }
-    else if (jid != this._normalizeJID(this._connection._jid.jid))
+    else if (jid != this.normalize(this._connection._jid.jid))
       this.WARN("received presence stanza for unknown buddy " + from);
   },
 
   /* Called when a message stanza is received */
   onMessageStanza: function(aStanza) {
-    let norm = this._normalizeJID(aStanza.attributes["from"]);
+    let norm = this.normalize(aStanza.attributes["from"]);
 
     let type = aStanza.attributes["type"];
     let body;
@@ -951,7 +945,7 @@ const XMPPAccountPrototype = {
   /* When a vCard is received */
   _vCardReceived: false,
   onVCard: function(aStanza) {
-    let jid = this._normalizeJID(aStanza.attributes["from"]);
+    let jid = this.normalize(aStanza.attributes["from"]);
     if (!jid || !this._buddies.hasOwnProperty(jid))
       return;
     let buddy = this._buddies[jid];
@@ -976,10 +970,11 @@ const XMPPAccountPrototype = {
     buddy._vCardReceived = true;
   },
 
-  _normalizeJID: function(aJID)
-    aJID.trim()
-        .split("/", 1)[0] // up to first slash
-        .toLowerCase(),
+  normalize: function(aJID) {
+    return aJID.trim()
+               .split("/", 1)[0] // up to first slash
+               .toLowerCase();
+  },
 
   _parseJID: function(aJid) {
     let match =
@@ -1009,7 +1004,7 @@ const XMPPAccountPrototype = {
       this.WARN("Received a roster item without jid: " + aItem.getXML());
       return "";
     }
-    jid = this._normalizeJID(jid);
+    jid = this.normalize(jid);
 
     let subscription =  "";
     if ("subscription" in aItem.attributes)

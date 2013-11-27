@@ -213,7 +213,9 @@ const GenericAccountPrototype = {
     (this._prefs = Services.prefs.getBranch("messenger.account." +
                                             this.imAccount.id + ".options.")),
 
-  get normalizedName() this.name.toLowerCase(),
+  get normalizedName() this.normalize(this.name),
+  normalize: function(aName) aName.toLowerCase(),
+
   get proxyInfo() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
   set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
@@ -279,8 +281,7 @@ const GenericAccountBuddyPrototype = {
 
   _userName: "",
   get userName() this._userName || this._buddy.userName,
-  get normalizedName()
-    this._userName ? this._userName.toLowerCase() : this._buddy.normalizedName,
+  get normalizedName() this._account.normalize(this.userName),
   _serverAlias: "",
   get serverAlias() this._serverAlias,
   set serverAlias(aNewAlias) {
@@ -493,7 +494,7 @@ const GenericConversationPrototype = {
 
   get account() this._account.imAccount,
   get name() this._name,
-  get normalizedName() this.name.toLowerCase(),
+  get normalizedName() this._account.normalize(this.name),
   get title() this.name,
   get startDate() this._date
 };

@@ -541,9 +541,7 @@ ircChannel.prototype = {
     let participant = this.getParticipant(this.nick);
     return this._modes.indexOf("t") == -1 || participant.op ||
            participant.halfOp;
-  },
-
-  get normalizedName() this._account.normalize(this.name)
+  }
 };
 copySharedBaseToPrototype(GenericIRCConversation, ircChannel.prototype);
 
@@ -610,8 +608,6 @@ ircConversation.prototype = {
                                              ctcpFormatToHTML(aText),
                                              aProperties);
   },
-
-  get normalizedName() this._account.normalize(this.name),
 
   unInit: function() {
     this.unInitIRCConversation();
@@ -757,8 +753,6 @@ ircAccountBuddy.prototype = {
   // hovers over the buddy.
   getTooltipInfo: function() this._account.getBuddyInfo(this.normalizedName),
 
-  get normalizedName() this._account.normalize(this.userName),
-
   // Allow sending of messages to buddies even if they are not online since IRC
   // does not always provide status information in a timely fashion. (Note that
   // this is OK since the server will throw an error if the user is not online.)
@@ -810,8 +804,6 @@ ircAccount.prototype = {
   // The prefix minus the nick (!user@host) as returned by the server, this is
   // necessary for guessing message lengths.
   prefix: null,
-
-  get normalizedName() this.normalize(this.name),
 
   // Parts of the specification give max lengths, keep track of them since a
   // server can overwrite them. The defaults given here are from RFC 2812.
