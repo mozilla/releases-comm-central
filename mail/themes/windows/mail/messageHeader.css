@@ -73,19 +73,6 @@
   font-weight: bold;
 }
 
-/* ::::: edit message bar ::::: */
-
-#editMessageBox {
-  min-width: 1px;
-  border-bottom-left-radius: 0.2em;
-  border-bottom-right-radius: 0.2em;
-}
-
-#editMessageDescription {
-  font-style: italic;
-  font-weight: bolder;
-}
-
 /* ::::: attachment view ::::: */
 
 #attachmentList {

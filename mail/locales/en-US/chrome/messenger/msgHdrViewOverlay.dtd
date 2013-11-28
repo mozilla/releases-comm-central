@@ -21,8 +21,6 @@
 <!ENTITY inReplyToField4.label "In reply to">
 <!ENTITY originalWebsite4.label "Website">
 
-<!ENTITY editMessageDescription.label "This is a draft message">
-<!ENTITY editMessageButton.label "Edit…">
 <!ENTITY hdrArchiveButton1.label "Archive">
 <!ENTITY hdrArchiveButton1.tooltip "Archive this message">
 <!ENTITY hdrSmartReplyButton1.label "Smart Reply">

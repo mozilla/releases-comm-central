@@ -80,7 +80,6 @@
   box-shadow: 0 4px 3px 0 rgb(255,255,255) inset;
 }
 
-
 .msgHeaderView-flat-button[type="menu"] > .button-box > .button-menu-dropmarker,
 .msgHeaderView-flat-button[type="menu-button"] > .button-menubutton-dropmarker {
   -moz-appearance: none !important;
@@ -100,19 +99,6 @@
 
 #expandedsubjectBox > .headerValue {
   font-weight: bold;
-}
-
-/* ::::: edit message bar ::::: */
-
-#editMessageBox {
-  min-width: 1px;
-  border-bottom-left-radius: 0.2em;
-  border-bottom-right-radius: 0.2em;
-}
-
-#editMessageDescription {
-  font-style: italic;
-  font-weight: bolder;
 }
 
 /* ::::: attachment view ::::: */

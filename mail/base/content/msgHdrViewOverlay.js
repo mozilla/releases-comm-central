@@ -2713,25 +2713,6 @@ var attachmentNameDNDObserver = {
   }
 };
 
-function ShowEditMessageBox()
-{
-  // It would be nice if we passed in the msgHdr from the back end.
-  var msgHdr = gFolderDisplay.selectedMessage;
-  if (!msgHdr || !msgHdr.folder)
-    return;
-
-  const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
-  if (msgHdr.folder.isSpecialFolder(nsMsgFolderFlags.Drafts, true))
-    document.getElementById("editMessageBox").collapsed = false;
-}
-
-function ClearEditMessageBox()
-{
-  var editBox = document.getElementById("editMessageBox");
-  if (editBox)
-    editBox.collapsed = true;
-}
-
 /**
  * CopyWebsiteAddress takes the website address title button, extracts
  * the website address we stored in there and copies it to the clipboard
