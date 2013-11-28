@@ -27,6 +27,10 @@ function setupModule(module) {
 
   folder = create_folder("viewsource");
 
+  // Bug 805374 removed the charsetMenu from view source. 
+  // Enable this test again when bug 940907 is fixed.
+  test_view_source_reload.__force_skip__ = true;
+
   // Skip on mac, as we can't click the (native) menus to make it work.
   if (mc.mozmillModule.isMac)
     test_view_source_reload.__force_skip__ = true;
