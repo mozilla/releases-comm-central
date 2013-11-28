@@ -450,6 +450,8 @@ imAccount.prototype = {
   // but in lots of cases this.name is equivalent.
   get normalizedName()
     this.prplAccount ? this.prplAccount.normalizedName : this.name,
+  normalize: function(aName)
+    this.prplAccount ? this.prplAccount.normalize(aName) : aName,
 
   _sendUpdateNotification: function() {
     this._sendNotification("account-updated");
