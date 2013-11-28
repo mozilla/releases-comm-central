@@ -15,7 +15,6 @@ PARALLEL_DIRS += [
     'protocols/irc',
     'protocols/odnoklassniki',
     'protocols/twitter',
-    'protocols/vkontakte',
     'protocols/xmpp',
     'protocols/yahoo',
 ]
