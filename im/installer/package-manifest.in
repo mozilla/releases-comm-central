@@ -215,8 +215,6 @@
 @BINPATH@/components/yahoo.manifest
 @BINPATH@/components/odnoklassniki.js
 @BINPATH@/components/odnoklassniki.manifest
-@BINPATH@/components/vkontakte.js
-@BINPATH@/components/vkontakte.manifest
 @BINPATH@/components/smileProtocolHandler.js
 @BINPATH@/components/smileProtocolHandler.manifest
 @BINPATH@/components/logger.js
