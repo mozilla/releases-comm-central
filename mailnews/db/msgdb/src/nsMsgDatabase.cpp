@@ -1142,12 +1142,12 @@ nsMsgDatabase::nsMsgDatabase()
         m_cacheSize(kMaxHdrsInCache)
 {
   mMemReporter = new mozilla::mailnews::MsgDBReporter(this);
-  NS_RegisterMemoryReporter(mMemReporter);
+  mozilla::RegisterWeakMemoryReporter(mMemReporter);
 }
 
 nsMsgDatabase::~nsMsgDatabase()
 {
-  NS_UnregisterMemoryReporter(mMemReporter);
+  mozilla::UnregisterWeakMemoryReporter(mMemReporter);
   //  Close(FALSE);  // better have already been closed.
   ClearCachedObjects(true);
   ClearEnumerators();
