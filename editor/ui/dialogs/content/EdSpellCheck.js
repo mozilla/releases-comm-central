@@ -107,6 +107,8 @@ function spellCheckStarted() {
   //  no misspelled word is found
   //  (different message when used for the first time)
   gFirstTime = false;
+
+  window.sizeToContent();
 }
 
 function InitLanguageMenu(aCurLang)

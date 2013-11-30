@@ -9,7 +9,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorSpellCheck.dtd">
 
 <!-- dialog containing a control requiring initial setup -->
-<dialog buttons="cancel" title="&windowTitle.label;"
+<dialog id="spellCheckDlg" buttons="cancel" title="&windowTitle.label;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     persist="screenX screenY"
     onload = "Startup()"
