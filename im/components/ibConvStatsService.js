@@ -44,24 +44,45 @@ var gLogParser = {
   _accounts: [],
   _logFolders: [],
   inProgress: false,
+  error: false,
 
   // The general path of a log is logs/prpl/account/conv/date.json.
   // First, sweep the logs folder for prpl folders.
   sweep: function(aStatsService) {
     initLogModule("stats-service-log-sweeper", this);
     this.inProgress = true;
+    delete this.error;
+    this._accounts = [];
+    this._logFolders = [];
     this._statsService = aStatsService;
     this._statsService._notifyObservers("log-sweeping", "ongoing");
+
     let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
     let iterator = new OS.File.DirectoryIterator(logsPath);
-    iterator.nextBatch().then((function(aEntries) {
-      // Filter out any stray files (e.g. system files).
-      aEntries = aEntries.filter(function(e) e.isDir);
-      this._sweepPrpls(aEntries);
-    }).bind(this), function(aError) {
-      if (aError instanceof OS.File.Error && !aError.becauseNoSuchFile)
-        Cu.reportError("Error while sweeping logs folder: " + logsPath + "\n" + aError);
-    });
+    iterator.nextBatch().then(
+      aEntries => {
+        iterator.close();
+        // Filter out any stray files (e.g. system files).
+        aEntries = aEntries.filter(function(e) e.isDir);
+        this._sweepPrpls(aEntries);
+      },
+      aError => {
+        iterator.close();
+        if (aError instanceof OS.File.Error && !aError.becauseNoSuchFile) {
+          Cu.reportError("Error while sweeping logs folder: " + logsPath + "\n" + aError);
+          this.error = true;
+        }
+        this._sweepingComplete();
+      });
+  },
+
+  _sweepingComplete: function() {
+    delete this.inProgress;
+    let statsService = this._statsService;
+    statsService._cacheAllStats(); // Flush stats to JSON cache.
+    statsService._convs.sort(statsService._sortComparator);
+    statsService._notifyObservers("log-sweeping", "done");
+    gStatsByContactId = {}; // Initialize stats cache for contacts.
   },
 
   // Sweep each prpl folder for account folders, and add them to this._accounts.
@@ -70,69 +91,76 @@ var gLogParser = {
       this._sweepAccounts();
     let path = aPrpls.shift().path;
     let iterator = new OS.File.DirectoryIterator(path);
-    iterator.nextBatch().then((function(aEntries) {
-      // Filter out any stray files (e.g. system files).
-      aEntries = aEntries.filter(function(e) e.isDir);
-      this._accounts = this._accounts.concat(aEntries);
-      if (aPrpls.length)
+    iterator.nextBatch().then(
+      aEntries => {
+        iterator.close();
+        // Filter out any stray files (e.g. system files).
+        aEntries = aEntries.filter(function(e) e.isDir);
+        this._accounts = this._accounts.concat(aEntries);
         this._sweepPrpls(aPrpls);
-      else
-        this._sweepAccounts();
-    }).bind(this), function(aError) {
-      Cu.reportError("Error while sweeping prpl folder: " + path + "\n" + aError);
-    });
+      },
+      aError => {
+        iterator.close();
+        Cu.reportError("Error while sweeping prpl folder: " + path + "\n" + aError);
+        this.error = true;
+        this._sweepPrpls(aPrpls);
+      });
   },
 
   // Sweep each account folder for conversation log folders, add them to this._logFolders.
   _sweepAccounts: function() {
+    if (!this._accounts.length)
+      this._sweepLogFolders();
     let path = this._accounts.shift().path;
     let iterator = new OS.File.DirectoryIterator(path);
-    iterator.nextBatch().then((function(aEntries) {
-      // Filter out any stray files (e.g. system files).
-      aEntries = aEntries.filter(function(e) e.isDir);
-      this._logFolders = this._logFolders.concat(aEntries);
-      if (this._accounts.length)
+    iterator.nextBatch().then(
+      aEntries => {
+        iterator.close();
+        // Filter out any stray files (e.g. system files).
+        aEntries = aEntries.filter(function(e) e.isDir);
+        this._logFolders = this._logFolders.concat(aEntries);
         this._sweepAccounts();
-      else
-        this._sweepLogFolders();
-    }).bind(this), function(aError) {
-      Cu.reportError("Error while sweeping account folder: " + path + "\n" + aError);
-    });
+      },
+      aError => {
+        iterator.close();
+        Cu.reportError("Error while sweeping account folder: " + path + "\n" + aError);
+        this.error = true;
+        this._sweepAccounts();
+      });
   },
 
-  // Call _sweepLogFolder on the contents of each log folder.
+  // Sweep the log folders.
   _sweepLogFolders: function() {
+    if (!this._logFolders.length)
+      this._sweepingComplete();
     let path = this._logFolders.shift().path;
     let iterator = new OS.File.DirectoryIterator(path);
-    iterator.nextBatch().then(this._sweepLogFolder.bind(this), function(aError) {
-      Cu.reportError("Error while sweeping log folder: " + path + "\n" + aError);
-    });
+    let decoder = new TextDecoder();
+    iterator.forEach(aEntry => {
+      if (aEntry.name.endsWith(".json"))
+        return this._sweepJSONLog(aEntry.path, decoder);
+      return undefined;
+    }).then(
+      () => {
+        iterator.close();
+        this._sweepLogFolders();
+      },
+      aError => {
+        iterator.close();
+        Cu.reportError("Error while sweeping log folder: " + path + "\n" + aError);
+        this.error = true;
+        this._sweepLogFolders();
+      });
   },
 
-  // Goes through JSON log files in each log folder and parses them for stats.
-  _sweepLogFolder: function(aLogs) {
-    aLogs = aLogs.filter(function(l) l.name.endsWith(".json"));
-    let decoder = new TextDecoder();
-    let __sweepLogFolder = function() {
-      if (!aLogs.length) {
-        if (this._logFolders.length)
-          this._sweepLogFolders();
-        else { // We're done.
-          delete this.inProgress;
-          let statsService = this._statsService;
-          statsService._cacheAllStats(); // Flush stats to JSON cache.
-          statsService._convs.sort(statsService._sortComparator);
-          statsService._notifyObservers("log-sweeping", "done");
-          gStatsByContactId = {}; // Initialize stats cache for contacts.
-        }
-        return;
-      }
-      let log = aLogs.shift().path;
-      OS.File.read(log).then(function(aArray) {
+  // Goes through a JSON log file and parses it for stats.
+  _sweepJSONLog: function(aLog, aDecoder) {
+    return OS.File.read(aLog).then(
+      aArray => {
         // Try to parse the log file. If anything goes wrong here, the log file
         // has likely been tampered with so we ignore it and move on.
         try {
-          let lines = decoder.decode(aArray).split("\n");
+          let lines = aDecoder.decode(aArray).split("\n");
           // The first line is the header which identifies the conversation.
           let header = JSON.parse(lines.shift());
           let name = header.name;
@@ -155,15 +183,13 @@ var gLogParser = {
             stats.lastDate = date;
         }
         catch(e) {
-          this.WARN("Error parsing log file: " + log + "\n" + e);
+          this.WARN("Error parsing log file: " + aLog + "\n" + e);
         }
-        __sweepLogFolder();
-      }.bind(this), function(aError) {
-        Cu.reportError("Error reading log file: " + log + "\n" + aError);
-        __sweepLogFolder();
+      },
+      aError => {
+        Cu.reportError("Error reading log file: " + aLog + "\n" + aError);
+        this.error = true;
       });
-    }.bind(this);
-    __sweepLogFolder();
   }
 };
 
@@ -383,6 +409,10 @@ ConvStatsService.prototype = {
     // ensure that a re-sweep is triggered on next startup if log sweeping could
     // not complete.
     if (gLogParser.inProgress)
+      return;
+    // Don't cache anything if we encountered an error during log sweeping, so
+    // a fresh log sweep is triggered on next startup.
+    if (gLogParser.error)
       return;
     let encoder = new TextEncoder();
     let objToWrite = {version: gStatsCacheVersion, stats: gStatsByConvId};
