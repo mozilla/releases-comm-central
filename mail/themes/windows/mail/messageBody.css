@@ -93,9 +93,12 @@ img[overflowing][shrinktofit] {
 /* ::::: vcard ::::: */
 
 .moz-vcard-table {
-  border-radius: 8px;
-  border: thin solid gray;
   margin-top: 10px;
+  border-radius: 5px;
+  border-color: ThreeDLightShadow;
+  border-width: 1px;
+  border-style: solid;
+  background-color: rgba(0, 0, 0, .1);
 }
 
 .moz-vcard-property {
@@ -103,20 +106,24 @@ img[overflowing][shrinktofit] {
   color: gray;
 }
 
-.moz-vcard-title-property {
-} 
-
 .moz-vcard-badge {
-  height: 24px;
-  width: 24px;
+  margin-top: 2px;
+  height: 32px;
+  width: 32px;
+  background-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+  background-size: 100% 100%;
   background-color: transparent;
   display: block;
-  background-image: url("chrome://messenger/skin/addressbook/icons/abcard-large.png");
+  opacity: .7;
 }
 
 .moz-vcard-badge:hover {
-  -moz-image-region: rect(30px 30px 60px 0px);
-} 
+  opacity: .8;
+}
+
+.moz-vcard-badge:active {
+  opacity: 1;
+}
 
 .moz-vcard-badge:focus {
   outline: none;

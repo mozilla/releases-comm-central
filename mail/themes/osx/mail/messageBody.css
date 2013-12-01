@@ -103,9 +103,12 @@ img[overflowing][shrinktofit] {
 /* ::::: vcard ::::: */
 
 .moz-vcard-table {
-  border-radius: 8px;
-  border: thin solid gray;
   margin-top: 10px;
+  border-radius: 5px;
+  border-color: ThreeDLightShadow;
+  border-width: 1px;
+  border-style: solid;
+  background-color: rgba(0, 0, 0, .1);
 }
 
 .moz-vcard-property {
@@ -113,31 +116,23 @@ img[overflowing][shrinktofit] {
   color: gray;
 }
 
-.moz-vcard-title-property {
-}
-
 .moz-vcard-badge {
+  margin-top: 2px;
   height: 32px;
   width: 32px;
+  background-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+  background-size: 100% 100%; /* This allows us to ignore any @2x resolutions */
   background-color: transparent;
   display: block;
-  background-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-  -moz-image-region: rect(0px 32px 32px 0px);
+  opacity: .7;
 }
 
 .moz-vcard-badge:hover {
-  -moz-image-region: rect(32px 32px 64px 0px);
+  opacity: .8;
 }
 
-@media (min-resolution: 2dppx) {
-  .moz-vcard-badge {
-    background-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar@2x.png");
-    -moz-image-region: rect(0px 64px 64px 0px);
-  }
-
-  .moz-vcard-badge:hover {
-    -moz-image-region: rect(64px 64px 128px 0px);
-  }
+.moz-vcard-badge:active {
+  opacity: 1;
 }
 
 .moz-vcard-badge:focus {
