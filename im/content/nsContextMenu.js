@@ -136,17 +136,14 @@ nsContextMenu.prototype = {
     }
   },
 
-  getNormalizedName: function(aNick) {
-    // Unfortunately there is currently no way to obtain the normalizedName
-    // corresponding to the nick (bug 2115).
-    // Therefore we may sometimes not find existing logs for a nick,
-    // and offer "add contact" despite a buddy already existing.
-    return aNick;
-  },
   getLogsForNick: function(aNick) {
-    return Services.logs.getLogsForAccountAndName(this.conv.account,
-                                                  this.getNormalizedName(aNick),
-                                                  true);
+    let account = this.conv.account;
+    // We need the normalizedName of private conversations opened
+    // with a chatBuddy.
+    let normalizedName =
+      account.normalize(this.conv.target.getNormalizedChatBuddyName(aNick));
+    return Services.logs.getLogsForAccountAndName(account,
+                                                  normalizedName, true);
   },
   getNickActions: function(aIsParticipantList) {
     let bundle = document.getElementById("bundle_instantbird");
@@ -167,10 +164,23 @@ nsContextMenu.prototype = {
 
     addAction("OpenConv", this.onNick && !isTwitter);
     addAction("ShowLogs", this.onNick && this.getLogsForNick(nick).hasMoreElements());
-    this.buddy = Services.contacts
-                         .getBuddyByNameAndProtocol(this.getNormalizedName(nick),
-                                                    this.conv.account.protocol);
-    let isAddContact = this.onNick && !isTwitter && !this.buddy;
+
+    let isAddContact = this.onNick && !isTwitter;
+    let account = this.conv.account;
+    // We don't want to support adding chatBuddies as contacts if we are not
+    // sure the normalizedChatBuddyName is enough information to add a contact.
+    // This is a problem e.g. for XMPP MUCs. We require at least that the
+    // normalizedChatBuddyName of the nick is normalized like a normalizedName
+    // for contacts.
+    let normalizedNick = this.conv.target.getNormalizedChatBuddyName(nick);
+    if (normalizedNick == account.normalize(normalizedNick)) {
+      this.buddy = Services.contacts
+                           .getBuddyByNameAndProtocol(normalizedNick,
+                                                      account.protocol);
+      isAddContact &= !this.buddy;
+    }
+    else
+      isAddContact = false;
     if (isAddContact)
       this.tagMenu = new TagMenu(this, window);
     addAction("AddContact", isAddContact);
