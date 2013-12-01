@@ -38,14 +38,16 @@ treechildren::-moz-tree-image(folderNameCol, selected, open) {
 /* ..... Newsgroup ..... */
 
 .tabmail-tab[type="folder"][ServerType="nntp"],
-treechildren::-moz-tree-image(folderNameCol, serverType-nntp) {
+treechildren::-moz-tree-image(folderNameCol, serverType-nntp),
+treechildren::-moz-tree-image(folderNameCol, serverType-nntp, open) {
   -moz-image-region: rect(0 160px 16px 144px);
 }
 
 /* ..... Feed ..... */
 
 .tabmail-tab[type="folder"][ServerType="rss"],
-treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
+treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true),
+treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true, open) {
   list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
   -moz-image-region: rect(0 16px 16px 0);
 }
@@ -66,7 +68,8 @@ treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true, specialFolder-Vi
 /* ..... Inbox ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Inbox"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox, open) {
   -moz-image-region: rect(0 48px 16px 32px);
 }
 
@@ -77,56 +80,64 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox, newMessages-tr
 /* ..... Sent ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Sent"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Sent) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Sent),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Sent, open) {
   -moz-image-region: rect(0 64px 16px 48px);
 }
 
 /* ..... Unsent ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Outbox"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Outbox) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Outbox),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Outbox, open) {
   -moz-image-region: rect(0 80px 16px 64px);
 }
 
 /* ..... Drafts ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Drafts"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Drafts) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Drafts),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Drafts, open) {
   -moz-image-region: rect(0 96px 16px 80px);
 }
 
 /* ..... Templates ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Templates"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Templates) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Templates),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Templates, open) {
   -moz-image-region: rect(0 112px 16px 96px);
 }
 
 /* ..... Junk ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Junk"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Junk) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Junk),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Junk, open) {
   -moz-image-region: rect(0 128px 16px 112px);
 }
 
 /* ..... Trash ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Trash"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Trash) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Trash),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Trash, open) {
   -moz-image-region: rect(0 144px 16px 128px);
 }
 
 /* ..... Archives ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Archive"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive, open) {
   -moz-image-region: rect(0 208px 16px 192px);
 }
 
 /* ..... Saved Search Folder ..... */
 
 .tabmail-tab[type="folder"][SpecialFolder="Virtual"],
-treechildren::-moz-tree-image(folderNameCol, specialFolder-Virtual) {
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Virtual),
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Virtual, open) {
   -moz-image-region: rect(0 176px 16px 160px);
 }
 
