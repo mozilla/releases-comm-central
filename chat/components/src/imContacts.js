@@ -710,6 +710,7 @@ Contact.prototype = {
 
     // Create a new dummy contact and use it for the detached buddy.
     buddy.contact = new Contact();
+    buddy.contact._notifyObservers("added");
 
     // The first tag was inherited during the contact setter.
     // This will copy the remaining tags.
@@ -1117,6 +1118,8 @@ Buddy.prototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
+    if (!this._observers)
+      return;
     this._observers = this._observers.filter(function(o) o !== aObserver);
   },
   // internal calls + calls from add-ons
