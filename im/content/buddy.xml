@@ -219,6 +219,11 @@
      </handler>
      <handler event="drop">
        <![CDATA[
+         if (this.hasAttribute("dummy")) {
+           // Droppped onto the drop target. The event will bubble to
+           // the contact.
+           return;
+         }
          let contact = this.buddy.contact;
          let dt = event.dataTransfer;
          if (dt.types.contains("application/x-ib-contact")) {
