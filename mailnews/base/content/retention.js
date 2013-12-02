@@ -9,8 +9,7 @@ function initCommonRetentionSettings(retentionSettings)
 {
   document.getElementById("retention.keepUnread").checked =  retentionSettings.keepUnreadMessagesOnly;
   document.getElementById("retention.keepMsg").value = retentionSettings.retainByPreference;
-  if(retentionSettings.daysToKeepHdrs > 0)
-    document.getElementById("retention.keepOldMsgMin").value =
+  document.getElementById("retention.keepOldMsgMin").value =
     (retentionSettings.daysToKeepHdrs > 0) ? retentionSettings.daysToKeepHdrs : 30;
   document.getElementById("retention.keepNewMsgMin").value =
     (retentionSettings.numHeadersToKeep > 0) ? retentionSettings.numHeadersToKeep : 2000;

@@ -47,30 +47,26 @@ function initServerSettings()
         document.getElementById("offline.folders").checked =  gImapIncomingServer.offlineDownload;
     }
 }
-  
+
 function initRetentionSettings()
 {
-    var retentionSettings =  gIncomingServer.retentionSettings; 
-    initCommonRetentionSettings(retentionSettings);
+  let retentionSettings = gIncomingServer.retentionSettings;
+  initCommonRetentionSettings(retentionSettings);
 
-    document.getElementById("nntp.removeBody").checked =  retentionSettings.cleanupBodiesByDays;
-    if(retentionSettings.daysToKeepBodies > 0)
-        document.getElementById("nntp.removeBodyMin").setAttribute("value", retentionSettings.daysToKeepBodies);
-    else
-        document.getElementById("nntp.removeBodyMin").setAttribute("value", "30");
+  document.getElementById("nntp.removeBody").checked = retentionSettings.cleanupBodiesByDays;
+  document.getElementById("nntp.removeBodyMin").value =
+    (retentionSettings.daysToKeepBodies > 0) ? retentionSettings.daysToKeepBodies : 30;
 }
-
 
 function initDownloadSettings()
 {
-    var downloadSettings =  gIncomingServer.downloadSettings;
-    document.getElementById("nntp.downloadMsg").checked = downloadSettings.downloadByDate;
-    document.getElementById("nntp.notDownloadRead").checked = downloadSettings.downloadUnreadOnly;
-    if(downloadSettings.ageLimitOfMsgsToDownload > 0)
-        document.getElementById("nntp.downloadMsgMin").setAttribute("value", downloadSettings.ageLimitOfMsgsToDownload);
-    else
-        document.getElementById("nntp.downloadMsgMin").setAttribute("value", "30");
- 
+  let downloadSettings = gIncomingServer.downloadSettings;
+  document.getElementById("nntp.downloadMsg").checked = downloadSettings.downloadByDate;
+  document.getElementById("nntp.notDownloadRead").checked = downloadSettings.downloadUnreadOnly;
+  document.getElementById("nntp.downloadMsgMin").value =
+    (downloadSettings.ageLimitOfMsgsToDownload > 0) ?
+      downloadSettings.ageLimitOfMsgsToDownload : 30;
+
   // Figure out what the most natural division of the autosync pref into
   // a value and an interval is.
   let autosyncSelect = document.getElementById("autosyncSelect");
