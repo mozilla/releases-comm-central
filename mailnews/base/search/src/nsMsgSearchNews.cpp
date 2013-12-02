@@ -402,11 +402,9 @@ void nsMsgSearchNews::ReportHit (nsIMsgDBHdr *pHeaders, nsIMsgFolder *folder)
 {
     // this is totally filched from msg_SearchOfflineMail until I decide whether the
     // right thing is to get them from the db or from NNTP
-
-    nsresult err = NS_OK;
     nsCOMPtr<nsIMsgSearchSession> session;
-    nsCOMPtr <nsIMsgFolder> scopeFolder;
-    err = m_scope->GetFolder(getter_AddRefs(scopeFolder));
+    nsCOMPtr<nsIMsgFolder> scopeFolder;
+    m_scope->GetFolder(getter_AddRefs(scopeFolder));
     m_scope->GetSearchSession(getter_AddRefs(session));
     if (session)
       session->AddSearchHit (pHeaders, scopeFolder);
