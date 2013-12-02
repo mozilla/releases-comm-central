@@ -128,7 +128,8 @@ ConversationLog.prototype = {
                              title: this._conv.title,
                              account: account.normalizedName,
                              protocol: account.protocol.normalizedName,
-                             isChat: this._conv.isChat
+                             isChat: this._conv.isChat,
+                             normalizedName: this._conv.normalizedName
                             }) + "\n";
     }
     return "Conversation with " + this._conv.name +
@@ -364,6 +365,7 @@ function LogConversation(aLineInputStreams)
       this._accountName = data.account;
       this._protocolName = data.protocol;
       this._isChat = data.isChat;
+      this.normalizedName = data.normalizedName;
       firstFile = false;
     }
 

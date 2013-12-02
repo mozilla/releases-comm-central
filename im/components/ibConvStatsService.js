@@ -16,7 +16,7 @@ const kNotificationsToObserve =
 
 // This is incremented when changes to the log sweeping code warrant rebuilding
 // the stats cache file.
-const gStatsCacheVersion = 1;
+const gStatsCacheVersion = 2;
 
 XPCOMUtils.defineLazyGetter(this, "_newtab", function()
   l10nHelper("chrome://instantbird/locale/newtab.properties")
@@ -41,6 +41,7 @@ var gStatsByContactId;
 // Recursively sweeps log folders and parses log files for conversation statistics.
 var gLogParser = {
   _statsService: null,
+  _accountMap: null,
   _accounts: [],
   _logFolders: [],
   inProgress: false,
@@ -56,6 +57,13 @@ var gLogParser = {
     this._logFolders = [];
     this._statsService = aStatsService;
     this._statsService._notifyObservers("log-sweeping", "ongoing");
+
+    this._accountMap = new Map();
+    let accounts = Services.accounts.getAccounts();
+    while (accounts.hasMoreElements()) {
+      let account = accounts.getNext();
+      this._accountMap.set(account.normalizedName, account);
+    }
 
     let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
     let iterator = new OS.File.DirectoryIterator(logsPath);
@@ -78,6 +86,7 @@ var gLogParser = {
 
   _sweepingComplete: function() {
     delete this.inProgress;
+    delete this._accountMap;
     let statsService = this._statsService;
     statsService._cacheAllStats(); // Flush stats to JSON cache.
     statsService._convs.sort(statsService._sortComparator);
@@ -163,11 +172,18 @@ var gLogParser = {
           let lines = aDecoder.decode(aArray).split("\n");
           // The first line is the header which identifies the conversation.
           let header = JSON.parse(lines.shift());
-          let name = header.name;
-          let protocol = header.protocol;
-          let account = header.account;
-          let date = Date.parse(header.date);
-          let id = getConversationId(protocol, account, name, header.isChat);
+          let accountName = header.account;
+          let name = header.normalizedName;
+          if (!name) {
+            // normalizedName was added for IB 1.5, so we normalize
+            // manually if it is not found for backwards compatibility.
+            name = header.name;
+            let account = this._accountMap.get(accountName);
+            if (account)
+              name = account.normalize(name);
+          }
+          let id = getConversationId(header.protocol, accountName,
+                                     name, header.isChat);
           if (!(id in gStatsByConvId))
             gStatsByConvId[id] = new ConversationStats(id);
           let stats = gStatsByConvId[id];
@@ -179,6 +195,7 @@ var gLogParser = {
             line.flags[0] == "incoming" ?
               ++stats.incomingCount : ++stats.outgoingCount;
           }
+          let date = Date.parse(header.date);
           if (date > stats.lastDate)
             stats.lastDate = date;
         }
@@ -524,7 +541,8 @@ ConvStatsService.prototype = {
     else if (aTopic == "new-conversation") {
       let conv = aSubject;
       let id = getConversationId(conv.account.protocol.normalizedName,
-                                 conv.account.name, conv.normalizedName, conv.isChat);
+                                 conv.account.normalizedName,
+                                 conv.normalizedName, conv.isChat);
       if (!(id in gStatsByConvId))
         gStatsByConvId[id] = new ConversationStats(id);
       this._statsByPrplConvId.set(conv.id, gStatsByConvId[id]);
@@ -583,8 +601,9 @@ ConvStatsService.prototype = {
   contractID: "@instantbird.org/conv-stats-service;1"
 };
 
-function getConversationId(aProtocolId, aAccount, aName, aIsChat) {
-  let id = [aProtocolId, aAccount, aName].join("/");
+function getConversationId(aProtocol, aAccount, aConversation, aIsChat) {
+  // aProtocol, aAccount, aConversation must be normalizedNames.
+  let id = [aProtocol, aAccount, aConversation].join("/");
   if (aIsChat)
     id += ".chat";
   return id;
@@ -649,23 +668,28 @@ function PossibleConvFromContact(aContact) {
   this._displayName = aContact.displayName;
   this._statusType = aContact.statusType;
   this._statusText = aContact.statusText;
-  let buddy = aContact.preferredBuddy;
   this._contactId = aContact.id;
-  this.id = getConversationId(buddy.protocol.normalizedName,
-                              buddy.preferredAccountBuddy.account.name,
-                              buddy.normalizedName, false);
 }
 PossibleConvFromContact.prototype = {
   __proto__: PossibleConversation,
   get statusText() this._statusText,
   get source() "contact",
+  get id() {
+    let buddy = this.contact.preferredBuddy;
+    return getConversationId(buddy.protocol.normalizedName,
+                             buddy.preferredAccountBuddy.account.normalizedName,
+                             buddy.normalizedName, false);
+  },
   get buddyIds() {
     let buddies = this.contact.getBuddies();
     let ids = [];
     for (let buddy of buddies) {
-      ids.push(getConversationId(buddy.protocol.normalizedName,
-                                 buddy.preferredAccountBuddy.account.name,
-                                 buddy.normalizedName, false));
+      let accountbuddies = buddy.getAccountBuddies();
+      for (let accountbuddy of accountbuddies) {
+        ids.push(getConversationId(buddy.protocol.normalizedName,
+                                   accountbuddy.account.normalizedName,
+                                   accountbuddy.normalizedName, false));
+      }
     }
     return ids;
   },
@@ -686,9 +710,9 @@ PossibleConvFromContact.prototype = {
   get contact() Services.contacts.getContactById(this._contactId),
   get account() this.contact.preferredBuddy.preferredAccountBuddy.account,
   get computedScore() {
-    let id = this._contactId;
-    if (gStatsByContactId && gStatsByContactId[id])
-      return gStatsByContactId[id].computedScore;
+    let contactId = this._contactId;
+    if (gStatsByContactId && gStatsByContactId[contactId])
+      return gStatsByContactId[contactId].computedScore;
     // Contacts may have multiple buddies attached to them, so we sum their
     // individual message counts before arriving at the final score.
     let stats = new ConversationStats();
@@ -698,7 +722,7 @@ PossibleConvFromContact.prototype = {
         stats = stats.mergeWith(buddyStats);
     }
     if (gStatsByContactId)
-      gStatsByContactId[id] = stats;
+      gStatsByContactId[contactId] = stats;
     let score = stats.computedScore;
     // We apply a negative bias if statusType / STATUS_AVAILABLE is less than 0.5
     // (i.e. our status is less than or equal to STATUS_MOBILE), and a positive
@@ -715,7 +739,8 @@ function PossibleChat(aRoomInfo) {
   this._roomInfo = aRoomInfo;
   let account = this.account;
   this.id = getConversationId(account.protocol.normalizedName,
-                              account.name, this.displayName, true);
+                              account.normalizedName,
+                              account.normalize(aRoomInfo.name), true);
 }
 PossibleChat.prototype = {
   get isChat() true,
@@ -748,7 +773,8 @@ function ExistingConversation(aUIConv) {
   this._convId = aUIConv.target.id;
   let account = aUIConv.account;
   this.id = getConversationId(account.protocol.normalizedName,
-                              account.name, aUIConv.normalizedName,
+                              account.normalizedName,
+                              aUIConv.normalizedName,
                               aUIConv.isChat);
   this._displayName = aUIConv.title;
   this._isChat = aUIConv.isChat;
