@@ -62,8 +62,9 @@ function changeContextMenuForTask(aEvent) {
         document.getElementById("calendar_new_todo_todaypane_command").setAttribute("disabled", "true");
     }
 
-    // make sure the paste menu item is enabled
+    // make sure the "Paste" and "Cut" menu items are enabled
     goUpdateCommand("cmd_paste");
+    goUpdateCommand("cmd_cut");
 
     // make sure the filter menu is enabled
     document.getElementById("task-context-menu-filter-todaypane").removeAttribute("disabled");
@@ -95,6 +96,13 @@ function handleTaskContextMenuStateChange(aEvent) {
  * @param aEvent    The popupshowing event of the opening menu.
  */
 function changeMenuForTask(aEvent) {
+    // Make sure to update the status of some commands. 
+    ["calendar_delete_todo_command",
+     "calendar_toggle_completed_command",
+     "calendar_general-progress_command",
+     "calendar_general-priority_command",
+     "calendar_general-postpone_command"].forEach(goUpdateCommand);
+
     let tasks = getSelectedTasks(aEvent);
     let tasksSelected = (tasks.length > 0);
     if (tasksSelected) {

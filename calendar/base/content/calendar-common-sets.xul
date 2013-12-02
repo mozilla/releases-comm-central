@@ -75,7 +75,7 @@
     <command id="calendar_priority-5_command" oncommand="contextChangeTaskPriority(event, 5)"/>
     <command id="calendar_priority-1_command" oncommand="contextChangeTaskPriority(event, 1)"/>
     <command id="calendar_general-priority_command" oncommand="goDoCommand('calendar_general-priority_command')"/>
-    <command id="calendar_general-progress_command" oncommand="goDoCommand('calendar_general-priority_command')"/>
+    <command id="calendar_general-progress_command" oncommand="goDoCommand('calendar_general-progress_command')"/>
     <command id="calendar_general-postpone_command"/>
     <command id="calendar_postpone-1hour_command" oncommand="contextPostponeTask(event, 'PT1H')"/>
     <command id="calendar_postpone-1day_command" oncommand="contextPostponeTask(event, 'P1D')"/>
@@ -387,17 +387,23 @@
                 command="calendar_toggle_completed_command"/>
       <menu id="task-context-menu-progress"
             label="&calendar.context.progress.label;"
-            accesskey="&calendar.context.progress.accesskey;">
+            accesskey="&calendar.context.progress.accesskey;"
+            command="calendar_general-progress_command"
+            observes="calendar_general-progress_command">
         <menupopup id="progress-menupopup" type="task-progress"/>
       </menu>
       <menu id="task-context-menu-priority"
             label="&calendar.context.priority.label;"
-            accesskey="&calendar.context.priority.accesskey;">
+            accesskey="&calendar.context.priority.accesskey;"
+            command="calendar_general-priority_command"
+            observes="calendar_general-priority_command">
         <menupopup id="priority-menupopup" type="task-priority"/>
       </menu>
       <menu id="task-context-menu-postpone"
             label="&calendar.context.postpone.label;"
-            accesskey="&calendar.context.postpone.accesskey;">
+            accesskey="&calendar.context.postpone.accesskey;"
+            command="calendar_general-postpone_command"
+            observes="calendar_general-postpone_command">
         <menupopup id="task-context-postpone-menupopup">
           <menuitem id="task-context-postpone-1hour"
                     label="&calendar.context.postpone.1hour.label;"
@@ -438,6 +444,7 @@
       <menuitem id="task-context-menu-delete"
                 label="&calendar.context.deletetask.label;"
                 accesskey="&calendar.context.deletetask.accesskey;"
+                command="calendar_delete_todo_command"
                 observes="calendar_delete_todo_command"/>
       <menu id="task-context-menu-attendance-menu"
             class="attendance-menu"

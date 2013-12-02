@@ -543,8 +543,9 @@
           cycleCell: function mTV_cycleCell(aRow, aCol) {
               var task = this.binding.mTaskArray[aRow];
 
-              // prevent toggling completed status for parent items of repeating tasks
-              if (!task || task.recurrenceInfo) {
+              // prevent toggling completed status for parent items of
+              // repeating tasks or when the calendar is read-only.
+              if (!task || task.recurrenceInfo || task.calendar.readOnly) {
                   return;
               }
               if (aCol != null) {
