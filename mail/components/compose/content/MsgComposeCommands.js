@@ -4561,7 +4561,10 @@ const gAttachmentNotifier =
   event: {
     notify: function(timer)
     {
-      CheckForAttachmentNotification(true);
+      // Only run the checker if the compose window is initialized
+      // and not shutting down.
+      if (gMsgCompose)
+        CheckForAttachmentNotification(true);
     }
   },
 

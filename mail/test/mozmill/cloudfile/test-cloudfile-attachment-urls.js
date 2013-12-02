@@ -350,6 +350,8 @@ function subtest_removing_filelinks_removes_root_node() {
     let result = mailBody.querySelector(root.id);
     return (result == null);
   }, "Timed out waiting for attachment container to be removed");
+
+  close_window(cw);
 }
 
 /**
@@ -656,6 +658,8 @@ function subtest_adding_filelinks_to_forward(aText, aWithSig) {
     let mailBody = get_compose_body(cw);
     assert_equals(br, mailBody.firstChild);
   }
+
+  close_window(cw);
 }
 
 /**
@@ -697,6 +701,8 @@ function subtest_converting_filelink_updates_urls() {
     assert_not_equals(url, newUrl,
                       "The original URL should have been replaced");
   }
+
+  close_window(cw);
 }
 
 /**
@@ -737,6 +743,8 @@ function subtest_converting_filelink_to_normal_removes_url() {
   root = mailBody.querySelector("#cloudAttachmentListRoot");
   if (root)
     throw new Error("Should not have found the cloudAttachmentListRoot");
+
+  close_window(cw);
 }
 
 /**
@@ -770,6 +778,8 @@ function subtest_filelinks_work_after_manual_removal() {
   gMockFilePicker.returnFiles = collectFiles(["./data/testFile3"], __file__);
   cw.window.attachToCloud(provider);
   [root, list, urls] = wait_for_attachment_urls(cw, 1);
+
+  close_window(cw);
 }
 
 /**
@@ -811,4 +821,6 @@ function subtest_insertion_restores_caret_point() {
 
   // That text should be inserted just above the root attachment URL node.
   let textNode = assert_previous_text(root.previousSibling, [kTypedIn]);
+
+  close_window(cw);
 }
