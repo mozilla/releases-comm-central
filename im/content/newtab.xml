@@ -200,7 +200,7 @@
       <method name="addListeners">
         <body>
         <![CDATA[
-          this.filterbox.addEventListener("keyup", this.refresh.bind(this));
+          this.filterbox.addEventListener("keypress", this.refresh.bind(this));
           this.listbox.addEventListener("focus", function(aEvent) {
             let listbox = this.listbox;
             if (listbox.selectedIndex == -1)
@@ -368,11 +368,8 @@
           return;
         }
 
-        const modifierKeyCodes = [KeyEvent.DOM_VK_ALT, KeyEvent.DOM_VK_META,
-                                  KeyEvent.DOM_VK_SHIFT, KeyEvent.DOM_VK_CONTROL];
-
         // If the key is a modifier, don't do anything.
-        if (modifierKeyCodes.indexOf(event.keyCode) != -1)
+        if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey)
           return;
 
         const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
@@ -384,26 +381,38 @@
           this.filterbox.focus();
           return;
         }
-        // If modifiers are pressed, let whatever is focused handle the event.
-        if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey)
-          return;
         // If the key was Home or End and the filterbox wasn't empty, simply
         // return so that filterbox can handle it if it had focus.
         if ((event.keyCode == KeyEvent.DOM_VK_HOME || event.keyCode == KeyEvent.DOM_VK_END) &&
             this.filterbox.value)
           return;
 
-        // Otherwise, give listbox focus so that it can process the navigation key.
         let listbox = this.listbox;
-        listbox.focus();
-        // The selectedIndex is -1 after a new filter. In this case, pressing a
-        // navkey from the filterbox should select the first item in the list.
-        if (listbox.selectedIndex < 0 && listbox.firstChild) {
-          listbox.selectItem(listbox.firstChild);
+        // The selectedIndex is -1 after a new filter. In this case, pressing the
+        // (page) down key from the filterbox should select the first item in the list.
+         if (listbox.selectedIndex < 0 && listbox.firstChild) {
+           if (event.keyCode != KeyEvent.DOM_VK_DOWN &&
+               event.keyCode != KeyEvent.DOM_VK_PAGE_DOWN)
+             return;
+           listbox.focus();
+           listbox.selectItem(listbox.firstChild);
+           listbox.ensureIndexIsVisible(0);
+           event.preventDefault();
+           event.stopPropagation();
+         }
+        // If the first item was selected, the (page) up key should focus the filterbox.
+        else if (listbox.selectedIndex == 0 &&
+                 (event.keyCode == KeyEvent.DOM_VK_UP ||
+                  event.keyCode == KeyEvent.DOM_VK_PAGE_UP)) {
+          listbox.clearSelection();
           listbox.ensureIndexIsVisible(0);
+          this.filterbox.focus();
           event.preventDefault();
           event.stopPropagation();
         }
+        // Otherwise, give listbox focus so that it can process the navigation key.
+        else
+          listbox.focus();
       ]]>
       </handler>
     </handlers>
