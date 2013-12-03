@@ -701,6 +701,11 @@ pref("browser.chrome.favicons", true);
 // something sensible should an extension wish to enable this.
 pref("places.history.enabled", false);
 
+// With places disabled by default, the default growth increment is set to zero
+// as it would otherwise default to 10MB as the minimum space occupied by the
+// places.sqlite database in the profile.
+pref("places.database.growthIncrementKiB", 0);
+
 // The percentage of system memory that the Places database can use.  Out of the
 // allowed cache size it will at most use the size of the database file.
 // Changes to this value are effective after an application restart.
