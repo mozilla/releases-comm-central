@@ -256,6 +256,7 @@ function ircChannel(aAccount, aName, aNick) {
   this._modes = [];
   this._observedNicks = [];
   this.banMasks = [];
+  this._firstJoin = true;
 }
 ircChannel.prototype = {
   __proto__: GenericConvChatPrototype,
@@ -264,6 +265,8 @@ ircChannel.prototype = {
   // For IRC you're not in a channel until the JOIN command is received, open
   // all channels (initially) as left.
   _left: true,
+  // True until successfully joined for the first time.
+  _firstJoin: false,
   banMasks: [],
 
   // Overwrite the writeMessage function to apply CTCP formatting before
@@ -1425,6 +1428,8 @@ ircAccount.prototype = {
     // Send the join command, but don't log the channel key.
     this.sendMessage("JOIN", params,
                      "JOIN " + channel + (key ? " <key not logged>" : ""));
+    // Open conversation early for better responsiveness.
+    this.getConversation(channel);
   },
 
   chatRoomFields: {

@@ -159,10 +159,6 @@ var ircBase = {
         this.joinChat(this.getChatRoomDefaultFieldValues(aMessage.params[1]));
         this.LOG("Received invite for " + aMessage.params[1] +
                  ", auto-accepting.");
-        // Set a temporary _chatroomFields value so the JOIN handler does not
-        // think we are rejoining the channel just because its conversation is
-        // already open due to the inviteReceived system message.
-        this.getConversation(aMessage.params[1])._chatRoomFields = true;
       }
       // Otherwise, just notify the user.
       this.getConversation(aMessage.params[1])
@@ -175,7 +171,6 @@ var ircBase = {
       // JOIN ( <channel> *( "," <channel> ) [ <key> *( "," <key> ) ] ) / "0"
       // Add the buddy to each channel
       for each (let channelName in aMessage.params[0].split(",")) {
-        let convAlreadyExists = this.hasConversation(channelName);
         let conversation = this.getConversation(channelName);
         if (this.normalize(aMessage.nickname, this.userPrefixes) ==
             this.normalize(this._nickname)) {
@@ -188,10 +183,11 @@ var ircBase = {
           // If the user parted from this room earlier, confirm the rejoin.
           // If conversation._chatRoomFields is present, the rejoin was due to
           // an automatic reconnection, for which we already notify the user.
-          if (convAlreadyExists && !conversation._chatRoomFields) {
+          if (!conversation._firstJoin && !conversation._chatRoomFields) {
             conversation.writeMessage(aMessage.nickname, _("message.rejoined"),
                                       {system: true});
           }
+          delete conversation._firstJoin;
 
           // Ensure chatRoomFields information is available for reconnection.
           let nName = this.normalize(channelName);
