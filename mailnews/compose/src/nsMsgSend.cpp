@@ -4882,7 +4882,7 @@ NS_IMETHODIMP nsMsgComposeAndSend::GetProcessAttachmentsSynchronously(bool *_ret
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgComposeAndSend::GetAttachmentHandlers(nsTArray<nsRefPtr<nsMsgAttachmentHandler> > **_retval)
+NS_IMETHODIMP nsMsgComposeAndSend::GetAttachmentHandlers(nsTArray<nsRefPtr<nsMsgAttachmentHandler>> **_retval)
 {
   NS_ENSURE_ARG(_retval);
   *_retval = &m_attachments;

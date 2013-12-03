@@ -150,7 +150,7 @@ class nsMsgAttachmentHandler;
 %}
 
 [ptr] native nsMsgAttachedFile(nsMsgAttachedFile);
-[ptr] native nsMsgAttachmentHandlerArray(nsTArray<nsRefPtr<nsMsgAttachmentHandler> >);
+[ptr] native nsMsgAttachmentHandlerArray(nsTArray<nsRefPtr<nsMsgAttachmentHandler>>);
 
 [scriptable, uuid(648f8e40-3977-4dd8-88f1-b932bc654aef)]
 interface nsIMsgSend : nsISupports
