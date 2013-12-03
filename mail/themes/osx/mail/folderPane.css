@@ -202,7 +202,7 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
 /* ..... Account nodes ..... */
 .tabmail-tab[type="folder"][IsServer="true"],
 treechildren::-moz-tree-image(folderNameCol, isServer-true),
-treechildren::-moz-tree-image(folderNameCol, biffState-NewMail, isServer-true) {
+treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
   list-style-image: url("chrome://messenger/skin/icons/server.png");
   -moz-image-region: rect(0 16px 16px 0);
 }
@@ -247,7 +247,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
   /* ..... Account nodes ..... */
   .tabmail-tab[type="folder"][IsServer="true"],
   treechildren::-moz-tree-image(folderNameCol, isServer-true),
-  treechildren::-moz-tree-image(folderNameCol, biffState-NewMail, isServer-true) {
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
     list-style-image: url("chrome://messenger/skin/icons/server@2x.png");
     -moz-image-region: rect(0 32px 32px 0);
   }
@@ -291,7 +291,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
 
 /* ::::: All Servers ::::: */
 
-treechildren::-moz-tree-cell-text(folderNameCol, biffState-NewMail, isServer-true),
+treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
 treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
 treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
   font-weight: bold;
