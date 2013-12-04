@@ -530,12 +530,10 @@ YahooProtocol.prototype = {
   get iconBaseURI() "chrome://prpl-yahoo/skin/",
   options: {
     port: {get label() _("options.pagerPort"), default: 5050},
-    xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
-    xfer_port: {get label() _("options.transferPort"), default: 80},
-    //room_list_locale: {get label() _("options.chatLocale"), default: "us"},
+    //xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
+    //xfer_port: {get label() _("options.transferPort"), default: 80},
     local_charset: {get label() _("options.chatEncoding"), default: "UTF-8"},
     ignore_invites: {get label() _("options.ignoreInvites"), default: false}
-    //proxy_ssl: {get label() _("options.proxySSL"), default: false}
   },
   commands: [
     {

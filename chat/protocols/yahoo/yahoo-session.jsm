@@ -584,7 +584,7 @@ YahooLoginHelper.prototype = {
 
   _onHttpError: function(aError, aStatusText, aXHR) {
     this._session.onSessionError(Ci.prplIAccount.NETWORK_ERROR,
-                               _("network.error.http"));
+                                 _("network.error.http"));
   },
 
   // HTTP Response Callbacks.
