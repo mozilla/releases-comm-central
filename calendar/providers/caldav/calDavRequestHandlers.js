@@ -591,7 +591,8 @@ webDavSyncHandler.prototype = {
                         // Etag mismatch, getting new/updated item.
                         this.itemsNeedFetching.push(r.href);
                     }
-                } else if (r.status.indexOf(" 507") > -1) {
+                } else if (r.status &&
+                            r.status.indexOf(" 507") > -1) {
                     // webdav-sync says that if a 507 is encountered and the
                     // url matches the request, the current token should be
                     // saved and another request should be made. We don't
