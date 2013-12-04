@@ -3867,6 +3867,8 @@ nsresult nsMsgDBView::GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType,
           }
           break;
         }
+        case nsMsgViewSortType::byNone: // bug 901948
+          return NS_ERROR_INVALID_ARG;
         default:
         {
            nsAutoCString message("unexpected switch value: sortType=");
@@ -4018,6 +4020,9 @@ nsresult nsMsgDBView::GetLongField(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue s
         rv = NS_ERROR_UNEXPECTED;
       }
       break;
+    case nsMsgViewSortType::byNone: // Bug 901948
+      return NS_ERROR_INVALID_ARG;
+
     case nsMsgViewSortType::byId:
         // handled by caller, since caller knows the key
     default:
@@ -4081,10 +4086,30 @@ nsresult nsMsgDBView::DecodeColumnSort(nsString &columnSortString)
   return NS_OK;
 }
 
+//  cf. Secondary Sort Key: when you select a column to sort, that
+//  becomes the new Primary sort key, and all previous sort keys
+//  become secondary. For example, if you first click on Date,
+//  the messages are sorted by Date; then click on From, and now the
+//  messages are sorted by From, and for each value of From the
+//  messages are in Date order.
+
 void nsMsgDBView::PushSort(const MsgViewSortColumnInfo &newSort)
 {
-  // no sense in keeping secondary sorts if primary sort is date or id
-  if (newSort.mSortType == nsMsgViewSortType::byDate || newSort.mSortType == nsMsgViewSortType::byId)
+  // DONE
+  //  Handle byNone (bug 901948) ala a mail/base/modules/dbViewerWrapper.js
+  //  where we don't push the secondary sort type if it's ::byNone;
+  //  (and secondary sort type is NOT the same as the first sort type
+  //  there.). This code should behave the same way.
+
+  // We don't expect to be passed sort type ::byNone,
+  // but if we are it's safe to ignore it.
+  if (newSort.mSortType == nsMsgViewSortType::byNone)
+    return;
+
+  // Date and ID are unique keys, so if we are sorting by them we don't
+  // need to keep any secondary sort keys
+  if (newSort.mSortType == nsMsgViewSortType::byDate ||
+      newSort.mSortType == nsMsgViewSortType::byId   )
     m_sortColumns.Clear();
   int32_t sortIndex = m_sortColumns.IndexOf(newSort, 0);
   if (sortIndex != kNotFound)
@@ -4385,7 +4410,10 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOr
   // If we did not obtain proper fieldType, it needs to be checked
   // because the subsequent code does not handle it very well.
   rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType);
-  NS_ENSURE_SUCCESS(rv,rv);
+
+  // Don't sort if the field type is not supported: Bug 901948
+  if (NS_FAILED(rv))
+    return NS_OK;
 
   nsVoidArray ptrs;
   uint32_t arraySize = GetSize();
