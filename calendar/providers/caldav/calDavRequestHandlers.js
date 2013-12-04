@@ -162,6 +162,7 @@ etagsHandler.prototype = {
                                        this.calendar,
                                        this.baseUri,
                                        null,
+                                       false,
                                        null,
                                        this.changeLogListener)
             multiget.doMultiGet();

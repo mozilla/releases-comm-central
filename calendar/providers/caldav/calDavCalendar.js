@@ -1229,6 +1229,7 @@ calDavCalendar.prototype = {
                                                this,
                                                this.makeUri(),
                                                null,
+                                               false,
                                                aListener,
                                                aChangeLogListener);
         multiget.doMultiGet();
