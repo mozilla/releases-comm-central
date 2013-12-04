@@ -438,8 +438,7 @@
       <destructor><![CDATA[
           Components.utils.import("resource://gre/modules/Services.jsm");
 
-          var composite = getCompositeCalendar();
-          if (composite && this.mObservesComposite == true) {
+          if (this.mObservesComposite == true) {
               getCompositeCalendar().removeObserver(this);
           }
 
