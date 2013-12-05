@@ -364,7 +364,8 @@ MultiMessageSummary.prototype = {
         let tagNode = tagsNode.ownerDocument.createElement('span');
         // see tagColors.css
         let colorClass = "blc-" + this._msgTagService.getColorForKey(tag.key).substr(1);
-        _mm_addClass(tagNode, ["tag", tag.tag, colorClass]);
+        _mm_addClass(tagNode, ["tag", colorClass]);
+        tagNode.dataset.tag = tag.tag;
         tagNode.textContent = tag.tag;
         tagsNode.appendChild(tagNode);
       }
@@ -597,7 +598,8 @@ ThreadSummary.prototype = {
         let tagNode = tagsNode.ownerDocument.createElement('span');
         // see tagColors.css
         let colorClass = "blc-" + this._msgTagService.getColorForKey(tag.key).substr(1);
-        _mm_addClass(tagNode, ["tag", tag.tag, colorClass]);
+        _mm_addClass(tagNode, ["tag", colorClass]);
+        tagNode.dataset.tag = tag.tag;
         tagNode.textContent = tag.tag;
         tagsNode.appendChild(tagNode);
       }
