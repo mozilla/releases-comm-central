@@ -64,7 +64,7 @@ function populateCrashesSection() {
     cellDate.textContent = dateFormat.FormatDate("", dateFormat.dateFormatShort,
                                                  dateSubmitted.getFullYear(),
                                                  dateSubmitted.getMonth() + 1,
-                                                 dateSubmitted.getDay());
+                                                 dateSubmitted.getDate());
     tr.appendChild(cellDate);
     crashesBody.appendChild(tr);
   }
