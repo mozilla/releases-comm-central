@@ -29,8 +29,11 @@ function buddyListContextMenu(aXulMenu) {
   let localName = this.target.localName;
   let hasVisibleBuddies = !!document.getElementById("buddylistbox").firstChild;
 
-  // Don't display a context menu on the headers.
-  this.shouldDisplay = localName != "label";
+  // Don't display a context menu on the headers or the drop target.
+  this.shouldDisplay =
+    localName != "label" && !this.target.hasAttribute("dummy");
+  if (!this.shouldDisplay)
+    return;
 
   this.onContact = localName == "contact";
   this.onBuddy = localName == "buddy";
