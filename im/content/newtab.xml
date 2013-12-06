@@ -334,10 +334,10 @@
                         .GetStringFromName("newtab.logSweepingInProgress");
               nb.appendNotification(notificationText, "log-sweeping", "",
                                     nb.PRIORITY_WARNING_MEDIUM, []);
+              return;
             }
             else if (aData == "done" && notification)
               nb.removeNotification(notification);
-            return;
           }
           this._forceRefresh = true;
           this.refresh();
