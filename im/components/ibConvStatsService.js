@@ -198,6 +198,7 @@ var gLogParser = {
           let date = Date.parse(header.date);
           if (date > stats.lastDate)
             stats.lastDate = date;
+          delete stats._computedScore;
         }
         catch(e) {
           this.WARN("Error parsing log file: " + aLog + "\n" + e);
