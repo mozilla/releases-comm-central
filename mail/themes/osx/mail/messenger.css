@@ -8,14 +8,13 @@
 
 @import url("chrome://global/skin/");
 @import url("chrome://messenger/content/messenger.css");
-
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+%include ../../shared/mail/messenger.inc.css
 
 #titlebar {
   -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
   height: 22px;
-  
-  /* Until we draw tabs in the titlebar on OS X we must 
+
+  /* Until we draw tabs in the titlebar on OS X we must
    * force margin-bottom to be 0px.
    */
   margin-bottom: 0px !important;
@@ -29,42 +28,11 @@
   -moz-appearance: none;
 }
 
-description.error {
-  color: #FF0000;
-}
-
-.toolbar-primary {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar");
-}
-
-toolbar[printpreview="true"] {
-  -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
-}
-
-#tabbar-toolbar {
-  -moz-appearance: none;
-  padding: 0;
-}
-
-#tabbar-toolbar[customizing="true"] {
-  min-width: 16px;
-  min-height: 10px;
-}
-
 /* :::::: throbber :::::::::: */
 
 #throbber-box {
   width: 17px;
-  min-height: 16px;
   margin: 0 4px;
-}
-
-#throbber-box[busy="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png");
-}
-
-#wrapper-throbber-box > #throbber-box {
-  list-style-image: url("chrome://global/skin/icons/notloading_16.png");
 }
 
 @media (min-resolution: 2dppx) {
@@ -75,13 +43,8 @@ toolbar[printpreview="true"] {
 
 /* ::::: online/offline icons ::::: */
 
-#offline-status[offline="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/offline.png");
-}
-
 #offline-status {
   -moz-padding-start: 3px;
-  list-style-image: url("chrome://messenger/skin/icons/online.png");
 }
 
 @media (min-resolution: 2dppx) {
@@ -133,28 +96,11 @@ treechildren::-moz-tree-cell-text {
   -moz-padding-start: 2px;
 }
 
-notification[value="addon-install-blocked"],
-notification[value="addon-install-complete"] {
-  background-image: url("chrome://mozapps/skin/extensions/stripes-info-negative.png"),
-                    linear-gradient(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0));
-  background-repeat: repeat-x;
-  border-top: none;
-  border-bottom: none;
-}
-
-notification[value="addon-install-failed"] {
-  background-image: linear-gradient(rgb(255, 100, 100), rgb(204, 85, 85));
-}
+/* ::::: Notifications ::::: */
 
 notification[value="addon-install-complete"] {
   color: black;
   background-color: #ADB5C3;
-}
-
-notification[value="addon-install-blocked"] .notification-inner,
-notification[value="addon-install-failed"] .notification-inner,
-notification[value="addon-install-complete"] .notification-inner {
-  border: none;
 }
 
 notification[value="addon-install-blocked"] > button,
@@ -180,10 +126,6 @@ notification[value="addon-install-complete"] > button:active:hover {
   background-image: linear-gradient(rgba(45, 54, 71, 0.3),
                                     rgba(45, 54, 71, 0.1));
   border-color: rgba(60, 73, 97, 0.7);
-}
-
-notification[value="addon-install-failed"] .messageCloseButton {
-  list-style-image: url("chrome://messenger/skin/icons/close-inverted.png");
 }
 
 @media (min-resolution: 2dppx) {

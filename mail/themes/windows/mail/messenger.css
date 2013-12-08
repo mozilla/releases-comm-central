@@ -8,20 +8,10 @@
 
 @import url("chrome://global/skin/");
 @import url("chrome://messenger/content/messenger.css");
-
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
-description.error {
-  color: #FF0000;
-}
+%include ../../shared/mail/messenger.inc.css
 
 .toolbar-primary {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar");
   border-top: none;
-}
-
-toolbar[printpreview="true"] {
-  -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
 }
 
 .menu-iconic > .menu-iconic-left,
@@ -30,14 +20,11 @@ toolbar[printpreview="true"] {
 }
 
 #tabbar-toolbar {
-  -moz-appearance: none;
-  padding: 0;
   border: none;
 }
 
 #tabbar-toolbar[customizing="true"] {
   min-width: 24px;
-  min-height: 10px;
 }
 
 /* ::::: menubar ::::: */
@@ -50,37 +37,6 @@ toolbar[printpreview="true"] {
 #menubar-items > menubar {
   -moz-box-flex: 1; /* make menu items expand to fill toolbar height */
 } 
-
-/* ::::: throbber ::::: */
-
-#throbber-box {
-  width: 16px;
-  min-height: 16px;
-  margin: 0 3px;
-}
-
-#throbber-box[busy="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png");
-}
-
-#throbber-box,
-#wrapper-throbber-box > #throbber-box {
-  list-style-image: url("chrome://global/skin/icons/notloading_16.png");
-}
-
-/* ::::: online/offline icons ::::: */
-
-#offline-status {
-  padding: 0 2px;
-}
-
-#offline-status[offline="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/offline.png");
-}
-
-#offline-status {
-  list-style-image: url("chrome://messenger/skin/icons/online.png");
-}
 
 /* ::::: toolbarbutton ::::: */
 
@@ -170,23 +126,7 @@ treechildren::-moz-tree-cell-text {
   }
 }
 
-notification[value="addon-install-blocked"],
-notification[value="addon-install-complete"] {
-  background-image: url("chrome://mozapps/skin/extensions/stripes-info-negative.png"),
-                    linear-gradient(rgba(255, 255, 255, 0),
-                                    rgba(255, 255, 255, 0.5));
-  background-repeat: repeat-x;
-}
-
-notification[value="addon-install-failed"] {
-  background-image: linear-gradient(rgb(255, 100, 100), rgb(204, 85, 85));
-}
-
-notification[value="addon-install-blocked"] .notification-inner,
-notification[value="addon-install-failed"] .notification-inner,
-notification[value="addon-install-complete"] .notification-inner {
-  border: none;
-}
+/* ::::: Notifications ::::: */
 
 notification[value="addon-install-failed"] .messageCloseButton {
   list-style-image: url("chrome://messenger/skin/icons/closeTab.png");
