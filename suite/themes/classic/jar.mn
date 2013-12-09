@@ -322,6 +322,7 @@ classic.jar:
   skin/classic/messenger/icons/folder-trash-share.png                   (messenger/icons/folder-trash-share.png)
   skin/classic/messenger/icons/info.png                                 (messenger/icons/info.png)
   skin/classic/messenger/icons/junk.png                                 (messenger/icons/junk.png)
+  skin/classic/messenger/icons/junkcol.png                              (messenger/icons/junkcol.png)
   skin/classic/messenger/icons/local-mailhost.png                       (messenger/icons/local-mailhost.png)
   skin/classic/messenger/icons/message-mail-attach-del.png              (messenger/icons/message-mail-attach-del.png)
   skin/classic/messenger/icons/message-mail-attach-fwd-offl-reply.png   (messenger/icons/message-mail-attach-fwd-offl-reply.png)
