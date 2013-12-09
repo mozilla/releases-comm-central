@@ -7,7 +7,7 @@
 #include "nsStringGlue.h"
 #include "nsAbOSXCard.h"
 #include "nsMemory.h"
-#include "mozilla/Util.h"
+#include "mozilla/ArrayUtils.h"
 using namespace mozilla;
 
 #include <AddressBook/AddressBook.h>
