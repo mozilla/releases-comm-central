@@ -36,8 +36,8 @@
 #include "nsComponentManagerUtils.h"
 #include "nsIIOService.h"
 #include "nsAbQueryStringToExpression.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
-#include "mozilla/Util.h"
 using namespace mozilla;
 
 struct ExportAttributesTableStruct

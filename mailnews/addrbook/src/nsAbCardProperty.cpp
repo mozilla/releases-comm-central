@@ -25,8 +25,8 @@
 #include "nsCOMArray.h"
 #include "nsArrayEnumerator.h"
 #include "prmem.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
-#include "mozilla/Util.h"
 using namespace mozilla;
 
 #define PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST "mail.addr_book.lastnamefirst"
