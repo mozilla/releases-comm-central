@@ -26,14 +26,14 @@
 <!ENTITY autoCompleteMatchWordsFirst           "Anywhere but preferring word boundaries">
 <!ENTITY autoCompleteMatchWords                "Only on word boundaries">
 <!ENTITY autoCompleteMatchStart                "Only at the beginning of the location or title">
+<!ENTITY showInternetSearch.label              "Show default Internet search engine">
+<!ENTITY showInternetSearch.accesskey          "e">
 
 <!ENTITY formatting.label                      "Formatting">
 <!ENTITY domainFormatting.label                "Highlight the effective domain for websites and FTP servers">
 <!ENTITY domainFormatting.accesskey            "d">
-
-<!ENTITY searchEngine.label                    "Internet Search Engine">
-<!ENTITY showSearchEngine.label                "Show default search engine">
-<!ENTITY showSearchEngine.accesskey            "e">
+<!ENTITY highlightSecure.label                 "Highlight web pages with a high level of connection security">
+<!ENTITY highlightSecure.accesskey             "c">
 
 <!ENTITY unknownLocations.label                "Unknown Locations">
 <!ENTITY domainGuessing.label                  "Add &quot;www.&quot; and &quot;.com&quot; to the location if a web page is not found">

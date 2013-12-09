@@ -30,11 +30,14 @@
                   name="browser.urlbar.showPopup"
                   type="bool"
                   onchange="updateMatchPrefs();"/>
+      <preference id="browser.urlbar.showSearch"
+                  name="browser.urlbar.showSearch"
+                  type="bool"/>
       <preference id="browser.urlbar.formatting.enabled"
                   name="browser.urlbar.formatting.enabled"
                   type="bool"/>
-      <preference id="browser.urlbar.showSearch"
-                  name="browser.urlbar.showSearch"
+      <preference id="browser.urlbar.highlight.secure"
+                  name="browser.urlbar.highlight.secure"
                   type="bool"/>
       <preference id="browser.fixup.alternate.enabled"
                   name="browser.fixup.alternate.enabled"
@@ -87,6 +90,10 @@
                 label="&autoCompleteShowPopup.label;"
                 accesskey="&autoCompleteShowPopup.accesskey;"
                 preference="browser.urlbar.showPopup"/>
+      <checkbox id="showSearch"
+                label="&showInternetSearch.label;"
+                accesskey="&showInternetSearch.accesskey;"
+                preference="browser.urlbar.showSearch"/>
     </groupbox>
 
     <groupbox>
@@ -95,14 +102,10 @@
                 label="&domainFormatting.label;"
                 accesskey="&domainFormatting.accesskey;"
                 preference="browser.urlbar.formatting.enabled"/>
-    </groupbox>
-
-    <groupbox>
-      <caption label="&searchEngine.label;"/>
-      <checkbox id="showSearch"
-                label="&showSearchEngine.label;"
-                accesskey="&showSearchEngine.accesskey;"
-                preference="browser.urlbar.showSearch"/>
+      <checkbox id="highlightSecureEnabled"
+                label="&highlightSecure.label;"
+                accesskey="&highlightSecure.accesskey;"
+                preference="browser.urlbar.highlight.secure"/>
     </groupbox>
 
     <groupbox>
