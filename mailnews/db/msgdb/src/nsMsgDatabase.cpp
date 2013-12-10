@@ -1045,7 +1045,7 @@ size_t nsMsgDatabase::SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) c
 namespace mozilla {
 namespace mailnews {
 
-NS_MEMORY_REPORTER_MALLOC_SIZEOF_FUN(GetMallocSize)
+MOZ_DEFINE_MALLOC_SIZE_OF(GetMallocSize)
 
 class MsgDBReporter MOZ_FINAL : public nsIMemoryReporter
 {

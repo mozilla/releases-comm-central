@@ -36,8 +36,8 @@ orkinHeap::~orkinHeap() // does nothing
 {
 }
 
-NS_MEMORY_REPORTER_MALLOC_SIZEOF_ON_ALLOC_FUN(MorkSizeOfOnAlloc)
-NS_MEMORY_REPORTER_MALLOC_SIZEOF_ON_FREE_FUN(MorkSizeOfOnFree)
+MOZ_DEFINE_MALLOC_SIZE_OF_ON_ALLOC(MorkSizeOfOnAlloc)
+MOZ_DEFINE_MALLOC_SIZE_OF_ON_FREE(MorkSizeOfOnFree)
 
 // { ===== begin nsIMdbHeap methods =====
 /*virtual*/ mdb_err
