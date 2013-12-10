@@ -310,7 +310,6 @@
         <body>
         <![CDATA[
           let conv = aNewtabItem.target.createConversation();
-          // If it's a new chat, it won't return the conversation. So don't focus it.
           if (conv)
             Conversations.focusConversation(conv);
         ]]>

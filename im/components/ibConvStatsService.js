@@ -758,8 +758,13 @@ PossibleChat.prototype = {
   get source() "chat",
   get accountId() this._roomInfo.accountId,
   get account() Services.accounts.getAccountById(this.accountId),
-  createConversation: function()
-    this.account.joinChat(this._roomInfo.chatRoomFieldValues),
+  createConversation: function() {
+    this.account.joinChat(this._roomInfo.chatRoomFieldValues);
+    // Work around the fact that joinChat doesn't return the conv.
+    return Services.conversations
+                   .getConversationByNameAndAccount(this._roomInfo.name,
+                                                    this.account, true);
+  },
   get computedScore() {
     let stats = gStatsByConvId[this.id];
     if (stats && stats.computedScore)
