@@ -17,7 +17,7 @@
 <!ENTITY newContact.label "Address Book Contact…">
 <!ENTITY newContact.accesskey "C">
 <!ENTITY attachMenu.label "Attach">
-<!ENTITY attachMenu.accesskey "t">
+<!ENTITY attachMenu.accesskey "h">
 <!ENTITY attachFileCmd.label "File(s)…">
 <!ENTITY attachFileCmd.accesskey "F">
 <!ENTITY attachFileCmd.key "A">
