@@ -23,7 +23,7 @@
 #include "nsIFile.h"
 #include "nsIProcess.h"
 #include "prenv.h"
-#include "mozilla/Util.h"
+#include "mozilla/ArrayUtils.h"
 #include "nsXULAppAPI.h"
 #include <glib.h>
 #include <glib-object.h>
