@@ -520,6 +520,7 @@ classic.jar:
   skin/classic/aero/messenger/tagbg.png                            (mail/tagbg.png)
   skin/classic/aero/messenger/icons/download.png                   (mail/icons/download.png)
   skin/classic/aero/messenger/icons/chat-toolbar.png               (mail/icons/chat-toolbar-aero.png)
+  skin/classic/aero/messenger/icons/chat-toolbar-inverted.png      (mail/icons/chat-toolbar-aero-inverted.png)
   skin/classic/aero/messenger/icons/status.png                     (mail/icons/status-aero.png)
   skin/classic/aero/messenger/icons/status-small.png               (mail/icons/status-small-aero.png)
 % skin messenger-newsblog classic/1.0 %skin/classic/aero/messenger-newsblog/ os=WINNT osversion>=6
