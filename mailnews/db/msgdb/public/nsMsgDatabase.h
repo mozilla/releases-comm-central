@@ -31,7 +31,6 @@ class nsMsgKeySet;
 class nsMsgThread;
 class nsIMsgThread;
 class nsIDBFolderInfo;
-class nsIMsgHeaderParser;
 
 const int32_t kMsgDBVersion = 1;
 
@@ -158,7 +157,6 @@ public:
   nsIMdbEnv             *GetEnv() {return m_mdbEnv;}
   nsIMdbStore           *GetStore() {return m_mdbStore;}
   virtual uint32_t      GetCurVersion();
-  nsIMsgHeaderParser    *GetHeaderParser();
   nsresult              GetCollationKeyGenerator();
   nsIMimeConverter *    GetMimeConverter();
 
@@ -349,7 +347,6 @@ protected:
   mdb_token     m_threadNewestMsgDateColumnToken;
   mdb_token     m_offlineMsgOffsetColumnToken;
   mdb_token     m_offlineMessageSizeColumnToken;
-  nsIMsgHeaderParser  *m_HeaderParser;
   
   // header caching stuff - MRU headers, keeps them around in memory
   nsresult      AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key);

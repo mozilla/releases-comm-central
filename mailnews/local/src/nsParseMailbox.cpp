@@ -553,7 +553,6 @@ nsParseMailMessageState::nsParseMailMessageState()
      }
   }
   Clear();
-  m_HeaderAddressParser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
 }
 
 nsParseMailMessageState::~nsParseMailMessageState()
@@ -1452,61 +1451,16 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
       }
       else if (recipient)
       {
-        // note that we're now setting the whole recipient list,
-        // not just the pretty name of the first recipient.
-        uint32_t numAddresses;
-        char  *names;
-        char  *addresses;
-
-        ret = m_HeaderAddressParser->ParseHeaderAddresses(recipient->value,
-                                                          &names, &addresses,
-                                                          &numAddresses);
-        if (NS_SUCCEEDED(ret))
-        {
-          m_newMsgHdr->SetRecipientsArray(names, addresses, numAddresses);
-          PR_Free(addresses);
-          PR_Free(names);
-        }
-        else {  // hmm, should we just use the original string?
-          m_newMsgHdr->SetRecipients(recipient->value);
-        }
+        m_newMsgHdr->SetRecipients(recipient->value);
       }
       if (ccList)
       {
-        uint32_t numAddresses;
-        char  *names;
-        char  *addresses;
-
-        ret = m_HeaderAddressParser->ParseHeaderAddresses(ccList->value,
-                                                          &names, &addresses,
-                                                          &numAddresses);
-        if (NS_SUCCEEDED(ret) && numAddresses > 0)
-        {
-          m_newMsgHdr->SetCCListArray(names, addresses, numAddresses);
-          PR_Free(addresses);
-          PR_Free(names);
-        }
-        else  // hmm, should we just use the original string?
-          m_newMsgHdr->SetCcList(ccList->value);
+        m_newMsgHdr->SetCcList(ccList->value);
       }
 
       if (bccList)
       {
-        uint32_t numAddresses;
-        char  *names;
-        char  *addresses;
-
-        ret = m_HeaderAddressParser->ParseHeaderAddresses(bccList->value,
-                                                          &names, &addresses,
-                                                          &numAddresses);
-        if (NS_SUCCEEDED(ret))
-        {
-          m_newMsgHdr->SetBCCListArray(names, addresses, numAddresses);
-          PR_Free(addresses);
-          PR_Free(names);
-        }
-        else  // hmm, should we just use the original string?
-          m_newMsgHdr->SetBccList(bccList->value);
+        m_newMsgHdr->SetBccList(bccList->value);
       }
 
       rv = InternSubject (subject);

@@ -17,7 +17,6 @@
 #include "nsMsgKeySet.h"
 #include "nsMsgThread.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsMsgBaseCID.h"
 #include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
@@ -48,7 +47,10 @@
 #include "nsAlgorithm.h"
 #include "nsArrayEnumerator.h"
 #include "nsIMemoryReporter.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 #include <algorithm>
+
+using namespace mozilla::mailnews;
 
 #if defined(DEBUG_sspitzer_) || defined(DEBUG_seth_)
 #define DEBUG_MSGKEYSET 1
@@ -1133,7 +1135,6 @@ nsMsgDatabase::nsMsgDatabase()
         m_threadNewestMsgDateColumnToken(0),
         m_offlineMsgOffsetColumnToken(0),
         m_offlineMessageSizeColumnToken(0),
-        m_HeaderParser(nullptr),
         m_headersInUse(nullptr),
         m_cachedHeaders(nullptr),
         m_bCacheHeaders(true),
@@ -1170,11 +1171,6 @@ nsMsgDatabase::~nsMsgDatabase()
     m_dbFolderInfo->ReleaseExternalReferences();
 
   NS_IF_RELEASE(m_dbFolderInfo);
-  if (m_HeaderParser)
-  {
-    NS_RELEASE(m_HeaderParser);
-    m_HeaderParser = nullptr;
-  }
   if (m_mdbAllMsgHeadersTable)
     m_mdbAllMsgHeadersTable->Release();
 
@@ -3654,49 +3650,13 @@ nsresult nsMsgDatabase::RowCellColumnToMime2DecodedString(nsIMdbRow *row, mdb_to
 
 nsresult nsMsgDatabase::RowCellColumnToAddressCollationKey(nsIMdbRow *row, mdb_token colToken, uint8_t **result, uint32_t *len)
 {
-  const char *cSender = nullptr;
-  nsCString name;
-
-  nsresult rv = RowCellColumnToConstCharPtr(row, colToken, &cSender);
+  nsString sender;
+  nsresult rv = RowCellColumnToMime2DecodedString(row, colToken, sender);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Just in case this is null
-  if (!cSender)
-    return NS_ERROR_FAILURE;
-
-  nsIMsgHeaderParser *headerParser = GetHeaderParser();
-  if (!headerParser)
-    return NS_ERROR_FAILURE;
-
-  // apply mime decode
-  nsIMimeConverter *converter = GetMimeConverter();
-  if (!converter)
-    return NS_ERROR_FAILURE;
-
-  nsCString resultStr;
-  nsCString charset;
-  bool characterSetOverride;
-  m_dbFolderInfo->GetCharacterSetOverride(&characterSetOverride);
-  rv = RowCellColumnToCharPtr(row, m_messageCharSetColumnToken, getter_Copies(charset));
-  if (NS_FAILED(rv) || charset.IsEmpty() || charset.Equals("us-ascii") ||
-      characterSetOverride)
-  {
-    m_dbFolderInfo->GetEffectiveCharacterSet(charset);
-  }
-
-  rv = converter->DecodeMimeHeaderToUTF8(nsDependentCString(cSender),
-                                         charset.get(), characterSetOverride,
-                                         true, resultStr);
-  if (NS_SUCCEEDED(rv) && !resultStr.IsEmpty())
-    rv = headerParser->ExtractHeaderAddressName(resultStr, name);
-  else
-    rv = headerParser->ExtractHeaderAddressName(nsDependentCString(cSender),
-                                                     name);
-
-  if (NS_SUCCEEDED(rv))
-    return CreateCollationKey(NS_ConvertUTF8toUTF16(name), len, result);
-
-  return rv;
+  nsString name;
+  ExtractName(DecodedHeader(sender), name);
+  return CreateCollationKey(name, len, result);
 }
 
 nsresult nsMsgDatabase::GetCollationKeyGenerator()
@@ -3790,17 +3750,6 @@ nsMsgDatabase::CreateCollationKey(const nsAString& sourceString, uint32_t *len,
   NS_ENSURE_SUCCESS(err,err);
   return err;
 }
-
-nsIMsgHeaderParser *nsMsgDatabase::GetHeaderParser()
-{
-  if (!m_HeaderParser)
-  {
-    nsCOMPtr <nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
-    NS_IF_ADDREF(m_HeaderParser = parser);
-  }
-  return m_HeaderParser;
-}
-
 
 nsresult nsMsgDatabase::RowCellColumnToUInt32(nsIMdbRow *hdrRow, mdb_token columnToken, uint32_t &uint32Result, uint32_t defaultValue)
 {

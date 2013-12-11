@@ -399,77 +399,14 @@ NS_IMETHODIMP nsMsgHdr::SetRecipients(const char *recipients)
   return SetStringColumn(recipients, m_mdb->m_recipientsColumnToken);
 }
 
-nsresult nsMsgHdr::BuildRecipientsFromArray(const char *names, const char *addresses, uint32_t numAddresses, nsAutoCString& allRecipients)
-{
-  NS_ENSURE_ARG_POINTER(names);
-  NS_ENSURE_ARG_POINTER(addresses);
-  nsresult ret = NS_OK;
-  const char *curName = names;
-  const char *curAddress = addresses;
-
-  for (uint32_t i = 0; i < numAddresses; i++, curName += strlen(curName) + 1, curAddress += strlen(curAddress) + 1)
-  {
-    if (i > 0)
-      allRecipients += ", ";
-
-    nsCString fullAddress;
-    MakeMimeAddress(nsDependentCString(curName),
-      nsDependentCString(curAddress), fullAddress);
-    allRecipients += fullAddress;
-  }
-
-  return ret;
-}
-
-NS_IMETHODIMP nsMsgHdr::SetRecipientsArray(const char *names, const char *addresses, uint32_t numAddresses)
-{
-	nsresult ret;
-	nsAutoCString	allRecipients;
-
-    ret = BuildRecipientsFromArray(names, addresses, numAddresses, allRecipients);
-    if (NS_FAILED(ret))
-        return ret;
-
-	ret = SetRecipients(allRecipients.get());
-	return ret;
-}
-
 NS_IMETHODIMP nsMsgHdr::SetCcList(const char *ccList)
 {
 	return SetStringColumn(ccList, m_mdb->m_ccListColumnToken);
 }
 
-// ###should make helper routine that takes column token!
-NS_IMETHODIMP nsMsgHdr::SetCCListArray(const char *names, const char *addresses, uint32_t numAddresses)
-{
-	nsresult ret;
-	nsAutoCString	allRecipients;
-
-    ret = BuildRecipientsFromArray(names, addresses, numAddresses, allRecipients);
-    if (NS_FAILED(ret))
-        return ret;
-
-	ret = SetCcList(allRecipients.get());
-	return ret;
-}
-
 NS_IMETHODIMP nsMsgHdr::SetBccList(const char *bccList)
 {
   return SetStringColumn(bccList, m_mdb->m_bccListColumnToken);
-}
-
-NS_IMETHODIMP
-nsMsgHdr::SetBCCListArray(const char *names,
-                          const char *addresses,
-                          uint32_t numAddresses)
-{
-  nsAutoCString allRecipients;
-
-  nsresult rv = BuildRecipientsFromArray(names, addresses, numAddresses,
-                                         allRecipients);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return SetBccList(allRecipients.get());
 }
 
 NS_IMETHODIMP nsMsgHdr::SetMessageSize(uint32_t messageSize)

@@ -10,7 +10,7 @@
 interface nsIMsgFolder;
 interface nsIUTF8StringEnumerator;
 
-[scriptable, uuid(36adf826-73f4-48e7-a444-318242ea8a8e)]
+[scriptable, uuid(ec1053a9-1a3d-4572-8f47-c103f2c014fb)]
 interface nsIMsgDBHdr : nsISupports
 {
     /* general property routines - I think this can retrieve any
@@ -73,13 +73,6 @@ interface nsIMsgDBHdr : nsISupports
     void setReferences(in string references);
     readonly attribute unsigned short numReferences;
     ACString getStringReference(in long refNum);
-
-    void setRecipientsArray(in string names, in string addresses,
-                            in unsigned long numAddresses);
-    void setCCListArray(in string names, in string addresses,
-                        in unsigned long numAddresses);
-    void setBCCListArray(in string names, in string addresses,
-                         in unsigned long numAddresses);
 
     readonly attribute AString mime2DecodedAuthor;
     readonly attribute AString mime2DecodedSubject;

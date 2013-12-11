@@ -11,7 +11,6 @@
 #include "nsIMsgParseMailMsgState.h"
 #include "nsIStreamListener.h"
 #include "nsMsgLineBuffer.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgStatusFeedback.h"
@@ -67,8 +66,6 @@ public:
 
   static bool    IsEnvelopeLine(const char *buf, int32_t buf_size);
   static int  msg_UnHex(char C);
-
-  nsCOMPtr<nsIMsgHeaderParser> m_HeaderAddressParser;
 
   nsCOMPtr<nsIMsgDBHdr> m_newMsgHdr; /* current message header we're building */
   nsCOMPtr<nsIMsgDatabase>  m_mailDB;
