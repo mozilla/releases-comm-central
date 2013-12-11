@@ -19,7 +19,8 @@ public:
   virtual ~nsSMimeJSHelper();
 
 private:
-  nsresult getMailboxList(nsIMsgCompFields *compFields, uint32_t *mailbox_count, char **mailbox_list);
+  nsresult getMailboxList(nsIMsgCompFields *compFields,
+    nsTArray<nsCString> &mailboxes);
 };
 
 #endif

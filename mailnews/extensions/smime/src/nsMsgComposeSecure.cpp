@@ -8,7 +8,6 @@
 
 #include "msgCore.h"
 #include "nsIMsgCompFields.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIMsgIdentity.h"
 #include "nsISMimeCert.h"
 #include "nsIX509CertDB.h"
@@ -21,10 +20,11 @@
 #include "nsAlgorithm.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMimeConverter.h"
 #include <algorithm>
 
-using mozilla::mailnews::MimeEncoder;
+using namespace mozilla::mailnews;
 
 #define MK_MIME_ERROR_WRITING_FILE -1
 
@@ -586,15 +586,6 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
 
   NS_ConvertUTF16toUTF8 sig_content_desc_utf8(mime_smime_sig_content_desc);
 
-  nsCOMPtr<nsIMimeConverter> mimeConverter =
-     do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCString encodedContentDescription;
-  mimeConverter->EncodeMimePartIIStr_UTF8(sig_content_desc_utf8, false, "UTF-8",
-      sizeof("Content-Description: "),
-      nsIMimeConverter::MIME_ENCODED_WORD_SIZE,
-      getter_Copies(encodedContentDescription));
-
   /* Compute the hash...
    */
 
@@ -620,8 +611,8 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
           "Content-Description: %s" CRLF
           CRLF,
           mMultipartSignedBoundary,
-          encodedContentDescription.get());
-
+          sig_content_desc_utf8.get());
+          
   if (!header) {
     rv = NS_ERROR_OUT_OF_MEMORY;
     goto FAIL;
@@ -782,14 +773,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                                  bool aEncrypt,
                                                  bool aSign)
 {
-  char *mailbox_list = 0;
-  nsCString all_mailboxes, mailboxes;
-  const char *mailbox = 0;
-  uint32_t count = 0;
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
   nsresult res;
-  nsCOMPtr<nsIMsgHeaderParser> pHeader = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &res);
-  NS_ENSURE_SUCCESS(res,res);
 
   mCerts = do_CreateInstance(NS_ARRAY_CONTRACTID, &res);
   if (NS_FAILED(res)) {
@@ -803,24 +788,14 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   // must have both the signing and encryption certs to sign
   if ((mSelfSigningCert == nullptr) && aSign) {
     SetError(sendReport, NS_LITERAL_STRING("NoSenderSigningCert").get());
-    res = NS_ERROR_FAILURE;
-    goto FAIL;
+    return NS_ERROR_FAILURE;
   }
 
   if ((mSelfEncryptionCert == nullptr) && aEncrypt) {
     SetError(sendReport, NS_LITERAL_STRING("NoSenderEncryptionCert").get());
-    res = NS_ERROR_FAILURE;
-    goto FAIL;
+    return NS_ERROR_FAILURE;
   }
 
-  pHeader->ExtractHeaderAddressMailboxes(nsDependentCString(aRecipients),
-                                         all_mailboxes);
-  pHeader->RemoveDuplicateAddresses(all_mailboxes, EmptyCString(), mailboxes);
-
-  pHeader->ParseHeaderAddresses(mailboxes.get(), 0, &mailbox_list, &count);
-
-  // XXX This is not a valid use of nsresult
-  if (count < 0) return static_cast<nsresult>(count);
 
   if (aEncrypt && mSelfEncryptionCert) {
     // Make sure self's configured cert is prepared for being used
@@ -834,13 +809,16 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
   /* If the message is to be encrypted, then get the recipient certs */
   if (aEncrypt) {
-    mailbox = mailbox_list;
+    nsTArray<nsCString> mailboxes;
+    ExtractEmails(EncodedHeader(nsDependentCString(aRecipients)),
+      UTF16ArrayAdapter<>(mailboxes));
+    uint32_t count = mailboxes.Length();
 
     bool already_added_self_cert = false;
 
-    for (; count > 0; count--) {
+    for (uint32_t i = 0; i < count; i++) {
       nsCString mailbox_lowercase;
-      ToLowerCase(nsDependentCString(mailbox), mailbox_lowercase);
+      ToLowerCase(mailboxes[i], mailbox_lowercase);
       nsCOMPtr<nsIX509Cert> cert;
       res = certdb->FindCertByEmailAddress(nullptr, mailbox_lowercase.get(),
                                            getter_AddRefs(cert));
@@ -849,9 +827,9 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
         // Here I assume that mailbox is ascii rather than utf8.
         SetErrorWithParam(sendReport,
                           NS_LITERAL_STRING("MissingRecipientEncryptionCert").get(),
-                          mailbox);
+                          mailboxes[i].get());
 
-        goto FAIL;
+        return res;
       }
 
     /* #### see if recipient requests `signedData'.
@@ -868,18 +846,11 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
       }
 
       mCerts->AppendElement(cert, false);
-      // To understand this loop, especially the "+= strlen +1", look at the documentation
-      // of ParseHeaderAddresses. Basically, it returns a list of zero terminated strings.
-      mailbox += strlen(mailbox) + 1;
     }
     
     if (!already_added_self_cert) {
       mCerts->AppendElement(mSelfEncryptionCert, false);
     }
-  }
-FAIL:
-  if (mailbox_list) {
-    nsMemory::Free(mailbox_list);
   }
   return res;
 }

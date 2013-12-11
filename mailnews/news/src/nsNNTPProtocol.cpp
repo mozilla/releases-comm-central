@@ -31,13 +31,13 @@
 #include "prerror.h"
 #include "nsStringGlue.h"
 #include "mozilla/Services.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 
 #include "prprf.h"
 #include <algorithm>
 
 /* include event sink interfaces for news */
 
-#include "nsIMsgHeaderParser.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgSearchAdapter.h"
 #include "nsIMsgStatusFeedback.h"
@@ -91,6 +91,8 @@
 #define READ_NEWS_LIST_TIMEOUT 50  /* uSec to wait until doing more */
 #define RATE_STR_BUF_LEN 32
 #define UPDATE_THRESHHOLD 25600 /* only update every 25 KB */
+
+using namespace mozilla::mailnews;
 
 // NNTP extensions are supported yet
 // until the extension code is ported,
@@ -3540,19 +3542,14 @@ void nsNNTPProtocol::CheckIfAuthor(nsIMsgIdentity *aIdentity, const nsCString &a
     return;
   PR_LOG(NNTP,PR_LOG_ALWAYS,("from = %s", from.get()));
 
-  nsCOMPtr<nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
-  if (NS_FAILED(rv))
-    return;
-
   nsCString us;
   nsCString them;
-  nsresult rv1 = parser->ExtractHeaderAddressMailboxes(from, us);
-  nsresult rv2 = parser->ExtractHeaderAddressMailboxes(aOldFrom, them);
+  ExtractEmail(EncodedHeader(from), us);
+  ExtractEmail(EncodedHeader(aOldFrom), them);
 
   PR_LOG(NNTP,PR_LOG_ALWAYS,("us = %s, them = %s", us.get(), them.get()));
 
-  if (NS_SUCCEEDED(rv1) && NS_SUCCEEDED(rv2) &&
-      us.Equals(them, nsCaseInsensitiveCStringComparator()))
+  if (us.Equals(them, nsCaseInsensitiveCStringComparator()))
     aFrom = from;
 }
 

@@ -3,17 +3,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nspr.h"
 #include "nsSMimeJSHelper.h"
 #include "nsCOMPtr.h"
 #include "nsMemory.h"
 #include "nsStringGlue.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIX509CertDB.h"
 #include "nsIX509CertValidity.h"
 #include "nsIServiceManager.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCRTGlue.h"
+
+using namespace mozilla::mailnews;
 
 NS_IMPL_ISUPPORTS1(nsSMimeJSHelper, nsISMimeJSHelper)
 
@@ -47,15 +49,11 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 
   NS_ENSURE_ARG_POINTER(compFields);
 
-  uint32_t mailbox_count;
-  char *mailbox_list;
+  nsTArray<nsCString> mailboxes;
+  nsresult rv = getMailboxList(compFields, mailboxes);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsresult rv = getMailboxList(compFields, &mailbox_count, &mailbox_list);
-  if (NS_FAILED(rv))
-    return rv;
-
-  if (!mailbox_list)
-    return NS_ERROR_FAILURE;
+  uint32_t mailbox_count = mailboxes.Length();
 
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
 
@@ -91,13 +89,9 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
       bool found_blocker = false;
       bool memory_failure = false;
 
-      const char *walk = mailbox_list;
-
-      // To understand this loop, especially the "+= strlen +1", look at the documentation
-      // of ParseHeaderAddresses. Basically, it returns a list of zero terminated strings.
       for (uint32_t i = 0;
           i < mailbox_count;
-          ++i, ++iEA, ++iCV, ++iCII, ++iCEI, ++iCert, walk += strlen(walk) + 1)
+          ++i, ++iEA, ++iCV, ++iCII, ++iCEI, ++iCert)
       {
         *iCert = nullptr;
         *iCV = 0;
@@ -109,8 +103,8 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
           continue;
         }
 
-        nsDependentCString email(walk);
-        *iEA = ToNewUnicode(NS_ConvertUTF8toUTF16(walk));
+        nsCString &email = mailboxes[i];
+        *iEA = ToNewUnicode(NS_ConvertUTF8toUTF16(email));
         if (!*iEA) {
           memory_failure = true;
           continue;
@@ -179,10 +173,6 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
       }
     }
   }
-
-  if (mailbox_list) {
-    nsMemory::Free(mailbox_list);
-  }
   return rv;
 }
 
@@ -198,23 +188,16 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
 
   NS_ENSURE_ARG_POINTER(compFields);
 
-  uint32_t mailbox_count;
-  char *mailbox_list;
+  nsTArray<nsCString> mailboxes;
+  nsresult rv = getMailboxList(compFields, mailboxes);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsresult rv = getMailboxList(compFields, &mailbox_count, &mailbox_list);
-  if (NS_FAILED(rv))
-    return rv;
-
-  if (!mailbox_list)
-    return NS_ERROR_FAILURE;
+  uint32_t mailbox_count = mailboxes.Length();
 
   if (!mailbox_count)
   {
     *count = 0;
     *emailAddresses = nullptr;
-    if (mailbox_list) {
-      nsMemory::Free(mailbox_list);
-    }
     return NS_OK;
   }
 
@@ -224,9 +207,6 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
   bool *haveCert = new bool[mailbox_count];
   if (!haveCert)
   {
-    if (mailbox_list) {
-      nsMemory::Free(mailbox_list);
-    }
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
@@ -234,19 +214,12 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
 
   if (mailbox_count)
   {
-    const char *walk = mailbox_list;
-
-    // To understand this loop, especially the "+= strlen +1", look at the documentation
-    // of ParseHeaderAddresses. Basically, it returns a list of zero terminated strings.
-    for (uint32_t i = 0;
-        i < mailbox_count;
-        ++i, walk += strlen(walk) + 1)
+    for (uint32_t i = 0; i < mailbox_count; ++i)
     {
       haveCert[i] = false;
 
-      nsDependentCString email(walk);
       nsCString email_lowercase;
-      ToLowerCase(email, email_lowercase);
+      ToLowerCase(mailboxes[i], email_lowercase);
 
       nsCOMPtr<nsIX509Cert> cert;
       if (NS_SUCCEEDED(certdb->FindCertByEmailAddress(nullptr,
@@ -270,15 +243,10 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
     else
     {
       PRUnichar **iEA = outEA;
-      const char *walk = mailbox_list;
 
       bool memory_failure = false;
 
-      // To understand this loop, especially the "+= strlen +1", look at the documentation
-      // of ParseHeaderAddresses. Basically, it returns a list of zero terminated strings.
-      for (uint32_t i = 0;
-          i < mailbox_count;
-          ++i, walk += strlen(walk) + 1)
+      for (uint32_t i = 0; i < mailbox_count; ++i)
       {
         if (!haveCert[i])
         {
@@ -286,7 +254,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
             *iEA = nullptr;
           }
           else {
-            *iEA = ToNewUnicode(NS_ConvertUTF8toUTF16(walk));
+            *iEA = ToNewUnicode(NS_ConvertUTF8toUTF16(mailboxes[i]));
             if (!*iEA) {
               memory_failure = true;
             }
@@ -310,25 +278,16 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
   }
 
   delete [] haveCert;
-  if (mailbox_list) {
-    nsMemory::Free(mailbox_list);
-  }
   return rv;
 }
 
-nsresult nsSMimeJSHelper::getMailboxList(nsIMsgCompFields *compFields, uint32_t *mailbox_count, char **mailbox_list)
+nsresult nsSMimeJSHelper::getMailboxList(nsIMsgCompFields *compFields,
+    nsTArray<nsCString> &mailboxes)
 {
-  NS_ENSURE_ARG(mailbox_count);
-  NS_ENSURE_ARG(mailbox_list);
-
   if (!compFields)
     return NS_ERROR_INVALID_ARG;
 
   nsresult res;
-  nsCOMPtr<nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &res);
-  if (NS_FAILED(res))
-    return res;
-
   nsString to, cc, bcc, ng;
 
   res = compFields->GetTo(to);
@@ -346,9 +305,6 @@ nsresult nsSMimeJSHelper::getMailboxList(nsIMsgCompFields *compFields, uint32_t 
   res = compFields->GetNewsgroups(ng);
   if (NS_FAILED(res))
     return res;
-
-  *mailbox_list = nullptr;
-  *mailbox_count = 0;
 
   {
     nsCString all_recipients;
@@ -371,13 +327,8 @@ nsresult nsSMimeJSHelper::getMailboxList(nsIMsgCompFields *compFields, uint32_t 
     if (!ng.IsEmpty())
       all_recipients.Append(NS_ConvertUTF16toUTF8(ng));
 
-    nsCString unique_mailboxes;
-    nsCString all_mailboxes;
-    parser->ExtractHeaderAddressMailboxes(all_recipients, all_mailboxes);
-    parser->RemoveDuplicateAddresses(all_mailboxes, EmptyCString(),
-                                     unique_mailboxes);
-    parser->ParseHeaderAddresses(unique_mailboxes.get(), 0, mailbox_list,
-                                 mailbox_count);
+    ExtractEmails(EncodedHeader(all_recipients),
+      UTF16ArrayAdapter<>(mailboxes));
   }
 
   return NS_OK;
