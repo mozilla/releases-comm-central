@@ -42,8 +42,6 @@ public:
 
   static char *  EscapeQuotesInStr(const char *str);
 
-  nsCOMPtr<nsIMsgHeaderParser> m_headerAddressParser;
-
   nsMsgSearchAttribValue m_attribute;
   nsMsgSearchOpValue m_operator;
   nsMsgSearchValue m_value;
@@ -67,7 +65,6 @@ protected:
   nsresult ParseAttribute(char *inStream, nsMsgSearchAttribValue *attrib);
   nsresult ParseOperator(char *inStream, nsMsgSearchOpValue *value);
   nsresult ParseValue(char *inStream);
-  nsresult InitHeaderAddressParser();
   /**
    * Switch a string to lower case, except for special database rows
    * that are not headers, but could be headers

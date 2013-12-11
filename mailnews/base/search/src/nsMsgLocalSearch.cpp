@@ -434,7 +434,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
     {
       case nsMsgSearchAttrib::Sender:
         msgToMatch->GetAuthor(getter_Copies(matchString));
-        err = aTerm->MatchRfc822String (matchString.get(), charset, charsetOverride, &result);
+        err = aTerm->MatchRfc822String(matchString, charset, &result);
         break;
       case nsMsgSearchAttrib::Subject:
       {
@@ -456,11 +456,11 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
         bool boolKeepGoing;
         aTerm->GetMatchAllBeforeDeciding(&boolKeepGoing);
         msgToMatch->GetRecipients(getter_Copies(recipients));
-        err = aTerm->MatchRfc822String (recipients.get(), charset, charsetOverride, &result);
+        err = aTerm->MatchRfc822String(recipients, charset, &result);
         if (boolKeepGoing == result)
         {
           msgToMatch->GetCcList(getter_Copies(ccList));
-          err = aTerm->MatchRfc822String (ccList.get(), charset, charsetOverride, &result);
+          err = aTerm->MatchRfc822String(ccList, charset, &result);
         }
         break;
       }
@@ -469,22 +469,22 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
         bool boolKeepGoing;
         aTerm->GetMatchAllBeforeDeciding(&boolKeepGoing);
         msgToMatch->GetRecipients(getter_Copies(recipients));
-        err = aTerm->MatchRfc822String(recipients.get(), charset, charsetOverride, &result);
+        err = aTerm->MatchRfc822String(recipients, charset, &result);
         if (boolKeepGoing == result)
         {
           msgToMatch->GetCcList(getter_Copies(ccList));
-          err = aTerm->MatchRfc822String(ccList.get(), charset, charsetOverride, &result);
+          err = aTerm->MatchRfc822String(ccList, charset, &result);
         }
         if (boolKeepGoing == result)
         {
           msgToMatch->GetAuthor(getter_Copies(matchString));
-          err = aTerm->MatchRfc822String(matchString.get(), charset, charsetOverride, &result);
+          err = aTerm->MatchRfc822String(matchString, charset, &result);
         }
         if (boolKeepGoing == result)
         {
           nsCString bccList;
           msgToMatch->GetBccList(getter_Copies(bccList));
-          err = aTerm->MatchRfc822String(bccList.get(), charset, charsetOverride, &result);
+          err = aTerm->MatchRfc822String(bccList, charset, &result);
         }
         break;
       }
@@ -525,11 +525,11 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
       }
       case nsMsgSearchAttrib::To:
         msgToMatch->GetRecipients(getter_Copies(recipients));
-        err = aTerm->MatchRfc822String(recipients.get(), charset, charsetOverride, &result);
+        err = aTerm->MatchRfc822String(recipients, charset, &result);
         break;
       case nsMsgSearchAttrib::CC:
         msgToMatch->GetCcList(getter_Copies(ccList));
-        err = aTerm->MatchRfc822String (ccList.get(), charset, charsetOverride, &result);
+        err = aTerm->MatchRfc822String(ccList, charset, &result);
         break;
       case nsMsgSearchAttrib::AgeInDays:
       {

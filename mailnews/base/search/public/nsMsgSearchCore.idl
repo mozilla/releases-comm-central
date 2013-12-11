@@ -7,11 +7,7 @@
 #include "MailNewsTypes2.idl"
 
 interface nsIMsgFolder;
-interface nsIMsgHeaderParser;
 
-%{C++
-#include "nsIMsgHeaderParser.h"
-%}
 interface nsIMsgDatabase;
 interface nsIMsgDBHdr;
 

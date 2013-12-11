@@ -11,7 +11,7 @@ interface nsIMsgDBHdr;
 interface nsIMsgDatabase;
 interface nsIMsgSearchScopeTerm;
 
-[scriptable, uuid(87bb55b0-fbd5-4f02-a0df-bd6f5519eba0)]
+[scriptable, uuid(45bc2bcd-218e-4e00-b29c-453c75371047)]
 interface nsIMsgSearchTerm : nsISupports {
     attribute nsMsgSearchAttribValue attrib;
     attribute nsMsgSearchOpValue op;
@@ -33,7 +33,11 @@ interface nsIMsgSearchTerm : nsISupports {
     attribute boolean beginsGrouping;
     attribute boolean endsGrouping;
 
-    boolean matchRfc822String(in string aString, in string charset, in boolean charsetOverride);
+    /**
+     * Match the value against one of the emails found in the incoming
+     * 2047-encoded string.
+     */
+    boolean matchRfc822String(in ACString aString, in string charset);
     /**
      * Match the current header value against the incoming 2047-encoded string.
      *
