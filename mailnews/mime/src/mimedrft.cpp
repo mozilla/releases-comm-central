@@ -44,10 +44,12 @@
 #include "nsMsgUtils.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMimeConverter.h" // for MimeConverterOutputCallback
+#include "mozilla/mailnews/MimeHeaderParser.h"
+
+using namespace mozilla::mailnews;
 
 //
 // Header strings...
@@ -457,7 +459,7 @@ mime_free_attachments(nsTArray<nsMsgAttachedFile *> &attachments)
   if (attachments.Length() <= 0)
     return;
 
-  for (int i = 0; i < attachments.Length(); i++)
+  for (uint32_t i = 0; i < attachments.Length(); i++)
   {
     if (attachments[i]->m_tmpFile)
     {
@@ -551,7 +553,7 @@ FAIL:
 
 static void
 mime_intl_insert_message_header_1(char        **body,
-                                  char        **hdr_value,
+                                  const char  *hdr_value,
                                   const char  *hdr_str,
                                   const char  *html_hdr_str,
                                   const char  *mailcharset,
@@ -580,7 +582,7 @@ mime_intl_insert_message_header_1(char        **body,
 
     // MIME decode header
     nsAutoCString utf8Value;
-    MIME_DecodeMimeHeader(*hdr_value, mailcharset, false, true, utf8Value);
+    MIME_DecodeMimeHeader(hdr_value, mailcharset, false, true, utf8Value);
     if (!utf8Value.IsEmpty()) {
       char *escaped = nullptr;
       if (htmlEdit)
@@ -588,7 +590,7 @@ mime_intl_insert_message_header_1(char        **body,
       NS_MsgSACat(body, escaped ? escaped : utf8Value.get());
       NS_Free(escaped);
     } else {
-        NS_MsgSACat(body, *hdr_value); // raw MIME encoded string
+        NS_MsgSACat(body, hdr_value); // raw MIME encoded string
     }
 
   if (htmlEdit)
@@ -628,24 +630,23 @@ MimeGetReplyHeaderOriginalMessage(nsACString &retString)
 /* given an address string passed though parameter "address", this one will be converted
    and returned through the same parameter. The original string will be destroyed
 */
-static void UnquoteMimeAddress(nsIMsgHeaderParser* parser, char** address)
+static void UnquoteMimeAddress(nsACString &mimeHeader, const char *charset)
 {
-  if (parser && address && *address && **address)
+  if (!mimeHeader.IsEmpty())
   {
-    char *result;
-    if (NS_SUCCEEDED(parser->UnquotePhraseOrAddr(*address, false, &result)))
+    nsTArray<nsCString> addresses;
+    ExtractDisplayAddresses(EncodedHeader(mimeHeader, charset),
+      UTF16ArrayAdapter<>(addresses));
+    mimeHeader.Truncate();
+
+    uint32_t count = addresses.Length();
+    for (uint32_t i = 0; i < count; i++)
     {
-      if (result && *result)
-      {
-        PR_Free(*address);
-        *address = result;
-        return;
-      }
-      PR_FREEIF(result);
+      if (i != 0)
+        mimeHeader.AppendASCII(", ");
+      mimeHeader += addresses[i];
     }
   }
-
-  return;
 }
 
 static void
@@ -654,8 +655,6 @@ mime_insert_all_headers(char            **body,
                         MSG_ComposeFormat composeFormat,
                         char            *mailcharset)
 {
-  nsCOMPtr<nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
-
   bool htmlEdit = (composeFormat == nsIMsgCompFormat::HTML);
   char *newBody = NULL;
   char *html_tag = nullptr;
@@ -692,7 +691,6 @@ mime_insert_all_headers(char            **body,
     char *colon, *ocolon;
     char *contents;
     char *name = 0;
-    char *c2 = 0;
 
     // Hack for BSD Mailbox delimiter.
     if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5))
@@ -730,14 +728,8 @@ mime_insert_all_headers(char            **body,
     memcpy(name, head, colon - head);
     name[colon - head] = 0;
 
-    c2 = (char *)PR_MALLOC(end - contents + 1);
-    if (!c2)
-    {
-      PR_Free(name);
-      return /* MIME_OUT_OF_MEMORY */;
-    }
-    memcpy(c2, contents, end - contents);
-    c2[end - contents] = 0;
+    nsAutoCString headerValue;
+    headerValue.Assign(contents, end - contents);
 
     /* Do not reveal bcc recipients when forwarding a message!
        See http://bugzilla.mozilla.org/show_bug.cgi?id=41150
@@ -748,12 +740,12 @@ mime_insert_all_headers(char            **body,
           !PL_strcasecmp(name, "resent-to") || !PL_strcasecmp(name, "to") ||
           !PL_strcasecmp(name, "resent-cc") || !PL_strcasecmp(name, "cc") ||
           !PL_strcasecmp(name, "reply-to"))
-        UnquoteMimeAddress(parser, &c2);
+        UnquoteMimeAddress(headerValue, mailcharset);
 
-      mime_intl_insert_message_header_1(&newBody, &c2, name, name, mailcharset, htmlEdit);
+      mime_intl_insert_message_header_1(&newBody, headerValue.get(), name, name,
+        mailcharset, htmlEdit);
     }
     PR_Free(name);
-    PR_Free(c2);
   }
 
   if (htmlEdit)
@@ -789,15 +781,15 @@ mime_insert_normal_headers(char             **body,
   char *subject = MimeHeaders_get(headers, HEADER_SUBJECT, false, false);
   char *resent_comments = MimeHeaders_get(headers, HEADER_RESENT_COMMENTS, false, false);
   char *resent_date = MimeHeaders_get(headers, HEADER_RESENT_DATE, false, true);
-  char *resent_from = MimeHeaders_get(headers, HEADER_RESENT_FROM, false, true);
-  char *resent_to = MimeHeaders_get(headers, HEADER_RESENT_TO, false, true);
-  char *resent_cc = MimeHeaders_get(headers, HEADER_RESENT_CC, false, true);
+  nsCString resent_from(MimeHeaders_get(headers, HEADER_RESENT_FROM, false, true));
+  nsCString resent_to(MimeHeaders_get(headers, HEADER_RESENT_TO, false, true));
+  nsCString resent_cc(MimeHeaders_get(headers, HEADER_RESENT_CC, false, true));
   char *date = MimeHeaders_get(headers, HEADER_DATE, false, true);
-  char *from = MimeHeaders_get(headers, HEADER_FROM, false, true);
-  char *reply_to = MimeHeaders_get(headers, HEADER_REPLY_TO, false, true);
+  nsCString from(MimeHeaders_get(headers, HEADER_FROM, false, true));
+  nsCString reply_to(MimeHeaders_get(headers, HEADER_REPLY_TO, false, true));
   char *organization = MimeHeaders_get(headers, HEADER_ORGANIZATION, false, false);
-  char *to = MimeHeaders_get(headers, HEADER_TO, false, true);
-  char *cc = MimeHeaders_get(headers, HEADER_CC, false, true);
+  nsCString to(MimeHeaders_get(headers, HEADER_TO, false, true));
+  nsCString cc(MimeHeaders_get(headers, HEADER_CC, false, true));
   char *newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false, true);
   char *followup_to = MimeHeaders_get(headers, HEADER_FOLLOWUP_TO, false, true);
   char *references = MimeHeaders_get(headers, HEADER_REFERENCES, false, true);
@@ -806,20 +798,19 @@ mime_insert_normal_headers(char             **body,
     html_tag = PL_strcasestr(*body, "<HTML>");
   bool htmlEdit = composeFormat == nsIMsgCompFormat::HTML;
 
-  if (!from)
-    from = MimeHeaders_get(headers, HEADER_SENDER, false, true);
-  if (!resent_from)
-    resent_from = MimeHeaders_get(headers, HEADER_RESENT_SENDER, false,
-                    true);
+  if (from.IsEmpty())
+    from.Adopt(MimeHeaders_get(headers, HEADER_SENDER, false, true));
+  if (resent_from.IsEmpty())
+    resent_from.Adopt(MimeHeaders_get(headers, HEADER_RESENT_SENDER, false,
+      true));
 
-  nsCOMPtr<nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
-  UnquoteMimeAddress(parser, &resent_from);
-  UnquoteMimeAddress(parser, &resent_to);
-  UnquoteMimeAddress(parser, &resent_cc);
-  UnquoteMimeAddress(parser, &reply_to);
-  UnquoteMimeAddress(parser, &from);
-  UnquoteMimeAddress(parser, &to);
-  UnquoteMimeAddress(parser, &cc);
+  UnquoteMimeAddress(resent_from, mailcharset);
+  UnquoteMimeAddress(resent_to, mailcharset);
+  UnquoteMimeAddress(resent_cc, mailcharset);
+  UnquoteMimeAddress(reply_to, mailcharset);
+  UnquoteMimeAddress(from, mailcharset);
+  UnquoteMimeAddress(to, mailcharset);
+  UnquoteMimeAddress(cc, mailcharset);
 
   nsCString replyHeader;
   MimeGetReplyHeaderOriginalMessage(replyHeader);
@@ -835,70 +826,70 @@ mime_insert_normal_headers(char             **body,
     NS_MsgSACat(&newBody, replyHeader.get());
   }
   if (subject)
-    mime_intl_insert_message_header_1(&newBody, &subject, HEADER_SUBJECT,
+    mime_intl_insert_message_header_1(&newBody, subject, HEADER_SUBJECT,
                       MimeGetNamedString(MIME_MHTML_SUBJECT),
                       mailcharset, htmlEdit);
   if (resent_comments)
-    mime_intl_insert_message_header_1(&newBody, &resent_comments,
+    mime_intl_insert_message_header_1(&newBody, resent_comments,
                       HEADER_RESENT_COMMENTS,
                       MimeGetNamedString(MIME_MHTML_RESENT_COMMENTS),
                       mailcharset, htmlEdit);
   if (resent_date)
-    mime_intl_insert_message_header_1(&newBody, &resent_date,
+    mime_intl_insert_message_header_1(&newBody, resent_date,
                       HEADER_RESENT_DATE,
                       MimeGetNamedString(MIME_MHTML_RESENT_DATE),
                       mailcharset, htmlEdit);
-  if (resent_from)
+  if (!resent_from.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &resent_from,
+    mime_intl_insert_message_header_1(&newBody, resent_from.get(),
                       HEADER_RESENT_FROM,
                       MimeGetNamedString(MIME_MHTML_RESENT_FROM),
                       mailcharset, htmlEdit);
   }
-  if (resent_to)
+  if (!resent_to.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &resent_to,
+    mime_intl_insert_message_header_1(&newBody, resent_to.get(),
                       HEADER_RESENT_TO,
                       MimeGetNamedString(MIME_MHTML_RESENT_TO),
                       mailcharset, htmlEdit);
   }
-  if (resent_cc)
+  if (!resent_cc.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &resent_cc,
+    mime_intl_insert_message_header_1(&newBody, resent_cc.get(),
                       HEADER_RESENT_CC,
                       MimeGetNamedString(MIME_MHTML_RESENT_CC),
                       mailcharset, htmlEdit);
   }
   if (date)
-    mime_intl_insert_message_header_1(&newBody, &date, HEADER_DATE,
+    mime_intl_insert_message_header_1(&newBody, date, HEADER_DATE,
                       MimeGetNamedString(MIME_MHTML_DATE),
                       mailcharset, htmlEdit);
-  if (from)
+  if (!from.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &from, HEADER_FROM,
+    mime_intl_insert_message_header_1(&newBody, from.get(), HEADER_FROM,
                       MimeGetNamedString(MIME_MHTML_FROM),
                       mailcharset, htmlEdit);
   }
-  if (reply_to)
+  if (!reply_to.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &reply_to, HEADER_REPLY_TO,
+    mime_intl_insert_message_header_1(&newBody, reply_to.get(), HEADER_REPLY_TO,
                       MimeGetNamedString(MIME_MHTML_REPLY_TO),
                       mailcharset, htmlEdit);
   }
   if (organization)
-    mime_intl_insert_message_header_1(&newBody, &organization,
+    mime_intl_insert_message_header_1(&newBody, organization,
                       HEADER_ORGANIZATION,
                       MimeGetNamedString(MIME_MHTML_ORGANIZATION),
                       mailcharset, htmlEdit);
-  if (to)
+  if (!to.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &to, HEADER_TO,
+    mime_intl_insert_message_header_1(&newBody, to.get(), HEADER_TO,
                       MimeGetNamedString(MIME_MHTML_TO),
                       mailcharset, htmlEdit);
   }
-  if (cc)
+  if (cc.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &cc, HEADER_CC,
+    mime_intl_insert_message_header_1(&newBody, cc.get(), HEADER_CC,
                       MimeGetNamedString(MIME_MHTML_CC),
                       mailcharset, htmlEdit);
   }
@@ -907,12 +898,12 @@ mime_insert_normal_headers(char             **body,
       See http://bugzilla.mozilla.org/show_bug.cgi?id=41150
     */
   if (newsgroups)
-    mime_intl_insert_message_header_1(&newBody, &newsgroups, HEADER_NEWSGROUPS,
+    mime_intl_insert_message_header_1(&newBody, newsgroups, HEADER_NEWSGROUPS,
                       MimeGetNamedString(MIME_MHTML_NEWSGROUPS),
                       mailcharset, htmlEdit);
   if (followup_to)
   {
-    mime_intl_insert_message_header_1(&newBody, &followup_to,
+    mime_intl_insert_message_header_1(&newBody, followup_to,
                       HEADER_FOLLOWUP_TO,
                       MimeGetNamedString(MIME_MHTML_FOLLOWUP_TO),
                       mailcharset, htmlEdit);
@@ -920,7 +911,7 @@ mime_insert_normal_headers(char             **body,
   // only show references for newsgroups
   if (newsgroups && references)
   {
-    mime_intl_insert_message_header_1(&newBody, &references,
+    mime_intl_insert_message_header_1(&newBody, references,
                       HEADER_REFERENCES,
                       MimeGetNamedString(MIME_MHTML_REFERENCES),
                       mailcharset, htmlEdit);
@@ -948,15 +939,8 @@ mime_insert_normal_headers(char             **body,
   PR_FREEIF(subject);
   PR_FREEIF(resent_comments);
   PR_FREEIF(resent_date);
-  PR_FREEIF(resent_from);
-  PR_FREEIF(resent_to);
-  PR_FREEIF(resent_cc);
   PR_FREEIF(date);
-  PR_FREEIF(from);
-  PR_FREEIF(reply_to);
   PR_FREEIF(organization);
-  PR_FREEIF(to);
-  PR_FREEIF(cc);
   PR_FREEIF(newsgroups);
   PR_FREEIF(followup_to);
   PR_FREEIF(references);
@@ -970,12 +954,11 @@ mime_insert_micro_headers(char            **body,
 {
   char *newBody = NULL;
   char *subject = MimeHeaders_get(headers, HEADER_SUBJECT, false, false);
-  char *from = MimeHeaders_get(headers, HEADER_FROM, false, true);
-  char *resent_from = MimeHeaders_get(headers, HEADER_RESENT_FROM, false,
-                    true);
+  nsCString from(MimeHeaders_get(headers, HEADER_FROM, false, true));
+  nsCString resent_from(MimeHeaders_get(headers, HEADER_RESENT_FROM, false, true));
   char *date = MimeHeaders_get(headers, HEADER_DATE, false, true);
-  char *to = MimeHeaders_get(headers, HEADER_TO, false, true);
-  char *cc = MimeHeaders_get(headers, HEADER_CC, false, true);
+  nsCString to(MimeHeaders_get(headers, HEADER_TO, false, true));
+  nsCString cc(MimeHeaders_get(headers, HEADER_CC, false, true));
   char *newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false,
                      true);
   const char *html_tag = nullptr;
@@ -983,19 +966,17 @@ mime_insert_micro_headers(char            **body,
     html_tag = PL_strcasestr(*body, "<HTML>");
   bool htmlEdit = composeFormat == nsIMsgCompFormat::HTML;
 
-  if (!from)
-    from = MimeHeaders_get(headers, HEADER_SENDER, false, true);
-  if (!resent_from)
-    resent_from = MimeHeaders_get(headers, HEADER_RESENT_SENDER, false,
-                    true);
+  if (from.IsEmpty())
+    from.Adopt(MimeHeaders_get(headers, HEADER_SENDER, false, true));
+  if (resent_from.IsEmpty())
+    resent_from.Adopt(MimeHeaders_get(headers, HEADER_RESENT_SENDER, false, true));
   if (!date)
     date = MimeHeaders_get(headers, HEADER_RESENT_DATE, false, true);
 
-  nsCOMPtr<nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
-  UnquoteMimeAddress(parser, &resent_from);
-  UnquoteMimeAddress(parser, &from);
-  UnquoteMimeAddress(parser, &to);
-  UnquoteMimeAddress(parser, &cc);
+  UnquoteMimeAddress(resent_from, mailcharset);
+  UnquoteMimeAddress(from, mailcharset);
+  UnquoteMimeAddress(to, mailcharset);
+  UnquoteMimeAddress(cc, mailcharset);
 
   nsCString replyHeader;
   MimeGetReplyHeaderOriginalMessage(replyHeader);
@@ -1012,38 +993,38 @@ mime_insert_micro_headers(char            **body,
     NS_MsgSACat(&newBody, replyHeader.get());
   }
 
-  if (from)
+  if (!from.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &from, HEADER_FROM,
+    mime_intl_insert_message_header_1(&newBody, from.get(), HEADER_FROM,
                     MimeGetNamedString(MIME_MHTML_FROM),
                     mailcharset, htmlEdit);
   }
   if (subject)
-    mime_intl_insert_message_header_1(&newBody, &subject, HEADER_SUBJECT,
+    mime_intl_insert_message_header_1(&newBody, subject, HEADER_SUBJECT,
                     MimeGetNamedString(MIME_MHTML_SUBJECT),
                       mailcharset, htmlEdit);
 /*
   if (date)
-    mime_intl_insert_message_header_1(&newBody, &date, HEADER_DATE,
+    mime_intl_insert_message_header_1(&newBody, date, HEADER_DATE,
                     MimeGetNamedString(MIME_MHTML_DATE),
                     mailcharset, htmlEdit);
 */
-  if (resent_from)
+  if (resent_from.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &resent_from,
+    mime_intl_insert_message_header_1(&newBody, resent_from.get(),
                     HEADER_RESENT_FROM,
                     MimeGetNamedString(MIME_MHTML_RESENT_FROM),
                     mailcharset, htmlEdit);
   }
-  if (to)
+  if (to.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &to, HEADER_TO,
+    mime_intl_insert_message_header_1(&newBody, to.get(), HEADER_TO,
                     MimeGetNamedString(MIME_MHTML_TO),
                     mailcharset, htmlEdit);
   }
-  if (cc)
+  if (cc.IsEmpty())
   {
-    mime_intl_insert_message_header_1(&newBody, &cc, HEADER_CC,
+    mime_intl_insert_message_header_1(&newBody, cc.get(), HEADER_CC,
                     MimeGetNamedString(MIME_MHTML_CC),
                     mailcharset, htmlEdit);
   }
@@ -1052,7 +1033,7 @@ mime_insert_micro_headers(char            **body,
     See http://bugzilla.mozilla.org/show_bug.cgi?id=41150
   */
   if (newsgroups)
-    mime_intl_insert_message_header_1(&newBody, &newsgroups, HEADER_NEWSGROUPS,
+    mime_intl_insert_message_header_1(&newBody, newsgroups, HEADER_NEWSGROUPS,
                     MimeGetNamedString(MIME_MHTML_NEWSGROUPS),
                     mailcharset, htmlEdit);
   if (htmlEdit)
@@ -1076,11 +1057,7 @@ mime_insert_micro_headers(char            **body,
     *body = newBody;
   }
   PR_FREEIF(subject);
-  PR_FREEIF(from);
-  PR_FREEIF(resent_from);
   PR_FREEIF(date);
-  PR_FREEIF(to);
-  PR_FREEIF(cc);
   PR_FREEIF(newsgroups);
 
 }

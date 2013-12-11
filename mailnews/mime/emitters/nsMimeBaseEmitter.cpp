@@ -15,7 +15,6 @@
 #include "nsEmitterUtils.h"
 #include "nsMimeStringResources.h"
 #include "msgCore.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIComponentManager.h"
 #include "nsEmitterUtils.h"
 #include "nsIMimeStreamConverter.h"

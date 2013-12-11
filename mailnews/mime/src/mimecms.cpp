@@ -20,11 +20,14 @@
 #include "nsCOMPtr.h"
 #include "nsAutoPtr.h"
 #include "nsIX509Cert.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsThreadUtils.h"
 #include "nsProxyRelease.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
+
+using namespace mozilla::mailnews;
+
 
 #define MIME_SUPERCLASS mimeEncryptedClass
 MimeDefClass(MimeEncryptedCMS, MimeEncryptedCMSClass,
@@ -136,20 +139,6 @@ bool MimeEncryptedCMS_encrypted_p (MimeObject *obj)
   return false;
 }
 
-// extern MimeMessageClass mimeMessageClass;      /* gag */
-
-static void ParseRFC822Addresses (const char *line, nsCString &names, nsCString &addresses)
-{
-  uint32_t numAddresses;
-  nsresult res;
-  nsCOMPtr<nsIMsgHeaderParser> pHeader = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &res);
-
-  if (NS_SUCCEEDED(res))
-  {
-    pHeader->ParseHeaderAddresses(line, getter_Copies(names),
-                                  getter_Copies(addresses), &numAddresses);
-  }
-}
 
 bool MimeCMSHeadersAndCertsMatch(nsICMSMessage *content_info, 
                                    nsIX509Cert *signerCert,
@@ -564,23 +553,17 @@ void MimeCMSGetFromSender(MimeObject *obj,
 
   /* Find the names and addresses in the From and/or Sender fields.
    */
-  char *s;
+  nsCString s;
 
   /* Extract the name and address of the "From:" field. */
-  s = MimeHeaders_get(msg_headers, HEADER_FROM, false, false);
-  if (s)
-    {
-    ParseRFC822Addresses(s, from_name, from_addr);
-    PR_FREEIF(s);
-    }
+  s.Adopt(MimeHeaders_get(msg_headers, HEADER_FROM, false, false));
+  if (!s.IsEmpty())
+    ExtractFirstAddress(EncodedHeader(s), from_name, from_addr);
 
   /* Extract the name and address of the "Sender:" field. */
-  s = MimeHeaders_get(msg_headers, HEADER_SENDER, false, false);
-  if (s)
-    {
-    ParseRFC822Addresses(s, sender_name, sender_addr);
-    PR_FREEIF(s);
-    }
+  s.Adopt(MimeHeaders_get(msg_headers, HEADER_SENDER, false, false));
+  if (!s.IsEmpty())
+    ExtractFirstAddress(EncodedHeader(s), sender_name, sender_addr);
 }
 
 void MimeCMSRequestAsyncSignatureVerification(nsICMSMessage *aCMSMsg,

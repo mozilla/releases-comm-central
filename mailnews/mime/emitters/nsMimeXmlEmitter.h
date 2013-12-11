@@ -25,7 +25,7 @@ public:
     NS_IMETHOD    StartHeader(bool rootMailHeader, bool headerOnly, const char *msgID,
                               const char *outCharset) MOZ_OVERRIDE;
     NS_IMETHOD    AddHeaderField(const char *field, const char *value) MOZ_OVERRIDE;
-    NS_IMETHOD    EndHeader();
+    NS_IMETHOD    EndHeader(const nsACString &buf) MOZ_OVERRIDE;
 
     // Attachment handling routines
     NS_IMETHOD    StartAttachment(const nsACString &name,

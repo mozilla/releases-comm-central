@@ -49,7 +49,7 @@ nsMimePlainEmitter::AddHeaderField(const char *field, const char *value)
 }
 
 nsresult
-nsMimePlainEmitter::EndHeader()
+nsMimePlainEmitter::EndHeader(const nsACString &name)
 {
   UtilityWriteCRLF("");
   return NS_OK; 

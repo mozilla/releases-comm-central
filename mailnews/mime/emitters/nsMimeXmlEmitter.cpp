@@ -142,7 +142,7 @@ nsMimeXmlEmitter::AddHeaderField(const char *field, const char *value)
 }
 
 nsresult
-nsMimeXmlEmitter::EndHeader()
+nsMimeXmlEmitter::EndHeader(const nsACString &name)
 {
   UtilityWrite("</mailheader>");
   return NS_OK;

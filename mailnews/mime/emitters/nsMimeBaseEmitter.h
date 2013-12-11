@@ -15,7 +15,6 @@
 #include "nsIURI.h"
 #include "nsIChannel.h"
 #include "nsIMimeMiscStatus.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIPipe.h"
 #include "nsIStringBundle.h"
 #include "nsCOMPtr.h"
@@ -126,7 +125,6 @@ protected:
   // For header caching...
   nsVoidArray         *mHeaderArray;
   nsVoidArray         *mEmbeddedHeaderArray;
-  nsCOMPtr<nsIMsgHeaderParser>  mHeaderParser;
 
   // For body caching...
   bool                mBodyStarted;
