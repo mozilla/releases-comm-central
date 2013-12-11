@@ -6,6 +6,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
 
 try {
     Components.utils.import("resource:///modules/cloudFileAccounts.js");
@@ -2123,13 +2124,9 @@ function deleteAllAttachments() {
     var ok = (itemCount < 2);
 
     if (itemCount > 1) {
-        ok = Services.prompt.confirm(window,
-                                     calGetString("calendar-event-dialog",
-                                                  "removeCalendarsTitle"),
-                                     calGetString("calendar-event-dialog",
-                                                  "removeCalendarsText",
-                                                  [itemCount]),
-                                     {});
+        let removeText = PluralForm.get(itemCount, cal.calGetString("calendar-event-dialog", "removeAttachmentsText"));
+        let removeTitle = cal.calGetString("calendar-event-dialog", "removeCalendarsTitle");
+        ok = Services.prompt.confirm(window, removeTitle, removeText.replace("#1", itemCount), {});
     }
 
     if (ok) {
