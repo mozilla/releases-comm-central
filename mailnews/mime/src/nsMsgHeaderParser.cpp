@@ -1554,19 +1554,6 @@ msg_make_full_address(const char* name, const char* addr)
   return buf;
 }
 
-class MsgAddressObject MOZ_FINAL : public msgIAddressObject
-{
-public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_MSGIADDRESSOBJECT
-
-  MsgAddressObject(const nsAString &aName, const nsAString &aEmail);
-
-private:
-  nsString mName;
-  nsString mEmail;
-};
-
 MsgAddressObject::MsgAddressObject(const nsAString &aName,
     const nsAString &aEmail)
 : mName(aName),

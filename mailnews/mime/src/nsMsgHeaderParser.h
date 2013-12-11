@@ -18,6 +18,7 @@
 #include "comi18n.h"
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
+#include "nsStringGlue.h"
 
  /*
   * RFC-822 parser
@@ -32,6 +33,19 @@ public:
   /* this macro defines QueryInterface, AddRef and Release for this class */
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGHEADERPARSER
+};
+
+class MsgAddressObject MOZ_FINAL : public msgIAddressObject
+{
+public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_MSGIADDRESSOBJECT
+
+  MsgAddressObject(const nsAString &aName, const nsAString &aEmail);
+
+private:
+  nsString mName;
+  nsString mEmail;
 };
 
 #endif /* nsMSGRFCPARSER_h__ */
