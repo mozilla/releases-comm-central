@@ -16,6 +16,7 @@
 #include "MailNewsTypes2.h" // for nsMsgSocketType
 
 #include "nsCOMPtr.h"
+#include "nsTArray.h"
 
  /* states of the machine
  */
@@ -115,8 +116,7 @@ private:
     nsCString m_responseText;   /* text returned from Smtp server */
     nsMsgLineStreamBuffer *m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
 
-    char           *m_addressCopy;
-    char           *m_addresses;
+    nsTArray<nsCString> m_addresses;
     uint32_t       m_addressesLeft;
     nsCString m_mailAddr;
     nsCString m_helloArgument;

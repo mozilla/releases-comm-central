@@ -21,7 +21,6 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIDocumentEncoder.h"    // for editor output flags
-#include "nsIMsgHeaderParser.h"
 #include "nsMsgCompUtils.h"
 #include "nsComposeStrings.h"
 #include "nsIMsgSend.h"
@@ -1674,10 +1673,6 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  nsCOMPtr<nsIMsgHeaderParser> parser =
-    do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   if (m_identity && mType != nsIMsgCompType::Draft)
   {
     // Setup reply-to field.
@@ -1686,9 +1681,9 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
     if (!replyTo.IsEmpty())
     {
       nsCString resultStr;
-      rv = parser->RemoveDuplicateAddresses(nsDependentCString(m_compFields->GetReplyTo()),
-                                            replyTo, resultStr);
-      if (NS_SUCCEEDED(rv) && !resultStr.IsEmpty())
+      RemoveDuplicateAddresses(nsDependentCString(m_compFields->GetReplyTo()),
+                               replyTo, resultStr);
+      if (!resultStr.IsEmpty())
       {
         replyTo.Append(',');
         replyTo.Append(resultStr);
@@ -1705,9 +1700,9 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       m_identity->GetDoCcList(ccList);
 
       nsCString resultStr;
-      rv = parser->RemoveDuplicateAddresses(nsDependentCString(m_compFields->GetCc()),
-                                            ccList, resultStr);
-      if (NS_SUCCEEDED(rv) && !resultStr.IsEmpty())
+      RemoveDuplicateAddresses(nsDependentCString(m_compFields->GetCc()),
+                               ccList, resultStr);
+      if (!resultStr.IsEmpty())
       {
         ccList.Append(',');
         ccList.Append(resultStr);
@@ -1724,9 +1719,9 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       m_identity->GetDoBccList(bccList);
 
       nsCString resultStr;
-      rv = parser->RemoveDuplicateAddresses(nsDependentCString(m_compFields->GetBcc()),
-                                            bccList, resultStr);
-      if (NS_SUCCEEDED(rv) && !resultStr.IsEmpty())
+      RemoveDuplicateAddresses(nsDependentCString(m_compFields->GetBcc()),
+                               bccList, resultStr);
+      if (!resultStr.IsEmpty())
       {
         bccList.Append(',');
         bccList.Append(resultStr);
@@ -2279,46 +2274,22 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
         }
 
 
-      nsCString author;
-      rv = originalMsgHdr->GetAuthor(getter_Copies(author));
+        nsAutoCString author;
+        rv = originalMsgHdr->GetAuthor(getter_Copies(author));
 
-      if (NS_SUCCEEDED(rv))
-      {
-        mMimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
-        nsCOMPtr<nsIMsgHeaderParser> parser (do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID));
-
-        if (parser)
+        if (NS_SUCCEEDED(rv))
         {
-          nsCString authorName;
-          rv = parser->ExtractHeaderAddressName(author, authorName);
-          // take care "%s wrote"
+          nsAutoCString authorName;
+          ExtractName(EncodedHeader(author), authorName);
+
           PRUnichar *formattedString = nullptr;
-          if (NS_SUCCEEDED(rv) && !authorName.IsEmpty())
-          {
-            nsCString decodedAuthor;
-            // Decode header, the result string is null
-            // if the input is not MIME encoded ASCII.
-            if (mMimeConverter)
-              mMimeConverter->DecodeMimeHeaderToUTF8(authorName, charset,
-                                                     charsetOverride, true,
-                                                     decodedAuthor);
-            formattedString = nsTextFormatter::smprintf(replyHeaderAuthorwrote.get(),
-                                                        (!decodedAuthor.IsEmpty() ?
-                                                         decodedAuthor.get() : authorName.get()));
-          }
-          else
-          {
-            formattedString = nsTextFormatter::smprintf(replyHeaderAuthorwrote.get(),
-                                                        author.get());
-          }
+          formattedString = nsTextFormatter::smprintf(
+            replyHeaderAuthorwrote.get(), authorName.get());
           if (formattedString)
           {
             citePrefixAuthor.Assign(formattedString);
             nsTextFormatter::smprintf_free(formattedString);
           }
-        }
-
-
         }
         if (replyHeaderType == 2)
         {
@@ -2480,24 +2451,16 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
         mMimeConverter->DecodeMimeHeader(outCString.get(), charset.get(),
                                          false, true, references);
 
-      nsCOMPtr<nsIMsgHeaderParser> parser =
-        do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
       nsCString fromEmailAddress;
-      rv = parser->ExtractHeaderAddressMailboxes(NS_ConvertUTF16toUTF8(from),
-                                                 fromEmailAddress);
-      NS_ENSURE_SUCCESS(rv,rv);
+      ExtractEmail(EncodedHeader(NS_ConvertUTF16toUTF8(from)), fromEmailAddress);
 
-      nsCString toEmailAddresses;
-      rv = parser->ExtractHeaderAddressMailboxes(NS_ConvertUTF16toUTF8(to),
-                                                 toEmailAddresses);
-      NS_ENSURE_SUCCESS(rv,rv);
+      nsTArray<nsCString> toEmailAddresses;
+      ExtractEmails(EncodedHeader(NS_ConvertUTF16toUTF8(to)),
+        UTF16ArrayAdapter<>(toEmailAddresses));
 
-      nsCString  ccEmailAddresses;
-      rv = parser->ExtractHeaderAddressMailboxes(NS_ConvertUTF16toUTF8(cc),
-                                                 ccEmailAddresses);
-      NS_ENSURE_SUCCESS(rv,rv);
+      nsTArray<nsCString> ccEmailAddresses;
+      ExtractEmails(EncodedHeader(NS_ConvertUTF16toUTF8(cc)),
+        UTF16ArrayAdapter<>(ccEmailAddresses));
 
       nsCOMPtr<nsIPrefBranch> prefs (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -2581,8 +2544,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
 
               nsCString curIdentityEmail2;
               lookupIdentity2->GetEmail(curIdentityEmail2);
-              if (toEmailAddresses.Find(curIdentityEmail2) != kNotFound ||
-                  ccEmailAddresses.Find(curIdentityEmail2) != kNotFound)
+              if (toEmailAddresses.Contains(curIdentityEmail2) ||
+                  ccEmailAddresses.Contains(curIdentityEmail2))
               {
                 // An identity among the recipients -> not reply-to-self.
                 isReplyToSelf = false;
@@ -2766,8 +2729,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
 
           // Remove my own address from To, unless it's a reply to self.
           if (!isReplyToSelf) {
-            parser->RemoveDuplicateAddresses(nsDependentCString(_compFields->GetTo()),
-                                             myEmail, resultStr);
+            RemoveDuplicateAddresses(nsDependentCString(_compFields->GetTo()),
+                                     myEmail, resultStr);
             _compFields->SetTo(resultStr.get());
           }
           addressesToRemoveFromCc.Assign(_compFields->GetTo());
@@ -2784,12 +2747,12 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           mIdentity->GetDoCc(&automaticCc);
           if (automaticCc)
           {
-            nsCString autoCcList, autoCcEmailAddresses;
-            mIdentity->GetDoCcList(autoCcList); 
-            rv = parser->ExtractHeaderAddressMailboxes(autoCcList,
-                                                       autoCcEmailAddresses);
-            if (NS_SUCCEEDED(rv) &&
-                autoCcEmailAddresses.Find(myEmail) != kNotFound)
+            nsCString autoCcList;
+            mIdentity->GetDoCcList(autoCcList);
+            nsTArray<nsCString> autoCcEmailAddresses;
+            ExtractEmails(EncodedHeader(autoCcList),
+              UTF16ArrayAdapter<>(autoCcEmailAddresses));
+            if (autoCcEmailAddresses.Contains(myEmail))
             {
               removeMyEmailInCc = false;
             }
@@ -2801,10 +2764,9 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
             addressesToRemoveFromCc.Append(myEmail);
           }
         }
-        rv = parser->RemoveDuplicateAddresses(nsDependentCString(_compFields->GetCc()),
-                                              addressesToRemoveFromCc, resultStr);
-        if (NS_SUCCEEDED(rv))
-          _compFields->SetCc(resultStr.get());
+        RemoveDuplicateAddresses(nsDependentCString(_compFields->GetCc()),
+                                 addressesToRemoveFromCc, resultStr);
+        _compFields->SetCc(resultStr.get());
       }
     }
   }
@@ -4675,7 +4637,6 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
   nsCOMPtr<nsIAbDirectory> abDirectory;
   nsCOMPtr<nsIAbCard> existingCard;
   nsCOMPtr<nsIMutableArray> mailListAddresses;
-  nsCOMPtr<nsIMsgHeaderParser> parser(do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID));
   nsTArray<nsMsgMailList> mailListArray;
 
   nsCOMArray<nsIAbDirectory> addrbookDirArray;

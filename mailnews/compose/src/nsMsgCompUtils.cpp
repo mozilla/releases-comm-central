@@ -12,7 +12,6 @@
 #include "nsIHttpProtocolHandler.h"
 #include "nsMailHeaders.h"
 #include "nsMsgI18N.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsINntpService.h"
 #include "nsMimeTypes.h"
 #include "nsDirectoryServiceDefs.h"
@@ -1362,13 +1361,7 @@ mime_fix_header_1 (const char *string, bool addr_p, bool news_p)
     return 0;
 
   if (addr_p) {
-    nsresult rv = NS_OK;
-    nsCOMPtr<nsIMsgHeaderParser> pHeader = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
-    if (NS_SUCCEEDED(rv)) {
-      char *n;
-      pHeader->ReformatHeaderAddresses(string, &n);
-      if (n)        return n;
-    }
+    return strdup(string);
   }
 
   old_size = PL_strlen (string);

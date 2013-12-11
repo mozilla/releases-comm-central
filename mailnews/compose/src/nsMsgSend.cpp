@@ -8,7 +8,6 @@
 #include "nsMsgSendPart.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgNewsCID.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsISmtpService.h"  // for actually sending the message...
 #include "nsINntpService.h"  // for actually posting the message...
 #include "nsIMsgMailSession.h"
@@ -76,6 +75,9 @@
 #include "nsArrayUtils.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
+
+using namespace mozilla::mailnews;
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
@@ -3019,22 +3021,14 @@ nsMsgComposeAndSend::AddMailFollowupToHeader() {
     recipients.Append(cc);
   }
 
-  // Create nsIMsgHeaderParser object
-  nsCOMPtr<nsIMsgHeaderParser> headerParser =
-    do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // Remove duplicate addresses in recipients
-  nsCString recipients_no_dups;
-  rv = headerParser->RemoveDuplicateAddresses(recipients, EmptyCString(),
-                                              recipients_no_dups);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString recipients_no_dups;
+  RemoveDuplicateAddresses(recipients, EmptyCString(), recipients_no_dups);
 
   // Remove subscribed mailing lists from recipients...
-  nsCString recipients_without_mailing_lists;
-  rv = headerParser->RemoveDuplicateAddresses(recipients_no_dups, mailing_lists,
-                                              recipients_without_mailing_lists);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString recipients_without_mailing_lists;
+  RemoveDuplicateAddresses(recipients_no_dups, mailing_lists,
+                           recipients_without_mailing_lists);
 
   // ... If the result is equal to the input, we don't write to a subscribed
   // mailing list and therefore we don't add Mail-Followup-To
@@ -3105,23 +3099,14 @@ nsMsgComposeAndSend::AddMailReplyToHeader() {
       recipients.Append(cc);
     }
 
-    // Create nsIMsgHeaderParser object
-    nsCOMPtr<nsIMsgHeaderParser> headerParser =
-      do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
     // Remove duplicate addresses in recipients
-    nsCString recipients_no_dups;
-    rv = headerParser->RemoveDuplicateAddresses(recipients, EmptyCString(),
-                                                recipients_no_dups);
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString recipients_no_dups;
+    RemoveDuplicateAddresses(recipients, EmptyCString(), recipients_no_dups);
 
     // Remove reply-to mangling mailing lists from recipients...
-    nsCString recipients_without_mailing_lists;
-    rv = headerParser->RemoveDuplicateAddresses(recipients_no_dups,
-                                                mailing_lists,
-                                                recipients_without_mailing_lists);
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString recipients_without_mailing_lists;
+    RemoveDuplicateAddresses(recipients_no_dups, mailing_lists,
+                             recipients_without_mailing_lists);
 
     // ... If the result is equal to the input, none of the recipients
     // occure in the MRT addresses and therefore we stop here.
