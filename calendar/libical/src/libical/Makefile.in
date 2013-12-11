@@ -47,6 +47,7 @@ MODULE_NAME      = mozIcalModule
 USE_STATIC_LIBS  = 1
 
 DEFINES += -DHAVE_CONFIG_H
+DEFINES += -DHAVE_SNPRINTF
 
 ifneq (,$(filter BeOS Darwin OpenVMS NetBSD FreeBSD,$(OS_ARCH)))
 DEFINES	+= -D__USE_BSD=1
