@@ -35,7 +35,6 @@
 #include "nsToolkitCompsCID.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIWindowWatcher.h"
 #include "nsMsgLocalCID.h"
@@ -47,6 +46,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "mozINewMailNotificationService.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 
 #include <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
@@ -58,6 +58,8 @@
 #define kMaxDisplayCount 10
 #define kNewChatMessageTopic "new-directed-incoming-message"
 #define kUnreadImCountChangedTopic "unread-im-count-changed"
+
+using namespace mozilla::mailnews;
 
 // HACK: Limitations in Focus/SetFocus on Mac (see bug 465446)
 nsresult FocusAppNative()
@@ -614,10 +616,6 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
   uint32_t numNewKeys = 0;
   if (NS_SUCCEEDED(rv) && db)
   {
-    nsCOMPtr<nsIMsgHeaderParser> parser =
-      do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
     nsCOMPtr<nsIObserverService> os =
       do_GetService("@mozilla.org/observer-service;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -651,11 +649,8 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
           if (NS_FAILED(rv))
             continue;
 
-          nsCString name;
-          rv = parser->ExtractHeaderAddressName(NS_ConvertUTF16toUTF8(author),
-                                                name);
-          if (NS_FAILED(rv))
-            continue;
+          nsString name;
+          ExtractName(DecodedHeader(author), name);
 
           // Give extensions a chance to suppress notifications for this author
           nsCOMPtr<nsISupportsPRBool> notify =
@@ -669,12 +664,11 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
           notify->GetData(&includeSender);
 
           // Don't add unwanted or duplicate names
-          if (includeSender &&
-              aAuthors.Find(name.get(), true) == -1)
+          if (includeSender && aAuthors.Find(name, true) == -1)
           {
             if (displayed > 0)
               aAuthors.Append(listSeparator);
-            aAuthors.Append(NS_ConvertUTF8toUTF16(name));
+            aAuthors.Append(name);
             displayed++;
           }
         }

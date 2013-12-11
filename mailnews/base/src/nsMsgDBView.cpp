@@ -48,9 +48,11 @@
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
 #include "mozilla/Services.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsVoidArray.h"
 #include <algorithm>
 
+using namespace mozilla::mailnews;
 nsrefcnt nsMsgDBView::gInstanceCount  = 0;
 
 nsIAtom * nsMsgDBView::kJunkMsgAtom = nullptr;
@@ -393,60 +395,22 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr * aHdr, nsAString &aSenderString)
     }
   }
 
-  nsString decodedAuthor;
-  nsresult rv = aHdr->GetMime2DecodedAuthor(decodedAuthor);
+  nsString author;
+  nsresult rv = aHdr->GetMime2DecodedAuthor(author);
 
-  if (!mHeaderParser)
-    mHeaderParser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
+  nsCString emailAddress;
+  nsString name;
+  ExtractFirstAddress(DecodedHeader(author), name, emailAddress);
 
-  if (mHeaderParser)
-  {
-    nsCString name,emailAddress;
-    uint32_t numAddresses;
-
-    rv = mHeaderParser->ParseHeaderAddresses(
-      NS_ConvertUTF16toUTF8(decodedAuthor).get(), getter_Copies(name),
-      getter_Copies(emailAddress), &numAddresses);
-
-    if (NS_SUCCEEDED(rv) && showCondensedAddresses)
+  if (showCondensedAddresses)
       GetDisplayNameInAddressBook(emailAddress,aSenderString);
 
-    if (NS_SUCCEEDED(rv) && aSenderString.IsEmpty() && !name.IsEmpty())
-    {
-      nsCString charset;
-      nsCOMPtr<nsIMsgFolder> folder;
-
-      aHdr->GetFolder(getter_AddRefs(folder));
-      bool charsetOverride;
-      folder->GetCharsetOverride(&charsetOverride);
-      if (charsetOverride ||
-          NS_FAILED(aHdr->GetCharset(getter_Copies(charset))) ||
-          charset.IsEmpty() ||
-          charset.Equals("us-ascii"))
-        folder->GetCharset(charset);
-
-      nsCOMPtr<nsIMimeConverter>
-        mimeConverter(do_GetService(NS_MIME_CONVERTER_CONTRACTID,&rv));
-
-      rv = mimeConverter->DecodeMimeHeader(name.get(),
-                                           charset.get(),
-                                           charsetOverride,
-                                           true,
-                                           aSenderString);
-      if (NS_FAILED(rv) || aSenderString.IsEmpty())
-        CopyUTF8toUTF16(name, aSenderString);
-
-      // If the name is surrounded by quotes, strip them. In the future, we
-      // may want to handle this in ParseHeaderAddresses.
-      if ((aSenderString.First() == '"' && aSenderString.Last() == '"') ||
-          (aSenderString.First() == '\'' && aSenderString.Last() == '\''))
-        aSenderString = Substring(aSenderString, 1, aSenderString.Length()-2);
-    }
-  }
+  if (aSenderString.IsEmpty() && !name.IsEmpty())
+    aSenderString = name;
 
   if (aSenderString.IsEmpty())
     // if we got here then just return the original string
-    aSenderString = decodedAuthor;
+    aSenderString = author;
 
   UpdateCachedName(aHdr, "sender_name", aSenderString);
 
@@ -514,69 +478,46 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
     }
   }
 
-  mHeaderParser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
-
   nsresult rv = aHdr->GetMime2DecodedRecipients(unparsedRecipients);
+  nsTArray<nsString> names;
+  nsTArray<nsCString> emails;
+  ExtractAllAddresses(DecodedHeader(unparsedRecipients), names,
+    UTF16ArrayAdapter<>(emails));
 
-  // *sigh* how sad, we need to convert our beautiful unicode string to utf8
-  // so we can extract the name part of the address...then convert it back to
-  // unicode again.
-  if (mHeaderParser)
+  uint32_t numAddresses = names.Length();
+
+  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  nsCOMPtr<nsIAbManager>
+    abManager(do_GetService("@mozilla.org/abmanager;1", &rv));
+  NS_ENSURE_SUCCESS(rv, NS_OK);
+
+  // go through each email address in the recipients and
+  // compute its display name.
+  for (uint32_t i = 0; i < numAddresses; i++)
   {
-    char *names;
-    char *emailAddresses;
-    uint32_t numAddresses;
+    nsString recipient;
+    nsCString &curAddress = emails[i];
+    nsString &curName = names[i];
 
-    rv = mHeaderParser->ParseHeaderAddresses(
-                            NS_ConvertUTF16toUTF8(unparsedRecipients).get(),
-                            &names, &emailAddresses,&numAddresses);
+    if (showCondensedAddresses)
+      GetDisplayNameInAddressBook(curAddress,recipient);
 
-    if (NS_SUCCEEDED(rv))
+    if (recipient.IsEmpty())
     {
-      char *curAddressPtr = emailAddresses;
-      char *curNamePtr = names;
-
-      nsCOMPtr<nsISimpleEnumerator> enumerator;
-      nsCOMPtr<nsIAbManager>
-        abManager(do_GetService("@mozilla.org/abmanager;1", &rv));
-      NS_ENSURE_SUCCESS(rv, NS_OK);
-
-      // go through each email address in the recipients and
-      // compute its display name.
-      for (uint32_t i = 0; i < numAddresses; i++)
-      {
-        nsString recipient;
-        nsDependentCString curAddress(curAddressPtr);
-        nsDependentCString curName(curNamePtr);
-
-        curAddressPtr += curAddress.Length() + 1;
-        curNamePtr += curName.Length() + 1;
-
-        if (showCondensedAddresses)
-          GetDisplayNameInAddressBook(curAddress,recipient);
-
-        if (recipient.IsEmpty())
-        {
-          // we can't use the display name in the card,
-          // use the name contained in the header or email address.
-          if (!curName.IsEmpty())
-            CopyUTF8toUTF16(curName, recipient);
-          else
-            CopyUTF8toUTF16(curAddress, recipient);
-        }
-
-        // add ',' and end of each recipient
-        if (i != 0)
-          aRecipientsString.Append(NS_LITERAL_STRING(","));
-
-        aRecipientsString.Append(recipient);
-      }
+      // we can't use the display name in the card,
+      // use the name contained in the header or email address.
+      if (!curName.IsEmpty())
+        recipient = curName;
+      else
+        CopyUTF8toUTF16(curAddress, recipient);
     }
-    PR_FREEIF(names);
-    PR_FREEIF(emailAddresses);
+
+    // add ',' and end of each recipient
+    if (i != 0)
+      aRecipientsString.Append(NS_LITERAL_STRING(","));
+
+    aRecipientsString.Append(recipient);
   }
-  else
-    aRecipientsString = unparsedRecipients;
 
   UpdateCachedName(aHdr, "recipient_names", aRecipientsString);
 
@@ -7583,7 +7524,6 @@ nsresult nsMsgDBView::CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMess
   aNewMsgDBView->mIsRss = mIsRss;
   aNewMsgDBView->mIsXFVirtual = mIsXFVirtual;
   aNewMsgDBView->mShowSizeInLines = mShowSizeInLines;
-  aNewMsgDBView->mHeaderParser = mHeaderParser;
   aNewMsgDBView->mDeleteModel = mDeleteModel;
   aNewMsgDBView->m_flags = m_flags;
   aNewMsgDBView->m_levels = m_levels;

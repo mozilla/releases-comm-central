@@ -19,7 +19,6 @@
 #include "nsITreeSelection.h"
 #include "nsIMsgFolder.h"
 #include "nsIDateTimeFormat.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsIDOMElement.h"
 #include "nsIAtom.h"
 #include "nsIImapIncomingServer.h"
@@ -408,7 +407,6 @@ protected:
 
   // I18N date formatter service which we'll want to cache locally.
   nsCOMPtr<nsIDateTimeFormat> mDateFormatter;
-  nsCOMPtr<nsIMsgHeaderParser> mHeaderParser;
   nsCOMPtr<nsIMsgTagService> mTagService;
   nsWeakPtr mMessengerWeak;
   nsWeakPtr mMsgWindowWeak;

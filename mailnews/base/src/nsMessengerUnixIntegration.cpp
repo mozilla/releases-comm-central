@@ -35,7 +35,6 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgHeaderParser.h"
 #include "nsAutoPtr.h"
 #include "prmem.h"
 #include "nsComponentManagerUtils.h"
@@ -51,6 +50,7 @@
 #include "nsArrayUtils.h"
 #include "nsMemory.h"
 #include "mozilla/Services.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 
 #define ALERT_CHROME_URL "chrome://messenger/content/newmailalert.xul"
 #define NEW_MAIL_ALERT_ICON "chrome://messenger/skin/icons/new-mail-alert.png"
@@ -60,6 +60,8 @@
 #define SHOW_ALERT_PREVIEW "mail.biff.alert.show_preview"
 #define SHOW_ALERT_SENDER  "mail.biff.alert.show_sender"
 #define SHOW_ALERT_SUBJECT "mail.biff.alert.show_subject"
+
+using namespace mozilla::mailnews;
 
 static void openMailWindow(const nsACString& aFolderUri)
 {
@@ -220,10 +222,6 @@ nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
   prefBranch->GetBoolPref(SHOW_ALERT_SUBJECT, &showSubject);
   prefBranch->GetIntPref(SHOW_ALERT_PREVIEW_LENGTH, &previewLength);
 
-  nsCOMPtr<nsIMsgHeaderParser> parser = do_GetService(NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID);
-  if (!parser)
-    return false;
-
   nsCOMPtr<nsIMsgFolder> folder;
   aHdr->GetFolder(getter_AddRefs(folder));
 
@@ -280,27 +278,11 @@ nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
   nsString author;
   if (showSender)
   {
-    if (NS_FAILED(aHdr->GetMime2DecodedAuthor(author)))
+    nsString fullHeader;
+    if (NS_FAILED(aHdr->GetMime2DecodedAuthor(fullHeader)))
       return false;
 
-    PRUnichar **emails;
-    PRUnichar **names;
-    PRUnichar **fullnames;
-    uint32_t num;
-    if (NS_FAILED(parser->ParseHeadersWithArray(author.get(),
-                  &emails,
-                  &names,
-                  &fullnames, &num)))
-      return false;
-
-    if (num > 0)
-    {
-      author.Assign(names[0] ? names[0] : emails[0]);
-
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(num, emails);
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(num, names);
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(num, fullnames);
-    }
+    ExtractName(DecodedHeader(fullHeader), author);
   }
 
   if (showSubject && showSender)

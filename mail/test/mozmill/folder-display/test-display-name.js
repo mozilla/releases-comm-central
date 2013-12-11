@@ -25,9 +25,6 @@ function setupModule(module) {
   add_message_to_folder(folder, create_message({
     clobberHeaders: {from: '"Ellen Ripley" <eripley@wyutani.invalid>'},
   }));
-  add_message_to_folder(folder, create_message({
-    clobberHeaders: {from: "'Dwayne Hicks' <dhicks@uscmc.invalid>"},
-  }));
 }
 
 function check_display_name(index, expectedName) {
@@ -49,8 +46,4 @@ function test_display_name_unquoted() {
 
 function test_display_name_double_quoted() {
   check_display_name(1, "Ellen Ripley");
-}
-
-function test_display_name_single_quoted() {
-  check_display_name(2, "Dwayne Hicks");
 }
