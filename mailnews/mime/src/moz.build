@@ -36,6 +36,7 @@ SOURCES += [
     'mimeenc.cpp',
     'mimeeobj.cpp',
     'mimehdrs.cpp',
+    'MimeHeaderParser.cpp',
     'mimei.cpp',
     'mimeiimg.cpp',
     'mimeleaf.cpp',

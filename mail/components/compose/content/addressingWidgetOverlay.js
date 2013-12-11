@@ -144,7 +144,12 @@ function Recipients2CompFields(msgCompFields)
           case "addr_bcc"   :
           case "addr_reply" :
             try {
-              recipient = MailServices.headerParser.reformatUnquotedAddresses(fieldValue);
+              let headerParser = MailServices.headerParser;
+              recipient = [headerParser.makeMimeAddress(fullValue.name,
+                                                        fullValue.email) for
+                  (fullValue of
+                    headerParser.makeFromDisplayAddress(fieldValue, {}))]
+                .join(", ");
             } catch (ex) {recipient = fieldValue;}
             break;
         }
@@ -289,18 +294,8 @@ function awSetInputAndPopupFromArray(inputArray, popupValue, parentNode, templat
 {
   if (popupValue)
   {
-    var recipient;
-    for (var index = 0; index < inputArray.length; index++)
-    {
-      recipient = null;
-      try {
-        recipient =
-          MailServices.headerParser.unquotePhraseOrAddrWString(inputArray[index], true);
-      } catch (ex) {};
-      if (!recipient)
-        recipient = inputArray[index];
+    for (let recipient of inputArray)
       _awSetInputAndPopup(recipient, popupValue, parentNode, templateNode);
-    }
   }
 }
 

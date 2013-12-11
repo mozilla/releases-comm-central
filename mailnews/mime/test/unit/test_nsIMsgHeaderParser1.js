@@ -24,11 +24,11 @@ function run_test() {
 
   // Test - empty strings
 
-  do_check_eq(MailServices.headerParser.makeFullAddress("", ""), "");
+  do_check_eq(MailServices.headerParser.makeMimeAddress("", ""), "");
 
-  // Test - makeFullAddressWString
+  // Test - makeMimeAddress
 
   for (let i = 0; i < checks.length; ++i)
-    do_check_eq(MailServices.headerParser.makeFullAddress(checks[i][0], checks[i][1]),
+    do_check_eq(MailServices.headerParser.makeMimeAddress(checks[i][0], checks[i][1]),
                 checks[i][2]);
 }

@@ -112,19 +112,17 @@ function GetListValue(mailList, doAdd)
       cardproperty = cardproperty.QueryInterface(Components.interfaces.nsIAbCard);
       if (cardproperty)
       {
-        var addresses = {};
-        var names = {};
-        var fullNames = {};
-        var numAddresses = MailServices.headerParser.parseHeadersWithArray(fieldValue, addresses, names, fullNames);
-        for (var j = 0; j < numAddresses; j++)
+        let addrObjects = MailServices.headerParser
+                                      .makeFromDisplayAddress(fieldValue, {});
+        for (let j = 0; j < addrObjects.length; j++)
         {
           if (j > 0)
           {
             cardproperty = Components.classes["@mozilla.org/addressbook/cardproperty;1"].createInstance();
             cardproperty = cardproperty.QueryInterface(Components.interfaces.nsIAbCard);
           }
-          cardproperty.primaryEmail = addresses.value[j];
-          cardproperty.displayName = names.value[j];
+          cardproperty.primaryEmail = addrObjects[j].email;
+          cardproperty.displayName = addrObjects[j].name || addrObjects[j].email;
 
           if (doAdd || (doAdd == false && pos >= oldTotal))
             mailList.addressLists.appendElement(cardproperty, false);
@@ -270,8 +268,8 @@ function OnLoadEditList()
       for (let i = 0; i < total; i++)
       {
         let card = gEditList.addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
-        let address = MailServices.headerParser.makeFullAddress(card.displayName,
-                                                                card.primaryEmail);
+        let address = MailServices.headerParser.makeMailboxObject(
+          card.displayName, card.primaryEmail).toString();
         SetInputValue(address, newListBoxNode, templateNode);
       }
       listbox.parentNode.replaceChild(newListBoxNode, listbox);
@@ -535,12 +533,22 @@ function DropOnAddressListTree(event)
 
 function DropListAddress(target, address)
 {
-    awClickEmptySpace(target, true);    //that will automatically set the focus on a new available row, and make sure is visible
-    if (top.MAX_RECIPIENTS == 0)
+  // Set focus on a new available, visible row.
+  awClickEmptySpace(target, true);
+  if (top.MAX_RECIPIENTS == 0)
     top.MAX_RECIPIENTS = 1;
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-    lastInput.value = address;
+
+  // Break apart the MIME-ready header address into individual addressees to
+  // add to the dialog.
+  let addresses = {}, names = {}, fullNames = {};
+  MailServices.headerParser.parseHeadersWithArray(address, addresses, names,
+    fullNames);
+  for (let full of fullNames.value)
+  {
+    let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
+    lastInput.value = full;
     awAppendNewRow(true);
+  }
 }
 
 /* Allows extensions to register a listener function for
