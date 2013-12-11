@@ -30,6 +30,7 @@ struct MimeInlineTextPlainFlowed {
   int32_t         mQuotedSizeSetting;   // mail.quoted_size
   int32_t         mQuotedStyleSetting;  // mail.quoted_style
   char            *mCitationColor;      // mail.citation_color
+  bool            mStripSig;            // mail.strip_sig_on_reply
 };
 
 

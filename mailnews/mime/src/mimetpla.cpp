@@ -115,6 +115,7 @@ MimeInlineTextPlain_parse_begin (MimeObject *obj)
       text->mQuotedSizeSetting = 0;   // mail.quoted_size
       text->mQuotedStyleSetting = 0;  // mail.quoted_style
       text->mCitationColor = nullptr;  // mail.citation_color
+      text->mStripSig = true; // mail.strip_sig_on_reply
       bool graphicalQuote = true; // mail.quoted_graphical
 
       nsIPrefBranch *prefBranch = GetPrefBranch(obj->options);
@@ -123,6 +124,7 @@ MimeInlineTextPlain_parse_begin (MimeObject *obj)
         prefBranch->GetIntPref("mail.quoted_size", &(text->mQuotedSizeSetting));
         prefBranch->GetIntPref("mail.quoted_style", &(text->mQuotedStyleSetting));
         prefBranch->GetCharPref("mail.citation_color", &(text->mCitationColor));
+        prefBranch->GetBoolPref("mail.strip_sig_on_reply", &(text->mStripSig));
         prefBranch->GetBoolPref("mail.quoted_graphical", &graphicalQuote);
         prefBranch->GetBoolPref("mail.quoteasblock", &(text->mBlockquoting));
       }
@@ -417,7 +419,7 @@ MimeInlineTextPlain_parse_line (const char *line, int32_t length, MimeObject *ob
                        whattodo, getter_Copies(lineResultUnichar));
     NS_ENSURE_SUCCESS(rv, -1);
 
-    if (!(text->mIsSig && quoting))
+    if (!(text->mIsSig && quoting && text->mStripSig))
     {
       status = MimeObject_write(obj, prefaceResultStr.get(), prefaceResultStr.Length(), true);
       if (status < 0) return status;
