@@ -19,10 +19,6 @@ function startup(aData, aReasion) {
 
   RemoteDebuggerServer.extraInit = function(DebuggerServer) {
     DebuggerServer.addActors("resource://dbgserver/modules/XULRootActor.js");
-
-    // Bug 915444 - Devtools won't make style editor and inspector global, but we want it!
-    DebuggerServer.addGlobalActor(DebuggerServer.InspectorActor, "inspectorActor");
-    DebuggerServer.addGlobalActor(DebuggerServer.StyleEditorActor, "styleEditorActor");
   };
   RemoteDebuggerServer.startstop(remoteEnabled);
 }
