@@ -3003,7 +3003,7 @@ nsresult nsImapProtocol::BeginMessageDownLoad(
       // we create an "infinite" pipe in case we get extremely long lines from the imap server,
       // and the consumer is waiting for a whole line
       nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-      rv = pipe->Init(false, false, 4096, PR_UINT32_MAX, nullptr);
+      rv = pipe->Init(false, false, 4096, PR_UINT32_MAX);
       NS_ASSERTION(NS_SUCCEEDED(rv), "nsIPipe->Init failed!");
 
       pipe->GetInputStream(getter_AddRefs(m_channelInputStream));

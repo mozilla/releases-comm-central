@@ -1446,7 +1446,7 @@ nsresult nsMsgAsyncWriteProtocol::SetupTransportState()
     // first create a pipe which we'll use to write the data we want to send
     // into.
     nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-    rv = pipe->Init(true, true, 1024, 8, nullptr);
+    rv = pipe->Init(true, true, 1024, 8);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsIAsyncInputStream *inputStream = nullptr;

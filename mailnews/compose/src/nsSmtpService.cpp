@@ -325,7 +325,7 @@ NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI *aURI, nsIChannel **_retval)
   nsCOMPtr<nsIAsyncInputStream> pipeIn;
   nsCOMPtr<nsIAsyncOutputStream> pipeOut;
   nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-  nsresult rv = pipe->Init(false, false, 0, 0, nullptr);
+  nsresult rv = pipe->Init(false, false, 0, 0);
   if (NS_FAILED(rv)) 
     return rv;
   
