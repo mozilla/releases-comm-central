@@ -338,7 +338,6 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 
 #dirTree {
   -moz-border-end: 1px solid #bdbdbd;
-  background-image: url("chrome://messenger/skin/noise.png");
   background-color: #E2E7ED
 }
 

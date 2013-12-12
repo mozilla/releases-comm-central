@@ -47,7 +47,6 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 #folderTree {
   border-bottom: 1px solid ThreeDShadow;
   background-color: -moz-OddTreeRow;
-  background-image: url("chrome://messenger/skin/noise.png");
 }
 
 #threadTree {

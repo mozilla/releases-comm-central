@@ -22,7 +22,6 @@
 /* Adaptation from #folderTree */
 #listPaneBox {
   background-color: -moz-OddTreeRow;
-  background-image: url("chrome://messenger/skin/noise.png");
 }
 
 #listPaneBox > * {

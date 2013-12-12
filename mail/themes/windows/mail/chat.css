@@ -56,12 +56,6 @@
   color: -moz-FieldText;
 }
 
-@media (-moz-windows-default-theme) {
-  #listPaneBox {
-    background-image: url("chrome://messenger/skin/noise.png");
-  }
-}
-
 #listPaneBox > * {
   background: transparent !important;
   -moz-appearance: none !important;

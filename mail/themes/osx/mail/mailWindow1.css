@@ -46,7 +46,6 @@ treechildren::-moz-tree-twisty {
 
 #folderTree {
   -moz-appearance: none !important;
-  background-image: url("chrome://messenger/skin/noise.png");
 }
 
 #folderPaneHeader, #folderTree {
