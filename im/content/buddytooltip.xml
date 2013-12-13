@@ -462,12 +462,10 @@
        while ((buddy = buddies.firstChild))
          buddies.removeChild(buddy);
 
-#ifdef XP_MACOSX
        // Since Mozilla 22, tooltips don't seem to shrink automatically after
        // being shown once at a large size. Not sure if it's temporary or not.
        this.removeAttribute("width");
        this.removeAttribute("height");
-#endif
        ]]>
      </handler>
     </handlers>
