@@ -2546,8 +2546,13 @@
         <parameter name="aCropped"/>
         <body>
           <![CDATA[
-            // Display location info for items in favorite folder pane mode.
-            if (gFolderTreeView.mode == "favorite") {
+            // Display also server name for items that are on level 0 and are not server names
+            // by themselves and do not have server name already appended in their label.
+            let folderIndex = gFolderTreeView.getIndexOfFolder(aFolder);
+            if (!aFolder.isServer &&
+                gFolderTreeView.getLevel(folderIndex) == 0 &&
+                !gFolderTreeView.getServerNameAdded(folderIndex))
+            {
               let loc = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummaryLocation");
               let midPath = "";
               let midFolder = aFolder.parent;
