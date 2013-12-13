@@ -86,7 +86,10 @@ var gFolderDisplay =
     var selectedMessages = this.selectedMessages;
     if (selectedMessages.length == 0)
       return false;
-    return selectedMessages.every(function(aMsg) GetIdentityForHeader(aMsg).archiveEnabled);
+    return selectedMessages.every(function(aMsg) {
+      let identity = GetIdentityForHeader(aMsg);
+      return identity && identity.archiveEnabled;
+    });
   },
 
   get displayedFolder()
