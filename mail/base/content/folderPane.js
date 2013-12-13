@@ -722,17 +722,10 @@ let gFolderTreeView = {
   },
 
   /**
-   * The ftvItems take care of assigning this when created.
+   * The ftvItems take care of assigning this when building children lists
    */
   getLevel: function ftv_getLevel(aIndex) {
     return this._rowMap[aIndex].level;
-  },
-
-  /**
-   * The ftvItems take care of assigning this when building children lists
-   */
-  getServerNameAdded: function ftv_getServerNameAdded(aIndex) {
-    return this._rowMap[aIndex].addServerName;
   },
 
   /**
@@ -848,7 +841,10 @@ let gFolderTreeView = {
       this._rowMap.splice(aIndex + 1, count);
 
       // Remove us from the persist map
-      this._persistItemClosed(this._rowMap[aIndex].id);
+      let index = this._persistOpenMap[this.mode]
+                      .indexOf(this._rowMap[aIndex].id);
+      if (index != -1)
+        this._persistOpenMap[this.mode].splice(index, 1);
 
       // Notify the tree of changes
       if (this._tree) {
@@ -864,7 +860,11 @@ let gFolderTreeView = {
       this.recursivelyAddToMap(this._rowMap[aIndex], aIndex);
 
       // Add this folder to the persist map
-      this._persistItemOpen(this._rowMap[aIndex].id);
+      if (!this._persistOpenMap[this.mode])
+        this._persistOpenMap[this.mode] = [];
+      let id = this._rowMap[aIndex].id;
+      if (this._persistOpenMap[this.mode].indexOf(id) == -1)
+        this._persistOpenMap[this.mode].push(id);
 
       // Notify the tree of changes
       if (this._tree) {
@@ -1088,26 +1088,17 @@ let gFolderTreeView = {
   _modeDisplayNames: {},
 
   /**
-   * This is a javascript map of which folders we had open, so that we can
+   * This is a javaascript map of which folders we had open, so that we can
    * persist their state over-time.  It is designed to be used as a JSON object.
    */
   _persistOpenMap: {},
-  _notPersistedModes: ["unread", "favorite", "recent"],
 
-  /**
-   * Iterate over the persistent list and open the items (folders) stored in it.
-   */
   _restoreOpenStates: function ftv__persistOpenStates() {
-    let mode = this.mode;
-    // Remove any saved state of modes where open state should not be persisted.
-    // This is mostly for migration from older profiles that may have the info stored.
-    if (this._notPersistedModes.indexOf(mode) != -1) {
-      delete this._persistOpenMap[mode];
-    }
+    if (!(this.mode in this._persistOpenMap))
+      return;
 
     let curLevel = 0;
     let tree = this;
-    let map = tree._persistOpenMap[mode]; // may be undefined
     function openLevel() {
       let goOn = false;
       // We can't use a js iterator because we're changing the array as we go.
@@ -1118,8 +1109,8 @@ let gFolderTreeView = {
         if (row.level != curLevel)
           continue;
 
-        // The initial state of all rows is closed, so toggle those we want open.
-        if (!map || map.indexOf(row.id) != -1) {
+        let map = tree._persistOpenMap[tree.mode];
+        if (map && map.indexOf(row.id) != -1) {
           tree._toggleRow(i, false);
           goOn = true;
         }
@@ -1131,40 +1122,6 @@ let gFolderTreeView = {
         openLevel();
     }
     openLevel();
-  },
-
-  /**
-   * Remove the item from the persistent list, meaning the item should
-   * be persisted as closed in the tree.
-   *
-   * @param aItemId  The URI of the folder item.
-   */
-  _persistItemClosed: function ftv_unpersistItem(aItemId) {
-    let mode = this.mode;
-    if (this._notPersistedModes.indexOf(mode) != -1)
-      return;
-
-    let persistMapIndex = this._persistOpenMap[mode].indexOf(aItemId);
-    if (persistMapIndex != -1)
-      this._persistOpenMap[mode].splice(persistMapIndex, 1);
-  },
-
-  /**
-   * Add the item from the persistent list, meaning the item should
-   * be persisted as open (expanded) in the tree.
-   *
-   * @param aItemId  The URI of the folder item.
-   */
-  _persistItemOpen: function ftv_persistItem(aItemId) {
-    let mode = this.mode;
-    if (this._notPersistedModes.indexOf(mode) != -1)
-      return;
-
-    if (!this._persistOpenMap[mode])
-      this._persistOpenMap[mode] = [];
-
-    if (this._persistOpenMap[mode].indexOf(aItemId) == -1)
-      this._persistOpenMap[mode].push(aItemId);
   },
 
   _tree: null,
@@ -1260,56 +1217,69 @@ let gFolderTreeView = {
       __proto__: IFolderTreeMode,
 
       generateMap: function ftv_unread_generateMap(ftv) {
-        let filterUnread = function filterUnread(aFolder) {
-          let currentFolder = gFolderTreeView.getSelectedFolders()[0];
-          const outFolderFlagMask = nsMsgFolderFlags.SentMail |
-            nsMsgFolderFlags.Drafts | nsMsgFolderFlags.Queue |
-            nsMsgFolderFlags.Templates;
-          return (!aFolder.isSpecialFolder(outFolderFlagMask, true) &&
-                  ((aFolder.getNumUnread(true) > 0) ||
-                   (aFolder == currentFolder)))
+        let map = [];
+        let currentFolder = gFolderTreeView.getSelectedFolders()[0];
+        const outFolderFlagMask = nsMsgFolderFlags.SentMail |
+          nsMsgFolderFlags.Drafts | nsMsgFolderFlags.Queue |
+          nsMsgFolderFlags.Templates;
+        for each (let folder in ftv._enumerateFolders) {
+          if (!folder.isSpecialFolder(outFolderFlagMask, true) &&
+              (!folder.isServer && folder.getNumUnread(false) > 0) ||
+              (folder == currentFolder))
+            map.push(new ftvItem(folder));
         }
 
-        let accounts = gFolderTreeView._sortedAccounts();
-        // Force each root folder to do its local subfolder discovery.
-        MailUtils.discoverFolders();
-
-        let unreadRootFolders = [];
-        for (let acct of accounts) {
-          let rootFolder = acct.incomingServer.rootFolder;
-          // Add rootFolders of accounts that contain at least one Favorite folder.
-          if (rootFolder.getNumUnread(true) > 0)
-            unreadRootFolders.push(new ftvItem(rootFolder, filterUnread));
+        // There are no children in this view!
+        for each (let folder in map) {
+          folder.__defineGetter__("children", function() []);
+          folder.addServerName = true;
         }
+        sortFolderItems(map);
+        return map;
+      },
 
-        return unreadRootFolders;
+      getParentOfFolder: function ftv_unread_getParentOfFolder(aFolder) {
+        // This is a flat view, so no folders have parents.
+        return null;
       }
     },
 
     /**
      * The favorites mode returns all folders whose flags are set to include
-     * the favorite flag.
+     * the favorite flag
      */
     favorite: {
       __proto__: IFolderTreeMode,
 
       generateMap: function ftv_favorite_generateMap(ftv) {
-        let accounts = gFolderTreeView._sortedAccounts();
-        // Force each root folder to do its local subfolder discovery.
-        MailUtils.discoverFolders();
-
-        let favRootFolders = [];
-        let filterFavorite = function filterFavorite(aFolder) {
-          return aFolder.getFolderWithFlags(nsMsgFolderFlags.Favorite) != null;
-        }
-        for (let acct of accounts) {
-          let rootFolder = acct.incomingServer.rootFolder;
-          // Add rootFolders of accounts that contain at least one Favorite folder.
-          if (filterFavorite(rootFolder))
-            favRootFolders.push(new ftvItem(rootFolder, filterFavorite));
+        let faves = [];
+        for each (let folder in ftv._enumerateFolders) {
+          if (folder.flags & nsMsgFolderFlags.Favorite)
+            faves.push(new ftvItem(folder));
         }
 
-        return favRootFolders;
+        // There are no children in this view!
+        // And we want to display the account name to distinguish folders w/
+        // the same name. (only for folders with duplicated names)
+        let uniqueNames = new Object();
+        for each (let item in faves) {
+          let name = item._folder.abbreviatedName.toLowerCase();
+          item.__defineGetter__("children", function() []);
+          if (!uniqueNames[name])
+            uniqueNames[name] = 0;
+          uniqueNames[name]++;
+        }
+        for each (let item in faves) {
+          let name = item._folder.abbreviatedName.toLowerCase();
+          item.addServerName = (uniqueNames[name] > 1);
+        }
+        sortFolderItems(faves);
+        return faves;
+      },
+
+      getParentOfFolder: function ftv_unread_getParentOfFolder(aFolder) {
+        // This is a flat view, so no folders have parents.
+        return null;
       }
     },
 
@@ -1738,11 +1708,6 @@ let gFolderTreeView = {
   },
   addFolder: function ftl_add_folder(aParentItem, aItem)
   {
-    // This intentionally adds any new folder even if it would not pass the
-    // _filterFunction. The idea is that the user can add new folders even
-    // in modes like "unread" or "favorite" and could wonder why they
-    // are not appearing (forgetting they do not meet the criteria of the view).
-    // The folders will be hidden properly next time the view is rebuilt.
     let parentIndex = this.getIndexOfFolder(aParentItem);
     let parent = this._rowMap[parentIndex];
     if (!parent)
@@ -1786,7 +1751,9 @@ let gFolderTreeView = {
     if (!(aItem instanceof Components.interfaces.nsIMsgFolder))
       return;
 
-    this._persistItemClosed(aItem.URI);
+    let persistMapIndex = this._persistOpenMap[this.mode].indexOf(aItem.URI);
+    if (persistMapIndex != -1)
+      this._persistOpenMap[this.mode].splice(persistMapIndex, 1);
 
     let index = this.getIndexOfFolder(aItem);
     if (index == null)
@@ -1808,16 +1775,11 @@ let gFolderTreeView = {
 
   OnItemPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
   OnItemIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
-    // We want to rebuild only if we're in unread mode, and we have a
+    // we want to rebuild only if we're in unread mode, and we have a
     // newly unread folder, and we didn't already have the folder.
-    // Or if we are in favorite view and the favorite status of a folder changed.
-    if ((this._mode == "unread" &&
-         aProperty == "TotalUnreadMessages" && aOld == 0 &&
-         this.getIndexOfFolder(aItem) == null) ||
-        (this._mode == "favorite" && aProperty == "FolderFlag" &&
-         (aOld & Components.interfaces.nsMsgFolderFlags.Favorite) !=
-         (aNew & Components.interfaces.nsMsgFolderFlags.Favorite)))
-    {
+    if (this._mode == "unread" &&
+        aProperty == "TotalUnreadMessages" && aOld == 0 &&
+        this.getIndexOfFolder(aItem) == null) {
       this._rebuild();
       return;
     }
@@ -1868,20 +1830,9 @@ let gFolderTreeView = {
  * command (function) - this function will be called when the item is double-
  *                      clicked
  */
-
-/**
- * The ftvItem constructor takes these arguments:
- *
- * @param aFolder        The folder attached to this row in the tree.
- * @param aFolderFilter  When showing children folders of this one,
- *                       only show those that pass this filter function.
- *                       If unset, show all subfolders.
- */
-function ftvItem(aFolder, aFolderFilter) {
+function ftvItem(aFolder) {
   this._folder = aFolder;
   this._level = 0;
-  this._parent = null;
-  this._folderFilter = aFolderFilter;
 }
 
 ftvItem.prototype = {
@@ -1952,17 +1903,11 @@ ftvItem.prototype = {
                                           " failed with " + "exception: " + ex);
         iter = [];
       }
-      this._children = [];
-      // Out of all children, only keep those that match the _folderFilter
-      // and those that contain such children.
-      for (let folder in iter) {
-        if (!this._folderFilter || this._folderFilter(folder)) {
-          this._children.push(new ftvItem(folder, this._folderFilter));
-        }
-      }
+      this._children = [new ftvItem(f) for each (f in iter)];
+
       sortFolderItems(this._children);
       // Each child is a level one below us
-      for (let child of this._children) {
+      for each (let child in this._children) {
         child._level = this._level + 1;
         child._parent = this;
       }
