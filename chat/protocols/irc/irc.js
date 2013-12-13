@@ -710,6 +710,10 @@ ircSocket.prototype = {
 
   // Throw errors if the socket has issues.
   onConnectionClosed: function() {
+    // If the account was already disconnected, e.g. in response to
+    // onConnectionReset, do nothing.
+    if (!this._account)
+      return;
     const msg = "Connection closed by server.";
     if (this._account.disconnecting) {
       // The server closed the connection before we handled the ERROR
