@@ -432,6 +432,9 @@ ConvStatsService.prototype = {
     // a fresh log sweep is triggered on next startup.
     if (gLogParser.error)
       return;
+    // Don't save stats to disk if the user has disabled conversation logging.
+    if (!Services.prefs.getBoolPref("purple.logging.log_ims"))
+      return;
     let encoder = new TextEncoder();
     let objToWrite = {version: gStatsCacheVersion, stats: gStatsByConvId};
     OS.File.writeAtomic(this._statsCacheFilePath,
