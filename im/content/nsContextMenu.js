@@ -166,21 +166,23 @@ nsContextMenu.prototype = {
     addAction("ShowLogs", this.onNick && this.getLogsForNick(nick).hasMoreElements());
 
     let isAddContact = this.onNick && !isTwitter;
-    let account = this.conv.account;
-    // We don't want to support adding chatBuddies as contacts if we are not
-    // sure the normalizedChatBuddyName is enough information to add a contact.
-    // This is a problem e.g. for XMPP MUCs. We require at least that the
-    // normalizedChatBuddyName of the nick is normalized like a normalizedName
-    // for contacts.
-    let normalizedNick = this.conv.target.getNormalizedChatBuddyName(nick);
-    if (normalizedNick == account.normalize(normalizedNick)) {
-      this.buddy = Services.contacts
-                           .getBuddyByNameAndProtocol(normalizedNick,
-                                                      account.protocol);
-      isAddContact &= !this.buddy;
+    if (isAddContact) {
+      let account = this.conv.account;
+      // We don't want to support adding chatBuddies as contacts if we are not
+      // sure the normalizedChatBuddyName is enough information to add a contact.
+      // This is a problem e.g. for XMPP MUCs. We require at least that the
+      // normalizedChatBuddyName of the nick is normalized like a normalizedName
+      // for contacts.
+      let normalizedNick = this.conv.target.getNormalizedChatBuddyName(nick);
+      if (normalizedNick == account.normalize(normalizedNick)) {
+        this.buddy = Services.contacts
+                             .getBuddyByNameAndProtocol(normalizedNick,
+                                                        account.protocol);
+        isAddContact &= !this.buddy;
+      }
+      else
+        isAddContact = false;
     }
-    else
-      isAddContact = false;
     if (isAddContact)
       this.tagMenu = new TagMenu(this, window);
     addAction("AddContact", isAddContact);
