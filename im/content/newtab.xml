@@ -237,7 +237,8 @@
           if (filterTxt == this._prevFilterTxt && !this._forceRefresh)
             return;
           this.filteredConvs = this.statsService.getFilteredConvs(filterTxt);
-          if (filterTxt != this._prevFilterTxt) {
+          if (filterTxt != this._prevFilterTxt ||
+              (!this.numberOfItemsToDisplay && this.hasMoreConversations)) {
             this.resetItemsToDisplay();
             this._prevFilterTxt = filterTxt;
           }
