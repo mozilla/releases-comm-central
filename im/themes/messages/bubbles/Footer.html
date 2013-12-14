@@ -83,23 +83,20 @@ const kMsPerDay = 24 * kMsPerHour;
 function computeSpace(aInterval)
   Math.round(coef * Math.log(aInterval + 1))
 
-function refreshIntervals()
-{
-  var pixels = 1;
-  while (true) {
-    var time = Math.exp((pixels - 0.49999) / coef) - 1;
-    if (time >= timebeforetextdisplay)
-      break;
-
-    yield Math.round(time * 1000);
-    ++pixels;
-  }
-}
-
-var refreshTimes;
 var lastMessageTimeout;
 var lastMessageTimeoutTime = -1;
-function handleLastMessage()
+
+/* This function takes care of updating the amount of whitespace
+ * between the last message and the bottom of the conversation area.
+ * When the last message is more than timebeforetextdisplay old, we display
+ * the time in text. To avoid blinking Mac scrollbar and visual distractions
+ * for some very sensitive users, we update the whitespace only when a new
+ * message is displayed or when the user switches between tabs. While the
+ * conversation is visible, this function is called by timers, but we will
+ * only update the time displayed in text (this behavior is obtained by
+ * setting the aUpdateTextOnly parameter to true; otherwise it is omitted).
+ */
+function handleLastMessage(aUpdateTextOnly)
 {
   if (window.messageInsertPending)
     return;
@@ -107,42 +104,38 @@ function handleLastMessage()
   var intervalInMs = Date.now() - lastInsertTime * 1000;
   var interval = Math.round(intervalInMs / 1000);
   var p = document.getElementById("lastMessage");
-  var margin = computeSpace(Math.max(intervalInMs, 0) / 1000);
+  var margin;
+  if (!aUpdateTextOnly)
+    margin = computeSpace(Math.max(intervalInMs, 0) / 1000);
   var text = "";
   if (interval >= timebeforetextdisplay) {
-    p.style.lineHeight = (margin + shadow) + "px";
+    if (!aUpdateTextOnly)
+      p.style.lineHeight = (margin + shadow) + "px";
     p.setAttribute("class", "interval");
     text = prettyPrintTime(interval, true);
     margin = 0;
   }
   p.textContent = text;
-  p.style.marginTop = (margin - shadow) + "px";
-  if (autoScrollEnabled())
-    scrollToElement(p);
-
-  var next = 0;
-  if (interval < timebeforetextdisplay) {
-    if (!refreshTimes)
-      refreshTimes = [i for (i in refreshIntervals())];
-    for (var i = 0; i < refreshTimes.length; ++i) {
-      if (refreshTimes[i] > intervalInMs) {
-        next = refreshTimes[i] - intervalInMs;
-        break;
-      }
-    }
+  if (!aUpdateTextOnly) {
+    p.style.marginTop = (margin - shadow) + "px";
+    if (autoScrollEnabled())
+      scrollToElement(p);
   }
-  if (!next) {
+
+  var next = timebeforetextdisplay * 1000 - intervalInMs;
+  if (next <= 0) {
     if (intervalInMs > kMsPerDay)
       next = kMsPerHour - intervalInMs % kMsPerHour;
     else
       next = kMsPerMinute - intervalInMs % kMsPerMinute;
+    aUpdateTextOnly = true;
   }
 
   // The setTimeout callbacks are frequently called a few ms early,
   // but our code prefers being called a little late, so add 20ms.
   lastMessageTimeoutTime = next + 20;
   lastMessageTimeout =
-    setTimeout(handleLastMessage, lastMessageTimeoutTime);
+    setTimeout(handleLastMessage, lastMessageTimeoutTime, aUpdateTextOnly);
 }
 
 var lastInsertTime = 0;
