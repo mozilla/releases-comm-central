@@ -556,9 +556,15 @@
                   this.mTabBrowser.forwardBrowserGroup = [];
                 }
 
-                // Clear the value if this was a user document or an error page.
+                // If userTypedClear > 0, the document loaded correctly and we should be
+                // clearing the user typed value. We also need to clear the typed value
+                // if the document failed to load, to make sure the urlbar reflects the
+                // failed URI (particularly for SSL errors). However, don't clear the value
+                // if the error page's URI is about:blank, because that causes complete
+                // loss of urlbar contents for invalid URI errors (see bug 867957).
                 if (this.mBrowser.userTypedClear > 0 ||
-                    aFlags & nsIWebProgressListener.LOCATION_CHANGE_ERROR_PAGE)
+                    (aFlags & nsIWebProgressListener.LOCATION_CHANGE_ERROR_PAGE &&
+                     aLocation.spec != "about:blank"))
                   this.mBrowser.userTypedValue = null;
               }
 
