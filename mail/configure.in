@@ -30,9 +30,7 @@ if test "$COMM_BUILD" = "1"; then
 else
   commdir=$topsrcdir/..
 fi
-SUNBIRD_VERSION=`cat $commdir/calendar/sunbird/config/version.txt`
 SEAMONKEY_VERSION=`cat $commdir/suite/config/version.txt`
-AC_SUBST(SUNBIRD_VERSION)
 AC_SUBST(SEAMONKEY_VERSION)
 
 dnl =========================================================

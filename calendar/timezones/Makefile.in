@@ -39,9 +39,9 @@ ifndef DISABLE_LIGHTNING_INSTALL
 INSTALL_EXTENSION_ID = calendar-timezones@mozilla.org
 endif
 
-CALENDAR_VERSION := $(shell cat $(topsrcdir)/calendar/sunbird/config/version.txt)
 THUNDERBIRD_VERSION := $(shell cat $(topsrcdir)/mail/config/version.txt)
 SEAMONKEY_VERSION := $(shell cat $(topsrcdir)/suite/config/version.txt)
+CALENDAR_VERSION := $(shell $(PYTHON) $(topsrcdir)/calendar/lightning/build/makeversion.py $(word 1,$(MOZ_PKG_VERSION) $(THUNDERBIRD_VERSION)))
 TIMEZONES_VERSION := $(shell cat $(srcdir)/config/version.txt)
 
 DEFINES += -DAB_CD=$(AB_CD) \
