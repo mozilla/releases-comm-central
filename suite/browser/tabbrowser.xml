@@ -1062,7 +1062,8 @@
         <body>
           <![CDATA[
             if (event.button != 1 || event.target.localName != 'tab' ||
-                this.mPrefs.getBoolPref("middlemouse.contentLoadURL"))
+                (this.mPrefs.getBoolPref("middlemouse.contentLoadURL") &&
+                !this.mPrefs.getBoolPref("general.autoScroll")))
               return;
 
             this.removeTab(event.target);
