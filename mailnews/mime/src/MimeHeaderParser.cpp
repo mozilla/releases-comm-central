@@ -6,6 +6,7 @@
 
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
+#include "nsMemory.h"
 #include "nsAutoPtr.h"
 #include "nsCOMPtr.h"
 #include "nsIMimeConverter.h"

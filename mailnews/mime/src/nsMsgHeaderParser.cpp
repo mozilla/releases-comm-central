@@ -32,6 +32,9 @@ nsresult FillResultsArray(const char * aName, const char *aAddress, PRUnichar **
 #define TRIM_WHITESPACE(_S,_E,_T)   do { while (_E > _S && IS_SPACE(_E[-1])) _E--;\
                                          *_E++ = _T; } while (0)
 
+// This is what MIME considers to be whitespace.
+#define kWhitespace " \t\r\n"
+
 /*
  * The following are prototypes for the old "C" functions used to support all of the RFC-822 parsing code
  * We could have made these private functions of nsMsgHeaderParser if we wanted...
@@ -1580,8 +1583,10 @@ NS_IMETHODIMP MsgAddressObject::ToString(nsAString &display)
   nsMsgHeaderParser headerParser;
   nsAutoString quotedString;
   headerParser.MakeMimeAddress(mName, mEmail, quotedString);
+  nsString displayAddr;
   headerParser.UnquotePhraseOrAddrWString(quotedString.get(), false,
-    getter_Copies(display));
+    getter_Copies(displayAddr));
+  display = displayAddr;
 
   return NS_OK;
 }
@@ -1600,8 +1605,8 @@ static MsgAddressObject *MakeSingleAddress(
   // This is a wasteful copy, but the internal API does not have RFindChar on
   // nsAString, only nsString.
   nsString display(aDisplay);
-  // Strip leading/trailing whitespace
-  MsgCompressWhitespace(display);
+  // Strip leading and trailing whitespace.
+  display.Trim(kWhitespace, true, true);
   nsCOMPtr<msgIAddressObject> object;
   int32_t addrstart = display.RFindChar('<');
   if (addrstart != -1)
