@@ -6939,6 +6939,9 @@ nsresult nsMsgDBView::SetThreadIgnored(nsIMsgThread *thread, nsMsgViewIndex thre
     MarkThreadRead(thread, threadIndex, idsMarkedRead, true);
     CollapseByIndex(threadIndex, nullptr);
   }
+
+  if (!m_db)
+    return NS_ERROR_FAILURE;
   return m_db->MarkThreadIgnored(thread, m_keys[threadIndex], ignored, this);
 }
 
@@ -6948,9 +6951,10 @@ nsresult nsMsgDBView::SetSubthreadKilled(nsIMsgDBHdr *header, nsMsgViewIndex msg
     return NS_MSG_INVALID_DBVIEW_INDEX;
 
   NoteChange(msgIndex, 1, nsMsgViewNotificationCode::changed);
-  nsresult rv;
 
-  rv = m_db->MarkHeaderKilled(header, ignored, this);
+  if (!m_db)
+    return NS_ERROR_FAILURE;
+  nsresult rv = m_db->MarkHeaderKilled(header, ignored, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (ignored)
