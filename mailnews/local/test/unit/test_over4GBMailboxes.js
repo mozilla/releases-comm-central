@@ -5,15 +5,17 @@
  * Some of the tests will be removed when support for over 4GiB folders is enabled by default.
  * The test functions are executed in this order:
  * - run_test
- * -  ParseListener1
+ * -  ParseListener_run_test
  * - downloadUnder4GiB
- * -  ParseListener2
  * - downloadOver4GiB
  * - growOver4GiB
- * -  ParseListener3
+ * -  ParseListener_growOver4GiB
  * - copyIntoOver4GiB
+ * -  ParseListener_copyIntoOver4GiB
+ * - compactOver4GiB
+ * -  CompactListener_compactOver4GiB
  * - compactUnder4GiB
- * -  CompactListener2
+ * -  CompactListener_compactUnder4GiB
  */
 
 load("../../../resources/asyncTestUtils.js");
@@ -34,6 +36,7 @@ const kNearLimit = kSizeLimit - 0x1000000; // -16MiB
 
 var gGotAlert = false;
 var gInboxFile = null;
+var gInboxSize = 0;
 
 // This alert() is triggered when file size becomes close (enough) to or
 // exceeds 4 GiB.
@@ -139,7 +142,8 @@ function run_test()
   localAccountUtils.inboxFolder.msgDatabase.ForceClosed();
   localAccountUtils.inboxFolder.msgDatabase = null;
   try {
-    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener1, gDummyMsgWindow);
+    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener_run_test,
+                                                         gDummyMsgWindow);
   } catch (ex) {
     do_check_eq(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }
@@ -207,7 +211,8 @@ function growOver4GiB()
   localAccountUtils.inboxFolder.msgDatabase.ForceClosed();
   localAccountUtils.inboxFolder.msgDatabase = null;
   try {
-    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener2, gDummyMsgWindow);
+    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener_growOver4GiB,
+                                                         gDummyMsgWindow);
   } catch (ex) {
     do_check_eq(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }
@@ -240,12 +245,64 @@ function copyIntoOver4GiB()
            newLocalInboxSize);
   do_check_eq(newLocalInboxSize, localInboxSize);
 
-  do_timeout(0, compactUnder4GiB);
+  // Append a new small message to the folder (+1 MiB).
+  growInbox(gInboxFile.fileSize + 0x100000);
+  do_check_true(gInboxFile.fileSize > kSizeLimit);
+
+  // Force the db closed, so that getDatabaseWithReparse will notice
+  // that it's out of date.
+  localAccountUtils.inboxFolder.msgDatabase.ForceClosed();
+  localAccountUtils.inboxFolder.msgDatabase = null;
+  try {
+    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener_copyIntoOver4GiB,
+                                                         gDummyMsgWindow);
+  } catch (ex) {
+    do_check_eq(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
+  }
+  // Execution continues in compactOver4GiB() when done.
+}
+
+/**
+ * Bug 794303
+ * Check we can compact a folder that stays above 4 GiB after compact.
+ */
+function compactOver4GiB()
+{
+  gInboxSize = gInboxFile.fileSize;
+  do_check_true(gInboxSize > kSizeLimit);
+  // Delete the last small message at folder end.
+  let msgDB = localAccountUtils.inboxFolder.msgDatabase;
+  let enumerator = msgDB.EnumerateMessages();
+  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  while (enumerator.hasMoreElements()) {
+    let header = enumerator.getNext();
+    if (!enumerator.hasMoreElements()) {
+      do_check_true(header instanceof Ci.nsIMsgDBHdr);
+      messages.appendElement(header, false);
+    }
+  }
+  localAccountUtils.inboxFolder.deleteMessages(messages, null, true, false, null, false);
+
+  /* Unfortunately, the compaction now would kill the sparse markings in the file
+   * so it will really take 4GiB of space in the filesystem and may be slow
+   * (e.g. it takes ~450s on TB-try). Therefore we run this part of the test randomly,
+   * only in 1 of 100 runs. Considering the number of times all the tests are run
+   * per check-in, this still runs this test after several check-ins.*/
+  if (Math.random() * 100 < 1) {
+    // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
+    // lines to message(s).
+    localAccountUtils.inboxFolder.compact(CompactListener_compactOver4GiB, null);
+    // Execution continues in compactUnder4GiB() when done.
+  } else {
+    // Just continue directly without compacting yet.
+    dump("compactOver4GiB test skipped deliberately due to long expected run time. It will may be run in other test run with a 1 in 100 chance.");
+    compactUnder4GiB();
+  }
 }
 
 /**
  * Bug 608449
- * Check we compact a folder to get it under 4 GiB.
+ * Check we can compact a folder to get it under 4 GiB.
  */
 function compactUnder4GiB()
 {
@@ -258,7 +315,7 @@ function compactUnder4GiB()
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   while (enumerator.hasMoreElements()) {
     let header = enumerator.getNext();
-    if (header instanceof Components.interfaces.nsIMsgDBHdr && !firstHdr)
+    if (header instanceof Ci.nsIMsgDBHdr && !firstHdr)
       messages.appendElement(header, false);
     firstHdr = false;
   }
@@ -266,11 +323,11 @@ function compactUnder4GiB()
 
   // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
   // lines to message(s).
-  localAccountUtils.inboxFolder.compact(CompactListener2, null);
+  localAccountUtils.inboxFolder.compact(CompactListener_compactUnder4GiB, null);
   // Test ends after compaction is done.
 }
 
-var ParseListener1 =
+var ParseListener_run_test =
 {
   OnStartRunningUrl: function (aUrl) {},
   OnStopRunningUrl: function (aUrl, aExitCode) {
@@ -283,7 +340,7 @@ var ParseListener1 =
   }
 };
 
-var ParseListener2 =
+var ParseListener_growOver4GiB =
 {
   OnStartRunningUrl: function (aUrl) {},
   OnStopRunningUrl: function (aUrl, aExitCode) {
@@ -296,7 +353,38 @@ var ParseListener2 =
   }
 };
 
-var CompactListener2 =
+var ParseListener_copyIntoOver4GiB =
+{
+  OnStartRunningUrl: function (aUrl) {},
+  OnStopRunningUrl: function (aUrl, aExitCode) {
+    // Check: reparse successful
+    do_check_eq(aExitCode, 0);
+    do_check_neq(localAccountUtils.inboxFolder.msgDatabase, null);
+    do_check_true(localAccountUtils.inboxFolder.msgDatabase.summaryValid);
+
+    compactOver4GiB();
+  }
+};
+
+var CompactListener_compactOver4GiB =
+{
+  OnStartRunningUrl: function (aUrl) {},
+  OnStopRunningUrl: function (aUrl, aExitCode) {
+    // Check: message successfully copied.
+    do_check_eq(aExitCode, 0);
+    do_check_true(localAccountUtils.inboxFolder.msgDatabase.summaryValid);
+    // Check that folder size is still above max limit ...
+    let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
+    do_print("Local inbox size (after compact()) = " + localInboxSize);
+    do_check_true(localInboxSize > kSizeLimit);
+    // ... but it got smaller by removing 1 message.
+    do_check_true(gInboxSize > localInboxSize);
+
+    compactUnder4GiB();
+  }
+};
+
+var CompactListener_compactUnder4GiB =
 {
   OnStartRunningUrl: function (aUrl) {},
   OnStopRunningUrl: function (aUrl, aExitCode) {
