@@ -5821,9 +5821,6 @@ void nsImapProtocol::OnLSubFolders()
     IncrementCommandTagNumber();
     PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE,"%s list \"\" \"%s\"" CRLF, GetServerCommandTag(), mailboxName);
     nsresult rv = SendData(m_dataOutputBuf);
-#ifdef UNREADY_CODE
-    TimeStampListNow();
-#endif
     if (NS_SUCCEEDED(rv))
       ParseIMAPandCheckForNewMail();
     PR_Free(mailboxName);

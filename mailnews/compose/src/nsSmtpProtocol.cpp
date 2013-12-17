@@ -263,10 +263,6 @@ void nsSmtpProtocol::Initialize(nsIURI * aURL)
     m_tlsEnabled = false;
     m_addressesLeft = 0;
 
-#ifdef UNREADY_CODE
-    m_totalAmountWritten = 0;
-#endif /* UNREADY_CODE */
-
     m_sendDone = false;
 
     m_sizelimit = 0;

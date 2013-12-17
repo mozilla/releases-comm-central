@@ -133,10 +133,6 @@ private:
     bool m_sendDone;
 
     int32_t m_totalAmountRead;
-#ifdef UNREADY_CODE 
-    // message specific information
-    int32_t m_totalAmountWritten;
-#endif /* UNREADY_CODE */
     int64_t m_totalMessageSize;
 
     char *m_dataBuf;

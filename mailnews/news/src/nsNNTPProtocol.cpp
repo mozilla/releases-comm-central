@@ -1095,17 +1095,6 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
       /* At this point, we're all done parsing the URL, and know exactly
       what we want to do with it.
     */
-#ifdef UNREADY_CODE
-#ifndef NO_ARTICLE_CACHEING
-    /* Turn off caching on all news entities, except articles. */
-    /* It's very important that this be turned off for CANCEL_WANTED;
-    for the others, I don't know what cacheing would cause, but
-    it could only do harm, not good. */
-    if(m_typeWanted != ARTICLE_WANTED)
-#endif
-      ce->format_out = CLEAR_CACHE_BIT (ce->format_out);
-#endif
-
 
 FAIL:
     if (NS_FAILED(rv))
@@ -2194,15 +2183,8 @@ nsresult nsNNTPProtocol::ReadArticle(nsIInputStream * inputStream, uint32_t leng
   }
   if(status > 1)
   {
-#ifdef UNREADY_CODE
-    ce->bytes_received += status;
-    FE_GraphProgress(ce->window_id, ce->URL_s,
-      ce->bytes_received, status,
-      ce->URL_s->content_length);
-#else
     mBytesReceived += status;
     mBytesReceivedSinceLastStatusUpdate += status;
-#endif
   }
 
   if(!line)
@@ -2599,13 +2581,6 @@ nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_
     }
     m_nextState = NEWS_DONE;
 
-#ifdef UNREADY_CODE
-    if(ce->bytes_received == 0)
-    {
-      /* #### no new groups */
-    }
-#endif
-
     PR_Free(lineToFree);
     if(status > 0)
       return NS_OK;
@@ -2620,13 +2595,8 @@ nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_
   */
   if(status > 1)
   {
-#ifdef UNREADY_CODE
-    ce->bytes_received += status;
-    FE_GraphProgress(ce->window_id, ce->URL_s, ce->bytes_received, status, ce->URL_s->content_length);
-#else
     mBytesReceived += status;
     mBytesReceivedSinceLastStatusUpdate += status;
-#endif
   }
 
   /* format is "rec.arts.movies.past-films 7302 7119 y"
@@ -2652,12 +2622,8 @@ nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_
   youngest = s2 ? atol(s1) : 0;
   oldest   = s1 ? atol(s2) : 0;
 
-#ifdef UNREADY_CODE
-  ce->bytes_received++;  /* small numbers of groups never seem to trigger this */
-#else
   mBytesReceived += status;
   mBytesReceivedSinceLastStatusUpdate += status;
-#endif
 
   NS_ASSERTION(m_nntpServer, "no nntp incoming server");
   if (m_nntpServer) {
@@ -3461,10 +3427,6 @@ nsresult nsNNTPProtocol::PostMessageInFile(nsIFile *postMessageFile)
     // always issue a '.' and CRLF when we are done...
     PL_strcpy(m_dataBuf, "." CRLF);
     SendData(m_dataBuf);
-#ifdef UNREADY_CODE
-    NET_Progress(CE_WINDOW_ID,
-                 XP_GetString(XP_MESSAGE_SENT_WAITING_MAIL_REPLY));
-#endif /* UNREADY_CODE */
     m_nextState = NNTP_RESPONSE;
     m_nextStateAfterResponse = NNTP_SEND_POST_DATA_RESPONSE;
     return NS_OK;
@@ -4038,13 +4000,8 @@ nsresult nsNNTPProtocol::ListXActiveResponse(nsIInputStream * inputStream, uint3
    /* almost correct */
   if(status > 1)
   {
-#ifdef UNREADY_CODE
-    ce->bytes_received += status;
-    FE_GraphProgress(ce->window_id, ce->URL_s, ce->bytes_received, status, ce->URL_s->content_length);
-#else
     mBytesReceived += status;
     mBytesReceivedSinceLastStatusUpdate += status;
-#endif
   }
 
   if (line)
@@ -4244,13 +4201,7 @@ nsresult nsNNTPProtocol::SearchResults(nsIInputStream *inputStream, uint32_t len
   if (!line)
     return rv;  /* no line yet */
 
-  if ('.' != line[0])
-  {
-#ifdef UNREADY_CODE
-    MSG_AddNewsSearchHit (ce->window_id, line);
-#endif
-  }
-  else
+  if ('.' == line[0])
   {
     /* all overview lines received */
     m_nextState = NEWS_DONE;
@@ -4266,9 +4217,6 @@ nsresult nsNNTPProtocol::SetupForTransfer()
   if (m_typeWanted == NEWS_POST)
   {
     m_nextState = NNTP_SEND_POST_DATA;
-#ifdef UNREADY_CODE
-    NET_Progress(ce->window_id, XP_GetString(MK_MSG_DELIV_NEWS));
-#endif
   }
   else if(m_typeWanted == LIST_WANTED)
   {
@@ -4511,9 +4459,6 @@ nsresult nsNNTPProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
 
     case NEWS_PROCESS_XOVER:
     case NEWS_PROCESS_BODIES:
-#ifdef UNREADY_CODE
-      NET_Progress(ce->window_id, XP_GetString(XP_PROGRESS_SORT_ARTICLES));
-#endif
       status = ProcessXover();
       break;
 
