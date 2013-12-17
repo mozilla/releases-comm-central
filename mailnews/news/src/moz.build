@@ -23,10 +23,5 @@ EXTRA_COMPONENTS += [
     'nsNewsAutoCompleteSearch.manifest',
 ]
 
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    FORCE_STATIC_LIB = True
-else:
-    LIBXUL_LIBRARY = True
-
-LIBRARY_NAME = 'msgnews_s'
+FINAL_LIBRARY = 'mail'
 

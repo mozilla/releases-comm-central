@@ -8,10 +8,5 @@ SOURCES += [
     'nsTextImport.cpp',
 ]
 
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    FORCE_STATIC_LIB = True
-else:
-    LIBXUL_LIBRARY = True
-
-LIBRARY_NAME = 'imptext_s'
+FINAL_LIBRARY = 'import'
 

@@ -12,33 +12,9 @@ include $(DEPTH)/config/autoconf.mk
 
 ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
 MODULE_NAME	= nsImportServiceModule
+SHARED_LIBRARY_LIBS = ../../base/util/$(LIB_PREFIX)msgbsutl_s.$(LIB_SUFFIX)
 endif
 
-
-SHARED_LIBRARY_LIBS = \
-		../src/$(LIB_PREFIX)import_s.$(LIB_SUFFIX) \
-		../text/src/$(LIB_PREFIX)imptext_s.$(LIB_SUFFIX) \
-		../vcard/src/$(LIB_PREFIX)impvcard_s.$(LIB_SUFFIX) \
-		$(NULL)
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-SHARED_LIBRARY_LIBS += ../eudora/src/$(LIB_PREFIX)impEudra_s.$(LIB_SUFFIX)
-SHARED_LIBRARY_LIBS += ../applemail/src/$(LIB_PREFIX)applmail_s.$(LIB_SUFFIX)
-endif
-
-ifeq ($(OS_ARCH),WINNT)
-SHARED_LIBRARY_LIBS += ../eudora/src/$(LIB_PREFIX)impEudra_s.$(LIB_SUFFIX)
-
-ifdef MOZ_MAPI_SUPPORT
-SHARED_LIBRARY_LIBS += ../outlook/src/$(LIB_PREFIX)impOutlk_s.$(LIB_SUFFIX)
-endif
-
-ifndef GNU_CC
-SHARED_LIBRARY_LIBS += ../oexpress/$(LIB_PREFIX)importOE_s.$(LIB_SUFFIX)
-SHARED_LIBRARY_LIBS += ../winlivemail/$(LIB_PREFIX)importWM_s.$(LIB_SUFFIX)
-endif
-
-endif
 
 LOCAL_INCLUDES += -I$(srcdir)/../src \
 	-I$(srcdir)/../text/src \
@@ -63,8 +39,6 @@ ifdef MOZ_MAPI_SUPPORT
 LOCAL_INCLUDES	+= -I$(srcdir)/../outlook/src
 endif
 endif
-
-EXTRA_DSO_LDOPTS += ../../base/util/$(LIB_PREFIX)msgbsutl_s.$(LIB_SUFFIX)
 
 EXTRA_DSO_LDOPTS += \
 	$(LIBS_DIR) \

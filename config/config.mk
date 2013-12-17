@@ -42,6 +42,7 @@ _MOZBUILD_EXTERNAL_VARIABLES := \
   DIST_SUBDIR \
   EXTRA_PP_COMPONENTS \
   EXTRA_PP_JS_MODULES \
+  FINAL_LIBRARY \
   FINAL_TARGET \
   GTEST_CMMSRCS \
   GTEST_CPPSRCS \
@@ -285,6 +286,13 @@ endif
 
 # Determine if module being compiled is destined 
 # to be merged into libxul
+
+ifeq ($(FINAL_LIBRARY),xul)
+  ifdef LIBXUL_LIBRARY
+    $(error FINAL_LIBRARY is "xul", LIBXUL_LIBRARY is implied)
+  endif
+  LIBXUL_LIBRARY := 1
+endif
 
 ifdef LIBXUL_LIBRARY
 ifdef IS_COMPONENT

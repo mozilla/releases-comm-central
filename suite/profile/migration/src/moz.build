@@ -17,7 +17,5 @@ EXTRA_PP_COMPONENTS += [
     'SuiteProfileMigrator.js',
 ]
 
-FORCE_STATIC_LIB = True
-
-LIBRARY_NAME = 'suitemigration_s'
+FINAL_LIBRARY = 'suite'
 

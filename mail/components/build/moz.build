@@ -7,7 +7,9 @@ SOURCES += [
     'nsMailComps.cpp',
 ]
 
-LIBXUL_LIBRARY = True
+# NOTE: if we switch away from LIBXUL_LIBRARY at any stage
+# we need to clear the EMBED_MANIFEST_AT flag. (See Bug 714495)
+FINAL_LIBRARY = 'xul'
 EXPORT_LIBRARY = True
 
 LIBRARY_NAME = 'mailcomps'

@@ -14,7 +14,6 @@ dnl Optional parts of the build.
 AC_SUBST(MOZ_MORK)
 if test "$MOZ_MORK"; then
   AC_DEFINE(MOZ_MORK)
-  MORK_COMPONENT=mork
   MORK_MODULE="MODULE(nsMorkModule)"
 fi
 if test "$OS_ARCH" != "WINNT" -a "$OS_ARCH" != "OS2"; then
@@ -71,7 +70,6 @@ if test "$MOZ_LDAP_XPCOM"; then
         LDAP_LIBS='-L${DIST}/bin -L${DIST}/lib -lldap60 -lprldap60 -lldif60'
     fi
 
-    LDAP_COMPONENT=mozldap
     LDAP_MODULE="MODULE(nsLDAPProtocolModule)"
 fi
 
@@ -95,12 +93,10 @@ AC_SUBST(MOZ_MAPI_SUPPORT)
 
 if test -n "$MOZ_MAPI_SUPPORT"; then
     AC_DEFINE(MOZ_MAPI_SUPPORT)
-    MAIL_COMPONENT="$MAIL_COMPONENT msgMapi"
     MAIL_MODULE="$MAIL_MODULE MODULE(msgMapiModule)"
 fi
 
 if test -z "$MOZ_INCOMPLETE_EXTERNAL_LINKAGE"; then
-  MOZ_APP_COMPONENT_LIBS="$MAIL_COMPONENT $LDAP_COMPONENT $MORK_COMPONENT"
   MOZ_APP_COMPONENT_MODULES="$MAIL_MODULE $LDAP_MODULE $MORK_MODULE"
   MOZ_APP_EXTRA_LIBS="$LDAP_LIBS"
 fi

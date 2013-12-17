@@ -16,7 +16,5 @@ if SOURCES:
         'nsSetDefault.manifest',
     ]
 
-FORCE_STATIC_LIB = True
-
-LIBRARY_NAME = 'shellservice_s'
+FINAL_LIBRARY = 'suite'
 

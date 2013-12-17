@@ -64,10 +64,7 @@ EXTRA_JS_MODULES += [
     'traceHelper.js',
 ]
 
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    FORCE_STATIC_LIB = True
-else:
-    LIBXUL_LIBRARY = True
+FINAL_LIBRARY = 'mail'
 
 LIBRARY_NAME = 'msgbsutl_s'
 

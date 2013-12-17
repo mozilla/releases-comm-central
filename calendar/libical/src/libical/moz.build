@@ -28,7 +28,5 @@ SOURCES += [
     'vsnprintf.c',
 ]
 
-FORCE_STATIC_LIB = True
-
-LIBRARY_NAME = 'mozical'
+FINAL_LIBRARY = 'calbasecomps'
 

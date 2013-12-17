@@ -12,7 +12,5 @@ SOURCES += [
     'nsSuiteDirectoryProvider.cpp',
 ]
 
-FORCE_STATIC_LIB = True
-
-LIBRARY_NAME = 'suiteprofile_s'
+FINAL_LIBRARY = 'suite'
 

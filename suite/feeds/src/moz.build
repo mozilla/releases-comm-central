@@ -14,7 +14,5 @@ EXTRA_COMPONENTS += [
     'WebContentConverter.js',
 ]
 
-FORCE_STATIC_LIB = True
-
-LIBRARY_NAME = 'suitefeeds_s'
+FINAL_LIBRARY = 'suite'
 

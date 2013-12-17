@@ -20,10 +20,5 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     SOURCES += ['nsEudoraMac.cpp']
 
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    FORCE_STATIC_LIB = True
-else:
-    LIBXUL_LIBRARY = True
-
-LIBRARY_NAME = 'impEudra_s'
+FINAL_LIBRARY = 'import'
 

@@ -10,18 +10,12 @@ VPATH   = @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-SHORT_LIBNAME = calbscmp
 MODULE_NAME = calBaseModule
 USE_STATIC_LIBS = 1
 NO_COMPONENTS_MANIFEST = 1
 
 LOCAL_INCLUDES = \
 	-I$(srcdir)/..
-
-SHARED_LIBRARY_LIBS = \
-    $(DEPTH)/calendar/base/backend/libical/$(LIB_PREFIX)calbase_s.$(LIB_SUFFIX) \
-    $(DEPTH)/calendar/libical/src/libical/$(LIB_PREFIX)mozical.$(LIB_SUFFIX) \
-    $(NULL)
 
 ifdef JS_SHARED_LIBRARY 
 EXTRA_DSO_LDOPTS += $(MOZ_JS_LIBS)
