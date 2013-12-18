@@ -28,8 +28,6 @@ YahooConversation.prototype = {
   _account: null,
   _buddyUserName: null,
   _typingTimer: null,
-  _keepAliveTimer: null,
-  _pingTimer: null,
 
   close: function() {
     this._account.deleteConversation(this._buddyUserName);
@@ -207,6 +205,10 @@ YahooAccount.prototype = {
   _roomsCreated: 0,
   // The username stripped of any @yahoo.* domain.
   cleanUsername: null,
+  // The timers used to send keepalive and ping packets to the server to ensrue
+  // the server that the user is still connected.
+  _keepAliveTimer: null,
+  _pingTimer: null,
 
   connect: function() {
     this._session = new YahooSession(this);
@@ -228,11 +230,16 @@ YahooAccount.prototype = {
     for (let buddy of this._buddies)
       buddy[1].setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
 
-    // Clear the timers to avoid memory leaks.
-    this._keepAliveTimer.cancel();
-    delete this._keepAliveTimer;
-    this._pingTimer.cancel();
-    delete this._pingTimer;
+    // Clear and delete the timers to avoid memory leaks.
+    if (this._keepAliveTimer) {
+      this._keepAliveTimer.cancel();
+      delete this._keepAliveTimer;
+    }
+
+    if (this._pingTimer) {
+      this._pingTimer.cancel();
+      delete this._pingTimer;
+    }
   },
 
   observe: function(aSubject, aTopic, aData) {
