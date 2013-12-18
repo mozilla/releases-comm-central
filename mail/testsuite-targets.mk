@@ -63,7 +63,7 @@ ifndef UNIVERSAL_BINARY
 	$(NSINSTALL) -D $(DIST)/$(PKG_PATH)
 endif
 	cd $(PKG_STAGE) && \
-	  zip -r9D "$(abspath $(DIST)/$(PKG_PATH)$(TEST_PACKAGE))" \
+	  zip -r9D "$(abspath $(DIST))/$(PKG_PATH)$(TEST_PACKAGE)" \
 	  * -x \*/.mkdir.done
 
 make-stage-dir:
