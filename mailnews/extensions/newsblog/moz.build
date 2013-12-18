@@ -8,3 +8,4 @@ EXTRA_COMPONENTS += [
     'js/newsblog.manifest',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

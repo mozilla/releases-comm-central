@@ -8,3 +8,4 @@ EXTRA_COMPONENTS += [
     'facebook.manifest',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

@@ -15,3 +15,4 @@ EXTRA_JS_MODULES += [
     'xmpp.jsm',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

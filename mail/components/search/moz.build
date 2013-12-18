@@ -18,3 +18,4 @@ EXTRA_PP_JS_MODULES += [
     'SearchIntegration.js',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

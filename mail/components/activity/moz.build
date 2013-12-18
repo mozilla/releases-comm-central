@@ -30,3 +30,4 @@ EXTRA_JS_MODULES += [
 
 JS_MODULES_PATH = 'modules/activity'
 
+JAR_MANIFESTS += ['jar.mn']

@@ -5,3 +5,4 @@
 
 DIRS += ['locales']
 
+JAR_MANIFESTS += ['jar.mn']

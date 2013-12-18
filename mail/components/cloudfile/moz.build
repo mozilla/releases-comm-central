@@ -20,3 +20,4 @@ EXTRA_JS_MODULES += [
     'cloudFileAccounts.js',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

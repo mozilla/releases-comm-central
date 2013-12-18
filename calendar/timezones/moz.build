@@ -7,3 +7,5 @@ DIRS += ['locales']
 
 XPI_NAME = 'calendar-timezones'
 export('XPI_NAME')
+
+JAR_MANIFESTS += ['jar.mn']

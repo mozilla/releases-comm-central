@@ -8,3 +8,4 @@ DIRS += [
     'src',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

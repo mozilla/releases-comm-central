@@ -7,3 +7,5 @@ DIRS += ["extension"]
 
 EXTRA_JS_MODULES += ["modules/RemoteDebuggerServer.jsm",
                      "modules/XULRootActor.js"]
+
+JAR_MANIFESTS += ['jar.mn']

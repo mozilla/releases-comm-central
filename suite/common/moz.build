@@ -14,3 +14,5 @@ TEST_DIRS += [
     'downloads/tests',
     'places/tests',
 ]
+
+JAR_MANIFESTS += ['jar.mn']

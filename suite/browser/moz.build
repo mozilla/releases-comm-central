@@ -11,3 +11,4 @@ EXTRA_COMPONENTS += [
     'SuiteBrowser.manifest',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

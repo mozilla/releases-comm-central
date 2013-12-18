@@ -14,3 +14,4 @@ SOURCES += [
 
 FINAL_LIBRARY = 'suite'
 
+JAR_MANIFESTS += ['jar.mn']

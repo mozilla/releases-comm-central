@@ -16,3 +16,4 @@ EXTRA_JS_MODULES += [
     'editorUtilities.jsm',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

@@ -26,3 +26,4 @@ EXTRA_JS_MODULES += [
     'ircWatchMonitor.jsm',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

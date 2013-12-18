@@ -8,3 +8,4 @@ EXTRA_COMPONENTS += [
     'vkontakte.manifest',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

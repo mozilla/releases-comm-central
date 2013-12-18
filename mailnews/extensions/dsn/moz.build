@@ -8,3 +8,4 @@ EXTRA_COMPONENTS += [
     'src/dsn-service.manifest',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

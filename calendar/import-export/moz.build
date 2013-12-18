@@ -8,3 +8,4 @@ EXTRA_COMPONENTS += [
     'calImportExportModule.manifest',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

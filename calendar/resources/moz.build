@@ -8,3 +8,4 @@ EXTRA_COMPONENTS += [
     'content/calendarService.manifest',
 ]
 
+JAR_MANIFESTS += ['jar.mn']

@@ -14,3 +14,4 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
 else:
     EXTRA_JS_MODULES += ['aboutSupportUnix.js']
 
+JAR_MANIFESTS += ['jar.mn']

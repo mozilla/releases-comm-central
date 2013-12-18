@@ -17,3 +17,5 @@ TEST_DIRS += ['../test']
 
 XPI_NAME = 'lightning'
 export('XPI_NAME')
+
+JAR_MANIFESTS += ['jar.mn']
