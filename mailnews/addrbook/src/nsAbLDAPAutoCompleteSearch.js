@@ -158,7 +158,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
   startSearch: function startSearch(aSearchString, aParam,
                                     aPreviousResult, aListener) {
     let params = JSON.parse(aParam);
-    let applicable = this.applicableHeaders.has(params.type);
+    let applicable = !params.type || this.applicableHeaders.has(params.type);
     let idKey = params.idKey;
 
     this._result = new nsAbLDAPAutoCompleteResult(aSearchString);
