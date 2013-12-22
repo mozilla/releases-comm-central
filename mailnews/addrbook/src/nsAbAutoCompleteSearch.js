@@ -342,7 +342,7 @@ nsAbAutoCompleteSearch.prototype = {
                                     aPreviousResult, aListener) {
     let params = JSON.parse(aSearchParam);
     var result = new nsAbAutoCompleteResult(aSearchString);
-    if (!this.applicableHeaders.has(params.type)) {
+    if (params.type && !this.applicableHeaders.has(params.type)) {
       result.searchResult = ACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
@@ -428,7 +428,6 @@ nsAbAutoCompleteSearch.prototype = {
       // just going to find duplicates.
       while (allABs.hasMoreElements()) {
         var dir = allABs.getNext();
-
         if (dir instanceof Components.interfaces.nsIAbDirectory &&
             dir.useForAutocomplete(params.idKey)) {
           this._searchCards(searchQuery, dir, result);
