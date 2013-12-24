@@ -99,18 +99,28 @@
 
     <hbox>
       <spring flex="1"/>
-      <button id="toButton" label="&toButton.label;" accesskey="&toButton.accesskey;" oncommand="addSelectedAddresses('addr_to')"/>
-      <spring flex="1"/>
-    </hbox>
-    <hbox>
-      <spring flex="1"/>
-      <button id="ccButton" label="&ccButton.label;" accesskey="&ccButton.accesskey;" oncommand="addSelectedAddresses('addr_cc')"/>
-      <spacer class="thin"/>
-      <button id="bccButton" label="&bccButton.label;" accesskey="&bccButton.accesskey;" oncommand="addSelectedAddresses('addr_bcc')"/>
+      <grid>
+        <columns>
+          <column style="min-width: 10em"/>
+        </columns>
+        <rows>
+          <row id="toButtonBox">
+              <button id="toButton" label="&toButton.label;" accesskey="&toButton.accesskey;"
+                      oncommand="addSelectedAddresses('addr_to')"/>
+          </row>
+          <row id="ccButtonBox">
+              <button id="ccButton" label="&ccButton.label;" accesskey="&ccButton.accesskey;"
+                      oncommand="addSelectedAddresses('addr_cc')"/>
+          </row>
+          <row id="bccButtonBox">
+              <button id="bccButton" label="&bccButton.label;" accesskey="&bccButton.accesskey;"
+                      oncommand="addSelectedAddresses('addr_bcc')"/>
+          </row>
+        </rows>
+      </grid>
       <spring flex="1"/>
     </hbox>
 
     <separator class="thin"/>
-
   </vbox>
 </page>
