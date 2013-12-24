@@ -14,7 +14,7 @@
 @import url("chrome://messenger/skin/folderPane.css");
 @import url("chrome://messenger/skin/tagColors.css");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+%include ../../shared/mail/mailWindow1.inc.css
 
 /* give the toolbox a min-height of 41px for Australis theme */
 .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
@@ -58,23 +58,8 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   background-color: -moz-Dialog;
 }
 
-#tabmail:-moz-lwtheme {
-  text-shadow: none;
-}
-
 #folderPaneHeader {
   border-bottom: 1px solid ThreeDShadow;
-}
-
-#folderUnreadCol,
-#folderTotalCol,
-#folderSizeCol {
-  text-align: right;
-}
-
-#folderNameCol [sortDirection="ascending"],
-#folderNameCol [sortDirection="descending"] {
-  list-style-image: none;
 }
 
 /* ::::: thread decoration ::::: */
@@ -97,23 +82,8 @@ treechildren::-moz-tree-cell-text(dummy) {
   font-weight: bold;
 }
 
-treechildren::-moz-tree-cell-text(read) {
-  font-weight: normal;
-}
-
-treechildren::-moz-tree-cell-text(unread) {
-  font-weight: bold;
-}
-
 treechildren::-moz-tree-cell-text(imapdeleted) {
   text-decoration: line-through;
-}
-
-/* on a collapsed thread, if the top level message is read, but the thread has
- * unread children, underline the text.  4.x mac did this, very slick 
- */
-treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
-  text-decoration: underline;
 }
 
 /* ::::: message column icons ::::: */
@@ -158,10 +128,6 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
   -moz-image-region: rect(0px 16px 16px 0px); /* message-read.png */
 }
 
-treechildren::-moz-tree-image(unreadButtonColHeader, dummy) {
-  list-style-image: none;
-}
-
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
   -moz-image-region: rect(16px 16px 32px 0px); /* message-unread.png */
 }
@@ -192,10 +158,6 @@ treechildren::-moz-tree-image(flaggedCol) {
   -moz-padding-end: 3px;
 }
 
-treechildren::-moz-tree-image(flaggedCol, dummy) {
-  list-style-image: none;
-}
-
 treechildren::-moz-tree-image(flaggedCol, flagged) {
   -moz-image-region: rect(80px 16px 96px 0px); /* message-starred.png */
   -moz-padding-end: 3px;
@@ -205,7 +167,6 @@ treechildren::-moz-tree-image(flaggedCol, flagged) {
 
 .junkStatusHeader {
   list-style-image: url("chrome://messenger/skin/icons/junk-col.svg");
-  -moz-padding-end: 3px;
 }
 
 /* "unknown" now looks like "not junk".  see bug #182386 */
@@ -217,10 +178,6 @@ treechildren::-moz-tree-image(junkStatusCol) {
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
   -moz-image-region: rect(32px 16px 48px 0px); /* message-junk.png */
-}
-
-treechildren::-moz-tree-image(junkStatusCol, dummy) {
-  list-style-image: none;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
@@ -242,10 +199,6 @@ treechildren::-moz-tree-image(subjectCol) {
   -moz-margin-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/message-list.png");
   -moz-image-region: rect(48px 16px 64px 0px); /* message-blank.png */
-}
-
-treechildren::-moz-tree-image(subjectCol, dummy) {
-  list-style-image: none;
 }
 
 treechildren::-moz-tree-image(subjectCol, forwarded) {
@@ -271,24 +224,6 @@ treechildren::-moz-tree-image(subjectCol, new) {
 treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   list-style-image: url("chrome://messenger/skin/icons/message.png");
   -moz-image-region: rect(0 80px 16px 64px);
-}
-
-treechildren::-moz-tree-cell-text(subjectCol) {
-  -moz-padding-start: 0;
-}
-
-#sizeCol,
-#unreadCol,
-#totalCol {
-  text-align: right;
-}
-
-/* We need to hide overflow in messagepanebox, so that resizing doesn't spill
-   header content over the statusbar.
-   */
-
-#messagepanebox {
-  overflow: hidden;
 }
 
 /* ..... folder pane adjustments ..... */
@@ -402,28 +337,6 @@ treechildren::-moz-tree-cell-text(subjectCol) {
 }
 
 /* ..... status bar adjustments ..... */
-
-#quotaMeter {
-  -moz-appearance: none;
-  min-width: 4em;
-  max-width: 4em;
-  border: 1px solid ThreeDShadow;
-}
-#quotaPanel .progress-bar {
-  -moz-appearance: none;
-  background-color: #88AAFF;
-  opacity: .5;
-}
-#quotaPanel[alert="warning"] .progress-bar {
-  background-color: orange;
-}
-#quotaPanel[alert="critical"] .progress-bar {
-  background-color: red;
-  opacity: .6;
-}
-#quotaLabel {
-  text-align: center;
-}
 
 #threadTree > treechildren::-moz-tree-row(odd) {
   background-color: transparent;

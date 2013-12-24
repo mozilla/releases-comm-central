@@ -1,0 +1,116 @@
+%if 0
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+%endif
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+#tabmail:-moz-lwtheme {
+  text-shadow: none;
+}
+
+#folderUnreadCol,
+#folderTotalCol,
+#folderSizeCol {
+  text-align: right;
+}
+
+#folderNameCol [sortDirection="ascending"],
+#folderNameCol [sortDirection="descending"] {
+  list-style-image: none;
+}
+
+/* ::::: thread decoration ::::: */
+
+treechildren::-moz-tree-cell-text(read) {
+  font-weight: normal;
+}
+
+treechildren::-moz-tree-cell-text(unread) {
+  font-weight: bold;
+}
+
+/* on a collapsed thread, if the top level message is read, but the thread has
+ * unread children, underline the text.  4.x mac did this, very slick
+ */
+treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
+  text-decoration: underline;
+}
+
+/* ..... read column ..... */
+
+treechildren::-moz-tree-image(unreadButtonColHeader, dummy) {
+  list-style-image: none;
+}
+
+/* ..... flag column ..... */
+
+treechildren::-moz-tree-image(flaggedCol, dummy) {
+  list-style-image: none;
+}
+
+/* ..... junkStatus column ..... */
+
+.junkStatusHeader {
+  -moz-padding-end: 3px;
+}
+
+treechildren::-moz-tree-image(junkStatusCol, dummy) {
+  list-style-image: none;
+}
+
+/* ..... subject column ..... */
+
+treechildren::-moz-tree-image(subjectCol, dummy) {
+  list-style-image: none;
+}
+
+treechildren::-moz-tree-cell-text(subjectCol) {
+  -moz-padding-start: 0;
+}
+
+#sizeCol,
+#unreadCol,
+#totalCol {
+  text-align: right;
+}
+
+/* ..... message pane adjustments ..... */
+
+/* We need to hide overflow in messagepanebox, so that resizing doesn't spill
+   header content over the statusbar. */
+
+#messagepanebox {
+  overflow: hidden;
+}
+
+/* ..... status bar adjustments ..... */
+
+#quotaMeter {
+  -moz-appearance: none;
+  min-width: 4em;
+  max-width: 4em;
+  border: 1px solid ThreeDShadow;
+}
+
+#quotaPanel .progress-bar {
+  -moz-appearance: none;
+  background-color: #88AAFF;
+  opacity: .5;
+}
+
+#quotaPanel[alert="warning"] .progress-bar {
+  background-color: orange;
+}
+
+#quotaPanel[alert="critical"] .progress-bar {
+  background-color: red;
+  opacity: .6;
+}
+
+#quotaLabel {
+  text-align: center;
+}

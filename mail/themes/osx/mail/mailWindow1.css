@@ -14,7 +14,7 @@
 @import url("chrome://messenger/skin/folderPane.css");
 @import url("chrome://messenger/skin/tagColors.css");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+%include ../../shared/mail/mailWindow1.inc.css
 
 /* give the toolbox a min-height of 41px for Australis theme */
 .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
@@ -35,7 +35,6 @@ treechildren::-moz-tree-twisty {
 /* :::::::::::::::::::::::::::::::::::: */
 
 #tabmail:-moz-lwtheme {
-  text-shadow: none;
   color: -moz-DialogText;
 }
 
@@ -103,34 +102,6 @@ treecolpicker {
   background-color: #e1e1e1;
 }
 
-#folderUnreadCol,
-#folderTotalCol,
-#folderSizeCol {
-  text-align: right;
-}
-
-#folderNameCol [sortDirection="ascending"],
-#folderNameCol [sortDirection="descending"] {
-  list-style-image: none;
-}
-
-/* ::::: thread decoration ::::: */
-
-treechildren::-moz-tree-cell-text(read) {
-  font-weight: normal;
-}
-
-treechildren::-moz-tree-cell-text(unread) {
-  font-weight: bold;
-}
-
-/* on a collapsed thread, if the top level message is read, but the thread has
- * unread children, underline the text.  4.x mac did this, very slick
- */
-treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
-  text-decoration: underline;
-}
-
 /* ::::: message column icons ::::: */
 
 treecol[hideheader="true"] {
@@ -174,10 +145,6 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
 
 treechildren::-moz-tree-image(unreadButtonColHeader, focus, selected) {
   -moz-image-region: rect(16px 48px 32px 32px);
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader, dummy) {
-  list-style-image: none;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
@@ -246,10 +213,6 @@ treechildren::-moz-tree-image(flaggedCol, focus, selected) {
   -moz-image-region: rect(16px 48px 32px 32px);
 }
 
-treechildren::-moz-tree-image(flaggedCol, dummy) {
-  list-style-image: none;
-}
-
 treechildren::-moz-tree-image(flaggedCol, flagged) {
   -moz-image-region: rect(0px 80px 16px 64px);
 }
@@ -263,7 +226,6 @@ treechildren::-moz-tree-image(flaggedCol, flagged, focus, selected) {
 .junkStatusHeader {
   list-style-image: url("chrome://messenger/skin/icons/column-headers.png");
   -moz-image-region: rect(0px 48px 16px 32px);
-  -moz-padding-end: 3px;
   -moz-padding-start: 2px;
 }
 
@@ -281,10 +243,6 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 treechildren::-moz-tree-image(junkStatusCol, focus, selected),
 treechildren::-moz-tree-image(junkStatusCol, notjunk, focus, selected) {
   -moz-image-region: rect(16px 48px 32px 32px);
-}
-
-treechildren::-moz-tree-image(junkStatusCol, dummy) {
-  list-style-image: none;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
@@ -310,10 +268,6 @@ treechildren::-moz-tree-image(subjectCol) {
   list-style-image: url("chrome://messenger/skin/icons/symbol-null.png");
   margin: 0;
   padding: 0;
-}
-
-treechildren::-moz-tree-image(subjectCol, dummy) {
-  list-style-image: none;
 }
 
 treechildren::-moz-tree-image(subjectCol, imapdeleted) {
@@ -343,10 +297,6 @@ treechildren::-moz-tree-image(subjectCol, news, new) {
 
 treechildren::-moz-tree-image(subjectCol, news, new, attach) {
   list-style-image: none;
-}
-
-treechildren::-moz-tree-cell-text(subjectCol) {
-  -moz-padding-start: 0;
 }
 
 /* ..... new thread icons for watch and ignore ..... */
@@ -480,12 +430,6 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
   }
 }
 
-#sizeCol,
-#unreadCol,
-#totalCol {
-  text-align: right;
-}
-
 /* ::::: group rows ::::: */
 
 treechildren::-moz-tree-row(dummy)  {
@@ -513,7 +457,6 @@ treechildren::-moz-tree-row(dummy, focus, selected)  {
 #messagepanebox {
   background-color: #FFFFFF;
   -moz-appearance: none;
-  overflow: hidden;
 }
 
 /* ..... folder pane adjustments ..... */
@@ -602,28 +545,6 @@ splitter {
 
 #status-bar {
   border-top: none !important;
-}
-
-#quotaMeter {
-  -moz-appearance: none;
-  min-width: 4em;
-  max-width: 4em;
-  border: 1px solid #8B8B8B;
-}
-#quotaPanel .progress-bar {
-  -moz-appearance: none;
-  background-color: #88AAFF;
-  opacity: .5;
-}
-#quotaPanel[alert="warning"] .progress-bar {
-  background-color: orange;
-}
-#quotaPanel[alert="critical"] .progress-bar {
-  background-color: red;
-  opacity: .6;
-}
-#quotaLabel {
-  text-align: center;
 }
 
 .tabmail-tab[type="message"] {

@@ -36,7 +36,7 @@ classic.jar:
   skin/classic/messenger/webSearch.css                          (mail/webSearch.css)
   skin/classic/messenger/attachmentList.css                      (mail/attachmentList.css)
   skin/classic/messenger/msgSelectOffline.css                    (mail/msgSelectOffline.css)
-  skin/classic/messenger/mailWindow1.css                         (mail/mailWindow1.css)
+* skin/classic/messenger/mailWindow1.css                         (mail/mailWindow1.css)
   skin/classic/messenger/searchBox.css                           (mail/searchBox.css)
   skin/classic/messenger/tagColors.css                           (mail/tagColors.css)
   skin/classic/messenger/junkMail.css                            (mail/junkMail.css)
