@@ -160,6 +160,7 @@ classic.jar:
   skin/classic/messenger/icons/thread-ignored.png             (mail/icons/thread-ignored.png)
   skin/classic/messenger/icons/message-ignored.png            (mail/icons/message-ignored.png)
   skin/classic/messenger/icons/thread-watched.png             (mail/icons/thread-watched.png)
+  skin/classic/messenger/icons/flag-col.png                   (mail/icons/flag-col.png)
   skin/classic/messenger/icons/flag-col.svg                   (mail/icons/flag-col.svg)
   skin/classic/messenger/icons/server.png                     (mail/icons/server.png)
   skin/classic/messenger/icons/readcol.svg                    (mail/icons/readcol.svg)
