@@ -1796,7 +1796,6 @@ function AttachmentInfo(contentType, url, name, uri,
                         isExternalAttachment, size)
 {
   this.contentType = contentType;
-  this.url = url;
   this.name = name;
   this.uri = uri;
   this.isExternalAttachment = isExternalAttachment;
@@ -1804,6 +1803,11 @@ function AttachmentInfo(contentType, url, name, uri,
 
   let match = GlodaUtils.PART_RE.exec(url);
   this.partID = match && match[1];
+  // Remove [?&]part= from remote urls, after getting the partID.
+  if (url.startsWith("http") || url.startsWith("file"))
+    url = url.replace(new RegExp("[?&]part=" + this.partID + "$"), "");
+
+  this.url = url;
 }
 
 AttachmentInfo.prototype = {
