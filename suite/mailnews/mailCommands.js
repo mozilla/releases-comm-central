@@ -22,93 +22,91 @@ function GetNewMessages(selectedFolders, server)
   server.getNewMessages(msgFolder, msgWindow, null);
 }
 
+/**
+ * Get the identity that most likely is the best one to use, given the hint.
+ * @param identities nsISupportsArray<nsIMsgIdentity> of identities
+ * @param optionalHint string containing comma separated mailboxes
+ */
 function getBestIdentity(identities, optionalHint)
 {
-  var identity = null;
+  let identityCount = identities.length;
+  if (identityCount < 1)
+    return null;
 
-  var identitiesCount = identities.length;
+  // If we have more than one identity and a hint to help us pick one.
+  if (identityCount > 1 && optionalHint) {
+    // Normalize case on the optional hint to improve our chances of
+    // finding a match.
+    let hints = optionalHint.toLowerCase().split(",");
 
-  try
-  {
-    // if we have more than one identity and a hint to help us pick one
-    if (identitiesCount > 1 && optionalHint) {
-      // normalize case on the optional hint to improve our chances of finding a match
-      optionalHint = optionalHint.toLowerCase();
-
-      var id;
-      // iterate over all of the identities
-      var tempID;
-
-      var lengthOfLongestMatchingEmail = 0;
-      for (id = 0; id < identitiesCount; ++id) {
-        tempID = identities.queryElementAt(id, Components.interfaces.nsIMsgIdentity);
-        if (optionalHint.indexOf(tempID.email.toLowerCase()) >= 0) {
-          // Be careful, the user can have several adresses with the same
-          // postfix e.g. aaa.bbb@ccc.ddd and bbb@ccc.ddd. Make sure we get the
-          // longest match.
-          if (tempID.email.length > lengthOfLongestMatchingEmail) {
-            identity = tempID;
-            lengthOfLongestMatchingEmail = tempID.email.length;
-          }
-        }
-      }
-
-      // if we could not find an exact email address match within the hint fields then maybe the message
-      // was to a mailing list. In this scenario, we won't have a match based on email address.
-      // Before we just give up, try and search for just a shared domain between the hint and
-      // the email addresses for our identities. Hey, it is better than nothing and in the case
-      // of multiple matches here, we'll end up picking the first one anyway which is what we would have done
-      // if we didn't do this second search. This helps the case for corporate users where mailing lists will have the same domain
-      // as one of your multiple identities.
-
-      if (!identity) {
-        for (id = 0; id < identitiesCount; ++id) {
-          tempID = identities.queryElementAt(id, Components.interfaces.nsIMsgIdentity);
-          // extract out the partial domain
-          var start = tempID.email.lastIndexOf("@"); // be sure to include the @ sign in our search to reduce the risk of false positives
-          if (optionalHint.search(tempID.email.slice(start).toLowerCase()) >= 0) {
-            identity = tempID;
-            break;
-          }
-        }
+    for (let i = 0 ; i < hints.length; i++) {
+      for each (let identity in fixIterator(identities,
+                  Components.interfaces.nsIMsgIdentity)) {
+        if (!identity.email)
+          continue;
+        if (hints[i].trim() == identity.email.toLowerCase() ||
+            hints[i].contains("<" + identity.email.toLowerCase() + ">"))
+          return identity;
       }
     }
   }
-  catch (ex) {dump (ex + "\n");}
-
-  // Still no matches ?
-  // Give up and pick the first one (if it exists), like we used to.
-  if (!identity && identitiesCount > 0)
-    identity = identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
-
-  return identity;
+  // Return only found identity or pick the first one from list if no matches found.
+  return identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
 }
 
 function getIdentityForServer(server, optionalHint)
 {
-    var identity = null;
-
-    if (server) {
-        // Get the identities associated with this server.
-        var identities = accountManager.getIdentitiesForServer(server);
-        // dump("identities = " + identities + "\n");
-        // Try and find the best one.
-        identity = getBestIdentity(identities, optionalHint);
-    }
-
-    return identity;
+  var identities = accountManager.getIdentitiesForServer(server);
+  return getBestIdentity(identities, optionalHint);
 }
+
+/**
+ * Get the identity for the given header.
+ * @param hdr nsIMsgHdr message header
+ * @param type nsIMsgCompType compose type the identity ise used for.
+ */
 
 function GetIdentityForHeader(aMsgHdr, aType)
 {
-  // If we treat reply from sent specially, do we check for that folder flag here ?
-  var isTemplate = aType == Components.interfaces.nsIMsgCompType.Template;
-  var hintForIdentity = isTemplate ? aMsgHdr.author
-                                   : aMsgHdr.recipients + aMsgHdr.ccList;
-  var identity = null;
-  var server = null;
+  function findDeliveredToIdentityEmail() {
+    // Get the delivered-to headers.
+    let key = "delivered-to";
+    let deliveredTos = new Array();
+    let index = 0;
+    let header = "";
+    while (header = currentHeaderData[key]) {
+      deliveredTos.push(header.headerValue.toLowerCase().trim());
+      key = "delivered-to" + index++;
+    }
 
-  var folder = aMsgHdr.folder;
+    // Reverse the array so that the last delivered-to header will show at front.
+    deliveredTos.reverse();
+    for (let i = 0; i < deliveredTos.length; i++) {
+      for each (let identity in fixIterator(accountManager.allIdentities,
+                                  Components.interfaces.nsIMsgIdentity)) {
+        if (!identity.email)
+          continue;
+        // If the deliver-to header contains the defined identity, that's it.
+        if (deliveredTos[i] == identity.email.toLowerCase() ||
+            deliveredTos[i].contains("<" + identity.email.toLowerCase() + ">"))
+          return identity.email;
+      }
+    }
+    return "";
+  }
+
+  let hintForIdentity = "";
+  if (aType == Components.interfaces.nsIMsgCompType.ReplyToList)
+    hintForIdentity = findDeliveredToIdentityEmail();
+  else if (aType == Components.interfaces.nsIMsgCompType.Template)
+    hintForIdentity = aMsgHdr.author;
+  else
+    hintForIdentity = aMsgHdr.recipients + "," + aMsgHdr.ccList + "," +
+                      findDeliveredToIdentityEmail();
+
+  let server = null;
+  let identity = null;
+  let folder = aMsgHdr.folder;
   if (folder)
   {
     server = folder.server;
@@ -117,7 +115,7 @@ function GetIdentityForHeader(aMsgHdr, aType)
 
   if (!identity)
   {
-    var accountKey = aMsgHdr.accountKey;
+    let accountKey = aMsgHdr.accountKey;
     if (accountKey.length > 0)
     {
       let account = accountManager.getAccount(accountKey);
