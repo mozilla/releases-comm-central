@@ -827,7 +827,7 @@ function awRecipientErrorCommand(errItem, element)
   if (specificErrString == "")
     specificErrString = "Internal error";
 
-  gPromptService.alert(window, generalErrString, specificErrString);
+  Services.prompt.alert(window, generalErrString, specificErrString);
 }
 
 function awRecipientKeyPress(event, element)
