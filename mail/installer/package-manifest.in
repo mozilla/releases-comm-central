@@ -500,6 +500,8 @@
 @BINPATH@/components/cryptoComponents.manifest
 @BINPATH@/components/Downloads.manifest
 @BINPATH@/components/DownloadLegacy.js
+@BINPATH@/components/crashmonitor.manifest
+@BINPATH@/components/nsCrashMonitor.js
 @BINPATH@/components/nsDefaultCLH.js
 @BINPATH@/components/nsDefaultCLH.manifest
 @BINPATH@/components/nsDOMIdentity.js
