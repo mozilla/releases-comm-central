@@ -22,6 +22,8 @@ export MOZ_DEBUG_SYMBOLS=1
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
+export MOZ_TELEMETRY_REPORTING=1
+
 # Make sure Lightning is also unified
 mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
 
