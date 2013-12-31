@@ -46,6 +46,7 @@ var FeedUtils = {
   get DC_IDENTIFIER()   { return this.rdf.GetResource(this.DC_NS + "identifier") },
 
   MRSS_NS: "http://search.yahoo.com/mrss/",
+  FEEDBURNER_NS: "http://rssnamespace.org/feedburner/ext/1.0",
 
   FZ_NS: "urn:forumzilla:",
   FZ_ITEM_NS: "urn:feeditem:",

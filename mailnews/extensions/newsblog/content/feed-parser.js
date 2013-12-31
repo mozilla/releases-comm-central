@@ -129,8 +129,13 @@ FeedParser.prototype =
       item.feed = aFeed;
       item.enclosures = [];
 
-      tags = this.childrenByTagNameNS(itemNode, nsURI, "link");
+      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origLink");
       let link = this.getNodeValue(tags ? tags[0] : null);
+      if (!link)
+      {
+        tags = this.childrenByTagNameNS(itemNode, nsURI, "link");
+        link = this.getNodeValue(tags ? tags[0] : null);
+      }
       tags = this.childrenByTagNameNS(itemNode, nsURI, "guid");
       let guidNode = tags ? tags[0] : null;
 
@@ -227,8 +232,8 @@ FeedParser.prototype =
       if (tags)
         for (let tag of tags)
         {
-          let url = tag.getAttribute("url");
-          if (url)
+          let url = (tag.getAttribute("url") || "").trim();
+          if (url && encUrls.indexOf(url) == -1)
           {
             item.enclosures.push(new FeedEnclosure(url,
                                                    tag.getAttribute("type"),
@@ -241,7 +246,7 @@ FeedParser.prototype =
       if (tags)
         for (let tag of tags)
         {
-          let url = tag.getAttribute("url");
+          let url = (tag.getAttribute("url") || "").trim();
           if (url && encUrls.indexOf(url) == -1)
             item.enclosures.push(new FeedEnclosure(url,
                                                    tag.getAttribute("type"),
@@ -513,8 +518,13 @@ FeedParser.prototype =
       item.feed = aFeed;
       item.enclosures = [];
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
-      item.url = this.findAtomLink("alternate", tags) || aFeed.link;
+      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origLink");
+      item.url = this.getNodeValue(tags ? tags[0] : null);
+      if (!item.url)
+      {
+        tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
+        item.url = this.findAtomLink("alternate", tags) || aFeed.link;
+      }
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "id");
       item.id = this.getNodeValue(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "summary");
@@ -580,14 +590,20 @@ FeedParser.prototype =
 
       // Handle <link rel="enclosure"> (if present).
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
+      let encUrls = [];
       if (tags)
         for (let tag of tags)
         {
-          if (tag.getAttribute("rel") == "enclosure" && tag.getAttribute("href"))
-            item.enclosures.push(new FeedEnclosure(tag.getAttribute("href"),
+          let url = tag.getAttribute("rel") == "enclosure" ?
+                      (tag.getAttribute("url") || "").trim() : null;
+          if (url && encUrls.indexOf(url) == -1)
+          {
+            item.enclosures.push(new FeedEnclosure(url,
                                                    tag.getAttribute("type"),
                                                    tag.getAttribute("length"),
                                                    tag.getAttribute("title")));
+            encUrls.push(url);
+          }
         }
 
       // Handle atom threading extension, RFC4685.  There may be 1 or more tags,
