@@ -1,5 +1,6 @@
 load("../../../../mailnews/resources/logHelper.js");
 load("../../../../mailnews/resources/asyncTestUtils.js");
+load("../../../../mailnews/resources/abSetup.js");
 
 load("../../../../mailnews/resources/messageGenerator.js");
 load("../../../../mailnews/resources/messageModifier.js");

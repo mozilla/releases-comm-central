@@ -27,10 +27,6 @@ function run_test() {
     { name: kCABData.dirName, result: false }
   ];
 
-  // Check the OS X Address Book if available
-  if ("@mozilla.org/rdf/resource-factory;1?name=moz-abosxdirectory" in Cc)
-    results.push({ name: kOSXData.dirName, result: false });
-
   while (dirs.hasMoreElements()) {
     let dir = dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
 

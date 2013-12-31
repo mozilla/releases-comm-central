@@ -11,6 +11,7 @@
 
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
+load("../../../resources/abSetup.js");
 
 load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");

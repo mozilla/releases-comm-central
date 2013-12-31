@@ -37,20 +37,11 @@ var kCABData =
   position: 2
 };
 
-// Mac OSX Address Book configurations items
-var kOSXData =
-{
-  URI: "moz-abosxdirectory:///",
-  fileName: "",
-  dirName: "Mac OS X Address Book",
-  dirType: 3,
-  dirPrefID: "ldap_2.servers.osx",
-  readOnly: true,
-  position: 1
-};
-
 // Windows (Outlook Express) Address Book deactivation. (Bug 448859)
 Services.prefs.deleteBranch("ldap_2.servers.oe.");
+
+// OSX Address Book deactivation (Bug 955842)
+Services.prefs.deleteBranch("ldap_2.servers.osx.");
 
 // This currently applies to all address books of local type.
 const kNormalPropertiesURI =

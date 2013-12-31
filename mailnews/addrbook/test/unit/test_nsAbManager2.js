@@ -116,11 +116,6 @@ function run_test() {
 
   var expectedABs = [kPABData.URI, kCABData.URI];
 
-  // Check the OS X Address Book if available
-  if ("@mozilla.org/addressbook/directory;1?type=moz-abosxdirectory" in
-      Components.classes)
-    expectedABs.push(kOSXData.URI);
-
   // Test - Check initial directories
 
   checkDirs(MailServices.ab.directories, expectedABs);
