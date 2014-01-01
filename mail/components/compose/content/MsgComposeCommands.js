@@ -278,10 +278,8 @@ var PrintPreviewListener = {
 }
 
 function sidebar_is_hidden() {
-  var sidebar_title = document.getElementById('sidebar-title-box');
   var sidebar_box = document.getElementById('sidebar-box');
-  return sidebar_box.getAttribute('hidden') == 'true' ||
-    sidebar_title.getAttribute('hidden') == 'true';
+  return sidebar_box.getAttribute('hidden') == 'true';
 }
 
 function sidebar_is_collapsed() {
@@ -343,10 +341,6 @@ function toggleAffectedChrome(aHide)
     // restore the Status Bar
     statusbar.hidden = gChromeState.statusbarWasHidden;
   }
-
-  // if we are unhiding and sidebar used to be there rebuild it
-  if (!aHide && gChromeState.sidebar == "visible")
-    SidebarRebuild();
 
   document.getElementById("compose-toolbox").hidden = aHide;
   document.getElementById("appcontent").collapsed = aHide;
