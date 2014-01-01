@@ -23,7 +23,7 @@ function setupModule(module) {
 
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
-  let server = MailServices.accounts.FindServer("tinderbox", "tinderbox", "pop3");
+  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   accountPOP3 = MailServices.accounts.FindAccountForServer(server);
 };
 

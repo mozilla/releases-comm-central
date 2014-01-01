@@ -343,7 +343,7 @@ function subtest_check_replyTo_leak(amc)
   // This test expects the following POP account to exist by default
   // in the test profile with port number 110 and no security.
   let firstServer = MailServices.accounts
-                                .FindServer("tinderbox", "tinderbox", "pop3");
+                                .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
 
   accountRow = get_account_tree_row(firstAccount.key, null, amc);

@@ -29,7 +29,7 @@ function setupModule(module) {
   amh.installInto(module);
 
   let server = MailServices.accounts
-                           .FindServer("tinderbox", "tinderbox", "pop3");
+                           .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   gAccount = MailServices.accounts.FindAccountForServer(server);
   let serverKey = server.key;
 

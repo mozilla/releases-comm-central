@@ -38,10 +38,11 @@ var ah, cfh, gFolder, gOldHtmlPref, gOldSigPref;
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');
   fdh.installInto(module);
+  collector.getModule('window-helpers').installInto(module);
 
   // For replies and forwards, we'll work off a message in the Inbox folder
   // of the fake "tinderbox" account.
-  let server = MailServices.accounts.FindServer("tinderbox", "tinderbox",
+  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME,
                                                 "pop3");
   gFolder = server.rootFolder.getChildNamed("Inbox");
   fdh.add_message_to_folder(gFolder, create_message());
@@ -57,7 +58,6 @@ function setupModule(module) {
   cfh.gMockCloudfileManager.register();
 
   collector.getModule('dom-helpers').installInto(module);
-  collector.getModule('window-helpers').installInto(module);
 
   // These tests assume that we default to writing mail in HTML.  We'll
   // save the current preference, force defaulting to HTML, and restore the

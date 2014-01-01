@@ -44,7 +44,7 @@ function test_all_folders_toggle_folder_open_state() {
   // creating the folder object via RDF, setting the flag, and then
   // creating the storage, which sends the notification.
   let pop3Server = MailServices.accounts
-                    .FindServer("tinderbox", "tinderbox", "pop3");
+                    .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let rdfService = Cc['@mozilla.org/rdf/rdf-service;1']
                      .getService(Ci.nsIRDFService);
   folder = rdfService.GetResource(pop3Server.rootFolder.URI + "/Archives").

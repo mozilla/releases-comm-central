@@ -40,6 +40,11 @@ const FILE_LOAD_PATHS = [
 ];
 
 /**
+ * Server hostname as set in runtest.py
+ */
+const FAKE_SERVER_HOSTNAME = 'tinderbox123';
+
+/**
  * List of keys not to export via installInto; values do not matter, we just
  *  use true.
  */

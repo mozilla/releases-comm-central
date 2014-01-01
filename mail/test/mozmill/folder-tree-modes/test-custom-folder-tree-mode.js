@@ -29,7 +29,7 @@ const kTestModeID = "testmode";
  * Switch to the mode and verify that it displays correctly.
  */
 function test_switch_to_test_mode() {
-  let server = MailServices.accounts.FindServer("tinderbox", "tinderbox", "pop3");
+  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   folder = server.rootFolder.getChildNamed("Inbox");
 
   mc.folderTreeView.mode = kTestModeID;

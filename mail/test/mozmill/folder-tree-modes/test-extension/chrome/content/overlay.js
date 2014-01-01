@@ -9,7 +9,7 @@
      __proto__: IFolderTreeMode,
      generateMap: function testFolderTreeMode_generateMap(aFTV) {
        // Pick the tinderbox@foo.invalid inbox and use it as the only folder
-       let server = MailServices.accounts.FindServer("tinderbox", "tinderbox", "pop3");
+       let server = MailServices.accounts.FindServer("tinderbox", "tinderbox123", "pop3");
        let item = new ftvItem(server.rootFolder.getChildNamed("Inbox"));
        item.__defineGetter__("children", function () []);
        return [item];
