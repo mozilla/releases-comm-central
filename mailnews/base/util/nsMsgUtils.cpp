@@ -7,6 +7,7 @@
 #include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
 #include "nsMsgFolderFlags.h"
+#include "nsMsgMessageFlags.h"
 #include "nsStringGlue.h"
 #include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
@@ -1030,9 +1031,17 @@ nsresult IsRSSArticle(nsIURI * aMsgURI, bool *aIsRSSArticle)
   rv = GetMessageServiceFromURI(resourceURI, getter_AddRefs(msgService));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Check if the message is a feed message, regardless of folder.
+  uint32_t flags;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = msgService->MessageURIToMsgHdr(resourceURI.get(), getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  msgHdr->GetFlags(&flags);
+  if (flags & nsMsgMessageFlags::FeedMsg)
+  {
+    *aIsRSSArticle = true;
+    return rv;
+  }
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aMsgURI, &rv);
   NS_ENSURE_SUCCESS(rv, rv);

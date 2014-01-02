@@ -14,6 +14,7 @@
  * - Reply email compose window
  * - Forward email compose window
  * - Content tab
+ * - Feed message
  */
 
 // make SOLO_TEST=content-policy/test-general-content-policy.js mozmill-one
@@ -234,6 +235,29 @@ function checkContentTab(test) {
     throw new Error("The content tab didn't close");
 }
 
+/**
+ * Check remote content is not blocked in feed message (flagged with
+ * nsMsgMessageFlags::FeedMsg)
+ */
+function checkAllowFeedMsg(test) {
+  let msgDbHdr = addToFolder(test.type + " test feed message " + gMsgNo,
+                             msgBodyStart + test.body + msgBodyEnd, folder);
+  msgDbHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
+
+  // select the newly created message
+  let msgHdr = select_click_row(gMsgNo);
+
+  assert_equals(msgDbHdr, msgHdr);
+  assert_selected_and_displayed(gMsgNo);
+
+  // Now check that the content hasn't been blocked
+  if (!test.checkForAllowed(mozmill.getMail3PaneController()
+           .window.content.document.getElementById("testelement")))
+    throw new Error(test.type + " has been unexpectedly blocked in feed message content.");
+
+  ++gMsgNo;
+}
+
 function test_generalContentPolicy() {
   let folderTab = mc.tabmail.currentTabInfo;
   be_in_folder(folder);
@@ -264,10 +288,13 @@ function test_generalContentPolicy() {
     // Check allowed in forward window
     checkComposeWindow(TESTS[i], false, true);
 
-      // Check allowed in standalone message window
-      checkStandaloneMessageWindow(TESTS[i], true);
+    // Check allowed in standalone message window
+    checkStandaloneMessageWindow(TESTS[i], true);
 
     // Check allowed in content tab
     checkContentTab(TESTS[i]);
+
+    // Check allowed in a feed message
+    checkAllowFeedMsg(TESTS[i]);
   }
 }
