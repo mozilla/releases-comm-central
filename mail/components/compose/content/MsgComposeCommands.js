@@ -1770,6 +1770,22 @@ function handleMailtoArgs(mailtoUrl)
   return null;
 }
 
+/**
+ * Handle ESC keypress from composition window (to close attachment reminder notification bar).
+ */
+function handleEsc()
+{
+  // If there is an attachment reminder notification AND focus is in message body
+  // or on the notification, hide it.
+  let activeElement = document.activeElement;
+  let notification = document.getElementById("attachmentNotificationBox").currentNotification;
+  if (notification && (activeElement.id == "content-frame" ||
+      notification.contains(activeElement) ||
+      activeElement.classList.contains("messageCloseButton"))) {
+    notification.close();
+  }
+}
+
 var attachmentWorker = new Worker("resource:///modules/attachmentChecker.js");
 
 attachmentWorker.lastMessage = null;

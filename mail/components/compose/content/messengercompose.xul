@@ -277,6 +277,7 @@
   <key id="key_minimizeWindow" command="minimizeWindow" key="&minimizeWindow.key;" modifiers="accel"/>
 #endif
 
+  <key keycode="VK_ESCAPE" oncommand="handleEsc();"/>
 </keyset>
 
 <keyset id="baseMenuKeyset"/>
