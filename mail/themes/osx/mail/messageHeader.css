@@ -652,6 +652,10 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   border: 1px dotted;
 }
 
+.emaillabel {
+  max-width: 60vw; /* for very long email fields */
+}
+
 .emaillabel,
 .newsgrouplabel {
   padding: 0px !important;  /* override <label> defaults */
