@@ -370,7 +370,7 @@ nsresult nsEudoraFilters::Init()
   {
     nsAutoString Eudora(NS_LITERAL_STRING("Eudora"));
     const PRUnichar *moduleName[] = { Eudora.get() };
-    rv = bundle->FormatStringFromName(NS_LITERAL_STRING("ImportModuleFolderName").get(),
+    rv = bundle->FormatStringFromName(MOZ_UTF16("ImportModuleFolderName"),
                                       moduleName, 1, getter_Copies(folderName));
   }
   localRootFolder->GetChildNamed(folderName, getter_AddRefs(m_pMailboxesRoot));

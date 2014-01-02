@@ -154,7 +154,7 @@ nsMsgAccountManagerDataSource::nsMsgAccountManagerDataSource()
     getRDFService()->GetResource(NS_LITERAL_CSTRING(NC_RDF_ACCOUNTROOT),
                                  &kNC_AccountRoot);
 
-    getRDFService()->GetLiteral(NS_LITERAL_STRING("true").get(),
+    getRDFService()->GetLiteral(MOZ_UTF16("true"),
                                 &kTrueLiteral);
 
     // eventually these need to exist in some kind of array
@@ -281,26 +281,26 @@ nsMsgAccountManagerDataSource::GetTarget(nsIRDFResource *source,
 
     nsString pageTitle;
     if (source == kNC_PageTitleServer)
-      mStringBundle->GetStringFromName(NS_LITERAL_STRING("prefPanel-server").get(),
+      mStringBundle->GetStringFromName(MOZ_UTF16("prefPanel-server"),
                                        getter_Copies(pageTitle));
 
     else if (source == kNC_PageTitleCopies)
-      mStringBundle->GetStringFromName(NS_LITERAL_STRING("prefPanel-copies").get(),
+      mStringBundle->GetStringFromName(MOZ_UTF16("prefPanel-copies"),
                                        getter_Copies(pageTitle));
     else if (source == kNC_PageTitleSynchronization)
-      mStringBundle->GetStringFromName(NS_LITERAL_STRING("prefPanel-synchronization").get(),
+      mStringBundle->GetStringFromName(MOZ_UTF16("prefPanel-synchronization"),
                                        getter_Copies(pageTitle));
     else if (source == kNC_PageTitleDiskSpace)
-      mStringBundle->GetStringFromName(NS_LITERAL_STRING("prefPanel-diskspace").get(),
+      mStringBundle->GetStringFromName(MOZ_UTF16("prefPanel-diskspace"),
                                        getter_Copies(pageTitle));
     else if (source == kNC_PageTitleAddressing)
-      mStringBundle->GetStringFromName(NS_LITERAL_STRING("prefPanel-addressing").get(),
+      mStringBundle->GetStringFromName(MOZ_UTF16("prefPanel-addressing"),
                                        getter_Copies(pageTitle));
     else if (source == kNC_PageTitleSMTP)
-      mStringBundle->GetStringFromName(NS_LITERAL_STRING("prefPanel-smtp").get(),
+      mStringBundle->GetStringFromName(MOZ_UTF16("prefPanel-smtp"),
                                        getter_Copies(pageTitle));
     else if (source == kNC_PageTitleJunk)
-      mStringBundle->GetStringFromName(NS_LITERAL_STRING("prefPanel-junk").get(),
+      mStringBundle->GetStringFromName(MOZ_UTF16("prefPanel-junk"),
                                        getter_Copies(pageTitle));
 
     else {

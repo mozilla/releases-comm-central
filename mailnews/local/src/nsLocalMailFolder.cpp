@@ -841,19 +841,19 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow *aMsgWindow,
 
       nsAutoString deleteFolderDialogTitle;
       rv = bundle->GetStringFromName(
-        NS_LITERAL_STRING("pop3DeleteFolderDialogTitle").get(),
+        MOZ_UTF16("pop3DeleteFolderDialogTitle"),
         getter_Copies(deleteFolderDialogTitle));
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsAutoString deleteFolderButtonLabel;
       rv = bundle->GetStringFromName(
-        NS_LITERAL_STRING("pop3DeleteFolderButtonLabel").get(),
+        MOZ_UTF16("pop3DeleteFolderButtonLabel"),
         getter_Copies(deleteFolderButtonLabel));
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsAutoString confirmationStr;
       rv = bundle->FormatStringFromName(
-        NS_LITERAL_STRING("pop3MoveFolderToTrash").get(), formatStrings, 1,
+        MOZ_UTF16("pop3MoveFolderToTrash"), formatStrings, 1,
         getter_Copies(confirmationStr));
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -3163,8 +3163,8 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg()
       const PRUnichar * stringArray[] = { numMsgSoFarString.get(), totalMessagesString.get(), folderName.get() };
       rv = mCopyState->m_stringBundle->FormatStringFromName(
         (mCopyState->m_isMove) ?
-        NS_LITERAL_STRING("movingMessagesStatus").get() :
-        NS_LITERAL_STRING("copyingMessagesStatus").get(),
+        MOZ_UTF16("movingMessagesStatus") :
+        MOZ_UTF16("copyingMessagesStatus"),
         stringArray, 3, getter_Copies(finalString));
       int64_t nowMS = PR_IntervalToMilliseconds(PR_IntervalNow());
 

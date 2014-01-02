@@ -419,7 +419,7 @@ nsMimeHtmlDisplayEmitter::StartAttachmentInBody(const nsACString &name,
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsString attachmentsHeader;
-      bundle->GetStringFromName(NS_LITERAL_STRING("attachmentsPrintHeader").get(),
+      bundle->GetStringFromName(MOZ_UTF16("attachmentsPrintHeader"),
                                 getter_Copies(attachmentsHeader)); 
 
       UtilityWrite("<legend class=\"mimeAttachmentHeaderName\">");

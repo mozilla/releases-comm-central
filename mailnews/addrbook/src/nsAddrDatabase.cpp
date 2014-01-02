@@ -432,15 +432,15 @@ nsresult nsAddrDatabase::DisplayAlert(const PRUnichar *titleName, const PRUnicha
 nsresult nsAddrDatabase::AlertAboutCorruptMabFile(const PRUnichar *aOldFileName, const PRUnichar *aNewFileName)
 {
   const PRUnichar *formatStrings[] = { aOldFileName, aOldFileName, aNewFileName };
-  return DisplayAlert(NS_LITERAL_STRING("corruptMabFileTitle").get(),
-    NS_LITERAL_STRING("corruptMabFileAlert").get(), formatStrings, 3);
+  return DisplayAlert(MOZ_UTF16("corruptMabFileTitle"),
+    MOZ_UTF16("corruptMabFileAlert"), formatStrings, 3);
 }
 
 nsresult nsAddrDatabase::AlertAboutLockedMabFile(const PRUnichar *aFileName)
 {
   const PRUnichar *formatStrings[] = { aFileName };
-  return DisplayAlert(NS_LITERAL_STRING("lockedMabFileTitle").get(),
-    NS_LITERAL_STRING("lockedMabFileAlert").get(), formatStrings, 1);
+  return DisplayAlert(MOZ_UTF16("lockedMabFileTitle"),
+    MOZ_UTF16("lockedMabFileAlert"), formatStrings, 1);
 }
 
 nsresult

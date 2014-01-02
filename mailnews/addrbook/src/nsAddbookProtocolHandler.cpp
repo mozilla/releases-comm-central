@@ -240,7 +240,7 @@ nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
     rv = stringBundleService->CreateBundle("chrome://messenger/locale/addressbook/addressBook.properties", getter_AddRefs(bundle));
     if (NS_SUCCEEDED(rv)) {
       nsString addrBook;
-      rv = bundle->GetStringFromName(NS_LITERAL_STRING("addressBook").get(), getter_Copies(addrBook));
+      rv = bundle->GetStringFromName(MOZ_UTF16("addressBook"), getter_Copies(addrBook));
       if (NS_SUCCEEDED(rv)) {
         aOutput.AppendLiteral("<title xmlns=\"http://www.w3.org/1999/xhtml\">");
         aOutput.Append(addrBook);

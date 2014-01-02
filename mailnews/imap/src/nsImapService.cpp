@@ -2739,16 +2739,16 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI *aURI, nsIChannel **aRetVal)
       if (NS_FAILED(CopyMUTF7toUTF16(fullFolderName, unescapedName)))
         CopyASCIItoUTF16(fullFolderName, unescapedName);
       const PRUnichar *formatStrings[1] = { unescapedName.get() };
-      
+
       rv = bundle->FormatStringFromName(
-        NS_LITERAL_STRING("imapSubscribePrompt").get(),
+        MOZ_UTF16("imapSubscribePrompt"),
         formatStrings, 1, getter_Copies(confirmText));
       NS_ENSURE_SUCCESS(rv,rv);
-      
+
       bool confirmResult = false;
       rv = dialog->Confirm(nullptr, confirmText.get(), &confirmResult);
       NS_ENSURE_SUCCESS(rv, rv);
-      
+
       if (confirmResult)
       {
         nsCOMPtr <nsIImapIncomingServer> imapServer = do_QueryInterface(server);

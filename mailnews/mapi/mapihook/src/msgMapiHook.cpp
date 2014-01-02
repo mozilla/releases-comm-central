@@ -149,7 +149,7 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, PRUnichar **aUsername,
 
     nsString brandName;
     rv = brandBundle->GetStringFromName(
-                       NS_LITERAL_STRING("brandFullName").get(),
+                       MOZ_UTF16("brandFullName"),
                        getter_Copies(brandName));
     if (NS_FAILED(rv)) return false;
 
@@ -164,7 +164,7 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, PRUnichar **aUsername,
     if (aLogin)
     {
       nsString loginText;
-      rv = bundle->GetStringFromName(NS_LITERAL_STRING("loginTextwithName").get(),
+      rv = bundle->GetStringFromName(MOZ_UTF16("loginTextwithName"),
                                      getter_Copies(loginText));
       if (NS_FAILED(rv) || loginText.IsEmpty()) return false;
 
@@ -258,12 +258,12 @@ nsMapiHook::IsBlindSendAllowed()
   if (NS_FAILED(rv) || !bundle) return false;
 
   nsString warningMsg;
-  rv = bundle->GetStringFromName(NS_LITERAL_STRING("mapiBlindSendWarning").get(),
+  rv = bundle->GetStringFromName(MOZ_UTF16("mapiBlindSendWarning"),
                                       getter_Copies(warningMsg));
   if (NS_FAILED(rv)) return false;
 
   nsString dontShowAgainMessage;
-  rv = bundle->GetStringFromName(NS_LITERAL_STRING("mapiBlindSendDontShowAgain").get(),
+  rv = bundle->GetStringFromName(MOZ_UTF16("mapiBlindSendDontShowAgain"),
                                       getter_Copies(dontShowAgainMessage));
   if (NS_FAILED(rv)) return false;
 

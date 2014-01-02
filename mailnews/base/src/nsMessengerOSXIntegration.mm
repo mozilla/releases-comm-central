@@ -333,7 +333,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
         nsAutoString numNotDisplayedText;
         numNotDisplayedText.AppendInt(numNotDisplayed);
         const PRUnichar *formatStrings[3] = { numNewMsgsText.get(), authors.get(), numNotDisplayedText.get() };
-        bundle->FormatStringFromName(NS_LITERAL_STRING("macBiffNotification_messages_extra").get(),
+        bundle->FormatStringFromName(MOZ_UTF16("macBiffNotification_messages_extra"),
                                      formatStrings,
                                      3,
                                      getter_Copies(finalText));
@@ -344,7 +344,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
 
         if (aNewCount == 1)
         {
-          bundle->FormatStringFromName(NS_LITERAL_STRING("macBiffNotification_message").get(),
+          bundle->FormatStringFromName(MOZ_UTF16("macBiffNotification_message"),
                                        formatStrings,
                                        2,
                                        getter_Copies(finalText));
@@ -368,7 +368,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
           }
         }
         else
-          bundle->FormatStringFromName(NS_LITERAL_STRING("macBiffNotification_messages").get(),
+          bundle->FormatStringFromName(MOZ_UTF16("macBiffNotification_messages"),
                                        formatStrings,
                                        2,
                                        getter_Copies(finalText));
@@ -492,7 +492,7 @@ nsMessengerOSXIntegration::BounceDockIcon()
   if (mediator)
   {
     nsCOMPtr<nsIDOMWindow> domWindow;
-    mediator->GetMostRecentWindow(NS_LITERAL_STRING("mail:3pane").get(), getter_AddRefs(domWindow));
+    mediator->GetMostRecentWindow(MOZ_UTF16("mail:3pane"), getter_AddRefs(domWindow));
     if (domWindow)
     {
       nsCOMPtr<nsIDOMChromeWindow> chromeWindow(do_QueryInterface(domWindow));
@@ -631,7 +631,7 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
     if (NS_SUCCEEDED(rv))
     {
       nsString listSeparator;
-      bundle->GetStringFromName(NS_LITERAL_STRING("macBiffNotification_separator").get(), getter_Copies(listSeparator));
+      bundle->GetStringFromName(MOZ_UTF16("macBiffNotification_separator"), getter_Copies(listSeparator));
 
       int32_t displayed = 0;
       for (int32_t i = numNewKeys - 1; i >= 0; i--, aNewCount--)

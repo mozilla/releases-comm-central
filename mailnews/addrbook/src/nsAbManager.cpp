@@ -509,26 +509,26 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString title;
-  rv = bundle->GetStringFromName(NS_LITERAL_STRING("ExportAddressBookTitle").get(), getter_Copies(title));
+  rv = bundle->GetStringFromName(MOZ_UTF16("ExportAddressBookTitle"), getter_Copies(title));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filePicker->Init(aParentWin, title, nsIFilePicker::modeSave);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString filterString;
-  rv = bundle->GetStringFromName(NS_LITERAL_STRING("LDIFFiles").get(), getter_Copies(filterString));
+  rv = bundle->GetStringFromName(MOZ_UTF16("LDIFFiles"), getter_Copies(filterString));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.ldi; *.ldif"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = bundle->GetStringFromName(NS_LITERAL_STRING("CSVFiles").get(), getter_Copies(filterString));
+  rv = bundle->GetStringFromName(MOZ_UTF16("CSVFiles"), getter_Copies(filterString));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.csv"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = bundle->GetStringFromName(NS_LITERAL_STRING("TABFiles").get(), getter_Copies(filterString));
+  rv = bundle->GetStringFromName(MOZ_UTF16("TABFiles"), getter_Copies(filterString));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.tab; *.txt"));

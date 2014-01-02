@@ -69,13 +69,13 @@ nsMsgBuildMessageByName(const PRUnichar *aName, nsIFile *aFile, nsString& aResul
 nsresult
 nsMsgBuildMessageWithFile(nsIFile *aFile, nsString& aResult)
 {
-  return nsMsgBuildMessageByName(NS_LITERAL_STRING("unableToOpenFile").get(), aFile, aResult);
+  return nsMsgBuildMessageByName(MOZ_UTF16("unableToOpenFile"), aFile, aResult);
 }
 
 nsresult
 nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString& aResult)
 {
-  return nsMsgBuildMessageByName(NS_LITERAL_STRING("unableToOpenTmpFile").get(), aFile, aResult);
+  return nsMsgBuildMessageByName(MOZ_UTF16("unableToOpenTmpFile"), aFile, aResult);
 }
 
 nsresult

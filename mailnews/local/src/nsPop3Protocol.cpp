@@ -870,19 +870,19 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
       }
     }
     mLocalBundle->FormatStringFromName(
-      NS_LITERAL_STRING("pop3PreviouslyEnteredPasswordIsInvalidPrompt").get(),
+      MOZ_UTF16("pop3PreviouslyEnteredPasswordIsInvalidPrompt"),
       passwordParams, 2, getter_Copies(passwordPrompt));
   }
   else
     // Otherwise this is the first time we've asked about the server's
     // password so show a first time prompt.
     mLocalBundle->FormatStringFromName(
-      NS_LITERAL_STRING("pop3EnterPasswordPrompt").get(),
+      MOZ_UTF16("pop3EnterPasswordPrompt"),
       passwordParams, 2, getter_Copies(passwordPrompt));
 
   nsString passwordTitle;
   mLocalBundle->GetStringFromName(
-    NS_LITERAL_STRING("pop3EnterPasswordPromptTitle").get(),
+    MOZ_UTF16("pop3EnterPasswordPromptTitle"),
     getter_Copies(passwordTitle));
 
   // Now go and get the password.
@@ -1269,7 +1269,7 @@ nsPop3Protocol::Error(const char* err_code,
     const PRUnichar *titleParams[] = { accountName.get() };
     nsString dialogTitle;
     mLocalBundle->FormatStringFromName(
-      NS_LITERAL_STRING("pop3ErrorDialogTitle").get(),
+      MOZ_UTF16("pop3ErrorDialogTitle"),
       titleParams, 1, getter_Copies(dialogTitle));
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
     // we handle "pop3TmpDownloadError" earlier...
@@ -1307,7 +1307,7 @@ nsPop3Protocol::Error(const char* err_code,
                   CopyASCIItoUTF16(hostName, hostStr);
                   const PRUnichar *params[] = { hostStr.get() };
                   mLocalBundle->FormatStringFromName(
-                    NS_LITERAL_STRING("pop3ServerSaid").get(),
+                    MOZ_UTF16("pop3ServerSaid"),
                     params, 1, getter_Copies(serverSaidPrefix));
                 }
 
@@ -3443,7 +3443,7 @@ nsPop3Protocol::TopResponse(nsIInputStream* inputStream, uint32_t length)
 
     nsString statusTemplate;
     mLocalBundle->GetStringFromName(
-      NS_LITERAL_STRING("pop3ServerDoesNotSupportTopCommand").get(),
+      MOZ_UTF16("pop3ServerDoesNotSupportTopCommand"),
       getter_Copies(statusTemplate));
     if (!statusTemplate.IsEmpty())
     {

@@ -256,8 +256,8 @@ NS_IMETHODIMP nsMessenger::SetWindow(nsIDOMWindow *aWin, nsIMsgWindow *aMsgWindo
     if (rootDocShellAsNode)
     {
       nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-      rv = rootDocShellAsNode->FindChildWithName(NS_LITERAL_STRING("messagepane").get(),
-                                                 true, false, nullptr, nullptr, getter_AddRefs(childAsItem));
+      rv = rootDocShellAsNode->FindChildWithName(MOZ_UTF16("messagepane"), true, false,
+                                                 nullptr, nullptr, getter_AddRefs(childAsItem));
 
       mDocShell = do_QueryInterface(childAsItem);
       if (NS_SUCCEEDED(rv) && mDocShell) {
@@ -334,7 +334,7 @@ nsMessenger::PromptIfFileExists(nsIFile *file)
       rv = InitStringBundle();
       NS_ENSURE_SUCCESS(rv, rv);
     }
-    rv = mStringBundle->FormatStringFromName(NS_LITERAL_STRING("fileExists").get(),
+    rv = mStringBundle->FormatStringFromName(MOZ_UTF16("fileExists"),
                                              pathFormatStrings, 1,
                                              getter_Copies(errorMessage));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2966,7 +2966,7 @@ nsMessenger::PromptIfDeleteAttachments(bool aSaveFirst,
   // format the message and display
   nsString promptMessage;
   const PRUnichar * propertyName = aSaveFirst ?
-    NS_LITERAL_STRING("detachAttachments").get() : NS_LITERAL_STRING("deleteAttachments").get();
+    MOZ_UTF16("detachAttachments") : MOZ_UTF16("deleteAttachments");
   rv = mStringBundle->FormatStringFromName(propertyName, formatStrings, 1,getter_Copies(promptMessage));
   NS_ENSURE_SUCCESS(rv, rv);
 

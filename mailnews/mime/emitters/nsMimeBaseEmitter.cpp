@@ -743,7 +743,7 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
                                 explodedMsgTime.tm_params.tp_dst_offset) / 60;
         // append offset to date string
         PRUnichar *tzstring =
-          nsTextFormatter::smprintf(NS_LITERAL_STRING(" %+05d").get(),
+          nsTextFormatter::smprintf(MOZ_UTF16(" %+05d"),
                                     (senderoffset / 60 * 100) +
                                     (senderoffset % 60));
         formattedDateString.Append(tzstring);

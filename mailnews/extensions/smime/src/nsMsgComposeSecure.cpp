@@ -464,8 +464,8 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign, nsIMsgSendReport *se
 
   if (!sMIMEBundle)
     return NS_ERROR_FAILURE;
- 
-  sMIMEBundle->GetStringFromName(NS_LITERAL_STRING("mime_smimeEncryptedContentDesc").get(),
+
+  sMIMEBundle->GetStringFromName(MOZ_UTF16("mime_smimeEncryptedContentDesc"),
                                  getter_Copies(mime_smime_enc_content_desc));
   NS_ConvertUTF16toUTF8 enc_content_desc_utf8(mime_smime_enc_content_desc);
 
@@ -525,7 +525,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign, nsIMsgSendReport *se
   if (NS_FAILED(rv)) return rv;
   rv = mEncryptionCinfo->CreateEncrypted(mCerts);
   if (NS_FAILED(rv)) {
-    SetError(sendReport, NS_LITERAL_STRING("ErrorEncryptMail").get());
+    SetError(sendReport, MOZ_UTF16("ErrorEncryptMail"));
     goto FAIL;
   }
 
@@ -542,7 +542,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign, nsIMsgSendReport *se
 
   rv = mEncryptionContext->Start(mEncryptionCinfo, mime_crypto_write_base64, mCryptoEncoder);
   if (NS_FAILED(rv)) {
-    SetError(sendReport, NS_LITERAL_STRING("ErrorEncryptMail").get());
+    SetError(sendReport, MOZ_UTF16("ErrorEncryptMail"));
     goto FAIL;
   }
 
@@ -580,8 +580,8 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
 
   if (!sMIMEBundle)
     return NS_ERROR_FAILURE;
-  
-  sMIMEBundle->GetStringFromName(NS_LITERAL_STRING("mime_smimeSignatureContentDesc").get(),
+
+  sMIMEBundle->GetStringFromName(MOZ_UTF16("mime_smimeSignatureContentDesc"),
                                  getter_Copies(mime_smime_sig_content_desc));
 
   NS_ConvertUTF16toUTF8 sig_content_desc_utf8(mime_smime_sig_content_desc);
@@ -644,7 +644,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
 
   rv = cinfo->CreateSigned(mSelfSigningCert, mSelfEncryptionCert, (unsigned char*)hashString.get(), hashString.Length());
   if (NS_FAILED(rv))  {
-    SetError(sendReport, NS_LITERAL_STRING("ErrorCanNotSignMail").get());
+    SetError(sendReport, MOZ_UTF16("ErrorCanNotSignMail"));
     goto FAIL;
   }
 
@@ -658,14 +658,14 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
   PR_SetError(0,0);
   rv = encoder->Start(cinfo, mime_crypto_write_base64, mSigEncoder);
   if (NS_FAILED(rv)) {
-    SetError(sendReport, NS_LITERAL_STRING("ErrorCanNotSignMail").get());
+    SetError(sendReport, MOZ_UTF16("ErrorCanNotSignMail"));
     goto FAIL;
   }
 
   // We're not passing in any data, so no update needed.
   rv = encoder->Finish();
   if (NS_FAILED(rv)) {
-    SetError(sendReport, NS_LITERAL_STRING("ErrorCanNotSignMail").get());
+    SetError(sendReport, MOZ_UTF16("ErrorCanNotSignMail"));
     goto FAIL;
   }
 
@@ -736,10 +736,10 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption (bool aSign, nsIMsgSendReport 
       goto FAIL;
     }
   }
-  
+
   rv = mEncryptionContext->Finish();
   if (NS_FAILED(rv)) {
-    SetError(sendReport, NS_LITERAL_STRING("ErrorEncryptMail").get());
+    SetError(sendReport, MOZ_UTF16("ErrorEncryptMail"));
     goto FAIL;
   }
 
@@ -787,12 +787,12 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
   // must have both the signing and encryption certs to sign
   if ((mSelfSigningCert == nullptr) && aSign) {
-    SetError(sendReport, NS_LITERAL_STRING("NoSenderSigningCert").get());
+    SetError(sendReport, MOZ_UTF16("NoSenderSigningCert"));
     return NS_ERROR_FAILURE;
   }
 
   if ((mSelfEncryptionCert == nullptr) && aEncrypt) {
-    SetError(sendReport, NS_LITERAL_STRING("NoSenderEncryptionCert").get());
+    SetError(sendReport, MOZ_UTF16("NoSenderEncryptionCert"));
     return NS_ERROR_FAILURE;
   }
 
@@ -826,7 +826,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
         // Failure to find a valid encryption cert is fatal.
         // Here I assume that mailbox is ascii rather than utf8.
         SetErrorWithParam(sendReport,
-                          NS_LITERAL_STRING("MissingRecipientEncryptionCert").get(),
+                          MOZ_UTF16("MissingRecipientEncryptionCert"),
                           mailboxes[i].get());
 
         return res;

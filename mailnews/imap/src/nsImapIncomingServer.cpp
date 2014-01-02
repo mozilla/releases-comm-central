@@ -1804,7 +1804,7 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
       const PRUnichar *params[] = { hostName.get(), tempString.get() };
 
       rv = m_stringBundle->FormatStringFromName(
-        NS_LITERAL_STRING("imapServerAlert").get(),
+        MOZ_UTF16("imapServerAlert"),
         params, 2, getter_Copies(message));
       if (NS_SUCCEEDED(rv))
         return AlertUser(message, aUrl);

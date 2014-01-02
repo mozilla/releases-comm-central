@@ -1032,7 +1032,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
       const PRUnichar *formatStrings[1] = { unescapedName.get() };
 
       rv = bundle->FormatStringFromName(
-        NS_LITERAL_STRING("autoSubscribeText").get(), formatStrings, 1,
+        MOZ_UTF16("autoSubscribeText"), formatStrings, 1,
         getter_Copies(confirmText));
       NS_ENSURE_SUCCESS(rv,rv);
 
@@ -2781,7 +2781,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream * inputStream, uint32_t len
       NS_ConvertASCIItoUTF16 rateStr(rate_buf);
 
       const PRUnichar *formatStrings[3] = { numGroupsStr.get(), bytesStr.get(), rateStr.get()};
-      rv = bundle->FormatStringFromName(NS_LITERAL_STRING("bytesReceived").get(),
+      rv = bundle->FormatStringFromName(MOZ_UTF16("bytesReceived"),
         formatStrings, 3,
         getter_Copies(statusString));
 
@@ -3554,7 +3554,7 @@ nsresult nsNNTPProtocol::DoCancel()
   NS_ENSURE_TRUE(brandBundle, NS_ERROR_FAILURE);
 
   nsString brandFullName;
-  rv = brandBundle->GetStringFromName(NS_LITERAL_STRING("brandFullName").get(),
+  rv = brandBundle->GetStringFromName(MOZ_UTF16("brandFullName"),
                                       getter_Copies(brandFullName));
   NS_ENSURE_SUCCESS(rv,rv);
   NS_ConvertUTF16toUTF8 appName(brandFullName);

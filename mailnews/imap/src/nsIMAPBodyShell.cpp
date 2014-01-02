@@ -516,7 +516,7 @@ int32_t nsIMAPBodypart::GenerateEmptyFilling(nsIMAPBodyShell *aShell, bool strea
 
   nsAutoString emptyString;
   rv = bundle->GetStringFromName(
-    NS_LITERAL_STRING("imapEmptyMimePart").get(),
+    MOZ_UTF16("imapEmptyMimePart"),
     getter_Copies(emptyString));
   if (NS_SUCCEEDED(rv) && !emptyString.IsEmpty())
   {

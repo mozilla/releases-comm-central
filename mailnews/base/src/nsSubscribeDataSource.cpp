@@ -67,10 +67,10 @@ nsSubscribeDataSource::Init()
                                   getter_AddRefs(kNC_ServerType));
     NS_ENSURE_SUCCESS(rv,rv);
 
-    rv = mRDFService->GetLiteral(NS_LITERAL_STRING("true").get(),getter_AddRefs(kTrueLiteral));
+    rv = mRDFService->GetLiteral(MOZ_UTF16("true"), getter_AddRefs(kTrueLiteral));
     NS_ENSURE_SUCCESS(rv,rv);
-  
-    rv = mRDFService->GetLiteral(NS_LITERAL_STRING("false").get(),getter_AddRefs(kFalseLiteral));
+
+    rv = mRDFService->GetLiteral(MOZ_UTF16("false"), getter_AddRefs(kFalseLiteral));
     NS_ENSURE_SUCCESS(rv,rv);
 	return NS_OK;
 }

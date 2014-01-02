@@ -1578,7 +1578,7 @@ nsNntpIncomingServer::GroupNotFound(nsIMsgWindow *aMsgWindow,
   const PRUnichar *formatStrings[2] = { groupName.get(), hostStr.get() };
   nsString confirmText;
   rv = bundle->FormatStringFromName(
-                    NS_LITERAL_STRING("autoUnsubscribeText").get(),
+                    MOZ_UTF16("autoUnsubscribeText"),
                     formatStrings, 2,
                     getter_Copies(confirmText));
   NS_ENSURE_SUCCESS(rv,rv);

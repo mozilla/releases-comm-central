@@ -913,12 +913,12 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder **ppFolder)
   nsString folderName;
   if (!m_pName.IsEmpty()) {
     const PRUnichar *moduleName[] = { m_pName.get() };
-    rv = bundle->FormatStringFromName(NS_LITERAL_STRING("ImportModuleFolderName").get(),
+    rv = bundle->FormatStringFromName(MOZ_UTF16("ImportModuleFolderName"),
                                       moduleName, 1,
                                       getter_Copies(folderName));
   }
   else {
-    rv = bundle->GetStringFromName(NS_LITERAL_STRING("DefaultFolderName").get(),
+    rv = bundle->GetStringFromName(MOZ_UTF16("DefaultFolderName"),
                                    getter_Copies(folderName));
   }
   if (NS_FAILED(rv)) {

@@ -2124,25 +2124,25 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
   NS_ConvertUTF8toUTF16 hostNameUTF16(aHostname);
   const PRUnichar *formatStrings[] = { hostNameUTF16.get() };
 
-  rv = bundle->FormatStringFromName(NS_LITERAL_STRING("mailServerLoginFailed").get(),
+  rv = bundle->FormatStringFromName(MOZ_UTF16("mailServerLoginFailed"),
                                     formatStrings, 1,
                                     getter_Copies(message));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString title;
   rv = bundle->GetStringFromName(
-    NS_LITERAL_STRING("mailServerLoginFailedTitle").get(), getter_Copies(title));
+    MOZ_UTF16("mailServerLoginFailedTitle"), getter_Copies(title));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button0;
   rv = bundle->GetStringFromName(
-    NS_LITERAL_STRING("mailServerLoginFailedRetryButton").get(),
+    MOZ_UTF16("mailServerLoginFailedRetryButton"),
     getter_Copies(button0));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button2;
   rv = bundle->GetStringFromName(
-    NS_LITERAL_STRING("mailServerLoginFailedEnterNewPasswordButton").get(),
+    MOZ_UTF16("mailServerLoginFailedEnterNewPasswordButton"),
     getter_Copies(button2));
   NS_ENSURE_SUCCESS(rv, rv);
 

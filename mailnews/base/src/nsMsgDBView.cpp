@@ -156,16 +156,16 @@ void nsMsgDBView::InitializeAtomsAndLiterals()
   kNotJunkMsgAtom = MsgNewAtom("notjunk").get();
 
   // priority strings
-  kHighestPriorityString = GetString(NS_LITERAL_STRING("priorityHighest").get());
-  kHighPriorityString = GetString(NS_LITERAL_STRING("priorityHigh").get());
-  kLowestPriorityString = GetString(NS_LITERAL_STRING("priorityLowest").get());
-  kLowPriorityString = GetString(NS_LITERAL_STRING("priorityLow").get());
-  kNormalPriorityString = GetString(NS_LITERAL_STRING("priorityNormal").get());
+  kHighestPriorityString = GetString(MOZ_UTF16("priorityHighest"));
+  kHighPriorityString = GetString(MOZ_UTF16("priorityHigh"));
+  kLowestPriorityString = GetString(MOZ_UTF16("priorityLowest"));
+  kLowPriorityString = GetString(MOZ_UTF16("priorityLow"));
+  kNormalPriorityString = GetString(MOZ_UTF16("priorityNormal"));
 
-  kReadString = GetString(NS_LITERAL_STRING("read").get());
-  kRepliedString = GetString(NS_LITERAL_STRING("replied").get());
-  kForwardedString = GetString(NS_LITERAL_STRING("forwarded").get());
-  kNewString = GetString(NS_LITERAL_STRING("new").get());
+  kReadString = GetString(MOZ_UTF16("read"));
+  kRepliedString = GetString(MOZ_UTF16("replied"));
+  kForwardedString = GetString(MOZ_UTF16("forwarded"));
+  kNewString = GetString(MOZ_UTF16("new"));
 }
 
 nsMsgDBView::~nsMsgDBView()
@@ -1694,14 +1694,14 @@ NS_IMETHODIMP nsMsgDBView::GetCellValue(int32_t aRow, nsITreeColumn* aCol, nsASt
     case 'a': // attachment column
       if (flags & nsMsgMessageFlags::Attachment) {
         nsString tmp_str;
-        tmp_str.Adopt(GetString(NS_LITERAL_STRING("messageHasAttachment").get()));
+        tmp_str.Adopt(GetString(MOZ_UTF16("messageHasAttachment")));
         aValue.Assign(tmp_str);
       }
       break;
     case 'f': // flagged (starred) column
       if (flags & nsMsgMessageFlags::Marked) {
         nsString tmp_str;
-        tmp_str.Adopt(GetString(NS_LITERAL_STRING("messageHasFlag").get()));
+        tmp_str.Adopt(GetString(MOZ_UTF16("messageHasFlag")));
         aValue.Assign(tmp_str);
       }
       break;
@@ -1733,8 +1733,8 @@ NS_IMETHODIMP nsMsgDBView::GetCellValue(int32_t aRow, nsITreeColumn* aCol, nsASt
 
             IsContainerOpen(aRow, &isContainerOpen);
             tmp_str.Adopt(GetString(isContainerOpen ?
-                                   NS_LITERAL_STRING("messageExpanded").get() :
-                                   NS_LITERAL_STRING("messageCollapsed").get()));
+                            MOZ_UTF16("messageExpanded") :
+                            MOZ_UTF16("messageCollapsed")));
             aValue.Assign(tmp_str);
           }
         }
@@ -1743,7 +1743,7 @@ NS_IMETHODIMP nsMsgDBView::GetCellValue(int32_t aRow, nsITreeColumn* aCol, nsASt
     case 'u': // read/unread column
       if (!(flags & nsMsgMessageFlags::Read)) {
         nsString tmp_str;
-        tmp_str.Adopt(GetString(NS_LITERAL_STRING("messageUnread").get()));
+        tmp_str.Adopt(GetString(MOZ_UTF16("messageUnread")));
         aValue.Assign(tmp_str);
       }
       break;
@@ -3060,14 +3060,14 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indic
     nsString confirmString;
     nsString checkboxText;
     nsString buttonApplyNowText;
-    dialogTitle.Adopt(GetString(NS_LITERAL_STRING("confirmMsgDelete.title").get()));
-    checkboxText.Adopt(GetString(NS_LITERAL_STRING("confirmMsgDelete.dontAsk.label").get()));
-    buttonApplyNowText.Adopt(GetString(NS_LITERAL_STRING("confirmMsgDelete.delete.label").get()));
+    dialogTitle.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.title")));
+    checkboxText.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.dontAsk.label")));
+    buttonApplyNowText.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.delete.label")));
 
     if (activePref == warnCollapsedPref)
-      confirmString.Adopt(GetString(NS_LITERAL_STRING("confirmMsgDelete.collapsed.desc").get()));
+      confirmString.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.collapsed.desc")));
     else // if (activePref == warnShiftDelPref || activePref == warnNewsPref)
-      confirmString.Adopt(GetString(NS_LITERAL_STRING("confirmMsgDelete.deleteNoTrash.desc").get()));
+      confirmString.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.deleteNoTrash.desc")));
 
     const uint32_t buttonFlags =
       (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +

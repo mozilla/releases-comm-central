@@ -536,7 +536,7 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
     const PRUnichar *filterLogDetectFormatStrings[4] = { filterName.get(), authorValue.get(), subjectValue.get(), dateValue.get() };
     nsString filterLogDetectStr;
     rv = bundle->FormatStringFromName(
-      NS_LITERAL_STRING("filterLogDetectStr").get(),
+      MOZ_UTF16("filterLogDetectStr"),
       filterLogDetectFormatStrings, 4,
       getter_Copies(filterLogDetectStr));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -559,8 +559,7 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
       nsString logMoveStr;
       rv = bundle->FormatStringFromName(
         (actionType == nsMsgFilterAction::MoveToFolder) ?
-          NS_LITERAL_STRING("logMoveStr").get() :
-          NS_LITERAL_STRING("logCopyStr").get(),
+          MOZ_UTF16("logMoveStr") : MOZ_UTF16("logCopyStr"),
         logMoveFormatStrings, 2,
         getter_Copies(logMoveStr));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -576,7 +575,7 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
         customAction->GetName(filterActionName);
       if (filterActionName.IsEmpty())
         bundle->GetStringFromName(
-                  NS_LITERAL_STRING("filterMissingCustomAction").get(),
+                  MOZ_UTF16("filterMissingCustomAction"),
                   getter_Copies(filterActionName));
       buffer += NS_ConvertUTF16toUTF8(filterActionName);
     }

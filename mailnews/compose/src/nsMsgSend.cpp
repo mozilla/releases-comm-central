@@ -3989,7 +3989,7 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     nsString msg;
     const PRUnichar *formatStrings[] = { mSavedToFolderName.get() };
 
-    rv = bundle->FormatStringFromName(NS_LITERAL_STRING("errorSavingMsg").get(),
+    rv = bundle->FormatStringFromName(MOZ_UTF16("errorSavingMsg"),
                                       formatStrings, 1,
                                       getter_Copies(msg));
     if (NS_SUCCEEDED(rv))

@@ -471,7 +471,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
 
     parm = PR_smprintf("From: %s" CRLF, convbuf ? convbuf : m_email.get());
 
-    rv = FormatStringFromName(NS_LITERAL_STRING("MsgMdnMsgSentTo").get(), NS_ConvertASCIItoUTF16(m_email).get(),
+    rv = FormatStringFromName(MOZ_UTF16("MsgMdnMsgSentTo"), NS_ConvertASCIItoUTF16(m_email).get(),
                             getter_Copies(firstPart1));
     if (NS_FAILED(rv))
         return rv;
@@ -493,32 +493,32 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
     {
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MdnDisplayedReceipt").get(),
+            MOZ_UTF16("MdnDisplayedReceipt"),
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MdnDispatchedReceipt").get(),
+            MOZ_UTF16("MdnDispatchedReceipt"),
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MdnProcessedReceipt").get(),
+            MOZ_UTF16("MdnProcessedReceipt"),
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MdnDeletedReceipt").get(),
+            MOZ_UTF16("MdnDeletedReceipt"),
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MdnDeniedReceipt").get(),
+            MOZ_UTF16("MdnDeniedReceipt"),
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MdnFailedReceipt").get(),
+            MOZ_UTF16("MdnFailedReceipt"),
             getter_Copies(receipt_string));
         break;
     default:
@@ -594,32 +594,32 @@ report-type=disposition-notification;\r\n\tboundary=\"%s\"" CRLF CRLF,
     {
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MsgMdnDisplayed").get(),
+            MOZ_UTF16("MsgMdnDisplayed"),
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MsgMdnDispatched").get(),
+            MOZ_UTF16("MsgMdnDispatched"),
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MsgMdnProcessed").get(),
+            MOZ_UTF16("MsgMdnProcessed"),
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MsgMdnDeleted").get(),
+            MOZ_UTF16("MsgMdnDeleted"),
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MsgMdnDenied").get(),
+            MOZ_UTF16("MsgMdnDenied"),
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
-            NS_LITERAL_STRING("MsgMdnFailed").get(),
+            MOZ_UTF16("MsgMdnFailed"),
             getter_Copies(firstPart2));
         break;
     default:

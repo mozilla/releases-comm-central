@@ -98,7 +98,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult code, ...)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
       bundle->GetStringFromName(
-        NS_LITERAL_STRING("errorIllegalLocalPart").get(),
+        MOZ_UTF16("errorIllegalLocalPart"),
         getter_Copies(eMsg));
       msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
       break;
@@ -2048,11 +2048,11 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
   nsString passwordPromptString;
   if(formatStrings[1])
     rv = composeStringBundle->FormatStringFromName(
-      NS_LITERAL_STRING("smtpEnterPasswordPromptWithUsername").get(),
+      MOZ_UTF16("smtpEnterPasswordPromptWithUsername"),
       formatStrings, 2, getter_Copies(passwordPromptString));
   else
     rv = composeStringBundle->FormatStringFromName(
-      NS_LITERAL_STRING("smtpEnterPasswordPrompt").get(),
+      MOZ_UTF16("smtpEnterPasswordPrompt"),
       formatStrings, 1, getter_Copies(passwordPromptString));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2062,7 +2062,7 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
 
   nsString passwordTitle;
   rv = composeStringBundle->GetStringFromName(
-    NS_LITERAL_STRING("smtpEnterPasswordPromptTitle").get(),
+    MOZ_UTF16("smtpEnterPasswordPromptTitle"),
     getter_Copies(passwordTitle));
   NS_ENSURE_SUCCESS(rv,rv);
 

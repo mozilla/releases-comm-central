@@ -279,9 +279,9 @@ nsMsgFolderDataSource::~nsMsgFolderDataSource (void)
 
 nsresult nsMsgFolderDataSource::CreateLiterals(nsIRDFService *rdf)
 {
-  createNode(NS_LITERAL_STRING("true").get(),
+  createNode(MOZ_UTF16("true"),
     getter_AddRefs(kTrueLiteral), rdf);
-  createNode(NS_LITERAL_STRING("false").get(),
+  createNode(MOZ_UTF16("false"),
     getter_AddRefs(kFalseLiteral), rdf);
 
   return NS_OK;
@@ -1037,9 +1037,9 @@ nsresult nsMsgFolderDataSource::CreateUnreadMessagesNameString(int32_t unreadMes
   //Only do this if unread messages are positive
   if(unreadMessages > 0)
   {
-    nameString.Append(NS_LITERAL_STRING(" (").get());
+    nameString.Append(NS_LITERAL_STRING(" ("));
     nameString.AppendInt(unreadMessages);
-    nameString.Append(NS_LITERAL_STRING(")").get());
+    nameString.Append(MOZ_UTF16(')'));
   }
   return NS_OK;
 }
@@ -1501,13 +1501,13 @@ nsMsgFolderDataSource::createBiffStateNodeFromFlag(uint32_t flag, nsIRDFNode **t
 
   switch (flag) {
     case nsIMsgFolder::nsMsgBiffState_NewMail:
-      biffStateStr = NS_LITERAL_STRING("NewMail").get();
+      biffStateStr = MOZ_UTF16("NewMail");
       break;
     case nsIMsgFolder::nsMsgBiffState_NoMail:
-      biffStateStr = NS_LITERAL_STRING("NoMail").get();
+      biffStateStr = MOZ_UTF16("NoMail");
       break;
     default:
-      biffStateStr = NS_LITERAL_STRING("UnknownMail").get();
+      biffStateStr = MOZ_UTF16("UnknownMail");
       break;
   }
 
@@ -1780,7 +1780,7 @@ nsMsgFolderDataSource::GetNumMessagesNode(int32_t aNumMessages, nsIRDFNode **nod
 {
   uint32_t numMessages = aNumMessages;
   if(numMessages == kDisplayQuestionCount)
-    createNode(NS_LITERAL_STRING("???").get(), node, getRDFService());
+    createNode(MOZ_UTF16("???"), node, getRDFService());
   else if (numMessages == kDisplayBlankCount || numMessages == 0)
     createNode(EmptyString().get(), node, getRDFService());
   else
@@ -1796,7 +1796,7 @@ nsMsgFolderDataSource::GetFolderSizeNode(int32_t aFolderSize, nsIRDFNode **aNode
   if (folderSize == kDisplayBlankCount || folderSize == 0)
     createNode(EmptyString().get(), aNode, getRDFService());
   else if(folderSize == kDisplayQuestionCount)
-    createNode(NS_LITERAL_STRING("???").get(), aNode, getRDFService());
+    createNode(MOZ_UTF16("???"), aNode, getRDFService());
   else
   {
     nsAutoString sizeString;
@@ -1971,7 +1971,7 @@ nsresult nsMsgFolderDataSource::DoDeleteFromFolder(nsIMsgFolder *folder, nsISupp
         nsString confirmMsg;
         rv = sBundleService->CreateBundle(MESSENGER_STRING_URL, getter_AddRefs(sMessengerStringBundle));
         NS_ENSURE_SUCCESS(rv, rv);
-        sMessengerStringBundle->GetStringFromName(NS_LITERAL_STRING("confirmSavedSearchDeleteMessage").get(), getter_Copies(confirmMsg));
+        sMessengerStringBundle->GetStringFromName(MOZ_UTF16("confirmSavedSearchDeleteMessage"), getter_Copies(confirmMsg));
 
         nsCOMPtr<nsIPrompt> dialog;
         rv = msgWindow->GetPromptDialog(getter_AddRefs(dialog));

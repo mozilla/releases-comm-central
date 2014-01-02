@@ -1919,15 +1919,15 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
           nsString confirmString;
           nsString checkboxText;
           nsString buttonCompactNowText;
-          rv = bundle->GetStringFromName(NS_LITERAL_STRING("autoCompactAllFoldersTitle").get(), getter_Copies(dialogTitle));
+          rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAllFoldersTitle"), getter_Copies(dialogTitle));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(NS_LITERAL_STRING("autoCompactAllFolders").get(), getter_Copies(confirmString));
+          rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAllFolders"), getter_Copies(confirmString));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(NS_LITERAL_STRING("autoCompactAlwaysAskCheckbox").get(),
-                                                          getter_Copies(checkboxText));
+          rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAlwaysAskCheckbox"),
+                                         getter_Copies(checkboxText));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(NS_LITERAL_STRING("compactNowButton").get(),
-                                                          getter_Copies(buttonCompactNowText));
+          rv = bundle->GetStringFromName(MOZ_UTF16("compactNowButton"),
+                                         getter_Copies(buttonCompactNowText));
           NS_ENSURE_SUCCESS(rv, rv);
           bool alwaysAsk = true; // "Always ask..." - checked by default.
           int32_t buttonPressed = 0;
@@ -2919,27 +2919,27 @@ nsMsgDBFolder::initializeStrings()
                                    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bundle->GetStringFromName(NS_LITERAL_STRING("inboxFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("inboxFolderName"),
                             &kLocalizedInboxName);
-  bundle->GetStringFromName(NS_LITERAL_STRING("trashFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("trashFolderName"),
                             &kLocalizedTrashName);
-  bundle->GetStringFromName(NS_LITERAL_STRING("sentFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("sentFolderName"),
                             &kLocalizedSentName);
-  bundle->GetStringFromName(NS_LITERAL_STRING("draftsFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("draftsFolderName"),
                             &kLocalizedDraftsName);
-  bundle->GetStringFromName(NS_LITERAL_STRING("templatesFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("templatesFolderName"),
                             &kLocalizedTemplatesName);
-  bundle->GetStringFromName(NS_LITERAL_STRING("junkFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("junkFolderName"),
                             &kLocalizedJunkName);
-  bundle->GetStringFromName(NS_LITERAL_STRING("outboxFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("outboxFolderName"),
                             &kLocalizedUnsentName);
-  bundle->GetStringFromName(NS_LITERAL_STRING("archivesFolderName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("archivesFolderName"),
                             &kLocalizedArchivesName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties", getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
-  bundle->GetStringFromName(NS_LITERAL_STRING("brandShortName").get(),
+  bundle->GetStringFromName(MOZ_UTF16("brandShortName"),
                             &kLocalizedBrandShortName);
   return NS_OK;
 }

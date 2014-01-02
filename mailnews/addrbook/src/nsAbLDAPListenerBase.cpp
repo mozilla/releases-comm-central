@@ -100,7 +100,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // get the title for the authentication prompt
     //
     nsString authPromptTitle;
-    rv = ldapBundle->GetStringFromName(NS_LITERAL_STRING("authPromptTitle").get(),
+    rv = ldapBundle->GetStringFromName(MOZ_UTF16("authPromptTitle"),
                                        getter_Copies(authPromptTitle));
     if (NS_FAILED(rv))
     {
@@ -133,7 +133,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // format the hostname into the authprompt text string
     //
     nsString authPromptText;
-    rv = ldapBundle->FormatStringFromName(NS_LITERAL_STRING("authPromptText").get(),
+    rv = ldapBundle->FormatStringFromName(MOZ_UTF16("authPromptText"),
                                           hostArray,
                                           sizeof(hostArray) / sizeof(const PRUnichar *),
                                           getter_Copies(authPromptText));

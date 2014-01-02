@@ -2022,7 +2022,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
                 rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties",
                                                  getter_AddRefs(composeBundle));
                 NS_ENSURE_SUCCESS(rv, rv);
-                composeBundle->GetStringFromName(NS_LITERAL_STRING("messageAttachmentSafeName").get(),
+                composeBundle->GetStringFromName(MOZ_UTF16("messageAttachmentSafeName"),
                                                  getter_Copies(sanitizedSubj));
               }
               else

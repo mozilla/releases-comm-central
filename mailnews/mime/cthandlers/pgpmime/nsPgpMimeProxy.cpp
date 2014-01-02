@@ -83,7 +83,7 @@ static void PgpMimeGetNeedsAddonString(nsCString &aResult)
   const PRUnichar *formatStrings[] = { url16.get() };
 
   nsString result;
-  rv = stringBundle->FormatStringFromName(NS_LITERAL_STRING(PGPMIME_STR_NOT_SUPPORTED_ID).get(),
+  rv = stringBundle->FormatStringFromName(MOZ_UTF16(PGPMIME_STR_NOT_SUPPORTED_ID),
                                           formatStrings, 1, getter_Copies(result));
   if (NS_FAILED(rv))
     return;

@@ -1059,7 +1059,7 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt()
   {
     filterName.get()
   };
-  nsresult rv = bundle->FormatStringFromName(NS_LITERAL_STRING("continueFilterExecution").get(),
+  nsresult rv = bundle->FormatStringFromName(MOZ_UTF16("continueFilterExecution"),
                                              formatStrings, 1, getter_Copies(confirmText));
   if (NS_FAILED(rv))
     return false;
