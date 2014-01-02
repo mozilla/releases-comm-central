@@ -536,6 +536,9 @@ MessageTabDisplayWidget.prototype = {
   },
 
   onMessagesRemoved: function MessageTabDisplayWidget_onMessagesRemoved() {
+    if (!this.folderDisplay.treeSelection)
+      return true;
+
     if (this.folderDisplay.treeSelection.count == 0 &&
         Services.prefs.getBoolPref("mail.close_message_window.on_delete")) {
       document.getElementById("tabmail").closeTab(this.folderDisplay._tabInfo,
