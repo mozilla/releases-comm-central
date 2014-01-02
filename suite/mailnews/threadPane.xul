@@ -27,62 +27,62 @@
       noattachcol="true"
       onkeypress="ThreadPaneKeyPress(event);"
       onselect="ThreadPaneSelectionChanged();">
-  <treecols id="threadCols" pickertooltiptext="&columnChooser.tooltip;">
+  <treecols id="threadCols" pickertooltiptext="&columnChooser2.tooltip;">
     <treecol id="threadCol" persist="hidden ordinal" fixed="true" cycler="true" class="treecol-image threadColumnHeader" currentView="unthreaded"
-             label="&threadColumn.label;" tooltiptext="&threadColumn.tooltip;"/>
+             label="&threadColumn.label;" tooltiptext="&threadColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="attachmentCol" persist="hidden ordinal" fixed="true" class="treecol-image attachmentColumnHeader" hidden="true"
-             label="&attachmentColumn.label;" tooltiptext="&attachmentColumn.tooltip;"/>
+             label="&attachmentColumn.label;" tooltiptext="&attachmentColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="subjectCol" persist="hidden ordinal width" flex="7" ignoreincolumnpicker="true"
-             label="&subjectColumn.label;" tooltiptext="&subjectColumn.tooltip;"/>
+             label="&subjectColumn.label;" tooltiptext="&subjectColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="junkStatusCol" persist="hidden ordinal width" fixed="true" cycler="true" class="treecol-image junkStatusHeader"
-             label="&junkStatusColumn.label;" tooltiptext="&junkStatusColumn.tooltip;"/>
+             label="&junkStatusColumn.label;" tooltiptext="&junkStatusColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="senderCol" persist="ordinal width hidden swappedhidden" flex="4" hidden="false" swappedhidden="true"
-             label="&fromColumn.label;" tooltiptext="&fromColumn.tooltip;"/>
+             label="&fromColumn.label;" tooltiptext="&fromColumn2.tooltip;"/>
     <treecol id="recipientCol" persist="ordinal width hidden swappedhidden" flex="4" hidden="true" swappedhidden="false"
-             label="&recipientColumn.label;" tooltiptext="&recipientColumn.tooltip;"/>
+             label="&recipientColumn.label;" tooltiptext="&recipientColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="unreadButtonColHeader" persist="hidden ordinal" fixed="true" cycler="true" class="treecol-image readColumnHeader"
-             label="&readColumn.label;" tooltiptext="&readColumn.tooltip;"/>
+             label="&readColumn.label;" tooltiptext="&readColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="receivedCol" persist="hidden ordinal width temphidden" flex="2" hidden="true" temphidden="false" 
-             label="&receivedColumn.label;" tooltiptext="&receivedColumn.tooltip;"/>
+             label="&receivedColumn.label;" tooltiptext="&receivedColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="dateCol" persist="hidden ordinal width" flex="2" 
-             label="&dateColumn.label;" tooltiptext="&dateColumn.tooltip;"/>
+             label="&dateColumn.label;" tooltiptext="&dateColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="statusCol" persist="hidden ordinal width" flex="1" hidden="true"
-             label="&statusColumn.label;" tooltiptext="&statusColumn.tooltip;"/>
+             label="&statusColumn.label;" tooltiptext="&statusColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="sizeCol" persist="hidden ordinal width" flex="1" hidden="true"
-             label="&sizeColumn.label;" tooltiptext="&sizeColumn.tooltip;"/>
+             label="&sizeColumn.label;" tooltiptext="&sizeColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="flaggedCol" persist="hidden ordinal" fixed="true" cycler="true" hidden="true" class="treecol-image flagColumnHeader"
-             label="&flagColumn.label;" tooltiptext="&flagColumn.tooltip;"/>
+             label="&flagColumn.label;" tooltiptext="&flagColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="tagsCol" persist="hidden ordinal width" flex="1" hidden="true"
-             label="&tagsColumn.label;" tooltiptext="&tagsColumn.tooltip;"/>
+             label="&tagsColumn.label;" tooltiptext="&tagsColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="accountCol" persist="hidden ordinal width" flex="1" hidden="true"
-             label="&accountColumn.label;" tooltiptext="&accountColumn.tooltip;"/>
+             label="&accountColumn.label;" tooltiptext="&accountColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="priorityCol" persist="hidden ordinal width" flex="1"
-             label="&priorityColumn.label;" tooltiptext="&priorityColumn.tooltip;"/>
+             label="&priorityColumn.label;" tooltiptext="&priorityColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="unreadCol" persist="hidden ordinal width" flex="1" hidden="true"
-             label="&unreadColumn.label;" tooltiptext="&unreadColumn.tooltip;"/>
+             label="&unreadColumn.label;" tooltiptext="&unreadColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="totalCol" persist="hidden ordinal width" flex="1" hidden="true"
-             label="&totalColumn.label;" tooltiptext="&totalColumn.tooltip;"/>
+             label="&totalColumn.label;" tooltiptext="&totalColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="locationCol" persist="width" flex="1" hidden="true" ignoreincolumnpicker="true"
-             label="&locationColumn.label;" tooltiptext="&locationColumn.tooltip;"/>
+             label="&locationColumn.label;" tooltiptext="&locationColumn2.tooltip;"/>
     <splitter class="tree-splitter"/>
     <treecol id="idCol" persist="hidden ordinal width" flex="1" hidden="true"
-             label="&idColumn.label;" tooltiptext="&idColumn.tooltip;"/>
+             label="&idColumn.label;" tooltiptext="&idColumn2.tooltip;"/>
   </treecols>
   <treechildren ondraggesture="BeginDragThreadPane(event);"
                 ondragover="DragOverThreadPane(event);"
