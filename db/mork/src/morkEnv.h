@@ -27,7 +27,6 @@
 
 // use NS error codes to make Mork easier to use with the rest of mozilla 
 #define morkEnv_kNoError         NS_SUCCEEDED /* no error has happened */
-#define morkEnv_kGenericError    NS_ERROR_FAILURE /* non-specific error code */
 #define morkEnv_kNonEnvTypeError NS_ERROR_FAILURE /* morkEnv::IsEnv() is false */
 
 #define morkEnv_kStubMethodOnlyError NS_ERROR_NO_INTERFACE
@@ -80,9 +79,9 @@ public: // state is public because the entire Mork system is private
     
   mork_u2           mEnv_ErrorCount; 
   mork_u2           mEnv_WarningCount; 
-  
-  mork_u4           mEnv_ErrorCode; // simple basis for mdb_err style errors
-  
+
+  nsresult          mEnv_ErrorCode;
+
   mork_bool         mEnv_DoTrace;
   mork_able         mEnv_AutoClear;
   mork_bool         mEnv_ShouldAbort;
@@ -189,11 +188,8 @@ public: // other env methods
   
   nsIMdbEnv* AsMdbEnv() { return (nsIMdbEnv *) this; }
   static morkEnv* FromMdbEnv(nsIMdbEnv* ioEnv); // dynamic type checking
-  
-  mork_u4 ErrorCode() const { return mEnv_ErrorCode; }
-  
-  mdb_err AsErr() const { return (mdb_err) mEnv_ErrorCode; }
-  //mdb_err AsErr() const { return (mdb_err) ( mEnv_ErrorCount != 0 ); }
+
+  nsresult AsErr() const { return mEnv_ErrorCode; }
 
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakEnv(morkEnv* me,

@@ -89,8 +89,8 @@ morkEnv::morkEnv(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
 , mEnv_ErrorCount( 0 ) 
 , mEnv_WarningCount( 0 ) 
 
-, mEnv_ErrorCode( 0 )
-  
+, mEnv_ErrorCode(NS_OK)
+
 , mEnv_DoTrace( morkBool_kFalse )
 , mEnv_AutoClear( morkAble_kDisabled )
 , mEnv_ShouldAbort( morkBool_kFalse )
@@ -130,8 +130,8 @@ morkEnv::morkEnv(morkEnv* ev, /*i*/
 , mEnv_ErrorCount( 0 ) 
 , mEnv_WarningCount( 0 ) 
 
-, mEnv_ErrorCode( 0 )
-  
+, mEnv_ErrorCode(NS_OK)
+
 , mEnv_DoTrace( morkBool_kFalse )
 , mEnv_AutoClear( morkAble_kDisabled )
 , mEnv_ShouldAbort( morkBool_kFalse )
@@ -360,8 +360,8 @@ morkEnv::NewError(const char* inString)
   MORK_ASSERT(morkBool_kFalse); // get developer's attention
 
   ++mEnv_ErrorCount;
-  mEnv_ErrorCode = (mork_u4)morkEnv_kGenericError;
-  
+  mEnv_ErrorCode = NS_ERROR_FAILURE;
+
   if ( mEnv_ErrorHook )
     mEnv_ErrorHook->OnErrorString(this->AsMdbEnv(), inString);
 }
@@ -439,7 +439,7 @@ morkEnv::ClearMorkErrorsAndWarnings()
 {
   mEnv_ErrorCount = 0;
   mEnv_WarningCount = 0;
-  mEnv_ErrorCode = 0;
+  mEnv_ErrorCode = NS_OK;
   mEnv_ShouldAbort = morkBool_kFalse;
 }
 
@@ -450,7 +450,7 @@ morkEnv::AutoClearMorkErrorsAndWarnings()
   {
     mEnv_ErrorCount = 0;
     mEnv_WarningCount = 0;
-    mEnv_ErrorCode = 0;
+    mEnv_ErrorCode = NS_OK;
     mEnv_ShouldAbort = morkBool_kFalse;
   }
 }
@@ -471,7 +471,7 @@ morkEnv::FromMdbEnv(nsIMdbEnv* ioEnv) // dynamic type checking
       {
         ev->mEnv_ErrorCount = 0;
         ev->mEnv_WarningCount = 0;
-        ev->mEnv_ErrorCode = 0;
+        ev->mEnv_ErrorCode = NS_OK;
       }
       outEnv = ev;
     }
@@ -595,7 +595,7 @@ NS_IMETHODIMP
 morkEnv::ClearErrors() // clear errors beore re-entering db API
 {
   mEnv_ErrorCount = 0;
-  mEnv_ErrorCode = 0;
+  mEnv_ErrorCode = NS_OK;
   mEnv_ShouldAbort = morkBool_kFalse;
 
   return NS_OK;
