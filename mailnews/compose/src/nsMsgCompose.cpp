@@ -2393,6 +2393,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       nsAutoString from;
       nsAutoString to;
       nsAutoString cc;
+      nsAutoString bcc;
       nsAutoString replyTo;
       nsAutoString mailReplyTo;
       nsAutoString mailFollowupTo;
@@ -2421,6 +2422,9 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
 
       mHeaders->ExtractHeader(HEADER_CC, true, outCString);
       ConvertRawBytesToUTF16(outCString, charset.get(), cc);
+
+      mHeaders->ExtractHeader(HEADER_BCC, true, outCString);
+      ConvertRawBytesToUTF16(outCString, charset.get(), bcc);
 
       mHeaders->ExtractHeader(HEADER_MAIL_FOLLOWUP_TO, true, outCString);
       ConvertRawBytesToUTF16(outCString, charset.get(), mailFollowupTo);
@@ -2529,17 +2533,16 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           if (curIdentityEmail.Equals(fromEmailAddress))
           {
             isReplyToSelf = true;
-            // For a true reply-to-self, none of your OTHER identities are
-            // in To or CC.
+            // For a true reply-to-self, NONE of your identities are normally in
+            // To or CC. If you auto-Cc yourself it could be in Cc - but we
+            // can't detect this case 100%, so lets just treat it like a normal
+            // reply.
             for (uint32_t j = 0; j < count; j++)
             {
               nsCOMPtr<nsIMsgIdentity> lookupIdentity2;
               rv = identities->QueryElementAt(j, NS_GET_IID(nsIMsgIdentity),
                                               getter_AddRefs(lookupIdentity2));
               if (NS_FAILED(rv))
-                continue;
-
-              if (lookupIdentity == lookupIdentity2)
                 continue;
 
               nsCString curIdentityEmail2;
@@ -2562,6 +2565,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
         if (isReplyToSelf)
         {
           compFields->SetTo(to);
+          compFields->SetReplyTo(replyTo);
         }
         else if (!mailReplyTo.IsEmpty())
         {
@@ -2585,6 +2589,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
         {
           compFields->SetTo(to);
           compFields->SetCc(cc);
+          compFields->SetBcc(bcc);
+          compFields->SetReplyTo(replyTo);
         }
         else if (mailFollowupTo.IsEmpty()) {
           // default behaviour for messages without Mail-Followup-To
@@ -2622,40 +2628,24 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
 
           // If Cc is set a this point it's auto-Ccs, so we'll just keep those.
         }
-
-        // Preserve BCC for the reply-to-self case (can be known if replying
-        // from the Sent folder).
-        mHeaders->ExtractHeader(HEADER_BCC, true, outCString);
-        if (!outCString.IsEmpty())
-        {
-          nsAutoString bcc;
-          ConvertRawBytesToUTF16(outCString, charset.get(), bcc);
-          compFields->SetBcc(bcc);
-        }
       }
       else if (type == nsIMsgCompType::ReplyToList)
       {
-        if (isReplyToSelf)
-        {
-          compFields->SetTo(to);
-        }
-        else {
-          mHeaders->ExtractHeader(HEADER_LIST_POST, true, outCString);
-          if (!outCString.IsEmpty())
-            mMimeConverter->DecodeMimeHeader(outCString.get(), charset.get(),
-                                             false, true, listPost);
+        mHeaders->ExtractHeader(HEADER_LIST_POST, true, outCString);
+        if (!outCString.IsEmpty())
+          mMimeConverter->DecodeMimeHeader(outCString.get(), charset.get(),
+                                           false, true, listPost);
 
-          if (!listPost.IsEmpty())
+        if (!listPost.IsEmpty())
+        {
+          int32_t startPos = listPost.Find("<mailto:");
+          int32_t endPos = listPost.FindChar('>', startPos);
+          // Extract the e-mail address.
+          if (endPos > startPos)
           {
-            int32_t startPos = listPost.Find("<mailto:");
-            int32_t endPos = listPost.FindChar('>', startPos);
-            // Extract the e-mail address.
-            if (endPos > startPos)
-            {
-              const uint32_t mailtoLen = strlen("<mailto:");
-              listPost = Substring(listPost, startPos + mailtoLen, endPos - (startPos + mailtoLen));
-              compFields->SetTo(listPost);
-            }
+            const uint32_t mailtoLen = strlen("<mailto:");
+            listPost = Substring(listPost, startPos + mailtoLen, endPos - (startPos + mailtoLen));
+            compFields->SetTo(listPost);
           }
         }
       }

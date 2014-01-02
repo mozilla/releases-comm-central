@@ -625,7 +625,8 @@ function testReplyToSelfReply() {
     cc: "Lisa <lisa@example.com>",
     subject: "testReplyToSelfReply - reply to self",
     clobberHeaders: {
-      "Bcc": "Moe <moe@example.com>"
+      "Bcc": "Moe <moe@example.com>",
+      "Reply-To": "Flanders <flanders@example.com>"
     }
   });
   add_message_to_folder(folder, msg0);
@@ -638,8 +639,10 @@ function testReplyToSelfReply() {
   checkReply(
     open_compose_with_reply,
     // To: original To
+    // Reply-To: original Reply-To
     {
-      "addr_to": ["Bart <bart@example.com>", "Maggie <maggie@example.com>"]
+      "addr_to": ["Bart <bart@example.com>", "Maggie <maggie@example.com>"],
+      "addr_reply": ["Flanders <flanders@example.com>"]
     }
   );
 
@@ -648,9 +651,11 @@ function testReplyToSelfReply() {
     open_compose_with_reply,
     // To: original To
     // Cc: auto-Ccs
+    // Reply-To: original Reply-To
     {
       "addr_to": ["Bart <bart@example.com>", "Maggie <maggie@example.com>"],
-      "addr_cc": [myEmail, "smithers@example.com"]
+      "addr_cc": [myEmail, "smithers@example.com"],
+      "addr_reply": ["Flanders <flanders@example.com>"]
     }
   );
   stopUsingAutoCc(identity);
@@ -667,7 +672,8 @@ function testReplyToSelfReplyAll() {
     cc: "Lisa <lisa@example.com>",
     subject: "testReplyToSelfReplyAll - reply to self",
     clobberHeaders: {
-      "Bcc": "Moe <moe@example.com>"
+      "Bcc": "Moe <moe@example.com>",
+      "Reply-To": "Flanders <flanders@example.com>"
     }
   });
   add_message_to_folder(folder, msg0);
@@ -682,11 +688,13 @@ function testReplyToSelfReplyAll() {
     // To: original To
     // Cc: original Cc
     // Bcc: original Bcc
+    // Reply-To: original Reply-To
     {
       "addr_to": ["Bart <bart@example.com>",
                   "Maggie <maggie@example.com>"],
       "addr_cc": ["Lisa <lisa@example.com>"],
-      "addr_bcc": ["Moe <moe@example.com>"]
+      "addr_bcc": ["Moe <moe@example.com>"],
+      "addr_reply": ["Flanders <flanders@example.com>"]
     }
   );
 
@@ -696,11 +704,13 @@ function testReplyToSelfReplyAll() {
     // To: original To
     // Cc: original Cc (auto-Ccs would have been included here already)
     // Bcc: original Bcc
+    // Reply-To: original Reply-To
     {
       "addr_to": ["Bart <bart@example.com>",
                   "Maggie <maggie@example.com>"],
       "addr_cc": ["Lisa <lisa@example.com>"],
-      "addr_bcc": ["Moe <moe@example.com>"]
+      "addr_bcc": ["Moe <moe@example.com>"],
+      "addr_reply": ["Flanders <flanders@example.com>"]
     }
   );
   stopUsingAutoCc(identity);
@@ -715,7 +725,10 @@ function testReplyToOtherIdentity() {
     from: myEmail,
     to: myEmail2 + ", barney@example.com",
     cc: "Lisa <lisa@example.com>",
-    subject: "testReplyToOtherIdentity - reply to other identity"
+    subject: "testReplyToOtherIdentity - reply to other identity",
+    clobberHeaders: {
+      "Reply-To": "secretary@example.com"
+    }
   });
   add_message_to_folder(folder, msg0);
 
@@ -726,11 +739,11 @@ function testReplyToOtherIdentity() {
   ensureNoAutoCc(identity);
   checkReply(
     open_compose_with_reply_to_all,
-    // To: from + to (except me)
+    // To: from + to (except me2)
     // Cc: original Cc
     // 
     {
-      "addr_to": [myEmail, "barney@example.com"],
+      "addr_to": ["secretary@example.com", "barney@example.com"],
       "addr_cc": ["Lisa <lisa@example.com>"]
     }
   );
@@ -823,5 +836,30 @@ function testNewsgroupsReplyAllFollowupTo() {
     }
   );
   stopUsingAutoCc(identity);
+}
+
+/**
+ * Tests that addresses get set properly when doing a reply where To=From
+ * and a Reply-To exists.
+ */
+function testToFromWithReplyTo() {
+  let msg0 = create_message({
+    from: myEmail,
+    to: myEmail,
+    subject: "testToFromWithReplyTo - To=From w/ Reply-To set",
+    clobberHeaders: { "Reply-To": "Flanders <flanders@example.com>" }
+  });
+  add_message_to_folder(folder, msg0);
+
+  be_in_folder(folder);
+  let msg = select_click_row(i++);
+  assert_selected_and_displayed(mc, msg);
+
+  ensureNoAutoCc(identity);
+  checkReply(
+    open_compose_with_reply,
+    // To: Reply-To
+    {"addr_to": ["Flanders <flanders@example.com>"]}
+  );
 }
 
