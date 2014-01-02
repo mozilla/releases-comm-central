@@ -2454,14 +2454,17 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex)
   var indexOfSeparator = 0;
   while (popup.childNodes[indexOfSeparator].localName != "menuseparator")
     indexOfSeparator++;
-
+  // We increment the attachmentIndex here since we only use it for the
+  // label and accesskey attributes, and we want the accesskeys for the
+  // attachments list in the menu to be 1-indexed.
+  attachmentIndex++;
   var displayName = SanitizeAttachmentDisplayName(attachment);
   var label = document.getElementById("bundle_messenger")
                       .getFormattedString("attachmentDisplayNameFormat",
                                           [attachmentIndex, displayName]);
   item.setAttribute("crop", "center");
   item.setAttribute("label", label);
-  item.setAttribute("accesskey", attachmentIndex);
+  item.setAttribute("accesskey", attachmentIndex % 10);
 
   // Each attachment in the list gets its own menupopup with options for
   // saving, deleting, detaching, etc.
