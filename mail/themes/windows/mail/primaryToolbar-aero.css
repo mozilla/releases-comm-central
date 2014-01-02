@@ -15,6 +15,12 @@
 
 /* :::: Toolbar :::: */
 
+@media not all and (-moz-windows-compositor) {
+  #mail-toolbar-menubar2:not([autohide="true"]) {
+    -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+  }
+}
+
 .mail-toolbox:not(:-moz-lwtheme),
 #navigation-toolbox:not(:-moz-lwtheme),
 .contentTabToolbox:not(:-moz-lwtheme) {

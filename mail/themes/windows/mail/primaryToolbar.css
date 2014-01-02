@@ -13,6 +13,10 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+#mail-toolbar-menubar2:not([autohide="true"]) {
+  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+}
+
 #navigation-toolbox {
   -moz-appearance: none;
   border-top-width: 0;
