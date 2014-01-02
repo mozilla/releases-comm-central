@@ -165,6 +165,18 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   -moz-image-region: rect(48px 240px 72px 216px) !important;
 }
 
+#button-print {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
+  -moz-image-region: rect(0px 264px 24px 240px);
+}
+
+#button-print:hover {
+  -moz-image-region: rect(24px 264px 48px 240px);
+}
+
+#button-print[disabled="true"] {
+  -moz-image-region: rect(48px 264px 72px 240px);
+}
 
 /* ::::: small primary toolbar buttons ::::: */
 
@@ -282,6 +294,19 @@ toolbar[iconsize="small"] #paste-button:hover {
 
 toolbar[iconsize="small"] #paste-button[disabled="true"] {
   -moz-image-region: rect(32px 160px 48px 144px) !important;
+}
+
+toolbar[iconsize="small"] #button-print {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-small.png");
+  -moz-image-region: rect(0px 176px 16px 160px);
+}
+
+toolbar[iconsize="small"] #button-print:hover {
+  -moz-image-region: rect(16px 176px 32px 160px);
+}
+
+toolbar[iconsize="small"] #button-print[disabled="true"] {
+  -moz-image-region: rect(32px 176px 48px 160px);
 }
 
 /* ::::: special toolbar colors ::::: */

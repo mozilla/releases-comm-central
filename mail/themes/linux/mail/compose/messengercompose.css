@@ -120,6 +120,14 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   list-style-image: url("moz-icon://stock/gtk-paste?size=toolbar&state=disabled");
 }
 
+#button-print {
+  list-style-image: url("moz-icon://stock/gtk-print?size=toolbar");
+}
+
+#button-print[disabled="true"] {
+  list-style-image: url("moz-icon://stock/gtk-print?size=toolbar&state=disabled");
+}
+
 /* ::::: small primary toolbar buttons ::::: */
 
 toolbar[iconsize="small"] #button-send {
@@ -189,12 +197,21 @@ toolbar[iconsize="small"] #copy-button {
 toolbar[iconsize="small"] #copy-button[disabled="true"] {
   list-style-image: url("moz-icon://stock/gtk-copy?size=menu&state=disabled");
 }
+
 toolbar[iconsize="small"] #paste-button {
   list-style-image: url("moz-icon://stock/gtk-paste?size=menu");
 }
 
 toolbar[iconsize="small"] #paste-button[disabled="true"] {
   list-style-image: url("moz-icon://stock/gtk-paste?size=menu&state=disabled");
+}
+
+toolbar[iconsize="small"] #button-print {
+  list-style-image: url("moz-icon://stock/gtk-print?size=menu");
+}
+
+toolbar[iconsize="small"] #button-print[disabled="true"] {
+  list-style-image: url("moz-icon://stock/gtk-print?size=menu&state=disabled");
 }
 
 #priority-button:not(:-moz-lwtheme) > label {

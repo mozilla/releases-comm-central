@@ -318,6 +318,15 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   -moz-image-region: rect(18px 180px 36px 162px);
 }
 
+#button-print {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
+  -moz-image-region: rect(0px 198px 18px 180px);
+}
+
+#button-print:not([disabled="true"]):active {
+  -moz-image-region: rect(18px 198px 36px 180px);
+}
+
 @media (min-resolution: 2dppx) {
   #button-send {
     list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar@2x.png");
@@ -411,6 +420,15 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 
   #paste-button:not([disabled="true"]):active {
     -moz-image-region: rect(36px 360px 72px 324px);
+  }
+
+  #button-print {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar@2x.png");
+    -moz-image-region: rect(0px 396px 36px 360px);
+  }
+
+  #button-print:not([disabled="true"]):active {
+    -moz-image-region: rect(36px 396px 72px 360px);
   }
 }
 

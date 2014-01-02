@@ -769,6 +769,33 @@
          </menupopup>
     </toolbarbutton>
 
+#ifdef XP_MACOSX
+    <toolbarbutton id="button-print"
+                   class="toolbarbutton-1"
+                   label="&printButton.label;"
+                   command="cmd_print"
+                   tooltiptext="&printButton.tooltip;"/>
+#else
+    <toolbarbutton id="button-print"
+                   class="toolbarbutton-1"
+                   label="&printButton.label;"
+                   command="cmd_print"
+                   tooltiptext="&printButton.tooltip;"
+                   type="menu-button">
+      <menupopup id="button-printPopup" 
+                 onpopupshowing="goUpdateCommand('cmd_printpreview');">
+        <menuitem id="button-printMenu"
+                  label="&printCmd.label;"
+                  accesskey="&printCmd.accesskey;"
+                  command="cmd_print"
+                  default="true"/>
+        <menuitem id="button-printPreviewMenu"
+                  label="&printPreviewCmd.label;"
+                  accesskey="&printPreviewCmd.accesskey;"
+                  command="cmd_printPreview"/>
+      </menupopup>
+    </toolbarbutton>
+#endif
     <toolbarbutton class="toolbarbutton-1"
                id="quoteButton" label="&quoteButton.label;"
                tooltiptext="&quoteButton.tooltip;"
