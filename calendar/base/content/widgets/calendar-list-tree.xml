@@ -137,6 +137,7 @@
             switch (aName) {
                 case "disabled":
                 case "readOnly":
+                    calendarUpdateNewItemsCommand();
                     document.commandDispatcher.updateCommands("calendar_commands");
                     break;
             }
