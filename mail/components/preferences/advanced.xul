@@ -259,7 +259,7 @@
                          label="&markAsReadDelay.label;"
                          accesskey="&markAsReadDelay.accesskey;"/>
                   <textbox id="markAsReadDelay" size="2"
-                           type="number" max="2147483"
+                           type="number" min="1" max="2147483"
                            preference="mailnews.mark_message_read.delay.interval"
                            aria-labelledby="markAsReadAfterDelay markAsReadDelay secondsLabel"/>
                   <label id="secondsLabel" value="&secondsLabel.label;"/>
