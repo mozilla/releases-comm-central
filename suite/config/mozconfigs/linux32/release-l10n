@@ -34,3 +34,7 @@ ac_add_options --with-ccache=/usr/bin/ccache
 #Disable gstreamer building until we have libs that can support it
 # Bug 886180
 ac_add_options --disable-gstreamer
+
+#Disable webrtc until we have libs that support it.
+# Bug 952883
+ac_add_options --disable-webrtc

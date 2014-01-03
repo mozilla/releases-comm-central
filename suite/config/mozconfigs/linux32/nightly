@@ -39,3 +39,7 @@ ac_add_options --disable-gstreamer
 #Disable pulseaudio building until we have libs that support it.
 # Bug 949884
 ac_add_options --disable-pulseaudio
+
+#Disable webrtc until we have libs that support it.
+# Bug 952883
+ac_add_options --disable-webrtc
