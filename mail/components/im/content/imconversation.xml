@@ -946,10 +946,10 @@
 
          // Is aOldName is not null, then we are renaming the buddy
          if (!this._hasBuddy(aOldName))
-           throw "Updating a chat buddy that does not exist?!";
+           throw "Updating a chat buddy that does not exist: " + aOldName;
 
          if (this._hasBuddy(name))
-           throw "Updating a chat buddy to an already existing one?!";
+           throw "Updating a chat buddy to an already existing one: " + name;
 
          var item = this.buddies[aOldName];
          item.chatBuddy = aBuddy;
