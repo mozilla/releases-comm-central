@@ -70,6 +70,11 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder *aParent,
                                               const nsAString &aFolderName,
                                               nsIMsgFolder **aResult)
 {
+  NS_ENSURE_ARG_POINTER(aParent);
+  NS_ENSURE_ARG_POINTER(aResult);
+  if (aFolderName.IsEmpty())
+    return NS_MSG_ERROR_INVALID_FOLDER_NAME;
+
   nsCOMPtr<nsIFile> path;
   nsCOMPtr<nsIMsgFolder> child;
   nsresult rv = aParent->GetFilePath(getter_AddRefs(path));

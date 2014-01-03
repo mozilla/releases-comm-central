@@ -1945,6 +1945,10 @@ let gFolderTreeController = {
       dualUseFolders = folder.server.dualUseFolders;
 
     function newFolderCallback(aName, aFolder) {
+      // createSubfolder can throw an exception, causing the newFolder dialog
+      // to not close and wait for another input.
+      // TODO: Rewrite this logic and also move the opening of alert dialogs from
+      // nsMsgLocalMailFolder::CreateSubfolderInternal to here (bug 831190#c16).
       if (aName)
         aFolder.createSubfolder(aName, msgWindow);
     }

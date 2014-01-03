@@ -855,7 +855,9 @@ NS_IMETHODIMP nsImapMailFolder::GetMessages(nsISimpleEnumerator* *result)
 
 NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsAString& folderName, nsIMsgWindow *msgWindow)
 {
-  NS_ENSURE_TRUE(!folderName.IsEmpty(), NS_ERROR_FAILURE);
+  if (folderName.IsEmpty())
+    return NS_MSG_ERROR_INVALID_FOLDER_NAME;
+
   nsresult rv;
   nsAutoString trashName;
   GetTrashFolderName(trashName);

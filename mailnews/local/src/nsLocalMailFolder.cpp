@@ -558,19 +558,15 @@ nsMsgLocalMailFolder::CreateSubfolderInternal(const nsAString& folderName,
   if (rv == NS_MSG_ERROR_INVALID_FOLDER_NAME)
   {
     ThrowAlertMsg("folderCreationFailed", msgWindow);
-    // I'm returning this value so the dialog stays up
-    return NS_MSG_FOLDER_EXISTS;
   }
-  if (rv == NS_MSG_FOLDER_EXISTS)
+  else if (rv == NS_MSG_FOLDER_EXISTS)
   {
     ThrowAlertMsg("folderExists", msgWindow);
-    return NS_MSG_FOLDER_EXISTS;
   }
-
-  nsCOMPtr<nsIMsgFolder> child = *aNewFolder;
 
   if (NS_SUCCEEDED(rv))
   {
+    nsCOMPtr<nsIMsgFolder> child = *aNewFolder;
     //we need to notify explicitly the flag change because it failed when we did AddSubfolder
     child->OnFlagChange(mFlags);
     child->SetPrettyName(folderName);  //because empty trash will create a new trash folder
@@ -578,6 +574,7 @@ nsMsgLocalMailFolder::CreateSubfolderInternal(const nsAString& folderName,
     if (aNewFolder)
       child.swap(*aNewFolder);
   }
+
   return rv;
 }
 

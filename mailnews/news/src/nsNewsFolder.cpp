@@ -516,7 +516,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
 {
   nsresult rv = NS_OK;
   if (newsgroupName.IsEmpty())
-    return NS_ERROR_FAILURE;
+    return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
   nsCOMPtr<nsIMsgFolder> child;
   // Create an empty database for this mail folder, set its name from the user
