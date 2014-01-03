@@ -11,13 +11,8 @@
 /* ::::: for the entire area ::::: */
 .main-header-area {
   color: #2E3436; /* Aluminium 6 */
-  background: linear-gradient(#909090, #FFFFFF 5px);
   border-bottom:1px solid #BFBFBF;
   padding: 0.6ex;
-}
-
-.main-header-area:-moz-window-inactive {
-  background: linear-gradient(#CDCDCD, #FFFFFF 5px);
 }
 
 #displayDeck:not([collapsed="true"]) + #threadpane-splitter + #messagepanebox .main-header-area {
@@ -59,7 +54,7 @@
 
 #expandedBoxSpacer {
   display: block;
-  height: 10px;
+  height: 5px;
 }
 
 #otherActionsButton {
