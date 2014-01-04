@@ -681,7 +681,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage
     getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const PRUnichar *junkLogDetectFormatStrings[3] = { authorValue.get(), subjectValue.get(), dateValue.get() };
+  const char16_t *junkLogDetectFormatStrings[3] = { authorValue.get(), subjectValue.get(), dateValue.get() };
   nsString junkLogDetectStr;
   rv = bundle->FormatStringFromName(
     MOZ_UTF16("junkLogDetectStr"),
@@ -703,7 +703,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage
     NS_ConvertASCIItoUTF16 msgIdValue(msgId);
     NS_ConvertASCIItoUTF16 junkFolderURIValue(junkFolderURI);
 
-    const PRUnichar *logMoveFormatStrings[2] = { msgIdValue.get(), junkFolderURIValue.get() };
+    const char16_t *logMoveFormatStrings[2] = { msgIdValue.get(), junkFolderURIValue.get() };
     nsString logMoveStr;
     rv = bundle->FormatStringFromName(
       MOZ_UTF16("logMoveStr"),

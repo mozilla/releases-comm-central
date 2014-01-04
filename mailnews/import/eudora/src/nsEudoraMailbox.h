@@ -149,7 +149,7 @@ public:
 
   // Non-platform specific common stuff
     // import a mailbox
-  nsresult ImportMailbox(uint32_t *pBytes, bool *pAbort, const PRUnichar *pName,
+  nsresult ImportMailbox(uint32_t *pBytes, bool *pAbort, const char16_t *pName,
                          nsIFile *pSrc, nsIMsgFolder *pDst, int32_t *pMsgCount);
  
 

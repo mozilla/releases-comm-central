@@ -53,13 +53,13 @@ NS_IMETHODIMP nsMsgProcessReport::SetError(nsresult aError)
 }
 
 /* attribute wstring message; */
-NS_IMETHODIMP nsMsgProcessReport::GetMessage(PRUnichar * *aMessage)
+NS_IMETHODIMP nsMsgProcessReport::GetMessage(char16_t * *aMessage)
 {
   NS_ENSURE_ARG_POINTER(aMessage);
   *aMessage = ToNewUnicode(mMessage);
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgProcessReport::SetMessage(const PRUnichar * aMessage)
+NS_IMETHODIMP nsMsgProcessReport::SetMessage(const char16_t * aMessage)
 {
   mMessage = aMessage;
   return NS_OK;
@@ -183,7 +183,7 @@ NS_IMETHODIMP nsMsgSendReport::SetError(int32_t process, nsresult newError, bool
 }
 
 /* void setMessage (in long process, in wstring message, in boolean overwriteMessage); */
-NS_IMETHODIMP nsMsgSendReport::SetMessage(int32_t process, const PRUnichar *message, bool overwriteMessage)
+NS_IMETHODIMP nsMsgSendReport::SetMessage(int32_t process, const char16_t *message, bool overwriteMessage)
 {
   if (process < process_Current || process > SEND_LAST_PROCESS)
     return NS_ERROR_ILLEGAL_VALUE;
@@ -348,7 +348,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
       if (!currMessage.Equals(dialogMessage))
       {
         if (!dialogMessage.IsEmpty())
-          dialogMessage.Append(PRUnichar('\n'));
+          dialogMessage.Append(char16_t('\n'));
         dialogMessage.Append(currMessage);
       }
     }
@@ -412,7 +412,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
     if (!currMessage.IsEmpty())
     {
       if (!dialogMessage.IsEmpty())
-        dialogMessage.Append(PRUnichar('\n'));
+        dialogMessage.Append(char16_t('\n'));
       dialogMessage.Append(currMessage);
     }
     nsMsgDisplayMessageByString(prompt, dialogMessage.get(), dialogTitle.get());

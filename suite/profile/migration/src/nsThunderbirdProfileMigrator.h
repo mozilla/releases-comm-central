@@ -31,8 +31,8 @@ public:
 
   // nsISuiteProfileMigrator methods
   NS_IMETHOD Migrate(uint16_t aItems, nsIProfileStartup *aStartup,
-                     const PRUnichar *aProfile);
-  NS_IMETHOD GetMigrateData(const PRUnichar *aProfile, bool aDoingStartup,
+                     const char16_t *aProfile);
+  NS_IMETHOD GetMigrateData(const char16_t *aProfile, bool aDoingStartup,
                             uint16_t *_retval);
   NS_IMETHOD GetSupportedItems(uint16_t *aSupportedItems);
 

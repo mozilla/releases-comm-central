@@ -937,7 +937,7 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec *boxSpec)
 
     //    	char *convertedName =
     //            fServerConnection.CreateUtf7ConvertedString(boxname, false);
-    //		PRUnichar *unicharName;
+    //		char16_t *unicharName;
     //        unicharName = fServerConnection.CreatePRUnicharStringFromUTF7(boxname);
     //    	PL_strfree(boxname);
     //    	boxname = convertedName;

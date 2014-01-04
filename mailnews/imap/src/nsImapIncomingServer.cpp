@@ -1801,7 +1801,7 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
     {
       nsString message;
       nsString tempString(aAlertString);
-      const PRUnichar *params[] = { hostName.get(), tempString.get() };
+      const char16_t *params[] = { hostName.get(), tempString.get() };
 
       rv = m_stringBundle->FormatStringFromName(
         MOZ_UTF16("imapServerAlert"),
@@ -1841,7 +1841,7 @@ nsImapIncomingServer::FEAlertWithName(const char* aMsgName, nsIMsgMailNewsUrl *a
     nsresult rv = GetPrettyName(hostName);
     if (NS_SUCCEEDED(rv))
     {
-      const PRUnichar *params[] = { hostName.get() };
+      const char16_t *params[] = { hostName.get() };
       rv = m_stringBundle->FormatStringFromName(
         NS_ConvertASCIItoUTF16(aMsgName).get(),
         params, 1,getter_Copies(message));
@@ -1882,7 +1882,7 @@ NS_IMETHODIMP  nsImapIncomingServer::FEAlertFromServer(const nsACString& aServer
   nsString hostName;
   GetPrettyName(hostName);
 
-  const PRUnichar *formatStrings[] =
+  const char16_t *formatStrings[] =
   {
     hostName.get(),
     nullptr,
@@ -2473,7 +2473,7 @@ nsImapIncomingServer::GetSubscribeListener(nsISubscribeListener **aListener)
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::Subscribe(const PRUnichar *aName)
+nsImapIncomingServer::Subscribe(const char16_t *aName)
 {
   NS_ENSURE_ARG_POINTER(aName);
   
@@ -2481,7 +2481,7 @@ nsImapIncomingServer::Subscribe(const PRUnichar *aName)
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::Unsubscribe(const PRUnichar *aName)
+nsImapIncomingServer::Unsubscribe(const char16_t *aName)
 {
   NS_ENSURE_ARG_POINTER(aName);
 
@@ -2873,7 +2873,7 @@ nsImapIncomingServer::GetFormattedStringFromName(const nsAString& aValue,
   if (m_stringBundle)
   {
     nsString tmpVal (aValue);
-    const PRUnichar *formatStrings[] = { tmpVal.get() };
+    const char16_t *formatStrings[] = { tmpVal.get() };
 
     nsString result;
     rv = m_stringBundle->FormatStringFromName(

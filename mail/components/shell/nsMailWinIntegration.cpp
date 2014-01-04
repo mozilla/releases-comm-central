@@ -234,7 +234,7 @@ nsresult nsWindowsShellService::Init()
 {
   nsresult rv;
 
-  PRUnichar appPath[MAX_BUF];
+  char16_t appPath[MAX_BUF];
   if (!::GetModuleFileNameW(0, appPath, MAX_BUF))
     return NS_ERROR_FAILURE;
 
@@ -340,7 +340,7 @@ bool
 nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
 {
   bool isDefault = true;
-  PRUnichar currValue[MAX_BUF];
+  char16_t currValue[MAX_BUF];
   SETTING* end = aSettings + aSize;
   for (SETTING * settings = aSettings; settings < end; ++settings)
   {

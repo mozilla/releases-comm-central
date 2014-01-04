@@ -170,7 +170,7 @@ typedef struct _utf_name_struct {
 } utf_name_struct;
 
 typedef struct _ProgressInfo {
-  PRUnichar *message;
+  char16_t *message;
   int32_t currentProgress;
   int32_t maxProgress;
 } ProgressInfo;

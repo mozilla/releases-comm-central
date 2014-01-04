@@ -38,12 +38,12 @@ private :
 public :
   static nsMAPIConfiguration *GetMAPIConfiguration();
   void OpenConfiguration();
-  int16_t RegisterSession(uint32_t aHwnd, const PRUnichar *aUserName, \
-                          const PRUnichar *aPassword, bool aForceDownLoad, \
+  int16_t RegisterSession(uint32_t aHwnd, const char16_t *aUserName, \
+                          const char16_t *aPassword, bool aForceDownLoad, \
                           bool aNewSession, uint32_t *aSession, const char *aIdKey);
   bool IsSessionValid(uint32_t aSessionID);
   bool UnRegisterSession(uint32_t aSessionID);
-  PRUnichar *GetPassword(uint32_t aSessionID);
+  char16_t *GetPassword(uint32_t aSessionID);
   void GetIdKey(uint32_t aSessionID, nsCString& aKey);
   void *GetMapiListContext(uint32_t aSessionID);
   void SetMapiListContext(uint32_t aSessionID, void *mapiListContext);
@@ -69,13 +69,13 @@ class nsMAPISession
     void   *m_listContext; // used by findNext
 
   public :
-    nsMAPISession(uint32_t aHwnd, const PRUnichar *aUserName, \
-                  const PRUnichar *aPassword, \
+    nsMAPISession(uint32_t aHwnd, const char16_t *aUserName, \
+                  const char16_t *aPassword, \
                   bool aForceDownLoad, const char *aKey);
     uint32_t IncrementSession();
     uint32_t DecrementSession();
     uint32_t GetSessionCount();
-    PRUnichar *nsMAPISession::GetPassword();
+    char16_t *nsMAPISession::GetPassword();
     void GetIdKey(nsCString& aKey);
     ~nsMAPISession();
     // For enumerating Messages...

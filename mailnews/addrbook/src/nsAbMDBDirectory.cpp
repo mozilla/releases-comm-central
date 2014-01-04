@@ -215,7 +215,7 @@ nsresult nsAbMDBDirectory::NotifyItemChanged(nsISupports *item)
   return rv;
 }
 
-nsresult nsAbMDBDirectory::NotifyPropertyChanged(nsIAbDirectory *list, const char *property, const PRUnichar* oldValue, const PRUnichar* newValue)
+nsresult nsAbMDBDirectory::NotifyPropertyChanged(nsIAbDirectory *list, const char *property, const char16_t* oldValue, const char16_t* newValue)
 {
   nsresult rv;
   nsCOMPtr<nsISupports> supports = do_QueryInterface(list, &rv);

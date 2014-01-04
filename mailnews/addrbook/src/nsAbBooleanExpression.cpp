@@ -56,7 +56,7 @@ NS_IMETHODIMP nsAbBooleanConditionString::SetName(const char* aName)
 }
 
 /* attribute wstring value; */
-NS_IMETHODIMP nsAbBooleanConditionString::GetValue(PRUnichar** aValue)
+NS_IMETHODIMP nsAbBooleanConditionString::GetValue(char16_t** aValue)
 {
     if (!aValue)
         return NS_ERROR_NULL_POINTER;
@@ -65,7 +65,7 @@ NS_IMETHODIMP nsAbBooleanConditionString::GetValue(PRUnichar** aValue)
 
     return NS_OK;
 }
-NS_IMETHODIMP nsAbBooleanConditionString::SetValue(const PRUnichar * aValue)
+NS_IMETHODIMP nsAbBooleanConditionString::SetValue(const char16_t * aValue)
 {
     if (!aValue)
         return NS_ERROR_NULL_POINTER;

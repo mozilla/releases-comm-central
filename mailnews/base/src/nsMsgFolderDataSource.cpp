@@ -834,8 +834,8 @@ nsMsgFolderDataSource::OnItemIntPropertyChanged(nsIMsgFolder *folder,
 NS_IMETHODIMP
 nsMsgFolderDataSource::OnItemUnicharPropertyChanged(nsIMsgFolder *folder,
                                                     nsIAtom *property,
-                                                    const PRUnichar *oldValue,
-                                                    const PRUnichar *newValue)
+                                                    const char16_t *oldValue,
+                                                    const char16_t *newValue)
 {
   nsCOMPtr<nsIRDFResource> resource(do_QueryInterface(folder));
   if (kNameAtom == property)
@@ -1497,7 +1497,7 @@ nsMsgFolderDataSource::createBiffStateNodeFromFolder(nsIMsgFolder *folder, nsIRD
 nsresult
 nsMsgFolderDataSource::createBiffStateNodeFromFlag(uint32_t flag, nsIRDFNode **target)
 {
-  const PRUnichar *biffStateStr;
+  const char16_t *biffStateStr;
 
   switch (flag) {
     case nsIMsgFolder::nsMsgBiffState_NewMail:
@@ -2011,7 +2011,7 @@ nsresult nsMsgFolderDataSource::DoFolderAssert(nsIMsgFolder *folder, nsIRDFResou
     nsCOMPtr<nsIRDFLiteral> literal(do_QueryInterface(target));
     if(literal)
     {
-      const PRUnichar* value;
+      const char16_t* value;
       rv = literal->GetValueConst(&value);
       if(NS_SUCCEEDED(rv))
         rv = folder->SetCharset(NS_LossyConvertUTF16toASCII(value));

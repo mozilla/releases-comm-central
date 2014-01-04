@@ -86,7 +86,7 @@ private:
 
 public:
   static void  SetLogs(nsString& success, nsString& error, nsISupportsString *pSuccess, nsISupportsString *pError);
-  static void ReportError(int32_t id, const PRUnichar *pName, nsString *pStream, nsIStringBundle* aBundle);
+  static void ReportError(int32_t id, const char16_t *pName, nsString *pStream, nsIStringBundle* aBundle);
 
 private:
   nsString      m_pName;  // module name that created this interface
@@ -603,14 +603,14 @@ NS_IMETHODIMP nsImportGenericMail::GetProgress(int32_t *_retval)
   return NS_OK;
 }
 
-void nsImportGenericMail::ReportError(int32_t id, const PRUnichar *pName, nsString *pStream, nsIStringBundle *aBundle)
+void nsImportGenericMail::ReportError(int32_t id, const char16_t *pName, nsString *pStream, nsIStringBundle *aBundle)
 {
   if (!pStream)
     return;
 
   // load the error string
-  PRUnichar *pFmt = nsImportStringBundle::GetStringByID(id, aBundle);
-  PRUnichar *pText = nsTextFormatter::smprintf(pFmt, pName);
+  char16_t *pFmt = nsImportStringBundle::GetStringByID(id, aBundle);
+  char16_t *pText = nsTextFormatter::smprintf(pFmt, pName);
   pStream->Append(pText);
   nsTextFormatter::smprintf_free(pText);
   NS_Free(pFmt);
@@ -723,7 +723,7 @@ ImportMailThread(void *stuff)
   uint32_t    depth = 1;
   uint32_t    newDepth;
   nsString    lastName;
-  PRUnichar *    pName;
+  char16_t *    pName;
 
   nsCOMPtr<nsIMsgFolder>    curFolder(destRoot);
 
@@ -837,8 +837,8 @@ ImportMailThread(void *stuff)
       if (size && import && newFolder && NS_SUCCEEDED(rv)) {
         bool fatalError = false;
         pData->currentSize = size;
-        PRUnichar *pSuccess = nullptr;
-        PRUnichar *pError = nullptr;
+        char16_t *pSuccess = nullptr;
+        char16_t *pError = nullptr;
         rv = pData->mailImport->ImportMailbox(box, newFolder, &pError, &pSuccess, &fatalError);
         if (pError) {
           error.Append(pError);
@@ -913,7 +913,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder **ppFolder)
       return false;
   nsString folderName;
   if (!m_pName.IsEmpty()) {
-    const PRUnichar *moduleName[] = { m_pName.get() };
+    const char16_t *moduleName[] = { m_pName.get() };
     rv = bundle->FormatStringFromName(MOZ_UTF16("ImportModuleFolderName"),
                                       moduleName, 1,
                                       getter_Copies(folderName));

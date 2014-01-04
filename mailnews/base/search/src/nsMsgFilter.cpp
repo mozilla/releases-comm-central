@@ -533,7 +533,7 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
       getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    const PRUnichar *filterLogDetectFormatStrings[4] = { filterName.get(), authorValue.get(), subjectValue.get(), dateValue.get() };
+    const char16_t *filterLogDetectFormatStrings[4] = { filterName.get(), authorValue.get(), subjectValue.get(), dateValue.get() };
     nsString filterLogDetectStr;
     rv = bundle->FormatStringFromName(
       MOZ_UTF16("filterLogDetectStr"),
@@ -555,7 +555,7 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
       aMsgHdr->GetMessageId(getter_Copies(msgId));
       NS_ConvertASCIItoUTF16 msgIdValue(msgId);
 
-      const PRUnichar *logMoveFormatStrings[2] = { msgIdValue.get(), actionFolderUriValue.get() };
+      const char16_t *logMoveFormatStrings[2] = { msgIdValue.get(), actionFolderUriValue.get() };
       nsString logMoveStr;
       rv = bundle->FormatStringFromName(
         (actionType == nsMsgFilterAction::MoveToFolder) ?

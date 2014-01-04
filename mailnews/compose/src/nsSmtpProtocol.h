@@ -150,7 +150,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////////////////
 
     void UpdateStatus(int32_t aStatusID);
-    void UpdateStatusWithString(const PRUnichar * aStatusString);
+    void UpdateStatusWithString(const char16_t * aStatusString);
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Protocol Methods --> This protocol is state driven so each protocol method is 
@@ -191,7 +191,7 @@ private:
     nsresult GetPassword(nsCString &aPassword);
     nsresult GetUsernamePassword(nsACString &aUsername, nsACString &aPassword);
     nsresult PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl, 
-                               const PRUnichar **formatStrings, 
+                               const char16_t **formatStrings, 
                                nsACString &aPassword);
 
     void    InitPrefAuthMethods(int32_t authMethodPrefValue);

@@ -500,7 +500,7 @@ NS_IMETHODIMP nsAbCardProperty::TranslateTo(const nsACString &type, nsACString &
   return NS_ERROR_ILLEGAL_VALUE;
 }
 //
-static VObject* myAddPropValue(VObject *o, const char *propName, const PRUnichar *propValue, bool *aCardHasData)
+static VObject* myAddPropValue(VObject *o, const char *propName, const char16_t *propValue, bool *aCardHasData)
 {
     if (aCardHasData)
         *aCardHasData = true;
@@ -958,9 +958,9 @@ nsresult nsAbCardProperty::AppendLine(const AppendItem &aItem,
   if (NS_FAILED(rv) || attrValue.IsEmpty())
     return NS_OK;
 
-  aResult.Append(PRUnichar('<'));
+  aResult.Append(char16_t('<'));
   aResult.Append(NS_ConvertUTF8toUTF16(aItem.mColumn));
-  aResult.Append(PRUnichar('>'));
+  aResult.Append(char16_t('>'));
 
   // use ScanTXT to convert < > & to safe values.
   nsString safeText;
@@ -970,7 +970,7 @@ nsresult nsAbCardProperty::AppendLine(const AppendItem &aItem,
 
   aResult.AppendLiteral("</");
   aResult.Append(NS_ConvertUTF8toUTF16(aItem.mColumn));
-  aResult.Append(PRUnichar('>'));
+  aResult.Append(char16_t('>'));
 
   return NS_OK;
 }
@@ -1045,18 +1045,18 @@ nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem &aItem,
   nsString formattedString;
 
   if (!cityResult.IsEmpty() && !stateResult.IsEmpty() && !zipResult.IsEmpty()) {
-    const PRUnichar *formatStrings[] = { cityResult.get(), stateResult.get(), zipResult.get() };
+    const char16_t *formatStrings[] = { cityResult.get(), stateResult.get(), zipResult.get() };
     rv = aBundle->FormatStringFromName(MOZ_UTF16("cityAndStateAndZip"), formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else if (!cityResult.IsEmpty() && !stateResult.IsEmpty() && zipResult.IsEmpty()) {
-    const PRUnichar *formatStrings[] = { cityResult.get(), stateResult.get() };
+    const char16_t *formatStrings[] = { cityResult.get(), stateResult.get() };
     rv = aBundle->FormatStringFromName(MOZ_UTF16("cityAndStateNoZip"), formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else if ((!cityResult.IsEmpty() && stateResult.IsEmpty() && !zipResult.IsEmpty()) ||
           (cityResult.IsEmpty() && !stateResult.IsEmpty() && !zipResult.IsEmpty())) {
-    const PRUnichar *formatStrings[] = { cityResult.IsEmpty() ? stateResult.get() : cityResult.get(), zipResult.get() };
+    const char16_t *formatStrings[] = { cityResult.IsEmpty() ? stateResult.get() : cityResult.get(), zipResult.get() };
     rv = aBundle->FormatStringFromName(MOZ_UTF16("cityOrStateAndZip"), formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
     NS_ENSURE_SUCCESS(rv,rv);
   }
@@ -1109,13 +1109,13 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
     nsString result;
 
     if (aGenerateFormat == GENERATE_LAST_FIRST_ORDER) {
-      const PRUnichar *stringParams[2] = {lastName.get(), firstName.get()};
+      const char16_t *stringParams[2] = {lastName.get(), firstName.get()};
 
       rv = bundle->FormatStringFromName(MOZ_UTF16("lastFirstFormat"),
                                         stringParams, 2, getter_Copies(result));
     }
     else {
-      const PRUnichar *stringParams[2] = {firstName.get(), lastName.get()};
+      const char16_t *stringParams[2] = {firstName.get(), lastName.get()};
 
       rv = bundle->FormatStringFromName(MOZ_UTF16("firstLastFormat"),
                                         stringParams, 2, getter_Copies(result));

@@ -252,7 +252,7 @@ bool nsOEScanBoxes::FindMailBoxes(nsIFile* descFile)
     IMPORT_LOG0("------------\n");
     IMPORT_LOG2("    Offset: %lx, index: %ld\n", curRec, pEntry->index);
     IMPORT_LOG2("      previous: %lx, next: %lx\n", previous, next);
-    IMPORT_LOG2("      Name: %S, File: %s\n", (PRUnichar *) pEntry->mailName, (const char *) pEntry->fileName);
+    IMPORT_LOG2("      Name: %S, File: %s\n", (char16_t *) pEntry->mailName, (const char *) pEntry->fileName);
     IMPORT_LOG3("      Parent: %ld, Child: %ld, Sibling: %ld\n", pEntry->parent, pEntry->child, pEntry->sibling);
     #endif
 
@@ -732,7 +732,7 @@ void nsOEScanBoxes::BuildMailboxList(MailboxEntry *pBox, nsIFile * root, int32_t
     if (NS_SUCCEEDED(rv)) {
       pID->SetDepth(depth);
       pID->SetIdentifier(pBox->index);
-      pID->SetDisplayName((PRUnichar *)pBox->mailName.get());
+      pID->SetDisplayName((char16_t *)pBox->mailName.get());
       if (!pBox->fileName.IsEmpty()) {
         pID->GetFile(getter_AddRefs(file));
         file->InitWithFile(root);

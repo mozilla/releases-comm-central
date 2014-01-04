@@ -164,7 +164,7 @@ nsAbDirectoryQueryPropertyValue::nsAbDirectoryQueryPropertyValue()
 }
 
 nsAbDirectoryQueryPropertyValue::nsAbDirectoryQueryPropertyValue(const char* aName,
-      const PRUnichar* aValue)
+      const char16_t* aValue)
 {
     mName = aName;
     mValue = aValue;
@@ -190,7 +190,7 @@ NS_IMETHODIMP nsAbDirectoryQueryPropertyValue::GetName(char*  *aName)
 }
 
 /* read only attribute wstring value; */
-NS_IMETHODIMP nsAbDirectoryQueryPropertyValue::GetValue(PRUnichar*  *aValue)
+NS_IMETHODIMP nsAbDirectoryQueryPropertyValue::GetValue(char16_t*  *aValue)
 {
     *aValue = ToNewUnicode(mValue);
     if (!(*aValue)) 

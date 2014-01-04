@@ -718,7 +718,7 @@ NS_IMETHODIMP nsMsgGroupView::GetCellProperties(int32_t aRow, nsITreeColumn *aCo
 }
 
 NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
-                                                const PRUnichar *aColumnName,
+                                                const char16_t *aColumnName,
                                                 nsAString &aValue) {
   if (!IsValidIndex(aRow))
     return NS_MSG_INVALID_DBVIEW_INDEX;

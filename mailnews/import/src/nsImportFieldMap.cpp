@@ -93,7 +93,7 @@ NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t *aNumFields)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index, PRUnichar **_retval)
+NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index, char16_t **_retval)
 {
     NS_PRECONDITION(_retval != nullptr, "null ptr");
   if (!_retval)
@@ -189,7 +189,7 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldActive(int32_t index, bool active)
 }
 
 
-NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database, nsIMdbRow *row, int32_t fieldNum, const PRUnichar *value)
+NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database, nsIMdbRow *row, int32_t fieldNum, const char16_t *value)
 {
   NS_PRECONDITION(database != nullptr, "null ptr");
   NS_PRECONDITION(row != nullptr, "null ptr");

@@ -51,7 +51,7 @@ public:
   NS_IMETHOD GetSupportsMultiple(bool *_retval)
   { *_retval = false; return NS_OK;}
 
-  NS_IMETHOD GetAutoFind(PRUnichar **description, bool *_retval);
+  NS_IMETHOD GetAutoFind(char16_t **description, bool *_retval);
 
   NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval)
   { *_retval = false; return NS_OK;}
@@ -68,13 +68,13 @@ public:
                                nsIAddrDatabase *destination,
                                nsIImportFieldMap *fieldMap,
                                nsISupports *aSupportService,
-                               PRUnichar **errorLog,
-                               PRUnichar **successLog,
+                               char16_t **errorLog,
+                               char16_t **successLog,
                                bool *fatalError);
 
   NS_IMETHOD GetImportProgress(uint32_t *_retval);
 
-  NS_IMETHOD GetSampleData(int32_t index, bool *pFound, PRUnichar **pStr)
+  NS_IMETHOD GetSampleData(int32_t index, bool *pFound, char16_t **pStr)
   { return NS_ERROR_FAILURE;}
 
   NS_IMETHOD SetSampleLocation(nsIFile *)
@@ -85,7 +85,7 @@ private:
       nsString& name, nsString *pStream, nsIStringBundle* pBundle);
   static void SetLogs(
       nsString& success, nsString& error,
-      PRUnichar **pError, PRUnichar **pSuccess);
+      char16_t **pError, char16_t **pSuccess);
   static void ReportError(
       const char *errorName, nsString& name, nsString *pStream,
       nsIStringBundle* pBundle);
@@ -115,7 +115,7 @@ nsVCardImport::~nsVCardImport()
 
 NS_IMPL_ISUPPORTS1(nsVCardImport, nsIImportModule)
 
-NS_IMETHODIMP nsVCardImport::GetName(PRUnichar **name)
+NS_IMETHODIMP nsVCardImport::GetName(char16_t **name)
 {
   NS_ENSURE_ARG_POINTER(name);
   *name = nsImportStringBundle::GetStringByName(
@@ -123,7 +123,7 @@ NS_IMETHODIMP nsVCardImport::GetName(PRUnichar **name)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsVCardImport::GetDescription(PRUnichar **name)
+NS_IMETHODIMP nsVCardImport::GetDescription(char16_t **name)
 {
   NS_ENSURE_ARG_POINTER(name);
   *name = nsImportStringBundle::GetStringByName(
@@ -198,7 +198,7 @@ ImportVCardAddressImpl::~ImportVCardAddressImpl()
 NS_IMPL_ISUPPORTS1(ImportVCardAddressImpl, nsIImportAddressBooks)
 
 NS_IMETHODIMP ImportVCardAddressImpl::GetAutoFind(
-    PRUnichar **addrDescription, bool *_retval)
+    char16_t **addrDescription, bool *_retval)
 {
   NS_ENSURE_ARG_POINTER(addrDescription);
   NS_ENSURE_ARG_POINTER(_retval);
@@ -300,14 +300,14 @@ void ImportVCardAddressImpl::ReportSuccess(
     return;
 
   // load the success string
-  PRUnichar *pFmt = nsImportStringBundle::GetStringByName(
+  char16_t *pFmt = nsImportStringBundle::GetStringByName(
       "vCardImportAddressSuccess", pBundle);
 
-  PRUnichar *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
   pStream->Append(pText);
   nsTextFormatter::smprintf_free(pText);
   NS_Free(pFmt);
-  pStream->Append(PRUnichar('\n'));
+  pStream->Append(char16_t('\n'));
 }
 
 void ImportVCardAddressImpl::ReportError(
@@ -318,17 +318,17 @@ void ImportVCardAddressImpl::ReportError(
     return;
 
   // load the error string
-  PRUnichar *pFmt = nsImportStringBundle::GetStringByName(errorName, pBundle);
-  PRUnichar *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  char16_t *pFmt = nsImportStringBundle::GetStringByName(errorName, pBundle);
+  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
   pStream->Append(pText);
   nsTextFormatter::smprintf_free(pText);
   NS_Free(pFmt);
-  pStream->Append(PRUnichar('\n'));
+  pStream->Append(char16_t('\n'));
 }
 
 void ImportVCardAddressImpl::SetLogs(
     nsString& success, nsString& error,
-    PRUnichar **pError, PRUnichar **pSuccess)
+    char16_t **pError, char16_t **pSuccess)
 { 
   if (pError) 
     *pError = ToNewUnicode(error);
@@ -341,8 +341,8 @@ NS_IMETHODIMP ImportVCardAddressImpl::ImportAddressBook(
     nsIAddrDatabase *pDestination,
     nsIImportFieldMap *fieldMap,
     nsISupports *aSupportService,
-    PRUnichar ** pErrorLog,
-    PRUnichar ** pSuccessLog,
+    char16_t ** pErrorLog,
+    char16_t ** pSuccessLog,
     bool * fatalError)
 {
   NS_ENSURE_ARG_POINTER(pSource);

@@ -128,14 +128,14 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // which is the default compiler for Mozilla on linux at the moment.
     //
     NS_ConvertASCIItoUTF16 hostTemp(host);
-    const PRUnichar *hostArray[1] = { hostTemp.get() };
+    const char16_t *hostArray[1] = { hostTemp.get() };
 
     // format the hostname into the authprompt text string
     //
     nsString authPromptText;
     rv = ldapBundle->FormatStringFromName(MOZ_UTF16("authPromptText"),
                                           hostArray,
-                                          sizeof(hostArray) / sizeof(const PRUnichar *),
+                                          sizeof(hostArray) / sizeof(const char16_t *),
                                           getter_Copies(authPromptText));
     if (NS_FAILED(rv))
     {

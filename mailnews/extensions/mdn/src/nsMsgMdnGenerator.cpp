@@ -98,9 +98,9 @@ nsMsgMdnGenerator::~nsMsgMdnGenerator()
 {
 }
 
-nsresult nsMsgMdnGenerator::FormatStringFromName(const PRUnichar *aName,
-                                                 const PRUnichar *aString,
-                                                 PRUnichar **aResultString)
+nsresult nsMsgMdnGenerator::FormatStringFromName(const char16_t *aName,
+                                                 const char16_t *aString,
+                                                 char16_t **aResultString)
 {
     DEBUG_MDN("nsMsgMdnGenerator::FormatStringFromName");
 
@@ -113,15 +113,15 @@ nsresult nsMsgMdnGenerator::FormatStringFromName(const PRUnichar *aName,
                                               getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv,rv);
 
-    const PRUnichar *formatStrings[1] = { aString };
+    const char16_t *formatStrings[1] = { aString };
     rv = bundle->FormatStringFromName(aName,
                     formatStrings, 1, aResultString);
     NS_ENSURE_SUCCESS(rv,rv);
     return rv;
 }
 
-nsresult nsMsgMdnGenerator::GetStringFromName(const PRUnichar *aName,
-                                               PRUnichar **aResultString)
+nsresult nsMsgMdnGenerator::GetStringFromName(const char16_t *aName,
+                                               char16_t **aResultString)
 {
     DEBUG_MDN("nsMsgMdnGenerator::GetStringFromName");
 
@@ -1114,7 +1114,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
      
     nsAutoString hostStr;
     CopyASCIItoUTF16(smtpHostName, hostStr);
-    const PRUnichar *params[] = { hostStr.get() };
+    const char16_t *params[] = { hostStr.get() };
 
     nsCOMPtr<nsIStringBundle> bundle;
     nsCOMPtr<nsIStringBundleService> bundleService =

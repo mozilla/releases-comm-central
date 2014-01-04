@@ -83,7 +83,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult code, ...)
   aSmtpUrl->GetPrompt(getter_AddRefs(dialog));
   NS_ENSURE_TRUE(dialog, NS_ERROR_FAILURE);
 
-  PRUnichar *  msg;
+  char16_t *  msg;
   nsString eMsg;
   nsCOMPtr<nsIStringBundleService> bundleService =
     mozilla::services::GetStringBundleService();
@@ -447,7 +447,7 @@ void nsSmtpProtocol::UpdateStatus(int32_t aStatusID)
   }
 }
 
-void nsSmtpProtocol::UpdateStatusWithString(const PRUnichar * aStatusString)
+void nsSmtpProtocol::UpdateStatusWithString(const char16_t * aStatusString)
 {
   if (m_statusFeedback && aStatusString)
     m_statusFeedback->ShowStatusString(nsDependentString(aStatusString));
@@ -2019,7 +2019,7 @@ nsSmtpProtocol::GetPassword(nsCString &aPassword)
     nsAutoString hostnameUTF16;
     CopyASCIItoUTF16(hostname, hostnameUTF16);
 
-    const PRUnichar *formatStrings[] =
+    const char16_t *formatStrings[] =
     {
       hostnameUTF16.get(),
       usernameUTF16.get()
@@ -2035,7 +2035,7 @@ nsSmtpProtocol::GetPassword(nsCString &aPassword)
  * is the username.
  */
 nsresult
-nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl, const PRUnichar **formatStrings, nsACString &aPassword)
+nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl, const char16_t **formatStrings, nsACString &aPassword)
 {
   nsCOMPtr<nsIStringBundleService> stringService =
     mozilla::services::GetStringBundleService();
@@ -2103,7 +2103,7 @@ nsSmtpProtocol::GetUsernamePassword(nsACString &aUsername,
     rv = smtpServer->GetHostname(hostname);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    const PRUnichar *formatStrings[] =
+    const char16_t *formatStrings[] =
     {
       NS_ConvertASCIItoUTF16(hostname).get(),
       nullptr

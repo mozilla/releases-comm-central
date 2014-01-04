@@ -5041,14 +5041,14 @@ nsImapProtocol::ShowProgress()
 {
   if (!m_progressString.IsEmpty() && !m_progressStringName.IsEmpty())
   {
-    PRUnichar *progressString = NULL;
+    char16_t *progressString = NULL;
     const char *mailboxName = GetServerStateParser().GetSelectedMailboxName();
     nsString unicodeMailboxName;
     nsresult rv = CopyMUTF7toUTF16(nsDependentCString(mailboxName),
                                    unicodeMailboxName);
     if (NS_SUCCEEDED(rv))
     {
-      // ### should convert mailboxName to PRUnichar and change %s to %S in msg text
+      // ### should convert mailboxName to char16_t and change %s to %S in msg text
       progressString = nsTextFormatter::smprintf(m_progressString.get(),
                                 unicodeMailboxName.get(), ++m_progressIndex, m_progressCount);
       if (progressString)
@@ -5085,7 +5085,7 @@ nsImapProtocol::ProgressEventFunctionUsingNameWithString(const char* aMsgName,
 }
 
 void
-nsImapProtocol::PercentProgressUpdateEvent(PRUnichar *message, int64_t currentProgress, int64_t maxProgress)
+nsImapProtocol::PercentProgressUpdateEvent(char16_t *message, int64_t currentProgress, int64_t maxProgress)
 {
   int64_t nowMS = 0;
   int32_t percent = (100 * currentProgress) / maxProgress;
@@ -7786,7 +7786,7 @@ void nsImapProtocol::NthLevelChildList(const char* onlineMailboxPrefix,
   if (depth < 0) return;
 
   nsCString truncatedPrefix (onlineMailboxPrefix);
-  PRUnichar slash = '/';
+  char16_t slash = '/';
   if (truncatedPrefix.Last() == slash)
         truncatedPrefix.SetLength(truncatedPrefix.Length()-1);
 
@@ -8511,7 +8511,7 @@ nsImapProtocol::GetShowDeletedMessages()
     return rv;
 }
 
-NS_IMETHODIMP nsImapProtocol::OverrideConnectionInfo(const PRUnichar *pHost, uint16_t pPort, const char *pCookieData)
+NS_IMETHODIMP nsImapProtocol::OverrideConnectionInfo(const char16_t *pHost, uint16_t pPort, const char *pCookieData)
 {
   m_logonHost = NS_LossyConvertUTF16toASCII(pHost);
   m_logonPort = pPort;

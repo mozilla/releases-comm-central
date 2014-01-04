@@ -32,7 +32,7 @@ public:
   nsresult BackUpFilterFile(nsIFile *aFilterFile, nsIMsgWindow *aMsgWindow);
   nsresult AlertBackingUpFilterFile(nsIMsgWindow *aMsgWindow);
   nsresult ThrowAlertMsg(const char*aMsgName, nsIMsgWindow *aMsgWindow);
-  nsresult GetStringFromBundle(const char *aMsgName, PRUnichar **aResult);
+  nsresult GetStringFromBundle(const char *aMsgName, char16_t **aResult);
   nsresult GetFilterStringBundle(nsIStringBundle **aBundle);
 
 protected:

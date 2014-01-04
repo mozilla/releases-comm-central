@@ -64,7 +64,7 @@ public:
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor *source,
                            nsIMsgFolder *dstFolder,
-                           PRUnichar **pErrorLog, PRUnichar **pSuccessLog,
+                           char16_t **pErrorLog, char16_t **pSuccessLog,
                            bool *fatalError);
 
   /* unsigned long GetImportProgress (); */
@@ -76,7 +76,7 @@ public:
   static void ReportSuccess(nsString& name, int32_t count, nsString *pStream);
   static void ReportError(int32_t errorNum, nsString& name, nsString *pStream);
   static void AddLinebreak(nsString *pStream);
-  static void SetLogs(nsString& success, nsString& error, PRUnichar **pError, PRUnichar **pSuccess);
+  static void SetLogs(nsString& success, nsString& error, char16_t **pError, char16_t **pSuccess);
 
 private:
   uint32_t m_bytesDone;
@@ -98,7 +98,7 @@ nsWMImport::~nsWMImport()
 
 NS_IMPL_ISUPPORTS1(nsWMImport, nsIImportModule)
 
-NS_IMETHODIMP nsWMImport::GetName(PRUnichar **name)
+NS_IMETHODIMP nsWMImport::GetName(char16_t **name)
 {
   NS_ENSURE_ARG_POINTER(name);
   // nsString  title = "Windows Live Mail";
@@ -108,7 +108,7 @@ NS_IMETHODIMP nsWMImport::GetName(PRUnichar **name)
     return NS_OK;
 }
 
-NS_IMETHODIMP nsWMImport::GetDescription(PRUnichar **name)
+NS_IMETHODIMP nsWMImport::GetDescription(char16_t **name)
 {
   NS_ENSURE_ARG_POINTER(name);
 
@@ -200,7 +200,7 @@ NS_IMETHODIMP ImportWMMailImpl::FindMailboxes(nsIFile *pLoc,
 void ImportWMMailImpl::AddLinebreak(nsString *pStream)
 {
   if (pStream)
-    pStream->Append(PRUnichar('\n'));
+    pStream->Append(char16_t('\n'));
 }
 
 void ImportWMMailImpl::ReportSuccess(nsString& name, int32_t count, nsString *pStream)
@@ -208,8 +208,8 @@ void ImportWMMailImpl::ReportSuccess(nsString& name, int32_t count, nsString *pS
   if (!pStream)
     return;
   // load the success string
-  PRUnichar *pFmt = nsWMStringBundle::GetStringByID(WMIMPORT_MAILBOX_SUCCESS);
-  PRUnichar *pText = nsTextFormatter::smprintf(pFmt, name.get(), count);
+  char16_t *pFmt = nsWMStringBundle::GetStringByID(WMIMPORT_MAILBOX_SUCCESS);
+  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get(), count);
   pStream->Append(pText);
   nsTextFormatter::smprintf_free(pText);
   nsWMStringBundle::FreeString(pFmt);
@@ -221,8 +221,8 @@ void ImportWMMailImpl::ReportError(int32_t errorNum, nsString& name, nsString *p
   if (!pStream)
     return;
   // load the error string
-  PRUnichar *pFmt = nsWMStringBundle::GetStringByID(errorNum);
-  PRUnichar *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  char16_t *pFmt = nsWMStringBundle::GetStringByID(errorNum);
+  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
   pStream->Append(pText);
   nsTextFormatter::smprintf_free(pText);
   nsWMStringBundle::FreeString(pFmt);
@@ -230,7 +230,7 @@ void ImportWMMailImpl::ReportError(int32_t errorNum, nsString& name, nsString *p
 }
 
 void ImportWMMailImpl::SetLogs(nsString& success, nsString& error,
-                               PRUnichar **pError, PRUnichar **pSuccess)
+                               char16_t **pError, char16_t **pSuccess)
 {
   if (pError)
     *pError = ToNewUnicode(error);
@@ -240,8 +240,8 @@ void ImportWMMailImpl::SetLogs(nsString& success, nsString& error,
 
 NS_IMETHODIMP ImportWMMailImpl::ImportMailbox(nsIImportMailboxDescriptor *pSource,
                                               nsIMsgFolder *pDstFolder,
-                                              PRUnichar **pErrorLog,
-                                              PRUnichar **pSuccessLog,
+                                              char16_t **pErrorLog,
+                                              char16_t **pSuccessLog,
                                               bool *fatalError)
 {
   return NS_ERROR_NOT_IMPLEMENTED;

@@ -625,7 +625,7 @@ nsresult nsPop3Protocol::FormatCounterString(const nsString &stringName,
   nsCOMPtr<nsIMsgIncomingServer> server(do_QueryInterface(m_pop3Server));
   nsString hostName;
   server->GetPrettyName(hostName);
-  const PRUnichar *formatStrings[] = {
+  const char16_t *formatStrings[] = {
     count1String.get(),
     count2String.get(),
     hostName.get()
@@ -643,7 +643,7 @@ void nsPop3Protocol::UpdateStatus(const nsString &aStatusName)
     nsCOMPtr<nsIMsgIncomingServer> server(do_QueryInterface(m_pop3Server));
     nsString hostName;
     server->GetPrettyName(hostName);
-    const PRUnichar *formatStrings[] = {
+    const char16_t *formatStrings[] = {
       hostName.get()
     };
     nsString statusString;
@@ -653,7 +653,7 @@ void nsPop3Protocol::UpdateStatus(const nsString &aStatusName)
   }
 }
 
-void nsPop3Protocol::UpdateStatusWithString(const PRUnichar * aStatusString)
+void nsPop3Protocol::UpdateStatusWithString(const char16_t * aStatusString)
 {
     nsresult rv;
     if (mProgressEventSink)
@@ -786,7 +786,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
   nsString passwordPrompt;
   NS_ConvertUTF8toUTF16 userNameUTF16(userName);
   NS_ConvertUTF8toUTF16 hostNameUTF16(hostName);
-  const PRUnichar* passwordParams[] = { userNameUTF16.get(),
+  const char16_t* passwordParams[] = { userNameUTF16.get(),
                                         hostNameUTF16.get() };
 
   // if the last prompt got us a bad password then show a special dialog
@@ -1254,7 +1254,7 @@ nsPop3Protocol::WaitForResponse(nsIInputStream* inputStream, uint32_t length)
 
 int32_t
 nsPop3Protocol::Error(const char* err_code,
-                      const PRUnichar **params,
+                      const char16_t **params,
                       uint32_t length)
 {
     
@@ -1266,7 +1266,7 @@ nsPop3Protocol::Error(const char* err_code,
     nsString accountName;
     nsresult rv = server->GetPrettyName(accountName);
     NS_ENSURE_SUCCESS(rv, -1);
-    const PRUnichar *titleParams[] = { accountName.get() };
+    const char16_t *titleParams[] = { accountName.get() };
     nsString dialogTitle;
     mLocalBundle->FormatStringFromName(
       MOZ_UTF16("pop3ErrorDialogTitle"),
@@ -1305,7 +1305,7 @@ nsPop3Protocol::Error(const char* err_code,
                 {
                   nsAutoString hostStr;
                   CopyASCIItoUTF16(hostName, hostStr);
-                  const PRUnichar *params[] = { hostStr.get() };
+                  const char16_t *params[] = { hostStr.get() };
                   mLocalBundle->FormatStringFromName(
                     MOZ_UTF16("pop3ServerSaid"),
                     params, 1, getter_Copies(serverSaidPrefix));
@@ -1854,7 +1854,7 @@ int32_t nsPop3Protocol::NextAuthStep()
         nsresult rv = server->GetRealUsername(userName);
         NS_ENSURE_SUCCESS(rv, -1);
         NS_ConvertUTF8toUTF16 userNameUTF16(userName);
-        const PRUnichar* params[] = { userNameUTF16.get() };
+        const char16_t* params[] = { userNameUTF16.get() };
         if (TestFlag(POP3_STOPLOGIN))
         {
           if (m_password_already_sent)
@@ -2378,7 +2378,7 @@ nsPop3Protocol::GetStat()
           rv = server->GetPrettyName(accountName);
           NS_ENSURE_SUCCESS(rv, -1);
 
-          const PRUnichar *params[] = { accountName.get() };
+          const char16_t *params[] = { accountName.get() };
           return Error("pop3ServerBusy", params, 1);
         }
 
@@ -2558,7 +2558,7 @@ int32_t nsPop3Protocol::HandleNoUidListAvailable()
   nsresult rv = server->GetRealHostName(hostName);
   NS_ENSURE_SUCCESS(rv, -1);
   NS_ConvertASCIItoUTF16 hostNameUnicode(hostName);
-  const PRUnichar *params[] = { hostNameUnicode.get() };
+  const char16_t *params[] = { hostNameUnicode.get() };
   return Error("pop3ServerDoesNotSupportUidlEtc", params, 1);  
 }
 
@@ -3448,7 +3448,7 @@ nsPop3Protocol::TopResponse(nsIInputStream* inputStream, uint32_t length)
     if (!statusTemplate.IsEmpty())
     {
       nsAutoCString hostName;
-      PRUnichar * statusString = nullptr;
+      char16_t * statusString = nullptr;
       m_url->GetHost(hostName);
 
       statusString = nsTextFormatter::smprintf(statusTemplate.get(), hostName.get());

@@ -510,7 +510,7 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer, const nsMapiEntry
 }
 
 BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag, 
-                                       const PRUnichar *aValue)
+                                       const char16_t *aValue)
 {
     SPropValue value ;
     nsAutoCString alternativeValue ;

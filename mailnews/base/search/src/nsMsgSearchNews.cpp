@@ -62,24 +62,24 @@ nsresult nsMsgSearchNews::Search (bool *aDone)
   return err;
 }
 
-PRUnichar *nsMsgSearchNews::EncodeToWildmat (const PRUnichar *value)
+char16_t *nsMsgSearchNews::EncodeToWildmat (const char16_t *value)
 {
   // Here we take advantage of XPAT's use of the wildmat format, which allows
   // a case-insensitive match by specifying each case possibility for each character
   // So, "FooBar" is encoded as "[Ff][Oo][Bb][Aa][Rr]"
 
-  PRUnichar *caseInsensitiveValue = (PRUnichar*) nsMemory::Alloc(sizeof(PRUnichar) * ((4 * NS_strlen(value)) + 1));
+  char16_t *caseInsensitiveValue = (char16_t*) nsMemory::Alloc(sizeof(char16_t) * ((4 * NS_strlen(value)) + 1));
   if (caseInsensitiveValue)
   {
-    PRUnichar *walkValue = caseInsensitiveValue;
+    char16_t *walkValue = caseInsensitiveValue;
     while (*value)
     {
       if (isalpha(*value))
       {
-        *walkValue++ = (PRUnichar)'[';
-        *walkValue++ = ToUpperCase((PRUnichar)*value);
-        *walkValue++ = ToLowerCase((PRUnichar)*value);
-        *walkValue++ = (PRUnichar)']';
+        *walkValue++ = (char16_t)'[';
+        *walkValue++ = ToUpperCase((char16_t)*value);
+        *walkValue++ = ToLowerCase((char16_t)*value);
+        *walkValue++ = (char16_t)']';
       }
       else
         *walkValue++ = *value;
@@ -170,7 +170,7 @@ char *nsMsgSearchNews::EncodeTerm (nsIMsgSearchTerm *term)
   if (NS_FAILED(rv) || intlNonRFC1522Value.IsEmpty())
     return nullptr;
 
-  PRUnichar *caseInsensitiveValue = EncodeToWildmat (intlNonRFC1522Value.get());
+  char16_t *caseInsensitiveValue = EncodeToWildmat (intlNonRFC1522Value.get());
   if (!caseInsensitiveValue)
     return nullptr;
 
@@ -179,7 +179,7 @@ char *nsMsgSearchNews::EncodeTerm (nsIMsgSearchTerm *term)
   // Need to add the INTL_FormatNNTPXPATInRFC1522Format call after we can do that
   // so we should search a string in either RFC1522 format and non-RFC1522 format
 
-  PRUnichar *escapedValue = EscapeSearchUrl (caseInsensitiveValue);
+  char16_t *escapedValue = EscapeSearchUrl (caseInsensitiveValue);
   nsMemory::Free(caseInsensitiveValue);
   if (!escapedValue)
     return nullptr;
@@ -188,7 +188,7 @@ char *nsMsgSearchNews::EncodeTerm (nsIMsgSearchTerm *term)
   // We also need to apply NET_Escape to it since we have to pass 8-bits data
   // And sometimes % in the 7-bit doulbe byte JIS
   //
-  PRUnichar * urlEncoded = nsEscape(escapedValue, url_Path);
+  char16_t * urlEncoded = nsEscape(escapedValue, url_Path);
   NS_Free(escapedValue);
 
   if (! urlEncoded)

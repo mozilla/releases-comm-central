@@ -26,7 +26,7 @@ public:
 
   virtual nsresult Encode (nsCString *outEncoding);
   virtual char *EncodeTerm (nsIMsgSearchTerm *);
-  PRUnichar *EncodeToWildmat (const PRUnichar *);
+  char16_t *EncodeToWildmat (const char16_t *);
 
   void ReportHits ();
     void CollateHits ();

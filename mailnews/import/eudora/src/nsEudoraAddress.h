@@ -38,7 +38,7 @@ public:
 
   // Non-platform specific common stuff
     // import a mailbox
-  nsresult ImportAddresses(uint32_t *pBytes, bool *pAbort, const PRUnichar *pName, nsIFile *pSrc, nsIAddrDatabase *pDb, nsString& errors);
+  nsresult ImportAddresses(uint32_t *pBytes, bool *pAbort, const char16_t *pName, nsIFile *pSrc, nsIAddrDatabase *pDb, nsString& errors);
 
 
 private:

@@ -8,7 +8,7 @@
 #include "nsCOMPtr.h"
 #include "nsMemory.h"
 
-nsresult createNode(const PRUnichar *str, nsIRDFNode **node, nsIRDFService *rdfService)
+nsresult createNode(const char16_t *str, nsIRDFNode **node, nsIRDFService *rdfService)
 {
   nsresult rv;
   nsCOMPtr<nsIRDFLiteral> value;

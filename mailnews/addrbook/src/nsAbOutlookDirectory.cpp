@@ -1253,7 +1253,7 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard *aData, nsIAbCard **aNewCard
     return retCode ;
 }
 
-static void UnicodeToWord(const PRUnichar *aUnicode, WORD& aWord)
+static void UnicodeToWord(const char16_t *aUnicode, WORD& aWord)
 {
     aWord = 0 ;
     if (aUnicode == nullptr || *aUnicode == 0) { return ; }
@@ -1422,11 +1422,11 @@ static void splitString(nsString& aSource, nsString& aTarget)
 
   if (offset >= 0)
   {
-    const PRUnichar *source = aSource.get() + offset + 1;
+    const char16_t *source = aSource.get() + offset + 1;
     while (*source)
     {
       if (*source == '\n' || *source == '\r')
-        aTarget.Append(PRUnichar(' '));
+        aTarget.Append(char16_t(' '));
       else
         aTarget.Append(*source);
       ++source;

@@ -294,7 +294,7 @@ nsNetscapeProfileMigratorBase::SetCookie(PrefTransform* aTransform,
 // General Utility Methods
 
 nsresult
-nsNetscapeProfileMigratorBase::GetSourceProfile(const PRUnichar* aProfile)
+nsNetscapeProfileMigratorBase::GetSourceProfile(const char16_t* aProfile)
 {
   uint32_t count;
   mProfileNames->GetLength(&count);

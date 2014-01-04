@@ -68,7 +68,7 @@ nsOEProfileMigrator::Notify(nsITimer *timer)
 // nsIMailProfileMigrator
 
 NS_IMETHODIMP
-nsOEProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const PRUnichar* aProfile)
+nsOEProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const char16_t* aProfile)
 {
   nsresult rv = NS_OK;
 
@@ -91,7 +91,7 @@ nsOEProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const
 }
 
 NS_IMETHODIMP
-nsOEProfileMigrator::GetMigrateData(const PRUnichar* aProfile,
+nsOEProfileMigrator::GetMigrateData(const char16_t* aProfile,
                                            bool aReplace,
                                            uint16_t* aResult)
 {

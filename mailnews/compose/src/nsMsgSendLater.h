@@ -82,8 +82,8 @@ public:
                                  uint32_t aCopyPercent);
   void NotifyListenersOnMessageSendError(uint32_t aCurrentMessage,
                                          nsresult aStatus,
-                                         const PRUnichar *aMsg);
-  void EndSendMessages(nsresult aStatus, const PRUnichar *aMsg, 
+                                         const char16_t *aMsg);
+  void EndSendMessages(nsresult aStatus, const char16_t *aMsg, 
                        uint32_t aTotalTried, uint32_t aSuccessful);
 
   bool OnSendStepFinished(nsresult aStatus);

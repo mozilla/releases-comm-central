@@ -441,7 +441,7 @@ FetcherURLDoneCallback(nsresult aStatus,
                        const nsACString &aContentType,
                        const nsACString &aCharset,
                        int32_t totalSize,
-                       const PRUnichar* aMsg, void *tagData)
+                       const char16_t* aMsg, void *tagData)
 {
   nsMsgAttachmentHandler *ma = (nsMsgAttachmentHandler *) tagData;
   NS_ASSERTION(ma != nullptr, "not-null mime attachment");
@@ -985,7 +985,7 @@ nsMsgAttachmentHandler::Abort()
 }
 
 nsresult
-nsMsgAttachmentHandler::UrlExit(nsresult status, const PRUnichar* aMsg)
+nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
 {
   NS_ASSERTION(m_mime_delivery_state != nullptr, "not-null m_mime_delivery_state");
 
@@ -1030,7 +1030,7 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const PRUnichar* aMsg)
     bool              keepOnGoing = true;
     nsCString    turl;
     nsString     msg;
-    PRUnichar         *printfString = nullptr;
+    char16_t         *printfString = nullptr;
     nsresult rv;
     nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();

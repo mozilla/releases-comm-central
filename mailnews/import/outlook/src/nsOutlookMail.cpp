@@ -203,7 +203,7 @@ void nsOutlookMail::MakeAddressBookNameUnique(nsString& name, nsString& list)
   newName = name;
   while (!IsAddressBookNameUnique(newName, list)) {
     newName = name;
-    newName.Append(PRUnichar(' '));
+    newName.Append(char16_t(' '));
     newName.AppendInt((int32_t) idx);
     idx++;
   }
@@ -340,7 +340,7 @@ void nsOutlookMail::OpenMessageStore(CMapiFolder *pNextFolder)
 //   - Gather the information required to (re)compose the message
 
 nsresult nsOutlookMail::ImportMailbox(uint32_t *pDoneSoFar, bool *pAbort,
-                                      int32_t index, const PRUnichar *pName,
+                                      int32_t index, const char16_t *pName,
                                       nsIMsgFolder *dstFolder,
                                       int32_t *pMsgCount)
 {
@@ -477,7 +477,7 @@ BOOL nsOutlookMail::WriteData(nsIOutputStream *pDest, const char *pData, int32_t
   return NS_SUCCEEDED(rv) && written == len;
 }
 
-nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, const PRUnichar *pName, uint32_t id, nsIAddrDatabase *pDb, nsString& errors)
+nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, const char16_t *pName, uint32_t id, nsIAddrDatabase *pDb, nsString& errors)
 {
   if (id >= (uint32_t)(m_addressList.GetSize())) {
     IMPORT_LOG0("*** Bad address identifier, unable to import\n");
@@ -593,7 +593,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, cons
   rv = pDb->Commit(nsAddrDBCommitType::kLargeCommit);
   return rv;
 }
-nsresult nsOutlookMail::CreateList(const PRUnichar * pName,
+nsresult nsOutlookMail::CreateList(const char16_t * pName,
                                    nsIAddrDatabase *pDb,
                                    LPMAPIPROP pUserList,
                                    nsIImportFieldMap *pFieldMap)
@@ -727,7 +727,7 @@ void nsOutlookMail::SplitString(nsString& val1, nsString& val2)
   }
 }
 
-bool nsOutlookMail::BuildCard(const PRUnichar *pName, nsIAddrDatabase *pDb, nsIMdbRow *newRow, LPMAPIPROP pUser, nsIImportFieldMap *pFieldMap)
+bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb, nsIMdbRow *newRow, LPMAPIPROP pUser, nsIImportFieldMap *pFieldMap)
 {
 
   nsString    lastName;
@@ -796,11 +796,11 @@ bool nsOutlookMail::BuildCard(const PRUnichar *pName, nsIAddrDatabase *pDb, nsIM
     else {
       displayName = firstName;
       if (!middleName.IsEmpty()) {
-        displayName.Append(PRUnichar(' '));
+        displayName.Append(char16_t(' '));
         displayName.Append(middleName);
       }
       if (!lastName.IsEmpty()) {
-        displayName.Append(PRUnichar(' '));
+        displayName.Append(char16_t(' '));
         displayName.Append(lastName);
       }
     }

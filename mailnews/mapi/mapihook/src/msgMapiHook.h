@@ -11,8 +11,8 @@ class nsMapiHook
 {
     public :
 
-        static bool DisplayLoginDialog(bool aLogin, PRUnichar **aUsername, 
-                        PRUnichar **aPassword);
+        static bool DisplayLoginDialog(bool aLogin, char16_t **aUsername, 
+                        char16_t **aPassword);
         static bool VerifyUserName(const nsString& aUsername, nsCString& aIdKey);
 
         static bool IsBlindSendAllowed () ;

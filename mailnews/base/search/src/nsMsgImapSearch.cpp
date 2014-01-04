@@ -77,7 +77,7 @@ nsresult nsMsgSearchOnlineMail::Search (bool *aDone)
 
 nsresult nsMsgSearchOnlineMail::Encode (nsCString& pEncoding,
                                         nsISupportsArray *searchTerms,
-                                        const PRUnichar *destCharset)
+                                        const char16_t *destCharset)
 {
   nsCString imapTerms;
   

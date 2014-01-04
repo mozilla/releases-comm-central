@@ -33,8 +33,8 @@ public:
   NS_IMETHOD  SetSize(uint32_t theSize) MOZ_OVERRIDE { m_size = theSize; return NS_OK;}
 
   /* attribute wstring displayName; */
-  NS_IMETHOD  GetDisplayName(PRUnichar **pName) MOZ_OVERRIDE { *pName = ToNewUnicode(m_displayName); return NS_OK;}
-  NS_IMETHOD  SetDisplayName(const PRUnichar * pName) MOZ_OVERRIDE { m_displayName = pName; return NS_OK;}
+  NS_IMETHOD  GetDisplayName(char16_t **pName) MOZ_OVERRIDE { *pName = ToNewUnicode(m_displayName); return NS_OK;}
+  NS_IMETHOD  SetDisplayName(const char16_t * pName) MOZ_OVERRIDE { m_displayName = pName; return NS_OK;}
 
   /* attribute boolean import; */
   NS_IMETHOD  GetImport(bool *pImport) MOZ_OVERRIDE { *pImport = m_import; return NS_OK;}

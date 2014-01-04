@@ -162,7 +162,7 @@ static
 int32_t generate_encodedwords(char *pUTF8, const char *charset, char method, char *output, int32_t outlen, int32_t output_carryoverlen, int32_t foldlen, bool foldingonly)
 {
   nsCOMPtr <nsISaveAsCharset> conv;
-  PRUnichar *_pUCS2 = nullptr, *pUCS2 = nullptr, *pUCS2Head = nullptr, cUCS2Tmp = 0;
+  char16_t *_pUCS2 = nullptr, *pUCS2 = nullptr, *pUCS2Head = nullptr, cUCS2Tmp = 0;
   char  *ibuf, *o = output;
   char  encodedword_head[nsIMimeConverter::MAX_CHARSET_NAME_LENGTH+4+1];
   nsAutoCString _charset;

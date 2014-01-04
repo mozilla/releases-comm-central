@@ -305,10 +305,10 @@ NS_IMETHODIMP nsAbView::GetCellProperties(int32_t row, nsITreeColumn* col, nsASt
   if (mCards.Count() <= row)
     return NS_OK;
 
-  const PRUnichar* colID;
+  const char16_t* colID;
   col->GetIdConst(&colID);
   // "G" == "GeneratedName"
-  if (colID[0] != PRUnichar('G'))
+  if (colID[0] != char16_t('G'))
     return NS_OK;
 
   nsIAbCard *card = ((AbCard *)(mCards.ElementAt(row)))->card;
@@ -402,15 +402,15 @@ NS_IMETHODIMP nsAbView::GetCellValue(int32_t row, nsITreeColumn* col, nsAString&
   return NS_OK;
 }
 
-nsresult nsAbView::GetCardValue(nsIAbCard *card, const PRUnichar *colID,
+nsresult nsAbView::GetCardValue(nsIAbCard *card, const char16_t *colID,
                                 nsAString &_retval)
 {
   // "G" == "GeneratedName", "_P" == "_PhoneticName"
   // else, standard column (like PrimaryEmail and _AimScreenName)
-  if (colID[0] == PRUnichar('G'))
+  if (colID[0] == char16_t('G'))
     return card->GenerateName(mGeneratedNameFormat, mABBundle, _retval);
 
-  if (colID[0] == PRUnichar('_') && colID[1] == PRUnichar('P'))
+  if (colID[0] == char16_t('_') && colID[1] == char16_t('P'))
     // Use LN/FN order for the phonetic name
     return card->GeneratePhoneticName(true, _retval);
 
@@ -467,7 +467,7 @@ NS_IMETHODIMP nsAbView::GetCellText(int32_t row, nsITreeColumn* col, nsAString& 
   NS_ENSURE_TRUE(row >= 0 && row < mCards.Count(), NS_ERROR_UNEXPECTED);
 
   nsIAbCard *card = ((AbCard *)(mCards.ElementAt(row)))->card;
-  const PRUnichar* colID;
+  const char16_t* colID;
   col->GetIdConst(&colID);
   return GetCardValue(card, colID, _retval);
 }
@@ -533,17 +533,17 @@ NS_IMETHODIMP nsAbView::SetCellText(int32_t row, nsITreeColumn* col, const nsASt
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::PerformAction(const PRUnichar *action)
+NS_IMETHODIMP nsAbView::PerformAction(const char16_t *action)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::PerformActionOnRow(const PRUnichar *action, int32_t row)
+NS_IMETHODIMP nsAbView::PerformActionOnRow(const char16_t *action, int32_t row)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::PerformActionOnCell(const PRUnichar *action, int32_t row, nsITreeColumn* col)
+NS_IMETHODIMP nsAbView::PerformActionOnCell(const char16_t *action, int32_t row, nsITreeColumn* col)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -570,7 +570,7 @@ NS_IMETHODIMP nsAbView::GetCardFromRow(int32_t row, nsIAbCard **aCard)
 
 typedef struct SortClosure
 {
-  const PRUnichar *colID;
+  const char16_t *colID;
   int32_t factor;
   nsAbView *abView;
 } SortClosure;
@@ -589,7 +589,7 @@ inplaceSortCallback(const void *data1, const void *data2, void *privateData)
   // PrimaryEmail. Use the last primary key as the secondary key.
   //
   // "Pr" to distinguish "PrimaryEmail" from "PagerNumber"
-  if (closure->colID[0] == PRUnichar('P') && closure->colID[1] == PRUnichar('r')) {
+  if (closure->colID[0] == char16_t('P') && closure->colID[1] == char16_t('r')) {
     sortValue = closure->abView->CompareCollationKeys(card1->secondaryCollationKey,card1->secondaryCollationKeyLen,card2->secondaryCollationKey,card2->secondaryCollationKeyLen);
     if (sortValue)
       return sortValue * closure->factor;
@@ -605,7 +605,7 @@ inplaceSortCallback(const void *data1, const void *data2, void *privateData)
   }
 }
 
-static void SetSortClosure(const PRUnichar *sortColumn, const PRUnichar *sortDirection, nsAbView *abView, SortClosure *closure)
+static void SetSortClosure(const char16_t *sortColumn, const char16_t *sortDirection, nsAbView *abView, SortClosure *closure)
 {
   closure->colID = sortColumn;
   
@@ -618,7 +618,7 @@ static void SetSortClosure(const PRUnichar *sortColumn, const PRUnichar *sortDir
   return;
 }
 
-NS_IMETHODIMP nsAbView::SortBy(const PRUnichar *colID, const PRUnichar *sortDir)
+NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir)
 {
   nsresult rv;
 
@@ -720,7 +720,7 @@ int32_t nsAbView::CompareCollationKeys(uint8_t *key1, uint32_t len1, uint8_t *ke
   return result;
 }
 
-nsresult nsAbView::GenerateCollationKeysForCard(const PRUnichar *colID, AbCard *abcard)
+nsresult nsAbView::GenerateCollationKeysForCard(const char16_t *colID, AbCard *abcard)
 {
   nsresult rv;
   nsString value;
@@ -790,7 +790,7 @@ NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item)
   return rv;
 }
 
-NS_IMETHODIMP nsAbView::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *someData)
+NS_IMETHODIMP nsAbView::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *someData)
 {
   if (!strcmp(aTopic, NS_PREFBRANCH_PREFCHANGE_TOPIC_ID)) {
     if (nsDependentString(someData).EqualsLiteral(PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST)) {
@@ -939,7 +939,7 @@ int32_t nsAbView::FindIndexForCard(nsIAbCard *card)
   return CARD_NOT_FOUND;
 }
 
-NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item, const char *property, const PRUnichar *oldValue, const PRUnichar *newValue)
+NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item, const char *property, const char16_t *oldValue, const char16_t *newValue)
 {
   nsresult rv;
 
@@ -1205,8 +1205,8 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName()
           {
             nsString dnLnFn;
             nsString dnFnLn;
-            const PRUnichar *nameString[2];
-            const PRUnichar *formatString;
+            const char16_t *nameString[2];
+            const char16_t *formatString;
 
             // The format should stays the same before/after we swap the names
             formatString = displayNameLastnamefirst ?

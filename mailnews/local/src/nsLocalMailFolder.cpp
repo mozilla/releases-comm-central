@@ -834,7 +834,7 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow *aMsgWindow,
       nsAutoString folderName;
       rv = aFolder->GetName(folderName);
       NS_ENSURE_SUCCESS(rv, rv);
-      const PRUnichar *formatStrings[1] = { folderName.get() };
+      const char16_t *formatStrings[1] = { folderName.get() };
 
       nsAutoString deleteFolderDialogTitle;
       rv = bundle->GetStringFromName(
@@ -3157,7 +3157,7 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg()
       nsAutoString totalMessagesString;
       totalMessagesString.AppendInt(mCopyState->m_totalMsgCount);
       nsString finalString;
-      const PRUnichar * stringArray[] = { numMsgSoFarString.get(), totalMessagesString.get(), folderName.get() };
+      const char16_t * stringArray[] = { numMsgSoFarString.get(), totalMessagesString.get(), folderName.get() };
       rv = mCopyState->m_stringBundle->FormatStringFromName(
         (mCopyState->m_isMove) ?
         MOZ_UTF16("movingMessagesStatus") :

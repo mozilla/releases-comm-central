@@ -12,11 +12,11 @@ class nsIStringBundle;
 
 class nsEudoraStringBundle {
 public:
-  static PRUnichar       *  GetStringByID(int32_t stringID);
+  static char16_t       *  GetStringByID(int32_t stringID);
   static void               GetStringByID(int32_t stringID, nsString& result);
   static nsString           FormatString(int32_t stringID, ...);
   static nsIStringBundle *  GetStringBundle(void); // don't release
-  static void               FreeString(PRUnichar *pStr) { NS_Free(pStr);}
+  static void               FreeString(char16_t *pStr) { NS_Free(pStr);}
   static void               Cleanup(void);
 
 private:

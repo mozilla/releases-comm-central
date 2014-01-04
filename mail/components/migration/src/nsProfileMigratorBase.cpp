@@ -147,7 +147,7 @@ nsresult nsProfileMigratorBase::ImportFilters(nsIImportModule * aImportModule)
     NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
     bool importedFilters = false;
-    PRUnichar* error;
+    char16_t* error;
 
     rv = importFilters->Import(&error, &importedFilters);
 

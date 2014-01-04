@@ -118,7 +118,7 @@ NS_IMETHODIMP nsMsgBiffManager::Shutdown()
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBiffManager::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *someData)
+NS_IMETHODIMP nsMsgBiffManager::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *someData)
 {
   if (!strcmp(aTopic, "sleep_notification") && mBiffTimer)
   {

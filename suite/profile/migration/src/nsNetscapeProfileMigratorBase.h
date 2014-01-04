@@ -102,7 +102,7 @@ protected:
   virtual nsresult FillProfileDataFromRegistry() = 0;
 
   // General Utility Methods
-  nsresult GetSourceProfile(const PRUnichar* aProfile);
+  nsresult GetSourceProfile(const char16_t* aProfile);
   nsresult GetProfileDataFromProfilesIni(nsIFile* aDataDir,
                                          nsIMutableArray* aProfileNames,
                                          nsIMutableArray* aProfileLocations);

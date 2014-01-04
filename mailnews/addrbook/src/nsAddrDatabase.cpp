@@ -402,7 +402,7 @@ NS_IMETHODIMP nsAddrDatabase::Open
   return rv;
 }
 
-nsresult nsAddrDatabase::DisplayAlert(const PRUnichar *titleName, const PRUnichar *alertStringName, const PRUnichar **formatStrings, int32_t numFormatStrings)
+nsresult nsAddrDatabase::DisplayAlert(const char16_t *titleName, const char16_t *alertStringName, const char16_t **formatStrings, int32_t numFormatStrings)
 {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -429,16 +429,16 @@ nsresult nsAddrDatabase::DisplayAlert(const PRUnichar *titleName, const PRUnicha
   return prompter->Alert(nullptr /* we don't know the parent window */, alertTitle.get(), alertMessage.get());
 }
 
-nsresult nsAddrDatabase::AlertAboutCorruptMabFile(const PRUnichar *aOldFileName, const PRUnichar *aNewFileName)
+nsresult nsAddrDatabase::AlertAboutCorruptMabFile(const char16_t *aOldFileName, const char16_t *aNewFileName)
 {
-  const PRUnichar *formatStrings[] = { aOldFileName, aOldFileName, aNewFileName };
+  const char16_t *formatStrings[] = { aOldFileName, aOldFileName, aNewFileName };
   return DisplayAlert(MOZ_UTF16("corruptMabFileTitle"),
     MOZ_UTF16("corruptMabFileAlert"), formatStrings, 3);
 }
 
-nsresult nsAddrDatabase::AlertAboutLockedMabFile(const PRUnichar *aFileName)
+nsresult nsAddrDatabase::AlertAboutLockedMabFile(const char16_t *aFileName)
 {
-  const PRUnichar *formatStrings[] = { aFileName };
+  const char16_t *formatStrings[] = { aFileName };
   return DisplayAlert(MOZ_UTF16("lockedMabFileTitle"),
     MOZ_UTF16("lockedMabFileAlert"), formatStrings, 1);
 }
@@ -1013,7 +1013,7 @@ nsresult nsAddrDatabase::ConvertAndAddLowercaseColumn
 }
 
 // Change the unicode string to lowercase, then convert to UTF8 string to store in db
-nsresult nsAddrDatabase::AddUnicodeToColumn(nsIMdbRow * row, mdb_token aColToken, mdb_token aLowerCaseColToken, const PRUnichar* aUnicodeStr)
+nsresult nsAddrDatabase::AddUnicodeToColumn(nsIMdbRow * row, mdb_token aColToken, mdb_token aLowerCaseColToken, const char16_t* aUnicodeStr)
 {
   nsresult rv = AddCharStringColumn(row, aColToken, NS_ConvertUTF16toUTF8(aUnicodeStr).get());
   NS_ENSURE_SUCCESS(rv,rv);
@@ -1721,7 +1721,7 @@ NS_IMETHODIMP nsAddrDatabase::DeleteCardFromMailList(nsIAbDirectory *mailList, n
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAddrDatabase::SetCardValue(nsIAbCard *card, const char *name, const PRUnichar *value, bool notify)
+NS_IMETHODIMP nsAddrDatabase::SetCardValue(nsIAbCard *card, const char *name, const char16_t *value, bool notify)
 {
   NS_ENSURE_ARG_POINTER(card);
   NS_ENSURE_ARG_POINTER(name);
@@ -1752,7 +1752,7 @@ NS_IMETHODIMP nsAddrDatabase::SetCardValue(nsIAbCard *card, const char *name, co
   return AddCharStringColumn(cardRow, token, NS_ConvertUTF16toUTF8(value).get());
 }
 
-NS_IMETHODIMP nsAddrDatabase::GetCardValue(nsIAbCard *card, const char *name, PRUnichar **value)
+NS_IMETHODIMP nsAddrDatabase::GetCardValue(nsIAbCard *card, const char *name, char16_t **value)
 {
   if (!m_mdbStore || !card || !name || !value || !m_mdbEnv)
     return NS_ERROR_NULL_POINTER;
@@ -3150,7 +3150,7 @@ NS_IMETHODIMP nsAddrDatabase::AddListDirNode(nsIMdbRow * listRow)
   return rv;
 }
 
-NS_IMETHODIMP nsAddrDatabase::FindMailListbyUnicodeName(const PRUnichar *listName, bool *exist)
+NS_IMETHODIMP nsAddrDatabase::FindMailListbyUnicodeName(const char16_t *listName, bool *exist)
 {
   nsAutoString unicodeString(listName);
   ToLowerCase(unicodeString);
@@ -3175,7 +3175,7 @@ NS_IMETHODIMP nsAddrDatabase::GetCardCount(uint32_t *count)
 }
 
 bool
-nsAddrDatabase::HasRowButDeletedForCharColumn(const PRUnichar *unicodeStr, mdb_column findColumn, bool aIsCard, nsIMdbRow **aFindRow)
+nsAddrDatabase::HasRowButDeletedForCharColumn(const char16_t *unicodeStr, mdb_column findColumn, bool aIsCard, nsIMdbRow **aFindRow)
 {
   if (!m_mdbStore || !aFindRow || !m_mdbEnv)
     return false;
@@ -3225,7 +3225,7 @@ nsAddrDatabase::HasRowButDeletedForCharColumn(const PRUnichar *unicodeStr, mdb_c
  *                if you are not making multiple calls.
  */
 nsresult
-nsAddrDatabase::GetRowForCharColumn(const PRUnichar *unicodeStr,
+nsAddrDatabase::GetRowForCharColumn(const char16_t *unicodeStr,
                                     mdb_column findColumn, bool aIsCard,
                                     bool aCaseInsensitive,
                                     nsIMdbRow **aFindRow,

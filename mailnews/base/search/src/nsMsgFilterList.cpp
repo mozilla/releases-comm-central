@@ -25,10 +25,10 @@
 #include <ctype.h>
 
 // unicode "%s" format string
-static const PRUnichar unicodeFormatter[] = {
-    (PRUnichar)'%',
-    (PRUnichar)'s',
-    (PRUnichar)0,
+static const char16_t unicodeFormatter[] = {
+    (char16_t)'%',
+    (char16_t)'s',
+    (char16_t)0,
 };
 
 
@@ -576,7 +576,7 @@ nsresult nsMsgFilterList::LoadTextFilters(nsIInputStream *aStream)
         else
         {
           // ### fix me - this is silly.
-          PRUnichar *unicodeString =
+          char16_t *unicodeString =
             nsTextFormatter::smprintf(unicodeFormatter, value.get());
           filter->SetFilterName(nsDependentString(unicodeString));
           nsTextFormatter::smprintf_free(unicodeString);
@@ -860,7 +860,7 @@ nsresult nsMsgFilterList::WriteBoolAttr(nsMsgFilterFileAttribValue attrib, bool 
 
 nsresult
 nsMsgFilterList::WriteWstrAttr(nsMsgFilterFileAttribValue attrib,
-                               const PRUnichar *aFilterName, nsIOutputStream *aStream)
+                               const char16_t *aFilterName, nsIOutputStream *aStream)
 {
     WriteStrAttr(attrib, NS_ConvertUTF16toUTF8(aFilterName).get(), aStream);
     return NS_OK;

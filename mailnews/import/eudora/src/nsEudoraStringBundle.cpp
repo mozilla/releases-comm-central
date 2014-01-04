@@ -38,19 +38,19 @@ nsIStringBundle *nsEudoraStringBundle::GetStringBundle(void)
 void nsEudoraStringBundle::GetStringByID(int32_t stringID, nsString& result)
 {
 
-  PRUnichar *ptrv = GetStringByID(stringID);
+  char16_t *ptrv = GetStringByID(stringID);
   result = ptrv;
   FreeString(ptrv);
 }
 
-PRUnichar *nsEudoraStringBundle::GetStringByID(int32_t stringID)
+char16_t *nsEudoraStringBundle::GetStringByID(int32_t stringID)
 {
   if (!m_pBundle)
     m_pBundle = GetStringBundle();
 
   if (m_pBundle)
   {
-    PRUnichar *ptrv = nullptr;
+    char16_t *ptrv = nullptr;
     nsresult rv = m_pBundle->GetStringFromID(stringID, &ptrv);
 
     if (NS_SUCCEEDED(rv) && ptrv)
@@ -74,7 +74,7 @@ nsString nsEudoraStringBundle::FormatString(int32_t stringID, ...)
   va_list args;
   va_start(args, stringID);
 
-  PRUnichar *pText = nsTextFormatter::vsmprintf(format.get(), args);
+  char16_t *pText = nsTextFormatter::vsmprintf(format.get(), args);
   va_end(args);
 
   nsString result(pText);

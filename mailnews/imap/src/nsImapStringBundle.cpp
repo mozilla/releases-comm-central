@@ -17,7 +17,7 @@
 
 extern "C" 
 nsresult
-IMAPGetStringByName(const char* stringName, PRUnichar **aString)
+IMAPGetStringByName(const char* stringName, char16_t **aString)
 {
   nsCOMPtr <nsIStringBundle> sBundle;
   nsresult rv = IMAPGetStringBundle(getter_AddRefs(sBundle));

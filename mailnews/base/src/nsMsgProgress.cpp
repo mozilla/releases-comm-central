@@ -162,7 +162,7 @@ NS_IMETHODIMP nsMsgProgress::OnLocationChange(nsIWebProgress *aWebProgress, nsIR
 }
 
 /* void onStatusChange (in nsIWebProgress aWebProgress, in nsIRequest aRequest, in nsresult aStatus, in wstring aMessage); */
-NS_IMETHODIMP nsMsgProgress::OnStatusChange(nsIWebProgress *aWebProgress, nsIRequest *aRequest, nsresult aStatus, const PRUnichar *aMessage)
+NS_IMETHODIMP nsMsgProgress::OnStatusChange(nsIWebProgress *aWebProgress, nsIRequest *aRequest, nsresult aStatus, const char16_t *aMessage)
 {
   if (aMessage && *aMessage)
     m_pendingStatus = aMessage;
@@ -244,7 +244,7 @@ NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest *request, nsISupports* ctxt,
 }
 
 NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest *request, nsISupports* ctxt,
-                                      nsresult aStatus, const PRUnichar* aStatusArg)
+                                      nsresult aStatus, const char16_t* aStatusArg)
 {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> sbs =

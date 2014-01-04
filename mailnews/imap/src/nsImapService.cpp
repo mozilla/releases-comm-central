@@ -2738,7 +2738,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI *aURI, nsIChannel **aRetVal)
       nsAutoString unescapedName;
       if (NS_FAILED(CopyMUTF7toUTF16(fullFolderName, unescapedName)))
         CopyASCIItoUTF16(fullFolderName, unescapedName);
-      const PRUnichar *formatStrings[1] = { unescapedName.get() };
+      const char16_t *formatStrings[1] = { unescapedName.get() };
 
       rv = bundle->FormatStringFromName(
         MOZ_UTF16("imapSubscribePrompt"),

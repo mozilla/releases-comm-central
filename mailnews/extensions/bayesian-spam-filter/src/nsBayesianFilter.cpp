@@ -694,7 +694,7 @@ enum char_class{
     ascii
 };
 
-static char_class getCharClass(PRUnichar c)
+static char_class getCharClass(char16_t c)
 {
   char_class charClass = others;
 
@@ -717,8 +717,8 @@ static char_class getCharClass(PRUnichar c)
 static bool isJapanese(const char* word)
 {
   nsString text = NS_ConvertUTF8toUTF16(word);
-  PRUnichar* p = (PRUnichar*)text.get();
-  PRUnichar c;
+  char16_t* p = (char16_t*)text.get();
+  char16_t c;
 
   // it is japanese chunk if it contains any hiragana or katakana.
   while((c = *p++))
@@ -728,7 +728,7 @@ static bool isJapanese(const char* word)
   return false;
 }
 
-static bool isFWNumeral(const PRUnichar* p1, const PRUnichar* p2)
+static bool isFWNumeral(const char16_t* p1, const char16_t* p2)
 {
   for(;p1<p2;p1++)
     if(!IS_JA_FWNUMERAL(*p1))
@@ -743,8 +743,8 @@ void Tokenizer::tokenize_japanese_word(char* chunk)
   PR_LOG(BayesianFilterLogModule, PR_LOG_DEBUG, ("entering tokenize_japanese_word(%s)", chunk));
 
   nsString srcStr = NS_ConvertUTF8toUTF16(chunk);
-  const PRUnichar* p1 = srcStr.get();
-  const PRUnichar* p2 = p1;
+  const char16_t* p1 = srcStr.get();
+  const char16_t* p2 = p1;
   if(!*p2) return;
 
   char_class cc = getCharClass(*p2);
@@ -806,8 +806,8 @@ void Tokenizer::tokenize(const char* aText)
   stripHTML(text, strippedUCS2);
 
   // convert 0x3000(full width space) into 0x0020
-  PRUnichar * substr_start = strippedUCS2.BeginWriting();
-  PRUnichar * substr_end = strippedUCS2.EndWriting();
+  char16_t * substr_start = strippedUCS2.BeginWriting();
+  char16_t * substr_end = strippedUCS2.EndWriting();
   while (substr_start != substr_end) {
     if (*substr_start == 0x3000)
         *substr_start = 0x0020;
@@ -842,7 +842,7 @@ void Tokenizer::tokenize(const char* aText)
             // convert this word from UTF-8 into UCS2.
             NS_ConvertUTF8toUTF16 uword(word);
             ToLowerCase(uword);
-            const PRUnichar* utext = uword.get();
+            const char16_t* utext = uword.get();
             int32_t len = uword.Length(), pos = 0, begin, end;
             bool gotUnit;
             while (pos < len) {
@@ -993,7 +993,7 @@ NS_IMETHODIMP TokenStreamListener::ProcessHeaders(nsIUTF8StringEnumerator *aHead
     return NS_OK;
 }
 
-NS_IMETHODIMP TokenStreamListener::HandleAttachment(const char *contentType, const char *url, const PRUnichar *displayName, const char *uri, bool aIsExternalAttachment)
+NS_IMETHODIMP TokenStreamListener::HandleAttachment(const char *contentType, const char *url, const char16_t *displayName, const char *uri, bool aIsExternalAttachment)
 {
     mTokenizer.tokenizeAttachment(contentType, NS_ConvertUTF16toUTF8(displayName).get());
     return NS_OK;
@@ -1691,7 +1691,7 @@ void nsBayesianFilter::classifyMessage(
         // Prepare output arrays
         nsTArray<uint32_t> tokenPercents(usedTokenCount);
         nsTArray<uint32_t> runningPercents(usedTokenCount);
-        nsTArray<PRUnichar*> tokenStrings(usedTokenCount);
+        nsTArray<char16_t*> tokenStrings(usedTokenCount);
 
         double clueCount = 1.0;
         for (uint32_t tokenIndex = 0; tokenIndex < usedTokenCount; tokenIndex++)
@@ -1717,7 +1717,7 @@ void nsBayesianFilter::classifyMessage(
         }
 
         aDetailListener->OnMessageTraitDetails(messageURI, aProTraits[traitIndex],
-            usedTokenCount, (const PRUnichar**)tokenStrings.Elements(),
+            usedTokenCount, (const char16_t**)tokenStrings.Elements(),
             tokenPercents.Elements(), runningPercents.Elements());
         for (uint32_t tokenIndex = 0; tokenIndex < usedTokenCount; tokenIndex++)
           NS_Free(tokenStrings[tokenIndex]);
@@ -1797,7 +1797,7 @@ void nsBayesianFilter::classifyMessage(
 
 NS_IMETHODIMP
 nsBayesianFilter::Observe(nsISupports *aSubject, const char *aTopic,
-                          const PRUnichar *someData)
+                          const char16_t *someData)
 {
   if (!strcmp(aTopic, "profile-before-change"))
     Shutdown();

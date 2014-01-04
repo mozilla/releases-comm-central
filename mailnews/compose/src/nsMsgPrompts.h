@@ -16,9 +16,9 @@ nsresult      nsMsgGetMessageByID(nsresult aMsgID, nsString& aResult);
 nsresult      nsMsgGetMessageByName(const nsString &aName, nsString& aResult);
 nsresult      nsMsgBuildMessageWithFile(nsIFile * aFile, nsString& aResult);
 nsresult      nsMsgBuildMessageWithTmpFile(nsIFile * aFile, nsString& aResult);
-nsresult      nsMsgDisplayMessageByID(nsIPrompt * aPrompt, nsresult msgID, const PRUnichar * windowTitle = nullptr);
-nsresult      nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const nsString &aName, const PRUnichar *windowTitle = nullptr);
-nsresult      nsMsgDisplayMessageByString(nsIPrompt * aPrompt, const PRUnichar * msg, const PRUnichar * windowTitle = nullptr);
-nsresult      nsMsgAskBooleanQuestionByString(nsIPrompt * aPrompt, const PRUnichar * msg, bool *answer, const PRUnichar * windowTitle = nullptr);
+nsresult      nsMsgDisplayMessageByID(nsIPrompt * aPrompt, nsresult msgID, const char16_t * windowTitle = nullptr);
+nsresult      nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const nsString &aName, const char16_t *windowTitle = nullptr);
+nsresult      nsMsgDisplayMessageByString(nsIPrompt * aPrompt, const char16_t * msg, const char16_t * windowTitle = nullptr);
+nsresult      nsMsgAskBooleanQuestionByString(nsIPrompt * aPrompt, const char16_t * msg, bool *answer, const char16_t * windowTitle = nullptr);
 
 #endif /* _nsMsgPrompts_H_ */

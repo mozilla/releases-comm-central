@@ -488,8 +488,8 @@ MimeInlineTextPlainFlowed_parse_line (const char *aLine, int32_t length, MimeObj
  */
 static void Update_in_tag_info(bool *a_in_tag, /* IN/OUT */
                    bool *a_in_quote_in_tag, /* IN/OUT */
-                   PRUnichar *a_quote_char, /* IN/OUT (pointer to single char) */
-                   PRUnichar a_current_char) /* IN */
+                   char16_t *a_quote_char, /* IN/OUT (pointer to single char) */
+                   char16_t a_current_char) /* IN */
 {
   if(*a_in_tag) {
     // Keep us informed of what's quoted so that we
@@ -543,8 +543,8 @@ static void Update_in_tag_info(bool *a_in_tag, /* IN/OUT */
  *                                     converted.
  * @param out a_out_string, result will be appended.
 */
-static void Convert_whitespace(const PRUnichar a_current_char,
-                               const PRUnichar a_next_char,
+static void Convert_whitespace(const char16_t a_current_char,
+                               const char16_t a_next_char,
                                const bool a_convert_all_whitespace,
                                nsString& a_out_string)
 {
@@ -593,11 +593,11 @@ nsresult Line_convert_whitespace(const nsString& a_line,
 {
   bool in_tag = false;
   bool in_quote_in_tag = false;
-  PRUnichar quote_char;
+  char16_t quote_char;
 
   for (uint32_t i = 0; a_line.Length() > i; i++)
   {
-    const PRUnichar ic = a_line[i];  // Cache
+    const char16_t ic = a_line[i];  // Cache
 
     Update_in_tag_info(&in_tag, &in_quote_in_tag, &quote_char, ic);
     // We don't touch anything inside a tag.

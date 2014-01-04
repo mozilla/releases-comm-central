@@ -200,7 +200,7 @@ nsStatusBarBiffManager::OnItemBoolPropertyChanged(nsIMsgFolder *item, nsIAtom *p
 }
 
 NS_IMETHODIMP 
-nsStatusBarBiffManager::OnItemUnicharPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const PRUnichar *oldValue, const PRUnichar *newValue)
+nsStatusBarBiffManager::OnItemUnicharPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char16_t *oldValue, const char16_t *newValue)
 {
   return NS_OK;
 }
@@ -221,7 +221,7 @@ nsStatusBarBiffManager::OnItemEvent(nsIMsgFolder *item, nsIAtom *event)
 NS_IMETHODIMP
 nsStatusBarBiffManager::Observe(nsISupports *aSubject,
                                 const char *aTopic,
-                                const PRUnichar *aData)
+                                const char16_t *aData)
 {
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> pref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));

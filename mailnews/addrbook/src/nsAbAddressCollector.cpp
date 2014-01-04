@@ -277,7 +277,7 @@ nsAbAddressCollector::SplitFullName(const nsCString &aFullName, nsCString &aFirs
 // Observes the collected address book pref in case it changes.
 NS_IMETHODIMP
 nsAbAddressCollector::Observe(nsISupports *aSubject, const char *aTopic,
-                              const PRUnichar *aData)
+                              const char16_t *aData)
 {
   nsCOMPtr<nsIPrefBranch> prefBranch = do_QueryInterface(aSubject);
   if (!prefBranch) {

@@ -43,7 +43,7 @@ private:
   nsCOMPtr<nsIAtom> mNewMailReceivedAtom;
   nsresult ShowAlertMessage(const nsAString& aAlertTitle, const nsAString& aAlertText, const nsACString& aFolderURI);
   nsresult OnAlertFinished();
-  nsresult OnAlertClicked(const PRUnichar * aAlertCookie);
+  nsresult OnAlertClicked(const char16_t * aAlertCookie);
 #ifdef MOZ_SUITE
   nsresult OnAlertClickedSimple();
 #endif

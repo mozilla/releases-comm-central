@@ -28,7 +28,7 @@ nsresult logWarning(const nsAString& msg) {
     return getConsoleService()->LogMessage(scriptError);
 }
 
-nsresult log(PRUnichar const* msg) {
+nsresult log(char16_t const* msg) {
     return getConsoleService()->LogStringMessage(msg);
 }
 

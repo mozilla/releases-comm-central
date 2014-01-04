@@ -251,8 +251,8 @@ private:
 
   nsCOMPtr<nsINntpIncomingServer> m_nntpServer;
 
-  nsresult GetNewsStringByName(const char *aName, PRUnichar **aString);
-  nsresult GetNewsStringByID(int32_t stringID, PRUnichar **aString);
+  nsresult GetNewsStringByName(const char *aName, char16_t **aString);
+  nsresult GetNewsStringByID(int32_t stringID, char16_t **aString);
 
   nsresult PostMessageInFile(nsIFile * filePath);
 
@@ -479,7 +479,7 @@ private:
   nsresult ParseURL(nsIURI *aURL, nsCString &aGroup, nsCString &aMessageID);
 
   void SetProgressBarPercent(uint32_t aProgress, uint32_t aProgressMax);
-  nsresult SetProgressStatus(const PRUnichar *aMessage);
+  nsresult SetProgressStatus(const char16_t *aMessage);
   nsresult InitializeNewsFolderFromUri(const char *uri);
   void TimerCallback();
 

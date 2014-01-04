@@ -40,8 +40,8 @@ private:
   nsresult AppendLDIFForMailList(nsIAbCard *aCard, nsIAbLDAPAttributeMap *aAttrMap, nsACString &aResult);
   nsresult AppendDNForCard(const char *aProperty, nsIAbCard *aCard, nsIAbLDAPAttributeMap *aAttrMap, nsACString &aResult);
   nsresult AppendBasicLDIFForCard(nsIAbCard *aCard, nsIAbLDAPAttributeMap *aAttrMap, nsACString &aResult);
-  nsresult AppendProperty(const char *aProperty, const PRUnichar *aValue, nsACString &aResult);
-  bool IsSafeLDIFString(const PRUnichar *aStr);
+  nsresult AppendProperty(const char *aProperty, const char16_t *aValue, nsACString &aResult);
+  bool IsSafeLDIFString(const char16_t *aStr);
 
   struct abListener {
     nsCOMPtr<nsIAbListener> mListener;

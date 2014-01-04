@@ -88,7 +88,7 @@ inline nsresult logWarning(nsACString const& msg) {
 /**
  * Just logs.
  */
-nsresult log(PRUnichar const* msg);
+nsresult log(char16_t const* msg);
 inline nsresult log(char const* msg) {
     return log(NS_ConvertASCIItoUTF16(msg).get());
 }

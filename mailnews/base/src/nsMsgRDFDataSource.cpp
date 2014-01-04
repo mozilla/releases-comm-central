@@ -269,7 +269,7 @@ nsMsgRDFDataSource::EndUpdateBatch()
 
 /* XPCOM Shutdown observer */
 NS_IMETHODIMP
-nsMsgRDFDataSource::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *someData )
+nsMsgRDFDataSource::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *someData )
 {
   if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
     m_shuttingDown = true;

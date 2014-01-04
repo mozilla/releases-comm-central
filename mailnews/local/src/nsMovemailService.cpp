@@ -127,7 +127,7 @@ nsMovemailService::CheckForNewMail(nsIUrlListener * aUrlListener,
 
 void
 nsMovemailService::Error(const char* errorCode,
-                         const PRUnichar **params,
+                         const char16_t **params,
                          uint32_t length)
 {
   if (!mMsgWindow) return;
@@ -171,7 +171,7 @@ SpoolLock::SpoolLock(nsACString *aSpoolName, int aSeconds,
   if (!ObtainSpoolLock(aSeconds)) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    const PRUnichar* params[] = { lockFile.get() };
+    const char16_t* params[] = { lockFile.get() };
     mOwningService->Error("movemailCantCreateLock", params, 1);
     return;
   }
@@ -183,7 +183,7 @@ SpoolLock::~SpoolLock() {
   if (mLocked && !YieldSpoolLock()) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    const PRUnichar* params[] = { lockFile.get() };
+    const char16_t* params[] = { lockFile.get() };
     mOwningService->Error("movemailCantDeleteLock", params, 1);
   }
   mServer->SetServerBusy(false);
@@ -437,7 +437,7 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
   }
 
   NS_ConvertUTF8toUTF16 wideSpoolPath(spoolPath);
-  const PRUnichar* spoolPathString[] = { wideSpoolPath.get() };
+  const char16_t* spoolPathString[] = { wideSpoolPath.get() };
 
   // Create an input stream for the spool file
   nsCOMPtr<nsIFile> spoolFile;

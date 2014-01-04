@@ -46,7 +46,7 @@ using namespace mozilla;
 NS_IMPL_ISUPPORTS5(nsMsgProtocol, nsIChannel, nsIStreamListener,
   nsIRequestObserver, nsIRequest, nsITransportEventSink)
 
-static PRUnichar *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgUri);
+static char16_t *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgUri);
 
 
 nsMsgProtocol::nsMsgProtocol(nsIURI * aURL)
@@ -1531,7 +1531,7 @@ nsresult nsMsgAsyncWriteProtocol::SendData(const char * dataBuffer, bool aSuppre
   return mAsyncOutStream->AsyncWait(mProvider, 0, 0, mProviderThread);
 }
 
-PRUnichar *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgUri)
+char16_t *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgUri)
 {
   if (!msgUri)
     return nullptr;
@@ -1546,7 +1546,7 @@ PRUnichar *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msg
   rv = sBundleService->CreateBundle(MSGS_URL, getter_AddRefs(sBundle));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  PRUnichar *ptrv = nullptr;
+  char16_t *ptrv = nullptr;
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = msgUri->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, nullptr);
@@ -1556,7 +1556,7 @@ PRUnichar *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msg
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   NS_ConvertASCIItoUTF16 hostStr(hostName);
-  const PRUnichar *params[] = { hostStr.get() };
+  const char16_t *params[] = { hostStr.get() };
   rv = sBundle->FormatStringFromID(stringID, params, 1, &ptrv);
   NS_ENSURE_SUCCESS(rv, nullptr);
 

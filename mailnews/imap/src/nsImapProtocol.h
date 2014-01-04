@@ -243,7 +243,7 @@ public:
   void ProgressEventFunctionUsingName(const char* aMsgId);
   void ProgressEventFunctionUsingNameWithString(const char* aMsgName, const char *
     aExtraInfo);
-  void PercentProgressUpdateEvent(PRUnichar *message, int64_t currentProgress, int64_t maxProgress);
+  void PercentProgressUpdateEvent(char16_t *message, int64_t currentProgress, int64_t maxProgress);
   void ShowProgress();
 
   // utility function calls made by the server

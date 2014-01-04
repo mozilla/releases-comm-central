@@ -172,7 +172,7 @@ nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage *aMessage)
   // Iterate through the attributes received in this message
   for (uint32_t i = 0; i < attrCount; i++)
   {
-    PRUnichar **vals;
+    char16_t **vals;
     uint32_t valueCount;
 
     // Get the values of this attribute.
@@ -188,9 +188,9 @@ nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage *aMessage)
 
     // Store all values of this attribute in the mResults.
     for (uint32_t j = 0; j < valueCount; j++) {
-      mResults.Append(PRUnichar('\n'));
+      mResults.Append(char16_t('\n'));
       mResults.AppendASCII(attributes[i]);
-      mResults.Append(PRUnichar('='));
+      mResults.Append(char16_t('='));
       mResults.Append(vals[j]);
     }
 
@@ -339,7 +339,7 @@ nsLDAPSyncQuery::FinishLDAPQuery()
 /* wstring getQueryResults (in nsILDAPURL aServerURL, in unsigned long aVersion); */
 NS_IMETHODIMP nsLDAPSyncQuery::GetQueryResults(nsILDAPURL *aServerURL,
                                                uint32_t aProtocolVersion,
-                                               PRUnichar **_retval)
+                                               char16_t **_retval)
 {
     nsresult rv;
     

@@ -17,7 +17,7 @@
 typedef nsresult (*nsAttachSaveCompletionCallback) (nsresult aStatus,
                                                     const nsACString &aContentType,
                                                     const nsACString &aCharset,
-                                                    int32_t totalSize, const PRUnichar* aMsg, 
+                                                    int32_t totalSize, const char16_t* aMsg, 
                                                     void *tagData);
 
 class nsMsgAttachmentHandler;

@@ -552,7 +552,7 @@ NS_IMETHODIMP nsAutoSyncManager::Resume()
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char *aTopic, const PRUnichar *aSomeData)
+NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char *aTopic, const char16_t *aSomeData)
 {
   if (!PL_strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID))
   {

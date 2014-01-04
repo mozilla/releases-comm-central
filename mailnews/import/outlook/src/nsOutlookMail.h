@@ -25,10 +25,10 @@ public:
   nsresult GetMailFolders(nsIArray **pArray);
   nsresult GetAddressBooks(nsIArray **pArray);
   nsresult ImportMailbox(uint32_t *pDoneSoFar, bool *pAbort, int32_t index,
-                         const PRUnichar *pName, nsIMsgFolder *pDest,
+                         const char16_t *pName, nsIMsgFolder *pDest,
                          int32_t *pMsgCount);
   static nsresult ImportMessage(LPMESSAGE lpMsg, nsIOutputStream *destOutputStream, nsMsgDeliverMode mode);
-  nsresult ImportAddresses(uint32_t *pCount, uint32_t *pTotal, const PRUnichar *pName, uint32_t id, nsIAddrDatabase *pDb, nsString& errors);
+  nsresult ImportAddresses(uint32_t *pCount, uint32_t *pTotal, const char16_t *pName, uint32_t id, nsIAddrDatabase *pDb, nsString& errors);
 private:
   void  OpenMessageStore(CMapiFolder *pNextFolder);
   static BOOL  WriteData(nsIOutputStream *pDest, const char *pData, int32_t len);
@@ -37,8 +37,8 @@ private:
   void      MakeAddressBookNameUnique(nsString& name, nsString& list);
   void      SanitizeValue(nsString& val);
   void      SplitString(nsString& val1, nsString& val2);
-  bool      BuildCard(const PRUnichar *pName, nsIAddrDatabase *pDb, nsIMdbRow *newRow, LPMAPIPROP pUser, nsIImportFieldMap *pFieldMap);
-  nsresult  CreateList(const PRUnichar * pName, nsIAddrDatabase *pDb, LPMAPIPROP pUserList, nsIImportFieldMap *pFieldMap);
+  bool      BuildCard(const char16_t *pName, nsIAddrDatabase *pDb, nsIMdbRow *newRow, LPMAPIPROP pUser, nsIImportFieldMap *pFieldMap);
+  nsresult  CreateList(const char16_t * pName, nsIAddrDatabase *pDb, LPMAPIPROP pUserList, nsIImportFieldMap *pFieldMap);
   
 private:
   bool              m_gotFolders;

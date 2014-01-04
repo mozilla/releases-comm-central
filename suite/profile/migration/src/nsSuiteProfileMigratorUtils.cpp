@@ -181,7 +181,7 @@ AnnotatePersonalToolbarFolder(nsIFile* aSourceBookmarksFile,
 
 nsresult
 ImportBookmarksHTML(nsIFile* aBookmarksFile,
-                    const PRUnichar* aImportSourceNameKey)
+                    const char16_t* aImportSourceNameKey)
 {
   // XXX: need to make this work with places
   return NS_OK;

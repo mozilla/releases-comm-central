@@ -9,7 +9,7 @@
 
 PR_BEGIN_EXTERN_C
 
-nsresult      IMAPGetStringByName(const char* stringName, PRUnichar **aString);
+nsresult      IMAPGetStringByName(const char* stringName, char16_t **aString);
 nsresult      IMAPGetStringBundle(nsIStringBundle **aBundle);
 
 PR_END_EXTERN_C

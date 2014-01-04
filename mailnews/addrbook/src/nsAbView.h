@@ -51,7 +51,7 @@ private:
   nsresult Initialize();
   int32_t FindIndexForInsert(AbCard *abcard);
   int32_t FindIndexForCard(nsIAbCard *card);
-  nsresult GenerateCollationKeysForCard(const PRUnichar *colID, AbCard *abcard);
+  nsresult GenerateCollationKeysForCard(const char16_t *colID, AbCard *abcard);
   nsresult InvalidateTree(int32_t row);
   nsresult RemoveCardAt(int32_t row);
   nsresult AddCard(AbCard *abcard, bool selectCardAfterAdding, int32_t *index);
@@ -60,7 +60,7 @@ private:
   nsresult SetGeneratedNameFormatFromPrefs();
   nsresult GetSelectedCards(nsCOMPtr<nsIMutableArray> &aSelectedCards);
   nsresult ReselectCards(nsIArray *aCards, nsIAbCard *aIndexCard);
-  nsresult GetCardValue(nsIAbCard *card, const PRUnichar *colID, nsAString &_retval);
+  nsresult GetCardValue(nsIAbCard *card, const char16_t *colID, nsAString &_retval);
   nsresult RefreshTree();
 
   nsCOMPtr<nsITreeBoxObject> mTree;

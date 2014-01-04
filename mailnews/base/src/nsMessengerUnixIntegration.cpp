@@ -128,7 +128,7 @@ nsMessengerUnixIntegration::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, cha
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const PRUnichar *, const PRUnichar *)
+nsMessengerUnixIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -167,7 +167,7 @@ nsMessengerUnixIntegration::BuildNotificationTitle(nsIMsgFolder *aFolder, nsIStr
   nsAutoString numNewMsgsText;
   numNewMsgsText.AppendInt(numNewMessages);
 
-  const PRUnichar *formatStrings[] =
+  const char16_t *formatStrings[] =
   {
     accountName.get(), numNewMsgsText.get()
   };
@@ -288,7 +288,7 @@ nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
   if (showSubject && showSender)
   {
     nsString msgTitle;
-    const PRUnichar *formatStrings[] =
+    const char16_t *formatStrings[] =
     {
       subject.get(), author.get()
     };
@@ -432,7 +432,7 @@ nsresult nsMessengerUnixIntegration::AlertClicked()
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::Observe(nsISupports* aSubject, const char* aTopic, const PRUnichar* aData)
+nsMessengerUnixIntegration::Observe(nsISupports* aSubject, const char* aTopic, const char16_t* aData)
 {
   if (strcmp(aTopic, "alertfinished") == 0)
     return AlertFinished();

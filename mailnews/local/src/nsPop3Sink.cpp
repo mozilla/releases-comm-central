@@ -705,7 +705,7 @@ nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow *msgWindow)
 
   m_newMailParser->m_newMsgHdr->GetMime2DecodedSubject(subjectStr);
   m_newMailParser->m_newMsgHdr->GetMime2DecodedAuthor(fromStr);
-  const PRUnichar *params[] = { fromStr.get(), subjectStr.get() };
+  const char16_t *params[] = { fromStr.get(), subjectStr.get() };
   bundle->FormatStringFromName(
     MOZ_UTF16("pop3TmpDownloadError"),
     params, 2, getter_Copies(confirmString));

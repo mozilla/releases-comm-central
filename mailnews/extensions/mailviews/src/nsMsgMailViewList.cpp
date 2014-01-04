@@ -38,7 +38,7 @@ nsMsgMailView::~nsMsgMailView()
         mViewSearchTerms->Clear();
 }
 
-NS_IMETHODIMP nsMsgMailView::GetMailViewName(PRUnichar ** aMailViewName)
+NS_IMETHODIMP nsMsgMailView::GetMailViewName(char16_t ** aMailViewName)
 {
     NS_ENSURE_ARG_POINTER(aMailViewName);
 
@@ -46,13 +46,13 @@ NS_IMETHODIMP nsMsgMailView::GetMailViewName(PRUnichar ** aMailViewName)
     return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::SetMailViewName(const PRUnichar * aMailViewName)
+NS_IMETHODIMP nsMsgMailView::SetMailViewName(const char16_t * aMailViewName)
 {
     mName = aMailViewName;
     return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::GetPrettyName(PRUnichar ** aMailViewName)
+NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t ** aMailViewName)
 {
     NS_ENSURE_ARG_POINTER(aMailViewName);
 

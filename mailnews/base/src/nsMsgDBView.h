@@ -116,19 +116,19 @@ public:
 protected:
   static nsrefcnt gInstanceCount;
 
-  static PRUnichar* kHighestPriorityString;
-  static PRUnichar* kHighPriorityString;
-  static PRUnichar* kLowestPriorityString;
-  static PRUnichar* kLowPriorityString;
-  static PRUnichar* kNormalPriorityString;
+  static char16_t* kHighestPriorityString;
+  static char16_t* kHighPriorityString;
+  static char16_t* kLowestPriorityString;
+  static char16_t* kLowPriorityString;
+  static char16_t* kNormalPriorityString;
 
   static nsIAtom* kJunkMsgAtom;
   static nsIAtom* kNotJunkMsgAtom;
 
-  static PRUnichar* kReadString;
-  static PRUnichar* kRepliedString;
-  static PRUnichar* kForwardedString;
-  static PRUnichar* kNewString;
+  static char16_t* kReadString;
+  static char16_t* kRepliedString;
+  static char16_t* kForwardedString;
+  static char16_t* kNewString;
 
   nsCOMPtr<nsITreeBoxObject> mTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
@@ -344,7 +344,7 @@ protected:
   nsresult ToggleMessageKilled(nsMsgViewIndex * indices, int32_t numIndices, nsMsgViewIndex *resultIndex, bool *resultToggleState);
   bool OfflineMsgSelected(nsMsgViewIndex * indices, int32_t numIndices);
   bool NonDummyMsgSelected(nsMsgViewIndex * indices, int32_t numIndices);
-  PRUnichar * GetString(const PRUnichar *aStringName);
+  char16_t * GetString(const char16_t *aStringName);
   nsresult GetPrefLocalizedString(const char *aPrefName, nsString& aResult);
   nsresult GetLabelPrefStringAndAtom(const char *aPrefName, nsString& aColor, nsIAtom** aColorAtom);
   nsresult AppendKeywordProperties(const nsACString& keywords, nsAString& properties, bool addSelectedTextProperty);
@@ -444,7 +444,7 @@ protected:
   nsCOMArray <nsIMsgCustomColumnHandler> m_customColumnHandlers;
   nsTArray<nsString> m_customColumnHandlerIDs;
   
-  nsIMsgCustomColumnHandler* GetColumnHandler(const PRUnichar*);
+  nsIMsgCustomColumnHandler* GetColumnHandler(const char16_t*);
   nsIMsgCustomColumnHandler* GetCurColumnHandlerFromDBInfo();
 
 #ifdef DEBUG_David_Bienvenu

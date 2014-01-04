@@ -1527,9 +1527,9 @@ nsMsgComposeAndSend::GetBodyFromEditor()
   //
   uint32_t  flags = nsIDocumentEncoder::OutputFormatted  | nsIDocumentEncoder::OutputNoFormattingInPre;
   nsAutoString bodyStr;
-  PRUnichar* bodyText = nullptr;
+  char16_t* bodyText = nullptr;
   nsresult rv;
-  PRUnichar *origHTMLBody = nullptr;
+  char16_t *origHTMLBody = nullptr;
 
   // Ok, get the body...the DOM should have been whacked with
   // Content ID's already
@@ -1568,7 +1568,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
           whattodo = whattodo | mozITXTToHTMLConv::kStructPhrase;
       }
 
-      PRUnichar* wresult;
+      char16_t* wresult;
       rv = conv->ScanHTML(bodyText, whattodo, &wresult);
       if (NS_SUCCEEDED(rv))
       {
@@ -1601,7 +1601,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
     // convert to UTF-8.
     if (NS_ERROR_UENC_NOMAPPING == rv) {
       // if nbsp then replace it by sp and try again
-      PRUnichar *bodyTextPtr = bodyText;
+      char16_t *bodyTextPtr = bodyText;
       while (*bodyTextPtr) {
         if (0x00A0 == *bodyTextPtr)
           *bodyTextPtr = 0x0020;
@@ -1656,7 +1656,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
       if (NS_SUCCEEDED(rv))
       {
         PR_FREEIF(origHTMLBody);
-        origHTMLBody = (PRUnichar *)newBody;
+        origHTMLBody = (char16_t *)newBody;
       }
     }
 
@@ -1671,7 +1671,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
   if (!origHTMLBody)
     mOriginalHTMLBody = ToNewCString(attachment1_body);
   else
-    mOriginalHTMLBody = (char *)origHTMLBody; // Whoa, origHTMLBody is declared as a PRUnichar *, what's going on here?
+    mOriginalHTMLBody = (char *)origHTMLBody; // Whoa, origHTMLBody is declared as a char16_t *, what's going on here?
 
   rv = SnarfAndCopyBody(attachment1_body, TEXT_HTML);
 
@@ -2578,7 +2578,7 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
       //
 
       // Display some feedback to user...
-      PRUnichar     *printfString = nullptr;
+      char16_t     *printfString = nullptr;
       nsString msg;
       mComposeBundle->GetStringFromID(NS_MSG_GATHERING_ATTACHMENT, getter_Copies(msg));
 
@@ -2604,7 +2604,7 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
         if (NS_SUCCEEDED(rv))
         {
           nsCOMPtr<nsIStringBundle> bundle;
-          const PRUnichar *params[] = { attachmentFileName.get() };
+          const char16_t *params[] = { attachmentFileName.get() };
           mComposeBundle->FormatStringFromID(NS_ERROR_GET_CODE(NS_MSG_ERROR_ATTACHING_FILE), params, 1, getter_Copies(errorMsg));
           mSendReport->SetMessage(nsIMsgSendReport::process_Current, errorMsg.get(), false);
           mSendReport->SetError(nsIMsgSendReport::process_Current,
@@ -3400,7 +3400,7 @@ nsMsgComposeAndSend::DeliverMessage()
 
     if (!msg.IsEmpty())
     {
-      PRUnichar *printfString = nsTextFormatter::smprintf(msg.get(), fileSize);
+      char16_t *printfString = nsTextFormatter::smprintf(msg.get(), fileSize);
 
       if (printfString)
       {
@@ -3635,7 +3635,7 @@ nsMsgComposeAndSend::DeliverFileAsNews()
 }
 
 NS_IMETHODIMP
-nsMsgComposeAndSend::Fail(nsresult aFailureCode, const PRUnichar *aErrorMsg,
+nsMsgComposeAndSend::Fail(nsresult aFailureCode, const char16_t *aErrorMsg,
                           nsresult *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
@@ -3675,7 +3675,7 @@ nsMsgComposeAndSend::Fail(nsresult aFailureCode, const PRUnichar *aErrorMsg,
 }
 
 nsresult
-nsMsgComposeAndSend::FormatStringWithSMTPHostNameByID(nsresult aMsgId, PRUnichar **aString)
+nsMsgComposeAndSend::FormatStringWithSMTPHostNameByID(nsresult aMsgId, char16_t **aString)
 {
   NS_ENSURE_ARG(aString);
 
@@ -3692,7 +3692,7 @@ nsMsgComposeAndSend::FormatStringWithSMTPHostNameByID(nsresult aMsgId, PRUnichar
 
   nsAutoString hostStr;
   CopyASCIItoUTF16(smtpHostName, hostStr);
-  const PRUnichar *params[] = { hostStr.get() };
+  const char16_t *params[] = { hostStr.get() };
   if (NS_SUCCEEDED(rv))
     mComposeBundle->FormatStringFromID(NS_ERROR_GET_CODE(aMsgId), params, 1, aString);
   return rv;
@@ -3871,7 +3871,7 @@ nsMsgComposeAndSend::NotifyListenerOnProgress(const char *aMsgID, uint32_t aProg
 }
 
 NS_IMETHODIMP
-nsMsgComposeAndSend::NotifyListenerOnStatus(const char *aMsgID, const PRUnichar *aMsg)
+nsMsgComposeAndSend::NotifyListenerOnStatus(const char *aMsgID, const char16_t *aMsg)
 {
   if (mListener)
     mListener->OnStatus(aMsgID, aMsg);
@@ -3880,7 +3880,7 @@ nsMsgComposeAndSend::NotifyListenerOnStatus(const char *aMsgID, const PRUnichar 
 }
 
 NS_IMETHODIMP
-nsMsgComposeAndSend::NotifyListenerOnStopSending(const char *aMsgID, nsresult aStatus, const PRUnichar *aMsg,
+nsMsgComposeAndSend::NotifyListenerOnStopSending(const char *aMsgID, nsresult aStatus, const char16_t *aMsg,
                                                   nsIFile *returnFile)
 {
   if (mListener != nullptr)
@@ -3987,7 +3987,7 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsString msg;
-    const PRUnichar *formatStrings[] = { mSavedToFolderName.get() };
+    const char16_t *formatStrings[] = { mSavedToFolderName.get() };
 
     rv = bundle->FormatStringFromName(MOZ_UTF16("errorSavingMsg"),
                                       formatStrings, 1,
@@ -4322,7 +4322,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
   uint32_t      n;
   bool          folderIsLocal = true;
   nsCString     turi;
-  PRUnichar     *printfString = nullptr;
+  char16_t     *printfString = nullptr;
   nsString msg;
   nsCOMPtr<nsIMsgFolder> folder;
 

@@ -23,7 +23,7 @@ typedef struct _subscribeTreeNode {
   struct _subscribeTreeNode *parent;
   struct _subscribeTreeNode *cachedChild;
 #ifdef HAVE_SUBSCRIBE_DESCRIPTION
-  PRUnichar *description;
+  char16_t *description;
 #endif
 #ifdef HAVE_SUBSCRIBE_MESSAGES
   uint32_t messages;
@@ -47,7 +47,7 @@ class nsSubscribableServer : public nsISubscribableServer
   NS_DECL_NSISUBSCRIBABLESERVER
   
 private:
-  nsresult ConvertNameToUnichar(const char *inStr, PRUnichar **outStr);
+  nsresult ConvertNameToUnichar(const char *inStr, char16_t **outStr);
   nsCOMPtr <nsISubscribeListener> mSubscribeListener;
   nsCOMPtr <nsIMsgIncomingServer> mIncomingServer;
   nsCOMPtr <nsISubscribeDataSource> mSubscribeDS;

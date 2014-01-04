@@ -14,8 +14,8 @@
 #include "nsStringGlue.h"
 #include <algorithm>
 
-nsresult FillResultsArray(const char * aName, const char *aAddress, PRUnichar ** aOutgoingEmailAddress, PRUnichar ** aOutgoingName,
-                          PRUnichar ** aOutgoingFullName, nsIMsgHeaderParser *aParser);
+nsresult FillResultsArray(const char * aName, const char *aAddress, char16_t ** aOutgoingEmailAddress, char16_t ** aOutgoingName,
+                          char16_t ** aOutgoingFullName, nsIMsgHeaderParser *aParser);
 
 /*
  * Macros used throughout the RFC-822 parsing code.
@@ -69,8 +69,8 @@ nsMsgHeaderParser::~nsMsgHeaderParser()
 NS_IMPL_ISUPPORTS1(nsMsgHeaderParser, nsIMsgHeaderParser)
 
 // helper function called by ParseHeadersWithArray
-nsresult FillResultsArray(const char * aName, const char *aAddress, PRUnichar ** aOutgoingEmailAddress, PRUnichar ** aOutgoingName,
-                          PRUnichar ** aOutgoingFullName, nsIMsgHeaderParser *aParser)
+nsresult FillResultsArray(const char * aName, const char *aAddress, char16_t ** aOutgoingEmailAddress, char16_t ** aOutgoingName,
+                          char16_t ** aOutgoingFullName, nsIMsgHeaderParser *aParser)
 {
   NS_ENSURE_ARG(aParser);
 
@@ -110,8 +110,8 @@ nsresult FillResultsArray(const char * aName, const char *aAddress, PRUnichar **
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgHeaderParser::ParseHeadersWithArray(const PRUnichar * aLine, PRUnichar *** aEmailAddresses,
-                                                       PRUnichar *** aNames, PRUnichar *** aFullNames, uint32_t * aNumAddresses)
+NS_IMETHODIMP nsMsgHeaderParser::ParseHeadersWithArray(const char16_t * aLine, char16_t *** aEmailAddresses,
+                                                       char16_t *** aNames, char16_t *** aFullNames, uint32_t * aNumAddresses)
 {
   char * names = nullptr;
   char * addresses = nullptr;
@@ -127,14 +127,14 @@ NS_IMETHODIMP nsMsgHeaderParser::ParseHeadersWithArray(const PRUnichar * aLine, 
   if (NS_SUCCEEDED(rv) && numAddresses)
   {
     // allocate space for our arrays....
-    *aEmailAddresses = (PRUnichar **) PR_MALLOC(sizeof(PRUnichar *) * numAddresses);
-    *aNames = (PRUnichar **) PR_MALLOC(sizeof(PRUnichar *) * numAddresses);
-    *aFullNames = (PRUnichar **) PR_MALLOC(sizeof(PRUnichar *) * numAddresses);
+    *aEmailAddresses = (char16_t **) PR_MALLOC(sizeof(char16_t *) * numAddresses);
+    *aNames = (char16_t **) PR_MALLOC(sizeof(char16_t *) * numAddresses);
+    *aFullNames = (char16_t **) PR_MALLOC(sizeof(char16_t *) * numAddresses);
 
     // for simplicities sake...
-    PRUnichar ** outgoingEmailAddresses = *aEmailAddresses;
-    PRUnichar ** outgoingNames = *aNames;
-    PRUnichar ** outgoingFullNames = *aFullNames;
+    char16_t ** outgoingEmailAddresses = *aEmailAddresses;
+    char16_t ** outgoingNames = *aNames;
+    char16_t ** outgoingFullNames = *aFullNames;
 
     // iterate over the results and fill in our arrays....
     uint32_t index = 0;
@@ -213,7 +213,7 @@ nsresult nsMsgHeaderParser::UnquotePhraseOrAddr (const char *line, bool preserve
   return msg_unquote_phrase_or_addr(line, preserveIntegrity, result);
 }
 
-nsresult nsMsgHeaderParser::UnquotePhraseOrAddrWString (const PRUnichar *line, bool preserveIntegrity, PRUnichar ** result)
+nsresult nsMsgHeaderParser::UnquotePhraseOrAddrWString (const char16_t *line, bool preserveIntegrity, char16_t ** result)
 {
   nsCString utf8Str;
   nsresult rv = msg_unquote_phrase_or_addr(NS_ConvertUTF16toUTF8(line).get(), preserveIntegrity, getter_Copies(utf8Str));
@@ -227,7 +227,7 @@ nsresult nsMsgHeaderParser::UnquotePhraseOrAddrWString (const PRUnichar *line, b
   return rv;
 }
 
-nsresult nsMsgHeaderParser::ReformatUnquotedAddresses (const PRUnichar *line, PRUnichar ** result)
+nsresult nsMsgHeaderParser::ReformatUnquotedAddresses (const char16_t *line, char16_t ** result)
 {
   NS_ENSURE_ARG_POINTER(result);
   *result = nullptr;

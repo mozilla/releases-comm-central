@@ -65,8 +65,8 @@ nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
   rv = encoder->SetOutputErrorBehavior(nsIUnicodeEncoder::kOnError_Replace, nullptr, '?');
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const PRUnichar *originalSrcPtr = inString.get();
-  const PRUnichar *currentSrcPtr = originalSrcPtr;
+  const char16_t *originalSrcPtr = inString.get();
+  const char16_t *currentSrcPtr = originalSrcPtr;
   int32_t originalUnicharLength = inString.Length();
   int32_t srcLength;
   int32_t dstLength;
@@ -111,7 +111,7 @@ nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
     if (MsgIsUTF8(inString)) {
       nsAutoString tmp;
       CopyUTF8toUTF16(inString, tmp);
-      if (!tmp.IsEmpty() && tmp.get()[0] == PRUnichar(0xFEFF))
+      if (!tmp.IsEmpty() && tmp.get()[0] == char16_t(0xFEFF))
         tmp.Cut(0, 1);
       outString.Assign(tmp);
       return NS_OK;
@@ -138,7 +138,7 @@ nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
   int32_t originalLength = inString.Length();
   int32_t srcLength;
   int32_t dstLength;
-  PRUnichar localbuf[512];
+  char16_t localbuf[512];
   int32_t consumedLen = 0;
 
   outString.Truncate();
@@ -242,7 +242,7 @@ bool nsMsgI18Nmultibyte_charset(const char *charset)
   return result;
 }
 
-bool nsMsgI18Ncheck_data_in_charset_range(const char *charset, const PRUnichar* inString, char **fallbackCharset)
+bool nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* inString, char **fallbackCharset)
 {
   if (!charset || !*charset || !inString || !*inString)
     return true;
@@ -258,9 +258,9 @@ bool nsMsgI18Ncheck_data_in_charset_range(const char *charset, const PRUnichar* 
     // get an unicode converter
     res = ccm->GetUnicodeEncoderRaw(charset, getter_AddRefs(encoder));
     if(NS_SUCCEEDED(res)) {
-      const PRUnichar *originalPtr = inString;
+      const char16_t *originalPtr = inString;
       int32_t originalLen = NS_strlen(inString);
-      const PRUnichar *currentSrcPtr = originalPtr;
+      const char16_t *currentSrcPtr = originalPtr;
       char localBuff[512];
       int32_t consumedLen = 0;
       int32_t srcLen;
@@ -363,7 +363,7 @@ nsMsgI18NParseMetaCharset(nsIFile* file)
 } 
 
 nsresult nsMsgI18NSaveAsCharset(const char* contentType, const char *charset, 
-                                const PRUnichar* inString, char** outString, 
+                                const char16_t* inString, char** outString, 
                                 char **fallbackCharset, bool *isAsciiOnly)
 {
   NS_ENSURE_ARG_POINTER(contentType);
@@ -410,7 +410,7 @@ nsresult nsMsgI18NSaveAsCharset(const char* contentType, const char *charset,
                    nsIEntityConverter::transliterate);
   NS_ENSURE_SUCCESS(res, res);
 
-  const PRUnichar *input = inString;
+  const char16_t *input = inString;
 
   // Convert to charset
   res = conv->Convert(input, outString);

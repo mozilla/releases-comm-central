@@ -108,10 +108,10 @@ static void GetReplyHeaderInfo(int32_t* reply_header_type,
 
 static void TranslateLineEnding(nsString& data)
 {
-  PRUnichar* rPtr;   //Read pointer
-  PRUnichar* wPtr;   //Write pointer
-  PRUnichar* sPtr;   //Start data pointer
-  PRUnichar* ePtr;   //End data pointer
+  char16_t* rPtr;   //Read pointer
+  char16_t* wPtr;   //Write pointer
+  char16_t* sPtr;   //Start data pointer
+  char16_t* ePtr;   //End data pointer
 
   rPtr = wPtr = sPtr = data.BeginWriting();
   ePtr = rPtr + data.Length();
@@ -2259,7 +2259,7 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
                 if (NS_SUCCEEDED(rv))
                 {
                   // take care "On %s"
-                  PRUnichar *formatedString = nullptr;
+                  char16_t *formatedString = nullptr;
                   formatedString = nsTextFormatter::smprintf(replyHeaderOndate.get(),
                                                              NS_ConvertUTF16toUTF8(formattedDateString.get()).get());
                   if (formatedString)
@@ -2282,7 +2282,7 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
           nsAutoCString authorName;
           ExtractName(EncodedHeader(author), authorName);
 
-          PRUnichar *formattedString = nullptr;
+          char16_t *formattedString = nullptr;
           formattedString = nsTextFormatter::smprintf(
             replyHeaderAuthorwrote.get(), authorName.get());
           if (formattedString)
@@ -2698,7 +2698,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       }
 
       if (!references.IsEmpty())
-        references.Append(PRUnichar(' '));
+        references.Append(char16_t(' '));
       references += messageId;
       compFields->SetReferences(NS_LossyConvertUTF16toASCII(references).get());
 
@@ -2866,8 +2866,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inSt
       {
         // Use this local buffer if possible.
         const int32_t kLocalBufSize = 4096;
-        PRUnichar localBuf[kLocalBufSize];
-        PRUnichar *unichars = localBuf;
+        char16_t localBuf[kLocalBufSize];
+        char16_t *unichars = localBuf;
 
         if (unicharLength > kLocalBufSize)
         {
@@ -2877,7 +2877,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inSt
           {
             if (mUnicodeConversionBuffer)
               nsMemory::Free(mUnicodeConversionBuffer);
-            mUnicodeConversionBuffer = (PRUnichar *) nsMemory::Alloc(unicharLength * sizeof(PRUnichar));
+            mUnicodeConversionBuffer = (char16_t *) nsMemory::Alloc(unicharLength * sizeof(char16_t));
             if (!mUnicodeConversionBuffer)
             {
               mUnicodeBufferCharacterLength = 0;
@@ -2893,7 +2893,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inSt
         const char *inputBuffer = inStr.get();
         int32_t convertedOutputLength = 0;
         int32_t outputBufferLength = unicharLength;
-        PRUnichar *originalOutputBuffer = unichars;
+        char16_t *originalOutputBuffer = unichars;
         do
         {
           rv = mUnicodeDecoder->Convert(inputBuffer, &inputLength, unichars, &unicharLength);
@@ -2906,7 +2906,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inSt
           // if we failed, we consume one byte, replace it with a question mark
           // and try the conversion again.
           unichars += unicharLength;
-          *unichars = (PRUnichar)'?';
+          *unichars = (char16_t)'?';
           unichars++;
           unicharLength++;
 
@@ -3135,7 +3135,7 @@ void nsMsgCompose::CleanUpRecipients(nsString& recipients)
   bool startANewRecipient = true;
   bool removeBracket = false;
   nsAutoString newRecipient;
-  PRUnichar aChar;
+  char16_t aChar;
 
   for (i = 0; i < recipients.Length(); i ++)
   {
@@ -3343,7 +3343,7 @@ NS_IMETHODIMP nsMsgCompose::OnProgress(const char *aMsgID, uint32_t aProgress, u
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::OnStatus(const char *aMsgID, const PRUnichar *aMsg)
+NS_IMETHODIMP nsMsgCompose::OnStatus(const char *aMsgID, const char16_t *aMsg)
 {
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
@@ -3356,7 +3356,7 @@ NS_IMETHODIMP nsMsgCompose::OnStatus(const char *aMsgID, const PRUnichar *aMsg)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::OnStopSending(const char *aMsgID, nsresult aStatus, const PRUnichar *aMsg,
+NS_IMETHODIMP nsMsgCompose::OnStopSending(const char *aMsgID, nsresult aStatus, const char16_t *aMsg,
                                       nsIFile *returnFile)
 {
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(mExternalSendListeners);
@@ -3464,7 +3464,7 @@ nsMsgComposeSendListener::OnProgress(const char *aMsgID, uint32_t aProgress, uin
 }
 
 nsresult
-nsMsgComposeSendListener::OnStatus(const char *aMsgID, const PRUnichar *aMsg)
+nsMsgComposeSendListener::OnStatus(const char *aMsgID, const char16_t *aMsg)
 {
   nsresult rv;
   nsCOMPtr<nsIMsgSendListener> composeSendListener = do_QueryReferent(mWeakComposeObj, &rv);
@@ -3492,7 +3492,7 @@ nsresult nsMsgComposeSendListener::OnSendNotPerformed(const char *aMsgID, nsresu
 }
 
 nsresult nsMsgComposeSendListener::OnStopSending(const char *aMsgID, nsresult aStatus,
-                                                 const PRUnichar *aMsg, nsIFile *returnFile)
+                                                 const char16_t *aMsg, nsIFile *returnFile)
 {
   nsresult rv = NS_OK;
 
@@ -3883,7 +3883,7 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnLocationChange(nsIWebProgress *aWebPro
 }
 
 /* void onStatusChange (in nsIWebProgress aWebProgress, in nsIRequest aRequest, in nsresult aStatus, in wstring aMessage); */
-NS_IMETHODIMP nsMsgComposeSendListener::OnStatusChange(nsIWebProgress *aWebProgress, nsIRequest *aRequest, nsresult aStatus, const PRUnichar *aMessage)
+NS_IMETHODIMP nsMsgComposeSendListener::OnStatusChange(nsIWebProgress *aWebProgress, nsIRequest *aRequest, nsresult aStatus, const char16_t *aMessage)
 {
   /* Ignore this call */
   return NS_OK;
@@ -3922,7 +3922,7 @@ nsMsgCompose::ConvertTextToHTML(nsIFile *aSigFile, nsString &aSigData)
   // Ok, once we are here, we need to escape the data to make sure that
   // we don't do HTML stuff with plain text sigs.
   //
-  PRUnichar *escaped = MsgEscapeHTML2(origBuf.get(), origBuf.Length());
+  char16_t *escaped = MsgEscapeHTML2(origBuf.get(), origBuf.Length());
   if (escaped)
   {
     aSigData.Append(escaped);
@@ -4199,7 +4199,7 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
     {
       if (!htmlSig)
       {
-        PRUnichar* escaped = MsgEscapeHTML2(prefSigText.get(), prefSigText.Length());
+        char16_t* escaped = MsgEscapeHTML2(prefSigText.get(), prefSigText.Length());
         if (escaped)
         {
           sigData.Append(escaped);
@@ -4723,7 +4723,7 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
                       }
                       else
                         newRecipient.mAddress += newRecipient.mEmail;
-                      newRecipient.mAddress.Append(PRUnichar('>'));
+                      newRecipient.mAddress.Append(char16_t('>'));
                     }
 
                     if (newRecipient.mAddress.IsEmpty())
@@ -4885,7 +4885,7 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
       if (aPopulateMailList)
       {
         if (!recipientsStr.IsEmpty())
-          recipientsStr.Append(PRUnichar(','));
+          recipientsStr.Append(char16_t(','));
         recipientsStr.Append(recipient.mAddress);
       }
 
@@ -4893,7 +4893,7 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
           recipient.mPreferFormat != nsIAbPreferMailFormat::html)
       {
         if (!nonHtmlRecipientsStr.IsEmpty())
-          nonHtmlRecipientsStr.Append(PRUnichar(','));
+          nonHtmlRecipientsStr.Append(char16_t(','));
         nonHtmlRecipientsStr.Append(recipient.mEmail);
       }
     }
@@ -5377,7 +5377,7 @@ nsMsgMailList::nsMsgMailList(nsIAbDirectory* directory) :
         mFullName += listName;
       else
         mFullName += listDescription;
-      mFullName.Append(PRUnichar('>'));
+      mFullName.Append(char16_t('>'));
   }
 
   mDirectory = directory;

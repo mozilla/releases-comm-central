@@ -170,8 +170,8 @@ NS_IMETHODIMP nsMsgComposeSecure::RequiresCryptoEncapsulation(nsIMsgIdentity * a
 }
 
 
-nsresult nsMsgComposeSecure::GetSMIMEBundleString(const PRUnichar *name,
-                                                  PRUnichar **outString)
+nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t *name,
+                                                  char16_t **outString)
 {
   *outString = nullptr;
 
@@ -184,10 +184,10 @@ nsresult nsMsgComposeSecure::GetSMIMEBundleString(const PRUnichar *name,
 
 nsresult
 nsMsgComposeSecure::
-SMIMEBundleFormatStringFromName(const PRUnichar *name,
-                                const PRUnichar **params,
+SMIMEBundleFormatStringFromName(const char16_t *name,
+                                const char16_t **params,
                                 uint32_t numParams,
-                                PRUnichar **outString)
+                                char16_t **outString)
 {
   NS_ENSURE_ARG_POINTER(name);
 
@@ -212,7 +212,7 @@ bool nsMsgComposeSecure::InitializeSMIMEBundle()
   return true;
 }
 
-void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport, const PRUnichar *bundle_string)
+void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport, const char16_t *bundle_string)
 {
   if (!sendReport || !bundle_string)
     return;
@@ -236,7 +236,7 @@ void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport, const PRUnichar 
   }
 }
 
-void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport, const PRUnichar *bundle_string, const char *param)
+void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport, const char16_t *bundle_string, const char *param)
 {
   if (!sendReport || !bundle_string || !param)
     return;
@@ -248,7 +248,7 @@ void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport, const P
   
   nsString errorString;
   nsresult res;
-  const PRUnichar *params[1];
+  const char16_t *params[1];
 
   NS_ConvertASCIItoUTF16 ucs2(param);
   params[0]= ucs2.get();

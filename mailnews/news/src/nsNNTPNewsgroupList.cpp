@@ -886,7 +886,7 @@ nsNNTPNewsgroupList::FinishXOVERLINE(int status, int *newstatus)
       rv = bundleService->CreateBundle(NEWS_MSGS_URL, getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      const PRUnichar *formatStrings[2] = { firstStr.get(), lastStr.get() };
+      const char16_t *formatStrings[2] = { firstStr.get(), lastStr.get() };
       rv = bundle->FormatStringFromName(MOZ_UTF16("downloadingArticles"), formatStrings, 2, getter_Copies(statusString));
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1228,7 +1228,7 @@ nsNNTPNewsgroupList::SetProgressBarPercent(int32_t percent)
 }
 
 void
-nsNNTPNewsgroupList::SetProgressStatus(const PRUnichar *message)
+nsNNTPNewsgroupList::SetProgressStatus(const char16_t *message)
 {
   if (!m_runningURL)
     return;
@@ -1276,14 +1276,14 @@ nsNNTPNewsgroupList::UpdateStatus(bool filtering, int32_t numDLed, int32_t totTo
   if (filtering)
   {
     NS_ConvertUTF8toUTF16 header(m_filterHeaders[m_currentXHDRIndex]);
-    const PRUnichar *formatStrings[4] = { header.get(),
+    const char16_t *formatStrings[4] = { header.get(),
       numDownloadedStr.get(), totalToDownloadStr.get(), newsgroupName.get() };
     rv = bundle->FormatStringFromName(MOZ_UTF16("newNewsgroupFilteringHeaders"),
       formatStrings, 4, getter_Copies(statusString));
   }
   else
   {
-    const PRUnichar *formatStrings[3] = { numDownloadedStr.get(),
+    const char16_t *formatStrings[3] = { numDownloadedStr.get(),
       totalToDownloadStr.get(), newsgroupName.get() };
     rv = bundle->FormatStringFromName(MOZ_UTF16("newNewsgroupHeaders"),
       formatStrings, 3, getter_Copies(statusString));

@@ -428,7 +428,7 @@ NS_MSG_BASE void MsgCompressWhitespace(nsCString& aString);
 /// Equivalent of nsEscapeHTML(aString)
 NS_MSG_BASE char *MsgEscapeHTML(const char *aString);
 /// Equivalent of nsEscapeHTML2(aBuffer, aLen)
-NS_MSG_BASE PRUnichar *MsgEscapeHTML2(const PRUnichar *aBuffer, int32_t aLen);
+NS_MSG_BASE char16_t *MsgEscapeHTML2(const char16_t *aBuffer, int32_t aLen);
 // Existing replacement for IsUTF8
 NS_MSG_BASE bool MsgIsUTF8(const nsACString& aString);
 /// Equivalent of NS_NewAtom(aUTF8String)
@@ -444,7 +444,7 @@ inline already_AddRefed<nsIAtom> MsgGetAtom(const char* aUTF8String)
 NS_MSG_BASE void MsgReplaceSubstring(nsAString &str, const nsAString &what, const nsAString &replacement);
 NS_MSG_BASE void MsgReplaceSubstring(nsACString &str, const char *what, const char *replacement);
 /// Equivalent of ns(C)String::ReplaceChar(what, replacement)
-NS_MSG_BASE void MsgReplaceChar(nsString& str, const char *set, const PRUnichar replacement);
+NS_MSG_BASE void MsgReplaceChar(nsString& str, const char *set, const char16_t replacement);
 NS_MSG_BASE void MsgReplaceChar(nsCString& str, const char needle, const char replacement);
 // Equivalent of NS_NewInterfaceRequestorAggregation(aFirst, aSecond, aResult)
 NS_MSG_BASE nsresult MsgNewInterfaceRequestorAggregation(nsIInterfaceRequestor *aFirst,
@@ -504,7 +504,7 @@ do_QueryElementAt( nsISupportsArray* array, uint32_t aIndex, nsresult* aErrorPtr
  *
  */
 inline
-uint32_t MsgCountChar(nsACString &aString, PRUnichar aChar) {
+uint32_t MsgCountChar(nsACString &aString, char16_t aChar) {
   const char *begin, *end;
   uint32_t num_chars = 0;
   aString.BeginReading(&begin, &end);
@@ -516,11 +516,11 @@ uint32_t MsgCountChar(nsACString &aString, PRUnichar aChar) {
 }
 
 inline
-uint32_t MsgCountChar(nsAString &aString, PRUnichar aChar) {
-  const PRUnichar *begin, *end;
+uint32_t MsgCountChar(nsAString &aString, char16_t aChar) {
+  const char16_t *begin, *end;
   uint32_t num_chars = 0;
   aString.BeginReading(&begin, &end);
-  for (const PRUnichar *current = begin; current < end; ++current) {
+  for (const char16_t *current = begin; current < end; ++current) {
       if (*current == aChar)
         ++num_chars;
   }

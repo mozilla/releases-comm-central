@@ -58,7 +58,7 @@ private:
   nsresult  FoundMailbox(nsIFile *mailFile, const char *pName, nsIMutableArray *pArray, nsIImportService *pImport);
   bool      FindMimeIniFile(nsIFile *pFile);
   void    GetMimeTypeFromExtension(nsCString& ext, nsCString& mimeType);
-  nsresult  FoundAddressBook(nsIFile *file, const PRUnichar *pName, nsIMutableArray *pArray, nsIImportService *impSvc);
+  nsresult  FoundAddressBook(nsIFile *file, const char16_t *pName, nsIMutableArray *pArray, nsIImportService *impSvc);
   nsresult  ScanAddressDir(nsIFile *pDir, nsIMutableArray *pArray, nsIImportService *impSvc);
 
 

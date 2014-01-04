@@ -327,7 +327,7 @@ nsMessenger::PromptIfFileExists(nsIFile *file)
     nsString errorMessage;
 
     file->GetPath(path);
-    const PRUnichar *pathFormatStrings[] = { path.get() };
+    const char16_t *pathFormatStrings[] = { path.get() };
 
     if (!mStringBundle)
     {
@@ -1265,7 +1265,7 @@ nsMessenger::GetSaveToDir(nsIFile **aSaveDir)
 
 NS_IMETHODIMP
 nsMessenger::SaveMessages(uint32_t aCount,
-                          const PRUnichar **aFilenameArray,
+                          const char16_t **aFilenameArray,
                           const char **aMessageUriArray)
 {
   NS_ENSURE_ARG_MIN(aCount, 1);
@@ -2179,7 +2179,7 @@ NS_IMETHODIMP nsMessenger::OnItemBoolPropertyChanged(nsIMsgFolder *item, nsIAtom
 }
 
 /* void OnItemUnicharPropertyChanged (in nsIMsgFolder item, in nsIAtom property, in wstring oldValue, in wstring newValue); */
-NS_IMETHODIMP nsMessenger::OnItemUnicharPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const PRUnichar *oldValue, const PRUnichar *newValue)
+NS_IMETHODIMP nsMessenger::OnItemUnicharPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char16_t *oldValue, const char16_t *newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -2959,13 +2959,13 @@ nsMessenger::PromptIfDeleteAttachments(bool aSaveFirst,
   {
     ConvertAndSanitizeFileName(aDisplayNameArray[u], displayString);
     attachmentList.Append(displayString);
-    attachmentList.Append(PRUnichar('\n'));
+    attachmentList.Append(char16_t('\n'));
   }
-  const PRUnichar *formatStrings[] = { attachmentList.get() };
+  const char16_t *formatStrings[] = { attachmentList.get() };
 
   // format the message and display
   nsString promptMessage;
-  const PRUnichar * propertyName = aSaveFirst ?
+  const char16_t * propertyName = aSaveFirst ?
     MOZ_UTF16("detachAttachments") : MOZ_UTF16("deleteAttachments");
   rv = mStringBundle->FormatStringFromName(propertyName, formatStrings, 1,getter_Copies(promptMessage));
   NS_ENSURE_SUCCESS(rv, rv);

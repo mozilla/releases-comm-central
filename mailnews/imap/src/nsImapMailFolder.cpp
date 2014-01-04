@@ -1600,9 +1600,9 @@ NS_IMETHODIMP nsImapMailFolder::Rename (const nsAString& newName, nsIMsgWindow *
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       if (NS_SUCCEEDED(rv) && bundle)
       {
-        const PRUnichar *formatStrings[] =
+        const char16_t *formatStrings[] =
         {
-          (const PRUnichar*)(intptr_t)m_hierarchyDelimiter
+          (const char16_t*)(intptr_t)m_hierarchyDelimiter
         };
         nsString alertString;
         rv = bundle->FormatStringFromName(
@@ -1617,7 +1617,7 @@ NS_IMETHODIMP nsImapMailFolder::Rename (const nsAString& newName, nsIMsgWindow *
         nsString accountName;
         rv = server->GetPrettyName(accountName);
         NS_ENSURE_SUCCESS(rv, rv);
-        const PRUnichar *titleParams[] = { accountName.get() };
+        const char16_t *titleParams[] = { accountName.get() };
         rv = bundle->FormatStringFromName(
           MOZ_UTF16("imapAlertDialogTitle"),
           titleParams, 1, getter_Copies(dialogTitle));
@@ -2413,7 +2413,7 @@ nsImapMailFolder::DeleteSubFolders(nsIArray* folders, nsIMsgWindow *msgWindow)
     nsAutoString folderName;
     rv = curFolder->GetName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
-    const PRUnichar *formatStrings[1] = { folderName.get() };
+    const char16_t *formatStrings[1] = { folderName.get() };
 
     nsAutoString deleteFolderDialogTitle;
     rv = bundle->GetStringFromName(
@@ -6014,7 +6014,7 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps *aFolderProps)
       // is this right? It doesn't leak, does it?
       CopyASCIItoUTF16(owner, uniOwner);
     }
-    const PRUnichar *params[] = { uniOwner.get() };
+    const char16_t *params[] = { uniOwner.get() };
     rv = bundle->FormatStringFromName(
       MOZ_UTF16("imapOtherUsersFolderTypeDescription"),
       params, 1, getter_Copies(folderTypeDesc));
@@ -6667,7 +6667,7 @@ nsresult nsImapMailFolder::DisplayStatusMsg(nsIImapUrl *aImapUrl, const nsAStrin
 NS_IMETHODIMP
 nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
                                        const char* aMsgName,
-                                       const PRUnichar * extraInfo)
+                                       const char16_t * extraInfo)
 {
   nsString progressMsg;
 
@@ -6690,7 +6690,7 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
     {
       if (extraInfo)
       {
-        PRUnichar *printfString = nsTextFormatter::smprintf(progressMsg.get(), extraInfo);
+        char16_t *printfString = nsTextFormatter::smprintf(progressMsg.get(), extraInfo);
         if (printfString)
           progressMsg.Adopt(printfString);
       }
@@ -6703,7 +6703,7 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
 
 NS_IMETHODIMP
 nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
-                                  const PRUnichar * aMessage,
+                                  const char16_t * aMessage,
                                   int64_t aCurrentProgress, int64_t aMaxProgress)
 {
   if (aProtocol)
@@ -8130,7 +8130,7 @@ nsImapMailFolder::CopyStreamMessage(nsIMsgDBHdr* message,
       totalMsgString.AppendInt(m_copyState->m_totalCount);
       curMsgString.AppendInt(m_copyState->m_curIndex + 1);
 
-      const PRUnichar *formatStrings[3] = {curMsgString.get(),
+      const char16_t *formatStrings[3] = {curMsgString.get(),
                                             totalMsgString.get(),
                                             dstFolderName.get()
                                             };

@@ -71,7 +71,7 @@ nsEudoraProfileMigrator::Notify(nsITimer *timer)
 // nsIMailProfileMigrator
 
 NS_IMETHODIMP
-nsEudoraProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const PRUnichar* aProfile)
+nsEudoraProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const char16_t* aProfile)
 {
   nsresult rv = NS_OK;
 
@@ -94,7 +94,7 @@ nsEudoraProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, c
 }
 
 NS_IMETHODIMP
-nsEudoraProfileMigrator::GetMigrateData(const PRUnichar* aProfile,
+nsEudoraProfileMigrator::GetMigrateData(const char16_t* aProfile,
                                            bool aReplace,
                                            uint16_t* aResult)
 {

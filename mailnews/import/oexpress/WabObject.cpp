@@ -526,7 +526,7 @@ void CWAB::CStrToUnicode(const char *pStr, nsString& result)
   if (wLen >= m_uniBuffLen) {
     if (m_pUniBuff)
       delete [] m_pUniBuff;
-    m_pUniBuff = new PRUnichar[wLen + 64];
+    m_pUniBuff = new char16_t[wLen + 64];
     m_uniBuffLen = wLen + 64;
   }
   if (wLen) {
@@ -548,7 +548,7 @@ void CWAB::GetValueString(LPSPropValue pVal, nsString& val)
       CStrToUnicode((const char *) (pVal->Value.lpszA), val);
       break;
     case PT_UNICODE:
-      val = (PRUnichar *) (pVal->Value.lpszW);
+      val = (char16_t *) (pVal->Value.lpszW);
       break;
     case PT_MV_STRING8: {
       nsString  tmp;
@@ -563,7 +563,7 @@ void CWAB::GetValueString(LPSPropValue pVal, nsString& val)
     case PT_MV_UNICODE: {
       ULONG  j;
       for(j = 0; j < pVal->Value.MVszW.cValues; j++) {
-        val += (PRUnichar *) (pVal->Value.MVszW.lppszW[j]);
+        val += (char16_t *) (pVal->Value.MVszW.lppszW[j]);
         val.Append(NS_ConvertASCIItoUTF16(TR_OUTPUT_EOL));
       }
       break;

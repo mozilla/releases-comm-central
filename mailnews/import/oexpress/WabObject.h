@@ -16,8 +16,8 @@
 
 class CWabIterator {
 public:
-  virtual nsresult  EnumUser(const PRUnichar *pName, LPENTRYID pEid, ULONG cbEid) = 0;
-  virtual nsresult  EnumList(const PRUnichar *pName, LPENTRYID pEid, ULONG cbEid, LPMAPITABLE lpTable) = 0;
+  virtual nsresult  EnumUser(const char16_t *pName, LPENTRYID pEid, ULONG cbEid) = 0;
+  virtual nsresult  EnumList(const char16_t *pName, LPENTRYID pEid, ULONG cbEid, LPMAPITABLE lpTable) = 0;
 };
 
 
@@ -50,7 +50,7 @@ public:
   bool      IsAvailable();
 
 private:
-  PRUnichar *  m_pUniBuff;
+  char16_t *  m_pUniBuff;
   int      m_uniBuffLen;
   bool        m_bInitialized;
     HINSTANCE   m_hinstWAB;

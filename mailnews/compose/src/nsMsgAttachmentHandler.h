@@ -77,7 +77,7 @@ public:
                                                     // (Currently only used for plaintext
                                                     // converted from HTML.) 
   nsresult              Abort();
-  nsresult              UrlExit(nsresult status, const PRUnichar* aMsg);
+  nsresult              UrlExit(nsresult status, const char16_t* aMsg);
   
   // if there's an intermediate temp file left, takes care to remove it from disk.
   //

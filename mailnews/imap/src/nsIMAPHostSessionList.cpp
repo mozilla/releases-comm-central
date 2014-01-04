@@ -87,7 +87,7 @@ nsresult nsIMAPHostSessionList::Init()
 }
 
 
-NS_IMETHODIMP nsIMAPHostSessionList::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *someData)
+NS_IMETHODIMP nsIMAPHostSessionList::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *someData)
 {
   if (!strcmp(aTopic, "profile-before-change"))
     ResetAll();

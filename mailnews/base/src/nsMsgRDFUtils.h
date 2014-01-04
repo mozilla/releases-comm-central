@@ -89,7 +89,7 @@ typedef struct _nsMsgRDFNotification {
 #define NC_RDF_EMPTYTRASH   NC_NAMESPACE_URI "EmptyTrash"
 
 
-nsresult createNode(const PRUnichar *str, nsIRDFNode **, nsIRDFService *rdfService);
+nsresult createNode(const char16_t *str, nsIRDFNode **, nsIRDFService *rdfService);
 
 //Given an int32_t creates an nsIRDFNode that is really an int literal.
 nsresult createIntNode(int32_t value, nsIRDFNode **node, nsIRDFService *rdfService);

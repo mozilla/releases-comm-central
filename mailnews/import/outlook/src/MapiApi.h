@@ -150,7 +150,7 @@ private:
   static LPMAPISESSION  m_lpSession;
   static LPMDB      m_lpMdb;
   static HRESULT      m_lastError;
-  static PRUnichar *    m_pUniBuff;
+  static char16_t *    m_pUniBuff;
   static int        m_uniBuffLen;
 
   static BOOL      GetLargeProperty(LPMAPIPROP pProp, ULONG tag, void** result);
@@ -160,15 +160,15 @@ class CMapiFolder {
 public:
   CMapiFolder();
   CMapiFolder(const CMapiFolder *pCopyFrom);
-  CMapiFolder(const PRUnichar *pDisplayName, ULONG cbEid, LPENTRYID lpEid, int depth, LONG oType = MAPI_FOLDER);
+  CMapiFolder(const char16_t *pDisplayName, ULONG cbEid, LPENTRYID lpEid, int depth, LONG oType = MAPI_FOLDER);
   ~CMapiFolder();
 
   void  SetDoImport(BOOL doIt) { m_doImport = doIt;}
   void  SetObjectType(long oType) { m_objectType = oType;}
-  void  SetDisplayName(const PRUnichar *pDisplayName) { m_displayName = pDisplayName;}
+  void  SetDisplayName(const char16_t *pDisplayName) { m_displayName = pDisplayName;}
   void  SetEntryID(ULONG cbEid, LPENTRYID lpEid);
   void  SetDepth(int depth) { m_depth = depth;}
-  void  SetFilePath(const PRUnichar *pFilePath) { m_mailFilePath = pFilePath;}
+  void  SetFilePath(const char16_t *pFilePath) { m_mailFilePath = pFilePath;}
 
   BOOL  GetDoImport(void) const { return m_doImport;}
   LONG  GetObjectType(void) const { return m_objectType;}

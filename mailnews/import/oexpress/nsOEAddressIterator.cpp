@@ -88,7 +88,7 @@ nsOEAddressIterator::~nsOEAddressIterator()
 {
 }
 
-nsresult nsOEAddressIterator::EnumUser(const PRUnichar * pName, LPENTRYID pEid, ULONG cbEid)
+nsresult nsOEAddressIterator::EnumUser(const char16_t * pName, LPENTRYID pEid, ULONG cbEid)
 {
   IMPORT_LOG1("User: %S\n", pName);
   nsresult   rv = NS_OK;
@@ -128,7 +128,7 @@ void nsOEAddressIterator::FindListRow(nsString &eMail, nsIMdbRow **cardRow)
   m_listRows.Get(eMail,cardRow);
 }
 
-nsresult nsOEAddressIterator::EnumList(const PRUnichar * pName, LPENTRYID pEid, ULONG cbEid, LPMAPITABLE lpTable)
+nsresult nsOEAddressIterator::EnumList(const char16_t * pName, LPENTRYID pEid, ULONG cbEid, LPMAPITABLE lpTable)
 {
   // If no name provided then we're done.
   if (!pName || !(*pName))
@@ -260,7 +260,7 @@ void nsOEAddressIterator::SetBirthDay(nsIMdbRow *newRow, PRTime& birthDay)
   m_database->AddBirthDay(newRow, stringValue);
 }
 
-bool nsOEAddressIterator::BuildCard(const PRUnichar * pName, nsIMdbRow *newRow, LPMAILUSER pUser)
+bool nsOEAddressIterator::BuildCard(const char16_t * pName, nsIMdbRow *newRow, LPMAILUSER pUser)
 {
   
   nsString    lastName;
@@ -318,11 +318,11 @@ bool nsOEAddressIterator::BuildCard(const PRUnichar * pName, nsIMdbRow *newRow, 
     else {
       displayName = firstName;
       if (!middleName.IsEmpty()) {
-        displayName.Append(PRUnichar(' '));
+        displayName.Append(char16_t(' '));
         displayName.Append(middleName);
       }
       if (!lastName.IsEmpty()) {
-        displayName.Append(PRUnichar(' '));
+        displayName.Append(char16_t(' '));
         displayName.Append(lastName);
       }
     }

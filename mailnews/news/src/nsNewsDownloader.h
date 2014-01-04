@@ -39,7 +39,7 @@ protected:
   virtual nsresult DownloadNext(bool firstTimeP);
   virtual int32_t FinishDownload() {return 0;}
   virtual int32_t  StartDownload() {return 0;}
-  virtual nsresult ShowProgress(const PRUnichar *progressString, int32_t percent);
+  virtual nsresult ShowProgress(const char16_t *progressString, int32_t percent);
 
   nsTArray<nsMsgKey>      m_keysToDownload;
   nsCOMPtr <nsIMsgFolder>  m_folder;

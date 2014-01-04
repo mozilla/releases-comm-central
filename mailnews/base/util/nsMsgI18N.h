@@ -52,7 +52,7 @@ NS_MSG_BASE bool nsMsgI18Nmultibyte_charset(const char *charset);
  * @return            True if the string can be converted within the charset range.
  *                    False if one or more characters cannot be converted to the target charset.
  */
-NS_MSG_BASE bool      nsMsgI18Ncheck_data_in_charset_range(const char *charset, const PRUnichar* inString,
+NS_MSG_BASE bool      nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* inString,
                                                            char **fallbackCharset=nullptr);
 
 /**
@@ -120,7 +120,7 @@ NS_MSG_BASE const char *nsMsgI18NParseMetaCharset(nsIFile* file);
  * @return            nsresult.
  */
 NS_MSG_BASE nsresult nsMsgI18NSaveAsCharset(const char* contentType, const char* charset, 
-                                            const PRUnichar* inString, char** outString, 
+                                            const char16_t* inString, char** outString, 
                                             char **fallbackCharset=nullptr, bool *isAsciiOnly=nullptr);
 
 /**

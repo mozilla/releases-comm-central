@@ -53,7 +53,7 @@ public:
 
     nsAbDirectoryQueryPropertyValue();
     nsAbDirectoryQueryPropertyValue(const char* aName,
-          const PRUnichar* aValue);
+          const char16_t* aValue);
     nsAbDirectoryQueryPropertyValue(const char* aName,
           nsISupports* aValueISupports);
     virtual ~nsAbDirectoryQueryPropertyValue();

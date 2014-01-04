@@ -75,7 +75,7 @@ private:
 
 /*
  * Wrapper class to automatically free an array of
- * PRUnichar* when class goes out of scope
+ * char16_t* when class goes out of scope
  */
 class PRUnicharPtrArrayGuard
 {
@@ -92,7 +92,7 @@ public:
         Free ();
     }
 
-    PRUnichar* operator[](int i)
+    char16_t* operator[](int i)
     {
         return mArray[i];
     }
@@ -107,21 +107,21 @@ public:
         return mSize;
     }
 
-    PRUnichar*** GetArrayAddr(void)
+    char16_t*** GetArrayAddr(void)
     {
         return &mArray;
     }
 
-    const PRUnichar** GetArray(void)
+    const char16_t** GetArray(void)
     {
-        return (const PRUnichar** ) mArray;
+        return (const char16_t** ) mArray;
     }
 
 public:
 
 private:
     bool mFreeElements;
-    PRUnichar **mArray;
+    char16_t **mArray;
     uint32_t mSize;
     void Free ()
     {

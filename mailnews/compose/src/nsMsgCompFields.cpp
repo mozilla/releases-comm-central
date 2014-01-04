@@ -507,7 +507,7 @@ NS_IMETHODIMP
 nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
                                  bool aEmailAddressOnly,
                                  uint32_t *aLength,
-                                 PRUnichar*** aResult)
+                                 char16_t*** aResult)
 {
   NS_ENSURE_ARG_POINTER(aLength);
   NS_ENSURE_ARG_POINTER(aResult);
@@ -523,7 +523,7 @@ nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
     ExtractDisplayAddresses(header, results);
   
   uint32_t count = results.Length();
-  PRUnichar **result = (PRUnichar **)NS_Alloc(sizeof(PRUnichar *) * count);
+  char16_t **result = (char16_t **)NS_Alloc(sizeof(char16_t *) * count);
   for (uint32_t i = 0; i < count; ++i)
     result[i] = ToNewUnicode(results[i]);
 

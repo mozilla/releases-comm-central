@@ -24,7 +24,7 @@ public:
 
   static nsresult Encode (nsCString& ppEncoding,
                             nsISupportsArray *searchTerms,
-                            const PRUnichar *destCharset);
+                            const char16_t *destCharset);
 
 
 protected:

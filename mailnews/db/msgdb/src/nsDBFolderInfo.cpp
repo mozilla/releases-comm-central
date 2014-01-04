@@ -63,7 +63,7 @@ public:
 
 NS_IMPL_ISUPPORTS1(nsFolderCharsetObserver, nsIObserver)
 
-NS_IMETHODIMP nsFolderCharsetObserver::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *someData)
+NS_IMETHODIMP nsFolderCharsetObserver::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *someData)
 {
   nsresult rv;
 

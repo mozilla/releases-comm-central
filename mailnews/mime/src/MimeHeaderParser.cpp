@@ -70,9 +70,9 @@ ParsedHeader DecodedHeader(const nsAString &aHeader)
 {
   ParsedHeader retval;
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
-  PRUnichar **rawNames = nullptr;
-  PRUnichar **rawEmails = nullptr;
-  PRUnichar **rawFull = nullptr;
+  char16_t **rawNames = nullptr;
+  char16_t **rawEmails = nullptr;
+  char16_t **rawFull = nullptr;
 
   headerParser->ParseHeadersWithArray(PromiseFlatString(aHeader).get(),
     &rawEmails, &rawNames, &rawFull, &retval.mCount);

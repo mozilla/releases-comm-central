@@ -59,7 +59,7 @@ nsEudoraFilters::~nsEudoraFilters()
 
 NS_IMPL_ISUPPORTS1(nsEudoraFilters, nsIImportFilters)
 
-NS_IMETHODIMP nsEudoraFilters::AutoLocate(PRUnichar **aDescription, nsIFile **aLocation, bool *_retval)
+NS_IMETHODIMP nsEudoraFilters::AutoLocate(char16_t **aDescription, nsIFile **aLocation, bool *_retval)
 {
   NS_ENSURE_ARG_POINTER(aDescription);
   NS_ENSURE_ARG_POINTER(aLocation);
@@ -92,7 +92,7 @@ NS_IMETHODIMP nsEudoraFilters::SetLocation(nsIFile *aLocation)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsEudoraFilters::Import(PRUnichar **aError, bool *_retval)
+NS_IMETHODIMP nsEudoraFilters::Import(char16_t **aError, bool *_retval)
 {
   NS_ENSURE_ARG_POINTER(aError);
   NS_ENSURE_ARG_POINTER(_retval);
@@ -369,7 +369,7 @@ nsresult nsEudoraFilters::Init()
   if (NS_SUCCEEDED(rv))
   {
     nsAutoString Eudora(NS_LITERAL_STRING("Eudora"));
-    const PRUnichar *moduleName[] = { Eudora.get() };
+    const char16_t *moduleName[] = { Eudora.get() };
     rv = bundle->FormatStringFromName(MOZ_UTF16("ImportModuleFolderName"),
                                       moduleName, 1, getter_Copies(folderName));
   }

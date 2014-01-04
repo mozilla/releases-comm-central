@@ -76,6 +76,6 @@ nsresult AnnotatePersonalToolbarFolder(nsIFile* aSourceBookmarksFile,
 // with the name "From (STR:aImportSourceNameKey)" (aImportSourceNameKey
 // is a key into migration.properties with the pretty name of the application.
 nsresult ImportBookmarksHTML(nsIFile* aBookmarksFile,
-                             const PRUnichar* aImportSourceNameKey);
+                             const char16_t* aImportSourceNameKey);
 
 #endif

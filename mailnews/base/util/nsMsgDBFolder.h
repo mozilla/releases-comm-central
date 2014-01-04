@@ -237,16 +237,16 @@ protected:
   static nsresult initializeStrings();
   static nsresult createCollationKeyGenerator();
 
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedInboxName;
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedTrashName;
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedSentName;
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedDraftsName;
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedTemplatesName;
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedUnsentName;
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedJunkName;
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedArchivesName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedInboxName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedTrashName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedSentName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedDraftsName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedTemplatesName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedUnsentName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedJunkName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedArchivesName;
 
-  static NS_MSG_BASE_STATIC_MEMBER_(PRUnichar*) kLocalizedBrandShortName;
+  static NS_MSG_BASE_STATIC_MEMBER_(char16_t*) kLocalizedBrandShortName;
   
 #define MSGDBFOLDER_ATOM(name_, value) static NS_MSG_BASE_STATIC_MEMBER_(nsIAtom*) name_;
 #include "nsMsgDBFolderAtomList.h"

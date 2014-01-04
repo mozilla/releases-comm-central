@@ -176,7 +176,7 @@ nsresult nsMsgFilterService::AlertBackingUpFilterFile(nsIMsgWindow *aMsgWindow)
 }
 
 nsresult //Do not use this routine if you have to call it very often because it creates a new bundle each time
-nsMsgFilterService::GetStringFromBundle(const char *aMsgName, PRUnichar **aResult)
+nsMsgFilterService::GetStringFromBundle(const char *aMsgName, char16_t **aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
 
@@ -257,7 +257,7 @@ protected:
   nsresult  ApplyFilter(bool *aApplyMore = nullptr);
   nsresult  OnEndExecution(nsresult executionStatus); // do what we have to do to cleanup.
   bool      ContinueExecutionPrompt();
-  nsresult  DisplayConfirmationPrompt(nsIMsgWindow *msgWindow, const PRUnichar *confirmString, bool *confirmed);
+  nsresult  DisplayConfirmationPrompt(nsIMsgWindow *msgWindow, const char16_t *confirmString, bool *confirmed);
   nsCOMPtr<nsIMsgWindow>      m_msgWindow;
   nsCOMPtr<nsIMsgFilterList>  m_filters;
   nsCOMPtr<nsIArray>          m_folders;
@@ -1055,7 +1055,7 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt()
   m_curFilter->GetFilterName(filterName);
   nsString formatString;
   nsString confirmText;
-  const PRUnichar *formatStrings[] =
+  const char16_t *formatStrings[] =
   {
     filterName.get()
   };
@@ -1069,7 +1069,7 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt()
 }
 
 nsresult
-nsMsgFilterAfterTheFact::DisplayConfirmationPrompt(nsIMsgWindow *msgWindow, const PRUnichar *confirmString, bool *confirmed)
+nsMsgFilterAfterTheFact::DisplayConfirmationPrompt(nsIMsgWindow *msgWindow, const char16_t *confirmString, bool *confirmed)
 {
   if (msgWindow)
   {

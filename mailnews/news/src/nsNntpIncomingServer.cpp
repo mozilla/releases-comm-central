@@ -1160,13 +1160,13 @@ nsNntpIncomingServer::GetSubscribeListener(nsISubscribeListener **aListener)
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::Subscribe(const PRUnichar *aUnicharName)
+nsNntpIncomingServer::Subscribe(const char16_t *aUnicharName)
 {
   return SubscribeToNewsgroup(NS_ConvertUTF16toUTF8(aUnicharName));
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::Unsubscribe(const PRUnichar *aUnicharName)
+nsNntpIncomingServer::Unsubscribe(const char16_t *aUnicharName)
 {
   NS_ENSURE_ARG_POINTER(aUnicharName);
 
@@ -1575,7 +1575,7 @@ nsNntpIncomingServer::GroupNotFound(nsIMsgWindow *aMsgWindow,
   NS_ConvertUTF8toUTF16 hostStr(hostname);
 
   nsString groupName(aName);
-  const PRUnichar *formatStrings[2] = { groupName.get(), hostStr.get() };
+  const char16_t *formatStrings[2] = { groupName.get(), hostStr.get() };
   nsString confirmText;
   rv = bundle->FormatStringFromName(
                     MOZ_UTF16("autoUnsubscribeText"),
@@ -1737,7 +1737,7 @@ nsNntpIncomingServer::GetCellProperties(int32_t row, nsITreeColumn* col, nsAStri
 
     NS_ENSURE_ARG_POINTER(col);
 
-    const PRUnichar* colID;
+    const char16_t* colID;
     col->GetIdConst(&colID);
     if (colID[0] == 's') {
         // if <name> is in our temporary list of subscribed groups
@@ -1863,7 +1863,7 @@ nsNntpIncomingServer::GetCellText(int32_t row, nsITreeColumn* col, nsAString& _r
 
     NS_ENSURE_ARG_POINTER(col);
 
-    const PRUnichar* colID;
+    const char16_t* colID;
     col->GetIdConst(&colID);
 
     nsresult rv = NS_OK;
@@ -1970,19 +1970,19 @@ nsNntpIncomingServer::SetCellText(int32_t row, nsITreeColumn* col, const nsAStri
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::PerformAction(const PRUnichar *action)
+nsNntpIncomingServer::PerformAction(const char16_t *action)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::PerformActionOnRow(const PRUnichar *action, int32_t row)
+nsNntpIncomingServer::PerformActionOnRow(const char16_t *action, int32_t row)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::PerformActionOnCell(const PRUnichar *action, int32_t row, nsITreeColumn* col)
+nsNntpIncomingServer::PerformActionOnCell(const char16_t *action, int32_t row, nsITreeColumn* col)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

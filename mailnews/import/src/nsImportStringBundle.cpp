@@ -33,12 +33,12 @@ void nsImportStringBundle::GetStringByID(int32_t aStringID,
   aResult.Adopt(GetStringByID(aStringID, aBundle));
 }
 
-PRUnichar *nsImportStringBundle::GetStringByID(int32_t aStringID,
+char16_t *nsImportStringBundle::GetStringByID(int32_t aStringID,
                                                nsIStringBundle *aBundle)
 {
   if (aBundle)
   {
-    PRUnichar *ptrv = nullptr;
+    char16_t *ptrv = nullptr;
     nsresult rv = aBundle->GetStringFromID(aStringID, &ptrv);
 
     if (NS_SUCCEEDED(rv) && ptrv)
@@ -59,12 +59,12 @@ void nsImportStringBundle::GetStringByName(const char *aName,
   aResult.Adopt(GetStringByName(aName, aBundle));
 }
 
-PRUnichar *nsImportStringBundle::GetStringByName(const char *aName,
+char16_t *nsImportStringBundle::GetStringByName(const char *aName,
                                                  nsIStringBundle *aBundle)
 {
   if (aBundle)
   {
-    PRUnichar *ptrv = nullptr;
+    char16_t *ptrv = nullptr;
     nsresult rv = aBundle->GetStringFromName(
         NS_ConvertUTF8toUTF16(aName).get(), &ptrv);
 

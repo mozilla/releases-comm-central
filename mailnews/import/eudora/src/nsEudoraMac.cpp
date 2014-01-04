@@ -919,7 +919,7 @@ nsresult nsEudoraMac::GetAttachmentInfo(const char *pFileName, nsIFile *pFile, n
   OSType    creator = '?\??\?';
   uint32_t  fNum = 0;
   int      i;
-  PRUnichar  c;
+  char16_t  c;
 
   nsCString  str(pFileName);
   if (str.Length() > 22)

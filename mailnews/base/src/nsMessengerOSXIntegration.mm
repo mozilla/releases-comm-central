@@ -198,7 +198,7 @@ nsMessengerOSXIntegration::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, char
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const PRUnichar *, const PRUnichar *)
+nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -210,7 +210,7 @@ nsMessengerOSXIntegration::OnItemRemoved(nsIMsgFolder *, nsISupports *)
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic, const PRUnichar* aData)
+nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic, const char16_t* aData)
 {
   if (!strcmp(aTopic, "alertfinished"))
     return OnAlertFinished();
@@ -332,7 +332,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
       {
         nsAutoString numNotDisplayedText;
         numNotDisplayedText.AppendInt(numNotDisplayed);
-        const PRUnichar *formatStrings[3] = { numNewMsgsText.get(), authors.get(), numNotDisplayedText.get() };
+        const char16_t *formatStrings[3] = { numNewMsgsText.get(), authors.get(), numNotDisplayedText.get() };
         bundle->FormatStringFromName(MOZ_UTF16("macBiffNotification_messages_extra"),
                                      formatStrings,
                                      3,
@@ -340,7 +340,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
       }
       else
       {
-        const PRUnichar *formatStrings[2] = { numNewMsgsText.get(), authors.get() };
+        const char16_t *formatStrings[2] = { numNewMsgsText.get(), authors.get() };
 
         if (aNewCount == 1)
         {
@@ -451,7 +451,7 @@ nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
 }
 
 nsresult
-nsMessengerOSXIntegration::OnAlertClicked(const PRUnichar* aAlertCookie)
+nsMessengerOSXIntegration::OnAlertClicked(const char16_t* aAlertCookie)
 {
   openMailWindow(NS_ConvertUTF16toUTF8(aAlertCookie));
   return NS_OK;

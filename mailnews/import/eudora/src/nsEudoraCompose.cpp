@@ -110,10 +110,10 @@ public:
   NS_IMETHOD OnProgress(const char *aMsgID, uint32_t aProgress, uint32_t aProgressMax) {return NS_OK;}
 
   /* void OnStatus (in string aMsgID, in wstring aMsg); */
-  NS_IMETHOD OnStatus(const char *aMsgID, const PRUnichar *aMsg) {return NS_OK;}
+  NS_IMETHOD OnStatus(const char *aMsgID, const char16_t *aMsg) {return NS_OK;}
 
   /* void OnStopSending (in string aMsgID, in nsresult aStatus, in wstring aMsg, in nsIFile returnFile); */
-  NS_IMETHOD OnStopSending(const char *aMsgID, nsresult aStatus, const PRUnichar *aMsg,
+  NS_IMETHOD OnStopSending(const char *aMsgID, nsresult aStatus, const char16_t *aMsg,
                nsIFile *returnFile) {
     m_done = true;
     m_location = returnFile;

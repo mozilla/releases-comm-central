@@ -416,8 +416,8 @@ nsSmtpServer::GetPasswordWithoutUI()
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetPasswordWithUI(const PRUnichar *aPromptMessage,
-                                const PRUnichar *aPromptTitle,
+nsSmtpServer::GetPasswordWithUI(const char16_t *aPromptMessage,
+                                const char16_t *aPromptTitle,
                                 nsIAuthPrompt* aDialog,
                                 nsACString &aPassword)
 {
@@ -469,8 +469,8 @@ nsSmtpServer::GetPasswordWithUI(const PRUnichar *aPromptMessage,
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetUsernamePasswordWithUI(const PRUnichar * aPromptMessage, const
-                                PRUnichar *aPromptTitle,
+nsSmtpServer::GetUsernamePasswordWithUI(const char16_t * aPromptMessage, const
+                                char16_t *aPromptTitle,
                                 nsIAuthPrompt* aDialog,
                                 nsACString &aUsername,
                                 nsACString &aPassword)

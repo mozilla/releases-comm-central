@@ -107,7 +107,7 @@ bool        mime_type_needs_charset (const char *type);
 char        *msg_make_filename_qtext(const char *srcText, bool stripCRLFs);
 
 // Rip apart the URL and extract a reasonable value for the `real_name' slot.
-void        msg_pick_real_name (nsMsgAttachmentHandler *attachment, const PRUnichar *proposedName, const char *charset);
+void        msg_pick_real_name (nsMsgAttachmentHandler *attachment, const char16_t *proposedName, const char *charset);
 
 //
 // Informational calls...

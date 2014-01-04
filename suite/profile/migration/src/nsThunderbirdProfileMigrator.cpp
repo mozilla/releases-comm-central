@@ -49,7 +49,7 @@ nsThunderbirdProfileMigrator::~nsThunderbirdProfileMigrator()
 NS_IMETHODIMP
 nsThunderbirdProfileMigrator::Migrate(uint16_t aItems,
                                       nsIProfileStartup* aStartup,
-                                      const PRUnichar* aProfile)
+                                      const char16_t* aProfile)
 {
   nsresult rv = NS_OK;
   bool aReplace = aStartup ? true : false;
@@ -110,7 +110,7 @@ nsThunderbirdProfileMigrator::Migrate(uint16_t aItems,
 }
 
 NS_IMETHODIMP
-nsThunderbirdProfileMigrator::GetMigrateData(const PRUnichar* aProfile,
+nsThunderbirdProfileMigrator::GetMigrateData(const char16_t* aProfile,
                                              bool aReplace,
                                              uint16_t* aResult)
 {

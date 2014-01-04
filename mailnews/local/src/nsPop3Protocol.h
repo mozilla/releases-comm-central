@@ -296,7 +296,7 @@ private:
   // progress state information
   void UpdateProgressPercent (uint32_t totalDone, uint32_t total);
   void UpdateStatus(const nsString &aStatusName);
-  void UpdateStatusWithString(const PRUnichar * aString);
+  void UpdateStatusWithString(const char16_t * aString);
   nsresult FormatCounterString(const nsString &stringName,
                                uint32_t count1,
                                uint32_t count2,
@@ -355,7 +355,7 @@ private:
                                            uint32_t length);
   int32_t WaitForResponse(nsIInputStream* inputStream,
                           uint32_t length);
-  int32_t Error(const char* err_code, const PRUnichar **params = nullptr,
+  int32_t Error(const char* err_code, const char16_t **params = nullptr,
                 uint32_t length = 0);
   int32_t SendAuth();
   int32_t AuthResponse(nsIInputStream* inputStream, uint32_t length);

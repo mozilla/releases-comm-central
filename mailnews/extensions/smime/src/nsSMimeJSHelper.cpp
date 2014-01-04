@@ -30,10 +30,10 @@ nsSMimeJSHelper::~nsSMimeJSHelper()
 NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
     nsIMsgCompFields *compFields,
     uint32_t *count,
-    PRUnichar ***emailAddresses,
+    char16_t ***emailAddresses,
     int32_t **certVerification,
-    PRUnichar ***certIssuedInfos,
-    PRUnichar ***certExpiresInfos,
+    char16_t ***certIssuedInfos,
+    char16_t ***certExpiresInfos,
     nsIX509Cert ***certs,
     bool *canEncrypt)
 {
@@ -63,10 +63,10 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 
   if (mailbox_count)
   {
-    PRUnichar **outEA = static_cast<PRUnichar **>(nsMemory::Alloc(mailbox_count * sizeof(PRUnichar *)));
+    char16_t **outEA = static_cast<char16_t **>(nsMemory::Alloc(mailbox_count * sizeof(char16_t *)));
     int32_t *outCV = static_cast<int32_t *>(nsMemory::Alloc(mailbox_count * sizeof(int32_t)));
-    PRUnichar **outCII = static_cast<PRUnichar **>(nsMemory::Alloc(mailbox_count * sizeof(PRUnichar *)));
-    PRUnichar **outCEI = static_cast<PRUnichar **>(nsMemory::Alloc(mailbox_count * sizeof(PRUnichar *)));
+    char16_t **outCII = static_cast<char16_t **>(nsMemory::Alloc(mailbox_count * sizeof(char16_t *)));
+    char16_t **outCEI = static_cast<char16_t **>(nsMemory::Alloc(mailbox_count * sizeof(char16_t *)));
     nsIX509Cert **outCerts = static_cast<nsIX509Cert **>(nsMemory::Alloc(mailbox_count * sizeof(nsIX509Cert *)));
 
     if (!outEA || !outCV || !outCII || !outCEI || !outCerts)
@@ -80,10 +80,10 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
     }
     else
     {
-      PRUnichar **iEA = outEA;
+      char16_t **iEA = outEA;
       int32_t *iCV = outCV;
-      PRUnichar **iCII = outCII;
-      PRUnichar **iCEI = outCEI;
+      char16_t **iCII = outCII;
+      char16_t **iCEI = outCEI;
       nsIX509Cert **iCert = outCerts;
 
       bool found_blocker = false;
@@ -179,7 +179,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
     nsIMsgCompFields *compFields,
     uint32_t *count,
-    PRUnichar ***emailAddresses)
+    char16_t ***emailAddresses)
 {
   NS_ENSURE_ARG_POINTER(count);
   *count = 0;
@@ -235,14 +235,14 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
 
   if (missing_count)
   {
-    PRUnichar **outEA = static_cast<PRUnichar **>(nsMemory::Alloc(missing_count * sizeof(PRUnichar *)));
+    char16_t **outEA = static_cast<char16_t **>(nsMemory::Alloc(missing_count * sizeof(char16_t *)));
     if (!outEA )
     {
       rv = NS_ERROR_OUT_OF_MEMORY;
     }
     else
     {
-      PRUnichar **iEA = outEA;
+      char16_t **iEA = outEA;
 
       bool memory_failure = false;
 

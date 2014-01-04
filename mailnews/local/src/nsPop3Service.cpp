@@ -462,7 +462,7 @@ void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl *url)
   rv = server->GetPrettyName(accountName);
   NS_ENSURE_SUCCESS_VOID(rv);
 
-  const PRUnichar *params[] = { accountName.get() };
+  const char16_t *params[] = { accountName.get() };
   nsString alertString;
   nsString dialogTitle;
   bundle->FormatStringFromName(

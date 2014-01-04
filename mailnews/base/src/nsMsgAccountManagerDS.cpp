@@ -1124,7 +1124,7 @@ nsMsgAccountManagerDataSource::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, 
 }
 
 nsresult
-nsMsgAccountManagerDataSource::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const PRUnichar *, const PRUnichar *)
+nsMsgAccountManagerDataSource::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -1174,7 +1174,7 @@ nsMsgAccountManagerDataSource::OnItemIntPropertyChanged(nsIMsgFolder *, nsIAtom 
 }
 
 NS_IMETHODIMP
-nsMsgAccountManagerDataSource::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *aData)
+nsMsgAccountManagerDataSource::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData)
 {
   nsMsgRDFDataSource::Observe(aSubject, aTopic, aData);
 

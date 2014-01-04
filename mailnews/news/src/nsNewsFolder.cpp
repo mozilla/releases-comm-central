@@ -680,7 +680,7 @@ nsresult nsMsgNewsFolder::AbbreviatePrettyName(nsAString& prettyName, int32_t fu
   int32_t newword = 0;     // == 2 if done with all abbreviated words
 
   fullwords = 0;
-  PRUnichar currentChar;
+  char16_t currentChar;
   for (int32_t i = 1; i < length; i++)
   {
     // this temporary assignment is needed to fix an intel mac compiler bug.
@@ -1376,7 +1376,7 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
       bool singleSignon = true;
       nntpServer->GetSingleSignon(&singleSignon);
 
-      const PRUnichar *params[2];
+      const char16_t *params[2];
       params[0] = mName.get();
       params[1] = serverName.get();
       if (singleSignon)
@@ -1394,9 +1394,9 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
       NS_ENSURE_SUCCESS(rv, rv);
 
       // Prefill saved username/password
-      PRUnichar *uniGroupUsername = ToNewUnicode(
+      char16_t *uniGroupUsername = ToNewUnicode(
         NS_ConvertASCIItoUTF16(mGroupUsername));
-      PRUnichar *uniGroupPassword = ToNewUnicode(
+      char16_t *uniGroupPassword = ToNewUnicode(
         NS_ConvertASCIItoUTF16(mGroupPassword));
 
       // Prompt for the dialog

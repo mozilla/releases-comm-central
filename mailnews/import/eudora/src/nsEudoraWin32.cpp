@@ -1512,7 +1512,7 @@ nsresult nsEudoraWin32::ScanAddressDir(nsIFile *pDir, nsIMutableArray *pArray, n
 }
 
 
-nsresult nsEudoraWin32::FoundAddressBook(nsIFile *file, const PRUnichar *pName, nsIMutableArray *pArray, nsIImportService *impSvc)
+nsresult nsEudoraWin32::FoundAddressBook(nsIFile *file, const char16_t *pName, nsIMutableArray *pArray, nsIImportService *impSvc)
 {
   nsCOMPtr<nsIImportABDescriptor> desc;
   nsISupports *  pInterface;

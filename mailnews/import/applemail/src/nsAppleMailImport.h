@@ -68,7 +68,7 @@ class nsAppleMailImportMail : public nsIImportMail
     
   // aInfoString is the format to a "foo %s" string. It may be NULL if the error string needs no such format.
   void ReportStatus(int32_t aErrorNum, nsString &aName, nsAString &aStream);
-  static void SetLogs(const nsAString& success, const nsAString& error, PRUnichar **aOutErrorLog, PRUnichar **aSuccessLog);
+  static void SetLogs(const nsAString& success, const nsAString& error, char16_t **aOutErrorLog, char16_t **aSuccessLog);
 
   nsCOMPtr<nsIStringBundle>  mBundle;
   uint32_t                   mProgress;

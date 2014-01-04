@@ -162,7 +162,7 @@ NS_IMETHODIMP
 nsMsgStatusFeedback::OnStatusChange(nsIWebProgress* aWebProgress,
                                     nsIRequest* aRequest,
                                     nsresult aStatus,
-                                    const PRUnichar* aMessage)
+                                    const char16_t* aMessage)
 {
     return NS_OK;
 }
@@ -255,7 +255,7 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnProgress(nsIRequest *request, nsISupports* 
 }
 
 NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest *request, nsISupports* ctxt, 
-                                            nsresult aStatus, const PRUnichar* aStatusArg)
+                                            nsresult aStatus, const char16_t* aStatusArg)
 {
   nsresult rv;
   nsCOMPtr<nsIURI> uri;
@@ -288,7 +288,7 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest *request, nsISupports* ct
   {
     nsCOMPtr<nsIStringBundle> bundle;
     rv = sbs->CreateBundle(MSGS_URL, getter_AddRefs(bundle));
-    const PRUnichar *params[] = { accountName.get(),
+    const char16_t *params[] = { accountName.get(),
                                   str.get() };
     rv = bundle->FormatStringFromName(
       MOZ_UTF16("statusMessage"),

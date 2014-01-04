@@ -76,7 +76,7 @@ public:
     BOOL DeleteEntry(const nsMapiEntry& aContainer, const nsMapiEntry& aEntry) ;
     // Set the value of a MAPI property of type string in unicode
     BOOL SetPropertyUString (const nsMapiEntry& aObject, ULONG aPropertyTag, 
-                             const PRUnichar *aValue) ;
+                             const char16_t *aValue) ;
     // Same as previous, but with a bunch of properties in one call
     BOOL SetPropertiesUString(const nsMapiEntry& aObject, const ULONG *aPropertiesTag,
                               ULONG aNbProperties, nsString *aValues) ;

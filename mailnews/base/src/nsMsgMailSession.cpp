@@ -111,8 +111,8 @@ nsMsgMailSession::OnItemPropertyChanged(nsIMsgFolder *aItem,
 NS_IMETHODIMP
 nsMsgMailSession::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
                                                nsIAtom *aProperty,
-                                               const PRUnichar* aOldValue,
-                                               const PRUnichar* aNewValue)
+                                               const char16_t* aOldValue,
+                                               const char16_t* aNewValue)
 {
   NOTIFY_FOLDER_LISTENERS(unicharPropertyChanged, OnItemUnicharPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
@@ -600,7 +600,7 @@ NS_IMETHODIMP nsMsgShutdownService::SetShutdownListener(nsIWebProgressListener *
 
 NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
                                             const char *aTopic,
-                                            const PRUnichar *aData)
+                                            const char16_t *aData)
 {
   // Due to bug 459376 we don't always get quit-application-requested and
   // quit-application-granted. quit-application-requested is preferred, but if

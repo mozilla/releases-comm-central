@@ -44,16 +44,16 @@ public:
 
   static nsresult EncodeImap (char **ppEncoding,
            nsISupportsArray *searchTerms,
-           const PRUnichar *srcCharset,
-           const PRUnichar *destCharset,
+           const char16_t *srcCharset,
+           const char16_t *destCharset,
            bool reallyDredd = false);
 
   static nsresult EncodeImapValue(char *encoding, const char *value, bool useQuotes, bool reallyDredd);
 
-  static char *GetImapCharsetParam(const PRUnichar *destCharset);
-  static PRUnichar *EscapeSearchUrl (const PRUnichar *nntpCommand);
-  static PRUnichar *EscapeImapSearchProtocol(const PRUnichar *imapCommand);
-  static PRUnichar *EscapeQuoteImapSearchProtocol(const PRUnichar *imapCommand);
+  static char *GetImapCharsetParam(const char16_t *destCharset);
+  static char16_t *EscapeSearchUrl (const char16_t *nntpCommand);
+  static char16_t *EscapeImapSearchProtocol(const char16_t *imapCommand);
+  static char16_t *EscapeQuoteImapSearchProtocol(const char16_t *imapCommand);
   static char *UnEscapeSearchUrl (const char *commandSpecificData);
   // This stuff lives in the base class because the IMAP search syntax
   // is used by the Dredd SEARCH command as well as IMAP itself
@@ -94,7 +94,7 @@ protected:
   char *TransformSpacesToStars (const char *, msg_TransformType transformType);
   nsresult OpenNewsResultInUnknownGroup (nsMsgResultElement*);
 
-  static nsresult EncodeImapTerm (nsIMsgSearchTerm *, bool reallyDredd, const PRUnichar *srcCharset, const PRUnichar *destCharset, char **ppOutTerm);
+  static nsresult EncodeImapTerm (nsIMsgSearchTerm *, bool reallyDredd, const char16_t *srcCharset, const char16_t *destCharset, char **ppOutTerm);
 };
 
 //-----------------------------------------------------------------------------

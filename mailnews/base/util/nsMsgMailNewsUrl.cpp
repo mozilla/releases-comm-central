@@ -620,7 +620,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetFileExtension(nsACString &aFileExtension)
 {
   if (!mAttachmentFileName.IsEmpty())
   {
-    int32_t pos = mAttachmentFileName.RFindChar(PRUnichar('.'));
+    int32_t pos = mAttachmentFileName.RFindChar(char16_t('.'));
     if (pos > 0)
       aFileExtension = Substring(mAttachmentFileName, pos + 1 /* skip the '.' */);
     return NS_OK;

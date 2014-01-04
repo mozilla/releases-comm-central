@@ -260,7 +260,7 @@ NS_IMETHODIMP nsLDAPService::AddServer(nsILDAPServer *aServer)
 }
 
 // void deleteServer (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::DeleteServer(const PRUnichar *aKey)
+NS_IMETHODIMP nsLDAPService::DeleteServer(const char16_t *aKey)
 {
     nsLDAPServiceEntry *entry;
     MutexAutoLock lock(mLock);
@@ -285,7 +285,7 @@ NS_IMETHODIMP nsLDAPService::DeleteServer(const PRUnichar *aKey)
 }
 
 // nsILDAPServer getServer (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::GetServer(const PRUnichar *aKey,
+NS_IMETHODIMP nsLDAPService::GetServer(const char16_t *aKey,
                                        nsILDAPServer **_retval)
 {
     nsLDAPServiceEntry *entry;
@@ -309,7 +309,7 @@ NS_IMETHODIMP nsLDAPService::GetServer(const PRUnichar *aKey,
 
 //void requestConnection (in wstring aKey,
 //                        in nsILDAPMessageListener aMessageListener);
-NS_IMETHODIMP nsLDAPService::RequestConnection(const PRUnichar *aKey,
+NS_IMETHODIMP nsLDAPService::RequestConnection(const char16_t *aKey,
                                  nsILDAPMessageListener *aListener)
 {
     nsLDAPServiceEntry *entry;
@@ -370,7 +370,7 @@ NS_IMETHODIMP nsLDAPService::RequestConnection(const PRUnichar *aKey,
 }
 
 // nsILDAPConnection getConnection (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::GetConnection(const PRUnichar *aKey,
+NS_IMETHODIMP nsLDAPService::GetConnection(const char16_t *aKey,
                                            nsILDAPConnection **_retval)
 {
     nsLDAPServiceEntry *entry;
@@ -395,7 +395,7 @@ NS_IMETHODIMP nsLDAPService::GetConnection(const PRUnichar *aKey,
 }
 
 // void releaseConnection (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::ReleaseConnection(const PRUnichar *aKey)
+NS_IMETHODIMP nsLDAPService::ReleaseConnection(const char16_t *aKey)
 {
     nsLDAPServiceEntry *entry;
     MutexAutoLock lock(mLock);
@@ -417,7 +417,7 @@ NS_IMETHODIMP nsLDAPService::ReleaseConnection(const PRUnichar *aKey)
 
 // void reconnectConnection (in wstring aKey,
 //                           in nsILDAPMessageListener aMessageListener);
-NS_IMETHODIMP nsLDAPService::ReconnectConnection(const PRUnichar *aKey,
+NS_IMETHODIMP nsLDAPService::ReconnectConnection(const char16_t *aKey,
                                  nsILDAPMessageListener *aListener)
 {
     nsLDAPServiceEntry *entry;

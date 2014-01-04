@@ -47,7 +47,7 @@ nsMsgGetMessageByName(const nsString &aName, nsString& aResult)
 }
 
 static nsresult
-nsMsgBuildMessageByName(const PRUnichar *aName, nsIFile *aFile, nsString& aResult)
+nsMsgBuildMessageByName(const char16_t *aName, nsIFile *aFile, nsString& aResult)
 {
   NS_ENSURE_ARG_POINTER(aFile);
   nsresult rv;
@@ -62,7 +62,7 @@ nsMsgBuildMessageByName(const PRUnichar *aName, nsIFile *aFile, nsString& aResul
   nsString path;
   aFile->GetPath(path);
 
-  const PRUnichar *params[1] = {path.get()};
+  const char16_t *params[1] = {path.get()};
   return bundle->FormatStringFromName(aName, params, 1, getter_Copies(aResult));
 }
 
@@ -79,7 +79,7 @@ nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString& aResult)
 }
 
 nsresult
-nsMsgDisplayMessageByID(nsIPrompt * aPrompt, nsresult msgID, const PRUnichar * windowTitle)
+nsMsgDisplayMessageByID(nsIPrompt * aPrompt, nsresult msgID, const char16_t * windowTitle)
 {
   nsString msg;
   nsMsgGetMessageByID(msgID, msg);
@@ -87,7 +87,7 @@ nsMsgDisplayMessageByID(nsIPrompt * aPrompt, nsresult msgID, const PRUnichar * w
 }
 
 nsresult
-nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const nsString &aName, const PRUnichar *windowTitle)
+nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const nsString &aName, const char16_t *windowTitle)
 {
   nsString msg;
   nsMsgGetMessageByName(aName, msg);
@@ -95,7 +95,7 @@ nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const nsString &aName, const PRUni
 }
 
 nsresult
-nsMsgDisplayMessageByString(nsIPrompt * aPrompt, const PRUnichar * msg, const PRUnichar * windowTitle)
+nsMsgDisplayMessageByString(nsIPrompt * aPrompt, const char16_t * msg, const char16_t * windowTitle)
 {
   NS_ENSURE_ARG_POINTER(msg);
 
@@ -116,7 +116,7 @@ nsMsgDisplayMessageByString(nsIPrompt * aPrompt, const PRUnichar * msg, const PR
 }
 
 nsresult
-nsMsgAskBooleanQuestionByString(nsIPrompt * aPrompt, const PRUnichar * msg, bool *answer, const PRUnichar * windowTitle)
+nsMsgAskBooleanQuestionByString(nsIPrompt * aPrompt, const char16_t * msg, bool *answer, const char16_t * windowTitle)
 {
   NS_ENSURE_TRUE(msg && *msg, NS_ERROR_INVALID_ARG);
 

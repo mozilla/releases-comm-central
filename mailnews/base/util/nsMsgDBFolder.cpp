@@ -88,16 +88,16 @@ static NS_DEFINE_CID(kCMailDB, NS_MAILDB_CID);
 
 nsICollation * nsMsgDBFolder::gCollationKeyGenerator = nullptr;
 
-PRUnichar *nsMsgDBFolder::kLocalizedInboxName;
-PRUnichar *nsMsgDBFolder::kLocalizedTrashName;
-PRUnichar *nsMsgDBFolder::kLocalizedSentName;
-PRUnichar *nsMsgDBFolder::kLocalizedDraftsName;
-PRUnichar *nsMsgDBFolder::kLocalizedTemplatesName;
-PRUnichar *nsMsgDBFolder::kLocalizedUnsentName;
-PRUnichar *nsMsgDBFolder::kLocalizedJunkName;
-PRUnichar *nsMsgDBFolder::kLocalizedArchivesName;
+char16_t *nsMsgDBFolder::kLocalizedInboxName;
+char16_t *nsMsgDBFolder::kLocalizedTrashName;
+char16_t *nsMsgDBFolder::kLocalizedSentName;
+char16_t *nsMsgDBFolder::kLocalizedDraftsName;
+char16_t *nsMsgDBFolder::kLocalizedTemplatesName;
+char16_t *nsMsgDBFolder::kLocalizedUnsentName;
+char16_t *nsMsgDBFolder::kLocalizedJunkName;
+char16_t *nsMsgDBFolder::kLocalizedArchivesName;
 
-PRUnichar *nsMsgDBFolder::kLocalizedBrandShortName;
+char16_t *nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount=0;
 
@@ -5158,7 +5158,7 @@ nsMsgDBFolder::GetStringWithFolderNameFromBundle(const char * msgName, nsAString
   {
     nsString folderName;
     GetName(folderName);
-    const PRUnichar *formatStrings[] =
+    const char16_t *formatStrings[] =
     {
       folderName.get(),
       kLocalizedBrandShortName
@@ -5631,8 +5631,8 @@ void nsMsgDBFolder::compressQuotesInMsgSnippet(const nsString& aMsgSnippet, nsAS
       // looks like a quoted reply (starts with a ">") skip the current line
       if (StringBeginsWith(currentLine, NS_LITERAL_STRING(">")) ||
           (lineFeedPos + 1 < msgBodyStrLen  && lineFeedPos
-          && aMsgSnippet[lineFeedPos - 1] == PRUnichar(':')
-          && aMsgSnippet[lineFeedPos + 1] == PRUnichar('>')))
+          && aMsgSnippet[lineFeedPos - 1] == char16_t(':')
+          && aMsgSnippet[lineFeedPos + 1] == char16_t('>')))
       {
         lastLineWasAQuote = true;
       }
@@ -5645,7 +5645,7 @@ void nsMsgDBFolder::compressQuotesInMsgSnippet(const nsString& aMsgSnippet, nsAS
         }
 
         aCompressedQuotes += currentLine;
-        aCompressedQuotes += PRUnichar(' '); // don't forget to substitute a space for the line feed
+        aCompressedQuotes += char16_t(' '); // don't forget to substitute a space for the line feed
       }
 
       offset = lineFeedPos + 1;

@@ -38,7 +38,7 @@ public:
   NS_IMETHOD LoadMessageByViewIndex(nsMsgViewIndex aViewIndex);
   NS_IMETHOD GetCellProperties(int32_t aRow, nsITreeColumn *aCol, nsAString& aProperties) MOZ_OVERRIDE;
   NS_IMETHOD GetRowProperties(int32_t aRow, nsAString& aProperties) MOZ_OVERRIDE;
-  NS_IMETHOD CellTextForColumn(int32_t aRow, const PRUnichar *aColumnName,
+  NS_IMETHOD CellTextForColumn(int32_t aRow, const char16_t *aColumnName,
                                nsAString &aValue);
   NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread);
 

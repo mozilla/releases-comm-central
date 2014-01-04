@@ -449,7 +449,7 @@ NS_IMETHODIMP nsLDAPMessage::GetDn(nsACString& aDn)
 //
 NS_IMETHODIMP
 nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount, 
-                         PRUnichar ***aValues)
+                         char16_t ***aValues)
 {
     char **values;
     
@@ -491,7 +491,7 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
 
     // create an array of the appropriate size
     //
-    *aValues = static_cast<PRUnichar **>(nsMemory::Alloc(numVals * sizeof(PRUnichar *)));
+    *aValues = static_cast<char16_t **>(nsMemory::Alloc(numVals * sizeof(char16_t *)));
     if (!*aValues) {
         ldap_value_free(values);
         return NS_ERROR_OUT_OF_MEMORY;
@@ -628,7 +628,7 @@ NS_IMETHODIMP nsLDAPMessage::GetOperation(nsILDAPOperation **_retval)
 }
 
 NS_IMETHODIMP
-nsLDAPMessage::ToUnicode(PRUnichar* *aString)
+nsLDAPMessage::ToUnicode(char16_t* *aString)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

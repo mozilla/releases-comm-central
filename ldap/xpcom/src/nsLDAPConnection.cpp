@@ -221,7 +221,7 @@ GetListOfPendingOperations(const uint32_t &key, nsILDAPOperation *op, void *user
 
 NS_IMETHODIMP
 nsLDAPConnection::Observe(nsISupports *aSubject, const char *aTopic,
-                          const PRUnichar *aData)
+                          const char16_t *aData)
 {
   if (!strcmp(aTopic, "profile-change-net-teardown")) {
     // Abort all ldap requests.
@@ -297,7 +297,7 @@ nsLDAPConnection::GetLdErrno(nsACString& matched, nsACString& errString,
 // XXX - how does ldap_perror know to look at the global errno?
 //
 NS_IMETHODIMP
-nsLDAPConnection::GetErrorString(PRUnichar **_retval)
+nsLDAPConnection::GetErrorString(char16_t **_retval)
 {
     NS_ENSURE_ARG_POINTER(_retval);
 

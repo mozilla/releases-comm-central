@@ -92,7 +92,7 @@ protected:
   static nsresult AlertUser(const nsAString& aString, nsIMsgMailNewsUrl *aUrl);
 
 private:
-  nsresult SubscribeToFolder(const PRUnichar *aName, bool subscribe);
+  nsresult SubscribeToFolder(const char16_t *aName, bool subscribe);
   nsresult GetImapConnection(nsIImapUrl* aImapUrl,
                              nsIImapProtocol** aImapConnection);
   nsresult CreateProtocolInstance(nsIImapProtocol ** aImapConnection);

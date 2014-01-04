@@ -80,7 +80,7 @@ nsMessengerOS2Integration::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, char
 }
 
 NS_IMETHODIMP
-nsMessengerOS2Integration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const PRUnichar *, const PRUnichar *)
+nsMessengerOS2Integration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }

@@ -1029,7 +1029,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
       NS_ENSURE_SUCCESS(rv,rv);
 
       bundleService->CreateBundle(NEWS_MSGS_URL, getter_AddRefs(bundle));
-      const PRUnichar *formatStrings[1] = { unescapedName.get() };
+      const char16_t *formatStrings[1] = { unescapedName.get() };
 
       rv = bundle->FormatStringFromName(
         MOZ_UTF16("autoSubscribeText"), formatStrings, 1,
@@ -2780,7 +2780,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream * inputStream, uint32_t len
       numGroupsStr.AppendInt(mNumGroupsListed);
       NS_ConvertASCIItoUTF16 rateStr(rate_buf);
 
-      const PRUnichar *formatStrings[3] = { numGroupsStr.get(), bytesStr.get(), rateStr.get()};
+      const char16_t *formatStrings[3] = { numGroupsStr.get(), bytesStr.get(), rateStr.get()};
       rv = bundle->FormatStringFromName(MOZ_UTF16("bytesReceived"),
         formatStrings, 3,
         getter_Copies(statusString));
@@ -3334,7 +3334,7 @@ nsresult nsNNTPProtocol::ReadNewsgroupBody(nsIInputStream * inputStream, uint32_
 }
 
 
-nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID, PRUnichar **aString)
+nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID, char16_t **aString)
 {
   nsresult rv;
   nsAutoString resultString(NS_LITERAL_STRING("???"));
@@ -3350,7 +3350,7 @@ nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID, PRUnichar **aString
   }
 
   if (m_stringBundle) {
-    PRUnichar *ptrv = nullptr;
+    char16_t *ptrv = nullptr;
     rv = m_stringBundle->GetStringFromID(stringID, &ptrv);
 
     if (NS_FAILED(rv)) {
@@ -3370,7 +3370,7 @@ nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID, PRUnichar **aString
   return rv;
 }
 
-nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName, PRUnichar **aString)
+nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName, char16_t **aString)
 {
   nsresult rv;
   nsAutoString resultString(NS_LITERAL_STRING("???"));
@@ -3389,7 +3389,7 @@ nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName, PRUnichar **aStr
     nsAutoString unicodeName;
     CopyASCIItoUTF16(nsDependentCString(aName), unicodeName);
 
-    PRUnichar *ptrv = nullptr;
+    char16_t *ptrv = nullptr;
     rv = m_stringBundle->GetStringFromName(unicodeName.get(), &ptrv);
 
     if (NS_FAILED(rv))
@@ -4725,7 +4725,7 @@ void nsNNTPProtocol::SetProgressBarPercent(uint32_t aProgress, uint32_t aProgres
 }
 
 nsresult
-nsNNTPProtocol::SetProgressStatus(const PRUnichar *aMessage)
+nsNNTPProtocol::SetProgressStatus(const char16_t *aMessage)
 {
   nsresult rv = NS_OK;
   if (mProgressEventSink)

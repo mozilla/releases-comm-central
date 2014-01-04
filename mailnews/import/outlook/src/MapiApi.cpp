@@ -20,7 +20,7 @@ nsVoidArray  *CMapiApi::m_pStores = NULL;
 LPMAPISESSION CMapiApi::m_lpSession = NULL;
 LPMDB    CMapiApi::m_lpMdb = NULL;
 HRESULT    CMapiApi::m_lastError;
-PRUnichar *  CMapiApi::m_pUniBuff = NULL;
+char16_t *  CMapiApi::m_pUniBuff = NULL;
 int      CMapiApi::m_uniBuffLen = 0;
 /*
 Type: 1, name: Calendar, class: IPF.Appointment
@@ -300,7 +300,7 @@ void CMapiApi::CStrToUnicode(const char *pStr, nsString& result)
   if (wLen >= m_uniBuffLen) {
     if (m_pUniBuff)
       delete [] m_pUniBuff;
-    m_pUniBuff = new PRUnichar[wLen + 64];
+    m_pUniBuff = new char16_t[wLen + 64];
     m_uniBuffLen = wLen + 64;
   }
   if (wLen) {
@@ -367,7 +367,7 @@ public:
   virtual BOOL HandleHierarchyItem(ULONG oType, ULONG cb, LPENTRYID pEntry);
 
 protected:
-  BOOL  ExcludeFolderClass(const PRUnichar *pName);
+  BOOL  ExcludeFolderClass(const char16_t *pName);
 
   BOOL        m_isMail;
   CMapiApi *      m_pApi;
@@ -383,7 +383,7 @@ CGetStoreFoldersIter::CGetStoreFoldersIter(CMapiApi *pApi, CMapiFolderList& fold
   m_isMail = isMail;
 }
 
-BOOL CGetStoreFoldersIter::ExcludeFolderClass(const PRUnichar *pName)
+BOOL CGetStoreFoldersIter::ExcludeFolderClass(const char16_t *pName)
 {
   BOOL bResult;
     nsDependentString pNameStr(pName);
@@ -987,7 +987,7 @@ BOOL CMapiApi::IterateStores(CMapiFolderList& stores)
         // which is the desired behaviour.
 
         int         strLen = strlen(lpStr);
-        PRUnichar * pwszStr = (PRUnichar *) nsMemory::Alloc((strLen + 1) * sizeof(WCHAR));
+        char16_t * pwszStr = (char16_t *) nsMemory::Alloc((strLen + 1) * sizeof(WCHAR));
         if (!pwszStr) {
           // out of memory
           FreeProws(lpRow);
@@ -1315,7 +1315,7 @@ BOOL CMapiApi::GetStringFromProp(LPSPropValue pVal, nsString& val, BOOL delVal)
     CStrToUnicode((const char *)pVal->Value.lpszA, val);
   }
   else if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_UNICODE)) {
-    val = (PRUnichar *) pVal->Value.lpszW;
+    val = (char16_t *) pVal->Value.lpszW;
   }
   else if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_NULL)) {
     val.Truncate();
@@ -1554,7 +1554,7 @@ void CMapiFolderList::ChangeName(nsString& name)
     name.AssignLiteral("1");
     return;
   }
-  PRUnichar lastC = name.Last();
+  char16_t lastC = name.Last();
   if ((lastC >= '0') && (lastC <= '9')) {
     lastC++;
     if (lastC > '9') {
@@ -1684,7 +1684,7 @@ CMapiFolder::CMapiFolder()
   m_doImport = TRUE;
 }
 
-CMapiFolder::CMapiFolder(const PRUnichar *pDisplayName, ULONG cbEid, LPENTRYID lpEid, int depth, LONG oType)
+CMapiFolder::CMapiFolder(const char16_t *pDisplayName, ULONG cbEid, LPENTRYID lpEid, int depth, LONG oType)
 {
   m_cbEid = 0;
   m_lpEid = NULL;

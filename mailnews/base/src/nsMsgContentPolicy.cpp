@@ -781,7 +781,7 @@ nsMsgContentPolicy::ShouldProcess(uint32_t          aContentType,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *aData)
+NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData)
 {
   if (!strcmp(NS_PREFBRANCH_PREFCHANGE_TOPIC_ID, aTopic)) 
   {
@@ -880,7 +880,7 @@ nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
 NS_IMETHODIMP
 nsMsgContentPolicy::OnStatusChange(nsIWebProgress *aWebProgress,
                                    nsIRequest *aRequest, nsresult aStatus,
-                                   const PRUnichar *aMessage)
+                                   const char16_t *aMessage)
 {
   return NS_OK;
 }

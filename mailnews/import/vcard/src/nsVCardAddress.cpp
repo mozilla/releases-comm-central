@@ -28,7 +28,7 @@ nsVCardAddress::~nsVCardAddress()
 
 nsresult nsVCardAddress::ImportAddresses(
     bool *pAbort,
-    const PRUnichar *pName,
+    const char16_t *pName,
     nsIFile *pSrc,
     nsIAddrDatabase *pDb,
     nsString& errors,

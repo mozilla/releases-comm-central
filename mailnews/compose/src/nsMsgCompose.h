@@ -174,7 +174,7 @@ private:
     nsCOMPtr<nsIMimeConverter> mMimeConverter;
     nsCOMPtr<nsIUnicodeDecoder> mUnicodeDecoder;
     int32_t                   mUnicodeBufferCharacterLength;
-    PRUnichar*                mUnicodeConversionBuffer;
+    char16_t*                mUnicodeConversionBuffer;
     bool                      mQuoteOriginal;
     nsCString                 mHtmlToQuote;
 };

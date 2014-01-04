@@ -68,7 +68,7 @@ private:
 
 public:
   static void  SetLogs(nsString& success, nsString& error, nsISupportsString *pSuccess, nsISupportsString *pError);
-  static void ReportError(const PRUnichar *pName, nsString *pStream,
+  static void ReportError(const char16_t *pName, nsString *pStream,
                           nsIStringBundle *aBundle);
 
 private:
@@ -78,7 +78,7 @@ private:
   nsCOMPtr <nsIFile>              m_pLocation;
   nsIImportFieldMap *      m_pFieldMap;
   bool              m_autoFind;
-  PRUnichar *          m_description;
+  char16_t *          m_description;
   bool              m_gotLocation;
   bool              m_found;
   bool              m_userVerify;
@@ -242,7 +242,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISuppor
       nsCOMPtr<nsISupportsString>  data = do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
       if (NS_FAILED(rv))
         return rv;
-      PRUnichar *  pData = nullptr;
+      char16_t *  pData = nullptr;
       bool      found = false;
       rv = m_pInterface->GetSampleData(rNum, &found, &pData);
       if (NS_FAILED(rv))
@@ -506,7 +506,7 @@ already_AddRefed<nsIAddrDatabase> GetAddressBookFromUri(const char *pUri)
   return pDatabase.forget();
 }
 
-already_AddRefed<nsIAddrDatabase> GetAddressBook(const PRUnichar *name,
+already_AddRefed<nsIAddrDatabase> GetAddressBook(const char16_t *name,
                                                  bool makeNew)
 {
   if (!makeNew) {
@@ -780,15 +780,15 @@ AddressThreadData::~AddressThreadData()
   NS_IF_RELEASE(stringBundle);
 }
 
-void nsImportGenericAddressBooks::ReportError(const PRUnichar *pName,
+void nsImportGenericAddressBooks::ReportError(const char16_t *pName,
                                               nsString *pStream,
                                               nsIStringBundle* aBundle)
 {
   if (!pStream)
     return;
   // load the error string
-  PRUnichar *pFmt = nsImportStringBundle::GetStringByID(IMPORT_ERROR_GETABOOK, aBundle);
-  PRUnichar *pText = nsTextFormatter::smprintf(pFmt, pName);
+  char16_t *pFmt = nsImportStringBundle::GetStringByID(IMPORT_ERROR_GETABOOK, aBundle);
+  char16_t *pText = nsTextFormatter::smprintf(pFmt, pName);
   pStream->Append(pText);
   nsTextFormatter::smprintf_free(pText);
   NS_Free(pFmt);
@@ -830,8 +830,8 @@ static void ImportAddressThread(void *stuff)
         bool fatalError = false;
         pData->currentSize = size;
         if (db) {
-          PRUnichar *pSuccess = nullptr;
-          PRUnichar *pError = nullptr;
+          char16_t *pSuccess = nullptr;
+          char16_t *pError = nullptr;
 
           /*
           if (pData->fieldMap) {

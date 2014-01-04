@@ -67,7 +67,7 @@ nsresult nsTextAddress::GetUnicharLineStreamForFile(nsIFile *aFile,
   return CallQueryInterface(converterStream, aStream);
 }
 
-nsresult nsTextAddress::ImportAddresses(bool *pAbort, const PRUnichar *pName, nsIFile *pSrc, nsIAddrDatabase *pDb, nsIImportFieldMap *fieldMap, nsString& errors, uint32_t *pProgress)
+nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc, nsIAddrDatabase *pDb, nsIImportFieldMap *fieldMap, nsString& errors, uint32_t *pProgress)
 {
   // Open the source file for reading, read each line and process it!
   NS_IF_RELEASE(m_database);
@@ -173,7 +173,7 @@ nsresult nsTextAddress::ReadRecord(nsIUnicharLineInputStream *aLineStream,
           aLine.AppendLiteral(MSG_LINEBREAK);
         aLine.Append(line);
 
-        numQuotes += MsgCountChar(line, PRUnichar('"'));
+        numQuotes += MsgCountChar(line, char16_t('"'));
       }
     }
     // Continue whilst everything is ok, and we have an odd number of quotes.
@@ -228,19 +228,19 @@ nsresult nsTextAddress::ReadRecordNumber(nsIFile *aSrc, nsAString &aLine, int32_
   return NS_ERROR_FAILURE;
 }
 
-int32_t nsTextAddress::CountFields(const nsAString &aLine, PRUnichar delim)
+int32_t nsTextAddress::CountFields(const nsAString &aLine, char16_t delim)
 {
     int32_t pos = 0;
     int32_t maxLen = aLine.Length();
     int32_t count = 0;
-    PRUnichar tab = PRUnichar('\t');
-    PRUnichar doubleQuote = PRUnichar('"');
+    char16_t tab = char16_t('\t');
+    char16_t doubleQuote = char16_t('"');
 
     if (delim == tab)
-        tab = PRUnichar('\0');
+        tab = char16_t('\0');
 
     while (pos < maxLen) {
-        while (((aLine[pos] == PRUnichar(' ')) || (aLine[pos] == tab)) &&
+        while (((aLine[pos] == char16_t(' ')) || (aLine[pos] == tab)) &&
                (pos < maxLen)) {
             pos++;
         }
@@ -270,13 +270,13 @@ int32_t nsTextAddress::CountFields(const nsAString &aLine, PRUnichar delim)
 bool nsTextAddress::GetField(const nsAString &aLine,
                              int32_t index,
                              nsString &field,
-                             PRUnichar delim)
+                             char16_t delim)
 {
     bool result = false;
     int32_t pos = 0;
     int32_t maxLen = aLine.Length();
-    PRUnichar tab = PRUnichar('\t');
-    PRUnichar doubleQuote = PRUnichar('"');
+    char16_t tab = char16_t('\t');
+    char16_t doubleQuote = char16_t('"');
 
     field.Truncate();
 
@@ -284,7 +284,7 @@ bool nsTextAddress::GetField(const nsAString &aLine,
         tab = 0;
 
     while (index && (pos < maxLen)) {
-        while (((aLine[pos] == PRUnichar(' ')) || (aLine[pos] == tab)) &&
+        while (((aLine[pos] == char16_t(' ')) || (aLine[pos] == tab)) &&
                (pos < maxLen)) {
             pos++;
         }
@@ -393,8 +393,8 @@ nsresult nsTextAddress::DetermineDelim(nsIFile *aSrc)
   while (more && NS_SUCCEEDED(rv) && (lineCount < 100)) {
     rv = lineStream->ReadLine(line, &more);
     if (NS_SUCCEEDED(rv)) {
-      tabCount = CountFields(line, PRUnichar('\t'));
-      commaCount = CountFields(line, PRUnichar(','));
+      tabCount = CountFields(line, char16_t('\t'));
+      commaCount = CountFields(line, char16_t(','));
       if (tabCount > commaCount)
         tabLines++;
       else if (commaCount)
@@ -406,9 +406,9 @@ nsresult nsTextAddress::DetermineDelim(nsIFile *aSrc)
   rv = inputStream->Close();
 
   if (tabLines > commaLines)
-    m_delim = PRUnichar('\t');
+    m_delim = char16_t('\t');
   else
-    m_delim = PRUnichar(',');
+    m_delim = char16_t(',');
 
   IMPORT_LOG2( "Tab count = %d, Comma count = %d\n", tabLines, commaLines);
 

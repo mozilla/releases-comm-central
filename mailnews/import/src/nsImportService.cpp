@@ -187,7 +187,7 @@ NS_IMETHODIMP nsImportService::GetModuleWithCID(const nsCID& cid, nsIImportModul
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsImportService::GetModuleInfo(const char *filter, int32_t index, PRUnichar **name, PRUnichar **moduleDescription)
+NS_IMETHODIMP nsImportService::GetModuleInfo(const char *filter, int32_t index, char16_t **name, char16_t **moduleDescription)
 {
     NS_PRECONDITION(name != nullptr, "null ptr");
     NS_PRECONDITION(moduleDescription != nullptr, "null ptr");
@@ -222,7 +222,7 @@ NS_IMETHODIMP nsImportService::GetModuleInfo(const char *filter, int32_t index, 
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsImportService::GetModuleName(const char *filter, int32_t index, PRUnichar **_retval)
+NS_IMETHODIMP nsImportService::GetModuleName(const char *filter, int32_t index, char16_t **_retval)
 {
     NS_PRECONDITION(_retval != nullptr, "null ptr");
     if (!_retval)
@@ -255,7 +255,7 @@ NS_IMETHODIMP nsImportService::GetModuleName(const char *filter, int32_t index, 
 }
 
 
-NS_IMETHODIMP nsImportService::GetModuleDescription(const char *filter, int32_t index, PRUnichar **_retval)
+NS_IMETHODIMP nsImportService::GetModuleDescription(const char *filter, int32_t index, char16_t **_retval)
 {
     NS_PRECONDITION(_retval != nullptr, "null ptr");
     if (!_retval)
@@ -560,7 +560,7 @@ void nsImportModuleList::ClearList(void)
 
 }
 
-void nsImportModuleList::AddModule(const nsCID& cid, const char *pSupports, const PRUnichar *pName, const PRUnichar *pDesc)
+void nsImportModuleList::AddModule(const nsCID& cid, const char *pSupports, const char16_t *pName, const char16_t *pDesc)
 {
   if (!m_pList)
   {

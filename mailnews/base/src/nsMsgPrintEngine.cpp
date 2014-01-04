@@ -196,7 +196,7 @@ NS_IMETHODIMP
 nsMsgPrintEngine::OnStatusChange(nsIWebProgress* aWebProgress,
                     nsIRequest* aRequest,
                     nsresult aStatus,
-                    const PRUnichar* aMessage)
+                    const char16_t* aMessage)
 {
     return NS_OK;
 }
@@ -294,7 +294,7 @@ nsMsgPrintEngine::ShowWindow(bool aShow)
 }
 
 NS_IMETHODIMP
-nsMsgPrintEngine::AddPrintURI(const PRUnichar *aMsgURI)
+nsMsgPrintEngine::AddPrintURI(const char16_t *aMsgURI)
 {
   NS_ENSURE_ARG_POINTER(aMsgURI);
 
@@ -561,7 +561,7 @@ nsMsgPrintEngine::SetStatusMessage(const nsString& aMsgString)
 #define MESSENGER_STRING_URL       "chrome://messenger/locale/messenger.properties"
 
 void
-nsMsgPrintEngine::GetString(const PRUnichar *aStringName, nsString& outStr)
+nsMsgPrintEngine::GetString(const char16_t *aStringName, nsString& outStr)
 {
   outStr.Truncate();
 
@@ -738,7 +738,7 @@ NS_IMETHODIMP nsMsgPrintEngine::SetMsgType(int32_t aMsgType)
 }
 
 /*=============== nsIObserver Interface ======================*/
-NS_IMETHODIMP nsMsgPrintEngine::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *aData)
+NS_IMETHODIMP nsMsgPrintEngine::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData)
 {
   return FireThatLoadOperation(mLoadURI);
 }

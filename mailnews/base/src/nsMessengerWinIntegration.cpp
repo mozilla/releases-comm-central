@@ -374,7 +374,7 @@ nsMessengerWinIntegration::Init()
   // get application path
   WCHAR appPath[_MAX_PATH] = {0};
   ::GetModuleFileNameW(nullptr, appPath, sizeof(appPath));
-  mAppName.Assign((PRUnichar *)appPath);
+  mAppName.Assign((char16_t *)appPath);
 
   rv = ResetCurrent();
   NS_ENSURE_SUCCESS(rv,rv);
@@ -389,7 +389,7 @@ nsMessengerWinIntegration::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, char
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const PRUnichar *, const PRUnichar *)
+nsMessengerWinIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -646,7 +646,7 @@ nsresult nsMessengerWinIntegration::AlertClickedSimple()
 #endif MOZ_SUITE
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::Observe(nsISupports* aSubject, const char* aTopic, const PRUnichar* aData)
+nsMessengerWinIntegration::Observe(nsISupports* aSubject, const char* aTopic, const char16_t* aData)
 {
   if (strcmp(aTopic, "alertfinished") == 0)
       return AlertFinished();
@@ -724,7 +724,7 @@ void nsMessengerWinIntegration::FillToolTipInfo()
         nsAutoString numNewMsgsText;
         numNewMsgsText.AppendInt(numNewMessages);
 
-        const PRUnichar *formatStrings[] =
+        const char16_t *formatStrings[] =
         {
           numNewMsgsText.get(),
         };

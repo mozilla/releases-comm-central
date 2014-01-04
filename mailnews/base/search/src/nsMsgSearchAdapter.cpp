@@ -149,7 +149,7 @@ NS_IMETHODIMP nsMsgSearchAdapter::AddHit(nsMsgKey key)
 
 
 char *
-nsMsgSearchAdapter::GetImapCharsetParam(const PRUnichar *destCharset)
+nsMsgSearchAdapter::GetImapCharsetParam(const char16_t *destCharset)
 {
   char *result = nullptr;
 
@@ -162,35 +162,35 @@ nsMsgSearchAdapter::GetImapCharsetParam(const PRUnichar *destCharset)
 
 /*
    09/21/2000 - taka@netscape.com
-   This method is bogus. Escape must be done against char * not PRUnichar *
+   This method is bogus. Escape must be done against char * not char16_t *
    should be rewritten later.
    for now, just duplicate the string.
 */
-PRUnichar *nsMsgSearchAdapter::EscapeSearchUrl (const PRUnichar *nntpCommand)
+char16_t *nsMsgSearchAdapter::EscapeSearchUrl (const char16_t *nntpCommand)
 {
   return nntpCommand ? NS_strdup(nntpCommand) : nullptr;
 }
 
 /*
    09/21/2000 - taka@netscape.com
-   This method is bogus. Escape must be done against char * not PRUnichar *
+   This method is bogus. Escape must be done against char * not char16_t *
    should be rewritten later.
    for now, just duplicate the string.
 */
-PRUnichar *
-nsMsgSearchAdapter::EscapeImapSearchProtocol(const PRUnichar *imapCommand)
+char16_t *
+nsMsgSearchAdapter::EscapeImapSearchProtocol(const char16_t *imapCommand)
 {
   return imapCommand ? NS_strdup(imapCommand) : nullptr;
 }
 
 /*
    09/21/2000 - taka@netscape.com
-   This method is bogus. Escape must be done against char * not PRUnichar *
+   This method is bogus. Escape must be done against char * not char16_t *
    should be rewritten later.
    for now, just duplicate the string.
 */
-PRUnichar *
-nsMsgSearchAdapter::EscapeQuoteImapSearchProtocol(const PRUnichar *imapCommand)
+char16_t *
+nsMsgSearchAdapter::EscapeQuoteImapSearchProtocol(const char16_t *imapCommand)
 {
   return imapCommand ? NS_strdup(imapCommand) : nullptr;
 }
@@ -291,7 +291,7 @@ nsMsgSearchAdapter::GetSearchCharsets(nsAString &srcCharset, nsAString &dstChars
   return NS_OK;
 }
 
-nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool reallyDredd, const PRUnichar *srcCharset, const PRUnichar *destCharset, char **ppOutTerm)
+nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool reallyDredd, const char16_t *srcCharset, const char16_t *destCharset, char **ppOutTerm)
 {
   NS_ENSURE_ARG_POINTER(term);
   NS_ENSURE_ARG_POINTER(ppOutTerm);
@@ -524,7 +524,7 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
 
       if (IS_STRING_ATTRIBUTE(attrib))
       {
-        PRUnichar *convertedValue; // = reallyDredd ? MSG_EscapeSearchUrl (term->m_value.u.string) : msg_EscapeImapSearchProtocol(term->m_value.u.string);
+        char16_t *convertedValue; // = reallyDredd ? MSG_EscapeSearchUrl (term->m_value.u.string) : msg_EscapeImapSearchProtocol(term->m_value.u.string);
         nsString searchTermValue;
         searchValue->GetStr(searchTermValue);
         // Ugly switch for Korean mail/news charsets.
@@ -541,7 +541,7 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
         convertedValue = reallyDredd ? EscapeSearchUrl (searchTermValue.get()) :
         EscapeImapSearchProtocol(searchTermValue.get());
         useQuotes = ((!reallyDredd ||
-                    (nsDependentString(convertedValue).FindChar(PRUnichar(' ')) != -1)) &&
+                    (nsDependentString(convertedValue).FindChar(char16_t(' ')) != -1)) &&
            (attrib != nsMsgSearchAttrib::Keywords));
         // now convert to char* and escape quoted_specials
         nsAutoCString valueStr;
@@ -657,7 +657,7 @@ nsresult nsMsgSearchAdapter::EncodeImapValue(char *encoding, const char *value, 
 }
 
 
-nsresult nsMsgSearchAdapter::EncodeImap (char **ppOutEncoding, nsISupportsArray *searchTerms, const PRUnichar *srcCharset, const PRUnichar *destCharset, bool reallyDredd)
+nsresult nsMsgSearchAdapter::EncodeImap (char **ppOutEncoding, nsISupportsArray *searchTerms, const char16_t *srcCharset, const char16_t *destCharset, bool reallyDredd)
 {
   // i've left the old code (before using CBoolExpression for debugging purposes to make sure that
   // the new code generates the same encoding string as the old code.....

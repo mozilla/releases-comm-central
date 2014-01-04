@@ -199,7 +199,7 @@ nsresult nsEudoraMailbox::DeleteFile(nsIFile *pFile)
 #define kHTMLTag "<html>"
 
 nsresult nsEudoraMailbox::ImportMailbox(uint32_t *pBytes, bool *pAbort,
-                                        const PRUnichar *pName, nsIFile *pSrc,
+                                        const char16_t *pName, nsIFile *pSrc,
                                         nsIMsgFolder *dstFolder,
                                         int32_t *pMsgCount)
 {

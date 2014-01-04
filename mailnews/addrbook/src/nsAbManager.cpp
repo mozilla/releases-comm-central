@@ -150,7 +150,7 @@ nsresult nsAbManager::Init()
 }
 
 NS_IMETHODIMP nsAbManager::Observe(nsISupports *aSubject, const char *aTopic,
-                                   const PRUnichar *someData)
+                                   const char16_t *someData)
 {
   // The nsDirPrefs code caches all the directories that it got
   // from the first profiles prefs.js.
@@ -387,8 +387,8 @@ NS_IMETHODIMP nsAbManager::RemoveAddressBookListener(nsIAbListener *aListener)
 
 NS_IMETHODIMP nsAbManager::NotifyItemPropertyChanged(nsISupports *aItem,
                                                      const char *aProperty,
-                                                     const PRUnichar* aOldValue,
-                                                     const PRUnichar* aNewValue)
+                                                     const char16_t* aOldValue,
+                                                     const char16_t* aNewValue)
 {
   NOTIFY_AB_LISTENERS(itemChanged, OnItemPropertyChanged,
                       (aItem, aProperty, aOldValue, aNewValue));
@@ -433,7 +433,7 @@ NS_IMETHODIMP nsAbManager::GetUserProfileDirectory(nsIFile **userDir)
   return CallQueryInterface(profileDir, userDir);
 }
 
-NS_IMETHODIMP nsAbManager::MailListNameExists(const PRUnichar *name, bool *exist)
+NS_IMETHODIMP nsAbManager::MailListNameExists(const char16_t *name, bool *exist)
 {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(exist);
@@ -1058,12 +1058,12 @@ nsresult nsAbManager::AppendBasicLDIFForCard(nsIAbCard *aCard, nsIAbLDAPAttribut
   return rv;
 }
 
-bool nsAbManager::IsSafeLDIFString(const PRUnichar *aStr)
+bool nsAbManager::IsSafeLDIFString(const char16_t *aStr)
 {
   // follow RFC 2849 to determine if something is safe "as is" for LDIF
-  if (aStr[0] == PRUnichar(' ') ||
-      aStr[0] == PRUnichar(':') ||
-      aStr[0] == PRUnichar('<'))
+  if (aStr[0] == char16_t(' ') ||
+      aStr[0] == char16_t(':') ||
+      aStr[0] == char16_t('<'))
     return false;
 
   uint32_t i;
@@ -1071,15 +1071,15 @@ bool nsAbManager::IsSafeLDIFString(const PRUnichar *aStr)
   for (i=0; i<len; i++) {
     // If string contains CR or LF, it is not safe for LDIF
     // and MUST be base64 encoded
-    if ((aStr[i] == PRUnichar('\n')) ||
-        (aStr[i] == PRUnichar('\r')) ||
+    if ((aStr[i] == char16_t('\n')) ||
+        (aStr[i] == char16_t('\r')) ||
         (!NS_IsAscii(aStr[i])))
       return false;
   }
   return true;
 }
 
-nsresult nsAbManager::AppendProperty(const char *aProperty, const PRUnichar *aValue, nsACString &aResult)
+nsresult nsAbManager::AppendProperty(const char *aProperty, const char16_t *aValue, nsACString &aResult)
 {
   NS_ENSURE_ARG_POINTER(aValue);
 

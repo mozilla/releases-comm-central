@@ -85,7 +85,7 @@ nsEudoraAddress::~nsEudoraAddress()
 
 
 nsresult nsEudoraAddress::ImportAddresses(uint32_t *pBytes, bool *pAbort,
-                                          const PRUnichar *pName, nsIFile *pSrc,
+                                          const char16_t *pName, nsIFile *pSrc,
                                           nsIAddrDatabase *pDb, nsString& errors)
 {
   // Open the source file for reading, read each line and process it!

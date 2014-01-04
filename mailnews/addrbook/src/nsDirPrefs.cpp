@@ -83,7 +83,7 @@ public:
 
 NS_IMPL_ISUPPORTS2(DirPrefObserver, nsISupportsWeakReference, nsIObserver)
 
-NS_IMETHODIMP DirPrefObserver::Observe(nsISupports *aSubject, const char *aTopic, const PRUnichar *aData)
+NS_IMETHODIMP DirPrefObserver::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData)
 {
   nsCOMPtr<nsIPrefBranch> prefBranch(do_QueryInterface(aSubject));
   nsCString strPrefName;

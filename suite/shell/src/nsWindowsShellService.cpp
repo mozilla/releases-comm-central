@@ -50,7 +50,7 @@
 NS_IMPL_ISUPPORTS2(nsWindowsShellService, nsIWindowsShellService, nsIShellService)
 
 static nsresult
-OpenKeyForReading(HKEY aKeyRoot, const PRUnichar* aKeyName, HKEY* aKey)
+OpenKeyForReading(HKEY aKeyRoot, const char16_t* aKeyName, HKEY* aKey)
 {
   DWORD res = ::RegOpenKeyExW(aKeyRoot, aKeyName, 0, KEY_READ, aKey);
   switch (res) {
@@ -420,7 +420,7 @@ nsWindowsShellService::ShortcutMaintenance()
 bool
 nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
 {
-  PRUnichar currValue[MAX_BUF];
+  char16_t currValue[MAX_BUF];
   SETTING* end = aSettings + aSize;
   for (SETTING * settings = aSettings; settings < end; ++settings) {
     NS_ConvertUTF8toUTF16 dataLongPath(settings->valueData);
@@ -463,7 +463,7 @@ nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
 
 nsresult nsWindowsShellService::Init()
 {
-  PRUnichar appPath[MAX_BUF];
+  char16_t appPath[MAX_BUF];
   if (!::GetModuleFileNameW(0, appPath, MAX_BUF))
     return NS_ERROR_FAILURE;
 
@@ -849,7 +849,7 @@ nsWindowsShellService::SetDesktopBackgroundColor(uint32_t aColor)
                    nsIWindowsRegKey::ACCESS_SET_VALUE);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  PRUnichar rgb[12];
+  char16_t rgb[12];
   _snwprintf(rgb, 12, L"%u %u %u", r, g, b);
   rv = key->WriteStringValue(NS_LITERAL_STRING("Background"),
                              nsDependentString(rgb));

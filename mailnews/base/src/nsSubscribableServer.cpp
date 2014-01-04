@@ -375,14 +375,14 @@ nsSubscribableServer::UpdateSubscribed()
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::Subscribe(const PRUnichar *aName)
+nsSubscribableServer::Subscribe(const char16_t *aName)
 {
 	NS_ASSERTION(false,"override this.");
 	return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::Unsubscribe(const PRUnichar *aName)
+nsSubscribableServer::Unsubscribe(const char16_t *aName)
 {
 	NS_ASSERTION(false,"override this.");
 	return NS_ERROR_FAILURE;

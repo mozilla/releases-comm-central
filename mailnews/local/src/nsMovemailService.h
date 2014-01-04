@@ -23,7 +23,7 @@ public:
   NS_DECL_NSIMOVEMAILSERVICE
   NS_DECL_NSIMSGPROTOCOLINFO
 
-  void Error(const char* errorCode, const PRUnichar **params, uint32_t length);
+  void Error(const char* errorCode, const char16_t **params, uint32_t length);
 
 private:
   nsCOMPtr<nsIMsgWindow> mMsgWindow;

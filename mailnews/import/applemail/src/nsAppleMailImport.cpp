@@ -71,13 +71,13 @@ nsAppleMailImportModule::~nsAppleMailImportModule()
 NS_IMPL_ISUPPORTS1(nsAppleMailImportModule, nsIImportModule)
 
 
-NS_IMETHODIMP nsAppleMailImportModule::GetName(PRUnichar **aName)
+NS_IMETHODIMP nsAppleMailImportModule::GetName(char16_t **aName)
 {
   return mBundle ? 
     mBundle->GetStringFromID(APPLEMAILIMPORT_NAME, aName) : NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsAppleMailImportModule::GetDescription(PRUnichar **aName)
+NS_IMETHODIMP nsAppleMailImportModule::GetDescription(char16_t **aName)
 {
   return mBundle ? 
     mBundle->GetStringFromID(APPLEMAILIMPORT_DESCRIPTION, aName) : NS_ERROR_FAILURE;
@@ -472,8 +472,8 @@ nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile *aFolder, nsIMutableArray *
 NS_IMETHODIMP
 nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
                                      nsIMsgFolder *aDstFolder,
-                                     PRUnichar **aErrorLog,
-                                     PRUnichar **aSuccessLog, bool *aFatalError)
+                                     char16_t **aErrorLog,
+                                     char16_t **aSuccessLog, bool *aFatalError)
 {
   nsAutoString errorLog, successLog;
 
@@ -602,16 +602,16 @@ void nsAppleMailImportMail::ReportStatus(int32_t aErrorNum, nsString &aName, nsA
 {
   // get (and format, if needed) the error string from the bundle  
   nsAutoString outString;
-  const PRUnichar *fmt = { aName.get() };
+  const char16_t *fmt = { aName.get() };
   nsresult rv = mBundle->FormatStringFromID(aErrorNum, &fmt, 1, getter_Copies(outString));
   // write it out the stream
   if (NS_SUCCEEDED(rv)) {
     aStream.Append(outString);
-    aStream.Append(PRUnichar('\n'));
+    aStream.Append(char16_t('\n'));
   }
 }
 
-void nsAppleMailImportMail::SetLogs(const nsAString &aSuccess, const nsAString &aError, PRUnichar **aOutSuccess, PRUnichar **aOutError)
+void nsAppleMailImportMail::SetLogs(const nsAString &aSuccess, const nsAString &aError, char16_t **aOutSuccess, char16_t **aOutError)
 {
   if (aOutError && !*aOutError)
     *aOutError = ToNewUnicode(aError);

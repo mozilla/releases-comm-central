@@ -58,15 +58,15 @@ nsrefcnt nsMsgDBView::gInstanceCount  = 0;
 nsIAtom * nsMsgDBView::kJunkMsgAtom = nullptr;
 nsIAtom * nsMsgDBView::kNotJunkMsgAtom = nullptr;
 
-PRUnichar * nsMsgDBView::kHighestPriorityString = nullptr;
-PRUnichar * nsMsgDBView::kHighPriorityString = nullptr;
-PRUnichar * nsMsgDBView::kLowestPriorityString = nullptr;
-PRUnichar * nsMsgDBView::kLowPriorityString = nullptr;
-PRUnichar * nsMsgDBView::kNormalPriorityString = nullptr;
-PRUnichar * nsMsgDBView::kReadString = nullptr;
-PRUnichar * nsMsgDBView::kRepliedString = nullptr;
-PRUnichar * nsMsgDBView::kForwardedString = nullptr;
-PRUnichar * nsMsgDBView::kNewString = nullptr;
+char16_t * nsMsgDBView::kHighestPriorityString = nullptr;
+char16_t * nsMsgDBView::kHighPriorityString = nullptr;
+char16_t * nsMsgDBView::kLowestPriorityString = nullptr;
+char16_t * nsMsgDBView::kLowPriorityString = nullptr;
+char16_t * nsMsgDBView::kNormalPriorityString = nullptr;
+char16_t * nsMsgDBView::kReadString = nullptr;
+char16_t * nsMsgDBView::kRepliedString = nullptr;
+char16_t * nsMsgDBView::kForwardedString = nullptr;
+char16_t * nsMsgDBView::kNewString = nullptr;
 
 nsDateFormatSelector  nsMsgDBView::m_dateFormatDefault = kDateFormatShort;
 nsDateFormatSelector  nsMsgDBView::m_dateFormatThisWeek = kDateFormatShort;
@@ -207,10 +207,10 @@ nsresult nsMsgDBView::InitLabelStrings()
 }
 
 // helper function used to fetch strings from the messenger string bundle
-PRUnichar * nsMsgDBView::GetString(const PRUnichar *aStringName)
+char16_t * nsMsgDBView::GetString(const char16_t *aStringName)
 {
   nsresult    res = NS_ERROR_UNEXPECTED;
-  PRUnichar   *ptrv = nullptr;
+  char16_t   *ptrv = nullptr;
 
   if (!mMessengerStringBundle)
   {
@@ -793,7 +793,7 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr *aHdr, nsAString &aTagString)
     if (NS_SUCCEEDED(rv) && !tag.IsEmpty())
     {
       if (!tags.IsEmpty())
-        tags.Append((PRUnichar) ' ');
+        tags.Append((char16_t) ' ');
       tags.Append(tag);
     }
   }
@@ -956,7 +956,7 @@ NS_IMETHODIMP nsMsgDBView::IsEditable(int32_t row, nsITreeColumn* col, bool* _re
   NS_ENSURE_ARG_POINTER(col);
   NS_ENSURE_ARG_POINTER(_retval);
   //attempt to retreive a custom column handler. If it exists call it and return
-  const PRUnichar* colID;
+  const char16_t* colID;
   col->GetIdConst(&colID);
 
   nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
@@ -1320,7 +1320,7 @@ NS_IMETHODIMP nsMsgDBView::GetCellProperties(int32_t aRow, nsITreeColumn *col, n
     return NS_MSG_INVALID_DBVIEW_INDEX;
   }
 
-  const PRUnichar* colID;
+  const char16_t* colID;
   col->GetIdConst(&colID);
   nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
   if (colHandler != nullptr)
@@ -1646,7 +1646,7 @@ NS_IMETHODIMP nsMsgDBView::GetImageSrc(int32_t aRow, nsITreeColumn* aCol, nsAStr
 {
   NS_ENSURE_ARG_POINTER(aCol);
   //attempt to retreive a custom column handler. If it exists call it and return
-  const PRUnichar* colID;
+  const char16_t* colID;
   aCol->GetIdConst(&colID);
 
   nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
@@ -1680,7 +1680,7 @@ NS_IMETHODIMP nsMsgDBView::GetCellValue(int32_t aRow, nsITreeColumn* aCol, nsASt
     return NS_MSG_INVALID_DBVIEW_INDEX;
   }
 
-  const PRUnichar* colID;
+  const char16_t* colID;
   aCol->GetIdConst(&colID);
 
   uint32_t flags;
@@ -1871,7 +1871,7 @@ NS_IMETHODIMP nsMsgDBView::GetCurCustomColumn(nsAString &result)
   return dbInfo->GetProperty("customSortCol", result);
 }
 
-nsIMsgCustomColumnHandler* nsMsgDBView::GetColumnHandler(const PRUnichar *colID)
+nsIMsgCustomColumnHandler* nsMsgDBView::GetColumnHandler(const char16_t *colID)
 {
   int32_t index = m_customColumnHandlerIDs.IndexOf(nsDependentString(colID));
   return (index > -1) ? m_customColumnHandlers[index] : nullptr;
@@ -1887,7 +1887,7 @@ NS_IMETHODIMP nsMsgDBView::GetColumnHandler(const nsAString& aColID, nsIMsgCusto
 
 NS_IMETHODIMP nsMsgDBView::GetCellText(int32_t aRow, nsITreeColumn* aCol, nsAString& aValue)
 {
-  const PRUnichar* colID;
+  const char16_t* colID;
   aCol->GetIdConst(&colID);
 
   if (!IsValidIndex(aRow))
@@ -1908,7 +1908,7 @@ NS_IMETHODIMP nsMsgDBView::GetCellText(int32_t aRow, nsITreeColumn* aCol, nsAStr
 }
 
 NS_IMETHODIMP nsMsgDBView::CellTextForColumn(int32_t aRow,
-                                             const PRUnichar *aColumnName,
+                                             const char16_t *aColumnName,
                                              nsAString &aValue)
 {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -2045,7 +2045,7 @@ NS_IMETHODIMP nsMsgDBView::CycleCell(int32_t row, nsITreeColumn* col)
   if (!IsValidIndex(row))
     return NS_MSG_INVALID_DBVIEW_INDEX;
 
-  const PRUnichar* colID;
+  const char16_t* colID;
   col->GetIdConst(&colID);
 
   //attempt to retreive a custom column handler. If it exists call it and return
@@ -2111,17 +2111,17 @@ NS_IMETHODIMP nsMsgDBView::CycleCell(int32_t row, nsITreeColumn* col)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBView::PerformAction(const PRUnichar *action)
+NS_IMETHODIMP nsMsgDBView::PerformAction(const char16_t *action)
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBView::PerformActionOnRow(const PRUnichar *action, int32_t row)
+NS_IMETHODIMP nsMsgDBView::PerformActionOnRow(const char16_t *action, int32_t row)
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBView::PerformActionOnCell(const PRUnichar *action, int32_t row, nsITreeColumn* col)
+NS_IMETHODIMP nsMsgDBView::PerformActionOnCell(const char16_t *action, int32_t row, nsITreeColumn* col)
 {
   return NS_OK;
 }
@@ -4000,7 +4000,7 @@ nsresult nsMsgDBView::EncodeColumnSort(nsString &columnSortString)
     if (sortInfo.mSortType == nsMsgViewSortType::byCustom)
     {
       columnSortString.Append(sortInfo.mCustomColumnName);
-      columnSortString.Append((PRUnichar) '\r');
+      columnSortString.Append((char16_t) '\r');
     }
   }
   return NS_OK;
@@ -4008,7 +4008,7 @@ nsresult nsMsgDBView::EncodeColumnSort(nsString &columnSortString)
 
 nsresult nsMsgDBView::DecodeColumnSort(nsString &columnSortString)
 {
-  const PRUnichar *stringPtr = columnSortString.BeginReading();
+  const char16_t *stringPtr = columnSortString.BeginReading();
   while (*stringPtr)
   {
     MsgViewSortColumnInfo sortColumnInfo;

@@ -40,7 +40,7 @@ struct PrefBranchStruct {
     char*       stringValue;
     int32_t     intValue;
     bool        boolValue;
-    PRUnichar*  wstringValue;
+    char16_t*  wstringValue;
   };
 };
 
@@ -59,7 +59,7 @@ nsSeamonkeyProfileMigrator::~nsSeamonkeyProfileMigrator()
 // nsIMailProfileMigrator
 
 NS_IMETHODIMP
-nsSeamonkeyProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const PRUnichar* aProfile)
+nsSeamonkeyProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const char16_t* aProfile)
 {
   nsresult rv = NS_OK;
   bool aReplace = aStartup ? true : false;
@@ -110,7 +110,7 @@ nsSeamonkeyProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup
 }
 
 NS_IMETHODIMP
-nsSeamonkeyProfileMigrator::GetMigrateData(const PRUnichar* aProfile,
+nsSeamonkeyProfileMigrator::GetMigrateData(const char16_t* aProfile,
                                            bool aReplace,
                                            uint16_t* aResult)
 {
@@ -185,7 +185,7 @@ nsSeamonkeyProfileMigrator::GetSourceProfiles(nsIArray** aResult)
 // nsSeamonkeyProfileMigrator
 
 nsresult
-nsSeamonkeyProfileMigrator::GetSourceProfile(const PRUnichar* aProfile)
+nsSeamonkeyProfileMigrator::GetSourceProfile(const char16_t* aProfile)
 {
   uint32_t count;
   mProfileNames->GetLength(&count);

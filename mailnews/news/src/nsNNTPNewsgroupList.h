@@ -70,7 +70,7 @@ private:
   nsresult ParseLine(char *line, uint32_t *message_number);
   nsresult GetDatabase(const char *uri, nsIMsgDatabase **db);
   void SetProgressBarPercent(int32_t percent);
-  void SetProgressStatus(const PRUnichar *message);
+  void SetProgressStatus(const char16_t *message);
 
   void UpdateStatus(bool filtering, int32_t numDled, int32_t totToDL);
 

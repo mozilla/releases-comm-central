@@ -784,7 +784,7 @@ nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage, const
       // we pass in the previously used password, if any, into PromptPassword
       // so that it will appear as ******. This means we can't use an nsString
       // and getter_Copies.
-      PRUnichar *uniPassword = nullptr;
+      char16_t *uniPassword = nullptr;
       if (!aPassword.IsEmpty())
         uniPassword = ToNewUnicode(NS_ConvertASCIItoUTF16(aPassword));
 

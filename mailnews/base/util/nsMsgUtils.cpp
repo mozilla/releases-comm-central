@@ -338,7 +338,7 @@ MsgFindCharInSet(const nsString &aString,
 #ifdef MOZILLA_INTERNAL_API
   return aString.FindCharInSet(aChars, aOffset);
 #else
-  const PRUnichar *str;
+  const char16_t *str;
   uint32_t len = aString.BeginReading(&str);
   int filter = GetFindInSetFilter(aChars);
   for (uint32_t index = aOffset; index < len; index++) {
@@ -479,7 +479,7 @@ nsresult FormatFileSize(uint64_t size, bool useKB, nsAString &formattedSize)
   NS_NAMED_LITERAL_STRING(mbAbbr,   "megaByteAbbreviation2");
   NS_NAMED_LITERAL_STRING(gbAbbr,   "gigaByteAbbreviation2");
 
-  const PRUnichar *sizeAbbrNames[] = {
+  const char16_t *sizeAbbrNames[] = {
     byteAbbr.get(), kbAbbr.get(), mbAbbr.get(), gbAbbr.get()
   };
 
@@ -1796,7 +1796,7 @@ NS_MSG_BASE char *MsgEscapeHTML(const char *string)
   return(rv);
 }
 
-NS_MSG_BASE PRUnichar *MsgEscapeHTML2(const PRUnichar *aSourceBuffer,
+NS_MSG_BASE char16_t *MsgEscapeHTML2(const char16_t *aSourceBuffer,
                                       int32_t aSourceBufferLen)
 {
   // if the caller didn't calculate the length
@@ -1806,13 +1806,13 @@ NS_MSG_BASE PRUnichar *MsgEscapeHTML2(const PRUnichar *aSourceBuffer,
 
   /* XXX Hardcoded max entity len. */
   if (aSourceBufferLen >=
-    ((PR_UINT32_MAX - sizeof(PRUnichar)) / (6 * sizeof(PRUnichar))) )
+    ((PR_UINT32_MAX - sizeof(char16_t)) / (6 * sizeof(char16_t))) )
       return nullptr;
 
-  PRUnichar *resultBuffer = (PRUnichar *)nsMemory::Alloc(aSourceBufferLen *
-                            6 * sizeof(PRUnichar) + sizeof(PRUnichar('\0')));
+  char16_t *resultBuffer = (char16_t *)nsMemory::Alloc(aSourceBufferLen *
+                            6 * sizeof(char16_t) + sizeof(char16_t('\0')));
                                                         
-  PRUnichar *ptr = resultBuffer;
+  char16_t *ptr = resultBuffer;
 
   if (resultBuffer) {
     int32_t i;
@@ -1894,9 +1894,9 @@ NS_MSG_BASE void MsgCompressWhitespace(nsCString& aString)
   aString.SetLength(end - start);
 }
 
-NS_MSG_BASE void MsgReplaceChar(nsString& str, const char *set, const PRUnichar replacement)
+NS_MSG_BASE void MsgReplaceChar(nsString& str, const char *set, const char16_t replacement)
 {
-  PRUnichar *c_str = str.BeginWriting();
+  char16_t *c_str = str.BeginWriting();
   while (*set) {
     int32_t pos = 0;
     while ((pos = str.FindChar(*set, pos)) != -1) {
@@ -1937,7 +1937,7 @@ NS_MSG_BASE nsIAtom* MsgNewPermanentAtom(const char* aString)
 
 NS_MSG_BASE void MsgReplaceSubstring(nsAString &str, const nsAString &what, const nsAString &replacement)
 {
-  const PRUnichar* replacement_str;
+  const char16_t* replacement_str;
   uint32_t replacementLength = replacement.BeginReading(&replacement_str);
   uint32_t whatLength = what.Length();
   int32_t i = 0;
@@ -2131,7 +2131,7 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
 
   nsString message;
   NS_ConvertUTF8toUTF16 hostNameUTF16(aHostname);
-  const PRUnichar *formatStrings[] = { hostNameUTF16.get() };
+  const char16_t *formatStrings[] = { hostNameUTF16.get() };
 
   rv = bundle->FormatStringFromName(MOZ_UTF16("mailServerLoginFailed"),
                                     formatStrings, 1,

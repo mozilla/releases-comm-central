@@ -83,7 +83,7 @@ public:
   NS_DECL_NSIABDIRSEARCHLISTENER
 
 protected:
-  nsresult NotifyPropertyChanged(nsIAbDirectory *list, const char *property, const PRUnichar* oldValue, const PRUnichar* newValue);
+  nsresult NotifyPropertyChanged(nsIAbDirectory *list, const char *property, const char16_t* oldValue, const char16_t* newValue);
   nsresult NotifyItemAdded(nsISupports *item);
   nsresult NotifyItemDeleted(nsISupports *item);
   nsresult NotifyItemChanged(nsISupports *item);

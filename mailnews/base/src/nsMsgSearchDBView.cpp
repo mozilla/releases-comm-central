@@ -165,7 +165,7 @@ NS_IMETHODIMP nsMsgSearchDBView::GetCellText(int32_t aRow, nsITreeColumn* aCol, 
   NS_ENSURE_TRUE(IsValidIndex(aRow), NS_MSG_INVALID_DBVIEW_INDEX);
   NS_ENSURE_ARG_POINTER(aCol);
 
-  const PRUnichar* colID;
+  const char16_t* colID;
   aCol->GetIdConst(&colID);
   // the only thing we contribute is location; dummy rows have no location, so
   //  bail in that case.  otherwise, check if we are dealing with 'location'.

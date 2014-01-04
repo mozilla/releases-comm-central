@@ -242,12 +242,12 @@ public:
 
   NS_IMETHOD AddListDirNode(nsIMdbRow * listRow) MOZ_OVERRIDE;
 
-  NS_IMETHOD FindMailListbyUnicodeName(const PRUnichar *listName, bool *exist) MOZ_OVERRIDE;
+  NS_IMETHOD FindMailListbyUnicodeName(const char16_t *listName, bool *exist) MOZ_OVERRIDE;
 
   NS_IMETHOD GetCardCount(uint32_t *count) MOZ_OVERRIDE;
 
-  NS_IMETHOD SetCardValue(nsIAbCard *card, const char *name, const PRUnichar *value, bool notify) MOZ_OVERRIDE;
-  NS_IMETHOD GetCardValue(nsIAbCard *card, const char *name, PRUnichar **value) MOZ_OVERRIDE;
+  NS_IMETHOD SetCardValue(nsIAbCard *card, const char *name, const char16_t *value, bool notify) MOZ_OVERRIDE;
+  NS_IMETHOD GetCardValue(nsIAbCard *card, const char *name, char16_t **value) MOZ_OVERRIDE;
   // nsAddrDatabase methods:
 
   nsAddrDatabase();
@@ -333,7 +333,7 @@ protected:
   nsresult      CheckAndUpdateRecordKey();
   nsresult      UpdateLowercaseEmailListName();
   nsresult      ConvertAndAddLowercaseColumn(nsIMdbRow * row, mdb_token fromCol, mdb_token toCol);
-  nsresult      AddUnicodeToColumn(nsIMdbRow * row, mdb_token colToken, mdb_token lowerCaseColToken, const PRUnichar* pUnicodeStr);
+  nsresult      AddUnicodeToColumn(nsIMdbRow * row, mdb_token colToken, mdb_token lowerCaseColToken, const char16_t* pUnicodeStr);
 
   nsresult      DeleteRow(nsIMdbTable* dbTable, nsIMdbRow* dbRow);
 
@@ -428,16 +428,16 @@ protected:
   nsCOMPtr<nsIMdbFactory> mMdbFactory;
 
 private:
-  nsresult GetRowForCharColumn(const PRUnichar *unicodeStr,
+  nsresult GetRowForCharColumn(const char16_t *unicodeStr,
                                mdb_column findColumn, bool bIsCard,
                                bool aCaseInsensitive, nsIMdbRow **findRow,
                                mdb_pos *aRowPos);
-  bool HasRowButDeletedForCharColumn(const PRUnichar *unicodeStr, mdb_column findColumn, bool aIsCard, nsIMdbRow **aFindRow);
+  bool HasRowButDeletedForCharColumn(const char16_t *unicodeStr, mdb_column findColumn, bool aIsCard, nsIMdbRow **aFindRow);
   nsresult OpenInternal(nsIFile *aMabFile, bool aCreate, nsIAddrDatabase **pCardDB);
-  nsresult AlertAboutCorruptMabFile(const PRUnichar *aOldFileName, const PRUnichar *aNewFileName);
-  nsresult AlertAboutLockedMabFile(const PRUnichar *aFileName);
-  nsresult DisplayAlert(const PRUnichar *titleName, const PRUnichar *alertStringName,
-                        const PRUnichar **formatStrings, int32_t numFormatStrings);
+  nsresult AlertAboutCorruptMabFile(const char16_t *aOldFileName, const char16_t *aNewFileName);
+  nsresult AlertAboutLockedMabFile(const char16_t *aFileName);
+  nsresult DisplayAlert(const char16_t *titleName, const char16_t *alertStringName,
+                        const char16_t **formatStrings, int32_t numFormatStrings);
 };
 
 #endif

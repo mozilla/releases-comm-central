@@ -48,7 +48,7 @@ nsEudoraSettings::~nsEudoraSettings()
 
 NS_IMPL_ISUPPORTS1(nsEudoraSettings, nsIImportSettings)
 
-NS_IMETHODIMP nsEudoraSettings::AutoLocate(PRUnichar **description, nsIFile **location, bool *_retval)
+NS_IMETHODIMP nsEudoraSettings::AutoLocate(char16_t **description, nsIFile **location, bool *_retval)
 {
     NS_PRECONDITION(description != nullptr, "null ptr");
     NS_PRECONDITION(_retval != nullptr, "null ptr");

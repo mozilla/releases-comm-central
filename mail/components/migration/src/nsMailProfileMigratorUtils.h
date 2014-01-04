@@ -36,7 +36,7 @@ void SetProxyPref(const nsACString& aHostPort, const char* aPref,
                   const char* aPortPref, nsIPrefBranch* aPrefs);
 
 struct MigrationData { 
-  PRUnichar* fileName; 
+  char16_t* fileName; 
   uint32_t sourceFlag;
   bool replaceOnly;
 };

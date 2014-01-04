@@ -102,7 +102,7 @@ nsOutlookSettings::~nsOutlookSettings()
 
 NS_IMPL_ISUPPORTS1(nsOutlookSettings, nsIImportSettings)
 
-NS_IMETHODIMP nsOutlookSettings::AutoLocate(PRUnichar **description, nsIFile **location, bool *_retval)
+NS_IMETHODIMP nsOutlookSettings::AutoLocate(char16_t **description, nsIFile **location, bool *_retval)
 {
     NS_PRECONDITION(description != nullptr, "null ptr");
     NS_PRECONDITION(_retval != nullptr, "null ptr");

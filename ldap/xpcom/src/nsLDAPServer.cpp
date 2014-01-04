@@ -19,7 +19,7 @@ nsLDAPServer::~nsLDAPServer()
 }
 
 // attribute wstring key;
-NS_IMETHODIMP nsLDAPServer::GetKey(PRUnichar **_retval)
+NS_IMETHODIMP nsLDAPServer::GetKey(char16_t **_retval)
 {
     if (!_retval) {
         NS_ERROR("nsLDAPServer::GetKey: null pointer ");
@@ -33,7 +33,7 @@ NS_IMETHODIMP nsLDAPServer::GetKey(PRUnichar **_retval)
 
     return NS_OK;
 }
-NS_IMETHODIMP nsLDAPServer::SetKey(const PRUnichar *aKey)
+NS_IMETHODIMP nsLDAPServer::SetKey(const char16_t *aKey)
 {
     mKey = aKey;
     return NS_OK;

@@ -49,13 +49,13 @@ public:
   ~ImportModuleDesc() { ReleaseModule();  }
 
   void  SetCID(const nsCID& cid) { m_cid = cid;}
-  void  SetName(const PRUnichar *pName) { m_name = pName;}
-  void  SetDescription(const PRUnichar *pDesc) { m_description = pDesc;}
+  void  SetName(const char16_t *pName) { m_name = pName;}
+  void  SetDescription(const char16_t *pDesc) { m_description = pDesc;}
   void  SetSupports(const char *pSupports) { m_supports = pSupports;}
 
   nsCID      GetCID(void) { return m_cid;}
-  const PRUnichar *GetName(void) { return m_name.get();}
-  const PRUnichar *GetDescription(void) { return m_description.get();}
+  const char16_t *GetName(void) { return m_name.get();}
+  const char16_t *GetDescription(void) { return m_description.get();}
   const char *  GetSupports(void) { return m_supports.get();}
 
   nsIImportModule *  GetModule(bool keepLoaded = false); // Adds ref
@@ -76,7 +76,7 @@ public:
   nsImportModuleList() { m_pList = nullptr; m_alloc = 0; m_count = 0;}
   ~nsImportModuleList() { ClearList(); }
 
-  void  AddModule(const nsCID& cid, const char *pSupports, const PRUnichar *pName, const PRUnichar *pDesc);
+  void  AddModule(const nsCID& cid, const char *pSupports, const char16_t *pName, const char16_t *pDesc);
 
   void  ClearList(void);
 
