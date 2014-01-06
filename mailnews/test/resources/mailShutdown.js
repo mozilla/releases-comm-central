@@ -30,6 +30,9 @@ function postShutdownNotifications()
   // finally, the xpcom-shutdown notification is handled by XPCOM itself.
 }
 
+if (typeof MockFactory != "undefined")
+  MockFactory.unregisterAll();
+
 // First do a gc to let anything not being referenced be cleaned up.
 gc();
 
