@@ -100,8 +100,8 @@
                 label="&AddDirectlyToAddressBook.label;"
                 accesskey="&AddDirectlyToAddressBook.accesskey;"
                 oncommand="AddContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-      <menuitem id="editContactItem" label="&EditContact.label;" hidden="true"
-                accesskey="&EditContact.accesskey;"
+      <menuitem id="editContactItem" label="&EditContact1.label;" hidden="true"
+                accesskey="&EditContact1.accesskey;"
                 oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
       <menuitem id="viewContactItem" label="&ViewContact.label;" hidden="true"
                 accesskey="&ViewContact.accesskey;"

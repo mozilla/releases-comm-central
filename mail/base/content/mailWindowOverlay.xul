@@ -702,8 +702,8 @@
               accesskey="&contextMultiForwardAsAttachment.accesskey;"
               oncommand="MsgForwardAsAttachment(event);"/>
     <menuitem id="mailContext-editAsNew"
-              label="&contextEditAsNew.label;"
-              accesskey="&contextEditAsNew.accesskey;"
+              label="&contextEditMsgAsNew.label;"
+              accesskey="&contextEditMsgAsNew.accesskey;"
               oncommand="MsgEditMessageAsNew();"/>
     <menuseparator id="mailContext-sep-reply"/>
     <menu id="mailContext-tags" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;">

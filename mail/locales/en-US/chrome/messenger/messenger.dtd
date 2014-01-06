@@ -706,8 +706,8 @@
 <!ENTITY contextOpenNewTab.accesskey "T">
 <!ENTITY contextOpenConversation.label "Open Message in Conversation">
 <!ENTITY contextOpenConversation.accesskey "n">
-<!ENTITY contextEditAsNew.label "Edit As New…">
-<!ENTITY contextEditAsNew.accesskey "E">
+<!ENTITY contextEditMsgAsNew.label "Edit As New Message">
+<!ENTITY contextEditMsgAsNew.accesskey "E">
 <!ENTITY contextArchive.label "Archive">
 <!ENTITY contextArchive.accesskey "h">
 <!ENTITY contextReplySender.label "Reply to Sender Only">
@@ -836,8 +836,8 @@
 <!ENTITY AddToAddressBook.accesskey "B">
 <!ENTITY AddDirectlyToAddressBook.label "Add to Address Book">
 <!ENTITY AddDirectlyToAddressBook.accesskey "B">
-<!ENTITY EditContact.label "Edit Contact…">
-<!ENTITY EditContact.accesskey "E">
+<!ENTITY EditContact1.label "Edit Contact">
+<!ENTITY EditContact1.accesskey "E">
 <!ENTITY ViewContact.label "View Contact">
 <!ENTITY ViewContact.accesskey "V">
 <!ENTITY SubscribeToNewsgroup.label "Subscribe to Newsgroup">
