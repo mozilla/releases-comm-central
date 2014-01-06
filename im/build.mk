@@ -130,7 +130,6 @@ endif
 
 ib::
 	@$(MAKE) -C chat export libs
-	@$(MAKE) -C purple export libs
 	@$(MAKE) -C instantbird libs
 
 endif # COMM_BUILD

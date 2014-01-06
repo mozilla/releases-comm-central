@@ -16,5 +16,4 @@ else:
     add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
 
     add_tier_dir('app', 'chat')
-    add_tier_dir('app', 'purple')
     add_tier_dir('app', 'instantbird')

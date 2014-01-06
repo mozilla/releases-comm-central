@@ -221,25 +221,12 @@
 @BINPATH@/components/logger.manifest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; libpurple
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-@BINPATH@/chrome/purple@JAREXT@
-@BINPATH@/chrome/purple.manifest
-@BINPATH@/components/@DLL_PREFIX@purplexpcom@DLL_SUFFIX@
-@BINPATH@/components/purplexpcom.xpt
-@BINPATH@/components/prpl.manifest
-#ifdef UNIX_BUT_NOT_MAC
-@BINPATH@/components/@DLL_PREFIX@bonjour@DLL_SUFFIX@
-#endif
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default Profile Settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; default pref files
 @BINPATH@/defaults/pref/all-instantbird.js
 @BINPATH@/defaults/pref/channel-prefs.js
-@BINPATH@/defaults/pref/purple-prefs.js
 @BINPATH@/greprefs.js
 
 ; login manager
