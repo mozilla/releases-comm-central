@@ -5,6 +5,7 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/activity/alertHook.js");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://testing-common/mailnews/MockFactory.js");
 alertHook.init();
 
 // Replace the alerts service with our own. This will let us check if we're
@@ -17,18 +18,6 @@ var mockAlertsService = {
   showAlertNotification: function(imageUrl, title, text, textClickable, cookie,
                                   alertListener, name) {
     gAlertShown = true;
-  }
-};
-
-var mockAlertsServiceFactory = {
-  createInstance: function(aOuter, aIID) {
-    if (aOuter != null)
-      throw Cr.NS_ERROR_NO_AGGREGATION;
-
-    if (!aIID.equals(Ci.nsIAlertsService))
-      throw Cr.NS_ERROR_NO_INTERFACE;
-
-    return mockAlertsService;
   }
 };
 
@@ -45,10 +34,10 @@ var mailnewsURL = {
 
 function run_test() {
   // First register the mock alerts service
-  Components.manager.QueryInterface(Ci.nsIComponentRegistrar)
-    .registerFactory(Components.ID("{1bda6c33-b089-43df-a8fd-111907d6385a}"),
-                     "Mock Alerts Service", "@mozilla.org/alerts-service;1",
-                     mockAlertsServiceFactory);
+  let uuid = MockFactory.register("@mozilla.org/alerts-service;1", mockAlertsService);
+  do_register_cleanup(function() {
+    MockFactory.unregister(uuid);
+  });
 
   // Just text, no url or window => expect no error shown to user
   gAlertShown = false;

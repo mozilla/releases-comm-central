@@ -30,6 +30,7 @@
  */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://testing-common/mailnews/MockFactory.js");
 
 // Wrapper to the nsIPrompt interface.
 // This allows the send code to attempt to display errors to the user without
@@ -251,24 +252,10 @@ var alertUtilsWindowWatcher = {
 
 function registerAlertTestUtils()
 {
-  var WindowWatcherFactory = {
-    createInstance: function createInstance(outer, iid) {
-      if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-      return alertUtilsWindowWatcher.QueryInterface(iid);
-    }
-  };
-
-  Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar)
-            .registerFactory(Components.ID("{1dfeb90a-2193-45d5-9cb8-864928b2af55}"),
-                             "Fake Window Watcher",
-                             "@mozilla.org/embedcomp/window-watcher;1",
-                             WindowWatcherFactory);
-  Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar)
-            .registerFactory(Components.ID("{4637b567-6e2d-4a24-9775-e8fc0fb159ba}"),
-                             "Fake Prompt Service",
-                             "@mozilla.org/embedcomp/prompt-service;1",
-                             alertUtilsPromptService);
+  MockFactory.register("@mozilla.org/embedcomp/window-watcher;1",
+                      alertUtilsWindowWatcher);
+  MockFactory.register("@mozilla.org/embedcomp/prompt-service;1",
+                      alertUtilsPromptService);
 }
 
 // Dummy message window that ensures we get prompted for logins.

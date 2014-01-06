@@ -1,7 +1,6 @@
-const NS_LOCALFILEOUTPUTSTREAM_CONTRACTID = "@mozilla.org/network/file-output-stream;1";
-const kRegistrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
 
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
+Components.utils.import("resource://testing-common/mailnews/MockFactory.js");
 
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
@@ -12,8 +11,6 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
 
 let gTargetFolder;
 let gUuid;
-let gOriginalCID =
-  Components.manager.contractIDToCID(NS_LOCALFILEOUTPUTSTREAM_CONTRACTID);
 
 function LockedFileOutputStream() {
 }
@@ -26,35 +23,13 @@ LockedFileOutputStream.prototype = {
   },
 }
 
-var FileOutputStreamFactory = {
-  createInstance: function(aOuter, aIid) {
-    if (aOuter)
-      do_throw(Cr.NS_ERROR_NO_AGGREGATION);
-
-    return new LockedFileOutputStream().QueryInterface(aIid);
-  },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFactory])
-};
-
 function setup_output_stream_stub() {
-  gUuid = Cc["@mozilla.org/uuid-generator;1"]
-            .getService(Ci.nsIUUIDGenerator)
-            .generateUUID()
-            .toString();
-
-  kRegistrar.registerFactory(Components.ID(gUuid),
-                            "Stub for nsIFileOutputStream",
-                            NS_LOCALFILEOUTPUTSTREAM_CONTRACTID,
-                            FileOutputStreamFactory);
+  gUuid = MockFactory.register("@mozilla.org/network/file-output-stream;1",
+                              LockedFileOutputStream);
 }
 
 function teardown_output_stream_stub() {
-  kRegistrar.unregisterFactory(Components.ID(gUuid),
-                              FileOutputStreamFactory);
-  kRegistrar.registerFactory(gOriginalCID,
-                            "",
-                            NS_LOCALFILEOUTPUTSTREAM_CONTRACTID,
-                            null);
+  MockFactory.unregister(gUuid);
 }
 
 function setup_target_folder() {
