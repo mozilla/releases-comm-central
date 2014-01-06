@@ -522,9 +522,10 @@ var PlacesUIUtils = {
    *
    * @param aURIList  List of nsIURI objects representing the locations
    *                  to be bookmarked.
+   * @param aTitleList  Optional list of strings giving the page titles.
    * @return true if any transaction has been performed.
    */
-  showMinimalAddMultiBookmarkUI: function PUIU_showAddMultiBookmarkUI(aURIList) {
+  showMinimalAddMultiBookmarkUI: function PUIU_showAddMultiBookmarkUI(aURIList, aTitleList) {
     if (aURIList.length == 0)
       throw("showAddMultiBookmarkUI expects a list of nsIURI objects");
     var info = {
@@ -533,6 +534,10 @@ var PlacesUIUtils = {
       hiddenRows: ["description"],
       URIList: aURIList
     };
+
+    if (aTitleList)
+      info.titleList = aTitleList;
+
     return this._showBookmarkDialog(info);
   },
 

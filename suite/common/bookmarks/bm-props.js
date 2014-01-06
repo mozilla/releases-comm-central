@@ -15,6 +15,7 @@
  *         - "folder"
  *           @ URIList (Array of nsIURI objects) - optional, list of uris to
  *             be bookmarked under the new folder.
+ *           @ titleList (Array of String) - optional, list of titles.
  *         - "livemark"
  *       @ uri (nsIURI object) - optional, the default uri for the new item.
  *         The property is not used for the "folder with items" type.
@@ -84,6 +85,7 @@ var BookmarkPropertiesPanel = {
   _title: "",
   _description: "",
   _URIs: [],
+  _titles: [],
   _keyword: "",
   _postData: null,
   _charSet: "",
@@ -198,6 +200,8 @@ var BookmarkPropertiesPanel = {
             if ("URIList" in dialogInfo) {
               this._title = this._strings.getString("bookmarkAllTabsDefault");
               this._URIs = dialogInfo.URIList;
+              if ("titleList" in dialogInfo)
+                this._titles = dialogInfo.titleList;
             }
             else
               this._title = this._strings.getString("newFolderDefault");
@@ -588,7 +592,7 @@ var BookmarkPropertiesPanel = {
     var transactions = [];
     for (var i = 0; i < this._URIs.length; ++i) {
       var uri = this._URIs[i];
-      var title = this._getURITitleFromHistory(uri);
+      var title = this._titles[i] || this._getURITitleFromHistory(uri);
       var createTxn = new PlacesCreateBookmarkTransaction(uri, -1,
                                                           PlacesUtils.bookmarks.DEFAULT_INDEX,
                                                           title);

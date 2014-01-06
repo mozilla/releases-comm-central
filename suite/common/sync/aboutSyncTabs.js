@@ -100,6 +100,7 @@ let RemoteTabViewer = {
   bookmarkSelectedTabs: function() {
     let items = this._tabsList.selectedItems;
     let URIs = [];
+    let titles = [];
     for (let i = 0; i < items.length; i++) {
       if (items[i].getAttribute("type") == "tab") {
         let uri = Weave.Utils.makeURI(items[i].getAttribute("url"));
@@ -107,10 +108,11 @@ let RemoteTabViewer = {
           continue;
 
         URIs.push(uri);
+        titles.push(items[i].getAttribute("title"));
       }
     }
     if (URIs.length)
-      PlacesUIUtils.showMinimalAddMultiBookmarkUI(URIs);
+      PlacesUIUtils.showMinimalAddMultiBookmarkUI(URIs, titles);
   },
 
   _generateTabList: function() {

@@ -370,7 +370,7 @@ var PlacesCommandHook = {
    *
    * @returns a list of nsIURI objects representing unique locations open
    */
-  _getUniqueTabInfo: function BATC__getUniqueTabInfo() {
+  _getUniqueTabInfo: function BATC__getUniqueTabInfo(aTitles) {
     var tabList = [];
     var seenURIs = {};
 
@@ -385,6 +385,8 @@ var PlacesCommandHook = {
       // add to the set of seen URIs
       seenURIs[uri.spec] = null;
       tabList.push(uri);
+      if (aTitles)
+        aTitles.push(browsers[i].contentTitle);
     }
     return tabList;
   },
@@ -394,8 +396,9 @@ var PlacesCommandHook = {
    * window.
    */
   bookmarkCurrentPages: function PCH_bookmarkCurrentPages() {
-    var tabURIs = this._getUniqueTabInfo();
-    PlacesUIUtils.showMinimalAddMultiBookmarkUI(tabURIs);
+    var titles = [];
+    var tabURIs = this._getUniqueTabInfo(titles);
+    PlacesUIUtils.showMinimalAddMultiBookmarkUI(tabURIs, titles);
   },
 
 
