@@ -59,7 +59,6 @@
 <script type="application/javascript" src="chrome://messenger/content/plugins.js"/>
 <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
 <script type="application/javascript" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
-<script type="application/javascript" src="chrome://messenger-newsblog/content/utils.js"/>
 
 <stringbundleset id="stringbundleset">
   <stringbundle id="brand_bundle" src="chrome://branding/locale/brand.properties"/>

@@ -22,8 +22,6 @@
 
   <script type="application/javascript"
           src="chrome://messenger-newsblog/content/feedAccountWizard.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger-newsblog/content/utils.js"/>
 
   <!-- Account setup page : User gets a choice to enter a name for the account -->
   <!-- Defaults : Feed account name -> default string -->

@@ -29,9 +29,7 @@
   <stringbundle id="bundle_vcardImportMsgs" src="chrome://messenger/locale/vCardImportMsgs.properties"/>
   <stringbundle id="bundle_feeds" src="chrome://messenger-newsblog/locale/newsblog.properties"/>
   <script type="application/javascript" src="chrome://messenger/content/importDialog.js"/>
-  <script type="application/javascript" src="chrome://messenger-newsblog/content/Feed.js"/>
   <script type="application/javascript" src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
-  <script type="application/javascript" src="chrome://messenger-newsblog/content/utils.js"/>
 
   <keyset id="dialogKeys"/>
   

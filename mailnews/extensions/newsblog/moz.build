@@ -8,4 +8,7 @@ EXTRA_COMPONENTS += [
     'js/newsblog.manifest',
 ]
 
+EXTRA_JS_MODULES += [
+    'content/FeedUtils.jsm',
+]
 JAR_MANIFESTS += ['jar.mn']

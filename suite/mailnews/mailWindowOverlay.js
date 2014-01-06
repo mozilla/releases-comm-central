@@ -6,8 +6,9 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
-Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource:///modules/FeedUtils.jsm");
 Components.utils.import("resource:///modules/folderUtils.jsm");
+Components.utils.import("resource:///modules/mailServices.js");
 
 const kClassicMailLayout  = 0;
 const kWideMailLayout     = 1;
@@ -3095,14 +3096,12 @@ function FeedSetContentView(val)
       if (wintype == "mail:3pane") {
         // Get quickmode per feed pref from feeds.rdf
         var quickMode, targetRes;
-        if (!("FeedUtils" in window))
-          Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/utils.js");
         try
         {
-          var targetRes = FeedUtils.getParentTargetForChildResource(
-                            gFolderDisplay.displayedFolder.URI,
-                            FeedUtils.FZ_QUICKMODE,
-                            gFolderDisplay.displayedFolder.server);
+          targetRes = FeedUtils.getParentTargetForChildResource(
+                        gFolderDisplay.displayedFolder.URI,
+                        FeedUtils.FZ_QUICKMODE,
+                        gFolderDisplay.displayedFolder.server);
         }
         catch (ex) {};
 

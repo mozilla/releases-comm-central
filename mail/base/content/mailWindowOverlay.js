@@ -3,7 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource:///modules/FeedUtils.jsm");
 Components.utils.import("resource:///modules/gloda/dbview.js");
+Components.utils.import("resource:///modules/MailConsts.js");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -28,10 +30,6 @@ const kMailLayoutCommandMap =
 const kNoRemoteContentPolicy = 0;
 const kBlockRemoteContent = 1;
 const kAllowRemoteContent = 2;
-
-Components.utils.import("resource:///modules/MailUtils.js");
-Components.utils.import("resource:///modules/MailConsts.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
 
 // Timer to mark read, if the user has configured the app to mark a message as
 // read if it is viewed for more than n seconds.

@@ -3,10 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cr = Components.results;
-var Cu = Components.utils;
+const EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
+
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/mailServices.js");
@@ -14,6 +13,10 @@ Cu.import("resource:///modules/MailUtils.js");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+
+Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/Feed.js");
+Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/FeedItem.js");
+Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/feed-parser.js");
 
 var FeedUtils = {
   MOZ_PARSERERROR_NS: "http://www.mozilla.org/newlayout/xml/parsererror.xml",
