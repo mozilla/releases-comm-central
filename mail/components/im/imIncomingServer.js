@@ -80,7 +80,7 @@ imIncomingServer.prototype = {
       return "";
     }
   },
-  set autojoin(aAutojoin) {
+  set autojoin(aAutoJoin) {
     let prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
     let str = Cc["@mozilla.org/supports-string;1"]
                 .createInstance(Ci.nsISupportsString);
