@@ -478,7 +478,8 @@ var FeedUtils = {
       throw new Error("FeedUtils.getSubscriptionsDS: can't get feed " +
                       "subscriptions data source - " + url);
 
-    this[aServer.serverURI] = {};
+    if (!this[aServer.serverURI])
+      this[aServer.serverURI] = {};
     return this[aServer.serverURI]["FeedsDS"] =
              ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
   },
@@ -533,7 +534,8 @@ var FeedUtils = {
     // You have to QueryInterface it to nsIRDFRemoteDataSource and check
     // its "loaded" property to be sure.  You can also attach an observer
     // which will get notified when the load is complete.
-    this[aServer.serverURI] = {};
+    if (!this[aServer.serverURI])
+      this[aServer.serverURI] = {};
     return this[aServer.serverURI]["FeedItemsDS"] =
              ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
   },
@@ -543,9 +545,37 @@ var FeedUtils = {
     let file = aServer.feedItemsDataSourcePath;
 
     // If the file doesn't exist, create it.
-    if (!file.exists())
+    if (!file.exists()) {
       this.createFile(file, this.FEEDITEMS_TEMPLATE);
+      return file;
+    }
 
+    // If feeditems.rdf is not sane, duplicate messages will occur repeatedly
+    // until the file is corrected; check that the file is valid XML. This is
+    // done lazily only once in a session.
+    let fileUrl = Services.io.getProtocolHandler("file")
+                             .QueryInterface(Ci.nsIFileProtocolHandler)
+                             .getURLSpecFromFile(file);
+    let request = new XMLHttpRequest();
+    request.open("GET", fileUrl, false);
+    request.responseType = "document";
+    request.send();
+    let dom = request.responseXML;
+    if (dom instanceof Ci.nsIDOMXMLDocument &&
+        dom.documentElement.namespaceURI != this.MOZ_PARSERERROR_NS)
+      return file;
+
+    // Error on the file. Rename it and create a new one.
+    this.log.debug("FeedUtils.getItemsFile: error in feeditems.rdf");
+    let errName = "feeditems_error_" +
+                  (new Date().toISOString()).replace(/\D/g, "") + ".rdf";
+    file.moveTo(file.parent, errName);
+    file = aServer.feedItemsDataSourcePath;
+    this.createFile(file, this.FEEDITEMS_TEMPLATE);
+    this.log.error("FeedUtils.getItemsFile: error in feeditems.rdf in account '" +
+                   aServer.prettyName + "'; the file has been moved to " +
+                   errName + " and a new file has been created. Recent messages " +
+                   "may be duplicated.");
     return file;
   },
 
