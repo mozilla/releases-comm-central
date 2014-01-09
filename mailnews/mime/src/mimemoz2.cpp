@@ -731,8 +731,8 @@ SetMailCharacterSetToMsgWindow(MimeObject *obj, const char *aCharacterSet)
             msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
             if (msgWindow)
               rv = msgWindow->SetMailCharacterSet(!PL_strcasecmp(aCharacterSet, "us-ascii") ?
-                                                  NS_LITERAL_CSTRING("ISO-8859-1") :
-                                                  nsDependentCString(aCharacterSet));
+                                                  static_cast<const nsCString&>(NS_LITERAL_CSTRING("ISO-8859-1")) :
+                                                  static_cast<const nsCString&>(nsDependentCString(aCharacterSet)));
           }
         }
       }

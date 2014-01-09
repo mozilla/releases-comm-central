@@ -246,7 +246,8 @@ nsMsgSearchAdapter::GetSearchCharsets(nsAString &srcCharset, nsAString &dstChars
     }
   }
   srcCharset = m_defaultCharset.IsEmpty() ?
-    NS_LITERAL_STRING("ISO-8859-1") : m_defaultCharset;
+    static_cast<const nsAString&>(NS_LITERAL_STRING("ISO-8859-1")) :
+    m_defaultCharset;
 
   if (m_scope)
   {
