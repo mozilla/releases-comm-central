@@ -3,4 +3,30 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+SOURCES += [
+    'trayModule.cpp',
+    'trayToolkit.cpp',
+]
+
+# Platform specific stuff
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
+    SOURCES += ['trayPlatformWin.cpp']
+elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
+    SOURCES += ['trayPlatformGtk2.cpp']
+
+IS_COMPONENT = True
+FORCE_SHARED_LIB = True
+
+LIBRARY_NAME = 'trayToolkit'
+
+XPIDL_SOURCES += [
+    'trayIToolkit.idl',
+]
+
+XPIDL_MODULE = 'trayToolkit'
+
+EXPORTS += [
+    'trayToolkit.h'
+]
+
 JAR_MANIFESTS += ['jar.mn']

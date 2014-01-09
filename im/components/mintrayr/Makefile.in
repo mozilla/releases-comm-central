@@ -9,25 +9,8 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-IS_COMPONENT = 1
-FORCE_SHARED_LIB = 1
-MODULE = mintrayr
-LIBRARY_NAME = trayToolkit
-XPIDL_MODULE = trayToolkit
-
-EXPORTS = \
-		trayToolkit.h \
-		$(NULL)
-
-XPIDLSRCS = \
-		trayIToolkit.idl \
-		$(NULL)
-
-CPPSRCS = trayModule.cpp trayToolkit.cpp
-
 # Platform specific stuff
 ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
-CPPSRCS += trayPlatformWin.cpp
 OS_LIBS += shell32.lib
 RCFILE = resources.rc
 RESFILE = resources.res
@@ -36,7 +19,6 @@ else
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 
-CPPSRCS += trayPlatformGtk2.cpp
 LOCAL_INCLUDES += $(MOZ_GTK2_CFLAGS)
 OS_LIBS += $(TK_LIBS) $(XLIBS)
 
