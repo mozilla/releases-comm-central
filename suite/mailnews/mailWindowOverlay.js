@@ -2646,10 +2646,10 @@ var gMessageNotificationBar =
     // If the return receipt doesn't go to the sender address, note that in the
     // notification.
     if (mdnAddr != fromAddr)
-      barMsg = mStringBundle.getFormattedString("mdnBarMessageAddressDiffers",
+      barMsg = this.mStringBundle.getFormattedString("mdnBarMessageAddressDiffers",
                                          [authorName, mdnAddr]);
     else
-      barMsg = mStringBundle.getFormattedString("mdnBarMessageNormal", [authorName]);
+      barMsg = this.mStringBundle.getFormattedString("mdnBarMessageNormal", [authorName]);
 
     var oldNotif = this.mMsgNotificationBar.getNotificationWithValue("mdnContent");
     if (!oldNotif)
