@@ -412,7 +412,7 @@
   <key id="key_replyall" key="&replyToAllMsgCmd.key;"                oncommand="goDoCommand('cmd_replyall')" modifiers="accel, shift"/>
   <key id="key_replylist" key="&replyToListMsgCmd.key;"              oncommand="goDoCommand('cmd_replylist')" modifiers="accel, shift"/>
   <key id="key_forward" key="&forwardMsgCmd.key;"                    oncommand="goDoCommand('cmd_forward')" modifiers="accel"/>
-  <key id="key_editAsNew" key="&editMsgAsNewCmd.key;"                oncommand="goDoCommand('cmd_editAsNew')" modifiers="accel"/>
+  <key id="key_editAsNew" key="&editAsNewMsgCmd.key;"                oncommand="goDoCommand('cmd_editAsNew')" modifiers="accel"/>
   <key id="key_watchThread" key="&watchThreadMenu.key;"              oncommand="goDoCommand('cmd_watchThread')" />
   <key id="key_killThread" key="&killThreadMenu.key;"                oncommand="goDoCommand('cmd_killThread')" />
   <key id="key_killSubthread" key="&killSubthreadMenu.key;"          oncommand="goDoCommand('cmd_killSubthread')" modifiers="shift" />
@@ -1946,7 +1946,7 @@
               </menupopup>
             </menu>
             <menuitem id="appmenu_editMsgAsNew"
-                      label="&editMsgAsNewCmd.label;"
+                      label="&editAsNewMsgCmd.label;"
                       key="key_editAsNew"
                       command="cmd_editAsNew"/>
             <menuseparator id="appmenu_messageMenuAfterCompositionCommandsSeparator"/>
@@ -2746,8 +2746,8 @@
                           command="cmd_forwardAttachment"/>
               </menupopup>
             </menu>
-            <menuitem id="menu_editMsgAsNew" label="&editMsgAsNewCmd.label;"
-                      accesskey="&editMsgAsNewCmd.accesskey;"
+            <menuitem id="menu_editMsgAsNew" label="&editAsNewMsgCmd.label;"
+                      accesskey="&editAsNewMsgCmd.accesskey;"
                       key="key_editAsNew"
                       command="cmd_editAsNew"/>
             <menuseparator id="messageMenuAfterCompositionCommandsSeparator"/>
