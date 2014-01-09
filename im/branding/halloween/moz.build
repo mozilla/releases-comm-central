@@ -4,3 +4,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += ['locales']
+
+JAR_MANIFESTS += ['jar.mn']
