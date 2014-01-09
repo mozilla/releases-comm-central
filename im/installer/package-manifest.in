@@ -142,11 +142,11 @@
 @BINPATH@/defaults/profile/prefs.js
 @BINPATH@/defaults/profile/mimeTypes.rdf
 
-@BINPATH@/components/components.manifest
 #ifdef XP_MACOSX
 @BINPATH@/components/ibDockBadge.js
 @BINPATH@/components/ibDockBadge.manifest
 #else
+@BINPATH@/components/components.manifest
 @BINPATH@/components/@DLL_PREFIX@trayToolkit@DLL_SUFFIX@
 @BINPATH@/components/trayToolkit.xpt
 @BINPATH@/components/profileMigrator.js
@@ -235,7 +235,6 @@
 @BINPATH@/components/nsLoginManager.js
 @BINPATH@/components/nsLoginManagerPrompter.js
 @BINPATH@/components/passwordmgr.manifest
-@BINPATH@/components/storage-Legacy.js
 @BINPATH@/components/storage-mozStorage.js
 @BINPATH@/components/crypto-SDR.js
 
@@ -334,8 +333,6 @@
 @BINPATH@/components/toolkitprofile.xpt
 
 ; toolkit
-@BINPATH@/components/AppProtocolHandler.js
-@BINPATH@/components/AppProtocolHandler.manifest
 @BINPATH@/components/AppsService.js
 @BINPATH@/components/AppsService.manifest
 @BINPATH@/components/BrowserElementParent.js
@@ -416,10 +413,8 @@
 @BINPATH@/components/dom_alarm.xpt
 @BINPATH@/components/dom_apps.xpt
 @BINPATH@/components/dom_base.xpt
-@BINPATH@/components/dom_browserelement.xpt
 @BINPATH@/components/dom_camera.xpt
 @BINPATH@/components/dom_canvas.xpt
-@BINPATH@/components/dom_contacts.xpt
 @BINPATH@/components/dom_core.xpt
 @BINPATH@/components/dom_css.xpt
 @BINPATH@/components/dom_devicestorage.xpt
