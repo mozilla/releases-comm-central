@@ -25,6 +25,6 @@ ifdef MOZ_UPDATER
 DEFINES += -DMOZ_UPDATER=1
 endif
 
-abs_srcdir = $(call core_abspath,$(srcdir))
+abs_srcdir = $(abspath $(srcdir))
 CHROME_DEPS += $(abs_srcdir)/overrides/app-license.html
 DEFINES += -DAPP_LICENSE_BLOCK=$(abs_srcdir)/overrides/app-license.html
