@@ -23,7 +23,7 @@ endif
 
 MOZ_NONLOCALIZED_PKG_LIST = \
 	xpcom \
-	instantbird \
+	im \
 	$(NULL)
 
 MOZ_LOCALIZED_PKG_LIST = $(AB_CD)
@@ -116,7 +116,7 @@ endif
 DEFINES += -DBINPATH=$(BINPATH)
 
 libs::
-	$(MAKE) -C $(DEPTH)/instantbird/locales langpack
+	$(MAKE) -C $(DEPTH)/im/locales langpack
 
 ifeq (WINNT,$(OS_ARCH))
 PKGCOMP_FIND_OPTS = 

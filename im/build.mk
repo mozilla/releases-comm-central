@@ -77,7 +77,7 @@ FORCE_UPDATE := components/components.list|Contents/MacOS/components/components.
 
 distribution:
 	@$(MAKE) buildsymbols
-	@$(MAKE) -C instantbird/installer libs installer
+	@$(MAKE) -C im/installer libs installer
 ifdef ENABLE_TESTS
 	$(MAKE) xpcshell-tests
 endif
@@ -85,7 +85,7 @@ ifdef MOZ_UPDATE_PACKAGING
 	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update PKG_INST_PATH=
 endif
 ifdef L10NBASEDIR
-	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C instantbird/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=$(MOZ_UPDATE_PACKAGING) ;)
+	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C im/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=$(MOZ_UPDATE_PACKAGING) ;)
 endif
 ifdef MOZ_UPDATE_PACKAGING
 ifdef LIST_PREVIOUS_MAR_CMD
@@ -110,16 +110,16 @@ ifdef UPLOAD_CMD
 endif
 
 installer:
-	@$(MAKE) -C instantbird/installer installer
+	@$(MAKE) -C im/installer installer
 
-SHIPPED_LOCALES_FILE = $(topsrcdir)/instantbird/locales/shipped-locales
+SHIPPED_LOCALES_FILE = $(topsrcdir)/im/locales/shipped-locales
 SHIPPED_LOCALES := $(shell if test -f $(SHIPPED_LOCALES_FILE); then cat $(SHIPPED_LOCALES_FILE); fi)
 
 package:
-	@$(MAKE) -C instantbird/installer
+	@$(MAKE) -C im/installer
 
 install::
-	@$(MAKE) -C instantbird/installer install
+	@$(MAKE) -C im/installer install
 
 upload:
 ifdef UPLOAD_CMD
@@ -130,6 +130,6 @@ endif
 
 ib::
 	@$(MAKE) -C chat export libs
-	@$(MAKE) -C instantbird libs
+	@$(MAKE) -C im libs
 
 endif # COMM_BUILD

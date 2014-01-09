@@ -14,7 +14,7 @@ AB_CD = $(MOZ_UI_LOCALE)
 GRE_MILESTONE = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build Milestone)
 GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build BuildID)
 
-LICENSE_TXT_FILE = $(topsrcdir)/instantbird/LICENSE.txt
+LICENSE_TXT_FILE = $(topsrcdir)/im/LICENSE.txt
 
 DEFINES += \
   -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\" \
@@ -299,8 +299,8 @@ libs:: $(srcdir)/profile/prefs.js
 # mozilla-central does this in testing/xpcshell-tests which means that it is very
 # hard for anyone to specify anything else.
 libs::
-	$(INSTALL) $(topsrcdir)/instantbird/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell
-	cp $(topsrcdir)/instantbird/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell/all-test-dirs.list
+	$(INSTALL) $(topsrcdir)/im/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell
+	cp $(topsrcdir)/im/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell/all-test-dirs.list
 
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 

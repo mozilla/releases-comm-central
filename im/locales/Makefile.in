@@ -20,7 +20,7 @@ vpath %.xml $(LOCALE_SRCDIR)/searchplugins
 _ABS_SRCDIR := $(call core_abspath,$(topsrcdir))
 
 ifndef MOZ_BRANDING_DIRECTORY
-MOZ_BRANDING_DIRECTORY = instantbird/branding/nightly
+MOZ_BRANDING_DIRECTORY = im/branding/nightly
 endif
 
 SUBMAKEFILES += \
@@ -105,7 +105,7 @@ repackage-win32-installer: $(WIN32_INSTALLER_IN) $(SUBMAKEFILES)
 	  ZIP_IN=$(WIN32_INSTALLER_IN) \
 	  ZIP_OUT=$(WIN32_INSTALLER_OUT) \
 	  SFX_HEADER="$(PWD)/../installer/windows/l10ngen/7zSD.sfx \
-	              $(_ABS_SRCDIR)/instantbird/installer/windows/app.tag"
+	              $(_ABS_SRCDIR)/im/installer/windows/app.tag"
 
 ifeq (WINNT,$(OS_ARCH))
 repackage-win32-installer-%: $(WIN32_INSTALLER_IN) libs-%

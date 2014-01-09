@@ -14,6 +14,6 @@ MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
 MOZ_APP_VERSION=`cat $MOZ_APP_VERSION_TXT`
 INSTANTBIRD_VERSION=$MOZ_APP_VERSION
 
-MOZ_BRANDING_DIRECTORY=instantbird/branding/nightly
-MOZ_OFFICIAL_BRANDING_DIRECTORY=instantbird/branding/release
+MOZ_BRANDING_DIRECTORY=im/branding/nightly
+MOZ_OFFICIAL_BRANDING_DIRECTORY=other-licenses/branding/instantbird
 MOZ_APP_ID={33cb9019-c295-46dd-be21-8c4936574bee}

@@ -59,7 +59,7 @@ uninstaller::
 	  $(srcdir)/nsis/defines.nsi.in > $(CONFIG_DIR)/defines.nsi
 	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
           --preprocess-locale $(MOZILLA_SRCDIR) \
-	  $(call EXPAND_LOCALE_SRCDIR,instantbird/locales)/installer $(AB_CD) $(CONFIG_DIR)
+	  $(call EXPAND_LOCALE_SRCDIR,im/locales)/installer $(AB_CD) $(CONFIG_DIR)
 
 $(CONFIG_DIR)/setup.exe::
 	$(RM) -rf $(CONFIG_DIR) && mkdir $(CONFIG_DIR)
@@ -69,7 +69,7 @@ $(CONFIG_DIR)/setup.exe::
 	  $(srcdir)/nsis/defines.nsi.in > $(CONFIG_DIR)/defines.nsi
 	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(MOZILLA_SRCDIR) \
-	  $(call EXPAND_LOCALE_SRCDIR,instantbird/locales)/installer $(AB_CD) $(CONFIG_DIR)
+	  $(call EXPAND_LOCALE_SRCDIR,im/locales)/installer $(AB_CD) $(CONFIG_DIR)
 
 include $(topsrcdir)/config/rules.mk
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/makensis.mk
