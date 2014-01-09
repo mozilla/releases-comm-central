@@ -46,6 +46,8 @@ var FeedSubscriptions = {
     let message = FeedUtils.strings.GetStringFromName("subscribe-loading");
     this.updateStatusItem("statusText", message);
 
+    FeedUtils.CANCEL_REQUESTED = false;
+
     let win = Services.wm.getMostRecentWindow("mail:3pane");
     if (win)
     {

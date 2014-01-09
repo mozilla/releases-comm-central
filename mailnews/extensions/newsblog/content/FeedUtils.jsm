@@ -556,7 +556,8 @@ var FeedUtils = {
     let fileUrl = Services.io.getProtocolHandler("file")
                              .QueryInterface(Ci.nsIFileProtocolHandler)
                              .getURLSpecFromFile(file);
-    let request = new XMLHttpRequest();
+    let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+                    .createInstance(Ci.nsIXMLHttpRequest);
     request.open("GET", fileUrl, false);
     request.responseType = "document";
     request.send();

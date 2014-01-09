@@ -253,6 +253,23 @@ FeedParser.prototype =
                                                    tag.getAttribute("fileSize")));
         }
 
+      // The <origEnclosureLink> tag has no specification, especially regarding
+      // whether more than one tag is allowed and, if so, how tags would
+      // relate to previously declared (and well specified) enclosure urls.
+      // The common usage is to include 1 origEnclosureLink, in addition to
+      // the specified enclosure tags for 1 enclosure. Thus, we will replace the
+      // first enclosure's, if found, url with the first <origEnclosureLink>
+      // url only or else add the <origEnclosureLink> url.
+      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origEnclosureLink");
+      let origEncUrl = this.getNodeValue(tags ? tags[0] : null);
+      if (origEncUrl)
+      {
+        if (item.enclosures.length)
+          item.enclosures[0].mURL = origEncUrl;
+        else
+          item.enclosures.push(new FeedEnclosure(origEncUrl));
+      }
+
       parsedItems.push(item);
     }
 
@@ -605,6 +622,16 @@ FeedParser.prototype =
             encUrls.push(url);
           }
         }
+
+      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origEnclosureLink");
+      let origEncUrl = this.getNodeValue(tags ? tags[0] : null);
+      if (origEncUrl)
+      {
+        if (item.enclosures.length)
+          item.enclosures[0].mURL = origEncUrl;
+        else
+          item.enclosures.push(new FeedEnclosure(origEncUrl));
+      }
 
       // Handle atom threading extension, RFC4685.  There may be 1 or more tags,
       // and each must contain a ref attribute with 1 Message-Id equivalent
