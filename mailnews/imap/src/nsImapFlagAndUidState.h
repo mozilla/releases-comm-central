@@ -41,7 +41,7 @@ private:
     nsTArray<nsMsgKey>      fUids;
     nsTArray<imapMessageFlagsType> fFlags;
     // Hash table, mapping uids to extra flags
-    nsDataHashtable<nsUint32HashKey, char *> m_customFlagsHash;
+    nsDataHashtable<nsUint32HashKey, nsCString> m_customFlagsHash;
     // Hash table, mapping UID+customAttributeName to customAttributeValue.
     nsDataHashtable<nsCStringHashKey, nsCString> m_customAttributesHash;
     uint16_t                fSupportedUserFlags;

@@ -88,16 +88,8 @@ nsImapFlagAndUidState::nsImapFlagAndUidState(int32_t numberOfMessages)
   fPartialUIDFetch = true;
 }
 
-/* static */PLDHashOperator nsImapFlagAndUidState::FreeCustomFlags(const uint32_t &aKey, char *aData,
-                                        void *closure)
-{
-  PR_Free(aData);
-  return PL_DHASH_NEXT;
-}
-
 nsImapFlagAndUidState::~nsImapFlagAndUidState()
 {
-  m_customFlagsHash.EnumerateRead(FreeCustomFlags, nullptr);
 }
 
 NS_IMETHODIMP
@@ -122,7 +114,6 @@ NS_IMETHODIMP nsImapFlagAndUidState::Reset()
 {
   PR_CEnterMonitor(this);
   fNumberDeleted = 0;
-  m_customFlagsHash.EnumerateRead(FreeCustomFlags, nullptr);
   m_customFlagsHash.Clear();
   fUids.Clear();
   fFlags.Clear();
@@ -242,37 +233,41 @@ imapMessageFlagsType nsImapFlagAndUidState::GetMessageFlagsFromUID(uint32_t uid,
 
 NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(uint32_t uid, const char *customFlag)
 {
+  if (!customFlag)
+    return NS_OK;
+
   MutexAutoLock mon(mLock);
-  char *ourCustomFlags;
-  char *oldValue = nullptr;
-  m_customFlagsHash.Get(uid, &oldValue);
-  if (oldValue)
+  nsCString ourCustomFlags;
+  nsCString oldValue;
+  if (m_customFlagsHash.Get(uid, &oldValue))
   {
-  // we'll store multiple keys as space-delimited since space is not
-  // a valid character in a keyword. First, we need to look for the
+    // We'll store multiple keys as space-delimited since space is not
+    // a valid character in a keyword. First, we need to look for the
     // customFlag in the existing flags;
-    char *existingCustomFlagPtr = PL_strstr(oldValue, customFlag);
-    uint32_t customFlagLen = strlen(customFlag);
-    while (existingCustomFlagPtr)
+    nsCString customFlagString(customFlag);
+    int32_t existingCustomFlagPos = oldValue.Find(customFlagString, false, 0, -1);
+    uint32_t customFlagLen = customFlagString.Length();
+    while (existingCustomFlagPos != kNotFound)
     {
-      // if existing flags ends with this exact flag, or flag + ' ', we have this flag already;
-      if (strlen(existingCustomFlagPtr) == customFlagLen || existingCustomFlagPtr[customFlagLen] == ' ')
+      // if existing flags ends with this exact flag, or flag + ' '
+      // and the flag is at the beginning of the string or there is ' ' + flag
+      // then we have this flag already;
+      if (((oldValue.Length() == existingCustomFlagPos + customFlagLen) ||
+           (oldValue.CharAt(existingCustomFlagPos + customFlagLen) == ' ')) &&
+           ((existingCustomFlagPos == 0) ||
+            (oldValue.CharAt(existingCustomFlagPos - 1) == ' ')))
         return NS_OK;
       // else, advance to next flag
-      existingCustomFlagPtr = PL_strstr(existingCustomFlagPtr + 1, customFlag);
+      existingCustomFlagPos = oldValue.Find(customFlagString, false, existingCustomFlagPos + customFlagLen, -1);
     }
-    ourCustomFlags = (char *) PR_Malloc(strlen(oldValue) + customFlagLen + 2);
-    strcpy(ourCustomFlags, oldValue);
-    strcat(ourCustomFlags, " ");
-    strcat(ourCustomFlags, customFlag);
-    PR_Free(oldValue);
+    ourCustomFlags.Assign(oldValue);
+    ourCustomFlags.AppendLiteral(" ");
+    ourCustomFlags.Append(customFlag);
     m_customFlagsHash.Remove(uid);
   }
   else
   {
-    ourCustomFlags = NS_strdup(customFlag);
-    if (!ourCustomFlags)
-      return NS_ERROR_OUT_OF_MEMORY;
+    ourCustomFlags.Assign(customFlag);
   }
   m_customFlagsHash.Put(uid, ourCustomFlags);
   return NS_OK;
@@ -281,11 +276,10 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(uint32_t uid, const ch
 NS_IMETHODIMP nsImapFlagAndUidState::GetCustomFlags(uint32_t uid, char **customFlags)
 {
   MutexAutoLock mon(mLock);
-  char *value = nullptr;
-  m_customFlagsHash.Get(uid, &value);
-  if (value)
+  nsCString value;
+  if (m_customFlagsHash.Get(uid, &value))
   {
-    *customFlags = NS_strdup(value);
+    *customFlags = NS_strdup(value.get());
     return (*customFlags) ? NS_OK : NS_ERROR_FAILURE;
   }
   *customFlags = nullptr;
