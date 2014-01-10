@@ -2,3 +2,28 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
+
+EXTRA_COMPONENTS += [
+    'irc.js',
+    'irc.manifest',
+]
+
+EXTRA_JS_MODULES += [
+    'ircBase.jsm',
+    'ircCAP.jsm',
+    'ircCommands.jsm',
+    'ircCTCP.jsm',
+    'ircDCC.jsm',
+    'ircHandlers.jsm',
+    'ircISUPPORT.jsm',
+    'ircMultiPrefix.jsm',
+    'ircNonStandard.jsm',
+    'ircSASL.jsm',
+    'ircServices.jsm',
+    'ircUtils.jsm',
+    'ircWatchMonitor.jsm',
+]
+
+JAR_MANIFESTS += ['jar.mn']

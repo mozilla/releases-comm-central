@@ -6,30 +6,12 @@ DEPTH		= @DEPTH@
 topsrcdir	= @top_srcdir@
 srcdir		= @srcdir@
 VPATH		= @srcdir@
+relativesrcdir = @relativesrcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-EXTRA_JS_MODULES = \
-	ArrayBufferUtils.jsm \
-	imContentSink.jsm \
-	imServices.jsm \
-	imSmileys.jsm \
-	imStatusUtils.jsm \
-	imThemes.jsm \
-	imXPCOMUtils.jsm \
-	jsProtoHelper.jsm \
-	socket.jsm \
-	$(NULL)
-
-EXTRA_PP_JS_MODULES = \
-	hiddenWindow.jsm \
-	imTextboxUtils.jsm \
-	$(NULL)
-
 ifdef ENABLE_TESTS
-relativesrcdir = @relativesrcdir@
 TESTING_JS_MODULES := test/appInfoUtils.jsm
-XPCSHELL_TESTS = test
 endif
 
 include $(topsrcdir)/config/rules.mk

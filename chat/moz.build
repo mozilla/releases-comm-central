@@ -21,3 +21,4 @@ PARALLEL_DIRS += [
 
 if CONFIG['MOZ_DEBUG']:
     PARALLEL_DIRS += ['protocols/jsTest']
+
