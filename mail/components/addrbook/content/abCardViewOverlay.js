@@ -297,8 +297,11 @@ function DisplayCardViewPane(realCard)
         dateStr = date.toLocaleDateString();
       }
       // if the year doesn't exist, display Month DD (ex. January 01)
-      else
-        dateStr = date.toLocaleFormat(gAddressBookBundle.getString("dateformat"));
+      else {
+        dateStr = date.toLocaleFormat(
+          gAddressBookBundle.getString("dateFormatMonthDay")
+        );
+      }
     }
     else if (year)
       dateStr = year;
