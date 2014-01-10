@@ -5,15 +5,15 @@
 app_libxul_dirs = []
 app_libxul_static_dirs = []
 
-# Invoked from /mozilla.
-if not CONFIG['COMM_BUILD']:
-    if not CONFIG['LIBXUL_SDK']:
-        include('/toolkit/toolkit.mozbuild')
+if not CONFIG['LIBXUL_SDK']:
+    include('/toolkit/toolkit.mozbuild')
 
-    if CONFIG['MOZ_EXTENSIONS']:
-        add_tier_dir('app', 'extensions')
-else:
-    add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
+add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
 
-    add_tier_dir('app', 'chat')
-    add_tier_dir('app', 'im')
+add_tier_dir('app', '../chat')
+
+# Ensure extensions are built after chat/ so purplexpcom can build.
+if CONFIG['MOZ_EXTENSIONS']:
+    add_tier_dir('app', 'extensions')
+
+add_tier_dir('app', '../im')
