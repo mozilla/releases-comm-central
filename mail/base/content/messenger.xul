@@ -247,7 +247,7 @@
 <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
 <tooltip id="folderpopup" class="folderSummaryPopup"/>
 
-<tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
+<tooltip id="aHTMLTooltip" page="true"/>
 <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>
 
 #ifdef CAN_DRAW_IN_TITLEBAR

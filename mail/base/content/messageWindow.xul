@@ -139,7 +139,7 @@
   <!-- mail-toolbox is provided by mailWindowOverlay.xul -->
   <toolbox id="mail-toolbox" />
 
-  <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
+  <tooltip id="aHTMLTooltip" page="true"/>
 
  <!-- msg header view -->
   <!-- a convenience box for ease of extension overlaying -->

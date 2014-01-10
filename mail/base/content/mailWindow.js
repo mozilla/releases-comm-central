@@ -541,64 +541,6 @@ function InformUserOfCertError(socketInfo, targetSite)
                   '','chrome,centerscreen,modal', params);
 }
 
-/**
- * Content area tooltip.
- * XXX see bug 480356 - this must move into XBL binding/equiv!
- **/
-function FillInHTMLTooltip(tipElement)
-{
-  const XLinkNS = "http://www.w3.org/1999/xlink";
-  const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-
-  var retVal = false;
-  if (tipElement.namespaceURI == XULNS &&
-      tipElement.ownerDocument.documentElement.nameSpaceURI == XULNS)
-    return retVal;
-
-  var titleText = null;
-  var XLinkTitleText = null;
-  var tooltipText = null;
-  var direction = tipElement.ownerDocument.dir;
-
-  while (!titleText && !XLinkTitleText && !tooltipText && tipElement) {
-    if (tipElement.nodeType == Node.ELEMENT_NODE) {
-      titleText = tipElement.getAttribute("title");
-      XLinkTitleText = tipElement.getAttributeNS(XLinkNS, "title");
-      if (tipElement.namespaceURI == XULNS) // only XUL nodes can get tooltiptext
-        tooltipText = tipElement.getAttribute("tooltiptext");
-      var defView = tipElement.ownerDocument.defaultView;
-      // XXX Work around bug 350679:
-      // "Tooltips can be fired in documents with no view".
-      if (!defView)
-        return retVal;
-      direction = defView.getComputedStyle(tipElement, "")
-        .getPropertyValue("direction");
-    }
-    tipElement = tipElement.parentNode;
-  }
-
-  var tipNode = document.getElementById("aHTMLTooltip");
-  tipNode.style.direction = direction;
-
-  /* tooltiptext has the highest priority but is only non-null for XUL nodes. */
-  for each (var t in [titleText, XLinkTitleText, tooltipText]) {
-    if (t && /\S/.test(t)) {
-
-      // Per HTML 4.01 6.2 (CDATA section), literal CRs and tabs should be
-      // replaced with spaces, and LFs should be removed entirely.
-      // XXX Bug 322270: We don't preserve the result of entities like &#13;,
-      // which should result in a line break in the tooltip, because we can't
-      // distinguish that from a literal character in the source by this point.
-      t = t.replace(/[\r\t]/g, ' ');
-      t = t.replace(/\n/g, '');
-
-      tipNode.setAttribute("label", t);
-      retVal = true;
-    }
-  }
-  return retVal;
-}
-
 function nsBrowserAccess() { }
 
 nsBrowserAccess.prototype = {
