@@ -132,6 +132,7 @@ var DefaultController =
       case "cmd_editAsNew":
       case "cmd_createFilterFromMenu":
       case "cmd_delete":
+      case "cmd_cancel":
       case "cmd_deleteFolder":
       case "button_delete":
       case "button_junk":
@@ -245,9 +246,6 @@ var DefaultController =
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
 
-      case "cmd_cancel":
-        return(gFolderDisplay.selectedMessageIsNews);
-
       default:
         return false;
     }
@@ -270,11 +268,9 @@ var DefaultController =
       case "cmd_shiftDelete":
       case "button_shiftDelete":
         return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.deleteNoTrash);
-      case "cmd_cancel": {
-        let selectedMessages = gFolderDisplay.selectedMessages;
-        return selectedMessages.length == 1 && selectedMessages[0].folder &&
-               selectedMessages[0].folder.server.type == "nntp";
-      }
+      case "cmd_cancel":
+        return gFolderDisplay.selectedCount == 1 &&
+               gFolderDisplay.selectedMessageIsNews;
       case "cmd_deleteFolder":
         var folders = gFolderTreeView.getSelectedFolders();
         if (folders.length == 1) {
@@ -295,16 +291,12 @@ var DefaultController =
         return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.toggleThreadWatched);
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
-      {
-        let selectedMessages = gFolderDisplay.selectedMessages;
-        return selectedMessages.length == 1 && selectedMessages[0].folder &&
-               selectedMessages[0].folder.server.canHaveFilters;
-      }
+        return gFolderDisplay.selectedCount == 1 &&
+               gFolderDisplay.selectedMessage.folder &&
+               gFolderDisplay.selectedMessage.folder.server.canHaveFilters;
       case "cmd_openConversation":
-      {
-        return (gFolderDisplay.selectedMessages.length == 1) &&
+        return gFolderDisplay.selectedCount == 1 &&
                gConversationOpener.isSelectedMessageIndexed();
-      }
       case "cmd_saveAsFile":
         return GetNumSelectedMessages() > 0;
       case "cmd_saveAsTemplate":
@@ -638,7 +630,7 @@ var DefaultController =
         gFolderDisplay.doCommand(nsMsgViewCommandType.deleteMsg);
         break;
       case "cmd_cancel":
-        let message = gFolderDisplay.selectedMessages[0];
+        let message = gFolderDisplay.selectedMessage;
         message.folder.QueryInterface(Components.interfaces.nsIMsgNewsFolder)
                       .cancelMessage(message, msgWindow);
         break;

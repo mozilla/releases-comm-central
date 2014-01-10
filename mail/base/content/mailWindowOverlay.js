@@ -2184,7 +2184,7 @@ function UpdateJunkButton()
  */
 function CanMarkMsgAsRead(markingRead)
 {
-  return gFolderDisplay.selectedMessages.length > 0 &&
+  return gFolderDisplay.selectedCount > 0 &&
          SelectedMessagesAreRead() != markingRead;
 }
 

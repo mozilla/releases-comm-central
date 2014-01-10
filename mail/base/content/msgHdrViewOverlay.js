@@ -2783,8 +2783,8 @@ function onShowOtherActionsPopup()
 
   let openConversation = document.getElementById("otherActionsOpenConversation");
   openConversation.disabled = !glodaEnabled;
-  if (glodaEnabled && gFolderDisplay.selectedMessages.length > 0) {
-    let message = gFolderDisplay.selectedMessages[0];
+  if (glodaEnabled && gFolderDisplay.selectedCount > 0) {
+    let message = gFolderDisplay.selectedMessage;
     let isMessageIndexed = Gloda.isMessageIndexed(message);
     openConversation.disabled = !isMessageIndexed;
   }
@@ -2817,8 +2817,8 @@ ConversationOpener.prototype = {
     let glodaEnabled = Services.prefs
       .getBoolPref("mailnews.database.global.indexer.enabled");
 
-    if (glodaEnabled && gFolderDisplay.selectedMessages.length > 0) {
-      let message = gFolderDisplay.selectedMessages[0];
+    if (glodaEnabled && gFolderDisplay.selectedCount > 0) {
+      let message = gFolderDisplay.selectedMessage;
       return Gloda.isMessageIndexed(message);
     }
     return false;
