@@ -82,7 +82,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/ArrayBufferUtils.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
-// Network errors see: netwerk/base/public/nsNetError.h
+// Network errors see: xpcom/base/nsError.h
 const NS_ERROR_MODULE_NETWORK = 2152398848;
 const NS_ERROR_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 13;
 const NS_ERROR_NET_TIMEOUT = NS_ERROR_MODULE_NETWORK + 14;
