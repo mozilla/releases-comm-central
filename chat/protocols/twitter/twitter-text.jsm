@@ -226,7 +226,7 @@ var window = {};
   twttr.txt.regexen.latinAccentChars = regexSupplant(latinAccentChars.join(""));
 
   // A hashtag must contain characters, numbers and underscores, but not all numbers.
-  twttr.txt.regexen.hashSigns = /[#ï¼ƒ]/;
+  twttr.txt.regexen.hashSigns = /[#＃]/;
   twttr.txt.regexen.hashtagAlpha = regexSupplant(/[a-z_#{latinAccentChars}#{nonLatinHashtagChars}]/i);
   twttr.txt.regexen.hashtagAlphaNumeric = regexSupplant(/[a-z0-9_#{latinAccentChars}#{nonLatinHashtagChars}]/i);
   twttr.txt.regexen.endHashtagMatch = regexSupplant(/^(?:#{hashSigns}|:\/\/)/);
@@ -234,8 +234,8 @@ var window = {};
   twttr.txt.regexen.validHashtag = regexSupplant(/(#{hashtagBoundary})(#{hashSigns})(#{hashtagAlphaNumeric}*#{hashtagAlpha}#{hashtagAlphaNumeric}*)/gi);
 
   // Mention related regex collection
-  twttr.txt.regexen.validMentionPrecedingChars = /(?:^|[^a-zA-Z0-9_!#$%&*@ï¼ ]|RT:?)/;
-  twttr.txt.regexen.atSigns = /[@ï¼ ]/;
+  twttr.txt.regexen.validMentionPrecedingChars = /(?:^|[^a-zA-Z0-9_!#$%&*@＠]|RT:?)/;
+  twttr.txt.regexen.atSigns = /[@＠]/;
   twttr.txt.regexen.validMentionOrList = regexSupplant(
     '(#{validMentionPrecedingChars})' +  // $1: Preceding character
     '(#{atSigns})' +                     // $2: At mark
@@ -246,7 +246,7 @@ var window = {};
   twttr.txt.regexen.endMentionMatch = regexSupplant(/^(?:#{atSigns}|[#{latinAccentChars}]|:\/\/)/);
 
   // URL related regex collection
-  twttr.txt.regexen.validUrlPrecedingChars = regexSupplant(/(?:[^A-Za-z0-9@ï¼ $#ï¼ƒ#{invalid_chars_group}]|^)/);
+  twttr.txt.regexen.validUrlPrecedingChars = regexSupplant(/(?:[^A-Za-z0-9@＠$#＃#{invalid_chars_group}]|^)/);
   twttr.txt.regexen.invalidUrlWithoutProtocolPrecedingChars = /[-_.\/]$/;
   twttr.txt.regexen.invalidDomainChars = stringSupplant("#{punct}#{spaces_group}#{invalid_chars_group}", twttr.txt.regexen);
   twttr.txt.regexen.validDomainChars = regexSupplant(/[^#{invalidDomainChars}]/);
@@ -580,7 +580,7 @@ var window = {};
     // For those URLs, display_url is not a substring of expanded_url, so we don't do anything special to render the elided parts.
     // For a pic.twitter.com URL, the only elided part will be the "https://", so this is fine.
 
-    var displayUrlSansEllipses = displayUrl.replace(/â€¦/g, ""); // We have to disregard ellipses for matching
+    var displayUrlSansEllipses = displayUrl.replace(/…/g, ""); // We have to disregard ellipses for matching
     // Note: we currently only support eliding parts of the URL at the beginning or the end.
     // Eventually we may want to elide parts of the URL in the *middle*.  If so, this code will
     // become more complicated.  We will probably want to create a regexp out of display URL,
@@ -593,8 +593,8 @@ var window = {};
         beforeDisplayUrl: expandedUrl.substr(0, displayUrlIndex),
         // Portion of expandedUrl that comes after displayUrl
         afterDisplayUrl: expandedUrl.substr(displayUrlIndex + displayUrlSansEllipses.length),
-        precedingEllipsis: displayUrl.match(/^â€¦/) ? "â€¦" : "",
-        followingEllipsis: displayUrl.match(/â€¦$/) ? "â€¦" : ""
+        precedingEllipsis: displayUrl.match(/^…/) ? "…" : "",
+        followingEllipsis: displayUrl.match(/…$/) ? "…" : ""
       };
       for (var k in v) {
         if (v.hasOwnProperty(k)) {
@@ -602,12 +602,12 @@ var window = {};
         }
       }
       // As an example: The user tweets "hi http://longdomainname.com/foo"
-      // This gets shortened to "hi http://t.co/xyzabc", with display_url = "â€¦nname.com/foo"
+      // This gets shortened to "hi http://t.co/xyzabc", with display_url = "…nname.com/foo"
       // This will get rendered as:
       // <span class='tco-ellipsis'> <!-- This stuff should get displayed but not copied -->
-      //   â€¦
+      //   …
       //   <!-- There's a chance the onCopy event handler might not fire. In case that happens,
-      //        we include an &nbsp; here so that the â€¦ doesn't bump up against the URL and ruin it.
+      //        we include an &nbsp; here so that the … doesn't bump up against the URL and ruin it.
       //        The &nbsp; is inside the tco-ellipsis span so that when the onCopy handler *does*
       //        fire, it doesn't get copied.  Otherwise the copied text would have two spaces in a row,
       //        e.g. "hi  http://longdomainname.com/foo".
@@ -621,7 +621,7 @@ var window = {};
       // </span>
       // <span class='tco-ellipsis'> <!-- This stuff should get displayed but not copied -->
       //   <span style='font-size:0'>&nbsp;</span>
-      //   â€¦
+      //   …
       // </span>
       v['invisible'] = options.invisibleTagAttrs;
       return stringSupplant("<span class='tco-ellipsis'>#{precedingEllipsis}<span #{invisible}>&nbsp;</span></span><span #{invisible}>#{beforeDisplayUrl}</span><span class='js-display-url'>#{displayUrlSansEllipses}</span><span #{invisible}>#{afterDisplayUrl}</span><span class='tco-ellipsis'><span #{invisible}>&nbsp;</span>#{followingEllipsis}</span>", v);
