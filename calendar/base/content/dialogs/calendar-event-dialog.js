@@ -624,8 +624,8 @@ function dateTimeControls2State(aStartDatepicker) {
     var saveEndTime = gEndTime;
     var kDefaultTimezone = calendarDefaultTimezone();
 
-    let timezonesEnabled = document.getElementById('options-timezones-menuitem')
-                           .getAttribute('checked') == 'true';
+    let timezonesEnabled = document.getElementById('cmd_timezone')
+                                   .getAttribute('checked') == 'true';
     if (gStartTime) {
         // jsDate is always in OS timezone, thus we create a calIDateTime
         // object from the jsDate representation then we convert the timezone
@@ -1164,8 +1164,9 @@ function updateAccept() {
     }
 
     if (startDate && endDate) {
-        var menuItem = document.getElementById('options-timezones-menuitem');
-        if (menuItem.getAttribute('checked') == 'true') {
+        let timezonesEnabled = document.getElementById('cmd_timezone')
+                                       .getAttribute('checked') == 'true';
+        if (timezonesEnabled) {
             var startTimezone = gStartTimezone;
             var endTimezone = gEndTimezone;
             if (endTimezone.isUTC) {
@@ -1436,8 +1437,8 @@ function editAttendees() {
         endTime.isDate = false;
     }
 
-    var menuItem = document.getElementById('options-timezones-menuitem');
-    var displayTimezone = menuItem.getAttribute('checked') == 'true';
+    let displayTimezone = document.getElementById('cmd_timezone')
+                                  .getAttribute('checked') == 'true';
 
     var args = new Object();
     args.startTime = startTime;
@@ -3087,7 +3088,7 @@ function editTimezone(aElementId,aDateTime,aCallback) {
  * - 'todo-duedate'
  * The date/time-objects are either displayed in their respective
  * timezone or in the default timezone. This decision is based
- * on whether or not 'options-timezones-menuitem' is checked.
+ * on whether or not 'cmd_timezone' is checked.
  * the necessary information is taken from the following variables:
  * - 'gStartTime'
  * - 'gEndTime'
@@ -3096,13 +3097,14 @@ function editTimezone(aElementId,aDateTime,aCallback) {
 function updateDateTime() {
     gIgnoreUpdate = true;
 
-    var item = window.calendarItem;
-    var menuItem = document.getElementById('options-timezones-menuitem');
+    let item = window.calendarItem;
+    let timezonesEnabled = document.getElementById('cmd_timezone')
+                                   .getAttribute('checked') == 'true';
 
     // Convert to default timezone if the timezone option
     // is *not* checked, otherwise keep the specific timezone
     // and display the labels in order to modify the timezone.
-    if (menuItem.getAttribute('checked') == 'true') {
+    if (timezonesEnabled) {
         if (isEvent(item)) {
           var startTime = gStartTime.getInTimezone(gStartTimezone);
           var endTime = gEndTime.getInTimezone(gEndTimezone);
@@ -3236,16 +3238,16 @@ function updateDateTime() {
  * - 'timezone-starttime'
  * - 'timezone-endtime'
  * the timezone-links show the corrosponding names of the
- * start/end times. if 'options-timezones-menuitem' is not checked
+ * start/end times. If 'cmd_timezone' is not checked
  * the links will be collapsed.
  */
 function updateTimezone() {
-    let timezoneCommand = document.getElementById('cmd_timezone');
-
+    let timezonesEnabled = document.getElementById('cmd_timezone')
+                                   .getAttribute('checked') == 'true';
     // convert to default timezone if the timezone option
     // is *not* checked, otherwise keep the specific timezone
     // and display the labels in order to modify the timezone.
-    if (timezoneCommand.getAttribute('checked') == 'true') {
+    if (timezonesEnabled) {
         let startTimezone = gStartTimezone;
         let endTimezone = gEndTimezone;
 
