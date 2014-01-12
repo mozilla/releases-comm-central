@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+%include linuxShared.inc
+%filter substitution
+
 /**
  * Tabmail Tabs
  */
@@ -13,28 +16,20 @@
 #tabs-toolbar {
   -moz-appearance: none;
   padding: 0;
-  border-bottom: 1px solid rgba(10, 31, 51, .35);
+  background-image: linear-gradient(to top, hsla(0, 0%, 0%, .3) 1px,
+                                    transparent 1px);
 }
 
-#tabs-toolbar:-moz-lwtheme {
-  border-bottom: 1px solid transparent;
+#tabs-toolbar:not(:-moz-lwtheme) {
+  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
 }
 
 #tabpanelcontainer:-moz-lwtheme {
   color: inherit;
 }
 
-.tabmail-tabs[overflow="true"] {
-  -moz-padding-start: 0px;
-}
-
 .tabmail-arrowscrollbox {
   margin-bottom: -1px;
-}
-
-.tabmail-tabs > .tabmail-tab:first-child > .tab-stack > .tab-content >
-.tab-close-button {
-  visibility: collapse;
 }
 
 tabpanels {
@@ -45,126 +40,7 @@ tabpanels {
 /**
  * Tab
  */
-
-.tabmail-tab {
-  -moz-appearance: none;
-  color: -moz-DialogText;
-  margin: 0 0 -1px;
-  padding: 0;
-  border-radius: 0;
-  border-width: 0;
-  background: none;
-}
-
-.tabmail-tab[selected] {
-  position: relative;
-  text-shadow: none;
-}
-
-.tabmail-tab:-moz-lwtheme {
-  color: inherit;
-  text-shadow: inherit;
-}
-
-.tab-stack {
-  height: 31px;
-}
-
-.tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]),
-.tab-background[selected=true] {
-  background-repeat: no-repeat,
-                     no-repeat,
-                     no-repeat;
-  background-position: left 0,
-                       30px 0,
-                       right 0;
-  background-size: 30px 100%,
-                   calc(100% - 60px) 100%,
-                   30px 100%;
-}
-
-.tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
-  background-image: url(tabs/backgroundStart.png),
-                    url(tabs/backgroundMiddle.png),
-                    url(tabs/backgroundEnd.png);
-}
-
-.tab-background[selected=true] {
-  background-image: url(tabs/activeStart.svg),
-                    url(tabs/activeMiddle.svg),
-                    url(tabs/activeEnd.svg);
-}
-
-.tab-background[selected=true]:-moz-lwtheme {
-  opacity: .52;
-}
-
-.tabmail-tab:not([selected]):not(:hover) +
-.tabmail-tab:not([selected]):not(:hover)::before {
-  content: "";
-  display: -moz-box;
-  width: 2px;
-  height: 28px;
-  -moz-margin-start: -2px;
-  -moz-margin-end: 0;
-  background: linear-gradient(to top, hsla(210, 23%, 10%, .4),
-              hsla(210, 23%, 10%, .1) 80%, transparent),
-              linear-gradient(to top, hsla(0, 0%, 100%, .4),
-              hsla(0, 0%, 100%, .1) 80%, transparent);
-  background-position: 0 0, 1px 0;
-  background-size: 1px 100%;
-  background-repeat: no-repeat;
-}
-
-.tab-content {
-  -moz-padding-start: 10px;
-  -moz-padding-end: 7px;
-}
-
-.tab-background {
-  -moz-margin-start: -14px;
-  -moz-margin-end: -14px;
-}
-
-.tab-background-start,
-.tab-background-end {
-  width: 30px;
-  clip-path: url(chrome://messenger/content/messenger.xul#tab-curve-clip-path);
-}
-
-.tab-background-end:-moz-locale-dir(ltr),
-.tab-background-start:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
-}
-
-.tab-background-middle {
-  -moz-box-flex: 1;
-}
-
-.tabmail-tab,
-.tab-background,
-.tab-content {
-  pointer-events: none;
-}
-
-.tab-background-start,
-.tab-background-middle,
-.tab-background-end,
-.tab-close-button {
-  pointer-events: auto;
-}
-
-.tabmail-arrowscrollbox > scrollbox {
-  -moz-padding-start: 14px;
-  -moz-padding-end: 14px;
-}
-
-.tab-icon-image,
-.tab-throbber {
-  width: 16px;
-  height: 16px;
-  -moz-margin-end: 7px;
-}
+%include ../../shared/mail/tabs.inc.css
 
 .tabmail-tab {
   list-style-image: url("moz-icon://stock/gtk-file?size=menu");
@@ -185,12 +61,16 @@ tabpanels {
   margin: -1px !important; /* let the border not consume any space, like outline */
 }
 
-.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
+.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text,
+.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content >
+  .tab-close-button {
   color: -moz-MenuBarText;
-  opacity: .5;
+  opacity: .6;
 }
 
-.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
+.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text,
+.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content >
+  .tab-close-button {
   color: -moz-DialogText;
   opacity: 1;
 }
@@ -213,7 +93,7 @@ tabpanels {
   position: relative;
   z-index: 4;
   border: none;
-  list-style-image: url(icons/closeTab.svg);
+  list-style-image: url(tabs/closeTab.svg);
   -moz-image-region: auto;
 }
 
@@ -225,7 +105,6 @@ tabpanels {
   /* Make this button focusable so clicking on it will not focus the tab while
      it's getting closed. */
   -moz-user-focus: normal;
-  list-style-image: url(icons/closeTab-active.svg);
 }
 
 /**
@@ -290,32 +169,4 @@ tabpanels {
 
 .alltabs-item > .menu-iconic-left {
   visibility: visible !important;
-}
-
-/* Content Tabs */
-
-.contentTabToolbox {
-  -moz-appearance: none;
-  height: 0px;
-  border: 0;
-}
-
-.contentTabInstance[disablechrome] .contentTabToolbox {
-  display: none;
-}
-
-.contentTabToolbox:not(:-moz-lwtheme) {
-  border-bottom: 1px solid rgb(105, 105, 105);
-}
-
-.contentTabToolbox:-moz-lwtheme {
-  height: 1px;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5) 50%);
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-.contentTabToolbar {
-  height: 0px;
-  min-height: 0px;
-  padding: 0;
 }

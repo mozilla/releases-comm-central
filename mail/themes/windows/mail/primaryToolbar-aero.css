@@ -22,7 +22,6 @@
 }
 
 .mail-toolbox:not(:-moz-lwtheme),
-#navigation-toolbox:not(:-moz-lwtheme),
 .contentTabToolbox:not(:-moz-lwtheme) {
   -moz-appearance: none;
   border-top: none;
@@ -30,11 +29,16 @@
 }
 
 #navigation-toolbox {
-  background-color: transparent !important;
+  -moz-appearance: none;
+  border-top: none;
+  background-color: transparent;
 }
 
 .mail-toolbox,
 .contentTabToolbox {
+  background-image: linear-gradient(rgba(253, 253, 253, 0.45),
+                                    rgba(255, 255, 255, 0));
+  box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
   border-bottom: 1px solid ThreeDShadow;
 }
 
@@ -53,22 +57,13 @@
   background-color: transparent;
 }
 
-#navigation-toolbox #tabs-toolbar:not(:-moz-lwtheme) {
-  border-bottom: 1px solid rgba(10, 31, 51, .35);
-}
-
-#navigation-toolbox #tabs-toolbar:-moz-lwtheme {
-  border-bottom: 1px solid transparent;
-}
-
-.mail-toolbox:-moz-lwtheme,
-.contentTabToolbox:-moz-lwtheme {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.5),
-                    rgba(255, 255, 255, 0) 28px) !important;
-}
-
 #mail-bar3 {
   padding: 1px 0;
+}
+
+#tabs-toolbar {
+  background-image: linear-gradient(to top, hsla(209, 67%, 12%, 0.35) 1px,
+                                    transparent 1px);
 }
 
 @media (-moz-windows-default-theme) {
@@ -76,12 +71,6 @@
   .contentTabToolbox:not(:-moz-lwtheme) {
     background-color: hsl(210, 75%, 92%);
   }
-}
-
-.mail-toolbox:not(:-moz-lwtheme),
-.contentTabToolbox:not(:-moz-lwtheme) {
-  background-image: linear-gradient(rgba(255, 255, 255, .5),
-                    rgba(255, 255, 255, 0));
 }
 
 .chromeclass-toolbar {
@@ -341,34 +330,30 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
 
   #navigation-toolbox:not(:-moz-lwtheme),
   #tabs-toolbar {
-    background: transparent !important;
-    border-style: none;
+    background-color: transparent;
   }
 
   #mail-toolbox:not(:-moz-lwtheme),
   #navigation-toolbox:not(:-moz-lwtheme),
   .glodaTabToolbar {
     color: black;
-    text-shadow: 0 0 .7em white, 0 0 .7em white, 0 1px 0 rgba(255, 255, 255, .4);
   }
 
-  #mail-toolbox:not(:-moz-lwtheme) {
+  #mail-toolbox:not(:-moz-lwtheme),
+  .contentTabToolbox:not(:-moz-lwtheme) {
     border-bottom-color: #AABCCF;
   }
 
   #mail-toolbar-menubar2 {
+    background-image: linear-gradient(rgba(253, 253, 253, 0.45),
+                                      rgba(253, 253, 253, 0.45));
+    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
     padding-bottom: 1px;
     padding-top: 2px;
   }
 
-  #mail-toolbar-menubar2:-moz-lwtheme {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5) 50%);
-  }
-
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
     background-color: hsl(210, 75%, 92%);
-    background-image: linear-gradient(rgba(255, 255, 255, .5),
-                      rgba(255, 255, 255, .5));
     border-bottom: 1px solid #AABCCF;
   }
 
@@ -395,12 +380,11 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
   }
 
   #tabs-toolbar:not(:-moz-lwtheme)::before {
-    box-shadow: 0 0 30px 30px rgb(174, 189, 204);
+    box-shadow: 0 0 30px 30px rgba(174, 189, 204, 0.85);
     content: "";
     display: -moz-box;
     height: 0;
     margin: 0 60px; /* (30px + 30px) from box-shadow */
-    opacity: 0.85;
     position: absolute;
     pointer-events: none;
     top: 50%;

@@ -25,11 +25,9 @@
 
 #tabs-toolbar {
   -moz-appearance: none;
-  border-bottom: 1px solid rgba(10, 31, 51, .35);
-}
-
-#tabs-toolbar:-moz-lwtheme {
-  border-bottom-color: transparent;
+  border-bottom-width: 0;
+  background-image: linear-gradient(to top, hsla(209, 67%, 12%, 0.35) 1px,
+                                    transparent 1px);
 }
 
 #tabs-toolbar {
@@ -45,8 +43,9 @@
   -moz-appearance: none;
   border-top: none;
   border-bottom: 1px solid threedshadow;
-  background-image: linear-gradient(rgba(255, 255, 255, .5),
-                    rgba(255, 255, 255, .1) 19px) !important;
+  background-image: linear-gradient(rgba(253, 253, 253, 0.45),
+                                    rgba(255, 255, 255, 0));
+  box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
 }
 
 .mail-toolbox > toolbar:-moz-lwtheme,

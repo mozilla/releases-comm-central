@@ -19,34 +19,36 @@
 .contentTabToolbox {
   -moz-appearance: none;
   border-bottom: 1px solid hsl(0, 0%, 60%);
-  background-image: linear-gradient(rgba(255, 255, 255, 0.32),
-                    rgba(255, 255, 255, 0) 19px);
+  background: url(chrome://messenger/skin/noise.png),
+              linear-gradient(hsl(0, 0%, 93%), hsl(0, 0%, 83%));
+  background-clip: border-box;
+  background-origin: border-box !important;
+
+  /* Move the noise texture out of the top 1px strip because that overlaps
+     with the tabbar and we don't want to repaint it when animating tabs.
+     The noise image is at least 100px high, so repeating it only horizontally
+     is enough. */
+  background-repeat: repeat-x, no-repeat;
+  background-position: 0 1px, 0 0;
+  box-shadow: inset 0 1px 0 hsla(0, 0%, 100%, .4);
 }
 
-.mail-toolbox:not(:-moz-lwtheme),
-.contentTabToolbox:not(:-moz-lwtheme) {
-  background-image: linear-gradient(hsl(0, 0%, 93%), hsl(0, 0%, 83%) 98%,
-                    hsla(0, 0%, 100%, .15));
+@media (min-resolution: 2dppx) {
+  .mail-toolbox,
+  .contentTabToolbox {
+    background-size: 100px 100px, auto;
+  }
+}
+
+.mail-toolbox:-moz-lwtheme,
+.contentTabToolbox:-moz-lwtheme {
+  background-color: rgba(253, 253, 253, 0.45);
+  background-image: url(chrome://messenger/skin/noise.png);
 }
 
 .mail-toolbox:not(:-moz-lwtheme):-moz-window-inactive,
 .contentTabToolbox:not(:-moz-lwtheme):-moz-window-inactive {
   background-color: -moz-mac-chrome-inactive;
-  background-image: linear-gradient(rgba(255, 255, 255, 0),
-                    rgba(255, 255, 255, 0) 19px);
-}
-
-/* Inactive window state */
-.mail-toolbox:-moz-window-inactive,
-.contentTabToolbox:-moz-window-inactive {
-  -moz-appearance: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.32);
-}
-
-.mail-toolbox:-moz-lwtheme,
-.contentTabToolbox:-moz-lwtheme {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.5),
-                    rgba(255, 255, 255, 0) 28px);
 }
 
 .mail-bar3 {

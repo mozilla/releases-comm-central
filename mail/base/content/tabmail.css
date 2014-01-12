@@ -34,6 +34,11 @@
   display: none;
 }
 
+.tabmail-tabs > .tabmail-tab:first-child > .tab-stack > .tab-content >
+.tab-close-button {
+  visibility: collapse;
+}
+
 .tabmail-tabs:not([closebuttons="noclose"]):not([closebuttons="closeatend"]) >
 .tabmail-tab[selected="true"]:not(:only-child) > .tab-stack > .tab-content > .tab-close-button {
   display: -moz-box;
