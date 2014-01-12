@@ -577,8 +577,8 @@
             var overlay = this.getPluginUI(aPlugin, "main");
             aPlugin.addEventListener("overflow", this);
             aPlugin.addEventListener("underflow", this);
-            overlay.style.visibility =
-              this.isTooSmall(aPlugin, overlay) ? "hidden" : "visible";
+            overlay.classList.toggle("visible",
+                                     !this.isTooSmall(aPlugin, overlay));
 
             if (this._prefs.getBoolPref(aPref || "plugins.hide_infobar_for_missing_plugin"))
               return;
@@ -974,8 +974,8 @@
                 var plugin = aEvent.target;
                 var overlay = this.getPluginUI(plugin, "main");
                 if (overlay)
-                  overlay.style.visibility =
-                    this.isTooSmall(plugin, overlay) ? "hidden" : "visible";
+                  overlay.classList.toggle("visible",
+                                           !this.isTooSmall(plugin, overlay));
                 break;
 
               case "MozPlayPlugin":
@@ -1394,7 +1394,7 @@
           <![CDATA[
             var overlay = this.getPluginUI(pluginElement, "main");
             if (overlay) // no overlay if plugin has been activated
-              overlay.style.visibility = "hidden";
+              overlay.classList.remove("visible");
           ]]>
         </body>
       </method>
@@ -1422,7 +1422,7 @@
             var overlay = this.getPluginUI(pluginElement, "main");
 
             if (!this.canActivatePlugin(pluginElement)) {
-              overlay.style.visibility = "hidden";
+              overlay.classList.remove("visible");
               return;
             }
 
@@ -1436,8 +1436,8 @@
             // Show the in-content UI if it's not too big. The crashed plugin handler already does this.
             pluginElement.addEventListener("overflow", this);
             pluginElement.addEventListener("underflow", this);
-            overlay.style.visibility =
-              this.isTooSmall(pluginElement, overlay) ? "hidden" : "visible";
+            overlay.classList.toggle("visible",
+                                     !this.isTooSmall(pluginElement, overlay));
 
             var pluginName = this.getPluginInfo(pluginElement).pluginName;
             var messageString = this._stringBundle.formatStringFromName("PluginClickToActivate", [pluginName], 1);
@@ -2367,7 +2367,7 @@
           }
 
           if (isShowing) {
-            overlay.style.visibility = "visible";
+            overlay.classList.add("visible");
             // If a previous plugin on the page was too small and resulted in
             // adding a notification bar, then remove it because this plugin
             // instance it big enough to serve as in-content notification.
@@ -2376,7 +2376,7 @@
               this.removeNotification(notification, true);
             this.crashNotified = true;
           } else {
-            overlay.style.visibility = "hidden";
+            overlay.classList.remove("visible");
             // If another plugin on the page was large enough to show our UI, we don't
             // want to show a notification bar.
             if (!this.crashNotified)
