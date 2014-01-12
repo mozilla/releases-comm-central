@@ -93,6 +93,7 @@
             this.missingPlugins = null;
             this.crashNotified = false;
             this.clickToPlayPluginsActivated = false;
+            this.clickToPlayTypes = Set();
             if (this.popupCount) {
               this.popupCount = 0;
               this.notifyPopupCountChanged();
@@ -518,6 +519,8 @@
 
       <field name="clickToPlayPluginsActivated">false</field>
 
+      <field name="clickToPlayTypes">Set()</field>
+
       <method name="getPluginInfo">
         <parameter name="pluginElement"/>
         <body>
@@ -650,27 +653,34 @@
             const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
             var pm = Components.classes["@mozilla.org/permissionmanager;1"]
                                .getService(nsIPermissionManager);
-            var plugins = this.contentWindowUtils.plugins;
-            for (var plugin of plugins) {
-              if (this.canActivatePlugin(plugin)) {
-                var permissionString = ph.getPermissionStringForType(plugin.actualType);
-                pm.add(this.activeBrowser.currentURI, permissionString, aPermission);
-              }
+            for (var type of this.clickToPlayTypes) {
+              var permissionString = ph.getPermissionStringForType(type);
+              pm.add(this.activeBrowser.currentURI, permissionString, aPermission);
             }
           ]]>
         </body>
       </method>
 
       <method name="activatePlugins">
+        <parameter name="aCheckForReload"/>
         <body>
           <![CDATA[
             this.clickToPlayPluginsActivated = true;
             var plugins = this.contentWindowUtils.plugins;
             for (let plugin of plugins) {
               if (this.canActivatePlugin(plugin))
-                plugin.playPlugin();
+                this.clickToPlayTypes.delete(plugin.actualType);
             }
-            this.removePluginClickToPlayPrompt();
+            if (aCheckForReload && this.clickToPlayTypes.size)
+              this.reloadPage();
+            else {
+              for (let plugin of plugins) {
+                if (this.canActivatePlugin(plugin))
+                  plugin.playPlugin();
+              }
+              if (!this.clickToPlayTypes.size)
+                this.removePluginClickToPlayPrompt();
+            }
           ]]>
         </body>
       </method>
@@ -1355,7 +1365,7 @@
               callback: (function () {
                 if (checkbox.checked)
                   this.setPermissionForPlugins(nsIPermissionManager.ALLOW_ACTION);
-                this.activatePlugins();
+                this.activatePlugins(checkbox.checked);
               }).bind(this)
             }, {
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.dismiss.label"),
@@ -1431,6 +1441,7 @@
               return;
             }
 
+            this.clickToPlayTypes.add(pluginElement.actualType);
             this.showPluginClickToPlayPrompt(aTriggeredByNewPlugin);
 
             // Show the in-content UI if it's not too big. The crashed plugin handler already does this.
@@ -2683,7 +2694,7 @@
               accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.always.accesskey"),
               callback: (function () {
                 this.setPermissionForPlugins(nsIPermissionManager.ALLOW_ACTION);
-                this.activatePlugins();
+                this.activatePlugins(true);
               }).bind(this)
             }, {
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.never.label"),
