@@ -1,0 +1,23 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+body {
+  background: #222;
+  color: #eee;
+}
+.outgoing .pseudo {
+  color: #7878dc;
+}
+.incoming .pseudo {
+  color: #dc7878;
+}
+.event {
+  color: #828282;
+}
+a {
+  color: #5497ea;
+}
+.context {
+  color: #b2b2b4;
+}

@@ -1,0 +1,238 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+                      "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"
+  [
+    <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+    %brandDTD;
+    <!ENTITY % creditsDTD SYSTEM "chrome://instantbird/locale/credits.dtd">
+    %creditsDTD;
+  ]
+>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>&credit.title;</title>
+
+    <style>
+      html {
+        background-color: white;
+        color: black;
+      }
+
+      * {
+        cursor: default;
+        -moz-user-select: none;
+      }
+
+      #titleBox {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        right: 0px;
+        bottom: auto;
+        z-index: 999;
+      }
+
+      #footerBox {
+        position: fixed;
+        left: 0px;
+        top: auto;
+        right: 0px;
+        bottom: 0px;
+        z-index: 999;
+      }
+
+      #creditsBox {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        bottom:8px;
+        overflow: hidden;
+        z-index: 1;
+        width: 280px;
+        margin-left: 10px;
+        margin-right: 10px;
+        font-family: Arial, sans-serif;
+        font-size: small;
+      }
+
+      #creditsBox > .title > .motto {
+        margin-bottom: 180px;
+      }
+
+      h3 {
+        font-weight: bold;
+        font-size: small;
+        text-align: center;
+        margin: 15px 0px 5px 0px;
+      }
+
+      .creditsGroup {
+        margin-bottom: 1px;
+        text-align: center;
+      }
+
+      .footnote {
+        font-size: x-small;
+        text-align: justify;
+        padding-bottom: 40px;
+      }
+
+      h2.title {
+        margin-top: 200px;
+        margin-bottom: 100px;
+        text-align: center;
+      }
+
+      .motto {
+        margin-top: 2px;
+        font-style: italic;
+        font-size: small;
+        font-weight: normal;
+        padding-left: 2em;
+      }
+
+      #gecko {
+        margin-top:    90px;
+        margin-bottom: 90px;
+        font-size: medium;
+      }
+
+      a {
+        color: blue;
+        text-decoration: underline;
+      }
+
+      ul {
+        margin-top: 0px;
+        margin-left: 0px;
+        padding-left: 0px;
+      }
+
+      li {
+        list-style-type: none;
+      }
+
+      .center {
+        text-align: center;
+      }
+    </style>
+
+    <script type="application/x-javascript" src="chrome://global/content/globalOverlay.js"></script>
+    <script type="application/x-javascript">
+    <![CDATA[
+
+      var gCreditsInterval = -1;
+
+      function uninit()
+      {
+        if (gCreditsInterval > -1)
+          clearInterval(gCreditsInterval);
+      }
+
+      function init()
+      {
+        var cb = document.getElementById("creditsBox");
+        cb.scrollTop = 0;
+        setTimeout(runCredits, 3000);
+      }
+
+      function runCredits()
+      {
+        gCreditsInterval = setInterval("creditsCallback()", 25);
+      }
+
+      function creditsCallback()
+      {
+        var cb = document.getElementById("creditsBox");
+        var newtop = cb.scrollTop + 1;
+        cb.scrollTop = newtop;
+        if (cb.scrollTop != newtop) {
+          // we're at the bottom
+          clearInterval(gCreditsInterval);
+          setTimeout(function() { cb.scrollTop = 0 }, 10000);
+        }
+      }
+
+      function openContributors(aEvent)
+      {
+        // Always prevent the default action even if loading throws, to
+        // avoid replacing the current document with an external page.
+        aEvent.preventDefault();
+
+        var ioService = Components.classes["@mozilla.org/network/io-service;1"].
+                        getService(Components.interfaces.nsIIOService);
+        Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                  .getService(Components.interfaces.nsIExternalProtocolService)
+                  .loadUrl(ioService.newURI(aEvent.target.href, null, null));
+      }
+
+    ]]>
+    </script>
+  </head>
+  <body onload="init();" onunload="uninit();">
+    <div id="titleBox">
+      <img src="chrome://branding/content/about-credits.png" />
+    </div>
+
+    <div id="creditsBox">
+        <h2 class="title">&brandFullName;
+          <div class="motto">&brandMotto;</div>
+        </h2>
+
+        <div class="creditsGroup">
+          <h3>&credit.lead;</h3>
+          <div class="credit">Florian Quèze</div>
+        </div>
+
+        <div class="creditsGroup">
+          <h3>&credit.contributors;</h3>
+          <div class="credit">Alexander Slovesnik</div>
+          <div class="credit">Alexandre Abraham</div>
+          <div class="credit">Benedikt Pfeifer</div>
+          <div class="credit">Daniel Scruton</div>
+          <div class="credit">Florian Janßen</div>
+          <div class="credit">Mark Yen</div>
+          <div class="credit">Matt d'Entremont</div>
+          <div class="credit">Nihanth Subramanya</div>
+          <div class="credit">Patrick Cloke</div>
+          <div class="credit">Quentin Castier</div>
+          <div class="credit">Quentin Headen</div>
+          <div class="credit">Quentin Raynaud</div>
+          <div class="credit">Romain Bezut</div>
+          <div class="credit">Varuna Jayasiri</div>
+          <div class="credit">Will Nayes</div>
+        </div>
+
+        <div class="creditsGroup">
+          <h3>&credit.thanks;</h3>
+          <div class="credit">
+          <ul>
+            <li>Mozilla developers</li>
+            <li>The Pidgin team</li>
+            <li>Cré'Innov</li>
+          </ul>
+          </div>
+
+          &credit.translation;
+
+        </div>
+
+        <p id="gecko" class="center">&credit.poweredByGecko;</p>
+
+        <p class="footnote">
+          &brandFullName; &license.part0; &copy;2007-2013 &license.part1;
+          <a href="http://www.instantbird.com/thanks.html" onclick="openContributors(event);">&license.contrib;</a>,
+          &license.part2;
+          <a onclick="openDialog('about:license');">&credit.license;</a>
+          &license.part3;</p>
+
+    </div>
+
+    <div id="footerBox">
+      <img src="chrome://branding/content/about-footer.png"/>
+    </div>
+  </body>
+</html>

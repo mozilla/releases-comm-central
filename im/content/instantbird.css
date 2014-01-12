@@ -1,0 +1,68 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+conversation {
+  -moz-binding: url("chrome://instantbird/content/conversation.xml#conversation");
+}
+
+newtab {
+  -moz-binding: url("chrome://instantbird/content/newtab.xml#newtab");
+}
+
+.newtab-item {
+  -moz-binding: url("chrome://instantbird/content/newtab.xml#newtab-item");
+}
+
+aboutPanel {
+  -moz-binding: url("chrome://instantbird/content/aboutPanel.xml#aboutPanel");
+}
+
+.conv-chat:not([chat]) {
+  display: none;
+}
+
+.statusMessage[editable],
+.statusMessageWithDash[editable] {
+  cursor: text !important;
+}
+
+.statusMessage[editing] {
+  -moz-appearance: textfield;
+  -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
+}
+
+@media all and (min-height: 251px) {
+  .conv-top-info {
+    -moz-binding: url("chrome://instantbird/content/conversation.xml#conv-info-large") !important;
+  }
+}
+
+@media all and (max-height: 250px) {
+  .conv-top-info {
+    -moz-binding: url("chrome://instantbird/content/conversation.xml#conv-info-small") !important;
+  }
+
+  .statusMessage:not([editing]),
+  .statusMessageWithDash[editing] {
+    display: none;
+  }
+}
+
+@media all and (max-height: 200px) {
+  .conv-top-info {
+    display: none;
+  }
+}
+
+.alltargets-item {
+  -moz-binding: url("chrome://instantbird/content/conversation.xml#menuitem-target");
+}
+
+browser[type="content-conversation"] {
+  -moz-binding: url("chrome://chat/content/convbrowser.xml#browser");
+}
+
+findbar {
+  overflow-x: hidden;
+}

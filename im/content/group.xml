@@ -1,0 +1,417 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd" >
+  %instantbirdDTD;
+]>
+
+<bindings id="groupBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="group" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content persist="closed">
+      <xul:image class="twisty"/>
+      <xul:label flex="1" crop="end" xbl:inherits="value=name"/>
+      <xul:button anonid="hideGroupButton" class="hideGroupButton"
+                  tooltiptext="&hideGroupTooltip;"/>
+    </content>
+    <implementation implements="nsIObserver">
+     <constructor>
+      <![CDATA[
+        if (this.hasAttribute("closed"))
+          this.setAttribute("aria-expanded", "false");
+        else
+          this.setAttribute("aria-expanded", "true");
+      ]]>
+     </constructor>
+
+     <destructor>
+      <![CDATA[
+        if (this.tag) {
+          this.tag.removeObserver(this);
+          delete this.tag;
+        }
+      ]]>
+     </destructor>
+
+     <method name="build">
+      <parameter name="aGroup"/>
+      <body>
+      <![CDATA[
+        this.tag = aGroup;
+        let contacts = this.tag.getContacts();
+        if (!this.showOffline)
+          contacts = contacts.filter((function (c) c.online), this);
+        if (!contacts.length)
+          return false;
+
+        this.groupId = aGroup.id;
+        this.contacts = [ ];
+        this.contactsById = {};
+        this.setAttribute("id", "group" + this.groupId);
+
+        // restore the potential persisted value
+        var source = Components.classes["@mozilla.org/rdf/datasource;1?name=local-store"]
+                               .getService(Components.interfaces.nsIRDFDataSource);
+        var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
+                            .getService(Components.interfaces.nsIRDFService);
+        var elt = RDF.GetResource(document.location + "#" + this.id);
+        if (source.HasAssertion(elt, RDF.GetResource("closed"),
+                                RDF.GetLiteral("true"), true))
+          this.setAttribute("closed", "true");
+
+        contacts.sort(this.sortComparator).forEach(this.addContact, this);
+
+        let name;
+        if (this.tag.id != -1)
+          name = this.tag.name;
+        else {
+          name = Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties")
+                         .GetStringFromName("group.otherContacts.name");
+        }
+        this.displayName = name;
+        this._updateGroupLabel();
+        this.tag.addObserver(this);
+        return true;
+      ]]>
+      </body>
+     </method>
+
+     <field name="_showOffline">false</field>
+     <property name="showOffline">
+       <getter>
+         <![CDATA[
+           return this._showOffline;
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           this._showOffline = val;
+           if (val) {
+             this.tag.getContacts().filter(function (c) !c.online)
+                                   .forEach(this.addContact, this);
+             this._updateGroupLabel();
+           }
+           else {
+             this.contacts.filter(function (b) !b.contact.online)
+                          .forEach(function (b) {
+               b.destroy();
+               b.parentNode.removeChild(b);
+             }, this);
+           }
+           return val;
+         ]]>
+       </setter>
+     </property>
+
+     <field name="_selectListener">null</field>
+     <field name="_pendingReorders">[]</field>
+     <method name="_reorderContactLater">
+       <parameter name="aContactElt"/>
+       <body>
+       <![CDATA[
+         if (this._pendingReorders.indexOf(aContactElt) != -1)
+           return;
+
+         this._pendingReorders.push(aContactElt);
+         if (!this._selectListener) {
+           this._selectListener = (function() {
+             let remaining = [];
+             for each (let contactElt in this._pendingReorders) {
+               if (!contactElt.hasAttribute("selected") &&
+                   !contactElt.hasAttribute("open"))
+                 this.observe(contactElt.contact, "contact-display-name-changed");
+               else
+                 remaining.push(contactElt);
+             }
+             this._pendingReorders = remaining;
+             if (remaining.length == 0) {
+               this.parentNode.removeEventListener("select", this._selectListener, false);
+               this._selectListener = null;
+             }
+           }).bind(this);
+           this.parentNode.addEventListener("select", this._selectListener);
+         }
+       ]]>
+       </body>
+     </method>
+
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
+       <body>
+       <![CDATA[
+         if (this.showOffline && (aTopic == "contact-added" ||
+                                  aTopic == "contact-moved-in") ||
+             !this.showOffline && aSubject.online &&
+             (aTopic == "contact-availability-changed" ||
+              aTopic == "contact-added" ||
+              aTopic == "contact-moved-in")) {
+           this.addContact(aSubject);
+           this._updateGroupLabel();
+           return;
+         }
+
+         if (aTopic == "contact-no-longer-dummy") {
+           let oldId = parseInt(aData);
+           if (this.contactsById.hasOwnProperty(oldId)) {
+             let contact = this.contactsById[oldId];
+             delete this.contactsById[oldId];
+             this.contactsById[contact.contact.id] = contact;
+           }
+           return;
+         }
+
+         if (aTopic == "contact-display-name-changed") {
+           this.updateContactPosition(aSubject);
+           return;
+         }
+
+         if (aTopic == "tag-hidden") {
+           this.setAttribute("collapsing", "true");
+           this.addEventListener("transitionend", this._transitionEnd, true);
+           for each (let contact in this.contacts) {
+             contact.state = "collapsing";
+             contact.destroy();
+           }
+           return;
+         }
+       ]]>
+       </body>
+     </method>
+
+     <!-- Takes as input two contact elements (imIContact type) and compares
+          - their nicknames alphabetically (case insensitive). This method
+          - behaves as a callback that Array.sort accepts as a parameter.
+          -->
+     <method name="sortComparator">
+      <parameter name="aContactA"/>
+      <parameter name="aContactB"/>
+      <body>
+      <![CDATA[
+        let a = aContactA.displayName.toLowerCase();
+        let b = aContactB.displayName.toLowerCase();
+        return a.localeCompare(b);
+      ]]>
+      </body>
+     </method>
+
+     <method name="addContact">
+      <parameter name="aContact"/>
+      <body>
+      <![CDATA[
+        if (this.contactsById.hasOwnProperty(aContact.id))
+          return;
+
+        var contactElt = document.createElement("contact");
+        if (this.hasAttribute("closed"))
+          contactElt.setAttribute("collapsed", "true");
+
+        let end = this.contacts.length;
+        // Avoid the binary search loop if the contacts were already sorted.
+        if (end != 0 &&
+            this.sortComparator(aContact, this.contacts[end - 1].contact) < 0) {
+          let start = 0;
+          while (start < end) {
+            let middle = start + Math.floor((end - start) / 2);
+            if (this.sortComparator(aContact, this.contacts[middle].contact) < 0)
+              end = middle;
+            else
+              start = middle + 1;
+          }
+        }
+        var last = end == 0 ? this : this.contacts[end - 1];
+        this.parentNode.insertBefore(contactElt, last.nextSibling);
+        contactElt.build(aContact, this);
+        this.contacts.splice(end, 0, contactElt);
+        this.contactsById[aContact.id] = contactElt;
+
+        if (this.hasAttribute("collapsing"))
+          this.removeAttribute("collapsing");
+      ]]>
+      </body>
+     </method>
+
+     <method name="updateContactPosition">
+      <parameter name="aSubject"/>
+      <body>
+      <![CDATA[
+        let contactElt = this.contactsById[aSubject.id];
+        let index = this.contacts.indexOf(contactElt);
+        if (index == -1) {
+          // Sometimes we get a display-name-changed notification for
+          // an offline contact, if it's not in the list, just ignore it.
+          return;
+        }
+        // See if the position of the contact should be changed.
+        if (index != 0 &&
+            this.sortComparator(contactElt.contact, this.contacts[index - 1].contact) < 0 ||
+            index != this.contacts.length - 1 &&
+            this.sortComparator(contactElt.contact, this.contacts[index + 1].contact) > 0) {
+          // Check if something prevents us from moving the contact now.
+          if (contactElt.hasAttribute("selected") ||
+              contactElt.hasAttribute("open"))
+            this._reorderContactLater(contactElt);
+          else {
+            contactElt.removeNode(true);
+            this.addContact(aSubject);
+          }
+        }
+      ]]>
+      </body>
+     </method>
+
+     <method name="removeContact">
+      <parameter name="aContact"/>
+      <body>
+      <![CDATA[
+        var i = this.contacts.indexOf(aContact);
+        if (i == -1)
+          throw "Removing a contact that doesn't exist?";
+
+        // create a new array to remove without breaking for each loops.
+        this.contacts = this.contacts.filter(function(c) c !== aContact);
+        delete this.contactsById[aContact.contact.id];
+
+        // Check if some contacts remain in the group, if empty remove it
+        if (!this.contacts.length) {
+          this.setAttribute("collapsing", "true");
+          this.addEventListener("transitionend", this._transitionEnd, true);
+        }
+        else
+          this._updateGroupLabel();
+      ]]>
+      </body>
+     </method>
+
+     <method name="_transitionEnd">
+      <body>
+      <![CDATA[
+        if (!this.hasAttribute("collapsing"))
+          return;
+        this.tag.removeObserver(this);
+        this.parentNode.removeGroup(this);
+      ]]>
+      </body>
+     </method>
+
+     <method name="hide">
+      <body>
+      <![CDATA[
+        const promptPrefName = "messenger.buddies.hideTagPrompt";
+        if (Services.prefs.getBoolPref(promptPrefName)) {
+          let bundle =
+            Services.strings.createBundle("chrome://instantbird/locale/instantbird.properties");
+          let name = this.displayName;
+          let promptTitle =
+            bundle.formatStringFromName("group.hidePrompt.title", [name], 1);
+          let promptMessage =
+            bundle.formatStringFromName("group.hidePrompt.message", [name], 1);
+          let hideButton = bundle.GetStringFromName("group.hidePrompt.button");
+          let promptCheckbox =
+            bundle.GetStringFromName("group.hidePrompt.checkbox");
+          let prompts = Services.prompt;
+          let checkbox = {};
+          let flags = prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
+                      prompts.BUTTON_TITLE_CANCEL * prompts.BUTTON_POS_1 +
+                      prompts.BUTTON_POS_0_DEFAULT;
+          if (prompts.confirmEx(window, promptTitle, promptMessage, flags,
+                                hideButton, null, null, promptCheckbox, checkbox))
+            return;
+
+          if (!checkbox.value)
+            Services.prefs.setBoolPref(promptPrefName, false);
+        }
+        Services.tags.hideTag(this.tag);
+      ]]>
+      </body>
+     </method>
+
+     <method name="_updateClosedState">
+      <parameter name="aClosed"/>
+      <body>
+      <![CDATA[
+        for each (let contact in this.contacts)
+          contact.collapsed = aClosed;
+      ]]>
+      </body>
+     </method>
+
+     <method name="close">
+      <body>
+      <![CDATA[
+        if (this.hasAttribute("closed")) {
+          this.removeAttribute("closed");
+          this.setAttribute("aria-expanded", "true");
+          this._updateClosedState(false);
+        }
+        else {
+          this.setAttribute("closed", "true");
+          this.setAttribute("aria-expanded", "false");
+          this._updateClosedState(true);
+        }
+
+        this._updateGroupLabel();
+      ]]>
+      </body>
+     </method>
+
+     <field name="displayName"></field>
+     <method name="_updateGroupLabel">
+      <body>
+      <![CDATA[
+        let name = this.displayName;
+        if (this.hasAttribute("closed"))
+          name += " (" + this.contacts.length + ")";
+
+        this.setAttribute("name", name);
+      ]]>
+      </body>
+     </method>
+
+     <method name="keyPress">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        switch (aEvent.keyCode) {
+          case aEvent.DOM_VK_RETURN:
+          case aEvent.DOM_VK_ENTER:
+            this.close();
+            break;
+
+          case aEvent.DOM_VK_LEFT:
+            if (!this.hasAttribute("closed"))
+              this.close();
+            break;
+
+          case aEvent.DOM_VK_RIGHT:
+            if (this.hasAttribute("closed"))
+              this.close();
+            break;
+        }
+      ]]>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="click">
+     <![CDATA[
+        // Check if there was 1 click on the image or 2 clicks on the label
+        if ((event.detail == 1 && event.originalTarget.localName == "image") ||
+            (event.detail == 2 && event.originalTarget.localName == "label"))
+          this.close();
+
+        if (event.originalTarget.localName == "button")
+          this.hide();
+     ]]>
+     </handler>
+    </handlers>
+  </binding>
+</bindings>

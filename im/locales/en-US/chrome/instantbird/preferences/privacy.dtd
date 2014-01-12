@@ -1,0 +1,36 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY  status.label                  "Status">
+
+<!ENTITY  sendTyping.label              "Send typing notifications in conversations">
+<!ENTITY  sendTyping.accesskey          "t">
+
+<!ENTITY  reportIdleAfter.label         "Let my contacts know that I am Idle after">
+<!ENTITY  reportIdleAfter.accesskey     "I">
+<!ENTITY  idleTime                      "minutes of inactivity">
+
+<!ENTITY  andSetStatusToAway.label      "and set my status to Away with this status message:">
+<!ENTITY  andSetStatusToAway.accesskey  "A">
+
+<!ENTITY  logsGroup.label               "Records">
+
+<!ENTITY  logConversations.label        "Keep records of my conversations">
+<!ENTITY  logConversations.accesskey    "r">
+<!ENTITY  logSystem.label               "Record connections, disconnections and status changes">
+<!ENTITY  logSystem.accesskey           "c">
+<!ENTITY  logShowFolder.description     "Open the folder containing the record files">
+<!ENTITY  logShowFolderButton.label     "Show Log Folder…">
+<!ENTITY  logShowFolderButton.accesskey "L">
+
+<!-- Passwords, see mail/chrome/messenger/preferences/security.dtd -->
+<!ENTITY  passwords.label               "Passwords">
+<!ENTITY savedPasswords.intro           "&brandShortName; can remember passwords for all of your accounts.">
+<!ENTITY useMasterPassword.label        "Use a master password">
+<!ENTITY useMasterPassword.accesskey    "U">
+<!ENTITY masterPassword.intro           "A Master Password protects all your passwords, but you must enter it once per session.">
+<!ENTITY changeMasterPassword.label     "Change Master Password…">
+<!ENTITY changeMasterPassword.accesskey "C">
+<!ENTITY savedPasswords.label           "Saved Passwords…">
+<!ENTITY savedPasswords.accesskey       "S">

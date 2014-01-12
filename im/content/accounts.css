@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+richlistitem {
+  -moz-binding: url("chrome://instantbird/content/account.xml#account");
+}
+
+richlistitem .account-buttons {
+  -moz-binding: url("chrome://instantbird/content/account.xml#nobuttons");
+}
+richlistitem[selected="true"] .account-buttons {
+  -moz-binding: url("chrome://instantbird/content/account.xml#buttons");
+}
+
+richlistitem:not([state="connected"]) .connected,
+richlistitem:not([state="connecting"]) .connecting,
+richlistitem:not([state="disconnected"]) .disconnected,
+richlistitem:not([state="disconnecting"]) .disconnecting,
+richlistitem:not([error="true"]) .error,
+richlistitem:not([error="true"]) .errorIcon,
+richlistitem:not([state="disconnected"]) .error,
+richlistitem[error="true"] .disconnected,
+richlistitem[selected="true"]:not([state="disconnected"]) .connectButton,
+richlistitem[selected="true"][state="disconnected"] .disconnectButton,
+richlistitem[selected="true"][state="disconnecting"] .disconnectButton,
+richlistitem[selected="true"]:not([certError="true"]) .addException,
+richlistitem:not([selected="true"]) .addException,
+richlistitem:not([selected="true"]) .autoSignOn,
+richlistitem:not([reconnectPending="true"]) description[anonid="reconnect"]
+{
+  display: none;
+}

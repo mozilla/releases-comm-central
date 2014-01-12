@@ -1,0 +1,117 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+instantbird.jar:
+% content instantbird %content/instantbird/
+#ifdef XP_MACOSX
+% overlay chrome://global/content/console.xul chrome://instantbird/content/jsConsoleOverlay.xul
+% overlay chrome://mozapps/content/update/updates.xul chrome://instantbird/content/softwareUpdateOverlay.xul
+#endif
+	content/instantbird/aboutDialog.css
+*	content/instantbird/aboutDialog.xul
+	content/instantbird/aboutPanel.xml
+	content/instantbird/account.js
+	content/instantbird/accounts.css
+	content/instantbird/accounts.js
+*	content/instantbird/accounts.xul
+	content/instantbird/accountWizard.css
+	content/instantbird/accountWizard.js
+	content/instantbird/accountWizard.xul
+	content/instantbird/accountWizard.xml
+	content/instantbird/account.xml
+	content/instantbird/account.xul
+	content/instantbird/addbuddy.js
+	content/instantbird/addbuddy.xul
+	content/instantbird/newtab.xml
+	content/instantbird/blist.css
+	content/instantbird/blist.js
+*	content/instantbird/blist.xul
+	content/instantbird/buddy.xml
+	content/instantbird/buddytooltip.css
+*	content/instantbird/buddytooltip.xml
+	content/instantbird/contact.xml
+	content/instantbird/conversation.xml
+	content/instantbird/conv.xml
+	content/instantbird/credits.xhtml
+	content/instantbird/engineManager.js
+	content/instantbird/engineManager.xul
+	content/instantbird/extensions.js
+*	content/instantbird/extensions.xul
+	content/instantbird/extensions-discover.js
+	content/instantbird/extensions-discover.xul
+	content/instantbird/group.xml
+	content/instantbird/instantbird.css
+	content/instantbird/instantbird.js
+*	content/instantbird/instantbird.xul
+	content/instantbird/convZoom.js
+	content/instantbird/joinchat.js
+	content/instantbird/joinchat.xul
+	content/instantbird/jsTreeView.js
+*	content/instantbird/menus.xul
+*	content/instantbird/menus.js
+	content/instantbird/nsContextMenu.js
+	content/instantbird/proxies.js
+	content/instantbird/proxies.xul
+	content/instantbird/proxies.css
+	content/instantbird/proxy.xml
+*	content/instantbird/tabbrowser.xml
+	content/instantbird/tabbrowser.css
+	content/instantbird/utilities.js
+*	content/instantbird/viewlog.xul
+	content/instantbird/viewlog.js
+	content/instantbird/viewlog.css
+#ifdef XP_MACOSX
+*	content/instantbird/hiddenWindow.xul
+	content/instantbird/menus-mac.xul
+	content/instantbird/macgestures.js
+*	content/instantbird/jsConsoleOverlay.xul
+*	content/instantbird/softwareUpdateOverlay.xul
+#elifdef XP_WIN
+	content/instantbird/menus-win.xul
+#else
+	content/instantbird/menus-unix.xul
+#endif
+*	content/instantbird/preferences/advanced.xul            (preferences/advanced.xul)
+*	content/instantbird/preferences/advanced.js             (preferences/advanced.js)
+	content/instantbird/preferences/applications.xul        (preferences/applications.xul)
+*	content/instantbird/preferences/applications.js         (preferences/applications.js)
+	content/instantbird/preferences/applicationManager.xul  (preferences/applicationManager.xul)
+*	content/instantbird/preferences/applicationManager.js   (preferences/applicationManager.js)
+*	content/instantbird/preferences/colors.xul              (preferences/colors.xul)
+	content/instantbird/preferences/content.xul             (preferences/content.xul)
+	content/instantbird/preferences/content.js              (preferences/content.js)
+*	content/instantbird/preferences/connection.xul          (preferences/connection.xul)
+	content/instantbird/preferences/connection.js           (preferences/connection.js)
+	content/instantbird/preferences/handlers.xml            (preferences/handlers.xml)
+	content/instantbird/preferences/handlers.css            (preferences/handlers.css)
+*	content/instantbird/preferences/main.xul                (preferences/main.xul)
+	content/instantbird/preferences/main.js                 (preferences/main.js)
+*	content/instantbird/preferences/preferences.xul         (preferences/preferences.xul)
+	content/instantbird/preferences/privacy.xul             (preferences/privacy.xul)
+	content/instantbird/preferences/privacy.js              (preferences/privacy.js)
+	content/instantbird/preferences/themes.xul              (preferences/themes.xul)
+	content/instantbird/preferences/themes.js               (preferences/themes.js)
+	content/instantbird/preferences/tabs.xul                (preferences/tabs.xul)
+	content/instantbird/preferences/tabs.js                 (preferences/tabs.js)
+	content/instantbird/preferences/messagestyle.js	        (preferences/messagestyle.js)
+	content/instantbird/preferences/smileys.js		(preferences/smileys.js)
+	content/instantbird/preferences/smiley.css		(preferences/smiley.css)
+	content/instantbird/preferences/smiley.xml		(preferences/smiley.xml)
+# override the toolkit license.html file
+*+	content/instantbird/license.html			(/mozilla/toolkit/content/license.html)
+% override chrome://global/content/license.html chrome://instantbird/content/license.html
+
+#ifdef DEBUG
+debug.jar:
+% content debug %content/debug/
+% overlay chrome://instantbird/content/menus.xul chrome://debug/content/debug.xul
+% overlay chrome://instantbird/content/instantbird.xul chrome://debug/content/viewselectionsource.xul
+	content/debug/debug.js	(debug/debug.js)
+	content/debug/debug.xul	(debug/debug.xul)
+	content/debug/viewselectionsource.xul (debug/viewselectionsource.xul)
+% content fake %content/fake/
+% overlay chrome://instantbird/content/blist.xul chrome://fake/content/fake.xul
+	content/fake/fake.js (debug/fake/fake.js)
+	content/fake/fake.xul (debug/fake/fake.xul)
+#endif

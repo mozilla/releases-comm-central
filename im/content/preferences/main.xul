@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+
+# -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!DOCTYPE overlay [
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  <!ENTITY % mainDTD SYSTEM "chrome://instantbird/locale/preferences/main.dtd">
+  %brandDTD;
+  %mainDTD;
+]>
+
+<overlay id="MainPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="paneMain" onpaneload="gMainPane.init();">
+
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/main.js"/>
+
+    <preferences id="mainPreferences">
+      <preference id="messenger.startup.action"     name="messenger.startup.action"     type="int"/>
+      <preference id="messenger.options.playSounds.blist"   name="messenger.options.playSounds.blist"   type="bool"/>
+      <preference id="messenger.options.playSounds.message" name="messenger.options.playSounds.message" type="bool"/>
+      <preference id="messenger.options.getAttentionOnNewMessages" name="messenger.options.getAttentionOnNewMessages" type="bool"/>
+#ifdef XP_MACOSX
+      <preference id="messenger.options.showUnreadCountInDock" name="messenger.options.showUnreadCountInDock" type="bool"/>
+#else
+      <preference id="extensions.mintrayr.alwaysShowTrayIcon" name="extensions.mintrayr.alwaysShowTrayIcon" type="bool"/>
+      <preference id="extensions.mintrayr.minimizeon" name="extensions.mintrayr.minimizeon" type="int"/>
+#endif
+      <preference id="messenger.options.notifyOfNewMessages" name="messenger.options.notifyOfNewMessages" type="bool"/>
+    </preferences>
+
+    <!-- Startup -->
+    <groupbox id="startupGroup">
+      <caption label="&startup.label;"/>
+
+      <hbox align="center">
+        <label value="&startupAction.label;" accesskey="&startupAction.accesskey;"
+               control="messengerStartupAction"/>
+        <menulist id="messengerStartupAction" preference="messenger.startup.action">
+          <menupopup>
+            <menuitem label="&startupOffline.label;"     value="0"/>
+            <menuitem label="&startupConnectAuto.label;" value="1"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </groupbox>
+
+
+    <groupbox id="accountsMgrGroup" orient="horizontal" align="center">
+      <caption label="&accountsMgr.label;"/>
+
+      <description control="manageAccounts"
+#ifdef XP_WIN
+                   flex="1">&manageAccountsDescWin.label;</description>
+#else
+                   flex="1">&manageAccountsDescUnix2.label;</description>
+#endif
+      <button id="manageAccounts" label="&manageAccounts.label;"
+              accesskey="&manageAccounts.accesskey;"
+              oncommand="gMainPane.showAccountsMgr();"/>
+    </groupbox>
+
+    <groupbox id="newMessageGroup">
+      <caption label="&newMessage.label;"/>
+      <checkbox id="getAttention"
+#ifndef XP_MACOSX
+                label="&getAttention.label;"
+                accesskey="&getAttention.accesskey;"
+#else
+                label="&getAttentionMac.label;"
+                accesskey="&getAttentionMac.accesskey;"
+#endif
+                preference="messenger.options.getAttentionOnNewMessages"/>
+#ifdef XP_MACOSX
+      <checkbox id="unreadCountInDock"
+                label="&unreadCountInDock.label;"
+                accesskey="&unreadCountInDock.accesskey;"
+                preference="messenger.options.showUnreadCountInDock"/>
+#endif
+      <checkbox id="notifyOfNewMessages"
+                label="&notifyOfNewMessages.label;"
+                accesskey="&notifyOfNewMessages.accesskey;"
+                preference="messenger.options.notifyOfNewMessages"/>
+    </groupbox>
+
+    <groupbox id="soundsGroup">
+      <caption label="&sounds.label;"/>
+      <checkbox id="playSoundsMessage" label="&playSoundsMessage.label;"
+                accesskey="&playSoundsMessage.accesskey;"
+                preference="messenger.options.playSounds.message"/>
+      <checkbox id="playSoundsBlist" label="&playSoundsBlist.label;"
+                accesskey="&playSoundsBlist.accesskey;"
+                preference="messenger.options.playSounds.blist"/>
+    </groupbox>
+
+#ifndef XP_MACOSX
+    <groupbox id="systrayGroup">
+      <caption label="&systray.label;"/>
+
+      <checkbox label="&alwaysShowTrayIcon.label;"
+                accesskey="&alwaysShowTrayIcon.accesskey;"
+                preference="extensions.mintrayr.alwaysShowTrayIcon"/>
+      <hbox align="center">
+        <label value="&minimizeToTray.label;"
+               accesskey="&minimizeToTray.accesskey;"
+               control="minimizeOn"/>
+        <menulist id="minimizeOn" preference="extensions.mintrayr.minimizeon">
+          <menupopup>
+            <menuitem label="&minimizeOn.never.label;"    value="0"/>
+            <menuitem label="&minimizeOn.minimize.label;" value="1"/>
+            <menuitem label="&minimizeOn.close.label;"    value="2"/>
+            <menuitem label="&minimizeOn.both.label;"     value="3"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </groupbox>
+
+#endif
+    <hbox class="bottomBox">
+      <groupbox id="addonsMgrGroup" orient="horizontal" align="center" flex="1">
+        <caption label="&addonsMgr.label;"/>
+
+        <description control="manageAddons"
+#ifdef XP_WIN
+                     flex="1">&manageAddonsDescWin.label;</description>
+#else
+                     flex="1">&manageAddonsDescUnix2.label;</description>
+#endif
+        <button id="manageAddons" label="&manageAddons.label;"
+                accesskey="&manageAddons.accesskey;"
+                oncommand="gMainPane.showAddonsMgr();"/>
+      </groupbox>
+    </hbox>
+
+  </prefpane>
+
+</overlay>

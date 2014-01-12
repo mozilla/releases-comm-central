@@ -1,0 +1,26 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY  formattings.label           "Formattings">
+
+<!ENTITY  fontsAndColors.label        "Fonts &amp; Colors">
+
+<!ENTITY  filterLevel.label           "Display formattings of incoming messages:">
+<!ENTITY  filterLevel.accesskey       "f">
+<!ENTITY  filterLevelNone             "none">
+<!ENTITY  filterLevelBasic            "only basic formattings (bold, italic, underline)">
+<!ENTITY  filterLevelAll              "all (font, colors, …)">
+
+<!ENTITY  defaultFont.label           "Default font:">
+<!ENTITY  defaultFont.accesskey       "D">
+<!ENTITY  defaultSize.label           "Size:">
+<!ENTITY  defaultSize.accesskey       "S">
+<!ENTITY  defaultColor.label          "Default Color:">
+<!ENTITY  defaultColor.accesskey      "C">
+
+<!ENTITY  advancedColors.label         "Advanced…">
+<!ENTITY  advancedColors.accesskey     "A">
+
+<!ENTITY  formatOutgoingMessages.label "Send these fonts and colors as part of my messages when possible">
+<!ENTITY  formatOutgoingMessages.accesskey "m">

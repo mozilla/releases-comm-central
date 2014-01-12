@@ -1,0 +1,23 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+%include conversation.css
+
+@media all and (-moz-windows-theme: aero) {
+  /* Move participant list one pixel to the right to avoid double borders. */
+  .conv-nicklist {
+    margin-right: -1px;
+  }
+
+  /* Fix broken styling (bug 616) with a border over the input box. */
+  .conv-bottom {
+    border-top: 1px solid rgba(0, 0, 0, 0.25);
+  }
+
+  .alltargets-item-icon-stack {
+    -moz-appearance: none;
+    padding-left: 5px;
+    padding-right: 8px;
+  }
+}

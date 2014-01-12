@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  <!ENTITY % applicationsDTD SYSTEM "chrome://instantbird/locale/preferences/applications.dtd">
+  %brandDTD;
+  %applicationsDTD;
+]>
+
+<overlay id="ApplicationsPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="paneApplications"
+            onpaneload="gApplicationsPane.init();"
+            flex="1">
+
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/applications.js"/>
+
+    <keyset>
+      <key key="&focusSearch1.key;" modifiers="accel" oncommand="gApplicationsPane.focusFilterBox();"/>
+      <key key="&focusSearch2.key;" modifiers="accel" oncommand="gApplicationsPane.focusFilterBox();"/>
+    </keyset>
+
+    <hbox>
+      <textbox id="filter" flex="1"
+               type="search"
+               emptytext="&filter.emptytext;"
+               aria-controls="handlersView"
+               oncommand="gApplicationsPane.filter();"/>
+    </hbox>
+
+    <separator class="thin"/>
+
+    <richlistbox id="handlersView" orient="vertical" persist="lastSelectedType"
+                 onselect="gApplicationsPane.onSelectionChanged();">
+      <listheader equalsize="always" style="border: 0; padding: 0; -moz-appearance: none;">
+        <treecol id="typeColumn" label="&typeColumn.label;" value="type"
+                 accesskey="&typeColumn.accesskey;" persist="sortDirection"
+                 flex="1" onclick="gApplicationsPane.sort(event);"
+                 sortDirection="ascending"/>
+        <treecol id="actionColumn" label="&actionColumn2.label;" value="action"
+                 accesskey="&actionColumn2.accesskey;" persist="sortDirection"
+                 flex="1" onclick="gApplicationsPane.sort(event);"/>
+      </listheader>
+    </richlistbox>
+  </prefpane>
+</overlay>

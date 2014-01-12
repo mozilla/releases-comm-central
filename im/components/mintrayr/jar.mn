@@ -1,0 +1,9 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+instantbird.jar:
+% content instantbird %content/instantbird/
+*	content/instantbird/mintrayr.js   (content/mintrayr.js)
+	content/instantbird/mintrayr.xul  (content/mintrayr.xul)
+% overlay chrome://instantbird/content/blist.xul chrome://instantbird/content/mintrayr.xul

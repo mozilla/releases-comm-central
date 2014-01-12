@@ -1,0 +1,3 @@
+component {1d9be575-87a4-4f2f-b414-c67a560f29fd} ibConvStatsService.js
+contract @instantbird.org/conv-stats-service;1 {1d9be575-87a4-4f2f-b414-c67a560f29fd}
+category profile-after-change ConvStatsService @instantbird.org/conv-stats-service;1

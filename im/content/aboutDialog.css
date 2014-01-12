@@ -1,0 +1,66 @@
+#aboutDialog {
+  padding: 0px 0px 10px 0px;
+}
+
+#modes {
+  min-height: 380px;
+}
+
+#clientBox {
+  background-color: #FFFFFF;
+  background-image: url("chrome://branding/content/about.png");
+  background-repeat: no-repeat;
+  padding-top: 220px;
+  color: #000000;
+}
+
+#versionWrapper {
+  margin: 0px 0px 3px 20px;
+}
+
+#versionField {
+  background-color: #FFFFFF;
+  -moz-appearance: none;
+  border: none;
+  font-weight: bold;
+  color: #909090;
+}
+
+#geckoVersionField,
+#libpurpleVersionField {
+  background-color: #FFFFFF;
+  -moz-appearance: none;
+  border: none;
+  color: #909090;
+  padding-top: 3px !important;
+  padding-left: 10px !important;
+}
+
+#copyright {
+  margin: 10px 20px 3px 20px;
+}
+
+#userAgentField {
+  margin: 0px 0px 3px 20px !important;
+  background-color: #FFFFFF;
+  -moz-appearance: none;
+  border: none;
+}
+
+#groove {
+  margin-top: 0px;
+}
+
+#creditsIframe {
+   cursor: default;
+   -moz-user-select: none;
+}
+
+button[dlgtype="extra2"] {
+  margin-left: 13px;
+}
+
+button[dlgtype="accept"] {
+  margin-right: 13px;
+}
+

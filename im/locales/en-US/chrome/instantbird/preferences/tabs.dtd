@@ -1,0 +1,15 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY enableTabbedConversations.label     "Enable tabbed conversations">
+<!ENTITY enableTabbedConversations.accesskey "t">
+
+<!ENTITY groupMUCsInSeparateWindow.label     "Group Multi-User Chats in a separate window">
+<!ENTITY groupMUCsInSeparateWindow.accesskey "G">
+
+<!ENTITY showTabBar.label                    "Always show the tab bar">
+<!ENTITY showTabBar.accesskey                "b">
+
+<!ENTITY warnCloseMultipleTabs.label         "Warn me when closing multiple tabs if there are unread messages">
+<!ENTITY warnCloseMultipleTabs.accesskey     "m">

@@ -1,0 +1,82 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://instantbird/skin/status.css");
+
+.displayNameMessageBox {
+  margin-top: 2px;
+}
+
+.statusTypeIcon {
+  margin: 32px 4px 0 0;
+  max-width: 16px;
+  max-height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  width: 16px;
+  height: 16px;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: none;
+}
+
+.statusTypeIcon[left][status="chat"] {
+  list-style-image: url('chrome://chat/skin/chat-left-16.png') !important;
+}
+
+.userIcon[src] + .statusTypeIcon {
+  margin-left: 32px;
+}
+
+.tooltipBuddies {
+  margin-left: -3px;
+}
+
+.tooltipDisplayName {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  font-size: large;
+  margin: 2px 4px 4px 0 !important;
+  padding-right: 20px;
+}
+
+.tooltipMessage {
+  margin: 30px 5px 4px 0 !important;
+}
+
+.tooltipMessage[noTopic] {
+  font-style: italic;
+}
+
+.tooltipProtoIcon {
+  margin: 4px 0 0 -20px;
+  max-width: 16px;
+  max-height: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.tooltipProtoIcon[status="unknown"] {
+  opacity: 0.7;
+}
+
+.tooltipRows label {
+  margin-left: 0 !important;
+}
+
+.tooltipSeparator {
+  margin-left: 3px;
+}
+
+.userIcon {
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-right: 4px;
+  max-width: 48px;
+  max-height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  width: 48px;
+  height: 48px;
+}

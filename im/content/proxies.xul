@@ -1,0 +1,76 @@
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://instantbird/skin/richlistbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/proxies.css" type="text/css"?>
+
+<!DOCTYPE window [
+ <!ENTITY % proxiesDTD SYSTEM "chrome://instantbird/locale/proxies.dtd">
+ %proxiesDTD;
+]>
+
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        id="proxyList"
+        windowtype="Messenger:Proxies"
+        onload="gProxies.load()"
+        title="&proxiesDialog.title;"
+        height="450"
+        width="400"
+        buttons="accept,cancel"
+        ondialogaccept="return gProxies.accept()"
+        persist="screenX screenY">
+  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/proxies.js"/>
+
+  <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
+
+  <dialogheader id="proxyDialogHeader" title="&proxiesDialogHeader.title;"
+                description="&proxiesDialogHeader.description;"/>
+
+  <richlistbox id="proxylist" flex="1" onselect="gProxies.onSelect();">
+    <richlistitem id="useGlobal" orient="vertical">
+      <description class="header">&proxiesDialog.useGlobalSettings;</description>
+      <description class="indent" id="globalProxy"/>
+    </richlistitem>
+    <richlistitem id="noProxy" orient="vertical">
+      <description class="header">&proxiesDialog.directConnection;</description>
+      <description class="indent">&proxiesDialog.noProxy;</description>
+    </richlistitem>
+    <richlistitem id="useEnvironment" orient="vertical">
+      <description class="header">&proxiesDialog.useEnvironment;</description>
+      <description class="indent" id="envProxy">&proxiesDialog.noProxyInEnvironment;</description>
+    </richlistitem>
+    <richlistitem id="newProxy" orient="vertical">
+      <hbox align="center">
+        <description class="header">&proxiesDialog.otherSetting;</description>
+        <menulist id="proxyType">
+          <menupopup>
+             <menuitem label="&proxiesDialog.http.label;" value="1"/>
+             <menuitem label="&proxiesDialog.socks4.label;" value="2"/>
+             <menuitem label="&proxiesDialog.socks5.label;" value="3"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center">
+        <label value="&proxiesDialog.hostname.label;" control="hostname"/>
+        <textbox id="hostname" style="width: 7em;"/>
+        <spacer flex="1"/>
+        <label value="&proxiesDialog.port.label;" control="port"/>
+        <textbox id="port" type="number" style="width: 5em;"/>
+      </hbox>
+      <hbox align="center">
+        <label value="&proxiesDialog.username.label;" control="username"/>
+        <textbox id="username" style="width: 5em;"/>
+        <spacer flex="1"/>
+        <label value="&proxiesDialog.password.label;" control="password"/>
+        <textbox id="password" type="password" style="width: 5em;"/>
+      </hbox>
+    </richlistitem>
+  </richlistbox>
+
+  <checkbox id="useAsGlobalSettings" label="&proxiesDialog.useAsGlobal.label;" checked="true"/>
+
+</dialog>

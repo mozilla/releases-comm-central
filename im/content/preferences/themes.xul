@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+  <!ENTITY % themesDTD SYSTEM "chrome://instantbird/locale/preferences/themes.dtd">
+  %themesDTD;
+]>
+
+<overlay id="ThemesPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="paneThemes"
+            onpaneload="gThemePane.init();"
+            flex="1">
+
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/messagestyle.js"/>
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/smileys.js"/>
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/themes.js"/>
+
+    <preferences id="themesPreferences">
+      <preference id="messenger.options.messagesStyle.theme"      name="messenger.options.messagesStyle.theme"      type="string"/>
+      <preference id="messenger.options.messagesStyle.variant"    name="messenger.options.messagesStyle.variant"    type="string"/>
+      <preference id="messenger.options.messagesStyle.showHeader" name="messenger.options.messagesStyle.showHeader" type="bool"/>
+      <preference id="messenger.options.emoticonsTheme"           name="messenger.options.emoticonsTheme"           type="string"/>
+    </preferences>
+
+    <stringbundleset id="stringbundleset">
+      <stringbundle id="themesBundle"
+                    src="chrome://instantbird/locale/preferences/themes.properties"/>
+    </stringbundleset>
+
+    <tabbox flex="1">
+      <tabs>
+        <tab label="&messageStyleTab.title;"/>
+        <tab label="&emoticonsTab.title;"/>
+        <!--<tab label="Sounds"/>-->
+      </tabs>
+      <tabpanels flex="1">
+        <tabpanel orient="vertical" flex="1">
+          <hbox align="baseline">
+            <label value="&messageStyleTheme.label;" control="themename"
+                   accesskey="&messageStyleTheme.accesskey;"/>
+            <menulist id="messagestyle-themename"
+                      flex="1" crop="end"
+                      preference="messenger.options.messagesStyle.theme"
+                      onselect="previewObserver.currentThemeChanged();">
+              <menupopup id="theme-menupopup">
+                <menuitem id="bubbles-menuitem"
+                          label="&messageStyleBubblesTheme.label;"
+                          value="bubbles"/>
+                <menuitem id="dark-menuitem"
+                          label="&messageStyleDarkTheme.label;"
+                          value="dark"/>
+                <menuitem id="papersheets-menuitem"
+                          label="&messageStylePaperSheetsTheme.label;"
+                          value="papersheets"/>
+                <menuitem id="simple-menuitem"
+                          label="&messageStyleSimpleTheme.label;"
+                          value="simple"/>
+                <menuseparator/>
+                <menuitem id="no-messagestyle-menuitem" label="&messageStyleNoExtraThemes.label;"
+                          disabled="true"/>
+              </menupopup>
+            </menulist>
+            <separator orient="vertical" class="thin"/>
+            <label id="getMoreMessageStyles" class="text-link" value="&messageStyleGetMore.label;"
+                   onclick="if (event.button == 0) { gThemePane.openURL(this.getAttribute('getMoreURL')); }"/>
+          </hbox>
+          <separator class="thin"/>
+          <label value="&messageStylePreview.label;"/>
+          <tooltip id="aHTMLTooltip" page="true"/>
+          <deck flex="1" id="previewDeck" selectedIndex="1">
+            <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
+              <hbox id="noPreviewBox" align="top">
+                <image id="noPreviewImage"/>
+                <vbox id="noPreviewInnerBox" flex="1">
+                  <label id="noPreviewTitle" value="&messageStyleNoPreview.title;"/>
+                  <description id="noAccountDesc">&messageStyleNoPreview.description;</description>
+                </vbox>
+              </hbox>
+            </vbox>
+            <browser flex="1" id="previewbrowser" type="content-conversation" tooltip="aHTMLTooltip"/>
+          </deck>
+          <hbox align="baseline">
+            <label value="&messageStyleVariant.label;" control="themevariant"
+                   accesskey="&messageStyleVariant.accesskey;"/>
+            <menulist id="themevariant"
+                      preference="messenger.options.messagesStyle.variant"
+                      onselect="previewObserver.currentVariantChanged();"/>
+          </hbox>
+          <checkbox id="showHeaderCheckbox" label="&messageStyleShowHeader.label;"
+                    accesskey="&messageStyleShowHeader.accesskey;"
+                    preference="messenger.options.messagesStyle.showHeader"/>
+        </tabpanel>
+
+        <tabpanel orient="vertical" flex="1">
+          <hbox align="baseline">
+            <label value="&emoticonsTheme.label;" control="smileythemename"
+                   accesskey="&emoticonsTheme.accesskey;"/>
+            <menulist id="emoticons-themename"
+                      flex="1" crop="end"
+                      preference="messenger.options.emoticonsTheme"
+                      onselect="smileysPreview.displayCurrentTheme();">
+              <menupopup id="theme-menupopup">
+                <menuitem id="default-menuitem"
+                          label="&emoticonsDefaultTheme.label;"
+                          value="default"/>
+                <menuitem id="none-menuitem"
+                          label="&emoticonsDisabled.label;"
+                          value="none"/>
+                <menuseparator/>
+                <menuitem id="no-emoticons-menuitem" label="&emoticonsNoExtraThemes.label;"
+                          disabled="true"/>
+              </menupopup>
+            </menulist>
+            <separator orient="vertical" class="thin"/>
+            <label id="getMoreEmoticons" class="text-link" value="&emoticonsGetMore.label;"
+                   onclick="if (event.button == 0) { gThemePane.openURL(this.getAttribute('getMoreURL')); }"/>
+          </hbox>
+          <separator class="thin"/>
+          <description>&emoticonsPreview.description;</description>
+          <richlistbox orient="vertical" id="smileysPreview">
+            <listheader equalsize="always">
+              <treecol id="imageColumn" label="&emoticonsImageColumn.label;" flex="1"/>
+              <treecol id="textCodesColumn" label="&emoticonsTextCodesColumn.label;" flex="1"/>
+            </listheader>
+          </richlistbox>
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+  </prefpane>
+</overlay>

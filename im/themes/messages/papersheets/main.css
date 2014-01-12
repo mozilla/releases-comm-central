@@ -1,0 +1,191 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+div.messages-group {
+  margin: -15px 0 0 0;
+  padding: 18px 5px 20px 5px;
+}
+
+div.outgoing {
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(245, 245, 255, 1) 15px, rgba(245, 245, 255, 1));
+}
+
+div.incoming {
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 245, 245, 1) 15px, rgba(255, 245, 245, 1));
+}
+
+div.event {
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 255, 240, 1) 15px, rgba(255, 255, 240, 1));
+}
+
+div.context+div.event {
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.05) 15px, rgba(255, 255, 240, 1) 15px, rgba(255, 255, 240, 1));
+}
+
+div.context:not(:hover)>p {
+  opacity: 0.55;
+}
+
+div.messages-group:last-child {
+  padding-bottom: 10px;
+}
+
+div.messages-group>hr {
+  margin: 3px 50px 0px 20px;
+  background-color: rgba(0, 0, 0, 0.05);
+  height: 1px;
+  border: 0;
+}
+
+span.message-style {
+  margin: 2px 50px 0px 20px;
+  display: block;
+  float: none;
+}
+
+span.date {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: smaller;
+  text-align: right;
+  float: right;
+  display: block;
+}
+
+span.date-next {
+  opacity: 0.4;
+  margin-top: -6px;
+  -moz-transition-property: opacity;
+  -moz-transition-duration: 0.3s;
+}
+
+p:hover > span.date-next {
+  opacity: 1;
+}
+
+span.pseudo {
+  font-weight: bold;
+  float: none;
+  display: block;
+}
+
+p.outgoing>span.pseudo {
+  color: rgb(80,80,200);
+}
+
+p.incoming>span.pseudo {
+  color: rgb(200,80,80);
+}
+
+p.nick>span.message-style {
+  font-weight: bold;
+}
+
+p.action>span.message-style {
+  font-style: italic;
+}
+
+p.action>span.message-style:before {
+  content: "*** ";
+}
+
+p.event {
+  margin-left: 0px;
+  min-height: 16px;
+  background: url('Bitmaps/information.png') no-repeat top left;
+}
+
+p.event>span.message-style {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+#Chat {
+  white-space: normal;
+}
+
+p *:-moz-any-link img {
+  margin-bottom: 1px;
+  border-bottom: solid 1px;
+}
+
+
+
+/* used by javascript */
+.outgoing-color {
+  background-color: rgb(245, 245, 255);
+}
+
+.incoming-color {
+  background-color: rgb(255, 245, 245);
+}
+
+.event-color {
+  background-color: rgb(255, 255, 240);
+}
+
+.eventToggle {
+  margin-top: -2px;
+  margin-left: -4px;
+  height: 9px;
+  width: 9px;
+  cursor: pointer;
+  background: url('Bitmaps/minus.png') no-repeat left top;
+}
+
+.hide-children > .eventToggle {
+  background-image: url('Bitmaps/plus.png');
+}
+
+.hide-children > p.event:first-of-type > .message-style:after {
+  content: "[\2026]"; /* &hellip; */
+  margin-left: 1em;
+  color: #5a7ac6;
+  font-size: smaller;
+}
+
+.hide-children > p.event:not(:first-of-type):not(:last-of-type) {
+  display: none;
+}
+
+/* Adapt styles to narrow windows */
+@media all and (max-width: 400px) {
+  div.messages-group > hr {
+    margin-right: 0;
+  }
+
+  span.message-style {
+    margin-right: 0;
+  }
+
+  span.date-next {
+    display: none;
+  }
+}
+
+@media all and (max-width: 200px) {
+  span.date {
+    display: none;
+  }
+}
+
+/* Adapt styles when the window is very low */
+@media all and (max-height: 200px) {
+  div.messages-group {
+    padding-bottom: 8px;
+  }
+
+  div.messages-group:last-child {
+    padding-bottom: 8px;
+  }
+}

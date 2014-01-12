@@ -1,0 +1,11 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY mintrayr.minimize "Minimize to Tray">
+<!ENTITY mintrayr.minimize.tip "Minimizes the current window to the system tray">
+<!ENTITY mintrayr.minimize.accesskey "M">
+<!ENTITY mintrayr.restore "Restore">
+<!ENTITY mintrayr.restore.accesskey "R">
+<!ENTITY mintrayr.keys.minimize.keycode "VK_F9">
+<!ENTITY mintrayr.keys.minimize.modifiers "">

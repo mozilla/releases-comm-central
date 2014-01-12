@@ -1,0 +1,95 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+%define WINSTRIPE_AERO
+%include tabbrowser.css
+%undef WINSTRIPE_AERO
+
+%define customToolbarColor hsl(214,44%,87%)
+%define glassActiveBorderColor rgb(37, 44, 51)
+%define glassInactiveBorderColor rgb(102, 102, 102)
+
+@media all and (-moz-windows-default-theme) {
+  .tabbrowser-strip:not(:-moz-lwtheme) {
+    background-color: @customToolbarColor@;
+  }
+
+  .tabbrowser-tab:not(:-moz-lwtheme),
+  .tabs-newtab-button:not(:-moz-lwtheme) {
+    background-image: @toolbarShadowOnTab@, @bgTabTexture@,
+                      -moz-linear-gradient(@customToolbarColor@, @customToolbarColor@);
+  }
+
+  .tabbrowser-tab:not(:-moz-lwtheme):hover,
+  .tabs-newtab-button:not(:-moz-lwtheme):hover {
+    background-image: @toolbarShadowOnTab@, @bgTabTextureHover@,
+                      -moz-linear-gradient(@customToolbarColor@, @customToolbarColor@);
+  }
+
+  .tabbrowser-tab[selected="true"]:not(:-moz-lwtheme) {
+    background-image: -moz-linear-gradient(white, @toolbarHighlight@ 50%),
+                      -moz-linear-gradient(@customToolbarColor@, @customToolbarColor@);
+  }
+}
+
+@media all and (-moz-windows-compositor) {
+  #convWindow {
+    -moz-appearance: -moz-win-borderless-glass;
+    background: transparent;
+  }
+
+  .tabbrowser-strip:not(:-moz-lwtheme) {
+    background-color: transparent !important;
+    color: black;
+    text-shadow: 0 0 .5em white, 0 0 .5em white, 0 1px 0 rgba(255,255,255,.4);
+    border-left-style: none !important;
+    border-right-style: none !important;
+  }
+
+  .tabbrowser-strip:-moz-lwtheme {
+    border-color: transparent !important;
+  }
+
+  /* Toolbar shadow behind tabs */
+  .tabbrowser-strip:not(:-moz-lwtheme) {
+    border-top: 1px solid @toolbarShadowColor@;
+    border-top-left-radius: 3.5px;
+    border-top-right-radius: 3.5px;
+    background-clip: padding-box;
+    margin-bottom: -1px;
+    background-image: none !important;
+  }
+
+  .tabbrowser-tabs > .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox > .scrollbox-innerbox:not(:-moz-lwtheme) {
+    position: relative;
+  }
+
+  .tabbrowser-strip {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  /* Make the window draggable by glassed toolbars (bug 555081) */
+  .tabbrowser-strip {
+    -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+  }
+
+  .tabbrowser-tab:not(:-moz-lwtheme) {
+    text-shadow: none;
+  }
+}
+
+@media not all and (-moz-windows-compositor) {
+  #convWindow:-moz-system-metric(windows-default-theme) {
+    background-color: rgb(185,209,234);
+  }
+  #convWindow:-moz-system-metric(windows-default-theme):-moz-window-inactive {
+    background-color: rgb(215,228,242);
+  }
+
+  .tabbrowser-strip:not(:-moz-lwtheme):-moz-system-metric(windows-default-theme) {
+    -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+    background-color: transparent;
+  }
+}

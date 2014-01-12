@@ -1,0 +1,15 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY  untitledTab            "(Untitled)">
+<!ENTITY  newTab.label           "New Tab">
+<!ENTITY  newTab.accesskey       "N">
+<!ENTITY  closeTab.label         "Close Tab">
+<!ENTITY  closeTab.accesskey     "c">
+<!ENTITY  closeOtherTabs.accesskey "o">
+<!ENTITY  closeOtherTabs.label     "Close Other Tabs">
+<!ENTITY  openTabInNewWindow.label     "Open in a New Window">
+<!ENTITY  openTabInNewWindow.accesskey "W">
+<!ENTITY  listAllTabs.label      "List all tabs">
+<!ENTITY  newTabButton.tooltip   "Open a new tab">

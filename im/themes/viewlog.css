@@ -1,0 +1,91 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+%ifdef XP_MACOSX
+#logTree {
+  -moz-appearance: none;
+  background-color: #d2d8e2;
+  border: 0px;
+  margin: 0 0;
+}
+
+#logTree:-moz-window-inactive {
+  background-color: #e8e8e8;
+}
+
+/* Override the -moz-field background color set by tree.css. */
+treechildren::-moz-tree-row {
+  background-color: transparent;
+}
+
+/* Unfortunately the previous rule also overrides the backgrounds of
+selected rows, so set them again like they are in tree.css. */
+treechildren::-moz-tree-row(selected) {
+  background-color: -moz-mac-secondaryhighlight;
+}
+
+treechildren::-moz-tree-row(selected, focus) {
+  background-color: Highlight;
+}
+
+splitter {
+  -moz-border-end: none !important;
+  -moz-border-start: 1px solid #404040;
+  min-width: 1px;
+  width: 1px;
+}
+
+splitter:-moz-window-inactive {
+  border-color: rgba(0,0,0,0.35);
+}
+%else
+%ifdef XP_WIN
+#logTree {
+  -moz-appearance: none;
+  border: none;
+  margin: 0 0;
+}
+%else
+#browser {
+  -moz-appearance: listbox;
+}
+
+#logTree {
+  margin: 0 0;
+}
+%endif
+%endif
+
+#corruptLogScreen {
+  background-color: -moz-Dialog;
+  overflow: auto;
+}
+
+#corruptLogBox {
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+  border: 1px solid ThreeDShadow;
+  border-radius: 10px;
+  padding: 1.1em;
+  -moz-padding-start: 20px;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+#corruptLogImage {
+%ifdef XP_MACOSX
+  list-style-image: url("chrome://global/skin/icons/error-large.png");
+%else
+  list-style-image: url("chrome://global/skin/icons/error-48.png");
+%endif
+  -moz-margin-end: 1em;
+}
+
+#corruptLogInnerBox {
+  max-width: 25em;
+}
+
+#corruptLogDesc {
+  font-size: large;
+}

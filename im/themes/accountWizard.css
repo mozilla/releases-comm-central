@@ -1,0 +1,104 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+%ifdef XP_WIN
+@namespace html url("http://www.w3.org/1999/xhtml");
+%endif
+
+#accountprotocol,
+#accountsummary {
+  overflow: visible;
+}
+
+#summarygrid {
+  overflow: auto;
+}
+
+#otherListItem {
+  padding-left: 40px;
+  min-height: 40px;
+  -moz-box-orient: vertical;
+  -moz-box-pack: center;
+}
+
+.top-proto-name, .top-proto-description {
+  margin: 2px 2px;
+  padding: 0px;
+}
+
+.top-proto-name {
+  font-size: larger;
+}
+
+.top-proto-description {
+  font-size: smaller;
+  opacity: 0.85;
+}
+
+.top-proto-icon {
+  padding: 4px;
+}
+
+groupbox.collapsable {
+  -moz-user-focus: normal;
+}
+
+%ifdef XP_WIN
+groupbox.collapsable .caption-text {
+  border: 1px solid transparent;
+}
+
+groupbox.collapsable:focus .caption-text {
+  border: 1px dotted ThreeDDarkShadow;
+}
+%endif
+
+groupbox.collapsable[closed="true"] {
+  border: none;
+  -moz-appearance: none;
+}
+
+groupbox[closed="true"] > .groupbox-body {
+  display: none;
+}
+
+%ifdef XP_MACOSX
+groupbox.collapsable caption .caption-icon {
+  width: 11px;
+  height: 11px;
+  background-repeat: no-repeat;
+  background-position: center;
+  -moz-margin-end: 2px;
+  background-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+}
+
+groupbox.collapsable[closed="true"] caption .caption-icon {
+  background-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+}
+%else
+groupbox.collapsable caption .caption-icon {
+  width: 9px;
+  height: 9px;
+  background-repeat: no-repeat;
+  background-position: center;
+  -moz-margin-start: 1px;
+  -moz-margin-end: 3px;
+  background-image: url("chrome://global/skin/tree/twisty-open.png");
+}
+
+
+groupbox.collapsable[closed="true"] caption .caption-icon {
+  background-image: url("chrome://global/skin/tree/twisty-clsd.png");
+}
+%endif
+
+#value-column {
+  min-width: 15em;
+}
+
+%ifdef XP_WIN
+textbox html|*.textbox-input:-moz-placeholder {
+  font-style: normal;
+}
+%endif

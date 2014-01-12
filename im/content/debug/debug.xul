@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<overlay id="debug"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://debug/content/debug.js"/>
+  <script type="application/javascript" src="chrome://inspector/content/hooks.js"/>
+
+  <commandset id="maincommandset">
+    <command id="aboutMemoryCommand" oncommand="debug.aboutMemory()"/>
+    <command id="domiCommand" oncommand="debug.inspector()"/>
+    <command id="configCommand" oncommand="debug.config()"/>
+    <command id="gcCommand" oncommand="debug.garbageCollect()"/>
+    <command id="forceOnlineCommand" oncommand="debug.forceOnline()"/>
+  </commandset>
+
+  <keyset id="mainkeyset">
+    <key id="aboutMemoryKey" key="M" command="aboutMemoryCommand" modifiers="accel,shift"/>
+    <key id="domiKey" key="I" command="domiCommand" modifiers="accel,shift"/>
+    <key id="configKey" key="," command="configCommand" modifiers="accel,shift"/>
+    <!-- shift + ',' is '?' on a French keyboard... -->
+    <key id="configKey2" key="?" command="configCommand" modifiers="accel"/>
+    <key id="gcKey" key="C" command="gcCommand" modifiers="accel,shift"/>
+    <key id="forceOnlineKey" key="O" command="forceOnlineCommand" modifiers="accel,shift"/>
+  </keyset>
+
+  <menubar id="blistMenubar">
+    <menu label="Debug" id="debugMenu" insertafter="toolsMenu">
+      <menupopup>
+        <menuitem id="domiMenuItem" label="DOM Inspector" key="domiKey" command="domiCommand"/>
+        <menuitem id="gcMenuItem" label="Force Garbage Collection" key="gcKey" command="gcCommand"/>
+        <menuitem id="forceOnlineMenuItem" label="Force Online" key="forceOnlineKey" command="forceOnlineCommand"/>
+        <menuitem id="aboutMemoryMenuItem" label="about:memory" key="aboutMemoryKey" command="aboutMemoryCommand"/>
+        <menuseparator/>
+        <menuitem id="configMenuItem" label="about:config" key="configKey" command="configCommand"/>
+      </menupopup>
+    </menu>
+  </menubar>
+</overlay>

@@ -1,0 +1,280 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd" >
+  %instantbirdDTD;
+]>
+
+<bindings id="buddyBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <binding id="buddy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content align="center">
+      <xul:stack class="prplBuddyIcon" mousethrough="always">
+        <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
+        <xul:image class="statusIcon" xbl:inherits="status"/>
+      </xul:stack>
+      <xul:label crop="end" flex="1" mousethrough="always"
+                 anonid="displayname" class="buddyDisplayName blistDisplayName"
+                 xbl:inherits="value=displayname,status"/>
+      <xul:label crop="end" flex="100000" mousethrough="always"
+                 anonid="statusText" class="buddyStatusText"
+                 xbl:inherits="value=statusText"/>
+    </content>
+    <implementation implements="nsIObserver">
+
+     <destructor>
+      <![CDATA[
+        if (this.buddy) {
+          this.buddy.removeObserver(this);
+          delete this.buddy;
+        }
+      ]]>
+     </destructor>
+
+     <method name="build">
+      <parameter name="aBuddy"/>
+      <parameter name="aContact"/>
+      <body>
+      <![CDATA[
+        this.buddy = aBuddy;
+        this.contact = aContact;
+        this.buddy.addObserver(this);
+
+        this.state = "showing";
+        this.addEventListener("transitionend", this._transitionEnd, true);
+      ]]>
+      </body>
+     </method>
+
+     <property name="displayName"
+               onget="return this.buddy.displayName;"/>
+
+     <property name="state"
+               onget="return this.getAttribute('state');"
+               onset="this.setAttribute('state', val); return val;"/>
+
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
+       <body>
+       <![CDATA[
+         if (aTopic == "buddy-display-name-changed" ||
+             aTopic == "buddy-status-changed") {
+           this.update();
+           return;
+         }
+
+         if (aTopic == "buddy-removed" ||
+             aTopic == "buddy-moved-out-of-contact")
+           this.removeNode();
+       ]]>
+       </body>
+     </method>
+
+     <method name="update">
+      <body>
+      <![CDATA[
+        this.setAttribute("displayname", this.buddy.displayName);
+
+        let statusText = this.buddy.statusText;
+        if (statusText)
+          statusText = " - " + statusText;
+        this.setAttribute("statusText", statusText);
+        this.setAttribute("status", Status.toAttribute(this.buddy.statusType));
+
+        let proto = this.buddy.protocol;
+        this.setAttribute("iconPrpl", proto.iconBaseURI + "icon.png");
+      ]]>
+      </body>
+     </method>
+
+     <method name="_transitionEnd">
+      <body>
+      <![CDATA[
+        let state = this.state;
+        if (state == "showing") {
+          this.update();
+          this.state = "visible";
+        }
+        else if (state == "collapsing")
+          this.parentNode.removeChild(this);
+      ]]>
+      </body>
+     </method>
+
+     <method name="removeNode">
+      <body>
+      <![CDATA[
+        if (!("buddy" in this))
+          return;
+        this.buddy.removeObserver(this);
+        delete this.buddy;
+        if (this.state == "visible") // FIXME check the heigh instead
+          this.state = "collapsing";
+        else
+          this.parentNode.removeChild(this);
+      ]]>
+      </body>
+     </method>
+
+     <method name="remove">
+      <body>
+      <![CDATA[
+        this.buddy.remove();
+      ]]>
+      </body>
+     </method>
+
+     <method name="canOpenConversation">
+      <body>
+       <![CDATA[
+         return this.buddy.canSendMessage;
+       ]]>
+      </body>
+     </method>
+
+     <method name="openConversation">
+      <body>
+       <![CDATA[
+         if (!("Conversations" in window))
+           Components.utils.import("resource:///modules/imWindows.jsm");
+         Conversations.focusConversation(this.buddy.createConversation());
+       ]]>
+      </body>
+     </method>
+
+     <method name="_DragOk">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        aEvent.preventDefault();
+        if (this.hasAttribute("droptarget"))
+          return;
+        if ("_droptarget" in window)
+          window._droptarget.removeAttribute("droptarget");
+        window._droptarget = this;
+        this.setAttribute("droptarget", "true");
+      ]]>
+      </body>
+     </method>
+     <method name="_DragLeave">
+      <body>
+      <![CDATA[
+        if (!this.hasAttribute("droptarget"))
+          return;
+        delete window._droptarget;
+        this.removeAttribute("droptarget");
+      ]]>
+      </body>
+     </method>
+     <method name="_checkDrag">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        if (this.state != "visible")
+          return;
+
+        let dt = aEvent.dataTransfer;
+        if (dt.types.contains("application/x-ib-contact")) {
+          if (dt.getData("application/x-ib-contact") != this.buddy.contact.id)
+            this._DragOk(aEvent);
+          aEvent.stopPropagation();
+        }
+        else if (dt.types.contains("application/x-ib-buddy")) {
+          if (dt.getData("application/x-ib-buddy") != this.buddy.id)
+            this._DragOk(aEvent);
+          aEvent.stopPropagation();
+        }
+      ]]>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="click" clickcount="2">
+       <![CDATA[
+         if (canOpenConversation())
+           openConversation();
+         event.stopPropagation();
+       ]]>
+     </handler>
+
+     <handler event="dragstart">
+       <![CDATA[
+         if (this.state != "visible")
+           return;
+
+         event.dataTransfer.setData("application/x-ib-buddy",
+                                    this.buddy.id);
+         event.stopPropagation();
+       ]]>
+     </handler>
+     <handler event="drop">
+       <![CDATA[
+         if (this.hasAttribute("dummy")) {
+           // Droppped onto the drop target. The event will bubble to
+           // the contact.
+           return;
+         }
+         let contact = this.buddy.contact;
+         let dt = event.dataTransfer;
+         if (dt.types.contains("application/x-ib-contact")) {
+           let id = dt.getData("application/x-ib-contact");
+           contact.mergeContact(Services.contacts.getContactById(id));
+         }
+         else if (dt.types.contains("application/x-ib-buddy")) {
+           let id = dt.getData("application/x-ib-buddy");
+           let from = Services.contacts.getBuddyById(id);
+           if (from.contact.id != contact.id)
+             contact.adoptBuddy(from);
+           contact.moveBuddyBefore(from, this.buddy);
+         }
+         else
+           throw "Invalid drop on buddy!";
+         event.stopPropagation();
+         this._DragLeave();
+       ]]>
+     </handler>
+     <handler event="dragenter">
+       <![CDATA[
+         this._checkDrag(event);
+       ]]>
+     </handler>
+     <handler event="dragover">
+       <![CDATA[
+         this._checkDrag(event);
+       ]]>
+     </handler>
+     <handler event="dragleave">
+       <![CDATA[
+         this._DragLeave();
+       ]]>
+     </handler>
+    </handlers>
+  </binding>
+
+  <binding id="buddy-dummy" extends="chrome://instantbird/content/buddy.xml#buddy">
+    <content align="center">
+      <xul:image class="dummyBuddyIcon"/>
+      <xul:label crop="end" flex="1" class="buddyDisplayName dummyBuddyLabel"
+                 value="&contactDropTarget2;" tooltiptext="&contactDropTarget2;"/>
+    </content>
+    <implementation>
+     <method name="removeNode">
+      <body>
+      <![CDATA[
+        this.parentNode.removeChild(this);
+      ]]>
+      </body>
+     </method>
+    </implementation>
+  </binding>
+</bindings>

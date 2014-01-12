@@ -1,0 +1,22 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+div.outgoing { 
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 255, 255, 1) 15px, rgba(255, 255, 255, 1)) !important;
+}
+
+div.incoming { 
+  background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 255, 255, 1) 15px, rgba(255, 255, 255, 1)) !important;
+}
+
+
+
+/* used by javascript */
+.outgoing-color {
+  background-color: rgb(255, 255, 255);
+}
+
+.incoming-color {
+  background-color: rgb(255, 255, 255);
+}

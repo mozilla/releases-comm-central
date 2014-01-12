@@ -1,0 +1,65 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.statusIcon[status="away"],
+.statusIcon[status="unavailable"] {
+  background-image: url('chrome://chat/skin/away.png');
+}
+
+.statusIcon[status="idle"] {
+  background-image: url('chrome://chat/skin/idle.png');
+}
+
+.statusIcon[status="mobile"] {
+  background-image: url('chrome://chat/skin/mobile.png');
+}
+
+.statusIcon[status="offline"],
+.statusIcon[status="left"] {
+  background-image: url('chrome://chat/skin/offline.png');
+}
+
+.statusIcon[status="unknown"] {
+  background-image: url('chrome://chat/skin/unknown.png');
+}
+
+.statusTypeIcon[status="unknown"] {
+  list-style-image: url('chrome://chat/skin/unknown-16.png');
+}
+
+.statusTypeIcon[status="chat"] {
+  list-style-image: url('chrome://chat/skin/chat-16.png');
+}
+
+.statusTypeIcon[status="available"] {
+  list-style-image: url('chrome://chat/skin/available-16.png');
+}
+
+.statusTypeIcon[status="unavailable"],
+.statusTypeIcon[status="away"] {
+  list-style-image: url('chrome://chat/skin/away-16.png');
+}
+
+.statusTypeIcon[status="offline"],
+.statusTypeIcon[status="invisible"] {
+  list-style-image: url('chrome://chat/skin/offline-16.png');
+}
+
+.statusTypeIcon[status="idle"] {
+  list-style-image: url('chrome://chat/skin/idle-16.png');
+}
+
+.statusTypeIcon[status="mobile"] {
+  list-style-image: url('chrome://chat/skin/mobile-16.png');
+}
+
+.protoIcon[status="offline"],
+.protoIcon[status="unknown"] {
+  opacity: 0.3;
+}
+
+.protoIcon[status="offline"][selected],
+.protoIcon[status="unknown"][selected] {
+  opacity: 0.7;
+}

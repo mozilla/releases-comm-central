@@ -1,0 +1,189 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+body {
+  margin: 0;
+  padding: 0;
+  background: -moz-linear-gradient(top, -moz-dialog, -moz-default-background-color) fixed;
+}
+
+p {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.bubble {
+  margin: 20px 20px 3px;
+  padding: 0;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
+}
+
+#Chat:not(.log) > .bubble:not(.context):not(.event) {
+  -moz-animation-duration: 0.5s;
+  -moz-animation-name: fadein;
+  -moz-animation-iteration-count: 1;
+}
+
+@-moz-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1.0;
+  }
+}
+
+.bubble.context:not(:hover) {
+  filter: url("bubbles.svg#desaturate");
+}
+
+.indicator {
+  margin: 0;
+  padding: 9px 15px 10px 15px;
+}
+
+.bubble.event {
+  padding: 4px 15px 4px 15px;
+  background-color: hsl(0, 0%, 99%);
+  border-color: hsl(0, 0%, 85%);
+  box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
+}
+
+.pseudo {
+  display: inline-block;
+  font-size: smaller;
+  font-weight: bold;
+  margin: -9px 0px 3px -15px;
+  padding: 0px 15px 1px 15px;
+  /* border-top-left-radius = (border-radius - border-width) of div.bubble,
+     see bug 1775 for an explanation */
+  border-top-left-radius: 8px;
+  border-bottom-right-radius: 10px;
+}
+
+.pseudo > .time {
+  display: none;
+}
+
+.bubble:hover > .indicator > .pseudo > .time {
+  display: inline;
+}
+
+.bubble > .indicator > hr,
+.bubble > hr {
+  margin: 3px 0px 1px 0px;
+  height: 2px;
+  border-style: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.interval, #lastMessage {
+  text-align: center;
+  color: hsl(0, 0%, 60%);
+}
+
+#lastMessage {
+  line-height: 20px;
+}
+
+p.nick {
+  font-weight: bold;
+}
+
+p.action {
+  font-style: italic;
+}
+
+p.action:before {
+  content: "*** ";
+}
+
+p.event {
+  color: hsl(0, 0%, 60%);
+}
+
+p.event *:-moz-any-link:not(:hover) {
+  color: hsl(0, 0%, 60%);
+  text-decoration: none;
+}
+
+p.event *:-moz-any-link:hover {
+  color: hsl(0, 0%, 25%);
+}
+
+#Chat {
+  white-space: normal;
+}
+
+p *:-moz-any-link img {
+  margin-bottom: 1px;
+  border-bottom: solid 1px;
+}
+
+#unread-ruler {
+  border-top: 1px solid rgba(0, 0, 0, 0.16) !important;
+  border-bottom: 1px solid rgb(255,255,255) !important;
+}
+
+.sessionstart-ruler {
+  margin: 0;
+  width: 100%;
+  border: none;
+  min-height: 13px;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(0,0,0,0.18));
+}
+
+
+/* used by javascript */
+.eventToggle {
+  cursor: pointer;
+  min-height: 20px;
+  margin-left: -24px;
+  padding-left: 24px;
+  background: url('Bitmaps/minus.png') no-repeat left top;
+  margin-bottom: -20px;
+  width: 0;
+}
+
+.eventToggle:hover {
+  background-image: url('Bitmaps/minus-hover.png');
+}
+
+.hide-children > .eventToggle {
+  width: 100%;
+  margin-bottom: -3px;
+  background-image: url('Bitmaps/plus.png');
+}
+
+.hide-children > .eventToggle:hover {
+  background-image: url('Bitmaps/plus-hover.png');
+}
+
+.hide-children > .eventToggle:after {
+  content: "\2026"; /* &hellip; */
+  color: hsl(0, 0%, 60%);
+}
+
+.hide-children > :-moz-any(p.event, hr):not(:first-of-type):not(:last-of-type) {
+  display: none;
+}
+
+.ib-nick {
+  font-size: smaller;
+  border: 1px solid;
+  border-radius: 6px;
+  padding: 0 0.3em;
+}
+
+.ib-nick[left] {
+  color: hsl(0, 0%, 60%);
+  background-color: hsl(0, 0%, 99%);
+  border-color: hsl(0, 0%, 85%);
+}

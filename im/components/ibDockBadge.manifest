@@ -1,0 +1,3 @@
+component {8b1eb1be-a58c-450b-8250-c6d5ad9fe2fb} ibDockBadge.js
+contract @instantbird.org/mac/dock-badge;1 {8b1eb1be-a58c-450b-8250-c6d5ad9fe2fb}
+category profile-after-change DockBadge @instantbird.org/mac/dock-badge;1

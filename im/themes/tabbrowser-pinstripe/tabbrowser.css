@@ -1,0 +1,579 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/");
+
+%filter substitution
+%define loweredShadow 0 1px rgba(255, 255, 255, .4)
+%define focusRingShadow 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring, 0 0 1.5px 1px -moz-mac-focusring
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+statusbarpanel#statusbar-display {
+  -moz-padding-start: 0;
+}
+
+.statusbarpanel-text {
+  margin-top: 2px;
+  margin-bottom: 0;
+}
+
+#convWindow {
+  -moz-appearance: none;
+  background-color: #eeeeee;
+}
+
+/* ::::: tabbrowser ::::: */
+
+.tabbrowser-tabbox {
+  margin: 0;
+}
+
+.tab-icon-image {
+  width: 16px;
+  height: 16px;
+}
+
+.tabbrowser-tab:not(:hover) > .tab-stack > .tab-content > .tab-icon-image:not([selected="true"]) {
+  opacity: .8;
+}
+
+.tab-stack {
+  /* ensure stable tab height with and without toolbarbuttons on the tab bar */
+  height: 26px;
+}
+
+.tabbrowser-tab,
+.tabs-newtab-button {
+  -moz-appearance: none;
+  font: message-box;
+  font-weight: bold;
+  text-shadow: @loweredShadow@;
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: center;
+  -moz-box-align: stretch;
+}
+
+.tabbrowser-tab > .tab-stack > .tab-background {
+  margin-top: 3px;
+}
+
+.tabbrowser-tab > .tab-stack > .tab-background:not([selected="true"]):not(:-moz-lwtheme) {
+  margin-bottom: 2px;
+}
+
+.tab-background,
+.tab-content,
+.tabs-newtab-button > .toolbarbutton-icon {
+  -moz-margin-start: -5px;
+  -moz-margin-end: -4px;
+  pointer-events: none;
+}
+
+.tab-close-button {
+  pointer-events: auto;
+}
+
+.tabbrowser-tabs[closebuttons="hidden"] > * > * > * > .tab-close-button {
+  display: -moz-box;
+  visibility: hidden;
+}
+
+.tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox {
+  -moz-padding-start: 5px;
+  -moz-padding-end: 4px;
+}
+
+.tab-content,
+.tabs-newtab-button > .toolbarbutton-icon {
+  -moz-box-align: center;
+  border: solid transparent;
+  border-width: 0 11px;
+}
+
+.tab-background-start,
+.tab-background-end {
+  width: 12px;
+  height: 21px;
+}
+
+.tab-background-middle {
+  -moz-box-flex: 1;
+}
+
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-start:-moz-locale-dir(ltr),
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-end:-moz-locale-dir(rtl) {
+  mask: url(chrome://instantbird/content/instantbird.xul#pinstripe-tab-left-curve-mask);
+}
+
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-end:-moz-locale-dir(ltr),
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-start:-moz-locale-dir(rtl) {
+  mask: url(chrome://instantbird/content/instantbird.xul#pinstripe-tab-right-curve-mask);
+}
+
+.tab-background-start[selected="true"]:not(:-moz-lwtheme),
+.tab-background-middle[selected="true"]:not(:-moz-lwtheme),
+.tab-background-end[selected="true"]:not(:-moz-lwtheme) {
+  background-color: -moz-mac-chrome-active;
+}
+
+.tab-background-start[selected="true"]:not(:-moz-lwtheme):-moz-window-inactive,
+.tab-background-middle[selected="true"]:not(:-moz-lwtheme):-moz-window-inactive,
+.tab-background-end[selected="true"]:not(:-moz-lwtheme):-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+}
+
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-start:-moz-lwtheme-brighttext:not([selected="true"]),
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-middle:-moz-lwtheme-brighttext:not([selected="true"]),
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-end:-moz-lwtheme-brighttext:not([selected="true"]) {
+  background-image: -moz-linear-gradient(hsla(0,0%,40%,.6), hsla(0,0%,30%,.6) 50%);
+}
+
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-start:-moz-lwtheme-darktext:not([selected="true"]),
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-middle:-moz-lwtheme-darktext:not([selected="true"]),
+.tabbrowser-tab > .tab-stack > .tab-background > .tab-background-end:-moz-lwtheme-darktext:not([selected="true"]) {
+  background-image: -moz-linear-gradient(hsla(0,0%,60%,.5), hsla(0,0%,45%,.5) 50%);
+}
+
+.tabbrowser-tab > .tab-stack > .tab-content,
+.tabbrowser-arrowscrollbox > .tabs-newtab-button > .toolbarbutton-icon {
+  border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-normal-active.png) 0 11 fill repeat stretch;
+}
+
+.tabbrowser-tab:hover > .tab-stack > .tab-content:not([selected="true"]),
+.tabbrowser-arrowscrollbox > .tabs-newtab-button:hover > .toolbarbutton-icon {
+  border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-hover-active.png) 0 11 fill repeat stretch;
+}
+
+.tabbrowser-tab > .tab-stack > .tab-content[selected="true"] {
+  border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active.png) 0 11 fill repeat stretch;
+}
+
+/* preloading hack */
+.tabbrowser-strip::after {
+  content: '';
+  display: block;
+  background-image:
+    url(chrome://instantbird/skin/tabbrowser/tab-top-normal-active.png),
+    url(chrome://instantbird/skin/tabbrowser/tab-top-hover-active.png),
+    url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active.png),
+    url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-active.png),
+    url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-inactive.png);
+}
+
+@media (min-resolution: 2dppx) {
+  .tabbrowser-tab > .tab-stack > .tab-content,
+  .tabbrowser-arrowscrollbox > .tabs-newtab-button > .toolbarbutton-icon {
+    border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-normal-active@2x.png) 0 22 fill repeat stretch;
+  }
+
+  .tabbrowser-tab:hover > .tab-stack > .tab-content:not([selected="true"]),
+  .tabbrowser-arrowscrollbox > .tabs-newtab-button:hover > .toolbarbutton-icon {
+    border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-hover-active@2x.png) 0 22 fill repeat stretch;
+  }
+
+  .tabbrowser-tab > .tab-stack > .tab-content[selected="true"] {
+    border-image: url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active@2x.png) 0 22 fill repeat stretch;
+  }
+
+  /* preloading hack */
+  .tabbrowser-strip::after {
+    background-image:
+      url(chrome://instantbird/skin/tabbrowser/tab-top-normal-active@2x.png),
+      url(chrome://instantbird/skin/tabbrowser/tab-top-hover-active@2x.png),
+      url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active@2x.png);
+  }
+}
+
+.tabbrowser-tab:focus > .tab-stack {
+  box-shadow: @focusRingShadow@;
+}
+
+.tabbrowser-tab:not([selected="true"]):not(:hover):not(:-moz-lwtheme) {
+  color: #222;
+}
+
+.tabbrowser-tab[selected="true"] {
+  color: #000;
+  z-index: 1;
+  position: relative;
+}
+
+.tabbrowser-tab:-moz-lwtheme {
+  color: inherit;
+  text-shadow: inherit;
+}
+
+.tabbrowser-strip {
+  -moz-appearance: -moz-mac-unified-toolbar;
+  height: 26px;
+  background-repeat: repeat-x;
+}
+
+.tabbrowser-strip:not(:-moz-lwtheme) {
+  background-color: -moz-mac-chrome-active;
+}
+
+.tabbrowser-strip:not(:-moz-lwtheme):-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+}
+
+.tabbrowser-strip:not(:-moz-lwtheme) {
+  padding-bottom: 1px; /* 2px in Firefox */
+  height: 25px; /* not in Firefox */
+  background-image: url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-active.png) ;
+}
+
+.tabbrowser-tabpanels:not(:-moz-lwtheme) {
+  border-top: 1px solid transparent;
+}
+
+.tabbrowser-strip:not(:-moz-lwtheme):-moz-window-inactive {
+  background-image: url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-inactive.png);
+}
+
+.tabbrowser-tabs {
+  -moz-box-align: stretch;
+  height: 26px;
+}
+
+.tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox:not(:-moz-lwtheme) {
+  margin-bottom: -2px;
+}
+
+.tabbrowser-arrowscrollbox > .tabs-newtab-button > .toolbarbutton-icon {
+  padding: 4px 0 2px;
+}
+
+.tabbrowser-tab > .tab-stack > .tab-content {
+  padding-top: 2px;
+}
+
+/**
+ * Tab Drag and Drop
+ */
+
+.tab-drop-indicator-bar {
+  height: 10px;
+  margin-top: -10px;
+  position: relative;
+  /* set -moz-margin-start to -1/2 indicator width: */
+  -moz-margin-start: -5px;
+  -moz-margin-end: -8px;
+}
+
+.tab-drop-indicator {
+  -moz-transform: scaleY(-1);
+  z-index: 2;
+  height: 33px;
+  width: 10px;
+  margin-bottom: -33px;
+  position: relative;
+  background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator.png') 50% 40% no-repeat;
+}
+
+@media (min-resolution: 2dppx) {
+  .tab-drop-indicator {
+    background: url('chrome://instantbird/skin/tabbrowser/tabDragIndicator@2x.png') 50% 40% no-repeat;
+    background-size: 12px 33px;
+  }
+}
+
+/**
+ * In-tab close button
+ */
+
+.tab-close-button > .toolbarbutton-icon {
+  -moz-margin-end: 0px !important;
+}
+
+.tab-close-button {
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-appearance: none;
+  border: none !important;
+  padding: 0;
+  margin: 0;
+  background: none;
+  cursor: default;
+  -moz-image-region: rect(0, 16px, 16px, 0);
+}
+
+.tab-close-button:hover {
+  -moz-image-region: rect(0, 32px, 16px, 16px);
+}
+
+.tab-close-button:hover:active {
+  -moz-image-region: rect(0, 48px, 16px, 32px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tab-close-button {
+    list-style-image: url("chrome://global/skin/icons/close@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  .tab-close-button:hover {
+    -moz-image-region: rect(0, 64px, 32px, 32px);
+  }
+
+  .tab-close-button:hover:active {
+    -moz-image-region: rect(0, 96px, 32px, 64px);
+  }
+
+  .tab-close-button > .toolbarbutton-icon {
+    width: 16px;
+  }
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up,
+.tabbrowser-arrowscrollbox > .scrollbutton-down {
+  -moz-image-region: rect(0, 13px, 20px, 0);
+  margin: 0;
+  padding: 0 4px;
+  border: none;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up {
+  -moz-border-end: 2px solid transparent;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down {
+  -moz-border-start: 2px solid transparent;
+  -moz-transition: 1s background-color ease-out;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down[notifybgtab] {
+  background-color: Highlight;
+  -moz-transition: none;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(ltr),
+.tabbrowser-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-left.png");
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(ltr),
+.tabbrowser-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-right.png");
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:hover,
+.tabbrowser-arrowscrollbox > .scrollbutton-down:hover {
+  -moz-image-region: rect(0, 26px, 20px, 13px);
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:hover:active,
+.tabbrowser-arrowscrollbox > .scrollbutton-down:hover:active {
+  -moz-image-region: rect(0, 39px, 20px, 26px);
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up[disabled],
+.tabbrowser-arrowscrollbox > .scrollbutton-down[disabled] {
+  -moz-image-region: rect(0, 13px, 20px, 0px) !important;
+  opacity: 0.5;
+}
+
+@media (min-resolution: 2dppx) {
+  .tabbrowser-arrowscrollbox > .scrollbutton-up,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down {
+    -moz-image-region: rect(0, 26px, 40px, 0);
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(ltr),
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(rtl) {
+    list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-left@2x.png");
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(ltr),
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl) {
+    list-style-image: url("chrome://instantbird/skin/tabbrowser/tab-arrow-right@2x.png");
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:hover,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:hover {
+    -moz-image-region: rect(0, 52px, 40px, 26px);
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up:hover:active,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down:hover:active {
+    -moz-image-region: rect(0, 78px, 40px, 52px);
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up[disabled] > .toolbarbutton-icon,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down[disabled] > .toolbarbutton-icon {
+    -moz-image-region: rect(0, 26px, 40px, 0) !important;
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon,
+  .tabbrowser-arrowscrollbox > .scrollbutton-down > .toolbarbutton-icon {
+    width: 13px;
+  }
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]):-moz-locale-dir(ltr),
+.tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]):-moz-locale-dir(rtl) {
+  border-width: 0 2px 0 0;
+  border-style: solid;
+  border-image: url("chrome://instantbird/skin/tabbrowser/tab-overflow-border.png") 0 2 0 2 fill;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]):-moz-locale-dir(ltr),
+.tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]):-moz-locale-dir(rtl) {
+  border-width: 0 0 0 2px;
+  border-style: solid;
+  border-image: url("chrome://instantbird/skin/tabbrowser/tab-overflow-border.png") 0 2 0 2 fill;
+}
+
+/**
+ * Tabstrip toolbar buttons
+ */
+
+.tabs-alltabs-button,
+.tabs-alltabs-button > .toolbarbutton-menubutton-button,
+.tabs-alltabs-button > .toolbarbutton-menubutton-dropmarker {
+  margin: 0;
+  padding: 0 1px;
+  border: none;
+  border-radius: 0;
+  /* !important flags needed because of bug 561154: */
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]):hover,
+.tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]):hover,
+.tabs-alltabs-button:not([disabled]):not([open]):hover,
+.tabs-alltabs-button > .toolbarbutton-menubutton-button:not([disabled]):hover,
+.tabs-alltabs-button:not([disabled]):not([buttonover]):hover > .toolbarbutton-menubutton-dropmarker,
+.tabs-container > .tabs-newtab-button:hover {
+  background-image: -moz-linear-gradient(transparent, rgba(0,0,0,.15)) !important;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-up:not([disabled]):hover:active,
+.tabbrowser-arrowscrollbox > .scrollbutton-down:not([disabled]):hover:active,
+.tabs-alltabs-button:not([disabled]):hover:active,
+.tabs-alltabs-button[open],
+.tabs-alltabs-button > .toolbarbutton-menubutton-button:not([disabled]):hover:active,
+.tabs-alltabs-button[open]:not([disabled]):hover > .toolbarbutton-menubutton-dropmarker,
+.tabs-container > .tabs-newtab-button:active {
+  background-image: -moz-linear-gradient(transparent, rgba(0,0,0,.3)) !important;
+}
+
+.tabs-container > .tabs-newtab-button {
+  padding: 2px 0;
+}
+
+.tabs-newtab-button {
+  list-style-image: url(chrome://instantbird/skin/tabbrowser/newtab.png);
+  -moz-image-region: rect(0, 18px, 20px, 0);
+}
+
+.tabs-newtab-button:hover {
+  -moz-image-region: rect(0, 36px, 20px, 18px);
+}
+
+.tabs-newtab-button:hover:active {
+  -moz-image-region: rect(0, 54px, 20px, 36px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tabs-newtab-button {
+    list-style-image: url(chrome://instantbird/skin/tabbrowser/newtab@2x.png);
+    -moz-image-region: rect(0, 36px, 40px, 0);
+  }
+
+  .tabs-newtab-button:hover {
+    -moz-image-region: rect(0, 72px, 40px, 36px);
+  }
+
+  .tabs-newtab-button:hover:active {
+    -moz-image-region: rect(0, 108px, 40px, 72px);
+  }
+
+  .tabs-newtab-button > .toolbarbutton-icon {
+    width: 40px;
+  }
+}
+
+.tabs-alltabs-button {
+  min-width: 28px;
+  list-style-image: url(chrome://instantbird/skin/tabbrowser/alltabs-box-bkgnd-icon.png);
+  -moz-image-region: rect(0, 17px, 20px, 0);
+}
+
+.tabs-alltabs-button:not([disabled="true"]):hover {
+  -moz-image-region: rect(0, 34px, 20px, 17px);
+}
+
+.tabs-alltabs-button[type="menu"][open="true"]:not([disabled="true"]),
+.tabs-alltabs-button:not([disabled="true"]):hover:active {
+  -moz-image-region: rect(0, 51px, 20px, 34px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tabs-alltabs-button {
+    list-style-image: url(chrome://instantbird/skin/tabbrowser/alltabs-box-bkgnd-icon@2x.png);
+    -moz-image-region: rect(0, 34px, 40px, 0);
+  }
+
+  .tabs-alltabs-button:not([disabled="true"]):hover {
+    -moz-image-region: rect(0, 68px, 40px, 34px);
+  }
+
+  .tabs-alltabs-button[type="menu"][open="true"]:not([disabled="true"]),
+  .tabs-alltabs-button:not([disabled="true"]):hover:active {
+    -moz-image-region: rect(0, 102px, 40px, 68px);
+  }
+  .tabs-alltabs-button > .toolbarbutton-icon {
+    width: 17px;
+  }
+}
+
+.tabs-alltabs-button > .toolbarbutton-menu-dropmarker,
+.tabs-alltabs-button > .toolbarbutton-text {
+  display: none;
+}
+
+.tabs-alltabs-button > .toolbarbutton-icon {
+  -moz-margin-end: 2px;
+}
+
+/* Tabstrip close button */
+.tabs-closebutton {
+  -moz-padding-end: 4px;
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-image-region: rect(0, 16px, 16px, 0);
+  border: none;
+}
+
+.tabs-closebutton:hover {
+  -moz-image-region: rect(0, 32px, 16px, 16px);
+}
+
+.tabs-closebutton:hover:active {
+  -moz-image-region: rect(0, 48px, 16px, 32px);
+}
+
+@media (min-resolution: 2dppx) {
+  .tabs-closebutton {
+    -moz-padding-end: 8px;
+    list-style-image: url("chrome://global/skin/icons/close@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  .tabs-closebutton:hover {
+    -moz-image-region: rect(0, 64px, 32px, 32px);
+  }
+
+  .tabs-closebutton:hover:active {
+    -moz-image-region: rect(0, 96px, 32px, 64px);
+  }
+}
+
+.alltabs-item[tabIsVisible] {
+  /* box-shadow instead of background-color to work around native styling */
+  box-shadow: inset -5px 0 ThreeDShadow;
+}

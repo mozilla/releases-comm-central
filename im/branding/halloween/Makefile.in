@@ -1,0 +1,56 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Branding Makefile for nightlies/unofficial branding
+
+DEPTH = @DEPTH@
+topsrcdir = @top_srcdir@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+include $(DEPTH)/config/autoconf.mk
+
+include $(topsrcdir)/config/rules.mk
+
+export::
+	$(NSINSTALL) -D $(DIST)/branding
+ifeq ($(OS_ARCH),WINNT)
+	cp $(srcdir)/instantbird.ico   $(DIST)/branding/instantbird.ico
+	cp $(srcdir)/instantbird.ico   $(DIST)/branding/app.ico
+	cp $(srcdir)/branding.nsi      $(DIST)/branding/branding.nsi
+	cp $(srcdir)/../nightly/wizHeader.bmp     $(DIST)/branding/wizHeader.bmp
+	cp $(srcdir)/../nightly/wizHeaderRTL.bmp  $(DIST)/branding/wizHeaderRTL.bmp
+	cp $(srcdir)/../nightly/wizWatermark.bmp  $(DIST)/branding/wizWatermark.bmp
+endif
+ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+	cp $(srcdir)/instantbird.icns  $(DIST)/branding/instantbird.icns
+	cp $(srcdir)/dsstore           $(DIST)/branding/dsstore
+	cp $(srcdir)/background.png    $(DIST)/branding/background.png
+	cp $(srcdir)/disk.icns         $(DIST)/branding/disk.icns
+#	cp $(srcdir)/license.r         $(DIST)/branding/license.r
+endif
+ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+	cp $(srcdir)/mozicon128.png    $(DIST)/branding/mozicon128.png
+	cp $(srcdir)/mozicon16.xpm     $(DIST)/branding/mozicon16.xpm
+	cp $(srcdir)/mozicon50.xpm     $(DIST)/branding/mozicon50.xpm
+	cp $(srcdir)/default16.png     $(DIST)/branding/default16.png
+endif
+
+# Now sort out the branding specific icons
+ifeq ($(OS_ARCH),WINNT)
+	cp $(srcdir)/windows/blistWindow.ico $(DIST)/branding/blistWindow.ico
+	cp $(srcdir)/windows/convWindow.ico  $(DIST)/branding/convWindow.ico
+	cp $(srcdir)/windows/default.ico     $(DIST)/branding/default.ico
+endif
+ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+	cp $(srcdir)/gtk/blistWindow.png    $(DIST)/branding/blistWindow.png
+	cp $(srcdir)/gtk/blistWindow16.png  $(DIST)/branding/blistWindow16.png
+	cp $(srcdir)/gtk/blistWindow48.png  $(DIST)/branding/blistWindow48.png
+	cp $(srcdir)/gtk/convWindow.png     $(DIST)/branding/convWindow.png
+	cp $(srcdir)/gtk/convWindow16.png   $(DIST)/branding/convWindow16.png
+	cp $(srcdir)/gtk/convWindow48.png   $(DIST)/branding/convWindow48.png
+	cp $(srcdir)/gtk/default.png        $(DIST)/branding/default.png
+	cp $(srcdir)/gtk/default16.png      $(DIST)/branding/default16.png
+	cp $(srcdir)/gtk/default48.png      $(DIST)/branding/default48.png
+endif

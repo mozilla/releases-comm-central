@@ -1,0 +1,536 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % newtabDTD SYSTEM "chrome://instantbird/locale/newtab.dtd" >
+  %newtabDTD;
+]>
+
+<bindings id="newtabBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+  <binding id="newtab">
+    <resources>
+      <stylesheet src="chrome://instantbird/skin/newtab.css"/>
+      <stylesheet src="chrome://instantbird/skin/richlistbox.css"/>
+    </resources>
+
+    <content>
+      <xul:vbox flex="1">
+        <xul:toolbar class="newtab-toolbar">
+          <xul:textbox class="filterbox" anonid="filterbox" type="search"
+                       placeholder="&filterbox.placeholder;" flex="1"/>
+        </xul:toolbar>
+        <xul:notificationbox anonid="newtab-notifications" flex="1">
+          <xul:richlistbox anonid="newtab-listbox" class="newtab-listbox" flex="1"/>
+        </xul:notificationbox>
+      </xul:vbox>
+    </content>
+
+    <implementation implements="nsIObserver">
+      <property name="statsService" readonly="true">
+        <getter>
+        <![CDATA[
+          if (!this._statsService) {
+            this._statsService = Components.classes["@instantbird.org/conv-stats-service;1"]
+                                           .getService(Components.interfaces.ibIConvStatsService);
+          }
+          return this._statsService;
+        ]]>
+        </getter>
+      </property>
+
+      <property name="filterbox" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "filterbox");
+        </getter>
+      </property>
+
+      <property name="listbox" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "newtab-listbox");
+        </getter>
+      </property>
+
+      <!-- Array version of this.listbox.childNodes. -->
+      <field name="listItems">[]</field>
+
+      <property name="tab">
+        <getter>
+        <![CDATA[
+          return this._tab;
+        ]]>
+        </getter>
+        <setter>
+        <![CDATA[
+          this._tab = val;
+          this._tab.setAttribute("label",
+            Services.strings.createBundle("chrome://instantbird/locale/newtab.properties")
+                    .GetStringFromName("newtab.label"));
+        ]]>
+        </setter>
+      </property>
+
+      <destructor>
+      <![CDATA[
+        this.destroy();
+      ]]>
+      </destructor>
+
+      <method name="focus">
+        <body>
+        <![CDATA[
+          this.filterbox.focus();
+        ]]>
+        </body>
+      </method>
+
+      <method name="onResize">
+        <body>
+        <![CDATA[
+          this.addMoreItems();
+        ]]>
+        </body>
+      </method>
+
+      <method name="onSelect">
+        <body>
+        <![CDATA[
+          this.refresh();
+        ]]>
+        </body>
+      </method>
+
+      <!-- Maintains computed number of items to display. Incremented when the user
+           scrolls near the bottom of the list if we have more conversations. -->
+      <field name="numberOfItemsToDisplay">0</field>
+      <property name="hasMoreConversations" readonly="true">
+        <getter>
+        <![CDATA[
+          return this.filteredConvs && this.filteredConvs.hasMoreElements();
+        ]]>
+        </getter>
+      </property>
+      <!-- While scrolling, we add more items when there are three items left that
+           aren't displayed (the last visible item is fourth from the end of the list). -->
+      <field name="kAddMoreItemsThreshold" readonly="true">3</field>
+      <!-- Try to add this many items when scrolling past the threshold. -->
+      <field name="kNumItemsIncrement" readonly="true">10</field>
+
+      <!-- Increments numberOfItemsToDisplay and calls refresh(). Used on scrolling/resizing. -->
+      <method name="addMoreItems">
+        <body>
+        <![CDATA[
+          if (!this.hasMoreConversations)
+            return;
+          let lastVisibleIndex = this.listbox.getIndexOfFirstVisibleRow() +
+                                   this.listbox.getNumberOfVisibleRows() - 1;
+          // Increment numberOfItemsToDisplay if lastVisibleIndex exceeds the threshold.
+          if (lastVisibleIndex >= this.listItems.length - this.kAddMoreItemsThreshold) {
+            let maxNumberOfItemsToDisplay =
+              this.numberOfItemsToDisplay + this.kNumItemsIncrement;
+            while (this.hasMoreConversations &&
+                   this.listItems.length < maxNumberOfItemsToDisplay) {
+              this.pushListItem().build(this.getNextConv());
+              this.numberOfItemsToDisplay++;
+            }
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="getNextConv">
+        <body>
+        <![CDATA[
+          if (!this.hasMoreConversations)
+            return null;
+          return this.filteredConvs.getNext()
+                     .QueryInterface(Components.interfaces.ibIPossibleConversation);
+        ]]>
+        </body>
+      </method>
+
+      <!-- Remove observers when closing tab. -->
+      <method name="destroy">
+        <body>
+        <![CDATA[
+          this.statsService.removeObserver(this);
+          this._destroyed = true;
+        ]]>
+        </body>
+      </method>
+
+      <method name="finishImport">
+        <parameter name="aOtherNewTab"/>
+        <body>
+        <![CDATA[
+          let filterbox = this.filterbox;
+          let otherFilterbox = aOtherNewTab.filterbox;
+          filterbox.value = otherFilterbox.value;
+          filterbox.selectionStart = otherFilterbox.selectionStart;
+          filterbox.selectionEnd = otherFilterbox.selectionEnd;
+          const kFieldsToImport = ["filteredConvs", "numberOfItemsToDisplay",
+                                   "_prevFilterTxt"];
+          for (let field of kFieldsToImport)
+            this[field] = aOtherNewTab[field];
+          for (let item of aOtherNewTab.listItems)
+            this.pushListItem().build(item.target);
+          this.listbox.selectedIndex = aOtherNewTab.listbox.selectedIndex;
+          this.listbox.scrollToIndex(aOtherNewTab.listbox.getIndexOfFirstVisibleRow());
+          this.addListeners();
+        ]]>
+        </body>
+      </method>
+
+      <!-- This is separated from the constructor because we don't want to init
+           when being imported from another window. -->
+      <method name="init">
+        <body>
+        <![CDATA[
+          this._forceRefresh = true;
+          this.refresh();
+          this.addListeners();
+        ]]>
+        </body>
+      </method>
+
+      <method name="addListeners">
+        <body>
+        <![CDATA[
+          this.filterbox.addEventListener("keypress", this.refresh.bind(this));
+          this.listbox.addEventListener("focus", function(aEvent) {
+            let listbox = this.listbox;
+            if (listbox.selectedIndex == -1)
+              listbox.selectedIndex = listbox.getIndexOfFirstVisibleRow();
+          }.bind(this));
+          this.listbox.addEventListener("scroll", this.addMoreItems.bind(this));
+          this.statsService.addObserver(this);
+        ]]>
+        </body>
+      </method>
+
+      <!-- Dispatch a call to _delayedRefresh, to avoid multiple consecutive calls. -->
+      <method name="refresh">
+        <body>
+        <![CDATA[
+          if (this._pendingRefreshCall)
+            return;
+          this._pendingRefreshCall = true;
+          Services.tm.mainThread.dispatch(this._delayedRefresh.bind(this),
+            Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+        ]]>
+        </body>
+      </method>
+
+      <field name="_prevFilterTxt">null</field>
+      <method name="_delayedRefresh">
+        <body>
+        <![CDATA[
+          this._pendingRefreshCall = false;
+          // Don't do anything if the tab has been removed.
+          if (this._destroyed)
+            return;
+          let filterTxt = this.filterbox.value.toLowerCase();
+          if (filterTxt == this._prevFilterTxt && !this._forceRefresh)
+            return;
+          this.filteredConvs = this.statsService.getFilteredConvs(filterTxt);
+          if (filterTxt != this._prevFilterTxt ||
+              (!this.numberOfItemsToDisplay && this.hasMoreConversations)) {
+            this.resetItemsToDisplay();
+            this._prevFilterTxt = filterTxt;
+          }
+          let filteredConvs = this.filteredConvs;
+          let i;
+          for (i = 0; i < this.numberOfItemsToDisplay && this.hasMoreConversations; ++i) {
+            if (i == this.listItems.length)
+              this.pushListItem();
+            this.listItems[i].build(this.getNextConv());
+          }
+          // Remove excess items.
+          while (this.listItems.length > i)
+            this.popListItem();
+        ]]>
+        </body>
+      </method>
+
+      <method name="resetItemsToDisplay">
+        <body>
+        <![CDATA[
+          let listbox = this.listbox;
+          // We need to have a list item so that we can use its height to compute
+          // the number of items to display. If we don't have one, we add it,
+          // but only if it will be used (i.e. this.hasMoreConversations is true).
+          if (this.hasMoreConversations) {
+            if (!listbox.firstChild)
+              this.pushListItem();
+            // Add enough items to fill the visible area, plus kNumItemsIncrement.
+            this.numberOfItemsToDisplay =
+              (listbox.clientHeight / listbox.firstChild.clientHeight) + this.kNumItemsIncrement;
+          }
+          else
+            this.numberOfItemsToDisplay = 0;
+          listbox.scrollToIndex(0);
+          listbox.clearSelection();
+          // Ensure the first item will be selected if the user presses
+          // down (for example) from the filterbox.
+          listbox.selectedIndex = -1;
+        ]]>
+        </body>
+      </method>
+
+      <method name="pushListItem">
+        <body>
+        <![CDATA[
+          // We use richlistitem as the nodeName so that CSS rules from richlistbox.css
+          // get applied. We use the className to apply the -moz-binding.
+          let elt = document.createElementNS(
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+            "richlistitem");
+          elt.className = "newtab-item";
+          this.listbox.appendChild(elt);
+          this.listItems.push(elt);
+          return elt;
+        ]]>
+        </body>
+      </method>
+
+      <method name="popListItem">
+        <body>
+        <![CDATA[
+          this.listbox.removeChild(this.listbox.lastChild);
+          this.listItems.pop();
+        ]]>
+        </body>
+      </method>
+
+      <method name="startConversation">
+        <parameter name="aNewtabItem"/>
+        <body>
+        <![CDATA[
+          let conv = aNewtabItem.target.createConversation();
+          if (conv)
+            Conversations.focusConversation(conv);
+        ]]>
+        </body>
+      </method>
+
+      <!-- nsIObserver implementation -->
+      <method name="observe">
+        <parameter name="aSubject"/>
+        <parameter name="aTopic"/>
+        <parameter name="aData"/>
+        <body>
+        <![CDATA[
+          if (aTopic == "stats-service-log-sweeping") {
+            let nb = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "newtab-notifications");
+            let notification = nb.getNotificationWithValue("log-sweeping");
+            if (aData == "ongoing" && !notification) {
+              let notificationText =
+                Services.strings.createBundle("chrome://instantbird/locale/newtab.properties")
+                        .GetStringFromName("newtab.logSweepingInProgress");
+              nb.appendNotification(notificationText, "log-sweeping", "",
+                                    nb.PRIORITY_WARNING_MEDIUM, []);
+              return;
+            }
+            else if (aData == "done" && notification)
+              nb.removeNotification(notification);
+          }
+          this._forceRefresh = true;
+          this.refresh();
+        ]]>
+        </body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="keydown">
+      <![CDATA[
+        if (event.keyCode == event.DOM_VK_ENTER ||
+            event.keyCode == event.DOM_VK_RETURN) {
+          if (!this.listbox.firstChild)
+            return;
+          let item = this.listbox.selectedItem || this.listbox.firstChild;
+          this.startConversation(item);
+          window.getTabBrowser().removeTab(this.tab);
+          return;
+        }
+
+        // Don't handle the tab key.
+        if (event.keyCode == event.DOM_VK_TAB)
+          return;
+
+        if (event.keyCode == event.DOM_VK_ESCAPE && !this.filterbox.value) {
+          window.getTabBrowser().removeTab(this.tab);
+          return;
+        }
+
+        // If the key is a modifier, don't do anything.
+        if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey)
+          return;
+
+        const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
+                             KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
+                             KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN];
+
+        // If it's not a navigation key, make sure filterbox has focus and return.
+        if (navKeyCodes.indexOf(event.keyCode) == -1) {
+          this.filterbox.focus();
+          return;
+        }
+        // If the key was Home or End and the filterbox wasn't empty, simply
+        // return so that filterbox can handle it if it had focus.
+        if ((event.keyCode == KeyEvent.DOM_VK_HOME || event.keyCode == KeyEvent.DOM_VK_END) &&
+            this.filterbox.value)
+          return;
+
+        let listbox = this.listbox;
+        // The selectedIndex is -1 after a new filter. In this case, pressing the
+        // (page) down key from the filterbox should select the first item in the list.
+         if (listbox.selectedIndex < 0 && listbox.firstChild) {
+           if (event.keyCode != KeyEvent.DOM_VK_DOWN &&
+               event.keyCode != KeyEvent.DOM_VK_PAGE_DOWN)
+             return;
+           listbox.focus();
+           listbox.selectItem(listbox.firstChild);
+           listbox.ensureIndexIsVisible(0);
+           event.preventDefault();
+           event.stopPropagation();
+         }
+        // If the first item was selected, the (page) up key should focus the filterbox.
+        else if (listbox.selectedIndex == 0 &&
+                 (event.keyCode == KeyEvent.DOM_VK_UP ||
+                  event.keyCode == KeyEvent.DOM_VK_PAGE_UP)) {
+          listbox.clearSelection();
+          listbox.ensureIndexIsVisible(0);
+          this.filterbox.focus();
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        // Otherwise, give listbox focus so that it can process the navigation key.
+        else
+          listbox.focus();
+      ]]>
+      </handler>
+    </handlers>
+  </binding>
+
+  <binding id="newtab-item"
+    extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:hbox class="newtabContent" flex="1" xbl:inherits="status">
+        <xul:stack class="buddyStatusIconStack" mousethrough="always">
+          <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,chat"/>
+          <xul:image anonid="statusIcon" class="statusTypeIcon" xbl:inherits="status,chat"/>
+        </xul:stack>
+        <xul:vbox flex="1">
+          <xul:spacer flex="1"/>
+          <xul:hbox>
+            <xul:label class="displayName" flex="1" crop="end" xbl:inherits="value=displayName"/>
+            <xul:hbox flex="10000">
+              <xul:spacer flex="10000"/>
+              <xul:image class="infoIcon" xbl:inherits="source,selected"/>
+              <xul:label class="infoText" flex="1" crop="end" xbl:inherits="value=infoText"/>
+            </xul:hbox>
+          </xul:hbox>
+          <xul:spacer flex="1"/>
+          <xul:hbox class="statusAndProtoIconBox">
+            <xul:label class="statusText" flex="1" crop="end" xbl:inherits="value=statusText"/>
+            <xul:image class="protoIcon" xbl:inherits="src=protoIcon"/>
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+
+    <implementation>
+      <field name="target">null</field>
+
+      <!-- Textual representation of list items for accessibility tools -->
+      <property name="label" readonly="true">
+        <getter>
+        <![CDATA[
+          let description = this.target.displayName;
+          let statusText = this.getAttribute("statusText");
+          if(this.target.isChat)
+            description += " (" + this.target.infoText + "): " + statusText;
+          else
+            description += " (" + statusText + "): " + this.target.infoText;
+          return description;
+        ]]>
+        </getter>
+      </property>
+
+      <method name="build">
+        <parameter name="aTarget"/>
+        <body>
+        <![CDATA[
+          this.target = aTarget;
+          this.setAttribute("displayName", aTarget.displayName);
+          let source = aTarget.source;
+          this.setAttribute("source", source);
+          // Could be an existing conversation or a contact.
+          if (source != "chat") {
+            if (!("Status" in window))
+              Components.utils.import("resource:///modules/imStatusUtils.jsm");
+            this.setAttribute("status", Status.toAttribute(aTarget.statusType));
+          }
+          else
+            this.removeAttribute("status");
+          // Could be a new chat or an existing chat conversation.
+          if (aTarget.isChat)
+            this.setAttribute("chat", true);
+          else
+            this.removeAttribute("chat");
+          let status;
+          if (aTarget.isChat)
+            status = aTarget.statusText;
+          else {
+            status = Status.toLabel(aTarget.statusType);
+            let statusText = aTarget.statusText;
+            if (statusText)
+              status += " - " + statusText;
+          }
+          this.setAttribute("statusText", status);
+          this.setAttribute("infoText", aTarget.infoText);
+          this.setAttribute("protoIcon", aTarget.account.protocol.iconBaseURI + "icon.png");
+          this.setAttribute("buddyIcon", aTarget.buddyIconFilename);
+        ]]>
+        </body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="click">
+      <![CDATA[
+        if (document.activeElement.localName != "richlistbox") {
+          // If the newtab had focus before the click, the focus would now be
+          // on the richlistbox. If the window wasn't focused before, this
+          // click should just focus it rather than starting a conversation.
+          return;
+        }
+        if (event.button == 2) // Don't handle right clicks.
+          return;
+        let newtab = document.getBindingParent(this);
+        newtab.startConversation(this);
+        let tabbrowser = window.getTabBrowser();
+        if (event.button != 1 && !event.controlKey && !event.metaKey)
+          tabbrowser.removeTab(newtab.tab);
+        else {
+          tabbrowser.selectPanel(newtab);
+          newtab.listbox.selectedIndex = -1;
+          newtab.filterbox.focus();
+        }
+      ]]>
+      </handler>
+
+      <handler event="mousemove">
+      <![CDATA[
+        document.getBindingParent(this).listbox.selectItem(this);
+      ]]>
+      </handler>
+    </handlers>
+  </binding>
+</bindings>

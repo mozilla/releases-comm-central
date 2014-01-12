@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/menulist.css" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://instantbird/locale/addbuddy.dtd">
+
+<dialog
+  id     = "addBuddyDialog"
+  windowtype="Messenger:AddBuddy"
+  title  = "&addContactWindow.title;"
+  buttons= "accept,cancel"
+  xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  onload = "addBuddy.onload()"
+  ondialogaccept="addBuddy.create()"
+  buttondisabledaccept="true">
+  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/addbuddy.js"/>
+
+  <stringbundle id="instantbirdBundle" src="chrome://instantbird/locale/instantbird.properties"/>
+
+  <grid>
+   <columns>
+    <column/>
+    <column flex="1"/>
+   </columns>
+   <rows>
+
+    <row id="nameBox" align="baseline">
+     <label value="&name.label;" control="name"/>
+     <textbox id="name" oninput="addBuddy.oninput()"/>
+    </row>
+
+    <row id="accountBox" align="center">
+     <label value="&account.label;" control="accountlist"/>
+     <menulist id="accountlist"/>
+    </row>
+
+    <row id="tagBox" align="baseline">
+     <label value="&tag.label;" control="taglist"/>
+     <menulist id="taglist" editable="true"/>
+    </row>
+
+   </rows>
+  </grid>
+</dialog>

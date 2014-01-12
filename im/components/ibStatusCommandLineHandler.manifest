@@ -1,0 +1,3 @@
+component {9da72063-b727-488d-9b3f-cc12e854ab33} ibStatusCommandLineHandler.js
+contract @instantbird.org/status/clh;1 {9da72063-b727-488d-9b3f-cc12e854ab33}
+category command-line-handler m-status @instantbird.org/status/clh;1

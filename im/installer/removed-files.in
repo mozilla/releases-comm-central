@@ -1,0 +1,258 @@
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+#define UNIX_BUT_NOT_MAC
+#endif
+#endif
+# remove old components registration
+components/xpti.dat
+components/compreg.dat
+# .xpt files are linked at package time except on Mac
+components/history.xpt
+#ifdef XP_WIN
+components/accessibility-msaa.xpt
+#endif /* XP_WIN */
+#ifdef XP_MACOSX
+# these 2 files were added after we started linking...
+components/content.xpt
+components/dom_smil.xpt
+#else
+components/accessibility.xpt
+components/alerts.xpt
+components/appshell.xpt
+components/appstartup.xpt
+components/autocomplete.xpt
+components/autoconfig.xpt
+components/binary.manifest
+components/caps.xpt
+components/chardet.xpt
+components/chrome.xpt
+components/commandhandler.xpt
+components/commandlines.xpt
+components/composer.xpt
+components/content_base.xpt
+components/content_html.xpt
+components/content_htmldoc.xpt
+components/content_xmldoc.xpt
+components/content_xslt.xpt
+components/content_xtf.xpt
+components/contentprefs.xpt
+components/cookie.xpt
+components/directory.xpt
+#ifndef XP_WIN
+components/docshell.xpt
+#else /* XP_WIN */
+components/docshell_base.xpt
+#endif /* XP_WIN */
+components/dom.xpt
+components/dom_base.xpt
+components/dom_canvas.xpt
+components/dom_core.xpt
+components/dom_css.xpt
+components/dom_events.xpt
+components/dom_geolocation.xpt
+components/dom_html.xpt
+components/dom_json.xpt
+components/dom_loadsave.xpt
+components/dom_offline.xpt
+components/dom_range.xpt
+components/dom_sidebar.xpt
+components/dom_storage.xpt
+components/dom_stylesheets.xpt
+components/dom_svg.xpt
+components/dom_threads.xpt
+components/dom_traversal.xpt
+components/dom_views.xpt
+components/dom_xbl.xpt
+components/dom_xpath.xpt
+components/dom_xul.xpt
+components/downloads.xpt
+components/editor.xpt
+components/embed_base.xpt
+components/extensions.xpt
+components/exthandler.xpt
+components/exthelper.xpt
+components/fastfind.xpt
+components/feeds.xpt
+#ifndef XP_WIN
+components/filepicker.xpt
+#endif /* ! XP_WIN */
+components/find.xpt
+components/gfx.xpt
+components/htmlparser.xpt
+components/imgicon.xpt
+components/imglib2.xpt
+components/inspector.xpt
+components/intl.xpt
+components/jar.xpt
+components/jsdservice.xpt
+components/layout_base.xpt
+components/layout_printing.xpt
+components/layout_xul.xpt
+components/layout_xul_tree.xpt
+components/locale.xpt
+components/loginmgr.xpt
+components/lwbrk.xpt
+components/mimetype.xpt
+components/mozbrwsr.xpt
+components/mozfind.xpt
+components/necko.xpt
+components/necko_about.xpt
+components/necko_cache.xpt
+components/necko_cookie.xpt
+components/necko_dns.xpt
+components/necko_file.xpt
+components/necko_ftp.xpt
+components/necko_http.xpt
+components/necko_res.xpt
+components/necko_socket.xpt
+components/necko_strconv.xpt
+components/necko_viewsource.xpt
+components/oji.xpt
+components/parentalcontrols.xpt
+components/pipboot.xpt
+components/pipnss.xpt
+components/pippki.xpt
+components/places.xpt
+components/plugin.xpt
+components/pref.xpt
+components/prefetch.xpt
+components/profile.xpt
+#ifndef XP_WIN
+components/proxyObjInst.xpt
+#else /* XP_WIN */
+components/proxyObject.xpt
+#endif /* XP_WIN */
+components/purplexpcom.xpt
+components/rdf.xpt
+components/satchel.xpt
+components/saxparser.xpt
+components/shistory.xpt
+components/spellchecker.xpt
+components/storage.xpt
+components/toolkitprofile.xpt
+#ifndef XP_WIN
+components/toolkitremote.xpt
+#endif /* ! XP_WIN */
+components/toolkitsearch.xpt
+components/txmgr.xpt
+components/txtsvc.xpt
+components/uconv.xpt
+components/unicharutil.xpt
+components/update.xpt
+components/uriloader.xpt
+components/urlformatter.xpt
+components/webBrowser_core.xpt
+components/webbrowserpersist.xpt
+components/webshell_idls.xpt
+components/widget.xpt
+components/windowds.xpt
+components/windowwatcher.xpt
+components/xpcom_base.xpt
+components/xpcom_components.xpt
+components/xpcom_ds.xpt
+components/xpcom_io.xpt
+components/xpcom_system.xpt
+#ifndef XP_WIN
+components/xpcom_threads.xpt
+#else /* XP_WIN */
+components/xpcom_thread.xpt
+#endif /* XP_WIN */
+components/xpcom_xpti.xpt
+components/xpconnect.xpt
+components/xpinstall.xpt
+components/xulapp.xpt
+components/xuldoc.xpt
+components/xultmpl.xpt
+components/zipwriter.xpt
+#endif /* ! XP_MACOSX */
+#ifdef XP_WIN
+components/nsPostUpdateWin.js
+#endif /* XP_WIN */
+components/nsResetPref.js
+d3dx9_43.dll
+#ifdef XP_WIN
+IA2Marshal.dll
+#endif
+#ifdef XP_MACOSX
+libwidget.rsrc
+#endif /* XP_MACOSX */
+modules/JSON.jsm
+res/broken-image.gif
+#ifdef XP_MACOSX
+res/cursors/CVS/Entries
+res/cursors/CVS/Repository
+res/cursors/CVS/Root
+res/cursors/CVS/Tag
+#endif /* XP_MACOSX */
+res/dtd/mathml.dtd
+res/entityTables/mathml20.properties
+res/fonts/mathfont.properties
+res/fonts/mathfontSTIXNonUnicode.properties
+res/fonts/mathfontSTIXSize1.properties
+res/fonts/mathfontStandardSymbolsL.properties
+#ifdef XP_WIN
+res/fonts/mathfontSymbol.properties
+#endif /* XP_WIN */
+res/fonts/mathfontUnicode.properties
+res/mathml.css
+#ifdef XP_WIN
+defaults/profile/US/localstore.rdf
+defaults/profile/US/mimeTypes.rdf
+#endif /* XP_WIN */
+#ifdef UNIX_BUT_NOT_MAC
+chrome/icons/default/default.xpm
+components/libdbusservice.so
+#endif
+# old libpurple. Those files are now statically linked...
+components/@DLL_PREFIX@purpleloader@DLL_SUFFIX@
+libraries/@DLL_PREFIX@purple@DLL_SUFFIX@
+libraries/@DLL_PREFIX@purplexpcom@DLL_SUFFIX@
+#ifndef UNIX_BUT_NOT_MAC
+libraries/@DLL_PREFIX@glib@DLL_SUFFIX@
+libraries/@DLL_PREFIX@xml2@DLL_SUFFIX@
+@DLL_PREFIX@glib@DLL_SUFFIX@
+@DLL_PREFIX@xml2@DLL_SUFFIX@
+#endif /* ! UNIX_BUT_NOT_MAC */
+@DLL_PREFIX@purple@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@gg@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@irc@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@jabber@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@msnp9@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@myspace@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@netsoul@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@novell@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@oscar@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@qq@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@simple@DLL_SUFFIX@
+libraries/prpl/@DLL_PREFIX@yahoo@DLL_SUFFIX@
+protocols/@DLL_PREFIX@gg@DLL_SUFFIX@
+protocols/@DLL_PREFIX@irc@DLL_SUFFIX@
+protocols/@DLL_PREFIX@jabber@DLL_SUFFIX@
+protocols/@DLL_PREFIX@msn@DLL_SUFFIX@
+protocols/@DLL_PREFIX@myspace@DLL_SUFFIX@
+protocols/@DLL_PREFIX@netsoul@DLL_SUFFIX@
+protocols/@DLL_PREFIX@novell@DLL_SUFFIX@
+protocols/@DLL_PREFIX@oscar@DLL_SUFFIX@
+protocols/@DLL_PREFIX@qq@DLL_SUFFIX@
+protocols/@DLL_PREFIX@simple@DLL_SUFFIX@
+protocols/@DLL_PREFIX@yahoo@DLL_SUFFIX@
+components/@DLL_PREFIX@gg@DLL_SUFFIX@
+components/@DLL_PREFIX@irc@DLL_SUFFIX@
+components/@DLL_PREFIX@jabber@DLL_SUFFIX@
+components/@DLL_PREFIX@msn@DLL_SUFFIX@
+components/@DLL_PREFIX@myspace@DLL_SUFFIX@
+components/@DLL_PREFIX@netsoul@DLL_SUFFIX@
+components/@DLL_PREFIX@novell@DLL_SUFFIX@
+components/@DLL_PREFIX@oscar@DLL_SUFFIX@
+components/@DLL_PREFIX@qq@DLL_SUFFIX@
+components/@DLL_PREFIX@simple@DLL_SUFFIX@
+components/@DLL_PREFIX@yahoo@DLL_SUFFIX@
+# bug 469814
+#if XP_MACOSX
+components/libpurplexpcom.dylib.dSYM/Contents/Info.plist
+components/libpurplexpcom.dylib.dSYM/Contents/Resources/DWARF/libpurplexpcom.dylib
+#endif
+# bug 701875
+omni.jar
+@DLL_PREFIX@mozutils@DLL_SUFFIX@
+@DLL_PREFIX@xpcom@DLL_SUFFIX@

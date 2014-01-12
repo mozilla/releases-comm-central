@@ -1,0 +1,47 @@
+% This Source Code Form is subject to the terms of the Mozilla Public
+% License, v. 2.0. If a copy of the MPL was not distributed with this
+% file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+%include accounts.css
+
+/* This applies only if Glass is available. */
+@media all and (-moz-windows-compositor) {
+  #accountManager {
+    -moz-appearance: -moz-win-borderless-glass;
+    background-color: transparent;
+  }
+}
+
+/* Our fallback for Aero Basic: set the background color appropriately. */
+@media not all and (-moz-windows-compositor) {
+  #accountManager:-moz-system-metric(windows-default-theme) {
+    background-color: rgb(185, 209, 234);
+  }
+  #accountManager:-moz-system-metric(windows-default-theme):-moz-window-inactive {
+    background-color: rgb(215, 228, 242);
+  }
+}
+
+/* This should apply to both full Aero and Aero Basic as well. */
+@media all and (-moz-windows-theme: aero) {
+  #bottombuttons {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: 0 0 5px 5px;
+  }
+
+  #accountsDesk > * {
+    border-radius: 5px 5px 0 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.25);
+    border-left: 1px solid rgba(0, 0, 0, 0.25);
+    border-right: 1px solid rgba(0, 0, 0, 0.25);
+  }
+
+  #accountsNotificationBox {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  #accountlist {
+    border-bottom: none;
+  }
+}

@@ -1,0 +1,130 @@
+<?xml version="1.0"?> <!-- -*- Mode: HTML -*- -->
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/aboutDialog.css" type="text/css"?>
+#ifdef XP_MACOSX
+<?xul-overlay href="chrome://instantbird/content/menus.xul"?>
+#endif
+
+<!DOCTYPE window [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%brandDTD;
+<!ENTITY % aboutDialogDTD SYSTEM "chrome://instantbird/locale/aboutDialog.dtd" >
+%aboutDialogDTD;
+<!ENTITY copyrightYear "2013">
+#ifdef XP_MACOSX
+ <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+ %instantbirdDTD;
+#endif
+]>
+
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        id="aboutDialog"
+        windowtype="Messenger:About"
+        buttons="accept,extra2"
+        onload="onLoad();"
+        title="&aboutDialog.title;" creditslabel="&credits.label;" creditsaccesskey="&credits.accesskey;"
+        aboutlabel="&aboutLink.label;" aboutaccesskey="&aboutLink.accesskey;" versionlabel="&aboutVersion;"
+        style="width: 299px; height: 330px;">
+
+#ifdef XP_MACOSX
+#include menus.xul.inc
+#endif
+
+    <script type="application/x-javascript">
+      <![CDATA[
+        var gSelectedPage;
+
+        function onLoad() {
+          var xai = Components.classes["@mozilla.org/xre/app-info;1"]
+                              .getService(Components.interfaces.nsIXULAppInfo);
+
+          var versionField = document.getElementById("versionField");
+          versionField.value = versionField.value + xai.version
+                             + ' (' + xai.appBuildID + ')';
+
+          versionField = document.getElementById("geckoVersionField");
+          versionField.value = versionField.value + xai.platformVersion
+                             + ' (' + xai.platformBuildID + ')';
+
+          versionField = document.getElementById("libpurpleVersionField");
+          if ("@instantbird.org/libpurple/core;1" in Components.classes) {
+            var pcs = Components.classes["@instantbird.org/libpurple/core;1"]
+                                .getService(Components.interfaces.purpleICoreService);
+            versionField.value = versionField.value + pcs.version;
+          }
+          else {
+            versionField.hidden = true;
+          }
+
+          versionField = document.getElementById("userAgentField");
+          versionField.value = navigator.userAgent;
+
+          var button = document.documentElement.getButton("extra2");
+          button.setAttribute("label", document.documentElement.getAttribute("creditslabel"));
+          button.setAttribute("accesskey", document.documentElement.getAttribute("creditsaccesskey"));
+          gSelectedPage = 0;
+          button.addEventListener("command", switchPage);
+          document.documentElement.getButton("accept").focus();
+        }
+
+        function uninit(aEvent)
+        {
+          if (aEvent.target != document)
+            return;
+          var iframe = document.getElementById("creditsIframe");
+          iframe.setAttribute("src", "");
+        }
+
+        function switchPage(aEvent)
+        {
+          var button = aEvent.target;
+          if (button.localName != "button")
+            return;
+
+          var iframe = document.getElementById("creditsIframe");
+          if (gSelectedPage == 0) {
+            iframe.setAttribute("src", "chrome://instantbird/content/credits.xhtml");
+            button.setAttribute("label", document.documentElement.getAttribute("aboutlabel"));
+            button.setAttribute("accesskey", document.documentElement.getAttribute("aboutaccesskey"));
+            gSelectedPage = 1;
+          }
+          else {
+            iframe.setAttribute("src", "");
+            button.setAttribute("label", document.documentElement.getAttribute("creditslabel"));
+            button.setAttribute("accesskey", document.documentElement.getAttribute("creditsaccesskey"));
+            gSelectedPage = 0;
+          }
+          var modes = document.getElementById("modes");
+          modes.setAttribute("selectedIndex", gSelectedPage);
+        }
+      ]]>
+    </script>
+
+    <deck id="modes" flex="1">
+      <vbox flex="1" id="clientBox">
+        <vbox id="versionWrapper" flex="1">
+          <textbox id="versionField" readonly="true" class="plain" tabindex="2"
+                   value="&aboutVersion; "/>
+          <textbox id="geckoVersionField" readonly="true" class="plain"
+                   tabindex="3" value="&geckoVersion; "/>
+          <textbox id="libpurpleVersionField" readonly="true" class="plain"
+                   tabindex="4" value="&libpurpleVersion; "/>
+        </vbox>
+        <description id="copyright" flex="1">&copyrightText2;</description>
+        <separator/>
+        <textbox id="userAgentField" readonly="true" class="plain"
+                 tabindex="5" multiline="true"/>
+      </vbox>
+
+      <vbox flex="1" id="creditsBox">
+        <iframe id="creditsIframe" flex="1"/>
+      </vbox>
+    </deck>
+
+    <separator class="groove" id="groove"/>
+
+</dialog>

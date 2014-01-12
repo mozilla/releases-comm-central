@@ -1,0 +1,217 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* large parts copied from the addon manager */
+
+#accountManager {
+  background-color: ThreeDFace;
+  padding: 0 0;
+  margin: 0 0;
+}
+
+%ifndef XP_MACOSX
+notification > hbox {
+  border: none !important;
+  border-bottom: 1px solid ThreeDShadow !important;
+}
+%endif
+
+#accountsNotificationBox {
+  margin: 0 0;
+  -moz-appearance: none;
+}
+
+#noAccountScreen {
+  background-color: -moz-Dialog;
+  overflow: auto;
+}
+#noAccountBox {
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+  border: 1px solid ThreeDShadow;
+  border-radius: 10px;
+  padding: 1.1em;
+  -moz-padding-start: 20px;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+#noAccountImage {
+  list-style-image: url("chrome://global/skin/icons/information-64.png");
+  -moz-margin-end: 1.2em;
+}
+#noAccountInnerBox {
+  max-width: 25em;
+}
+#noAccountTitle {
+  margin: 0 1em 0.6em 0;
+  font-size: 160%;
+  border-bottom: 1px solid ThreeDLightShadow
+}
+#noAccountDesc {
+  font-size: 110%;
+}
+
+#accountlist {
+  margin: 0 0;
+  -moz-appearance: none;
+%ifndef XP_MACOSX
+  border-bottom: 2px solid;
+  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
+%endif
+}
+
+#bottombuttons {
+%ifdef XP_MACOSX
+  -moz-box-pack: end;
+  -moz-padding-start: 2px;
+  -moz-padding-end: 11px;
+  -moz-appearance: statusbar;
+  min-height: 28px;
+%else
+  margin: 0 0;
+%endif
+}
+
+%ifdef XP_MACOSX
+
+%filter substitution
+%define loweredShadow 0 1px rgba(255, 255, 255, .4)
+%define focusRingShadow 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring, 0 0 1.5px 1px -moz-mac-focusring
+
+%define roundButtonShadow 0 1px rgba(255, 255, 255, .4)
+%define roundButtonPressedShadow inset 0 1px 3px rgba(0, 0, 0, .2), 0 1px rgba(255, 255, 255, .4)
+
+%define toolbarbuttonBorderColor rgba(59, 59, 59, 0.9)
+%define toolbarbuttonCornerRadius 3px
+%define toolbarbuttonBackground -moz-linear-gradient(top, #FFF, #ADADAD) repeat-x
+%define toolbarbuttonPressedInnerShadow inset rgba(0, 0, 0, 0.3) 0 -6px 10px, inset #000 0 1px 3px, inset rgba(0, 0, 0, 0.2) 0 1px 3px
+%define toolbarbuttonPressedBackgroundColor #B5B5B5
+%define toolbarbuttonInactiveBorderColor rgba(146, 146, 146, 0.84)
+%define toolbarbuttonInactiveFontColor #7C7C7C
+%define toolbarbuttonInactiveBackgroundImage -moz-linear-gradient(top, #FFF, #CCC)
+
+button {
+  -moz-appearance: none;
+  min-height: 18px;
+  min-width: 0;
+  margin: 0 3px;
+  padding: 0 2px;
+  text-shadow: @loweredShadow@;
+  border: 1px solid @toolbarbuttonBorderColor@;
+  border-radius: @toolbarbuttonCornerRadius@;
+  box-shadow: @loweredShadow@;
+  background: @toolbarbuttonBackground@;
+  background-origin: border-box;
+}
+
+button:focus {
+  box-shadow: @focusRingShadow@, @roundButtonShadow@;
+}
+
+button:active:hover:focus {
+  box-shadow: @focusRingShadow@, @roundButtonPressedShadow@;
+}
+ 
+button:hover:active:not([disabled="true"]) {
+  background: @toolbarbuttonPressedBackgroundColor@;
+  text-shadow: @loweredShadow@;
+  box-shadow: @toolbarbuttonPressedInnerShadow@, @loweredShadow@;
+}
+
+#bottombuttons button:-moz-window-inactive {
+  color: @toolbarbuttonInactiveFontColor@ !important; /* remove this when we support click-through, bug 392188 */
+  border-color: @toolbarbuttonInactiveBorderColor@;
+  background-image: @toolbarbuttonInactiveBackgroundImage@;
+  opacity: 0.7;
+}
+%else
+%ifndef XP_WIN
+#newaccount {
+  margin-left: 0;
+}
+
+#close {
+  margin-right: 0;
+}
+%else
+#newaccount,
+#close {
+  margin: 3px;
+}
+%endif
+%endif
+
+/* List Items */
+richlistitem[state="disconnected"] .accountIcon {
+  opacity: 0.3;
+}
+richlistitem[state="connecting"] .accountIcon,
+richlistitem[state="disconnected"][selected="true"] .accountIcon {
+  opacity: 0.7;
+}
+richlistitem[state="disconnected"]:not([selected="true"]) {
+  color: GrayText;
+}
+
+richlistitem[error="true"] .accountName {
+  color: rgb(150, 0, 0);
+}
+
+%ifndef XP_MACOSX
+/* When the error message was too long, the buttons were too small */
+richlistitem .account-buttons button {
+  min-height: 2em;
+}
+%endif
+
+richlistitem .account-buttons {
+  margin-top: 2px;
+%ifdef XP_MACOSX
+  margin-left: 35px;
+%else
+  margin-left: 32px;
+%endif
+}
+
+richlistitem[dragover="down"] {
+  border-bottom: 3px solid HighLight;
+}
+richlistitem[dragover="up"] {
+  border-top: 3px solid HighLight;
+}
+
+.error {
+  color: rgb(200, 0, 0);
+  margin-left: 6px;
+}
+.accountName {
+  font-weight: bold;
+}
+
+.accountIcon {
+  width: 32px;
+  max-width: 32px;
+  height: 32px;
+  max-height: 32px;
+}
+
+.accountStateIcon {
+  -moz-margin-start: 16px;
+  margin-top: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+richlistitem[state="connected"] .accountStateIcon {
+  list-style-image: url("chrome://chat/skin/available-16.png");
+}
+richlistitem[state="disconnected"] .accountStateIcon {
+  list-style-image: url("chrome://chat/skin/offline-16.png");
+}
+richlistitem[state="connecting"] .accountStateIcon {
+  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+}
+richlistitem[error="true"] .accountStateIcon {
+  list-style-image: url("chrome://global/skin/icons/warning-16.png");
+}

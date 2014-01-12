@@ -1,0 +1,74 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#Chat {
+  white-space: normal;
+}
+
+.pseudo {
+  font-weight: bold;
+}
+
+.outgoing .pseudo {
+  color: rgb(80,80,200);
+}
+
+.incoming .pseudo {
+  color: rgb(200,80,80);
+}
+
+.date {
+  font-style: normal;
+  font-weight: normal;
+}
+
+span.date:after {
+  content: " - ";
+}
+
+.action>span.date:after {
+  content: " * ";
+}
+
+span.pseudo:after {
+  content: ": ";
+}
+
+.action>span.pseudo:after {
+  content: " ";
+}
+
+.event>span.pseudo:after {
+  content: none;
+}
+
+.event {
+  color: rgb(170,170,170);
+}
+
+.nick {
+  font-weight: bold;
+}
+
+.action {
+  font-style: italic;
+}
+
+.context {
+  color: rgb(91,91,91);
+}
+
+p.context>.pseudo,
+p.context .ib-nick {
+  opacity: 0.7;
+}
+
+p {
+  margin: 0px auto;
+}
+
+p *:-moz-any-link img {
+  margin-bottom: 1px;
+  border-bottom: solid 1px;
+}

@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+smiley {
+  -moz-binding: url("chrome://instantbird/content/preferences/smiley.xml#smiley");
+}
+
+listheader {
+  border: 0;
+  padding: 0;
+  -moz-appearance: none;
+}
+
+treecol {
+  -moz-binding: url("chrome://instantbird/content/preferences/smiley.xml#treecol");
+}
+
+smiley:nth-child(odd) {
+  background-color: -moz-oddtreerow;
+}
+
+.smileyTextCodes {
+  font-family: monospace;
+}
+
+.smileyImageBox {
+  -moz-box-align: center;
+}
+
+.smileyImage {
+  margin: 1px 1em;
+}

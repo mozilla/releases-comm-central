@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://mozapps/skin/extensions/extensions.css"?>
+
+<!DOCTYPE page [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%brandDTD;
+<!ENTITY % extensionsDTD SYSTEM "chrome://mozapps/locale/extensions/extensions.dtd">
+%extensionsDTD;
+<!ENTITY % extensions-discoverDTD SYSTEM "chrome://instantbird/locale/extensions-discover.dtd">
+%extensions-discoverDTD;
+]>
+
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:xhtml="http://www.w3.org/1999/xhtml"
+      id="addons-page" style="padding: 0 0; margin: -1px;">
+
+  <script type="application/javascript"
+          src="chrome://instantbird/content/extensions-discover.js"/>
+
+  <!-- discover view -->
+  <box id="view-port-container" flex="1">
+    <vbox id="discover-error" align="center" pack="stretch" flex="1" class="alert-container">
+      <spacer class="alert-spacer-before"/>
+      <hbox>
+        <spacer class="discover-spacer-before"/>
+        <hbox class="alert" align="center">
+          <image class="discover-logo"/>
+          <vbox flex="1" align="stretch">
+            <label class="discover-title">&discover.title;</label>
+            <description class="discover-description">&extensions-discover.description;</description>
+            <description class="discover-footer">&extensions-discover.footer;</description>
+            <label id="addons-website-link" class="text-link"
+                   value="https://addons.instantbird.org/"
+                   href="https://addons.instantbird.org/"/>
+          </vbox>
+        </hbox>
+        <spacer class="discover-spacer-after"/>
+      </hbox>
+      <spacer class="alert-spacer-after"/>
+    </vbox>
+  </box>
+</page>

@@ -1,0 +1,16 @@
+Official *binaries* of this product released by the Instantbird team
+(http://www.instantbird.com/) are made available under the GNU General
+Public License GPL version 2.0 or later.
+
+All of the *source code* for this product is available under licenses
+which are both free and open source.
+
+Most is available under one of the following:
+ - the Mozilla Public License (MPL) 2.0,
+ - the GNU General Public License (GPL) 2.0 or later,
+ - the GNU Lesser General Public License (LGPL) 2.1 or later.
+
+The remainder of the software is available under a variety of more permissive
+licenses.
+
+See about:license for details.

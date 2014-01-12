@@ -1,0 +1,458 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://instantbird/skin/status.css");
+
+#buddyListMsg {
+  overflow-y: auto;
+  background-color: -moz-Field;
+}
+
+#listSpacer {
+  background-color: -moz-Field;
+}
+
+richlistbox {
+  margin: 0 0;
+  -moz-appearance: none;
+}
+
+.listboxHeader {
+  margin: 0 0;
+  padding: 2px 5px;
+  border-style: none;
+  -moz-appearance: none;
+%ifdef XP_MACOSX
+  background-color: -moz-mac-chrome-active;
+  background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+}
+
+.listboxHeader:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: rgba(0, 0, 0, 0.32);
+%else
+  background-color: -moz-Dialog;
+%ifdef XP_WIN
+  background-image: -moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+%else
+  background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
+%endif
+%endif
+}
+
+#contactsHeader {
+%ifdef XP_MACOSX
+  border-top: 1px solid rgb(66, 66, 66);
+}
+
+#contactsHeader:-moz-window-inactive {
+  border-top-color: rgb(137, 137, 137);
+%else
+%ifdef XP_UNIX
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+%else
+  border-top: none;
+%endif
+%endif
+}
+
+%ifdef XP_UNIX
+%ifndef XP_MACOSX
+#convsHeader {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+%endif
+%endif
+
+.convUnreadCount,
+.convUnreadTargetedCount {
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.convUnreadCount {
+  color: hsl(0, 100%, 27%);
+  background-color: hsl(0, 100%, 87%);
+  padding: 0 7px;
+  border-radius: 50px;
+  margin: 1px 3px;
+}
+
+.convUnreadTargetedCount {
+  color: hsl(210, 100%, 27%);
+  background-color: hsl(210, 100%, 87%);
+  padding: 0 5px 0 7px;
+  border-radius: 50px 0 0 50px;
+  margin: 1px 0 1px 3px;
+}
+
+.convUnreadTargetedCount:not([value="0"]) + .convUnreadCount {
+  border-radius: 0 50px 50px 0;
+  margin-left: 0;
+  padding-left: 5px;
+}
+
+conv,
+contact,
+group {
+  padding: 0 2px;
+}
+
+conv,
+contact,
+buddy {
+  height: 20px; /* 16+2+2px for the protocol icon, padding top and bottom */
+}
+
+/* The vertical padding directly on the binding would not be animated. */
+.prplBuddyIcon,
+group>* {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+contact[open] {
+  background: -moz-linear-gradient(45deg, -moz-Dialog, white 20%, white 80%, -moz-Dialog);
+}
+
+#buddylistbox:focus > contact[selected="true"],
+#buddylistbox:focus > group[selected="true"],
+#convlistbox:focus > conv[selected="true"] {
+  background: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+:-moz-any(contact, buddy)[droptarget] {
+  background: Highlight;
+}
+
+contact[droptarget] .contact-hbox,
+buddy[droptarget] {
+  color: HighlightText;
+}
+
+contact[droptarget] > buddy[dummy] {
+  background: Highlight;
+  color: HighlightText;
+}
+
+.contactStatusText,
+.convStatusText,
+.buddyStatusText {
+  color: GrayText;
+}
+
+.contactDisplayName,
+.contactStatusText,
+.convDisplayName,
+.convStatusText,
+.buddyDisplayName,
+.buddyStatusText {
+  margin: 0;
+}
+
+.buddyDisplayName {
+  -moz-margin-start: 2px;
+}
+
+.contact-hbox,
+.conv-hbox {
+  margin: 2px 0;
+  -moz-margin-start: 2px;
+  min-height: 16px;
+  overflow-x: hidden;
+}
+
+/* Avoid a strange jumping bug when hovering and the startChatBubble appears */
+.contact-vbox {
+  min-height: 40px;
+}
+
+.hideGroupButton,
+.startChatBubble,
+.expander-up,
+.expander-down {
+  margin: 0 3px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  -moz-binding: url('chrome://global/content/bindings/button.xml#button-image');
+  -moz-appearance: none;
+}
+
+%ifdef XP_UNIX
+%ifndef XP_MACOSX
+%define UNIX_BUT_NOT_MAC
+%endif
+%endif
+
+.hideGroupButton {
+  -moz-margin-end: 0;
+  -moz-stack-sizing: ignore;
+%ifdef UNIX_BUT_NOT_MAC
+  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
+%else
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-image-region: rect(0, 16px, 16px, 0);
+}
+.hideGroupButton:hover {
+  -moz-image-region: rect(0, 32px, 16px, 16px);
+}
+.hideGroupButton:hover:active {
+  -moz-image-region: rect(0, 48px, 16px, 32px);
+%endif
+}
+
+.startChatBubble {
+  list-style-image: url('chrome://chat/skin/prpl-generic/icon.png');
+}
+
+.expander-up {
+  list-style-image: url("chrome://instantbird/skin/collapse.png");
+}
+
+.expander-down {
+  list-style-image: url("chrome://instantbird/skin/expand.png");
+}
+
+.contactBuddies {
+  -moz-padding-start: 23px;
+}
+
+.dummyBuddyIcon {
+  margin: 1px 3px;
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
+}
+
+.dummyBuddyLabel {
+  font-style: italic;
+  color: GrayText;
+}
+
+.prplBuddyIcon {
+  margin: 0 3px;
+  width: 16px;
+  max-width: 16px;
+  height: 16px;
+  max-height: 16px;
+}
+
+.protoIcon,
+.statusIcon,
+.dummyBuddyIcon,
+.hideGroupButton,
+.startChatBubble,
+.expander-up,
+.expander-down {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  min-width: 16px;
+}
+
+group label {
+  margin: 0 2px;
+  -moz-margin-end: 0;
+}
+
+.blistDisplayName[status="idle"] {
+  color: GrayText;
+}
+
+contact[state="fading"] :-moz-any(.contactDisplayName, .buddyDisplayName) {
+  color: GrayText;
+  font-style: italic;
+}
+
+group label {
+  font-weight: bold;
+}
+
+%ifdef XP_WIN
+group .twisty {
+  padding-top: 1px;
+  width: 9px; /* The image's width is 9 pixels */
+  height: 9px;
+  -moz-margin-end: 3px;
+  -moz-margin-start: 3px;
+  background: url("chrome://global/skin/tree/twisty-open.png") no-repeat center;
+}
+
+group[closed] .twisty {
+  background: url("chrome://global/skin/tree/twisty-clsd.png") no-repeat center;
+}
+%else
+%ifdef XP_MACOSX
+group .twisty {
+  width: 9px;
+  height: 9px;
+  -moz-margin-end: 3px;
+  -moz-margin-start: 3px;
+  background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
+}
+
+group[closed] .twisty {
+  background: url("chrome://global/skin/arrow/arrow-rit-sharp.gif") no-repeat center;
+}
+%else
+group .twisty {
+  -moz-appearance: treetwistyopen;
+}
+
+group[closed] .twisty {
+  -moz-appearance: treetwisty;
+}
+%endif
+%endif
+
+#updatesMenuItem[loading="true"] {
+  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+}
+
+#statusArea {
+  margin: 0 0;
+  padding: 0 0;
+}
+
+#displayName {
+  font-size: large;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  margin: 0 0 16px;
+}
+
+#displayName[usingDefault]:not([editing]) {
+  color: GrayText;
+}
+
+#userIcon {
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 5px;
+  overflow: hidden;
+  max-width: 48px;
+  max-height: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+#userIcon[src=""] {
+  background-image: url("chrome://instantbird/skin/userIcon.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+#userIcon:focus,
+#userIcon:hover {
+  border-color: rgba(0,0,0,0.35);
+  background-color: rgba(0,0,0,0.35);
+  opacity: .4;
+}
+
+#statusTypeIcon {
+  margin: 32px 0 0 32px;
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: none;
+}
+
+#statusImageStack,
+#displayNameAndstatusMessageStack {
+  margin: 3px 2px;
+}
+
+#statusTypeIcon dropmarker {
+  display: none;
+}
+
+%ifdef XP_WIN
+#statusTypeIcon .button-box {
+  padding: 0 0;
+  border: none;
+}
+%endif
+
+#statusTypeIcon[status="available"],
+#statusTypeAvailable {
+  list-style-image: url('chrome://chat/skin/available-16.png');
+}
+
+#statusTypeIcon[status="unavailable"],
+#statusTypeIcon[status="away"],
+#statusTypeUnavailable {
+  list-style-image: url('chrome://chat/skin/away-16.png');
+}
+
+#statusTypeIcon[status="offline"],
+#statusTypeIcon[status="invisible"],
+#statusTypeOffline {
+  list-style-image: url('chrome://chat/skin/offline-16.png');
+}
+
+#statusTypeIcon[status="idle"] {
+  list-style-image: url('chrome://chat/skin/idle-16.png');
+}
+
+%ifdef XP_MACOSX
+#statusMessage {
+  margin: 32px 0 0;
+  min-height: 16px;
+}
+
+#statusMessage[editing] {
+  margin: 29px 2px 0 -4px;
+}
+
+#displayName[editing] {
+  margin-left: -4px;
+}
+%else
+#statusMessage {
+  margin: 32px 0 0;
+}
+
+#statusMessage[editing] {
+%ifdef XP_WIN
+  margin: 30px 0 1px -2px;
+%else
+  margin: 30px -2px -2px -4px;
+%endif
+}
+
+#displayName[editing] {
+%ifdef XP_WIN
+  margin-left: -2px;
+%else
+  margin-left: -4px;
+  margin-right: -2px;
+%endif
+  margin-bottom: 18px;
+}
+%endif
+
+#statusMessage:-moz-focusring:not([editing]) {
+%ifdef XP_MACOSX
+  margin: 30px -2px -1px -22px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 5px;
+%else
+  margin: 31px -1px -1px -21px;
+  border: dotted 1px -moz-dialogtext;
+%endif
+  padding-left: 20px; /* 16px for the statusTypeIcon and 4px from the margins on the two stacks */
+}
+
+#displayName:-moz-focusring:not([editing]) {
+%ifdef XP_MACOSX
+  margin: -1px -1px 16px -2px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 5px;
+%else
+  margin: -1px -1px 17px;
+  border: dotted 1px -moz-dialogtext;
+%endif
+}

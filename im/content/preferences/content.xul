@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  <!ENTITY % contentDTD SYSTEM "chrome://instantbird/locale/preferences/content.dtd">
+  %brandDTD;
+  %contentDTD;
+]>
+
+<overlay id="ContentPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="paneContent" 
+            onpaneload="gContentPane.init();">
+
+    <preferences id="contentPreferences">
+      <!--XXX buttons prefs -->
+      <preference id="browser.display.foreground_color"     name="browser.display.foreground_color"     type="string"/>
+      <preference id="messenger.options.filterMode"         name="messenger.options.filterMode"         type="int"/>
+      <preference id="messenger.conversations.sendFormat"   name="messenger.conversations.sendFormat"   type="bool"/>
+      <preference id="font.language.group"                  name="font.language.group"                  type="wstring"
+                  onchange="gContentPane._rebuildFonts();"/>
+    </preferences>
+    
+    <script type="application/javascript" src="chrome://mozapps/content/preferences/fontbuilder.js"/>
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/content.js"/>
+
+    <!-- Formattings -->
+    <groupbox id="formattingsGroup">
+      <caption label="&formattings.label;"/>
+
+      <label control="filterLevel" accesskey="&filterLevel.accesskey;">&filterLevel.label;</label>
+      <menulist id="filterLevel" preference="messenger.options.filterMode">
+        <menupopup>
+          <menuitem value="2" label="&filterLevelAll;"/>
+          <menuitem value="1" label="&filterLevelBasic;"/>
+          <menuitem value="0" label="&filterLevelNone;"/>
+        </menupopup>
+      </menulist>
+    </groupbox>
+
+    <!-- Fonts and Colors -->
+    <groupbox id="fontsGroup">
+      <caption label="&fontsAndColors.label;"/>
+      <hbox align="center">
+        <label control="defaultFont" accesskey="&defaultFont.accesskey;">&defaultFont.label;</label>
+        <menulist id="defaultFont" flex="1"/>
+        <label control="defaultFontSize" accesskey="&defaultSize.accesskey;">&defaultSize.label;</label>
+        <menulist id="defaultFontSize">
+          <menupopup>
+            <menuitem value="9" label="9"/>
+            <menuitem value="10" label="10"/>
+            <menuitem value="11" label="11"/>
+            <menuitem value="12" label="12"/>
+            <menuitem value="13" label="13"/>
+            <menuitem value="14" label="14"/>
+            <menuitem value="15" label="15"/>
+            <menuitem value="16" label="16"/>
+            <menuitem value="17" label="17"/>
+            <menuitem value="18" label="18"/>
+            <menuitem value="20" label="20"/>
+            <menuitem value="22" label="22"/>
+            <menuitem value="24" label="24"/>
+            <menuitem value="26" label="26"/>
+            <menuitem value="28" label="28"/>
+            <menuitem value="30" label="30"/>
+            <menuitem value="32" label="32"/>
+            <menuitem value="34" label="34"/>
+            <menuitem value="36" label="36"/>
+            <menuitem value="40" label="40"/>
+            <menuitem value="44" label="44"/>
+            <menuitem value="48" label="48"/>
+            <menuitem value="56" label="56"/>
+            <menuitem value="64" label="64"/>
+            <menuitem value="72" label="72"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox align="center">
+        <label control="defaultColor" accesskey="&defaultColor.accesskey;">&defaultColor.label;</label>
+        <colorpicker type="button" id="defaultColor" palettename="standard"
+                     preference="browser.display.foreground_color"/>
+        <spacer flex="1"/>
+        <button id="colors" icon="select-color"
+                label="&advancedColors.label;"
+                accesskey="&advancedColors.accesskey;"
+                oncommand="gContentPane.configureColors();"/>
+      </hbox>
+      <checkbox id="formatOutgoingMessages" label="&formatOutgoingMessages.label;"
+                accesskey="&formatOutgoingMessages.accesskey;"
+                preference="messenger.conversations.sendFormat"/>
+    </groupbox>
+
+  </prefpane>
+
+</overlay>

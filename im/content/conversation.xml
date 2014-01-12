@@ -1,0 +1,2252 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+  %instantbirdDTD;
+]>
+
+<bindings id="conversationBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="conversation">
+    <resources>
+      <stylesheet src="chrome://instantbird/skin/conversation.css"/>
+    </resources>
+    <content>
+      <xul:vbox class="convBox" flex="1">
+        <xul:toolbar class="conv-top-info" anonid="conv-top-info" context="tabContextMenu"/>
+        <xul:hbox class="conv-top" flex="1" anonid="conv-top">
+          <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1" xbl:inherits="chat">
+            <xul:vbox flex="1">
+              <xul:browser anonid="browser" type="content-conversation" flex="1"
+                           xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
+              <xul:progressmeter anonid="browserProgress" hidden="true"/>
+              <xul:findbar anonid="FindToolbar" reversed="true"/>
+            </xul:vbox>
+          </xul:notificationbox>
+          <xul:splitter anonid="splitter" collapse="after" class="splitter conv-chat" xbl:inherits="chat">
+            <xul:grippy/>
+          </xul:splitter>
+          <xul:vbox class="conv-chat" width="150" xbl:inherits="chat">
+            <xul:hbox align="baseline" class="conv-nicklist-header">
+              <xul:label class="conv-nicklist-header-label"
+                         anonid="participantLabel"
+                         value="&chat.participants;"/>
+              <xul:textbox flex="1" readonly="true" class="plain" anonid="participantCount"/>
+            </xul:hbox>
+            <xul:listbox anonid="nicklist" class="conv-nicklist"
+                         flex="1" seltype="multiple"
+                         xbl:inherits="contextmenu=contentcontextmenu"
+                         tooltip="buddyTooltip"
+                         onclick="onNickClick(event);"
+                         onkeypress="onNicklistKeyPress(event);"/>
+          </xul:vbox>
+        </xul:hbox>
+        <xul:splitter class="splitter" anonid="splitter-bottom"/>
+        <xul:vbox anonid="conv-bottom" class="conv-bottom">
+          <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"
+                       onclick = "delete document.getBindingParent(this)._completions;"/>
+        </xul:vbox>
+      </xul:vbox>
+    </content>
+
+    <implementation implements="nsIObserver">
+      <constructor>
+        <![CDATA[
+          let textbox = this.editor;
+          textbox.addEventListener("keypress", this.inputKeyPress.bind(this));
+          textbox.addEventListener("input", this.inputValueChanged.bind(this));
+          textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
+          textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
+
+          MutationObserver(function(aMutations) {
+            for (let mutation of aMutations) {
+              if (mutation.oldValue == "dragging") {
+                this._onSplitterChange();
+                break;
+              }
+            }
+          }.bind(this)).observe(this.getElt("splitter-bottom"),
+                                {attributes: true, attributeOldValue: true,
+                                 attributeFilter: ["state"]});
+
+          MutationObserver(function(aMutations) {
+            for (let mutation of aMutations) {
+              if (mutation.oldValue == "collapsed") {
+                this._onNicklistSplitterChange();
+                break;
+              }
+            }
+          }.bind(this)).observe(this.getElt("splitter"),
+                                {attributes: true, attributeOldValue: true,
+                                 attributeFilter: ["state"]});
+
+          var browser = this.browser;
+          browser.addEventListener("keypress", this.browserKeyPress);
+          browser.addEventListener("dblclick", this.browserDblClick.bind(this));
+          Services.obs.addObserver(this, "conversation-loaded", false);
+
+          // Avoid the browser property setter as the findbar constructor
+          // hasn't been executed yet. The setter will be called by the
+          // constructor in a setTimeout to setup the proper event listeners.
+          this.findbar._browser = browser;
+        ]]>
+      </constructor>
+
+      <destructor>
+        <![CDATA[
+          this.destroy();
+        ]]>
+      </destructor>
+
+      <!-- This is necessary because the destructor doesn't always get
+           called when we are removed from a tabbox.  This needs to be
+           explicitly called before removing the DOM node. -->
+      <method name="destroy">
+        <body>
+        <![CDATA[
+          if ("buddies" in this) {
+            for each (let chatBuddy in this.buddies) {
+              if (chatBuddy.activeTimer)
+                clearTimeout(chatBuddy.activeTimer);
+            }
+          }
+          this._forgetConv();
+
+          if ("MessageFormat" in window) {
+            let textbox = this.editor;
+            MessageFormat.unregisterTextbox(textbox);
+            TextboxSpellChecker.unregisterTextbox(textbox);
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="_forgetConv">
+        <parameter name="aShouldClose"/>
+        <body>
+        <![CDATA[
+          if (!this._conv)
+            return;
+          this._conv.removeObserver(this);
+          Conversations.unregisterConversation(this, aShouldClose);
+          delete this._conv;
+          this.browser.destroy();
+          this.findbar.destroy();
+        ]]>
+        </body>
+      </method>
+
+      <method name="close">
+        <body>
+        <![CDATA[
+          this._forgetConv(true);
+        ]]>
+       </body>
+      </method>
+
+      <method name="hide">
+        <body>
+        <![CDATA[
+          this._forgetConv(false);
+        ]]>
+        </body>
+      </method>
+
+      <method name="finishImport">
+        <parameter name="aConversation"/>
+        <body>
+        <![CDATA[
+          // Swap the docshells.
+          this.browser.swapDocShells(aConversation.browser);
+          // Ensure observers are removed.
+          aConversation.conv = null;
+          this.editor.value = aConversation.editor.value;
+          this.browser.browserResize();
+          this.updateTyping();
+          this.inputValueChanged();
+          this.loaded = true;
+          // Tell observers that this conversation was imported from another
+          // window as they might want to behave differently in this case.
+          Services.obs.notifyObservers(this.browser, "conversation-loaded",
+                                                     "imported");
+        ]]>
+        </body>
+      </method>
+
+      <field name="loaded">false</field>
+
+      <field name="_readCount">0</field>
+      <method name="_showFirstMessages">
+        <body>
+        <![CDATA[
+          this.loaded = true;
+          let messages = this._conv.getMessages();
+          this._readCount = messages.length - this._conv.unreadMessageCount;
+          if (this._readCount)
+            this._writingContextMessages = true;
+          messages.forEach(this.addMsg.bind(this));
+          delete this._writingContextMessages;
+        ]]>
+        </body>
+      </method>
+
+      <field name="_statusText">""</field>
+      <field name="_statusTextEnd">""</field>
+      <field name="_statusTextEndIsError">false</field>
+
+      <method name="addMsg">
+        <parameter name="aMsg"/>
+        <body>
+        <![CDATA[
+          if (!this.loaded)
+            throw "Calling addMsg before the browser is ready?";
+
+          var conv = aMsg.conversation;
+          if (!conv) {
+            // The conversation has already been destroyed,
+            // probably because the window was closed.
+            // Return without doing anything.
+            return;
+          }
+
+          if (!aMsg.system && conv.isChat) {
+            let name = aMsg.who;
+            aMsg.color = this._hasBuddy(name) ?
+                         this._activateBuddy(this.buddies[name], aMsg.time) :
+                         this._getColorStyle(this._computeColor(name));
+          }
+
+          let read = this._readCount > 0;
+          let isUnreadMessage = !read && aMsg.incoming && !aMsg.system;
+          let isTabFocused = this.tab && this.tab.selected && document.hasFocus();
+          let shouldSetUnreadFlag = this.tab && isUnreadMessage && !isTabFocused;
+          let firstUnread = this.tab && !this.tab.hasAttribute("unread") &&
+                            isUnreadMessage && this._isAfterFirstRealMessage &&
+                            (!isTabFocused || this._writingContextMessages);
+
+          // Since the unread flag won't be set if the tab is focused,
+          // we need the following when showing the first messages to stop
+          // firstUnread being set for subsequent messages.
+          if (firstUnread)
+            delete this._writingContextMessages;
+
+          this.browser.appendMessage(aMsg, read, firstUnread);
+          if (!aMsg.system)
+            this._isAfterFirstRealMessage = true;
+
+          if (read) {
+            --this._readCount;
+            if (!this._readCount && !this._isAfterFirstRealMessage) {
+              // If all the context messages were system messages, we don't want
+              // an unread ruler after the context messages, so we forget that
+              // we had context messages.
+              delete this._writingContextMessages;
+            }
+            return;
+          }
+
+          if (isUnreadMessage && (!aMsg.conversation.isChat || aMsg.containsNick)) {
+            this._lastPing = aMsg.who;
+            this._lastPingTime = aMsg.time;
+            if (Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages") &&
+                Interruptions.requestInterrupt("new-text", aMsg, "get-attention"))
+              window.getAttention();
+          }
+
+          if (isTabFocused)
+            this._conv.markAsRead();
+
+          if (shouldSetUnreadFlag) {
+            if (conv.isChat && aMsg.containsNick)
+              this.tab.setAttribute("attention", "true");
+            this.tab.setAttribute("unread", "true");
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="sendMsg">
+        <parameter name="aMsg"/>
+        <body>
+        <![CDATA[
+          if (!aMsg)
+            return;
+
+          let account = this._conv.account;
+
+          if (aMsg[0] == "/") {
+            // The /say command is used to bypass command processing
+            // (/say can be shortened to just /).
+            // "/say" or "/say " should be ignored, as should "/" and "/ ".
+            if (aMsg.match(/^\/(?:say)? ?$/)) {
+              this.resetInput();
+              return;
+            }
+            else if (aMsg.match(/^\/(?:say)? .*/))
+              aMsg = aMsg.slice(aMsg.indexOf(" ") + 1);
+            else if (Services.cmd.executeCommand(aMsg, this._conv.target)) {
+              this._conv.sendTyping("");
+              this.resetInput();
+              return;
+            }
+            else if (account.protocol.slashCommandsNative && account.connected) {
+              let cmd = aMsg.match(/^\/[^ ]+/);
+              if (cmd && cmd != "/me") {
+                this._conv.systemMessage(
+                  this.bundle.formatStringFromName("unknownCommand", [cmd], 1),
+                  true);
+                return;
+              }
+            }
+          }
+
+          if (!account.connected) {
+            let errMsg;
+            if (Services.io.offline)
+              errMsg = this.bundle.GetStringFromName("networkOffline");
+            else if (account.statusInfo.statusType ==
+                     Components.interfaces.imIStatusInfo.STATUS_OFFLINE)
+              errMsg = this.bundle.GetStringFromName("statusOffline");
+            else {
+              errMsg = this.bundle.formatStringFromName("accountDisconnected",
+                         [account.protocol.name, account.name], 2);
+            }
+            this._conv.systemMessage(errMsg, true);
+            return;
+          }
+
+          let msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
+                              .getService(Ci.mozITXTToHTMLConv)
+                              .scanTXT(aMsg, 0);
+
+          if (account.HTMLEnabled) {
+            msg = msg.replace(/\n/g, "<br/>");
+            if (Services.prefs.getBoolPref("messenger.conversations.sendFormat")) {
+              let style = MessageFormat.getMessageStyle();
+              let proto = this._conv.account.protocol.id;
+              if (proto == "prpl-msn") {
+                if ("color" in style)
+                  msg = "<font color=\"" + style.color + "\">" + msg + "</font>";
+                if ("fontFamily" in style)
+                  msg = "<font face=\"" + style.fontFamily + "\">" + msg + "</font>";
+                // MSN doesn't support font size info in messages...
+              }
+              else if (proto == "prpl-aim" || proto == "prpl-icq" ||
+                       proto == "prpl-yahoo" || proto == "prpl-yahoojp") {
+                let styleAttributes = ""
+                if ("color" in style)
+                  styleAttributes += " color=\"" + style.color + "\"";
+                if ("fontFamily" in style)
+                  styleAttributes += " face=\"" + style.fontFamily + "\"";
+                if ("fontSize" in style) {
+                  let size = style.fontSize - style.defaultFontSize;
+                  if (size < -4)
+                    size = 1;
+                  else if (size < 0)
+                    size = 2;
+                  else if (size < 3)
+                    size = 3
+                  else if (size < 7)
+                    size = 4;
+                  else if (size < 15)
+                    size = 5;
+                  else if (size < 25)
+                    size = 6;
+                  else
+                    size = 7;
+                  styleAttributes += " size=\"" + size + "\""
+                                   + " style=\"font-size: " + style.fontSize + "px;\"";
+                }
+                if (styleAttributes)
+                  msg = "<font" + styleAttributes + ">" + msg + "</font>";
+              }
+              else {
+                let styleProperties = [];
+                if ("color" in style)
+                  styleProperties.push("color: " + style.color);
+                if ("fontFamily" in style)
+                  styleProperties.push("font-family: " + style.fontFamily);
+                if ("fontSize" in style)
+                  styleProperties.push("font-size: " + style.fontSize + "px");
+                style = styleProperties.join("; ");
+                if (style)
+                  msg = "<span style=\"" + style + "\">" + msg + "</span>";
+              }
+            }
+            this._conv.sendMsg(msg);
+          }
+          else
+            this._conv.sendMsg(account.HTMLEscapePlainText ? msg : aMsg);
+
+          // reset the textbox to its original size
+          this.resetInput();
+        ]]>
+        </body>
+      </method>
+
+      <method name="_onSplitterChange">
+        <body>
+        <![CDATA[
+          let textbox = this.editor;
+          // set the default height as the deck height (modified by the splitter)
+          textbox.defaultHeight = parseInt(textbox.parentNode.height) -
+            this._TEXTBOX_VERTICAL_OVERHEAD;
+
+          // When moved, the splitter takes the child frames (rather
+          // than DOM nodes) of the resized area, and for each, it sets the
+          // current (=after resize) frame height as the height attribute
+          // of the associated content (DOM) node.
+          // This height attribute is clearly undesirable here.
+          this.getElt("conv-top-info").removeAttribute("height");
+        ]]>
+        </body>
+      </method>
+
+      <method name="_onNicklistSplitterChange">
+        <body>
+        <![CDATA[
+          // Workaround for bug 1143: Listitems which are added while the
+          // nicklist is collapsed may not get bound when the nicklist is
+          // reopened, if they were assumed to be visible based on
+          // their position in the nicklist. They then remain missing from the
+          // nicklist, as the DOM believes they were already initialized.
+          // To ensure they get bound, we hide and then redisplay
+          // the listbox.
+          let pos = this.nicklistElt.getIndexOfFirstVisibleRow();
+          this.nicklistElt.style.display = "none";
+          // Force layout by reading a suitable property.
+          let dummy = this.nicklistElt.clientTop;
+          this.nicklistElt.style.display = "";
+          // Restore scroll position.
+          this.nicklistElt.scrollToIndex(pos);
+        ]]>
+        </body>
+      </method>
+
+      <!-- This value represents the difference between the deck's height and
+           the textbox's content height (borders, margins, paddings).
+           Differ according to the Operating System native theme. -->
+      <field name="_TEXTBOX_VERTICAL_OVERHEAD">0</field>
+      <!-- Ratio textbox height / conversation height.
+           0.1 means that the textbox's height is 10% of the conversation's
+           height. -->
+      <field name="_TEXTBOX_RATIO" readonly="true">0.1</field>
+
+
+      <method name="calculateTextboxDefaultHeight">
+        <body>
+        <![CDATA[
+          let totalSpace = parseInt(window.getComputedStyle(this, null)
+                                          .getPropertyValue("height"));
+          let textbox = this.editor;
+          let textboxStyle = window.getComputedStyle(textbox, null);
+          let lineHeight = parseInt(textboxStyle.getPropertyValue("line-height"));
+
+          // Compute the overhead size.
+          let textboxHeight = textbox.inputField.clientHeight;
+          let deckHeight = textbox.parentNode.boxObject.height;
+          this._TEXTBOX_VERTICAL_OVERHEAD = deckHeight - textboxHeight;
+
+          // Calculate the number of lines to display.
+          let numberOfLines =
+            Math.round(totalSpace * this._TEXTBOX_RATIO / lineHeight);
+          if (numberOfLines <= 0)
+            numberOfLines = 1;
+
+          if (!this._maxEmptyLines) {
+            this._maxEmptyLines =
+              Services.prefs.getIntPref("messenger.conversations.textbox.defaultMaxLines");
+          }
+
+          if (numberOfLines > this._maxEmptyLines)
+            numberOfLines = this._maxEmptyLines;
+          textbox.defaultHeight = numberOfLines * lineHeight;
+
+          // set minimum height (in case the user moves the splitter)
+          textbox.parentNode.minHeight =
+            lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+        ]]>
+        </body>
+      </method>
+
+      <method name="initTextboxFormat">
+        <body>
+        <![CDATA[
+          let textbox = this.editor;
+
+          if (!("MessageFormat" in window))
+            Components.utils.import("resource:///modules/imTextboxUtils.jsm");
+          MessageFormat.registerTextbox(textbox);
+
+          // Init the textbox size
+          this.calculateTextboxDefaultHeight();
+          textbox.parentNode.height = textbox.defaultHeight +
+                                      this._TEXTBOX_VERTICAL_OVERHEAD;
+          textbox.inputField.style.overflowY = "hidden";
+
+          // Delay the initialization of the spellchecker until after
+          // the checkbox is initialized, otherwise the spellchecker is
+          // broken in conversations added to the window before it is
+          // visible (bug 295).
+          TextboxSpellChecker.registerTextbox(textbox);
+        ]]>
+        </body>
+      </method>
+
+      <method name="inputKeyPress">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          var inputBox = this.editor;
+          let text = inputBox.value;
+
+          const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
+                               KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
+                               KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN];
+
+          // Pass navigation keys to the browser if
+          // 1) the textbox is empty or 2) it's an IB-specific key combination
+          if ((!text && navKeyCodes.indexOf(event.keyCode) != -1) ||
+              ((event.shiftKey || event.altKey) && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
+                                                    event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN))) {
+            let newEvent = document.createEvent("KeyboardEvent");
+            newEvent.initKeyEvent("keypress", event.bubbles, event.cancelable, null,
+                                  event.ctrlKey, event.altKey, event.shiftKey, event.metaKey,
+                                  event.keyCode, event.charCode);
+            event.preventDefault();
+            event.stopPropagation();
+            // Keyboard events must be sent to the focused element for bubbling to work.
+            this.browser.focus();
+            this.browser.dispatchEvent(newEvent);
+            inputBox.focus();
+            return;
+          }
+
+          // When attempting to copy an empty selection, copy the
+          // browser selection instead (see bug 693).
+          // The 'C' won't be lowercase if caps lock is enabled.
+          if ((event.charCode == 99 /* 'c' */ ||
+               (event.charCode == 67 /* 'C' */ && !event.shiftKey)) &&
+              (navigator.platform.indexOf("Mac") >= 0 ? event.metaKey : event.ctrlKey) &&
+              inputBox.selectionStart == inputBox.selectionEnd) {
+            this.browser.doCommand();
+            return;
+          }
+
+          // Undo tab complete.
+          if (this._completions && event.keyCode == KeyEvent.DOM_VK_BACK_SPACE &&
+              !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+            if (text == this._beforeTabComplete) {
+              // Nothing to undo, so let backspace act normally.
+              delete this._completions;
+            }
+            else {
+              event.preventDefault();
+
+              // First undo the comma separating multiple nicks or the suffix.
+              // More than one nick:
+              //   "nick1, nick2: " -> "nick1: nick2"
+              // Single nick: remove the suffix
+              //   "nick1: " -> "nick1"
+              let pos = inputBox.selectionStart;
+              const suffix = ": ";
+              if (pos > suffix.length &&
+                  text.substring(pos - suffix.length, pos) == suffix) {
+                let completions = Object.keys(this.buddies);
+                // Check if the preceding words are a sequence of nick completions.
+                let preceding = text.substring(0, pos - suffix.length).split(", ");
+                if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+                  let s = preceding.pop();
+                  if (preceding.length)
+                    s = suffix + s;
+                  inputBox.selectionStart -= s.length + suffix.length;
+                  this.addString(s);
+                  if (this._completions[0].slice(-suffix.length) == suffix) {
+                    this._completions =
+                      this._completions.map(function(c) c.slice(0, -suffix.length));
+                  }
+                  if (this._completions.length == 1 &&
+                      inputBox.value == this._beforeTabComplete) {
+                    // Nothing left to undo or to cycle through.
+                    delete this._completions;
+                  }
+                  return;
+                }
+              }
+
+              // Full undo.
+              inputBox.selectionStart = 0;
+              this.addString(this._beforeTabComplete);
+              delete this._completions;
+              return;
+            }
+          }
+
+          // Tab complete.
+          // Keep the default behavior of the tab key if the input box
+          // is empty or a modifier is used.
+          if (event.keyCode == KeyEvent.DOM_VK_TAB && text.length != 0 &&
+              !event.altKey && !event.ctrlKey && !event.metaKey &&
+              (!event.shiftKey || this._completions)) {
+            event.preventDefault();
+
+            if (this._completions) {
+              // Tab has been pressed more than once.
+              if (this._completions.length == 1)
+                return;
+              if (this._shouldListCompletionsLater) {
+                this._conv.systemMessage(this._shouldListCompletionsLater);
+                delete this._shouldListCompletionsLater;
+              }
+
+              inputBox.selectionStart = this._completionsStart;
+              if (event.shiftKey) {
+                // Reverse cycle completions.
+                this._completionsIndex -= 2;
+                if (this._completionsIndex < 0)
+                  this._completionsIndex += this._completions.length;
+              }
+              this.addString(this._completions[this._completionsIndex++]);
+              this._completionsIndex %= this._completions.length;
+              return;
+            }
+
+            let completions = [];
+            let firstWordSuffix = " ";
+            let secondNick = false;
+
+            // Second regex result will contain word without leading special characters.
+            this._beforeTabComplete = text.substring(0, inputBox.selectionStart);
+            let words = this._beforeTabComplete.match(/\S*?([\w-]+)?$/);
+            let word = words[0];
+            if (!word)
+              return;
+            let isFirstWord = inputBox.selectionStart == word.length;
+
+            // Check if we are completing a command.
+            let completingCommand = isFirstWord && word[0] == "/";
+            if (completingCommand) {
+              for each (let cmd in Services.cmd.listCommandsForConversation(this._conv)) {
+                // It's possible to have a global and a protocol specific command
+                // with the same name. Avoid duplicates in the |completions| array.
+                let name = "/" + cmd.name;
+                if (completions.indexOf(name) == -1)
+                  completions.push(name);
+              }
+            }
+            else {
+              // If it's not a command, the only thing we can complete is a nick.
+              if (!this._conv.isChat)
+                return;
+
+              firstWordSuffix = ": ";
+
+              completions = Object.keys(this.buddies);
+
+              // Add recently parted nicks.
+              const kIncludeNickTimespan = 300000;
+              let cutoffTime = Date.now() - kIncludeNickTimespan;
+              let partedNicks = Object.keys(this.partedBuddies);
+              let j = partedNicks.length - 1;
+              while (j >= 0 &&
+                     this.partedBuddies[partedNicks[j]].partTime > cutoffTime)
+                --j;
+              ++j; // Index of the first nick we want to keep.
+              if (partedNicks.length > j)
+                completions = completions.concat(partedNicks.slice(j));
+
+              let outgoingNick = this._conv.nick;
+              completions = completions.filter(function(c) c != outgoingNick);
+
+              // Check if the preceding words are a sequence of nick completions.
+              let wordStart = inputBox.selectionStart - word.length;
+              if (wordStart > 2) {
+                let separator = text.substring(wordStart - 2, wordStart);
+                if (separator == ": " || separator == ", ") {
+                  let preceding = text.substring(0, wordStart - 2).split(", ");
+                  if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+                    secondNick = true;
+                    isFirstWord = true;
+                    // Remove preceding completions from possible completions.
+                    completions = completions.filter(function(c)
+                      preceding.indexOf(c) == -1);
+                  }
+                }
+              }
+            }
+
+            // Keep only the completions that share |word| as a prefix.
+            // Be case insensitive only if |word| is entirely lower case.
+            let condition;
+            if (word.toLocaleLowerCase() == word)
+              condition = function(c) c.toLocaleLowerCase().indexOf(word) == 0;
+            else
+              condition = function(c) c.indexOf(word) == 0;
+            let matchingCompletions = completions.filter(condition);
+            if (!matchingCompletions.length && words[1]) {
+              word = words[1];
+              firstWordSuffix = " ";
+              matchingCompletions = completions.filter(condition);
+            }
+            if (!matchingCompletions.length)
+              return;
+
+            // If the cursor is in the middle of a word, and the word is a nick,
+            // there is no need to complete - just jump to the end of the nick.
+            let wholeWord = text.substring(inputBox.selectionStart - word.length);
+            for each (let completion in matchingCompletions) {
+              if (wholeWord.lastIndexOf(completion, 0) == 0) {
+                let moveCursor = completion.length - word.length;
+                inputBox.selectionStart += moveCursor;
+                let separator = text.substring(inputBox.selectionStart,
+                                               inputBox.selectionStart + 2);
+                if (separator == ": " || separator == ", ")
+                  inputBox.selectionStart += 2;
+                else if (!moveCursor) {
+                  // If we're already at the end of a nick, carry on to display
+                  // a list of possible alternatives and/or apply punctuation.
+                  break;
+                }
+                return;
+              }
+            }
+
+            // We have possible completions!
+            this._completions = matchingCompletions.sort();
+            this._completionsIndex = 0;
+            // Save now the first and last completions in alphabetical order,
+            // as we will need them to find a common prefix. However they may
+            // not be the first and last completions in the list of completions
+            // actually exposed to the user, as if there are active nicks
+            // they will be moved to the beginning of the list.
+            let firstCompletion = this._completions[0];
+            let lastCompletion = this._completions.slice(-1)[0];
+
+            let preferredNick = false;
+            if (this._conv.isChat && !completingCommand) {
+              // If there are active nicks, prefer those.
+              let activeCompletions = this._completions.filter(function(c)
+                this._hasBuddy(c) &&
+                !this.buddies[c].hasAttribute("inactive"), this);
+              if (activeCompletions.length == 1)
+                preferredNick = true;
+              if (activeCompletions.length) {
+                // Move active nicks to the front of the queue.
+                activeCompletions.reverse();
+                activeCompletions.forEach(function(c) {
+                  this._completions.splice(this._completions.indexOf(c), 1);
+                  this._completions.unshift(c);
+                }, this);
+              }
+
+              // If one of the completions is the sender of the last ping,
+              // take it, if it was less than an hour ago.
+              if (this._lastPing && this._hasBuddy(this._lastPing) &&
+                  this._completions.indexOf(this._lastPing) != -1 &&
+                  (Date.now() / 1000 - this._lastPingTime) < 3600) {
+                preferredNick = true;
+                this._completionsIndex = this._completions.indexOf(this._lastPing);
+              }
+            }
+
+            // Display the possible completions in a system message.
+            delete this._shouldListCompletionsLater;
+            if (this._completions.length > 1) {
+              let completionsList = this._completions.join(" ");
+              if (preferredNick) {
+                // If we have a preferred nick (which is completed as a whole
+                // even if there are alternatives), only show the list of
+                // completions on the next <tab> press.
+                this._shouldListCompletionsLater = completionsList;
+              }
+              else
+                this._conv.systemMessage(completionsList);
+            }
+
+            let suffix = (isFirstWord ? firstWordSuffix : "");
+            this._completions = this._completions.map(function(c) c + suffix);
+
+            let completion;
+            if (this._completions.length == 1 || preferredNick) {
+              // Only one possible completion? Apply it! :-)
+              completion = this._completions[this._completionsIndex++];
+              this._completionsIndex %= this._completions.length;
+            }
+            else {
+              // We have several possible completions, attempt to find a common prefix.
+              let maxLength = Math.min(firstCompletion.length, lastCompletion.length);
+              let i = 0;
+              while (i < maxLength && firstCompletion[i] == lastCompletion[i])
+                ++i;
+
+              if (i)
+                completion = firstCompletion.substring(0, i);
+              else {
+                // Include this case so that secondNick is applied anyway,
+                // in case a completion is added by another tab press.
+                completion = word;
+              }
+            }
+
+            // Always replace what the user typed as its upper/lowercase may
+            // not be correct.
+            inputBox.selectionStart -= word.length;
+            this._completionsStart = inputBox.selectionStart;
+
+            if (secondNick) {
+              // Replace the trailing colon with a comma before the completed nick.
+              inputBox.selectionStart -= 2;
+              completion = ", " + completion;
+            }
+
+            this.addString(completion);
+          }
+          else if (this._completions)
+            delete this._completions;
+
+          if (event.keyCode != 13)
+            return;
+
+          if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
+            // Prevent the default action before calling sendMsg to avoid having
+            // a line break inserted in the textbox if sendMsg throws.
+            event.preventDefault();
+            this.sendMsg(text);
+          }
+          else if (!event.shiftKey)
+            this.addString("\n");
+        ]]>
+        </body>
+      </method>
+
+      <field name="_pendingValueChangedCall">false</field>
+      <method name="inputValueChanged">
+        <body>
+        <![CDATA[
+          // Delaying typing notifications will avoid sending several updates in
+          // a row if the user is on a slow or overloaded machine that has
+          // trouble to handle keystrokes in a timely fashion.
+          // Make sure only one typing notification call can be pending.
+          if (this._pendingValueChangedCall)
+            return;
+
+          this._pendingValueChangedCall = true;
+          Services.tm.mainThread.dispatch(this.delayedInputValueChanged.bind(this),
+                                          Ci.nsIEventTarget.DISPATCH_NORMAL);
+        ]]>
+        </body>
+      </method>
+
+      <method name="delayedInputValueChanged">
+        <body>
+        <![CDATA[
+          this._pendingValueChangedCall = false;
+
+          // By the time this function is executed, the conversation may have
+          // been closed.
+          if (!this._conv)
+            return;
+
+          let text = this.editor.value;
+
+          // try to avoid sending typing notifications when the user is
+          // typing a command in the conversation.
+          // These checks are not perfect (especially if non-existing
+          // commands are sent as regular messages on the in-use prpl).
+          let left = Ci.prplIConversation.NO_TYPING_LIMIT;
+          if (!text.startsWith("/"))
+            left = this._conv.sendTyping(text);
+          else if (/^\/me /.test(text))
+            left = this._conv.sendTyping(text.slice(4));
+
+          // When the input box is cleared or there is no character limit,
+          // don't show the character limit in the statusbar.
+          if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
+            this._statusTextEnd = "";
+            this._statusTextEndIsError = false;
+          }
+          else {
+            // 200 is a 'magic' constant to avoid showing big numbers.
+            this._statusTextEnd = left < 200 ? left.toString() : "";
+            this._statusTextEndIsError = left < 0;
+          }
+          this.displayStatusText();
+        ]]>
+        </body>
+      </method>
+
+      <method name="resetInput">
+        <body>
+        <![CDATA[
+          var inputBox = this.editor;
+          inputBox.value = "";
+          this._statusTextEnd = "";
+          this._statusTextEndIsError = false;
+          this.displayStatusText();
+
+          let overflow = "";
+          if (TextboxSize.autoResize) {
+            let currHeight = parseInt(inputBox.parentNode.height);
+            if (inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD > currHeight)
+              inputBox.defaultHeight = currHeight - this._TEXTBOX_VERTICAL_OVERHEAD;
+            this.getElt("conv-bottom").height =
+              inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+            overflow = "hidden";
+          }
+
+          inputBox.inputField.style.overflowY = overflow;
+        ]]>
+        </body>
+      </method>
+
+      <method name="inputExpand">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          let textbox = this.editor;
+          let input = textbox.inputField;
+
+          // This feature has been disabled, or the user is currently dragging
+          // the splitter and the textbox has received an overflow event
+          if (!TextboxSize.autoResize ||
+              this.getElt("splitter-bottom").getAttribute("state") == "dragging") {
+            input.style.overflowY = "";
+            return;
+          }
+
+          // Check whether we can increase the height without hidding the status bar
+          // (ensure the min-height property on the top part of this dialog)
+          let topBox = this.getElt("conv-top");
+          let topBoxStyle = window.getComputedStyle(topBox, null);
+          let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
+          let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
+          let deck = textbox.parentNode;
+          let oldDeckHeight = parseInt(deck.height);
+          let newDeckHeight =
+            parseInt(input.scrollHeight) + this._TEXTBOX_VERTICAL_OVERHEAD;
+
+          if (!topMinSize || topSize - topMinSize > newDeckHeight - oldDeckHeight) {
+            // Hide a possible vertical scrollbar.
+            input.style.overflowY = "hidden";
+            deck.height = newDeckHeight;
+          }
+          else {
+            input.style.overflowY = "";
+            // Set it to the maximum possible value.
+            deck.height = oldDeckHeight + (topSize - topMinSize);
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="onResize">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          let splitter = this.getElt("splitter-bottom");
+          let textbox = this.editor;
+
+          if (!splitter.hasAttribute("state")) {
+            this.calculateTextboxDefaultHeight();
+            textbox.parentNode.height = textbox.defaultHeight +
+                                        this._TEXTBOX_VERTICAL_OVERHEAD;
+          }
+          else {
+            // Used in case the browser is already on its min-height, resize the
+            // textbox to avoid hidding the status bar.
+            let convTop = this.getElt("conv-top");
+            let convTopStyle = window.getComputedStyle(convTop, null);
+            let convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
+            let convTopMinHeight =
+              parseInt(convTopStyle.getPropertyValue("min-height"));
+
+            if (convTopHeight == convTopMinHeight) {
+              textbox.parentNode.height = parseInt(textbox.parentNode.minHeight);
+              convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
+              textbox.parentNode.height = parseInt(textbox.parentNode.minHeight) +
+                                          (convTopHeight - convTopMinHeight);
+            }
+          }
+
+          if (TextboxSize.autoResize)
+            this.inputExpand();
+        ]]>
+        </body>
+      </method>
+
+      <method name="_onTextboxUnderflow">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          if (TextboxSize.autoResize)
+            this.inputField.style.overflowY = "hidden";
+        ]]>
+        </body>
+      </method>
+
+      <method name="browserKeyPress">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          let isMac = navigator.platform.indexOf("Mac") >= 0;
+          let accelKeyPressed = isMac? event.metaKey : event.ctrlKey;
+
+          // 118 is the decimal code for "v" character, 13 keyCode for "return" key
+          if (((accelKeyPressed && event.charCode != 118) || event.altKey) &&
+              event.keyCode != 13)
+            return;
+
+          if (event.charCode == 0 &&  // it's not a character, it's a command key
+              (event.keyCode != 13 && // Return
+               event.keyCode != 8 &&  // Backspace
+               event.keyCode != 46))  // Delete
+            return;
+
+          if (accelKeyPressed ||
+              !Services.prefs.getBoolPref("accessibility.typeaheadfind"))
+            document.getBindingParent(this).editor.focus();
+
+          // Returns for Ctrl+V
+          if (accelKeyPressed)
+            return;
+
+          const masks = Components.interfaces.nsIDOMNSEvent;
+          var modifiers = 0;
+          if (event.shiftKey)
+            modifiers |= masks.SHIFT_MASK;
+          if (event.ctrlKey)
+            modifiers |= masks.CONTROL_MASK;
+          if (event.altKey)
+            modifiers |= masks.ALT_MASK;
+          if (event.metaKey)
+            modifiers |= masks.META_MASK;
+          if (event.accelKey)
+            modifiers |= isMac ? masks.META_MASK : masks.CONTROL_MASK;
+
+          // resend the event
+          window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                .getInterface(Components.interfaces.nsIDOMWindowUtils)
+                .sendKeyEvent(event.type, event.keyCode, event.charCode, modifiers);
+        ]]>
+        </body>
+      </method>
+
+      <method name="browserDblClick">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          if (!Services.prefs.getBoolPref("messenger.conversations.doubleClickToReply"))
+            return;
+
+          for (let node = event.target; node; node = node.parentNode) {
+            if (node._originalMsg) {
+              let msg = node._originalMsg;
+              let actions = msg.getActions();
+              if (actions.length >= 1) {
+                actions[0].run();
+                return;
+              }
+              if (msg.system || msg.outgoing || !msg.incoming || msg.error ||
+                  !this._conv.isChat)
+                return;
+              // Add msg.who to leading list of nicks.
+              let text = this.editor.value;
+              if (text.indexOf(msg.who) != -1)
+                return;
+              let secondNick = false;
+              let pos = text.indexOf(":");
+              if (pos != -1) {
+                let completions = Object.keys(this.buddies);
+                // Check if the preceding words are a sequence of nicks.
+                let preceding = text.substring(0, pos).split(", ");
+                if (preceding.every(function(n) completions.indexOf(n) != -1))
+                  secondNick = true;
+              }
+              this.addPrompt(msg.who + (secondNick ? ", " : ": "));
+              if (this._completions)
+                delete this._completions;
+              return;
+            }
+          }
+        ]]>
+        </body>
+      </method>
+
+      <!-- Replace the current selection in the editor by the given string -->
+      <method name="addString">
+        <parameter name="aString"/>
+        <body>
+        <![CDATA[
+          var editor = this.editor;
+          var length = (aString != "")
+                       ? aString.length
+                       : 0;
+
+          var cursorPosition = editor.selectionStart + length;
+
+          editor.value = editor.value.substr(0, editor.selectionStart) + aString +
+                         editor.value.substr(editor.selectionEnd);
+          editor.selectionStart = editor.selectionEnd = cursorPosition;
+          this.inputValueChanged();
+        ]]>
+        </body>
+      </method>
+
+      <method name="addPrompt">
+        <parameter name="aPrompt"/>
+        <body>
+        <![CDATA[
+          let editor = this.editor;
+          let currentEditorValue = editor.value;
+          if (currentEditorValue.indexOf(aPrompt) != 0)
+            editor.value = aPrompt + currentEditorValue;
+          editor.focus();
+          this.inputValueChanged();
+        ]]>
+        </body>
+      </method>
+
+      <!-- Update the participant count of a chat conversation -->
+      <method name="updateParticipantCount">
+        <body>
+        <![CDATA[
+          this.getElt("participantCount").value = this._nicks.length;
+        ]]>
+        </body>
+      </method>
+
+      <!-- Set the attributes (flags) of a chat buddy -->
+      <method name="setBuddyAttributes">
+        <parameter name="aItem"/>
+        <body>
+        <![CDATA[
+          var buddy = aItem.chatBuddy;
+          var image;
+           if (!buddy.noFlags) {
+            if (buddy.founder)
+              image = "founder";
+            else if (buddy.op)
+              image = "operator";
+            else if (buddy.halfOp)
+              image = "half-operator";
+            else if (buddy.voiced)
+              image = "voice";
+          }
+          if (image)
+            aItem.setAttribute("image", "chrome://instantbird/skin/" + image + ".png");
+          else
+            aItem.removeAttribute("image");
+        ]]>
+        </body>
+      </method>
+
+      <!-- compute color for a nick -->
+      <method name="_computeColor">
+        <parameter name="aName"/>
+        <body>
+        <![CDATA[
+          // Compute the color based on the nick
+          var nick = aName.match(/[a-zA-Z0-9]+/);
+          nick = nick ? nick[0].toLowerCase() : nick = aName;
+          var weight = 10;
+          var res = 0;
+          for (var i = 0; i < nick.length; ++i) {
+            var char = nick.charCodeAt(i) - 47;
+            if (char > 10)
+              char -= 39;
+            // now char contains a value between 1 and 36
+            res += char * weight;
+            weight *= 0.52; //arbitrary
+          }
+          return Math.round(res) % 360;
+        ]]>
+        </body>
+      </method>
+
+      <!-- Returns the CSS color style for a nick color -->
+      <method name="_getColorStyle">
+        <parameter name="aColor"/>
+        <body>
+        <![CDATA[
+          return "color: hsl(" + aColor + ", 100%, 40%);";
+        ]]>
+        </body>
+      </method>
+
+      <!-- Set buddy color attributes -->
+      <method name="_setBuddyColor">
+        <parameter name="aBuddy"/>
+        <body>
+        <![CDATA[
+          let color = this._computeColor(aBuddy.chatBuddy.name);
+          aBuddy.color = color;
+          let style = this._getColorStyle(color);
+          aBuddy.colorStyle = style;
+          aBuddy.setAttribute("style", style);
+        ]]>
+        </body>
+      </method>
+
+      <!-- Test if aBuddyName is known in this.buddies without
+           risking a conflict with an hypothetical hasOwnProperty nick. -->
+      <method name="_hasBuddy">
+        <parameter name="aBuddyName"/>
+        <body>
+        <![CDATA[
+          return Object.prototype.hasOwnProperty.call(this.buddies, aBuddyName);
+        ]]>
+        </body>
+      </method>
+
+      <!-- Set nick to active if the last message is not older than
+           nickActiveTimespan. -->
+      <method name="_activateBuddy">
+        <parameter name="aBuddy"/>
+        <parameter name="aLastMsgTime"/>
+        <body>
+        <![CDATA[
+          if (!aBuddy.colorStyle)
+            this._setBuddyColor(aBuddy);
+          let nickActiveTimespan =
+            Services.prefs.getIntPref("messenger.conversations.nickActiveTimespan");
+          if (nickActiveTimespan > 0) {
+            let waitBeforeInactive =
+              (aLastMsgTime + nickActiveTimespan) * 1000 - Date.now();
+            // To avoid "blinking" nicks, don't bother setting to active
+            // if there's less than 5s left to go.
+            if (waitBeforeInactive < 5000)
+              return aBuddy.colorStyle;
+            // Set a timer so the nick will return to inactive again.
+            if (aBuddy.activeTimer)
+              clearTimeout(aBuddy.activeTimer);
+            aBuddy.activeTimer = setTimeout(function() {
+              delete aBuddy.activeTimer;
+              aBuddy.setAttribute("inactive", "true");
+            }, waitBeforeInactive);
+          }
+          aBuddy.lastMsgTime = aLastMsgTime;
+          aBuddy.removeAttribute("inactive");
+          return aBuddy.colorStyle;
+        ]]>
+        </body>
+      </method>
+
+      <!-- Add a buddy in the visible list of participants.
+           If aShouldAppendDirectly is true, the buddy will be added to the end
+           of the participant list, skipping the search for the correct
+           insert position to optimize performance. -->
+      <method name="addBuddy">
+        <parameter name="aBuddy"/>
+        <parameter name="aShouldAppendDirectly"/>
+        <body>
+        <![CDATA[
+          var name = aBuddy.name;
+          if (!name)
+            throw "The empty string isn't a valid nick.";
+          if (this._hasBuddy(name))
+            throw "Adding chat buddy " + name + " twice?!";
+
+          this.trackNick(name);
+
+          var item = document.createElement("listitem");
+          item.chatBuddy = aBuddy;
+          item.setAttribute("class", "listitem-iconic");
+          item.setAttribute("label", name);
+          this.setBuddyAttributes(item);
+
+          item.setAttribute("inactive", "true");
+          if (Object.prototype.hasOwnProperty.call(this.partedBuddies, name)) {
+            let parted = this.partedBuddies[name];
+            // If the buddy was absent for less than this timespan (in ms),
+            // it retains its active participant status on rejoining.
+            const kRestoreActiveTimespan = 300000;
+            if (parted.lastMsgTime &&
+                (Date.now() - parted.partTime) < kRestoreActiveTimespan)
+              this._activateBuddy(item, parted.lastMsgTime);
+            delete this.partedBuddies[name];
+          }
+
+          this.buddies[name] = item;
+          if (aShouldAppendDirectly) {
+            this.nicklistElt.appendChild(item);
+            this._nicks.push(name.toLowerCase());
+            return;
+          }
+          // Insert item at the right position
+          this.addNick(item);
+        ]]>
+        </body>
+      </method>
+
+      <!-- Array of lowercase nicks kept in the order in which they are
+           displayed in the participant list.
+           This array is for performance optimization only. To obtain the
+           capitalized list of nicks use Object.keys(this.buddies) -->
+      <field name="_nicks">[]</field>
+
+      <method name="addNick">
+        <parameter name="aListItem"/>
+        <body>
+        <![CDATA[
+          let nick = aListItem.chatBuddy.name.toLowerCase();
+
+          // Look for the place of the nick in the list
+          let itemCount = this._nicks.length;
+          let start = 0;
+          let end = itemCount;
+          while (start < end) {
+            let middle = start + Math.floor((end - start) / 2);
+            if (nick < this._nicks[middle])
+              end = middle;
+            else
+              start = middle + 1;
+          }
+
+          // Now insert the element
+          let nicklist = this.nicklistElt;
+          if (end == itemCount) {
+            nicklist.appendChild(aListItem);
+            this._nicks.push(nick);
+          }
+          else {
+            nicklist.insertBefore(aListItem, nicklist.getItemAtIndex(end));
+            this._nicks.splice(end, 0, nick);
+          }
+        ]]>
+        </body>
+      </method>
+
+      <!-- Update a buddy in the visible list of participants -->
+      <method name="updateBuddy">
+        <parameter name="aBuddy"/>
+        <parameter name="aOldName"/>
+        <body>
+        <![CDATA[
+          var name = aBuddy.name;
+          if (!name)
+            throw "The empty string isn't a valid nick.";
+
+          if (!aOldName) {
+            // If aOldName is null, we are changing the flags of the buddy
+            var item = this.buddies[name];
+            item.chatBuddy = aBuddy;
+            this.setBuddyAttributes(item);
+            return;
+          }
+
+          // Is aOldName is not null, then we are renaming the buddy
+          if (!this._hasBuddy(aOldName))
+            throw "Updating a chat buddy that does not exist: " + aOldName;
+
+          if (this._hasBuddy(name))
+            throw "Updating a chat buddy to an already existing one: " + name;
+
+          this.trackNick(name);
+
+          var item = this.buddies[aOldName];
+          item.chatBuddy = aBuddy;
+          delete this.buddies[aOldName];
+          this.buddies[name] = item;
+          item.setAttribute("label", name);
+
+          // Move this item to the right position if its name changed
+          this._nicks.splice(this._nicks.indexOf(aOldName.toLowerCase()), 1);
+          this.nicklistElt.removeChild(item);
+          this.addNick(item);
+        ]]>
+        </body>
+      </method>
+
+      <method name="removeBuddy">
+        <parameter name="aName"/>
+        <body>
+        <![CDATA[
+          if (!this._hasBuddy(aName))
+            throw "Cannot remove a buddy that was not in the room: " + aName;
+          var item = this.buddies[aName];
+          this.partedBuddies[aName] = {partTime: Date.now()};
+          if (item.activeTimer) {
+            clearTimeout(item.activeTimer);
+            this.partedBuddies[aName].lastMsgTime = item.lastMsgTime;
+          }
+          this._nicks.splice(this._nicks.indexOf(aName.toLowerCase()), 1);
+          this.nicklistElt.removeChild(item);
+          delete this.buddies[aName];
+        ]]>
+        </body>
+      </method>
+
+      <field name="_nickEscape">/[[\]{}()*+?.\\^$|]/g</field>
+      <method name="trackNick">
+        <parameter name="aNick"/>
+        <body>
+        <![CDATA[
+          if ("_showNickList" in this) {
+            this._showNickList[aNick.replace(this._nickEscape, "\\$&")] = true;
+            delete this._showNickRegExp;
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="getShowNickModifier">
+        <body>
+        <![CDATA[
+          return (function (aNode) {
+            if (!("_showNickRegExp" in this)) {
+              if (!("_showNickList" in this)) {
+                this._showNickList = {};
+                Object.keys(this.buddies).forEach(function(n) {
+                  this._showNickList[n.replace(this._nickEscape, "\\$&")] = true;
+                }, this);
+              }
+
+              // The reverse sort ensures that if we have "foo" and "foobar",
+              // "foobar" will be matched first by the regexp.
+              let nicks = Object.keys(this._showNickList).sort().reverse().join("|");
+              if (nicks) {
+                // We use \W to match for word-boundaries, as \b will not match the
+                // nick if it starts/ends with \W characters.
+                // XXX Ideally we would use unicode word boundaries:
+                // http://www.unicode.org/reports/tr29/#Word_Boundaries
+                this._showNickRegExp = new RegExp("\\W(?:" + nicks + ")\\W");
+              }
+              else {
+                // nobody, disable...
+                this._showNickRegExp = {exec: function() null};
+                return 0;
+              }
+            }
+            let exp = this._showNickRegExp;
+            let result = 0;
+            let match;
+            // Add leading/trailing spaces to match at beginning and end of
+            // the string as well. (If we used regex ^ and $, match.index would
+            // not be reliable.)
+            while ((match = exp.exec(" " + aNode.data + " "))) {
+              // \W is not zero-length, but this is cancelled by the
+              // extra leading space here.
+              let nickNode = aNode.splitText(match.index);
+              // subtract the 2 \W's to get the length of the nick.
+              aNode = nickNode.splitText(match[0].length - 2);
+              // at this point, nickNode is a text node with only the text
+              // of the nick and aNode is a text node with the text after
+              // the nick. The text in aNode hasn't been processed yet.
+              let nick = nickNode.data;
+              let elt = aNode.ownerDocument.createElement("span");
+              elt.setAttribute("class", "ib-nick");
+              if (this._hasBuddy(nick)) {
+                let buddy = this.buddies[nick];
+                if (!buddy.colorStyle)
+                  this._setBuddyColor(buddy);
+                elt.setAttribute("style", buddy.colorStyle);
+                elt.setAttribute("nickColor", buddy.color);
+              }
+              else
+                elt.setAttribute("left", "true");
+              nickNode.parentNode.replaceChild(elt, nickNode);
+              elt.textContent = nick;
+              result += 2;
+            }
+            return result;
+          }).bind(this);
+        ]]>
+        </body>
+      </method>
+
+      <method name="updateTopic">
+        <body>
+        <![CDATA[
+          let cti = this.getElt("conv-top-info");
+          let statusMessage = this.getElt("statusMessage");
+          if (this._conv.topicSettable) {
+            cti.setAttribute("topicEditable", "true");
+            cti.setAttribute("topicContext", "");
+          }
+          else {
+            cti.removeAttribute("topicEditable");
+            cti.setAttribute("topicContext", "tabContextMenu");
+          }
+
+          var topic = this._conv.topic;
+          if (topic) {
+            cti.setAttribute("statusTooltiptext", topic);
+            cti.removeAttribute("noTopic");
+          }
+          else {
+            cti.removeAttribute("statusTooltiptext");
+            cti.setAttribute("noTopic", "true");
+            topic = this.bundle.GetStringFromName("noTopic");
+          }
+          cti.setAttribute("statusMessage", topic);
+          cti.setAttribute("statusMessageWithDash", " - " + topic);
+        ]]>
+        </body>
+      </method>
+
+      <method name="onSelect">
+        <body>
+        <![CDATA[
+          this.displayStatusText();
+          if (!this.loaded)
+            return;
+
+          this.tab.removeAttribute("unread");
+          this.tab.removeAttribute("attention");
+          this._conv.markAsRead();
+        ]]>
+        </body>
+      </method>
+
+      <method name="switchingToPanel">
+        <body>
+        <![CDATA[
+          if (this._visibleTimer)
+            return;
+
+          // Start a timer to detect if the tab has been visible to the
+          // user for long enough to actually be seen (as opposed to the
+          // tab only being visible "accidentally in passing").
+          delete this._wasVisible;
+          this._visibleTimer = setTimeout(function() {
+            this._wasVisible = true;
+            delete this._visibleTimer;
+          }.bind(this), 1000);
+        ]]>
+        </body>
+      </method>
+
+      <method name="focus">
+        <body>
+        <![CDATA[
+          this.editor.focus();
+        ]]>
+        </body>
+      </method>
+
+      <method name="switchingAwayFromPanel">
+        <body>
+          <![CDATA[
+            if (this._visibleTimer) {
+              clearTimeout(this._visibleTimer);
+              delete this._visibleTimer;
+            }
+            // Remove the unread ruler if the tab has been visible without
+            // interruptions for sufficiently long.
+            if (this._wasVisible)
+              this.browser.removeUnreadRuler();
+          ]]>
+        </body>
+      </method>
+
+      <method name="getPanelSpecificMenuItems">
+        <body>
+          <![CDATA[
+            let items = [];
+            const XUL_NS =
+              "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+            let bundle =
+              Services.strings.createBundle("chrome://instantbird/locale/conversation.properties");
+            let conv = this;
+            function createMenuItem(aId, aCommandHandler) {
+              let item = document.createElementNS(XUL_NS, "menuitem");
+              item.setAttribute("label", bundle.GetStringFromName(aId + ".label"));
+              item.setAttribute("accesskey", bundle.GetStringFromName(aId + ".accesskey"));
+              item.addEventListener("command", aCommandHandler);
+              return item;
+            }
+            let showLogsItem = createMenuItem("contextShowLogs", function() conv.showLogs());
+            showLogsItem.disabled = !this.hasLogs();
+            items.push(showLogsItem);
+
+            let hideConvItem = createMenuItem("contextHideConv", function() {
+              conv.hide();
+              document.getBindingParent(conv).removeTab(conv.tab);
+            });
+            items.push(hideConvItem);
+
+            let closeConvItem = createMenuItem("contextCloseConv", function() {
+              conv.close();
+              document.getBindingParent(conv).removeTab(conv.tab);
+            });
+            items.push(closeConvItem);
+
+            return items;
+          ]]>
+        </body>
+      </method>
+
+      <method name="hasLogs">
+        <body>
+        <![CDATA[
+          return Services.logs.getLogsForConversation(this.conv).hasMoreElements();
+        ]]>
+        </body>
+      </method>
+
+      <method name="showLogs">
+        <body>
+        <![CDATA[
+          let logs = Services.logs.getLogsForConversation(this.conv, true);
+          if (!logs.hasMoreElements())
+            return;
+          window.openDialog("chrome://instantbird/content/viewlog.xul",
+                            "Logs", "chrome,resizable", {logs: logs},
+                            this.conv.title);
+        ]]>
+        </body>
+      </method>
+
+      <method name="displayStatusText">
+        <body>
+        <![CDATA[
+          if (!this.tab.selected)
+            return;
+
+          if ("XULBrowserWindow" in window) {
+            window.XULBrowserWindow.setStatus(this._statusText);
+            if ("setStatusEnd" in window.XULBrowserWindow)
+              window.XULBrowserWindow.setStatusEnd(this._statusTextEnd,
+                                                   this._statusTextEndIsError);
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="updateTyping">
+        <body>
+        <![CDATA[
+           var typingState = this._conv.typingState;
+           if (typingState == this.typingState)
+             return;
+
+           this.tab.removeAttribute("typing");
+           this.tab.removeAttribute("typed");
+           this._statusText = "";
+
+           var name = this._conv.title.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
+           if (typingState == Ci.prplIConvIM.TYPING) {
+             this.tab.setAttribute("typing", "true");
+             this._statusText = this.bundle.formatStringFromName("isTyping",
+                                                                 [name], 1);
+           }
+           else if (typingState == Ci.prplIConvIM.TYPED) {
+             this.tab.setAttribute("typed", "true");
+             this._statusText = this.bundle.formatStringFromName("hasStoppedTyping",
+                                                                 [name], 1);
+           }
+
+           this.typingState = typingState;
+           this.displayStatusText();
+        ]]>
+        </body>
+      </method>
+
+      <method name="getElt">
+        <parameter name="aAnonId"/>
+        <body>
+        <![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", aAnonId);
+        ]]>
+        </body>
+      </method>
+
+      <method name="updateConvStatus">
+        <body>
+        <![CDATA[
+          let cti = this.getElt("conv-top-info");
+          cti.setAttribute("prplIcon", this._conv.account.protocol.iconBaseURI + "icon.png");
+
+          if (this._conv.isChat) {
+            if (!this._conv.account.connected || this._conv.left)
+              this.tab.setAttribute("status", "left");
+            else
+              this.tab.removeAttribute("status");
+            let account = this._conv.account;
+            let targetTooltip =
+              this.bundle.formatStringFromName("targetTooltipChat",
+                                               [this._conv.title, account.name,
+                                                account.protocol.name], 3);
+            cti.setAttribute("targetTooltiptext",  targetTooltip);
+          }
+          else {
+            let displayName = this._conv.title;
+            let statusText = "";
+            let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
+
+            let buddy = this._conv.buddy;
+            if (!buddy || !buddy.account.connected) {
+              this.tab.removeAttribute("status");
+
+              // This is ugly, but when an account gets disconnected libpurple
+              // doesn't reset the typing state... :(
+              this.tab.removeAttribute("typing");
+              this.tab.removeAttribute("typed");
+              this._statusText = "";
+              this.displayStatusText();
+            }
+            else {
+              displayName = buddy.displayName;
+              statusText = buddy.statusText;
+              statusType = buddy.statusType;
+              this.tab.setAttribute("status", Status.toAttribute(statusType));
+              cti.setAttribute("userIcon", buddy.buddyIconFilename);
+            }
+
+            let targetTooltip =
+              this.bundle.formatStringFromName("targetTooltipIM",
+                                               [this._conv.title,
+                                                this._conv.account.protocol.name], 2);
+            if (buddy && buddy.buddy.contact &&
+                buddy.buddy.contact.getBuddies().length > 1)
+              targetTooltip += this.bundle.GetStringFromName("targetChangeable");
+            cti.setAttribute("targetTooltiptext", targetTooltip);
+
+            cti.setAttribute("displayName", displayName);
+            if (statusText)
+              statusText = " - " + statusText;
+            cti.setAttribute("statusMessageWithDash", statusText);
+            let statusString = Status.toLabel(statusType);
+            cti.setAttribute("statusMessage", statusString + statusText);
+            cti.setAttribute("status", Status.toAttribute(statusType));
+            cti.setAttribute("statusTypeTooltiptext", statusString);
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="initConversationUI">
+        <body>
+        <![CDATA[
+          if (this._conv.isChat) {
+            this.updateTopic();
+            this.setAttribute("chat", "true");
+            this.tab.setAttribute("chat", "true");
+            this.tab.setAttribute("prpl", this._conv.account.protocol.id);
+
+            let cti = this.getElt("conv-top-info");
+            cti.setAttribute("displayName", this._conv.title);
+            cti.setAttribute("status", "chat");
+
+            // Set an id on the participant count for accessibility reasons (see bug 216)
+            let id = "pc" + Date.now();
+            this.getElt("participantLabel").setAttribute("control", id);
+            this.getElt("participantCount").setAttribute("id", id);
+
+            // Populate the nicklist
+            this.buddies = {};
+            this.partedBuddies = {};
+            this._nicks = [];
+            this.nicklistElt = this.getElt("nicklist");
+            let enumerator = this.conv.getParticipants();
+            let chatBuddies = [];
+            while (enumerator.hasMoreElements()) {
+              let buddy = enumerator.getNext();
+              chatBuddies.push({name: buddy.name.toLowerCase(), buddy: buddy});
+            }
+            chatBuddies.sort(function(a, b) a.name < b.name ? -1 : 1)
+                       .forEach(function(a) this.addBuddy(a.buddy, true), this);
+            this.updateParticipantCount();
+            if (Services.prefs.getBoolPref("messenger.conversations.showNicks"))
+              this.browser.addTextModifier(this.getShowNickModifier());
+          }
+          else if (this._conv.contact && this._conv.contact.getBuddies().length > 1)
+            this.getElt("conv-top-info").allowTargetChange();
+
+          if (this.tab) {
+            this.tab.setAttribute("label", this._conv.title);
+            this.tab.setAttribute("tooltip", "buddyTooltip");
+          }
+
+          if (!("Status" in window))
+            Components.utils.import("resource:///modules/imStatusUtils.jsm");
+          this.updateConvStatus();
+          this.initTextboxFormat();
+        ]]>
+        </body>
+      </method>
+
+      <!-- nsIObserver implementation -->
+      <method name="observe">
+        <parameter name="aSubject"/>
+        <parameter name="aTopic"/>
+        <parameter name="aData"/>
+        <body>
+        <![CDATA[
+          if (aTopic == "conversation-loaded") {
+            if (aSubject != this.browser)
+              return;
+
+            this.browser.progressBar = this.getElt("browserProgress");
+
+            if (!("Interruptions" in window))
+              Components.utils.import("resource:///modules/ibInterruptions.jsm");
+
+            // Display all queued messages. Use a timeout so that message text
+            // modifiers can be added with observers for this notification.
+            if (!this.loaded)
+              setTimeout(this._showFirstMessages.bind(this), 0);
+
+            Services.obs.removeObserver(this, "conversation-loaded");
+            return;
+          }
+
+          switch(aTopic) {
+          case "new-text":
+            if (this.loaded)
+              this.addMsg(aSubject);
+            break;
+
+          case "update-typing":
+            this.updateTyping();
+            break;
+
+          case "status-text-changed":
+            this._statusText = aData;
+            this.displayStatusText();
+            break;
+
+          case "replying-to-prompt":
+            this.addPrompt(aData);
+            break;
+
+          case "target-prpl-conversation-changed":
+          case "update-conv-title":
+            if (this.tab)
+              this.tab.setAttribute("label", this.conv.title);
+            // Update the status too.
+          case "update-buddy-status":
+          case "update-buddy-icon":
+          case "update-conv-chatleft":
+            this.updateConvStatus();
+            break;
+
+          case "chat-buddy-add":
+            aSubject.QueryInterface(Ci.nsISimpleEnumerator);
+            while (aSubject.hasMoreElements())
+              this.addBuddy(aSubject.getNext());
+            this.updateParticipantCount();
+            break;
+
+          case "chat-buddy-remove":
+            aSubject.QueryInterface(Ci.nsISimpleEnumerator);
+            while (aSubject.hasMoreElements()) {
+              let nick = aSubject.getNext();
+              nick.QueryInterface(Ci.nsISupportsString);
+              this.removeBuddy(nick.toString());
+            }
+            this.updateParticipantCount();
+            break;
+
+          case "chat-buddy-update":
+            this.updateBuddy(aSubject, aData);
+            break;
+          case "chat-update-topic":
+            this.updateTopic();
+            break;
+
+          case "ui-conversation-closed":
+          case "ui-conversation-destroyed":
+            this._forgetConv();
+            break;
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="onNicklistKeyPress">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          if (event.keyCode != event.DOM_VK_RETURN &&
+              event.keyCode != event.DOM_VK_ENTER)
+            return;
+
+          let listbox = event.originalTarget;
+          if (listbox.selectedCount == 0)
+            return;
+
+          let newConv;
+          for (let i = 0; i < listbox.selectedCount; ++i) {
+            let nick = listbox.getSelectedItem(i).chatBuddy.name;
+            let name = this._conv.target.getNormalizedChatBuddyName(nick);
+            newConv = this._conv.account.createConversation(name);
+          }
+          // Only focus last of the opened conversations.
+          Conversations.focusConversation(newConv);
+        ]]>
+        </body>
+      </method>
+
+      <method name="onNickClick">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          // Open a private conversation in new tab on a middle or double click.
+          if (event.button == 1 || (event.button == 0 && event.detail == 2)) {
+            var nick = event.originalTarget.chatBuddy.name;
+            let name = this._conv.target.getNormalizedChatBuddyName(nick);
+            let newConv = this._conv.account.createConversation(name);
+            Conversations.focusConversation(newConv);
+          }
+        ]]>
+        </body>
+      </method>
+
+      <property name="convId">
+        <getter>
+        <![CDATA[
+          return this._conv.id;
+        ]]>
+        </getter>
+      </property>
+
+      <property name="conv">
+        <getter>
+        <![CDATA[
+          return this._conv;
+        ]]>
+        </getter>
+        <setter>
+        <![CDATA[
+          if (this._conv && val)
+            throw("Already initialized");
+          if (!val) {
+            // this conversation has probably been moved to another
+            // tab. Forget the prplConversation so that it isn't
+            // closed when destroying this binding.
+            this._forgetConv();
+            return val;
+          }
+          this._conv = val;
+          this._conv.addObserver(this);
+          Conversations.registerConversation(this);
+          this.browser.init(this._conv);
+          this.initConversationUI();
+          return val;
+        ]]>
+        </setter>
+      </property>
+
+      <field name="_editor">null</field>
+      <property name="editor">
+        <getter>
+        <![CDATA[
+          if (!this._editor)
+            this._editor = this.getElt("inputBox");
+          return this._editor;
+        ]]>
+        </getter>
+      </property>
+
+      <property name="browser" onget="return this.getElt('browser');"/>
+      <property name="contentWindow" onget="return this.browser.contentWindow;"/>
+      <property name="findbar" onget="return this.getElt('FindToolbar');"/>
+
+      <property name="bundle">
+        <getter>
+        <![CDATA[
+          if (!this._bundle) {
+            this._bundle =
+              Services.strings
+                      .createBundle("chrome://instantbird/locale/instantbird.properties");
+          }
+          return this._bundle;
+       ]]>
+       </getter>
+      </property>
+    </implementation>
+  </binding>
+
+  <binding id="conv-info-large"
+           extends="chrome://global/content/bindings/toolbar.xml#toolbar">
+    <content>
+    <xul:stack anonid="statusImageStack" class="statusImageStack">
+      <xul:image anonid="userIcon" class="userIcon" mousethrough="always"
+                 xbl:inherits="src=userIcon"/>
+      <xul:image anonid="statusTypeIcon" class="statusTypeIcon"
+                 xbl:inherits="status,tooltiptext=statusTypeTooltiptext"/>
+    </xul:stack>
+    <xul:stack class="displayNameAndstatusMessageStack"
+               mousethrough="always" flex="1">
+      <xul:hbox align="center" flex="1">
+        <xul:description anonid="displayName" class="displayName" flex="1"
+                         crop="end" xbl:inherits="value=displayName"/>
+        <xul:toolbarbutton class="prplIcon alltargets-button"
+                           anonid="targetPrplIcon" context=""
+                           xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
+          <xul:menupopup class="all-targets-popup"
+                         anonid="all-targets-popup"
+                         position="after_end"/>
+        </xul:toolbarbutton>
+      </xul:hbox>
+      <xul:description anonid="statusMessage" class="statusMessage"
+                       xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext,role=topicRole"
+                       mousethrough="never" crop="end" flex="100000"/>
+    </xul:stack>
+    </content>
+
+    <implementation>
+      <constructor>
+        <![CDATA[
+          this.topic
+              .addEventListener("click", this.startEditTopic.bind(this));
+          if (this.hasAttribute("allowTargetChange"))
+            this.allowTargetChange();
+          // Cancel any ongoing edit if the binding changes.
+          this.editing = false;
+
+          if (navigator.platform.indexOf("Mac") >= 0) {
+            if ("draghandle" in this)
+              return;
+            if (!("WindowDraggingElement" in window))
+              Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
+            this.draghandle = new WindowDraggingElement(this, window);
+          }
+        ]]>
+      </constructor>
+
+      <property name="topic">
+        <getter>
+        <![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid",
+                                                         "statusMessage");
+        ]]>
+        </getter>
+      </property>
+
+      <property name="editing">
+        <getter>
+        <![CDATA[
+          return this.hasAttribute("editing");
+        ]]>
+        </getter>
+        <setter>
+        <![CDATA[
+          if (val) {
+            this.setAttribute("editing", "true");
+            this.removeAttribute("topicRole");
+          }
+          else {
+            this.removeAttribute("editing");
+            if (this.topic.hasAttribute("editable")) {
+              // Sets role=button on the topic to denote it is clickable
+              // for accessibility.
+              this.setAttribute("topicRole", "button");
+            }
+          }
+        ]]>
+        </setter>
+      </property>
+
+      <method name="finishEditTopic">
+        <parameter name="aSave"/>
+        <body>
+        <![CDATA[
+          if (!this.editing)
+            return;
+
+          let elt = this.topic;
+          let convBinding = document.getBindingParent(this);
+          if (aSave) {
+            // apply the new topic only if it is different from the current one
+            if (elt.value != convBinding._conv.topic)
+              convBinding._conv.topic = elt.value;
+          }
+          this.editing = false;
+          elt.removeEventListener("keypress", this._topicKeyPress, true);
+          delete this._topicKeyPress;
+          elt.removeEventListener("blur", this._topicBlur, false);
+          delete this._topicBlur;
+          if (!elt.getAttribute("focused"))
+            return;
+          // Shift focus back to the input box. Ideally we would keep the focus
+          // on the topic here, but the conv-top is currently not accessible
+          // via the keyboard, so doing that would leave us stranded.
+          convBinding.editor.focus();
+        ]]>
+        </body>
+      </method>
+
+      <method name="topicKeyPress">
+        <parameter name="aEvent"/>
+        <body>
+        <![CDATA[
+          switch (aEvent.keyCode) {
+            case aEvent.DOM_VK_RETURN:
+            case aEvent.DOM_VK_ENTER:
+              this.finishEditTopic(true);
+              break;
+
+            case aEvent.DOM_VK_ESCAPE:
+              this.finishEditTopic(false);
+              aEvent.stopPropagation();
+              aEvent.preventDefault();
+              break;
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="topicBlur">
+        <parameter name="aEvent"/>
+        <body>
+        <![CDATA[
+          if (aEvent.originalTarget == this.topic.inputField)
+            this.finishEditTopic(true);
+        ]]>
+        </body>
+      </method>
+
+      <method name="startEditTopic">
+        <body>
+        <![CDATA[
+          let elt = this.topic;
+          if (!elt.hasAttribute("editable") || this.editing)
+            return;
+
+          this.editing = true;
+          this._topicKeyPress = this.topicKeyPress.bind(this);
+          elt.addEventListener("keypress", this._topicKeyPress);
+          this._topicBlur = this.topicBlur.bind(this);
+          elt.addEventListener("blur", this._topicBlur);
+          // force binding attachment by forcing layout
+          elt.getBoundingClientRect();
+          if (this.hasAttribute("noTopic"))
+            elt.value = "";
+          elt.select();
+        ]]>
+        </body>
+      </method>
+
+      <method name="allowTargetChange">
+        <body>
+        <![CDATA[
+          let targetButton =
+            document.getAnonymousElementByAttribute(this, "anonid", "targetPrplIcon");
+          targetButton.setAttribute("type", "menu");
+          targetButton.setAttribute("mousethrough", "never");
+          this.setAttribute("allowTargetChange", "true");
+          let popup = document.getAnonymousElementByAttribute(this, "anonid",
+                                                              "all-targets-popup");
+          popup.addEventListener("popupshowing", this.showAllTargets.bind(this));
+          popup.addEventListener("popuphiding", this.hideAllTargets.bind(this));
+        ]]>
+        </body>
+      </method>
+
+      <method name="showAllTargets">
+        <body>
+        <![CDATA[
+          let popup = document.getAnonymousElementByAttribute(this, "anonid",
+                                                              "all-targets-popup");
+          let _conv = document.getBindingParent(this)._conv;
+          if (!_conv.contact)
+            return;
+          let currentBuddyId = _conv.target.buddy.buddy.id;
+          let buddies = _conv.contact.getBuddies();
+          for each (let buddy in buddies) {
+            let menuItem = document.createElementNS(
+              "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+              "menuitem");
+            menuItem.setAttribute("class", "menuitem-iconic alltargets-item");
+            menuItem.setAttribute("label", buddy.displayName);
+            menuItem.setAttribute("crop", "end");
+            menuItem.setAttribute("image", buddy.protocol.iconBaseURI + "icon.png");
+            if (buddy.id == currentBuddyId)
+              menuItem.setAttribute("selected", "true");
+            if (!buddy.canSendMessage)
+              menuItem.setAttribute("disabled", "true");
+            let statusText = buddy.statusText;
+            if (statusText)
+              menuItem.setAttribute("description", statusText);
+            menuItem.setAttribute("status", Status.toAttribute(buddy.statusType));
+            menuItem.buddy = buddy;
+            popup.appendChild(menuItem);
+          }
+          popup.addEventListener("command", this.changeTargetCommand);
+        ]]>
+        </body>
+      </method>
+
+      <method name="changeTargetCommand">
+        <parameter name="aEvent"/>
+        <body>
+        <![CDATA[
+          let buddy = aEvent.originalTarget.buddy;
+          if (buddy.canSendMessage) {
+            let conv = buddy.createConversation();
+            Services.conversations.getUIConversation(conv).target = conv;
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="hideAllTargets">
+        <body>
+        <![CDATA[
+          let popup = document.getAnonymousElementByAttribute(this, "anonid",
+                                                              "all-targets-popup");
+          while (popup.hasChildNodes())
+            popup.removeChild(popup.lastChild);
+          popup.removeEventListener("command", this.changeTargetCommand);
+        ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+
+  <binding id="conv-info-small"
+           extends="chrome://instantbird/content/conversation.xml#conv-info-large">
+    <content>
+      <xul:image anonid="statusTypeIcon" class="statusTypeIcon"
+                 xbl:inherits="status,tooltiptext=statusTypeTooltiptext"/>
+      <xul:description anonid="displayName" class="displayName"
+                       mousethrough="always" flex="1" crop="end"
+                       xbl:inherits="value=displayName"/>
+      <xul:description anonid="statusMessage" class="statusMessage"
+                       xbl:inherits="value=statusMessage,editable=topicEditable,editing,context=topicContext,role=topicRole"
+                       crop="end" flex="100000"/>
+      <xul:description anonid="statusMessageWithDash"
+                       class="statusMessageWithDash"
+                       xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext,role=topicRole"
+                       crop="end" flex="100000"/>
+      <xul:toolbarbutton class="prplIcon alltargets-button" mousethrough="always"
+                         anonid="targetPrplIcon" context=""
+                         xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
+        <xul:menupopup class="all-targets-popup"
+                       anonid="all-targets-popup"
+                       position="after_end"/>
+      </xul:toolbarbutton>
+    </content>
+    <implementation>
+      <constructor>
+        <![CDATA[
+          document.getAnonymousElementByAttribute(this, "anonid", "statusMessageWithDash")
+                  .addEventListener("click", this.startEditTopic.bind(this));
+        ]]>
+     </constructor>
+    </implementation>
+  </binding>
+
+  <binding id="menuitem-target" extends="chrome://global/content/bindings/menu.xml#menuitem">
+    <content>
+      <xul:stack class="menu-iconic-left alltargets-item-icon-stack"
+                 align="center" pack="center"
+                 xbl:inherits="selected,disabled,checked">
+        <xul:image class="menu-iconic-icon alltargets-item-icon" xbl:inherits="src=image,validate,src"/>
+        <xul:image class="menu-iconic-icon status-overlay-icon" xbl:inherits="status"/>
+      </xul:stack>
+      <xul:label class="menu-iconic-text" xbl:inherits="value=label,accesskey,crop" crop="right" flex="1"/>
+      <xul:label class="menu-iconic-text menu-description" xbl:inherits="value=description" crop="right" flex="100000"/>
+    </content>
+  </binding>
+</bindings>

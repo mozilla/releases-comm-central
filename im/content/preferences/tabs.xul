@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+<!ENTITY % tabsDTD SYSTEM "chrome://instantbird/locale/preferences/tabs.dtd">
+%tabsDTD;
+]>
+
+<overlay id="TabsPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="paneTabs" onpaneload="gTabsPane.init();">
+
+    <preferences id="tabsPreferences">
+      <preference id="messenger.conversations.openInTabs"     name="messenger.conversations.openInTabs"     type="bool"
+                  onchange="gTabsPane.updateMUCWindowSetting();"/>
+      <preference id="messenger.conversations.useSeparateWindowsForMUCs" name="messenger.conversations.useSeparateWindowsForMUCs" type="bool"/>
+      <preference id="browser.tabs.autoHide"                  name="browser.tabs.autoHide"                  type="bool" inverted="true"/>
+      <preference id="browser.tabs.warnOnClose"               name="browser.tabs.warnOnClose"               type="bool"/>
+      <preference id="messenger.conversations.alwaysClose"    name="messenger.conversations.alwaysClose"    type="bool"/>
+    </preferences>
+
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/tabs.js"/>
+
+    <!-- XXX flex below is a hack because wrapping checkboxes don't reflow
+             properly; see bug 349098 -->
+    <vbox id="tabPrefsBox" align="start" flex="1">
+      <checkbox id="openInTabs" label="&enableTabbedConversations.label;"
+                accesskey="&enableTabbedConversations.accesskey;"
+                preference="messenger.conversations.openInTabs"/>
+      <checkbox id="useSeparateWindowsForMUCs" class="indent"
+                label="&groupMUCsInSeparateWindow.label;"
+                accesskey="&groupMUCsInSeparateWindow.accesskey;"
+                preference="messenger.conversations.useSeparateWindowsForMUCs"/>
+      <checkbox id="showTabBar" label="&showTabBar.label;"
+                accesskey="&showTabBar.accesskey;"
+                preference="browser.tabs.autoHide"/>
+      <checkbox id="warnCloseMultiple" label="&warnCloseMultipleTabs.label;"
+                accesskey="&warnCloseMultipleTabs.accesskey;"
+                preference="browser.tabs.warnOnClose"/>
+    </vbox>
+
+  </prefpane>
+
+</overlay>

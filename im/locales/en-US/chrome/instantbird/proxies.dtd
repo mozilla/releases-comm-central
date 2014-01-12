@@ -1,0 +1,22 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY proxiesDialog.title                 "Proxy Settings">
+<!ENTITY proxiesDialogHeader.title           "Proxy Settings">
+<!ENTITY proxiesDialogHeader.description     "For this account">
+<!ENTITY proxiesDialog.useGlobalSettings     "Use Global Settings">
+<!ENTITY proxiesDialog.directConnection      "Direct Connection to the Internet">
+<!ENTITY proxiesDialog.noProxy               "(No Proxy)">
+<!ENTITY proxiesDialog.useEnvironment        "Use Environment Settings">
+<!ENTITY proxiesDialog.noProxyInEnvironment  "No proxy settings found in the environment">
+<!ENTITY proxiesDialog.otherSetting          "Other…">
+<!ENTITY proxiesDialog.http.label            "HTTP">
+<!ENTITY proxiesDialog.socks4.label          "SOCKS 4">
+<!ENTITY proxiesDialog.socks5.label          "SOCKS 5">
+<!ENTITY proxiesDialog.hostname.label        "Hostname:">
+<!ENTITY proxiesDialog.hostname.defaultValue "Hostname">
+<!ENTITY proxiesDialog.port.label            "Port:">
+<!ENTITY proxiesDialog.username.label        "Username:">
+<!ENTITY proxiesDialog.password.label        "Password:">
+<!ENTITY proxiesDialog.useAsGlobal.label     "Use these Settings for All Accounts (Change&#160;Global&#160;Settings)">

@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://instantbird/locale/account.dtd">
+
+<dialog
+  id     = "account"
+  title  = "&accountWindow.title;"
+  buttons= "accept,cancel"
+  width  = "&accountWindow.width;"
+  height = "400"
+  xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  onload = "account.onload()"
+  ondialogaccept="account.save()">
+  <script type="application/javascript" src="chrome://instantbird/content/account.js"/>
+
+  <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>
+
+  <hbox>
+    <image id="protocolIcon"/>
+    <vbox flex="1">
+      <label id="accountName" crop="end" class="header"/>
+      <label id="protocolName"/>
+    </vbox>
+  </hbox>
+  <separator/>
+
+  <tabbox flex="1">
+    <tabs id="tabs">
+      <tab id="generalTab" label="&account.general;"/>
+      <tab id="advancedTab" label="&account.advanced;"/>
+    </tabs>
+    <tabpanels id="panels" flex="1">
+      <tabpanel orient="vertical" flex="1" style="overflow:auto;">
+        <hbox id="passwordBox" equalsize="always" align="baseline">
+          <label value="&account.password;" control="password" flex="1"/>
+          <textbox id="password" flex="1" type="password"/>
+        </hbox>
+
+        <separator class="groove"/>
+
+        <hbox id="aliasBox" equalsize="always" align="baseline">
+          <label value="&account.alias;" control="alias" flex="1"/>
+          <textbox id="alias" flex="1"/>
+        </hbox>
+
+        <separator class="groove" hidden="true" id="optionalSeparator"/>
+
+        <checkbox id="newMailNotification" label="&account.newMailNotification;" hidden="true"/>
+
+        <vbox id="autojoinBox" hidden="true">
+          <label value="&account.autojoin;" control="autojoin" flex="1"/>
+          <textbox id="autojoin" flex="1"/>
+        </vbox>
+
+        <separator class="groove" id="proxySeparator"/>
+        <vbox id="proxyBox">
+          <label value="&account.proxySettings.caption;" flex="1"/>
+          <description id="proxyDescription"/>
+          <hbox>
+            <spacer flex="1"/>
+            <button id="proxySettings"
+                    label="&account.proxySettings.change.label;"
+                    accesskey="&account.proxySettings.change.accessKey;"
+                    oncommand="account.openProxySettings();"/>
+          </hbox>
+        </vbox>
+      </tabpanel>
+
+      <tabpanel id="advanced" flex="1" style="overflow:auto;">
+        <grid flex="1">
+          <columns>
+            <column id="label-column" flex="1"/>
+            <column id="value-column" flex="1"/>
+          </columns>
+          <rows id="protoSpecific"/>
+        </grid>
+      </tabpanel>
+
+    </tabpanels>
+  </tabbox>
+</dialog>

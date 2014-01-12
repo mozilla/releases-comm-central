@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<?xml-stylesheet href="chrome://instantbird/skin/menus.css" type="text/css"?>
+#ifdef XP_WIN
+<?xul-overlay href="chrome://instantbird/content/menus-win.xul"?>
+#elifdef XP_MACOSX
+<?xul-overlay href="chrome://instantbird/content/menus-mac.xul"?>
+#else
+<?xul-overlay href="chrome://instantbird/content/menus-unix.xul"?>
+#endif
+
+<!DOCTYPE overlay [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+  %instantbirdDTD;
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %brandDTD;
+]>
+<overlay id="menusOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/menus.js"/>
+
+  <commandset id="maincommandset">
+    <command id="accountmanager" oncommand="menus.accounts()"/>
+    <command id="cmd_quitApplication" oncommand="goQuitApplication()"/>
+    <command id="cmd_joinchat" oncommand="goDoCommand('cmd_joinchat');"/>
+    <command id="cmd_addbuddy" oncommand="goDoCommand('cmd_addbuddy');"/>
+    <command id="cmd_newtab" oncommand="goDoCommand('cmd_newtab');"/>
+    <command id="cmd_addons" oncommand="menus.addons()"/>
+  </commandset>
+
+  <keyset id="mainkeyset">
+    <key id="accountsetup" key="&account.commandkey;" command="accountmanager" modifiers="accel,shift"/>
+    <key id="errorConsoleKey" key="&errorConsoleCmd.commandkey;" oncommand="menus.errors();" modifiers="accel,shift"/>
+    <key id="key_quitApplication" key="&quitApplicationCmdMac.key;" command="cmd_quitApplication" modifiers="accel"/>
+    <key id="joinChatkey" key="&joinChat.commandkey;" command="cmd_joinchat" modifiers="accel"/>
+    <key id="addBuddykey" key="&addContact.commandkey;" command="cmd_addbuddy" modifiers="accel"/>
+    <key id="newtabkey" key="&newtab.commandkey;" command="cmd_newtab" modifiers="accel"/>
+    <key id="addonskey" key="&addonManager.commandkey;" command="cmd_addons" modifiers="accel"/>
+  </keyset>
+
+  <menubar id="blistMenubar">
+    <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
+      <menupopup id="fileMenuPopup" onpopupshowing="menus.updateFileMenuitems();">
+        <menuitem id="addBuddyMenuItem" label="&addContact;" command="cmd_addbuddy" key="addBuddykey" accesskey="&addContact.accesskey;"/>
+        <menuitem id="newTabMenuItem" label="&newtab;" command="cmd_newtab" key="newtabkey" accesskey="&newtab.accesskey;"/>
+        <menuitem id="joinChatMenuItem" label="&joinChat;" command="cmd_joinchat" key="joinChatkey" accesskey="&joinChat.accesskey;"/>
+        <menuseparator/>
+        <menu id="setStatusTo" label="&setStatusTo;" oncommand="menus.setStatus(event);" accesskey="&setStatusTo.accesskey;" >
+          <menupopup id="setStatusMenupopup"> <!-- has onpopupshowing on mac -->
+            <menuitem id="statusAvailable" status="available" label="&available;" accesskey="&available.accesskey;" class="menuitem-iconic"/>
+            <menuitem id="statusUnavailable" status="unavailable" label="&unavailable;" accesskey="&unavailable.accesskey;" class="menuitem-iconic"/>
+            <menuseparator id="statusOfflineSeparator"/>
+            <menuitem id="statusOffline" status="offline" label="&offline;" accesskey="&offline.accesskey;" class="menuitem-iconic"/>
+          </menupopup>
+        </menu>
+        <menuseparator id="menu_FileQuitSeparator"/>
+        <!-- menu_FileQuitItem modified on all three platforms via overlays -->
+        <menuitem id="menu_FileQuitItem"
+                  label="&quitApplicationCmd.label;"
+                  command="cmd_quitApplication"/>
+      </menupopup>
+    </menu>
+    <menu label="&tools.menu;" id="toolsMenu" accesskey="&tools.accesskey;">
+      <menupopup id="toolsMenuPopup"> <!-- has onpopupshowing on mac -->
+        <menuitem id="accountsMenuItem" label="&accountManager;" command="accountmanager" key="accountsetup" accesskey="&account.accesskey;"/>
+        <menuitem id="addonsMenuItem" label="&addonManager;" command="cmd_addons" key="addonskey" accesskey="&addonManager.accesskey;"/>
+        <menuseparator/>
+        <menuitem id="errorConsoleMenuItem" label="&errorConsoleCmd.label;" oncommand="menus.errors()" key="errorConsoleKey" accesskey="&errorConsoleCmd.accesskey;"/>
+        <menuseparator id="prefSep"/>
+        <menuitem id="menu_preferences"
+                  label="&preferencesCmd.label;"
+                  accesskey="&preferencesCmd.accesskey;"
+                  oncommand="menus.preferences();"/>
+      </menupopup>
+    </menu>
+#ifdef XP_MACOSX
+    <!-- Mac window menu -->
+#include ../../mozilla/toolkit/content/macWindowMenu.inc
+#endif
+    <menu label="&help.menu;" id="helpMenu" accesskey="&help.accesskey;">
+#ifdef MOZ_UPDATER
+      <menupopup id="helpMenuPopup" onpopupshowing="menus.displayUpdateStatus();">
+        <menuitem id="updatesMenuItem" label="&checkForUpdates;" oncommand="menus.updates()"/>
+        <menuseparator id="updatesSep"/>
+#else
+      <menupopup id="helpMenuPopup">
+#endif
+        <menuitem id="aboutName" label="&about.menu;" accesskey="&about.accesskey;" oncommand="menus.about()"/>
+      </menupopup>
+    </menu>
+  </menubar>
+
+</overlay>

@@ -1,0 +1,224 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DEPTH           = @DEPTH@
+topsrcdir       = @top_srcdir@
+srcdir          = @srcdir@
+VPATH           = @srcdir@
+relativesrcdir  = @relativesrcdir@
+
+include $(DEPTH)/config/autoconf.mk
+
+include $(topsrcdir)/config/config.mk
+
+DEFINES += -DMOZ_APP_MAXVERSION=$(MOZ_APP_MAXVERSION)
+
+vpath %.xml @srcdir@/en-US/searchplugins
+vpath %.xml $(LOCALE_SRCDIR)/searchplugins
+
+_ABS_SRCDIR := $(abspath $(topsrcdir))
+
+ifndef MOZ_BRANDING_DIRECTORY
+MOZ_BRANDING_DIRECTORY = im/branding/nightly
+endif
+
+SUBMAKEFILES += \
+	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
+	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales/Makefile \
+	$(NULL)
+
+# This makefile uses variable overrides from the libs-% target to
+# build non-default locales to non-default dist/ locations. Be aware!
+
+PWD := $(CURDIR)
+
+# These are defaulted to be compatible with the files the wget-en-US target
+# pulls. You may override them if you provide your own files. You _must_
+# override them when MOZ_PKG_PRETTYNAMES is defined - the defaults will not
+# work in that case.
+ZIP_IN ?= $(_ABS_DIST)/$(PACKAGE)
+WIN32_INSTALLER_IN ?= $(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
+RETRIEVE_WINDOWS_INSTALLER = 1
+
+MOZ_LANGPACK_EID=langpack-$(AB_CD)@addons.instantbird.org
+
+PREF_JS_EXPORTS = $(call MERGE_FILE,all-l10n.js)
+
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+MOZ_PKG_MAC_DSSTORE=$(_ABS_DIST)/branding/dsstore
+MOZ_PKG_MAC_BACKGROUND=$(_ABS_DIST)/branding/background.png
+MOZ_PKG_MAC_ICON=$(_ABS_DIST)/branding/disk.icns
+MOZ_PKG_MAC_EXTRA=--symlink "/Applications:/ "
+endif
+
+ifeq (WINNT,$(OS_ARCH))
+UNINSTALLER_PACKAGE_HOOK = $(RM) -r $(STAGEDIST)/uninstall; \
+    $(NSINSTALL) -D $(STAGEDIST)/uninstall; \
+    cp ../installer/windows/l10ngen/helper.exe $(STAGEDIST)/uninstall; \
+    $(RM) $(_ABS_DIST)/l10n-stage/setup.exe; \
+    cp ../installer/windows/l10ngen/setup.exe $(_ABS_DIST)/l10n-stage; \
+    $(NULL)
+endif
+
+include $(topsrcdir)/config/rules.mk
+
+include $(topsrcdir)/mozilla/toolkit/locales/l10n.mk
+
+# Remove installer/sea/ from installer paths.
+PKG_INST_PATH =
+
+$(STAGEDIST): $(DIST)/branding
+
+$(DIST)/branding:
+	$(NSINSTALL) -D $@
+
+SEARCH_PLUGINS = $(shell cat $(call MERGE_FILE,/searchplugins/list.txt))
+
+libs:: $(addsuffix .xml,$(SEARCH_PLUGINS))
+	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/searchplugins
+
+install:: $(addsuffix .xml,$(SEARCH_PLUGINS))
+	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/searchplugins
+
+libs-%:
+	$(NSINSTALL) -D $(DIST)/install
+	@$(MAKE) -C ../../mozilla/toolkit/locales libs-$*
+	@$(MAKE) -C ../../chat/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C ../../mozilla/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C ../../mozilla/intl/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref
+	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$*
+
+
+# Note the funny extra "../" in SFX_HEADER is because the repackage-zip command
+# is actually run effectively from within the mozilla/ part of the objdir, so
+# topsrcdir points to the wrong place and we have to go one directory higher.
+repackage-win32-installer: WIN32_INSTALLER_OUT="$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe"
+repackage-win32-installer: $(WIN32_INSTALLER_IN) $(SUBMAKEFILES)
+	@echo "Repackaging $(WIN32_INSTALLER_IN) into $(WIN32_INSTALLER_OUT)."
+	$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY) export
+	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen l10ngen/setup.exe l10ngen/7zSD.sfx
+	$(MAKE) repackage-zip \
+	  AB_CD=$(AB_CD) \
+	  MOZ_PKG_FORMAT=SFX7Z \
+	  ZIP_IN=$(WIN32_INSTALLER_IN) \
+	  ZIP_OUT=$(WIN32_INSTALLER_OUT) \
+	  SFX_HEADER="$(PWD)/../installer/windows/l10ngen/7zSD.sfx \
+	              $(_ABS_SRCDIR)/im/installer/windows/app.tag"
+
+ifeq (WINNT,$(OS_ARCH))
+repackage-win32-installer-%: $(WIN32_INSTALLER_IN) libs-%
+	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN=$(WIN32_INSTALLER_IN)
+else
+repackage-win32-installer-%: ;
+endif
+
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/MacOS
+else
+STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_DIR)
+endif
+
+# During repackaging, we never have an universal/ subfolder.
+STAGEPATH =
+
+clobber-zip:
+	$(RM) $(STAGEDIST)/chrome/$(AB_CD).jar \
+	  $(STAGEDIST)/chrome/$(AB_CD).manifest \
+	  $(STAGEDIST)/defaults/pref/all-l10n.js
+	$(RM) -rf $(STAGEDIST)/searchplugins \
+	  $(STAGEDIST)/dictionaries \
+	  $(STAGEDIST)/hyphenation/$(AB_CD) \
+	  $(STAGEDIST)/isp/$(AB_CD) \
+	  $(STAGEDIST)/chrome/$(AB_CD)
+
+langpack: langpack-$(AB_CD)
+
+# This is a generic target that will make a langpack, repack ZIP (+tarball)
+# builds, and repack and installer if applicable. It is called from the
+# tinderbox scripts. Alter it with caution.
+
+installers-%: clobber-% langpack-% repackage-win32-installer-% repackage-zip-%
+	@echo "repackaging done"
+
+ifdef MOZ_UPDATER
+libs:: $(call MERGE_FILE,updater/updater.ini) $(call mkdir_deps,$(DIST)/bin)
+ifeq ($(OS_ARCH),WINNT)
+	cat $< $(srcdir)/../installer/windows/nsis/updater_append.ini | \
+	  sed -e "s/^InfoText=/Info=/" -e "s/^TitleText=/Title=/" | \
+	  sed -e "s/%MOZ_APP_DISPLAYNAME%/$(MOZ_APP_DISPLAYNAME)/" > \
+	  $(FINAL_TARGET)/updater.ini
+else
+	cat $< | \
+	  sed -e "s/^InfoText=/Info=/" -e "s/^TitleText=/Title=/" | \
+	  sed -e "s/%MOZ_APP_DISPLAYNAME%/$(MOZ_APP_DISPLAYNAME)/" > \
+	  $(FINAL_TARGET)/updater.ini
+endif
+endif
+
+ident:
+	@printf "ib_revision "
+	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	    $(STAGEDIST)/application.ini App SourceStamp
+	@printf "moz_revision "
+	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	    $(STAGEDIST)/platform.ini Build SourceStamp
+	@printf "buildid "
+	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	    $(STAGEDIST)/application.ini App BuildID
+
+#These make targets call prepare-repackages by setting different UPLOAD_DIR
+prepare-upload-latest-%:
+	@$(MAKE) prepare-repackages-$* UPLOAD_DIR=$(DIST)/upload/latest
+
+prepare-upload-dated-%:
+	@$(MAKE) prepare-repackages-$* UPLOAD_DIR=$(DIST)/upload/`date "+%Y-%m-%d-%H"`-$(MOZ_PKG_APPNAME)$(MOZ_APP_VERSION)-l10n
+
+# This target will generate a UPLOAD_DIR folder with
+# l10n repackages in the way that we offer l10n nightlies
+#  1) the package/binary
+#  2) the langpack xpi
+#  3) the installer (on windows)
+# To set the paths those packages should end up, override the following vars:
+# PKG_PATH, PKG_LANGPACK_PATH, PKG_INST_PATH
+prepare-repackages-%:
+ifndef UPLOAD_DIR
+	$(error UPLOAD_DIR not defined)
+endif
+	$(NSINSTALL) -D $(UPLOAD_DIR)
+	$(NSINSTALL) -D $(UPLOAD_DIR)/$(PKG_LANGPACK_PATH)
+# Move the langpack
+	mv $(DIST)/$(PKG_LANGPACK_PATH)$(PKG_LANGPACK_BASENAME).xpi \
+	   $(UPLOAD_DIR)/$(PKG_LANGPACK_PATH)$(PKG_LANGPACK_BASENAME).xpi
+# Move the repackage
+	mv "$(DIST)/$(PACKAGE)" \
+	   "$(UPLOAD_DIR)/$(PACKAGE)"
+# Move the windows installer
+ifeq (WINNT, $(OS_ARCH))
+	mv "$(DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe" \
+	   "$(UPLOAD_DIR)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe"
+endif
+# Set the permissions that the folders will have in ftp once uploaded
+	chmod -vR 775 $(UPLOAD_DIR)
+
+merge-%:
+ifdef LOCALE_MERGEDIR
+	$(RM) -rf $(LOCALE_MERGEDIR)
+	MACOSX_DEPLOYMENT_TARGET= compare-locales -m $(LOCALE_MERGEDIR) $(srcdir)/l10n.ini $(L10NBASEDIR) $*
+endif
+	@echo
+
+IB_L10N_REPO_BASE = https://hg.instantbird.org/l10n
+MOZ_L10N_REPO_BASE = http://hg.mozilla.org/releases/l10n-mozilla-2.0
+
+checkout-%: AB_CD=$*
+checkout-%:
+	mkdir -p $(topsrcdir)/$(L10NBASEDIR)
+	$(PYTHON) $(topsrcdir)/client.py checkout-l10n --skip-instantbird --clean --l10n-base-dir $(L10NBASEDIR) --locale $(AB_CD)
+
+repack-%: AB_CD=$*
+repack-%:
+	make checkout-$(AB_CD)
+	make merge-$(AB_CD)
+	make installers-$(AB_CD)

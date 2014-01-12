@@ -1,0 +1,80 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIDOMWindow;
+
+[scriptable, uuid(e17d921c-4b3a-47b2-8283-cab425cc1a0c)]
+interface trayITrayIcon : nsISupports {
+
+  /**
+   * Associated DOM window
+   */
+  readonly attribute nsIDOMWindow window;
+
+  /**
+   * Window is minimized to tray
+   */
+  readonly attribute boolean isMinimized;
+
+  /**
+     * Indicates whether icon will be closed if window is restored
+   */
+  attribute boolean closeOnRestore;
+
+  /**
+   * Minimizes the window
+   */
+  void minimize();
+
+  /**
+   * Restores the window
+   */
+  void restore();
+
+  /**
+   * Closes the tray icon, restoring the window in the process
+   */
+  void close();
+};
+
+[scriptable, uuid(8fbd1a20-7abf-11dd-ad8b-0800200c9a66)]
+interface trayITrayService : nsISupports {
+
+  /**
+   * Creates a tray icon for window
+   */
+  trayITrayIcon createIcon(in nsIDOMWindow window,  [optional] in boolean aCloseOnRestore);
+
+  /**
+   * Restores all windows from the tray
+   */
+  void restoreAll();
+
+  /**
+   * Watch a window, and if minimized send to tray
+   */
+  void watchMinimize(in nsIDOMWindow window);
+
+  /**
+   * unwatch a window again
+   */
+  void unwatchMinimize(in nsIDOMWindow window);
+
+  /**
+   * is the window watched
+   */
+  bool isWatchedWindow(in nsIDOMWindow window);
+
+  /**
+   * minimizes a window to the tray
+   */
+  void minimize(in nsIDOMWindow aWindow, [optional] in boolean aCloseOnRestore);
+
+  /**
+   * Restores a window from the tray
+   */
+  void restore(in nsIDOMWindow aWindow);
+};

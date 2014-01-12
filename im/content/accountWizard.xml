@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accountWizard.dtd">
+  %accountsDTD;
+]>
+
+<bindings id="accountWizardBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="topProtocol" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content align="center">
+     <xul:image xbl:inherits="src=prplicon" class="top-proto-icon"/>
+     <xul:vbox>
+       <xul:label xbl:inherits="value=name" class="top-proto-name"/>
+       <xul:description xbl:inherits="value=description" class="top-proto-description"/>
+     </xul:vbox>
+    </content>
+    <implementation>
+     <method name="build">
+      <parameter name="aProtocol"/>
+      <parameter name="aDescription"/>
+      <body>
+      <![CDATA[
+        this.setAttribute("name", aProtocol.name);
+        this.setAttribute("description", aDescription);
+        this.setAttribute("prplicon", aProtocol.iconBaseURI + "icon32.png");
+        this.value = aProtocol.id;
+      ]]>
+      </body>
+     </method>
+     <!-- override the default accessible name.
+          This is also used for typeahead selection. -->
+     <property name="label" onget="return this.getAttribute('name');"/>
+    </implementation>
+  </binding>
+</bindings>

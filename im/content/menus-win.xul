@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+  %instantbirdDTD;
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %brandDTD;
+]>
+<overlay id="menusOverlayWin"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <key id="key_quitApplication" removeelement="true"/>
+
+  <menuitem id="menu_FileQuitItem"
+            label="&quitApplicationCmdWin.label;"
+            accesskey="&quitApplicationCmdWin.accesskey;"/>
+
+  <menu id="helpMenu" label="&helpWin.menu;" accesskey="&helpWin.accesskey;"/>
+
+</overlay>
+

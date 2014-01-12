@@ -1,0 +1,32 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY messageStyleTab.title             "Message Styles">
+<!ENTITY messageStylePreview.label         "Preview:">
+<!ENTITY messageStyleTheme.label           "Theme:">
+<!ENTITY messageStyleTheme.accesskey       "T">
+<!ENTITY messageStyleBubblesTheme.label    "Bubbles">
+<!ENTITY messageStyleDarkTheme.label       "Dark">
+<!ENTITY messageStylePaperSheetsTheme.label "Paper Sheets">
+<!ENTITY messageStyleSimpleTheme.label     "Simple">
+<!ENTITY messageStyleDefaultTheme.label    "Default">
+<!ENTITY messageStyleVariant.label         "Variant:">
+<!ENTITY messageStyleVariant.accesskey     "V">
+<!ENTITY messageStyleShowHeader.label      "Show Header">
+<!ENTITY messageStyleShowHeader.accesskey  "H">
+<!ENTITY messageStyleNoPreview.title       "No preview available">
+<!ENTITY messageStyleNoPreview.description "This theme is not valid or is currently unavailable (disabled addon, safe-mode, …).">
+<!ENTITY messageStyleGetMore.label         "Get more message styles…">
+<!ENTITY messageStyleNoExtraThemes.label   "(no extra themes installed)">
+
+<!ENTITY emoticonsTab.title             "Emoticons">
+<!ENTITY emoticonsTheme.label           "Emoticon Theme:">
+<!ENTITY emoticonsTheme.accesskey       "E">
+<!ENTITY emoticonsDefaultTheme.label    "Default">
+<!ENTITY emoticonsDisabled.label        "Disabled">
+<!ENTITY emoticonsPreview.description   "These text codes are shown as emoticons in your conversations:">
+<!ENTITY emoticonsImageColumn.label     "Emoticon">
+<!ENTITY emoticonsTextCodesColumn.label "Text Codes">
+<!ENTITY emoticonsGetMore.label         "Get more emoticons…">
+<!ENTITY emoticonsNoExtraThemes.label   "(no extra themes installed)">

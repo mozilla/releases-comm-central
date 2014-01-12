@@ -1,0 +1,143 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://instantbird/skin/status.css");
+
+tabbox {
+  margin: 0 0;
+}
+
+tabpanels {
+  -moz-appearance: none;
+}
+
+statusbar {
+  min-height: 16px;
+}
+
+@media all and (max-height: 350px) {
+  statusbar {
+    display: none;
+  }
+}
+
+%ifdef XP_WIN
+statusbarpanel {
+  -moz-appearance: none;
+  border: none;
+}
+%endif
+
+#statusbar-display-end > .statusbarpanel-text {
+  -moz-margin-end: 0;
+}
+
+#statusbar-display-end[error] {
+  color: red;
+  font-weight: bold;
+}
+
+%ifndef XP_MACOSX
+notification > hbox {
+  border: none !important;
+  border-bottom: 1px solid ThreeDShadow !important;
+}
+%endif
+
+/* Tab colors */
+tab[unread],
+.alltabs-item[unread] {
+  color: red !important;
+}
+
+tab[typing],
+.alltabs-item[typing] {
+  color: green !important;
+}
+
+tab[typed],
+.alltabs-item[typed] {
+  color: orange !important;
+}
+
+tab[attention],
+.alltabs-item[attention] {
+  color: blue !important;
+}
+
+/* Tab icons */
+.tabbrowser-tab,
+.alltabs-item > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
+}
+
+.tabbrowser-tab[type="conversation"],
+.alltabs-item[type="conversation"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/unknown-16.png");
+}
+
+.tabbrowser-tab[type="addons"],
+.alltabs-item[type="addons"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.png");
+}
+
+.tabbrowser-tab[type="newtab"],
+.alltabs-item[type="newtab"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://instantbird/skin/newConversation.png");
+}
+
+.tabbrowser-tab {
+  text-align: center;
+}
+
+.tabbrowser-tab[chat],
+.alltabs-item[chat] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/chat-16.png") !important;
+}
+.tabbrowser-tab[chat][status="left"],
+.alltabs-item[chat][status="left"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/chat-left-16.png") !important;
+}
+.tabbrowser-tab[chat][prpl="prpl-twitter"],
+.alltabs-item[chat][prpl="prpl-twitter"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://prpl-twitter/skin/icon.png") !important;
+}
+.tabbrowser-tab[chat][prpl="prpl-twitter"][status="left"],
+.alltabs-item[chat][prpl="prpl-twitter"][status="left"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://prpl-twitter/skin/icon-left.png") !important;
+}
+
+.tabbrowser-tab[status="offline"],
+.alltabs-item[status="offline"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/offline-16.png") !important;
+}
+.tabbrowser-tab[status="available"],
+.alltabs-item[status="available"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/available-16.png") !important;
+}
+.tabbrowser-tab[status="away"],
+.tabbrowser-tab[status="unavailable"],
+.alltabs-item[status="away"] > .menu-iconic-left > .menu-iconic-icon,
+.alltabs-item[status="unavailable"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/away-16.png") !important;
+}
+.tabbrowser-tab[status="idle"],
+.alltabs-item[status="idle"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/idle-16.png") !important;
+}
+.tabbrowser-tab[status="mobile"],
+.alltabs-item[status="mobile"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/mobile-16.png") !important;
+}
+
+.tabbrowser-tab[typing],
+.alltabs-item[typing] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/typing-16.png") !important;
+}
+
+.tabbrowser-tab[typed],
+.alltabs-item[typed] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/typed-16.png") !important;
+}

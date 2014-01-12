@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/skin/viewlog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/viewlog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://instantbird/content/instantbird.css" type="text/css"?>
+
+<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
+#ifdef XP_MACOSX
+<?xul-overlay href="chrome://instantbird/content/menus.xul"?>
+#endif
+
+<!DOCTYPE window [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+  %instantbirdDTD;
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %brandDTD;
+  <!ENTITY % textcontextDTD SYSTEM "chrome://global/locale/textcontext.dtd">
+  %textcontextDTD;
+]>
+
+<window
+  id     = "logWindow"
+  windowtype="Messenger:logs"
+  title  = "&logsWindow.title;"
+  titlemenuseparator="&logsWindow.titlemodifiermenuseparator;"
+  titlemodifier="&logsWindow.titlemodifier;"
+  width  = "650"
+  height = "600"
+  persist= "width height screenX screenY"
+  xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/jsTreeView.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/viewlog.js"/>
+#ifdef XP_MACOSX
+  <script type="application/javascript" src="chrome://instantbird/content/macgestures.js"/>
+#else
+  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+#endif
+  <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
+  <script type="application/javascript" src="chrome://instantbird/content/convZoom.js"/>
+
+#ifdef XP_MACOSX
+#include menus.xul.inc
+#endif
+
+  <commandset id="logsCommands">
+    <command id="cmd_close" oncommand="window.close();"/>
+    <command id="cmd_textZoomReduce" oncommand="FullZoom.reduce();"/>
+    <command id="cmd_textZoomEnlarge" oncommand="FullZoom.enlarge();"/>
+    <command id="cmd_textZoomReset" oncommand="FullZoom.reset();"/>
+    <command id="cmd_find"
+             oncommand="document.getElementById('findbar').onFindCommand();"/>
+    <command id="cmd_findAgain"
+             oncommand="document.getElementById('findbar').onFindAgainCommand(false);"/>
+    <command id="cmd_findPrevious"
+             oncommand="document.getElementById('findbar').onFindAgainCommand(true);"/>
+
+    <commandset id="editMenuCommands"/>
+  </commandset>
+
+  <keyset id="logsKeys">
+    <key id="key_close" key="w" modifiers="accel" command="cmd_close"/>
+    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
+    <key id="key_textZoomEnlarge" key="&textEnlarge.commandkey;" command="cmd_textZoomEnlarge" modifiers="accel"/>
+    <key id="key_textZoomEnlarge2" key="&textEnlarge.commandkey2;" command="cmd_textZoomEnlarge" modifiers="accel"/>
+    <key id="key_textZoomEnlarge3" key="&textEnlarge.commandkey3;" command="cmd_textZoomEnlarge" modifiers="accel"/>
+    <key id="key_textZoomReduce"  key="&textReduce.commandkey;" command="cmd_textZoomReduce" modifiers="accel"/>
+    <key id="key_textZoomReduce2"  key="&textReduce.commandkey2;" command="cmd_textZoomReduce" modifiers="accel"/>
+    <key id="key_textZoomReset" key="&textReset.commandkey;" command="cmd_textZoomReset" modifiers="accel"/>
+    <key id="key_textZoomReset2" key="&textReset.commandkey2;" command="cmd_textZoomReset" modifiers="accel"/>
+    <key id="key_find" key="&findOnCmd.commandkey;" command="cmd_find" modifiers="accel"/>
+    <key id="key_findAgain" key="&findAgainCmd.commandkey;" command="cmd_findAgain" modifiers="accel"/>
+    <key id="key_findPrevious" key="&findAgainCmd.commandkey;" command="cmd_findPrevious" modifiers="accel,shift"/>
+    <key keycode="&findAgainCmd.commandkey2;" command="cmd_findAgain"/>
+    <key keycode="&findAgainCmd.commandkey2;"  command="cmd_findPrevious" modifiers="shift"/>
+  </keyset>
+
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="bundle_instantbird" src="chrome://instantbird/locale/instantbird.properties"/>
+    <stringbundle id="bundle_dateformat" src="chrome://global/locale/dateFormat.properties"/>
+    <stringbundle id="bundle_places" src="chrome://places/locale/places.properties"/>
+  </stringbundleset>
+
+  <popupset id="mainPopupSet">
+    <tooltip id="aHTMLTooltip" page="true"/>
+    <menupopup id="contentAreaContextMenu">
+      <menuitem id="context-copy"
+                label="&copyCmd.label;"
+                accesskey="&copyCmd.accesskey;"
+                command="cmd_copy"/>
+      <menuitem id="context-selectall"
+                label="&selectAllCmd.label;"
+                accesskey="&selectAllCmd.accesskey;"
+                command="cmd_selectAll"/>
+    </menupopup>
+  </popupset>
+
+  <hbox flex="1">
+    <tree id="logTree" width="160" hidecolumnpicker="true"
+          seltype="single" context="logTreeContext"
+          onselect="logWindow.onselect();">
+      <treecols>
+        <treecol id="logCol" flex="1" primary="true" hideheader="true"
+                 crop="center" ignorecolumnpicker="true"/>
+      </treecols>
+      <treechildren/>
+    </tree>
+    <splitter/>
+    <vbox flex="1">
+      <deck flex="1" id="browserDeck" selectedIndex="0">
+        <browser id="text-browser" type="content"
+                 context="contentAreaContextMenu" tooltip="aHTMLTooltip"
+                 disablehistory="true" src="about:blank" flex="1"/>
+        <vbox flex="1">
+          <browser id="conv-browser" type="content-conversation" flex="1"
+                   context="contentAreaContextMenu" tooltip="aHTMLTooltip"/>
+          <progressmeter id="browserProgress" hidden="true"/>
+        </vbox>
+        <vbox flex="1" id="corruptLogScreen" align="center" pack="center">
+          <hbox id="corruptLogBox">
+            <image id="corruptLogImage"/>
+            <vbox id="corruptLogInnerBox" align="center" pack="center" flex="1">
+              <description id="corruptLogDesc">&logsWindow.corruptlogfile;</description>
+            </vbox>
+          </hbox>
+        </vbox>
+      </deck>
+      <findbar id="findbar"/>
+    </vbox>
+  </hbox>
+
+</window>

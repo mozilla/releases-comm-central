@@ -1,0 +1,363 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.browser {
+  margin: 0 0;
+}
+
+.conv-bottom, .conv-nicklist {
+  margin: 0 0;
+}
+
+.conv-top {
+  min-height: 115px;
+}
+
+.conv-top-info {
+  margin: 0 0;
+  padding: 0 0;
+  border-style: none;
+  -moz-appearance: none;
+%ifdef XP_MACOSX
+  background-color: -moz-mac-chrome-active;
+  background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+}
+
+.conv-top-info:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: rgba(0, 0, 0, 0.32);
+%else
+  background-color: -moz-Dialog;
+%ifdef XP_WIN
+  background-image: -moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+%else
+  background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
+%endif
+%ifndef XP_WIN
+  border-bottom: 1px solid ThreeDShadow;
+%else
+  border-bottom: none;
+%endif
+%endif
+}
+
+.userIcon {
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 5px;
+  overflow: hidden;
+  max-width: 48px;
+  max-height: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.userIcon:not([src]) {
+  display: none;
+}
+
+.userIcon[src=""] {
+  background-image: url("chrome://instantbird/skin/userIcon.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.statusTypeIcon {
+  margin: 0 0;
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: none;
+}
+
+.statusMessage {
+  margin: 0 0 !important;
+%ifdef XP_MACOSX
+  min-height: 16px;
+%endif
+}
+
+.statusMessage[noTopic]:not([editing]),
+.statusMessageWithDash[noTopic] {
+  font-style: italic;
+}
+
+.alltargets-button {
+  min-width: 16px;
+  padding: 0 0;
+  -moz-appearance: none;
+  border: none;
+}
+
+.alltargets-button > .toolbarbutton-text,
+.alltargets-button > .toolbarbutton-menu-dropmarker {
+  display: none;
+}
+
+.alltargets-button[type="menu"] {
+  cursor: pointer;
+}
+
+.alltargets-item[selected="true"] {
+  font-weight: bold;
+}
+
+.status-overlay-icon[status="away"],
+.status-overlay-icon[status="unavailable"] {
+  list-style-image: url('chrome://chat/skin/away.png');
+}
+
+.status-overlay-icon[status="idle"] {
+  list-style-image: url('chrome://chat/skin/idle.png');
+}
+
+.status-overlay-icon[status="mobile"] {
+  list-style-image: url('chrome://chat/skin/mobile.png');
+}
+
+.status-overlay-icon[status="offline"] {
+  list-style-image: url('chrome://chat/skin/offline.png');
+}
+
+.status-overlay-icon[status="unknown"] {
+  list-style-image: url('chrome://chat/skin/unknown.png');
+}
+
+@media all and (min-height: 251px) {
+  .statusImageStack,
+  .displayNameAndstatusMessageStack {
+    margin: 2px 2px;
+  }
+
+  .statusMessage {
+    margin-top: 32px !important;
+  }
+
+  .statusMessage[editing] {
+%ifdef XP_MACOSX
+    margin: 29px 0 -1px -4px !important;
+%else
+%ifdef XP_WIN
+    margin: 28px 0 -1px -2px !important;
+%else
+    margin: 29px 0 -3px -4px !important;
+%endif
+%endif
+  }
+
+  .displayName {
+    font-size: large;
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+    margin: 0 0 16px !important;
+    padding-right: 20px;
+  }
+
+  .prplIcon {
+    margin: 0 1px 16px -16px !important;
+  }
+
+  .statusTypeIcon {
+    margin: 32px 0 0;
+  }
+
+  .userIcon[src] + .statusTypeIcon {
+    margin-left: 32px;
+  }
+}
+
+@media all and (max-height: 250px) {
+  .conv-top-info {
+    -moz-box-align: baseline;
+  }
+
+  .displayName,
+  .statusMessageWithDash {
+    margin: 2px 0 !important;
+  }
+
+  .prplIcon {
+    margin: 1px 3px !important;
+    padding: 0 0;
+  }
+
+  .statusMessage[editing] {
+%ifdef XP_WIN
+    margin: -1px 2px 0px 8px !important;
+%else
+    margin: -3px 0 -1px 9px !important;
+%endif
+  }
+
+  .statusTypeIcon {
+    margin: 1px 3px;
+  }
+}
+
+.conv-messages {
+  min-width: 150px;
+%ifndef XP_MACOSX
+%ifndef XP_WIN
+  border-bottom: solid 1px GrayText;
+%else
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-left: none;
+  border-right: none !important;
+%endif
+%endif
+}
+
+%ifndef XP_MACOSX
+.conv-messages[chat] {
+  border-right: solid 1px GrayText;
+}
+%endif
+
+.conv-textbox {
+  margin: 0 0;
+  padding: 0 0;
+  -moz-box-sizing: content-box;
+}
+%ifndef XP_MACOSX
+
+.conv-textbox > .textbox-input-box {
+  background: inherit;
+}
+%endif
+
+%ifdef XP_MACOSX
+grippy {
+  display: none;
+}
+%endif
+
+.splitter {
+  margin: 0;
+  border-style: none;
+%ifdef XP_MACOSX
+  min-height: 2px;
+  background: -moz-linear-gradient(top, rgba(0,0,0,0.35), transparent);
+%else
+  height: 3px;
+  background: transparent;
+%endif
+}
+
+#conv-toolbar {
+  border-style: none;
+}
+
+.listcell-label {
+  font-weight: bold;
+  -moz-padding-start: 1px;
+%ifdef XP_MACOSX
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+%endif
+}
+
+.listcell-icon {
+  min-width: 16px;
+  margin: 0 2px;
+}
+
+%ifdef XP_MACOSX
+.conv-nicklist-header {
+  -moz-appearance: treeheadercell;
+  margin-right: -1px;
+}
+
+%endif
+.conv-nicklist-header-label {
+%ifdef XP_MACOSX
+  -moz-margin-start: 3px !important;
+  margin-top: 1px !important;
+  margin-bottom: 0 !important;
+%else
+  font-weight: bold;
+  -moz-margin-start: 0 !important;
+%endif
+  -moz-margin-end: 2px !important;
+}
+
+%ifdef XP_MACOSX
+.conv-textbox {
+  padding: 3px;
+  border: none;
+  -moz-appearance: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.conv-textbox[focused="true"] {
+  box-shadow: inset 0 0 2px 1px rgba(40, 120, 212, 0.7),
+                    0 0 4px 1px rgb(40, 120, 212),
+              inset 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.splitter.conv-chat {
+  background: -moz-linear-gradient(top, #404040, rgba(0,0,0,0.35));
+  min-width: 1px;
+  width: 1px;
+}
+
+.splitter.conv-chat:-moz-window-inactive {
+  background: rgba(0,0,0,0.35);
+}
+
+.splitter.conv-chat[state="collapsed"] {
+  width: 3px;
+}
+
+.conv-nicklist {
+  -moz-appearance: none;
+  background: -moz-linear-gradient(top, #d2d8e2, #e8e8e8);
+  width: 160px;
+  border: 0px;
+}
+
+.conv-nicklist:-moz-window-inactive {
+  background: #e8e8e8;
+}
+%endif
+%ifdef XP_WIN
+.splitter.conv-chat {
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+/* Splitter style change above somehow made it smaller, fix this here: */
+grippy {
+  margin: 0 1px;
+}
+%endif
+
+.listitem-iconic[inactive] > .listcell-iconic > .listcell-icon {
+  opacity: 0.45;
+}
+
+.listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-icon {
+  opacity: 0.7;
+}
+
+.listitem-iconic[inactive] > .listcell-iconic > .listcell-label {
+  color: GrayText !important;
+  font-weight: normal;
+}
+
+.listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-label {
+%ifdef MACOSX
+  color: -moz-DialogText !important;
+%else
+  color: -moz-cellhighlighttext !important;
+%endif
+}
+
+.conv-nicklist:focus > .listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-label {
+  color: HighlightText !important;
+}
+
+.alltargets-item-icon {
+  min-width: 16px;
+  min-height: 16px;
+}

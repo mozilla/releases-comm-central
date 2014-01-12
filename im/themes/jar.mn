@@ -1,0 +1,340 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+instantbird.jar:
+#ifndef XP_WIN
+% skin instantbird classic/1.0 %skin/classic/instantbird/
+#else
+% skin instantbird classic/1.0 %skin/classic/instantbird/ os=WINNT osversion<6
+% skin instantbird classic/1.0 %skin/classic/instantbird/ os!=WINNT
+% skin instantbird classic/1.0 %skin/classic/aero/instantbird/ os=WINNT osversion>=6
+#endif
+*	skin/classic/instantbird/accounts.css
+	skin/classic/instantbird/alert.css
+% style chrome://global/content/alerts/alert.xul chrome://instantbird/skin/alert.css
+*	skin/classic/instantbird/richlistbox.css
+*	skin/classic/instantbird/accountWizard.css
+*	skin/classic/instantbird/newtab.css
+	skin/classic/instantbird/newConversation.png
+	skin/classic/instantbird/founder.png
+	skin/classic/instantbird/operator.png
+	skin/classic/instantbird/half-operator.png
+	skin/classic/instantbird/voice.png
+*	skin/classic/instantbird/blist.css
+	skin/classic/instantbird/buddytooltip.css
+*	skin/classic/instantbird/conversation.css
+*	skin/classic/instantbird/engineManager.css
+*	skin/classic/instantbird/instantbird.css
+	skin/classic/instantbird/menulist.css
+	skin/classic/instantbird/menus.css
+	skin/classic/instantbird/status.css
+*	skin/classic/instantbird/viewlog.css
+	skin/classic/instantbird/newMessage.png
+	skin/classic/instantbird/expand.png
+	skin/classic/instantbird/collapse.png
+	skin/classic/instantbird/userIcon.png
+	skin/classic/instantbird/multiUserIcon.png
+#ifdef XP_UNIX
+#ifdef XP_MACOSX
+	skin/classic/instantbird/tag.png        (tag-mac.png)
+	skin/classic/instantbird/tag@2x.png     (tag-mac@2x.png)
+	skin/classic/instantbird/actionicon-tab.png       (actionicon-tab-mac.png)
+	skin/classic/instantbird/actionicon-tab@2x.png    (actionicon-tab-mac@2x.png)
+#else
+	skin/classic/instantbird/tag.png    (tag-linux.png)
+	skin/classic/instantbird/actionicon-tab.png    (actionicon-tab-linux.png)
+#endif
+#else
+	skin/classic/instantbird/tag.png    (tag-win.png)
+	skin/classic/instantbird/actionicon-tab.png    (actionicon-tab-win.png)
+#endif
+#ifdef XP_UNIX
+#ifdef XP_MACOSX
+	skin/classic/instantbird/preferences/Options.png        (preferences-pinstripe/Options.png)
+	skin/classic/instantbird/preferences/alwaysAsk.png      (preferences-pinstripe/alwaysAsk.png)
+	skin/classic/instantbird/preferences/application.png    (preferences-pinstripe/application.png)
+	skin/classic/instantbird/preferences/applications.css   (preferences-pinstripe/applications.css)
+	skin/classic/instantbird/preferences/preferences.css    (preferences-pinstripe/preferences.css)
+	skin/classic/instantbird/preferences/saveFile.png       (preferences-pinstripe/saveFile.png)
+#else
+	skin/classic/instantbird/preferences/Options.png        (preferences-gnomestripe/Options.png)
+	skin/classic/instantbird/preferences/alwaysAsk.png      (preferences-gnomestripe/alwaysAsk.png)
+	skin/classic/instantbird/preferences/applications.css   (preferences-gnomestripe/applications.css)
+	skin/classic/instantbird/preferences/preferences.css    (preferences-gnomestripe/preferences.css)
+	skin/classic/instantbird/preferences/mail.png           (preferences-gnomestripe/mail.png)
+#endif
+#else
+	skin/classic/instantbird/preferences/Options.png        (preferences-winstripe/Options.png)
+	skin/classic/instantbird/preferences/alwaysAsk.png      (preferences-winstripe/alwaysAsk.png)
+	skin/classic/instantbird/preferences/application.png    (preferences-winstripe/application.png)
+	skin/classic/instantbird/preferences/applications.css   (preferences-winstripe/applications.css)
+	skin/classic/instantbird/preferences/preferences.css    (preferences-winstripe/preferences.css)
+	skin/classic/instantbird/preferences/saveFile.png       (preferences-winstripe/saveFile.png)
+	skin/classic/instantbird/preferences/mail.png           (preferences-winstripe/mail.png)
+#endif
+#ifdef XP_UNIX
+#ifdef XP_MACOSX
+*	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-pinstripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-pinstripe/newtab.png)
+	skin/classic/instantbird/tabbrowser/newtab@2x.png		(tabbrowser-pinstripe/newtab@2x.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-pinstripe/tab-arrow-left.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left@2x.png	(tabbrowser-pinstripe/tab-arrow-left@2x.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-right.png		(tabbrowser-pinstripe/tab-arrow-right.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-right@2x.png	(tabbrowser-pinstripe/tab-arrow-right@2x.png)
+	skin/classic/instantbird/tabbrowser/tab-overflow-border.png     (tabbrowser-pinstripe/tab-overflow-border.png)
+	skin/classic/instantbird/tabbrowser/tab-top-hover-active.png    (tabbrowser-pinstripe/tab-top-hover-active.png)
+	skin/classic/instantbird/tabbrowser/tab-top-hover-active@2x.png (tabbrowser-pinstripe/tab-top-hover-active@2x.png)
+	skin/classic/instantbird/tabbrowser/tab-top-normal-active.png   (tabbrowser-pinstripe/tab-top-normal-active.png)
+	skin/classic/instantbird/tabbrowser/tab-top-normal-active@2x.png   (tabbrowser-pinstripe/tab-top-normal-active@2x.png)
+	skin/classic/instantbird/tabbrowser/tab-top-selected-active.png (tabbrowser-pinstripe/tab-top-selected-active.png)
+	skin/classic/instantbird/tabbrowser/tab-top-selected-active@2x.png (tabbrowser-pinstripe/tab-top-selected-active@2x.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-pinstripe/tabDragIndicator.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator@2x.png	(tabbrowser-pinstripe/tabDragIndicator@2x.png)
+	skin/classic/instantbird/tabbrowser/tabbar-top-bg-active.png    (tabbrowser-pinstripe/tabbar-top-bg-active.png)
+	skin/classic/instantbird/tabbrowser/tabbar-top-bg-inactive.png  (tabbrowser-pinstripe/tabbar-top-bg-inactive.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon.png)
+	skin/classic/instantbird/lion/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon-lion.png)
+	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon@2x.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon-lion@2x.png)
+#else
+*	skin/classic/instantbird/tabbrowser.css				(tabbrowser-gnomestripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/tab.png			(tabbrowser-gnomestripe/tab.png)
+	skin/classic/instantbird/tabbrowser/tab-overflow-border.png	(tabbrowser-gnomestripe/tab-overflow-border.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-gnomestripe/tabDragIndicator.png)
+#endif
+#else
+*	skin/classic/instantbird/tabbrowser.css                         (tabbrowser-winstripe/tabbrowser.css)
+	skin/classic/instantbird/tabbrowser/newtab.png			(tabbrowser-winstripe/newtab.png)
+	skin/classic/instantbird/tabbrowser/tab.png			(tabbrowser-winstripe/tab.png)
+	skin/classic/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-winstripe/tab-arrow-left.png)
+	skin/classic/instantbird/tabbrowser/tab-overflow-border.png	(tabbrowser-winstripe/tab-overflow-border.png)
+	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-winstripe/tabDragIndicator.png)
+	skin/classic/instantbird/tabbrowser/mainwindow-dropdown-arrow.png	(tabbrowser-winstripe/mainwindow-dropdown-arrow.png)
+#endif
+#ifdef XP_WIN
+*	skin/classic/aero/instantbird/accounts.css		(accounts-aero.css)
+	skin/classic/aero/instantbird/alert.css
+*	skin/classic/aero/instantbird/richlistbox.css
+*	skin/classic/aero/instantbird/accountWizard.css
+	skin/classic/aero/instantbird/founder.png
+	skin/classic/aero/instantbird/operator.png
+	skin/classic/aero/instantbird/half-operator.png
+	skin/classic/aero/instantbird/voice.png
+*	skin/classic/aero/instantbird/blist.css			(blist-aero.css)
+	skin/classic/aero/instantbird/buddytooltip.css
+*	skin/classic/aero/instantbird/conversation.css		(conversation-aero.css)
+*	skin/classic/aero/instantbird/engineManager.css
+*	skin/classic/aero/instantbird/instantbird.css		(instantbird-aero.css)
+	skin/classic/aero/instantbird/menulist.css
+	skin/classic/aero/instantbird/menus.css
+*	skin/classic/aero/instantbird/newtab.css
+	skin/classic/aero/instantbird/status.css
+*	skin/classic/aero/instantbird/viewlog.css
+	skin/classic/aero/instantbird/newMessage.png
+	skin/classic/aero/instantbird/expand.png
+	skin/classic/aero/instantbird/collapse.png
+	skin/classic/aero/instantbird/userIcon.png
+	skin/classic/aero/instantbird/multiUserIcon.png
+	skin/classic/aero/instantbird/newConversation.png
+	skin/classic/aero/instantbird/tag.png		(tag-aero.png)
+	skin/classic/aero/instantbird/actionicon-tab.png        (actionicon-tab-win.png)
+	skin/classic/aero/instantbird/preferences/Options.png        (preferences-winstripe/Options-aero.png)
+	skin/classic/aero/instantbird/preferences/alwaysAsk.png      (preferences-winstripe/alwaysAsk-aero.png)
+	skin/classic/aero/instantbird/preferences/application.png    (preferences-winstripe/application-aero.png)
+	skin/classic/aero/instantbird/preferences/applications.css   (preferences-winstripe/applications.css)
+	skin/classic/aero/instantbird/preferences/preferences.css    (preferences-winstripe/preferences.css)
+	skin/classic/aero/instantbird/preferences/saveFile.png       (preferences-winstripe/saveFile-aero.png)
+	skin/classic/aero/instantbird/preferences/mail.png           (preferences-winstripe/mail-aero.png)
+*	skin/classic/aero/instantbird/tabbrowser.css                            (tabbrowser-winstripe/tabbrowser.css)
+	skin/classic/aero/instantbird/tabbrowser/newtab.png			(tabbrowser-winstripe/newtab.png)
+	skin/classic/aero/instantbird/tabbrowser/tab.png			(tabbrowser-winstripe/tab.png)
+	skin/classic/aero/instantbird/tabbrowser/tab-arrow-left.png		(tabbrowser-winstripe/tab-arrow-left.png)
+	skin/classic/aero/instantbird/tabbrowser/tab-overflow-border.png	(tabbrowser-winstripe/tab-overflow-border.png)
+	skin/classic/aero/instantbird/tabbrowser/tabDragIndicator.png		(tabbrowser-winstripe/tabDragIndicator.png)
+	skin/classic/aero/instantbird/tabbrowser/mainwindow-dropdown-arrow.png	(tabbrowser-winstripe/mainwindow-dropdown-arrow.png)
+#endif
+% skin instantbird-sounds classic/1.0 %skin/classic/instantbird/sounds/
+	skin/classic/instantbird/sounds/alert.wav	(sounds/alert.wav)
+	skin/classic/instantbird/sounds/login.wav	(sounds/login.wav)
+	skin/classic/instantbird/sounds/logout.wav	(sounds/logout.wav)
+	skin/classic/instantbird/sounds/receive.wav	(sounds/receive.wav)
+	skin/classic/instantbird/sounds/send.wav	(sounds/send.wav)
+% skin instantbird-emoticons classic/1.0 %skin/classic/instantbird/smileys/
+	skin/classic/instantbird/smileys/theme.js              (smileys/theme.js)
+	skin/classic/instantbird/smileys/angry.png             (smileys/angry.png)
+	skin/classic/instantbird/smileys/confused.png          (smileys/confused.png)
+	skin/classic/instantbird/smileys/cool.png              (smileys/cool.png)
+	skin/classic/instantbird/smileys/cry.png               (smileys/cry.png)
+	skin/classic/instantbird/smileys/embarrassed.png       (smileys/embarrassed.png)
+	skin/classic/instantbird/smileys/grin.png              (smileys/grin.png)
+	skin/classic/instantbird/smileys/heart.png             (smileys/heart.png)
+	skin/classic/instantbird/smileys/manga_annoyed.png     (smileys/manga_annoyed.png)
+	skin/classic/instantbird/smileys/manga_embarrassed.png (smileys/manga_embarrassed.png)
+	skin/classic/instantbird/smileys/manga_smile.png       (smileys/manga_smile.png)
+	skin/classic/instantbird/smileys/manga_stunned.png     (smileys/manga_stunned.png)
+	skin/classic/instantbird/smileys/manga_tired.png       (smileys/manga_tired.png)
+	skin/classic/instantbird/smileys/sad.png               (smileys/sad.png)
+	skin/classic/instantbird/smileys/shocked.png           (smileys/shocked.png)
+	skin/classic/instantbird/smileys/slant.png             (smileys/slant.png)
+	skin/classic/instantbird/smileys/slant2.png            (smileys/slant2.png)
+	skin/classic/instantbird/smileys/smile.png             (smileys/smile.png)
+	skin/classic/instantbird/smileys/sp_laugh.png          (smileys/sp_laugh.png)
+	skin/classic/instantbird/smileys/straight_face.png     (smileys/straight_face.png)
+	skin/classic/instantbird/smileys/tongue.png            (smileys/tongue.png)
+	skin/classic/instantbird/smileys/wink.png              (smileys/wink.png)
+% skin instantbird-messagestyles classic/1.0 %skin/classic/instantbird/messages/
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_0.png       (messages/bubbles/Bitmaps/indicator_0.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_0_alt.png   (messages/bubbles/Bitmaps/indicator_0_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_10.png      (messages/bubbles/Bitmaps/indicator_10.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_100.png     (messages/bubbles/Bitmaps/indicator_100.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_100_alt.png (messages/bubbles/Bitmaps/indicator_100_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_10_alt.png  (messages/bubbles/Bitmaps/indicator_10_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_110.png     (messages/bubbles/Bitmaps/indicator_110.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_110_alt.png (messages/bubbles/Bitmaps/indicator_110_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_120.png     (messages/bubbles/Bitmaps/indicator_120.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_120_alt.png (messages/bubbles/Bitmaps/indicator_120_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_130.png     (messages/bubbles/Bitmaps/indicator_130.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_130_alt.png (messages/bubbles/Bitmaps/indicator_130_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_140.png     (messages/bubbles/Bitmaps/indicator_140.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_140_alt.png (messages/bubbles/Bitmaps/indicator_140_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_150.png     (messages/bubbles/Bitmaps/indicator_150.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_150_alt.png (messages/bubbles/Bitmaps/indicator_150_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_160.png     (messages/bubbles/Bitmaps/indicator_160.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_160_alt.png (messages/bubbles/Bitmaps/indicator_160_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_170.png     (messages/bubbles/Bitmaps/indicator_170.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_170_alt.png (messages/bubbles/Bitmaps/indicator_170_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_180.png     (messages/bubbles/Bitmaps/indicator_180.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_180_alt.png (messages/bubbles/Bitmaps/indicator_180_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_190.png     (messages/bubbles/Bitmaps/indicator_190.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_190_alt.png (messages/bubbles/Bitmaps/indicator_190_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_20.png      (messages/bubbles/Bitmaps/indicator_20.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_200.png     (messages/bubbles/Bitmaps/indicator_200.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_200_alt.png (messages/bubbles/Bitmaps/indicator_200_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_20_alt.png  (messages/bubbles/Bitmaps/indicator_20_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_210.png     (messages/bubbles/Bitmaps/indicator_210.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_210_alt.png (messages/bubbles/Bitmaps/indicator_210_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_220.png     (messages/bubbles/Bitmaps/indicator_220.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_220_alt.png (messages/bubbles/Bitmaps/indicator_220_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_230.png     (messages/bubbles/Bitmaps/indicator_230.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_230_alt.png (messages/bubbles/Bitmaps/indicator_230_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_240.png     (messages/bubbles/Bitmaps/indicator_240.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_240_alt.png (messages/bubbles/Bitmaps/indicator_240_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_250.png     (messages/bubbles/Bitmaps/indicator_250.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_250_alt.png (messages/bubbles/Bitmaps/indicator_250_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_260.png     (messages/bubbles/Bitmaps/indicator_260.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_260_alt.png (messages/bubbles/Bitmaps/indicator_260_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_270.png     (messages/bubbles/Bitmaps/indicator_270.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_270_alt.png (messages/bubbles/Bitmaps/indicator_270_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_280.png     (messages/bubbles/Bitmaps/indicator_280.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_280_alt.png (messages/bubbles/Bitmaps/indicator_280_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_290.png     (messages/bubbles/Bitmaps/indicator_290.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_290_alt.png (messages/bubbles/Bitmaps/indicator_290_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_30.png      (messages/bubbles/Bitmaps/indicator_30.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_300.png     (messages/bubbles/Bitmaps/indicator_300.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_300_alt.png (messages/bubbles/Bitmaps/indicator_300_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_30_alt.png  (messages/bubbles/Bitmaps/indicator_30_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_310.png     (messages/bubbles/Bitmaps/indicator_310.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_310_alt.png (messages/bubbles/Bitmaps/indicator_310_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_320.png     (messages/bubbles/Bitmaps/indicator_320.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_320_alt.png (messages/bubbles/Bitmaps/indicator_320_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_330.png     (messages/bubbles/Bitmaps/indicator_330.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_330_alt.png (messages/bubbles/Bitmaps/indicator_330_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_340.png     (messages/bubbles/Bitmaps/indicator_340.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_340_alt.png (messages/bubbles/Bitmaps/indicator_340_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_350.png     (messages/bubbles/Bitmaps/indicator_350.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_350_alt.png (messages/bubbles/Bitmaps/indicator_350_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_40.png      (messages/bubbles/Bitmaps/indicator_40.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_40_alt.png  (messages/bubbles/Bitmaps/indicator_40_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_50.png      (messages/bubbles/Bitmaps/indicator_50.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_50_alt.png  (messages/bubbles/Bitmaps/indicator_50_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_60.png      (messages/bubbles/Bitmaps/indicator_60.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_60_alt.png  (messages/bubbles/Bitmaps/indicator_60_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_70.png      (messages/bubbles/Bitmaps/indicator_70.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_70_alt.png  (messages/bubbles/Bitmaps/indicator_70_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_80.png      (messages/bubbles/Bitmaps/indicator_80.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_80_alt.png  (messages/bubbles/Bitmaps/indicator_80_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_90.png      (messages/bubbles/Bitmaps/indicator_90.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_90_alt.png  (messages/bubbles/Bitmaps/indicator_90_alt.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_grey.png    (messages/bubbles/Bitmaps/indicator_grey.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/minus-hover.png       (messages/bubbles/Bitmaps/minus-hover.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/minus.png             (messages/bubbles/Bitmaps/minus.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/plus-hover.png        (messages/bubbles/Bitmaps/plus-hover.png)
+	skin/classic/instantbird/messages/bubbles/Bitmaps/plus.png              (messages/bubbles/Bitmaps/plus.png)
+	skin/classic/instantbird/messages/bubbles/bubbles.svg                   (messages/bubbles/bubbles.svg)
+	skin/classic/instantbird/messages/bubbles/Footer.html                   (messages/bubbles/Footer.html)
+	skin/classic/instantbird/messages/bubbles/Incoming/Content.html         (messages/bubbles/Incoming/Content.html)
+	skin/classic/instantbird/messages/bubbles/Incoming/Context.html         (messages/bubbles/Incoming/Context.html)
+	skin/classic/instantbird/messages/bubbles/Incoming/NextContent.html     (messages/bubbles/Incoming/NextContent.html)
+	skin/classic/instantbird/messages/bubbles/Info.plist                    (messages/bubbles/Info.plist)
+	skin/classic/instantbird/messages/bubbles/main.css                      (messages/bubbles/main.css)
+	skin/classic/instantbird/messages/bubbles/NextStatus.html               (messages/bubbles/NextStatus.html)
+	skin/classic/instantbird/messages/bubbles/Status.html                   (messages/bubbles/Status.html)
+	skin/classic/instantbird/messages/bubbles/Variants/Blue_-_Green_Alternating.css   (messages/bubbles/Variants/Blue_-_Green_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Blue_-_Green.css               (messages/bubbles/Variants/Blue_-_Green.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Blue_-_Pink_Alternating.css    (messages/bubbles/Variants/Blue_-_Pink_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Blue_-_Pink.css                (messages/bubbles/Variants/Blue_-_Pink.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Blue_-_Red_Alternating.css     (messages/bubbles/Variants/Blue_-_Red_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Blue_-_Red.css                 (messages/bubbles/Variants/Blue_-_Red.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Green_-_Blue_Alternating.css   (messages/bubbles/Variants/Green_-_Blue_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Green_-_Blue.css               (messages/bubbles/Variants/Green_-_Blue.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Green_-_Purple_Alternating.css (messages/bubbles/Variants/Green_-_Purple_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Green_-_Purple.css             (messages/bubbles/Variants/Green_-_Purple.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Green_-_Red_Alternating.css    (messages/bubbles/Variants/Green_-_Red_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Green_-_Red.css                (messages/bubbles/Variants/Green_-_Red.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Blue_Alternating.css   (messages/bubbles/Variants/Grey_-_Blue_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Blue.css               (messages/bubbles/Variants/Grey_-_Blue.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Pink_Alternating.css   (messages/bubbles/Variants/Grey_-_Pink_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Ping.css               (messages/bubbles/Variants/Grey_-_Pink.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Purple_Alternating.css (messages/bubbles/Variants/Grey_-_Purple_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Purple.css             (messages/bubbles/Variants/Grey_-_Purple.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Red_Alternating.css    (messages/bubbles/Variants/Grey_-_Red_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Grey_-_Red.css                (messages/bubbles/Variants/Grey_-_Red.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Pink_-_Blue_Alternating.css    (messages/bubbles/Variants/Pink_-_Blue_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Pink_-_Blue.css                (messages/bubbles/Variants/Pink_-_Blue.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Pink_-_Purple_Alternating.css  (messages/bubbles/Variants/Pink_-_Purple_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Pink_-_Purple.css              (messages/bubbles/Variants/Pink_-_Purple.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Purple_-_Green_Alternating.css (messages/bubbles/Variants/Purple_-_Green_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Purple_-_Green.css             (messages/bubbles/Variants/Purple_-_Green.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Purple_-_Pink_Alternating.css  (messages/bubbles/Variants/Purple_-_Pink_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Purple_-_Pink.css              (messages/bubbles/Variants/Purple_-_Pink.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Red_-_Blue_Alternating.css     (messages/bubbles/Variants/Red_-_Blue_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Red_-_Blue.css                 (messages/bubbles/Variants/Red_-_Blue.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Red_-_Green_Alternating.css    (messages/bubbles/Variants/Red_-_Green_Alternating.css)
+	skin/classic/instantbird/messages/bubbles/Variants/Red_-_Green.css                (messages/bubbles/Variants/Red_-_Green.css)
+	skin/classic/instantbird/messages/dark/Footer.html               (messages/dark/Footer.html)
+	skin/classic/instantbird/messages/dark/Incoming/Content.html     (messages/dark/Incoming/Content.html)
+	skin/classic/instantbird/messages/dark/Incoming/Context.html     (messages/dark/Incoming/Context.html)
+	skin/classic/instantbird/messages/dark/Incoming/NextContent.html (messages/dark/Incoming/NextContent.html)
+	skin/classic/instantbird/messages/dark/Incoming/NextContext.html (messages/dark/Incoming/NextContext.html)
+	skin/classic/instantbird/messages/dark/Info.plist                (messages/dark/Info.plist)
+	skin/classic/instantbird/messages/dark/main.css                  (messages/dark/main.css)
+	skin/classic/instantbird/messages/dark/Status.html               (messages/dark/Status.html)
+	skin/classic/instantbird/messages/dark/Variants/Blue.css         (messages/dark/Variants/Blue.css)
+	skin/classic/instantbird/messages/dark/Variants/Green.css        (messages/dark/Variants/Green.css)
+	skin/classic/instantbird/messages/dark/Variants/Purple.css       (messages/dark/Variants/Purple.css)
+	skin/classic/instantbird/messages/dark/Variants/Red.css          (messages/dark/Variants/Red.css)
+	skin/classic/instantbird/messages/dark/Variants/Yellow.css       (messages/dark/Variants/Yellow.css)
+	skin/classic/instantbird/messages/papersheets/Bitmaps/information.png   (messages/papersheets/Bitmaps/information.png)
+	skin/classic/instantbird/messages/papersheets/Bitmaps/minus.png         (messages/papersheets/Bitmaps/minus.png)
+	skin/classic/instantbird/messages/papersheets/Bitmaps/plus.png          (messages/papersheets/Bitmaps/plus.png)
+	skin/classic/instantbird/messages/papersheets/Footer.html               (messages/papersheets/Footer.html)
+	skin/classic/instantbird/messages/papersheets/Incoming/Content.html     (messages/papersheets/Incoming/Content.html)
+	skin/classic/instantbird/messages/papersheets/Incoming/Context.html     (messages/papersheets/Incoming/Context.html)
+	skin/classic/instantbird/messages/papersheets/Incoming/NextContent.html (messages/papersheets/Incoming/NextContent.html)
+	skin/classic/instantbird/messages/papersheets/Info.plist                (messages/papersheets/Info.plist)
+	skin/classic/instantbird/messages/papersheets/main.css                  (messages/papersheets/main.css)
+	skin/classic/instantbird/messages/papersheets/NextStatus.html           (messages/papersheets/NextStatus.html)
+	skin/classic/instantbird/messages/papersheets/Status.html               (messages/papersheets/Status.html)
+	skin/classic/instantbird/messages/papersheets/Variants/White.css        (messages/papersheets/Variants/White.css)
+	skin/classic/instantbird/messages/simple/Incoming/Content.html (messages/simple/Incoming/Content.html)
+	skin/classic/instantbird/messages/simple/Incoming/Context.html (messages/simple/Incoming/Context.html)
+	skin/classic/instantbird/messages/simple/Incoming/NextContext.html (messages/simple/Incoming/NextContext.html)
+	skin/classic/instantbird/messages/simple/Info.plist            (messages/simple/Info.plist)
+	skin/classic/instantbird/messages/simple/main.css              (messages/simple/main.css)
+	skin/classic/instantbird/messages/simple/Status.html           (messages/simple/Status.html)
+	skin/classic/instantbird/messages/simple/Variants/Normal.css   (messages/simple/Variants/Normal.css)
+	skin/classic/instantbird/messages/simple/Variants/Dark.css     (messages/simple/Variants/Dark.css)
+
+#ifdef XP_MACOSX
+% override chrome://instantbird/skin/tabbrowser/alltabs-box-bkgnd-icon.png     chrome://instantbird/skin/lion/tabbrowser/alltabs-box-bkgnd-icon.png        os=Darwin osversion>=10.7
+#endif

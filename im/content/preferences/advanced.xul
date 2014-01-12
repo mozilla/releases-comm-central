@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+
+# -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!DOCTYPE overlay [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+%brandDTD;
+<!ENTITY % advancedDTD SYSTEM "chrome://instantbird/locale/preferences/advanced.dtd">
+%advancedDTD;
+<!ENTITY % privacyDTD SYSTEM "chrome://instantbird/locale/preferences/privacy.dtd">
+%privacyDTD;
+]>
+
+<overlay id="AdvancedPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <prefpane id="paneAdvanced" onpaneload="gAdvancedPane.init();">
+
+    <preferences id="advancedPreferences">
+      <preference id="browser.preferences.advanced.selectedTabIndex"
+                  name="browser.preferences.advanced.selectedTabIndex"
+                  type="int"/>
+
+      <!--XXX button prefs -->
+
+      <!-- General tab -->
+      <preference id="accessibility.browsewithcaret"   name="accessibility.browsewithcaret"   type="bool"/>
+      <preference id="accessibility.typeaheadfind"     name="accessibility.typeaheadfind"     type="bool"/>
+
+      <preference id="general.autoScroll"              name="general.autoScroll"              type="bool"/>
+      <preference id="general.smoothScroll"            name="general.smoothScroll"            type="bool"/>
+      <preference id="layout.spellcheckDefault"        name="layout.spellcheckDefault"        type="int"/>
+
+#ifdef HAVE_SHELL_SERVICE
+      <preference id="browser.shell.checkDefaultBrowser"
+                  name="browser.shell.checkDefaultBrowser"
+                  type="bool"/>
+
+      <preference id="pref.general.disable_button.default_browser"
+                  name="pref.general.disable_button.default_browser"
+                  type="bool"/>
+#endif
+
+      <!-- Update tab -->
+#ifdef MOZ_UPDATER
+      <preference id="app.update.enabled"              name="app.update.enabled"              type="bool"
+                  onchange="gAdvancedPane.updateAppUpdateItems();
+                            gAdvancedPane.updateAutoItems();
+                            gAdvancedPane.updateModeItems();"/>
+      <preference id="app.update.auto"                 name="app.update.auto"                 type="bool"
+                  onchange="gAdvancedPane.updateAutoItems();
+                            gAdvancedPane.updateModeItems();"/>
+      <preference id="app.update.mode"                 name="app.update.mode"                 type="int"
+                  onchange="gAdvancedPane.updateModeItems();"/>
+
+      <preference id="app.update.disable_button.showUpdateHistory"
+                  name="app.update.disable_button.showUpdateHistory"
+                  type="bool"/>
+#endif
+
+      <preference id="extensions.update.enabled"       name="extensions.update.enabled"       type="bool"
+                  onchange="gAdvancedPane.updateAddonUpdateUI();"/>
+      <preference id="browser.search.update"           name="browser.search.update"           type="bool"/>
+
+      <!-- Encryption tab -->
+      <preference id="security.enable_ssl3"            name="security.enable_ssl3"            type="bool"/>
+      <preference id="security.enable_tls"             name="security.enable_tls"             type="bool"/>
+
+      <preference id="security.default_personal_cert"  name="security.default_personal_cert"  type="string"/>
+
+      <preference id="security.disable_button.openCertManager"
+                  name="security.disable_button.openCertManager"
+                  type="bool"/>
+      <preference id="security.disable_button.openDeviceManager"
+                  name="security.disable_button.openDeviceManager"
+                  type="bool"/>
+    </preferences>
+    
+#ifdef HAVE_SHELL_SERVICE
+    <stringbundle id="bundleShell" src="chrome://browser/locale/shellservice.properties"/>
+    <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
+#endif
+
+    <script type="application/javascript" src="chrome://instantbird/content/preferences/advanced.js"/>
+
+    <tabbox id="advancedPrefs" flex="1"
+            onselect="gAdvancedPane.tabSelectionChanged();">
+
+      <tabs id="tabsElement">
+        <tab id="generalTab" label="&generalTab.label;"/>
+        <tab id="networkTab" label="&networkTab.label;"/>
+        <tab id="updateTab" label="&updateTab.label;"/>
+        <tab id="encryptionTab" label="&encryptionTab.label;"/>
+      </tabs>
+
+      <tabpanels flex="1">
+
+        <!-- General -->
+        <tabpanel id="generalPanel" orient="vertical">
+
+          <!-- Accessibility -->
+          <groupbox id="accessibilityGroup" align="start">
+            <caption label="&accessibility.label;"/>
+
+            <checkbox id="useCursorNavigation"
+                      label="&useCursorNavigation.label;"
+                      accesskey="&useCursorNavigation.accesskey;"
+                      preference="accessibility.browsewithcaret"/>
+            <checkbox id="searchStartTyping"
+                      label="&searchStartTyping.label;"
+                      accesskey="&searchStartTyping.accesskey;"
+                      preference="accessibility.typeaheadfind"/>
+          </groupbox>
+
+          <!-- Conversations -->
+          <groupbox id="conversationsGroup" align="start">
+            <caption label="&conversations.label;"/>
+
+            <checkbox id="useAutoScroll"
+                      label="&useAutoScroll.label;"
+                      accesskey="&useAutoScroll.accesskey;"
+                      preference="general.autoScroll"/>
+            <checkbox id="useSmoothScrolling"
+                      label="&useSmoothScrolling.label;"
+                      accesskey="&useSmoothScrolling.accesskey;"
+                      preference="general.smoothScroll"/>
+            <checkbox id="checkSpelling"
+                      label="&checkSpelling.label;"
+                      accesskey="&checkSpelling.accesskey;"
+                      onsyncfrompreference="return gAdvancedPane.readCheckSpelling();"
+                      onsynctopreference="return gAdvancedPane.writeCheckSpelling();"
+                      preference="layout.spellcheckDefault"/>
+          </groupbox>
+
+          <!-- Search engines -->
+          <groupbox id="searchEnginesGroup" orient="horizontal" align="center">
+            <caption label="&searchEnginesGroup.label;"/>
+
+            <description control="manageSearchEnginesButton"
+                         flex="1">&searchEnginesDesc.label;</description>
+            <button id="manageSearchEnginesButton" label="&searchEngines.label;"
+                    accesskey="&searchEngines.accesskey;"
+                    oncommand="gAdvancedPane.showSearchEngineManager();"/>
+          </groupbox>
+
+#ifdef HAVE_SHELL_SERVICE
+          <!-- System Defaults -->
+          <groupbox id="systemDefaultsGroup" orient="horizontal">
+            <caption label="&systemDefaults.label;"/>
+
+            <hbox id="checkDefaultBox" align="center" flex="1">      
+              <checkbox id="alwaysCheckDefault" preference="browser.shell.checkDefaultBrowser"
+                        label="&alwaysCheckDefault.label;" accesskey="&alwaysCheckDefault.accesskey;"
+                        flex="1"/>
+              <button id="checkDefaultButton"
+                      label="&checkNow.label;" accesskey="&checkNow.accesskey;"
+                      oncommand="gAdvancedPane.checkNow()"
+                      preference="pref.general.disable_button.default_browser"/>
+            </hbox>
+          </groupbox>
+#endif
+
+          <!-- Advanced Configuration -->
+          <groupbox>
+            <caption label="&configEditDesc.label;"/>
+            <hbox pack="end">
+              <button id="configEditor" label="&configEdit.label;"
+                      accesskey="&configEdit.accesskey;"
+                      oncommand="gAdvancedPane.showConfigEdit();"/>
+            </hbox>
+          </groupbox>
+        </tabpanel>
+
+        <!-- Network -->
+        <tabpanel id="networkPanel" orient="vertical">
+
+           <!-- Connection -->
+           <groupbox id="connectionGroup">
+             <caption label="&connection.label;"/>
+
+             <hbox id="connectionGroupHeader" align="center">
+               <image style="padding-right: 1em;" src="chrome://global/skin/icons/information-32.png"/>
+               <vbox>
+                 <description flex="1">&connectionInfoDesc.label;</description>
+                 <description flex="1">&connectionDesc.label;</description>
+               </vbox>
+             </hbox>
+
+             <separator id="connectionGroupSeparator" class="thin"/>
+
+             <hbox align="center" id="purpleConnectionBox">
+               <description flex="1" control="connectionSettingsPurple">&connectionLibpurpleDesc.label;</description>
+               <button id="connectionSettingsPurple" icon="network" label="&connectionSettings.label;"
+                       accesskey="&connectionSettings.accesskey;"
+                       oncommand="gAdvancedPane.showProxies();"/>
+             </hbox>
+
+             <hbox align="center" id="mozillaConnectionBox">
+               <description id="mozConnLabelWithoutLibpurple" flex="1" control="connectionSettings">&connectionDesc.label;</description>
+               <description id="mozConnLabelWithLibpurple" flex="1" control="connectionSettings">&connectionOtherDesc.label;</description>
+               <button id="connectionSettings" icon="network" label="&connectionSettings.label;"
+                       accesskey="&connectionSettings2.accesskey;"
+                       oncommand="gAdvancedPane.showConnections();"/>
+             </hbox>
+           </groupbox>
+        </tabpanel>
+
+        <!-- Update -->
+        <tabpanel id="updatePanel" orient="vertical" align="start">
+          <label control="autoUpdateGroup">&autoCheck.label;</label>
+          <vbox class="indent" id="autoUpdateGroup" role="group">
+#ifdef MOZ_UPDATER
+            <checkbox id="enableAppUpdate"
+                      label="&enableAppUpdate.label;"
+                      accesskey="&enableAppUpdate.accesskey;"
+                      preference="app.update.enabled"/>
+#endif
+            <checkbox id="enableAddonUpdate"
+                      label="&enableAddonsUpdate.label;"
+                      accesskey="&enableAddonsUpdate.accesskey;"
+                      preference="extensions.update.enabled"/>
+            <checkbox id="enableSearchUpdate"
+                      label="&enableSearchUpdate.label;"
+                      accesskey="&enableSearchUpdate.accesskey;"
+                      preference="browser.search.update"/>
+          </vbox>
+
+#ifdef MOZ_UPDATER
+          <separator id="updateSeparator1"/>
+
+          <label id="updateModeLabel" control="updateMode">&whenUpdatesFound.label;</label>
+          <radiogroup id="updateMode" class="indent"
+                      preference="app.update.auto">
+            <radio id="ask" value="false"
+                   label="&askMe.label;"
+                   accesskey="&askMe.accesskey;"/>
+            <radio id="automatic" value="true"
+                   label="&modeAutomatic.label;"
+                   accesskey="&modeAutomatic.accesskey;"/>
+            <hbox class="indent">
+              <checkbox id="warnIncompatible" 
+                        label="&modeAutoAddonWarn.label;" accesskey="&modeAutoAddonWarn.accesskey;"
+                        preference="app.update.mode"
+                        onsyncfrompreference="return gAdvancedPane.readAddonWarn();"
+                        onsynctopreference="return gAdvancedPane.writeAddonWarn();"/>
+            </hbox>
+          </radiogroup>
+
+          <separator id="updateSeparator2"/>
+
+          <hbox>
+            <button id="showUpdateHistory" 
+                    label="&updateHistory.label;" accesskey="&updateHistory.accesskey;"
+                    preference="app.update.disable_button.showUpdateHistory"
+                    oncommand="gAdvancedPane.showUpdates();"/>
+          </hbox>
+#endif
+        </tabpanel>
+
+        <!-- Encryption -->
+        <tabpanel id="encryptionPanel" orient="vertical">
+
+          <!-- Protocols -->
+          <groupbox id="protocolsGroup">
+            <caption label="&protocols.label;"/>
+
+            <grid>
+              <columns>
+                <column flex="1"/>
+                <column flex="1"/>
+              </columns>
+              <rows>
+                <row>
+                  <hbox>
+                    <checkbox id="useSSL3" label="&useSSL3.label;"
+                              accesskey="&useSSL3.accesskey;"
+                              preference="security.enable_ssl3"/>
+                  </hbox>
+                  <hbox>
+                    <checkbox id="useTLS1" label="&useTLS1.label;"
+                              accesskey="&useTLS1.accesskey;"
+                              preference="security.enable_tls"/>
+                  </hbox>
+                </row>
+              </rows>
+            </grid>
+          </groupbox>
+
+          <!-- Certificates -->
+          <groupbox id="certificatesGroup">
+            <caption id="CertGroupCaption" label="&certificates.label;"/>
+
+            <description id="CertSelectionDesc" control="certSelection">&certSelection.description;</description>
+
+            <!--
+              The values on these radio buttons may look like l12y issues, but
+              they're not - this preference uses *those strings* as its values.
+              I KID YOU NOT.
+            -->
+            <radiogroup id="certSelection" orient="horizontal" preftype="string"
+                        preference="security.default_personal_cert"
+                        aria-labelledby="CertGroupCaption CertSelectionDesc">
+              <radio label="&certs.auto;" accesskey="&certs.auto.accesskey;" 
+                     value="Select Automatically"/>
+              <radio label="&certs.ask;" accesskey="&certs.ask.accesskey;" 
+                     value="Ask Every Time"/>
+            </radiogroup>
+
+            <separator/>
+
+            <hbox>
+              <button id="viewCertificatesButton"
+                      label="&viewCerts.label;" accesskey="&viewCerts.accesskey;" 
+                      oncommand="gAdvancedPane.showCertificates();"
+                      preference="security.disable_button.openCertManager"/>
+              <button id="verificationButton"
+                      label="&verify2.label;" accesskey="&verify2.accesskey;" 
+                      oncommand="gAdvancedPane.showOCSP();"/>
+              <button id="viewSecurityDevicesButton"
+                      label="&viewSecurityDevices.label;" accesskey="&viewSecurityDevices.accesskey;"
+                      oncommand="gAdvancedPane.showSecurityDevices();"
+                      preference="security.disable_button.openDeviceManager"/>
+            </hbox>
+          </groupbox>
+        </tabpanel>
+
+      </tabpanels>
+    </tabbox>
+  </prefpane>
+
+</overlay>

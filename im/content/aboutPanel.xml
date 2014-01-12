@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<bindings id="aboutPanelBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="aboutPanel">
+    <content flex="1">
+      <xul:browser anonid="aboutBrowser" disablehistory="true" type="content" flex="1"/>
+    </content>
+
+    <implementation>
+      <method name="showAboutPage">
+        <parameter name="aPage"/>
+        <body>
+        <![CDATA[
+          let url = aPage.startsWith("about:") ? aPage : "about:" + aPage;
+          this.browser.loadURI(url);
+        ]]>
+        </body>
+      </method>
+
+      <method name="refreshTitle">
+        <body>
+        <![CDATA[
+          let browser = this.browser;
+          this.tab.setAttribute("label",
+            browser.contentTitle.replace("\0", "", "g") || browser.currentURI.spec);
+          if (browser.currentURI.spec == "about:addons") {
+            // Set the tab type to "addons" so that CSS will set its favicon.
+            this.tab.setAttribute("type", "addons");
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="finishImport">
+        <parameter name="aAboutPanel"/>
+        <body>
+        <![CDATA[
+          this.browser.swapDocShells(aAboutPanel.browser);
+          this.refreshTitle();
+        ]]>
+        </body>
+      </method>
+
+      <property name="browser" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "aboutBrowser");
+        </getter>
+      </property>
+
+      <constructor>
+      <![CDATA[
+        this.browser.addEventListener("DOMTitleChanged", this.refreshTitle.bind(this));
+        // The addon manager does its own link handling using window.open().
+        // We need to override this method to open http links externally.
+        let win = this.browser.contentWindow;
+        let open = win.open;
+        win.open = function(aUrl) {
+          let uri = Services.io.newURI(aUrl, null, null);
+          if (!uri.schemeIs("http") && !uri.schemeIs("https")) {
+            open.apply(this, arguments);
+          }
+          else {
+            Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                      .getService(Components.interfaces.nsIExternalProtocolService).loadUrl(uri);
+          }
+        }
+      ]]>
+      </constructor>
+    </implementation>
+
+    <handlers>
+      <handler event="click">
+      <![CDATA[
+        // We only handle middle clicks. We don't handle the addon manager.
+        if (event.button != 1 || this.browser.currentURI.spec == "about:addons")
+          return;
+
+        // The event target may be a descendant of the actual link.
+        let url;
+        for (let elem = event.target; elem; elem = elem.parentNode) {
+          if (elem instanceof HTMLAnchorElement) {
+            url = elem.href;
+            if (url)
+              break;
+          }
+        }
+        if (!url)
+          return;
+        event.stopPropagation();
+        event.preventDefault();
+
+        // If it's an about page, open it.
+        if (url.startsWith("about:")) {
+          let panel = document.createElementNS(
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+            "aboutPanel");
+          // addPanel will return null if the window can't accept new tabs.
+          if (window.getTabBrowser().addPanel(panel)) {
+            panel.showAboutPage(url);
+            return;
+          }
+          // If we couldn't add a new tab, load the page in this one.
+          this.showAboutPage(url);
+          return;
+        }
+        // Otherwise open in default browser.
+        // loadUrl can throw if the default browser is misconfigured.
+        Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                  .getService(Components.interfaces.nsIExternalProtocolService)
+                  .loadUrl(Services.io.newURI(url, null, null));
+      ]]>
+      </handler>
+    </handlers>
+  </binding>
+</bindings>

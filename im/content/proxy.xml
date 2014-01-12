@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+
+<!DOCTYPE bindings [
+  <!ENTITY % proxiesDTD SYSTEM "chrome://instantbird/locale/proxies.dtd">
+  %proxiesDTD;
+]>
+
+<bindings id="proxiesBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="proxy" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+    <xul:vbox flex="1">
+      <xul:hbox flex="1">
+        <xul:description class="header" anonid="type"/>
+        <xul:description class="indent" anonid="host" flex="1"/>
+        <xul:description anonid="port"/>
+      </xul:hbox>
+      <xul:description class="indent" anonid="username"/>
+    </xul:vbox>
+    </content>
+    <implementation>
+     <method name="_element">
+      <parameter name="aAnonid"/>
+      <body>
+      <![CDATA[
+        return document.getAnonymousElementByAttribute(this, "anonid", aAnonid);
+      ]]>
+      </body>
+     </method>
+
+     <property name="proxy">
+       <getter>
+         <![CDATA[
+           return this._proxy;
+         ]]>
+       </getter>
+       <setter>
+         <![CDATA[
+           this._proxy = val;
+
+           var bundle = document.getElementById("proxiesBundle");
+           var type;
+           if (this._proxy.type == Ci.purpleIProxyInfo.httpProxy)
+             type = bundle.getString("proxies.http");
+           else if (this._proxy.type == Ci.purpleIProxyInfo.socks4Proxy)
+             type = bundle.getString("proxies.socks4");
+           else if (this._proxy.type == Ci.purpleIProxyInfo.socks5Proxy)
+             type = bundle.getString("proxies.socks5");
+           else
+             throw "Unknown proxy type";
+
+           this._element("type").textContent = type;
+           this._element("host").textContent = this._proxy.host;
+           this._element("port").textContent = bundle.getFormattedString("proxies.port.string", [this._proxy.port]);
+
+           var usernameElt = this._element("username");
+           var username = this._proxy.username;
+           if (username)
+             usernameElt.textContent = bundle.getFormattedString("proxies.username.string", [this._proxy.username]);
+           else
+             usernameElt.setAttribute("hidden", "true");
+
+           return this._proxy;
+         ]]>
+       </setter>
+     </property>
+
+    </implementation>
+  </binding>
+</bindings>

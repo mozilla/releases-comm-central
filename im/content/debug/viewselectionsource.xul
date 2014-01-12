@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<overlay id="viewselectionsource"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <keyset id="conversationsKeys">
+    <key id="key_viewselectionsource" key="u" modifiers="accel"
+         oncommand="
+  var win = getBrowser().contentWindow;
+  var selection = win.getSelection();
+  if (!selection.isCollapsed)
+    window.openDialog('chrome://global/content/viewPartialSource.xul',
+                      '_blank', 'scrollbars,resizable,chrome,dialog=no',
+                      null, 'charset=' + win.document.characterSet,
+                      selection, 'selection');
+         "/>
+  </keyset>
+</overlay>

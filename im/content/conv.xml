@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd" >
+  %instantbirdDTD;
+]>
+
+<bindings id="convBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <binding id="conv" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <content>
+      <xul:stack class="prplBuddyIcon" mousethrough="always">
+        <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
+        <xul:image class="statusIcon" xbl:inherits="status"/>
+      </xul:stack>
+      <xul:hbox flex="1" class="conv-hbox" mousethrough="always">
+        <xul:label crop="end" flex="1" mousethrough="always"
+                   anonid="displayname" class="convDisplayName blistDisplayName"
+                   xbl:inherits="value=displayname,status"/>
+        <xul:label crop="end" flex="1000000" mousethrough="always"
+                   anonid="statusText" class="convStatusText"
+                   xbl:inherits="value=statusTextWithDash"/>
+        <xul:label anonid="unreadTargetedCount" class="convUnreadTargetedCount"
+                   crop="end" mousethrough="never"
+                   xbl:inherits="value=unreadTargetedCount"/>
+        <xul:label anonid="unreadCount" class="convUnreadCount"
+                   crop="end" mousethrough="never"
+                   xbl:inherits="value=unreadCount"/>
+      </xul:hbox>
+    </content>
+    <implementation implements="nsIObserver">
+
+     <destructor>
+      <![CDATA[
+        if (this.conv) {
+          this.conv.removeObserver(this);
+          delete this.conv;
+        }
+      ]]>
+     </destructor>
+
+     <method name="build">
+      <parameter name="aConv"/>
+      <body>
+      <![CDATA[
+        this.conv = aConv;
+        this.parentNode.listedConvs[this.conv.id] = this;
+        this.conv.addObserver(this);
+        this.update();
+      ]]>
+      </body>
+     </method>
+
+     <property name="displayName"
+               onget="return this.conv.title;"/>
+
+     <!-- nsIObserver implementation -->
+     <method name="observe">
+       <parameter name="aSubject"/>
+       <parameter name="aTopic"/>
+       <parameter name="aData"/>
+       <body>
+       <![CDATA[
+         if (aTopic == "target-prpl-conversation-changed" ||
+             aTopic == "unread-message-count-changed" ||
+             aTopic == "update-conv-title" ||
+             aTopic == "update-buddy-status" ||
+             aTopic == "update-buddy-status" ||
+             aTopic == "update-conv-chatleft" ||
+             aTopic == "chat-update-topic")
+           this.update();
+         else if (aTopic == "ui-conversation-closed")
+           this.removeNode();
+       ]]>
+       </body>
+     </method>
+
+     <method name="update">
+      <body>
+      <![CDATA[
+        this.setAttribute("displayname", this.displayName);
+        this.setAttribute("unreadCount", this.conv.unreadIncomingMessageCount);
+
+        let pings = 0;
+        let statusText = "";
+        if (this.conv.isChat) {
+          pings = this.conv.unreadTargetedMessageCount
+          if (!this.conv.account.connected || this.conv.left)
+            this.setAttribute("status", "left");
+          else {
+            this.removeAttribute("status");
+            statusText = this.conv.topic;
+          }
+        }
+        else {
+          let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
+          let buddy = this.conv.buddy;
+          if (buddy && buddy.account.connected) {
+            statusText = buddy.statusText;
+            statusType = buddy.statusType;
+          }
+          this.setAttribute("status", Status.toAttribute(statusType));
+        }
+
+        this.setAttribute("unreadTargetedCount", pings);
+        if (statusText)
+          this.setAttribute("statusTextWithDash", " - " + statusText);
+        else
+          this.removeAttribute("statusTextWithDash");
+
+        this.setAttribute("iconPrpl",
+                          this.conv.account.protocol.iconBaseURI + "icon.png");
+      ]]>
+      </body>
+     </method>
+
+     <method name="removeNode">
+      <body>
+      <![CDATA[
+        this.conv.removeObserver(this);
+        delete this.parentNode.listedConvs[this.conv.id];
+        this.parentNode.removeChild(this);
+        delete this.conv;
+      ]]>
+      </body>
+     </method>
+
+     <method name="openConversation">
+      <body>
+       <![CDATA[
+         if (!("Conversations" in window))
+           Components.utils.import("resource:///modules/imWindows.jsm");
+         Conversations.focusConversation(this.conv.target);
+       ]]>
+      </body>
+     </method>
+
+     <method name="closeConversation">
+      <body>
+       <![CDATA[
+         if (!("Conversations" in window))
+           Components.utils.import("resource:///modules/imWindows.jsm");
+         Conversations.forgetHiddenConversation(this.conv);
+         this.conv.close();
+       ]]>
+      </body>
+     </method>
+
+     <method name="keyPress">
+      <parameter name="aEvent"/>
+      <body>this._keyPress(aEvent);</body>
+     </method>
+     <method name="_keyPress">
+      <parameter name="aEvent"/>
+      <body>
+      <![CDATA[
+        switch (aEvent.keyCode) {
+          // If Enter or Return is pressed, open a new conversation
+          case aEvent.DOM_VK_RETURN:
+          case aEvent.DOM_VK_ENTER:
+            this.openConversation();
+            break;
+        }
+      ]]>
+      </body>
+     </method>
+    </implementation>
+    <handlers>
+     <handler event="mousedown">
+       <![CDATA[
+         let anonid = event.originalTarget.getAttribute("anonid");
+         if (anonid == "unreadCount" || anonid == "unreadTargetedCount") {
+           openConversation();
+           event.preventDefault();
+         }
+       ]]>
+     </handler>
+
+     <handler event="click">
+       <![CDATA[
+         if (event.detail == 2)
+           openConversation();
+       ]]>
+     </handler>
+    </handlers>
+  </binding>
+</bindings>

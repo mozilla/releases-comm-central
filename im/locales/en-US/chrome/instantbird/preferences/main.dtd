@@ -1,0 +1,47 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY startup.label               "Startup">
+<!ENTITY startupAction.label         "When &brandShortName; starts:">
+<!ENTITY startupAction.accesskey     "s">
+<!ENTITY startupOffline.label        "Open the Account manager">
+<!ENTITY startupConnectAuto.label    "Connect my accounts automatically">
+
+<!ENTITY accountsMgr.label             "Accounts">
+<!ENTITY manageAccountsDescWin.label   "Change options for your accounts">
+<!ENTITY manageAccountsDescUnix2.label "Change preferences for your accounts">
+<!ENTITY manageAccounts.label          "Manage Accounts…">
+<!ENTITY manageAccounts.accesskey      "A">
+
+<!ENTITY newMessage.label              "When receiving a new message">
+<!ENTITY getAttention.label            "Flash the taskbar item">
+<!ENTITY getAttention.accesskey        "F">
+<!ENTITY getAttentionMac.label         "Animate dock icon">
+<!ENTITY getAttentionMac.accesskey     "d">
+<!ENTITY unreadCountInDock.label       "Show unread message count in a dock badge">
+<!ENTITY unreadCountInDock.accesskey   "u">
+<!ENTITY notifyOfNewMessages.label     "Notify of messages received in inactive windows">
+<!ENTITY notifyOfNewMessages.accesskey "N">
+
+<!ENTITY sounds.label                  "Sounds">
+<!ENTITY playSoundsMessage.label       "Play sounds on messaging events">
+<!ENTITY playSoundsMessage.accesskey   "P">
+<!ENTITY playSoundsBlist.label         "Play sounds on buddy list events">
+<!ENTITY playSoundsBlist.accesskey     "b">
+
+<!ENTITY systray.label                 "System Tray Icon">
+<!ENTITY alwaysShowTrayIcon.label      "Always show the system tray icon">
+<!ENTITY alwaysShowTrayIcon.accesskey  "i">
+<!ENTITY minimizeToTray.label          "Minimize Contacts window to Tray:">
+<!ENTITY minimizeToTray.accesskey      "t">
+<!ENTITY minimizeOn.never.label        "Never (only from the menu)">
+<!ENTITY minimizeOn.minimize.label     "When Minimizing">
+<!ENTITY minimizeOn.close.label        "Instead of Closing">
+<!ENTITY minimizeOn.both.label         "Instead of Closing and when Minimizing">
+
+<!ENTITY addonsMgr.label               "Add-ons">
+<!ENTITY manageAddonsDescWin.label     "Change options for your add-ons">
+<!ENTITY manageAddonsDescUnix2.label   "Change preferences for your add-ons">
+<!ENTITY manageAddons.label            "Manage Add-ons…">
+<!ENTITY manageAddons.accesskey        "M">
