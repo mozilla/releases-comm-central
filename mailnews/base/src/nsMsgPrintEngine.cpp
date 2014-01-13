@@ -34,7 +34,6 @@
 #include "nsIBaseWindow.h"
 #include "nsIDocShellTreeOwner.h"
 #include "nsIDocShellTreeItem.h"
-#include "nsIDocShellTreeNode.h"
 #include "nsIWebNavigation.h"
 #include "nsIChannel.h"
 #include "nsIContentViewerFile.h"
@@ -235,11 +234,8 @@ nsMsgPrintEngine::SetWindow(nsIDOMWindow *aWin)
   nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
   docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
 
-  nsCOMPtr<nsIDocShellTreeNode> rootAsNode(do_QueryInterface(rootAsItem));
-  NS_ENSURE_TRUE(rootAsNode, NS_ERROR_FAILURE);
-
   nsCOMPtr<nsIDocShellTreeItem> childItem;
-  rootAsNode->FindChildWithName(MOZ_UTF16("content"), true,
+  rootAsItem->FindChildWithName(MOZ_UTF16("content"), true,
 				false, nullptr, nullptr,
 				getter_AddRefs(childItem));
 

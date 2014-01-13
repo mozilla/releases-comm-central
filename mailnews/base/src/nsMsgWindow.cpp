@@ -8,7 +8,6 @@
 #include "nsCURILoader.h"
 #include "nsIDocShell.h"
 #include "nsIDocShellTreeItem.h"
-#include "nsIDocShellTreeNode.h"
 #include "nsIDOMElement.h"
 #include "nsIDOMWindow.h"
 #include "nsTransactionManagerCID.h"
@@ -85,12 +84,11 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell ** aDocShell)
     nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
     if (rootShell)
     {
-      nsCOMPtr<nsIDocShellTreeNode> rootAsNode(do_QueryInterface(rootShell));
       nsCOMPtr<nsIDocShellTreeItem> msgDocShellItem;
-      if(rootAsNode)
-         rootAsNode->FindChildWithName(MOZ_UTF16("messagepane"),
-                                       true, false, nullptr, nullptr,
-                                       getter_AddRefs(msgDocShellItem));
+      if(rootShell)
+         rootShell->FindChildWithName(MOZ_UTF16("messagepane"),
+                                      true, false, nullptr, nullptr,
+                                      getter_AddRefs(msgDocShellItem));
       NS_ENSURE_TRUE(msgDocShellItem, NS_ERROR_FAILURE);
       docShell = do_QueryInterface(msgDocShellItem);
       // we don't own mMessageWindowDocShell so don't try to keep a reference to it!

@@ -51,7 +51,6 @@
 #include "nsIDocShell.h"
 #include "nsIDocShellLoadInfo.h"
 #include "nsIDocShellTreeItem.h"
-#include "nsIDocShellTreeNode.h"
 #include "nsIWebNavigation.h"
 
 // mail
@@ -252,20 +251,16 @@ NS_IMETHODIMP nsMessenger::SetWindow(nsIDOMWindow *aWin, nsIMsgWindow *aMsgWindo
     nsCOMPtr<nsIDocShellTreeItem> rootDocShellAsItem;
     docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootDocShellAsItem));
 
-    nsCOMPtr<nsIDocShellTreeNode> rootDocShellAsNode(do_QueryInterface(rootDocShellAsItem));
-    if (rootDocShellAsNode)
-    {
-      nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-      rv = rootDocShellAsNode->FindChildWithName(MOZ_UTF16("messagepane"), true, false,
-                                                 nullptr, nullptr, getter_AddRefs(childAsItem));
+    nsCOMPtr<nsIDocShellTreeItem> childAsItem;
+    rv = rootDocShellAsItem->FindChildWithName(MOZ_UTF16("messagepane"), true, false,
+                                               nullptr, nullptr, getter_AddRefs(childAsItem));
 
-      mDocShell = do_QueryInterface(childAsItem);
-      if (NS_SUCCEEDED(rv) && mDocShell) {
-        mCurrentDisplayCharset = ""; // Important! Clear out mCurrentDisplayCharset so we reset a default charset on mDocshell the next time we try to load something into it.
+    mDocShell = do_QueryInterface(childAsItem);
+    if (NS_SUCCEEDED(rv) && mDocShell) {
+      mCurrentDisplayCharset = ""; // Important! Clear out mCurrentDisplayCharset so we reset a default charset on mDocshell the next time we try to load something into it.
 
-        if (aMsgWindow)
-          aMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
-      }
+      if (aMsgWindow)
+        aMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
     }
 
     // we don't always have a message pane, like in the addressbook

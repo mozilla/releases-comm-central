@@ -413,12 +413,9 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   rv = aMsgWindow->GetRootDocShell(getter_AddRefs(rootDocShell));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDocShellTreeNode> rootDocShellAsNode(do_QueryInterface(rootDocShell, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-  rv = rootDocShellAsNode->FindChildWithName(MOZ_UTF16("messagepane"),
-                                             true, false, nullptr, nullptr, getter_AddRefs(childAsItem));
+  rv = rootDocShell->FindChildWithName(MOZ_UTF16("messagepane"),
+                                       true, false, nullptr, nullptr, getter_AddRefs(childAsItem));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(childAsItem, &rv));
