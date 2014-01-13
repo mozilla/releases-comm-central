@@ -4,17 +4,71 @@
 
 @import url("chrome://messenger/skin/imStatus.css");
 
-.protoIcon[status="unknown"] {
+.displayNameMessageBox {
+  margin-top: 2px;
+  max-width: 36em;
+}
+
+.statusTypeIcon {
+  max-width: 16px;
+  max-height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  width: 16px;
+  height: 16px;
+  -moz-margin-end: 4px !important;
+  background-color: transparent;
+  border: none;
+}
+
+.statusTypeIcon[left][status="chat"] {
+  list-style-image: url('chrome://chat/skin/chat-left-16.png') !important;
+}
+
+.tooltipBuddies {
+  margin-left: -3px;
+}
+
+.tooltipDisplayName {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  font-size: large;
+  margin: 2px 4px 4px 0 !important;
+  padding-right: 20px;
+}
+
+.tooltipMessage {
+  margin: 30px 5px 4px 0 !important;
+}
+
+.tooltipMessage[noTopic] {
+  font-style: italic;
+}
+
+.tooltipProtoIcon {
+  margin: 4px 0 0 -20px;
+  max-width: 16px;
+  max-height: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.tooltipProtoIcon[status="unknown"] {
   opacity: 0.7;
 }
 
-.tooltip-header {
-  font-weight: bold;
-  font-size: 14pt;
-  -moz-margin-end: 3px;
-  margin-bottom: 0 !important;
+.tooltipRows label {
+  margin-left: 0 !important;
 }
 
-.prplTooltipBuddyIcon {
-  margin: 0 6px;
+.userIcon {
+  border: 2px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-right: 4px;
+  max-width: 48px;
+  max-height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  width: 48px;
+  height: 48px;
 }
