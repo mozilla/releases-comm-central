@@ -135,9 +135,10 @@ var gGeneralPane = {
     // update the sound type radio buttons based on the state of the play sound checkbox
     var soundsDisabled = !document.getElementById('newMailNotification').checked;
     var soundTypeEl = document.getElementById('soundType');
+    var soundUrlLocation = document.getElementById('soundUrlLocation').value;
     soundTypeEl.disabled = soundsDisabled;
     document.getElementById('browseForSound').disabled = soundsDisabled || soundTypeEl.value != 1;
-    document.getElementById('playSound').disabled = soundsDisabled || soundTypeEl.value != 1; 
+    document.getElementById('playSound').disabled = soundsDisabled || (!soundUrlLocation && soundTypeEl.value != 0);
   },
 
   updateStartPage: function()
