@@ -8,25 +8,33 @@ interface nsIMsgFolder;
 interface nsIUrlListener;
 interface nsIMsgWindow;
 
-[scriptable, uuid(6839c636-41c2-11e3-b346-00269e4fddc1)]
+[scriptable, uuid(a74a60ce-7a4d-11e3-b4ca-00269e4fddc1)]
 interface nsINewsBlogFeedDownloader : nsISupports
 {
-  void downloadFeed(in string aUrl, in nsIMsgFolder aFolder,
-                    in boolean aQuickMode, in wstring aTitle,
-                    in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  void downloadFeed(in nsIMsgFolder aFolder,
+                    in nsIUrlListener aUrlListener,
+                    in nsIMsgWindow aMsgWindow);
 
   /**
    * A convient method to subscribe to feeds without going through the Subscribe
    * dialog; used by drag and drop and commandline.
    */
-  void subscribeToFeed(in string aUrl, in nsIMsgFolder aFolder,
+  void subscribeToFeed(in string aUrl,
+                       in nsIMsgFolder aFolder,
                        in nsIMsgWindow aMsgWindow);
 
   /**
    * Called when the RSS Incoming Server detects a change to an RSS folder name,
    * such as delete (move to trash), move/copy, or rename. We then need to update
    * the feeds.rdf subscriptions data source.
+   *
+   * @param  nsIMsgFolder aFolder      - the folder, new if rename or target of
+   *                                      move/copy folder (new parent)
+   * @param  nsIMsgFolder aOrigFolder  - original folder
+   * @param  string aAction            - "move" or "copy" or "rename"
    */
-  void updateSubscriptionsDS(in nsIMsgFolder aFolder, in nsIMsgFolder aOrigFolder);
+  void updateSubscriptionsDS(in nsIMsgFolder aFolder,
+                             in nsIMsgFolder aOrigFolder,
+                             in string aAction);
 };
 

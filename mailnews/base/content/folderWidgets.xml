@@ -14,10 +14,11 @@
            extends="chrome://global/content/bindings/popup.xml#popup">
     <implementation>
       <constructor><![CDATA[
-        Components.utils.import("resource:///modules/mailServices.js", this);
-        Components.utils.import("resource:///modules/MailUtils.js", this);
+        Components.utils.import("resource:///modules/FeedUtils.jsm", this);
         Components.utils.import("resource:///modules/folderUtils.jsm", this);
         Components.utils.import("resource:///modules/iteratorUtils.jsm", this);
+        Components.utils.import("resource:///modules/mailServices.js", this);
+        Components.utils.import("resource:///modules/MailUtils.js", this);
         Components.utils.import("resource:///modules/StringBundle.js", this);
         this._stringBundle = new this
             .StringBundle("chrome://messenger/locale/folderWidgets.properties");
@@ -661,8 +662,7 @@
           aMenuNode.setAttribute("IsSecure", aFolder.server.isSecure);
           aMenuNode.setAttribute("ServerType", aFolder.server.type);
           aMenuNode.setAttribute("IsFeedFolder",
-            (aFolder.server.type == "rss" && !aFolder.isServer &&
-             aFolder.getStringProperty("feedUrl") ? true : false));
+            (this.FeedUtils.getFeedUrlsInFolder(aFolder) ? true : false));
         ]]></body>
       </method>
 
@@ -683,6 +683,8 @@
             aParent.setAttribute("IsServer", aFolder.isServer);
             aParent.setAttribute("IsSecure", aFolder.server.isSecure);
             aParent.setAttribute("ServerType", aFolder.server.type);
+            aParent.setAttribute("IsFeedFolder",
+              (aParent.menupopup.FeedUtils.getFeedUrlsInFolder(aFolder) ? true : false));
           }
           for (let child of this.childNodes) {
             if (!child || !child._folder || child.disabled)

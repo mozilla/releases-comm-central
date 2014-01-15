@@ -77,8 +77,6 @@ var FeedUtils = {
   // The delay is currently one day.
   INVALID_ITEM_PURGE_DELAY: 24 * 60 * 60 * 1000,
 
-  // The delimiter used to delimit feed urls in the folder's "feedUrl" property.
-  kFeedUrlDelimiter: "|",
   kBiffMinutesDefault: 100,
   kNewsBlogSuccess: 0,
   // Usually means there was an error trying to parse the feed.
@@ -212,9 +210,6 @@ var FeedUtils = {
       ds.Assert(id, this.DC_TITLE, this.rdf.GetLiteral(aFeed.title), true);
     ds.Assert(id, this.FZ_DESTFOLDER, aFeed.folder, true);
     ds.Flush();
-
-    // Sync the feedUrl property for the folder.
-    this.syncFeedUrlWithFeedsDS(aFeed.folder);
   },
 
 /**
@@ -246,9 +241,6 @@ var FeedUtils = {
       feed.invalidateItems();
       feed.removeInvalidItems(true);
       itemds.Flush();
-
-      // Sync the feedUrl property for the folder.
-      this.syncFeedUrlWithFeedsDS(aParentFolder);
     }
   },
 
@@ -260,10 +252,13 @@ var FeedUtils = {
  * @return array of urls, or null if none.
  */
   getFeedUrlsInFolder: function(aFolder) {
-    if (aFolder.isServer || aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+    if (aFolder.isServer || aFolder.server.type != "rss" ||
+        aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+        aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) ||
         !aFolder.filePath.exists())
-      // There are never any feedUrls in the account folder or trash folder or
-      // in a ghost folder (nonexistant on disk yet found in aFolder.subFolders).
+      // There are never any feedUrls in the account/non-feed/trash/virtual
+      // folders or in a ghost folder (nonexistant on disk yet found in
+      // aFolder.subFolders).
       return null;
 
     let feedUrlArray = [];
@@ -290,28 +285,95 @@ var FeedUtils = {
   },
 
 /**
- * Update the feeds.rdf database with the new folder's location on name changes
- * on rename and move/copy.
+ * Update the feeds.rdf database for rename and move/copy folder name changes.
  *
- * @param  nsIMsgFolder aFolder      - the folder, new if rename or move/copy
- * @param  nsIMsgFolder aOrigFolder  - original folder, if move/copy
+ * @param  nsIMsgFolder aFolder      - the folder, new if rename or target of
+ *                                      move/copy folder (new parent)
+ * @param  nsIMsgFolder aOrigFolder  - original folder
+ * @param  string aAction            - "move" or "copy" or "rename"
  */
-  updateFolderChangeInFeedsDS: function(aFolder, aOrigFolder) {
-    let sourceFolder = aFolder;
-    if (aOrigFolder && aFolder.server != aOrigFolder.server)
-      // Copied from another account, get the feed urls from that account's
-      // feeds.rdf db.
-      sourceFolder = aOrigFolder;
+  updateSubscriptionsDS: function(aFolder, aOrigFolder, aAction) {
+    this.log.debug("FeedUtils.updateSubscriptionsDS: " +
+                   "\nfolder changed - " + aAction +
+                   "\nnew folder  - " + aFolder.filePath.path +
+                   "\norig folder - " + aOrigFolder.filePath.path);
 
-    this.log.debug("updateFolderChangeInFeedsDS: aFolder      - " +
-                   aFolder.filePath.path);
-    this.log.debug("updateFolderChangeInFeedsDS: sourceFolder - " +
-                   sourceFolder.filePath.path);
+    if (aFolder.server.type != "rss" || FeedUtils.isInTrash(aOrigFolder))
+      // Target not a feed account folder; nothing to do, or move/rename in
+      // trash; no subscriptions already.
+      return;
 
-    let feedUrl = sourceFolder.getStringProperty("feedUrl");
-    let feedUrlArray = feedUrl ? this.splitFeedUrls(feedUrl) : null;
+    let newFolder = aFolder;
+    let newParentURI = aFolder.URI;
+    let origParentURI = aOrigFolder.URI;
+    if (aAction == "move" || aAction == "copy")
+    {
+      // Get the new folder. Don't process the entire parent (new dest folder)!
+      newFolder = aFolder.getChildNamed(aOrigFolder.name);
+      origParentURI = aOrigFolder.parent ? aOrigFolder.parent.URI :
+                                           aOrigFolder.rootFolder.URI;
+    }
 
-    if (!feedUrlArray)
+    this.updateFolderChangeInFeedsDS(newFolder, aOrigFolder, null, null);
+
+    // There may be subfolders, but we only get a single notification; iterate
+    // over all descendent folders of the folder whose location has changed.
+    let newSubFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    newFolder.ListDescendants(newSubFolders);
+    for (let i = 0; i < newSubFolders.length; i++)
+    {
+      let newSubFolder = newSubFolders.queryElementAt(i, Ci.nsIMsgFolder);
+      FeedUtils.updateFolderChangeInFeedsDS(newSubFolder, aOrigFolder,
+                                            newParentURI, origParentURI)
+    }
+  },
+
+/**
+ * Update the feeds.rdf database with the new folder's or subfolder's location
+ * for rename and move/copy name changes. The feeds.rdf subscriptions db is
+ * also synced on cross account folder copies. Note that if a copied folder's
+ * url exists in the new account, its active subscription will be switched to
+ * the folder being copied, to enforce the one unique url per account design.
+ *
+ * @param  nsIMsgFolder aFolder      - new folder
+ * @param  nsIMsgFolder aOrigFolder  - original folder
+ * @param  string aNewAncestorURI    - for subfolders, ancestor new folder
+ * @param  string aOrigAncestorURI   - for subfolders, ancestor original folder
+ */
+  updateFolderChangeInFeedsDS: function(aFolder, aOrigFolder,
+                                        aNewAncestorURI, aOrigAncestorURI) {
+    this.log.debug("updateFolderChangeInFeedsDS: " +
+                   "\naFolder       - " + aFolder.URI +
+                   "\naOrigFolder   - " + aOrigFolder.URI +
+                   "\naOrigAncestor - " + aOrigAncestorURI +
+                   "\naNewAncestor  - " + aNewAncestorURI);
+
+    // Get the original folder's URI.
+    let folderURI = aFolder.URI;
+    let origURI = aNewAncestorURI && aOrigAncestorURI ?
+                    folderURI.replace(aNewAncestorURI, aOrigAncestorURI) :
+                    aOrigFolder.URI;
+    let origFolderRes = this.rdf.GetResource(origURI);
+    this.log.debug("updateFolderChangeInFeedsDS: urls origURI  - " + origURI);
+    // Get the original folder's url list from the feeds database.
+    let feedUrlArray = [];
+    let dsSrc = this.getSubscriptionsDS(aOrigFolder.server);
+    try {
+      let enumerator = dsSrc.GetSources(this.FZ_DESTFOLDER, origFolderRes, true);
+      while (enumerator.hasMoreElements())
+      {
+        let containerArc = enumerator.getNext();
+        let uri = containerArc.QueryInterface(Ci.nsIRDFResource).Value;
+        feedUrlArray.push(uri);
+      }
+    }
+    catch(ex)
+    {
+      this.log.error("updateFolderChangeInFeedsDS: feeds.rdf db error for account - " +
+                     aOrigFolder.server.prettyName + " : " + ex);
+    }
+
+    if (!feedUrlArray.length)
     {
       this.log.debug("updateFolderChangeInFeedsDS: no feedUrls in this folder");
       return;
@@ -321,8 +383,6 @@ var FeedUtils = {
     let ds = this.getSubscriptionsDS(aFolder.server);
     for (let feedUrl of feedUrlArray)
     {
-      if (!feedUrl)
-        continue;
       this.log.debug("updateFolderChangeInFeedsDS: feedUrl - " + feedUrl);
 
       id = this.rdf.GetResource(feedUrl);
@@ -345,7 +405,6 @@ var FeedUtils = {
           // If adding a new feed it's a cross account action; get the title
           // and quickMode from its original datasource, otherwise use the new
           // folder's name and default server quickMode.
-          let dsSrc = FeedUtils.getSubscriptionsDS(sourceFolder.server);
           let feedTitle = dsSrc.GetTarget(id, this.DC_TITLE, true);
           feedTitle = feedTitle ? feedTitle.QueryInterface(Ci.nsIRDFLiteral).Value :
                       resource.name;
@@ -365,48 +424,6 @@ var FeedUtils = {
     }
 
     ds.Flush();
-  },
-
-/**
- * Sync folder's feedUrl property with the folder's urls in the feeds.rdf
- * primary database. This secondary location is required for keeping the
- * primary feeds.rdf db synced with folder pathname changes.
- *
- * @param  nsIMsgFolder aFolder - the folder with the feed subscriptions
- */
-  syncFeedUrlWithFeedsDS: function(aFolder) {
-    if (!aFolder || this.isInTrash(aFolder))
-      return null;
-
-    let feedUrlArray = this.getFeedUrlsInFolder(aFolder);
-    let feedUrls = feedUrlArray ? feedUrlArray.join(this.kFeedUrlDelimiter) : "";
-    let feedUrl = aFolder.getStringProperty("feedUrl");
-    if ((feedUrls && feedUrl != feedUrls) || (!feedUrls && feedUrl))
-    {
-      aFolder.setStringProperty("feedUrl", feedUrls);
-      this.log.debug("syncFeedUrlWithFeedsDS: synced feedUrl for folder - " +
-                     aFolder.filePath.path);
-      this.log.debug("syncFeedUrlWithFeedsDS: setStringProperty - " + feedUrls);
-      this.log.debug("syncFeedUrlWithFeedsDS: getCharProperty   - " +
-                     aFolder.msgDatabase.dBFolderInfo.getCharProperty("feedUrl"));
-    }
-    return feedUrlArray;
-  },
-
-/**
- * Return array of folder's feed urls.  Handle bad delimiter choice.
- *
- * @param  string aUrlString - the folder's feedUrl string property.
- * @return array             - array of urls or empty array if no property.
- */
-  splitFeedUrls: function(aUrlString) {
-    let urlStr = aUrlString.replace(this.kFeedUrlDelimiter + "http://",
-                                    "\x01http://", "g")
-                           .replace(this.kFeedUrlDelimiter + "https://",
-                                    "\x01https://", "g")
-                           .replace(this.kFeedUrlDelimiter + "file://",
-                                    "\x01file://", "g");
-    return urlStr ? urlStr.split("\x01") : [];
   },
 
 /**

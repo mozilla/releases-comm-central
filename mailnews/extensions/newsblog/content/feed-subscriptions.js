@@ -1324,9 +1324,6 @@ var FeedSubscriptions = {
       ds.Change(resource, FeedUtils.FZ_DESTFOLDER,
                 currentParentResource, newParentResource);
       ds.Flush();
-      // Sync the feedUrl property for each folder.
-      FeedUtils.syncFeedUrlWithFeedsDS(currentFolder);
-      FeedUtils.syncFeedUrlWithFeedsDS(newFolder);
     }
     else
     {

@@ -11,7 +11,7 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var nsNewsBlogFeedDownloader =
 {
-  downloadFeed: function(aA, aFolder, aB, aC, aUrlListener, aMsgWindow)
+  downloadFeed: function(aFolder, aUrlListener, aMsgWindow)
   {
     if (Services.io.offline)
       return;
@@ -68,7 +68,7 @@ var nsNewsBlogFeedDownloader =
           continue;
         }
 
-        let feedUrlArray = FeedUtils.syncFeedUrlWithFeedsDS(folder);
+        let feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
         // Continue if there are no feedUrls for the folder in the feeds
         // database.  All folders in Trash are skipped.
         if (!feedUrlArray)
@@ -81,19 +81,16 @@ var nsNewsBlogFeedDownloader =
 
         // We need to kick off a download for each feed.
         let id, feed;
-        for (let url in feedUrlArray)
+        for (let url of feedUrlArray)
         {
-          if (feedUrlArray[url])
-          {
-            id = FeedUtils.rdf.GetResource(feedUrlArray[url]);
-            feed = new Feed(id, folder.server);
-            feed.folder = folder;
-            // Bump our pending feed download count.
-            FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
-            feed.download(true, FeedUtils.progressNotifier);
-            FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " +
-                                feedUrlArray[url]);
-          }
+          id = FeedUtils.rdf.GetResource(url);
+          feed = new Feed(id, folder.server);
+          feed.folder = folder;
+          // Bump our pending feed download count.
+          FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
+          feed.download(true, FeedUtils.progressNotifier);
+          FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " +
+                              feedUrlArray[url]);
 
           Services.tm.mainThread.dispatch(function() {
             try {
@@ -206,35 +203,9 @@ var nsNewsBlogFeedDownloader =
     feed.download(true, FeedUtils.progressNotifier);
   },
 
-  updateSubscriptionsDS: function(aFolder, aOrigFolder)
+  updateSubscriptionsDS: function(aFolder, aOrigFolder, aAction)
   {
-    FeedUtils.log.debug("updateSubscriptionsDS: folder changed, aFolder - " +
-                        aFolder.filePath.path);
-    FeedUtils.log.debug("updateSubscriptionsDS: " + (aOrigFolder ?
-                        "move/copy, aOrigFolder  - " + aOrigFolder.filePath.path :
-                        "rename"));
-
-    if ((aOrigFolder && FeedUtils.isInTrash(aOrigFolder)) ||
-        (!aOrigFolder && FeedUtils.isInTrash(aFolder)))
-      // Move within trash, or rename in trash; no subscriptions already.
-      return;
-
-    let newFolder = aFolder;
-    if (aOrigFolder)
-      // A folder was moved, get the new folder. Don't process the entire parent!
-      newFolder = aFolder.getChildNamed(aOrigFolder.name);
-
-    FeedUtils.updateFolderChangeInFeedsDS(newFolder, aOrigFolder);
-
-    // There may be subfolders, but we only get a single notification; iterate
-    // over all descendent folders of the folder whose location has changed.
-    let subFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    newFolder.ListDescendants(subFolders);
-    for (let i = 0; i < subFolders.length; i++)
-    {
-      let subFolder = subFolders.queryElementAt(i, Ci.nsIMsgFolder);
-      FeedUtils.updateFolderChangeInFeedsDS(subFolder, aOrigFolder);
-    }
+    FeedUtils.updateSubscriptionsDS(aFolder, aOrigFolder, aAction);
   },
 
   QueryInterface: function(aIID)
