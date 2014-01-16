@@ -224,20 +224,7 @@ MessageDisplayWidget.prototype = {
 
     ClearPendingReadTimer();
 
-    let selectedCount = this.folderDisplay.selectedCount;
-
-    if (selectedCount == 0) {
-      this.clearDisplay();
-
-      // Once in our lifetime is plenty.
-      if (!this._haveDisplayedStartPage) {
-        loadStartPage(false);
-        this._haveDisplayedStartPage = true;
-      }
-      this.singleMessageDisplay = true;
-      return true;
-    }
-    else if (selectedCount == 1) {
+    if (this.folderDisplay.selectedCount == 1) {
       // the display of the message is happening without us
       this.singleMessageDisplay = true;
 
@@ -305,13 +292,20 @@ MessageDisplayWidget.prototype = {
    *  logic to display a message.
    */
   _showSummary: function MessageDisplayWidget_showSummary(aIsCallback) {
-    // note: if we are in this function, we already know that summaries are
-    //  enabled.
+    // Note: if we are in this function, we already know that summaries are
+    // enabled.
+
+    // Don't summarize if a mass move is currently active. We'll get notified
+    // to summarize later. This occurs when we archive a single message and are
+    // about to select a thread next, but haven't actually selected anything
+    // yet.
+    if (this.folderDisplay._massMoveActive)
+      return true;
 
     // If this is not a callback from the timeout and we currently have a
-    //  timeout, that means that we need to wait for the selection to stabilize.
-    //  The fact that we are getting called means the selection has just changed
-    //  yet again and is not stable, so reset the timer for the full duration.
+    // timeout, that means that we need to wait for the selection to stabilize.
+    // The fact that we are getting called means the selection has just changed
+    // yet again and is not stable, so reset the timer for the full duration.
     if (!aIsCallback && this._summaryStabilityTimeout != null) {
       clearTimeout(this._summaryStabilityTimeout);
       this._summaryStabilityTimeout =
@@ -323,46 +317,31 @@ MessageDisplayWidget.prototype = {
 
     // Bail if our selection count has stabilized outside an acceptable range.
     let selectedCount = this.folderDisplay.selectedCount;
-    if (selectedCount < 2)
+    if (selectedCount == 1)
       return true;
 
     // Setup a timeout call to _clearSummaryTimer so that we don't try and
-    //  summarize again within 100ms of now.  Do this before calling
-    //  the summarization logic in case it throws an exception.
+    // summarize again within 100ms of now.  Do this before calling the
+    // summarization logic in case it throws an exception.
     this._summaryStabilityTimeout =
       setTimeout(this._clearSummaryTimer,
                  this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS,
                  this);
 
-    // figure out if we're looking at one thread or more than one thread
-    let selectedMessages = this.folderDisplay.selectedMessages;
-    let selectedIndices = this.folderDisplay.selectedIndices;
-    let dbView = this.folderDisplay.view.dbView;
-    let firstThreadId = dbView.getThreadContainingIndex(selectedIndices[0])
-      .getChildHdrAt(0).messageKey;
-    let oneThread = true;
-    for (let i = 0; i < selectedIndices.length; i++) {
-      let threadId = dbView.getThreadContainingIndex(selectedIndices[i])
-        .getChildHdrAt(0).messageKey;
-      if (threadId != firstThreadId) {
-        oneThread = false;
-        break;
-      }
+    if (this.folderDisplay.selectedCount == 0) {
+      // If there's no messages selected, show the folder summary.
+      summarizeFolder(this);
     }
-    if (!this.folderDisplay.summarizeSelectionInFolder) {
-      // If we're not summarizing selection for this folder, then just display
-      // one message, or clear the message pane for multi-selection.
-      if (selectedMessages.length > 1)
-        this.clearDisplay();
-      else
+    else {
+      // If there are some messages selected, show the multi-message summary
+      // (unless this folder doesn't support summarizing selections).
+      if (!this.folderDisplay.summarizeSelectionInFolder) {
         this.singleMessageDisplay = true;
-      return false;
+        return false;
+      }
+
+      summarizeSelection(this);
     }
-    if (oneThread)
-      summarizeThread(selectedMessages, this);
-    else
-      summarizeMultipleSelection(selectedMessages, this);
-    this.singleMessageDisplay = false;
     return true;
   },
   _wrapShowSummary: function MessageDisplayWidget__wrapShowSummary(aThis) {

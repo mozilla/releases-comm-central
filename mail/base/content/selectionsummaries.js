@@ -632,20 +632,52 @@ ThreadSummary.prototype = {
 var gSummary;
 
 /**
+ * Summarize a set of selected messages.  This can either be a single thread or
+ * multiple threads.
+ *
+ * @param aMessageDisplay The MessageDisplayWidget object responsible for
+ *                         showing messages.
+ */
+function summarizeSelection(aMessageDisplay) {
+  // Figure out if we're looking at one thread or more than one thread.
+  let folderDisplay = aMessageDisplay.folderDisplay;
+  let selectedIndices = folderDisplay.selectedIndices;
+  let dbView = folderDisplay.view.dbView;
+
+  let getThreadId = function(index) {
+    return dbView.getThreadContainingIndex(index)
+                 .getChildHdrAt(0)
+                 .messageKey;
+  };
+
+  let firstThreadId = getThreadId(selectedIndices[0]);
+  let oneThread = true;
+  for (let i = 1; i < selectedIndices.length; i++) {
+    if (getThreadId(selectedIndices[i]) != firstThreadId) {
+      oneThread = false;
+      break;
+    }
+  }
+
+  let selectedMessages = folderDisplay.selectedMessages;
+  if (oneThread)
+    summarizeThread(selectedMessages, aMessageDisplay);
+  else
+    summarizeMultipleSelection(selectedMessages, aMessageDisplay);
+}
+
+/**
  * Given an array of messages which are all in the same thread, summarize them.
  *
  * @param aSelectedMessages Array of message headers.
- * @param [aListener]       A listener that implements onLoadStarted and
- *                          onLoadCompleted.
+ * @param aMessageDisplay   The MessageDisplayWidget object responsible for
+ *                          showing messages.
  */
-function summarizeThread(aSelectedMessages, aListener)
-{
-  if (aSelectedMessages.length == 0)
-    return;
-
+function summarizeThread(aSelectedMessages, aMessageDisplay) {
   try {
-    gSummary = new ThreadSummary(aSelectedMessages, aListener);
+    gSummary = new ThreadSummary(aSelectedMessages, aMessageDisplay);
     gSummary.init();
+    aMessageDisplay.singleMessageDisplay = false;
   } catch (e) {
     dump("Exception in summarizeThread: " + e + "\n");
     logException(e);
@@ -659,20 +691,36 @@ function summarizeThread(aSelectedMessages, aListener)
  * of them.
  *
  * @param aSelectedMessages Array of message headers.
- * @param [aListener]       A listener that implements onLoadStarted and
- *                          onLoadCompleted.
+ * @param aMessageDisplay   The MessageDisplayWidget object responsible for
+ *                          showing messages.
  */
-function summarizeMultipleSelection(aSelectedMessages, aListener)
-{
-  if (aSelectedMessages.length == 0)
-    return;
-
+function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
   try {
-    gSummary = new MultiMessageSummary(aSelectedMessages, aListener);
+    gSummary = new MultiMessageSummary(aSelectedMessages, aMessageDisplay);
     gSummary.init();
+    aMessageDisplay.singleMessageDisplay = false;
   } catch (e) {
     dump("Exception in summarizeMultipleSelection: " + e + "\n");
+    logException(e);
     Components.utils.reportError(e);
     throw(e);
   }
+}
+
+/**
+ * Summarize a message folder; this is mainly a stub function for extensions to
+ * override.  It currently only shows the start page.
+ *
+ * @param aMessageDisplay The MessageDisplayWidget object responsible for
+ *                        showing messages.
+ */
+function summarizeFolder(aMessageDisplay) {
+  aMessageDisplay.clearDisplay();
+
+  // Once in our lifetime is plenty.
+  if (!aMessageDisplay._haveDisplayedStartPage) {
+    loadStartPage(false);
+    aMessageDisplay._haveDisplayedStartPage = true;
+  }
+  aMessageDisplay.singleMessageDisplay = true;
 }
