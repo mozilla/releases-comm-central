@@ -2207,14 +2207,16 @@
 #ifdef XP_MACOSX
            defaultset="menubar-items"
 #else
-          defaultset="menubar-items,spring"
+           defaultset="menubar-items,spring"
 #endif
 #ifndef XP_MACOSX
-          toolbarname="&menubarCmd.label;"
-          accesskey="&menubarCmd.accesskey;"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"
 #endif
-          context="toolbar-context-menu" mode="icons"
-          insertbefore="tabs-toolbar">
+           context="toolbar-context-menu"
+           mode="icons"
+           insertbefore="tabs-toolbar"
+           prependmenuitem="true">
     <toolbaritem id="menubar-items" align="center">
       <menubar id="mail-menubar" style="border:0px;padding:0px;margin:0px;-moz-appearance:none">
         <!-- File -->

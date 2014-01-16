@@ -276,10 +276,17 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
 
     // We'll consider either childnodes that have a toolbarname attribute,
     // or externalToolbars.
-    let childToolbars = Array.slice(toolbox.querySelectorAll("[toolbarname]"));
-    let potentialToolbars = childToolbars.concat(toolbox.externalToolbars);
+    let potentialToolbars = Array.slice(
+      toolbox.querySelectorAll("[toolbarname]")
+    );
+    for (let externalToolbar of toolbox.externalToolbars) {
+      if (externalToolbar.getAttribute("prependmenuitem"))
+        potentialToolbars.unshift(externalToolbar);
+      else
+        potentialToolbars.push(externalToolbar);
+    }
 
-    for (let [, toolbarElement] in Iterator(potentialToolbars)) {
+    for (let toolbarElement of potentialToolbars) {
 
       // We have to bind to toolbar because Javascript doesn't do fresh
       // let-bindings per Iteration.
