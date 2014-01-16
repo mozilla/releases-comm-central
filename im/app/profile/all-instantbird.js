@@ -303,8 +303,6 @@ pref("browser.tabs.tabClipWidth", 140);
 pref("browser.tabs.closeButtons", 1);
 
 #expand pref("chat.irc.defaultQuitMessage", "Instantbird __APP_VERSION__ -- http://www.instantbird.com");
-// If this is false, requestRoomInfo will throw NS_ERROR_NOT_IMPLEMENTED.
-pref("chat.irc.automaticList", true);
 
 pref("chat.twitter.consumerKey", "TSuyS1ieRAkB3qWv8yyEw");
 pref("chat.twitter.consumerSecret", "DKtKaSf5a7pBNhdBsSZHTnI5Y03hRlPFYWmb4xXBlkU");

@@ -225,9 +225,9 @@ var commands = [
                                   aRoom.name +
                                   " (" + aRoom.participantCount + ") " +
                                   aRoom.topic,
-                                  {incoming:true, noLog: true});
+                                  {incoming: true, noLog: true});
         });
-      }});
+      }}, true);
       return true;
     }
   },

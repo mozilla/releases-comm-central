@@ -72,6 +72,10 @@ pref("messenger.status.userDisplayName", "");
 
 // Default message used when quitting IRC. This is overridable per account.
 pref("chat.irc.defaultQuitMessage", "");
+// If this is true, requestRooomInfo will return LIST results when it is
+// called automatically by the awesometab. Otherwise, requestRoomInfo will
+// only do so when explicitly requested by the user, e.g. via the /list command.
+pref("chat.irc.automaticList", true);
 
 // loglevel is the minimum severity level that a libpurple message
 // must have to be reported in the Error Console.

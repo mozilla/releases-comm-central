@@ -934,9 +934,11 @@ ircAccount.prototype = {
   get isRoomInfoStale() Date.now() - this._lastListTime > kListRefreshInterval,
   // Called by consumers that want a list of available channels, which are
   // provided through the callback (prplIRoomInfoCallback instance).
-  requestRoomInfo: function(aCallback) {
-    if (!Services.prefs.getBoolPref("chat.irc.automaticList"))
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  requestRoomInfo: function(aCallback, aIsUserRequest) {
+    // Ignore the automaticList pref if the user explicitly requests /list.
+    if (!aIsUserRequest &&
+        !Services.prefs.getBoolPref("chat.irc.automaticList"))
+      throw Cr.NS_ERROR_NOT_IMPLEMENTED; // Pretend we can't return roomInfo.
     if (this._roomInfoCallbacks.has(aCallback)) // Callback is not new.
       return;
     // Send a LIST request if the channel list is stale and a current request
