@@ -34,13 +34,13 @@ calPeriod::calPeriod(struct icalperiodtype const* aPeriodPtr)
 }
 
 NS_IMETHODIMP
-calPeriod::GetIcalPeriod(JS::Value*)
+calPeriod::GetIcalPeriod(JS::MutableHandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calPeriod::SetIcalPeriod(JS::Value const&)
+calPeriod::SetIcalPeriod(JS::HandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

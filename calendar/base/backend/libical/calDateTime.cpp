@@ -594,7 +594,7 @@ calDateTime::Compare(calIDateTime * aOther, int32_t * aResult)
 }
 
 NS_IMETHODIMP
-calDateTime::GetJsDate(JSContext* aCx, JS::Value* aResult)
+calDateTime::GetJsDate(JSContext* aCx, JS::MutableHandleValue aResult)
 {
     double msec = double(mNativeTime / 1000);
     ensureTimezone();
@@ -607,12 +607,12 @@ calDateTime::GetJsDate(JSContext* aCx, JS::Value* aResult)
         obj = JS_NewDateObjectMsec(aCx, msec);
     }
 
-    *aResult = JS::ObjectOrNullValue(obj);
+    aResult.set(JS::ObjectOrNullValue(obj));
     return NS_OK;
 }
 
 NS_IMETHODIMP
-calDateTime::SetJsDate(JSContext* aCx, const JS::Value& aDate)
+calDateTime::SetJsDate(JSContext* aCx, JS::HandleValue aDate)
 {
     if (!aDate.isObject()) {
         mIsValid = false;

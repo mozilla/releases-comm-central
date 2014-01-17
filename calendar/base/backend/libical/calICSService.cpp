@@ -463,13 +463,13 @@ calIcalComponent::~calIcalComponent()
     }
 }
 NS_IMETHODIMP
-calIcalComponent::GetIcalComponent(JS::Value*)
+calIcalComponent::GetIcalComponent(JS::MutableHandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calIcalComponent::SetIcalComponent(JS::Value const&)
+calIcalComponent::SetIcalComponent(JS::HandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -482,13 +482,13 @@ calIcalComponent::GetParent(calIIcalComponent** parent)
 }
 
 NS_IMETHODIMP
-calIcalComponent::GetIcalTimezone(JS::Value*)
+calIcalComponent::GetIcalTimezone(JS::MutableHandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calIcalComponent::SetIcalTimezone(JS::Value const&)
+calIcalComponent::SetIcalTimezone(JS::HandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -748,13 +748,13 @@ calIcalProperty::GetParent(calIIcalComponent** parent)
 }
 
 NS_IMETHODIMP
-calIcalProperty::GetIcalProperty(JS::Value*)
+calIcalProperty::GetIcalProperty(JS::MutableHandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calIcalProperty::SetIcalProperty(JS::Value const&)
+calIcalProperty::SetIcalProperty(JS::HandleValue)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
