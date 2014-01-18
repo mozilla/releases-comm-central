@@ -823,7 +823,8 @@ function onFilterListKeyPress(aEvent)
 
 function onTargetSelect(event) {
   gRunFiltersFolder._folder = event.target._folder;
-  gRunFiltersFolder.setAttribute("label", event.target._folder.prettyName);
+  let runMenu = document.getElementById("runFiltersPopup");
+  runMenu.selectFolder(gRunFiltersFolder._folder);
 }
 
 /**

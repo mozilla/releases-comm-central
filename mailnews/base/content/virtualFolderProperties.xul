@@ -54,10 +54,10 @@
 
       <row align="center"  id="chooseFolderLocationRow">
         <label value="&description.label;" accesskey="&description.accesskey;" control="msgNewFolderPicker"/>
-        <menulist id="msgNewFolderPicker" flex="1" oncommand="onFolderPick(event);">
+        <menulist id="msgNewFolderPicker" class="folderMenuItem" flex="1">
           <menupopup id="msgNewFolderPopup" type="folder" mode="newFolder"
                      showFileHereLabel="true"
-                     fileHereLabel="&newfolderchoosethis.label;" />
+                     oncommand="onFolderPick(event);"/>
         </menulist>
         <spring/>
       </row>

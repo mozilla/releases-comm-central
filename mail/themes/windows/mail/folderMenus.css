@@ -25,15 +25,9 @@
 }
 
 /* Feed */
-.folderMenuItem[ServerType="rss"] {
+.folderMenuItem[IsFeedFolder="true"] {
   list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
   -moz-image-region: rect(0 16px 16px 0);
-}
-
-/* Resets list-style-image for Feed Trash and Virtual folders */
-.folderMenuItem[ServerType="rss"][SpecialFolder="Trash"],
-.folderMenuItem[ServerType="rss"][SpecialFolder="Virtual"] {
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
 }
 
 /* ..... special folders ..... */

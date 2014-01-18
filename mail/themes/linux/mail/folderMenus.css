@@ -22,7 +22,7 @@
 }
 
 /* Feed */
-.folderMenuItem[ServerType="rss"] {
+.folderMenuItem[IsFeedFolder="true"] {
   list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
   -moz-image-region: rect(0 16px 16px 0);
 }

@@ -22,6 +22,12 @@
         Components.utils.import("resource:///modules/StringBundle.js", this);
         this._stringBundle = new this
             .StringBundle("chrome://messenger/locale/folderWidgets.properties");
+        this._stringBundleMessenger = new this
+            .StringBundle("chrome://messenger/locale/messenger.properties");
+
+        // Get the displayformat if set.
+        if (this.parentNode && this.parentNode.localName == "menulist")
+          this._displayformat = this.parentNode.getAttribute("displayformat");
 
         // Find out if we are in a wrapper (customize toolbars mode is active).
         let inWrapper = false;
@@ -82,6 +88,7 @@
       </method>
 
       <field name="_stringBundle">null</field>
+      <field name="_stringBundleMessenger">null</field>
 
       <!--
          - If non-null, the subFolders of this nsIMsgFolder will be used to
@@ -667,6 +674,35 @@
       </method>
 
       <!--
+         - This function returns a formatted display name for a menulist
+         - selected folder.  The desired format is set as the 'displayformat'
+         - attribute of the folderpicker's <menulist>, one of:
+         - 'name' (default) - Folder
+         - 'verbose'        - Folder on Account
+         - 'path'           - Account/Folder/Subfolder
+         -
+         - @param aFolder    the folder that corresponds to the menu/menuitem
+         - @return string    display name
+        -->
+      <field name="_displayformat">null</field>
+      <method name="getDisplayName">
+        <parameter name="aFolder"/>
+        <body><![CDATA[
+          if (aFolder.isServer)
+            return aFolder.name;
+
+          if (this._displayformat == "verbose")
+            return this._stringBundleMessenger.getFormattedString(
+                     "verboseFolderFormat", [aFolder.name, aFolder.server.prettyName]);
+
+          if (this._displayformat == "path")
+            return this.FeedUtils.getFolderPrettyPath(aFolder) || aFolder.name;
+
+          return aFolder.name;
+        ]]></body>
+      </method>
+
+      <!--
          - Makes a given folder selected.
          -
          - @param aFolder  the folder to select (if unset, then choose first folder)
@@ -679,10 +715,14 @@
         <body><![CDATA[
           // Set the label of the aParent element as if aFolder had been selected.
           function setupParent(aFolder, aParent) {
-            aParent.setAttribute("label", aFolder.name);
+            aParent.setAttribute("label",
+              aParent.menupopup.getDisplayName(aFolder));
+            aParent.setAttribute("value", aFolder.URI);
             aParent.setAttribute("IsServer", aFolder.isServer);
             aParent.setAttribute("IsSecure", aFolder.server.isSecure);
             aParent.setAttribute("ServerType", aFolder.server.type);
+            aParent.setAttribute("SpecialFolder",
+              aParent.menupopup.getSpecialFolderString(aFolder));
             aParent.setAttribute("IsFeedFolder",
               (aParent.menupopup.FeedUtils.getFeedUrlsInFolder(aFolder) ? true : false));
           }

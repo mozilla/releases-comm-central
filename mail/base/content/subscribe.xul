@@ -46,8 +46,9 @@
               <hbox pack="end" align="center">
                 <label value="&server.label;" accesskey="&server.accesskey;" control="serverMenu"/>
               </hbox>
-              <menulist oncommand="onServerClick(event.target._folder);" id="serverMenu" flex="1">
-                <menupopup type="folder" mode="subscribe" expandFolders="false"/>
+              <menulist id="serverMenu" flex="1" class="folderMenuItem">
+                <menupopup type="folder" mode="subscribe" expandFolders="false"
+                           oncommand="onServerClick(event.target._folder);"/>
               </menulist>
             </row>
             <row align="center">

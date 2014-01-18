@@ -67,6 +67,8 @@ function SetServerTypeSpecificTextValues()
 function onServerClick(aFolder)
 {
   gServerURI = aFolder.server.serverURI;
+  let serverMenu = document.getElementById("serverMenu");
+  serverMenu.menupopup.selectFolder(aFolder);
 
   SetServerTypeSpecificTextValues();
   ShowCurrentList();

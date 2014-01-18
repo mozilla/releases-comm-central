@@ -31,10 +31,11 @@
 
     <label value="&description.label;" accesskey="&description.accesskey;" control="msgNewFolderPicker"/>
 
-    <menulist id="msgNewFolderPicker" oncommand="onFolderSelect(event)">
+    <menulist id="msgNewFolderPicker" class="folderMenuItem">
       <menupopup id="MsgNewFolderPopup" type="folder" showFileHereLabel="true"
                  class="menulist-menupopup"
-                 fileHereLabel="&newfolderchoosethis.label;" mode="newFolder"/>
+                 mode="newFolder"
+                 oncommand="onFolderSelect(event)"/>
     </menulist>
 
     <vbox id="newFolderTypeBox">

@@ -299,10 +299,8 @@ function onResetSearch(event) {
 
 function updateSearchFolderPicker(folder)
 {
-  SetFolderPicker(folder.URI, gFolderPicker.id);
-
   gCurrentFolder = folder;
-  gFolderPicker.firstChild._setCssSelectors(folder, gFolderPicker);
+  gFolderPicker.menupopup.selectFolder(folder);
 
   var searchOnline = document.getElementById("checkSearchOnline");
   // We will hide and disable the search online checkbox if we are offline, or

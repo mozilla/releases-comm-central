@@ -38,14 +38,13 @@
            accesskey="&filtersForPrefix.accesskey;" control="serverMenu"/>
 
     <menulist id="serverMenu"
-              class="folderMenuItem"
-              IsServer="true"
-              IsSecure="false"
-              ServerType="none"
-              oncommand="onFilterFolderClick(event.target._folder);">
+              class="folderMenuItem">
       <menupopup id="serverMenuPopup" type="folder" mode="filters"
                  class="menulist-menupopup"
-                 expandFolders="nntp" headlabels="&choosethisnewsserver.label;"/>
+                 expandFolders="nntp"
+                 showFileHereLabel="true"
+                 showAccountsFileHere="true"
+                 oncommand="onFilterFolderClick(event.target._folder);"/>
     </menulist>
     <textbox id="searchBox"
              flex="1"
@@ -131,12 +130,13 @@
                    accesskey="&folderPickerPrefix.accesskey;"
                    disabled="true" control="runFiltersFolder"/>
             <menulist id="runFiltersFolder" disabled="true" flex="1"
-                      oncommand="onTargetSelect(event);">
+                      class="folderMenuItem">
               <menupopup id="runFiltersPopup"
                          class="menulist-menupopup"
                          type="folder"
                          showFileHereLabel="true"
-                         fileHereLabel="&filemessageschoosethis.label;"/>
+                         showAccountsFileHere="false"
+                         oncommand="onTargetSelect(event);"/>
             </menulist>
           <button id="runFiltersButton"
                   label="&runFilters.label;"

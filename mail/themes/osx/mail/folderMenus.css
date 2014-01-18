@@ -21,7 +21,7 @@
 }
 
 /* Feed folders */
-.folderMenuItem[ServerType="rss"] {
+.folderMenuItem[IsFeedFolder="true"] {
   -moz-image-region: rect(0 224px 16px 208px);
 }
 
@@ -115,7 +115,7 @@
   }
 
   /* Feed folders */
-  .folderMenuItem[ServerType="rss"] {
+  .folderMenuItem[IsFeedFolder="true"] {
     -moz-image-region: rect(0 448px 32px 416px);
   }
 

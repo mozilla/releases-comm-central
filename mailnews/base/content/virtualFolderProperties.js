@@ -139,8 +139,8 @@ function InitDialogWithVirtualFolder(aVirtualFolder)
 
 function onFolderPick(aEvent) {
   gPickedFolder = aEvent.target._folder;
-  document.getElementById("msgNewFolderPicker")
-          .setAttribute("label", gPickedFolder.prettyName);
+  document.getElementById("msgNewFolderPopup")
+          .selectFolder(gPickedFolder);
 }
 
 function onOK()

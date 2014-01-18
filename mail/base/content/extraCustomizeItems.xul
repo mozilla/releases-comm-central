@@ -80,7 +80,6 @@
                    class="menulist-menupopup"
                    type="folder"
                    flex="1"
-                   fileHereLabel="&filemessageschoosethis.label;"
                    showFileHereLabel="true"
                    oncommand="gFolderTreeView.selectFolder(event.target._folder);"/>
       </menulist>

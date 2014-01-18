@@ -697,15 +697,15 @@
 
   <binding id="ruleactiontarget-folder" extends="chrome://messenger/content/searchWidgets.xml#ruleactiontarget-base">
     <content>
-      <xul:menulist class="ruleactionitem"
+      <xul:menulist class="ruleactionitem folderMenuItem"
+                    displayformat="verbose"
                     oncommand="this.parentNode.setPicker(event);">
         <xul:menupopup type="folder"
                        mode="filing"
                        class="menulist-menupopup"
                        showRecent="true"
                        recentLabel="&recentfolders.label;"
-                       showFileHereLabel="true"
-                       fileHereLabel="&filemessageschoosethis.label;"/>
+                       showFileHereLabel="true"/>
       </xul:menulist>
     </content>
 
@@ -723,8 +723,7 @@
         <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            aEvent.currentTarget.value = aEvent.target._folder.URI;
-            SetFolderPickerElement(aEvent.currentTarget.value, aEvent.currentTarget);
+            this.menulist.menupopup.selectFolder(aEvent.target._folder);
           ]]>
         </body>
       </method>

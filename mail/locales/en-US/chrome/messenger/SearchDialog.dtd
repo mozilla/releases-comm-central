@@ -17,8 +17,6 @@
 <!ENTITY deleteButton.accesskey      "D">
 <!ENTITY searchDialogTitle.label     "Search Messages">
 <!ENTITY results.label               "Results">
-<!ENTITY moveHereMenu.label          "Move Here">
-<!ENTITY moveHereMenu.accesskey      "H">
 <!ENTITY moveButton.label            "Move To">
 <!ENTITY moveButton.accesskey        "T">
 <!ENTITY closeCmd.key                "W"> 
