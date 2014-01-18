@@ -23,6 +23,8 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
 var folderInbox, folderSent, folderVirtual, folderA, folderB;
 // INBOX_DEFAULTS sans 'dateCol' but gains 'tagsCol'
 var columnsB;
+// GLODA_DEFAULTS sans 'locationCol' but gains 'accountCol'
+var glodaColumns;
 
 // these are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1, folderChild2;
@@ -96,7 +98,7 @@ function reorder_column(aColumnId, aBeforeId) {
   mc.threadTree._reorderColumn(col, before, true);
 }
 
-var INBOX_DEFAULTS = [
+const INBOX_DEFAULTS = [
   "threadCol",
   "flaggedCol",
   "attachmentCol",
@@ -117,7 +119,7 @@ function test_column_defaults_inbox() {
   assert_visible_columns(INBOX_DEFAULTS);
 }
 
-var SENT_DEFAULTS = [
+const SENT_DEFAULTS = [
   "threadCol",
   "flaggedCol",
   "attachmentCol",
@@ -139,7 +141,7 @@ function test_column_defaults_sent() {
   assert_visible_columns(SENT_DEFAULTS);
 }
 
-var VIRTUAL_DEFAULTS = [
+const VIRTUAL_DEFAULTS = [
   "threadCol",
   "flaggedCol",
   "attachmentCol",
@@ -446,3 +448,66 @@ function test_apply_to_folder_and_children() {
   assert_visible_columns(conExtra);
 }
 test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ["linux"];
+
+const GLODA_DEFAULTS = [
+  "threadCol",
+  "flaggedCol",
+  "subjectCol",
+  "senderCol",
+  "dateCol",
+  "locationCol"
+];
+
+/**
+ * Create a fake gloda collection.
+ */
+function FakeCollection() {
+  this.items = [];
+}
+
+/**
+ * Make sure that opening a gloda list tab shows the correct columns.
+ */
+function test_column_defaults_gloda_collection() {
+  let fakeCollection = new FakeCollection();
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(GLODA_DEFAULTS);
+}
+
+/**
+ * Open a gloda tab, change the columns, and make sure the changes persist to
+ * subsequent gloda tabs.
+ */
+function test_persist_columns_gloda_collection() {
+  let fakeCollection = new FakeCollection();
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  hide_column("locationCol");
+  show_column("accountCol");
+
+  glodaColumns = GLODA_DEFAULTS.slice(0, -1);
+  glodaColumns.push("accountCol");
+
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(glodaColumns);
+}
+
+/**
+ * Open a gloda tab and make sure that resetting the columns to the default
+ * works correctly and persists the change to subsequent gloda tabs.
+ */
+function test_reset_columns_gloda_collection() {
+  let fakeCollection = new FakeCollection();
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(glodaColumns);
+
+  invoke_column_picker_option([{anonid: "reset"}]);
+  assert_visible_columns(GLODA_DEFAULTS);
+
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(GLODA_DEFAULTS);
+}
