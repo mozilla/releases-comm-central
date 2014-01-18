@@ -19,6 +19,7 @@
 #attachmentBucket {
   width: 15em;
   min-width: 15em;
+  margin-bottom: 2px;
 }
 
 /* ::::: primary toolbar buttons ::::: */
@@ -311,14 +312,101 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
 
 /* ::::: special toolbar colors ::::: */
 
+#composeContentBox {
+  background-color: -moz-Dialog;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4) inset;
+
+  /*
+  * In order to remove the shadow border on left/right edges elegantly,
+  * use left/right margins of -3px. We make up for this by adding 3px
+  * of padding instead.
+  */
+
+  margin-right: -3px;
+  margin-left: -3px;
+  padding-right: 3px;
+  padding-left: 3px;
+}
+
+#composeContentBox:-moz-window-inactive {
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3) inset;
+}
+
+#headers-box {
+  -moz-appearance: none;
+  border-top-width: 0;
+  background-color: transparent;
+  padding-top: 4px;
+}
+
 #MsgHeadersToolbar {
+  -moz-appearance: none;
   color: -moz-DialogText;
   text-shadow: none;
-  background-color: -moz-Dialog;
+  border-bottom-width: 0;
+  background-color: transparent;
+  background-image: url("chrome://messenger/skin/messengercompose/noise.png");
+}
+
+#msgheaderstoolbar-box {
+  padding-bottom: 2px;
+}
+
+#msgIdentity {
+  -moz-appearance: none;
+  -moz-padding-end: 18px;
+  -moz-padding-start: 2px !important;
+  background: transparent;
+  height: 22px;
+  line-height: 1;
+  border-color: transparent;
+  -moz-border-top-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-bottom-colors: none;
+  background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat;
+  background-position: calc(100% - 7px);
+  box-shadow: none;
+  transition: border .2s, background-color .2s;
+}
+
+@media (-moz-windows-default-theme) {
+  #msgIdentity {
+    border-width: 1px;
+    border-bottom-color: ThreeDShadow;
+  }
+
+  #msgIdentity:hover,
+  #msgIdentity[focused="true"] {
+    background-color: -moz-field;
+    border-color: ThreeDShadow;
+  }
+}
+
+@media not all and (-moz-windows-default-theme) {
+  #msgIdentity {
+    border-width: 2px;
+    -moz-border-top-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+  }
+
+  #msgIdentity:hover,
+  #msgIdentity[focused="true"] {
+    background-color: -moz-field;
+    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+  }
+}
+
+#msgIdentity > .menulist-dropmarker {
+  display: none;
 }
 
 #appcontent {
-  border-top: 1px solid ThreeDShadow;
   border-left: 1px solid ThreeDShadow;
   border-right: 1px solid ThreeDHighlight;
 }
@@ -369,15 +457,52 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
 }
 
 #compose-toolbar-sizer {
-  border-top-width: 1px;
+  border-top-width: 0;
   border-left: none;
   border-right: none;
-  -moz-border-top-colors: ThreeDHighlight;
-  background-color: ThreeDFace;
 }
 
 #msgSubject {
-  margin-bottom: 4px;
+  -moz-appearance: none;
+  -moz-margin-end: 5px;
+  background-color: inherit;
+  border-color: transparent;
+  -moz-border-top-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-bottom-colors: none;
+  margin-top: 0;
+  padding: 2px;
+  -moz-padding-start: 5px;
+  transition: border .2s, background-color .2s;
+}
+
+@media (-moz-windows-default-theme) {
+  #msgSubject {
+    border-width: 1px;
+    border-bottom-color: ThreeDShadow;
+  }
+
+  #msgSubject:hover,
+  #msgSubject[focused="true"] {
+    background-color: -moz-field;
+    border-color: ThreeDShadow;
+  }
+}
+
+@media not all and (-moz-windows-default-theme) {
+  #msgSubject {
+    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+  }
+
+  #msgSubject:hover,
+  #msgSubject[focused="true"] {
+    background-color: -moz-field;
+    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+  }
 }
 
 /* ::::: autocomplete icons ::::: */
@@ -419,15 +544,12 @@ treechildren::-moz-tree-image(subscribed-news) {
   width: 0;
   border: none;
   background-color: transparent;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 #addressingWidget listboxbody {
   margin: 1px 0;
-}
-
-#textcol-addressingWidget {
-  border: 1px solid threedshadow;
-  background-color: -moz-field;
 }
 
 .addressingWidgetItem,
@@ -437,28 +559,77 @@ treechildren::-moz-tree-image(subscribed-news) {
   color: inherit !important;
 }
 
-.addressingWidgetCell {
-  border-bottom: 1px solid #CACAFF;
-  padding: 0px;
+.textbox-addressingWidget,
+.dummy-row-cell:not(:first-child) {
+  margin-bottom: 2px !important;
+  padding: 2px !important;
+  transition: border .2s, background-color .2s;
+}
+
+@media (-moz-windows-default-theme) {
+  .textbox-addressingWidget,
+  .dummy-row-cell:not(:first-child) {
+    border: 1px solid transparent !important;
+    border-bottom-color: ThreeDShadow !important;
+  }
+
+  .textbox-addressingWidget:hover,
+  .textbox-addressingWidget[focused="true"] {
+    background-color: -moz-field;
+    border-color: ThreeDShadow !important;
+  }
+}
+
+@media not all and (-moz-windows-default-theme) {
+  .textbox-addressingWidget,
+  .dummy-row-cell:not(:first-child) {
+    border: 2px solid transparent !important;
+    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight !important;
+  }
+
+  .textbox-addressingWidget:hover,
+  .textbox-addressingWidget[focused="true"] {
+    background-color: -moz-field;
+    -moz-border-top-colors: ThreeDShadow ThreeDHighlight !important;
+    -moz-border-right-colors: ThreeDShadow ThreeDHighlight !important;
+    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight !important;
+    -moz-border-left-colors: ThreeDShadow ThreeDHighlight !important;
+  }
 }
 
 .addressingWidgetCell:first-child,
 .dummy-row-cell:first-child {
-  border-bottom: none;
-}
-
-.person-icon {
-  margin: 0 3px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
+  border-bottom-color: transparent;
 }
 
 .aw-menulist {
   -moz-binding: url("chrome://global/content/bindings/menulist.xml#menulist");
-  -moz-appearance: menulist;
   -moz-box-align: stretch;
-  margin: 1px 0;
+  margin: 0 1px 2px;
   -moz-margin-start: 7px;
   list-style-image: none;
+    background-color: -moz-field;
+  -moz-border-top-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-bottom-colors: none;
+}
+
+@media (-moz-windows-default-theme) {
+  .aw-menulist {
+    border-width: 1px;
+    border-color: ThreeDShadow;
+  }
+}
+
+@media not all and (-moz-windows-default-theme) {
+  .aw-menulist {
+    border-width: 2px;
+    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+    -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+  }
 }
 
 .aw-menulist > .menulist-label-box {
@@ -487,12 +658,15 @@ treechildren::-moz-tree-image(subscribed-news) {
 /* ::::: format toolbar ::::: */
 
 #FormatToolbox {
+  -moz-appearance: none;
   border-top-width: 0;
-  background-color: -moz-Dialog;
+  background-color: transparent;
 }
 
 #FormatToolbar {
-  border-top: 1px solid ThreeDHighlight !important;
+  -moz-appearance: none;
+  background-color: transparent;
+  border-bottom-width: 0;
 }
 
 toolbarbutton.formatting-button {
