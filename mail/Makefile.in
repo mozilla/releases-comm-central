@@ -13,7 +13,7 @@ include $(topsrcdir)/config/config.mk
 ifdef ENABLE_TESTS
 
 check-sync-dirs::
-	@$(PYTHON) $(topsrcdir)/mozilla/js/src/config/check-sync-dirs.py \
+	@$(PYTHON) $(topsrcdir)/mail/check-sync-dirs.py \
 	   $(srcdir)/config/tooltool-manifests $(MOZILLA_SRCDIR)/browser/config/tooltool-manifests
 
 check:: check-sync-dirs
