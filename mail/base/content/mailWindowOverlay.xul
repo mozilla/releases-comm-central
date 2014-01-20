@@ -787,8 +787,6 @@
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"
-                 fileHereLabel="&fileHereMenu.label;"
-                 fileHereAccessKey="&fileHereMenu.accesskey;"
                  recentLabel="&contextMoveCopyMsgRecentMenu.label;"
                  recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
     </menu>
@@ -801,8 +799,6 @@
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"
-                 fileHereLabel="&copyHereMenu.label;"
-                 fileHereAccessKey="&copyHereMenu.accesskey;"
                  recentLabel="&contextMoveCopyMsgRecentMenu.label;"
                  recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
     </menu>
@@ -1884,7 +1880,6 @@
               <menupopup id="appmenu_GoFolderPopup"
                          type="folder"
                          showFileHereLabel="true"
-                         fileHereLabel="&thisFolder.label;"
                          showRecent="true"
                          recentLabel="&contextMoveCopyMsgRecentMenu.label;"/>
             </menu>
@@ -2053,7 +2048,6 @@
                          mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
-                         fileHereLabel="&fileHereMenu.label;"
                          recentLabel="&moveCopyMsgRecentMenu.label;"/>
             </menu>
             <menu id="appmenu_copyMenu"
@@ -2063,7 +2057,6 @@
                          mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
-                         fileHereLabel="&copyHereMenu.label;"
                          recentLabel="&moveCopyMsgRecentMenu.label;"/>
             </menu>
             <menuitem id="appmenu_moveToFolderAgain"
@@ -2681,8 +2674,6 @@
             <menupopup id="menu_GoFolderPopup"
                        type="folder"
                        showFileHereLabel="true"
-                       fileHereLabel="&thisFolder.label;"
-                       fileHereAccessKey="&thisFolder.accesskey;"
                        showRecent="true"
                        recentLabel="&contextMoveCopyMsgRecentMenu.label;"
                        recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
@@ -2857,9 +2848,9 @@
                   label="&moveMsgToMenu.label;"
                   accesskey="&moveMsgToMenu.accesskey;"
                   oncommand="MsgMoveMessage(event.target._folder)">
-              <menupopup type="folder" mode="filing" showFileHereLabel="true"
-                         showRecent="true" fileHereLabel="&fileHereMenu.label;"
-                         fileHereAccessKey="&fileHereMenu.accesskey;"
+              <menupopup type="folder" mode="filing"
+                         showFileHereLabel="true"
+                         showRecent="true"
                          recentLabel="&moveCopyMsgRecentMenu.label;"
                          recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
             </menu>
@@ -2867,9 +2858,9 @@
                   label="&copyMsgToMenu.label;"
                   accesskey="&copyMsgToMenu.accesskey;"
                   oncommand="MsgCopyMessage(event.target._folder)">
-              <menupopup type="folder" mode="filing" showFileHereLabel="true"
-                         showRecent="true" fileHereLabel="&copyHereMenu.label;"
-                         fileHereAccessKey="&copyHereMenu.accesskey;"
+              <menupopup type="folder" mode="filing"
+                         showFileHereLabel="true"
+                         showRecent="true"
                          recentLabel="&moveCopyMsgRecentMenu.label;"
                          recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
             </menu>
@@ -3088,8 +3079,6 @@
                  mode="filing"
                  showRecent="true"
                  showFileHereLabel="true"
-                 fileHereLabel="&fileHereMenu.label;"
-                 fileHereAccessKey="&fileHereMenu.accesskey;"
                  recentLabel="&moveCopyMsgRecentMenu.label;"
                  recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
     </toolbarbutton>

@@ -313,8 +313,6 @@
 <!ENTITY prevStarredMsgCmd.accesskey "S">
 <!ENTITY folderMenu.label "Folder">
 <!ENTITY folderMenu.accesskey "O">
-<!ENTITY thisFolder.label "This Folder">
-<!ENTITY thisFolder.accesskey "F">
 <!ENTITY goRecentlyClosedTabs.label "Recently Closed Tabs">
 <!ENTITY goRecentlyClosedTabs.accesskey "R">
 <!ENTITY startPageCmd.label "Mail Start Page">
@@ -379,10 +377,6 @@
 <!ENTITY watchThreadMenu.label "Watch Thread">
 <!ENTITY watchThreadMenu.accesskey "W">
 <!ENTITY watchThreadMenu.key "w">
-<!ENTITY fileHereMenu.label "File Here">
-<!ENTITY fileHereMenu.accesskey "F">
-<!ENTITY copyHereMenu.label "Copy Here">
-<!ENTITY copyHereMenu.accesskey "C">
 <!ENTITY tagMenu.label "Tag">
 <!ENTITY tagMenu.accesskey "g">
 <!ENTITY tagCmd0.key "0">

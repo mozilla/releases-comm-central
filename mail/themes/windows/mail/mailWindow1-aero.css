@@ -215,11 +215,6 @@ treechildren::-moz-tree-image(junkStatusCol) {
   -moz-padding-start: 2px;
 }
 
-#folderLocationPopup menuitem:first-child {
-  padding-top: 3px;
-  padding-bottom: 4px;
-}
-
 @media (-moz-windows-default-theme) {
   #afterViewPickerUnreadSeparator,
   #afterViewPickerCustomViewsSeparator {

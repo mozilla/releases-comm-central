@@ -54,7 +54,8 @@
 
       <row align="center"  id="chooseFolderLocationRow">
         <label value="&description.label;" accesskey="&description.accesskey;" control="msgNewFolderPicker"/>
-        <menulist id="msgNewFolderPicker" class="folderMenuItem" flex="1">
+        <menulist id="msgNewFolderPicker" class="folderMenuItem" flex="1"
+                  displayformat="verbose">
           <menupopup id="msgNewFolderPopup" type="folder" mode="newFolder"
                      showFileHereLabel="true"
                      oncommand="onFolderPick(event);"/>

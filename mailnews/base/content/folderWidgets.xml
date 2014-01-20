@@ -22,8 +22,6 @@
         Components.utils.import("resource:///modules/StringBundle.js", this);
         this._stringBundle = new this
             .StringBundle("chrome://messenger/locale/folderWidgets.properties");
-        this._stringBundleMessenger = new this
-            .StringBundle("chrome://messenger/locale/messenger.properties");
 
         // Get the displayformat if set.
         if (this.parentNode && this.parentNode.localName == "menulist")
@@ -88,7 +86,6 @@
       </method>
 
       <field name="_stringBundle">null</field>
-      <field name="_stringBundleMessenger">null</field>
 
       <!--
          - If non-null, the subFolders of this nsIMsgFolder will be used to
@@ -372,6 +369,7 @@
              attribute or no mode attribute. However the code won't add such a
              menu item if one of the following conditions is met:
              (*) There is no parent folder
+             (*) Folder is server and showAccountsFileHere is explicitly false
              (*) Current folder has a mode, the parent folder can be selected,
                  no messages can be filed into the parent folder (e.g. when the
                  parent folder is a news group or news server) and the folder
@@ -381,32 +379,34 @@
              label or if the attribute does not exist the name of the parent
              folder instead.
           */
-          if (this._parentFolder && (!mode ||
-              (this.getAttribute("showFileHereLabel") == "true" &&
-               (this._parentFolder.noSelect ||
-                this._parentFolder.canFileMessages || mode == "newFolder" ||
-                this.getAttribute("showAccountsFileHere") == "true")))) {
-            var menuitem = document.createElement("menuitem");
-            menuitem._folder = this._parentFolder;
-            menuitem.setAttribute("generated", "true");
-            if (this.hasAttribute("fileHereLabel")) {
-              menuitem.setAttribute("label", this.getAttribute("fileHereLabel"));
-              menuitem.setAttribute("accesskey", this.getAttribute("fileHereAccessKey"));
-            } else {
-              menuitem.setAttribute("label", this._parentFolder.prettyName);
-              menuitem.setAttribute("class", "folderMenuItem menuitem-iconic");
-              this._setCssSelectors(this._parentFolder, menuitem);
+          let parent = this._parentFolder;
+          if (parent && (this.getAttribute("showFileHereLabel") == "true" || !mode)) {
+            let showAccountsFileHere = this.getAttribute("showAccountsFileHere");
+            if ((!parent.isServer || showAccountsFileHere != "false") &&
+                (!mode || mode == "newFolder" || parent.noSelect ||
+                 parent.canFileMessages || showAccountsFileHere == "true")) {
+              var menuitem = document.createElement("menuitem");
+              menuitem._folder = this._parentFolder;
+              menuitem.setAttribute("generated", "true");
+              if (this.hasAttribute("fileHereLabel")) {
+                menuitem.setAttribute("label", this.getAttribute("fileHereLabel"));
+                menuitem.setAttribute("accesskey", this.getAttribute("fileHereAccessKey"));
+              } else {
+                menuitem.setAttribute("label", this._parentFolder.prettyName);
+                menuitem.setAttribute("class", "folderMenuItem menuitem-iconic");
+                this._setCssSelectors(this._parentFolder, menuitem);
+              }
+              // Eww. have to support some legacy code here...
+              menuitem.setAttribute("id", this._parentFolder.URI);
+              this.appendChild(menuitem);
+
+              if (this._parentFolder.noSelect)
+                menuitem.setAttribute("disabled", "true");
+
+              var sep= document.createElement("menuseparator");
+              sep.setAttribute("generated", "true");
+              this.appendChild(sep);
             }
-            // Eww. have to support some legacy code here...
-            menuitem.setAttribute("id", this._parentFolder.URI);
-            this.appendChild(menuitem);
-
-            if (this._parentFolder.noSelect)
-              menuitem.setAttribute("disabled", "true");
-
-            var sep= document.createElement("menuseparator");
-            sep.setAttribute("generated", "true");
-            this.appendChild(sep);
           }
 
           let globalInboxFolder = null;
@@ -689,11 +689,11 @@
         <parameter name="aFolder"/>
         <body><![CDATA[
           if (aFolder.isServer)
-            return aFolder.name;
+            return aFolder.prettyName;
 
           if (this._displayformat == "verbose")
-            return this._stringBundleMessenger.getFormattedString(
-                     "verboseFolderFormat", [aFolder.name, aFolder.server.prettyName]);
+            return this._stringBundle.getFormattedString("verboseFolderFormat",
+                     [aFolder.prettyName, aFolder.server.prettyName]);
 
           if (this._displayformat == "path")
             return this.FeedUtils.getFolderPrettyPath(aFolder) || aFolder.name;
@@ -705,7 +705,7 @@
       <!--
          - Makes a given folder selected.
          -
-         - @param aFolder  the folder to select (if unset, then choose first folder)
+         - @param aFolder  the folder to select (if none, then Choose Folder)
          - @note  If aFolder is not in this popup, but is instead a descendant of
          -        a member of the popup, that ancestor will be selected.
          - @return  true if any usable folder was found, otherwise false.
@@ -713,54 +713,65 @@
       <method name="selectFolder">
         <parameter name="aFolder"/>
         <body><![CDATA[
-          // Set the label of the aParent element as if aFolder had been selected.
-          function setupParent(aFolder, aParent) {
-            aParent.setAttribute("label",
-              aParent.menupopup.getDisplayName(aFolder));
-            aParent.setAttribute("value", aFolder.URI);
-            aParent.setAttribute("IsServer", aFolder.isServer);
-            aParent.setAttribute("IsSecure", aFolder.server.isSecure);
-            aParent.setAttribute("ServerType", aFolder.server.type);
-            aParent.setAttribute("SpecialFolder",
-              aParent.menupopup.getSpecialFolderString(aFolder));
-            aParent.setAttribute("IsFeedFolder",
-              (aParent.menupopup.FeedUtils.getFeedUrlsInFolder(aFolder) ? true : false));
-          }
-          for (let child of this.childNodes) {
-            if (!child || !child._folder || child.disabled)
-              continue;
-            // Is this the folder in question or subfolder of the folder?
-            if (!aFolder || (child._folder.URI == aFolder.URI) ||
-                (child.tagName == "menu" &&
-                 child._folder.isAncestorOf(aFolder))) {
-              if (!aFolder || (child._folder.URI == aFolder.URI))
-                this.parentNode.selectedItem = child;
+          // Set the label of the menulist element as if aFolder had been selected.
+          function setupParent(aFolder, aMenulist, aNoFolders) {
+            let menupopup = aMenulist.menupopup;
+            if (aFolder) {
+              aMenulist.setAttribute("label", menupopup.getDisplayName(aFolder));
+            } else {
+              aMenulist.setAttribute("label", menupopup._stringBundle.getString(
+                aNoFolders ? "noFolders" : "chooseFolder"));
+            }
+            aMenulist.setAttribute("value",
+              aFolder ? aFolder.URI : "");
+            aMenulist.setAttribute("IsServer",
+              aFolder ? aFolder.isServer : false);
+            aMenulist.setAttribute("IsSecure",
+              aFolder ? aFolder.server.isSecure : false);
+            aMenulist.setAttribute("ServerType",
+              aFolder ? aFolder.server.type : "none");
+            aMenulist.setAttribute("SpecialFolder",
+              aFolder ? menupopup.getSpecialFolderString(aFolder) : "none");
+            aMenulist.setAttribute("IsFeedFolder", Boolean(
+              aFolder && menupopup.FeedUtils.getFeedUrlsInFolder(aFolder)));
+            }
 
-              if (aFolder) {
-                // If this is a subfolder of what's in question, we merely appear
-                // to select this node.
-                setupParent(aFolder || child._folder, this.parentNode);
+          let folder;
+          if (aFolder) {
+            for (let child of this.childNodes) {
+              if (child && child._folder && !child.disabled &&
+                  (child._folder.URI == aFolder.URI ||
+                   (child.tagName == "menu" &&
+                    child._folder.isAncestorOf(aFolder)))) {
+                if (child._folder.URI == aFolder.URI)
+                  this.parentNode.selectedItem = child;
+                folder = aFolder;
+                break;
               }
-              return true;
             }
           }
 
-          if (aFolder) {
-            // If the caller specified a folder to select and it was not
-            // found, blow up.
-            throw new Error("Unable to select folder " + aFolder.prettyName +
-                            " in the picker!");
-          } else {
-            // If the caller didn't care much but nothing got selected,
-            // this means there are at most some disabled items in the menulist.
-            // Pretend to select the first one so that the widget is not shown
-            // empty.
-            if (this.childNodes.length > 0)
-              setupParent(this.getItemAtIndex(0)._folder, this.parentNode);
-            else
-              Components.utils.reportError("Unable to find any folder in the picker!");
+          // If the caller specified a folder to select and it was not
+          // found, or if the caller didn't pass a folder (meaning a logical
+          // and valid folder wasn't determined), don't blow up but reset
+          // attributes and set a nice Choose Folder label so the user may
+          // select a valid folder per the filter for this picker. If there are
+          // no children, then no folder passed the filter; disable the menulist
+          // as there's nothing to choose from.
+          let noFolders;
+          if (!this.childElementCount)
+          {
+            this.parentNode.setAttribute("disabled", true);
+            noFolders = true;
           }
-          return false;
+          else
+          {
+            this.parentNode.removeAttribute("disabled");
+            noFolders = false;
+          }
+
+          setupParent(folder, this.parentNode, noFolders);
+          return folder ? true : false;
         ]]></body>
       </method>
 

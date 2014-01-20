@@ -33,7 +33,6 @@
   <script type="application/javascript" src="chrome://messenger/content/mailWindowOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
   <script type="application/javascript" src="chrome://messenger/content/FilterEditor.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/msgFolderPickerOverlay.js"/>
 
   <commandset>
     <command id="cmd_updateFilterType" oncommand="updateFilterType();"/>

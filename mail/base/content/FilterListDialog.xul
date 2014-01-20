@@ -130,7 +130,8 @@
                    accesskey="&folderPickerPrefix.accesskey;"
                    disabled="true" control="runFiltersFolder"/>
             <menulist id="runFiltersFolder" disabled="true" flex="1"
-                      class="folderMenuItem">
+                      class="folderMenuItem"
+                      displayformat="verbose">
               <menupopup id="runFiltersPopup"
                          class="menulist-menupopup"
                          type="folder"

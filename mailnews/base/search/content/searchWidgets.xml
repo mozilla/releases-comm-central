@@ -712,9 +712,15 @@
     <implementation>
       <constructor>
         <![CDATA[
-          if (!this.menulist.value)
-            this.menulist.value = gFilterList.folder.URI;
-          SetFolderPickerElement(this.menulist.value, this.menulist);
+          Components.utils.import("resource:///modules/MailUtils.js", this);
+          let folder = this.menulist.value ?
+                         this.MailUtils.getFolderForURI(this.menulist.value) :
+                         gFilterList.folder;
+          // An account folder is not a move/copy target; show "Choose Folder".
+          folder = folder.isServer ? null : folder;
+          let menupopup = this.menulist.menupopup;
+          // The menupopup constructor needs to finish first.
+          setTimeout(function() { menupopup.selectFolder(folder); }, 0);
         ]]>
       </constructor>
 

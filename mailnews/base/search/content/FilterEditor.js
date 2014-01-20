@@ -186,7 +186,7 @@ var gFolderListener = {
 
     if (eventType == "FolderCreateCompleted")
     {
-      SetFolderPicker(folder.URI, gActionTargetElement.id);
+      gActionTargetElement.selectFolder(folder);
       SetBusyCursor(window, false);
     }
     else if (eventType == "FolderCreateFailed")
@@ -683,7 +683,8 @@ function SearchNewFolderOkCallback(name, uri)
   if (!imapFolder)
   {
     var curFolder = uri+"/"+encodeURIComponent(name);
-    SetFolderPicker(curFolder, gActionTargetElement.id);
+    let folder = MailUtils.getFolderForURI(curFolder);
+    gActionTargetElement.selectFolder(folder);
   }
 }
 

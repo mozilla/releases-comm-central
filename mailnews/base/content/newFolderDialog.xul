@@ -31,7 +31,8 @@
 
     <label value="&description.label;" accesskey="&description.accesskey;" control="msgNewFolderPicker"/>
 
-    <menulist id="msgNewFolderPicker" class="folderMenuItem">
+    <menulist id="msgNewFolderPicker" class="folderMenuItem"
+                 displayformat="verbose">
       <menupopup id="MsgNewFolderPopup" type="folder" showFileHereLabel="true"
                  class="menulist-menupopup"
                  mode="newFolder"
