@@ -800,6 +800,15 @@ endif
  
 export CL_INCLUDES_PREFIX
 
+ifneq (,$(MOZ_LIBSTDCXX_TARGET_VERSION)$(MOZ_LIBSTDCXX_HOST_VERSION))
+ifdef MOZ_LIBSTDCXX_TARGET_VERSION
+EXTRA_LIBS += $(call EXPAND_LIBNAME_PATH,stdc++compat,$(DEPTH)/mozilla/build/unix/stdc++compat)
+endif
+ifdef MOZ_LIBSTDCXX_HOST_VERSION
+HOST_EXTRA_LIBS += $(call EXPAND_LIBNAME_PATH,host_stdc++compat,$(DEPTH)/mozilla/build/unix/stdc++compat)
+endif
+endif
+
 # autoconf.mk sets OBJ_SUFFIX to an error to avoid use before including
 # this file
 OBJ_SUFFIX := $(_OBJ_SUFFIX)
