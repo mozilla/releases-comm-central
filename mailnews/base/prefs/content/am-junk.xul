@@ -14,8 +14,6 @@
 %brandDTD;
 <!ENTITY % junkMailDTD SYSTEM "chrome://messenger/locale/am-junk.dtd">
 %junkMailDTD;
-<!ENTITY % pickerDTD SYSTEM "chrome://messenger/locale/msgFolderPickerOverlay.dtd">
-%pickerDTD;
 ]>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -164,13 +162,14 @@
                      label="&junkFolderOn.label;"
                      accesskey="&junkFolderOn.accesskey;"/>
               <menulist id="actionTargetAccount"
-                        aria-labelledby="moveTargetMode0"
-                        oncommand="onActionTargetChange(event, 'server.spamActionTargetAccount');">
+                        class="folderMenuItem"
+                        aria-labelledby="moveTargetMode0">
                 <menupopup id="actionAccountPopup"
                            type="folder"
                            class="menulist-menupopup"
                            expandFolders="false"
-                           mode="filing"/>
+                           mode="filing"
+                           oncommand="onActionTargetChange(event, 'server.spamActionTargetAccount');"/>
               </menulist>
             </row>
             <row>
@@ -179,13 +178,14 @@
                      label="&otherFolder.label;"
                      accesskey="&otherFolder.accesskey;"/>
               <menulist id="actionTargetFolder"
+                        class="folderMenuItem"
                         aria-labelledby="moveTargetMode1"
-                        oncommand="onActionTargetChange(event, 'server.spamActionTargetFolder');">
+                        displayformat="verbose">
                 <menupopup id="actionFolderPopup"
                            type="folder"
                            mode="junk"
                            showFileHereLabel="true"
-                           fileHereLabel="&filemessageschoosethis.label;"/>
+                           oncommand="onActionTargetChange(event, 'server.spamActionTargetFolder');"/>
               </menulist>
             </row>
           </rows>

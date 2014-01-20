@@ -10,7 +10,6 @@
 
 <!DOCTYPE dialog [
 <!ENTITY % newFolderDTD SYSTEM "chrome://messenger/locale/newFolderDialog.dtd">%newFolderDTD;
-<!ENTITY % pickerDTD SYSTEM "chrome://messenger/locale/msgFolderPickerOverlay.dtd"> %pickerDTD;
 ]>
 
 <dialog xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"

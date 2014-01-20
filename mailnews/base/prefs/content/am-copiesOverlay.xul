@@ -9,8 +9,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
 <!DOCTYPE overlay [
-<!ENTITY % copiesDTD SYSTEM "chrome://messenger/locale/am-copies.dtd">%copiesDTD;
-<!ENTITY % pickerDTD SYSTEM "chrome://messenger/locale/msgFolderPickerOverlay.dtd"> %pickerDTD;
+<!ENTITY % copiesDTD SYSTEM "chrome://messenger/locale/am-copies.dtd">
+%copiesDTD;
 ]>
 
 <overlay xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -76,11 +76,12 @@
                      oncommand="setPickersState('msgFccAccountPicker', 'msgFccFolderPicker', event)"
                      observes="broadcaster_doFcc"/>
                 <menulist id="msgFccAccountPicker"
+                          class="folderMenuItem"
                           aria-labelledby="fcc_selectAccount"
-                          observes="broadcaster_doFcc"
-                          oncommand="noteSelectionChange('fcc', 'Account', event)">
+                          observes="broadcaster_doFcc">
                   <menupopup id="msgFccAccountPopup" type="folder" mode="filing"
-                             expandFolders="false"/>
+                             expandFolders="false"
+                             oncommand="noteSelectionChange('fcc', 'Account', event)"/>
                 </menulist>
             </row>
             <row align="center">
@@ -90,13 +91,14 @@
                      oncommand="setPickersState('msgFccFolderPicker', 'msgFccAccountPicker', event)"
                      observes="broadcaster_doFcc"/>
                 <menulist id="msgFccFolderPicker"
+                          class="folderMenuItem"
                           aria-labelledby="fcc_selectFolder"
-                          oncommand="noteSelectionChange('fcc', 'Folder', event)"
+                          displayformat="verbose"
                           observes="broadcaster_doFcc">
                   <menupopup id="msgFccFolderPopup" type="folder" mode="filing"
                              class="menulist-menupopup"
                              showFileHereLabel="true"
-                             fileHereLabel="&filemessageschoosethis.label;"/>
+                             oncommand="noteSelectionChange('fcc', 'Folder', event)"/>
                 </menulist>
             </row>
           </rows>
@@ -180,11 +182,12 @@
                      oncommand="setPickersState('msgArchivesAccountPicker', 'msgArchivesFolderPicker', event)"
                      observes="broadcaster_archiveEnabled"/>
                 <menulist id="msgArchivesAccountPicker"
-	                      aria-labelledby="archive_selectAccount"
-                          observes="broadcaster_archiveEnabled"
-                          oncommand="noteSelectionChange('archive', 'Account', event)">
+                          class="folderMenuItem"
+                          aria-labelledby="archive_selectAccount"
+                          observes="broadcaster_archiveEnabled">
                 <menupopup id="msgArchivesAccountPopup" type="folder" mode="filing"
-                           expandFolders="false"/>
+                           expandFolders="false"
+                           oncommand="noteSelectionChange('archive', 'Account', event)"/>
               </menulist>
             </row>
             <row align="center">
@@ -194,13 +197,14 @@
                      oncommand="setPickersState('msgArchivesFolderPicker', 'msgArchivesAccountPicker', event)"
                      observes="broadcaster_archiveEnabled"/>
                 <menulist id="msgArchivesFolderPicker"
+                          class="folderMenuItem"
                           aria-labelledby="archive_selectFolder"
-                          oncommand="noteSelectionChange('archive', 'Folder', event)"
+                          displayformat="verbose"
                           observes="broadcaster_archiveEnabled">
                 <menupopup id="msgArchivesFolderPopup" type="folder" mode="filing"
                            class="menulist-menupopup"
                            showFileHereLabel="true"
-                           fileHereLabel="&filemessageschoosethis.label;"/>
+                           oncommand="noteSelectionChange('archive', 'Folder', event)"/>
               </menulist>
             </row>
           </rows>
@@ -228,10 +232,11 @@
                      value="0" label="&draftsFolderOn.label;"
                      accesskey="&draftsFolderOn.accesskey;"/>
               <menulist id="msgDraftsAccountPicker"
-	                    aria-labelledby="draft_selectAccount"
-                        oncommand="noteSelectionChange('draft', 'Account', event)">
+                        class="folderMenuItem"
+                        aria-labelledby="draft_selectAccount">
                 <menupopup id="msgDraftAccountPopup" type="folder" mode="filing"
-                           expandFolders="false"/>
+                           expandFolders="false"
+                           oncommand="noteSelectionChange('draft', 'Account', event)"/>
               </menulist>
             </row>
             <row align="center">
@@ -239,13 +244,14 @@
                      oncommand="setPickersState('msgDraftsFolderPicker', 'msgDraftsAccountPicker', event)"
                      value="1" label="&draftInOtherFolder.label;"
                      accesskey="&draftInOtherFolder.accesskey;"/>
-  	          <menulist id="msgDraftsFolderPicker"
+              <menulist id="msgDraftsFolderPicker"
+                        class="folderMenuItem"
                         aria-labelledby="draft_selectFolder"
-                        oncommand="noteSelectionChange('draft', 'Folder', event)">
+                        displayformat="verbose">
                 <menupopup id="msgDraftFolderPopup" type="folder" mode="filing"
                            class="menulist-menupopup"
                            showFileHereLabel="true"
-                           fileHereLabel="&filemessageschoosethis.label;"/>
+                           oncommand="noteSelectionChange('draft', 'Folder', event)"/>
               </menulist>
             </row>
           </rows>
@@ -268,11 +274,12 @@
                      oncommand="setPickersState('msgStationeryAccountPicker', 'msgStationeryFolderPicker', event)"
                      value="0" label="&templatesFolderOn.label;"
                      accesskey="&templatesFolderOn.accesskey;"/>
-  	          <menulist id="msgStationeryAccountPicker"
-                        aria-labelledby="tmpl_selectAccount"
-                        oncommand="noteSelectionChange('tmpl', 'Account', event)">
+              <menulist id="msgStationeryAccountPicker"
+                        class="folderMenuItem"
+                        aria-labelledby="tmpl_selectAccount">
                 <menupopup id="msgFccAccountPopup" type="folder" mode="filing"
-                           expandFolders="false"/>
+                           expandFolders="false"
+                           oncommand="noteSelectionChange('tmpl', 'Account', event)"/>
               </menulist>
             </row>
             <row align="center">
@@ -281,12 +288,13 @@
                      value="1" label="&templateInOtherFolder.label;"
                      accesskey="&templateInOtherFolder.accesskey;"/>
               <menulist id="msgStationeryFolderPicker"
+                        class="folderMenuItem"
                         aria-labelledby="tmpl_selectFolder"
-                        oncommand="noteSelectionChange('tmpl', 'Folder', event)">
+                        displayformat="verbose">
                 <menupopup id="msgTemplFolderPopup" type="folder" mode="filing"
                            class="menulist-menupopup"
                            showFileHereLabel="true"
-                           fileHereLabel="&filemessageschoosethis.label;"/>
+                           oncommand="noteSelectionChange('tmpl', 'Folder', event)"/>
               </menulist>
             </row>
           </rows>

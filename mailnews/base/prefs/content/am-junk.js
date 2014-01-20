@@ -46,20 +46,10 @@ function onInit(aPageId, aServerId)
   moveOnSpamCheckbox.checked = moveOnSpamValue;
 
   let server = MailUtils.getFolderForURI(spamActionTargetAccount, false);
-  document.getElementById("actionTargetAccount")
-          .setAttribute("label", prettyFolderName(server));
   document.getElementById("actionAccountPopup").selectFolder(server);
 
-  let folder = null;
-  try {
-    folder = MailUtils.getFolderForURI(spamActionTargetFolder, true);
-    document.getElementById("actionFolderPopup").selectFolder(folder);
-  } catch (e) { } // OK for the folder to not exist.
-  if (!folder)
-    folder = MailUtils.getFolderForURI(spamActionTargetFolder, false);
-
-  document.getElementById("actionTargetFolder")
-          .setAttribute("label", prettyFolderName(folder));
+  let folder = MailUtils.getFolderForURI(spamActionTargetFolder, true);
+  document.getElementById("actionFolderPopup").selectFolder(folder);
 
   var currentArray = [];
   if (document.getElementById("server.useWhiteList").checked)
@@ -236,7 +226,7 @@ function onActionTargetChange(aEvent, aWSMElementId)
 {
   let folder = aEvent.target._folder;
   document.getElementById(aWSMElementId).value = folder.URI;
-  aEvent.currentTarget.setAttribute("label", prettyFolderName(folder));
+  document.getElementById("actionFolderPopup").selectFolder(folder);
 }
 
 /**

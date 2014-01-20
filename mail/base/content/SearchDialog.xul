@@ -75,7 +75,8 @@
          <hbox align="center">
          <label value="&searchHeading.label;" accesskey="&searchHeading.accesskey;"
                 control="searchableFolders"/>
-         <menulist id="searchableFolders" flex="2" class="folderMenuItem">
+         <menulist id="searchableFolders" flex="2" class="folderMenuItem"
+                   displayformat="verbose">
            <menupopup class="searchPopup menulist-menupopup"
                       type="folder" mode="search"
                       showAccountsFileHere="true" showFileHereLabel="true"

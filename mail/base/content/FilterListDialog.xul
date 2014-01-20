@@ -9,7 +9,6 @@
 
 <!DOCTYPE window [
 <!ENTITY % filtersDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">%filtersDTD;
-<!ENTITY % pickerDTD SYSTEM "chrome://messenger/locale/msgFolderPickerOverlay.dtd"> %pickerDTD;
 ]>
 
 <window id="filterListDialog"

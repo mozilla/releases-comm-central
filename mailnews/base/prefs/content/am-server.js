@@ -347,7 +347,7 @@ function folderPickerChange(aEvent)
 
   // Update the widget to show/do correct things even for subfolders.
   var trashFolderPicker = document.getElementById("msgTrashFolderPicker");
-  trashFolderPicker.setAttribute("label", folder.prettyName);
+  trashFolderPicker.menupopup.selectFolder(folder);
 }
 
 /** Generate the relative folder path from the root. */

@@ -151,10 +151,7 @@ function SetFolderDisplay(pickerMode, disableMode,
 
 // Initialize the folder display based on prefs values
 function InitFolderDisplay(folder, folderPicker) {
-    try {
-        folderPicker.firstChild.selectFolder(folder);
-    } catch (ex) {}
-    folderPicker.setAttribute("label", prettyFolderName(folder));
+    folderPicker.menupopup.selectFolder(folder);
     folderPicker.folder = folder;
 }
 
@@ -198,7 +195,7 @@ function noteSelectionChange(aGroup, aType, aEvent)
   }
 
   picker.folder = folder;
-  picker.setAttribute("label", prettyFolderName(folder));
+  picker.menupopup.selectFolder(folder);
 }
 
 // Need to append special folders when account picker is selected.

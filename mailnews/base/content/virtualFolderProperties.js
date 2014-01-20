@@ -22,8 +22,6 @@ function onLoad()
   var windowArgs = window.arguments[0];
   var acceptButton = document.documentElement.getButton("accept");
 
-  document.getElementById("name").focus();
-
   // call this when OK is pressed
   msgWindow = windowArgs.msgWindow;
 
@@ -69,8 +67,12 @@ function onLoad()
       if (!windowArgs.folder.isServer)
         gSearchFolderURIs = windowArgs.folder.URI;
     }
+
+    folderNameField = document.getElementById("name");
+    folderNameField.hidden = false;
+    folderNameField.focus();
     if (windowArgs.newFolderName)
-      document.getElementById("name").value = windowArgs.newFolderName;
+      folderNameField.value = windowArgs.newFolderName;
     if (windowArgs.searchFolderURIs)
       gSearchFolderURIs = windowArgs.searchFolderURIs;
 
@@ -119,8 +121,8 @@ function InitDialogWithVirtualFolder(aVirtualFolder)
 
   // when editing an existing folder, hide the folder picker that stores the parent location of the folder
   document.getElementById("chooseFolderLocationRow").collapsed = true;
-  var folderNameField = document.getElementById("name");
-  folderNameField.disabled = true;
+  let folderNameField = document.getElementById("existingName");
+  folderNameField.hidden = false;
 
   gSearchFolderURIs = virtualFolderWrapper.searchFolderURIs;
   document.getElementById('searchOnline').checked = virtualFolderWrapper.onlineSearch;
@@ -129,10 +131,12 @@ function InitDialogWithVirtualFolder(aVirtualFolder)
   setupSearchRows(gSearchTermSession.searchTerms);
 
   // set the name of the folder
-  folderNameField.value = aVirtualFolder.prettyName;
-
+  let folderBundle = document.getElementById("bundle_folder");
+  let name = folderBundle.getFormattedString("verboseFolderFormat",
+               [aVirtualFolder.prettyName, aVirtualFolder.server.prettyName]);
+  folderNameField.setAttribute("label", name);
   // update the window title based on the name of the saved search
-  var messengerBundle = document.getElementById("bundle_messenger");
+  let messengerBundle = document.getElementById("bundle_messenger");
   document.title = messengerBundle.getFormattedString('editVirtualFolderPropertiesTitle',
                                                       [aVirtualFolder.prettyName]);
 }

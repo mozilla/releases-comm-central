@@ -11,8 +11,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
 <!DOCTYPE page [
-<!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">%trashDTD;
-<!ENTITY % pickerDTD SYSTEM "chrome://messenger/locale/msgFolderPickerOverlay.dtd"> %pickerDTD;
+<!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
+%trashDTD;
 ]>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -244,14 +244,15 @@
                        value="1"
                        label="&modelMoveToTrash.label;"
                        accesskey="&modelMoveToTrash.accesskey;"/>
-                <menulist id="msgTrashFolderPicker"
+                <menulist id="msgTrashFolderPicker" flex="1"
+                          class="folderMenuItem"
                           aria-labelledby="modelMoveToTrash"
-                          oncommand="folderPickerChange(event);">
+                          displayformat="verbose">
                   <menupopup id="msgTrashFolderPopup"
                              type="folder"
                              mode="filing"
                              showFileHereLabel="true"
-                             fileHereLabel="&filemessageschoosethis.label;"/>
+                             oncommand="folderPickerChange(event);"/>
                 </menulist>
               </row>
               <row align="center">

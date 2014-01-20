@@ -12,14 +12,13 @@
       -gCustomActions from FilterEditor.js
       -gFilterType from FilterEditor.js
       -checkActionsReorder from FilterEditor.js
-      -SetFolderPickerElement from msgFolderPickerOverlay.js
 -->
 
 <!DOCTYPE dialog [
   <!ENTITY % filterEditorDTD SYSTEM "chrome://messenger/locale/FilterEditor.dtd" >
 %filterEditorDTD;
-  <!ENTITY % msgFolderPickerOverlayDTD SYSTEM "chrome://messenger/locale/msgFolderPickerOverlay.dtd" >
-%msgFolderPickerOverlayDTD;
+  <!ENTITY % messengerDTD    SYSTEM "chrome://messenger/locale/messenger.dtd" >
+%messengerDTD;
 ]>
 
 <bindings   id="filterBindings"
@@ -704,7 +703,7 @@
                        mode="filing"
                        class="menulist-menupopup"
                        showRecent="true"
-                       recentLabel="&recentfolders.label;"
+                       recentLabel="&recentFolders.label;"
                        showFileHereLabel="true"/>
       </xul:menulist>
     </content>

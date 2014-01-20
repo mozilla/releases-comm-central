@@ -12,8 +12,8 @@
 <?xul-overlay href="chrome://messenger/content/searchTermOverlay.xul"?>
 
 <!DOCTYPE dialog [
-<!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">%folderDTD;
-<!ENTITY % pickerDTD SYSTEM "chrome://messenger/locale/msgFolderPickerOverlay.dtd"> %pickerDTD;
+<!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
+  %folderDTD;
 ]>
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -32,6 +32,7 @@
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_search"    src="chrome://messenger/locale/search.properties"/>
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+    <stringbundle id="bundle_folder"    src="chrome://messenger/locale/folderWidgets.properties"/>
   </stringbundleset>
 
   <script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
@@ -46,14 +47,19 @@
     </columns>
 
     <rows>
-      <row>
+      <row align="center">
         <label value="&name.label;" accesskey="&name.accesskey;" control="name"/>
-        <textbox tabindex="0" id="name" oninput="doEnabling();"/>
+        <textbox id="name" hidden="true"
+                 oninput="doEnabling();"/>
+        <filefield id="existingName" class="folderMenuItem"
+                   hidden="true" tabindex="0"
+                   SpecialFolder="Virtual"/>
         <spring/>
       </row>
 
       <row align="center"  id="chooseFolderLocationRow">
-        <label value="&description.label;" accesskey="&description.accesskey;" control="msgNewFolderPicker"/>
+        <label value="&description.label;" accesskey="&description.accesskey;"
+               control="msgNewFolderPicker"/>
         <menulist id="msgNewFolderPicker" class="folderMenuItem" flex="1"
                   displayformat="verbose">
           <menupopup id="msgNewFolderPopup" type="folder" mode="newFolder"
@@ -67,15 +73,17 @@
         <label value="&folderSelectionCaption.label;"/>
         <hbox>
           <spacer flex="1"/>
-          <button label="&chooseFoldersButton.label;" oncommand="chooseFoldersToSearch();" 
-                  accesskey="&chooseFoldersButton.accesskey;"/>
+          <button label="&chooseFoldersButton.label;"
+                  accesskey="&chooseFoldersButton.accesskey;"
+                  oncommand="chooseFoldersToSearch();"/>
         </hbox>
       </row>
     </rows>
   </grid>
 
   <hbox flex="1">
-    <checkbox id="searchOnline" label="&searchOnline.label;" accesskey="&searchOnline.accesskey;"/>
+    <checkbox id="searchOnline" label="&searchOnline.label;"
+              accesskey="&searchOnline.accesskey;"/>
   </hbox>
 
   <separator class="thin"/>
