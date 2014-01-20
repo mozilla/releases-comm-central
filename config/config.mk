@@ -214,7 +214,7 @@ SLEEP ?= sleep
 TOUCH ?= touch
 
 ifdef .PYMAKE
-PYCOMMANDPATH += $(MOZILLA_SRCDIR)/config
+PYCOMMANDPATH += $(PYTHON_SITE_PACKAGES)
 endif
 
 # determine debug-related options
