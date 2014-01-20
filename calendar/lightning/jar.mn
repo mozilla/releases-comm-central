@@ -12,7 +12,9 @@ lightning.jar:
 % overlay chrome://messenger/content/messageWindow.xul chrome://lightning/content/imip-bar-overlay.xul
 % overlay chrome://messenger/content/messageWindow.xul chrome://lightning/content/messenger-overlay-messageWindow.xul
 % overlay chrome://lightning/content/messenger-overlay-sidebar.xul chrome://lightning/content/imip-bar-overlay.xul
-% overlay chrome://communicator/content/pref/preferences.xul chrome://lightning/content/suite-overlay-preferences.xul
+% overlay chrome://communicator/content/pref/preferences.xul chrome://lightning/content/suite-overlay-preferences.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
+% overlay about:addons chrome://lightning/content/suite-overlay-addons.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
+% overlay chrome://mozapps/content/extensions/extensions.xul chrome://lightning/content/suite-overlay-addons.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % overlay chrome://messenger/content/preferences/preferences.xul chrome://lightning/content/messenger-overlay-preferences.xul
 % overlay chrome://messenger/content/preferences/preferences.xul chrome://calendar/content/preferences/alarms.xul
 % overlay chrome://messenger/content/preferences/preferences.xul chrome://calendar/content/preferences/categories.xul
@@ -49,6 +51,7 @@ lightning.jar:
     content/lightning/messenger-overlay-sidebar.xul        (content/messenger-overlay-sidebar.xul)
     content/lightning/messenger-overlay-preferences.js     (content/messenger-overlay-preferences.js)
     content/lightning/messenger-overlay-preferences.xul    (content/messenger-overlay-preferences.xul)
+    content/lightning/suite-overlay-addons.xul             (content/suite-overlay-addons.xul)
     content/lightning/suite-overlay-preferences.xul        (content/suite-overlay-preferences.xul)
     content/lightning/suite-overlay-sidebar.js             (content/suite-overlay-sidebar.js)
     content/lightning/suite-overlay-sidebar.xul            (content/suite-overlay-sidebar.xul)

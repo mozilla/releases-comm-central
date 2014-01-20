@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+
+<overlay id="suiteAddonsOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/javascript"><![CDATA[
+    var lightningPrefs = {
+      guid: "{e2fda1a4-762b-4020-b5ad-a41df1933103}",
+      handleEvent: function(aEvent) {
+        var item = gListView.getListItemForID(this.guid);
+        if (!item)
+          return;
+
+        item.showPreferences = this.showPreferences;
+      },
+      showPreferences: function() {
+        var win = Services.wm.getMostRecentWindow("mozilla:preferences");
+        if (win) {
+          win.focus();
+          var doc = win.document;
+          var pane = doc.getElementById("paneLightning");
+          doc.documentElement.syncTreeWithPane(pane, true);
+        } else {
+          openDialog("chrome://communicator/content/pref/preferences.xul",
+                     "PrefWindow",
+                     "non-private,chrome,titlebar,dialog=no,resizable",
+                     "paneLightning");
+        }
+      },
+    };
+
+    window.addEventListener("ViewChanged", lightningPrefs, false);
+  ]]></script>
+
+</overlay>
