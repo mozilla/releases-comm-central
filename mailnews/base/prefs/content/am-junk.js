@@ -69,8 +69,9 @@ function onInit(aPageId, aServerId)
   var wList = document.getElementById("whiteListAbURI");
 
   // Ensure the whitelist is empty
-  while (wList.lastChild)
+  while (wList.hasChildNodes()) {
     wList.removeChild(wList.lastChild);
+  }
 
   // Populate the listbox with address books
   let abItems = [];
@@ -245,8 +246,13 @@ function onActionTargetChange(aEvent, aWSMElementId)
 function buildServerFilterMenuList()
 {
   const KEY_ISP_DIRECTORY_LIST = "ISPDL";
-  let ispHeaderList = document.getElementById('useServerFilterList');
-  // Now walk through the isp directories looking for sfd files
+  let ispHeaderList = document.getElementById("useServerFilterList");
+  // Ensure the menulist is empty.
+  while (ispHeaderList.hasChildNodes()) {
+    ispHeaderList.removeChild(ispHeaderList.lastChild);
+  }
+
+  // Now walk through the isp directories looking for sfd files.
   let ispDirectories = Services.dirsvc.get(KEY_ISP_DIRECTORY_LIST,
                                            Components.interfaces.nsISimpleEnumerator);
 
