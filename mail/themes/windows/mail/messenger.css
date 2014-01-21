@@ -135,3 +135,17 @@ notification[value="addon-install-failed"] .messageCloseButton {
 notification[value="addon-install-failed"] .messageCloseButton:not(:hover):not(:active) {
   -moz-image-region: rect(0, 64px, 16px, 48px);
 }
+
+menulist.folderMenuItem > .menulist-label-box > .menulist-label {
+  -moz-margin-start: 2px !important;
+}
+
+menulist.folderMenuItem menu:not(.folderMenuItem) {
+%ifndef WINDOWS_AERO
+  padding-top: 2px;
+  padding-bottom: 2px;
+%else
+  padding-top: 3px;
+  padding-bottom: 3px;
+%endif
+}

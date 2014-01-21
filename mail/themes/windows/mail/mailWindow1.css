@@ -521,10 +521,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   padding: 1px 3px;
 }
 
-#locationFolders > .menulist-label-box > .menulist-label {
-  -moz-margin-start: 2px !important;
-}
-
 @media not all and (-moz-windows-compositor) {
   #mail-toolbar-menubar2[autohide="false"] +
   #tabs-toolbar > .titlebar-placeholder {

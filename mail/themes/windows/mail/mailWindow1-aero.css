@@ -279,10 +279,6 @@ treechildren::-moz-tree-image(junkStatusCol) {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
-
-  #locationFolders > .menulist-label-box > .menulist-label {
-    -moz-margin-start: 2px !important;
-  }
 }
 
 #viewPicker > .menulist-label-box > .menulist-icon,
