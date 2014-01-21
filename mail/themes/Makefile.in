@@ -9,14 +9,6 @@ VPATH		= @srcdir@
 
 include $(topsrcdir)/config/config.mk
 
+DIST_FILES = install.rdf
+
 include $(topsrcdir)/config/rules.mk
-
-CLASSIC_EXTENSION_DIR = {972ce4c6-7e08-4474-a285-3208198ce6fd}
-
-DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION)
-
-libs::
-	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf -o $(DIST)/bin/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf)
-
-install::
-	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf -o $(DESTDIR)$(mozappdir)/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf)
