@@ -794,7 +794,6 @@ nsNntpIncomingServer::WriteHostInfoFile()
 {
   if (!mHostInfoHasChanged)
     return NS_OK;
-  int32_t firstnewdate = (int32_t)mFirstNewDate;
 
   mLastUpdatedTime = uint32_t(PR_Now() / PR_USEC_PER_SEC);
 
@@ -823,9 +822,6 @@ nsNntpIncomingServer::WriteHostInfoFile()
   WriteLine(hostInfoStream, hostname);
   nsAutoCString dateStr("lastgroupdate=");
   dateStr.AppendInt(mLastUpdatedTime);
-  WriteLine(hostInfoStream, dateStr);
-  dateStr ="firstnewdate=";
-  dateStr.AppendInt(firstnewdate);
   WriteLine(hostInfoStream, dateStr);
   dateStr = "uniqueid=";
   dateStr.AppendInt(mUniqueId);
@@ -1246,8 +1242,6 @@ nsNntpIncomingServer::HandleLine(const char* line, uint32_t line_size)
       *equalPos++ = '\0';
       if (PL_strcmp(line, "lastgroupdate") == 0) {
         mLastUpdatedTime = strtoul(equalPos, nullptr, 10);
-      } else if (PL_strcmp(line, "firstnewdate") == 0) {
-        mFirstNewDate = strtol(equalPos, nullptr, 16);
       } else if (PL_strcmp(line, "uniqueid") == 0) {
         mUniqueId = strtol(equalPos, nullptr, 16);
       } else if (PL_strcmp(line, "version") == 0) {

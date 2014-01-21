@@ -121,10 +121,9 @@ private:
     bool mHostInfoLoaded;
     bool mHostInfoHasChanged;
     nsCOMPtr <nsIFile> mHostInfoFile;
-    
+
     uint32_t mLastGroupDate;
-    PRTime mFirstNewDate;
-    int32_t mUniqueId;    
+    int32_t mUniqueId;
     uint32_t mLastUpdatedTime;
     int32_t mVersion;
     bool mPostingAllowed;
