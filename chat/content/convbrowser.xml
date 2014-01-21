@@ -98,6 +98,20 @@
                 onget="return this._webNavigation || (this._webNavigation = this.docShell.QueryInterface(Components.interfaces.nsIWebNavigation));"
                 readonly="true"/>
 
+      <field name="_finder">null</field>
+
+      <property name="finder" readonly="true">
+        <getter><![CDATA[
+          if (!this._finder) {
+            if (!this.docShell)
+              return null;
+
+            let Finder = Components.utils.import("resource://gre/modules/Finder.jsm", {}).Finder;
+            this._finder = new Finder(this.docShell);
+          }
+          return this._finder;
+        ]]></getter>
+      </property>
 
       <field name="_fastFind">null</field>
       <property name="fastFind"
@@ -119,6 +133,9 @@
         ]]>
         </getter>
       </property>
+
+      <field name="_lastSearchString">null</field>
+      <field name="_lastSearchHighlight">false</field>
 
       <property name="webProgress"
                 readonly="true"
