@@ -14,7 +14,7 @@ ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
 MODULE_NAME	= msgMapiModule
 endif
 
-LOBJS		= ../build/msgMapi_i.$(OBJ_SUFFIX)
+CSRCS += ../build/msgMapi_i.c
 
 OS_LIBS		+= ole32.lib
 
