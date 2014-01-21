@@ -1926,8 +1926,14 @@ function ShouldShowAttachmentNotification(async)
     if (sigIndex > 0)
       mailData = mailData.substring(0, sigIndex);
 
+    // Ignore replied messages (plain text and html compose mode).
+    let repText = getComposeBundle().getString("mailnews.reply_header_originalmessage");
+    let repIndex = mailData.indexOf(repText);
+    if (repIndex > 0)
+      mailData = mailData.substring(0, repIndex);
+
     // Ignore forwarded messages (plain text and html compose mode).
-    let fwdText = getComposeBundle().getString("mailnews.reply_header_originalmessage");
+    let fwdText = getComposeBundle().getString("mailnews.forward_header_originalmessage");
     let fwdIndex = mailData.indexOf(fwdText);
     if (fwdIndex > 0)
       mailData = mailData.substring(0, fwdIndex);

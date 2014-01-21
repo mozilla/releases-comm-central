@@ -613,14 +613,14 @@ MimeGetNamedString(int32_t id)
 }
 
 void
-MimeGetReplyHeaderOriginalMessage(nsACString &retString)
+MimeGetForwardHeaderDelimiter(nsACString &retString)
 {
   nsCString defaultValue;
   defaultValue.Adopt(MimeGetStringByID(MIME_FORWARDED_MESSAGE_HTML_USER_WROTE));
 
   nsString tmpRetString;
   NS_GetLocalizedUnicharPreferenceWithDefault(nullptr,
-    "mailnews.reply_header_originalmessage",
+    "mailnews.forward_header_originalmessage",
     NS_ConvertUTF8toUTF16(defaultValue),
     tmpRetString);
 
@@ -669,7 +669,7 @@ mime_insert_all_headers(char            **body,
   }
 
   nsCString replyHeader;
-  MimeGetReplyHeaderOriginalMessage(replyHeader);
+  MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit)
   {
     NS_MsgSACopy(&(newBody), "<HTML><BODY><BR><BR>");
@@ -813,7 +813,7 @@ mime_insert_normal_headers(char             **body,
   UnquoteMimeAddress(cc, mailcharset);
 
   nsCString replyHeader;
-  MimeGetReplyHeaderOriginalMessage(replyHeader);
+  MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit)
   {
     NS_MsgSACopy(&(newBody), "<HTML><BODY><BR><BR>");
@@ -979,8 +979,7 @@ mime_insert_micro_headers(char            **body,
   UnquoteMimeAddress(cc, mailcharset);
 
   nsCString replyHeader;
-  MimeGetReplyHeaderOriginalMessage(replyHeader);
-
+  MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit)
   {
     NS_MsgSACopy(&(newBody), "<HTML><BODY><BR><BR>");
