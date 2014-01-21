@@ -700,11 +700,6 @@ sysinstall_cmd = install_cmd
 DIR_INSTALL = $(INSTALL)
 dir_install_cmd = install_cmd
 
-# png to ico converter. The function takes 5 arguments, in order: source png
-# file, left, top, size, output ico file.
-png2ico = $(PYTHON) $(MOZILLA_DIR)/config/pythonpath.py \
-  -I$(topsrcdir)/build/pypng $(topsrcdir)/build/png2ico.py $(1) $(2) $(3) $(4) $(5)
-
 #
 # Localization build automation
 #
