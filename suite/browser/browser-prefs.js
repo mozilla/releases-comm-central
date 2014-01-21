@@ -870,6 +870,7 @@ pref("services.sync.prefs.sync.mailnews.display.prefer_plaintext", true);
 pref("services.sync.prefs.sync.mailnews.display.show_all_body_parts_menu", true);
 pref("services.sync.prefs.sync.mailnews.emptyTrash.dontAskAgain", true);
 pref("services.sync.prefs.sync.mailnews.filters.confirm_delete", true);
+pref("services.sync.prefs.sync.mailnews.forward_header_originalmessage", true);
 pref("services.sync.prefs.sync.mailnews.headers.extraExpandedHeaders", true);
 pref("services.sync.prefs.sync.mailnews.headers.showMessageId", true);
 pref("services.sync.prefs.sync.mailnews.headers.showOrganization", true);
