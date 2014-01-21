@@ -1443,7 +1443,7 @@
         let messagesNode = document.getAnonymousElementByAttribute(
                              this, "anonid", "messages");
         let message = messagesNode.childNodes[messageIndex];
-        window.scrollTo(0, $(message).position()['top']);
+        window.scrollTo(0, $(message).position()['top'] + $(window).scrollTop());
       ]]></body>
     </method>
 

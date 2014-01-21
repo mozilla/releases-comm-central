@@ -569,8 +569,6 @@ var FacetContext = {
     this._numPages += 1;
     this._showResults();
     let results = document.getElementById("results");
-    let msgIndex = (this._numPages - 1) * this.maxMessagesToShow;
-    results.ensureNodeVisible(msgIndex);
   },
 
 
