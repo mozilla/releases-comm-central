@@ -269,7 +269,8 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
 
 #msgSubject {
   -moz-appearance: none;
-  -moz-margin-start: 5px;
+  margin-top: 0;
+  -moz-margin-start: 6px;
   -moz-margin-end: 5px;
   background-color: inherit;
   border-color: transparent;
@@ -328,6 +329,8 @@ treechildren::-moz-tree-image(subscribed-news) {
   -moz-user-focus: none;
   -moz-appearance: none;
   width: 0;
+  margin-top: 0;
+  margin-bottom: 0;
   border: none;
   background-color: transparent;
 }
@@ -382,6 +385,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 #composeContentBox {
+  background-color: -moz-dialog;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4) inset;
 
   /*
@@ -415,6 +419,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   -moz-appearance: none;
   margin-top: 5px;
   margin-right: 5px;
+  margin-bottom: 0;
   padding-top: 1px;
   padding-bottom: 1px;
   -moz-padding-end: 30px;
