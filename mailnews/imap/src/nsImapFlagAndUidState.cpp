@@ -7,6 +7,7 @@
 
 #include "nsImapCore.h"
 #include "nsImapFlagAndUidState.h"
+#include "nsMsgUtils.h"
 #include "prcmon.h"
 #include "nspr.h"
 
@@ -244,8 +245,8 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(uint32_t uid, const ch
     // We'll store multiple keys as space-delimited since space is not
     // a valid character in a keyword. First, we need to look for the
     // customFlag in the existing flags;
-    nsCString customFlagString(customFlag);
-    int32_t existingCustomFlagPos = oldValue.Find(customFlagString, false, 0, -1);
+    nsDependentCString customFlagString(customFlag);
+    int32_t existingCustomFlagPos = oldValue.Find(customFlagString);
     uint32_t customFlagLen = customFlagString.Length();
     while (existingCustomFlagPos != kNotFound)
     {
@@ -258,7 +259,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(uint32_t uid, const ch
             (oldValue.CharAt(existingCustomFlagPos - 1) == ' ')))
         return NS_OK;
       // else, advance to next flag
-      existingCustomFlagPos = oldValue.Find(customFlagString, false, existingCustomFlagPos + customFlagLen, -1);
+      existingCustomFlagPos = MsgFind(oldValue, customFlagString, false, existingCustomFlagPos + customFlagLen);
     }
     ourCustomFlags.Assign(oldValue);
     ourCustomFlags.AppendLiteral(" ");
