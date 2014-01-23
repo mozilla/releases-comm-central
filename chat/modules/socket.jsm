@@ -142,6 +142,9 @@ const Socket = {
     if (Services.io.offline)
       throw Cr.NS_ERROR_FAILURE;
 
+    // This won't work for Linux due to bug 758848.
+    Services.obs.addObserver(this, "wake_notification", false);
+
     this.LOG("Connecting to: " + aHost + ":" + aPort);
     this.host = aHost;
     this.port = aPort;
@@ -210,6 +213,9 @@ const Socket = {
       delete this._resetPingTimerPending;
     }
     this.cancelDisconnectTimer();
+
+    delete this._lastAliveTime;
+    Services.obs.removeObserver(this, "wake_notification");
 
     this.disconnected = true;
   },
@@ -282,12 +288,14 @@ const Socket = {
   // the first time enables the ping functionality.
   resetPingTimer: function() {
     // Clearing and setting timeouts is expensive, so we do it at most
-      // once per eventloop spin cycle.
+    // once per eventloop spin cycle.
     if (this._resetPingTimerPending)
       return;
     this._resetPingTimerPending = true;
     executeSoon(this._delayedResetPingTimer.bind(this));
   },
+  kTimeBeforePing: 120000, // 2 min
+  kTimeAfterPingBeforeDisconnect: 30000, // 30 s
   _delayedResetPingTimer: function() {
     if (!this._resetPingTimerPending)
       return;
@@ -295,7 +303,7 @@ const Socket = {
     if (this._pingTimer)
       clearTimeout(this._pingTimer);
     // Send a ping every 2 minutes if there's no traffic on the socket.
-    this._pingTimer = setTimeout(this._sendPing.bind(this), 120000);
+    this._pingTimer = setTimeout(this._sendPing.bind(this), this.kTimeBeforePing);
   },
 
   // If using the ping functionality, this should be called when a ping receives
@@ -305,6 +313,30 @@ const Socket = {
       return;
     clearTimeout(this._disconnectTimer);
     delete this._disconnectTimer;
+  },
+
+  // Plenty of time may have elapsed if the computer wakes from sleep, so check
+  // if we should reconnect immediately.
+  _lastAliveTime: null,
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic != "wake_notification")
+      return;
+    let elapsedTime = Date.now() - this._lastAliveTime;
+    // If there never was any activity before we went to sleep,
+    // or if we've been waiting for a ping response for over 30s,
+    // or if the last activity on the socket is longer ago than we usually
+    //   allow before we timeout,
+    // declare the connection timed out immediately.
+    if (!this._lastAliveTime ||
+        (this._disconnectTimer && elapsedTime > this.kTimeAfterPingBeforeDisconnect) ||
+        elapsedTime > this.kTimeBeforePing + this.kTimeAfterPingBeforeDisconnect)
+      this.onConnectionTimedOut();
+    else if (this._pingTimer) {
+      // If there was a ping timer running when the computer went to sleep,
+      // ping immediately to discover if we are still connected.
+      clearTimeout(this._pingTimer);
+      this._sendPing();
+    }
   },
 
   /*
@@ -368,6 +400,7 @@ const Socket = {
   onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
     if (this.disconnected)
       return;
+    this._lastAliveTime = Date.now();
     if (this.binaryMode) {
       // Load the data from the stream
       this._incomingDataBuffer = this._incomingDataBuffer
@@ -611,7 +644,7 @@ const Socket = {
     delete this._pingTimer;
     this.sendPing();
     this._disconnectTimer = setTimeout(this.onConnectionTimedOut.bind(this),
-                                       30000);
+                                       this.kTimeAfterPingBeforeDisconnect);
   },
 
   /*
