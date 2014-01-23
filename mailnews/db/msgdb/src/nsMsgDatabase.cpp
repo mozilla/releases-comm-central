@@ -467,7 +467,7 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
         hdr->GetMessageKey(&key);
       if (m_cachedHeaders->entryCount > m_cacheSize)
         ClearHdrCache(true);
-      PLDHashEntryHdr *entry = PL_DHashTableOperate(m_cachedHeaders, (void *) key, PL_DHASH_ADD);
+      PLDHashEntryHdr *entry = PL_DHashTableOperate(m_cachedHeaders, (void *)(uintptr_t) key, PL_DHASH_ADD);
       if (!entry)
         return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
@@ -634,10 +634,10 @@ nsresult nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key)
     if (key == nsMsgKey_None)
       hdr->GetMessageKey(&key);
 
-    PLDHashEntryHdr *entry = PL_DHashTableOperate(m_cachedHeaders, (const void *) key, PL_DHASH_LOOKUP);
+    PLDHashEntryHdr *entry = PL_DHashTableOperate(m_cachedHeaders, (const void *)(uintptr_t) key, PL_DHASH_LOOKUP);
     if (PL_DHASH_ENTRY_IS_BUSY(entry))
     {
-      PL_DHashTableOperate(m_cachedHeaders, (void *) key, PL_DHASH_REMOVE);
+      PL_DHashTableOperate(m_cachedHeaders, (void *)(uintptr_t) key, PL_DHASH_REMOVE);
       NS_RELEASE(hdr); // get rid of extra ref the cache was holding.
     }
 
@@ -658,7 +658,7 @@ nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
   if (m_headersInUse)
   {
     PLDHashEntryHdr *entry;
-    entry = PL_DHashTableOperate(m_headersInUse, (const void *) key, PL_DHASH_LOOKUP);
+    entry = PL_DHashTableOperate(m_headersInUse, (const void *)(uintptr_t) key, PL_DHASH_LOOKUP);
     if (PL_DHASH_ENTRY_IS_BUSY(entry))
     {
       MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(entry);
@@ -697,7 +697,7 @@ bool
 nsMsgDatabase::MatchEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aEntry, const void* aKey)
 {
   const MsgHdrHashElement* hdr = reinterpret_cast<const MsgHdrHashElement*>(aEntry);
-  return aKey == (const void *) hdr->mKey; // ### or get the key from the hdr...
+  return aKey == (const void *)(uintptr_t) hdr->mKey; // ### or get the key from the hdr...
 }
 
 void
@@ -731,7 +731,7 @@ nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
   {
     if (key == nsMsgKey_None)
       hdr->GetMessageKey(&key);
-    PLDHashEntryHdr *entry = PL_DHashTableOperate(m_headersInUse, (void *) key, PL_DHASH_ADD);
+    PLDHashEntryHdr *entry = PL_DHashTableOperate(m_headersInUse, (void *)(uintptr_t) key, PL_DHASH_ADD);
     if (!entry)
       return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
@@ -767,7 +767,7 @@ nsresult nsMsgDatabase::RemoveHdrFromUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
     if (key == nsMsgKey_None)
       hdr->GetMessageKey(&key);
 
-    PL_DHashTableOperate(m_headersInUse, (void *) key, PL_DHASH_REMOVE);
+    PL_DHashTableOperate(m_headersInUse, (void *)(uintptr_t) key, PL_DHASH_REMOVE);
   }
   return NS_OK;
 }

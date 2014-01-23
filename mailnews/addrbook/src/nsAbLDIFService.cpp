@@ -9,7 +9,6 @@
 #include "nsILineInputStream.h"
 #include "nsNetUtil.h"
 #include "nsISeekableStream.h"
-#include "nsVoidArray.h"
 #include "mdb.h"
 #include "plstr.h"
 #include "prmem.h"
@@ -71,8 +70,8 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb, nsIFile *aSr
   char* pBuf = &buf[0];
   int32_t startPos = 0;
   uint32_t len = 0;
-  nsVoidArray listPosArray;   // where each list/group starts in ldif file
-  nsVoidArray listSizeArray;  // size of the list/group info
+  nsTArray<int32_t> listPosArray;   // where each list/group starts in ldif file
+  nsTArray<int32_t> listSizeArray;  // size of the list/group info
   int32_t savedStartPos = 0;
   int32_t filePos = 0;
   uint64_t bytesLeft = 0;
@@ -97,8 +96,8 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb, nsIFile *aSr
         else
         {
           //keep file position for mailing list
-          listPosArray.AppendElement((void*)savedStartPos);
-          listSizeArray.AppendElement((void*)(filePos + startPos-savedStartPos));
+          listPosArray.AppendElement(savedStartPos);
+          listSizeArray.AppendElement(filePos + startPos-savedStartPos);
           ClearLdifRecordBuffer();
         }
         savedStartPos = filePos + startPos;
@@ -110,12 +109,12 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb, nsIFile *aSr
   }
   //last row
   if (!mLdifLine.IsEmpty() && mLdifLine.Find("groupOfNames") == -1)
-    AddLdifRowToDatabase(aDb, false); 
+    AddLdifRowToDatabase(aDb, false);
 
   // mail Lists
   int32_t i, pos;
   uint32_t size;
-  int32_t listTotal = listPosArray.Count();
+  int32_t listTotal = listPosArray.Length();
   char *listBuf;
   ClearLdifRecordBuffer();  // make sure the buffer is clean
 
@@ -124,8 +123,8 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb, nsIFile *aSr
 
   for (i = 0; i < listTotal; i++)
   {
-    pos  = NS_PTR_TO_INT32(listPosArray.ElementAt(i));
-    size = NS_PTR_TO_INT32(listSizeArray.ElementAt(i));
+    pos  = listPosArray[i];
+    size = listSizeArray[i];
     if (NS_SUCCEEDED(seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, pos)))
     {
       // Allocate enough space for the lists/groups as the size varies.

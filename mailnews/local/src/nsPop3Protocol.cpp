@@ -1090,7 +1090,7 @@ nsresult nsPop3Protocol::LoadUrl(nsIURI* aURL, nsISupports * /* aConsumer */)
     uint32_t nowInSeconds = TimeInSecondsFromPRTime(PR_Now());
     uint32_t cutOffDay = nowInSeconds - (60 * 60 * 24 * numDaysToLeaveOnServer);
 
-    PL_HashTableEnumerateEntries(m_pop3ConData->uidlinfo->hash, net_pop3_delete_old_msgs_mapper, (void *) cutOffDay);
+    PL_HashTableEnumerateEntries(m_pop3ConData->uidlinfo->hash, net_pop3_delete_old_msgs_mapper, (void *)(uintptr_t) cutOffDay);
   }
   const char* uidl = PL_strcasestr(queryPart.get(), "uidl=");
   PR_FREEIF(m_pop3ConData->only_uidl);
