@@ -40,6 +40,7 @@
 #include "nsIArray.h"
 #include "nsISupportsArray.h"
 #include "nsIMsgSend.h"
+#include "nsMsgUtils.h"
 
 PRLogModuleInfo *IMPORTLOGMODULE = nullptr;
 

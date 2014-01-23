@@ -9,6 +9,7 @@
 #include "nsStringGlue.h"
 #include "nsIImportModule.h"
 #include "nsVoidArray.h"
+#include "nsCOMPtr.h"
 #include "nsIArray.h"
 #include "nsIMutableArray.h"
 #include "nsIFile.h"
