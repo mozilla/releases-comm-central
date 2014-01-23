@@ -104,12 +104,21 @@ EXTRA_DSO_LIBS += tracemalloc
 endif
 
 ifeq ($(OS_ARCH),WINNT)
+# png to ico converter. The function takes 5 arguments, in order: source png
+# file, left, top, size, output ico file.
+png2ico = $(PYTHON) $(srcdir)/png2ico.py $(1) $(2) $(3) $(4) $(5)
+
 # Extract the icons we care about embedding into the EXE
-embedded-icons::
+available-16.ico: $(topsrcdir)/chat/themes/available-16.png $(srcdir)/png2ico.py
 	$(call png2ico,$(topsrcdir)/chat/themes/available-16.png,0,0,16,available-16.ico)
+
+away-16.ico: $(topsrcdir)/chat/themes/away-16.png $(srcdir)/png2ico.py
 	$(call png2ico,$(topsrcdir)/chat/themes/away-16.png,0,0,16,away-16.ico)
+
+offline-16.ico: $(topsrcdir)/chat/themes/offline-16.png $(srcdir)/png2ico.py
 	$(call png2ico,$(topsrcdir)/chat/themes/offline-16.png,0,0,16,offline-16.ico)
 
+embedded-icons:: available-16.ico away-16.ico offline-16.ico
 GARBAGE += available-16.ico away-16.ico offline-16.ico
 
 OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 version winspool)
