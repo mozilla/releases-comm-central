@@ -47,6 +47,7 @@
 
 #quick-filter-bar-expando {
   border-top: 1px solid #f9faf9;
+  border-bottom: 1px solid #bebebe;
   background: #eaeaea;
 }
 
@@ -54,9 +55,6 @@
 #quick-filter-bar-expando:-moz-window-inactive {
   background-color: -moz-mac-chrome-inactive;
   background-image: none;
-}
-
-#quick-filter-bar[filterActive="matches"] {
 }
 
 #threadTree[filterActive="matches"] {
@@ -84,7 +82,7 @@
   height: 16px;
   font-weight: bold;
   padding: 0 4px;
-  margin: 1px 3px;
+  margin: 1px 3px 2px;
   border-radius: 8px;
   border: 0;
 }
