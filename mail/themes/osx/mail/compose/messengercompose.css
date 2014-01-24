@@ -440,24 +440,22 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 
   /*
    * In order to remove the shadow border on left/right edges elegantly,
-   * use left/right margins of -3px. Just note that certain elements might need
-   * a margin-left or margin-right change.
+   * use left/right margins of -3px. We make up for this by adding 3px
+   * of padding instead.
    */
 
   margin-right: -3px;
   margin-left: -3px;
+  padding-right: 3px;
+  padding-left: 3px;
 }
 
 #composeContentBox:-moz-window-inactive {
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2) inset;
 }
 
-#content-frame {
-  -moz-margin-end: 3px;
-}
-
-#attachments-box {
-  -moz-padding-end: 3px;
+#headers-box {
+  padding-top: 5px;
 }
 
 #MsgHeadersToolbar {
@@ -468,7 +466,7 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 }
 
 #msgIdentity {
-   -moz-margin-start: 0px;
+   margin: 0px;
    -moz-padding-start: 3px;
    background: transparent;
    line-height: 1;
@@ -493,7 +491,6 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   border-top: none;
   border-bottom: none;
   height: 7px;
-  -moz-margin-end: 3px;
 }
 
 #attachmentBucketSize {
@@ -532,6 +529,7 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 }
 
 #msgSubject {
+  margin-top: 0px;
   -moz-margin-start: 2px;
   -moz-margin-end: 1px;
   background-color: inherit;
@@ -626,7 +624,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   -moz-user-focus: none;
   -moz-appearance: none;
   width: 0;
-  margin: 5px 0px;
+  margin: 0px;
   border: none;
   background-color: transparent;
 }
@@ -648,6 +646,8 @@ treechildren::-moz-tree-image(subscribed-news) {
   border-left: 1px solid transparent !important;
   border-right: 1px solid transparent !important;
   border-bottom: 1px solid #C6C6C6 !important;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 0px;
   padding: 2px !important;
 
   transition: border .2s, background-color .2s;
@@ -688,6 +688,9 @@ treechildren::-moz-tree-image(subscribed-news) {
 /* ::::: compose toolbar sizer ::::: */
 
 #compose-toolbar-sizer {
+  position: relative;
+  margin-top: -2px;
+  min-height: 7px;
   background-image: url("chrome://messenger/skin/messengercompose/osx-noise.png");
   background-color: rgb(242, 242, 242);
   border-bottom: 1px solid #DCDCDC;
@@ -700,8 +703,8 @@ treechildren::-moz-tree-image(subscribed-news) {
   background-image: url("chrome://messenger/skin/messengercompose/osx-noise.png");
   background-color: rgb(242, 242, 242) !important;
   padding-top: 2px;
-  margin-left: 6px;
-  margin-right: 6px;
+  margin-left: 3px;
+  margin-right: 3px;
 }
 
 #FormatToolbar toolbarseparator {
