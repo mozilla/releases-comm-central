@@ -23,18 +23,10 @@
 
   <!-- chrome://global/content/bindings/tree.xml#treecol simplified so
    that we don't throw JS errors from the onclick handler -->
-  <binding id="treecol" extends="chrome://global/content/bindings/tree.xml#tree-base">
+  <binding id="treecol" role="xul:treecolumnitem"
+           extends="chrome://global/content/bindings/tree.xml#tree-base">
     <content>
       <xul:label class="treecol-text" xbl:inherits="crop,value=label" flex="1" crop="right"/>
     </content>
-    <implementation implements="nsIAccessibleProvider">
-      <property name="accessibleType" readonly="true">
-        <getter>
-          <![CDATA[
-            return Components.interfaces.nsIAccessibleProvider.XULTreeColumnItem;
-          ]]>
-        </getter>
-      </property>
-    </implementation>
   </binding>
 </bindings>

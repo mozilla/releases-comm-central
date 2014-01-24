@@ -8,19 +8,11 @@
           xmlns="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <binding id="browser">
+  <binding id="browser" role="outerdoc">
     <implementation type="application/javascript"
-                    implements="nsIAccessibleProvider, nsIDOMEventListener,
+                    implements="nsIDOMEventListener,
                                 nsIWebProgressListener, nsIController,
                                 nsISelectionListener, nsIObserver">
-      <property name="accessibleType" readonly="true">
-        <getter>
-          <![CDATA[
-            return Components.interfaces.nsIAccessibleProvider.OuterDoc;
-          ]]>
-        </getter>
-      </property>
-
       <property name="autoscrollEnabled">
         <getter>
           <![CDATA[
