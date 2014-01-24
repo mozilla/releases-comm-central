@@ -154,22 +154,22 @@ libs-%:
 	@$(MAKE) -C ../../mozilla/intl/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref
 
-repackage-win32-installer: WIN32_INSTALLER_OUT="$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe"
-repackage-win32-installer: $(WIN32_INSTALLER_IN) $(SUBMAKEFILES)
+repackage-win32-installer: WIN32_INSTALLER_OUT=$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
+repackage-win32-installer: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) $(SUBMAKEFILES)
 	@echo "Repackaging $(WIN32_INSTALLER_IN) into $(WIN32_INSTALLER_OUT)."
 	$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY) export
 	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen l10ngen/setup.exe l10ngen/7zSD.sfx
 	$(MAKE) repackage-zip \
 	  AB_CD=$(AB_CD) \
 	  MOZ_PKG_FORMAT=SFX7Z \
-	  ZIP_IN=$(WIN32_INSTALLER_IN) \
-	  ZIP_OUT=$(WIN32_INSTALLER_OUT) \
+	  ZIP_IN='$(WIN32_INSTALLER_IN)' \
+	  ZIP_OUT='$(WIN32_INSTALLER_OUT)' \
 	  SFX_HEADER="$(PWD)/../installer/windows/l10ngen/7zSD.sfx \
 	              $(_ABS_SRCDIR)/suite/installer/windows/app.tag"
 
 ifeq (WINNT,$(OS_ARCH))
-repackage-win32-installer-%: $(WIN32_INSTALLER_IN) libs-%
-	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN=$(WIN32_INSTALLER_IN)
+repackage-win32-installer-%: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) libs-%
+	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN='$(WIN32_INSTALLER_IN)'
 else
 repackage-win32-installer-%: ;
 endif
@@ -207,7 +207,7 @@ ifdef MOZ_OMNIJAR
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST);
 endif
 
-repackage-zip-%: $(ZIP_IN) $(STAGEDIST) libs-%
+repackage-zip-%: $(call ESCAPE_WILDCARD,$(ZIP_IN)) $(STAGEDIST) libs-%
 	@$(MAKE) repackage-zip AB_CD=$* ZIP_IN=$(ZIP_IN)
 
 langpack: langpack-$(AB_CD)
