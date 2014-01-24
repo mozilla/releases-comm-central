@@ -377,6 +377,27 @@ let mailTabType = {
         message: true,
       },
       /**
+       * The default set of columns to show.  This really should just be for
+       *  boot-strapping and should be persisted after that...
+       */
+      desiredColumnStates: {
+        threadCol: {
+          visible: true,
+        },
+        flaggedCol: {
+          visible: true,
+        },
+        subjectCol: {
+          visible: true,
+        },
+        senderCol: {
+          visible: true,
+        },
+        dateCol: {
+          visible: true,
+        },
+      },
+      /**
        * Open a new folder-display-style tab showing the contents of a gloda
        *  query/collection.  You must pass one of 'query'/'collection'/
        *  'conversation'
@@ -402,7 +423,8 @@ let mailTabType = {
 
         this.openTab(aTab, false, new MessagePaneDisplayWidget(), false);
         aTab.folderDisplay.show(aTab.glodaSynView);
-        // XXX persist threaded state?
+        // XXX persist column states in preferences or session store or other
+        aTab.folderDisplay.setColumnStates(aTab.mode.desiredColumnStates);
         aTab.folderDisplay.view.showThreaded = true;
 
         let background = ("background" in aArgs) && aArgs.background;

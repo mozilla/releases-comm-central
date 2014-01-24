@@ -812,7 +812,6 @@ DBViewWrapper.prototype = {
 
     this._applyViewChanges();
     FolderNotificationHelper.noteCuriosity(this);
-    this.listener.onDisplayingFolder();
   },
 
   /**
