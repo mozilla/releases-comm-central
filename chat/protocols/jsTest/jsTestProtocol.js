@@ -10,6 +10,7 @@ function Conversation(aAccount)
   this._init(aAccount);
 }
 Conversation.prototype = {
+  __proto__: GenericConvIMPrototype,
   _disconnected: false,
   _setDisconnected: function() {
     this._disconnected = true;
@@ -31,13 +32,13 @@ Conversation.prototype = {
 
   get name() "/dev/null",
 };
-Conversation.prototype.__proto__ = GenericConvIMPrototype;
 
 function Account(aProtoInstance, aImAccount)
 {
   this._init(aProtoInstance, aImAccount);
 }
 Account.prototype = {
+  __proto__: GenericAccountPrototype,
   connect: function() {
     this.reportConnecting();
     // do something here
@@ -69,10 +70,10 @@ Account.prototype = {
                      required: true}
   }
 };
-Account.prototype.__proto__ = GenericAccountPrototype;
 
 function jsTestProtocol() { }
 jsTestProtocol.prototype = {
+  __proto__: GenericProtocolPrototype,
   get name() "JS Test",
   options: {
     "text": {label: "Text option",    default: "foo"},
@@ -90,6 +91,5 @@ jsTestProtocol.prototype = {
   getAccount: function(aImAccount) new Account(this, aImAccount),
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
-jsTestProtocol.prototype.__proto__ = GenericProtocolPrototype;
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([jsTestProtocol]);
