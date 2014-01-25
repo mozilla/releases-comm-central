@@ -356,6 +356,7 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
   -moz-appearance: none;
   -moz-padding-end: 18px;
   -moz-padding-start: 2px !important;
+  margin-bottom: 1px;
   background: transparent;
   height: 22px;
   line-height: 1;
@@ -471,7 +472,7 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
   -moz-border-left-colors: none;
   -moz-border-right-colors: none;
   -moz-border-bottom-colors: none;
-  margin-top: 0;
+  margin-top: -1px;
   padding: 2px;
   -moz-padding-start: 5px;
   transition: border .2s, background-color .2s;
