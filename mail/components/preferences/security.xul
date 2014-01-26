@@ -71,7 +71,7 @@
     </preferences>
 
     <tabbox id="securityPrefs" flex="1" onselect="gSecurityPane.tabSelectionChanged();">
-      <tabs>
+      <tabs id="securityPrefsTabs">
         <tab id="junkTab" label="&itemJunk.label;"/>
         <tab id="phishingTab" label="&itemPhishing.label;"/>
         <tab id="antiVirusTab" label="&itemAntiVirus.label;"/>
@@ -79,7 +79,7 @@
         <tab id="cookiesTab" label="&itemCookies.label;"/>
       </tabs>
 
-      <tabpanels flex="1">
+      <tabpanels id="securityPrefsPanels" flex="1">
         <tabpanel orient="vertical">
           <description>&junkMail.intro;</description>
           <separator class="thin"/>

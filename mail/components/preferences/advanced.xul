@@ -143,15 +143,15 @@ type="int"/>
     </commandset>
 
     <tabbox id="advancedPrefs" flex="1" onselect="gAdvancedPane.tabSelectionChanged();">
-      <tabs>
+      <tabs id="advancedPrefsTabs">
         <tab id="generalTab" label="&itemGeneral.label;"/>
-        <tab label="&itemDisplay.label;"/>
+        <tab id="displayTab" label="&itemDisplay.label;"/>
         <tab id="networkingTab" label="&itemNetworking.label;"/>
-        <tab label="&itemUpdate.label;"/>
-        <tab label="&itemCertificates.label;"/>
+        <tab id="updateTab" label="&itemUpdate.label;"/>
+        <tab id="certificateTab" label="&itemCertificates.label;"/>
       </tabs>
 
-      <tabpanels flex="1">
+      <tabpanels id="advancedPrefsPanels" flex="1">
         <!-- General -->
         <tabpanel orient="vertical">
           <hbox align="center">

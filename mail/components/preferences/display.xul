@@ -44,12 +44,12 @@
     </preferences>
 
     <tabbox id="displayPrefs" flex="1" onselect="gDisplayPane.tabSelectionChanged();">
-      <tabs>
+      <tabs id="displayPrefsTabs">
         <tab id="formattingTab" label="&itemFormatting.label;"/>
         <tab id="tagTab" label="&itemTags.label;"/>
       </tabs>
 
-      <tabpanels flex="1">
+      <tabpanels id="displayPrefsPanels" flex="1">
 
         <tabpanel orient="vertical">
           <!-- Fonts and Colors -->

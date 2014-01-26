@@ -61,13 +61,13 @@
     </commandset>
 
     <tabbox id="composePrefs" flex="1" onselect="gComposePane.tabSelectionChanged();">
-      <tabs>
+      <tabs id="composePrefsTabs">
         <tab id="generalTab" label="&itemGeneral.label;"/>
         <tab id="addressingTab" label="&itemAutoComplete.label;"/>
-        <tab label="&itemSpellCheck.label;"/>
+        <tab id="spellingTab" label="&itemSpellCheck.label;"/>
       </tabs>
 
-      <tabpanels flex="1">
+      <tabpanels id="composePrefsPanels" flex="1">
         <tabpanel orient="vertical">
           <groupbox>
             <hbox align="center">

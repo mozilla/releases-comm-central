@@ -87,11 +87,11 @@
 
     <tabbox id="attachmentPrefs" flex="1" onselect="gApplicationsTabController.tabSelectionChanged();">
       <tabs id="attachmentPrefsTabs">
-        <tab label="&attachments.incoming.label;"/>
-        <tab label="&attachments.outgoing.label;"/>
+        <tab id="attachmentsInTab" label="&attachments.incoming.label;"/>
+        <tab id="attachmentsOutTab" label="&attachments.outgoing.label;"/>
       </tabs>
 
-      <tabpanels flex="1">
+      <tabpanels id="attachmentPrefsPanels" flex="1">
         <tabpanel orient="vertical">
           <hbox>
             <textbox id="filter" flex="1"
