@@ -24,6 +24,19 @@ toolbar[iconsize="large"] #qfb-show-filter-bar[disabled="true"] {
 
 /* :::: Filter Bar :::: */
 
+#quick-filter-bar-main-bar {
+  -moz-padding-start: 4px;
+}
+
+#quick-filter-bar-expando {
+  margin-top: -1px;
+  padding-bottom: 2px;
+}
+
+#quick-filter-bar-filter-text-bar {
+  -moz-padding-end: 4px;
+}
+
 #threadTree[filterActive="matches"] {
   outline: 1px solid #4e9a06;
 }
@@ -57,7 +70,6 @@ toolbar[iconsize="large"] #qfb-show-filter-bar[disabled="true"] {
   border-radius: 0;
   border-width: 0;
 }
-
 
 #qfb-closebutton {
   list-style-image: url("chrome://global/skin/icons/closeSidebar.png");
@@ -106,5 +118,7 @@ toolbar[iconsize="large"] #qfb-show-filter-bar[disabled="true"] {
   color: #cc0000;
 }
 
-#qfb-qs-textbox {
+#qfb-boolean-mode {
+  margin-top: 0;
+  margin-bottom: 0;
 }
