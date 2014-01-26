@@ -42,11 +42,9 @@
 
 #quick-filter-bar-main-bar {
   background: linear-gradient(#f3f3f3, #ebebeb);
-  border-bottom: 1px solid #bebebe;
 }
 
 #quick-filter-bar-expando {
-  border-top: 1px solid #f9faf9;
   border-bottom: 1px solid #bebebe;
   background: #eaeaea;
 }
@@ -82,7 +80,7 @@
   height: 16px;
   font-weight: bold;
   padding: 0 4px;
-  margin: 1px 3px 2px;
+  margin: 0px 3px;
   border-radius: 8px;
   border: 0;
 }
@@ -118,6 +116,10 @@
 #quick-filter-bar toolbarbutton > .toolbarbutton-text {
   padding: 0;
   margin: 0 2px;
+}
+
+#quick-filter-bar-expando toolbarbutton {
+  margin-bottom: 3px;
 }
 
 #qfb-sticky {
@@ -277,5 +279,12 @@
 }
 
 #qfb-qs-label {
+  margin-top: 0px;
+  margin-bottom: 3px;
   color: #6b6b6b;
+}
+
+#qfb-boolean-mode {
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
