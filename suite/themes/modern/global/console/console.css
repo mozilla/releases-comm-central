@@ -77,15 +77,15 @@
 
 .console-row[type="error"],
 .console-row[type="exception"] {
-  list-style-image: url("chrome://global/skin/icons/alert-error.gif");
+  list-style-image: url("chrome://global/skin/icons/error-48.png");
 }
 
 .console-row[type="warning"] {
-  list-style-image: url("chrome://global/skin/icons/alert-exclam.gif");
+  list-style-image: url("chrome://global/skin/icons/warning-48.png");
 }
 
 .console-row[type="message"] {
-  list-style-image: url("chrome://global/skin/icons/alert-message.gif");
+  list-style-image: url("chrome://global/skin/icons/information-48.png");
 }
 
 /* ::::: toolbars ::::: */

@@ -14,16 +14,16 @@
 /* Pick the desired icons depending on the window's context */
 
 #warningBox.private > #warningBoxIcon {
-  list-style-image: url("chrome://global/skin/icons/alert-message.gif");
-  width: 46px;
-  height: 39px;
+  list-style-image: url("chrome://global/skin/icons/information-48.png");
+  width: 48px;
+  height: 48px;
   -moz-margin-end: 3em;
 }
 
 #warningBox.normal > #warningBoxIcon {
-  list-style-image: url("chrome://global/skin/icons/alert-question.gif");
-  width: 46px;
-  height: 36px;
+  list-style-image: url("chrome://global/skin/icons/question-48.png");
+  width: 48px;
+  height: 48px;
   -moz-margin-end: 3em;
 }
 

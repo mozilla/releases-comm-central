@@ -54,12 +54,12 @@ ul {
   border-radius: 10px;
   padding: 3em;
   -moz-padding-start: 30px;
-  background: url("chrome://global/skin/icons/alert-exclam.gif") left 0 no-repeat #C7D0D9;
+  background: url("chrome://global/skin/icons/warning-48.png") left 0 no-repeat #C7D0D9;
   background-origin: content-box;
 }
 
 #errorPageContainer.certerror {
-  background-image: url("chrome://global/skin/icons/alert-security.gif");
+  background-image: url("chrome://global/skin/icons/authentication-48.png");
 }
 
 #errorPageContainer:-moz-dir(rtl) {

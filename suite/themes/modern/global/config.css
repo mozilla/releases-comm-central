@@ -57,9 +57,9 @@
 
 #exclam
 {
-  width: 46px;
-  height: 39px;
-  list-style-image: url("chrome://global/skin/icons/alert-exclam.gif");
+  width: 48px;
+  height: 48px;
+  list-style-image: url("chrome://global/skin/icons/warning-48.png");
   -moz-margin-end: 3em;
 }
 
