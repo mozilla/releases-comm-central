@@ -37,6 +37,18 @@ function setupModule(module) {
     body: 'check out http://130.128.4.1. and http://130.128.4.2/.',
     contentType: "text/plain"
   }}));
+  add_message_to_folder(folder, create_message({body: {
+    body: '<a href="http://subdomain.google.com/">http://www.google.com</a>.',
+    contentType: "text/html"
+  }}));
+  add_message_to_folder(folder, create_message({body: {
+    body: '<a href="http://subdomain.google.com/">http://google.com</a>.',
+    contentType: "text/html"
+  }}));
+  add_message_to_folder(folder, create_message({body: {
+    body: '<a href="http://evilhost">http://localhost</a>.',
+    contentType: "text/html"
+  }}));
 }
 
 /**
@@ -115,5 +127,31 @@ function test_no_phishing_warning_for_ip_sameish_text() {
   select_click_row(2); // Mail with Public IP address.
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
 }
+
+/**
+ * Test that when viewing a message with a link whose base domain matches but
+ * has a different subdomain (e.g. http://subdomain.google.com/ vs
+ * http://google.com/), we don't get a warning.
+ */
+function test_no_phishing_warning_for_subdomain() {
+  be_in_folder(folder);
+  select_click_row(3);
+  assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
+
+  select_click_row(4);
+  assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
+}
+
+/**
+ * Test that when viewing a message with a link where the text and/or href
+ * has no TLD, we still warn as appropriate.
+ */
+function test_phishing_warning_for_local_domain() {
+  be_in_folder(folder);
+  select_click_row(5);
+  assert_notification_displayed(mc, kBoxId, kNotificationValue, true); // shown
+}
+
+
 
 

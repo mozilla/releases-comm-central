@@ -24,11 +24,11 @@ var gPhishingDetector = {
   },
 
   /**
-   * initialize the phishing warden. 
-   * initialize the black and white list url tables. 
+   * initialize the phishing warden.
+   * initialize the black and white list url tables.
    * update the local tables if necessary
    */
-  init: function() 
+  init: function()
   {
     Components.utils.import("resource:///modules/hostnameUtils.jsm", this);
 
@@ -46,7 +46,7 @@ var gPhishingDetector = {
       this.mPhishingWarden.registerBlackTable("goog-phish-sha128");
 
       // Download/update lists if we're in non-enhanced mode
-      this.mPhishingWarden.maybeToggleUpdateChecking();  
+      this.mPhishingWarden.maybeToggleUpdateChecking();
     } catch (ex) { dump('unable to create the phishing warden: ' + ex + '\n');}
 
     this.mCheckForIPAddresses = Services.prefs.getBoolPref("mail.phishing.detection.ipaddresses");
@@ -57,11 +57,11 @@ var gPhishingDetector = {
    * Analyzes the urls contained in the currently loaded message in the message pane, looking for
    * phishing URLs.
    * Assumes the message has finished loading in the message pane (i.e. OnMsgParsed has fired).
-   * 
+   *
    * @param aUrl nsIURI for the message being analyzed.
    *
    * @return asynchronously calls gMessageNotificationBar.setPhishingMsg if the message
-   *         is identified as a scam.         
+   *         is identified as a scam.
    */
   analyzeMsgForPhishingURLs: function (aUrl)
   {
@@ -102,9 +102,9 @@ var gPhishingDetector = {
     }
   },
 
-  /** 
+  /**
    * Analyze the url contained in aLinkNode for phishing attacks. If a phishing URL is found,
-   * 
+   *
    * @param aHref the url to be analyzed
    * @param aLinkText (optional) user visible link text associated with aHref in case
    *        we are dealing with a link node.
@@ -165,7 +165,7 @@ var gPhishingDetector = {
   },
 
   /**
-    * 
+    *
     * @param aMsgHdr the header for the loaded message when the look up was initiated.
     * @param aFailsStaticTests true if our static tests think the url is a phishing scam
     * @param aUrl the url we looked up in the phishing tables
@@ -173,7 +173,7 @@ var gPhishingDetector = {
     *        PROT_ListWarden.IN_WHITELIST or PROT_ListWarden.NOT_FOUND.
     */
   localListCallback: function (aMsgHdr, aFailsStaticTests, aUrl, aLocalListStatus)
-  {  
+  {
     // for urls in the blacklist, notify the phishing bar.
     // for urls in the whitelist, do nothing
     // for all other urls, fall back to the static tests
@@ -206,13 +206,14 @@ var gPhishingDetector = {
                          .getService(Components.interfaces.nsIExternalProtocolService);
        protocolSvc.loadUrl(uri);
      }
-   },   
+   },
 
   /**
    * Private helper method to determine if the link node contains a user visible
-   * url with a host name that differs from the actual href the user would get taken to.
+   * url with a host name that differs from the actual href the user would get
+   * taken to.
    * i.e. <a href="http://myevilsite.com">http://mozilla.org</a>
-   * 
+   *
    * @return true if aHrefURL.host does NOT match the host of the link node text
    */
   misMatchedHostWithLinkText: function(aHrefURL, aLinkNodeText)
@@ -221,16 +222,23 @@ var gPhishingDetector = {
     // so strip the spaces out (see bug 326082 for details).
     aLinkNodeText = aLinkNodeText.replace(/ /g, "");
 
-    // only worry about http and https urls
-    if (aLinkNodeText)
+    // Only worry about http: and https: urls.
+    if (aLinkNodeText && aLinkNodeText.search(/(^https?:)/) != -1)
     {
-      // does the link text look like a http url?
-       if (aLinkNodeText.search(/(^http:|^https:)/) != -1)
-       {
-         let linkURI = Services.io.newURI(aLinkNodeText, null, null);
-         // compare hosts, but ignore possible www. prefix
-         return !(aHrefURL.host.replace(/^www\./, "") == linkURI.host.replace(/^www\./, ""));
-       }
+      let eTLD = Components.classes["@mozilla.org/network/effective-tld-service;1"]
+                           .getService(Components.interfaces.nsIEffectiveTLDService);
+
+      let linkTextURI = Services.io.newURI(aLinkNodeText, null, null);
+
+      // Compare the base domain of the href and the link text.
+      try {
+        return eTLD.getBaseDomain(aHrefURL) !=
+               eTLD.getBaseDomain(linkTextURI);
+      } catch (e) {
+        // If we throw above, one of the URIs probably has no TLD (e.g.
+        // http://localhost), so just check the entire host.
+        return aHrefURL.host != linkTextURI.host;
+      }
     }
 
     return false;
@@ -241,12 +249,12 @@ var gPhishingDetector = {
    * before allowing the link click to be processed. The warning prompt includes the unobscured host name
    * of the http(s) url the user clicked on.
    *
-   * @param aUrl the url 
+   * @param aUrl the url
    * @return true if the link should be allowed to load
    */
   warnOnSuspiciousLinkClick: function(aUrl)
   {
-    // if the loaded message has been flagged as a phishing scam, 
+    // if the loaded message has been flagged as a phishing scam,
     if (!gMessageNotificationBar.isShowingJunkNotification())
       return true;
 
@@ -267,7 +275,7 @@ var gPhishingDetector = {
                                    .getString("brandShortName");
       var bundle = document.getElementById("bundle_messenger");
       var titleMsg = bundle.getString("confirmPhishingTitle");
-      var dialogMsg = bundle.getFormattedString("confirmPhishingUrl", 
+      var dialogMsg = bundle.getFormattedString("confirmPhishingUrl",
                         [brandShortName, unobscuredHostNameValue], 2);
 
       const nsIPS = Components.interfaces.nsIPromptService;
