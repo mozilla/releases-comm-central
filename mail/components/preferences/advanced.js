@@ -22,9 +22,7 @@ var gAdvancedPane = {
         document.getElementById("advancedPrefs").selectedIndex = preference.value;
     }
 #ifdef MOZ_UPDATER
-    this.updateAppUpdateItems();
-    this.updateAutoItems();
-    this.updateModeItems();
+	this.updateReadPrefs();
 #endif
 
     // Search integration -- check whether we should hide or disable integration
@@ -167,93 +165,114 @@ var gAdvancedPane = {
     // This is actually before the value changes, so the value is not as you expect. 
     button.disabled = preference.value == true;
     return undefined;
-  },
-
-  /**
-   * UI state matrix for update preference conditions
-   * 
-   * UI Components:                                     Preferences
-   * 1 = Thunderbird checkbox                               i   = app.update.enabled
-   * 2 = When updates for Thunderbird are found label       ii  = app.update.auto
-   * 3 = Automatic Radiogroup (Ask vs. Automatically)       iii = app.update.mode
-   * 4 = Warn before disabling extensions checkbox
-   * 
-   * States:
-   * Element     p   val     locked    Disabled 
-   * 1           i   t/f     f         false 
-   *             i   t/f     t         true
-   *             ii  t/f     t/f       false
-   *             iii 0/1/2   t/f       false
-   * 2,3         i   t       t/f       false
-   *             i   f       t/f       true
-   *             ii  t/f     f         false
-   *             ii  t/f     t         true
-   *             iii 0/1/2   t/f       false
-   * 4           i   t       t/f       false
-   *             i   f       t/f       true
-   *             ii  t       t/f       false
-   *             ii  f       t/f       true
-   *             iii 0/1/2   f         false
-   *             iii 0/1/2   t         true   
-   *
-   */
+  },  
+  
 #ifdef MOZ_UPDATER
-  updateAppUpdateItems: function () 
-  {
-    var aus = 
-        Components.classes["@mozilla.org/updates/update-service;1"].
-        getService(Components.interfaces.nsIApplicationUpdateService);
+/**
+ * Selects the item of the radiogroup, and sets the warnIncompatible checkbox
+ * based on the pref values and locked states.
+ *
+ * UI state matrix for update preference conditions
+ * 
+ * UI Components:                              Preferences
+ * Radiogroup                                  i   = app.update.enabled
+ * Warn before disabling extensions checkbox   ii  = app.update.auto
+ *                                             iii = app.update.mode
+ *
+ * Disabled states:
+ * Element           pref  value  locked  disabled
+ * radiogroup        i     t/f    f       false
+ *                   i     t/f    *t*     *true*
+ *                   ii    t/f    f       false
+ *                   ii    t/f    *t*     *true*
+ *                   iii   0/1/2  t/f     false
+ * warnIncompatible  i     t      f       false
+ *                   i     t      *t*     *true*
+ *                   i     *f*    t/f     *true*
+ *                   ii    t      f       false
+ *                   ii    t      *t*     *true*
+ *                   ii    *f*    t/f     *true*
+ *                   iii   0/1/2  f       false
+ *                   iii   0/1/2  *t*     *true*
+ */
+updateReadPrefs: function ()
+{
+  var enabledPref = document.getElementById("app.update.enabled");
+  var autoPref = document.getElementById("app.update.auto");
+  var radiogroup = document.getElementById("updateRadioGroup");
+  
+  if (!enabledPref.value)   // Don't care for autoPref.value in this case.
+    radiogroup.value="manual"     // 3. Never check for updates.
+  else if (autoPref.value)  // enabledPref.value && autoPref.value
+    radiogroup.value="auto";      // 1. Automatically install updates
+  else                      // enabledPref.value && !autoPref.value
+    radiogroup.value="checkOnly"; // 2. Check, but let me choose
 
-    var enabledPref = document.getElementById("app.update.enabled");
-    var enableAppUpdate = document.getElementById("enableAppUpdate");
+  var canCheck = Components.classes["@mozilla.org/updates/update-service;1"].
+                   getService(Components.interfaces.nsIApplicationUpdateService).
+                   canCheckForUpdates;
 
-    enableAppUpdate.disabled = !aus.canCheckForUpdates || enabledPref.locked;
-  },
+  // canCheck is false if the enabledPref is false and locked,
+  // or the binary platform or OS version is not known.
+  // A locked pref is sufficient to disable the radiogroup.
+  radiogroup.disabled = !canCheck || enabledPref.locked || autoPref.locked;
+  
+  var modePref = document.getElementById("app.update.mode");
+  var warnIncompatible = document.getElementById("warnIncompatible");
 
-  updateAutoItems: function () 
-  {
-    var enabledPref = document.getElementById("app.update.enabled");
-    var autoPref = document.getElementById("app.update.auto");
-
-    var updateModeLabel = document.getElementById("updateModeLabel");
-    var updateMode = document.getElementById("updateMode");
-
-    var disable = enabledPref.locked || !enabledPref.value ||
-                  autoPref.locked;
-    updateModeLabel.disabled = updateMode.disabled = disable;
-  },
-
-  updateModeItems: function () 
-  {
-    var enabledPref = document.getElementById("app.update.enabled");
-    var autoPref = document.getElementById("app.update.auto");
-    var modePref = document.getElementById("app.update.mode");
-
-    var warnIncompatible = document.getElementById("warnIncompatible");
-
-    var disable = enabledPref.locked || !enabledPref.value || autoPref.locked ||
-                  !autoPref.value || modePref.locked;
-    warnIncompatible.disabled = disable;
-
+  // the warnIncompatible checkbox value is set by readAddonWarn
+  warnIncompatible.disabled = radiogroup.disabled || modePref.locked ||
+                              !enabledPref.value || !autoPref.value;
+  
 #ifdef MOZ_MAINTENANCE_SERVICE
-    // Check to see if the maintenance service is installed.
-    // If it is don't show the preference at all.
-    var installed;
-    try {
-      let wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
-                .createInstance(Components.interfaces.nsIWindowsRegKey);
-      wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-               "SOFTWARE\\Mozilla\\MaintenanceService",
-               wrk.ACCESS_READ | wrk.WOW64_64);
-      installed = wrk.readIntValue("Installed");
-      wrk.close();
-    } catch(e) {
-    }
-    if (installed != 1) {
-      document.getElementById("useService").hidden = true;
-    }
+  // Check to see if the maintenance service is installed.
+  // If it is don't show the preference at all.
+  var installed;
+  try {
+    let wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
+              .createInstance(Components.interfaces.nsIWindowsRegKey);
+    wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+             "SOFTWARE\\Mozilla\\MaintenanceService",
+             wrk.ACCESS_READ | wrk.WOW64_64);
+    installed = wrk.readIntValue("Installed");
+    wrk.close();
+  } catch(e) {
+  }
+  if (installed != 1) {
+    document.getElementById("useService").hidden = true;
+  }
 #endif
-  },
+},
+
+/**
+ * Sets the pref values based on the selected item of the radiogroup,
+ * and sets the disabled state of the warnIncompatible checkbox accordingly.
+ */
+updateWritePrefs: function ()
+{
+  var enabledPref = document.getElementById("app.update.enabled");
+  var autoPref = document.getElementById("app.update.auto");
+  var radiogroup = document.getElementById("updateRadioGroup");
+  switch (radiogroup.value) {
+    case "auto":      // 1. Automatically install updates
+      enabledPref.value = true;
+      autoPref.value = true;
+      break;
+    case "checkOnly": // 2. Check, but but let me choose
+      enabledPref.value = true;
+      autoPref.value = false;
+      break;
+    case "manual":    // 3. Never check for updates.
+      enabledPref.value = false;
+      autoPref.value = false;
+  }
+
+  var warnIncompatible = document.getElementById("warnIncompatible");
+  var modePref = document.getElementById("app.update.mode");
+  warnIncompatible.disabled = enabledPref.locked || !enabledPref.value ||
+                              autoPref.locked || !autoPref.value ||
+                              modePref.locked;
+},
 
   /**
    * app.update.mode is a three state integer preference, and we have to 
@@ -269,9 +288,9 @@ var gAdvancedPane = {
   addonWarnSyncFrom: function ()
   {
     var preference = document.getElementById("app.update.mode");
-    var doNotWarn = preference.value != 0;
-    gAdvancedPane._modePreference = doNotWarn ? preference.value : 1;
-    return doNotWarn;
+    var warn = preference.value != 0;
+    gAdvancedPane._modePreference = warn ? preference.value : 1;
+    return warn;
   },
 
   addonWarnSyncTo: function ()
@@ -287,18 +306,6 @@ var gAdvancedPane = {
     prompter.showUpdateHistory(window);
   },
 #endif
-
-  /**
-   * The Extensions checkbox and button are disabled only if the enable Addon
-   * update preference is locked. 
-   */
-  updateAddonUpdateUI: function ()
-  {
-    var enabledPref = document.getElementById("extensions.update.enabled");
-    var enableAddonUpdate = document.getElementById("enableAddonUpdate");
-
-    enableAddonUpdate.disabled = enabledPref.locked;
-  },
 
   /**
    * Enable/disable the options of automatic marking as read depending on the
