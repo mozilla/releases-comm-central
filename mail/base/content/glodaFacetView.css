@@ -30,6 +30,7 @@ body {
 .facets-sidebar {
   display: table-cell;
   width: 20em;
+  max-width: 20em;
   background-color: #e0eaf5;
   padding: 4px;
   min-height: 100%;
@@ -453,6 +454,9 @@ html[dir="rtl"] .bar-count {
   -moz-padding-end: 4em;
   position: relative;
   z-index: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 html[dir="rtl"] .bar-link {

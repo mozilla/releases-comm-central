@@ -28,7 +28,9 @@
     <key id="key_fullZoomReset" key="0"
          command="cmd_fullZoomReset" modifiers="accel"/>
   </keyset>
+  <tooltip id="aHTMLTooltip" page="true"/>
   <browser id="browser"
            flex="1"
-           disablehistory="true"/>
+           disablehistory="true"
+           tooltip="aHTMLTooltip"/>
 </window>

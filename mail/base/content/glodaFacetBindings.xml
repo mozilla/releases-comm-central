@@ -888,6 +888,21 @@
 
           let label = document.createElement("span");
           label.setAttribute("class", "bar-link");
+
+          // Set a tooltip with this label's textContent on the binding when
+          // the mouse enters the label. This lets us show the full contents of
+          // the label even if we overflowed. We set it on the binding because
+          // anonymous XBL nodes can't be the source of HTML tooltips. Shadow
+          // DOMs are screwy! (We also clear out the tooltip when the mouse
+          // leaves the label, just to be polite.)
+          let rootBinding = this;
+          label.addEventListener("mouseenter", function() {
+            rootBinding.setAttribute("title", this.textContent);
+          });
+          label.addEventListener("mouseleave", function() {
+            rootBinding.setAttribute("title", "");
+          });
+
           // The null value is a special indicator for 'none'
           if (groupValue == null) {
             label.textContent =
@@ -895,7 +910,6 @@
           }
           // Otherwise stringify the group object
           else {
-            // XXX do a better job of truncation
             let labelStr;
             if (ambiguousKeyValues) {
               labelStr = nounDef.userVisibleString(groupValue, false);
