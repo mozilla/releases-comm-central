@@ -380,8 +380,20 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist {
-  -moz-appearance: button;
+  -moz-appearance: none;
+  -moz-margin-start: 5px;
   -moz-margin-end: 7px;
+  background-color: rgba(125, 125, 125, .3);
+  border: rgba(125, 125, 125, .4) 1px solid;
+  transition: background-color .25s ease-in;
+}
+
+.aw-menulist:-moz-window-inactive {
+  opacity: .7;
+}
+
+.aw-menulist:hover {
+  background-color: rgba(125, 125, 125, .4);
 }
 
 .aw-menulist > .menulist-label-box {
