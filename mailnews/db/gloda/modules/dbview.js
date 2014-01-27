@@ -14,6 +14,7 @@ const Ci = Components.interfaces;
 const Cr = Components.results;
 const Cu = Components.utils;
 
+Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/gloda/log4moz.js");
 
 Cu.import("resource:///modules/gloda/public.js");
@@ -35,16 +36,19 @@ function GlodaSyntheticView(aArgs) {
     this.query = aArgs.query;
     this.collection = this.query.getCollection(this);
     this.completed = false;
+    this.viewType = "global";
   }
   else if ("collection" in aArgs) {
     this.query = null;
     this.collection = aArgs.collection;
     this.completed = true;
+    this.viewType = "global";
   }
   else if ("conversation" in aArgs) {
     this.collection = aArgs.conversation.getMessagesCollection(this);
     this.query = this.collection.query;
     this.completed = false;
+    this.viewType = "conversation";
   }
   else {
     throw new Error("You need to pass a query or collection");
@@ -103,6 +107,54 @@ GlodaSyntheticView.prototype = {
       }
     }
     return null;
+  },
+
+  /**
+   * The default set of columns to show.
+   */
+  DEFAULT_COLUMN_STATES: {
+    threadCol: {
+      visible: true,
+    },
+    flaggedCol: {
+      visible: true,
+    },
+    subjectCol: {
+      visible: true,
+    },
+    senderCol: {
+      visible: true,
+    },
+    dateCol: {
+      visible: true,
+    },
+    locationCol: {
+      visible: true,
+    },
+  },
+
+  // --- settings persistence
+  getPersistedSetting: function(aSetting) {
+    try {
+      return JSON.parse(Services.prefs.getCharPref(
+        "mailnews.database.global.views." + this.viewType + "." + aSetting
+      ));
+    }
+    catch (e) {
+      return this.getDefaultSetting(aSetting);
+    }
+  },
+  setPersistedSetting: function(aSetting, aValue) {
+    Services.prefs.setCharPref(
+      "mailnews.database.global.views." + this.viewType + "." + aSetting,
+      JSON.stringify(aValue)
+    );
+  },
+  getDefaultSetting: function(aSetting) {
+    if (aSetting == "columns")
+      return this.DEFAULT_COLUMN_STATES;
+    else
+      return undefined;
   },
 
   // --- collection listener

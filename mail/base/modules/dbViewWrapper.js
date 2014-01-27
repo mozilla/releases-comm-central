@@ -812,6 +812,7 @@ DBViewWrapper.prototype = {
 
     this._applyViewChanges();
     FolderNotificationHelper.noteCuriosity(this);
+    this.listener.onDisplayingFolder();
   },
 
   /**
@@ -1352,13 +1353,13 @@ DBViewWrapper.prototype = {
   },
 
   get isMailFolder() {
-    return this.displayedFolder &&
-           (this.displayedFolder.flags & nsMsgFolderFlags.Mail);
+    return Boolean(this.displayedFolder &&
+                   (this.displayedFolder.flags & nsMsgFolderFlags.Mail));
   },
 
   get isNewsFolder() {
-    return this.displayedFolder &&
-           (this.displayedFolder.flags & nsMsgFolderFlags.Newsgroup);
+    return Boolean(this.displayedFolder &&
+                   (this.displayedFolder.flags & nsMsgFolderFlags.Newsgroup));
   },
 
   OUTGOING_FOLDER_FLAGS: nsMsgFolderFlags.SentMail |
@@ -1366,21 +1367,21 @@ DBViewWrapper.prototype = {
                          nsMsgFolderFlags.Queue |
                          nsMsgFolderFlags.Templates,
   /**
-   * @return true if the folder is not known to be a special outgoing folder
-   *     or the descendent of a special outgoing folder.
-   */
-  get isIncomingFolder() {
-    return !this.displayedFolder.isSpecialFolder(this.OUTGOING_FOLDER_FLAGS,
-                                                 true);
-  },
-  /**
    * @return true if the folder is an outgoing folder by virtue of being a
    *     sent mail folder, drafts folder, queue folder, or template folder,
    *     or being a sub-folder of one of those types of folders.
    */
   get isOutgoingFolder() {
-    return this.displayedFolder.isSpecialFolder(this.OUTGOING_FOLDER_FLAGS,
+    return this.displayedFolder &&
+           this.displayedFolder.isSpecialFolder(this.OUTGOING_FOLDER_FLAGS,
                                                 true);
+  },
+  /**
+   * @return true if the folder is not known to be a special outgoing folder
+   *     or the descendent of a special outgoing folder.
+   */
+  get isIncomingFolder() {
+    return !this.isOutgoingFolder;
   },
 
   get isVirtual() {

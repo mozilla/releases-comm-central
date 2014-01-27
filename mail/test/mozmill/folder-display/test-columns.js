@@ -23,6 +23,8 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
 var folderInbox, folderSent, folderVirtual, folderA, folderB;
 // INBOX_DEFAULTS sans 'dateCol' but gains 'tagsCol'
 var columnsB;
+// GLODA_DEFAULTS sans 'locationCol' but gains 'accountCol'
+var glodaColumns;
 
 // these are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1, folderChild2;
@@ -446,3 +448,55 @@ function test_apply_to_folder_and_children() {
   assert_visible_columns(conExtra);
 }
 test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ["linux"];
+
+var GLODA_DEFAULTS = [
+  "threadCol",
+  "flaggedCol",
+  "subjectCol",
+  "senderCol",
+  "dateCol",
+  "locationCol"
+];
+
+/**
+ * Create a fake gloda collection.
+ */
+function FakeCollection() {
+  this.items = [];
+}
+
+function test_column_defaults_gloda_collection() {
+  let fakeCollection = new FakeCollection();
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(GLODA_DEFAULTS);
+}
+
+function test_persist_columns_gloda_collection() {
+  let fakeCollection = new FakeCollection();
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  hide_column("locationCol");
+  show_column("accountCol");
+
+  glodaColumns = GLODA_DEFAULTS.slice(0, -1);
+  glodaColumns.push("accountCol");
+
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(glodaColumns);
+}
+
+function test_reset_columns_gloda_collection() {
+  let fakeCollection = new FakeCollection();
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(glodaColumns);
+
+  invoke_column_picker_option([{anonid: "reset"}]);
+  assert_visible_columns(GLODA_DEFAULTS);
+
+  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  wait_for_all_messages_to_load();
+  assert_visible_columns(GLODA_DEFAULTS);
+}

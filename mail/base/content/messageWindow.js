@@ -101,7 +101,8 @@ StandaloneFolderDisplayWidget.prototype = {
    */
   onDisplayingFolder:
       function StandaloneFolderDisplayWidget_onDisplayingFolder() {
-    let msgDatabase = this.view.displayedFolder.msgDatabase;
+    let msgDatabase = this.view.displayedFolder &&
+                      this.view.displayedFolder.msgDatabase;
     if (msgDatabase) {
       msgDatabase.resetHdrCacheSize(this.PERF_HEADER_CACHE_SIZE);
     }

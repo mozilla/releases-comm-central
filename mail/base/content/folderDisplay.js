@@ -448,8 +448,16 @@ FolderDisplayWidget.prototype = {
    * @param aState State to persist.
    */
   _persistColumnStates: function FolderDisplayWidget__persistColumnStates(aState) {
+    if (this.view.isSynthetic) {
+      let syntheticView = this.view._syntheticView;
+      if ("setPersistedSetting" in syntheticView)
+        syntheticView.setPersistedSetting("columns", aState);
+      return;
+    }
+
     if (!this.view.displayedFolder || !this.view.displayedFolder.msgDatabase)
       return;
+
     let msgDatabase = this.view.displayedFolder.msgDatabase;
     let dbFolderInfo = msgDatabase.dBFolderInfo;
     dbFolderInfo.setCharProperty(this.PERSISTED_COLUMN_PROPERTY_NAME,
@@ -477,6 +485,15 @@ FolderDisplayWidget.prototype = {
   _getDefaultColumnsForCurrentFolder:
       function FolderDisplayWidget__getDefaultColumnsForCurrentFolder() {
     const InboxFlag = Components.interfaces.nsMsgFolderFlags.Inbox;
+
+    // If the view is synthetic, try asking it for its default columns. If it
+    // fails, just return nothing, since most synthetic views don't care about
+    // columns anyway.
+    if (this.view.isSynthetic) {
+      if ("getDefaultSetting" in this.view._syntheticView)
+        return this.view._syntheticView.getDefaultSetting("columns");
+      return {};
+    }
 
     // do not inherit from the inbox if:
     // - It's an outgoing folder; these have a different use-case and there
@@ -956,17 +973,25 @@ FolderDisplayWidget.prototype = {
    * - Setup the columns if we did not already depersist in |onLoadingFolder|.
    */
   onDisplayingFolder: function FolderDisplayWidget_onDisplayingFolder() {
-    let msgDatabase = this.view.displayedFolder.msgDatabase;
+    let displayedFolder = this.view.displayedFolder;
+    let msgDatabase = displayedFolder && displayedFolder.msgDatabase;
     if (msgDatabase) {
       msgDatabase.resetHdrCacheSize(this.PERF_HEADER_CACHE_SIZE);
     }
 
     // makeActive will restore the folder state
     if (!this._savedColumnStates) {
-      // get the default for this folder
-      this._savedColumnStates = this._getDefaultColumnsForCurrentFolder();
-      // and save it so it doesn't wiggle if the inbox/prototype changes
-      this._persistColumnStates(this._savedColumnStates);
+      if (this.view.isSynthetic &&
+          "getPersistedSetting" in this.view._syntheticView) {
+        let columns = this.view._syntheticView.getPersistedSetting("columns");
+        this._savedColumnStates = columns;
+      }
+      else {
+        // get the default for this folder
+        this._savedColumnStates = this._getDefaultColumnsForCurrentFolder();
+        // and save it so it doesn't wiggle if the inbox/prototype changes
+        this._persistColumnStates(this._savedColumnStates);
+      }
     }
 
     FolderDisplayListenerManager._fireListeners("onDisplayingFolder",
