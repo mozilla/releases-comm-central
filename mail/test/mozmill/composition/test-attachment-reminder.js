@@ -15,15 +15,16 @@ const MODULE_REQUIRES = ["folder-display-helpers",
                          "notificationbox-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource:///modules/mailServices.js");
 
 const kBoxId = "attachmentNotificationBox";
 const kNotificationId = "attachmentReminder";
+const notificationSlackTime = 1100;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("compose-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
-  collector.getModule("notificationbox-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 };
 
 function setupComposeWin(aCwc, toAddr, subj, body) {
@@ -33,35 +34,74 @@ function setupComposeWin(aCwc, toAddr, subj, body) {
 }
 
 /**
- * Test that the attachment works, in general.
+ * Check if the attachment reminder bar is in the wished state.
+ *
+ * @param aCwc    A compose window controller.
+ * @param aShown  True for expecting the bar to be shown, false otherwise.
+ *
+ * @return        If the bar is shown, return the notification object.
+ */
+function assert_automatic_reminder_state(aCwc, aShown) {
+  return assert_notification_displayed(aCwc, kBoxId, kNotificationId, aShown);
+}
+
+/**
+ * Check whether the manual reminder is in the proper state.
+ *
+ * @param aCwc      A compose window controller.
+ * @param aChecked  Whether the reminder should be enabled.
+ */
+function assert_manual_reminder_state(aCwc, aChecked) {
+  // Check the reminder is really enabled.
+  let attachment_menu = aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
+                                                     [ ], true);
+  let checkedValue = aChecked ? "true" : "false";
+  assert_equals(aCwc.e("button-attachPopup_remindLaterItem").getAttribute("checked"),
+                checkedValue);
+  aCwc.close_popup_sequence(attachment_menu);
+
+  assert_equals(aCwc.e("cmd_remindLater").getAttribute("checked"), checkedValue);
+}
+
+/**
+ * Test that the attachment reminder works, in general.
  */
 function test_attachment_reminder_appears_properly() {
   let cwc = open_compose_new_mail();
   let notificationBox = cwc.e(kBoxId);
 
   // There should be no notification yet.
-  assert_notification_displayed(cwc, kBoxId, kNotificationId, false);
+  assert_automatic_reminder_state(cwc, false);
 
   setupComposeWin(cwc, "test@example.org", "testing attachment reminder!",
-                  "Hjello! ");
+                  "Hello! ");
 
   // Give the notification time to appear. It shouldn't.
-  cwc.sleep(1100);
+  cwc.sleep(notificationSlackTime);
   if (notificationBox.getNotificationWithValue(kNotificationId))
     throw new Error("Attachment notification shown when it shouldn't.");
 
   cwc.type(cwc.eid("content-frame"), "Seen this cool attachment?");
 
-    // Give the notification time to appear. It should now.
+  // Give the notification time to appear. It should now.
   wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+
+  // The manual reminder should be disabled yet.
+  assert_manual_reminder_state(cwc, false);
 
   // Click ok to be notified on send if no attachments are attached.
   cwc.click(cwc.eid(kBoxId, {tagName: "button", label: "Remind Me Later"}));
+
+  // The manual reminder should be enabled now.
+  assert_manual_reminder_state(cwc, true);
 
   // Now try to send, make sure we get the alert.
   plan_for_modal_dialog("commonDialog", click_oh_i_did);
   cwc.click(cwc.eid("button-send"));
   wait_for_modal_dialog("commonDialog");
+
+  // After confirming the reminder the menuitem should get disabled.
+  assert_manual_reminder_state(cwc, false);
 
   close_compose_window(cwc);
 }
@@ -74,7 +114,7 @@ function test_attachment_reminder_dismissal() {
   let cwc = open_compose_new_mail();
 
   // There should be no notification yet.
-  assert_notification_displayed(cwc, kBoxId, kNotificationId, false);
+  assert_automatic_reminder_state(cwc, false);
 
   setupComposeWin(cwc, "test@example.org", "popping up, eh?",
                   "Hi there, remember the attachment!");
@@ -88,10 +128,14 @@ function test_attachment_reminder_dismissal() {
   cwc.click(cwc.eid("button-send"));
   wait_for_modal_dialog("commonDialog");
 
-  let notification = assert_notification_displayed(cwc, kBoxId, kNotificationId,
-                                                   true);
+  let notification = assert_automatic_reminder_state(cwc, true);
+
   notification.close();
+  assert_automatic_reminder_state(cwc, false);
+
   click_send_and_handle_send_error(cwc);
+
+  close_compose_window(cwc);
 }
 // Disabling this test on Windows due to random timeouts on our Mozmill
 // testers.
@@ -107,13 +151,15 @@ function test_attachment_reminder_aggressive_pref() {
   let cwc = open_compose_new_mail();
 
   // There should be no notification yet.
-  assert_notification_displayed(cwc, kBoxId, kNotificationId, false);
+  assert_automatic_reminder_state(cwc, false);
 
   setupComposeWin(cwc, "test@example.org", "aggressive?",
                   "Check this attachment!");
 
   wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
   click_send_and_handle_send_error(cwc);
+
+  close_compose_window(cwc);
 
   // Now reset the pref back to original value.
   if (Services.prefs.prefHasUserValue(kPref))
@@ -141,20 +187,155 @@ function test_no_send_now_sends() {
   cwc.click(cwc.eid("button-send"));
   wait_for_modal_dialog("commonDialog");
 
-  click_send_and_handle_send_error(cwc);
+  // After clicking "Send Now" sending is proceeding, just handle the error.
+  click_send_and_handle_send_error(cwc, true);
+
+  // We're now back in the compose window, let's close it then.
+  close_compose_window(cwc);
 }
 // Disabling this test on Windows due to random timeouts on our Mozmill
 // testers.
 test_no_send_now_sends.EXCLUDED_PLATFORMS = ['winnt'];
 
 /**
- * Click the send button and handle the send error dialog popping up.
+ * Click the manual reminder in the menu.
+ *
+ * @param aCwc            A compose window controller.
+ * @param aExpectedState  A boolean specifying what is the expected state
+ *                        of the reminder menuitem after the click.
  */
-function click_send_and_handle_send_error(controller) {
-  // XXX - we'll get a send error dialog:(
-  // Close it, the compose window will close too.
+function click_manual_reminder(aCwc, aExpectedState) {
+  aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
+                               [ {id: "button-attachPopup_remindLaterItem"} ]);
+  assert_manual_reminder_state(aCwc, aExpectedState);
+}
+
+/**
+ * Bug 521128
+ * Test proper behaviour of the manual reminder.
+ */
+function test_manual_attachment_reminder() {
+  // Open a sample message with no attachment keywords.
+  let cwc = open_compose_new_mail();
+  setupComposeWin(cwc, "test@example.invalid", "Testing manual reminder!",
+                  "Some body...");
+
+  // Enable the manual reminder.
+  click_manual_reminder(cwc, true);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Now close the message with saving it as draft.
+  plan_for_modal_dialog("commonDialog", click_save_message);
+  cwc.window.goDoCommand("cmd_close");
+  wait_for_modal_dialog("commonDialog");
+
+  // Open another blank compose window.
+  let cwc = open_compose_new_mail();
+  // This one should have the reminder disabled.
+  assert_manual_reminder_state(cwc, false);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  close_compose_window(cwc);
+
+  // The draft message was saved into Local Folders/Drafts.
+  let drafts = MailServices.accounts.localFoldersServer.rootFolder
+                           .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
+  be_in_folder(drafts);
+
+  // Edit it again...
+  select_click_row(0);
+  plan_for_new_window("msgcompose");
+  // ... by clicking Edit in the draft message notification bar.
+  mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
+  let cwc = wait_for_compose_window();
+
+  // Check the reminder enablement was preserved in the message.
+  assert_manual_reminder_state(cwc, true);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Now try to send, make sure we get the alert.
+  plan_for_modal_dialog("commonDialog", click_oh_i_did);
+  cwc.click(cwc.eid("button-send"));
+  wait_for_modal_dialog("commonDialog");
+
+  // We were alerted once and the manual reminder is automatically turned off.
+  assert_manual_reminder_state(cwc, false);
+
+  // Enable the manual reminder and disable it again to see if it toggles right.
+  click_manual_reminder(cwc, true);
+  cwc.sleep(notificationSlackTime);
+  click_manual_reminder(cwc, false);
+
+  // Now try to send again, there should be no more alert.
+  click_send_and_handle_send_error(cwc);
+
+  close_compose_window(cwc);
+
+  // Delete the leftover draft message.
+  press_delete();
+}
+
+/**
+ * Bug 938759
+ * Test hiding of the automatic notification if the manual reminder is set.
+ */
+function test_manual_automatic_attachment_reminder_interaction() {
+  // Open a blank message compose
+  let cwc = open_compose_new_mail();
+  // This one should have the reminder disabled.
+  assert_manual_reminder_state(cwc, false);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add some attachment keywords.
+  setupComposeWin(cwc, "test@example.invalid", "Testing manual reminder!",
+                  "Expect an attachment here...");
+
+  // The automatic attachment notification should pop up.
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+
+  // Now enable the manual reminder.
+  click_manual_reminder(cwc, true);
+  // The attachment notification should disappear.
+  wait_for_notification_to_stop(cwc, kBoxId, kNotificationId);
+
+  // Add some more text with another keyword so the automatic notification
+  // could potentially show up.
+  setupComposeWin(cwc, "", "", " and find it attached!");
+  // Give the notification time to appear. It shouldn't.
+  cwc.sleep(notificationSlackTime);
+  assert_automatic_reminder_state(cwc, false);
+
+  // Now disable the manual reminder.
+  click_manual_reminder(cwc, false);
+  // Give the notification time to appear. It shouldn't.
+  cwc.sleep(notificationSlackTime);
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add some more text without any new keyword.
+  setupComposeWin(cwc, "", "", " Did I write anything?");
+  // Give the notification time to appear. It should now.
+  cwc.sleep(notificationSlackTime);
+  assert_automatic_reminder_state(cwc, true);
+
+  close_compose_window(cwc);
+}
+
+/**
+ * Click the send button and handle the send error dialog popping up.
+ * It will return us back to the compose window.
+ *
+ * @param aController
+ * @param aAlreadySending  Set this to true if sending was already triggered
+ *                         by other means.
+ */
+function click_send_and_handle_send_error(aController, aAlreadySending) {
   plan_for_modal_dialog("commonDialog", click_ok_on_send_error);
-  controller.click(controller.eid("button-send"));
+  if (!aAlreadySending)
+    aController.click(aController.eid("button-send"));
   wait_for_modal_dialog("commonDialog");
 }
 
@@ -182,3 +363,12 @@ function click_ok_on_send_error(controller) {
   controller.window.document.documentElement.getButton('accept').doCommand();
 }
 
+/**
+ * Click Save in the Save message dialog.
+ */
+function click_save_message(controller) {
+  if (controller.window.document.title != "Save Message")
+    throw new Error("Not a Save message dialog; title=" +
+                    controller.window.document.title);
+  controller.window.document.documentElement.getButton('accept').doCommand();
+}
