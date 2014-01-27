@@ -64,54 +64,29 @@ toolbox[labelalign="end"] #qfb-show-filter-bar {
 
 /* :::: Filter Bar :::: */
 
+#quick-filter-bar:-moz-system-metric(windows-default-theme) {
+  background: linear-gradient(#f2f7fd 0, #e9f2fc 50%, #e3eefb 50%, #e3eefb 100%);
+}
+
 #quick-filter-bar-main-bar {
   border-top: 1px solid ThreeDHighlight;
-  border-bottom: 1px solid ThreeDShadow;
 }
 
 #quick-filter-bar-main-bar:-moz-system-metric(windows-default-theme) {
-  background: linear-gradient(#f2f7fd 0, #e9f2fc 12px, #e3eefb 12px, #e3eefb 100%);
   border-top: 1px solid #fff;
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: #9196a2 #fff;
 }
 
-#quick-filter-bar-expando:-moz-system-metric(windows-default-theme) {
-  background: #f2f6fb;
-}
-
-#quick-filter-bar-tab-bar,
-#quick-filter-bar-filter-text-bar {
-  border-top: 1px solid ThreeDHighlight;
+#quick-filter-bar-expando {
   border-bottom: 1px solid ThreeDShadow;
 }
 
-#quick-filter-bar-tab-bar:-moz-system-metric(windows-default-theme),
-#quick-filter-bar-filter-text-bar:-moz-system-metric(windows-default-theme) {
-  border-top: 1px solid #fff;
+#quick-filter-bar-expando:-moz-system-metric(windows-default-theme) {
   border-bottom: 2px solid;
   -moz-border-bottom-colors: #9196a2 #fff;
 }
 
-#quick-filter-bar[filterActive="searching"] {
-  
-}
 #threadTree[filterActive="searching"] {
   background-color: #ffffcc;
-}
-
-#quick-filter-bar[filterActive="matches"] {
-  
-}
-#threadTree[filterActive="matches"] {
-
-}
-
-#quick-filter-bar[filterActive="nomatches"] {
-  
-}
-#threadTree[filterActive="nomatches"] {
-
 }
 
 /* :::: Filter Buttons :::: */
@@ -125,6 +100,11 @@ toolbox[labelalign="end"] #qfb-show-filter-bar {
 /* keep that hideous outline focus ring from showing on the checked buttons */
 #quick-filter-bar-main-bar toolbarbutton:focus {
   outline: none;
+}
+
+#qfb-boolean-mode {
+  margin-top: 1px;
+  margin-bottom: 1px;
 }
 
 #qfb-filter-label:-moz-system-metric(windows-default-theme) {
@@ -196,4 +176,8 @@ toolbox[labelalign="end"] #qfb-show-filter-bar {
   padding-bottom: 1px;
   -moz-margin-start: 1px;
   -moz-margin-end: 1px;
+}
+
+#quick-filter-bar-expando toolbarbutton:not(:-moz-system-metric(windows-default-theme)) {
+  min-height: 24px;
 }

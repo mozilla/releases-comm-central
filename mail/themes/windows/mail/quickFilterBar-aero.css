@@ -23,23 +23,24 @@
   -moz-padding-start: 2px;
 }
 
-#quick-filter-bar-tab-bar,
-#quick-filter-bar-filter-text-bar {
-  padding: 2px;
-}
-
-#quick-filter-bar-main-bar,
-#quick-filter-bar-tab-bar,
-#quick-filter-bar-filter-text-bar {
+#quick-filter-bar-expando {
   border-bottom: 1px solid ThreeDShadow;
 }
 
+#quick-filter-bar-tab-bar,
+#quick-filter-bar-filter-text-bar {
+  margin-top: -2px;
+  padding: 2px;
+}
+
+#quick-filter-bar-filter-text-bar:not(:-moz-system-metric(windows-default-theme)) {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
 @media (-moz-windows-default-theme) {
-  #quick-filter-bar-main-bar,
-  #quick-filter-bar-tab-bar,
-  #quick-filter-bar-filter-text-bar {
+  #quick-filter-bar {
     background: #f8f8f8;
-    border-bottom-color: #a9b1b8;
   }
 
   #threadTree[filterActive="searching"] {
@@ -60,8 +61,15 @@
 
 #quick-filter-bar toolbarbutton {
   -moz-appearance: none;
+  min-height: 19px;
   border-radius: 2px;
   border: 1px solid transparent;
+  padding: 1px 3px;
+  -moz-margin-start: 1px;
+  -moz-margin-end: 1px;
+}
+
+#quick-filter-bar toolbarbutton:not(.qfb-tag-button) {
   color: ButtonText;
 }
 
@@ -74,14 +82,10 @@
 
 #quick-filter-bar toolbarbutton:hover:active,
 #quick-filter-bar toolbarbutton[checked="true"] {
-  padding: 3px;
   border-top-color: ButtonShadow;
   -moz-border-start-color: ButtonShadow;
   border-bottom-color: ButtonHighlight;
   -moz-border-end-color: ButtonHighlight;
-  box-shadow: 0 0 9px rgba(0, 0, 0, .4) inset,
-              0 0 3px rgba(0, 0, 0, .4) inset,
-              0 1px 0 rgba(255, 255, 255, .4);
 }
 
 @media (-moz-windows-default-theme) {
@@ -128,6 +132,12 @@
 /* keep that hideous outline focus ring from showing on the checked buttons */
 #quick-filter-bar-main-bar toolbarbutton:focus {
   outline: none;
+}
+
+#qfb-boolean-mode {
+  margin: 0 1px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 #qfb-filter-label:-moz-system-metric(windows-default-theme) {
@@ -180,15 +190,6 @@
 
 #quick-filter-bar-collapsible-buttons toolbarbutton .toolbarbutton-text {
   -moz-margin-start: 3px !important;
-}
-
-#quick-filter-bar-expando toolbarbutton,
-#quick-filter-bar-expando toolbarbutton:hover:active,
-#quick-filter-bar-expando toolbarbutton[checked] {
-  padding-top: 1px;
-  padding-bottom: 1px;
-  -moz-margin-start: 1px;
-  -moz-margin-end: 1px;
 }
 
 /* :::: Filter Textbox :::: */
