@@ -224,6 +224,10 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
   border-top: none;
 }
 
+#attachments-box {
+  padding-top: 5px;
+}
+
 #attachmentBucketSize {
   color: #888a85;
   -moz-padding-end: 1px;
@@ -261,6 +265,10 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
 .listcell-icon {
   -moz-margin-start: 2px;
   margin-top: 2px;
+}
+
+#subjectLabel {
+  padding-bottom: 1px;
 }
 
 #subject-box {
@@ -413,11 +421,15 @@ treechildren::-moz-tree-image(subscribed-news) {
   color: WindowText;
   text-shadow: none;
   background-image: url("chrome://messenger/skin/messengercompose/linux-noise.png");
+  padding-top: 3px;
+}
+
+#identityLabel {
+  padding-top: 3px;
 }
 
 #msgIdentity {
   -moz-appearance: none;
-  margin-top: 5px;
   margin-right: 5px;
   margin-bottom: 0;
   padding-top: 1px;

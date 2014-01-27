@@ -869,7 +869,8 @@
         <vbox flex="1" id="addresses-box">
           <hbox id="top-gradient-box">
             <hbox align="center" pack="end" style="&headersSpace.style;">
-              <label value="&fromAddr.label;" accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
+              <label id="identityLabel" value="&fromAddr.label;"
+                     accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
             </hbox>
             <menulist id="msgIdentity" type="description" flex="1"
                       oncommand="LoadIdentity(false);" disableonsend="true">
