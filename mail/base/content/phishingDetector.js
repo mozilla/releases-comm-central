@@ -24,9 +24,9 @@ var gPhishingDetector = {
   },
 
   /**
-   * initialize the phishing warden.
-   * initialize the black and white list url tables.
-   * update the local tables if necessary
+   * Initialize the phishing warden.
+   * Initialize the black and white list url tables.
+   * Update the local tables if necessary.
    */
   init: function()
   {
@@ -223,17 +223,14 @@ var gPhishingDetector = {
     aLinkNodeText = aLinkNodeText.replace(/ /g, "");
 
     // Only worry about http: and https: urls.
-    if (aLinkNodeText && aLinkNodeText.search(/(^https?:)/) != -1)
+    if (/^https?:/.test(aLinkNodeText))
     {
-      let eTLD = Components.classes["@mozilla.org/network/effective-tld-service;1"]
-                           .getService(Components.interfaces.nsIEffectiveTLDService);
-
       let linkTextURI = Services.io.newURI(aLinkNodeText, null, null);
 
       // Compare the base domain of the href and the link text.
       try {
-        return eTLD.getBaseDomain(aHrefURL) !=
-               eTLD.getBaseDomain(linkTextURI);
+        return Services.eTLD.getBaseDomain(aHrefURL) !=
+               Services.eTLD.getBaseDomain(linkTextURI);
       } catch (e) {
         // If we throw above, one of the URIs probably has no TLD (e.g.
         // http://localhost), so just check the entire host.

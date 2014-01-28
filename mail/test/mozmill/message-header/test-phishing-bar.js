@@ -151,7 +151,3 @@ function test_phishing_warning_for_local_domain() {
   select_click_row(5);
   assert_notification_displayed(mc, kBoxId, kNotificationValue, true); // shown
 }
-
-
-
-
