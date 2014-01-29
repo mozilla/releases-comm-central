@@ -147,7 +147,8 @@ CommandsService.prototype = {
       if (prplId && commands.hasOwnProperty(prplId))
         result.push(commands[prplId]);
     }
-    result = result.filter(this._usageContextFilter(aConversation));
+    if (aConversation)
+      result = result.filter(this._usageContextFilter(aConversation));
     commandCount.value = result.length;
     return result;
   },
@@ -171,40 +172,51 @@ CommandsService.prototype = {
     return function(c) c.usageContext & usageContext;
   },
   _findCommands: function(aConversation, aName) {
-    // The command doesn't exist, check if the given command is a partial match
-    // to a single other command.
-    if (!(this._commands.hasOwnProperty(aName))) {
-      let commandNames = Object.keys(this._commands);
-      // Find all full command names that start with the given command.
-      commandNames =
-        commandNames.filter(function(aCommand) aCommand.indexOf(aName) == 0);
-
-      // If a single full command name matches the given partial command name,
-      // return the results for that command name. Otherwise, return an empty
-      // array (don't assume a certain command).
-      if (commandNames.length == 1)
-        return this._findCommands(aConversation, commandNames[0]);
-      else
-        return [];
-    }
-
-    // Get the 2 possible commands (the global and the proto specific)
-    let cmdArray = [];
-    let commands = this._commands[aName];
-    if (commands.hasOwnProperty(""))
-      cmdArray.push(commands[""]);
-
+    let prplId = null;
     if (aConversation) {
       let account = aConversation.account;
-      if (account.connected) {
-        let prplId = account.protocol.id;
-        if (commands.hasOwnProperty(prplId))
-          cmdArray.push(commands[prplId]);
-      }
+      if (account.connected)
+        prplId = account.protocol.id;
     }
 
-    // Remove the commands that can't apply in this context.
-    cmdArray = cmdArray.filter(this._usageContextFilter(aConversation));
+    let commandNames;
+    // If there is an exact match for the given command name,
+    // don't look at any other commands.
+    if (this._commands.hasOwnProperty(aName))
+      commandNames = [aName];
+    // Otherwise, check if there is a partial match.
+    else {
+      commandNames = Object.keys(this._commands)
+                           .filter(command => command.startsWith(aName));
+    }
+
+    // If a single full command name matches the given (partial)
+    // command name, return the results for that command name. Otherwise,
+    // return an empty array (don't assume a certain command).
+    let cmdArray = [];
+    for (let commandName of commandNames) {
+      let matches = [];
+
+      // Get the 2 possible commands (the global and the proto specific).
+      let commands = this._commands[commandName];
+      if (commands.hasOwnProperty(""))
+        matches.push(commands[""]);
+      if (prplId && commands.hasOwnProperty(prplId))
+        matches.push(commands[prplId]);
+
+      // Remove the commands that can't apply in this context.
+      if (aConversation)
+        matches = matches.filter(this._usageContextFilter(aConversation));
+
+      if (!matches.length)
+        continue;
+
+      // If we have found a second matching command name, return the empty array.
+      if (cmdArray.length)
+        return [];
+
+      cmdArray = matches;
+    }
 
     // Sort the matching commands by priority before returning the array.
     return cmdArray.sort(function(a, b) b.priority - a.priority);
