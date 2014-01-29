@@ -31,6 +31,8 @@
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="chatBundle" src="chrome://messenger/locale/chat.properties"/>
+    <stringbundle id="bundle_dateformat" src="chrome://global/locale/dateFormat.properties"/>
+    <stringbundle id="bundle_places" src="chrome://places/locale/places.properties"/>
   </stringbundleset>
 
   <popupset id="mainPopupSet">
@@ -151,7 +153,7 @@
                        align="center"
                        flex="1"
                        class="chromeclass-toolbar-additional">
-            <textbox id="IMSearchInput" 
+            <textbox id="IMSearchInput"
                      flex="1"
                      type="glodacomplete"
                      searchbutton="true"
