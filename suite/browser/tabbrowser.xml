@@ -2622,6 +2622,18 @@
                 onget="return this.mCurrentBrowser.docShellIsActive;"
                 onset="return this.mCurrentBrowser.docShellIsActive = val;"/>
 
+      <property name="fullZoom"
+                onget="return this.mCurrentBrowser.fullZoom;"
+                onset="return this.mCurrentBrowser.fullZoom = val;"/>
+
+      <property name="textZoom"
+                onget="return this.mCurrentBrowser.textZoom;"
+                onset="return this.mCurrentBrowser.textZoom = val;"/>
+
+      <property name="isSyntheticDocument"
+                onget="return this.mCurrentBrowser.isSyntheticDocument;"
+                readonly="true"/>
+
       <method name="observe">
         <parameter name="aSubject"/>
         <parameter name="aTopic"/>
