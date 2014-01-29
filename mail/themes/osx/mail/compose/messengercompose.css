@@ -487,6 +487,10 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   margin: 4px 6px;
 }
 
+#attachments-box {
+  padding-top: 5px;
+}
+
 #attachmentbucket-sizer {
   border-top: none;
   border-bottom: none;
@@ -524,13 +528,14 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   margin-top: 2px;
 }
 
-#subject-box {
-  -moz-margin-start: -2px;
+#subjectLabel {
+  margin-top: 0px;
+  margin-bottom: 4px;
 }
 
 #msgSubject {
   margin-top: 0px;
-  -moz-margin-start: 2px;
+  -moz-margin-start: 0;
   -moz-margin-end: 1px;
   background-color: inherit;
   -moz-appearance: none !important;

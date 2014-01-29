@@ -352,6 +352,11 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
   padding-bottom: 2px;
 }
 
+#identityLabel {
+  margin-top: 2px;
+  margin-bottom: 1px;
+}
+
 #msgIdentity {
   -moz-appearance: none;
   -moz-padding-end: 18px;
@@ -417,6 +422,15 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
   background-color: transparent;
 }
 
+#attachments-box {
+  padding-top: 6px;
+}
+
+#attachmentBucketSize:-moz-system-metric(windows-default-theme),
+#attachmentBucketCount:-moz-system-metric(windows-default-theme) {
+  padding-bottom: 1px;
+}
+
 #attachmentBucketSize {
   opacity: 0.5; /* lower contrast */
   -moz-padding-end: 1px;
@@ -461,6 +475,10 @@ toolbar[iconsize="small"] #button-print[disabled="true"] {
   border-top-width: 0;
   border-left: none;
   border-right: none;
+}
+
+#subjectLabel {
+  margin-top: -1px;
 }
 
 #msgSubject {
