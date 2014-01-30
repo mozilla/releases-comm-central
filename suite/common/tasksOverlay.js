@@ -113,29 +113,33 @@ function OpenBrowserWindow()
     // it has a document with a character set, then extract the
     // current charset menu setting from the current document
     // and use it to initialize the new browser window
-    window.openDialog(getBrowserURL(), "_blank",
-                      "chrome,all,dialog=no", null,
-                      "charset=" + window.content.document.characterSet);
-  } else if (win) {
+    return window.openDialog(getBrowserURL(), "_blank",
+                             "chrome,all,dialog=no", null,
+                             "charset=" + window.content.document.characterSet);
+  }
+
+  if (win) {
     // if a browser window already exists then set startpage to null so
     // navigator.js can check pref for how new window should be opened
-    win.openDialog(getBrowserURL(), "_blank", "chrome,all,dialog=no", null);
-  } else {
-    // open the first browser window as if we were starting up
-    var cmdLine = {
-      handleFlagWithParam: function handleFlagWithParam(flag, caseSensitive) {
-        return flag == "remote" ? "xfeDoCommand(openBrowser)" : null;
-      },
-      handleFlag: function handleFlag(flag, caseSensitive) {
-        return false;
-      },
-      preventDefault: true
-    };
-    const clh_prefix = "@mozilla.org/commandlinehandler/general-startup;1";
-    Components.classes[clh_prefix + "?type=browser"]
-              .getService(Components.interfaces.nsICommandLineHandler)
-              .handle(cmdLine);
+    return win.openDialog(getBrowserURL(), "_blank",
+                          "chrome,all,dialog=no", null);
   }
+
+  // open the first browser window as if we were starting up
+  var cmdLine = {
+    handleFlagWithParam: function handleFlagWithParam(flag, caseSensitive) {
+      return flag == "remote" ? "xfeDoCommand(openBrowser)" : null;
+    },
+    handleFlag: function handleFlag(flag, caseSensitive) {
+      return false;
+    },
+    preventDefault: true
+  };
+  const clh_prefix = "@mozilla.org/commandlinehandler/general-startup;1";
+  Components.classes[clh_prefix + "?type=browser"]
+            .getService(Components.interfaces.nsICommandLineHandler)
+            .handle(cmdLine);
+  return null;
 }
 
 function CycleWindow( aType )
