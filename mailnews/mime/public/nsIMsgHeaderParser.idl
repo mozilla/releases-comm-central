@@ -4,43 +4,174 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsrootidl.idl"
-
-interface nsISimpleEnumerator;
 
 %{C++
-
 #define NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID \
   "@mozilla.org/messenger/headerparser;1"
 %}
 
 /**
- * A structured representation of a single address.
+ * A structured representation of an address.
  *
- * This is meant to be correspond to the address production from RFC 5322.
+ * This is meant to correspond to the address production from RFC 5322. As a
+ * result, an instance of this interface is either a single mailbox or a group
+ * of mailboxes. The difference between the two forms is in which attribute is
+ * undefined: mailboxes leave the members attribute undefined while groups leave
+ * the email attribute undefined.
+ *
+ * For example, an address like "John Doe <jdoe@machine.example>" will, when
+ * parsed, result in an instance with the name attribute set to "John Doe", the
+ * email attribute set to "jdoe@machine.example", and the members variable left
+ * undefined.
+ *
+ * A group like "undisclosed-recipients:;" will, when parsed, result in an
+ * instance with the name attribute set to "undisclosed-recipients", the email
+ * attribute left defined, and the members variable set to an empty array.
+ *
+ * In general, the attributes of this interface are always meant to be in a form
+ * suitable for display purposes, and not in a form usable for MIME emission. In
+ * particular, email addresses could be fully internationalized and non-ASCII,
+ * RFC 2047-encoded words may appear in names, and the name or email parameters
+ * are unquoted.
  */
-[scriptable, uuid(15f9cc44-afdf-48c8-9de7-3ca0f18fc3b6)]
+[scriptable, uuid(b19f5636-ebc4-470e-b46c-98b5fc7e88c9)]
 interface msgIAddressObject : nsISupports {
-  /// The name of the mailbox.
+  /// The name of the mailbox or group.
   readonly attribute AString name;
 
   /// The email of the mailbox.
   readonly attribute AString email;
 
+  /**
+   * The member mailboxes of this group, which may be an empty list.
+   *
+   * Due to the limitations of XPIDL, the type of this attribute cannot be
+   * properly reflected. It is actually an array of msgIAddressObject instances,
+   * although it is instead undefined if this object does not represent a group.
+   */
+  readonly attribute jsval group;
+
   /// Return a string form of this object that is suitable for display.
   AString toString();
 };
 
-/* 
- * nsIMsgRFCParser Interface declaration 
- */ 
-[scriptable, uuid(4da84fa8-bd45-45e7-9c98-3ba2be88343f)]
+/**
+ * A utility service for manipulating addressing headers in email messages.
+ *
+ * This interface is designed primarily for use from JavaScript code; code in
+ * C++ should use the methods in MimeHeaderParser.h instead, as it is better
+ * designed to take advantage of C++'s features, particularly with respect to
+ * arrays.
+ *
+ * There are two methods for parsing MIME headers, one for RFC 2047-decoded
+ * strings, and one for non-RFC 2047-decoded strings.
+ *
+ * In general, this API attempts to preserve the format of addresses as
+ * faithfully as possible. No case normalization is performed at any point.
+ * However, internationalized email addresses generally need extra processing to
+ * work properly, so while this API should handle them without issues, consumers
+ * of this API may fail to work properly when presented with such addresses. To
+ * ease use for such cases, future versions of the API may incorporate necessary
+ * normalization steps to make oblivious consumers more likely to work properly.
+ */
+[scriptable, uuid(af2f9dd1-0226-4835-b981-a4f88b5e97cc)]
 interface nsIMsgHeaderParser : nsISupports {
+  /**
+   * Parse an address-based header that has not yet been 2047-decoded.
+   *
+   * The result of this method is an array of objects described in the above
+   * comment. Note that the header is a binary string that will be decoded as if
+   * passed into nsIMimeConverter.
+   *
+   * @param aEncodedHeader  The RFC 2047-encoded header to parse.
+   * @param aHeaderCharset  The charset to assume for raw octets.
+   * @param aPreserveGroups If false (the default), the result is a flat array
+   *                        of mailbox objects, containing no group objects.
+   * @return                An array corresponding to the header description.
+   */
+  void parseEncodedHeader(in ACString aEncodedHeader,
+                          in string aHeaderCharset,
+                          [optional] in bool aPreserveGroups,
+                          [optional] out unsigned long length,
+                          [retval, array, size_is(length)]
+                          out msgIAddressObject addresses);
+
+  /**
+   * Parse an address-based header that has been 2047-decoded.
+   *
+   * The result of this method is an array of objects described in the above
+   * comment. Note that the header is a binary string that will be decoded as if
+   * passed into nsIMimeConverter.
+   *
+   * @param aDecodedHeader  The non-RFC 2047-encoded header to parse.
+   * @param aPreserveGroups If false (the default), the result is a flat array
+   *                        of mailbox objects, containing no group objects.
+   * @return                An array corresponding to the header description.
+   */
+  void parseDecodedHeader(in AString aDecodedHeader,
+                          [optional] in bool aPreserveGroups,
+                          [optional] out unsigned long length,
+                          [retval, array, size_is(length)]
+                          out msgIAddressObject addresses);
+
+  /**
+   * Given an array of addresses, make a MIME header suitable for emission.
+   *
+   * The return value of this method is not directly suitable for use in a MIME
+   * message but rather needs to be passed through nsIMimeConverter first to
+   * have RFC-2047 encoding applied and the resulting output wrapped to adhere
+   * to maximum line length formats.
+   *
+   * @param aAddresses An array corresponding to the header description.
+   * @param aLength    The length of said array of addresses.
+   * @return           A string that is suitable for writing in a MIME message.
+   */
+  AString makeMimeHeader([array, size_is(aLength)]
+                         in msgIAddressObject aAddresses,
+                         in unsigned long aLength);
+
+  /**
+   * Return the first address in the list in a format suitable for display.
+   *
+   * This is largely a convience method for handling From headers (or similar),
+   * which are expected to only have a single element in them. It is exactly
+   * equivalent to saying (parseDecodedHeader(decodedHeader))[0].toString().
+   *
+   * @param decodedHeader   The non-RFC 2047-encoded header to parse.
+   * @return                The first address, suitable for display.
+   */
+  AString extractFirstName(in AString aDecodedHeader);
+
+  /**
+   * Returns a copy of the input which may have had some addresses removed.
+   * Addresses are removed if they are already in either of the supplied
+   * address lists.
+   *
+   * Addresses are considered to be the same if they contain the same email
+   * part (case-insensitive). Since the email part should never be RFC
+   * 2047-encoded, this method should work whether or not the header is
+   * RFC 2047-encoded.
+   *
+   * @param aAddrs      The addresses to remove duplicates from.
+   * @param aOtherAddrs Other addresses that the duplicate removal process also
+   *                    checks for duplicates against. Addresses in this list
+   *                    will not be added to the result.
+   * @return            The original header with duplicate addresses removed.
+   */
+  AUTF8String removeDuplicateAddresses(in AUTF8String aAddrs,
+                                       [optional] in AUTF8String aOtherAddrs);
+
   /// Return a structured mailbox object having the given name and email.
   msgIAddressObject makeMailboxObject(in AString aName, in AString aEmail);
 
+  /// Return a structured group object having the given name and members.
+  msgIAddressObject makeGroupObject(in AString aName,
+    [array, size_is(aLength)] in msgIAddressObject aMembers,
+    in unsigned long aLength);
+
   /**
-   * Return an array of structured mailbox for the given display name string.
+   * Return an array of structured mailbox objects for the given display name
+   * string.
    *
    * The string is expected to be a comma-separated sequence of strings that
    * would be produced by msgIAddressObject::toString(). For example, the string
@@ -49,36 +180,15 @@ interface nsIMsgHeaderParser : nsISupports {
    * produce two address objects.
    */
   void makeFromDisplayAddress(in AString aDisplayAddresses,
-                              out unsigned long count,
+                              [optional] out unsigned long count,
                               [retval, array, size_is(count)] out msgIAddressObject addresses);
 
-  void parseHeadersWithArray(in wstring aLine, 
+  [deprecated] void parseHeadersWithArray(in wstring aLine,
                              [array, size_is(count)] out wstring aEmailAddresses,
                              [array, size_is(count)] out wstring aNames,
                              [array, size_is(count)] out wstring aFullNames,
                              [retval] out unsigned long count);
 
-
-  /**
-   * Given a string which contains a list of Header addresses, parses it into
-   * their component names and mailboxes.
-   *
-   * @param aLine          The header line to parse.
-   * @param aNames         A string of the names in the header line. The names
-   *                       are separated by null-terminators.
-   *                       This param may be null if the caller does not want
-   *                       this part of the result.
-   * @param aAddresses     A string of the addresses in the header line. The
-   *                       addresses are separated by null-terminators.
-   *                       This param may be null if the caller does not want
-   *                       this part of the result.
-   * @param aNumAddresses  The number of addresses in the header. If this is
-   *                       negative, there has been an error parsing the
-   *                       header.
-   */
-  [noscript] void parseHeaderAddresses(in string aLine, out string aNames, 
-                                       out string aAddresses,
-                                       out uint32_t aNumAddresses);
 
   /**
    * Given a string which contains a list of Header addresses, returns a
@@ -88,7 +198,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @return               A comma-separated list of just the mailbox parts
    *                       of the email-addresses.
    */
-  ACString extractHeaderAddressMailboxes(in ACString aLine);
+  [deprecated] ACString extractHeaderAddressMailboxes(in ACString aLine);
 
   /**
    * Given a string which contains a list of Header addresses, returns a
@@ -99,7 +209,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @return               A comma-separated list of just the name parts
    *                       of the addresses.
    */
-  AUTF8String extractHeaderAddressNames(in AUTF8String aLine);
+  [deprecated] AUTF8String extractHeaderAddressNames(in AUTF8String aLine);
 
   /*
    * Like extractHeaderAddressNames, but only returns the first name in the
@@ -109,46 +219,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @param aLine          The header line to parse.
    * @return               The first name found in the list.
    */
-  AUTF8String extractHeaderAddressName(in AUTF8String aLine);
-
-  /**
-   * Given a string which contains a list of Header addresses, returns a new
-   * string with the same data, but inserts missing commas, parses and reformats
-   * it, and wraps long lines with newline-tab.
-   *
-   * @param aLine          The header line to parse.
-   * @return               The reformatted header line.
-   */
-  [noscript] string reformatHeaderAddresses(in string aLine);
-
-  /**
-   * Returns a copy of the input which may have had some addresses removed.
-   * Addresses are removed if they are already in either of the supplied
-   * address lists.
-   *
-   * Addresses are considered to be the same if they contain the same mailbox
-   * part (case-insensitive.)  Real names and other comments are not compared.
-   *
-   * @param aAddrs              The addresses to remove duplicates from.
-   * @param aOtherAddrs         Other addresses that the duplicate removal
-   *                            process also checks for duplicates against.
-   *                            Addresses in this list will not be added to the
-   *                            result.
-   * @return                    A string based on the original without the
-   *                            duplicate addresses.
-   */
-  AUTF8String removeDuplicateAddresses(in AUTF8String aAddrs,
-                                       in AUTF8String aOtherAddrs);
-
-  /* This function removes the quoting if you want to show the
-     names to users. e.g. summary file, address book. If preserveIntegrity is set to true,
-     quote will not be removed in case the name part of the email contains a comma.
-  */
-  [noscript] string unquotePhraseOrAddr (in string line, in boolean preserveIntegrity);
-  wstring unquotePhraseOrAddrWString (in wstring line, in boolean preserveIntegrity);
-
-  /* Given a string, will make it safe to use by adding missing quote and escaping needed quote */
-  wstring reformatUnquotedAddresses(in wstring line);
+  [deprecated] AUTF8String extractHeaderAddressName(in AUTF8String aLine);
 
   /**
    * Given a name and email address, produce a string that is suitable for
@@ -156,6 +227,6 @@ interface nsIMsgHeaderParser : nsISupports {
    *
    * @note This is a temporary method.
    */
-  AString makeMimeAddress(in AString aName, in AString aEmail);
+  [deprecated] AString makeMimeAddress(in AString aName, in AString aEmail);
 };
 

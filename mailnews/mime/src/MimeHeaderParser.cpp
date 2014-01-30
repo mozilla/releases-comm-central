@@ -6,12 +6,12 @@
 
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
+#include "mozilla/DebugOnly.h"
 #include "nsMemory.h"
 #include "nsAutoPtr.h"
 #include "nsCOMPtr.h"
 #include "nsIMimeConverter.h"
 #include "nsIMsgHeaderParser.h"
-#include "nsMsgHeaderParser.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -40,7 +40,10 @@ void MakeMimeAddress(const nsAString &aName, const nsAString &aEmail,
 {
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
 
-  headerParser->MakeMimeAddress(aName, aEmail, full);
+  nsCOMPtr<msgIAddressObject> address;
+  headerParser->MakeMailboxObject(aName, aEmail, getter_AddRefs(address));
+  msgIAddressObject *obj = address;
+  headerParser->MakeMimeHeader(&obj, 1, full);
 }
 
 void MakeDisplayAddress(const nsAString &aName, const nsAString &aEmail,
@@ -70,62 +73,19 @@ ParsedHeader DecodedHeader(const nsAString &aHeader)
 {
   ParsedHeader retval;
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
-  char16_t **rawNames = nullptr;
-  char16_t **rawEmails = nullptr;
-  char16_t **rawFull = nullptr;
-
-  headerParser->ParseHeadersWithArray(PromiseFlatString(aHeader).get(),
-    &rawEmails, &rawNames, &rawFull, &retval.mCount);
-
-  retval.mAddresses = static_cast<msgIAddressObject**>(NS_Alloc(
-    sizeof(msgIAddressObject*) * retval.mCount));
-
-  for (uint32_t i = 0; i < retval.mCount; i++)
-  {
-    nsString clean;
-    headerParser->UnquotePhraseOrAddrWString(rawNames[i], false,
-      getter_Copies(clean));
-    retval.mAddresses[i] = new MsgAddressObject(clean,
-      nsDependentString(rawEmails[i]));
-    NS_ADDREF(retval.mAddresses[i]);
-  }
-
-  NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(retval.mCount, rawNames);
-  NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(retval.mCount, rawEmails);
-  NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(retval.mCount, rawFull);
+  DebugOnly<nsresult> rv = headerParser->ParseDecodedHeader(aHeader, false,
+    &retval.mCount, &retval.mAddresses);
+  MOZ_ASSERT(NS_SUCCEEDED(rv), "This should never fail!");
   return retval;
 }
 
 ParsedHeader EncodedHeader(const nsACString &aHeader, const char *aCharset)
 {
   ParsedHeader retval;
-  nsCOMPtr<nsIMsgHeaderParser> headerParser = services::GetHeaderParser();
-  nsCOMPtr<nsIMimeConverter> converter = services::GetMimeConverter();
-
-  nsCString nameBlob, emailBlob;
-  headerParser->ParseHeaderAddresses(PromiseFlatCString(aHeader).get(),
-    getter_Copies(nameBlob), getter_Copies(emailBlob), &retval.mCount);
-
-  retval.mAddresses = static_cast<msgIAddressObject**>(NS_Alloc(
-    sizeof(msgIAddressObject*) * retval.mCount));
-
-  // The contract of ParseHeaderAddresses sucks: it's \0-delimited strings
-  const char *namePtr = nameBlob.get();
-  const char *emailPtr = emailBlob.get();
-  for (uint32_t i = 0; i < retval.mCount; i++)
-  {
-    nsCString clean;
-    nsString utf16Name;
-    headerParser->UnquotePhraseOrAddr(namePtr, false, getter_Copies(clean));
-    converter->DecodeMimeHeader(clean.get(), aCharset, false, true, utf16Name);
-    retval.mAddresses[i] = new MsgAddressObject(utf16Name,
-      NS_ConvertUTF8toUTF16(emailPtr));
-    NS_ADDREF(retval.mAddresses[i]);
-
-    // Go past the \0 to the next one
-    namePtr += strlen(namePtr) + 1;
-    emailPtr += strlen(emailPtr) + 1;
-  }
+  nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  DebugOnly<nsresult> rv = headerParser->ParseEncodedHeader(aHeader, aCharset,
+    false, &retval.mCount, &retval.mAddresses);
+  MOZ_ASSERT(NS_SUCCEEDED(rv), "This should never fail!");
   return retval;
 }
 
