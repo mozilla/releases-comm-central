@@ -131,6 +131,16 @@ var tests = [
 ]
 
 function run_test() {
+  // This test assumes mailnews.send_default_charset ISO-8859-1...
+  let str = Components.classes["@mozilla.org/pref-localizedstring;1"]
+                      .createInstance(Components.interfaces.nsIPrefLocalizedString);
+  str.data = "ISO-8859-1";
+  Services.prefs.setComplexValue("mailnews.send_default_charset",
+                                 Components.interfaces.nsIPrefLocalizedString, str);
+  do_register_cleanup(function() {
+    Services.prefs.clearUserPref("mailnews.send_default_charset");
+  });
+
   localAccountUtils.loadLocalMailAccount();
   async_run_tests(tests);
 }

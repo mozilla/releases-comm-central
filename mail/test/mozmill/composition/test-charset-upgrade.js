@@ -53,6 +53,14 @@ function setupModule(module) {
                              .getChildNamed("Outbox");
   if (!outboxFolder)
     throw new Error("outboxFolder not found");
+
+  // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
+  //  which is what this test tests.
+  let str = Components.classes["@mozilla.org/pref-localizedstring;1"]
+                      .createInstance(Components.interfaces.nsIPrefLocalizedString);
+  str.data = "ISO-8859-1";
+  Services.prefs.setComplexValue("mailnews.send_default_charset",
+                                 Components.interfaces.nsIPrefLocalizedString, str);
 }
 
 /**
@@ -231,4 +239,7 @@ function test_encoding_upgrade_plaintext_compose() {
   press_delete(); // Delete the msg from Outbox.
 }
 
+function teardownModule(module) {
+  Services.prefs.clearUserPref("mailnews.send_default_charset");
+}
 
