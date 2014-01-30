@@ -19,11 +19,14 @@
 #include "nsEmbedCID.h"
 #include "nsMemory.h"
 #include "nsIStringBundle.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
 
 #include <glib.h>
 #include <limits.h>
 #include <stdlib.h>
+
+using mozilla::ArrayLength;
 
 static const char* const sMailProtocols[] = {
   "mailto"
@@ -42,14 +45,24 @@ static const char* const sFeedProtocols[] = {
 struct AppTypeAssociation {
   uint16_t type;
   const char * const *protocols;
+  unsigned int protocolsLength;
   const char *mimeType;
   const char *extensions;
 };
 
 static const AppTypeAssociation sAppTypes[] = {
-  { nsIShellService::MAIL, sMailProtocols, "message/rfc822", "eml" },
-  { nsIShellService::NEWS, sNewsProtocols },
-  { nsIShellService::RSS,  sFeedProtocols, "application/rss+xml", "rss" }
+  {
+    nsIShellService::MAIL, sMailProtocols, ArrayLength(sMailProtocols),
+    "message/rfc822", "eml"
+  },
+  {
+    nsIShellService::NEWS, sNewsProtocols, ArrayLength(sNewsProtocols),
+    nullptr, nullptr
+  },
+  {
+    nsIShellService::RSS, sFeedProtocols, ArrayLength(sFeedProtocols),
+    "application/rss+xml", "rss"
+  }
 };
 
 nsMailGNOMEIntegration::nsMailGNOMEIntegration(): 
@@ -128,7 +141,7 @@ nsMailGNOMEIntegration::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool
   for (unsigned int i = 0; i < NS_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type)
       *aIsDefaultClient &= checkDefault(sAppTypes[i].protocols,
-                                        NS_ARRAY_LENGTH(sAppTypes[i].protocols));
+                                        sAppTypes[i].protocolsLength);
   }
   
   // If this is the first mail window, maintain internal state that we've
@@ -146,7 +159,7 @@ nsMailGNOMEIntegration::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
   for (unsigned int i = 0; i < NS_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type) {
       nsresult tmp = MakeDefault(sAppTypes[i].protocols,
-                                 NS_ARRAY_LENGTH(sAppTypes[i].protocols),
+                                 sAppTypes[i].protocolsLength,
                                  sAppTypes[i].mimeType,
                                  sAppTypes[i].extensions);
       if (NS_FAILED(tmp)) {
