@@ -601,8 +601,7 @@ function saveAsVirtualFolder()
   var dialog = window.openDialog("chrome://messenger/content/virtualFolderProperties.xul", "",
                                  "chrome,titlebar,modal,centerscreen",
                                  {folder: window.arguments[0].folder,
-                                  searchTerms: toXPCOMArray(getSearchTerms(),
-                                                            Components.interfaces.nsISupportsArray),
+                                  searchTerms: getSearchTerms(),
                                   searchFolderURIs: searchFolderURIs,
                                   searchOnline: doOnlineSearch});
 }
