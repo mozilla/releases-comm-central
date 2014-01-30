@@ -22,6 +22,7 @@
 #include "nsMsgI18N.h"
 #include "nsMemory.h"
 #include "prmem.h"
+#include "mozilla/ArrayUtils.h"
 #include <ctype.h>
 
 // unicode "%s" format string
@@ -373,7 +374,7 @@ static FilterFileAttribEntry FilterFileAttribTable[] =
 };
 
 static const unsigned int sNumFilterFileAttribTable =
-  NS_ARRAY_LENGTH(FilterFileAttribTable);
+  MOZ_ARRAY_LENGTH(FilterFileAttribTable);
 
 // If we want to buffer file IO, wrap it in here.
 char nsMsgFilterList::ReadChar(nsIInputStream *aStream)

@@ -13,6 +13,7 @@
 #include "nsNetUtil.h"
 #include "nsSeamonkeyProfileMigrator.h"
 #include "nsAppDirectoryServiceDefs.h"
+#include "mozilla/ArrayUtils.h"
 
 // Mail specific folder paths
 #define MAIL_DIR_50_NAME             NS_LITERAL_STRING("Mail")
@@ -345,9 +346,9 @@ nsSeamonkeyProfileMigrator::TransformPreferences(const nsAString& aSourcePrefFil
   };
 
   // read in the various pref branch trees for accounts, identities, servers, etc.
-  PBStructArray branches[NS_ARRAY_LENGTH(branchNames)];
+  PBStructArray branches[MOZ_ARRAY_LENGTH(branchNames)];
   uint32_t i;
-  for (i = 0; i < NS_ARRAY_LENGTH(branchNames); ++i)
+  for (i = 0; i < MOZ_ARRAY_LENGTH(branchNames); ++i)
     ReadBranch(branchNames[i], psvc, branches[i]);
 
   // The signature file prefs may be paths to files in the seamonkey profile
@@ -371,7 +372,7 @@ nsSeamonkeyProfileMigrator::TransformPreferences(const nsAString& aSourcePrefFil
   for (transform = gTransforms; transform < end; ++transform)
     transform->prefSetterFunc(transform, branch);
 
-  for (i = 0; i < NS_ARRAY_LENGTH(branchNames); i++)
+  for (i = 0; i < MOZ_ARRAY_LENGTH(branchNames); i++)
     WriteBranch(branchNames[i], psvc, branches[i]);
 
   nsCOMPtr<nsIFile> targetPrefsFile;

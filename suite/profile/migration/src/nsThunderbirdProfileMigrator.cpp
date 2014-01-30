@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsSuiteProfileMigratorUtils.h"
+#include "mozilla/ArrayUtils.h"
 #include "nsCRT.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIObserverService.h"
@@ -519,9 +520,9 @@ nsThunderbirdProfileMigrator::TransformPreferences(
     "wallet."
   };
 
-  PBStructArray branches[NS_ARRAY_LENGTH(branchNames)];
+  PBStructArray branches[MOZ_ARRAY_LENGTH(branchNames)];
   uint32_t i;
-  for (i = 0; i < NS_ARRAY_LENGTH(branchNames); ++i)
+  for (i = 0; i < MOZ_ARRAY_LENGTH(branchNames); ++i)
     ReadBranch(branchNames[i], psvc, branches[i]);
 
   // the signature file prefs may be paths to files in the thunderbird profile
@@ -552,7 +553,7 @@ nsThunderbirdProfileMigrator::TransformPreferences(
   for (transform = gTransforms; transform < end; ++transform)
     transform->prefSetterFunc(transform, branch);
 
-  for (i = 0; i < NS_ARRAY_LENGTH(branchNames); ++i)
+  for (i = 0; i < MOZ_ARRAY_LENGTH(branchNames); ++i)
     WriteBranch(branchNames[i], psvc, branches[i]);
 
   psvc->SavePrefFile(targetPrefsFile);

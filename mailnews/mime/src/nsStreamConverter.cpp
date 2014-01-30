@@ -38,6 +38,7 @@
 #include "nsIAsyncInputStream.h"
 #include "nsIAsyncOutputStream.h"
 #include "nsMsgUtils.h"
+#include "mozilla/ArrayUtils.h"
 
 #define PREF_MAIL_DISPLAY_GLYPH "mail.display_glyph"
 #define PREF_MAIL_DISPLAY_STRUCT "mail.display_struct"
@@ -446,7 +447,7 @@ nsStreamConverter::DetermineOutputFormat(const char *aUrl, nsMimeOutputType *aNe
     // find the requested header in table, ensure that we don't match on a prefix
     // by checking that the following character is either null or the next query element
     const char * remainder;
-    for (uint32_t n = 0; n < NS_ARRAY_LENGTH(rgTypes); ++n)
+    for (uint32_t n = 0; n < MOZ_ARRAY_LENGTH(rgTypes); ++n)
     {
       remainder = SkipPrefix(header, rgTypes[n].headerType);
       if (remainder && (*remainder == '\0' || *remainder == '&'))

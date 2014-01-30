@@ -24,9 +24,9 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIMsgFilterService.h"
-#include "nsMemory.h"
 #include "nsIMutableArray.h"
 #include "prmem.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
 
 static const char *kImapPrefix = "//imap:";
@@ -909,7 +909,7 @@ static struct RuleActionsTableEntry ruleActionsTable[] =
   { nsMsgFilterAction::Custom,                  "Custom"},
 };
 
-static const unsigned int sNumActions = NS_ARRAY_LENGTH(ruleActionsTable);
+static const unsigned int sNumActions = MOZ_ARRAY_LENGTH(ruleActionsTable);
 
 const char *nsMsgFilter::GetActionStr(nsMsgRuleActionType action)
 {

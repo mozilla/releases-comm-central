@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include <stdio.h>
 #include "TestHarness.h"
+#include "mozilla/ArrayUtils.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
 #include "nsIPrefService.h"
@@ -93,7 +94,7 @@ int main(int argc, char** argv)
 
   bool allTestsPassed = true;
   int result;
-  for (unsigned int i = 0; i < NS_ARRAY_LENGTH(testInfoStructs); i++) {
+  for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(testInfoStructs); i++) {
     result = testStripRe(testInfoStructs[i].encodedInput,
                          testInfoStructs[i].expectedOutput,
                          testInfoStructs[i].expectedDidModify);

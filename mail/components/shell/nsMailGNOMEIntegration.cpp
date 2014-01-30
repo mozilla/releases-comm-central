@@ -17,7 +17,6 @@
 #include "nsDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsEmbedCID.h"
-#include "nsMemory.h"
 #include "nsIStringBundle.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
@@ -138,7 +137,7 @@ nsMailGNOMEIntegration::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool
 {
   *aIsDefaultClient = true;
 
-  for (unsigned int i = 0; i < NS_ARRAY_LENGTH(sAppTypes); i++) {
+  for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type)
       *aIsDefaultClient &= checkDefault(sAppTypes[i].protocols,
                                         sAppTypes[i].protocolsLength);
@@ -156,7 +155,7 @@ NS_IMETHODIMP
 nsMailGNOMEIntegration::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 {
   nsresult rv = NS_OK;
-  for (unsigned int i = 0; i < NS_ARRAY_LENGTH(sAppTypes); i++) {
+  for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type) {
       nsresult tmp = MakeDefault(sAppTypes[i].protocols,
                                  sAppTypes[i].protocolsLength,

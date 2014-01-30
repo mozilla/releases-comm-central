@@ -34,7 +34,6 @@
 #include "nsIAbCard.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsMemory.h"
 #include <ctype.h>
 #include "nsMsgBaseCID.h"
 #include "nsIMsgTagService.h"
@@ -43,6 +42,7 @@
 #include "nsIMsgPluggableStore.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbManager.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
 using namespace mozilla::mailnews;
@@ -91,7 +91,7 @@ nsMsgSearchAttribEntry SearchAttribEntryTable[] =
 };
 
 static const unsigned int sNumSearchAttribEntryTable =
-  NS_ARRAY_LENGTH(SearchAttribEntryTable);
+  MOZ_ARRAY_LENGTH(SearchAttribEntryTable);
 
 // Take a string which starts off with an attribute
 // and return the matching attribute. If the string is not in the table, and it
@@ -236,7 +236,7 @@ nsMsgSearchOperatorEntry SearchOperatorEntryTable[] =
 };
 
 static const unsigned int sNumSearchOperatorEntryTable =
-  NS_ARRAY_LENGTH(SearchOperatorEntryTable);
+  MOZ_ARRAY_LENGTH(SearchOperatorEntryTable);
 
 nsresult NS_MsgGetOperatorFromString(const char *string, int16_t *op)
 {
