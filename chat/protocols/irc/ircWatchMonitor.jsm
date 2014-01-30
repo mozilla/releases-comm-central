@@ -7,7 +7,7 @@
  * (compared to ISON) keep track of a user's status.
  *
  *   MONITOR (supported by Charybdis)
- *     http://hg.atheme.org/charybdis/raw-file/tip/doc/monitor.txt
+ *     https://github.com/atheme/charybdis/blob/master/doc/monitor.txt
  *   WATCH (supported by Bahamut and UnrealIRCd)
  *     http://www.stack.nl/~jilles/cgi-bin/hgwebdir.cgi/irc-documentation-jilles/raw-file/tip/reference/draft-meglio-irc-watch-00.txt
  */
@@ -77,6 +77,10 @@ function trackBuddyWatch(aNicks) {
   }
   this.sendMessage("WATCH", params);
 }
+function untrackBuddyWatch(aNick) {
+  --this.watchLength;
+  this.sendMessage("WATCH", "-" + aNick);
+}
 
 var isupportWATCH = {
   name: "WATCH",
@@ -137,8 +141,10 @@ var ircWATCH = {
       // connection registration. If WATCH is enabled, then set the new function
       // to keep track of nicks and send the messages to watch the nicks.
 
-      // Ensure that any new buddies are set to be watched.
+      // Ensure that any new buddies are set to be watched, and removed buddies
+      // are no longer watched.
       this.trackBuddy = trackBuddyWatch;
+      this.untrackBuddy = untrackBuddyWatch;
 
       // Build the watchlist from the current list of nicks.
       this.trackBuddy(this.trackQueue);
@@ -196,8 +202,7 @@ var ircWATCH = {
 
     "602": function(aMessage) { // RPL_WATCHOFF
       // <nickname> <username> <hostname> <lastnickchange> :stopped watching
-      // TODO I don't think we really need to care about this.
-      return false;
+      return true;
     },
 
     "603": function(aMessage) { // RPL_WATCHSTAT
@@ -301,6 +306,10 @@ function trackBuddyMonitor(aNicks) {
   }
   this.sendMessage("MONITOR", ["+", params.join(",")]);
 }
+function untrackBuddyMonitor(aNick) {
+  --this.monitorLength;
+  this.sendMessage("MONITOR", ["-", aNick]);
+}
 
 var ircMONITOR = {
   name: "MONITOR",
@@ -318,8 +327,10 @@ var ircMONITOR = {
       // function to keep track of nicks and send the messages to watch the
       // nicks.
 
-      // Ensure that any new buddies are set to be watched.
+      // Ensure that any new buddies are set to be watched, and removed buddies
+      // are no longer watched.
       this.trackBuddy = trackBuddyMonitor;
+      this.untrackBuddy = untrackBuddyMonitor;
 
       // Build the watchlist from the current list of nicks.
       this.trackBuddy(this.trackQueue);

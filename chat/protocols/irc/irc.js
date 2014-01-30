@@ -766,7 +766,12 @@ ircAccountBuddy.prototype = {
   get canSendMessage() this.account.connected,
 
   // Called when the user wants to chat with the buddy.
-  createConversation: function() this._account.createConversation(this.userName)
+  createConversation: function() this._account.createConversation(this.userName),
+
+  remove: function() {
+    this._account.removeBuddy(this);
+    GenericAccountBuddyPrototype.remove.call(this);
+  }
 };
 
 function ircAccount(aProtocol, aImAccount) {
@@ -1083,12 +1088,24 @@ ircAccount.prototype = {
     // Put the username as the first to be checked on the next ISON call.
     this.trackQueue.unshift(aNick);
   },
+  untrackBuddy: function(aNick) {
+    let index = this.trackQueue.indexOf(aNick);
+    if (index < 0) {
+      this.ERROR("Trying to untrack a nick that was not being tracked: "+ aNick);
+      return;
+    }
+    this.trackQueue.splice(index, 1);
+  },
   addBuddy: function(aTag, aName) {
     let buddy = new ircAccountBuddy(this, null, aTag, aName);
     this._buddies[buddy.normalizedName] = buddy;
     this.trackBuddy(buddy.userName);
 
     Services.contacts.accountBuddyAdded(buddy);
+  },
+  removeBuddy: function(aBuddy) {
+    delete this._buddies[aBuddy.normalizedName];
+    this.untrackBuddy(aBuddy.userName);
   },
   // Loads a buddy from the local storage. Called for each buddy locally stored
   // before connecting to the server.
