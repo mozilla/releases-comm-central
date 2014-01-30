@@ -3023,40 +3023,6 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
   return NS_OK;
 }
 
-/**
- * Returns true if the domain is a match for the given the domain list.
- * Subdomains are also considered to match.
- * @param aDomain - the domain name to check
- * @param aDomainList - a comman separated string of domain names
- */
-bool IsInDomainList(const nsAString &aDomain, const nsAString &aDomainList)
-{
-  if (aDomain.IsEmpty() || aDomainList.IsEmpty())
-    return false;
-
-  // Check plain text domains.
-  int32_t left = 0;
-  int32_t right = 0;
-  while (right != (int32_t)aDomainList.Length())
-  {
-    right = aDomainList.FindChar(',', left);
-    if (right == kNotFound)
-      right = aDomainList.Length();
-    nsDependentSubstring domain = Substring(aDomainList, left, right);
-
-    if (aDomain.Equals(domain, nsCaseInsensitiveStringComparator()))
-      return true;
-
-    nsAutoString dotDomain = NS_LITERAL_STRING(".");
-    dotDomain.Append(domain);
-    if (StringEndsWith(aDomain, dotDomain, nsCaseInsensitiveStringComparator()))
-      return true;
-
-    left = right + 1;
-  }
-  return false;
-}
-
 NS_IMPL_ISUPPORTS3(QuotingOutputStreamListener,
                    nsIMsgQuotingOutputStreamListener,
                    nsIRequestObserver,
@@ -4858,6 +4824,7 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
   nsAutoString nonHtmlRecipientsStr;
   nsString plaintextDomains;
   nsString htmlDomains;
+  nsAutoString domain;
 
   nsCOMPtr<nsIPrefBranch> prefBranch (do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (prefBranch)
@@ -4886,18 +4853,18 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
       // if we don't have a prefer format for a recipient, check the domain in
       // case we have a format defined for it
       if (recipient.mPreferFormat == nsIAbPreferMailFormat::unknown &&
-          (!plaintextDomains.IsEmpty() || !htmlDomains.IsEmpty()))
+          (plaintextDomains.Length() || htmlDomains.Length()))
       {
         int32_t atPos = recipient.mEmail.FindChar('@');
-        if (atPos < 0)
-          continue;
-
-        nsDependentSubstring emailDomain = Substring(recipient.mEmail,
-                                                     atPos + 1);
-        if (IsInDomainList(emailDomain, plaintextDomains))
-          recipient.mPreferFormat = nsIAbPreferMailFormat::plaintext;
-        else if (IsInDomainList(emailDomain, htmlDomains))
-          recipient.mPreferFormat = nsIAbPreferMailFormat::html;
+        if (atPos >= 0)
+        {
+          domain = Substring(recipient.mEmail, atPos + 1);
+          if (CaseInsensitiveFindInReadable(domain, plaintextDomains))
+            recipient.mPreferFormat = nsIAbPreferMailFormat::plaintext;
+          else
+            if (CaseInsensitiveFindInReadable(domain, htmlDomains))
+              recipient.mPreferFormat = nsIAbPreferMailFormat::html;
+        }
       }
 
       switch (recipient.mPreferFormat)
@@ -4922,8 +4889,6 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
         recipientsStr.Append(recipient.mAddress);
       }
 
-      // Add recipients to the nonHtmlRecipient list if they haven't
-      // explicitly allowed it.
       if (aReturnNonHTMLRecipients &&
           recipient.mPreferFormat != nsIAbPreferMailFormat::html)
       {

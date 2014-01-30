@@ -1,7 +1,6 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-
-/**
- * Tests nsMsgCompose checkAndPopulateRecipients.
+/*
+ * Test suite for nsMsgCompose functions relating to listeners.
  */
 
 const MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
@@ -12,17 +11,6 @@ const nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
 const nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
 const nsIAbPreferMailFormat = Components.interfaces.nsIAbPreferMailFormat;
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-
-/**
- * Helper to check population worked as expected.
- * @param aTo - text in the To field
- * @param aNonHTMLRecipients - comma separated string of recipients that are
- *                             expected to prefer HTML
- * @param aPreferMailOut - |nsIAbPreferMailFormat| lowest common peferred
- *                         format - unknown, plaintext or html
- * @param aCheckTo - the expected To addresses (after possible ist population)
- */
 function checkPopulate(aTo, aNonHTMLRecipients, aPreferMailOut, aCheckTo)
 {
   var msgCompose = Components.classes[MsgComposeContractID]
@@ -143,26 +131,6 @@ function run_test() {
 
   checkPopulate("TestList3 <TestList3>", "",
                 nsIAbPreferMailFormat.html, "test5@foo.invalid");
-
-  // Test checkAndPopulateRecipients w/ mailnews.html_domains set.
-  Services.prefs.setCharPref("mailnews.html_domains", "foo.invalid,bar.invalid");
-  checkPopulate("htmlformat@foo.invalid,unknownformat@nonfoo.invalid",
-                "unknownformat@nonfoo.invalid",
-                nsIAbPreferMailFormat.unknown,
-                "htmlformat@foo.invalid,unknownformat@nonfoo.invalid");
-  Services.prefs.clearUserPref("mailnews.html_domains");
-
-  // Test checkAndPopulateRecipients w/ mailnews.plaintext_domains set.
-  Services.prefs.setCharPref("mailnews.plaintext_domains", "foo.invalid,bar.invalid");
-  checkPopulate("plainformat@foo.invalid,unknownformat@nonfoo.invalid",
-                "plainformat@foo.invalid,unknownformat@nonfoo.invalid",
-                nsIAbPreferMailFormat.unknown,
-                "plainformat@foo.invalid,unknownformat@nonfoo.invalid");
-  checkPopulate("plainformat@foo.invalid,plainformat@cc.bar.invalid",
-                "plainformat@foo.invalid,plainformat@cc.bar.invalid",
-                nsIAbPreferMailFormat.plaintext,
-                "plainformat@foo.invalid,plainformat@cc.bar.invalid");
-  Services.prefs.clearUserPref("mailnews.plaintext_domains");
 
   // Test - checkAndPopulateRecipients with items from multiple address books.
 
