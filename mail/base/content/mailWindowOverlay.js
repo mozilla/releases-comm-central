@@ -712,6 +712,20 @@ function SetMenuItemLabel(menuItemId, customLabel)
     menuItem.setAttribute('label', customLabel);
 }
 
+function SetGetMsgButtonTooltip()
+{
+  var selectedFolders = GetSelectedMsgFolders();
+  var defaultAccountRootFolder = GetDefaultAccountRootFolder();
+  var folders = (selectedFolders.length) ? selectedFolders : [defaultAccountRootFolder];
+  var msgButton = document.getElementById("button-getmsg");
+  var tooltip = document.getElementById("bundle_messenger").getString("getMsgButtonTooltip");
+  var listSeparator = document.getElementById("bundle_messenger").getString("getMsgButtonTooltip.listSeparator");
+  var usernames = new Set([v.server.username for each (v in folders)]);
+  var usernamesArray = [username for (username of usernames)];
+  var tooltipUsernames = usernamesArray.join(listSeparator);
+  msgButton.tooltipText = tooltip.replace('%S', tooltipUsernames);
+}
+
 function RemoveAllMessageTags()
 {
   var selectedMessages = gFolderDisplay.selectedMessages;

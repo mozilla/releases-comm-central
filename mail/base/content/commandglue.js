@@ -347,6 +347,7 @@ function FolderPaneSelectionChange()
     return;
 
   gFolderDisplay.show(folders.length ? folders[0] : null);
+  SetGetMsgButtonTooltip();
 }
 
 function Undo()
