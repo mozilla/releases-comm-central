@@ -54,16 +54,9 @@ function onLoad()
                              gServerSettings.account.incomingServer.key);
     folderPopup._ensureInitialized();
 
-    if (gServerSettings.account.incomingServer.isDeferredTo) {
-      // Some other account already defers to this account
-      // therefore this one can't be deferred further.
-      radioGroup.value = "currentAccount";
-      folderPopup.selectFolder();
-      radioGroup.disabled = true;
-    }
-    else if (gFirstDeferredAccount.length)
+    if (gFirstDeferredAccount.length)
     {
-      // The current account is already deferred...
+      // The current account is deferred.
       let account = MailServices.accounts.getAccount(gFirstDeferredAccount);
       radioGroup.value = "otherAccount";
       folderPopup.selectFolder(account.incomingServer.rootFolder);
@@ -72,10 +65,14 @@ function onLoad()
     {
       // Current account is not deferred.
       radioGroup.value = "currentAccount";
-      // If there are no other suitable accounts to defer to,
-      // then disable the option.
-      if (!folderPopup.selectFolder())
-        document.getElementById("deferToOtherAccount").disabled = true;
+      // If there are no suitable accounts to defer to, then the menulist is
+      // disabled by the picker with an appropriate message.
+      folderPopup.selectFolder();
+      if (gServerSettings.account.incomingServer.isDeferredTo) {
+        // Some other account already defers to this account
+        // therefore this one can't be deferred further.
+        radioGroup.disabled = true;
+      }
     }
   }
 

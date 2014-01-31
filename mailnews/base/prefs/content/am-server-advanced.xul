@@ -120,14 +120,19 @@
               <radio id="deferToOtherAccount"
                      value="otherAccount"
                      label="&deferToServer.label;"
-                     accesskey="&deferToServer.accesskey;"/>
-                <menulist id="deferredServerFolderPicker"
-                          aria-labelledby="deferToServer">
-                  <menupopup id="deferredServerPopup"
-                             type="folder"
-                             expandFolders="false"
-                             mode="deferred"/>
-                </menulist>
+                     accesskey="&deferToServer.accesskey;">
+                <observes element="deferredServerFolderPicker"
+                          attribute="disabled"/>
+              </radio>
+              <menulist id="deferredServerFolderPicker"
+                        class="folderMenuItem"
+                        aria-labelledby="deferToServer">
+                <menupopup id="deferredServerPopup"
+                           type="folder"
+                           expandFolders="false"
+                           mode="deferred"
+                           oncommand="this.selectFolder(event.target._folder);"/>
+              </menulist>
             </row>
           </rows>
         </radiogroup>
