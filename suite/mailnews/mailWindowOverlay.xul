@@ -376,9 +376,8 @@
   <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="shift"/>
   <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);"/>
 
-  <!-- View Toggle Keys (F8/F9) -->
+  <!-- View Toggle Keys -->
   <key id="key_toggleFolderPane"
-       keycode="VK_F9"
        oncommand="MsgToggleFolderPane(true);"
        observes="mailDisableKeys"/>
   <key id="key_toggleThreadPane"

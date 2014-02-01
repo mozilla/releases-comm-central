@@ -53,7 +53,7 @@
   </broadcasterset>
 
   <command id="toggleSidebar" oncommand="SidebarShowHide();"/>
-  <key id="showHideSidebar" keycode="VK_F9" command="toggleSidebar"/>
+  <key id="showHideSidebar" command="toggleSidebar"/>
   <menupopup id="sidebarPopup" 
     onpopupshowing="SidebarInitContextMenu(this, document.popupNode);">
     <menuitem id="switch-ctx-item" label="&sidebar.switch.label;" 

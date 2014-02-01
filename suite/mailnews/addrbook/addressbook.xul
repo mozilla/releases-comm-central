@@ -129,6 +129,9 @@
   <key id="key_selectAll"/>
   <key id="key_properties" key="&propertiesCmd.key;" command="cmd_properties" modifiers="accel"/>
 
+  <!-- View Menu -->
+  <key id="key_toggleDirectoryPane" oncommand="togglePaneSplitter('dirTree-splitter');"/>
+
   <!-- Tab/F6 Keys -->
   <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
   <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
@@ -304,6 +307,7 @@
                          onpopupshowing="InitViewLayoutMenuPopup(event);">
                 <menuitem id="menu_showDirectoryPane"
                           label="&showDirectoryPane.label;"
+                          key="key_toggleDirectoryPane"
                           accesskey="&showDirectoryPane.accesskey;"
                           oncommand="togglePaneSplitter('dirTree-splitter');"
                           checked="true"

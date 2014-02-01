@@ -43,6 +43,13 @@
        key="&findTypeTextCmd.key;"/>
   <key id="key_findTypeLinks"
        key="&findTypeLinksCmd.key;"/>
+
+  <key id="showHideSidebar" keycode="VK_F9"/>
+
+  <key id="key_toggleDirectoryPane" keycode="VK_F9"/>
+
+  <key id="key_toggleFolderPane" keycode="VK_F9"/>
+
 #ifdef XP_WIN
   <menupopup id="helpPopup">
       <menuitem label="&helpForIEUsers.label;" accesskey="&helpForIEUsers.accesskey;" insertafter="help"

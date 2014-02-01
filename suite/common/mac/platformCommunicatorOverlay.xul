@@ -78,6 +78,12 @@
   <menuitem id="printPreviewAddressBook" hidden="true"/>
   <menuitem id="mailContext-printpreview" hidden="true"/>
 
+  <key id="showHideSidebar" key="&showHideSidebarCmd.key;" modifiers="accel,alt"/>
+
+  <key id="key_toggleDirectoryPane" key="&toggleDirectoryPaneCmd.key;" modifiers="accel,alt"/>
+
+  <key id="key_toggleFolderPane" key="&toggleFolderPaneCmd.key;" modifiers="accel,alt"/>
+
   <!-- Tasks Commands -->
   <commandset id="tasksCommands"> 
     <command id="cmd_minimizeWindow" oncommand="window.minimize();"/>

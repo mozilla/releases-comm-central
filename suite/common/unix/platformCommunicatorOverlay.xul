@@ -49,6 +49,12 @@
   <key id="key_findTypeLinks"
        key="&findTypeLinksCmd.key;"/>
 
+  <key id="showHideSidebar" keycode="VK_F9"/>
+
+  <key id="key_toggleDirectoryPane" keycode="VK_F9"/>
+
+  <key id="key_toggleFolderPane" keycode="VK_F9"/>
+
   <!-- Tasks Keys -->
   <keyset id="tasksKeys">
     <key id="key_openHelp"
