@@ -10,10 +10,8 @@
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
 
 <!DOCTYPE window [
-<!ENTITY % feedDTD        SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
+<!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
   %feedDTD;
-<!ENTITY % permissionsDTD SYSTEM "chrome://messenger/locale/preferences/permissions.dtd">
-  %permissionsDTD;
 ]>
 
 <window id="subscriptionsDialog"
