@@ -60,3 +60,7 @@
 .tab-throbber[busy][thinking] + .tab-icon-image {
   display: none;
 }
+
+#tabcontainer:not([overflow="true"]) ~ #alltabs-button {
+  visibility: collapse;
+}
