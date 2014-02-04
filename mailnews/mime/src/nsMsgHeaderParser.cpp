@@ -8,6 +8,7 @@
 #include "nsISimpleEnumerator.h"
 #include "comi18n.h"
 #include "prmem.h"
+#include "nsMemory.h"
 #include <ctype.h>
 #include "nsAlgorithm.h"
 #include "nsMsgUtils.h"
