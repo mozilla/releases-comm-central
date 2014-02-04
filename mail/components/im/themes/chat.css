@@ -303,7 +303,7 @@ imcontact[aliasing] .contactDisplayName {
 
 .conv-textbox {
   margin: 0 0;
-  padding: 0 0;
+  padding: 2px;
   -moz-box-sizing: content-box;
 }
 %ifndef XP_MACOSX
