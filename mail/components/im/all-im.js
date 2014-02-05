@@ -9,3 +9,6 @@ pref("messenger.conversations.doubleClickToReply", true);
 pref("purple.debug.loglevel", 3);
 pref("chat.twitter.consumerKey", "7Gzq35FbZLYJQ9n3sJmJw");
 pref("chat.twitter.consumerSecret", "fz0dXr3yul1uncHNf0vITTiIOtSKAVCvopKDrqR1Mo");
+
+// Limit the number of gloda IM results
+pref("mailnews.database.global.search.im.limit", 1000);

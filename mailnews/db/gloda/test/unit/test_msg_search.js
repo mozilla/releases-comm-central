@@ -38,6 +38,7 @@ function unique_string() {
   return s;
 }
 
+Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/gloda/msg_search.js");
 
 /**
@@ -54,8 +55,9 @@ Components.utils.import("resource:///modules/gloda/msg_search.js");
  *  yield asyncMsgSearchExpect("foo bar", someSynMsgSet);
  */
 function asyncMsgSearcherExpect(aFulltextStr, aExpectedSet, aLimit) {
+  let limit = aLimit ? aLimit : 1;
+  Services.prefs.setIntPref("mailnews.database.global.search.msg.limit", limit);
   let searcher = new GlodaMsgSearcher(null, aFulltextStr);
-  searcher.retrievalLimit = aLimit ? aLimit : 1;
   queryExpect(searcher.buildFulltextQuery(), aExpectedSet);
   return false;
 }
