@@ -19,7 +19,7 @@ Cu.import("resource:///modules/mailServices.js");
 
 const kBoxId = "attachmentNotificationBox";
 const kNotificationId = "attachmentReminder";
-const notificationSlackTime = 1100;
+const notificationSlackTime = 2000;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
