@@ -2016,9 +2016,11 @@ function ComposeCanClose()
     // call window.focus, since we need to pop up a dialog
     // and therefore need to be visible (to prevent user confusion)
     window.focus();
+    let draftFolderURI = gCurrentIdentity.draftFolder;
+    let draftFolderName = MailUtils.getFolderForURI(draftFolderURI).prettyName;
     switch (Services.prompt.confirmEx(window,
               sComposeMsgsBundle.getString("saveDlogTitle"),
-              sComposeMsgsBundle.getString("saveDlogMessage"),
+              sComposeMsgsBundle.getFormattedString("saveDlogMessages",[draftFolderName]),
               (Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0) +
               (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1) +
               (Services.prompt.BUTTON_TITLE_DONT_SAVE * Services.prompt.BUTTON_POS_2),
