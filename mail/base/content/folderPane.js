@@ -2073,7 +2073,7 @@ let gFolderTreeController = {
     let folder = folders[0];
 
     // For newsgroups, "delete" means "unsubscribe".
-    if (folder.server.type == "nntp") {
+    if (folder.server.type == "nntp" && !folder.getFlag(nsMsgFolderFlags.Virtual)) {
       MsgUnsubscribe(folders);
       return;
     }

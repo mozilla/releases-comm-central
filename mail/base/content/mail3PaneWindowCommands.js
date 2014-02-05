@@ -97,7 +97,10 @@ function UpdateDeleteLabelsFromFolderCommand(folder, command)
   if (command != "cmd_delete")
     return;
 
-  if (folder.server.type == "nntp") {
+  if (folder.getFlag(nsMsgFolderFlags.Virtual)) {
+    goSetMenuValue(command, "valueFolder");
+  }
+  else if (folder.server.type == "nntp") {
     goSetMenuValue(command, "valueNewsgroup");
     goSetAccessKey(command, "valueNewsgroupAccessKey");
   }
@@ -274,11 +277,12 @@ var DefaultController =
       case "cmd_deleteFolder":
         var folders = gFolderTreeView.getSelectedFolders();
         if (folders.length == 1) {
-          var folder = folders[0];
-          if (folder.server.type == "nntp")
-            return false; // Just disable the command for news.
-          else
-            return CanDeleteFolder(folder);
+          let folder = folders[0];
+          if (folder.server.type == "nntp") {
+            // Just disable the command for news unless it is a Saved search folder.
+            return folder.getFlag(nsMsgFolderFlags.Virtual);
+          }
+          return CanDeleteFolder(folder);
         }
         return false;
       case "button_junk":
@@ -1154,6 +1158,8 @@ function IsPropertiesEnabled(command)
   // when servers are selected it should be "Edit | Properties..."
   if (folder.isServer)
     goSetMenuValue(command, "valueGeneric");
+  else if (folder.getFlag(nsMsgFolderFlags.Virtual))
+    goSetMenuValue(command, "valueFolder");
   else
     goSetMenuValue(command, isNewsURI(folder.URI) ? "valueNewsgroup" : "valueFolder");
 

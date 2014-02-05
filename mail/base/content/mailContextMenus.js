@@ -324,7 +324,8 @@ function fillFolderPaneContextMenu()
   var haveOnlySubscribableFolders = folders.every(checkCanSubscribeToFolder);
 
   function checkIsNewsgroup(folder) {
-    return !folder.isServer && folder.server.type == "nntp";
+    return !folder.isServer && folder.server.type == "nntp" &&
+           !folder.getFlag(nsMsgFolderFlags.Virtual);
   }
   var haveOnlyNewsgroups = folders.every(checkIsNewsgroup);
 

@@ -793,7 +793,12 @@ NS_IMETHODIMP nsMsgNewsFolder::GetExpungedBytesCount(uint32_t *count)
 
 NS_IMETHODIMP nsMsgNewsFolder::GetDeletable(bool *deletable)
 {
+  NS_ENSURE_ARG_POINTER(deletable);
+
   *deletable = false;
+  // For legacy reasons, there can be Saved search folders under news accounts.
+  // Allow deleting those.
+  GetFlag(nsMsgFolderFlags::Virtual, deletable);
   return NS_OK;
 }
 
