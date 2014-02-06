@@ -323,7 +323,7 @@ protected:
   
   char *ConvertDateToMapiFormat (time_t);
   char *ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr);
-  void ConvertRecipientsToMapiFormat(const ParsedHeader &ourRecips,
+  void ConvertRecipientsToMapiFormat(const nsCOMArray<msgIAddressObject> &ourRecips,
                                      lpnsMapiRecipDesc mapiRecips,
                                      int mapiRecipClass);
   
@@ -611,10 +611,10 @@ lpnsMapiMessage MsgMapiListContext::GetMessage (nsMsgKey key, unsigned long flFl
       msgHdr->GetRecipients(getter_Copies(recipients));
       msgHdr->GetCcList(getter_Copies(ccList));
 
-      ParsedHeader parsedToRecips = EncodedHeader(recipients);
-      ParsedHeader parsedCCRecips = EncodedHeader(ccList);
-      uint32_t numToRecips = parsedToRecips.mCount;
-      uint32_t numCCRecips = parsedCCRecips.mCount;
+      nsCOMArray<msgIAddressObject> parsedToRecips = EncodedHeader(recipients);
+      nsCOMArray<msgIAddressObject> parsedCCRecips = EncodedHeader(ccList);
+      uint32_t numToRecips = parsedToRecips.Length();
+      uint32_t numCCRecips = parsedCCRecips.Length();
 
       message->lpRecips = (lpnsMapiRecipDesc) CoTaskMemAlloc ((numToRecips + numCCRecips) * sizeof(MapiRecipDesc));
       memset(message->lpRecips, 0, (numToRecips + numCCRecips) * sizeof(MapiRecipDesc));
@@ -658,8 +658,8 @@ char *MsgMapiListContext::ConvertDateToMapiFormat (time_t ourTime)
 
 
 void MsgMapiListContext::ConvertRecipientsToMapiFormat(
-    const ParsedHeader &recipients, lpnsMapiRecipDesc mapiRecips,
-    int mapiRecipClass)
+    const nsCOMArray<msgIAddressObject> &recipients,
+    lpnsMapiRecipDesc mapiRecips, int mapiRecipClass)
 {
   nsTArray<nsCString> names, addresses;
   ExtractAllAddresses(recipients, UTF16ArrayAdapter<>(names),

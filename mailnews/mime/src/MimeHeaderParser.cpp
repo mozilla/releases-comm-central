@@ -69,37 +69,37 @@ void RemoveDuplicateAddresses(const nsACString &aHeader,
 // These are the core shim methods we need //
 /////////////////////////////////////////////
 
-ParsedHeader DecodedHeader(const nsAString &aHeader)
+nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader)
 {
-  ParsedHeader retval;
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  msgIAddressObject **addresses;
+  uint32_t length;
   DebugOnly<nsresult> rv = headerParser->ParseDecodedHeader(aHeader, false,
-    &retval.mCount, &retval.mAddresses);
+    &length, &addresses);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "This should never fail!");
+  nsCOMArray<msgIAddressObject> retval;
+  retval.Adopt(addresses, length);
   return retval;
 }
 
-ParsedHeader EncodedHeader(const nsACString &aHeader, const char *aCharset)
+nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
+                                            const char *aCharset)
 {
-  ParsedHeader retval;
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  msgIAddressObject **addresses;
+  uint32_t length;
   DebugOnly<nsresult> rv = headerParser->ParseEncodedHeader(aHeader, aCharset,
-    false, &retval.mCount, &retval.mAddresses);
+    false, &length, &addresses);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "This should never fail!");
+  nsCOMArray<msgIAddressObject> retval;
+  retval.Adopt(addresses, length);
   return retval;
 }
 
-ParsedHeader::~ParsedHeader()
+void ExtractAllAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
+                         nsTArray<nsString> &names, nsTArray<nsString> &emails)
 {
-  if (mAddresses)
-    NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(mCount, mAddresses);
-}
-
-void ExtractAllAddresses(const ParsedHeader &aHeader, nsTArray<nsString> &names,
-                         nsTArray<nsString> &emails)
-{
-  uint32_t count = aHeader.mCount;
-  msgIAddressObject **addresses = aHeader.mAddresses;
+  uint32_t count = aHeader.Length();
 
   // Prefill arrays before we start
   names.SetLength(count);
@@ -107,8 +107,8 @@ void ExtractAllAddresses(const ParsedHeader &aHeader, nsTArray<nsString> &names,
 
   for (uint32_t i = 0; i < count; i++)
   {
-    addresses[i]->GetName(names[i]);
-    addresses[i]->GetEmail(emails[i]);
+    aHeader[i]->GetName(names[i]);
+    aHeader[i]->GetEmail(emails[i]);
   }
 
   if (count == 1 && names[0].IsEmpty() && emails[0].IsEmpty())
@@ -118,15 +118,14 @@ void ExtractAllAddresses(const ParsedHeader &aHeader, nsTArray<nsString> &names,
   }
 }
 
-void ExtractDisplayAddresses(const ParsedHeader &aHeader,
+void ExtractDisplayAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
                              nsTArray<nsString> &displayAddrs)
 {
-  uint32_t count = aHeader.mCount;
-  msgIAddressObject **addresses = aHeader.mAddresses;
+  uint32_t count = aHeader.Length();
 
   displayAddrs.SetLength(count);
   for (uint32_t i = 0; i < count; i++)
-    addresses[i]->ToString(displayAddrs[i]);
+    aHeader[i]->ToString(displayAddrs[i]);
 
   if (count == 1 && displayAddrs[0].IsEmpty())
     displayAddrs.Clear();
@@ -136,13 +135,15 @@ void ExtractDisplayAddresses(const ParsedHeader &aHeader,
 // All of these are based on the above methods //
 /////////////////////////////////////////////////
 
-void ExtractEmails(const ParsedHeader &aHeader, nsTArray<nsString> &emails)
+void ExtractEmails(const nsCOMArray<msgIAddressObject> &aHeader,
+                   nsTArray<nsString> &emails)
 {
   nsTArray<nsString> names;
   ExtractAllAddresses(aHeader, names, emails);
 }
 
-void ExtractEmail(const ParsedHeader &aHeader, nsACString &email)
+void ExtractEmail(const nsCOMArray<msgIAddressObject> &aHeader,
+                  nsACString &email)
 {
   nsAutoTArray<nsString, 1> names;
   nsAutoTArray<nsString, 1> emails;
@@ -154,8 +155,8 @@ void ExtractEmail(const ParsedHeader &aHeader, nsACString &email)
     email.Truncate();
 }
 
-void ExtractFirstAddress(const ParsedHeader &aHeader, nsACString &name,
-                         nsACString &email)
+void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
+                         nsACString &name, nsACString &email)
 {
   nsAutoTArray<nsString, 1> names, emails;
   ExtractAllAddresses(aHeader, names, emails);
@@ -171,8 +172,8 @@ void ExtractFirstAddress(const ParsedHeader &aHeader, nsACString &name,
   }
 }
 
-void ExtractFirstAddress(const ParsedHeader &aHeader, nsAString &name,
-                         nsACString &email)
+void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
+                         nsAString &name, nsACString &email)
 {
   nsAutoTArray<nsString, 1> names, emails;
   ExtractAllAddresses(aHeader, names, emails);
@@ -188,7 +189,7 @@ void ExtractFirstAddress(const ParsedHeader &aHeader, nsAString &name,
   }
 }
 
-void ExtractName(const ParsedHeader &aHeader, nsACString &name)
+void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader, nsACString &name)
 {
   nsCString email;
   ExtractFirstAddress(aHeader, name, email);
@@ -196,7 +197,7 @@ void ExtractName(const ParsedHeader &aHeader, nsACString &name)
     name = email;
 }
 
-void ExtractName(const ParsedHeader &aHeader, nsAString &name)
+void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader, nsAString &name)
 {
   nsAutoTArray<nsString, 1> names;
   nsAutoTArray<nsString, 1> emails;

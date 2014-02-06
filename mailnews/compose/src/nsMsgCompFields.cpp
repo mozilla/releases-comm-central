@@ -515,7 +515,7 @@ nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
   *aLength = 0;
   *aResult = nullptr;
 
-  ParsedHeader header(EncodedHeader(NS_ConvertUTF16toUTF8(aRecipients)));
+  nsCOMArray<msgIAddressObject> header(EncodedHeader(NS_ConvertUTF16toUTF8(aRecipients)));
   nsTArray<nsString> results;
   if (aEmailAddressOnly)
     ExtractEmails(header, results);

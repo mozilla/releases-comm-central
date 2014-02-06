@@ -7,6 +7,7 @@
 #ifndef MimeHeaderParser_h__
 #define MimeHeaderParser_h__
 
+#include "nsCOMArray.h"
 #include "nsStringGlue.h"
 #include "nsTArray.h"
 
@@ -16,39 +17,10 @@ namespace mozilla {
 namespace mailnews {
 
 /**
- * This struct represents the list of addresses found in an addressing header.
- * It is primarily meant to be used only as a temporary object in between the
- * results of Parse*Header and the various Extract* methods. As such, it can
- * only be moved and not copied.
- */
-struct ParsedHeader
-{
-  ParsedHeader() : mCount(0), mAddresses(nullptr) {}
-
-  ParsedHeader(ParsedHeader &&other)
-  : mCount(other.mCount),
-    mAddresses(other.mAddresses)
-  {
-    other.mAddresses = nullptr;
-  }
-
-  ~ParsedHeader();
-
-  /// The number of addresses in the list
-  uint32_t mCount;
-  /// The list of addresses in an email header
-  msgIAddressObject **mAddresses;
-
-private:
-  ParsedHeader(const ParsedHeader &) MOZ_DELETE;
-  ParsedHeader &operator=(const ParsedHeader &) MOZ_DELETE;
-};
-
-/**
  * This is used to signal that the input header value has already been decoded
  * according to RFC 2047 and is in UTF-16 form.
  */
-ParsedHeader DecodedHeader(const nsAString &aHeader);
+nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader);
 
 /**
  * This is used to signal that the input header value needs to be decoded
@@ -56,8 +28,8 @@ ParsedHeader DecodedHeader(const nsAString &aHeader);
  * that non-ASCII data is in; if the value is null (the default), then the
  * charset is assumed to be UTF-8.
  */
-ParsedHeader EncodedHeader(const nsACString &aHeader,
-                           const char *aCharset = nullptr);
+nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
+                                            const char *aCharset = nullptr);
 
 namespace detail {
 void DoConversion(const nsTArray<nsString> &aUTF16, nsTArray<nsCString> &aUTF8);
@@ -138,14 +110,14 @@ void RemoveDuplicateAddresses(const nsACString &aHeader,
  * Given a message header, extract all names and email addresses found in that
  * header into the two arrays.
  */
-void ExtractAllAddresses(const ParsedHeader &aHeader, nsTArray<nsString> &names,
-                         nsTArray<nsString> &emails);
+void ExtractAllAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
+                         nsTArray<nsString> &names, nsTArray<nsString> &emails);
 
 /**
  * Given a raw message header value, extract display names for every address
  * found in the header.
  */
-void ExtractDisplayAddresses(const ParsedHeader &aHeader,
+void ExtractDisplayAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
                              nsTArray<nsString> &addresses);
 
 /**
@@ -154,43 +126,47 @@ void ExtractDisplayAddresses(const ParsedHeader &aHeader,
  *
  * Duplicate email addresses are not removed from the output list.
  */
-void ExtractEmails(const ParsedHeader &aHeader, nsTArray<nsString> &emails);
+void ExtractEmails(const nsCOMArray<msgIAddressObject> &aHeader,
+                   nsTArray<nsString> &emails);
 
 /**
  * Given a raw message header value, extract the first name/email address found
  * in the header. This is essentially equivalent to grabbing the first entry of
  * ExtractAllAddresses.
  */
-void ExtractFirstAddress(const ParsedHeader &aHeader, nsACString &name,
-                         nsACString &email);
+void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
+                         nsACString &name, nsACString &email);
 
 /**
  * Given an RFC 2047-decoded message header value, extract the first name/email
  * address found in the header. This is essentially equivalent to grabbing the
  * first entry of ExtractAllAddresses.
  */
-void ExtractFirstAddress(const ParsedHeader &aHeader, nsAString &name,
-                         nsACString &email);
+void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
+                         nsAString &name, nsACString &email);
 
 /**
  * Given a raw message header value, extract the first email address found in
  * the header.
  */
-void ExtractEmail(const ParsedHeader &aHeader, nsACString &email);
+void ExtractEmail(const nsCOMArray<msgIAddressObject> &aHeader,
+                  nsACString &email);
 
 /**
  * Given a raw message header value, extract and clean up the first display
  * name found in the header. If there is no display name, the email address is
  * used instead.
  */
-void ExtractName(const ParsedHeader &aHeader, nsACString &name);
+void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader,
+                 nsACString &name);
 
 /**
  * Given an RFC 2047-decoded message header value, extract the first display
  * name found in the header. If there is no display name, the email address is
  * returned instead.
  */
-void ExtractName(const ParsedHeader &aDecodedHeader, nsAString &name);
+void ExtractName(const nsCOMArray<msgIAddressObject> &aDecodedHeader,
+                 nsAString &name);
 
 } // namespace mailnews
 } // namespace mozilla
