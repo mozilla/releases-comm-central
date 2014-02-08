@@ -57,6 +57,11 @@ function resetDialogId(aDialog) {
  */
 function createReminderFromMenuitem(aMenuitem) {
     let reminder = aMenuitem.reminder || cal.createAlarm();
+    // clone immutable reminders if necessary to set default values
+    let isImmutable = reminder.isMutable ? false : true;
+    if (isImmutable) {
+        reminder = reminder.clone();
+    }
     let offset = cal.createDuration();
     offset[aMenuitem.getAttribute("unit")] = aMenuitem.getAttribute("length");
     offset.normalize();
@@ -65,6 +70,10 @@ function createReminderFromMenuitem(aMenuitem) {
                         reminder.ALARM_RELATED_START : reminder.ALARM_RELATED_END);
     reminder.offset = offset;
     reminder.action = getDefaultAlarmType();
+    // make reminder immutable in case it was before
+    if (isImmutable) {
+        reminder.makeImmutable;
+    }
     return reminder;
 }
 
