@@ -160,7 +160,7 @@ cal.alarms = {
 
         // Remove unused image nodes
         for (i -= offset; i < countIconChildren; i++) {
-            aElement.removeChild(aElement.childNodes[i]);
+            aElement.childNodes[i].remove();
         }
     }
 };

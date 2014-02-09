@@ -406,7 +406,7 @@ function onRemoveReminder() {
                                    listitem.previousSibling : null);
 
     listbox.clearSelection();
-    listbox.removeChild(listitem);
+    listitem.remove();
     listbox.selectItem(newSelection);
 
     setElementValue("reminder-remove-button",

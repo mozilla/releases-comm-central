@@ -298,7 +298,7 @@
         <body><![CDATA[
           if (aItem.hashId in this.mItemHash) {
             let node =  this.mItemHash[aItem.hashId];
-            node.parentNode.removeChild(node);
+            node.remove();
             delete this.mItemHash[aItem.hashId];
           }
         ]]></body>

@@ -220,7 +220,7 @@ function removeChildren(aElement) {
     }
 
     while (aElement.firstChild) {
-        aElement.removeChild(aElement.lastChild);
+        aElement.lastChild.remove();
     }
 }
 

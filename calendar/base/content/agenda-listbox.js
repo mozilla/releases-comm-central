@@ -89,7 +89,7 @@ function removePeriodListItem(aPeriod) {
     if (aPeriod.listItem) {
         aPeriod.listItem.getCheckbox().removeEventListener("CheckboxStateChange", this.onCheckboxChange, true);
         if (aPeriod.listItem) {
-            this.agendaListboxControl.removeChild(aPeriod.listItem);
+            aPeriod.listItem.remove();
             aPeriod.listItem = null;
         }
     }
@@ -121,7 +121,7 @@ function onCheckboxChange(event) {
                 var nextItemSibling = listItem.nextSibling;
                 leaveloop = (!agendaListbox.isEventListItem(listItem));
                 if (!leaveloop) {
-                    agendaListbox.agendaListboxControl.removeChild(listItem);
+                    listItem.remove();
                     listItem = nextItemSibling;
                 }
             }
@@ -486,7 +486,7 @@ function deleteItem(aItem, aMoveSelection) {
                     this.moveSelection();
                 }
             }
-            this.agendaListboxControl.removeChild(listItem);
+            listItem.remove();
         }
     }
     return isSelected;
@@ -503,7 +503,7 @@ function deleteItemsFromCalendar(aCalendar) {
     for each (let childNode in childNodes) {
         if (childNode && childNode.occurrence
             && childNode.occurrence.calendar.id == aCalendar.id) {
-            this.agendaListboxControl.removeChild(childNode);
+            childNode.remove();
         }
     }
 }
@@ -790,7 +790,7 @@ function removeListItems() {
             }
             if (this.isEventListItem(listItem)) {
                 if (listItem != this.agendaListboxControl.firstChild) {
-                    this.agendaListboxControl.removeChild(listItem);
+                    listItem.remove();
                 } else {
                     leaveloop = true;
                 }
@@ -1044,7 +1044,7 @@ function setCurrentEvent() {
     if (removelist) {
       if (removelist.length > 0) {
           for (var i = 0;i < removelist.length; i++) {
-              agendaListbox.agendaListboxControl.removeChild(removelist[i]);
+              removelist[i].remove();
           }
       }
     }

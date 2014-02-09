@@ -76,7 +76,7 @@ var gCategoriesPane = {
 
 
         while (listbox.lastChild.id != "categoryColumns")
-            listbox.removeChild(listbox.lastChild);
+            listbox.lastChild.remove();
 
         for (var i=0; i < gCategoryList.length; i++) {
             var newListItem = document.createElement("listitem");
@@ -158,7 +158,7 @@ var gCategoriesPane = {
                                newSelection.previousSibling;
             }
             gCategoryList.splice(list.getIndexOfItem(item), 1);
-            list.removeChild(item);
+            item.remove();
         }
         list.selectedItem = newSelection;
         this.updateButtons();

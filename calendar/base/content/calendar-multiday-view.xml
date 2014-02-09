@@ -121,8 +121,8 @@
               return box;
           }
 
-          while (topbox.lastChild)
-              topbox.removeChild(topbox.lastChild);
+          while (topbox.hasChildNodes())
+              topbox.lastChild.remove();
 
           var formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
                           getService(Components.interfaces.nsIScriptableDateFormat);
@@ -618,10 +618,10 @@
       <method name="clear">
         <body><![CDATA[
           while (this.bgbox && this.bgbox.hasChildNodes()) {
-              this.bgbox.removeChild(this.bgbox.lastChild);
+              this.bgbox.lastChild.remove();
           }
           while (this.topbox && this.topbox.hasChildNodes()) {
-              this.topbox.removeChild(this.topbox.lastChild);
+              this.topbox.lastChild.remove();
           }
           for each (let handler in this.mHandlersToRemove) {
               this.calendarView.viewBroadcaster.removeEventListener(this.calendarView.getAttribute("type") + "viewresized", handler, true);
@@ -851,7 +851,7 @@
               if (numBlocksInserted == 0) {
                   // if we didn't insert any blocks, then
                   // forget about this column
-                  stack.removeChild(xulColumn);
+                  xulColumn.remove();
               }
           }
         ]]></body>
@@ -2157,7 +2157,7 @@
         <body><![CDATA[
           for (var i in this.mItemBoxes) {
             if (this.mItemBoxes[i].occurrence.hashId == aItem.hashId) {
-              this.removeChild(this.mItemBoxes[i]);
+              this.mItemBoxes[i].remove();
               this.mItemBoxes.splice(i, 1);
               break;
             }
@@ -3436,7 +3436,7 @@
           // Remove any extra columns that may have been hanging around
           function removeExtraKids(elem) {
               while (counter < elem.childNodes.length) {
-                  elem.removeChild(elem.childNodes[counter]);
+                  elem.childNodes[counter].remove();
               }
           }
           removeExtraKids(daybox);

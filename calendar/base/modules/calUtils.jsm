@@ -613,12 +613,12 @@ let cal = {
         while (childNode) {
             let prevChildNode = childNode.previousSibling;
             if (!aAttribute || aAttribute === undefined) {
-                aParentNode.removeChild(childNode);
+                childNode.remove();
              } else if (!aValue || aValue === undefined) {
-                aParentNode.removeChild(childNode);
+                childNode.remove();
             } else if (childNode && childNode.hasAttribute(aAttribute)
                 && childNode.getAttribute(aAttribute) == aValue) {
-                aParentNode.removeChild(childNode);
+                childNode.remove();
             }
             childNode = prevChildNode;
         };

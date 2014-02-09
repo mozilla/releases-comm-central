@@ -113,7 +113,7 @@
               numRows++;
           }
           while (numRows > numVertical) {
-              rows.removeChild(rows.firstChild);
+              rows.firstChild.remove();
               numRows--
           }
 
@@ -127,7 +127,7 @@
               columns.insertBefore(newColumn, column.nextSibling);
           }
           while ((columns.childNodes.length - 1) > numHorizontal) {
-              columns.removeChild(columns.firstChild);
+              columns.firstChild.remove();
           }
 
           // Walk all rows and adjust column elements
@@ -140,7 +140,7 @@
                   firstChild.parentNode.insertBefore(newNode, firstChild);
               }
               while ((row.childNodes.length - 1) > numHorizontal) {
-                  row.removeChild(row.firstChild);
+                  row.firstChild.remove();
               }
               row = row.nextSibling;
           }

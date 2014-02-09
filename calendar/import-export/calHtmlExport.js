@@ -69,9 +69,9 @@ calHtmlExporter.prototype = {
                 } else {
                     let row = itemNode.querySelector("." + classKey + "row");
                     if (row.nextSibling instanceof Components.interfaces.nsIDOMText) {
-                        row.parentNode.removeChild(row.nextSibling);
+                        row.nextSibling.remove();
                     }
-                    row.parentNode.removeChild(row);
+                    row.remove();
                 }
             }
 
@@ -88,9 +88,9 @@ calHtmlExporter.prototype = {
                 startNode.textContent = dateString;
             } else {
                 let row = itemNode.querySelector(".intervalrow");
-                row.parentNode.removeChild(row);
+                row.remove();
                 if (row.nextSibling instanceof Components.interfaces.nsIDOMText) {
-                    row.parentNode.removeChild(row.nextSibling);
+                    row.nextSibling.remove();
                 }
             }
 
@@ -104,7 +104,7 @@ calHtmlExporter.prototype = {
         }
 
         let templates = document.getElementById("templates");
-        templates.parentNode.removeChild(templates);
+        templates.remove();
 
         // Convert the javascript string to an array of bytes, using the utf8 encoder
         let convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]

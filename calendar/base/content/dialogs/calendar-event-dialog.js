@@ -1142,17 +1142,9 @@ function updateStyle() {
  */
 function onPopupShowing(menuPopup) {
     if (isToDo(window.calendarItem)) {
-        var nodes = menuPopup.childNodes;
+        var nodes = menuPopup.parentNode.querySelectorAll("#options-menupopup > .event-only");
         for (var i = nodes.length - 1; i >= 0; --i) {
-            var node = nodes[i];
-            if (node.hasAttribute('class')) {
-                if (node.getAttribute('class').split(' ').some(
-                    function (element) {
-                        return element.toLowerCase() == 'event-only';
-                    })) {
-                    menuPopup.removeChild(node);
-                }
-            }
+            nodes.item(i).remove();
         }
     }
 }
@@ -2025,8 +2017,7 @@ function uploadCloudAttachment(attachment, cloudProvider, listItem) {
                 // When we have a nice notification bar, we can show more info
                 // about the failure.
                 setTimeout(function() {
-                    let documentLink = document.getElementById("attachment-link");
-                    documentLink.removeChild(listItem);
+                    listItem.remove();
                     updateAttachment();
                 }, 5000);
             }
@@ -2156,7 +2147,7 @@ function deleteAllAttachments() {
         let child;
         let documentLink = document.getElementById("attachment-link");
         while (documentLink.hasChildNodes()) {
-            child = documentLink.removeChild(documentLink.lastChild);
+            child = documentLink.lastChild.remove();
             child.attachment = null;
         }
         gAttachMap = {};
@@ -3054,7 +3045,7 @@ function showTimezonePopup(event, dateTime, editFunc) {
 
     // Clear out any old recent timezones
     while (timezoneDefaultItem.nextSibling != timezoneSeparator) {
-        timezonePopup.removeChild(timezoneDefaultItem.nextSibling);
+        timezoneDefaultItem.nextSibling.remove();
     }
 
     // Fill in the new recent timezones
@@ -3459,7 +3450,7 @@ function updateRepeatDetails() {
         let lines = detailsString.split("\n");
         repeatDetails.removeAttribute("collapsed");
         while (repeatDetails.childNodes.length > lines.length) {
-            repeatDetails.removeChild(repeatDetails.lastChild);
+            repeatDetails.lastChild.remove();
         }
         let numChilds = repeatDetails.childNodes.length;
         for (let i = 0; i < lines.length; i++) {
@@ -3529,7 +3520,7 @@ function showAttendeePopup(event) {
     // Remove all remaining menu items after the separator and the template menu
     // item.
     while (template.nextSibling) {
-        popup.removeChild(template.nextSibling);
+        template.nextSibling.remove();
     }
 
     // Add the rest of the attendees.

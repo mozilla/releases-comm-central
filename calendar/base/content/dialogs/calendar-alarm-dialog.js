@@ -264,7 +264,7 @@ function removeWidgetFor(aItem, aAlarm) {
             widget.removeEventListener("dismiss", onDismissAlarm, false);
             widget.removeEventListener("itemdetails", onItemDetails, false);
 
-            alarmRichlist.removeChild(widget);
+            widget.remove();
             closeIfEmpty();
             notfound = false;
         }

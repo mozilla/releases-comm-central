@@ -82,7 +82,7 @@ calWeekPrinter.prototype = {
 
         // Remove templates from HTML, no longer needed
         let templates = document.getElementById("templates");
-        templates.parentNode.removeChild(templates);
+        templates.remove();
 
         // Stream out the resulting HTML
         let html = cal.xml.serializeDOM(document);

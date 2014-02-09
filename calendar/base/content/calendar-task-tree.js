@@ -15,7 +15,7 @@ function addCalendarNames(aEvent) {
     var calendarMenuPopup = aEvent.target;
     var calendars = getCalendarManager().getCalendars({});
     while (calendarMenuPopup.hasChildNodes()) {
-        calendarMenuPopup.removeChild(calendarMenuPopup.lastChild);
+        calendarMenuPopup.lastChild.remove();
     }
     var tasks = getSelectedTasks(aEvent);
     var tasksSelected = (tasks.length > 0);
