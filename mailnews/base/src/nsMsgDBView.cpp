@@ -377,10 +377,9 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr * aHdr, nsAString &aSenderString)
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
 
   prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
+  prefs->GetBoolPref("mail.showCondensedAddresses", &showCondensedAddresses);
 
   aHdr->GetStringProperty("sender_name", getter_Copies(unparsedAuthor));
-
-  prefs->GetBoolPref("mail.showCondensedAddresses", &showCondensedAddresses);
 
   // if the author is already computed, use it
   if (!unparsedAuthor.IsEmpty())
@@ -403,14 +402,17 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr * aHdr, nsAString &aSenderString)
   ExtractFirstAddress(DecodedHeader(author), name, emailAddress);
 
   if (showCondensedAddresses)
-      GetDisplayNameInAddressBook(emailAddress,aSenderString);
-
-  if (aSenderString.IsEmpty() && !name.IsEmpty())
-    aSenderString = name;
+    GetDisplayNameInAddressBook(emailAddress, aSenderString);
 
   if (aSenderString.IsEmpty())
-    // if we got here then just return the original string
-    aSenderString = author;
+  {
+    // we can't use the display name in the card,
+    // use the name contained in the header or email address.
+    if (!name.IsEmpty())
+      aSenderString = name;
+    else
+      CopyUTF8toUTF16(emailAddress, aSenderString);
+  }
 
   UpdateCachedName(aHdr, "sender_name", aSenderString);
 
@@ -500,7 +502,7 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
     nsString &curName = names[i];
 
     if (showCondensedAddresses)
-      GetDisplayNameInAddressBook(curAddress,recipient);
+      GetDisplayNameInAddressBook(curAddress, recipient);
 
     if (recipient.IsEmpty())
     {
@@ -512,9 +514,9 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
         CopyUTF8toUTF16(curAddress, recipient);
     }
 
-    // add ',' and end of each recipient
+    // add ', ' between each recipient
     if (i != 0)
-      aRecipientsString.Append(NS_LITERAL_STRING(","));
+      aRecipientsString.Append(NS_LITERAL_STRING(", "));
 
     aRecipientsString.Append(recipient);
   }

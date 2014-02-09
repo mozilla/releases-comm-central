@@ -923,7 +923,10 @@ MessageGenerator.prototype = {
 
     if ("clobberHeaders" in aArgs) {
       for each (let [key, value] in Iterator(aArgs.clobberHeaders)) {
-        msg.headers[key] = value;
+        if (value === null)
+          delete msg.headers[key];
+        else
+          msg.headers[key] = value;
         // clobber helper...
         if (key == "From")
           msg._from = ["", ""];
