@@ -25,6 +25,7 @@ const DoesntContain = nsMsgSearchOp.DoesntContain;
 const BeginsWith = nsMsgSearchOp.BeginsWith;
 const EndsWith = nsMsgSearchOp.EndsWith;
 const IsBefore = nsMsgSearchOp.IsBefore; // control entry not enabled
+const IsAfter = nsMsgSearchOp.IsAfter;
 const IsHigherThan = nsMsgSearchOp.IsHigherThan;
 const IsLowerThan = nsMsgSearchOp.IsLowerThan;
 
@@ -38,6 +39,7 @@ const OtherHeader = nsMsgSearchAttrib.OtherHeader;
 const From = nsMsgSearchAttrib.Sender;
 const Subject = nsMsgSearchAttrib.Subject;
 const Priority = nsMsgSearchAttrib.Priority;
+const SDate = nsMsgSearchAttrib.Date;
 
 var Tests =
 [
@@ -206,7 +208,7 @@ var Tests =
       op: Contains,
       customHeader: "withspace",
       count: 1},
-    
+
     //test for priority
     { testString: Ci.nsMsgPriority.lowest,
       testAttribute: Priority,
@@ -228,6 +230,36 @@ var Tests =
       testAttribute: Priority,
       op: Isnt,
       count: 0},
+
+  // tests of Date header
+  // The internal value of date in the search is PRTime (nanoseconds since Epoch).
+  // Date().getTime() returns milliseconds since Epoch.
+  // The dates used here are tailored for the ../../../data/bugmail12 message.
+  { testString: new Date("Wed, 7 May 2008 14:55:10 -0700").getTime() * 1000,
+    testAttribute: SDate,
+    op: Is,
+    count: 1},
+  { testString: new Date("Thu, 8 May 2008 14:55:10 -0700").getTime() * 1000,
+    testAttribute: SDate,
+    op: IsBefore,
+    count: 1},
+  { testString: new Date("Tue, 6 May 2008 14:55:10 -0700").getTime() * 1000,
+    testAttribute: SDate,
+    op: IsAfter,
+    count: 1},
+  { testString: new Date("Tue, 6 May 2008 14:55:10 -0700").getTime() * 1000,
+    testAttribute: SDate,
+    op: Isnt,
+    count: 1},
+  // check bug 248808
+  { testString: new Date("Wed, 7 May 2008 14:55:10 -0700").getTime() * 1000,
+    testAttribute: SDate,
+    op: IsBefore,
+    count: 0},
+  { testString: new Date("Wed, 7 May 2008 14:55:10 -0700").getTime() * 1000,
+    testAttribute: SDate,
+    op: IsAfter,
+    count: 0}
 ];
 
 function run_test()
