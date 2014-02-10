@@ -302,15 +302,18 @@ treechildren::-moz-tree-image(subjectCol, news, new, attach) {
 /* ..... new thread icons for watch and ignore ..... */
 
 treechildren::-moz-tree-image(threadCol, watch) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-closed-eye.png");
+  list-style-image: url("chrome://messenger/skin/icons/thread-closed-eye.png") !important;
+  -moz-image-region: auto !important;
 }
 
 treechildren::-moz-tree-image(threadCol, ignore) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-closed-kill.png");
+  list-style-image: url("chrome://messenger/skin/icons/thread-closed-kill.png") !important;
+  -moz-image-region: auto !important;
 }
 
 treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
-  list-style-image: url("chrome://messenger/skin/icons/message-closed-kill.png");
+  list-style-image: url("chrome://messenger/skin/icons/message-closed-kill.png") !important;
+  -moz-image-region: auto !important;
 }
 
 @media (min-resolution: 2dppx) {
