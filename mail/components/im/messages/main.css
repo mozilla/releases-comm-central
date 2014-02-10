@@ -94,40 +94,46 @@ p *:-moz-any-link img {
   border-bottom: solid 1px;
 }
 
-hr {
-  display: none !important;
+.sessionstart-ruler {
+  margin: 8px 0 12px;
+  width: 100%;
+  border: none;
+  border-top: 1px dashed GrayText;
 }
 
+
 /* used by javascript */
-.button {
+.eventToggle {
   cursor: pointer;
   min-height: 22px;
   -moz-margin-start: -20px;
-  margin-bottom: -5px;
   -moz-padding-start: 20px;
-}
-
-.hide {
-  background: url('Bitmaps/plus.png') no-repeat left center;
-}
-
-.hide:hover {
-  background: url('Bitmaps/plus-hover.png') no-repeat left center;
-}
-
-.hide:after {
-  content: "...";
-  color: GrayText;
-}
-
-.show {
   background: url('Bitmaps/minus.png') no-repeat left center;
   margin-bottom: -22px;
   width: 0px;
 }
 
-.show:hover {
+.eventToggle:hover {
   background: url('Bitmaps/minus-hover.png') no-repeat left center;
+}
+
+.hide-children > .eventToggle {
+  width: 100%;
+  margin-bottom: -5px;
+  background-image: url('Bitmaps/plus.png');
+}
+
+.hide-children > .eventToggle:hover {
+  background-image: url('Bitmaps/plus-hover.png');
+}
+
+.hide-children > .eventToggle:after {
+  content: "\2026"; /* &hellip; */
+  color: GrayText;
+}
+
+.hide-children > :-moz-any(p.event, hr):not(:first-of-type):not(:last-of-type) {
+  display: none;
 }
 
 /* We style Twitter differently from other types of chat */
