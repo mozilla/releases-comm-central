@@ -1091,14 +1091,13 @@ chatLogTreeView.prototype = {
     let chatBundle = document.getElementById("chatBundle");
     let dateFormatBundle = document.getElementById("bundle_dateformat");
     let placesBundle = document.getElementById("bundle_places");
-    let appLocaleCode = Services.prefs.getCharPref("general.useragent.locale");
     let dts = Cc["@mozilla.org/intl/scriptabledateformat;1"].getService(Ci.nsIScriptableDateFormat);
     let formatDate = function(aDate) {
-      return dts.FormatDate(appLocaleCode, dts.dateFormatShort, aDate.getFullYear(),
+      return dts.FormatDate("", dts.dateFormatShort, aDate.getFullYear(),
                             aDate.getMonth() + 1, aDate.getDate());
     };
     let formatDateTime = function(aDate) {
-      return dts.FormatDateTime(appLocaleCode, dts.dateFormatShort,
+      return dts.FormatDateTime("", dts.dateFormatShort,
                                 dts.timeFormatNoSeconds, aDate.getFullYear(),
                                 aDate.getMonth() + 1, aDate.getDate(),
                                 aDate.getHours(), aDate.getMinutes(), 0);
