@@ -627,28 +627,27 @@ treechildren::-moz-tree-image(subscribed-news) {
   margin: 0 1px 2px;
   -moz-margin-start: 7px;
   list-style-image: none;
-    background-color: -moz-field;
-  -moz-border-top-colors: none;
-  -moz-border-left-colors: none;
-  -moz-border-right-colors: none;
-  -moz-border-bottom-colors: none;
+  background-color: rgba(128, 128, 128, .3);
+  border-width: 1px;
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-bottom-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow;
+  transition: background-color .25s ease-in;
 }
 
-@media (-moz-windows-default-theme) {
-  .aw-menulist {
-    border-width: 1px;
-    border-color: ThreeDShadow;
-  }
+.aw-menulist:hover {
+  background-color: rgba(128, 128, 128, .45);
 }
 
-@media not all and (-moz-windows-default-theme) {
-  .aw-menulist {
-    border-width: 2px;
-    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-    -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
-  }
+.aw-menulist:-moz-window-inactive {
+  opacity: .7;
+}
+
+.aw-menulist > .menulist-dropmarker {
+  -moz-appearance: none;
+  border: none;
+  background-color: transparent;
 }
 
 .aw-menulist > .menulist-label-box {
