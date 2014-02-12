@@ -790,6 +790,13 @@ pref("mailnews.emptyTrash.dontAskAgain", false);
 pref("mailnews.auto_config_url", "https://live.mozillamessaging.com/autoconfig/v1.1/");
 // Added in bug 551519. Remove when bug 545866 is fixed.
 pref("mailnews.mx_service_url", "https://live.mozillamessaging.com/dns/mx/");
+// Allow to contact ISP (email address domain)
+// This happens via insecure means (HTTP), so the config cannot be trusted,
+// and also contains the email address
+pref("mailnews.auto_config.fetchFromISP.enabled", true);
+// Allow the fetch from ISP via HTTP, but not the email address
+pref("mailnews.auto_config.fetchFromISP.sendEmailAddress", true);
+pref("mailnews.auto_config.guess.enabled", true);
 
 // -- Summary Database options
 // dontPreserveOnCopy: a space separated list of properties that are not

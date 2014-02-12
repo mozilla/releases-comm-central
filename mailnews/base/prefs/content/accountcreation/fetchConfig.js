@@ -57,6 +57,12 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback)
 function fetchConfigFromISP(domain, emailAddress, successCallback,
                             errorCallback)
 {
+  if (!Services.prefs.getBoolPref(
+      "mailnews.auto_config.fetchFromISP.enabled")) {
+    errorCallback("ISP fetch disabled per user preference");
+    return;
+  }
+
   let url1 = "http://autoconfig." + sanitize.hostname(domain) +
              "/mail/config-v1.1.xml";
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
@@ -64,8 +70,12 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
              "/.well-known/autoconfig/mail/config-v1.1.xml";
   let sucAbortable = new SuccessiveAbortable();
   var time = Date.now();
-  let fetch1 = new FetchHTTP(
-    url1, { emailaddress: emailAddress }, false,
+  var urlArgs = { emailaddress: emailAddress };
+  if (!Services.prefs.getBoolPref(
+      "mailnews.auto_config.fetchFromISP.sendEmailAddress")) {
+    delete urlArgs.emailaddress;
+  }
+  let fetch1 = new FetchHTTP(url1, urlArgs, false,
     function(result)
     {
       successCallback(readFromXML(result));
@@ -81,8 +91,7 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
         return;
       }
 
-      let fetch2 = new FetchHTTP(
-        url2, { emailaddress: emailAddress }, false,
+      let fetch2 = new FetchHTTP(url2, urlArgs, false,
         function(result)
         {
           successCallback(readFromXML(result));

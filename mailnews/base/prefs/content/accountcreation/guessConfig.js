@@ -63,6 +63,12 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     resultConfig = new AccountConfig();
   resultConfig.source = AccountConfig.kSourceGuess;
 
+  if (!Services.prefs.getBoolPref(
+      "mailnews.auto_config.guess.enabled")) {
+    errorCallback("Guessing config disabled per user preference");
+    return;
+  }
+
   var incomingHostDetector = null;
   var outgoingHostDetector = null;
   var incomingEx = null; // if incoming had error, store ex here
