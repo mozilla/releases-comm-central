@@ -928,13 +928,13 @@
     <observes element="cmd_fontColor"       attribute="state" onbroadcast="onFontColorChange()"/>
     <observes element="cmd_backgroundColor" attribute="state" onbroadcast="onBackgroundColorChange()"/>
     <box class="color-button" id="BackgroundColorButton"
-         onclick="if (!this.hasAttribute('disabled')) { EditorSelectColor('', event); }"
+         onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('', event); }"
          tooltiptext="&BackgroundColorButton.tooltip;"
          oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */">
       <observes element="cmd_backgroundColor" attribute="disabled"/>
     </box>
     <box class="color-button" id="TextColorButton"
-         onclick="if (!this.hasAttribute('disabled')) { EditorSelectColor('Text', event); }"
+         onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('Text', event); }"
          tooltiptext="&TextColorButton.tooltip;"
          oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */">
       <observes element="cmd_fontColor" attribute="disabled"/>

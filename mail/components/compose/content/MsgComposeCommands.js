@@ -981,16 +981,20 @@ function updateAllItems(aDisable)
 {
   function getDisabledState(aElement) {
     if ("disabled" in aElement)
-      return aElement.disabled;
+      return (aElement.disabled ? "true" : "false");
+    else if (!aElement.hasAttribute("disabled"))
+      return "";
     else
       return aElement.getAttribute("disabled");
   }
 
   function setDisabledState(aElement, aValue) {
     if ("disabled" in aElement)
-      aElement.disabled = aValue;
+      aElement.disabled = (aValue == "true");
+    else if (aValue == "")
+      aElement.removeAttribute("disabled");
     else
-      aElement.setAttribute("disabled", aValue ? "true" : "false");
+      aElement.setAttribute("disabled", aValue);
   }
 
 
@@ -1017,7 +1021,7 @@ function updateAllItems(aDisable)
         // list so only act on it if it still has the "stateBeforeSend"
         // attribute.
         if (commandItem.hasAttribute("stateBeforeSend")) {
-          setDisabledState(commandItem, commandItem.getAttribute("stateBeforeSend") == "true");
+          setDisabledState(commandItem, commandItem.getAttribute("stateBeforeSend"));
           commandItem.removeAttribute("stateBeforeSend");
         }
       }
