@@ -6,6 +6,7 @@
   == Styles for the body of a mail message.
   ======================================================================= */
 @import url(chrome://communicator/skin/smileys.css);
+@import url(chrome://messenger/skin/messageQuotes.css);
 
 @namespace url("http://www.w3.org/1999/xhtml");
 
@@ -74,16 +75,6 @@ mailattachcount {
   text-decoration: underline;
 }
 
-/* ::::: signature ::::: */
-
-@media not print {
-  div.moz-text-flowed > div.moz-txt-sig,
-  div.moz-text-plain > pre > div.moz-txt-sig,
-  pre.moz-signature {
-    opacity: 0.6;
-  }
-}
-
 /* ::::: images ::::: */
 img {
   image-orientation: from-image;
@@ -137,23 +128,6 @@ img[overflowing][shrinktofit] {
 
 .moz-vcard-badge:focus {
   outline: none;
-}
-
-/* Quote Levels Colors */
-
-blockquote[type=cite] {
-   color: blue !important;
-   border-color: blue !important;
-}
-
-blockquote[type=cite] > blockquote {
-   color: green !important;
-   border-color: green !important;
-}
-
-blockquote[type=cite] > blockquote > blockquote {
-   color: maroon !important;
-   border-color: maroon !important;
 }
 
 /* Old style feeds, pre Tb3.0 */

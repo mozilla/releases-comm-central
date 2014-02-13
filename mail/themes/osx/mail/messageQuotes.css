@@ -1,0 +1,40 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Because this sheet is loaded synchronously while the user is waiting for the
+   compose window to appear, it must not @import a ton of other things, and
+   especially must not trigger network access. */
+
+/* ===== messageQuotes.css =================================================
+  == Shared styles such as block quote colors and signature style
+  == between the message body during
+  == message display and the mail editor instance for mail compose.
+  ======================================================================= */
+
+/* ::::: signature ::::: */
+
+@media not print {
+  div.moz-text-flowed > div.moz-txt-sig,
+  div.moz-text-plain > pre > div.moz-txt-sig,
+  pre.moz-signature {
+    opacity: 0.6;
+  }
+}
+
+/* Quote Levels Colors */
+
+blockquote[type=cite] {
+  color: blue !important;
+  border-color: blue !important;
+}
+
+blockquote[type=cite] > blockquote {
+  color: green !important;
+  border-color: green !important;
+}
+
+blockquote[type=cite] > blockquote > blockquote {
+  color: maroon !important;
+  border-color: maroon !important;
+}

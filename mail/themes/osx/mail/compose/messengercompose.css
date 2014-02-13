@@ -1487,27 +1487,3 @@ sidebarheader {
 #searchInput > .textbox-input-box #sidebar {
   background-image: none !important;
 }
-
-/* Quote Levels Colors */
-
-blockquote {
-  margin: inherit;
-  border-width: 2px;
-  border-color: gray;
-}
-
-blockquote[type=cite] {
-   color: blue !important;
-   border-color: blue !important;
-   border-width: 2px !important;
-}
-
-blockquote[type=cite] > blockquote {
-   color: green !important;
-   border-color: green !important;
-}
-
-blockquote[type=cite] > blockquote > blockquote {
-   color: maroon !important;
-   border-color: maroon !important;
-}

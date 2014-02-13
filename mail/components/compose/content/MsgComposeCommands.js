@@ -2251,14 +2251,7 @@ var gMsgEditorCreationObserver =
         // mark our editor as modified when the user hasn't typed anything yet,
         // but that means the sheet must not @import slow things, especially
         // not over the network.
-        try {
-          editorStyle.addOverrideStyleSheet("chrome://messenger/skin/messageQuotes.css");
-        } catch (e if ((e instanceof Components.interfaces.nsIException) &&
-                  (e.result == Components.results.NS_ERROR_INVALID_POINTER))) {
-          // See Bug 517919 for discussion of why this exception is thrown
-          // (at time of writing, on osx, there is no messageQuotes.css)
-          dump("addOverrideStyleSheet in MsgComposeCommands.js threw an exception, hopefully due to a missing stylesheet\n");
-        }
+        editorStyle.addOverrideStyleSheet("chrome://messenger/skin/messageQuotes.css");
         InitEditor();
       }
       // Now that we know this document is an editor, update commands now if
