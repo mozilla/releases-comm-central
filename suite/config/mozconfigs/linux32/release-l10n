@@ -38,3 +38,7 @@ ac_add_options --disable-gstreamer
 #Disable pulseaudio building until we have libs that support it.
 # Bug 949884
 ac_add_options --disable-pulseaudio
+
+#Disable pulseaudio building until we have libs that support it.
+# Bug 949884
+ac_add_options --disable-pulseaudio
