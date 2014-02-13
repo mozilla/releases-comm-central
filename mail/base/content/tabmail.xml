@@ -1187,7 +1187,11 @@
               for each (let [, tabMonitor] in Iterator(this.tabMonitors))
                 tabMonitor.onTabTitleChanged(tab);
 
-              tabNode.setAttribute("label", tab.title);
+              // If the displayed tab is the one at the moment of creation
+              // (aTabNodeOrInfo is null), set the default title as its title.
+              tabNode.setAttribute("label", aTabNodeOrInfo ?
+                                            tab.title :
+                                            document.documentElement.getAttribute("defaultTabTitle"));
 
               // Update the window title if we're the displayed tab.
               if (iTab == this.tabContainer.selectedIndex)
@@ -1456,19 +1460,17 @@
         <parameter name="aTab"/>
         <body>
           <![CDATA[
-            let docTitle = aTab.title;
+            let docTitle = aTab.title.trim();
+            let docElement = document.documentElement;
+            // If the document title is blank, add the default title.
+            if (!docTitle)
+              docTitle = docElement.getAttribute("defaultTabTitle");
 
-            // If the tab hasn't got a title, or we're on Mac, don't display
-            // the separator.
-            if (docTitle && !Application.platformIsMac)
-              docTitle += document.documentElement
-                                  .getAttribute("titlemenuseparator");
-
-            // If we haven't got a title at this stage add the modifier, or if
-            // we are on a non-mac platform, add the modifier.
-            if (!docTitle || !Application.platformIsMac)
-              docTitle += document.documentElement
-                                  .getAttribute("titlemodifier");
+            // If we're on Mac, don't display the separator and the modifier.
+            if (!Application.platformIsMac) {
+              docTitle += docElement.getAttribute("titlemenuseparator") +
+                          docElement.getAttribute("titlemodifier");
+            }
 
             document.title = docTitle;
           ]]>
