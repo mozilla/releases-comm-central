@@ -4,6 +4,3 @@
 
 <!ENTITY  closeTab.label           "Close Tab">
 <!ENTITY  listAllTabs.label        "List all tabs">
-<!-- LOCALIZATION NOTE(defaultTabTitle.label): This is the default tab
-     title to show when the tab has no title. -->
-<!ENTITY  defaultTabTitle.label    "Home">

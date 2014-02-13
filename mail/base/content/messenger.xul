@@ -44,7 +44,6 @@
         title="&titledefault.label;@PRE_RELEASE_SUFFIX@"
         titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
         titlemenuseparator="&titleSeparator.label;"
-        defaultTabTitle="&defaultTabTitle.label;"
         onload="OnLoadMessenger()"
         onunload="OnUnloadMessenger()"
         screenX="10" screenY="10"
