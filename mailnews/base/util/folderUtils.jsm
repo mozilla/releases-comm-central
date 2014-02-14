@@ -46,11 +46,13 @@ function getSpecialFolderString(aFolder) {
  * This function is meant to be used with trees. It returns the property list
  * for all of the common properties that css styling is based off of.
  *
- * @param aFolder  the folder whose properties should be returned as a string
+ * @param nsIMsgFolder aFolder  the folder whose properties should be returned
+ *                               as a string
+ * @param bool aOpen            true if the folder is open/expanded
  *
  * @return         A string of the property names, delimited by space.
  */
-function getFolderProperties(aFolder) {
+function getFolderProperties(aFolder, aOpen) {
   const nsIMsgFolder = Components.interfaces.nsIMsgFolder;
   let properties = [];
 
@@ -75,7 +77,9 @@ function getFolderProperties(aFolder) {
 
   properties.push("isSecure-" + aFolder.server.isSecure);
 
-  if (aFolder.hasNewMessages)
+  // A folder has new messages, or a closed folder or any subfolder has new messages.
+  if (aFolder.hasNewMessages ||
+      (!aOpen && aFolder.hasSubFolders && aFolder.hasFolderOrSubfolderNewMessages))
     properties.push("newMessages-true");
 
   if (aFolder.isServer) {

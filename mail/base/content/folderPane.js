@@ -1866,7 +1866,7 @@ ftvItem.prototype = {
 
   getProperties: function ftvItem_getProperties() {
     // From folderUtils.jsm
-    let properties = getFolderProperties(this._folder);
+    let properties = getFolderProperties(this._folder, this.open);
     if (this._folder.getFlag(nsMsgFolderFlags.Virtual)) {
       properties += " specialFolder-Smart";
       // a second possibility for customized smart folders

@@ -489,6 +489,30 @@ NS_IMETHODIMP nsMsgDBFolder::SetHasNewMessages(bool curNewMessages)
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgDBFolder::GetHasFolderOrSubfolderNewMessages(bool *aResult)
+{
+  NS_ENSURE_ARG_POINTER(aResult);
+  bool hasNewMessages = mNewMessages;
+
+  if (!hasNewMessages)
+  {
+    int32_t count = mSubFolders.Count();
+    for (int32_t i = 0; i < count; i++)
+    {
+      bool hasNew = false;
+      mSubFolders[i]->GetHasFolderOrSubfolderNewMessages(&hasNew);
+      if (hasNew)
+      {
+        hasNewMessages = true;
+        break;
+      }
+    }
+  }
+
+  *aResult = hasNewMessages;
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgDBFolder::GetGettingNewMessages(bool *gettingNewMessages)
 {
   NS_ENSURE_ARG_POINTER(gettingNewMessages);
