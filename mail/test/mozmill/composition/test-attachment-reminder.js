@@ -12,7 +12,8 @@ const RELATIVE_ROOT = "../shared-modules";
 const MODULE_REQUIRES = ["folder-display-helpers",
                          "compose-helpers",
                          "window-helpers",
-                         "notificationbox-helpers"];
+                         "notificationbox-helpers",
+                         "keyboard-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
@@ -73,13 +74,12 @@ function test_attachment_reminder_appears_properly() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setupComposeWin(cwc, "test@example.org", "testing attachment reminder!",
+  setupComposeWin(cwc, "test@example.org", "Testing automatic reminder!",
                   "Hello! ");
 
   // Give the notification time to appear. It shouldn't.
   cwc.sleep(notificationSlackTime);
-  if (notificationBox.getNotificationWithValue(kNotificationId))
-    throw new Error("Attachment notification shown when it shouldn't.");
+  assert_automatic_reminder_state(cwc, false);
 
   cwc.type(cwc.eid("content-frame"), "Seen this cool attachment?");
 
@@ -318,6 +318,65 @@ function test_manual_automatic_attachment_reminder_interaction() {
   // Add some more text without any new keyword.
   setupComposeWin(cwc, "", "", " Did I write anything?");
   // Give the notification time to appear. It should now.
+  cwc.sleep(notificationSlackTime);
+  assert_automatic_reminder_state(cwc, true);
+
+  close_compose_window(cwc);
+}
+
+/**
+ * Bug 944643
+ * Test the attachment reminder coming up when keyword is in subject line.
+ */
+function test_attachment_reminder_in_subject() {
+  // Open a blank message compose
+  let cwc = open_compose_new_mail();
+  // This one should have the reminder disabled.
+  assert_manual_reminder_state(cwc, false);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add some attachment keyword in subject.
+  setupComposeWin(cwc, "test@example.invalid", "Testing attachment reminder!",
+                  "There is no keyword in this body...");
+
+  // The automatic attachment notification should pop up.
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+
+  // Now clear the subject
+  delete_all_existing(cwc, cwc.eid("msgSubject"));
+
+  // Give the notification time to disappear.
+  cwc.sleep(notificationSlackTime);
+  assert_automatic_reminder_state(cwc, false);
+
+  close_compose_window(cwc);
+}
+
+/**
+ * Bug 944643
+ * Test the attachment reminder coming up when keyword is in subject line
+ * and also body.
+ */
+function test_attachment_reminder_in_subject_and_body() {
+  // Open a blank message compose
+  let cwc = open_compose_new_mail();
+  // This one should have the reminder disabled.
+  assert_manual_reminder_state(cwc, false);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add some attachment keyword in subject.
+  setupComposeWin(cwc, "test@example.invalid", "Testing attachment reminder!",
+                  "There should be an attached file in this body...");
+
+  // The automatic attachment notification should pop up.
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+
+  // Now clear only the subject
+  delete_all_existing(cwc, cwc.eid("msgSubject"));
+
+  // Give the notification some time. It should not disappear.
   cwc.sleep(notificationSlackTime);
   assert_automatic_reminder_state(cwc, true);
 

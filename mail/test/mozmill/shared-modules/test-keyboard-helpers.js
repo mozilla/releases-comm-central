@@ -5,28 +5,13 @@
 const MODULE_NAME = "keyboard-helpers";
 
 const RELATIVE_ROOT = "../shared-modules";
-// we need this for the main controller
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
-
-var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
-
-var wh, fdh, mc;
-
-function setupModule() {
-  fdh = collector.getModule('folder-display-helpers');
-  mc = fdh.mc;
-  wh = collector.getModule('window-helpers');
-}
+const MODULE_REQUIRES = [];
 
 function installInto(module) {
-  setupModule();
-
   // Now copy helper functions
   module.input_value = input_value;
   module.delete_existing = delete_existing;
+  module.delete_all_existing = delete_all_existing;
 }
 
 /**
