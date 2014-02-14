@@ -56,6 +56,7 @@ var gMsgCompose;
 var gWindowLocked;
 var gSendLocked;
 var gContentChanged;
+var gSubjectChanged;
 var gAutoSaving;
 var gCurrentIdentity;
 var defaultSaveOperation;
@@ -113,6 +114,7 @@ function InitializeGlobalVariables()
   gMsgCompose = null;
   gWindowLocked = false;
   gContentChanged = false;
+  gSubjectChanged = false;
   gCurrentIdentity = null;
   defaultSaveOperation = "draft";
   gSendOperationInProgress = false;
@@ -172,6 +174,12 @@ function updateEditableFields(aDisable)
 
 var gComposeRecyclingListener = {
   onClose: function() {
+    //Clear the subject
+    GetMsgSubjectElement().value = "";
+    // be sure to clear the transaction manager for the subject
+    GetMsgSubjectElement().editor.transactionManager.clear();
+    SetComposeWindowTitle();
+
     //Reset recipients and attachments
     awResetAllRows();
     RemoveAllAttachments();
@@ -186,12 +194,6 @@ var gComposeRecyclingListener = {
     // clear any suggestions in the context menu
     gSpellChecker.clearSuggestionsFromMenu();
     gSpellChecker.clearDictionaryListFromMenu();
-
-    //Clear the subject
-    GetMsgSubjectElement().value = "";
-    // be sure to clear the transaction manager for the subject
-    GetMsgSubjectElement().editor.transactionManager.clear();
-    SetComposeWindowTitle();
 
     SetContentAndBodyAsUnmodified();
     updateEditableFields(true);
@@ -1942,6 +1944,18 @@ function ShouldShowAttachmentNotification(async)
     if (fwdIndex > 0)
       mailData = mailData.substring(0, fwdIndex);
 
+    // Prepend the subject to see if the subject contains any attachment
+    // keywords too, after making sure that the subject has changed.
+    let subject = GetMsgSubjectElement().value;
+    if (subject && (gSubjectChanged ||
+       (gEditingDraft &&
+         (gComposeType == nsIMsgCompType.New ||
+         gComposeType == nsIMsgCompType.NewsPost ||
+         gComposeType == nsIMsgCompType.Draft ||
+         gComposeType == nsIMsgCompType.Template ||
+         gComposeType == nsIMsgCompType.MailToUrl))))
+      mailData = subject + " " + mailData;
+
     if (!async)
       return GetAttachmentKeywords(mailData, keywordsInCsv).length != 0;
     attachmentWorker.postMessage([mailData, keywordsInCsv]);
@@ -2022,8 +2036,6 @@ function ComposeStartup(recycled, aParams)
   var identityList = document.getElementById("msgIdentity");
 
   document.addEventListener("keypress", awDocumentKeyPress, true);
-  var contentFrame = document.getElementById("content-frame");
-  contentFrame.addEventListener("click", CheckForAttachmentNotification, true);
 
   if (identityList)
     FillIdentityList(identityList);
@@ -2120,7 +2132,7 @@ function ComposeStartup(recycled, aParams)
   // Set the close listener.
   gMsgCompose.recyclingListener = gComposeRecyclingListener;
   gMsgCompose.addMsgSendListener(gSendListener);
-  // Lets the compose object knows that we are dealing with a recycled window.
+  // Lets the compose object know that we are dealing with a recycled window.
   gMsgCompose.recycledWindow = recycled;
 
   document.getElementById("returnReceiptMenu")
@@ -4125,6 +4137,7 @@ function setupAutocomplete()
 
 function subjectKeyPress(event)
 {
+  gSubjectChanged = true;
   if (event.keyCode == KeyEvent.DOM_VK_RETURN)
     SetMsgBodyFrameFocus();
 }
@@ -4564,13 +4577,27 @@ const gAttachmentNotifier =
       characterData: true,
       subtree: true,
     });
+
+    // Add an input event listener for the subject field since there
+    // are ways of changing its value without key presses.
+    GetMsgSubjectElement().addEventListener("input",
+      this.subjectObserver, true);
   },
 
   shutdown: function gAN_shutdown() {
     if (this._obs)
       this._obs.disconnect();
+    gAttachmentNotifier.timer.cancel();
 
     this._obs = null;
+  },
+
+  // Timer based function triggered by the inputEventListener
+  // for the subject field.
+  subjectObserver: function handleEvent() {
+    gAttachmentNotifier.timer.cancel();
+    gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
+                                               Components.interfaces.nsITimer.TYPE_ONE_SHOT);
   },
 
   event: {
