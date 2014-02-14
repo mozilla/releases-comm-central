@@ -918,20 +918,42 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     }
     aTransport = aTransport.QueryInterface(Components.interfaces.calIItipTransport);
 
-    let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                             .createInstance(Components.interfaces.calIItipItem);
-    itipItem.init(cal.getSerializedItem(aItem));
-    itipItem.responseMethod = aMethod;
-    itipItem.targetCalendar = aItem.calendar;
-    itipItem.autoResponse = ((autoResponse && autoResponse.value) ? Components.interfaces.calIItipItem.AUTO
-                                                                  : Components.interfaces.calIItipItem.USER);
-    if (autoResponse) {
-        autoResponse.value = true; // auto every following
-    }
-    // XXX I don't know whether the below are used at all, since we don't use the itip processor
-    itipItem.isSend = true;
+    function _sendItem(aSendToList, aSendItem) {
+        let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
+                                 .createInstance(Components.interfaces.calIItipItem);
+        itipItem.init(cal.getSerializedItem(aSendItem));
+        itipItem.responseMethod = aMethod;
+        itipItem.targetCalendar = aSendItem.calendar;
+        itipItem.autoResponse = ((autoResponse && autoResponse.value) ? Components.interfaces.calIItipItem.AUTO
+                                                                      : Components.interfaces.calIItipItem.USER);
+        if (autoResponse) {
+            autoResponse.value = true; // auto every following
+        }
+        // XXX I don't know whether the below are used at all, since we don't use the itip processor
+        itipItem.isSend = true;
 
-    aTransport.sendItems(aRecipientsList.length, aRecipientsList, itipItem);
+        aTransport.sendItems(aSendToList.length, aSendToList, itipItem);
+    }
+
+    // split up transport, if attendee undisclosure is requested
+    // and this is a message send by the organizer
+    if((aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED") == "TRUE") &&
+       aMethod != "REPLY" &&
+       aMethod != "REFRESH" &&
+       aMethod != "COUNTER") {
+        for each( aRecipient in aRecipientsList) {
+            // create a list with a single recipient
+            let sendToList = [aRecipient];
+            // remove other recipients from vevent attendee list
+            let sendItem = aItem.clone();
+            sendItem.removeAllAttendees();
+            sendItem.addAttendee(aRecipient);
+            // send message
+            _sendItem(sendToList, sendItem);
+        }
+    } else {
+        _sendItem(aRecipientsList, aItem);
+    }
 }
 
 /** local to this module file

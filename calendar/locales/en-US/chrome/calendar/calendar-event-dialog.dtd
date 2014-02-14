@@ -11,6 +11,9 @@
 <!ENTITY newevent.to.label                  "To" >
 <!ENTITY newevent.attendees.notify.label    "Notify attendees">
 
+<!ENTITY newevent.attendees.notifyundisclosed.label    "Keep attendee undisclosed in invitations">
+<!ENTITY newevent.attendees.notifyundisclosed.tooltip  "If enabled, attendees will not see each other in invitations. Applied only on e-mail invitations.">
+
 <!ENTITY newevent.status.label                    "Status" >
 <!ENTITY newevent.status.accesskey                "S" >
 <!ENTITY newevent.eventStatus.none.label          "Not specified" >

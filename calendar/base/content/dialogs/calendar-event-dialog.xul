@@ -822,6 +822,15 @@
                 <checkbox id="notify-attendees-checkbox"
                           class="lightning-only"
                           label="&newevent.attendees.notify.label;"
+                          oncommand="changeUndiscloseCheckboxStatus();"
+                          pack="start"/>
+            </row>
+            <row id="event-grid-attendee-row-3" align="center">
+                <spacer/>
+                <checkbox id="undisclose-attendees-checkbox"
+                          class="lightning-only"
+                          label="&newevent.attendees.notifyundisclosed.label;"
+                          tooltiptext="&newevent.attendees.notifyundisclosed.tooltip;"
                           pack="start"/>
             </row>
 
