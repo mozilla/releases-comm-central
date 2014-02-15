@@ -162,7 +162,7 @@ function initRefreshInterval() {
         }
 
         if (refreshInterval == 0) {
-            setBooleanAttribute("calendar-refreshInterval-manual", "checked", true);
+            menulist.selectedItem = document.getElementById("calendar-refreshInterval-manual");
             foundValue = true;
         }
 
