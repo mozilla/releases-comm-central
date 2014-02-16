@@ -342,7 +342,7 @@ nsAbAutoCompleteSearch.prototype = {
                                     aPreviousResult, aListener) {
     let params = JSON.parse(aSearchParam);
     var result = new nsAbAutoCompleteResult(aSearchString);
-    if (params.type && !this.applicableHeaders.has(params.type)) {
+    if (!this.applicableHeaders.has(params.type)) {
       result.searchResult = ACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
@@ -430,7 +430,7 @@ nsAbAutoCompleteSearch.prototype = {
         var dir = allABs.getNext();
 
         if (dir instanceof Components.interfaces.nsIAbDirectory &&
-            (!params.idKey || dir.useForAutocomplete(params.idKey))) {
+            dir.useForAutocomplete(params.idKey)) {
           this._searchCards(searchQuery, dir, result);
           this._searchWithinEmails(emailSearchQuery, fullString, dir, result);
         }

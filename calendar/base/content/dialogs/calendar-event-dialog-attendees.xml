@@ -38,7 +38,6 @@
                          type="autocomplete"
                          flex="1"
                          autocompletesearch="addrbook ldap"
-                         autocompletesearchparam="{}"
                          timeout="300"
                          maxrows="4"
                          completedefaultindex="true"
