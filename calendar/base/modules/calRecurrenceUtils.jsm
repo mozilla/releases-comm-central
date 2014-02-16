@@ -187,28 +187,37 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                             ruleString = PluralForm.get(rule.interval, ruleString)
                                                    .replace("#2", rule.interval);
                         } else {
-                            // i.e. one or more monthdays every N months
+                            // i.e. one or more monthdays every N months.
+
+                            // Build a string with a list of days separated with commas.
                             let day_string = "";
+                            let ordinalSymbols = getRString("monthlyDaysOfNth_ordSymbol").split(",");
                             let lastDay = false;
                             for (let i = 0; i < component.length; i++) {
                                 if (component[i] == -1) {
                                     lastDay = true;
                                     continue;
                                 }
-                                day_string += component[i] + ", ";
+                                let dayOrdinalSymbol = ordinalSymbols[component[i] -1] || ordinalSymbols[0];
+                                day_string += component[i] + dayOrdinalSymbol + ", ";
                             }
                             if (lastDay) {
                                 day_string += getRString("monthlyLastDay") + ", ";
                             }
                             day_string = day_string.slice(0,-2)
                                          .replace(/,(?= [^,]*$)/, ' ' + getRString("repeatDetailsAnd"));
-                            let monthlyString = getRString("monthlyDayOfNth", [day_string]);
+
+                            // Add the word "day" in plural form to the list of days then
+                            // compose the final string with the interval of months
+                            let monthlyDayString = getRString("monthlyDaysOfNth_day", [day_string]);
+                            monthlyDayString = PluralForm.get(component.length, monthlyDayString);
+                            let monthlyString = getRString("monthlyDaysOfNth", [monthlyDayString]);
                             ruleString = PluralForm.get(rule.interval, monthlyString)
                                                    .replace("#2", rule.interval);
                         }
                     }
                 } else {
-                    let monthlyString = getRString("monthlyDayOfNth", [startDate.day]);
+                    let monthlyString = getRString("monthlyDaysOfNth", [startDate.day]);
                     ruleString = PluralForm.get(rule.interval, monthlyString)
                                            .replace("#2", rule.interval);
                 }
