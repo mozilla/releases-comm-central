@@ -1225,8 +1225,9 @@ ItipItemFinder.prototype = {
                                             }
                                         }
                                         if (att) {
-                                            let firstFoundItem = this.mFoundItems.length && this.mFoundItems[0];
-                                            let foundAttendee = firstFoundItem.getAttendeeById(att.id);
+                                            let firstFoundItem = this.mFoundItems[0];
+                                            // again, fall back to using configured organizer if not found
+                                            let foundAttendee = firstFoundItem.getAttendeeById(att.id) || att;
 
                                             // If the the user hasn't responded to the invitation yet and we
                                             // are viewing the current representation of the item, show the
