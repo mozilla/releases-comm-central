@@ -59,12 +59,12 @@ function test_display_alarm() {
     do_check_throws(function() {
         // DISPLAY alarm should not be able to save attendees
         alarm.addAttendee(attendee);
-    }, Components.results.NS_ERROR_XPC_JS_THREW_JS_OBJECT);
+    }, Components.results.NS_ERROR_XPC_JAVASCRIPT_ERROR_WITH_DETAILS);
 
     do_check_throws(function() {
         // DISPLAY alarm should not be able to save attachment
         alarm.addAttachment(cal.createAttachment());
-    }, Components.results.NS_ERROR_XPC_JS_THREW_JS_OBJECT);
+    }, Components.results.NS_ERROR_XPC_JAVASCRIPT_ERROR_WITH_DETAILS);
 
     dump("Done\n");
 }
