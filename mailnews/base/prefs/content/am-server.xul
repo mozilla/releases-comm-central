@@ -224,7 +224,7 @@
       <label value="&deleteMessagePrefix.label;" align="left"
              control="imap.deleteModel"/>
     </hbox>
-    <hbox align="end">
+    <vbox>
       <hbox align="center"
             id="imap.deleteModel.box"
             hidefor="pop3,nntp,movemail"
@@ -246,6 +246,7 @@
                        accesskey="&modelMoveToTrash.accesskey;"/>
                 <menulist id="msgTrashFolderPicker" flex="1"
                           class="folderMenuItem"
+                          maxwidth="300" crop="center"
                           aria-labelledby="modelMoveToTrash"
                           displayformat="verbose">
                   <menupopup id="msgTrashFolderPopup"
@@ -271,16 +272,18 @@
           </grid>
         </radiogroup>
       </hbox>
-      <!-- This button should have identical attributes to the
-           server.popAdvancedButton except the hidefor attribute. -->
-      <button label="&advancedButton.label;"
-              accesskey="&advancedButton.accesskey;"
-              oncommand="onAdvanced();"
-              wsm_persist="true"
-              id="server.imapAdvancedButton"
-              prefstring="mail.server.%serverkey%.advanced.disable"
-              hidefor="pop3,nntp,movemail"/>
-    </hbox>
+      <hbox pack="end">
+        <!-- This button should have identical attributes to the
+             server.popAdvancedButton except the hidefor attribute. -->
+        <button label="&advancedButton.label;"
+                accesskey="&advancedButton.accesskey;"
+                oncommand="onAdvanced();"
+                wsm_persist="true"
+                id="server.imapAdvancedButton"
+                prefstring="mail.server.%serverkey%.advanced.disable"
+                hidefor="pop3,nntp,movemail"/>
+      </hbox>
+    </vbox>
 
     <!-- Advanced IMAP settings -->
     <hbox flex="1" hidefor="pop3,nntp,movemail" hidden="true">
