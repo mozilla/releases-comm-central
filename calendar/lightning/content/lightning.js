@@ -62,6 +62,9 @@ pref("calendar.itip.notify", true);
 // whether the organizer propagates replies of attendees to all attendees
 pref("calendar.itip.notify-replies", false);
 
+// whether email invitation updates are send out to all attendees if (only) adding a new attendee
+pref("calendar.itip.updateInvitationForNewAttendeesOnly", false);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 

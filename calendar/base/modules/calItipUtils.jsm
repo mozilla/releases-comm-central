@@ -630,6 +630,7 @@ cal.itip = {
         let originalAtt = (aOriginalItem ? aOriginalItem.getAttendees({}) : []);
         let itemAtt = aItem.getAttendees({});
         let canceledAttendees = [];
+        let addedAttendees = [];
 
         if (itemAtt.length > 0 || originalAtt.length > 0) {
             let attMap = {};
@@ -641,6 +642,9 @@ cal.itip = {
                 if (att.id.toLowerCase() in attMap) {
                     // Attendee was in original item.
                     delete attMap[att.id.toLowerCase()];
+                } else {
+                    // Attendee only in new item
+                    addedAttendees.push(att);
                 }
             }
 
@@ -680,6 +684,17 @@ cal.itip = {
                         requestItem.addAttendee(attendee);
                     }
                     recipients.push(attendee);
+                }
+
+                // if send out should be limited to newly added attendees and no major
+                // props (attendee is not such) have changed, only the respective attendee
+                // is added to the recipient list while the attendee information in the
+                // ical is left to enable the new attendee to see who else is attending
+                // the event (if not prevented otherwise)
+                if (isMinorUpdate &&
+                    addedAttendees.length > 0 &&
+                    cal.getPrefSafe("calendar.itip.updateInvitationForNewAttendeesOnly", false)) {
+                    recipients = addedAttendees;
                 }
 
                 if (recipients.length > 0) {
