@@ -143,7 +143,7 @@ function ThreadPaneDoubleClick()
   }
 }
 
-function ThreadPaneKeyPress(event)
+function ThreadPaneKeyDown(event)
 {
   if (event.keyCode == KeyEvent.DOM_VK_RETURN)
     ThreadPaneDoubleClick();

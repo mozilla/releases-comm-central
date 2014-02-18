@@ -117,7 +117,7 @@
               enableColumnDrag="true" _selectDelay="500" lastfoldersent="false"
               disableKeyNavigation="true"
               context="mailContext"
-              onkeypress="ThreadPaneKeyPress(event);"
+              onkeydown="ThreadPaneKeyDown(event);"
               onselect="ThreadPaneSelectionChanged();">
           <treecols id="threadCols" pickertooltiptext="&columnChooser2.tooltip;">
             <treecol id="threadCol" persist="hidden ordinal" fixed="true" cycler="true"

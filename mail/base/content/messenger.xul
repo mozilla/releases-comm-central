@@ -414,7 +414,7 @@
                           keepcurrentinview="true"
                           disableKeyNavigation="true"
                           context="mailContext"
-                          onkeypress="ThreadPaneKeyPress(event);"
+                          onkeydown="ThreadPaneKeyDown(event);"
                           onselect="ThreadPaneSelectionChanged();"
                           >
                       <treecols id="threadCols" pickertooltiptext="&columnChooser2.tooltip;">
