@@ -134,8 +134,7 @@ public:
 };
 
 // forward decl for proxy methods
-nsresult ProxyGetSubFolders(nsIMsgFolder *aFolder,
-                            nsISimpleEnumerator **aEnumerator);
+nsresult ProxyGetSubFolders(nsIMsgFolder *aFolder);
 nsresult ProxyGetChildNamed(nsIMsgFolder *aFolder,const nsAString & aName,
                             nsIMsgFolder **aChild);
 nsresult ProxyGetParent(nsIMsgFolder *aFolder, nsIMsgFolder **aParent);
@@ -729,7 +728,6 @@ ImportMailThread(void *stuff)
 
   nsCOMPtr<nsIMsgFolder>          newFolder;
   nsCOMPtr<nsIMsgFolder>          subFolder;
-  nsCOMPtr<nsISimpleEnumerator>   enumerator;
 
   bool              exists;
 
@@ -737,7 +735,7 @@ ImportMailThread(void *stuff)
   nsString  error;
 
   // GetSubFolders() will initialize folders if they are not already initialized.
-  ProxyGetSubFolders(curFolder, getter_AddRefs(enumerator));
+  ProxyGetSubFolders(curFolder);
 
   IMPORT_LOG1("ImportMailThread: Total number of folders to import = %d.", count);
 
@@ -771,7 +769,7 @@ ImportMailThread(void *stuff)
         }
         curFolder = subFolder;
         // Make sure this new parent folder obj has the correct subfolder list so far.
-        rv = ProxyGetSubFolders(curFolder, getter_AddRefs(enumerator));
+        rv = ProxyGetSubFolders(curFolder);
       }
       else if (newDepth < depth) {
         rv = NS_OK;
@@ -1000,30 +998,27 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder **ppFolder)
 class GetSubFoldersRunnable : public nsRunnable
 {
 public:
-  GetSubFoldersRunnable(nsIMsgFolder *aFolder,
-                        nsISimpleEnumerator **aEnumerator);
+  GetSubFoldersRunnable(nsIMsgFolder *aFolder);
   NS_DECL_NSIRUNNABLE
 private:
   nsCOMPtr<nsIMsgFolder> m_folder;
-  nsISimpleEnumerator **m_enumerator;
 };
 
-GetSubFoldersRunnable::GetSubFoldersRunnable(nsIMsgFolder *aFolder,
-                                             nsISimpleEnumerator **aEnumerator) :
-  m_folder(aFolder), m_enumerator(aEnumerator)
+GetSubFoldersRunnable::GetSubFoldersRunnable(nsIMsgFolder *aFolder) :
+  m_folder(aFolder)
 {
 }
 
 NS_IMETHODIMP GetSubFoldersRunnable::Run()
 {
-  return m_folder->GetSubFolders(m_enumerator);
+  return m_folder->GetSubFolders(nullptr);
 }
 
 
-nsresult ProxyGetSubFolders(nsIMsgFolder *aFolder, nsISimpleEnumerator **aEnumerator)
+nsresult ProxyGetSubFolders(nsIMsgFolder *aFolder)
 {
   nsRefPtr<GetSubFoldersRunnable> getSubFolders =
-    new GetSubFoldersRunnable(aFolder, aEnumerator);
+    new GetSubFoldersRunnable(aFolder);
   return NS_DispatchToMainThread(getSubFolders, NS_DISPATCH_SYNC);
 }
 
