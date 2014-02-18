@@ -3616,14 +3616,20 @@ function MessageGetNumSelectedAttachments()
 function AttachPage()
 {
   let result = {value:"http://"};
-  if (Services.prompt
-              .prompt(window,
+  if (Services.prompt.prompt(window,
                       getComposeBundle().getString("attachPageDlogTitle"),
                       getComposeBundle().getString("attachPageDlogMessage"),
                       result,
                       null,
                       {value:0}))
   {
+    if (result.value.length <= "http://".length)
+    {
+      // Nothing filled, just show the dialog again.
+      AttachPage();
+      return;
+    }
+
     let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
                                .createInstance(Components.interfaces.nsIMsgAttachment);
     attachment.url = result.value;
