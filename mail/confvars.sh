@@ -19,11 +19,6 @@ if test "$OS_ARCH" = "WINNT"; then
   fi
 fi
 
-# Disable Accessibility on Mac for now as unit tests fail (bug 862238).
-if test "$OS_ARCH" = "Darwin"; then
-  ACCESSIBILITY=
-fi
-
 MOZ_SAFE_BROWSING=1
 MOZ_MEDIA_NAVIGATOR=1
 MOZ_MORK=1
