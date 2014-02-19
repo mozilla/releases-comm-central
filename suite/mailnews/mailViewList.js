@@ -83,7 +83,7 @@ function RefreshListView(aSelectedMailView)
 {
   // remove any existing items in the view...
   for (let index = gListBox.getRowCount(); index > 0; index--)
-    gListBox.removeChild(gListBox.getItemAtIndex(index - 1));
+    gListBox.getItemAtIndex(index - 1).remove();
 
   var numItems = gMailListView.mailViewCount;
   for (let index = 0; index < numItems; index++)
@@ -124,7 +124,7 @@ function OnDeleteMailView()
     {
       gMailListView.removeMailView(mailView);
       // now remove it from the view...
-      gListBox.removeChild(gListBox.selectedItem);
+      gListBox.selectedItem.remove();
 
       // select the next item in the list..
       if (selectedIndex < gListBox.getRowCount())

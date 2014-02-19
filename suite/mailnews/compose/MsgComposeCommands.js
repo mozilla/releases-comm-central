@@ -1826,7 +1826,7 @@ function InitLanguageMenu()
 
   // Remove any languages from the list.
   while (languageMenuList.hasChildNodes())
-    languageMenuList.removeChild(languageMenuList.firstChild);
+    languageMenuList.lastChild.remove();
 
   for (let i = 0; i < count; i++)
   {
@@ -1906,7 +1906,7 @@ function ClearIdentityListPopup(popup)
 {
   if (popup)
     while (popup.hasChildNodes())
-      popup.removeChild(popup.lastChild);
+      popup.lastChild.remove();
 }
 
 function FillIdentityList(menulist)

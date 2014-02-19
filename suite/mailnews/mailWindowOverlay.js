@@ -684,7 +684,7 @@ function InitMessageTags(menuPopup)
   // remove any existing non-static entries...
   var menuseparator = menuPopup.lastChild.previousSibling;
   for (var i = menuPopup.childNodes.length; i > 4; --i)
-    menuPopup.removeChild(menuseparator.previousSibling);
+    menuseparator.previousSibling.remove();
 
   // hide double menuseparator
   menuseparator.previousSibling.hidden = !tagCount;
@@ -729,8 +729,8 @@ function InitForwardToolbarMenu(menuPopup)
 function PopulateHistoryMenu(menuPopup, navOffset)
 {
   // remove existing entries
-  while (menuPopup.firstChild)
-    menuPopup.removeChild(menuPopup.firstChild);
+  while (menuPopup.hasChildNodes())
+    menuPopup.lastChild.remove();
 
   var curPos = {};
   var numEntries = {};

@@ -365,7 +365,7 @@ function RefreshCustomViewsPopup(aMenupopup)
                               .getService(Components.interfaces.nsIMsgMailViewList);
   // remove all menuitems
   while (aMenupopup.hasChildNodes())
-    aMenupopup.removeChild(aMenupopup.lastChild);
+    aMenupopup.lastChild.remove();
 
   // now rebuild the list
   var currentView = isNaN(gCurrentViewValue) ? kViewItemAll : Number(gCurrentViewValue);
@@ -389,7 +389,7 @@ function RefreshTagsPopup(aMenupopup)
 {
   // remove all menuitems
   while (aMenupopup.hasChildNodes())
-    aMenupopup.removeChild(aMenupopup.lastChild);
+    aMenupopup.lastChild.remove();
 
   // create tag menuitems
   var currentTagKey = isNaN(gCurrentViewValue) ? gCurrentViewValue.substr(kViewTagMarker.length) : "";

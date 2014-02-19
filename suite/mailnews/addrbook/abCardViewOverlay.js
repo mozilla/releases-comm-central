@@ -431,7 +431,7 @@ function cvAddAddressNodes(node, uri)
       var total = addressList.length;
       if (total > 0) {
         while (node.hasChildNodes()) {
-          node.removeChild(node.lastChild);
+          node.lastChild.remove();
         }
         for (i = 0;  i < total; i++ ) {
       	   var descNode = document.createElement("description");   

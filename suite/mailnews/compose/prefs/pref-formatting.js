@@ -52,7 +52,7 @@ function AddDomain(aType)
           var match = DomainFirstMatch(other, domainName);
           if (match)
           {
-            other.removeChild(match);
+            match.remove();
             removed = true;
           }
           listbox.appendItem(domainName);
@@ -105,7 +105,7 @@ function RemoveDomains(aType, aEvent)
   {
     var selectedNode = listbox.selectedItem;
     nextNode = selectedNode.nextSibling || selectedNode.previousSibling;
-    listbox.removeChild(selectedNode);
+    selectedNode.remove();
   }
 
   if (nextNode)
@@ -132,7 +132,7 @@ function ReadDomains(aListbox)
         if (index > -1)
           arrayOfPrefs.splice(index, 1);
         else
-          aListbox.removeChild(domain);
+          domain.remove();
       }
     }
     for (i = 0; i < arrayOfPrefs.length; i++)

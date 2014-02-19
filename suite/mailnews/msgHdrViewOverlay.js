@@ -893,8 +893,7 @@ function RemoveNewHeaderViews(aHeaderTable)
   {
     let headerEntry = aHeaderTable[index];
     if (headerEntry.isNewHeader)
-      headerEntry.enclosingBox.parentNode
-                 .removeChild(headerEntry.enclosingBox);
+      headerEntry.enclosingBox.remove();
   }
 }
 
@@ -1657,8 +1656,8 @@ function ClearAttachmentMenu(popup)
 {
   if ( popup )
   {
-     while ( popup.childNodes[0].localName == 'menu' )
-       popup.removeChild(popup.childNodes[0]);
+     while (popup.firstChild.localName == 'menu')
+       popup.firstChild.remove();
   }
 }
 
@@ -1805,7 +1804,7 @@ function ClearAttachmentList()
   list.clearSelection();
 
   while (list.hasChildNodes())
-    list.removeChild(list.lastChild);
+    list.lastChild.remove();
 }
 
 function ShowEditMessageBox()

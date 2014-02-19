@@ -476,7 +476,7 @@
 
             while (numItemsInNode && (numItemsInNode > numItemsToPreserve))
             {
-              aParentNode.removeChild(aParentNode.childNodes[numItemsInNode-1]);
+              aParentNode.childNodes[numItemsInNode - 1].remove();
               numItemsInNode = numItemsInNode - 1;
             }
           ]]>
@@ -603,7 +603,7 @@
             var index = 0;
 
             while (messageIdNodes.length > numMessageIds * 2 - 1)
-              headerValue.removeChild(headerValue.lastChild);
+              headerValue.lastChild.remove();
 
             this.toggleIcon.hidden = numMessageIds <= 1;
 
@@ -722,7 +722,7 @@
             // remove any existing tag items we've appended to the list
             var headerValueNode = document.getAnonymousElementByAttribute(this, 'anonid', 'headerValue');
             for (var i = headerValueNode.childNodes.length - 1; i >= 0; --i)
-              headerValueNode.removeChild(headerValueNode.childNodes[i]);
+              headerValueNode.childNodes[i].remove();
 
             var tagService = Components.classes["@mozilla.org/messenger/tagservice;1"]
                              .getService(Components.interfaces.nsIMsgTagService);
@@ -909,7 +909,7 @@
 
             // remove the old popup children
             while (popup.hasChildNodes())
-              popup.removeChild(popup.lastChild);
+              popup.lastChild.remove();
 
             var newSelection;
             var customizePos=-1;
@@ -2021,7 +2021,7 @@
           <![CDATA[
             var containingBox = document.getAnonymousNodes(this)[0];
             while (containingBox.hasChildNodes())
-              containingBox.removeChild(containingBox.lastChild);
+              containingBox.lastChild.remove();
           ]]>
         </body>
       </method>

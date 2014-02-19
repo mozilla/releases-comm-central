@@ -259,8 +259,7 @@ function RemoveSelectedFromBucket()
       selection.getRangeAt(i,start,end);
       for (var j = end.value; j >= start.value; --j)
       {
-        var item = bucketTree.contentView.getItemAtIndex(j);
-        body.removeChild(item);
+        bucketTree.contentView.getItemAtIndex(j).remove();
       }
     }
   }
