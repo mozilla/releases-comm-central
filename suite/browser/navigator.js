@@ -553,6 +553,8 @@ function Startup()
 
   // hook up UI through progress listener
   getBrowser().addProgressListener(window.XULBrowserWindow);
+  // setup the search service DOMLinkAdded listener
+  getBrowser().addEventListener("DOMLinkAdded", BrowserSearch, false);
   // hook up drag'n'drop
   getBrowser().droppedLinkHandler = handleDroppedLink;
 
@@ -747,6 +749,8 @@ function Shutdown()
 
   // shut down browser access support
   window.browserDOMWindow = null;
+
+  getBrowser().removeEventListener("DOMLinkAdded", BrowserSearch, false);
 
   try {
     getBrowser().removeProgressListener(window.XULBrowserWindow);
@@ -1044,6 +1048,18 @@ function BrowserHome(aEvent)
 }
 
 const BrowserSearch = {
+  handleEvent: function (event) { // "DOMLinkAdded" event
+    var link = event.originalTarget;
+
+    var isSearch = /(?:^|\s)search(?:\s|$)/i.test(link.rel) && link.title &&
+                   /^(https?|ftp):/i.test(link.href) &&
+                   /(?:^|\s)application\/opensearchdescription\+xml(?:;?.*)$/i.test(link.type);
+
+    if (isSearch) {
+      this.addEngine(link, link.ownerDocument);
+    }
+  },
+
   addEngine: function(engine, targetDoc) {
     if (!this.searchBar)
       return;
