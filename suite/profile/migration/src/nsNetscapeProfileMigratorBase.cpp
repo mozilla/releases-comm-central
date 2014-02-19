@@ -944,7 +944,7 @@ nsNetscapeProfileMigratorBase::CopyMailFolders()
     fileTransactionEntry fileTransaction = mFileCopyTransactions[i];
     int64_t fileSize;
     fileTransaction.srcFile->GetFileSize(&fileSize);
-    LL_ADD(mMaxProgress, mMaxProgress, fileSize);
+    mMaxProgress += fileSize;
   }
 
   CopyNextFolder();
@@ -954,7 +954,6 @@ void
 nsNetscapeProfileMigratorBase::CopyNextFolder()
 {
   if (mFileCopyTransactionIndex < mFileCopyTransactions.Length()) {
-    uint32_t percentage = 0;
     fileTransactionEntry fileTransaction =
       mFileCopyTransactions.ElementAt(mFileCopyTransactionIndex++);
 
@@ -965,14 +964,9 @@ nsNetscapeProfileMigratorBase::CopyNextFolder()
     // add to our current progress
     int64_t fileSize;
     fileTransaction.srcFile->GetFileSize(&fileSize);
-    LL_ADD(mCurrentProgress, mCurrentProgress, fileSize);
+    mCurrentProgress += fileSize;
 
-    int64_t percentDone;
-    LL_MUL(percentDone, mCurrentProgress, 100);
-
-    LL_DIV(percentDone, percentDone, mMaxProgress);
-
-    LL_L2UI(percentage, percentDone);
+    uint32_t percentage = (uint32_t)(mCurrentProgress * 100 / mMaxProgress);
 
     nsAutoString index;
     index.AppendInt(percentage);
