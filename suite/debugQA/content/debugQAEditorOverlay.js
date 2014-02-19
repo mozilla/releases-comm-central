@@ -454,7 +454,7 @@ sampleJSTransaction.prototype = {
     if (!this.mObject)
       this.mContainer.deleteData(this.mOffset, this.mStrData.length);
     else
-      this.mContainer.removeChild(this.mObject);
+      this.mObject.remove();
   },
 
   redoTransaction: function()
