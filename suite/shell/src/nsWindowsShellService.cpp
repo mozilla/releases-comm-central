@@ -25,6 +25,7 @@
 #include "nsIWindowsRegKey.h"
 #include "nsIWinTaskbar.h"
 #include "nsISupportsPrimitives.h"
+#include "nsXULAppAPI.h"
 #include <mbstring.h>
 #include "mozilla/Services.h"
 
@@ -50,7 +51,7 @@
 NS_IMPL_ISUPPORTS2(nsWindowsShellService, nsIWindowsShellService, nsIShellService)
 
 static nsresult
-OpenKeyForReading(HKEY aKeyRoot, const char16_t* aKeyName, HKEY* aKey)
+OpenKeyForReading(HKEY aKeyRoot, const wchar_t* aKeyName, HKEY* aKey)
 {
   DWORD res = ::RegOpenKeyExW(aKeyRoot, aKeyName, 0, KEY_READ, aKey);
   switch (res) {
@@ -305,12 +306,12 @@ GetHelperPath(nsString& aPath)
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFile> appHelper;
-  rv = directoryService->Get(NS_XPCOM_CURRENT_PROCESS_DIR,
+  rv = directoryService->Get(XRE_EXECUTABLE_FILE,
                              NS_GET_IID(nsIFile),
                              getter_AddRefs(appHelper));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = appHelper->AppendNative(NS_LITERAL_CSTRING("uninstall"));
+  rv = appHelper->SetNativeLeafName(NS_LITERAL_CSTRING("uninstall"));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = appHelper->AppendNative(NS_LITERAL_CSTRING("helper.exe"));
@@ -330,8 +331,8 @@ LaunchHelper(const nsString& aPath)
   STARTUPINFOW si = {sizeof(si), 0};
   PROCESS_INFORMATION pi = {0};
 
-  BOOL ok = CreateProcessW(NULL, (LPWSTR)aPath.get(), NULL, NULL,
-                           FALSE, 0, NULL, NULL, &si, &pi);
+  BOOL ok = CreateProcessW(nullptr, (LPWSTR)aPath.get(), nullptr, nullptr,
+                           FALSE, 0, nullptr, nullptr, &si, &pi);
 
   if (!ok)
     return NS_ERROR_FAILURE;
@@ -420,7 +421,7 @@ nsWindowsShellService::ShortcutMaintenance()
 bool
 nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
 {
-  char16_t currValue[MAX_BUF];
+  wchar_t currValue[MAX_BUF];
   SETTING* end = aSettings + aSize;
   for (SETTING * settings = aSettings; settings < end; ++settings) {
     NS_ConvertUTF8toUTF16 dataLongPath(settings->valueData);
@@ -447,7 +448,7 @@ nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
 
     DWORD len = sizeof currValue;
     DWORD res = ::RegQueryValueExW(theKey, value.get(),
-                                   NULL, NULL, (LPBYTE)currValue, &len);
+                                   nullptr, nullptr, (LPBYTE)currValue, &len);
     // Close the key we opened.
     ::RegCloseKey(theKey);
     if (REG_FAILED(res) ||
@@ -463,7 +464,7 @@ nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
 
 nsresult nsWindowsShellService::Init()
 {
-  char16_t appPath[MAX_BUF];
+  wchar_t appPath[MAX_BUF];
   if (!::GetModuleFileNameW(0, appPath, MAX_BUF))
     return NS_ERROR_FAILURE;
 
@@ -485,7 +486,7 @@ nsWindowsShellService::IsDefaultClientVista(uint16_t aApps, bool* aIsDefaultClie
   IApplicationAssociationRegistration* pAAR;
 
   HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration,
-                                NULL,
+                                nullptr,
                                 CLSCTX_INPROC,
                                 IID_IApplicationAssociationRegistration,
                                 (void**)&pAAR);
@@ -573,8 +574,8 @@ nsWindowsShellService::SetDefaultClient(bool aForAllUsers,
   STARTUPINFOW si = {sizeof(si), 0};
   PROCESS_INFORMATION pi = {0};
 
-  BOOL ok = CreateProcessW(NULL, (LPWSTR)appHelperPath.get(), NULL, NULL,
-                           FALSE, 0, NULL, NULL, &si, &pi);
+  BOOL ok = CreateProcessW(nullptr, (LPWSTR)appHelperPath.get(), nullptr,
+                           nullptr, FALSE, 0, nullptr, nullptr, &si, &pi);
 
   if (!ok)
     return NS_ERROR_FAILURE;
@@ -727,6 +728,7 @@ nsWindowsShellService::SetDesktopBackground(nsIDOMElement* aElement,
   nsCOMPtr<nsIDOMHTMLImageElement> imgElement(do_QueryInterface(aElement));
   if (!imgElement) {
     // XXX write background loading stuff!
+    return NS_ERROR_NOT_AVAILABLE;
   }
   else {
     nsCOMPtr<nsIImageLoadingContent> imageContent =
@@ -759,7 +761,7 @@ nsWindowsShellService::SetDesktopBackground(nsIDOMElement* aElement,
   // e.g. "Desktop Background.bmp"
   nsString fileLeafName;
   rv = shellBundle->GetStringFromName
-                      (NS_LITERAL_STRING("desktopBackgroundLeafNameWin").get(),
+                      (MOZ_UTF16("desktopBackgroundLeafNameWin"),
                        getter_Copies(fileLeafName));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -815,8 +817,8 @@ nsWindowsShellService::SetDesktopBackground(nsIDOMElement* aElement,
     rv = key->Close();
     NS_ENSURE_SUCCESS(rv, rv);
 
-   ::SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, (PVOID)path.get(),
-                           SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+    ::SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, (PVOID)path.get(),
+                            SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
   }
   return rv;
 }
@@ -849,7 +851,7 @@ nsWindowsShellService::SetDesktopBackgroundColor(uint32_t aColor)
                    nsIWindowsRegKey::ACCESS_SET_VALUE);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  char16_t rgb[12];
+  wchar_t rgb[12];
   _snwprintf(rgb, 12, L"%u %u %u", r, g, b);
   rv = key->WriteStringValue(NS_LITERAL_STRING("Background"),
                              nsDependentString(rgb));

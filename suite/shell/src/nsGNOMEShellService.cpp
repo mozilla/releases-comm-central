@@ -87,7 +87,7 @@ GetBrandName(nsACString& aBrandName)
   NS_ENSURE_TRUE(brandBundle, rv);
 
   nsString brandName;
-  rv = brandBundle->GetStringFromName(NS_LITERAL_STRING("brandShortName").get(),
+  rv = brandBundle->GetStringFromName(MOZ_UTF16("brandShortName"),
                                       getter_Copies(brandName));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -138,12 +138,13 @@ nsGNOMEShellService::HandlerMatchesAppName(const char* aHandler)
   bool matches = false;
   gint argc;
   gchar** argv;
-  if (g_shell_parse_argv(aHandler, &argc, &argv, NULL) && argc > 0) {
-    gchar* command = NULL;
+  if (g_shell_parse_argv(aHandler, &argc, &argv, nullptr) && argc > 0) {
+    gchar* command = nullptr;
     if (!mUseLocaleFilenames)
       command = g_find_program_in_path(argv[0]);
     else {
-      gchar* nativeFile = g_filename_from_utf8(argv[0], -1, NULL, NULL, NULL);
+      gchar* nativeFile = g_filename_from_utf8(argv[0], -1,
+                                               nullptr, nullptr, nullptr);
       if (nativeFile) {
         command = g_find_program_in_path(nativeFile);
         g_free(nativeFile);
@@ -339,7 +340,8 @@ nsGNOMEShellService::SetDesktopBackground(nsIDOMElement* aElement,
     return NS_ERROR_NOT_AVAILABLE;
 
   // write the image to a file in the home dir
-  gboolean res = gdk_pixbuf_save(pixbuf, filePath.get(), "png", NULL, NULL);
+  gboolean res = gdk_pixbuf_save(pixbuf, filePath.get(), "png",
+                                 nullptr, nullptr);
 
   g_object_unref(pixbuf);
   if (!res)
@@ -374,7 +376,7 @@ nsGNOMEShellService::SetDesktopBackground(nsIDOMElement* aElement,
     gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(OGDB_SCHEMA),
                                       getter_AddRefs(background_settings));
     if (background_settings) {
-      gchar *file_uri = g_filename_to_uri(filePath.get(), NULL, NULL);
+      gchar *file_uri = g_filename_to_uri(filePath.get(), nullptr, nullptr);
       if (!file_uri)
        return NS_ERROR_FAILURE;
 
