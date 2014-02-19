@@ -152,6 +152,7 @@ classic.jar:
   skin/classic/messenger/icons/folder-new-star.png            (mail/icons/folder-new-star.png)
   skin/classic/messenger/icons/message-list.png               (mail/icons/message-list.png)
   skin/classic/messenger/icons/message.png                    (mail/icons/message.png)
+  skin/classic/messenger/icons/multicolor.png                 (mail/icons/multicolor.png)
   skin/classic/messenger/icons/attachment-deleted.png         (mail/icons/attachment-deleted.png)
   skin/classic/messenger/icons/attachment-deleted-large.png   (mail/icons/attachment-deleted-large.png)
   skin/classic/messenger/icons/attachment-col.svg             (mail/icons/attachment-col.svg)

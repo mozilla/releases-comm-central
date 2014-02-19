@@ -933,52 +933,42 @@ function initFontSizeMenu(menuPopup)
 
 function onHighlightColorChange()
 {
-  var commandNode = document.getElementById("cmd_highlight");
-  if (commandNode)
-  {
-    var color = commandNode.getAttribute("state");
-    var button = document.getElementById("HighlightColorButton");
-    if (button)
-    {
-      // No color set - get color set on page or other defaults
-      if (!color)
-        color = "transparent" ;
-
-      button.setAttribute("style", "background-color:"+color+" !important");
-    }
-  }
+  ChangeButtonColor("cmd_highlight", "HighlightColorButton",
+                    "transparent");
 }
 
 function onFontColorChange()
 {
-  var commandNode = document.getElementById("cmd_fontColor");
-  if (commandNode)
-  {
-    var color = commandNode.getAttribute("state");
-    var button = document.getElementById("TextColorButton");
-    if (button)
-    {
-      // No color set - get color set on page or other defaults
-      if (!color)
-        color = gDefaultTextColor;
-      button.setAttribute("style", "background-color:"+color);
-    }
-  }
+  ChangeButtonColor("cmd_fontColor", "TextColorButton",
+                    gDefaultTextColor);
 }
 
 function onBackgroundColorChange()
 {
-  var commandNode = document.getElementById("cmd_backgroundColor");
+  ChangeButtonColor("cmd_backgroundColor", "BackgroundColorButton",
+                    gDefaultBackgroundColor);
+}
+
+/* Helper function that changes the button color.
+ *   commandID - The ID of the command element.
+ *   id - The ID of the button needing to be changed.
+ *   defaultColor - The default color the button gets set to.
+ */
+function ChangeButtonColor(commandID, id, defaultColor) {
+  var commandNode = document.getElementById(commandID);
   if (commandNode)
   {
     var color = commandNode.getAttribute("state");
-    var button = document.getElementById("BackgroundColorButton");
+    var button = document.getElementById(id);
     if (button)
     {
-      if (!color)
-        color = gDefaultBackgroundColor;
+      button.setAttribute("color", color);
 
-      button.setAttribute("style", "background-color:"+color);
+      // No color or a mixed color - get color set on page or other defaults.
+      if (!color || color == "mixed")
+        color = defaultColor;
+
+      button.setAttribute("style", "background-color:" + color + " !important");
     }
   }
 }

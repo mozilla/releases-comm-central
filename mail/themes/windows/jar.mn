@@ -171,6 +171,7 @@ classic.jar:
   skin/classic/messenger/icons/mail-toolbar-small.png         (mail/icons/mail-toolbar-small.png)
   skin/classic/messenger/icons/folder.png                     (mail/icons/folder.png)
   skin/classic/messenger/icons/message.png                    (mail/icons/message.png)
+  skin/classic/messenger/icons/multicolor.png                 (mail/icons/multicolor.png)
   skin/classic/messenger/icons/license.txt                    (mail/icons/license.txt)
   skin/classic/messenger/icons/appmenu-icons.png              (mail/icons/appmenu-icons.png)
   skin/classic/messenger/icons/attachment-deleted.png         (mail/icons/attachment-deleted.png)

@@ -184,6 +184,7 @@ modern.jar:
   skin/modern/editor/icons/mast-editor.gif                         (editor/icons/mast-editor.gif)
   skin/modern/editor/icons/btn1.gif                                (editor/icons/btn1.gif)
   skin/modern/editor/icons/btn2.gif                                (editor/icons/btn2.gif)
+  skin/modern/editor/icons/multicolor.png                          (editor/icons/multicolor.png)
   skin/modern/editor/icons/progress-busy.gif                       (editor/icons/progress-busy.gif)
   skin/modern/editor/icons/progress-done.gif                       (editor/icons/progress-done.gif)
   skin/modern/editor/icons/progress-failed.gif                     (editor/icons/progress-failed.gif)

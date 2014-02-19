@@ -486,6 +486,11 @@ toolbarbutton.formatting-button {
   -moz-margin-end: 9px;
 }
 
+#TextColorButton[color="mixed"] {
+  background-image: url("chrome://editor/skin/icons/multicolor.png");
+  background-size: cover;
+}
+
 #BackgroundColorButton {
   margin-top: 9px;
   margin-bottom: 2px;
