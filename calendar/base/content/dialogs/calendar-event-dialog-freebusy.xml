@@ -603,7 +603,7 @@
       <property name="numHours">
         <getter><![CDATA[
           var numHours = this.mEndHour - this.mStartHour;
-          return Math.floor(numHours * 100 / this.mZoomFactor);
+          return Math.ceil(numHours * 100 / this.mZoomFactor);
         ]]></getter>
       </property>
 
