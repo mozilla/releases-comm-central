@@ -117,6 +117,10 @@
         Components.classes["@mozilla.org/network/io-service;1"]
                   .getService(Components.interfaces.nsIIOService);
       </field>
+      <field name="mSecMan" readonly="true">
+        Components.classes["@mozilla.org/scriptsecuritymanager;1"]
+                  .getService(Components.interfaces.nsIScriptSecurityManager);
+      </field>
       <field name="mTabBox" readonly="true">
         document.getAnonymousElementByAttribute(this, "anonid", "tabbox");
       </field>
@@ -1079,103 +1083,104 @@
       </method>
 
       <method name="onLinkAdded">
-        <parameter name="event"/>
+        <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            var href = event.originalTarget.href;
+            var link = aEvent.originalTarget;
+            var href = link.href;
             if (!href)
               return;
 
-            var rel = event.originalTarget.rel;
-            var type = event.originalTarget.type;
+            var targetDoc = link.ownerDocument;
+            var index = this.getBrowserIndexForDocument(targetDoc);
+            if (index < 0)
+              return;
+
+            var rel = link.rel;
+            var type = link.type;
             var isIcon = /(?:^|\s)icon(?:\s|$)/i.test(rel) &&
                          this.mPrefs.getBoolPref("browser.chrome.site_icons");
+            if (isIcon) {
+             var iconUri = this.getLinkIconURI(link);
+             if (iconUri)
+               this.setIcon(this.tabs[index], iconUri);
+             return;
+            }
 
             var isFeed = /(?:^|\s)feed(?:\s|$)/i.test(rel) ||
                          (/(?:^|\s)alternate(?:\s|$)/i.test(rel) &&
                           !/(?:^|\s)stylesheet(?:\s|$)/i.test(rel) &&
                           /^\s*application\/(?:atom|rss)\+xml\s*$/i.test(type));
 
-            if (!isIcon && !isFeed)
+            if (!isFeed)
               return;
 
-            for (var i = 0; i < this.browsers.length; i++) {
-              if (this.browsers[i].contentDocument != event.originalTarget.ownerDocument)
-                continue;
+            try {
+              var feedUri = this.mIOService.newURI(href, targetDoc.characterSet, null);
+              this.mSecMan.checkLoadURIWithPrincipal(targetDoc.nodePrincipal, feedUri,
+                                                     this.mSecMan.DISALLOW_INHERIT_PRINCIPAL);
+            } catch(e) {
+              return;
+            }
 
-              // The following code is only executed once, see
-              // 'continue' above, and the following return(s)
-
-              // Verify that the load of this href is legal.
-              // We check first with the security manager
-              const nsIScriptSecurityManager =
-                Components.interfaces.nsIScriptSecurityManager;
-
-              const targetDoc = event.target.ownerDocument;
-              // Make a URI out of our href.
-              var uri = this.mIOService.newURI(href, targetDoc.characterSet, null);
-
-              // Verify that the load of this icon is legal.
-              // Some error or special pages can load their favicon.
-              // To be on the safe side, only allow chrome:// favicons.
-              const re = /^about:(neterror|certerror|blocked)\?/;
-              var isAllowedPage = re.test(targetDoc.documentURI);
-
-              if (!isAllowedPage || !uri.schemeIs("chrome")) {
-                const secMan =
-                  Components.classes["@mozilla.org/scriptsecuritymanager;1"]
-                            .getService(nsIScriptSecurityManager);
-
-                try {
-                  secMan.checkLoadURIWithPrincipal(event.target.nodePrincipal,
-                                 uri, nsIScriptSecurityManager.DISALLOW_SCRIPT);
-                } catch(e) {
-                  return;
-                }
-              }
-
-              if (isFeed) {
-                this.mTabListeners[i].addFeed(event.originalTarget);
-                if (this.browsers[i] == this.mCurrentBrowser) {
-                  this.mProgressListeners.forEach(
-                    function notifyFeedAvailable(element) {
-                      if ("onFeedAvailable" in element) {
-                        try {
-                          element.onFeedAvailable(event.originalTarget);
-                        } catch (e) {
-                          Components.utils.reportError(e);
-                        }
-                      }
+            this.mTabListeners[index].addFeed(link);
+            if (this.browsers[index] == this.mCurrentBrowser) {
+              this.mProgressListeners.forEach(
+                function notifyFeedAvailable(element) {
+                  if ("onFeedAvailable" in element) {
+                    try {
+                      element.onFeedAvailable(link);
+                    } catch (e) {
+                      Components.utils.reportError(e);
                     }
-                  );
+                  }
                 }
-              }
-
-              if (!isIcon)
-                return;
-
-              // Security says okay, now ask content policy
-              const nsIContentPolicy = Components.interfaces.nsIContentPolicy;
-              try {
-                var contentPolicy =
-                  Components.classes['@mozilla.org/layout/content-policy;1']
-                            .getService(nsIContentPolicy);
-              } catch (e) {
-                return; // Refuse to load if we can't do a security check.
-              }
-
-              var origURI = this.mIOService.newURI(targetDoc.documentURI,
-                                               targetDoc.characterSet, null);
-              if (contentPolicy.shouldLoad(nsIContentPolicy.TYPE_IMAGE,
-                                           uri, origURI, event.target,
-                                           event.target.type,
-                                           null) == nsIContentPolicy.ACCEPT) {
-                this.setIcon(this.tabs[i], uri);
-              }
-              return;
+              );
             }
           ]]>
         </body>
+      </method>
+
+      <method name="getLinkIconURI">
+        <parameter name="aLink"/>
+        <body><![CDATA[
+          var targetDoc = aLink.ownerDocument;
+          // Make a URI out of our href.
+          var uri = this.mIOService.newURI(aLink.href, targetDoc.characterSet, null);
+
+          // Verify that the load of this icon is legal.
+          // Some error or special pages can load their favicon.
+          // To be on the safe side, only allow chrome:// favicons.
+          const re = /^about:(neterror|certerror|blocked)\?/;
+          var isAllowedPage = re.test(targetDoc.documentURI);
+
+          if (!isAllowedPage || !uri.schemeIs("chrome")) {
+            try {
+              this.mSecMan.checkLoadURIWithPrincipal(targetDoc.nodePrincipal, uri,
+                                                     this.mSecMan.DISALLOW_SCRIPT);
+            } catch(e) {
+              return null;
+            }
+          }
+
+          // Security says okay, now ask content policy
+          const nsIContentPolicy = Components.interfaces.nsIContentPolicy;
+          try {
+            var contentPolicy =
+              Components.classes['@mozilla.org/layout/content-policy;1']
+                        .getService(nsIContentPolicy);
+          } catch (e) {
+            return null; // Refuse to load if we can't do a security check.
+          }
+
+          if (contentPolicy.shouldLoad(nsIContentPolicy.TYPE_IMAGE,
+                                       uri, targetDoc.documentURIObject,
+                                       aLink, aLink.type,
+                                       null) != nsIContentPolicy.ACCEPT) {
+            return null;
+          }
+          return uri;
+        ]]></body>
       </method>
 
       <method name="_tabAttrModified">
