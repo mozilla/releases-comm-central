@@ -171,7 +171,7 @@ FeedWriter.prototype = {
     this._contentSandbox.element = this._document.getElementById(id);
     this._contentSandbox.textNode = this._document.createTextNode(text);
     var codeStr = "while (element.hasChildNodes()) " +
-                  "  element.removeChild(element.firstChild);" +
+                  "  element.lastChild.remove();" +
                   "element.appendChild(textNode);";
     Components.utils.evalInSandbox(codeStr, this._contentSandbox);
     this._contentSandbox.element = null;
