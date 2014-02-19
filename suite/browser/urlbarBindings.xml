@@ -418,7 +418,7 @@
       <method name="clearEngines">
         <body><![CDATA[
           while (this.mSearchBox.hasChildNodes())
-            this.mSearchBox.removeChild(this.mSearchBox.lastChild);
+            this.mSearchBox.lastChild.remove();
         ]]></body>
       </method>
 

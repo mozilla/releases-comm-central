@@ -389,7 +389,7 @@ function resetPageInfo(args)
   /* Reset Feeds Tab */
   var feedListbox = document.getElementById("feedListbox");
   while (feedListbox.hasChildNodes())
-    feedListbox.removeChild(feedListbox.lastChild);
+    feedListbox.lastChild.remove();
 
   /* Call registered overlay reset functions */
   onResetRegistry.forEach(function(func) { func(); });
@@ -1181,7 +1181,7 @@ function makePreview(row)
 
   makeBlockImage(url);
 
-  imageContainer.removeChild(oldImage);
+  oldImage.remove();
   imageContainer.appendChild(newImage);
 }
 

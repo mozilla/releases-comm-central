@@ -275,8 +275,8 @@ function updateHomeButtonTooltip()
   var homePage = getHomePage();
   var tooltip = document.getElementById("home-button-tooltip-inner");
 
-  while (tooltip.firstChild)
-    tooltip.removeChild(tooltip.firstChild);
+  while (tooltip.hasChildNodes())
+    tooltip.lastChild.remove();
 
   for (var i in homePage) {
     var label = document.createElementNS(XUL_NS, "label");
@@ -978,8 +978,8 @@ function BrowserHandleShiftBackspace()
 
 function SetGroupHistory(popupMenu, direction)
 {
-  while (popupMenu.firstChild)
-    popupMenu.removeChild(popupMenu.firstChild);
+  while (popupMenu.hasChildNodes())
+    popupMenu.lastChild.remove();
 
   var menuItem = document.createElementNS(XUL_NS, "menuitem");
   var label = gNavigatorBundle.getString("tabs.historyItem");
@@ -1433,7 +1433,7 @@ function updateRecentTabs(menupopup)
   var browser = getBrowser();
 
   while (menupopup.hasChildNodes())
-    menupopup.removeChild(menupopup.lastChild);
+    menupopup.lastChild.remove();
 
   var list = browser.getUndoList();
   for (var i = 0; i < list.length; i++) {
@@ -1459,7 +1459,7 @@ function updateRecentWindows(menupopup)
                      .getService(Components.interfaces.nsISessionStore);
 
   while (menupopup.hasChildNodes())
-    menupopup.removeChild(menupopup.lastChild);
+    menupopup.lastChild.remove();
 
   var undoItems = JSON.parse(ss.getClosedWindowData());
   for (var i = 0; i < undoItems.length; i++) {
@@ -2059,7 +2059,7 @@ function stylesheetFillPopup(menuPopup)
   /* Clear menu */
   var itemPersistentOnly = menuPopup.firstChild.nextSibling;
   while (itemPersistentOnly.nextSibling)
-    menuPopup.removeChild(itemPersistentOnly.nextSibling);
+    itemPersistentOnly.nextSibling.remove();
 
   /* Reset permanent items */
   var styleDisabled = getMarkupDocumentViewer().authorStyleDisabled;

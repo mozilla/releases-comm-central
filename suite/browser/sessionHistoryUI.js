@@ -99,7 +99,7 @@ function executeUrlBarHistoryCommand( aTarget )
 function createUBHistoryMenu( aParent )
   {
     while (aParent.hasChildNodes())
-      aParent.removeChild(aParent.lastChild);
+      aParent.lastChild.remove();
 
     var file = GetUrlbarHistoryFile();
     if (file.exists()) {
@@ -158,7 +158,7 @@ function deleteHistoryItems(aParent)
   for (let i = children.length - 1; i >= 0; --i)
   {
     if (children[i].hasAttribute("index"))
-      aParent.removeChild(children[i]);
+      children[i].remove();
   }
 }
 

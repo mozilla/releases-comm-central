@@ -1708,7 +1708,7 @@
 
             // Clean up before/afterselected attributes before removing the tab
             aTab._selected = false;
-            this.tabContainer.removeChild(aTab);
+            aTab.remove();
 
             // When the current tab is removed select a new tab
             // and fire select events on tabpanels and tabs
@@ -1740,7 +1740,7 @@
               // cleanup ourselves.
               oldBrowser.parentNode.destroy();
               oldBrowser.destroy();
-              this.mPanelContainer.removeChild(oldBrowser.parentNode);
+              oldBrowser.parentNode.remove();
 
               // Fix up the selected panel in the case the removed
               // browser was to the left of the current browser
@@ -1788,7 +1788,7 @@
 
               // The pagehide event that this removal triggers is safe
               // because the browser is no longer current at this point
-              this.mPanelContainer.removeChild(deadBrowser.parentNode);
+              deadBrowser.parentNode.remove();
               this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
             }
           ]]>
@@ -1810,7 +1810,7 @@
 
             // The pagehide event that this removal triggers is safe
             // because the browser is no longer current at this point
-            this.mPanelContainer.removeChild(deadBrowser.parentNode);
+            deadBrowser.parentNode.remove();
             this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
             return true;
           ]]>
@@ -2665,7 +2665,7 @@
 
               // The pagehide event that this removal triggers is safe
               // because the browser is no longer current at this point
-              this.mPanelContainer.removeChild(deadBrowser.parentNode);
+              deadBrowser.parentNode.remove();
               this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
             }
           ]]>
@@ -3097,7 +3097,7 @@
           <![CDATA[
             let menuItem = aEvent.target.mCorrespondingMenuitem;
             if (menuItem)
-              this.removeChild(menuItem);
+              menuItem.remove();
           ]]>
         </body>
       </method>
@@ -3211,7 +3211,7 @@
             menuItem.tab.removeEventListener("TabClose", this, false);
             menuItem.tab.mCorrespondingMenuitem = null;
             menuItem.tab = null;
-            this.removeChild(menuItem);
+            menuItem.remove();
           }
           let tabcontainer = document.getBindingParent(this);
           tabcontainer.mTabstrip.removeEventListener("scroll", this, false);

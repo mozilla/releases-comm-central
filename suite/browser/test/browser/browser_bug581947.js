@@ -28,7 +28,7 @@ function check(aElementName, aBarred) {
       "No tooltip should be shown if the novalidate attribute is set on the form owner");
   content.removeAttribute('novalidate');
 
-  content.removeChild(e);
+  e.remove();
 }
 
 function todo_check(aElementName, aBarred) {
@@ -48,7 +48,7 @@ function todo_check(aElementName, aBarred) {
 
   todo(!caught, "setCustomValidity should exist for " + aElementName);
 
-  content.removeChild(e);
+  e.remove();
 }
 
 function test() {

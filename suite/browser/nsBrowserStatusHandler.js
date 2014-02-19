@@ -138,8 +138,8 @@ nsBrowserStatusHandler.prototype =
   populateFeeds : function(popup)
   {
     // First clear out any old items
-    while (popup.firstChild)
-      popup.removeChild(popup.lastChild);
+    while (popup.hasChildNodes())
+      popup.lastChild.remove();
 
     for (var i = 0; i < this.feeds.length; i++) {
       var link = this.feeds[i];

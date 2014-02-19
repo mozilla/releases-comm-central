@@ -98,7 +98,7 @@ function LinkToolbarMenu (linkType) {
 
   function clearPopup(popup) {
     while (popup.hasChildNodes())
-      popup.removeChild(popup.lastChild);
+      popup.lastChild.remove();
   }
 
   this.getPopup = function() {
@@ -200,8 +200,7 @@ function LinkToolbarTransientMenu (linkType) {
   this.removeXULElement = function() {
     // XXX: stop using this method once it's safe to use hideXULElement
     if (this.__proto__.getXULElement.apply(this))
-      this.__proto__.getXULElement.apply(this).parentNode.removeChild(
-          this.__proto__.getXULElement.apply(this));
+      this.__proto__.getXULElement.apply(this).remove();
   }
 
   this.displayLink = function(linkElement) {

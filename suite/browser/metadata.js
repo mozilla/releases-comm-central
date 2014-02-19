@@ -353,9 +353,7 @@ function setInfo(id, value)
         node.setAttribute("value",value);
 
     } else if (node.namespaceURI == XULNS && node.localName == "description") {
-        while (node.hasChildNodes())
-            node.removeChild(node.firstChild);
-        node.appendChild(node.ownerDocument.createTextNode(value));
+        node.textContent = value;
     }
 }
 

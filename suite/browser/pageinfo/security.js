@@ -226,12 +226,8 @@ function setText(id, value)
     return;
   if (element.localName == "textbox" || element.localName == "label")
     element.value = value;
-  else {
-    if (element.hasChildNodes())
-      element.removeChild(element.firstChild);
-    var textNode = document.createTextNode(value);
-    element.appendChild(textNode);
-  }
+  else
+    element.textContent = value;
 }
 
 function viewCertHelper(parent, cert)
