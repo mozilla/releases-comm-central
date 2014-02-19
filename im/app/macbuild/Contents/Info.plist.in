@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>instantbird-bin</string>
+	<string>instantbird</string>
 	<key>CFBundleGetInfoString</key>
 	<string>%MAC_APP_NAME% %APP_VERSION%, © 1998-2013 Contributors</string>
 	<key>CFBundleIconFile</key>

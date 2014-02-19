@@ -16,13 +16,6 @@ GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $
 
 LICENSE_TXT_FILE = $(topsrcdir)/im/LICENSE.txt
 
-DEFINES += \
-  -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\" \
-  -DAB_CD=$(AB_CD) \
-  -DGRE_MILESTONE=$(GRE_MILESTONE) \
-  -DGRE_BUILDID=$(GRE_BUILDID) \
-   $(NULL)
-
 MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(topsrcdir) parent --template="{node|short}\n" 2>/dev/null))
 ifdef MOZ_SOURCE_STAMP
 DEFINES += -DMOZ_SOURCE_STAMP="$(MOZ_SOURCE_STAMP)"
@@ -34,7 +27,7 @@ DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
 endif
 
 ifdef MOZILLA_OFFICIAL
-DEFINES += -DOFFICIAL_BUILD=1
+DEFINES += -DMOZILLA_OFFICIAL
 endif
 
 PREF_JS_EXPORTS = \
@@ -42,41 +35,36 @@ PREF_JS_EXPORTS = \
     $(srcdir)/profile/channel-prefs.js \
     $(NULL)
 
-ifneq (,$(filter OS2 WINNT,$(OS_ARCH)))
-STUBNAME = $(MOZ_APP_NAME)$(BIN_SUFFIX)
+DEFINES += \
+  -DAB_CD=$(AB_CD) \
+  -DAPP_VERSION="$(MOZ_APP_VERSION)" \
+  -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\" \
+  -DGRE_MILESTONE=$(GRE_MILESTONE) \
+  -DGRE_BUILDID=$(GRE_BUILDID) \
+   $(NULL)
+
+ifdef LIBXUL_SDK
+include $(topsrcdir)/config/rules.mk
 else
-STUBNAME = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
-endif
+# Build a binary bootstrapping with XRE_main
 
 DIST_FILES = application.ini
 
 LOCAL_INCLUDES += \
   -I$(MOZILLA_SRCDIR)/toolkit/xre \
   -I$(MOZILLA_SRCDIR)/xpcom/base \
+  -I$(MOZILLA_SRCDIR)/xpcom/build \
   $(NULL)
 
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-LIBS += $(DIST)/bin/XUL
-endif
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-TK_LIBS := -framework Cocoa $(TK_LIBS)
-endif
-
-APP_XPCOM_LIBS = $(XPCOM_GLUE_LDOPTS)
+DEFINES += -DXPCOM_GLUE
+STL_FLAGS=
 
 LIBS += \
-	$(STATIC_COMPONENTS_LINKER_PATH) \
-	$(APP_XPCOM_LIBS) \
-	$(NSPR_LIBS) \
+	$(XPCOM_STANDALONE_GLUE_LDOPTS) \
 	$(NULL)
 
-ifdef MOZ_JPROF
-LIBS += -ljprof
-endif
-
-ifdef MOZ_ENABLE_DBUS
-LIBS += $(MOZ_DBUS_GLIB_LIBS)
+ifdef MOZ_LINKER
+LIBS += $(MOZ_ZLIB_LIBS)
 endif
 
 ifndef MOZ_WINCONSOLE
@@ -99,10 +87,6 @@ ifdef _MSC_VER
 WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
 endif
 
-ifdef NS_TRACE_MALLOC
-EXTRA_DSO_LIBS += tracemalloc
-endif
-
 ifeq ($(OS_ARCH),WINNT)
 # png to ico converter. The function takes 5 arguments, in order: source png
 # file, left, top, size, output ico file.
@@ -121,12 +105,10 @@ offline-16.ico: $(topsrcdir)/chat/themes/offline-16.png $(srcdir)/png2ico.py
 embedded-icons:: available-16.ico away-16.ico offline-16.ico
 GARBAGE += available-16.ico away-16.ico offline-16.ico
 
-OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 version winspool)
-OS_LIBS += $(call EXPAND_LIBNAME,usp10 msimg32)
-endif
-
-ifeq ($(OS_ARCH),WINNT)
 RCINCLUDE = splash.rc
+# Rebuild instantbird.exe if the manifest changes - it's included by splash.rc.
+# (this dependency should really be just for instantbird.exe, not other targets)
+EXTRA_DEPS += $(PROGRAM).manifest
 ifndef GNU_CC
 RCFLAGS += -DMOZ_INSTANTBIRD -I$(srcdir)
 else
@@ -137,26 +119,10 @@ endif
 ifeq ($(OS_ARCH),OS2)
 RESFILE=splashos2.res
 RCFLAGS += -DMOZ_INSTANTBIRD
-ifdef DEBUG
-RCFLAGS += -DDEBUG
-endif
 RCFLAGS += -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\"
 endif
 
-LIBS += $(JEMALLOC_LIBS)
-
 include $(topsrcdir)/config/rules.mk
-
-ifdef MOZILLA_OFFICIAL
-DEFINES += -DMOZILLA_OFFICIAL
-endif
-
-APP_UA_NAME = $(shell echo $(MOZ_APP_DISPLAYNAME) | sed -e's/[^A-Za-z]//g')
-DEFINES += -DAPP_VERSION="$(MOZ_APP_VERSION)" -DAPP_UA_NAME="$(APP_UA_NAME)"
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-LIBS	+= -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework Carbon
-endif
 
 ifeq ($(OS_ARCH),WINNT)
 
@@ -174,6 +140,10 @@ $(RESFILE): embedded-icons
 #
 ifndef GNU_CC
 LDFLAGS += /HEAP:0x40000
+ifeq ($(OS_TEST),x86_64)
+# set stack to 2MB on x64 build.  See bug 582910
+LDFLAGS += -STACK:2097152
+endif
 endif
 endif
 
@@ -183,6 +153,8 @@ libs::
 
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-instantbird.js channel-prefs.js chat-prefs.js)
 endif # ! OS 2 or WinNT
+
+endif # LIBXUL_SDK
 
 ifneq (,$(filter windows gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
 ifneq (,$(filter windows,$(MOZ_WIDGET_TOOLKIT)))
@@ -229,17 +201,6 @@ libs::
 endif
 
 ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
-$(MOZ_APP_NAME):: $(MOZILLA_DIR)/build/unix/mozilla.in $(GLOBAL_DEPS) $(DEPTH)/config/autoconf.mk
-	cat $< | sed -e "s|%MOZAPPDIR%|$(installdir)|" \
-		-e "s|%MOZ_APP_DISPLAYNAME%|$(MOZ_APP_DISPLAYNAME)|" > $@
-	chmod +x $@
-
-libs:: $(MOZ_APP_NAME)
-	$(INSTALL) $< $(DIST)/bin
-
-install:: $(MOZ_APP_NAME)
-	$(SYSINSTALL) $< $(DESTDIR)$(bindir)
-
 ifdef LIBXUL_SDK
 libs::
 	cp $(LIBXUL_DIST)/bin/xulrunner-stub$(BIN_SUFFIX) $(DIST)/bin/$(STUBNAME)
@@ -270,10 +231,6 @@ libs::
 endif
 endif
 
-ifeq ($(MOZ_WIDGET_TOOLKIT),photon)
-LIBS += -lphexlib
-endif
-
 libs:: $(LICENSE_TXT_FILE)
 ifeq ($(OS_ARCH),WINNT)
 	$(EXIT_ON_ERROR) \
@@ -295,16 +252,16 @@ GARBAGE += module.ver
 libs:: $(srcdir)/profile/prefs.js
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/defaults/profile
 
+ifdef ENABLE_TESTS
 # XXX This is a hack to ensure that we get the right xpcshell.ini for our tests.
 # mozilla-central does this in testing/xpcshell-tests which means that it is very
 # hard for anyone to specify anything else.
 libs::
 	$(INSTALL) $(topsrcdir)/im/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell
 	cp $(topsrcdir)/im/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell/all-test-dirs.list
+endif
 
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-
-AB := $(firstword $(subst -, ,$(AB_CD)))
 
 MAC_APP_NAME = $(MOZ_APP_DISPLAYNAME)
 
@@ -312,22 +269,53 @@ ifdef MOZ_DEBUG
 MAC_APP_NAME := $(MAC_APP_NAME)Debug
 endif
 
-tools:: $(PROGRAM)
-	mkdir -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
-	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(MOZ_MACBUNDLE_NAME) --exclude English.lproj
-	mkdir -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj
-	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj
+AB_CD = $(MOZ_UI_LOCALE)
+
+AB := $(firstword $(subst -, ,$(AB_CD)))
+
+clean clobber repackage::
+	$(RM) -r $(DIST)/$(MOZ_MACBUNDLE_NAME)
+
+ifdef LIBXUL_SDK
+APPFILES = Resources
+else
+APPFILES = MacOS
+endif
+
+tools repackage:: $(PROGRAM)
+	$(MKDIR) -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
+	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(MOZ_MACBUNDLE_NAME) --exclude English.lproj
+	$(MKDIR) -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj
+	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj
 	sed -e "s/%APP_VERSION%/$(MOZ_APP_VERSION)/" -e "s/%MAC_APP_NAME%/$(MAC_APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Info.plist
 	sed -e "s/%MAC_APP_NAME%/$(MAC_APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/$(AB).lproj/InfoPlist.strings
-	rsync -a $(DIST)/bin/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
-	rm -f $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(PROGRAM)
+	rsync -a $(DIST)/bin/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/$(APPFILES)
+ifdef LIBXUL_SDK
+	cp $(LIBXUL_DIST)/bin/$(XR_STUB_NAME) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/instantbird
+else
+	$(RM) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(PROGRAM)
 	rsync -aL $(PROGRAM) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
+endif
 	cp -RL $(DIST)/branding/instantbird.icns $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/instantbird.icns
 	printf APPLMOZM > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/PkgInfo
-
-clean clobber::
-	rm -rf $(DIST)/$(MOZ_MACBUNDLE_NAME)
+else
+ifdef LIBXUL_SDK
+libs::
+	cp $(LIBXUL_DIST)/bin/$(XULRUNNER_STUB_NAME)$(BIN_SUFFIX) $(DIST)/bin/instantbird$(BIN_SUFFIX)
 endif
+endif
+
+ifdef LIBXUL_SDK
+ifndef SKIP_COPY_XULRUNNER
+libs::
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+	rsync -a --copy-unsafe-links $(LIBXUL_DIST)/XUL.framework $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Frameworks
+else
+	$(NSINSTALL) -D $(DIST)/bin/xulrunner
+	(cd $(LIBXUL_SDK)/bin && tar $(TAR_CREATE_FLAGS) - .) | (cd $(DIST)/bin/xulrunner && tar -xf -)
+endif # cocoa
+endif # SKIP_COPY_XULRUNNER
+endif # LIBXUL_SDK
 
 # Note that anything you do to dist/ down here isn't going to make it into the
 # Mac build, since it's already been copied over to the .app, above.

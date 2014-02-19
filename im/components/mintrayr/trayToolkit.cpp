@@ -424,7 +424,7 @@ void TrayServiceImpl::CloseIcon(trayITrayIcon *aIcon)
   mIcons.RemoveObject(aIcon);
 }
 
-NS_IMETHODIMP TrayServiceImpl::Observe(nsISupports *, const char *aTopic, const PRUnichar *)
+NS_IMETHODIMP TrayServiceImpl::Observe(nsISupports *, const char *aTopic, const char16_t *)
 {
   if (strcasecmp(aTopic, "xpcom-shutdown") == 0) {
     Destroy();
