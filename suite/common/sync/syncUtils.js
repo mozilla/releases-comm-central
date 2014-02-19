@@ -97,7 +97,7 @@ let gSyncUtils = {
       // Remove the license block.
       let node = iframe.contentDocument.firstChild;
       if (node && node.nodeType == Node.COMMENT_NODE)
-        iframe.contentDocument.removeChild(node);
+        node.remove();
 
       // Insert the Sync Key into the page.
       let el = iframe.contentDocument.getElementById("synckey");

@@ -55,7 +55,7 @@ function getPersonas()
 function checkTheme(popup)
 {
   while (popup.lastChild.localName != 'menuseparator')
-    popup.removeChild(popup.lastChild);
+    popup.lastChild.remove();
   gThemes.forEach(function(theme) {
     var menuitem = document.createElement('menuitem');
     menuitem.setAttribute("label", theme.name);

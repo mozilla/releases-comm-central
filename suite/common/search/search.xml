@@ -313,7 +313,7 @@
           for (var i = items.length - 1; i >= 0; i--) {
             if (items[i].classList.contains("addengine-item") ||
                 items[i].classList.contains("addengine-separator"))
-              popup.removeChild(items[i]);
+              items[i].remove();
           }
 
           var addengines = getBrowser().mCurrentBrowser.engines;
@@ -367,7 +367,7 @@
 
           // Clear the popup, down to the first separator
           while (popup.firstChild && popup.firstChild.localName != "menuseparator")
-            popup.removeChild(popup.firstChild);
+            popup.firstChild.remove();
 
           const kXULNS =
                "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";

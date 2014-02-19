@@ -180,7 +180,7 @@ function HomePagePrefCleanup()
     // clear <preference>
     var pref = GetHomePagePref(j);
     pref.valueFromPreferences = undefined;
-    pref.parentNode.removeChild(pref);
+    pref.remove();
   }
   gHomePagePrefPeak = 0; // cleanup done
 }

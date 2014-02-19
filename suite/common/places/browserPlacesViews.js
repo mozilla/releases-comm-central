@@ -220,7 +220,7 @@ PlacesViewBase.prototype = {
     }
 
     for (let i = 0; i < items.length; ++i) {
-      aPopup.removeChild(items[i]);
+      items[i].remove();
       if (aPopup._endMarker != -1)
         aPopup._endMarker--;
     }
@@ -270,7 +270,7 @@ PlacesViewBase.prototype = {
     if (document.popupNode == aChild)
       document.popupNode = null;
 
-    aChild.parentNode.removeChild(aChild);
+    aChild.remove();
   },
 
   _showEmptyMenuItem: function PVB__showEmptyMenuItem(aPopup) {
@@ -390,10 +390,10 @@ PlacesViewBase.prototype = {
     let livemarkInfo = this.controller.getCachedLivemarkInfo(aPopup._placesNode);
     let siteUrl = livemarkInfo && livemarkInfo.siteURI && livemarkInfo.siteURI.spec;
     if (!siteUrl && aPopup._siteURIMenuitem) {
-      aPopup.removeChild(aPopup._siteURIMenuitem);
+      aPopup._siteURIMenuitem.remove();
       aPopup._siteURIMenuitem = null;
       aPopup._startMarker--;
-      aPopup.removeChild(aPopup._siteURIMenuseparator);
+      aPopup._siteURIMenuseparator.remove();
       aPopup._siteURIMenuseparator = null;
       aPopup._startMarker--;
     }
@@ -460,7 +460,7 @@ PlacesViewBase.prototype = {
     }
     else if (!lmStatus && lmStatusElt) {
       // The livemark has finished loading.
-      aPopup.removeChild(aPopup._lmStatusMenuItem);
+      aPopup._lmStatusMenuItem.remove();
       aPopup._lmStatusMenuItem = null;
       aPopup._startMarker--;
     }
@@ -549,7 +549,7 @@ PlacesViewBase.prototype = {
       elt = elt.parentNode;
 
     if (parentElt._built) {
-      parentElt.removeChild(elt);
+      elt.remove();
 
       // Figure out if we need to show the "<Empty>" menu-item.
       // TODO Bug 517701: This doesn't seem to handle the case of an empty
@@ -574,7 +574,7 @@ PlacesViewBase.prototype = {
       if (elt.localName == "menupopup")
         elt = elt.parentNode;
 
-      parentElt.removeChild(elt);
+      elt.remove();
 
       // No worries: If elt is the last item (i.e. no nextSibling),
       // _insertNewItem/_insertNewItemToPopup will insert the new element as
@@ -645,7 +645,7 @@ PlacesViewBase.prototype = {
     let parentElt = this._getDOMNodeForPlacesNode(aNewParentPlacesNode);
     if (parentElt._built) {
       // Move the node.
-      parentElt.removeChild(elt);
+      elt.remove();
       let index = parentElt._startMarker + 1 + aNewIndex;
       parentElt.insertBefore(elt, parentElt.childNodes[index]);
     }
@@ -767,11 +767,11 @@ PlacesViewBase.prototype = {
     if (!hasMultipleURIs) {
       // We don't have to show any option.
       if (aPopup._endOptOpenAllInTabs) {
-        aPopup.removeChild(aPopup._endOptOpenAllInTabs);
+        aPopup._endOptOpenAllInTabs.remove();
         aPopup._endOptOpenAllInTabs = null;
         aPopup._endMarker--;
 
-        aPopup.removeChild(aPopup._endOptSeparator);
+        aPopup._endOptSeparator.remove();
         aPopup._endOptSeparator = null;
         aPopup._endMarker--;
         aPopup._endMarker -= aPopup._placesNode.childCount;
@@ -900,7 +900,7 @@ PlacesToolbar.prototype = {
 
     this._openedMenuButton = null;
     while (this._rootElt.hasChildNodes()) {
-      this._rootElt.removeChild(this._rootElt.firstChild);
+      this._rootElt.lastChild.remove();
     }
 
     let cc = this._resultNode.childCount;
@@ -1170,7 +1170,7 @@ PlacesToolbar.prototype = {
       if (this._chevron.open) {
         let chevronPopup = this._chevronPopup;
         let menuitem = chevronPopup.childNodes[aOldIndex];
-        chevronPopup.removeChild(menuitem);
+        menuitem.remove();
         chevronPopup.insertBefore(menuitem,
                                   chevronPopup.childNodes[aNewIndex]);
       }

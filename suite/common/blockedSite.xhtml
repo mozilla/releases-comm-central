@@ -89,14 +89,9 @@
       function initPage_malware()
       {
         // Remove phishing strings
-        var el = document.getElementById("errorTitleText_phishing");
-        el.parentNode.removeChild(el);
-
-        el = document.getElementById("errorShortDescText_phishing");
-        el.parentNode.removeChild(el);
-
-        el = document.getElementById("errorLongDescText_phishing");
-        el.parentNode.removeChild(el);
+        document.getElementById("errorTitleText_phishing").remove();
+        document.getElementById("errorShortDescText_phishing").remove();
+        document.getElementById("errorLongDescText_phishing").remove();
 
         // Set sitename
         document.getElementById("malware_sitename").textContent = getHostString();
@@ -110,14 +105,9 @@
       function initPage_phishing()
       {
         // Remove malware strings
-        var el = document.getElementById("errorTitleText_malware");
-        el.parentNode.removeChild(el);
-
-        el = document.getElementById("errorShortDescText_malware");
-        el.parentNode.removeChild(el);
-
-        el = document.getElementById("errorLongDescText_malware");
-        el.parentNode.removeChild(el);
+        document.getElementById("errorTitleText_malware").remove();
+        document.getElementById("errorShortDescText_malware").remove();
+        document.getElementById("errorLongDescText_malware").remove();
 
         // Set sitename
         document.getElementById("phishing_sitename").textContent = getHostString();

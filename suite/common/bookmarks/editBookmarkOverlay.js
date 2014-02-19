@@ -268,7 +268,7 @@ var gEditItemOverlay = {
     // clean up first
     var menupopup = this._folderMenuList.menupopup;
     while (menupopup.childNodes.length > 6)
-      menupopup.removeChild(menupopup.lastChild);
+      menupopup.lastChild.remove();
 
     const bms = PlacesUtils.bookmarks;
     const annos = PlacesUtils.annotations;
@@ -650,7 +650,7 @@ var gEditItemOverlay = {
 
     // 3 special folders + separator + folder-items-count limit
     if (menupopup.childNodes.length == 4 + MAX_FOLDER_ITEM_IN_MENU_LIST)
-      menupopup.removeChild(menupopup.lastChild);
+      menupopup.lastChild.remove();
 
     return this._appendFolderItemToMenupopup(menupopup, aFolderId);
   },
@@ -765,7 +765,7 @@ var gEditItemOverlay = {
       return;
 
     while (tagsSelector.hasChildNodes())
-      tagsSelector.removeChild(tagsSelector.lastChild);
+      tagsSelector.lastChild.remove();
 
     var tagsInField = this._getTagsArrayFromTagField();
     var allTags = PlacesUtils.tagging.allTags;

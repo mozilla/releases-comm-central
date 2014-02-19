@@ -84,7 +84,7 @@
           toolbar.setAttribute("collapsed", "false");
           var collapsedTray = document.getAnonymousElementByAttribute(this, "tbattr", "collapsed-tray");
           var collapsedToolbar = document.getElementById("moz_tb_collapsed_" + toolbar.id);
-          collapsedTray.removeChild(collapsedToolbar);
+          collapsedToolbar.remove();
           if (!collapsedTray.hasChildNodes())
             document.getAnonymousElementByAttribute(this, "tbattr", "collapsed-tray-holder").setAttribute("moz-collapsed", "true");
           document.persist(toolbar.id, "collapsed");

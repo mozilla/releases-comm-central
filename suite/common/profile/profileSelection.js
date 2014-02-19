@@ -252,7 +252,7 @@ function DeleteProfile(aDeleteFiles)
   try {
     selected.profile.remove(aDeleteFiles);
     gProfileService.flush();
-    profileTree.lastChild.removeChild(selected);
+    selected.remove();
 
     if (profileTree.view.rowCount != 0) {
       profileTree.view.selection.select(previous);

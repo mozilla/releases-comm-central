@@ -44,7 +44,7 @@ function checkState(tab) {
       let doc = contentWindow.document;
       let newElem = doc.getElementById("new-elem");
       ok(newElem, "doc should contain new-elem.");
-      newElem.parentNode.removeChild(newElem);
+      newElem.remove();
       ok(!doc.getElementById("new-elem"), "new-elem should be removed.");
 
       // Clean up after ourselves and finish the test.

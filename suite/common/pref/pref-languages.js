@@ -104,7 +104,7 @@ function ReadActiveLanguages()
    return;
 
   while (gActiveLanguages.hasChildNodes())
-    gActiveLanguages.removeChild(gActiveLanguages.lastChild);
+    gActiveLanguages.lastChild.remove();
 
   arrayOfPrefs.forEach(
     function(aKey)
@@ -185,7 +185,7 @@ function RemoveActiveLanguage(aEvent)
   {
     var selectedNode = gActiveLanguages.selectedItem;
     nextNode = selectedNode.nextSibling || selectedNode.previousSibling;
-    gActiveLanguages.removeChild(selectedNode);
+    selectedNode.remove();
   }
 
   if (nextNode)

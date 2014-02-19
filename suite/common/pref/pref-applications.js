@@ -1097,7 +1097,7 @@ var gApplicationsPane = {
     // Clear the list of entries (the first 2 elements are <listcols> and
     // <listhead>, they should never get removed).
     while (this._list.childNodes.length > 2)
-      this._list.removeChild(this._list.lastChild);
+      this._list.lastChild.remove();
 
     var visibleTypes = this._visibleTypes;
 
@@ -1269,7 +1269,7 @@ var gApplicationsPane = {
 
     // Clear out existing items.
     while (menuPopup.hasChildNodes())
-      menuPopup.removeChild(menuPopup.lastChild);
+      menuPopup.lastChild.remove();
 
     {
       let askMenuItem = document.createElement("menuitem");

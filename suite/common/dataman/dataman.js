@@ -1268,7 +1268,7 @@ var gPerms = {
     // XXX: Here we could detect if we still hold any non-default settings and
     //      trigger the removeDomainOrFlag if not.
     while (this.list.hasChildNodes())
-      this.list.removeChild(this.list.lastChild);
+      this.list.lastChild.remove();
 
     this.addSelBox.hidden = true;
   },

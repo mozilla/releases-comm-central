@@ -101,8 +101,8 @@ function _getOfflineAppUsage(aHost)
 function UpdateOfflineApps()
 {
   var list = document.getElementById("offlineAppsList");
-  while (list.lastChild)
-    list.removeChild(list.lastChild);
+  while (list.hasChildNodes())
+    list.lastChild.remove();
 
   var bundle = document.getElementById("bundle_prefutilities");
   var pm = Services.perms;

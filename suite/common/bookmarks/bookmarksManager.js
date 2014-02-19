@@ -355,9 +355,9 @@ var PlacesOrganizer = {
     let dateSvc = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                             .getService(Components.interfaces.nsIScriptableDateFormat);
 
-    // Remove existing menu items.  Last item is the restoreFromFile item.
+    // Remove existing menu items. Last item is the restoreFromFile item.
     while (restorePopup.childNodes.length > 1)
-      restorePopup.removeChild(restorePopup.firstChild);
+      restorePopup.firstChild.remove();
 
     let backupFiles = PlacesBackups.entries;
     if (backupFiles.length == 0)
@@ -1023,12 +1023,12 @@ var ViewMenu = {
                   "endID does not correspond to an existing element");
       }
       while (startElement.nextSibling != endElement)
-        popup.removeChild(startElement.nextSibling);
+        startElement.nextSibling.remove();
       return endElement;
     }
     else {
-      while(popup.hasChildNodes())
-        popup.removeChild(popup.firstChild);
+      while (popup.hasChildNodes())
+        popup.lastChild.remove();
     }
     return null;
   },

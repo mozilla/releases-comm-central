@@ -999,7 +999,7 @@
                 // cleaning up: removes overlay iframe from the DOM
                 var iframe = previewContent.getElementsByClassName("previewPluginContentFrame")[0];
                 if (iframe)
-                  previewContent.removeChild(iframe);
+                  iframe.remove();
                 break;
             }
           ]]>

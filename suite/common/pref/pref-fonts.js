@@ -38,7 +38,7 @@ function BuildFontList(aLanguage, aFontType, aMenuList, aPreference)
 
   // Reset the list
   while (aMenuList.hasChildNodes())
-    aMenuList.removeChild(aMenuList.firstChild);
+    aMenuList.lastChild.remove();
 
   // Build the UI for the Default Font and Fonts for this CSS type.
   var popup = document.createElement("menupopup");

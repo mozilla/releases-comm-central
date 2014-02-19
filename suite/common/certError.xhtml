@@ -80,8 +80,7 @@
         // host and the cert is bad (STS Spec section 7.3);
         // or if the cert error is in a frame (bug 633691).
         if (getCSSClass() == "badStsCert" || window != window.top) {
-          var ec = document.getElementById('expertContent');
-          ec.parentNode.removeChild(ec);
+          document.getElementById('expertContent').remove();
         }
 
         // Rather than textContent, we need to treat description as HTML

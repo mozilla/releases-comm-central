@@ -90,7 +90,7 @@ function InitLanguageMenu() {
   // Remove any languages from the list.
   var languageMenuPopup = languageMenuList.firstChild;
   while (languageMenuPopup.firstChild.localName != "menuseparator")
-    languageMenuPopup.removeChild(languageMenuPopup.firstChild);
+    languageMenuPopup.firstChild.remove();
 
   var curLang  = languageMenuList.value;
   var defaultItem = null;
