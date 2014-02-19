@@ -377,8 +377,6 @@
 @BINPATH@/components/PeerConnection.js
 @BINPATH@/components/PeerConnection.manifest
 #endif
-@BINPATH@/components/TelemetryPing.js
-@BINPATH@/components/TelemetryPing.manifest
 @BINPATH@/components/toolkitplaces.manifest
 @BINPATH@/components/toolkitsearch.manifest
 #ifdef UNIX_BUT_NOT_MAC
@@ -411,7 +409,6 @@
 @BINPATH@/components/dom_alarm.xpt
 @BINPATH@/components/dom_apps.xpt
 @BINPATH@/components/dom_base.xpt
-@BINPATH@/components/dom_camera.xpt
 @BINPATH@/components/dom_canvas.xpt
 @BINPATH@/components/dom_core.xpt
 @BINPATH@/components/dom_css.xpt
