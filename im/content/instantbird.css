@@ -14,6 +14,10 @@ newtab {
   -moz-binding: url("chrome://instantbird/content/newtab.xml#newtab-item");
 }
 
+debugLogPanel {
+  -moz-binding: url("chrome://instantbird/content/debugLogPanel.xml#debugLogPanel")
+}
+
 aboutPanel {
   -moz-binding: url("chrome://instantbird/content/aboutPanel.xml#aboutPanel");
 }

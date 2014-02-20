@@ -16,6 +16,8 @@ instantbird.jar:
 *	skin/classic/instantbird/richlistbox.css
 *	skin/classic/instantbird/accountWizard.css
 *	skin/classic/instantbird/newtab.css
+	skin/classic/instantbird/debugLog.css
+*	skin/classic/instantbird/debugLogPanel.css
 	skin/classic/instantbird/newConversation.png
 	skin/classic/instantbird/founder.png
 	skin/classic/instantbird/operator.png

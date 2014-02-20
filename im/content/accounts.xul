@@ -52,6 +52,10 @@
              label="&account.copyDebugLog.label;"
              accesskey="&account.copyDebugLog.accesskey;"
              oncommand="gAccountManager.copyDebugLog();"/>
+    <command id="cmd_showDebugLog"
+             label="&account.showDebugLog.label;"
+             accesskey="&account.showDebugLog.accesskey;"
+             oncommand="gAccountManager.showDebugLog();"/>
     <command id="cmd_moveup"
              label="&account.moveup.label;"
              oncommand="gAccountManager.moveCurrentItem(-1)"/>
@@ -104,6 +108,8 @@
               observes="contextAccountsItems"/>
     <menuitem id="context_copyDebugLog"
               command="cmd_copyDebugLog"/>
+    <menuitem id="context_showDebugLog"
+              command="cmd_showDebugLog"/>
     <menuseparator id="context_accountsItemsSeparator"
                    observes="contextAccountsItems"/>
     <menuitem command="cmd_new"/>

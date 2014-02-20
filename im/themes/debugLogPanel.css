@@ -1,0 +1,32 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.debugLogTab-button {
+  -moz-appearance: toolbarbutton;
+}
+
+.debugLogTab-toolbar {
+  margin: 0;
+  padding: 2px;
+  border-style: none;
+  -moz-appearance: none;
+%ifdef XP_MACOSX
+  background-color: -moz-mac-chrome-active;
+  background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+}
+
+.debugLogTab-toolbar:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: rgba(0, 0, 0, 0.32);
+%else
+  background-color: -moz-Dialog;
+%ifdef XP_WIN
+  background-image: -moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+%else
+  background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
+%endif
+  border-bottom: 1px solid ThreeDShadow;
+%endif
+}

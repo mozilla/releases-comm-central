@@ -32,6 +32,8 @@ instantbird.jar:
 	content/instantbird/conversation.xml
 	content/instantbird/conv.xml
 	content/instantbird/credits.xhtml
+	content/instantbird/debugLogPanel.xml
+	content/instantbird/debugLog.html
 	content/instantbird/engineManager.js
 	content/instantbird/engineManager.xul
 	content/instantbird/extensions.js

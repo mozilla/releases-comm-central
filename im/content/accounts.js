@@ -256,6 +256,11 @@ var gAccountManager = {
     Cc["@mozilla.org/widget/clipboardhelper;1"]
       .getService(Ci.nsIClipboardHelper).copyString(text);
   },
+  showDebugLog: function am_showDebugLog() {
+    if (!"Core" in window)
+      Cu.import("resource:///modules/ibCore.jsm");
+    Core.showDebugLog(this.accountList.selectedItem.account.id);
+  },
   updateConnectedLabels: function am_updateConnectedLabels() {
     for (let i = 0; i < gAccountManager.accountList.itemCount; ++i) {
       let item = gAccountManager.accountList.getItemAtIndex(i);

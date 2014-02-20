@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<bindings id="debugLogPanelBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="debugLogPanel">
+    <resources>
+      <stylesheet src="chrome://instantbird/skin/debugLogPanel.css"/>
+    </resources>
+
+    <content flex="1">
+      <xul:vbox flex="1">
+        <xul:toolbar class="debugLogTab-toolbar">
+          <xul:menulist class="accountList" anonid="accountList" flex="1"
+                        onselect="document.getBindingParent(this).onAccountSelect()"/>
+          <xul:toolbarbutton class="debugLogTab-button" anonid="refreshButton"
+                             label="Refresh"
+                             oncommand="document.getBindingParent(this).showDebugLog();"/>
+          <xul:toolbarbutton class="debugLogTab-button" anonid="copyButton"
+                             label="Copy"
+                             oncommand="document.getBindingParent(this).copyDebugLog()"/>
+        </xul:toolbar>
+        <xul:browser anonid="debugLogBrowser" disablehistory="true" type="content"
+                     flex="1" src="chrome://instantbird/content/debugLog.html"/>
+      </xul:vbox>
+    </content>
+
+    <implementation>
+      <property name="browser" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "debugLogBrowser");
+        </getter>
+      </property>
+
+      <property name="accountList" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "accountList");
+        </getter>
+      </property>
+
+      <!-- Only show the debug log if the account list is already populated. This
+           is useful, for example, if we are importing into a new window and only
+           need to repopulate the account list without re-displaying the log. -->
+      <method name="onAccountSelect">
+        <body>
+        <![CDATA[
+          if (this._accountListInited)
+            this.showDebugLog();
+        ]]>
+        </body>
+      </method>
+
+      <!-- This method populates the list of accounts and ensures the specified
+           account is selected. Since the _inited flag is set here before returning,
+           no debug log will be shown. -->
+      <method name="initAccountList">
+        <parameter name="aAccountId"/>
+        <body>
+        <![CDATA[
+          if (!("Services" in window))
+            Components.utils.import("resource:///modules/imServices.jsm");
+          let accounts = Services.accounts.getAccounts();
+          while (accounts.hasMoreElements()) {
+            let acc = accounts.getNext();
+            var proto = acc.protocol;
+            var item = this.accountList.appendItem(acc.name, acc.id, proto.name);
+            item.setAttribute("image", proto.iconBaseURI + "icon.png");
+            item.setAttribute("class", "menuitem-iconic");
+            let accId = acc.id;
+            item.accountId = accId;
+            if (accId == aAccountId)
+              this.accountList.selectedItem = item;
+          }
+          this._accountListInited = true;
+        ]]>
+        </body>
+      </method>
+
+      <method name="copyDebugLog">
+        <body>
+        <![CDATA[
+          Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                    .getService(Components.interfaces.nsIClipboardHelper)
+                    .copyString(this.browser.contentDocument.body.textContent);
+        ]]>
+        </body>
+      </method>
+
+      <method name="showDebugLog">
+        <body>
+        <![CDATA[
+          let accId = this.accountList.selectedItem.accountId;
+          let account = Services.accounts.getAccountById(accId);
+          this.tab.setAttribute("label", "Debug log for " + account.name);
+          let doc = this.browser.contentDocument;
+          let table = doc.createElement("table");
+          table.style = "width: 100%";
+          // Clear out any existing content before appending the table.
+          doc.body.innerHTML = "";
+          doc.body.appendChild(table);
+          for (let dbgMsg of account.getDebugMessages()) {
+            let m = dbgMsg.message;
+            const dateServ = Cc["@mozilla.org/intl/scriptabledateformat;1"]
+                               .getService(Ci.nsIScriptableDateFormat);
+            let time = new Date(m.timeStamp);
+            time = dateServ.FormatDateTime("", dateServ.dateFormatShort,
+                                           dateServ.timeFormatSeconds,
+                                           time.getFullYear(), time.getMonth() + 1,
+                                           time.getDate(), time.getHours(),
+                                           time.getMinutes(), time.getSeconds());
+            let level = dbgMsg.logLevel;
+            let rowClass = "default";
+            let formattedMsg;
+            if (!level)
+              formattedMsg = "(" + m.errorMessage + ")";
+            else {
+              if (level == dbgMsg.LEVEL_ERROR) {
+                level = "ERROR";
+                rowClass = "error";
+              }
+              else if (level == dbgMsg.LEVEL_WARNING) {
+                level = "WARN.";
+                rowClass = "warn";
+              }
+              else if (level == dbgMsg.LEVEL_LOG) {
+                level = "LOG  ";
+                rowClass = "log";
+              }
+              else {
+                level = "DEBUG";
+                rowClass = "debug";
+              }
+              formattedMsg = level + " (@ " + m.sourceLine +
+                " " + m.sourceName + ":" + m.lineNumber + ")\n" +
+                m.errorMessage;
+            }
+            let tr = doc.createElement("tr");
+            tr.className = rowClass;
+            let timeCell = doc.createElement("td");
+            timeCell.className = "time";
+            let msgCell = doc.createElement("td");
+            msgCell.className = "msg";
+            // The trailing space and newline are necessary to ensure correct
+            // formatting when text is selected/copied.
+            timeCell.textContent = "[" + time + "] ";
+            msgCell.textContent = formattedMsg + "\n";
+            tr.appendChild(timeCell);
+            tr.appendChild(msgCell);
+            table.appendChild(tr);
+          }
+          // Ensure the scroll position is reset.
+          doc.body.scrollTop = 0;
+          doc.body.scrollLeft = 0;
+        ]]>
+        </body>
+      </method>
+
+      <method name="finishImport">
+        <parameter name="aDebugLogPanel"/>
+        <body>
+        <![CDATA[
+          this.browser.swapDocShells(aDebugLogPanel.browser);
+          this.initAccountList(aDebugLogPanel.accountList.selectedItem.accountId);
+          this.tab.setAttribute("label", aDebugLogPanel.tab.getAttribute("label"));
+        ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+</bindings>

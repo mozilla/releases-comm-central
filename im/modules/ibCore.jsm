@@ -95,7 +95,7 @@ var Core = {
       get helpString() self.bundle("aboutCommand.help"),
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
-      run: function(aMsg, aConv) {
+      run: function (aMsg, aConv) {
         let page = aMsg.replace(/^about:/, "");
         let url = "about:" + page;
         // If the page doesn't exist, we avoid opening a tab.
@@ -110,38 +110,33 @@ var Core = {
           Components.utils.reportError(e); // Log unexpected errors.
           return false;
         }
-        // Try to get the most recent conversation window. If no such window exists,
-        // win will be null.
-        let win = Services.wm.getMostRecentWindow("Messenger:convs");
-        // Tries to open an aboutPanel in the specified window.
-        let showPage = function(aWindow, aPage) {
-          // Return false if the window doesn't exist.
-          if (!aWindow)
-            return false;
-          let panel = aWindow.document.createElementNS(
-            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-            "aboutPanel");
-          // Try to add the panel, and return false if the window couldn't accept
-          // it (e.g. tabbed conversations are disabled).
-          if (!aWindow.getTabBrowser().addPanel(panel))
-            return false;
-          panel.showAboutPage(aPage);
-          aWindow.getTabBrowser().selectPanel(panel);
-          return true;
-        }
-        // Try to show the page in win, and open a new window if it didn't work.
-        if (!showPage(win, page)) {
-          win = Services.ww.openWindow(null, "chrome://instantbird/content/instantbird.xul",
-                                       "_blank", "chrome,toolbar,resizable", null);
-          win.addEventListener("load", showPage.bind(null, win, page));
-          return true;
-        }
+        self.showTab("aboutPanel", aPanel => aPanel.showAboutPage(page));
+        return true;
+      }
+    });
+
+    Services.cmd.registerCommand({
+      name: "debug",
+      get helpString() self.bundle("debugCommnad.help"),
+      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
+      priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
+      run: (aMsg, aConv) => {
+        this.showDebugLog(aConv.account.id);
         return true;
       }
     });
 
     this._showAccountManagerIfNeeded(true);
     return true;
+  },
+
+  showDebugLog: function(aAccountId) {
+    this.showTab("debugLogPanel", aPanel => {
+      aPanel.browser.addEventListener("DOMContentLoaded", () => {
+        aPanel.initAccountList(aAccountId);
+        aPanel.showDebugLog();
+      });
+    });
   },
 
   showWindow: function(aWindowType, aUrl, aName, aFeatures) {
@@ -190,6 +185,38 @@ var Core = {
       prompter.showUpdateDownloaded(um.activeUpdate);
     else
       prompter.checkForUpdates();
+  },
+
+  // Creates a panel from the given binding name, and opens it in a new tab,
+  // creating a new window if necessary. The callback is invoked after adding
+  // the panel, which is passed as a parameter.
+  showTab: function(aPanelName, aCallback) {
+    // Try to get the most recent conversation window. If no such window exists,
+    // win will be null.
+    let win = Services.wm.getMostRecentWindow("Messenger:convs");
+    // Tries to open the panel in the specified window.
+    let showPanel = function(aWindow) {
+      // Return false if the window doesn't exist.
+      if (!aWindow)
+        return false;
+      let panel = aWindow.document.createElementNS(
+        "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+        aPanelName);
+      // Try to add the panel, and return false if the window couldn't accept
+      // it (e.g. tabbed conversations are disabled).
+      if (!aWindow.getTabBrowser().addPanel(panel))
+        return false;
+      aWindow.getTabBrowser().selectPanel(panel);
+      panel.ownerDocument.defaultView.focus();
+      aCallback(panel);
+      return true;
+    }
+    // Try to show the debug logs in win, and open a new window if it didn't work.
+    if (showPanel(win))
+      return;
+    win = Services.ww.openWindow(null, "chrome://instantbird/content/instantbird.xul",
+                                 "_blank", "chrome,toolbar,resizable", null);
+    win.addEventListener("load", showPanel.bind(null, win));
   },
 
   getIter: function(aEnumerator) {
