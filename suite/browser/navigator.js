@@ -1969,17 +1969,19 @@ function URLBarSetURI(aURI, aValid) {
 function losslessDecodeURI(aURI) {
   var value = aURI.spec;
   // Try to decode as UTF-8 if there's no encoding sequence that we would break.
-  if (!/%25(?:3B|2F|3F|3A|40|26|3D|2B|24|2C|23)/i.test(value))
-    try {
-      value = decodeURI(value)
-                // decodeURI decodes %25 to %, which creates unintended
-                // encoding sequences. Re-encode it, unless it's part of
-                // a sequence that survived decodeURI, i.e. one for:
-                // ';', '/', '?', ':', '@', '&', '=', '+', '$', ',', '#'
-                // (RFC 3987 section 3.2)
-                .replace(/%(?!3B|2F|3F|3A|40|26|3D|2B|24|2C|23)/ig,
-                         encodeURIComponent);
-    } catch (e) {}
+  if (!/%25(?:3B|2F|3F|3A|40|26|3D|2B|24|2C|23)/i.test(value)) {
+    const textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
+                                   .getService(Components.interfaces.nsITextToSubURI);
+    var unescaped = textToSubURI.unEscapeURIForUI(aURI.originCharset, value);
+    // unEscapeURIForUI decodes %25 to %, which creates unintended
+    // encoding sequences. Re-encode it, unless it's part of
+    // a sequence that survived unEscapeURIForUI, i.e. one for:
+    // ';', '/', '?', ':', '@', '&', '=', '+', '$', ',', '#'
+    // (RFC 3987 section 3.2)
+    if (unescaped != value)
+      value = unescaped.replace(/%(?!3B|2F|3F|3A|40|26|3D|2B|24|2C|23)/ig,
+                                encodeURIComponent);
+  }
 
   // Encode invisible characters (soft hyphen, zero-width space, BOM,
   // line and paragraph separator, word joiner, invisible times,
