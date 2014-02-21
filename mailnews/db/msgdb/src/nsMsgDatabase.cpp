@@ -1143,8 +1143,9 @@ nsMsgDatabase::~nsMsgDatabase()
   PR_LOG(DBLog, PR_LOG_ALWAYS, ("closing database    %s\n",
     (const char*)m_dbName.get()));
 
-  nsCOMPtr<nsIMsgDBService> serv(mozilla::services::GetDBService());
-  static_cast<nsMsgDBService*>(serv.get())->RemoveFromCache(this);
+  nsCOMPtr<nsIMsgDBService> serv(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
+  if (serv)
+    static_cast<nsMsgDBService*>(serv.get())->RemoveFromCache(this);
 
   // if the db folder info refers to the mdb db, we must clear it because
   // the reference will be a dangling one soon.
