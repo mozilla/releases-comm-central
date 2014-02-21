@@ -235,8 +235,7 @@
       <label id="calendar-invitations-label"
              class="text-link"
              onclick="openInvitationsDialog()"
-             onkeypress="if (event.keyCode == event.VK_ENTER ||
-                             event.keyCode == event.VK_RETURN) {
+             onkeypress="if (event.keyCode == event.VK_RETURN) {
                              openInvitationsDialog(); }"/>
     </statusbarpanel>
   </statusbar>

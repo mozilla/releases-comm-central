@@ -2203,7 +2203,7 @@ function attachmentLinkKeyPress(event) {
         case kKE.DOM_VK_DELETE:
             deleteAttachment();
             break;
-        case kKE.DOM_VK_ENTER:
+        case kKE.DOM_VK_RETURN:
             openAttachment();
             break;
     }
