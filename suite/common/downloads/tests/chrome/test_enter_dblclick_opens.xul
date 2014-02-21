@@ -94,7 +94,7 @@ dlObs.prototype = {
       // Select the first (paused) download for not calling openDownload
       downloadView.selection.select(0);
 
-      synthesizeKey("VK_ENTER", {}, this.mWin);
+      synthesizeKey("VK_RETURN", {}, this.mWin);
       is(invokeCount, 0, "Enter didn't do anything");
 
       mouseDblClickOnCell(downloadTree, 0, 3, this.mWin);
@@ -103,7 +103,7 @@ dlObs.prototype = {
       // Select the second (finished) download for calling openDownload
       downloadView.selection.select(1);
 
-      synthesizeKey("VK_ENTER", {}, this.mWin);
+      synthesizeKey("VK_RETURN", {}, this.mWin);
       is(invokeCount, 1, "Enter opened download");
 
       mouseDblClickOnCell(downloadTree, 1, 3, this.mWin);

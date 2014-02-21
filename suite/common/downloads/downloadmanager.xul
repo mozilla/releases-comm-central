@@ -92,9 +92,6 @@
   <keyset id="tasksKeys">
     <!-- File Menu -->
     <key id="key_open"
-         keycode="VK_ENTER"
-         command="cmd_open"/>
-    <key id="key_open2"
          keycode="VK_RETURN"
          command="cmd_open"/>
     <key id="key_close"/>
