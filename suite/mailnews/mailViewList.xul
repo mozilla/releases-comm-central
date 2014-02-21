@@ -40,8 +40,7 @@
   <keyset id="mailViewListKeys">
     <key id="key_delete"/>
     <key id="key_delete2"/>
-    <key id="key_open"  keycode="VK_ENTER"  command="cmd_edit"/>
-    <key id="key_open2" keycode="VK_RETURN" command="cmd_edit"/>
+    <key id="key_open" keycode="VK_RETURN" command="cmd_edit"/>
   </keyset>
 
   <vbox flex="1">

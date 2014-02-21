@@ -638,7 +638,6 @@ function onFilterTreeKeyPress(event)
       if (!gDeleteButton.disabled)
         onDeleteFilter();
       break;
-    case KeyEvent.DOM_VK_ENTER:
     case KeyEvent.DOM_VK_RETURN:
       if (!gEditButton.disabled)
         onEditFilter();
