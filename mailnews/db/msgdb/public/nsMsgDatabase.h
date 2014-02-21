@@ -29,10 +29,16 @@
 class ListContext;
 class nsMsgKeySet;
 class nsMsgThread;
+class nsMsgDatabase;
 class nsIMsgThread;
 class nsIDBFolderInfo;
 
 const int32_t kMsgDBVersion = 1;
+
+// Hopefully we're not opening up lots of databases at the same time, however
+// this will give us a buffer before we need to start reallocating the cache
+// array.
+const uint32_t kInitialMsgDBCacheSize = 20;
 
 class nsMsgDBService : public nsIMsgDBService
 {
@@ -42,12 +48,27 @@ public:
 
   nsMsgDBService();
   ~nsMsgDBService();
+
+  void AddToCache(nsMsgDatabase* pMessageDB);
+  void DumpCache();
+  void EnsureCached(nsMsgDatabase* pMessageDB)
+  {
+    if (!m_dbCache.Contains(pMessageDB))
+      m_dbCache.AppendElement(pMessageDB);
+  }
+  void RemoveFromCache(nsMsgDatabase* pMessageDB)
+  {
+    m_dbCache.RemoveElement(pMessageDB);
+  }
+
 protected:
   void HookupPendingListeners(nsIMsgDatabase *db, nsIMsgFolder *folder);
   void FinishDBOpen(nsIMsgFolder *aFolder, nsMsgDatabase *aMsgDB);
+  nsMsgDatabase* FindInCache(nsIFile *dbName);
 
   nsCOMArray <nsIMsgFolder> m_foldersPendingListeners;
   nsCOMArray <nsIDBChangeListener> m_pendingListeners;
+  nsAutoTArray<nsMsgDatabase*, kInitialMsgDBCacheSize> m_dbCache;
 };
 
 class nsMsgDBEnumerator : public nsISimpleEnumerator {
@@ -131,14 +152,14 @@ public:
    *                        The database is present (and was opened), but the
    *                        summary file is missing.
    */
-  virtual nsresult Open(nsIFile *aFolderName, bool aCreate,
-                        bool aLeaveInvalidDB);
+  virtual nsresult Open(nsMsgDBService *aDBService, nsIFile *aFolderName,
+                        bool aCreate, bool aLeaveInvalidDB);
   virtual nsresult IsHeaderRead(nsIMsgDBHdr *hdr, bool *pRead);
   virtual nsresult MarkHdrReadInDB(nsIMsgDBHdr *msgHdr, bool bRead,
                                nsIDBChangeListener *instigator);
-  nsresult OpenInternal(nsIFile *aFolderName, bool aCreate,
-                        bool aLeaveInvalidDB, bool sync);
-  nsresult CheckForErrors(nsresult err, bool sync, nsIFile *summaryFile);
+  nsresult OpenInternal(nsMsgDBService *aDBService, nsIFile *aFolderName,
+                        bool aCreate, bool aLeaveInvalidDB, bool sync);
+  nsresult CheckForErrors(nsresult err, bool sync, nsMsgDBService *aDBService, nsIFile *summaryFile);
   virtual nsresult OpenMDB(const char *dbName, bool create, bool sync);
   virtual nsresult CloseMDB(bool commit);
   virtual nsresult CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key, nsIMsgDBHdr **result);
@@ -162,9 +183,6 @@ public:
 
   nsresult GetTableCreateIfMissing(const char *scope, const char *kind, nsIMdbTable **table, 
                                    mdb_token &scopeToken, mdb_token &kindToken);
-
-  static nsMsgDatabase* FindInCache(nsIFile *dbName);
-  static nsIMsgDatabase* FindInCache(nsIMsgFolder *folder);
 
   //helper function to fill in nsStrings from hdr row cell contents.
   nsresult RowCellColumnTonsString(nsIMdbRow *row, mdb_token columnToken, nsAString &resultStr);
@@ -207,8 +225,6 @@ public:
   static void YarnToUInt32(struct mdbYarn *yarn, uint32_t *i);
   static void YarnToUInt64(struct mdbYarn *yarn, uint64_t *i);
 
-  static void   CleanupCache();
-  static void   DumpCache();
 #ifdef DEBUG
   virtual nsresult DumpContents();
   nsresult DumpThread(nsMsgKey threadId);
@@ -240,27 +256,11 @@ protected:
   virtual nsresult AddNewThread(nsMsgHdr *msgHdr);
   virtual nsresult AddToThread(nsMsgHdr *newHdr, nsIMsgThread *thread, nsIMsgDBHdr *pMsgHdr, bool threadInThread);
 
-  static nsTArray<nsMsgDatabase*>* m_dbCache;
-  static nsTArray<nsMsgDatabase*>* GetDBCache();
-
   static PRTime gLastUseTime; // global last use time
   PRTime m_lastUseTime;       // last use time for this db
   // inline to make instrumentation as cheap as possible
   inline void RememberLastUseTime() {gLastUseTime = m_lastUseTime = PR_Now();}
 
-  static void    AddToCache(nsMsgDatabase* pMessageDB) 
-  {
-#ifdef DEBUG_David_Bienvenu
-//    NS_ASSERTION(GetDBCache()->Length() < 50, "50 or more open db's");
-#endif
-#ifdef DEBUG
-    nsCOMPtr<nsIMsgDatabase> msgDB = pMessageDB->m_folder ?
-                               dont_AddRef(FindInCache(pMessageDB->m_folder)) : nullptr;
-    NS_ASSERTION(!msgDB, "shouldn't have db in cache");
-#endif
-    GetDBCache()->AppendElement(pMessageDB);
-  }
-  static void    RemoveFromCache(nsMsgDatabase* pMessageDB);
   bool    MatchDbName(nsIFile *dbName);  // returns TRUE if they match
 
   // Flag handling routines

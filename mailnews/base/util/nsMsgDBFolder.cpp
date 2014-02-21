@@ -234,7 +234,7 @@ NS_IMETHODIMP nsMsgDBFolder::ForceDBClosed()
   }
   else
   {
-    nsCOMPtr<nsIMsgDatabase> mailDBFactory = do_CreateInstance(kCMailDB);
+    nsCOMPtr<nsIMsgDBService> mailDBFactory(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
     if (mailDBFactory)
       mailDBFactory->ForceFolderDBClosed(this);
   }

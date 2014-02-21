@@ -37,8 +37,8 @@ nsMailDatabase::~nsMailDatabase()
 // caller passes in upgrading==true if they want back a db even if the db is out of date.
 // If so, they'll extract out the interesting info from the db, close it, delete it, and
 // then try to open the db again, prior to reparsing.
-nsresult nsMailDatabase::Open(nsIFile *aSummaryFile, bool aCreate,
-                              bool aUpgrading)
+nsresult nsMailDatabase::Open(nsMsgDBService* aDBService, nsIFile *aSummaryFile,
+                              bool aCreate, bool aUpgrading)
 {
 #ifdef DEBUG
   nsString leafName;
@@ -47,7 +47,7 @@ nsresult nsMailDatabase::Open(nsIFile *aSummaryFile, bool aCreate,
                      nsCaseInsensitiveStringComparator()))
     NS_ERROR("non summary file passed into open\n");
 #endif
-  return nsMsgDatabase::Open(aSummaryFile, aCreate, aUpgrading);
+  return nsMsgDatabase::Open(aDBService, aSummaryFile, aCreate, aUpgrading);
 }
 
 NS_IMETHODIMP nsMailDatabase::ForceClosed()

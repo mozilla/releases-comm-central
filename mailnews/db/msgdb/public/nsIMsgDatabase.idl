@@ -103,7 +103,7 @@ interface nsMsgDBCommitType
  * The contract ID for this component is
  * <tt>\@mozilla.org/msgDatabase/msgDBService;1</tt>.
  */
-[scriptable, uuid(e4743a99-ca44-4647-87b4-d73a444226b3)]
+[scriptable, uuid(4cbbf024-3760-402d-89f3-6ababafeb07d)]
 interface nsIMsgDBService : nsISupports
 {
   /**
@@ -234,13 +234,19 @@ interface nsIMsgDBService : nsISupports
    */
   nsIMsgDatabase cachedDBForFolder(in nsIMsgFolder aFolder);
 
+  /**
+   * Close the db for a folder, if already open.
+   *
+   * @param aFolder   The folder to close the cached (open) db for.
+   */
+  void forceFolderDBClosed(in nsIMsgFolder aFolder);
+
   /// an enumerator to iterate over the open dbs.
   readonly attribute nsIArray openDBs;
 };
 
-[scriptable, uuid(09839bbb-d55c-4d38-a006-8f9eb4894774)]
+[scriptable, uuid(2dbc9e31-5f8c-408c-960e-a91cecde368c)]
 interface nsIMsgDatabase : nsIDBChangeAnnouncer {
-  void forceFolderDBClosed(in nsIMsgFolder aFolder);
   void Close(in boolean aForceCommit);
 
   void Commit(in nsMsgDBCommit commitType);

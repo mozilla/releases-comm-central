@@ -29,7 +29,7 @@ public:
   NS_IMETHOD StartBatch() MOZ_OVERRIDE;
   NS_IMETHOD EndBatch() MOZ_OVERRIDE;
 
-  nsresult  Open(nsIFile *aSummaryFile, bool create, bool upgrading) MOZ_OVERRIDE;
+  nsresult  Open(nsMsgDBService* aDBService, nsIFile *aSummaryFile, bool create, bool upgrading) MOZ_OVERRIDE;
   virtual nsMailDatabase  *GetMailDB() {return this;}
 
   virtual uint32_t  GetCurVersion() MOZ_OVERRIDE {return kMsgDBVersion;}

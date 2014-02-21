@@ -1287,7 +1287,6 @@ static void
 msgMailNewsModuleDtor()
 {
   nsAddrDatabase::CleanupCache();
-  nsMsgDatabase::CleanupCache();
 }
 
 static const mozilla::Module kMailNewsModule = {
