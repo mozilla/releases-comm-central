@@ -117,8 +117,23 @@ function test_rules() {
                          "DTSTART:19970512T090000",
                          ["19970512T090000", "19980511T090000", "19990517T090000" +
                           "20000515T090000", "20010514T090000", "20020513T090000"]);
-
     */
+
+    // bug 899326: Recurrences with BYMONTHDAY=X,X,31 don't show at all in months with less than 31 days
+    check_recur(makeEvent("DESCRIPTION:Every 11th & 31st of every Month\n" +
+                "RRULE:FREQ=MONTHLY;COUNT=6;BYMONTHDAY=11,31\n" +
+                "DTSTART:20130731T160000\n" +
+                "DTEND:20130731T170000)\n"),
+                ["20130731T160000", "20130811T160000", "20130831T160000",
+                 "20130911T160000", "20131011T160000", "20131031T160000"]);
+
+    // bug 899770: Monthly Recurrences with BYDAY and BYMONTHDAY with more than 2 dates are not working
+    check_recur(makeEvent("DESCRIPTION:Every WE & SA the 6th, 20th & 31st\n" +
+                "RRULE:FREQ=MONTHLY;COUNT=6;BYDAY=WE,SA;BYMONTHDAY=6,20,31\n" +
+                "DTSTART:20130706T160000\n" +
+                "DTEND:20130706T170000)\n"),
+                ["20130706T160000", "20130720T160000", "20130731T160000",
+                 "20130831T160000", "20131106T160000", "20131120T160000"]);
 
     check_recur(makeEvent("DESCRIPTION:Every day, use exdate to exclude the second day\n" +
                          "RRULE:FREQ=DAILY;COUNT=3\n" +
