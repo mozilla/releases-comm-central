@@ -18,6 +18,7 @@
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 #include "nsComponentManagerUtils.h"
+#include "mozilla/ArrayUtils.h"
 
 NS_IMPL_ISUPPORTS1(nsImapMoveCoalescer, nsIUrlListener)
 
@@ -156,11 +157,10 @@ nsImapMoveCoalescer::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
 
 nsTArray<nsMsgKey> *nsImapMoveCoalescer::GetKeyBucket(uint32_t keyArrayIndex)
 {
-  if (keyArrayIndex >= m_keyBuckets.Length() &&
-      !m_keyBuckets.SetLength(keyArrayIndex + 1))
-    return nullptr;
+  NS_ASSERTION(keyArrayIndex < MOZ_ARRAY_LENGTH(m_keyBuckets), "invalid index");
 
-  return &(m_keyBuckets[keyArrayIndex]);
+  return keyArrayIndex < mozilla::ArrayLength(m_keyBuckets) ?
+           &(m_keyBuckets[keyArrayIndex]) : nullptr;
 }
 
 NS_IMPL_ISUPPORTS1(nsMoveCoalescerCopyListener, nsIMsgCopyServiceListener)

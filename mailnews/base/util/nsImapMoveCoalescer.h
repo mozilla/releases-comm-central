@@ -47,7 +47,7 @@ protected:
   nsCOMPtr <nsIMsgFolder> m_sourceFolder;
   bool m_doNewMailNotification;
   bool m_hasPendingMoves;
-  nsTArray<nsTArray<nsMsgKey> > m_keyBuckets;
+  nsTArray<nsMsgKey> m_keyBuckets[2];
   int32_t m_outstandingMoves;
 };
 
