@@ -638,8 +638,7 @@ var chatHandler = {
   },
 
   onNicklistKeyPress: function(aEvent) {
-    if (aEvent.keyCode != aEvent.DOM_VK_RETURN &&
-        aEvent.keyCode != aEvent.DOM_VK_ENTER)
+    if (aEvent.keyCode != aEvent.DOM_VK_RETURN)
       return;
 
     let listbox = aEvent.originalTarget;

@@ -185,7 +185,6 @@
       <![CDATA[
         switch (aEvent.keyCode) {
           case aEvent.DOM_VK_RETURN:
-          case aEvent.DOM_VK_ENTER:
             this.close();
             break;
 

@@ -498,7 +498,6 @@ var buddyList = {
     }
     switch (aEvent.keyCode) {
       case aEvent.DOM_VK_RETURN:
-      case aEvent.DOM_VK_ENTER:
         buddyList.finishEditStatusMessage(true);
         break;
 
@@ -576,7 +575,6 @@ var buddyList = {
   userIconKeyPress: function bl_userIconKeyPress(aEvent) {
     switch (aEvent.keyCode) {
       case aEvent.DOM_VK_RETURN:
-      case aEvent.DOM_VK_ENTER:
         this.chooseUserIcon();
         break;
 
@@ -648,7 +646,6 @@ var buddyList = {
     }
     switch (aEvent.keyCode) {
       case aEvent.DOM_VK_RETURN:
-      case aEvent.DOM_VK_ENTER:
         buddyList.finishEditDisplayName(true);
         break;
 

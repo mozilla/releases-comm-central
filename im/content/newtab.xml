@@ -349,8 +349,7 @@
     <handlers>
       <handler event="keydown">
       <![CDATA[
-        if (event.keyCode == event.DOM_VK_ENTER ||
-            event.keyCode == event.DOM_VK_RETURN) {
+        if (event.keyCode == event.DOM_VK_RETURN) {
           if (!this.listbox.firstChild)
             return;
           let item = this.listbox.selectedItem || this.listbox.firstChild;

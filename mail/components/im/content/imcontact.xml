@@ -193,7 +193,6 @@
         switch (aEvent.keyCode) {
           // If Enter or Return is pressed, open a new conversation
           case aEvent.DOM_VK_RETURN:
-          case aEvent.DOM_VK_ENTER:
             if (this.hasAttribute("aliasing"))
               this.finishAliasing(true);
             else if (this.canOpenConversation())

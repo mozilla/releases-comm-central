@@ -1871,8 +1871,7 @@
         <parameter name="event"/>
         <body>
         <![CDATA[
-          if (event.keyCode != event.DOM_VK_RETURN &&
-              event.keyCode != event.DOM_VK_ENTER)
+          if (event.keyCode != event.DOM_VK_RETURN)
             return;
 
           let listbox = event.originalTarget;
@@ -2090,7 +2089,6 @@
         <![CDATA[
           switch (aEvent.keyCode) {
             case aEvent.DOM_VK_RETURN:
-            case aEvent.DOM_VK_ENTER:
               this.finishEditTopic(true);
               break;
 

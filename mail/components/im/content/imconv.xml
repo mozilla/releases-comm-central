@@ -208,8 +208,7 @@
       <body>
       <![CDATA[
         // If Enter or Return is pressed, focus the input box.
-        if (aEvent.keyCode == aEvent.DOM_VK_RETURN ||
-            aEvent.keyCode == aEvent.DOM_VK_ENTER) {
+        if (aEvent.keyCode == aEvent.DOM_VK_RETURN) {
           this.convView.focus();
           return;
         }
