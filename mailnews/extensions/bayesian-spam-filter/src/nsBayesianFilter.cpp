@@ -185,7 +185,7 @@ TokenHash::TokenHash(uint32_t aEntrySize)
     mEntrySize = aEntrySize;
     PL_INIT_ARENA_POOL(&mWordPool, "Words Arena", 16384);
     bool ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps, nullptr,
-                                  aEntrySize, 256);
+                                aEntrySize, 256, mozilla::fallible_t());
     NS_ASSERTION(ok, "mTokenTable failed to initialize");
     if (!ok)
       PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("mTokenTable failed to initialize"));
@@ -208,7 +208,7 @@ nsresult TokenHash::clearTokens()
         PL_DHashTableFinish(&mTokenTable);
         PL_FreeArenaPool(&mWordPool);
         ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps, nullptr,
-                               mEntrySize, 256);
+                               mEntrySize, 256, mozilla::fallible_t());
         NS_ASSERTION(ok, "mTokenTable failed to initialize");
         if (!ok)
           PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("mTokenTable failed to initialize in clearTokens()"));
