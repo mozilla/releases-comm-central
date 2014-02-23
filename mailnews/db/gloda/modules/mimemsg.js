@@ -188,9 +188,19 @@ function MsgHdrToMimeMessage(aMsgHdr, aCallbackThis, aCallback,
   let partsOnDemandStr = (aOptions && aOptions.partsOnDemand)
     ? "&fetchCompleteMessage=false"
     : "";
+  // By default, Enigmail only decrypts a message streamed via libmime if it's
+  // the one currently on display in the message reader. With this option, we're
+  // letting Enigmail know that it should decrypt the message since the client
+  // explicitly asked for it.
+  let encryptedStr = (aOptions && aOptions.examineEncryptedParts)
+    ? "&examineEncryptedParts=true"
+    : "";
 
-  // So unless the user explictly required that he wants to examine encrypted
-  // parts, give him a stripped-down version of the MimeMsg structure.
+  // S/MIME, our other encryption backend, is not that smart, and always
+  // decrypts data. In order to protect sensitive data (e.g. not index it in
+  // Gloda), unless the client asked for encrypted data, we pass to the client
+  // callback a stripped-down version of the MIME structure where encrypted
+  // parts have been removed.
   let wrapCallback = function (aCallback, aCallbackThis) {
     if (aOptions && aOptions.examineEncryptedParts)
       return aCallback;
@@ -227,7 +237,7 @@ function MsgHdrToMimeMessage(aMsgHdr, aCallbackThis, aCallback,
       dumbUrlListener, // nsIUrlListener
       true, // have them create the converter
       // additional uri payload, note that "header=" is prepended automatically
-      "filter&emitter=js"+partsOnDemandStr,
+      "filter&emitter=js"+partsOnDemandStr+encryptedStr,
       requireOffline);
   } catch (ex) {
     // If streamMessage throws an exception, we should make sure to clear the
