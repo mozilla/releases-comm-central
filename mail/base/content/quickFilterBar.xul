@@ -94,7 +94,7 @@
   </popupset>
 
 
-  <vbox id="threadContentArea">
+  <vbox id="messagesBox">
     <!--
       - The message filter bar is not a XBL binding at this time in order to
       - make it easier for people to overlay given that we are likely leaving
@@ -102,7 +102,11 @@
       -
       - This may need to change for drag-and-drop or other reasons.
       -->
-    <vbox id="quick-filter-bar" insertbefore="threadTree">
+    <vbox id="quick-filter-bar" insertbefore="displayDeck"
+          >
+      <observes element="cmd_toggleQuickFilterBar"
+                attribute="disabled"
+                />
       <hbox id="quick-filter-bar-main-bar" align="center"
             onoverflow="QuickFilterBarMuxer.onOverflow();"
             >
@@ -110,10 +114,9 @@
                        crop="none" minwidth="16"
                        tooltiptext="&quickFilterBar.sticky.tooltip;"
                        />
-        <label id="qfb-filter-label"
-               value="&quickFilterBar.barLabel.label;"/>
         <!-- Extensions, put your labeled buttons in the following box. -->
         <hbox id="quick-filter-bar-collapsible-buttons">
+          <toolbarseparator id="qfb-separator"/>
           <toolbarbutton id="qfb-unread" type="checkbox"
                          crop="none" minwidth="16"
                          label="&quickFilterBar.unread.label;"
@@ -139,7 +142,7 @@
                          label="&quickFilterBar.attachment.label;"
                          tooltiptext="&quickFilterBar.attachment.tooltip;"/>
         </hbox>
-        <toolbarspacer id="qfb-filter-bar-spacer" flex="200" align="end"/>
+        <toolbarspacer id="qfb-filter-bar-spacer" flex="1" align="end"/>
         <!-- I added a minwidth and end text-align because otherwise the change
              in dimensions causes ugly flex rearrangement of the textbox. -->
         <label id="qfb-results-label"
@@ -148,7 +151,7 @@
                somefmtstring="&quickFilterBar.resultsLabel.some.formatString;"
                noresultsstring="&quickFilterBar.resultsLabel.none;"
                />
-        <textbox id="qfb-qs-textbox" flex="1"
+        <textbox id="qfb-qs-textbox" flex="3"
                  type="search"
                  placeholder=""
                  emptytextbase="&quickFilterBar.textbox.emptyText.base;"

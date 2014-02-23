@@ -79,7 +79,7 @@ function assert_quick_filter_button_enabled(aEnabled) {
 }
 
 function assert_quick_filter_bar_visible(aVisible) {
-  if (mc.e("quick-filter-bar").collapsed != !aVisible) {
+  if ((mc.e("quick-filter-bar").boxObject.height > 0) != aVisible) {
     throw new Error("Quick filter bar should be " +
                     (aVisible ? "visible" : "collapsed"));
   }

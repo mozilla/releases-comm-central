@@ -31,9 +31,10 @@ function setupModule(module) {
   setStarred.setStarred(true);
 }
 
-function test_filter_button_hidden_on_account_central() {
+function test_hidden_on_account_central() {
   be_in_folder(folder.rootFolder);
   assert_quick_filter_button_enabled(false);
+  assert_quick_filter_bar_visible(false);
 }
 
 function test_visible_by_default() {
