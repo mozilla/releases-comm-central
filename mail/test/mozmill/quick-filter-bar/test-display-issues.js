@@ -144,9 +144,9 @@ function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
   resize_to(1200, 600);
   wait_for_resize(1200);
 
-  // Now expand the message pane to cause the QFB buttons to shrink
-  let messagePaneWrapper = mc.e("messagepaneboxwrapper");
-  messagePaneWrapper.width = 500;
+  // Now expand the folder pane to cause the QFB buttons to shrink
+  let folderPaneBox = mc.e("folderPaneBox");
+  folderPaneBox.width = 600;
 
   // Now spawn a new 3pane...
   let mc2 = open_folder_in_new_window(folder);
