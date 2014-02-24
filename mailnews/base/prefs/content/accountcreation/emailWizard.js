@@ -237,7 +237,7 @@ EmailConfigWizard.prototype =
         "min-height: " + (document.height + 10) + "px;");
 
     this.switchToMode("start");
-    e("realname").focus();
+    e("realname").select();
   },
 
   /**
