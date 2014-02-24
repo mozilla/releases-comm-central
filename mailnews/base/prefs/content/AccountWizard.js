@@ -246,13 +246,11 @@ function AccountDataToPageData(accountData, pageData)
 
   }
   else {
-
     if (server.type == "nntp") {
       setPageData(pageData, "accounttype", "newsaccount", true);
       setPageData(pageData, "accounttype", "mailaccount", false);
       setPageData(pageData, "newsserver", "hostname", server.hostName);
     }
-
     else {
       setPageData(pageData, "accounttype", "mailaccount", true);
       setPageData(pageData, "accounttype", "newsaccount", false);
@@ -261,15 +259,15 @@ function AccountDataToPageData(accountData, pageData)
     }
     setPageData(pageData, "accounttype", "otheraccount", false);
   }
-  
-  setPageData(pageData, "login", "username", server.username);
-  setPageData(pageData, "login", "password", server.password);
-  setPageData(pageData, "accname", "prettyName", server.prettyName);
+
+  setPageData(pageData, "login", "username", server.username || "");
+  setPageData(pageData, "login", "password", server.password || "");
+  setPageData(pageData, "accname", "prettyName", server.prettyName || "");
   setPageData(pageData, "accname", "userset", false);
   setPageData(pageData, "ispdata", "supplied", false);
-  
+
   var identity;
-  
+
   if (accountData.identity) {
       dump("This is an accountdata\n");
       identity = accountData.identity;
@@ -279,8 +277,8 @@ function AccountDataToPageData(accountData, pageData)
       dump("this is an account, id= " + identity + "\n");
   }
 
-  setPageData(pageData, "identity", "email", identity.email);
-  setPageData(pageData, "identity", "fullName", identity.fullName);
+  setPageData(pageData, "identity", "email", identity.email || "");
+  setPageData(pageData, "identity", "fullName", identity.fullName || "");
 
   var smtp;
   

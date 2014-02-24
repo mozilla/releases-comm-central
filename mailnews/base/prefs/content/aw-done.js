@@ -38,7 +38,8 @@ function donePageInit() {
         // find out if we need to hide server details
         showMailServerDetails = currentAccountData.showServerDetailsOnWizardSummary; 
         // Change the username field description to email field label in aw-identity
-        setUserNameDescField(currentAccountData.emailIDFieldTitle);
+        if (currentAccountData.emailIDFieldTitle)
+          setUserNameDescField(currentAccountData.emailIDFieldTitle);
     }
 
     // Find out if we need to hide details for incoming servers
@@ -54,14 +55,16 @@ function donePageInit() {
             email += "@" + currentAccountData.domain;
     }
     setDivTextFromForm("identity.email", email);
-    
+
     var userName="";
     if (pageData.login && pageData.login.username)
         userName = pageData.login.username.value;
-    if (!userName && email)
-        userName = getUsernameFromEmail(email, currentAccountData && 
+    if (!userName && email) {
+        if (currentAccountData && currentAccountData.incomingServerUserNameRequiresDomain == undefined)
+            currentAccountData.incomingServerUserNameRequiresDomain = false;
+        userName = getUsernameFromEmail(email, currentAccountData &&
                                         currentAccountData.incomingServerUserNameRequiresDomain);
-              
+    }
     // Hide the "username" field if we don't want to show information
     // on the incoming server.
     setDivTextFromForm("server.username", hideIncoming ? null : userName);
@@ -114,7 +117,7 @@ function donePageInit() {
         // Hide the incoming server name field if the user specified
         // wizardHideIncoming in the ISP defaults file
         setDivTextFromForm("server.name", hideIncoming ? null : incomingServerName);
-        setDivTextFromForm("server.port", pageData.server.port.value);
+        setDivTextFromForm("server.port", pageData.server.port ? pageData.server.port.value : null);
         var incomingServerType="";
         if (pageData.server && pageData.server.servertype) {
             incomingServerType = pageData.server.servertype.value;
@@ -149,6 +152,7 @@ function donePageInit() {
             setDivTextFromForm("server.username", null);
         }
         setDivTextFromForm("newsServer.name", newsServerName);
+        setDivTextFromForm("server.port", null);
     }
     else {
         setDivTextFromForm("newsServer.name", null);
