@@ -634,12 +634,10 @@
 #ifdef XP_MACOSX
 @BINPATH@/crashreporter.app/
 #else
-#ifndef XP_OS2
 @BINPATH@/crashreporter@BIN_SUFFIX@
 @BINPATH@/crashreporter.ini
 #ifdef XP_UNIX
 @BINPATH@/Throbber-small.gif
-#endif
 #endif
 #endif
 #ifdef MOZ_CRASHREPORTER_INJECTOR
