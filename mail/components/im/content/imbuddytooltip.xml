@@ -173,9 +173,8 @@
      <method name="reset">
        <body>
        <![CDATA[
-         var row;
-         while ((row = this.rows.firstChild))
-           this.rows.removeChild(row);
+         while (this.rows.hasChildNodes())
+           this.rows.lastChild.remove();
        ]]>
        </body>
      </method>

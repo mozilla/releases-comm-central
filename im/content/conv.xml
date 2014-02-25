@@ -126,7 +126,7 @@
       <![CDATA[
         this.conv.removeObserver(this);
         delete this.parentNode.listedConvs[this.conv.id];
-        this.parentNode.removeChild(this);
+        this.remove();
         delete this.conv;
       ]]>
       </body>

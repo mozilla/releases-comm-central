@@ -300,7 +300,7 @@
       <method name="popListItem">
         <body>
         <![CDATA[
-          this.listbox.removeChild(this.listbox.lastChild);
+          this.listbox.lastChild.remove();
           this.listItems.pop();
         ]]>
         </body>

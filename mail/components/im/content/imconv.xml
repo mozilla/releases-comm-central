@@ -163,7 +163,7 @@
           this.conv.removeObserver(this);
         if (this.convView) {
           this.convView.destroy();
-          this.convView.parentNode.removeChild(this.convView);
+          this.convView.remove();
         }
 
         // If the conversation we are destroying was selected, we should
@@ -183,7 +183,7 @@
           delete this.log;
         }
         else {
-          list.removeChild(this);
+          this.remove();
           delete this.conv;
         }
         if (newSelectedItem)

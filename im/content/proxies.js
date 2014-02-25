@@ -26,7 +26,7 @@ var gProxies = {
     }
     else {
       let global = document.getElementById("useGlobal");
-      global.parentNode.removeChild(global);
+      global.remove();
       document.getElementById("useAsGlobalSettings").collapsed = true;
       document.getElementById("proxyDialogHeader").collapsed = true;
     }

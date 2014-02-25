@@ -28,7 +28,7 @@ var joinChat = {
   onAccountSelect: function jc_onAccountSelect() {
     let ab = document.getElementById("separatorRow1");
     while (ab.nextSibling && ab.nextSibling.id != "separatorRow2")
-      ab.parentNode.removeChild(ab.nextSibling);
+      ab.nextSibling.remove();
 
     let acc = document.getElementById("accountlist").selectedItem.account;
     let sep = document.getElementById("separatorRow2");

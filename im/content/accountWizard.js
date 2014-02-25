@@ -131,8 +131,8 @@ var accountWizard = {
     let vbox = document.getElementById("userNameBox");
     // remove anything that may be there for another protocol
     let child;
-    while ((child = vbox.firstChild))
-      vbox.removeChild(child);
+    while (vbox.hasChildNodes())
+      vbox.lastChild.remove();
 
     let splits = [];
     for (let split in this.getProtoUserSplits())
@@ -278,8 +278,8 @@ var accountWizard = {
     let id = this.proto.id;
     let rows = document.getElementById("protoSpecific");
     let child;
-    while ((child = rows.firstChild))
-      rows.removeChild(child);
+    while (rows.hasChildNodes())
+      rows.lastChild.remove();
     let visible = false;
     for (let opt in this.getProtoOptions()) {
       let text = opt.label;
@@ -343,8 +343,8 @@ var accountWizard = {
     let rows = document.getElementById("summaryRows");
     let bundle = document.getElementById("accountsBundle");
     let child;
-    while ((child = rows.firstChild))
-      rows.removeChild(child);
+    while (rows.hasChildNodes())
+      rows.lastChild.remove();
 
     let label = bundle.getString("accountProtocol");
     rows.appendChild(this.createSummaryRow(label, this.proto.name));

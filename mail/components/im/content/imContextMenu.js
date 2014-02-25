@@ -36,7 +36,7 @@ imContextMenu.prototype = {
     // remove the action menuitems added last time we opened the popup
     while (elt && elt.localName != "menuseparator") {
       let tmp = elt.nextSibling;
-      elt.parentNode.removeChild(elt);
+      elt.remove();
       elt = tmp;
     }
   },

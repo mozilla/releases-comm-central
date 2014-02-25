@@ -106,7 +106,7 @@
           this.state = "visible";
         }
         else if (state == "collapsing")
-          this.parentNode.removeChild(this);
+          this.remove();
       ]]>
       </body>
      </method>
@@ -121,7 +121,7 @@
         if (this.state == "visible") // FIXME check the heigh instead
           this.state = "collapsing";
         else
-          this.parentNode.removeChild(this);
+          this.remove();
       ]]>
       </body>
      </method>
@@ -271,7 +271,7 @@
      <method name="removeNode">
       <body>
       <![CDATA[
-        this.parentNode.removeChild(this);
+        this.remove();
       ]]>
       </body>
      </method>

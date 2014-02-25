@@ -958,7 +958,7 @@
          item.setAttribute("label", name);
 
          // Move this item to the right position if its name changed
-         document.getElementById("nicklist").removeChild(item);
+         item.remove();
          this.addNick(item);
        ]]>
        </body>
@@ -969,8 +969,7 @@
        <![CDATA[
          if (!this._hasBuddy(aName))
            throw "Cannot remove a buddy that was not in the room";
-         var item = this.buddies[aName];
-         item.parentNode.removeChild(item);
+         this.buddies[aName].remove();
          delete this.buddies[aName];
          if (this._isBuddyActive(aName))
            delete this._activeBuddies[aName];
@@ -1131,8 +1130,8 @@
        <![CDATA[
          if (this._conv.isChat) {
            let nicklist = document.getElementById("nicklist");
-           while (nicklist.firstChild)
-             nicklist.removeChild(nicklist.firstChild);
+           while (nicklist.hasChildNodes())
+             nicklist.lastChild.remove();
            // Populate the nicklist
            this.buddies = {};
            let nicks = fixIterator(this.conv.getParticipants());

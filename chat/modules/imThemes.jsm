@@ -515,7 +515,7 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
 {
   let insert = aDoc.getElementById("insert");
   if (insert && !aIsNext) {
-    insert.parentNode.removeChild(insert);
+    insert.remove();
     insert = null;
   }
 

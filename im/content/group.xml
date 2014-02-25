@@ -101,7 +101,7 @@
              this.contacts.filter(function (b) !b.contact.online)
                           .forEach(function (b) {
                b.destroy();
-               b.parentNode.removeChild(b);
+               b.remove();
              }, this);
            }
            return val;

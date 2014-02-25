@@ -142,7 +142,7 @@ var gAccountManager = {
       var elt = document.getElementById(aObject.id);
       elt.destroy();
       if (!elt.selected) {
-        this.accountList.removeChild(elt);
+        elt.remove();
         return;
       }
       // The currently selected element is removed,
@@ -151,7 +151,7 @@ var gAccountManager = {
       // Prevent errors if the timer is active and the account deleted
       clearTimeout(this.disableTimerID);
       this.disableTimerID = 0;
-      this.accountList.removeChild(elt);
+      elt.remove();
       var count = this.accountList.getRowCount();
       if (!count) {
         document.getElementById("accountsDesk").selectedIndex = 0;

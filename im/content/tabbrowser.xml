@@ -710,7 +710,7 @@
             this._tabPanels = null;
 
             // Remove the tab ...
-            this.tabContainer.removeChild(aTab);
+            aTab.remove();
 
             // ... and fix up the _tPos properties immediately.
             for (let i = aTab._tPos; i < this.mTabs.length; i++)
@@ -725,7 +725,7 @@
             // a consistent state (tab removed, tab positions updated, etc.).
             // Also, it's important that another tab has been selected before
             // the panel is removed; otherwise, a random sibling panel can flash.
-            this.mPanelContainer.removeChild(panel);
+            panel.remove();
 
             // As the panel is removed, the removal of a dependent document can
             // cause the whole window to close. So at this point, it's possible
@@ -1830,7 +1830,7 @@
         <body><![CDATA[
           var menuItem = aEvent.target.mCorrespondingMenuitem;
           if (menuItem)
-            this.removeChild(menuItem);
+            menuItem.remove();
         ]]></body>
       </method>
 
@@ -1937,7 +1937,7 @@
           menuItem.removeEventListener("command", this, false);
           menuItem.tab.removeEventListener("TabClose", this, false);
           menuItem.tab.mCorrespondingMenuitem = null;
-          this.removeChild(menuItem);
+          menuItem.remove();
         }
         var tabcontainer = document.getBindingParent(this);
         tabcontainer.mTabstrip.removeEventListener("scroll", this, false);

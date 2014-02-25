@@ -1358,7 +1358,7 @@
 
           // Move this item to the right position if its name changed
           this._nicks.splice(this._nicks.indexOf(aOldName.toLowerCase()), 1);
-          this.nicklistElt.removeChild(item);
+          item.remove();
           this.addNick(item);
         ]]>
         </body>
@@ -1377,7 +1377,7 @@
             this.partedBuddies[aName].lastMsgTime = item.lastMsgTime;
           }
           this._nicks.splice(this._nicks.indexOf(aName.toLowerCase()), 1);
-          this.nicklistElt.removeChild(item);
+          item.remove();
           delete this.buddies[aName];
         ]]>
         </body>
@@ -2196,7 +2196,7 @@
           let popup = document.getAnonymousElementByAttribute(this, "anonid",
                                                               "all-targets-popup");
           while (popup.hasChildNodes())
-            popup.removeChild(popup.lastChild);
+            popup.lastChild.remove();
           popup.removeEventListener("command", this.changeTargetCommand);
         ]]>
         </body>

@@ -487,7 +487,7 @@ var gApplicationsPane = {
   _rebuildView: function() {
     // Clear the list of entries.
     while (this._list.childNodes.length > 1)
-      this._list.removeChild(this._list.lastChild);
+      this._list.lastChild.remove();
 
     var visibleTypes = this._visibleTypes;
 
@@ -658,7 +658,7 @@ var gApplicationsPane = {
 
     // Clear out existing items.
     while (menuPopup.hasChildNodes())
-      menuPopup.removeChild(menuPopup.lastChild);
+      menuPopup.lastChild.remove();
 
     {
       var askMenuItem = document.createElement("menuitem");

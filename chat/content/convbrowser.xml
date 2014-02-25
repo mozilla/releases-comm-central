@@ -266,7 +266,7 @@
 
             if (this._autoScrollNeedsCleanup) {
               // we polluted the global scope, so clean it up
-              this._autoScrollPopup.parentNode.removeChild(this._autoScrollPopup);
+              this._autoScrollPopup.remove();
             }
 
             this.uninitMagicCopy();
@@ -590,7 +590,7 @@
             // If this added an insert node, insert the next messages there.
             let insert = doc.getElementById("insert");
             if (insert) {
-              moveToParent.removeChild(moveTo);
+              moveTo.remove();
               moveTo = insert;
               moveToParent = moveTo.parentNode;
             }
@@ -603,7 +603,7 @@
               range.setEndBefore(doc.getElementById("next-messages-end"));
               moveToParent.insertBefore(range.extractContents(), moveTo);
             }
-            moveToParent.removeChild(moveTo);
+            moveTo.remove();
 
             // Restore existing insert node.
             if (actualInsert)
@@ -615,7 +615,7 @@
             range.setEndAfter(doc.getElementById("end-of-split-block"));
             range.deleteContents();
           }
-          ruler.parentNode.removeChild(ruler);
+          ruler.remove();
         ]]>
         </body>
       </method>

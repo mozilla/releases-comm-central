@@ -82,7 +82,7 @@
       <![CDATA[
         this.contact.removeObserver(this);
         delete this.contact;
-        this.parentNode.removeChild(this);
+        this.remove();
       ]]>
       </body>
      </method>

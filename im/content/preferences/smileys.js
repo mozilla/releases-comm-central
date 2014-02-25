@@ -25,7 +25,7 @@ var smileysPreview = {
     let item = list.firstChild.nextSibling;
     while (item) {
       let next = item.nextSibling;
-      list.removeChild(item);
+      item.remove();
       item = next;
     }
 

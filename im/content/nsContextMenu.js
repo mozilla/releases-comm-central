@@ -48,7 +48,7 @@ nsContextMenu.prototype = {
     // remove the action menuitems added last time we opened the popup
     while (elt && elt.localName != "menuseparator") {
       let tmp = elt.nextSibling;
-      elt.parentNode.removeChild(elt);
+      elt.remove();
       elt = tmp;
     }
   },
@@ -294,7 +294,7 @@ nsContextMenu.prototype = {
     let popup = document.getElementById("context-popup-searchselect-with");
     // remove the menuitems added last time we opened the popup
     while (popup.firstChild && popup.firstChild.localName != "menuseparator")
-      popup.removeChild(popup.firstChild);
+      popup.firstChild.remove();
 
     let engines = Services.search.getVisibleEngines({});
 

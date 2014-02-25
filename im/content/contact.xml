@@ -106,7 +106,7 @@
              if (state == "fading" || state == "collapsing") {
                if (state == "fading")
                  this.destroy();
-               this.parentNode.removeChild(this);
+               this.remove();
                return;
              }
              this.setAttribute("collapsed", val);
@@ -189,7 +189,7 @@
          else if (aTopic == "buddy-moved-into-contact" && this.hasAttribute("open")) {
            let buddyElt = document.createElement("buddy");
            if (this.childNodes.length > 1 && this.childNodes[1].hasAttribute("dummy"))
-             this.removeChild(this.childNodes[1]);
+             this.childNodes[1].remove();
            this.appendChild(buddyElt);
            buddyElt.build(aSubject, this);
          }
@@ -262,7 +262,7 @@
           if (aEvent && ("propertyName" in aEvent) &&
               aEvent.propertyName != "height")
             return;
-          this.parentNode.removeChild(this);
+          this.remove();
         }
       ]]>
       </body>
@@ -288,7 +288,7 @@
           // If the contact is not visible, remove it immediately (without animation)
           this.destroy();
           this.state = "collapsed"; // will remove pending animation timers.
-          this.parentNode.removeChild(this);
+          this.remove();
         }
         else if (state == "showing" || aNoFading) {
           // We are still doing the expand animation, or we don't want

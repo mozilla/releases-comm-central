@@ -103,7 +103,7 @@ var previewObserver = {
 
     let menulist = document.getElementById("themevariant");
     if (menulist.firstChild)
-      menulist.removeChild(menulist.firstChild);
+      menulist.firstChild.remove();
     let popup = menulist.appendChild(document.createElement("menupopup"));
     let variants = getThemeVariants(this.theme);
 

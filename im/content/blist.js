@@ -189,7 +189,7 @@ buddyListContextMenu.prototype = {
     let popup = document.getElementById("context-visible-tags-popup");
     let item;
     while ((item = popup.firstChild) && item.localName != "menuseparator")
-      popup.removeChild(item);
+      item.remove();
 
     Services.tags.getTags()
             .forEach(function (aTag) {
@@ -717,7 +717,7 @@ var buddyList = {
       let index = buddyList._displayedGroups.indexOf(aGroupElt);
       if (index != -1)
         buddyList._displayedGroups.splice(index, 1);
-      this.removeChild(aGroupElt);
+      aGroupElt.remove();
     };
     let showOtherContacts = false;
     Services.tags.getTags().forEach(function (aTag) {
@@ -791,7 +791,7 @@ var buddyList = {
     if (this._showOffline)
       groupElt._showOffline = true;
     if (!groupElt.build(aTag))
-      blistBox.removeChild(groupElt);
+      groupElt.remove();
     else if (index !== undefined)
       this._displayedGroups.splice(index, 0, groupElt);
   },

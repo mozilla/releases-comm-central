@@ -32,7 +32,7 @@ TagMenu.prototype = {
     let popup = this.document.getElementById("context-tags-popup");
     let item;
     while ((item = popup.firstChild) && item.localName != "menuseparator")
-      popup.removeChild(item);
+      item.remove();
 
     if (this.target) {
       var tags = this.target.contact.getTags();
