@@ -23,7 +23,7 @@ function BuildJSEAttributeNameList()
       {
         var tab = document.getElementById("tabJSE");
         if (tab)
-          tab.parentNode.removeChild(tab);
+          tab.remove();
 
         return;
       }
@@ -161,8 +161,6 @@ function UpdateJSEAttributes()
 
 function RemoveJSEAttribute()
 {
-  var treechildren = gDialog.AddJSEAttributeTree.lastChild;
-
   // This differs from HTML and CSS panels: 
   // We reselect after removing, because there is not
   //  editable attribute name input, so we can't clear that
@@ -186,7 +184,7 @@ function RemoveJSEAttribute()
     RemoveNameFromAttArray(attr, JSEAttrs);
 
     // Remove the item from the tree
-    treechildren.removeChild (item);
+    item.remove();
 
     // Reselect an item
     gDialog.AddJSEAttributeTree.selectedIndex = newIndex;

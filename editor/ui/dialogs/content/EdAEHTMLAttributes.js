@@ -337,8 +337,6 @@ function UpdateHTMLAttributes()
 
 function RemoveHTMLAttribute()
 {
-  var treechildren = gDialog.AddHTMLAttributeTree.lastChild;
-
   // We only allow 1 selected item
   if (gDialog.AddHTMLAttributeTree.view.selection.count)
   {
@@ -350,7 +348,7 @@ function RemoveHTMLAttribute()
     RemoveNameFromAttArray(attr, HTMLAttrs);
 
     // Remove the item from the tree
-    treechildren.removeChild(item);
+    item.remove();
 
     // Clear inputs and selected item in tree
     ClearHTMLInputWidgets();

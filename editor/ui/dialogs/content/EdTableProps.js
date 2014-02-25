@@ -90,9 +90,9 @@ function Startup()
     {
       gUseCSS = false;
       var tableHeightLabel = document.getElementById("TableHeightLabel");
-      tableHeightLabel.parentNode.removeChild(tableHeightLabel);
-      gDialog.TableHeightInput.parentNode.removeChild(gDialog.TableHeightInput);
-      gDialog.TableHeightUnits.parentNode.removeChild(gDialog.TableHeightUnits);
+      tableHeightLabel.remove();
+      gDialog.TableHeightInput.remove();
+      gDialog.TableHeightUnits.remove();
     }
   } catch (e) {}
   gDialog.BorderWidthInput = document.getElementById("BorderWidthInput");
@@ -205,7 +205,7 @@ function Startup()
       // XXX: Disabling of tabs is currently broken, so for
       //      now we'll just remove the tab completely.
       //gDialog.CellTab.disabled = true;
-      gDialog.CellTab.parentNode.removeChild(gDialog.CellTab);
+      gDialog.CellTab.remove();
     }
   }
 

@@ -254,8 +254,8 @@ function BuildRecentPagesMenu()
     return;
 
   // Delete existing menu
-  while (popup.firstChild)
-    popup.removeChild(popup.firstChild);
+  while (popup.hasChildNodes())
+    popup.lastChild.remove();
 
   // Current page is the "0" item in the list we save in prefs,
   //  but we don't include it in the menu.

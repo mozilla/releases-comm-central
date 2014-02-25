@@ -212,8 +212,8 @@ function ClearListbox(listbox)
   if (listbox)
   {
     listbox.clearSelection();
-    while (listbox.firstChild)
-      listbox.removeChild(listbox.firstChild);
+    while (listbox.hasChildNodes())
+      listbox.lastChild.remove();
   }
 }
 

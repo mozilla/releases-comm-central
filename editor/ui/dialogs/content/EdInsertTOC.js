@@ -256,14 +256,14 @@ function BuildTOC(update)
           var newToc = GetCurrentEditor().createElementWithDefaults(orderedList ? "ol" : "ul");
           toc.parentNode.insertBefore(newToc, toc);
           // and remove the old one
-          toc.parentNode.removeChild(toc);
+          toc.remove();
           toc = newToc;
           toc.setAttribute("id", kMozToc);
         }
         else {
           // we can keep the list itself but let's get rid of the TOC entries
           while (toc.hasChildNodes()) 
-            toc.removeChild(toc.lastChild);
+            toc.lastChild.remove();
         }
       }
       var commentText = "mozToc ";

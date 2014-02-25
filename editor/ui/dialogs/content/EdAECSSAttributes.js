@@ -122,17 +122,13 @@ function UpdateCSSAttributes()
 
 function RemoveCSSAttribute()
 {
-  var treechildren = gDialog.AddCSSAttributeTree.lastChild;
-
   // We only allow 1 selected item
   if (gDialog.AddCSSAttributeTree.view.selection.count)
   {
-    var item = getSelectedItem(gDialog.AddCSSAttributeTree);
-
     // Remove the item from the tree
     // We always rebuild complete "style" string,
     //  so no list of "removed" items 
-    treechildren.removeChild (item);
+    getSelectedItem(gDialog.AddCSSAttributeTree).remove();
 
     ClearCSSInputWidgets();
   }

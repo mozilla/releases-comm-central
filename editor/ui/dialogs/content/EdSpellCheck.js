@@ -200,7 +200,7 @@ function InitLanguageMenu(aCurLang)
   // Remove any languages from the list.
   var languageMenuPopup = gDialog.LanguageMenulist.firstChild;
   while (languageMenuPopup.firstChild.localName != "menuseparator")
-    languageMenuPopup.removeChild(languageMenuPopup.firstChild);
+    languageMenuPopup.firstChild.remove();
 
   var defaultItem = null;
 

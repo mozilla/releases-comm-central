@@ -304,8 +304,8 @@ function LoadPreviewImage()
   if (gDialog.PreviewImage)
     removeEventListener("load", PreviewImageLoaded, true);
 
-  if (gDialog.ImageHolder.firstChild)
-    gDialog.ImageHolder.removeChild(gDialog.ImageHolder.firstChild);
+  if (gDialog.ImageHolder.hasChildNodes())
+    gDialog.ImageHolder.firstChild.remove();
 
   gDialog.PreviewImage = document.createElementNS("http://www.w3.org/1999/xhtml", "html:img");
   if (gDialog.PreviewImage)

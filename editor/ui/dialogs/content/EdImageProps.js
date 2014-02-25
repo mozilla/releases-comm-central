@@ -30,8 +30,8 @@ function Startup()
   if ("arguments" in window && window.arguments[0])
   {
     imageElement = window.arguments[0];
-    // We've been called from form field propertes, so we can't insert a link
-    gDialog.linkTab.parentNode.removeChild(gDialog.linkTab);
+    // We've been called from form field properties, so we can't insert a link
+    gDialog.linkTab.remove();
     gDialog.linkTab = null;
   }
   else

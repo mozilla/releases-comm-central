@@ -1536,7 +1536,7 @@ function SetEditMode(mode)
         else {
           var fragment = editor.document.createRange().createContextualFragment(source);
           editor.enableUndo(false);
-          editor.document.documentElement.removeChild(GetBodyElement());
+          GetBodyElement().remove();
           editor.document.replaceChild(fragment.firstChild, editor.document.documentElement);
           editor.enableUndo(true);
         }
@@ -2286,7 +2286,7 @@ function RemoveItem(id)
 {
   var item = document.getElementById(id);
   if (item)
-    item.parentNode.removeChild(item);
+    item.remove();
 }
 
 // Command Updating Strategy:
@@ -2748,12 +2748,11 @@ function UpdateStructToolbar()
   var toolbar = document.getElementById("structToolbar");
   if (!toolbar) return;
   var childNodes = toolbar.childNodes;
-  var childNodesLength = childNodes.length;
   // We need to leave the <label> to flex the buttons to the left
   // so, don't remove the last child at position length - 1
   while (childNodes.length > 1) {
     // Remove back to front so there's less moving about.
-    toolbar.removeChild(childNodes.item(childNodes.length - 2));
+    childNodes.lastChild.previousSibling.remove();
   }
 
   toolbar.removeAttribute("label");
@@ -2952,13 +2951,13 @@ function RemoveTOC()
   var theDocument = GetCurrentEditor().document;
   var elt = theDocument.getElementById("mozToc");
   if (elt) {
-    elt.parentNode.removeChild(elt);
+    elt.remove();
   }
 
   let anchorNodes = theDocument.querySelectorAll('a[name^="mozTocId"]');
   for (let node of anchorNodes) {
     if (node.parentNode) {
-      node.parentNode.removeChild(node);
+      node.remove();
     }
   }
 }
