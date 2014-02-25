@@ -38,14 +38,7 @@ ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 	cp $(srcdir)/mailicon48.png  $(DIST)/branding/default48.png
 	cp $(srcdir)/mailicon256.png $(DIST)/branding/default256.png
 endif
-ifeq ($(OS_ARCH),OS2)
-	cp $(srcdir)/thunderbird-os2.ico  $(DIST)/branding/thunderbird.ico
-endif
 # Now sort out the branding specific icons
 ifeq ($(OS_ARCH),WINNT)
 	cp $(srcdir)/thunderbird.ico  $(DIST)/branding/messengerWindow.ico
 endif
-ifeq ($(OS_ARCH),OS2)
-	cp $(srcdir)/thunderbird-os2.ico  $(DIST)/branding/messengerWindow.ico
-endif
-
