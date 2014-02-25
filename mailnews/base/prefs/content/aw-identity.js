@@ -93,8 +93,8 @@ function clearEmailTextItems()
 {
   var emailDescText = document.getElementById("emailDescText");
 
-  if (emailDescText.firstChild)
-    emailDescText.removeChild(emailDescText.firstChild);
+  if (emailDescText.hasChildNodes())
+    emailDescText.firstChild.remove();
 
   var postEmailText = document.getElementById("postEmailText");
   postEmailText.setAttribute("value", "");

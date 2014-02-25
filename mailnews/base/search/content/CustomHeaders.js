@@ -146,7 +146,7 @@ function onRemoveHeader()
 {
   var listitem = gHdrsList.selectedItems[0]
   if (!listitem) return;
-  gHdrsList.removeChild(listitem);
+  listitem.remove();
   var selectedHdr = GetListItemAttributeStr(listitem);
   var j=0;
   for (var i = 0; i < gArrayHdrs.length; i++)

@@ -1180,7 +1180,7 @@ EmailConfigWizard.prototype =
     // menulist.removeAllItems() is nice, but nicely clears the user value, too
     var popup = menu.menupopup;
     while (popup.hasChildNodes())
-      popup.removeChild(popup.firstChild);
+      popup.lastChild.remove();
 
     // add standard ports
     var autoPort = gStringsBundle.getString("port_auto");

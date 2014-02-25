@@ -346,7 +346,7 @@ function loadSMTPServerList()
 
   var smtpPopup = document.getElementById("smtpPopup");
   while (smtpPopup.lastChild.nodeName != "menuseparator")
-    smtpPopup.removeChild(smtpPopup.lastChild);
+    smtpPopup.lastChild.remove();
 
   while (servers.hasMoreElements())
   {

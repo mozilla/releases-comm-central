@@ -147,7 +147,7 @@ var gSmtpServerListWindow =
   {
     // remove all children
     while (this.mServerList.hasChildNodes())
-      this.mServerList.removeChild(this.mServerList.lastChild);
+      this.mServerList.lastChild.remove();
 
     this.fillSmtpServers(this.mServerList,
                          MailServices.smtp.servers,

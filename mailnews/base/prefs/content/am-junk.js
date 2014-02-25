@@ -60,7 +60,7 @@ function onInit(aPageId, aServerId)
 
   // Ensure the whitelist is empty
   while (wList.hasChildNodes()) {
-    wList.removeChild(wList.lastChild);
+    wList.lastChild.remove();
   }
 
   // Populate the listbox with address books
@@ -239,7 +239,7 @@ function buildServerFilterMenuList()
   let ispHeaderList = document.getElementById("useServerFilterList");
   // Ensure the menulist is empty.
   while (ispHeaderList.hasChildNodes()) {
-    ispHeaderList.removeChild(ispHeaderList.lastChild);
+    ispHeaderList.lastChild.remove();
   }
 
   // Now walk through the isp directories looking for sfd files.

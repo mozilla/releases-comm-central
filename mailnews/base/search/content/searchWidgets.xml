@@ -576,7 +576,7 @@
             // this.mListBox will fail after the row is removed, so save it
             let listBox = this.mListBox;
             if (listBox.getRowCount() > 1)
-              listBox.removeChild(this);
+              this.remove();
             // can't use 'this' as it is destroyed now
             listBox.getItemAtIndex(0).updateRemoveButton();
             checkActionsReorder();

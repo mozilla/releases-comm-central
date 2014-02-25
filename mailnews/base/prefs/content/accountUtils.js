@@ -208,7 +208,7 @@ function initAccountWizardTB(args) {
   let acctyperadio = document.getElementById("acctyperadio");
   let feedRadio = acctyperadio.querySelector("radio[value='Feeds']");
   if (feedRadio)
-    feedRadio.parentNode.removeChild(feedRadio);
+    feedRadio.remove();
   if (selType) {
     acctyperadio.selectedItem = acctyperadio.querySelector("radio[value='"+selType+"']");
     accountwizard.advance("identitypage");

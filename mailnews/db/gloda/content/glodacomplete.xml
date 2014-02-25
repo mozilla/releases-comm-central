@@ -72,8 +72,8 @@
           setTimeout(function(self) self.adjustHeight(), 0, this);
 
           // remove all child nodes because we never want to reuse them.
-          while (this.richlistbox.lastChild)
-            this.richlistbox.removeChild(this.richlistbox.lastChild);
+          while (this.richlistbox.hasChildNodes())
+            this.richlistbox.lastChild.remove();
 
           this._currentIndex = 0;
           this._appendCurrentResult();
@@ -202,7 +202,7 @@
           <![CDATA[
           // Get rid of all previous text
           while (aDescriptionElement.hasChildNodes())
-            aDescriptionElement.removeChild(aDescriptionElement.firstChild);
+            aDescriptionElement.lastChild.remove();
 
           // Get the indices that separate match and non-match text
           let search = this.getAttribute("text");
@@ -617,7 +617,7 @@
           <![CDATA[
           // clear out any lingering children
           while (this._identityHolder.hasChildNodes())
-            this._identityHolder.removeChild(this._identityHolder.firstChild);
+            this._identityHolder.lastChild.remove();
           
           var row = this.row;
           if (row == null)

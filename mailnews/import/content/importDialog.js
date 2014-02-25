@@ -359,7 +359,7 @@ function ListModules() {
 
   var body = document.getElementById( "moduleList");
   while (body.hasChildNodes()) {
-    body.removeChild(body.lastChild);
+    body.lastChild.remove();
   }
 
   var count = top.importService.GetModuleCount(top.importType);
@@ -392,7 +392,7 @@ function AddModuleToList(moduleName, index)
 function ListFeedAccounts() {
   let body = document.getElementById( "moduleList");
   while (body.hasChildNodes())
-    body.removeChild(body.lastChild);
+    body.lastChild.remove();
 
   // Add item to allow for new account creation.
   let item = document.createElement("listitem");
@@ -1070,7 +1070,7 @@ function back()
     // Clear out the results box.
     var results = document.getElementById("results");
     while (results.hasChildNodes())
-      results.removeChild(results.lastChild);
+      results.lastChild.remove();
 
     // Reset the next button.
     var nextButton = document.getElementById("forward");

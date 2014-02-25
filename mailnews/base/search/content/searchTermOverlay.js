@@ -460,7 +460,7 @@ function removeSearchRow(index)
         //dump("That wasn't real. ignoring \n");
     }
 
-    listitem.parentNode.removeChild(listitem);
+    listitem.remove();
     
     // now remove the item from our list of terms
     gSearchTerms.splice(index, 1); 

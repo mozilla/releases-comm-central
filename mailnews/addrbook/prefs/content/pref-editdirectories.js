@@ -58,7 +58,7 @@ function fillDirectoryList()
 
   // Empty out anything in the list
   while (abList.hasChildNodes())
-    abList.removeChild(abList.lastChild);
+    abList.lastChild.remove();
 
   // Init the address book list
   let directories = MailServices.ab.directories;

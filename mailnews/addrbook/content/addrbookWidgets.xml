@@ -65,7 +65,7 @@
 
           // Empty out anything in the list.
           while (this.hasChildNodes())
-            this.removeChild(this.lastChild);
+            this.lastChild.remove();
         ]]>
       </destructor>
 

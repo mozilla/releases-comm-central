@@ -1495,8 +1495,8 @@ var gAccountTree = {
 
     let mainTree = document.getElementById("account-tree-children");
     // Clear off all children...
-    while (mainTree.firstChild)
-      mainTree.removeChild(mainTree.firstChild);
+    while (mainTree.hasChildNodes())
+      mainTree.lastChild.remove();
 
     for (let account of accounts) {
       let accountName = null;

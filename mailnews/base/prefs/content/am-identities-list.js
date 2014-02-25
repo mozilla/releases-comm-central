@@ -41,7 +41,7 @@ function refreshIdentityList(aSelectIndex)
 {
   // Remove all children.
   while (gIdentityListBox.hasChildNodes())
-    gIdentityListBox.removeChild(gIdentityListBox.lastChild);
+    gIdentityListBox.lastChild.remove();
 
   // Build the list from the identities array.
   let identities = gAccount.identities;
