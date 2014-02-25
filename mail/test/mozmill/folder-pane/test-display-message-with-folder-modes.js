@@ -12,20 +12,23 @@
  *   mode
  */
 
-var MODULE_NAME = "test-display-message-with-folder-modes";
+const MODULE_NAME = "test-display-message-with-folder-modes";
 
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+const RELATIVE_ROOT = "../shared-modules";
+const MODULE_REQUIRES = ["folder-display-helpers"];
 
 var folder;
 var dummyFolder;
+var inbox2Folder;
 var smartInboxFolder;
 
 var msgHdr;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
+
+  assert_folder_mode("all");
+  assert_folder_tree_view_row_count(7);
 
   // This is a subfolder of the inbox so that
   // test_display_message_in_smart_folder_mode_works is able to test that we
@@ -41,6 +44,14 @@ function setupModule(module) {
   // in the inbox.  We will delete this in teardownModule because the inbox
   // is a shared resource and it's not okay to leave stuff in there.
   make_new_sets_in_folder(inboxFolder, [{count: 1}]);
+
+  // Create another subfolder on the top level that is not a parent of the
+  // 2 folders so that it is not visible in Favorite mode.
+  inboxFolder.server.rootFolder.createSubfolder("Inbox2", null);
+  inbox2Folder = inboxFolder.server.rootFolder.getChildNamed("Inbox2");
+
+  be_in_folder(folder);
+  msgHdr = mc.dbView.getMsgHdrAt(0);
 }
 
 /**
@@ -48,9 +59,6 @@ function setupModule(module) {
  * the folder isn't present in the current folder mode.
  */
 function test_display_message_with_folder_not_present_in_current_folder_mode() {
-  be_in_folder(folder);
-  msgHdr = mc.dbView.getMsgHdrAt(0);
-
   // Make sure the folder doesn't appear in the favorite folder mode just
   // because it was selected last before switching
   be_in_folder(inboxFolder);
@@ -58,6 +66,8 @@ function test_display_message_with_folder_not_present_in_current_folder_mode() {
   // Move to favorite folders. This folder isn't currently a favorite folder
   mc.folderTreeView.mode = "favorite";
   assert_folder_not_visible(folder);
+  assert_folder_not_visible(inboxFolder);
+  assert_folder_not_visible(inbox2Folder);
 
   // Try displaying a message
   display_message_in_folder_tab(msgHdr);
@@ -87,6 +97,10 @@ function test_display_message_with_folder_present_in_current_folder_mode() {
   mc.folderTreeView.mode = "favorite";
   assert_folder_visible(folder);
   assert_folder_visible(dummyFolder);
+  // Also their parent folder should be visible.
+  assert_folder_visible(inboxFolder);
+  // But not a sibling of their parent, which is not Favorite.
+  assert_folder_not_visible(inbox2Folder);
 
   // Try displaying a message
   display_message_in_folder_tab(msgHdr);
@@ -108,6 +122,8 @@ function test_display_message_in_smart_folder_mode_works() {
   // Clear the message selection, otherwise msgHdr will still be displayed and
   // display_message_in_folder_tab(msgHdr) will be a no-op.
   select_none();
+  mc.folderTreeView.mode = "all";
+
   // Switch to the dummy folder, otherwise msgHdr will be in the view and the
   // display message in folder tab logic will simply select the message without
   // bothering to expand any folders.
@@ -174,10 +190,13 @@ function test_display_inbox_message_in_smart_folder_mode_works() {
  */
 function test_switch_to_all_folders() {
   mc.folderTreeView.mode = "all";
+  assert_folder_tree_view_row_count(10);
 }
 
 function teardownModule() {
-  be_in_folder(inboxFolder);
-  select_click_row(0);
-  press_delete();
+  // Remove our folders
+  inboxFolder.propagateDelete(folder, true, null);
+  inboxFolder.propagateDelete(dummyFolder, true, null);
+  inboxFolder.server.rootFolder.propagateDelete(inbox2Folder, true, null);
+  assert_folder_tree_view_row_count(7);
 }

@@ -8,18 +8,15 @@
  * there don't influence the results here.
  */
 
-var MODULE_NAME = 'test-folder-pane';
+const MODULE_NAME = 'test-folder-pane';
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers'];
-
-var folderA, folderB;
+const RELATIVE_ROOT = '../shared-modules';
+const MODULE_REQUIRES = ['folder-display-helpers'];
 
 Cu.import("resource:///modules/mailServices.js");
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
+  collector.getModule('folder-display-helpers').installInto(module);
 }
 
 /**
@@ -30,6 +27,11 @@ function setupModule(module) {
 function test_all_folders_toggle_folder_open_state() {
   // Test that we are in All Folders mode by default
   assert_folder_mode("all");
+
+  let pop3Server = MailServices.accounts
+                    .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  collapse_folder(pop3Server.rootFolder);
+  collapse_folder(MailServices.accounts.localFoldersServer.rootFolder);
 
   // All folders mode should give us only 2 rows to start
   // (tinderbox account and local folders)
@@ -43,8 +45,6 @@ function test_all_folders_toggle_folder_open_state() {
   // set before the folder added notification is sent out, which means
   // creating the folder object via RDF, setting the flag, and then
   // creating the storage, which sends the notification.
-  let pop3Server = MailServices.accounts
-                    .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let rdfService = Cc['@mozilla.org/rdf/rdf-service;1']
                      .getService(Ci.nsIRDFService);
   folder = rdfService.GetResource(pop3Server.rootFolder.URI + "/Archives").
@@ -57,7 +57,7 @@ function test_all_folders_toggle_folder_open_state() {
                                     archives);
   // close the tinderbox server.
   mc.folderTreeView.toggleOpenState(0)
-  folderA = create_folder("FolderPaneA");
+  let folderA = create_folder("FolderPaneA");
   be_in_folder(folderA);
 
   // After creating our first folder we should have 6 rows visible
@@ -68,7 +68,7 @@ function test_all_folders_toggle_folder_open_state() {
 
   // This makes sure the folder can be toggled
   folderA.createSubfolder("FolderPaneB", null);
-  folderB = folderA.getChildNamed("FolderPaneB");
+  let folderB = folderA.getChildNamed("FolderPaneB");
   // Enter folderB, then enter folderA. This makes sure that folderA is not
   // collapsed.
   enter_folder(folderB);
@@ -90,4 +90,10 @@ function test_all_folders_toggle_folder_open_state() {
 
   // folderB should be visible again
   assert_folder_tree_view_row_count(oneFolderCount + 1);
+
+  // Clean up
+  expand_folder(pop3Server.rootFolder);
+  folder.clearFlag(Ci.nsMsgFolderFlags.Archive);
+  pop3Server.rootFolder.propagateDelete(folder, true, null);
+  MailServices.accounts.localFoldersServer.rootFolder.propagateDelete(folderA, true, null);
 }

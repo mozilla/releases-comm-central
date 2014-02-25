@@ -468,7 +468,7 @@ function enter_folder(aFolder) {
     return mc.folderDisplay.displayedFolder == aFolder;
   }
   utils.waitFor(isDisplayedFolder,
-                "Timeout trying to enter folder" + aFolder.URI);
+                "Timeout trying to enter folder " + aFolder.URI);
 
   wait_for_all_messages_to_load();
 
