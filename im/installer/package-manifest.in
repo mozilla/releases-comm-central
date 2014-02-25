@@ -112,25 +112,14 @@
 #endif
 @BINPATH@/application.ini
 @BINPATH@/platform.ini
-#ifdef XP_OS2
-@BINPATH@/@DLL_PREFIX@mozsqlt3@DLL_SUFFIX@
-#else
 #ifndef MOZ_NATIVE_SQLITE
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
-#endif
 #endif
 #ifdef UNIX_BUT_NOT_MAC
 @BINPATH@/run-mozilla.sh
 #ifdef MOZ_UPDATER
 @BINPATH@/icons/*.png
 #endif
-#endif
-
-; [OS/2]
-#ifdef XP_OS2
-@BINPATH@/MozSounds.cmd
-@BINPATH@/*.xqs
-@BINPATH@/components/*.xqs
 #endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
