@@ -2350,7 +2350,7 @@ var FeedSubscriptions = {
         // A yield/generator.next() method is fine for shallow trees, but not
         // the true recursion required for deeper trees; both the shallow loop
         // and the recurse should give it up.
-        aParentNode.removeChild(outline);
+        outline.remove();
         badTag = false;
         outline = aBody;
         feedFolder = rssServer.rootFolder;
