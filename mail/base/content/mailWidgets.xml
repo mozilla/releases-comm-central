@@ -948,8 +948,8 @@
 
             while (numItemsInNode && (numItemsInNode > numItemsToPreserve))
             {
-              aParentNode.removeChild(aParentNode.childNodes[numItemsInNode-1]);
-              numItemsInNode = numItemsInNode - 1;
+              aParentNode.lastChild.remove();
+              numItemsInNode--;
             }
           ]]>
         </body>
@@ -1093,8 +1093,8 @@
       <method name="clearHeaderValues">
         <body><![CDATA[
           this.mNewsgroups = new Array;
-          while(this.newsgroups.childNodes.length)
-            this.newsgroups.removeChild(this.newsgroups.firstChild);
+          while(this.newsgroups.hasChildNodes())
+            this.newsgroups.lastChild.remove();
         ]]></body>
       </method>
     </implementation>
@@ -1172,7 +1172,7 @@
             var index = 0;
 
             while (messageIdNodes.length > numMessageIds * 2 - 1)
-              headerValue.removeChild(headerValue.lastChild);
+              headerValue.lastChild.remove();
 
             this.toggleIcon.hidden = numMessageIds <= 1;
 
@@ -1285,8 +1285,8 @@
 
             // remove any existing tag items we've appended to the list
             var headerValueNode = document.getAnonymousElementByAttribute(this, 'anonid', 'headerValue');
-            for (var i = headerValueNode.childNodes.length - 1; i >= 0; --i)
-              headerValueNode.removeChild(headerValueNode.childNodes[i]);
+            while (headerValueNode.hasChildNodes())
+              headerValueNode.lastChild.remove();
 
             // tokenize the keywords based on ' '
             var tagsArray = aTags.split(' ');
@@ -1484,7 +1484,7 @@
 
             // remove the old popup children
             while (popup.hasChildNodes())
-              popup.removeChild(popup.lastChild);
+              popup.lastChild.remove();
 
             var newSelection;
             var customizePos=-1;
@@ -2587,7 +2587,7 @@
           <![CDATA[
             var containingBox = document.getAnonymousNodes(this)[0];
             while (containingBox.hasChildNodes())
-              containingBox.removeChild(containingBox.lastChild);
+              containingBox.lastChild.remove();
           ]]>
         </body>
       </method>

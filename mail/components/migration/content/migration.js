@@ -139,7 +139,7 @@ var MigrationWizard = {
 
     var profiles = document.getElementById("profiles");
     while (profiles.hasChildNodes())
-      profiles.removeChild(profiles.firstChild);
+      profiles.lastChild.remove();
 
     var sourceProfiles = this._migrator.sourceProfiles;
     var count = sourceProfiles.length;
@@ -174,7 +174,7 @@ var MigrationWizard = {
   {
     var dataSources = document.getElementById("dataSources");
     while (dataSources.hasChildNodes())
-      dataSources.removeChild(dataSources.firstChild);
+      dataSources.lastChild.remove();
 
     var bundle = document.getElementById("bundle");
 
@@ -245,7 +245,7 @@ var MigrationWizard = {
   {
     var items = document.getElementById(aID);
     while (items.hasChildNodes())
-      items.removeChild(items.firstChild);
+      items.lastChild.remove();
 
     var bundle = document.getElementById("bundle");
     var itemID;

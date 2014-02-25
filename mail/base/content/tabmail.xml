@@ -721,7 +721,7 @@
 
             this.tabInfo.splice(iTab, 1);
             tab.mode.tabs.splice(tab.mode.tabs.indexOf(tab), 1);
-            this.tabContainer.removeChild(tabNode);
+            tabNode.remove();
 
             if (this.tabContainer.selectedIndex == -1) {
               let lastTabOpenerIndex = this.tabInfo.indexOf(this.mLastTabOpener);
@@ -742,7 +742,7 @@
               this.updateCurrentTab();
 
             if (tab.panel) {
-              this.panelContainer.removeChild(tab.panel);
+              tab.panel.remove();
               delete tab.panel;
 
               // Ensure current tab is still selecte and displayed in the
@@ -837,7 +837,7 @@
           // remove the entries form tabInfo, tabMode and the tabContainer
           this.tabInfo.splice(oldIdx, 1);
           tab.mode.tabs.splice(tab.mode.tabs.indexOf(tab), 1);
-          this.tabContainer.removeChild(aTab);
+          aTab.remove();
 
 
           // as we removed items, we might need to update indices
@@ -2400,7 +2400,7 @@
         <body><![CDATA[
           var menuItem = aEvent.target.mCorrespondingMenuitem;
           if (menuItem)
-            this.removeChild(menuItem);
+            menuItem.remove();
         ]]></body>
       </method>
 
@@ -2538,7 +2538,7 @@
           menuItem.removeEventListener("command", this, false);
           menuItem.tab.removeEventListener("TabClose", this, false);
           menuItem.tab.mCorrespondingMenuitem = null;
-          this.removeChild(menuItem);
+          menuItem.remove();
         }
         this._mutationObserver.disconnect();
 

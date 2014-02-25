@@ -50,5 +50,5 @@ function test_tooltips() {
   mm.appendChild(a);
   tooltip.fillInPageTooltip(a);
   assert_equals(tooltip.getAttribute("label"), "Title2", "This HTML element had its tooltiptext taken as the tooltip instead of the title attribute.");
-  mm.removeChild(a);
+  a.remove();
 }

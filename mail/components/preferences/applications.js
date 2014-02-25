@@ -591,8 +591,8 @@ var gCloudFileTab = {
 
   clearEntries: function CFT_clearEntries() {
     // Clear the list of entries.
-    while (this._list.childNodes.length > 0)
-      this._list.removeChild(this._list.lastChild);
+    while (this._list.hasChildNodes())
+      this._list.lastChild.remove();
   },
 
   rebuildView: function CFT_rebuildView() {
@@ -721,10 +721,10 @@ var gCloudFileTab = {
     iframe.setAttribute("src", aProvider.managementURL);
     iframe.setAttribute("flex", "1");
 
-    // If we have a past iframe, we replace it.  Else, append
+    // If we have a past iframe, we replace it. Else append
     // to the wrapper.
-    if (this._settings && this._settings.parentNode)
-      this._settings.parentNode.removeChild(this._settings);
+    if (this._settings)
+      this._settings.remove();
 
     this._settingsPanelWrap.appendChild(iframe);
     this._settings = iframe;
@@ -1103,7 +1103,7 @@ var gApplicationsPane = {
   rebuildView: function() {
     // Clear the list of entries.
     while (this._list.childNodes.length > 1)
-      this._list.removeChild(this._list.lastChild);
+      this._list.lastChild.remove();
     var visibleTypes = this._visibleTypes;
 
     // If the user is filtering the list, then only show matching types.
@@ -1326,7 +1326,7 @@ var gApplicationsPane = {
 
     // Clear out existing items.
     while (menuPopup.hasChildNodes())
-      menuPopup.removeChild(menuPopup.lastChild);
+      menuPopup.lastChild.remove();
 
     var askMenuItem = document.createElement("menuitem");
     askMenuItem.setAttribute("alwaysAsk", "true");

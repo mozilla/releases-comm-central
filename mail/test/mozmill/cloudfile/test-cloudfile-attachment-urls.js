@@ -772,8 +772,7 @@ function subtest_filelinks_work_after_manual_removal() {
   let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
 
   // Now remove the root node from the document body
-  let mailBody = get_compose_body(cw);
-  mailBody.removeChild(root);
+  root.remove();
 
   gMockFilePicker.returnFiles = collectFiles(["./data/testFile3"], __file__);
   cw.window.attachToCloud(provider);

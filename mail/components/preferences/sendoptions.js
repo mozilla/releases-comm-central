@@ -66,7 +66,7 @@ var gSendOptionsDialog = {
     var currentIndex = listbox.currentIndex;
 
     while (listbox.selectedItems.length > 0) 
-      listbox.removeChild(listbox.selectedItems[0]);
+      listbox.selectedItems[0].remove();
 
     document.getElementById('SendOptionsDialogPane').userChangedValue(listbox);
   },

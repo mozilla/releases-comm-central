@@ -243,7 +243,7 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId)
             continue;
           if ("_teardown" in child)
             child._teardown();
-          popup.removeChild(child);
+          child.remove();
         }
       }
     }
@@ -264,7 +264,7 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
     // Remove all of the nodes with the iscollapsible
     // attribute.
     if (deadItem.hasAttribute("iscollapsible"))
-      popup.removeChild(deadItem);
+      deadItem.remove();
   }
 
   // We'll insert the menuitems before the first item in the list if no insert

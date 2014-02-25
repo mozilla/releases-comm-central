@@ -177,7 +177,7 @@ var gComposePane = {
     // Remove any languages from the list.
     var languageMenuPopup = languageMenuList.firstChild;
     while (languageMenuPopup.hasChildNodes())
-      languageMenuPopup.removeChild(languageMenuPopup.firstChild);
+      languageMenuPopup.lastChild.remove();
 
     // append the dictionaries to the menu list...
     for (i = 0; i < count; i++)

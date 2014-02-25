@@ -1042,7 +1042,7 @@ function RemoveNewHeaderViews(aHeaderTable)
 {
   for each (let [, headerEntry] in Iterator(aHeaderTable)) {
     if (headerEntry.isNewHeader)
-      headerEntry.enclosingRow.parentNode.removeChild(headerEntry.enclosingRow);
+      headerEntry.enclosingRow.remove();
   }
 }
 
@@ -2423,8 +2423,8 @@ function FillAttachmentListPopup(aEvent, aPopup)
 function ClearAttachmentMenu(popup)
 {
   if (popup) {
-    while (popup.childNodes[0].localName == "menu")
-      popup.removeChild(popup.childNodes[0]);
+    while (popup.firstChild.localName == "menu")
+      popup.firstChild.remove();
   }
 }
 
@@ -2698,7 +2698,7 @@ function ClearAttachmentList()
   list.selectedItems.length = 0;
 
   while (list.hasChildNodes())
-    list.removeChild(list.lastChild);
+    list.lastChild.remove();
 }
 
 var attachmentListDNDObserver = {

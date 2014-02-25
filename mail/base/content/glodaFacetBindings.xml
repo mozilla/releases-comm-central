@@ -24,8 +24,8 @@
     <method name="setFulltext">
       <parameter name="aMsgSearcher" />
       <body><![CDATA[
-        while (this.lastChild)
-          this.removeChild(this.lastChild);
+        while (this.hasChildNodes())
+          this.lastChild.remove();
 
         let dis = this;
         function spanify(aText, aClass) {
@@ -54,8 +54,8 @@
       <parameter name="aMsgQuery" />
       <body><![CDATA[
       try {
-        while (this.lastChild)
-          this.removeChild(this.lastChild);
+        while (this.hasChildNodes())
+          this.lastChild.remove();
 
         let dis = this;
         function spanify(aText, aClass) {
@@ -107,8 +107,8 @@
   <implementation>
     <method name="clearFacets">
       <body><![CDATA[
-        while (this.lastChild != null)
-          this.removeChild(this.lastChild);
+        while (this.hasChildNodes())
+          this.lastChild.remove();
       ]]></body>
     </method>
     <method name="addFacet">
@@ -364,8 +364,8 @@
           return;
         }
 
-        while (this.filterNode.lastChild)
-          this.filterNode.removeChild(this.filterNode.lastChild);
+        while (this.filterNode.hasChildNodes())
+          this.filterNode.lastChild.remove();
         let allNode = document.createElement("option");
         allNode.textContent =
           glodaFacetStrings.get("glodaFacetView.facets.filter." +
@@ -821,13 +821,13 @@
 
         // -- empty all of our display buckets...
         let remainderList = this.remainderList;
-        while (remainderList.lastChild)
-          remainderList.removeChild(remainderList.lastChild);
+        while (remainderList.hasChildNodes())
+          remainderList.lastChild.remove();
         let includeList = this.includeList, excludeList = this.excludeList;
-        while (includeList.lastChild)
-          includeList.removeChild(includeList.lastChild);
-        while (excludeList.lastChild)
-          excludeList.removeChild(excludeList.lastChild);
+        while (includeList.hasChildNodes())
+          includeList.lastChild.remove();
+        while (excludeList.hasChildNodes())
+          excludeList.lastChild.remove();
 
         // -- first pass, check for ambiguous labels
         // It's possible that multiple groups are identified by the same short
@@ -1301,8 +1301,8 @@
           this.vis.build();
         }
         else {
-          while (this.canvasNode.lastChild)
-            this.canvasNode.removeChild(this.canvasNode.lastChild);
+          while (this.canvasNode.hasChildNodes())
+            this.canvasNode.lastChild.remove();
           if (aDoSize)
             this.vis.build()
           else
@@ -1436,8 +1436,8 @@
 
         let messagesNode = document.getAnonymousElementByAttribute(
                              this, "anonid", "messages");
-        while (messagesNode.lastChild)
-          messagesNode.removeChild(messagesNode.lastChild);
+        while (messagesNode.hasChildNodes())
+          messagesNode.lastChild.remove();
       try {
         // -- Messages
         for each (let [, message] in Iterator(aMessages)) {

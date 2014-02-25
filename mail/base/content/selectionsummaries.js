@@ -197,8 +197,8 @@ MultiMessageSummary.prototype = {
 
     // Clear the messages list.
     let messagesElt = contentDocument.getElementById("messagelist");
-    while (messagesElt.firstChild)
-      messagesElt.removeChild(messagesElt.firstChild);
+    while (messagesElt.hasChildNodes())
+      messagesElt.lastChild.remove();
 
     const MAX_MESSAGES = 100;
     const SNIPPET_LENGTH = 300;
@@ -304,8 +304,8 @@ MultiMessageSummary.prototype = {
       }, true);
 
       let tagsNode = msgNode.querySelector(".tags");
-      while (tagsNode.firstChild)
-        tagsNode.removeChild(tagsNode.firstChild);
+      while (tagsNode.hasChildNodes())
+        tagsNode.lastChild.remove();
       this._addTagNodes(msgs, tagsNode);
       for (let [,msgHdr] in Iterator(msgs)) {
         this._msgNodes[msgHdr.messageKey + msgHdr.folder.URI] = msgNode;
@@ -427,8 +427,8 @@ MultiMessageSummary.prototype = {
       // thread got modified.
       let key = messageKey + glodaMsg.folder.uri;
       let tagsNode = headerNode.querySelector(".tags");
-      while (tagsNode.firstChild)
-        tagsNode.removeChild(tagsNode.firstChild);
+      while (tagsNode.hasChildNodes())
+        tagsNode.lastChild.remove();
       this._addTagNodes([msg.folderMessage for ([,msg] in Iterator(aItems))],
                         tagsNode);
     }
@@ -493,8 +493,8 @@ ThreadSummary.prototype = {
     archiveBtn.collapsed = !gFolderDisplay.canArchiveSelectedMessages;
 
     let messagesElt = contentDocument.getElementById("messagelist");
-    while (messagesElt.firstChild)
-      messagesElt.removeChild(messagesElt.firstChild);
+    while (messagesElt.hasChildNodes())
+      messagesElt.lastChild.remove();
 
     let count = 0;
     let ignoredCount = 0;

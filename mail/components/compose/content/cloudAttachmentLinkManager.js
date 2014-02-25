@@ -50,11 +50,8 @@ var gCloudAttachmentLinkManager = {
 
     editor.enableUndo(false);
 
-    if (mailBody.hasChildNodes()) {
-      while (mailBody.childNodes.length > 0) {
-        let removedChild = mailBody.removeChild(mailBody.firstChild);
-        container.appendChild(removedChild);
-      }
+    while (mailBody.hasChildNodes()) {
+      container.appendChild(mailBody.removeChild(mailBody.firstChild));
     }
     editor.insertLineBreak();
     selection.collapse(mailBody, 1);
@@ -93,7 +90,7 @@ var gCloudAttachmentLinkManager = {
         if (list)
           for (let i = 0; i < items.length; i++)
             if (items[i].contentLocation == attachment.contentLocation)
-              list.removeChild(items[i]);
+              items[i].remove();
 
         // Now, remove the attachment from our internal list.
         let index = this.cloudAttachments.indexOf(attachment);
@@ -105,7 +102,7 @@ var gCloudAttachmentLinkManager = {
 
       if (items.length == 0) {
         if (list)
-          list.parentNode.removeChild(list);
+          list.remove();
         this._removeRoot(mailDoc);
       }
     }
@@ -119,7 +116,7 @@ var gCloudAttachmentLinkManager = {
   _removeRoot: function(aDocument) {
     let header = aDocument.getElementById("cloudAttachmentListRoot");
     if (header)
-      header.parentNode.removeChild(header);
+      header.remove();
   },
 
   /**

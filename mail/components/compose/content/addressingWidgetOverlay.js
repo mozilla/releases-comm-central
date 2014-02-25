@@ -651,18 +651,12 @@ function awCopyNode(node, parentNode, beforeNode)
 
 function awRemoveRow(row)
 {
-  var listbox = document.getElementById('addressingWidget');
-
-  awRemoveNodeAndChildren(listbox, awGetListItem(row));
+  awGetListItem(row).remove();
   awFitDummyRows();
 
   top.MAX_RECIPIENTS --;
 }
 
-function awRemoveNodeAndChildren(parent, nodeToRemove)
-{
-  nodeToRemove.parentNode.removeChild(nodeToRemove);
-}
 
 function awSetFocus(row, inputElement)
 {
@@ -932,7 +926,7 @@ function awCreateOrRemoveDummyRows()
   let kids = listbox.querySelectorAll('[_isDummyRow]');
   for (let i = kids.length - 1; gAWContentHeight > listboxHeight && i >= 0; --i) {
     gAWContentHeight -= gAWRowHeight;
-    listbox.removeChild(kids[i]);
+    kids[i].remove();
   }
 
   // add rows to fill space

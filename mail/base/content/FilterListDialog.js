@@ -636,7 +636,7 @@ function rebuildFilterList()
   }
   // Remove any superfluous listitems, if the number of filters shrunk.
   for (let i = listitemCount - 1; i >= listitemIndex; i--) {
-    gFilterListbox.removeChild(gFilterListbox.lastChild);
+    gFilterListbox.lastChild.remove();
   }
 
   updateViewPosition(firstVisibleRowIndex);

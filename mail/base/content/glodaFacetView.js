@@ -439,7 +439,7 @@ var FacetContext = {
   _resetUI: function() {
     for each (let [, faceter] in Iterator(this.faceters)) {
       if (faceter.xblNode && !faceter.xblNode.explicit)
-        faceter.xblNode.parentNode.removeChild(faceter.xblNode);
+        faceter.xblNode.remove();
       faceter.xblNode = null;
       faceter.constraint = null;
     }

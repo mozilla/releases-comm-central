@@ -865,8 +865,8 @@ let TagFacetingFilter = {
     }
 
     // -- nuke existing exposed tags, but not the mode selector (which is first)
-    while (tagbar.lastChild && tagbar.lastChild !== tagbar.firstChild) {
-      tagbar.removeChild(tagbar.lastChild);
+    while (tagbar.childNodes.length > 1) {
+      tagbar.lastChild.remove();
     }
 
     let addCount = 0;

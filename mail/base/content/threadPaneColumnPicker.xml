@@ -60,7 +60,7 @@
         <body>
           <![CDATA[
             while (aPopup.childNodes.length > 3)
-              aPopup.removeChild(aPopup.firstChild);
+              aPopup.firstChild.remove();
 
             var refChild = aPopup.firstChild;
 

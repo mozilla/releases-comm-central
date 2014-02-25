@@ -1115,7 +1115,7 @@ function updateSendCommands(aHaveController)
 function addAttachCloudMenuItems(aParentMenu)
 {
   while (aParentMenu.hasChildNodes())
-    aParentMenu.removeChild(aParentMenu.lastChild);
+    aParentMenu.lastChild.remove();
 
   for (let [,cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
     let item = document.createElement("menuitem");
@@ -1136,7 +1136,7 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup)
   let attachment = document.getElementById("attachmentBucket").selectedItem;
   let afterNode = document.getElementById(aAfterNodeId);
   while (afterNode.nextSibling)
-    aParentMenu.removeChild(afterNode.nextSibling);
+    afterNode.nextSibling.remove();
 
   if (!attachment.sendViaCloud) {
     let item = document.getElementById("convertCloudMenuItems_popup_convertAttachment");
@@ -1903,20 +1903,20 @@ function ShouldShowAttachmentNotification(async)
     // Don't check quoted text from reply.
     let blockquotes = mailBodyNode.getElementsByTagName("blockquote");
     for (let i = blockquotes.length - 1; i >= 0; i--) {
-      blockquotes[i].parentNode.removeChild(blockquotes[i]);
+      blockquotes[i].remove();
     }
 
     // For plaintext composition the quotes we need to find and exclude are
     // <span _moz_quote="true">.
     let spans = mailBodyNode.querySelectorAll("span[_moz_quote]");
     for (let i = spans.length - 1; i >= 0; i--) {
-      spans[i].parentNode.removeChild(spans[i]);
+      spans[i].remove();
     }
 
     // Ignore signature (html compose mode).
     let sigs = mailBodyNode.getElementsByClassName("moz-signature");
     for (let i = sigs.length - 1; i >= 0; i--) {
-      sigs[i].parentNode.removeChild(sigs[i]);
+      sigs[i].remove();
     }
 
     // Replace brs with line breaks so node.textContent won't pull foo<br>bar
@@ -3113,7 +3113,7 @@ function InitLanguageMenu()
 
   // Remove any languages from the list.
   while (languageMenuList.hasChildNodes())
-    languageMenuList.removeChild(languageMenuList.firstChild);
+    languageMenuList.lastChild.remove();
 
   for (let i = 0; i < count; i++)
   {
@@ -3211,7 +3211,7 @@ function ClearIdentityListPopup(popup)
 {
   if (popup)
     while (popup.hasChildNodes())
-      popup.removeChild(popup.lastChild);
+      popup.lastChild.remove();
 }
 
 function FillIdentityList(menulist)

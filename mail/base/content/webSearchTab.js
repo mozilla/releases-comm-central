@@ -165,7 +165,7 @@ let webSearchTabType = {
       if (ch.getAttribute("checked")) {
         checkedEngine = ch.getAttribute("tooltiptext");
       }
-      aTab.engines.removeChild(ch);
+      ch.remove();
     }
 
     // Register new buttons for all the search engines

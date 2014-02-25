@@ -896,7 +896,7 @@ function InitMessageTags(menuPopup)
   // "5" is the number of menu items (including separators) on the top of the menu
   // that should not be cleared.
   for (let i = menuPopup.childNodes.length; i > 5; --i)
-    menuPopup.removeChild(menuPopup.lastChild);
+    menuPopup.lastChild.remove();
 
   // create label and accesskey for the static remove item
   var tagRemoveLabel = document.getElementById("bundle_messenger")
@@ -936,8 +936,8 @@ function InitRecentlyClosedTabsPopup(menuPopup)
     return false;
 
   // Clear the list before rebulding it.     
-  while (menuPopup.childNodes.length > 0)
-    menuPopup.removeChild(menuPopup.firstChild);
+  while (menuPopup.hasChildNodes())
+    menuPopup.lastChild.remove();
     
   // Rebuild the recently closed tab list
   for (let i = 0; i < tabs.length; i++ ) {
@@ -997,8 +997,8 @@ function navDebug(str)
 function populateHistoryMenu(menuPopup, isBackMenu)
 {
   // remove existing entries
-  while (menuPopup.firstChild)
-    menuPopup.removeChild(menuPopup.firstChild);
+  while (menuPopup.hasChildNodes())
+    menuPopup.lastChild.remove();
   var curPos = new Object;
   var numEntries = new Object;
   var historyEntries = new Object;
