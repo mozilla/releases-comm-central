@@ -778,10 +778,6 @@ pref("dom.max_chrome_script_run_time", 0);
 pref("nglayout.enable_drag_images", false);
 #endif
 
-#ifdef XP_OS2
-pref("mail.compose.max_recycled_windows", 0);
-#endif
-
 // For the Empty Junk/Trash confirmation dialogs.
 pref("mailnews.emptyJunk.dontAskAgain", false);
 pref("mailnews.emptyTrash.dontAskAgain", false);

@@ -15,7 +15,7 @@
 #include "nsComponentManagerUtils.h"
 #include "EudoraDebugLog.h"
 
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
 #include "nsEudoraWin32.h"
 #endif
 #ifdef XP_MACOSX
@@ -64,7 +64,7 @@ NS_IMETHODIMP nsEudoraSettings::AutoLocate(char16_t **description, nsIFile **loc
         NS_ENSURE_SUCCESS(rv, rv);
   *description = nsEudoraStringBundle::GetStringByID(EUDORAIMPORT_NAME);
 
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
   *_retval = nsEudoraWin32::FindSettingsFile(getter_AddRefs(m_pLocation));
 #endif
 
@@ -86,7 +86,7 @@ NS_IMETHODIMP nsEudoraSettings::Import(nsIMsgAccount **localMailAccount, bool *_
 
   // Get the settings file if it doesn't exist
   if (!m_pLocation) {
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
     nsresult  rv;
                 m_pLocation =  do_CreateInstance (NS_LOCAL_FILE_CONTRACTID, &rv);
     if (NS_SUCCEEDED(rv)) {
@@ -106,7 +106,7 @@ NS_IMETHODIMP nsEudoraSettings::Import(nsIMsgAccount **localMailAccount, bool *_
   }
 
   // do the settings import
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
   *_retval = nsEudoraWin32::ImportSettings(m_pLocation, localMailAccount);
 #endif
 #ifdef XP_MACOSX

@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include <time.h>
-#if defined(XP_UNIX) || defined(XP_OS2)
+#if defined(XP_UNIX)
 #include <unistd.h>
 #include <sys/times.h>
 #include <sys/time.h>
@@ -30,7 +30,7 @@
 
 NS_IMPL_ISUPPORTS1(nsStopwatch, nsIStopwatch)
 
-#if defined(XP_UNIX) || defined(XP_OS2)
+#if defined(XP_UNIX)
 /** the number of ticks per second */
 static double gTicks = 0;
 #define MICRO_SECONDS_TO_SECONDS_MULT static_cast<double>(1.0e-6)
@@ -51,7 +51,7 @@ nsStopwatch::nsStopwatch()
  , fTotalCpuTimeSecs(0.0)
  , fRunning(false)
 {
-#if defined(XP_UNIX) || defined(XP_OS2)
+#if defined(XP_UNIX)
   // idempotent in the event of a race under all coherency models
   if (!gTicks)
   {
@@ -117,7 +117,7 @@ NS_IMETHODIMP nsStopwatch::GetRealTimeSeconds(double *result)
 
 double nsStopwatch::GetRealTime()
 {
-#if defined(XP_UNIX) || defined(XP_OS2)
+#if defined(XP_UNIX)
   struct timeval t;
   gettimeofday(&t, NULL);
   return t.tv_sec + t.tv_usec * MICRO_SECONDS_TO_SECONDS_MULT;
@@ -136,7 +136,7 @@ double nsStopwatch::GetRealTime()
 
 double nsStopwatch::GetCPUTime()
 {
-#if defined(XP_UNIX) || defined(XP_OS2)
+#if defined(XP_UNIX)
   struct tms cpt;
   times(&cpt);
   return (double)(cpt.tms_utime+cpt.tms_stime) / gTicks;

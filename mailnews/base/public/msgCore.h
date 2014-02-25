@@ -71,7 +71,7 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
   (((((PRIntn)(VAL)) & 0x7f) == ((PRIntn)(VAL))) && isspace((PRIntn)(VAL)))
 
 #define IS_DIGIT(i)   ((((unsigned int) (i)) > 0x7f) ? (int) 0 : isdigit(i))
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
 #define IS_ALPHA(VAL) (isascii((int)(VAL)) && isalpha((int)(VAL)))
 #else
 #define IS_ALPHA(VAL) ((((unsigned int) (VAL)) > 0x7f) ? (int) 0 : isalpha((int)(VAL)))
@@ -170,7 +170,7 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
 #define NS_ERROR_NNTP_NO_CROSS_POSTING NS_MSG_GENERATE_FAILURE(12554)
 #define NS_MSGCOMP_ERROR_END 12999
 
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
 #define MSG_LINEBREAK "\015\012"
 #define MSG_LINEBREAK_LEN 2
 #else

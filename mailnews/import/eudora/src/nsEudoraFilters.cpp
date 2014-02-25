@@ -30,7 +30,7 @@
 #include "nsILineInputStream.h"
 #include "EudoraDebugLog.h"
 
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
 #include "nsEudoraWin32.h"
 #endif
 #ifdef XP_MACOSX
@@ -74,7 +74,7 @@ NS_IMETHODIMP nsEudoraFilters::AutoLocate(char16_t **aDescription, nsIFile **aLo
 
   *aDescription = nsEudoraStringBundle::GetStringByID(EUDORAIMPORT_NAME);
 
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
   *_retval = nsEudoraWin32::FindFiltersFile(getter_AddRefs(m_pLocation));
 #endif
 #ifdef XP_MACOSX
@@ -106,7 +106,7 @@ NS_IMETHODIMP nsEudoraFilters::Import(char16_t **aError, bool *_retval)
   {
     m_pLocation =  do_CreateInstance (NS_LOCAL_FILE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
     if (!nsEudoraWin32::FindFiltersFile(getter_AddRefs(m_pLocation)))
       m_pLocation = nullptr;
 #endif
@@ -171,7 +171,7 @@ bool nsEudoraFilters::RealImport()
   nsAutoString  name;
 
   // Windows Eudora filters files have a version header as a first line - just skip it
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
   rv = lineStream->ReadLine(line, &more);
 #endif
 
@@ -284,7 +284,7 @@ bool nsEudoraFilters::RealImport()
       {
         // Win and Mac Eudora have the two bits swapped in the file
         uint32_t bits = atoi(pLine + 10);
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
         bool bFetch  = (bits & 1);
         bool bDelete = (bits & 2);
 #endif
@@ -553,7 +553,7 @@ nsresult nsEudoraFilters::EnableFilter(bool enable)
 }
 
 // Different character sets on Windows and Mac put left and right double angle quotes in different spots
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
 #define LDAQ "\xAB"
 #define RDAQ "\xBB"
 #elif XP_MACOSX
@@ -861,7 +861,7 @@ nsresult nsEudoraFilters::AddMailboxAction(const char* pMailboxPath, bool isTran
 {
   nsresult rv;
   nsCString nameHierarchy;
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
   nsCString filePath;
   m_pLocation->GetNativePath(filePath);
   int32_t index = filePath.RFindChar('\\');

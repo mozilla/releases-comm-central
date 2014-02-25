@@ -3260,7 +3260,7 @@ nsMsgDBFolder::parseURI(bool needServer)
       {
         // I hope this is temporary - Ultimately,
         // NS_MsgCreatePathStringFromFolderURI will need to be fixed.
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
         MsgReplaceChar(newPath, '/', '\\');
 #endif
         rv = serverPath->AppendRelativeNativePath(newPath);

@@ -102,9 +102,6 @@
 #ifdef XP_WIN
 #include "nsMessengerWinIntegration.h"
 #endif
-#ifdef XP_OS2
-#include "nsMessengerOS2Integration.h"
-#endif
 #ifdef XP_MACOSX
 #include "nsMessengerOSXIntegration.h"
 #endif
@@ -357,9 +354,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgShutdownService)
 #ifdef XP_WIN
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMessengerWinIntegration, Init)
 #endif
-#ifdef XP_OS2
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMessengerOS2Integration, Init)
-#endif
 #ifdef XP_MACOSX
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMessengerOSXIntegration, Init)
 #endif
@@ -419,9 +413,6 @@ NS_DEFINE_NAMED_CID(NS_MSGTAGSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_MSGNOTIFICATIONSERVICE_CID);
 #ifdef XP_WIN
 NS_DEFINE_NAMED_CID(NS_MESSENGERWININTEGRATION_CID);
-#endif
-#ifdef XP_OS2
-NS_DEFINE_NAMED_CID(NS_MESSENGEROS2INTEGRATION_CID);
 #endif
 #ifdef XP_MACOSX
 NS_DEFINE_NAMED_CID(NS_MESSENGEROSXINTEGRATION_CID);
@@ -866,9 +857,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
 #ifdef XP_WIN
   { &kNS_MESSENGERWININTEGRATION_CID, false, NULL, nsMessengerWinIntegrationConstructor},
 #endif
-#ifdef XP_OS2
-  { &kNS_MESSENGEROS2INTEGRATION_CID, false, NULL, nsMessengerOS2IntegrationConstructor},
-#endif
 #ifdef XP_MACOSX
   { &kNS_MESSENGEROSXINTEGRATION_CID, false, NULL, nsMessengerOSXIntegrationConstructor},
 #endif
@@ -1070,9 +1058,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &kNS_MSGNOTIFICATIONSERVICE_CID },
 #ifdef XP_WIN
   { NS_MESSENGEROSINTEGRATION_CONTRACTID, &kNS_MESSENGERWININTEGRATION_CID },
-#endif
-#ifdef XP_OS2
-  { NS_MESSENGEROSINTEGRATION_CONTRACTID, &kNS_MESSENGEROS2INTEGRATION_CID },
 #endif
 #ifdef XP_MACOSX
   { NS_MESSENGEROSINTEGRATION_CONTRACTID, &kNS_MESSENGEROSXINTEGRATION_CID },

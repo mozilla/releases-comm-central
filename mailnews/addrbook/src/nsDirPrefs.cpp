@@ -875,7 +875,7 @@ static void DIR_ConvertServerFileName(DIR_Server* pServer)
 {
   char* leafName = pServer->fileName;
   char* newLeafName = nullptr;
-#if defined(XP_WIN) || defined(XP_OS2)
+#if defined(XP_WIN)
   /* jefft -- bug 73349 This is to allow users share same address book.
    * It only works if the user specify a full path filename.
    */

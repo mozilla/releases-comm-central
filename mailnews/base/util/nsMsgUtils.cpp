@@ -367,8 +367,6 @@ static bool ConvertibleToNative(const nsAutoString& str)
   const static uint32_t MAX_LEN = 55;
 #elif defined(XP_WIN32)
   const static uint32_t MAX_LEN = 55;
-#elif defined(XP_OS2)
-  const static uint32_t MAX_LEN = 55;
 #else
   #error need_to_define_your_max_filename_length
 #endif
