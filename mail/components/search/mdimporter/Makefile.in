@@ -2,48 +2,32 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEPTH		= @DEPTH@
-topsrcdir	= @top_srcdir@
-srcdir		= @srcdir@
-VPATH		= @srcdir@
+# This directory is producing a framework as a target. The output of this
+# framework will be located here.
+FRAMEWORK_DIR := $(DIST)/package/thunderbird.mdimporter
 
-include $(DEPTH)/config/autoconf.mk
+STRING_FILES := English.lproj/InfoPlist.strings English.lproj/schema.strings
+STRING_DEST := $(FRAMEWORK_DIR)/Contents/Resources/English.lproj
+INSTALL_TARGETS += STRING
 
-# Xcode 2.1 and newer puts its build products in a directory corresponding to
-# the selected build style/configuration.
-XCODE_PRODUCT_DIR = build/$(BUILDSTYLE)
+SCHEMA_FILES := schema.xml
+SCHEMA_DEST := $(FRAMEWORK_DIR)/Contents/Resources
+INSTALL_TARGETS += SCHEMA
+
+PLIST_FILES := Info.plist
+PLIST_DEST := $(FRAMEWORK_DIR)/Contents
+INSTALL_TARGETS += PLIST
+
+CFLAGS += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
+# We don't need mozglue
+WRAP_LDFLAGS :=
+LIBS += \
+  -framework CoreFoundation \
+  -framework CoreServices \
+  $(NULL)
 
 include $(topsrcdir)/config/rules.mk
 
-ifeq (,$(findstring pbxbuild,$(PBBUILD)))
-    # pbbuild or xcodebuild indicates Xcode; the Xcode project contains
-    # native targets needed for proper SDK builds.
-    PROJECT=TBSpotlight.xcodeproj
-    PROJECT_ARG=-project $(PROJECT)
-    PBBUILD_ARG=$(PBBUILD_SETTINGS)
-endif
+# We're also a bundle.
+LDFLAGS += -bundle
 
-BUILDSTYLE = Release
-
-CC  := $(shell which $(firstword $(CC)))
-CXX := $(shell which $(firstword $(CXX)))
-
-# for objdir builds, copy the project, and symlink the sources
-ABS_topsrcdir   := $(shell cd $(topsrcdir); pwd)
-ifneq ($(ABS_topsrcdir),$(MOZ_BUILD_ROOT))
-export::
-	rsync -a --exclude .DS_Store --exclude "CVS/" $(srcdir)/$(PROJECT) .
-	ln -fs $(srcdir)/English.lproj
-	ln -fs $(srcdir)/GetMetadataForFile.c
-	ln -fs $(srcdir)/main.c
-	ln -fs $(srcdir)/schema.xml
-	ln -fs $(srcdir)/Info*.plist .
-endif
-
-libs::
-	$(PBBUILD) $(PROJECT_ARG) -target thunderbird -configuration Release $(PBBUILD_ARG)
-	mkdir -p $(DIST)/package
-	$(INSTALL) "$(XCODE_PRODUCT_DIR)/thunderbird.mdimporter" $(DIST)/package
-
-clean clobber distclean::
-	rm -rf build

@@ -99,17 +99,6 @@ if test -z "$MOZ_INCOMPLETE_EXTERNAL_LINKAGE"; then
   MOZ_APP_EXTRA_LIBS="$LDAP_LIBS"
 fi
 
-# Check for PBBUILD on OS X.
-case "$target_os" in
-darwin*)
-  for name in pbbuild xcodebuild pbxbuild; do
-    PBBUILD_BIN=`which $name`
-    test -n "$PBBUILD_BIN" && break
-  done
-  AC_SUBST(PBBUILD_BIN)
-  ;;
-esac
-
 # if we're building the LDAP XPCOM component, we need to build
 # the c-sdk first.
 if test -n "$COMPILE_ENVIRONMENT" -a -n "$MOZ_LDAP_XPCOM"; then
