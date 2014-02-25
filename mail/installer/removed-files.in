@@ -106,11 +106,7 @@ components/@DLL_PREFIX@walletviewers@DLL_SUFFIX@
   components/widget_mac.xpt
 #endif
 components/@DLL_PREFIX@xpcom_compat_c@DLL_SUFFIX@
-#ifdef XP_OS2
-  components/@DLL_PREFIX@xpcomcor@DLL_SUFFIX@
-#else
-  components/@DLL_PREFIX@xpcom_core@DLL_SUFFIX@
-#endif
+components/@DLL_PREFIX@xpcom_core@DLL_SUFFIX@
 components/xpcom_obsolete.xpt
 components/xpinstall.xpt
 components/@DLL_PREFIX@xpinstal@DLL_SUFFIX@
@@ -811,14 +807,10 @@ components/@DLL_PREFIX@jar50@DLL_SUFFIX@
   components/@DLL_PREFIX@jsd3250@DLL_SUFFIX@
 #endif
 components/@DLL_PREFIX@mail@DLL_SUFFIX@
-#ifdef XP_OS2
+#ifdef XP_WIN
   components/@DLL_PREFIX@mailcmp@DLL_SUFFIX@
-#else
-  #ifdef XP_WIN
-    components/@DLL_PREFIX@mailcmp@DLL_SUFFIX@
-  #endif
-  components/@DLL_PREFIX@mailcomps@DLL_SUFFIX@
 #endif
+components/@DLL_PREFIX@mailcomps@DLL_SUFFIX@
 components/@DLL_PREFIX@mork@DLL_SUFFIX@
 components/@DLL_PREFIX@mozfind@DLL_SUFFIX@
 components/@DLL_PREFIX@mozldap@DLL_SUFFIX@

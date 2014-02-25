@@ -234,14 +234,6 @@ nsSeamonkeyProfileMigrator::FillProfileDataFromSeamonkeyRegistry()
                    getter_AddRefs(seamonkeyData));
   NS_ENSURE_TRUE(seamonkeyData, NS_ERROR_FAILURE);
 
-#elif defined(XP_OS2)
-#define NEW_FOLDER "SeaMonkey"
-#define EXTRA_PREPEND "Mozilla"
-
-  fileLocator->Get(NS_OS2_HOME_DIR, NS_GET_IID(nsIFile),
-                   getter_AddRefs(seamonkeyData));
-  NS_ENSURE_TRUE(seamonkeyData, NS_ERROR_FAILURE);
-
 #else
   // On other OS just abort.
   return NS_ERROR_FAILURE;

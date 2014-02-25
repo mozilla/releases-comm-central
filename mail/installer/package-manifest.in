@@ -127,13 +127,9 @@
 #endif
 @BINPATH@/blocklist.xml
 @BINPATH@/platform.ini
-#ifdef XP_OS2
-@BINPATH@/@DLL_PREFIX@mozsqlt3@DLL_SUFFIX@
-#else
 #ifndef MOZ_NATIVE_SQLITE
 #ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
-#endif
 #endif
 #endif
 #ifdef UNIX_BUT_NOT_MAC
@@ -141,13 +137,6 @@
 #ifdef MOZ_UPDATER
 @BINPATH@/icons/*.png
 #endif
-#endif
-
-; [OS/2]
-#ifdef XP_OS2
-@BINPATH@/MozSounds.cmd
-@BINPATH@/*.xqs
-@BINPATH@/components/*.xqs
 #endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -203,9 +192,7 @@
 @BINPATH@/components/nsNewsAutoCompleteSearch.js
 @BINPATH@/components/nsNewsAutoCompleteSearch.manifest
 @BINPATH@/components/services-crypto-component.xpt
-#ifndef XP_OS2
 @BINPATH@/components/shellservice.xpt
-#endif
 @BINPATH@/components/xpcom_base.xpt
 @BINPATH@/components/xpcom_system.xpt
 @BINPATH@/components/xpcom_components.xpt
@@ -254,10 +241,8 @@
 @BINPATH@/components/mailContentHandler.js
 @BINPATH@/components/mailGlue.js
 @BINPATH@/components/nsMailDefaultHandler.js
-#ifndef XP_OS2
 @BINPATH@/components/nsSetDefaultMail.js
 @BINPATH@/components/shell.manifest
-#endif
 @BINPATH@/components/offlineStartup.js
 @BINPATH@/components/offlineStartup.manifest
 @BINPATH@/components/steelApplication.js
@@ -797,12 +782,10 @@
 #ifdef XP_MACOSX
 @BINPATH@/crashreporter.app/
 #else
-#ifndef XP_OS2
 @BINPATH@/crashreporter@BIN_SUFFIX@
 @BINPATH@/crashreporter.ini
 #ifdef XP_UNIX
 @BINPATH@/Throbber-small.gif
-#endif
 #endif
 #endif
 #ifdef MOZ_CRASHREPORTER_INJECTOR
