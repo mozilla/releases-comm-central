@@ -12,8 +12,8 @@ include $(DEPTH)/config/autoconf.mk
 
 # Note: mac icons are handled in /suite/app during the final application
 # packaging
-ifneq (,$(filter windows os2 gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
-ifneq (,$(filter windows os2,$(MOZ_WIDGET_TOOLKIT)))
+ifneq (,$(filter windows gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
+ifneq (,$(filter windows,$(MOZ_WIDGET_TOOLKIT)))
 ICON_SUFFIX=.ico
 else
 ICON_SUFFIX=.png
@@ -102,7 +102,4 @@ ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 	cp $(srcdir)/package/mac/dsstore              $(DIST)/branding/dsstore
 	cp $(srcdir)/package/mac/background.png       $(DIST)/branding/background.png
 	cp $(srcdir)/package/mac/disk.icns            $(DIST)/branding/disk.icns
-endif
-ifeq ($(OS_ARCH),OS2)
-	cp $(srcdir)/icons/os2/seamonkey.ico           $(DIST)/branding/seamonkey.ico
 endif

@@ -171,10 +171,6 @@ components/wlltvwrs.dll
 #endif
 components/xml-rpc.xpt
 components/@DLL_PREFIX@xmlextras@DLL_SUFFIX@
-#ifdef XP_OS2
-components/@DLL_PREFIX@xpconect@DLL_SUFFIX@
-components/@DLL_PREFIX@xpinstal@DLL_SUFFIX@
-#else
 #ifdef XP_WIN
 components/xpc3250.dll
 components/xpinstal.dll
@@ -182,7 +178,6 @@ components/xpinstal.dll
 components/@DLL_PREFIX@xpconnect@DLL_SUFFIX@
 #endif
 components/@DLL_PREFIX@xpinstall@DLL_SUFFIX@
-#endif
 components/xpti.dat
 components/nsAboutAbout.js
 components/nsAddonRepository.js
@@ -395,9 +390,7 @@ omni.jar
   run-mozilla.sh
   updater.app/Contents/MacOS/updater.ini
 #endif
-#ifdef XP_OS2
-plugins/npnulos2.dll
-#elifdef XP_WIN
+#ifdef XP_WIN
 plugins/npnul32.dll
 #elifdef XP_UNIX
 plugins/libnullplugin.so
@@ -579,10 +572,7 @@ Throbber-small.gif
   updater.ini
 #endif
 @DLL_PREFIX@xpcom@DLL_SUFFIX@
-#ifdef XP_OS2
-  @DLL_PREFIX@xpcomcor@DLL_SUFFIX@
-#else
-  @DLL_PREFIX@xpcom_core@DLL_SUFFIX@
+@DLL_PREFIX@xpcom_core@DLL_SUFFIX@
 #endif
 xpicleanup@BIN_SUFFIX@
 @DLL_PREFIX@xpistub@DLL_SUFFIX@
@@ -790,7 +780,6 @@ xpicleanup@BIN_SUFFIX@
   extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/
   extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/winInspectorMain16.xpm
   extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/winInspectorMain.xpm
-  extensions/inspector@mozilla.org/platform/OS2/chrome/icons/default/winInspectorMain.ico
   extensions/inspector@mozilla.org/platform/WINNT/chrome/icons/default/winInspectorMain.ico
   extensions/inspector@mozilla.org/components/
   extensions/inspector@mozilla.org/components/inspector-cmdline.js
@@ -1163,28 +1152,16 @@ components/@DLL_PREFIX@bayesflt@DLL_SUFFIX@
 components/@DLL_PREFIX@fts3tok@DLL_SUFFIX@
 components/@DLL_PREFIX@mailview@DLL_SUFFIX@
 components/@DLL_PREFIX@mime@DLL_SUFFIX@
-#ifdef XP_OS2
-components/mimeemit.dll
-#else
 components/@DLL_PREFIX@mimeemitter@DLL_SUFFIX@
-#endif
 components/@DLL_PREFIX@msgbase@DLL_SUFFIX@
-#ifdef XP_OS2
-components/msgcompo.dll
-#else
 components/@DLL_PREFIX@msgcompose@DLL_SUFFIX@
-#endif
 components/@DLL_PREFIX@msgdb@DLL_SUFFIX@
 components/@DLL_PREFIX@msgimap@DLL_SUFFIX@
 components/@DLL_PREFIX@msglocal@DLL_SUFFIX@
 components/@DLL_PREFIX@msgmdn@DLL_SUFFIX@
 components/@DLL_PREFIX@msgnews@DLL_SUFFIX@
 components/@DLL_PREFIX@vcard@DLL_SUFFIX@
-#ifdef XP_OS2
-msgbsutl.dll
-#else
 @DLL_PREFIX@msgbaseutil@DLL_SUFFIX@
-#endif
 #ifdef XP_WIN
   components/@DLL_PREFIX@jsd3250@DLL_SUFFIX@
 #else

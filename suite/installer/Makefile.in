@@ -110,10 +110,6 @@ ifneq (en-US, $(AB_CD))
 DEFINES += -DLOCALE_BUILD=1
 endif
 
-ifeq (,$(filter-out WINNT OS2,$(OS_ARCH)))
-DEFINES += -DWIN_OR_OS2=1
-endif
-
 DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
 
 ifdef MOZ_PKG_MANIFEST_P

@@ -98,11 +98,7 @@ comm.jar:
 #ifdef XP_WIN32
 *  content/communicator/platformCommunicatorOverlay.xul             (win/platformCommunicatorOverlay.xul)
 #else
-#ifdef XP_OS2
-*  content/communicator/platformCommunicatorOverlay.xul             (win/platformCommunicatorOverlay.xul)
-#else
    content/communicator/platformCommunicatorOverlay.xul             (unix/platformCommunicatorOverlay.xul)
-#endif
 #endif
 #endif
    content/communicator/bindings/findbar.xml                        (bindings/findbar.xml)

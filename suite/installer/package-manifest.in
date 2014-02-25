@@ -110,7 +110,7 @@
 
 [browser]
 ; [Base Browser Files]
-#ifdef WIN_OR_OS2
+#ifdef XP_WIN32
 @BINPATH@/@MOZ_APP_NAME@.exe
 #else
 @BINPATH@/@MOZ_APP_NAME@-bin
@@ -121,13 +121,9 @@
 #ifdef MOZ_UPDATER
 @BINPATH@/update-settings.ini
 #endif
-#ifdef XP_OS2
-@BINPATH@/@DLL_PREFIX@mozsqlt3@DLL_SUFFIX@
-#else
 #ifndef MOZ_NATIVE_SQLITE
 #ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
-#endif
 #endif
 #endif
 @BINPATH@/license.txt
@@ -543,33 +539,31 @@
 #ifdef MOZ_UPDATER
 @BINPATH@/icons/updater.png
 #endif
-#elifdef WIN_OR_OS2
+#elifdef XP_WIN32
 @BINPATH@/chrome/icons/default/bookmarkproperties.ico
 @BINPATH@/chrome/icons/default/downloadManager.ico
 @BINPATH@/chrome/icons/default/editorWindow.ico
 @BINPATH@/chrome/icons/default/findBookmarkWindow.ico
 @BINPATH@/chrome/icons/default/findHistoryWindow.ico
-@BINPATH@/chrome/icons/default/history-window.ico
-@BINPATH@/chrome/icons/default/JSConsoleWindow.ico
-@BINPATH@/chrome/icons/default/main-window.ico
-@BINPATH@/chrome/icons/default/places.ico
-#ifdef XP_WIN32
 @BINPATH@/chrome/icons/default/gif-file.ico
+@BINPATH@/chrome/icons/default/history-window.ico
 @BINPATH@/chrome/icons/default/html-file.ico
-@BINPATH@/chrome/icons/default/misc-file.ico
 @BINPATH@/chrome/icons/default/image-file.ico
 @BINPATH@/chrome/icons/default/jpeg-file.ico
+@BINPATH@/chrome/icons/default/JSConsoleWindow.ico
+@BINPATH@/chrome/icons/default/main-window.ico
+@BINPATH@/chrome/icons/default/misc-file.ico
+@BINPATH@/chrome/icons/default/places.ico
 @BINPATH@/chrome/icons/default/script-file.ico
 @BINPATH@/chrome/icons/default/xml-file.ico
 @BINPATH@/chrome/icons/default/xul-file.ico
-#endif
 #endif
 ; Although venkman-window is an extension, its icon is still suite-specific
 #ifdef MOZ_GTK2
 @BINPATH@/chrome/icons/default/venkman-window.png
 @BINPATH@/chrome/icons/default/venkman-window16.png
 @BINPATH@/chrome/icons/default/venkman-window48.png
-#elifdef WIN_OR_OS2
+#elifdef XP_WIN32
 @BINPATH@/chrome/icons/default/venkman-window.ico
 #endif
 
@@ -715,13 +709,6 @@ bin/libfreebl_32int64_3.so
 #endif
 #endif
 
-; [OS/2]
-#ifdef XP_OS2
-@BINPATH@/MozSounds.cmd
-@BINPATH@/*.xqs
-@BINPATH@/components/*.xqs
-#endif
-
 [mail]
 ; MailNews component xpts
 @BINPATH@/components/addrbook.xpt
@@ -789,7 +776,7 @@ bin/libfreebl_32int64_3.so
 @BINPATH@/chrome/icons/default/msgcomposeWindow.png
 @BINPATH@/chrome/icons/default/msgcomposeWindow16.png
 @BINPATH@/chrome/icons/default/msgcomposeWindow48.png
-#elifdef WIN_OR_OS2
+#elifdef XP_WIN32
 @BINPATH@/chrome/icons/default/abcardWindow.ico
 @BINPATH@/chrome/icons/default/ablistWindow.ico
 @BINPATH@/chrome/icons/default/addressbookWindow.ico
@@ -835,7 +822,7 @@ bin/libfreebl_32int64_3.so
 #ifdef MOZ_GTK2
 @BINPATH@/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window.xpm
 @BINPATH@/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window16.xpm
-#elifdef WIN_OR_OS2
+#elifdef XP_WIN32
 @BINPATH@/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window.ico
 #endif
 @BINPATH@/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome.manifest
@@ -887,8 +874,6 @@ bin/libfreebl_32int64_3.so
 @BINPATH@/extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/winInspectorMain.xpm
 #elifdef XP_WIN32
 @BINPATH@/extensions/inspector@mozilla.org/platform/WINNT/chrome/icons/default/winInspectorMain.ico
-#elifdef XP_OS2
-@BINPATH@/extensions/inspector@mozilla.org/platform/OS2/chrome/icons/default/winInspectorMain.ico
 #endif
 @BINPATH@/extensions/inspector@mozilla.org/components/components.list
 @BINPATH@/extensions/inspector@mozilla.org/components/inspector-cmdline.js

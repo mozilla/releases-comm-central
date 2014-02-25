@@ -39,13 +39,8 @@ comm.jar:
    content/navigator/platformNavigationBindings.xul                 (win/platformNavigationBindings.xul)
    content/navigator/platformMailOverlay.xul                        (win/platformMailOverlay.xul)
 #else
-#ifdef XP_OS2
-   content/navigator/platformNavigationBindings.xul                 (win/platformNavigationBindings.xul)
-   content/navigator/platformMailOverlay.xul                        (win/platformMailOverlay.xul)
-#else
    content/navigator/platformNavigationBindings.xul                 (unix/platformNavigationBindings.xul)
    content/navigator/platformMailOverlay.xul                        (unix/platformMailOverlay.xul)
-#endif
 #endif
 #endif
    content/navigator/pageinfo/feeds.js                              (pageinfo/feeds.js)

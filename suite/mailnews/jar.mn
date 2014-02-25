@@ -116,9 +116,6 @@ messenger.jar:
 #ifdef XP_WIN32
     content/messenger/platformMailnewsOverlay.xul                              (win/platformMailnewsOverlay.xul)
 #else
-#ifdef XP_OS2
-    content/messenger/platformMailnewsOverlay.xul                              (win/platformMailnewsOverlay.xul)
-#else
     content/messenger/platformMailnewsOverlay.xul                              (unix/platformMailnewsOverlay.xul)
 #endif
 #endif
