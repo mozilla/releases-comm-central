@@ -9,6 +9,8 @@
 
 */
 
+#include "nsOESettings.h"
+#include "mozilla/WindowsVersion.h"
 #include "nsCOMPtr.h"
 #include "nscore.h"
 #include "nsMsgUtils.h"
@@ -19,7 +21,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"
-#include "nsOESettings.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgCompCID.h"
 #include "nsMsgI18N.h"
@@ -898,27 +899,25 @@ void OESettings::SetSmtpServer(const nsString &aSmtpServer,
 
 bool OESettings::IsKB933612Applied()
 {
-  OSVERSIONINFOEX versionInfo = { 0 };
-  versionInfo.dwOSVersionInfoSize = sizeof(versionInfo);
-  GetVersionEx(reinterpret_cast<OSVERSIONINFO*>(&versionInfo));
-
-  // Windows XP SP3 and Windows Vista SP1 include KB933612 fix.
+  // The following versions of Windows include KB933612 fix:
+  // - Windows 7 and future versions of Windows
+  // - Windows Vista, SP1 or later
+  // - Windows Server 2003, SP2 or later
+  // - Windows XP, SP3 or later
+  //
+  // The following versions do not:
+  // - Windows Vista SP0
+  // - Windows Server 2003, SP1 or earlier
+  // - Windows XP, SP2 or earlier
+  //
   // See http://support.microsoft.com/kb/929123 and
   // http://support.microsoft.com/kb/933612
-  switch (versionInfo.dwMajorVersion) {
-    case 6:
-      if ((versionInfo.dwMinorVersion == 0 && versionInfo.wServicePackMajor > 0) ||
-          versionInfo.dwMinorVersion == 1) {
-        return true;
-      }
-      break;
-    case 5:
-      if (versionInfo.dwMinorVersion > 0 && versionInfo.wServicePackMajor > 2)
-        return true;
-      break;
-    default:
-      break;
-  }
-  return false;
+  //
+  // Note that mozilla::IsWin2003SP2OrLater() will return true for
+  // Windows Vista and mozilla::IsXPSP3OrLater() will return true
+  // for Windows Server 2003.
+  return mozilla::IsVistaSP1OrLater() ||
+         !mozilla::IsWin2003OrLater() && mozilla::IsXPSP3OrLater() ||
+         !mozilla::IsVistaOrLater() && mozilla::IsWin2003SP2OrLater();
 }
 
