@@ -166,8 +166,8 @@ bool MimeCMSHeadersAndCertsMatch(nsICMSMessage *content_info,
     *signing_cert_without_email_address = cert_addr.IsEmpty();
 
   /* Now compare them --
-   consider it a match if the address in the cert matches either the
-   address in the From or Sender field
+   consider it a match if the address in the cert matches the
+   address in the From field (or as a fallback, the Sender field)
    */
 
   /* If there is no addr in the cert at all, it can not match and we fail. */
@@ -187,8 +187,7 @@ bool MimeCMSHeadersAndCertsMatch(nsICMSMessage *content_info,
           foundFrom = false;
         }
       }
-
-      if (sender_addr && *sender_addr)
+      else if (sender_addr && *sender_addr)
       {
         NS_ConvertASCIItoUTF16 ucs2Sender(sender_addr);
         if (NS_FAILED(signerCert->ContainsEmailAddress(ucs2Sender, &foundSender)))
