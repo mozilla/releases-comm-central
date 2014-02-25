@@ -44,9 +44,16 @@
        textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
        textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
-       this.getElt("splitter-bottom")
-           .addEventListener("DOMAttrModified",
-                             this._onSplitterChange.bind(this));
+       MutationObserver(function(aMutations) {
+         for (let mutation of aMutations) {
+           if (mutation.oldValue == "dragging") {
+             this._onSplitterChange();
+             break;
+           }
+         }
+       }.bind(this)).observe(this.getElt("splitter-bottom"),
+                             {attributes: true, attributeOldValue: true,
+                              attributeFilter: ["state"]});
 
        var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress);
@@ -293,12 +300,8 @@
      </method>
 
      <method name="_onSplitterChange">
-      <parameter name="aEvent"/>
       <body>
       <![CDATA[
-        if (aEvent.attrName != "state" || aEvent.prevValue != "dragging")
-          return;
-
         let textbox = this.editor;
         // set the default height as the deck height (modified by the splitter)
         textbox.defaultHeight = parseInt(textbox.parentNode.height) -
