@@ -113,6 +113,11 @@
   background-color: -moz-Dialog;
 }
 
+.findbar-container {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
 /* ::::: msg header captions ::::: */
 
 #msgHeaderView {
