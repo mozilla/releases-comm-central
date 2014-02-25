@@ -288,7 +288,7 @@ morkStream::PutLineBreak(morkEnv* ev)
   return 1;
   
 #else
-#  if defined(MORK_WIN) || defined(MORK_OS2)
+#  if defined(MORK_WIN)
   
   this->Putc(ev, mork_kCR);
   this->Putc(ev, mork_kLF);

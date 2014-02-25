@@ -224,7 +224,7 @@ morkFile::NewFileErrnoError(morkEnv* ev) const
        "\015\015\015\015\015\015\015\015\015\015\015\015\015\015\015\015";
 #      define morkFile_kNewlinesCount 16
 #else
-#  if defined(MORK_WIN) || defined(MORK_OS2)
+#  if defined(MORK_WIN)
        static const char morkFile_kNewlines[] = 
        "\015\012\015\012\015\012\015\012\015\012\015\012\015\012\015\012";
 #    define morkFile_kNewlinesCount 8
