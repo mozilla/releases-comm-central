@@ -141,6 +141,29 @@ function ensureNoAutoCc(aIdentity) {
 }
 
 /**
+ * Helper to set an auto-bcc list for an identity.
+ */
+function useAutoBcc(aIdentity, aBccList) {
+  aIdentity.doBcc = true;
+  aIdentity.doBccList = aBccList;
+}
+
+/**
+ * Helper to stop using auto-bcc for an identity.
+ */
+function stopUsingAutoBcc(aIdentity) {
+  aIdentity.doBcc = false;
+  aIdentity.doBccList = "";
+}
+
+/**
+ * Helper to ensure auto-bcc is turned off.
+ */
+function ensureNoAutoBcc(aIdentity) {
+  aIdentity.doBcc = false;
+}
+
+/**
  * Tests that addresses get set properly when doing a normal reply.
  */
 function testToCcReply() {
@@ -699,6 +722,7 @@ function testReplyToSelfReplyAll() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
+  useAutoBcc(identity, "Lisa <lisa@example.com>");
   checkReply(
     open_compose_with_reply_to_all,
     // To: original To
@@ -714,6 +738,83 @@ function testReplyToSelfReplyAll() {
     }
   );
   stopUsingAutoCc(identity);
+  stopUsingAutoBcc(identity);
+}
+
+/**
+ * Tests that addresses get set properly for a reply all to self - but for a
+ * message that is not really the original sent message. Like an auto-bcc:d copy
+ * or from Gmail. This should be treated as a followup.
+ */
+function testReplyToSelfNotOriginalSourceMsgReplyAll() {
+  let msg0 = create_message({
+    from: myEmail2,
+    to: "Bart <bart@example.com>, Maggie <maggie@example.com>",
+    cc: "Lisa <lisa@example.com>",
+    subject: "testReplyToSelfNotOriginalSourceMsgReplyAll - reply to self",
+    clobberHeaders: {
+      "Reply-To": "Flanders <flanders@example.com>"
+    }
+  });
+  add_message_to_folder(folder, msg0);
+
+  be_in_folder(folder);
+  let msg = select_click_row(i++);
+  assert_selected_and_displayed(mc, msg);
+
+  ensureNoAutoCc(identity);
+  useAutoBcc(identity, myEmail + ", smithers@example.com");
+  checkReply(
+     open_compose_with_reply_to_all,
+    // To: original To
+    // Cc: original Cc
+    // Bcc: auto-bccs
+    // Reply-To: original Reply-To
+    {
+      "addr_to": ["Bart <bart@example.com>",
+                  "Maggie <maggie@example.com>"],
+      "addr_cc": ["Lisa <lisa@example.com>"],
+      "addr_bcc": [myEmail, "smithers@example.com"],
+      "addr_reply": ["Flanders <flanders@example.com>"]
+    }
+  );
+  stopUsingAutoBcc(identity);
+
+  useAutoCc(identity, myEmail + ", smithers@example.com");
+  useAutoBcc(identity, "moe@example.com,bart@example.com,lisa@example.com");
+  checkReply(
+    open_compose_with_reply_to_all,
+    // To: original To
+    // Cc: original Cc (auto-Ccs would have been included here already)
+    // Bcc: auto-bcc minus addressess already in To/Cc
+    // Reply-To: original Reply-To
+    {
+      "addr_to": ["Bart <bart@example.com>",
+                  "Maggie <maggie@example.com>"],
+      "addr_cc": ["Lisa <lisa@example.com>"],
+      "addr_bcc": ["moe@example.com"],
+      "addr_reply": ["Flanders <flanders@example.com>"]
+    }
+  );
+  stopUsingAutoCc(identity);
+  stopUsingAutoBcc(identity);
+
+  useAutoBcc(identity, myEmail2 + ", smithers@example.com");
+  checkReply(
+    open_compose_with_reply_to_all,
+    // To: original To
+    // Cc: original Cc (auto-Ccs would have been included here already)
+    // Bcc: auto-bccs
+    // Reply-To: original Reply-To
+    {
+      "addr_to": ["Bart <bart@example.com>",
+                  "Maggie <maggie@example.com>"],
+      "addr_cc": ["Lisa <lisa@example.com>"],
+      "addr_bcc": [myEmail2, "smithers@example.com"],
+      "addr_reply": ["Flanders <flanders@example.com>"]
+    }
+  );
+  stopUsingAutoBcc(identity);
 }
 
 /**
