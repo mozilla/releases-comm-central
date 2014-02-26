@@ -851,6 +851,77 @@ function testReplyToOtherIdentity() {
 }
 
 /**
+ * Tests that addresses get set properly for a reply all to self w/ bccs -
+ * this should be treated as a followup.
+ */
+function testReplyToSelfWithBccs() {
+  let msg0 = create_message({
+    from: myEmail,
+    to: myEmail,
+    cc: myEmail2 + ", Lisa <lisa@example.com>",
+    subject: "testReplyToSelfWithBccs - reply to self",
+    clobberHeaders: {
+      "Bcc": "Moe <moe@example.com>, Barney <barney@example.com>",
+      "Reply-To": myEmail2
+    }
+  });
+  add_message_to_folder(folder, msg0);
+
+  be_in_folder(folder);
+  let msg = select_click_row(i++);
+  assert_selected_and_displayed(mc, msg);
+
+  ensureNoAutoCc(identity);
+  checkReply(
+    open_compose_with_reply_to_all,
+    // To: original To
+    // Cc: original Cc
+    // Bcc: original Bcc
+    // Reply-To: original Reply-To
+    {
+      "addr_to": [myEmail],
+      "addr_cc": [myEmail2, "Lisa <lisa@example.com>"],
+      "addr_bcc": ["Moe <moe@example.com>", "Barney <barney@example.com>"],
+      "addr_reply": [myEmail2]
+    }
+  );
+}
+
+/**
+ * Tests that addresses get set properly for a reply all to other identity w/ bccs -
+ * this be treated as a followup.
+ */
+function testReplyToOtherIdentityWithBccs() {
+  let msg0 = create_message({
+    from: myEmail,
+    to: myEmail2,
+    cc: "Lisa <lisa@example.com>",
+    subject: "testReplyToOtherIdentityWithBccs - reply to other identity",
+    clobberHeaders: {
+      "Bcc": "Moe <moe@example.com>, Barney <barney@example.com>"
+    }
+  });
+  add_message_to_folder(folder, msg0);
+
+  be_in_folder(folder);
+  let msg = select_click_row(i++);
+  assert_selected_and_displayed(mc, msg);
+
+  ensureNoAutoCc(identity);
+  checkReply(
+    open_compose_with_reply_to_all,
+    // To: original To
+    // Cc: original Cc
+    // Bcc: original Bcc
+    {
+      "addr_to": [myEmail2],
+      "addr_cc": ["Lisa <lisa@example.com>"],
+      "addr_bcc": ["Moe <moe@example.com>", "Barney <barney@example.com>"]
+    }
+  );
+}
+
+/**
  * Tests that addresses get set properly for a nntp reply-all.
  */
 function testNewsgroupsReplyAll() {

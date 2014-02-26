@@ -2533,10 +2533,11 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           if (curIdentityEmail.Equals(fromEmailAddress))
           {
             isReplyToSelf = true;
-            // For a true reply-to-self, NONE of your identities are normally in
-            // To or CC. If you auto-Cc yourself it could be in Cc - but we
-            // can't detect this case 100%, so lets just treat it like a normal
-            // reply.
+            // For a true reply-to-self, none of your identities are normally in
+            // To or Cc. We need to avoid doing a reply-to-self for people that
+            // have multiple identities set and sometimes *uses* the other
+            // identity and sometimes *mails* the other identity.
+            // E.g. husband+wife or own-email+company-role-mail.
             for (uint32_t j = 0; j < count; j++)
             {
               nsCOMPtr<nsIMsgIdentity> lookupIdentity2;
@@ -2547,10 +2548,21 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
 
               nsCString curIdentityEmail2;
               lookupIdentity2->GetEmail(curIdentityEmail2);
-              if (toEmailAddresses.Contains(curIdentityEmail2) ||
-                  ccEmailAddresses.Contains(curIdentityEmail2))
+              if (toEmailAddresses.Contains(curIdentityEmail2))
               {
-                // An identity among the recipients -> not reply-to-self.
+                // However, "From:me To:me" should be treated as
+                // reply-to-self if we have a Bcc. If we don't have a Bcc we
+                // might have the case of a generated mail of the style
+                // "From:me To:me Reply-To:customer". Then we need to to do a
+                // normal reply to the customer.
+                isReplyToSelf = !bcc.IsEmpty(); // true if bcc is set
+                break;
+              }
+              else if (ccEmailAddresses.Contains(curIdentityEmail2))
+              {
+                // If you auto-Cc yourself your email would be in Cc - but we
+                // can't detect why it is in Cc so lets just treat it like a
+                // normal reply.
                 isReplyToSelf = false;
                 break;
               }
