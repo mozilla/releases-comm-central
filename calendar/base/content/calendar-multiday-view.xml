@@ -56,7 +56,7 @@
                   // This only needs to be done if the initial relayout has
                   // already happened, otherwise it will be done then.
                   for (var hour = this.mStartMin / 60; hour < this.mEndMin / 60; hour++) {
-                      if (hour < this.mDayStartHour || hour > this.mDayEndHour) {
+                      if (hour < this.mDayStartHour || hour >= this.mDayEndHour) {
                           topbox.childNodes[hour].setAttribute("off-time", "true");
                       } else {
                           topbox.childNodes[hour].removeAttribute("off-time");
