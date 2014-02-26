@@ -323,33 +323,24 @@ nsresult nsMessengerUnixIntegration::ShowAlertMessage(const nsAString& aAlertTit
   if (mAlertInProgress)
     return NS_OK;
 
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  bool showAlert = true;
-  prefBranch->GetBoolPref(SHOW_ALERT_PREF, &showAlert);
-
-  if (showAlert)
-  {
-    mAlertInProgress = true;
-    nsCOMPtr<nsIAlertsService> alertsService(do_GetService(NS_SYSTEMALERTSERVICE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv)) {
-      rv = alertsService->ShowAlertNotification(NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON),
-                                                aAlertTitle,
-                                                aAlertText,
-                                                false,
-                                                NS_ConvertASCIItoUTF16(aFolderURI),
-                                                this,
-                                                EmptyString(),
-                                                NS_LITERAL_STRING("auto"),
-                                                EmptyString(),
-                                                nullptr);
-      if (NS_SUCCEEDED(rv))
-        return rv;
-    }
-    AlertFinished();
-    rv = ShowNewAlertNotification(false);
-
+  mAlertInProgress = true;
+  nsCOMPtr<nsIAlertsService> alertsService(do_GetService(NS_SYSTEMALERTSERVICE_CONTRACTID, &rv));
+  if (NS_SUCCEEDED(rv)) {
+    rv = alertsService->ShowAlertNotification(NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON),
+                                              aAlertTitle,
+                                              aAlertText,
+                                              false,
+                                              NS_ConvertASCIItoUTF16(aFolderURI),
+                                              this,
+                                              EmptyString(),
+                                              NS_LITERAL_STRING("auto"),
+                                              EmptyString(),
+                                              nullptr);
+    if (NS_SUCCEEDED(rv))
+      return rv;
   }
+  AlertFinished();
+  rv = ShowNewAlertNotification(false);
 
   if (NS_FAILED(rv)) // go straight to showing the system tray icon.
     AlertFinished();
@@ -369,50 +360,41 @@ nsresult nsMessengerUnixIntegration::ShowNewAlertNotification(bool aUserInitiate
   if (mAlertInProgress)
     return NS_OK;
 
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  nsCOMPtr<nsIMutableArray> argsArray = do_CreateInstance(NS_ARRAY_CONTRACTID);
+  if (!argsArray)
+    return NS_ERROR_FAILURE;
+
+  // pass in the array of folders with unread messages
+  nsCOMPtr<nsISupportsInterfacePointer> ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
+  ifptr->SetData(mFoldersWithNewMail);
+  ifptr->SetDataIID(&NS_GET_IID(nsIArray));
+  argsArray->AppendElement(ifptr, false);
 
-  bool showAlert = true;
-  prefBranch->GetBoolPref(SHOW_ALERT_PREF, &showAlert);
+  // pass in the observer
+  ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr <nsISupports> supports = do_QueryInterface(static_cast<nsIMessengerOSIntegration*>(this));
+  ifptr->SetData(supports);
+  ifptr->SetDataIID(&NS_GET_IID(nsIObserver));
+  argsArray->AppendElement(ifptr, false);
 
-  if (showAlert)
-  {
-    nsCOMPtr<nsIMutableArray> argsArray = do_CreateInstance(NS_ARRAY_CONTRACTID);
-    if (!argsArray)
-      return NS_ERROR_FAILURE;
+  // pass in the animation flag
+  nsCOMPtr<nsISupportsPRBool> scriptableUserInitiated (do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  scriptableUserInitiated->SetData(aUserInitiated);
+  argsArray->AppendElement(scriptableUserInitiated, false);
 
-    // pass in the array of folders with unread messages
-    nsCOMPtr<nsISupportsInterfacePointer> ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    ifptr->SetData(mFoldersWithNewMail);
-    ifptr->SetDataIID(&NS_GET_IID(nsIArray));
-    argsArray->AppendElement(ifptr, false);
+  nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+  nsCOMPtr<nsIDOMWindow> newWindow;
 
-    // pass in the observer
-    ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr <nsISupports> supports = do_QueryInterface(static_cast<nsIMessengerOSIntegration*>(this));
-    ifptr->SetData(supports);
-    ifptr->SetDataIID(&NS_GET_IID(nsIObserver));
-    argsArray->AppendElement(ifptr, false);
+  mAlertInProgress = true;
+  rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank",
+                          "chrome,dialog=yes,titlebar=no,popup=yes", argsArray,
+                          getter_AddRefs(newWindow));
 
-    // pass in the animation flag
-    nsCOMPtr<nsISupportsPRBool> scriptableUserInitiated (do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    scriptableUserInitiated->SetData(aUserInitiated);
-    argsArray->AppendElement(scriptableUserInitiated, false);
-
-    nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    nsCOMPtr<nsIDOMWindow> newWindow;
-
-    mAlertInProgress = true;
-    rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank",
-                            "chrome,dialog=yes,titlebar=no,popup=yes", argsArray,
-                            getter_AddRefs(newWindow));
-
-    if (NS_FAILED(rv))
-      AlertFinished();
-  }
+  if (NS_FAILED(rv))
+    AlertFinished();
 
   return rv;
 }
@@ -444,6 +426,15 @@ nsMessengerUnixIntegration::Observe(nsISupports* aSubject, const char* aTopic, c
 
 void nsMessengerUnixIntegration::FillToolTipInfo()
 {
+  nsresult rv;
+  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv,);
+
+  bool showAlert = true;
+  prefBranch->GetBoolPref(SHOW_ALERT_PREF, &showAlert);
+  if (!showAlert)
+    return;
+
   nsCString folderUri;
   GetFirstFolderWithNewMail(folderUri);
 
