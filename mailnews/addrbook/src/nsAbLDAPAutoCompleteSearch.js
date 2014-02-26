@@ -75,22 +75,24 @@ nsAbLDAPAutoCompleteResult.prototype = {
 
 function nsAbLDAPAutoCompleteSearch() {
   Services.obs.addObserver(this, "quit-application", false);
+  this._timer = Components.classes["@mozilla.org/timer;1"]
+                          .createInstance(Components.interfaces.nsITimer);
 }
 
 nsAbLDAPAutoCompleteSearch.prototype = {
   // For component registration
   classID: Components.ID("227e6482-fe9f-441f-9b7d-7b60375e7449"),
 
-  // A cache of Address Books, directories and search contexts.
-  // The cache is indexed by the address book URI. Each item in the cache
-  // then has three items:
-  // book - the address book associated with the URI.
-  // query - the nsAbLDAPDirectoryQuery in use for the URI.
-  // context - the search context for the URI (used for cancelling the search).
-  _cachedQueries: {},
-
-  // The URI of the currently active query.
-  _activeQuery: null,
+  // A short-lived LDAP directory cache.
+  // To avoid recreating components as the user completes, we maintain the most
+  // recently used address book, nsAbLDAPDirectoryQuery and search context.
+  // However the cache is discarded if it has not been used for a minute.
+  // This is done to avoid problems with LDAP sessions timing out and hanging.
+  _query: null,
+  _book: null,
+  _attributes: null,
+  _context: -1,
+  _timer: null,
 
   // The current search result.
   _result: null,
@@ -141,16 +143,18 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   observe: function observer(subject, topic, data) {
     if (topic == "quit-application") {
-      // Force the individual query items to null, so that the memory
-      // gets collected straight away.
-      for (var item in this._cachedQueries) {
-        this._cachedQueries[item].query = null;
-        this._cachedQueries[item].book = null;
-        this._cachedQueries[item].attributes = null;
-      }
-      this._cachedQueries = {};
       Services.obs.removeObserver(this, "quit-application");
+    } else if (topic != "timer-callback") {
+      return;
     }
+
+    // Force the individual query items to null, so that the memory
+    // gets collected straight away.
+    this.stopSearch();
+    this._book = null;
+    this._context = -1;
+    this._query = null;
+    this._attributes = null;
   },
 
   // nsIAutoCompleteSearch
@@ -185,8 +189,8 @@ nsAbLDAPAutoCompleteSearch.prototype = {
         identity = MailServices.accounts.getIdentity(idKey);
       }
       catch(ex) {
-        Components.utils.reportError("Couldn't get specified identity, falling " +
-                                     "back to global settings");
+        Components.utils.reportError("Couldn't get specified identity, " +
+                                     "falling back to global settings");
       }
     }
 
@@ -205,45 +209,36 @@ nsAbLDAPAutoCompleteSearch.prototype = {
       return;
     }
 
-    // If we don't already have a cached query for this URI, build a new one.
-    if (!(acDirURI in this._cachedQueries)) {
-      var query =
-        Components.classes["@mozilla.org/addressbook/ldap-directory-query;1"]
-                  .createInstance(Components.interfaces.nsIAbDirectoryQuery);
-      let book = MailServices.ab.getDirectory("moz-abldapdirectory://" + acDirURI)
-                                .QueryInterface(Components.interfaces.nsIAbLDAPDirectory);
-
-      // Create a minimal map just for the display name and primary email.
-      var attributes =
-        Components.classes["@mozilla.org/addressbook/ldap-attribute-map;1"]
-                  .createInstance(Components.interfaces.nsIAbLDAPAttributeMap);
-      attributes.setAttributeList("DisplayName",
-        book.attributeMap.getAttributeList("DisplayName", {}), true);
-      attributes.setAttributeList("PrimaryEmail",
-        book.attributeMap.getAttributeList("PrimaryEmail", {}), true);
-
-      this._cachedQueries[acDirURI] = {
-        attributes: attributes,
-        book: book,
-        context: -1,
-        query: query
-      };
-    }
-
     this.stopSearch();
 
-    this._activeQuery = acDirURI;
+    // If we don't already have a cached query for this URI, build a new one.
+    acDirURI = "moz-abldapdirectory://" + acDirURI;
+    if (!this._book || this._book.URI != acDirURI) {
+      this._query =
+        Components.classes["@mozilla.org/addressbook/ldap-directory-query;1"]
+                  .createInstance(Components.interfaces.nsIAbDirectoryQuery);
+      this._book = MailServices.ab.getDirectory(acDirURI)
+                                  .QueryInterface(Components.interfaces.nsIAbLDAPDirectory);
 
-    var queryObject = this._cachedQueries[acDirURI];
+      // Create a minimal map just for the display name and primary email.
+      this._attributes =
+        Components.classes["@mozilla.org/addressbook/ldap-attribute-map;1"]
+                  .createInstance(Components.interfaces.nsIAbLDAPAttributeMap);
+      this._attributes.setAttributeList("DisplayName",
+        this._book.attributeMap.getAttributeList("DisplayName", {}), true);
+      this._attributes.setAttributeList("PrimaryEmail",
+        this._book.attributeMap.getAttributeList("PrimaryEmail", {}), true);
+    }
 
-    this._result._commentColumn = queryObject.book.dirName;
+    this._result._commentColumn = this._book.dirName;
     this._listener = aListener;
+    this._timer.init(this, 60000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 
     var args =
       Components.classes["@mozilla.org/addressbook/directory/query-arguments;1"]
                 .createInstance(Components.interfaces.nsIAbDirectoryQueryArguments);
 
-    var filterTemplate = queryObject.book.getStringValue("autoComplete.filterTemplate", "");
+    var filterTemplate = this._book.getStringValue("autoComplete.filterTemplate", "");
 
     // Use default value when preference is not set or it contains empty string    
     if (!filterTemplate)
@@ -255,22 +250,19 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     var filter = ldapSvc.createFilter(1024, filterTemplate, "", "", "", aSearchString);
     if (!filter)
       throw new Error("Filter string is empty, check if filterTemplate variable is valid in prefs.js.");
-    args.typeSpecificArg = queryObject.attributes;
+    args.typeSpecificArg = this._attributes;
     args.querySubDirectories = true;
     args.filter = filter;
 
     // Start the actual search
-    queryObject.context =
-      queryObject.query.doQuery(queryObject.book, args, this,
-                                queryObject.book.maxHits, 0);
+    this._context =
+      this._query.doQuery(this._book, args, this, this._book.maxHits, 0);
   },
 
   stopSearch: function stopSearch() {
-    if (this._activeQuery) {
-      this._cachedQueries[this._activeQuery].query
-          .stopQuery(this._cachedQueries[this._activeQuery].context);
+    if (this._listener) {
+      this._query.stopQuery(this._context);
       this._listener = null;
-      this._activeQuery = null;
     }
   },
 
@@ -294,7 +286,6 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     }
     //    const long queryResultStopped  = 2;
     //    const long queryResultError    = 3;
-    this._activeQuery = null;
     this._listener.onSearchResult(this, this._result);
     this._listener = null;
   },
