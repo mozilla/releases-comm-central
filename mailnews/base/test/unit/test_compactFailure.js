@@ -23,6 +23,41 @@ LockedFileOutputStream.prototype = {
   },
 }
 
+var MsgDBServiceFailure = {
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgDBService]),
+
+  openMailDBFromFile: function(file, folder, create, leaveInvalidDB) {
+    if (folder.name == "ShouldFail")
+      throw Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
+    return this._genuine.openMailDBFromFile(file, folder, create, leaveInvalidDB);
+  },
+
+  openFolderDB: function(folder, leaveInvalidDB) {
+    return this._genuine.openFolderDB(folder, leaveInvalidDB);
+  },
+  asyncOpenFolderDB: function(folder, leaveInvalidDB) {
+    return this._genuine.asyncOpenFolderDB(folder, leaveInvalidDB);
+  },
+  openMore: function(db, timeHint) {
+    return this._genuine.openMore(db, timeHint);
+  },
+  createNewDB: function(folder) {
+    return this._genuine.createNewDB(folder);
+  },
+  registerPendingListener: function(folder, listener) {
+    this._genuine.registerPendingListener(folder, listener);
+  },
+  unregisterPendingListener: function(listener) {
+    this._genuine.unregisterPendingListener(listener);
+  },
+  cachedDBForFolder: function(folder) {
+    return this._genuine.cachedDBFolder(folder);
+  },
+  get openDBs() {
+    return this._genuine.oenDBs;
+  }
+}
+
 function setup_output_stream_stub() {
   gUuid = MockFactory.register("@mozilla.org/network/file-output-stream;1",
                               LockedFileOutputStream);
@@ -32,14 +67,34 @@ function teardown_output_stream_stub() {
   MockFactory.unregister(gUuid);
 }
 
-function setup_target_folder() {
+function setup_db_service_mock() {
+  gUuid = MockFactory.register("@mozilla.org/msgDatabase/msgDBService;1",
+                               MsgDBServiceFailure);
+}
+
+function teardown_db_service_mock() {
+  MockFactory.unregister(gUuid);
+}
+
+function generate_messages() {
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
   let messages = [];
   messages = messages.concat(scenarioFactory.directReply(10));
+  return messages;
+}
 
+function setup_target_folder() {
   gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder("Target");
-  addMessagesToFolder(messages, gTargetFolder);
+  addMessagesToFolder(generate_messages(), gTargetFolder);
+
+  mailTestUtils.updateFolderAndNotify(gTargetFolder, async_driver);
+  yield false;
+}
+
+function setup_open_failure_folder() {
+  gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder("ShouldFail");
+  addMessagesToFolder(generate_messages(), gTargetFolder);
 
   mailTestUtils.updateFolderAndNotify(gTargetFolder, async_driver);
   yield false;
@@ -57,7 +112,7 @@ function delete_all_messages() {
   yield false;
 }
 
-function test_compact_without_crash() {
+function compact_with_exception(expectedException) {
   let compactor = Cc["@mozilla.org/messenger/localfoldercompactor;1"]
                     .createInstance(Ci.nsIMsgFolderCompactor);
   let listener = new AsyncUrlListener(null, function(url, exitCode) {
@@ -67,8 +122,16 @@ function test_compact_without_crash() {
     compactor.compact(gTargetFolder, false, listener, null);
     do_throw("nsIMsgFolderCompactor.compact did not fail.");
   } catch(ex) {
-    do_check_eq(Cr.NS_ERROR_FILE_IS_LOCKED, ex.result);
+    do_check_eq(expectedException, ex.result);
   }
+}
+
+function test_compact_without_crash() {
+  compact_with_exception(Cr.NS_ERROR_FILE_IS_LOCKED);
+}
+
+function test_compact_without_failure() {
+  compact_with_exception(Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST);
 }
 
 var tests = [
@@ -77,6 +140,12 @@ var tests = [
   setup_output_stream_stub,
   test_compact_without_crash,
   teardown_output_stream_stub,
+
+  setup_open_failure_folder,
+  delete_all_messages,
+  setup_db_service_mock,
+  test_compact_without_failure,
+  teardown_db_service_mock,
 ];
 
 function create_local_folders() {

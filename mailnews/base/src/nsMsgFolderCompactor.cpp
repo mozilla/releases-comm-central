@@ -114,7 +114,7 @@ nsFolderCompactState::InitDB(nsIMsgDatabase *db)
     return msgDBService->OpenMailDBFromFile(m_file,
                                             m_folder, true, true,
                                getter_AddRefs(m_db));
-  return NS_OK;
+  return rv;
 }
 
 NS_IMETHODIMP nsFolderCompactState::CompactFolders(nsIArray *aArrayOfFoldersToCompact,
