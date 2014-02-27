@@ -121,8 +121,6 @@
                      value="otherAccount"
                      label="&deferToServer.label;"
                      accesskey="&deferToServer.accesskey;">
-                <observes element="deferredServerFolderPicker"
-                          attribute="disabled"/>
               </radio>
               <menulist id="deferredServerFolderPicker"
                         class="folderMenuItem"

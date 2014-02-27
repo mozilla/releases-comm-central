@@ -74,6 +74,9 @@ function onLoad()
         radioGroup.disabled = true;
       }
     }
+
+    let picker = document.getElementById("deferredServerFolderPicker");
+    picker.disabled = radioGroup.selectedIndex != 1;
   }
 
   var controls = getControls();
@@ -98,10 +101,15 @@ function onOk()
   {
     var radioGroup = document.getElementById("folderStorage");
     var gPrefsBundle = document.getElementById("bundle_prefs");
+    let picker = document.getElementById("deferredServerFolderPicker");
 
-    // if this account wasn't deferred, and is now...
+    // This account wasn't previously deferred, but is now deferred.
     if (radioGroup.value != "currentAccount" && !gFirstDeferredAccount.length)
     {
+      // If the user hasn't selected a folder, keep the default.
+      if (!picker.selectedItem)
+        return true;
+
       var confirmDeferAccount =
         gPrefsBundle.getString("confirmDeferAccountWarning");
 
@@ -116,8 +124,7 @@ function onOk()
         gServerSettings['deferredToAccount'] = "";
         break;
       case "otherAccount":
-        let server = document.getElementById("deferredServerFolderPicker")
-                             .selectedItem._folder.server;
+        let server = picker.selectedItem._folder.server;
         let account = MailServices.accounts.FindAccountForServer(server);
         gServerSettings['deferredToAccount'] = account.key;
         break;
