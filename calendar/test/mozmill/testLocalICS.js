@@ -68,14 +68,21 @@ var testLocalICS = function () {
   let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
     + '/{"tooltip":"itemTooltip","calendar":"' + calendar + '"}';
   controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
-  
+
   // verify in file
   let contents = "";
   let fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
                           .createInstance(Components.interfaces.nsIFileInputStream);
   let cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
                           .createInstance(Components.interfaces.nsIConverterInputStream);
-  
+
+  // wait a moment until file is written
+  let i = 0;
+  while(!file.exists() && i < 10) {
+    controller.sleep(sleep);
+    i++;
+  }
+
   fstream.init(file, -1, 0, 0);
   cstream.init(fstream, "UTF-8", 0, 0);
   
