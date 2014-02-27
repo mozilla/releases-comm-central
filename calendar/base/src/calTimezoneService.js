@@ -95,9 +95,17 @@ calTimezoneService.prototype = {
                 this.mUTC = new calLibicalTimezone("UTC", null, "", "");
                 this.mUTC.mUTC = true;
             }
-            this.mTimezoneCache.UTC = this.mUTC;
-            this.mTimezoneCache.utc = this.mUTC;
-            this.mTimezoneCache.Z = this.mUTC;
+
+            // These UTC aliases are taken from wikipedia, included in case
+            // other clients make use of them without specifying a definition.
+            const utcAliases = ["UTC", "utc", "Z", "Etc/GMT", "Etc/GMT+0",
+                                "Etc/UCT", "Etc/Unversal", "Etc/UTC",
+                                "Etc/Zulu", "GMT", "GMT+0", "GMT0",
+                                "Greenwich", "UCT", "Universal", "Zulu"];
+
+            for (let zone of utcAliases) {
+                this.mTimezoneCache[zone] = this.mUTC;
+            }
         }
 
         return this.mUTC;
