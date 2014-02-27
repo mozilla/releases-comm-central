@@ -573,7 +573,6 @@ Throbber-small.gif
 #endif
 @DLL_PREFIX@xpcom@DLL_SUFFIX@
 @DLL_PREFIX@xpcom_core@DLL_SUFFIX@
-#endif
 xpicleanup@BIN_SUFFIX@
 @DLL_PREFIX@xpistub@DLL_SUFFIX@
 
