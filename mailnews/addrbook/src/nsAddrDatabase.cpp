@@ -725,6 +725,10 @@ nsresult nsAddrDatabase::AddRowToDeletedCardsTable(nsIAbCard *card, nsIMdbRow **
       if (!unicodeStr.IsEmpty())
         AddUnicodeToColumn(cardRow, m_PriEmailColumnToken, m_LowerPriEmailColumnToken, unicodeStr.get());
 
+      card->GetPropertyAsAString(k2ndEmailProperty, unicodeStr);
+      if (!unicodeStr.IsEmpty())
+        AddUnicodeToColumn(cardRow, m_2ndEmailColumnToken, m_Lower2ndEmailColumnToken, unicodeStr.get());
+
       uint32_t nowInSeconds;
       PRTime now = PR_Now();
       PRTime2Seconds(now, &nowInSeconds);
@@ -951,7 +955,7 @@ nsresult nsAddrDatabase::UpdateLowercaseEmailListName()
   NS_ENSURE_TRUE(NS_SUCCEEDED(merror) && rowCursor, NS_ERROR_FAILURE);
 
   do
-  {   //add lowercase primary email to each card and mailing list row
+  { // Add lowercase primary+secondary email to each card and mailing list row.
     merror = rowCursor->NextRow(m_mdbEnv, &findRow, &rowPos);
     if (NS_SUCCEEDED(merror) && findRow)
     {
@@ -963,22 +967,30 @@ nsresult nsAddrDatabase::UpdateLowercaseEmailListName()
         if (IsCardRowScopeToken(rowOid.mOid_Scope))
         {
           err = GetStringColumn(findRow, m_LowerPriEmailColumnToken, tempString);
-          if (NS_SUCCEEDED(err))
-            break;
+          if (NS_FAILED(err)) // not set yet
+          {
+            err = ConvertAndAddLowercaseColumn(findRow, m_PriEmailColumnToken,
+              m_LowerPriEmailColumnToken);
+            commitRequired = commitRequired || NS_SUCCEEDED(err);
+          }
 
-          err = ConvertAndAddLowercaseColumn(findRow, m_PriEmailColumnToken,
-            m_LowerPriEmailColumnToken);
-          commitRequired = true;
+          err = GetStringColumn(findRow, m_Lower2ndEmailColumnToken, tempString);
+          if (NS_FAILED(err)) // not set yet
+          {
+            err = ConvertAndAddLowercaseColumn(findRow, m_2ndEmailColumnToken,
+              m_Lower2ndEmailColumnToken);
+            commitRequired = commitRequired || NS_SUCCEEDED(err);
+          }
         }
         else if (IsListRowScopeToken(rowOid.mOid_Scope))
         {
           err = GetStringColumn(findRow, m_LowerListNameColumnToken, tempString);
-          if (NS_SUCCEEDED(err))
-            break;
+          if (NS_SUCCEEDED(err)) // already set up
+            continue;
 
           err = ConvertAndAddLowercaseColumn(findRow, m_ListNameColumnToken,
             m_LowerListNameColumnToken);
-          commitRequired = true;
+          commitRequired = commitRequired || NS_SUCCEEDED(err);
         }
       }
       findRow->Release();
@@ -1047,6 +1059,7 @@ nsresult nsAddrDatabase::InitMDBInfo()
       m_mdbStore->StringToToken(m_mdbEnv,  kPriEmailProperty, &m_PriEmailColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kLowerPriEmailColumn, &m_LowerPriEmailColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  k2ndEmailProperty, &m_2ndEmailColumnToken);
+      m_mdbStore->StringToToken(m_mdbEnv,  kLower2ndEmailColumn, &m_Lower2ndEmailColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kPreferMailFormatProperty, &m_MailFormatColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kPopularityIndexProperty, &m_PopularityIndexColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kAllowRemoteContentProperty, &m_AllowRemoteContentColumnToken);
@@ -2317,6 +2330,19 @@ NS_IMETHODIMP nsAddrDatabase::AddPrimaryEmail(nsIMdbRow *aRow, const char *aValu
   NS_ENSURE_SUCCESS(rv,rv);
 
   rv = AddLowercaseColumn(aRow, m_LowerPriEmailColumnToken, aValue);
+  NS_ENSURE_SUCCESS(rv,rv);
+  return rv;
+}
+
+/*  value is UTF8 string */
+NS_IMETHODIMP nsAddrDatabase::Add2ndEmail(nsIMdbRow *aRow, const char *aValue)
+{
+  NS_ENSURE_ARG_POINTER(aValue);
+
+  nsresult rv = AddCharStringColumn(aRow, m_2ndEmailColumnToken, aValue);
+  NS_ENSURE_SUCCESS(rv,rv);
+
+  rv = AddLowercaseColumn(aRow, m_Lower2ndEmailColumnToken, aValue);
   NS_ENSURE_SUCCESS(rv,rv);
   return rv;
 }

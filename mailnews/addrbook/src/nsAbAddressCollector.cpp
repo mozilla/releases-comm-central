@@ -37,13 +37,12 @@ nsAbAddressCollector::~nsAbAddressCollector()
 }
 
 /**
- * Returns the first card found with a given property name/value pair. This
+ * Returns the first card found with the specified email address. This
  * returns an already addrefed pointer to the card if the card is found.
  */
 already_AddRefed<nsIAbCard>
-nsAbAddressCollector::GetCardFromProperty(const char *aName,
-                                          const nsACString &aValue,
-                                          nsIAbDirectory **aDirectory)
+nsAbAddressCollector::GetCardForAddress(const nsACString &aEmailAddress,
+                                        nsIAbDirectory **aDirectory)
 {
   nsresult rv;
   nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
@@ -68,9 +67,11 @@ nsAbAddressCollector::GetCardFromProperty(const char *aName,
 
     // Some implementations may return NS_ERROR_NOT_IMPLEMENTED here,
     // so just catch the value and continue.
-    if (NS_FAILED(directory->GetCardFromProperty(aName, aValue, true,
+    if (NS_FAILED(directory->CardForEmailAddress(aEmailAddress,
                                                  getter_AddRefs(result))))
+    {
       continue;
+    }
 
     if (result)
     {
@@ -124,25 +125,10 @@ nsAbAddressCollector::CollectSingleAddress(const nsACString &aEmail,
     return NS_OK;
 
   nsresult rv;
-  nsCOMPtr<nsIAbCard> card;
-  bool emailAddressIn2ndEmailColumn = false;
 
   nsCOMPtr<nsIAbDirectory> originDirectory;
-
-  if (!aSkipCheckExisting)
-  {
-    card = GetCardFromProperty(kPriEmailProperty, aEmail,
-                               getter_AddRefs(originDirectory));
-    // We've not found a card, but is this address actually in the additional
-    // email column?
-    if (!card)
-    {
-      card = GetCardFromProperty(k2ndEmailProperty, aEmail,
-                                 getter_AddRefs(originDirectory));
-      if (card)
-        emailAddressIn2ndEmailColumn = true;
-    }
-  }
+  nsCOMPtr<nsIAbCard> card = (!aSkipCheckExisting) ?
+    GetCardForAddress(aEmail, getter_AddRefs(originDirectory)) : nullptr;
 
   if (!card && (aCreateCard || aSkipCheckExisting))
   {
@@ -163,7 +149,7 @@ nsAbAddressCollector::CollectSingleAddress(const nsACString &aEmail,
       }
     }
   }
-  else if (card && !emailAddressIn2ndEmailColumn && originDirectory)
+  else if (card && originDirectory)
   {
     // It could be that the origin directory is read-only, so don't try and
     // write to it if it is.

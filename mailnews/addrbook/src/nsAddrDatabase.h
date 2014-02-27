@@ -90,8 +90,7 @@ public:
 
   NS_IMETHOD AddPrimaryEmail(nsIMdbRow * row, const char * value) MOZ_OVERRIDE;
 
-  NS_IMETHOD Add2ndEmail(nsIMdbRow * row, const char * value) MOZ_OVERRIDE
-  { return AddCharStringColumn(row, m_2ndEmailColumnToken, value); }
+  NS_IMETHOD Add2ndEmail(nsIMdbRow * row, const char * value) MOZ_OVERRIDE;
 
   NS_IMETHOD AddPreferMailFormat(nsIMdbRow * row, uint32_t value) MOZ_OVERRIDE
   { return AddIntColumn(row, m_MailFormatColumnToken, value); }
@@ -409,6 +408,7 @@ protected:
   mdb_token      m_LastModDateColumnToken;
   mdb_token      m_RecordKeyColumnToken;
   mdb_token      m_LowerPriEmailColumnToken;
+  mdb_token      m_Lower2ndEmailColumnToken;
 
   mdb_token      m_MailFormatColumnToken;
   mdb_token     m_PopularityIndexColumnToken;

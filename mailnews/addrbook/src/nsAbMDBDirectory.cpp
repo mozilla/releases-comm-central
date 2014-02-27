@@ -1015,7 +1015,7 @@ NS_IMETHODIMP nsAbMDBDirectory::CardForEmailAddress(const nsACString &aEmailAddr
 {
   NS_ENSURE_ARG_POINTER(aAbCard);
 
-  *aAbCard = NULL;
+  *aAbCard = nullptr;
 
   // Ensure that if we've not been given an email address we never match
   // so that we don't fail out unnecessarily and we don't match a blank email
@@ -1044,14 +1044,15 @@ NS_IMETHODIMP nsAbMDBDirectory::CardForEmailAddress(const nsACString &aEmailAddr
   if (lowerEmail.IsEmpty())
     return NS_ERROR_FAILURE;
 
-  mDatabase->GetCardFromAttribute(this, kLowerPriEmailColumn, NS_ConvertUTF16toUTF8(lowerEmail),
+  mDatabase->GetCardFromAttribute(this, kLowerPriEmailColumn,
+                                  NS_ConvertUTF16toUTF8(lowerEmail),
                                   false, aAbCard);
   if (!*aAbCard)
-    // We don't have a lower case second email column, so we have to search
-    // case-sensitively here.
-    mDatabase->GetCardFromAttribute(this, k2ndEmailProperty, aEmailAddress,
-                                    true, aAbCard);
-
+  {
+    mDatabase->GetCardFromAttribute(this, kLower2ndEmailColumn,
+                                    NS_ConvertUTF16toUTF8(lowerEmail),
+                                    false, aAbCard);
+  }
   return NS_OK;
 }
 

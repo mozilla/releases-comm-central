@@ -32,6 +32,7 @@ interface nsISimpleEnumerator;
 #define kMailListTotalAddresses   "ListTotalAddresses"
 // not shown in the UI
 #define kLowerPriEmailColumn      "LowercasePrimaryEmail"
+#define kLower2ndEmailColumn      "LowercaseSecondEmail"
 
 // Palm Integration
 #define  CARD_ATTRIB_PALMID "PalmRecId"

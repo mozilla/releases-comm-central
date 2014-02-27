@@ -8,6 +8,8 @@
  * Tests against cards in different ABs are done in test_collection_2.js.
  */
 
+// make xpcshell-tests TEST_PATH=mailnews/addrbook/test/unit/test_collection.js
+
 const nsIAbPMF = Components.interfaces.nsIAbPreferMailFormat;
 
 // Source fields (emailHeader/mailFormat) and expected results for use for
@@ -350,10 +352,18 @@ function run_test()
                                                      nsIAbPMF.unknown,
                                                      true);
 
+  // Try collecting the same address in another case. This shouldn't create any
+  // new card.
+  collectChecker.addressCollect.collectSingleAddress(kSingleAddress.toUpperCase(),
+                                                     kSingleDisplayName,
+                                                     true,
+                                                     nsIAbPMF.unknown,
+                                                     true);
+
   childCards = collectChecker.AB.childCards;
   var foundCards = [];
 
-  while(childCards.hasMoreElements()) {
+  while (childCards.hasMoreElements()) {
     var card = childCards.getNext();
     if (card instanceof Ci.nsIAbCard &&
         card.primaryEmail == kSingleAddress)
