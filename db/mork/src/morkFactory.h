@@ -185,7 +185,7 @@ public: // dynamic type identification
 public: // other factory methods
 
   void NonFactoryTypeError(morkEnv* ev);
-  morkEnv* GetInternalFactoryEnv(mdb_err* outErr);
+  morkEnv* GetInternalFactoryEnv(nsresult* outErr);
   mork_bool CanOpenMorkTextFile(morkEnv* ev, nsIMdbFile* ioFile);
   
 public: // typesafe refcounting inlines calling inherited morkNode methods

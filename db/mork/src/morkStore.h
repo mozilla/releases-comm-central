@@ -626,7 +626,8 @@ private: // copying is not allowed
   morkStore& operator=(const morkStore& other);
 
 public: // dynamic type identification
-  morkEnv*  CanUseStore(nsIMdbEnv* mev, mork_bool inMutable, mdb_err* outErr) const;
+  morkEnv* CanUseStore(nsIMdbEnv* mev, mork_bool inMutable,
+                       nsresult* outErr) const;
    mork_bool IsStore() const
   { return IsNode() && mNode_Derived == morkDerived_kStore; }
 // } ===== end morkNode methods =====

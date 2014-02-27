@@ -145,8 +145,8 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(nsMsgKey msgKey, bool create, n
 {
   mdb_bool	hasOid;
   mdbOid		rowObjectId;
-  mdb_err   err;
-  
+  nsresult err;
+
   if (!IMAPOffline)
     IMAPOffline = PR_NewLogModule("IMAPOFFLINE");
   nsresult rv = GetAllOfflineOpsTable();

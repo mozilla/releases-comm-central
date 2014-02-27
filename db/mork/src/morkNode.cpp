@@ -208,15 +208,15 @@ morkNode::CloseMdbObject(nsIMdbEnv* mev)
   return morkNode::CloseMdbObject((morkEnv *) mev);
 }
 
-mdb_err morkNode::CloseMdbObject(morkEnv *ev)
+nsresult morkNode::CloseMdbObject(morkEnv *ev)
 {
   // if only one ref, Handle_CutStrongRef will clean up better.
   if (mNode_Uses == 1)
-    // XXX Casting mork_uses to mdb_err
-    return static_cast<mdb_err>(CutStrongRef(ev));
+    // XXX Casting mork_uses to nsresult
+    return static_cast<nsresult>(CutStrongRef(ev));
 
-  mdb_err outErr = NS_OK;
-  
+  nsresult outErr = NS_OK;
+
   if ( IsNode() && IsOpenNode() )
   {
     if ( ev )

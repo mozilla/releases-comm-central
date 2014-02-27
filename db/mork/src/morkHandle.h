@@ -110,23 +110,23 @@ public: // other handle methods
 public: // interface supporting mdbObject methods
 
   morkEnv* CanUseHandle(nsIMdbEnv* mev, mork_bool inMutable,
-    mork_bool inClosedOkay, mdb_err* outErr) const;
+                        mork_bool inClosedOkay, nsresult* outErr) const;
     
   // { ----- begin mdbObject style methods -----
-  mdb_err Handle_IsFrozenMdbObject(nsIMdbEnv* ev, mdb_bool* outIsReadonly);
+  nsresult Handle_IsFrozenMdbObject(nsIMdbEnv* ev, mdb_bool* outIsReadonly);
 
-  mdb_err Handle_GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory); 
-  mdb_err Handle_GetWeakRefCount(nsIMdbEnv* ev,  mdb_count* outCount);  
-  mdb_err Handle_GetStrongRefCount(nsIMdbEnv* ev, mdb_count* outCount);
+  nsresult Handle_GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory);
+  nsresult Handle_GetWeakRefCount(nsIMdbEnv* ev,  mdb_count* outCount);
+  nsresult Handle_GetStrongRefCount(nsIMdbEnv* ev, mdb_count* outCount);
 
-  mdb_err Handle_AddWeakRef(nsIMdbEnv* ev);
-  mdb_err Handle_AddStrongRef(nsIMdbEnv* ev);
+  nsresult Handle_AddWeakRef(nsIMdbEnv* ev);
+  nsresult Handle_AddStrongRef(nsIMdbEnv* ev);
 
-  mdb_err Handle_CutWeakRef(nsIMdbEnv* ev);
-  mdb_err Handle_CutStrongRef(nsIMdbEnv* ev);
-  
-  mdb_err Handle_CloseMdbObject(nsIMdbEnv* ev);
-  mdb_err Handle_IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen);
+  nsresult Handle_CutWeakRef(nsIMdbEnv* ev);
+  nsresult Handle_CutStrongRef(nsIMdbEnv* ev);
+
+  nsresult Handle_CloseMdbObject(nsIMdbEnv* ev);
+  nsresult Handle_IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen);
   // } ----- end mdbObject style methods -----
 
 public: // typesafe refcounting inlines calling inherited morkNode methods

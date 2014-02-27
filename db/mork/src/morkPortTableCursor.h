@@ -114,10 +114,10 @@ public: // other cursor methods
   static void NilCursorStoreError(morkEnv* ev);
   static void NonPortTableCursorTypeError(morkEnv* ev);
 
- morkEnv* CanUsePortTableCursor(nsIMdbEnv* mev,
-  mork_bool inMutable, mdb_err* outErr) const;
+ morkEnv* CanUsePortTableCursor(nsIMdbEnv* mev, mork_bool inMutable,
+                                nsresult* outErr) const;
 
-  
+
   morkRowSpace* NextSpace(morkEnv* ev);
   morkTable* NextTable(morkEnv* ev);
 

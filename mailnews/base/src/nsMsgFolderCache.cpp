@@ -81,9 +81,9 @@ nsresult nsMsgFolderCache::InitNewDB()
   {
     nsIMdbStore *store = GetStore();
     // create the unique table for the dbFolderInfo.
-    mdb_err mdberr;
+    nsresult mdberr;
     // TODO: this error assignment is suspicious and never checked.
-    mdberr = (nsresult) store->NewTable(GetEnv(), m_folderRowScopeToken,
+    mdberr = store->NewTable(GetEnv(), m_folderRowScopeToken,
     m_folderTableKindToken, false, nullptr, &m_mdbAllFoldersTable);
   }
   return err;
@@ -269,7 +269,7 @@ NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(const nsACString& pathKey, bool 
 
     if (GetStore())
     {
-      mdb_err err = GetStore()->NewRow(GetEnv(), m_folderRowScopeToken,   // row scope for row ids
+      nsresult err = GetStore()->NewRow(GetEnv(), m_folderRowScopeToken, // row scope for row ids
         &hdrRow);
       if (NS_SUCCEEDED(err) && hdrRow)
       {

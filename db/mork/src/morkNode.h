@@ -183,7 +183,7 @@ public: // morkNode virtual methods
 public: // morkNode construction
   morkNode(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
   void CloseNode(morkEnv* ev); // called by CloseMorkNode();
-  mdb_err CloseMdbObject(morkEnv *ev);
+  nsresult CloseMdbObject(morkEnv *ev);
   NS_IMETHOD CloseMdbObject(nsIMdbEnv *ev);
 private: // copying is not allowed
   morkNode(const morkNode& other);

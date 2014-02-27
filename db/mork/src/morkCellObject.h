@@ -144,7 +144,7 @@ public: // dynamic type identification
 public: // other cell node methods
 
   morkEnv*  CanUseCell(nsIMdbEnv* mev, mork_bool inMutable,
-    mdb_err* outErr, morkCell** outCell) ;
+                       nsresult* outErr, morkCell** outCell);
 
   mork_bool ResyncWithRow(morkEnv* ev); // return ev->Good()
   morkAtom* GetCellAtom(morkEnv* ev) const;

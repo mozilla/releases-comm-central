@@ -143,7 +143,7 @@ NS_IMETHODIMP nsImapMailDatabase::UpdatePendingAttributes(nsIMsgDBHdr* aNewHdr)
       nsIMdbRow *row = msgHdr->GetMDBRow();
       for (mdb_count cellIndex = 1; cellIndex < numCells; cellIndex++)
       {
-        mdb_err err = pendingRow->SeekCellYarn(GetEnv(), cellIndex, &cellColumn, nullptr);
+        nsresult err = pendingRow->SeekCellYarn(GetEnv(), cellIndex, &cellColumn, nullptr);
         if (NS_SUCCEEDED(err))
         {
           err = pendingRow->AliasCellYarn(GetEnv(), cellColumn, &cellYarn);

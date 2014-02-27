@@ -1626,7 +1626,7 @@ nsresult nsMsgDatabase::InitNewDB()
       dbFolderInfo->SetBooleanProperty(kFixedBadRefThreadingProp, true);
       nsIMdbStore *store = GetStore();
       // create the unique table for the dbFolderInfo.
-      mdb_err mdberr;
+      nsresult mdberr;
       struct mdbOid allMsgHdrsTableOID;
       struct mdbOid allThreadsTableOID;
       if (!store)
@@ -1710,7 +1710,7 @@ nsresult nsMsgDatabase::InitExistingDB()
       allMsgHdrsTableOID.mOid_Scope = m_hdrRowScopeToken;
       allMsgHdrsTableOID.mOid_Id = kAllMsgHdrsTableKey;
 
-      mdb_err mdberr  = GetStore()->NewTableWithOid(GetEnv(), &allMsgHdrsTableOID, m_hdrTableKindToken,
+      nsresult mdberr = GetStore()->NewTableWithOid(GetEnv(), &allMsgHdrsTableOID, m_hdrTableKindToken,
         false, nullptr, &m_mdbAllMsgHeadersTable);
       if (NS_FAILED(mdberr) || !m_mdbAllMsgHeadersTable)
         err = NS_ERROR_FAILURE;
@@ -1722,7 +1722,7 @@ nsresult nsMsgDatabase::InitExistingDB()
     if (!m_mdbAllThreadsTable)
     {
 
-      mdb_err mdberr  = GetStore()->NewTableWithOid(GetEnv(), &allThreadsTableOID, m_allThreadsTableKindToken,
+      nsresult mdberr = GetStore()->NewTableWithOid(GetEnv(), &allThreadsTableOID, m_allThreadsTableKindToken,
         false, nullptr, &m_mdbAllThreadsTable);
       if (NS_FAILED(mdberr) || !m_mdbAllThreadsTable)
         err = NS_ERROR_FAILURE;
@@ -4294,7 +4294,7 @@ nsresult nsMsgDatabase::CreateNewThread(nsMsgKey threadId, const char *subject, 
 
   // Under some circumstances, mork seems to reuse an old table when we create one.
   // Prevent problems from that by finding any old table first, and deleting its rows.
-  mdb_err res = GetStore()->GetTable(GetEnv(), &threadTableOID, getter_AddRefs(threadTable));
+  nsresult res = GetStore()->GetTable(GetEnv(), &threadTableOID, getter_AddRefs(threadTable));
   if (NS_SUCCEEDED(res) && threadTable)
     threadTable->CutAllRows(GetEnv());
 
@@ -4393,7 +4393,7 @@ nsIMsgThread *  nsMsgDatabase::GetThreadForSubject(nsCString &subject)
   mdbOid    outRowId;
   if (m_mdbStore)
   {
-    mdb_err result = m_mdbStore->FindRow(GetEnv(), m_threadRowScopeToken,
+    nsresult result = m_mdbStore->FindRow(GetEnv(), m_threadRowScopeToken,
       m_threadSubjectColumnToken, &subjectYarn,  &outRowId, getter_AddRefs(threadRow));
     if (NS_SUCCEEDED(result) && threadRow)
     {
@@ -4592,7 +4592,7 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char *aMsgID, nsIMsgDBH
 
   nsIMdbRow *hdrRow;
   mdbOid outRowId;
-  mdb_err result;
+  nsresult result;
   if (m_mdbStore)
     result = m_mdbStore->FindRow(GetEnv(), m_hdrRowScopeToken,
       m_messageIdColumnToken, &messageIdYarn,  &outRowId,
@@ -4630,7 +4630,7 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char *aGMMsgId, nsIMsgDBH
 
   nsIMdbRow *hdrRow;
   mdbOid outRowId;
-  mdb_err result;
+  nsresult result;
   mdb_token property_token;
   NS_ENSURE_TRUE(m_mdbStore, NS_ERROR_NULL_POINTER);
   result = m_mdbStore->StringToToken(GetEnv(), "X-GM-MSGID",
@@ -4668,7 +4668,7 @@ nsIMsgDBHdr *nsMsgDatabase::GetMsgHdrForSubject(nsCString &subject)
 
   nsIMdbRow *hdrRow;
   mdbOid outRowId;
-  mdb_err result = GetStore()->FindRow(GetEnv(), m_hdrRowScopeToken,
+  nsresult result = GetStore()->FindRow(GetEnv(), m_hdrRowScopeToken,
     m_subjectColumnToken, &subjectYarn,  &outRowId,
     &hdrRow);
   if (NS_SUCCEEDED(result) && hdrRow)
@@ -4743,8 +4743,8 @@ nsIMsgThread *  nsMsgDatabase::GetThreadForThreadId(nsMsgKey threadId)
     tableId.mOid_Scope = m_hdrRowScopeToken;
 
     nsCOMPtr<nsIMdbTable> threadTable;
-    mdb_err res = m_mdbStore->GetTable(GetEnv(), &tableId,
-                                       getter_AddRefs(threadTable));
+    nsresult res = m_mdbStore->GetTable(GetEnv(), &tableId,
+                                        getter_AddRefs(threadTable));
 
     if (NS_SUCCEEDED(res) && threadTable)
     {
@@ -5700,7 +5700,7 @@ nsresult nsMsgDatabase::GetSearchResultsTable(const char *searchFolderUri, bool 
   mdb_kind kindToken;
   mdb_count numTables;
   mdb_bool mustBeUnique;
-  mdb_err err = m_mdbStore->StringToToken(GetEnv(), searchFolderUri, &kindToken);
+  nsresult err = m_mdbStore->StringToToken(GetEnv(), searchFolderUri, &kindToken);
   err = m_mdbStore->GetTableKind(GetEnv(), m_hdrRowScopeToken,  kindToken,
                                   &numTables, &mustBeUnique, table);
   if ((!*table || NS_FAILED(err)) && createIfMissing)

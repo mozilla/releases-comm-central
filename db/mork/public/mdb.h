@@ -80,9 +80,6 @@ typedef mdb_u4 mdb_percent; // 0..100, with values >100 same as 100
 
 typedef mdb_u1 mdb_priority; // 0..9, for a total of ten different values
 
-// temporary substitute for NS_RESULT, for mdb.h standalone compilation:
-typedef nsresult mdb_err;   // equivalent to NS_RESULT
-
 // sequence position is signed; negative is useful to mean "before first":
 typedef mdb_i4 mdb_pos; // signed zero-based ordinal collection position
 

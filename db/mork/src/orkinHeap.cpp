@@ -40,14 +40,14 @@ MOZ_DEFINE_MALLOC_SIZE_OF_ON_ALLOC(MorkSizeOfOnAlloc)
 MOZ_DEFINE_MALLOC_SIZE_OF_ON_FREE(MorkSizeOfOnFree)
 
 // { ===== begin nsIMdbHeap methods =====
-/*virtual*/ mdb_err
+/*virtual*/ nsresult
 orkinHeap::Alloc(nsIMdbEnv* mev, // allocate a piece of memory
   mdb_size inSize,  // requested size of new memory block
   void** outBlock)  // memory block of inSize bytes, or nil
 {
 
   MORK_USED_1(mev);
-  mdb_err outErr = NS_OK;
+  nsresult outErr = NS_OK;
   void* block = malloc(inSize);
   if ( !block )
     outErr = morkEnv_kOutOfMemoryError;
@@ -60,7 +60,7 @@ orkinHeap::Alloc(nsIMdbEnv* mev, // allocate a piece of memory
   return outErr;
 }
 
-/*virtual*/ mdb_err
+/*virtual*/ nsresult
 orkinHeap::Free(nsIMdbEnv* mev, // free block allocated earlier by Alloc()
   void* inBlock)
 {
