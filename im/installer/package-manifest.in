@@ -132,6 +132,9 @@
 #ifdef XP_MACOSX
 @BINPATH@/components/ibDockBadge.js
 @BINPATH@/components/ibDockBadge.manifest
+#ifdef MOZ_PURPLE
+@BINPATH@/components/components.manifest
+#endif
 #else
 @BINPATH@/components/components.manifest
 @BINPATH@/components/@DLL_PREFIX@trayToolkit@DLL_SUFFIX@
@@ -206,6 +209,21 @@
 @BINPATH@/components/smileProtocolHandler.manifest
 @BINPATH@/components/logger.js
 @BINPATH@/components/logger.manifest
+
+#ifdef MOZ_PURPLE
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; libpurple
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+@BINPATH@/chrome/purple@JAREXT@
+@BINPATH@/chrome/purple.manifest
+@BINPATH@/components/@DLL_PREFIX@purplexpcom@DLL_SUFFIX@
+@BINPATH@/components/purplexpcom.xpt
+@BINPATH@/components/prpl.manifest
+#ifdef UNIX_BUT_NOT_MAC
+@BINPATH@/components/@DLL_PREFIX@bonjour@DLL_SUFFIX@
+#endif
+@BINPATH@/defaults/pref/purple-prefs.js
+#endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default Profile Settings
