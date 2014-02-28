@@ -14,9 +14,7 @@ export LDFLAGS="-LTCG"
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
-mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj-instantbird
-
-ac_add_options --enable-application=instantbird
+ac_add_options --enable-application=im
 ac_add_options --enable-extensions=purple
 ac_add_options --enable-update-channel=nightly
 ac_add_options --enable-optimize

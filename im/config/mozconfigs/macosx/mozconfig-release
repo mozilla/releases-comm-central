@@ -20,9 +20,8 @@ ac_add_options --enable-debug-symbols="-gdwarf-2"
 
 # Enable parallel compiling
 mk_add_options MOZ_MAKE_FLAGS="-sj10"
-mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj-instantbird
 
-ac_add_options --enable-application=instantbird
+ac_add_options --enable-application=im
 ac_add_options --enable-extensions=purple
 ac_add_options --enable-update-channel=release
 ac_add_options --enable-update-packaging
