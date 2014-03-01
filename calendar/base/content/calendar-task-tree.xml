@@ -108,7 +108,7 @@
                        label="&calendar.unifinder.tree.calendarname.label;"
                        tooltiptext="&calendar.unifinder.tree.calendarname.tooltip;"/>
         </xul:treecols>
-        <xul:treechildren tooltip="taskTreeTooltip"/>
+        <xul:treechildren tooltip="taskTreeTooltip" ondblclick="mTreeView.onDoubleClick(event)"/>
       </xul:tree>
     </content>
 
@@ -1118,9 +1118,6 @@
         if (calendarController.todo_tasktree_focused) {
           calendarController.onSelectionChanged({detail:this.selectedTasks});
         }
-      ]]></handler>
-      <handler event="dblclick" button="0"><![CDATA[
-        this.mTreeView.onDoubleClick(event);
       ]]></handler>
       <handler event="focus"><![CDATA[
         this.updateFocus();
