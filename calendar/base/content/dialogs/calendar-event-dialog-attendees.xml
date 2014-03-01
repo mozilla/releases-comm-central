@@ -1316,6 +1316,8 @@
       </property>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
+
         this.initTimeRange();
 
         // The basedate is the date/time from which the display
@@ -1506,8 +1508,8 @@
               this.mStartHour = 0;
               this.mEndHour = 24;
           } else {
-              this.mStartHour = getPrefSafe("calendar.view.daystarthour", 8);
-              this.mEndHour = getPrefSafe("calendar.view.dayendhour", 19);
+              this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
+              this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
           }
         ]]></body>
       </method>

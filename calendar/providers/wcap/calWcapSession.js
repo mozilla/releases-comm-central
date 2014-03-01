@@ -6,6 +6,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function calWcapTimezone(tzProvider, tzid_, component_) {
     this.wrappedJSObject = this;
@@ -1157,7 +1158,7 @@ function confirmInsecureLogin(uri)
             }
             confirmedEntry = (bConfirmed ? "1" : "0");
             confirmedHttpLogins += (encodedHost + ":" + confirmedEntry);
-            cal.setPref("calendar.wcap.confirmed_http_logins", confirmedHttpLogins);
+            Preferences.set("calendar.wcap.confirmed_http_logins", confirmedHttpLogins);
             getPref("calendar.wcap.confirmed_http_logins"); // log written entry
             confirmInsecureLogin.m_confirmedHttpLogins[encodedHost] = confirmedEntry;
         }

@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 const nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
 
@@ -78,7 +79,7 @@ calDateTimeFormatter.prototype = {
 
     formatDate: function formatDate(aDate) {
         // Format the date using user's format preference (long or short)
-        let format = cal.getPrefSafe("calendar.date.format", 0);
+        let format = Preferences.get("calendar.date.format", 0);
         return (format == 0 ? this.formatDateLong(aDate) : this.formatDateShort(aDate));
     },
 
@@ -133,7 +134,7 @@ calDateTimeFormatter.prototype = {
         let formattedDate = this.formatDate(aDate);
         let formattedTime = this.formatTime(aDate);
 
-        let timeBeforeDate = cal.getPrefSafe("calendar.date.formatTimeBeforeDate", false);
+        let timeBeforeDate = Preferences.get("calendar.date.formatTimeBeforeDate", false);
         if (timeBeforeDate) {
             return formattedTime + " " + formattedDate;
         } else {

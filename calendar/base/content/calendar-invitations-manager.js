@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calItipUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * This object contains functions to take care of manipulating requests.
@@ -88,10 +89,10 @@ InvitationsManager.prototype = {
 
         var self = this;
         this.mTimer = setTimeout(function startInvitationsTimer() {
-            if (getPrefSafe("calendar.invitations.autorefresh.enabled", true)) {
+            if (Preferences.get("calendar.invitations.autorefresh.enabled", true)) {
                 self.mTimer = setInterval(function repeatingInvitationsTimer() {
                     self.getInvitations(operationListener);
-                    }, getPrefSafe("calendar.invitations.autorefresh.timeout", 3) * 60000);
+                    }, Preferences.get("calendar.invitations.autorefresh.timeout", 3) * 60000);
             }
             self.getInvitations(operationListener);
         }, firstDelay);

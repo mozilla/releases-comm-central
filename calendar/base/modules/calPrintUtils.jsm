@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 cal.print = {
@@ -32,7 +33,7 @@ cal.print = {
 
         for each (let category in categories) {
             let prefName = cal.formatStringForCSSRule(category);
-            let color = cal.getPrefSafe("calendar.category.color." + prefName) || "transparent";
+            let color = Preferences.get("calendar.category.color." + prefName) || "transparent";
             if (!(prefName in sheet.insertedCategoryRules)) {
                 sheet.insertedCategoryRules[prefName] = true;
                 let ruleAdd = ' .category-color-box[categories~="' + prefName + '"] { ' +

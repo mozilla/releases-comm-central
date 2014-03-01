@@ -7,6 +7,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
 Components.utils.import("resource://calendar/modules/calPrintUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Prints a rough month-grid of events/tasks
@@ -156,7 +157,7 @@ calMonthPrinter.prototype = {
         currentMonth.querySelector(".month-name").textContent = monthTitle;
 
         // Set up the weekday titles
-        let wkst = cal.getPrefSafe("calendar.week.start", 0);
+        let wkst = Preferences.get("calendar.week.start", 0);
         for (let i = 1; i <= 7; i++) {
             let dayNumber = ((i + wkst - 1) % 7) + 1;
             let dayTitle = currentMonth.querySelector(".day" + i + "-title");
@@ -215,7 +216,7 @@ calMonthPrinter.prototype = {
 
             let weekDay = currentDate.weekday;
             let dayOffPrefName = "calendar.week.d" + weekDay + weekdayMap[weekDay] + "soff";
-            if (cal.getPrefSafe(dayOffPrefName, false)) {
+            if (Preferences.get(dayOffPrefName, false)) {
                 dayBox.className += " day-off";
             }
 

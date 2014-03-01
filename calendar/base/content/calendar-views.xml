@@ -114,7 +114,8 @@
     <binding id="calendar-multiweek-view" extends="chrome://calendar/content/calendar-month-view.xml#calendar-month-base-view">
         <implementation implements="calICalendarView">
 	        <constructor><![CDATA[
-                this.mWeeksInView = cal.getPrefSafe("calendar.weeks.inview", 4);
+                Components.utils.import("resource://gre/modules/Preferences.jsm");
+                this.mWeeksInView = Preferences.get("calendar.weeks.inview", 4);
             ]]></constructor>
 
             <field name="mWeeksInView">4</field>
@@ -125,7 +126,7 @@
                 ]]></getter>
                 <setter><![CDATA[
                     this.mWeeksInView = val;
-                    cal.setPref("calendar.weeks.inview", Number(val));
+                    Preferences.set("calendar.weeks.inview", Number(val));
                     this.refreshView();
                     return val;
                 ]]></setter>
@@ -137,24 +138,24 @@
             <method name="zoomIn">
               <parameter name="aLevel"/>
               <body><![CDATA[
-                let visibleWeeks = cal.getPrefSafe("calendar.weeks.inview", 4);
+                let visibleWeeks = Preferences.get("calendar.weeks.inview", 4);
                 visibleWeeks += (aLevel || 1);
 
-                cal.setPref("calendar.weeks.inview", Math.min(visibleWeeks, 6));
+                Preferences.set("calendar.weeks.inview", Math.min(visibleWeeks, 6));
               ]]></body>
             </method>
             <method name="zoomOut">
               <parameter name="aLevel"/>
               <body><![CDATA[
-                let visibleWeeks = cal.getPrefSafe("calendar.weeks.inview", 4);
+                let visibleWeeks = Preferences.get("calendar.weeks.inview", 4);
                 visibleWeeks -= (aLevel || 1);
 
-                cal.setPref("calendar.weeks.inview", Math.max(visibleWeeks, 2));
+                Preferences.set("calendar.weeks.inview", Math.max(visibleWeeks, 2));
               ]]></body>
             </method>
             <method name="zoomReset">
               <body><![CDATA[
-                cal.setPref("calendar.view.visiblehours", 4);
+                Preferences.set("calendar.view.visiblehours", 4);
               ]]></body>
             </method>
 
@@ -180,7 +181,7 @@
                         // adjusted for the day the week starts on and the number
                         // of previous weeks we're supposed to display.
                         let d1 = getWeekInfoService().getStartOfWeek(aDate);
-                        d1.day -= (7 * cal.getPrefSafe("calendar.previousweeks.inview", 0));
+                        d1.day -= (7 * Preferences.get("calendar.previousweeks.inview", 0));
                         // The last day we're supposed to show
                         let d2 = d1.clone();
                         d2.day += ((7 * this.mWeeksInView) - 1);
@@ -203,7 +204,7 @@
                         let savedSelectedDay = this.selectedDay.clone();
                         // aNumber only corresponds to the number of weeks to move
                         // make sure to compensate for previous weeks in view too
-                        d1.day += 7 * (aNumber + cal.getPrefSafe("calendar.previousweeks.inview", 4));
+                        d1.day += 7 * (aNumber + Preferences.get("calendar.previousweeks.inview", 4));
                         this.goToDay(d1);
                         savedSelectedDay.day += 7 * aNumber;
                         this.selectedDay = savedSelectedDay;

@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calExtract.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 let calendarExtract = {
     onShowLocaleMenu: function onShowLocaleMenu(target) {
@@ -33,7 +34,7 @@ let calendarExtract = {
 
         // sort
         let pref = "calendar.patterns.last.used.languages";
-        let lastUsedLangs = cal.getPrefSafe(pref, "");
+        let lastUsedLangs = Preferences.get(pref, "");
 
         function createLanguageComptor(lastUsedLangs) {
             return function compare(a, b) {
@@ -90,9 +91,9 @@ let calendarExtract = {
         let date = new Date(message.date/1000);
         let time = (new Date()).getTime();
 
-        let locale = cal.getPrefSafe("general.useragent.locale", "en-US");
+        let locale = Preferences.get("general.useragent.locale", "en-US");
         let baseUrl = "jar:resource://calendar/chrome/calendar-LOCALE.jar!/locale/LOCALE/calendar/calendar-extract.properties";
-        let dayStart = cal.getPrefSafe("calendar.view.daystarthour", 6);
+        let dayStart = Preferences.get("calendar.view.daystarthour", 6);
         let extractor;
 
         if (fixedLang) {
@@ -138,7 +139,7 @@ let calendarExtract = {
                 }
 
                 item.endDate = item.startDate.clone();
-                item.endDate.minute += cal.getPrefSafe("calendar.event.defaultlength", 60);
+                item.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
 
                 if (endGuess.year != null) {
                     item.endDate.year = endGuess.year;

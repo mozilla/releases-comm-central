@@ -4,8 +4,8 @@
 
 var calUtils = require("../shared-modules/calendar-utils");
 var prefs = require("../shared-modules/prefs");
-// needed to set utf8 values in prefs
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var sleep = 500;
 var UTF8string = "õäöü";
@@ -13,7 +13,7 @@ var UTF8string = "õäöü";
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, UTF8string);
-  cal.setLocalizedPref("calendar.categories.names", UTF8string);
+  Preferences.set("calendar.categories.names", UTF8string);
 }
 
 var testUTF8 = function () {

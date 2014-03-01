@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/iteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Common initialization steps for calendar chrome windows.
@@ -125,7 +126,7 @@ var calendarWindowPrefs = {
         if (aTopic == "nsPref:changed") {
             switch (aData) {
                 case "calendar.view.useSystemColors": {
-                    let attributeValue = cal.getPrefSafe("calendar.view.useSystemColors", false) && "true";
+                    let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
                     for each (let win in fixIterator(Services.ww.getWindowEnumerator())) {
                         setElementValue(win.document.documentElement, attributeValue , "systemcolors");
                     }
@@ -135,7 +136,7 @@ var calendarWindowPrefs = {
         } else if (aTopic == "domwindowopened") {
             let win = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
             win.addEventListener("load", function() {
-                let attributeValue = cal.getPrefSafe("calendar.view.useSystemColors", false) && "true";
+                let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
                 setElementValue(win.document.documentElement, attributeValue , "systemcolors");
             }, false);
         }
@@ -148,7 +149,7 @@ var calendarWindowPrefs = {
  */
 function migrateCalendarUI() {
     const UI_VERSION = 1;
-    let currentUIVersion = cal.getPrefSafe("calendar.ui.version");
+    let currentUIVersion = Preferences.get("calendar.ui.version");
 
     if (currentUIVersion >= UI_VERSION) {
         return;
@@ -162,7 +163,7 @@ function migrateCalendarUI() {
             taskbar.insertItem("task-appmenu-button");
         }
 
-        cal.setPref("calendar.ui.version", UI_VERSION);
+        Preferences.set("calendar.ui.version", UI_VERSION);
     } catch (e) {
         cal.ERROR("Error upgrading UI from " + currentUIVersion + " to " +
                   UI_VERSION + ": " + e);

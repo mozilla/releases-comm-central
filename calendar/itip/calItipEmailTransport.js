@@ -6,6 +6,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function convertFromUnicode(aCharset, aSrc) {
     let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
@@ -190,7 +191,7 @@ calItipEmailTransport.prototype = {
                         "This will disable OL (up to 2003) to consume the mail as an iTIP invitation showing\n" +
                         "the usual calendar buttons.");
                 // To somehow have a last resort before sending spam, the user can choose to send the mail.
-                let prefCompatMode = cal.getPrefSafe("calendar.itip.compatSendMode", 0);
+                let prefCompatMode = Preferences.get("calendar.itip.compatSendMode", 0);
                 let inoutCheck = { value: (prefCompatMode == 1) };
                 if (Services.prompt.confirmEx(null,
                                               cal.calGetString("lightning", "imipSendMail.title", null, "lightning"),
@@ -205,7 +206,7 @@ calItipEmailTransport.prototype = {
                 } // else go on with auto sending for now
                 compatMode = (inoutCheck.value ? 1 : 0);
                 if (compatMode != prefCompatMode) {
-                    cal.setPref("calendar.itip.compatSendMode", compatMode);
+                    Preferences.set("calendar.itip.compatSendMode", compatMode);
                 }
             }
             case (Components.interfaces.calIItipItem.AUTO): {

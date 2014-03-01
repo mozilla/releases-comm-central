@@ -5,6 +5,7 @@
 const EXPORTED_SYMBOLS = ["Extractor"];
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
 * Initializes extraction
@@ -119,17 +120,17 @@ Extractor.prototype = {
             path = this.bundleUrl.replace("LOCALE", this.fallbackLocale, "g");
 
             let pref = "calendar.patterns.last.used.languages";
-            let lastUsedLangs = cal.getPrefSafe(pref, "");
+            let lastUsedLangs = Preferences.get(pref, "");
             if (lastUsedLangs == "") {
-                cal.setPref(pref, this.fallbackLocale);
+                Preferences.set(pref, this.fallbackLocale);
             } else {
                 let langs = lastUsedLangs.split(",");
                 let idx = langs.indexOf(this.fallbackLocale);
                 if (idx == -1) {
-                    cal.setPref(pref, this.fallbackLocale + "," + lastUsedLangs);
+                    Preferences.set(pref, this.fallbackLocale + "," + lastUsedLangs);
                 } else {
                     langs.splice(idx, 1);
-                    cal.setPref(pref, this.fallbackLocale + "," + langs.join(","));
+                    Preferences.set(pref, this.fallbackLocale + "," + langs.join(","));
                 }
             }
         } else {
@@ -273,7 +274,7 @@ Extractor.prototype = {
         this.cleanup();
         cal.LOG("[calExtract] Email after processing for extraction: \n" + this.email);
 
-        this.overrides = JSON.parse(cal.getPrefSafe("calendar.patterns.override", "{}"));
+        this.overrides = JSON.parse(Preferences.get("calendar.patterns.override", "{}"));
         this.setLanguage();
 
         for (let i = 0; i <= 31; i++) {

@@ -243,7 +243,9 @@
     </content>
     <implementation>
       <constructor><![CDATA[
-        let snoozePref = getPrefSafe("calendar.alarms.defaultsnoozelength", 0);
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
+
+        let snoozePref = Preferences.get("calendar.alarms.defaultsnoozelength", 0);
         if (snoozePref <= 0) {
           snoozePref = 5;
         }

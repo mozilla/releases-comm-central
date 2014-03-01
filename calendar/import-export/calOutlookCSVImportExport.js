@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 const localeEn = {
     headTitle       : "Subject",
@@ -269,7 +270,7 @@ calOutlookCSVImporter.prototype = {
                             // end date is exclusive, so set to next day after start.
                             eDate.day += 1;
                         } else {
-                            eDate.minute += cal.getPrefSafe("calendar.event.defaultlength", 60);
+                            eDate.minute += Preferences.get("calendar.event.defaultlength", 60);
                         }
                     } else {
                         // An endDate was found.

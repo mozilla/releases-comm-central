@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var g_bShutdown = false;
 
@@ -211,7 +212,7 @@ function getDatetimeFromIcalProp(prop) {
 }
 
 function getPref(prefName, defaultValue) {
-    var ret = getPrefSafe(prefName, defaultValue);
+    var ret = Preferences.get(prefName, defaultValue);
     log(ret, "getPref(): prefName=" + prefName);
     return ret;
 }

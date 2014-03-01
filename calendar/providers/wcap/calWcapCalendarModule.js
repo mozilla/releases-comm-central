@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 //
 // init code for globals, prefs:
@@ -50,8 +51,8 @@ function initWcapProvider() {
         g_busyItemTitle = cal.calGetString("wcap", "busyItem.title.text");
         g_busyPhantomItemUuidPrefix = ("PHANTOM_uuid_" + cal.getUUID());
 
-        CACHE_LAST_RESULTS = cal.getPrefSafe("calendar.wcap.cache_last_results", 4);
-        CACHE_LAST_RESULTS_INVALIDATE = cal.getPrefSafe("calendar.wcap.cache_last_results_invalidate", 120);
+        CACHE_LAST_RESULTS = Preferences.get("calendar.wcap.cache_last_results", 4);
+        CACHE_LAST_RESULTS_INVALIDATE = Preferences.get("calendar.wcap.cache_last_results_invalidate", 120);
     } catch (exc) {
         logError(exc, "error in init sequence");
     }

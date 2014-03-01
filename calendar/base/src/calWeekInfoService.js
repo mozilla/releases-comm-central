@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function calWeekInfoService() {
     this.wrappedJSObject = this;
@@ -55,7 +56,7 @@ calWeekInfoService.prototype = {
         // which may be part of the week counted in the previous year.) So we
         // need the startWeekday.
         const SUNDAY = 0;
-        var startWeekday = cal.getPrefSafe("calendar.week.start", SUNDAY); // default to monday per ISO8601 standard.
+        var startWeekday = Preferences.get("calendar.week.start", SUNDAY); // default to monday per ISO8601 standard.
 
         // The number of days since the start of the week.
         // Notice that the result of the substraction might be negative.
@@ -96,7 +97,7 @@ calWeekInfoService.prototype = {
     getStartOfWeek: function(aDate) {
         var date = aDate.clone();
         date.isDate = true;
-        var offset = (cal.getPrefSafe("calendar.week.start", 0) - aDate.weekday);
+        var offset = (Preferences.get("calendar.week.start", 0) - aDate.weekday);
         if (offset > 0) {
             date.day -= (7 - offset);
         } else {

@@ -6,6 +6,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
@@ -693,7 +694,7 @@ cal.itip = {
                 // the event (if not prevented otherwise)
                 if (isMinorUpdate &&
                     addedAttendees.length > 0 &&
-                    cal.getPrefSafe("calendar.itip.updateInvitationForNewAttendeesOnly", false)) {
+                    Preferences.get("calendar.itip.updateInvitationForNewAttendeesOnly", false)) {
                     recipients = addedAttendees;
                 }
 

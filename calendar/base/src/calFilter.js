@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/Preferences.jsm");
+
 /**
  * Object that contains a set of filter properties that may be used by a calFilter object
  * to filter a set of items.
@@ -159,7 +161,7 @@ function calFilter() {
     this.wrappedJSObject = this;
     this.mFilterProperties = new calFilterProperties();
     this.initDefinedFilters();
-    this.mMaxIterations = cal.getPrefSafe("calendar.filter.maxiterations", 50);
+    this.mMaxIterations = Preferences.get("calendar.filter.maxiterations", 50);
 }
 
 calFilter.prototype = {

@@ -108,6 +108,8 @@
       </property>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
+
         this.initTimeRange();
       ]]></constructor>
 
@@ -117,8 +119,8 @@
               this.mStartHour = 0;
               this.mEndHour = 24;
           } else {
-              this.mStartHour = getPrefSafe("calendar.view.daystarthour", 8);
-              this.mEndHour = getPrefSafe("calendar.view.dayendhour", 19);
+              this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
+              this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
           }
         ]]></body>
       </method>
@@ -409,6 +411,8 @@
       </property>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
+
         var args = window.arguments[0];
         var startTime = args.startTime;
         var endTime = args.endTime;
@@ -519,8 +523,8 @@
               this.mStartHour = 0;
               this.mEndHour = 24;
           } else {
-              this.mStartHour = getPrefSafe("calendar.view.daystarthour", 8);
-              this.mEndHour = getPrefSafe("calendar.view.dayendhour", 19);
+              this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
+              this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
           }
         ]]></body>
       </method>
@@ -675,6 +679,8 @@
       </property>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
+
         this.initTimeRange();
         this.mRange = Number(this.getAttribute("range"));
         this.onLoad();
@@ -955,8 +961,8 @@
               this.mStartHour = 0;
               this.mEndHour = 24;
           } else {
-              this.mStartHour = getPrefSafe("calendar.view.daystarthour", 8);
-              this.mEndHour = getPrefSafe("calendar.view.dayendhour", 19);
+              this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
+              this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
           }
         ]]></body>
       </method>
@@ -1066,6 +1072,8 @@
       </property>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
+
         var args = window.arguments[0];
 
         this.initTimeRange();
@@ -1596,8 +1604,8 @@
               this.mStartHour = 0;
               this.mEndHour = 24;
           } else {
-              this.mStartHour = getPrefSafe("calendar.view.daystarthour", 8);
-              this.mEndHour = getPrefSafe("calendar.view.dayendhour", 19);
+              this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
+              this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
           }
         ]]></body>
       </method>

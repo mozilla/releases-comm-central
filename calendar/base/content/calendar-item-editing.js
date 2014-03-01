@@ -5,6 +5,7 @@
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Takes a job and makes sure the dispose function on it is called. If there is
@@ -102,7 +103,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
             if (!aForceAllday) {
                 // If the event is not all day, then add the default event
                 // length.
-                event.endDate.minute += getPrefSafe("calendar.event.defaultlength", 60);
+                event.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
             } else {
                 // All day events need to go to the beginning of the next day.
                 event.endDate.day++;
@@ -165,7 +166,7 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
         if (dueDate)
             todo.dueDate = dueDate;
 
-        if (cal.getPrefSafe("calendar.alarms.onfortodos", 0) == 1 &&
+        if (Preferences.get("calendar.alarms.onfortodos", 0) == 1 &&
             !todo.entryDate) {
             // the todo must have an entry date if we want to set an alarm
             todo.entryDate = initialDate;

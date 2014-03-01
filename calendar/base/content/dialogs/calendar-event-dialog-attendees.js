@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var gStartDate = null;
 var gEndDate = null;
@@ -822,8 +823,8 @@ function initTimeRange() {
         gStartHour = 0;
         gEndHour = 24;
     } else {
-        gStartHour = getPrefSafe("calendar.view.daystarthour", 8);
-        gEndHour = getPrefSafe("calendar.view.dayendhour", 19);
+        gStartHour = Preferences.get("calendar.view.daystarthour", 8);
+        gEndHour = Preferences.get("calendar.view.dayendhour", 19);
     }
 }
 

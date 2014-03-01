@@ -14,8 +14,8 @@ function run_test() {
 }
 
 function test_recentzones() {
-    let oldDefaultTz = cal.getPrefSafe("calendar.timezone.local", "");
-    cal.setPref("calendar.timezone.local", "floating");
+    let oldDefaultTz = Preferences.get("calendar.timezone.local", "");
+    Preferences.set("calendar.timezone.local", "floating");
 
     do_check_eq(cal.getRecentTimezones().length, 0);
     do_check_eq(cal.getRecentTimezones(true).length, 0);
@@ -45,7 +45,7 @@ function test_recentzones() {
     do_check_eq(cal.getRecentTimezones().length, 3);
     do_check_eq(cal.getRecentTimezones(true).length, 2);
 
-    cal.setPref("calendar.timezone.local", oldDefaultTz);
+    Preferences.set("calendar.timezone.local", oldDefaultTz);
 }
 
 function test_formatcss() {

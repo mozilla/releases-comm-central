@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Helper function to get the alarm service and cache it.
@@ -113,7 +114,7 @@ function finishWindow() {
         // all/snooze all. This can happen when the closer is clicked or escape
         // is pressed. Snooze all remaining items using the default snooze
         // property.
-        let snoozePref = getPrefSafe("calendar.alarms.defaultsnoozelength", 0);
+        let snoozePref = Preferences.get("calendar.alarms.defaultsnoozelength", 0);
         if (snoozePref <= 0) {
             snoozePref = 5;
         }

@@ -2511,15 +2511,17 @@
 
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
+
         // get day start/end hour from prefs and set on the view
-        this.setDayStartEndMinutes(cal.getPrefSafe("calendar.view.daystarthour", 8) * 60,
-                                   cal.getPrefSafe("calendar.view.dayendhour", 17) * 60);
+        this.setDayStartEndMinutes(Preferences.get("calendar.view.daystarthour", 8) * 60,
+                                   Preferences.get("calendar.view.dayendhour", 17) * 60);
 
         // initially scroll to the day start hour in the view
         this.scrollToMinute(this.mDayStartMin);
 
         // get visible hours from prefs and set on the view
-        let visibleMinutes = cal.getPrefSafe("calendar.view.visiblehours", 9) * 60;
+        let visibleMinutes = Preferences.get("calendar.view.visiblehours", 9) * 60;
         this.setVisibleMinutes(visibleMinutes);
 
         var self = this;
@@ -2531,7 +2533,7 @@
             scrollbox, "class", "box-inherit scrollbox-innerbox").flex = "1";
 
         // set the time interval for the time indicator timer
-        this.setTimeIndicatorInterval(getPrefSafe("calendar.view.timeIndicatorInterval", 15));
+        this.setTimeIndicatorInterval(Preferences.get("calendar.view.timeIndicatorInterval", 15));
         this.enableTimeIndicator();
 
         this.reorient();
@@ -2555,7 +2557,7 @@
           // range [0, 1440], we change it into the nearest limit (0 or 1440).
           let newTimeInterval = Math.max(0, Math.min(1440, aPrefInterval));
           if (newTimeInterval != aPrefInterval) {
-              cal.setPref("calendar.view.timeIndicatorInterval", newTimeInterval);
+              Preferences.set("calendar.view.timeIndicatorInterval", newTimeInterval);
           }
 
           if (newTimeInterval != this.mTimeIndicatorInterval) {
@@ -2737,8 +2739,8 @@
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>
         <body><![CDATA[
-          var showIndicator = cal.getPrefSafe("calendar.alarms.indicator.show", true);
-          var totaltime = cal.getPrefSafe("calendar.alarms.indicator.totaltime", 3600);
+          var showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
+          var totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
 
           if (!aStop && (!showIndicator || totaltime < 1)) {
             // No need to animate if the indicator should not be shown.
@@ -3788,24 +3790,24 @@
       <method name="zoomIn">
         <parameter name="aLevel"/>
         <body><![CDATA[
-          let visibleHours = cal.getPrefSafe("calendar.view.visiblehours", 9);
+          let visibleHours = Preferences.get("calendar.view.visiblehours", 9);
           visibleHours += (aLevel || 1);
 
-          cal.setPref("calendar.view.visiblehours", Math.min(visibleHours, 24));
+          Preferences.set("calendar.view.visiblehours", Math.min(visibleHours, 24));
         ]]></body>
       </method>
       <method name="zoomOut">
         <parameter name="aLevel"/>
         <body><![CDATA[
-          let visibleHours = cal.getPrefSafe("calendar.view.visiblehours", 9);
+          let visibleHours = Preferences.get("calendar.view.visiblehours", 9);
           visibleHours -= (aLevel || 1);
 
-          cal.setPref("calendar.view.visiblehours", Math.max(1, visibleHours));
+          Preferences.set("calendar.view.visiblehours", Math.max(1, visibleHours));
         ]]></body>
       </method>
       <method name="zoomReset">
         <body><![CDATA[
-          cal.setPref("calendar.view.visiblehours", 9);
+          Preferences.set("calendar.view.visiblehours", 9);
         ]]></body>
       </method>
     </implementation>

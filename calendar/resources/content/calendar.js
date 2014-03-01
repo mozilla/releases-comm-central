@@ -7,6 +7,7 @@
  */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function calendarInit() {
     // Take care of common initialization
@@ -139,7 +140,7 @@ function openPreferences() {
         win.focus();
     } else {
         // The prefwindow should only be modal on non-instant-apply platforms
-        var instApply = getPrefSafe("browser.preferences.instantApply", false);
+        var instApply = Preferences.get("browser.preferences.instantApply", false);
 
         var features = "chrome,titlebar,toolbar,centerscreen," +
                        (instApply ? "dialog=no" : "modal");

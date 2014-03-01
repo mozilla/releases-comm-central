@@ -7,6 +7,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 try {
     Components.utils.import("resource:///modules/cloudFileAccounts.js");
@@ -448,7 +449,7 @@ function loadDialog(item) {
         let itemProp = item.getProperty("X-MOZ-SEND-INVITATIONS");
         notifyCheckbox.checked = (item.calendar.getProperty("imip.identity") &&
                                   ((itemProp === null)
-                                   ? getPrefSafe("calendar.itip.notify", true)
+                                   ? Preferences.get("calendar.itip.notify", true)
                                    : (itemProp == "TRUE")));
         let undiscloseProp = item.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
         undiscloseCheckbox.checked = (undiscloseProp === null)
@@ -1289,7 +1290,7 @@ function onUpdateAllDay() {
             // was an "All day" type, so we have to set default values.
             gStartTime.hour = getDefaultStartDate(window.initialStartDateValue).hour;
             gEndTime.hour = gStartTime.hour;
-            gEndTime.minute += getPrefSafe("calendar.event.defaultlength", 60);
+            gEndTime.minute += Preferences.get("calendar.event.defaultlength", 60);
             gOldStartTimezone = kDefaultTimezone;
             gOldEndTimezone = kDefaultTimezone;
         } else {
@@ -1393,7 +1394,7 @@ function openNewCardDialog() {
  * @param allDay    If true, the event is all-day
  */
 function setShowTimeAs(allDay) {
-    gShowTimeAs = (allDay ? getPrefSafe("calendar.allday.defaultTransparency", "TRANSPARENT") : "OPAQUE");
+    gShowTimeAs = (allDay ? Preferences.get("calendar.allday.defaultTransparency", "TRANSPARENT") : "OPAQUE");
     updateShowTimeAs();
 }
 
@@ -1815,7 +1816,7 @@ function toggleTimezoneLinks() {
 }
 
 function loadCloudProviders() {
-    let cloudFileEnabled = cal.getPrefSafe("mail.cloud_files.enabled", false)
+    let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false)
     let cmd = document.getElementById("cmd_attach_cloud");
 
     if (!cloudFileEnabled) {
@@ -2074,7 +2075,7 @@ function addAttachment(attachment, cloudProvider) {
             } else {
                 let leafName = attachment.getParameter("FILENAME");
                 let providerType = attachment.getParameter("PROVIDER");
-                let cloudFileEnabled = cal.getPrefSafe("mail.cloud_files.enabled", false);
+                let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false);
 
                 if (leafName) {
                     // TODO security issues?

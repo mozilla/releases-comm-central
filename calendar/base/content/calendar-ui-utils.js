@@ -4,6 +4,7 @@
 
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Helper function for filling the form,
@@ -232,7 +233,7 @@ function removeChildren(aElement) {
 function sortCalendarArray(calendars) {
     let ret = calendars.concat([]);
     let sortOrder = {};
-    let sortOrderPref = cal.getPrefSafe("calendar.list.sortOrder", "").split(" ");
+    let sortOrderPref = Preferences.get("calendar.list.sortOrder", "").split(" ");
     for (let i = 0; i < sortOrderPref.length; ++i) {
         sortOrder[sortOrderPref[i]] = i;
     }
@@ -250,10 +251,10 @@ function sortCalendarArray(calendars) {
     ret.sort(sortFunc);
 
     // check and repair pref:
-    let sortOrderString = cal.getPrefSafe("calendar.list.sortOrder", "");
+    let sortOrderString = Preferences.get("calendar.list.sortOrder", "");
     let wantedOrderString = ret.map(function(c) { return c.id; }).join(" ");
     if (wantedOrderString != sortOrderString) {
-        cal.setPref("calendar.list.sortOrder", wantedOrderString);
+        Preferences.set("calendar.list.sortOrder", wantedOrderString);
     }
 
     return ret;

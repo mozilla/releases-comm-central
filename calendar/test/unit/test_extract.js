@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://calendar/modules/calExtract.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
+
 var baseUrl = "jar:resource://calendar/chrome/calendar-LOCALE.jar!/locale/LOCALE/calendar/calendar-extract.properties";
 var extractor = new Extractor(baseUrl, "en-US", 8);
 
@@ -174,7 +176,7 @@ function test_overrides() {
                       {"add": "%2$S:%1$S", "remove": "%1$S:%2$S"},
                      "from.tomorrow":
                       {"add": "worromot"}};
-    cal.setPref("calendar.patterns.override", JSON.stringify(overrides));
+    Preferences.set("calendar.patterns.override", JSON.stringify(overrides));
 
     collected = extractor.extract(title, content, date, undefined);
     guessed = extractor.guessStart(false);

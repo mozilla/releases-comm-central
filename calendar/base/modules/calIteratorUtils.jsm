@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 
@@ -51,7 +52,7 @@ cal.itemIterator = function cal_itemIterator(items) {
 cal.forEach = function cal_forEach(iter, body, completed) {
     // This should be a const one day, lets keep it a pref for now though until we
     // find a sane value.
-    let LATENCY = cal.getPrefSafe("calendar.threading.latency", 250);
+    let LATENCY = Preferences.get("calendar.threading.latency", 250);
 
     let ourIter = iter;
     if (!(iter instanceof Iterator)) {

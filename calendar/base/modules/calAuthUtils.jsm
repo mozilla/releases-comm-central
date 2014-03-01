@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /*
  * Authentication helper code
@@ -48,7 +49,7 @@ cal.auth = {
 
         // Only show the save password box if we are supposed to.
         let savepassword = null;
-        if (cal.getPrefSafe("signon.rememberSignons", true)) {
+        if (Preferences.get("signon.rememberSignons", true)) {
             savepassword = cal.calGetString("passwordmgr", "rememberPassword", null, "passwordmgr");
         }
 

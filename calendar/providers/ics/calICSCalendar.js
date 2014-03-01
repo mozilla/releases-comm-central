@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
@@ -708,8 +709,8 @@ calICSCalendar.prototype = {
             }
         }
 
-        var backupDays = getPrefSafe("calendar.backup.days", 1);
-        var numBackupFiles = getPrefSafe("calendar.backup.filenum", 3);
+        var backupDays = Preferences.get("calendar.backup.days", 1);
+        var numBackupFiles = Preferences.get("calendar.backup.filenum", 3);
 
         try {
             var backupDir = cal.getCalendarDirectory();

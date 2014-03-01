@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 cal.alarms = {
@@ -15,17 +16,17 @@ cal.alarms = {
      */
     setDefaultValues: function cal_alarm_setDefaultValues(aItem) {
         let type = cal.isEvent(aItem) ? "event" : "todo";
-        if (cal.getPrefSafe("calendar.alarms.onfor" + type + "s", 0) == 1) {
+        if (Preferences.get("calendar.alarms.onfor" + type + "s", 0) == 1) {
             let alarmOffset = cal.createDuration();
             let alarm = cal.createAlarm();
-            let units = cal.getPrefSafe("calendar.alarms." + type + "alarmunit", "minutes");
+            let units = Preferences.get("calendar.alarms." + type + "alarmunit", "minutes");
 
             // Make sure the alarm pref is valid, default to minutes otherwise
             if (["weeks", "days", "hours", "minutes", "seconds"].indexOf(units) < 0) {
                 units = "minutes";
             }
 
-            alarmOffset[units] = cal.getPrefSafe("calendar.alarms." + type + "alarmlen", 0);
+            alarmOffset[units] = Preferences.get("calendar.alarms." + type + "alarmlen", 0);
             alarmOffset.normalize();
             alarmOffset.isNegative = true;
             if (type == "todo" && !aItem.entryDate) {

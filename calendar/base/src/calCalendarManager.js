@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 
@@ -56,7 +57,7 @@ calCalendarManager.prototype = {
 
         // We only add the observer if the pref is set and only check for the
         // pref on startup to avoid checking for every http request
-        if (cal.getPrefSafe("calendar.network.multirealm", false)) {
+        if (Preferences.get("calendar.network.multirealm", false)) {
             Services.obs.addObserver(this, "http-on-examine-response", false);
         }
 
@@ -77,7 +78,7 @@ calCalendarManager.prototype = {
         // Remove the observer if the pref is set. This might fail when the
         // user flips the pref, but we assume he is going to restart anyway
         // afterwards.
-        if (cal.getPrefSafe("calendar.network.multirealm", false)) {
+        if (Preferences.get("calendar.network.multirealm", false)) {
             Services.obs.removeObserver(this, "http-on-examine-response");
         }
 
@@ -167,7 +168,7 @@ calCalendarManager.prototype = {
                     // NOTE: For some reason, this observer call doesn't have
                     // the "cal" namespace defined
                     let ua = httpChannel.getRequestHeader("User-Agent");
-                    let calUAString = getPrefSafe("calendar.useragent.extra");
+                    let calUAString = Preferences.get("calendar.useragent.extra");
                     if (calUAString && ua.indexOf(calUAString) < 0) {
                         // User-Agent is not a mergeable header. We need to
                         // merge the user agent ourselves.
@@ -274,8 +275,8 @@ calCalendarManager.prototype = {
 
             while (selectCalendars.executeStep()) {
                 let id = cal.getUUID(); // use fresh uuids
-                cal.setPref(getPrefBranchFor(id) + "type", selectCalendars.row.type);
-                cal.setPref(getPrefBranchFor(id) + "uri", selectCalendars.row.uri);
+                Preferences.set(getPrefBranchFor(id) + "type", selectCalendars.row.type);
+                Preferences.set(getPrefBranchFor(id) + "uri", selectCalendars.row.uri);
                 // the former id served as sort position:
                 sortOrder[selectCalendars.row.id] = id;
                 // move over prefs:
@@ -285,13 +286,13 @@ calCalendarManager.prototype = {
                     let value = selectPrefs.row.value;
                     switch (name) {
                         case "readonly":
-                            cal.setPref(getPrefBranchFor(id) + "readOnly", value == "true");
+                            Preferences.set(getPrefBranchFor(id) + "readOnly", value == "true");
                             break;
                         case "relaxedmode":
-                            cal.setPref(getPrefBranchFor(id) + "relaxedMode", value == "true");
+                            Preferences.set(getPrefBranchFor(id) + "relaxedMode", value == "true");
                             break;
                         case "suppressalarms":
-                            cal.setPref(getPrefBranchFor(id) + "suppressAlarms", value == "true");
+                            Preferences.set(getPrefBranchFor(id) + "suppressAlarms", value == "true");
                             break;
                         case "disabled":
                         case "cache.supported":
@@ -301,17 +302,17 @@ calCalendarManager.prototype = {
                         case "calendar-main-in-composite":
                         case "lightning-main-default":
                         case "calendar-main-default":
-                            cal.setPref(getPrefBranchFor(id) + name, value == "true");
+                            Preferences.set(getPrefBranchFor(id) + name, value == "true");
                             break;
                         case "backup-time":
                         case "uniquenum":
-                            cal.setPref(getPrefBranchFor(id) + name, Number(value));
+                            Preferences.set(getPrefBranchFor(id) + name, Number(value));
                             break;
                         case "name":
-                            cal.setLocalizedPref(getPrefBranchFor(id) + name, value);
+                            Preferences.set(getPrefBranchFor(id) + name, value);
                             break;
                         default: // keep as string
-                            cal.setPref(getPrefBranchFor(id) + name, value);
+                            Preferences.set(getPrefBranchFor(id) + name, value);
                             break;
                     }
                 }
@@ -322,7 +323,7 @@ calCalendarManager.prototype = {
             for each (let s in sortOrder) {
                 sortOrderAr.push(s);
             }
-            cal.setPref("calendar.list.sortOrder", sortOrderAr.join(" "));
+            Preferences.set("calendar.list.sortOrder", sortOrderAr.join(" "));
             flushPrefs();
 
         } finally {
@@ -524,8 +525,8 @@ calCalendarManager.prototype = {
             calendar.id = cal.getUUID();
         }
 
-        cal.setPref(getPrefBranchFor(calendar.id) + "type", calendar.type);
-        cal.setPref(getPrefBranchFor(calendar.id) + "uri", calendar.uri.spec);
+        Preferences.set(getPrefBranchFor(calendar.id) + "type", calendar.type);
+        Preferences.set(getPrefBranchFor(calendar.id) + "uri", calendar.uri.spec);
 
         if ((calendar.getProperty("cache.supported") !== false) &&
             (calendar.getProperty("cache.enabled") ||
@@ -678,8 +679,8 @@ calCalendarManager.prototype = {
 
             for (let calBranch in allCals) {
                 let id = calBranch.substring(REGISTRY_BRANCH.length);
-                let ctype = cal.getPrefSafe(calBranch + ".type", null);
-                let curi = cal.getPrefSafe(calBranch + ".uri", null);
+                let ctype = Preferences.get(calBranch + ".type", null);
+                let curi = Preferences.get(calBranch + ".uri", null);
 
                 try {
                     if (!ctype || !curi) { // sanity check
@@ -736,9 +737,9 @@ calCalendarManager.prototype = {
         let branch = (getPrefBranchFor(calendar.id) + name);
 
         if ( name === "name" ) {
-            return cal.getLocalizedPref(branch, null);
+            return Preferences.get(branch, null);
         }
-        return cal.getPrefSafe(branch, null);
+        return Preferences.get(branch, null);
     },
 
     setCalendarPref_: function(calendar, name, value) {
@@ -747,14 +748,9 @@ calCalendarManager.prototype = {
         cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
 
         let branch = (getPrefBranchFor(calendar.id) + name);
-        // Delete before to allow pref-type changes:
+        // Delete before to allow pref-type changes, then set the pref.
         Services.prefs.deleteBranch(branch);
-
-        if ( name === "name" ) {
-            cal.setLocalizedPref(branch, value);
-        } else {
-            cal.setPref(branch, value);
-        }
+        Preferences.set(branch, value);
     },
 
     deleteCalendarPref_: function(calendar, name) {
@@ -843,7 +839,7 @@ calMgrCalendarObserver.prototype = {
 
         if (aOldValue != aValue) {
             // Try to find the current sort order
-            let sortOrderPref = cal.getPrefSafe("calendar.list.sortOrder", "").split(" ");
+            let sortOrderPref = Preferences.get("calendar.list.sortOrder", "").split(" ");
             let initialSortOrderPos = null;
             for (let i = 0; i < sortOrderPref.length; ++i) {
                 if (sortOrderPref[i] == aCalendar.id) {

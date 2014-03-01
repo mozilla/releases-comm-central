@@ -5,6 +5,7 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 let allowedActionsMap = {}; 
 
@@ -362,7 +363,7 @@ function onNewReminder() {
     let listbox = document.getElementById("reminder-listbox");
 
     let reminder = cal.createAlarm();
-    let alarmlen = getPrefSafe("calendar.alarms." + itemType + "alarmlen", 15);
+    let alarmlen = Preferences.get("calendar.alarms." + itemType + "alarmlen", 15);
 
     // Default is a relative DISPLAY alarm, |alarmlen| minutes before the event.
     // If DISPLAY is not supported by the provider, then pick the provider's

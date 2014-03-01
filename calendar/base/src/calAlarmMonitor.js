@@ -5,6 +5,7 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function peekAlarmWindow() {
     return Services.wm.getMostRecentWindow("Calendar:AlarmWindow");
@@ -76,13 +77,13 @@ calAlarmMonitor.prototype = {
 
         this.mAlarms.push([aItem, aAlarm]);
 
-        if (getPrefSafe("calendar.alarms.playsound", true)) {
+        if (Preferences.get("calendar.alarms.playsound", true)) {
             // We want to make sure the user isn't flooded with alarms so we
             // limit this using a preference. For example, if the user has 20
             // events that fire an alarm in the same minute, then the alarm
             // sound will only play 5 times. All alarms will be shown in the
             // dialog nevertheless.
-            let maxAlarmSoundCount = cal.getPrefSafe("calendar.alarms.maxsoundsperminute", 5);
+            let maxAlarmSoundCount = Preferences.get("calendar.alarms.maxsoundsperminute", 5);
             let now = new Date();
 
             if (!this.mLastAlarmSoundDate ||
@@ -99,7 +100,7 @@ calAlarmMonitor.prototype = {
             if (maxAlarmSoundCount > this.mAlarmSoundCount) {
                 // Only ring the alarm sound if we haven't hit the max count.
                 try {
-                    let soundURL = getPrefSafe("calendar.alarms.soundURL", null);
+                    let soundURL = Preferences.get("calendar.alarms.soundURL", null);
                     if (soundURL && soundURL.length > 0) {
                         soundURL = makeURL(soundURL);
                         this.mSound.play(soundURL);
@@ -112,7 +113,7 @@ calAlarmMonitor.prototype = {
             }
         }
 
-        if (!getPrefSafe("calendar.alarms.show", true)) {
+        if (!Preferences.get("calendar.alarms.show", true)) {
             return;
         }
 

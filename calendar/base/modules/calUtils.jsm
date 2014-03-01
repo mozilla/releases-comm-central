@@ -8,6 +8,7 @@ var gCalThreadingEnabled;
 
 Components.utils.import("resource:///modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 // Usually the backend loader gets loaded via profile-after-change, but in case
 // a calendar component hooks in earlier, its very likely it will use calUtils.
@@ -130,7 +131,7 @@ let cal = {
 
     get threadingEnabled() {
         if (gCalThreadingEnabled === undefined) {
-            gCalThreadingEnabled = !cal.getPrefSafe("calendar.threading.disabled", false);
+            gCalThreadingEnabled = !Preferences.get("calendar.threading.disabled", false);
         }
         return gCalThreadingEnabled;
     },

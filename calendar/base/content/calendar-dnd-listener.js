@@ -6,6 +6,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var itemConversion = {
 
@@ -144,7 +145,7 @@ var itemConversion = {
         if (!item.startDate) {
             if (aTask.dueDate) {
                 item.startDate = aTask.dueDate.clone();
-                item.startDate.minute -= getPrefSafe("calendar.event.defaultlength", 60);
+                item.startDate.minute -= Preferences.get("calendar.event.defaultlength", 60);
             } else {
                 item.startDate = cal.getDefaultStartDate();
             }
@@ -155,7 +156,7 @@ var itemConversion = {
             // Make the event be the default event length if no due date was
             // specified.
             item.endDate = item.startDate.clone();
-            item.endDate.minute += getPrefSafe("calendar.event.defaultlength", 60);
+            item.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
         }
 
         // Alarms

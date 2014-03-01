@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function Synthetic(aOpen, aDuration) {
     this.open = aOpen;
@@ -29,7 +30,7 @@ function initAgendaListbox() {
     this.today = new Synthetic(showTodayHeader, 1);
     this.addPeriodListItem(this.today, "today-header");
     this.tomorrow = new Synthetic(showTomorrowHeader, 1);
-    var soondays = getPrefSafe("calendar.agendaListbox.soondays", 5);
+    var soondays = Preferences.get("calendar.agendaListbox.soondays", 5);
     this.soon = new Synthetic(showSoonHeader, soondays);
     this.periods = [this.today, this.tomorrow, this.soon];
 

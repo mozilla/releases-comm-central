@@ -7,6 +7,7 @@ const FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 //
 // The front-end wizard bits.
@@ -711,7 +712,7 @@ var gDataMigrator = {
  * @param aString   The string to log
  */
 function migLOG(aString) {
-    if (!getPrefSafe("calendar.migration.log", false)) {
+    if (!Preferences.get("calendar.migration.log", false)) {
         return;
     }
     Services.console.logStringMessage(aString);

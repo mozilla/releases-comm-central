@@ -6,6 +6,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 const kHoursBetweenUpdates = 6;
 const kSleepMonitorInterval = 60000;
@@ -351,7 +352,7 @@ calAlarmService.prototype = {
             return;
         }
 
-        let showMissed = cal.getPrefSafe("calendar.alarms.showmissed", true);
+        let showMissed = Preferences.get("calendar.alarms.showmissed", true);
 
         let alarms = aItem.getAlarms({});
         for each (let alarm in alarms) {

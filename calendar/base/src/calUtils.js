@@ -10,6 +10,7 @@
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function _calIcalCreator(cid, iid) {
     return function(icalString) {
@@ -131,7 +132,7 @@ function saveRecentTimezone(aTzid) {
         // Add the timezone if its not already the default timezone
         recentTimezones.unshift(aTzid);
         recentTimezones.splice(MAX_RECENT_TIMEZONES);
-        cal.setPref("calendar.timezone.recent", JSON.stringify(recentTimezones));
+        Preferences.set("calendar.timezone.recent", JSON.stringify(recentTimezones));
     }
 }
 
@@ -143,7 +144,7 @@ function saveRecentTimezone(aTzid) {
  * @return                  An array of timezone ids or calITimezones.
  */
 function getRecentTimezones(aConvertZones) {
-    let recentTimezones = JSON.parse(cal.getPrefSafe("calendar.timezone.recent", "[]") || "[]");
+    let recentTimezones = JSON.parse(Preferences.get("calendar.timezone.recent", "[]") || "[]");
     if (!Array.isArray(recentTimezones)) {
         recentTimezones = [];
     }
@@ -166,7 +167,7 @@ function getRecentTimezones(aConvertZones) {
         if (oldZonesLength != recentTimezones.length) {
             // Looks like the one or other timezone dropped out. Go ahead and
             // modify the pref.
-            cal.setPref("calendar.timezone.recent", JSON.stringify(recentTimezones));
+            Preferences.set("calendar.timezone.recent", JSON.stringify(recentTimezones));
         }
     }
     return recentTimezones;
@@ -458,25 +459,14 @@ function isToDo(aObject) {
  * @param aDefault    (optional) the value to return if the pref is undefined
  */
 function getPrefSafe(aPrefName, aDefault) {
-    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
-    const prefB = Services.prefs;
-    // Since bug 193332 does not fix the current branch, calling get*Pref will
-    // throw NS_ERROR_UNEXPECTED if clearUserPref() was called and there is no
-    // default value. To work around that, catch the exception.
-    try {
-        switch (prefB.getPrefType(aPrefName)) {
-            case nsIPrefBranch.PREF_BOOL:
-                return prefB.getBoolPref(aPrefName);
-            case nsIPrefBranch.PREF_INT:
-                return prefB.getIntPref(aPrefName);
-            case nsIPrefBranch.PREF_STRING:
-                return prefB.getCharPref(aPrefName);
-            default: // includes nsIPrefBranch.PREF_INVALID
-                return aDefault;
-        }
-    } catch (e) {
-        return aDefault;
+    if (!getPrefSafe.warningIssued) {
+        cal.WARN("Use of getPrefSafe() is deprecated and will be removed " +
+                 "with the next release. Use Preferences.get() instead.\n" +
+                 cal.STACK(10));
+        getPrefSafe.warningIssued = true;
     }
+
+    return Preferences.get(aPrefName, aDefault);
 }
 
 /**
@@ -488,30 +478,24 @@ function getPrefSafe(aPrefName, aDefault) {
  *                    Valid values are: BOOL, INT, and CHAR
  */
 function setPref(aPrefName, aPrefValue, aPrefType) {
-    if (!aPrefType) {
-        switch (typeof(aPrefValue)) {
-            case "boolean":
-                aPrefType = "BOOL";
-                break;
-            case "number": // xxx think: includes non-int numbers, too
-                aPrefType = "INT";
-                break;
-            default:
-                aPrefType = "CHAR";
-                break;
-        }
+    if (!setPref.warningIssued) {
+        cal.WARN("Use of setPref() is deprecated and will be removed " +
+                 "with the next release. Use Preferences.set() instead.\n" +
+                 cal.STACK(10));
+        setPref.warningIssued = true;
     }
-    switch (aPrefType) {
-        case "BOOL":
-            Services.prefs.setBoolPref(aPrefName, aPrefValue);
-            break;
-        case "INT":
-            Services.prefs.setIntPref(aPrefName, aPrefValue);
-            break;
-        case "CHAR":
-            Services.prefs.setCharPref(aPrefName, aPrefValue);
-            break;
+
+    let prefValue = aPrefValue;
+
+    if (aPrefType == "BOOL") {
+        prefValue = Boolean(prefValue);
+    } else if (aPrefType == "INT") {
+        prefValue = Number(prefValue);
+    } else if (aPrefType == "CHAR") {
+        prefValue = String(prefValue);
     }
+
+    return Preferences.set(aPrefName, prefValue);
 }
 
 /**
@@ -521,10 +505,14 @@ function setPref(aPrefName, aPrefValue, aPrefType) {
  * @param aString     the string to which the preference value should be set
  */
 function setLocalizedPref(aPrefName, aString) {
-    var str = Components.classes["@mozilla.org/supports-string;1"].
-              createInstance(Components.interfaces.nsISupportsString);
-    str.data = aString;
-    Services.prefs.setComplexValue(aPrefName, Components.interfaces.nsISupportsString, str);
+    if (!setLocalizedPref.warningIssued) {
+        cal.WARN("Use of setLocalizedPref() is deprecated and will be removed " +
+                 "with the next release. Use Preferences.set() instead.\n" +
+                 cal.STACK(10));
+        setLocalizedPref.warningIssued = true;
+    }
+
+    return Preferences.set(aPrefName, aString);
 }
 
 /**
@@ -534,13 +522,14 @@ function setLocalizedPref(aPrefName, aString) {
  * @param aDefault    (optional) the value to return if the pref is undefined
  */
 function getLocalizedPref(aPrefName, aDefault) {
-    var result;
-    try {
-        result = Services.prefs.getComplexValue(aPrefName, Components.interfaces.nsISupportsString).data;
-    } catch(ex) {
-        return aDefault;
+    if (!getLocalizedPref.warningIssued) {
+        cal.WARN("Use of getLocalizedPref() is deprecated and will be removed " +
+                 "with the next release. Use Preferences.get() instead.\n" +
+                 cal.STACK(10));
+        getLocalizedPref.warningIssued = true;
     }
-    return result;
+
+    return Preferences.get(aPrefName, aDefault);
 }
 
 /**
@@ -549,7 +538,7 @@ function getLocalizedPref(aPrefName, aDefault) {
  * @return array of category names
  */
 function getPrefCategoriesArray() {
-    let categories = getLocalizedPref("calendar.categories.names", null);
+    let categories = Preferences.get("calendar.categories.names", null);
 
     // If no categories are configured load a default set from properties file
     if (!categories) {
@@ -566,15 +555,14 @@ function getPrefCategoriesArray() {
 function setupDefaultCategories() {
     // First, set up the category names
     let categories = calGetString("categories", "categories2");
-    setLocalizedPref("calendar.categories.names", categories);
+    Preferences.set("calendar.categories.names", categories);
 
     // Now, initialize the category default colors
     let categoryArray = categoriesStringToArray(categories);
     for each (let category in categoryArray) {
         let prefName = formatStringForCSSRule(category);
-        setPref("calendar.category.color." + prefName,
-                hashColor(category),
-                "CHAR");
+        Preferences.set("calendar.category.color." + prefName,
+                        hashColor(category));
     }
 
     // Return the list of categories for further processing
@@ -642,7 +630,7 @@ function categoriesStringToArray(aCategories) {
  * may contain unescaped commas which will be escaped in combined pref.
  */
 function setPrefCategoriesFromArray(aCategoriesArray) {
-    setLocalizedPref("calendar.categories.names",
+    Preferences.set("calendar.categories.names",
                      categoriesArrayToString(aCategoriesList));
 }
 
@@ -887,7 +875,7 @@ function setDefaultStartEndHour(aItem, aReferenceDate) {
 
     if (isEvent(aItem)) {
         aItem.endDate = aItem.startDate.clone();
-        aItem.endDate.minute += getPrefSafe("calendar.event.defaultlength", 60);
+        aItem.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
     }
 }
 

@@ -6,6 +6,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Controller for the views
@@ -542,7 +543,7 @@ var categoryManagement = {
             this.categoryStyleCache[aCatName] = sheet.cssRules[ruleIndex];
         }
 
-        let color = cal.getPrefSafe("calendar.category.color." + aCatName) || "";
+        let color = Preferences.get("calendar.category.color." + aCatName) || "";
         this.categoryStyleCache[aCatName].style.backgroundColor = color;
     }
 };

@@ -5,6 +5,7 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Timer.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
@@ -434,7 +435,7 @@ calDavCalendar.prototype = {
         return this.mHaveScheduling;
     },
     set hasScheduling(value) {
-        return (this.mHaveScheduling = (getPrefSafe("calendar.caldav.sched.enabled", false) && value));
+        return (this.mHaveScheduling = (Preferences.get("calendar.caldav.sched.enabled", false) && value));
     },
     hasAutoScheduling: false, // Whether server automatically takes care of scheduling
     hasFreebusy: false,
@@ -2772,7 +2773,7 @@ calDavCalendar.prototype = {
     mVerboseLogging: undefined,
     verboseLogging: function caldav_verboseLogging() {
         if (this.mVerboseLogging === undefined) {
-            this.mVerboseLogging = getPrefSafe("calendar.debug.log.verbose", false);
+            this.mVerboseLogging = Preferences.get("calendar.debug.log.verbose", false);
         }
         return this.mVerboseLogging;
     },
