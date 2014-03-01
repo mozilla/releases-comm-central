@@ -1563,70 +1563,84 @@ function MsgReplyToListMessage(event)
 
 // Message Archive function
 
-function BatchMessageMover()
-{
+function BatchMessageMover() {
   this._batches = {};
   this._currentKey = null;
 }
 
 BatchMessageMover.prototype = {
 
-  archiveMessages: function BatchMessageMover_archiveMessages (aMsgHdrs)
-  {
+  archiveMessages: function BatchMessageMover_archiveMessages(aMsgHdrs) {
     gFolderDisplay.hintMassMoveStarting();
 
     if (!aMsgHdrs.length)
       return;
 
-    for (let i = 0; i < aMsgHdrs.length; ++i)
-    {
+    for (let i = 0; i < aMsgHdrs.length; i++) {
       let msgHdr = aMsgHdrs[i];
 
       let server = msgHdr.folder.server;
       let rootFolder = server.rootFolder;
 
-      let msgDate = new Date(msgHdr.date / 1000);  // convert date to JS date object
+      // Convert date to JS date object.
+      let msgDate = new Date(msgHdr.date / 1000);
       let msgYear = msgDate.getFullYear().toString();
       let monthFolderName = msgDate.toLocaleFormat("%Y-%m");
-      let archiveFolderUri;
+      let archiveFolderURI;
 
       let archiveGranularity;
       let archiveKeepFolderStructure;
       if (server.type == "rss") {
-        // RSS servers don't have an identity so we special case the archives URI.
-        archiveFolderUri = server.serverURI + "/Archives";
-        archiveGranularity = Application.prefs.getValue("mail.identity.default.archive_granularity", 0);
-        archiveKeepFolderStructure =
-          Application.prefs.getValue("mail.identity.default.archive_keep_folder_structure", false);
+        // RSS servers don't have an identity, so we need to figure this out
+        // based on the default identity prefs.
+        let enabled = Services.prefs.getBoolPref(
+          "mail.identity.default.archive_enabled"
+        );
+        if (!enabled)
+          continue;
+
+        archiveFolderURI = server.serverURI + "/Archives";
+        archiveGranularity = Services.prefs.getIntPref(
+          "mail.identity.default.archive_granularity"
+        );
+        archiveKeepFolderStructure = Services.prefs.getBoolPref(
+          "mail.identity.default.archive_keep_folder_structure"
+        );
       }
       else {
         let identity = getIdentityForHeader(msgHdr);
-        archiveFolderUri = identity.archiveFolder;
+        if (!identity.archiveEnabled)
+          continue;
+        archiveFolderURI = identity.archiveFolder;
         archiveGranularity = identity.archiveGranularity;
         archiveKeepFolderStructure = identity.archiveKeepFolderStructure;
       }
-      let archiveFolder = MailUtils.getFolderForURI(archiveFolderUri, false);
 
-      let copyBatchKey = msgHdr.folder.URI + '\0' + monthFolderName;
+      let copyBatchKey = msgHdr.folder.URI;
+      if (archiveGranularity >= Components.interfaces.nsIMsgIdentity
+                                          .perYearArchiveFolders)
+        copyBatchKey += '\0' + msgYear;
+
       if (archiveGranularity >= Components.interfaces.nsIMsgIdentity
                                           .perMonthArchiveFolders)
-        copyBatchKey += msgYear;
-
-      if (archiveGranularity >=  Components.interfaces.nsIMsgIdentity
-                                    .perMonthArchiveFolders)
-        copyBatchKey += monthFolderName;
+        copyBatchKey += '\0' + monthFolderName;
 
       if (archiveKeepFolderStructure)
         copyBatchKey += msgHdr.folder.URI;
 
-       // Add a key to copyBatchKey
-       if (! (copyBatchKey in this._batches)) {
-        this._batches[copyBatchKey] = [msgHdr.folder, archiveFolderUri,
-                                       archiveGranularity,
-                                       archiveKeepFolderStructure,
-                                       msgYear, monthFolderName];
+      // Add a key to copyBatchKey
+      if (!(copyBatchKey in this._batches)) {
+        this._batches[copyBatchKey] = {
+          srcFolder: msgHdr.folder,
+          archiveFolderURI: archiveFolderURI,
+          granularity: archiveGranularity,
+          keepFolderStructure: archiveKeepFolderStructure,
+          yearFolderName: msgYear,
+          monthFolderName: monthFolderName,
+          messages: [],
+        };
       }
-      this._batches[copyBatchKey].push(msgHdr);
+      this._batches[copyBatchKey].messages.push(msgHdr);
     }
     MailServices.mfn.addListener(this, MailServices.mfn.folderAdded);
 
@@ -1634,55 +1648,49 @@ BatchMessageMover.prototype = {
     this.processNextBatch();
   },
 
-  processNextBatch: function BatchMessageMover_processNextBatch ()
-  {
-    for (let key in this._batches)
-    {
+  processNextBatch: function BatchMessageMover_processNextBatch() {
+    const Ci = Components.interfaces;
+    for (let key in this._batches) {
       this._currentKey = key;
       let batch = this._batches[key];
-      let [srcFolder, archiveFolderUri, granularity, keepFolderStructure, msgYear, msgMonth] = batch;
-      let msgs = batch.slice(6);
 
-      let archiveFolder = MailUtils.getFolderForURI(archiveFolderUri, false);
+      let srcFolder = batch.srcFolder;
+      let archiveFolderURI = batch.archiveFolderURI;
+      let archiveFolder = MailUtils.getFolderForURI(archiveFolderURI, false);
       let dstFolder = archiveFolder;
       // For folders on some servers (e.g. IMAP), we need to create the
       // sub-folders asynchronously, so we chain the urls using the listener
       // called back from createStorageIfMissing. For local,
       // createStorageIfMissing is synchronous.
       let isAsync = archiveFolder.server.protocolInfo.foldersCreatedAsync;
-      if (!archiveFolder.parent)
-      {
-        archiveFolder.setFlag(Components.interfaces.nsMsgFolderFlags.Archive);
+      if (!archiveFolder.parent) {
+        archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
         archiveFolder.createStorageIfMissing(this);
         if (isAsync)
           return;
       }
 
+      let granularity = batch.granularity;
       let forceSingle = !archiveFolder.canCreateSubfolders;
       if (!forceSingle && (archiveFolder.server instanceof
-          Components.interfaces.nsIImapIncomingServer))
+                           Ci.nsIImapIncomingServer))
         forceSingle = archiveFolder.server.isGMailServer;
       if (forceSingle)
-         granularity = Components.interfaces.nsIMsgIncomingServer
-                                 .singleArchiveFolder;
+         granularity = Ci.nsIMsgIncomingServer.singleArchiveFolder;
 
-      if (granularity >= Components.interfaces.nsIMsgIdentity.perYearArchiveFolders)
-      {
-        archiveFolderUri += "/" + msgYear;
-        dstFolder = MailUtils.getFolderForURI(archiveFolderUri, false);
-        if (!dstFolder.parent)
-        {
+      if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
+        archiveFolderURI += "/" + batch.yearFolderName;
+        dstFolder = MailUtils.getFolderForURI(archiveFolderURI, false);
+        if (!dstFolder.parent) {
           dstFolder.createStorageIfMissing(this);
           if (isAsync)
             return;
         }
       }
-      if (granularity >= Components.interfaces.nsIMsgIdentity.perMonthArchiveFolders)
-      {
-        archiveFolderUri += "/" + msgMonth;
-        dstFolder = MailUtils.getFolderForURI(archiveFolderUri, false);
-        if (!dstFolder.parent)
-        {
+      if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
+        archiveFolderURI += "/" + batch.monthFolderName;
+        dstFolder = MailUtils.getFolderForURI(archiveFolderURI, false);
+        if (!dstFolder.parent) {
           dstFolder.createStorageIfMissing(this);
           if (isAsync)
             return;
@@ -1693,28 +1701,23 @@ BatchMessageMover.prototype = {
       // For imap folders, we need to create the sub-folders asynchronously,
       // so we chain the actions using the listener called back from
       // createSubfolder. For local, createSubfolder is synchronous.
-      if (archiveFolder.canCreateSubfolders && keepFolderStructure)
-      {
+      if (archiveFolder.canCreateSubfolders && batch.keepFolderStructure) {
         // Collect in-order list of folders of source folder structure,
         // excluding top-level INBOX folder
         let folderNames = [];
         let rootFolder = srcFolder.server.rootFolder;
         let inboxFolder = GetInboxFolder(srcFolder.server);
         let folder = srcFolder;
-        while (folder != rootFolder && folder != inboxFolder)
-        {
+        while (folder != rootFolder && folder != inboxFolder) {
           folderNames.unshift(folder.name);
           folder = folder.parent;
         }
         // Determine Archive folder structure
-        for (let i = 0; i < folderNames.length; ++i)
-        {
+        for (let i = 0; i < folderNames.length; ++i) {
           let folderName = folderNames[i];
-          if (!dstFolder.containsChildNamed(folderName))
-          {
+          if (!dstFolder.containsChildNamed(folderName)) {
             // Create Archive sub-folder (IMAP: async)
-            if (isAsync)
-            {
+            if (isAsync) {
               this._dstFolderParent = dstFolder;
               this._dstFolderName = folderName;
             }
@@ -1726,29 +1729,29 @@ BatchMessageMover.prototype = {
         }
       }
 
-      if (dstFolder != srcFolder)
-      {
+      if (dstFolder != srcFolder) {
         let array = Components.classes["@mozilla.org/array;1"]
-                              .createInstance(Components.interfaces.nsIMutableArray);
-        msgs.forEach(function(item){array.appendElement(item, false);});
+                              .createInstance(Ci.nsIMutableArray);
+        batch.messages.forEach(function(item) {
+          array.appendElement(item, false);
+        });
         // If the source folder doesn't support deleting messages, we
         // make archive a copy, not a move.
-        MailServices.copy.CopyMessages(srcFolder, array, dstFolder,
-                                       srcFolder.canDeleteMessages, this, msgWindow, true);
+        MailServices.copy.CopyMessages(
+          batch.srcFolder, array, dstFolder,
+          batch.srcFolder.canDeleteMessages, this, msgWindow, true
+        );
         return; // only do one.
       }
       delete this._batches[key];
     }
+
     gFolderDisplay.hintMassMoveCompleted();
-
     MailServices.mfn.removeListener(this);
-
-  },
-  OnStartRunningUrl: function(url) {
   },
 
-  OnStopRunningUrl: function(url, exitCode)
-  {
+  OnStartRunningUrl: function(url) {},
+  OnStopRunningUrl: function(url, exitCode) {
     // this will always be a create folder url, afaik.
     if (Components.isSuccessCode(exitCode))
       this.processNextBatch();
@@ -1758,36 +1761,28 @@ BatchMessageMover.prototype = {
 
   // also implements nsIMsgCopyServiceListener, but we only care
   // about the OnStopCopy
-  OnStartCopy: function() {
-  },
-  OnProgress: function(aProgress, aProgressMax) {
-  },
-  SetMessageKey: function(aKey) {
-  },
-  GetMessageId: function() {
-  },
-  OnStopCopy: function(aStatus)
-  {
-    if (Components.isSuccessCode(aStatus))
-    {
+  OnStartCopy: function() {},
+  OnProgress: function(aProgress, aProgressMax) {},
+  SetMessageKey: function(aKey) {},
+  GetMessageId: function() {},
+  OnStopCopy: function(aStatus) {
+    if (Components.isSuccessCode(aStatus)) {
       // remove batch we just finished and continue
       delete this._batches[this._currentKey];
       this._currentKey = null;
       this.processNextBatch();
     }
-    else
-    {
+    else {
       this._batches = null;
     }
   },
+
   // This also implements nsIMsgFolderListener, but we only care about the
   // folderAdded (createSubfolder callback).
-  folderAdded: function(aFolder)
-  {
+  folderAdded: function(aFolder) {
     // Check that this is the folder we're interested in.
     if (aFolder.parent == this._dstFolderParent &&
-        aFolder.name == this._dstFolderName)
-    {
+        aFolder.name == this._dstFolderName) {
       this._dstFolderParent = null;
       this._dstFolderName = null;
       this.processNextBatch();

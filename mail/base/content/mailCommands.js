@@ -25,8 +25,8 @@ function getBestIdentity(identities, optionalHint)
     let hints = optionalHint.toLowerCase().split(",");
 
     for (let i = 0 ; i < hints.length; i++) {
-      for each (let identity in fixIterator(identities,
-                  Components.interfaces.nsIMsgIdentity)) {
+      for (let identity in fixIterator(identities,
+                                       Components.interfaces.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
         if (hints[i].trim() == identity.email.toLowerCase() ||
@@ -54,6 +54,12 @@ function getIdentityForServer(server, optionalHint)
 function getIdentityForHeader(hdr, type)
 {
   function findDeliveredToIdentityEmail() {
+    // This function reads from currentHeaderData, which is only useful if we're
+    // looking at the currently-displayed message. Otherwise, just return
+    // immediately so we don't waste time.
+    if (hdr != gMessageDisplay.displayedMessage)
+      return "";
+
     // Get the delivered-to headers.
     let key = "delivered-to";
     let deliveredTos = new Array();
@@ -68,8 +74,8 @@ function getIdentityForHeader(hdr, type)
     deliveredTos.reverse();
 
     for (let i = 0; i < deliveredTos.length; i++) {
-      for each (let identity in fixIterator(accountManager.allIdentities,
-                                  Components.interfaces.nsIMsgIdentity)) {
+      for (let identity in fixIterator(accountManager.allIdentities,
+                                       Components.interfaces.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
         // If the deliver-to header contains the defined identity, that's it.
@@ -81,6 +87,25 @@ function getIdentityForHeader(hdr, type)
     return "";
   }
 
+  let server = null;
+  let identity = null;
+  let folder = hdr.folder;
+  if (folder) {
+    server = folder.server;
+    identity = folder.customIdentity;
+    if (identity)
+      return identity;
+  }
+
+  if (!server) {
+    let accountKey = hdr.accountKey;
+    if (accountKey) {
+      let account = accountManager.getAccount(accountKey);
+      if (account)
+        server = account.incomingServer;
+    }
+  }
+
   let hintForIdentity = "";
   if (type == Components.interfaces.nsIMsgCompType.ReplyToList)
     hintForIdentity = findDeliveredToIdentityEmail();
@@ -90,22 +115,7 @@ function getIdentityForHeader(hdr, type)
     hintForIdentity = hdr.recipients + "," + hdr.ccList + "," +
                       findDeliveredToIdentityEmail();
 
-  let server = null;
-  let identity = null;
-  let folder = hdr.folder;
-  if (folder) {
-    server = folder.server;
-    identity = folder.customIdentity;
-  }
-
-  let accountKey = hdr.accountKey;
-  if (accountKey.length > 0) {
-    let account = accountManager.getAccount(accountKey);
-    if (account)
-      server = account.incomingServer;
-  }
-
-  if (server && !identity)
+  if (server)
     identity = getIdentityForServer(server, hintForIdentity);
 
   if (!identity)

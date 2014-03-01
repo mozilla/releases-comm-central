@@ -479,6 +479,20 @@ function test_disabled_archive() {
   assert_true(archiveBtn.collapsed,
               "Multi-message archive button should be disabled when " +
               "archiving is disabled!");
+
+  // test message summaries with "large" selection
+  mc.folderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 1;
+  select_click_row(0);
+  current = select_shift_click_row(2);
+  mc.keypress(null, "a", {});
+  assert_selected_and_displayed(current);
+  mc.folderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
+
+  let htmlframe = mc.e("multimessage");
+  let archiveBtn = htmlframe.contentDocument.getElementById("hdrArchiveButton");
+  assert_true(archiveBtn.collapsed,
+              "Multi-message archive button should be disabled when " +
+              "archiving is disabled!");
 }
 
 function check_tag_in_message(message, tag, isSet) {
