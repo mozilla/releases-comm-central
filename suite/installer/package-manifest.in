@@ -348,7 +348,7 @@
 @BINPATH@/components/BrowserElementParent.js
 @BINPATH@/components/BrowserElementParent.manifest
 @BINPATH@/components/ColorAnalyzer.js
-@BINPATH@/components/ConsoleAPI.js
+@BINPATH@/components/ConsoleAPIStorage.js
 @BINPATH@/components/ConsoleAPI.manifest
 @BINPATH@/components/ContactManager.js
 @BINPATH@/components/ContactManager.manifest
