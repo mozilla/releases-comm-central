@@ -5,11 +5,6 @@
 export WIN32_REDIST_DIR=$VCINSTALLDIR'redist\x86\Microsoft.VC'$MOZ_MSVCVERSION'0.CRT'
 
 export MOZILLA_OFFICIAL=1
-mk_add_options MOZILLA_OFFICIAL=1
-
-export CFLAGS="-GL -wd4624 -wd4952 -wd4018"
-export CXXFLAGS="-GL -wd4624 -wd4952"
-export LDFLAGS="-LTCG"
 
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
