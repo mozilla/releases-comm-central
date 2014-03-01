@@ -213,7 +213,7 @@ interface nsMsgNavigationType
 };
 
 
-[scriptable, uuid(b22e6c7f-7fc6-41b2-9de4-31be6c1f7bf8)]
+[scriptable, uuid(9fca0eab-7498-4915-8260-3fcd995bbdd8)]
 interface nsIMsgDBView : nsISupports
 {
   void open(in nsIMsgFolder folder, in nsMsgViewSortTypeValue sortType, in nsMsgViewSortOrderValue sortOrder, in nsMsgViewFlagsTypeValue viewFlags, out long count);
@@ -310,11 +310,15 @@ interface nsIMsgDBView : nsISupports
    *  (and any collapsed children if so enabled) and not the selection prior to
    *  the right-click.
    *
-   * @return an nsIMutableArray containing the selected message headers.  You
-   *     are free to mutate the array; it will not affect the underlying
-   *     selection.
+   * @return an array containing the selected message headers.  You are free to
+   *     mutate the array; it will not affect the underlying selection.
    */
-  nsIMutableArray getMsgHdrsForSelection();
+  void getSelectedMsgHdrs([optional] out unsigned long count,
+                          [retval, array, size_is(count)]
+                          out nsIMsgDBHdr headers);
+
+  [deprecated] nsIMutableArray getMsgHdrsForSelection();
+
   void getURIsForSelection(out unsigned long count, [retval, array, size_is(count)] out string uris);
   void getIndicesForSelection(out unsigned long count, [retval, array, size_is(count)] out nsMsgViewIndex indices);
 

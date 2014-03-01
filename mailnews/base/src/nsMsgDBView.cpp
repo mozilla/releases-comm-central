@@ -2332,6 +2332,42 @@ NS_IMETHODIMP nsMsgDBView::GetIndicesForSelection(uint32_t *length, nsMsgViewInd
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength, nsIMsgDBHdr ***aResult)
+{
+  nsresult rv;
+
+  NS_ENSURE_ARG_POINTER(aLength);
+  *aLength = 0;
+
+  NS_ENSURE_ARG_POINTER(aResult);
+  *aResult = nullptr;
+
+  nsMsgViewIndexArray selection;
+  GetSelectedIndices(selection);
+  uint32_t numIndices = selection.Length();
+  if (!numIndices) return NS_OK;
+
+  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = GetHeadersFromSelection(selection.Elements(), numIndices, messages);
+  NS_ENSURE_SUCCESS(rv, rv);
+  uint32_t numMsgsSelected;
+  messages->GetLength(&numMsgsSelected);
+
+  nsIMsgDBHdr **headers = static_cast<nsIMsgDBHdr**>(NS_Alloc(
+    sizeof(nsIMsgDBHdr*) * numMsgsSelected));
+  for (uint32_t i = 0; i < numMsgsSelected; i++)
+  {
+    nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    msgHdr.forget(&headers[i]); // Already AddRefed
+  }
+
+  *aLength = numMsgsSelected;
+  *aResult = headers;
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgDBView::GetMsgHdrsForSelection(nsIMutableArray **aResult)
 {
   nsMsgViewIndexArray selection;

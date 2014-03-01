@@ -17,6 +17,28 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
+Components.utils.import("resource:///modules/jsTreeSelection.js");
+
+// a fake box needed to get nsMsgDBView to operate on selected messages.
+// Warning: this is a partial implementation. If someone adds additional
+// calls to these objects in nsMsgDBView and friends, it will also
+// be necessary to add fake versions of those calls here.
+function FakeBox(treeView) {
+  this.view = treeView;
+}
+FakeBox.prototype = {
+  view: null,
+  invalidate: function() {},
+  invalidateRow: function() {},
+  beginUpdateBatch: function() {},
+  endUpdateBatch: function() {},
+  invalidateRange: function(startIndex, endIndex) {},
+  rowCountChanged: function (index, count) {},
+
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeBoxObject]),
+};
+
+// Items used to add messages to the folder
 var gMessageGenerator = new MessageGenerator();
 var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
 
@@ -276,6 +298,9 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
   gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  let fakeBox = new FakeBox(gTreeView);
+  gTreeView.setTree(fakeBox);
+  gTreeView.selection = new JSTreeSelection(fakeBox);
 }
 
 /**
@@ -464,7 +489,7 @@ function  test_number_of_messages() {
   // Bug 574799
   if (gDBView.numMsgsInView != gTestFolder.getTotalMessages(false))
     do_throw("numMsgsInView is " + gDBView.numMsgsInView + " but should be " +
-               aTestFolder.getTotalMessages(false) + "\n");
+             gTestFolder.getTotalMessages(false) + "\n");
   // Bug 600140
   // Maybe elided so open it, now only consider the first one
   if (gDBView.isContainer(0) && !gDBView.isContainerOpen(0))
@@ -479,6 +504,45 @@ function  test_number_of_messages() {
   if (gDBView.numMsgsInView != numMsgInTree)
     view_throw("message in tree is " + numMsgInTree + " but should be " +
              gDBView.numMsgsInView + "\n");
+}
+
+function test_selected_messages() {
+  gDBView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+
+  // Select one message
+  gTreeView.selection.select(1);
+  let selectedMessages = gDBView.getSelectedMsgHdrs();
+
+  if (selectedMessages.length != 1)
+    do_throw("getSelectedMsgHdrs.length is " + selectedMessages.length +
+             " but should be 1\n");
+
+  let firstSelectedMsg = gDBView.hdrForFirstSelectedMessage
+  if (selectedMessages[0] != firstSelectedMsg)
+    do_throw("getSelectedMsgHdrs[0] is " + selectedMessages[0].messageKey +
+             " but should be " + firstSelectedMsg.messageKey +"\n");
+
+  // Select all messages
+  gTreeView.selection.selectAll();
+  if (gDBView.numSelected != gTreeView.rowCount)
+    do_throw("numSelected is " + gDBView.numSelected + " but should be " +
+             gTreeView.rowCount + "\n");
+
+  let selectedMessages = gDBView.getSelectedMsgHdrs();
+  if (selectedMessages.length != gTestFolder.getTotalMessages(false))
+    do_throw("getSelectedMsgHdrs.length is " + selectedMessages.length +
+             " but should be " + gTestFolder.getTotalMessages(false) + "\n");
+
+  for (let i = 0; i < selectedMessages.length; i++) {
+    let expectedHdr = gDBView.getMsgHdrAt(i);
+    if (selectedMessages.indexOf(expectedHdr) == -1) {
+      view_throw("Expected " + expectedHdr.messageKey + ":" +
+                 expectedHdr.mime2DecodedSubject.substr(0, 30) +
+                 " to be selected, but it wasn't\n");
+    }
+  }
+
+  gTreeView.selection.clearSelection();
 }
 
 function test_insert_remove_view_rows() {
@@ -780,6 +844,7 @@ var view_types = [
 var tests_for_all_views = [
   test_sort_columns,
   test_number_of_messages,
+  test_selected_messages,
   test_insert_remove_view_rows
 ];
 
