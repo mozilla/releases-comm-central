@@ -16,7 +16,7 @@ function run_test() {
 function test_icalstring() {
     function checkComp(createFunc, icalString, members, properties) {
         let thing = createFunc(icalString);
-        do_check_eq(thing.icalString, ics_foldline(icalString) + "\r\n");
+        do_check_eq(ics_unfoldline(thing.icalString), icalString + "\r\n");
 
         if (members) {
             for (let k in members) {
@@ -88,7 +88,7 @@ function test_icsservice() {
 
     function checkProp(createFunc, icalString, members, parameters) {
         let thing = createFunc(icalString);
-        do_check_eq(thing.icalString, ics_foldline(icalString) + "\r\n");
+        do_check_eq(ics_unfoldline(thing.icalString), icalString + "\r\n");
 
         for (let k in members) {
             do_check_eq(thing[k], members[k]);
@@ -116,12 +116,12 @@ function test_icsservice() {
 function test_icalproperty() {
     let svc = cal.getIcsService();
     let comp = svc.createIcalComponent("VEVENT");
-    let comp2 = svc.createIcalComponent("VTODO");
     let prop = svc.createIcalProperty("PROP");
     prop.value = "VAL";
 
     comp.addProperty(prop);
     do_check_eq(prop.parent.toString(), comp.toString());
+    do_check_eq(prop.valueAsDatetime, null);
 }
 
 function test_icalcomponent() {
@@ -131,7 +131,10 @@ function test_icalcomponent() {
     let alarm = svc.createIcalComponent("VALARM");
     event.addSubcomponent(alarm);
 
+    // Check that the parent works and does not appear on cloned instances
+    let alarm2 = alarm.clone();
     do_check_eq(alarm.parent.toString(), event.toString());
+    do_check_eq(alarm2.parent, null);
 
     function check_getset(k, v) {
         dump("Checking " + k + " = " + v + "\n");
@@ -204,12 +207,27 @@ function test_iterator() {
          p;
          p = comp.getNextProperty("ANY")) {
         do_check_eq(p.propertyName, propNames.shift());
+        do_check_eq(p.parent.toString(), comp.toString());
     }
     propNames = ["X-ONE", "X-TWO"];
     for (let p = comp.getNextProperty("ANY");
          p;
          p = comp.getNextProperty("ANY")) {
         do_check_eq(p.propertyName, propNames.shift());
+        do_check_eq(p.parent.toString(), comp.toString());
+    }
+
+    // Property iterator with multiple values
+    comp = svc.parseICS("BEGIN:VEVENT\r\n" +
+                        "CATEGORIES:a,b,c\r\n" +
+                        "END:VEVENT", null);
+    let propValues = ["a", "b", "c"];
+    for (let p = comp.getFirstProperty("CATEGORIES");
+         p;
+         p = comp.getNextProperty("CATEGORIES")) {
+        do_check_eq(p.propertyName, "CATEGORIES");
+        do_check_eq(p.value, propValues.shift());
+        do_check_eq(p.parent.toString(), comp.toString());
     }
 
     // Param iterator

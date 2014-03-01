@@ -56,7 +56,6 @@ function test_binaryattach() {
 
     let attachString =
         "ATTACH;ENCODING=BASE64;FMTTYPE=x-moz/test2;VALUE=BINARY:aHR0cDovL2hlbGxvMg==\r\n";
-    let foldedAttachString = ics_foldline(attachString);
     let icalString =
         "BEGIN:VEVENT\r\n" +
         attachString +

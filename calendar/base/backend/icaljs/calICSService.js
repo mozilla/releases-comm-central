@@ -27,7 +27,7 @@ calIcalProperty.prototype = {
     get icalProperty() this.innerObject,
     set icalProperty(val) this.innerObject = val,
 
-    get parent() this.innerObject.component,
+    get parent() this.innerObject.parent,
     toString: function() this.innerObject.toICAL(),
 
     get value() {
@@ -46,14 +46,19 @@ calIcalProperty.prototype = {
 
     get valueAsDatetime() {
         let val = this.innerObject.getFirstValue();
-        return (val && val.icalclass == "icaltime" ? new calDateTime(val) : null);
+        let isIcalTime = val && (typeof val == "object") &&
+                         ("icalclass" in val) && val.icalclass == "icaltime";
+        return (isIcalTime ? new calDateTime(val) : null);
     },
     set valueAsDatetime(val) unwrapSetter(ICAL.Time, val, function(val) {
         if (val && val.zone &&
             val.zone != ICAL.Timezone.utcTimezone &&
             val.zone != ICAL.Timezone.localTimezone) {
             this.innerObject.setParameter("TZID", val.zone.tzid);
-            this.addTimezoneReference(wrapGetter(calICALJSTimezone, val.zone));
+            if (this.parent) {
+                let tzref = wrapGetter(calICALJSTimezone, val.zone);
+                this.parent.addTimezoneReference(tzref);
+            }
         } else {
             this.innerObject.removeParameter("TZID");
         }
@@ -87,9 +92,9 @@ calIcalProperty.prototype = {
         // ICAL.js we need to save the value, reset the type and then try to
         // set the value again.
         if (n == "VALUE") {
-            let type = this.innerObject.type;
             function stringifyValue(x) ICAL.stringify.value(x.toString(), type);
             function reparseValue(x) ICAL.parse._parseValue(stringifyValue(x), v);
+            let type = this.innerObject.type;
 
             let oldValue;
             let wasMultiValue = this.innerObject.isMultiValue;
@@ -196,7 +201,7 @@ calIcalComponent.prototype = {
         interfaces: calIcalComponentInterfaces
     }),
 
-    clone: function() new calIcalComponent(new ICAL.Component(this.innerObject.toJSON(), this.innerObject.component)),
+    clone: function() new calIcalComponent(new ICAL.Component(this.innerObject.toJSON())),
 
     get parent() wrapGetter(calIcalComponent, this.innerObject.parent),
 
@@ -339,7 +344,7 @@ calIcalComponent.prototype = {
                     // property. I hate API incompatibility!
                     for each (var devil in hell) {
                         var thisprop = new ICAL.Property(prop.toJSON(),
-                                                         prop.component);
+                                                         prop.parent);
                         thisprop.removeAllValues();
                         thisprop.setValue(devil);
                         yield new calIcalProperty(thisprop);

@@ -29,7 +29,7 @@ calPeriod.prototype = {
     set icalPeriod(val) this.innerObject = val,
 
     makeImmutable: function() this.isMutable = false,
-    clone: function() new calPeriod(ICAL.Period.fromData(this.innerObject)),
+    clone: function() new calPeriod(this.innerObject.clone()),
 
     get start() wrapGetter(calDateTime, this.innerObject.start),
     set start(val) unwrapSetter(ICAL.Time, val, function(val) {

@@ -477,7 +477,8 @@ calIcalComponent::SetIcalComponent(JS::HandleValue)
 NS_IMETHODIMP
 calIcalComponent::GetParent(calIIcalComponent** parent)
 {
-    NS_ADDREF(*parent = mParent);
+    NS_ENSURE_ARG_POINTER(parent);
+    NS_IF_ADDREF(*parent = mParent);
     return NS_OK;
 }
 
@@ -743,7 +744,7 @@ nsresult calIcalComponent::SetDateTimeAttribute(icalproperty_kind kind,
 NS_IMETHODIMP
 calIcalProperty::GetParent(calIIcalComponent** parent)
 {
-    NS_ADDREF(*parent = mParent);
+    NS_IF_ADDREF(*parent = mParent);
     return NS_OK;
 }
 

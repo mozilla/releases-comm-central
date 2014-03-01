@@ -255,6 +255,12 @@ function run_test() {
     * Additionally, the properties of the returned item are compared with aItem.
     */
     function testGetItems(aItem, aResult) {
+        for (let calendar of [getStorageCal(), getMemoryCal()]) {
+            checkCalendar(calendar, aItem, aResult);
+        }
+    }
+
+    function checkCalendar(calendar, aItem, aResult) {
         // construct range
         var rangeStart = createDate(2002, 3, 2); // 3 = April
         var rangeEnd = rangeStart.clone();
@@ -265,44 +271,41 @@ function run_test() {
                      Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
                      Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
 
-        // get calendars
-        var calArray = [];
-        calArray.push(getStorageCal());
-        calArray.push(getMemoryCal());
-        for each (let calendar in calArray) {
-            // implement listener
-            var count = 0;
-            var listener = {
-                onOperationComplete: function(aCalendar,
-                                              aStatus,
-                                              aOperationType,
-                                              aId,
-                                              aDetail) {
-                    do_check_eq(aStatus, 0);
-                    if (aOperationType == Ci.calIOperationListener.ADD) {
-                        // perform getItems() on calendar
-                        aCalendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
-                    } else if (aOperationType == Ci.calIOperationListener.GET) {
-                        do_check_eq(count, aResult);
-                    }
-                },
-                onGetResult: function(aCalendar,
-                                      aStatus,
-                                      aItemType,
-                                      aDetail,
-                                      aCount,
-                                      aItems) {
-                    if (aCount) {
-                        count += aCount;
-                        for (var i = 0; i < aCount; i++) {
-                            compareItemsSpecific(aItems[i].parentItem, aItem);
-                        }
+        // implement listener
+        var count = 0;
+        var listener = {
+            onOperationComplete: function(aCalendar,
+                                          aStatus,
+                                          aOperationType,
+                                          aId,
+                                          aDetail) {
+                do_check_eq(aStatus, 0);
+                if (aOperationType == Ci.calIOperationListener.ADD) {
+                    // perform getItems() on calendar
+                    aCalendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
+                } else if (aOperationType == Ci.calIOperationListener.GET) {
+                    do_check_eq(count, aResult);
+                    do_test_finished();
+                }
+            },
+            onGetResult: function(aCalendar,
+                                  aStatus,
+                                  aItemType,
+                                  aDetail,
+                                  aCount,
+                                  aItems) {
+                if (aCount) {
+                    count += aCount;
+                    for (var i = 0; i < aCount; i++) {
+                        compareItemsSpecific(aItems[i].parentItem, aItem);
                     }
                 }
-            };
-            // add item to calendar
-            calendar.addItem(aItem, listener);
-        }
+            }
+        };
+
+        // add item to calendar
+        do_test_pending();
+        calendar.addItem(aItem, listener);
     }
 
    /**
