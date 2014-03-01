@@ -904,9 +904,11 @@ httpHooks.prototype = {
     onAfterGet: function(aChannel, aForceRefresh) {
         let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
         let responseStatus = 0;
+        let responseStatusCategory = 0;
 
         try {
             responseStatus = httpchannel.responseStatus;
+            responseStatusCategory = Math.floor(responseStatus / 100);
         } catch(e) {
             // Error might have been a temporary connection issue, keep old data to
             // prevent potential data loss if it becomes available again.
@@ -914,27 +916,26 @@ httpHooks.prototype = {
             return false;
         }
 
-        switch (responseStatus) {
-            case 304:
-                // 304: Not Modified
-                // Can use the old data, so tell the caller that it can skip parsing.
-                cal.LOG("[calICSCalendar] Response status 304: Not Modified. Using the existing data.");
-                return false;
-            case 404:
-                // 404: Not Found
-                // This is a new calendar. Shouldn't try to parse it. But it also
-                // isn't a failure, so don't throw.
-                cal.LOG("[calICSCalendar] Response status 404: Not Found. This is a new calendar.");
-                return false;
-
-            case 401:
-            case 403:
-                // 401/403: Not Authorized
-                // The user likely cancelled the login dialog.
-                cal.LOG("[calICSCalendar] Response status 401/403: Not Authorized. Login dialog cancelled.");
-                this.mCalendar.setProperty("disabled", "true");
-                this.mCalendar.setProperty("auto-enabled", "true");
-                return false;
+        if (responseStatus == 304) {
+            // 304: Not Modified
+            // Can use the old data, so tell the caller that it can skip parsing.
+            cal.LOG("[calICSCalendar] Response status 304: Not Modified. Using the existing data.");
+            return false;
+        } else if (responseStatus == 404) {
+            // 404: Not Found
+            // This is a new calendar. Shouldn't try to parse it. But it also
+            // isn't a failure, so don't throw.
+            cal.LOG("[calICSCalendar] Response status 404: Not Found. This is a new calendar.");
+            return false;
+        } else if (responseStatus == 410) {
+            cal.LOG("[calICSCalendar] Response status 410, calendar is gone. Disabling the calendar.");
+            this.mCalendar.setProperty("disabled", "true");
+            return false;
+        } else if (responseStatusCategory == 4 || responseStatusCategory == 5) {
+            cal.LOG("[calICSCalendar] Response status " + responseStatus + ", temporarily disabling calendar for safety.");
+            this.mCalendar.setProperty("disabled", "true");
+            this.mCalendar.setProperty("auto-enabled", "true");
+            return false;
         }
 
         try {
