@@ -2838,9 +2838,9 @@ var gMessageNotificationBar =
     let junkBarMsg = this.stringBundle.getFormattedString("junkBarMessage",
                                                           [brandName]);
 
-    let junkScore = aMsgHdr.getStringProperty("junkscore");
-    if (!((junkScore != "") &&
-          (junkScore != Components.interfaces.nsIJunkMailPlugin.IS_HAM_SCORE))) {
+    let junkScore = aMsgHdr ? aMsgHdr.getStringProperty("junkscore") : "";
+    if ((junkScore == "") ||
+        (junkScore == Components.interfaces.nsIJunkMailPlugin.IS_HAM_SCORE)) {
       // not junk -> just close the notificaion then, if one was showing
       let item = this.msgNotificationBar.getNotificationWithValue("junkContent");
       if (item)
