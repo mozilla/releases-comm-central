@@ -51,6 +51,11 @@ check mochitest reftest crashtest xpcshell-tests:: $(SUBMAKEFILES)
 mochitest-% :: $(SUBMAKEFILES)
 	$(MAKE) -C mozilla $@
 
+ifdef MOZ_CALENDAR
+uploadsymbols buildsymbols::
+	$(MAKE) -C calendar/lightning $@
+endif
+
 check-sync-dirs::
 	@$(PYTHON) $(topsrcdir)/mail/check-sync-dirs.py \
 	   $(topsrcdir)/build $(topsrcdir)/mozilla/build
@@ -82,6 +87,9 @@ endif
 
 buildsymbols :: $(SUBMAKEFILES)
 	$(MAKE) -C mozilla MAKE_SYM_STORE_PATH=$(MAKE_SYM_STORE_PATH) SYM_STORE_SOURCE_DIRS="$(topsrcdir)/mozilla/extensions/inspector $(topsrcdir)/ldap/sdks $(topsrcdir)/mozilla $(topsrcdir)" $@
+ifdef MOZ_CALENDAR
+	$(MAKE) -C calendar/lightning buildsymbols
+endif
 
 # If we don't specify this, then we will end up trying to build as if we were a
 # regular directory in the build tree.
