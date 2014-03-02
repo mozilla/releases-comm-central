@@ -303,29 +303,27 @@ function test_clone(event) {
 }
 
 function test_interface() {
-    let RRULE = "RRULE:FREQ=WEEKLY;COUNT=6;BYDAY=TU,WE\r\n";
-    let EXDATE = "EXDATE:20020403T114500Z\r\n"
-    let RDATE;
-    if (Preferences.get("calendar.icaljs", false)) {
-        RDATE = "RDATE:20020401T114500Z\r\n";
-    } else {
-        RDATE = "RDATE;VALUE=DATE-TIME:20020401T114500Z\r\n";
-    }
-
     let item = makeEvent("DTSTART:20020402T114500Z\n" +
                          "DTEND:20020402T124500Z\n" +
-                         RRULE + EXDATE + RDATE);
+                         "RRULE:FREQ=WEEKLY;COUNT=6;BYDAY=TU,WE\r\n" +
+                         "EXDATE:20020403T114500Z\r\n" +
+                         "RDATE:20020401T114500Z\r\n");
 
     let rinfo = item.recurrenceInfo;
-
     do_check_true(compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
 
     // getRecurrenceItems
     let ritems = rinfo.getRecurrenceItems({});
     do_check_eq(ritems.length, 3);
-    do_check_eq(ritems[0].icalProperty.icalString, RRULE);
-    do_check_eq(ritems[1].icalProperty.icalString, EXDATE);
-    do_check_eq(ritems[2].icalProperty.icalString, RDATE);
+
+    let checkritems = new Map([ [ritem.icalProperty.propertyName, ritem.icalProperty] for (ritem of ritems)]);
+    let rparts = new Map([ v.split("=", 2) for (v of checkritems.get("RRULE").value.split(";")) ])
+    do_check_eq(rparts.size, 3);
+    do_check_eq(rparts.get("FREQ"), "WEEKLY");
+    do_check_eq(rparts.get("COUNT"), "6");
+    do_check_eq(rparts.get("BYDAY"), "TU,WE");
+    do_check_eq(checkritems.get("EXDATE").value, "20020403T114500Z");
+    do_check_eq(checkritems.get("RDATE").value, "20020401T114500Z");
 
     // setRecurrenceItems
     let newRItems = [cal.createRecurrenceRule(), cal.createRecurrenceDate()];
@@ -339,11 +337,11 @@ function test_interface() {
     rinfo.setRecurrenceItems(2, newRItems);
     let itemString = item.icalString;
 
-    do_check_true(itemString.indexOf(RRULE) < 0);
-    do_check_true(itemString.indexOf(EXDATE) < 0);
-    do_check_true(itemString.indexOf(RDATE) < 0);
-    do_check_false(itemString.indexOf(newRItems[0].icalProperty.icalString) < 0);
-    do_check_false(itemString.indexOf(newRItems[1].icalProperty.icalString) < 0);
+    do_check_eq(itemString.match(/RRULE:[A-Z=,]*FREQ=WEEKLY/), null);
+    do_check_eq(itemString.match(/EXDATE[A-Z;=-]*:20020403T114500Z/, null));
+    do_check_eq(itemString.match(/RDATE[A-Z;=-]*:20020401T114500Z/, null));
+    do_check_neq(itemString.match(/RRULE:[A-Z=,]*FREQ=DAILY/), null)
+    do_check_neq(itemString.match(/EXDATE[A-Z;=-]*:20020404T114500Z/, null));
 
     // This may be an implementation detail, but we don't want this breaking
     rinfo.wrappedJSObject.ensureSortedRecurrenceRules();
@@ -375,13 +373,13 @@ function test_interface() {
 
     // deleteRecurrenceItem
     rinfo.deleteRecurrenceItem(ritems[0]);
-    do_check_true(item.icalString.indexOf(RRULE) < 0);
+    do_check_true(item.icalString.indexOf("RRULE") < 0);
 
     // deleteRecurrenceItemAt
     rinfo.deleteRecurrenceItemAt(1);
     itemString = item.icalString;
-    do_check_true(itemString.indexOf(EXDATE) < 0);
-    do_check_false(itemString.indexOf(RDATE) < 0);
+    do_check_true(itemString.indexOf("EXDATE") < 0);
+    do_check_false(itemString.indexOf("RDATE") < 0);
 
     // insertRecurrenceItemAt with exdate
     rinfo.insertRecurrenceItemAt(ritems[1], 1);
@@ -405,9 +403,9 @@ function test_interface() {
     let occDate1 = cal.createDateTime("20020403T114500Z");
     let occDate2 = cal.createDateTime("20020404T114500Z");
     rinfo.removeOccurrenceAt(occDate1);
-    do_check_false(item.icalString.indexOf(EXDATE) < 0);
+    do_check_false(item.icalString.indexOf("EXDATE") < 0);
     rinfo.restoreOccurrenceAt(occDate1)
-    do_check_true(item.icalString.indexOf(EXDATE) < 0);
+    do_check_true(item.icalString.indexOf("EXDATE") < 0);
 
     // modifyException / getExceptionFor
     let occ = rinfo.getOccurrenceFor(occDate1);

@@ -12,8 +12,6 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
 
-Services.prefs.setBoolPref("calendar.icaljs", true);
-
 (function load_lightning_manifest() {
   let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
   bindir.append("extensions");
