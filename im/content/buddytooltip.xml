@@ -23,7 +23,11 @@
         <xul:hbox align="start" crop="end" flex="1">
           <xul:vbox flex="1">
             <xul:stack>
-              <xul:image class="userIcon" anonid="userIcon"/>
+              <!-- The box around the user icon is a workaround for bug 955673. -->
+              <xul:box class="userIconHolder" xbl:inherits="userIcon">
+                <xul:image class="userIcon" anonid="userIcon"
+                           xbl:inherits="src=userIcon"/>
+              </xul:box>
               <xul:image class="statusTypeIcon" xbl:inherits="status,left"/>
             </xul:stack>
             <xul:spacer flex="1"/>
@@ -121,9 +125,9 @@
          var img = document.getAnonymousElementByAttribute(this, "anonid",
                                                            "userIcon");
          if (aSrc)
-           img.src = aSrc;
+           this.setAttribute("userIcon", aSrc);
          else
-           img.removeAttribute("src");
+           this.removeAttribute("userIcon");
        ]]>
        </body>
      </method>

@@ -25,7 +25,7 @@
   list-style-image: url('chrome://chat/skin/chat-left-16.png') !important;
 }
 
-.userIcon[src] + .statusTypeIcon {
+.userIconHolder[userIcon] + .statusTypeIcon {
   margin-left: 32px;
 }
 
@@ -68,10 +68,14 @@
   margin-left: 3px;
 }
 
-.userIcon {
+.userIconHolder {
   border: 2px solid rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   overflow: hidden;
+}
+
+.userIcon,
+.userIconHolder {
   margin-right: 4px;
   max-width: 48px;
   max-height: 48px;
@@ -79,4 +83,9 @@
   min-height: 48px;
   width: 48px;
   height: 48px;
+}
+
+.userIcon:not([src]),
+.userIconHolder:not([userIcon]) {
+  display: none;
 }

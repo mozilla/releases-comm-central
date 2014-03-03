@@ -102,10 +102,14 @@
   margin-right: 0px !important;
 }
 
-.buddyIcon {
+.buddyIconHolder {
   border: 2px solid rgba(0,0,0,0.15);
   border-radius: 5px;
   overflow: hidden;
+}
+
+.buddyIcon,
+.buddyIconHolder {
   max-width: 48px;
   max-height: 48px;
   width: 48px;

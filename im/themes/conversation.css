@@ -43,17 +43,22 @@
 %endif
 }
 
-.userIcon {
+.userIconHolder {
   border: 2px solid rgba(0,0,0,0.15);
   border-radius: 5px;
   overflow: hidden;
+}
+
+.userIcon,
+.userIconHolder {
   max-width: 48px;
   max-height: 48px;
   width: 48px;
   height: 48px;
 }
 
-.userIcon:not([src]) {
+.userIcon:not([src]),
+.userIconHolder:not([userIcon]) {
   display: none;
 }
 
@@ -164,7 +169,7 @@
     margin: 32px 0 0;
   }
 
-  .userIcon[src] + .statusTypeIcon {
+  .userIconHolder[userIcon] + .statusTypeIcon {
     margin-left: 32px;
   }
 }

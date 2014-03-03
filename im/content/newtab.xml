@@ -423,7 +423,10 @@
     <content>
       <xul:hbox class="newtabContent" flex="1" xbl:inherits="status">
         <xul:stack class="buddyStatusIconStack" mousethrough="always">
-          <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,chat"/>
+          <!-- The box around the buddy icon is a workaround for bug 955673. -->
+          <xul:box class="buddyIconHolder">
+            <xul:image anonid="buddyIcon" class="buddyIcon" xbl:inherits="src=buddyIcon,chat"/>
+          </xul:box>
           <xul:image anonid="statusIcon" class="statusTypeIcon" xbl:inherits="status,chat"/>
         </xul:stack>
         <xul:vbox flex="1">
