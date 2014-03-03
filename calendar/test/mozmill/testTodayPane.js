@@ -12,6 +12,8 @@ const MOZMILL_CALENDAR = "Mozmill";
 
 var calUtils = require("./shared-modules/calendar-utils");
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, MOZMILL_CALENDAR);
@@ -124,20 +126,45 @@ var testTodayPane = function () {
   controller.sleep(WAIT_FOR_WINDOW_TIMEOUT);
 
   // verify events shown in today pane
-  controller.assertValue(new elementslib.Lookup(controller.window.document,
+  let now = new Date();
+  now.setHours(startHour);
+  now.setMinutes(0);
+  let dtz = cal.calendarDefaultTimezone();
+  let probeDate = cal.jsDateToDateTime(now, dtz);
+  let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
+                                .getService(Components.interfaces.calIDateTimeFormatter);
+  let startTime = dateFormatter.formatTime(probeDate);
+  controller.assertText(new elementslib.Lookup(controller.window.document,
     '/id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/[1]/id("agenda-panel")/'
     + '{"flex":"1"}/id("agenda-listbox")/[2]/anon({"anonid":"agenda-container-box"})/'
-    + 'anon({"anonid":"agenda-description"})/[1]'),
-    "Today's Event");
-  controller.assertValue(new elementslib.Lookup(controller.window.document,
+    + 'anon({"anonid":"agenda-description"})/[0]/anon({"anonid":"agenda-event-start"})/'),
+    startTime + " Today's Event");
+
+  let tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 9, 0);
+  probeDate = cal.jsDateToDateTime(tomorrow, dtz);
+  startTime = dateFormatter.formatTime(probeDate);
+  controller.assertText(new elementslib.Lookup(controller.window.document,
     '/id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/[1]/id("agenda-panel")/'
     + '{"flex":"1"}/id("agenda-listbox")/[4]/anon({"anonid":"agenda-container-box"})/'
-    + 'anon({"anonid":"agenda-description"})/[1]'),
-    "Tomorrow's Event");
-  controller.assertValue(new elementslib.Lookup(controller.window.document,
+    + 'anon({"anonid":"agenda-description"})/[0]/anon({"anonid":"agenda-event-start"})/'),
+    startTime + " Tomorrow's Event");
+
+  let future = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 6, 9, 0);
+  probeDate = cal.jsDateToDateTime(future, dtz);
+  startTime = dateFormatter.formatDateTime(probeDate);
+
+  // Future event's start time
+  controller.assertText(new elementslib.Lookup(controller.window.document,
     '/id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/[1]/id("agenda-panel")/'
     + '{"flex":"1"}/id("agenda-listbox")/[6]/anon({"anonid":"agenda-container-box"})/'
-    + 'anon({"anonid":"agenda-description"})/[1]'),
+    + 'anon({"anonid":"agenda-description"})/[0]/anon({"anonid":"agenda-event-start"})/'),
+    startTime);
+
+  // Future event's title
+  controller.assertText(new elementslib.Lookup(controller.window.document,
+    '/id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/[1]/id("agenda-panel")/'
+    + '{"flex":"1"}/id("agenda-listbox")/[6]/anon({"anonid":"agenda-container-box"})/'
+    + 'anon({"anonid":"agenda-description"})/anon({"anonid":"agenda-event-title"})/'),
     "Future's Event");
 
   // delete events
