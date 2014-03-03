@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SYMBOL_INDEX_NAME=$(XPI_NAME)-$(LIGHTNING_VERSION)-$(OS_TARGET)-$(GRE_BUILDID)-$(CPU_ARCH)-symbols.txt
-MAKE_SYM_STORE_PATH=$(call core_abspath,$(DIST))/$(UNIVERSAL_PATH)xpi-stage/$(XPI_NAME)
+MAKE_SYM_STORE_PATH=$(abspath $(DIST))/$(UNIVERSAL_PATH)xpi-stage/$(XPI_NAME)
 SYM_STORE_SOURCE_DIRS=$(topsrcdir)/calendar
 SYMBOL_FULL_ARCHIVE_BASENAME=$(XPI_PKGNAME).crashreporter-symbols-full
 SYMBOL_ARCHIVE_BASENAME=$(XPI_PKGNAME).crashreporter-symbols
