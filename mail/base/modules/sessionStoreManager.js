@@ -14,7 +14,9 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
-Cu.import("resource:///modules/IOUtils.js");
+Cu.import("resource://gre/modules/AsyncShutdown.jsm");
+Cu.import("resource://gre/modules/NetUtil.jsm");
+Cu.import("resource://gre/modules/osfile.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
 /**
@@ -55,6 +57,21 @@ var sessionStoreManager =
   _shutdownStateSaved: false,
 
   /**
+   * Cache the session file async writeAtomic Promise for AsyncShutdown.
+   */
+  _promise: null,
+
+  /**
+   * Gets the nsIFile used for session storage.
+   */
+  get sessionFile()
+  {
+    let sessionFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    sessionFile.append("session.json");
+    return sessionFile;
+  },
+
+  /**
    * This is called on startup, and when a new 3 pane window is opened after
    * the last 3 pane window was closed (e.g., on the mac, closing the last
    * window doesn't shut down the app).
@@ -79,24 +96,40 @@ var sessionStoreManager =
    */
   _loadSessionFile: function ssm_loadSessionFile()
   {
-    let sessionFile = this.sessionFile;
-    if (sessionFile.exists()) {
-      // get string containing session state
-      let data = IOUtils.loadFileToString(sessionFile);
+    if (!this.sessionFile.exists())
+      return;
 
-      // delete the file in case there is something crash-inducing about
-      // the restoration process
-      sessionFile.remove(false);
-      // clear the current state so that subsequent writes won't think
-      // the state hasn't changed.
-      this._currentStateString = null;
+    // Read the session state data from file, synchronously.
+    let inStream = Cc["@mozilla.org/network/file-input-stream;1"]
+                   .createInstance(Ci.nsIFileInputStream);
+    inStream.init(this.sessionFile, -1, 0, 0);
+    let data = NetUtil.readInputStreamToString(inStream,
+                                               inStream.available(),
+                                               { charset: "UTF-8" });
+    inStream.close();
 
-      if (data) {
-        try {
-          // parse the session state into JS objects
-          this._initialState = JSON.parse(data);
-        } catch (ex) {}
-      }
+    // Clear the current state so that subsequent writes won't think
+    // the state hasn't changed.
+    this._currentStateString = null;
+
+    try {
+      // Parse the session state into a JSON object.
+      this._initialState = JSON.parse(data);
+    }
+    catch (ex) {
+      Cu.reportError("sessionStoreManager: error in session state data, " + ex);
+    }
+
+    if (!data || !this._initialState) {
+      // If the file exists but there is a data read or parse fail, save the
+      // bad file.
+      let errorFile = "session_error_" +
+                      (new Date().toISOString()).replace(/\D/g, "") + ".json";
+      let errorFilePath = OS.Path.join(OS.Constants.Path.profileDir, errorFile);
+      OS.File.move(this.sessionFile.path, errorFilePath)
+             .then(null, error => Cu.reportError("sessionStoreManager: failed to rename " +
+                                                 this.sessionFile.path + " to " +
+                                                 errorFilePath + ": " + error));
     }
   },
 
@@ -125,21 +158,18 @@ var sessionStoreManager =
   {
     let data = JSON.stringify(aStateObj);
 
-    // write to disk only if state changed since last write
+    // Write async to disk only if state changed since last write.
     if (data == this._currentStateString)
       return;
 
-    // XXX ideally, we shouldn't be writing to disk on the UI thread,
-    // but the session file should be small so it might not be too big a
-    // problem.
-    let foStream = Cc["@mozilla.org/network/safe-file-output-stream;1"]
-                   .createInstance(Ci.nsIFileOutputStream);
-    foStream.init(this.sessionFile, -1, -1, 0);
-    foStream.write(data, data.length);
-    foStream.QueryInterface(Ci.nsISafeOutputStream).finish();
-    foStream.close();
-
-    this._currentStateString = data;
+    this._promise = OS.File
+      .writeAtomic(this.sessionFile.path, data,
+                   { tmpPath: this.sessionFile.path + ".tmp",
+                     flush: true })
+      .then(() => sessionStoreManager._currentStateString = data,
+            error => Cu.reportError("sessionStoreManager: error " +
+                                    "storing session state data, " +
+                                    error))
   },
 
   /**
@@ -294,15 +324,10 @@ var sessionStoreManager =
                                    this._sessionAutoSaveTimerIntervalMS,
                                    Ci.nsITimer.TYPE_REPEATING_SLACK);
     }
-  },
-
-  /**
-   * Gets the file used for session storage.
-   */
-  get sessionFile()
-  {
-    let sessionFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    sessionFile.append("session.json");
-    return sessionFile;
   }
 };
+
+AsyncShutdown.profileBeforeChange.addBlocker(
+  "sessionStoreManager: session.json",
+  () => { return sessionStoreManager._promise; }
+);

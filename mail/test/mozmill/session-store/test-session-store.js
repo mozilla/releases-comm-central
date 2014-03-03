@@ -30,6 +30,9 @@ var windowHelper;
 
 var folderA, folderB;
 
+// With async file writes, use a delay larger than the session autosave timer.
+const asyncFileWriteDelayMS = 300;
+
 /* ........ Helper Functions ................*/
 
 /**
@@ -50,7 +53,8 @@ function readFile() {
 }
 
 function waitForFileRefresh() {
-  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS);
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
   jumlib.assert(sessionStoreManager.sessionFile.exists(),
                 "file should exist");
 }
@@ -401,7 +405,11 @@ function test_bad_session_file_simple() {
   jumlib.assert(!sessionStoreManager._initialState,
                 "saved state is bad so state object should be null");
 
-  // the bad session file should have also been deleted
+  // Wait for bad file async rename to finish.
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
+
+  // The bad session file should now not exist.
   jumlib.assert(!sessionStoreManager.sessionFile.exists(),
                 "file should not exist");
 }
