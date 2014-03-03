@@ -30,11 +30,24 @@ _ABS_DIST := $(abspath $(DIST))
 
 # This variable is to allow the wget-en-US target to know which ftp server to download from
 ifndef EN_US_BINARY_URL
+ifdef UPLOAD_HOST
+# If this url is missing, and UPLOAD_HOST is defined its probably the release
+# run where we can't influence the download location. Fake it from the env vars
+# we have
+BUILD_NR=$(shell echo $(POST_UPLOAD_CMD) | sed -n -e 's/.*-n \([0-9]*\).*/\1/p')
+CANDIDATE_NR=$(XPI_VERSION)
+EN_US_BINARY_URL=http://$(UPLOAD_HOST)/pub/mozilla.org/calendar/lightning/nightly/$(CANDIDATE_NR)-candidates/build$(BUILD_NR)/$(MOZ_PKG_PLATFORM)
+else
 EN_US_BINARY_URL = $(error You must set EN_US_BINARY_URL)
 endif
+endif
+
 
 XPI_STAGE_PATH = $(DIST)/$(UNIVERSAL_PATH)xpi-stage
 _ABS_XPI_STAGE_PATH = $(_ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage
+ENUS_PKGNAME=$(subst .$(AB_CD).,.en-US.,$(XPI_PKGNAME))
+XPI_ZIP_IN=$(_ABS_XPI_STAGE_PATH)/$(ENUS_PKGNAME).xpi
+
 $(XPI_STAGE_PATH):
 	mkdir -p $@
 
@@ -58,34 +71,21 @@ apposlocales = $(call oslocales,$(topsrcdir)/$1/locales/$(if $(filter $(MOZ_UPDA
 # function print_ltnconfig(section,configname)
 print_ltnconfig = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/application.ini $1 $2)
 
-# Lightning uses Thunderbird's build machinery, so we need to hack the binary
-# url to use Lightning's directories.
 wget-en-US: FINAL_BINARY_URL = $(subst thunderbird,calendar/lightning,$(EN_US_BINARY_URL))
 wget-en-US: $(XPI_STAGE_PATH)
-wget-en-US: ZIP_IN ?= $(_ABS_XPI_STAGE_PATH)/$(XPI_PKGNAME).xpi
-wget-en-US:
-	(cd $(XPI_STAGE_PATH) && $(WGET) -nv -N $(FINAL_BINARY_URL)/$(XPI_PKGNAME).xpi)
-	@echo "Downloaded $(FINAL_BINARY_URL)/$(XPI_PKGNAME) to	$(ZIP_IN)"
+	(cd $(XPI_STAGE_PATH) && $(WGET) -nv -N $(FINAL_BINARY_URL)/$(ENUS_PKGNAME).xpi)
+	@echo "Downloaded $(FINAL_BINARY_URL)/$(ENUS_PKGNAME) to $(XPI_ZIP_IN)"
 
-# If this file is missing, its probably the release run where we can't
-# influence the download location. Fake it from the env vars we have
-ensure-stage-dir: $(if $(wildcard $(XPI_STAGE_PATH)/$(XPI_NAME)/),,wget-from-env)
-wget-from-env: BUILD_NR=$(shell echo $(POST_UPLOAD_CMD) | sed -n -e 's/.*-n \([0-9]*\).*/\1/p')
-wget-from-env: CANDIDATE_NR=$(XPI_VERSION)
-wget-from-env: EN_US_BINARY_URL=http://$(UPLOAD_HOST)/pub/mozilla.org/calendar/lightning/nightly/$(CANDIDATE_NR)-candidates/build$(BUILD_NR)/$(MOZ_PKG_PLATFORM)
-wget-from-env: XPI_PKGNAME:=$(subst .$(AB_CD).,.en-US.,$(XPI_PKGNAME))
-wget-from-env: ZIP_IN=$(_ABS_XPI_STAGE_PATH)/$(XPI_PKGNAME).xpi
-wget-from-env: wget-en-US unpack
+ensure-stage-dir: $(if $(wildcard $(XPI_STAGE_PATH)/$(XPI_NAME)/),,wget-en-US unpack)
 
 # We're unpacking directly into FINAL_TARGET, this keeps code to do manual
 # repacks cleaner.
-unpack: ZIP_IN ?= $(_ABS_XPI_STAGE_PATH)/$(XPI_PKGNAME).xpi
-unpack: $(ZIP_IN)
+unpack: $(XPI_ZIP_IN)
 	if test -d $(XPI_STAGE_PATH)/$(XPI_NAME); then \
 	  $(RM) -r -v $(XPI_STAGE_PATH)/$(XPI_NAME); \
 	fi
 	$(NSINSTALL) -D $(XPI_STAGE_PATH)/$(XPI_NAME)
-	cd $(XPI_STAGE_PATH)/$(XPI_NAME) && $(UNZIP) $(ZIP_IN)
+	cd $(XPI_STAGE_PATH)/$(XPI_NAME) && $(UNZIP) $(XPI_ZIP_IN)
 	@echo done unpacking
 
 # Nothing to package for en-US, its just the usual english xpi
