@@ -572,17 +572,6 @@ function guessSystemTimezone() {
                                 .getService(Components.interfaces.nsIHttpProtocolHandler);
 
         if (handler.oscpu.match(/^Windows/)) {
-            var regOSName, fileOSName;
-            if (handler.oscpu.match(/^Windows NT/)) {
-                regOSName  = "Windows NT";
-                fileOSName = "WindowsNT";
-            } else {
-                // Note: windows 98 compatibility will be deleted
-                // in releases built on Gecko 1.9 or later.
-                regOSName  = "Windows";
-                fileOSName = "Windows98";
-            }
-
             // If on Windows NT (2K/XP/Vista), current timezone only lists its
             // localized name, so to find its registry key name, match localized
             // name to localized names of each windows timezone listed in
@@ -598,8 +587,7 @@ function guessSystemTimezone() {
             wrk.close()
 
             wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-                     ("SOFTWARE\\Microsoft\\"+regOSName+
-                      "\\CurrentVersion\\Time Zones"),
+                     "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones",
                      wrk.ACCESS_READ);
 
             // Linear search matching localized name of standard timezone
@@ -621,8 +609,8 @@ function guessSystemTimezone() {
             if (osUserTimeZone != null) {
                 // Lookup timezone registry key in table of known tz keys
                 // to convert to ZoneInfo timezone id.
-                const regKeyToZoneInfoBundle = Services.strings.createBundle("chrome://calendar/content/"+
-                                                                             fileOSName + "ToZoneInfoTZId.properties");
+                const regKeyToZoneInfoBundle = Services.strings.createBundle(
+                    "chrome://calendar/content/WindowsNTToZoneInfoTZId.properties");
                 zoneInfoIdFromOSUserTimeZone =
                     regKeyToZoneInfoBundle.GetStringFromName(osUserTimeZone);
             }
