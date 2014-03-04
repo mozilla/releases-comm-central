@@ -3878,58 +3878,13 @@ nsAttachmentOpener.prototype =
  */
 function DetermineHTMLAction(convertible)
 {
-    if (!gMsgCompose.composeHTML)
-        return nsIMsgCompSendFormat.PlainText;
+  if (!gMsgCompose.composeHTML)
+    return nsIMsgCompSendFormat.PlainText;
 
-    if (gSendFormat == nsIMsgCompSendFormat.AskUser)
-    {
-        //Well, before we ask, see if we can figure out what to do for ourselves
-        var preferFormat;
+  if (gSendFormat == nsIMsgCompSendFormat.AskUser)
+    return gMsgCompose.determineHTMLAction(convertible);
 
-        //Check the address book for the HTML property for each recipient
-        let noHtmlRecipients = getNonHtmlRecipients();
-        if (!noHtmlRecipients) {
-          var msgCompFields = gMsgCompose.compFields;
-          noHtmlRecipients = msgCompFields.to + "," + msgCompFields.cc + "," + msgCompFields.bcc;
-          preferFormat = nsIAbPreferMailFormat.unknown;
-        }
-        // dump("DetermineHTMLAction: preferFormat = " + preferFormat + ", noHtmlRecipients are " + noHtmlRecipients + "\n");
-
-        //Check newsgroups now...
-        let noHtmlnewsgroups = gMsgCompose.compFields.newsgroups;
-
-        if (noHtmlRecipients || noHtmlnewsgroups)
-        {
-            if (convertible == nsIMsgCompConvertible.Plain)
-              return nsIMsgCompSendFormat.PlainText;
-
-            if (!noHtmlnewsgroups)
-            {
-                switch (preferFormat)
-                {
-                  case nsIAbPreferMailFormat.plaintext :
-                    return nsIMsgCompSendFormat.PlainText;
-
-                  default :
-                    //See if a preference has been set to tell us what to do. Note that we do not honor that
-                    //preference for newsgroups. Only for e-mail addresses.
-                    var action = getPref("mail.default_html_action");
-                    switch (action)
-                    {
-                        case nsIMsgCompSendFormat.PlainText    :
-                        case nsIMsgCompSendFormat.HTML         :
-                        case nsIMsgCompSendFormat.Both         :
-                            return action;
-                    }
-                }
-            }
-            return nsIMsgCompSendFormat.AskUser;
-        }
-
-        return nsIMsgCompSendFormat.HTML;
-    }
-
-    return gSendFormat;
+  return gSendFormat;
 }
 
 /**
@@ -3937,18 +3892,7 @@ function DetermineHTMLAction(convertible)
  */
 function expandRecipients()
 {
-  let dummyObj = new Object();
-  gMsgCompose.checkAndPopulateRecipients(true, false, dummyObj);
-}
-
-/**
- * Returns recipients that prefer to get messages in plain text.
- */
-function getNonHtmlRecipients()
-{
-  let recipients = new Object();
-  gMsgCompose.checkAndPopulateRecipients(true, true, recipients);
-  return recipients.value;
+  gMsgCompose.expandMailingLists();
 }
 
 function DetermineConvertibility()

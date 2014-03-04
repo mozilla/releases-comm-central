@@ -4637,42 +4637,23 @@ nsresult nsMsgCompose::BuildMailListArray(nsIAbDirectory* parentDir,
 
 struct nsMsgMailListComparator
 {
-  bool Equals(const nsMsgMailList& mailList, const nsString& name) const {
-    return mailList.mFullName.Equals(name, nsCaseInsensitiveStringComparator());
+  bool Equals(const nsMsgMailList &mailList,
+              const nsMsgRecipient &recipient) const {
+    if (mailList.mName.Equals(recipient.mName,
+        nsCaseInsensitiveStringComparator()))
+      return true;
+    return mailList.mDescription.Equals(
+      recipient.mEmail.IsEmpty() ? recipient.mName : recipient.mEmail,
+      nsCaseInsensitiveStringComparator());
   }
 };
 
-nsresult nsMsgCompose::GetMailListAddresses(nsString& name, nsTArray<nsMsgMailList>& mailListArray, nsIMutableArray** addressesArray)
+nsresult
+nsMsgCompose::LookupAddressBook(RecipientsArray &recipientsList)
 {
-  uint32_t index = mailListArray.IndexOf(name, 0, nsMsgMailListComparator());
-  if (index != mailListArray.NoIndex &&
-      mailListArray[index].mDirectory)
-    return mailListArray[index].mDirectory->GetAddressLists(addressesArray);
-
-  return NS_ERROR_FAILURE;
-}
-
-
-// 3 = To, Cc, Bcc
-#define MAX_OF_RECIPIENT_ARRAY    3
-
-NS_IMETHODIMP
-nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
-                                         bool aReturnNonHTMLRecipients,
-                                         nsAString &aNonHTMLRecipients,
-                                         uint32_t *aResult)
-{
-  NS_ENSURE_ARG_POINTER(aResult);
-
   nsresult rv = NS_OK;
 
-  aNonHTMLRecipients.Truncate();
-
-  if (aResult)
-    *aResult = nsIAbPreferMailFormat::unknown;
-
   // First, build some arrays with the original recipients.
-  nsTArray<nsMsgRecipient> recipientsList[MAX_OF_RECIPIENT_ARRAY];
 
   nsAutoString originalRecipients[MAX_OF_RECIPIENT_ARRAY];
   m_compFields->GetTo(originalRecipients[0]);
@@ -4695,7 +4676,6 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
   bool stillNeedToSearch = true;
   nsCOMPtr<nsIAbDirectory> abDirectory;
   nsCOMPtr<nsIAbCard> existingCard;
-  nsCOMPtr<nsIMutableArray> mailListAddresses;
   nsTArray<nsMsgMailList> mailListArray;
 
   nsCOMArray<nsIAbDirectory> addrbookDirArray;
@@ -4716,6 +4696,8 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
       }
 
       abDirectory = addrbookDirArray[k];
+      if (!abDirectory)
+        continue;
 
       bool supportsMailingLists;
       rv = abDirectory->GetSupportsMailingLists(&supportsMailingLists);
@@ -4737,97 +4719,15 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
         for (j = 0; j < recipientsList[i].Length(); ++j)
         {
           nsMsgRecipient &recipient = recipientsList[i][j];
-          if (!recipient.mProcessed)
+          if (!recipient.mDirectory)
           {
             // First check if it's a mailing list
-            if (NS_SUCCEEDED(GetMailListAddresses(recipient.mAddress,
-                                                  mailListArray,
-                                                  getter_AddRefs(mailListAddresses))))
+            uint32_t index = mailListArray.IndexOf(recipient, 0,
+              nsMsgMailListComparator());
+            if (index != mailListArray.NoIndex &&
+                mailListArray[index].mDirectory)
             {
-              // It is, so populate it if we are required to do so.
-              if (aPopulateMailList)
-              {
-                  uint32_t nbrAddresses = 0;
-                  for (mailListAddresses->GetLength(&nbrAddresses); nbrAddresses > 0; nbrAddresses --)
-                  {
-                    existingCard = do_QueryElementAt(mailListAddresses,
-                                                     nbrAddresses - 1, &rv);
-                    if (NS_FAILED(rv))
-                      return rv;
-
-                    nsMsgRecipient newRecipient;
-                    nsAutoString pDisplayName;
-
-                    bool bIsMailList;
-                    rv = existingCard->GetIsMailList(&bIsMailList);
-                    if (NS_FAILED(rv))
-                      return rv;
-
-                    rv = existingCard->GetDisplayName(pDisplayName);
-                    if (NS_FAILED(rv))
-                      return rv;
-
-                    if (bIsMailList)
-                      rv = existingCard->GetPropertyAsAString(kNotesProperty, newRecipient.mEmail);
-                    else
-                      rv = existingCard->GetPrimaryEmail(newRecipient.mEmail);
-
-                    if (NS_FAILED(rv))
-                      return rv;
-
-                    MakeMimeAddress(pDisplayName, newRecipient.mEmail,
-                                    newRecipient.mAddress);
-
-                    if (newRecipient.mAddress.IsEmpty())
-                    {
-                      // oops, parser problem! I will try to do my best...
-                      newRecipient.mAddress = pDisplayName;
-                      newRecipient.mAddress.AppendLiteral(" <");
-                      if (bIsMailList)
-                      {
-                        if (!newRecipient.mEmail.IsEmpty())
-                          newRecipient.mAddress += newRecipient.mEmail;
-                        else
-                          newRecipient.mAddress += pDisplayName;
-                      }
-                      else
-                        newRecipient.mAddress += newRecipient.mEmail;
-                      newRecipient.mAddress.Append(char16_t('>'));
-                    }
-
-                    if (newRecipient.mAddress.IsEmpty())
-                      continue;
-
-                    // Now we need to insert the new address into the list of
-                    // recipient
-                    if (bIsMailList)
-                    {
-                      stillNeedToSearch = true;
-                    }
-                    else
-                    {
-                      newRecipient.mPreferFormat = nsIAbPreferMailFormat::unknown;
-                      rv = existingCard->GetPropertyAsUint32(
-                          kPreferMailFormatProperty, &newRecipient.mPreferFormat);
-                      if (NS_SUCCEEDED(rv))
-                        newRecipient.mProcessed = true;
-                    }
-                    rv = recipientsList[i].InsertElementAt(j + 1, newRecipient) ? NS_OK : NS_ERROR_FAILURE;
-                    if (NS_FAILED(rv))
-                      return rv;
-                  }
-                  recipientsList[i].RemoveElementAt(j);
-                 --j;
-              }
-              else
-                recipient.mProcessed = true;
-
-              continue;
-            }
-
-            if (!abDirectory)
-            {
-              stillNeedToSearch = true;
+              recipient.mDirectory = mailListArray[index].mDirectory;
               continue;
             }
 
@@ -4837,46 +4737,8 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
 
             if (NS_SUCCEEDED(rv) && existingCard)
             {
-              recipient.mPreferFormat = nsIAbPreferMailFormat::unknown;
-              rv = existingCard->GetPropertyAsUint32(kPreferMailFormatProperty,
-                                                     &recipient.mPreferFormat);
-              if (NS_SUCCEEDED(rv))
-                recipient.mProcessed = true;
-
-              bool readOnly;
-              rv = abDirectory->GetReadOnly(&readOnly);
-              NS_ENSURE_SUCCESS(rv,rv);
-
-              // bump the popularity index for this card since we are about to send e-mail to it
-              uint32_t popularityIndex = 0;
-              if (!readOnly)
-              {
-                if (NS_FAILED(existingCard->GetPropertyAsUint32(
-                      kPopularityIndexProperty, &popularityIndex)))
-                {
-                  // TB 2 wrote the popularity value as hex, so if we get here,
-                  // then we've probably got a hex value. We'll convert it back
-                  // to decimal, as that's the best we can do.
-
-                  nsCString hexPopularity;
-                  if (NS_SUCCEEDED(existingCard->GetPropertyAsAUTF8String(kPopularityIndexProperty, hexPopularity)))
-                  {
-                    nsresult errorCode = NS_OK;
-                    popularityIndex = hexPopularity.ToInteger(&errorCode, 16);
-                    if (NS_FAILED(errorCode))
-                      // We failed, just set it to zero.
-                      popularityIndex = 0;
-                  }
-                  else
-                    // We couldn't get it as a string either, so just reset to
-                    // zero.
-                    popularityIndex = 0;
-                }
-
-                existingCard->SetPropertyAsUint32(kPopularityIndexProperty,
-                                                  ++popularityIndex);
-                abDirectory->ModifyCard(existingCard);
-              }
+              recipient.mCard = existingCard;
+              recipient.mDirectory = abDirectory;
             }
             else
               stillNeedToSearch = true;
@@ -4886,15 +4748,164 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
     }
   }
 
+  return rv;
+}
+
+NS_IMETHODIMP
+nsMsgCompose::ExpandMailingLists()
+{
+  RecipientsArray recipientsList;
+  nsresult rv = LookupAddressBook(recipientsList);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Reset the final headers with the expanded mailing lists.
+  nsAutoString recipientsStr;
+
+  for (int i = 0; i < MAX_OF_RECIPIENT_ARRAY; ++i)
+  {
+    uint32_t nbrRecipients = recipientsList[i].Length();
+    if (nbrRecipients == 0)
+      continue;
+    recipientsStr.Truncate();
+
+    // Note: We check this each time to allow for length changes.
+    for (uint32_t j = 0; j < recipientsList[i].Length(); ++j)
+    {
+      nsMsgRecipient &recipient = recipientsList[i][j];
+
+      // First check if it's a mailing list
+      if (recipient.mDirectory && !recipient.mCard)
+      {
+        // Grab a ref to the directory--we're appending to the nsTArray, which
+        // can invalidate the reference to recipient underneath us.
+        nsCOMPtr<nsIAbDirectory> directory(recipient.mDirectory);
+        nsCOMPtr<nsIMutableArray> mailListAddresses;
+        rv = directory->GetAddressLists(
+          getter_AddRefs(mailListAddresses));
+        if (NS_FAILED(rv))
+          continue;
+
+        uint32_t nbrAddresses = 0;
+        for (mailListAddresses->GetLength(&nbrAddresses); nbrAddresses > 0;
+            nbrAddresses--)
+        {
+          nsCOMPtr<nsIAbCard> existingCard(do_QueryElementAt(mailListAddresses,
+                                           nbrAddresses - 1, &rv));
+          NS_ENSURE_SUCCESS(rv, rv);
+
+          nsMsgRecipient newRecipient;
+          bool bIsMailList;
+          rv = existingCard->GetIsMailList(&bIsMailList);
+          NS_ENSURE_SUCCESS(rv, rv);
+
+          NS_ASSERTION(!bIsMailList,
+             "Bug 40301 means we don't support this feature.");
+
+          rv = existingCard->GetDisplayName(newRecipient.mName);
+          NS_ENSURE_SUCCESS(rv, rv);
+          rv = existingCard->GetPrimaryEmail(newRecipient.mEmail);
+          NS_ENSURE_SUCCESS(rv, rv);
+
+          if (newRecipient.mName.IsEmpty() && newRecipient.mEmail.IsEmpty())
+            continue;
+
+          // Now we need to insert the new address into the list of recipients.
+          newRecipient.mCard = existingCard;
+          newRecipient.mDirectory = directory;
+          recipientsList[i].InsertElementAt(j + 1, newRecipient);
+        }
+
+        // Remove the mailing list and process the cards we just exposed.
+        recipientsList[i].RemoveElementAt(j);
+        --j;
+        continue;
+      }
+
+      if (!recipientsStr.IsEmpty())
+        recipientsStr.Append(char16_t(','));
+      nsAutoString address;
+      MakeMimeAddress(recipient.mName, recipient.mEmail, address);
+      recipientsStr.Append(address);
+
+      if (recipient.mCard)
+      {
+        bool readOnly;
+        rv = recipient.mDirectory->GetReadOnly(&readOnly);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // Bump the popularity index for this card since we are about to send
+        // e-mail to it.
+        if (!readOnly)
+        {
+          uint32_t popularityIndex = 0;
+          if (NS_FAILED(recipient.mCard->GetPropertyAsUint32(
+                kPopularityIndexProperty, &popularityIndex)))
+          {
+            // TB 2 wrote the popularity value as hex, so if we get here,
+            // then we've probably got a hex value. We'll convert it back
+            // to decimal, as that's the best we can do.
+
+            nsCString hexPopularity;
+            if (NS_SUCCEEDED(recipient.mCard->GetPropertyAsAUTF8String(
+                kPopularityIndexProperty, hexPopularity)))
+            {
+              nsresult errorCode = NS_OK;
+              popularityIndex = hexPopularity.ToInteger(&errorCode, 16);
+              if (NS_FAILED(errorCode))
+                // We failed, just set it to zero.
+                popularityIndex = 0;
+            }
+            else
+              // We couldn't get it as a string either, so just reset to zero.
+              popularityIndex = 0;
+          }
+
+          recipient.mCard->SetPropertyAsUint32(kPopularityIndexProperty,
+                                               ++popularityIndex);
+          recipient.mDirectory->ModifyCard(recipient.mCard);
+        }
+      }
+    }
+
+    switch (i)
+    {
+    case 0: m_compFields->SetTo(recipientsStr);  break;
+    case 1: m_compFields->SetCc(recipientsStr);  break;
+    case 2: m_compFields->SetBcc(recipientsStr); break;
+    }
+  }
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
+{
+  NS_ENSURE_ARG_POINTER(result);
+
+  nsAutoString newsgroups;
+  m_compFields->GetNewsgroups(newsgroups);
+
+  // Right now, we don't have logic for newsgroups for intelligent send
+  // preferences. Therefore, bail out early and save us a lot of work if there
+  // are newsgroups.
+  if (!newsgroups.IsEmpty())
+  {
+    *result = nsIMsgCompSendFormat::AskUser;
+    return NS_OK;
+  }
+
+  RecipientsArray recipientsList;
+  nsresult rv = LookupAddressBook(recipientsList);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // Finally return the list of non HTML recipient if requested and/or rebuilt
   // the recipient field. Also, check for domain preference when preferFormat
   // is unknown
-  nsAutoString recipientsStr;
-  nsAutoString nonHtmlRecipientsStr;
   nsString plaintextDomains;
   nsString htmlDomains;
 
-  nsCOMPtr<nsIPrefBranch> prefBranch (do_GetService(NS_PREFSERVICE_CONTRACTID));
+  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (prefBranch)
   {
     NS_GetUnicharPreferenceWithDefault(prefBranch, "mailnews.plaintext_domains",
@@ -4903,24 +4914,29 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
                                        EmptyString(), htmlDomains);
   }
 
-  bool atLeastOneRecipientPrefersUnknown = false;
-  bool atLeastOneRecipientPrefersPlainText = false;
-  bool atLeastOneRecipientPrefersHTML = false;
+  // If allHtml is true, then everyone has specifically requested to receive
+  // HTML according to the address book.
+  bool allHtml = true;
+  bool allPlain = true;
 
-  for (i = 0; i < MAX_OF_RECIPIENT_ARRAY; ++i)
+  // Exit the loop early if allHtml and allPlain both decay to false to save us
+  // some work.
+  for (int i = 0; i < MAX_OF_RECIPIENT_ARRAY && (allHtml || allPlain); ++i)
   {
     uint32_t nbrRecipients = recipientsList[i].Length();
-    if (nbrRecipients == 0)
-      continue;
-    recipientsStr.Truncate();
-
-    for (j = 0; j < nbrRecipients; ++j)
+    for (uint32_t j = 0; j < nbrRecipients && (allHtml || allPlain); ++j)
     {
       nsMsgRecipient &recipient = recipientsList[i][j];
+      uint32_t preferFormat = nsIAbPreferMailFormat::unknown;
+      if (recipient.mCard)
+      {
+        recipient.mCard->GetPropertyAsUint32(kPreferMailFormatProperty,
+          &preferFormat);
+      }
 
       // if we don't have a prefer format for a recipient, check the domain in
       // case we have a format defined for it
-      if (recipient.mPreferFormat == nsIAbPreferMailFormat::unknown &&
+      if (preferFormat == nsIAbPreferMailFormat::unknown &&
           (!plaintextDomains.IsEmpty() || !htmlDomains.IsEmpty()))
       {
         int32_t atPos = recipient.mEmail.FindChar('@');
@@ -4930,77 +4946,66 @@ nsMsgCompose::CheckAndPopulateRecipients(bool aPopulateMailList,
         nsDependentSubstring emailDomain = Substring(recipient.mEmail,
                                                      atPos + 1);
         if (IsInDomainList(emailDomain, plaintextDomains))
-          recipient.mPreferFormat = nsIAbPreferMailFormat::plaintext;
+          preferFormat = nsIAbPreferMailFormat::plaintext;
         else if (IsInDomainList(emailDomain, htmlDomains))
-          recipient.mPreferFormat = nsIAbPreferMailFormat::html;
+          preferFormat = nsIAbPreferMailFormat::html;
       }
 
-      switch (recipient.mPreferFormat)
+      switch (preferFormat)
       {
       case nsIAbPreferMailFormat::html:
-        atLeastOneRecipientPrefersHTML = true;
+        allPlain = false;
         break;
 
       case nsIAbPreferMailFormat::plaintext:
-        atLeastOneRecipientPrefersPlainText = true;
+        allHtml = false;
         break;
 
       default: // nsIAbPreferMailFormat::unknown
-        atLeastOneRecipientPrefersUnknown = true;
+        allHtml = false;
+        allPlain = false;
         break;
       }
-
-      if (aPopulateMailList)
-      {
-        if (!recipientsStr.IsEmpty())
-          recipientsStr.Append(char16_t(','));
-        recipientsStr.Append(recipient.mAddress);
-      }
-
-      // Add recipients to the nonHtmlRecipient list if they haven't
-      // explicitly allowed it.
-      if (aReturnNonHTMLRecipients &&
-          recipient.mPreferFormat != nsIAbPreferMailFormat::html)
-      {
-        if (!nonHtmlRecipientsStr.IsEmpty())
-          nonHtmlRecipientsStr.Append(char16_t(','));
-        nonHtmlRecipientsStr.Append(recipient.mEmail);
-      }
-    }
-
-    if (aPopulateMailList)
-    {
-      switch (i)
-      {
-      case 0 : m_compFields->SetTo(recipientsStr);  break;
-      case 1 : m_compFields->SetCc(recipientsStr);  break;
-      case 2 : m_compFields->SetBcc(recipientsStr); break;
-      }
     }
   }
 
-  if (aReturnNonHTMLRecipients)
-    aNonHTMLRecipients = nonHtmlRecipientsStr;
-
-  if (atLeastOneRecipientPrefersUnknown)
-    *aResult = nsIAbPreferMailFormat::unknown;
-  else if (atLeastOneRecipientPrefersHTML)
+  // If everyone supports HTML, then return HTML.
+  if (allHtml)
   {
-    // if we have at least one recipient that prefers html
-    // and at least one that recipients that prefers plain text
-    // we need to return unknown, so that we can prompt the user
-    if (atLeastOneRecipientPrefersPlainText)
-      *aResult = nsIAbPreferMailFormat::unknown;
-    else
-      *aResult = nsIAbPreferMailFormat::html;
-  }
-  else
-  {
-    NS_ASSERTION(atLeastOneRecipientPrefersPlainText, "at least one should prefer plain text");
-    *aResult = nsIAbPreferMailFormat::plaintext;
+    *result = nsIMsgCompSendFormat::HTML;
+    return NS_OK;
   }
 
-  return rv;
+  // If we can guarantee that converting to plaintext is not lossy, send the
+  // email as plaintext. Also send it if everyone prefers plaintext.
+  if (aConvertible == nsIMsgCompConvertible::Plain || allPlain)
+  {
+    *result = nsIMsgCompSendFormat::PlainText;
+    return NS_OK;
+  }
+
+  // Otherwise, check the preference to see what action we should default to.
+  nsCOMPtr<nsIPrefBranch> prefService(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  int32_t action = nsIMsgCompSendFormat::AskUser;
+  rv = prefService->GetIntPref("mail.default_html_action", &action);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // If the action is a known action, return that value. Otherwise, ask the
+  // user. Note that the preference defaults to 0, which is not a valid value
+  // for the enum.
+  if (action == nsIMsgCompSendFormat::PlainText ||
+      action == nsIMsgCompSendFormat::HTML ||
+      action == nsIMsgCompSendFormat::Both)
+  {
+    *result = action;
+    return NS_OK;
+  }
+
+  // At this point, ask the user.
+  *result = nsIMsgCompSendFormat::AskUser;
+  return NS_OK;
 }
 
 /* Decides which tags trigger which convertible mode, i.e. here is the logic
@@ -5430,25 +5435,11 @@ NS_IMETHODIMP nsMsgCompose::CheckCharsetConversion(nsIMsgIdentity *identity, cha
 nsMsgMailList::nsMsgMailList(nsIAbDirectory* directory) :
   mDirectory(directory)
 {
-  nsString listName, listDescription;
-  mDirectory->GetDirName(listName);
-  mDirectory->GetDescription(listDescription);
+  mDirectory->GetDirName(mName);
+  mDirectory->GetDescription(mDescription);
 
-  MakeDisplayAddress(listName,
-                     listDescription.IsEmpty() ? listName : listDescription,
-                     mFullName);
-
-  if (mFullName.IsEmpty())
-  {
-      //oops, parser problem! I will try to do my best...
-      mFullName = listName;
-      mFullName.AppendLiteral(" <");
-      if (listDescription.IsEmpty())
-        mFullName += listName;
-      else
-        mFullName += listDescription;
-      mFullName.Append(char16_t('>'));
-  }
+  if (mDescription.IsEmpty())
+    mDescription = mName;
 
   mDirectory = directory;
 }

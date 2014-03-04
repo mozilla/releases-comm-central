@@ -1,7 +1,5 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-
 /**
- * Tests nsMsgCompose expandMailingLists.
+ * Tests nsMsgCompose determineHTMLAction.
  */
 
 const MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
@@ -9,16 +7,22 @@ const MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;
 const MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
 const nsIMsgCompose = Components.interfaces.nsIMsgCompose;
 const nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
+const nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
 const nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
+const SendFormat = Components.interfaces.nsIMsgCompSendFormat;
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Helper to check population worked as expected.
- * @param aTo - text in the To field
- * @param aCheckTo - the expected To addresses (after possible ist population)
+ * @param aTo          text in the To field
+ * @param aNewsgroups  text for the Newsgroups field
+ * @param aSendFormat  |nsIMsgCompSendFormat| format to send
+ * @param aConvertible |nsIMsgCompConvertible| parameter to check (defaults to
+ *                     nsIMsgCompConvertible.No if undefined)
  */
-function checkPopulate(aTo, aCheckTo)
+function checkPopulate(aTo, aNewsgroups, aSendFormat,
+                       aConvertible=nsIMsgCompConvertible.No)
 {
   var msgCompose = Components.classes[MsgComposeContractID]
                              .createInstance(nsIMsgCompose);
@@ -28,6 +32,7 @@ function checkPopulate(aTo, aCheckTo)
                          .createInstance(nsIMsgCompFields);
 
   fields.to = aTo;
+  fields.newsgroups = aNewsgroups;
 
   // Set up some params
   var params = Components.classes[MsgComposeParamsContractID]
@@ -38,7 +43,7 @@ function checkPopulate(aTo, aCheckTo)
   msgCompose.initialize(params);
 
   msgCompose.expandMailingLists();
-  do_check_eq(fields.to, aCheckTo);
+  do_check_eq(msgCompose.determineHTMLAction(aConvertible), aSendFormat);
 }
 
 function run_test() {
@@ -65,7 +70,7 @@ function run_test() {
 
   msgCompose.initialize(params);
 
-  // Test - expandMailingLists basic functionality.
+  // Test - determineHTMLAction basic functionality.
 
   // Re-initialize
   msgCompose = Components.classes[MsgComposeContractID]
@@ -89,56 +94,67 @@ function run_test() {
 
   msgCompose.initialize(params);
 
-  msgCompose.expandMailingLists();
+  var nonHTMLRecipients = new Object();
+
+  Services.prefs.setIntPref("mail.default_html_action", SendFormat.AskUser);
+  do_check_eq(msgCompose.determineHTMLAction(nsIMsgCompConvertible.No),
+              SendFormat.AskUser);
+
   do_check_eq(fields.to, "test2@foo1.invalid");
   do_check_eq(fields.cc, "test3@foo1.invalid");
   do_check_eq(fields.bcc, "test4@foo1.invalid");
 
-  // Test - expandMailingLists with plain text.
+  // Test - determineHTMLAction with plain text.
 
-  checkPopulate("test4@foo.invalid", "test4@foo.invalid");
+  checkPopulate("test4@foo.invalid", "", SendFormat.PlainText);
 
-  // Test - expandMailingLists with html.
+  // Test - determineHTMLAction with html.
 
-  checkPopulate("test5@foo.invalid", "test5@foo.invalid");
+  checkPopulate("test5@foo.invalid", "", SendFormat.HTML);
 
-  // Test - expandMailingLists with a list of three items.
+  // Test - determineHTMLAction with a list of three items.
 
-  checkPopulate("TestList1 <TestList1>",
-                "test1@foo.invalid,test2@foo.invalid,test3@foo.invalid");
+  checkPopulate("TestList1 <TestList1>", "", SendFormat.AskUser);
+  checkPopulate("TestList1 <TestList1>", "", SendFormat.PlainText,
+    nsIMsgCompConvertible.Plain);
 
-  // Test - expandMailingLists with a list of one item.
+  // Test - determineHTMLAction with a list of one item.
 
-  checkPopulate("TestList2 <TestList2>", "test4@foo.invalid");
+  checkPopulate("TestList2 <TestList2>", "", SendFormat.PlainText);
 
-  checkPopulate("TestList3 <TestList3>", "test5@foo.invalid");
+  checkPopulate("TestList3 <TestList3>", "", SendFormat.HTML);
 
-  // Test expandMailingLists w/ mailnews.html_domains set.
+  // Test determineHTMLAction w/ mailnews.html_domains set.
   Services.prefs.setCharPref("mailnews.html_domains", "foo.invalid,bar.invalid");
-  checkPopulate("htmlformat@foo.invalid,unknownformat@nonfoo.invalid",
-                "htmlformat@foo.invalid,unknownformat@nonfoo.invalid");
+  checkPopulate("htmlformat@foo.invalid,unknownformat@nonfoo.invalid", "",
+                SendFormat.AskUser);
   Services.prefs.clearUserPref("mailnews.html_domains");
 
-  // Test expandMailingLists w/ mailnews.plaintext_domains set.
+  // Test determineHTMLAction w/ mailnews.plaintext_domains set.
   Services.prefs.setCharPref("mailnews.plaintext_domains", "foo.invalid,bar.invalid");
-  checkPopulate("plainformat@foo.invalid,unknownformat@nonfoo.invalid",
-                "plainformat@foo.invalid,unknownformat@nonfoo.invalid");
-  checkPopulate("plainformat@foo.invalid,plainformat@cc.bar.invalid",
-                "plainformat@foo.invalid,plainformat@cc.bar.invalid");
+  checkPopulate("plainformat@foo.invalid,unknownformat@nonfoo.invalid", "",
+                SendFormat.AskUser);
+  checkPopulate("plainformat@foo.invalid,plainformat@cc.bar.invalid", "",
+                SendFormat.PlainText);
   Services.prefs.clearUserPref("mailnews.plaintext_domains");
 
-  // Test - expandMailingLists with items from multiple address books.
+  // Test - determineHTMLAction with items from multiple address books.
 
-  checkPopulate("TestList1 <TestList1>, test3@com.invalid",
-                "test1@foo.invalid,test2@foo.invalid,test3@foo.invalid,test3@com.invalid");
+  checkPopulate("TestList1 <TestList1>, test3@com.invalid", "",
+                SendFormat.AskUser);
 
-  checkPopulate("TestList2 <TestList2>, ListTest2 <ListTest2>",
-                "test4@foo.invalid,test4@com.invalid");
+  checkPopulate("TestList2 <TestList2>, ListTest2 <ListTest2>", "",
+                SendFormat.PlainText);
 
-  checkPopulate("TestList3 <TestList3>, ListTest1 <ListTest1>",
-                "test5@foo.invalid,test1@com.invalid,test2@com.invalid,test3@com.invalid");
+  checkPopulate("TestList3 <TestList3>, ListTest1 <ListTest1>", "",
+                SendFormat.AskUser);
                 
   // test bug 254519 rfc 2047 encoding
-  checkPopulate("=?iso-8859-1?Q?Sure=F6name=2C_Forename__Dr=2E?= <pb@bieringer.invalid>",
-                "\"Sure\u00F6name, Forename  Dr.\" <pb@bieringer.invalid>");
+  checkPopulate("=?iso-8859-1?Q?Sure=F6name=2C_Forename__Dr=2E?= <pb@bieringer.invalid>", "",
+                SendFormat.AskUser);
+
+  // Try some fields with newsgroups
+  checkPopulate("test4@foo.invalid", "mozilla.test", SendFormat.AskUser);
+  checkPopulate("test5@foo.invalid", "mozilla.test", SendFormat.AskUser);
+  checkPopulate("", "mozilla.test", SendFormat.AskUser);
 };

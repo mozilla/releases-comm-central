@@ -544,12 +544,9 @@ nsresult nsMsgCompFields::SplitRecipientsEx(const nsAString &recipients,
   uint32_t numAddresses = names.Length();
   for (uint32_t i = 0; i < numAddresses; ++i)
   {
-    nsString fullAddress;
-    MakeMimeAddress(names[i], addresses[i], fullAddress);
-
     nsMsgRecipient msgRecipient;
-    msgRecipient.mAddress = fullAddress;
     msgRecipient.mEmail = addresses[i];
+    msgRecipient.mName = names[i];
     aResult.AppendElement(msgRecipient);
   }
 

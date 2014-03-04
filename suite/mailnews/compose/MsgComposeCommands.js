@@ -2365,82 +2365,23 @@ function OpenSelectedAttachment()
 
 function DetermineHTMLAction(convertible)
 {
-    var obj;
-    if (! gMsgCompose.composeHTML)
-    {
-        try {
-          obj = new Object;
-          gMsgCompose.checkAndPopulateRecipients(true, false, obj);
-        } catch(ex) {
-          dump("gMsgCompose.checkAndPopulateRecipients failed: " + ex + "\n");
-        }
-        return nsIMsgCompSendFormat.PlainText;
-    }
+  try {
+    gMsgCompose.expandMailingLists();
+  } catch(ex) {
+    dump("gMsgCompose.expandMailingLists failed: " + ex + "\n");
+  }
 
-    if (gSendFormat == nsIMsgCompSendFormat.AskUser)
-    {
-        //Well, before we ask, see if we can figure out what to do for ourselves
+  if (!gMsgCompose.composeHTML)
+  {
+    return nsIMsgCompSendFormat.PlainText;
+  }
 
-        var noHtmlRecipients;
-        var noHtmlnewsgroups;
-        var preferFormat;
+  if (gSendFormat == nsIMsgCompSendFormat.AskUser)
+  {
+    return gMsgCompose.determineHTMLAction(convertible);
+  }
 
-        //Check the address book for the HTML property for each recipient
-        try {
-          obj = new Object;
-          preferFormat = gMsgCompose.checkAndPopulateRecipients(true, true, obj);
-          noHtmlRecipients = obj.value;
-        } catch(ex) {
-          dump("gMsgCompose.checkAndPopulateRecipients failed: " + ex + "\n");
-          var msgCompFields = gMsgCompose.compFields;
-          noHtmlRecipients = msgCompFields.to + "," + msgCompFields.cc + "," + msgCompFields.bcc;
-          preferFormat = nsIAbPreferMailFormat.unknown;
-        }
-
-        //Check newsgroups now...
-        noHtmlnewsgroups = gMsgCompose.compFields.newsgroups;
-
-        if (noHtmlRecipients != "" || noHtmlnewsgroups != "")
-        {
-            if (convertible == nsIMsgCompConvertible.Plain)
-              return nsIMsgCompSendFormat.PlainText;
-
-            if (noHtmlnewsgroups == "")
-            {
-                switch (preferFormat)
-                {
-                  case nsIAbPreferMailFormat.plaintext :
-                    return nsIMsgCompSendFormat.PlainText;
-
-                  default :
-                    //See if a preference has been set to tell us what to do. Note that we do not honor that
-                    //preference for newsgroups. Only for e-mail addresses.
-                    var action = getPref("mail.default_html_action");
-                    switch (action)
-                    {
-                        case nsIMsgCompSendFormat.PlainText    :
-                        case nsIMsgCompSendFormat.HTML         :
-                        case nsIMsgCompSendFormat.Both         :
-                            return action;
-                    }
-                }
-            }
-            return nsIMsgCompSendFormat.AskUser;
-        }
-        else
-            return nsIMsgCompSendFormat.HTML;
-    }
-    else
-    {
-      try {
-        obj = new Object;
-        gMsgCompose.checkAndPopulateRecipients(true, false, obj);
-      } catch(ex) {
-        dump("gMsgCompose.checkAndPopulateRecipients failed: " + ex + "\n");
-      }
-    }
-
-    return gSendFormat;
+  return gSendFormat;
 }
 
 function DetermineConvertibility()

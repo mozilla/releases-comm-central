@@ -1,7 +1,7 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Test suite for increasing the popularity of contacts via
- * checkAndPopulateRecipients.
+ * expandMailingLists.
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
@@ -34,7 +34,7 @@ const TESTS = [
   }
 ];
 
-function checkPopulate(aTo, aNonHTMLRecipients, aPreferMailOut, aCheckTo)
+function checkPopulate(aTo, aCheckTo)
 {
   let msgCompose = Cc[MsgComposeContractID].createInstance(Ci.nsIMsgCompose);
 
@@ -51,15 +51,9 @@ function checkPopulate(aTo, aNonHTMLRecipients, aPreferMailOut, aCheckTo)
 
   msgCompose.initialize(params);
 
-  let nonHTMLRecipients = new Object();
-
-  do_check_eq(msgCompose.checkAndPopulateRecipients(true, true,
-                                                    nonHTMLRecipients),
-              aPreferMailOut);
+  do_check_eq(msgCompose.expandMailingLists());
 
   do_check_eq(fields.to, aCheckTo);
-
-  do_check_eq(nonHTMLRecipients.value, aNonHTMLRecipients);
 }
 
 function run_test() {
@@ -81,8 +75,7 @@ function run_test() {
     do_check_eq(card.getProperty("PopularityIndex", -1), TESTS[i].prePopularity);
 
     // Call the check populate function.
-    checkPopulate(TESTS[i].email, TESTS[i].email,
-                  Ci.nsIAbPreferMailFormat.unknown, TESTS[i].email);
+    checkPopulate(TESTS[i].email, TESTS[i].email);
 
     // Now we've run check populate, check the popularityIndex has increased.
     card = AB.cardForEmailAddress(TESTS[i].email);

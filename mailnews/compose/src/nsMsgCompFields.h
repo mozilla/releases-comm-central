@@ -9,6 +9,7 @@
 #include "nsIMsgCompFields.h"
 #include "msgCore.h"
 #include "nsIAbCard.h"
+#include "nsIAbDirectory.h"
 #include "nsTArray.h"
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
@@ -16,23 +17,10 @@
 
 struct nsMsgRecipient
 {
-  nsMsgRecipient() : mPreferFormat(nsIAbPreferMailFormat::unknown),
-                     mProcessed(false) {}
-
-  nsMsgRecipient(const nsMsgRecipient &other)
-  {
-    mAddress = other.mAddress;
-    mEmail = other.mEmail;
-    mPreferFormat = other.mPreferFormat;
-    mProcessed = other.mProcessed;
-  }
-
-  ~nsMsgRecipient() {}
-
-  nsString mAddress;
+  nsString mName;
   nsString mEmail;
-  uint32_t mPreferFormat;
-  uint32_t mProcessed;
+  nsCOMPtr<nsIAbCard> mCard;
+  nsCOMPtr<nsIAbDirectory> mDirectory;
 };
 
 /* Note that all the "Get" methods never return NULL (except in case of serious

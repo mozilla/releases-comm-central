@@ -99,7 +99,7 @@ interface nsIMsgComposeRecyclingListener : nsISupports {
   void onReopen(in nsIMsgComposeParams params);
 };
 
-[scriptable, uuid(6d04ec94-0277-45f0-b71a-08606ad24916)]
+[scriptable, uuid(3408e025-e74c-4610-9c96-c4b8627ec678)]
 interface nsIMsgCompose : nsIMsgSendListener {
 
   /**
@@ -145,23 +145,22 @@ interface nsIMsgCompose : nsIMsgSendListener {
   AUTF8String AttachmentPrettyName(in AUTF8String url, in string charset);
 
   /**
-   * checkAndPopulateRecipients can perform several tasks (see params), the
-   * main task is to determine the lowest common format preferred by recipients.
-   *
-   * @param aPopulateMailList        If true, this function will populate
-   *                                 mailing lists present in the compose field.
-   * @param aReturnNonHTMLRecipients If true, will build a list of the non
-   *                                 HTML receipients.
-   * @param aNonHTMLRecipients       This will contain any non-HTML recipients,
-   *                                 if aReturnNonHTMLRecipients is true
-   *                                 (comma-separated).
-   * @return                         The lowest common format preferred by
-   *                                 recipients (unknown, plaintext or html).
-   *                                 See nsIAbPreferMailFormat.
+   * Expand all mailing lists in the relevant compose fields to include the
+   * members of their output. This method will additionally update the
+   * popularity field of cards in the addressing header.
    */
-  unsigned long checkAndPopulateRecipients(in boolean aPopulateMailList,
-                                           in boolean aReturnNonHTMLRecipients,
-                                           out AString aNonHTMLRecipients);
+  void expandMailingLists();
+
+  /**
+   * Returns how we should send this message in terms of HTML, plaintext, or
+   * both. Note that this method should not be called until after mailing lists
+   * have been expanded if correct results are desired.
+   *
+   * @param aConvertible The convertability of the body (from
+   *                     nsIMsgCompConvertible).
+   * @return             The HTML action to use (from nsIMsgCompSendFormat).
+   */
+  long determineHTMLAction(in long aConvertible);
 
   /* bodyConvertible: The level of "convertibility" to plaintext
    * @return a value from nsIMsgCompConvertible.

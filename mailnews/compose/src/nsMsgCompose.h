@@ -84,12 +84,17 @@ private:
                             nsCOMArray<nsIAbDirectory> &aDirArray);
   nsresult BuildMailListArray(nsIAbDirectory* parentDir,
                               nsTArray<nsMsgMailList>& array);
-  nsresult GetMailListAddresses(nsString& name,
-                                nsTArray<nsMsgMailList>& mailListArray,
-                                nsIMutableArray** addresses);
   nsresult TagConvertible(nsIDOMNode *node,  int32_t *_retval);
   nsresult _BodyConvertible(nsIDOMNode *node, int32_t *_retval);
 
+// 3 = To, Cc, Bcc
+#define MAX_OF_RECIPIENT_ARRAY 3
+  typedef nsTArray<nsMsgRecipient> RecipientsArray[MAX_OF_RECIPIENT_ARRAY];
+  /**
+   * This method parses the compose fields and associates email addresses with
+   * the relevant cards from the address books.
+   */
+  nsresult LookupAddressBook(RecipientsArray &recipientList);
   bool IsLastWindow();
  
        // Helper function. Parameters are not checked.
@@ -219,7 +224,8 @@ struct nsMsgMailList
 {
   explicit nsMsgMailList(nsIAbDirectory* directory);
 
-  nsString mFullName;  /* full email address (name + email) */
+  nsString mName;
+  nsString mDescription;
   nsCOMPtr<nsIAbDirectory> mDirectory;
 };
 
