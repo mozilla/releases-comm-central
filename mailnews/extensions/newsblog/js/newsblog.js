@@ -89,8 +89,7 @@ var nsNewsBlogFeedDownloader =
           // Bump our pending feed download count.
           FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
           feed.download(true, FeedUtils.progressNotifier);
-          FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " +
-                              feedUrlArray[url]);
+          FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " + url);
 
           Services.tm.mainThread.dispatch(function() {
             try {
