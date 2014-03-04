@@ -26,12 +26,6 @@
   <stringbundle id="accountsBundle" src="chrome://instantbird/locale/accounts.properties"/>
   <stringbundle id="topProtocolsBundle" src="chrome://instantbird/locale/accountWizard.properties"/>
 
-  <wizardpage id="accountwelcome" pageid="accountwelcome" next="accounttoplist"
-              label="&accountWelcomeTitle.label;">
-    <description>&accountWelcomeInfo.label;</description>
-    <separator/>
-  </wizardpage>
-
   <wizardpage id="accounttoplist" pageid="accounttoplist" next="accountprotocol"
               label="&accountProtocolTitle.label;"
               onpageadvanced="return accountWizard.advanceTopProtocolPage();">

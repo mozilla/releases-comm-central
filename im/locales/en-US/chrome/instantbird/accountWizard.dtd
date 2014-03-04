@@ -4,9 +4,6 @@
 
 <!ENTITY windowTitle.label            "Account Wizard">
 
-<!ENTITY accountWelcomeTitle.label   "Welcome">
-<!ENTITY accountWelcomeInfo.label    "This wizard will help you in the process of setting up your IM account in order to use it with &brandShortName;.">
-
 <!ENTITY accountProtocolTitle.label   "Protocol">
 <!ENTITY accountProtocolInfo.label2   "Please choose the protocol of your IM account.">
 <!ENTITY accountProtocolGetMore.label "Get more…">

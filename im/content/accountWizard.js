@@ -25,10 +25,8 @@ var accountWizard = {
       item.build(proto, desc);
     }
 
-    if (topProtoList.itemCount < 2) {
-      document.getElementById("accountWizard")
-              .getPageById("accountwelcome").next = "accountprotocol";
-    }
+    if (topProtoList.itemCount < 2)
+      document.getElementById("accountWizard").currentPage = "accountprotocol";
 
     topProtoList.selectedIndex = -1;
 
