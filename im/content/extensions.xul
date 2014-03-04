@@ -24,6 +24,15 @@
 #include menus.xul.inc
 #endif
 
+  <commandset id="addonsCommands">
+    <command id="cmd_close" oncommand="window.close();"/>
+  </commandset>
+
+  <keyset id="addonsKeys">
+    <key id="key_close" key="w" modifiers="accel" command="cmd_close"/>
+    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
+  </keyset>
+
   <stringbundleset>
     <stringbundle id="bundle_brand"
                   src="chrome://branding/locale/brand.properties"/>
