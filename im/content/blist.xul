@@ -48,6 +48,16 @@
     <tooltip id="buddyTooltip" type="buddy"
              onpopupshowing="return !('_droptarget' in window);"/>
 
+    <menupopup id="userIconContextMenu"
+               onpopupshowing="menus.updateUserIconContextMenuitems();">
+      <menuitem id="chooseIconMenuItem" label="&chooseIconCmd.label;"
+                accesskey="&chooseIconCmd.accesskey;"
+                oncommand="buddyList.chooseUserIcon();" default="true"/>
+      <menuitem id="removeIconMenuItem" label="&removeIconCmd.label;"
+                accesskey="&removeIconCmd.accesskey;"
+                oncommand="buddyList.removeUserIcon();"/>
+    </menupopup>
+
     <menupopup id="buddyListContextMenu"
                onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
                onpopuphiding="if (event.target == this) { gBuddyListContextMenu = null; }">
@@ -121,9 +131,9 @@
   <toolbox id="mainToolbox">
     <toolbar id="statusArea">
       <stack id="statusImageStack">
-        <image id="userIcon" role="button"
+        <image id="userIcon" role="button" context="userIconContextMenu"
                aria-label="&userIcon.label;" tooltiptext="&userIcon.label;"
-               onclick="buddyList.userIconClick();"
+               onclick="if (event.button == 0) buddyList.chooseUserIcon();"
                onkeypress="buddyList.userIconKeyPress(event);"/>
         <button type="menu" id="statusTypeIcon" status="available">
           <menupopup id="setStatusTypeMenupopup"

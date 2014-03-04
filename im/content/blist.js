@@ -577,7 +577,7 @@ var buddyList = {
     switch (aEvent.keyCode) {
       case aEvent.DOM_VK_RETURN:
       case aEvent.DOM_VK_ENTER:
-        this.userIconClick();
+        this.chooseUserIcon();
         break;
 
       case aEvent.DOM_VK_TAB:
@@ -589,12 +589,12 @@ var buddyList = {
 
       default:
         if (aEvent.charCode == aEvent.DOM_VK_SPACE)
-          this.userIconClick();
+          this.chooseUserIcon();
         break;
     }
   },
 
-  userIconClick: function bl_userIconClick() {
+  chooseUserIcon: function bl_chooseUserIcon() {
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
     let fp = Components.classes["@mozilla.org/filepicker;1"]
                        .createInstance(nsIFilePicker);
@@ -604,6 +604,10 @@ var buddyList = {
     fp.appendFilters(nsIFilePicker.filterImages);
     if (fp.show() == nsIFilePicker.returnOK)
       Services.core.globalUserStatus.setUserIcon(fp.file);
+  },
+
+  removeUserIcon: function bl_removeUserIcon() {
+    Services.core.globalUserStatus.setUserIcon(null);
   },
 
   displayNameClick: function bl_displayNameClick() {

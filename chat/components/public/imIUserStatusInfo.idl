@@ -24,12 +24,14 @@ interface imIUserStatusInfo: nsISupports {
   // - When called with STATUS_OFFLINE, the aMessage parameter is ignored.
   void setStatus(in short aStatus, in AUTF8String aMessage);
 
-  /* Will fire an user-icon-changed notificaton. */
+  // Sets the user icon, or removes it if null is passed as a parameter.
+  // Will fire a user-icon-changed notificaton.
   void setUserIcon(in nsIFile aIconFile);
 
+  // Returns the location of the current user icon, or null if no icon is set.
   nsIFileURL getUserIcon();
 
-  /* The setter will fire an user-display-name-changed notificaton. */
+  /* The setter will fire a user-display-name-changed notificaton. */
   attribute AUTF8String displayName;
 
   void addObserver(in nsIObserver aObserver);

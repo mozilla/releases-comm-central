@@ -128,6 +128,12 @@
 
 <!ENTITY hideGroupTooltip              "Hide">
 
+<!-- Context Menu to add/remove user icon -->
+<!ENTITY chooseIconCmd.label           "Choose Image…">
+<!ENTITY chooseIconCmd.accesskey       "C">
+<!ENTITY removeIconCmd.label           "Remove">
+<!ENTITY removeIconCmd.accesskey       "R">
+
 <!-- Copied from mozilla/browser/locales/en-US/chrome/browser/baseMenuOverlay.dtd -->
 <!--  Mac OS X Window Menu -->
 <!ENTITY windowMenu.label "Window">
