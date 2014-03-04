@@ -1604,7 +1604,8 @@ NS_IMETHODIMP nsMsgHeaderParser::ParseDecodedHeader(const nsAString &aHeader,
   {
     nsString clean;
     UnquotePhraseOrAddrWString(rawNames[i], false, getter_Copies(clean));
-    addresses[i] = new MsgAddressObject(clean, nsDependentString(rawEmails[i]));
+    addresses[i] = new MsgAddressObject(clean,
+      rawEmails[i] ? nsDependentString(rawEmails[i]) : EmptyString());
     NS_ADDREF(addresses[i]);
   }
 
