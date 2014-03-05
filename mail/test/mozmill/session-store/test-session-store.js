@@ -31,7 +31,7 @@ var windowHelper;
 var folderA, folderB;
 
 // With async file writes, use a delay larger than the session autosave timer.
-const asyncFileWriteDelayMS = 300;
+const asyncFileWriteDelayMS = 500;
 
 /* ........ Helper Functions ................*/
 
