@@ -295,7 +295,7 @@ PlacesViewBase.prototype = {
     if (type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_SEPARATOR)
       element = document.createElement("menuseparator");
     else {
-      if (PlacesUtils.uriTypes.indexOf(type) != -1) {
+      if (type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_URI) {
         element = document.createElement("menuitem");
         element.className = "menuitem-iconic bookmark-item menuitem-with-favicon";
         element.setAttribute("scheme",
