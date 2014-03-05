@@ -31,7 +31,7 @@ var windowHelper;
 var folderA, folderB;
 
 // With async file writes, use a delay larger than the session autosave timer.
-const asyncFileWriteDelayMS = 300;
+const asyncFileWriteDelayMS = 500;
 
 /* ........ Helper Functions ................*/
 
@@ -179,6 +179,9 @@ function test_restore_single_3pane_persistence() {
 
   // close the 3pane window
   mail3PaneWindow.close();
+  // Wait for window close async session write to finish.
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -232,6 +235,9 @@ function test_message_pane_height_persistence() {
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
+  // Wait for window close async session write to finish.
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -248,6 +254,9 @@ function test_message_pane_height_persistence() {
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
+  // Wait for window close async session write to finish.
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -306,6 +315,9 @@ function test_message_pane_width_persistence() {
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
+  // Wait for window close async session write to finish.
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -331,6 +343,9 @@ function test_message_pane_width_persistence() {
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
+  // Wait for window close async session write to finish.
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -435,6 +450,10 @@ function test_clean_shutdown_session_persistence_simple() {
 
     close_window(new mozmill.controller.MozMillController(window));
   }
+
+  // Wait for window close async session write to finish.
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
 
   // load the saved state from disk
   let loadedState = readFile();
