@@ -113,12 +113,13 @@
           <row id="invitation-row" hidden="true" align="center">
             <label value="&read.only.reply.label;" control="item-participation"/>
             <hbox pack="start">
-              <menulist id="item-participation" oncommand="updateInvitation()">
+              <menulist id="item-participation" oncommand="updatePartStat()">
                 <menupopup>
                   <menuitem label="&read.only.accept.label;" value="ACCEPTED"/>
                   <menuitem label="&read.only.tentative.label;" value="TENTATIVE"/>
                   <menuitem label="&read.only.decline.label;" value="DECLINED"/>
-                  <menuitem label="&read.only.needs.action.label;" value="NEEDS-ACTION"/>
+                  <menuitem label="&read.only.needs.action.label;" value="NEEDS-ACTION"
+                            hidden="true" id="item-participation-needs-action"/>
                 </menupopup>
               </menulist>
             </hbox>

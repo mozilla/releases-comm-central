@@ -72,6 +72,12 @@ function onLoad() {
             // (i.e REPLY on a mailing list)
             item.removeAttendee(attendee);
             item.addAttendee(window.attendee);
+
+            // make partstat NEEDS-ACTION only available as a option to change to,
+            // if the user hasn't ever made a decision prior to opening the dialog
+            if (window.attendee.participationStatus == "NEEDS-ACTION" && cal.isEvent(item)) {
+                document.getElementById("item-participation-needs-action").removeAttribute("hidden");
+            }
         }
     }
 
@@ -209,10 +215,8 @@ function updateInvitationStatus() {
 /**
  * When the summary dialog is showing an invitation, this function updates the
  * user's invitation status from the value chosen in the dialog.
- *
- * XXX rename me!
  */
-function updateInvitation() {
+function updatePartStat() {
   var statusElement = document.getElementById("item-participation");
   if (window.attendee) {
       let item = window.arguments[0];
