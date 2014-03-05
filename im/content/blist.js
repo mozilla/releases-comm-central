@@ -146,7 +146,7 @@ buddyListContextMenu.prototype = {
                           deleteButton, null, null, null, {}))
       return;
 
-    this.target.remove();
+    this.target.delete();
   },
   addTag: function blcm_addTag(aTag) {
     // If the contact already has the tag, addTag will return early.

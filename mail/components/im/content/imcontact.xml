@@ -156,7 +156,7 @@
       </body>
      </method>
 
-     <method name="remove">
+     <method name="delete">
       <body>
       <![CDATA[
         this.contact.remove();
