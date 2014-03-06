@@ -41,18 +41,22 @@ function kickCommand(aMsg, aConv) {
 
 // Send a message directly to a user.
 // aMsg is <user> <message>
-function messageCommand(aMsg, aConv) {
+// aReturnedConv is optional and returns the resulting conversation.
+function messageCommand(aMsg, aConv, aReturnedConv) {
   let sep = aMsg.indexOf(" ");
   // If no space in the message or the first space is at the end of the message.
   if (sep == -1 || (sep + 1) == aMsg.length) {
     let msg = aMsg.trim();
     if (!msg.length)
       return false;
-    getAccount(aConv).createConversation(msg);
+    let conv = getAccount(aConv).createConversation(msg);
+    if (aReturnedConv)
+      aReturnedConv.value = conv;
     return true;
   }
 
-  return privateMessage(aConv, aMsg.slice(sep + 1), aMsg.slice(0, sep));
+  return privateMessage(aConv, aMsg.slice(sep + 1), aMsg.slice(0, sep),
+                        aReturnedConv);
 }
 
 // aAdd is true to add a mode, false to remove a mode.
@@ -84,13 +88,16 @@ function actionCommand(aMsg, aConv) {
   return true;
 }
 
-// Helper functions
-function privateMessage(aConv, aMsg, aNickname) {
+// This will open the conversation, and send and display the text.
+// aReturnedConv is optional and returns the resulting conversation.
+function privateMessage(aConv, aMsg, aNickname, aReturnedConv) {
   if (!aMsg.length)
     return false;
 
-  // This will open the conversation, send and display the text
-  getAccount(aConv).getConversation(aNickname).sendMsg(aMsg);
+  let conv = getAccount(aConv).getConversation(aNickname);
+  conv.sendMsg(aMsg);
+  if (aReturnedConv)
+    aReturnedConv.value = conv;
   return true;
 }
 
@@ -183,11 +190,12 @@ var commands = [
   {
     name: "join",
     get helpString() _("command.join", "join"),
-    run: function(aMsg, aConv) {
+    run: function(aMsg, aConv, aReturnedConv) {
       let params = aMsg.trim().split(/,\s*/);
       let account = getAccount(aConv);
+      let conv;
       if (!params[0]) {
-        let conv = getConv(aConv);
+        conv = getConv(aConv);
         if (!conv.isChat || !conv.left)
           return false;
         // Rejoin the current channel. If the channel was explicitly parted
@@ -200,9 +208,13 @@ var commands = [
         params = [conv.name];
       }
       params.forEach(function(joinParam) {
-        if (joinParam)
-          account.joinChat(account.getChatRoomDefaultFieldValues(joinParam));
+        if (joinParam) {
+          let chatroomfields = account.getChatRoomDefaultFieldValues(joinParam);
+          conv = account.joinChat(chatroomfields);
+        }
       });
+      if (aReturnedConv)
+        aReturnedConv.value = conv;
       return true;
     }
   },

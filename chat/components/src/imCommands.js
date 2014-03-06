@@ -221,7 +221,7 @@ CommandsService.prototype = {
     // Sort the matching commands by priority before returning the array.
     return cmdArray.sort(function(a, b) b.priority - a.priority);
   },
-  executeCommand: function (aMessage, aConversation) {
+  executeCommand: function(aMessage, aConversation, aReturnedConv) {
     if (!aMessage)
       throw Cr.NS_ERROR_INVALID_ARG;
 
@@ -238,7 +238,7 @@ CommandsService.prototype = {
 
     // cmdArray contains commands sorted by priority, attempt to apply
     // them in order until one succeeds.
-    if (!cmdArray.some(function (aCmd) aCmd.run(args, aConversation))) {
+    if (!cmdArray.some(aCmd => aCmd.run(args, aConversation, aReturnedConv))) {
       // If they all failed, print help message.
       this.executeCommand("/help " + name, aConversation);
     }

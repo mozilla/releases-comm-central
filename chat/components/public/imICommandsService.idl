@@ -5,7 +5,7 @@
 #include "nsISupports.idl"
 interface prplIConversation;
 
-[scriptable, uuid(dae17fae-0d04-4d89-a817-637ef433383f)]
+[scriptable, uuid(b12b0d89-0e5b-499c-9567-37f2deacc182)]
 interface imICommand: nsISupports {
   readonly attribute AUTF8String name;
 
@@ -35,11 +35,14 @@ interface imICommand: nsISupports {
   // Will return true if the command handled the message (it should not be sent).
   // The leading slash, the command name and the following space are not included
   // in the aMessage parameter.
+  // If a conversation is returned as a result of executing the command,
+  // the caller should consider focusing it.
   boolean run(in AUTF8String aMessage,
-              [optional] in prplIConversation aConversation);
+              [optional] in prplIConversation aConversation,
+              [optional] out prplIConversation aReturnedConv);
 };
 
-[scriptable, uuid(467709a0-0bed-4f44-9bdc-13f78b9eaeba)]
+[scriptable, uuid(9a1accfd-9bd8-4548-aef7-e8107fc7839f)]
 interface imICommandsService: nsISupports {
   void initCommands();
   void unInitCommands();
@@ -67,8 +70,11 @@ interface imICommandsService: nsISupports {
   // Will return true if a command handled the message (it should not be sent).
   // The aConversation parameters is required to execute protocol specific
   // commands. Application global commands will work without it.
+  // If a conversation is returned as a result of executing the command,
+  // the caller should consider focusing it.
   boolean executeCommand(in AUTF8String aMessage,
-                         [optional] in prplIConversation aConversation);
+                         [optional] in prplIConversation aConversation,
+                         [optional] out prplIConversation aReturnedConv);
 };
 
 %{ C++

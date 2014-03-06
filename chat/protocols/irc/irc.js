@@ -1438,8 +1438,11 @@ ircAccount.prototype = {
       channel = "#" + channel;
 
     // No need to join a channel we are already in.
-    if (this.hasConversation(channel) && !this.getConversation(channel).left)
-      return;
+    if (this.hasConversation(channel)) {
+      let conv = this.getConversation(channel);
+      if (!conv.left)
+        return conv;
+    }
 
     let params = [channel];
     let key = aComponents.getValue("password");
@@ -1452,7 +1455,7 @@ ircAccount.prototype = {
     this.sendMessage("JOIN", params,
                      "JOIN " + channel + (key ? " <key not logged>" : ""));
     // Open conversation early for better responsiveness.
-    this.getConversation(channel);
+    return this.getConversation(channel);
   },
 
   chatRoomFields: {

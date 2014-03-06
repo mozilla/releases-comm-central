@@ -282,6 +282,8 @@
           let account = this._conv.account;
 
           if (aMsg[0] == "/") {
+            let convToFocus = {};
+
             // The /say command is used to bypass command processing
             // (/say can be shortened to just /).
             // "/say" or "/say " should be ignored, as should "/" and "/ ".
@@ -291,9 +293,12 @@
             }
             else if (aMsg.match(/^\/(?:say)? .*/))
               aMsg = aMsg.slice(aMsg.indexOf(" ") + 1);
-            else if (Services.cmd.executeCommand(aMsg, this._conv.target)) {
+            else if (Services.cmd.executeCommand(aMsg, this._conv.target,
+                                                 convToFocus)) {
               this._conv.sendTyping("");
               this.resetInput();
+              if (convToFocus.value)
+                Conversations.focusConversation(convToFocus.value);
               return;
             }
             else if (account.protocol.slashCommandsNative && account.connected) {
