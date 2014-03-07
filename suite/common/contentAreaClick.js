@@ -142,7 +142,6 @@
     return false;
   }
 
-  var gGlobalHistory = null;
   var gURIFixup = null;
 
   function middleMousePaste(event)
@@ -208,10 +207,6 @@
     if (aUrlToAdd.search(/[\x00-\x1F]/) != -1) // don't store bad URLs
       return;
 
-    if (!gGlobalHistory)
-      gGlobalHistory = Components.classes["@mozilla.org/browser/nav-history-service;1"]
-                                 .getService(Components.interfaces.nsINavHistoryService);
-
     if (!gURIFixup)
       gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
                             .getService(Components.interfaces.nsIURIFixup);
@@ -220,7 +215,7 @@
       var url = getShortcutOrURI(aUrlToAdd);
       var fixedUpURI = gURIFixup.createFixupURI(url, 0);
       if (!fixedUpURI.schemeIs("data"))
-        gGlobalHistory.markPageAsTyped(fixedUpURI);
+        PlacesUtils.history.markPageAsTyped(fixedUpURI);
     }
     catch(ex) {
     }

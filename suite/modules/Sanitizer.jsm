@@ -167,11 +167,11 @@ var Sanitizer = {
 
     history: {
       clear: function() {
+        Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
+
         // use try/catch for everything but the last task so we clear as much as possible
         try {
-          var globalHistory = Components.classes["@mozilla.org/browser/nav-history-service;1"]
-                                        .getService(Components.interfaces.nsIBrowserHistory);
-          globalHistory.removeAllPages();
+          PlacesUtils.history.removeAllPages();
         } catch(ex) {}
 
         try {

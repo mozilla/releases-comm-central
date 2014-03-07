@@ -32,9 +32,8 @@ function Startup()
 
 function prefClearGlobalHistory()
 {
-  var globalHistory = Components.classes["@mozilla.org/browser/nav-history-service;1"]
-                                .getService(Components.interfaces.nsIBrowserHistory);
-  globalHistory.removeAllPages();
+  Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
+  PlacesUtils.history.removeAllPages();
 }
 
 function prefClearUrlbarHistory()
