@@ -318,7 +318,7 @@ var fake = {
     var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                             .getService(Components.interfaces.nsIPromptService);
     if (!prompts.confirm(window, "Are you sure you want to delete all accounts?",
-                         "You are about to delete " + nbaccounts + " accounts. Are you sure?"))
+                         "You are about to delete your accounts. Are you sure?"))
       throw "user aborted the operation";
 
     for (let acc in getIter(Services.accounts.getAccounts()))
@@ -354,7 +354,8 @@ Account.prototype = {
   disconnecting: false,
   disconnected: false,
   connected: true,
-  connecting: false
+  connecting: false,
+  normalize: function(aStr) aStr
 
   //FIXME: PurpleConnectionFlags
 };
