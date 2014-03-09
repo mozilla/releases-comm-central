@@ -785,9 +785,9 @@ pref("security.alternate_certificate_error_page", "certerror");
 pref("security.warn_entering_secure", false);
 pref("security.warn_leaving_secure", false);
 pref("security.warn_submit_insecure", false);
-pref("security.warn_viewing_mixed", true);
+pref("security.warn_viewing_mixed", false);
 pref("security.warn_mixed_active_content", true);
-pref("security.warn_mixed_display_content", false);
+pref("security.warn_mixed_display_content", true);
 // Block insecure active content on https pages
 pref("security.mixed_content.block_active_content", true);
 // Turn on the CSP 1.0 parser for Content Security Policy headers

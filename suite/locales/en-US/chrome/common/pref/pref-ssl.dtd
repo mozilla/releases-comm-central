@@ -26,9 +26,8 @@
 <!ENTITY warn.insecurepost.accesskey        "S">
 <!ENTITY warn.leavingsecure                 "Leaving a page that supports encryption">
 <!ENTITY warn.leavingsecure.accesskey       "a">
-<!ENTITY warn.viewmixed                     "Viewing a page with an encrypted/unencrypted mix">
-<!ENTITY warn.viewmixed.accesskey           "V">
 
+<!ENTITY mixed.description                  "Encrypted pages may contain unencrypted content that is vulnerable to eavesdropping or forgery. &brandShortName; can detect and block it:">
 <!ENTITY warn.mixedactivecontent            "Warn me when encrypted pages contain insecure content">
 <!ENTITY warn.mixedactivecontent.accesskey  "W">
 <!ENTITY block.activecontent                "Don't load insecure content on encrypted pages">
