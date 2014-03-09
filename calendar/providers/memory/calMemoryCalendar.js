@@ -7,6 +7,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 
 //
 // calMemoryCalendar.js
@@ -349,35 +350,35 @@ calMemoryCalendar.prototype = {
             });
     },
     getItems_: function (aItemFilter, aCount,
-                         aRangeStart, aRangeEnd, aListener)
-    {
-        if (!aListener)
+                         aRangeStart, aRangeEnd, aListener) {
+        if (!aListener) {
             return;
+        }
 
         const calICalendar = Components.interfaces.calICalendar;
         const calIRecurrenceInfo = Components.interfaces.calIRecurrenceInfo;
 
-        var itemsFound = Array();
+        let itemsFound = [];
 
         //
         // filters
         //
 
-        var wantUnrespondedInvitations = ((aItemFilter & calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0);
-        var superCal;
+        let wantUnrespondedInvitations = ((aItemFilter & calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0);
+        let superCal;
         try {
             superCal = this.superCalendar.QueryInterface(Components.interfaces.calISchedulingSupport);
         } catch (exc) {
             wantUnrespondedInvitations = false;
         }
         function checkUnrespondedInvitation(item) {
-            var att = superCal.getInvitedAttendee(item);
+            let att = superCal.getInvitedAttendee(item);
             return (att && (att.participationStatus == "NEEDS-ACTION"));
         }
 
         // item base type
-        var wantEvents = ((aItemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0);
-        var wantTodos = ((aItemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0);
+        let wantEvents = ((aItemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0);
+        let wantTodos = ((aItemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0);
         if(!wantEvents && !wantTodos) {
             // bail.
             this.notifyOperationComplete(aListener,
@@ -389,17 +390,17 @@ calMemoryCalendar.prototype = {
         }
 
         // completed?
-        var itemCompletedFilter = ((aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0);
-        var itemNotCompletedFilter = ((aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0);
+        let itemCompletedFilter = ((aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0);
+        let itemNotCompletedFilter = ((aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0);
         function checkCompleted(item) {
             return (item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter);
         }
 
         // return occurrences?
-        var itemReturnOccurrences = ((aItemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0);
+        let itemReturnOccurrences = ((aItemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0);
 
         // figure out the return interface type
-        var typeIID = null;
+        let typeIID = null;
         if (itemReturnOccurrences) {
             typeIID = Components.interfaces.calIItemBase;
         } else {
@@ -421,15 +422,14 @@ calMemoryCalendar.prototype = {
              calICalendar.ITEM_FILTER_OFFLINE_CREATED |
              calICalendar.ITEM_FILTER_OFFLINE_MODIFIED);
 
-        for (let itemIndex in this.mItems) {
-            let item = this.mItems[itemIndex];
+        cal.forEach(this.mItems, (item) => {
             let isEvent_ = cal.isEvent(item);
             if (isEvent_) {
                 if (!wantEvents) {
-                    continue;
+                    return cal.forEach.CONTINUE;
                 }
             } else if (!wantTodos) {
-                continue;
+                return cal.forEach.CONTINUE;
             }
 
             let hasItemFlag = (item.id in this.mOfflineFlags);
@@ -439,7 +439,7 @@ calMemoryCalendar.prototype = {
             if ((hasItemFlag ||
                     (offline_filter != 0 && offlineFlag == cICL.OFFLINE_FLAG_DELETED_RECORD)) &&
                 (offlineFlag != offline_filter)) {
-                continue;
+                return cal.forEach.CONTINUE;
             }
 
             if (itemReturnOccurrences && item.recurrenceInfo) {
@@ -464,22 +464,21 @@ calMemoryCalendar.prototype = {
                 itemsFound.push(item);
             }
             if (aCount && itemsFound.length >= aCount) {
-                break;
+                return cal.forEach.BREAK;
             }
-        }
-
-        aListener.onGetResult (this.superCalendar,
-                               Components.results.NS_OK,
-                               typeIID,
-                               null,
-                               itemsFound.length,
-                               itemsFound);
-
-        this.notifyOperationComplete(aListener,
-                                     Components.results.NS_OK,
-                                     Components.interfaces.calIOperationListener.GET,
-                                     null,
-                                     null);
+        }, () => {
+            aListener.onGetResult(this.superCalendar,
+                                  Components.results.NS_OK,
+                                  typeIID,
+                                  null,
+                                  itemsFound.length,
+                                  itemsFound);
+            this.notifyOperationComplete(aListener,
+                                         Components.results.NS_OK,
+                                         Components.interfaces.calIOperationListener.GET,
+                                         null,
+                                         null);
+        });
     },
 
     //
