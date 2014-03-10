@@ -20,6 +20,9 @@
 <?xul-overlay href="chrome://messenger/content/specialTabs.xul"?>
 <?xul-overlay href="chrome://messenger/content/webSearchTab.xul"?>
 <?xul-overlay href="chrome://messenger/content/quickFilterBar.xul"?>
+#ifdef XP_MACOSX
+<?xul-overlay href="chrome://messenger/content/macMessengerOverlay.xul"?>
+#endif
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >

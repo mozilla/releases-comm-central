@@ -1,0 +1,23 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+  %brandDTD;
+  <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
+  %messengerDTD;
+]>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript"
+          src="chrome://messenger/content/mailCore.js" />
+  <script type="application/javascript"
+          src="chrome://messenger/content/macMessengerOverlay.js"/>
+  <popupset>
+    <menupopup id="menu_mac_dockmenu">
+      <menuitem label="&dockOptions.label;" id="tasksMenuDockOptions"
+                oncommand="openDockOptions();"/>
+    </menupopup>
+  </popupset>
+</overlay>

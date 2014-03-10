@@ -55,7 +55,14 @@ var gGeneralPane = {
             .openSubDialog("chrome://messenger/content/preferences/notifications.xul",
                             "", null);
   },
-  
+
+  configureDockOptions: function()
+  {
+    document.documentElement
+            .openSubDialog("chrome://messenger/content/preferences/dockoptions.xul",
+                            "", null);
+  },
+
   convertURLToLocalFile: function(aFileURL)
   {
     // convert the file url into a nsILocalFile

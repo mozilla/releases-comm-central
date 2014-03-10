@@ -7,6 +7,9 @@ messenger.jar:
     content/messenger/preferences/preferences.js
 *   content/messenger/preferences/general.xul
     content/messenger/preferences/general.js
+#ifdef XP_MACOSX
+    content/messenger/preferences/dockoptions.xul
+#endif
     content/messenger/preferences/display.xul
     content/messenger/preferences/display.js
     content/messenger/preferences/chat.xul

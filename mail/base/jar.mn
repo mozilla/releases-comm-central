@@ -81,6 +81,8 @@ messenger.jar:
     content/messenger/protovis-r2.6-modded.js       (content/protovis-r2.6-modded.js)
 #ifdef XP_MACOSX
     content/messenger/macMenuOverlay.xul            (content/macMenuOverlay.xul)
+    content/messenger/macMessengerOverlay.xul       (content/macMessengerOverlay.xul)
+    content/messenger/macMessengerOverlay.js        (content/macMessengerOverlay.js)
 #endif
 *   content/messenger/baseMenuOverlay.xul           (content/baseMenuOverlay.xul)
     content/messenger/selectionsummaries.js         (content/selectionsummaries.js)
