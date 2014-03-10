@@ -66,8 +66,54 @@
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   height: 22px;
-  padding: 0;
-  border: 0;
+  padding: 2px;
+  border: 1px transparent solid;
+  border-radius: 3px;
+  transition-property: background, border-color;
+  transition-duration: 250ms;
+}
+
+.toolbarbutton-1:not([type="menu-button"]):hover:not([disabled]),
+.toolbarbutton-1:hover:not([disabled]) > .toolbarbutton-menubutton-button,
+.toolbarbutton-1[open="true"]:not([disabled]) > .toolbarbutton-menubutton-button,
+.toolbarbutton-menubutton-button:active + .toolbarbutton-menubutton-dropmarker,
+.toolbarbutton-1:hover:not([disabled]) > .toolbarbutton-menubutton-dropmarker {
+  border-color: hsla(0, 0%, 0%, .2);
+  background: hsla(0, 0%, 100%, .1) linear-gradient(hsla(0, 0%, 100%, .3),
+              hsla(0, 0%, 100%,.1)) padding-box;
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, .5), 0 1px 0 hsla(0, 0%, 100%, .5) inset;
+}
+
+.toolbarbutton-1[checked="true"],
+.toolbarbutton-1:active:not([disabled]):not([type="menu-button"]),
+.button-appmenu[open="true"],
+.toolbarbutton-1:not([disabled]) > .toolbarbutton-menubutton-button:active,
+.toolbarbutton-1[open="true"] >
+.toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
+  background-color: transparent !important;
+  background: linear-gradient(hsla(0, 0%, 0%, .12),
+              hsla(0, 0%, 0%, 0)) border-box;
+  border-color: hsla(0, 0%, 0%, .3);
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, .5),
+              0 1px 0 hsla(0, 0%, 0%, .05) inset,
+              0 1px 1px hsla(0, 0%, 0%, .2) inset;
+  transition-duration: 10ms;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button {
+  -moz-border-end: none;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .toolbarbutton-1[type="menu"] {
@@ -97,10 +143,6 @@ toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
   text-shadow: none;
 }
 
-.toolbarbutton-1[checked="true"] {
-  background-color: transparent;
-}
-
 .toolbarbutton-1:not([type="menu-button"]),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button {
   -moz-box-orient: vertical;
@@ -125,11 +167,6 @@ toolbox[labelalign="end"] .toolbarbutton-1 .toolbarbutton-text {
 
 toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   text-align: start;
-}
-
-.toolbarbutton-1[checked="true"] > .toolbarbutton-text {
-  color: #0969b2;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .toolbarbutton-1:not([type="menu-button"]),
@@ -161,13 +198,14 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 }
 
 /* Separator between menu and split type buttons */
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::before {
+.toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-menubutton-dropmarker::before {
   content: "";
   display: -moz-box;
   width: 1px;
   height: 18px;
-  -moz-margin-start: -6px;
-  -moz-margin-end: 5px;
+  -moz-margin-start: -5px;
+  -moz-margin-end: 4px;
   margin-bottom: 2px;
   background: hsla(0, 0%, 0%, .3) padding-box;
   box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
@@ -473,12 +511,9 @@ toolbar:not([mode="text"]) .badgeButton-badge {
   min-width: 35px !important;
 }
 
-.button-appmenu:not([disabled="true"]):active {
-  -moz-image-region: rect(18px, 450px, 36px, 432px);
-}
-
+.button-appmenu:not([disabled="true"]):active,
 .button-appmenu[open="true"] {
-  -moz-image-region: rect(36px, 450px, 54px, 432px);
+  -moz-image-region: rect(18px, 450px, 36px, 432px);
 }
 
 @media (min-resolution: 2dppx) {
@@ -699,12 +734,9 @@ toolbar:not([mode="text"]) .badgeButton-badge {
     min-width: 35px !important;
   }
 
-  .button-appmenu:not([disabled="true"]):active {
-    -moz-image-region: rect(36px 900px 72px 864px);
-  }
-
+  .button-appmenu:not([disabled="true"]):active,
   .button-appmenu[open="true"] {
-    -moz-image-region: rect(72px 900px 108px 864px);
+    -moz-image-region: rect(36px 900px 72px 864px);
   }
 }
 

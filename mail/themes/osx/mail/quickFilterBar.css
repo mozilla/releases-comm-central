@@ -11,12 +11,9 @@
   -moz-image-region: rect(0px 378px 18px 360px);
 }
 
-#qfb-show-filter-bar:not([disabled="true"]):active {
-  -moz-image-region: rect(18px 378px 36px 360px);
-}
-
+#qfb-show-filter-bar:not([disabled="true"]):active,
 #qfb-show-filter-bar[checked="true"] {
-  -moz-image-region: rect(36px 378px 54px 360px);
+  -moz-image-region: rect(18px 378px 36px 360px);
 }
 
 @media (min-resolution: 2dppx) {
@@ -25,12 +22,9 @@
     -moz-image-region: rect(0px 756px 36px 720px);
   }
 
-  #qfb-show-filter-bar:not([disabled="true"]):active {
-    -moz-image-region: rect(36px 756px 72px 720px);
-  }
-
+  #qfb-show-filter-bar:not([disabled="true"]):active,
   #qfb-show-filter-bar[checked="true"] {
-    -moz-image-region: rect(72px 756px 108px 720px);
+    -moz-image-region: rect(36px 756px 72px 720px);
   }
 }
 

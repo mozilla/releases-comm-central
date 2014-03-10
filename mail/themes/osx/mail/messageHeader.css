@@ -205,7 +205,6 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
 .toolbarbutton-1.msgHeaderView-button {
   -moz-appearance: none;
   max-height: 22px;
-  padding: 1px 2px;
   margin: 0px;
   -moz-margin-start: 0.4em;
   vertical-align: middle;
@@ -215,15 +214,26 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
   transition: background-color .5s, border-color .5s;
 }
 
-.toolbarbutton-1.msgHeaderView-button:hover,
-.toolbarbutton-1.msgHeaderView-button[type="menu-button"][open] {
-  background-color: rgba(230, 230, 230, .7);
-  border-color: rgba(50, 50, 50, .5);
+.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker,
+.toolbarbutton-1.msgHeaderView-button:hover > .toolbarbutton-menubutton-button,
+.toolbarbutton-1.msgHeaderView-button:hover > .toolbarbutton-menubutton-dropmarker {
+  background-color: transparent;
+  background-image: none !important;
+  padding: none;
+  border: none;
 }
 
-.msgHeaderView-button:active,
-.msgHeaderView-button[type="menu-button"][open] {
-  box-shadow: 0 4px 3px 0 rgb(181,181,181) inset;
+.toolbarbutton-1.msgHeaderView-button:hover,
+.toolbarbutton-1.msgHeaderView-button[type="menu-button"][open] {
+  background-color: rgba(230, 230, 230, .7) !important;
+  border-color: rgba(50, 50, 50, .5) !important;
+}
+
+.toolbarbutton-1.msgHeaderView-button[type="menu-button"][buttondown="true"] {
+  background-color: transparent !important;
+  background: linear-gradient(hsla(0, 0%, 0%, .12),
+              hsla(0, 0%, 0%, 0)) border-box;
 }
 
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-icon,
@@ -241,9 +251,15 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
 /* Separator between menu and split type buttons */
 .toolbarbutton-1.msgHeaderView-button >
 .toolbarbutton-menubutton-dropmarker::before {
-  -moz-margin-start: -4px;
-  -moz-margin-end: 3px;
-  margin-bottom: 1px;
+  content: "";
+  display: -moz-box;
+  width: 1px;
+  height: 18px;
+  -moz-margin-start: -4px !important;
+  -moz-margin-end: 3px !important;
+  margin-bottom: 1px !important;
+  background: hsla(0, 0%, 0%, .3) padding-box;
+  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
 }
 
 .msgHeaderView-flat-button {
