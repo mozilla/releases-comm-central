@@ -81,18 +81,14 @@ function HTMLTheme(aBaseURI)
   for (let id in files) {
     let html = getChromeFile(aBaseURI + files[id]);
     if (html)
-      this[id] = html;
+      Object.defineProperty(this, id, {value: html});
   }
 
   if (!("incomingContent" in files))
     throw "Invalid theme: Incoming/Content.html is missing!";
-
-  // We set the prototype this way to workaround the
-  // 'setting a property that has only a getter' error.
-  this.__proto__ = HTMLTheme_prototype;
 }
 
-const HTMLTheme_prototype = {
+HTMLTheme.prototype = {
   get footer() "",
   get header() "",
   get status() this.incomingContent,
