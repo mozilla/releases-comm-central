@@ -755,7 +755,7 @@ var buddyList = {
       }
       buddyList.convBox._updateListConvCount();
     }
-    MutationObserver(buddyList.convBox._updateListConvCount)
+    new MutationObserver(buddyList.convBox._updateListConvCount)
       .observe(buddyList.convBox, {childList: true});
 
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);

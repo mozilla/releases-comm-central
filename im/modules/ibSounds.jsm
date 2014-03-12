@@ -26,8 +26,8 @@ var Sounds = {
         !Interruptions.requestInterrupt(aTopic, aSubject, "sound"))
       return;
 
-    new getHiddenHTMLWindow().Audio(this.soundFiles[aEvent])
-                             .setAttribute("autoplay", "true");
+    new (getHiddenHTMLWindow().Audio)(this.soundFiles[aEvent])
+                              .setAttribute("autoplay", "true");
   },
 
   observe: function(aObject, aTopic, aMsg) {

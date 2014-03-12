@@ -50,7 +50,7 @@
         this.contact.addObserver(this);
         this.addEventListener("transitionend", this._transitionEnd, true);
 
-        MutationObserver(function(aMutations) {
+        new MutationObserver(function(aMutations) {
           if (!this.getAttribute("selected"))
             return;
 

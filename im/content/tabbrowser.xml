@@ -2065,7 +2065,7 @@
         const kAttrs = ["label", "tooltip", "selected", "crop", "typing",
                         "typed", "unread", "attention", "status", "chat",
                         "image", "prpl"];
-        MutationObserver(function(aMutations) {
+        new MutationObserver(function(aMutations) {
           for (let mutation of aMutations) {
             let attr = mutation.attributeName;
 

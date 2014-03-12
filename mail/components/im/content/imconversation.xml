@@ -44,7 +44,7 @@
        textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
        textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
-       MutationObserver(function(aMutations) {
+       new MutationObserver(function(aMutations) {
          for (let mutation of aMutations) {
            if (mutation.oldValue == "dragging") {
              this._onSplitterChange();
