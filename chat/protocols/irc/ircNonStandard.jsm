@@ -119,6 +119,16 @@ var ircNonStandard = {
       return this.setWhois(aMessage.params[1], {host: host, ip: ip});
     },
 
+    "464": function(aMessage) {
+      // :Password required
+      // If we receive a ZNC error message requesting a password, eat it since
+      // a NOTICE AUTH will follow causing us to send the password. This numeric
+      // is, unfortunately, also sent if you give a wrong password. The
+      // parameter in that case is "Invalid Password".
+      return aMessage.servername == "irc.znc.in" &&
+             aMessage.params[1] == "Password required";
+    },
+
     "499": function(aMessage) { // ERR_CHANOWNPRIVNEEDED (Unreal)
       // <channel> :You're not the channel owner (status +q is needed)
       return conversationErrorMessage(this, aMessage, "error.notChannelOwner");
