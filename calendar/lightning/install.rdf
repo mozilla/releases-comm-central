@@ -38,12 +38,6 @@
 #endif
     <em:creator>Mozilla Calendar Project</em:creator>
     <em:homepageURL>https://www.mozilla.org/projects/calendar/</em:homepageURL>
-#ifdef MOZ_LANGPACK_CREATOR
-    <em:translator>@MOZ_LANGPACK_CREATOR@</em:translator>
-#endif
-#ifdef MOZ_LANGPACK_CONTRIBUTORS
-    @MOZ_LANGPACK_CONTRIBUTORS@
-#endif
     <em:iconURL>chrome://calendar/skin/cal-icon32.png</em:iconURL>
     <em:optionsURL>chrome://messenger/content/preferences/preferences.xul</em:optionsURL>
     <em:realTargetPlatform>@TARGET_PLATFORM@</em:realTargetPlatform>

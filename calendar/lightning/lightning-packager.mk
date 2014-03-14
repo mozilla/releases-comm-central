@@ -148,14 +148,9 @@ libs-%:
 	$(MAKE) -C locales tools AB_CD=$* FINAL_TARGET=$(_ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage/$(FINAL_XPI_NAME) \
 	  XPI_NAME=$(FINAL_XPI_NAME) XPI_PKGNAME=$(FINAL_XPI_PKGNAME) USE_EXTENSION_MANIFEST=1
 
-# For localized xpis, the install.rdf need to be reprocessed with some defines
-# from the locale.
-repack-process-extrafiles: LOCALE_BASEDIR=$(call EXPAND_LOCALE_SRCDIR,calendar/locales)
+# The calling makefile might need to process some extra files. Provide an empty
+# rule to overwrite
 repack-process-extrafiles:
-	$(call py_action,preprocessor, \
-	  $(XULAPP_DEFINES) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) \
-	  -I $(LOCALE_BASEDIR)/defines.inc \
-	  $(srcdir)/install.rdf -o $(XPI_STAGE_PATH)/$(L10N_XPI_NAME)/install.rdf)
 
 # When repackaging Lightning from the builder, platform.ini is not yet created.
 # Recreate it from the application.ini bundled with the downloaded xpi.
