@@ -4,3 +4,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 export MOZ_CHROME_FILE_FORMAT=jar
+
+DEFINES += -DAB_CD=$(AB_CD)
