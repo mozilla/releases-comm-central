@@ -9,7 +9,6 @@
 <!DOCTYPE dialog [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
-    <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/menuOverlay.dtd"> %dtd3;
 ]>
 
 
@@ -19,7 +18,7 @@
         onload="loadCalendarPrintDialog();"
         buttons="accept,cancel"
         buttonlabelaccept="&calendar.print.button.label;"
-        buttonaccesskeyaccept="&calendar.print.accesskey;"
+        buttonaccesskeyaccept="&calendar.print.button.accesskey;"
         defaultButton="accept"
         ondialogaccept="return printAndClose();"
         ondialogcancel="return true;"

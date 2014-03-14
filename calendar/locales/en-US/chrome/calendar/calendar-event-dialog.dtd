@@ -102,12 +102,6 @@
 <!ENTITY  event.menu.options.accesskey                        "O">
 <!ENTITY  event.menu.options.attendees.label                  "Invite Attendees…">
 <!ENTITY  event.menu.options.attendees.accesskey              "I">
-<!ENTITY  event.menu.options.spellcheck.label                 "Check Spelling…">
-<!ENTITY  event.menu.options.spellcheck.accesskey             "h">
-<!ENTITY  event.menu.options.inline.spellcheck.label          "Spell Check As You Type">
-<!ENTITY  event.menu.options.inline.spellcheck.accesskey      "S">
-<!ENTITY  event.menu.options.link.label                       "Add Link…">
-<!ENTITY  event.menu.options.link.accesskey                   "L">
 <!ENTITY  event.menu.options.timezone2.label                  "Show Timezones">
 <!ENTITY  event.menu.options.timezone2.accesskey              "z">
 <!ENTITY  event.menu.options.priority2.label                  "Priority">
@@ -146,13 +140,11 @@
 <!ENTITY  event.toolbar.save.label                        "Save and Close">
 <!ENTITY  event.toolbar.delete.label                      "Delete">
 <!ENTITY  event.toolbar.attendees.label                   "Invite Attendees">
-<!ENTITY  event.toolbar.spellcheck.label                  "Spellcheck">
 <!ENTITY  event.toolbar.privacy.label                     "Privacy">
 
 <!ENTITY  event.toolbar.save.tooltip                      "Save and Close">
 <!ENTITY  event.toolbar.delete.tooltip                    "Delete">
 <!ENTITY  event.toolbar.attendees.tooltip                 "Invite Attendees">
-<!ENTITY  event.toolbar.spellcheck.tooltip                "Spellcheck">
 <!ENTITY  event.toolbar.attachments.tooltip               "Add Attachments">
 <!ENTITY  event.toolbar.privacy.tooltip                   "Change Privacy">
 <!ENTITY  event.toolbar.priority.tooltip                  "Change Priority">
@@ -167,7 +159,6 @@
 <!ENTITY event.categories.label                           "Category:">
 <!ENTITY event.categories.accesskey                       "y">
 <!ENTITY event.categories.textbox.label                   "Add a new category" >
-<!ENTITY event.categories.textbox.accesskey               "A">
 <!ENTITY event.calendar.label                             "Calendar:" >
 <!ENTITY event.calendar.accesskey                         "C">
 <!ENTITY event.attendees.label                            "Attendees:" >
@@ -377,5 +368,4 @@
 <!ENTITY read.only.reminder.label        "Reminder:">
 <!ENTITY read.only.attendees.label       "Attendees">
 <!ENTITY read.only.description.label     "Description">
-<!ENTITY read.only.documents.label       "Documents">
 <!ENTITY read.only.link.label            "Related Link">

@@ -11,9 +11,6 @@
 <!ENTITY reminder.reminderDetails.label                    "Reminder Details">
 <!ENTITY reminder.action.label                             "Choose a Reminder Action">
 
-<!ENTITY reminder.relation.before.label                    "before" >
-<!ENTITY reminder.relation.after.label                     "after" >
-
 <!ENTITY reminder.action.alert.label                       "Show an Alert">
 <!ENTITY reminder.action.email.label                       "Send an E-mail">
 
