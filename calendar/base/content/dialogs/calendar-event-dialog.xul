@@ -146,6 +146,7 @@
                  oncommand="sendMailToUndecidedAttendees(window.attendees);"/>
         <command id="cmd_status_none"
                  oncommand="editStatus(event.target)"
+                 hidden="true"
                  value="NONE"/>
         <command id="cmd_status_tentative"
                  oncommand="editStatus(event.target)"

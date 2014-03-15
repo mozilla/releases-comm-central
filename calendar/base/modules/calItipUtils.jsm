@@ -623,6 +623,19 @@ cal.itip = {
             return;
         }
 
+        // special handling for invitation with event status cancelled
+        if (aItem.getAttendees({}).length > 0 &&
+            aItem.getProperty("STATUS") == "CANCELLED") {
+
+            if (cal.itip.getSequence(aItem) > 0) {
+                // make sure we send a cancellation and not an request
+                aOpType = Components.interfaces.calIOperationListener.DELETE;
+            } else {
+                // don't send an invitation, if the event was newly created and has status cancelled
+                return;
+            }
+        }
+
         if (aOpType == Components.interfaces.calIOperationListener.DELETE) {
             sendMessage(aItem, "CANCEL", aItem.getAttendees({}), autoResponse);
             return;

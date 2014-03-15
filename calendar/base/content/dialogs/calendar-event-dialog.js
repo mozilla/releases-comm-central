@@ -366,9 +366,12 @@ function loadDialog(item) {
     setElementValue("item-description", item.getProperty("DESCRIPTION"));
 
     // Status
-    if (isEvent(item)) {
+    if (cal.isEvent(item)) {
         gStatus = item.hasProperty("STATUS") ?
             item.getProperty("STATUS") : "NONE";
+        if (gStatus == "NONE") {
+            document.getElementById("cmd_status_none").removeAttribute("hidden");
+        }
         updateStatus();
     } else {
         let todoStatus = document.getElementById("todo-status");
@@ -1712,7 +1715,12 @@ function updatePriority() {
  * the sequence -> NONE -> TENTATIVE -> CONFIRMED -> CANCELLED ->.
  */
 function rotateStatus() {
-    const states = ["NONE","TENTATIVE","CONFIRMED","CANCELLED"];
+    let states = ["TENTATIVE","CONFIRMED","CANCELLED"];
+    let noneCmd = document.getElementById("cmd_status_none");
+    // If control for status "NONE" is visible, allow rotating to it.
+    if (cal.isEvent(window.calendarItem) && !noneCmd.hasAttribute("hidden")) {
+        states.unshift("NONE");
+    }
     gStatus = states[(states.indexOf(gStatus) + 1) % states.length];
     updateStatus();
 }
