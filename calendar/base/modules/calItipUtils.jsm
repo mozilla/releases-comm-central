@@ -667,6 +667,9 @@ cal.itip = {
             }
         }
 
+        // setting default value to control for sending (cancellation) messages
+        // this will be set to false, once the user cancels sending manually
+        let sendOut = true;
         // Check to see if some part of the item was updated, if so, re-send REQUEST
         if (!aOriginalItem || (cal.itip.compare(aItem, aOriginalItem) > 0)) { // REQUEST
 
@@ -712,7 +715,7 @@ cal.itip = {
                 }
 
                 if (recipients.length > 0) {
-                    sendMessage(requestItem, "REQUEST", recipients, autoResponse);
+                    sendOut = sendMessage(requestItem, "REQUEST", recipients, autoResponse);
                 }
 
             }
@@ -725,7 +728,9 @@ cal.itip = {
             for each (let att in canceledAttendees) {
                 cancelItem.addAttendee(att);
             }
-            sendMessage(cancelItem, "CANCEL", canceledAttendees, autoResponse);
+            if (sendOut) {
+                sendMessage(cancelItem, "CANCEL", canceledAttendees, autoResponse);
+            }
         }
     },
 
@@ -931,19 +936,22 @@ function createOrganizer(aCalendar) {
  */
 function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     if (aRecipientsList.length == 0) {
-        return;
+        return false;
     }
     let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
     if (calendar) {
         if (calendar.QueryInterface(Components.interfaces.calISchedulingSupport)
                           .canNotify(aMethod, aItem)) {
-            return; //provider will handle that
+            // provider will handle that, so we return - we leave it also to the provider to
+            // deal with user canceled notifications (if possible), so set the return value
+            // to true as false would prevent any further notification within this cycle
+            return true;
         }
     }
 
     let aTransport = aItem.calendar.getProperty("itip.transport");
     if (!aTransport) { // can only send if there's a transport for the calendar
-        return;
+        return false;
     }
     aTransport = aTransport.QueryInterface(Components.interfaces.calIItipTransport);
 
@@ -961,7 +969,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
         // XXX I don't know whether the below are used at all, since we don't use the itip processor
         itipItem.isSend = true;
 
-        aTransport.sendItems(aSendToList.length, aSendToList, itipItem);
+        return aTransport.sendItems(aSendToList.length, aSendToList, itipItem);
     }
 
     // split up transport, if attendee undisclosure is requested
@@ -978,10 +986,10 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
             sendItem.removeAllAttendees();
             sendItem.addAttendee(aRecipient);
             // send message
-            _sendItem(sendToList, sendItem);
+            return _sendItem(sendToList, sendItem);
         }
     } else {
-        _sendItem(aRecipientsList, aItem);
+        return _sendItem(aRecipientsList, aItem);
     }
 }
 

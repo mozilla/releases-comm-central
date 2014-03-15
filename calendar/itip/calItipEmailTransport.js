@@ -94,7 +94,7 @@ calItipEmailTransport.prototype = {
                         att = item.getAttendeeById("mailto:" + aItipItem.identity);
                     }
                     if (!att) { // should not happen anymore
-                        return;
+                        return false;
                     }
 
                     // work around BUG 351589, the below just removes RSVP:
@@ -129,11 +129,12 @@ calItipEmailTransport.prototype = {
                 }
             }
 
-            this._sendXpcomMail(aRecipients, aSubject, aBody, aItipItem);
+            return this._sendXpcomMail(aRecipients, aSubject, aBody, aItipItem);
         } else {
             // Sunbird case: Call user's default mailer on system.
             throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
         }
+        return false;
     },
 
     _initEmailTransport: function cietIES() {
@@ -250,6 +251,7 @@ calItipEmailTransport.prototype = {
                                             null  /* nsIMsgSendListener aListener */,
                                             null  /* nsIMsgStatusFeedback aStatusFeedback */,
                                             ""    /* password */);
+                    return true;
                 }
                 break;
             }
@@ -264,6 +266,7 @@ calItipEmailTransport.prototype = {
                                 "Unknown autoResponse type: " +
                                 aItem.autoResponse);
         }
+        return false;
     },
 
     _createTempImipFile: function cietCTIF(compatMode, aToList, aSubject, aBody, aItem, aIdentity) {
