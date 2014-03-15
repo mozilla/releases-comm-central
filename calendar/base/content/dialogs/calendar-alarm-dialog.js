@@ -288,7 +288,7 @@ function closeIfEmpty() {
                 window.close();
             }
         }
-        setTimeout(closer, 250);
+        setTimeout(closer, 500);
     }
 }
 
