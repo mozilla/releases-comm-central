@@ -194,7 +194,11 @@ calItipEmailTransport.prototype = {
                 // To somehow have a last resort before sending spam, the user can choose to send the mail.
                 let prefCompatMode = Preferences.get("calendar.itip.compatSendMode", 0);
                 let inoutCheck = { value: (prefCompatMode == 1) };
-                if (Services.prompt.confirmEx(null,
+                let parent = Services.wm.getMostRecentWindow(null);
+                if (parent.closed) {
+                    parent = cal.getCalendarWindow();
+                }
+                if (Services.prompt.confirmEx(parent,
                                               cal.calGetString("lightning", "imipSendMail.title", null, "lightning"),
                                               cal.calGetString("lightning", "imipSendMail.text", null, "lightning"),
                                               Services.prompt.STD_YES_NO_BUTTONS,
