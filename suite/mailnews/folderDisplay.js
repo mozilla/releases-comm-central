@@ -59,7 +59,16 @@ var gFolderDisplay =
 
   get selectedMessages()
   {
-    return gDBView ? gDBView.getSelectedMsgHdrs() : [];
+    var msgHdrs = [];
+    if (gDBView)
+    {
+      var array = gDBView.getMsgHdrsForSelection();
+      for (let i = 0; i < array.length; i++)
+      {
+        msgHdrs.push(array.queryElementAt(i, Components.interfaces.nsIMsgDBHdr));
+      }
+    }
+    return msgHdrs;
   },
 
   get selectedMessageUris()
