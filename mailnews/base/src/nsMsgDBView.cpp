@@ -2359,7 +2359,7 @@ NS_IMETHODIMP nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength, nsIMsgDBHdr ***
   {
     nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    headers[i] = msgHdr.forget().get(); // Already AddRefed
+    msgHdr.forget(&headers[i]);
   }
 
   *aLength = numMsgsSelected;
