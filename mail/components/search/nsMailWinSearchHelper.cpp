@@ -174,8 +174,10 @@ NS_IMETHODIMP nsMailWinSearchHelper::SetFANCIBit(nsIFile* aFile, bool aBit, bool
     bool hasMore;
     while (NS_SUCCEEDED(rv) && NS_SUCCEEDED(children->HasMoreElements(&hasMore)) && hasMore)
     {
-      nsCOMPtr<nsIFile> childFile;
-      rv = children->GetNext(getter_AddRefs(childFile));
+      nsCOMPtr<nsISupports> supports;
+      rv = children->GetNext(getter_AddRefs(supports));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIFile> childFile = do_QueryInterface(supports, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
       rv = SetFANCIBit(childFile, aBit, aRecurse);
     }

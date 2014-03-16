@@ -456,7 +456,9 @@ NS_IMETHODIMP nsDBFolderInfo::GetHighWater(nsMsgKey *result)
     while(i++ < 100 && NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore))
               && hasMore)
     {
-      (void) hdrs->GetNext(getter_AddRefs(pHeader));
+      nsCOMPtr<nsISupports> supports;
+      (void) hdrs->GetNext(getter_AddRefs(supports));
+      pHeader = do_QueryInterface(supports);
       if (pHeader)
       {
         nsMsgKey msgKey;

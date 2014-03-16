@@ -1744,9 +1744,10 @@ nsresult nsMsgDatabase::InitExistingDB()
         while (NS_SUCCEEDED(err = enumerator->HasMoreElements(&hasMore)) &&
                hasMore)
         {
-          nsCOMPtr <nsIMsgDBHdr> msgHdr;
-          err = enumerator->GetNext(getter_AddRefs(msgHdr));
+          nsCOMPtr <nsISupports> supports;
+          err = enumerator->GetNext(getter_AddRefs(supports));
           NS_ASSERTION(NS_SUCCEEDED(err), "nsMsgDBEnumerator broken");
+          nsCOMPtr <nsIMsgDBHdr> msgHdr = do_QueryInterface(supports);
           if (msgHdr && NS_SUCCEEDED(err))
           {
             nsCString messageId;
@@ -3073,8 +3074,9 @@ nsMsgDatabase::NextMatchingHdrs(nsISimpleEnumerator *aEnumerator,
   nsresult rv;
   do
   {
-    nsCOMPtr <nsIMsgDBHdr> nextMessage;
-    rv = enumerator->GetNext(getter_AddRefs(nextMessage));
+    nsCOMPtr <nsISupports> supports;
+    rv = enumerator->GetNext(getter_AddRefs(supports));
+    nsCOMPtr <nsIMsgDBHdr> nextMessage = do_QueryInterface(supports);
     if (NS_SUCCEEDED(rv) && nextMessage)
     {
       if (aMatchingHdrs)
@@ -3098,7 +3100,6 @@ nsMsgDatabase::NextMatchingHdrs(nsISimpleEnumerator *aEnumerator,
 NS_IMETHODIMP
 nsMsgDatabase::SyncCounts()
 {
-  nsCOMPtr <nsIMsgDBHdr> pHeader;
   nsCOMPtr <nsISimpleEnumerator> hdrs;
   nsresult rv = EnumerateMessages(getter_AddRefs(hdrs));
   if (NS_FAILED(rv))
@@ -3116,10 +3117,13 @@ nsMsgDatabase::SyncCounts()
 
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore)
   {
-    rv = hdrs->GetNext(getter_AddRefs(pHeader));
+    nsCOMPtr <nsISupports> supports;
+    rv = hdrs->GetNext(getter_AddRefs(supports));
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     if (NS_FAILED(rv))
       break;
+
+    nsCOMPtr <nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
 
     bool isRead;
     IsHeaderRead(pHeader, &isRead);
@@ -4268,9 +4272,10 @@ nsresult nsMsgDatabase::InitRefHash()
   nsresult rv = NS_OK;
   while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) && hasMore)
   {
-    nsCOMPtr <nsIMsgDBHdr> msgHdr;
-    rv = enumerator->GetNext(getter_AddRefs(msgHdr));
+    nsCOMPtr <nsISupports> supports;
+    rv = enumerator->GetNext(getter_AddRefs(supports));
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
+    nsCOMPtr <nsIMsgDBHdr> msgHdr = do_QueryInterface(supports);
     if (msgHdr && NS_SUCCEEDED(rv))
       rv = AddMsgRefsToHash(msgHdr);
     if (NS_FAILED(rv))
@@ -5050,9 +5055,10 @@ nsresult nsMsgDatabase::DumpThread(nsMsgKey threadId)
       while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) &&
              hasMore)
       {
-        nsCOMPtr <nsIMsgDBHdr> pMessage;
-        rv = enumerator->GetNext(getter_AddRefs(pMessage));
+        nsCOMPtr <nsISupports> supports;
+        rv = enumerator->GetNext(getter_AddRefs(supports));
         NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
+        nsCOMPtr <nsIMsgDBHdr> pMessage = do_QueryInterface(supports);
         if (NS_FAILED(rv) || !pMessage)
           break;
       }

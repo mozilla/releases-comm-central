@@ -190,7 +190,7 @@ NS_IMETHODIMP nsAddbookUrl::Clone(nsIURI **_retval)
   nsresult rv = m_baseURL->Clone(getter_AddRefs(clone->m_baseURL));
   NS_ENSURE_SUCCESS(rv, rv);
   clone->ParseUrl();
-  *_retval = clone.forget().get();
+  clone.forget(_retval);
   return NS_OK;
 }	
 
@@ -236,7 +236,7 @@ nsAddbookUrl::CloneIgnoringRef(nsIURI** _retval)
   nsresult rv = m_baseURL->CloneIgnoringRef(getter_AddRefs(clone->m_baseURL));
   NS_ENSURE_SUCCESS(rv, rv);
   clone->ParseUrl();
-  *_retval = clone.forget().get();
+  clone.forget(_retval);
   return NS_OK;
 }
 

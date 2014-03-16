@@ -300,7 +300,7 @@ NS_IMETHODIMP nsLDAPService::GetServer(const char16_t *aKey,
         *_retval = 0;
         return NS_ERROR_FAILURE;
     }
-    if (!(*_retval = entry->GetServer().get())) {
+    if (!(*_retval = entry->GetServer().take())) {
         return NS_ERROR_FAILURE;
     }
 
@@ -387,7 +387,7 @@ NS_IMETHODIMP nsLDAPService::GetConnection(const char16_t *aKey,
     }
     entry->SetTimestamp();
     entry->IncrementLeases();
-    if (!(*_retval = entry->GetConnection().get())){
+    if (!(*_retval = entry->GetConnection().take())){
         return NS_ERROR_FAILURE;
     }
 

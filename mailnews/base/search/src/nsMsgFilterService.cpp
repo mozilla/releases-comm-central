@@ -897,8 +897,10 @@ nsMsgApplyFiltersToMessages::nsMsgApplyFiltersToMessages(nsIMsgWindow *aMsgWindo
     bool hasMore;
     while (NS_SUCCEEDED(msgEnumerator->HasMoreElements(&hasMore)) && hasMore)
     {
+      nsCOMPtr<nsISupports> supports;
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      if (NS_SUCCEEDED(msgEnumerator->GetNext(getter_AddRefs(msgHdr))) && msgHdr)
+      if (NS_SUCCEEDED(msgEnumerator->GetNext(getter_AddRefs(supports))) &&
+          (msgHdr = do_QueryInterface(supports)))
         m_msgHdrList.AppendObject(msgHdr);
     }
   }

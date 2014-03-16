@@ -152,8 +152,8 @@ nsMsgDBView::nsMsgDBView()
 
 void nsMsgDBView::InitializeAtomsAndLiterals()
 {
-  kJunkMsgAtom = MsgNewAtom("junk").get();
-  kNotJunkMsgAtom = MsgNewAtom("notjunk").get();
+  kJunkMsgAtom = MsgNewAtom("junk").take();
+  kNotJunkMsgAtom = MsgNewAtom("notjunk").take();
 
   // priority strings
   kHighestPriorityString = GetString(MOZ_UTF16("priorityHighest"));
@@ -3166,9 +3166,10 @@ nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow *window)
 
     while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) && hasMore)
     {
-      nsCOMPtr <nsIMsgDBHdr> pHeader;
-      rv = enumerator->GetNext(getter_AddRefs(pHeader));
+      nsCOMPtr <nsISupports> supports;
+      rv = enumerator->GetNext(getter_AddRefs(supports));
       NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
+      nsCOMPtr <nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
       if (pHeader && NS_SUCCEEDED(rv))
       {
         uint32_t flags;

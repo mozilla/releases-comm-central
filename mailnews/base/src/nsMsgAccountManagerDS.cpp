@@ -161,7 +161,7 @@ nsMsgAccountManagerDataSource::nsMsgAccountManagerDataSource()
     // that's easily extensible
     getRDFService()->GetResource(NS_LITERAL_CSTRING(NC_RDF_SETTINGS), &kNC_Settings);
 
-    kDefaultServerAtom = MsgNewAtom("DefaultServer").get();
+    kDefaultServerAtom = MsgNewAtom("DefaultServer").take();
   }
 }
 
@@ -619,8 +619,9 @@ nsMsgAccountManagerDataSource::appendGenericSettingsResources(nsIMsgIncomingServ
   rv = catman->EnumerateCategory(MAILNEWS_ACCOUNTMANAGER_EXTENSIONS, getter_AddRefs(e));
   if(NS_SUCCEEDED(rv) && e) {
     while (true) {
-      nsCOMPtr<nsISupportsCString> catEntry;
-      rv = e->GetNext(getter_AddRefs(catEntry));
+      nsCOMPtr<nsISupports> supports;
+      rv = e->GetNext(getter_AddRefs(supports));
+      nsCOMPtr<nsISupportsCString> catEntry = do_QueryInterface(supports);
       if (NS_FAILED(rv) || !catEntry)
         break;
 

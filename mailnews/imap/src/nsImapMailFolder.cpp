@@ -141,8 +141,10 @@ nsresult RecursiveCopy(nsIFile* srcDir, nsIFile* destDir)
 
   while (hasMore)
   {
-    rv = dirIterator->GetNext((nsISupports**)getter_AddRefs(dirEntry));
-    if (NS_SUCCEEDED(rv))
+    nsCOMPtr<nsISupports> supports;
+    rv = dirIterator->GetNext(getter_AddRefs(supports));
+    dirEntry = do_QueryInterface(supports);
+    if (NS_SUCCEEDED(rv) && dirEntry)
     {
       rv = dirEntry->IsDirectory(&isDir);
       if (NS_SUCCEEDED(rv))
@@ -447,8 +449,10 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile *path)
 
   while (more)
   {
-    rv = children->GetNext((nsISupports**) getter_AddRefs(dirEntry));
-    if (NS_FAILED(rv))
+    nsCOMPtr<nsISupports> supports;
+    rv = children->GetNext(getter_AddRefs(supports));
+    dirEntry = do_QueryInterface(supports);
+    if (NS_FAILED(rv) || !dirEntry)
       break;
     rv = children->HasMoreElements(&more);
     if (NS_FAILED(rv)) return rv;
@@ -1284,8 +1288,12 @@ NS_IMETHODIMP nsImapMailFolder::ApplyRetentionSettings()
     // a date less than that will get marked for pending removal.
     while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore)
     {
-      rv = hdrs->GetNext(getter_AddRefs(pHeader));
+      nsCOMPtr<nsISupports> supports;
+      rv = hdrs->GetNext(getter_AddRefs(supports));
       NS_ENSURE_SUCCESS(rv, rv);
+      pHeader = do_QueryInterface(supports, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+
       uint32_t msgFlags;
       PRTime msgDate;
       pHeader->GetFlags(&msgFlags);
@@ -2590,8 +2598,10 @@ nsresult nsImapMailFolder::GetBodysToDownload(nsTArray<nsMsgKey> *keysOfMessages
     bool hasMore;
     while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) && hasMore)
     {
-      nsCOMPtr <nsIMsgDBHdr> pHeader;
-      rv = enumerator->GetNext(getter_AddRefs(pHeader));
+      nsCOMPtr <nsISupports> supports;
+      rv = enumerator->GetNext(getter_AddRefs(supports));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr <nsIMsgDBHdr> pHeader = do_QueryInterface(supports, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
       bool shouldStoreMsgOffline = false;
       nsMsgKey msgKey;
@@ -4215,7 +4225,10 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey> &existingKeys,
       nsCOMPtr <nsIMsgDBHdr> pHeader;
       while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore)
       {
-        rv = hdrs->GetNext(getter_AddRefs(pHeader));
+        nsCOMPtr <nsISupports> supports;
+        rv = hdrs->GetNext(getter_AddRefs(supports));
+        NS_ENSURE_SUCCESS_VOID(rv);
+        pHeader = do_QueryInterface(supports, &rv);
         NS_ENSURE_SUCCESS_VOID(rv);
         uint32_t msgFlags;
         pHeader->GetFlags(&msgFlags);

@@ -778,9 +778,12 @@ static nsresult BuildRestriction(nsIAbDirectoryQueryArguments *aArguments,
 {
     if (!aArguments) { return NS_ERROR_NULL_POINTER ; }
     nsresult retCode = NS_OK ;
-    nsCOMPtr<nsIAbBooleanExpression> booleanQuery ;
 
-    retCode = aArguments->GetExpression(getter_AddRefs(booleanQuery)) ;
+    nsCOMPtr<nsISupports> supports ;
+    retCode = aArguments->GetExpression(getter_AddRefs(supports)) ;
+    NS_ENSURE_SUCCESS(retCode, retCode) ;
+    nsCOMPtr<nsIAbBooleanExpression> booleanQuery =
+      do_QueryInterface(supports, &retCode) ;
     NS_ENSURE_SUCCESS(retCode, retCode) ;
     retCode = BuildRestriction(booleanQuery, aRestriction) ;
     return retCode ;

@@ -1735,9 +1735,10 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener *listener, n
       bool hasMore;
       while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) && hasMore)
       {
-        nsCOMPtr <nsIMsgDBHdr> pHeader;
-        rv = enumerator->GetNext(getter_AddRefs(pHeader));
+        nsCOMPtr <nsISupports> supports;
+        rv = enumerator->GetNext(getter_AddRefs(supports));
         NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
+        nsCOMPtr <nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
         if (pHeader && NS_SUCCEEDED(rv))
         {
           bool shouldStoreMsgOffline = false;

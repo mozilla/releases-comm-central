@@ -523,7 +523,7 @@ NS_IMETHODIMP nsMailtoUrl::Clone(nsIURI **_retval)
   NS_ENSURE_SUCCESS(rv, rv);
 
   clone->ParseUrl();
-  *_retval = clone.forget().get();
+  clone.forget(_retval);
   return NS_OK;
 }
 

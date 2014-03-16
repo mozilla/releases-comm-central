@@ -399,9 +399,10 @@ nsMsgQuickSearchDBView::OnNewSearch()
         mTree->BeginUpdateBatch();
       while (hasMore)
       {
-        nsCOMPtr <nsIMsgDBHdr> pHeader;
-        nsresult rv = cachedHits->GetNext(getter_AddRefs(pHeader));
+        nsCOMPtr <nsISupports> supports;
+        nsresult rv = cachedHits->GetNext(getter_AddRefs(supports));
         NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
+        nsCOMPtr <nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
         if (pHeader && NS_SUCCEEDED(rv))
           AddHdr(pHeader);
         else

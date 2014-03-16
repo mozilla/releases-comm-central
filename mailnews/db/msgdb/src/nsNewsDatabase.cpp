@@ -257,7 +257,6 @@ nsresult nsNewsDatabase::SyncWithReadSet()
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMore = false, readInNewsrc, isReadInDB, changed = false;
-  nsCOMPtr <nsIMsgDBHdr> header;
   int32_t numMessages = 0, numUnreadMessages = 0;
   nsMsgKey messageKey;
   nsCOMPtr <nsIMsgThread> threadHdr;
@@ -265,7 +264,11 @@ nsresult nsNewsDatabase::SyncWithReadSet()
   // Scan all messages in DB
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore)
   {
-      rv = hdrs->GetNext(getter_AddRefs(header));
+      nsCOMPtr<nsISupports> supports;
+      rv = hdrs->GetNext(getter_AddRefs(supports));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsCOMPtr <nsIMsgDBHdr> header = do_QueryInterface(supports, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = nsMsgDatabase::IsHeaderRead(header, &isReadInDB);

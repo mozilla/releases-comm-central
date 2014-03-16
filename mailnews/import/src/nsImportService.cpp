@@ -428,17 +428,22 @@ nsresult nsImportService::DoDiscover(void)
   nsCOMPtr<nsISimpleEnumerator> e;
   rv = catMan->EnumerateCategory("mailnewsimport", getter_AddRefs(e));
   NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISupports> supports;
   nsCOMPtr<nsISupportsCString> contractid;
-  rv = e->GetNext(getter_AddRefs(contractid));
-  while (NS_SUCCEEDED(rv) && contractid)
+  rv = e->GetNext(getter_AddRefs(supports));
+  while (NS_SUCCEEDED(rv) && supports)
   {
+    contractid = do_QueryInterface(supports);
+    if (!contractid)
+      break;
+
     nsCString contractIdStr;
     contractid->ToString(getter_Copies(contractIdStr));
     nsCString supportsStr;
     rv = catMan->GetCategoryEntry("mailnewsimport", contractIdStr.get(), getter_Copies(supportsStr));
     if (NS_SUCCEEDED(rv))
       LoadModuleInfo(contractIdStr.get(), supportsStr.get());
-    rv = e->GetNext(getter_AddRefs(contractid));
+    rv = e->GetNext(getter_AddRefs(supports));
   }
 
   m_didDiscovery = true;

@@ -100,8 +100,9 @@ nsOutlookProfileMigrator::GetSourceExists(bool* aResult)
 {
   *aResult = false;
 
-  nsCOMPtr<nsIImportSettings> importSettings;
-  mImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR, getter_AddRefs(importSettings));
+  nsCOMPtr<nsISupports> supports;
+  mImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR, getter_AddRefs(supports));
+  nsCOMPtr<nsIImportSettings> importSettings = do_QueryInterface(supports);
 
   if (importSettings)
   {

@@ -33,8 +33,11 @@ nsresult nsProfileMigratorBase::ImportSettings(nsIImportModule * aImportModule)
   index.AppendInt(nsIMailProfileMigrator::ACCOUNT_SETTINGS);
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
-  nsCOMPtr<nsIImportSettings> importSettings;
-  rv = aImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR, getter_AddRefs(importSettings));
+  nsCOMPtr<nsISupports> supports;
+  rv = aImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR, getter_AddRefs(supports));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIImportSettings> importSettings = do_QueryInterface(supports);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool importedSettings = false;
@@ -54,7 +57,11 @@ nsresult nsProfileMigratorBase::ImportAddressBook(nsIImportModule * aImportModul
   index.AppendInt(nsIMailProfileMigrator::ADDRESSBOOK_DATA);
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
-  rv = aImportModule->GetImportInterface(NS_IMPORT_ADDRESS_STR, getter_AddRefs(mGenericImporter));
+  nsCOMPtr<nsISupports> supports;
+  rv = aImportModule->GetImportInterface(NS_IMPORT_ADDRESS_STR, getter_AddRefs(supports));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mGenericImporter = do_QueryInterface(supports);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISupportsCString> pabString = do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID, &rv);
@@ -97,7 +104,11 @@ nsresult nsProfileMigratorBase::ImportMailData(nsIImportModule * aImportModule)
   index.AppendInt(nsIMailProfileMigrator::MAILDATA);
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
-  rv = aImportModule->GetImportInterface(NS_IMPORT_MAIL_STR, getter_AddRefs(mGenericImporter));
+  nsCOMPtr<nsISupports> supports;
+  rv = aImportModule->GetImportInterface(NS_IMPORT_MAIL_STR, getter_AddRefs(supports));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mGenericImporter = do_QueryInterface(supports);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISupportsPRBool> migrating = do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv);
@@ -137,10 +148,11 @@ nsresult nsProfileMigratorBase::ImportFilters(nsIImportModule * aImportModule)
 {
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsIImportFilters> importFilters;
-  nsresult rv2 = aImportModule->GetImportInterface(NS_IMPORT_FILTERS_STR, getter_AddRefs(importFilters));
+  nsCOMPtr<nsISupports> supports;
+  nsresult rv2 = aImportModule->GetImportInterface(NS_IMPORT_FILTERS_STR, getter_AddRefs(supports));
+  nsCOMPtr<nsIImportFilters> importFilters = do_QueryInterface(supports);
 
-  if (NS_SUCCEEDED(rv2))
+  if (NS_SUCCEEDED(rv2) && importFilters)
   {
     nsAutoString index;
     index.AppendInt(nsIMailProfileMigrator::FILTERS);

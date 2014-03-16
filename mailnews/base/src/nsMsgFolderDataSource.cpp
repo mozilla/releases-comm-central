@@ -183,19 +183,19 @@ nsMsgFolderDataSource::nsMsgFolderDataSource()
     rdf->GetResource(NS_LITERAL_CSTRING(NC_RDF_RENAME), &kNC_Rename);
     rdf->GetResource(NS_LITERAL_CSTRING(NC_RDF_EMPTYTRASH), &kNC_EmptyTrash);
 
-    kTotalMessagesAtom           = MsgNewAtom("TotalMessages").get();
-    kTotalUnreadMessagesAtom     = MsgNewAtom("TotalUnreadMessages").get();
-    kFolderSizeAtom              = MsgNewAtom("FolderSize").get();
-    kBiffStateAtom               = MsgNewAtom("BiffState").get();
-    kSortOrderAtom               = MsgNewAtom("SortOrder").get();
-    kNewMessagesAtom             = MsgNewAtom("NewMessages").get();
-    kNameAtom                    = MsgNewAtom("Name").get();
-    kSynchronizeAtom             = MsgNewAtom("Synchronize").get();
-    kOpenAtom                    = MsgNewAtom("open").get();
-    kIsDeferredAtom              = MsgNewAtom("isDeferred").get();
-    kIsSecureAtom                = MsgNewAtom("isSecure").get();
-    kCanFileMessagesAtom         = MsgNewAtom("canFileMessages").get();
-    kInVFEditSearchScopeAtom     = MsgNewAtom("inVFEditSearchScope").get();
+    kTotalMessagesAtom           = MsgNewAtom("TotalMessages").take();
+    kTotalUnreadMessagesAtom     = MsgNewAtom("TotalUnreadMessages").take();
+    kFolderSizeAtom              = MsgNewAtom("FolderSize").take();
+    kBiffStateAtom               = MsgNewAtom("BiffState").take();
+    kSortOrderAtom               = MsgNewAtom("SortOrder").take();
+    kNewMessagesAtom             = MsgNewAtom("NewMessages").take();
+    kNameAtom                    = MsgNewAtom("Name").take();
+    kSynchronizeAtom             = MsgNewAtom("Synchronize").take();
+    kOpenAtom                    = MsgNewAtom("open").take();
+    kIsDeferredAtom              = MsgNewAtom("isDeferred").take();
+    kIsSecureAtom                = MsgNewAtom("isSecure").take();
+    kCanFileMessagesAtom         = MsgNewAtom("canFileMessages").take();
+    kInVFEditSearchScopeAtom     = MsgNewAtom("inVFEditSearchScope").take();
   }
 
   CreateLiterals(rdf);
