@@ -1373,7 +1373,7 @@
               callback: (function () {
                 if (checkbox.checked)
                   this.setPermissionForPlugins(nsIPermissionManager.DENY_ACTION);
-                this.removeClickToPlayOverlays();
+                this.hideAllPluginOverlays();
               }).bind(this)
             }];
             var box = this.appendNotification(messageString,
@@ -1388,17 +1388,17 @@
         </body>
       </method>
 
-      <method name="removeClickToPlayOverlays">
+      <method name="hideAllPluginOverlays">
         <body>
           <![CDATA[
             var plugins = this.contentWindowUtils.plugins;
             for (let plugin of plugins)
-              this.hideClickToPlayOverlay(plugin);
+              this.hidePluginOverlay(plugin);
           ]]>
         </body>
       </method>
 
-      <method name="hideClickToPlayOverlay">
+      <method name="hidePluginOverlay">
         <parameter name="pluginElement"/>
         <body>
           <![CDATA[
@@ -1455,9 +1455,6 @@
             var overlayText = this.getPluginUI(pluginElement, "clickToPlay");
             overlayText.textContent = messageString;
             this.addLinkClickCallback(overlay, this.activateSinglePlugin, pluginElement);
-
-            var closeIcon = this.getPluginUI(pluginElement, "closeIcon");
-            this.addLinkClickCallback(closeIcon, this.hideClickToPlayOverlay, pluginElement);
           ]]>
         </body>
       </method>
@@ -2166,6 +2163,9 @@
           if (!(plugin instanceof nsIObjectLoadingContent))
             return;
 
+          var closeIcon = this.getPluginUI(plugin, "closeIcon");
+          this.addLinkClickCallback(closeIcon, this.hidePluginOverlay, plugin);
+
           var notification, message, buttons, pref;
           switch (plugin.pluginFallbackType) {
             case nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
@@ -2705,7 +2705,7 @@
                                                                       this.activeBrowser);
                 if (notification)
                   notification.remove();
-                this.removeClickToPlayOverlays();
+                this.hideAllPluginOverlays();
               }).bind(this)
             }];
             var options = {
