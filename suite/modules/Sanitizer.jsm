@@ -120,10 +120,10 @@ var Sanitizer = {
     cache: {
       clear: function() {
         // use try/catch for everything but the last task so we clear as much as possible
-        var cacheService = Components.classes["@mozilla.org/network/cache-service;1"]
-                                     .getService(Components.interfaces.nsICacheService);
         try {
-          cacheService.evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
+          Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+                    .getService(Components.interfaces.nsICacheStorageService)
+                    .clear();
         } catch(ex) {}
 
         Components.classes["@mozilla.org/image/tools;1"]
@@ -139,9 +139,9 @@ var Sanitizer = {
       clear: function() {
         // use try/catch for everything but the last task so we clear as much as possible
         try {
-          var cacheService = Components.classes["@mozilla.org/network/cache-service;1"]
-                                       .getService(Components.interfaces.nsICacheService);
-          cacheService.evictEntries(Components.interfaces.nsICache.STORE_OFFLINE);
+          Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+                    .getService(Components.interfaces.nsICacheStorageService)
+                    .appCacheStorage({}, null).asyncEvictStorage(null);
         } catch(ex) {}
       },
 

@@ -2306,7 +2306,7 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
   if (detector) {
     nsAutoCString buffer;
 
-    nsCOMPtr<CharsetDetectionObserver> observer = new CharsetDetectionObserver();
+    nsRefPtr<CharsetDetectionObserver> observer = new CharsetDetectionObserver();
 
     rv = detector->Init(observer);
     NS_ENSURE_SUCCESS(rv, rv);

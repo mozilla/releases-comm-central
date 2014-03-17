@@ -38,41 +38,47 @@ var OfflineAppsObserver = {
 function UpdateActualCacheSize()
 {
   var visitor = {
-    visitDevice: function (aDeviceID, aDeviceInfo)
+    onCacheStorageInfo: function(aEntryCount, aTotalSize)
     {
-      if (aDeviceID == "offline") {
-        let actualSizeLabel = document.getElementById("appCacheSizeInfo");
-        let sizeStrings = DownloadUtils.convertByteUnits(aDeviceInfo.totalSize);
-        let bundle = document.getElementById("bundle_prefutilities");
-        let sizeStr = bundle.getFormattedString("appCacheSizeInfo",
-                                                sizeStrings);
-        actualSizeLabel.textContent = sizeStr;
-      }
-      // Do not enumerate entries
-      return false;
+      let actualSizeLabel = document.getElementById("appCacheSizeInfo");
+      let sizeStrings = DownloadUtils.convertByteUnits(aTotalSize);
+      let bundle = document.getElementById("bundle_prefutilities");
+      let sizeStr = bundle.getFormattedString("appCacheSizeInfo",
+                                              sizeStrings);
+      actualSizeLabel.textContent = sizeStr;
     },
 
-    visitEntry: function (aDeviceID, aEntryInfo)
+    onCacheEntryInfo: function(entryInfo)
     {
-      // Do not enumerate entries.
-      return false;
+    },
+
+    onCacheEntryVisitCompleted: function()
+    {
     }
   };
 
-  Services.cache.visitEntries(visitor);
+  Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+            .getService(Components.interfaces.nsICacheStorageService)
+            .appCacheStorage({}, null).asyncVisitStorage(visitor, false);
 }
 
 /**
  * Clears the application cache.
  */
+var callback = {
+  onCacheEntryDoomed: function(aResult) {
+    UpdateActualCacheSize();
+    UpdateOfflineApps();
+  }
+};
+
 function ClearOfflineAppCache()
 {
   try {
-    Services.cache.evictEntries(Components.interfaces.nsICache.STORE_OFFLINE);
+    Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+              .getService(Components.interfaces.nsICacheStorageService)
+              .appCacheStorage({}, null).asyncEvictStorage(callback);
   } catch(ex) {}
-
-  UpdateActualCacheSize();
-  UpdateOfflineApps();
 }
 
 function ReadOfflineNotify(aChecked)

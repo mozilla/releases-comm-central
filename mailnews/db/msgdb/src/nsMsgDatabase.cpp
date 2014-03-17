@@ -4262,7 +4262,7 @@ nsresult nsMsgDatabase::InitRefHash()
     return NS_ERROR_OUT_OF_MEMORY;
 
   // Create enumerator to go through all messages with references
-  nsCOMPtr <nsMsgDBEnumerator> enumerator;
+  nsCOMPtr <nsISimpleEnumerator> enumerator;
   enumerator = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable, nsReferencesOnlyFilter, nullptr);
   if (enumerator == nullptr)
     return NS_ERROR_OUT_OF_MEMORY;

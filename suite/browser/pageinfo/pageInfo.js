@@ -157,7 +157,7 @@ const COL_IMAGE_COUNT   = 4;
 const COL_IMAGE_NODE    = 5;
 const COL_IMAGE_BG      = 6;
 const COL_IMAGE_SIZENUM = 7;
-const COL_IMAGE_DEVICE  = 8;
+const COL_IMAGE_PERSIST = 8;
 const COL_IMAGE_MIME    = 9;
 
 // column number to copy from, second argument to pageInfoTreeView's constructor
@@ -222,13 +222,11 @@ const STRING_CONTRACTID         = "@mozilla.org/supports-string;1";
 
 // a number of services I'll need later
 // the cache services
-const nsICacheService = Components.interfaces.nsICacheService;
-const ACCESS_READ     = Components.interfaces.nsICache.ACCESS_READ;
-const cacheService = Components.classes["@mozilla.org/network/cache-service;1"].getService(nsICacheService);
-var httpCacheSession = cacheService.createSession("HTTP", 0, true);
-httpCacheSession.doomEntriesIfExpired = false;
-var ftpCacheSession = cacheService.createSession("FTP", 0, true);
-ftpCacheSession.doomEntriesIfExpired = false;
+const OPEN_READONLY = Components.interfaces.nsICacheStorage.OPEN_READONLY;
+const diskCacheStorage =
+    Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+              .getService(Components.interfaces.nsICacheStorageService)
+              .diskCacheStorage({ isPrivate: opener.gPrivate }, false);
 
 const nsICookiePermission  = Components.interfaces.nsICookiePermission;
 
@@ -460,6 +458,9 @@ var cacheListener = {
                                                  formatNumber(pageSize)]);
       setItemValue("sizetext", sizeText);
     }
+  },
+  onCacheEntryCheck: function onCacheEntryCheck() {
+    return Components.interfaces.nsICacheEntryOpenCallback.ENTRY_WANTED;
   }
 };
 
@@ -508,11 +509,8 @@ function makeGeneralTab()
   setItemValue("sizetext", null);
   var cacheKey = url.replace(/#.*$/, "");
   try {
-    httpCacheSession.asyncOpenCacheEntry(cacheKey, ACCESS_READ, cacheListener);
-  }
-  catch(ex) { }
-  try {
-    ftpCacheSession.asyncOpenCacheEntry(cacheKey, ACCESS_READ, cacheListener);
+    diskCacheStorage.asyncOpenURI(Services.io.newURI(cacheKey, null, null),
+                                  null, OPEN_READONLY, cacheListener);
   }
   catch(ex) { }
 
@@ -601,18 +599,18 @@ function onCacheEntryAvailable(cacheEntryDescriptor) {
 
     var sizeText;
     var pageSize;
-    var deviceID;
+    var persistent;
     var mimeType;
     if (cacheEntryDescriptor) {
       mimeType = getContentTypeFromHeaders(cacheEntryDescriptor);
-      deviceID = cacheEntryDescriptor.deviceID;
+      persistent = cacheEntryDescriptor.persistent;
       pageSize = cacheEntryDescriptor.dataSize;
       var kbSize = Math.round(pageSize / 1024 * 100) / 100;
       sizeText = gBundle.getFormattedString("mediaFileSize", [formatNumber(kbSize)]);
     }
     else
       sizeText = gStrings.unknown;
-    gImageView.addRow([url, type, sizeText, alt, 1, elem, isBg, pageSize, deviceID, mimeType]);
+    gImageView.addRow([url, type, sizeText, alt, 1, elem, isBg, pageSize, persistent, mimeType]);
 
     // Add the observer, only once.
     if (gImageView.data.length == 1) {
@@ -623,13 +621,19 @@ function onCacheEntryAvailable(cacheEntryDescriptor) {
     var i = gImageHash[url][type][alt];
     gImageView.data[i][COL_IMAGE_COUNT]++;
   }
-}
+};
+
+imgCacheListener.prototype.onCacheEntryCheck =
+function onCacheEntryCheck() {
+  return Components.interfaces.nsICacheEntryOpenCallback.ENTRY_WANTED;
+};
 
 function addImage(url, type, alt, elem, isBg)
 {
   if (url) try {
     var listener = new imgCacheListener(url, type, alt, elem, isBg);
-    httpCacheSession.asyncOpenCacheEntry(url, ACCESS_READ, listener);
+    diskCacheStorage.asyncOpenURI(Services.io.newURI(url, null, null),
+                                  null, OPEN_READONLY, listener);
   }
   catch (ex) { }
 }
@@ -987,7 +991,7 @@ function onImageSelect()
 
 function makePreview(row)
 {
-  var [url, type, sizeText, alt, count, item, isBG, pageSize, deviceID, cachedType] = gImageView.data[row];
+  var [url, type, sizeText, alt, count, item, isBG, pageSize, persistent, cachedType] = gImageView.data[row];
   var isAudio = false;
 
   setItemValue("imageurltext", url);
@@ -1014,19 +1018,17 @@ function makePreview(row)
     setItemValue("imagealttext", getValueText(item));
 
   // get cache info
-  var sourceText = gBundle.getString("generalNotCached");
-  if (deviceID) {
-    switch (deviceID) {
-      case "disk":
-        sourceText = gBundle.getString("generalDiskCache");
-        break;
-      case "memory":
-        sourceText = gBundle.getString("generalMemoryCache");
-        break;
-      default:
-        sourceText = cacheEntryDescriptor.deviceID;
-        break;
-    }
+  var sourceText;
+  switch (persistent) {
+    case true:
+      sourceText = gBundle.getString("generalDiskCache");
+      break;
+    case false:
+      sourceText = gBundle.getString("generalMemoryCache");
+      break;
+    default:
+      sourceText = gBundle.getString("generalNotCached");
+      break;
   }
   setItemValue("imagesourcetext", sourceText);
 

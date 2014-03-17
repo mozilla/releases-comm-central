@@ -24,8 +24,7 @@ var onTable  = false;
 var onTitle  = false;
 var onLang   = false;
 
-const nsICache = Components.interfaces.nsICache;
-const nsICacheService = Components.interfaces.nsICacheService;
+const OPEN_READONLY = Components.interfaces.nsICacheStorage.OPEN_READONLY;
 
 function onLoad()
 {
@@ -113,6 +112,9 @@ var cacheListener = {
         } else {
             setInfo("image-filesize", gMetadataBundle.getString("imageSizeUnknown"));
         }
+    },
+    onCacheEntryCheck: function onCacheEntryCheck() {
+        return Components.interfaces.nsICacheEntryOpenCallback.ENTRY_WANTED;
     }
 };
 
@@ -165,11 +167,12 @@ function checkForImage(elem, htmllocalname)
         var imgURL = imgType == "object" ? img.data : img.src;
         setInfo("image-url", imgURL);
 
-        const cacheService = Components.classes["@mozilla.org/network/cache-service;1"]
-                                       .getService(nsICacheService);
-        var httpCacheSession = cacheService.createSession("HTTP", nsICache.STORE_ANYWHERE, true);
-        httpCacheSession.doomEntriesIfExpired = false;
-        httpCacheSession.asyncOpenCacheEntry(imgURL, nsICache.ACCESS_READ, cacheListener);
+        Components.utils.import("resource://gre/modules/NetUtil.jsm");
+        Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+                  .getService(Components.interfaces.nsICacheStorageService)
+                  .diskCacheStorage({ isPrivate: opener.gPrivate }, false)
+                  .asyncOpenURI(NetUtil.newURI(imgURL), null,
+                                OPEN_READONLY, cacheListener);
 
         if ("width" in img && img.width != "") {
             setInfo("image-width", gMetadataBundle.getFormattedString("imageWidth", [formatNumber(img.width)]));

@@ -63,9 +63,8 @@ function CacheSelectFolder()
 
 function ClearDiskAndMemCache()
 {
-  Components.classes["@mozilla.org/network/cache-service;1"]
-            .getService(Components.interfaces.nsICacheService)
-            .evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
+  Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+            .getService(Components.interfaces.nsICacheStorageService).clear();
   updateActualCacheSize();
 }
 
@@ -86,28 +85,26 @@ function ReadSmartSizeEnabled()
 function updateActualCacheSize()
 {
   var visitor = {
-    visitDevice: function (deviceID, deviceInfo)
+    onCacheStorageInfo: function(entryCount, totalSize)
     {
-      if (deviceID == "disk") {
-        var actualSizeLabel = document.getElementById("cacheSizeInfo");
-        var sizeStrings = DownloadUtils.convertByteUnits(deviceInfo.totalSize);
-        var prefStrBundle = document.getElementById("bundle_prefutilities");
-        var sizeStr = prefStrBundle.getFormattedString("cacheSizeInfo",
-                                                        sizeStrings);
-        actualSizeLabel.textContent = sizeStr;
-      }
-      // Do not enumerate entries
-      return false;
+      var actualSizeLabel = document.getElementById("cacheSizeInfo");
+      var sizeStrings = DownloadUtils.convertByteUnits(totalSize);
+      var prefStrBundle = document.getElementById("bundle_prefutilities");
+      var sizeStr = prefStrBundle.getFormattedString("cacheSizeInfo",
+                                                      sizeStrings);
+      actualSizeLabel.textContent = sizeStr;
     },
 
-    visitEntry: function (deviceID, entryInfo)
+    onCacheEntryInfo: function(entryInfo)
     {
-      // Do not enumerate entries.
-      return false;
+    },
+
+    onCacheEntryVisitCompleted: function()
+    {
     }
   };
 
-  Components.classes["@mozilla.org/network/cache-service;1"]
-            .getService(Components.interfaces.nsICacheService)
-            .visitEntries(visitor);
+  Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+            .getService(Components.interfaces.nsICacheStorageService)
+            .diskCacheStorage({}, false).asyncVisitStorage(visitor, false);
 }
