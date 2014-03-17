@@ -17,14 +17,6 @@ try {
 Cu.import("resource:///modules/errUtils.js");
 Cu.import("resource://gre/modules/Services.jsm");
 
-/**
- * Create a subtype
- */
-function extend(child, supertype)
-{
-  child.prototype.__proto__ = supertype.prototype;
-}
-
 function assert(test, errorMsg)
 {
   if (!test)
@@ -156,11 +148,12 @@ Exception.prototype =
 
 function NotReached(msg)
 {
-  Exception.call(this, msg);
+  Exception.call(this, msg); // call super constructor
   logException(this);
 }
-extend(NotReached, Exception);
-
+// Make NotReached extend Exception.
+NotReached.prototype = Object.create(Exception.prototype);
+NotReached.prototype.constructor = NotReached;
 
 /**
  * A handle for an async function which you can cancel.
@@ -184,16 +177,12 @@ Abortable.prototype =
  */
 function TimeoutAbortable(setTimeoutID)
 {
+  Abortable.call(this, setTimeoutID); // call super constructor
   this._id = setTimeoutID;
 }
-TimeoutAbortable.prototype =
-{
-  cancel : function()
-  {
-    clearTimeout(this._id);
-  }
-}
-extend(TimeoutAbortable, Abortable);
+TimeoutAbortable.prototype = Object.create(Abortable.prototype);
+TimeoutAbortable.prototype.constructor = TimeoutAbortable;
+TimeoutAbortable.prototype.cancel = function() { clearTimeout(this._id); }
 
 /**
  * Utility implementation, for allowing to abort a setTimeout.
@@ -202,44 +191,35 @@ extend(TimeoutAbortable, Abortable);
  */
 function IntervalAbortable(setIntervalID)
 {
+  Abortable.call(this, setIntervalID); // call super constructor
   this._id = setIntervalID;
 }
-IntervalAbortable.prototype =
-{
-  cancel : function()
-  {
-    clearInterval(this._id);
-  }
-}
-extend(IntervalAbortable, Abortable);
-
+IntervalAbortable.prototype = Object.create(Abortable.prototype);
+IntervalAbortable.prototype.constructor = IntervalAbortable;
+IntervalAbortable.prototype.cancel = function() { clearInterval(this._id); }
 
 // Allows you to make several network calls, but return
 // only one Abortable object.
 function SuccessiveAbortable()
 {
+  Abortable.call(this); // call super constructor
   this._current = null;
 }
-SuccessiveAbortable.prototype =
-{
+SuccessiveAbortable.prototype = {
+  __proto__: Abortable.prototype,
+  get current() { return this._current; },
   set current(abortable)
   {
     assert(abortable instanceof Abortable || abortable == null,
         "need an Abortable object (or null)");
     this._current = abortable;
   },
-  get current()
-  {
-    return this._current;
-  },
-  cancel : function()
+  cancel: function()
   {
     if (this._current)
       this._current.cancel();
-  },
+  }
 }
-extend(SuccessiveAbortable, Abortable);
-
 
 function deepCopy(org)
 {

@@ -2328,17 +2328,21 @@ let gFolderTreeController = {
   }
 };
 
+/**
+ * Constructor for ftv_SmartItem. This is a top level item in the "smart"
+ * (a.k.a. "Unified") folder mode.
+ */
 function ftv_SmartItem(aFolder)
 {
-  ftvItem.call(this, aFolder);
+  ftvItem.call(this, aFolder); // call super constructor
   this._level = 0;
 }
 
-ftv_SmartItem.prototype =
-{
+ftv_SmartItem.prototype = {
+  __proto__: ftvItem.prototype,
   get children() {
     const Ci = Components.interfaces;
-    let smartMode = gFolderTreeView.getFolderTreeMode('smart');
+    let smartMode = gFolderTreeView.getFolderTreeMode("smart");
 
     // We're caching our child list to save perf.
     if (!this._children) {
@@ -2367,8 +2371,6 @@ ftv_SmartItem.prototype =
   }
 }
 
-extend(ftv_SmartItem, ftvItem);
-
 /**
  * Sorts the passed in array of folder items using the folder sort key
  *
@@ -2393,10 +2395,3 @@ function getSmartFolderName(aFolder) {
   }
 }
 
-/**
- * Create a subtype - maybe this wants to be in a shared .jsm file somewhere.
- */
-function extend(child, supertype)
-{
-  child.prototype.__proto__ = supertype.prototype;
-}

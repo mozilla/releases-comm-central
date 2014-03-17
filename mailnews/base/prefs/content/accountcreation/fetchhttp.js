@@ -84,6 +84,7 @@ function FetchHTTP(url, urlArgs, post, successCallback, errorCallback)
 }
 FetchHTTP.prototype =
 {
+  __proto__: Abortable.prototype,
   _url : null, // URL as passed to ctor, without arguments
   _urlArgs : null,
   _post : null,
@@ -237,17 +238,13 @@ FetchHTTP.prototype =
     this._finishedCallback = finishedCallback;
   }
 }
-extend(FetchHTTP, Abortable);
-
 
 function CancelledException(msg)
 {
   Exception.call(this, msg);
 }
-CancelledException.prototype =
-{
-}
-extend(CancelledException, Exception);
+CancelledException.prototype = Object.create(Exception.prototype);
+CancelledException.prototype.constructor = CancelledException;
 
 function UserCancelledException(msg)
 {
@@ -257,10 +254,8 @@ function UserCancelledException(msg)
     msg = "User cancelled";
   CancelledException.call(this, msg);
 }
-UserCancelledException.prototype =
-{
-}
-extend(UserCancelledException, CancelledException);
+UserCancelledException.prototype = Object.create(CancelledException.prototype);
+UserCancelledException.prototype.constructor = UserCancelledException;
 
 function ServerException(msg, code, uri)
 {
@@ -268,7 +263,6 @@ function ServerException(msg, code, uri)
   this.code = code;
   this.uri = uri;
 }
-ServerException.prototype =
-{
-}
-extend(ServerException, Exception);
+ServerException.prototype = Object.create(Exception.prototype);
+ServerException.prototype.constructor = ServerException;
+

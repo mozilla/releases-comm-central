@@ -202,4 +202,6 @@ function MalformedException(msgID, uncheckedBadValue)
     msg += " (bad value: " + new String(uncheckedBadValue) + ")";
   Exception.call(this, msg);
 }
-extend(MalformedException, Exception);
+MalformedException.prototype = Object.create(Exception.prototype);
+MalformedException.prototype.constructor = MalformedException;
+

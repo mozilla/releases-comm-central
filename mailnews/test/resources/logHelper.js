@@ -489,7 +489,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
 
   let simple_obj = __simple_obj_copy(aObj, aDepthAllowed);
   if (!aJsonMeNotNeeded)
-    simple_obj.__proto__ = _fake_json_proto;
+    simple_obj._jsonMe = true;
   return simple_obj;
 }
 
@@ -592,10 +592,6 @@ _Failure.prototype = {
   _jsonMe: true,
 };
 
-let _fake_json_proto = {
-  _jsonMe: true,
-};
-
 function mark_failure(aRichString) {
   let args = [_testLoggerActiveContext];
   let text = "";
@@ -610,7 +606,7 @@ function mark_failure(aRichString) {
       text += "[" + jsonThing.type + " " + jsonThing.name + "]";
       // hook things up to be json serialized.
       if (!("_jsonMe" in jsonThing))
-        jsonThing.__proto__ = _fake_json_proto;
+        jsonThing._jsonMe = true;
       args.push(jsonThing);
     }
   }

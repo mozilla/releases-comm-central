@@ -333,10 +333,13 @@ Logger.prototype = {
   newContext: function Logger_newContext(objWithProps) {
     if (!("_id" in objWithProps))
       objWithProps._id = this._name + ":" + (++this._nextContextId);
-    objWithProps.__proto__ = LoggerContext.prototype;
-    objWithProps._isContext = true;
-    LoggerContext.call(objWithProps);
-    return objWithProps;
+
+    let c = new LoggerContext();
+    c._isContext = true;
+    for (let key in objWithProps) {
+      c[key] = objWithProps[key];
+    }
+    return c;
   },
 
   log: function Logger_log(message) {
@@ -551,9 +554,11 @@ JSONFormatter.prototype = {
       if (messageObject)
         if (messageObject._jsonMe) {
           message.messageObjects.push(messageObject);
-          // temporarily strip the prototype to avoid JSONing the impl.
-          reProto.push([messageObject, messageObject.__proto__]);
-          messageObject.__proto__ = undefined;
+// FIXME: the commented out code should be fixed in a better way.
+// See bug 984539: find a good way to avoid JSONing the impl in log4moz
+//          // temporarily strip the prototype to avoid JSONing the impl.
+//          reProto.push([messageObject, messageObject.__proto__]);
+//          messageObject.__proto__ = undefined;
         }
         else
           message.messageObjects.push(messageObject.toString());
@@ -562,9 +567,9 @@ JSONFormatter.prototype = {
     }
     let encoded = JSON.stringify(message) + "\r\n";
     message.msgObjects = origMessageObjects;
-    for each (let [,objectAndProtoPair] in Iterator (reProto)) {
-      objectAndProtoPair[0].__proto__ = objectAndProtoPair[1];
-    }
+//    for each (let [,objectAndProtoPair] in Iterator (reProto)) {
+//      objectAndProtoPair[0].__proto__ = objectAndProtoPair[1];
+//    }
     return encoded;
   }
 };

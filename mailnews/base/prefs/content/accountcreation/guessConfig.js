@@ -264,17 +264,13 @@ function GuessAbortable(incomingHostDetector, outgoingHostDetector,
   this._outgoingHostDetector = outgoingHostDetector;
   this._updateConfig = updateConfig;
 }
-GuessAbortable.prototype =
+GuessAbortable.prototype = Object.create(Abortable.prototype);
+GuessAbortable.prototype.constructor = GuessAbortable;
+GuessAbortable.prototype.cancel = function(ex)
 {
-  cancel : function(ex)
-  {
-    this._incomingHostDetector.cancel(ex);
-    this._outgoingHostDetector.cancel(ex);
-  },
-}
-extend(GuessAbortable, Abortable);
-
-
+  this._incomingHostDetector.cancel(ex);
+  this._outgoingHostDetector.cancel(ex);
+};
 
 //////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -334,8 +330,8 @@ function CancelOthersException()
 {
   CancelledException.call(this, "we're done, cancelling the other probes");
 }
-CancelOthersException.prototype = {}
-extend(CancelOthersException, CancelledException);
+CancelOthersException.prototype = Object.create(CancelledException.prototype);
+CancelOthersException.prototype.constructor = CancelOthersException;
 
 /**
  * @param successCallback {function(result {HostTry}, alts {Array of HostTry})}
@@ -659,6 +655,7 @@ function IncomingHostDetector(
 }
 IncomingHostDetector.prototype =
 {
+  __proto__: HostDetector.prototype,
   _hostnamesToTry : function(protocol, domain)
   {
     var hostnamesToTry = [];
@@ -675,7 +672,6 @@ IncomingHostDetector.prototype =
   },
   _portsToTry : getIncomingTryOrder,
 }
-extend(IncomingHostDetector, HostDetector);
 
 function OutgoingHostDetector(
   progressCallback, successCallback, errorCallback)
@@ -684,6 +680,7 @@ function OutgoingHostDetector(
 }
 OutgoingHostDetector.prototype =
 {
+  __proto__: HostDetector.prototype,
   _hostnamesToTry : function(protocol, domain)
   {
     var hostnamesToTry = [];
@@ -694,8 +691,6 @@ OutgoingHostDetector.prototype =
   },
   _portsToTry : getOutgoingTryOrder,
 }
-extend(OutgoingHostDetector, HostDetector);
-
 
 //////////////////////////////////////////////////////////////////////////
 // Encode protocol ports and order of preference
@@ -1133,15 +1128,14 @@ function SocketAbortable(transport)
   assert(transport instanceof Ci.nsITransport, "need transport");
   this._transport = transport;
 }
-SocketAbortable.prototype =
+SocketAbortable.prototype = Object.create(Abortable.prototype);
+SocketAbortable.prototype.constructor = UserCancelledException;
+SocketAbortable.prototype.cancel = function(ex)
 {
-  cancel : function(ex)
-  {
-    try {
-      this._transport.close(Components.results.NS_ERROR_ABORT);
-    } catch (e) {
-      ddump("canceling socket failed: " + e);
-    }
+  try {
+    this._transport.close(Components.results.NS_ERROR_ABORT);
+  } catch (e) {
+    ddump("canceling socket failed: " + e);
   }
 }
-extend(SocketAbortable, Abortable);
+
