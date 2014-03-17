@@ -46,7 +46,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsMsgUtils.h"
-#ifdef MOZ_THUNDERBIRD
+#ifdef MOZILLA_INTERNAL_API
 #include "mozilla/LookAndFeel.h"
 #endif
 #include "mozilla/Services.h"
@@ -89,7 +89,7 @@
 #define NIN_BALLOONUSERCLICK (WM_USER + 5)
 #endif
 
-#ifndef MOZ_THUNDERBIRD
+#ifndef MOZILLA_INTERNAL_API
 // from LookAndFeel.h
 #define NS_ALERT_HORIZONTAL 1
 #define NS_ALERT_LEFT       2
@@ -530,7 +530,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
     NS_ENSURE_TRUE(scriptableOrigin, NS_ERROR_FAILURE);
     scriptableOrigin->SetData(0);
     int32_t origin = 0;
-#ifdef MOZ_THUNDERBIRD
+#ifdef MOZILLA_INTERNAL_API
     origin = LookAndFeel::GetInt(LookAndFeel::eIntID_AlertNotificationOrigin);
 #else
     // Get task bar window handle
