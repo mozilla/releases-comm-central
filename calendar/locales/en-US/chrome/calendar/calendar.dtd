@@ -27,8 +27,8 @@
 <!ENTITY calendar.events.filter.thisCalendarMonth.label "Events in this Calendar Month">
 
 <!-- LOCALIZATION NOTE(calendar.unifinder.tree.done.tooltip)
-  -- This label and tooltip is used for the column with the checkbox in the
-  -- task tree view. -->
+   - This label and tooltip is used for the column with the checkbox in the
+   - task tree view. -->
 <!ENTITY calendar.unifinder.tree.done.label                "Done">
 <!ENTITY calendar.unifinder.tree.done.tooltip2             "Sort by completion">
 <!ENTITY calendar.unifinder.tree.priority.label            "Priority">
