@@ -1099,6 +1099,7 @@
 </toolbaritem>
 
 <toolbaritem id="color-buttons-container"
+             align="center"
              class="formatting-button">
   <stack id="ColorButtons" align="center">
     <observes element="cmd_fontColor"       attribute="state" onbroadcast="onFontColorChange()"/>
