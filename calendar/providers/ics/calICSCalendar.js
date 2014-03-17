@@ -727,10 +727,10 @@ calICSCalendar.prototype = {
         }
 
         try {
-            var pseudoID = this.getProperty("uniquenum");
+            var pseudoID = this.getProperty("uniquenum2");
             if (!pseudoID) {
                 pseudoID = new Date().getTime();
-                this.setProperty("uniquenum", pseudoID);
+                this.setProperty("uniquenum2", pseudoID);
             }
         } catch(e) {
             // calendarmgr not found. Likely because we are running in
@@ -747,12 +747,12 @@ calICSCalendar.prototype = {
             doInitialBackup = true;
 
         var doDailyBackup = false;
-        var backupTime = this.getProperty('backup-time');
+        var backupTime = this.getProperty('backup-time2');
         if (!backupTime ||
             (new Date().getTime() > backupTime + backupDays*24*60*60*1000)) {
             // It's time do to a daily backup
             doDailyBackup = true;
-            this.setProperty('backup-time', new Date().getTime());
+            this.setProperty('backup-time2', new Date().getTime());
         }
 
         var dailyBackupFileName;

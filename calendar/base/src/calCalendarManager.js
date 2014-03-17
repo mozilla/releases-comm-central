@@ -10,6 +10,8 @@ Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 
 const REGISTRY_BRANCH = "calendar.registry.";
 const DB_SCHEMA_VERSION = 10;
+const MAX_INT = Math.pow(2, 31) - 1;
+const MIN_INT = -MAX_INT;
 
 function calCalendarManager() {
     this.wrappedJSObject = this;
@@ -306,10 +308,8 @@ calCalendarManager.prototype = {
                             break;
                         case "backup-time":
                         case "uniquenum":
-                            Preferences.set(getPrefBranchFor(id) + name, Number(value));
-                            break;
-                        case "name":
-                            Preferences.set(getPrefBranchFor(id) + name, value);
+                            // These preference names were migrated due to bug 979262.
+                            Preferences.set(getPrefBranchFor(id) + name + "2", "bignum:" + value);
                             break;
                         default: // keep as string
                             Preferences.set(getPrefBranchFor(id) + name, value);
@@ -735,11 +735,15 @@ calCalendarManager.prototype = {
         cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
 
         let branch = (getPrefBranchFor(calendar.id) + name);
+        let value = Preferences.get(branch, null);
 
-        if ( name === "name" ) {
-            return Preferences.get(branch, null);
+        if (typeof value == "string" && value.startsWith("bignum:")) {
+            let converted = Number(value.substr(7));
+            if (!isNaN(converted)) {
+                value = converted;
+            }
         }
-        return Preferences.get(branch, null);
+        return value;
     },
 
     setCalendarPref_: function(calendar, name, value) {
@@ -748,6 +752,13 @@ calCalendarManager.prototype = {
         cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
 
         let branch = (getPrefBranchFor(calendar.id) + name);
+
+        if (typeof value == "number" && (value > MAX_INT || value < MIN_INT || !Number.isInteger(value))) {
+            // This is something the preferences service can't store directly.
+            // Convert to string and tag it so we know how to handle it.
+            value = "bignum:" + value;
+        }
+
         // Delete before to allow pref-type changes, then set the pref.
         Services.prefs.deleteBranch(branch);
         Preferences.set(branch, value);

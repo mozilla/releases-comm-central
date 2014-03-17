@@ -12,6 +12,7 @@ function run_test() {
     do_get_profile();
     add_test(test_registration);
     add_test(test_calobserver);
+    add_test(test_calprefs);
     cal.getCalendarManager().startup({ onResult: function() {
         run_next_test();
     }});
@@ -186,6 +187,61 @@ function test_registration() {
     checkRegistration(false, false, false);
     do_check_eq(readOnly, true);
     checkCalendarCount(0, 0, 0);
+
+    // We are done now, start the next test
+    run_next_test();
+}
+
+function test_calprefs() {
+    let prop;
+    let calmgr = cal.getCalendarManager();
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    calmgr.registerCalendar(memory);
+    let memid = memory.id;
+
+    // First set a few values, one of each relevant type
+    memory.setProperty("stringpref", "abc");
+    memory.setProperty("boolpref", true);
+    memory.setProperty("intpref", 123);
+    memory.setProperty("bigintpref", 1394548721296);
+    memory.setProperty("floatpref", 0.5);
+
+    // Before checking the value, reinitialize the memory calendar with the
+    // same id to make sure the pref value isn't just cached
+    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    memory.id = memid;
+
+    // First test the standard types
+    prop = memory.getProperty("stringpref");
+    do_check_eq(typeof prop, "string");
+    do_check_eq(prop, "abc")
+
+    let prop = memory.getProperty("boolpref");
+    do_check_eq(typeof prop, "boolean");
+    do_check_eq(prop, true);
+
+    let prop = memory.getProperty("intpref");
+    do_check_eq(typeof prop, "number");
+    do_check_eq(prop, 123);
+
+    // These two are a special case test for bug 979262
+    let prop = memory.getProperty("bigintpref");
+    do_check_eq(typeof prop, "number");
+    do_check_eq(prop, 1394548721296);
+
+    let prop = memory.getProperty("floatpref");
+    do_check_eq(typeof prop, "number");
+    do_check_eq(prop, 0.5);
+
+    // Check if changing pref types works. We need to reset the calendar again
+    // because retrieving the value just cached it again.
+    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    memory.id = memid;
+
+    calmgr.setCalendarPref_(memory, "boolpref", "kinda true");
+    prop = memory.getProperty("boolpref");
+    do_check_eq(typeof prop, "string");
+    do_check_eq(prop, "kinda true")
 
     // We are done now, start the next test
     run_next_test();
