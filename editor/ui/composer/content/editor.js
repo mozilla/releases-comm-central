@@ -2747,12 +2747,9 @@ function UpdateStructToolbar()
 
   var toolbar = document.getElementById("structToolbar");
   if (!toolbar) return;
-  var childNodes = toolbar.childNodes;
-  // We need to leave the <label> to flex the buttons to the left
-  // so, don't remove the last child at position length - 1
-  while (childNodes.length > 1) {
-    // Remove back to front so there's less moving about.
-    childNodes.lastChild.previousSibling.remove();
+  // We need to leave the <label> to flex the buttons to the left.
+  for (let node of toolbar.querySelectorAll("toolbarbutton")) {
+    node.remove();
   }
 
   toolbar.removeAttribute("label");
