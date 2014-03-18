@@ -227,6 +227,8 @@
       <field name="ruleCache">new Object()</field>
       <field name="mCachedSheet">null</field>
 
+      <field name="mCycleCalendarFlag">new Object()</field>
+      <field name="mCycleTimer">null</field>
 
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
@@ -940,23 +942,36 @@
         <parameter name="aCol"/>
         <body><![CDATA[
           let calendar = this.getCalendar(aRow);
-          let composite = this.compositeCalendar;
+          if (this.mCycleCalendarFlag[calendar.id]) {
+              delete this.mCycleCalendarFlag[calendar.id];
+          } else {
+              this.mCycleCalendarFlag[calendar.id]=calendar;
+          }
 
-          switch (aCol.element.getAttribute("anonid")) {
-              case "checkbox-treecol":
-                try {
-                    composite.startBatch();
-                    if (composite.getCalendarById(calendar.id)) {
-                        composite.removeCalendar(calendar);
-                    } else {
-                        composite.addCalendar(calendar);
-                    }
-                } finally {
-                    composite.endBatch();
-                }
-                break;
+          if (this.mCycleTimer) {
+              clearTimeout(this.mCycleTimer);
           }
           this.treebox.invalidateRow(aRow);
+          this.mCycleTimer = setTimeout(this.cycleCellCommit.bind(this), 200);
+        ]]></body>
+      </method>
+
+      <method name="cycleCellCommit">
+        <body><![CDATA[
+          let composite = this.compositeCalendar;
+              try {
+                  composite.startBatch();
+                  for (let id in this.mCycleCalendarFlag) {
+                      if (composite.getCalendarById(id)) {
+                          composite.removeCalendar(this.mCycleCalendarFlag[id]);
+                      } else {
+                          composite.addCalendar(this.mCycleCalendarFlag[id]);
+                      }
+                      delete this.mCycleCalendarFlag[id];
+                  }
+              } finally {
+                  composite.endBatch();
+              }
         ]]></body>
       </method>
 
