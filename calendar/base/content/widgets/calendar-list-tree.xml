@@ -493,6 +493,15 @@
 
           // Adding a calendar causes the sortorder to be changed.
           this.sortOrderChanged();
+
+          // Re-assign defaultCalendar, sometimes it is not the right one after
+          // remove & add calendar.
+          if (composite.defaultCalendar && this.tree.currentIndex > -1) {
+              let currentCal = this.getCalendar(this.tree.currentIndex);
+              if (composite.defaultCalendar.id != currentCal.id) {
+                  composite.defaultCalendar = currentCal;
+              }
+          }
         ]]></body>
       </method>
 
