@@ -48,9 +48,6 @@ calCalendarManager.prototype = {
         this.mCalObservers = null;
         this.mRefreshTimer = {};
         this.setupOfflineObservers();
-        if (cal.isSunbird()) {
-            this.loginMasterPassword();
-        }
         this.mNetworkCalendarCount = 0;
         this.mReadonlyCalendarCount = 0;
         this.mCalendarCount = 0;
@@ -94,24 +91,6 @@ calCalendarManager.prototype = {
 
     cleanupOfflineObservers: function ccm_cleanupOfflineObservers() {
         Services.obs.removeObserver(this, "network:offline-status-changed");
-    },
-
-    loginMasterPassword: function ccm_loginMasterPassword() {
-        // Try to avoid the multiple master password prompts on startup scenario
-        // by prompting for the master password upfront.
-        let token = Components.classes["@mozilla.org/security/pk11tokendb;1"]
-                              .getService(Components.interfaces.nsIPK11TokenDB)
-                              .getInternalKeyToken();
-
-        // Only log in to the internal token if it is already initialized,
-        // otherwise we get a "Change Master Password" dialog.
-        try {
-            if (!token.needsUserInit) {
-                token.login(false);
-            }
-        } catch (ex) {
-            // If user cancels an exception is expected.
-        }
     },
 
     observe: function ccm_observe(aSubject, aTopic, aData) {
@@ -416,22 +395,13 @@ calCalendarManager.prototype = {
     //
 
     alertAndQuit: function cmgr_alertAndQuit() {
-        // If we're Lightning, we want to include the extension name
-        // in the error message rather than blaming Thunderbird.
-        var errorBoxTitle;
-        var errorBoxText;
-        var errorBoxButtonLabel;
+        // We want to include the extension name in the error message rather
+        // than blaming Thunderbird.
         var hostAppName = calGetString("brand", "brandShortName", null, "branding");
-        if (isSunbird()) {
-            errorBoxTitle = calGetString("calendar", "tooNewSchemaErrorBoxTitle", [hostAppName]);
-            errorBoxText = calGetString("calendar", "tooNewSchemaErrorBoxTextSunbird", [hostAppName]);
-            errorBoxButtonLabel = calGetString("calendar", "tooNewSchemaButtonQuit", [hostAppName]);
-        } else {
-            var calAppName = calGetString("lightning", "brandShortName", null, "lightning");
-            errorBoxTitle = calGetString("calendar", "tooNewSchemaErrorBoxTitle", [calAppName]);
-            errorBoxText = calGetString("calendar", "tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
-            errorBoxButtonLabel = calGetString("calendar", "tooNewSchemaButtonRestart", [hostAppName]);
-        }
+        var calAppName = calGetString("lightning", "brandShortName", null, "lightning");
+        var errorBoxTitle = calGetString("calendar", "tooNewSchemaErrorBoxTitle", [calAppName]);
+        var errorBoxText = calGetString("calendar", "tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
+        var errorBoxButtonLabel = calGetString("calendar", "tooNewSchemaButtonRestart", [hostAppName]);
 
         var promptSvc = Services.prompt;
 
@@ -449,16 +419,12 @@ calCalendarManager.prototype = {
                                          null, // No checkbox
                                          { value: false }); // Unnecessary checkbox state
 
-        if (isSunbird()) {
-            Services.startup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
-        } else {
-            // Disable Lightning
-            AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}", function getLightningExt(aAddon) {
-                aAddon.userDisabled = true;
-                Services.startup.quit(Components.interfaces.nsIAppStartup.eRestart |
-                    Components.interfaces.nsIAppStartup.eForceQuit);
-            });
-        }
+        // Disable Lightning
+        AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}", function getLightningExt(aAddon) {
+            aAddon.userDisabled = true;
+            Services.startup.quit(Components.interfaces.nsIAppStartup.eRestart |
+                Components.interfaces.nsIAppStartup.eForceQuit);
+        });
     },
 
     /**

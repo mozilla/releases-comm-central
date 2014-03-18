@@ -24,17 +24,15 @@ var gMigrateWizard = {
         //XXX Once we have branding for lightning, this hack can go away
         var props = Services.strings.createBundle("chrome://calendar/locale/migration.properties");
 
-        if (!cal.isSunbird()) {
-            var wizard = document.getElementById("migration-wizard");
-            var desc = document.getElementById("wizard-desc");
-            // Since we don't translate "Lightning"...
-            wizard.title = props.formatStringFromName("migrationTitle",
+        var wizard = document.getElementById("migration-wizard");
+        var desc = document.getElementById("wizard-desc");
+        // Since we don't translate "Lightning"...
+        wizard.title = props.formatStringFromName("migrationTitle",
+                                                  ["Lightning"],
+                                                  1);
+        desc.textContent = props.formatStringFromName("migrationDescription",
                                                       ["Lightning"],
                                                       1);
-            desc.textContent = props.formatStringFromName("migrationDescription",
-                                                          ["Lightning"],
-                                                          1);
-        }
 
         migLOG("migrators: " + window.arguments.length);
         for each (var migrator in window.arguments[0]) {
@@ -295,12 +293,7 @@ var gDataMigrator = {
         profileDir.append("Calendar");
         if (profileDir.exists()) {
             migLOG("Found old extension directory in current app");
-            var title;
-            if (!cal.isSunbird()) {
-                title = "Mozilla Calendar Extension";
-            } else {
-                title = "Sunbird 0.2";
-            }
+            let title = "Mozilla Calendar Extension";
             migrators.push(new dataMigrator(title, extMigrator, [profileDir]));
         }
 
@@ -313,16 +306,9 @@ var gDataMigrator = {
             profiles.push(ffProf);
         }
 
-        if (!cal.isSunbird()) {
-            // If we're lightning, check Sunbird
-            if ((sbProf = this.getSunbirdProfile())) {
-                profiles.push(sbProf);
-            }
-        } else {
-            // Otherwise, check Thunderbird
-            if ((tbProf = this.getThunderbirdProfile())) {
-                profiles.push(tbProf);
-            }
+        // We're lightning, check Sunbird
+        if ((sbProf = this.getSunbirdProfile())) {
+            profiles.push(sbProf);
         }
 
         // Now check all of the profiles in each of these folders for data
@@ -419,27 +405,15 @@ var gDataMigrator = {
         }
         var profileDir = this.dirService.get("ProfD", Components.interfaces.nsILocalFile);
         var icalSpec = profileDir.path;
-        var icalFile;
-        if (cal.isSunbird()) {
-            var diverge = icalSpec.indexOf("Sunbird");
-            if (diverge == -1) {
-                return [];
-            }
-            icalSpec = icalSpec.substr(0, diverge);
-            icalFile = Components.classes["@mozilla.org/file/local;1"]
-                       .createInstance(Components.interfaces.nsILocalFile);
-            icalFile.initWithPath(icalSpec);
-        } else {
-            var diverge = icalSpec.indexOf("Thunderbird");
-            if (diverge == -1) {
-                return [];
-            }
-            icalSpec = icalSpec.substr(0, diverge);
-            icalFile = Components.classes["@mozilla.org/file/local;1"]
-                       .createInstance(Components.interfaces.nsILocalFile);
-            icalFile.initWithPath(icalSpec);
-            icalFile.append("Application Support");
+        var diverge = icalSpec.indexOf("Thunderbird");
+        if (diverge == -1) {
+            return [];
         }
+        icalSpec = icalSpec.substr(0, diverge);
+        var icalFile = Components.classes["@mozilla.org/file/local;1"]
+                   .createInstance(Components.interfaces.nsILocalFile);
+        icalFile.initWithPath(icalSpec);
+        icalFile.append("Application Support");
 
         icalFile.append("iCal");
         if (icalFile.exists()) {
@@ -623,27 +597,9 @@ var gDataMigrator = {
      * @see getFirefoxProfile
      */
     getThunderbirdProfile: function gdm_getTB() {
-        var localFile;
-        var profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsILocalFile);
-        migLOG("profileRoot = " + profileRoot.path);
-        if (!cal.isSunbird()) {
-            localFile = profileRoot;
-        } else {
-            // Now it gets ugly
-            switch (this.mPlatform) {
-                case "darwin": // Mac OS X
-                case "winnt":
-                    localFile = profileRoot.parent.parent.parent;
-                    localFile.append("Thunderbird");
-                    localFile.append("Profiles");
-                    break;
-                default: // Unix
-                    localFile = profileRoot.parent.parent;
-                    localFile.append(".thunderbird");
-            }
-        }
-        migLOG("searching for Thunderbird in " + localFile.path);
-        return localFile.exists() ? localFile : null;
+        let profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsILocalFile);
+        migLOG("searching for Thunderbird in " + profileRoot.path);
+        return profileRoot.exists() ? profileRoot : null;
     },
 
     /**
@@ -662,41 +618,24 @@ var gDataMigrator = {
         var profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsILocalFile);
         migLOG("profileRoot = " + profileRoot.path);
 
-        if (!cal.isSunbird()) {  // We're in Thunderbird
-            switch (this.mPlatform) {
-                case "darwin": // Mac OS X
-                    localFile = profileRoot.parent.parent;
-                    localFile.append("Application Support");
-                    localFile.append(aAppName);
-                    localFile.append("Profiles");
-                    break;
-                case "winnt":
-                    localFile = profileRoot.parent.parent;
-                    localFile.append("Mozilla");
-                    localFile.append(aAppName);
-                    localFile.append("Profiles");
-                    break;
-                default: // Unix
-                    localFile = profileRoot.parent;
-                    localFile.append(".mozilla");
-                    localFile.append(aAppName.toLowerCase());
-                    break;
-            }
-        } else {
-            switch (this.mPlatform) {
-                // On Mac and Windows, we can just remove the "Sunbird" and
-                // replace it with "Firefox" to get to Firefox
-                case "darwin": // Mac OS X
-                case "winnt":
-                    localFile = profileRoot.parent.parent;
-                    localFile.append(aAppName);
-                    localFile.append("Profiles");
-                    break;
-                default: // Unix
-                    localFile = profileRoot.parent;
-                    localFile.append(aAppName.toLowerCase());
-                    break;
-            }
+        switch (this.mPlatform) {
+            case "darwin": // Mac OS X
+                localFile = profileRoot.parent.parent;
+                localFile.append("Application Support");
+                localFile.append(aAppName);
+                localFile.append("Profiles");
+                break;
+            case "winnt":
+                localFile = profileRoot.parent.parent;
+                localFile.append("Mozilla");
+                localFile.append(aAppName);
+                localFile.append("Profiles");
+                break;
+            default: // Unix
+                localFile = profileRoot.parent;
+                localFile.append(".mozilla");
+                localFile.append(aAppName.toLowerCase());
+                break;
         }
         migLOG("searching for " + aAppName + " in " + localFile.path);
         return localFile.exists() ? localFile : null;

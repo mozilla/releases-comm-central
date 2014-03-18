@@ -36,20 +36,19 @@ function changeContextMenuForTask(aEvent) {
     handleTaskContextMenuStateChange(aEvent);
 
     let idnode = document.popupNode.id;
-    let sunbird = cal.isSunbird();
     let items = getSelectedTasks(aEvent);
     document.getElementById("task-context-menu-new").hidden =
-        (idnode == "unifinder-todo-tree" && !sunbird);
+        (idnode == "unifinder-todo-tree");
     document.getElementById("task-context-menu-modify").hidden =
-        (idnode == "unifinder-todo-tree" && !sunbird);
+        (idnode == "unifinder-todo-tree");
     document.getElementById("task-context-menu-new-todaypane").hidden =
-        (idnode == "calendar-task-tree" || sunbird);
+        (idnode == "calendar-task-tree");
     document.getElementById("task-context-menu-modify-todaypane").hidden =
-        (idnode == "calendar-task-tree" || sunbird);
+        (idnode == "calendar-task-tree");
     document.getElementById("task-context-menu-filter-todaypane").hidden =
-        (idnode == "calendar-task-tree" || sunbird);
+        (idnode == "calendar-task-tree");
     document.getElementById("task-context-menu-separator-filter").hidden =
-        (idnode == "calendar-task-tree" || sunbird);
+        (idnode == "calendar-task-tree");
 
     let tasksSelected = (items.length > 0);
     applyAttributeToMenuChildren(aEvent.target, "disabled", (!tasksSelected));

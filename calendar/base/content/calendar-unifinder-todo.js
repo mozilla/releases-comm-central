@@ -6,10 +6,6 @@
  * Called when the window is loaded to set up the unifinder-todo.
  */
 function prepareCalendarToDoUnifinder() {
-    if (isSunbird()) {
-        document.getElementById("todo-label").removeAttribute("collapsed");
-    }
-
     // add listener to update the date filters
     getViewDeck().addEventListener("dayselect", updateCalendarToDoUnifinder, false);
 

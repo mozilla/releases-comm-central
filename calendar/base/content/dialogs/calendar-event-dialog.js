@@ -1112,20 +1112,15 @@ function updateTitle() {
  *
  * TODO We can use general rules here, i.e
  *      dialog[itemType="task"] .event-only,
- *      dialog[itemType="event"] .task-only,
- *      dialog:not([product="lightning"]) .lightning-only {
+ *      dialog[itemType="event"] .task-only {
  *          display: none;
  *      }
- */
+*/
 function updateStyle() {
     const kDialogStylesheet = "chrome://calendar/skin/calendar-event-dialog.css";
 
     for each (let stylesheet in document.styleSheets) {
         if (stylesheet.href == kDialogStylesheet) {
-            if (cal.isSunbird()) {
-                stylesheet.insertRule(".lightning-only { display: none; }",
-                                      stylesheet.cssRules.length);
-            }
             if (cal.isEvent(window.calendarItem)) {
                 stylesheet.insertRule(".todo-only { display: none; }",
                                       stylesheet.cssRules.length);
@@ -2964,23 +2959,16 @@ function onCommandCustomize() {
     document.getElementById("cmd_customize").setAttribute("disabled", "true");
 
     var id = "event-toolbox";
-    if (isSunbird()) {
-        window.openDialog("chrome://global/content/customizeToolbar.xul",
-                          "CustomizeToolbar",
-                          "chrome,all,dependent",
-                          document.getElementById(id));
-    } else {
-        var wintype = document.documentElement.getAttribute("windowtype");
-        wintype = wintype.replace(/:/g, "");
+    var wintype = document.documentElement.getAttribute("windowtype");
+    wintype = wintype.replace(/:/g, "");
 
-        window.openDialog("chrome://global/content/customizeToolbar.xul",
-                          "CustomizeToolbar" + wintype,
-                          "chrome,all,dependent",
-                          document.getElementById(id), // toolbar dom node
-                          false,                       // is mode toolbar yes/no?
-                          null,                        // callback function
-                          "dialog");                   // name of this mode
-    }
+    window.openDialog("chrome://global/content/customizeToolbar.xul",
+                      "CustomizeToolbar" + wintype,
+                      "chrome,all,dependent",
+                      document.getElementById(id), // toolbar dom node
+                      false,                       // is mode toolbar yes/no?
+                      null,                        // callback function
+                      "dialog");                   // name of this mode
 }
 
 /**

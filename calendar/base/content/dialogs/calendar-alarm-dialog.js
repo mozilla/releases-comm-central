@@ -65,7 +65,7 @@ function onDismissAllAlarms() {
 
 /**
  * Event handler fired when the alarm widget's "Details..." label was clicked.
- * Open the event dialog in the most recent Sunbird or Thunderbird window
+ * Open the event dialog in the most recent Thunderbird window.
  *
  * @param event     The itemdetails event.
  */

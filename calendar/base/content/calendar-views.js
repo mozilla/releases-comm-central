@@ -241,22 +241,6 @@ var calendarViewController = {
 };
 
 /**
- * This function provides a neutral way to switch between views.
- *
- * @param aType     The type of view to select.
- * @param aShow     If true, the calendar view is forced to be shown, i.e.
- *                    bringing the view to the front if the application is
- *                    showing other elements (Lightning).
- */
-function switchCalendarView(aType, aShow) {
-    if (cal.isSunbird()) {
-        sbSwitchToView(aType);
-    } else {
-        ltnSwitchCalendarView(aType, aShow);
-    }
-}
-
-/**
  * This function does the common steps to switch between views. Should be called
  * from app-specific view switching functions
  *

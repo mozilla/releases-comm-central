@@ -4,7 +4,7 @@ def test(mod, path, entity = None):
 
   # ignore anyhting but calendar stuff
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
-                 "calendar", "other-licenses/branding/sunbird"):
+                 "calendar"):
     return False
 
   # Timezone properties don't have to be translated
@@ -19,10 +19,6 @@ def test(mod, path, entity = None):
   if path == "chrome/calendar/calendar-extract.properties":
     if not re.match(r"from.today", entity):
       return "report"
-
-  # Sunbird specific strings don't need translation
-  if path.startswith("chrome/sunbird/"):
-    return False
 
   # Everything else should be taken into account
   return True

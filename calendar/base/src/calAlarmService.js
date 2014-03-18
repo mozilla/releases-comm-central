@@ -269,7 +269,7 @@ calAlarmService.prototype = {
                 if (!this.alarmService.mRangeEnd) {
                     // This is our first search for alarms.  We're going to look for
                     // alarms +/- 1 month from now.  If someone sets an alarm more than
-                    // a month ahead of an event, or doesn't start Sunbird/Lightning
+                    // a month ahead of an event, or doesn't start Lightning
                     // for a month, they'll miss some, but that's a slim chance
                     start = now.clone();
                     start.month -= 1;
@@ -580,7 +580,7 @@ calAlarmService.prototype = {
 
         // Total refresh similar to startup.  We're going to look for
         // alarms +/- 1 month from now.  If someone sets an alarm more than
-        // a month ahead of an event, or doesn't start Sunbird/Lightning
+        // a month ahead of an event, or doesn't start Lightning
         // for a month, they'll miss some, but that's a slim chance
         let start = nowUTC();
         let until = start.clone();

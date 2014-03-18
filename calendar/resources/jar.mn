@@ -5,7 +5,6 @@
 
 calendar.jar:
 % content calendar %content/calendar/
-    content/calendar/calendar.js                           (content/calendar.js)
     content/calendar/calendarCreation.xul                  (content/calendarCreation.xul)
     content/calendar/calendarCreation.js                   (content/calendarCreation.js)
     content/calendar/publish.js                            (content/publish.js)

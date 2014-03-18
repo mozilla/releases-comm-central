@@ -225,7 +225,7 @@ function refreshUIBits() {
  * @param aShow     If true, the mode will be switched to calendar if not
  *                    already there.
  */
-function ltnSwitchCalendarView(aType, aShow) {
+function switchCalendarView(aType, aShow) {
     gLastShownCalendarView = aType;
 
     if (aShow && gCurrentMode != "calendar") {

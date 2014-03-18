@@ -238,9 +238,6 @@ var calendarController = {
                         }
                     }
 
-                    // If calendar is not in foreground, let the default controller take
-                    // care. If we don't have a default controller (i.e sunbird), just
-                    // continue.
                     if (this.defaultController.supportsCommand(aCommand)) {
                         return this.defaultController.isCommandEnabled(aCommand);
                     }
@@ -419,8 +416,7 @@ var calendarController = {
             default:
                 if (this.defaultController && !this.isCalendarInForeground()) {
                     // If calendar is not in foreground, let the default controller take
-                    // care. If we don't have a default controller (i.e sunbird), just
-                    // continue.
+                    // care. If we don't have a default controller, just continue.
                     this.defaultController.doCommand(aCommand);
                     return;
                 }
@@ -433,9 +429,7 @@ var calendarController = {
     },
 
     isCalendarInForeground: function cC_isCalendarInForeground() {
-        // For sunbird, calendar is always in foreground. Otherwise check if
-        // we are in the correct mode.
-        return isSunbird() || (gCurrentMode && gCurrentMode != "mail");
+        return gCurrentMode && gCurrentMode != "mail";
     },
 
     isInMode: function cC_isInMode(mode) {
@@ -443,9 +437,9 @@ var calendarController = {
             case "mail":
                 return !isCalendarInForeground();
             case "calendar":
-                return isSunbird() || (gCurrentMode && gCurrentMode == "calendar");
+                return gCurrentMode && gCurrentMode == "calendar";
             case "task":
-                return !isSunbird() && (gCurrentMode && gCurrentMode == "task");
+                return gCurrentMode && gCurrentMode == "task";
         }
         return false;
     },
@@ -495,9 +489,7 @@ var calendarController = {
 
         calendarController.updateCommands();
         calendarController2.updateCommands();
-        if(!isSunbird()) {
-            document.commandDispatcher.updateCommands('mail-toolbar');
-        }
+        document.commandDispatcher.updateCommands('mail-toolbar');
     },
 
     /**
@@ -712,7 +704,6 @@ var calendarController2 = {
 
     doCommand: function doCommand(aCommand) {
         switch (aCommand) {
-            // These commands are overridden in lightning and native in sunbird.
             case "cmd_cut":
                 cutToClipboard();
                 break;
@@ -770,29 +761,21 @@ var calendarController2 = {
  * controller.
  */
 function injectCalendarCommandController() {
-    if (!isSunbird()) {
-        // We need to put our new command controller *before* the one that
-        // gets installed by thunderbird. Since we get called pretty early
-        // during startup we need to install the function below as a callback
-        // that periodically checks when the original thunderbird controller
-        // gets alive. Please note that setTimeout with a value of 0 means that
-        // we leave the current thread in order to re-enter the message loop.
+    // We need to put our new command controller *before* the one that
+    // gets installed by thunderbird. Since we get called pretty early
+    // during startup we need to install the function below as a callback
+    // that periodically checks when the original thunderbird controller
+    // gets alive. Please note that setTimeout with a value of 0 means that
+    // we leave the current thread in order to re-enter the message loop.
 
-        let tbController = top.controllers.getControllerForCommand("cmd_runJunkControls");
-        if (!tbController) {
-            setTimeout(injectCalendarCommandController, 0);
-            return;
-        } else {
-            calendarController.defaultController = tbController;
-        }
+    let tbController = top.controllers.getControllerForCommand("cmd_runJunkControls");
+    if (tbController) {
+        calendarController.defaultController = tbController;
+        top.controllers.insertControllerAt(0, calendarController);
+        document.commandDispatcher.updateCommands("calendar_commands");
     } else {
-        // On Sunbird, we also need to set up our hacky command controller.
-        top.controllers.insertControllerAt(0, calendarController2);
+        setTimeout(injectCalendarCommandController, 0);
     }
-
-    // This needs to be done for all applications
-    top.controllers.insertControllerAt(0, calendarController);
-    document.commandDispatcher.updateCommands("calendar_commands");
 }
 
 /**
@@ -849,13 +832,13 @@ function setupContextItemType(event, items) {
  * @param aNewDate      The new date as a JSDate.
  */
 function minimonthPick(aNewDate) {
-  if (cal.isSunbird() || gCurrentMode == "calendar" || gCurrentMode == "task") {
+  if (gCurrentMode == "calendar" || gCurrentMode == "task") {
       let cdt = cal.jsDateToDateTime(aNewDate, currentView().timezone);
       cdt.isDate = true;
       currentView().goToDay(cdt);
 
       // update date filter for task tree
-      let tree = document.getElementById(cal.isSunbird() ? "unifinder-todo-tree" : "calendar-task-tree");
+      let tree = document.getElementById("calendar-task-tree");
       tree.updateFilter();
   }
 }

@@ -249,9 +249,6 @@ cal.getImipTransport = function calGetImipTransport(aCalendar) {
  */
 cal.getEmailIdentityOfCalendar = function calGetEmailIdentityOfCalendar(aCalendar, outAccount) {
     cal.ASSERT(aCalendar, "no calendar!", Components.results.NS_ERROR_INVALID_ARG);
-    if (cal.isSunbird()) {
-        return null;
-    }
     let key = aCalendar.getProperty("imip.identity.key");
     if (key !== null) {
         if (key.length == 0) { // i.e. "None"
