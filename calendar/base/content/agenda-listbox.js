@@ -567,7 +567,9 @@ function createNewEvent(aEvent) {
         // isDate = true automatically makes the start time be the next full hour.
         var eventStart = agendaListbox.today.start.clone();
         eventStart.isDate = true;
-        createEventWithDialog(getSelectedCalendar(), eventStart);
+        if (calendarController.isCommandEnabled("calendar_new_event_command")) {
+            createEventWithDialog(getSelectedCalendar(), eventStart);
+        }
     }
 }
 
