@@ -54,6 +54,9 @@
             <preference id="calendar.alarms.todoalarmunit"
                         name="calendar.alarms.todoalarmunit"
                         type="string"/>
+            <preference id="calendar.alarms.defaultsnoozelength"
+                        name="calendar.alarms.defaultsnoozelength"
+                        type="int"/>
 <!--
             <preference id="calendar.alarms.emailaddress"
                         name="calendar.alarms.emailaddress"
@@ -115,6 +118,20 @@
                     <column/>
                 </columns>
                 <rows>
+                    <row align="center">
+                        <label value="&pref.defaultsnoozelength.label;"
+                               accesskey="&pref.defaultsnoozelength.accesskey;"
+                               control="defaultsnoozelength"/>
+                        <hbox align="center">
+                            <textbox id="defaultsnoozelength"
+                                     preference="calendar.alarms.defaultsnoozelength"
+                                     type="number"
+                                     min="0"
+                                     maxlength="4"
+                                     size="3"/>
+                            <label value="&calendar.global.units.minutes;"/>
+                        </hbox>
+                    </row>
                     <row align="center">
                         <label value="&pref.defalarm4events.label;"
                                accesskey="&pref.defalarm4events.accesskey;"

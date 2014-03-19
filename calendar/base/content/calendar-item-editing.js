@@ -20,6 +20,195 @@ function disposeJob(job) {
 }
 
 /**
+ * Sets the default values for new items, taking values from either the passed
+ * parameters or the preferences
+ *
+ * @param aItem         The item to set up
+ * @param aCalendar     (optional) The calendar to apply.
+ * @param aStartDate    (optional) The start date to set.
+ * @param aEndDate      (optional) The end date/due date to set.
+ * @param aInitialDate  (optional) The reference date for the date pickers
+ * @param aForceAllday  (optional) Force the event/task to be an allday item.
+ */
+function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=null, aInitialDate=null, aForceAllday=false) {
+    function endOfDay(aDate) {
+        let eod = aDate ? aDate.clone() : cal.now();
+        eod.hour = Preferences.get("calendar.view.dayendhour", 19);
+        eod.minute = 0;
+        eod.second = 0;
+        return eod;
+    }
+    function startOfDay(aDate) {
+        let sod = aDate ? aDate.clone() : cal.now();
+        sod.hour = Preferences.get("calendar.view.daystarthour", 8);
+        sod.minute = 0;
+        sod.second = 0;
+        return sod;
+    }
+
+    let initialDate = aInitialDate ? aInitialDate.clone() : cal.now();
+    initialDate.isDate = true;
+
+    if (cal.isEvent(aItem)) {
+        if (aStartDate) {
+            aItem.startDate = aStartDate.clone();
+            if (aStartDate.isDate && !aForceAllday) {
+                // This is a special case where the date is specified, but the
+                // time is not. To take care, we setup up the time to our
+                // default event start time.
+                aItem.startDate = cal.getDefaultStartDate(aItem.startDate);
+            } else if (aForceAllday) {
+                // If the event should be forced to be allday, then don't set up
+                // any default hours and directly make it allday.
+                aItem.startDate.isDate = true;
+                aItem.startDate.timezone = cal.floating();
+            }
+        } else {
+            // If no start date was passed, then default to the next full hour
+            // of today, but with the date of the selected day
+            aItem.startDate = cal.getDefaultStartDate(initialDate);
+        }
+
+        if (aEndDate) {
+            aItem.endDate = aEndDate.clone();
+            if (aForceAllday) {
+                // XXX it is currently not specified, how callers that force all
+                // day should pass the end date. Right now, they should make
+                // sure that the end date is 00:00:00 of the day after.
+                aItem.endDate.isDate = true;
+                aItem.endDate.timezone = cal.floating();
+            }
+        } else {
+            aItem.endDate = aItem.startDate.clone();
+            if (!aForceAllday) {
+                // If the event is not all day, then add the default event
+                // length.
+                aItem.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
+            } else {
+                // All day events need to go to the beginning of the next day.
+                aItem.endDate.day++;
+            }
+        }
+    } else if (cal.isToDo(aItem)) {
+        let now = cal.now();
+        let initDate = initialDate ? initialDate.clone() : now;
+        initDate.isDate = false;
+        initDate.hour = now.hour;
+        initDate.minute = now.minute;
+        initDate.second = now.second;
+
+        if (aStartDate) {
+            aItem.entryDate = aStartDate.clone();
+        } else {
+            let defaultStart = Preferences.get("calendar.task.defaultstart", "none");
+            if (Preferences.get("calendar.alarms.onfortodos", 0) == 1 && defaultStart == "none") {
+                // start date is required if we want to set an alarm
+                defaultStart = "offsetcurrent";
+            }
+
+            let units = Preferences.get("calendar.task.defaultstartoffsetunits", "minutes");
+            if (["days", "hours", "minutes"].indexOf(units) < 0) {
+                units = "minutes";
+            }
+            let startOffset = cal.createDuration();
+            startOffset[units] = Preferences.get("calendar.task.defaultstartoffset", 0);
+            let start;
+
+            switch (defaultStart) {
+                case "none":
+                    break;
+                case "startofday":
+                    start = startOfDay(initDate);
+                    break;
+                case "tomorrow":
+                    start = startOfDay(initDate);
+                    start.day++;
+                    break;
+                case "nextweek":
+                    start = startOfDay(initDate);
+                    start.day += 7;
+                    break;
+                case "offsetcurrent":
+                    start = initDate.clone();
+                    start.addDuration(startOffset);
+                    break;
+                case "offsetnexthour":
+                    start = initDate.clone();
+                    start.minute = 0;
+                    start.hour++;
+                    start.addDuration(startOffset);
+                    break;
+            }
+
+            if (start) {
+                aItem.entryDate = start;
+            }
+        }
+
+        if (aEndDate) {
+            aItem.dueDate = aEndDate.clone();
+        } else {
+            let defaultDue = Preferences.get("calendar.task.defaultdue", "none");
+
+            let units = Preferences.get("calendar.task.defaultdueoffsetunits", "minutes");
+            if (["days", "hours", "minutes"].indexOf(units) < 0) {
+                units = "minutes";
+            }
+            let dueOffset = cal.createDuration();
+            dueOffset[units] = Preferences.get("calendar.task.defaultdueoffset", 0);
+
+            let start = aItem.entryDate ? aItem.entryDate.clone() : initDate.clone();
+            let due;
+
+            switch (defaultDue) {
+                case "none":
+                    break;
+                case "endofday":
+                    due = endOfDay(start);
+                    // go to tomorrow if we're past the end of today
+                    if (start.compare(due) > 0) {
+                        due.day++;
+                    }
+                    break;
+                case "tomorrow":
+                    due = endOfDay(start);
+                    due.day++;
+                    break;
+                case "nextweek":
+                    due = endOfDay(start);
+                    due.day += 7;
+                    break;
+                case "offsetcurrent":
+                    due = start.clone();
+                    due.addDuration(dueOffset);
+                    break;
+                case "offsetnexthour":
+                    due = start.clone();
+                    due.minute = 0;
+                    due.hour++;
+                    due.addDuration(dueOffset);
+                    break;
+            }
+
+            if (aItem.entryDate && due && aItem.entryDate.compare(due) > 0) {
+                // due can't be earlier than start date.
+                due = aItem.entryDate;
+            }
+
+            if (due) {
+                aItem.dueDate = due;
+            }
+        }
+    }
+
+    // Calendar
+    aItem.calendar = aCalendar || getSelectedCalendar();
+
+    // Alarms
+    cal.alarms.setDefaultValues(aItem);
+}
+
+/**
  * Creates an event with the calendar event dialog.
  *
  * @param calendar      (optional) The calendar to create the event in
@@ -67,56 +256,13 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
             event.calendar = calendar || getSelectedCalendar();
         }
     } else {
-        event = createEvent();
+        event = cal.createEvent();
 
-        if (startDate) {
-            event.startDate = startDate.clone();
-            if (startDate.isDate && !aForceAllday) {
-                // This is a special case where the date is specified, but the
-                // time is not. To take care, we setup up the time to our
-                // default event start time.
-                event.startDate = getDefaultStartDate(event.startDate);
-            } else if (aForceAllday) {
-                // If the event should be forced to be allday, then don't set up
-                // any default hours and directly make it allday.
-                event.startDate.isDate = true;
-                event.startDate.timezone = floating();
-            }
-        } else {
-            // If no start date was passed, then default to the next full hour
-            // of today, but with the date of the selected day
-            var refDate = currentView().initialized && currentView().selectedDay.clone();
-            event.startDate = getDefaultStartDate(refDate);
-        }
-
-        if (endDate) {
-            event.endDate = endDate.clone();
-            if (aForceAllday) {
-                // XXX it is currently not specified, how callers that force all
-                // day should pass the end date. Right now, they should make
-                // sure that the end date is 00:00:00 of the day after.
-                event.endDate.isDate = true;
-                event.endDate.timezone = floating();
-            }
-        } else {
-            event.endDate = event.startDate.clone();
-            if (!aForceAllday) {
-                // If the event is not all day, then add the default event
-                // length.
-                event.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
-            } else {
-                // All day events need to go to the beginning of the next day.
-                event.endDate.day++;
-            }
-        }
-
-        event.calendar = calendar || getSelectedCalendar();
-
+        let refDate = currentView().initialized && currentView().selectedDay.clone();
+        setDefaultItemValues(event, calendar, startDate, endDate, refDate, aForceAllday);
         if (summary) {
             event.title = summary;
         }
-
-        cal.alarms.setDefaultValues(event);
     }
     openEventDialog(event, calendar, "new", onNewEvent, null);
 }
@@ -157,22 +303,12 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
             todo.calendar = calendar || getSelectedCalendar();
         }
     } else {
-        todo = createTodo();
-        todo.calendar = calendar || getSelectedCalendar();
+        todo = cal.createTodo();
+        setDefaultItemValues(todo, calendar, null, dueDate, initialDate);
 
-        if (summary)
+        if (summary) {
             todo.title = summary;
-
-        if (dueDate)
-            todo.dueDate = dueDate;
-
-        if (Preferences.get("calendar.alarms.onfortodos", 0) == 1 &&
-            !todo.entryDate) {
-            // the todo must have an entry date if we want to set an alarm
-            todo.entryDate = initialDate;
         }
-
-        cal.alarms.setDefaultValues(todo);
     }
 
     openEventDialog(todo, calendar, "new", onNewItem, null, initialDate);

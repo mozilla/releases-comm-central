@@ -431,9 +431,9 @@ function updateMenuLabels(lengthFieldId, menuId ) {
 
     // XXX This assumes that "0 days, minutes, etc." is plural in other languages.
     if ( (Number(length) == 0) || (Number(length) > 1) ) {
-        newLabelNumber = "label2"
+        newLabelNumber = "labelplural"
     } else {
-        newLabelNumber = "label1"
+        newLabelNumber = "labelsingular"
     }
 
     // see what we currently show and change it if required

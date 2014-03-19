@@ -33,3 +33,6 @@
 <!ENTITY pref.defalarmlen4todos.accesskey "o">
 <!ENTITY pref.defaultemail.label "Default address to send reminders to:">
 <!ENTITY pref.defaulttext.label "Default text for reminders :">
+
+<!ENTITY pref.defaultsnoozelength.label "Default Snooze Length:" >
+<!ENTITY pref.defaultsnoozelength.accesskey "S">

@@ -125,13 +125,13 @@ var taskEdit = {
      */
     onKeyPress: function tE_onKeyPress(aEvent) {
         if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) {
-            var edit = aEvent.target;
+            let edit = aEvent.target;
             if (edit.value && edit.value.length > 0) {
-                var item = createTodo();
-                item.calendar = getSelectedCalendar();
+                let item = cal.createTodo();
+                setDefaultItemValues(item);
                 item.title = edit.value;
+
                 edit.value = "";
-                cal.alarms.setDefaultValues(item);
                 doTransaction('add', item, item.calendar, null, null);
             }
         }

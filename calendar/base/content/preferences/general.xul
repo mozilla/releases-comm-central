@@ -6,8 +6,10 @@
 <!DOCTYPE overlay [
     <!ENTITY % generalDTD SYSTEM "chrome://calendar/locale/preferences/general.dtd">
     <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
+    <!ENTITY % eventDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
     %generalDTD;
     %globalDTD;
+    %eventDTD;
 ]>
 
 <overlay id="CalendarGeneralPaneOverlay"
@@ -32,9 +34,24 @@
             <preference id="calendar.event.defaultlength"
                         name="calendar.event.defaultlength"
                         type="int"/>
-            <preference id="calendar.alarms.defaultsnoozelength"
-                        name="calendar.alarms.defaultsnoozelength"
+            <preference id="calendar.task.defaultstart"
+                        name="calendar.task.defaultstart"
+                        type="string"/>
+            <preference id="calendar.task.defaultstartoffset"
+                        name="calendar.task.defaultstartoffset"
                         type="int"/>
+            <preference id="calendar.task.defaultstartoffsetunits"
+                        name="calendar.task.defaultstartoffsetunits"
+                        type="string"/>
+            <preference id="calendar.task.defaultdue"
+                        name="calendar.task.defaultdue"
+                        type="string"/>
+            <preference id="calendar.task.defaultdueoffset"
+                        name="calendar.task.defaultdueoffset"
+                        type="int"/>
+            <preference id="calendar.task.defaultdueoffsetunits"
+                        name="calendar.task.defaultdueoffsetunits"
+                        type="string"/>
             <preference id="calendar.view.useSystemColors"
                         name="calendar.view.useSystemColors"
                         type="bool"/>
@@ -58,33 +75,6 @@
                     </menupopup>
                 </menulist>
             </hbox>
-
-            <hbox align="center">
-                <label value="&pref.defaultlength.label;"
-                       accesskey="&pref.defaultlength.accesskey;"
-                       control="defaultlength"/>
-                <textbox id="defaultlength"
-                         preference="calendar.event.defaultlength"
-                         type="number"
-                         min="0"
-                         maxlength="3"
-                         size="3"/>
-                <label value="&calendar.global.units.minutes;"/>
-            </hbox>
-
-            <hbox align="center">
-                <label value="&pref.defaultsnoozelength.label;"
-                       accesskey="&pref.defaultsnoozelength.accesskey;"
-                       control="defaultsnoozelength"/>
-                <textbox id="defaultsnoozelength"
-                         preference="calendar.alarms.defaultsnoozelength"
-                         type="number"
-                         min="0"
-                         maxlength="4"
-                         size="3"/>
-                <label value="&calendar.global.units.minutes;"/>
-            </hbox>
-
         </groupbox>
 
 #ifndef XP_MACOSX
@@ -99,5 +89,175 @@
         </groupbox>
 #endif
 
+        <groupbox id="defaults-itemtype-groupbox">
+            <caption id="defaults-itemtype-caption" label="&pref.defaults.label;"/>
+            <menulist id="defaults-itemtype-menulist" oncommand="gCalendarGeneralPane.updateItemtypeDeck()">
+                <menupopup id="defaults-itemtype-menupopup">
+                    <menuitem id="defaults-itemtype-event"
+                              label="&pref.events.label;"
+                              value="defaults-event-grid"/>
+                    <menuitem id="defaults-itemtype-task"
+                              label="&pref.tasks.label;"
+                              value="defaults-task-grid"/>
+                </menupopup>
+            </menulist>
+            <deck id="defaults-itemtype-deck">
+                <grid id="defaults-event-grid">
+                    <columns id="defaults-event-grid-columns">
+                        <column id="defaults-event-grid-label-column" flex="1"/>
+                        <column id="defaults-event-grid-value-column"/>
+                    </columns>
+                    <rows id="defaults-event-grid-rows">
+                        <row align="center">
+                            <label value="&pref.default_event_length.label;"
+                                   accesskey="&pref.default_event_length.accesskey;"
+                                   control="defaultlength"/>
+                            <textbox id="defaultlength"
+                                     preference="calendar.event.defaultlength"
+                                     type="number"
+                                     min="0"
+                                     maxlength="3"
+                                     size="3"/>
+                            <label value="&calendar.global.units.minutes;"/>
+                        </row>
+                    </rows>
+                </grid>
+                <grid id="defaults-task-grid">
+                    <columns id="defaults-task-grid-columns">
+                        <column id="defaults-task-grid-label-column" flex="1"/>
+                        <column id="defaults-task-grid-value-column"/>
+                        <column id="defaults-task-grid-offset-column"/>
+                    </columns>
+                    <rows id="defaults-task-grid-rows">
+                        <row align="center">
+                            <label value="&read.only.task.start.label;"
+                                   control="default_task_start"/>
+                            <menulist id="default_task_start"
+                                        crop="none"
+                                        oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
+                                        preference="calendar.task.defaultstart">
+                                <menupopup id="default_task_start_popup">
+                                    <menuitem id="default_task_start_none"
+                                                label="&pref.default_task_none.label;"
+                                                value="none"
+                                                selected="true"/>
+                                    <menuitem id="default_task_start_start_of_day"
+                                                label="&pref.default_task_start_of_day.label;"
+                                                value="startofday"/>
+                                    <menuitem id="default_task_start_tomorrow"
+                                                label="&pref.default_task_tomorrow.label;"
+                                                value="tomorrow"/>
+                                    <menuitem id="default_task_start_next_week"
+                                                label="&pref.default_task_next_week.label;"
+                                                value="nextweek"/>
+                                    <menuitem id="default_task_start_offset_current"
+                                                label="&pref.default_task_offset_current.label;"
+                                                value="offsetcurrent"/>
+                                    <menuitem id="default_task_start_offset_next_hour"
+                                                label="&pref.default_task_offset_next_hour.label;"
+                                                value="offsetnexthour"/>
+                                </menupopup>
+                            </menulist>
+                            <hbox align="center" id="default_task_start_offset">
+                                <textbox id="default_task_start_offset_text"
+                                         preference="calendar.task.defaultstartoffset"
+                                         type="number"
+                                         min="0"
+                                         maxlength="3"
+                                         size="3"
+                                         onselect="updateMenuLabels('default_task_start_offset_text', 'default_task_start_offset_units')"
+                                         oninput="updateMenuLabels('default_task_start_offset_text', 'default_task_start_offset_units')"/>
+                                <menulist id="default_task_start_offset_units"
+                                          crop="none"
+                                          preference="calendar.task.defaultstartoffsetunits"
+                                          labelnumber="labelplural">
+                                    <menupopup id="default_task_start_offset_units_popup">
+                                        <menuitem id="default_task_start_offset_units_minutes"
+                                                  label="&calendar.global.units.minutes;"
+                                                  labelplural="&calendar.global.units.minutes;"
+                                                  labelsingular="&calendar.global.units.minute;"
+                                                  value="minutes"
+                                                  selected="true"/>
+                                        <menuitem id="default_task_start_offset_units_hours"
+                                                  label="&calendar.global.units.hours;"
+                                                  labelplural="&calendar.global.units.hours;"
+                                                  labelsingular="&calendar.global.units.hour;"
+                                                  value="hours"/>
+                                        <menuitem id="default_task_start_offset_units_days"
+                                                  label="&calendar.global.units.days;"
+                                                  labelplural="&calendar.global.units.days;"
+                                                  labelsingular="&calendar.global.units.day;"
+                                                  value="days"/>
+                                    </menupopup>
+                                </menulist>
+                            </hbox>
+                        </row>
+                        <row align="center">
+                            <label value="&read.only.task.due.label;"
+                                   control="default_task_due"/>
+                            <menulist id="default_task_due"
+                                      crop="none"
+                                      oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
+                                      preference="calendar.task.defaultdue">
+                                <menupopup id="default_task_due_popup">
+                                    <menuitem id="default_task_due_none"
+                                              label="&pref.default_task_none.label;"
+                                              value="none"
+                                              selected="true"/>
+                                    <menuitem id="default_task_due_end_of_day"
+                                              label="&pref.default_task_end_of_day.label;"
+                                              value="endofday"/>
+                                    <menuitem id="default_task_due_tomorrow"
+                                              label="&pref.default_task_tomorrow.label;"
+                                              value="tomorrow"/>
+                                    <menuitem id="default_task_due_next_week"
+                                              label="&pref.default_task_next_week.label;"
+                                              value="nextweek"/>
+                                    <menuitem id="default_task_due_offset_current"
+                                              label="&pref.default_task_offset_start.label;"
+                                              value="offsetcurrent"/>
+                                    <menuitem id="default_task_due_offset_next_hour"
+                                              label="&pref.default_task_offset_next_hour.label;"
+                                              value="offsetnexthour"/>
+                                </menupopup>
+                            </menulist>
+                            <hbox align="center" id="default_task_due_offset">
+                                <textbox id="default_task_due_offset_text"
+                                         preference="calendar.task.defaultdueoffset"
+                                         type="number"
+                                         min="0"
+                                         maxlength="3"
+                                         size="3"
+                                         onselect="updateMenuLabels('default_task_due_offset_text', 'default_task_due_offset_units')"
+                                         oninput="updateMenuLabels('default_task_due_offset_text', 'default_task_due_offset_units')"/>
+                                <menulist id="default_task_due_offset_units"
+                                          crop="none"
+                                          preference="calendar.task.defaultdueoffsetunits"
+                                          labelnumber="labelplural">
+                                    <menupopup id="default_task_due_offset_units_popup">
+                                        <menuitem id="default_task_due_offset_units_minutes"
+                                                  label="&calendar.global.units.minutes;"
+                                                  labelplural="&calendar.global.units.minutes;"
+                                                  labelsingular="&calendar.global.units.minute;"
+                                                  value="minutes"
+                                                  selected="true"/>
+                                        <menuitem id="default_task_due_offset_units_hours"
+                                                  label="&calendar.global.units.hours;"
+                                                  labelplural="&calendar.global.units.hours;"
+                                                  labelsingular="&calendar.global.units.hour;"
+                                                  value="hours"/>
+                                        <menuitem id="default_task_due_offset_units_days"
+                                                  label="&calendar.global.units.days;"
+                                                  labelplural="&calendar.global.units.days;"
+                                                  labelsingular="&calendar.global.units.day;"
+                                                  value="days"/>
+                                    </menupopup>
+                                </menulist>
+                            </hbox>
+                        </row>
+                    </rows>
+                </grid>
+            </deck>
+        </groupbox>
     </vbox>
 </overlay>

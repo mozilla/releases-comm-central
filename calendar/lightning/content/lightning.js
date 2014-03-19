@@ -20,6 +20,12 @@ pref("extensions.{e2fda1a4-762b-4020-b5ad-a41df1933103}.creator",
 // general settings
 pref("calendar.date.format", 0);
 pref("calendar.event.defaultlength", 60);
+pref("calendar.task.defaultstart", "none");
+pref("calendar.task.defaultstartoffset", 0);
+pref("calendar.task.defaultstartoffsetunits", "minutes");
+pref("calendar.task.defaultdue", "none");
+pref("calendar.task.defaultdueoffset", 60);
+pref("calendar.task.defaultdueoffsetunits", "minutes");
 
 // default transparency of allday items; could be switched to e.g. "OPAQUE":
 pref("calendar.allday.defaultTransparency", "TRANSPARENT");

@@ -12,10 +12,22 @@
 <!ENTITY pref.dateformat.accesskey "D">
 <!ENTITY pref.dateformat.long "Long" >
 <!ENTITY pref.dateformat.short "Short"  >
-<!ENTITY pref.defaultlength.label "Default Event Length:" >
-<!ENTITY pref.defaultlength.accesskey "E">
-<!ENTITY pref.defaultsnoozelength.label "Default Snooze Length:" >
-<!ENTITY pref.defaultsnoozelength.accesskey "S">
+
+<!ENTITY pref.defaults.label "Default Values for New Items">
+<!ENTITY pref.events.label "Events">
+<!ENTITY pref.tasks.label "Tasks">
+
+<!ENTITY pref.default_event_length.label "Default Length:" >
+<!ENTITY pref.default_event_length.accesskey "E">
+
+<!ENTITY pref.default_task_none.label "None">
+<!ENTITY pref.default_task_start_of_day.label "Start of Day">
+<!ENTITY pref.default_task_end_of_day.label "End of Day">
+<!ENTITY pref.default_task_tomorrow.label "Tomorrow">
+<!ENTITY pref.default_task_next_week.label "Next Week">
+<!ENTITY pref.default_task_offset_current.label "Relative to Current Time">
+<!ENTITY pref.default_task_offset_start.label "Relative to Start">
+<!ENTITY pref.default_task_offset_next_hour.label "Relative to Next Hour">
 
 <!ENTITY pref.accessibility.label "Accessibility" >
 <!ENTITY pref.systemcolors.label "Optimize colors for accessibility" >
