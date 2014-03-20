@@ -8,7 +8,6 @@
 
 #include "nsIFile.h"
 #include "nsIObserverService.h"
-#include "nsString.h"
 #include "nsITimer.h"
 #include "nsIImportGeneric.h"
 #include "nsIImportModule.h"

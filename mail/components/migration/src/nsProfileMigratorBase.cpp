@@ -10,6 +10,8 @@
 
 #include "nsIImportSettings.h"
 #include "nsIImportFilters.h"
+#include "nsComponentManagerUtils.h"
+#include "nsServiceManagerUtils.h"
 
 #define kPersonalAddressbookUri "moz-abmdbdirectory://abook.mab"
 

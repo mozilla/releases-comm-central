@@ -12,7 +12,7 @@
 #include "nsIProfileMigrator.h"
 #include "nsIImportSettings.h"
 #include "nsIFile.h"
-
+#include "nsComponentManagerUtils.h"
 
 NS_IMPL_ISUPPORTS2(nsOEProfileMigrator, nsIMailProfileMigrator, nsITimerCallback)
 
