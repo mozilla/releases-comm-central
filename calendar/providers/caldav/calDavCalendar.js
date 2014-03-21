@@ -66,6 +66,7 @@ function calDavCalendar() {
     this.mOfflineStorage = null;
     this.mQueuedQueries = [];
     this.mCtag = null;
+    this.mProposedCtag = null;
 
     // By default, support both events and todos.
     this.mGenerallySupportedItemTypes = ["VEVENT", "VTODO"];
@@ -273,6 +274,7 @@ calDavCalendar.prototype = {
                     // reseting the cached ctag forces an item refresh when
                     // safeRefresh is called later
                     self.mCtag = null;
+                    self.mProposedCtag = null;
                 }
             }
         };
@@ -293,6 +295,7 @@ calDavCalendar.prototype = {
             let itemData = cacheValues[count];
             if (itemId == "ctag") {
                 this.mCtag = itemData;
+                this.mProposedCtag = null;
                 this.mOfflineStorage.deleteMetaData("ctag");
             } else if (itemId == "webdav-sync-token") {
                 this.mWebdavSyncToken = itemData;
@@ -449,7 +452,7 @@ calDavCalendar.prototype = {
     mQueuedQueries: null,
 
     mCtag: null,
-    mOldCtag: null,
+    mProposedCtag: null,
 
     mOfflineStorage: null,
     // Contains the last valid synctoken returned
@@ -1155,6 +1158,11 @@ calDavCalendar.prototype = {
             this.mObservers.notify("onLoad", [this]);
         }
 
+        if (this.mProposedCtag) {
+            this.mCtag = this.mProposedCtag;
+            this.mProposedCtag = null;
+        }
+
         this.mFirstRefreshDone = true;
         while (this.mQueuedQueries.length) {
             let query = this.mQueuedQueries.pop();
@@ -1393,8 +1401,7 @@ calDavCalendar.prototype = {
             let ctag = caldavXPathFirst(multistatus, "/D:multistatus/D:response/D:propstat/D:prop/CS:getctag/text()");
             if (!ctag || ctag != thisCalendar.mCtag) {
                 // ctag mismatch, need to fetch calendar-data
-                thisCalendar.mCtag = ctag;
-                thisCalendar.saveCalendarProperties();
+                thisCalendar.mProposedCtag = ctag;
                 thisCalendar.getUpdatedItems(thisCalendar.calendarUri,
                                              aChangeLogListener);
                 if (thisCalendar.verboseLogging()) {
@@ -1747,8 +1754,7 @@ calDavCalendar.prototype = {
                     thisCalendar.mFirstRefreshDone = true;
                 }
 
-                thisCalendar.mCtag = ctag;
-                thisCalendar.saveCalendarProperties();
+                thisCalendar.mProposedCtag = ctag;
                 if (thisCalendar.verboseLogging()) {
                     cal.LOG("CalDAV: initial ctag " + ctag + " for calendar " +
                             thisCalendar.name);
