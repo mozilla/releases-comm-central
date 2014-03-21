@@ -203,7 +203,7 @@ non_global_defines = mozbuildcfg.non_global_defines
 dnl Fix up substitutitons
 def remap_subst(pair):
     name, value = pair
-    if isinstance(value, set):
+    if isinstance(value, set) or isinstance(value, list):
         return name, value
     value = value.replace('\$(DEPTH)', '\$(DEPTH)/mozilla')
     value = value.replace('\$(topsrcdir)', '\$(topsrcdir)/mozilla')
