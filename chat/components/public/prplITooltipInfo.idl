@@ -9,13 +9,19 @@
  * PurpleNotifyUserInfoEntry structure.
  */
 
-[scriptable, uuid(dd535741-4b04-49ca-8df6-08f8577fe52b)]
+[scriptable, uuid(a44f66e4-aead-4eac-af97-ebce50f06b96)]
 interface prplITooltipInfo: nsISupports {
   const short pair          = 0;
   const short sectionBreak  = 1;
   const short sectionHeader = 2;
+  const short status        = 3;
 
   readonly attribute short type;
+
+  /*
+   * When type == status, the label holds the statusType (a short
+   * converted to a string), while the value holds the statusText.
+   */
   readonly attribute AUTF8String label;
   readonly attribute AUTF8String value;
 };

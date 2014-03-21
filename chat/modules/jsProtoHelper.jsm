@@ -620,9 +620,14 @@ const GenericConvChatBuddyPrototype = {
   typing: false
 };
 
-function TooltipInfo(aLabel, aValue)
+function TooltipInfo(aLabel, aValue, aIsStatus)
 {
-  if (aLabel === undefined)
+  if (aIsStatus) {
+    this.type = Ci.prplITooltipInfo.status;
+    this.label = aLabel.toString();
+    this.value = aValue || "";
+  }
+  else if (aLabel === undefined)
     this.type = Ci.prplITooltipInfo.sectionBreak;
   else {
     this.label = aLabel;

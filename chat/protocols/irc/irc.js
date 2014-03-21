@@ -239,6 +239,12 @@ const GenericIRCConversation = {
           break;
         case Ci.prplITooltipInfo.sectionBreak:
           break;
+        case Ci.prplITooltipInfo.status:
+          if (elt.label != Ci.imIStatusInfo.STATUS_AWAY)
+            break;
+          // The away message has no tooltipInfo.pair entry.
+          msg += "\n" + _("message.whoisEntry", _("tooltip.away"), elt.value);
+          break;
       }
     }
     this.writeMessage(null, msg, type);
@@ -1036,7 +1042,6 @@ ircAccount.prototype = {
       registered: normalizeBool,
       registeredAs: null,
       secure: normalizeBool,
-      away: null,
       ircOp: normalizeBool,
       bot: normalizeBool,
       idleTime: null,
@@ -1052,6 +1057,16 @@ ircAccount.prototype = {
         tooltipInfo.push(new TooltipInfo(_("tooltip." + field), value));
       }
     }
+
+    let statusType = Ci.imIStatusInfo.STATUS_AVAILABLE;
+    let statusText = "";
+    if ("away" in whoisInformation) {
+      statusType = Ci.imIStatusInfo.STATUS_AWAY;
+      statusText = whoisInformation["away"];
+    }
+    else if ("offline" in whoisInformation)
+      statusType = Ci.imIStatusInfo.STATUS_OFFLINE;
+    tooltipInfo.push(new TooltipInfo(statusType, statusText, true));
 
     return new nsSimpleEnumerator(tooltipInfo);
   },

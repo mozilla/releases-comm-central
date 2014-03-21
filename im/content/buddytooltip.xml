@@ -103,8 +103,6 @@
        </setter>
      </property>
 
-     <field name="elt">null</field>
-
      <property name="rows">
        <getter>
          <![CDATA[
@@ -204,11 +202,9 @@
 
      <method name="updateTooltipFromBuddy">
        <parameter name="aBuddy"/>
-       <parameter name="aElt"/>
        <body>
        <![CDATA[
          this.buddy = aBuddy;
-         this.elt = aElt;
 
          this.reset();
          let name = aBuddy.userName;
@@ -216,25 +212,16 @@
          this.setAttribute("displayname", displayName);
          let account = aBuddy.account;
          this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-         let status = aElt.getAttribute("status");
-         if (status) {
-           this.setAttribute("status", status);
-           this.setMessage(Status.toLabel(status));
-         }
-         else {
-           this.setAttribute("status", "unknown");
-           this.setMessage(Status.toLabel("unknown"));
-         }
          this.setBuddyIcon(aBuddy.buddyIconFilename);
+
+         let statusType = aBuddy.statusType;
+         this.setAttribute("status", Status.toAttribute(statusType));
+         this.setMessage(Status.toLabel(statusType, aBuddy.statusText));
 
          if (displayName != name)
            this.addRow(this.bundle.GetStringFromName("buddy.username"), name);
 
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
-
-         var loggedIn = aBuddy.loggedIn;
-         if (loggedIn)
-           this.addRow(this.bundle.GetStringFromName("buddy.loggedIn"), loggedIn);
 
          // Technically there is no reason to restrict this to JS-IRC. But
          // there is currently no filtering mechanism in place to select which
@@ -266,6 +253,11 @@
              case Ci.prplITooltipInfo.sectionBreak:
                this.addSeparator();
                break;
+             case Ci.prplITooltipInfo.status:
+               let statusType = parseInt(elt.label);
+               this.setAttribute("status", Status.toAttribute(statusType));
+               this.setMessage(Status.toLabel(statusType, elt.value));
+               break;
            }
          }
        ]]>
@@ -274,13 +266,11 @@
 
      <method name="updateTooltipFromContact">
        <parameter name="aContact"/>
-       <parameter name="aElt"/>
        <body>
        <![CDATA[
          this.contact = aContact;
-         this.elt = aElt;
 
-         this.updateTooltipFromBuddy(aContact.preferredBuddy.preferredAccountBuddy, aElt);
+         this.updateTooltipFromBuddy(aContact.preferredBuddy.preferredAccountBuddy);
 
          this.addRow(this.bundle.GetStringFromName("contact.tags"),
                      aContact.getTags().map(function (t) t.name).join(", "));
@@ -308,13 +298,11 @@
 
      <method name="updateTooltipFromConversation">
        <parameter name="aConv"/>
-       <parameter name="aElt"/>
        <body>
        <![CDATA[
          if (!aConv.isChat && aConv.buddy)
-           return this.updateTooltipFromBuddy(aConv.buddy, aElt);
+           return this.updateTooltipFromBuddy(aConv.buddy);
 
-         this.elt = aElt;
          this.reset();
          this.setAttribute("displayname", aConv.name);
          let account = aConv.account;
@@ -348,9 +336,21 @@
        <parameter name="aConv"/>
        <body>
        <![CDATA[
+         let account = aConv.account;
+         let normalizedNick = aConv.target.getNormalizedChatBuddyName(aNick);
+         // To try to ensure that we aren't misidentifying a nick with a
+         // contact, we require at least that the normalizedChatBuddyName of
+         // the nick is normalized like a normalizedName for contacts.
+         if (normalizedNick == account.normalize(normalizedNick)) {
+           let buddy = Services.contacts
+                               .getBuddyByNameAndProtocol(normalizedNick,
+                                                          account.protocol);
+           if (buddy)
+             return this.updateTooltipFromBuddy(buddy.preferredAccountBuddy);
+         }
+
          this.reset();
          this.setAttribute("displayname", aNick);
-         let account = aConv.account;
          this.setAttribute("iconPrpl",
                            account.protocol.iconBaseURI + "icon.png");
          this.setAttribute("status", "unknown");
@@ -358,8 +358,7 @@
          this.setBuddyIcon(null);
          this.addRow(this.bundle.GetStringFromName("buddy.account"),
                      account.name);
-         this.requestBuddyInfo(account,
-                               aConv.target.getNormalizedChatBuddyName(aNick));
+         this.requestBuddyInfo(account, normalizedNick);
          return true;
        ]]>
        </body>
@@ -377,11 +376,11 @@
               aTopic == "account-buddy-status-detail-changed" ||
               aTopic == "account-buddy-display-name-changed" ||
               aTopic == "account-buddy-icon-changed"))
-           this.updateTooltipFromBuddy(this.buddy, this.elt);
+           this.updateTooltipFromBuddy(this.buddy);
          else if (aTopic == "contact-preferred-buddy-changed" &&
                   aSubject.id == this.contact.id) {
            let buddy = this.contact.preferredBuddy;
-           this.updateTooltipFromBuddy(buddy.preferredAccountBuddy, this.elt);
+           this.updateTooltipFromBuddy(buddy.preferredAccountBuddy);
          }
          else if (aTopic == "user-info-received" &&
                   aData == this.observedUserInfo) {
@@ -414,17 +413,17 @@
          if (localName == "tab") {
            if (!elt.linkedConversation || !elt.linkedConversation.conv)
              return false;
-           return updateTooltipFromConversation(elt.linkedConversation.conv, elt);
+           return updateTooltipFromConversation(elt.linkedConversation.conv);
          }
 
          if (localName == "conv")
-           return updateTooltipFromConversation(elt.conv, elt);
+           return updateTooltipFromConversation(elt.conv);
 
          if (localName == "buddy")
-           return updateTooltipFromBuddy(elt.buddy.preferredAccountBuddy, elt);
+           return updateTooltipFromBuddy(elt.buddy.preferredAccountBuddy);
 
          if (localName == "contact")
-           return updateTooltipFromContact(elt.contact, elt);
+           return updateTooltipFromContact(elt.contact);
 
          if (localName == "listitem") {
            let conv = document.getBindingParent(elt).conv;
@@ -438,7 +437,7 @@
            if (conv.isChat)
              return updateTooltipFromParticipant(elt.textContent, conv);
            else if (elt.textContent == conv.name)
-             return updateTooltipFromConversation(conv, elt);
+             return updateTooltipFromConversation(conv);
          }
 
          // Use the default content tooltip.
@@ -450,7 +449,6 @@
        <![CDATA[
        this.buddy = null;
        this.contact = null;
-       this.elt = null;
        this.removeAttribute("noTopic");
        this.removeAttribute("left");
        if ("observedUserInfo" in this && this.observedUserInfo) {

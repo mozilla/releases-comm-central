@@ -4,38 +4,50 @@
 
 const EXPORTED_SYMBOLS = ["Status"];
 
-Components.utils.import("resource:///modules/imServices.jsm");
+const {interfaces: Ci, utils: Cu} = Components;
 
-const imIStatusInfo = Components.interfaces.imIStatusInfo;
-let statusNames = {};
-statusNames[imIStatusInfo.STATUS_UNKNOWN] = "unknown";
-statusNames[imIStatusInfo.STATUS_OFFLINE] = "offline";
-statusNames[imIStatusInfo.STATUS_INVISIBLE] = "invisible";
-statusNames[imIStatusInfo.STATUS_MOBILE] = "mobile";
-statusNames[imIStatusInfo.STATUS_IDLE] = "idle";
-statusNames[imIStatusInfo.STATUS_AWAY] = "away";
-statusNames[imIStatusInfo.STATUS_UNAVAILABLE] = "unavailable";
-statusNames[imIStatusInfo.STATUS_AVAILABLE] = "available";
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
+Cu.import("resource:///modules/imServices.jsm");
+
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://chat/locale/status.properties")
+);
+
+const imIStatusInfo = Ci.imIStatusInfo;
+let statusAttributes = {};
+statusAttributes[imIStatusInfo.STATUS_UNKNOWN] = "unknown";
+statusAttributes[imIStatusInfo.STATUS_OFFLINE] = "offline";
+statusAttributes[imIStatusInfo.STATUS_INVISIBLE] = "invisible";
+statusAttributes[imIStatusInfo.STATUS_MOBILE] = "mobile";
+statusAttributes[imIStatusInfo.STATUS_IDLE] = "idle";
+statusAttributes[imIStatusInfo.STATUS_AWAY] = "away";
+statusAttributes[imIStatusInfo.STATUS_UNAVAILABLE] = "unavailable";
+statusAttributes[imIStatusInfo.STATUS_AVAILABLE] = "available";
 
 const Status = {
   toAttribute: function(aStatusType)
-    aStatusType in statusNames ? statusNames[aStatusType] : "unknown",
+    aStatusType in statusAttributes ? statusAttributes[aStatusType] : "unknown",
 
   _labels: {},
-  toLabel: function(aStatusType) {
+  toLabel: function(aStatusType, aStatusText) {
+    // aStatusType may be either one of the (integral) imIStatusInfo status
+    // constants, or one of the statusAttributes.
     if (!(typeof aStatusType == "string"))
       aStatusType = this.toAttribute(aStatusType);
 
-    if (!(aStatusType in this._labels)) {
-      this._labels[aStatusType] =
-        Services.strings.createBundle("chrome://chat/locale/status.properties")
-                .GetStringFromName(aStatusType + "StatusType");
-    }
-    return this._labels[aStatusType];
+    if (!(aStatusType in this._labels))
+      this._labels[aStatusType] = _(aStatusType + "StatusType");
+
+    let label = this._labels[aStatusType];
+    if (aStatusText)
+      label = _("statusWithStatusMessage", label, aStatusText);
+
+    return label;
   },
+
   toFlag: function(aAttribute) {
-    for (let flag in statusNames)
-      if (statusNames[flag] == aAttribute)
+    for (let flag in statusAttributes)
+      if (statusAttributes[flag] == aAttribute)
         return flag;
     return imIStatusInfo.STATUS_UNKNOWN;
   }
