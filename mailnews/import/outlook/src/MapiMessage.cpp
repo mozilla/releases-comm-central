@@ -842,7 +842,8 @@ bool CMapiMessage::GetTmpFile(/*out*/ nsIFile **aResult)
   if (NS_FAILED(rv))
     return false;
 
-  return NS_SUCCEEDED(CallQueryInterface(tmpFile, aResult));
+  tmpFile.forget(aResult);
+  return true;
 }
 
 bool CMapiMessage::CopyMsgAttachToFile(LPATTACH lpAttach, /*out*/ nsIFile **tmp_file)
@@ -925,7 +926,7 @@ bool CMapiMessage::CopyBinAttachToFile(LPATTACH lpAttach,
   if (!bResult)
     _tmp_file->Remove(false);
   else
-    CallQueryInterface(_tmp_file, tmp_file);
+    _tmp_file.forget(tmp_file);
 
   return bResult;
 }
