@@ -198,6 +198,16 @@ let cal = {
     },
 
     /**
+     * Returns a basically checked recipient string - malformed parts will be removed
+     */
+    validateRecipients: function cal_validRecipients(aRecipients) {
+        let fields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
+                     .createInstance(Components.interfaces.nsIMsgCompFields);
+        let result = compFields.splitRecipients(aRecipients, false, {});
+        return (!result.length) ? result.join(",") : "";
+    },
+
+    /**
      * Shortcut function to check whether an item is an invitation copy and
      * has a participation status of either NEEDS-ACTION or TENTATIVE.
      *

@@ -236,6 +236,12 @@ calItipEmailTransport.prototype = {
                     composeFields.to = toList;
                     composeFields.from = identity.email;
                     composeFields.replyTo = identity.replyTo;
+                    if (identity.doCc) {
+                        composeFields.cc = cal.validateRecipients(identity.doCcList);
+                    }
+                    if (identity.doBcc) {
+                        composeFields.bcc = cal.validateRecipients(identity.doBccList);
+                    }
 
                     // xxx todo: add send/progress UI, maybe recycle
                     //           "@mozilla.org/messengercompose/composesendlistener;1"
@@ -308,6 +314,12 @@ calItipEmailTransport.prototype = {
                             "To: " + aToList + "\r\n" +
                             "Date: " + (new Date()).toUTCString() + "\r\n" +
                             "Subject: " + encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
+                            if (aIdentity.doCc) {
+                                mailText += ("Cc: " + cal.validRecipients(aIdentity.doCcList) + "\r\n");
+                            }
+                            if (aIdentity.doBcc) {
+                                mailText += ("Bcc: " + cal.validRecipients(aIdentity.doBccList) + "\r\n");
+                            }
             switch (compatMode) {
                 case 1:
                     mailText += ("Content-class: urn:content-classes:calendarmessage\r\n" +
