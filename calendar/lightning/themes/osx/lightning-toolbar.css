@@ -99,12 +99,9 @@
   -moz-image-region: rect(0px 144px 18px 126px);
 }
 
-#calendar-unifinder-button:not([disabled]):active {
-  -moz-image-region: rect(18px 144px 36px 126px);
-}
-
+#calendar-unifinder-button:not([disabled]):active,
 #calendar-unifinder-button[checked="true"] {
-  -moz-image-region: rect(36px 144px 54px 126px);
+  -moz-image-region: rect(18px 144px 36px 126px);
 }
 
 #extractEventButton,
