@@ -73,13 +73,13 @@ NS_IMPL_ISUPPORTS1(nsAppleMailImportModule, nsIImportModule)
 
 NS_IMETHODIMP nsAppleMailImportModule::GetName(char16_t **aName)
 {
-  return mBundle ? 
+  return mBundle ?
     mBundle->GetStringFromID(APPLEMAILIMPORT_NAME, aName) : NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP nsAppleMailImportModule::GetDescription(char16_t **aName)
 {
-  return mBundle ? 
+  return mBundle ?
     mBundle->GetStringFromID(APPLEMAILIMPORT_DESCRIPTION, aName) : NS_ERROR_FAILURE;
 }
 
@@ -123,7 +123,7 @@ NS_IMETHODIMP nsAppleMailImportModule::GetImportInterface(const char *aImportTyp
           generic->SetData("name", nameString);
           generic->SetData("mailInterface", mail);
 
-          rv = CallQueryInterface(generic, aInterface);
+          generic.forget(aInterface);
         }
       }
     }
@@ -172,7 +172,7 @@ NS_IMETHODIMP nsAppleMailImportMail::GetDefaultLocation(nsIFile **aLocation, boo
     if (NS_SUCCEEDED(rv)) {
       *aFound = true;
       *aUserVerify = false;
-      CallQueryInterface(mailFolder, aLocation);
+      mailFolder.forget(aLocation);
     }
   }
 
@@ -210,7 +210,7 @@ NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(nsIFile *aMailboxFile, nsIArr
     // 2. look for "global" mailboxes, that don't belong to any specific account. they are inside the
     //    root's Mailboxes/ folder
     nsCOMPtr<nsIFile> mailboxesDir(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv)) {  
+    if (NS_SUCCEEDED(rv)) {
         mailboxesDir->InitWithFile(aMailboxFile);
         rv = mailboxesDir->Append(NS_LITERAL_STRING("Mailboxes"));
         if (NS_SUCCEEDED(rv)) {
@@ -298,7 +298,7 @@ void nsAppleMailImportMail::FindAccountMailDirs(nsIFile *aRoot, nsIMutableArray 
         // now add all the children mailboxes
         mCurDepth++;
         FindMboxDirs(currentEntry, aMailboxDescs, aImportService);
-        mCurDepth--;  
+        mCurDepth--;
       }
     }
   }
@@ -424,8 +424,8 @@ nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile *aFolder, nsIMutableArray *
 
     // now find out if this is a .mbox dir
     nsAutoString currentFolderName;
-    if (NS_SUCCEEDED(currentEntry->GetLeafName(currentFolderName)) && 
-        (StringEndsWith(currentFolderName, NS_LITERAL_STRING(POP_MBOX_SUFFIX)) || 
+    if (NS_SUCCEEDED(currentEntry->GetLeafName(currentFolderName)) &&
+        (StringEndsWith(currentFolderName, NS_LITERAL_STRING(POP_MBOX_SUFFIX)) ||
          StringEndsWith(currentFolderName, NS_LITERAL_STRING(IMAP_MBOX_SUFFIX)))) {
       IMPORT_LOG1("Adding .mbox dir: %s", NS_ConvertUTF16toUTF8(currentFolderName).get());
 
@@ -463,8 +463,8 @@ nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile *aFolder, nsIMutableArray *
         FindMboxDirs(siblingMailboxDir, aMailboxDescs, aImportService);
         mCurDepth--;
       }
-    } 
-  } 
+    }
+  }
 
   return NS_OK;
 }
@@ -600,7 +600,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
 
 void nsAppleMailImportMail::ReportStatus(int32_t aErrorNum, nsString &aName, nsAString &aStream)
 {
-  // get (and format, if needed) the error string from the bundle  
+  // get (and format, if needed) the error string from the bundle
   nsAutoString outString;
   const char16_t *fmt = { aName.get() };
   nsresult rv = mBundle->FormatStringFromID(aErrorNum, &fmt, 1, getter_Copies(outString));

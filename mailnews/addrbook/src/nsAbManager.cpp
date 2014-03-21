@@ -54,7 +54,7 @@ struct ExportAttributesTableStruct
 // for now, the oder of the attributes with true for includeForPlainText
 // should be in the same order as they are in the import code
 // see importMsgProperties and nsImportStringBundle.
-// 
+//
 // XXX todo, merge with what's in nsAbLDAPProperties.cpp, so we can
 // use this for LDAP and LDIF export
 //
@@ -409,7 +409,7 @@ NS_IMETHODIMP nsAbManager::NotifyDirectoryItemDeleted(nsIAbDirectory *aParentDir
                       (aParentDirectory, aItem));
   return NS_OK;
 }
-  
+
 NS_IMETHODIMP nsAbManager::NotifyDirectoryDeleted(nsIAbDirectory *aParentDirectory,
                                                   nsISupports *aDirectory)
 {
@@ -430,7 +430,8 @@ NS_IMETHODIMP nsAbManager::GetUserProfileDirectory(nsIFile **userDir)
   rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR, getter_AddRefs(profileDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CallQueryInterface(profileDir, userDir);
+  profileDir.forget(userDir);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbManager::MailListNameExists(const char16_t *name, bool *exist)
@@ -710,11 +711,11 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const ch
               if(newValue.FindChar('"') != -1)
               {
                 needsQuotes = true;
-                
+
                 int32_t match = 0;
                 uint32_t offset = 0;
                 nsString oldSubstr = NS_LITERAL_STRING("\"");
-                nsString newSubstr = NS_LITERAL_STRING("\"\""); 
+                nsString newSubstr = NS_LITERAL_STRING("\"\"");
                 while (offset < newValue.Length()) {
                     match = newValue.Find(oldSubstr, offset);
                     if (match == -1)
