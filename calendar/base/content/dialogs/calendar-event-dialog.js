@@ -447,7 +447,6 @@ function loadDialog(item) {
         notifyCheckbox.checked = true;
         // hide undisclosure control as this a client only feature
         undiscloseCheckbox.disabled = true;
-        document.getElementById("event-grid-attendee-row-3").collapsed = true;
     } else {
         let itemProp = item.getProperty("X-MOZ-SEND-INVITATIONS");
         notifyCheckbox.checked = (item.calendar.getProperty("imip.identity") &&
@@ -476,9 +475,7 @@ function loadDialog(item) {
 function changeUndiscloseCheckboxStatus() {
     let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
     let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
-    let attendeeRow3 = document.getElementById("event-grid-attendee-row-3");
-    if(!attendeeRow3.collapsed)
-        undiscloseCheckbox.disabled = (!notifyCheckbox.checked);
+    undiscloseCheckbox.disabled = (!notifyCheckbox.checked);
 }
 
 /**
@@ -2301,8 +2298,6 @@ function updateCalendar() {
         disableElement("notify-attendees-checkbox");
         disableElement("undisclose-attendees-checkbox");
     }
-    document.getElementById("event-grid-attendee-row-3").collapsed
-        = document.getElementById("event-grid-attendee-row-2").collapsed;
 
     // update the accept button
     updateAccept();
@@ -2741,7 +2736,7 @@ function saveItem() {
             item.setProperty("X-MOZ-SEND-INVITATIONS", notifyCheckbox.checked ? "TRUE" : "FALSE");
         }
         let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
-        if (undiscloseCheckbox.disabled || document.getElementById("event-grid-attendee-row-3").collapsed) {
+        if (undiscloseCheckbox.disabled) {
             item.deleteProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
         } else {
             item.setProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED", undiscloseCheckbox.checked ? "TRUE" : "FALSE");
@@ -3386,15 +3381,12 @@ function toggleLink() {
 function updateAttendees() {
     let attendeeRow = document.getElementById("event-grid-attendee-row");
     let attendeeRow2 = document.getElementById("event-grid-attendee-row-2");
-    let attendeeRow3 = document.getElementById("event-grid-attendee-row-3");
     if (window.attendees && window.attendees.length > 0) {
         attendeeRow.removeAttribute('collapsed');
         if (isEvent(window.calendarItem)) { // sending email invitations currently only supported for events
             attendeeRow2.removeAttribute('collapsed');
-            attendeeRow3.removeAttribute('collapsed');
         } else {
             attendeeRow2.setAttribute('collapsed', 'true');
-            attendeeRow3.setAttribute('collapsed', 'true');
         }
 
         let attendeeNames = [];
@@ -3436,7 +3428,6 @@ function updateAttendees() {
     } else {
         attendeeRow.setAttribute('collapsed', 'true');
         attendeeRow2.setAttribute('collapsed', 'true');
-        attendeeRow3.setAttribute('collapsed', 'true');
     }
 }
 
