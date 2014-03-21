@@ -571,16 +571,17 @@ var gPluginHandler = {
   // plugin in content.
   pluginInstanceCrashed: function (plugin, aEvent) {
     // Ensure the plugin and event are of the right type.
-    if (!(aEvent instanceof Components.interfaces.nsIDOMDataContainerEvent))
+    if (!(aEvent instanceof Components.interfaces.nsIDOMCustomEvent))
       return;
 
-    let submittedReport = aEvent.getData("submittedCrashReport");
+    let propBag = aEvent.detail.QueryInterface(Components.interfaces.nsIPropertyBag2);
+    let submittedReport = propBag.getPropertyAsBool("submittedCrashReport");
     let doPrompt = true; // XXX followup for .getData("doPrompt");
     let submitReports = true; // XXX followup for .getData("submitReports");
-    let pluginName = aEvent.getData("pluginName");
-    let pluginFilename = aEvent.getData("pluginFilename");
-    let pluginDumpID = aEvent.getData("pluginDumpID");
-    let browserDumpID = aEvent.getData("browserDumpID");
+    let pluginName = propBag.getPropertyAsAString("pluginName");
+    let pluginFilename = propBag.getPropertyAsAString("pluginFilename");
+    let pluginDumpID = propBag.getPropertyAsAString("pluginDumpID");
+    let browserDumpID = propBag.getPropertyAsAString("browserDumpID");
     let messengerBundle = document.getElementById("bundle_messenger");
     let tabmail = document.getElementById('tabmail');
 
