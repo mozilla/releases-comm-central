@@ -5,7 +5,8 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var CalendarDeleteCommandEnabled = false;
-var CalendarNewItemsCommandEnabled = false;
+var CalendarNewEventsCommandEnabled = false;
+var CalendarNewTasksCommandEnabled = false;
 
 /**
  * Command controller to execute calendar specific commands
@@ -107,7 +108,7 @@ var calendarController = {
         switch (aCommand) {
             case "calendar_new_event_command":
             case "calendar_new_event_context_command":
-                return CalendarNewItemsCommandEnabled && this.writable && this.calendars_support_events;
+                return CalendarNewEventsCommandEnabled;
             case "calendar_modify_focused_item_command":
                 return this.item_selected;
             case "calendar_modify_event_command":
@@ -119,7 +120,7 @@ var calendarController = {
             case "calendar_new_todo_command":
             case "calendar_new_todo_context_command":
             case "calendar_new_todo_todaypane_command":
-                return CalendarNewItemsCommandEnabled && this.writable && this.calendars_support_tasks;
+                return CalendarNewTasksCommandEnabled;
             case "calendar_modify_todo_command":
             case "calendar_modify_todo_todaypane_command":
                  return this.todo_items_selected;
@@ -514,11 +515,7 @@ var calendarController = {
      * calendar.
      */
     get writable() {
-        return !this.all_readonly &&
-               (!this.offline ||
-                this.has_cached_calendars ||
-                (this.has_local_calendars &&
-                 !this.all_local_calendars_readonly));
+        return (cal.getCalendarManager().getCalendars({}).some(cal.isCalendarWritable));
     },
 
     /**
@@ -600,41 +597,6 @@ var calendarController = {
                this.item_selected &&
                !this.selected_events_readonly &&
                (!this.offline || !this.selected_events_requires_network);
-    },
-
-    /**
-     * Returns a boolean indicating that at least one of the calendars supports
-     * tasks.
-     */
-    get calendars_support_tasks() {
-        // XXX We might want to cache this
-        var calendars = getCalendarManager().getCalendars({});
-
-        for each (var calendar in calendars) {
-            if (isCalendarWritable(calendar) &&
-                calendar.getProperty("capabilities.tasks.supported") !== false) {
-                return true;
-            }
-        }
-        return false;
-    },
-
-
-    /**
-     * Returns a boolean indicating that at least one of the calendars supports
-     * events.
-     */
-    get calendars_support_events() {
-        // XXX We might want to cache this
-        var calendars = getCalendarManager().getCalendars({});
-
-        for each (var calendar in calendars) {
-            if (isCalendarWritable(calendar) &&
-                calendar.getProperty("capabilities.events.supported") !== false) {
-                return true;
-            }
-        }
-        return false;
     },
 
     /**
@@ -932,25 +894,31 @@ function deleteSelectedItems() {
 }
 
 function calendarUpdateNewItemsCommand() {
-    let oldValue = CalendarNewItemsCommandEnabled;
+    // keep current current status
+    let oldEventValue = CalendarNewEventsCommandEnabled;
+    let oldTaskValue = CalendarNewTasksCommandEnabled;
 
-    let commands = ["calendar_new_event_command",
-                    "calendar_new_event_context_command",
-                    "calendar_new_todo_command",
-                    "calendar_new_todo_context_command",
-                    "calendar_new_todo_todaypane_command"];
+    // define command set to update
+    let eventCommands = ["calendar_new_event_command",
+                         "calendar_new_event_context_command"];
+    let taskCommands = ["calendar_new_todo_command",
+                        "calendar_new_todo_context_command",
+                        "calendar_new_todo_todaypane_command"];
 
-    CalendarNewItemsCommandEnabled = false;
-    let cal = getSelectedCalendar();
-    if (cal && isCalendarWritable(cal) && userCanAddItemsToCalendar(cal)) {
-        CalendarNewItemsCommandEnabled = true;
-    }
+    // re-calculate command status
+    CalendarNewEventsCommandEnabled = false;
+    CalendarNewTasksCommandEnabled = false;
+    let calendars = cal.getCalendarManager().getCalendars({}).filter(cal.isCalendarWritable).filter(userCanAddItemsToCalendar);
+    if (calendars.some(cal.isEventCalendar))
+        CalendarNewEventsCommandEnabled = true;
+    if (calendars.some(cal.isTaskCalendar))
+        CalendarNewTasksCommandEnabled = true;
 
-    if (CalendarNewItemsCommandEnabled != oldValue) {
-        for (let i = 0; i < commands.length; i++) {
-            goUpdateCommand(commands[i]);
-        }
-    }
+    // update command status if required
+    if (CalendarNewEventsCommandEnabled != oldEventValue)
+        eventCommands.forEach(goUpdateCommand);
+    if (CalendarNewTasksCommandEnabled != oldTaskValue)
+        taskCommands.forEach(goUpdateCommand);
 }
 
 function calendarUpdateDeleteCommand(selectedItems) {

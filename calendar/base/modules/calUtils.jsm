@@ -136,6 +136,24 @@ let cal = {
         return gCalThreadingEnabled;
     },
 
+    /*
+     * Checks whether a calendar supports events
+     *
+     * @param aCalendar
+     */
+    isEventCalendar: function cal_isEventCalendar(aCalendar) {
+        return (aCalendar.getProperty("capabilities.events.supported") !== false);
+    },
+
+    /*
+     * Checks whether a calendar supports tasks
+     *
+     * @param aCalendar
+     */
+    isTaskCalendar: function cal_isTaskCalendar(aCalendar) {
+        return (aCalendar.getProperty("capabilities.tasks.supported") !== false);
+    },
+
     /**
      * Checks whether a timezone lacks a definition.
      */
