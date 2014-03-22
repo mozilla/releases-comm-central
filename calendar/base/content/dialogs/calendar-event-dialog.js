@@ -3609,8 +3609,8 @@ function sendMailToAttendees(aAttendees) {
     var emailSubject = calGetString("calendar-event-dialog",
                                     "emailSubjectReply",
                                     [item.title]);
-
-    sendMailTo(toList, emailSubject);
+    let identity = window.calendarItem.calendar.getProperty("imip.identity");
+    sendMailTo(toList, emailSubject, null, identity);
 }
 
 /**

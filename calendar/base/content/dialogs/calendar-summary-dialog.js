@@ -372,7 +372,8 @@ function sendMailToOrganizer() {
                                             "emailSubjectReply",
                                             [item.title]);
 
-            sendMailTo(email, emailSubject);
+            let identity = item.calendar.getProperty("imip.identity");
+            sendMailTo(email, emailSubject, null, identity);
         }
     }
 }

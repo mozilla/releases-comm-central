@@ -435,7 +435,8 @@ calMailButtonDNDObserver.prototype = {
                 }
             }
 
-            sendMailTo(recipients, item.title, item.getProperty("DESCRIPTION"));
+            let identity = item.calendar.getProperty("imip.identity");
+            sendMailTo(recipients, item.title, item.getProperty("DESCRIPTION"), identity);
         }
     },
 

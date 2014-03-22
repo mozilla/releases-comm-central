@@ -1233,7 +1233,7 @@ calListenerBag.prototype = {
     }
 };
 
-function sendMailTo(aRecipient, aSubject, aBody) {
+function sendMailTo(aRecipient, aSubject, aBody, aIdentity) {
     let msgParams = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
                               .createInstance(Components.interfaces.nsIMsgComposeParams);
     let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
@@ -1246,6 +1246,7 @@ function sendMailTo(aRecipient, aSubject, aBody) {
     msgParams.type = Components.interfaces.nsIMsgCompType.New;
     msgParams.format = Components.interfaces.nsIMsgCompFormat.Default;
     msgParams.composeFields = composeFields;
+    msgParams.identity = aIdentity;
 
     MailServices.compose.OpenComposeWindowWithParams(null, msgParams);
 }
