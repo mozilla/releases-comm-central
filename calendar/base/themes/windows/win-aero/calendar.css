@@ -77,7 +77,7 @@
     background-color: #f8f8f8;
   }
 
-  sidebarheader {
+  #today-pane-panel > sidebarheader {
     -moz-appearance: none;
     background-color: #f8f8f8;
     border-bottom: none;
@@ -120,7 +120,7 @@
   }
 }
 
-#calsidebar_splitter {
+#calsidebar_splitter.calendar-sidebar-splitter {
   border: none;
   border-left: 1px solid #A9B7C9;
   min-width: 0;
@@ -133,7 +133,7 @@
   transition: border-width .3s ease-in;
 }
 
-#today-splitter {
+#today-splitter.calendar-sidebar-splitter {
   border: none;
   border-right: 1px solid #A9B7C9;
   min-width: 0;

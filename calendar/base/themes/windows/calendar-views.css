@@ -7,14 +7,15 @@
 /* Navigation controls for the views */
 #calendar-nav-control {
     background-color: ButtonFace;
-    border: solid ThreeDShadow;
-    border-width: 1px 0 0 1px;
+    border-top: 1px solid ThreeDShadow;
+    -moz-border-start: 1px solid ThreeDShadow;
     padding-top: 1px;
 }
 
 #view-deck {
     background-color: -moz-Field;
-    border-width: 0 0 0 1px;
+    border-width: 0;
+    -moz-border-start: 1px;
 }
 
 tab[calview] {

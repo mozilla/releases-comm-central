@@ -86,7 +86,7 @@ radio[pane=paneLightning] {
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
   text-align: center;
-  margin-left: 0px;
+  -moz-margin-start: 0px;
   margin-top: 4px;
   margin-bottom: -4px;
   font-size: 7pt;

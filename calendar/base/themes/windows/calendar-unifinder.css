@@ -10,7 +10,7 @@
 }
 
 #bottom-events-box {
-    border-left: 1px solid ThreeDShadow;
+    -moz-border-start: 1px solid ThreeDShadow;
 }
 
 .unifinder-closebutton {
