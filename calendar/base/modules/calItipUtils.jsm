@@ -986,8 +986,11 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
             sendItem.removeAllAttendees();
             sendItem.addAttendee(aRecipient);
             // send message
-            return _sendItem(sendToList, sendItem);
+            if (!_sendItem(sendToList, sendItem)) {
+                return false;
+            };
         }
+        return true;
     } else {
         return _sendItem(aRecipientsList, aItem);
     }
