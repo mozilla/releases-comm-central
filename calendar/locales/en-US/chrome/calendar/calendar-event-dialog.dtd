@@ -10,13 +10,6 @@
 <!ENTITY newevent.from.label                "From" >
 <!ENTITY newevent.to.label                  "To" >
 
-<!-- LOCALIZATON NOTE(newevent.attendees.notify.label,newevent.attendees.notifyundisclosed.label)
-   - These two labels are displayed side by side in the event dialog, make sure
-   - they still fit in. -->
-<!ENTITY newevent.attendees.notify.label               "Notify attendees">
-<!ENTITY newevent.attendees.notifyundisclosed.label    "Separate invitation per attendee">
-<!ENTITY newevent.attendees.notifyundisclosed.tooltip  "This option sends one invitation email per attendee. Each invitation only contains the recipient attendee so that other attendee identities are not disclosed.">
-
 <!ENTITY newevent.status.label                    "Status" >
 <!ENTITY newevent.status.accesskey                "S" >
 <!ENTITY newevent.eventStatus.none.label          "Not specified" >
@@ -35,6 +28,13 @@
 
 <!-- The following entity is for New Task dialog only -->
 <!ENTITY newtodo.percentcomplete.label      "&#37; complete">
+
+<!-- LOCALIZATON NOTE(event.attendees.notify.label,event.attendees.notifyundisclosed.label)
+   - These two labels are displayed side by side in the event dialog, make sure
+   - they still fit in. -->
+<!ENTITY event.attendees.notify.label               "Notify attendees">
+<!ENTITY event.attendees.notifyundisclosed.label    "Separate invitation per attendee">
+<!ENTITY event.attendees.notifyundisclosed.tooltip  "This option sends one invitation email per attendee. Each invitation only contains the recipient attendee so that other attendee identities are not disclosed.">
 
 <!-- Keyboard Shortcuts -->
 <!ENTITY event.dialog.new.event.key2              "I">

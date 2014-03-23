@@ -823,13 +823,13 @@
                 <hbox id="notify-options-box" align="center">
                 <checkbox id="notify-attendees-checkbox"
                           class="lightning-only"
-                          label="&newevent.attendees.notify.label;"
+                          label="&event.attendees.notify.label;"
                           oncommand="changeUndiscloseCheckboxStatus();"
                           pack="start"/>
                 <checkbox id="undisclose-attendees-checkbox"
                           class="lightning-only"
-                          label="&newevent.attendees.notifyundisclosed.label;"
-                          tooltiptext="&newevent.attendees.notifyundisclosed.tooltip;"
+                          label="&event.attendees.notifyundisclosed.label;"
+                          tooltiptext="&event.attendees.notifyundisclosed.tooltip;"
                           pack="start"/>
                 </hbox>
             </row>
