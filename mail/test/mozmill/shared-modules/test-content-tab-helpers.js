@@ -12,8 +12,6 @@ const MODULE_REQUIRES = ["folder-display-helpers",
 
 var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
 var utils = {};
 Cu.import('resource://mozmill/modules/utils.js', utils);
 Cu.import("resource://gre/modules/Services.jsm");

@@ -10,12 +10,6 @@ const MODULE_REQUIRES = ["folder-display-helpers"];
 
 var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
-var controller = {};
-Cu.import('resource://mozmill/modules/controller.js', controller);
-var utils = {};
-Cu.import('resource://mozmill/modules/utils.js', utils);
 
 const NORMAL_TIMEOUT = 6000;
 const FAST_TIMEOUT = 1000;

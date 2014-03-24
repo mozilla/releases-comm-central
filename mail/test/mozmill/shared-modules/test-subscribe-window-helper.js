@@ -7,11 +7,6 @@ const RELATIVE_ROOT = "../shared-modules";
 const MODULE_REQUIRES = ['window-helpers', 'folder-display-helpers',
                          'keyboard-helpers'];
 
-var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
-
 var folderDisplayHelper;
 var mc;
 var windowHelper;

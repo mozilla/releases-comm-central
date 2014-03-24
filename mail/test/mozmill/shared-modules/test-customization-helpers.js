@@ -10,12 +10,6 @@ const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 Cu.import("resource://gre/modules/Services.jsm");
 var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
-var EventUtils = {};
-Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
-var controller = {};
-Cu.import('resource://mozmill/modules/controller.js', controller);
 
 const USE_SHEET_PREF = "toolbar.customization.usesheet";
 

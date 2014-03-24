@@ -8,12 +8,8 @@ const RELATIVE_ROOT = "../shared-modules";
 // we need window-helpers for augment_controller
 const MODULE_REQUIRES = ["window-helpers"];
 
-var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
 var EventUtils = {};
 Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
 var controller = {};
 Cu.import('resource://mozmill/modules/controller.js', controller);
 var frame = {};
@@ -52,7 +48,7 @@ const DO_NOT_EXPORT = {
   // magic globals
   MODULE_NAME: true, DO_NOT_EXPORT: true, installInto: true,
   // imported modules
-  elib: true, mozmill: true, controller: true, frame: true, os: true,
+  controller: true, frame: true, os: true,
   // useful constants (we do export MailViewConstants)
   nsMsgViewIndex_None: true, MailConsts: true,
   // utility functions

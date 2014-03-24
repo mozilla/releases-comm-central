@@ -8,12 +8,6 @@ const RELATIVE_ROOT = "../shared-modules";
 // we need this for the main controller
 const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
-var EventUtils = {};
-Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
 var utils = {};
 Cu.import('resource://mozmill/modules/utils.js', utils);
 

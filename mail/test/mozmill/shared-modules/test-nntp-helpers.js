@@ -10,11 +10,6 @@ const MODULES_REQUIRES = ["folder-display-helpers", "window-helpers"];
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
-var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var mozmill = {};
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
-
 const kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n"+
   "Date: Sat, 24 Mar 1990 10:59:24 -0500\n"+
