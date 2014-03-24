@@ -19,7 +19,7 @@ Cu.import("resource:///modules/mailServices.js");
 var elib = {};
 Cu.import("resource://mozmill/modules/elementslib.js", elib);
 
-var setupModule = function(module) {
+function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   collector.getModule("window-helpers").installInto(module);
   collector.getModule("compose-helpers").installInto(module);

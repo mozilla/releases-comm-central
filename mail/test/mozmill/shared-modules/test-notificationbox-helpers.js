@@ -2,27 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var Ci = Components.interfaces;
-var Cc = Components.classes;
-var Cu = Components.utils;
-
-var elib = {};
-Cu.import("resource://mozmill/modules/elementslib.js", elib);
-var mozmill = {};
-Cu.import("resource://mozmill/modules/mozmill.js", mozmill);
-var utils = {};
-Cu.import("resource://mozmill/modules/utils.js", utils);
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-
 const MODULE_NAME = "notificationbox-helpers";
 
 const RELATIVE_ROOT = "../shared-modules";
+const MODULE_REQUIRES = [];
 
-// we need this for the main controller
-const MODULE_REQUIRES = ["folder-display-helpers",
-                         "window-helpers",
-                         "mock-object-helpers"];
+Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function installInto(module) {
   module.assert_notification_displayed = assert_notification_displayed;
@@ -111,4 +97,3 @@ function wait_for_notification_to_show(aController, aBoxId, aValue) {
                       "Timed out waiting for notification with value " +
                       aValue + " to show.");
 }
-

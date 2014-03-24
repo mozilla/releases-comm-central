@@ -76,6 +76,10 @@ function test_open_draft_again() {
 
   close_compose_window(cwc); // close compose window
 
-  press_delete(mc); // clean up after our selves
+  press_delete(mc); // clean up after ourselves
 }
 
+function teardownModule() {
+  MailServices.accounts.localFoldersServer.rootFolder
+              .propagateDelete(draftsFolder, true, null);
+}

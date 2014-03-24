@@ -77,8 +77,7 @@ function check_newsgroup_displayed(swc, name) {
   let tree = swc.eid("searchTree").getNode();
   let treeview = tree.view;
   let nameCol = tree.columns.getColumnFor(swc.eid("nameColumn2").getNode());
-  let i = 0;
-  for ( ; i < treeview.rowCount; ++i ) {
+  for (let i = 0; i < treeview.rowCount; i++) {
     if (treeview.getCellText(i,nameCol)==name)
       return true;
   }

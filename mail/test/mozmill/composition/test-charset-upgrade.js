@@ -241,5 +241,8 @@ function test_encoding_upgrade_plaintext_compose() {
 
 function teardownModule(module) {
   Services.prefs.clearUserPref("mailnews.send_default_charset");
+  MailServices.accounts.localFoldersServer.rootFolder
+              .propagateDelete(draftsFolder, true, null);
+  MailServices.accounts.localFoldersServer.rootFolder
+              .propagateDelete(outboxFolder, true, null);
 }
-
