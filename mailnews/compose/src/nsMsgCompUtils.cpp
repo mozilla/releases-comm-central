@@ -631,8 +631,7 @@ mime_generate_headers (nsMsgCompFields *fields,
           if (NS_SUCCEEDED(rv))
           {
             nsString undisclosedRecipients;
-            rv = composeStringBundle->GetStringFromName(MOZ_UTF16("undisclosedRecipients"),
-                                                        getter_Copies(undisclosedRecipients));
+            rv = composeStringBundle->GetStringFromID(NS_MSG_UNDISCLOSED_RECIPIENTS, getter_Copies(undisclosedRecipients));
             if (NS_SUCCEEDED(rv) && !undisclosedRecipients.IsEmpty())
             {
                 PUSH_STRING("To: ");

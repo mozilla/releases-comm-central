@@ -431,7 +431,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
 // End of nsIStreamListenerSupport
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void nsSmtpProtocol::UpdateStatus(char16_t* aStatusName)
+void nsSmtpProtocol::UpdateStatus(int32_t aStatusID)
 {
   if (m_statusFeedback)
   {
@@ -442,7 +442,7 @@ void nsSmtpProtocol::UpdateStatus(char16_t* aStatusName)
     nsresult rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
     if (NS_FAILED(rv)) return;
     nsString msg;
-    bundle->GetStringFromName(aStatusName, getter_Copies(msg));
+    bundle->GetStringFromID(aStatusID, getter_Copies(msg));
     UpdateStatusWithString(msg.get());
   }
 }
@@ -1604,7 +1604,7 @@ nsresult nsSmtpProtocol::SendDataResponse()
   m_nextState = SMTP_SEND_POST_DATA;
   ClearFlag(SMTP_PAUSE_FOR_READ);   /* send data directly */
 
-  UpdateStatus(MOZ_UTF16("smtpDeliveringMail"));
+  UpdateStatus(SMTP_DELIV_MAIL);
 
   {
 //      m_runningURL->GetBodySize(&m_totalMessageSize);
@@ -1627,7 +1627,7 @@ void nsSmtpProtocol::SendMessageInFile()
   // for now, we are always done at this point..we aren't making multiple calls
   // to post data...
 
-  UpdateStatus(MOZ_UTF16("smtpDeliveringMail"));
+  UpdateStatus(SMTP_DELIV_MAIL);
   m_nextState = SMTP_RESPONSE;
   m_nextStateAfterResponse = SMTP_SEND_MESSAGE_RESPONSE;
 }
@@ -1670,7 +1670,7 @@ nsresult nsSmtpProtocol::SendMessageResponse()
     return(NS_ERROR_SENDING_MESSAGE);
   }
 
-  UpdateStatus(MOZ_UTF16("smtpMailSent"));
+  UpdateStatus(SMTP_PROGRESS_MAILSENT);
 
   /* else */
   return SendQuit();
