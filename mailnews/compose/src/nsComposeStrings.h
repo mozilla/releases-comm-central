@@ -4,7 +4,7 @@
 
 /**
   String Ids used by mailnews\compose
-  To Do: Conver the callers to use names instead of ids and then make this file obsolete.
+  To Do: Convert the callers to use names instead of ids and then make this file obsolete.
  */
  
 #ifndef _nsComposeStrings_H__
@@ -14,10 +14,7 @@
 #define NS_MSG_UNABLE_TO_OPEN_TMP_FILE              NS_MSG_GENERATE_FAILURE(12501)
 #define NS_MSG_UNABLE_TO_SAVE_TEMPLATE              NS_MSG_GENERATE_FAILURE(12502)
 #define NS_MSG_UNABLE_TO_SAVE_DRAFT                 NS_MSG_GENERATE_FAILURE(12503)
-#define NS_MSG_LOAD_ATTACHMNTS                      NS_MSG_GENERATE_SUCCESS(12504)
-#define NS_MSG_LOAD_ATTACHMNT                       NS_MSG_GENERATE_SUCCESS(12505)
 #define NS_MSG_COULDNT_OPEN_FCC_FOLDER              NS_MSG_GENERATE_FAILURE(12506)
-#define NS_MSG_CANT_POST_TO_MULTIPLE_NEWS_HOSTS     NS_MSG_GENERATE_FAILURE(12507)
 #define NS_MSG_ASSEMB_DONE_MSG                      12508
 #define NS_MSG_ASSEMBLING_MSG                       12509
 #define NS_MSG_NO_SENDER                            NS_MSG_GENERATE_FAILURE(12510)
@@ -30,7 +27,6 @@
 #define NS_ERROR_QUEUED_DELIVERY_FAILED             NS_MSG_GENERATE_FAILURE(12519)
 #define NS_ERROR_SEND_FAILED                        NS_MSG_GENERATE_FAILURE(12520)
 #define SMTP_DELIV_MAIL                             12521
-#define SMTP_MESSAGE_SENT_WAITING_MAIL_REPLY        NS_MSG_GENERATE_SUCCESS(12522)
 #define SMTP_PROGRESS_MAILSENT                      12523
 #define NS_ERROR_SMTP_SERVER_ERROR                  NS_MSG_GENERATE_FAILURE(12524)
 #define NS_MSG_UNABLE_TO_SEND_LATER                 NS_MSG_GENERATE_FAILURE(12525)
@@ -40,7 +36,7 @@
 #define NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS   NS_MSG_GENERATE_FAILURE(12529)
 #define NS_ERROR_MIME_MPART_ATTACHMENT_ERROR        NS_MSG_GENERATE_FAILURE(12531)
 #define NS_MSG_FAILED_COPY_OPERATION                NS_MSG_GENERATE_FAILURE(12532)
-// For message sending operations...
+// For message sending operations
 #define NS_MSG_FAILURE_ON_OBJ_EMBED_WHILE_SAVING    12533
 #define NS_MSG_ASSEMBLING_MESSAGE                   12534
 #define NS_MSG_GATHERING_ATTACHMENT                 12535
@@ -58,7 +54,7 @@
 
 #define NS_MSG_CANCELLING                           NS_MSG_GENERATE_SUCCESS(12555)
 
-// For message sending report...
+// For message sending report
 #define NS_MSG_SEND_ERROR_TITLE                     12556
 #define NS_MSG_SENDLATER_ERROR_TITLE                12557
 #define NS_MSG_SAVE_DRAFT_TITLE                     12558
