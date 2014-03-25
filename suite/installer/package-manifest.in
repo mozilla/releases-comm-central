@@ -175,7 +175,6 @@
 @BINPATH@/components/dom_css.xpt
 @BINPATH@/components/dom_devicestorage.xpt
 @BINPATH@/components/dom_events.xpt
-@BINPATH@/components/dom_file.xpt
 #ifdef MOZ_GAMEPAD
 @BINPATH@/components/dom_gamepad.xpt
 #endif
