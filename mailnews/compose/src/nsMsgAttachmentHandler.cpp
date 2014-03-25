@@ -1030,7 +1030,6 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
     bool              keepOnGoing = true;
     nsCString    turl;
     nsString     msg;
-    char16_t         *printfString = nullptr;
     nsresult rv;
     nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -1040,29 +1039,34 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
     NS_ENSURE_SUCCESS(rv, rv);
     nsMsgDeliverMode mode = nsIMsgSend::nsMsgDeliverNow;
     m_mime_delivery_state->GetDeliveryMode(&mode);
-    if (mode == nsIMsgSend::nsMsgSaveAsDraft || mode == nsIMsgSend::nsMsgSaveAsTemplate)
-      bundle->GetStringFromID(NS_MSG_FAILURE_ON_OBJ_EMBED_WHILE_SAVING, getter_Copies(msg));
-    else
-      bundle->GetStringFromID(NS_MSG_FAILURE_ON_OBJ_EMBED_WHILE_SENDING, getter_Copies(msg));
+    nsCString params;
     if (!m_realName.IsEmpty())
-      printfString = nsTextFormatter::smprintf(msg.get(), m_realName.get());
+      params = m_realName;
     else if (NS_SUCCEEDED(mURL->GetSpec(turl)) && !turl.IsEmpty())
     {
       nsAutoCString unescapedUrl;
       MsgUnescapeString(turl, 0, unescapedUrl);
       if (unescapedUrl.IsEmpty())
-        printfString = nsTextFormatter::smprintf(msg.get(), turl.get());
+        params = turl;
       else
-        printfString = nsTextFormatter::smprintf(msg.get(), unescapedUrl.get());
+        params = unescapedUrl;
     }
     else
-      printfString = nsTextFormatter::smprintf(msg.get(), "?");
+      params.AssignLiteral("?");
+
+    NS_ConvertUTF8toUTF16 UTF16params(params);
+    const char16_t* formatParams[] = { UTF16params.get() };
+    if (mode == nsIMsgSend::nsMsgSaveAsDraft || mode == nsIMsgSend::nsMsgSaveAsTemplate)
+      bundle->FormatStringFromName(MOZ_UTF16("failureOnObjectEmbeddingWhileSaving"),
+                                   formatParams, 1, getter_Copies(msg));
+    else
+      bundle->FormatStringFromName(MOZ_UTF16("failureOnObjectEmbeddingWhileSending"),
+                                   formatParams, 1, getter_Copies(msg));
 
     nsCOMPtr<nsIPrompt> aPrompt;
     if (m_mime_delivery_state)
       m_mime_delivery_state->GetDefaultPrompt(getter_AddRefs(aPrompt));
-    nsMsgAskBooleanQuestionByString(aPrompt, printfString, &keepOnGoing);
-    PR_FREEIF(printfString);
+    nsMsgAskBooleanQuestionByString(aPrompt, msg.get(), &keepOnGoing);
 
     if (keepOnGoing)
     {

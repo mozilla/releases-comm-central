@@ -301,7 +301,8 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
       return NS_OK;
     }
 
-    bundle->GetStringFromID(NS_MSG_SEND_ERROR_TITLE, getter_Copies(dialogTitle));
+    bundle->GetStringFromName(MOZ_UTF16("sendMessageErrorTitle"),
+                              getter_Copies(dialogTitle));
 
     nsresult preStrId = NS_ERROR_SEND_FAILED;
     bool askToGoBackToCompose = false;
@@ -339,7 +340,8 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
     if (!askToGoBackToCompose && currMessage.IsEmpty())
     {
       //we don't have an error description but we can put a generic explanation
-      bundle->GetStringFromID(NS_MSG_GENERIC_FAILURE_EXPLANATION, getter_Copies(currMessage));
+      bundle->GetStringFromName(MOZ_UTF16("genericFailureExplanation"),
+                                getter_Copies(currMessage));
     }
 
     if (!currMessage.IsEmpty())
@@ -357,7 +359,8 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
     {
       bool oopsGiveMeBackTheComposeWindow = true;
       nsString text1;
-      bundle->GetStringFromID(NS_MSG_ASK_TO_COMEBACK_TO_COMPOSE, getter_Copies(text1));
+      bundle->GetStringFromName(MOZ_UTF16("returnToComposeWindowQuestion"),
+                                getter_Copies(text1));
       if (!dialogMessage.IsEmpty())
         dialogMessage.AppendLiteral("\n");
       dialogMessage.Append(text1);
@@ -370,35 +373,35 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
   }
   else
   {
-    int32_t titleID;
+    const char16_t* title;
     nsresult preStrId;
 
     switch (mDeliveryMode)
     {
       case nsIMsgCompDeliverMode::Later:
-        titleID = NS_MSG_SENDLATER_ERROR_TITLE;
+        title = MOZ_UTF16("sendLaterErrorTitle");
         preStrId = NS_MSG_UNABLE_TO_SEND_LATER;
         break;
 
       case nsIMsgCompDeliverMode::AutoSaveAsDraft:
       case nsIMsgCompDeliverMode::SaveAsDraft:
-        titleID = NS_MSG_SAVE_DRAFT_TITLE;
+        title = MOZ_UTF16("saveDraftErrorTitle");
         preStrId = NS_MSG_UNABLE_TO_SAVE_DRAFT;
         break;
 
       case nsIMsgCompDeliverMode::SaveAsTemplate:
-        titleID = NS_MSG_SAVE_TEMPLATE_TITLE;
+        title = MOZ_UTF16("saveTemplateErrorTitle");
         preStrId = NS_MSG_UNABLE_TO_SAVE_TEMPLATE;
         break;
 
       default:
-        /* This should never happend! */
-        titleID = NS_MSG_SEND_ERROR_TITLE;
+        /* This should never happen! */
+        title = MOZ_UTF16("sendMessageErrorTitle");
         preStrId = NS_ERROR_SEND_FAILED;
         break;
     }
 
-    bundle->GetStringFromID(titleID, getter_Copies(dialogTitle));
+    bundle->GetStringFromName(title, getter_Copies(dialogTitle));
     bundle->GetStringFromID(NS_ERROR_GET_CODE(preStrId),
                             getter_Copies(dialogMessage));
 
@@ -406,7 +409,8 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
     if (currMessage.IsEmpty())
     {
       //we don't have an error description but we can put a generic explanation
-      bundle->GetStringFromID(NS_MSG_GENERIC_FAILURE_EXPLANATION, getter_Copies(currMessage));
+      bundle->GetStringFromName(MOZ_UTF16("genericFailureExplanation"),
+                                getter_Copies(currMessage));
     }
 
     if (!currMessage.IsEmpty())
