@@ -913,7 +913,6 @@ EmailConfigWizard.prototype =
     config.incoming.socketType = sanitize.integer(e("incoming_ssl").value);
     config.incoming.auth = sanitize.integer(e("incoming_authMethod").value);
     config.incoming.username = e("incoming_username").value;
-    config.outgoing.username = e("outgoing_username").value;
 
     // Outgoing server
 
@@ -944,6 +943,7 @@ EmailConfigWizard.prototype =
       }
       config.outgoing.socketType = sanitize.integer(e("outgoing_ssl").value);
       config.outgoing.auth = sanitize.integer(e("outgoing_authMethod").value);
+      config.outgoing.username = config.incoming.username;
     }
 
     return config;
@@ -1019,10 +1019,6 @@ EmailConfigWizard.prototype =
 
     // outgoing server
     e("outgoing_hostname").value = config.outgoing.hostname;
-    e("outgoing_username").value = config.outgoing.username;
-    // While sameInOutUsernames is true we synchronize values of incoming
-    // and outgoing username.
-    this.sameInOutUsernames = true;
     e("outgoing_ssl").value = sanitize.enum(config.outgoing.socketType,
                                             [ 0, 1, 2, 3 ], 0);
     e("outgoing_authMethod").value = sanitize.enum(config.outgoing.auth,
@@ -1223,27 +1219,12 @@ EmailConfigWizard.prototype =
     this.adjustOutgoingPortToSSLAndProtocol(this.getUserConfig());
     this.onChangedManualEdit();
   },
-  onChangedInAuth : function()
+  onChangedAuth : function()
   {
     this.onChangedManualEdit();
   },
-  onChangedOutAuth : function(aSelectedAuth)
+  onInputUsername : function()
   {
-    if (aSelectedAuth) {
-      e("outgoing_label").hidden = e("outgoing_username").hidden =
-                                   (aSelectedAuth.id == "out-authMethod-no");
-    }
-    this.onChangedManualEdit();
-  },
-  onInputInUsername : function()
-  {
-    if (this.sameInOutUsernames)
-      e("outgoing_username").value = e("incoming_username").value;
-    this.onChangedManualEdit();
-  },
-  onInputOutUsername : function()
-  {
-    this.sameInOutUsernames = false;
     this.onChangedManualEdit();
   },
   onInputHostname : function()
@@ -1300,7 +1281,7 @@ EmailConfigWizard.prototype =
    * This enables the buttons which allow the user to proceed
    * once he has entered enough information.
    *
-   * We can easily and fairly surely autodetect everything apart from the
+   * We can easily and faily surely autodetect everything apart from the
    * hostname (and username). So, once the user has entered
    * proper hostnames, change to "manual-edit-have-hostname" mode
    * which allows to press [Re-test], which starts the detection

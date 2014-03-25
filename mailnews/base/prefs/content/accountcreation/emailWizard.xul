@@ -297,7 +297,7 @@
             <menulist id="incoming_authMethod"
                       class="auth"
                       sizetopopup="always">
-              <menupopup onpopuphidden="gEmailConfigWizard.onChangedInAuth();">
+              <menupopup onpopuphidden="gEmailConfigWizard.onChangedAuth();">
                 <menuitem label="&autodetect.label;" value="0"/>
                 <!-- values defined in nsMsgAuthMethod -->
                 <!-- labels set from messenger.properties
@@ -346,7 +346,7 @@
             <menulist id="outgoing_authMethod"
                       class="auth"
                       sizetopopup="always">
-              <menupopup onpopuphidden="gEmailConfigWizard.onChangedOutAuth(this.parentNode.selectedItem);">
+              <menupopup onpopuphidden="gEmailConfigWizard.onChangedAuth();">
                 <menuitem label="&autodetect.label;" value="0"/>
                 <!-- @see incoming -->
                 <menuitem id="out-authMethod-no" value="1"/>
@@ -359,21 +359,15 @@
           </row>
           <row id="username_area" align="center">
             <label class="textbox-label"
-                   value="&username.label;"/>
-            <label class="columnHeader"
-                   value="&incoming.label;"
+                   value="&username.label;"
                    control="incoming_username"/>
+            <spacer/>
             <textbox id="incoming_username"
-                     oninput="gEmailConfigWizard.onInputInUsername();"
+                     oninput="gEmailConfigWizard.onInputUsername();"
                      class="username"/>
             <spacer/>
-            <label class="columnHeader"
-                   id="outgoing_label"
-                   value="&outgoing.label;"
-                   control="outgoing_username"/>
-            <textbox id="outgoing_username"
-                     oninput="gEmailConfigWizard.onInputOutUsername();"
-                     class="username"/>
+            <spacer/>
+            <spacer/>
           </row>
         </rows>
       </grid>
