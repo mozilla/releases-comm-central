@@ -38,8 +38,6 @@ interface nsIDBFolderInfo;
 interface nsIMsgOfflineImapOperation;
 interface nsIMsgFolder;
 interface nsIMsgKeyArray;
-interface nsIOutputStream;
-interface nsIUrlListener;
 interface nsIFile;
 interface nsIArray;
 

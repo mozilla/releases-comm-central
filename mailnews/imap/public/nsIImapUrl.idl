@@ -10,7 +10,6 @@ interface nsIImapMessageSink;
 interface nsIImapServerSink;
 interface nsIImapMockChannel;
 interface nsIFile;
-interface nsIMsgFolder;
 
 typedef long nsImapAction;
 typedef long nsImapState;

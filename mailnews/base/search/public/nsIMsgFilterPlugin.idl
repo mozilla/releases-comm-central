@@ -7,10 +7,7 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-interface nsIMsgFilterHitNotify;
 interface nsIMsgWindow;
-interface nsIMsgDBHdr;
-interface nsIStreamListener;
 interface nsIFile;
 
 /**

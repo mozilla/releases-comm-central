@@ -5,9 +5,7 @@
 
 #include "nsISupports.idl"
 
-interface nsIUrlListener;
 interface nsIURI;
-interface nsINntpUrl;
 interface nsIMsgFolder;
 interface nsIMsgWindow;
 

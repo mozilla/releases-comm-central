@@ -6,7 +6,6 @@
 #include "nsISupports.idl"
 
 interface nsIMsgFolder;
-interface nsIMsgDatabase;
 interface nsIMsgWindow;
 interface nsIUrlListener;
 interface nsIArray;

@@ -15,9 +15,6 @@ interface nsIMsgWindow;
 interface nsIMsgDatabase;
 interface nsIDBFolderInfo;
 interface nsIMsgFilterList;
-
-interface nsIMsgFolderCacheElement;
-interface nsITransport;
 interface nsIFile;
 interface nsIOutputStream;
 interface nsIInputStream;

@@ -5,10 +5,10 @@
 
 #include "nsIMsgSearchSession.idl"
 
-interface nsIFile;
 interface nsIMsgFolder;
 interface nsIMsgDBHdr;
 interface nsILineInputStream;
+interface nsIInputStream;
 
 [scriptable, uuid(934672c3-9b8f-488a-935d-87b4023fa0be)]
 interface nsIMsgSearchScopeTerm : nsISupports {

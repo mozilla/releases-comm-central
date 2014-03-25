@@ -24,6 +24,7 @@
 #include "prmon.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgLocalMailFolder.h"
+#include "nsIMsgThread.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapServerSink.h"
 #include "nsIMsgFilterPlugin.h"
@@ -33,6 +34,7 @@
 #include "nsITimer.h"
 #include "nsCOMArray.h"
 #include "nsAutoSyncState.h"
+#include "nsIRequestObserver.h"
 
 class nsImapMoveCoalescer;
 class nsIMsgIdentity;

@@ -6,7 +6,6 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-interface nsIMsgDBHdr;
 interface nsINNTPNewsgroupPost;
 
 typedef long nsNewsAction;

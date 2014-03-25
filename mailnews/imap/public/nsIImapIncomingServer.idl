@@ -5,7 +5,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIUrlListener;
 interface nsIURI;
 interface nsIImapUrl;
 interface nsIImapProtocol;

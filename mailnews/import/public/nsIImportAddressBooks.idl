@@ -37,7 +37,6 @@
 interface   nsIFile;
 interface   nsIArray;
 interface  nsIImportABDescriptor;
-interface  nsIOutputStream;
 interface  nsIAddrDatabase;
 interface  nsIImportFieldMap;
 

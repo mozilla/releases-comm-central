@@ -15,7 +15,6 @@
 #include "nsISupports.idl"
 #include "nsIImapUrl.idl"
 
-interface nsIImapProtocol;
 interface nsIImapMessageSink;
 interface nsIUrlListener;
 interface nsIURI;

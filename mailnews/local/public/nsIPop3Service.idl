@@ -9,7 +9,6 @@
 #include "nsIMsgFolder.idl"
 
 interface nsIURI;
-interface nsIStreamListener;
 interface nsIMsgWindow;
 interface nsIMsgFolder;
 

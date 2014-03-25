@@ -27,7 +27,6 @@ interface nsIURI;
 interface nsIRequest;
 interface nsIMsgDBHdr;
 interface nsIMsgHdr;
-interface nsIDocShell;
 interface nsIFile;
 interface nsIOutputStream;
 interface nsIMsgComposeSecure;

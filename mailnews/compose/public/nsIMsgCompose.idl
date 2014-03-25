@@ -17,7 +17,6 @@ interface nsIMsgIdentity;
 interface nsIMsgProgress;
 interface nsIDocShell;
 interface nsIDOMWindow;
-interface nsIDOMNode;
 interface nsIEditor;
 interface nsIMsgWindow;
 

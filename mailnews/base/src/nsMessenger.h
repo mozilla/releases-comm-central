@@ -17,6 +17,7 @@
 #include "nsWeakReference.h"
 #include "nsIDOMWindow.h"
 #include "nsTArray.h"
+#include "nsIFolderListener.h"
 
 class nsMessenger : public nsIMessenger, public nsSupportsWeakReference, public nsIFolderListener
 {

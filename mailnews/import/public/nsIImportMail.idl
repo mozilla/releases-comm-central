@@ -38,7 +38,6 @@
 interface nsIFile;
 interface nsIArray;
 interface nsIImportMailboxDescriptor;
-interface nsIOutputStream;
 interface nsIMsgFolder;
 
 [scriptable, uuid(a14a3308-0849-420b-86d3-13a2948b5504)]

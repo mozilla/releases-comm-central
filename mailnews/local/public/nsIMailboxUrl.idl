@@ -8,9 +8,6 @@
 
 interface nsIStreamListener;
 interface nsIMsgDBHdr;
-%{C++
-#include "nsIStreamListener.h"
-%}
 
 typedef long nsMailboxAction;
 

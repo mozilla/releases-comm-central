@@ -9,7 +9,6 @@
 interface nsIDOMWindow;
 interface nsIPrintSettings;
 interface nsIObserver;
-interface nsIWebBrowserPrint;
 
 [scriptable, uuid(e5f5e4a2-9d74-46b3-ade7-25e1a1ddf54e)]
 interface nsIMsgPrintEngine : nsISupports {

@@ -5,10 +5,6 @@
 #include "nsISupports.idl"
 #include "nsrootidl.idl"
 
-interface nsIOutputStream;
-interface nsIInputStream;
-interface nsIURI;
-interface nsIStreamListener;
 interface nsIChannel;
 interface nsIMsgMailNewsUrl;
 interface nsIUTF8StringEnumerator;

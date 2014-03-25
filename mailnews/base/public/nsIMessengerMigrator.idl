@@ -4,13 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIMsgIdentity.idl"
 
 [scriptable, uuid(54818d98-1dd2-11b2-82aa-a9197f997503)]
 interface nsIMessengerMigrator: nsISupports {
   /* migrate old mailnews prefs to the 5.x world */
   void UpgradePrefs();
 
-  void createLocalMailAccount(in boolean migrating);          
+  void createLocalMailAccount(in boolean migrating);
 };
 

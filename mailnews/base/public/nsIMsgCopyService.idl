@@ -9,11 +9,6 @@
 #include "nsIMsgCopyServiceListener.idl"
 
 interface nsIMsgDBHdr;
-%{C++
-#include "nsITransactionManager.h"
-%}
-
-interface nsITransactionManager;
 interface nsIMsgWindow;
 interface nsIFile;
 interface nsIArray;

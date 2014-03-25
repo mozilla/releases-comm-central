@@ -13,6 +13,7 @@
 #include "nsIMsgHdr.h"
 #include "nsIMsgWindow.h"
 #include "nsIMutableArray.h"
+#include "nsITransactionManager.h"
 #include "nsTArray.h"
 
 typedef enum _nsCopyRequestType
@@ -55,7 +56,7 @@ public:
     nsCOMPtr<nsIMsgFolder> m_dstFolder;
     nsCOMPtr<nsIMsgWindow> m_msgWindow;
     nsCOMPtr<nsIMsgCopyServiceListener> m_listener;
-	nsCOMPtr<nsITransactionManager> m_txnMgr;
+    nsCOMPtr<nsITransactionManager> m_txnMgr;
     nsCopyRequestType m_requestType;
     bool m_isMoveOrDraftOrTemplate;
     bool m_allowUndo;

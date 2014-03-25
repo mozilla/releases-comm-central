@@ -10,12 +10,10 @@ interface nsIMsgFolder;
 interface nsIMsgCopyServiceListener;
 interface nsIMsgDBHdr;
 interface nsIMsgWindow;
-interface nsISimpleEnumerator;
 interface nsIOutputStream;
 interface nsIInputStream;
 interface nsIArray;
 interface nsIUrlListener;
-interface nsIMsgIncomingServer;
 interface nsIMsgDatabase;
 interface nsITransaction;
 

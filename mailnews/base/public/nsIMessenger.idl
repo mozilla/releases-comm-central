@@ -7,8 +7,6 @@
 #include "nsrootidl.idl"
 #include "nsIMsgWindow.idl"
 #include "nsIMsgIdentity.idl"
-#include "nsIMsgThread.idl"
-#include "nsIMsgFolder.idl"
 
 interface nsIMsgDBHdr;
 interface nsIDOMWindow;

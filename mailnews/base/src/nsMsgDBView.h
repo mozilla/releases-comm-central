@@ -18,6 +18,7 @@
 #include "nsITreeBoxObject.h"
 #include "nsITreeSelection.h"
 #include "nsIMsgFolder.h"
+#include "nsIMsgThread.h"
 #include "nsIDateTimeFormat.h"
 #include "nsIDOMElement.h"
 #include "nsIAtom.h"

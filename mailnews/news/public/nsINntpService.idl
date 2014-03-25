@@ -7,10 +7,8 @@
 #include "nsIUrlListener.idl"
 #include "nsINntpIncomingServer.idl"
 #include "MailNewsTypes2.idl"
-#include "nsIMsgIdentity.idl"
 
 interface nsIURI;
-interface nsIStreamListener;  
 interface nsIFile;
 interface nsIMsgWindow;
 interface nsIMsgFolder;

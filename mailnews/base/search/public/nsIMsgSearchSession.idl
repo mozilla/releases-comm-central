@@ -13,7 +13,6 @@ interface nsIMsgHdr;
 interface nsIMsgDatabase;
 interface nsISupportsArray;
 interface nsIMsgWindow;
-interface nsIInputStream;
 
 //////////////////////////////////////////////////////////////////////////////
 // The Msg Search Session is an interface designed to make constructing

@@ -6,7 +6,6 @@
 
 #include "nsISupports.idl"
 
-interface nsISimpleEnumerator;
 interface nsILDAPMessage;
 interface nsIAbCard;
 
