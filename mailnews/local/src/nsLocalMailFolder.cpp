@@ -1723,17 +1723,58 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder *srcFolder,
         return NS_MSG_ERROR_COPY_FOLDER_ABORTED;
     }
   }
-  nsString folderName;
-  srcFolder->GetName(folderName);
-  rv = CheckIfFolderExists(folderName, this, msgWindow);
-  if (NS_FAILED(rv))
+
+  nsAutoString newFolderName;
+  nsAutoString folderName;
+  rv = srcFolder->GetName(folderName);
+  if (NS_WARN_IF(NS_FAILED(rv))) {
     return rv;
+  }
+
+  if (!isMoveFolder) {
+    rv = CheckIfFolderExists(folderName, this, msgWindow);
+    if (NS_WARN_IF(NS_FAILED(rv))) {
+      return rv;
+    }
+  }
+  else
+  {
+    // If folder name already exists in destination, generate a new unique name.
+    bool containsChild = true;
+    uint32_t i;
+    for (i = 1; containsChild; i++) {
+      newFolderName.Assign(folderName);
+      if (i > 1) {
+        // This could be localizable but Toolkit is fine without it, see
+        // mozilla/toolkit/content/contentAreaUtils.js::uniqueFile()
+        newFolderName.Append('(');
+        newFolderName.AppendInt(i);
+        newFolderName.Append(')');
+      }
+      rv = ContainsChildNamed(newFolderName, &containsChild);
+      if (NS_WARN_IF(NS_FAILED(rv))) {
+        return rv;
+      }
+    }
+
+    // 'i' is one more than the number of iterations done
+    // and the number tacked onto the name of the folder.
+    if (i > 2 && !isChildOfTrash) {
+      // Folder name already exists, ask if rename is OK.
+      // If moving to Trash, don't ask and do it.
+      if (!ConfirmAutoFolderRename(msgWindow, folderName, newFolderName))
+        return NS_MSG_ERROR_COPY_FOLDER_ABORTED;
+    }
+  }
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
-    NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_WARN_IF(NS_FAILED(rv))) {
+    return rv;
+  }
+
   return msgStore->CopyFolder(srcFolder, this, isMoveFolder, msgWindow,
-                              aListener);
+                              aListener, newFolderName);
 }
 
 NS_IMETHODIMP

@@ -416,12 +416,18 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(nsIMsgFolder *aSrcFolder,
                                             nsIMsgFolder *aDstFolder,
                                             bool aIsMoveFolder,
                                             nsIMsgWindow *aMsgWindow,
-                                            nsIMsgCopyServiceListener *aListener)
+                                            nsIMsgCopyServiceListener *aListener,
+                                            const nsAString &aNewName)
 {
   NS_ENSURE_ARG_POINTER(aSrcFolder);
   NS_ENSURE_ARG_POINTER(aDstFolder);
-  nsString folderName;
-  aSrcFolder->GetName(folderName);
+
+  nsAutoString folderName;
+  if (aNewName.IsEmpty())
+    aSrcFolder->GetName(folderName);
+  else
+    folderName.Assign(aNewName);
+
   nsAutoString safeFolderName(folderName);
   NS_MsgHashIfNecessary(safeFolderName);
   nsCOMPtr<nsIMsgLocalMailFolder> localSrcFolder(do_QueryInterface(aSrcFolder));
@@ -455,7 +461,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(nsIMsgFolder *aSrcFolder,
   oldPath->Clone(getter_AddRefs(origPath));
 
    //copying necessary for aborting.... if failure return
-  rv = oldPath->CopyTo(newPath, EmptyString());
+  rv = oldPath->CopyTo(newPath, safeFolderName);
   NS_ENSURE_SUCCESS(rv, rv); // Will fail if a file by that name exists
 
   // Copy to dir can fail if filespec does not exist. If copy fails, we test
@@ -463,7 +469,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(nsIMsgFolder *aSrcFolder,
   // without copying it. If it fails and filespec exist and is not zero sized
   // there is real problem
   // Copy the file to the new dir
-  rv = summaryFile->CopyTo(newPath, EmptyString());
+  nsAutoString dbName(safeFolderName);
+  dbName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
+  rv = summaryFile->CopyTo(newPath, dbName);
   if (NS_FAILED(rv)) // Test if the copy is successful
   {
     // Test if the filespec has data

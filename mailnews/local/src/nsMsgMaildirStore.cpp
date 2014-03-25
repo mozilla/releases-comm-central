@@ -410,12 +410,18 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(nsIMsgFolder *aSrcFolder,
                                             nsIMsgFolder *aDstFolder,
                                             bool aIsMoveFolder,
                                             nsIMsgWindow *aMsgWindow,
-                                            nsIMsgCopyServiceListener *aListener)
+                                            nsIMsgCopyServiceListener *aListener,
+                                            const nsAString &aNewName)
 {
   NS_ENSURE_ARG_POINTER(aSrcFolder);
   NS_ENSURE_ARG_POINTER(aDstFolder);
-  nsString folderName;
-  aSrcFolder->GetName(folderName);
+
+  nsAutoString folderName;
+  if (aNewName.IsEmpty())
+    aSrcFolder->GetName(folderName);
+  else
+    folderName.Assign(aNewName);
+
   nsAutoString safeFolderName(folderName);
   NS_MsgHashIfNecessary(safeFolderName);
   nsCOMPtr<nsIMsgLocalMailFolder> localSrcFolder(do_QueryInterface(aSrcFolder));
@@ -441,14 +447,16 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(nsIMsgFolder *aSrcFolder,
   nsCOMPtr<nsIFile> origPath;
   oldPath->Clone(getter_AddRefs(origPath));
 
-  rv = oldPath->CopyTo(newPath, EmptyString());
+  rv = oldPath->CopyTo(newPath, safeFolderName);
   NS_ENSURE_SUCCESS(rv, rv); //will fail if a file by that name exists
 
   // Copy to dir can fail if file does not exist. If copy fails, we test
   // if the file exists or not, if it does not that's ok, we continue
   // without copying it. If it fails and file exist and is not zero sized
   // there is real problem.
-  rv = summaryFile->CopyTo(newPath, EmptyString());
+  nsAutoString dbName(safeFolderName);
+  dbName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
+  rv = summaryFile->CopyTo(newPath, dbName);
   if (!NS_SUCCEEDED(rv))
   {
     // Test if the file is not empty

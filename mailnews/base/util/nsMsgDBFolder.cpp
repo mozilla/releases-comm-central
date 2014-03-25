@@ -3841,6 +3841,40 @@ nsMsgDBFolder::CheckIfFolderExists(const nsAString& newFolderName, nsIMsgFolder 
   return NS_OK;
 }
 
+bool
+nsMsgDBFolder::ConfirmAutoFolderRename(nsIMsgWindow *msgWindow,
+                                       const nsString& aOldName,
+                                       const nsString& aNewName)
+{
+  nsCOMPtr<nsIStringBundle> bundle;
+  nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
+  if (NS_WARN_IF(NS_FAILED(rv))) {
+    return false;
+  }
+
+  nsString folderName;
+  GetName(folderName);
+  const char16_t *formatStrings[] =
+  {
+    aOldName.get(),
+    folderName.get(),
+    aNewName.get()
+  };
+
+  nsString confirmString;
+  rv = bundle->FormatStringFromName(MOZ_UTF16("confirmDuplicateFolderRename"),
+                                    formatStrings, 3, getter_Copies(confirmString));
+  if (NS_WARN_IF(NS_FAILED(rv))) {
+    return false;
+  }
+
+  bool confirmed = false;
+  rv = ThrowConfirmationPrompt(msgWindow, confirmString, &confirmed);
+  if (NS_WARN_IF(NS_FAILED(rv))) {
+    return false;
+  }
+  return confirmed;
+}
 
 nsresult
 nsMsgDBFolder::AddDirectorySeparator(nsIFile *path)

@@ -6,20 +6,79 @@
 load("../../../resources/messageGenerator.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
+/**
+ * Bug 66763
+ * Test deletion of a folder with a name already existing in Trash.
+ */
+function subtest_folder_deletion(root) {
+  // Now we only have <root> and some default subfolders, like Trash.
+  let trash = root.getChildNamed("Trash");
+  do_check_false(trash.hasSubFolders);
 
-function run_test() {
-  // Create a local mail account (we need this first)
-  MailServices.accounts.createLocalMailAccount();
+  // Create new "folder" in root.
+  let folder = root.createLocalSubfolder("folder");
+  let path = folder.filePath;
+  do_check_true(path.exists());
 
-  // Get the account
-  let account = MailServices.accounts.accounts.queryElementAt(0, Components.interfaces.nsIMsgAccount);
+  // Delete "folder" into Trash.
+  let folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
+  root.deleteSubFolders(folderArray, null);
+  do_check_false(path.exists());
+  do_check_eq(trash.numSubFolders, 1);
+  let folderDeleted = trash.getChildNamed("folder");
 
-  // Get the root folder
-  var root = account.incomingServer.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  // Create another "folder" in root.
+  folder = root.createLocalSubfolder("folder");
+  // Delete "folder" into Trash again.
+  folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
+  root.deleteSubFolders(folderArray, null);
+  do_check_eq(trash.numSubFolders, 2);
+  // The folder should be automatically renamed as the same name already is in Trash.
+  let folderDeleted2 = trash.getChildNamed("folder(2)");
 
-  // Give it a poke so that the directories all exist
-  root.subFolders;
+  // Create yet another "folder" in root.
+  folder = root.createLocalSubfolder("folder");
 
+  // But now with another subfolder
+  let subfolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder)
+                        .createLocalSubfolder("subfolder");
+
+  // Delete folder into Trash again
+  folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
+  root.deleteSubFolders(folderArray, null);
+  do_check_eq(trash.numSubFolders, 3);
+  // The folder should be automatically renamed as the same name already is in Trash
+  // but the subfolder should be untouched.
+  let folderDeleted3 = trash.getChildNamed("folder(3)");
+  do_check_neq(folderDeleted3, null);
+  do_check_true(folderDeleted3.containsChildNamed("subfolder"));
+  // Now we have <root>
+  //               +--Trash
+  //                    +--folder
+  //                    +--folder(2)
+  //                    +--folder(3)
+  //                         +--subfolder
+
+  // Create another "folder(3)" in root.
+  folder = root.createLocalSubfolder("folder(3)");
+  do_check_true(root.containsChildNamed("folder(3)"));
+  // Now try to move "folder(3)" from Trash back to root.
+  // That should fail, because the user gets a prompt about it and that does
+  // not work in xpcshell.
+  try {
+    root.copyFolderLocal(folderDeleted3, true, null, null);
+    do_throw("copyFolderLocal() should have failed here due to user prompt!");
+  } catch (e if e.result == 0x8055001a) {
+    // Catch only the expected error NS_MSG_ERROR_COPY_FOLDER_ABORTED,
+    // otherwise fail the test.
+  }
+}
+
+/**
+ * Test proper creation/rename/removal of folders under a Local mail account
+ */
+function subtest_folder_operations(root) {
   // Test - num/hasSubFolders
 
   // Get the current number of folders
@@ -37,6 +96,11 @@ function run_test() {
 
   do_check_true(folder.hasSubFolders);
   do_check_eq(folder.numSubFolders, 1);
+
+  // Now we have <root>
+  //               +--folder1
+  //                    +--folder2
+  //               +--folder3
 
   // Test - getChildNamed
 
@@ -147,6 +211,7 @@ function run_test() {
   folder = rootLocal.getChildNamed("folder1");
 
   // Test - propagateDelete (this tests recursiveDelete as well)
+  // The folders will be removed from disk completely, not merely to Trash.
 
   var path1 = folder.filePath;
   var path2 = folder2.filePath;
@@ -167,4 +232,21 @@ function run_test() {
 
   do_check_false(path1.exists());
   do_check_false(path2.exists());
+}
+
+function run_test() {
+  // Create a local mail account (we need this first)
+  MailServices.accounts.createLocalMailAccount();
+
+  // Get the account
+  let account = MailServices.accounts.accounts.queryElementAt(0, Components.interfaces.nsIMsgAccount);
+
+  // Get the root folder
+  let root = account.incomingServer.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+
+  // Give it a poke so that the directories all exist
+  root.subFolders;
+
+  subtest_folder_operations(root);
+  subtest_folder_deletion(root);
 }

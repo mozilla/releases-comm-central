@@ -122,6 +122,9 @@ protected:
   nsresult GetFolderCacheElemFromFile(nsIFile *file, nsIMsgFolderCacheElement **cacheElement);
   nsresult AddDirectorySeparator(nsIFile *path);
   nsresult CheckIfFolderExists(const nsAString& newFolderName, nsIMsgFolder *parentFolder, nsIMsgWindow *msgWindow);
+  bool     ConfirmAutoFolderRename(nsIMsgWindow *aMsgWindow,
+                                   const nsString& aOldName,
+                                   const nsString& aNewName);
 
   nsresult GetSummaryFile(nsIFile** aSummaryFile);
 

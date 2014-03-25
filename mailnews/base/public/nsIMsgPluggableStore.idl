@@ -19,7 +19,7 @@ interface nsIMsgIncomingServer;
 interface nsIMsgDatabase;
 interface nsITransaction;
 
-[scriptable, uuid(7c1f7385-ecec-45c5-b194-0a63af6690fd)]
+[scriptable, uuid(eccf0046-99db-4b08-8e14-29fa254f59c6)]
 
 /**
  * Pluggable message store interface. Each incoming server can have a different
@@ -100,10 +100,13 @@ interface nsIMsgPluggableStore : nsISupports {
    *                      is deleted when copy completes.
    * @param aMsgWindow used to display progress, may be null
    * @param aListener - used to get notification when copy is done.
+   * @param aNewName  Optional new name for the target folder.
+   *                  If rename is not needed, set this to empty string.
    */
   void copyFolder(in nsIMsgFolder aSrcFolder, in nsIMsgFolder aDstFolder,
                   in boolean aIsMoveFolder, in nsIMsgWindow aMsgWindow,
-                  in nsIMsgCopyServiceListener aListener);
+                  in nsIMsgCopyServiceListener aListener,
+                  in AString aNewName);
 
   /**
    * Get an output stream for a message in a folder.
