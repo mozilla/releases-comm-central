@@ -439,6 +439,7 @@ classic.jar:
   skin/classic/aero/messenger/icons/arrow-dn-inverted.png          (mail/icons/arrow-dn-inverted.png)
   skin/classic/aero/messenger/icons/folder.png                     (mail/icons/folder-aero.png)
   skin/classic/aero/messenger/icons/message.png                    (mail/icons/message-aero.png)
+  skin/classic/aero/messenger/icons/multicolor.png                 (mail/icons/multicolor.png)
   skin/classic/aero/messenger/icons/license.txt                    (mail/icons/license.txt)
   skin/classic/aero/messenger/icons/appmenu-icons.png              (mail/icons/appmenu-icons.png)
   skin/classic/aero/messenger/icons/attachment-deleted.png         (mail/icons/attachment-deleted.png)
