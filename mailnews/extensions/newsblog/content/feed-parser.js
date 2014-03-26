@@ -612,7 +612,7 @@ FeedParser.prototype =
         for (let tag of tags)
         {
           let url = tag.getAttribute("rel") == "enclosure" ?
-                      (tag.getAttribute("url") || "").trim() : null;
+                      (tag.getAttribute("href") || "").trim() : null;
           if (url && encUrls.indexOf(url) == -1)
           {
             item.enclosures.push(new FeedEnclosure(url,
