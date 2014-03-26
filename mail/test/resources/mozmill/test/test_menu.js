@@ -26,7 +26,7 @@ var testMenuAPI = function() {
 
   // Remove the text by selecting 'Undo'
   contextMenu.keypress("VK_DOWN", {});
-  contextMenu.keypress("VK_ENTER", {});
+  contextMenu.keypress("VK_RETURN", {});
   contextMenu.close();
 
   controller.assert(function() {
