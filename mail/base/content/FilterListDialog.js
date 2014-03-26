@@ -793,7 +793,6 @@ function onFilterListKeyPress(aEvent)
         if (!document.getElementById("deleteButton").disabled)
           onDeleteFilter();
         break;
-      case KeyEvent.DOM_VK_ENTER:
       case KeyEvent.DOM_VK_RETURN:
         if (!document.getElementById("editButton").disabled)
           onEditFilter();

@@ -326,7 +326,6 @@ function onDelete()
 function AbResultsPaneKeyPress(event)
 {
   switch (event.keyCode) {
-  case KeyEvent.DOM_VK_ENTER:
   case KeyEvent.DOM_VK_RETURN:
     onProperties();
     break;

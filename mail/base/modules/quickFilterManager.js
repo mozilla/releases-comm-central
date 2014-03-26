@@ -1081,7 +1081,7 @@ let MessageTextFilter = {
         return false;
       }
       // - Enter when upsell is actively proposed...
-      else if (aEvent.keyCode == aEvent.DOM_VK_ENTER) {
+      else if (aEvent.keyCode == aEvent.DOM_VK_RETURN) {
       }
       return true;
     }, false);

@@ -2239,7 +2239,6 @@
                   case event.DOM_VK_ESCAPE:
                     this.self.hidePopup();
                     return;
-                  case event.DOM_VK_ENTER:
                   case event.DOM_VK_RETURN:
                     this.self.fire();
                     return;
