@@ -459,13 +459,11 @@ YahooAccount.prototype = {
   get canJoinChat() true,
   chatRoomFields: {},
   joinChat: function(aComponents) {
-    // Use _roomsCreated to append a unique number to the room name. We add 1
-    // so that we can start the room numbers from 1 instead of 0.
-    let roomName = this.cleanUsername + "-" + (++this._roomsCreated);
+    // Use _roomsCreated to append a unique number to the room name.
+    let roomName = this.cleanUsername + "-" + ++this._roomsCreated;
     let conf = new YahooConference(this, roomName, this.cleanUsername);
     this._conferences.set(roomName, conf);
     this._session.createConference(roomName);
-    this._roomsCreated++;
   },
 
   // Callbacks.
