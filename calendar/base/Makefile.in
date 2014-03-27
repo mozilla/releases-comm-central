@@ -36,10 +36,10 @@ DEFINES += -DTHEME=$(THEME)
 include $(topsrcdir)/config/rules.mk
 
 # Window icons are not needed on mac
-ifneq (,$(filter windows os2 gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
+ifneq (,$(filter windows gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
 
 # Set up the icon suffix to differ between windows and linux
-ifneq (,$(filter windows os2,$(MOZ_WIDGET_TOOLKIT)))
+ifneq (,$(filter windows,$(MOZ_WIDGET_TOOLKIT)))
 ICON_SUFFIX = .ico
 else
 ICON_SUFFIX = .png
