@@ -66,7 +66,7 @@
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   height: 22px;
-  padding: 2px;
+  padding: 0 4px;
   border: 1px transparent solid;
   border-radius: 3px;
   transition-property: background, border-color;
@@ -135,7 +135,7 @@ toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
 }
 
 .toolbarbutton-1 {
-  margin: 2px 4px;
+  margin: 4px 2px;
 }
 
 .toolbarbutton-1[open],
@@ -182,7 +182,6 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 .toolbarbutton-1 .toolbarbutton-icon {
   width: 18px;
   height: 18px;
-  margin: 2px;
 }
 
 .toolbarbutton-1[disabled="true"] .toolbarbutton-text,
@@ -508,7 +507,6 @@ toolbar:not([mode="text"]) .badgeButton-badge {
 .button-appmenu {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
   -moz-image-region: rect(0px, 450px, 18px, 432px);
-  min-width: 35px !important;
 }
 
 .button-appmenu:not([disabled="true"]):active,
@@ -731,7 +729,6 @@ toolbar:not([mode="text"]) .badgeButton-badge {
   .button-appmenu {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar@2x.png");
     -moz-image-region: rect(0px 900px 36px 864px);
-    min-width: 35px !important;
   }
 
   .button-appmenu:not([disabled="true"]):active,

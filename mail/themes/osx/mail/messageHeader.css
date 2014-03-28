@@ -220,7 +220,6 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
 .toolbarbutton-1.msgHeaderView-button:hover > .toolbarbutton-menubutton-dropmarker {
   background-color: transparent;
   background-image: none !important;
-  padding: none;
   border: none;
 }
 

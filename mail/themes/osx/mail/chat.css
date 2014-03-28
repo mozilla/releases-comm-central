@@ -4,12 +4,24 @@
 
 %include ../../../components/im/themes/chat.css
 
+#statusTypeIcon:-moz-locale-dir(ltr) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+#statusTypeIcon:-moz-locale-dir(rtl) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 #statusTypeIcon > .toolbarbutton-text {
   display: none;
 }
 
 .statusMessageToolbarItem {
-  -moz-margin-start: -6px;
+  -moz-margin-start: -3px;
+  margin-bottom: 3px;
+  padding-bottom: 3px;
 }
 
 #chat-status-selector:hover > .statusMessageToolbarItem,

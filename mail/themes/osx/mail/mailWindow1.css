@@ -19,7 +19,7 @@
 /* give the toolbox a min-height of 41px for Australis theme */
 .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
 .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
-  margin-top: 6px;
+  margin-top: 5px;
   margin-bottom: 4px;
 }
 
