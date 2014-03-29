@@ -510,6 +510,7 @@
           }
 
           let oldTab = this._mostRecentTabInfo = this.currentTabInfo;
+          let oldPanel = this.panelContainer.selectedPanel;
 
           let disregardOpener = ("disregardOpener" in aArgs)
                                 && aArgs.disregardOpener;
@@ -549,6 +550,10 @@
           }
           else if (!background)
             this.panelContainer.selectedPanel = tab.mode.tabType.panel;
+
+          // Make sure the new panel is marked selected.
+          oldPanel.removeAttribute("selected");
+          this.panelContainer.selectedPanel.setAttribute("selected", "true");
 
           let tabOpenFunc = tab.mode.openTab || tab.mode.tabType.openTab;
           tabOpenFunc.apply(tab.mode.tabType, [tab, aArgs]);
@@ -1106,11 +1111,16 @@
                 this.saveCurrentTabState();
 
               let oldTab = this.currentTabInfo;
+              let oldPanel = this.panelContainer.selectedPanel;
               let tab = this.currentTabInfo =
                 this.tabInfo[this.tabContainer.selectedIndex];
 
               this.panelContainer.selectedPanel = tab.panel ||
                                                   tab.mode.tabType.panel;
+
+              // Update the selected attribute on the current and old tab panel.
+              oldPanel.removeAttribute("selected");
+              this.panelContainer.selectedPanel.setAttribute("selected", "true");
 
               let showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
               showTabFunc.call(tab.mode.tabType, tab);

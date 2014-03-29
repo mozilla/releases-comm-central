@@ -403,6 +403,9 @@ function ltnSwitch2Calendar() {
 
     document.commandDispatcher.updateCommands('calendar_commands');
     window.setCursor("auto");
+
+    // make sure the view is sized correctly
+    onCalendarViewResize();
   }
 }
 
