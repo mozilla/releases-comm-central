@@ -1823,6 +1823,11 @@ let TabsInTitlebar = {
       let gNavToolbox = $("navigation-toolbox");
       // Buttons first:
       let captionButtonsBoxWidth = rect($("titlebar-buttonbox")).width;
+
+#ifdef XP_MACOSX
+      let secondaryButtonWidth = rect($("titlebar-fullscreen-button")).width;
+#endif
+
       // Get the height and margins separately for the menubar
       let menuHeight = rect(menubar).height;
       let menuStyles = window.getComputedStyle(menubar);
@@ -1892,6 +1897,10 @@ let TabsInTitlebar = {
       titlebar.style.marginBottom = "-" + titlebarContentHeight + "px";
 
       // Finally, size the placeholders:
+#ifdef XP_MACOSX
+      this._sizePlaceholder("fullscreen-button", secondaryButtonWidth);
+#endif
+
       this._sizePlaceholder("caption-buttons", captionButtonsBoxWidth);
 
       if (!this._draghandles) {
@@ -1938,12 +1947,39 @@ let TabsInTitlebar = {
 
 #ifdef CAN_DRAW_IN_TITLEBAR
 function updateTitlebarDisplay() {
+
+#ifdef XP_MACOSX
+    // OS X and the other platforms differ enough to necessitate this kind of
+    // special-casing. Like the other platforms where we CAN_DRAW_IN_TITLEBAR,
+    // we draw in the OS X titlebar when putting the tabs up there. However, OS X
+    // also draws in the titlebar when a lightweight theme is applied, regardless
+    // of whether or not the tabs are drawn in the titlebar.
+    if (TabsInTitlebar.enabled) {
+      document.documentElement.setAttribute("chromemargin-nonlwtheme", "0,2,2,2");
+      document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+      document.documentElement.setAttribute("tabsintitlebar", "true");
+    } else {
+      // We set chromemargin-nonlwtheme to "" instead of removing it as a way of
+      // making sure that LightweightThemeConsumer doesn't take it upon itself to
+      // detect this value again if and when we do a lwtheme state change.
+      document.documentElement.setAttribute("chromemargin-nonlwtheme", "");
+      let hasLWTheme = document.documentElement.hasAttribute("lwtheme");
+      if (hasLWTheme) {
+        document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+      } else {
+        document.documentElement.removeAttribute("chromemargin");
+      }
+    }
+
+#else
   document.getElementById("titlebar").hidden = !TabsInTitlebar.enabled;
 
   if (TabsInTitlebar.enabled)
     document.documentElement.setAttribute("chromemargin", "0,2,2,2");
   else
     document.documentElement.removeAttribute("chromemargin");
+
+#endif
 }
 #endif
 

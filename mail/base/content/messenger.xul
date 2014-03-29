@@ -266,6 +266,9 @@
         <toolbarbutton class="titlebar-button" id="titlebar-close" oncommand="window.close()"/>
       </hbox>
     </hbox>
+#ifdef XP_MACOSX
+    <hbox id="titlebar-fullscreen-button"/>
+#endif
   </hbox>
 </vbox>
 #endif
@@ -311,7 +314,17 @@
                    tabcontainer="tabcontainer"/>
       </toolbarbutton>
 #ifdef CAN_DRAW_IN_TITLEBAR
-      <hbox class="titlebar-placeholder" type="caption-buttons" ordinal="1000"/>
+      <hbox class="titlebar-placeholder" type="caption-buttons"
+            id="titlebar-placeholder-on-TabsToolbar-for-captions-buttons" persist="width"
+#ifndef XP_MACOSX
+            ordinal="1000"
+#endif
+            />
+#ifdef XP_MACOSX
+      <hbox class="titlebar-placeholder" type="fullscreen-button"
+            id="titlebar-placeholder-on-TabsToolbar-for-fullscreen-button" persist="width"
+            />
+#endif
 #endif
     </toolbar>
 
