@@ -21,7 +21,7 @@ About.prototype = {
   dataURI: "chrome://communicator/content/dataman/dataman.xul",
   feedsFlags: SCRIPT | UNTRUSTED | HIDE,
   feedsURI: "chrome://communicator/content/feeds/subscribe.xhtml",
-  lifeFlags: SCRIPT | HIDE,
+  lifeFlags: SCRIPT | UNTRUSTED | HIDE,
   lifeURI: "chrome://communicator/content/aboutLife.xhtml",
   privatebrowsingFlags: SCRIPT,
   privatebrowsingURI: "chrome://communicator/content/aboutPrivateBrowsing.xul",
