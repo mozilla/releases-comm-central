@@ -15,6 +15,12 @@ Components.utils.import("resource:///modules/FileUtils.jsm");
  */
 function calDeletedItems() {
     this.wrappedJSObject = this;
+
+    this.completedNotifier = {
+      handleResult: function() {},
+      handleError: function() {},
+      handleCompletion: function() {},
+    };
 }
 
 const calDeletedItemsClassID = Components.ID("{8e6799af-e7e9-4e6c-9a82-a2413e86d8c3}");
@@ -38,10 +44,15 @@ calDeletedItems.prototype = {
     DB_SCHEMA_VERSION: 1,
     STALE_TIME: 30 * 24 * 60 * 60 / 1000, /* 30 days */
 
+    // To make the tests more failsafe, we have an internal notifier function.
+    // As the deleted items store is just meant to be a hint, this should not
+    // be used in real code.
+    completedNotifier: null,
+
     flush: function flush() {
         this.ensureStatements();
         this.stmtFlush.params.stale_time = cal.now().nativeTime - this.STALE_TIME;
-        this.stmtFlush.executeAsync();
+        this.stmtFlush.executeAsync(this.completedNotifier);
     },
 
     getDeletedDate: function calDeletedItems_getDeleted(aId, aCalId) {
@@ -75,13 +86,13 @@ calDeletedItems.prototype = {
         this.stmtMarkDelete.params.id = aItem.id;
         this.stmtMarkDelete.params.time = cal.now().nativeTime;
         this.stmtMarkDelete.params.rid = (aItem.recurrenceId && aItem.recurrenceId.nativeTime) || "";
-        this.stmtMarkDelete.executeAsync();
+        this.stmtMarkDelete.executeAsync(this.completedNotifier);
     },
 
     unmarkDeleted: function calDeletedItems_unmarkDeleted(aItem) {
         this.ensureStatements();
         this.stmtUnmarkDelete.params.id = aItem.id;
-        this.stmtUnmarkDelete.executeAsync();
+        this.stmtUnmarkDelete.executeAsync(this.completedNotifier);
     },
 
     initDB: function initDB() {
