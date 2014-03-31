@@ -334,7 +334,10 @@ function check_menu_states_single(index, expected) {
  * @param expected a dictionary containing the expected states
  */
 function check_menu_states_all(expected) {
-  mc.rightClick(mc.eid("attachmentList"));
+  // Using a rightClick here is unsafe, because we need to hit the empty area
+  // beside the attachment items and that seems to be different per platform.
+  // Using DOM methods to open the popup works fine.
+  mc.e("attachmentListContext").openPopup(mc.e("attachmentList"));
   wait_for_popup_to_open(mc.e("attachmentListContext"));
 
   try {
