@@ -16,6 +16,8 @@ messenger.jar:
 % overlay chrome://editor/content/composerOverlay.xul                          chrome://messenger/content/mailEditorOverlay.xul
 % overlay chrome://editor/content/EdImageOverlay.xul                           chrome://messenger/content/messengercompose/mailComposeEditorOverlay.xul
 % overlay chrome://editor/content/EdLinkProps.xul                              chrome://messenger/content/messengercompose/mailComposeEditorOverlay.xul
+    content/messenger/browserRequest.xul
+    content/messenger/browserRequest.js
     content/messenger/msgViewPickerOverlay.js
     content/messenger/mailViewSetup.js
     content/messenger/mailViewSetup.xul
