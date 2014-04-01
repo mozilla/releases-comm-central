@@ -717,8 +717,8 @@ function GetExtensionBasedOnMimeType(aMIMEType)
 {
   try {
     var mimeService = null;
-    mimeService = Components.classes["@mozilla.org/mime;1"].getService();
-    mimeService = mimeService.QueryInterface(Components.interfaces.nsIMIMEService);
+    mimeService = Components.classes["@mozilla.org/mime;1"]
+                            .getService(Components.interfaces.nsIMIMEService);
 
     var fileExtension = mimeService.getPrimaryExtension(aMIMEType, null);
 

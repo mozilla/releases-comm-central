@@ -11,10 +11,8 @@
 const CUST_DEBUG = false;
 
 // the rdf service
-var RDF = '@mozilla.org/rdf/rdf-service;1'
-RDF = Components.classes[RDF].getService();
-RDF = RDF.QueryInterface(Components.interfaces.nsIRDFService);
-
+var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
+                    .getService(Components.interfaces.nsIRDFService);
 var NC = "http://home.netscape.com/NC-rdf#";
 
 var sidebarObj = new Object;

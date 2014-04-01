@@ -425,8 +425,8 @@ EngineView.prototype = {
   },
 
   getSourceIndexFromDrag: function () {
-    var dragService = Cc["@mozilla.org/widget/dragservice;1"].
-                      getService().QueryInterface(Ci.nsIDragService);
+    var dragService = Cc["@mozilla.org/widget/dragservice;1"]
+                      .getService(Ci.nsIDragService);
     var dragSession = dragService.getCurrentSession();
     var transfer = Cc["@mozilla.org/widget/transferable;1"].
                    createInstance(Ci.nsITransferable);

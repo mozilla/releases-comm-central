@@ -16,8 +16,8 @@ var gSkipFirstRecordButton;
 
 function OnLoadFieldMapImport()
 {
-  top.importService = Components.classes["@mozilla.org/import/import-service;1"].getService();
-  top.importService = top.importService.QueryInterface(Components.interfaces.nsIImportService);
+  top.importService = Components.classes["@mozilla.org/import/import-service;1"]
+                                .getService(Components.interfaces.nsIImportService);
 
   // We need a field map object...
   // assume we have one passed in? or just make one?

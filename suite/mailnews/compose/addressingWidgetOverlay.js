@@ -10,8 +10,9 @@ var selectElementIndexTable = null;
 
 var gNumberOfCols = 0;
 
-var gDragService = Components.classes["@mozilla.org/widget/dragservice;1"].getService();
-gDragService = gDragService.QueryInterface(Components.interfaces.nsIDragService);
+var gDragService = Components.classes["@mozilla.org/widget/dragservice;1"]
+                             .getService(Components.interfaces.nsIDragService);
+
 var gMimeHeaderParser = null;
 
 /**

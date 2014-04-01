@@ -292,8 +292,8 @@ function LoadPreviewImage()
       let uri = Services.io.newURI(imageSrc, null, null);
       if (uri)
       {
-        let imgCacheService = Components.classes["@mozilla.org/image/cache;1"].getService();
-        let imgCache = imgCacheService.QueryInterface(Components.interfaces.imgICache);
+        let imgCache = Components.classes["@mozilla.org/image/cache;1"]
+                                 .getService(Components.interfaces.imgICache);
 
         // This returns error if image wasn't in the cache; ignore that
         imgCache.removeEntry(uri);

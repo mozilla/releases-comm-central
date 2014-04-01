@@ -221,8 +221,8 @@ function messagePaneOnClick(event)
   // not put up a new browser window.  we should just let the usual processing
   // take place.
   try {
-    var extProtService = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"].getService();
-    extProtService = extProtService.QueryInterface(Components.interfaces.nsIExternalProtocolService);
+    var extProtService = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                                   .getService(Components.interfaces.nsIExternalProtocolService);
     var scheme = href.substring(0, href.indexOf(":"));
     if (!extProtService.isExposedProtocol(scheme))
       return true;

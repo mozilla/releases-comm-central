@@ -134,8 +134,8 @@ function Init()
   }
 
   // Note: set encoding BEFORE setting "ref" (important!)
-  var RDF = Components.classes[RDFSERVICE_CONTRACTID].getService();
-  if (RDF) RDF = RDF.QueryInterface(nsIRDFService);
+  var RDF = Components.classes[RDFSERVICE_CONTRACTID]
+                      .getService(nsIRDFService);
   if (RDF) {
     loadingArc = RDF.GetResource(NC_LOADING, true);
 

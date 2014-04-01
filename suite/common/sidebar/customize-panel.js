@@ -4,9 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // the rdf service
-var RDF = '@mozilla.org/rdf/rdf-service;1'
-RDF = Components.classes[RDF].getService();
-RDF = RDF.QueryInterface(Components.interfaces.nsIRDFService);
+var RDF = Components.classes["@mozilla.org/rdf/rdf-service;"]
+                    .getService(Components.interfaces.nsIRDFService);
 
 var NC = "http://home.netscape.com/NC-rdf#";
 

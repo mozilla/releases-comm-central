@@ -31,12 +31,12 @@ function Startup() {
   //   cookieManager 
  
   // xpconnect to cookiemanager/permissionmanager/promptservice interfaces
-  cookiemanager = Components.classes["@mozilla.org/cookiemanager;1"].getService();
-  cookiemanager = cookiemanager.QueryInterface(Components.interfaces.nsICookieManager);
-  permissionmanager = Components.classes["@mozilla.org/permissionmanager;1"].getService();
-  permissionmanager = permissionmanager.QueryInterface(Components.interfaces.nsIPermissionManager);
-  promptservice = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService();
-  promptservice = promptservice.QueryInterface(Components.interfaces.nsIPromptService);
+  cookiemanager = Components.classes["@mozilla.org/cookiemanager;1"]
+                            .getService(Components.interfaces.nsICookieManager);
+  permissionmanager = Components.classes["@mozilla.org/permissionmanager;1"]
+                                .getService(Components.interfaces.nsIPermissionManager);
+  promptservice = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
 
   // intialize gDateService
   if (!gDateService) {

@@ -45,9 +45,8 @@ const SB_DEBUG = false;
 var gNumTabsInViewPref;
 
 // The rdf service
-const RDF_URI = '@mozilla.org/rdf/rdf-service;1';
-var RDF = Components.classes[RDF_URI].getService();
-RDF = RDF.QueryInterface(Components.interfaces.nsIRDFService);
+var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
+                    .getService(Components.interfaces.nsIRDFService);
 
 const NC = "http://home.netscape.com/NC-rdf#";
 
