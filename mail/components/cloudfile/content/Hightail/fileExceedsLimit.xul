@@ -2,7 +2,7 @@
 <!DOCTYPE overlay [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % fileExceedsLimitDTD SYSTEM "chrome://messenger/locale/cloudfile/YouSendIt/fileExceedsLimit.dtd" >
+<!ENTITY % fileExceedsLimitDTD SYSTEM "chrome://messenger/locale/cloudfile/Hightail/fileExceedsLimit.dtd" >
 %fileExceedsLimitDTD;
 ]>
 
@@ -11,7 +11,7 @@
    - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/cloudfile/YouSendIt/fileExceedsLimit.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/cloudfile/Hightail/fileExceedsLimit.css" type="text/css"?>
 
 <dialog id="fileExceedsLimit"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -22,18 +22,18 @@
         title="&fileExceedsLimit.title;">
 
   <script type="text/javascript;version=1.8"
-          src="chrome://messenger/content/cloudfile/YouSendIt/fileExceedsLimit.js"/>
+          src="chrome://messenger/content/cloudfile/Hightail/fileExceedsLimit.js"/>
 
   <description id="title">&fileExceedsLimit.thatsBigFile;</description>
   <description id="title2">&fileExceedsLimit.thatsBigFile2;</description>
   <description id="proIncludes">&fileExceedsLimit.proIncludes;</description>
   <description>
-    <image src="chrome://messenger/skin/cloudfile/YouSendIt/check.png"/><label>&fileExceedsLimit.pros1;</label>
+    <image src="chrome://messenger/skin/cloudfile/Hightail/check.png"/><label>&fileExceedsLimit.pros1;</label>
   </description>
   <description>
-    <image src="chrome://messenger/skin/cloudfile/YouSendIt/check.png"/><label>&fileExceedsLimit.pros2;</label>
+    <image src="chrome://messenger/skin/cloudfile/Hightail/check.png"/><label>&fileExceedsLimit.pros2;</label>
   </description>
   <description>
-    <image src="chrome://messenger/skin/cloudfile/YouSendIt/check.png"/><label>&fileExceedsLimit.pros3;</label>
+    <image src="chrome://messenger/skin/cloudfile/Hightail/check.png"/><label>&fileExceedsLimit.pros3;</label>
   </description>
 </dialog>

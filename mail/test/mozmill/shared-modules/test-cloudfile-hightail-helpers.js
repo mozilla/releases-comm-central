@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "cloudfile-yousendit-helpers";
+const MODULE_NAME = "cloudfile-hightail-helpers";
 
 Cu.import('resource://mozmill/stdlib/httpd.js');
 Cu.import('resource://gre/modules/Services.jsm');
@@ -84,23 +84,23 @@ const kDefaultCommitReturn = {
 }
 
 function installInto(module) {
-  module.MockYouSendItServer = MockYouSendItServer;
-  module.MockYouSendItAuthCounter = MockYouSendItAuthCounter;
-  module.MockYouSendItDeleterStaleToken = MockYouSendItDeleterStaleToken;
-  module.remember_ysi_credentials = remember_ysi_credentials;
+  module.MockHightailServer = MockHightailServer;
+  module.MockHightailAuthCounter = MockHightailAuthCounter;
+  module.MockHightailDeleterStaleToken = MockHightailDeleterStaleToken;
+  module.remember_hightail_credentials = remember_hightail_credentials;
 }
 
-function MockYouSendItServer() {
-  this.auth = new MockYouSendItAuthSimple(this);
-  this.userInfo = new MockYouSendItUserInfoSimple(this);
-  this.registry = new MockYouSendItItemIdRegistry(this);
-  this.committer = new MockYouSendItCommitterSimple(this);
-  this.receiver = new MockYouSendItReceiverSimple(this);
-  this.deleter = new MockYouSendItDeleterSimple(this);
-  this.preparer = new MockYouSendItPrepareSimple(this);
+function MockHightailServer() {
+  this.auth = new MockHightailAuthSimple(this);
+  this.userInfo = new MockHightailUserInfoSimple(this);
+  this.registry = new MockHightailItemIdRegistry(this);
+  this.committer = new MockHightailCommitterSimple(this);
+  this.receiver = new MockHightailReceiverSimple(this);
+  this.deleter = new MockHightailDeleterSimple(this);
+  this.preparer = new MockHightailPrepareSimple(this);
 }
 
-MockYouSendItServer.prototype = {
+MockHightailServer.prototype = {
   _server: null,
 
   getPreparedBackend: function MDBS_getPreparedBackend(aAccountKey) {
@@ -110,14 +110,14 @@ MockYouSendItServer.prototype = {
 
     cloudFileAccounts.setSecretValue(aAccountKey, cloudFileAccounts.kTokenRealm, "someAuthToken");
 
-    let yousendit = Cc["@mozilla.org/mail/yousendit;1"]
+    let hightail = Cc["@mozilla.org/mail/hightail;1"]
                     .createInstance(Ci.nsIMsgCloudFileProvider);
 
     let urls = [kServerURL];
-    yousendit.overrideUrls(urls.length, urls);
-    yousendit.init(aAccountKey);
+    hightail.overrideUrls(urls.length, urls);
+    hightail.init(aAccountKey);
 
-    return yousendit;
+    return hightail;
   },
 
   init: function MDBS_init(aConfig) {
@@ -154,7 +154,7 @@ MockYouSendItServer.prototype = {
       allDone = true;
     });
     aController.waitFor(function () allDone,
-                        "Timed out waiting for YouSendIt server to stop!",
+                        "Timed out waiting for Hightail server to stop!",
                         10000);
   },
 
@@ -192,12 +192,12 @@ MockYouSendItServer.prototype = {
  * an authorization token, and fires the cloudfile:auth observable
  * topic.
  */
-function MockYouSendItAuthSimple(aYouSendIt) {
+function MockHightailAuthSimple(aHightail) {
   this._server = null;
   this._auth = null;
 }
 
-MockYouSendItAuthSimple.prototype = {
+MockHightailAuthSimple.prototype = {
   init: function(aServer) {
     this._server = aServer;
     this._auth = generateObservableRequestHandler(
@@ -213,12 +213,12 @@ MockYouSendItAuthSimple.prototype = {
   },
 }
 
-function MockYouSendItUserInfoSimple(aYouSendIt) {
+function MockHightailUserInfoSimple(aHightail) {
   this._server = null;
   this._userInfo = null;
 }
 
-MockYouSendItUserInfoSimple.prototype = {
+MockHightailUserInfoSimple.prototype = {
   init: function(aServer) {
     this._server = aServer;
   },
@@ -241,12 +241,12 @@ MockYouSendItUserInfoSimple.prototype = {
   },
 };
 
-function MockYouSendItItemIdRegistry(aYouSendIt) {
+function MockHightailItemIdRegistry(aHightail) {
   this._itemIdMap = {};
   this._itemIds = [];
 }
 
-MockYouSendItItemIdRegistry.prototype = {
+MockHightailItemIdRegistry.prototype = {
   init: function(aServer) {
     this._itemIdMap = {};
     this._itemIds = [];
@@ -290,16 +290,16 @@ MockYouSendItItemIdRegistry.prototype = {
 }
 
 /**
- * A simple preparation handler for a YouSendIt mock server. Allows
+ * A simple preparation handler for a Hightail mock server. Allows
  * a client to query for a unique URL to upload to.  Redirects the actual
  * uploads to the passed receiver
  */
-function MockYouSendItPrepareSimple(aYouSendIt) {
+function MockHightailPrepareSimple(aHightail) {
   this._server = null;
-  this._ysi = aYouSendIt;
+  this._hightail = aHightail;
 }
 
-MockYouSendItPrepareSimple.prototype = {
+MockHightailPrepareSimple.prototype = {
   init: function(aServer) {
     this._server = aServer;
     this._server.registerPathHandler(kFolderInitUploadPath,
@@ -307,8 +307,8 @@ MockYouSendItPrepareSimple.prototype = {
     
     this._foldersId = {
       root: 0,
-      Apps: this._ysi.registry.createItemId(),
-      "Mozilla Thunderbird" : this._ysi.registry.createItemId()
+      Apps: this._hightail.registry.createItemId(),
+      "Mozilla Thunderbird" : this._hightail.registry.createItemId()
     };
     
     // Set up folders info
@@ -344,7 +344,7 @@ MockYouSendItPrepareSimple.prototype = {
   },
 
   _prepare: function(aRequest, aResponse) {
-    let fileId = this._ysi.registry.createItemId();
+    let fileId = this._hightail.registry.createItemId();
     let uploadPath = kDefaultFileUploadPath + "/" + fileId;
 
     let injectedData = {
@@ -356,16 +356,16 @@ MockYouSendItPrepareSimple.prototype = {
 
     // Set up the path that will accept an uploaded file
     this._server.registerPathHandler(uploadPath,
-                                     this._ysi.receiver.receiveUpload
-                                                       .bind(this._ysi.receiver));
+                                     this._hightail.receiver.receiveUpload
+                                         .bind(this._hightail.receiver));
 
     // Set up the path that will accept file deletion
 
     let deletePath = kDeletePath + "/" + fileId;
 
     this._server.registerPathHandler(deletePath,
-                                     this._ysi.deleter.receiveDelete
-                                                      .bind(this._ysi.deleter));
+                                     this._hightail.deleter.receiveDelete
+                                                      .bind(this._hightail.deleter));
 
     let data = overrideDefault(kDefaultFilePrepare, injectedData);
     aResponse.setStatusLine(null, 200, "OK");
@@ -375,15 +375,15 @@ MockYouSendItPrepareSimple.prototype = {
 
 };
 
-function MockYouSendItReceiverSimple(aYouSendIt) {
+function MockHightailReceiverSimple(aHightail) {
   this._server = null;
-  this._ysi = aYouSendIt;
+  this._hightail = aHightail;
   this._expectedFiles = [];
   this._mSeconds = {};
   this._timers = [];
 }
 
-MockYouSendItReceiverSimple.prototype = {
+MockHightailReceiverSimple.prototype = {
   init: function(aServer) {
     this._server = aServer;
   },
@@ -421,7 +421,7 @@ MockYouSendItReceiverSimple.prototype = {
 
     let itemId = formData['bid'];
     // Tell the committer how to map the uuid to the filename
-    this._ysi.registry.setMapping(itemId, filename);
+    this._hightail.registry.setMapping(itemId, filename);
 
     // De-register this URL...
     this._server.registerPathHandler(aRequest.path, null);
@@ -454,14 +454,14 @@ MockYouSendItReceiverSimple.prototype = {
   }
 };
 
-function MockYouSendItCommitterSimple(aYouSendIt) {
+function MockHightailCommitterSimple(aHightail) {
   this._server = null;
-  this._ysi = aYouSendIt;
+  this._hightail = aHightail;
   this._itemIdMap = {};
   this._filenameURLMap = {};
 }
 
-MockYouSendItCommitterSimple.prototype = {
+MockHightailCommitterSimple.prototype = {
   init: function(aServer) {
     this._server = aServer;
     // Since fileId is in query, we need to register path only once.
@@ -486,14 +486,14 @@ MockYouSendItCommitterSimple.prototype = {
     fileId = fileId.substring(fileId.indexOf("fileId=") + 7);
     fileId = fileId.substring(0, fileId.indexOf("&"));
 
-    if (!this._ysi.registry.hasItemId(fileId)) {
+    if (!this._hightail.registry.hasItemId(fileId)) {
       aResponse.setStatusLine(null, 500, "Bad request");
       aResponse.write("The item ID " + fileId + " did not map to an item we "
                       + "were prepared for committing");
       return;
     }
 
-    let filename = this._ysi.registry.lookupFilename(fileId);
+    let filename = this._hightail.registry.lookupFilename(fileId);
     let url;
     
     if (filename in this._filenameURLMap)
@@ -515,13 +515,13 @@ MockYouSendItCommitterSimple.prototype = {
   },
 };
 
-function MockYouSendItDeleterSimple(aYouSendIt) {
+function MockHightailDeleterSimple(aHightail) {
   this._server = null;
-  this._ysi = aYouSendIt;
+  this._hightail = aHightail;
   this._expectDelete = [];
 }
 
-MockYouSendItDeleterSimple.prototype = {
+MockHightailDeleterSimple.prototype = {
   init: function(aServer) {
     this._server = aServer;
   },
@@ -537,14 +537,14 @@ MockYouSendItDeleterSimple.prototype = {
 
     let fileId = aRequest.path.substring(kDeletePath.length + 1);
 
-    if (!this._ysi.registry.hasItemId(fileId)) {
+    if (!this._hightail.registry.hasItemId(fileId)) {
       aResponse.setStatusLine(null, 500, "Bad request");
       aResponse.write("The item ID " + fileId + " did not map to an item "
                       + "we were prepared for deleting");
       return;
     }
 
-    let filename = this._ysi.registry.lookupFilename(fileId);
+    let filename = this._hightail.registry.lookupFilename(fileId);
     let itemIndex = this._expectDelete.indexOf(filename);
     if (itemIndex == -1) {
       aResponse.setStatusLine(null, 500, "Bad request");
@@ -568,12 +568,12 @@ MockYouSendItDeleterSimple.prototype = {
   },
 };
 
-function MockYouSendItDeleterStaleToken(aYouSendIt) {
+function MockHightailDeleterStaleToken(aHightail) {
   this._server = null;
-  this._ysi = aYouSendIt;
+  this._hightail = aHightail;
 }
 
-MockYouSendItDeleterStaleToken.prototype = {
+MockHightailDeleterStaleToken.prototype = {
   init: function(aServer) {
     this._server = aServer;
   },
@@ -591,13 +591,13 @@ MockYouSendItDeleterStaleToken.prototype = {
   prepareForDelete: function(aFilename) {},
 };
 
-function MockYouSendItAuthCounter(aYouSendIt) {
+function MockHightailAuthCounter(aHightail) {
   this._server = null;
-  this._ysi = aYouSendIt;
+  this._hightail = aHightail;
   this.count = 0;
 }
 
-MockYouSendItAuthCounter.prototype = {
+MockHightailAuthCounter.prototype = {
 
   init: function(aServer) {
     this._server = aServer;
@@ -620,13 +620,13 @@ MockYouSendItAuthCounter.prototype = {
 
 /**
  * Adds a username and password pair to nsILoginManager
- * for the YouSendIt provider instance to retrieve. This may
+ * for the Hightail provider instance to retrieve. This may
  * fail if a password already exists for aUserrname.
  *
  * @param aUsername the username to save the password for
  * @param aPassword the password to save
  */
-function remember_ysi_credentials(aUsername, aPassword) {
+function remember_hightail_credentials(aUsername, aPassword) {
   let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
                   .createInstance(Ci.nsILoginInfo);
 

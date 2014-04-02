@@ -3,19 +3,19 @@
   * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests the YouSendIt Bigfile backend.
+ * Tests the Hightail Bigfile backend.
  */
 
 let Cu = Components.utils;
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 
-const MODULE_NAME = 'test-cloudfile-backend-yousendit';
+const MODULE_NAME = 'test-cloudfile-backend-hightail';
 
 const RELATIVE_ROOT = '../shared-modules';
 const MODULE_REQUIRES = ['folder-display-helpers',
                          'compose-helpers',
-                         'cloudfile-yousendit-helpers',
+                         'cloudfile-hightail-helpers',
                          'observer-helpers',
                          'prompt-helpers',];
 
@@ -36,7 +36,7 @@ function setupModule(module) {
   let cbh = collector.getModule('cloudfile-backend-helpers');
   cbh.installInto(module);
 
-  let cyh = collector.getModule('cloudfile-yousendit-helpers');
+  let cyh = collector.getModule('cloudfile-hightail-helpers');
   cyh.installInto(module);
 
   let oh = collector.getModule('observer-helpers');
@@ -48,15 +48,15 @@ function setupModule(module) {
   gObsManager = new cbh.SimpleRequestObserverManager();
 
   // Enable logging for this group of tests.
-  Services.prefs.setCharPref("YouSendIt.logging.dump", "All");
+  Services.prefs.setCharPref("Hightail.logging.dump", "All");
 };
 
 function teardownModule(module) {
-  Services.prefs.clearUserPref("YouSendIt.logging.dump");
+  Services.prefs.clearUserPref("Hightail.logging.dump");
 }
 
 function setupTest() {
-  gServer = new MockYouSendItServer();
+  gServer = new MockHightailServer();
   gServer.init();
   gServer.start();
 }
@@ -242,15 +242,15 @@ function test_delete_refreshes_stale_token() {
   const kFilename = "testFile1";
   const kUserEmail = "test@example.com";
 
-  // Stop the default YSI mock server, and create our own.
+  // Stop the default Hightail mock server, and create our own.
   gServer.stop(mc);
-  gServer = new MockYouSendItServer();
+  gServer = new MockHightailServer();
   // Replace the auth component with one that counts auth
   // requests.
-  gServer.auth = new MockYouSendItAuthCounter(gServer);
+  gServer.auth = new MockHightailAuthCounter(gServer);
   // Replace the deleter component with one that returns the
   // stale token error.
-  gServer.deleter = new MockYouSendItDeleterStaleToken(gServer);
+  gServer.deleter = new MockHightailDeleterStaleToken(gServer);
   // Fire up the server.
   gServer.init();
   gServer.start();
@@ -260,7 +260,7 @@ function test_delete_refreshes_stale_token() {
   // We're testing to make sure that we refresh on stale tokens
   // iff a password has been remembered for the user, so make
   // sure we remember a password...
-  remember_ysi_credentials(kUserEmail, "somePassword");
+  remember_hightail_credentials(kUserEmail, "somePassword");
 
   // Get a prepared provider...
   let provider = gServer.getPreparedBackend("someAccountKey");
@@ -288,7 +288,7 @@ function test_delete_refreshes_stale_token() {
 }
 
 /**
- * Test for bug 771132 - if YouSendIt returns malformed URLs, prefix with
+ * Test for bug 771132 - if Hightail returns malformed URLs, prefix with
  * https://.
  */
 function test_bug771132_fix_no_scheme() {

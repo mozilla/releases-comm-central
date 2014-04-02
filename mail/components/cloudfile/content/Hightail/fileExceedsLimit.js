@@ -10,18 +10,9 @@ const Cr = Components.results;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-document.addEventListener("DOMContentLoaded", function() {
-  if ("wrappedJSObject" in window.arguments[0]) {
-    let storage = parseInt(window.arguments[0].wrappedJSObject.storage);
-    storage = (storage / 1024 / 1024 / 1024).toFixed(2);
-    let currentStorage = document.getElementById('currentStorage');
-    currentStorage.textContent = currentStorage.textContent.replace('#XXX', storage);
-  }
-});
-
-let fileExceedsQuota = {
+let fileExceedsLimit = {
   onOK: function AAD_onOK() {
-    let href = "https://www.yousendit.com/prosignup?p_code=pro&s=4001637&cid=pm-4001637";
+    let href = "https://www.hightail.com/prosignup?p_code=pro&s=4001636&cid=pm-4001636";
     gProtocolService.loadUrl(Services.io.newURI(href, "UTF-8", null));
   },
 }

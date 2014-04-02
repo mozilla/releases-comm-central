@@ -2,7 +2,7 @@
 <!DOCTYPE overlay [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % fileExceeds2GBDTD SYSTEM "chrome://messenger/locale/cloudfile/YouSendIt/fileExceeds2GB.dtd" >
+<!ENTITY % fileExceeds2GBDTD SYSTEM "chrome://messenger/locale/cloudfile/Hightail/fileExceeds2GB.dtd" >
 %fileExceeds2GBDTD;
 ]>
 

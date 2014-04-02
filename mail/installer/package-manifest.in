@@ -184,7 +184,7 @@
 @BINPATH@/components/nsActivity.js
 @BINPATH@/components/nsActivityManager.js
 @BINPATH@/components/nsActivityManagerUI.js
-@BINPATH@/components/nsYouSendIt.js
+@BINPATH@/components/nsHightail.js
 @BINPATH@/components/nsUbuntuOne.js
 @BINPATH@/components/nsBox.js
 @BINPATH@/components/nsAddrbook.manifest

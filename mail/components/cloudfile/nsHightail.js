@@ -4,7 +4,7 @@
 
 /* This file implements the nsIMsgCloudFileProvider interface.
  *
- * This component handles the YouSendIt implementation of the
+ * This component handles the Hightail implementation of the
  * nsIMsgCloudFileProvider interface.
  */
 
@@ -27,24 +27,24 @@ const kFolderInitUploadPath = kFolderPath + "file/initUpload";
 const kFolderCommitUploadPath = kFolderPath + "file/commitUpload";
 const kUrlTail = "s=4001583&cid=pm-4001583";
 
-function nsYouSendIt() {
-  this.log = Log4Moz.getConfiguredLogger("YouSendIt");
+function nsHightail() {
+  this.log = Log4Moz.getConfiguredLogger("Hightail");
 }
 
-nsYouSendIt.prototype = {
+nsHightail.prototype = {
   /* nsISupports */
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
 
-  classID: Components.ID("{32fd439f-9eb6-4907-ac0b-2c88eb14d98d}"),
+  classID: Components.ID("{dd2bce44-ca71-42ce-b806-6fa4e073919c}"),
 
-  get type() "YouSendIt",
-  get displayName() "YouSendIt",
-  get serviceURL() "https://www.yousendit.com",
-  get iconClass() "chrome://messenger/skin/icons/yousendit.png",
+  get type() "YouSendIt", // Saved in prefs, cannot change!
+  get displayName() "Hightail",
+  get serviceURL() "https://www.hightail.com",
+  get iconClass() "chrome://messenger/skin/icons/hightail.png",
   get accountKey() this._accountKey,
   get lastError() this._lastErrorText,
-  get settingsURL() "chrome://messenger/content/cloudfile/YouSendIt/settings.xhtml",
-  get managementURL() "chrome://messenger/content/cloudfile/YouSendIt/management.xhtml",
+  get settingsURL() "chrome://messenger/content/cloudfile/Hightail/settings.xhtml",
+  get managementURL() "chrome://messenger/content/cloudfile/Hightail/management.xhtml",
 
   _accountKey: false,
   _prefBranch: null,
@@ -73,7 +73,7 @@ nsYouSendIt.prototype = {
    * Used by our testing framework to override the URLs that this component
    * communicates to.
    */
-  overrideUrls: function nsYouSendIt_overrideUrls(aNumUrls, aUrls) {
+  overrideUrls: function(aNumUrls, aUrls) {
     gServerUrl = aUrls[0];
   },
 
@@ -84,7 +84,7 @@ nsYouSendIt.prototype = {
    * @param aAccountKey the account key to initialize this
    *                    nsIMsgCloudFileProvider with.
    */
-  init: function nsYouSendIt_init(aAccountKey) {
+  init: function(aAccountKey) {
     this._accountKey = aAccountKey;
     this._prefBranch = Services.prefs.getBranch("mail.cloud_files.accounts." +
                                                 aAccountKey + ".");
@@ -94,11 +94,11 @@ nsYouSendIt.prototype = {
 
   /**
    * Private function for retrieving or creating folder
-   * on YouSendIt website for uploading file.
+   * on Hightail website for uploading file.
    *
    * @param aCallback called if folder is ready.
    */
-  _initFolder: function nsYouSendIt__initFolder(aCallback) {
+  _initFolder: function(aCallback) {
     this.log.info('_initFolder');
     
     let saveFolderId = function(aFolderId) {
@@ -133,14 +133,13 @@ nsYouSendIt.prototype = {
 
   /**
    * Private callback function passed to, and called from
-   * nsYouSendItFileUploader.
+   * nsHightailFileUploader.
    *
    * @param aRequestObserver a request observer for monitoring the start and
    *                         stop states of a request.
    * @param aStatus the status of the request.
    */
-  _uploaderCallback: function nsYouSendIt__uploaderCallback(aRequestObserver,
-                                                            aStatus) {
+  _uploaderCallback: function(aRequestObserver, aStatus) {
     aRequestObserver.onStopRequest(null, null, aStatus);
 
     this._uploadingFile = null;
@@ -163,13 +162,13 @@ nsYouSendIt.prototype = {
   },
 
   /**
-   * Attempt to upload a file to YouSendIt's servers.
+   * Attempt to upload a file to Hightail's servers.
    *
    * @param aFile an nsILocalFile for uploading.
    * @param aCallback an nsIRequestObserver for monitoring the start and
    *                  stop states of the upload procedure.
    */
-  uploadFile: function nsYouSendIt_uploadFile(aFile, aCallback) {
+  uploadFile: function(aFile, aCallback) {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -178,7 +177,7 @@ nsYouSendIt.prototype = {
     // if we're uploading a file, queue this request.
     if (this._uploadingFile && this._uploadingFile != aFile) {
       this.log.info("Adding file to queue");
-      let uploader = new nsYouSendItFileUploader(this, aFile,
+      let uploader = new nsHightailFileUploader(this, aFile,
                                                  this._uploaderCallback
                                                      .bind(this),
                                                  aCallback);
@@ -227,7 +226,7 @@ nsYouSendIt.prototype = {
    * @param aCallback the nsIRequestObserver for monitoring the start and stop
    *                  states of the upload procedure.
    */
-  _finishUpload: function nsYouSendIt__finishUpload(aFile, aCallback) {
+  _finishUpload: function(aFile, aCallback) {
     if (aFile.fileSize > 2147483648)
       return this._fileExceedsLimit(aCallback, '2GB', 0);
     if (aFile.fileSize > this._maxFileSize)
@@ -239,7 +238,7 @@ nsYouSendIt.prototype = {
     delete this._userInfo; // force us to update userInfo on every upload.
 
     if (!this._uploader) {
-      this._uploader = new nsYouSendItFileUploader(this, aFile,
+      this._uploader = new nsHightailFileUploader(this, aFile,
                                                    this._uploaderCallback
                                                        .bind(this),
                                                    aCallback);
@@ -256,15 +255,15 @@ nsYouSendIt.prototype = {
    * @param aCallback the nsIRequestObserver for monitoring the start and stop
    *                  states of the upload procedure.
    */
-  _fileExceedsLimit: function nsYouSendIt__fileExceedsLimit(aCallback, aType, aStorageSize) {
+  _fileExceedsLimit: function(aCallback, aType, aStorageSize) {
     let cancel = Ci.nsIMsgCloudFileProvider.uploadCanceled;
 
     let args = {storage: aStorageSize};
     args.wrappedJSObject = args;
     Services.ww.openWindow(null,
-                           "chrome://messenger/content/cloudfile/YouSendIt/"
+                           "chrome://messenger/content/cloudfile/Hightail/"
                            + "fileExceeds" + aType + ".xul",
-                           "YouSendIt", "chrome,centerscreen,dialog,modal,resizable=yes",
+                           "Hightail", "chrome,centerscreen,dialog,modal,resizable=yes",
                            args).focus();
 
     return aCallback.onStopRequest(null, null, cancel);
@@ -275,7 +274,7 @@ nsYouSendIt.prototype = {
    *
    * @param aFile the nsILocalFile being uploaded.
    */
-  cancelFileUpload: function nsYouSendIt_cancelFileUpload(aFile) {
+  cancelFileUpload: function(aFile) {
     this.log.info("in cancel upload");
     if (this._uploadingFile != null && this._uploader != null && 
         this._uploadingFile.equals(aFile)) {
@@ -299,8 +298,7 @@ nsYouSendIt.prototype = {
    * @param aSuccessCallback called if token refresh is successful.
    * @param aFailureCallback called if token refresh fails.
    */
-  _handleStaleToken: function nsYouSendIt__handleStaleToken(aSuccessCallback,
-                                                            aFailureCallback) {
+  _handleStaleToken: function(aSuccessCallback, aFailureCallback) {
     this.log.info("Handling a stale token.");
     this._loggedIn = false;
     this._cachedAuthToken = "";
@@ -323,7 +321,7 @@ nsYouSendIt.prototype = {
    * @param failureCallback a callback fired if retrieving profile information
    *                        fails.
    */
-  _getUserInfo: function nsYouSendIt_userInfo(successCallback, failureCallback) {
+  _getUserInfo: function(successCallback, failureCallback) {
     this.log.info("getting user info");
     let args = "?email=" + this._userName + "&";
 
@@ -392,7 +390,7 @@ nsYouSendIt.prototype = {
    *
    * @param aFile the nsILocalFile to get the URL for.
    */
-  urlForFile: function nsYouSendIt_urlForFile(aFile) {
+  urlForFile: function(aFile) {
     return this._urlsForFiles[aFile.path];
   },
 
@@ -405,7 +403,7 @@ nsYouSendIt.prototype = {
    * @param aListener an nsIRequestObserver for monitoring the start and stop
    *                  states of fetching profile information.
    */
-  refreshUserInfo: function nsYouSendIt_refreshUserInfo(aWithUI, aListener) {
+  refreshUserInfo: function(aWithUI, aListener) {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -442,9 +440,8 @@ nsYouSendIt.prototype = {
    * Creates an account for a user.  Note that, currently, this function is
    * not being used by the UI.
    */
-  createNewAccount: function nsYouSendIt_createNewAccount(aEmailAddress, aPassword,
-                                                          aFirstName, aLastName,
-                                                          aRequestObserver) {
+  createNewAccount: function(aEmailAddress, aPassword,aFirstName, aLastName,
+                             aRequestObserver) {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -485,17 +482,15 @@ nsYouSendIt.prototype = {
   },
 
   /**
-   * Attempt to find folder by name on YSI website.
+   * Attempt to find folder by name on Hightail website.
    *
    * @param aFolderName name of folder
    * @param aParentFolderId id of folder where we are looking
    * @param aNotFoundCallback called if folder is not found
    * @param aFoundCallback called if folder is found
    */
-  _findFolder: function nsYouSendIt__findFolder(aFolderName,
-                                                aParentFolderId,
-                                                aNotFoundCallback,
-                                                aFoundCallback) {
+  _findFolder: function(aFolderName, aParentFolderId, aNotFoundCallback,
+                        aFoundCallback) {
     
     this.log.info("Find folder: " + aFolderName);
     
@@ -521,15 +516,13 @@ nsYouSendIt.prototype = {
   },
 
   /**
-   * Attempt to find folder by id on YSI website.
+   * Attempt to find folder by id on Hightail website.
    *
    * @param aFolderId id of folder
    * @param aNotFoundCallback called if folder is not found
    * @param aFoundCallback called if folder is found
    */
-  _checkFolderExist: function nsYouSendIt__checkFolderExist(aFolderId,
-                                                            aFoundCallback,
-                                                            aNotFoundCallback) {
+  _checkFolderExist: function(aFolderId, aFoundCallback, aNotFoundCallback) {
     this.log.info('checkFolderExist');
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
@@ -573,15 +566,13 @@ nsYouSendIt.prototype = {
   },
 
   /**
-   * Private function for creating folder on YSI website.
+   * Private function for creating folder on Hightail website.
    *
    * @param aName name of folder
    * @param aParent id of parent folder
    * @param aSuccessCallback called when folder is created
    */
-  _createFolder: function nsYouSendIt__createFolder(aName,
-                                                    aParent,
-                                                    aSuccessCallback) {
+  _createFolder: function(aName, aParent, aSuccessCallback) {
     this.log.info("Create folder: " + aName);
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
@@ -627,7 +618,7 @@ nsYouSendIt.prototype = {
    * @param aRequestObserver an nsIRequestObserver for monitoring the start and
    *                         stop states of the login procedure.
    */
-  createExistingAccount: function nsYouSendIt_createExistingAccount(aRequestObserver) {
+  createExistingAccount: function(aRequestObserver) {
      // XXX: replace this with a better function
     let successCb = function(aResponseText, aRequest) {
       aRequestObserver.onStopRequest(null, this, Cr.NS_OK);
@@ -647,9 +638,9 @@ nsYouSendIt.prototype = {
    *
    * @param aError an error to get the URL for.
    */
-  providerUrlForError: function nsYouSendIt_providerUrlForError(aError) {
+  providerUrlForError: function(aError) {
     if (aError == Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit)
-      return "http://www.yousendit.com";
+      return "http://www.hightail.com";
     return "";
   },
 
@@ -676,7 +667,7 @@ nsYouSendIt.prototype = {
    * @param aCallback an nsIRequestObserver for monitoring the start and stop
    *                  states of the delete procedure.
    */
-  deleteFile: function nsYouSendIt_deleteFile(aFile, aCallback) {
+  deleteFile: function(aFile, aCallback) {
     this.log.info("Deleting a file");
 
     if (Services.io.offline) {
@@ -759,7 +750,7 @@ nsYouSendIt.prototype = {
    *                  the password prompt if no password exists.  If so,
    *                  returns the empty string if no password exists.
    */
-  getPassword: function nsYouSendIt_getPassword(aUsername, aNoPrompt) {
+  getPassword: function(aUsername, aNoPrompt) {
     this.log.info("Getting password for user: " + aUsername);
 
     if (aNoPrompt)
@@ -800,9 +791,9 @@ nsYouSendIt.prototype = {
   },
  
   /**
-   * Clears any saved YouSendIt passwords for this instance's account.
+   * Clears any saved Hightail passwords for this instance's account.
    */
-  clearPassword: function nsYouSendIt_clearPassword() {
+  clearPassword: function() {
     let logins = Services.logins.findLogins({}, gServerUrl, null, gServerUrl);
     for each (let loginInfo in logins)
       if (loginInfo.username == this._userName)
@@ -810,14 +801,14 @@ nsYouSendIt.prototype = {
   },
 
   /**
-   * Attempt to log on and get the auth token for this YouSendIt account.
+   * Attempt to log on and get the auth token for this Hightail account.
    *
    * @param successCallback the callback to be fired if logging on is successful
    * @param failureCallback the callback to be fired if loggong on fails
    * @aparam aWithUI a boolean for whether or not we should prompt for a password
    *                 if no auth token is currently stored.
    */
-  logon: function nsYouSendIt_login(successCallback, failureCallback, aWithUI) {
+  logon: function(successCallback, failureCallback, aWithUI) {
     this.log.info("Logging in, aWithUI = " + aWithUI);
     if (this._password == undefined || !this._password)
       this._password = this.getPassword(this._userName, !aWithUI);
@@ -884,18 +875,17 @@ nsYouSendIt.prototype = {
   },
 };
 
-function nsYouSendItFileUploader(aYouSendIt, aFile, aCallback,
-                                 aRequestObserver) {
-  this.youSendIt = aYouSendIt;
-  this.log = this.youSendIt.log;
-  this.log.info("new nsYouSendItFileUploader file = " + aFile.leafName);
+function nsHightailFileUploader(aHightail, aFile, aCallback, aRequestObserver) {
+  this.hightail = aHightail;
+  this.log = this.hightail.log;
+  this.log.info("new nsHightailFileUploader file = " + aFile.leafName);
   this.file = aFile;
   this.callback = aCallback;
   this.requestObserver = aRequestObserver;
 }
 
-nsYouSendItFileUploader.prototype = {
-  youSendIt : null,
+nsHightailFileUploader.prototype = {
+  hightail : null,
   file : null,
   callback : null,
   _request : null,
@@ -903,7 +893,7 @@ nsYouSendItFileUploader.prototype = {
   /**
    * Kicks off the upload procedure for this uploader.
    */
-  startUpload: function nsYSIFU_startUpload() {
+  startUpload: function() {
     let curDate = Date.now().toString();
 
     this.requestObserver.onStartRequest(null, null);
@@ -920,14 +910,13 @@ nsYouSendItFileUploader.prototype = {
   },
 
   /**
-   * Communicates with YSI to get the URL that we will send the upload
+   * Communicates with Hightail to get the URL that we will send the upload
    * request to.
    *
    * @param successCallback the callback fired if getting the URL is successful
    * @param failureCallback the callback fired if getting the URL fails
    */
-  _prepareToSend: function nsYSIFU__prepareToSend(successCallback,
-                                                  failureCallback) {
+  _prepareToSend: function(successCallback, failureCallback) {
     let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
                 .createInstance(Ci.nsIXMLHttpRequest);
 
@@ -939,7 +928,7 @@ nsYouSendItFileUploader.prototype = {
       let response = req.responseText;
       if (req.status >= 200 && req.status < 400) {
         this._urlInfo = JSON.parse(response);
-        this.youSendIt._uploadInfo[this.file.path] = this._urlInfo;
+        this.hightail._uploadInfo[this.file.path] = this._urlInfo;
         this.log.info("in prepare to send response = " + response);
         this.log.info("file id = " + this._urlInfo.fileId);
         this.log.info("upload url = " + this._urlInfo.uploadUrl[0]);
@@ -948,8 +937,8 @@ nsYouSendItFileUploader.prototype = {
       else {
         this.log.error("Preparing to send failed!");
         this.log.error("Response was: " + response);
-        this.youSendIt._lastErrorText = req.responseText;
-        this.youSendIt._lastErrorStatus = req.status;
+        this.hightail._lastErrorText = req.responseText;
+        this.hightail._lastErrorStatus = req.status;
         failureCallback();
       }
     }.bind(this);
@@ -957,7 +946,7 @@ nsYouSendItFileUploader.prototype = {
     // Add a space at the end because http logging looks for two
     // spaces in the X-Auth-Token header to avoid putting passwords
     // in the log, and crashes if there aren't two spaces.
-    req.setRequestHeader("X-Auth-Token", this.youSendIt._cachedAuthToken + " ");
+    req.setRequestHeader("X-Auth-Token", this.hightail._cachedAuthToken + " ");
     req.setRequestHeader("X-Api-Key", kApiKey);
     req.setRequestHeader("Accept", "application/json");
     req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -966,9 +955,9 @@ nsYouSendItFileUploader.prototype = {
 
   /**
    * Once we've got the URL to upload the file to, this function actually does
-   * the upload of the file to YouSendIt.
+   * the upload of the file to Hightail.
    */
-  _uploadFile: function nsYSIFU__uploadFile() {
+  _uploadFile: function() {
     let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
                 .createInstance(Ci.nsIXMLHttpRequest);
 
@@ -1073,7 +1062,7 @@ nsYouSendItFileUploader.prototype = {
   /**
    * Cancels the upload request for the file associated with this Uploader.
    */
-  cancel: function nsYSIFU_cancel() {
+  cancel: function() {
     this.log.info("in uploader cancel");
     this.callback(this.requestObserver, Ci.nsIMsgCloudFileProvider.uploadCanceled);
     delete this.callback;
@@ -1091,13 +1080,13 @@ nsYouSendItFileUploader.prototype = {
    * Once the file is uploaded, if we want to get a sharing URL back, we have
    * to send a "commit" request - which this function does.
    */
-  _commitSend: function nsYSIFU__commitSend() {
+  _commitSend: function() {
     this.log.info("commit sending file " + this._urlInfo.fileId);
     let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
                 .createInstance(Ci.nsIXMLHttpRequest);
     let args = "?name=" + this.file.leafName +
                "&fileId=" + this._urlInfo.fileId +
-               "&parentId=" + this.youSendIt._folderId + "&";
+               "&parentId=" + this.hightail._folderId + "&";
 
     req.open("POST", gServerUrl + kFolderCommitUploadPath + args + kUrlTail, true);
 
@@ -1124,21 +1113,21 @@ nsYouSendItFileUploader.prototype = {
       }.bind(this);
 
       if (uploadInfo.errorStatus) {
-        this.youSendIt._lastErrorText = uploadInfo.errorStatus.message;
-        this.youSendIt._lastErrorStatus = uploadInfo.errorStatus.code;
+        this.hightail._lastErrorText = uploadInfo.errorStatus.message;
+        this.hightail._lastErrorStatus = uploadInfo.errorStatus.code;
         failed();
       }
       else if (uploadInfo.clickableDownloadUrl) {
-        // We need a kludge here because YSI is returning URLs without the scheme...
+        // We need a kludge here because Hightail is returning URLs without the scheme...
         let url = this._ensureScheme(uploadInfo.clickableDownloadUrl);
-        this.youSendIt._urlsForFiles[this.file.path] = url;
+        this.hightail._urlsForFiles[this.file.path] = url;
         succeed();
       }
       else
         this._findDownloadUrl(uploadInfo.id, succeed, failed);
     }.bind(this);
 
-    req.setRequestHeader("X-Auth-Token", this.youSendIt._cachedAuthToken + " ");
+    req.setRequestHeader("X-Auth-Token", this.hightail._cachedAuthToken + " ");
     req.setRequestHeader("X-Api-Key", kApiKey);
     req.setRequestHeader("Accept", "application/json");
     req.send();
@@ -1150,7 +1139,7 @@ nsYouSendItFileUploader.prototype = {
    *
    * @param aURL to ensure a scheme with
    */
-  _ensureScheme: function nsYSIFU__ensureScheme(aURL) {
+  _ensureScheme: function(aURL) {
     try {
       let scheme = Services.io.extractScheme(aURL);
       return aURL;
@@ -1170,7 +1159,7 @@ nsYouSendItFileUploader.prototype = {
    * @param aSuccessCallback called if url is found
    * @param aFailureCallback called if url is not found
    */
-  _findDownloadUrl: function nsYSIFU__findDownloadUrl(aFileId, aSuccessCallback, aFailureCallback) {
+  _findDownloadUrl: function(aFileId, aSuccessCallback, aFailureCallback) {
     let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
                 .createInstance(Ci.nsIXMLHttpRequest);
 
@@ -1189,14 +1178,14 @@ nsYouSendItFileUploader.prototype = {
       if (fileInfo.errorStatus)
         aFailureCallback();
       else {
-        // We need a kludge here because YSI is returning URLs without the scheme...
+        // We need a kludge here because Hightail is returning URLs without the scheme...
         let url = this._ensureScheme(fileInfo.clickableDownloadUrl);
-        this.youSendIt._urlsForFiles[this.file.path] = url;
+        this.hightail._urlsForFiles[this.file.path] = url;
         aSuccessCallback();
       }
     }.bind(this);
 
-    req.setRequestHeader("X-Auth-Token", this.youSendIt._cachedAuthToken + " ");
+    req.setRequestHeader("X-Auth-Token", this.hightail._cachedAuthToken + " ");
     req.setRequestHeader("X-Api-Key", kApiKey);
     req.setRequestHeader("Accept", "application/json");
     req.send();
@@ -1205,7 +1194,7 @@ nsYouSendItFileUploader.prototype = {
   /**
    * Creates and returns a temporary file on the local file system.
    */
-  getTempFile: function nsYSIFU_getTempFile(leafName) {
+  getTempFile: function(leafName) {
     let tempfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     tempfile.append(leafName)
     tempfile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
@@ -1214,10 +1203,10 @@ nsYouSendItFileUploader.prototype = {
   },
 
   /**
-   * Cleans up any temporary files that this nsYouSendItFileUploader may have
+   * Cleans up any temporary files that this nsHightailFileUploader may have
    * created.
    */
-  cleanupTempFile: function nsYSIFU_cleanupTempFile() {
+  cleanupTempFile: function() {
     if (this._bufStream)
       this._bufStream.close();
     if (this._fstream)
@@ -1227,4 +1216,4 @@ nsYouSendItFileUploader.prototype = {
   },
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsYouSendIt]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsHightail]);

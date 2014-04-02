@@ -84,15 +84,13 @@ var cloudFileAccounts = {
     try {
       let className = categoryManager.getCategoryEntry(CATEGORY, aType);
       let provider = Cc[className].createInstance(Ci.nsIMsgCloudFileProvider);
-
       return provider;
     } catch (e if e.result == Cr.NS_ERROR_NOT_AVAILABLE) {
       // If a provider is not available we swallow the error message.
     } catch (e) {
       // Otherwise at least notify, so developers can fix things.
-      Cu.reportError(e);
+      Cu.reportError("Getting provider for type=" + aType + " FAILED; " + e);
     }
-
     return null;
   },
 

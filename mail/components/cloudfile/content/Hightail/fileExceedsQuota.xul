@@ -2,7 +2,7 @@
 <!DOCTYPE overlay [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % fileExceedsQuotaDTD SYSTEM "chrome://messenger/locale/cloudfile/YouSendIt/fileExceedsQuota.dtd" >
+<!ENTITY % fileExceedsQuotaDTD SYSTEM "chrome://messenger/locale/cloudfile/Hightail/fileExceedsQuota.dtd" >
 %fileExceedsQuotaDTD;
 ]>
 
@@ -11,7 +11,7 @@
    - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/cloudfile/YouSendIt/fileExceedsLimit.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/cloudfile/Hightail/fileExceedsLimit.css" type="text/css"?>
 
 <dialog id="fileExceedsQuota"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -22,7 +22,7 @@
         title="&fileExceedsQuota.title;">
 
   <script type="text/javascript;version=1.8"
-          src="chrome://messenger/content/cloudfile/YouSendIt/fileExceedsQuota.js"/>
+          src="chrome://messenger/content/cloudfile/Hightail/fileExceedsQuota.js"/>
 
   <description id="title">&fileExceedsQuota.storageLimitReached;</description>
   <description id="currentStorage">&fileExceedsQuota.description;</description>
