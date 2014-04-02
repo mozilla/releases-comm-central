@@ -175,7 +175,7 @@ function initializeSearchRows(scope, searchTerms)
 {
     for (var i = 0; i < searchTerms.Count(); i++) {
         var searchTerm = searchTerms.QueryElementAt(i, nsIMsgSearchTerm);
-        createSearchRow(i, scope, searchTerm);
+        createSearchRow(i, scope, searchTerm, false);
         gTotalSearchTerms++;
     }
     initializeBooleanWidgets();
@@ -240,7 +240,7 @@ function onMore(event)
   else
     rowIndex = gSearchTermList.getRowCount();
 
-  createSearchRow(rowIndex, gSearchScope, null);
+  createSearchRow(rowIndex, gSearchScope, null, event != null);
   gTotalSearchTerms++;
   updateRemoveRowButton();
 
@@ -304,7 +304,16 @@ function booleanChanged(event) {
     }
 }
 
-function createSearchRow(index, scope, searchTerm)
+/**
+ * Create a new search row with all the needed elements.
+ *
+ * @param index       index of the position in the menulist where to add the row
+ * @param scope       a nsMsgSearchScope constant indicating scope of this search rule
+ * @param searchTerm  nsIMsgSearchTerm object to hold the search term
+ * @param aUserAdded  boolean indicating if the row addition was initiated by the user
+ *                    (e.g. via the '+' button)
+ */
+function createSearchRow(index, scope, searchTerm, aUserAdded)
 {
     var searchAttr = document.createElement("searchattribute");
     var searchOp = document.createElement("searchoperator");
@@ -362,7 +371,12 @@ function createSearchRow(index, scope, searchTerm)
       var currentItem = gSearchTermList.getItemAtIndex(index);
       gSearchTermList.insertBefore(searchrow, currentItem);
     }
-    
+
+    // If this row was added by user action, focus the value field.
+    if (aUserAdded) {
+      document.commandDispatcher.advanceFocusIntoSubtree(searchVal);
+    }
+
     // bump our unique search term counter
     gUniqueSearchTermCounter++;
 }
