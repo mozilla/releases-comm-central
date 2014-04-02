@@ -17,7 +17,6 @@
 #include "nsDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsEmbedCID.h"
-#include "nsIStringBundle.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
 

@@ -9,7 +9,7 @@
 #include "nsISimpleEnumerator.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-
+#include "nsIProperties.h"
 #include "nsArrayEnumerator.h"
 #include "nsEnumeratorUtils.h"
 #include "nsAppDirectoryServiceDefs.h"

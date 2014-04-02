@@ -23,7 +23,6 @@
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
 #include "nsIBaseWindow.h"
-#include "nsIWidget.h"
 #include "MailNewsTypes.h"
 #include "nsIMessengerWindowService.h"
 #include "prprf.h"

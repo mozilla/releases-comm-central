@@ -9,8 +9,13 @@ SOURCES += [
 
 # NOTE: if we switch away from LIBXUL_LIBRARY at any stage
 # we need to clear the EMBED_MANIFEST_AT flag. (See Bug 714495)
-FINAL_LIBRARY = 'xul'
-EXPORT_LIBRARY = True
+if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
+    IS_COMPONENT = True
+    FORCE_SHARED_LIB = True
+else:
+    FINAL_LIBRARY = 'xul'
 
+EXPORT_LIBRARY = True
 LIBRARY_NAME = 'mailcomps'
+
 
