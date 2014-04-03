@@ -11,6 +11,8 @@ contract @mozilla.org/network/protocol/about;1?what=privatebrowsing {d54f2c89-8f
 contract @mozilla.org/network/protocol/about;1?what=rights {d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}
 contract @mozilla.org/network/protocol/about;1?what=sessionrestore {d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}
 contract @mozilla.org/network/protocol/about;1?what=sync-tabs {d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}
+component {22042bdb-56e4-47c6-8b12-fdfa859c05a9} nsGopherProtocolStubHandler.js
+contract @mozilla.org/network/protocol;1?name=gopher {22042bdb-56e4-47c6-8b12-fdfa859c05a9}
 component {4e6c1112-57b6-44ba-adf9-99fb573b0a30} nsSessionStartup.js
 contract @mozilla.org/suite/sessionstartup;1 {4e6c1112-57b6-44ba-adf9-99fb573b0a30}
 category app-startup SessionStartup service,@mozilla.org/suite/sessionstartup;1

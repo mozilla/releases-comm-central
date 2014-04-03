@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html [
+  <!ENTITY % htmlDTD
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "DTD/xhtml1-strict.dtd">
+  %htmlDTD;
+  <!ENTITY % gopherAddonDTD
+    SYSTEM "chrome://communicator/locale/gopherAddon.dtd">
+  %gopherAddonDTD;
+]>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>&loadError.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/netError.css" type="text/css"/>
+    <script type="application/javascript"><![CDATA[
+
+       function goToAddOn() {
+         document.location = "https://addons.mozilla.org/addon/7685";
+       }
+
+    ]]></script>
+  </head>
+
+  <body>
+    <div id="errorPageContainer">
+
+      <!-- Error Title -->
+      <div id="errorTitle">
+        <h1 id="errorTitleText">&gopherAddon.title;</h1>
+      </div>
+
+      <div id="errorLongContent">
+
+        <!-- Short Description -->
+        <div id="errorShortDesc">
+          <p id="errorShortDescText">&gopherAddon.shortDesc;</p>
+        </div>
+
+        <!-- Long Description -->
+        <div id="errorLongDesc">&gopherAddon.longDesc;</div>
+
+      </div>
+      <!-- Go To Add-On Button -->
+      <button id="errorTryAgain" onclick="goToAddOn()">&goToAddOn.label;</button>
+
+   </div>
+  </body>
+</html>
