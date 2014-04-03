@@ -135,6 +135,25 @@
     <!-- Items are generated, see popupBlockerMenuShowing() -->
     <menupopup id="popupNotificationMenu"/>
     <menupopup id="networkProperties"/>
+
+    <menupopup id="security-context-menu"
+               onpopupshowing="onViewSecurityContextMenu();">
+      <menuitem id="viewSecurityInfo"
+                default="true"
+                label="&viewSecurityInfo.label;"
+                accesskey="&viewSecurityInfo.accesskey;"
+                oncommand="BrowserPageInfo(null, 'securityTab');"/>
+      <menuitem id="viewCertificate"
+                label="&viewCertificate.label;"
+                accesskey="&viewCertificate.accesskey;"
+                oncommand="viewCertificate();"/>
+      <menuseparator/>
+      <menuitem  id="viewCertManager"
+                 label="&viewCertManager.label;"
+                 accesskey="&viewCertManager.accesskey;"
+                 oncommand="openCertManager();"/>
+    </menupopup>
+
   </popupset>
 
   <!-- context menu -->
@@ -488,6 +507,7 @@
     <statusbarpanel class="statusbarpanel-iconic" id="offline-status"/>
     <statusbarpanel class="statusbarpanel-backgroundbox"
                     id="security-button" dir="reverse"
+                    context="security-context-menu"
                     oncommand="BrowserPageInfo(null, 'securityTab')"/>
   </statusbar> 
 </window>

@@ -2739,3 +2739,35 @@ function AddKeywordForSearchField() {
   PlacesUIUtils.showMinimalAddBookmarkUI(makeURI(spec), title, description, null,
                                          null, null, "", postData, charset);
 }
+
+function getCert()
+{
+  var sslStatus = getBrowser().securityUI
+                              .QueryInterface(Components.interfaces.nsISSLStatusProvider)
+                              .SSLStatus;
+
+  return sslStatus && sslStatus.serverCert;
+}
+
+function viewCertificate()
+{
+  var cert = getCert();
+
+  if (cert)
+  {
+    Components.classes["@mozilla.org/nsCertificateDialogs;1"]
+              .getService(Components.interfaces.nsICertificateDialogs)
+              .viewCert(window, cert);
+  }
+}
+
+function openCertManager()
+{
+  toOpenWindowByType("mozilla:certmanager", "chrome://pippki/content/certManager.xul",
+                     "resizable,dialog=no,centerscreen");
+}
+
+function onViewSecurityContextMenu()
+{
+  document.getElementById("viewCertificate").disabled = !getCert();
+}
