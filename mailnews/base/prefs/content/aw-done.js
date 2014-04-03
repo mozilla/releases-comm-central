@@ -140,6 +140,7 @@ function donePageInit() {
     else {
         setDivTextFromForm("server.name", null);
         setDivTextFromForm("server.type", null);
+        setDivTextFromForm("server.port", null);
         setDivTextFromForm("smtpServer.name", null);
     }
 
