@@ -4,11 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 %endif
 #tabs-toolbar {
-  var-tabHeight: 31px;
-  var-tabCurveWidth: 30px;
-  var-tabCurveWidthNegative: -30px;
-  var-tabCurveHalfWidth: 15px;
-  var-tabCurveHalfWidthNegative: -15px;
+  --tabHeight: 31px;
+  --tabCurveWidth: 30px;
+  --tabCurveWidthNegative: -30px;
+  --tabCurveHalfWidth: 15px;
+  --tabCurveHalfWidthNegative: -15px;
 }
 
 /* image preloading hack */
@@ -42,9 +42,9 @@
 .tab-background-middle {
   -moz-box-flex: 1;
   background-clip: padding-box;
-  border-left: var(tabCurveHalfWidth) solid transparent;
-  border-right: var(tabCurveHalfWidth) solid transparent;
-  margin: 0 var(tabCurveHalfWidthNegative);
+  border-left: var(--tabCurveHalfWidth) solid transparent;
+  border-right: var(--tabCurveHalfWidth) solid transparent;
+  margin: 0 var(--tabCurveHalfWidthNegative);
 }
 
 .tab-content {
@@ -82,13 +82,13 @@
 
 .tab-background {
   /* overlap the tab curves */
-  -moz-margin-end: var(tabCurveHalfWidthNegative);
-  -moz-margin-start: var(tabCurveHalfWidthNegative);
+  -moz-margin-end: var(--tabCurveHalfWidthNegative);
+  -moz-margin-start: var(--tabCurveHalfWidthNegative);
 }
 
 .tabmail-arrowscrollbox > scrollbox {
-  -moz-padding-end: var(tabCurveHalfWidth);
-  -moz-padding-start: var(tabCurveHalfWidth);
+  -moz-padding-end: var(--tabCurveHalfWidth);
+  -moz-padding-start: var(--tabCurveHalfWidth);
 }
 
 .tab-background-start[selected=true]::after,
@@ -97,8 +97,8 @@
 .tab-background-end,
 .tab-background-end[selected=true]::after,
 .tab-background-end[selected=true]::before {
-  min-height: var(tabHeight);
-  width: var(tabCurveWidth);
+  min-height: var(--tabHeight);
+  width: var(--tabCurveWidth);
 }
 
 .tabmail-tab:-moz-lwtheme {
@@ -121,7 +121,7 @@
 .tab-background-start[selected=true]::after,
 .tab-background-end[selected=true]::after {
   /* position ::after on top of its parent */
-  -moz-margin-start: var(tabCurveWidthNegative);
+  -moz-margin-start: var(--tabCurveWidthNegative);
   background-size: 100% 100%;
   content: '';
   display: -moz-box;
@@ -195,11 +195,11 @@
   background-image: url(tabs/background-start.png),
                     url(tabs/background-middle.png),
                     url(tabs/background-end.png);
-  background-position: left bottom, var(tabCurveWidth) bottom, right bottom;
+  background-position: left bottom, var(--tabCurveWidth) bottom, right bottom;
   background-repeat: no-repeat;
-  background-size: var(tabCurveWidth) 100%,
-                   calc(100% - (2 * var(tabCurveWidth))) 100%,
-                   var(tabCurveWidth) 100%;
+  background-size: var(--tabCurveWidth) 100%,
+                   calc(100% - (2 * var(--tabCurveWidth))) 100%,
+                   var(--tabCurveWidth) 100%;
 }
 
 /* Tab pointer-events */
