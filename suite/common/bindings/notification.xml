@@ -2124,14 +2124,15 @@
           if (browser.pageReport.length > 100)
             browser.pageReport.shift();
 
+          var tmp = {};
+          Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
           if (this._prefs.getBoolPref("privacy.popups.showBrowserMessage"))
           {
             var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
-            var message;
-            if (this.popupCount > 1)
-              message = this._stringBundle.formatStringFromName("popupWarningMultiple", [brandShortName, this.popupCount], 2);
-            else
-              message = this._stringBundle.formatStringFromName("popupWarning", [brandShortName], 1);
+            var message = this._stringBundle.GetStringFromName("popupWarning.message");
+            message = tmp.PluralForm.get(this.popupCount, message)
+                                    .replace("#1", brandShortName)
+                                    .replace("#2", this.popupCount);
 
             var notification = this.getNotificationWithValue("popup-blocked");
             if (notification) {
