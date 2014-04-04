@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-%include windowsShared.inc
-%filter substitution
+@import url("chrome://messenger/skin/shared/tabmail.css");
 
 /**
  * Tabmail Tabs
@@ -20,7 +19,6 @@
 /**
  * Tab
  */
-%include ../../shared/mail/tabs.inc.css
 
 @media (-moz-windows-theme: luna-blue),
        (-moz-windows-theme: royale),

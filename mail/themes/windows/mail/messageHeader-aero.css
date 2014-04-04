@@ -6,7 +6,7 @@
  == Styles for the header toolbars of a mail message.
  ======================================================================= */
 
-%include ../../shared/mail/messageHeader.inc.css
+@import url("chrome://messenger/skin/shared/messageHeader.css");
 
 /* ::::: for the entire area ::::: */
 .main-header-area {

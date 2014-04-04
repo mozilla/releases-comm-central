@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-%include linuxShared.inc
-%filter substitution
+@import url("chrome://messenger/skin/shared/tabmail.css");
 
 /**
  * Tabmail Tabs
@@ -40,7 +39,6 @@ tabpanels {
 /**
  * Tab
  */
-%include ../../shared/mail/tabs.inc.css
 
 .tabmail-tab {
   list-style-image: url("moz-icon://stock/gtk-file?size=menu");

@@ -1,8 +1,9 @@
-%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-%endif
+
+@import url("chrome://messenger/skin/sharedPlatform.css");
+
 #tabs-toolbar {
   --tabHeight: 31px;
   --tabCurveWidth: 30px;
@@ -17,9 +18,9 @@
   -moz-box-ordinal-group: 0;
   content: '';
   display: block;
-  background-image: url(tabs/background-end.png),
-                    url(tabs/background-middle.png),
-                    url(tabs/background-start.png);
+  background-image: url("chrome://messenger/skin/tabs/background-start.png"),
+                    url("chrome://messenger/skin/tabs/background-middle.png"),
+                    url("chrome://messenger/skin/tabs/background-end.png");
 }
 
 .tabmail-tab {
@@ -137,13 +138,13 @@
 
 .tab-background-start[selected=true]:-moz-locale-dir(ltr):not(:-moz-lwtheme)::before,
 .tab-background-end[selected=true]:-moz-locale-dir(rtl):not(:-moz-lwtheme)::before {
-  background-image: url(tabs/selected-start.svg);
+  background-image: url("chrome://messenger/skin/tabs/selected-start.svg");
   background-size: 100% 100%;
 }
 
 .tab-background-end[selected=true]:-moz-locale-dir(ltr):not(:-moz-lwtheme)::before,
 .tab-background-start[selected=true]:-moz-locale-dir(rtl):not(:-moz-lwtheme)::before {
-  background-image: url(tabs/selected-end.svg);
+  background-image: url("chrome://messenger/skin/tabs/selected-end.svg");
   background-size: 100% 100%;
 }
 
@@ -160,19 +161,19 @@
 
 .tab-background-start[selected=true]:-moz-locale-dir(ltr)::after,
 .tab-background-end[selected=true]:-moz-locale-dir(rtl)::after {
-  background-image: url(tabs/stroke-start.png);
+  background-image: url("chrome://messenger/skin/tabs/stroke-start.png");
 }
 
 .tab-background-end[selected=true]:-moz-locale-dir(ltr)::after,
 .tab-background-start[selected=true]:-moz-locale-dir(rtl)::after {
-  background-image: url(tabs/stroke-end.png);
+  background-image: url("chrome://messenger/skin/tabs/selected-end.png");
 }
 
 .tab-background-middle[selected=true] {
   background-clip: padding-box, padding-box, content-box;
-  background-color: @fgTabBackgroundColor@;
-  background-image: url(tabs/active-middle.png),
-                    @fgTabTexture@,
+  background-color: var(--fgTabBackgroundColor);
+  background-image: url("chrome://messenger/skin/tabs/active-middle.png"),
+                    var(--fgTabTexture),
                     none;
   background-repeat: repeat-x;
   background-size: auto 100%;
@@ -192,9 +193,9 @@
 
 /* new tab button border and gradient on hover */
 .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
-  background-image: url(tabs/background-start.png),
-                    url(tabs/background-middle.png),
-                    url(tabs/background-end.png);
+  background-image: url("chrome://messenger/skin/tabs/background-start.png"),
+                    url("chrome://messenger/skin/tabs/background-middle.png"),
+                    url("chrome://messenger/skin/tabs/background-end.png");
   background-position: left bottom, var(--tabCurveWidth) bottom, right bottom;
   background-repeat: no-repeat;
   background-size: var(--tabCurveWidth) 100%,
@@ -217,7 +218,7 @@
 .tabmail-tab:not([selected]):not(:hover)::before {
   -moz-margin-start: -1.5px;
   -moz-margin-end: -1.5px;
-  background-image: url(tabs/separator.png);
+  background-image: url("chrome://messenger/skin/tabs/separator.png");
   background-position: left bottom;
   background-repeat: no-repeat;
   background-size: 3px 100%;

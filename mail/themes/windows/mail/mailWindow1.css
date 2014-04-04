@@ -13,8 +13,7 @@
 @import url("chrome://messenger/skin/folderMenus.css");
 @import url("chrome://messenger/skin/folderPane.css");
 @import url("chrome://messenger/skin/tagColors.css");
-
-%include ../../shared/mail/mailWindow1.inc.css
+@import url("chrome://messenger/skin/mailWindow1.css");
 
 /* give the toolbox a min-height of 41px for Australis theme */
 .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,

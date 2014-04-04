@@ -1,0 +1,10 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --fgTabTexture: linear-gradient(transparent, transparent 2px, hsla(0, 0%, 100%, 0.6) 2px, hsla(0, 0%, 100%, 0.6) 3px, hsl(0, 0%, 99%) 3px, hsl(0, 0%, 93%));
+  --toolbarColorLWT: rgba(253, 253, 253, 0.45);
+  --fgTabTextureLWT: linear-gradient(transparent, transparent 2px, rgba(254, 254, 254, 0.72) 2px, var(--toolbarColorLWT));
+  --fgTabBackgroundColor: transparent;
+}

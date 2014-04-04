@@ -8,7 +8,7 @@
 
 @import url("chrome://global/skin/");
 @import url("chrome://messenger/content/messenger.css");
-%include ../../shared/mail/messenger.inc.css
+@import url("chrome://messenger/skin/shared/messenger.css");
 
 .toolbar-primary {
   border-top: none;
