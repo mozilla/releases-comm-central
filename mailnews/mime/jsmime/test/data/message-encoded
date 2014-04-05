@@ -1,0 +1,24 @@
+Content-Type: multipart/mixed; boundary="iamaboundary"
+
+This is a text message in MIME format.
+This part shouldn't appear in the output.
+
+--iamaboundary
+Content-Type: message/rfc822
+
+Subject: I am a subject
+
+This is a plain-text message.
+--iamaboundary
+Content-Type: message/global
+Content-Transfer-Encoding: base64
+
+U3ViamVjdDog56eB44Gv44CB5Lu25ZCN5Y2I5YmNDQoNCkkgYW0gYSBwbGFpbi10ZXh0IG1lc3NhZ2Uu
+--iamaboundary
+Content-Type: message/news
+Content-Transfer-Encoding: quoted-printable
+
+Subject: =e7=a7=81=e3=81=af=e3=80=81=e4=bb=b6=e5=90=8d=e5=8d=88=e5=89=8d
+
+I am an encoded plain-text message.
+--iamaboundary--

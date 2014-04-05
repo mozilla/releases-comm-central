@@ -75,18 +75,8 @@ function read_file(file, start, end) {
  *                 of the file from [line start, line end) [1-based lines]
  */
 function make_body_test(test, file, opts, partspec) {
-  var results = [[p[0], read_file(file, p[1], p[2])] for each (p in partspec)];
+  var results = [[p[0], read_file(file, p[1], p[2])] for (p of partspec)];
   var msgcontents = read_file(file);
-  var packetize = extract_field(opts, "_split");
-  if (packetize !== undefined)
-    msgcontents = msgcontents.split(packetize);
-  var eol = extract_field(opts, "_eol");
-  if (eol !== undefined) {
-    msgcontents = msgcontents.replace(/\r\n/g, eol);
-    for (var part of results) {
-      part[1] = part[1].replace(/\r\n/g, eol);
-    }
-  }
   return [test, msgcontents, opts, results];
 }
 
@@ -106,24 +96,6 @@ let mpart_complex1 = [['1', 8, 10], ['2', 14, 16], ['3.1', 22, 24],
 // Note that for body tests, unless you're testing decoding, it is preferable to
 // use make_body_test instead of writing the array yourself.
 let parser_tests = [
-  // The following tests are either degenerate or error cases that should work
-  ["Empty string", "", {}, {'': {}}],
-  ["No value for header", "Header", {}, {'': {"header": [null]}}],
-  ["Header no val", "A: EOF", {}, {'': {"a": ["EOF"]}}],
-  ["Header no val", "A: EOF\r\n", {}, {'': {"a": ["EOF"]}}],
-  ["No body no headers", "\r\n\r\n", {}, {'': {}}],
-  ["Body no headers", "\r\n\r\nA", {}, {'': {}}],
-
-  // Basic cases for headers
-  ['Multiparts get headers', read_file("multipart-complex1"), {},
-    { '': {'content-type': ['multipart/mixed; boundary="boundary"']},
-      '1': {'content-type': ['application/octet-stream'],
-            'content-transfer-encoding': ['base64']},
-      '2': {'content-type': ['image/png'],
-            'content-transfer-encoding': ['base64']},
-      '3': {'content-type': ['multipart/related; boundary="boundary2"']},
-      '3.1': {'content-type': ['text/html']},
-      '4': {'content-type': ['text/plain']}, '5': {} }],
   // Body tests from data
   // (Note: line numbers are 1-based. Also, to capture trailing EOF, add 2 to
   // the last line number of the file).
@@ -143,10 +115,6 @@ let parser_tests = [
           "'s even a CRLF at the end and one at the beginning, but the output" +
           " shouldn't have it.\r\n"]]],
   ["Base64 decode 2", read_file("base64-2"), {bodyformat: "decode"},
-    [['', "<html><body>This is base64 encoded HTML text, and the tags shouldn" +
-          "'t be stripped.\r\n<b>Bold text is bold!</b></body></html>\r\n"]]],
-  ["Base64 decode line issues", read_file("base64-2").split(/(\r\n)/),
-    {bodyformat: "decode"},
     [['', "<html><body>This is base64 encoded HTML text, and the tags shouldn" +
           "'t be stripped.\r\n<b>Bold text is bold!</b></body></html>\r\n"]]],
   make_body_test("Base64 nodecode", "base64-1", {}, [['', 4, 9]]),
@@ -171,58 +139,9 @@ let parser_tests = [
     ['12$.3$.4$', 24848, 25872]]),
   make_body_test("Torture pruneat", "mime-torture", {"pruneat": '4'},
     [['4', 7747, 8213]]),
-
-  // Test packetization problems
-  make_body_test("Large packets", "multipart-complex1",
-    {"_split": /(.{30})/}, mpart_complex1),
-  make_body_test("Split on newline", "multipart-complex1",
-    {"_split": /(\r\n)/}, mpart_complex1),
-  make_body_test("Pathological splitting", "multipart-complex1",
-    {"_split": ''}, mpart_complex1),
-
-  // Non-CLRF line endings?
-  make_body_test("LF-based messages", "multipart-complex1",
-    {"_eol": "\n"}, mpart_complex1),
-  make_body_test("CR-based messages", "multipart-complex1",
-    {"_eol": "\r"}, mpart_complex1),
-
-  // 'From ' is not an [iterable] header
-  ['Exclude mbox delimiter', read_file('bugmail11'), {}, {'': {
-    'x-mozilla-status': ['0001'], 'x-mozilla-status2': ['00000000'],
-    'x-mozilla-keys': [''],
-    'return-path': ['<example@example.com>', '<bugzilla-daemon@mozilla.org>'],
-    'delivered-to': ['bugmail@example.org'],
-    'received': ['by 10.114.166.12 with SMTP id o12cs163262wae;' +
-                 '        Fri, 11 Apr 2008 07:17:31 -0700 (PDT)',
-      'by 10.115.60.1 with SMTP id n1mr214763wak.181.1207923450166;' +
-      '        Fri, 11 Apr 2008 07:17:30 -0700 (PDT)',
-      'from webapp-out.mozilla.org (webapp01.sj.mozilla.com [63.245.208.146])' +
-      '        by mx.google.com with ESMTP id n38si6807242wag.2.2008.04.11.07' +
-      '.17.29;        Fri, 11 Apr 2008 07:17:30 -0700 (PDT)',
-      'from mrapp51.mozilla.org (mrapp51.mozilla.org [127.0.0.1])' +
-      '\tby webapp-out.mozilla.org (8.13.8/8.13.8) with ESMTP id m3BEHTGU0301' +
-      '32\tfor <bugmail@example.org>; Fri, 11 Apr 2008 07:17:29 -0700',
-      '(from root@localhost)' +
-      '\tby mrapp51.mozilla.org (8.13.8/8.13.8/Submit) id m3BEHTk4030129;' +
-      '\tFri, 11 Apr 2008 07:17:29 -0700'],
-    'received-spf': ['neutral (google.com: 63.245.208.146 is neither permitte' +
-      'd nor denied by best guess record for domain of bugzilla-daemon@mozill' +
-      'a.org) client-ip=63.245.208.146;'],
-    'authentication-results': ['mx.google.com; spf=neutral (google.com: 63.24' +
-      '5.208.146 is neither permitted nor denied by best guess record for dom' +
-      'ain of bugzilla-daemon@mozilla.org) smtp.mail=bugzilla-daemon@mozilla.' +
-      'org'],
-    'date': ['Fri, 11 Apr 2008 07:17:29 -0700'],
-    'message-id': ['<200804111417.m3BEHTk4030129@mrapp51.mozilla.org>'],
-    'from': ['bugzilla-daemon@mozilla.org'],'to': ['bugmail@example.org'],
-    'subject': ['Bugzilla: confirm account creation'],
-    'x-bugzilla-type': ['admin'],
-    'content-type': ['text/plain; charset="UTF-8"'], 'mime-version': ['1.0']}}],
 ];
 
 function test_parser(message, opts, results) {
-  if (!(message instanceof Array))
-    message = [message];
   var checkingHeaders = !(results instanceof Array);
   var calls = 0, dataCalls = 0;
   var fusingParts = extract_field(opts, "_nofuseparts") === undefined;
@@ -273,10 +192,7 @@ function test_parser(message, opts, results) {
     }
   };
   opts.onerror = function (e) { throw e; };
-  var parser = MimeParser.makeParser(emitter, opts);
-  for each (var packet in message)
-    parser.deliverData(packet);
-  parser.deliverEOF();
+  MimeParser.parseSync(message, emitter, opts);
   do_check_eq(calls, 2);
   if (!checkingHeaders)
     do_check_eq(dataCalls, results.length);
@@ -301,44 +217,24 @@ let header_tests = [
   ['a;b=1;c=2', MimeParser.HEADER_PARAMETER, ["a", {"b": "1", "c": "2"}]],
   ['a;b="a\\', MimeParser.HEADER_PARAMETER, ["a", {"b": "a"}]],
   ['a;b', MimeParser.HEADER_PARAMETER, ["a", {}]],
-  ['a;b=1"2;c=d', MimeParser.HEADER_PARAMETER, ["a", {"b": '1"2', 'c': "d"}]],
-
-  // Copied from test_MIME_params.js and adapted
-  ["attachment;", ATTACH, ["attachment", {}]],
-  ["attachment; filename=basic", ATTACH, ["attachment", {filename: "basic"}]],
-  ["attachment; filename=\"\\\"\"", ATTACH, ["attachment", {filename: '"'}]],
-  ["attachment; filename=\"\\x\"", ATTACH, ["attachment", {filename: "x"}]],
-  ["attachment; filename=\"\"", ATTACH, ["attachment", {filename: ""}]],
-  ["attachment; filename=", ATTACH, ["attachment", {filename: ""}]],
-  ["attachment; filename X", ATTACH, ["attachment", {}]],
-  ["attachment; filename = foo-A.html", ATTACH,
-    ["attachment", {filename: "foo-A.html"}]],
-  ["attachment; filename=\"", ATTACH, ["attachment", {filename: ""}]],
-  ["attachment; filename=foo; trouble", ATTACH,
-    ["attachment", {filename: "foo"}]],
-  ["attachment; filename=foo; trouble ", ATTACH,
-    ["attachment", {filename: "foo"}]],
-  ["attachment", ATTACH, ["attachment", {}]],
-  // According to comments and bugs, this works in necko, but it doesn't appear
-  // that it ought to. See bug 732369 for more info.
-  ["attachment; extension=bla filename=foo", ATTACH,
-    ["attachment", {extension: "bla"}]],
+  ['a;b=";";c=d', MimeParser.HEADER_PARAMETER, ["a", {"b": ';', 'c': "d"}]],
 ];
 
 function test_header(headerValue, flags, expected) {
   let result = MimeParser.parseHeaderField(headerValue, flags);
-  do_check_eq(uneval(result), uneval(expected));
+  do_check_eq(result.preSemi, expected[0]);
+  compare_objects(result, expected[1]);
 }
 
 function run_test() {
-  for each (let test in parser_tests) {
+  for (let test of parser_tests) {
     dump("Testing message " + test[0]);
     if (test[1] instanceof Array)
       dump(" using " + test[1].length + " packets");
     dump('\n');
     test_parser(test[1], test[2], test[3]);
   }
-  for each (let test in header_tests) {
+  for (let test of header_tests) {
     dump("Testing value ->" + test[0] + "<- with flags " + test[1] + "\n");
     test_header(test[0], test[1], test[2]);
   }

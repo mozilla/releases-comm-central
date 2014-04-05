@@ -1539,7 +1539,7 @@ IMAP_RFC3501_handler.prototype = {
         header = header.toLowerCase();
         if (headers.has(header))
           joinList.push([header + ": " + value
-                         for (value of headers.get(header))].join('\r\n'));
+                         for (value of headers.getRawHeader(header))].join('\r\n'));
       }
       data += joinList.join('\r\n') + "\r\n";
       break;
@@ -1549,7 +1549,7 @@ IMAP_RFC3501_handler.prototype = {
       for (let header of headers) {
         if (!(header in queryArgs))
           joinList.push([header + ": " + value
-                         for (value of headers.get(header))].join('\r\n'));
+                         for (value of headers.getRawHeader(header))].join('\r\n'));
       }
       data += joinList.join('\r\n') + "\r\n";
       break;
@@ -2154,8 +2154,8 @@ function bodystructure(msg, extension) {
   var bodystruct = '';
   function paramToString(params) {
     let paramList = [];
-    for (var param in params)
-      paramList.push('"' + param.toUpperCase() + '" "' + params[param] + '"');
+    for (let [param, value] of params)
+      paramList.push('"' + param.toUpperCase() + '" "' + value + '"');
     return paramList.length == 0 ? 'NIL' : '(' + paramList.join(' ') + ')';
   }
   var headerStack = [];
@@ -2168,38 +2168,33 @@ function bodystructure(msg, extension) {
     },
     deliverPartData: function bodystructure_deliverPartData(partNum, data) {
       this.length += data.length;
-      this.numLines += [x for each (x in data) if (x == '\n')].length;
+      this.numLines += [x for (x of data) if (x == '\n')].length;
     },
     endPart: function bodystructure_endPart(partNum) {
       // Grab the headers from before
       let headers = headerStack.pop();
-      let contentType = headers.has('content-type') ?
-        headers.get('content-type')[0] : 'text/plain';
-      let [type, params] = MimeParser.parseHeaderField(contentType,
-        MimeParser.HEADER_PARAMETER);
-      // Use uppercase canonicalization for now
-      type = type.toUpperCase();
-      let [media, sub] = type.split('/', 2);
-      if (media == "MULTIPART") {
-        bodystruct += ' "' + sub + '"';
+      let contentType = headers.contentType;
+      if (contentType.mediatype == "multipart") {
+        bodystruct += ' "' + contentType.subtype.toUpperCase() + '"';
         if (extension) {
-          bodystruct += ' ' + paramToString(params);
+          bodystruct += ' ' + paramToString(contentType);
           // XXX: implement the rest
           bodystruct += ' NIL NIL NIL';
         }
       } else {
-        bodystruct += '"' + media + '" "' + sub + '"';
-        bodystruct += ' ' + paramToString(params);
+        bodystruct += '"' + contentType.mediatype.toUpperCase() + '" "' +
+          contentType.subtype.toUpperCase() + '"';
+        bodystruct += ' ' + paramToString(contentType);
 
         // XXX: Content ID, Content description
         bodystruct += ' NIL NIL';
 
         let cte = headers.has('content-transfer-encoding') ?
-          headers.get('content-transfer-encoding')[0].toUpperCase() : '7BIT';
+          headers.get('content-transfer-encoding') : '7BIT';
         bodystruct += ' "' + cte + '"';
 
         bodystruct += ' ' + this.length;
-        if (media == "TEXT")
+        if (contentType.mediatype == "text")
           bodystruct += ' ' + this.numLines;
 
         // XXX: I don't want to implement these yet

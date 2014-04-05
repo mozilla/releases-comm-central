@@ -75,6 +75,11 @@ EXTRA_COMPONENTS += [
     'msgMime.manifest',
 ]
 
+EXTRA_JS_MODULES += [
+    'jsmime.jsm',
+    'mimeParser.jsm'
+]
+
 FINAL_LIBRARY = 'mail'
 
 DEFINES['ENABLE_SMIME'] = True

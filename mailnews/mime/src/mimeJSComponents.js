@@ -24,7 +24,7 @@ MimeHeaders.prototype = {
     header = header.toLowerCase();
     if (!this._headers.has(header))
       return null;
-    var values = this._headers.get(header);
+    var values = this._headers.getRawHeader(header);
     if (getAll)
       return values.join(",\r\n\t");
     else

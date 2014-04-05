@@ -82,7 +82,7 @@ function newsArticle(text) {
 
   var headerMap;
   [headerMap, this.body] = MimeParser.extractHeadersAndBody(text);
-  for (var [header, values] of headerMap) {
+  for (var [header, values] of headerMap._rawHeaders) {
     var value = values[0];
     this.headers[header] = value;
     if (header == "message-id") {

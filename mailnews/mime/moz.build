@@ -13,8 +13,9 @@ PARALLEL_DIRS += [
 TEST_DIRS += ['test']
 
 EXTRA_JS_MODULES += [
-    'jsmime/mimeParserCore.js',
+    'jsmime/jsmime.js',
 ]
 
-JS_MODULES_PATH = 'modules/mime'
+JS_MODULES_PATH = 'modules/jsmime'
 
+XPCSHELL_TESTS_MANIFESTS += ['jsmime/test/xpcshell.ini']

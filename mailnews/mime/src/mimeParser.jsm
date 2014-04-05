@@ -5,10 +5,7 @@
 
 Components.utils.import("resource:///modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/Services.jsm");
-
-// Load the core MIME parser. Since it doesn't define EXPORTED_SYMBOLS, we must
-// use the subscript loader instead.
-Services.scriptloader.loadSubScript("resource:///modules/mime/mimeParserCore.js");
+Components.utils.import("resource:///modules/jsmime.jsm");
 
 var EXPORTED_SYMBOLS = ["MimeParser"];
 
@@ -87,7 +84,7 @@ var MimeParser = {
       throw new Error("input is not a recognizable type!");
     }
     setDefaultParserOptions(opts);
-    var parser = new Parser(emitter, opts);
+    var parser = new jsmime.MimeParser(emitter, opts);
     parser.deliverData(input);
     parser.deliverEOF();
     return;
@@ -130,7 +127,7 @@ var MimeParser = {
         Ci.nsIRequestObserver])
     };
     setDefaultParserOptions(opts);
-    StreamListener._parser = new Parser(emitter, opts);
+    StreamListener._parser = new jsmime.MimeParser(emitter, opts);
     return StreamListener;
   },
 
@@ -145,7 +142,7 @@ var MimeParser = {
    */
   makeParser: function MimeParser_makeParser(emitter, opts) {
     setDefaultParserOptions(opts);
-    return new Parser(emitter, opts);
+    return new jsmime.MimeParser(emitter, opts);
   },
 
   /**
@@ -211,7 +208,7 @@ var MimeParser = {
     // higher-order bits are flags.
     switch (flags & 0x0f) {
     case MimeParser.HEADER_PARAMETER:
-      return HeaderParser.extractParameters(text);
+      return jsmime.headerparser.parseParameterHeader(text, false, false);
     default:
       throw "Illegal type of header field";
     }
