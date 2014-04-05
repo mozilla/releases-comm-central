@@ -16,9 +16,48 @@ Services.scriptloader.loadSubScript("resource:///modules/jsmime/jsmime.js");
 
 var EXPORTED_SYMBOLS = ["jsmime"];
 
-// Note: JSMime 0.2 doesn't require any polyfilling for the moment, which means
-// this code looks empty. However, it is anticipated that future code will need
-// some amount of polyfilling (supporting non-UTF-8 encodings in TextEncoder for
-// composition code is the most prominent example). Since I want people to start
-// out doing the right thing, I'm defining jsmime.jsm before there's a real need
-// for it.
+
+// A polyfill to support non-encoding-spec charsets. Since the only converter
+// available to us from JavaScript has a very, very weak and inflexible API, we
+// choose to rely on the regular text decoder unless absolutely necessary.
+// support non-encoding-spec charsets.
+function FakeTextDecoder(label="UTF-8", options = {}) {
+  this._reset(label);
+  // So nsIScriptableUnicodeConverter only gives us fatal=false, unless we are
+  // using UTF-8, where we only get fatal=true. The internals of said class tell
+  // us to use a C++-only class if we need better behavior.
+}
+FakeTextDecoder.prototype = {
+  _reset: function (label) {
+    this._encoder = Components.classes[
+      "@mozilla.org/intl/scriptableunicodeconverter"]
+      .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    this._encoder.isInternal = true;
+    this._encoder.charset = label;
+  },
+  get encoding() { return this._encoder.charset; },
+  decode: function (input, options = {}) {
+    let more = 'stream' in options ? options.stream : false;
+    let result = "";
+    if (input !== undefined) {
+      let data = new Uint8Array(input);
+      result = this._encoder.convertFromByteArray(data, data.length);
+    }
+    // This isn't quite right--it won't handle errors if there are a few
+    // remaining bytes in the buffer, but it's the best we can do.
+    if (!more)
+      this._reset(this.encoding);
+    return result;
+  },
+};
+
+let RealTextDecoder = TextDecoder;
+function FallbackTextDecoder(charset, options) {
+  try {
+    return new RealTextDecoder(charset, options);
+  } catch (e) {
+    return new FakeTextDecoder(charset, options);
+  }
+}
+
+TextDecoder = FallbackTextDecoder;
