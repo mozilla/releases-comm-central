@@ -166,7 +166,7 @@
 
 .tab-background-end[selected=true]:-moz-locale-dir(ltr)::after,
 .tab-background-start[selected=true]:-moz-locale-dir(rtl)::after {
-  background-image: url("chrome://messenger/skin/tabs/selected-end.png");
+  background-image: url("chrome://messenger/skin/tabs/stroke-end.png");
 }
 
 .tab-background-middle[selected=true] {
