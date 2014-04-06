@@ -342,11 +342,11 @@
          // contact, we require at least that the normalizedChatBuddyName of
          // the nick is normalized like a normalizedName for contacts.
          if (normalizedNick == account.normalize(normalizedNick)) {
-           let buddy = Services.contacts
-                               .getBuddyByNameAndProtocol(normalizedNick,
-                                                          account.protocol);
-           if (buddy)
-             return this.updateTooltipFromBuddy(buddy.preferredAccountBuddy);
+           let accountBuddy =
+             Services.contacts.getAccountBuddyByNameAndAccount(normalizedNick,
+                                                               account);
+           if (accountBuddy)
+             return this.updateTooltipFromBuddy(accountBuddy);
          }
 
          this.reset();

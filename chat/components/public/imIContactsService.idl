@@ -14,7 +14,7 @@ interface imIAccountBuddy;
 interface imIAccount;
 interface prplIProtocol;
 
-[scriptable, uuid(80e489fd-ba3d-4e4d-906b-4a6e3232efa4)]
+[scriptable, uuid(be0f7dd6-26ca-445c-a265-99cf9612ece8)]
 interface imIContactsService: nsISupports {
   void initContacts();
   void unInitContacts();
@@ -26,6 +26,8 @@ interface imIContactsService: nsISupports {
   imIBuddy getBuddyById(in long aId);
   imIBuddy getBuddyByNameAndProtocol(in AUTF8String aNormalizedName,
                                      in prplIProtocol aPrpl);
+  imIAccountBuddy getAccountBuddyByNameAndAccount(in AUTF8String aNormalizedName,
+                                                  in imIAccount aAccount);
 
   // These 3 functions are called by the protocol plugins when
   // synchronizing the buddy list with the server stored list,

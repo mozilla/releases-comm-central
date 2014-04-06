@@ -1339,6 +1339,18 @@ ContactsService.prototype = {
       statement.finalize();
     }
   },
+  getAccountBuddyByNameAndAccount: function(aNormalizedName, aAccount) {
+    let buddy = this.getBuddyByNameAndProtocol(aNormalizedName,
+                                               aAccount.protocol);
+    if (buddy) {
+      let id = aAccount.id;
+      for (let accountBuddy of buddy.getAccountBuddies()) {
+        if (accountBuddy.account.id == id)
+          return accountBuddy;
+      }
+    }
+    return null;
+  },
 
   accountBuddyAdded: function(aAccountBuddy) {
     let account = aAccountBuddy.account;

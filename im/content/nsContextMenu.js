@@ -21,7 +21,6 @@ function nsContextMenu(aXulMenu, aBrowser) {
   this.linkProtocol      = null;
   this.onNick            = false;
   this.nick              = "";
-  this.buddy             = null;
   this.isNickOpenConv    = false;
   this.isNickShowLogs    = false;
   this.isNickAddContact  = false;
@@ -168,20 +167,16 @@ nsContextMenu.prototype = {
     let isAddContact = this.onNick && !isTwitter;
     if (isAddContact) {
       let account = this.conv.account;
+      isAddContact = false;
       // We don't want to support adding chatBuddies as contacts if we are not
       // sure the normalizedChatBuddyName is enough information to add a contact.
       // This is a problem e.g. for XMPP MUCs. We require at least that the
       // normalizedChatBuddyName of the nick is normalized like a normalizedName
       // for contacts.
       let normalizedNick = this.conv.target.getNormalizedChatBuddyName(nick);
-      if (normalizedNick == account.normalize(normalizedNick)) {
-        this.buddy = Services.contacts
-                             .getBuddyByNameAndProtocol(normalizedNick,
-                                                        account.protocol);
-        isAddContact &= !this.buddy;
-      }
-      else
-        isAddContact = false;
+      if (normalizedNick == account.normalize(normalizedNick) &&
+          !Services.contacts.getAccountBuddyByNameAndAccount(normalizedNick, account))
+        isAddContact = true;
     }
     if (isAddContact)
       this.tagMenu = new TagMenu(this, window);
