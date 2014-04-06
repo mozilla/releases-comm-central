@@ -23,7 +23,7 @@ p {
   box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
 }
 
-#Chat:not(.log) > .bubble:not(.context):not(.event) {
+#ibcontent:not(.log) > #Chat > .bubble:not(.context):not(.event) {
   -moz-animation-duration: 0.5s;
   -moz-animation-name: fadein;
   -moz-animation-iteration-count: 1;
@@ -91,6 +91,10 @@ p {
 
 #lastMessage {
   line-height: 20px;
+}
+
+#ibcontent.log > #lastMessage {
+  display: none;
 }
 
 p.nick {

@@ -136,7 +136,7 @@ var logWindow = {
     if (aTopic != "conversation-loaded" || aSubject != browser)
       return;
     browser._autoScrollEnabled = false;
-    browser.contentDocument.getElementById("Chat").classList.add("log");
+    browser.contentDocument.getElementById("ibcontent").classList.add("log");
 
     let count = {};
     let messages = browser._conv.getMessagesEnumerator(count);
