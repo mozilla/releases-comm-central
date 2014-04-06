@@ -27,9 +27,6 @@ Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils",
-  "resource://gre/modules/DownloadUtils.jsm");
-
 function ircRoomInfo(aName, aTopic, aParticipantCount, aAccount) {
   this.name = aName;
   this.topic = aTopic;
@@ -737,12 +734,8 @@ var ircBase = {
     },
     "317": function(aMessage) { // RPL_WHOISIDLE
       // <nick> <integer> :seconds idle
-      let valuesAndUnits =
-        DownloadUtils.convertTimeUnits(parseInt(aMessage.params[2]));
-      if (!valuesAndUnits[2])
-        valuesAndUnits.splice(2, 2);
       return this.setWhois(aMessage.params[1],
-                           {idleTime: valuesAndUnits.join(" ")});
+                           {lastActivity: parseInt(aMessage.params[2])});
     },
     "318": function(aMessage) { // RPL_ENDOFWHOIS
       // <nick> :End of WHOIS list
