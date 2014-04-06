@@ -38,6 +38,7 @@ function installInto(module) {
   module.assert_next_nodes = assert_next_nodes;
   module.assert_previous_nodes = assert_previous_nodes;
   module.wait_for_element_enabled = wait_for_element_enabled;
+  module.collapse_panes = collapse_panes;
 }
 
 /**
@@ -165,4 +166,25 @@ function wait_for_element_enabled(aController, aElement, aEnabled) {
                       "Element should have eventually been " +
                       (aEnabled ? "enabled" : "disabled") +
                       "; id=" + aElement.id);
+}
+
+/**
+ * Helper to collapse panes separated by splitters. If aElement is a splitter
+ * itself, then this splitter is collapsed, otherwise all splitters that are
+ * direct children of aElement are collapsed.
+ *
+ * @param aElement              The splitter or container
+ * @param aShouldBeCollapsed    If true, collapse the pane
+ */
+function collapse_panes(aElement, aShouldBeCollapsed) {
+  let state = aShouldBeCollapsed ? "collapsed" : "open";
+  if (aElement.localName == "splitter") {
+    aElement.setAttribute("state", state);
+  } else {
+    for (let n of aElement.childNodes) {
+      if (n.localName == "splitter") {
+        n.setAttribute("state", state);
+      }
+    }
+  }
 }

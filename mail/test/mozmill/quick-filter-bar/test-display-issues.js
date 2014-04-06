@@ -20,12 +20,10 @@ var folder;
 var setUnstarred, setStarred;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
-  let qfb = collector.getModule('quick-filter-bar-helper');
-  qfb.installInto(module);
+  collector.getModule('folder-display-helpers').installInto(module);
+  collector.getModule('window-helpers').installInto(module);
+  collector.getModule('quick-filter-bar-helper').installInto(module);
+  collector.getModule("dom-helpers").installInto(module);
 
   folder = create_folder("QuickFilterBarDisplayIssues");
   be_in_folder(folder);
@@ -44,14 +42,6 @@ function resize_to(width, height) {
   //  sufficient.
   mc.sleep(0);
   wait_for_resize(width);
-}
-
-function collapse_folder_pane(shouldBeCollapsed) {
-  mark_action("test", "collapse_folder_pane",
-              [shouldBeCollapsed]);
-  mc.e("folderpane_splitter").setAttribute("state",
-                                           shouldBeCollapsed ? "collapsed"
-                                                             : "open");
 }
 
 /**
@@ -109,14 +99,14 @@ function test_buttons_collapse_and_expand() {
   resize_to(1200, 600);
   // Right, so resizeTo caps us at the display size limit, so we may end up
   // smaller than we want.  So let's turn off the folder pane too.
-  collapse_folder_pane(true);
+  collapse_panes(mc.e("folderpane_splitter"), true);
   // spin the event loop once
   mc.sleep(0);
   logState("giant");
   assertExpanded(1200);
 
   // -- tiny.
-  collapse_folder_pane(false);
+  collapse_panes(mc.e("folderpane_splitter"), false);
   resize_to(600, 600);
   // spin the event loop once
   mc.sleep(0);
@@ -125,7 +115,7 @@ function test_buttons_collapse_and_expand() {
 
   // -- GIANT again!
   resize_to(1200, 600);
-  collapse_folder_pane(true);
+  collapse_panes(mc.e("folderpane_splitter"), true);
   // spin the event loop once
   mc.sleep(0);
   logState("giant again!");
@@ -163,5 +153,5 @@ function teardownModule() {
   //  See also: message-header/test-message-header.js if we change the
   //            default window size.
   resize_to(1024, 768);
-  collapse_folder_pane(false);
+  collapse_panes(mc.e("folderpane_splitter"), false);
 }
