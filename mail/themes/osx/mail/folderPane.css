@@ -32,10 +32,12 @@ treechildren::-moz-tree-image(folderNameCol, serverType-nntp) {
 }
 
 /* ..... Feed Folders ..... */
-.tabmail-tab[type="folder"][ServerType="rss"],
+.tabmail-tab[type="folder"][IsFeedFolder="true"],
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(0 224px 16px 208px);
+  width: 16px;
+  height: 16px;
 }
 
 /* ..... Inbox ..... */
@@ -126,7 +128,7 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
   }
 
   /* ..... Feed Folders ..... */
-  .tabmail-tab[type="folder"][ServerType="rss"],
+  .tabmail-tab[type="folder"][IsFeedFolder="true"],
   treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
     list-style-image: url("chrome://messenger/skin/icons/folder-pane@2x.png");
     -moz-image-region: rect(0 448px 32px 416px);
@@ -238,6 +240,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-nntp, isS
 }
 
 /* ..... Feed Folders ..... */
+.tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
 treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
   list-style-image: url("chrome://messenger/skin/icons/server.png");
   -moz-image-region: rect(0 96px 16px 80px);
@@ -283,6 +286,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
   }
 
   /* ..... Feed Folders ..... */
+  .tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
   treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
     list-style-image: url("chrome://messenger/skin/icons/server@2x.png");
     -moz-image-region: rect(0 192px 32px 160px);

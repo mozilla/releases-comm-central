@@ -553,6 +553,20 @@ splitter {
   list-style-image: url("chrome://messenger/skin/icons/message-mail.png");
 }
 
+.tabmail-tab[type="message"][IsFeedMessage] {
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
+  -moz-image-region: rect(0 16px 16px 0);
+  width: 16px;
+  height: 16px;
+}
+
+@media (min-resolution: 2dppx) {
+  .tabmail-tab[type="message"][IsFeedMessage] {
+    list-style-image: url("chrome://messenger-newsblog/skin/rss-feed@2x.png");
+    -moz-image-region: rect(0 32px 32px 0);
+  }
+}
+
 .telemetry-text-link {
   color: #fff;
 }

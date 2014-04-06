@@ -25,6 +25,8 @@
 treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
   list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
   -moz-image-region: rect(0 16px 16px 0);
+  width: 16px;
+  height: 16px;
 }
 
 @media (min-resolution: 2dppx) {

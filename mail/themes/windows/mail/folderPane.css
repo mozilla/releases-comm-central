@@ -45,24 +45,17 @@ treechildren::-moz-tree-image(folderNameCol, serverType-nntp, open) {
 
 /* ..... Feed ..... */
 
-.tabmail-tab[type="folder"][ServerType="rss"],
+.tabmail-tab[type="folder"][IsFeedFolder="true"],
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true),
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true, open) {
   list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
   -moz-image-region: rect(0 16px 16px 0);
+  width: 16px;
+  height: 16px;
 }
 
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true, newMessages-true) {
   -moz-image-region: rect(16px 16px 32px 0);
-}
-
-/* Resets list-style-image for Feed Trash and Virtual folders */
-
-.tabmail-tab[type="folder"][SpecialFolder="Trash"][ServerType="rss"],
-.tabmail-tab[type="folder"][SpecialFolder="Virtual"][ServerType="rss"],
-treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true, specialFolder-Trash),
-treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true, specialFolder-Virtual) {
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
 }
 
 /* ..... Inbox ..... */

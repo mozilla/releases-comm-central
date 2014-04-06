@@ -284,6 +284,137 @@ var FeedUtils = {
     return feedUrlArray.length ? feedUrlArray : null;
   },
 
+  get mFaviconService() {
+    delete this.mFaviconService;
+    return this.mFaviconService = Cc["@mozilla.org/browser/favicon-service;1"]
+                                    .getService(Ci.nsIFaviconService);
+ },
+
+/**
+ * Get the favicon for a feed folder subscription url (first one) or a feed
+ * message url. The favicon service caches it in memory if places history is
+ * not enabled.
+ *
+ * @param  nsIMsgFolder aFolder - the feed folder or null if aUrl
+ * @param  string aUrl          - a url (feed, message, other) or null if aFolder
+ * @param  string aIconUrl      - the icon url if already determined, else null
+ * @param  nsIDOMWindow aWindow - null or caller's window if aCallback needed
+ * @param  function aCallback   - null or callback
+ * @return string               - the favicon url or empty string
+ */
+  getFavicon: function(aFolder, aUrl, aIconUrl, aWindow, aCallback) {
+    if (!Services.prefs.getBoolPref("browser.chrome.site_icons") ||
+        !Services.prefs.getBoolPref("browser.chrome.favicons") ||
+         (aCallback && !aWindow))
+      return "";
+
+    if (aIconUrl)
+      return aIconUrl;
+
+    let url = aUrl;
+    if (!url)
+    {
+      // Get the proposed iconUrl from the folder's first subscribed feed's <link>.
+      if (!aFolder)
+        return "";
+
+      let feedUrls = this.getFeedUrlsInFolder(aFolder);
+      url = feedUrls ? feedUrls[0] : null;
+      if (!url)
+        return "";
+    }
+
+    if (aFolder)
+    {
+      let ds = this.getSubscriptionsDS(aFolder.server);
+      let resource = this.rdf.GetResource(url).QueryInterface(Ci.nsIRDFResource);
+      let feedLinkUrl = ds.GetTarget(resource, this.RSS_LINK, true);
+      feedLinkUrl = feedLinkUrl ?
+                      feedLinkUrl.QueryInterface(Ci.nsIRDFLiteral).Value : null;
+      url = feedLinkUrl && feedLinkUrl.startsWith("http") ? feedLinkUrl : url;
+    }
+
+    let uri, iconUri;
+    try {
+      uri = Services.io.newURI(url, null, null);
+      iconUri = Services.io.newURI(uri.prePath + "/favicon.ico", null, null);
+    }
+    catch (ex) {
+      return "";
+    }
+
+    if (!iconUri || !this.isValidScheme(iconUri))
+      return "";
+
+    FeedUtils.mFaviconService.setAndFetchFaviconForPage(
+      uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
+
+    if (aWindow) {
+      // Unfortunately, setAndFetchFaviconForPage() does not invoke its
+      // callback (Bug 740457).  So we have to do it this way.
+      aWindow.setTimeout(function() {
+        if (FeedUtils.mFaviconService.isFailedFavicon(iconUri)) {
+          let uri = Services.io.newURI(iconUri.prePath, null, null);
+          FeedUtils.getFaviconFromPage(uri.prePath, aCallback, null);
+        }
+      }, 3000);
+    }
+
+    return iconUri.spec;
+  },
+
+/**
+ * Get the favicon by parsing for <link rel=""> with "icon" from the page's dom.
+ * @param  string aUrl        - a url from whose homepage to get a favicon
+ * @param  function aCallback - callback
+ * @param  aArg               - caller's argument or null
+ */
+  getFaviconFromPage: function(aUrl, aCallback, aArg) {
+    let onDownload = function(aEvent) {
+      let request = aEvent.target;
+      responseDomain = request.channel.URI.prePath;
+      let dom = request.response;
+      if (request.status != 200 || !(dom instanceof Ci.nsIDOMHTMLDocument))
+        onDownloadError();
+
+      let iconUri;
+      let linkNode = dom.head.querySelector('link[rel="shortcut icon"],' +
+                                            'link[rel="icon"]');
+      let href = linkNode ? linkNode.href : null;
+      try {
+        iconUri = Services.io.newURI(href, null, null);
+      }
+      catch (ex) {}
+
+      if (!iconUri || !FeedUtils.isValidScheme(iconUri) ||
+          FeedUtils.mFaviconService.isFailedFavicon(iconUri))
+        onDownloadError();
+
+      FeedUtils.mFaviconService.setAndFetchFaviconForPage(
+        uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
+      if (aCallback)
+        aCallback(iconUri.spec, responseDomain, aArg);
+    }
+
+    let onDownloadError = function() {
+      if (aCallback)
+        aCallback(null, responseDomain, aArg);
+    }
+
+    if (!aUrl)
+      onDownloadError();
+
+    let uri = Services.io.newURI(aUrl, null, null);
+    let responseDomain;
+    let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+                    .createInstance(Ci.nsIXMLHttpRequest);
+    request.open("GET", aUrl, true);
+    request.responseType = "document";
+    request.onload = onDownload;
+    request.onerror = onDownloadError;
+    request.send(null);
+  },
+
 /**
  * Update the feeds.rdf database for rename and move/copy folder name changes.
  *

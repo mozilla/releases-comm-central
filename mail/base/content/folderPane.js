@@ -722,6 +722,30 @@ let gFolderTreeView = {
   },
 
   /**
+   * For feed folders get, cache, and return a favicon. Otherwise return "" to
+   * let css set the image per nsITreeView requirements.
+   */
+  getImageSrc: function(aRow, aCol) {
+    let rowItem = gFolderTreeView._rowMap[aRow];
+    let folder = rowItem._folder;
+    if (folder.server.type != "rss" || folder.isServer)
+      return "";
+
+    if (rowItem._favicon == "")
+      return rowItem._favicon;
+
+    let tree = this._tree;
+    let callback = function(iconUrl, domain, arg) {
+      rowItem._favicon = iconUrl || "";
+      if (iconUrl != "")
+        tree.invalidateRow(aRow);
+    }
+
+    return rowItem._favicon = FeedUtils.getFavicon(folder, null,
+                                                   rowItem._favicon, window, callback);
+  },
+
+  /**
    * The ftvItems take care of assigning this when created.
    */
   getLevel: function ftv_getLevel(aIndex) {
@@ -1069,7 +1093,6 @@ let gFolderTreeView = {
   setCellValue: function ftv_setCellValue(aRow, aCol, aValue) {},
   getCellValue: function ftv_getCellValue(aRow, aCol) {},
   getColumnProperties: function ftv_getColumnProperties(aCol) { return ""; },
-  getImageSrc: function ftv_getImageSrc(aRow, aCol) {},
   getProgressMode: function ftv_getProgressMode(aRow, aCol) {},
   cycleCell: function ftv_cycleCell(aRow, aCol) {},
   cycleHeader: function ftv_cycleHeader(aCol) {},
@@ -1882,6 +1905,7 @@ function ftvItem(aFolder, aFolderFilter) {
   this._level = 0;
   this._parent = null;
   this._folderFilter = aFolderFilter;
+  this._favicon = null;
 }
 
 ftvItem.prototype = {
