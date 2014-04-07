@@ -1378,8 +1378,14 @@ function GetObjectForProperties()
   try {
     element = editor.getSelectedElement("");
   } catch (e) {}
-  if (element)
-    return element;
+  if (element) {
+    if (element.namespaceURI == "http://www.w3.org/1998/Math/MathML") {
+      // If the object is a MathML element, we collapse the selection on it and
+      // we return its <math> ancestor. Hence the math dialog will be used.
+      GetCurrentEditor().selection.collapse(element, 0);
+    } else
+      return element;
+  }
 
   // Find nearest parent of selection anchor node
   //   that is a link, list, table cell, or table
@@ -1412,7 +1418,7 @@ function GetObjectForProperties()
       if ((nodeName == "a" && node.href) ||
           nodeName == "ol" || nodeName == "ul" || nodeName == "dl" ||
           nodeName == "td" || nodeName == "th" ||
-          nodeName == "table")
+          nodeName == "table" || nodeName == "math")
       {
         return node;
       }

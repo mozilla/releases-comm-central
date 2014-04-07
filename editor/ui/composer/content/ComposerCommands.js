@@ -46,6 +46,7 @@ function SetupHTMLEditorCommands()
   commandTable.registerCommand("cmd_link",          nsLinkCommand);
   commandTable.registerCommand("cmd_anchor",        nsAnchorCommand);
   commandTable.registerCommand("cmd_insertHTMLWithDialog", nsInsertHTMLWithDialogCommand);
+  commandTable.registerCommand("cmd_insertMathWithDialog", nsInsertMathWithDialogCommand);
   commandTable.registerCommand("cmd_insertBreak",   nsInsertBreakCommand);
   commandTable.registerCommand("cmd_insertBreakAll",nsInsertBreakAllCommand);
 
@@ -2721,6 +2722,23 @@ var nsInsertHTMLWithDialogCommand =
 };
 
 //-----------------------------------------------------------------------------------
+var nsInsertMathWithDialogCommand =
+{
+  isCommandEnabled: function(aCommand, dummy)
+  {
+    return (IsDocumentEditable() && IsEditingRenderedHTML());
+  },
+
+  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
+  doCommandParams: function(aCommand, aParams, aRefCon) {},
+
+  doCommand: function(aCommand)
+  {
+    window.openDialog("chrome://editor/content/EdInsertMath.xul", "_blank", "chrome,close,titlebar,modal,resizable", "");
+  }
+};
+
+//-----------------------------------------------------------------------------------
 var nsInsertCharsCommand =
 {
   isCommandEnabled: function(aCommand, dummy)
@@ -2913,6 +2931,9 @@ var nsObjectPropertiesCommand =
           {
             goDoCommand("cmd_link");
           }
+          break;
+        case 'math':
+          goDoCommand("cmd_insertMathWithDialog");
           break;
         default:
           doAdvancedProperties(element);

@@ -148,6 +148,7 @@
     <command id="cmd_objectProperties" oncommand="goDoCommand('cmd_objectProperties')"/>
     <command id="cmd_insertChars"      oncommand="goDoCommand('cmd_insertChars')"    label="&insertCharsCmd.label;"/>
     <command id="cmd_insertHTMLWithDialog" oncommand="goDoCommand('cmd_insertHTMLWithDialog')"  label="&insertHTMLCmd.label;"/>
+    <command id="cmd_insertMathWithDialog" oncommand="goDoCommand('cmd_insertMathWithDialog')"  label="&insertMathCmd.label;"/>
     <command id="cmd_insertBreak"      oncommand="goDoCommand('cmd_insertBreak')"/>
     <command id="cmd_insertBreakAll"   oncommand="goDoCommand('cmd_insertBreakAll')"/>
 
@@ -354,8 +355,10 @@
                 command="cmd_hline"/>
       <menuitem id="insertHTMLSource"
                 accesskey="&insertHTMLCmd.accesskey;"
-                command="cmd_insertHTMLWithDialog"
-                key="inserthtmlkb"/>
+                command="cmd_insertHTMLWithDialog"/>
+      <menuitem id="insertMath"
+                accesskey="&insertMathCmd.accesskey;"
+                command="cmd_insertMathWithDialog"/>
       <menuitem id="insertChars"
                 accesskey="&insertCharsCmd.accesskey;"
                 command="cmd_insertChars"/>

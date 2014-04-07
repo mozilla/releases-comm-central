@@ -12,6 +12,7 @@
   locale/@AB_CD@/editor/EditorHLineProperties.dtd            (%chrome/dialogs/EditorHLineProperties.dtd)
   locale/@AB_CD@/editor/EditorImageProperties.dtd            (%chrome/dialogs/EditorImageProperties.dtd)
   locale/@AB_CD@/editor/EditorInsertSource.dtd               (%chrome/dialogs/EditorInsertSource.dtd)
+  locale/@AB_CD@/editor/EditorInsertMath.dtd                 (%chrome/dialogs/EditorInsertMath.dtd)
   locale/@AB_CD@/editor/EditorInsertChars.dtd                (%chrome/dialogs/EditorInsertChars.dtd)
   locale/@AB_CD@/editor/EditorInsertTable.dtd                (%chrome/dialogs/EditorInsertTable.dtd)
   locale/@AB_CD@/editor/EditorInsertTOC.dtd                  (%chrome/dialogs/EditorInsertTOC.dtd)

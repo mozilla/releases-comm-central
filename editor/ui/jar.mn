@@ -43,6 +43,8 @@ comm.jar:
       content/editor/EdInsertTOC.js                            (dialogs/content/EdInsertTOC.js) 
       content/editor/EdInsertTable.xul                         (dialogs/content/EdInsertTable.xul) 
       content/editor/EdInsertTable.js                          (dialogs/content/EdInsertTable.js) 
+      content/editor/EdInsertMath.xul                          (dialogs/content/EdInsertMath.xul) 
+      content/editor/EdInsertMath.js                           (dialogs/content/EdInsertMath.js) 
       content/editor/EdTableProps.xul                          (dialogs/content/EdTableProps.xul) 
       content/editor/EdTableProps.js                           (dialogs/content/EdTableProps.js) 
       content/editor/EdFormProps.xul                           (dialogs/content/EdFormProps.xul) 
@@ -214,3 +216,4 @@ comm.jar:
       content/editor/EditorPublishProgress.xul                 (dialogs/content/EditorPublishProgress.xul)
       content/editor/EditorPublishProgress.js                  (dialogs/content/EditorPublishProgress.js)
 #endif
+      content/editor/TeXZilla.js                               (texzilla/content/TeXZilla.js)
