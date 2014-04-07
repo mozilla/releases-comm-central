@@ -265,24 +265,24 @@ function SaveFolderSettings(radioElemChoice,
     var formElement = document.getElementById(folderElementId);
     var uri;
 
-    switch (radioElemChoice)
-    {
-        case "0" :
-            uri = document.getElementById(accountPickerId).folder.URI;
-            if (uri) {
-                // Create  Folder URI
-                uri = uri + folderSuffix;
-            }
-            break;
-
-        case "1" :
-            uri = document.getElementById(folderPickerId).folder.URI;
-            break;
-
-        default :
-            dump ("Error saving folder preferences.\n");
-            return;
+    if (radioElemChoice == "0" ||
+        !document.getElementById(folderPickerId).value) {
+      // Default or revert to default if no folder chosen.
+      radioElemChoice = "0";
+      uri = document.getElementById(accountPickerId).folder.URI;
+      if (uri) {
+        // Create Folder URI.
+        uri = uri + folderSuffix;
+      }
     }
+    else if (radioElemChoice == "1") {
+      uri = document.getElementById(folderPickerId).folder.URI;
+    }
+    else {
+      dump ("Error saving folder preferences.\n");
+      return;
+    }
+
     formElement.setAttribute("value", uri);
 
     formElement = document.getElementById(folderPickerModeId);
