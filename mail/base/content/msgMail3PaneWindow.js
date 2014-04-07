@@ -1371,6 +1371,15 @@ function ThreadPaneOnDragStart(aEvent) {
   // "application/x-moz-file-promise" values for i > 0 can be enabled.
   // But first ensure suggestUniqueFileName is efficient enough on 10000+ dragged
   // messages.
+  let messengerBundle = document.getElementById("bundle_messenger");
+  let noSubjectString = messengerBundle.getString("defaultSaveMessageAsFileName");
+  if (noSubjectString.endsWith(".eml"))
+    noSubjectString = noSubjectString.slice(0, -4);
+  let longSubjectTruncator = messengerBundle.getString("longMsgSubjectTruncator");
+  // Clip the subject string to 124 chars to avoid problems on Windows,
+  // see NS_MAX_FILEDESCRIPTOR in m-c/widget/windows/nsDataObj.cpp .
+  const maxUncutNameLength = 124;
+  let maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
   for (let i in messages) {
     messenger.messageServiceFromURI(messages[i])
              .GetUrlForUri(messages[i], msgUrls, null);
@@ -1383,13 +1392,21 @@ function ThreadPaneOnDragStart(aEvent) {
     // Generate file name in case the object is dropped onto the desktop.
     let subject = messenger.messageServiceFromURI(messages[i])
                            .messageURIToMsgHdr(messages[i]).mime2DecodedSubject;
-    let uniqueFileName = suggestUniqueFileName(subject.substr(0, 124), ".eml",
-                                               fileNames);
+    let uniqueFileName;
+    // If there is no subject, use a default name.
+    // If subject needs to be truncated, add a truncation character to indicate it.
+    if (!subject) {
+      uniqueFileName = noSubjectString;
+    } else {
+      uniqueFileName = (subject.length <= maxUncutNameLength) ?
+                       subject : subject.substr(0, maxCutNameLength) + longSubjectTruncator;
+    }
+    uniqueFileName = suggestUniqueFileName(uniqueFileName, ".eml", fileNames);
     fileNames.add(uniqueFileName);
 
     aEvent.dataTransfer.mozSetDataAt("application/x-moz-file-promise-url",
                                      msgUrls.value.spec + "?fileName=" +
-                                     uniqueFileName, i);
+                                     encodeURIComponent(uniqueFileName), i);
     aEvent.dataTransfer.mozSetDataAt("application/x-moz-file-promise", null, i);
   }
   aEvent.dataTransfer.effectAllowed = "copyMove";
