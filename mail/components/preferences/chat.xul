@@ -30,6 +30,7 @@
       <preference id="purple.logging.log_ims"              name="purple.logging.log_ims"              type="bool"/>
       <preference id="purple.logging.log_system"           name="purple.logging.log_system"           type="bool"/>
       <preference id="pref.privacy.disable_button.view_passwords" name="pref.privacy.disable_button.view_passwords" type="bool"/>
+      <preference id="mail.chat.show_desktop_notifications" name="mail.chat.show_desktop_notifications" type="bool"/>
     </preferences>
 
     <broadcaster id="idleReportingEnabled"/>
@@ -73,5 +74,9 @@
     <checkbox id="sendTyping" label="&sendTyping.label;"
               accesskey="&sendTyping.accesskey;"
               preference="purple.conversations.im.send_typing"/>
+    <separator/>
+    <checkbox id="desktopChatNotifications" label="&desktopChatNotifications.label;"
+              accesskey="&desktopChatNotifications.accesskey;"
+              preference="mail.chat.show_desktop_notifications"/>
   </prefpane>
 </overlay>

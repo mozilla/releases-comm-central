@@ -22,3 +22,6 @@ sentence. -->
 
 <!ENTITY  sendTyping.label              "Send typing notifications in conversations">
 <!ENTITY  sendTyping.accesskey          "t">
+
+<!ENTITY  desktopChatNotifications.label "Show notifications for messages directed at you">
+<!ENTITY  desktopChatNotifications.accesskey "c">

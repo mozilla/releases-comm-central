@@ -831,6 +831,7 @@ pref("devtools.debugger.log", false);
 
 pref("mail.chat.enabled", true);
 pref("mail.chat.play_notification_sound", true);
+pref("mail.chat.show_desktop_notifications", true);
 // Send typing notification in private conversations
 pref("purple.conversations.im.send_typing", true);
 

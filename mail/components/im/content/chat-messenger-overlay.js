@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var imServices = {};
+Components.utils.import("resource:///modules/chatNotifications.jsm");
 Components.utils.import("resource:///modules/imServices.jsm", imServices);
 imServices = imServices.Services;
 
@@ -972,6 +973,7 @@ var chatHandler = {
       imServices.obs.removeObserver(this, topic);
   },
   init: function() {
+    Notifications.init();
     if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
       ["button-chat", "menu_goChat", "goChatSeparator",
        "imAccountsStatus", "joinChatMenuItem", "newIMAccountMenuItem",
