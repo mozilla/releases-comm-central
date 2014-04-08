@@ -662,6 +662,10 @@
               label="&contextOpenConversation.label;"
               accesskey="&contextOpenConversation.accesskey;"
               oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);"/>
+    <menuitem id="mailContext-openContainingFolder"
+              label="&contextOpenContainingFolder.label;"
+              accesskey="&contextOpenContainingFolder.accesskey;"
+              oncommand="OpenContainingFolder();"/>
     <menuseparator id="mailContext-sep-open2"/>
     <menuitem id="mailContext-replyNewsgroup"
               label="&contextReplyNewsgroup2.label;"
