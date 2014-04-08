@@ -8,7 +8,7 @@
 
 const EXPORTED_SYMBOLS = ["getFolderProperties", "getSpecialFolderString",
                           "getFolderFromUri", "allAccountsSorted",
-                          "getMostRecentFolders"];
+                          "getMostRecentFolders", "folderNameCompare"];
 
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
@@ -216,4 +216,19 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
   }
 
   return recentFolders.map(function (f) { return f.folder; });
+}
+
+/**
+ * A locale dependent comparison function to produce a case-insensitive sort order
+ * used to sort folder names.
+ * Returns positive number if aString1 > aString2, negative number if aString1 > aString2,
+ *         otherwise 0.
+ *
+ * @param aString1  first string to compare
+ * @param aString2  second string to compare
+ */
+function folderNameCompare(aString1, aString2) {
+  // TODO: improve this as described in bug 992651.
+  return aString1.toLocaleLowerCase()
+                 .localeCompare(aString2.toLocaleLowerCase());
 }

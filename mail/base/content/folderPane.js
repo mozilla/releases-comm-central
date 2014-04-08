@@ -1350,13 +1350,13 @@ let gFolderTreeView = {
 
         // Sort the folder names alphabetically.
         recentFolders.sort(function rf_sort(a, b){
-          var aLabel = a.prettyName;
-          var bLabel = b.prettyName;
+          let aLabel = a.prettyName;
+          let bLabel = b.prettyName;
           if (aLabel == bLabel) {
             aLabel = a.server.prettyName;
             bLabel = b.server.prettyName;
           }
-          return aLabel.localeCompare(bLabel);
+          return folderNameCompare(aLabel, bLabel);
         });
 
         let items = [new ftvItem(f) for (f of recentFolders)];
@@ -2402,10 +2402,7 @@ ftv_SmartItem.prototype = {
  */
 function sortFolderItems (aFtvItems) {
   function sorter(a, b) {
-    let sortKey = a._folder.compareSortKeys(b._folder);
-    if (sortKey)
-      return sortKey;
-    return a.text.localeCompare(b.text);
+    return a._folder.compareSortKeys(b._folder);
   }
   aFtvItems.sort(sorter);
 }

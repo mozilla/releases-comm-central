@@ -435,8 +435,7 @@
             // property if it is available, otherwise a case-insensitive
             // comparison of names.
             folders = folders.sort(function nameCompare(a, b) {
-              return a.compareSortKeys(b) ||
-                     a.prettyName.localeCompare(b.prettyName);
+              return a.compareSortKeys(b);
             });
           }
 
@@ -605,7 +604,7 @@
 
           // Make sure the entries are sorted alphabetically.
           recentFolders.sort(function sort_folders_by_name(a, b) {
-            return a.label.localeCompare(b.label);
+            return this.folderNameCompare(a.label, b.label);
           });
 
           // Now create the Recent folder and its children
