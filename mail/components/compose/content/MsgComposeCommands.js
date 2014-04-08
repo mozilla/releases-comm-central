@@ -1771,12 +1771,14 @@ function handleMailtoArgs(mailtoUrl)
 }
 
 /**
- * Handle ESC keypress from composition window (to close attachment reminder notification bar).
+ * Handle ESC keypress from composition window for
+ * notifications with close button in the
+ * attachmentNotificationBox.
  */
 function handleEsc()
 {
-  // If there is an attachment reminder notification AND focus is in message body
-  // or on the notification, hide it.
+  // If there is a notification in the attachmentNotificationBox
+  // AND focus is in message body or on the notification, hide it.
   let activeElement = document.activeElement;
   let notification = document.getElementById("attachmentNotificationBox").currentNotification;
   if (notification && (activeElement.id == "content-frame" ||
@@ -2552,7 +2554,8 @@ function GenericSendMessage(msgType)
     //    that the message has no attachment(s) yet, message still contains some attachment
     //    keywords, and notification was not dismissed).
     if (gManualAttachmentReminder || (getPref("mail.compose.attachment_reminder_aggressive") &&
-         document.getElementById("attachmentNotificationBox").currentNotification)) {
+         document.getElementById("attachmentNotificationBox")
+                 .getNotificationWithValue("attachmentReminder"))) {
       let flags = Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
                   Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
       let hadForgotten = Services.prompt.confirmEx(window,

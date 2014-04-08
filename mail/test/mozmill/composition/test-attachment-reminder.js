@@ -325,6 +325,48 @@ function test_manual_automatic_attachment_reminder_interaction() {
 }
 
 /**
+ * Assert if there is any notification in the compose window.
+ *
+ * @param aCwc         Compose Window Controller
+ * @param aValue       True if notification should exist
+ *                     False otherwise.
+ */
+function assert_no_notification(aCwc, aValue)
+{
+  let notification = aCwc.e(kBoxId).currentNotification;
+  if ((notification == null) == aValue)
+    throw new Error("Notification in wrong state");
+}
+
+/**
+ * Bug 989653
+ * Send filelink attachment should not trigger the
+ * attachment reminder.
+ */
+function test_attachment_vs_filelink_reminder() {
+  // Open a blank message compose
+  let cwc = open_compose_new_mail();
+  setupComposeWin(cwc, "test@example.invalid", "Testing Filelink notification",
+                  "There is no body. I hope you don't mind!");
+
+  // There should be no notification yet.
+  assert_no_notification(cwc, false);
+
+  // Bring up the FileLink notification.
+  let kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
+  let maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
+  add_attachment(cwc, "http://www.example.com/1", maxSize);
+
+  // The filelink attachment proposal should be up but not the attachment
+  // reminder and it should also not interfere with the sending of the message.
+  assert_notification_displayed(cwc, kBoxId, "bigAttachment", true);
+  assert_automatic_reminder_state(cwc, false);
+
+  click_send_and_handle_send_error(cwc);
+  close_window(cwc);
+}
+
+/**
  * Bug 944643
  * Test the attachment reminder coming up when keyword is in subject line.
  */
