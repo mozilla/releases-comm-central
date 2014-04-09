@@ -431,9 +431,6 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(nsIMsgThrea
   else
     threadHdr->GetThreadKey(&threadRootKey);
 
-  if ((int32_t) numChildren < 0)
-    numChildren = 0;
-
   nsCOMPtr <nsIMsgDBHdr> retHdr;
 
   // iterate over thread, finding mgsHdr in view with the lowest level.

@@ -389,7 +389,7 @@ private:
 //
 // These C routines should only be used by the nsMsgSendPart class.
 //
-extern nsresult mime_write_message_body(nsIMsgSend *state, const char *buf, int32_t size);
+extern nsresult mime_write_message_body(nsIMsgSend *state, const char *buf, uint32_t size);
 extern char   *mime_get_stream_write_buffer(void);
 extern nsresult mime_encoder_output_fn (const char *buf, int32_t size, void *closure);
 extern bool UseQuotedPrintable(void);

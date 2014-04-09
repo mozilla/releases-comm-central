@@ -65,9 +65,9 @@ public:
   virtual ~nsMsgXFGroupThread();
 
   NS_IMETHOD GetNumChildren(uint32_t *aNumChildren) MOZ_OVERRIDE;
-  NS_IMETHOD GetChildKeyAt(int32_t aIndex, nsMsgKey *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD GetChildHdrAt(int32_t aIndex, nsIMsgDBHdr **aResult) MOZ_OVERRIDE;
-  NS_IMETHOD RemoveChildAt(int32_t aIndex) MOZ_OVERRIDE;
+  NS_IMETHOD GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult) MOZ_OVERRIDE;
+  NS_IMETHOD GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **aResult) MOZ_OVERRIDE;
+  NS_IMETHOD RemoveChildAt(uint32_t aIndex) MOZ_OVERRIDE;
 protected:
   virtual void InsertMsgHdrAt(nsMsgViewIndex index,
                               nsIMsgDBHdr *hdr) MOZ_OVERRIDE;

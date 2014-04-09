@@ -267,9 +267,9 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgXFViewThread::GetChildHdrAt(int32_t aIndex, nsIMsgDBHdr **aResult)
+NS_IMETHODIMP nsMsgXFViewThread::GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **aResult)
 {
-  if (aIndex < 0 || aIndex >= (int32_t) m_keys.Length())
+  if (aIndex >= m_keys.Length())
     return NS_MSG_MESSAGE_NOT_FOUND;
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv = m_folders[aIndex]->GetMsgDatabase(getter_AddRefs(db));
@@ -277,7 +277,7 @@ NS_IMETHODIMP nsMsgXFViewThread::GetChildHdrAt(int32_t aIndex, nsIMsgDBHdr **aRe
   return db->GetMsgHdrForKey(m_keys[aIndex], aResult);
 }
 
-NS_IMETHODIMP nsMsgXFViewThread::RemoveChildAt(int32_t aIndex)
+NS_IMETHODIMP nsMsgXFViewThread::RemoveChildAt(uint32_t aIndex)
 {
   m_keys.RemoveElementAt(aIndex);
   m_levels.RemoveElementAt(aIndex);
@@ -333,7 +333,7 @@ NS_IMETHODIMP nsMsgXFViewThread::GetRootHdr(int32_t *aResultIndex, nsIMsgDBHdr *
   return GetChildHdrAt(0, aResult);
 }
 
-NS_IMETHODIMP nsMsgXFViewThread::GetChildKeyAt(int32_t aIndex, nsMsgKey *aResult)
+NS_IMETHODIMP nsMsgXFViewThread::GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult)
 {
   NS_ASSERTION(false, "shouldn't call this");
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -406,10 +406,10 @@ NS_IMETHODIMP nsMsgXFViewThread::GetNewestMsgDate(uint32_t *aResult)
     nsresult rv = NS_OK;
   
     GetNumChildren(&numChildren);
-  
+
     if ((int32_t) numChildren < 0)
       numChildren = 0;
-  
+ 
     for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
     {
       nsCOMPtr<nsIMsgDBHdr> child;
@@ -446,7 +446,7 @@ NS_IMETHODIMP nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr **aResult)
   nsresult rv = NS_OK;
   
   GetNumChildren(&numChildren);
-  
+
   if ((int32_t) numChildren < 0)
     numChildren = 0;
   

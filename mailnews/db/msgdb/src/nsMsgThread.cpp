@@ -429,12 +429,12 @@ nsresult nsMsgThread::ReparentNonReferenceChildrenOf(nsIMsgDBHdr *oldTopLevelHdr
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgThread::GetChildKeyAt(int32_t aIndex, nsMsgKey *aResult)
+NS_IMETHODIMP nsMsgThread::GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
   nsresult rv;
 
-  if (aIndex >= (int32_t) m_numChildren)
+  if (aIndex >= m_numChildren)
   {
     *aResult = nsMsgKey_None;
     return NS_ERROR_ILLEGAL_VALUE;
@@ -447,11 +447,11 @@ NS_IMETHODIMP nsMsgThread::GetChildKeyAt(int32_t aIndex, nsMsgKey *aResult)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgThread::GetChildHdrAt(int32_t aIndex, nsIMsgDBHdr **result)
+NS_IMETHODIMP nsMsgThread::GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **result)
 {
   // mork doesn't seem to handle this correctly, so deal with going off
   // the end here.
-  if (aIndex < 0 || uint32_t(aIndex) >= m_numChildren)
+  if (aIndex >= m_numChildren)
     return NS_MSG_MESSAGE_NOT_FOUND;
   mdbOid oid;
   nsresult rv = m_mdbTable->PosToOid( m_mdbDB->GetEnv(), aIndex, &oid);
@@ -490,7 +490,7 @@ NS_IMETHODIMP nsMsgThread::GetChild(nsMsgKey msgKey, nsIMsgDBHdr **result)
   return rv;
 }
 
-NS_IMETHODIMP nsMsgThread::RemoveChildAt(int32_t aIndex)
+NS_IMETHODIMP nsMsgThread::RemoveChildAt(uint32_t aIndex)
 {
   return NS_OK;
 }
@@ -854,7 +854,7 @@ nsresult nsMsgThread::ReparentMsgsWithInvalidParent(uint32_t numChildren, nsMsgK
   nsresult rv = NS_OK;
   // run through looking for messages that don't have a correct parent,
   // i.e., a parent that's in the thread!
-  for (int32_t childIndex = 0; childIndex < (int32_t) numChildren; childIndex++)
+  for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
   {
     nsCOMPtr <nsIMsgDBHdr> curChild;
     rv  = GetChildHdrAt(childIndex, getter_AddRefs(curChild));
@@ -912,7 +912,7 @@ NS_IMETHODIMP nsMsgThread::GetRootHdr(int32_t *resultIndex, nsIMsgDBHdr **result
     nsMsgKey threadParentKey = nsMsgKey_None;
     GetNumChildren(&numChildren);
 
-    for (int32_t childIndex = 0; childIndex < (int32_t) numChildren; childIndex++)
+    for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
     {
       nsCOMPtr <nsIMsgDBHdr> curChild;
       rv  = GetChildHdrAt(childIndex, getter_AddRefs(curChild));
@@ -1073,7 +1073,7 @@ nsresult nsMsgThread::GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **resul
     }
   }
   if (resultIndex)
-    *resultIndex = childIndex;
+    *resultIndex = (int32_t) childIndex;
 
   return rv;
 }

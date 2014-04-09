@@ -1208,7 +1208,7 @@ nsresult nsMsgComposeAndSend::BeginCryptoEncapsulation ()
 }
 
 nsresult
-mime_write_message_body(nsIMsgSend *state, const char *buf, int32_t size)
+mime_write_message_body(nsIMsgSend *state, const char *buf, uint32_t size)
 {
   NS_ENSURE_ARG_POINTER(state);
 
@@ -1227,21 +1227,19 @@ mime_write_message_body(nsIMsgSend *state, const char *buf, int32_t size)
 
   uint32_t n;
   nsresult rv = output->Write(buf, size, &n);
-  if (NS_FAILED(rv) || n != (uint32_t)size)
+  if (NS_FAILED(rv) || n != size)
   {
     return NS_MSG_ERROR_WRITING_FILE;
   }
-  else
-  {
-    return NS_OK;
-  }
+
+  return NS_OK;
 }
 
 nsresult
 mime_encoder_output_fn(const char *buf, int32_t size, void *closure)
 {
   nsMsgComposeAndSend *state = (nsMsgComposeAndSend *) closure;
-  return mime_write_message_body (state, (char *) buf, size);
+  return mime_write_message_body (state, (char *) buf, (uint32_t)size);
 }
 
 nsresult

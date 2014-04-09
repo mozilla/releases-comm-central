@@ -33,8 +33,8 @@ struct MimeMultipartRelated {
 
   char* head_buffer;      /* Buffer used to remember the text/html 'head'
                    part. */
-  int32_t head_buffer_fp;    /* Active length. */
-  int32_t head_buffer_size;    /* How big it is. */
+  uint32_t head_buffer_fp;    /* Active length. */
+  uint32_t head_buffer_size;    /* How big it is. */
 
   nsCOMPtr <nsIFile>          file_buffer;    /* The nsIFile of a temp file used when we
                                                run out of room in the head_buffer. */

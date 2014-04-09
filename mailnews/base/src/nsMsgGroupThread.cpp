@@ -200,18 +200,18 @@ nsresult nsMsgGroupThread::ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelH
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgGroupThread::GetChildKeyAt(int32_t aIndex, nsMsgKey *aResult)
+NS_IMETHODIMP nsMsgGroupThread::GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
-  if (aIndex < 0 || (uint32_t)aIndex >= m_keys.Length())
+  if (aIndex >= m_keys.Length())
     return NS_ERROR_INVALID_ARG;
   *aResult = m_keys[aIndex];
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgGroupThread::GetChildHdrAt(int32_t aIndex, nsIMsgDBHdr **aResult)
+NS_IMETHODIMP nsMsgGroupThread::GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **aResult)
 {
-  if (aIndex < 0 || (uint32_t)aIndex >= m_keys.Length())
+  if (aIndex >= m_keys.Length())
     return NS_MSG_MESSAGE_NOT_FOUND;
   return m_db->GetMsgHdrForKey(m_keys[aIndex], aResult);
 }
@@ -219,10 +219,10 @@ NS_IMETHODIMP nsMsgGroupThread::GetChildHdrAt(int32_t aIndex, nsIMsgDBHdr **aRes
 
 NS_IMETHODIMP nsMsgGroupThread::GetChild(nsMsgKey msgKey, nsIMsgDBHdr **aResult)
 {
-  return GetChildHdrAt((int32_t) m_keys.IndexOf(msgKey), aResult);
+  return GetChildHdrAt(m_keys.IndexOf(msgKey), aResult);
 }
 
-NS_IMETHODIMP nsMsgGroupThread::RemoveChildAt(int32_t aIndex)
+NS_IMETHODIMP nsMsgGroupThread::RemoveChildAt(uint32_t aIndex)
 {
   m_keys.RemoveElementAt(aIndex);
   return NS_OK;
@@ -499,7 +499,7 @@ nsresult nsMsgGroupThreadEnumerator::Prefetch()
     uint32_t numChildren;
     mThread->GetNumChildren(&numChildren);
     
-    while (mChildIndex < (int32_t) numChildren)
+    while ((uint32_t)mChildIndex < numChildren)
     {
       rv  = mThread->GetChildHdrAt(mChildIndex++, getter_AddRefs(mResultHdr));
       if (NS_SUCCEEDED(rv) && mResultHdr)
@@ -621,7 +621,7 @@ NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t *resultIndex, nsIMsgDBHdr **r
       nsMsgKey threadParentKey = nsMsgKey_None;
       GetNumChildren(&numChildren);
       
-      for (int32_t childIndex = 0; childIndex < (int32_t) numChildren; childIndex++)
+      for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
       {
         nsCOMPtr <nsIMsgDBHdr> curChild;
         ret  = GetChildHdrAt(childIndex, getter_AddRefs(curChild));
@@ -674,10 +674,7 @@ nsresult nsMsgGroupThread::GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **
     return NS_ERROR_NULL_POINTER;
   
   GetNumChildren(&numChildren);
-  
-  if ((int32_t) numChildren < 0)
-    numChildren = 0;
-  
+
   for (childIndex = 0; childIndex < numChildren; childIndex++)
   {
     rv = GetChildHdrAt(childIndex, result);
@@ -695,7 +692,7 @@ nsresult nsMsgGroupThread::GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **
     }
   }
   if (resultIndex)
-    *resultIndex = childIndex;
+    *resultIndex = (int32_t) childIndex;
   
   return rv;
 }
@@ -744,9 +741,6 @@ NS_IMETHODIMP nsMsgGroupThread::GetNewestMsgDate(uint32_t *aResult)
   
     GetNumChildren(&numChildren);
   
-    if ((int32_t) numChildren < 0)
-      numChildren = 0;
-  
     for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
     {
       nsCOMPtr <nsIMsgDBHdr> child;
@@ -787,20 +781,20 @@ NS_IMETHODIMP nsMsgXFGroupThread::GetNumChildren(uint32_t *aNumChildren)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgXFGroupThread::GetChildHdrAt(int32_t aIndex, nsIMsgDBHdr **aResult)
+NS_IMETHODIMP nsMsgXFGroupThread::GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **aResult)
 {
-  if (aIndex < 0 || aIndex >= m_folders.Count())
+  if (aIndex >= m_folders.Length())
     return NS_MSG_MESSAGE_NOT_FOUND;
   return m_folders.ObjectAt(aIndex)->GetMessageHeader(m_keys[aIndex], aResult);
 }
 
-NS_IMETHODIMP nsMsgXFGroupThread::GetChildKeyAt(int32_t aIndex, nsMsgKey *aResult)
+NS_IMETHODIMP nsMsgXFGroupThread::GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult)
 {
   NS_ASSERTION(false, "shouldn't call this");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgXFGroupThread::RemoveChildAt(int32_t aIndex)
+NS_IMETHODIMP nsMsgXFGroupThread::RemoveChildAt(uint32_t aIndex)
 {
   nsMsgGroupThread::RemoveChildAt(aIndex);
   m_folders.RemoveObjectAt(aIndex);

@@ -536,7 +536,7 @@ nsresult nsMsgShutdownService::ProcessNextTask()
 {
   bool shutdownTasksDone = true;
 
-  int32_t count = mShutdownTasks.Count();
+  uint32_t count = mShutdownTasks.Length();
   if (mTaskIndex < count)
   {
     shutdownTasksDone = false;
@@ -558,7 +558,7 @@ nsresult nsMsgShutdownService::ProcessNextTask()
     {
       // We have failed, let's go on to the next task.
       mTaskIndex++;
-      mMsgProgress->OnProgressChange(nullptr, nullptr, 0, 0, mTaskIndex, count);
+      mMsgProgress->OnProgressChange(nullptr, nullptr, 0, 0, (int32_t)mTaskIndex, count);
       ProcessNextTask();
     }
   }
@@ -734,7 +734,7 @@ NS_IMETHODIMP nsMsgShutdownService::OnStopRunningUrl(nsIURI *url, nsresult aExit
   if (mMsgProgress)
   {
     int32_t numTasks = mShutdownTasks.Count();
-    mMsgProgress->OnProgressChange(nullptr, nullptr, 0, 0, mTaskIndex, numTasks);
+    mMsgProgress->OnProgressChange(nullptr, nullptr, 0, 0, (int32_t)mTaskIndex, numTasks);
   }
 
   ProcessNextTask();
