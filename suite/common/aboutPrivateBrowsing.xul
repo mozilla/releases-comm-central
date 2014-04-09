@@ -16,26 +16,11 @@
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="warningScreen"
-        align="center"
-        onload="onLoad();">
+        align="center">
   <script type="text/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
   <script type="text/javascript" src="chrome://communicator/content/tasksOverlay.js"/>
   <script type="text/javascript" src="chrome://help/content/contextHelp.js"/>
-  <script type="text/javascript">
-    function onLoad() {
-      if (window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                .getInterface(Components.interfaces.nsIWebNavigation)
-                .QueryInterface(Components.interfaces.nsILoadContext)
-                .usePrivateBrowsing) {
-        document.getElementById("warningBox").className = "private";
-        document.title = document.getElementById("privateTitle").textContent;
-      }
-      else {
-        document.getElementById("warningBox").className = "normal";
-        document.title = document.getElementById("normalTitle").textContent;
-      }
-    }
-  </script>
+  <script type="text/javascript" src="chrome://communicator/content/aboutPrivateBrowsing.js"/>
   <spacer flex="1"/>
   <hbox id="warningBox" align="start">
     <image id="warningBoxIcon"/>
@@ -54,19 +39,19 @@
           <image id="trackWarnIcon"/>
           <description flex="1">&privatebrowsingpage.track.warn;</description>
         </hbox>
-        <button label="&privatebrowsingpage.learnmore.label;"
-                accesskey="&privatebrowsingpage.learnmore.accesskey;"
-                oncommand="openHelp('private-browsing', 'chrome://communicator/locale/help/suitehelp.rdf');"/>
+        <button id="learnMoreButton"
+                label="&privatebrowsingpage.learnmore.label;"
+                accesskey="&privatebrowsingpage.learnmore.accesskey;"/>
         <description class="private">&privatebrowsingpage.close.info;</description>
-        <button class="private"
+        <button id="closeWindowButton"
+                class="private"
                 label="&privatebrowsingpage.close.label;"
-                accesskey="&privatebrowsingpage.close.accesskey;"
-                oncommand="window.close();"/>
+                accesskey="&privatebrowsingpage.close.accesskey;"/>
         <description class="normal">&privatebrowsingpage.start.info;</description>
-        <button class="normal"
+        <button id="privateWindowButton"
+                class="normal"
                 label="&privatebrowsingpage.private.label;"
-                accesskey="&privatebrowsingpage.private.accesskey;"
-                oncommand="openNewPrivateWith(location.href);"/>
+                accesskey="&privatebrowsingpage.private.accesskey;"/>
       </vbox>
     </vbox>
   </hbox>
