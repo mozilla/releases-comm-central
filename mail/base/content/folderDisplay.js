@@ -2400,8 +2400,6 @@ FolderDisplayWidget.prototype = {
    * Ensure the given view index is visible, optionally with some padding.
    * By padding, we mean that the index will not be the first or last message
    *  displayed, but rather have messages on either side.
-   * If we get near the end of the list of messages, we 'snap' to the last page
-   *  of messages.
    * We have the concept of a 'lip' when we are at the end of the message
    *  display.  If we are near the end of the display, we want to show an
    *  empty row (at the bottom) so the user knows they are at the end.  Also,
@@ -2439,12 +2437,9 @@ FolderDisplayWidget.prototype = {
     let span = treeBox.getPageLength() - halfVisible;
 
     let target;
-    // If the index is near the end, try and latch on to the bottom.
-    if ((aViewIndex + span - this.getVisibleRowPadding(1)) > maxIndex)
-      target = maxIndex - span;
     // If the index is after the last visible guy (with padding), move down
     //  so that the target index is padded in 1 from the bottom.
-    else if (aViewIndex >= (last - this.getVisibleRowPadding(0)))
+    if (aViewIndex >= (last - this.getVisibleRowPadding(0)))
       target = Math.min(maxIndex,
                         (aViewIndex + this.getVisibleRowPadding(0))) -
                  span;
