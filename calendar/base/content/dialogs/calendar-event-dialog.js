@@ -35,6 +35,7 @@ var gLastRepeatSelection = 0;
 var gIgnoreUpdate = false;
 var gShowTimeAs = null;
 var gWarning = false;
+var gPreviousCalendarId = null;
 
 var eventDialogQuitObserver = {
   observe: function(aSubject, aTopic, aData) {
@@ -2269,12 +2270,17 @@ function updateCalendar() {
 
     gIsReadOnly = calendar.readOnly;
 
+    if (!gPreviousCalendarId) {
+        gPreviousCalendarId = item.calendar.id;
+    }
+
     // We might have to change the organizer, let's see
     let calendarOrgId = calendar.getProperty("organizerId");
-    if (window.organizer && calendar.aclEntry && calendarOrgId &&
-        calendar.id != item.calendar.id) {
+    if (window.organizer && calendarOrgId &&
+        calendar.id != gPreviousCalendarId) {
         window.organizer.id = calendarOrgId;
         window.organizer.commonName = calendar.getProperty("organizerCN");
+        gPreviousCalendarId = calendar.id;
     }
 
     if (!canNotifyAttendees(calendar, item) && calendar.getProperty("imip.identity")) {
