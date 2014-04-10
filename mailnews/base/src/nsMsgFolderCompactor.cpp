@@ -226,8 +226,8 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
    else
    {
      m_folder->NotifyCompactCompleted();
-     m_folder->ThrowAlertMsg("compactFolderDeniedLock", m_window);
      CleanupTempFilesAfterError();
+     m_folder->ThrowAlertMsg("compactFolderDeniedLock", m_window);
      if (m_compactAll)
        return CompactNextFolder();
      else
@@ -633,8 +633,10 @@ nsFolderCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
   {
     m_status = status; // set the m_status to status so the destructor can remove the
                        // temp folder and database
+    CleanupTempFilesAfterError();
     m_folder->NotifyCompactCompleted();
     ReleaseFolderLock();
+    m_folder->ThrowAlertMsg("compactFolderWriteFailed", m_window);
   }
   else
   {
@@ -878,10 +880,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
       writeCount += bytesWritten;
       count -= readCount;
       if (writeCount != readCount)
-      {
-        m_folder->ThrowAlertMsg("compactFolderWriteFailed", m_window);
         return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
-      }
     }
   }
   return rv;
