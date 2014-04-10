@@ -35,39 +35,51 @@
 #include "nsXPCOMPrivate.h" // for MAXPATHLEN and XPCOM_DLL
 
 #include "mozilla/Telemetry.h"
+#include "mozilla/WindowsDllBlocklist.h"
 
 static void Output(const char *fmt, ... )
 {
   va_list ap;
   va_start(ap, fmt);
 
-#if defined(XP_WIN) && !MOZ_WINCONSOLE
-  char16_t msg[2048];
-  _vsnwprintf(msg, sizeof(msg)/sizeof(msg[0]), NS_ConvertUTF8toUTF16(fmt).get(), ap);
-  MessageBoxW(NULL, msg, L"XULRunner", MB_OK | MB_ICONERROR);
-#else
+#ifndef XP_WIN
   vfprintf(stderr, fmt, ap);
+#else
+  char msg[2048];
+  vsnprintf_s(msg, _countof(msg), _TRUNCATE, fmt, ap);
+
+  wchar_t wide_msg[2048];
+  MultiByteToWideChar(CP_UTF8,
+                      0,
+                      msg,
+                      -1,
+                      wide_msg,
+                      _countof(wide_msg));
+#if MOZ_WINCONSOLE
+  fwprintf_s(stderr, wide_msg);
+#else
+  // Linking user32 at load-time interferes with the DLL blocklist (bug 932100).
+  // This is a rare codepath, so we can load user32 at run-time instead.
+  HMODULE user32 = LoadLibraryW(L"user32.dll");
+  if (user32) {
+    typedef int (WINAPI * MessageBoxWFn)(HWND, LPCWSTR, LPCWSTR, UINT);
+    MessageBoxWFn messageBoxW = (MessageBoxWFn)GetProcAddress(user32, "MessageBoxW");
+    if (messageBoxW) {
+      messageBoxW(nullptr, wide_msg, L"Thunderbird", MB_OK
+                                                   | MB_ICONERROR
+                                                   | MB_SETFOREGROUND);
+    }
+    FreeLibrary(user32);
+  }
+#endif
 #endif
 
   va_end(ap);
 }
 
-/**
- * A helper class which calls NS_LogInit/NS_LogTerm in its scope.
- */
-class ScopedLogging
-{
-public:
-  ScopedLogging() { NS_LogInit(); }
-  ~ScopedLogging() { NS_LogTerm(); }
-};
-
 XRE_GetFileFromPathType XRE_GetFileFromPath;
 XRE_CreateAppDataType XRE_CreateAppData;
 XRE_FreeAppDataType XRE_FreeAppData;
-#ifdef XRE_HAS_DLL_BLOCKLIST
-XRE_SetupDllBlocklistType XRE_SetupDllBlocklist;
-#endif
 XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
 XRE_mainType XRE_main;
 
@@ -75,9 +87,6 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
     { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
     { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
-#ifdef XRE_HAS_DLL_BLOCKLIST
-    { "XRE_SetupDllBlocklist", (NSFuncPtr*) &XRE_SetupDllBlocklist },
-#endif
     { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
     { nullptr, nullptr }
@@ -86,6 +95,9 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
 static int do_main(const char *exePath, int argc, char* argv[])
 {
   nsCOMPtr<nsIFile> appini;
+
+  NS_LogInit();
+
 #ifdef XP_WIN
   // exePath comes from mozilla::BinaryPath::Get, which returns a UTF-8
   // encoded path, so it is safe to convert it
@@ -145,12 +157,21 @@ int main(int argc, char* argv[])
   // faster dll preloading.
   IO_COUNTERS ioCounters;
   gotCounters = GetProcessIoCounters(GetCurrentProcess(), &ioCounters);
-  if (gotCounters && !ioCounters.ReadOperationCount)
 #endif
-  {
-      XPCOMGlueEnablePreload();
-  }
 
+#ifdef HAS_DLL_BLOCKLIST
+  DllBlocklist_Initialize();
+
+#ifdef DEBUG
+  // In order to be effective against AppInit DLLs, the blocklist must be
+  // initialized before user32.dll is loaded into the process (bug 932100).
+  if (GetModuleHandleA("user32.dll")) {
+    fprintf(stderr, "DLL blocklist was unable to intercept AppInit DLLs.\n");
+  }
+#endif
+#endif
+
+  XPCOMGlueEnablePreload();
 
   rv = XPCOMGlueStartup(exePath);
   if (NS_FAILED(rv)) {
@@ -165,10 +186,6 @@ int main(int argc, char* argv[])
     Output("Couldn't load XRE functions.\n");
     return 255;
   }
-
-#ifdef XRE_HAS_DLL_BLOCKLIST
-  XRE_SetupDllBlocklist();
-#endif
 
   if (gotCounters) {
 #if defined(XP_WIN)
@@ -194,11 +211,9 @@ int main(int argc, char* argv[])
 #endif
   }
 
-  int result;
-  {
-    ScopedLogging log;
-    result = do_main(exePath, argc, argv);
-  }
+  int result = do_main(exePath, argc, argv);
+
+  NS_LogTerm();
 
   return result;
 }
