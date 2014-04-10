@@ -727,7 +727,9 @@ calCalendarManager.prototype = {
 
         // Delete before to allow pref-type changes, then set the pref.
         Services.prefs.deleteBranch(branch);
-        Preferences.set(branch, value);
+        if (value !== null && value !== undefined) {
+            Preferences.set(branch, value);
+        }
     },
 
     deleteCalendarPref_: function(calendar, name) {

@@ -243,6 +243,14 @@ function test_calprefs() {
     do_check_eq(typeof prop, "string");
     do_check_eq(prop, "kinda true")
 
+    // Check if unsetting a pref works
+    memory.setProperty("intpref", null);
+    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    memory.id = memid;
+    let prop = memory.getProperty("intpref");
+    do_check_true(prop === null);
+
+
     // We are done now, start the next test
     run_next_test();
 }
