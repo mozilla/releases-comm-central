@@ -224,6 +224,8 @@ NS_IMETHODIMP nsMsgGroupThread::GetChild(nsMsgKey msgKey, nsIMsgDBHdr **aResult)
 
 NS_IMETHODIMP nsMsgGroupThread::RemoveChildAt(uint32_t aIndex)
 {
+  NS_ENSURE_TRUE(aIndex < m_keys.Length(), NS_MSG_MESSAGE_NOT_FOUND);
+
   m_keys.RemoveElementAt(aIndex);
   return NS_OK;
 }
@@ -777,7 +779,7 @@ nsMsgXFGroupThread::~nsMsgXFGroupThread()
 NS_IMETHODIMP nsMsgXFGroupThread::GetNumChildren(uint32_t *aNumChildren)
 {
   NS_ENSURE_ARG_POINTER(aNumChildren);
-  *aNumChildren = m_folders.Count();
+  *aNumChildren = m_folders.Length();
   return NS_OK;
 }
 
@@ -796,8 +798,11 @@ NS_IMETHODIMP nsMsgXFGroupThread::GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResu
 
 NS_IMETHODIMP nsMsgXFGroupThread::RemoveChildAt(uint32_t aIndex)
 {
-  nsMsgGroupThread::RemoveChildAt(aIndex);
-  m_folders.RemoveObjectAt(aIndex);
+  NS_ENSURE_TRUE(aIndex < m_folders.Length(), NS_MSG_MESSAGE_NOT_FOUND);
+
+  nsresult rv = nsMsgGroupThread::RemoveChildAt(aIndex);
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_folders.RemoveElementAt(aIndex);
   return NS_OK;
 }
 
