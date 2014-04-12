@@ -726,6 +726,9 @@ let gFolderTreeView = {
    * let css set the image per nsITreeView requirements.
    */
   getImageSrc: function(aRow, aCol) {
+    if (aCol.id != "folderNameCol")
+      return "";
+
     let rowItem = gFolderTreeView._rowMap[aRow];
     let folder = rowItem._folder;
     if (folder.server.type != "rss" || folder.isServer)

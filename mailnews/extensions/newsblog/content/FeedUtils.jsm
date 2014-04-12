@@ -210,6 +210,9 @@ var FeedUtils = {
       ds.Assert(id, this.DC_TITLE, this.rdf.GetLiteral(aFeed.title), true);
     ds.Assert(id, this.FZ_DESTFOLDER, aFeed.folder, true);
     ds.Flush();
+
+    // Update folderpane.
+    this.setFolderPaneProperty(aFeed.folder, "_favicon", null);
   },
 
 /**
@@ -224,24 +227,27 @@ var FeedUtils = {
     let feed = new Feed(aId, aServer);
     let ds = this.getSubscriptionsDS(aServer);
 
-    if (feed && ds)
-    {
-      // Remove the feed from the subscriptions ds.
-      let feeds = this.getSubscriptionsList(ds);
-      let index = feeds.IndexOf(aId);
-      if (index != -1)
-        feeds.RemoveElementAt(index, false);
+    if (!feed || !ds)
+     return;
 
-      // Remove all assertions about the feed from the subscriptions database.
-      this.removeAssertions(ds, aId);
-      ds.Flush();
+    // Remove the feed from the subscriptions ds.
+    let feeds = this.getSubscriptionsList(ds);
+    let index = feeds.IndexOf(aId);
+    if (index != -1)
+      feeds.RemoveElementAt(index, false);
 
-      // Remove all assertions about items in the feed from the items database.
-      let itemds = this.getItemsDS(aServer);
-      feed.invalidateItems();
-      feed.removeInvalidItems(true);
-      itemds.Flush();
-    }
+    // Remove all assertions about the feed from the subscriptions database.
+    this.removeAssertions(ds, aId);
+    ds.Flush();
+
+    // Remove all assertions about items in the feed from the items database.
+    let itemds = this.getItemsDS(aServer);
+    feed.invalidateItems();
+    feed.removeInvalidItems(true);
+    itemds.Flush();
+
+    // Update folderpane.
+    this.setFolderPaneProperty(aParentFolder, "_favicon", null);
   },
 
 /**
@@ -282,6 +288,27 @@ var FeedUtils = {
     }
 
     return feedUrlArray.length ? feedUrlArray : null;
+  },
+
+/**
+ * Update a folderpane ftvItem property.
+ *
+ * @param  nsIMsgFolder aFolder   - folder
+ * @param  string aProperty       - ftvItem property
+ * @param  string aValue          - value
+ */
+  setFolderPaneProperty: function(aFolder, aProperty, aValue) {
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    if (!aFolder || !win)
+      return;
+
+    let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
+    let rowItem = win.gFolderTreeView.getFTVItemForIndex(row);
+    if (rowItem == null)
+      return;
+
+    rowItem[aProperty] = aValue;
+    win.gFolderTreeView._tree.invalidateRow(row);
   },
 
   get mFaviconService() {

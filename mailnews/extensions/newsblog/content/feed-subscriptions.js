@@ -1377,6 +1377,10 @@ var FeedSubscriptions = {
       ds.Change(resource, FeedUtils.FZ_DESTFOLDER,
                 currentParentResource, newParentResource);
       ds.Flush();
+
+      // Update folderpane favicons.
+      FeedUtils.setFolderPaneProperty(currentFolder, "_favicon", null);
+      FeedUtils.setFolderPaneProperty(newFolder, "_favicon", null);
     }
     else
     {
@@ -1397,6 +1401,9 @@ var FeedSubscriptions = {
                              currentItem.parentFolder.server,
                              currentItem.parentFolder);
     }
+
+    // Update local favicons.
+    currentParentItem.favicon = newParentItem.favicon = null;
 
     // Finally, update our view layer.  Update old parent folder's quickMode
     // and remove the old row, if move.  Otherwise no change to the view.
@@ -1537,6 +1544,7 @@ var FeedSubscriptions = {
           }
           else
           {
+            // Adding a feed.
             parentIndex = win.mView.getParentIndex(curIndex);
             parentItem = win.mView.getItemAtIndex(parentIndex);
             level = curItem.level;
@@ -1546,7 +1554,8 @@ var FeedSubscriptions = {
           if (!newItem.container)
             win.updateFolderQuickModeInView(newItem, parentItem, false);
           parentItem.children.push(newItem);
-          parentItem.children = win.folderItemSorter(parentItem.children)
+          parentItem.children = win.folderItemSorter(parentItem.children);
+          parentItem.favicon = null;
 
           if (win.mActionMode == win.kSubscribeMode)
             message = FeedUtils.strings.GetStringFromName(
