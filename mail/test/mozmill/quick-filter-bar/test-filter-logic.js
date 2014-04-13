@@ -240,6 +240,50 @@ function test_filter_text_multi_word() {
 }
 
 /**
+ * Verify that the quickfilter bar has OR functionality using
+ * | (Pipe character) - Bug 586131
+ */
+function test_filter_or_operator() {
+  let folder = create_folder("QuickFilterBarOrOperator");
+
+  let whoFoo = ["foo", "zabba@madeup.invalid"];
+  let whoBar = ["zabba", "bar@madeup.invalid"];
+  let whoTest = ["test", "test@madeup.invalid"];
+  let [setInert, setSenderFoo, setToBar,
+       setSubject1, setSubject2, setSubject3,
+       setMail1, setMail2] =
+    make_new_sets_in_folder(folder, [
+      {count: 1},
+      {count: 1, from: whoFoo},
+      {count: 1, to: [whoBar]},
+      {count: 1, subject: "foo bar"},
+      {count: 1, subject: "bar test"},
+      {count: 1, subject: "test"},
+      {count: 1, to: [whoTest], subject: "logic"},
+      {count: 1, from: whoFoo, to: [whoBar], subject: "test"}]);
+  be_in_folder(folder);
+
+  assert_text_constraints_checked("sender", "recipients", "subject");
+  set_filter_text("foo | bar");
+  assert_messages_not_in_view([setInert, setSubject3, setMail1]);
+
+  set_filter_text("test | bar");
+  assert_messages_not_in_view([setInert, setSenderFoo]);
+
+  set_filter_text("foo | test");
+  assert_messages_not_in_view([setInert, setToBar]);
+
+  // consists of leading and trailing spaces and tab character.
+  set_filter_text("test     |   foo bar");
+  assert_messages_not_in_view([setInert, setSenderFoo, setToBar,
+                               setSubject3, setMail1]);
+
+  set_filter_text("test | foo  bar |logic");
+  assert_messages_not_in_view([setInert, setSenderFoo, setToBar,
+                               setSubject3]);
+}
+
+/**
  * Make sure that when dropping all constraints on toggle off or changing
  *  folders that we persist/propagate the state of the
  *  sender/recipients/subject/body toggle buttons.

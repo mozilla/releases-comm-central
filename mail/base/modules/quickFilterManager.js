@@ -968,9 +968,13 @@ let MessageTextFilter = {
         terms.push(aTerm);
     }
 
+    /**
+     * Look for spaces around | (OR operator) and remove them.
+     */
+    aSearchString = aSearchString.replace(/\s*\|\s*/g, "|");
     while (aSearchString) {
       if (aSearchString.startsWith('"')) {
-        let endIndex = aSearchString.indexOf(aSearchString[0], 1);
+        let endIndex = aSearchString.indexOf('"', 1);
         // treat a quote without a friend as making a phrase containing the
         // rest of the string...
         if (endIndex == -1) {
@@ -982,14 +986,9 @@ let MessageTextFilter = {
         continue;
       }
 
-      let spaceIndex = aSearchString.indexOf(" ");
-      if (spaceIndex == -1) {
-        addTerm(aSearchString);
-        break;
-      }
-
-      addTerm(aSearchString.substring(0, spaceIndex));
-      aSearchString = aSearchString.substring(spaceIndex+1);
+      let searchTerms = aSearchString.split(" ");
+      searchTerms.forEach(searchTerm => addTerm(searchTerm));
+      break;
     }
 
     return terms;
@@ -1006,26 +1005,29 @@ let MessageTextFilter = {
 
     if (aFilterValue.text) {
       let phrases = this._parseSearchString(aFilterValue.text);
-      for each (let [, phrase] in Iterator(phrases)) {
+      for (let groupedPhrases of phrases) {
         let firstClause = true;
         term = null;
-        for each (let [tfName, tfValue] in Iterator(aFilterValue.states)) {
-          if (!tfValue)
-            continue;
-          let tfDef = this.textFilterDefs[tfName];
+        let splitPhrases = groupedPhrases.split("|");
+        for (let phrase of splitPhrases) {
+          for (let [tfName, tfValue] in Iterator(aFilterValue.states)) {
+            if (!tfValue)
+              continue;
+            let tfDef = this.textFilterDefs[tfName];
 
-          term = aTermCreator.createTerm();
-          term.attrib = tfDef.attrib;
-          value = term.value;
-          value.attrib = tfDef.attrib;
-          value.str = phrase;
-          term.value = value;
-          term.op = nsMsgSearchOp.Contains;
-          // AND for the group, but OR inside the group
-          term.booleanAnd = firstClause;
-          term.beginsGrouping = firstClause;
-          aTerms.push(term);
-          firstClause = false;
+            term = aTermCreator.createTerm();
+            term.attrib = tfDef.attrib;
+            value = term.value;
+            value.attrib = tfDef.attrib;
+            value.str = phrase;
+            term.value = value;
+            term.op = nsMsgSearchOp.Contains;
+            // AND for the group, but OR inside the group
+            term.booleanAnd = firstClause;
+            term.beginsGrouping = firstClause;
+            aTerms.push(term);
+            firstClause = false;
+          }
         }
         if (term)
           term.endsGrouping = true;
