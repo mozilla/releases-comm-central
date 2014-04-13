@@ -27,6 +27,7 @@ var gCalendarGeneralPane = {
 
         // deselect and reselect to update visible item title
         updateSelectedLabel("dateformat");
+        updateUnitLabelPlural("defaultlength", "defaultlengthunit", "minutes");
         this.updateDefaultTodoDates();
     },
 
@@ -40,8 +41,8 @@ var gCalendarGeneralPane = {
         document.getElementById("default_task_start_offset")
                 .style.visibility = offsetValues.indexOf(defaultStart) > -1 ? "" : "hidden";
 
-        updateMenuLabels("default_task_start_offset_text", "default_task_start_offset_units");
-        updateMenuLabels("default_task_due_offset_text", "default_task_due_offset_units");
+        updateMenuLabelsPlural("default_task_start_offset_text", "default_task_start_offset_units");
+        updateMenuLabelsPlural("default_task_due_offset_text", "default_task_due_offset_units");
     },
 
     updateItemtypeDeck: function() {

@@ -23,8 +23,8 @@ function setupModule(module) {
 }
 
 function testDefaultAlarms() {
-  let localeUnitString = cal.calGetString("calendar-alarms",
-                                          "reminderCustomUnitDays");
+  let localeUnitString = cal.calGetString("calendar",
+                                          "unitDays");
   let unitString = PluralForm.get(50, localeUnitString)
                              .replace("#1", 50);
   let originStringEvent = cal.calGetString("calendar-alarms",

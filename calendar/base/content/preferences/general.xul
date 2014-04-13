@@ -117,8 +117,10 @@
                                      type="number"
                                      min="0"
                                      maxlength="3"
-                                     size="3"/>
-                            <label value="&calendar.global.units.minutes;"/>
+                                     size="3"
+                                     onselect="updateUnitLabelPlural('defaultlength','defaultlengthunit','minutes')"
+                                     oninput="updateUnitLabelPlural('defaultlength','defaultlengthunit','minutes')"/>
+                            <label id="defaultlengthunit"/>
                         </row>
                     </rows>
                 </grid>
@@ -165,28 +167,18 @@
                                          min="0"
                                          maxlength="3"
                                          size="3"
-                                         onselect="updateMenuLabels('default_task_start_offset_text', 'default_task_start_offset_units')"
-                                         oninput="updateMenuLabels('default_task_start_offset_text', 'default_task_start_offset_units')"/>
+                                         onselect="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"
+                                         oninput="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"/>
                                 <menulist id="default_task_start_offset_units"
                                           crop="none"
-                                          preference="calendar.task.defaultstartoffsetunits"
-                                          labelnumber="labelplural">
+                                          preference="calendar.task.defaultstartoffsetunits">
                                     <menupopup id="default_task_start_offset_units_popup">
                                         <menuitem id="default_task_start_offset_units_minutes"
-                                                  label="&calendar.global.units.minutes;"
-                                                  labelplural="&calendar.global.units.minutes;"
-                                                  labelsingular="&calendar.global.units.minute;"
                                                   value="minutes"
                                                   selected="true"/>
                                         <menuitem id="default_task_start_offset_units_hours"
-                                                  label="&calendar.global.units.hours;"
-                                                  labelplural="&calendar.global.units.hours;"
-                                                  labelsingular="&calendar.global.units.hour;"
                                                   value="hours"/>
                                         <menuitem id="default_task_start_offset_units_days"
-                                                  label="&calendar.global.units.days;"
-                                                  labelplural="&calendar.global.units.days;"
-                                                  labelsingular="&calendar.global.units.day;"
                                                   value="days"/>
                                     </menupopup>
                                 </menulist>
@@ -228,28 +220,18 @@
                                          min="0"
                                          maxlength="3"
                                          size="3"
-                                         onselect="updateMenuLabels('default_task_due_offset_text', 'default_task_due_offset_units')"
-                                         oninput="updateMenuLabels('default_task_due_offset_text', 'default_task_due_offset_units')"/>
+                                         onselect="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"
+                                         oninput="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"/>
                                 <menulist id="default_task_due_offset_units"
                                           crop="none"
-                                          preference="calendar.task.defaultdueoffsetunits"
-                                          labelnumber="labelplural">
+                                          preference="calendar.task.defaultdueoffsetunits">
                                     <menupopup id="default_task_due_offset_units_popup">
                                         <menuitem id="default_task_due_offset_units_minutes"
-                                                  label="&calendar.global.units.minutes;"
-                                                  labelplural="&calendar.global.units.minutes;"
-                                                  labelsingular="&calendar.global.units.minute;"
                                                   value="minutes"
                                                   selected="true"/>
                                         <menuitem id="default_task_due_offset_units_hours"
-                                                  label="&calendar.global.units.hours;"
-                                                  labelplural="&calendar.global.units.hours;"
-                                                  labelsingular="&calendar.global.units.hour;"
                                                   value="hours"/>
                                         <menuitem id="default_task_due_offset_units_days"
-                                                  label="&calendar.global.units.days;"
-                                                  labelplural="&calendar.global.units.days;"
-                                                  labelsingular="&calendar.global.units.day;"
                                                   value="days"/>
                                     </menupopup>
                                 </menulist>

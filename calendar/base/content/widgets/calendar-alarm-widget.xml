@@ -217,6 +217,7 @@
       <xul:hbox class="snooze-options-box">
         <xul:textbox anonid="snooze-value-textbox"
                      oninput="updateAccessibleName()"
+                     onselect="updateAccessibleName()"
                      type="number"
                      size="3"/>
         <xul:menulist anonid="snooze-unit-menulist"
@@ -226,9 +227,9 @@
                         position="after_start"
                         ignorekeys="true"
                         class="menulist-menupopup">
-           <xul:menuitem closemenu="single" class="unit-menuitem" label="&calendar.global.units.minutes;" value="1"/>
-           <xul:menuitem closemenu="single" class="unit-menuitem" label="&calendar.global.units.hours;" value="60"/>
-           <xul:menuitem closemenu="single" class="unit-menuitem" label="&calendar.global.units.days;" value="1440"/>
+           <xul:menuitem closemenu="single" class="unit-menuitem" value="1"/>
+           <xul:menuitem closemenu="single" class="unit-menuitem" value="60"/>
+           <xul:menuitem closemenu="single" class="unit-menuitem" value="1440"/>
          </xul:menupopup>
         </xul:menulist>
         <xul:toolbarbutton anonid="snooze-popup-ok"
@@ -320,23 +321,29 @@
       <method name="updateAccessibleName">
         <body><![CDATA[
           let unitList = document.getAnonymousElementByAttribute(this, "anonid", "snooze-unit-menulist");
+          let unitPopup = document.getAnonymousElementByAttribute(this, "anonid", "snooze-unit-menupopup");
           let unitValue = document.getAnonymousElementByAttribute(this, "anonid", "snooze-value-textbox");
           let okButton = document.getAnonymousElementByAttribute(this, "anonid", "snooze-popup-ok");
 
-          let unitName = {
-              1: "Minutes",
-              60: "Hours",
-              1440: "Days"
-          }[unitList.value] || "Minutes";
+          function unitName(list) {
+              return {1: "unitMinutes", 60: "unitHours", 1440: "unitDays"}[list.value] || "unitMinutes";
+          }
 
-          let pluralString = calGetString("calendar-alarms", "reminderCustomUnit" + unitName);
+          let pluralString = cal.calGetString("calendar", unitName(unitList));
           let unitPlural = PluralForm.get(unitValue.value, pluralString)
                                      .replace("#1", unitValue.value);
 
-          let accessibleString = calGetString("calendar-alarms",
-                                              "reminderSnoozeOkA11y",
-                                              [unitPlural]);
+          let accessibleString = cal.calGetString("calendar-alarms",
+                                                  "reminderSnoozeOkA11y",
+                                                  [unitPlural]);
           okButton.setAttribute("aria-label", accessibleString);
+
+          let items = unitPopup.getElementsByTagName("xul:menuitem");
+          for (let menuItem of items) {
+              pluralString = cal.calGetString("calendar", unitName(menuItem));
+              menuItem.label = PluralForm.get(unitValue.value, pluralString)
+                                         .replace("#1", "").trim();
+          }
         ]]></body>
       </method>
     </implementation>

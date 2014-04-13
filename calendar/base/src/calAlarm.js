@@ -657,15 +657,15 @@ calAlarm.prototype = {
             let unit;
             if (alarmlen % 1440 == 0) {
                 // Alarm is in days
-                unit = "reminderCustomUnitDays";
+                unit = "unitDays";
                 alarmlen /= 1440;
             } else if (alarmlen % 60 == 0) {
-                unit = "reminderCustomUnitHours";
+                unit = "unitHours";
                 alarmlen /= 60;
             } else {
-                unit = "reminderCustomUnitMinutes";
+                unit = "unitMinutes";
             }
-            let localeUnitString = calGetString("calendar-alarms", unit);
+            let localeUnitString = cal.calGetString("calendar", unit);
             let unitString = PluralForm.get(alarmlen, localeUnitString)
                                        .replace("#1", alarmlen);
             let originStringName = "reminderCustomOrigin";
@@ -691,7 +691,6 @@ calAlarm.prototype = {
             return calGetString("calendar-alarms",
                                 "reminderCustomTitle",
                                 [unitString, originString]);
-                                
         } else {
             // This is an incomplete alarm, but then again we should never reach
             // this state.
