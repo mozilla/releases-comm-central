@@ -198,6 +198,8 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 
 /* Separator between menu and split type buttons */
 .toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-menubutton-dropmarker::before,
+.toolbarbutton-1[disabled="true"] >
 .toolbarbutton-menubutton-dropmarker::before {
   content: "";
   display: -moz-box;
