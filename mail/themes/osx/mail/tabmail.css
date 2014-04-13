@@ -41,7 +41,7 @@
 }
 
 @media (min-resolution: 2dppx) {
-  /* image preloading hack from shared/tabs.inc.css */
+  /* image preloading hack from shared/tabmail.css */
   #tabs-toolbar::before {
     background-image: url(tabs/background-end@2x.png),
                       url(tabs/background-middle@2x.png),
@@ -57,7 +57,7 @@
 
   .tab-background-middle[selected=true] {
     background-image: url(tabs/active-middle@2x.png),
-                      @fgTabTexture@,
+                      var(--fgTabTexture),
                       none;
   }
 
