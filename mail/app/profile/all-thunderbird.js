@@ -144,6 +144,10 @@ pref("app.update.service.enabled", true);
 // Release notes URL
 pref("app.releaseNotesURL", "http://live.mozillamessaging.com/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&os=%OS%&buildid=%APPBUILDID%");
 
+// URL for "Learn More" for Crash Reporter.
+pref("toolkit.crashreporter.infoURL",
+     "http://www.mozilla.org/thunderbird/legal/privacy/#crash-reporter");");
+
 // Base URL for web-based support pages.
 pref("app.support.baseURL", "http://support.live.mozillamessaging.com/%LOCALE%/%APP%/%APPBUILDID%/");
 
