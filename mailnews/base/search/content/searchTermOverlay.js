@@ -375,7 +375,7 @@ function createSearchRow(index, scope, searchTerm, aUserAdded)
     // If this row was added by user action, focus the value field.
     if (aUserAdded) {
       document.commandDispatcher.advanceFocusIntoSubtree(searchVal);
-	  searchrow.setAttribute("highlight", "true");
+      searchrow.setAttribute("highlight", "true");
     }
 
     // bump our unique search term counter
