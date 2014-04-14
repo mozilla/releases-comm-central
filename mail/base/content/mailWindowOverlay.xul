@@ -954,12 +954,12 @@
               check="false"
               oncommand="ToggleFavoriteFolderFlag();"/>
     <menuitem id="folderPaneContext-properties"
-              label="&folderContextProperties.label;"
-              accesskey="&folderContextProperties.accesskey;"
+              label="&folderContextProperties2.label;"
+              accesskey="&folderContextProperties2.accesskey;"
               oncommand="gFolderTreeController.editFolder();"/>
     <menuitem id="folderPaneContext-settings"
-              label="&folderContextSettings.label;"
-              accesskey="&folderContextSettings.accesskey;"
+              label="&folderContextSettings2.label;"
+              accesskey="&folderContextSettings2.accesskey;"
               oncommand="gFolderTreeController.editFolder();"/>
   </menupopup>
 
@@ -1389,7 +1389,7 @@
                           label="&synchronizeOfflineCmd.label;"
                           command="cmd_synchronizeOffline"/>
                 <menuitem id="appmenu_settingsOffline"
-                          label="&settingsOfflineCmd.label;"
+                          label="&settingsOfflineCmd2.label;"
                           command="cmd_settingsOffline"/>
                 <menuseparator id="app_offlineMenuAfterSettingsSeparator"/>
                 <menuitem id="appmenu_downloadFlagged"
@@ -2328,8 +2328,8 @@
                         accesskey="&synchronizeOfflineCmd.accesskey;"
                         command="cmd_synchronizeOffline"/>
               <menuitem id="menu_settingsOffline"
-                        label="&settingsOfflineCmd.label;"
-                        accesskey="&settingsOfflineCmd.accesskey;"
+                        label="&settingsOfflineCmd2.label;"
+                        accesskey="&settingsOfflineCmd2.accesskey;"
                         command="cmd_settingsOffline"/>
               <menuseparator id="offlineMenuAfterSettingsSeparator"/>
               <menuitem id="menu_downloadFlagged"

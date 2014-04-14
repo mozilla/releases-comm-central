@@ -374,8 +374,8 @@
                       hidden="&hideSwapFnLnUI;"
                       oncommand="AbSwapFirstNameLastName()"/>
             <menuitem id="menu_properties"
-                      label="&propertiesCmd.label;"
-                      accesskey="&propertiesCmd.accesskey;"
+                      label="&propertiesCmd2.label;"
+                      accesskey="&propertiesCmd2.accesskey;"
                       key="key_properties"
                       command="cmd_properties"/>            
 #ifdef XP_UNIX
