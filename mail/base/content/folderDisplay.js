@@ -2384,16 +2384,44 @@ FolderDisplayWidget.prototype = {
 
   /**
    * Minimum number of lines to display between the 'focused' message and the
-   *  top or bottom of the thread pane.
-   *
-   * @param aPadEnd 1 to get the number of padding rows at the top of the pane,
-   *  0 for the same at the bottom of the pane.
+   *  top / bottom of the thread pane.
    */
-   getVisibleRowPadding:
-       function FolderDisplayWidget_getVisibleRowPadding(aPadEnd) {
-    return Services.prefs.getIntPref(aPadEnd ?
-                                     "mail.threadpane.padding.top" :
-                                     "mail.threadpane.padding.bottom");
+  get visibleRowPadding() {
+    let topPadding, bottomPadding;
+
+    // If we can get the height of the folder pane, treat the values as
+    //  percentages of that.
+    if (this.treeBox) {
+      let topPercentPadding = Services.prefs.getIntPref(
+                              "mail.threadpane.padding.top_percent");
+      let bottomPercentPadding = Services.prefs.getIntPref(
+                                 "mail.threadpane.padding.bottom_percent");
+
+      // Assume the bottom row is half-visible and should generally be ignored.
+      // (We could actually do the legwork to see if there is a partial one...)
+      let paneHeight = this.treeBox.getPageLength() - 1;
+
+      // Convert from percentages to absolute row counts.
+      topPadding = Math.ceil((topPercentPadding / 100)  * paneHeight);
+      bottomPadding = Math.ceil((bottomPercentPadding / 100)  * paneHeight);
+
+      // We need one visible row not counted in either padding, for the actual
+      //  target message. Also helps correct for rounding errors.
+      if (topPadding + bottomPadding > paneHeight) {
+        if (topPadding > bottomPadding)
+          topPadding--;
+        else
+          bottomPadding--;
+      }
+    } else {
+      // Something's gone wrong elsewhere, and we likely have bigger problems.
+      topPadding = 0;
+      bottomPadding = 0;
+      Components.utils.reportError(
+          "Unable to get height of folder pane (treeBox is null)");
+    }
+
+    return [topPadding, bottomPadding];
   },
 
   /**
@@ -2435,17 +2463,16 @@ FolderDisplayWidget.prototype = {
     const halfVisible = 1;
     let last  = treeBox.getLastVisibleRow() - halfVisible;
     let span = treeBox.getPageLength() - halfVisible;
+    let [topPadding, bottomPadding] = this.visibleRowPadding;
 
     let target;
     // If the index is after the last visible guy (with padding), move down
     //  so that the target index is padded in 1 from the bottom.
-    if (aViewIndex >= (last - this.getVisibleRowPadding(0)))
-      target = Math.min(maxIndex,
-                        (aViewIndex + this.getVisibleRowPadding(0))) -
-                 span;
+    if (aViewIndex >= (last - bottomPadding))
+      target = Math.min(maxIndex, (aViewIndex + bottomPadding)) - span;
     // If the index is before the first visible guy (with padding), move up
-    else if (aViewIndex <= (first + this.getVisibleRowPadding(1)))  // move up
-      target = Math.max(0, (aViewIndex - this.getVisibleRowPadding(1)));
+    else if (aViewIndex <= (first + topPadding))  // move up
+      target = Math.max(0, (aViewIndex - topPadding));
     else // it is already visible
       return;
 
@@ -2454,8 +2481,8 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * Ensure that the given range of rows is visible maximally visible in the
-   *  thread pane.  If the range is larger than the number of rows that can be
+   * Ensure that the given range of rows is maximally visible in the thread
+   *  pane.  If the range is larger than the number of rows that can be
    *  displayed in the thread pane, we bias towards showing the min row (with
    *  padding).
    *
@@ -2486,25 +2513,24 @@ FolderDisplayWidget.prototype = {
     const halfVisible = 1;
     let last  = treeBox.getLastVisibleRow() - halfVisible;
     let span = treeBox.getPageLength() - halfVisible;
+    let [topPadding, bottomPadding] = this.visibleRowPadding;
 
     // bail if the range is already visible with padding constraints handled
-    if (((first + this.getVisibleRowPadding(1)) <= aMinRow) &&
-        ((last - this.getVisibleRowPadding(0)) >= aMaxRow))
+    if (((first + topPadding) <= aMinRow) &&
+        ((last - bottomPadding) >= aMaxRow))
       return;
 
     let target;
     // if the range is bigger than we can fit, optimize position for the min row
     //  with padding to make it obvious the range doesn't extend above the row.
     if (aMaxRow - aMinRow > span) {
-      target = Math.max(0, (aMinRow - this.getVisibleRowPadding(1)));
+      target = Math.max(0, (aMinRow - topPadding));
     } else {
       // So the range must fit, and it's a question of how we want to position
       //  it.  For now, the answer is we try and center it, why not.
       let rowSpan = aMaxRow - aMinRow + 1;
-      let halfSpare = Math.floor((span - rowSpan -
-                                  this.getVisibleRowPadding(1) -
-                                  this.getVisibleRowPadding(0)) / 2);
-      target = aMinRow - halfSpare - this.getVisibleRowPadding(1);
+      let halfSpare = Math.floor((span - rowSpan - topPadding - bottomPadding) / 2);
+      target = aMinRow - halfSpare - topPadding;
     }
     treeBox.scrollToRow(target);
   },
