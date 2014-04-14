@@ -18,6 +18,7 @@ modern.jar:
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
   skin/modern/communicator/brand.css                               (communicator/brand.css)
+  skin/modern/communicator/blockedSite.css                         (communicator/blockedSite.css)
   skin/modern/communicator/certError.css                           (communicator/certError.css)
   skin/modern/communicator/prefpanels.css                          (communicator/prefpanels.css)
   skin/modern/communicator/preferences.css                         (communicator/preferences.css)

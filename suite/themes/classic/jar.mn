@@ -88,6 +88,7 @@ classic.jar:
   skin/classic/communicator/icons/loading.gif                           (communicator/icons/loading.gif)
 #endif
   skin/classic/communicator/brand.css                                   (communicator/brand.css)
+  skin/classic/communicator/blockedSite.css                             (communicator/blockedSite.css)
   skin/classic/communicator/certError.css                               (communicator/certError.css)
   skin/classic/communicator/dialogs.css                                 (communicator/dialogs.css)
   skin/classic/communicator/communicatorBindings.xml                    (communicator/communicatorBindings.xml)
