@@ -16,6 +16,7 @@ PARALLEL_DIRS += [
     'import/src',
     'import/text/src',
     'import/vcard/src',
+    'intl',
     'local/public',
     'local/src',
     'mime',

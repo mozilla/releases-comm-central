@@ -300,6 +300,17 @@
 #include "nsPgpMimeProxy.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+// i18n includes
+////////////////////////////////////////////////////////////////////////////////
+#include "nsEncoderDecoderUtils.h"
+#include "nsCommUConvCID.h"
+
+#include "nsUTF7ToUnicode.h"
+#include "nsMUTF7ToUnicode.h"
+#include "nsUnicodeToUTF7.h"
+#include "nsUnicodeToMUTF7.h"
+
+////////////////////////////////////////////////////////////////////////////////
 // mailnews base factories
 ////////////////////////////////////////////////////////////////////////////////
 using namespace mozilla::mailnews;
@@ -805,6 +816,20 @@ nsPgpMimeMimeContentTypeHandlerConstructor(nsISupports *aOuter,
   return inst->QueryInterface(aIID, aResult);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// i18n factories
+////////////////////////////////////////////////////////////////////////////////
+
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsUTF7ToUnicode)
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsMUTF7ToUnicode)
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsUnicodeToUTF7)
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsUnicodeToMUTF7)
+
+NS_DEFINE_NAMED_CID(NS_UTF7TOUNICODE_CID);
+NS_DEFINE_NAMED_CID(NS_MUTF7TOUNICODE_CID);
+NS_DEFINE_NAMED_CID(NS_UNICODETOUTF7_CID);
+NS_DEFINE_NAMED_CID(NS_UNICODETOMUTF7_CID);
+
 const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   // MailNews Base Entries
   { &kNS_MESSENGERBOOTSTRAP_CID, false, NULL, nsMessengerBootstrapConstructor },
@@ -1004,6 +1029,11 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   // PGP/MIME Entries
   { &kNS_PGPMIME_CONTENT_TYPE_HANDLER_CID, false, NULL, nsPgpMimeMimeContentTypeHandlerConstructor },
   { &kNS_PGPMIMEPROXY_CID, false, NULL, nsPgpMimeProxyConstructor },
+  // i18n Entries
+  { &kNS_UTF7TOUNICODE_CID, false, nullptr, nsUTF7ToUnicodeConstructor },
+  { &kNS_MUTF7TOUNICODE_CID, false, nullptr, nsMUTF7ToUnicodeConstructor },
+  { &kNS_UNICODETOUTF7_CID, false, nullptr, nsUnicodeToUTF7Constructor },
+  { &kNS_UNICODETOMUTF7_CID, false, nullptr, nsUnicodeToMUTF7Constructor },
   // Tokenizer Entries
   { NULL }
 };
@@ -1234,6 +1264,11 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   // PGP/MIME Entries
   { "@mozilla.org/mimecth;1?type=multipart/encrypted", &kNS_PGPMIME_CONTENT_TYPE_HANDLER_CID },
   { NS_PGPMIMEPROXY_CONTRACTID, &kNS_PGPMIMEPROXY_CID },
+  // i18n Entries
+  { NS_UNICODEDECODER_CONTRACTID_BASE "UTF-7", &kNS_UTF7TOUNICODE_CID },
+  { NS_UNICODEDECODER_CONTRACTID_BASE "x-imap4-modified-utf7", &kNS_MUTF7TOUNICODE_CID },
+  { NS_UNICODEENCODER_CONTRACTID_BASE "UTF-7", &kNS_UNICODETOUTF7_CID },
+  { NS_UNICODEENCODER_CONTRACTID_BASE "x-imap4-modified-utf7", &kNS_UNICODETOMUTF7_CID },
   // Tokenizer Entries
   { NULL }
 };
@@ -1264,6 +1299,9 @@ static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
   { "command-line-handler", "m-news", NS_NEWSSTARTUPHANDLER_CONTRACTID },
   // Mail View Entries
   // mdn Entries
+  // i18n Entries
+  NS_UCONV_REG_UNREG("UTF-7", NS_UTF7TOUNICODE_CID, NS_UNICODETOUTF7_CID)
+  NS_UCONV_REG_UNREG("x-imap4-modified-utf7", NS_MUTF7TOUNICODE_CID, NS_UNICODETOMUTF7_CID)
   // Tokenizer Entries
   { NULL }
 };
