@@ -524,7 +524,10 @@
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
           <menuseparator id="prefSep"/>
-          <menuitem label="&accountManagerCmd.label;" accesskey="&accountManagerCmdUnix.accesskey;" command="cmd_account"/>
+          <menuitem id="menu_accountmgr"
+                    label="&accountManagerCmd2.label;"
+                    accesskey="&accountManagerCmdUnix2.accesskey;"
+                    command="cmd_account"/>
           <menuitem id="menu_preferences" label="&preferencesCmdUnix.label;" accesskey="&preferencesCmdUnix.accesskey;"
                     oncommand="openOptionsDialog('paneCompose');"/>
 #endif
@@ -665,13 +668,13 @@
 
 #ifndef XP_UNIX
             <menuseparator id="prefSep"/>
-            <menuitem label="&accountManagerCmd.label;" accesskey="&accountManagerCmd.accesskey;" command="cmd_account"/>
-            <menuitem id="menu_preferences" label="&preferencesCmd.label;" accesskey="&preferencesCmd.accesskey;"
+            <menuitem label="&accountManagerCmd2.label;" accesskey="&accountManagerCmd2.accesskey;" command="cmd_account"/>
+            <menuitem id="menu_preferences" label="&preferencesCmd2.label;" accesskey="&preferencesCmd2.accesskey;"
                       oncommand="openOptionsDialog('paneCompose');"/>
 #else
 #ifdef XP_MACOSX
-            <menuitem label="&accountManagerCmd.label;" accesskey="&accountManagerCmd.accesskey;" command="cmd_account"/>
-            <menuitem id="menu_preferences" label="&preferencesCmd.label;" accesskey="&preferencesCmd.accesskey;"
+            <menuitem label="&accountManagerCmd2.label;" accesskey="&accountManagerCmd2.accesskey;" command="cmd_account"/>
+            <menuitem id="menu_preferences" label="&preferencesCmd2.label;" accesskey="&preferencesCmd2.accesskey;"
                       oncommand="openOptionsDialog('paneCompose');"/>
 #endif
 #endif

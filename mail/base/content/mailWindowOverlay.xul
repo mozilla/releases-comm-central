@@ -191,9 +191,9 @@
   <command id="cmd_selectThread" oncommand="goDoCommand('cmd_selectThread')"/>
   <command id="cmd_selectFlagged" oncommand="goDoCommand('cmd_selectFlagged')"/>
   <command id="cmd_properties" oncommand="goDoCommand('cmd_properties')"
-         valueNewsgroup="&folderPropsNewsgroupCmd.label;"
-         valueFolder="&folderPropsFolderCmd.label;"
-         valueGeneric="&folderPropsCmd.label;"/>
+         valueNewsgroup="&folderPropsNewsgroupCmd2.label;"
+         valueFolder="&folderPropsFolderCmd2.label;"
+         valueGeneric="&folderPropsCmd2.label;"/>
   <command id="cmd_find" oncommand="goDoCommand('cmd_find')" disabled="true"/>
   <command id="cmd_findAgain" oncommand="goDoCommand('cmd_findAgain')" disabled="true"/>
   <command id="cmd_findPrevious" oncommand="goDoCommand('cmd_findPrevious')"
@@ -1218,7 +1218,7 @@
                       check="false"
                       oncommand="ToggleFavoriteFolderFlag();"/>
             <menuitem id="appmenu_properties"
-                      label="&folderPropsCmd.label;"
+                      label="&folderPropsCmd2.label;"
                       command="cmd_properties"/>
           </menupopup>
         </menu>
@@ -1240,11 +1240,11 @@
                   label="&activitymanager.label;"
                   oncommand="openActivityMgr();"/>
         <splitmenu id="appmenu_filters"
-                  label="&filtersCmd.label;"
+                  label="&filtersCmd2.label;"
                   command="cmd_displayMsgFilters">
           <menupopup id="appmenu_FilterMenu">
             <menuitem id="appmenu_filtersCmd"
-                      label="&filtersCmd.label;"
+                      label="&filtersCmd2.label;"
                       command="cmd_displayMsgFilters"/>
             <menuitem id="applyFilters"
                       label="&filtersApply.label;"
@@ -1261,7 +1261,7 @@
                   oncommand="openAddonsMgr();"/>
         <splitmenu id="appmenu_customize"
 #ifdef XP_WIN
-                   label="&preferencesCmd.label;"
+                   label="&preferencesCmd2.label;"
 #else
                    label="&preferencesCmdUnix.label;"
 #endif
@@ -1270,13 +1270,13 @@
                      onpopupshowing="onViewToolbarsPopupShowing(event, 'mail-toolbox', document.getElementById('appmenu_quickFilterBar'));">
             <menuitem id="appmenu_preferences"
 #ifdef XP_WIN
-                      label="&preferencesCmd.label;"
+                      label="&preferencesCmd2.label;"
 #else
                       label="&preferencesCmdUnix.label;"
 #endif
                       oncommand="openOptionsDialog();"/>
             <menuitem id="appmenu_accountmgr"
-                      label="&accountManagerCmd.label;"
+                      label="&accountManagerCmd2.label;"
                       oncommand="MsgAccountManager(null);"/>
             <menuseparator/>
             <menuitem id="appmenu_showStatusbar"
@@ -2399,12 +2399,15 @@
                   accesskey="&menuFavoriteFolder.accesskey;"
                   check="false"
                   oncommand="ToggleFavoriteFolderFlag();"/>
-        <menuitem id="menu_properties" label="&folderPropsCmd.label;"
+        <menuitem id="menu_properties" label="&folderPropsCmd2.label;"
                   accesskey="&folderPropsCmd.accesskey;"
                   command="cmd_properties"/>
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
-        <menuitem id="menu_accountmgr" label="&accountManagerCmd.label;" accesskey="&accountManagerCmdUnix.accesskey;" oncommand="MsgAccountManager(null);"/>
+        <menuitem id="menu_accountmgr"
+                  label="&accountManagerCmd2.label;"
+                  accesskey="&accountManagerCmdUnix2.accesskey;"
+                  oncommand="MsgAccountManager(null);"/>
         <menuitem id="menu_preferences" oncommand="openOptionsDialog()"/>
 #endif
 #endif
@@ -2936,8 +2939,8 @@
                   oncommand="chatHandler.joinChat();"/>
 
         <menuseparator id="devToolsSeparator"/>
-        <menuitem id="filtersCmd" label="&filtersCmd.label;"
-                  accesskey="&filtersCmd.accesskey;"
+        <menuitem id="filtersCmd" label="&filtersCmd2.label;"
+                  accesskey="&filtersCmd2.accesskey;"
                   command="cmd_displayMsgFilters"/>
         <menuitem id="applyFilters"
                   label="&filtersApply.label;"
@@ -2967,13 +2970,22 @@
                   oncommand="toSanitize();"/>
 #ifndef XP_UNIX
         <menuseparator id="prefSep"/>
-        <menuitem id="menu_accountmgr" label="&accountManagerCmd.label;" accesskey="&accountManagerCmd.accesskey;" oncommand="MsgAccountManager(null);"/>
+        <menuitem id="menu_accountmgr"
+                  label="&accountManagerCmd2.label;"
+                  accesskey="&accountManagerCmd2.accesskey;"
+                  oncommand="MsgAccountManager(null);"/>
         <menuitem id="menu_preferences" oncommand="openOptionsDialog()"/>
 #else
 #ifdef XP_MACOSX
         <menuseparator id="prefSep"/>
-        <menuitem id="menu_accountmgr" label="&accountManagerCmd.label;" accesskey="&accountManagerCmd.accesskey;" oncommand="MsgAccountManager(null);"/>
-        <menuitem id="menu_preferences" label="&preferencesCmdMac.label;" key="key_preferencesCmdMac" oncommand="openOptionsDialog()"/>
+        <menuitem id="menu_accountmgr"
+                  label="&accountManagerCmd2.label;"
+                  accesskey="&accountManagerCmd2.accesskey;"
+                  oncommand="MsgAccountManager(null);"/>
+        <menuitem id="menu_preferences"
+                  label="&preferencesCmdMac2.label;"
+                  key="key_preferencesCmdMac"
+                  oncommand="openOptionsDialog()"/>
         <menuitem id="menu_mac_services" label="&servicesMenuMac.label;"/>
         <menuitem id="menu_mac_hide_app" label="&hideThisAppCmdMac.label;" key="key_hideThisAppCmdMac"/>
         <menuitem id="menu_mac_hide_others" label="&hideOtherAppsCmdMac.label;" key="key_hideOtherAppsCmdMac"/>

@@ -522,19 +522,23 @@
             <menuitem id="tasksMenuMail" accesskey="&messengerCmd.accesskey;"
                       label="&messengerCmd.label;" key="key_mail"
                       oncommand="toMessengerWindow();"/>
-            <menuseparator />  
+            <menuseparator/>
 #endif
             <menuitem label="&importCmd.label;" accesskey="&importCmd.accesskey;" oncommand="toImport()"/>
             <menuitem label="&exportCmd.label;" accesskey="&exportCmd.accesskey;" oncommand="AbExport()"/>
 
 #ifndef XP_UNIX
-        <menuseparator id="prefSep"/>
-            <menuitem id="menu_preferences" label="&preferencesCmd.label;" accesskey="&preferencesCmd.accesskey;"
+            <menuseparator id="prefSep"/>
+            <menuitem id="menu_preferences"
+                      label="&preferencesCmd2.label;"
+                      accesskey="&preferencesCmd2.accesskey;"
                       command="cmd_preferences"/>
 #else
 #ifdef XP_MACOSX
-        <menuitem id="menu_preferences" label="&preferencesCmd.label;" accesskey="&preferencesCmd.accesskey;"
-                  command="cmd_preferences"/>
+            <menuitem id="menu_preferences"
+                      label="&preferencesCmd2.label;"
+                      accesskey="&preferencesCmd2.accesskey;"
+                      command="cmd_preferences"/>
 #endif
 #endif
           </menupopup>

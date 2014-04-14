@@ -114,8 +114,8 @@
             label="&preferencesCmdUnix.label;"
             accesskey="&preferencesCmdUnix.accesskey;"/>  
 #else
-            label="&preferencesCmd.label;"
-            accesskey="&preferencesCmd.accesskey;"/>
+            label="&preferencesCmd2.label;"
+            accesskey="&preferencesCmd2.accesskey;"/>
 #endif
 #endif
 
