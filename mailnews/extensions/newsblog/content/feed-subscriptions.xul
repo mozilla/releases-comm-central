@@ -126,7 +126,7 @@
                              mode="feeds"
                              showFileHereLabel="true"
                              showAccountsFileHere="true"
-                             oncommand="FeedSubscriptions.setFolderPicker(event.target._folder)"/>
+                             oncommand="FeedSubscriptions.setNewFolder(event.target._folder)"/>
                 </menulist>
                 <textbox id="selectFolderValue"
                          flex="1"
@@ -141,6 +141,20 @@
                   accesskey="&quickMode.accesskey;"
                   label="&quickMode.label;"
                   oncommand="FeedSubscriptions.setSummary(this.checked)"/>
+        <checkbox id="autotagEnable"
+                  accesskey="&autotagEnable.accesskey;"
+                  label="&autotagEnable.label;"
+                  oncommand="FeedSubscriptions.setCategoryPrefs(this)"/>
+        <hbox>
+            <checkbox id="autotagUsePrefix"
+                      class="indent"
+                      accesskey="&autotagUsePrefix.accesskey;"
+                      label="&autotagUsePrefix.label;"
+                      oncommand="FeedSubscriptions.setCategoryPrefs(this)"/>
+            <textbox id="autotagPrefix"
+                     placeholder="&autoTagPrefix.placeholder;"
+                     clickSelectsAll="true"/>
+        </hbox>
       </vbox>
     </hbox>
 

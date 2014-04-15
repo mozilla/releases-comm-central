@@ -24,6 +24,7 @@ FeedItem.prototype =
   title: null,
   author: "anonymous",
   inReplyTo: "",
+  keywords: [],
   mURL: null,
   characterSet: "UTF-8",
 
@@ -287,6 +288,33 @@ FeedItem.prototype =
       ("References: " + this.inReplyTo + "\n" +
        "In-Reply-To: " + this.inReplyTo + "\n") : "";
 
+    // If there are keywords (categories), create the headers. In the case of
+    // a longer than RFC5322 recommended line length, create multiple folded
+    // lines (easier to parse than multiple Keywords headers).
+    let keywordsStr = "";
+    if (this.keywords.length)
+    {
+      let HEADER = "Keywords: ";
+      let MAXLEN = 78;
+      keywordsStr = HEADER;
+      let keyword;
+      let keywords = [].concat(this.keywords);
+      let lines = [];
+      while (keywords.length)
+      {
+        keyword = keywords.shift();
+        if (keywordsStr.length + keyword.length > MAXLEN)
+        {
+          lines.push(keywordsStr)
+          keywordsStr = " ".repeat(HEADER.length);
+        }
+        keywordsStr += keyword + ",";
+      }
+      keywordsStr = keywordsStr.replace(/,$/,"\n");
+      lines.push(keywordsStr)
+      keywordsStr = lines.join("\n");
+    }
+
     // Escape occurrences of "From " at the beginning of lines of
     // content per the mbox standard, since "From " denotes a new
     // message, and add a line break so we know the last line has one.
@@ -313,6 +341,7 @@ FeedItem.prototype =
       'MIME-Version: 1.0\n' +
       'Subject: ' + this.title + '\n' +
       inreplytoHdrsStr +
+      keywordsStr +
       'Content-Transfer-Encoding: 8bit\n' +
       'Content-Base: ' + this.mURL + '\n';
 
@@ -349,6 +378,46 @@ FeedItem.prototype =
     let msgDBHdr = folder.addMessage(this.mUnicodeConverter.ConvertFromUnicode(source));
     msgDBHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
     msgFolder.gettingNewMessages = false;
+    this.tagItem(msgDBHdr, this.keywords);
+  },
+
+/**
+ * Autotag messages.
+ *
+ * @param  nsIMsgDBHdr aMsgDBHdr - message to tag
+ * @param  array aKeywords       - keywords (tags)
+ */
+  tagItem: function(aMsgDBHdr, aKeywords)
+  {
+    let categoryPrefs = this.feed.categoryPrefs();
+    if (!aKeywords.length || !categoryPrefs.enabled)
+      return;
+
+    let msgArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    msgArray.appendElement(aMsgDBHdr, false);
+
+    let prefix = categoryPrefs.prefixEnabled ? categoryPrefs.prefix : "";
+    let rtl = Services.prefs.getIntPref("bidi.direction") == 2;
+
+    let keys = [];
+    for (let keyword of aKeywords)
+    {
+      keyword = rtl ? keyword + prefix : prefix + keyword;
+      let keyForTag = MailServices.tags.getKeyForTag(keyword);
+      if (!keyForTag)
+      {
+        // Add the tag if it doesn't exist.
+        MailServices.tags.addTag(keyword, "", FeedUtils.AUTOTAG);
+        keyForTag = MailServices.tags.getKeyForTag(keyword);
+      }
+
+      // Add the tag key to the keys array.
+      keys.push(keyForTag);
+    }
+
+    if (keys.length)
+      // Add the keys to the message.
+      aMsgDBHdr.folder.addKeywordsToMessages(msgArray, keys.join(" "));
   },
 
   htmlEscape: function(s)

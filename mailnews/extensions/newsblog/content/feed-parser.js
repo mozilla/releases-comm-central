@@ -128,6 +128,7 @@ FeedParser.prototype =
       let item = new FeedItem();
       item.feed = aFeed;
       item.enclosures = [];
+      item.keywords = [];
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origLink");
       let link = this.getNodeValue(tags ? tags[0] : null);
@@ -268,6 +269,19 @@ FeedParser.prototype =
           item.enclosures[0].mURL = origEncUrl;
         else
           item.enclosures.push(new FeedEnclosure(origEncUrl));
+      }
+
+      // Support <category> and autotagging.
+      let tags = this.childrenByTagNameNS(itemNode, nsURI, "category");
+      if (tags)
+      {
+        for (let tag of tags)
+        {
+          let term = this.getNodeValue(tag);
+          term = term ? this.xmlUnescape(term.replace(",", ";")) : null;
+          if (term && item.keywords.indexOf(term) == -1)
+            item.keywords.push(term);
+        }
       }
 
       parsedItems.push(item);
@@ -534,6 +548,7 @@ FeedParser.prototype =
       let item = new FeedItem();
       item.feed = aFeed;
       item.enclosures = [];
+      item.keywords = [];
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origLink");
       item.url = this.getNodeValue(tags ? tags[0] : null);
@@ -553,7 +568,7 @@ FeedParser.prototype =
       if (!item.title || !item.id)
       {
         // We're lenient about other mandatory tags, but insist on these.
-        FeedUtils.log.info("FeedParser.parseAsAtom: <entry> missing mandatory " +
+        FeedUtils.log.info("FeedParser.parseAsAtomIETF: <entry> missing mandatory " +
                            "element <id>, or <title> and no <summary>; skipping");
         continue;
       }
@@ -648,6 +663,19 @@ FeedParser.prototype =
         item.inReplyTo = item.inReplyTo.trimRight();
       }
 
+      // Support <category> and autotagging.
+      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "category");
+      if (tags)
+      {
+        for (let tag of tags)
+        {
+          let term = tag.getAttribute("term");
+          term = term ? this.xmlUnescape(term.replace(",", ";")).trim() : null;
+          if (term && item.keywords.indexOf(term) == -1)
+            item.keywords.push(term);
+        }
+      }
+
       parsedItems.push(item);
     }
 
@@ -726,7 +754,7 @@ FeedParser.prototype =
       }
 
       if (ret)
-        return ret;
+        return ret.trim();
     }
 
     return null;

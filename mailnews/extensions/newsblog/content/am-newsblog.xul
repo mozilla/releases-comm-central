@@ -6,11 +6,14 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
 <!DOCTYPE page [
-<!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
+<!ENTITY %         newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
 %newsblogDTD;
-<!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >
+<!ENTITY %             feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd" >
+%feedDTD;
+<!ENTITY %   accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >
 %accountNoIdentDTD;
-<!ENTITY % accountServerTopDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">%accountServerTopDTD;
+<!ENTITY % accountServerTopDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
+%accountServerTopDTD;
 ]>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -44,7 +47,7 @@
                prefstring="mail.server.%serverkey%.name"/>
     </hbox>
 
-    <separator/>
+    <separator class="thin"/>
 
     <groupbox>
       <caption label="&serverSettings.label;"/>
@@ -86,6 +89,22 @@
                 preftype="bool"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.quickMode"/>
+
+      <checkbox id="autotagEnable"
+                accesskey="&autotagEnable.accesskey;"
+                label="&autotagEnable.label;"
+                oncommand="setCategoryPrefs(this)"/>
+      <hbox>
+          <checkbox id="autotagUsePrefix"
+                    class="indent"
+                    accesskey="&autotagUsePrefix.accesskey;"
+                    label="&autotagUsePrefix.label;"
+                    oncommand="setCategoryPrefs(this)"/>
+          <textbox id="autotagPrefix"
+                   placeholder="&autoTagPrefix.placeholder;"
+                   clickSelectsAll="true"
+                   onchange="setCategoryPrefs(this)"/>
+      </hbox>
     </groupbox>
 
     <separator class="thin"/>

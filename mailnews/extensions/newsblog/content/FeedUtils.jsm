@@ -60,6 +60,7 @@ var FeedUtils = {
   get FZ_DESTFOLDER() { return this.rdf.GetResource(this.FZ_NS + "destFolder") },
   get FZ_STORED()     { return this.rdf.GetResource(this.FZ_NS + "stored") },
   get FZ_VALID()      { return this.rdf.GetResource(this.FZ_NS + "valid") },
+  get FZ_OPTIONS()    { return this.rdf.GetResource(this.FZ_NS + "options"); },
   get FZ_LAST_SEEN_TIMESTAMP() {
     return this.rdf.GetResource(this.FZ_NS + "last-seen-timestamp");
   },
@@ -90,6 +91,7 @@ var FeedUtils = {
   kNewsBlogFileError: 6,
 
   CANCEL_REQUESTED: false,
+  AUTOTAG: "~AUTOTAG",
 
 /**
  * Get all rss account servers rootFolders.
@@ -614,8 +616,10 @@ var FeedUtils = {
     // Prefix with __ if name is:
     // 1) a reserved win filename.
     // 2) an undeletable/unrenameable special folder name (bug 259184).
-    if (folderName.toUpperCase().match(/COM\d|LPT\d|CON|PRN|AUX|NUL|CLOCK\$/) ||
-        folderName.toUpperCase().match(/INBOX|OUTBOX|UNSENT MESSAGES|TRASH/))
+    if (folderName.toUpperCase()
+                  .match(/^COM\d$|^LPT\d$|^CON$|PRN$|^AUX$|^NUL$|^CLOCK\$/) ||
+        folderName.toUpperCase()
+                  .match(/^INBOX$|^OUTBOX$|^UNSENT MESSAGES$|^TRASH$/))
       folderName = "__" + folderName;
 
     // Use a default if no name is found.
@@ -634,6 +638,50 @@ var FeedUtils = {
     }
 
     return folderName;
+  },
+
+/**
+ * This object will contain all feed specific properties.
+ */
+  _optionsDefault: {
+    version: 1,
+    // Autotag and <category> handling options.
+    category: {
+      enabled: false,
+      prefixEnabled: false,
+      prefix: null,
+    }
+  },
+
+  get optionsTemplate()
+  {
+    // Copy the object.
+    return JSON.parse(JSON.stringify(this._optionsDefault));
+  },
+
+  getOptionsAcct: function(aServer)
+  {
+    let optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
+    try {
+      return JSON.parse(Services.prefs.getCharPref(optionsAcctPref));
+    }
+    catch (ex) {
+      this.setOptionsAcct(aServer, this._optionsDefault);
+      return JSON.parse(Services.prefs.getCharPref(optionsAcctPref));
+    }
+  },
+
+  setOptionsAcct: function(aServer, aOptions)
+  {
+    let optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
+    let newOptions = this.newOptions(aOptions);
+    Services.prefs.setCharPref(optionsAcctPref, JSON.stringify(newOptions));
+  },
+
+  newOptions: function(aOptions)
+  {
+    // TODO: Clean options, so that only keys in the active template are stored.
+    return aOptions;
   },
 
   getSubscriptionsDS: function(aServer) {

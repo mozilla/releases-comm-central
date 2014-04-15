@@ -336,6 +336,38 @@ Feed.prototype =
                 aNewQuickMode, true);
   },
 
+  get options ()
+  {
+    let ds = FeedUtils.getSubscriptionsDS(this.server);
+    let options = ds.GetTarget(this.resource, FeedUtils.FZ_OPTIONS, true);
+    if (options)
+      return JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value);
+
+    return null;
+  },
+
+  set options (aOptions)
+  {
+    let newOptions = aOptions ? FeedUtils.newOptions(aOptions) :
+                                FeedUtils._optionsDefault;
+    let ds = FeedUtils.getSubscriptionsDS(this.server);
+    newOptions = FeedUtils.rdf.GetLiteral(JSON.stringify(newOptions));
+    let oldOptions = ds.GetTarget(this.resource, FeedUtils.FZ_OPTIONS, true);
+    if (oldOptions)
+      ds.Change(this.resource, FeedUtils.FZ_OPTIONS, oldOptions, newOptions);
+    else
+      ds.Assert(this.resource, FeedUtils.FZ_OPTIONS, newOptions, true);
+  },
+
+  categoryPrefs: function ()
+  {
+    let categoryPrefsAcct = FeedUtils.getOptionsAcct(this.server).category;
+    if (!this.options)
+      return categoryPrefsAcct;
+
+    return this.options.category;
+  },
+
   get link ()
   {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
