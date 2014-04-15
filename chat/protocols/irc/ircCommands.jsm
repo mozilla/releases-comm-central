@@ -227,7 +227,7 @@ var commands = [
   {
     name: "list",
     get helpString() _("command.list", "list"),
-    run: function(aMsg, aConv) {
+    run: function(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
       let serverName = account._currentServerName;
       let serverConv = account.getConversation(serverName);
@@ -240,6 +240,8 @@ var commands = [
                                   {incoming: true, noLog: true});
         });
       }}, true);
+      if (aReturnedConv)
+        aReturnedConv.value = serverConv;
       return true;
     }
   },
