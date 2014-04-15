@@ -603,9 +603,7 @@
           }
 
           // Make sure the entries are sorted alphabetically.
-          recentFolders.sort(function sort_folders_by_name(a, b) {
-            return this.folderNameCompare(a.label, b.label);
-          });
+          recentFolders.sort((a, b) => this.folderNameCompare(a.label, b.label));
 
           // Now create the Recent folder and its children
           var menu = document.createElement("menu");
