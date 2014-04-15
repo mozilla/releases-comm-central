@@ -155,6 +155,10 @@ function view_init()
   if (threads_menuitem)
     threads_menuitem.setAttribute("disabled", gAccountCentralLoaded);
 
+  var charset_menuitem = document.getElementById("charsetMenu");
+  if (charset_menuitem)
+    charset_menuitem.setAttribute("disabled", !msgWindow.mailCharacterSet);
+
   // Initialize the Message Body menuitem
   var isFeed = gFolderDisplay.selectedMessageIsFeed;
   document.getElementById('viewBodyMenu').hidden = isFeed;

@@ -44,7 +44,6 @@
 
 <script type="application/javascript" src="chrome://messenger/content/widgetglue.js"/>
 <script type="application/javascript" src="chrome://messenger/content/commandglue.js"/>
-<script type="application/javascript" src="chrome://messenger/content/shareglue.js"/>
 <script type="application/javascript" src="chrome://messenger/content/msgViewNavigation.js"/>
 <script type="application/javascript" src="chrome://messenger/content/mailWindow.js"/>
 <script type="application/javascript" src="chrome://messenger/content/msgMail3PaneWindow.js"/>

@@ -6,7 +6,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<?xul-overlay href="chrome://global/content/charsetOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/viewZoomOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/viewApplyThemeOverlay.xul"?>
@@ -1312,7 +1312,9 @@
       <menuseparator id="viewAfterStopSeparator"/>
       <!-- overlayed from viewZoomOverlay.xul -->
       <menu id="menu_zoom"/>
-      <menu id="mailviewCharsetMenu" />
+      <menu id="charsetMenu"
+            onpopupshowing="UpdateCharsetMenu(msgWindow.mailCharacterSet, this);"
+            oncommand="MailSetCharacterSet(event);"/>
       <menuseparator id="viewAfterCharsetSeparator"/>
       <menuitem id="pageSourceMenuItem" label="&pageSourceCmd.label;" key="key_viewPageSource" accesskey="&pageSourceCmd.accesskey;" command="cmd_viewPageSource"/>
       <menuseparator observes="mailHideMenus"/>

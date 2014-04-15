@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay SYSTEM "chrome://global/locale/charsetMenu.dtd">
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script>
+    Components.utils.import("resource://gre/modules/CharsetMenu.jsm");
+
+    function UpdateCharsetMenu(aCharset, aNode)
+    {
+      var bundle = document.getElementById("charsetBundle");
+      CharsetMenu.update(aNode, bundle.getString(aCharset.toLowerCase()));
+    }
+  </script>
+
+  <stringbundleset>
+    <stringbundle id="charsetBundle"
+                  src="chrome://communicator/content/labelsencodings.properties"/>
+  </stringbundleset>
+
+  <menu id="charsetMenu"
+        label="&charsetMenu.label;"
+        accesskey="&charsetMenu.accesskey;">
+    <menupopup id="charsetPopup"
+               onpopupshowing="CharsetMenu.build(this, true, this.getAttribute('detectors') != 'false');"/>
+  </menu>
+</overlay>

@@ -59,6 +59,7 @@ comm.jar:
    content/communicator/certError.css
    content/communicator/certError.xhtml
    content/communicator/certError.xml
+   content/communicator/charsetOverlay.xul
    content/communicator/communicator.css
    content/communicator/consoleOverlay.xul
    content/communicator/contentAreaClick.js
@@ -73,6 +74,7 @@ comm.jar:
    content/communicator/helpSecurityOverlay.xul
    content/communicator/helpOverlay.js
    content/communicator/helpOverlay.xul
+   content/communicator/labelsencodings.properties                  (/mozilla/dom/encoding/labelsencodings.properties)
 # the following file is a suite-specific override of the generic license.html, using suite/common/app-license.html as input:
 *  content/communicator/license.html                                (/mozilla/toolkit/content/license.html)
    content/communicator/nsContextMenu.js

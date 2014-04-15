@@ -171,20 +171,34 @@ function BrowserPrintPreview()
   PrintUtils.printPreview(PrintPreviewListener);
 }
 
-function BrowserSetDefaultCharacterSet(aCharset)
+function BrowserSetCharacterSet(aEvent)
 {
-  // no longer needed; set when setting Force; see bug 79608
-}
-
-function BrowserSetForcedCharacterSet(aCharset)
-{
-  getBrowser().docShell.charset = aCharset;
+  if (aEvent.target.hasAttribute("charset"))
+    getBrowser().docShell.charset = aEvent.target.getAttribute("charset");
   BrowserCharsetReload();
 }
 
 function BrowserCharsetReload()
 {
   BrowserReloadWithFlags(nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
+}
+
+function BrowserUpdateCharsetMenu(aNode)
+{
+  var wnd = document.commandDispatcher.focusedWindow;
+  if (wnd.top != content)
+    wnd = content;
+  UpdateCharsetMenu(wnd.document.characterSet, aNode);
+}
+
+function EnableCharsetMenu()
+{
+  var menuitem = document.getElementById("charsetMenu");
+  if (getBrowser() && getBrowser().docShell &&
+      getBrowser().docShell.mayEnableCharacterEncodingMenu)
+    menuitem.removeAttribute("disabled");
+  else
+    menuitem.setAttribute("disabled", "true");
 }
 
 var gFindInstData;

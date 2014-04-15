@@ -8,7 +8,7 @@
 <?xml-stylesheet href="chrome://editor/skin/editorFormatToolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressingWidget.css" type="text/css"?>
 
-<?xul-overlay href="chrome://global/content/charsetOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/sidebar/sidebarOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
@@ -358,7 +358,11 @@
                   <menuitem id="priority_lowest"  type="radio" name="priority" label="&lowestPriorityCmd.label;"  accesskey="&lowestPriorityCmd.accesskey;"  value="Lowest"/>
                 </menupopup>
               </menu>
-              <menu id="maileditCharsetMenu" />
+              <menu id="charsetMenu"
+                    onpopupshowing="UpdateCharsetMenu(gMsgCompose.compFields.characterSet, this);"
+                    oncommand="ComposeSetCharacterSet(event);">
+                <menupopup id="charsetPopup" detectors="false"/>
+              </menu>
               <menu id="fccMenu"
                     label="&fileCarbonCopyCmd.label;"
                     accesskey="&fileCarbonCopyCmd.accesskey;"

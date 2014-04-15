@@ -1196,52 +1196,15 @@ function ComposeUnload()
     clearTimeout(gAutoSaveTimeout);
 }
 
-function SetDocumentCharacterSet(aCharset)
+function ComposeSetCharacterSet(aEvent)
 {
   if (gMsgCompose) {
-    gMsgCompose.SetDocumentCharset(aCharset);
+    gMsgCompose.SetDocumentCharset(aEvent.target.getAttribute("charset"));
     gCharsetTitle = null;
     SetComposeWindowTitle();
   }
   else
     dump("Compose has not been created!\n");
-}
-
-function UpdateMailEditCharset()
-{
-  var send_default_charset = gMsgCompose.compFields.defaultCharacterSet;
-//  dump("send_default_charset is " + send_default_charset + "\n");
-
-  var compFieldsCharset = gMsgCompose.compFields.characterSet;
-//  dump("gMsgCompose.compFields is " + compFieldsCharset + "\n");
-
-  if (gCharsetConvertManager) {
-    var charsetAlias = gCharsetConvertManager.getCharsetAlias(compFieldsCharset);
-    if (charsetAlias == "us-ascii")
-      compFieldsCharset = "ISO-8859-1";   // no menu item for "us-ascii"
-  }
-
-  // charset may have been set implicitly in case of reply/forward
-  // or use pref default otherwise
-  var menuitem = document.getElementById(send_default_charset == compFieldsCharset ?
-                                         send_default_charset : compFieldsCharset);
-  if (menuitem)
-    menuitem.setAttribute('checked', 'true');
-
-  // Set a document charset to a default mail send charset.
-  if (send_default_charset == compFieldsCharset)
-    SetDocumentCharacterSet(send_default_charset);
-}
-
-function InitCharsetMenuCheckMark()
-{
-  // Check the menu
-  UpdateMailEditCharset();
-  // use setTimeout workaround to delay checkmark the menu
-  // when onmenucomplete is ready then use it instead of oncreate
-  // see bug #78290 for the details
-  setTimeout(UpdateMailEditCharset, 50);
-
 }
 
 function GetCharsetUIString()

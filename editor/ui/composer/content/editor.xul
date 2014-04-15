@@ -15,7 +15,7 @@
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
 <?xul-overlay href="chrome://editor/content/EditorContextMenuOverlay.xul"?>
 <?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
-<?xul-overlay href="chrome://global/content/charsetOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/sidebar/sidebarOverlay.xul"?>
@@ -174,7 +174,9 @@
                 accesskey="&PreviewMode.accesskey;"
                 command="cmd_PreviewMode"/>
       <menuseparator id="viewSep2"/>
-      <menu id = "composerCharsetMenu" />
+      <menu id="charsetMenu"
+            onpopupshowing="EditorUpdateCharsetMenu(event.target);"
+            oncommand="EditorSetCharacterSet(event);"/>
     </menupopup>
     </menu>
  

@@ -326,11 +326,13 @@ function EditorInitFileMenu()
   SetElementEnabledById("menu_RecentFiles", historyUrl != "");
 }
 
-function updateCharsetPopupMenu(aMenuPopup)
+function EditorUpdateCharsetMenu(aMenuPopup)
 {
   if (IsDocumentModified() && !IsDocumentEmpty())
   {
     for (var i = 0; i < aMenuPopup.childNodes.length; i++)
       aMenuPopup.childNodes[i].setAttribute("disabled", "true");
   }
+
+  UpdateCharsetMenu(content.document.characterSet, aMenuPopup);
 }

@@ -139,10 +139,6 @@
               command="cmd_publishSettings"/>
   </menupopup>
 
-  <!-- View menu items -->
-  <menupopup id="composerCharsetMenuPopup"
-             onpopupshowing="updateCharsetPopupMenu(this);"/>
-
   <!-- Toolbar buttons/items -->
   <toolbarbutton id="newButton"
                  class="toolbarbutton-1"

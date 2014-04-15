@@ -9,7 +9,7 @@
 <?xul-overlay href="chrome://communicator/content/viewApplyThemeOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
-<?xul-overlay href="chrome://global/content/charsetOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://navigator/content/mailNavigatorOverlay.xul"?>
 <?xul-overlay href="chrome://navigator/content/platformNavigationBindings.xul"?>
 
@@ -297,7 +297,7 @@
     </menu>
 
     <menu id="menu_View">
-      <menupopup id="menu_View_Popup">
+      <menupopup id="menu_View_Popup" onpopupshowing="EnableCharsetMenu();">
         <menu label="&toolbarsCmd.label;" accesskey="&toolbarsCmd.accesskey;" id="menu_Toolbars">
           <menupopup id="view_toolbars_popup"
                      onpopupshowing="updateToolbarStates(event);"
@@ -364,7 +364,9 @@
                       type="radio"/>
           </menupopup>
         </menu>
-        <menu id="charsetMenu" observes="isImage"/>
+        <menu id="charsetMenu"
+              onpopupshowing="BrowserUpdateCharsetMenu(this);"
+              oncommand="BrowserSetCharacterSet(event);"/>
         <menuitem hidden="true" id="documentDirection-swap"
                   label="&bidiSwitchPageDirectionItem.label;"
                   accesskey="&bidiSwitchPageDirectionItem.accesskey;"

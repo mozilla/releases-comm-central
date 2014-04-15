@@ -9,7 +9,7 @@
 <?xul-overlay href="chrome://editor/content/editorOverlay.xul"?>
 <?xul-overlay href="chrome://editor/content/editingOverlay.xul"?>
 <?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
-<?xul-overlay href="chrome://global/content/charsetOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
@@ -99,7 +99,9 @@
             </menupopup>
           </menu>
           <menuseparator id="viewSep1"/>
-          <menu id="composerCharsetMenu"/>
+          <menu id="charsetMenu"
+                onpopupshowing="EditorUpdateCharsetMenu(event.target);"
+                oncommand="EditorSetCharacterSet(event);"/>
         </menupopup>
       </menu>
 

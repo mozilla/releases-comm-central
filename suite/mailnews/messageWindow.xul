@@ -39,7 +39,6 @@
     <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
   </stringbundleset>
 
-  <script type="application/javascript" src="chrome://messenger/content/shareglue.js"/>
   <script type="application/javascript" src="chrome://messenger/content/commandglue.js"/>
   <script type="application/javascript" src="chrome://messenger/content/mailWindow.js"/>
   <script type="application/javascript" src="chrome://messenger/content/messageWindow.js"/>
