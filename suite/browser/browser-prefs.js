@@ -327,6 +327,18 @@ pref("browser.offline-apps.notify", true);
 
 pref("browser.formfill.expire_days",        180);
 
+// Handle mail/news URLs internally by default...
+pref("network.protocol-handler.external.mailto", false); // for mail
+pref("network.protocol-handler.external.news", false);   // for news
+pref("network.protocol-handler.external.snews", false);  // for secure news
+pref("network.protocol-handler.external.nntp", false);   // also news
+
+// ...but still show the dialog at least the first time if switched to external
+pref("network.protocol-handler.warn-external.mailto", true);
+pref("network.protocol-handler.warn-external.news", true);
+pref("network.protocol-handler.warn-external.snews", true);
+pref("network.protocol-handler.warn-external.nntp", true);
+
 pref("mail.biff.show_new_alert",     true);
 
 pref("mailnews.ui.deleteMarksRead", true);
