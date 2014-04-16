@@ -221,6 +221,7 @@
 @BINPATH@/components/prpl.manifest
 #ifdef UNIX_BUT_NOT_MAC
 @BINPATH@/components/@DLL_PREFIX@bonjour@DLL_SUFFIX@
+@BINPATH@/components/@DLL_PREFIX@sipe@DLL_SUFFIX@
 #endif
 @BINPATH@/defaults/pref/purple-prefs.js
 #endif
