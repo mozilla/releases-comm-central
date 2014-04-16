@@ -58,7 +58,6 @@
         <div id="errorTrailerDesc">
           <tree xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
                 id="tabList" flex="1" seltype="single" hidecolumnpicker="true"
-                onclick="onListClick(event);" onkeydown="onListKeyDown(event);"
                 _window_label="&restorepage.windowLabel;">
             <treecols>
               <treecol id="restore" type="checkbox" label="&restorepage.restoreHeader;"/>
@@ -73,14 +72,12 @@
       <!-- Buttons -->
       <hbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" id="buttons">
         <button id="errorTryAgain" label="&restorepage.restoreButton;"
-                accesskey="&restorepage.restore.access;"
-                oncommand="restoreSession();"/>
+                accesskey="&restorepage.restore.access;"/>
         <button id="errorCancel" label="&restorepage.cancelButton;"
-                accesskey="&restorepage.cancel.access;"
-                oncommand="startNewSession();"/>
+                accesskey="&restorepage.cancel.access;"/>
       </hbox>
       <!-- holds the session data for when the tab is closed -->
-      <input type="text" id="sessionData" style="display: none;"/>
+      <input type="hidden" id="sessionData"/>
     </div>
 
   </body>

@@ -10,6 +10,17 @@ var gTreeData;
 // Page initialization
 
 window.onload = function() {
+  // establish the event handlers for <tree> and <button> elements
+  var tabList = document.getElementById("tabList");
+  tabList.addEventListener("click", onListClick);
+  tabList.addEventListener("keydown", onListKeyDown);
+
+  document.getElementById("errorTryAgain")
+          .addEventListener("command", restoreSession);
+
+  document.getElementById("errorCancel")
+          .addEventListener("command", startNewSession);
+
   // the crashed session state is kept inside a textbox so that SessionStore picks it up
   // (for when the tab is closed or the session crashes right again)
   var sessionData = document.getElementById("sessionData");
