@@ -30,7 +30,7 @@ private:
   bool     mInitialized;
   int32_t  mCurrentBiffState;
   nsCOMPtr<nsISound> mSound;
-  nsresult PlayBiffSound();
+  nsresult PlayBiffSound(const char *aPrefBranch);
 
 protected:
   static nsIAtom* kBiffStateAtom;

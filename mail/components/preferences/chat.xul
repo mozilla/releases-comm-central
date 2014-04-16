@@ -31,6 +31,9 @@
       <preference id="purple.logging.log_system"           name="purple.logging.log_system"           type="bool"/>
       <preference id="pref.privacy.disable_button.view_passwords" name="pref.privacy.disable_button.view_passwords" type="bool"/>
       <preference id="mail.chat.show_desktop_notifications" name="mail.chat.show_desktop_notifications" type="bool"/>
+      <preference id="mail.chat.play_sound" name="mail.chat.play_sound" type="bool"/>
+      <preference id="mail.chat.play_sound.type" name="mail.chat.play_sound.type" type="int"/>
+      <preference id="mail.chat.play_sound.url" name="mail.chat.play_sound.url" type="string"/>
     </preferences>
 
     <broadcaster id="idleReportingEnabled"/>
@@ -74,9 +77,36 @@
     <checkbox id="sendTyping" label="&sendTyping.label;"
               accesskey="&sendTyping.accesskey;"
               preference="purple.conversations.im.send_typing"/>
-    <separator/>
-    <checkbox id="desktopChatNotifications" label="&desktopChatNotifications.label;"
+    <groupbox>
+      <caption label="&chatNotifications.label;"/>
+      <checkbox id="desktopChatNotifications" label="&desktopChatNotifications.label;"
               accesskey="&desktopChatNotifications.accesskey;"
               preference="mail.chat.show_desktop_notifications"/>
+      <hbox align="center">
+        <checkbox id="chatNotification" accesskey="&chatSound.accesskey;"
+                  preference="mail.chat.play_sound" label="&chatSound.label;"
+                  oncommand="gChatPane.updatePlaySound();" flex="1"/>
+        <button id="playChatSound" label="&play.label;" accesskey="&play.accesskey;"
+                oncommand="gChatPane.previewSound();"/>
+      </hbox>
+      <radiogroup id="chatSoundType" class="indent"
+                  preference="mail.chat.play_sound.type" orient="vertical"
+                  oncommand="gChatPane.updatePlaySound();"
+                  aria-labelledby="chatNotification">
+        <radio id="chatSoundSystemSound" value="0" label="&systemSound.label;"
+               accesskey="&systemSound.accesskey;"/>
+        <radio id="chatSoundCustom" value="1" label="&customsound.label;"
+               accesskey="&customsound.accesskey;"/>
+        <hbox class="indent">
+          <filefield id="chatSoundUrlLocation" flex="1" preference="mail.chat.play_sound.url"
+                     preference-editable="true"
+                     onsyncfrompreference="return gChatPane.readSoundLocation();" aria-labelledby="chatSoundCustom"/>
+          <button id="browseForChatSound" label="&browse.label;"
+                  accesskey="&browse.accesskey;" oncommand="gChatPane.browseForSoundFile();">
+            <observes element="chatSoundUrlLocation" attribute="disabled"/>
+          </button>
+        </hbox>
+      </radiogroup>
+    </groupbox>
   </prefpane>
 </overlay>

@@ -91,7 +91,7 @@ var gGeneralPane = {
 
   previewSound: function ()
   {
-    sound = Components.classes["@mozilla.org/sound;1"].createInstance(Components.interfaces.nsISound);
+    let sound = Components.classes["@mozilla.org/sound;1"].createInstance(Components.interfaces.nsISound);
 
     var soundLocation;
     soundLocation = document.getElementById('soundType').value == 1 ?

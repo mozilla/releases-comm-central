@@ -830,8 +830,12 @@ pref("browser.search.update.interval", 21600);
 pref("devtools.debugger.log", false);
 
 pref("mail.chat.enabled", true);
-pref("mail.chat.play_notification_sound", true);
 pref("mail.chat.show_desktop_notifications", true);
+pref("mail.chat.play_sound", true);
+// 0 == default systme sound, 1 == user specified wav
+pref("mail.chat.play_sound.type", 0);
+// if sound is user specified, this needs to be a file url
+pref("mail.chat.play_sound.url", "");
 // Send typing notification in private conversations
 pref("purple.conversations.im.send_typing", true);
 
