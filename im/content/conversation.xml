@@ -1823,6 +1823,7 @@
             this.addPrompt(aData);
             break;
 
+          case "update-conv-buddy":
           case "target-prpl-conversation-changed":
           case "update-conv-title":
             if (this.tab)

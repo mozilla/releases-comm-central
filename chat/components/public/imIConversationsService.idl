@@ -48,7 +48,7 @@ interface imIConversationsService: nsISupports {
   void initConversations();
   void unInitConversations();
 
-  // register a conversation. This will create a unique id for the
+  // Register a conversation. This will create a unique id for the
   // conversation and set it.
   void addConversation(in prplIConversation aConversation);
   void removeConversation(in prplIConversation aConversation);
@@ -61,6 +61,6 @@ interface imIConversationsService: nsISupports {
   nsISimpleEnumerator getConversations();
   prplIConversation getConversationById(in unsigned long aId);
   prplIConversation getConversationByNameAndAccount(in AUTF8String aName,
-                                                      in imIAccount aAccount,
-                                                      in boolean aIsChat);
+                                                    in imIAccount aAccount,
+                                                    in boolean aIsChat);
 };

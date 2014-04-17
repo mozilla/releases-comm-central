@@ -597,7 +597,6 @@ ircParticipant.prototype = {
 };
 
 function ircConversation(aAccount, aName) {
-  this.buddy = aAccount.getBuddy(aName);
   let nick = aAccount.normalize(aName);
   if (hasOwnProperty(aAccount.whoisInformation, nick))
     aName = aAccount.whoisInformation[nick]["nick"];
@@ -612,6 +611,7 @@ function ircConversation(aAccount, aName) {
 }
 ircConversation.prototype = {
   __proto__: GenericConvIMPrototype,
+  get buddy() this._account.getBuddy(this.name),
 
   // Overwrite the writeMessage function to apply CTCP formatting before
   // display.
