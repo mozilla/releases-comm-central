@@ -1860,6 +1860,7 @@
 
           case "ui-conversation-closed":
           case "ui-conversation-destroyed":
+            this.editor.disabled = true;
             this._forgetConv();
             break;
           }
