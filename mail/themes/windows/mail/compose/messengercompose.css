@@ -1009,3 +1009,7 @@ toolbarbutton.formatting-button {
 #sidebar-splitter {
   background-color: ThreeDFace;
 }
+
+#findbar-replaceButton > .toolbarbutton-icon {
+  display: none;
+}

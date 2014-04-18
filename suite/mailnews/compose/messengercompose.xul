@@ -102,6 +102,7 @@
   <!--command id="cmd_pasteQuote"/  DO NOT INCLUDE THOSE COMMANDS ELSE THE EDIT MENU WILL BE BROKEN! -->
   <!--command id="cmd_find"/-->
   <!--command id="cmd_findNext"/-->
+  <!--command id="cmd_findReplace"/-->
   <command id="cmd_rewrap"
            label="&editRewrapCmd.label;"
            accesskey="&editRewrapCmd.accesskey;"
@@ -630,6 +631,7 @@
 
   <!-- The mail message body frame -->
   <vbox id="appcontent" flex="1">
+    <findbar id="FindToolbar" browserid="content-frame"/>
     <editor type="content-primary" id="content-frame" src="about:blank" name="browser.message.body" flex="1"
             ondblclick="EditorDblClick(event);"
             context="contentAreaContextMenu"/>

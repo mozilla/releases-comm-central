@@ -315,11 +315,8 @@
 
   <vbox id="appcontent" flex="1">
     <deck id="ContentWindowDeck" selectedIndex="0" flex="1">
-      <!-- KLUDGE:  Temporary fix for bug 34414:
-           The current editor tag doesn't have a view, 
-           which breaks deck frame-hiding mechanism 
-       -->
-      <stack>
+      <vbox>
+        <findbar id="FindToolbar" browserid="content-frame"/>
         <editor editortype="html"
                 type="content-primary"
                 id="content-frame"
@@ -328,7 +325,7 @@
                 context="contentAreaContextMenu"
                 flex="1"
                 tooltip="aHTMLTooltip"/>
-      </stack>
+      </vbox>
       <vbox>
         <label id="doctype-text" crop="right"/>
         <editor type="content"

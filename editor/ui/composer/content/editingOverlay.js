@@ -76,6 +76,7 @@ function EditorOnLoad()
     gSourceContentWindow.contentWindow.controllers.insertControllerAt(0, controller);
     var commandTable = controller.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                                  .getInterface(Components.interfaces.nsIControllerCommandTable);
+    commandTable.registerCommand("cmd_findReplace", nsFindReplaceCommand);
     commandTable.registerCommand("cmd_find",        nsFindCommand);
     commandTable.registerCommand("cmd_findNext",    nsFindAgainCommand);
     commandTable.registerCommand("cmd_findPrev",    nsFindAgainCommand);

@@ -174,6 +174,7 @@
     <command id="cmd_delete"/>
     <command id="cmd_selectAll"/>
     <command id="cmd_preferences"   oncommand="goDoCommand('cmd_preferences')"/>
+    <command id="cmd_findReplace"   oncommand="goDoCommand('cmd_findReplace')"/>
     <command id="cmd_find"          oncommand="goDoCommand('cmd_find')"/>
     <command id="cmd_findNext"      oncommand="goDoCommand('cmd_findNext');"/>
     <command id="cmd_findPrev"      oncommand="goDoCommand('cmd_findPrev');"/>
@@ -308,7 +309,10 @@
       <menuseparator id="sep_selectAll"/>
       <menuitem id="menu_selectAll"/>
       <menuseparator id="sep_find"/>
-      <menuitem id="menu_find" label="&findCmd.label;"/>
+      <menuitem id="menu_find"
+                label="&findBarCmd.label;"/>
+      <menuitem id="menu_findReplace"
+                label="&findReplaceCmd.label;"/>
       <menuitem id="menu_findNext"/>
       <menuitem id="menu_findPrev"/>
       <menuseparator id="sep_checkspelling"/>

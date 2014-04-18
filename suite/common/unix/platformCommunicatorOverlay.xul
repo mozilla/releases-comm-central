@@ -32,6 +32,7 @@
   
     <!-- Edit Menu -->
     <key id="key_redo"  key="&redoCmd.key;" command="cmd_redo" modifiers="accel"/>
+    <menuitem id="menu_findReplace" key="key_findReplace"/>
 
     <!-- Select All Key -->
     <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="alt"/>
@@ -42,6 +43,10 @@
   <keyset id="findKeys">
     <key keycode="&findCmd.key2;"
          command="cmd_find"/>
+    <key id="key_findReplace"
+         key="&findReplaceCmd.key;"
+         modifiers="accel"
+         command="cmd_findReplace"/>
   </keyset>
   <!-- Find As You Type Keys -->
   <key id="key_findTypeText"

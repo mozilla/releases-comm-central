@@ -98,6 +98,7 @@
     <command id="cmd_pasteNoFormatting" oncommand="goDoCommand('cmd_pasteNoFormatting')"
              label="&pasteNoFormatting.label;" accesskey="&pasteNoFormatting.accesskey;"/>
     <command id="cmd_preferences"   oncommand="goDoCommand('cmd_preferences')"/>
+    <command id="cmd_findReplace"   oncommand="goDoCommand('cmd_findReplace')"/>
     <command id="cmd_find"          oncommand="goDoCommand('cmd_find')"/>
     <command id="cmd_findNext"      oncommand="goDoCommand('cmd_findNext');"/>
     <command id="cmd_findPrev"      oncommand="goDoCommand('cmd_findPrev');"/>

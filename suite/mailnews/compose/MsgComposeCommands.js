@@ -634,6 +634,7 @@ function updateEditItems()
   goUpdateCommand("cmd_renameAttachment");
   goUpdateCommand("cmd_selectAll");
   goUpdateCommand("cmd_openAttachment");
+  goUpdateCommand("cmd_findReplace");
   goUpdateCommand("cmd_find");
   goUpdateCommand("cmd_findNext");
   goUpdateCommand("cmd_findPrev");

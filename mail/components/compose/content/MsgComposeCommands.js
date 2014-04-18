@@ -940,6 +940,15 @@ function CommandUpdate_MsgCompose()
   updateComposeItems();
 }
 
+function findbarFindReplace()
+{
+  SetMsgBodyFrameFocus();
+  let findbar = document.getElementById("FindToolbar");
+  findbar.close();
+  goDoCommand("cmd_findReplace");
+  findbar.open();
+}
+
 function updateComposeItems()
 {
   try {
@@ -1076,6 +1085,7 @@ function updateEditItems()
   goUpdateCommand("cmd_renameAttachment");
   goUpdateCommand("cmd_selectAll");
   goUpdateCommand("cmd_openAttachment");
+  goUpdateCommand("cmd_findReplace");
   goUpdateCommand("cmd_find");
   goUpdateCommand("cmd_findNext");
   goUpdateCommand("cmd_findPrev");
@@ -1777,10 +1787,20 @@ function handleMailtoArgs(mailtoUrl)
  */
 function handleEsc()
 {
+  let activeElement = document.activeElement;
+
+  // If findbar is visible and the focus is in the message body,
+  // hide it. (Focus on the findbar is handled by findbar itself).
+  let findbar = document.getElementById('FindToolbar');
+  if (!findbar.hidden && activeElement.id == "content-frame") {
+    findbar.close();
+    return;
+  }
+
   // If there is a notification in the attachmentNotificationBox
   // AND focus is in message body or on the notification, hide it.
-  let activeElement = document.activeElement;
-  let notification = document.getElementById("attachmentNotificationBox").currentNotification;
+  let notification = document.getElementById("attachmentNotificationBox")
+                             .currentNotification;
   if (notification && (activeElement.id == "content-frame" ||
       notification.contains(activeElement) ||
       activeElement.classList.contains("messageCloseButton"))) {
@@ -1994,6 +2014,24 @@ CheckForAttachmentNotification.shouldFire = true;
 
 function ComposeStartup(recycled, aParams)
 {
+  // Findbar overlay
+  if (!document.getElementById("findbar-replaceButton")) {
+    let replaceButton = document.createElement("toolbarbutton");
+    replaceButton.setAttribute("id", "findbar-replaceButton");
+    replaceButton.setAttribute("class", "tabbable");
+    replaceButton.setAttribute("label", getComposeBundle().getString("replaceButton.label"));
+    replaceButton.setAttribute("accesskey", getComposeBundle().getString("replaceButton.accesskey"));
+    replaceButton.setAttribute("tooltiptext", getComposeBundle().getString("replaceButton.tooltip"));
+    replaceButton.setAttribute("oncommand", "findbarFindReplace();");
+
+    let findbar = document.getElementById("FindToolbar");
+    let lastButton = findbar.getElement("find-case-sensitive");
+    let tSeparator = document.createElement("toolbarseparator");
+    tSeparator.setAttribute("id", "findbar-beforeReplaceSeparator");
+    lastButton.parentNode.insertBefore(replaceButton, lastButton.nextSibling);
+    lastButton.parentNode.insertBefore(tSeparator, lastButton.nextSibling);
+  }
+
   var params = null; // New way to pass parameters to the compose window as a nsIMsgComposeParameters object
   var args = null;   // old way, parameters are passed as a string
 

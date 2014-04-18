@@ -88,18 +88,20 @@
 <!ENTITY selectAllCmd.label "Select All">
 <!ENTITY selectAllCmd.key "A">
 <!ENTITY selectAllCmd.accesskey "a">
-<!ENTITY findCmd.label "Find and Replace…">
-<!ENTITY findCmd.key "F">
-<!ENTITY findCmd.accesskey "F">
+<!ENTITY findBarCmd.label "Find…">
+<!ENTITY findBarCmd.accesskey "F">
+<!ENTITY findBarCmd.key "F">
+<!ENTITY findReplaceCmd.label "Find and Replace…">
+<!ENTITY findReplaceCmd.accesskey "l">
 <!ENTITY findReplaceCmd.key "H">
 <!ENTITY findAgainCmd.label "Find Again">
-<!ENTITY findAgainCmd.key "G">
 <!ENTITY findAgainCmd.accesskey "g">
+<!ENTITY findAgainCmd.key "G">
 <!ENTITY findAgainCmd.key2 "VK_F3">
 <!ENTITY findPrevCmd.label "Find Previous">
+<!ENTITY findPrevCmd.accesskey "v">
 <!ENTITY findPrevCmd.key "G">
 <!ENTITY findPrevCmd.key2 "VK_F3">
-<!ENTITY findPrevCmd.accesskey "v">
 
 <!-- View Menu -->
 <!ENTITY viewMenu.label "View">

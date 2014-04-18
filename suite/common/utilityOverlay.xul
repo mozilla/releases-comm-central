@@ -228,7 +228,7 @@
 
   <keyset id="findKeys">
     <key id="key_find"
-         key="&findCmd.key;"
+         key="&findBarCmd.key;"
          command="cmd_find"
          modifiers="accel"/>
     <key id="key_findNext"
@@ -280,9 +280,12 @@
             accesskey="&selectAllCmd.accesskey;"
             command="cmd_selectAll"/>
   <menuitem id="menu_find"
-            accesskey="&findCmd.accesskey;"
+            accesskey="&findBarCmd.accesskey;"
             key="key_find"
             command="cmd_find"/>
+  <menuitem id="menu_findReplace"
+            accesskey="&findReplaceCmd.accesskey;"
+            command="cmd_findReplace"/>
   <menuitem id="menu_findNext"
             label="&findAgainCmd.label;"
             accesskey="&findAgainCmd.accesskey;"

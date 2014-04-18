@@ -221,9 +221,9 @@
   <key id="key_renameAttachment" keycode="VK_F2" oncommand="goDoCommand('cmd_renameAttachment');"/>
 #endif
   <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="accel"/>
-  <key id="key_find" key="&findCmd.key;" command="cmd_find" modifiers="accel"/>
+  <key id="key_find" key="&findBarCmd.key;" command="cmd_find" modifiers="accel"/>
 #ifndef XP_MACOSX
-  <key id="key_findReplace" key="&findReplaceCmd.key;" command="cmd_find" modifiers="accel"/>
+  <key id="key_findReplace" key="&findReplaceCmd.key;" command="cmd_findReplace" modifiers="accel"/>
 #endif
   <key id="key_findNext" key="&findAgainCmd.key;" command="cmd_findNext" modifiers="accel"/>
   <key id="key_findPrev" key="&findPrevCmd.key;" command="cmd_findPrev" modifiers="accel, shift"/>
@@ -518,9 +518,33 @@
           <menuseparator/>
           <menuitem id="menu_selectAll" label="&selectAllCmd.label;" key="key_selectAll" accesskey="&selectAllCmd.accesskey;" command="cmd_selectAll"/>
           <menuseparator/>
-          <menuitem label="&findCmd.label;"      key="key_find"      accesskey="&findCmd.accesskey;"      command="cmd_find"/>
-          <menuitem label="&findAgainCmd.label;" key="key_findNext" accesskey="&findAgainCmd.accesskey;" command="cmd_findNext"/>
-          <menuitem label="&findPrevCmd.label;"  key="key_findPrev" accesskey="&findPrevCmd.accesskey;"  command="cmd_findPrev"/>
+          <menuitem id="menu_findBar"
+                    label="&findBarCmd.label;"
+                    accesskey="&findBarCmd.accesskey;"
+                    key="key_find"
+                    command="cmd_find"/>
+#ifndef XP_MACOSX
+          <menuitem id="menu_findReplace"
+                    label="&findReplaceCmd.label;"
+                    accesskey="&findReplaceCmd.accesskey;"
+                    key="key_findReplace"
+                    command="cmd_findReplace"/>
+#else
+          <menuitem id="menu_findReplace"
+                    label="&findReplaceCmd.label;"
+                    accesskey="&findReplaceCmd.accesskey;"
+                    command="cmd_findReplace"/>
+#endif
+          <menuitem id="menu_findNext"
+                    label="&findAgainCmd.label;"
+                    accesskey="&findAgainCmd.accesskey;"
+                    key="key_findNext"
+                    command="cmd_findNext"/>
+          <menuitem id="menu_findPrev"
+                    label="&findPrevCmd.label;"
+                    accesskey="&findPrevCmd.accesskey;"
+                    key="key_findPrev"
+                    command="cmd_findPrev"/>
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
           <menuseparator id="prefSep"/>
@@ -1026,6 +1050,7 @@
     <editor type="content-primary" id="content-frame" src="about:blank" name="browser.message.body" flex="1"
             ondblclick="EditorDblClick(event);"
             context="msgComposeContext"/>
+    <findbar id="FindToolbar" browserid="content-frame"/>
   </vbox>
 
   </vbox>

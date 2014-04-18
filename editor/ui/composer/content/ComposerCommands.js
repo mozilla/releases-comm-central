@@ -85,6 +85,7 @@ function SetupTextEditorCommands()
 
   //dump("Registering plain text editor commands\n");
 
+  commandTable.registerCommand("cmd_findReplace",nsFindReplaceCommand);
   commandTable.registerCommand("cmd_find",       nsFindCommand);
   commandTable.registerCommand("cmd_findNext",   nsFindAgainCommand);
   commandTable.registerCommand("cmd_findPrev",   nsFindAgainCommand);
@@ -2243,6 +2244,24 @@ var nsPrintSetupCommand =
 };
 
 //-----------------------------------------------------------------------------------
+var nsFindReplaceCommand =
+{
+  isCommandEnabled: function(aCommand, editorElement)
+  {
+    return editorElement.getEditor(editorElement.contentWindow) != null;
+  },
+
+  getCommandStateParams: function(aCommand, aParams, editorElement) {},
+  doCommandParams: function(aCommand, aParams, editorElement) {},
+
+  doCommand: function(aCommand, editorElement)
+  {
+    window.openDialog("chrome://editor/content/EdReplace.xul", "_blank",
+                      "chrome,modal,titlebar", editorElement);
+  }
+};
+
+//-----------------------------------------------------------------------------------
 var nsFindCommand =
 {
   isCommandEnabled: function(aCommand, editorElement)
@@ -2255,13 +2274,7 @@ var nsFindCommand =
 
   doCommand: function(aCommand, editorElement)
   {
-    try {
-      window.openDialog("chrome://editor/content/EdReplace.xul", "_blank",
-                        "chrome,modal,titlebar", editorElement);
-    }
-    catch(ex) {
-      dump("*** Exception: couldn't open Replace Dialog\n");
-    }
+    document.getElementById("FindToolbar").onFindCommand();
   }
 };
 
@@ -2280,17 +2293,8 @@ var nsFindAgainCommand =
 
   doCommand: function(aCommand, editorElement)
   {
-    try {
-      var findPrev = aCommand == "cmd_findPrev";
-      var findInst = editorElement.webBrowserFind;
-      var findService = Components.classes["@mozilla.org/find/find_service;1"]
-                                  .getService(Components.interfaces.nsIFindService);
-      findInst.findBackwards = findService.findBackwards ^ findPrev;
-      findInst.findNext();
-      // reset to what it was in dialog, otherwise dialog setting can get reversed
-      findInst.findBackwards = findService.findBackwards;
-    }
-    catch (ex) {}
+    let findPrev = (aCommand == "cmd_findPrev");
+    document.getElementById("FindToolbar").onFindAgainCommand(findPrev);
   }
 };
 

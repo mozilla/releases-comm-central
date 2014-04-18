@@ -89,3 +89,6 @@ notification[value="addon-install-failed"] .messageCloseButton {
   to { background-color: transparent; }
 }
 
+#findbar-beforeReplaceSeparator {
+  height: 16px;
+}

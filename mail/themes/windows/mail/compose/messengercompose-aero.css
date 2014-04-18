@@ -1035,3 +1035,7 @@ toolbarbutton.formatting-button {
     background-color: hsl(210, 75%, 92%);
   }
 }
+
+#findbar-replaceButton > .toolbarbutton-icon {
+  display: none;
+}
