@@ -26,8 +26,6 @@
           src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript"
           src="chrome://editor/content/EdInsertMath.js"/>
-  <script type="application/javascript"
-          src="chrome://editor/content/TeXZilla.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <broadcaster id="args" value=""/>

@@ -23,6 +23,11 @@ function Startup()
   // Set initial focus
   gDialog.input.focus();
 
+  // Load TeXZilla
+  Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+            .getService(Components.interfaces.mozIJSSubScriptLoader)
+            .loadSubScript("chrome://editor/content/TeXZilla.js");
+
   // Verify if the selection is on a <math> and initialize the dialog.
   gDialog.oldMath = editor.getElementOrParentByTagName("math", null);
   if (gDialog.oldMath) {
