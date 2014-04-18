@@ -5,6 +5,8 @@
 
 #include "imgIContainer.h"
 #include "imgIRequest.h"
+#include "mozilla/gfx/2D.h"
+#include "mozilla/RefPtr.h"
 #include "nsIDOMHTMLImageElement.h"
 #include "nsIImageLoadingContent.h"
 #include "nsIPrefService.h"
@@ -47,6 +49,9 @@
   (val != ERROR_SUCCESS)
 
 #define NS_TASKBAR_CONTRACTID "@mozilla.org/windows-taskbar;1"
+
+using namespace mozilla;
+using namespace mozilla::gfx;
 
 NS_IMPL_ISUPPORTS2(nsWindowsShellService, nsIWindowsShellService, nsIShellService)
 
@@ -643,22 +648,25 @@ WriteBitmap(nsIFile* aFile, imgIContainer* aImage)
 {
   nsresult rv;
 
-  nsRefPtr<gfxASurface> surface =
+  RefPtr<SourceSurface> surface =
     aImage->GetFrame(imgIContainer::FRAME_CURRENT,
                      imgIContainer::FLAG_SYNC_DECODE);
   NS_ENSURE_TRUE(surface, NS_ERROR_FAILURE);
 
-  nsRefPtr<gfxImageSurface> image(surface->GetAsReadableARGB32ImageSurface());
-  NS_ENSURE_TRUE(image, NS_ERROR_FAILURE);
+  // For either of the following formats we want to set the biBitCount member
+  // of the BITMAPINFOHEADER struct to 32, below. For that value the bitmap
+  // format defines that the A8/X8 WORDs in the bitmap byte stream be ignored
+  // for the BI_RGB value we use for the biCompression member.
+  MOZ_ASSERT(surface->GetFormat() == SurfaceFormat::B8G8R8A8 ||
+             surface->GetFormat() == SurfaceFormat::B8G8R8X8);
 
-  int32_t width = image->Width();
-  int32_t height = image->Height();
+  RefPtr<DataSourceSurface> dataSurface = surface->GetDataSurface();
+  NS_ENSURE_TRUE(dataSurface, NS_ERROR_FAILURE);
 
-  uint8_t* bits = image->Data();
-  uint32_t length = image->GetDataSize();
-  uint32_t bpr = uint32_t(image->Stride());
-
-  int32_t bitCount = bpr / width;
+  int32_t width = dataSurface->GetSize().width;
+  int32_t height = dataSurface->GetSize().height;
+  int32_t bytesPerPixel = 4 * sizeof(uint8_t);
+  int32_t bytesPerRow = bytesPerPixel * width;
 
   // initialize these bitmap structs which we will later
   // serialize directly to the head of the bitmap file
@@ -667,9 +675,9 @@ WriteBitmap(nsIFile* aFile, imgIContainer* aImage)
   bmi.biWidth = width;
   bmi.biHeight = height;
   bmi.biPlanes = 1;
-  bmi.biBitCount = (WORD)bitCount*8;
+  bmi.biBitCount = (WORD)bytesPerPixel*8;
   bmi.biCompression = BI_RGB;
-  bmi.biSizeImage = length;
+  bmi.biSizeImage = bytesPerRow * height;
   bmi.biXPelsPerMeter = 0;
   bmi.biYPelsPerMeter = 0;
   bmi.biClrUsed = 0;
@@ -687,6 +695,11 @@ WriteBitmap(nsIFile* aFile, imgIContainer* aImage)
   rv = NS_NewLocalFileOutputStream(getter_AddRefs(stream), aFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  DataSourceSurface::MappedSurface map;
+  if (!dataSurface->Map(DataSourceSurface::MapType::READ, &map)) {
+    return NS_ERROR_FAILURE;
+  }
+
   // write the bitmap headers and rgb pixel data to the file
   rv = NS_ERROR_FAILURE;
   if (stream) {
@@ -697,13 +710,12 @@ WriteBitmap(nsIFile* aFile, imgIContainer* aImage)
       if (written == sizeof(BITMAPINFOHEADER)) {
         // write out the image data backwards because the desktop won't
         // show bitmaps with negative heights for top-to-bottom
-        uint32_t i = length;
+        uint32_t i = map.mStride * height;
         rv = NS_OK;
         do {
-          i -= bpr;
-
-          stream->Write(((const char*)bits) + i, bpr, &written);
-          if (written != bpr) {
+          i -= map.mStride;
+          stream->Write(((const char*)map.mData) + i, bytesPerRow, &written);
+          if (written != bytesPerRow) {
             rv = NS_ERROR_FAILURE;
             break;
           }
@@ -713,6 +725,8 @@ WriteBitmap(nsIFile* aFile, imgIContainer* aImage)
 
     stream->Close();
   }
+
+  dataSurface->Unmap();
 
   return rv;
 }
