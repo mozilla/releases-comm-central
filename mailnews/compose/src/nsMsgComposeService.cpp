@@ -958,15 +958,25 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
   nsString body;
   nsString templateSubject, replySubject;
 
-  mTemplateHdr->GetMime2DecodedSubject(templateSubject);
   mHdrToReplyTo->GetMime2DecodedSubject(replySubject);
+  mTemplateHdr->GetMime2DecodedSubject(templateSubject);
+  nsString subject(NS_LITERAL_STRING("Auto: ")); // RFC 3834 3.1.5.
+  subject.Append(templateSubject);
   if (!replySubject.IsEmpty())
   {
-    templateSubject.Append(NS_LITERAL_STRING(" (was: "));
-    templateSubject.Append(replySubject);
-    templateSubject.Append(NS_LITERAL_STRING(")"));
+    subject.Append(NS_LITERAL_STRING(" (was: "));
+    subject.Append(replySubject);
+    subject.Append(NS_LITERAL_STRING(")"));
   }
-  compFields->SetSubject(templateSubject);
+
+  compFields->SetSubject(subject);
+
+  nsAutoString randomHeaders;
+  compFields->GetOtherRandomHeaders(randomHeaders);
+  randomHeaders.AppendLiteral("Auto-Submitted: auto-replied\r\n");
+  //  ^^^ We need to end with \r\n - see bug #195965.
+  compFields->SetOtherRandomHeaders(randomHeaders); // RFC 3834 3.1.7.
+
   CopyASCIItoUTF16(mTemplateBody, body);
   compFields->SetBody(body);
 
@@ -981,6 +991,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
   pMsgComposeParams->SetIdentity(identity);
   pMsgComposeParams->SetComposeFields(compFields);
   pMsgComposeParams->SetOriginalMsgURI(msgUri.get());
+
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose (do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
