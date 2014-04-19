@@ -120,6 +120,7 @@ libs::
 
 include $(topsrcdir)/config/rules.mk
 include $(srcdir)/lightning-packager.mk
+include $(srcdir)/lightning-tests.mk
 
 # For Lightning, we also need to preprocess the l10n prefs
 repack-process-extrafiles: lightning-extrafiles
