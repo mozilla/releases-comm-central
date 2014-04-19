@@ -108,7 +108,7 @@ const XMPPMUCConversationPrototype = {
       }
       delete this._participants[nick];
       let nickString = Cc["@mozilla.org/supports-string;1"]
-                       .createInstance(Ci.nsISupportsString);
+                         .createInstance(Ci.nsISupportsString);
       nickString.data = nick;
       this.notifyObservers(new nsSimpleEnumerator([nickString]),
                            "chat-buddy-remove");

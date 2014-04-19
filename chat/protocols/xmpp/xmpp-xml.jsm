@@ -73,7 +73,6 @@ const NS = {
   pubsub_event              : "http://jabber.org/protocol/pubsub#event"
 };
 
-
 var TOP_LEVEL_ELEMENTS = {
   "message"             : "jabber:client",
   "presence"            : "jabber:client",
@@ -138,7 +137,7 @@ const Stanza = {
       if (!Array.isArray(aData))
         aData = [aData];
       for each (let child in aData)
-         n[typeof(child) == "string" ? "addText" : "addChild"](child);
+        n[typeof(child) == "string" ? "addText" : "addChild"](child);
     }
 
     return n;
@@ -150,7 +149,6 @@ const Stanza = {
 function TextNode(aText) {
   this.text = aText;
 }
-
 TextNode.prototype = {
   get type() "text",
 
@@ -185,7 +183,6 @@ function XMLNode(aParentNode, aUri, aLocalName, aQName, aAttr) {
       this.attributes[aAttr.getQName(i)] = aAttr.getValue(i);
   }
 }
-
 XMLNode.prototype = {
   get type() "node",
 
@@ -209,35 +206,35 @@ XMLNode.prototype = {
 
   /* Get the first element inside the node that matches a query. */
   getElement: function(aQuery) {
-   if (aQuery.length == 0)
-     return this;
+    if (aQuery.length == 0)
+      return this;
 
-   let nq = aQuery.slice(1);
-   for each (let child in this.children) {
-     if (child.qName != aQuery[0])
-       continue;
-     let n = child.getElement(nq);
-     if (n)
-       return n;
-   }
+    let nq = aQuery.slice(1);
+    for each (let child in this.children) {
+      if (child.qName != aQuery[0])
+        continue;
+      let n = child.getElement(nq);
+      if (n)
+        return n;
+    }
 
-   return null;
+    return null;
   },
 
   /* Get all elements matching the query */
   getElements: function(aQuery) {
-   if (aQuery.length == 0)
-     return [this];
+    if (aQuery.length == 0)
+      return [this];
 
-   let c = this.getChildren(aQuery[0]);
-   let nq = aQuery.slice(1);
-   let res = [];
-   for each (let child in c) {
-     let n = child.getElements(nq);
-     res = res.concat(n);
-   }
+    let c = this.getChildren(aQuery[0]);
+    let nq = aQuery.slice(1);
+    let res = [];
+    for each (let child in c) {
+      let n = child.getElements(nq);
+      res = res.concat(n);
+    }
 
-   return res;
+    return res;
   },
 
   /* Get immediate children by the node name */
@@ -287,7 +284,7 @@ XMLNode.prototype = {
 
 function XMPPParser(aListener) {
   this._parser = Cc["@mozilla.org/saxparser/xmlreader;1"]
-                 .createInstance(Ci.nsISAXXMLReader);
+                   .createInstance(Ci.nsISAXXMLReader);
   this._parser.contentHandler = this;
   this._parser.errorHandler = this;
   this._parser.parseAsync(null);
