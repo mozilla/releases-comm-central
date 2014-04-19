@@ -6,6 +6,7 @@ const Cu = Components.utils;
 
 Cu.import("resource://services-sync/main.js");
 Cu.import("resource:///modules/PlacesUIUtils.jsm");
+Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
 let RemoteTabViewer = {
@@ -115,6 +116,18 @@ let RemoteTabViewer = {
       PlacesUIUtils.showMinimalAddMultiBookmarkUI(URIs, titles);
   },
 
+  getIcon: function (iconUri, defaultIcon) {
+    try {
+      let iconURI = Weave.Utils.makeURI(iconUri);
+      return PlacesUtils.favicons.getFaviconLinkForIcon(iconURI).spec;
+    } catch(ex) {
+      // Do nothing.
+    }
+
+    // Just give the provided default icon or the system's default.
+    return defaultIcon || PlacesUtils.favicons.defaultFavicon.spec;
+  },
+
   _generateTabList: function() {
     let engine = Weave.Service.engineManager.get("tabs");
     let list = this._tabsList;
@@ -126,15 +139,18 @@ let RemoteTabViewer = {
         list.removeItemAt(i);
     }
 
+    let seenURLs = new Set();
+    let localURLs = engine.getOpenURLs();
+
     for (let [guid, client] in Iterator(engine.getAllClients())) {
       let appendClient = true;
-      let seenURLs = {};
+
       client.tabs.forEach(function({title, urlHistory, icon}) {
         let url = urlHistory[0];
-        if (engine.locallyOpenTabMatchesURL(url) || url in seenURLs)
+        if (!url || localURLs.has(url) || seenURLs.has(url))
           return;
 
-        seenURLs[url] = null;
+        seenURLs.add(url);
 
         if (appendClient) {
           let attrs = {
@@ -151,7 +167,7 @@ let RemoteTabViewer = {
           type:  "tab",
           title: title || url,
           url:   url,
-          icon:  Weave.Utils.getIcon(icon)
+          icon:  this.getIcon(icon)
         }
         let tab = this.createItem(attrs);
         list.appendChild(tab);
