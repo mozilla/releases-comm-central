@@ -9,7 +9,7 @@ const EXPORTED_SYMBOLS = [
   "XMPPAccountPrototype"
 ];
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imStatusUtils.jsm");
@@ -249,9 +249,9 @@ const XMPPConversationPrototype = {
     if (!who)
       who = this._account.name;
     let alias = this.account.alias || this.account.statusInfo.displayName;
-    let msg = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                        .getService(Ci.mozITXTToHTMLConv)
-                        .scanTXT(aMsg, Ci.mozITXTToHTMLConv.kEntities);
+    let msg = Cc["@mozilla.org/txttohtmlconv;1"]
+                .getService(Ci.mozITXTToHTMLConv)
+                .scanTXT(aMsg, Ci.mozITXTToHTMLConv.kEntities);
     this.writeMessage(who, msg, {outgoing: true, _alias: alias});
     delete this._typingState;
   },
@@ -880,9 +880,9 @@ const XMPPAccountPrototype = {
         // Even if the message is in plain text, the prplIMessage
         // should contain a string that's correctly escaped for
         // insertion in an HTML document.
-        body = Components.classes["@mozilla.org/txttohtmlconv;1"]
-                         .getService(Ci.mozITXTToHTMLConv)
-                         .scanTXT(b.innerText, Ci.mozITXTToHTMLConv.kEntities);
+        body = Cc["@mozilla.org/txttohtmlconv;1"]
+                 .getService(Ci.mozITXTToHTMLConv)
+                 .scanTXT(b.innerText, Ci.mozITXTToHTMLConv.kEntities);
       }
     }
     if (body) {
@@ -1282,8 +1282,8 @@ const XMPPAccountPrototype = {
           scaledImage = imgTools.encodeScaledImage(readImage, type, 64, 64);
         }
 
-        let bstream = Components.classes["@mozilla.org/binaryinputstream;1"].
-                      createInstance(Ci.nsIBinaryInputStream);
+        let bstream = Cc["@mozilla.org/binaryinputstream;1"]
+                        .createInstance(Ci.nsIBinaryInputStream);
         bstream.setInputStream(scaledImage);
 
         let data = bstream.readBytes(bstream.available());
@@ -1292,7 +1292,7 @@ const XMPPAccountPrototype = {
           binval: btoa(data).replace(/.{74}/g, "$&\n")
         };
       } catch (e) {
-        Components.utils.reportError(e);
+        Cu.reportError(e);
         this._cachedUserIcon = null;
       }
       delete this._cachingUserIcon;

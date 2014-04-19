@@ -161,9 +161,9 @@ TextNode.prototype = {
 
   /* Returns the encoded XML */
   getXML: function()
-    Components.classes["@mozilla.org/txttohtmlconv;1"]
-              .getService(Ci.mozITXTToHTMLConv)
-              .scanTXT(this.text, Ci.mozITXTToHTMLConv.kEntities),
+    Cc["@mozilla.org/txttohtmlconv;1"]
+      .getService(Ci.mozITXTToHTMLConv)
+      .scanTXT(this.text, Ci.mozITXTToHTMLConv.kEntities),
 
   /* To read the unencoded data. */
   get innerText() this.text
