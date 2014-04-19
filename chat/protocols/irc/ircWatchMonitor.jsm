@@ -180,8 +180,13 @@ var ircWATCH = {
       return true;
     },
 
+    "597": function(aMessage) { // RPL_REAWAY
+      // <nickname> <username> <hostname> <awaysince> :<away reason>
+      return setStatus(this, aMessage.params[1], "AWAY");
+    },
+
     "598": function(aMessage) { // RPL_GONEAWAY
-      // <nickname> <username> <hostname> <awaysince> :is now away
+      // <nickname> <username> <hostname> <awaysince> :<away reason>
       return setStatus(this, aMessage.params[1], "AWAY");
     },
 
@@ -240,7 +245,7 @@ var ircWATCH = {
     },
 
     "609": function(aMessage) { // RPL_NOWISAWAY
-      // <nickname> <username> <hostname> <awaysince> :is away
+      // <nickname> <username> <hostname> <awaysince> :<away reason>
       return setStatus(this, aMessage.params[1], "AWAY");
     }
   }
