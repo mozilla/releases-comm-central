@@ -193,6 +193,14 @@ libs:: $(srcdir)/profile/prefs.js
 libs:: $(srcdir)/blocklist.xml
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
 
+ifdef ENABLE_TESTS
+# Bug 680203 - When making and running packaged tests on our buildbots,
+# Lightning is not included in the package, so Lightning tests cannot run
+# properly even though we build Lightning.
+libs::
+	sed -e '/calendar/d' $(MOZDEPTH)/_tests/xpcshell/xpcshell.ini >$(MOZDEPTH)/_tests/xpcshell/all-test-dirs.list
+endif
+
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 
 MAC_APP_NAME = $(MOZ_APP_DISPLAYNAME)

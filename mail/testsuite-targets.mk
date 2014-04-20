@@ -52,12 +52,6 @@ mozmill-one:
 ifndef UNIVERSAL_BINARY
 PKG_STAGE = $(DIST)/test-package-stage
 package-tests:: stage-mozilla-tests stage-mozmill stage-modules
-
-# If Lightning is enabled, also stage the lightning extension
-ifdef MOZ_CALENDAR
-package-tests:: stage-calendar
-endif
-
 else
 # This staging area has been built for us by universal/flight.mk
 PKG_STAGE = $(DIST)/universal/test-package-stage
@@ -73,7 +67,7 @@ endif
 	  * -x \*/.mkdir.done
 
 make-stage-dir:
-	rm -rf $(PKG_STAGE) && $(NSINSTALL) -D $(PKG_STAGE) && $(NSINSTALL) -D $(PKG_STAGE)/bin && $(NSINSTALL) -D $(PKG_STAGE)/bin/components && $(NSINSTALL) -D $(PKG_STAGE)/certs && $(NSINSTALL) -D $(PKG_STAGE)/extensions
+	rm -rf $(PKG_STAGE) && $(NSINSTALL) -D $(PKG_STAGE) && $(NSINSTALL) -D $(PKG_STAGE)/bin && $(NSINSTALL) -D $(PKG_STAGE)/bin/components && $(NSINSTALL) -D $(PKG_STAGE)/certs
 
 # Of the core tests, we only currently support xpcshell. Unfortunately
 # some of the required xpcshell bits are packaged by mochitest, so we have to
@@ -95,8 +89,5 @@ stage-modules: make-stage-dir
 	$(NSINSTALL) -D $(PKG_STAGE)/modules
 	cp -RL $(DEPTH)/mozilla/_tests/modules $(PKG_STAGE)
 
-stage-calendar: make-stage-dir
-	$(MAKE) -C $(DEPTH)/calendar/lightning stage-package
-
 .PHONY: \
-  package-tests make-stage-dir stage-mozmill stage-modules stage-calendar
+  package-tests make-stage-dir stage-mozmill stage-modules
