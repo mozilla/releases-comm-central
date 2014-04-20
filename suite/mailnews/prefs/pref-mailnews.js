@@ -57,3 +57,15 @@ function onSetDefault(aButton, aType)
 
   aButton.disabled = true;
 }
+
+function onNewsChange(aChecked)
+{
+  let snews = document.getElementById("network.protocol-handler.external.snews");
+  let nntp = document.getElementById("network.protocol-handler.external.nntp");
+
+  if (!snews.locked)
+    snews.value = aChecked;
+
+  if (!nntp.locked)
+    nntp.value = aChecked;
+}

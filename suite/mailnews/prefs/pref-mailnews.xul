@@ -34,6 +34,18 @@
                   name="mailnews.start_page.url" type="wstring"/>
       <preference id="mail.biff.on_new_window"
                   name="mail.biff.on_new_window" inverted="true" type="bool"/>
+      <preference id="network.protocol-handler.external.mailto"
+                  name="network.protocol-handler.external.mailto"
+                  inverted="true" type="bool"/>
+      <preference id="network.protocol-handler.external.news"
+                  name="network.protocol-handler.external.news"
+                  inverted="true" type="bool"/>
+      <preference id="network.protocol-handler.external.snews"
+                  name="network.protocol-handler.external.snews"
+                  inverted="true" type="bool"/>
+      <preference id="network.protocol-handler.external.nntp"
+                  name="network.protocol-handler.external.nntp"
+                  inverted="true" type="bool"/>
       <preference id="system.windows.lock_ui.defaultMailClient" readonly="true"
                   name="system.windows.lock_ui.defaultMailClient" type="bool"/>
       <preference id="system.windows.lock_ui.defaultNewsClient" readonly="true"
@@ -93,6 +105,21 @@
                   preference="system.windows.lock_ui.defaultFeedClient"/>
         </hbox>
       </vbox>
+
+      <separator class="thin"/>
+
+      <description>&useInternalSettings.description;</description>
+      <hbox class="indent" align="center">
+        <checkbox id="useInternalMail"
+                  label="&useInternalMail.label;"
+                  accesskey="&useInternalMail.accesskey;"
+                  preference="network.protocol-handler.external.mailto"/>
+        <checkbox id="useInternalNews"
+                  label="&useInternalNews.label;"
+                  accesskey="&useInternalNews.accesskey;"
+                  oncommand="onNewsChange(this.checked);"
+                  preference="network.protocol-handler.external.news"/>
+      </hbox>
     </groupbox>
 
     <groupbox>

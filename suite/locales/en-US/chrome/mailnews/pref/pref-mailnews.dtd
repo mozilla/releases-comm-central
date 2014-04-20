@@ -19,6 +19,12 @@
 <!ENTITY setDefaultFeed.label             "Feeds">
 <!ENTITY setDefaultFeed.accesskey         "e">
 
+<!ENTITY useInternalSettings.description  "Use &brandShortName; Mail &amp; News when opening browser links for:">
+<!ENTITY useInternalMail.label            "Mail (mailto:)">
+<!ENTITY useInternalMail.accesskey        "a">
+<!ENTITY useInternalNews.label            "News (news:, snews:, nntp:)">
+<!ENTITY useInternalNews.accesskey        "s">
+
 <!ENTITY messengerStartPage.caption       "Mail Start Page">
 <!ENTITY enableStartPage.label            "When Mail launches, show the Start Page in the message area">
 <!ENTITY enableStartPage.accesskey        "W">
