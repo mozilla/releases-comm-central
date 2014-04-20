@@ -6,17 +6,30 @@
 
 interface nsIMsgFolder;
 
-[scriptable,uuid(a1aaa404-9be7-461f-a715-e92512729923)]
+/**
+ * This service provides a way to lookup any nsIMsgFolder.
+ *
+ * When looking up folders by URL, note that the URL must be encoded to be a
+ * valid folder URL. Of particular note are the following requirements:
+ * - invalid characters in paths must be percent-encoded
+ * - the URL MUST NOT have a trailing slash (excepting root folders)
+ * - the case must match the expected value exactly
+ * An example of a valid URL is thus:
+ * imap://someuser%40google.com@imap.google.com/INBOX
+ *
+ * The contractid for this service is "@mozilla.org/mail/folder-lookup;1".
+ */
+[scriptable,uuid(f5ed5997-3945-48fc-a59d-d2191a94bb60)]
 interface nsIFolderLookupService : nsISupports
 {
   /**
-   * Returns a folder with the given id. If the folder does not exist, but an
-   * identifiable parent does, we'll create it and then return that folder. If
-   * no parent exists, this will return null.
+   * Returns a folder with the given URL or null if no such folder exists.
    *
-   * @note For the moment, the id is the URI property of the folder.  This may
-   *       change
+   * @param aUrl The folder URL
    */
-  nsIMsgFolder getFolderById(in ACString id);
+  nsIMsgFolder getFolderForURL(in ACString aUrl);
 };
 
+%{C++
+#define NSIFLS_CONTRACTID "@mozilla.org/mail/folder-lookup;1"
+%}

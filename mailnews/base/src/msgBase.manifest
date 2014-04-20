@@ -6,3 +6,5 @@ category command-line-handler m-mail @mozilla.org/commandlinehandler/general-sta
 component {740880E6-E299-4165-B82F-DF1DCAB3AE22} newMailNotificationService.js
 contract @mozilla.org/newMailNotificationService;1 {740880E6-E299-4165-B82F-DF1DCAB3AE22}
 category profile-after-change NewMailNotificationService @mozilla.org/newMailNotificationService;1 
+component {a30be08c-afc8-4fed-9af7-79778a23db23} folderLookupService.js
+contract @mozilla.org/mail/folder-lookup;1 {a30be08c-afc8-4fed-9af7-79778a23db23}

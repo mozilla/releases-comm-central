@@ -159,6 +159,7 @@
 @BINPATH@/components/cloudfile.xpt
 @BINPATH@/components/addrbook.xpt
 @BINPATH@/components/fts3tok.xpt
+@BINPATH@/components/folderLookupService.js
 ; interfaces.manifest doesn't get packaged because it is dynamically
 ; re-created at packaging time when linking the xpts that will actually
 ; go into the package, so the test related interfaces aren't included.

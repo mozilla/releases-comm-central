@@ -364,6 +364,7 @@
 @BINPATH@/components/FeedProcessor.js
 @BINPATH@/components/FeedProcessor.manifest
 @BINPATH@/components/FeedWriter.js
+@BINPATH@/components/folderLookupService.js
 @BINPATH@/components/Identity.manifest
 @BINPATH@/components/jsconsole-clhandler.js
 @BINPATH@/components/jsconsole-clhandler.manifest

@@ -11,6 +11,7 @@
 #include "nsStringGlue.h"
 #include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
+#include "nsIFolderLookupService.h"
 #include "nsIImapUrl.h"
 #include "nsIMailboxUrl.h"
 #include "nsINntpUrl.h"
@@ -814,27 +815,13 @@ nsresult GetExistingFolder(const nsCString& aFolderURI, nsIMsgFolder **aFolder)
   *aFolder = nullptr;
 
   nsresult rv;
-  nsCOMPtr<nsIRDFService> rdf(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
+  nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIRDFResource> resource;
-  rv = rdf->GetResource(aFolderURI, getter_AddRefs(resource));
+  rv = fls->GetFolderForURL(aFolderURI, aFolder);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr <nsIMsgFolder> thisFolder;
-  thisFolder = do_QueryInterface(resource, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Parent doesn't exist means that this folder doesn't exist.
-  nsCOMPtr<nsIMsgFolder> parentFolder;
-  rv = thisFolder->GetParent(getter_AddRefs(parentFolder));
-  if (NS_SUCCEEDED(rv)) {
-    // When parentFolder is null with NS_OK, we should return error.
-    NS_ENSURE_TRUE(parentFolder, NS_ERROR_FAILURE);
-
-    NS_ADDREF(*aFolder = thisFolder);
-  }
-  return rv;
+  return *aFolder ? NS_OK : NS_ERROR_FAILURE;
 }
 
 bool IsAFromSpaceLine(char *start, const char *end)
