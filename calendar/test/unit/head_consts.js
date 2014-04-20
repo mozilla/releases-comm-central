@@ -79,10 +79,13 @@ function getMemoryCal() {
 }
 
 function getStorageCal() {
-    var db = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    db.append("test_storage.sqlite");
+    // Whenever we get the storage calendar we need to request a profile,
+    // otherwise the cleanup functions will not run
+    do_get_profile();
 
     // create URI
+    var db = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    db.append("test_storage.sqlite");
     var uri = Services.io.newFileURI(db);
 
     // Make sure timezone service is initialized
