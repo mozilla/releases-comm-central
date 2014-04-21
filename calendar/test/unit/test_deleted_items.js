@@ -29,7 +29,7 @@ function check_delmgr_call(aFunc) {
     };
 
     aFunc();
-    return deferred;
+    return deferred.promise;
 }
 
 add_task(function test_deleted_items() {
