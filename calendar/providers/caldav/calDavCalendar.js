@@ -190,8 +190,7 @@ calDavCalendar.prototype = {
                 "mCtag", "mWebdavSyncToken", "mSupportedItemTypes",
                 "mPrincipalUrl", "mCalHomeSet",
                 "mShouldPollInbox", "hasAutoScheduling", "mHaveScheduling",
-                "mCalendarUserAddress", "mShouldPollInbox", "mOutboxUrl",
-                "hasFreeBusy"];
+                "mCalendarUserAddress", "mOutboxUrl", "hasFreeBusy"];
     },
 
     get checkedServerInfo() {
