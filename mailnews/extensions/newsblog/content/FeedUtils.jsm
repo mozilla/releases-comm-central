@@ -380,13 +380,24 @@ var FeedUtils = {
 
     if (aWindow) {
       // Unfortunately, setAndFetchFaviconForPage() does not invoke its
-      // callback (Bug 740457).  So we have to do it this way.
+      // callback (Bug 740457).  So we have to do it this way. Try to resolve
+      // quickly at first, since most fails will do so and it's better ux to
+      // populate the icon fast; resolve slow responders on a second check.
       aWindow.setTimeout(function() {
         if (FeedUtils.mFaviconService.isFailedFavicon(iconUri)) {
           let uri = Services.io.newURI(iconUri.prePath, null, null);
           FeedUtils.getFaviconFromPage(uri.prePath, aCallback, null);
         }
-      }, 3000);
+        else {
+          // Check slow loaders again.
+          aWindow.setTimeout(function() {
+            if (FeedUtils.mFaviconService.isFailedFavicon(iconUri)) {
+              let uri = Services.io.newURI(iconUri.prePath, null, null);
+              FeedUtils.getFaviconFromPage(uri.prePath, aCallback, null);
+            }
+          }, 6000);
+        }
+      }, 2000);
     }
 
     return iconUri.spec;
