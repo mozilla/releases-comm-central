@@ -159,8 +159,10 @@ ConvStatsService.prototype = {
           return;
         }
         gStatsByConvId = stats;
-        for each (let stats in gStatsByConvId)
-          stats.__proto__ = ConversationStats.prototype;
+        for each (let stats in gStatsByConvId) {
+          stats = new ConversationStats(stats.id, stats.lastDate,
+                                        stats.incomingCount, stats.outgoingCount);
+        }
         gStatsByContactId = {};
       }
       catch (e) {
