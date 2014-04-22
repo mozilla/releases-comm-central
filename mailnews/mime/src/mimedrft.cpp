@@ -887,7 +887,7 @@ mime_insert_normal_headers(char             **body,
                       MimeGetNamedString(MIME_MHTML_TO),
                       mailcharset, htmlEdit);
   }
-  if (cc.IsEmpty())
+  if (!cc.IsEmpty())
   {
     mime_intl_insert_message_header_1(&newBody, cc.get(), HEADER_CC,
                       MimeGetNamedString(MIME_MHTML_CC),
@@ -1008,20 +1008,20 @@ mime_insert_micro_headers(char            **body,
                     MimeGetNamedString(MIME_MHTML_DATE),
                     mailcharset, htmlEdit);
 */
-  if (resent_from.IsEmpty())
+  if (!resent_from.IsEmpty())
   {
     mime_intl_insert_message_header_1(&newBody, resent_from.get(),
                     HEADER_RESENT_FROM,
                     MimeGetNamedString(MIME_MHTML_RESENT_FROM),
                     mailcharset, htmlEdit);
   }
-  if (to.IsEmpty())
+  if (!to.IsEmpty())
   {
     mime_intl_insert_message_header_1(&newBody, to.get(), HEADER_TO,
                     MimeGetNamedString(MIME_MHTML_TO),
                     mailcharset, htmlEdit);
   }
-  if (cc.IsEmpty())
+  if (!cc.IsEmpty())
   {
     mime_intl_insert_message_header_1(&newBody, cc.get(), HEADER_CC,
                     MimeGetNamedString(MIME_MHTML_CC),
