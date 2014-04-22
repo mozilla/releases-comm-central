@@ -16,26 +16,26 @@ DEFAULTS = {
   'REV': "default",
 
   # LDAPSDKS
-  'LDAPSDKS_REPO': 'http://hg.mozilla.org/projects/ldap-sdks/',
+  'LDAPSDKS_REPO': 'https://hg.mozilla.org/projects/ldap-sdks/',
   'LDAPSDKS_REV': 'LDAPCSDK_6_0_7F_RTM',
 
   # URL of the default hg repository to clone for ChatZilla.
-  'CHATZILLA_REPO': 'http://hg.mozilla.org/chatzilla/',
+  'CHATZILLA_REPO': 'https://hg.mozilla.org/chatzilla/',
   # The stable revision to use for the next branch
 #  'CHATZILLA_REV':  'SEA2_25_RELBRANCH',
 
   # URL of the default hg repository to clone for DOM Inspector.
-  'INSPECTOR_REPO': 'http://hg.mozilla.org/dom-inspector/',
+  'INSPECTOR_REPO': 'https://hg.mozilla.org/dom-inspector/',
   # The stable revision to use for the next branch
 #  'INSPECTOR_REV':  'SEA2_25_RELBRANCH',
 
   # URL of the default hg repository to clone for Venkman.
-  'VENKMAN_REPO': 'http://hg.mozilla.org/venkman/',
+  'VENKMAN_REPO': 'https://hg.mozilla.org/venkman/',
   # The stable revision to use for the next branch
 #  'VENKMAN_REV':  'SEA2_25_RELBRANCH',
 
   # URL of the default hg repository to clone for Mozilla.
-  'MOZILLA_REPO': 'http://hg.mozilla.org/mozilla-central/',
+  'MOZILLA_REPO': 'https://hg.mozilla.org/mozilla-central/',
 }
 
 REPO_SHORT_NAMES = {
