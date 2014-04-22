@@ -420,6 +420,8 @@
               this.tabContainer.adjustTabstrip();
             }
 
+            let oldPanel = this.panelContainer.selectedPanel;
+
             // Open new tabs in the background?
             let switchToNewTab = !this.mPrefs.getBoolPref("browser.tabs.loadInBackground");
             tabInfo.switchToNewTab = switchToNewTab;
@@ -459,6 +461,9 @@
             }
             if (switchToNewTab)
               this.panelContainer.selectedPanel = selectedPanel;
+
+            oldPanel.removeAttribute("selected");
+            this.panelContainer.selectedPanel.setAttribute("selected", "true");
 
             let tabOpenFunc = tabInfo.mode.openTab ||
                               tabInfo.mode.tabType.openTab;
@@ -611,9 +616,15 @@
               if (this.currentTabInfo)
                 this.saveCurrentTabState();
               let oldTabInfo = this.currentTabInfo;
+              let oldPanel = this.panelContainer.selectedPanel;
               let tabInfo = this.currentTabInfo = this.tabInfo[this.tabContainer.selectedIndex];
               this.panelContainer.selectedPanel = tabInfo.panel ||
                                                   tabInfo.mode.tabType.panel;
+
+              // Update the selected attribute on the current and old tab panel.
+              oldPanel.removeAttribute("selected");
+              this.panelContainer.selectedPanel.setAttribute("selected", "true");
+
               let showTabFunc = tabInfo.mode.showTab ||
                                 tabInfo.mode.tabType.showTab;
               if (showTabFunc)
