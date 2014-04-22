@@ -134,11 +134,15 @@ NS_MSG_BASE nsresult NS_GetUnicharPreferenceWithDefault(nsIPrefBranch *prefBranc
                                                         const char *prefName,
                                                         const nsAString& defValue,
                                                         nsAString& prefValue);
- 
+
 NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreferenceWithDefault(nsIPrefBranch *prefBranch,   //can be null, if so uses the root branch
                                                                  const char *prefName,
                                                                  const nsAString& defValue,
                                                                  nsAString& prefValue);
+
+NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreference(nsIPrefBranch *prefBranch,   //can be null, if so uses the root branch
+                                                      const char *prefName,
+                                                      nsAString& prefValue);
 
   /**
    * this needs a listener, because we might have to create the folder

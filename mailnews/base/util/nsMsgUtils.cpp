@@ -1300,6 +1300,28 @@ NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreferenceWithDefault(nsIPrefBranch *
     return NS_OK;
 }
 
+NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreference(nsIPrefBranch *prefBranch,  //can be null, if so uses the root branch
+                                                      const char *prefName,
+                                                      nsAString& prefValue)
+{
+  NS_ENSURE_ARG_POINTER(prefName);
+
+  nsCOMPtr<nsIPrefBranch> pbr;
+  if (!prefBranch) {
+    pbr = do_GetService(NS_PREFSERVICE_CONTRACTID);
+    prefBranch = pbr;
+  }
+
+  nsCOMPtr<nsIPrefLocalizedString> str;
+  nsresult rv = prefBranch->GetComplexValue(prefName, NS_GET_IID(nsIPrefLocalizedString), getter_AddRefs(str));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsString tmpValue;
+  str->ToString(getter_Copies(tmpValue));
+  prefValue.Assign(tmpValue);
+  return NS_OK;
+}
+
 void PRTime2Seconds(PRTime prTime, uint32_t *seconds)
 {
   *seconds = (uint32_t)(prTime / PR_USEC_PER_SEC);
