@@ -313,7 +313,7 @@ def backup_cvs_extension(extensionName, extensionDir, extensionPath):
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], None)
         sys.exit("Error: %s directory renaming failed!" % extensionName)
 
-def do_hg_pull(dir, repository, hg, rev, hgtool=None):
+def do_hg_pull(dir, repository, hg, rev, hgtool=None, hgtool1=None):
     """Clone if the dir doesn't exist, pull if it does.
     """
 
@@ -326,6 +326,10 @@ def do_hg_pull(dir, repository, hg, rev, hgtool=None):
     hgopts = []
     if options.hgopts:
         hgopts = options.hgopts.split()
+
+    if hgtool or hgtool1:
+        if not os.path.exists(hgtool):
+          hgtool = hgtool1
 
     if hgtool:
         hgtoolcmd = hgtool.split()
@@ -370,13 +374,13 @@ def check_retries_option(option, opt_str, value, parser):
   setattr(parser.values, option.dest, value)
 
 def do_apply_patch(hg, patch, repo):
-    check_call_noisy([hg, 
-        'import', 
+    check_call_noisy([hg,
+        'import',
         '-R', repo,
         '-m', "local patch from %s" % patch,
         '--no-commit', '--force',
         patch,
-        ], 
+        ],
         retryMax=0)
     return
 
@@ -471,6 +475,9 @@ o.add_option("-v", "--verbose", dest="verbose",
 o.add_option("--hgtool", dest="hgtool",
              default=None,
              help="Path to hgtool, if wanted")
+o.add_option("--hgtool1", dest="hgtool1",
+             default=None,
+             help="Alternative path to hgtool, if wanted")
 o.add_option("--hg-options", dest="hgopts",
              help="Pass arbitrary options to hg commands (i.e. --debug, --time)")
 o.add_option("--hg-clone-options", dest="hgcloneopts",
@@ -648,12 +655,12 @@ if action in ('checkout', 'co'):
 
     if not options.skip_mozilla:
         if options.known_good and options.mozilla_rev is None:
-            print "Fetching last known good mozilla revision" 
+            print "Fetching last known good mozilla revision"
             options.mozilla_rev = get_last_known_good_mozilla_rev()
             print "Setting mozilla_rev to '%s'" % options.mozilla_rev
-            
+
         fixup_mozilla_repo_options(options)
-        do_hg_pull('mozilla', options.mozilla_repo, options.hg, options.mozilla_rev, options.hgtool)
+        do_hg_pull('mozilla', options.mozilla_repo, options.hg, options.mozilla_rev, options.hgtool, options.hgtool1)
 
     # Check whether destination directory exists for these extensions.
     if (not options.skip_chatzilla or not options.skip_inspector or \
@@ -678,7 +685,7 @@ if action in ('checkout', 'co'):
     if not options.skip_venkman:
         fixup_venkman_repo_options(options)
         do_hg_pull(os.path.join('mozilla', 'extensions', 'venkman'), options.venkman_repo, options.hg, options.venkman_rev)
-  
+
     if options.apply_patches:
         do_apply_patches(topsrcdir, options.hg)
 
