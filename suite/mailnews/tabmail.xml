@@ -1003,7 +1003,6 @@
           <xul:spacer class="tabs-left tabs-right"/>
           <xul:hbox>
             <xul:hbox class="tabs-newbutton-box"
-                      align="center"
                       pack="start"
                       anonid="tabstrip-newbutton">
               <xul:toolbarbutton class="new-button tabs-newbutton"
