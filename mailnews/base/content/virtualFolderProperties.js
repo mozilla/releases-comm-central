@@ -68,7 +68,7 @@ function onLoad()
         gSearchFolderURIs = windowArgs.folder.URI;
     }
 
-    folderNameField = document.getElementById("name");
+    let folderNameField = document.getElementById("name");
     folderNameField.hidden = false;
     folderNameField.focus();
     if (windowArgs.newFolderName)
