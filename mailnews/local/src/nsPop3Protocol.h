@@ -287,7 +287,6 @@ private:
   nsCString m_username;
   nsCString m_senderInfo;
   nsCString m_commandResponse;
-  nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
   nsCString m_GSSAPICache;
 
   // Used for asynchronous password prompts to store the password temporarily.
@@ -295,8 +294,8 @@ private:
 
   // progress state information
   void UpdateProgressPercent (uint32_t totalDone, uint32_t total);
-  void UpdateStatus(const nsString &aStatusName);
-  void UpdateStatusWithString(const char16_t * aString);
+  void UpdateStatus(const char16_t *aStatusName);
+  void UpdateStatusWithString(const char16_t *aString);
   nsresult FormatCounterString(const nsString &stringName,
                                uint32_t count1,
                                uint32_t count2,

@@ -483,7 +483,6 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
     if (mailnewsUrl)
     {
       nsCOMPtr<nsIMsgIncomingServer> server;
-      mailnewsUrl->GetStatusFeedback(getter_AddRefs(m_statusFeedback));
       mailnewsUrl->GetServer(getter_AddRefs(server));
       NS_ENSURE_TRUE(server, NS_MSG_INVALID_OR_MISSING_SERVER);
 
@@ -622,43 +621,30 @@ nsresult nsPop3Protocol::FormatCounterString(const nsString &stringName,
   nsAutoString count2String;
   count2String.AppendInt(count2);
 
-  nsCOMPtr<nsIMsgIncomingServer> server(do_QueryInterface(m_pop3Server));
-  nsString hostName;
-  server->GetPrettyName(hostName);
   const char16_t *formatStrings[] = {
     count1String.get(),
-    count2String.get(),
-    hostName.get()
+    count2String.get()
   };
 
   return mLocalBundle->FormatStringFromName(stringName.get(),
-                                            formatStrings, 3,
+                                            formatStrings, 2,
                                             getter_Copies(resultString));
 }
 
-void nsPop3Protocol::UpdateStatus(const nsString &aStatusName)
+void nsPop3Protocol::UpdateStatus(const char16_t *aStatusName)
 {
-  if (m_statusFeedback)
-  {
-    nsCOMPtr<nsIMsgIncomingServer> server(do_QueryInterface(m_pop3Server));
-    nsString hostName;
-    server->GetPrettyName(hostName);
-    const char16_t *formatStrings[] = {
-      hostName.get()
-    };
-    nsString statusString;
-    mLocalBundle->FormatStringFromName(aStatusName.get(), formatStrings, 1,
-                                       getter_Copies(statusString));
-    UpdateStatusWithString(statusString.get());
-  }
+  nsString statusMessage;
+  mLocalBundle->GetStringFromName(aStatusName,
+                                  getter_Copies(statusMessage));
+  UpdateStatusWithString(statusMessage.get());
 }
 
-void nsPop3Protocol::UpdateStatusWithString(const char16_t * aStatusString)
+void nsPop3Protocol::UpdateStatusWithString(const char16_t *aStatusString)
 {
-    nsresult rv;
     if (mProgressEventSink)
     {
-        rv = mProgressEventSink->OnStatus(this, m_channelContext, NS_OK, aStatusString);      // XXX i18n message
+        nsresult rv = mProgressEventSink->OnStatus(this, m_channelContext,
+                                                   NS_OK, aStatusString);      // XXX i18n message
         NS_ASSERTION(NS_SUCCEEDED(rv), "dropping error result");
     }
 }
@@ -3170,14 +3156,17 @@ nsPop3Protocol::SendRetr()
     else
     {
       nsString finalString;
-      nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivingMsgs"),
+      nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivingMessages"),
                           m_pop3ConData->real_new_counter,
                           m_pop3ConData->really_new_messages,
                           finalString);
 
       NS_ASSERTION(NS_SUCCEEDED(rv), "couldn't format string");
-      if (m_statusFeedback)
-        m_statusFeedback->ShowStatusString(finalString);
+      if (mProgressEventSink) {
+        rv = mProgressEventSink->OnStatus(this, m_channelContext, NS_OK,
+                                          finalString.get());
+        NS_ASSERTION(NS_SUCCEEDED(rv), "dropping error result");
+      }
     }
 
     status = Pop3SendData(cmd);
@@ -3820,7 +3809,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
       break;
 
     case POP3_AUTH_GSSAPI_FIRST:
-      UpdateStatus(NS_LITERAL_STRING("hostContacted"));
+      UpdateStatus(MOZ_UTF16("hostContact"));
       status = AuthGSSAPIResponse(true);
       break;
 
@@ -3838,7 +3827,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
       break;
 
     case POP3_FINISH_OBTAIN_PASSWORD_BEFORE_USERNAME:
-      UpdateStatus(NS_LITERAL_STRING("hostContacted"));
+      UpdateStatus(MOZ_UTF16("hostContact"));
       status = SendUsername();
       break;
 
@@ -3946,13 +3935,13 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
 
           if (m_totalDownloadSize <= 0)
           {
-            UpdateStatus(NS_LITERAL_STRING("noMessages"));
+            UpdateStatus(MOZ_UTF16("noNewMessages"));
             /* There are no new messages.  */
           }
           else
           {
             nsString statusString;
-            nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivedMessages"),
+            nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivedMsgs"),
                                               m_pop3ConData->real_new_counter - 1,
                                               m_pop3ConData->really_new_messages,
                                               statusString);
@@ -4010,7 +3999,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
       if(m_pop3ConData->msg_del_started)
       {
         nsString statusString;
-        nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivedMessages"),
+        nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivedMsgs"),
                                  m_pop3ConData->real_new_counter - 1,
                                  m_pop3ConData->really_new_messages,
                                  statusString);
