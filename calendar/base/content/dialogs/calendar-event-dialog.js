@@ -467,6 +467,10 @@ function loadDialog(item) {
     updateReminder(true);
 
     gShowTimeAs = item.getProperty("TRANSP");
+    // set default value for a new event
+    if (!gShowTimeAs & window.mode == "new" && cal.isEvent(item)) {
+        setShowTimeAs(gStartTime.isDate);
+    }
     updateShowTimeAs();
 }
 
