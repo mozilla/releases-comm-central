@@ -16,4 +16,4 @@ MSVC_ENABLE_PGO = True
 FINAL_LIBRARY = 'mail'
 
 # Tests need more attention before they can be enabled.
-# TEST_DIRS += ['test']
+TEST_DIRS += ['test']
