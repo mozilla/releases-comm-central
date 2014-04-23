@@ -144,6 +144,12 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
   list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png) !important;
 }
 
+/* Findbar */
+.findbar-container {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
 /* Separator between menu and split type buttons */
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::before {
   content: "";
