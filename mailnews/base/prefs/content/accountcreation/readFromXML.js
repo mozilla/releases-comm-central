@@ -50,7 +50,7 @@ function readFromXML(clientConfigXML)
       d.domains.push(sanitize.hostname(domain));
     } catch (e) { logException(e); exception = e; }
   }
-  if (domain.length == 0)
+  if (d.domains.length == 0)
     throw exception ? exception : "need proper <domain> in XML";
   exception = null;
 
