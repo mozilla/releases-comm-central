@@ -832,7 +832,6 @@ var MessageWindowController =
       case "button_goForward":
       case "button_goBack":
         return gFolderDisplay.selectedMessage != null;
-      case "cmd_newMessage":
       case "cmd_reply":
       case "button_reply":
       case "cmd_replySender":
@@ -922,7 +921,6 @@ var MessageWindowController =
       case "cmd_replylist":
       case "button_replylist":
         return gFolderDisplay.selectedMessage && IsReplyListEnabled();
-      case "cmd_newMessage":
       case "cmd_replySender":
       case "cmd_replyGroup":
       case "button_followup":
@@ -967,7 +965,7 @@ var MessageWindowController =
         return CanMarkMsgAsRead(false);
       case "cmd_markAsFlagged":
       case "button_file":
-        return (gFolderDisplay.selectedMessage != null);
+        return ( gFolderDisplay.selectedMessage != null);
       case "cmd_printSetup":
         return true;
       case "cmd_getNewMessages":
@@ -1067,9 +1065,6 @@ var MessageWindowController =
         break;
       case "cmd_archive":
         MsgArchiveSelectedMessages(null);
-        break;
-      case "cmd_newMessage":
-        MsgNewMessage(null);
         break;
       case "cmd_reply":
         MsgReplyMessage(null);

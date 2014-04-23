@@ -76,7 +76,7 @@
           <label class="acctCentralText acctCentralLinkText"
                  value="&composeMsgLink.label;"
                  chromedir="&locale.dir;"
-                 onclick="ComposeAMessage(event);"/>
+                 onclick="ComposeAMessage();"/>
         </hbox>
       </row>
 

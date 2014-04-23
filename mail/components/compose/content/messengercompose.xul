@@ -181,15 +181,11 @@
 <keyset id="tasksKeys">
   <!-- File Menu -->
 #ifdef XP_MACOSX
-  <!-- Mac has Command+M as system shortcut to minimize current window, so we offer Command+Shift+M for New Message,
-       in addition to cross-platform Command+N. With goOpenNewMessage(), pass null instead of event because
-       we don't allow Shift in *keyboard shortcuts* for toggling HTML vs. plaintext format, see bug 672475.
-    -->
-  <key id="key_newMessage" key="&newMessage.key;" oncommand="goOpenNewMessage(null);" modifiers="accel,shift"/>
-  <key id="key_newMessage2" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
+  <key id="key_newMessage" key="&newMessage.key;" oncommand="goOpenNewMessage();" modifiers="accel,shift"/>
+  <key id="key_newMessage2" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage();" modifiers="accel"/>
 #else
-  <key id="key_newMessage" key="&newMessage.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
-  <key id="key_newMessage2" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
+  <key id="key_newMessage" key="&newMessage.key;" oncommand="goOpenNewMessage();" modifiers="accel"/>
+  <key id="key_newMessage2" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage();" modifiers="accel"/>
 #endif
   <key id="key_attachFile" key="&attachFileCmd.key;" command="cmd_attachFile"
        modifiers="accel,shift"/>
@@ -445,7 +441,7 @@
             <menupopup id="menu_NewPopup">
               <menuitem id="menu_NewMessage"
                         label="&newMessage.label;" accesskey="&newMessage.accesskey;"
-                        key="key_newMessage2" oncommand="goOpenNewMessage(event);"/>
+                        key="key_newMessage2" oncommand="goOpenNewMessage();"/>
               <menuseparator/>
               <menuitem id="menu_NewContact" label="&newContact.label;"
                         accesskey="&newContact.accesskey;"

@@ -119,7 +119,6 @@ var DefaultController =
       case "cmd_createFilterFromPopup":
       case "cmd_archive":
       case "button_archive":
-      case "cmd_newMessage":
       case "cmd_reply":
       case "button_reply":
       case "cmd_replySender":
@@ -362,8 +361,6 @@ var DefaultController =
         if (GetNumSelectedMessages() == 1)
           return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.cmdRequiringMsgBody);
         return false;
-      case "cmd_newMessage":
-      // This enables Write button even without any accounts set up, so users might run into Bug 524863
       case "cmd_printSetup":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
@@ -590,9 +587,6 @@ var DefaultController =
         break;
       case "cmd_archive":
         MsgArchiveSelectedMessages(null);
-        break;
-      case "cmd_newMessage":
-        MsgNewMessage(null);
         break;
       case "cmd_reply":
         MsgReplyMessage(null);

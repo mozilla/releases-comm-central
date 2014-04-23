@@ -233,7 +233,6 @@
             events="create-menu-message"
             oncommandupdate="goUpdateMailMenuItems(this)">
   <command id="cmd_archive" oncommand="goDoCommand('cmd_archive')"/>
-  <command id="cmd_newMessage" oncommand="MsgNewMessage(event)"/>
   <command id="cmd_reply" oncommand="MsgReplyMessage(event)"/>
   <command id="cmd_replySender" oncommand="MsgReplySender(event);"/>
   <command id="cmd_replyGroup" oncommand="MsgReplyGroup(event);"/>
@@ -1006,12 +1005,12 @@
       <vbox id="appmenuPrimaryPane">
         <splitmenu id="appmenu_newMessage"
                    label="&appmenuNewMsgCmd.label;"
-                   command="cmd_newMessage">
+                   oncommand="MsgNewMessage(null);">
             <menupopup id="appmenu_newMenupopup">
               <menuitem id="newNewMsgCmd"
                         label="&newNewMsgCmd.label;"
                         key="key_newMessage2"
-                        command="cmd_newMessage"/>
+                        oncommand="MsgNewMessage(null);"/>
               <menuitem id="appmenu_newFolder"
                         label="&newFolderCmd.label;"
                         oncommand="gFolderTreeController.newFolder();"/>
@@ -1910,7 +1909,7 @@
             <menuitem id="appmenu_newMsgCmd"
                       label="&newMsgCmd.label;"
                       key="key_newMessage2"
-                      command="cmd_newMessage"/>
+                      oncommand="MsgNewMessage(null);"/>
             <menuitem id="appmenu_replyMainMenu"
                       label="&replyMsgCmd.label;"
                       key="key_reply"
@@ -2225,7 +2224,7 @@
               <menuitem id="newNewMsgCmd" label="&newNewMsgCmd.label;"
                         accesskey="&newNewMsgCmd.accesskey;"
                         key="key_newMessage2"
-                        command="cmd_newMessage"/>
+                        oncommand="MsgNewMessage(null);"/>
               <menuitem id="menu_newFolder" label="&newFolderCmd.label;"
                          oncommand="gFolderTreeController.newFolder();"
                          accesskey="&newFolderCmd.accesskey;"/>
@@ -2711,7 +2710,7 @@
             <menuitem id="newMsgCmd" label="&newMsgCmd.label;"
                       accesskey="&newMsgCmd.accesskey;"
                       key="key_newMessage2"
-                      command="cmd_newMessage"/>
+                      oncommand="MsgNewMessage(null);"/>
             <menuitem id="replyMainMenu" label="&replyMsgCmd.label;"
                       accesskey="&replyMsgCmd.accesskey;"
                       key="key_reply"
@@ -3048,7 +3047,7 @@
                    class="toolbarbutton-1"
                    label="&newMsgButton.label;"
                    tooltiptext="&newMsgButton.tooltip;"
-                   command="cmd_newMessage"/>
+                   oncommand="MsgNewMessage(event)"/>
     <toolbarbutton id="button-reply"
                    class="toolbarbutton-1"
                    label="&replyButton.label;"
