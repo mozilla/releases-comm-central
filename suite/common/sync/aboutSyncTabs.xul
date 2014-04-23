@@ -14,8 +14,6 @@
 ]>
 
 <window id="tabs-display"
-        onload="RemoteTabViewer.init();"
-        onunload="RemoteTabViewer.uninit();"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&tabs.otherComputers.label;">
@@ -27,45 +25,43 @@
 
   <popupset id="contextmenus">
     <menupopup id="tabListContext">
-      <menuitem label="&tabs.context.openTab.label;"
+      <menuitem id="openSingleTab"
+                label="&tabs.context.openTab.label;"
                 accesskey="&tabs.context.openTab.accesskey;"
-                oncommand="RemoteTabViewer.openSelected();"
                 showFor="single"/>
-      <menuitem label="&tabs.context.bookmarkSingleTab.label;"
+      <menuitem id="bookmarkSingleTab"
+                label="&tabs.context.bookmarkSingleTab.label;"
                 accesskey="&tabs.context.bookmarkSingleTab.accesskey;"
-                oncommand="RemoteTabViewer.bookmarkSingleTab(event);"
                 showFor="single"/>
-      <menuitem label="&tabs.context.openMultipleTabs.label;"
+      <menuitem id="openSelectedTabs"
+                label="&tabs.context.openMultipleTabs.label;"
                 accesskey="&tabs.context.openMultipleTabs.accesskey;"
-                oncommand="RemoteTabViewer.openSelected();"
                 showFor="multiple"/>
-      <menuitem label="&tabs.context.bookmarkMultipleTabs.label;"
+      <menuitem id="bookmarkSelectedTabs"
+                label="&tabs.context.bookmarkMultipleTabs.label;"
                 accesskey="&tabs.context.bookmarkMultipleTabs.accesskey;"
-                oncommand="RemoteTabViewer.bookmarkSelectedTabs();"
                 showFor="multiple"/>
       <menuseparator/>
-      <menuitem label="&tabs.context.refreshList.label;"
+      <menuitem id="buildList"
+                label="&tabs.context.refreshList.label;"
                 accesskey="&tabs.context.refreshList.accesskey;"
-                oncommand="RemoteTabViewer.buildList();"
                 showFor="all"/>
     </menupopup>
   </popupset>
   <richlistbox id="tabsList"
-               context="tabListContext" 
+               context="tabListContext"
                seltype="multiple"
                class="plain"
                align="center"
-               flex="1"
-               onclick="RemoteTabViewer.handleClick(event);"
-               oncontextmenu="RemoteTabViewer.adjustContextMenu(event);">
+               flex="1">
     <hbox id="headers" align="center">
       <label id="tabsListHeading"
              value="&tabs.otherComputers.label;"/>
       <spacer flex="1"/>
-      <textbox type="search"
+      <textbox id="filterTabs"
+               type="search"
                aria-controls="tabsList"
-               emptytext="&tabs.searchText.label;"
-               oncommand="RemoteTabViewer.filterTabs(event);"/>
+               emptytext="&tabs.searchText.label;"/>
     </hbox>
   </richlistbox>
 </window>

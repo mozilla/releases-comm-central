@@ -243,3 +243,53 @@ let RemoteTabViewer = {
     }
   }
 };
+
+let EventDirector = {
+  handleEvent: function EventDirector_handleEvent(event) {
+    switch (event.type) {
+      case "click":
+        RemoteTabViewer.handleClick(event);
+        break;
+      case "contextmenu":
+        RemoteTabViewer.adjustContextMenu(event);
+        break;
+      case "command":
+        switch (event.target.id) {
+          case "openSingleTab":
+          case "openSelectedTabs":
+            RemoteTabViewer.openSelected();
+            break;
+          case "bookmarkSingleTab":
+            RemoteTabViewer.bookmarkSingleTab();
+            break;
+          case "bookmarkSelectedTabs":
+            RemoteTabViewer.bookmarkSelectedTabs();
+            break;
+          case "buildList":
+            RemoteTabViewer.buildList();
+            break;
+          case "filterTabs":
+            RemoteTabViewer.filterTabs(event);
+            break;
+        }
+        break;
+    }
+  }
+};
+
+window.onload = function window_onload() {
+  RemoteTabViewer.init();
+
+  let tabsList = document.getElementById("tabsList");
+  tabsList.addEventListener("click", EventDirector);
+  tabsList.addEventListener("contextmenu", EventDirector);
+
+  document.getElementById("tabListContext")
+          .addEventListener("command", EventDirector);
+  document.getElementById("filterTabs")
+          .addEventListener("command", EventDirector);
+}
+
+window.onunload = function window_onunload() {
+  RemoteTabViewer.uninit();
+}
