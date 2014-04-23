@@ -216,19 +216,13 @@ cal.itip = {
     /**
      * Scope: iTIP message receiver
      *
-     * Gets localized texts about the message state. This returns a JS object
-     * with the following structure:
+     * Gets localized toolbar label about the message state and triggers buttons to show.
+     * This returns a JS object with the following structure:
      *
      * {
      *    label: "This is a desciptive text about the itip item",
-     *    button1: {
-     *      label: "What to show on the first button, i.e 'Decline'" +
-     *             "This can be null if the button is not to be shown"
-     *      actionMethod: "The method this triggers, i.e DECLINED",
-     *    },
-     *    // Same structure for button2/3
-     *    button2: { ... }
-     *    button3: { ... }
+     *    buttons: ["imipXXXButton", ...],
+     *    hideMenuItem: ["imipXXXButton_Option", ...]
      * }
      *
      * @see processItipItem   This takes the same parameters as its optionFunc.
@@ -244,10 +238,7 @@ cal.itip = {
         if (itipItem.receivedMethod) {
             imipLabel = cal.itip.getMethodText(itipItem.receivedMethod);
         }
-        let data = { label: imipLabel };
-        for each (let btn in ["button1", "button2", "button3"]) {
-            data[btn] = { label: null, actionMethod: "" };
-        }
+        let data = { label: imipLabel, buttons: [], hideMenuItems: [] };
 
         if (rc == Components.interfaces.calIErrors.CAL_IS_READONLY) {
             // No writable calendars, tell the user about it
@@ -257,9 +248,8 @@ cal.itip = {
             // added/updated, we want to tell them that.
             data.label = _gs("imipBarAlreadyProcessedText");
             if (foundItems && foundItems.length) {
-                data.button1.label = _gs("imipDetails.label");
                 // Not a real method, but helps us decide
-                data.button1.actionMethod = "X-SHOWDETAILS";
+                data.buttons.push("imipDetailsButton");
             }
         } else if (Components.isSuccessCode(rc)) {
 
@@ -270,10 +260,10 @@ cal.itip = {
                 case "PUBLISH:UPDATE":
                 case "REQUEST:UPDATE-MINOR":
                     data.label = _gs("imipBarUpdateText");
-                    data.button1.label = _gs("imipUpdate.label");
+                    data.buttons.push("imipUpdateButton");
                     break;
                 case "PUBLISH":
-                    data.button1.label = _gs("imipAddToCalendar.label");
+                    data.buttons.push("imipAddButton");
                     break;
                 case "REQUEST:UPDATE":
                 case "REQUEST:NEEDS-ACTION":
@@ -284,20 +274,42 @@ cal.itip = {
                         data.label = _gs("imipBarProcessedNeedsAction");
                     }
 
-                    data.button1.label = _gs("imipAcceptInvitation.label");
-                    data.button1.actionMethod = "ACCEPTED";
-                    data.button2.label = _gs("imipDeclineInvitation.label");
-                    data.button2.actionMethod = "DECLINED";
-                    data.button3.label = _gs("imipAcceptTentativeInvitation.label");
-                    data.button3.actionMethod = "TENTATIVE";
+                    let isRecurringMaster = false;
+                    for (let item of itipItem.getItemList({})) {
+                        if (item.recurrenceInfo) {
+                            isRecurringMaster = true;
+                        }
+                    }
+                    if (itipItem.getItemList({}).length > 1 || isRecurringMaster) {
+                        data.buttons.push("imipAcceptRecurrencesButton");
+                        data.buttons.push("imipDeclineRecurrencesButton");
+                        // if imipMoreButton is used, the following should be removed to not
+                        // extend the number of buttons:
+                        data.buttons.push("imipTentativeRecurrencesButton");
+                        data.hideMenuItems.push("imipAcceptRecurrencesButton_Tentative");
+                    } else {
+                        data.buttons.push("imipAcceptButton");
+                        data.buttons.push("imipDeclineButton");
+                        // if imipMoreButton is used, the following should be removed to not
+                        // extend the number of buttons:
+                        data.buttons.push("imipTentativeButton");
+                        data.hideMenuItems.push("imipAcceptButton_Tentative");
+                    }
+                    // Add here data.buttons.push("imipMoreButton") once additional
+                    // options are implemented.
+                    // Use data.hideMenuItems.push("idOfMenuItem") to hide specific menuitems
+                    // from the dropdown menu of a button.  This might be useful to to remove
+                    // a generally available option for a specific invitation, because the
+                    // respective feature is not available for the calendar, the invitation
+                    // is in or the feature is prohibited by the organizer
                     break;
                 }
                 case "CANCEL": {
-                    data.button1.label = _gs("imipCancelInvitation.label");
+                    data.buttons.push("imipCancelledButton");
                     break;
                 }
                 case "REFRESH": {
-                    data.button1.label = _gs("imipSend.label");
+                    data.buttons.push("imipReconfirmButton");
                     break;
                 }
                 default:

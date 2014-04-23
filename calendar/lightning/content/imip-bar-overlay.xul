@@ -34,15 +34,217 @@
                                     collapsed="true"
                                     insertbefore="msgHeaderView"
                                     label="&lightning.imipbar.description;">
-          <button id="imip-button1"
-                  class="imip-button"
-                  hidden="true"/>
-          <button id="imip-button2"
-                  class="imip-button"
-                  hidden="true"/>
-          <button id="imip-button3"
-                  class="imip-button"
-                  hidden="true"/>
+
+          <!-- Some Toolbox implementation notes:
+             -
+             - css style:
+             - classes within toolbox are making use of existing TB css definitions - as used in
+             - /comm-central/source/mail/base/content/msgHdrViewOverlay.xul, only icon defining
+             - classes like imipAcceptButton are noted separately and OS specific within
+             - skin/lightning.css (resp. the OS-specific theme folders)
+             -
+             - The toolbarbuttons will be adjusted dynamically in imip-bar.js based on their
+             - content of menuitems. To avoid breaking this, the following should be considered
+             - if adding/changing toolbarbutton definitions.
+             - general:
+             -    * the toolbarbuttons will appear in order of definition
+             -      within the toolbar if visible
+             -    * must be hidden by default
+             -    * menuitem inside must not be hidden by default
+             - simple button:
+             -    * must not have a type attribute
+             -    * may have menupopup/menuitem within (not displayed though)
+             - dropdown only:
+             -    * must have type=menu
+             -    * should have a menupopup with at least one menuitem
+             - smart-dropdown:
+             -    * must have type=menu-button
+             -    * should have a menupopup with at least one menuitem
+             -    * bubbling up of events from menuitems to toolbarbutton must be prevented
+             -      by adding a trailing "if (event.target.id == this.id) " to the respective
+             -      ltnImipBar.executeAction(...)
+             -    * toolbarbutton's oncommand should end with the first menuitem's oncommand
+             -      to not break automated conforming
+             -      e.g. "if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED');"
+             -      and "ltnImipBar.executeAction('ACCEPTED');"
+             //-->
+          <toolbox id="imip-view-toolbox"
+                   class="inline-toolbox"
+                   defaulticonsize="small"
+                   minwidth="50px"
+                   defaultlabelalign="end"
+                   labelalign="end"
+                   defaultmode="full"
+                   inlinetoolbox="true">
+            <toolbar id="imip-view-toolbar" class="inline-toolbar" align="start"
+                     customizable="false" mode="full"
+                     defaulticonsize="small" defaultmode="full">
+
+              <!-- show event/invitation details -->
+              <toolbarbutton id="imipDetailsButton"
+                             label="&lightning.imipbar.btnDetails.label;"
+                             tooltiptext="&lightning.imipbar.btnDetails.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipDetailsButton"
+                             oncommand="ltnImipBar.executeAction('X-SHOWDETAILS')"
+                             hidden="true"/>
+
+              <!-- add published events -->
+              <toolbarbutton id="imipAddButton"
+                             label="&lightning.imipbar.btnAdd.label;"
+                             tooltiptext="&lightning.imipbar.btnAdd.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipAddButton"
+                             oncommand="ltnImipBar.executeAction()"
+                             hidden="true"/>
+
+              <!-- update published events and invitations -->
+              <toolbarbutton id="imipUpdateButton"
+                             label="&lightning.imipbar.btnUpdate.label;"
+                             tooltiptext="&lightning.imipbar.btnUpdate.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipUpdateButton"
+                             oncommand="ltnImipBar.executeAction()"
+                             hidden="true"/>
+
+              <!-- delete cancelled events from calendar -->
+              <toolbarbutton id="imipDeleteButton"
+                             label="&lightning.imipbar.btnDelete.label;"
+                             tooltiptext="&lightning.imipbar.btnDelete.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipDeleteButton"
+                             oncommand="ltnImipBar.executeAction()"
+                             hidden="true"/>
+
+              <!-- re-confirm partstat -->
+              <toolbarbutton id="imipReconfirmButton"
+                             label="&lightning.imipbar.btnReconfirm.label;"
+                             tooltiptext="&lightning.imipbar.btnReconfirm.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipReconfirmButton"
+                             oncommand="ltnImipBar.executeAction()"
+                             hidden="true"/>
+
+              <!-- accept -->
+              <toolbarbutton id="imipAcceptButton"
+                             tooltiptext="&lightning.imipbar.btnAccept.tooltiptext;"
+                             label="&lightning.imipbar.btnAccept.label;"
+                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED');"
+                             type="menu-button"
+                             class="imip-button toolbarbutton-1 msgHeaderView-button imipAcceptButton"
+                             hidden="true">
+                <menupopup id="imipAcceptDropdown">
+                  <menuitem id="imipAcceptButton_Accept"
+                            tooltiptext="&lightning.imipbar.btnAccept.tooltiptext;"
+                            label="&lightning.imipbar.btnAccept.label;"
+                            oncommand="ltnImipBar.executeAction('ACCEPTED');"/>
+                  <menuitem id="imipAcceptButton_Tentative"
+                            tooltiptext="&lightning.imipbar.btnTentative.tooltiptext;"
+                            label="&lightning.imipbar.btnTentative.label;"
+                            oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
+                  <!-- add here more menuitem as needed -->
+                </menupopup>
+              </toolbarbutton>
+
+              <!-- accept recurrences -->
+              <toolbarbutton id="imipAcceptRecurrencesButton"
+                             tooltiptext="&lightning.imipbar.btnAcceptRecurrences.tooltiptext;"
+                             label="&lightning.imipbar.btnAcceptRecurrences.label;"
+                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED');"
+                             type="menu-button"
+                             class="imip-button toolbarbutton-1 msgHeaderView-button imipAcceptRecurrencesButton"
+                             hidden="true">
+                <menupopup id="imipAcceptRecurrencesDropdown">
+                  <menuitem id="imipAcceptRecurrencesButton_Accept"
+                            tooltiptext="&lightning.imipbar.btnAcceptRecurrences.tooltiptext;"
+                            label="&lightning.imipbar.btnAcceptRecurrences.label;"
+                            oncommand="ltnImipBar.executeAction('ACCEPTED');"/>
+                  <menuitem id="imipAcceptRecurrencesButton_Tentative"
+                            tooltiptext="&lightning.imipbar.btnTentativeRecurrences.tooltiptext;"
+                            label="&lightning.imipbar.btnTentativeRecurrences.label;"
+                            oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
+                  <!-- add here more menuitem as needed -->
+                </menupopup>
+              </toolbarbutton>
+
+              <!-- tentative; should only be used, if no imipMoreButton is used and
+                 - imipDeclineButton/imipAcceptButton have no visible menuitems //-->
+              <toolbarbutton id="imipTentativeButton"
+                             label="&lightning.imipbar.btnTentative.label;"
+                             tooltiptext="&lightning.imipbar.btnTentative.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipTentativeButton"
+                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('TENTATIVE');"
+                             type="menu-button"
+                             hidden="true">
+                <menupopup id="imipTentativeDropdown">
+                  <menuitem id="imipTentativeButton_Tentative"
+                            tooltiptext="&lightning.imipbar.btnTentative.tooltiptext;"
+                            label="&lightning.imipbar.btnTentative.label;"
+                            oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
+                  <!-- add here more menuitem as needed -->
+                </menupopup>
+              </toolbarbutton>
+
+              <!-- tentative recurrences; should only be used, if no imipMoreButton is used and
+                 - imipDeclineRecurrencesButton/imipAcceptRecurrencesButton have no visible menuitems //-->
+              <toolbarbutton id="imipTentativeRecurrencesButton"
+                             label="&lightning.imipbar.btnTentativeRecurrences.label;"
+                             tooltiptext="&lightning.imipbar.btnTentativeRecurrences.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipTentativeRecurrencesButton"
+                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('TENTATIVE');"
+                             type="menu-button"
+                             hidden="true">
+                <menupopup id="imipTentativeRecurrencesDropdown">
+                  <menuitem id="imipTentativeRecurrencesButton_Tentative"
+                            tooltiptext="&lightning.imipbar.btnTentativeRecurrences.tooltiptext;"
+                            label="&lightning.imipbar.btnTentativeRecurrences.label;"
+                            oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
+                  <!-- add here more menuitem as needed -->
+                </menupopup>
+              </toolbarbutton>
+
+              <!-- decline -->
+              <toolbarbutton id="imipDeclineButton"
+                             tooltiptext="&lightning.imipbar.btnDecline.tooltiptext;"
+                             label="&lightning.imipbar.btnDecline.label;"
+                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('DECLINED');"
+                             type="menu-button"
+                             class="toolbarbutton-1 msgHeaderView-button imipDeclineButton"
+                             hidden="true">
+                <menupopup id="imipDeclineDropdown">
+                  <menuitem id="imipDeclineButton_Decline"
+                            tooltiptext="&lightning.imipbar.btnDecline.tooltiptext;"
+                            label="&lightning.imipbar.btnDecline.label;"
+                            oncommand="ltnImipBar.executeAction('DECLINED');"/>
+                  <!-- add here more menuitem as needed -->
+                </menupopup>
+              </toolbarbutton>
+
+              <!-- decline recurrences -->
+              <toolbarbutton id="imipDeclineRecurrencesButton"
+                             tooltiptext="&lightning.imipbar.btnDeclineRecurrences.tooltiptext;"
+                             label="&lightning.imipbar.btnDeclineRecurrences.label;"
+                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('DECLINED');"
+                             type="menu-button"
+                             class="toolbarbutton-1 msgHeaderView-button imipDeclineRecurrencesButton"
+                             hidden="true">
+                <menupopup id="imipDeclineRecurrencesDropdown">
+                  <menuitem id="imipDeclineRecurrencesButton_DeclineAll"
+                            tooltiptext="&lightning.imipbar.btnDeclineRecurrences.tooltiptext;"
+                            label="&lightning.imipbar.btnDeclineRecurrences.label;"
+                            oncommand="ltnImipBar.executeAction('DECLINED');"/>
+                  <!-- add here more menuitem as needed -->
+                </menupopup>
+              </toolbarbutton>
+
+              <!-- more options -->
+              <toolbarbutton id="imipMoreButton"
+                             type="menu"
+                             tooltiptext="&lightning.imipbar.btnMore.tooltiptext;"
+                             label="&lightning.imipbar.btnMore.label;"
+                             class="toolbarbutton-1 msgHeaderView-button imipMoreButton"
+                             hidden="true">
+                <menupopup id="imipMoreDropdown">
+                  <!-- add here a menuitem as needed -->
+                </menupopup>
+              </toolbarbutton>
+            </toolbar>
+          </toolbox>
         </lightning-notification-bar>
       </vbox>
     </vbox>

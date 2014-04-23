@@ -40,7 +40,31 @@
 <!ENTITY lightning.calendarproperties.email.label               "E-Mail:">
 
 <!-- iMIP Bar (meeting support) -->
-<!ENTITY lightning.imipbar.description "This message contains an invitation to an event.">
+<!ENTITY lightning.imipbar.btnAccept.label                                  "Accept">
+<!ENTITY lightning.imipbar.btnAccept.tooltiptext                            "Accept event participation">
+<!ENTITY lightning.imipbar.btnAcceptRecurrences.label                       "Accept all">
+<!ENTITY lightning.imipbar.btnAcceptRecurrences.tooltiptext                 "Accept event participation for all recurrences of the event">
+<!ENTITY lightning.imipbar.btnAdd.label                                     "Add">
+<!ENTITY lightning.imipbar.btnAdd.tooltiptext                               "Add the event to the calendar">
+<!ENTITY lightning.imipbar.btnDecline.label                                 "Decline">
+<!ENTITY lightning.imipbar.btnDecline.tooltiptext                           "Decline event participation">
+<!ENTITY lightning.imipbar.btnDeclineRecurrences.label                      "Decline all">
+<!ENTITY lightning.imipbar.btnDeclineRecurrences.tooltiptext                "Accept event participation for all recurrences of the event">
+<!ENTITY lightning.imipbar.btnDelete.label                                  "Delete">
+<!ENTITY lightning.imipbar.btnDelete.tooltiptext                            "Delete from calendar">
+<!ENTITY lightning.imipbar.btnDetails.label                                 "Details…">
+<!ENTITY lightning.imipbar.btnDetails.tooltiptext                           "Show event details">
+<!ENTITY lightning.imipbar.btnMore.label                                    "More">
+<!ENTITY lightning.imipbar.btnMore.tooltiptext                              "Click to show more options">
+<!ENTITY lightning.imipbar.btnReconfirm.label                               "Send">
+<!ENTITY lightning.imipbar.btnReconfirm.tooltiptext                         "Sends a re-confirmation to the organizer">
+<!ENTITY lightning.imipbar.btnTentative.label                               "Tentative">
+<!ENTITY lightning.imipbar.btnTentative.tooltiptext                         "Accept event participation tentatively">
+<!ENTITY lightning.imipbar.btnTentativeRecurrences.label                    "Tentative all">
+<!ENTITY lightning.imipbar.btnTentativeRecurrences.tooltiptext              "Accept event participation tentatively for all recurrences of the event">
+<!ENTITY lightning.imipbar.btnUpdate.label                                  "Update">
+<!ENTITY lightning.imipbar.btnUpdate.tooltiptext                            "Update event in calendar">
+<!ENTITY lightning.imipbar.description                                      "This message contains an invitation to an event.">
 
 <!-- Lightning specific keybindings -->
 <!ENTITY lightning.keys.event.showCalendar.key "C">

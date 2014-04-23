@@ -205,29 +205,51 @@ radio[pane=paneLightning] {
   -moz-margin-end: -3px !important;
 }
 
-.imip-button[action="ACCEPTED"] {
+.imipAcceptButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
-.imip-button[action="ACCEPTED"]:active {
+.imipAcceptButton:active {
   -moz-image-region: rect(16px 16px 32px 0px);
 }
 
-.imip-button[action="DECLINED"] {
+.imipDeclineButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 32px 16px 16px);
 }
 
-.imip-button[action="DECLINED"]:active {
+.imipDeclineButton:active {
   -moz-image-region: rect(16px 32px 32px 16px);
 }
 
-.imip-button[action="TENTATIVE"] {
+.imipTentativeButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 48px 16px 32px);
 }
 
-.imip-button[action="TENTATIVE"]:active {
+.imipTentativeButton:active {
   -moz-image-region: rect(16px 48px 32px 32px);
 }
+
+/* Are the separate icons for :active state of the imipButtons
+   above still required with the button redesign?
+
+   These buttons may also deserve an icon:
+   .imipDetailsButton
+       (-> open the event or summary dialog)
+   .imipMoreButton
+       (-> dropdown button to offer more options to the user)
+   .imipAddButton
+       (-> add an event to the calendar)
+   .imipUpdateButton
+       (-> ipdate an event in the calendar)
+   .imipDeleteButton
+       (-> delete an event from the calendar)
+   .imipReconfirmButton
+       (-> re-confirm the own participation status on organizer's request)
+   .imipAcceptRecurrencesButton
+   .imipDeclineRecurrencesButton
+   .imipTentativeRecurrencesButton
+       (-> the same functionality as above, but for recurring events)
+*/

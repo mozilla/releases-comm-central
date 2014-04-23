@@ -19,7 +19,7 @@ var ltnImipBar = {
      * Thunderbird Message listener interface, hide the bar before we begin
      */
     onStartHeaders: function onImipStartHeaders() {
-      ltnImipBar.hideBar();
+      ltnImipBar.resetBar();
     },
 
     /**
@@ -42,7 +42,7 @@ var ltnImipBar = {
         // changing folders.
         ltnImipBar.tbHideMessageHeaderPane = HideMessageHeaderPane;
         HideMessageHeaderPane = function ltnHideMessageHeaderPane() {
-            ltnImipBar.hideBar();
+            ltnImipBar.resetBar();
             ltnImipBar.tbHideMessageHeaderPane.apply(null, arguments);
         };
 
@@ -58,7 +58,7 @@ var ltnImipBar = {
         removeEventListener("messagepane-loaded", ltnImipBar.load, true);
         removeEventListener("messagepane-unloaded", ltnImipBar.unload, true);
 
-        ltnImipBar.hideBar();
+        ltnImipBar.resetBar();
         Services.obs.removeObserver(ltnImipBar, "onItipItemCreation");
     },
 
@@ -95,15 +95,79 @@ var ltnImipBar = {
     /**
      * Hide the imip bar and reset the itip item.
      */
-    hideBar: function ltnHideImipBar() {
+    resetBar: function ltnResetImipBar() {
         document.getElementById("imip-bar").collapsed = true;
-        hideElement("imip-button1");
-        hideElement("imip-button2");
-        hideElement("imip-button3");
+        ltnImipBar.resetButtons();
 
         // Clear our iMIP/iTIP stuff so it doesn't contain stale information.
         cal.itip.cleanupItipItem(ltnImipBar.itipItem);
         ltnImipBar.itipItem = null;
+    },
+
+    /**
+     * Resets all buttons and its menuitems, all buttons are hidden thereafter
+     */
+    resetButtons: function ltnResetImipButtons() {
+        let buttons = ltnImipBar.getButtons();
+        buttons.forEach(hideElement);
+        buttons.forEach(function(aButton) ltnImipBar.getMenuItems(aButton).forEach(showElement));
+    },
+
+    /**
+     * Provides a list of all available buttons
+     */
+    getButtons: function ltnGetButtons() {
+        let buttons = [];
+        let nl = document.getElementById("imip-view-toolbar")
+                         .getElementsByTagName("toolbarbutton");
+        if (nl != null && nl.length > 0) {
+            for (let button of nl) {
+                buttons.push(button);
+            }
+        }
+        return buttons;
+    },
+
+    /**
+     * Provides a list of available menuitems of a button
+     *
+     * @param aButton        button node
+     */
+    getMenuItems: function ltnGetMenuItems(aButton) {
+        let items = [];
+        let mitems = document.getElementById(aButton.id)
+                             .getElementsByTagName("menuitem");
+        if (mitems != null && mitems.length > 0) {
+            for (let mitem of mitems) {
+                items.push(mitem);
+            }
+        }
+        return items;
+    },
+
+    /**
+     * Checks and converts button types based on available menuitems of the buttons
+     * to avoid dropdowns which are empty or only replicating the default button action
+     * Should be called once the buttons are set up
+     */
+    conformButtonType: function ltnConformButtonType() {
+        // check only needed on visible and not simple buttons
+        let buttons = ltnImipBar.getButtons()
+                                .filter(function(aElement) aElement.hasAttribute("type") && !aElement.hidden);
+        // change button if appropriate
+        for (let button in buttons) {
+            let items = ltnImipBar.getMenuItems(button).filter(function(aItem) !aItem.hidden);
+            if (button.type == "menu" && items.length == 0) {
+                // hide non functional buttons
+                button.hidden = true;
+            } else if (button.type == "menu-button") {
+                if (items.length == 0 ||
+                    (items.length == 1 && button.oncommand.endsWith(items[0].oncommand))) {
+                   // convert to simple button
+                   button.removeAttribute("type");
+                }
+            }
+        }
     },
 
     /**
@@ -127,20 +191,19 @@ var ltnImipBar = {
         }
 
         imipBar.setAttribute("label", data.label);
-        for each (let button in ["button1", "button2", "button3"]) {
-            let buttonElement = document.getElementById("imip-" + button);
-            if (data[button].label) {
-                buttonElement.setAttribute("label", data[button].label);
-                buttonElement.setAttribute("oncommand",
-                                           "ltnImipBar.executeAction('" + data[button].actionMethod + "')");
-                buttonElement.setAttribute("action", data[button].actionMethod);
 
-                showElement(buttonElement);
-            }
-        }
+        // menu items are visible by default, let's hide what's not available
+        data.hideMenuItems.forEach(function(aElementId) hideElement(document.getElementById(aElementId)));
+        // buttons are hidden by default, let's make required buttons visible
+        data.buttons.forEach(function(aElementId) showElement(document.getElementById(aElementId)));
+        // adjust button style if necessary
+        ltnImipBar.conformButtonType();
     },
 
-    executeAction: function ltnExecAction(partStat) {
+    executeAction: function ltnExecAction(partStat, extendResponse) {
+        if (partStat == null) {
+            partStat = '';
+        }
         if (partStat == "X-SHOWDETAILS") {
             let items = ltnImipBar.foundItems;
             if (items && items.length) {
@@ -148,6 +211,16 @@ var ltnImipBar = {
                 modifyEventWithDialog(item);
             }
         } else {
+            if (extendResponse) {
+                // Open an extended response dialog to enable the user to add a comment, make a
+                // counter proposal, delegate the event or interact in another way.
+                // Instead of a dialog, this might be implemented as a separate container inside the
+                // imip-overlay as proposed in bug 458578
+                //
+                // If implemented as a dialog, the OL compatibility decision should be incorporated
+                // therein too and the itipItems's autoResponse set to auto subsequently
+                // to prevent a second popup during imip transport processing.
+            }
             let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
                                    .getService(Components.interfaces.calIDeletedItems);
             let items = ltnImipBar.itipItem.getItemList({});
@@ -162,9 +235,7 @@ var ltnImipBar = {
 
             if (cal.itip.promptCalendar(ltnImipBar.actionFunc.method, ltnImipBar.itipItem, window)) {
                 // hide the buttons now, to disable pressing them twice...
-                hideElement("imip-button1");
-                hideElement("imip-button2");
-                hideElement("imip-button3");
+                ltnImipBar.resetButtons();
 
                 let opListener = {
                     onOperationComplete: function ltnItipActionListener_onOperationComplete(aCalendar,
