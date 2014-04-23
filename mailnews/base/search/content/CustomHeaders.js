@@ -72,6 +72,8 @@ function onOk()
   {
     Services.prefs.clearUserPref("mailnews.customHeaders"); //clear the pref, no custom headers
   }
+
+  window.arguments[0].selectedVal = gHdrsList.selectedItem ? gHdrsList.selectedItem.label : null;
   return true;
 }
 
