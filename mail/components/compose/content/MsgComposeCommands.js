@@ -884,12 +884,18 @@ var attachmentBucketController = {
 /**
  * Start composing a new message.
  */
-function goOpenNewMessage()
+function goOpenNewMessage(aEvent)
 {
+  // If aEvent is passed, check if Shift key was pressed for composition in
+  // non-default format (HTML vs. plaintext).
+  let msgCompFormat = (aEvent && aEvent.shiftKey) ? 
+    Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
+    Components.interfaces.nsIMsgCompFormat.Default;
+
   let identity = getCurrentIdentity();
   MailServices.compose.OpenComposeWindow(null, null, null,
     Components.interfaces.nsIMsgCompType.New,
-    Components.interfaces.nsIMsgCompFormat.Default, identity, null);
+    msgCompFormat, identity, null);
 }
 
 function QuoteSelectedMessage()

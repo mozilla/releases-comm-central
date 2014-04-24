@@ -256,7 +256,8 @@ function ReadMessages()
 // Trigger composer for a new message
 function ComposeAMessage(event)
 {
-    window.parent.MsgNewMessage(null);
+    // Pass event to allow holding Shift key for toggling HTML vs. plaintext format
+    window.parent.MsgNewMessage(event);
 }
 
 /**
