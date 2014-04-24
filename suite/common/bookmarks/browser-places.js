@@ -725,7 +725,7 @@ var PlacesStarButton = {
       delete this._pendingStmt;
     }
 
-    this._pendingStmt = PlacesUtils.asyncGetBookmarkIds(this._uri, function (aItemIds, aURI) {
+    this._pendingStmt = PlacesUtils.asyncGetBookmarkIds(this._uri, (aItemIds, aURI) => {
       // Safety check that the bookmarked URI equals the tracked one.
       if (!aURI.equals(this._uri)) {
         Components.utils.reportError("PlacesStarButton did not receive current URI");
@@ -751,7 +751,7 @@ var PlacesStarButton = {
       }
 
       delete this._pendingStmt;
-    }, this);
+    });
   },
 
   _updateStateInternal: function PSB__updateStateInternal()
