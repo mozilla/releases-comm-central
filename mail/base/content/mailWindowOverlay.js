@@ -919,12 +919,15 @@ function InitMessageTags(menuPopup)
   for (var i = 0; i < tagCount; ++i)
   {
     var taginfo = tagArray[i];
+    let removeKey = (" " + curKeys + " ").contains(" " + taginfo.key + " ");
+    if (taginfo.ordinal.contains("~AUTOTAG") && !removeKey)
+      continue;
+
     // TODO we want to either remove or "check" the tags that already exist
     var newMenuItem = document.createElement("menuitem");
     SetMessageTagLabel(newMenuItem, i + 1, taginfo.tag);
     newMenuItem.setAttribute("value", taginfo.key);
     newMenuItem.setAttribute("type", "checkbox");
-    let removeKey = (" " + curKeys + " ").contains(" " + taginfo.key + " ");
     newMenuItem.setAttribute('checked', removeKey);
     newMenuItem.setAttribute('oncommand', 'ToggleMessageTagMenu(event.target);');
     var color = taginfo.color;
