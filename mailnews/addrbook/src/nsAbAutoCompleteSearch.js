@@ -120,7 +120,8 @@ nsAbAutoCompleteSearch.prototype = {
   },
 
   /**
-   * Searches cards in the given directory. If a card is matched (and isn't
+   * Searches cards in the given directory. It is not expected to search against
+   * email addresses (use _searchWithinEmails). If a card is matched (and isn't
    * a mailing list) then the function will add a result for each email address
    * that exists.
    *
@@ -156,32 +157,85 @@ nsAbAutoCompleteSearch.prototype = {
   },
 
   /**
+   * Searches for cards in a directory matching against email addresses only.
+   * When matches are found it will add them to the results.
+   *
+   * @param searchQuery  The boolean search query to use.
+   * @param fullString   The full string that is being searched against. This
+   *                     is used as a "contains" check against the full email
+   *                     addresses to ensure all matching results are added.
+   *                     This value should be passed in lower case.
+   * @param directory    An nsIAbDirectory to search.
+   * @param result       The result element to append results to.
+   */
+  _searchWithinEmails: function _searchWithinEmails(searchQuery, fullString,
+                                                    directory, result) {
+    let childCards =
+      this._abManager.getDirectory(directory.URI + searchQuery).childCards;
+
+    // Cache this values to save going through xpconnect each time
+    let commentColumn = this._commentColumn == 1 ? directory.dirName : "";
+
+    // Now iterate through all the cards.
+    while (childCards.hasMoreElements()) {
+      let card = childCards.getNext();
+
+      if (card instanceof Components.interfaces.nsIAbCard) {
+        if (card.isMailList)
+          this._addToResult(commentColumn, directory, card, "", false, result);
+        else {
+          let email = card.primaryEmail;
+          if (email && email.toLocaleLowerCase().contains(fullString))
+            this._addToResult(commentColumn, directory, card, email, true, result);
+
+          email = card.getProperty("SecondEmail", "");
+          if (email && email.toLocaleLowerCase().contains(fullString))
+            this._addToResult(commentColumn, directory, card, email, false, result);
+        }
+      }
+    }
+  },
+
+  /**
    * Checks a card against the search parameters to see if it should be
    * included in the result.
    *
-   * @param aCard        The card to check.
-   * @param aEmailToUse  The email address to check against.
-   * @param aSearchWords Array of words in the multi word search string.
-   * @return             True if the card matches the search parameters, false
-   *                     otherwise.
+   * @param card        The card to check.
+   * @param emailToUse  The email address to check against.
+   * @param fullString  The full search string.
+   * @param firstWord   The first word of the search string.
+   * @param rest        Anything after the first word.
+   * @return            True if the card matches the search parameters, false
+   *                    otherwise.
    */
-  _checkEntry: function _checkEntry(aCard, aEmailToUse, aSearchWords) {
+  _checkEntry: function _checkEntry(card, emailToUse, fullString, firstWord,
+                                    rest) {
     var i;
-    // Joining values of many fields in a single string so that a single
-    // search query can be fired on all of them at once. Separating them
-    // using spaces so that field1=> "abc" and field2=> "def" on joining
-    // shouldn't return true on search for "bcd".
-    let cumulativeFieldText = aCard.displayName + " " +
-                              aCard.firstName + " " +
-                              aCard.lastName + " " +
-                              aEmailToUse + " " +
-                              aCard.getProperty("NickName", "");
-    if (aCard.isMailList)
-      cumulativeFieldText += " " + aCard.getProperty("Notes", "");
-    cumulativeFieldText = cumulativeFieldText.toLocaleLowerCase();
+    if (card.isMailList) {
+      return card.displayName.toLocaleLowerCase().contains(fullString) ||
+        card.getProperty("Notes", "").toLocaleLowerCase().contains(fullString) ||
+        card.getProperty("NickName", "").toLocaleLowerCase().contains(fullString);
+    }
 
-    return aSearchWords.every(String.prototype.contains,
-                              cumulativeFieldText);
+    var firstName = card.firstName.toLocaleLowerCase();
+    var lastName = card.lastName.toLocaleLowerCase();
+    if (card.displayName.toLocaleLowerCase().contains(fullString) ||
+        firstName.contains(fullString) ||
+        lastName.contains(fullString) ||
+        emailToUse.toLocaleLowerCase().contains(fullString))
+      return true;
+
+    if (firstWord && rest &&
+        ((firstName.contains(firstWord) &&
+          lastName.contains(rest)) ||
+         (firstName.contains(rest) &&
+          lastName.contains(firstWord))))
+      return true;
+
+    if (card.getProperty("NickName", "").toLocaleLowerCase().contains(fullString))
+      return true;
+
+    return false;
   },
 
   /**
@@ -294,26 +348,34 @@ nsAbAutoCompleteSearch.prototype = {
       return;
     }
 
-    let fullString = aSearchString.trim().toLocaleLowerCase();
-    // If the search string is empty, or contains a comma, or the user
-    // hasn't enabled autocomplete, then just return no matches or the
+    // If the search string isn't value, or contains a comma, or the user
+    // hasn't enabled autocomplete, then just return no matches / or the
     // result ignored.
     // The comma check is so that we don't autocomplete against the user
     // entering multiple addresses.
-    if (!fullString || aSearchString.contains(",")) {
+    if (!aSearchString || aSearchString.contains(",")) {
       result.searchResult = ACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
     }
 
-    // Array of all the terms from the fullString search query
-    // (separated on the basis of spaces).
-    let searchWords = fullString.split(/\s+/);
-
     // Find out about the comment column
     try {
       this._commentColumn = Services.prefs.getIntPref("mail.autoComplete.commentColumn");
     } catch(e) { }
+
+    // Craft this by hand - we want the first item to contain the full string,
+    // the second item with just the first word, and the third item with
+    // anything after the first word.
+    var fullString = aSearchString.toLocaleLowerCase();
+    var firstWord = "";
+    var rest = "";
+    var pos = fullString.indexOf(" ");
+
+    if (pos != -1) {
+      firstWord = fullString.substr(0, pos);
+      rest = fullString.substr(pos + 1, fullString.length - pos - 1);
+    }
 
     if (aPreviousResult instanceof nsIAbAutoCompleteResult &&
         aSearchString.startsWith(aPreviousResult.searchString) &&
@@ -322,7 +384,8 @@ nsAbAutoCompleteSearch.prototype = {
       // list and reduce as appropriate
       for (var i = 0; i < aPreviousResult.matchCount; ++i) {
         if (this._checkEntry(aPreviousResult.getCardAt(i),
-                             aPreviousResult.getEmailToUse(i), searchWords))
+                             aPreviousResult.getEmailToUse(i), fullString,
+                             firstWord, rest))
           // If it matches, just add it straight onto the array, these will
           // already be in order because the previous search returned them
           // in the correct order.
@@ -340,18 +403,22 @@ nsAbAutoCompleteSearch.prototype = {
       // Construct the search query; using a query means we can optimise
       // on running the search through c++ which is better for string
       // comparisons (_checkEntry is relatively slow).
-      // When user's fullstring search expression is a multiword query, search
-      // for each word separately so that each result contains all the words
-      // from the fullstring in the fields of the addressbook card
-      // (see bug 558931 for explanations).
-      let searchQuery = "";
-      let modelQuery = "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)" +
-                       "(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)" +
-                       "(and(IsMailList,=,TRUE)(Notes,c,@V)))";
-      for (let searchWord of searchWords) {
-        searchQuery += modelQuery.replace(/@V/g, encodeURIComponent(searchWord));
+      let searchQuery = "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)(NickName,c,@V)(and(IsMailList,=,TRUE)(Notes,c,@V)))";
+      searchQuery = searchQuery.replace(/@V/g, encodeURIComponent(fullString));
+
+      if (firstWord && rest) {
+        let searchFNLNPart = "(or(and(FirstName,c,@V1)(LastName,c,@V2))(and(FirstName,c,@V2)(LastName,c,@V1)))";
+        searchFNLNPart = searchFNLNPart.replace(/@V1/g, encodeURIComponent(firstWord));
+        searchFNLNPart = searchFNLNPart.replace(/@V2/g, encodeURIComponent(rest));
+
+        searchQuery = "(or" + searchQuery + searchFNLNPart + ")";
       }
-      searchQuery = "?(and" + searchQuery + ")";
+
+      searchQuery = "?" + searchQuery;
+
+      let emailSearchQuery = "?(or(PrimaryEmail,c,@V)(SecondEmail,c,@V))";
+      emailSearchQuery = emailSearchQuery.replace(/@V/g, encodeURIComponent(fullString));
+
       // Now do the searching
       var allABs = this._abManager.directories;
 
@@ -364,6 +431,7 @@ nsAbAutoCompleteSearch.prototype = {
         if (dir instanceof Components.interfaces.nsIAbDirectory &&
             dir.useForAutocomplete(params.idKey)) {
           this._searchCards(searchQuery, dir, result);
+          this._searchWithinEmails(emailSearchQuery, fullString, dir, result);
         }
       }
     }
