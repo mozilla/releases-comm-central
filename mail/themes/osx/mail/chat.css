@@ -19,14 +19,18 @@
 }
 
 .statusMessageToolbarItem {
+  height: 22px;
   -moz-margin-start: -3px;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
   padding-bottom: 3px;
 }
 
 #chat-status-selector:hover > .statusMessageToolbarItem,
+#chat-status-selector > .statusMessageToolbarItem[editing],
 .statusMessageToolbarItem:focus {
   border-color: #AAAAAA;
+  box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5),
+              0px 1px 0px rgba(255, 255, 255, 0.5) inset;
 }
 
 #chat-status-selector > .statusMessageToolbarItem[editing] {
