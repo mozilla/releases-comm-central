@@ -585,7 +585,7 @@ function OpenInFolder()
 
 function saveAsVirtualFolder()
 {
-  var searchFolderURIs = window.arguments[0].folder.URI;
+  var searchFolderURIs = gCurrentFolder.URI;
 
   var searchSubfolders = document.getElementById("checkSearchSubFolders").checked;
   if (gCurrentFolder && (searchSubfolders || gCurrentFolder.isServer || gCurrentFolder.noSelect))
