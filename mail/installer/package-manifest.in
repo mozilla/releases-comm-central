@@ -209,7 +209,6 @@
 @BINPATH@/components/nsActivityManager.js
 @BINPATH@/components/nsActivityManagerUI.js
 @BINPATH@/components/nsHightail.js
-@BINPATH@/components/nsUbuntuOne.js
 @BINPATH@/components/nsBox.js
 @BINPATH@/components/nsAddrbook.manifest
 @BINPATH@/components/nsMailNewsCommandLineHandler.js

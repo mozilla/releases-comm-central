@@ -3,10 +3,6 @@ contract @mozilla.org/mail/hightail;1 {dd2bce44-ca71-42ce-b806-6fa4e073919c}
 # Hightail used to be named YouSendIt, which is the constant used in the prefs.
 category cloud-files YouSendIt @mozilla.org/mail/hightail;1
 
-component {9a44742b-a7b1-4f44-919e-6f3b28902c1a} nsUbuntuOne.js
-contract @mozilla.org/mail/ubuntuone;1 {9a44742b-a7b1-4f44-919e-6f3b28902c1a}
-category cloud-files UbuntuOne @mozilla.org/mail/ubuntuone;1
-
 component {c06a8707-7463-416c-8b39-e85044a4ff6e} nsBox.js
 contract @mozilla.org/mail/box;1 {c06a8707-7463-416c-8b39-e85044a4ff6e}
 category cloud-files Box @mozilla.org/mail/box;1

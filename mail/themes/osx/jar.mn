@@ -339,7 +339,6 @@ classic.jar:
   skin/classic/messenger/newmailaccount/success-compose.png      (mail/newmailaccount/success-compose.png)
   skin/classic/messenger/newmailaccount/success-signature.png    (mail/newmailaccount/success-signature.png)
   skin/classic/messenger/newmailaccount/search.png               (mail/newmailaccount/search.png)
-  skin/classic/messenger/icons/ubuntuone.png                     (mail/icons/ubuntuone.png)
   skin/classic/messenger/icons/hightail.png                      (mail/icons/hightail.png)
   skin/classic/messenger/icons/expander-closed.png               (mail/icons/expander-closed.png)
   skin/classic/messenger/icons/expander-closed-active.png        (mail/icons/expander-closed-active.png)
