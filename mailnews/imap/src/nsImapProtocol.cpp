@@ -93,6 +93,36 @@ static int32_t gPromoteNoopToCheckCount = 0;
 static const uint32_t kFlagChangesBeforeCheck = 10;
 static const int32_t kMaxSecondsBeforeCheck = 600;
 
+class AutoProxyReleaseMsgWindow
+{
+  public:
+    AutoProxyReleaseMsgWindow()
+      : mMsgWindow()
+    {}
+    ~AutoProxyReleaseMsgWindow()
+    {
+      nsCOMPtr<nsIThread> thread = do_GetMainThread();
+      NS_ProxyRelease(thread, mMsgWindow);
+    }
+    nsIMsgWindow** StartAssignment()
+    {
+      MOZ_ASSERT(!mMsgWindow);
+      return &mMsgWindow;
+    }
+    operator nsIMsgWindow*()
+    {
+      return mMsgWindow;
+    }
+  private:
+    nsIMsgWindow* mMsgWindow;
+};
+
+nsIMsgWindow**
+getter_AddRefs(AutoProxyReleaseMsgWindow& aSmartPtr)
+{
+  return aSmartPtr.StartAssignment();
+}
+
 NS_IMPL_ISUPPORTS1(nsMsgImapHdrXferInfo, nsIImapHeaderXferInfo)
 
 nsMsgImapHdrXferInfo::nsMsgImapHdrXferInfo()
@@ -6914,7 +6944,7 @@ void nsImapProtocol::FolderRenamed(const char *oldName,
     m_runningUrl->AllocateCanonicalPath(newName,
       onlineDelimiter,
       getter_Copies(canonicalNewName));
-    nsCOMPtr<nsIMsgWindow> msgWindow;
+    AutoProxyReleaseMsgWindow msgWindow;
     GetMsgWindow(getter_AddRefs(msgWindow));
     m_imapServerSink->OnlineFolderRename(msgWindow, canonicalOldName, canonicalNewName);
   }
@@ -8159,7 +8189,7 @@ nsresult nsImapProtocol::GetPassword(nsCString &password,
   rv = server->GetPassword(password);
   if (NS_FAILED(rv) || password.IsEmpty())
   {
-    nsCOMPtr<nsIMsgWindow> msgWindow;
+    AutoProxyReleaseMsgWindow msgWindow;
     GetMsgWindow(getter_AddRefs(msgWindow));
     NS_ENSURE_TRUE(msgWindow, NS_ERROR_NOT_AVAILABLE); // biff case
 
@@ -8322,7 +8352,7 @@ bool nsImapProtocol::TryToLogon()
   // remember the msgWindow before we start trying to logon, because if the
   // server drops the connection on errors, TellThreadToDie will null out the
   // protocolsink and we won't be able to get the msgWindow.
-  nsCOMPtr<nsIMsgWindow> msgWindow;
+  AutoProxyReleaseMsgWindow msgWindow;
   GetMsgWindow(getter_AddRefs(msgWindow));
 
   // This loops over 1) auth methods (only one per loop) and 2) password tries (with UI)
