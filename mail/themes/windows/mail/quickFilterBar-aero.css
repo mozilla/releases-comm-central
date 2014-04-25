@@ -1,13 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
+
 @import url("chrome://messenger/content/quickFilterBar.css");
 
 /* :::: Filter Tab Bar Button :::: */
 
 #qfb-show-filter-bar {
-  -moz-appearance: none;
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
   -moz-image-region: rect(1px, 377px, 17px, 361px);
 }
@@ -38,11 +37,14 @@
   padding-bottom: 3px;
 }
 
-@media (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   #quick-filter-bar {
     background: #f8f8f8;
   }
+}
 
+@media (-moz-windows-default-theme) {
   #threadTree[filterActive="searching"] {
     background-color: #ffffcc;
   }
@@ -60,35 +62,42 @@
 /* :::: Filter Buttons :::: */
 
 #quick-filter-bar toolbarbutton {
-  -moz-appearance: none;
   min-height: 19px;
-  border-radius: 2px;
   border: 1px solid transparent;
   padding: 1px 3px;
   -moz-margin-start: 1px;
   -moz-margin-end: 1px;
 }
 
-#quick-filter-bar toolbarbutton:not(.qfb-tag-button) {
-  color: ButtonText;
+@media (-moz-os-version: windows-vista),
+       (-moz-os-version: windows-win7) {
+  #quick-filter-bar toolbarbutton {
+    -moz-appearance: none;
+    border-radius: 2px;
+  }
+
+  #quick-filter-bar toolbarbutton:not(.qfb-tag-button) {
+    color: ButtonText;
+  }
+
+  #quick-filter-bar toolbarbutton:not([checked="true"]):hover {
+    border-top-color: ButtonHighlight;
+    -moz-border-start-color: ButtonHighlight;
+    border-bottom-color: ButtonShadow;
+    -moz-border-end-color: ButtonShadow;
+  }
+
+  #quick-filter-bar toolbarbutton:hover:active,
+  #quick-filter-bar toolbarbutton[checked="true"] {
+    border-top-color: ButtonShadow;
+    -moz-border-start-color: ButtonShadow;
+    border-bottom-color: ButtonHighlight;
+    -moz-border-end-color: ButtonHighlight;
+  }
 }
 
-#quick-filter-bar toolbarbutton:not([checked="true"]):hover {
-  border-top-color: ButtonHighlight;
-  -moz-border-start-color: ButtonHighlight;
-  border-bottom-color: ButtonShadow;
-  -moz-border-end-color: ButtonShadow;
-}
-
-#quick-filter-bar toolbarbutton:hover:active,
-#quick-filter-bar toolbarbutton[checked="true"] {
-  border-top-color: ButtonShadow;
-  -moz-border-start-color: ButtonShadow;
-  border-bottom-color: ButtonHighlight;
-  -moz-border-end-color: ButtonHighlight;
-}
-
-@media (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   #quick-filter-bar toolbarbutton:not([checked="true"]):hover {
     background-image: linear-gradient(rgba(255, 255, 255, .8),
                       rgba(255, 255, 255, .45) 49%, rgba(255, 255, 255, .35) 51%,
@@ -198,22 +207,16 @@
   -moz-appearance: none;
   background-clip: padding-box;
   border: 1px solid ThreeDShadow;
-  border-radius: 2px;
 }
 
-@media (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   #qfb-qs-textbox {
+    border-radius: 2px;
     border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
                   hsla(210, 54%, 20%, .3);
     box-shadow: 0 1px hsla(0, 0%, 0%, .01) inset,
                 0 1px hsla(0, 0%, 100%, .1);
-  }
-}
-
-@media (-moz-windows-compositor) {
-  #qfb-qs-textbox {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
   }
 
   #qfb-qs-textbox:not([focused]):hover {
@@ -224,5 +227,24 @@
   #qfb-qs-textbox[focused] {
     border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
                   hsla(206, 100%, 50%, .65);
+  }
+}
+
+/* Win8 and beyond. */
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #qfb-qs-textbox:not(:-moz-lwtheme) {
+    background-color: hsla(0, 0%, 100%, .9);
+    border: 1px solid transparent;
+    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
+                  hsla(210, 54%, 20%, .3);
+    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
+                0 1px 0 hsla(0, 0%, 100%, .1);
+    transition-property: border-color, background-color;
+    transition-duration: 200ms;
+  }
+
+  #qfb-qs-textbox:not(:-moz-lwtheme)[focused] {
+    background-color: hsla(0, 0%, 100%, 1);
+    border-color: #4595e5;
   }
 }

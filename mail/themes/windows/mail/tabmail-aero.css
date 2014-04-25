@@ -52,7 +52,8 @@
   }
 }
 
-@media (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   .tab-background-middle[selected=true]:not(:-moz-lwtheme) {
     background-color: var(--customToolbarColor);
   }
