@@ -4,7 +4,8 @@
 
 %include abContactsPanel.css
 
-@media (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   #abContactsPanel {
     -moz-appearance: none;
     background-color: hsl(210, 75%, 92%);
@@ -29,8 +30,15 @@
     -moz-appearance: none;
     margin: 1px 4px;
     padding: 1px 5px !important;
-    border-radius: 2px;
     border: 1px solid;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  button,
+  #addressbookList {
+    border-radius: 2px;
     background-image: linear-gradient(hsla(0, 0%, 100%, .6),
                       hsla(0, 0%, 100%, .1));
     background-color: hsla(210, 32%, 93%, .2);
@@ -63,14 +71,33 @@
                 0 0 1px hsla(210, 54%, 20%, .2) inset,
                 0 1px 0 hsla(210, 54%, 20%, 0),
                 0 0 2px hsla(210, 54%, 20%, 0);
-    text-shadow: none;
     transition: none;
   }
+}
 
-  .menulist-dropmarker {
-    -moz-appearance: none;
-    border:none;
-    background-color: transparent;
-    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  button,
+  #addressbookList {
+    background-color: hsla(210, 4%, 10%, .08);
+    border-color: hsla(210, 4%, 10%, .1);
+    transition-property: background-color, border-color;
+    transition-duration: 150ms;
+  }
+
+  button:hover,
+  #addressbookList:not([open="true"]):hover {
+    background-color: hsla(210, 4%, 10%, .1);
+    border-color: hsla(210, 4%, 10%, .2);
+  }
+
+  button:hover:active,
+  #addressbookList[open="true"] {
+    background-color: hsla(210, 4%, 10%, .12);
+    border-color: hsla(210, 4%, 10%, .2);
+    box-shadow: 0 1px 1px hsla(210, 4%, 10%, .1) inset,
+                0 0 1px hsla(210, 4%, 10%, .2) inset,
+                0 1px 0 hsla(210, 4%, 10%, 0),
+                0 0 2px hsla(210, 4%, 10%, 0);
+    transition: none;
   }
 }
