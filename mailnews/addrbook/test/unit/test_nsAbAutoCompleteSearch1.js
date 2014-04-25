@@ -70,8 +70,8 @@ const lists = [ { search: "li", expected: [5, 0, 1, 2, 3, 4, 6, 7, 8] },
                 { search: "abcdef", expected: [9] } // Bug 441586
               ];
 
-const bothNames = [ { search: "f l",            expected: [5, 0, 1, 2, 3, 4] },
-                    { search: "l f",            expected: [5, 0, 1, 2, 3, 4] },
+const bothNames = [ { search: "f l",            expected: [5, 0, 1, 2, 3, 4, 9] },
+                    { search: "l f",            expected: [5, 0, 1, 2, 3, 4, 9] },
                     { search: "firstn lastna",  expected: [5] },
                     { search: "lastna firstna", expected: [5] } ];
 

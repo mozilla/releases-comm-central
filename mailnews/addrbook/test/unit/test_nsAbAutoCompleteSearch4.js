@@ -39,8 +39,10 @@ const cards = [
 const searches = [ "primary", "second", "firstName", "thename", "sortbasic",
                    "testsort", "2testsort", "3testsort" ];
 
-const expectedResults = [ [ "primary@test.invalid" ],
-                          [ "second@test.invalid" ],
+const expectedResults = [ [ "primary@test.invalid",
+                            "second@test.invalid" ], // searching for primary/second returns
+                          [ "primary@test.invalid",  // both the emails as the new search query
+                            "second@test.invalid" ], // looks in both the fields.
                           [ "test1@test.invalid",
                             "test2@test.invalid" ],
                           [ "name@test.invalid",
