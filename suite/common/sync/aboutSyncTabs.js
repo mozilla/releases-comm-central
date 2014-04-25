@@ -245,7 +245,7 @@ let RemoteTabViewer = {
 };
 
 let EventDirector = {
-  handleEvent: function EventDirector_handleEvent(event) {
+  handleEvent: function(event) {
     switch (event.type) {
       case "click":
         RemoteTabViewer.handleClick(event);
@@ -277,7 +277,7 @@ let EventDirector = {
   }
 };
 
-window.onload = function window_onload() {
+window.onload = function() {
   RemoteTabViewer.init();
 
   let tabsList = document.getElementById("tabsList");
@@ -290,6 +290,6 @@ window.onload = function window_onload() {
           .addEventListener("command", EventDirector);
 }
 
-window.onunload = function window_onunload() {
+window.onunload = function() {
   RemoteTabViewer.uninit();
 }
