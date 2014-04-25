@@ -59,6 +59,10 @@ imconv[attention] {
   color: blue;
 }
 
+.conv-hbox {
+  -moz-box-align: center;
+}
+
 /* From instantbird/themes/blist.css */
 .contactStatusText,
 .convStatusText {
