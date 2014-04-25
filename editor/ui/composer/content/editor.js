@@ -1321,8 +1321,15 @@ function EditorDblClick(event)
     // Only bring up properties if clicked on an element or selected link
     var element;
     try {
-      element = event.explicitOriginalTarget.QueryInterface(
+      if (gEditorDisplayMode == kDisplayModeAllTags)
+        element = event.explicitOriginalTarget.QueryInterface(
                     Components.interfaces.nsIDOMElement);
+      else
+        element = event.rangeParent.childNodes[event.rangeOffset];
+
+      // Don't fire for <br>, it counts as double-clicking text.
+      if (element.nodeName.toLowerCase() == 'br')
+        element = null;
     } catch (e) {}
 
      //  We use "href" instead of "a" to not be fooled by named anchor
