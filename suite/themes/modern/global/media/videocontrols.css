@@ -53,17 +53,6 @@ button {
   min-height: 0px;
 }
 
-.volumeStack {
-  width: 28px;
-  height: 70px;
-  background-color: #989EA6;
-  /* use negative margin to place stack over the mute button to its left. */
-  margin: -70px 3px 28px -31px;
-  overflow: hidden; /* crop it when sliding down, don't grow the control bar */
-  position: relative; /* Trick to work around negative margin interfering with dragging the thumb. */
-  padding-top: 6px;
-}
-
 /* .progress-bar is an element inside the <progressmeter> implementation. */
 .bufferBar > .progress-bar {
   background-color: #B1BBC5;
@@ -85,7 +74,7 @@ button {
 }
 
 .volumeControl {
-  min-height: 64px;
+  width: 32px;
 }
 
 /* .scale-thumb is an element inside the <scale> implementation. */
@@ -98,16 +87,18 @@ button {
   -moz-border-right-colors: #000000;
   -moz-border-bottom-colors: #000000;
   -moz-border-left-colors: #000000;
-  border-radius: 5px;
-  min-height: 11px;
-  min-width: 20px;
+  border-radius: 4px;
+  min-height: 20px;
+  min-width: 8px;
 }
 
-.volumeBackgroundBar {
-  /* margin left/right: make bar 8px wide (control width = 28, minus 2 * 10 margin) */
-  margin: 0px 10px;
-  background-color: #B1BBC5;
-  border-radius: 4px;
+/* Draws a right-angled triangle. */
+.volumeBackground {
+  margin: 6px 0px;
+  border: 0px solid transparent;
+  border-top-width: 16px;
+  -moz-border-end-width: 32px;
+  -moz-border-end-color: #B1BBC5;
 }
 
 .durationBox {
