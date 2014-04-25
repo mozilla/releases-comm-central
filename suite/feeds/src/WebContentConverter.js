@@ -370,7 +370,7 @@ WebContentConverterRegistrar.prototype = {
       // Inside the private browsing mode, we don't want to alert the user to save
       // a protocol handler.  We log it to the error console so that web developers
       // would have some way to tell what's going wrong.
-      Service.console.logStringMessage("Web page denied access to register a protocol handler inside private browsing mode");
+      Services.console.logStringMessage("Web page denied access to register a protocol handler inside private browsing mode");
       return;
     }
 
@@ -379,9 +379,8 @@ WebContentConverterRegistrar.prototype = {
     var handler = Services.io.getProtocolHandler(aProtocol);
     if (!(handler instanceof Components.interfaces.nsIExternalProtocolHandler)) {
       // This is handled internally, so we don't want them to register
-      // XXX this should be a "security exception" according to spec, but that
-      // isn't defined yet.
-      throw("Permission denied to add " + aURIString + " as a protocol handler");
+      Services.console.logStringMessage("Permission denied to add " + aURIString + " as a protocol handler");
+      return;
     }
 
     // check if it is in the black list
@@ -393,8 +392,8 @@ WebContentConverterRegistrar.prototype = {
       allowed = Services.prefs.getBoolPref(PREF_HANDLER_EXTERNAL_PREFIX + "-default");
     }
     if (!allowed) {
-      // XXX this should be a "security exception" according to spec
-      throw("Not allowed to register a protocol handler for " + aProtocol);
+      Services.console.logStringMessage("Not allowed to register a protocol handler for " + aProtocol);
+      return;
     }
 
     var uri = this._checkAndGetURI(aURIString, aContentWindow);
