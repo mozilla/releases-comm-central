@@ -18,14 +18,17 @@
 
 /* :::::  message in a tab ::::: */
 
-#displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper 
-.main-header-area {
-  background-image: linear-gradient(rgba(255, 255, 255, .5),
-                                    rgba(255, 255, 255, .5) 100%);
+@media not all and (-moz-windows-default-theme) {
+  #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
+  .main-header-area {
+    background-image: linear-gradient(rgba(255, 255, 255, .5),
+                                      rgba(255, 255, 255, .5) 100%);
+  }
 }
 
-@media (-moz-windows-default-theme) {
-  #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
   .main-header-area {
     background-image: none;
     background-color: rgb(233, 239, 245);
@@ -141,7 +144,8 @@
   background-color: -moz-Dialog;
 }
 
-@media (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   #attachmentBar {
     background-color: #eef3fa;
   }
@@ -163,7 +167,7 @@
   margin: 0 !important;
 }
 
-@media (-moz-windows-compositor) {
+@media (-moz-windows-default-theme) and (-moz-windows-compositor) {
   #msgHeaderView {
     background: #f8f8f8;
   }
@@ -207,6 +211,15 @@
 }
 
 @media (-moz-windows-default-theme) {
+  toolbar[mode="icons"] .msgHeaderView-button.toolbarbutton-menubutton-button,
+  toolbar[mode="icons"] .msgHeaderView-button:not([type="menu-button"]) {
+    -moz-padding-start: 3px !important;
+    -moz-padding-end: 3px !important;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   .toolbarbutton-1.msgHeaderView-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
@@ -220,18 +233,32 @@
                 0 0 2px hsla(210, 54%, 20%, .1);
   }
 
-  toolbar[mode="icons"] .msgHeaderView-button.toolbarbutton-menubutton-button,
-  toolbar[mode="icons"] .msgHeaderView-button:not([type="menu-button"]) {
-    -moz-padding-start: 3px !important;
-    -moz-padding-end: 3px !important;
-  }
-
   .msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):not([checked="true"]):not([open="true"]):not(:active):hover {
     border-color: hsla(210, 54%, 20%, .4) hsla(210, 54%, 20%, .45)
                   hsla(210, 54%, 20%, .5);
     background-color: hsla(210, 48%, 96%, .75);
     box-shadow: 0 0 1px hsla(210, 54%, 20%, .1),
                 0 0 2px hsla(210, 54%, 20%, .1);
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  .toolbarbutton-1.msgHeaderView-button,
+  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+    background-color: hsla(210, 4%, 10%, .08);
+    border-color: hsla(210, 4%, 10%, .1);
+  }
+
+  .toolbarbutton-1:not([disabled=true]):-moz-any(:hover,[open]) >
+  .toolbarbutton-menubutton-button,
+  .toolbarbutton-1:not([disabled=true]):-moz-any(:hover,[open]) >
+  .toolbarbutton-menubutton-dropmarker,
+  .toolbarbutton-1:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
+  .toolbarbutton-1:not([buttonover]):not([open]):not(:active):hover >
+  .toolbarbutton-menubutton-dropmarker:not([disabled]) {
+    background-color: hsla(210, 4%, 10%, .1);
+    border-color: hsla(210, 4%, 10%, .2);
   }
 }
 
@@ -371,9 +398,7 @@ toolbarpaletteitem .msgHeaderView-button {
   color: ButtonText;
   background-color: transparent;
   border: 3px solid transparent;
-  margin-top: 1px;
-  margin-bottom: 2px;
-  padding: 0px 3px;
+  margin: 1px 2px 2px;
   border-radius: 4px;
   -moz-border-top-colors: none;
   -moz-border-right-colors: none;
@@ -384,6 +409,11 @@ toolbarpaletteitem .msgHeaderView-button {
 
 .msgHeaderView-flat-button:-moz-system-metric(windows-classic) {
   border: 2px solid transparent;
+}
+
+.msgHeaderView-flat-button > .button-box,
+.msgHeaderView-flat-button > .button-box > .button-menu-dropmarker {
+  -moz-padding-end: 0;
 }
 
 .msgHeaderView-flat-button[type="menu-button"] > .button-menubutton-button {
