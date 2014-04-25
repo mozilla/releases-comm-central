@@ -1,6 +1,8 @@
+%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%endif
 
 %include chat.css
 
@@ -90,10 +92,6 @@
     background-color: -moz-field;
   }
 
-  #listPaneBox {
-    background-color: rgb(238,243,250);
-  }
-
   .convBox {
     background-color: rgb(233,239,245);
   }
@@ -115,25 +113,17 @@
     border-bottom: 1px solid #A9B7C9;
   }
 
-  .conv-nicklist-header,
-  .conv-logs-header-label {
-    background-color: rgb(233,239,245);
-  }
-
   :-moz-any(imconv, imcontact, imgroup) {
     min-height: 1.7em;
     color: -moz-FieldText !important;
     -moz-margin-start: 1px;
     -moz-margin-end: 1px;
-    border-radius: 3px;
     border: 2px solid transparent;
     background-color: transparent;
     background-origin: border-box;
   }
 
   :-moz-any(imconv, imcontact, imgroup)[selected] {
-    background-image: linear-gradient(rgba(190, 190, 190, .1),
-                                      rgba(190, 190, 190, .4));
     background-color: transparent;
     -moz-border-top-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
     -moz-border-right-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
@@ -142,8 +132,6 @@
   }
 
   :-moz-any(imconv, imcontact, imgroup):hover {
-    background-image: linear-gradient(rgba(131, 183, 249, .05),
-                                      rgba(131, 183, 249, .16));
     -moz-border-top-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
     -moz-border-right-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
     -moz-border-left-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
@@ -151,8 +139,6 @@
   }
 
   :-moz-any(imconv, imcontact, imgroup)[selected]:hover {
-    background-image: linear-gradient(rgba(131, 183, 249, .28),
-                                      rgba(131, 183, 249, .50));
     -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
     -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
     -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
@@ -160,8 +146,6 @@
   }
 
   #contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected] {
-    background-image: linear-gradient(rgba(131, 183, 249, .16),
-                                      rgba(131, 183, 249, .375));
     background-color: transparent;
     border: 2px solid transparent;
     -moz-border-top-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
@@ -185,6 +169,77 @@
   #nicklist > listitem {
     border-width: 1px !important;
     outline: none !important;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  #listPaneBox {
+    background-color: rgb(238, 243, 250);
+  }
+
+  .conv-nicklist-header,
+  .conv-logs-header-label {
+    background-color: rgb(233, 239, 245);
+  }
+
+  :-moz-any(imconv, imcontact, imgroup) {
+    border-radius: 3px;
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(190, 190, 190, .1),
+                                      rgba(190, 190, 190, .4));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup):hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .05),
+                                      rgba(131, 183, 249, .16));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .28),
+                                      rgba(131, 183, 249, .50));
+  }
+
+  #contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(131, 183, 249, .16),
+                                      rgba(131, 183, 249, .375));
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  .statusMessageToolbarItem {
+    border-radius: 0;
+  }
+
+  #listPaneBox {
+    background-color: -moz-Dialog;
+  }
+
+  :-moz-any(imconv, imcontact, imgroup) {
+    border-width: 1px;
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(190, 190, 190, .4),
+                                      rgba(190, 190, 190, .4));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup):hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .16),
+                                      rgba(131, 183, 249, .16));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .50),
+                                      rgba(131, 183, 249, .50));
+  }
+
+  #contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(131, 183, 249, .375),
+                                      rgba(131, 183, 249, .375));
+    border-width: 1px;
   }
 }
 
