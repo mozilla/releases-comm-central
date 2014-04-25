@@ -1301,14 +1301,8 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
   {
     PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("PLAIN auth"));
     char plain_string[512];
-    int len = 1; /* first <NUL> char */
-
-    memset(plain_string, 0, 512);
-    PR_snprintf(&plain_string[1], 510, "%s", username.get());
-    len += username.Length();
-    len++; /* second <NUL> char */
-    PR_snprintf(&plain_string[len], 511-len, "%s", password.get());
-    len += password.Length();
+    int len = PR_snprintf(plain_string, sizeof(plain_string), "\0%s\0%s",
+                          username.get(), password.get());
 
     base64Str = PL_Base64Encode(plain_string, len, nullptr);
     PR_snprintf(buffer, sizeof(buffer), "AUTH PLAIN %.256s" CRLF, base64Str);
