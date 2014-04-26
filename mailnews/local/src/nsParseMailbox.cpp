@@ -928,6 +928,8 @@ nsresult nsParseMailMessageState::ParseHeaders ()
   char *buf = m_headers.GetBuffer();
   uint32_t buf_length = m_headers.GetBufferPos();
   char *buf_end = buf + buf_length;
+  MOZ_ASSERT(buf_length > 1 && (buf[buf_length - 1] == '\r' ||
+    buf[buf_length - 1] == '\n'), "Header text should always end in a newline");
   while (buf < buf_end)
   {
     char *colon = PL_strnchr(buf, ':', buf_length);
@@ -1054,7 +1056,7 @@ nsresult nsParseMailMessageState::ParseHeaders ()
 SEARCH_NEWLINE:
     // move past any non terminating characters, rewriting them if folding white space
     // exists
-    while (buf <= buf_end && *buf != '\r' && *buf != '\n')
+    while (buf < buf_end && *buf != '\r' && *buf != '\n')
     {
       if (writeOffset)
         *(buf - writeOffset) = *buf;
@@ -1087,6 +1089,17 @@ SEARCH_NEWLINE:
         buf++;
         writeOffset++;
       }
+
+      // If we get here, the message headers ended in an empty line, like:
+      // To: blah blah blah<CR><LF>  <CR><LF>[end of buffer]. The code below
+      // requires buf to land on a newline to properly null-terminate the
+      // string, so back up a tad so that it is pointing to one.
+      if (buf == buf_end)
+      {
+        --buf;
+        MOZ_ASSERT(*buf == '\n' || *buf == '\r',
+          "Header text should always end in a newline.");
+      }
       goto SEARCH_NEWLINE;
     }
 
@@ -1094,7 +1107,7 @@ SEARCH_NEWLINE:
     {
       value = colon + 1;
       // eliminate trailing blanks after the colon
-      while (*value == ' ' || *value == '\t')
+      while (value < (buf - writeOffset) && (*value == ' ' || *value == '\t'))
         value++;
 
       header->value = value;
@@ -1106,7 +1119,7 @@ SEARCH_NEWLINE:
     {
       char *last = buf - writeOffset;
       char *saveBuf = buf;
-      if (*buf == '\r' && buf[1] == '\n')
+      if (*buf == '\r' && buf + 1 < buf_end && buf[1] == '\n')
         buf++;
       buf++;
       // null terminate the left-over slop so we don't confuse msg filters.
@@ -1153,6 +1166,9 @@ SEARCH_NEWLINE:
           }
         }
       }
+
+      MOZ_ASSERT(header->value[header->length] == 0,
+        "Non-null-terminated strings cause very, very bad problems");
     }
   }
   return NS_OK;
