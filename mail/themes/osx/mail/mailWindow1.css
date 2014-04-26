@@ -430,6 +430,11 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
     width: 16px;
     height: 16px;
   }
+
+  treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
+    width: 13px;
+    height: 13px;
+  }
 }
 
 /* ::::: group rows ::::: */
