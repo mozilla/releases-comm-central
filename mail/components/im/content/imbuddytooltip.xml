@@ -15,7 +15,7 @@
       <stylesheet src="chrome://messenger/content/chat/imbuddytooltip.css"/>
       <stylesheet src="chrome://messenger/skin/imBuddytooltip.css"/>
     </resources>
-    <content noautohide="true" orient="horizontal">
+    <content noautohide="true" orient="vertical">
       <children>
         <xul:label class="tooltip-label" xbl:inherits="xbl:text=label" flex="1"/>
       </children>
