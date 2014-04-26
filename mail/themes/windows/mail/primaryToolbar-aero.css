@@ -15,10 +15,33 @@
 
 /* :::: Toolbar :::: */
 
+/* We want a 4px gap between the tabs-toolbar and the mail-toolbar-menubar2
+   when the toolbar-menu is displayed, and a 16px gap when it is not. 1px is
+   taken care of by the (light) outer shadow of the tab, the remaining 3/15
+   are these margins. */
+#mail-toolbar-menubar2:not([autohide="true"]) ~ #tabs-toolbar,
+#mail-toolbar-menubar2[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
+  margin-top: 3px;
+}
+
+#messengerWindow[tabsintitlebar][sizemode="normal"]
+#mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
+  margin-top: 15px;
+}
+
 @media not all and (-moz-windows-compositor) {
   #mail-toolbar-menubar2:not([autohide="true"]) {
     -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
   }
+}
+
+#messengerWindow[tabsintitlebar] #mail-menubar > menu:not(:-moz-lwtheme) {
+  color: CaptionText;
+}
+
+#messengerWindow[tabsintitlebar] #mail-menubar >
+menu:not(:-moz-lwtheme):-moz-window-inactive {
+  color: InactiveCaptionText;
 }
 
 .mail-toolbox:not(:-moz-lwtheme),
@@ -66,6 +89,112 @@
                                     transparent 1px);
 }
 
+/**
+ * In the classic themes, the titlebar has a horizontal gradient, which is
+ * problematic for reading the text of background tabs when they're in the
+ * titlebar. We side-step this issue by layering our own background underneath
+ * the tabs. Unfortunately, this requires a bunch of positioning in order to
+ * get text and icons to not appear fuzzy.
+ */
+@media (-moz-windows-classic) {
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .tabmail-tabs:not(:-moz-lwtheme) {
+    position: relative;
+    z-index: 2;
+  }
+
+  #messengerWindow[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme) {
+    position: relative;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #tabs-toolbar:not(:-moz-lwtheme)::after {
+    /* Because we use placeholders for window controls etc. in the tabstrip,
+     * and position those with ordinal attributes, and because our layout code
+     * expects :before/:after nodes to come first/last in the frame list,
+     * we have to reorder this element to come last, hence the
+     * ordinal group value (see bug 853415). */
+    -moz-box-ordinal-group: 1001;
+    box-shadow: 0 0 50px 8px ActiveCaption;
+    content: "";
+    display: -moz-box;
+    height: 0;
+    margin: 0 50px;
+    position: absolute;
+    pointer-events: none;
+    top: 100%;
+    width: -moz-available;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive::after {
+    box-shadow: 0 0 50px 8px InactiveCaption;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #tabmail-container:not(:-moz-lwtheme) {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Need to constrain the box shadow fade to avoid overlapping layers,
+   * see bug 886281. */
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #navigator-toolbox:not(:-moz-lwtheme) {
+    overflow: -moz-hidden-unscrollable;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #tabs-toolbar .toolbarbutton-1:not(:-moz-lwtheme) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /**
+   * With the tabbrowser-tabs element z-index'd above the nav-bar, we now get the
+   * scrollbox button borders leaking over the nav-bar highlight. This transparent bottom
+   * border forces the scrollbox button borders to terminate a pixel early, working
+   * around the issue.
+   */
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .tabmail-arrowscrollbox > .scrollbutton-up:not(:-moz-lwtheme),
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .tabmail-arrowscrollbox > .scrollbutton-down-stack >
+  .scrollbutton-down:not(:-moz-lwtheme) {
+    border-bottom: 1px solid transparent;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .mail-toolbox:not(:-moz-lwtheme),
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .contentTabToolbox:not(:-moz-lwtheme) {
+    box-shadow: none;
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme {
+    /* Render a window top border: */
+    background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
+                                      ThreeDLightShadow 1px, ThreeDHighlight 1px,
+                                      ThreeDHighlight 2px, ActiveBorder 2px,
+                                      ActiveBorder 4px, transparent 4px);
+  }
+
+  /* End classic titlebar gradient */
+
+  #messengerWindow[tabsintitlebar]:not([inFullscreen])
+  :-moz-any(#tabs-toolbar, #mail-toolbar-menubar2)
+  toolbarbutton:not(:-moz-lwtheme) {
+    color: inherit;
+  }
+}
+
+@media (-moz-windows-default-theme) {
+  #messengerWindow[tabsintitlebar][sizemode="normal"] #mail-toolbar-menubar2 {
+    margin-top: 1px;
+  }
+}
+
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   .mail-toolbox:not(:-moz-lwtheme),
@@ -98,7 +227,7 @@ toolbox[labelalign="end"] .toolbarbutton-menubutton-button {
   -moz-box-orient: horizontal;
 }
 
-@media not all and (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media not all and (-moz-windows-default-theme) {
   #messengerWindow[tabsintitlebar] #mail-menubar > menu {
     -moz-appearance: none;
   }
@@ -391,6 +520,31 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
   background-position: 1px -1px, 100% -1px;
 }
 
+@media not all and (-moz-windows-compositor) {
+  #mail-toolbar-menubar2 {
+    background-color: transparent !important;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([inFullscreen])
+  #tabs-toolbar:not(:-moz-lwtheme) {
+    color: CaptionText;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([inFullscreen])
+  #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive {
+    color: InactiveCaptionText;
+  }
+
+  #messengerWindow[tabsintitlebar] #titlebar:-moz-lwtheme {
+    visibility: hidden;
+  }
+
+  #messengerWindow[tabsintitlebar] #titlebar-content:-moz-lwtheme {
+    -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
+    visibility: visible;
+  }
+}
+
 @media (-moz-windows-default-theme) and (-moz-windows-compositor) {
   #messengerWindow {
     -moz-appearance: -moz-win-borderless-glass;
@@ -416,9 +570,23 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
     padding-top: 2px;
   }
 
+  #messengerWindow[tabsintitlebar][sizemode="normal"] #mail-toolbar-menubar2 {
+    margin-top: 0;
+  }
+
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
     background-color: -moz-dialog;
     border-bottom: 1px solid ThreeDShadow;
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="normal"] > #navigation-toolbox >
+  #tabs-toolbar {
+    margin-top: 16px !important;
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="maximized"] > #navigation-toolbox >
+  #tabs-toolbar {
+    margin-top: 0 !important;
   }
 
   #tabs-toolbar {
@@ -464,6 +632,47 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
     top: 50%;
     width: -moz-available;
     z-index: -1;
+  }
+}
+
+@media not all and (-moz-windows-compositor) {
+  @media (-moz-windows-default-theme) {
+    #messengerWindow {
+      background-color: rgb(185, 209, 234);
+    }
+    #messengerWindow:-moz-window-inactive {
+      background-color: rgb(215, 228, 242);
+    }
+
+    #mail-toolbar-menubar2:not([autohide=true]):not(:-moz-lwtheme),
+    #tabs-toolbar:not(:-moz-lwtheme) {
+      -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+      background-color: transparent;
+    }
+    #mail-toolbar-menubar2[autohide=true] {
+      background-color: transparent !important;
+    }
+
+    /* Render a window top border for lwthemes: */
+    #messengerWindow[tabsintitlebar][sizemode="normal"]
+    #titlebar-content:-moz-lwtheme {
+      background-image: linear-gradient(to bottom, rgb(37, 44, 51) 0,
+                                        rgb(37, 44, 51) 1px,
+                                        rgba(255,255,255,.6) 1px,
+                                        rgba(255,255,255,.6) 2px, transparent 2px);
+    }
+
+    #messengerWindow[tabsintitlebar][sizemode="normal"]
+    #titlebar-content:-moz-lwtheme:-moz-window-inactive {
+      background-image: linear-gradient(to bottom, rgb(102, 102, 102) 0,
+                                        rgb(102, 102, 102) 1px,
+                                        rgba(255,255,255,.6) 1px,
+                                        rgba(255,255,255,.6) 2px, transparent 2px);
+    }
+  }
+
+  #print-preview-toolbar:not(:-moz-lwtheme) {
+    -moz-appearance: -moz-win-browsertabbar-toolbox;
   }
 }
 

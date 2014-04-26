@@ -13,8 +13,37 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+/* We want a 4px gap between the tabs-toolbar and the mail-toolbar-menubar2
+   when the toolbar-menu is displayed, and a 16px gap when it is not. 1px is
+   taken care of by the (light) outer shadow of the tab, the remaining 3/15
+   are these margins. */
+#mail-toolbar-menubar2:not([autohide="true"]) ~ #tabs-toolbar,
+#mail-toolbar-menubar2[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
+  margin-top: 3px;
+}
+
+#messengerWindow[tabsintitlebar][sizemode="normal"]
+#mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
+  margin-top: 15px;
+}
+
 #mail-toolbar-menubar2:not([autohide="true"]) {
   -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
+}
+
+#messengerWindow[tabsintitlebar] #mail-menubar > menu:not(:-moz-lwtheme) {
+  color: CaptionText;
+}
+
+#messengerWindow[tabsintitlebar] #mail-menubar >
+menu:not(:-moz-lwtheme):-moz-window-inactive {
+  color: InactiveCaptionText;
+}
+
+@media (-moz-windows-default-theme) {
+  #messengerWindow[tabsintitlebar][sizemode="normal"] #mail-toolbar-menubar2 {
+    margin-top: 4px;
+  }
 }
 
 #navigation-toolbox {
@@ -30,12 +59,114 @@
                                     transparent 1px);
 }
 
-#tabs-toolbar {
-  -moz-box-ordinal-group: 20;
+#mail-toolbar-menubar2 {
+  background-color: transparent !important
 }
 
-#mail-toolbar-menubar2 {
-  -moz-box-ordinal-group: 10;
+#messengerWindow[tabsintitlebar]:not([inFullscreen])
+#tabs-toolbar:not(:-moz-lwtheme) {
+  color: CaptionText;
+}
+
+#messengerWindow[tabsintitlebar]:not([inFullscreen])
+#tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive {
+  color: InactiveCaptionText;
+}
+
+#messengerWindow[tabsintitlebar] #titlebar:-moz-lwtheme {
+  visibility: hidden;
+}
+
+#messengerWindow[tabsintitlebar] #titlebar-content:-moz-lwtheme {
+  -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
+  visibility: visible;
+}
+
+/**
+ * In the classic themes, the titlebar has a horizontal gradient, which is
+ * problematic for reading the text of background tabs when they're in the
+ * titlebar. We side-step this issue by layering our own background underneath
+ * the tabs. Unfortunately, this requires a bunch of positioning in order to
+ * get text and icons to not appear fuzzy.
+ */
+@media (-moz-windows-classic) {
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .tabmail-tabs:not(:-moz-lwtheme) {
+    position: relative;
+    z-index: 2;
+  }
+
+  #messengerWindow[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme) {
+    position: relative;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #tabs-toolbar:not(:-moz-lwtheme)::after {
+    /* Because we use placeholders for window controls etc. in the tabstrip,
+     * and position those with ordinal attributes, and because our layout code
+     * expects :before/:after nodes to come first/last in the frame list,
+     * we have to reorder this element to come last, hence the
+     * ordinal group value (see bug 853415). */
+    -moz-box-ordinal-group: 1001;
+    box-shadow: 0 0 50px 8px ActiveCaption;
+    content: "";
+    display: -moz-box;
+    height: 0;
+    margin: 0 50px;
+    position: absolute;
+    pointer-events: none;
+    top: 100%;
+    width: -moz-available;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive::after {
+    box-shadow: 0 0 50px 8px InactiveCaption;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  #tabmail-container:not(:-moz-lwtheme) {
+    position: relative;
+    z-index: 2;
+  }
+
+  /**
+   * With the tabbrowser-tabs element z-index'd above the nav-bar, we now get the
+   * scrollbox button borders leaking over the nav-bar highlight. This transparent bottom
+   * border forces the scrollbox button borders to terminate a pixel early, working
+   * around the issue.
+   */
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .tabmail-arrowscrollbox > .scrollbutton-up:not(:-moz-lwtheme),
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .tabmail-arrowscrollbox > .scrollbutton-down-stack >
+  .scrollbutton-down:not(:-moz-lwtheme) {
+    border-bottom: 1px solid transparent;
+  }
+
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .mail-toolbox:not(:-moz-lwtheme),
+  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
+  .contentTabToolbox:not(:-moz-lwtheme) {
+    box-shadow: none;
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme {
+    /* Render a window top border: */
+    background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
+                                      ThreeDLightShadow 1px, ThreeDHighlight 1px,
+                                      ThreeDHighlight 2px, ActiveBorder 2px,
+                                      ActiveBorder 4px, transparent 4px);
+  }
+
+  /* End classic titlebar gradient */
+
+  #messengerWindow[tabsintitlebar]:not([inFullscreen])
+  :-moz-any(#tabs-toolbar, #mail-toolbar-menubar2)
+  toolbarbutton:not(:-moz-lwtheme) {
+    color: inherit;
+  }
 }
 
 .mail-toolbox,

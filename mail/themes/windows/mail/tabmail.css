@@ -52,12 +52,9 @@
   }
 }
 
-@media (-moz-windows-theme: luna-blue),
-       (-moz-windows-theme: royale),
-       (-moz-windows-theme: zune) {
-  #messengerWindow[tabsintitlebar] .tabmail-tab:not([selected]):not(:-moz-lwtheme) {
-    color: white;
-  }
+#messengerWindow[tabsintitlebar]
+.tabmail-tab:not([selected]):not(:-moz-lwtheme) {
+  color: CaptionText;
 }
 
 .tabmail-tab[busy],
@@ -140,6 +137,11 @@ tabpanels {
   border: none;
   cursor: default;
   list-style-image: url(icons/closeTab.png);
+}
+
+.tabs-closebutton:not(:hover):not(:active):-moz-lwtheme-brighttext,
+.tab-close-button:not(:hover):not(:active):-moz-lwtheme-brighttext {
+  -moz-image-region: rect(0, 64px, 16px, 48px);
 }
 
 @media (-moz-windows-theme: luna-blue),

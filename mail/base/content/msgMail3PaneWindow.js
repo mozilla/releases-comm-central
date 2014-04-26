@@ -1682,7 +1682,8 @@ function InitPageMenu(menuPopup, event) {
 let TabsInTitlebar = {
   init: function () {
 #ifdef CAN_DRAW_IN_TITLEBAR
-    // Don't trust the initial value of the sizemode attribute; wait for the resize event.
+    // Don't trust the initial value of the sizemode attribute; wait for the
+    // resize event.
     this._readPref();
     Services.prefs.addObserver(this._prefName, this, false);
 
@@ -1693,6 +1694,24 @@ let TabsInTitlebar = {
       TabsInTitlebar.allowedBy("sizemode", true);
     }, false);
 
+    // We need to update the appearance of the titlebar when the menu changes
+    // from the active to the inactive state. We can't, however, rely on
+    // DOMMenuBarInactive, because the menu fires this event and then removes
+    // the inactive attribute after an event-loop spin.
+    //
+    // Because updating the appearance involves sampling the heights and
+    // margins of various elements, it's important that the layout be more or
+    // less settled before updating the titlebar. So instead of listening to
+    // DOMMenuBarActive and DOMMenuBarInactive, we use a MutationObserver to
+    // watch the "invalid" attribute directly.
+    let menu = document.getElementById("mail-toolbar-menubar2");
+    this._menuObserver = new MutationObserver(this._onMenuMutate);
+    this._menuObserver.observe(menu, {attributes: true});
+
+    let sizeMode = document.getElementById("messengerWindow");
+    this._sizeModeObserver = new MutationObserver(this._onSizeModeMutate);
+    this._sizeModeObserver.observe(sizeMode, {attributes: true});
+
     this._initialized = true;
 #endif
   },
@@ -1702,78 +1721,231 @@ let TabsInTitlebar = {
     if (allow) {
       if (condition in this._disallowed) {
         delete this._disallowed[condition];
-        this._update();
+        this._update(true);
       }
     } else {
       if (!(condition in this._disallowed)) {
         this._disallowed[condition] = null;
-        this._update();
+        this._update(true);
       }
     }
 #endif
   },
 
-  _initialized: false,
-  _disallowed: {},
-  _prefName: 'mail.tabs.drawInTitlebar',
+  updateAppearance: function updateAppearance(aForce) {
+#ifdef CAN_DRAW_IN_TITLEBAR
+    this._update(aForce);
+#endif
+  },
 
   get enabled() {
-    return document.documentElement.getAttribute('tabsintitlebar') == 'true';
+    return document.documentElement.getAttribute("tabsintitlebar") == "true";
   },
 
-  _readPref: function() {
-    this.allowedBy('pref', Services.prefs.getBoolPref(this._prefName));
-  },
-
-  observe: function(aSubject, aTopic, aData) {
-    if (aTopic == 'nsPref:changed')
+#ifdef CAN_DRAW_IN_TITLEBAR
+  observe: function (subject, topic, data) {
+    if (topic == "nsPref:changed")
       this._readPref();
   },
 
-  _update: function() {
-#ifdef CAN_DRAW_IN_TITLEBAR
+  _onMenuMutate: function (aMutations) {
+    for (let mutation of aMutations) {
+      if (mutation.attributeName == "inactive" ||
+          mutation.attributeName == "autohide") {
+        TabsInTitlebar._update(true);
+        return;
+      }
+    }
+  },
+
+  _onSizeModeMutate: function (aMutations) {
+    for (let mutation of aMutations) {
+      if (mutation.attributeName == "sizemode") {
+        TabsInTitlebar._update(true);
+        return;
+      }
+    }
+  },
+
+  _initialized: false,
+  _disallowed: {},
+  _prefName: "mail.tabs.drawInTitlebar",
+  _lastSizeMode: null,
+
+  _readPref: function () {
+    this.allowedBy("pref",
+                   Services.prefs.getBoolPref(this._prefName));
+  },
+
+  _update: function (aForce=false) {
+    function $(id) document.getElementById(id);
+    function rect(ele) ele.getBoundingClientRect();
+    function verticalMargins(cstyle) parseFloat(cstyle.marginBottom) + parseFloat(cstyle.marginTop);
+
     if (!this._initialized || window.fullScreen)
       return;
 
-    let allowed = Object.keys(this._disallowed).length == 0;
-    if (allowed == this.enabled)
-      return;
+    let allowed = true;
 
-    function $(id) document.getElementById(id);
+    if (!aForce) {
+      // _update is called on resize events, because the window is not ready
+      // after sizemode events. However, we only care about the event when the
+      // sizemode is different from the last time we updated the appearance of
+      // the tabs in the titlebar.
+      let sizemode = document.documentElement.getAttribute("sizemode");
+      if (this._lastSizeMode == sizemode) {
+        return;
+      }
+      this._lastSizeMode = sizemode;
+    }
+
+    for (let something in this._disallowed) {
+      allowed = false;
+      break;
+    }
+
     let titlebar = $("titlebar");
+    let titlebarContent = $("titlebar-content");
+    let menubar = $("mail-toolbar-menubar2");
 
     if (allowed) {
-      document.documentElement.setAttribute('tabsintitlebar', 'true');
-      document.documentElement.setAttribute('chromemargin', '0,2,2,2');
-      function rect(ele) ele.getBoundingClientRect();
+      // We set the tabsintitlebar attribute first so that our CSS for
+      // tabsintitlebar manifests before we do our measurements.
+      document.documentElement.setAttribute("tabsintitlebar", "true");
+      updateTitlebarDisplay();
 
-      let captionButtonsBox = $("titlebar-buttonbox");
-      this._sizePlaceholder("caption-buttons", rect(captionButtonsBox).width);
+      // Try to avoid reflows in this code by calculating dimensions first and
+      // then later set the properties affecting layout together in a batch.
 
-      let titlebarRect = rect(titlebar);
-      titlebar.style.marginBottom = - (titlebarRect.height - 16) + "px";
-    } else {
-      document.documentElement.removeAttribute('tabsintitlebar');
-      document.documentElement.removeAttribute('chromemargin');
-      titlebar.style.marginBottom = "";
-    }
+      // Get the full height of the tabs toolbar:
+      let tabsToolbar = $("tabs-toolbar");
+      let fullTabsHeight = rect(tabsToolbar).height;
+      let gNavToolbox = $("navigation-toolbox");
+      // Buttons first:
+      let captionButtonsBoxWidth = rect($("titlebar-buttonbox")).width;
+      // Get the height and margins separately for the menubar
+      let menuHeight = rect(menubar).height;
+      let menuStyles = window.getComputedStyle(menubar);
+      let fullMenuHeight = verticalMargins(menuStyles) + menuHeight;
+      let tabsStyles = window.getComputedStyle(tabsToolbar);
+      fullTabsHeight += verticalMargins(tabsStyles);
+
+      // If the #tabmail overlaps the tabbar using negative margins, we need to
+      // take those into account so we don't overlap it
+      let tabmailMarginTop = parseFloat(window.getComputedStyle($("tabmail")).marginTop);
+      tabmailMarginTop = Math.min(tabmailMarginTop, 0);
+
+      // And get the height of what's in the titlebar:
+      let titlebarContentHeight = rect(titlebarContent).height;
+
+      // Begin setting CSS properties which will cause a reflow
+
+      // If the menubar is around (menuHeight is non-zero), try to adjust
+      // its full height (i.e. including margins) to match the titlebar,
+      // by changing the menubar's bottom padding
+      if (menuHeight) {
+        // Calculate the difference between the titlebar's height and that of
+        // the menubar
+        let menuTitlebarDelta = titlebarContentHeight - fullMenuHeight;
+        let paddingBottom;
+        // The titlebar is bigger:
+        if (menuTitlebarDelta > 0) {
+          fullMenuHeight += menuTitlebarDelta;
+          // If there is already padding on the menubar, we need to add that
+          // to the difference so the total padding is correct:
+          if ((paddingBottom = menuStyles.paddingBottom)) {
+            menuTitlebarDelta += parseFloat(paddingBottom);
+          }
+          menubar.style.paddingBottom = menuTitlebarDelta + "px";
+        // The menubar is bigger, but has bottom padding we can remove:
+        } else if (menuTitlebarDelta < 0 && (paddingBottom = menuStyles.paddingBottom)) {
+          let existingPadding = parseFloat(paddingBottom);
+          // menuTitlebarDelta is negative; work out what's left, but don't set
+          // negative padding:
+          let desiredPadding = Math.max(0, existingPadding + menuTitlebarDelta);
+          menubar.style.paddingBottom = desiredPadding + "px";
+          // We've changed the menu height now:
+          fullMenuHeight += desiredPadding - existingPadding;
+        }
+      }
+
+      // Next, we calculate how much we need to stretch the titlebar down to
+      // go all the way to the bottom of the tab strip, if necessary.
+      let tabAndMenuHeight = fullTabsHeight + fullMenuHeight;
+
+      if (tabAndMenuHeight > titlebarContentHeight) {
+        // We need to increase the titlebar content's outer height
+        // (ie including margins) to match the tab and menu height:
+        let extraMargin = tabAndMenuHeight - titlebarContentHeight;
+        // We need to reduce the height by the amount of navbar overlap
+        // (this value is 0 or negative):
+        extraMargin += tabmailMarginTop;
+        // On non-OSX, we can just use bottom margin:
+#ifndef XP_MACOSX
+        titlebarContent.style.marginBottom = extraMargin + "px";
 #endif
+        titlebarContentHeight += extraMargin;
+      }
+
+      // Then we bring up the titlebar by the same amount, but we add any
+      // negative margin:
+      titlebar.style.marginBottom = "-" + titlebarContentHeight + "px";
+
+      // Finally, size the placeholders:
+      this._sizePlaceholder("caption-buttons", captionButtonsBoxWidth);
+
+      if (!this._draghandles) {
+        this._draghandles = {};
+        let tmp = {};
+        Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm", tmp);
+
+        let mouseDownCheck = function () {
+          return !this._dragBindingAlive && TabsInTitlebar.enabled;
+        };
+
+        this._draghandles.tabsToolbar = new tmp.WindowDraggingElement(tabsToolbar);
+        this._draghandles.tabsToolbar.mouseDownCheck = mouseDownCheck;
+
+        this._draghandles.navToolbox = new tmp.WindowDraggingElement(gNavToolbox);
+        this._draghandles.navToolbox.mouseDownCheck = mouseDownCheck;
+      }
+    } else {
+      document.documentElement.removeAttribute("tabsintitlebar");
+      updateTitlebarDisplay();
+
+      // Reset the margins and padding that might have been modified:
+      titlebarContent.style.marginTop = "";
+      titlebarContent.style.marginBottom = "";
+      titlebar.style.marginBottom = "";
+      menubar.style.paddingBottom = "";
+    }
   },
 
   _sizePlaceholder: function (type, width) {
-#ifdef CAN_DRAW_IN_TITLEBAR
     Array.forEach(document.querySelectorAll(".titlebar-placeholder[type='"+ type +"']"),
                   function (node) { node.width = width; });
-#endif
   },
+#endif
 
   uninit: function () {
 #ifdef CAN_DRAW_IN_TITLEBAR
     this._initialized = false;
     Services.prefs.removeObserver(this._prefName, this);
+    this._menuObserver.disconnect();
 #endif
   }
 };
+
+#ifdef CAN_DRAW_IN_TITLEBAR
+function updateTitlebarDisplay() {
+  document.getElementById("titlebar").hidden = !TabsInTitlebar.enabled;
+
+  if (TabsInTitlebar.enabled)
+    document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+  else
+    document.documentElement.removeAttribute("chromemargin");
+}
+#endif
 
 /* Draw */
 function onTitlebarMaxClick() {

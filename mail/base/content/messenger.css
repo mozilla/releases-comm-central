@@ -310,6 +310,10 @@ splitmenu {
   display: none;
 }
 
+#messengerWindow:not([chromemargin]) > #titlebar {
+  display: none;
+}
+
 .button-appmenu {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#appmenu-vertical") !important;
 }

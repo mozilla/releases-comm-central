@@ -6,51 +6,36 @@
 %include mailWindow1.css
 %undef WINDOWS_AERO
 
-@media (-moz-windows-default-theme) {
-  #messengerWindow[tabsintitlebar][sizemode="maximized"] > #navigation-toolbox{
-    margin-top: -8px;
-  }
-}
-
 @media (-moz-windows-compositor) {
-  #messengerWindow[sizemode="normal"] > #titlebar {
-    -moz-appearance: -moz-window-titlebar;
-  }
-
-  #messengerWindow[sizemode="maximized"] > #titlebar {
-    -moz-appearance: -moz-window-titlebar-maximized;
-  }
-
-  #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
-    border-top-width: 0;
-  }
-
-  #messengerWindow[sizemode="normal"] #titlebar-buttonbox {
-    margin-top: 0;
-  }
-
-  #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content:-moz-lwtheme {
-    margin-bottom: -2px;
-    border-top: 2px solid;
-    -moz-border-top-colors: rgb(37, 44, 51) rgba(255, 255, 255, .6);
-  }
-
+  /* These should be hidden w/ glass enabled. Windows draws its own buttons. */
   .titlebar-button {
     display: none;
   }
 
-  #titlebar-buttonbox {
-    -moz-appearance: -moz-window-button-box;
-  }
-
   #messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
-    -moz-appearance: -moz-window-button-box-maximized;
     -moz-margin-end: 3px;
   }
 
-  #messengerWindow:not(:-moz-lwtheme) {
+  #messengerWindow {
     -moz-appearance: -moz-win-borderless-glass;
-    background-color: transparent !important;
+    background: transparent;
+  }
+
+  /* Artificially draw window borders that are covered by lwtheme,
+     see bug 591930. */
+  #messengerWindow[sizemode="normal"] > #titlebar >
+  #titlebar-content:-moz-lwtheme {
+    border-top: 2px solid;
+    -moz-border-top-colors: rgb(37, 44, 51) rgba(255, 255, 255, 0.6);
+  }
+
+  #messengerWindow[sizemode="normal"] > #titlebar >
+  #titlebar-content:-moz-lwtheme:-moz-window-inactive {
+    -moz-border-top-colors: rgb(102, 102, 102) rgba(255, 255, 255, 0.6);
+  }
+
+  #messengerWindow[sizemode="normal"] #titlebar-buttonbox:-moz-lwtheme {
+    margin-top: -2px;
   }
 
   #mail-toolbar-menubar2 > .titlebar-placeholder {

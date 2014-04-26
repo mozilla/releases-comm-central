@@ -335,58 +335,38 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 /* ..... Draw in titlebar ..... */
 
-#messengerWindow[tabsintitlebar]:-moz-window-inactive {
-  background-color: InactiveCaption;
+#messengerWindow[sizemode="normal"] > #titlebar {
+  -moz-appearance: -moz-window-titlebar;
 }
 
-#messengerWindow[tabsintitlebar]:-moz-system-metric(windows-classic)
-  menubar > menu:-moz-window-inactive {
-  color: -moz-dialogtext;
+#messengerWindow[sizemode="maximized"] > #titlebar {
+  -moz-appearance: -moz-window-titlebar-maximized;
 }
 
-@media (-moz-windows-default-theme) {
-  #messengerWindow[tabsintitlebar] {
-    background-color: ActiveCaption;
-  }
-}
-
-%ifndef WINDOWS_AERO
-/* Luna silver needs special colors. Default doesn't look good */
-@media (-moz-windows-theme: luna-silver) {
-  #messengerWindow[tabsintitlebar] {
-    background-color: #D6D8E1;
+@media (-moz-windows-classic) {
+  #messengerWindow[tabsintitlebar] > #navigation-toolbox >
+  #mail-toolbar-menubar2 {
+    border-bottom: none;
   }
 
-  #messengerWindow[tabsintitlebar]:-moz-window-inactive {
-    background-color: #E8E9F1;
+  #messengerWindow[tabsintitlebar][sizemode="normal"] >
+  #navigation-toolbox > #mail-toolbar-menubar2 {
+    margin-top: 4px;
   }
 }
 
-/* Royale needs special colors. Default is grey */
-@media (-moz-windows-theme: royale) {
-  #messengerWindow[tabsintitlebar] {
-    background-color: #3472C5;
-  }
-
-  #messengerWindow[tabsintitlebar]:-moz-window-inactive {
-    background-color: #83B7E2;
-  }
+#titlebar-buttonbox-container {
+  -moz-box-align: start;
 }
 
-/* Zune needs special colors. Default is grey */
-@media (-moz-windows-theme: zune) {
-  #messengerWindow[tabsintitlebar] {
-    background-color: #343434;
-  }
-
-  #messengerWindow[tabsintitlebar]:-moz-window-inactive {
-    background-color: #4B4B4B;
-  }
-}
-%endif
-
-#messengerWindow[tabsintitlebar]:-moz-lwtheme {
-  background-color: transparent;
+/* The button box must appear on top of the navigator-toolbox in order for
+ * click and hover mouse events to work properly for the button in the restored
+ * window state. Otherwise, elements in the navigator-toolbox, like the menubar,
+ * can swallow those events. It will also place the buttons above the fog on
+ * themes with Aero Glass.
+ */
+#titlebar-buttonbox {
+  z-index: 1;
 }
 
 #titlebar {
@@ -395,15 +375,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 #messengerWindow:not([tabsintitlebar]) #titlebar {
   visibility: collapse;
-}
-
-#titlebar:-moz-lwtheme {
-  visibility: hidden;
-}
-
-#titlebar-content:-moz-lwtheme {
-  -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
-  visibility: visible;
 }
 
 #titlebar-spacer {
@@ -417,6 +388,10 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 #titlebar-buttonbox {
   -moz-appearance: -moz-window-button-box;
   position: relative;
+}
+
+#messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
+  -moz-appearance: -moz-window-button-box-maximized;
 }
 
 #titlebar-min {
@@ -446,66 +421,68 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 }
 
 #messengerWindow:not([tabsintitlebar]) .titlebar-placeholder {
-  visibility: collapse; 
-}
-
-/* Window titlebar drawn by TB. So needs border like system windows */
-#messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
-  border-top: 3px solid;
-  -moz-border-top-colors: ThreeDLightShadow ThreeDHighlight ActiveBorder;
-}
-
-#messengerWindow[sizemode="normal"] #titlebar-buttonbox {
-  margin-top: -3px;
-}
-
-#messengerWindow[sizemode="normal"] > #titlebar >
-#titlebar-content:-moz-window-inactive {
-  -moz-border-top-colors: ThreeDLightShadow ThreeDHighlight InactiveBorder;
-}
-
-@media (-moz-windows-default-theme) {
-  #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
-    -moz-border-top-colors: rgba(0, 0, 0, .1) rgba(255, 255, 255, .3)
-                            rgba(255, 255, 255, .2);
-  }
-
-  #messengerWindow[sizemode="normal"] > #titlebar >
-  #titlebar-content:-moz-window-inactive {
-    -moz-border-top-colors: rgba(255, 255, 255, .4) rgba(255, 255, 255, .3)
-                            rgba(255, 255, 255, .2);
-  }
+  visibility: collapse;
 }
 
 %ifndef WINDOWS_AERO
+/* Render a window top border for lwthemes on WinXP modern themes: */
+@media (-moz-windows-theme: luna-blue) {
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme {
+    background-image: linear-gradient(to bottom, rgb(8, 49, 216) 0,
+                                      rgb(8, 49, 216) 1px, rgb(15, 77, 227) 1px,
+                                      rgb(15, 77, 227) 2px, rgb(22, 106, 238) 2px,
+                                      rgb(22, 106, 238) 3px, rgb(8, 85, 221) 3px,
+                                      rgb(8, 85, 221) 4px, transparent 4px);
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme:-moz-window-inactive {
+    background-image: linear-gradient(to bottom, rgb(91, 104, 205) 0,
+                                      rgb(91, 104, 205) 1px, rgb(116, 128, 220) 1px,
+                                      rgb(116, 128, 220) 2px, rgb(117, 140, 221) 2px,
+                                      rgb(117, 140, 221) 4px, transparent 4px);
+  }
+}
+
 @media (-moz-windows-theme: luna-silver) {
-  #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
-    -moz-border-top-colors: rgba(0, 0, 0, .4) rgba(255, 255, 255, .3)
-                            rgba(255, 255, 255, .2);
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme {
+    background-image: linear-gradient(to bottom, rgb(102,102,126) 0,
+                                      rgb(102, 102, 126) 1px, rgb(168, 167, 191) 1px,
+                                      rgb(168, 167, 191) 2px, white 2px, white 3px,
+                                      rgb(188, 188, 207) 3px, rgb(188, 188, 207) 4px,
+                                      transparent 4px);
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme:-moz-window-inactive {
+    background-image: linear-gradient(to bottom, rgb(186, 186, 197) 0,
+                                      rgb(186, 186, 197) 1px, rgb(236, 238, 245) 1px,
+                                      rgb(236, 238, 245) 2px, white 2px, white 3px,
+                                      rgb(215, 215, 227) 3px, rgb(215, 215, 227) 4px,
+                                      transparent 4px);
   }
 }
 
-@media (-moz-windows-theme: zune),
-       (-moz-windows-theme: royale) {
-  #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
-    -moz-border-top-colors: rgba(0, 0, 0, .4) rgba(255, 255, 255, .3)
-                            rgba(255, 255, 255, .2) !important;
+@media (-moz-windows-theme: luna-olive) {
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme {
+    background-image: linear-gradient(to bottom, rgb(139, 161, 105) 0,
+                                      rgb(139, 161, 105) 1px, rgb(171, 189, 133) 1px,
+                                      rgb(171, 189, 133) 2px, rgb(164, 178, 127) 2px,
+                                      rgb(164, 178, 127) 3px, transparent 3px);
   }
-}
 
-/* Black on dark background doesn't look good */
-@media (-moz-windows-theme: luna-blue),
-       (-moz-windows-theme: royale),
-       (-moz-windows-theme: zune) {
-  #messengerWindow[tabsintitlebar] menubar:not(:-moz-lwtheme) > menu {
-    color: white;
+  #messengerWindow[tabsintitlebar][sizemode="normal"]
+  #titlebar-content:-moz-lwtheme:-moz-window-inactive {
+    background-image: linear-gradient(to bottom, rgb(207, 214, 188) 0,
+                                      rgb(207, 214, 188) 1px, rgb(224, 226, 200) 1px,
+                                      rgb(224, 226, 200) 2px, rgb(214, 216, 190) 2px,
+                                      rgb(214, 216, 190) 3px, transparent 3px);
   }
 }
 %endif
-
-#messengerWindow[tabsintitlebar][sizemode="maximized"] > #navigation-toolbox{
-  margin-top: -12px;
-}
 
 #viewPicker > .menulist-label-box > .menulist-icon,
 #locationFolders > .menulist-label-box > .menulist-icon {

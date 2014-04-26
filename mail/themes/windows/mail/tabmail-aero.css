@@ -59,6 +59,11 @@
   }
 }
 
+#messengerWindow[tabsintitlebar]
+.tabmail-tab:not([selected]):not(:-moz-lwtheme) {
+  color: CaptionText;
+}
+
 .tabmail-tab[busy],
 .tabmail-tab[thinking] {
   list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
@@ -115,6 +120,11 @@ tabpanels {
   -moz-padding-end: 0 !important;
   position: relative;
   z-index: 4;
+}
+
+.tabs-closebutton:not(:hover):not(:active):-moz-lwtheme-brighttext,
+.tab-close-button:not(:hover):not(:active):-moz-lwtheme-brighttext {
+  -moz-image-region: rect(0, 64px, 16px, 48px);
 }
 
 .tab-close-button:hover,

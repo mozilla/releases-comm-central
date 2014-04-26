@@ -20,7 +20,7 @@
     -->
   <binding id="calendar-time-bar">
     <content>
-      <xul:stack anonid="timebarboxstack" style="display: block; position: absolute" xbl:inherits="orient,width,height" flex="1">
+      <xul:stack anonid="timebarboxstack" style="display: block; position: relative" xbl:inherits="orient,width,height" flex="1">
         <xul:box anonid="topbox" xbl:inherits="orient,width,height" flex="1"/>
         <xul:box anonid="timeIndicatorBoxTimeBar" class="timeIndicator-timeBar" xbl:inherits="orient" hidden="true"/>
       </xul:stack>

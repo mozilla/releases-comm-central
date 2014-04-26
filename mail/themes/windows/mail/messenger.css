@@ -10,6 +10,20 @@
 @import url("chrome://messenger/content/messenger.css");
 @import url("chrome://messenger/skin/shared/messenger.css");
 
+%ifdef WINDOWS_AERO
+@media not all and (-moz-windows-default-theme) {
+%endif
+  #tabmail:not(:-moz-lwtheme) {
+    background-color: ActiveCaption;
+  }
+
+  #tabmail:not(:-moz-lwtheme):-moz-window-inactive {
+    background-color: InactiveCaption;
+  }
+%ifdef WINDOWS_AERO
+}
+%endif
+
 .toolbar-primary {
   border-top: none;
 }
