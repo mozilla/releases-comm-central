@@ -61,6 +61,7 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 
 !insertmacro AddDDEHandlerValues
 !insertmacro AddHandlerValues
+!insertmacro CheckIfRegistryKeyExists
 !insertmacro CleanUpdateDirectories
 !insertmacro CleanVirtualStore
 !insertmacro FindSMProgramsDir
@@ -249,6 +250,7 @@ Section "Uninstall"
     ${un.RegCleanFileHandler}  ".htm"   "SeaMonkeyHTML"
     ${un.RegCleanFileHandler}  ".html"  "SeaMonkeyHTML"
     ${un.RegCleanFileHandler}  ".shtml" "SeaMonkeyHTML"
+    ${un.RegCleanFileHandler}  ".webm"  "SeaMonkeyHTML"
     ${un.RegCleanFileHandler}  ".xht"   "SeaMonkeyHTML"
     ${un.RegCleanFileHandler}  ".xhtml" "SeaMonkeyHTML"
   ${EndIf}

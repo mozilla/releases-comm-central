@@ -339,6 +339,12 @@
   ${If} "$6" != "SeaMonkeyHTML"
     WriteRegStr SHCTX "$0\.xhtml" "" "SeaMonkeyHTML"
   ${EndIf}
+
+  ; Only add webm if it's not present
+  ${CheckIfRegistryKeyExists} "$0" ".webm" $7
+  ${If} $7 == "false"
+    WriteRegStr SHCTX "$0\.webm"  "" "SeaMonkeyHTML"
+  ${EndIf}
 !macroend
 !define SetHandlersBrowser "!insertmacro SetHandlersBrowser"
 

@@ -64,6 +64,7 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 !insertmacro AddHandlerValues
 !insertmacro ChangeMUIHeaderImage
 !insertmacro CheckForFilesInUse
+!insertmacro CheckIfRegistryKeyExists
 !insertmacro CleanUpdateDirectories
 !insertmacro CopyFilesFromDir
 !insertmacro CreateRegKey
