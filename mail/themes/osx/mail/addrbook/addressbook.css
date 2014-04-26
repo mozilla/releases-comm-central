@@ -30,8 +30,55 @@
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   height: 22px;
-  padding: 0;
-  border: 0;
+  padding: 0 4px;
+  border: 1px transparent solid;
+  border-radius: 3px;
+  transition-property: background, border-color;
+  transition-duration: 250ms;
+}
+
+.toolbarbutton-1:not([type="menu-button"]):hover:not([disabled]),
+.toolbarbutton-1:hover:not([disabled]) > .toolbarbutton-menubutton-button,
+.toolbarbutton-1[open="true"]:not([disabled]) > .toolbarbutton-menubutton-button,
+.toolbarbutton-menubutton-button:active + .toolbarbutton-menubutton-dropmarker,
+.toolbarbutton-1:hover:not([disabled]) > .toolbarbutton-menubutton-dropmarker {
+  border-color: hsla(0, 0%, 0%, .2);
+  background: hsla(0, 0%, 100%, .1) linear-gradient(hsla(0, 0%, 100%, .3),
+              hsla(0, 0%, 100%,.1)) padding-box;
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, .5), 0 1px 0 hsla(0, 0%, 100%, .5) inset;
+}
+
+.toolbarbutton-1[checked="true"],
+.toolbarbutton-1:active:not([disabled]):not([type="menu-button"]),
+.button-appmenu[open="true"],
+.toolbarbutton-1:not([disabled]) > .toolbarbutton-menubutton-button:active,
+.toolbarbutton-1[open="true"] >
+.toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
+  background-color: transparent !important;
+  background: hsla(0, 0%, 0%, .02) linear-gradient(hsla(0, 0%, 0%, .12),
+              hsla(0, 0%, 0%, 0)) border-box;
+  border-color: hsla(0, 0%, 0%, .3);
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, .5),
+              0 1px 0 hsla(0, 0%, 0%, .05) inset,
+              0 1px 1px hsla(0, 0%, 0%, .2) inset;
+  transition-duration: 10ms;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button {
+  -moz-border-end: none;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  -moz-border-end: none;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .toolbarbutton-1[type="menu"] {
@@ -53,7 +100,8 @@ toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
 }
 
 .toolbarbutton-1 {
-  margin: 2px 4px;
+  margin: 4px 2px;
+  margin-bottom: 4px;
 }
 
 .toolbarbutton-1[open],
@@ -106,7 +154,6 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 .toolbarbutton-1 > .toolbarbutton-menubutton-button > .toolbarbutton-icon {
   width: 18px;
   height: 18px;
-  margin: 2px;
 }
 
 .toolbarbutton-1[disabled="true"] .toolbarbutton-text,
@@ -122,13 +169,16 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 }
 
 /* Separator between menu and split type buttons */
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::before {
+.toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-menubutton-dropmarker::before,
+.toolbarbutton-1[disabled="true"] >
+.toolbarbutton-menubutton-dropmarker::before {
   content: "";
   display: -moz-box;
   width: 1px;
   height: 18px;
-  -moz-margin-start: -6px;
-  -moz-margin-end: 5px;
+  -moz-margin-start: -5px;
+  -moz-margin-end: 4px;
   margin-bottom: 2px;
   background: hsla(0, 0%, 0%, .3) padding-box;
   box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
