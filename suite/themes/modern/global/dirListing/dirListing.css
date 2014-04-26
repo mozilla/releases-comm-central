@@ -80,7 +80,7 @@ th:hover > a {
   text-decoration: underline;
 }
 
-tbody > tr:hover {
+body > table > tbody > tr:hover {
   outline: 1px solid #98A5B2;
   -moz-outline-radius: .3em;
 }
