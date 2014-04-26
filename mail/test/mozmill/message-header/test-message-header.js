@@ -65,6 +65,17 @@ function setupModule(module) {
   // back from, to force the more button to collapse again.
   let msg = create_message();
   add_message_to_folder(folder, msg);
+
+  // Some of these tests critically depends on the window width, collapse
+  // everything that might be in the way
+  collapse_panes(mc.e("folderpane_splitter"), true);
+  collapse_panes(mc.e("tabmail-container"), true);
+}
+
+function teardownModule(module) {
+  // Now restore the panes we hid in setupModule
+  collapse_panes(mc.e("folderpane_splitter"), false);
+  collapse_panes(mc.e("tabmail-container"), false);
 }
 
 /**
@@ -700,11 +711,6 @@ function test_toolbar_collapse_and_expand() {
     let toolbar = mc.e("header-view-toolbar");
     let mode = toolbar.getAttribute("mode");
 
-    // This test critically depends on the window width, collapse everything
-    // that might be in the way
-    collapse_panes(mc.e("folderpane_splitter"), true);
-    collapse_panes(mc.e("tabmail-container"), true);
-
     // Get really big, so that we can figure out how big we actually want to be.
     mc.window.resizeTo(1200, 600);
     // spin the event loop once
@@ -758,10 +764,6 @@ function test_toolbar_collapse_and_expand() {
     //  See also: quick-filter-bar/test-display-issues.js if we change the
     //            default window size.
     mc.window.resizeTo(1024, 768);
-
-    // Now restore the panes we hid
-    collapse_panes(mc.e("folderpane_splitter"), false);
-    collapse_panes(mc.e("tabmail-container"), false);
   }
 }
 
