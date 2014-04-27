@@ -777,62 +777,14 @@ function awSetAutoComplete(rowNumber)
     _awSetAutoComplete(selectElem, inputElem)
 }
 
-function awRecipientTextCommand(userAction, element)
+function awRecipientTextCommand(enterEvent, element)
 {
-  if (userAction == "typing" || userAction == "scrolling")
-    awReturnHit(element);
-}
-
-// Called when an autocomplete session item is selected and the status of
-// the session it was selected from is nsIAutoCompleteStatus::failureItems.
-//
-// As of this writing, the only way that can happen is when an LDAP
-// autocomplete session returns an error to be displayed to the user.
-//
-// There are hardcoded messages in here, but these are just fallbacks for
-// when string bundles have already failed us.
-//
-function awRecipientErrorCommand(errItem, element)
-{
-  // remove the angle brackets from the general error message to construct
-  // the title for the alert.  someday we'll pass this info using a real
-  // exception object, and then this code can go away.
-  //
-  var generalErrString;
-  if (errItem.value != "")
-    generalErrString = errItem.value.slice(1, errItem.value.length-1);
-  else
-    generalErrString = "Unknown LDAP server problem encountered";
-
-  // try and get the string of the specific error to contruct the complete
-  // err msg, otherwise fall back to something generic.  This message is
-  // handed to us as an nsISupportsString in the param slot of the
-  // autocomplete error item, by agreement documented in
-  // nsILDAPAutoCompFormatter.idl
-  //
-  var specificErrString = "";
-  try
-  {
-    var specificError = errItem.param.QueryInterface(Components.interfaces.nsISupportsString);
-    specificErrString = specificError.data;
-  } catch (ex)
-  {}
-
-  if (specificErrString == "")
-    specificErrString = "Internal error";
-
-  Services.prompt.alert(window, generalErrString, specificErrString);
+  awReturnHit(element);
 }
 
 function awRecipientKeyPress(event, element)
 {
   switch(event.keyCode) {
-  case KeyEvent.DOM_VK_UP:
-    awArrowHit(element, -1);
-    break;
-  case KeyEvent.DOM_VK_DOWN:
-    awArrowHit(element, 1);
-    break;
   case KeyEvent.DOM_VK_RETURN:
   case KeyEvent.DOM_VK_TAB:
     // if the user text contains a comma or a line return, ignore
@@ -849,27 +801,11 @@ function awRecipientKeyPress(event, element)
   }
 }
 
-function awArrowHit(inputElement, direction)
-{
-  var row = awGetRowByInputElement(inputElement) + direction;
-  if (row) {
-    var nextInput = awGetInputElement(row);
-
-    if (nextInput)
-      awSetFocus(row, nextInput);
-    else if (inputElement.value)
-      awAppendNewRow(true);
-  }
-}
-
 function awRecipientKeyDown(event, element)
 {
   switch(event.keyCode) {
   case KeyEvent.DOM_VK_DELETE:
   case KeyEvent.DOM_VK_BACK_SPACE:
-    /* do not query directly the value of the text field else the autocomplete widget could potentially
-       alter it value while doing some internal cleanup, instead, query the value through the first child
-    */
     if (!element.value)
       awDeleteHit(element);
 
