@@ -19,12 +19,20 @@ const cards = [
   { email: "foo3@foo.invalid", displayName: "dis",
     popularityIndex: 2, firstName: "first2", value: "dis <foo3@foo.invalid>" },
   { email: "foo2@foo.invalid", displayName: "di",
-    popularityIndex: 3, firstName: "first2", value: "di <foo2@foo.invalid>" }
+    popularityIndex: 3, firstName: "first2", value: "di <foo2@foo.invalid>" },
+  // this just tests we can search for the special chars '(' and ')', bug 749097
+  { email: "bracket@not.invalid", secondEmail: "h@not.invalid", firstName: "Mr.",
+    displayName: "Mr. (Bracket)", value: "Mr. (Bracket) <bracket@not.invalid>",
+    popularityIndex: 2 },
+  { email: "mr@(bracket).not.invalid", secondEmail: "bracket@not.invalid",  firstName: "Mr.",
+    displayName: "Mr. Bracket", value: "Mr. Bracket <mr@(bracket).not.invalid>",
+    popularityIndex: 1 }
 ];
 
 const duplicates = [
   { search: "test", expected: [2, 1] },
-  { search: "first", expected: [6, 5, 3] }
+  { search: "first", expected: [6, 5, 3] },
+  { search: "(bracket)", expected: [7, 8] }
 ];
 
 

@@ -500,7 +500,7 @@ function onEnterInSearchBar()
   if (searchInput && searchInput.value != "") {
     // replace all instances of @V with the escaped version
     // of what the user typed in the quick search text input
-    searchURI += gQueryURIFormat.replace(/@V/g, encodeURIComponent(searchInput.value));
+    searchURI += gQueryURIFormat.replace(/@V/g, encodeABTermValue(searchInput.value));
   }
 
   SetAbView(searchURI);

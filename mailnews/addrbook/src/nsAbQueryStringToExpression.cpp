@@ -15,6 +15,20 @@
 #include "plstr.h"
 #include "nsIMutableArray.h"
 
+/**
+ * This code parses the query expression passed in as an addressbook URI.
+ * The expression takes the form:
+ * (BOOL1(FIELD1,OP1,VALUE1)..(FIELDn,OPn,VALUEn)(BOOL2(FIELD1,OP1,VALUE1)...)...)
+ *
+ * BOOLn   A boolean operator joining subsequent terms delimited by ().
+ *         For possible values see CreateBooleanExpression().
+ * FIELDn  An addressbook card data field.
+ * OPn     An operator for the search term.
+ *         For possible values see CreateBooleanConditionString().
+ * VALUEn  The value to be matched in the FIELDn via the OPn operator.
+ *         The value must be URL encoded by the caller, if it contains any special
+ *         characters including '(' and ')'.
+ */
 nsresult nsAbQueryStringToExpression::Convert (
     const nsACString &aQueryString,
     nsIAbBooleanExpression** expression)

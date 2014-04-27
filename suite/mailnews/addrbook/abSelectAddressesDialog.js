@@ -366,7 +366,7 @@ function onEnterInSearchBar()
   var searchURI = selectedNode.value;
 
   if (gSearchInput.value != "") {
-    searchURI += gQueryURIFormat.replace(/@V/g, encodeURIComponent(gSearchInput.value));
+    searchURI += gQueryURIFormat.replace(/@V/g, encodeABTermValue(gSearchInput.value));
   }
 
   SetAbView(searchURI);

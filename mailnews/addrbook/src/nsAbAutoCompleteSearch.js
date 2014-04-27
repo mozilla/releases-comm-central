@@ -129,8 +129,13 @@ nsAbAutoCompleteSearch.prototype = {
    * @param result       The result element to append results to.
    */
   _searchCards: function _searchCards(searchQuery, directory, result) {
-    var childCards =
-      this._abManager.getDirectory(directory.URI + searchQuery).childCards;
+    let childCards;
+    try {
+      childCards = this._abManager.getDirectory(directory.URI + searchQuery).childCards;
+    } catch (e) {
+      Components.utils.reportError("Error running addressbook query '" + searchQuery + "': " + e);
+      return;
+    }
 
     // Cache this values to save going through xpconnect each time
     var commentColumn = this._commentColumn == 1 ? directory.dirName : "";
@@ -350,7 +355,7 @@ nsAbAutoCompleteSearch.prototype = {
                        "(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)" +
                        "(and(IsMailList,=,TRUE)(Notes,c,@V)))";
       for (let searchWord of searchWords) {
-        searchQuery += modelQuery.replace(/@V/g, encodeURIComponent(searchWord));
+        searchQuery += modelQuery.replace(/@V/g, encodeABTermValue(searchWord));
       }
       searchQuery = "?(and" + searchQuery + ")";
       // Now do the searching
@@ -385,6 +390,16 @@ nsAbAutoCompleteSearch.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces
                                                    .nsIAutoCompleteSearch])
 };
+
+/**
+ * Encode the string passed as value into an addressbook search term.
+ * The '(' and ')' characters are special for the addressbook
+ * search query language, but are not escaped in encodeURIComponent()
+ * so it must be done manually on top of it.
+ */
+function encodeABTermValue(aString) {
+  return encodeURIComponent(aString).replace(/\(/g, "%28").replace(/\)/g, "%29");
+}
 
 // Module
 

@@ -139,7 +139,7 @@ function onEnterInSearchBar()
   var searchInput = document.getElementById("peopleSearchInput");
 
   if (searchInput.value != "")
-    searchURI += gQueryURIFormat.replace(/@V/g, encodeURIComponent(searchInput.value));
+    searchURI += gQueryURIFormat.replace(/@V/g, encodeABTermValue(searchInput.value));
 
   SetAbView(searchURI);
 }
