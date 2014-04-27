@@ -2597,10 +2597,8 @@ var LightWeightThemeWebInstaller = {
   },
 
   get _manager () {
-    var temp = {};
-    Components.utils.import("resource://gre/modules/LightweightThemeManager.jsm", temp);
     delete this._manager;
-    return this._manager = temp.LightweightThemeManager;
+    return this._manager = LightweightThemeManager;
   },
 
   _installRequest: function (event) {
