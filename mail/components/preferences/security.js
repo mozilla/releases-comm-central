@@ -151,7 +151,7 @@ var gSecurityPane = {
     var secmodDB = Cc["@mozilla.org/security/pkcs11moduledb;1"].
                    getService(Ci.nsIPKCS11ModuleDB);
     if (secmodDB.isFIPSEnabled) {
-      let bundle = document.getElementById("bundlePreferences");
+      let bundle = document.getElementById("bundleMasterPwPreferences");
       Services.prompt.alert(window,
                             bundle.getString("pw_change_failed_title"),
                             bundle.getString("pw_change2empty_in_fips_mode"));

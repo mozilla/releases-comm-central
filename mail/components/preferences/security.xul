@@ -18,6 +18,7 @@
     <script type="application/javascript" src="chrome://messenger/content/preferences/security.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+    <stringbundle id="bundleMasterPwPreferences" src="chrome://mozapps/locale/preferences/preferences.properties"/>
 
     <preferences id="securityPreferences">
       <preference id="mail.preferences.security.selectedTabIndex"
