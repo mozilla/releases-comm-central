@@ -53,7 +53,6 @@
   -moz-appearance: none;
   background-clip: padding-box;
   border: 1px solid ThreeDDarkShadow;
-  border-radius: 2px;
 }
 
 #view-task-edit-field,
@@ -61,17 +60,62 @@
   width: 15em;
 }
 
-@media (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   #unifinder-search-field,
   #view-task-edit-field,
   #task-text-filter-field,
   #unifinder-task-edit-field {
+    border-radius: 2px;
     border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
                   hsla(210, 54%, 20%, .3);
     box-shadow: 0 1px hsla(0, 0%, 0%, .01) inset,
                 0 1px hsla(0, 0%, 100%, .1);
   }
 
+  #unifinder-search-field:not([focused]):hover,
+  #view-task-edit-field:not([focused]):hover,
+  #task-text-filter-field:not([focused]):hover,
+  #unifinder-task-edit-field:not([focused]):hover {
+    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
+                  hsla(210, 54%, 20%, .4);
+  }
+
+  #unifinder-search-field[focused],
+  #view-task-edit-field[focused],
+  #task-text-filter-field[focused],
+  #unifinder-task-edit-field[focused] {
+    border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
+                  hsla(206, 100%, 50%, .65);
+  }
+}
+
+/* Win8 and beyond. */
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #unifinder-search-field:not(:-moz-lwtheme),
+  #view-task-edit-field:not(:-moz-lwtheme),
+  #task-text-filter-field:not(:-moz-lwtheme),
+  #unifinder-task-edit-field:not(:-moz-lwtheme) {
+    background-color: hsla(0, 0%, 100%, .9);
+    border: 1px solid transparent;
+    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
+                  hsla(210, 54%, 20%, .3);
+    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
+                0 1px 0 hsla(0, 0%, 100%, .1);
+    transition-property: border-color, background-color;
+    transition-duration: 200ms;
+  }
+
+  #unifinder-search-field:not(:-moz-lwtheme)[focused],
+  #view-task-edit-field:not(:-moz-lwtheme)[focused],
+  #task-text-filter-field:not(:-moz-lwtheme)[focused],
+  #unifinder-task-edit-field:not(:-moz-lwtheme)[focused] {
+    background-color: hsla(0, 0%, 100%, 1);
+    border-color: #4595e5;
+  }
+}
+
+@media (-moz-windows-default-theme) {
   #bottom-events-box > #unifinder-searchBox,
   #task-addition-box {
     background-color: #f8f8f8;
@@ -91,32 +135,6 @@
 
   sidebarheader > spacer {
     min-height: 25px;
-  }
-}
-
-@media (-moz-windows-compositor) {
-  #unifinder-search-field,
-  #view-task-edit-field,
-  #task-text-filter-field,
-  #unifinder-task-edit-field {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-  }
-
-  #unifinder-search-field:not([focused]):hover,
-  #view-task-edit-field:not([focused]):hover,
-  #task-text-filter-field:not([focused]):hover,
-  #unifinder-task-edit-field:not([focused]):hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
-  }
-
-  #unifinder-search-field[focused],
-  #view-task-edit-field[focused],
-  #task-text-filter-field[focused],
-  #unifinder-task-edit-field[focused] {
-    border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
-                  hsla(206, 100%, 50%, .65);
   }
 }
 

@@ -83,11 +83,13 @@
   list-style-image: url(chrome://messenger/skin/icons/mail-toolbar-inverted.png);
 }
 
-@media (-moz-windows-compositor) {
-  #calendar-toolbox {
+@media (-moz-windows-glass) {
+  #calendar-toolbox:not(:-moz-lwtheme) {
     border-bottom-color: #AABCCF;
   }
+}
 
+@media (-moz-windows-compositor) {
   #tabbar-toolbar:not(:-moz-lwtheme-darktext) #lightning-button-calendar,
   #tabbar-toolbar:not(:-moz-lwtheme-darktext) #lightning-button-tasks {
     list-style-image: url(chrome://lightning/skin/mode-switch-icons-inverted.png);
