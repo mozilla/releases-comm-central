@@ -988,11 +988,6 @@
               accesskey="&editRemoteContentSettingsUnix.accesskey;"
 #endif
               oncommand="editRemoteContentSettings();"/>
-<!--    <menuitem id="remoteContentOptionAllowForAddress"
-              label="&remoteContentOptionAllowForAddress.label;"
-              accesskey="&remoteContentOptionAllowForAddress.accesskey;"
-              oncommand="allowRemoteContentForSender();"/>
--->
   </menupopup>
 
   <menupopup id="phishingOptions">

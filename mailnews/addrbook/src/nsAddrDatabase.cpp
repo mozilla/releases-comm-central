@@ -127,7 +127,6 @@ nsAddrDatabase::nsAddrDatabase()
       m_LastModDateColumnToken(0),
       m_MailFormatColumnToken(0),
       m_PopularityIndexColumnToken(0),
-      m_AllowRemoteContentColumnToken(0),
       m_AddressCharSetColumnToken(0),
       m_LastRecordKey(0),
       m_dbDirectory(nullptr)
@@ -1062,7 +1061,6 @@ nsresult nsAddrDatabase::InitMDBInfo()
       m_mdbStore->StringToToken(m_mdbEnv,  kLower2ndEmailColumn, &m_Lower2ndEmailColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kPreferMailFormatProperty, &m_MailFormatColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kPopularityIndexProperty, &m_PopularityIndexColumnToken);
-      m_mdbStore->StringToToken(m_mdbEnv,  kAllowRemoteContentProperty, &m_AllowRemoteContentColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kWorkPhoneProperty, &m_WorkPhoneColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kHomePhoneProperty, &m_HomePhoneColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv,  kFaxProperty, &m_FaxColumnToken);

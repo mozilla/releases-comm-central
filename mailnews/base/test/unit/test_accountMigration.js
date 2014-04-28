@@ -4,10 +4,14 @@
 
 /**
  * This tests that we don't try to reset the mail.server.server<n>.authMethod
- * preference every time we run the migration code.
+ * preference every time we run the migration code, and other migration stuff
  */
 
+// make xpcshell-tests TEST_PATH=mailnews/base/test/unit/test_accountMigration.js
+
 Components.utils.import("resource:///modules/mailnewsMigrator.js");
+
+load("../../../resources/abSetup.js");
 
 function run_test() {
   // Set up some basic accounts with limited prefs - enough to satisfy the
@@ -22,6 +26,24 @@ function run_test() {
 
   Services.prefs.setCharPref("mail.accountmanager.accounts",
                              "account1,account2");
+
+  let testAB = do_get_file("data/remoteContent.mab");
+
+  // Copy the file to the profile directory for a PAB.
+  testAB.copyTo(do_get_profile(), kPABData.fileName);
+
+  let uriAllowed = Services.io.newURI("mailto:yes@test.invalid", null, null);
+  let uriAllowed2 = Services.io.newURI("mailto:yes2@test.invalid", null, null);
+  let uriDisallowed = Services.io.newURI("mailto:no@test.invalid", null, null);
+
+  // Check that this email that according to the ab data has (had!)
+  // remote content premissions, has no premissions pre migration.
+  do_check_eq(Services.perms.testPermission(uriAllowed, "image"),
+              Services.perms.UNKNOWN_ACTION);
+  do_check_eq(Services.perms.testPermission(uriAllowed2, "image"),
+              Services.perms.UNKNOWN_ACTION);
+  do_check_eq(Services.perms.testPermission(uriDisallowed, "image"),
+              Services.perms.UNKNOWN_ACTION);
 
   // Now migrate the prefs.
   migrateMailnews();
@@ -54,6 +76,16 @@ function run_test() {
 
   // smtp2 has useSecAuth set to true, auth_method unset
   Services.prefs.setBoolPref("mail.smtpserver.smtp2.useSecAuth", true);
+
+  // Migration should now have added permissions for the address that had them
+  // and not for the one that didn't have them.
+  do_check_true(Services.prefs.getIntPref("mail.ab_remote_content.migrated") > 0);
+  do_check_eq(Services.perms.testPermission(uriAllowed, "image"),
+              Services.perms.ALLOW_ACTION);
+  do_check_eq(Services.perms.testPermission(uriAllowed2, "image"),
+              Services.perms.ALLOW_ACTION);
+  do_check_eq(Services.perms.testPermission(uriDisallowed, "image"),
+              Services.perms.UNKNOWN_ACTION);
 
   // Now migrate the prefs
   migrateMailnews();

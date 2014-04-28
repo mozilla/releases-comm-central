@@ -8,7 +8,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 const kNonVcardFields =
         ["NickNameContainer", "SecondaryEmailContainer", "ScreenNameContainer",
-         "customFields", "allowRemoteContent", "preferDisplayName"];
+         "customFields", "preferDisplayName"];
 
 const kPhoneticFields =
         ["PhoneticLastName", "PhoneticLabel1", "PhoneticSpacer1",
@@ -122,9 +122,6 @@ function OnLoadNewCard()
     if ("aimScreenName" in window.arguments[0])
       gEditCard.card.setProperty("_AimScreenName",
                                  window.arguments[0].aimScreenName);
-    if ("allowRemoteContent" in window.arguments[0])
-      gEditCard.card.setProperty("AllowRemoteContent",
-                                 window.arguments[0].allowRemoteContent);
 
     if ("okCallback" in window.arguments[0])
       gOkCallback = window.arguments[0].okCallback;
@@ -289,7 +286,6 @@ function OnLoadEditCard()
 
         // Also disable the mail format popup and allow remote content items.
         document.getElementById("PreferMailFormatPopup").disabled = true;
-        document.getElementById("allowRemoteContent").disabled = true;
 
         // And the "prefer display name" checkbox
         document.getElementById("preferDisplayName").disabled = true;
@@ -297,10 +293,6 @@ function OnLoadEditCard()
         document.documentElement.buttons = "accept";
         document.documentElement.removeAttribute("ondialogaccept");
       }
-      
-      // hide  remote content in HTML field for remote directories
-      if (directory.isRemote)
-        document.getElementById('allowRemoteContent').hidden = true;
     }
   }
 }
@@ -434,12 +426,6 @@ function NewCardOKButton()
       var directory = GetDirectoryFromURI(uri);
       gEditCard.card = directory.addCard(gEditCard.card);
       NotifySaveListeners(directory);
-      if ("arguments" in window && window.arguments[0] &&
-          "allowRemoteContent" in window.arguments[0]) {
-        // getProperty may return a "1" or "0" string, we want a boolean
-        window.arguments[0].allowRemoteContent =
-          gEditCard.card.getProperty("AllowRemoteContent", false) != false;
-      }
     }
   }
 
@@ -499,11 +485,6 @@ function GetCardValues(cardproperty, doc)
   var popup = document.getElementById("PreferMailFormatPopup");
   if (popup)
     popup.value = cardproperty.getProperty("PreferMailFormat", "");
-
-  var allowRemoteContentEl = document.getElementById("allowRemoteContent");
-  if (allowRemoteContentEl)
-    // getProperty may return a "1" or "0" string, we want a boolean
-    allowRemoteContentEl.checked = cardproperty.getProperty("AllowRemoteContent", false) != false;
 
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
   if (preferDisplayNameEl)
@@ -573,10 +554,6 @@ function CheckAndSetCardValues(cardproperty, doc, check)
   var popup = document.getElementById("PreferMailFormatPopup");
   if (popup)
     cardproperty.setProperty("PreferMailFormat", popup.value);
-    
-  var allowRemoteContentEl = document.getElementById("allowRemoteContent");
-  if (allowRemoteContentEl)
-    cardproperty.setProperty("AllowRemoteContent", allowRemoteContentEl.checked);
 
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
   if (preferDisplayNameEl)

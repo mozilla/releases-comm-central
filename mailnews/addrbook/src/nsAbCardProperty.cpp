@@ -112,7 +112,6 @@ nsAbCardProperty::nsAbCardProperty()
   SetPropertyAsUint32(kPopularityIndexProperty, 0);
   // Uninitialized...
   SetPropertyAsUint32(kLastModifiedDateProperty, 0);
-  SetPropertyAsBool(kAllowRemoteContentProperty, false);
 }
 
 nsAbCardProperty::~nsAbCardProperty(void)

@@ -10,18 +10,24 @@
  * or was never used in the old version.
  */
 
-var EXPORTED_SYMBOLS = [ "migrateMailnews" ];
+const EXPORTED_SYMBOLS = [ "migrateMailnews" ];
 
 Components.utils.import("resource:///modules/errUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource:///modules/mailServices.js");
 const Ci = Components.interfaces;
 const kServerPrefVersion = 1;
 const kSmtpPrefVersion = 1;
+const kABRemoteContentPrefVersion = 1;
 
 function migrateMailnews()
 {
   try {
     MigrateServerAuthPref();
+  } catch (e) { logException(e); }
+
+  try {
+    MigrateABRemoteContentSettings();
   } catch (e) { logException(e); }
 }
 
@@ -104,3 +110,53 @@ function MigrateServerAuthPref()
     }
   } catch(e) { logException(e); }
 }
+
+/**
+ * The address book used to contain information about wheather to allow remote
+ * content for a given contact. Now we use the permission manager for that.
+ * Do a one-time migration for it.
+ */
+function MigrateABRemoteContentSettings()
+{
+  if (Services.prefs.prefHasUserValue("mail.ab_remote_content.migrated"))
+    return;
+
+  // Search through all of our local address books looking for a match.
+  let enumerator = MailServices.ab.directories;
+  while (enumerator.hasMoreElements())
+  {
+    let migrateAddress = function(aEmail) {
+      let uri = Services.io.newURI("mailto:" + aEmail, null, null);
+      Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+    }
+
+    let addrbook = enumerator.getNext()
+      .QueryInterface(Components.interfaces.nsIAbDirectory);
+    try {
+      // If it's a read-only book, don't try to find a card as we we could never
+      // have set the AllowRemoteContent property.
+      if (addrbook.readOnly)
+        continue;
+
+      let childCards = addrbook.childCards;
+      while (childCards.hasMoreElements())
+      {
+        let card = childCards.getNext()
+                             .QueryInterface(Components.interfaces.nsIAbCard);
+
+        if (card.getProperty("AllowRemoteContent", false) == false)
+          continue; // not allowed for this contact
+
+        if (card.primaryEmail)
+          migrateAddress(card.primaryEmail);
+
+        if (card.getProperty("SecondEmail", ""))
+          migrateAddress(card.getProperty("SecondEmail", ""));
+      }
+    } catch (e) { logException(e); }
+  }
+
+  Services.prefs.setIntPref("mail.ab_remote_content.migrated",
+                            kABRemoteContentPrefVersion);
+}
+

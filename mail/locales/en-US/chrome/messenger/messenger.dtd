@@ -563,8 +563,6 @@
 <!-- Remote Content Button Popup -->
 <!ENTITY remoteContentOptionsAllowForMsg.label "Show remote content in this message">
 <!ENTITY remoteContentOptionsAllowForMsg.accesskey "S">
-<!ENTITY remoteContentOptionAllowForAddress.label "Show remote content from this sender">
-<!ENTITY remoteContentOptionAllowForAddress.accesskey "f">
 <!ENTITY editRemoteContentSettings.label "Edit remote content options…">
 <!ENTITY editRemoteContentSettings.accesskey "E">
 <!ENTITY editRemoteContentSettingsUnix.label "Edit remote content preferences…">

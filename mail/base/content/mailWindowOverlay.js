@@ -3052,67 +3052,6 @@ function LoadMsgWithRemoteContent()
 }
 
 /**
- *  Reloads the message after adjusting the remote content policy for the sender.
- *  Iterate through the local address books looking for a card with the same e-mail address as the
- *  sender of the current loaded message. If we find a card, update the allow remote content field.
- *  If we can't find a card, prompt the user with a new AB card dialog, pre-selecting the remote content field.
- */
-function allowRemoteContentForSender()
-{
-  // get the sender of the msg hdr
-  let msgHdr = gMessageDisplay.displayedMessage;
-  if (!msgHdr)
-    return;
-
-  let names = {};
-  let addresses = {};
-
-  MailServices.headerParser.parseHeadersWithArray(msgHdr.author, addresses, names, {});
-  let authorEmailAddress = addresses.value[0];
-  let authorDisplayName = names.value[0];
-
-  // search through all of our local address books looking for a match.
-  let enumerator = MailServices.ab.directories;
-  var cardForEmailAddress;
-  var addrbook;
-  while (!cardForEmailAddress && enumerator.hasMoreElements())
-  {
-    addrbook = enumerator.getNext()
-                         .QueryInterface(Components.interfaces.nsIAbDirectory);
-    // Try/catch because some cardForEmailAddress functions may not be
-    // implemented.
-    try {
-      // If its a read-only book, don't find a card as we won't be able
-      // to modify the card.
-      if (!addrbook.readOnly)
-        cardForEmailAddress = addrbook.cardForEmailAddress(authorEmailAddress);
-    } catch (e) {}
-  }
-
-  var allowRemoteContent = false;
-  if (cardForEmailAddress)
-  {
-    // set the property for remote content
-    cardForEmailAddress.setProperty("AllowRemoteContent", true);
-    addrbook.modifyCard(cardForEmailAddress);
-    allowRemoteContent = true;
-  }
-  else
-  {
-    let args = {primaryEmail:authorEmailAddress, displayName:authorDisplayName,
-                allowRemoteContent:true};
-    // create a new card and set the property
-    window.openDialog("chrome://messenger/content/addressbook/abNewCardDialog.xul",
-                      "", "chrome,resizable=no,titlebar,modal,centerscreen", args);
-    allowRemoteContent = args.allowRemoteContent;
-  }
-
-  // Reload the message if we've updated the remote content policy for the sender.
-  if (allowRemoteContent)
-    ReloadMessage();
-}
-
-/**
  * Populate the remote content options for the current message.
  */
 function onRemoteContentOptionsShowing(aEvent) {
@@ -3124,7 +3063,7 @@ function onRemoteContentOptionsShowing(aEvent) {
   let authorEmailAddress = addresses.value[0];
   // Needs bug 457296 policy patch to actually work, but I don't want to
   // keep this bug hostage for that, so just if-false it for now.
-  if (false && authorEmailAddress)
+  if (authorEmailAddress)
     hosts.splice(0, 0, authorEmailAddress);
 
   let messengerBundle = document.getElementById("bundle_messenger");
@@ -3146,7 +3085,7 @@ function onRemoteContentOptionsShowing(aEvent) {
       messengerBundle.getFormattedString("remoteAllow", [host]));
     menuitem.setAttribute("value", uri.spec);
     menuitem.setAttribute("class", "allow-remote-uri");
-    menuitem.setAttribute("oncommand", "allowRemoteContentForSite(this.value);");
+    menuitem.setAttribute("oncommand", "allowRemoteContentForURI(this.value);");
     aEvent.target.appendChild(menuitem);
   }
 }
@@ -3155,7 +3094,7 @@ function onRemoteContentOptionsShowing(aEvent) {
  * Add privileges to display remote content for the given uri.
  * @param aUriSpec |String| uri for the site to add permissions for.
  */
-function allowRemoteContentForSite(aUriSpec) {
+function allowRemoteContentForURI(aUriSpec) {
   let uri = Services.io.newURI(aUriSpec, null, null);
   Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
   ReloadMessage();

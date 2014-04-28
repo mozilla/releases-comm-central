@@ -136,8 +136,7 @@ function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName)
    * supported by all three text export/import types. PreferMailFormat is only
    * supported by LDIF.
    * The following are not supported: anniversaryYear, anniversaryMonth,
-   * anniversaryDay, popularityIndex, isMailList, mailListURI, lastModifiedDate,
-   * and allowRemoteContent
+   * anniversaryDay, popularityIndex, isMailList, mailListURI, lastModifiedDate.
    */
   var supportedAttributes =
     ["FirstName", "LastName", "DisplayName", "NickName", "PrimaryEmail",

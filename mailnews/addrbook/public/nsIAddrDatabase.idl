@@ -48,7 +48,7 @@ interface nsAddrDBCommitType
   const long kCompressCommit = 3;
 };
 
-[scriptable, uuid(a71d3d0d-5605-4dd9-8ac1-b258cc3bda93)]
+[scriptable, uuid(c54973e4-d251-4b93-a0d0-81a616225061)]
 interface nsIAddrDatabase : nsIAddrDBAnnouncer {
 
   /**
@@ -258,7 +258,6 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
   [noscript] void addNotes(in nsIMdbRow row, in string value);
   [noscript] void addPreferMailFormat(in nsIMdbRow row, in unsigned long value);
   [noscript] void addPopularityIndex(in nsIMdbRow row, in unsigned long value);
-  [noscript] void addAllowRemoteContent(in nsIMdbRow row, in boolean value);
 
   [noscript] void addListName(in nsIMdbRow row, in string value);
   [noscript] void addListNickName(in nsIMdbRow row, in string value);

@@ -98,9 +98,6 @@ public:
   NS_IMETHOD AddPopularityIndex(nsIMdbRow * row, uint32_t value) MOZ_OVERRIDE
   { return AddIntColumn(row, m_PopularityIndexColumnToken, value); }
 
-  NS_IMETHOD AddAllowRemoteContent(nsIMdbRow * row, bool value) MOZ_OVERRIDE
-  { return AddBoolColumn(row, m_AllowRemoteContentColumnToken, value); }
-
   NS_IMETHOD AddWorkPhone(nsIMdbRow * row, const char * value) MOZ_OVERRIDE
   { return AddCharStringColumn(row, m_WorkPhoneColumnToken, value); }
 
@@ -412,7 +409,6 @@ protected:
 
   mdb_token      m_MailFormatColumnToken;
   mdb_token     m_PopularityIndexColumnToken;
-  mdb_token     m_AllowRemoteContentColumnToken;
 
   mdb_token      m_AddressCharSetColumnToken;
   mdb_token      m_LastRecordKeyColumnToken;

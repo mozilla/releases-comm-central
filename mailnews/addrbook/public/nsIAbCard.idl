@@ -57,8 +57,6 @@ interface nsIAbPreferMailFormat {
  *   - LastModifiedDate
  *   - PopularityIndex
  *   - PreferMailFormat (see nsIAbPreferMailFormat)
- * - Boolean properties:
- *   - AllowRemoteContent
  * - Photo properties:
  *   - PhotoName
  *   - PhotoType
@@ -297,7 +295,6 @@ interface nsIAbCard : nsIAbItem {
 #define kPreferMailFormatProperty   "PreferMailFormat"
 #define kLastModifiedDateProperty   "LastModifiedDate"
 #define kPopularityIndexProperty    "PopularityIndex"
-#define kAllowRemoteContentProperty "AllowRemoteContent"
 
 #define kPhoneticFirstNameProperty  "PhoneticFirstName"
 #define kPhoneticLastNameProperty   "PhoneticLastName"
