@@ -30,4 +30,4 @@ add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
 if CONFIG['MOZ_CALENDAR']:
     add_tier_dir('app', '../calendar/lightning')
 
-add_tier_dir('app', '../suite')
+add_tier_dir('app', ['../mozilla/xpfe/components/autocomplete', '../suite'])
