@@ -114,7 +114,7 @@
 
               <!-- re-confirm partstat -->
               <toolbarbutton id="imipReconfirmButton"
-                             label="&lightning.imipbar.btnReconfirm.label;"
+                             label="&lightning.imipbar.btnReconfirm2.label;"
                              tooltiptext="&lightning.imipbar.btnReconfirm.tooltiptext;"
                              class="toolbarbutton-1 msgHeaderView-button imipReconfirmButton"
                              oncommand="ltnImipBar.executeAction()"
@@ -122,7 +122,7 @@
 
               <!-- accept -->
               <toolbarbutton id="imipAcceptButton"
-                             tooltiptext="&lightning.imipbar.btnAccept.tooltiptext;"
+                             tooltiptext="&lightning.imipbar.btnAccept2.tooltiptext;"
                              label="&lightning.imipbar.btnAccept.label;"
                              oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED');"
                              type="menu-button"
@@ -130,11 +130,11 @@
                              hidden="true">
                 <menupopup id="imipAcceptDropdown">
                   <menuitem id="imipAcceptButton_Accept"
-                            tooltiptext="&lightning.imipbar.btnAccept.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnAccept2.tooltiptext;"
                             label="&lightning.imipbar.btnAccept.label;"
                             oncommand="ltnImipBar.executeAction('ACCEPTED');"/>
                   <menuitem id="imipAcceptButton_Tentative"
-                            tooltiptext="&lightning.imipbar.btnTentative.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnTentative2.tooltiptext;"
                             label="&lightning.imipbar.btnTentative.label;"
                             oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
                   <!-- add here more menuitem as needed -->
@@ -143,7 +143,7 @@
 
               <!-- accept recurrences -->
               <toolbarbutton id="imipAcceptRecurrencesButton"
-                             tooltiptext="&lightning.imipbar.btnAcceptRecurrences.tooltiptext;"
+                             tooltiptext="&lightning.imipbar.btnAcceptRecurrences2.tooltiptext;"
                              label="&lightning.imipbar.btnAcceptRecurrences.label;"
                              oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED');"
                              type="menu-button"
@@ -151,7 +151,7 @@
                              hidden="true">
                 <menupopup id="imipAcceptRecurrencesDropdown">
                   <menuitem id="imipAcceptRecurrencesButton_Accept"
-                            tooltiptext="&lightning.imipbar.btnAcceptRecurrences.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnAcceptRecurrences2.tooltiptext;"
                             label="&lightning.imipbar.btnAcceptRecurrences.label;"
                             oncommand="ltnImipBar.executeAction('ACCEPTED');"/>
                   <menuitem id="imipAcceptRecurrencesButton_Tentative"
@@ -166,14 +166,14 @@
                  - imipDeclineButton/imipAcceptButton have no visible menuitems //-->
               <toolbarbutton id="imipTentativeButton"
                              label="&lightning.imipbar.btnTentative.label;"
-                             tooltiptext="&lightning.imipbar.btnTentative.tooltiptext;"
+                             tooltiptext="&lightning.imipbar.btnTentative2.tooltiptext;"
                              class="toolbarbutton-1 msgHeaderView-button imipTentativeButton"
                              oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('TENTATIVE');"
                              type="menu-button"
                              hidden="true">
                 <menupopup id="imipTentativeDropdown">
                   <menuitem id="imipTentativeButton_Tentative"
-                            tooltiptext="&lightning.imipbar.btnTentative.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnTentative2.tooltiptext;"
                             label="&lightning.imipbar.btnTentative.label;"
                             oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
                   <!-- add here more menuitem as needed -->
@@ -184,14 +184,14 @@
                  - imipDeclineRecurrencesButton/imipAcceptRecurrencesButton have no visible menuitems //-->
               <toolbarbutton id="imipTentativeRecurrencesButton"
                              label="&lightning.imipbar.btnTentativeRecurrences.label;"
-                             tooltiptext="&lightning.imipbar.btnTentativeRecurrences.tooltiptext;"
+                             tooltiptext="&lightning.imipbar.btnTentativeRecurrences2.tooltiptext;"
                              class="toolbarbutton-1 msgHeaderView-button imipTentativeRecurrencesButton"
                              oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('TENTATIVE');"
                              type="menu-button"
                              hidden="true">
                 <menupopup id="imipTentativeRecurrencesDropdown">
                   <menuitem id="imipTentativeRecurrencesButton_Tentative"
-                            tooltiptext="&lightning.imipbar.btnTentativeRecurrences.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnTentativeRecurrences2.tooltiptext;"
                             label="&lightning.imipbar.btnTentativeRecurrences.label;"
                             oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
                   <!-- add here more menuitem as needed -->
@@ -200,7 +200,7 @@
 
               <!-- decline -->
               <toolbarbutton id="imipDeclineButton"
-                             tooltiptext="&lightning.imipbar.btnDecline.tooltiptext;"
+                             tooltiptext="&lightning.imipbar.btnDecline2.tooltiptext;"
                              label="&lightning.imipbar.btnDecline.label;"
                              oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('DECLINED');"
                              type="menu-button"
@@ -208,7 +208,7 @@
                              hidden="true">
                 <menupopup id="imipDeclineDropdown">
                   <menuitem id="imipDeclineButton_Decline"
-                            tooltiptext="&lightning.imipbar.btnDecline.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnDecline2.tooltiptext;"
                             label="&lightning.imipbar.btnDecline.label;"
                             oncommand="ltnImipBar.executeAction('DECLINED');"/>
                   <!-- add here more menuitem as needed -->
@@ -217,7 +217,7 @@
 
               <!-- decline recurrences -->
               <toolbarbutton id="imipDeclineRecurrencesButton"
-                             tooltiptext="&lightning.imipbar.btnDeclineRecurrences.tooltiptext;"
+                             tooltiptext="&lightning.imipbar.btnDeclineRecurrences2.tooltiptext;"
                              label="&lightning.imipbar.btnDeclineRecurrences.label;"
                              oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('DECLINED');"
                              type="menu-button"
@@ -225,7 +225,7 @@
                              hidden="true">
                 <menupopup id="imipDeclineRecurrencesDropdown">
                   <menuitem id="imipDeclineRecurrencesButton_DeclineAll"
-                            tooltiptext="&lightning.imipbar.btnDeclineRecurrences.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnDeclineRecurrences2.tooltiptext;"
                             label="&lightning.imipbar.btnDeclineRecurrences.label;"
                             oncommand="ltnImipBar.executeAction('DECLINED');"/>
                   <!-- add here more menuitem as needed -->
