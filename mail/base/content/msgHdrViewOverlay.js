@@ -180,7 +180,7 @@ function initializeHeaderViewTables()
   for (index = 0; index < extraHeaders.length; index++) {
     var extraHeader = extraHeaders[index];
     gExpandedHeaderView[extraHeader.toLowerCase()] =
-      new createNewHeaderView(extraHeader, extraHeader);
+      new HeaderView(extraHeader, extraHeader);
   }
 
   if (Services.prefs.getBoolPref("mailnews.headers.showOrganization")) {
@@ -917,8 +917,7 @@ function EnsureMinimumNumberOfHeaders (headerTable)
     // header widget for them.
     while (numEmptyHeaders) {
       var dummyHeaderId = "Dummy-Header" + gDummyHeaderIdIndex;
-      gExpandedHeaderView[dummyHeaderId] = new createNewHeaderView(dummyHeaderId,
-                                                                   "");
+      gExpandedHeaderView[dummyHeaderId] = new HeaderView(dummyHeaderId, "");
       gExpandedHeaderView[dummyHeaderId].valid = true;
 
       gDummyHeaderIdIndex++;
@@ -997,37 +996,45 @@ function updateHeaderValue(aHeaderEntry, aHeaderValue)
  *                             used to construct element ids
  * @param {String} label       name of the header as displayed in the UI
  */
-function createNewHeaderView(headerName, label)
+function HeaderView(headerName, label)
 {
-  var idName = "expanded" + headerName + "Box";
+  let rowId = "expanded" + headerName + "Row";
+  let idName = "expanded" + headerName + "Box";
+  let newHeaderNode;
+  // If a row for this header already exists, do not create another one.
+  let newRowNode = document.getElementById(rowId);
+  if (!newRowNode) {
+    // Create new collapsed row.
+    newRowNode = document.createElement("row");
+    newRowNode.setAttribute("id", rowId);
+    newRowNode.collapsed = true;
 
-  // create new collapsed row
-  let newRowNode = document.createElement("row");
-  newRowNode.setAttribute("id", "expanded" + headerName + "Row");
-  newRowNode.collapsed = true;
+    // Create and append the label which contains the header name.
+    let newLabelNode = document.createElement("label");
+    newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
+    newLabelNode.setAttribute("value", label);
+    newLabelNode.setAttribute("class", "headerName");
+    newLabelNode.setAttribute("control", idName);
+    newRowNode.appendChild(newLabelNode);
 
-  // create and append the label which contains the header name
-  let newLabelNode = document.createElement("label");
-  newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
-  newLabelNode.setAttribute("value", label);
-  newLabelNode.setAttribute("class", "headerName");
-  newLabelNode.setAttribute("control", idName);
-  newRowNode.appendChild(newLabelNode);
+    // Create and append the new header value.
+    newHeaderNode = document.createElement("mail-headerfield");
+    newHeaderNode.setAttribute("id", idName);
+    newHeaderNode.setAttribute("flex", "1");
 
-  // create and append the new header value
-  var newHeaderNode = document.createElement("mail-headerfield");
-  newHeaderNode.setAttribute("id", idName);
-  newHeaderNode.setAttribute("flex", "1");
+    newRowNode.appendChild(newHeaderNode);
 
-  newRowNode.appendChild(newHeaderNode);
-
-  // this new element needs to be inserted into the view...
-  let topViewNode = document.getElementById("expandedHeader2Rows");
-  topViewNode.appendChild(newRowNode);
+    // This new element needs to be inserted into the view...
+    let topViewNode = document.getElementById("expandedHeader2Rows");
+    topViewNode.appendChild(newRowNode);
+    this.isNewHeader = true;
+  } else {
+    newHeaderNode = document.getElementById(idName);
+    this.isNewHeader = false;
+  }
 
   this.enclosingBox = newHeaderNode;
   this.enclosingRow = newRowNode;
-  this.isNewHeader = true;
   this.valid = false;
   this.useToggle = false;
   this.outputFunction = updateHeaderValue;
