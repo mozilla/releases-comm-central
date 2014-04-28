@@ -256,7 +256,7 @@ char *MSG_UnEscapeSearchUrl (const char *commandSpecificData)
 // END OF TEMPORARY HARD CODED FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS_INHERITED4(nsNNTPProtocol, nsMsgProtocol, nsINNTPProtocol,
+NS_IMPL_ISUPPORTS_INHERITED(nsNNTPProtocol, nsMsgProtocol, nsINNTPProtocol,
   nsITimerCallback, nsICacheListener, nsIMsgAsyncPromptListener)
 
 nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,

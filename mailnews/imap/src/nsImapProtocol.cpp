@@ -123,7 +123,7 @@ getter_AddRefs(AutoProxyReleaseMsgWindow& aSmartPtr)
   return aSmartPtr.StartAssignment();
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgImapHdrXferInfo, nsIImapHeaderXferInfo)
+NS_IMPL_ISUPPORTS(nsMsgImapHdrXferInfo, nsIImapHeaderXferInfo)
 
 nsMsgImapHdrXferInfo::nsMsgImapHdrXferInfo()
   : m_hdrInfos(kNumHdrsToXfer)
@@ -202,7 +202,7 @@ void nsMsgImapHdrXferInfo::ReleaseAll()
   m_nextFreeHdrInfo = 0;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgImapLineDownloadCache, nsIImapHeaderInfo)
+NS_IMPL_ISUPPORTS(nsMsgImapLineDownloadCache, nsIImapHeaderInfo)
 
 // **** helper class for downloading line ****
 nsMsgImapLineDownloadCache::nsMsgImapLineDownloadCache()
@@ -8672,7 +8672,7 @@ nsImapCacheStreamListener::OnDataAvailable(nsIRequest *request, nsISupports * aC
   return mListener->OnDataAvailable(mChannelToUse, aCtxt, aInStream, aSourceOffset, aCount);
 }
 
-NS_IMPL_ISUPPORTS6(nsImapMockChannel, nsIImapMockChannel, nsIChannel,
+NS_IMPL_ISUPPORTS(nsImapMockChannel, nsIImapMockChannel, nsIChannel,
   nsIRequest, nsICacheListener, nsITransportEventSink, nsISupportsWeakReference)
 
 

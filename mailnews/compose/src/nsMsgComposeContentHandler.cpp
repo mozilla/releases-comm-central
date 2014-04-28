@@ -30,7 +30,7 @@ nsMsgComposeContentHandler::nsMsgComposeContentHandler()
 
 // The following macro actually implement addref, release and query interface
 // for our component.
-NS_IMPL_ISUPPORTS1(nsMsgComposeContentHandler, nsIContentHandler)
+NS_IMPL_ISUPPORTS(nsMsgComposeContentHandler, nsIContentHandler)
 
 nsMsgComposeContentHandler::~nsMsgComposeContentHandler()
 {

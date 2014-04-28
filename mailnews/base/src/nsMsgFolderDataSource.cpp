@@ -337,7 +337,7 @@ nsresult nsMsgFolderDataSource::CreateArcsOutEnumerator()
 NS_IMPL_ADDREF_INHERITED(nsMsgFolderDataSource, nsMsgRDFDataSource)
 NS_IMPL_RELEASE_INHERITED(nsMsgFolderDataSource, nsMsgRDFDataSource)
 
-NS_IMPL_QUERY_INTERFACE_INHERITED1(nsMsgFolderDataSource, nsMsgRDFDataSource, nsIFolderListener)
+NS_IMPL_QUERY_INTERFACE_INHERITED(nsMsgFolderDataSource, nsMsgRDFDataSource, nsIFolderListener)
 
  // nsIRDFDataSource methods
 NS_IMETHODIMP nsMsgFolderDataSource::GetURI(char* *uri)

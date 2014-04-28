@@ -11,7 +11,7 @@
 #include "nsAutoPtr.h"
 #include "nsMsgKeyArray.h"
 
-NS_IMPL_ISUPPORTS1(nsNNTPArticleList, nsINNTPArticleList)
+NS_IMPL_ISUPPORTS(nsNNTPArticleList, nsINNTPArticleList)
 
 nsNNTPArticleList::nsNNTPArticleList()
 {

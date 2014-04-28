@@ -100,7 +100,7 @@ nsOutlookSettings::~nsOutlookSettings()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsOutlookSettings, nsIImportSettings)
+NS_IMPL_ISUPPORTS(nsOutlookSettings, nsIImportSettings)
 
 NS_IMETHODIMP nsOutlookSettings::AutoLocate(char16_t **description, nsIFile **location, bool *_retval)
 {

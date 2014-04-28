@@ -47,7 +47,7 @@ nsMsgMaildirStore::~nsMsgMaildirStore()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgMaildirStore, nsIMsgPluggableStore)
+NS_IMPL_ISUPPORTS(nsMsgMaildirStore, nsIMsgPluggableStore)
 
 // Iterates over the folders in the "path" directory, and adds subfolders to
 // parent for each Maildir folder found.

@@ -1991,7 +1991,7 @@ public:
 };
 
 // XXX This needs to support threadsafe refcounting until we fix bug 243591.
-NS_IMPL_ISUPPORTS1(MsgInterfaceRequestorAgg, nsIInterfaceRequestor)
+NS_IMPL_ISUPPORTS(MsgInterfaceRequestorAgg, nsIInterfaceRequestor)
 
 NS_IMETHODIMP
 MsgInterfaceRequestorAgg::GetInterface(const nsIID &aIID, void **aResult)
@@ -2287,7 +2287,7 @@ private:
   nsCString mCharset;
 };
 
-NS_IMPL_ISUPPORTS1(CharsetDetectionObserver, nsICharsetDetectionObserver)
+NS_IMPL_ISUPPORTS(CharsetDetectionObserver, nsICharsetDetectionObserver)
 
 NS_MSG_BASE nsresult
 MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)

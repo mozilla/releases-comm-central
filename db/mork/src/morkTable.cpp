@@ -142,7 +142,7 @@ morkTable::morkTable(morkEnv* ev, /*i*/
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED1(morkTable, morkObject, nsIMdbTable)
+NS_IMPL_ISUPPORTS_INHERITED(morkTable, morkObject, nsIMdbTable)
 
 /*public non-poly*/ void
 morkTable::CloseTable(morkEnv* ev) /*i*/ // called by CloseMorkNode();

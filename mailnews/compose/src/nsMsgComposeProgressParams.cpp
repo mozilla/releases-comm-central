@@ -6,7 +6,7 @@
 #include "nsMsgComposeProgressParams.h"
 #include "nsServiceManagerUtils.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgComposeProgressParams, nsIMsgComposeProgressParams)
+NS_IMPL_ISUPPORTS(nsMsgComposeProgressParams, nsIMsgComposeProgressParams)
 
 nsMsgComposeProgressParams::nsMsgComposeProgressParams() :
   m_deliveryMode(nsIMsgCompDeliverMode::Now)

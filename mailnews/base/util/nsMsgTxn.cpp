@@ -92,7 +92,7 @@ protected:
   nsCOMPtr<nsIVariant> mValue;
 };
 
-NS_IMPL_ISUPPORTS1(nsMailSimpleProperty, nsIProperty)
+NS_IMPL_ISUPPORTS(nsMailSimpleProperty, nsIProperty)
 
 NS_IMETHODIMP nsMailSimpleProperty::GetName(nsAString& aName)
 {

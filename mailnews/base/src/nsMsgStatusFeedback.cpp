@@ -45,7 +45,7 @@ nsMsgStatusFeedback::~nsMsgStatusFeedback()
   mBundle = nullptr;
 }
 
-NS_IMPL_ISUPPORTS4(nsMsgStatusFeedback, nsIMsgStatusFeedback,
+NS_IMPL_ISUPPORTS(nsMsgStatusFeedback, nsIMsgStatusFeedback,
   nsIProgressEventSink, nsIWebProgressListener, nsISupportsWeakReference)
 
 //////////////////////////////////////////////////////////////////////////////////

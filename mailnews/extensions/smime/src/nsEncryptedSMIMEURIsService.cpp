@@ -4,7 +4,7 @@
 
 #include "nsEncryptedSMIMEURIsService.h"
 
-NS_IMPL_ISUPPORTS1(nsEncryptedSMIMEURIsService, nsIEncryptedSMIMEURIsService)
+NS_IMPL_ISUPPORTS(nsEncryptedSMIMEURIsService, nsIEncryptedSMIMEURIsService)
 
 nsEncryptedSMIMEURIsService::nsEncryptedSMIMEURIsService()
 {

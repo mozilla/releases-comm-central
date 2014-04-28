@@ -18,7 +18,7 @@
 #include "nsArrayUtils.h"
 #include "nsAbBaseCID.h"
 
-NS_IMPL_ISUPPORTS1(nsAbMDBDirFactory, nsIAbDirFactory)
+NS_IMPL_ISUPPORTS(nsAbMDBDirFactory, nsIAbDirFactory)
 
 nsAbMDBDirFactory::nsAbMDBDirFactory()
 {

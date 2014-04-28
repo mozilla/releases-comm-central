@@ -279,7 +279,7 @@ nsresult ProxySignedStatus(const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &a
   return NS_DispatchToMainThread(signedStatus, NS_DISPATCH_SYNC);
 }
 
-NS_IMPL_ISUPPORTS1(nsSMimeVerificationListener, nsISMimeVerificationListener)
+NS_IMPL_ISUPPORTS(nsSMimeVerificationListener, nsISMimeVerificationListener)
 
 nsSMimeVerificationListener::nsSMimeVerificationListener(const char *aFromAddr, const char *aFromName,
                                                          const char *aSenderAddr, const char *aSenderName,

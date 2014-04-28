@@ -127,7 +127,7 @@ nsMsgLocalMailFolder::~nsMsgLocalMailFolder(void)
 {
 }
 
-NS_IMPL_ISUPPORTS_INHERITED2(nsMsgLocalMailFolder,
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgLocalMailFolder,
                              nsMsgDBFolder,
                              nsICopyMessageListener,
                              nsIMsgLocalMailFolder)

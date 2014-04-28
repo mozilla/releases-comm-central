@@ -46,7 +46,7 @@
 
 #define NS_TASKBAR_CONTRACTID "@mozilla.org/windows-taskbar;1"
 
-NS_IMPL_ISUPPORTS2(nsWindowsShellService, nsIWindowsShellService, nsIShellService)
+NS_IMPL_ISUPPORTS(nsWindowsShellService, nsIWindowsShellService, nsIShellService)
 
 static nsresult
 OpenKeyForReading(HKEY aKeyRoot, const nsAString& aKeyName, HKEY* aKey)

@@ -68,7 +68,7 @@ nsNntpService::~nsNntpService()
   // do nothing
 }
 
-NS_IMPL_ISUPPORTS7(nsNntpService, nsINntpService, nsIMsgMessageService,
+NS_IMPL_ISUPPORTS(nsNntpService, nsINntpService, nsIMsgMessageService,
   nsIProtocolHandler, nsIMsgProtocolInfo, nsICommandLineHandler,
   nsIMsgMessageFetchPartService, nsIContentHandler)
 

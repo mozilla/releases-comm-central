@@ -29,7 +29,7 @@
 #include "nsIMsgProgress.h"
 #include "nsMsgUtils.h"
 
-NS_IMPL_ISUPPORTS7(nsURLFetcher,
+NS_IMPL_ISUPPORTS(nsURLFetcher,
                    nsIURLFetcher,
                    nsIStreamListener,
                    nsIRequestObserver,
@@ -403,7 +403,7 @@ nsURLFetcher::OnSecurityChange(nsIWebProgress *aWebProgress,
  * Stream consumer used for handling special content type like multipart/x-mixed-replace
  */
 
-NS_IMPL_ISUPPORTS2(nsURLFetcherStreamConsumer, nsIStreamListener, nsIRequestObserver)
+NS_IMPL_ISUPPORTS(nsURLFetcherStreamConsumer, nsIStreamListener, nsIRequestObserver)
 
 nsURLFetcherStreamConsumer::nsURLFetcherStreamConsumer(nsURLFetcher* urlFetcher) :
   mURLFetcher(urlFetcher)

@@ -6,7 +6,7 @@
 #include "nsAbDirectoryQuery.h"
 #include "nsAbDirectoryQueryProxy.h"
 
-NS_IMPL_ISUPPORTS2(nsAbDirectoryQueryProxy, nsIAbDirectoryQueryProxy, nsIAbDirectoryQuery)
+NS_IMPL_ISUPPORTS(nsAbDirectoryQueryProxy, nsIAbDirectoryQueryProxy, nsIAbDirectoryQuery)
 
 nsAbDirectoryQueryProxy::nsAbDirectoryQueryProxy() :
     mInitiated (false)

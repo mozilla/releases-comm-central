@@ -79,7 +79,7 @@ NS_IMETHODIMP nsMsgSearchAdapter::OpenResultElement(nsMsgResultElement *)
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgSearchAdapter, nsIMsgSearchAdapter)
+NS_IMPL_ISUPPORTS(nsMsgSearchAdapter, nsIMsgSearchAdapter)
 
 nsMsgSearchAdapter::nsMsgSearchAdapter(nsIMsgSearchScopeTerm *scope, nsISupportsArray *searchTerms)
   : m_searchTerms(searchTerms)
@@ -792,7 +792,7 @@ nsMsgSearchValidityTable::nsMsgSearchValidityTable ()
   m_defaultAttrib = nsMsgSearchAttrib::Subject;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgSearchValidityTable, nsIMsgSearchValidityTable)
+NS_IMPL_ISUPPORTS(nsMsgSearchValidityTable, nsIMsgSearchValidityTable)
 
 
 nsresult
@@ -944,7 +944,7 @@ nsMsgSearchValidityManager::~nsMsgSearchValidityManager ()
     // tables released by nsCOMPtr
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgSearchValidityManager, nsIMsgSearchValidityManager)
+NS_IMPL_ISUPPORTS(nsMsgSearchValidityManager, nsIMsgSearchValidityManager)
 
 //-----------------------------------------------------------------------------
 // Bottleneck accesses to the objects so we can allocate and initialize them

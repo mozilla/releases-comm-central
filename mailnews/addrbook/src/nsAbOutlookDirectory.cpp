@@ -48,7 +48,7 @@ nsAbOutlookDirectory::~nsAbOutlookDirectory(void)
     if (mProtector) { PR_DestroyLock(mProtector) ; }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED3(nsAbOutlookDirectory, nsAbDirProperty,
+NS_IMPL_ISUPPORTS_INHERITED(nsAbOutlookDirectory, nsAbDirProperty,
                              nsIAbDirectoryQuery, nsIAbDirectorySearch,
                              nsIAbDirSearchListener)
 

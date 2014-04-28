@@ -6347,7 +6347,7 @@ private:
   uint32_t             mIndex;
 };
 
-NS_IMPL_ISUPPORTS1(AdoptUTF8StringEnumerator, nsIUTF8StringEnumerator)
+NS_IMPL_ISUPPORTS(AdoptUTF8StringEnumerator, nsIUTF8StringEnumerator)
 
 NS_IMETHODIMP
 AdoptUTF8StringEnumerator::HasMore(bool *aResult)
@@ -7702,7 +7702,7 @@ protected:
 
 };
 
-NS_IMPL_ISUPPORTS2(nsImapFolderCopyState, nsIUrlListener, nsIMsgCopyServiceListener)
+NS_IMPL_ISUPPORTS(nsImapFolderCopyState, nsIUrlListener, nsIMsgCopyServiceListener)
 
 nsImapFolderCopyState::nsImapFolderCopyState(nsIMsgFolder *destParent, nsIMsgFolder *srcFolder,
                                              bool isMoveFolder, nsIMsgWindow *msgWindow, nsIMsgCopyServiceListener *listener)
@@ -8199,7 +8199,7 @@ nsImapMailCopyState::~nsImapMailCopyState()
 }
 
 
-NS_IMPL_ISUPPORTS1(nsImapMailCopyState, nsImapMailCopyState)
+NS_IMPL_ISUPPORTS(nsImapMailCopyState, nsImapMailCopyState)
 
 nsresult
 nsImapMailFolder::InitCopyState(nsISupports* srcSupport,

@@ -12,7 +12,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsAbOSXDirectory.h"
 
-NS_IMPL_ISUPPORTS1(nsAbOSXDirFactory, nsIAbDirFactory)
+NS_IMPL_ISUPPORTS(nsAbOSXDirFactory, nsIAbDirFactory)
 
 NS_IMETHODIMP
 nsAbOSXDirFactory::GetDirectories(const nsAString &aDirName,

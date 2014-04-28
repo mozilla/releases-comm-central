@@ -46,7 +46,7 @@ nsEudoraSettings::~nsEudoraSettings()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsEudoraSettings, nsIImportSettings)
+NS_IMPL_ISUPPORTS(nsEudoraSettings, nsIImportSettings)
 
 NS_IMETHODIMP nsEudoraSettings::AutoLocate(char16_t **description, nsIFile **location, bool *_retval)
 {

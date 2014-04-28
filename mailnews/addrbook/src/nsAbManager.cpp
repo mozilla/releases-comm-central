@@ -128,7 +128,7 @@ nsAbManager::~nsAbManager()
 {
 }
 
-NS_IMPL_ISUPPORTS3(nsAbManager, nsIAbManager, nsICommandLineHandler,
+NS_IMPL_ISUPPORTS(nsAbManager, nsIAbManager, nsICommandLineHandler,
   nsIObserver)
 
 nsresult nsAbManager::Init()

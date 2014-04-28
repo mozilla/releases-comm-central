@@ -37,7 +37,7 @@
 // send it.
 const uint32_t kInitialMessageSendTime = 1000;
 
-NS_IMPL_ISUPPORTS7(nsMsgSendLater,
+NS_IMPL_ISUPPORTS(nsMsgSendLater,
                    nsIMsgSendLater,
                    nsIFolderListener,
                    nsIRequestObserver,
@@ -398,7 +398,7 @@ nsMsgSendLater::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
 // This is the listener class for the send operation. We have to create this class 
 // to listen for message send completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
-NS_IMPL_ISUPPORTS2(SendOperationListener, nsIMsgSendListener,
+NS_IMPL_ISUPPORTS(SendOperationListener, nsIMsgSendListener,
                    nsIMsgCopyServiceListener)
 
 SendOperationListener::SendOperationListener(nsMsgSendLater *aSendLater)

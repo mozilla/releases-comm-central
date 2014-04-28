@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-NS_IMPL_ISUPPORTS1(nsAbLDIFService, nsIAbLDIFService)
+NS_IMPL_ISUPPORTS(nsAbLDIFService, nsIAbLDIFService)
 
 // If we get a line longer than 32K it's just toooooo bad!
 #define kTextAddressBufferSz    (64 * 1024)

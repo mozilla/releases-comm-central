@@ -37,7 +37,7 @@ static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 // This is the listener class for the copy operation. We have to create this class
 // to listen for message copy completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
-NS_IMPL_ISUPPORTS1(CopyListener, nsIMsgCopyServiceListener)
+NS_IMPL_ISUPPORTS(CopyListener, nsIMsgCopyServiceListener)
 
 CopyListener::CopyListener(void)
 {
@@ -133,7 +133,7 @@ CopyListener::SetMsgComposeAndSendObject(nsIMsgSend *obj)
 // to listen for message copy completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS1(nsMsgCopy, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsMsgCopy, nsIUrlListener)
 
 nsMsgCopy::nsMsgCopy()
 {

@@ -50,7 +50,7 @@ protected:
 
 
 
-NS_IMPL_ISUPPORTS_INHERITED2(nsPop3IncomingServer,
+NS_IMPL_ISUPPORTS_INHERITED(nsPop3IncomingServer,
                              nsMsgIncomingServer,
                              nsIPop3IncomingServer,
                              nsILocalMailIncomingServer)
@@ -659,7 +659,7 @@ NS_IMETHODIMP nsPop3IncomingServer::MarkMessages()
   return rv;
 }
 
-NS_IMPL_ISUPPORTS1(nsPop3GetMailChainer, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsPop3GetMailChainer, nsIUrlListener)
 
 nsPop3GetMailChainer::nsPop3GetMailChainer()
 {

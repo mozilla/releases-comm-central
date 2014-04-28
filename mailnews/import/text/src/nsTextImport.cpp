@@ -132,7 +132,7 @@ nsTextImport::~nsTextImport()
   IMPORT_LOG0("nsTextImport Module Deleted\n");
 }
 
-NS_IMPL_ISUPPORTS1(nsTextImport, nsIImportModule)
+NS_IMPL_ISUPPORTS(nsTextImport, nsIImportModule)
 
 NS_IMETHODIMP nsTextImport::GetName(char16_t **name)
 {
@@ -219,7 +219,7 @@ ImportAddressImpl::ImportAddressImpl(nsIStringBundle* aStringBundle) :
   m_haveDelim = false;
 }
 
-NS_IMPL_ISUPPORTS1(ImportAddressImpl, nsIImportAddressBooks)
+NS_IMPL_ISUPPORTS(ImportAddressImpl, nsIImportAddressBooks)
 
 
 NS_IMETHODIMP ImportAddressImpl::GetAutoFind(char16_t **addrDescription, bool *_retval)

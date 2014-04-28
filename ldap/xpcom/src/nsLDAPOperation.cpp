@@ -76,7 +76,7 @@ NS_INTERFACE_MAP_BEGIN(nsLDAPOperation)
   NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsILDAPOperation)
   NS_IMPL_QUERY_CLASSINFO(nsLDAPOperation)
 NS_INTERFACE_MAP_END_THREADSAFE
-NS_IMPL_CI_INTERFACE_GETTER1(nsLDAPOperation, nsILDAPOperation)
+NS_IMPL_CI_INTERFACE_GETTER(nsLDAPOperation, nsILDAPOperation)
 
 /**
  * Initializes this operation.  Must be called prior to use.

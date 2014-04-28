@@ -63,7 +63,7 @@ protected:
 };
 
 
-NS_IMPL_ISUPPORTS1(nsAbModifyLDAPMessageListener, nsILDAPMessageListener)
+NS_IMPL_ISUPPORTS(nsAbModifyLDAPMessageListener, nsILDAPMessageListener)
 
 nsAbModifyLDAPMessageListener::nsAbModifyLDAPMessageListener(
     const int32_t type,

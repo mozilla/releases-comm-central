@@ -501,7 +501,7 @@ nsStreamConverter::~nsStreamConverter()
   InternalCleanup();
 }
 
-NS_IMPL_ISUPPORTS4(nsStreamConverter, nsIStreamListener, nsIRequestObserver,
+NS_IMPL_ISUPPORTS(nsStreamConverter, nsIStreamListener, nsIRequestObserver,
   nsIStreamConverter, nsIMimeStreamConverter)
 
 ///////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@
 
 // QueryInterface, AddRef, and Release
 //
-NS_IMPL_ISUPPORTS3(nsStatusBarBiffManager, nsIStatusBarBiffManager, nsIFolderListener, nsIObserver)
+NS_IMPL_ISUPPORTS(nsStatusBarBiffManager, nsIStatusBarBiffManager, nsIFolderListener, nsIObserver)
 
 nsIAtom * nsStatusBarBiffManager::kBiffStateAtom = nullptr;
 

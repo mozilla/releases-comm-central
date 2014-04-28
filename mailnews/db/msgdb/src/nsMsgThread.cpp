@@ -9,7 +9,7 @@
 #include "nsMsgThread.h"
 #include "MailNewsTypes2.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgThread, nsIMsgThread)
+NS_IMPL_ISUPPORTS(nsMsgThread, nsIMsgThread)
 
 nsMsgThread::nsMsgThread()
 {
@@ -701,7 +701,7 @@ nsMsgThreadEnumerator::~nsMsgThreadEnumerator()
     NS_RELEASE(mThread);
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgThreadEnumerator, nsISimpleEnumerator)
+NS_IMPL_ISUPPORTS(nsMsgThreadEnumerator, nsISimpleEnumerator)
 
 
 int32_t nsMsgThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey)

@@ -160,7 +160,7 @@ nsOEImport::~nsOEImport()
   IMPORT_LOG0("nsOEImport Module Deleted\n");
 }
 
-NS_IMPL_ISUPPORTS1(nsOEImport, nsIImportModule)
+NS_IMPL_ISUPPORTS(nsOEImport, nsIImportModule)
 
 NS_IMETHODIMP nsOEImport::GetName(char16_t **name)
 {
@@ -285,7 +285,7 @@ ImportOEMailImpl::~ImportOEMailImpl()
 {
 }
 
-NS_IMPL_ISUPPORTS1(ImportOEMailImpl, nsIImportMail)
+NS_IMPL_ISUPPORTS(ImportOEMailImpl, nsIImportMail)
 
 NS_IMETHODIMP ImportOEMailImpl::TranslateFolderName(const nsAString & aFolderName, nsAString & _retval)
 {
@@ -479,7 +479,7 @@ ImportOEAddressImpl::~ImportOEAddressImpl()
     delete m_pWab;
 }
 
-NS_IMPL_ISUPPORTS1(ImportOEAddressImpl, nsIImportAddressBooks)
+NS_IMPL_ISUPPORTS(ImportOEAddressImpl, nsIImportAddressBooks)
 
 NS_IMETHODIMP ImportOEAddressImpl::GetDefaultLocation(nsIFile **aLocation,
                                                       bool *aFound,

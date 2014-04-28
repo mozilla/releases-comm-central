@@ -210,7 +210,7 @@ private:
   bool                 mIsNewsDelivery;
 };
 
-NS_IMPL_ISUPPORTS1(MsgDeliveryListener, nsIUrlListener)
+NS_IMPL_ISUPPORTS(MsgDeliveryListener, nsIUrlListener)
 
 MsgDeliveryListener::MsgDeliveryListener(nsIMsgSend *aMsgSend, bool inIsNewsDelivery)
 {
@@ -249,7 +249,7 @@ NS_IMETHODIMP MsgDeliveryListener::OnStopRunningUrl(nsIURI *url, nsresult aExitC
 
 
 /* the following macro actually implement addref, release and query interface for our component. */
-NS_IMPL_ISUPPORTS1(nsMsgComposeAndSend, nsIMsgSend)
+NS_IMPL_ISUPPORTS(nsMsgComposeAndSend, nsIMsgSend)
 
 nsMsgComposeAndSend::nsMsgComposeAndSend() :
     m_messageKey(0xffffffff)
@@ -4951,7 +4951,7 @@ NS_IMETHODIMP nsMsgComposeAndSend::SetCryptoclosure(nsIMsgComposeSecure * aCrypt
   return NS_OK;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgAttachmentData, nsIMsgAttachmentData)
+NS_IMPL_ISUPPORTS(nsMsgAttachmentData, nsIMsgAttachmentData)
 
 nsMsgAttachmentData::nsMsgAttachmentData() :  m_size(0), m_isExternalAttachment(0),
   m_isDownloaded(false), m_hasFilename(false), m_displayableInline(false)
@@ -5059,7 +5059,7 @@ NS_IMETHODIMP nsMsgAttachmentData::SetXMacCreator(const nsACString & aXMacCreato
   return NS_OK;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgAttachedFile, nsIMsgAttachedFile)
+NS_IMPL_ISUPPORTS(nsMsgAttachedFile, nsIMsgAttachedFile)
 
 nsMsgAttachedFile::nsMsgAttachedFile() :  m_size(0), m_unprintableCount(0),
   m_highbitCount(0), m_ctlCount(0), m_nullCount(0), m_maxLineLength(0)

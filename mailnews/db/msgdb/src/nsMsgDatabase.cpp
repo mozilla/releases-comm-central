@@ -72,7 +72,7 @@ static PRLogModuleInfo* DBLog;
 
 PRTime nsMsgDatabase::gLastUseTime;
 
-NS_IMPL_ISUPPORTS1(nsMsgDBService, nsIMsgDBService)
+NS_IMPL_ISUPPORTS(nsMsgDBService, nsIMsgDBService)
 
 nsMsgDBService::nsMsgDBService()
 {
@@ -1073,7 +1073,7 @@ public:
   }
 };
 
-NS_IMPL_ISUPPORTS1(MsgDBReporter, nsIMemoryReporter)
+NS_IMPL_ISUPPORTS(MsgDBReporter, nsIMemoryReporter)
 }
 }
 
@@ -1171,7 +1171,7 @@ nsMsgDatabase::~nsMsgDatabase()
   m_ChangeListeners.Clear();
 }
 
-NS_IMPL_ISUPPORTS2(nsMsgDatabase, nsIMsgDatabase, nsIDBChangeAnnouncer)
+NS_IMPL_ISUPPORTS(nsMsgDatabase, nsIMsgDatabase, nsIDBChangeAnnouncer)
 
 void nsMsgDatabase::GetMDBFactory(nsIMdbFactory ** aMdbFactory)
 {
@@ -2830,7 +2830,7 @@ void nsMsgDBEnumerator::Clear()
   mDB = nullptr;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgDBEnumerator, nsISimpleEnumerator)
+NS_IMPL_ISUPPORTS(nsMsgDBEnumerator, nsISimpleEnumerator)
 
 nsresult nsMsgDBEnumerator::GetRowCursor()
 {
@@ -3229,7 +3229,7 @@ nsMsgDBThreadEnumerator::~nsMsgDBThreadEnumerator()
     mDB->RemoveListener(this);
 }
 
-NS_IMPL_ISUPPORTS2(nsMsgDBThreadEnumerator, nsISimpleEnumerator, nsIDBChangeListener)
+NS_IMPL_ISUPPORTS(nsMsgDBThreadEnumerator, nsISimpleEnumerator, nsIDBChangeListener)
 
 
 /* void OnHdrFlagsChanged (in nsIMsgDBHdr aHdrChanged, in unsigned long aOldFlags, in unsigned long aNewFlags, in nsIDBChangeListener aInstigator); */
@@ -5441,7 +5441,7 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
   return rv;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgRetentionSettings, nsIMsgRetentionSettings)
+NS_IMPL_ISUPPORTS(nsMsgRetentionSettings, nsIMsgRetentionSettings)
 
 // Initialise the member variables to resonable defaults.
 nsMsgRetentionSettings::nsMsgRetentionSettings()
@@ -5566,7 +5566,7 @@ NS_IMETHODIMP nsMsgRetentionSettings::SetApplyToFlaggedMessages(bool aApplyToFla
   return NS_OK;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgDownloadSettings, nsIMsgDownloadSettings)
+NS_IMPL_ISUPPORTS(nsMsgDownloadSettings, nsIMsgDownloadSettings)
 
 nsMsgDownloadSettings::nsMsgDownloadSettings()
 {

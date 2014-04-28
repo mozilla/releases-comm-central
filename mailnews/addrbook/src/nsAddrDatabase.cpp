@@ -151,7 +151,7 @@ nsAddrDatabase::~nsAddrDatabase()
     NS_IF_RELEASE(m_mdbEnv);
 }
 
-NS_IMPL_ISUPPORTS2(nsAddrDatabase, nsIAddrDatabase, nsIAddrDBAnnouncer)
+NS_IMPL_ISUPPORTS(nsAddrDatabase, nsIAddrDatabase, nsIAddrDBAnnouncer)
 
 NS_IMETHODIMP nsAddrDatabase::AddListener(nsIAddrDBListener *listener)
 {
@@ -2562,7 +2562,7 @@ void nsAddrDBEnumerator::Clear()
     mDb->RemoveListener(this);
 }
 
-NS_IMPL_ISUPPORTS2(nsAddrDBEnumerator, nsISimpleEnumerator, nsIAddrDBListener)
+NS_IMPL_ISUPPORTS(nsAddrDBEnumerator, nsISimpleEnumerator, nsIAddrDBListener)
 
 NS_IMETHODIMP
 nsAddrDBEnumerator::HasMoreElements(bool *aResult)
@@ -2716,7 +2716,7 @@ nsListAddressEnumerator::nsListAddressEnumerator(nsAddrDatabase* aDb,
     mAddressTotal = aDb->GetListAddressTotal(mListRow);
 }
 
-NS_IMPL_ISUPPORTS1(nsListAddressEnumerator, nsISimpleEnumerator)
+NS_IMPL_ISUPPORTS(nsListAddressEnumerator, nsISimpleEnumerator)
 
 NS_IMETHODIMP
 nsListAddressEnumerator::HasMoreElements(bool *aResult)

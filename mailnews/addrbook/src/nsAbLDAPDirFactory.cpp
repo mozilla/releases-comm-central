@@ -14,7 +14,7 @@
 #include "nsEnumeratorUtils.h"
 #include "nsAbBaseCID.h"
 
-NS_IMPL_ISUPPORTS1(nsAbLDAPDirFactory, nsIAbDirFactory)
+NS_IMPL_ISUPPORTS(nsAbLDAPDirFactory, nsIAbDirFactory)
 
 nsAbLDAPDirFactory::nsAbLDAPDirFactory()
 {

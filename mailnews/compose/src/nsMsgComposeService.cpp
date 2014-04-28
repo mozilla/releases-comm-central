@@ -123,7 +123,7 @@ nsMsgComposeService::nsMsgComposeService()
   mCachedWindows = nullptr;
 }
 
-NS_IMPL_ISUPPORTS4(nsMsgComposeService,
+NS_IMPL_ISUPPORTS(nsMsgComposeService,
                    nsIMsgComposeService,
                    nsIObserver,
                    ICOMMANDLINEHANDLER,
@@ -896,7 +896,7 @@ public:
   char mLastBlockChars[3];
 };
 
-NS_IMPL_ISUPPORTS3(nsMsgTemplateReplyHelper,
+NS_IMPL_ISUPPORTS(nsMsgTemplateReplyHelper,
                    nsIStreamListener,
                    nsIRequestObserver,
                    nsIUrlListener)

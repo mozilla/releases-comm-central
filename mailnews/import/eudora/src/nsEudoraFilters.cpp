@@ -57,7 +57,7 @@ nsEudoraFilters::~nsEudoraFilters()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsEudoraFilters, nsIImportFilters)
+NS_IMPL_ISUPPORTS(nsEudoraFilters, nsIImportFilters)
 
 NS_IMETHODIMP nsEudoraFilters::AutoLocate(char16_t **aDescription, nsIFile **aLocation, bool *_retval)
 {

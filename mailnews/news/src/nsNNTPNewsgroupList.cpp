@@ -89,7 +89,7 @@ nsNNTPNewsgroupList::~nsNNTPNewsgroupList()
   CleanUp();
 }
 
-NS_IMPL_ISUPPORTS2(nsNNTPNewsgroupList, nsINNTPNewsgroupList, nsIMsgFilterHitNotify)
+NS_IMPL_ISUPPORTS(nsNNTPNewsgroupList, nsINNTPNewsgroupList, nsIMsgFilterHitNotify)
 
 nsresult
 nsNNTPNewsgroupList::Initialize(nsINntpUrl *runningURL, nsIMsgNewsFolder *newsFolder)

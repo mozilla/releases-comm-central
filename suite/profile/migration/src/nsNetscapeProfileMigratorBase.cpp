@@ -27,7 +27,7 @@
 #define NEWS_DIR_50_NAME             NS_LITERAL_STRING("News")
 #define DIR_NAME_CHROME              NS_LITERAL_STRING("chrome")
 
-NS_IMPL_ISUPPORTS2(nsNetscapeProfileMigratorBase, nsISuiteProfileMigrator,
+NS_IMPL_ISUPPORTS(nsNetscapeProfileMigratorBase, nsISuiteProfileMigrator,
                    nsITimerCallback)
 
 

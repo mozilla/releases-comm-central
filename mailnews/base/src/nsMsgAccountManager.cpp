@@ -114,7 +114,7 @@ static PLDHashOperator
 hashCleanupDeferral(nsCStringHashKey::KeyType aKey,
                     nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure);
 
-NS_IMPL_ISUPPORTS5(nsMsgAccountManager,
+NS_IMPL_ISUPPORTS(nsMsgAccountManager,
                               nsIMsgAccountManager,
                               nsIObserver,
                               nsISupportsWeakReference,
@@ -2586,7 +2586,7 @@ private:
   nsCOMPtr<nsIMsgDatabase> mDB;
 };
 
-NS_IMPL_ISUPPORTS1(VirtualFolderChangeListener, nsIDBChangeListener)
+NS_IMPL_ISUPPORTS(VirtualFolderChangeListener, nsIDBChangeListener)
 
 VirtualFolderChangeListener::VirtualFolderChangeListener() :
   m_searchOnMsgStatus(false), m_batchingEvents(false)

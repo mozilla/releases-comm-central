@@ -107,7 +107,7 @@ nsMessengerUnixIntegration::nsMessengerUnixIntegration()
   mFoldersWithNewMail = do_CreateInstance(NS_ARRAY_CONTRACTID);
 }
 
-NS_IMPL_ISUPPORTS4(nsMessengerUnixIntegration, nsIFolderListener, nsIObserver,
+NS_IMPL_ISUPPORTS(nsMessengerUnixIntegration, nsIFolderListener, nsIObserver,
                    nsIMessengerOSIntegration, nsIUrlListener)
 
 nsresult

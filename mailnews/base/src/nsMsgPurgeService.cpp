@@ -30,7 +30,7 @@
 
 static PRLogModuleInfo *MsgPurgeLogModule = nullptr;
 
-NS_IMPL_ISUPPORTS2(nsMsgPurgeService, nsIMsgPurgeService, nsIMsgSearchNotify)
+NS_IMPL_ISUPPORTS(nsMsgPurgeService, nsIMsgPurgeService, nsIMsgSearchNotify)
 
 void OnPurgeTimer(nsITimer *timer, void *aPurgeService)
 {

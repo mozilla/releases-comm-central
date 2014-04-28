@@ -18,7 +18,7 @@
 #include "nsIFile.h"
 
 
-NS_IMPL_ISUPPORTS2(nsEudoraProfileMigrator, nsIMailProfileMigrator, nsITimerCallback)
+NS_IMPL_ISUPPORTS(nsEudoraProfileMigrator, nsIMailProfileMigrator, nsITimerCallback)
 
 
 nsEudoraProfileMigrator::nsEudoraProfileMigrator()

@@ -21,7 +21,7 @@ nsPop3URL::~nsPop3URL()
 {
 }
 
-NS_IMPL_ISUPPORTS_INHERITED1(nsPop3URL, nsMsgMailNewsUrl, nsIPop3URL)
+NS_IMPL_ISUPPORTS_INHERITED(nsPop3URL, nsMsgMailNewsUrl, nsIPop3URL)
 
 
 ////////////////////////////////////////////////////////////////////////////////////

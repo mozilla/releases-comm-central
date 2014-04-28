@@ -20,7 +20,7 @@
 
 using namespace mozilla::mailnews;
 
-NS_IMPL_ISUPPORTS2(nsAbAddressCollector, nsIAbAddressCollector, nsIObserver)
+NS_IMPL_ISUPPORTS(nsAbAddressCollector, nsIAbAddressCollector, nsIObserver)
 
 #define PREF_MAIL_COLLECT_ADDRESSBOOK "mail.collect_addressbook"
 

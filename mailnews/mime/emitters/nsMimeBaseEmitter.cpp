@@ -38,7 +38,7 @@ static PRLogModuleInfo * gMimeEmitterLogModule = nullptr;
 #define   MIME_HEADER_URL      "chrome://messenger/locale/mimeheader.properties"
 #define   MIME_URL             "chrome://messenger/locale/mime.properties"
 
-NS_IMPL_ISUPPORTS2(nsMimeBaseEmitter, nsIMimeEmitter, nsIInterfaceRequestor)
+NS_IMPL_ISUPPORTS(nsMimeBaseEmitter, nsIMimeEmitter, nsIInterfaceRequestor)
 
 nsMimeBaseEmitter::nsMimeBaseEmitter()
 {

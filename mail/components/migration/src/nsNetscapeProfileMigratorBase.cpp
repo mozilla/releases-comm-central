@@ -36,7 +36,7 @@ nsNetscapeProfileMigratorBase::nsNetscapeProfileMigratorBase()
   mFileCopyTransactionIndex = 0;
 }
 
-NS_IMPL_ISUPPORTS2(nsNetscapeProfileMigratorBase, nsIMailProfileMigrator,
+NS_IMPL_ISUPPORTS(nsNetscapeProfileMigratorBase, nsIMailProfileMigrator,
                    nsITimerCallback)
 
 nsresult

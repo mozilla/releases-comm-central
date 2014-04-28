@@ -83,7 +83,7 @@ static bool gInitialized = false;
 static int32_t gMIMEOnDemandThreshold = 15000;
 static bool gMIMEOnDemand = false;
 
-NS_IMPL_ISUPPORTS6(nsImapService,
+NS_IMPL_ISUPPORTS(nsImapService,
                    nsIImapService,
                    nsIMsgMessageService,
                    nsIProtocolHandler,

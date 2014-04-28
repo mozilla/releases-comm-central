@@ -5,7 +5,7 @@
 #include "calUtils.h"
 #include "calAttributeHelpers.h"
 
-NS_IMPL_ISUPPORTS1(calTimezone, calITimezone)
+NS_IMPL_ISUPPORTS(calTimezone, calITimezone)
 
 CAL_ISUPPORTS_ATTR_GETTER(calTimezone, calIIcalComponent, IcalComponent)
 CAL_STRINGTYPE_ATTR_GETTER(calTimezone, nsACString, Tzid)

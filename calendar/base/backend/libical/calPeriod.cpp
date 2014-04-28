@@ -11,7 +11,7 @@
 #include "calUtils.h"
 
 NS_IMPL_CLASSINFO(calPeriod, NULL, 0, CAL_PERIOD_CID)
-NS_IMPL_ISUPPORTS1_CI(calPeriod, calIPeriod)
+NS_IMPL_ISUPPORTS_CI(calPeriod, calIPeriod)
 
 calPeriod::calPeriod()
     : mImmutable(false)

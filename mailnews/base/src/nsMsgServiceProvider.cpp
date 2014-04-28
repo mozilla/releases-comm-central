@@ -30,7 +30,7 @@ nsMsgServiceProviderService::nsMsgServiceProviderService()
 nsMsgServiceProviderService::~nsMsgServiceProviderService()
 {}
 
-NS_IMPL_ISUPPORTS1(nsMsgServiceProviderService, nsIRDFDataSource)
+NS_IMPL_ISUPPORTS(nsMsgServiceProviderService, nsIRDFDataSource)
 
 nsresult
 nsMsgServiceProviderService::Init()

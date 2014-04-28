@@ -9,7 +9,7 @@
 #include "plstr.h"
 #include "nsLDAPBERValue.h"
 
-NS_IMPL_ISUPPORTS1(nsLDAPControl, nsILDAPControl)
+NS_IMPL_ISUPPORTS(nsLDAPControl, nsILDAPControl)
 
 nsLDAPControl::nsLDAPControl()
   : mIsCritical(false)

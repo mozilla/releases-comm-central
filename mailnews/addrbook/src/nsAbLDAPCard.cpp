@@ -28,7 +28,7 @@ nsAbLDAPCard::~nsAbLDAPCard()
 {
 }
 
-NS_IMPL_ISUPPORTS_INHERITED1(nsAbLDAPCard, nsAbCardProperty, nsIAbLDAPCard)
+NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPCard, nsAbCardProperty, nsIAbLDAPCard)
 
 /* Retrieves the changes to the LDAP card and stores them in an LDAP
  * update message.

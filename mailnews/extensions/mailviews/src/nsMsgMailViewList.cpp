@@ -30,7 +30,7 @@ nsMsgMailView::nsMsgMailView()
 
 NS_IMPL_ADDREF(nsMsgMailView)
 NS_IMPL_RELEASE(nsMsgMailView)
-NS_IMPL_QUERY_INTERFACE1(nsMsgMailView, nsIMsgMailView)
+NS_IMPL_QUERY_INTERFACE(nsMsgMailView, nsIMsgMailView)
 
 nsMsgMailView::~nsMsgMailView()
 {
@@ -124,7 +124,7 @@ nsMsgMailViewList::nsMsgMailViewList()
 
 NS_IMPL_ADDREF(nsMsgMailViewList)
 NS_IMPL_RELEASE(nsMsgMailViewList)
-NS_IMPL_QUERY_INTERFACE1(nsMsgMailViewList, nsIMsgMailViewList)
+NS_IMPL_QUERY_INTERFACE(nsMsgMailViewList, nsIMsgMailViewList)
 
 nsMsgMailViewList::~nsMsgMailViewList()
 {

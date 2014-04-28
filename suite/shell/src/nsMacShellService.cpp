@@ -28,7 +28,7 @@
 
 #define SAFARI_BUNDLE_IDENTIFIER "com.apple.Safari"
 
-NS_IMPL_ISUPPORTS2(nsMacShellService, nsIShellService, nsIWebProgressListener)
+NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService, nsIWebProgressListener)
 
 NS_IMETHODIMP
 nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool *aIsDefaultClient)

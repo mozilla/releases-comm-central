@@ -38,7 +38,7 @@ nsMsgFolderCache::~nsMsgFolderCache()
 }
 
 
-NS_IMPL_ISUPPORTS1(nsMsgFolderCache, nsIMsgFolderCache)
+NS_IMPL_ISUPPORTS(nsMsgFolderCache, nsIMsgFolderCache)
 
 void nsMsgFolderCache::GetMDBFactory(nsIMdbFactory ** aMdbFactory)
 {

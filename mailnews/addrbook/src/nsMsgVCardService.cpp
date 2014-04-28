@@ -8,7 +8,7 @@
 #include "prmem.h"
 #include "plstr.h"
     
-NS_IMPL_ISUPPORTS1(nsMsgVCardService, nsIMsgVCardService)
+NS_IMPL_ISUPPORTS(nsMsgVCardService, nsIMsgVCardService)
 
 nsMsgVCardService::nsMsgVCardService()
 {

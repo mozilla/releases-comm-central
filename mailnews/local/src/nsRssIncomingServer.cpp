@@ -19,7 +19,7 @@
 
 nsrefcnt nsRssIncomingServer::gInstanceCount    = 0;
 
-NS_IMPL_ISUPPORTS_INHERITED3(nsRssIncomingServer,
+NS_IMPL_ISUPPORTS_INHERITED(nsRssIncomingServer,
                              nsMsgIncomingServer,
                              nsIRssIncomingServer,
                              nsIMsgFolderListener,

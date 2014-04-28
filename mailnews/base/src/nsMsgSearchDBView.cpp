@@ -40,7 +40,7 @@ nsMsgSearchDBView::~nsMsgSearchDBView()
 {	
 }
 
-NS_IMPL_ISUPPORTS_INHERITED3(nsMsgSearchDBView, nsMsgDBView, nsIMsgDBView, 
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgSearchDBView, nsMsgDBView, nsIMsgDBView, 
                              nsIMsgCopyServiceListener, nsIMsgSearchNotify)
 
 NS_IMETHODIMP nsMsgSearchDBView::Open(nsIMsgFolder *folder, 

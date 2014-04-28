@@ -22,7 +22,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsAutoPtr.h"
 
-NS_IMPL_ISUPPORTS3(nsMsgSearchSession, nsIMsgSearchSession, nsIUrlListener,
+NS_IMPL_ISUPPORTS(nsMsgSearchSession, nsIMsgSearchSession, nsIUrlListener,
                    nsISupportsWeakReference)
 
 nsMsgSearchSession::nsMsgSearchSession()

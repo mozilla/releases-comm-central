@@ -18,7 +18,7 @@ nsRssService::~nsRssService()
 {
 }
 
-NS_IMPL_ISUPPORTS2(nsRssService,
+NS_IMPL_ISUPPORTS(nsRssService,
                    nsIRssService,
                    nsIMsgProtocolInfo)
                    

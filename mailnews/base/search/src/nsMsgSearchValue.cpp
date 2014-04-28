@@ -24,7 +24,7 @@ nsMsgSearchValueImpl::~nsMsgSearchValueImpl()
     NS_Free(mValue.string);
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgSearchValueImpl, nsIMsgSearchValue)
+NS_IMPL_ISUPPORTS(nsMsgSearchValueImpl, nsIMsgSearchValue)
 
 NS_IMPL_GETSET(nsMsgSearchValueImpl, Priority, nsMsgPriorityValue, mValue.u.priority)
 NS_IMPL_GETSET(nsMsgSearchValueImpl, Status, uint32_t, mValue.u.msgStatus)

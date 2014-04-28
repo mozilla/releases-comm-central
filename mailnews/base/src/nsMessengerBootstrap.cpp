@@ -15,7 +15,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 
-NS_IMPL_ISUPPORTS1(nsMessengerBootstrap, nsIMessengerWindowService)
+NS_IMPL_ISUPPORTS(nsMessengerBootstrap, nsIMessengerWindowService)
 
 nsMessengerBootstrap::nsMessengerBootstrap()
 {

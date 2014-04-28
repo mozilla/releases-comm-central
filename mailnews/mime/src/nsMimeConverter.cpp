@@ -12,7 +12,7 @@
 #include "prmem.h"
 #include "plstr.h"
 
-NS_IMPL_ISUPPORTS1(nsMimeConverter, nsIMimeConverter)
+NS_IMPL_ISUPPORTS(nsMimeConverter, nsIMimeConverter)
 
 /*
  * nsMimeConverter definitions....

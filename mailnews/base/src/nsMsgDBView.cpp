@@ -7641,7 +7641,7 @@ void nsMsgDBView::SetMRUTimeForFolder(nsIMsgFolder *folder)
 }
 
 
-NS_IMPL_ISUPPORTS1(nsMsgDBView::nsMsgViewHdrEnumerator, nsISimpleEnumerator)
+NS_IMPL_ISUPPORTS(nsMsgDBView::nsMsgViewHdrEnumerator, nsISimpleEnumerator)
 
 nsMsgDBView::nsMsgViewHdrEnumerator::nsMsgViewHdrEnumerator(nsMsgDBView *view)
 {

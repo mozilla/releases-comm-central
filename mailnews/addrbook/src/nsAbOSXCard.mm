@@ -12,7 +12,7 @@
 
 #include <AddressBook/AddressBook.h>
 
-NS_IMPL_ISUPPORTS_INHERITED1(nsAbOSXCard,
+NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXCard,
                              nsAbCardProperty,
                              nsIAbOSXCard)
 

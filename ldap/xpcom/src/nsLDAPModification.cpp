@@ -11,7 +11,7 @@
 
 using namespace mozilla;
 
-NS_IMPL_ISUPPORTS1(nsLDAPModification, nsILDAPModification)
+NS_IMPL_ISUPPORTS(nsLDAPModification, nsILDAPModification)
 
 // constructor
 //

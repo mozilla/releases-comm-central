@@ -28,7 +28,7 @@ nsAbContentHandler::~nsAbContentHandler()
 {
 }
 
-NS_IMPL_ISUPPORTS2(nsAbContentHandler, nsIContentHandler,
+NS_IMPL_ISUPPORTS(nsAbContentHandler, nsIContentHandler,
   nsIStreamLoaderObserver)
 
 NS_IMETHODIMP

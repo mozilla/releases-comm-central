@@ -68,7 +68,7 @@ nsMsgIncomingServer::~nsMsgIncomingServer()
 {
 }
 
-NS_IMPL_ISUPPORTS2(nsMsgIncomingServer, nsIMsgIncomingServer,
+NS_IMPL_ISUPPORTS(nsMsgIncomingServer, nsIMsgIncomingServer,
   nsISupportsWeakReference)
 
 NS_IMETHODIMP

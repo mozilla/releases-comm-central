@@ -45,7 +45,7 @@ struct PrefBranchStruct {
   };
 };
 
-NS_IMPL_ISUPPORTS2(nsSeamonkeyProfileMigrator, nsIMailProfileMigrator, nsITimerCallback)
+NS_IMPL_ISUPPORTS(nsSeamonkeyProfileMigrator, nsIMailProfileMigrator, nsITimerCallback)
 
 
 nsSeamonkeyProfileMigrator::nsSeamonkeyProfileMigrator()

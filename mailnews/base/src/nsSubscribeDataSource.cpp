@@ -31,7 +31,7 @@ nsSubscribeDataSource::~nsSubscribeDataSource()
 {
 }
 
-NS_IMPL_ISUPPORTS2(nsSubscribeDataSource, nsIRDFDataSource, nsISubscribeDataSource) 
+NS_IMPL_ISUPPORTS(nsSubscribeDataSource, nsIRDFDataSource, nsISubscribeDataSource) 
 
 nsresult
 nsSubscribeDataSource::Init()

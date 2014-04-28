@@ -25,7 +25,7 @@ nsAddbookUrl::~nsAddbookUrl()
 {
 }
 
-NS_IMPL_ISUPPORTS2(nsAddbookUrl, nsIAddbookUrl, nsIURI)
+NS_IMPL_ISUPPORTS(nsAddbookUrl, nsIAddbookUrl, nsIURI)
 
 NS_IMETHODIMP 
 nsAddbookUrl::SetSpec(const nsACString &aSpec)

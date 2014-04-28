@@ -43,7 +43,7 @@ nsMailWinSearchHelper::~nsMailWinSearchHelper()
   CoUninitialize();
 }
 
-NS_IMPL_ISUPPORTS1(nsMailWinSearchHelper, nsIMailWinSearchHelper)
+NS_IMPL_ISUPPORTS(nsMailWinSearchHelper, nsIMailWinSearchHelper)
 
 
 NS_IMETHODIMP nsMailWinSearchHelper::GetFoldersInCrawlScope(bool* aResult)

@@ -17,7 +17,7 @@
 
 /*** implementation of the service ******/
 
-NS_IMPL_ISUPPORTS1(nsAbLDAPReplicationService, nsIAbLDAPReplicationService)
+NS_IMPL_ISUPPORTS(nsAbLDAPReplicationService, nsIAbLDAPReplicationService)
 
 nsAbLDAPReplicationService::nsAbLDAPReplicationService() 
     : mReplicating(false)

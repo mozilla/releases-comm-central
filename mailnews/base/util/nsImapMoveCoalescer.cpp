@@ -20,7 +20,7 @@
 #include "nsComponentManagerUtils.h"
 #include "mozilla/ArrayUtils.h"
 
-NS_IMPL_ISUPPORTS1(nsImapMoveCoalescer, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsImapMoveCoalescer, nsIUrlListener)
 
 nsImapMoveCoalescer::nsImapMoveCoalescer(nsIMsgFolder *sourceFolder, nsIMsgWindow *msgWindow)
 {
@@ -163,7 +163,7 @@ nsTArray<nsMsgKey> *nsImapMoveCoalescer::GetKeyBucket(uint32_t keyArrayIndex)
            &(m_keyBuckets[keyArrayIndex]) : nullptr;
 }
 
-NS_IMPL_ISUPPORTS1(nsMoveCoalescerCopyListener, nsIMsgCopyServiceListener)
+NS_IMPL_ISUPPORTS(nsMoveCoalescerCopyListener, nsIMsgCopyServiceListener)
 
 nsMoveCoalescerCopyListener::nsMoveCoalescerCopyListener(nsImapMoveCoalescer * coalescer, 
                                                          nsIMsgFolder *destFolder)

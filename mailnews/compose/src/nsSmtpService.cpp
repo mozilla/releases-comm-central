@@ -73,7 +73,7 @@ nsSmtpService::~nsSmtpService()
 
 }
 
-NS_IMPL_ISUPPORTS2(nsSmtpService, nsISmtpService, nsIProtocolHandler)
+NS_IMPL_ISUPPORTS(nsSmtpService, nsISmtpService, nsIProtocolHandler)
 
 
 NS_IMETHODIMP nsSmtpService::SendMailMessage(nsIFile * aFilePath,

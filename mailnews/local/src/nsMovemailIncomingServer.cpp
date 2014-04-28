@@ -16,7 +16,7 @@
 static NS_DEFINE_CID(kCMovemailServiceCID, NS_MOVEMAILSERVICE_CID);
 
 
-NS_IMPL_ISUPPORTS_INHERITED2(nsMovemailIncomingServer,
+NS_IMPL_ISUPPORTS_INHERITED(nsMovemailIncomingServer,
                              nsMsgIncomingServer,
                              nsIMovemailIncomingServer,
                              nsILocalMailIncomingServer)

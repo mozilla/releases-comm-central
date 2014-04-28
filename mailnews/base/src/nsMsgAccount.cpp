@@ -26,7 +26,7 @@
 #include "nsMsgUtils.h"
 #include "nsArrayUtils.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgAccount, nsIMsgAccount)
+NS_IMPL_ISUPPORTS(nsMsgAccount, nsIMsgAccount)
 
 nsMsgAccount::nsMsgAccount()
   : mTriedToGetServer(false)

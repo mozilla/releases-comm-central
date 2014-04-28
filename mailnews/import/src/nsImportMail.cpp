@@ -209,7 +209,7 @@ nsImportGenericMail::~nsImportGenericMail()
 
 
 
-NS_IMPL_ISUPPORTS1(nsImportGenericMail, nsIImportGeneric)
+NS_IMPL_ISUPPORTS(nsImportGenericMail, nsIImportGeneric)
 
 
 NS_IMETHODIMP nsImportGenericMail::GetData(const char *dataId, nsISupports **_retval)

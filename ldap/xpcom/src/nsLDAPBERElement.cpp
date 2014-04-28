@@ -9,7 +9,7 @@
 #include "nsCOMPtr.h"
 #include "nsLDAPBERValue.h"
 
-NS_IMPL_ISUPPORTS1(nsLDAPBERElement, nsILDAPBERElement)
+NS_IMPL_ISUPPORTS(nsLDAPBERElement, nsILDAPBERElement)
 
 nsLDAPBERElement::nsLDAPBERElement()
   : mElement(0)

@@ -14,7 +14,7 @@
 //
 //  nsMsgFolderNotificationService
 //
-NS_IMPL_ISUPPORTS1(nsMsgFolderNotificationService, nsIMsgFolderNotificationService)
+NS_IMPL_ISUPPORTS(nsMsgFolderNotificationService, nsIMsgFolderNotificationService)
 
 nsMsgFolderNotificationService::nsMsgFolderNotificationService()
 {

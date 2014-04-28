@@ -70,7 +70,7 @@ CompareMsgTags(const void* aTagPref1, const void* aTagPref2, void* aData)
 //
 //  nsMsgTag
 //
-NS_IMPL_ISUPPORTS1(nsMsgTag, nsIMsgTag)
+NS_IMPL_ISUPPORTS(nsMsgTag, nsIMsgTag)
 
 nsMsgTag::nsMsgTag(const nsACString &aKey,
                    const nsAString  &aTag,
@@ -119,7 +119,7 @@ NS_IMETHODIMP nsMsgTag::GetOrdinal(nsACString & aOrdinal)
 //
 //  nsMsgTagService
 //
-NS_IMPL_ISUPPORTS1(nsMsgTagService, nsIMsgTagService)
+NS_IMPL_ISUPPORTS(nsMsgTagService, nsIMsgTagService)
 
 nsMsgTagService::nsMsgTagService()
 {

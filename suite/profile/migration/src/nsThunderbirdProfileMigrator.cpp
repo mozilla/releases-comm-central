@@ -33,7 +33,7 @@
 #define FILE_NAME_PERSONALDICTIONARY "persdict.dat"
 #define FILE_NAME_MAILVIEWS       "mailViews.dat"
 
-NS_IMPL_ISUPPORTS2(nsThunderbirdProfileMigrator, nsISuiteProfileMigrator,
+NS_IMPL_ISUPPORTS(nsThunderbirdProfileMigrator, nsISuiteProfileMigrator,
                    nsITimerCallback)
 
 nsThunderbirdProfileMigrator::nsThunderbirdProfileMigrator()

@@ -29,7 +29,7 @@ nsNoneService::nsNoneService()
 nsNoneService::~nsNoneService()
 {}
 
-NS_IMPL_ISUPPORTS2(nsNoneService, nsINoneService, nsIMsgProtocolInfo)
+NS_IMPL_ISUPPORTS(nsNoneService, nsINoneService, nsIMsgProtocolInfo)
 
 NS_IMETHODIMP
 nsNoneService::SetDefaultLocalPath(nsIFile *aPath)

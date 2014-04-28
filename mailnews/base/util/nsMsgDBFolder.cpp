@@ -101,7 +101,7 @@ char16_t *nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount=0;
 
-NS_IMPL_ISUPPORTS_INHERITED6(nsMsgDBFolder, nsRDFResource, 
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBFolder, nsRDFResource, 
                              nsISupportsWeakReference, nsIMsgFolder,
                              nsIDBChangeListener, nsIUrlListener,
                              nsIJunkMailClassificationListener,

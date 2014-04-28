@@ -38,7 +38,7 @@
 // nsFolderCompactState
 //////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS5(nsFolderCompactState, nsIMsgFolderCompactor, nsIRequestObserver, nsIStreamListener, nsICopyMessageStreamListener, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIMsgFolderCompactor, nsIRequestObserver, nsIStreamListener, nsICopyMessageStreamListener, nsIUrlListener)
 
 nsFolderCompactState::nsFolderCompactState()
 {

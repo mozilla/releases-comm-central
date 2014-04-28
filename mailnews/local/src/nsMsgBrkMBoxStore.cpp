@@ -46,7 +46,7 @@ nsMsgBrkMBoxStore::~nsMsgBrkMBoxStore()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgBrkMBoxStore, nsIMsgPluggableStore)
+NS_IMPL_ISUPPORTS(nsMsgBrkMBoxStore, nsIMsgPluggableStore)
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder *aParentFolder,
                                                     bool aDeep)

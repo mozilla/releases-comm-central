@@ -79,7 +79,7 @@ char DispositionTypes[7][16] = {
     ""
 };
 
-NS_IMPL_ISUPPORTS2(nsMsgMdnGenerator, nsIMsgMdnGenerator, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsMsgMdnGenerator, nsIMsgMdnGenerator, nsIUrlListener)
 
 nsMsgMdnGenerator::nsMsgMdnGenerator()
 {

@@ -40,7 +40,7 @@ nsMsgRuleAction::~nsMsgRuleAction()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgRuleAction, nsIMsgRuleAction)
+NS_IMPL_ISUPPORTS(nsMsgRuleAction, nsIMsgRuleAction)
 
 NS_IMPL_GETSET(nsMsgRuleAction, Type, nsMsgRuleActionType, m_type)
 
@@ -183,7 +183,7 @@ nsMsgFilter::~nsMsgFilter()
   delete m_expressionTree;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgFilter, nsIMsgFilter)
+NS_IMPL_ISUPPORTS(nsMsgFilter, nsIMsgFilter)
 
 NS_IMPL_GETSET(nsMsgFilter, FilterType, nsMsgFilterTypeType, m_type)
 NS_IMPL_GETSET(nsMsgFilter, Enabled, bool, m_enabled)

@@ -11,7 +11,7 @@
 #include "prcmon.h"
 #include "nspr.h"
 
-NS_IMPL_ISUPPORTS1(nsImapFlagAndUidState, nsIImapFlagAndUidState)
+NS_IMPL_ISUPPORTS(nsImapFlagAndUidState, nsIImapFlagAndUidState)
 
 using namespace mozilla;
 

@@ -42,7 +42,7 @@ nsAbDirProperty::~nsAbDirProperty(void)
 #endif
 }
 
-NS_IMPL_ISUPPORTS4(nsAbDirProperty, nsIAbDirectory, nsISupportsWeakReference,
+NS_IMPL_ISUPPORTS(nsAbDirProperty, nsIAbDirectory, nsISupportsWeakReference,
                               nsIAbCollection, nsIAbItem)
 
 NS_IMETHODIMP nsAbDirProperty::GetUuid(nsACString &uuid)

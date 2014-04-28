@@ -43,7 +43,7 @@
 
 using namespace mozilla;
 
-NS_IMPL_ISUPPORTS5(nsMsgProtocol, nsIChannel, nsIStreamListener,
+NS_IMPL_ISUPPORTS(nsMsgProtocol, nsIChannel, nsIStreamListener,
   nsIRequestObserver, nsIRequest, nsITransportEventSink)
 
 static char16_t *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgUri);
@@ -1106,7 +1106,7 @@ protected:
   nsCOMPtr<nsIInputStream>  mInStream;
 };
 
-NS_IMPL_ISUPPORTS1(nsMsgProtocolStreamProvider,
+NS_IMPL_ISUPPORTS(nsMsgProtocolStreamProvider,
                               nsIOutputStreamCallback)
 
 class nsMsgFilePostHelper : public nsIStreamListener
@@ -1127,7 +1127,7 @@ protected:
   nsCOMPtr<nsIWeakReference> mProtInstance;
 };
 
-NS_IMPL_ISUPPORTS2(nsMsgFilePostHelper, nsIStreamListener, nsIRequestObserver)
+NS_IMPL_ISUPPORTS(nsMsgFilePostHelper, nsIStreamListener, nsIRequestObserver)
 
 nsresult nsMsgFilePostHelper::Init(nsIOutputStream * aOutStream, nsMsgAsyncWriteProtocol * aProtInstance, nsIFile *aFileToPost)
 {

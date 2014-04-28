@@ -100,7 +100,7 @@ nsMailGNOMEIntegration::Init()
   return rv;
 }
 
-NS_IMPL_ISUPPORTS1(nsMailGNOMEIntegration, nsIShellService)
+NS_IMPL_ISUPPORTS(nsMailGNOMEIntegration, nsIShellService)
 
 bool
 nsMailGNOMEIntegration::GetAppPathFromLauncher()

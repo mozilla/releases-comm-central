@@ -29,7 +29,7 @@ static NS_DEFINE_CID(kStatusBarBiffManagerCID, NS_STATUSBARBIFFMANAGER_CID);
 
 static PRLogModuleInfo *MsgBiffLogModule = nullptr;
 
-NS_IMPL_ISUPPORTS4(nsMsgBiffManager, nsIMsgBiffManager,
+NS_IMPL_ISUPPORTS(nsMsgBiffManager, nsIMsgBiffManager,
                    nsIIncomingServerListener, nsIObserver,
                    nsISupportsWeakReference)
 

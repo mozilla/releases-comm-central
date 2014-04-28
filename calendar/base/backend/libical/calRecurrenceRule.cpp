@@ -17,7 +17,7 @@
 #include <climits>
 
 NS_IMPL_CLASSINFO(calRecurrenceRule, NULL, 0, CAL_RECURRENCERULE_CID)
-NS_IMPL_ISUPPORTS2_CI(calRecurrenceRule, calIRecurrenceItem, calIRecurrenceRule)
+NS_IMPL_ISUPPORTS_CI(calRecurrenceRule, calIRecurrenceItem, calIRecurrenceRule)
 
 calRecurrenceRule::calRecurrenceRule()
     : mImmutable(false),

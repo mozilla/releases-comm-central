@@ -72,7 +72,7 @@ static const MimeTypeAssociation gMimeTypes[] = {
   { nsIShellService::RSS, "application/rss+xml", "rss" }
 };
 
-NS_IMPL_ISUPPORTS1(nsGNOMEShellService, nsIShellService)
+NS_IMPL_ISUPPORTS(nsGNOMEShellService, nsIShellService)
 
 nsresult
 GetBrandName(nsACString& aBrandName)

@@ -87,7 +87,7 @@ char
 // Implementation of nsMsgSMIMEComposeFields
 /////////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS1(nsMsgSMIMEComposeFields, nsIMsgSMIMECompFields)
+NS_IMPL_ISUPPORTS(nsMsgSMIMEComposeFields, nsIMsgSMIMECompFields)
 
 nsMsgSMIMEComposeFields::nsMsgSMIMEComposeFields()
 :mSignMessage(false), mAlwaysEncryptMessage(false)
@@ -126,7 +126,7 @@ NS_IMETHODIMP nsMsgSMIMEComposeFields::GetRequireEncryptMessage(bool *_retval)
 // Implementation of nsMsgComposeSecure
 /////////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS1(nsMsgComposeSecure, nsIMsgComposeSecure)
+NS_IMPL_ISUPPORTS(nsMsgComposeSecure, nsIMsgComposeSecure)
 
 nsMsgComposeSecure::nsMsgComposeSecure()
 {

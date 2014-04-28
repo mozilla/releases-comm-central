@@ -7,7 +7,7 @@
 #include "nsIFile.h"
 #include "nsNetUtil.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgAttachment, nsIMsgAttachment)
+NS_IMPL_ISUPPORTS(nsMsgAttachment, nsIMsgAttachment)
 
 nsMsgAttachment::nsMsgAttachment()
 {

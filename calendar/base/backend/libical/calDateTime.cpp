@@ -25,7 +25,7 @@ extern "C" {
 #include "calAttributeHelpers.h"
 
 NS_IMPL_CLASSINFO(calDateTime, NULL, 0, CAL_DATETIME_CID)
-NS_IMPL_ISUPPORTS1_CI(calDateTime, calIDateTime)
+NS_IMPL_ISUPPORTS_CI(calDateTime, calIDateTime)
 
 calDateTime::calDateTime()
     : mImmutable(false)

@@ -19,7 +19,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 
-NS_IMPL_ISUPPORTS_INHERITED2(nsNoIncomingServer,
+NS_IMPL_ISUPPORTS_INHERITED(nsNoIncomingServer,
                             nsMsgIncomingServer,
                             nsINoIncomingServer,
                             nsILocalMailIncomingServer)

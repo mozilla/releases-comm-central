@@ -17,7 +17,7 @@ nsCidProtocolHandler::~nsCidProtocolHandler()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsCidProtocolHandler, nsIProtocolHandler)
+NS_IMPL_ISUPPORTS(nsCidProtocolHandler, nsIProtocolHandler)
 
 NS_IMETHODIMP nsCidProtocolHandler::GetScheme(nsACString & aScheme)
 {

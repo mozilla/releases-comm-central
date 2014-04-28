@@ -113,7 +113,7 @@ nsVCardImport::~nsVCardImport()
   IMPORT_LOG0("nsVCardImport Module Deleted\n");
 }
 
-NS_IMPL_ISUPPORTS1(nsVCardImport, nsIImportModule)
+NS_IMPL_ISUPPORTS(nsVCardImport, nsIImportModule)
 
 NS_IMETHODIMP nsVCardImport::GetName(char16_t **name)
 {
@@ -195,7 +195,7 @@ ImportVCardAddressImpl::~ImportVCardAddressImpl()
 {
 }
 
-NS_IMPL_ISUPPORTS1(ImportVCardAddressImpl, nsIImportAddressBooks)
+NS_IMPL_ISUPPORTS(ImportVCardAddressImpl, nsIImportAddressBooks)
 
 NS_IMETHODIMP ImportVCardAddressImpl::GetAutoFind(
     char16_t **addrDescription, bool *_retval)

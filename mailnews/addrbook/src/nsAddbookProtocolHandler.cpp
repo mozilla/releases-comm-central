@@ -35,7 +35,7 @@ nsAddbookProtocolHandler::~nsAddbookProtocolHandler()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsAddbookProtocolHandler, nsIProtocolHandler)
+NS_IMPL_ISUPPORTS(nsAddbookProtocolHandler, nsIProtocolHandler)
 
 NS_IMETHODIMP nsAddbookProtocolHandler::GetScheme(nsACString &aScheme)
 {

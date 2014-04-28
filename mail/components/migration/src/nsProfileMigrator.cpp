@@ -26,7 +26,7 @@
 #include <limits.h>
 #endif
 
-NS_IMPL_ISUPPORTS1(nsProfileMigrator, nsIProfileMigrator)
+NS_IMPL_ISUPPORTS(nsProfileMigrator, nsIProfileMigrator)
 
 #define MIGRATION_WIZARD_FE_URL "chrome://messenger/content/migration/migration.xul"
 #define MIGRATION_WIZARD_FE_FEATURES "chrome,dialog,modal,centerscreen"

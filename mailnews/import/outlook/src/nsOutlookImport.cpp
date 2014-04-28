@@ -158,7 +158,7 @@ nsOutlookImport::~nsOutlookImport()
   IMPORT_LOG0("nsOutlookImport Module Deleted\n");
 }
 
-NS_IMPL_ISUPPORTS1(nsOutlookImport, nsIImportModule)
+NS_IMPL_ISUPPORTS(nsOutlookImport, nsIImportModule)
 
 NS_IMETHODIMP nsOutlookImport::GetName(char16_t **name)
 {
@@ -296,7 +296,7 @@ ImportOutlookMailImpl::~ImportOutlookMailImpl()
   nsOutlookCompose::ReleaseIdentity();
 }
 
-NS_IMPL_ISUPPORTS1(ImportOutlookMailImpl, nsIImportMail)
+NS_IMPL_ISUPPORTS(ImportOutlookMailImpl, nsIImportMail)
 
 NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *found, bool *userVerify)
 {
@@ -485,7 +485,7 @@ ImportOutlookAddressImpl::~ImportOutlookAddressImpl()
 {
 }
 
-NS_IMPL_ISUPPORTS1(ImportOutlookAddressImpl, nsIImportAddressBooks)
+NS_IMPL_ISUPPORTS(ImportOutlookAddressImpl, nsIImportAddressBooks)
 
 NS_IMETHODIMP ImportOutlookAddressImpl::GetAutoFind(char16_t **description, bool *_retval)
 {

@@ -20,7 +20,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 
-NS_IMPL_ISUPPORTS_INHERITED1(nsLocalMoveCopyMsgTxn, nsMsgTxn, nsIFolderListener)
+NS_IMPL_ISUPPORTS_INHERITED(nsLocalMoveCopyMsgTxn, nsMsgTxn, nsIFolderListener)
 
 nsLocalMoveCopyMsgTxn::nsLocalMoveCopyMsgTxn()  : m_srcIsImap4(false),
   m_canUndelete(false)
@@ -485,7 +485,7 @@ NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemEvent(nsIMsgFolder *aItem, nsIAtom *a
   return NS_OK;
 }
 
-NS_IMPL_ISUPPORTS1(nsLocalUndoFolderListener, nsIFolderListener)
+NS_IMPL_ISUPPORTS(nsLocalUndoFolderListener, nsIFolderListener)
 
 nsLocalUndoFolderListener::nsLocalUndoFolderListener(nsLocalMoveCopyMsgTxn *aTxn, nsIMsgFolder *aFolder)
 {

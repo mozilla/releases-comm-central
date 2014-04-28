@@ -102,7 +102,7 @@ protected :
 };
 
 
-NS_IMPL_ISUPPORTS1(nsMAPISendListener, nsIMsgSendListener)
+NS_IMPL_ISUPPORTS(nsMAPISendListener, nsIMsgSendListener)
 
 nsresult nsMAPISendListener::CreateMAPISendListener( nsIMsgSendListener **ppListener)
 {

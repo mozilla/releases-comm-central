@@ -44,7 +44,7 @@ static const mozilla::Module kMorkModule = {
 
 NSMODULE_DEFN(nsMorkModule) = &kMorkModule;
 
-NS_IMPL_ISUPPORTS1(nsMorkFactoryService, nsIMdbFactoryService)
+NS_IMPL_ISUPPORTS(nsMorkFactoryService, nsIMdbFactoryService)
 
 NS_IMETHODIMP nsMorkFactoryService::GetMdbFactory(nsIMdbFactory **aFactory)
 {

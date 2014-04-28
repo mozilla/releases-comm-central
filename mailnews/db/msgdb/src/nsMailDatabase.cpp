@@ -344,7 +344,7 @@ nsMsgOfflineOpEnumerator::~nsMsgOfflineOpEnumerator()
   NS_RELEASE(mDB);
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgOfflineOpEnumerator, nsISimpleEnumerator)
+NS_IMPL_ISUPPORTS(nsMsgOfflineOpEnumerator, nsISimpleEnumerator)
 
 nsresult nsMsgOfflineOpEnumerator::GetRowCursor()
 {

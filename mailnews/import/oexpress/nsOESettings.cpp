@@ -117,7 +117,7 @@ nsOESettings::~nsOESettings()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsOESettings, nsIImportSettings)
+NS_IMPL_ISUPPORTS(nsOESettings, nsIImportSettings)
 
 NS_IMETHODIMP nsOESettings::AutoLocate(char16_t **description, nsIFile **location, bool *_retval)
 {

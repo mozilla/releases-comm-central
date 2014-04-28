@@ -32,7 +32,7 @@
 #include "nsIProperties.h"
 #include "mozilla/Services.h"
 
-NS_IMPL_ISUPPORTS2(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
+NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
 nsMsgMailSession::nsMsgMailSession()
 {
@@ -502,7 +502,7 @@ nsMsgMailSession::GetDataFilesDir(const char* dirName, nsIFile **dataFilesDir)
 
 /********************************************************************************/
 
-NS_IMPL_ISUPPORTS3(nsMsgShutdownService, nsIMsgShutdownService, nsIUrlListener, nsIObserver)
+NS_IMPL_ISUPPORTS(nsMsgShutdownService, nsIMsgShutdownService, nsIUrlListener, nsIObserver)
 
 nsMsgShutdownService::nsMsgShutdownService()
 : mQuitMode(nsIAppStartup::eAttemptQuit),

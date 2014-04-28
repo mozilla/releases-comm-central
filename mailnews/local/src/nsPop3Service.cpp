@@ -47,7 +47,7 @@ nsPop3Service::nsPop3Service()
 nsPop3Service::~nsPop3Service()
 {}
 
-NS_IMPL_ISUPPORTS3(nsPop3Service,
+NS_IMPL_ISUPPORTS(nsPop3Service,
                    nsIPop3Service,
                    nsIProtocolHandler,
                    nsIMsgProtocolInfo)

@@ -25,7 +25,7 @@ extern "C" {
   extern OSStatus _LSSaveAndRefresh(void);
 }
 
-NS_IMPL_ISUPPORTS1(nsMailMacIntegration, nsIShellService)
+NS_IMPL_ISUPPORTS(nsMailMacIntegration, nsIShellService)
 
 nsMailMacIntegration::nsMailMacIntegration(): mCheckedThisSession(false)
 {}

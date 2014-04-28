@@ -53,7 +53,7 @@ nsresult nsNewsDownloader::DownloadArticles(nsIMsgWindow *window, nsIMsgFolder *
 /* Saving news messages
  */
 
-NS_IMPL_ISUPPORTS2(nsNewsDownloader, nsIUrlListener, nsIMsgSearchNotify)
+NS_IMPL_ISUPPORTS(nsNewsDownloader, nsIUrlListener, nsIMsgSearchNotify)
 
 nsNewsDownloader::nsNewsDownloader(nsIMsgWindow *window, nsIMsgDatabase *msgDB, nsIUrlListener *listener)
 {
@@ -326,7 +326,7 @@ DownloadMatchingNewsArticlesToNewsDB::~DownloadMatchingNewsArticlesToNewsDB()
 }
 
 
-NS_IMPL_ISUPPORTS1(nsMsgDownloadAllNewsgroups, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsMsgDownloadAllNewsgroups, nsIUrlListener)
 
 
 nsMsgDownloadAllNewsgroups::nsMsgDownloadAllNewsgroups(nsIMsgWindow *window, nsIUrlListener *listener)

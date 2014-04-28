@@ -136,7 +136,7 @@ public:
 };
 
 
-NS_IMPL_ISUPPORTS1(EudoraSendListener, nsIMsgSendListener)
+NS_IMPL_ISUPPORTS(EudoraSendListener, nsIMsgSendListener)
 
 nsresult EudoraSendListener::CreateSendListener(nsIMsgSendListener **ppListener)
 {

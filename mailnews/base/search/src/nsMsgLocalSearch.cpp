@@ -228,7 +228,7 @@ void nsMsgSearchBoolExpression::GenerateEncodeStr(nsCString * buffer)
 //-----------------------------------------------------------------------------
 
 
-NS_IMPL_ISUPPORTS_INHERITED1(nsMsgSearchOfflineMail, nsMsgSearchAdapter, nsIUrlListener)
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgSearchOfflineMail, nsMsgSearchAdapter, nsIUrlListener)
 
 nsMsgSearchOfflineMail::nsMsgSearchOfflineMail (nsIMsgSearchScopeTerm *scope, nsISupportsArray *termList) : nsMsgSearchAdapter (scope, termList)
 {

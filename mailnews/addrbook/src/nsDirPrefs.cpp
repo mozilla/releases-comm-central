@@ -81,7 +81,7 @@ public:
   NS_DECL_NSIOBSERVER
 };
 
-NS_IMPL_ISUPPORTS2(DirPrefObserver, nsISupportsWeakReference, nsIObserver)
+NS_IMPL_ISUPPORTS(DirPrefObserver, nsISupportsWeakReference, nsIObserver)
 
 NS_IMETHODIMP DirPrefObserver::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData)
 {

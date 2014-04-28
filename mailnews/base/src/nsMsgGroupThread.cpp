@@ -9,7 +9,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgGroupThread, nsIMsgThread)
+NS_IMPL_ISUPPORTS(nsMsgGroupThread, nsIMsgThread)
 
 nsMsgGroupThread::nsMsgGroupThread()
 {
@@ -425,7 +425,7 @@ nsMsgGroupThreadEnumerator::~nsMsgGroupThreadEnumerator()
     NS_RELEASE(mThread);
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgGroupThreadEnumerator, nsISimpleEnumerator)
+NS_IMPL_ISUPPORTS(nsMsgGroupThreadEnumerator, nsISimpleEnumerator)
 
 
 int32_t nsMsgGroupThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey)

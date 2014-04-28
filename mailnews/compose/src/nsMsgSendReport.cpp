@@ -15,7 +15,7 @@
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgProcessReport, nsIMsgProcessReport)
+NS_IMPL_ISUPPORTS(nsMsgProcessReport, nsIMsgProcessReport)
 
 nsMsgProcessReport::nsMsgProcessReport()
 {
@@ -76,7 +76,7 @@ NS_IMETHODIMP nsMsgProcessReport::Reset()
 }
 
 
-NS_IMPL_ISUPPORTS1(nsMsgSendReport, nsIMsgSendReport)
+NS_IMPL_ISUPPORTS(nsMsgSendReport, nsIMsgSendReport)
 
 nsMsgSendReport::nsMsgSendReport()
 {

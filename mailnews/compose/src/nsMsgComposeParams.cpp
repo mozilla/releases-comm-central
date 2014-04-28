@@ -13,7 +13,7 @@ nsMsgComposeParams::nsMsgComposeParams() :
 }
 
 /* the following macro actually implement addref, release and query interface for our component. */
-NS_IMPL_ISUPPORTS1(nsMsgComposeParams, nsIMsgComposeParams)
+NS_IMPL_ISUPPORTS(nsMsgComposeParams, nsIMsgComposeParams)
 
 nsMsgComposeParams::~nsMsgComposeParams()
 {

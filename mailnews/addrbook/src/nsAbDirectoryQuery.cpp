@@ -15,7 +15,7 @@
 #include "nsISimpleEnumerator.h"
 #include "nsMsgUtils.h"
 
-NS_IMPL_ISUPPORTS1(nsAbDirectoryQuerySimpleBooleanExpression, nsIAbBooleanExpression)
+NS_IMPL_ISUPPORTS(nsAbDirectoryQuerySimpleBooleanExpression, nsIAbBooleanExpression)
 
 nsAbDirectoryQuerySimpleBooleanExpression::nsAbDirectoryQuerySimpleBooleanExpression() :
     mOperation (nsIAbBooleanOperationTypes::AND)
@@ -90,7 +90,7 @@ NS_IMETHODIMP nsAbDirectoryQuerySimpleBooleanExpression::SetExpressions(nsIArray
   return NS_OK;
 }
 
-NS_IMPL_ISUPPORTS1(nsAbDirectoryQueryArguments, nsIAbDirectoryQueryArguments)
+NS_IMPL_ISUPPORTS(nsAbDirectoryQueryArguments, nsIAbDirectoryQueryArguments)
 
 nsAbDirectoryQueryArguments::nsAbDirectoryQueryArguments() :
     mQuerySubDirectories(true)
@@ -157,7 +157,7 @@ NS_IMETHODIMP nsAbDirectoryQueryArguments::SetFilter(const nsACString & aFilter)
     return NS_OK;
 }
 
-NS_IMPL_ISUPPORTS1(nsAbDirectoryQueryPropertyValue, nsIAbDirectoryQueryPropertyValue)
+NS_IMPL_ISUPPORTS(nsAbDirectoryQueryPropertyValue, nsIAbDirectoryQueryPropertyValue)
 
 nsAbDirectoryQueryPropertyValue::nsAbDirectoryQueryPropertyValue()
 {
@@ -210,7 +210,7 @@ NS_IMETHODIMP nsAbDirectoryQueryPropertyValue::GetValueISupports(nsISupports*  *
 }
 
 /* Implementation file */
-NS_IMPL_ISUPPORTS1(nsAbDirectoryQuery, nsIAbDirectoryQuery)
+NS_IMPL_ISUPPORTS(nsAbDirectoryQuery, nsIAbDirectoryQuery)
 
 nsAbDirectoryQuery::nsAbDirectoryQuery()
 {

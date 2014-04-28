@@ -39,7 +39,7 @@ using namespace mozilla::mailnews;
 #define kBlockRemoteContent 1
 #define kAllowRemoteContent 2
 
-NS_IMPL_ISUPPORTS4(nsMsgContentPolicy, 
+NS_IMPL_ISUPPORTS(nsMsgContentPolicy, 
                    nsIContentPolicy,
                    nsIWebProgressListener,
                    nsIObserver,

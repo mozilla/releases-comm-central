@@ -28,7 +28,7 @@
  * bug 96669 has been integrated.
  */
 
-NS_IMPL_ISUPPORTS1(nsStopwatch, nsIStopwatch)
+NS_IMPL_ISUPPORTS(nsStopwatch, nsIStopwatch)
 
 #if defined(XP_UNIX)
 /** the number of ticks per second */

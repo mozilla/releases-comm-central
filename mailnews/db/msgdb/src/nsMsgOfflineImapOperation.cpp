@@ -15,7 +15,7 @@
 PRLogModuleInfo *IMAPOffline;
 
 /* Implementation file */
-NS_IMPL_ISUPPORTS1(nsMsgOfflineImapOperation, nsIMsgOfflineImapOperation)
+NS_IMPL_ISUPPORTS(nsMsgOfflineImapOperation, nsIMsgOfflineImapOperation)
 
 // property names for offine imap operation fields.
 #define PROP_OPERATION "op"

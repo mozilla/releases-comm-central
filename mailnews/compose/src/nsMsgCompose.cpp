@@ -196,7 +196,7 @@ nsMsgCompose::~nsMsgCompose()
 }
 
 /* the following macro actually implement addref, release and query interface for our component. */
-NS_IMPL_ISUPPORTS3(nsMsgCompose, nsIMsgCompose, nsIMsgSendListener,
+NS_IMPL_ISUPPORTS(nsMsgCompose, nsIMsgCompose, nsIMsgSendListener,
   nsISupportsWeakReference)
 
 //
@@ -3071,7 +3071,7 @@ bool IsInDomainList(const nsAString &aDomain, const nsAString &aDomainList)
   return false;
 }
 
-NS_IMPL_ISUPPORTS3(QuotingOutputStreamListener,
+NS_IMPL_ISUPPORTS(QuotingOutputStreamListener,
                    nsIMsgQuotingOutputStreamListener,
                    nsIRequestObserver,
                    nsIStreamListener)
@@ -3454,7 +3454,7 @@ NS_IMPL_ADDREF(nsMsgComposeSendListener)
 NS_IMPL_RELEASE(nsMsgComposeSendListener)
 
 /*
-NS_IMPL_QUERY_INTERFACE4(nsMsgComposeSendListener,
+NS_IMPL_QUERY_INTERFACE(nsMsgComposeSendListener,
                          nsIMsgComposeSendListener,
                          nsIMsgSendListener,
                          nsIMsgCopyServiceListener,

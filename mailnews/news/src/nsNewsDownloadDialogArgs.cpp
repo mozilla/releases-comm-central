@@ -17,7 +17,7 @@ nsNewsDownloadDialogArgs::~nsNewsDownloadDialogArgs()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsNewsDownloadDialogArgs, nsINewsDownloadDialogArgs)
+NS_IMPL_ISUPPORTS(nsNewsDownloadDialogArgs, nsINewsDownloadDialogArgs)
 
 NS_IMETHODIMP nsNewsDownloadDialogArgs::GetGroupName(nsAString & aGroupName)
  {

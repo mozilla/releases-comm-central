@@ -17,7 +17,7 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
 
-NS_IMPL_ISUPPORTS5(nsMsgProgress, nsIMsgStatusFeedback, nsIMsgProgress,
+NS_IMPL_ISUPPORTS(nsMsgProgress, nsIMsgStatusFeedback, nsIMsgProgress,
   nsIWebProgressListener, nsIProgressEventSink, nsISupportsWeakReference)
 
 

@@ -43,7 +43,7 @@ nsMsgFileStream::~nsMsgFileStream()
     PR_Close(mFileDesc);
 }
 
-NS_IMPL_ISUPPORTS3(nsMsgFileStream, nsIInputStream, nsIOutputStream, nsISeekableStream)
+NS_IMPL_ISUPPORTS(nsMsgFileStream, nsIInputStream, nsIOutputStream, nsISeekableStream)
 
 nsresult nsMsgFileStream::InitWithFile(nsIFile *file)
 {

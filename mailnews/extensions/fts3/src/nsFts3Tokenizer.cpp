@@ -19,7 +19,7 @@ extern "C" void glodaRankFunc(sqlite3_context *pCtx,
                               int nVal,
                               sqlite3_value **apVal);
 
-NS_IMPL_ISUPPORTS1(nsFts3Tokenizer,nsIFts3Tokenizer)
+NS_IMPL_ISUPPORTS(nsFts3Tokenizer,nsIFts3Tokenizer)
 
 nsFts3Tokenizer::nsFts3Tokenizer()
 {

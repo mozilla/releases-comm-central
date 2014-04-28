@@ -223,7 +223,7 @@ nsMessenger::~nsMessenger()
 }
 
 
-NS_IMPL_ISUPPORTS3(nsMessenger, nsIMessenger, nsISupportsWeakReference, nsIFolderListener)
+NS_IMPL_ISUPPORTS(nsMessenger, nsIMessenger, nsISupportsWeakReference, nsIFolderListener)
 
 NS_IMETHODIMP nsMessenger::SetWindow(nsIDOMWindow *aWin, nsIMsgWindow *aMsgWindow)
 {
@@ -1576,7 +1576,7 @@ nsSaveMsgListener::~nsSaveMsgListener()
 //
 // nsISupports
 //
-NS_IMPL_ISUPPORTS5(nsSaveMsgListener,
+NS_IMPL_ISUPPORTS(nsSaveMsgListener,
                    nsIUrlListener,
                    nsIMsgCopyServiceListener,
                    nsIStreamListener,
@@ -2512,7 +2512,7 @@ public:
 //
 // nsISupports
 //
-NS_IMPL_ISUPPORTS4(nsDelAttachListener,
+NS_IMPL_ISUPPORTS(nsDelAttachListener,
                    nsIStreamListener,
                    nsIRequestObserver,
                    nsIUrlListener,

@@ -23,7 +23,7 @@ calIcalProperty::~calIcalProperty()
 }
 
 NS_IMPL_CLASSINFO(calIcalProperty, NULL, 0, CAL_ICALPROPERTY_CID)
-NS_IMPL_ISUPPORTS1_CI(calIcalProperty, calIIcalProperty)
+NS_IMPL_ISUPPORTS_CI(calIcalProperty, calIIcalProperty)
 
 NS_IMETHODIMP_(icalproperty *)
 calIcalProperty::GetLibicalProperty()
@@ -853,8 +853,8 @@ calIcalComponent::Get##Attrname(calIDuration **dtp)                     \
 
 
 NS_IMPL_CLASSINFO(calIcalComponent, NULL, nsIClassInfo::THREADSAFE, CAL_ICALCOMPONENT_CID)
-NS_IMPL_ISUPPORTS2(calIcalComponent, calIIcalComponent, nsIClassInfo)
-NS_IMPL_CI_INTERFACE_GETTER1(calIcalComponent, calIIcalComponent)
+NS_IMPL_ISUPPORTS(calIcalComponent, calIIcalComponent, nsIClassInfo)
+NS_IMPL_CI_INTERFACE_GETTER(calIcalComponent, calIIcalComponent)
 NS_IMPL_THREADSAFE_CI(calIcalComponent)
 
 NS_IMETHODIMP_(icalcomponent *)
@@ -1238,8 +1238,8 @@ calIcalComponent::AddProperty(calIIcalProperty * prop)
 // }
 
 NS_IMPL_CLASSINFO(calICSService, NULL, nsIClassInfo::THREADSAFE, CAL_ICSSERVICE_CID)
-NS_IMPL_ISUPPORTS2(calICSService, calIICSService, nsIClassInfo)
-NS_IMPL_CI_INTERFACE_GETTER1(calICSService, calIICSService)
+NS_IMPL_ISUPPORTS(calICSService, calIICSService, nsIClassInfo)
+NS_IMPL_CI_INTERFACE_GETTER(calICSService, calIICSService)
 NS_IMPL_THREADSAFE_CI(calICSService)
 
 calICSService::calICSService()

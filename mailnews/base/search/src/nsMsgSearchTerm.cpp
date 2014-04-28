@@ -397,7 +397,7 @@ nsMsgSearchTerm::~nsMsgSearchTerm ()
     NS_Free(m_value.string);
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgSearchTerm, nsIMsgSearchTerm)
+NS_IMPL_ISUPPORTS(nsMsgSearchTerm, nsIMsgSearchTerm)
 
 
 // Perhaps we could find a better place for this?
@@ -1826,7 +1826,7 @@ nsMsgSearchScopeTerm::~nsMsgSearchScopeTerm ()
   m_inputStream = nullptr;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgSearchScopeTerm, nsIMsgSearchScopeTerm)
+NS_IMPL_ISUPPORTS(nsMsgSearchScopeTerm, nsIMsgSearchScopeTerm)
 
 NS_IMETHODIMP
 nsMsgSearchScopeTerm::GetFolder(nsIMsgFolder **aResult)

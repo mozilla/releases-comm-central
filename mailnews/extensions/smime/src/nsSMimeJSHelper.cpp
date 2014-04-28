@@ -17,7 +17,7 @@
 
 using namespace mozilla::mailnews;
 
-NS_IMPL_ISUPPORTS1(nsSMimeJSHelper, nsISMimeJSHelper)
+NS_IMPL_ISUPPORTS(nsSMimeJSHelper, nsISMimeJSHelper)
 
 nsSMimeJSHelper::nsSMimeJSHelper()
 {

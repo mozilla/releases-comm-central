@@ -50,7 +50,7 @@ nsAbLDAPDirectory::~nsAbLDAPDirectory()
 {
 }
 
-NS_IMPL_ISUPPORTS_INHERITED3(nsAbLDAPDirectory, nsAbDirProperty,
+NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPDirectory, nsAbDirProperty,
                              nsISupportsWeakReference, nsIAbDirSearchListener,
                              nsIAbLDAPDirectory)
 

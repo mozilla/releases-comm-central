@@ -47,7 +47,7 @@
 #error "We need SQLITE_VERSION_NUMBER defined!"
 #endif
 
-NS_IMPL_ISUPPORTS1(nsGlodaRankerFunction, mozIStorageFunction)
+NS_IMPL_ISUPPORTS(nsGlodaRankerFunction, mozIStorageFunction)
 
 nsGlodaRankerFunction::nsGlodaRankerFunction()
 {

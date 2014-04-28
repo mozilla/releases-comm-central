@@ -44,7 +44,7 @@ nsMsgFilterList::nsMsgFilterList() :
 
 NS_IMPL_ADDREF(nsMsgFilterList)
 NS_IMPL_RELEASE(nsMsgFilterList)
-NS_IMPL_QUERY_INTERFACE1(nsMsgFilterList, nsIMsgFilterList)
+NS_IMPL_QUERY_INTERFACE(nsMsgFilterList, nsIMsgFilterList)
 
 NS_IMETHODIMP nsMsgFilterList::CreateFilter(const nsAString &name,class nsIMsgFilter **aFilter)
 {

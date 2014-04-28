@@ -23,7 +23,7 @@ static PRLogModuleInfo* gAbOutlookDirFactoryLog
 #define PRINTF(args) PR_LOG(nsAbOutlookDirFactoryLog, PR_LOG_DEBUG, args)
 
 
-NS_IMPL_ISUPPORTS1(nsAbOutlookDirFactory, nsIAbDirFactory)
+NS_IMPL_ISUPPORTS(nsAbOutlookDirFactory, nsIAbDirFactory)
 
 nsAbOutlookDirFactory::nsAbOutlookDirFactory(void)
 {

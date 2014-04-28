@@ -111,7 +111,7 @@ morkFactory::morkFactory(morkEnv* ev, /*i*/
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED1(morkFactory, morkObject, nsIMdbFactory)
+NS_IMPL_ISUPPORTS_INHERITED(morkFactory, morkObject, nsIMdbFactory)
 
 extern "C" nsIMdbFactory* MakeMdbFactory() 
 {

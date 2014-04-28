@@ -14,7 +14,7 @@
 #include "nsArrayEnumerator.h"
 #include "nsEnumeratorUtils.h"
 
-NS_IMPL_ISUPPORTS2(nsSuiteDirectoryProvider,
+NS_IMPL_ISUPPORTS(nsSuiteDirectoryProvider,
                    nsIDirectoryServiceProvider,
                    nsIDirectoryServiceProvider2)
 
@@ -122,7 +122,7 @@ nsSuiteDirectoryProvider::EnsureProfileFile(const nsACString& aLeafName,
   defaults->CopyToNative(aParentDir, aLeafName);
 }
 
-NS_IMPL_ISUPPORTS1(nsSuiteDirectoryProvider::AppendingEnumerator,
+NS_IMPL_ISUPPORTS(nsSuiteDirectoryProvider::AppendingEnumerator,
                    nsISimpleEnumerator)
 
 NS_IMETHODIMP

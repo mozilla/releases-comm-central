@@ -17,7 +17,7 @@
 
 namespace mozilla {
 namespace mailnews {
-NS_IMPL_ISUPPORTS1(MailNewsDLF, nsIDocumentLoaderFactory)
+NS_IMPL_ISUPPORTS(MailNewsDLF, nsIDocumentLoaderFactory)
 
 MailNewsDLF::MailNewsDLF()
 {

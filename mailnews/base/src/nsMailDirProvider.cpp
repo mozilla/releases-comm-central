@@ -36,7 +36,7 @@ nsMailDirProvider::EnsureDirectory(nsIFile *aDirectory)
   return rv;
 }
 
-NS_IMPL_ISUPPORTS2(nsMailDirProvider,
+NS_IMPL_ISUPPORTS(nsMailDirProvider,
                    nsIDirectoryServiceProvider,
                    nsIDirectoryServiceProvider2)
 
@@ -130,7 +130,7 @@ nsMailDirProvider::GetFiles(const char *aKey,
   return NS_SUCCESS_AGGREGATE_RESULT;
 }
 
-NS_IMPL_ISUPPORTS1(nsMailDirProvider::AppendingEnumerator,
+NS_IMPL_ISUPPORTS(nsMailDirProvider::AppendingEnumerator,
                    nsISimpleEnumerator)
 
 NS_IMETHODIMP

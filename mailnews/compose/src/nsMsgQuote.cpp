@@ -25,7 +25,7 @@
 #include "nsMsgMailNewsUrl.h"
 #include "mozilla/Services.h"
 
-NS_IMPL_ISUPPORTS2(nsMsgQuoteListener, nsIMsgQuoteListener,
+NS_IMPL_ISUPPORTS(nsMsgQuoteListener, nsIMsgQuoteListener,
   nsIMimeStreamConverterListener)
 
 nsMsgQuoteListener::nsMsgQuoteListener()
@@ -83,7 +83,7 @@ nsMsgQuote::~nsMsgQuote()
 {
 }
 
-NS_IMPL_ISUPPORTS2(nsMsgQuote, nsIMsgQuote, nsISupportsWeakReference)
+NS_IMPL_ISUPPORTS(nsMsgQuote, nsIMsgQuote, nsISupportsWeakReference)
 
 NS_IMETHODIMP nsMsgQuote::GetStreamListener(nsIMsgQuotingOutputStreamListener ** aStreamListener)
 {

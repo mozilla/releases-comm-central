@@ -8,7 +8,7 @@
 #include "nsMsgSearchDBView.h"
 #include "nsMsgMessageFlags.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgXFViewThread, nsIMsgThread)
+NS_IMPL_ISUPPORTS(nsMsgXFViewThread, nsIMsgThread)
 
 nsMsgXFViewThread::nsMsgXFViewThread(nsMsgSearchDBView *view, nsMsgKey threadId)
 {

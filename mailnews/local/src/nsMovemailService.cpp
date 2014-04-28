@@ -109,7 +109,7 @@ nsMovemailService::~nsMovemailService()
 {}
 
 
-NS_IMPL_ISUPPORTS2(nsMovemailService,
+NS_IMPL_ISUPPORTS(nsMovemailService,
                    nsIMovemailService,
                    nsIMsgProtocolInfo)
 

@@ -18,7 +18,7 @@ nsMsgCompressOStream::~nsMsgCompressOStream()
   Close();
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgCompressOStream, nsIOutputStream)
+NS_IMPL_ISUPPORTS(nsMsgCompressOStream, nsIOutputStream)
 
 nsresult nsMsgCompressOStream::InitOutputStream(nsIOutputStream *rawStream)
 {

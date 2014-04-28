@@ -203,7 +203,7 @@ morkStore::morkStore(morkEnv* ev, const morkUsage& inUsage,
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED1(morkStore, morkObject, nsIMdbStore)
+NS_IMPL_ISUPPORTS_INHERITED(morkStore, morkObject, nsIMdbStore)
 
 /*public non-poly*/ void
 morkStore::CloseStore(morkEnv* ev) // called by CloseMorkNode();

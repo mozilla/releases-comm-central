@@ -13,7 +13,7 @@
 #include "plstr.h"
 #include "prmem.h"
 
-NS_IMPL_ISUPPORTS1(nsNNTPNewsgroupPost, nsINNTPNewsgroupPost)
+NS_IMPL_ISUPPORTS(nsNNTPNewsgroupPost, nsINNTPNewsgroupPost)
 
 nsNNTPNewsgroupPost::nsNNTPNewsgroupPost()
 {

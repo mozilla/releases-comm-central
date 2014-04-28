@@ -63,7 +63,7 @@ static NS_DEFINE_CID(kCMailDB, NS_MAILDB_CID);
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 /* the following macros actually implement addref, release and query interface for our component. */
-NS_IMPL_ISUPPORTS_INHERITED2(nsMsgMailboxParser,
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgMailboxParser,
                              nsParseMailMessageState,
                              nsIStreamListener,
                              nsIRequestObserver)
@@ -507,7 +507,7 @@ nsMsgMailboxParser::AcquireFolderLock()
   return folder->AcquireSemaphore(supports);
 }
 
-NS_IMPL_ISUPPORTS2(nsParseMailMessageState, nsIMsgParseMailMsgState, nsIDBChangeListener)
+NS_IMPL_ISUPPORTS(nsParseMailMessageState, nsIMsgParseMailMsgState, nsIDBChangeListener)
 
 nsParseMailMessageState::nsParseMailMessageState()
 {
@@ -1690,7 +1690,7 @@ nsParseNewMailState::nsParseNewMailState()
   m_numNotNewMessages = 0;
  }
 
-NS_IMPL_ISUPPORTS_INHERITED1(nsParseNewMailState, nsMsgMailboxParser, nsIMsgFilterHitNotify)
+NS_IMPL_ISUPPORTS_INHERITED(nsParseNewMailState, nsMsgMailboxParser, nsIMsgFilterHitNotify)
 
 nsresult
 nsParseNewMailState::Init(nsIMsgFolder *serverFolder, nsIMsgFolder *downloadFolder,

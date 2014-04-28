@@ -101,7 +101,7 @@ morkThumb::morkThumb(morkEnv* ev,
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED1(morkThumb, morkObject, nsIMdbThumb)
+NS_IMPL_ISUPPORTS_INHERITED(morkThumb, morkObject, nsIMdbThumb)
 
 /*public non-poly*/ void
 morkThumb::CloseThumb(morkEnv* ev) // called by CloseMorkNode();

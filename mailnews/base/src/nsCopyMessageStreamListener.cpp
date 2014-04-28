@@ -12,7 +12,7 @@
 #include "nsMsgUtils.h"
 #include "netCore.h"
 
-NS_IMPL_ISUPPORTS3(nsCopyMessageStreamListener, nsIStreamListener,
+NS_IMPL_ISUPPORTS(nsCopyMessageStreamListener, nsIStreamListener,
   nsIRequestObserver, nsICopyMessageStreamListener)
 
 static nsresult GetMessage(nsIURI *aURL, nsIMsgDBHdr **message)

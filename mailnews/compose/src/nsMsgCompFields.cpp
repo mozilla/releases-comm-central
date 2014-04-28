@@ -19,7 +19,7 @@
 using namespace mozilla::mailnews;
 
 /* the following macro actually implement addref, release and query interface for our component. */
-NS_IMPL_ISUPPORTS1(nsMsgCompFields, nsIMsgCompFields)
+NS_IMPL_ISUPPORTS(nsMsgCompFields, nsIMsgCompFields)
 
 nsMsgCompFields::nsMsgCompFields()
 {

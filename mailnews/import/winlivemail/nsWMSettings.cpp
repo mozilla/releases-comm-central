@@ -96,7 +96,7 @@ nsWMSettings::~nsWMSettings()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsWMSettings, nsIImportSettings)
+NS_IMPL_ISUPPORTS(nsWMSettings, nsIImportSettings)
 
 NS_IMETHODIMP nsWMSettings::AutoLocate(char16_t **description,
                                        nsIFile **location, bool *_retval)

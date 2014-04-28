@@ -185,7 +185,7 @@ nsEudoraImport::~nsEudoraImport()
 
 
 
-NS_IMPL_ISUPPORTS1(nsEudoraImport, nsIImportModule)
+NS_IMPL_ISUPPORTS(nsEudoraImport, nsIImportModule)
 
 
 NS_IMETHODIMP nsEudoraImport::GetName(char16_t **name)
@@ -406,7 +406,7 @@ ImportEudoraMailImpl::~ImportEudoraMailImpl()
 
 
 
-NS_IMPL_ISUPPORTS1(ImportEudoraMailImpl, nsIImportMail)
+NS_IMPL_ISUPPORTS(ImportEudoraMailImpl, nsIImportMail)
 
 NS_IMETHODIMP ImportEudoraMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *found, bool *userVerify)
 {
@@ -605,7 +605,7 @@ ImportEudoraAddressImpl::~ImportEudoraAddressImpl()
 
 
 
-NS_IMPL_ISUPPORTS1(ImportEudoraAddressImpl, nsIImportAddressBooks)
+NS_IMPL_ISUPPORTS(ImportEudoraAddressImpl, nsIImportAddressBooks)
 
 
 NS_IMETHODIMP ImportEudoraAddressImpl::GetAutoFind(char16_t **description, bool *_retval)

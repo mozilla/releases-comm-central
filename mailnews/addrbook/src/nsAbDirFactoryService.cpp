@@ -16,7 +16,7 @@
 #include "nsIAbDirFactory.h"
 #include "mozilla/Services.h"
 
-NS_IMPL_ISUPPORTS1(nsAbDirFactoryService, nsIAbDirFactoryService)
+NS_IMPL_ISUPPORTS(nsAbDirFactoryService, nsIAbDirFactoryService)
 
 nsAbDirFactoryService::nsAbDirFactoryService()
 {

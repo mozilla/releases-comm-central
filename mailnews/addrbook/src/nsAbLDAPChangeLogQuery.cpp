@@ -31,7 +31,7 @@ static const char * sChangeLogEntryAttribs[] =
 };
 
 
-NS_IMPL_ISUPPORTS_INHERITED1(nsAbLDAPChangeLogQuery, nsAbLDAPReplicationQuery, nsIAbLDAPChangeLogQuery)
+NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPChangeLogQuery, nsAbLDAPReplicationQuery, nsIAbLDAPChangeLogQuery)
 
 nsAbLDAPChangeLogQuery::nsAbLDAPChangeLogQuery()
 {

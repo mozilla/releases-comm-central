@@ -42,7 +42,7 @@ nsAbMDBDirectory::~nsAbMDBDirectory(void)
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED3(nsAbMDBDirectory, nsAbMDBDirProperty,
+NS_IMPL_ISUPPORTS_INHERITED(nsAbMDBDirectory, nsAbMDBDirProperty,
                              nsIAbDirSearchListener,
                              nsIAbDirectorySearch,
                              nsIAddrDBListener)

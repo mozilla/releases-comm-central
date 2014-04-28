@@ -94,7 +94,7 @@ private:
   nsCOMPtr<nsIMsgNewsFolder> m_folder;
 };
 
-NS_IMPL_ISUPPORTS1(AsyncAuthMigrator, nsIMsgAsyncPromptListener)
+NS_IMPL_ISUPPORTS(AsyncAuthMigrator, nsIMsgAsyncPromptListener)
 
 NS_IMETHODIMP AsyncAuthMigrator::OnPromptStart(bool *retval)
 {

@@ -42,7 +42,7 @@ using namespace mozilla;
 // Also, our default primary sort
 #define GENERATED_NAME_COLUMN_ID "GeneratedName" 
 
-NS_IMPL_ISUPPORTS4(nsAbView, nsIAbView, nsITreeView, nsIAbListener, nsIObserver)
+NS_IMPL_ISUPPORTS(nsAbView, nsIAbView, nsITreeView, nsIAbListener, nsIObserver)
 
 nsAbView::nsAbView() : mInitialized(false),
                        mSuppressSelectionChange(false),

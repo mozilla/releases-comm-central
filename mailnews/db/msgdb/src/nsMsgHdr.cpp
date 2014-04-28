@@ -14,7 +14,7 @@
 
 using namespace mozilla::mailnews;
 
-NS_IMPL_ISUPPORTS1(nsMsgHdr, nsIMsgDBHdr)
+NS_IMPL_ISUPPORTS(nsMsgHdr, nsIMsgDBHdr)
 
 #define FLAGS_INITED 0x1
 #define CACHED_VALUES_INITED 0x2
@@ -1032,7 +1032,7 @@ nsMsgPropertyEnumerator::~nsMsgPropertyEnumerator()
   mRowCellCursor = nullptr;
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgPropertyEnumerator, nsIUTF8StringEnumerator)
+NS_IMPL_ISUPPORTS(nsMsgPropertyEnumerator, nsIUTF8StringEnumerator)
 
 NS_IMETHODIMP nsMsgPropertyEnumerator::GetNext(nsACString& aItem)
 {

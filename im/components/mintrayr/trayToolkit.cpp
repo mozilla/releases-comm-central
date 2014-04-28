@@ -105,7 +105,7 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
 
 /* TrayIconImpl */
 
-NS_IMPL_ISUPPORTS2(TrayIconImpl, trayITrayIcon, nsIDOMEventListener)
+NS_IMPL_ISUPPORTS(TrayIconImpl, trayITrayIcon, nsIDOMEventListener)
 
 NS_IMETHODIMP TrayIconImpl::GetWindow(nsIDOMWindow **aWindow)
 {
@@ -265,7 +265,7 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
 
 /* TrayServiceImpl */
 
-NS_IMPL_ISUPPORTS2(TrayServiceImpl, trayITrayService, nsIObserver)
+NS_IMPL_ISUPPORTS(TrayServiceImpl, trayITrayService, nsIObserver)
 
 TrayServiceImpl::TrayServiceImpl()
 {

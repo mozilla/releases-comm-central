@@ -21,7 +21,7 @@ nsMsgFolderCacheElement::~nsMsgFolderCacheElement()
   // NS_IF_RELEASE(m_owningCache);
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgFolderCacheElement, nsIMsgFolderCacheElement)
+NS_IMPL_ISUPPORTS(nsMsgFolderCacheElement, nsIMsgFolderCacheElement)
 
 NS_IMETHODIMP nsMsgFolderCacheElement::GetKey(nsACString& aFolderKey)
 {

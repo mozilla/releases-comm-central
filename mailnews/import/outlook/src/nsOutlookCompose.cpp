@@ -156,7 +156,7 @@ public:
   nsIFile * m_location;
 };
 
-NS_IMPL_ISUPPORTS1(OutlookSendListener, nsIMsgSendListener)
+NS_IMPL_ISUPPORTS(OutlookSendListener, nsIMsgSendListener)
 
 nsresult OutlookSendListener::CreateSendListener(nsIMsgSendListener **ppListener)
 {

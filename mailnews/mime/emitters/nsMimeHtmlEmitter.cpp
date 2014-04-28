@@ -52,7 +52,7 @@ protected:
   uint32_t mCurrentIndex; // consumers expect first-in first-out enumeration
 };
 
-NS_IMPL_ISUPPORTS1(nsMimeStringEnumerator, nsIUTF8StringEnumerator)
+NS_IMPL_ISUPPORTS(nsMimeStringEnumerator, nsIUTF8StringEnumerator)
 
 NS_IMETHODIMP
 nsMimeStringEnumerator::HasMore(bool *result)

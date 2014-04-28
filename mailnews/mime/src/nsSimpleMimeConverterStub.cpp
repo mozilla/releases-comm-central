@@ -175,7 +175,7 @@ private:
     nsCString mContentType;
 };
 
-NS_IMPL_ISUPPORTS1(nsSimpleMimeConverterStub, nsIMimeContentTypeHandler)
+NS_IMPL_ISUPPORTS(nsSimpleMimeConverterStub, nsIMimeContentTypeHandler)
 
 NS_IMETHODIMP
 nsSimpleMimeConverterStub::CreateContentTypeHandlerClass(const char *contentType,

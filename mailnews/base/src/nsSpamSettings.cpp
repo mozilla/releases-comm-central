@@ -60,7 +60,7 @@ nsSpamSettings::~nsSpamSettings()
 {
 }
 
-NS_IMPL_ISUPPORTS2(nsSpamSettings, nsISpamSettings, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsSpamSettings, nsISpamSettings, nsIUrlListener)
 
 NS_IMETHODIMP
 nsSpamSettings::GetLevel(int32_t *aLevel)

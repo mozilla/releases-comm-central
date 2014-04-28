@@ -5,7 +5,7 @@
 
 #include "nsImportEmbeddedImageData.h"
 
-NS_IMPL_ISUPPORTS1(nsImportEmbeddedImageData, nsIMsgEmbeddedImageData)
+NS_IMPL_ISUPPORTS(nsImportEmbeddedImageData, nsIMsgEmbeddedImageData)
 
 nsImportEmbeddedImageData::nsImportEmbeddedImageData()
 {

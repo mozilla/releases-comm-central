@@ -69,7 +69,7 @@ nsMsgHeaderParser::~nsMsgHeaderParser()
 {
 }
 
-NS_IMPL_ISUPPORTS1(nsMsgHeaderParser, nsIMsgHeaderParser)
+NS_IMPL_ISUPPORTS(nsMsgHeaderParser, nsIMsgHeaderParser)
 
 // helper function called by ParseHeadersWithArray
 nsresult FillResultsArray(const char * aName, const char *aAddress, char16_t ** aOutgoingEmailAddress, char16_t ** aOutgoingName,
@@ -1432,7 +1432,7 @@ MsgAddressObject::MsgAddressObject(const nsAString &aName,
 {
 }
 
-NS_IMPL_ISUPPORTS1(MsgAddressObject, msgIAddressObject)
+NS_IMPL_ISUPPORTS(MsgAddressObject, msgIAddressObject)
 
 NS_IMETHODIMP MsgAddressObject::GetName(nsAString &name)
 {

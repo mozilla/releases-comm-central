@@ -14,7 +14,7 @@
 
 // nsISupports Implementation
 
-NS_IMPL_ISUPPORTS2(nsLDAPSyncQuery, nsILDAPSyncQuery, nsILDAPMessageListener)
+NS_IMPL_ISUPPORTS(nsLDAPSyncQuery, nsILDAPSyncQuery, nsILDAPMessageListener)
 
 // Constructor
 //

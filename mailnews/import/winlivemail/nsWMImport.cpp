@@ -96,7 +96,7 @@ nsWMImport::~nsWMImport()
   IMPORT_LOG0("nsWMImport Module Deleted\n");
 }
 
-NS_IMPL_ISUPPORTS1(nsWMImport, nsIImportModule)
+NS_IMPL_ISUPPORTS(nsWMImport, nsIImportModule)
 
 NS_IMETHODIMP nsWMImport::GetName(char16_t **name)
 {
@@ -178,7 +178,7 @@ ImportWMMailImpl::~ImportWMMailImpl()
 {
 }
 
-NS_IMPL_ISUPPORTS1(ImportWMMailImpl, nsIImportMail)
+NS_IMPL_ISUPPORTS(ImportWMMailImpl, nsIImportMail)
 
 NS_IMETHODIMP ImportWMMailImpl::TranslateFolderName(const nsAString & aFolderName, nsAString & _retval)
 {

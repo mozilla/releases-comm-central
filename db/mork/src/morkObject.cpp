@@ -32,7 +32,7 @@
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-NS_IMPL_ISUPPORTS1(morkObject, nsIMdbObject)
+NS_IMPL_ISUPPORTS(morkObject, nsIMdbObject)
 
 // ````` ````` ````` ````` ````` 
 // { ===== begin morkNode interface =====

@@ -29,7 +29,7 @@
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
-NS_IMPL_ISUPPORTS3(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener, nsIDBChangeListener)
+NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener, nsIDBChangeListener)
 
 nsImapOfflineSync::nsImapOfflineSync(nsIMsgWindow *window, nsIUrlListener *listener, nsIMsgFolder *singleFolderOnly, bool isPseudoOffline)
 {

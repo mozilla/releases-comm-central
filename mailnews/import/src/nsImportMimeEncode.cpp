@@ -361,7 +361,7 @@ nsIImportMimeEncodeImpl::~nsIImportMimeEncodeImpl()
     delete m_pEncode;
 }
 
-NS_IMPL_ISUPPORTS1(nsIImportMimeEncodeImpl, nsIImportMimeEncode)
+NS_IMPL_ISUPPORTS(nsIImportMimeEncodeImpl, nsIImportMimeEncode)
 
 NS_METHOD nsIImportMimeEncodeImpl::EncodeFile(nsIFile *inFile, nsIFile *outFile, const char *fileName, const char *mimeType)
 {

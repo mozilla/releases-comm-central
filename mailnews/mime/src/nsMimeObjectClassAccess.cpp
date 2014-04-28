@@ -11,7 +11,7 @@
  * The following macros actually implement addref, release and
  * query interface for our component.
  */
-NS_IMPL_ISUPPORTS1(nsMimeObjectClassAccess, nsIMimeObjectClassAccess)
+NS_IMPL_ISUPPORTS(nsMimeObjectClassAccess, nsIMimeObjectClassAccess)
 
 /*
  * nsMimeObjectClassAccess definitions....

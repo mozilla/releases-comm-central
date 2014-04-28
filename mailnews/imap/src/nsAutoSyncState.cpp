@@ -686,7 +686,7 @@ void nsAutoSyncState::SetServerCounts(int32_t total, int32_t recent,
   mLastNextUID = nextUID;
 }
 
-NS_IMPL_ISUPPORTS2(nsAutoSyncState, nsIAutoSyncState, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsAutoSyncState, nsIAutoSyncState, nsIUrlListener)
 
 
 void nsAutoSyncState::LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset)

@@ -19,7 +19,7 @@
 #define SECONDS_PER_MINUTE     60
 
 NS_IMPL_CLASSINFO(calDuration, NULL, 0, CAL_DURATION_CID)
-NS_IMPL_ISUPPORTS1_CI(calDuration, calIDuration)
+NS_IMPL_ISUPPORTS_CI(calDuration, calIDuration)
 
 calDuration::calDuration()
     : mImmutable(false)

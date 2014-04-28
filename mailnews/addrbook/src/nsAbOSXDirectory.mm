@@ -451,7 +451,7 @@ nsAbOSXDirectory::~nsAbOSXDirectory()
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED2(nsAbOSXDirectory,
+NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXDirectory,
                              nsAbDirProperty,
                              nsIAbOSXDirectory,
                              nsIAbDirSearchListener)

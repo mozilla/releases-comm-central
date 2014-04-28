@@ -43,7 +43,7 @@
 #include "nsAutoPtr.h"
 #include "nsIMsgFilter.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgFilterService, nsIMsgFilterService)
+NS_IMPL_ISUPPORTS(nsMsgFilterService, nsIMsgFilterService)
 
 nsMsgFilterService::nsMsgFilterService()
 {
@@ -274,7 +274,7 @@ protected:
   uint32_t                    m_nextAction; // next filter action to perform
 };
 
-NS_IMPL_ISUPPORTS3(nsMsgFilterAfterTheFact, nsIUrlListener, nsIMsgSearchNotify, nsIMsgCopyServiceListener)
+NS_IMPL_ISUPPORTS(nsMsgFilterAfterTheFact, nsIUrlListener, nsIMsgSearchNotify, nsIMsgCopyServiceListener)
 
 nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(nsIMsgWindow *aMsgWindow, nsIMsgFilterList *aFilterList, nsIArray *aFolderList)
 {

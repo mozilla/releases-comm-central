@@ -58,7 +58,7 @@ nsMsgPrintEngine::~nsMsgPrintEngine()
 }
 
 // Implement AddRef and Release
-NS_IMPL_ISUPPORTS4(nsMsgPrintEngine,
+NS_IMPL_ISUPPORTS(nsMsgPrintEngine,
                          nsIMsgPrintEngine, 
                          nsIWebProgressListener, 
                          nsIObserver,

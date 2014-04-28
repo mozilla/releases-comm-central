@@ -74,7 +74,7 @@ protected:
 };
 
 
-NS_IMPL_ISUPPORTS1(nsAbQueryLDAPMessageListener, nsILDAPMessageListener)
+NS_IMPL_ISUPPORTS(nsAbQueryLDAPMessageListener, nsILDAPMessageListener)
 
 nsAbQueryLDAPMessageListener::nsAbQueryLDAPMessageListener(
         nsIAbDirectoryQueryResultListener *resultListener,
@@ -291,7 +291,7 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchResult(nsILDAPMessage 
 
 // nsAbLDAPDirectoryQuery
 
-NS_IMPL_ISUPPORTS2(nsAbLDAPDirectoryQuery, nsIAbDirectoryQuery,
+NS_IMPL_ISUPPORTS(nsAbLDAPDirectoryQuery, nsIAbDirectoryQuery,
                               nsIAbDirectoryQueryResultListener)
 
 nsAbLDAPDirectoryQuery::nsAbLDAPDirectoryQuery() :

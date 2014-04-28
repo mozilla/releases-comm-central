@@ -169,7 +169,7 @@ nsImportGenericAddressBooks::~nsImportGenericAddressBooks()
 
 
 
-NS_IMPL_ISUPPORTS1(nsImportGenericAddressBooks, nsIImportGeneric)
+NS_IMPL_ISUPPORTS(nsImportGenericAddressBooks, nsIImportGeneric)
 
 
 NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISupports **_retval)

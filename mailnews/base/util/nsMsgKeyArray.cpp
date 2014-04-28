@@ -6,7 +6,7 @@
 #include "nsMsgKeyArray.h"
 #include "nsMemory.h"
 
-NS_IMPL_ISUPPORTS1(nsMsgKeyArray, nsIMsgKeyArray)
+NS_IMPL_ISUPPORTS(nsMsgKeyArray, nsIMsgKeyArray)
 
 nsMsgKeyArray::nsMsgKeyArray()
 {

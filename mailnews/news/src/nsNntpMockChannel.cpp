@@ -9,7 +9,7 @@
 #include "nsNNTPProtocol.h"
 #include "nsNetUtil.h"
 
-NS_IMPL_ISUPPORTS2(nsNntpMockChannel, nsIChannel, nsIRequest)
+NS_IMPL_ISUPPORTS(nsNntpMockChannel, nsIChannel, nsIRequest)
 
 nsNntpMockChannel::nsNntpMockChannel(nsIURI *aUri, nsIMsgWindow *aMsgWindow)
 : m_url(aUri),
