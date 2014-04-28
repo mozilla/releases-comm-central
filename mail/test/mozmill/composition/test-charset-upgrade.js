@@ -58,7 +58,7 @@ function setupModule(module) {
   //  which is what this test tests.
   let str = Components.classes["@mozilla.org/pref-localizedstring;1"]
                       .createInstance(Components.interfaces.nsIPrefLocalizedString);
-  str.data = "ISO-8859-1";
+  str.data = "windows-1252";
   Services.prefs.setComplexValue("mailnews.send_default_charset",
                                  Components.interfaces.nsIPrefLocalizedString, str);
 }
@@ -113,10 +113,10 @@ function test_encoding_upgrade_html_compose() {
   let draftMsg = select_click_row(0);
 
   // Charset should still be the default.
-  assert_equals(draftMsg.Charset, "ISO-8859-1");
+  assert_equals(draftMsg.Charset, "windows-1252");
 
   let draftMsgContent = getMsgSource(draftMsg);
-  if (!draftMsgContent.contains('content="text/html; charset=ISO-8859-1"'))
+  if (!draftMsgContent.contains('content="text/html; charset=windows-1252"'))
     throw new Error("Expected content type not in msg; draftMsgContent=" +
                     draftMsgContent);
 
@@ -195,7 +195,7 @@ function test_encoding_upgrade_plaintext_compose() {
   let draftMsg = select_click_row(0);
 
   // Charset should still be the default.
-  assert_equals(draftMsg.Charset, "ISO-8859-1");
+  assert_equals(draftMsg.Charset, "windows-1252");
 
   const CHINESE = "漢皇重色思傾國漢皇重色思傾國";
   compWin.type(compWin.eid("content-frame"),

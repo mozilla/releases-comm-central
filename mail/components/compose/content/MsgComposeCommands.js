@@ -1753,6 +1753,17 @@ function GetArgs(originalData)
 
 function ComposeFieldsReady()
 {
+  // Limit the charsets to those we think are safe to encode (i.e., they are in
+  // the charset menu). Easiest way to normalize this is to use the TextDecoder
+  // to get the canonical alias and default if it isn't valid.
+  let charset;
+  try {
+    charset = new TextDecoder(gMsgCompose.compFields.characterSet).encoding;
+  } catch (e) {
+    charset = gMsgCompose.compFields.defaultCharacterSet;
+  }
+  SetDocumentCharacterSet(charset);
+
   //If we are in plain text, we need to set the wrap column
   if (! gMsgCompose.composeHTML) {
     try {
@@ -2425,44 +2436,6 @@ function SetDocumentCharacterSet(aCharset)
   }
   else
     dump("Compose has not been created!\n");
-}
-
-function UpdateMailEditCharset()
-{
-  var send_default_charset = gMsgCompose.compFields.defaultCharacterSet;
-//  dump("send_default_charset is " + send_default_charset + "\n");
-
-  let compFieldsCharset = gMsgCompose.compFields.characterSet ||
-                          "ISO-8859-1";
-//  dump("gMsgCompose.compFields is " + compFieldsCharset + "\n");
-
-  if (gCharsetConvertManager) {
-    var charsetAlias = gCharsetConvertManager.getCharsetAlias(compFieldsCharset);
-    if (charsetAlias == "us-ascii")
-      compFieldsCharset = "ISO-8859-1";   // no menu item for "us-ascii"
-  }
-
-  // charset may have been set implicitly in case of reply/forward
-  // or use pref default otherwise
-  var menuitem = document.getElementById(send_default_charset == compFieldsCharset ?
-                                         send_default_charset : compFieldsCharset);
-  if (menuitem)
-    menuitem.setAttribute('checked', 'true');
-
-  // Set a document charset to a default mail send charset.
-  if (send_default_charset == compFieldsCharset)
-    SetDocumentCharacterSet(send_default_charset);
-}
-
-function InitCharsetMenuCheckMark()
-{
-  // Check the menu
-  UpdateMailEditCharset();
-  // use setTimeout workaround to delay checkmark the menu
-  // when onmenucomplete is ready then use it instead of oncreate
-  // see bug #78290 for the details
-  setTimeout(UpdateMailEditCharset, 0);
-
 }
 
 function GetCharsetUIString()
