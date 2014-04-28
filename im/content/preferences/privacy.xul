@@ -16,6 +16,8 @@
 
   <prefpane id="panePrivacy" onpaneload="gPrivacyPane.init();">
 
+    <stringbundle id="bundleMasterPwPreferences" src="chrome://mozapps/locale/preferences/preferences.properties"/>
+
     <script type="application/javascript" src="chrome://instantbird/content/preferences/privacy.js"/>
 
     <preferences id="privacyPreferences">

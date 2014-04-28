@@ -134,7 +134,7 @@ var gPrivacyPane = {
     if (secmodDB.isFIPSEnabled) {
       var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"].
                           getService(Ci.nsIPromptService);
-      var bundle = document.getElementById("bundlePreferences");
+      var bundle = document.getElementById("bundleMasterPwPreferences");
       promptService.alert(window,
                           bundle.getString("pw_change_failed_title"),
                           bundle.getString("pw_change2empty_in_fips_mode"));
