@@ -24,6 +24,11 @@
                   name="privacy.donottrackheader.value"
                   type="int"/>
 
+      <!-- Location Aware Browsing -->
+      <preference id="geo.enabled"
+                  name="geo.enabled"
+                  type="bool"/>
+
       <!-- Safe Browsing -->
       <preference id="browser.safebrowsing.malware.enabled"
                   name="browser.safebrowsing.malware.enabled"
@@ -42,14 +47,40 @@
                 label="&dntTellSites.label;"
                 accesskey="&dntTellSites.accesskey;"
                 preference="privacy.donottrackheader.enabled"/>
-      <radiogroup id="dntSelection" orient="vertical" class="indent"
+      <radiogroup id="dntSelection"
+                  class="indent"
                   preference="privacy.donottrackheader.value">
-        <radio id="dntNoTrack" value="1" label="&dntTrackingNotOkay.label;"
+        <radio id="dntNoTrack"
+               value="1"
+               label="&dntTrackingNotOkay.label;"
                accesskey="&dntTrackingNotOkay.accesskey;"/>
-        <radio id="dntDoTrack" value="0" label="&dntTrackingOkay.label;"
+        <radio id="dntDoTrack"
+               value="0"
+               label="&dntTrackingOkay.label;"
                accesskey="&dntTrackingOkay.accesskey;"/>
       </radiogroup>
     </groupbox>
+
+    <!-- REMOVE #ifndef once bug 903439 is fixed -->
+#ifndef RELEASE_BUILD
+    <!-- Location Aware Browsing -->
+    <groupbox id="geoLocationGroup">
+      <caption label="&geoLocation.label;"/>
+
+      <description>&geoIntro.label;</description>
+      <radiogroup id="geoSelection"
+                  preference="geo.enabled">
+        <radio id="geoEnabled"
+               value="true"
+               label="&geoEnabled.label;"
+               accesskey="&geoEnabled.accesskey;"/>
+        <radio id="geoDisabled"
+               value="false"
+               label="&geoDisabled.label;"
+               accesskey="&geoDisabled.accesskey;"/>
+      </radiogroup>
+    </groupbox>
+#endif
 
     <!-- Safe Browsing -->
     <groupbox id="safeBrowsingGroup">
