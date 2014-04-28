@@ -614,3 +614,11 @@ nsBrowserAccess.prototype = {
     return false;
   }
 };
+
+function MailSetCharacterSet(aEvent) {
+  if (aEvent.target.hasAttribute("charset")) {
+    msgWindow.mailCharacterSet = aEvent.target.getAttribute("charset");
+    msgWindow.charsetOverride = true;
+  }
+  messenger.setDocumentCharset(msgWindow.mailCharacterSet);
+}

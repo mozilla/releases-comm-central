@@ -116,7 +116,9 @@ messenger.jar:
 
 comm.jar:
 % content communicator %content/communicator/
+   content/communicator/charsetOverlay.xul          (content/charsetOverlay.xul)
    content/communicator/contentAreaClick.js         (content/contentAreaClick.js)
+   content/communicator/labelsencodings.properties  (/mozilla/dom/encoding/labelsencodings.properties)
 *  content/communicator/utilityOverlay.xul          (content/utilityOverlay.xul)
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
 
