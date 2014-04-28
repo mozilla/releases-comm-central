@@ -548,8 +548,14 @@ nsImapProtocol::Initialize(nsIImapHostSessionList * aHostSessionList,
   m_parser.SetHostSessionList(aHostSessionList);
   m_parser.SetFlagState(m_flagState);
 
-  // one of the initializations that should be done in UI thread
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  // Initialize the empty mime part string on the main thread.
+  nsCOMPtr<nsIStringBundle> bundle;
+  rv = IMAPGetStringBundle(getter_AddRefs(bundle));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = bundle->GetStringFromName(MOZ_UTF16("imapEmptyMimePart"),
+    getter_Copies(m_emptyMimePartString));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Now initialize the thread for the connection
   if (m_thread == nullptr)

@@ -310,6 +310,7 @@ public:
 
   int32_t GetCurFetchSize() { return m_curFetchSize; }
 
+  const nsString &GetEmptyMimePartString() { return m_emptyMimePartString; }
 private:
   // the following flag is used to determine when a url is currently being run. It is cleared when we
   // finish processng a url and it is set whenever we call Load on a url
@@ -667,6 +668,8 @@ private:
   PRTime                      m_lastCheckTime;
 
   bool CheckNeeded();
+
+  nsString m_emptyMimePartString;
 };
 
 // This small class is a "mock" channel because it is a mockery of the imap channel's implementation...

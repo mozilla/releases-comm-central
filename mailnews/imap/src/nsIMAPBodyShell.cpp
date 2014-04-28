@@ -510,15 +510,9 @@ int32_t nsIMAPBodypart::GenerateEmptyFilling(nsIMAPBodyShell *aShell, bool strea
   if (prefetch)
     return 0; // don't need to prefetch anything
 
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv = IMAPGetStringBundle(getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, 0);
-
-  nsAutoString emptyString;
-  rv = bundle->GetStringFromName(
-    MOZ_UTF16("imapEmptyMimePart"),
-    getter_Copies(emptyString));
-  if (NS_SUCCEEDED(rv) && !emptyString.IsEmpty())
+  const nsString &emptyString = aShell->GetConnection()->
+    GetEmptyMimePartString();
+  if (!emptyString.IsEmpty())
   {
     if (stream)
     {
