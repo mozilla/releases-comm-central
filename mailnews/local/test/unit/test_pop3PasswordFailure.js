@@ -108,7 +108,6 @@ var urlListener =
 };
 
 function actually_run_test() {
-  server.start(POP3_PORT);
   daemon.setMessages(["message1.eml"]);
 
   dump("\nGet Mail 1\n");
@@ -168,6 +167,7 @@ function run_test()
   daemon = serverArray[0];
   server = serverArray[1];
   var handler = serverArray[2];
+  server.start();
 
   // Set the server expected username & password to what we have in signons.txt
   handler.kUsername = kUserName;
@@ -181,7 +181,7 @@ function run_test()
 
   incomingServer = MailServices.accounts.createIncomingServer(kUserName, "localhost", "pop3");
 
-  incomingServer.port = POP3_PORT;
+  incomingServer.port = server.port;
 
   // Check that we haven't got any messages in the folder, if we have its a test
   // setup issue.

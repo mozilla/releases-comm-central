@@ -181,14 +181,13 @@ function run_test()
     return handler;
   }
   server = new nsMailServer(createHandler, daemon);
-  incomingServer = setupLocalServer(NNTP_PORT);
+  server.start();
+  incomingServer = setupLocalServer(server.port);
   folder = incomingServer.rootFolder.getChildNamed("test.subscribe.simple");
 
   // Check that we haven't got any messages in the folder, if we have its a test
   // setup issue.
   do_check_eq(folder.getTotalMessages(false), 0);
 
-  server.start(NNTP_PORT);
-  server.setDebugLevel(fsDebugAll);
   async_run_tests(tests);
 }

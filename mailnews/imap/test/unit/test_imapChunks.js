@@ -21,7 +21,7 @@ function run_test()
    */
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
-  gIMAPIncomingServer = createLocalIMAPServer();
+  gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
 
   // pref tuning: one connection only, turn off notifications
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);

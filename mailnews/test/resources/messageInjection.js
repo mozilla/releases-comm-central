@@ -4,6 +4,12 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
+try {
+  Components.utils.import("resource://testing-common/mailnews/imapd.js");
+} catch (e) {
+  // mozmill tests include this file, but they don't have testing-only modules
+  // loaded. In this case, they don't get to use IMAP.
+}
 
 var gMessageGenerator, gMessageScenarioFactory;
 
@@ -107,36 +113,24 @@ function configure_message_injection(aInjectionConfig) {
                                mis.injectionConfig.offline);
 
     // Pull in the IMAP fake server code
-    load(gDEPTH + "mailnews/imap/test/unit/head_server.js");
+    Components.utils.import("resource://testing-common/mailnews/IMAPpump.js");
 
     // set up IMAP fakeserver and incoming server
-    mis.daemon = new imapDaemon();
-    mis.server = makeServer(mis.daemon, "");
-    mis.incomingServer = createLocalIMAPServer();
+    setupIMAPPump("");
+    mis.daemon = IMAPPump.daemon;
+    mis.server = IMAPPump.server;
+    mis.incomingServer = IMAPPump.incomingServer;
     //mis.server._debug = 3;
 
     // do not log transactions; it's just a memory leak to us
     mis.server._logTransactions = false;
 
-    // we need a local account for the IMAP server to have its sent messages in
-    MailServices.accounts.createLocalMailAccount();
-
     // We need an identity so that updateFolder doesn't fail
-    let localAccount = MailServices.accounts.createAccount();
-    let identity = MailServices.accounts.createIdentity();
+    let localAccount = MailServices.accounts.defaultAccount;
     // We need an email to protect against random code assuming it exists and
     // throwing exceptions.
+    let identity = localAccount.defaultIdentity;
     identity.email = "sender@nul.invalid";
-    localAccount.addIdentity(identity);
-    localAccount.defaultIdentity = identity;
-    localAccount.incomingServer = mis.incomingServer;
-    MailServices.accounts.defaultAccount = localAccount;
-
-    // Let's also have another account, using the same identity
-    let imapAccount = MailServices.accounts.createAccount();
-    imapAccount.addIdentity(identity);
-    imapAccount.defaultIdentity = identity;
-    imapAccount.incomingServer = mis.incomingServer;
 
     // The server doesn't support more than one connection
     Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);

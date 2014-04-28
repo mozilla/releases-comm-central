@@ -5,7 +5,9 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 function run_test() {
   var daemon = setupNNTPDaemon();
-  var localserver = setupLocalServer(NNTP_PORT);
+  var server = makeServer(NNTP_RFC977_handler, daemon);
+  server.start();
+  var localserver = setupLocalServer(server.port);
   var listener = { OnStopRunningUrl: function () {
     localserver.closeCachedConnections();
   }};
@@ -13,9 +15,6 @@ function run_test() {
   // Tests bug 484656.
   localserver.realHostName = localserver.hostName;
   localserver.hostName = "news.example.com";
-
-  var server = makeServer(NNTP_RFC977_handler, daemon);
-  server.start(NNTP_PORT);
 
   try {
     MailServices.nntp.postMessage(do_get_file("postings/post1.eml"), "test.empty",

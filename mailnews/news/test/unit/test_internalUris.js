@@ -215,10 +215,9 @@ function test_escapedName() {
 
 function run_test() {
   daemon = setupNNTPDaemon();
-  localserver = setupLocalServer(NNTP_PORT);
   server = makeServer(NNTP_RFC2980_handler, daemon);
-  server.start(NNTP_PORT);
-  server.setDebugLevel(fsDebugAll);
+  server.start();
+  localserver = setupLocalServer(server.port);
 
   // Set up an identity for posting
   let identity = MailServices.accounts.createIdentity();

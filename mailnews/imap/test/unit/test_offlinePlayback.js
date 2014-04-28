@@ -64,7 +64,7 @@ var tests = [
     IMAPPump.daemon.closing = false;
     Services.io.offline = false;
 
-    IMAPPump.server.start(IMAP_PORT);
+    IMAPPump.server.start();
     gOfflineManager.goOnline(false, true, null);
     do_timeout(2000, async_driver);
     yield false;

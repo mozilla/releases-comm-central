@@ -12,7 +12,6 @@
 var daemon = setupNNTPDaemon();
 
 // Define these up here for checking with the transaction
-var type = null;
 var test = null;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +27,6 @@ var test = null;
 ////////////////////////////////////////////////////////////////////////////////
 
 function testRFC977() {
-  type = "RFC 977";
   var server = makeServer(NNTP_RFC977_handler, daemon);
   server.start(NNTP_PORT);
 

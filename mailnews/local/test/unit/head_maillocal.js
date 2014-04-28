@@ -21,8 +21,6 @@ Components.utils.import("resource://testing-common/mailnews/pop3d.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const POP3_PORT = 1024+110;
-
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.
 function setupServerDaemon(debugOption) {
@@ -41,9 +39,9 @@ function setupServerDaemon(debugOption) {
   return [daemon, server, extraProps];
 }
 
-function createPop3ServerAndLocalFolders() {
+function createPop3ServerAndLocalFolders(port) {
   localAccountUtils.loadLocalMailAccount();
-  let server = localAccountUtils.create_incoming_server("pop3", POP3_PORT,
+  let server = localAccountUtils.create_incoming_server("pop3", port,
 							"fred", "wilma");
   return server;
 }

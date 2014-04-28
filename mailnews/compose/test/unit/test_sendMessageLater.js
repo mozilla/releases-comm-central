@@ -16,6 +16,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 var type = null;
 var test = null;
 var server;
+var smtpServer;
 var sentFolder;
 var originalData;
 var finished = false;
@@ -142,7 +143,8 @@ function sendMessageLater()
   // the server if something fails.
   try {
     // Start the fake SMTP server
-    server.start(SMTP_PORT);
+    server.start();
+    smtpServer.port = server.port;
 
     // A test to check that we are sending files correctly, including checking
     // what the server receives and what we output.
@@ -187,7 +189,7 @@ function run_test() {
   let account = MailServices.accounts.createAccount();
   let incomingServer = MailServices.accounts.createIncomingServer("test", "localhost", "pop3");
 
-  var smtpServer = getBasicSmtpServer();
+  smtpServer = getBasicSmtpServer(1);
   identity = getSmtpIdentity(kSender, smtpServer);
 
   account.addIdentity(identity);

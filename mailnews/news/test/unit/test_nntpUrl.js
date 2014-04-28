@@ -21,7 +21,7 @@ function run_test() {
   // This is crash test for Bug 392729
   try {
     // msgkey is invalid for news:// protocol
-    let hdr = getMessageHeaderFromUrl("news://localhost:" + NNTP_PORT +
+    let hdr = getMessageHeaderFromUrl("news://localhost:119" +
                                       "/123@example.invalid?group=test.subscribe.simple&key=abcdefghijk");
     do_check_true(false); 
   } catch (e) {

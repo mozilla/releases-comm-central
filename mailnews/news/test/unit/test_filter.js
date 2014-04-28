@@ -33,7 +33,8 @@ var attribResults = {
 };
 function testAttrib(handler, daemon, localserver) {
   var server = makeServer(handler, daemon);
-  server.start(NNTP_PORT);
+  server.start();
+  localserver.port = server.port;
 
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
@@ -89,7 +90,8 @@ var actionResults = {
 };
 function testAction(handler, daemon, localserver) {
   var server = makeServer(handler, daemon);
-  server.start(NNTP_PORT);
+  server.start();
+  localserver.port = server.port;
 
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");

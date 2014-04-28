@@ -11,46 +11,12 @@
 load("../../../resources/messageGenerator.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
-
-var gIMAPInbox;
-var gIMAPDaemon, gServer, gIMAPIncomingServer;
+Components.utils.import("resource://testing-common/mailnews/IMAPpump.js");
+Components.utils.import("resource://testing-common/mailnews/imapd.js");
 
 function run_test()
 {
-  // Pull in the IMAP fake server code
-  load("../../../imap/test/unit/head_server.js");
-
-  localAccountUtils.loadLocalMailAccount();
-
-  /*
-   * Set up an IMAP server.
-   */
-  let IMAPDaemon = new imapDaemon();
-  gServer = makeServer(IMAPDaemon, "");
-  IMAPDaemon.createMailbox("secondFolder", {subscribed : true});
-  gIMAPIncomingServer = createLocalIMAPServer();
-  gIMAPIncomingServer.maximumConnectionsNumber = 1;
-
-  // We need an identity so that updateFolder doesn't fail
-  let localAccount = MailServices.accounts.createAccount();
-  let identity = MailServices.accounts.createIdentity();
-  localAccount.addIdentity(identity);
-  localAccount.defaultIdentity = identity;
-  localAccount.incomingServer = localAccountUtils.incomingServer;
-  MailServices.accounts.defaultAccount = localAccount;
-  
-  // Let's also have another account, using the same identity
-  let imapAccount = MailServices.accounts.createAccount();
-  imapAccount.addIdentity(identity);
-  imapAccount.defaultIdentity = identity;
-  imapAccount.incomingServer = gIMAPIncomingServer;
-  
-  // pref tuning: one connection only, turn off notifications
-  Services.prefs.setBoolPref("mail.biff.play_sound", false);
-  Services.prefs.setBoolPref("mail.biff.show_alert", false);
-  Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
-  Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
-
+  setupIMAPPump("");
   // add a single message to the imap inbox.
   let messages = [];
   let gMessageGenerator = new MessageGenerator();
@@ -61,17 +27,11 @@ function run_test()
     Services.io.newURI("data:text/plain;base64," +
                        btoa(gSynthMessage.toMessageString()),
                        null, null);
-  let imapInbox =  IMAPDaemon.getMailbox("INBOX")
-  gMessage = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
-  imapInbox.addMessage(gMessage);
-
-  // Get the IMAP inbox...
-  let rootFolder = gIMAPIncomingServer.rootFolder;
-  gIMAPInbox = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
-                         .QueryInterface(Ci.nsIMsgImapMailFolder);
+  gMessage = new imapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
+  IMAPPump.mailbox.addMessage(gMessage);
 
   // update folder to download header.
-  gIMAPInbox.updateFolderWithListener(null, UrlListener);
+  IMAPPump.inbox.updateFolderWithListener(null, UrlListener);
   do_test_pending();
 }
 
@@ -98,7 +58,7 @@ function searchTest()
   searchTerm.matchAll = true;
   searchSession.appendTerm(searchTerm);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, emptyLocal1);
-  searchSession.addScopeTerm(Ci.nsMsgSearchScope.onlineMail, gIMAPInbox);
+  searchSession.addScopeTerm(Ci.nsMsgSearchScope.onlineMail, IMAPPump.inbox);
   searchSession.registerListener(searchListener);
   searchSession.search(null);
 }
@@ -128,12 +88,6 @@ function endTest()
 {
   // Cleanup, null out everything, close all cached connections and stop the
   // server
-  gIMAPIncomingServer.closeCachedConnections();
-  gServer.stop();
-
-  var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
-    thread.processNextEvent(true);
-
+  teardownIMAPPump();
   do_test_finished();
 }

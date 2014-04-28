@@ -104,7 +104,10 @@ function run_test() {
   let account = MailServices.accounts.createAccount();
   let incomingServer = MailServices.accounts.createIncomingServer("test", "localhost", "pop3");
 
-  var smtpServer = getBasicSmtpServer();
+  // Start the fake SMTP server
+  server = setupServerDaemon();
+  server.start();
+  var smtpServer = getBasicSmtpServer(server.port);
   identity = getSmtpIdentity(kSender, smtpServer);
 
   account.addIdentity(identity);
@@ -127,16 +130,11 @@ function run_test() {
   var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
                   .createInstance(Ci.nsIMsgSend);
 
-  // Set up the SMTP server.
-  server = setupServerDaemon();
-
   type = "sendMessageLater";
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-    // Start the fake SMTP server
-    server.start(SMTP_PORT);
 
     // A test to check that we are sending files correctly, including checking
     // what the server receives and what we output.

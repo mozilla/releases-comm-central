@@ -118,7 +118,6 @@ var tests = [
 ]
 
 function actually_run_test() {
-  server.start(POP3_PORT);
   daemon.setMessages(["message1.eml"]);
   async_run_tests(tests);
 }
@@ -191,7 +190,7 @@ function run_test()
     return handler;
   }
   server = new nsMailServer(createHandler, daemon);
-
+  server.start();
 
   // Set up the basic accounts and folders.
   // We would use createPop3ServerAndLocalFolders() however we want to have
@@ -201,7 +200,7 @@ function run_test()
 
   incomingServer = MailServices.accounts
                     .createIncomingServer(kUserName, "localhost", "pop3");
-  incomingServer.port = POP3_PORT;
+  incomingServer.port = server.port;
 
   // Check that we haven't got any messages in the folder, if we have its a test
   // setup issue.

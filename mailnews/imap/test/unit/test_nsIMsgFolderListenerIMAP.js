@@ -202,7 +202,7 @@ function run_test()
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
 
-  gIMAPIncomingServer = createLocalIMAPServer();
+  gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
 
   // Also make sure a local folders server is created, as that's what is used
   // for sent items

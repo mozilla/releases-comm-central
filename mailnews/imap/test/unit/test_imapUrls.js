@@ -20,8 +20,8 @@ function run_test()
                 .getService(Ci.nsIMsgMessageService);
   let uri = {};
   imapS.GetUrlForUri("imap-message://user@localhost/INBOX#4294967168", uri, null);
-  do_check_eq(uri.value.spec,
-              "imap://user@localhost:1167/fetch%3EUID%3E%5EINBOX%3E4294967168");
+  do_check_eq(uri.value.spec, "imap://user@localhost:" + IMAPPump.server.port +
+      "/fetch%3EUID%3E%5EINBOX%3E4294967168");
   teardownIMAPPump();
 }
 

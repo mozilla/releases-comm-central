@@ -142,7 +142,7 @@ function testNext() {
 function createPop3Server()
 {
   let incoming = MailServices.accounts.createIncomingServer("fred", "localhost", "pop3");
-  incoming.port = POP3_PORT;
+  incoming.port = server.port;
   incoming.password = "wilma";
   return incoming;
 }
@@ -203,7 +203,7 @@ function run_test() {
     return handler;
   }
   server = new nsMailServer(createHandler, daemon);
-  server.start(POP3_PORT);
+  server.start();
 
   //incomingServer = createPop3ServerAndLocalFolders();
   localAccountUtils.loadLocalMailAccount();

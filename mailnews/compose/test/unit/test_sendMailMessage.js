@@ -24,14 +24,13 @@ function test_RFC2821() {
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
 
-  var smtpServer = getBasicSmtpServer();
+  server.start();
+  var smtpServer = getBasicSmtpServer(server.port);
   var identity = getSmtpIdentity(kSender, smtpServer);
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-    // Start the fake SMTP server
-    server.start(SMTP_PORT);
 
     // Just a basic test to check we're sending mail correctly.
     test = "Basic sendMailMessage";

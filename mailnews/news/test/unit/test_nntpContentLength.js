@@ -18,10 +18,9 @@ var server;
 var localserver;
 
 function run_test() {
-  type = "RFC 977";
-  localserver = setupLocalServer(NNTP_PORT);
   server = makeServer(NNTP_RFC977_handler, daemon);
-  server.start(NNTP_PORT);
+  server.start();
+  localserver = setupLocalServer(server.port);
 
   try {
     // Get the folder and new mail

@@ -23,8 +23,6 @@ Components.utils.import("resource://testing-common/mailnews/maild.js");
 Components.utils.import("resource://testing-common/mailnews/imapd.js");
 Components.utils.import("resource://testing-common/mailnews/auth.js");
 
-const IMAP_PORT = 1024 + 143;
-
 function makeServer(daemon, infoString, otherProps) {
   if (infoString in configurations)
     return makeServer(daemon, configurations[infoString].join(","), otherProps);
@@ -46,12 +44,12 @@ function makeServer(daemon, infoString, otherProps) {
     return handler;
   }
   var server = new nsMailServer(createHandler, daemon);
-  server.start(IMAP_PORT);
+  server.start();
   return server;
 }
 
-function createLocalIMAPServer() {
-  let server = localAccountUtils.create_incoming_server("imap", IMAP_PORT,
+function createLocalIMAPServer(port) {
+  let server = localAccountUtils.create_incoming_server("imap", port,
 							"user", "password");
   server.QueryInterface(Ci.nsIImapIncomingServer);
   return server;

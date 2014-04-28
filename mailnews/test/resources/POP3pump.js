@@ -149,7 +149,10 @@ POP3Pump.prototype._testNext = function _testNext()
       this._firstFile = false;
 
       // Start the fake POP3 server
-      this._server.start(this.kPOP3_PORT);
+      this._server.start();
+      this.kPOP3_PORT = this._server.port;
+      if (this.fakeServer)
+        this.fakeServer.port = this.kPOP3_PORT;
     }
     else
     {

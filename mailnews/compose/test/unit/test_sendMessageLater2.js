@@ -19,6 +19,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 var test = "sendMessageLater";
 var server = null;
+var smtpServer;
 var gSentFolder;
 var originalData;
 var identity = null;
@@ -164,7 +165,8 @@ function sendUnsentMessages()
   // the server if something fails.
   try {
     // Start the fake SMTP server
-    server.start(SMTP_PORT);
+    server.start();
+    smtpServer.port = server.port;
 
     // Send the unsent message
     msgSendLater.sendUnsentMessages(identity);
@@ -230,7 +232,7 @@ function run_test() {
   let account = MailServices.accounts.createAccount();
   let incomingServer = MailServices.accounts.createIncomingServer("test", "localhost", "pop3");
 
-  var smtpServer = getBasicSmtpServer();
+  smtpServer = getBasicSmtpServer(1);
   identity = getSmtpIdentity(kSender, smtpServer);
 
   account.addIdentity(identity);

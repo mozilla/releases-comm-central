@@ -57,14 +57,13 @@ function run_test() {
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
 
-  var smtpServer = getBasicSmtpServer();
-  var identity = getSmtpIdentity(kSender, smtpServer);
-
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
     // Start the fake SMTP server
-    server.start(SMTP_PORT);
+    server.start();
+    var smtpServer = getBasicSmtpServer(server.port);
+    var identity = getSmtpIdentity(kSender, smtpServer);
 
     // This time with auth
     test = "Auth sendMailMessage";

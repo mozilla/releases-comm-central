@@ -145,7 +145,7 @@ function testNext() {
 function createPop3Server()
 {
   let incoming = MailServices.accounts.createIncomingServer("fred", "localhost", "pop3");
-  incoming.port = POP3_PORT;
+  incoming.port = server.port;
   incoming.password = "wilma";
   return incoming;
 }
@@ -170,7 +170,7 @@ function run_test() {
   daemon = ssd[0];
   server = ssd[1];
   handler = ssd[2];
-  server.start(POP3_PORT);
+  server.start();
 
   //incomingServer = createPop3ServerAndLocalFolders();
   localAccountUtils.loadLocalMailAccount();

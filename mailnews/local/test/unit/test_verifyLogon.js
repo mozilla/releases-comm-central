@@ -43,7 +43,6 @@ var urlListener =
 };
 
 function actually_run_test() {
-  server.start(POP3_PORT);
   daemon.setMessages(["message1.eml"]);
 
   // check that verifyLogon fails with bad password
@@ -81,6 +80,7 @@ function run_test()
     return handler;
   }
   server = new nsMailServer(createHandler, daemon);
+  server.start();
 
   // Set up the basic accounts and folders.
   // We would use createPop3ServerAndLocalFolders() however we want to have
@@ -92,7 +92,7 @@ function run_test()
   incomingServer = MailServices.accounts
                     .createIncomingServer(kUserName,"localhost", "pop3");
 
-  incomingServer.port = POP3_PORT;
+  incomingServer.port = server.port;
 
   do_test_pending();
 

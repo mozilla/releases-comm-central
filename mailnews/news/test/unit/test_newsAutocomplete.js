@@ -26,9 +26,7 @@ acObserver.prototype = {
 };
 
 function run_test() {
-  let type = "RFC 977";
-  let localserver = setupLocalServer(NNTP_PORT);
-  let server = makeServer(NNTP_RFC977_handler, gDaemon);
+  let localserver = setupLocalServer(119);
 
   // create identity
   let identity = MailServices.accounts.createIdentity();

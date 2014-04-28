@@ -6,10 +6,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 // The basic daemon to use for testing nntpd.js implementations
 var daemon = setupNNTPDaemon();
 
-// Define these up here for checking with the transaction
-var type = null;
-var test = null;
-
 var server;
 var localserver;
 
@@ -59,13 +55,12 @@ function doTestFinished() {
     do_test_finished();
 }
 
-const kCacheKey = "news://localhost:" + NNTP_PORT + "/TSS1%40nntp.test";
 
 function run_test() {
-  type = "RFC 977";
-  localserver = setupLocalServer(NNTP_PORT);
   server = makeServer(NNTP_RFC977_handler, daemon);
-  server.start(NNTP_PORT);
+  server.start();
+  localserver = setupLocalServer(server.port);
+  const kCacheKey = "news://localhost:" + server.port + "/TSS1%40nntp.test";
 
   try {
     // Add an empty message to the cache

@@ -43,9 +43,6 @@ function setupIMAPPump(extensions)
 
   // These are copied from imap's head_server.js to here so we can run
   //   this from any directory.
-
-  const IMAP_PORT = 1024 + 143;
-
   function makeServer(daemon, infoString) {
     if (infoString in configurations)
       return makeServer(daemon, configurations[infoString].join(","));
@@ -62,13 +59,13 @@ function setupIMAPPump(extensions)
       return handler;
     }
     var server = new nsMailServer(createHandler, daemon);
-    server.start(IMAP_PORT);
+    server.start();
     return server;
   }
 
   function createLocalIMAPServer() {
-    let server = localAccountUtils.create_incoming_server("imap", IMAP_PORT,
-							  "user", "password");
+    let server = localAccountUtils.create_incoming_server("imap",
+      IMAPPump.server.port, "user", "password");
     server.QueryInterface(Ci.nsIImapIncomingServer);
     return server;
   }

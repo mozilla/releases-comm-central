@@ -8,10 +8,10 @@ function run_test() {
   daemon = setupNNTPDaemon();
   daemon.addGroup("test1");
   daemon.addArticle(make_article(do_get_file("postings/bug403242.eml")));
-  localserver = setupLocalServer(NNTP_PORT);
-  localserver.subscribeToNewsgroup("test1");
   server = makeServer(NNTP_RFC2980_handler, daemon);
-  server.start(NNTP_PORT);
+  server.start();
+  localserver = setupLocalServer(server.port);
+  localserver.subscribeToNewsgroup("test1");
 
   let folder = localserver.rootFolder.getChildNamed("test1");
   folder.getNewMessages(null, {

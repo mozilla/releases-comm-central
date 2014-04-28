@@ -8,7 +8,9 @@ Components.utils.import("resource:///modules/mailServices.js");
 function run_test() {
   // Set up the server and add in filters
   let daemon = setupNNTPDaemon();
-  let localserver = setupLocalServer(NNTP_PORT);
+  let server = makeServer(NNTP_RFC2980_handler, daemon);
+  server.start();
+  let localserver = setupLocalServer(server.port);
   // Remove all but the test.filter folder
   let rootFolder = localserver.rootFolder;
   let enumerator = rootFolder.subFolders;
@@ -23,9 +25,6 @@ function run_test() {
   filters.loggingEnabled = true;
   createFilter(filters, "subject", "Odd", "read");
   localserver.setFilterList(filters);
-
-  let server = makeServer(NNTP_RFC2980_handler, daemon);
-  server.start(NNTP_PORT);
 
   // This is a bit hackish, but we don't have any really functional callbacks
   // for biff. Instead, we use the notifier to look for all 7 messages to be

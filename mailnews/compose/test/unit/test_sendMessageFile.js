@@ -116,7 +116,8 @@ function run_test() {
 
   MailServices.accounts.setSpecialFolders();
 
-  var smtpServer = getBasicSmtpServer();
+  server.start();
+  var smtpServer = getBasicSmtpServer(server.port);
   var identity = getSmtpIdentity(kSender, smtpServer);
 
   sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
@@ -129,9 +130,6 @@ function run_test() {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-    // Start the fake SMTP server
-    server.start(SMTP_PORT);
-
     // A test to check that we are sending files correctly, including checking
     // what the server receives and what we output.
     test = "sendMessageFile";

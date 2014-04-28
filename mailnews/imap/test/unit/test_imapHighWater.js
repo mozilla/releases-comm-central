@@ -40,7 +40,7 @@ function run_test()
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
   gIMAPDaemon.createMailbox("folder 1", {subscribed : true});
-  gIMAPIncomingServer = createLocalIMAPServer();
+  gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
   gIMAPIncomingServer.maximumConnectionsNumber = 1;
 
   // We need an identity so that updateFolder doesn't fail

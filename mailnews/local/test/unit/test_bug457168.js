@@ -9,7 +9,6 @@ var test = null;
 var server;
 var daemon;
 var incomingServer;
-var firstTest = true;
 var thisTest;
 
 var tests = [
@@ -82,14 +81,7 @@ function testNext() {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-    if (firstTest) {
-      firstTest = false;
-
-      // Start the fake POP3 server
-      server.start(POP3_PORT);
-    }
-    else
-      server.resetTest();
+    server.resetTest();
 
     // Set up the test
     test = thisTest.title;
@@ -123,11 +115,12 @@ function run_test() {
   server = setupServerDaemon();
   daemon = server[0];
   server = server[1];
+  server.start();
 
   type = "RFC 1939";
 
   // Set up the basic accounts and folders
-  incomingServer = createPop3ServerAndLocalFolders();
+  incomingServer = createPop3ServerAndLocalFolders(server.port);
 
   // Create a cc filter
   var filters = incomingServer.getFilterList(null);

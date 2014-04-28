@@ -91,7 +91,7 @@ function nextTest() {
     server.setDebugLevel(fsDebugAll);
 
     // If Mailnews ever caches server capabilities, delete and re-create the incomingServer here
-    var incomingServer = createLocalIMAPServer();
+    var incomingServer = createLocalIMAPServer(server.port);
 
     let msgServer = incomingServer;
     msgServer.QueryInterface(Ci.nsIMsgIncomingServer);

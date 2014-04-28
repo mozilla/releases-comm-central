@@ -29,7 +29,7 @@ function run_test() {
   addMessageToFolder(gFolder2Mailbox);
   gServer = makeServer(daemon, "");
 
-  gImapServer = createLocalIMAPServer();
+  gImapServer = createLocalIMAPServer(gServer.port);
   gImapServer.maximumConnectionsNumber = 1;
 
   localAccountUtils.loadLocalMailAccount();

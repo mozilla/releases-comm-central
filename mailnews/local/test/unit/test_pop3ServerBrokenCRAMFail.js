@@ -91,9 +91,9 @@ function run_test() {
       return new CRAMFail_handler(d);
     }
     server = new nsMailServer(createHandler, daemon);
-    server.start(POP3_PORT);
+    server.start();
 
-    incomingServer = createPop3ServerAndLocalFolders();
+    incomingServer = createPop3ServerAndLocalFolders(server.port);
     let msgServer = incomingServer;
     msgServer.QueryInterface(Ci.nsIMsgIncomingServer);
     // Need to allow any auth here, although that's not use in TB really,

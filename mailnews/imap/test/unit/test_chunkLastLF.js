@@ -46,7 +46,7 @@ function run_test()
   // set up IMAP fakeserver and incoming server
   gIMAPDaemon = new imapDaemon();
   gIMAPServer = makeServer(gIMAPDaemon, "");
-  gIMAPIncomingServer = createLocalIMAPServer();
+  gIMAPIncomingServer = createLocalIMAPServer(gIMAPServer.port);
 
   // The server doesn't support more than one connection
   Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);

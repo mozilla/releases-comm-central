@@ -92,7 +92,7 @@ function nsMailServer(handlerCreator, daemon) {
   this._debug = fsDebugNone;
 
   /** The port on which this server listens. */
-  this._port = undefined;
+  this._port = -1;
 
   /** The socket associated with this. */
   this._socket = null;
@@ -164,11 +164,12 @@ nsMailServer.prototype = {
       this._readers[i].setDebugLevel(debug);
   },
 
-  start : function (port) {
+  start : function (port=-1) {
     if (this._socket)
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
 
-    this._port = port;
+    if (port > 0)
+      this._port = port;
     this._socketClosed = false;
 
     var socket = new ServerSocket(this._port,
@@ -186,7 +187,7 @@ nsMailServer.prototype = {
     this._socket.close();
     this._socket = null;
 
-    for each (let reader in this._readers)
+    for (let reader of this._readers)
       reader._realCloseSocket();
 
     if (this._readers.some(function (e) { return e.observer.forced }))
@@ -200,6 +201,13 @@ nsMailServer.prototype = {
   },
   stopTest : function () {
     this._test = false;
+  },
+
+  get port() {
+    if (this._port == -1) {
+      this._port = this._socket.port;
+    }
+    return this._port;
   },
 
   // NSISUPPORTS

@@ -25,7 +25,6 @@ Components.utils.import("resource://testing-common/mailnews/auth.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const SMTP_PORT = 1024+120;
 var gDraftFolder;
 
 // Setup the daemon and server
@@ -36,8 +35,8 @@ function setupServerDaemon(handler) {
   return server;
 }
 
-function getBasicSmtpServer() {
-  let server = localAccountUtils.create_outgoing_server(SMTP_PORT, "user", "password");
+function getBasicSmtpServer(port=1) {
+  let server = localAccountUtils.create_outgoing_server(port, "user", "password");
 
   // Override the default greeting so we get something predicitable
   // in the ELHO message

@@ -327,7 +327,7 @@ function run_test()
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
 
-  gIMAPIncomingServer = createLocalIMAPServer();
+  gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
 
   if (!localAccountUtils.inboxFolder)
     localAccountUtils.loadLocalMailAccount();

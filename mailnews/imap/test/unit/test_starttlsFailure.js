@@ -28,7 +28,7 @@ function setup() {
   // set up IMAP fakeserver and incoming server
   IMAPPump.daemon = new imapDaemon();
   IMAPPump.server = makeServer(IMAPPump.daemon, "", {dropOnStartTLS: true});
-  IMAPPump.incomingServer = createLocalIMAPServer();
+  IMAPPump.incomingServer = createLocalIMAPServer(IMAPPump.server.port);
   IMAPPump.incomingServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
 
   // we need a local account for the IMAP server to have its sent messages in

@@ -11,7 +11,6 @@ var test = null;
 var server;
 var daemon;
 var incomingServer;
-var firstTest = true;
 var thisTest;
 
 var tests = [
@@ -84,14 +83,7 @@ function testNext() {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-    if (firstTest) {
-      firstTest = false;
-
-      // Start the fake POP3 server
-      server.start(POP3_PORT);
-    }
-    else
-      server.resetTest();
+    server.resetTest();
 
     // Set up the test
     test = thisTest.title;
@@ -127,7 +119,8 @@ function run_test() {
   var serverArray = setupServerDaemon();
   daemon = serverArray[0];
   server = serverArray[1];
-  var handler = serverArray[2]
+  var handler = serverArray[2];
+  server.start();
 
   // Set the server expected username & password to what we have in signons.txt
   handler.kUsername = "testpop3";
@@ -141,7 +134,7 @@ function run_test() {
 
   incomingServer = MailServices.accounts.createIncomingServer("testpop3", "localhost", "pop3");
 
-  incomingServer.port = POP3_PORT;
+  incomingServer.port = server.port;
 
   // Check that we haven't got any messages in the folder, if we have its a test
   // setup issue.

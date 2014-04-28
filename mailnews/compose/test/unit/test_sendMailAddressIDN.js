@@ -119,7 +119,9 @@ msgListener.prototype =
 
 function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
 {
-  var smtpServer = getBasicSmtpServer();
+  server = setupServerDaemon();
+  server.start();
+  var smtpServer = getBasicSmtpServer(server.port);
   var identity = getSmtpIdentity(kSender, smtpServer);
   do_check_eq(identity.doFcc, true);
 
@@ -129,13 +131,9 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
-  server = setupServerDaemon();
   var exceptionCaught = 0;
   try
   {
-    // Start the fake SMTP server
-    server.start(SMTP_PORT);
-
     var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
                        .createInstance(Ci.nsIMsgCompFields);
     compFields.from = identity.email;

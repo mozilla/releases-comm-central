@@ -90,7 +90,7 @@ function goOnline()
   IMAPPump.daemon.closing = false;
   Services.io.offline = false;
 
-  IMAPPump.server.start(IMAP_PORT);
+  IMAPPump.server.start();
   offlineManager.inProgress = true;
   offlineManager.goOnline(false, true, null);
   let waitForNotInProgress = function () {

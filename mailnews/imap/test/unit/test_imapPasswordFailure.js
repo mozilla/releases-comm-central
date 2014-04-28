@@ -75,7 +75,7 @@ function run_test() {
   server.setDebugLevel(fsDebugAll);
 
 
-  incomingServer = createLocalIMAPServer();
+  incomingServer = createLocalIMAPServer(server.port);
 
   // PerformExpand expects us to already have a password loaded into the
   // incomingServer when we call it, so force a get password call to get it

@@ -42,7 +42,7 @@ function run_test()
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
 
   gServer = makeServer(gIMAPDaemon, "");
-  gIMAPIncomingServer = createLocalIMAPServer();
+  gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
 
   //start first test
   async_run_tests(tests);
