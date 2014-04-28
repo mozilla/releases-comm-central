@@ -972,15 +972,27 @@
               accesskey="&customizeToolbar.accesskey;"/>
   </menupopup>
 
-  <menupopup id="remoteContentOptions">
+  <menupopup id="remoteContentOptions" value=""
+             onpopupshowing="onRemoteContentOptionsShowing(event);">
     <menuitem id="remoteContentOptionAllowForMsg"
               label="&remoteContentOptionsAllowForMsg.label;"
               accesskey="&remoteContentOptionsAllowForMsg.accesskey;"
               oncommand="LoadMsgWithRemoteContent();"/>
-    <menuitem id="remoteContentOptionAllowForAddress"
+    <menuseparator id="remoteContentSettingsMenuSeparator"/>
+    <menuitem id="editRemoteContentSettings"
+#ifdef XP_WIN
+              label="&editRemoteContentSettings.label;"
+              accesskey="&editRemoteContentSettings.accesskey;"
+#else
+              label="&editRemoteContentSettingsUnix.label;"
+              accesskey="&editRemoteContentSettingsUnix.accesskey;"
+#endif
+              oncommand="editRemoteContentSettings();"/>
+<!--    <menuitem id="remoteContentOptionAllowForAddress"
               label="&remoteContentOptionAllowForAddress.label;"
               accesskey="&remoteContentOptionAllowForAddress.accesskey;"
               oncommand="allowRemoteContentForSender();"/>
+-->
   </menupopup>
 
   <menupopup id="phishingOptions">

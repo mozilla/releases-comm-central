@@ -297,6 +297,50 @@ function checkAllowForSenderWithPerms(test) {
   ++gMsgNo;
 }
 
+/**
+ * Check remote content is not blocked for a hosts with permissions.
+ */
+function checkAllowForHostsWithPerms(test) {
+  let msgDbHdr = addToFolder(test.type + " priv host test message " + gMsgNo,
+                             msgBodyStart + test.body + msgBodyEnd, folder);
+
+  // Select the newly created message.
+  let msgHdr = select_click_row(gMsgNo);
+  assert_equals(msgDbHdr, msgHdr);
+  assert_selected_and_displayed(gMsgNo);
+
+  let src = mozmill.getMail3PaneController().window.content.document
+                   .getElementById("testelement").src;
+
+  if (!src.startsWith("http"))
+    return; // just test http in this test
+
+  let uri = Services.io.newURI(src, null, null);
+  Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+  assert_true(Services.perms.testPermission(uri, "image") ==
+              Services.perms.ALLOW_ACTION);
+
+  // Click back one msg, then the original again, which should now allow loading.
+  select_click_row(gMsgNo - 1);
+  // Select the newly created message.
+  let msgHdr = select_click_row(gMsgNo);
+  assert_equals(msgDbHdr, msgHdr);
+  assert_selected_and_displayed(gMsgNo);
+
+  // Now check that the content hasn't been blocked.
+  if (!test.checkForAllowed(mozmill.getMail3PaneController()
+           .window.content.document.getElementById("testelement")))
+    throw new Error(test.type + " has been unexpectedly blocked for url=" +
+                    uri.spec);
+
+  // Clean up after ourselves, and make sure that worked as expected.
+  Services.perms.remove(uri.host, "image");
+  assert_true(Services.perms.testPermission(uri, "image") ==
+              Services.perms.UNKNOWN_ACTION);
+
+  ++gMsgNo;
+}
+
 function test_generalContentPolicy() {
   let folderTab = mc.tabmail.currentTabInfo;
   be_in_folder(folder);
@@ -338,5 +382,8 @@ function test_generalContentPolicy() {
 
     // Check per sender privileges.
     checkAllowForSenderWithPerms(TESTS[i]);
+
+    // Check per host privileges.
+    checkAllowForHostsWithPerms(TESTS[i]);
   }
 }

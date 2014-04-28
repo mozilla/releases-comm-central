@@ -90,7 +90,7 @@ let gMessageHeaderSink = {
   onEndAllAttachments: function() {},
   onEndMsgDownload: function() {},
   onEndMsgHeaders: function(aUrl) {},
-  onMsgHasRemoteContent: function(aMsgHdr) {},
+  onMsgHasRemoteContent: function(aMsgHdr, aContentURI) {},
   securityInfo: null,
   mDummyMsgHeader: null,
   properties: null,

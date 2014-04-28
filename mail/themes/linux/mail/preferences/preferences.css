@@ -19,6 +19,9 @@ radio[pane=paneCompose] {
 radio[pane=paneChat] {
   list-style-image: url("chrome://messenger/skin/preferences/chat.png"); /*FIXME*/
 }
+radio[pane=panePrivacy] {
+  list-style-image: url("chrome://messenger/skin/preferences/privacy.png");
+}
 radio[pane=paneSecurity] {
   list-style-image: url("chrome://messenger/skin/preferences/security.png");
 }

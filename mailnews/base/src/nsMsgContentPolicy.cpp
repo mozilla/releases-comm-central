@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgContentPolicy.h"
+#include "nsIPermissionManager.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIAbManager.h"
@@ -294,6 +295,26 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
     return NS_OK;
   }
 
+  uint32_t permission;
+  mPermissionManager->TestPermission(aContentLocation, "image", &permission);
+  switch (permission) {
+    case nsIPermissionManager::UNKNOWN_ACTION:
+    {
+      // No exception was found for this location.
+      break;
+    }
+    case nsIPermissionManager::ALLOW_ACTION:
+    {
+      *aDecision = nsIContentPolicy::ACCEPT;
+      return NS_OK;
+    }
+    case nsIPermissionManager::DENY_ACTION:
+    {
+      *aDecision = nsIContentPolicy::REJECT_REQUEST;
+      return NS_OK;
+    }
+  }
+
   // The default decision is still to reject.
   ShouldAcceptContentForPotentialMsg(originatorLocation, aContentLocation,
                                      aDecision);
@@ -454,8 +475,9 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr *aMsgHdr,
 class RemoteContentNotifierEvent : public nsRunnable
 {
 public:
-  RemoteContentNotifierEvent(nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aMsgHdr)
-    : mMsgWindow(aMsgWindow), mMsgHdr(aMsgHdr)
+  RemoteContentNotifierEvent(nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aMsgHdr,
+                             nsIURI *aContentURI)
+    : mMsgWindow(aMsgWindow), mMsgHdr(aMsgHdr), mContentURI(aContentURI)
   {}
 
   NS_IMETHOD Run()
@@ -465,7 +487,7 @@ public:
       nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
       (void)mMsgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
       if (msgHdrSink)
-        msgHdrSink->OnMsgHasRemoteContent(mMsgHdr);
+        msgHdrSink->OnMsgHasRemoteContent(mMsgHdr, mContentURI);
     }
     return NS_OK;
   }
@@ -473,6 +495,7 @@ public:
 private:
   nsCOMPtr<nsIMsgWindow> mMsgWindow;
   nsCOMPtr<nsIMsgDBHdr> mMsgHdr;
+  nsCOMPtr<nsIURI> mContentURI;
 };
 
 /** 
@@ -528,8 +551,8 @@ nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(nsIURI *aOriginatorLocati
     (void)mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow)); 
     if (msgWindow)
     {
-      nsCOMPtr<nsIRunnable> event = new RemoteContentNotifierEvent(msgWindow,
-                                                                   msgHdr);
+      nsCOMPtr<nsIRunnable> event =
+        new RemoteContentNotifierEvent(msgWindow, msgHdr, aContentLocation);
       // Post this as an event because it can cause dom mutations, and we
       // get called at a bad time to be causing dom mutations.
       if (event)

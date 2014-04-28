@@ -3,10 +3,13 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests the do-not-track toggle checkbox
+ * Tests the do-not-track prefs.
  */
 
-const DNT_PREF_NAME = 'privacy.donottrackheader.enabled';
+// make SOLO_TEST=pref-window/test-donottrack-prefs.js mozmill-one
+
+const PREF_DNT_ENABLED = 'privacy.donottrackheader.enabled';
+const PREF_DNT_VALUE = 'privacy.donottrackheader.value';
 
 const MODULE_NAME = 'test-donottrack-prefs';
 
@@ -21,52 +24,39 @@ function setupModule(module) {
 }
 
 /**
- * Test that selecting the checkbox for the do not track feature actually sets
- * the preference.
+ * Helper that opens the privacy pane, checks that aInitiallySelectedId is
+ * currently selected, selects aRadioId and closes the preferences dialog.
+ */
+function goClickRadio(aRadioId, aInitiallySelectedId) {
+  open_pref_window("panePrivacy", function(w) {
+
+    assert_true(w.e(aInitiallySelectedId).selected);
+
+    // Tick the DNT option (and make sure it's ticked).
+    w.click(w.eid(aRadioId));
+    assert_true(w.e(aRadioId).selected,
+                "The radio " + aRadioId + " didn't get set");
+
+    // Close the window to accept the changes
+    w.e("MailPreferences").acceptDialog();
+    close_window(w);
+  });
+}
+
+/**
+ * Test that setting the do not track feature actually sets
+ * the preferences correctly.
  */
 function test_donottrack_checkbox() {
-  open_pref_window("paneSecurity", function(w) {
+  goClickRadio("dntnotrack", "dntnopref");
+  assert_equals(Services.prefs.getBoolPref(PREF_DNT_ENABLED), true);
+  assert_equals(Services.prefs.getIntPref(PREF_DNT_VALUE), 1);
 
-    // select the "Web Content" panel
-    w.e("securityPrefs").selectedIndex = 4;
+  goClickRadio("dntdotrack", "dntnotrack");
+  assert_equals(Services.prefs.getBoolPref(PREF_DNT_ENABLED), true);
+  assert_equals(Services.prefs.getIntPref(PREF_DNT_VALUE), 0);
 
-    // tick the DNT box (and make sure it's ticked.
-    w.click(w.eid("privacyDoNotTrackPref"));
-    assert_true(w.e("privacyDoNotTrackPref").checked,
-                "The DNT checkbox didn't get set");
-
-    // close the window to accept the changes
-    w.e("MailPreferences").acceptDialog();
-    close_window(w);
-  });
-
-  open_pref_window("paneSecurity", function(w) {
-    // Inspect the pref.
-    assert_true(Services.prefs.getBoolPref(DNT_PREF_NAME),
-                "The DNT pref did not get set");
-
-    // Make sure the box stays ticked
-    assert_true(w.e("privacyDoNotTrackPref").checked,
-                "The DNT checkbox should be checked when the pref is set");
-
-    // clear the DNT checkbox (and make sure it's not ticked);
-    w.click(w.eid("privacyDoNotTrackPref"));
-    assert_false(w.e("privacyDoNotTrackPref").checked,
-                 "The DNT checkbox did not get unset");
-
-    // close the window to accept the changes
-    w.e("MailPreferences").acceptDialog();
-    close_window(w);
-  });
-
-  open_pref_window("paneSecurity", function(w) {
-    // make sure all is still reset.
-    assert_false(w.e("privacyDoNotTrackPref").checked,
-                 "The DNT checkbox should still be unset");
-    assert_false(Services.prefs.getBoolPref(DNT_PREF_NAME),
-                 "The DNT pref should be cleared.");
-
-    w.e("MailPreferences").acceptDialog();
-    close_window(w);
-  });
+  goClickRadio("dntnopref", "dntdotrack");
+  assert_equals(Services.prefs.getBoolPref(PREF_DNT_ENABLED), false);
+  assert_equals(Services.prefs.getIntPref(PREF_DNT_VALUE), 0);
 }

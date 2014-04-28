@@ -49,12 +49,16 @@ radio[pane=paneChat] {
   -moz-image-region: rect(0px, 288px, 32px, 256px);
 }
 
+radio[pane=panePrivacy] {
+  -moz-image-region: rect(0px, 320px, 32px, 288px);
+}
+
 radio[pane=paneSecurity] {
-  -moz-image-region: rect(0px 128px 32px 96px);
+  -moz-image-region: rect(0px, 128px, 32px, 96px);
 }
 
 radio[pane=paneApplications] {
-  -moz-image-region: rect(0px 160px 32px 128px);
+  -moz-image-region: rect(0px, 160px, 32px, 128px);
 }
 
 radio[pane=paneAdvanced] {
@@ -80,6 +84,10 @@ radio[pane=paneAdvanced] {
 
   radio[pane=paneChat] {
     -moz-image-region: rect(0px, 576px, 64px, 512px);
+  }
+
+  radio[pane=panePrivacy] {
+    -moz-image-region: rect(0px, 640px, 64px, 576px);
   }
 
   radio[pane=paneSecurity] {

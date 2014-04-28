@@ -2890,7 +2890,7 @@ var gMessageNotificationBar =
     return !!this.msgNotificationBar.getNotificationWithValue("junkContent");
   },
 
-  setRemoteContentMsg: function(aMsgHdr)
+  setRemoteContentMsg: function(aMsgHdr, aContentURI)
   {
     // update the allow remote content for sender string
     let emailAddress = MailServices.headerParser.extractHeaderAddressMailboxes(aMsgHdr.author);
@@ -2920,6 +2920,13 @@ var gMessageNotificationBar =
         this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
         buttons);
     }
+
+    // The popup value is a space separated list of all the blocked hosts.
+    let popup = document.getElementById("remoteContentOptions");
+    let hosts = popup.value ? popup.value.split(" ") : [];
+    if (hosts.indexOf(aContentURI.host) == -1)
+      hosts.push(aContentURI.host);
+    popup.value = hosts.join(" ");
   },
 
   isShowingRemoteContentNotification: function() {
@@ -3106,6 +3113,64 @@ function allowRemoteContentForSender()
 }
 
 /**
+ * Populate the remote content options for the current message.
+ */
+function onRemoteContentOptionsShowing(aEvent) {
+  let hosts = aEvent.target.value ? aEvent.target.value.split(" ") : [];
+
+  let addresses = {};
+  MailServices.headerParser.parseHeadersWithArray(
+    gMessageDisplay.displayedMessage.author, addresses, {}, {});
+  let authorEmailAddress = addresses.value[0];
+  // Needs bug 457296 policy patch to actually work, but I don't want to
+  // keep this bug hostage for that, so just if-false it for now.
+  if (false && authorEmailAddress)
+    hosts.splice(0, 0, authorEmailAddress);
+
+  let messengerBundle = document.getElementById("bundle_messenger");
+
+  // Out with the old...
+  let childNodes = aEvent.target.childNodes;
+  for (let i = childNodes.length - 1; i >= 0; i--) {
+    if (childNodes[i].getAttribute("class") == "allow-remote-uri")
+      childNodes[i].remove();
+  }
+
+  // ... and in with the new.
+  for (let host of hosts) {
+    let uri = Services.io.newURI(
+      host.contains("@") ? "mailto:" + host : "http://" + host, null, null);
+
+    let menuitem = document.createElement("menuitem");
+    menuitem.setAttribute("label",
+      messengerBundle.getFormattedString("remoteAllow", [host]));
+    menuitem.setAttribute("value", uri.spec);
+    menuitem.setAttribute("class", "allow-remote-uri");
+    menuitem.setAttribute("oncommand", "allowRemoteContentForSite(this.value);");
+    aEvent.target.appendChild(menuitem);
+  }
+}
+
+/**
+ * Add privileges to display remote content for the given uri.
+ * @param aUriSpec |String| uri for the site to add permissions for.
+ */
+function allowRemoteContentForSite(aUriSpec) {
+  let uri = Services.io.newURI(aUriSpec, null, null);
+  Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+  ReloadMessage();
+}
+
+/**
+ * Displays fine-grained, per-site preferences for remote content.
+ */
+function editRemoteContentSettings() {
+  openOptionsDialog("panePrivacy");
+  if(!Services.prefs.getBoolPref("browser.preferences.instantApply"))
+    ReloadMessage();
+}
+
+/**
  *  Set the msg hdr flag to ignore the phishing warning and reload the message.
  */
 function IgnorePhishingWarning()
@@ -3243,6 +3308,9 @@ function OnMsgLoaded(aUrl)
 
   // See if MDN was requested but has not been sent.
   HandleMDNResponse(aUrl);
+
+  // Reset the blocked hosts so we can populate it again for this message.
+  document.getElementById("remoteContentOptions").value = "";
 }
 
 /**

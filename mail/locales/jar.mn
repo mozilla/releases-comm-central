@@ -155,6 +155,7 @@
   locale/@AB_CD@/messenger/preferences/colors.dtd                       (%chrome/messenger/preferences/colors.dtd)
   locale/@AB_CD@/messenger/preferences/chat.dtd                         (%chrome/messenger/preferences/chat.dtd)
   locale/@AB_CD@/messenger/preferences/compose.dtd                      (%chrome/messenger/preferences/compose.dtd)
+  locale/@AB_CD@/messenger/preferences/privacy.dtd                      (%chrome/messenger/preferences/privacy.dtd)
   locale/@AB_CD@/messenger/preferences/sendoptions.dtd                  (%chrome/messenger/preferences/sendoptions.dtd)
   locale/@AB_CD@/messenger/preferences/security.dtd                     (%chrome/messenger/preferences/security.dtd)
   locale/@AB_CD@/messenger/preferences/advanced.dtd                     (%chrome/messenger/preferences/advanced.dtd)

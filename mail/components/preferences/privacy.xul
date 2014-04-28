@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<!-- -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+   - This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+<!ENTITY % privacyDTD SYSTEM "chrome://messenger/locale/preferences/privacy.dtd">
+%brandDTD;
+%privacyDTD;
+]>
+
+<overlay id="PrivacyPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <prefpane id="panePrivacy" onpaneload="gPrivacyPane.init();">
+    <script type="application/javascript" src="chrome://messenger/content/preferences/privacy.js"/>
+
+    <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+
+    <preferences id="privacyPreferences">
+
+      <!-- XXX button prefs -->
+      <preference id="pref.privacy.disable_button.cookie_exceptions"
+                  name="pref.privacy.disable_button.cookie_exceptions"
+                  type="bool"/>
+      <preference id="pref.privacy.disable_button.view_cookies"
+                  name="pref.privacy.disable_button.view_cookies"
+                  type="bool"/>
+
+      <!-- Remote Content -->
+      <preference id="mailnews.message_display.disable_remote_image"
+                  name="mailnews.message_display.disable_remote_image"
+                  type="bool" inverted="true"
+                  onchange="gPrivacyPane.reloadMessageInOpener();"/>
+
+      <!-- Cookies -->
+      <preference id="network.cookie.cookieBehavior"
+                  name="network.cookie.cookieBehavior"
+                  type="int"/>
+      <preference id="network.cookie.lifetimePolicy"
+                  name="network.cookie.lifetimePolicy"
+                  type="int"/>
+      <preference id="network.cookie.blockFutureCookies"
+                  name="network.cookie.blockFutureCookies"
+                  type="bool"/>
+
+      <!-- Tracking -->
+      <preference id="privacy.donottrackheader.enabled"
+                  name="privacy.donottrackheader.enabled"
+                  type="bool"/>
+      <preference id="privacy.donottrackheader.value"
+                  name="privacy.donottrackheader.value"
+                  type="int"/>
+    </preferences>
+
+    <!-- Mail Content -->
+    <groupbox id="mailContentGroup">
+      <caption label="&captionMailContent.label;"/>
+      <hbox id="remoteContentBox">
+        <checkbox id="acceptRemoteContent" flex="1"
+                  preference="mailnews.message_display.disable_remote_image"
+                  label="&acceptRemoteContent.label;"
+                  accesskey="&acceptRemoteContent.accesskey;"/>
+        <button id="remoteContentExceptions"
+                oncommand="gPrivacyPane.showRemoteContentExceptions();"
+                label="&remoteContentExceptions.label;"
+                accesskey="&remoteContentExceptions.accesskey;"/>
+      </hbox>
+      <label id="acceptRemoteContentInfo" class="text-link"
+             href="https://support.mozilla.org/kb/remote-content-in-messages"
+             value="&acceptRemoteContentInfo.label;"/>
+    </groupbox>
+
+    <!-- Web Content -->
+    <groupbox id="webContentGroup">
+      <caption label="&captionWebContent.label;"/>
+      <hbox id="cookiesBox">
+        <checkbox id="acceptCookies" flex="1"
+                  preference="network.cookie.cookieBehavior"
+                  label="&acceptCookies.label;"
+                  accesskey="&acceptCookies.accesskey;"
+                  onsyncfrompreference="return gPrivacyPane.readAcceptCookies();"
+                  onsynctopreference="return gPrivacyPane.writeAcceptCookies();"/>
+        <button id="cookieExceptions"
+                oncommand="gPrivacyPane.showCookieExceptions();"
+                label="&cookieExceptions.label;"
+                accesskey="&cookieExceptions.accesskey;"
+                preference="pref.privacy.disable_button.cookie_exceptions"/>
+      </hbox>
+      <hbox id="acceptThirdPartyRow" class="indent">
+        <hbox id="acceptThirdPartyBox" align="center">
+          <label id="acceptThirdPartyLabel" control="acceptThirdPartyMenu"
+                 accesskey="&acceptThirdParty.pre.accesskey;">&acceptThirdParty.pre.label;</label>
+          <menulist id="acceptThirdPartyMenu" preference="network.cookie.cookieBehavior"
+          onsyncfrompreference="return gPrivacyPane.readAcceptThirdPartyCookies();"
+          onsynctopreference="return gPrivacyPane.writeAcceptThirdPartyCookies();">
+            <menupopup>
+              <menuitem label="&acceptThirdParty.always.label;" value="always"/>
+              <menuitem label="&acceptThirdParty.visited.label;" value="visited"/>
+              <menuitem label="&acceptThirdParty.never.label;" value="never"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+      </hbox>
+      <hbox id="keepRow" class="indent">
+        <hbox id="keepBox" align="center">
+          <label id="keepUntil"
+                 control="keepCookiesUntil"
+                 accesskey="&keepUntil.accesskey;">&keepUntil.label;</label>
+          <menulist id="keepCookiesUntil"
+                    preference="network.cookie.lifetimePolicy">
+            <menupopup>
+              <menuitem label="&expire.label;" value="0"/>
+              <menuitem label="&close.label;" value="2"/>
+              <menuitem label="&askEachTime.label;" value="1"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <hbox flex="1"/>
+        <button id="showCookiesButton" label="&showCookies.label;"
+                accesskey="&showCookies.accesskey;"
+                oncommand="gPrivacyPane.showCookies();"
+                preference="pref.privacy.disable_button.view_cookies"/>
+      </hbox>
+
+      <radiogroup id="doNotTrackSelection" orient="vertical"
+                  preference="privacy.donottrackheader.value"
+                  onsynctopreference="return gPrivacyPane.setTrackingPrefs()"
+                  onsyncfrompreference="return gPrivacyPane.getTrackingPrefs()">
+        <radio id="dntnotrack" value="1" label="&dntTrackingNotOkay.label2;"
+                accesskey="&dntTrackingNotOkay.accesskey;" />
+        <radio id="dntdotrack" value="0" label="&dntTrackingOkay.label2;"
+                accesskey="&dntTrackingOkay.accesskey;" />
+        <radio id="dntnopref" value="-1" label="&dntTrackingNopref.label2;"
+                accesskey="&dntTrackingNopref.accesskey;" />
+      </radiogroup>
+      <label class="text-link" id="doNotTrackInfo"
+             href="https://www.mozilla.org/dnt"
+             value="&doNotTrackInfo.label;"/>
+
+    </groupbox>
+
+  </prefpane>
+</overlay>
+

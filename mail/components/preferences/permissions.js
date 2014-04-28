@@ -72,10 +72,11 @@ var gPermissionManager = {
   addPermission: function (aCapability)
   {
     var textbox = document.getElementById("url");
-    var host = textbox.value.replace(/^\s*([-\w]*:\/+)?/, ""); // trim any leading space and scheme
+    let scheme = textbox.value.contains("@") ? "mailto:" : "http://";
+    let host = textbox.value.replace(/^\s*([-\w]*:\/*)?/, ""); // trim any leading space and scheme
     try {
-      var uri = Services.io.newURI("http://" + host, null, null);
-      host = uri.host;
+      let uri = Services.io.newURI(scheme + host, null, null);
+      host = uri.spec.startsWith("mailto:") ? uri.spec : uri.host;
     } catch(ex) {
       var message = this._bundle.getString("invalidURI");
       var title = this._bundle.getString("invalidURITitle");
@@ -99,7 +100,9 @@ var gPermissionManager = {
 
     if (!exists) {
       host = host.startsWith(".") ? host.substr(1) : host;
-      let uri = Services.io.newURI("http://" + host, null, null);
+      // For mailto: uris permissions are keyed off the address.
+      host = host.replace(/^mailto:/, "");
+      let uri = Services.io.newURI(scheme + host, null, null);
       Services.perms.add(uri, this._type, aCapability);
     }
     textbox.value = "";

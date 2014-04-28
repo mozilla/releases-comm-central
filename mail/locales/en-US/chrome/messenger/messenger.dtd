@@ -565,6 +565,10 @@
 <!ENTITY remoteContentOptionsAllowForMsg.accesskey "S">
 <!ENTITY remoteContentOptionAllowForAddress.label "Show remote content from this sender">
 <!ENTITY remoteContentOptionAllowForAddress.accesskey "f">
+<!ENTITY editRemoteContentSettings.label "Edit remote content options…">
+<!ENTITY editRemoteContentSettings.accesskey "E">
+<!ENTITY editRemoteContentSettingsUnix.label "Edit remote content preferences…">
+<!ENTITY editRemoteContentSettingsUnix.accesskey "E">
 
 <!-- Phishing Button Popup -->
 <!ENTITY phishingOptionIgnore.label "Ignore warning for this message">
