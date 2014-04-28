@@ -105,7 +105,7 @@ calendar.jar:
     content/calendar/calUtils.js                           (src/calUtils.js)
     content/calendar/calFilter.js                          (src/calFilter.js)
     content/calendar/WindowsNTToZoneInfoTZId.properties    (src/WindowsNTToZoneInfoTZId.properties)
-% skin calendar classic/1.0 chrome/skin/linux/calendar/ os=Linux
+% skin calendar classic/1.0 chrome/skin/linux/calendar/
 % skin calendar classic/1.0 chrome/skin/osx/calendar/ os=Darwin
 % skin calendar classic/1.0 chrome/skin/windows/calendar/ os=WINNT
 % skin calendar-common classic/1.0 chrome/skin/common/

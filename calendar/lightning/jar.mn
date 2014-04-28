@@ -55,7 +55,7 @@ lightning.jar:
     content/lightning/suite-overlay-preferences.xul        (content/suite-overlay-preferences.xul)
     content/lightning/suite-overlay-sidebar.js             (content/suite-overlay-sidebar.js)
     content/lightning/suite-overlay-sidebar.xul            (content/suite-overlay-sidebar.xul)
-% skin lightning classic/1.0 chrome/skin/linux/lightning/ os=Linux
+% skin lightning classic/1.0 chrome/skin/linux/lightning/
 % skin lightning classic/1.0 chrome/skin/osx/lightning/ os=Darwin
 % skin lightning classic/1.0 chrome/skin/windows/lightning/ os=WINNT
 % skin lightning-common classic/1.0 chrome/skin/lightning-common/
