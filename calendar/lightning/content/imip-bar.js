@@ -135,8 +135,7 @@ var ltnImipBar = {
      */
     getMenuItems: function ltnGetMenuItems(aButton) {
         let items = [];
-        let mitems = document.getElementById(aButton.id)
-                             .getElementsByTagName("menuitem");
+        let mitems = aButton.getElementsByTagName("menuitem");
         if (mitems != null && mitems.length > 0) {
             for (let mitem of mitems) {
                 items.push(mitem);
@@ -155,14 +154,18 @@ var ltnImipBar = {
         let buttons = ltnImipBar.getButtons()
                                 .filter(function(aElement) aElement.hasAttribute("type") && !aElement.hidden);
         // change button if appropriate
-        for (let button in buttons) {
+        for (let button of buttons) {
             let items = ltnImipBar.getMenuItems(button).filter(function(aItem) !aItem.hidden);
             if (button.type == "menu" && items.length == 0) {
                 // hide non functional buttons
                 button.hidden = true;
             } else if (button.type == "menu-button") {
                 if (items.length == 0 ||
-                    (items.length == 1 && button.oncommand.endsWith(items[0].oncommand))) {
+                    (items.length == 1 &&
+                     button.hasAttribute("oncommand") &&
+                     items[0].hasAttribute("oncommand") &&
+                     button.getAttribute("oncommand")
+                           .endsWith(items[0].getAttribute("oncommand")))) {
                    // convert to simple button
                    button.removeAttribute("type");
                 }
