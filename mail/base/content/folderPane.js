@@ -94,6 +94,21 @@ let IFolderTreeMode = {
    */
   onFolderAdded: function IFolderTreeMode_onFolderAdded(aParent, aFolder) {
     gFolderTreeView.addFolder(aParent, aFolder);
+  },
+
+  /**
+   * Notified when a folder int property is changed.
+   *
+   * Returns true if the event was processed inside the function and no further
+   * default handling should be done in the caller. Otherwise false.
+   *
+   * @param aItem      The folder with a change.
+   * @param aProperty  The changed property string.
+   * @param aOld       The old value of the property.
+   * @param aNew       The new value of the property.
+   */
+  handleChangedIntProperty: function(aItem, aProperty, aOld, aNew) {
+    return false;
   }
 };
 
@@ -169,6 +184,7 @@ let gFolderTreeView = {
     }
 
     // Load our data
+    this._updateCompactState(this.mode);
     this._rebuild();
     // And actually draw the tree
     aTree.view = this;
@@ -285,6 +301,42 @@ let gFolderTreeView = {
   },
 
   /**
+   * Toggles the compact view of the current more.
+   *
+   * @param aCompact  Boolean telling whether compact view should be enabled.
+   */
+  toggleCompact: function(aCompact) {
+    let targetMode = this.fullMode(this.baseMode(), aCompact);
+    this._updateCompactState(targetMode);
+    this.mode = targetMode;
+  },
+
+  /**
+   * Update state of checkboxes according to currently selected mode.
+   * Synchronize the state of our 2 "compact" menuitems and decide if they
+   * should be disabled.
+   *
+   * @param aMode  The current folder mode.
+   */
+  _updateCompactState: function(aMode) {
+    let checked = aMode.endsWith("_compact");
+    let menuitem = document.getElementById("menu_compactFolderView");
+    let appmenuitem = document.getElementById("appmenu_compactFolderView");
+    if (checked) {
+      menuitem.setAttribute("checked", "true");
+      appmenuitem.setAttribute("checked", "true");
+    } else {
+      menuitem.removeAttribute("checked");
+      appmenuitem.removeAttribute("checked");
+    }
+    let baseMode = this.baseMode(aMode);
+    let compactToggleable = (baseMode in this._modes) &&
+                            (this.fullMode(baseMode, true) in this._modes);
+    menuitem.disabled = !compactToggleable;
+    appmenuitem.disabled = !compactToggleable;
+  },
+
+  /**
    * A string representation for the current display-mode.  Each value here must
    * correspond to an entry in _modes
    */
@@ -299,19 +351,67 @@ let gFolderTreeView = {
     return this._mode;
   },
   set mode(aMode) {
-    this._mode = aMode;
+    // If a mode name ending with "_compact" is chosen, obey that mode.
+    // However, if a name without "_compact" is chosen, check the state of the
+    // "Compact" checkbox in the UI whether the user actually wanted the compact version.
+    let userMode = aMode;
+    if (!userMode.endsWith("_compact")) {
+      userMode = this.fullMode(aMode,
+        document.getElementById("menu_compactFolderView").hasAttribute("checked"));
+    }
+    // Some combinations of user selection and "Compact view" checkbox are not supported.
+    // In that case fall back to a version of this mode that exists.
+    if (userMode in this._modes) {
+      this._mode = userMode;
+    } else {
+      let baseMode = this.baseMode(aMode);
+      if (baseMode in this._modes)
+        this._mode = baseMode;
+      else
+        this._mode = this.fullMode(baseMode, true);
+    }
+    this._updateCompactState(this._mode);
 
     let string;
     if (this._mode in this._modeDisplayNames)
       string = this._modeDisplayNames[this._mode];
     else {
-      let key = "folderPaneModeHeader_" + aMode;
+      let key = "folderPaneModeHeader_" + this._mode;
       string = document.getElementById("bundle_messenger").getString(key);
     }
     document.getElementById('folderpane-title').value = string;
 
-    this._treeElement.setAttribute("mode", aMode);
+    this._treeElement.setAttribute("mode", this._mode);
     this._rebuild();
+  },
+
+  /**
+   * Name of the mode without the _compact suffix, used e.g. in the menulists.
+   *
+   * @param aMode  If set, construct the base name from this mode name instead
+   *               of the currently active one.
+   */
+  baseMode: function(aMode) {
+    if (!aMode)
+      aMode = this.mode;
+
+    return aMode.replace(/_compact$/, "");
+  },
+
+  /**
+   * Name of the mode including the _compact suffix if appropriate.
+   *
+   * @param aMode  If set, construct the base name from this mode name instead
+   *               of the currently active one.
+   * @param aCOmpact  Bool value whether to force adding the suffix or not.
+   */
+  fullMode: function(aMode, aCompact) {
+    if (!aMode)
+      aMode = this.mode;
+    if (aCompact == undefined)
+      aCompact = aMode.endsWith("_compact");
+
+    return this.baseMode(aMode) + (aCompact ? "_compact" : "");
   },
 
   /**
@@ -1109,8 +1209,14 @@ let gFolderTreeView = {
   /**
    * This is an array of all possible modes for the folder tree. You should not
    * modify this directly, but rather use registerFolderTreeMode.
+   *
+   * Internally each mode is defined separatelly. But in the UI we currently expose
+   * only the "base" name (see baseMode()) of the mode plus a "Compact view" option
+   * The internal name of the mode to use is then constructed from the base name
+   * and "_compact" suffix if compact view is selected. See bug 978592.
+   *
    */
-  _modeNames: ["all", "unread", "favorite", "recent", "smart"],
+  _modeNames: ["all", "unread", "unread_compact", "favorite", "favorite_compact", "recent_compact", "smart"],
   _modeDisplayNames: {},
 
   /**
@@ -1118,7 +1224,7 @@ let gFolderTreeView = {
    * persist their state over-time.  It is designed to be used as a JSON object.
    */
   _persistOpenMap: {},
-  _notPersistedModes: ["unread", "favorite", "recent"],
+  _notPersistedModes: ["unread", "unread_compact", "favorite", "favorite_compact", "recent_compact"],
 
   /**
    * Iterate over the persistent list and open the items (folders) stored in it.
@@ -1210,7 +1316,7 @@ let gFolderTreeView = {
       newRowMap = this._modes[this.mode].generateMap(this);
     } catch(ex) {
       Services.console.logStringMessage("generator " + this.mode + " failed with exception: " + ex);
-      this.mode = "all";
+      this.mode = kDefaultMode;
       newRowMap = this._modes[this.mode].generateMap(this);
     }
     let selectedFolders = this.getSelectedFolders();
@@ -1279,8 +1385,10 @@ let gFolderTreeView = {
 
     /**
      * The unread mode returns all folders that are not root-folders and that
-     * have unread items.  Also always keep the currently selected folder
+     * have unread items. Also always keep the currently selected folder
      * so it doesn't disappear under the user.
+     * It also includes parent folders of the Unread folders so the hierarchy
+     * shown.
      */
     unread: {
       __proto__: IFolderTreeMode,
@@ -1309,12 +1417,71 @@ let gFolderTreeView = {
         }
 
         return unreadRootFolders;
+      },
+
+      handleChangedIntProperty: function(aItem, aProperty, aOld, aNew) {
+        // We want to rebuild only if we have a newly unread folder
+        // and we didn't already have the folder.
+        if (aProperty == "TotalUnreadMessages" && aOld == 0 && aNew > 0 &&
+            this.getIndexOfFolder(aItem) == null) {
+          gFolderTreeView._rebuild();
+          return true;
+        }
+        return false;
+      }
+    },
+
+    /**
+     * A variant of the 'unread' mode above. This does not include the parent folders
+     * and the unread folders are shown in a flat list with no hierarchy.
+     */
+    unread_compact: {
+      __proto__: IFolderTreeMode,
+
+      generateMap: function(ftv) {
+        let map = [];
+        let currentFolder = gFolderTreeView.getSelectedFolders()[0];
+        const outFolderFlagMask = nsMsgFolderFlags.SentMail |
+          nsMsgFolderFlags.Drafts | nsMsgFolderFlags.Queue |
+          nsMsgFolderFlags.Templates;
+        for (let folder of ftv._enumerateFolders) {
+          if (!folder.isSpecialFolder(outFolderFlagMask, true) &&
+              (!folder.isServer && folder.getNumUnread(false) > 0) ||
+              (folder == currentFolder))
+            map.push(new ftvItem(folder));
+        }
+
+        // There are no children in this view!
+        for (let folder of map) {
+          folder.__defineGetter__("children", function() []);
+          folder.addServerName = true;
+        }
+        sortFolderItems(map);
+        return map;
+      },
+
+      getParentOfFolder: function(aFolder) {
+        // This is a flat view, so no folders have parents.
+        return null;
+      },
+
+      handleChangedIntProperty: function(aItem, aProperty, aOld, aNew) {
+        // We want to rebuild only if we have a newly unread folder
+        // and we didn't already have the folder.
+        if (aProperty == "TotalUnreadMessages" && aOld == 0 && aNew > 0 &&
+            this.getIndexOfFolder(aItem) == null) {
+          gFolderTreeView._rebuild();
+          return true;
+        }
+        return false;
       }
     },
 
     /**
      * The favorites mode returns all folders whose flags are set to include
      * the favorite flag.
+     * It also includes parent folders of the Unread folders so the hierarchy
+     * shown.
      */
     favorite: {
       __proto__: IFolderTreeMode,
@@ -1336,13 +1503,79 @@ let gFolderTreeView = {
         }
 
         return favRootFolders;
+      },
+
+      handleChangedIntProperty: function(aItem, aProperty, aOld, aNew) {
+        // We want to rebuild if the favorite status of a folder changed.
+        if (aProperty == "FolderFlag" &&
+            ((aOld & Components.interfaces.nsMsgFolderFlags.Favorite) !=
+            (aNew & Components.interfaces.nsMsgFolderFlags.Favorite))) {
+          gFolderTreeView._rebuild();
+          return true;
+        }
+        return false;
       }
     },
 
-    recent: {
+    /**
+     * A variant of the 'favorite' mode above. This does not include the parent folders
+     * and the unread folders are shown in a compact list with no hierarchy.
+     */
+    favorite_compact: {
       __proto__: IFolderTreeMode,
 
-      generateMap: function ftv_recent_generateMap(ftv) {
+      generateMap: function(ftv) {
+        let faves = [];
+        for (let folder of ftv._enumerateFolders) {
+          if (folder.getFlag(nsMsgFolderFlags.Favorite))
+            faves.push(new ftvItem(folder));
+        }
+
+        // We want to display the account name alongside folders that have
+        // duplicated folder names.
+        let uniqueNames = new Set(); // set of folder names seen at least once
+        let dupeNames = new Set(); // set of folders seen at least twice
+        for (let item of faves) {
+          let name = item._folder.abbreviatedName.toLocaleLowerCase();
+          if (uniqueNames.has(name)) {
+            if (!dupeNames.has(name))
+              dupeNames.add(name);
+          } else {
+            uniqueNames.add(name);
+          }
+        }
+
+        // There are no children in this view!
+        for (let item of faves) {
+          let name = item._folder.abbreviatedName.toLocaleLowerCase();
+          item.__defineGetter__("children", function() []);
+          item.addServerName = dupeNames.has(name);
+        }
+        sortFolderItems(faves);
+        return faves;
+      },
+
+      getParentOfFolder: function(aFolder) {
+        // This is a flat view, so no folders have parents.
+        return null;
+      },
+
+      handleChangedIntProperty: function(aItem, aProperty, aOld, aNew) {
+        // We want to rebuild if the favorite status of a folder changed.
+        if (aProperty == "FolderFlag" &&
+            ((aOld & Components.interfaces.nsMsgFolderFlags.Favorite) !=
+            (aNew & Components.interfaces.nsMsgFolderFlags.Favorite))) {
+          gFolderTreeView._rebuild();
+          return true;
+        }
+        return false;
+      }
+    },
+
+    recent_compact: {
+      __proto__: IFolderTreeMode,
+
+      generateMap: function(ftv) {
         const MAXRECENT = 15;
 
         // Get 15 (MAXRECENT) most recently accessed folders.
@@ -1375,7 +1608,7 @@ let gFolderTreeView = {
         return items;
       },
 
-      getParentOfFolder: function ftv_unread_getParentOfFolder(aFolder) {
+      getParentOfFolder: function(aFolder) {
         // This is a flat view, so no folders have parents.
         return null;
       }
@@ -1834,19 +2067,9 @@ let gFolderTreeView = {
 
   OnItemPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
   OnItemIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
-    // We want to rebuild only if we're in unread mode, and we have a
-    // newly unread folder, and we didn't already have the folder.
-    // Or if we are in favorite view and the favorite status of a folder changed.
-    if ((this._mode == "unread" &&
-         aProperty == "TotalUnreadMessages" && aOld == 0 &&
-         this.getIndexOfFolder(aItem) == null) ||
-        (this._mode == "favorite" && aProperty == "FolderFlag" &&
-         (aOld & Components.interfaces.nsMsgFolderFlags.Favorite) !=
-         (aNew & Components.interfaces.nsMsgFolderFlags.Favorite)))
-    {
-      this._rebuild();
+    // First try mode specific handling of the changed property.
+    if (this._modes[this.mode].handleChangedIntProperty(aItem, aProperty, aOld, aNew))
       return;
-    }
 
     if (aItem instanceof Components.interfaces.nsIMsgFolder) {
       let index = this.getIndexOfFolder(aItem);

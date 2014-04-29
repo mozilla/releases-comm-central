@@ -160,6 +160,8 @@
 <!ENTITY favoriteFolders.accesskey "F">
 <!ENTITY recentFolders.label "Recent">
 <!ENTITY recentFolders.accesskey "R">
+<!ENTITY compactVersion.label "Compact View">
+<!ENTITY compactVersion.accesskey "C">
 
 <!-- Sort Menu -->
 <!ENTITY sortMenu.label "Sort by">

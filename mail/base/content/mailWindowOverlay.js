@@ -268,7 +268,7 @@ function InitViewLayoutStyleMenu(event)
  */
 function InitViewFolderViewsMenu(event)
 {
-  let selected = event.target.querySelector("[value=" + gFolderTreeView.mode + "]");
+  let selected = event.target.querySelector("[value=" + gFolderTreeView.baseMode() + "]");
   if (selected) {
     selected.setAttribute("checked", "true");
   }

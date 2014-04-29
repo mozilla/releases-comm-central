@@ -1219,6 +1219,11 @@
                       type="radio"
                       name="viewmessages"
                       oncommand="gFolderTreeView.mode = this.value;"/>
+            <menuseparator id="appmenu_compactViewSeparator"/>
+            <menuitem id="appmenu_compactFolderView"
+                      label="&compactVersion.label;"
+                      type="checkbox"
+                      oncommand="gFolderTreeView.toggleCompact(this.hasAttribute('checked'));"/>
             <menuseparator id="appmenu_favoritePropertiesSeparator"/>
             <menuitem id="appmenu_favoriteFolder"
                       type="checkbox"
@@ -2375,6 +2380,12 @@
                       accesskey="&recentFolders.accesskey;"
                       type="radio" name="viewmessages"
                       oncommand="gFolderTreeView.mode = this.value;"/>
+            <menuseparator id="menu_compactViewSeparator"/>
+            <menuitem id="menu_compactFolderView"
+                      label="&compactVersion.label;"
+                      accesskey="&compactVersion.accesskey;"
+                      type="checkbox"
+                      oncommand="gFolderTreeView.toggleCompact(this.hasAttribute('checked'));"/>
           </menupopup>
         </menu>
         <menuseparator id="viewSortMenuSeparator"/>
