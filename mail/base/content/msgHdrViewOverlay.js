@@ -2701,8 +2701,15 @@ var attachmentListDNDObserver = {
   {
     let target = aEvent.target;
 
-    if (target.localName == "attachmentitem")
-      aAttachmentData.data = CreateAttachmentTransferData(target.attachment);
+    if (target.localName == "attachmentitem") {
+      let selection = target.parentNode.selectedItems;
+      aAttachmentData.data = new TransferDataSet();
+      for (let item of selection) {
+        let transferData = CreateAttachmentTransferData(item.attachment);
+        if (transferData)
+          aAttachmentData.data.push(transferData);
+      }
+    }
   }
 };
 
