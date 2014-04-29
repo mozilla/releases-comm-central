@@ -155,7 +155,7 @@
                             label="&lightning.imipbar.btnAcceptRecurrences.label;"
                             oncommand="ltnImipBar.executeAction('ACCEPTED');"/>
                   <menuitem id="imipAcceptRecurrencesButton_Tentative"
-                            tooltiptext="&lightning.imipbar.btnTentativeRecurrences.tooltiptext;"
+                            tooltiptext="&lightning.imipbar.btnTentativeRecurrences2.tooltiptext;"
                             label="&lightning.imipbar.btnTentativeRecurrences.label;"
                             oncommand="ltnImipBar.executeAction('TENTATIVE');"/>
                   <!-- add here more menuitem as needed -->
