@@ -1096,8 +1096,7 @@ function UpdateExpandedMessageHeaders() {
       // displayed below the message header toolbar.
       else if (headerName != "x-mozilla-localizeddate") {
         gExpandedHeaderView[headerName] =
-          new createNewHeaderView(headerName,
-                                  currentHeaderData[headerName].headerName);
+          new HeaderView(headerName, currentHeaderData[headerName].headerName);
       }
 
       headerEntry = gExpandedHeaderView[headerName];
