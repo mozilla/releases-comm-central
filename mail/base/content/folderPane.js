@@ -1423,7 +1423,7 @@ let gFolderTreeView = {
         // We want to rebuild only if we have a newly unread folder
         // and we didn't already have the folder.
         if (aProperty == "TotalUnreadMessages" && aOld == 0 && aNew > 0 &&
-            this.getIndexOfFolder(aItem) == null) {
+            gFolderTreeView.getIndexOfFolder(aItem) == null) {
           gFolderTreeView._rebuild();
           return true;
         }
@@ -1469,7 +1469,7 @@ let gFolderTreeView = {
         // We want to rebuild only if we have a newly unread folder
         // and we didn't already have the folder.
         if (aProperty == "TotalUnreadMessages" && aOld == 0 && aNew > 0 &&
-            this.getIndexOfFolder(aItem) == null) {
+            gFolderTreeView.getIndexOfFolder(aItem) == null) {
           gFolderTreeView._rebuild();
           return true;
         }
