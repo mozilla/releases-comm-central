@@ -272,8 +272,12 @@
               inputValue = inputValue.substring(1, inputValue.length);
           }
 
-          input.setAttribute("value", inputValue);
-          input.value = inputValue;
+          // don't set value with null, otherwise autocomplete stops working,
+          // but make sure attendee and dirty are set
+          if (inputValue && inputValue != "") {
+	          input.setAttribute("value", inputValue);
+	          input.value = inputValue;
+          }
           input.attendee = aAttendee;
           input.setAttribute("dirty", "true");
 
