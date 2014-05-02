@@ -240,6 +240,10 @@
                              class="toolbarbutton-1 msgHeaderView-button imipMoreButton"
                              hidden="true">
                 <menupopup id="imipMoreDropdown">
+                  <menuitem id="imipMoreButton_SaveCopy"
+                            tooltiptext="&lightning.imipbar.btnSaveCopy.tooltiptext;"
+                            label="&lightning.imipbar.btnSaveCopy.label;"
+                            oncommand="ltnImipBar.executeAction('X-SAVECOPY');"/>
                   <!-- add here a menuitem as needed -->
                 </menupopup>
               </toolbarbutton>

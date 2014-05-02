@@ -204,6 +204,52 @@ var ltnImipBar = {
     },
 
     executeAction: function ltnExecAction(partStat, extendResponse) {
+
+        function _execAction(aActionFunc, aItipItem, aWindow, aPartStat) {
+            if (cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
+                // filter out fake partstats
+                if (aPartStat.startsWith("X-")) {
+                    partstat = "";
+                }
+                // hide the buttons now, to disable pressing them twice...
+                if(aPartStat == partStat) {
+                    ltnImipBar.resetButtons();
+                }
+
+                let opListener = {
+                    onOperationComplete: function ltnItipActionListener_onOperationComplete(aCalendar,
+                                                                                            aStatus,
+                                                                                            aOperationType,
+                                                                                            aId,
+                                                                                            aDetail) {
+                        // For now, we just state the status for the user something very simple
+                        let imipBar = document.getElementById("imip-bar");
+                        let label = cal.itip.getCompleteText(aStatus, aOperationType);
+                        imipBar.setAttribute("label", label);
+
+                        if (!Components.isSuccessCode(aStatus)) {
+                            showError(label);
+                        }
+                    },
+                    onGetResult: function ltnItipActionListener_onGetResult(aCalendar,
+                                                                            aStatus,
+                                                                            aItemType,
+                                                                            aDetail,
+                                                                            aCount,
+                                                                            aItems) {
+                    }
+                };
+
+                try {
+                    aActionFunc(opListener, partStat);
+                } catch (exc) {
+                    Components.utils.reportError(exc);
+                }
+                return true;
+            }
+            return false;
+        }
+
         if (partStat == null) {
             partStat = '';
         }
@@ -236,41 +282,29 @@ var ltnImipBar = {
                 }
             }
 
-            if (cal.itip.promptCalendar(ltnImipBar.actionFunc.method, ltnImipBar.itipItem, window)) {
-                // hide the buttons now, to disable pressing them twice...
-                ltnImipBar.resetButtons();
-
-                let opListener = {
-                    onOperationComplete: function ltnItipActionListener_onOperationComplete(aCalendar,
-                                                                                            aStatus,
-                                                                                            aOperationType,
-                                                                                            aId,
-                                                                                            aDetail) {
-                        // For now, we just state the status for the user something very simple
-                        let imipBar = document.getElementById("imip-bar");
-                        let label = cal.itip.getCompleteText(aStatus, aOperationType);
-                        imipBar.setAttribute("label", label);
-
-                        if (!Components.isSuccessCode(aStatus)) {
-                            showError(label);
+            if (partStat == "X-SAVECOPY") {
+                // we create and adopt copies of the respective events
+                let items = ltnImipBar.itipItem.getItemList({}).map(cal.getPublishLikeItemCopy.bind(cal));
+                if (items.length > 0) {
+                    let newItipItem = cal.itip.getModifiedItipItem(ltnImipBar.itipItem,
+                                                                   items,
+                                                                   {receivedMethod: "PUBLISH",
+                                                                    responseMethod: "PUBLISH"});
+                    // control to avoid processing _execAction on later user changes on the item
+                    let isFirstProcessing = true;
+                    // setup callback and trigger re-processing
+                    let storeCopy = function storeCopy(aItipItem, aRc, aActionFunc, aFoundItems) {
+                        if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
+                            _execAction(aActionFunc, aItipItem, window, partStat);
                         }
-                    },
-                    onGetResult: function ltnItipActionListener_onGetResult(aCalendar,
-                                                                            aStatus,
-                                                                            aItemType,
-                                                                            aDetail,
-                                                                            aCount,
-                                                                            aItems) {
                     }
-                };
-
-                try {
-                    ltnImipBar.actionFunc(opListener, partStat);
-                } catch (exc) {
-                    Components.utils.reportError(exc);
+                    cal.itip.processItipItem(newItipItem, storeCopy);
+                    isFirstProcessing = false;
                 }
-                return true;
+                // we stop here to not process the original item
+                return false;
             }
+            return _execAction(ltnImipBar.actionFunc, ltnImipBar.itipItem, window, partStat);
         }
         return false;
     }
