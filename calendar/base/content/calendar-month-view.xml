@@ -640,20 +640,45 @@
         <body><![CDATA[
           this.rangeStartDate = aStartDate;
           this.rangeEndDate = aEndDate;
-          this.mStartDate = getWeekInfoService().getStartOfWeek(aStartDate.getInTimezone(this.mTimezone));
-          this.mEndDate = getWeekInfoService().getEndOfWeek(aEndDate.getInTimezone(this.mTimezone));
-          this.refresh();
+          let viewStart = getWeekInfoService().getStartOfWeek(
+                                      aStartDate.getInTimezone(this.mTimezone));
+          let viewEnd = getWeekInfoService().getEndOfWeek(
+                                      aEndDate.getInTimezone(this.mTimezone));
+
+          viewStart.isDate = true;
+          viewStart.makeImmutable();
+          viewEnd.isDate = true;
+          viewEnd.makeImmutable();
+          this.mStartDate = viewStart;
+          this.mEndDate = viewEnd;
+
+          // check values of tasksInView, workdaysOnly, showCompleted
+          // see setDateRange comment in calendar-multiday-view.xml
+          let toggleStatus = 0;
+
+          if (this.mTasksInView) {
+              toggleStatus |= this.mToggleStatusFlag.TasksInView;
+          }
+          if (this.mWorkdaysOnly) {
+              toggleStatus |= this.mToggleStatusFlag.WorkdaysOnly;
+          }
+          if (this.mShowCompleted) {
+              toggleStatus |= this.mToggleStatusFlag.ShowCompleted;
+          }
 
           // Update the navigation bar.
           cal.navigationBar.setDateRange(aStartDate, aEndDate);
-        ]]></body>
-      </method>
 
-      <method name="setDateList">
-        <parameter name="aCount"/>
-        <parameter name="aDates"/>
-        <body><![CDATA[
-           throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+          // Check whether view range has been changed since last call to
+          // relayout()
+          if (!this.mViewStart || !this.mViewEnd ||
+              this.mViewEnd.compare(viewEnd) != 0 ||
+              this.mViewStart.compare(viewStart) != 0 ||
+              this.mToggleStatus != toggleStatus) {
+
+              this.refresh();
+          }
+
         ]]></body>
       </method>
 
@@ -825,6 +850,27 @@
           this.hideDaysOff();
 
           this.adjustWeekdayLength();
+
+          // Store the start and end of current view. Next time when
+          // setDateRange is called, it will use mViewStart and mViewEnd to
+          // check if view range has been changed.
+          this.mViewStart = this.mStartDate;
+          this.mViewEnd = this.mEndDate;
+
+          // Store toggle status of current view
+          let toggleStatus = 0;
+
+          if (this.mTasksInView) {
+              toggleStatus |= this.mToggleStatusFlag.TasksInView;
+          }
+          if (this.mWorkdaysOnly) {
+              toggleStatus |= this.mToggleStatusFlag.WorkdaysOnly;
+          }
+          if (this.mShowCompleted) {
+              toggleStatus |= this.mToggleStatusFlag.ShowCompleted;
+          }
+
+          this.mToggleStatus = toggleStatus;
         ]]></body>
       </method>
 

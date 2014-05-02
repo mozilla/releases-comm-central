@@ -39,6 +39,16 @@
       <field name="mDropShadows">null</field>
       <field name="mMagnifyAmount">0</field>
       <field name="mPixelScrollDelta">0</field>
+      <field name="mViewStart">null</field>
+      <field name="mViewEnd">null</field>
+      <field name="mToggleStatus">0</field>
+      <field name="mToggleStatusFlag"><![CDATA[
+      ({ WorkdaysOnly:  1,
+         TasksInView:   2,
+         ShowCompleted: 4,
+      })
+      ]]></field>
+
       <field name="mPrefObserver"><![CDATA[
       ({ calView: this,
          observe: function calViewPrefChange(subj, topic, pref) {
@@ -525,6 +535,18 @@
         ]]></body>
       </method>
 
+      <!-- force refresh visible and invisible views.
+           This method is added because when only a preference is toggled, the start
+           and end date of views are unchanged, therefore those views behind the
+           "scene" might stay the same upon switch to them. -->
+      <method name="forceRefresh">
+        <body><![CDATA[
+          let refreshJob = {};
+          this.mRefreshQueue.push(refreshJob);
+          this.popRefreshQueue();
+        ]]></body>
+      </method>
+
       <method name="addItemsFromCalendar">
         <parameter name="aCalendar"/>
         <body><![CDATA[
@@ -661,6 +683,7 @@
           }
           // Just refresh, the goToDay function will notice
           this.goToDay(this.selectedDay);
+          this.forceRefresh();
         ]]></body>
       </method>
 
@@ -702,13 +725,6 @@
         ]]></body>
       </method>
 
-      <method name="setDateList">
-        <parameter name="aCount"/>
-        <parameter name="aDates"/>
-        <body><![CDATA[
-          throw Components.results.NS_ERROR_FAILURE;
-        ]]></body>
-      </method>
       <method name="getDateList">
         <parameter name="aCount"/>
         <parameter name="aDates"/>

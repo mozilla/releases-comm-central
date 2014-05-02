@@ -151,12 +151,6 @@ interface calICalendarView : nsISupports
   readonly attribute boolean hasDisjointDates;
 
   /**
-   * Set a disjoint date list for this view to show.  Throws
-   * if supportsDisjointDates is false for this view.
-   */
-  void setDateList(in unsigned long aCount, [array,size_is(aCount)] in calIDateTime aDates);
-
-  /**
    * Returns the list of dates being shown by this calendar.
    * If a date range is set, it will expand out the date range by
    * day and return the full set.
