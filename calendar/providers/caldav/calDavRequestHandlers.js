@@ -603,6 +603,14 @@ webDavSyncHandler.prototype = {
                     // The 507 doesn't mean the data received is invalid, so
                     // continue processing.
                     this.additionalSyncNeeded = true;
+                } else if (r.status &&
+                           r.status.indexOf(" 200") &&
+                           r.href &&
+                           r.href.endsWith("/")) {
+                    // iCloud returns status responses for directories too
+                    // so we just ignore them if they have status code 200. We
+                    // want to make sure these are not counted as unhandled
+                    // errors in the next block
                 } else if ((r.getcontenttype &&
                             r.getcontenttype.substr(0,13) == "text/calendar") ||
                            (r.status &&
