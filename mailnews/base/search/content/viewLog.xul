@@ -16,7 +16,7 @@
         buttons="accept"
         buttonlabelaccept="&closeLog.label;"
         buttonaccesskeyaccept="&closeLog.accesskey;"
-        ondialogaccept="window.close()"
+        ondialogaccept="window.close();"
         persist="screenX screenY width height"
         style="width: 40em; height: 25em;">
 
@@ -25,18 +25,25 @@
   <vbox flex="1">
     <description>&viewLogInfo.text;</description>
     <hbox>
-      <checkbox id="logFilters" oncommand="toggleLogFilters()" label="&enableLog.label;" accesskey="&enableLog.accesskey;"/>
+      <checkbox id="logFilters"
+                label="&enableLog.label;"
+                accesskey="&enableLog.accesskey;"
+                oncommand="toggleLogFilters();"/>
       <spacer flex="1"/>
-      <button label="&clearLog.label;" accesskey="&clearLog.accesskey;" oncommand="clearLog()"/>
+      <button label="&clearLog.label;"
+              accesskey="&clearLog.accesskey;"
+              oncommand="clearLog();"/>
     </hbox>
-    <vbox flex="1">
-      <spacer height="10px"/>
-      <hbox flex="1">
-        <spacer width="10px"/>
-        <browser id="logView" disablehistory="true" disablesecurity="true" src="about:blank" autofind="false" flex="1"/>
-        <spacer width="10px"/>
-      </hbox>
-      <spacer height="10px"/>
-    </vbox>
+    <separator class="thin"/>
+    <hbox flex="1">
+      <browser id="logView"
+               class="inset"
+               type="content"
+               disablehistory="true"
+               disablesecurity="true"
+               src="about:blank"
+               autofind="false"
+               flex="1"/>
+    </hbox>
   </vbox>
 </dialog>

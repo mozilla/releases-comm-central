@@ -226,7 +226,7 @@ nsMsgFilterList::SetLogStream(nsIOutputStream *aLogStream)
   return NS_OK;
 }
 
-#define LOG_HEADER "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></head>"
+#define LOG_HEADER "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\">body{font-family:Consolas,\"Lucida Console\",Monaco,\"Courier New\",Courier,monospace;font-size:small}</style></head>"
 #define LOG_HEADER_LEN (strlen(LOG_HEADER))
 
 NS_IMETHODIMP
