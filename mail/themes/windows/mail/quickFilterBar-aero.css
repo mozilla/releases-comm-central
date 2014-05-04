@@ -69,15 +69,15 @@
   -moz-margin-end: 1px;
 }
 
+#quick-filter-bar toolbarbutton:not(.qfb-tag-button) {
+  color: ButtonText;
+}
+
 @media (-moz-os-version: windows-vista),
        (-moz-os-version: windows-win7) {
   #quick-filter-bar toolbarbutton {
     -moz-appearance: none;
     border-radius: 2px;
-  }
-
-  #quick-filter-bar toolbarbutton:not(.qfb-tag-button) {
-    color: ButtonText;
   }
 
   #quick-filter-bar toolbarbutton:not([checked="true"]):hover {
