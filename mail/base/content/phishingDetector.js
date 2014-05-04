@@ -251,9 +251,9 @@ var gPhishingDetector = {
    */
   warnOnSuspiciousLinkClick: function(aUrl)
   {
-    // if the loaded message has been flagged as a phishing scam,
-    if (!gMessageNotificationBar.isShowingJunkNotification())
-      return true;
+    // If the loaded message has *not* been flagged as a scam...
+    if (!gMessageNotificationBar.isShowingPhishingNotification())
+      return true; // ...allow the link to load.
 
     var hrefURL;
     // make sure relative link urls don't make us bail out
