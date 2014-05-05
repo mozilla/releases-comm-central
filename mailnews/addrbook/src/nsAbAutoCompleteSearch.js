@@ -50,6 +50,10 @@ nsAbAutoCompleteResult.prototype = {
     return "";
   },
 
+  getFinalCompleteValueAt: function(aIndex) {
+    return this.getValueAt(aIndex);
+  },
+
   removeValueAt: function removeValueAt(aRowIndex, aRemoveFromDB) {
   },
 

@@ -157,6 +157,9 @@ nsAutoCompleteGlodaResult.prototype = {
                                 "?d=identicon&s=32&r=g";
     return gravURL;
   },
+  getFinalCompleteValueAt: function(aIndex) {
+    return this.getValueAt(aIndex);
+  },
   removeValueAt: function() {},
 
   _stop: function() {

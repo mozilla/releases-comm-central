@@ -43,6 +43,9 @@ nsAbAutoCompleteMyDomain.prototype = {
       getCommentAt: function() { return null; },
       getStyleAt: function() { return "default-match"; },
       getImageAt: function() { return null; },
+      getFinalCompleteValueAt: function(aIndex) {
+        return this.getValueAt(aIndex);
+      },
       removeValueAt: function() {}
     };
     aListener.onSearchResult(this, result);
