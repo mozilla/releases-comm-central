@@ -48,22 +48,22 @@ notification > hbox {
 /* Tab colors */
 tab[unread],
 .alltabs-item[unread] {
-  color: red !important;
+  color: #d22d2d !important
 }
 
 tab[typing],
 .alltabs-item[typing] {
-  color: green !important;
+  color: #2dd238 !important;
 }
 
 tab[typed],
 .alltabs-item[typed] {
-  color: orange !important;
+  color: #d2772d !important;
 }
 
 tab[attention],
 .alltabs-item[attention] {
-  color: blue !important;
+  color: #2d43d2 !important;
 }
 
 /* Tab icons */
