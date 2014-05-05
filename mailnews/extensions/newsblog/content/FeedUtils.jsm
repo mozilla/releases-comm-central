@@ -414,7 +414,8 @@ var FeedUtils = {
       let request = aEvent.target;
       responseDomain = request.channel.URI.prePath;
       let dom = request.response;
-      if (request.status != 200 || !(dom instanceof Ci.nsIDOMHTMLDocument))
+      if (request.status != 200 || !(dom instanceof Ci.nsIDOMHTMLDocument) ||
+          !dom.head)
         onDownloadError();
 
       let iconUri;
@@ -427,6 +428,7 @@ var FeedUtils = {
       catch (ex) {}
 
       if (!iconUri || !FeedUtils.isValidScheme(iconUri) ||
+          !FeedUtils.isValidScheme(uri) ||
           FeedUtils.mFaviconService.isFailedFavicon(iconUri))
         onDownloadError();
 
