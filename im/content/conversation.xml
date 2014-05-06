@@ -43,7 +43,7 @@
             <xul:listbox anonid="nicklist" class="conv-nicklist"
                          flex="1" seltype="multiple"
                          xbl:inherits="contextmenu=contentcontextmenu"
-                         tooltip="buddyTooltip"
+                         tooltip="imTooltip"
                          onclick="onNickClick(event);"
                          onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>
@@ -1488,7 +1488,7 @@
           else {
             cti.removeAttribute("statusTooltiptext");
             cti.setAttribute("noTopic", "true");
-            topic = this.bundle.GetStringFromName("noTopic");
+            topic = this._conv.noTopicString;
           }
           cti.setAttribute("statusMessage", topic);
           cti.setAttribute("statusMessageWithDash", " - " + topic);
@@ -1770,7 +1770,7 @@
 
           if (this.tab) {
             this.tab.setAttribute("label", this._conv.title);
-            this.tab.setAttribute("tooltip", "buddyTooltip");
+            this.tab.setAttribute("tooltip", "imTooltip");
           }
 
           if (!("Status" in window))

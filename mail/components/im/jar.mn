@@ -23,8 +23,6 @@ messenger.jar:
     content/messenger/chat/imAccountWizard.js            (content/imAccountWizard.js)
     content/messenger/chat/imContextMenu.js              (content/imContextMenu.js)
     content/messenger/chat/imStatusSelector.js           (content/imStatusSelector.js)
-    content/messenger/chat/imbuddytooltip.css            (content/imbuddytooltip.css)
-    content/messenger/chat/imbuddytooltip.xml            (content/imbuddytooltip.xml)
     content/messenger/chat/imcontact.xml                 (content/imcontact.xml)
 *   content/messenger/chat/imconversation.xml            (content/imconversation.xml)
     content/messenger/chat/imconv.xml                    (content/imconv.xml)

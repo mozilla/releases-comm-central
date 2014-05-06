@@ -575,7 +575,7 @@ var chatHandler = {
         conv.conv = item.conv;
         conv.tab = item;
         conv.setAttribute("contentcontextmenu", "chatConversationContextMenu");
-        conv.setAttribute("contenttooltip", "buddyTooltip");
+        conv.setAttribute("contenttooltip", "imTooltip");
         item.convView = conv;
         document.getElementById("contextSplitter").hidden = false;
         document.getElementById("contextPane").hidden = false;

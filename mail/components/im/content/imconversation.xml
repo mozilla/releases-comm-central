@@ -996,7 +996,7 @@
             cti.removeAttribute("noTopic");
           }
           else {
-            topic = this.bundle.GetStringFromName("noTopic");
+            topic = this._conv.noTopicString;
             cti.setAttribute("noTopic", "true");
             cti.setAttribute("statusTooltiptext", topic);
           }

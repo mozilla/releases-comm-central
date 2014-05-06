@@ -22,13 +22,11 @@ instantbird.jar:
 	skin/classic/instantbird/half-operator.png
 	skin/classic/instantbird/voice.png
 *	skin/classic/instantbird/blist.css
-	skin/classic/instantbird/buddytooltip.css
 *	skin/classic/instantbird/conversation.css
 *	skin/classic/instantbird/engineManager.css
 *	skin/classic/instantbird/instantbird.css
 	skin/classic/instantbird/menulist.css
 	skin/classic/instantbird/menus.css
-	skin/classic/instantbird/status.css
 *	skin/classic/instantbird/viewlog.css
 	skin/classic/instantbird/newMessage.png
 	skin/classic/instantbird/expand.png
@@ -121,7 +119,6 @@ instantbird.jar:
 	skin/classic/aero/instantbird/half-operator.png
 	skin/classic/aero/instantbird/voice.png
 *	skin/classic/aero/instantbird/blist.css			(blist-aero.css)
-	skin/classic/aero/instantbird/buddytooltip.css
 *	skin/classic/aero/instantbird/conversation.css		(conversation-aero.css)
 *	skin/classic/aero/instantbird/engineManager.css
 *	skin/classic/aero/instantbird/instantbird.css		(instantbird-aero.css)

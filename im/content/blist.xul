@@ -45,7 +45,7 @@
 
 #endif
   <popupset id="mainPopupSet">
-    <tooltip id="buddyTooltip" type="buddy"
+    <tooltip id="imTooltip" type="im"
              onpopupshowing="return !('_droptarget' in window);"/>
 
     <menupopup id="userIconContextMenu"
@@ -176,14 +176,14 @@
            crop="end" class="listboxHeader"/>
     <richlistbox id="convlistbox"
                  onkeypress="buddyList.keyPress(event);"
-                 tooltip="buddyTooltip"/>
+                 tooltip="imTooltip"/>
     <label id="contactsHeader" value="&contactsHeader.label;"
            control="buddylistbox"
            crop="end" class="listboxHeader"/>
     <richlistbox id="buddylistbox"
                  onkeypress="buddyList.keyPress(event);"
                  onfocus="buddyList.buddylistboxFocus();"
-                 tooltip="buddyTooltip"/>
+                 tooltip="imTooltip"/>
     <spacer id="listSpacer" flex="1"
             onclick='document.getElementById("buddylistbox").focus();'/>
   </notificationbox>

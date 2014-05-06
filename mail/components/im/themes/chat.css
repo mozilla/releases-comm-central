@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/imStatus.css");
+@import url("chrome://chat/skin/status.css");
 
 .im-placeholder-screen {
   background-color: -moz-Dialog;
@@ -192,17 +192,6 @@ imcontact[aliasing] .contactDisplayName {
   border: none;
 }
 
-.statusTypeIcon[status="unknown"] {
-  list-style-image: url('chrome://chat/skin/unknown-16.png');
-}
-
-.statusTypeIcon[status="chat"] {
-  list-style-image: url('chrome://chat/skin/chat-16.png');
-}
-
-.statusTypeIcon[status="idle"] {
-  list-style-image: url('chrome://chat/skin/idle-16.png');
-}
 
 .statusTypeIcon[typing] {
   list-style-image: url('chrome://chat/skin/typing-16.png');

@@ -344,6 +344,7 @@ UIConversation.prototype = {
   set topic(aTopic) { this.target.topic = aTopic; },
   get topicSetter() this.target.topicSetter,
   get topicSettable() this.target.topicSettable,
+  get noTopicString() bundle.GetStringFromName("noTopic"),
   get nick() this.target.nick,
   get left() this.target.left,
   get joining() this.target.joining

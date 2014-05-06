@@ -121,7 +121,7 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
-    <tooltip id="buddyTooltip" type="buddy"/>
+    <tooltip id="imTooltip" type="im"/>
 
     <menupopup id="contentAreaContextMenu"
                onpopupshowing="if (event.target != this) return true; gContextMenu = new nsContextMenu(this, window.getBrowser()); return gContextMenu.shouldDisplay;"
@@ -183,7 +183,7 @@
   </popupset>
 
   <tabconversation id="conversations" flex="1"
-                   contenttooltip="buddyTooltip"
+                   contenttooltip="imTooltip"
                    contentcontextmenu="contentAreaContextMenu"/>
 
 #ifdef XP_MACOSX

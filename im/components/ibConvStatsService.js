@@ -753,10 +753,8 @@ PossibleChat.prototype = {
   get displayName() this._roomInfo.name,
   get lowerCaseName()
     this._lowerCaseName || (this._lowerCaseName = this.displayName.toLowerCase()),
-  get statusText() {
-    return "(" + this._roomInfo.participantCount + ") " +
-      (this._roomInfo.topic || _instantbird("noTopic"));
-  },
+  get statusText()
+    "(" + this._roomInfo.participantCount + ") " + this._roomInfo.topic,
   get infoText() this.account.normalizedName,
   get source() "chat",
   get accountId() this._roomInfo.accountId,
@@ -788,7 +786,7 @@ function ExistingConversation(aUIConv) {
   this._displayName = aUIConv.title;
   this._isChat = aUIConv.isChat;
   if (aUIConv.isChat) {
-    this._statusText = aUIConv.topic || _instantbird("noTopic");
+    this._statusText = aUIConv.topic;
     this._statusType = PossibleChat.prototype.statusType;
     this._buddyIconFilename = "";
   }

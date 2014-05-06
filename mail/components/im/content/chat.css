@@ -37,8 +37,8 @@ imconv {
   display: none;
 }
 
-tooltip[type="buddy"] {
-  -moz-binding: url("chrome://messenger/content/chat/imbuddytooltip.xml#tooltip");
+tooltip[type="im"] {
+  -moz-binding: url("chrome://chat/content/imtooltip.xml#tooltip");
 }
 
 browser[type="content-conversation"] {

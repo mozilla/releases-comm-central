@@ -36,7 +36,7 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
-    <tooltip id="buddyTooltip" type="buddy"/>
+    <tooltip id="imTooltip" type="im"/>
 
     <menupopup id="buddyListContextMenu"
                onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
@@ -194,7 +194,7 @@
           <vbox id="listPaneBox" minwidth="125" width="200" persist="width">
             <richlistbox id="contactlistbox"
                          context="buddyListContextMenu"
-                         tooltip="buddyTooltip" flex="1">
+                         tooltip="imTooltip" flex="1">
               <imgroup id="conversationsGroup" name="&conversationsHeader.label;"/>
               <imconv id="searchResultConv" displayname="&searchResultConversation.label;" hidden="true"/>
               <imgroup id="onlinecontactsGroup" name="&onlineContactsHeader.label;"/>
@@ -241,7 +241,7 @@
                 </vbox>
                 <vbox flex="1" id="logDisplayBrowserBox">
                   <browser id="conv-log-browser" type="content-conversation" contextmenu="chatConversationContextMenu" flex="1"
-                           tooltip="buddyTooltip"/>
+                           tooltip="imTooltip"/>
                   <progressmeter id="log-browserProgress" hidden="true"/>
                   <findbar id="log-findbar" browserid="conv-log-browser"/>
                 </vbox>
@@ -263,7 +263,7 @@
                 </hbox>
                 <listbox id="nicklist" class="conv-nicklist"
                          flex="1" seltype="multiple"
-                         tooltip="buddyTooltip"
+                         tooltip="imTooltip"
                          onclick="chatHandler.onNickClick(event);"
                          onkeypress="chatHandler.onNicklistKeyPress(event);"/>
               </vbox>

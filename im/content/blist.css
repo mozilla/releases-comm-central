@@ -78,8 +78,8 @@ group[collapsing="true"] * {
   display: none;
 }
 
-tooltip[type="buddy"] {
-  -moz-binding: url("chrome://instantbird/content/buddytooltip.xml#tooltip");
+tooltip[type="im"] {
+  -moz-binding: url("chrome://chat/content/imtooltip.xml#tooltip");
 }
 
 #userIcon {

@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://instantbird/skin/status.css");
+@import url("chrome://chat/skin/status.css");
 
 .displayNameMessageBox {
   margin-top: 2px;
 }
 
 .statusTypeIcon {
-  margin: 32px 4px 0 0;
+  margin: 32px 4px 0 0 !important;
   max-width: 16px;
   max-height: 16px;
   min-width: 16px;
   min-height: 16px;
   width: 16px;
   height: 16px;
-  -moz-appearance: none;
   background-color: transparent;
   border: none;
 }

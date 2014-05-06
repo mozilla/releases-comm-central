@@ -28,8 +28,6 @@ instantbird.jar:
 	content/instantbird/blist.js
 *	content/instantbird/blist.xul
 	content/instantbird/buddy.xml
-	content/instantbird/buddytooltip.css
-*	content/instantbird/buddytooltip.xml
 	content/instantbird/contact.xml
 	content/instantbird/conversation.xml
 	content/instantbird/conv.xml

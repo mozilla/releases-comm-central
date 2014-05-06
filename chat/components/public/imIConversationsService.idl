@@ -8,7 +8,7 @@
 
 interface prplIMessage;
 
-[scriptable, uuid(a09faf46-bb9d-402f-b460-89f8d7827ff1)]
+[scriptable, uuid(81b8d9a9-4715-4109-b522-84b9d31493a3)]
 interface imIConversation: prplIConversation {
   // Will be null for MUCs and IMs from people not in the contacts list.
   readonly attribute imIContact contact;
@@ -30,6 +30,9 @@ interface imIConversation: prplIConversation {
   readonly attribute unsigned long unreadIncomingMessageCount;
   // Reset all unread message counts.
   void markAsRead();
+
+  // Can be used instead of the topic when no topic is set.
+  readonly attribute AUTF8String noTopicString;
 
   // Call this to give the core an opportunity to close an inactive
   // conversation.  If the conversation is a left MUC or an IM

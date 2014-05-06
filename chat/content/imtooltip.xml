@@ -5,15 +5,15 @@
 
 <!DOCTYPE bindings>
 
-<bindings id="buddyTooltipBindings"
+<bindings id="imTooltipBindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="tooltip" extends="chrome://global/content/bindings/popup.xml#tooltip">
     <resources>
-      <stylesheet src="chrome://messenger/content/chat/imbuddytooltip.css"/>
-      <stylesheet src="chrome://messenger/skin/imBuddytooltip.css"/>
+      <stylesheet src="chrome://chat/content/imtooltip.css"/>
+      <stylesheet src="chrome://chat/skin/imtooltip.css"/>
     </resources>
     <content noautohide="true" orient="vertical">
       <children>
@@ -23,7 +23,11 @@
         <xul:hbox align="start" crop="end" flex="1">
           <xul:vbox flex="1">
             <xul:stack>
-              <xul:image class="userIcon" anonid="userIcon"/>
+              <!-- The box around the user icon is a workaround for bug 955673. -->
+              <xul:box class="userIconHolder" xbl:inherits="userIcon">
+                <xul:image class="userIcon" anonid="userIcon"
+                           xbl:inherits="src=userIcon"/>
+              </xul:box>
               <xul:image class="statusTypeIcon" xbl:inherits="status,left"/>
             </xul:stack>
             <xul:spacer flex="1"/>
@@ -56,8 +60,10 @@
      <property name="bundle">
        <getter>
          <![CDATA[
-          if (!this._bundle)
-            this._bundle = document.getElementById("chatBundle");
+          if (!this._bundle) {
+            this._bundle =
+              Services.strings.createBundle("chrome://chat/locale/imtooltip.properties");
+          }
           return this._bundle;
          ]]>
        </getter>
@@ -97,40 +103,6 @@
        </setter>
      </property>
 
-     <method name="handleEvent">
-       <parameter name="aEvent"/>
-       <body>
-       <![CDATA[
-         if (aEvent.type == "DOMAttrModified" && aEvent.attrName == "status") {
-           if (aEvent.attrChange == aEvent.REMOVAL)
-             this.removeAttribute("status");
-           else
-             this.setAttribute("status", aEvent.newValue);
-         }
-        ]]></body>
-      </method>
-
-     <field name="_elt">null</field>
-     <property name="elt">
-       <getter>
-         <![CDATA[
-           return this._elt;
-         ]]>
-       </getter>
-       <setter>
-         <![CDATA[
-           if (val == this._elt)
-             return val;
-
-           if (this._elt)
-             this._elt.removeEventListener("DOMAttrModified", this, false);
-           else
-             val.addEventListener("DOMAttrModified", this);
-           return (this._elt = val);
-         ]]>
-       </setter>
-     </property>
-
      <property name="rows">
        <getter>
          <![CDATA[
@@ -151,9 +123,9 @@
          var img = document.getAnonymousElementByAttribute(this, "anonid",
                                                            "userIcon");
          if (aSrc)
-           img.src = aSrc;
+           this.setAttribute("userIcon", aSrc);
          else
-           img.removeAttribute("src");
+           this.removeAttribute("userIcon");
        ]]>
        </body>
      </method>
@@ -216,13 +188,23 @@
        </body>
      </method>
 
+     <method name="requestBuddyInfo">
+       <parameter name="aAccount"/>
+       <parameter name="aObservedName"/>
+       <body>
+       <![CDATA[
+         this.observedUserInfo = aObservedName;
+         Services.obs.addObserver(this, "user-info-received", false);
+         aAccount.requestBuddyInfo(aObservedName);
+       ]]>
+       </body>
+     </method>
+
      <method name="updateTooltipFromBuddy">
        <parameter name="aBuddy"/>
-       <parameter name="aElt"/>
        <body>
        <![CDATA[
          this.buddy = aBuddy;
-         this.elt = aElt;
 
          this.reset();
          let name = aBuddy.userName;
@@ -230,21 +212,23 @@
          this.setAttribute("displayname", displayName);
          let account = aBuddy.account;
          this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-         let status = aElt.getAttribute("status");
-         if (status) {
-           this.setAttribute("status", status);
-           this.setMessage(Status.toLabel(status));
-         }
-         else {
-           this.setAttribute("status", "unknown");
-           this.setMessage(Status.toLabel("unknown"));
-         }
          this.setBuddyIcon(aBuddy.buddyIconFilename);
 
-         if (displayName != name)
-           this.addRow(this.bundle.getString("buddytooltip.username"), name);
+         let statusType = aBuddy.statusType;
+         this.setAttribute("status", Status.toAttribute(statusType));
+         this.setMessage(Status.toLabel(statusType, aBuddy.statusText));
 
-         this.addRow(this.bundle.getString("buddytooltip.account"), account.name);
+         if (displayName != name)
+           this.addRow(this.bundle.GetStringFromName("buddy.username"), name);
+
+         this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
+
+         // Technically there is no reason to restrict this to JS-IRC. But
+         // there is currently no filtering mechanism in place to select which
+         // of the returned fields are to be added to the tooltip for the other
+         // protocols (libpurple in particular).
+         if (account.protocol.id == "prpl-irc")
+           this.requestBuddyInfo(account, aBuddy.normalizedName);
 
          var tooltipInfo = aBuddy.getTooltipInfo();
          if (tooltipInfo)
@@ -269,6 +253,11 @@
              case Ci.prplITooltipInfo.sectionBreak:
                this.addSeparator();
                break;
+             case Ci.prplITooltipInfo.status:
+               let statusType = parseInt(elt.label);
+               this.setAttribute("status", Status.toAttribute(statusType));
+               this.setMessage(Status.toLabel(statusType, elt.value));
+               break;
            }
          }
        ]]>
@@ -277,13 +266,30 @@
 
      <method name="updateTooltipFromContact">
        <parameter name="aContact"/>
-       <parameter name="aElt"/>
        <body>
        <![CDATA[
          this.contact = aContact;
-         this.elt = aElt;
 
-         this.updateTooltipFromBuddy(aContact.preferredBuddy.preferredAccountBuddy, aElt);
+         this.updateTooltipFromBuddy(aContact.preferredBuddy.preferredAccountBuddy);
+
+         this.addRow(this.bundle.GetStringFromName("contact.tags"),
+                     aContact.getTags().map(t => t.name).join(", "));
+
+         let buddies = this.contact.getBuddies();
+         if (buddies.length <= 1)
+           return true;
+
+         let buddiesElt = document.getAnonymousElementByAttribute(this, "anonid",
+                                                                  "buddies");
+         let sep = document.createElement("separator");
+         sep.setAttribute("class", "groove tooltipSeparator");
+         buddiesElt.appendChild(sep);
+
+         for each (let buddy in buddies) {
+           let buddyElt = document.createElement("buddy");
+           buddiesElt.appendChild(buddyElt);
+           buddyElt.build(buddy, this);
+         }
 
          return true;
        ]]>
@@ -292,13 +298,11 @@
 
      <method name="updateTooltipFromConversation">
        <parameter name="aConv"/>
-       <parameter name="aElt"/>
        <body>
        <![CDATA[
          if (!aConv.isChat && aConv.buddy)
-           return this.updateTooltipFromBuddy(aConv.buddy, aElt);
+           return this.updateTooltipFromBuddy(aConv.buddy);
 
-         this.elt = aElt;
          this.reset();
          this.setAttribute("displayname", aConv.name);
          let account = aConv.account;
@@ -311,9 +315,7 @@
            let topic = aConv.topic;
            if (!topic) {
              this.setAttribute("noTopic", true);
-             const kBundleName = "chrome://messenger/locale/chat.properties";
-             topic = Services.strings.createBundle(kBundleName)
-                             .GetStringFromName("noTopic");
+             topic = aConv.noTopicString;
            }
            this.setMessage(topic);
          }
@@ -321,7 +323,7 @@
            this.setAttribute("status", "unknown");
            this.setMessage(Status.toLabel("unknown"));
          }
-         this.addRow(this.bundle.getString("buddytooltip.account"), account.name);
+         this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
          return true;
        ]]>
        </body>
@@ -332,19 +334,32 @@
        <parameter name="aConv"/>
        <body>
        <![CDATA[
+         if (!aConv.target)
+           return false;     // We're viewing a log.
+
+         let account = aConv.account;
+         let normalizedNick = aConv.target.getNormalizedChatBuddyName(aNick);
+         // To try to ensure that we aren't misidentifying a nick with a
+         // contact, we require at least that the normalizedChatBuddyName of
+         // the nick is normalized like a normalizedName for contacts.
+         if (normalizedNick == account.normalize(normalizedNick)) {
+           let accountBuddy =
+             Services.contacts.getAccountBuddyByNameAndAccount(normalizedNick,
+                                                               account);
+           if (accountBuddy)
+             return this.updateTooltipFromBuddy(accountBuddy);
+         }
+
          this.reset();
          this.setAttribute("displayname", aNick);
-         let account = aConv.account;
          this.setAttribute("iconPrpl",
                            account.protocol.iconBaseURI + "icon.png");
          this.setAttribute("status", "unknown");
          this.setMessage(Status.toLabel("unknown"));
          this.setBuddyIcon(null);
-         this.addRow(this.bundle.getString("buddytooltip.account"),
+         this.addRow(this.bundle.GetStringFromName("buddy.account"),
                      account.name);
-         this.observedUserInfo = aConv.target.getNormalizedChatBuddyName(aNick);
-         Services.obs.addObserver(this, "user-info-received", false);
-         account.requestBuddyInfo(this.observedUserInfo);
+         this.requestBuddyInfo(account, normalizedNick);
          return true;
        ]]>
        </body>
@@ -362,11 +377,11 @@
               aTopic == "account-buddy-status-detail-changed" ||
               aTopic == "account-buddy-display-name-changed" ||
               aTopic == "account-buddy-icon-changed"))
-           this.updateTooltipFromBuddy(this.buddy, this.elt);
+           this.updateTooltipFromBuddy(this.buddy);
          else if (aTopic == "contact-preferred-buddy-changed" &&
                   aSubject.id == this.contact.id) {
            let buddy = this.contact.preferredBuddy;
-           this.updateTooltipFromBuddy(buddy.preferredAccountBuddy, this.elt);
+           this.updateTooltipFromBuddy(buddy.preferredAccountBuddy);
          }
          else if (aTopic == "user-info-received" &&
                   aData == this.observedUserInfo) {
@@ -396,14 +411,40 @@
          this.removeAttribute("label");
 
          let localName = elt.localName;
+
+#ifdef MOZ_THUNDERBIRD
          if (localName == "imconv" && elt.conv)
-           return updateTooltipFromConversation(elt.conv, elt);
+           return updateTooltipFromConversation(elt.conv);
+
          if (localName == "imcontact")
-           return updateTooltipFromContact(elt.contact, elt);
+           return updateTooltipFromBuddy(elt.contact.preferredBuddy.preferredAccountBuddy);
+
          if (localName == "listitem") {
-           let conv = document.getElementById("contactlistbox").selectedItem.conv;
+           let contactlistbox = document.getElementById("contactlistbox");
+           let conv = contactlistbox.selectedItem.conv;
            return updateTooltipFromParticipant(elt.chatBuddy.name, conv);
          }
+#else
+         if (localName == "tab") {
+           if (!elt.linkedConversation || !elt.linkedConversation.conv)
+             return false;
+           return updateTooltipFromConversation(elt.linkedConversation.conv);
+         }
+
+         if (localName == "conv")
+           return updateTooltipFromConversation(elt.conv);
+
+         if (localName == "buddy")
+           return updateTooltipFromBuddy(elt.buddy.preferredAccountBuddy);
+
+         if (localName == "contact")
+           return updateTooltipFromContact(elt.contact);
+
+         if (localName == "listitem") {
+           let conv = document.getBindingParent(elt).conv;
+           return updateTooltipFromParticipant(elt.chatBuddy.name, conv);
+         }
+#endif
 
          let classList = elt.classList;
          if (classList.contains("ib-nick") ||
@@ -412,7 +453,7 @@
            if (conv.isChat)
              return updateTooltipFromParticipant(elt.textContent, conv);
            else if (elt.textContent == conv.name)
-             return updateTooltipFromConversation(conv, elt);
+             return updateTooltipFromConversation(conv);
          }
 
          // Use the default content tooltip.
@@ -424,13 +465,22 @@
        <![CDATA[
        this.buddy = null;
        this.contact = null;
-       this.elt = null;
        this.removeAttribute("noTopic");
        this.removeAttribute("left");
        if ("observedUserInfo" in this && this.observedUserInfo) {
          Services.obs.removeObserver(this, "user-info-received");
          delete this.observedUserInfo;
        }
+
+       let buddies = document.getAnonymousElementByAttribute(this, "anonid",
+                                                             "buddies");
+       while (buddies.hasChildNodes())
+         buddies.lastChild.remove();
+
+       // Since Mozilla 22, tooltips don't seem to shrink automatically after
+       // being shown once at a large size. Not sure if it's temporary or not.
+       this.removeAttribute("width");
+       this.removeAttribute("height");
        ]]>
      </handler>
     </handlers>
