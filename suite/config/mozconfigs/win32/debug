@@ -4,6 +4,9 @@ ac_add_options --enable-application=suite
 ac_add_options --enable-debug
 ac_add_options --enable-trace-malloc
 ac_add_options --enable-tests
+# Windows 8 SDK is required for gamepad support
+# bug 1005630
+ac_add_options --disable-gamepad
 
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
