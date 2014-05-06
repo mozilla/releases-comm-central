@@ -541,8 +541,8 @@ YahooProtocol.prototype = {
   commands: [
     {
       name: "invite",
-      get helpString() _("command.help.invite"),
-      usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+      get helpString() _("command.help.invite", "invite"),
+      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       run: function(aMsg, aConv) {
         if (aMsg.trim().length == 0)
           return false;
@@ -568,6 +568,16 @@ YahooProtocol.prototype = {
                           _("command.feedback.invite", invitees.join(", ")),
                           {system: true, noLog: true});
         conf._account.LOG("Sending conference invite to " + invitees);
+        return true;
+      },
+    },
+
+    {
+      name: "conference",
+      get helpString() _("command.help.conference", "conference"),
+      usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+      run: function(aMsg, aConv) {
+        aConv.account.joinChat(null);
         return true;
       }
     }
