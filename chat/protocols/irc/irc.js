@@ -213,8 +213,8 @@ const GenericIRCConversation = {
     // If we are waiting for the conversation name, set it.
     let account = this._account;
     if (this._waitingForNick && nick == this.normalizedName) {
-      if (hasOwnProperty(account.whoisInformation, nick))
-        this.updateNick(account.whoisInformation[nick]["nick"]);
+      if (account.whoisInformation.has(nick))
+        this.updateNick(account.whoisInformation.get(nick)["nick"]);
       delete this._waitingForNick;
       return;
     }
@@ -222,15 +222,15 @@ const GenericIRCConversation = {
     // Otherwise, print the requested whois information.
     let type = {system: true, noLog: true};
     // RFC 2812 errors 401 and 406 result in there being no entry for the nick.
-    if (!hasOwnProperty(account.whoisInformation, nick)) {
+    if (!account.whoisInformation.has(nick)) {
       this.writeMessage(null, _("message.unknownNick", nick), type);
       return;
     }
     // If the nick is offline, tell the user. In that case, it's WHOWAS info.
     let msgType = "message.whois";
-    if ("offline" in account.whoisInformation[nick])
+    if ("offline" in account.whoisInformation.get(nick))
       msgType = "message.whowas";
-    let msg = _(msgType, account.whoisInformation[nick]["nick"]);
+    let msg = _(msgType, account.whoisInformation.get(nick)["nick"]);
 
     // Iterate over each field.
     let tooltipInfo = aSubject.QueryInterface(Ci.nsISimpleEnumerator);
@@ -599,8 +599,8 @@ ircParticipant.prototype = {
 
 function ircConversation(aAccount, aName) {
   let nick = aAccount.normalize(aName);
-  if (hasOwnProperty(aAccount.whoisInformation, nick))
-    aName = aAccount.whoisInformation[nick]["nick"];
+  if (aAccount.whoisInformation.has(nick))
+    aName = aAccount.whoisInformation.get(nick)["nick"];
 
   this._init(aAccount, aName);
   this._observedNicks = [];
@@ -800,7 +800,7 @@ function ircAccount(aProtocol, aImAccount) {
   // For more information, see where these are defined in the prototype below.
   this.trackQueue = [];
   this.pendingIsOnQueue = [];
-  this.whoisInformation = {};
+  this.whoisInformation = new NormalizedMap(this.normalizeNick.bind(this));
   this._chatRoomFieldsList = {};
   this._caps = [];
 
@@ -989,7 +989,7 @@ ircAccount.prototype = {
 
   // The whois information: nicks are used as keys and refer to a map of field
   // to value.
-  whoisInformation: {},
+  whoisInformation: null,
   // Request WHOIS information on a buddy when the user requests more
   // information.
   requestBuddyInfo: function(aBuddyName) {
@@ -1011,11 +1011,10 @@ ircAccount.prototype = {
   },
   // Return an nsISimpleEnumerator of imITooltipInfo for a given nick.
   getBuddyInfo: function(aNick) {
-    let nick = this.normalizeNick(aNick);
-    if (!hasOwnProperty(this.whoisInformation, nick))
+    if (!this.whoisInformation.has(aNick))
       return EmptyEnumerator;
 
-    let whoisInformation = this.whoisInformation[nick];
+    let whoisInformation = this.whoisInformation.get(aNick);
     if (whoisInformation.serverName && whoisInformation.serverInfo) {
       whoisInformation.server =
         _("tooltip.serverValue", whoisInformation.serverName,
@@ -1089,29 +1088,25 @@ ircAccount.prototype = {
     return new nsSimpleEnumerator(tooltipInfo);
   },
   // Remove a WHOIS entry.
-  removeBuddyInfo: function(aNick) {
-    let nick = this.normalizeNick(aNick);
-    if (hasOwnProperty(this.whoisInformation, nick))
-      delete this.whoisInformation[nick];
-  },
+  removeBuddyInfo: function(aNick) this.whoisInformation.delete(aNick),
   // Copies the fields of aFields into the whois table. If the field already
   // exists, that field is ignored (it is assumed that the first server response
   // is the most up to date information, as is the case for 312/314). Note that
   // the whois info for a nick is reset whenever whois information is requested,
   // so the first response from each whois is recorded.
   setWhois: function(aNick, aFields = {}) {
-    let nick = this.normalizeNick(aNick);
     // If the nickname isn't in the list yet, add it.
-    if (!hasOwnProperty(this.whoisInformation, nick))
-      this.whoisInformation[nick] = {};
+    if (!this.whoisInformation.has(aNick))
+      this.whoisInformation.set(aNick, {});
 
     // Set non-normalized nickname field.
-    this.whoisInformation[nick]["nick"] = aNick;
+    let whoisInfo = this.whoisInformation.get(aNick);
+    whoisInfo.nick = aNick;
 
     // Set the WHOIS fields, but only the first time a field is set.
     for (let field in aFields) {
-      if (!this.whoisInformation[nick].hasOwnProperty(field))
-        this.whoisInformation[nick][field] = aFields[field];
+      if (!whoisInfo.hasOwnProperty(field))
+        whoisInfo[field] = aFields[field];
     }
 
     return true;
@@ -1501,11 +1496,11 @@ ircAccount.prototype = {
   // Returns a conversation (creates it if it doesn't exist)
   getConversation: function(aName) {
     let name = this.normalize(aName);
-    // If the whois information has been received, we have the proper nick
-    // capitalization.
-    if (hasOwnProperty(this.whoisInformation, name))
-      aName = this.whoisInformation[name].nick;
     if (!this.hasConversation(aName)) {
+      // If the whois information has been received, we have the proper nick
+      // capitalization.
+      if (this.whoisInformation.has(aName))
+        aName = this.whoisInformation.get(aName).nick;
       let constructor = this.isMUCName(aName) ? ircChannel : ircConversation;
       this._conversations[name] = new constructor(this, aName, this._nickname);
     }
@@ -1694,7 +1689,7 @@ ircAccount.prototype = {
       this._sendRemainingRoomInfo();
 
     // Clear whois table.
-    this.whoisInformation = {};
+    this.whoisInformation.clear();
 
     this.reportDisconnected();
   },

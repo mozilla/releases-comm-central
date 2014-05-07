@@ -740,9 +740,9 @@ var ircBase = {
       // <nick> :End of WHOIS list
       // We've received everything about WHOIS, tell the tooltip that is waiting
       // for this information.
-      let nick = this.normalizeNick(aMessage.params[1]);
+      let nick = aMessage.params[1];
 
-      if (hasOwnProperty(this.whoisInformation, nick))
+      if (this.whoisInformation.has(nick))
         this.notifyWhois(nick);
       else {
         // If there is no whois information stored at this point, the nick
