@@ -29,6 +29,11 @@ const kPacketIdentifier = "YMSG";
 const kPacketHeaderSize = 20;
 const kProfileIconWidth = 96;
 
+// These constants are used by the icon uploading code since the Yahoo! file
+// transfer server is used for user icon uploads.
+const kFileTransferHost = "filetransfer.msg.yahoo.com";
+const kFileTransferPort = 80;
+
 const kPacketType = {
   // Sent by a client when logging off of the Yahoo! network.
   Logoff:         0x02,
@@ -1074,10 +1079,6 @@ function YahooProfileIconUploader(aAccount, aSession, aFileName, aImage)
   this._session = aSession;
   this._fileName = aFileName;
   this._image = aImage;
-  // To upload our icon to Yahoo!, we must go through their file transfer
-  // servers. So we access our file transfer server settings.
-  this._host = this._account.getString("xfer_host");
-  this._port = this._account.getString("xfer_port");
 }
 YahooProfileIconUploader.prototype = {
   __proto__: Socket,
@@ -1091,7 +1092,7 @@ YahooProfileIconUploader.prototype = {
   uploadIcon: function() {
     // Connect to the file transfer server, and the onConnection callback
     // will do the rest.
-    this.connect(this._host, this._port);
+    this.connect(kFileTransferHost, kFileTransferPort);
   },
 
   // Socket callbacks.
@@ -1122,7 +1123,7 @@ YahooProfileIconUploader.prototype = {
     let headers = [
       ["User-Agent", "Mozilla/5.0"],
       ["Cookie", "T=" + this._session.tCookie + "; Y=" + this._session.yCookie],
-      ["Host", this._host + ":" + this._port],
+      ["Host", kFileTransferHost + ":" + kFileTransferPort],
       ["Content-Length", packetBuffer.byteLength + 4 + imageData.length],
       ["Cache-Control", "no-cache"],
     ];
