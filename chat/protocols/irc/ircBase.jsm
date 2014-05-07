@@ -333,7 +333,7 @@ var ircBase = {
       this._currentServerName = aMessage.servername;
 
       // Clear user mode.
-      this._modes = [];
+      this._modes = new Set();
       this._userModeReceived = false;
 
       // Check if our nick has changed.

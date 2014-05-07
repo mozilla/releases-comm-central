@@ -94,13 +94,13 @@ function ircMessage(aData) {
 function _setMode(aAddNewMode, aNewModes) {
   // Check each mode being added/removed.
   for each (let newMode in aNewModes) {
-    let index = this._modes.indexOf(newMode);
+    let hasMode = this._modes.has(newMode);
     // If the mode is in the list of modes and we want to remove it.
-    if (index != -1 && !aAddNewMode)
-      this._modes.splice(index, 1);
+    if (hasMode && !aAddNewMode)
+      this._modes.remove(newMode);
     // If the mode is not in the list of modes and we want to add it.
-    else if (index == -1 && aAddNewMode)
-      this._modes.push(newMode);
+    else if (!hasMode && aAddNewMode)
+      this._modes.add(newMode);
   }
 }
 
@@ -263,14 +263,14 @@ const GenericIRCConversation = {
 
 function ircChannel(aAccount, aName, aNick) {
   this._init(aAccount, aName, aNick);
-  this._modes = [];
+  this._modes = new Set();
   this._observedNicks = [];
   this.banMasks = [];
   this._firstJoin = true;
 }
 ircChannel.prototype = {
   __proto__: GenericConvChatPrototype,
-  _modes: [],
+  _modes: null,
   _receivedInitialMode: false,
   // For IRC you're not in a channel until the JOIN command is received, open
   // all channels (initially) as left.
@@ -519,16 +519,14 @@ ircChannel.prototype = {
 
   setModesFromRestriction: function(aRestriction) {
     // First remove all types from the list of modes.
-    for each (let mode in this._account.channelRestrictionToModeMap) {
-      let index = this._modes.indexOf(mode);
-      this._modes.splice(index, index != -1);
-    }
+    for each (let mode in this._account.channelRestrictionToModeMap)
+      this._modes.delete(mode);
 
     // Add the new mode onto the list.
     if (aRestriction in this._account.channelRestrictionToModeMap) {
       let mode = this._account.channelRestrictionToModeMap[aRestriction];
       if (mode)
-        this._modes.push(mode);
+        this._modes.add(mode);
     }
   },
 
@@ -552,8 +550,7 @@ ircChannel.prototype = {
     // If the channel mode is +t, hops and ops can set the topic; otherwise
     // everyone can.
     let participant = this.getParticipant(this.nick);
-    return this._modes.indexOf("t") == -1 || participant.op ||
-           participant.halfOp;
+    return this._modes.has("t") || participant.op || participant.halfOp;
   }
 };
 copySharedBaseToPrototype(GenericIRCConversation, ircChannel.prototype);
@@ -562,13 +559,16 @@ function ircParticipant(aName, aConv) {
   this._name = aName;
   this._conv = aConv;
   this._account = aConv._account;
-  this._modes = [];
+  this._modes = new Set();
 
   // Handle multi-prefix modes.
   let i;
   for (i = 0; i < this._name.length &&
-              this._name[i] in this._account.userPrefixToModeMap; ++i)
-    this._modes.push(this._account.userPrefixToModeMap[this._name[i]]);
+              this._name[i] in this._account.userPrefixToModeMap; ++i) {
+    let mode = this._account.userPrefixToModeMap[this._name[i]];
+    if (mode)
+      this._modes.add(mode);
+  }
   this._name = this._name.slice(i);
 }
 ircParticipant.prototype = {
@@ -589,11 +589,10 @@ ircParticipant.prototype = {
       this._conv.checkTopicSettable();
   },
 
-  get voiced() this._modes.indexOf("v") != -1,
-  get halfOp() this._modes.indexOf("h") != -1,
-  get op() this._modes.indexOf("o") != -1,
-  get founder()
-    this._modes.indexOf("O") != -1 || this._modes.indexOf("q") != -1,
+  get voiced() this._modes.has("v"),
+  get halfOp() this._modes.has("h"),
+  get op() this._modes.has("o"),
+  get founder() this._modes.has("O") || this._modes.has("q"),
   get typing() false
 };
 
@@ -902,7 +901,7 @@ ircAccount.prototype = {
   },
 
   // The user's user mode.
-  _modes: [],
+  _modes: null,
   _userModeReceived: false,
   setUserMode: function(aNick, aNewModes, aSetter, aDisplayFullMode) {
     if (this.normalizeNick(aNick) != this.normalizeNick(this._nickname)) {
@@ -927,7 +926,7 @@ ircAccount.prototype = {
     if (this._showServerTab) {
       let msg;
       if (aDisplayFullMode)
-        msg = _("message.yourmode", this._modes.join(""));
+        msg = _("message.yourmode", [mode for (mode of this._modes)].join(""));
       else {
         msg = _("message.usermode", aNewModes, aNick,
                 aSetter || this._currentServerName);
