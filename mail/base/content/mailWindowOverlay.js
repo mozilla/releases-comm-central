@@ -3410,7 +3410,7 @@ function OpenOrFocusWindow(args, windowType, chromeURL)
   if (desiredWindow) {
     desiredWindow.focus();
     if ("refresh" in args && args.refresh)
-      desiredWindow.refresh();
+      desiredWindow.refresh(args);
   }
   else
     window.openDialog(chromeURL, "", "chrome,resizable,status,centerscreen,dialog=no", args);
