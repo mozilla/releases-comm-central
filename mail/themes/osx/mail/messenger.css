@@ -170,6 +170,10 @@ notification[value="addon-install-complete"] > button:active:hover {
   pointer-events: none;
 }
 
+#messengerWindow:not([tabsintitlebar]) .titlebar-placeholder {
+  visibility: collapse;
+}
+
 /* NB: these would be -moz-margin-start/end if it wasn't for the fact that OS X
  * doesn't reverse the order of the items in the titlebar in RTL mode. */
 #messengerWindow[tabsintitlebar="true"] .titlebar-placeholder[type="caption-buttons"],
