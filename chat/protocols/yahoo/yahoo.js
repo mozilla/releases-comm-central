@@ -541,7 +541,7 @@ YahooProtocol.prototype = {
   commands: [
     {
       name: "invite",
-      get helpString() _("command.help.invite", "invite"),
+      get helpString() _("command.help.invite2", "invite"),
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       run: function(aMsg, aConv) {
         if (aMsg.trim().length == 0)
