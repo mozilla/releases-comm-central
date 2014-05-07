@@ -74,6 +74,7 @@
              aTopic == "update-buddy-status" ||
              aTopic == "update-buddy-status" ||
              aTopic == "update-conv-chatleft" ||
+             aTopic == "update-conv-chatjoining" ||
              aTopic == "chat-update-topic")
            this.update();
          if (aTopic == "update-conv-title")
@@ -135,7 +136,9 @@
         }
 
         if (this.conv.isChat) {
-          if (!this.conv.account.connected || this.conv.left)
+          if (this.conv.joining)
+            this.setAttribute("status", "joining");
+          else if (!this.conv.account.connected || this.conv.left)
             this.setAttribute("status", "left");
           else
             this.removeAttribute("status");

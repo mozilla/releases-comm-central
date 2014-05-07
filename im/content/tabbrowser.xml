@@ -1889,13 +1889,11 @@
           menuItem.setAttribute("crop", aTab.getAttribute("crop"));
           menuItem.setAttribute("image", aTab.getAttribute("image"));
 
-          ["typing", "typed", "status", "chat",
-           "attention", "unread", "prpl", "type"].forEach(function (aAttr) {
+          ["typed", "typing", "status", "chat",
+           "attention", "unread", "prpl", "type"].forEach(function(aAttr) {
             if (aTab.hasAttribute(aAttr))
               menuItem.setAttribute(aAttr, aTab.getAttribute(aAttr));
           });
-          if (aTab.hasAttribute("typing"))
-            menuItem.setAttribute("typing", aTab.getAttribute("typing"));
           if (aTab.selected)
             menuItem.setAttribute("selected", "true");
 

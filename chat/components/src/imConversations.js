@@ -345,7 +345,8 @@ UIConversation.prototype = {
   get topicSetter() this.target.topicSetter,
   get topicSettable() this.target.topicSettable,
   get nick() this.target.nick,
-  get left() this.target.left
+  get left() this.target.left,
+  get joining() this.target.joining
 };
 
 var gConversationsService;

@@ -1671,7 +1671,9 @@
           cti.setAttribute("prplIcon", this._conv.account.protocol.iconBaseURI + "icon.png");
 
           if (this._conv.isChat) {
-            if (!this._conv.account.connected || this._conv.left)
+            if (this._conv.joining)
+              this.tab.setAttribute("status", "joining");
+            else if (!this._conv.account.connected || this._conv.left)
               this.tab.setAttribute("status", "left");
             else
               this.tab.removeAttribute("status");
@@ -1832,6 +1834,7 @@
           case "update-buddy-status":
           case "update-buddy-icon":
           case "update-conv-chatleft":
+          case "update-conv-chatjoining":
             this.updateConvStatus();
             break;
 

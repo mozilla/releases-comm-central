@@ -20,6 +20,11 @@
   background-image: url('chrome://chat/skin/offline.png');
 }
 
+.statusIcon[status="joining"] {
+  background-image: url('chrome://chat/skin/loading.png');
+  -moz-transform: scale(0.5) translate(50%, 50%);
+}
+
 .statusIcon[status="unknown"] {
   background-image: url('chrome://chat/skin/unknown.png');
 }
@@ -55,11 +60,13 @@
 }
 
 .protoIcon[status="offline"],
+.protoIcon[status="joining"],
 .protoIcon[status="unknown"] {
   opacity: 0.3;
 }
 
 .protoIcon[status="offline"][selected],
+.protoIcon[status="joining"][selected],
 .protoIcon[status="unknown"][selected] {
   opacity: 0.7;
 }

@@ -582,8 +582,22 @@ const GenericConvChatPrototype = {
       return;
 
     this._left = aLeft;
-    if (this._left)
+    if (this._left) {
+      // Also unset joining flag when leaving a room, just in case
+      // the room was never joined properly in the first place.
+      this._joining = false;
       this.notifyObservers(null, "update-conv-chatleft");
+    }
+  },
+
+  _joining: false,
+  get joining() this._joining,
+  set joining(aJoining) {
+    if (aJoining == this._joining)
+      return;
+
+    this._joining = aJoining;
+    this.notifyObservers(null, "update-conv-chatjoining");
   },
 
   getParticipants: function() {

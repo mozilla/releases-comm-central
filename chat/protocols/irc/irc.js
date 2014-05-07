@@ -1487,7 +1487,9 @@ ircAccount.prototype = {
     this.sendMessage("JOIN", params,
                      "JOIN " + channel + (key ? " <key not logged>" : ""));
     // Open conversation early for better responsiveness.
-    return this.getConversation(channel);
+    let conv = this.getConversation(channel);
+    conv.joining = true;
+    return conv;
   },
 
   chatRoomFields: {

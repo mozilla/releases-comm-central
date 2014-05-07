@@ -79,7 +79,6 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
         msg = __(nick, true);
         // If the user left, mark the conversation as no longer being active.
         conversation.left = true;
-        conversation.notifyObservers(conversation, "update-conv-chatleft");
       }
       else
         msg = __(nick);
@@ -175,7 +174,7 @@ var ircBase = {
           // repeated participants.
           conversation.removeAllParticipants();
           conversation.left = false;
-          conversation.notifyObservers(conversation, "update-conv-chatleft");
+          conversation.joining = false;
 
           // If the user parted from this room earlier, confirm the rejoin.
           // If conversation._chatRoomFields is present, the rejoin was due to

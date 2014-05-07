@@ -252,6 +252,13 @@ statusbarpanel#statusbar-display {
   padding-top: 2px;
 }
 
+@media (min-resolution: 2dppx) {
+  .tabbrowser-tab[chat][status="joining"],
+  .alltabs-item[chat][status="joining"] > .menu-iconic-left > .menu-iconic-icon {
+    list-style-image: url("chrome://chat/skin/loading@2x.png") !important;
+  }
+}
+
 /**
  * Tab Drag and Drop
  */

@@ -30,3 +30,13 @@ chat.jar:
 	skin/classic/chat/prpl-unknown/icon.png		(icons/prpl-unknown.png)
 	skin/classic/chat/icons/secure.png		(icons/secure.png)
 	skin/classic/chat/icons/insecure.png		(icons/insecure.png)
+#ifdef XP_UNIX
+#ifdef XP_MACOSX
+	skin/classic/chat/loading.png			(osx/loading.png)
+	skin/classic/chat/loading@2x.png		(osx/loading@2x.png)
+#else
+	skin/classic/chat/loading.png			(linux/loading.png)
+#endif
+#else
+	skin/classic/chat/loading.png			(windows/loading.png)
+#endif

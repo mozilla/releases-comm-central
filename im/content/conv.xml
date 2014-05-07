@@ -74,6 +74,7 @@
              aTopic == "update-buddy-status" ||
              aTopic == "update-buddy-status" ||
              aTopic == "update-conv-chatleft" ||
+             aTopic == "update-conv-chatjoining" ||
              aTopic == "chat-update-topic")
            this.update();
          else if (aTopic == "ui-conversation-closed")
@@ -92,7 +93,9 @@
         let statusText = "";
         if (this.conv.isChat) {
           pings = this.conv.unreadTargetedMessageCount
-          if (!this.conv.account.connected || this.conv.left)
+          if (this.conv.joining)
+            this.setAttribute("status", "joining");
+          else if (!this.conv.account.connected || this.conv.left)
             this.setAttribute("status", "left");
           else {
             this.removeAttribute("status");

@@ -96,6 +96,10 @@ tab[attention],
 .alltabs-item[chat] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://chat/skin/chat-16.png") !important;
 }
+.tabbrowser-tab[chat][status="joining"],
+.alltabs-item[chat][status="joining"] > .menu-iconic-left > .menu-iconic-icon {
+  list-style-image: url("chrome://chat/skin/loading.png") !important;
+}
 .tabbrowser-tab[chat][status="left"],
 .alltabs-item[chat][status="left"] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://chat/skin/chat-left-16.png") !important;
