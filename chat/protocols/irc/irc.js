@@ -9,6 +9,7 @@ Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
+Cu.import("resource:///modules/NormalizedMap.jsm");
 Cu.import("resource:///modules/socket.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "PluralForm",
@@ -611,7 +612,7 @@ function ircConversation(aAccount, aName) {
 }
 ircConversation.prototype = {
   __proto__: GenericConvIMPrototype,
-  get buddy() this._account.getBuddy(this.name),
+  get buddy() this._account.buddies.get(this.name),
 
   // Overwrite the writeMessage function to apply CTCP formatting before
   // display.
@@ -784,8 +785,8 @@ ircAccountBuddy.prototype = {
 };
 
 function ircAccount(aProtocol, aImAccount) {
-  this._buddies = {};
   this._init(aProtocol, aImAccount);
+  this.buddies = new NormalizedMap(this.normalizeNick.bind(this));
   this._conversations = {};
 
   // Split the account name into usable parts.
@@ -1130,37 +1131,23 @@ ircAccount.prototype = {
   },
   addBuddy: function(aTag, aName) {
     let buddy = new ircAccountBuddy(this, null, aTag, aName);
-    this._buddies[buddy.normalizedName] = buddy;
+    this.buddies.set(buddy.normalizedName, buddy);
     this.trackBuddy(buddy.userName);
 
     Services.contacts.accountBuddyAdded(buddy);
   },
   removeBuddy: function(aBuddy) {
-    delete this._buddies[aBuddy.normalizedName];
+    this.buddies.delete(aBuddy.normalizedName);
     this.untrackBuddy(aBuddy.userName);
   },
   // Loads a buddy from the local storage. Called for each buddy locally stored
   // before connecting to the server.
   loadBuddy: function(aBuddy, aTag) {
     let buddy = new ircAccountBuddy(this, aBuddy, aTag);
-    this._buddies[buddy.normalizedName] = buddy;
+    this.buddies.set(buddy.normalizedName, buddy);
     this.trackBuddy(buddy.userName);
 
     return buddy;
-  },
-  hasBuddy: function(aName)
-    hasOwnProperty(this._buddies, this.normalizeNick(aName)),
-  // Return an array of buddy names.
-  getBuddyNames: function() {
-    let buddies = [];
-    for each (let buddyName in Object.keys(this._buddies))
-      buddies.push(this._buddies[buddyName].userName);
-    return buddies;
-  },
-  getBuddy: function(aName) {
-    if (this.hasBuddy(aName))
-      return this._buddies[this.normalizeNick(aName)];
-    return null;
   },
   changeBuddyNick: function(aOldNick, aNewNick) {
     let msg;
@@ -1667,8 +1654,8 @@ ircAccount.prototype = {
     this.reportDisconnecting(aErrorReason, aErrorMessage);
 
     // Mark all contacts on the account as having an unknown status.
-    for each (let buddy in this._buddies)
-      buddy.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
+    this.buddies.forEach(function(aBuddy)
+      aBuddy.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, ""));
   },
 
   gotDisconnected: function(aError, aErrorMessage) {
@@ -1716,9 +1703,8 @@ ircAccount.prototype = {
     for each (let conv in this._conversations)
       conv.close();
     delete this._conversations;
-    for each (let buddy in this._buddies)
-      buddy.remove();
-    delete this._buddies;
+    this.buddies.forEach(function(aBuddy) aBuddy.remove());
+    delete this.buddies;
   },
 
   unInit: function() {

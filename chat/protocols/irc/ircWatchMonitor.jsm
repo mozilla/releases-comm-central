@@ -34,7 +34,7 @@ function setStatus(aAccount, aNick, aStatus) {
     aAccount.removeBuddyInfo(aNick);
   }
 
-  let buddy = aAccount.getBuddy(aNick);
+  let buddy = aAccount.buddies.get(aNick);
   if (!buddy)
     return false;
   buddy.setStatus(Ci.imIStatusInfo["STATUS_" + aStatus], "");
@@ -157,7 +157,7 @@ var ircWATCH = {
     "301": function(aMessage) { // RPL_AWAY
       // <nick> :<away message>
       // Set the received away message.
-      let buddy = this.getBuddy(aMessage.params[1]);
+      let buddy = this.buddies.get(aMessage.params[1]);
       if (buddy)
         buddy.setStatus(Ci.imIStatusInfo.STATUS_AWAY, aMessage.params[2]);
 

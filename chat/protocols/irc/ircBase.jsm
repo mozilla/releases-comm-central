@@ -208,7 +208,7 @@ var ircBase = {
         }
       }
       // If the joiner is a buddy, mark as online.
-      let buddy = this.getBuddy(aMessage.nickname);
+      let buddy = this.buddies.get(aMessage.nickname);
       if (buddy)
         buddy.setStatus(Ci.imIStatusInfo.STATUS_AVAILABLE, "");
       return true;
@@ -307,7 +307,7 @@ var ircBase = {
       this.removeBuddyInfo(aMessage.nickname);
 
       // If the leaver is a buddy, mark as offline.
-      let buddy = this.getBuddy(aMessage.nickname);
+      let buddy = this.buddies.get(aMessage.nickname);
       if (buddy)
         buddy.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
       return true;
@@ -672,7 +672,7 @@ var ircBase = {
 
         // Set the status with no status message, only if the buddy actually
         // exists in the buddy list.
-        let buddy = this.getBuddy(buddyName);
+        let buddy = this.buddies.get(buddyName);
         if (buddy)
           buddy.setStatus(status, "");
       }
