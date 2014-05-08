@@ -931,7 +931,8 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 .splitmenu-menuitem > .menu-iconic-left,
-#appmenu-popup menuitem:not([type="radio"]):not(.folderMenuItem) >
+#appmenu-popup 
+  menuitem:not([type="radio"]):not([type="checkbox"]):not(.folderMenuItem) >
   .menu-iconic-left {
   display: none;
 }
