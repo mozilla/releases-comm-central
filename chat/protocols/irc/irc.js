@@ -1507,7 +1507,7 @@ ircAccount.prototype = {
   },
 
   // This builds the message string that will be sent to the server.
-  buildMessage: function(aCommand, aParams) {
+  buildMessage: function(aCommand, aParams = []) {
     if (!aCommand) {
       this.ERROR("IRC messages must have a command.");
       return null;
@@ -1520,9 +1520,9 @@ ircAccount.prototype = {
     }
 
     let message = aCommand;
-    // If aParams is empty, then use an empty array. If aParams is not an array,
-    // consider it to be a single parameter and put it into an array.
-    let params = !aParams ? [] : Array.isArray(aParams) ? aParams : [aParams];
+    // If aParams is not an array, consider it to be a single parameter and put
+    // it into an array.
+    let params = Array.isArray(aParams) ? aParams : [aParams];
     if (params.length) {
       if (params.slice(0, -1).some(function(p) p.contains(" "))) {
         this.ERROR("IRC parameters cannot have spaces: " + params.slice(0, -1));
@@ -1592,12 +1592,12 @@ ircAccount.prototype = {
 
   // CTCP messages are \001<COMMAND> [<parameters>]*\001.
   // Returns false if the message could not be sent.
-  sendCTCPMessage: function(aCommand, aParams, aTarget, aIsNotice) {
+  sendCTCPMessage: function(aTarget, aIsNotice, aCtcpCommand, aParams = []) {
     // Combine the CTCP command and parameters into the single IRC param.
-    let ircParam = aCommand;
-    // If aParams is empty, then use an empty array. If aParams is not an array,
-    // consider it to be a single parameter and put it into an array.
-    let params = !aParams ? [] : Array.isArray(aParams) ? aParams : [aParams];
+    let ircParam = aCtcpCommand;
+    // If aParams is not an array, consider it to be a single parameter and put
+    // it into an array.
+    let params = Array.isArray(aParams) ? aParams : [aParams];
     if (params.length)
       ircParam += " " + params.join(" ");
 
@@ -1647,12 +1647,11 @@ ircAccount.prototype = {
       aBuddy.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, ""));
   },
 
-  gotDisconnected: function(aError, aErrorMessage) {
+  gotDisconnected: function(aError = Ci.prplIAccount.NO_ERROR,
+                            aErrorMessage = "") {
     if (!this.imAccount || this.disconnected)
        return;
 
-    if (aError === undefined)
-      aError = Ci.prplIAccount.NO_ERROR;
     // If we are already disconnecting, this call to gotDisconnected
     // is when the server acknowledges our disconnection.
     // Otherwise it's because we lost the connection.

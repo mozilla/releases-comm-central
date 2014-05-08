@@ -6,7 +6,7 @@ let irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 const input = [
-  "", 
+  undefined,
   "test",
   "\\test",
   "te\\st",
@@ -54,7 +54,7 @@ irc.ircAccount.prototype.sendMessage = function(aCommand, aParams) {
 
 function run_test() {
   let output = input.map(function(aStr)
-    irc.ircAccount.prototype.sendCTCPMessage("ACTION", aStr, ""));
+    irc.ircAccount.prototype.sendCTCPMessage("", false, "ACTION", aStr));
 
   // Ensure both arrays have the same length.
   do_check_eq(expectedOutputParams.length, outputParams.length);

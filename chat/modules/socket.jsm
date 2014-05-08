@@ -222,10 +222,10 @@ const Socket = {
 
   // Listen for a connection on a port.
   // XXX take a timeout and then call stopListening
-  listen: function(port) {
-    this.LOG("Listening on port " + port);
+  listen: function(aPort) {
+    this.LOG("Listening on port " + aPort);
 
-    this.serverSocket = new ServerSocket(port, false, -1);
+    this.serverSocket = new ServerSocket(aPort, false, -1);
     this.serverSocket.asyncListen(this);
   },
 
@@ -239,8 +239,8 @@ const Socket = {
 
   // Send data on the output stream. Provide aLoggedData to log something
   // different than what is actually sent.
-  sendData: function(/* string */ aData, aLoggedData) {
-    this.LOG("Sending:\n" + (aLoggedData || aData));
+  sendData: function(/* string */ aData, aLoggedData = aData) {
+    this.LOG("Sending:\n" + aLoggedData);
 
     try {
       this._outputStream.write(aData, aData.length);
@@ -251,11 +251,11 @@ const Socket = {
 
   // Send a string to the output stream after converting the encoding. Provide
   // aLoggedData to log something different than what is actually sent.
-  sendString: function(aString, aEncoding, aLoggedData) {
-    this.LOG("Sending:\n" + (aLoggedData || aString));
+  sendString: function(aString, aEncoding = "UTF-8", aLoggedData = aString) {
+    this.LOG("Sending:\n" + aLoggedData);
 
     let converter = new ScriptableUnicodeConverter();
-    converter.charset = aEncoding || "UTF-8";
+    converter.charset = aEncoding;
     try {
       let stream = converter.convertToInputStream(aString);
       this._outputStream.writeFrom(stream, stream.available());
