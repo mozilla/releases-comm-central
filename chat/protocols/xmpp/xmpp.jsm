@@ -101,12 +101,12 @@ const XMPPMUCConversationPrototype = {
     let from = aStanza.attributes["from"];
     let nick = this._account._parseJID(from).resource;
     if (aStanza.attributes["type"] == "unavailable") {
-      if (!(nick in this._participants)) {
+      if (!this._participants.has(nick)) {
         this.WARN("received unavailable presence for an unknown MUC participant: " +
                   from);
         return;
       }
-      delete this._participants[nick];
+      this._participants.delete(nick);
       let nickString = Cc["@mozilla.org/supports-string;1"]
                          .createInstance(Ci.nsISupportsString);
       nickString.data = nick;
@@ -114,14 +114,15 @@ const XMPPMUCConversationPrototype = {
                            "chat-buddy-remove");
       return;
     }
-    if (!hasOwnProperty(this._participants, nick)) {
-      this._participants[nick] = new MUCParticipant(nick, from, aStanza);
-      this.notifyObservers(new nsSimpleEnumerator([this._participants[nick]]),
+    if (!this._participants.get(nick)) {
+      let participant = new MUCParticipant(nick, from, aStanza);
+      this._participants.set(nick, participant);
+      this.notifyObservers(new nsSimpleEnumerator([participant]),
                            "chat-buddy-add");
     }
     else {
-      this._participants[nick].stanza = aStanza;
-      this.notifyObservers(this._participants[nick], "chat-buddy-update");
+      this._participants.get(nick).stanza = aStanza;
+      this.notifyObservers(this._participants.get(nick), "chat-buddy-update");
     }
   },
 

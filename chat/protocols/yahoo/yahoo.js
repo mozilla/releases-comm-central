@@ -110,10 +110,10 @@ YahooConference.prototype = {
   addParticipant: function(aName) {
     // In case we receive multiple conference logon packets, prevent adding
     // duplicate buddies.
-    if (this._participants[aName])
+    if (this._participants.get(aName))
       return;
     let buddy = new YahooConferenceBuddy(aName, this);
-    this._participants[aName] = buddy;
+    this._participants.set(aName, buddy);
     this.notifyObservers(new nsSimpleEnumerator([buddy]), "chat-buddy-add");
     this.writeMessage(this._roomName,
                       _("system.message.conferenceLogon", aName),
@@ -123,7 +123,7 @@ YahooConference.prototype = {
   removeParticipant: function(aName) {
     // In case we receive two logoff packets, make sure that the user is
     // actually here before continuing.
-    if (!this._participants[aName])
+    if (!this._participants.has(aName))
       return;
 
     let stringNickname = Cc["@mozilla.org/supports-string;1"]
@@ -131,14 +131,13 @@ YahooConference.prototype = {
     stringNickname.data = aName;
     this.notifyObservers(new nsSimpleEnumerator([stringNickname]),
                          "chat-buddy-remove");
-    delete this._participants[aName];
+    this._participants.delete(aName);
     this.writeMessage(this._roomName,
                       _("system.message.conferenceLogoff", aName),
                       {system: true});
   },
 
-  getParticipantNames: function()
-    [this._participants[i].name for (i in this._participants)],
+  getParticipantNames: function() [p.name for (p in this._participants)]
 };
 YahooConference.prototype.__proto__ = GenericConvChatPrototype;
 

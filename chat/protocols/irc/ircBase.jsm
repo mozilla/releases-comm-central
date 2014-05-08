@@ -84,7 +84,7 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
         msg = __(nick);
 
       conversation.writeMessage(aSource, msg, {system: true});
-      conversation.removeParticipant(nick, true);
+      conversation.removeParticipant(nick);
     }
   }
   return true;
@@ -297,9 +297,9 @@ var ircBase = {
       // Loop over every conversation with the user and display that they quit.
       for each (let conversation in this._conversations) {
         if (conversation.isChat &&
-            conversation.hasParticipant(aMessage.nickname)) {
+            conversation._participants.has(aMessage.nickname)) {
           conversation.writeMessage(aMessage.servername, msg, {system: true});
-          conversation.removeParticipant(aMessage.nickname, true);
+          conversation.removeParticipant(aMessage.nickname);
         }
       }
 

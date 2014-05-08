@@ -524,7 +524,7 @@ const GenericConvChatPrototype = {
   classDescription: "generic ConvChat object",
 
   _init: function(aAccount, aName, aNick) {
-    this._participants = {};
+    this._participants = new Map();
     this.nick = aNick;
     GenericConversationPrototype._init.call(this, aAccount, aName);
   },
@@ -601,9 +601,9 @@ const GenericConvChatPrototype = {
   },
 
   getParticipants: function() {
+    // Convert the values of the Map into a nsSimpleEnumerator.
     return new nsSimpleEnumerator(
-      Object.keys(this._participants)
-            .map(function(key) this._participants[key], this)
+      [participant for (participant of this._participants.values())]
     );
   },
   getNormalizedChatBuddyName: function(aChatBuddyName) aChatBuddyName,

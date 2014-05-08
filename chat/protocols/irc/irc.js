@@ -263,6 +263,7 @@ const GenericIRCConversation = {
 
 function ircChannel(aAccount, aName, aNick) {
   this._init(aAccount, aName, aNick);
+  this._participants = new NormalizedMap(this.normalizeNick.bind(this));
   this._modes = new Set();
   this._observedNicks = [];
   this.banMasks = [];
@@ -323,16 +324,12 @@ ircChannel.prototype = {
   // Use the normalized nick in order to properly notify the observers.
   getNormalizedChatBuddyName: function(aNick) this.normalizeNick(aNick),
 
-  hasParticipant: function(aNick)
-    hasOwnProperty(this._participants, this.normalizeNick(aNick)),
-
   getParticipant: function(aNick, aNotifyObservers) {
-    let normalizedNick = this.normalizeNick(aNick);
-    if (this.hasParticipant(aNick))
-      return this._participants[normalizedNick];
+    if (this._participants.has(aNick))
+      return this._participants.get(aNick);
 
     let participant = new ircParticipant(aNick, this);
-    this._participants[normalizedNick] = participant;
+    this._participants.set(aNick, participant);
 
     // Add the participant to the whois table if it is not already there.
     this._account.setWhois(participant._name);
@@ -344,7 +341,7 @@ ircChannel.prototype = {
     return participant;
   },
   updateNick: function(aOldNick, aNewNick) {
-    let isParticipant = this.hasParticipant(aOldNick);
+    let isParticipant = this._participants.has(aOldNick);
     if (this.normalizeNick(aOldNick) == this.normalizeNick(this.nick)) {
       // If this is the user's nick, change it.
       this.nick = aNewNick;
@@ -360,40 +357,38 @@ ircChannel.prototype = {
 
     // Get the original ircParticipant and then remove it.
     let participant = this.getParticipant(aOldNick);
-    this.removeParticipant(aOldNick);
+    this._participants.delete(aNick);
 
     // Update the nickname and add it under the new nick.
     participant._name = aNewNick;
-    this._participants[this.normalizeNick(aNewNick)] = participant;
+    this._participants.set(aNewNick, participant);
 
     this.notifyObservers(participant, "chat-buddy-update", aOldNick);
   },
-  removeParticipant: function(aNick, aNotifyObservers) {
-    if (!this.hasParticipant(aNick))
+  removeParticipant: function(aNick) {
+    if (!this._participants.has(aNick))
       return;
 
-    if (aNotifyObservers) {
-      let stringNickname = Cc["@mozilla.org/supports-string;1"]
-                              .createInstance(Ci.nsISupportsString);
-      stringNickname.data = aNick;
-      this.notifyObservers(new nsSimpleEnumerator([stringNickname]),
-                           "chat-buddy-remove");
-    }
-    delete this._participants[this.normalizeNick(aNick)];
+    let stringNickname = Cc["@mozilla.org/supports-string;1"]
+                           .createInstance(Ci.nsISupportsString);
+    stringNickname.data = aNick;
+    this.notifyObservers(new nsSimpleEnumerator([stringNickname]),
+                         "chat-buddy-remove");
+    this._participants.delete(aNick);
   },
   // Use this before joining to avoid errors of trying to re-add an existing
   // participant
   removeAllParticipants: function() {
     let stringNicknames = [];
-    for (let nickname in this._participants) {
+    this._participants.forEach(function(aParticipant) {
       let stringNickname = Cc["@mozilla.org/supports-string;1"]
                               .createInstance(Ci.nsISupportsString);
-      stringNickname.data = this._participants[nickname].name;
+      stringNickname.data = aParticipant.name;
       stringNicknames.push(stringNickname);
-    }
+    });
     this.notifyObservers(new nsSimpleEnumerator(stringNicknames),
                          "chat-buddy-remove");
-    this._participants = {};
+    this._participants.clear();
   },
 
   setMode: function(aNewMode, aModeParams, aSetter) {
@@ -430,7 +425,7 @@ ircChannel.prototype = {
       // implementations, check if a participant with that name exists. If this
       // is true, then update the mode of the ConvChatBuddy.
       if (this._account.memberStatuses.indexOf(aNewMode[i]) != -1 &&
-          aModeParams.length && this.hasParticipant(peekNextParam())) {
+          aModeParams.length && this._participants.has(peekNextParam())) {
         // Store the new modes for this nick (so each participant's mode is only
         // updated once).
         let nick = this.normalizeNick(getNextParam());
@@ -544,7 +539,7 @@ ircChannel.prototype = {
   },
   get topicSettable() {
     // If we're not in the room yet, we don't exist.
-    if (!this.hasParticipant(this.nick))
+    if (!this._participants.has(this.nick))
       return false;
 
     // If the channel mode is +t, hops and ops can set the topic; otherwise
@@ -1159,7 +1154,7 @@ ircAccount.prototype = {
     else {
       msg = _("message.nick", aOldNick, aNewNick);
       for each (let conversation in this._conversations) {
-        if (conversation.isChat && conversation.hasParticipant(aOldNick)) {
+        if (conversation.isChat && conversation._participants.has(aOldNick)) {
           // Update the nick in every chat conversation it is in.
           conversation.updateNick(aOldNick, aNewNick);
           conversation.writeMessage(aOldNick, msg, {system: true});
@@ -1677,7 +1672,7 @@ ircAccount.prototype = {
       if (conversation.isChat && !conversation.left) {
         // Remove the user's nick and mark the conversation as left as that's
         // the final known state of the room.
-        conversation.removeParticipant(this._nickname, true);
+        conversation.removeParticipant(this._nickname);
         conversation.left = true;
       }
     }
