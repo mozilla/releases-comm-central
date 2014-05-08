@@ -851,7 +851,7 @@
     <menuitem id="context-composeemailto"
               label="&SendMailTo.label;"
               accesskey="&SendMailTo.accesskey;"
-              oncommand="SendMailTo(gContextMenu.getEmail());"/>
+              oncommand="SendMailTo(gContextMenu.getEmail(), event);"/>
     <menuitem id="context-createfilterfrom"
               label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"

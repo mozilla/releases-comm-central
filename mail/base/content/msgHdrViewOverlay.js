@@ -1577,8 +1577,9 @@ function EditContact(emailAddressNode)
  * in there and opens a compose window with that address.
  *
  * @param addressNode  a node which has a "fullAddress" or "newsgroup" attribute
+ * @param aEvent       the event object when user triggers the menuitem
  */
-function SendMailToNode(addressNode)
+function SendMailToNode(addressNode, aEvent)
 {
   let fields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
                          .createInstance(Components.interfaces.nsIMsgCompFields);
@@ -1589,7 +1590,13 @@ function SendMailToNode(addressNode)
   fields.to = addressNode.getAttribute("fullAddress");
 
   params.type = Components.interfaces.nsIMsgCompType.New;
-  params.format = Components.interfaces.nsIMsgCompFormat.Default;
+
+  // If aEvent is passed, check if Shift key was pressed for composition in
+  // non-default format (HTML vs. plaintext).
+  params.format = (aEvent && aEvent.shiftKey) ? 
+    Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
+    Components.interfaces.nsIMsgCompFormat.Default;
+
   if (gFolderDisplay.displayedFolder) {
     params.identity = accountManager.getFirstIdentityForServer(
                         gFolderDisplay.displayedFolder.server);

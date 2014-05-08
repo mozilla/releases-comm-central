@@ -108,7 +108,7 @@
                 oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
       <menuitem id="sendMailToItem" label="&SendMessageTo.label;"
                 accesskey="&SendMessageTo.accesskey;"
-                oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
+                oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'), event)"/>
       <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
                 accesskey="&CopyEmailAddress.accesskey;"
                 oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>

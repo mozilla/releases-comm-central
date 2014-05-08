@@ -435,16 +435,20 @@ function EditContact(aEmailAddressNode)
   }
 }
 
-// SendMailToNode takes the email address title button, extracts
-// the email address we stored in there and opens a compose window
-// with that address
-function SendMailToNode(emailAddressNode)
+/**
+ * SendMailToNode takes the email address title button, extracts the email address
+ * we stored in there and opens a compose window with that address.
+ *
+ * @param addressNode  a node which has a "fullAddress" attribute
+ * @param aEvent       the event object when user triggers the menuitem
+ */
+function SendMailToNode(emailAddressNode, aEvent)
 {
   if (emailAddressNode)
-    SendMailTo(emailAddressNode.getAttribute("fullAddress"));
+    SendMailTo(emailAddressNode.getAttribute("fullAddress"), aEvent);
 }
 
-function SendMailTo(fullAddress)
+function SendMailTo(fullAddress, aEvent)
 {
   var fields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
   var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
@@ -452,7 +456,13 @@ function SendMailTo(fullAddress)
   {
     fields.to = fullAddress;
     params.type = Components.interfaces.nsIMsgCompType.New;
-    params.format = Components.interfaces.nsIMsgCompFormat.Default;
+
+    // If aEvent is passed, check if Shift key was pressed for composition in
+    // non-default format (HTML vs. plaintext).
+    params.format = (aEvent && aEvent.shiftKey) ? 
+      Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
+      Components.interfaces.nsIMsgCompFormat.Default;
+
     params.identity = accountManager.getFirstIdentityForServer(GetLoadedMsgFolder().server);
     params.composeFields = fields;
     msgComposeService.OpenComposeWindowWithParams(null, params);
