@@ -1779,7 +1779,7 @@ bool nsMsgDBView::WasHdrRecentlyDeleted(nsIMsgDBHdr *msgHdr)
 NS_IMETHODIMP nsMsgDBView::AddColumnHandler(const nsAString& column, nsIMsgCustomColumnHandler* handler)
 {
 
-  uint32_t index = m_customColumnHandlerIDs.IndexOf(column);
+  size_t index = m_customColumnHandlerIDs.IndexOf(column);
 
   nsAutoString strColID(column);
 
@@ -1814,9 +1814,9 @@ NS_IMETHODIMP nsMsgDBView::RemoveColumnHandler(const nsAString& aColID)
 
   // here we should check if the column name matches any of the columns in
   // m_sortColumns, and if so, clear m_sortColumns[i].mColHandler
-  int32_t index = m_customColumnHandlerIDs.IndexOf(aColID);
+  size_t index = m_customColumnHandlerIDs.IndexOf(aColID);
 
-  if (index != -1)
+  if (index != m_customColumnHandlerIDs.NoIndex)
   {
     m_customColumnHandlerIDs.RemoveElementAt(index);
     m_customColumnHandlers.RemoveObjectAt(index);
@@ -1875,8 +1875,9 @@ NS_IMETHODIMP nsMsgDBView::GetCurCustomColumn(nsAString &result)
 
 nsIMsgCustomColumnHandler* nsMsgDBView::GetColumnHandler(const char16_t *colID)
 {
-  int32_t index = m_customColumnHandlerIDs.IndexOf(nsDependentString(colID));
-  return (index > -1) ? m_customColumnHandlers[index] : nullptr;
+  size_t index = m_customColumnHandlerIDs.IndexOf(nsDependentString(colID));
+  return (index != m_customColumnHandlerIDs.NoIndex) ?
+    m_customColumnHandlers[index] : nullptr;
 }
 
 NS_IMETHODIMP nsMsgDBView::GetColumnHandler(const nsAString& aColID, nsIMsgCustomColumnHandler** aHandler)
@@ -4055,9 +4056,7 @@ void nsMsgDBView::PushSort(const MsgViewSortColumnInfo &newSort)
   if (newSort.mSortType == nsMsgViewSortType::byDate ||
       newSort.mSortType == nsMsgViewSortType::byId   )
     m_sortColumns.Clear();
-  int32_t sortIndex = m_sortColumns.IndexOf(newSort, 0);
-  if (sortIndex != kNotFound)
-    m_sortColumns. RemoveElementAt(sortIndex);
+  m_sortColumns.RemoveElement(newSort);
   m_sortColumns.InsertElementAt(0, newSort);
   if (m_sortColumns.Length() > kMaxNumSortColumns)
     m_sortColumns.RemoveElementAt(kMaxNumSortColumns);

@@ -112,13 +112,11 @@ nsresult nsMsgMailNewsUrl::UnRegisterListener(nsIUrlListener *aUrlListener)
 {
   NS_ENSURE_ARG_POINTER(aUrlListener);
 
-  int32_t index = mUrlListeners.IndexOf(aUrlListener);
   // Due to the way mailnews is structured, some listeners attempt to remove
   // themselves twice. This may in fact be an error in the coding, however
   // if they didn't do it as they do currently, then they could fail to remove
   // their listeners.
-  if (index != -1)
-    mUrlListeners.RemoveElementAt(index);
+  mUrlListeners.RemoveElement(aUrlListener);
 
   return NS_OK;
 }

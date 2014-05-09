@@ -145,7 +145,7 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
       do_CreateInstance("@mozilla.org/network/ldap-modification;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
    
-    uint32_t index = m_attributes.IndexOf(attr);
+    size_t index = m_attributes.IndexOf(attr);
 
     rv = GetPropertyAsAUTF8String(props[i], propvalue);
 

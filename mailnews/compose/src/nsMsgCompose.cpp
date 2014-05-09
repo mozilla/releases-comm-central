@@ -1019,10 +1019,6 @@ nsMsgCompose::UnregisterStateListener(nsIMsgComposeStateListener *aStateListener
 {
   NS_ENSURE_ARG_POINTER(aStateListener);
 
-  int32_t index = mStateListeners.IndexOf(aStateListener);
-  if (index == -1)
-    return NS_ERROR_FAILURE;
-
   return mStateListeners.RemoveElement(aStateListener) ? NS_OK : NS_ERROR_FAILURE;
 }
 
@@ -4701,7 +4697,7 @@ nsMsgCompose::LookupAddressBook(RecipientsArray &recipientsList)
           if (!recipient.mDirectory)
           {
             // First check if it's a mailing list
-            uint32_t index = mailListArray.IndexOf(recipient, 0,
+            size_t index = mailListArray.IndexOf(recipient, 0,
               nsMsgMailListComparator());
             if (index != mailListArray.NoIndex &&
                 mailListArray[index].mDirectory)

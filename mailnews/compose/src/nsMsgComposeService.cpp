@@ -1385,7 +1385,7 @@ nsresult nsMsgComposeService::AddGlobalHtmlDomains()
       // Get the current plaintext domain list into new list var
       ParseString(currentPlaintextDomainList, DOMAIN_DELIMITER, domainArray);
 
-      uint32_t i = domainArray.Length();
+      size_t i = domainArray.Length();
       if (i > 0) {
         // Append each domain in the preconfigured html domain list
         globalHtmlDomainList.StripWhitespace();

@@ -111,8 +111,8 @@ NS_IMETHODIMP nsMsgSearchSession::RegisterListener(nsIMsgSearchNotify *aListener
 NS_IMETHODIMP nsMsgSearchSession::UnregisterListener(nsIMsgSearchNotify *aListener)
 {
   NS_ENSURE_ARG_POINTER(aListener);
-  int32_t listenerIndex = m_listenerList.IndexOf(aListener);
-  if (listenerIndex != -1)
+  size_t listenerIndex = m_listenerList.IndexOf(aListener);
+  if (listenerIndex != m_listenerList.NoIndex)
   {
     m_listenerList.RemoveElementAt(listenerIndex);
     m_listenerFlagList.RemoveElementAt(listenerIndex);

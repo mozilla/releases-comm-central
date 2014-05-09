@@ -1038,7 +1038,7 @@ nsresult nsMsgFilterList::MoveFilterAt(uint32_t filterIndex,
 nsresult nsMsgFilterList::MoveFilter(nsIMsgFilter *aFilter,
                                      nsMsgFilterMotionValue motion)
 {
-  uint32_t filterIndex = m_filters.IndexOf(aFilter, 0);
+  size_t filterIndex = m_filters.IndexOf(aFilter, 0);
   NS_ENSURE_ARG(filterIndex != m_filters.NoIndex);
 
   return MoveFilterAt(filterIndex, motion);

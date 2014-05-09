@@ -1045,7 +1045,7 @@ nsresult nsParseMailMessageState::ParseHeaders ()
 #endif
 
       ToLowerCase(headerStr);
-      uint32_t customHeaderIndex = m_customDBHeaders.IndexOf(headerStr);
+      size_t customHeaderIndex = m_customDBHeaders.IndexOf(headerStr);
       if (customHeaderIndex != m_customDBHeaders.NoIndex)
         header = & m_customDBHeaderValues[customHeaderIndex];
     }

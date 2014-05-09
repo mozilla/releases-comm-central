@@ -828,7 +828,7 @@ nsMsgViewIndex nsMsgXFGroupThread::FindMsgHdr(nsIMsgDBHdr *hdr)
   hdr->GetMessageKey(&msgKey);
   nsCOMPtr<nsIMsgFolder> folder;
   hdr->GetFolder(getter_AddRefs(folder));
-  uint32_t index = 0;
+  size_t index = 0;
   while (true) {
     index = m_keys.IndexOf(msgKey, index);
     if (index == m_keys.NoIndex || m_folders[index] == folder)

@@ -95,7 +95,8 @@ nsNNTPArticleList::FinishAddingArticleKeys()
 #ifdef DEBUG
   // make sure none of the deleted turned up on the idsOnServer list
   for (uint32_t i = 0; i < m_idsDeleted.Length(); i++) {
-    NS_ASSERTION(m_idsOnServer.IndexOf((nsMsgKey)(m_idsDeleted[i]), 0) == nsMsgViewIndex_None, "a deleted turned up on the idsOnServer list");
+    NS_ASSERTION(!m_idsOnServer.Contains((nsMsgKey)m_idsDeleted[i]),
+      "a deleted turned up on the idsOnServer list");
   }
 #endif
   return NS_OK;

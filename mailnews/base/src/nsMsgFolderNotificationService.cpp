@@ -48,11 +48,7 @@ NS_IMETHODIMP nsMsgFolderNotificationService::RemoveListener(nsIMsgFolderListene
 {
   NS_ENSURE_ARG_POINTER(aListener);
 
-  int32_t index = mListeners.IndexOf(aListener);
-  NS_ASSERTION(index != -1, "removing non-existent listener");
-  if (index != -1)
-    mListeners.RemoveElementAt(index);
-
+  mListeners.RemoveElement(aListener);
   return NS_OK;
 }
 
