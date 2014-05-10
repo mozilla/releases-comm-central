@@ -357,7 +357,7 @@ ircChannel.prototype = {
 
     // Get the original ircParticipant and then remove it.
     let participant = this.getParticipant(aOldNick);
-    this._participants.delete(aNick);
+    this._participants.delete(aOldNick);
 
     // Update the nickname and add it under the new nick.
     participant._name = aNewNick;
