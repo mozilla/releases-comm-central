@@ -596,14 +596,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
   #mail-toolbar-menubar2 {
     -moz-box-ordinal-group: 20;
   }
-
-  #tabbar-toolbar:not(:-moz-lwtheme-darktext) .toolbarbutton-1 {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-inverted.png");
-  }
-
-  #tabbar-toolbar:not(:-moz-lwtheme-darktext) .toolbarbutton-1 .dropmarker-icon {
-    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
-  }
 }
 
 @media (-moz-windows-glass) {
@@ -632,6 +624,30 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
     top: 50%;
     width: -moz-available;
     z-index: -1;
+  }
+
+  #tabbar-toolbar:not(:-moz-lwtheme-darktext) .toolbarbutton-1 {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-inverted.png");
+  }
+
+  #tabbar-toolbar:not(:-moz-lwtheme-darktext) .toolbarbutton-1 .dropmarker-icon {
+    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
+  }
+}
+
+@media (-moz-os-version: windows-win8) {
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  .toolbarbutton-1,
+  #tabbar-toolbar:-moz-lwtheme-brighttext .toolbarbutton-1 {
+    list-style-image: url("icons/mail-toolbar-inverted.png");
+  }
+
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  .toolbarbutton-1 .dropmarker-icon,
+  #tabbar-toolbar:-moz-lwtheme-brighttext .toolbarbutton-1 .dropmarker-icon {
+    list-style-image: url("icons/toolbarbutton-arrow-inverted.png");
   }
 }
 

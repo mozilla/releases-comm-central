@@ -35,9 +35,20 @@
   list-style-image: url(chrome://calendar/skin/toolbar-small-aero.png);
 }
 
-@media (-moz-windows-compositor) {
+@media (-moz-windows-glass) {
   #tabbar-toolbar:not(:-moz-lwtheme-darktext) #calendar-tab-button,
   #tabbar-toolbar:not(:-moz-lwtheme-darktext) #task-tab-button {
+    list-style-image: url(chrome://lightning/skin/mode-switch-icons-inverted.png);
+  }
+}
+
+@media (-moz-os-version: windows-win8) {
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  #calendar-tab-button,
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  #task-tab-button {
     list-style-image: url(chrome://lightning/skin/mode-switch-icons-inverted.png);
   }
 }

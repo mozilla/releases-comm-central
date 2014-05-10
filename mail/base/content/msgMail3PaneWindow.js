@@ -399,6 +399,33 @@ function OnLoadMessenger()
   // in delayedOnLoadMessenger...
   UpdateMailPaneConfig(false);
   document.loadBindingDocument('chrome://global/content/bindings/textbox.xml');
+
+#ifdef XP_WIN
+  // On Win8 set an attribute when the window frame color is too dark for black text.
+  if (window.matchMedia("(-moz-os-version: windows-win8)").matches &&
+      window.matchMedia("(-moz-windows-default-theme)").matches) {
+    let windows8WindowFrameColor = Cu.import("resource:///modules/Windows8WindowFrameColor.jsm", {}).Windows8WindowFrameColor;
+    let windowFrameColor = windows8WindowFrameColor.get();
+
+    // Formula from W3C's WCAG 2.0 spec's color ratio and relative luminance,
+    // section 1.3.4, http://www.w3.org/TR/WCAG20/ .
+    windowFrameColor = windowFrameColor.map((color) => {
+      if (color <= 10) {
+        return color / 255 / 12.92;
+      }
+      return Math.pow(((color / 255) + 0.055) / 1.055, 2.4);
+    });
+    let backgroundLuminance = windowFrameColor[0] * 0.2126 +
+                              windowFrameColor[1] * 0.7152 +
+                              windowFrameColor[2] * 0.0722;
+    let foregroundLuminance = 0; // Default to black for foreground text.
+    let contrastRatio = (backgroundLuminance + 0.05) / (foregroundLuminance + 0.05);
+    if (contrastRatio < 3) {
+      document.documentElement.setAttribute("darkwindowframe", "true");
+    }
+  }
+#endif
+
   // Set a sane starting width/height for all resolutions on new profiles.
   // Do this before the window loads.
   if (!document.documentElement.hasAttribute("width"))

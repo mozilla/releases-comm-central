@@ -64,6 +64,11 @@
   color: CaptionText;
 }
 
+#messengerWindow[tabsintitlebar]
+.tabmail-tab:not([selected]):not(:-moz-lwtheme):-moz-window-inactive {
+  color: InactiveCaptionText;
+}
+
 .tabmail-tab[busy],
 .tabmail-tab[thinking] {
   list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
@@ -210,17 +215,42 @@ tabpanels {
 }
 
 /* Apply only on Win8 */
-@media (-moz-windows-compositor) {
-  @media not all and (-moz-windows-glass) {
-    .tabs-alltabs-button:not(:-moz-lwtheme) {
-      list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.png);
-      width: 22px;
-      -moz-padding-start: 6px;
-    }
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #messengerWindow[darkwindowframe="true"]
+  #tabs-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive),
+  #messengerWindow[darkwindowframe="true"]
+  .tabmail-tab:not([selected="true"]):not(:-moz-lwtheme):not(:-moz-window-inactive) {
+    color: white;
+  }
 
-    .tabs-alltabs-button > .toolbarbutton-icon {
-      margin: 4px 0 0;
-    }
+  #messengerWindow[darkwindowframe="true"] .tabmail-tab:not([selected="true"])
+  .tab-close-button:not(:-moz-any(:hover,:active)):not(:-moz-lwtheme):not(:-moz-window-inactive) {
+    -moz-image-region: rect(0, 64px, 16px, 48px);
+  }
+
+  #messengerWindow[darkwindowframe="true"] .tabmail-arrowscrollbox >
+  .scrollbutton-up:not(:-moz-lwtheme):not(:-moz-window-inactive),
+  #messengerWindow[darkwindowframe="true"] .tabmail-arrowscrollbox
+  > stack > .scrollbutton-down:not(:-moz-lwtheme):not(:-moz-window-inactive) {
+    list-style-image: url(tabs/arrow-left-inverted.png);
+  }
+
+  #messengerWindow[darkwindowframe="true"]
+  .tabs-alltabs-button:not(:-moz-lwtheme):-moz-window-inactive {
+    list-style-image: url(icons/toolbarbutton-arrow.png);
+    -moz-image-region: rect(0, 9px, 7px, 0);
+    padding-top: 1px;
+    -moz-padding-start: 5px;
+    -moz-padding-end: 5px;
+  }
+
+  #messengerWindow[darkwindowframe="true"]
+  .tabs-alltabs-button:not(:-moz-lwtheme):not(:-moz-window-inactive) {
+    list-style-image: url(icons/mainwindow-dropdown-arrow-inverted.png);
+  }
+
+  .tabs-alltabs-button > .toolbarbutton-icon {
+    margin: 4px 0 0;
   }
 }
 

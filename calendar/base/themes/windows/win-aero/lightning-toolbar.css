@@ -89,14 +89,34 @@
   }
 }
 
-@media (-moz-windows-compositor) {
+@media (-moz-windows-glass) {
   #tabbar-toolbar:not(:-moz-lwtheme-darktext) #lightning-button-calendar,
   #tabbar-toolbar:not(:-moz-lwtheme-darktext) #lightning-button-tasks {
     list-style-image: url(chrome://lightning/skin/mode-switch-icons-inverted.png);
   }
 
-  #tabbar-toolbar:not(:-moz-lwtheme-darktext) > #extractTaskButton,
-  #tabbar-toolbar:not(:-moz-lwtheme-darktext) > #extractEventButton {
+  #tabbar-toolbar:not(:-moz-lwtheme-darktext) #extractTaskButton,
+  #tabbar-toolbar:not(:-moz-lwtheme-darktext) #extractEventButton {
+    list-style-image: url(chrome://calendar/skin/toolbar-aero-inverted.png);
+  }
+}
+
+@media (-moz-os-version: windows-win8) {
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  #lightning-button-calendar,
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  #lightning-button-tasks {
+    list-style-image: url(chrome://lightning/skin/mode-switch-icons-inverted.png);
+  }
+
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  #extractTaskButton,
+  #messengerWindow[darkwindowframe="true"]
+  #tabbar-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive)
+  #extractEventButton {
     list-style-image: url(chrome://calendar/skin/toolbar-aero-inverted.png);
   }
 }

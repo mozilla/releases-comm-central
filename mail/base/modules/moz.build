@@ -19,5 +19,6 @@ EXTRA_JS_MODULES += [
     'searchSpec.js',
     'sessionStoreManager.js',
     'summaryFrameManager.js',
+    'Windows8WindowFrameColor.jsm',
 ]
 
