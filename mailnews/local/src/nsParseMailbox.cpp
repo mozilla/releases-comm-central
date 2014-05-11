@@ -2508,10 +2508,14 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
                                             getter_AddRefs(newHdr));
   if (NS_SUCCEEDED(rv) && !newHdr)
     rv = NS_ERROR_UNEXPECTED;
-  if (NS_SUCCEEDED(rv))
+
+  if (NS_FAILED(rv))
   {
-    rv = AppendMsgFromStream(inputStream, newHdr, messageLength,
-                             destIFolder);
+    destIFolder->ThrowAlertMsg("filterFolderHdrAddFailed", msgWindow);
+  } else {
+    rv = AppendMsgFromStream(inputStream, newHdr, messageLength, destIFolder);
+    if (NS_FAILED(rv))
+      destIFolder->ThrowAlertMsg("filterFolderWriteFailed", msgWindow);
   }
 
   if (NS_FAILED(rv))
@@ -2519,11 +2523,8 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
     if (destMailDB)
       destMailDB->Close(true);
 
-    if (destIFolder)
-    {
-      destIFolder->ReleaseSemaphore(myISupports);
-      destIFolder->ThrowAlertMsg("filterFolderWriteFailed", msgWindow);
-    }
+    destIFolder->ReleaseSemaphore(myISupports);
+
     return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
   }
 
