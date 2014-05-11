@@ -749,7 +749,7 @@ bin/libfreebl_32int64_3.so
 @BINPATH@/components/ldapComponents.manifest
 @BINPATH@/components/mailview.xpt
 @BINPATH@/components/mime.xpt
-#ifdef XP_WIN32
+#ifdef MOZ_MAPI_SUPPORT
 @BINPATH@/components/mapihook.xpt
 #endif
 @BINPATH@/components/msgbase.xpt
@@ -820,7 +820,7 @@ bin/libfreebl_32int64_3.so
 @BINPATH@/@PREF_DIR@/mdn.js
 @BINPATH@/@PREF_DIR@/smime.js
 
-#ifdef XP_WIN32
+#ifdef MOZ_MAPI_SUPPORT
 @BINPATH@/MapiProxy.dll
 @BINPATH@/mozMapi32.dll
 #endif
