@@ -190,7 +190,7 @@ bool nsNewsDownloader::GetNextHdrToRetrieve()
     nsAutoString firstStr;
     firstStr.AppendInt(m_numwrote);
     nsAutoString totalStr;
-    totalStr.AppendInt(m_keysToDownload.Length());
+    totalStr.AppendInt(int(m_keysToDownload.Length()));
     nsString prettiestName;
     nsString statusString;
 
