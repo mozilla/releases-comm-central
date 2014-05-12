@@ -305,6 +305,8 @@
 #include "nsEncoderDecoderUtils.h"
 #include "nsCommUConvCID.h"
 
+#include "nsCharsetConverterManager.h"
+
 #include "nsUTF7ToUnicode.h"
 #include "nsMUTF7ToUnicode.h"
 #include "nsUnicodeToUTF7.h"
@@ -820,10 +822,14 @@ nsPgpMimeMimeContentTypeHandlerConstructor(nsISupports *aOuter,
 // i18n factories
 ////////////////////////////////////////////////////////////////////////////////
 
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsCharsetConverterManager)
+
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsUTF7ToUnicode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMUTF7ToUnicode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsUnicodeToUTF7)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsUnicodeToMUTF7)
+
+NS_DEFINE_NAMED_CID(NS_ICHARSETCONVERTERMANAGER_CID);
 
 NS_DEFINE_NAMED_CID(NS_UTF7TOUNICODE_CID);
 NS_DEFINE_NAMED_CID(NS_MUTF7TOUNICODE_CID);
@@ -1030,6 +1036,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_PGPMIME_CONTENT_TYPE_HANDLER_CID, false, NULL, nsPgpMimeMimeContentTypeHandlerConstructor },
   { &kNS_PGPMIMEPROXY_CID, false, NULL, nsPgpMimeProxyConstructor },
   // i18n Entries
+  { &kNS_ICHARSETCONVERTERMANAGER_CID, false, nullptr, nsCharsetConverterManagerConstructor },
   { &kNS_UTF7TOUNICODE_CID, false, nullptr, nsUTF7ToUnicodeConstructor },
   { &kNS_MUTF7TOUNICODE_CID, false, nullptr, nsMUTF7ToUnicodeConstructor },
   { &kNS_UNICODETOUTF7_CID, false, nullptr, nsUnicodeToUTF7Constructor },
@@ -1265,6 +1272,7 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { "@mozilla.org/mimecth;1?type=multipart/encrypted", &kNS_PGPMIME_CONTENT_TYPE_HANDLER_CID },
   { NS_PGPMIMEPROXY_CONTRACTID, &kNS_PGPMIMEPROXY_CID },
   // i18n Entries
+  { NS_CHARSETCONVERTERMANAGER_CONTRACTID, &kNS_ICHARSETCONVERTERMANAGER_CID },
   { NS_UNICODEDECODER_CONTRACTID_BASE "UTF-7", &kNS_UTF7TOUNICODE_CID },
   { NS_UNICODEDECODER_CONTRACTID_BASE "x-imap4-modified-utf7", &kNS_MUTF7TOUNICODE_CID },
   { NS_UNICODEENCODER_CONTRACTID_BASE "UTF-7", &kNS_UNICODETOUTF7_CID },
@@ -1300,6 +1308,8 @@ static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
   // Mail View Entries
   // mdn Entries
   // i18n Entries
+  { NS_TITLE_BUNDLE_CATEGORY, "chrome://messenger/locale/charsetTitles.properties", "" },
+  { NS_DATA_BUNDLE_CATEGORY, "resource://gre-resources/charsetData.properties", "" },
   NS_UCONV_REG_UNREG("UTF-7", NS_UTF7TOUNICODE_CID, NS_UNICODETOUTF7_CID)
   NS_UCONV_REG_UNREG("x-imap4-modified-utf7", NS_MUTF7TOUNICODE_CID, NS_UNICODETOMUTF7_CID)
   // Tokenizer Entries

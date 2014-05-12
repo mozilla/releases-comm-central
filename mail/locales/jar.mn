@@ -19,6 +19,7 @@
   locale/@AB_CD@/messenger/accountCreation.properties                   (%chrome/messenger/accountCreation.properties)
   locale/@AB_CD@/messenger/accountCreationModel.properties              (%chrome/messenger/accountCreationModel.properties)
   locale/@AB_CD@/messenger/accountCreationUtil.properties               (%chrome/messenger/accountCreationUtil.properties)
+  locale/@AB_CD@/messenger/charsetTitles.properties                     (%chrome/messenger/charsetTitles.properties)
   locale/@AB_CD@/messenger/systemIntegrationDialog.dtd                  (%chrome/messenger/systemIntegrationDialog.dtd)  
   locale/@AB_CD@/messenger/virtualFolderProperties.dtd                  (%chrome/messenger/virtualFolderProperties.dtd)
   locale/@AB_CD@/messenger/virtualFolderListDialog.dtd                  (%chrome/messenger/virtualFolderListDialog.dtd)
