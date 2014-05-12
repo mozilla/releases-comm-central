@@ -570,6 +570,7 @@
 @BINPATH@/components/intl.xpt
 @BINPATH@/components/locale.xpt
 @BINPATH@/components/uconv.xpt
+@BINPATH@/components/commuconv.xpt
 @BINPATH@/components/unicharutil.xpt
 
 ; dom
