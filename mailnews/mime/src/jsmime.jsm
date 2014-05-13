@@ -33,7 +33,10 @@ FakeTextDecoder.prototype = {
       "@mozilla.org/intl/scriptableunicodeconverter"]
       .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
     this._encoder.isInternal = true;
-    this._encoder.charset = label;
+    let manager = Components.classes[
+      "@mozilla.org/charset-converter-manager;1"]
+      .createInstance(Components.interfaces.nsICharsetConverterManager);
+    this._encoder.charset = manager.getCharsetAlias(label);
   },
   get encoding() { return this._encoder.charset; },
   decode: function (input, options = {}) {
