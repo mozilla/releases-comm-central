@@ -182,6 +182,7 @@
 @BINPATH@/components/chrome.xpt
 @BINPATH@/components/commandhandler.xpt
 @BINPATH@/components/commandlines.xpt
+@BINPATH@/components/commuconv.xpt
 @BINPATH@/components/composer.xpt
 @BINPATH@/components/content_base.xpt
 @BINPATH@/components/content_events.xpt
