@@ -35,12 +35,12 @@
   <hbox align="center" pack="end">
     <spacer flex="1"/>
     <label value="&event.freebusy.suggest.slot;"/>
-    <button label="&event.freebusy.previous.slot;"
+    <button label="&event.freebusy.button.previous.slot;"
             dir="normal"
             class="left-icon"
             id="previous-slot"
             oncommand="onPreviousSlot();"/>
-    <button label="&event.freebusy.next.slot;"
+    <button label="&event.freebusy.button.next.slot;"
             dir="reverse"
             class="right-icon"
             id="next-slot"

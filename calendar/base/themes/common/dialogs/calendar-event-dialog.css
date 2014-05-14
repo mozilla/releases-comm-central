@@ -405,6 +405,14 @@ dialog[systemcolors] .addressingWidgetCell {
     -moz-image-region: rect(14px 138px 28px 124px);
 }
 
+.left-icon .button-icon {
+    -moz-margin-end: 3px;
+}
+
+.right-icon .button-icon {
+    -moz-margin-start: 3px;
+}
+
 .legend {
     width: 3em;
     height: 1em;
