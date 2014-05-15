@@ -1668,11 +1668,14 @@ ircAccount.prototype = {
 
     // Clean up each conversation: mark as left and remove participant.
     for each (let conversation in this._conversations) {
-      if (conversation.isChat && !conversation.left) {
-        // Remove the user's nick and mark the conversation as left as that's
-        // the final known state of the room.
-        conversation.removeParticipant(this._nickname);
-        conversation.left = true;
+      if (conversation.isChat) {
+        conversation.joining = false; // In case we never finished joining.
+        if (!conversation.left) {
+          // Remove the user's nick and mark the conversation as left as that's
+          // the final known state of the room.
+          conversation.removeParticipant(this._nickname);
+          conversation.left = true;
+        }
       }
     }
 
