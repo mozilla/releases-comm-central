@@ -901,7 +901,17 @@ const XMPPAccountPrototype = {
           this.WARN("Received a groupchat message for unknown MUC " + norm);
           return;
         }
-        this._mucs[norm].incomingMessage(body, aStanza, date);
+        let muc = this._mucs[norm];
+
+        // Check for a subject element in the stanza and update the topic if
+        // it exists.
+        let s = aStanza.getElement(["subject"]);
+        // TODO There can be multiple subject elements with different xml:lang
+        // attributes.
+        if (s)
+          muc.setTopic(s.innerText);
+
+        muc.incomingMessage(body, aStanza, date);
         return;
       }
 
