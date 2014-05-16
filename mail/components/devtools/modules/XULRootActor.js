@@ -9,10 +9,13 @@
  * extension. Please don't introduce any Thunderbird-specific code
  */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/devtools/DevToolsUtils.jsm");
-
-let promise = Components.utils.import("resource://gre/modules/commonjs/sdk/core/promise.js", {}).Promise;
+let { Ci, Cu } = require("chrome");
+let Services = require("Services");
+let DevToolsUtils = require("devtools/toolkit/DevToolsUtils");
+let { RootActor } = require("devtools/server/actors/root");
+let { DebuggerServer } = require("devtools/server/main");
+let { Promise } = Cu.import("resource://gre/modules/Promise.jsm", {});
+let { BrowserTabList, BrowserTabActor, BrowserAddonList } = require("devtools/server/actors/webbrowser");
 
 /**
  * Create the root actor for this XUL application.
@@ -29,7 +32,7 @@ function createRootActor(aConnection) {
   };
 
   // Create the root actor and set the application type
-  let rootActor = new DebuggerServer.RootActor(aConnection, parameters);
+  let rootActor = new RootActor(aConnection, parameters);
   if (DebuggerServer.chromeWindowType) {
     rootActor.applicationType = DebuggerServer.chromeWindowType.split(":")[0];
   } else {
@@ -51,7 +54,7 @@ function appShellDOMWindowType(aWindow) {
  * Send a debugger shutdown event to all main windows.
  */
 function sendShutdownEvent() {
-  let windowTypes = RemoteDebuggerServer.chromeWindowTypes;
+  let windowTypes = DebuggerServer.RemoteDebuggerServer.chromeWindowTypes;
   for (let type of windowTypes) {
     let enumerator = Services.wm.getEnumerator(type);
     while (enumerator.hasMoreElements()) {
@@ -76,7 +79,7 @@ function XulTabList(aConnection) {
   this._actorByBrowser = new Map();
 
   // These windows should be checked for browser elements
-  this._checkedWindows = new Set(RemoteDebuggerServer.chromeWindowTypes);
+  this._checkedWindows = new Set(DebuggerServer.RemoteDebuggerServer.chromeWindowTypes);
 }
 
 XulTabList.prototype = {
@@ -169,7 +172,7 @@ XulTabList.prototype = {
     this._mustNotify = true;
     this._checkListening();
 
-    return promise.resolve([actor for ([_, actor] of this._actorByBrowser)]);
+    return Promise.resolve([actor for ([_, actor] of this._actorByBrowser)]);
   },
 
   onOpenWindow: DevToolsUtils.makeInfallible(function(aWindow) {
@@ -226,4 +229,12 @@ XulTabList.prototype = {
   }, "XulTabList.prototype.onCloseWindow"),
 
   onWindowTitleChange: function() {}
+};
+
+exports.register = function(handle) {
+  handle.setRootActor(createRootActor);
+};
+
+exports.unregister = function(handle) {
+  handle.setRootActor(null);
 };

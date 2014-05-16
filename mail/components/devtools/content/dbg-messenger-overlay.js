@@ -14,7 +14,7 @@ function toggleDebugger() {
   Services.prefs.setBoolPref("devtools.debugger.remote-enabled", shouldEnable);
 
   RemoteDebuggerServer.extraInit = function(DebuggerServer) {
-    DebuggerServer.addActors("resource://gre/modules/XULRootActor.js");
+    DebuggerServer.registerModule("resource://gre/modules/XULRootActor.js");
   };
   RemoteDebuggerServer.startstop(shouldEnable);
 }

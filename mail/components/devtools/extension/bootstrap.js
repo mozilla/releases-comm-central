@@ -18,7 +18,7 @@ function startup(aData, aReasion) {
   let remoteEnabled = Services.prefs.getBoolPref("devtools.debugger.remote-enabled");
 
   RemoteDebuggerServer.extraInit = function(DebuggerServer) {
-    DebuggerServer.addActors("resource://dbgserver/modules/XULRootActor.js");
+    DebuggerServer.registerModule("resource://dbgserver/modules/XULRootActor.js");
   };
   RemoteDebuggerServer.startstop(remoteEnabled);
 }
