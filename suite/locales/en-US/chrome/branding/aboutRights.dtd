@@ -30,22 +30,38 @@
 <!ENTITY rights.intro-point3c ".">
 
 <!-- point 4 text for official branded builds -->
-<!ENTITY rights.intro-point4a "&brandShortName; offers optional website information services, such as the add-on update service; however we cannot guarantee they are 100&#37; accurate or error-free. More details, including information on how to disable the services, can be found in the ">
+<!ENTITY rights2.intro-point4a "&brandShortName; offers optional website information services, such as Add-on or Safe Browsing services; however, we cannot guarantee that they are 100&#37; accurate or error-free. More details, including information on how to disable the services, can be found in the ">
 <!ENTITY rights.intro-point4b "service terms">
 <!ENTITY rights.intro-point4c ".">
 
 <!ENTITY rights.webservices-header "&brandFullName; Website Services">
 
-<!-- Note that this paragraph references a couple of entities from
-     preferences/security.dtd, so that we can refer to text the user sees in
-     the UI, without this page being forgotten every time those strings are
-     updated.  -->
+<!-- Note that this paragraph references entities from extensions.dtd,
+     preferences.dtd, pref-smartupdate.dtd, and pref-security.dtd,
+     so that we can refer to text the user sees in the UI, without
+     this page being forgotten every time those strings are updated.  -->
 <!-- intro paragraph for branded builds -->
-<!ENTITY rights.webservices-a "&brandFullName; offers optional services (&quot;Services&quot;), such as the add-on update service, that are available for your use with this binary version of &brandShortName; as described below. If you do not want to use the Services or the terms below are unacceptable, you may disable the add-on update service by opening the application preferences, selecting the ">
-<!ENTITY rights.webservices-b "Advanced">
-<!ENTITY rights.webservices-c " section, followed by the ">
-<!ENTITY rights.webservices-d "Software Installation">
-<!ENTITY rights.webservices-e " entry, and unchecking the options for &quot;Automatically check for updates to&quot;.">
+<!ENTITY rights2.webservices-a "&brandFullName; offers optional services (&quot;Services&quot;), such as the Add-on suggestion and update services or the Safe Browsing feature, that are available for your use with this binary version of &brandShortName; as described below.  These services are enabled by default.  If you do not want to use the Services or the terms below are unacceptable, instructions on how to disable a particular feature or Service may be found ">
+<!ENTITY rights2.webservices-b "here">
+<!ENTITY rights2.webservices-c ". Other features and Services can be disabled in the application preferences.">
+
+<!-- add-on related points for branded builds -->
+<!ENTITY rights.addons-a "Add-on Services: ">
+<!ENTITY rights.addons-b "By default, &brandShortName; will suggest add-ons on the &view.discover.label; page and check for updates in regular intervals.  If you wish to disable these features to avoid communication of information on installed add-ons to the server, follow these steps:">
+<!ENTITY rights.addons-term1 "Open the application preferences">
+<!ENTITY rights.addons-term2 "Select the &smart.label; panel in the &advance.label; category">
+<!ENTITY rights.addons-term3 "Uncheck the options to &quot;&autoAddOnsUpdates.label;&quot; and &quot;&enablePersonalized.label;&quot;">
+<!ENTITY rights.addons-term4 "The Add-on Services are now disabled">
+
+
+<!-- safe browsing points for branded builds -->
+<!ENTITY rights.safebrowsing-a "Safe Browsing: ">
+<!ENTITY rights.safebrowsing-b "Disabling the Safe Browsing feature is not recommended as it may result in you going to unsafe sites.  If you wish to disable the feature completely, follow these steps:">
+<!ENTITY rights.safebrowsing-term1 "Open the application preferences">
+<!ENTITY rights.safebrowsing-term2 "Select the main &security.label; panel">
+<!ENTITY rights.safebrowsing-term3 "Uncheck the options to &quot;&blockAttackSites.label;&quot; and &quot;&blockWebForgeries.label;&quot;">
+<!ENTITY rights.safebrowsing-term4 "Safe Browsing is now disabled">
+
 
 <!-- points 1-6 text for branded builds -->
 <!ENTITY rights.webservices-term1 "&vendorShortName; may discontinue or change the Services at its discretion.">

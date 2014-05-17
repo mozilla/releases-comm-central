@@ -3,10 +3,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 comm.jar:
-% content branding %content/branding/
+% content branding %content/branding/ contentaccessible=yes
   content/branding/about.png                              (content/about.png)
   content/branding/icon48.png                             (content/icon48.png)
   content/branding/icon64.png                             (content/icon64.png)
+  content/branding/aboutRights.js                         (content/aboutRights.js)
   content/branding/aboutRights.xhtml                      (content/aboutRights.xhtml)
   content/branding/messenger-start-bg.png                 (content/messenger-start-bg.png)
   content/branding/messenger-start-hdr.png                (content/messenger-start-hdr.png)
