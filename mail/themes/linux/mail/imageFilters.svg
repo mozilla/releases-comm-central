@@ -12,13 +12,4 @@
       <feMergeNode in="mask"/>
     </feMerge>
   </filter>
-
-  <filter id="selected">
-    <feFlood flood-color="-moz-CellHighlight" flood-opacity="0.7" result="color"/>
-    <feComposite in="color" in2="SourceAlpha" operator="in" result="mask"/>
-    <feMerge>
-      <feMergeNode in="SourceGraphic"/>
-      <feMergeNode in="mask"/>
-    </feMerge>
-  </filter>
 </svg>
