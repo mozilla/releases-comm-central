@@ -411,9 +411,12 @@ ConvStatsService.prototype = {
           return words.some(function(word) {
             if (word.startsWith(s))
               return true;
-            if (word.length && "#&+!@_*".indexOf(word[0]) != -1 &&
-                word.substring(1).startsWith(s))
-              return true;
+            // Ignore channel prefix characters.
+            while (word.length && "#&+!@_*".indexOf(word[0]) != -1) {
+              word = word.substr(1);
+              if (word.startsWith(s))
+                return true;
+            }
             return false;
           });
         });
