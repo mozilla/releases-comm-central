@@ -781,7 +781,7 @@ ircAccountBuddy.prototype = {
 function ircAccount(aProtocol, aImAccount) {
   this._init(aProtocol, aImAccount);
   this.buddies = new NormalizedMap(this.normalizeNick.bind(this));
-  this._conversations = {};
+  this.conversations = new NormalizedMap(this.normalize.bind(this));
 
   // Split the account name into usable parts.
   let splitter = this.name.lastIndexOf("@");
@@ -1144,22 +1144,22 @@ ircAccount.prototype = {
       // Your nickname changed!
       this._nickname = aNewNick;
       msg = _("message.nick.you", aNewNick);
-      for each (let conversation in this._conversations) {
+      this.conversations.forEach(conversation => {
         // Update the nick for chats, and inform the user in every conversation.
         if (conversation.isChat)
           conversation.updateNick(aOldNick, aNewNick);
         conversation.writeMessage(aOldNick, msg, {system: true});
-      }
+      });
     }
     else {
       msg = _("message.nick", aOldNick, aNewNick);
-      for each (let conversation in this._conversations) {
+      this.conversations.forEach(conversation => {
         if (conversation.isChat && conversation._participants.has(aOldNick)) {
           // Update the nick in every chat conversation it is in.
           conversation.updateNick(aOldNick, aNewNick);
           conversation.writeMessage(aOldNick, msg, {system: true});
         }
-      }
+      });
     }
 
     // Adjust the whois table where necessary.
@@ -1167,13 +1167,13 @@ ircAccount.prototype = {
     this.setWhois(aNewNick);
 
     // If a private conversation is open with that user, change its title.
-    if (this.hasConversation(aOldNick)) {
+    if (this.conversations.has(aOldNick)) {
       // Get the current conversation and rename it.
       let conversation = this.getConversation(aOldNick);
 
       // Remove the old reference to the conversation and create a new one.
       this.removeConversation(aOldNick);
-      this._conversations[this.normalizeNick(aNewNick)] = conversation;
+      this.conversations.set(aNewNick, conversation);
 
       conversation.updateNick(aNewNick);
       conversation.writeMessage(aOldNick, msg, {system: true});
@@ -1240,8 +1240,8 @@ ircAccount.prototype = {
       // the user attempted to change to a version of the nick with a lower or
       // absent number suffix, and this failed.
       let msg = _("message.nick.fail", this._nickname);
-      for each (let conversation in this._conversations)
-        conversation.writeMessage(this._nickname, msg, {system: true});
+      this.conversations.forEach(conversation =>
+        conversation.writeMessage(this._nickname, msg, {system: true}));
       return true;
     }
 
@@ -1437,7 +1437,7 @@ ircAccount.prototype = {
     let channel = aComponents.getValue("channel");
     if (!channel) {
       this.ERROR("joinChat called without a channel name.");
-      return;
+      return null;
     }
     // A channel prefix is required. If the user didn't include one,
     // we prepend # automatically to match the behavior of other
@@ -1446,7 +1446,7 @@ ircAccount.prototype = {
       channel = "#" + channel;
 
     // No need to join a channel we are already in.
-    if (this.hasConversation(channel)) {
+    if (this.conversations.has(channel)) {
       let conv = this.getConversation(channel);
       if (!conv.left)
         return conv;
@@ -1484,26 +1484,22 @@ ircAccount.prototype = {
   // Attributes
   get canJoinChat() true,
 
-  hasConversation: function(aConversationName)
-    hasOwnProperty(this._conversations, this.normalize(aConversationName)),
-
   // Returns a conversation (creates it if it doesn't exist)
   getConversation: function(aName) {
-    let name = this.normalize(aName);
-    if (!this.hasConversation(aName)) {
+    if (!this.conversations.has(aName)) {
       // If the whois information has been received, we have the proper nick
       // capitalization.
       if (this.whoisInformation.has(aName))
         aName = this.whoisInformation.get(aName).nick;
-      let constructor = this.isMUCName(aName) ? ircChannel : ircConversation;
-      this._conversations[name] = new constructor(this, aName, this._nickname);
+      let convClass = this.isMUCName(aName) ? ircChannel : ircConversation;
+      this.conversations.set(aName, new convClass(this, aName, this._nickname));
     }
-    return this._conversations[name];
+    return this.conversations.get(aName);
   },
 
   removeConversation: function(aConversationName) {
-    if (this.hasConversation(aConversationName))
-      delete this._conversations[this.normalize(aConversationName)];
+    if (this.conversations.has(aConversationName))
+      this.conversations.delete(aConversationName);
   },
 
   // This builds the message string that will be sent to the server.
@@ -1667,7 +1663,7 @@ ircAccount.prototype = {
     delete this.isAuthenticated;
 
     // Clean up each conversation: mark as left and remove participant.
-    for each (let conversation in this._conversations) {
+    this.conversations.forEach(conversation => {
       if (conversation.isChat) {
         conversation.joining = false; // In case we never finished joining.
         if (!conversation.left) {
@@ -1677,7 +1673,7 @@ ircAccount.prototype = {
           conversation.left = true;
         }
       }
-    }
+    });
 
     // If we disconnected during a pending LIST request, make sure callbacks
     // receive any remaining channels.
@@ -1691,9 +1687,8 @@ ircAccount.prototype = {
   },
 
   remove: function() {
-    for each (let conv in this._conversations)
-      conv.close();
-    delete this._conversations;
+    this.conversations.forEach(conv => conv.close());
+    delete this.conversations;
     this.buddies.forEach(function(aBuddy) aBuddy.remove());
     delete this.buddies;
   },

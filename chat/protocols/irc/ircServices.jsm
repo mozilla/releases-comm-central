@@ -135,7 +135,7 @@ var servicesBase = {
       // Remove the [ and ].
       channel = channel.slice(1, -1);
       // If it isn't a channel or doesn't exist, return early.
-      if (!this.isMUCName(channel) || !this.hasConversation(channel))
+      if (!this.isMUCName(channel) || !this.conversations.has(channel))
         return false;
 
       // Otherwise, display the message in that conversation.

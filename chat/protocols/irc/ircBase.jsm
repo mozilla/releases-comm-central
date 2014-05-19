@@ -70,7 +70,7 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
   }
 
   for each (let channelName in aChannels) {
-    if (!aAccount.hasConversation(channelName))
+    if (!aAccount.conversations.has(channelName))
       continue; // Handle when we closed the window
     let conversation = aAccount.getConversation(channelName);
     for each (let nick in aNicks) {
@@ -295,13 +295,13 @@ var ircBase = {
       let msg = _("message.quit", aMessage.nickname,
                   quitMsg.length ? _("message.quit2", quitMsg) : "");
       // Loop over every conversation with the user and display that they quit.
-      for each (let conversation in this._conversations) {
+      this.conversations.forEach(conversation => {
         if (conversation.isChat &&
             conversation._participants.has(aMessage.nickname)) {
           conversation.writeMessage(aMessage.servername, msg, {system: true});
           conversation.removeParticipant(aMessage.nickname);
         }
-      }
+      });
 
       // Remove from the whois table.
       this.removeBuddyInfo(aMessage.nickname);
@@ -351,10 +351,10 @@ var ircBase = {
       this.sendIsOn();
 
       // Reconnect channels if they were not parted by the user.
-      for each (let conversation in this._conversations) {
+      this.conversations.forEach(conversation => {
         if (conversation.isChat && conversation._chatRoomFields)
           this.joinChat(conversation._chatRoomFields);
-      }
+      });
 
       return serverMessage(this, aMessage);
     },
@@ -644,7 +644,7 @@ var ircBase = {
       // TODO set user as away on buddy list / conversation lists
       // TODO Display an autoResponse if this is after sending a private message
       // If the conversation is waiting for a response, it's received one.
-      if (this.hasConversation(aMessage.params[1]))
+      if (this.conversations.has(aMessage.params[1]))
         delete this.getConversation(aMessage.params[1])._pendingMessage;
       return this.setWhois(aMessage.params[1], {away: aMessage.params[2]});
     },
@@ -1070,7 +1070,7 @@ var ircBase = {
       // TODO Handled in the conversation for /whois and /mgs so far.
       let msgId = "error.noSuch" +
         (this.isMUCName(aMessage.params[1]) ? "Channel" : "Nick");
-      if (this.hasConversation(aMessage.params[1])) {
+      if (this.conversations.has(aMessage.params[1])) {
         // If the conversation exists and we just sent a message from it, then
         // notify that the user is offline.
         if (this.getConversation(aMessage.params[1])._pendingMessage)
