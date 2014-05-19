@@ -162,3 +162,8 @@ function test_return_to_all_folders() {
   mc.folderTreeView.mode = "all";
   assert_folder_mode("all");
 }
+
+function teardownModule() {
+  inboxFolder.propagateDelete(subfolderA, true, null);
+  inboxFolder.propagateDelete(subfolderB, true, null);
+}

@@ -1194,36 +1194,36 @@
                       label="&allFolders.label;"
                       type="radio"
                       name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuitem id="appmenu_smartFolders"
                       value="smart"
                       label="&unifiedFolders.label;"
                       type="radio"
                       name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuitem id="appmenu_unreadFolders"
-                      label="&unreadFolders.label;"
                       value="unread"
+                      label="&unreadFolders.label;"
                       type="radio"
                       name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuitem id="appmenu_favoriteFolders"
                       value="favorite"
                       label="&favoriteFolders.label;"
                       type="radio"
                       name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuitem id="appmenu_recentFolders"
                       value="recent"
                       label="&recentFolders.label;"
                       type="radio"
                       name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuseparator id="appmenu_compactViewSeparator"/>
             <menuitem id="appmenu_compactFolderView"
                       label="&compactVersion.label;"
                       type="checkbox"
-                      oncommand="gFolderTreeView.toggleCompact(this.hasAttribute('checked'));"/>
+                      oncommand="gFolderTreeView.toggleCompact(this.getAttribute('checked') == 'true');"/>
             <menuseparator id="appmenu_favoritePropertiesSeparator"/>
             <menuitem id="appmenu_favoriteFolder"
                       type="checkbox"
@@ -2359,33 +2359,33 @@
                       label="&allFolders.label;"
                       accesskey="&allFolders.accesskey;"
                       type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuitem id="menu_smartFolders" value="smart"
                       label="&unifiedFolders.label;"
                       accesskey="&unifiedFolders.accesskey;"
                       type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
-            <menuitem id="menu_unreadFolders"
-                      label="&unreadFolders.label;" value="unread"
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
+            <menuitem id="menu_unreadFolders" value="unread"
+                      label="&unreadFolders.label;"
                       accesskey="&unreadFolders.accesskey;"
                       type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuitem id="menu_favoriteFolders" value="favorite"
                       label="&favoriteFolders.label;"
                       accesskey="&favoriteFolders.accesskey;"
                       type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuitem id="menu_recentFolders" value="recent"
                       label="&recentFolders.label;"
                       accesskey="&recentFolders.accesskey;"
                       type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.mode = this.value;"/>
+                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
             <menuseparator id="menu_compactViewSeparator"/>
             <menuitem id="menu_compactFolderView"
                       label="&compactVersion.label;"
                       accesskey="&compactVersion.accesskey;"
                       type="checkbox"
-                      oncommand="gFolderTreeView.toggleCompact(this.hasAttribute('checked'));"/>
+                      oncommand="gFolderTreeView.toggleCompact(this.getAttribute('checked') == 'true');"/>
           </menupopup>
         </menu>
         <menuseparator id="viewSortMenuSeparator"/>

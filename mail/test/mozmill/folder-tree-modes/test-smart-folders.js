@@ -20,6 +20,8 @@ var trashSubfolder;
 
 var smartInboxFolder;
 
+var inboxSet;
+
 const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
 
 function setupModule(module) {
@@ -39,7 +41,7 @@ function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  make_new_sets_in_folder(inboxFolder, [{count: 1}]);
+  [inboxSet] = make_new_sets_in_folder(inboxFolder, [{count: 1}]);
   make_new_sets_in_folder(inboxSubfolder, [{count: 1}]);
 }
 
@@ -86,7 +88,7 @@ function test_get_parent_of_folder() {
   // Subfolders of subfolders of the inbox should behave as normal
   inboxSubfolder.createSubfolder("SmartFoldersC", null);
   assert_folder_child_in_view(inboxSubfolder.getChildNamed("SmartFoldersC"),
-                       inboxSubfolder);
+                              inboxSubfolder);
 }
 
 /**
@@ -233,4 +235,10 @@ function assert_uri_not_found(folderURI, scopeList)
  */
 function test_switch_to_all_folders() {
   mc.folderTreeView.mode = "all";
+}
+
+function teardownModule() {
+  inboxFolder.propagateDelete(inboxSubfolder, true, null);
+  delete_message_set(inboxSet);
+  trashFolder.propagateDelete(trashSubfolder, true, null);
 }

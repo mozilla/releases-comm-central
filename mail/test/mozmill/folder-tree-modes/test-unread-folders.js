@@ -17,6 +17,7 @@ var rootFolder;
 var inboxSubfolder;
 var trashFolder;
 var trashSubfolder;
+var inboxSet;
 
 const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
 
@@ -37,7 +38,7 @@ function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  make_new_sets_in_folder(inboxFolder, [{count: 1}]);
+  [ inboxSet ] = make_new_sets_in_folder(inboxFolder, [{count: 1}]);
   make_new_sets_in_folder(inboxSubfolder, [{count: 1}]);
 }
 
@@ -69,10 +70,16 @@ function test_folder_population() {
  * change the selected folder in unread folders mode.
  */
 function test_newly_added_folder() {
-  make_new_sets_in_folder(trashFolder, [{count: 1}]);
+  let [newSet] = make_new_sets_in_folder(trashFolder, [{count: 1}]);
   assert_folder_visible(trashFolder);
   if (mc.folderTreeView.getSelectedFolders()[0] != inboxFolder)
     throw new Error("Inbox folder should be selected after new unread folder" +
                     " added to unread view");
+  delete_message_set(newSet);
 }
 
+function teardownModule() {
+  inboxFolder.propagateDelete(inboxSubfolder, true, null);
+  delete_message_set(inboxSet);
+  trashFolder.propagateDelete(trashSubfolder, true, null);
+}

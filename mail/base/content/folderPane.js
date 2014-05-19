@@ -301,14 +301,38 @@ let gFolderTreeView = {
   },
 
   /**
-   * Toggles the compact view of the current more.
+   * Toggles the compact view of the current mode.
    *
    * @param aCompact  Boolean telling whether compact view should be enabled.
    */
   toggleCompact: function(aCompact) {
     let targetMode = this.fullMode(this.baseMode(), aCompact);
-    this._updateCompactState(targetMode);
     this.mode = targetMode;
+  },
+
+  /**
+   * Toggles the folder mode, but tries to keep the "compact" variant the same
+   * as the previous mode.
+   *
+   * @param aMode  The base name of the new mode selected.
+   */
+  toggleMode: function(aMode) {
+    // Take the base name and add compact variant according to the state of the
+    // "Compact" checkbox in the UI.
+    let userMode = this.fullMode(aMode,
+        document.getElementById("appmenu_compactFolderView").hasAttribute("checked"));
+
+    // Some combinations of user selection and "Compact view" checkbox are not supported.
+    // In that case fall back to a version of this mode that exists.
+    if (!(userMode in this._modes)) {
+      let baseMode = this.baseMode(aMode);
+      if (baseMode in this._modes)
+        userMode = baseMode;
+      else
+        userMode = this.fullMode(baseMode, true);
+    }
+
+    this.mode = userMode;
   },
 
   /**
@@ -350,28 +374,19 @@ let gFolderTreeView = {
     }
     return this._mode;
   },
+
+  /**
+   * @param aMode  The final name of the mode to switch to.
+   */
   set mode(aMode) {
-    // If a mode name ending with "_compact" is chosen, obey that mode.
-    // However, if a name without "_compact" is chosen, check the state of the
-    // "Compact" checkbox in the UI whether the user actually wanted the compact version.
-    let userMode = aMode;
-    if (!userMode.endsWith("_compact")) {
-      userMode = this.fullMode(aMode,
-        document.getElementById("menu_compactFolderView").hasAttribute("checked"));
-    }
-    // Some combinations of user selection and "Compact view" checkbox are not supported.
-    // In that case fall back to a version of this mode that exists.
-    if (userMode in this._modes) {
-      this._mode = userMode;
-    } else {
-      let baseMode = this.baseMode(aMode);
-      if (baseMode in this._modes)
-        this._mode = baseMode;
-      else
-        this._mode = this.fullMode(baseMode, true);
-    }
+    // Ignore unknown modes.
+    if (!(aMode in this._modes))
+      return;
+
+    this._mode = aMode;
     this._updateCompactState(this._mode);
 
+    // Accept the mode and set up labels.
     let string;
     if (this._mode in this._modeDisplayNames)
       string = this._modeDisplayNames[this._mode];
@@ -381,6 +396,7 @@ let gFolderTreeView = {
     }
     document.getElementById('folderpane-title').value = string;
 
+    // Store current mode and actually build the folder pane.
     this._treeElement.setAttribute("mode", this._mode);
     this._rebuild();
   },
