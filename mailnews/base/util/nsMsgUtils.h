@@ -533,4 +533,16 @@ uint32_t MsgCountChar(nsAString &aString, char16_t aChar) {
 
 #endif
 
+/**
+ * Converts a hex string into an integer.
+ * Processes up to aNumChars characters or the first non-hex char.
+ * It is not an error if less than aNumChars valid hex digits are found.
+ */
+NS_MSG_BASE uint64_t MsgUnhex(const char *aHexString, size_t aNumChars);
+
+/**
+ * Checks if a string is a valid hex literal containing at least aNumChars digits.
+ */
+NS_MSG_BASE bool MsgIsHex(const char *aHexString, size_t aNumChars);
+
 #endif

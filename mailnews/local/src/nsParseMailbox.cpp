@@ -1295,7 +1295,6 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
   struct message_header *content_type;
   char md5_data [50];
 
-  const char *s;
   uint32_t flags = 0;
   uint32_t delta = 0;
   nsMsgPriorityValue priorityFlags = nsMsgPriority::notSet;
@@ -1343,11 +1342,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
   {
     if (mozstatus->length == 4)
     {
-      int i;
-      for (i=0,s=mozstatus->value ; i<4 ; i++,s++)
-      {
-        flags = (flags << 4) | msg_UnHex(*s);
-      }
+      NS_ASSERTION(MsgIsHex(mozstatus->value, 4), "Expected 4 hex digits for flags.");
+      flags = MsgUnhex(mozstatus->value, 4);
       // strip off and remember priority bits.
       flags &= ~nsMsgMessageFlags::RuntimeOnly;
       priorityFlags = (nsMsgPriorityValue) ((flags & nsMsgMessageFlags::Priorities) >> 13);
@@ -1511,7 +1507,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
         if (!mozstatus && statush)
         {
           /* Parse a little bit of the Berkeley Mail status header. */
-          for (s = statush->value; *s; s++) {
+          for (const char *s = statush->value; *s; s++) {
             uint32_t msgFlags = 0;
             (void)m_newMsgHdr->GetFlags(&msgFlags);
             switch (*s)

@@ -1647,21 +1647,18 @@ NS_MSG_BASE void MsgStripQuotedPrintable (unsigned char *src)
 
   while (src[srcIdx] != 0)
   {
+    // Decode sequence of '=XY' into a character with code XY.
     if (src[srcIdx] == '=')
     {
-      unsigned char *token = &src[srcIdx];
-      unsigned char c = 0;
-
-      // decode the first quoted char
-      if (token[1] >= '0' && token[1] <= '9')
-        c = token[1] - '0';
-      else if (token[1] >= 'A' && token[1] <= 'F')
-        c = token[1] - ('A' - 10);
-      else if (token[1] >= 'a' && token[1] <= 'f')
-        c = token[1] - ('a' - 10);
+      if (MsgIsHex((const char*)src + srcIdx + 1, 2)) {
+        // If we got here, we successfully decoded a quoted printable sequence,
+        // so bump each pointer past it and move on to the next char.
+        dest[destIdx++] = MsgUnhex((const char*)src + srcIdx + 1, 2);
+        srcIdx += 3;
+      }
       else
       {
-        // first char after '=' isn't hex. check if it's a normal char
+        // If first char after '=' isn't hex check if it's a normal char
         // or a soft line break. If it's a soft line break, eat the
         // CR/LF/CRLF.
         if (src[srcIdx + 1] == '\r' || src[srcIdx + 1] == '\n')
@@ -1674,33 +1671,12 @@ NS_MSG_BASE void MsgStripQuotedPrintable (unsigned char *src)
               srcIdx++;
           }
         }
-        else // normal char, copy it.
+        else // The first or second char after '=' isn't hex, just copy the '='.
         {
-          dest[destIdx++] = src[srcIdx++]; // aka token[0]
+          dest[destIdx++] = src[srcIdx++];
         }
         continue;
       }
-
-      // decode the second quoted char
-      c = (c << 4);
-      if (token[2] >= '0' && token[2] <= '9')
-        c += token[2] - '0';
-      else if (token[2] >= 'A' && token[2] <= 'F')
-        c += token[2] - ('A' - 10);
-      else if (token[2] >= 'a' && token[2] <= 'f')
-        c += token[2] - ('a' - 10);
-      else
-      {
-        // second char after '=' isn't hex. copy the '=' as a normal char and keep going
-        dest[destIdx++] = src[srcIdx++]; // aka token[0]
-        continue;
-      }
-
-      // if we got here, we successfully decoded a quoted printable sequence,
-      // so bump each pointer past it and move on to the next char;
-      dest[destIdx++] = c;
-      srcIdx += 3;
-
     }
     else
       dest[destIdx++] = src[srcIdx++];
@@ -1902,6 +1878,7 @@ NS_MSG_BASE void MsgCompressWhitespace(nsCString& aString)
   // Set the new length.
   aString.SetLength(end - start);
 }
+
 
 NS_MSG_BASE void MsgReplaceChar(nsString& str, const char *set, const char16_t replacement)
 {
@@ -2234,6 +2211,42 @@ NS_MSG_BASE uint64_t ParseUint64Str(const char *str)
   return strtoull(str, nullptr, 10);
 #endif
 }
+
+NS_MSG_BASE uint64_t MsgUnhex(const char *aHexString, size_t aNumChars)
+{
+  // Large numbers will not fit into uint64_t.
+  NS_ASSERTION(aNumChars <= 16, "Hex literal too long to convert!");
+
+  uint64_t result = 0;
+  for (size_t i = 0; i < aNumChars; i++)
+  {
+    unsigned char c = aHexString[i];
+    uint8_t digit;
+    if ((c >= '0') && (c <= '9'))
+      digit = (c - '0');
+    else if ((c >= 'a') && (c <= 'f'))
+      digit = ((c - 'a') + 10);
+    else if ((c >= 'A') && (c <= 'F'))
+      digit = ((c - 'A') + 10);
+    else
+      break;
+
+    result = (result << 4) | digit;
+  }
+
+  return result;
+}
+
+NS_MSG_BASE bool MsgIsHex(const char *aHexString, size_t aNumChars)
+{
+  for (size_t i = 0; i < aNumChars; i++)
+  {
+    if (!isxdigit(aHexString[i]))
+      return false;
+  }
+  return true;
+}
+
 
 NS_MSG_BASE nsresult
 MsgStreamMsgHeaders(nsIInputStream *aInputStream, nsIStreamListener *aConsumer)
