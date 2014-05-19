@@ -8,8 +8,8 @@
 
 // async support 
 load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
+Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 // IMAP pump
 Components.utils.import("resource://testing-common/mailnews/IMAPpump.js");
@@ -25,34 +25,26 @@ const gMessage = "bugmail10"; // message file used as the test message
 setupIMAPPump();
 
 // Definition of tests
-var tests = [
-  loadImapMessage,
-  endTest
-]
 
 // load and update a message in the imap fake server
-function loadImapMessage()
-{
+add_task(function* loadImapMessage() {
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []));
-  IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, asyncUrlListener);
-  yield false;
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
+  yield promiseUrlListener.promise;
+
   do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   do_check_true(msgHdr instanceof Ci.nsIMsgDBHdr);
-  yield true;
-}
+});
 
 // Cleanup at end
-function endTest()
-{
-  teardownIMAPPump();
-}
+add_task(teardownIMAPPump);
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
-  async_run_tests(tests);
+  run_next_test();
 }
 
 /*
@@ -60,8 +52,7 @@ function run_test()
  */
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;

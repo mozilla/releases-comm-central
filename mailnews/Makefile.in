@@ -21,6 +21,7 @@ TESTING_JS_MODULES += \
 	$(RESDIR)/localAccountUtils.js \
 	$(RESDIR)/mailTestUtils.js \
 	$(RESDIR)/MockFactory.js \
+	$(RESDIR)/PromiseTestUtils.jsm \
 	$(FAKESERVER)/auth.js \
 	$(FAKESERVER)/imapd.js \
 	$(FAKESERVER)/maild.js \
