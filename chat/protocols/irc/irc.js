@@ -545,7 +545,7 @@ ircChannel.prototype = {
     // If the channel mode is +t, hops and ops can set the topic; otherwise
     // everyone can.
     let participant = this.getParticipant(this.nick);
-    return this._modes.has("t") || participant.op || participant.halfOp;
+    return !this._modes.has("t") || participant.op || participant.halfOp;
   }
 };
 copySharedBaseToPrototype(GenericIRCConversation, ircChannel.prototype);
