@@ -1943,9 +1943,13 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
           nsString confirmString;
           nsString checkboxText;
           nsString buttonCompactNowText;
+          nsAutoString compactSize;
+          FormatFileSize(totalExpungedBytes, true, compactSize);
+          const char16_t* params[] = { compactSize.get() };
           rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAllFoldersTitle"), getter_Copies(dialogTitle));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAllFolders"), getter_Copies(confirmString));
+          rv = bundle->FormatStringFromName(MOZ_UTF16("autoCompactAllFoldersText"),
+                                            params, 1, getter_Copies(confirmString));
           NS_ENSURE_SUCCESS(rv, rv);
           rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAlwaysAskCheckbox"),
                                          getter_Copies(checkboxText));

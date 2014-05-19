@@ -53,6 +53,7 @@ nsFolderCompactState::nsFolderCompactState()
   m_folderIndex = 0;
   m_startOfMsg = true;
   m_needStatusLine = false;
+  m_totalExpungedBytes = 0;
 }
 
 nsFolderCompactState::~nsFolderCompactState()
@@ -164,6 +165,10 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
     if (imapFolder)
       return imapFolder->Expunge(this, aMsgWindow);
   }
+
+   uint32_t expunged;
+   folder->GetExpungedBytes(&expunged);
+   m_totalExpungedBytes += expunged;
    m_window = aMsgWindow;
    nsresult rv;
    nsCOMPtr<nsIMsgDatabase> db;
@@ -542,6 +547,18 @@ nsFolderCompactState::FinishCompact()
   return rv;
 }
 
+nsresult
+GetBaseStringBundle(nsIStringBundle **aBundle)
+{
+  NS_ENSURE_ARG_POINTER(aBundle);
+  nsCOMPtr<nsIStringBundleService> bundleService =
+    mozilla::services::GetStringBundleService();
+  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+  nsCOMPtr<nsIStringBundle> bundle;
+  return bundleService->CreateBundle(
+    "chrome://messenger/locale/messenger.properties", aBundle);
+}
+
 void nsFolderCompactState::CompactCompleted(nsresult exitCode)
 {
   NS_WARN_IF_FALSE(NS_SUCCEEDED(exitCode),
@@ -569,7 +586,15 @@ void nsFolderCompactState::ShowDoneStatus()
   if (m_folder)
   {
     nsString statusString;
-    nsresult rv = m_folder->GetStringWithFolderNameFromBundle("doneCompacting", statusString);
+    nsCOMPtr <nsIStringBundle> bundle;
+    nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
+    NS_ENSURE_SUCCESS_VOID(rv);
+    nsAutoString expungedAmount;
+    FormatFileSize(m_totalExpungedBytes, true, expungedAmount);
+    const char16_t* params[] = { expungedAmount.get() };
+    rv = bundle->FormatStringFromName(MOZ_UTF16("compactingDone"),
+                                      params, 1, getter_Copies(statusString));
+
     if (!statusString.IsEmpty() && NS_SUCCEEDED(rv))
       ShowStatusMsg(statusString);
   }

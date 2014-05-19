@@ -64,6 +64,8 @@ protected:
 
    // sum of the sizes of the messages, accumulated as we visit each msg.
   uint64_t m_totalMsgSize;
+  // number of bytes that can be expunged while compacting.
+  uint64_t m_totalExpungedBytes;
 
   uint32_t m_curIndex; // index of the current copied message key in key array
   uint64_t m_startOfNewMsg; // offset in mailbox of new message
