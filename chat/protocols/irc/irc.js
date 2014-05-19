@@ -417,7 +417,7 @@ ircChannel.prototype = {
 
     // Check each mode being added and update the user.
     let channelModes = [];
-    let userModes = {};
+    let userModes = new NormalizedMap(this.normalizeNick.bind(this));
     let msg;
 
     for (let i = aNewMode.length - 1; i > 0; --i) {
@@ -428,10 +428,10 @@ ircChannel.prototype = {
           aModeParams.length && this._participants.has(peekNextParam())) {
         // Store the new modes for this nick (so each participant's mode is only
         // updated once).
-        let nick = this.normalizeNick(getNextParam());
-        if (!hasOwnProperty(userModes, nick))
-          userModes[nick] = [];
-        userModes[nick].push(aNewMode[i]);
+        let nick = getNextParam();
+        if (!userModes.has(nick))
+          userModes.set(nick, []);
+        userModes.get(nick).push(aNewMode[i]);
 
         // Don't use this mode as a channel mode.
         continue;
@@ -494,8 +494,8 @@ ircChannel.prototype = {
       this.WARN("Unused mode parameters: " + aModeParams.join(", "));
 
     // Update the mode of each participant.
-    for (let nick in userModes)
-      this.getParticipant(nick).setMode(addNewMode, userModes[nick], aSetter);
+    for (let [nick, mode] of userModes.entries())
+      this.getParticipant(nick).setMode(addNewMode, mode, aSetter);
 
     if (!channelModes.length)
       return;
