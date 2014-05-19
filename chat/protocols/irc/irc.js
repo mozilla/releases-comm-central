@@ -97,7 +97,7 @@ function _setMode(aAddNewMode, aNewModes) {
     let hasMode = this._modes.has(newMode);
     // If the mode is in the list of modes and we want to remove it.
     if (hasMode && !aAddNewMode)
-      this._modes.remove(newMode);
+      this._modes.delete(newMode);
     // If the mode is not in the list of modes and we want to add it.
     else if (!hasMode && aAddNewMode)
       this._modes.add(newMode);
