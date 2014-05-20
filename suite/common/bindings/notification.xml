@@ -2096,33 +2096,17 @@
       <handler event="DOMUpdatePageReport" phase="capturing">
         <![CDATA[
           var browser = this.activeBrowser;
-          if (!browser.pageReport)
+          if (!browser.blockedPopups)
             return;
 
-          // this.popupCount can be 0, while browser.pageReport has not been cleared.
-          if (!this.popupCount && browser.pageReport.length > 1) {
-            this.popupCount = browser.pageReport.length;
+          // this.popupCount can be 0, while browser.blockedPopups has not been cleared.
+          if (!this.popupCount && browser.blockedPopups.length > 1) {
+            this.popupCount = browser.blockedPopups.length;
           } else {
             this.popupCount++;
           }
           this.playSoundForBlockedPopup();
           this.notifyPopupCountChanged();
-
-          // Check for duplicates and remove the old occurence of this url,
-          // to update the features.
-          var lastItemPlace = browser.pageReport.length - 1;
-          var lastItem = browser.pageReport[lastItemPlace];
-          for (var i = 0; i < lastItemPlace; i++) {
-            if (browser.pageReport[i].popupWindowURI.equals(lastItem.popupWindowURI)) {
-              browser.pageReport.splice(i, 1);
-              break;
-            }
-          }
-
-          // Limit the length of the menu to some reasonable size.
-          // We only add one item every time in browser.xml, so no need for more complex stuff.
-          if (browser.pageReport.length > 100)
-            browser.pageReport.shift();
 
           var tmp = {};
           Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);

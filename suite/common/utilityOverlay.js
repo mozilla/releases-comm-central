@@ -1229,7 +1229,7 @@ function popupNotificationMenuShowing(event)
 
 function RemovePopupsItems(parent)
 {
-  while (parent.lastChild && ("popup" in parent.lastChild))
+  while (parent.lastChild && parent.lastChild.hasAttribute("popupReportIndex"))
     parent.lastChild.remove();
 }
 
@@ -1238,32 +1238,37 @@ function createShowPopupsMenu(parent, browser)
   if (!browser)
     return false;
 
-  var popups = browser.pageReport;
+  var popups = browser.blockedPopups;
 
   if (!popups)
     return false;
 
+  parent.browser = browser;
+
   for (var i = 0; i < popups.length; i++) {
-    var popup = popups[i];
-    var menuitem = document.createElement("menuitem");
-    var str = gUtilityBundle.getFormattedString("popupMenuShow",
-                                                [popup.popupWindowURI.spec]);
-    menuitem.setAttribute("label", str);
-    menuitem.popup = popup;
+    // popupWindowURI will be null if a file input was blocked.
+    var URI = popups[i].popupWindowURI;
+    if (!URI)
+      continue;
+
+    var str = gUtilityBundle.getFormattedString("popupMenuShow", [URI]);
+    // Check for duplicates and reuse the old menuitem.
+    var menuitem = parent.getElementsByAttribute("label", str).item(0);
+    if (!menuitem) {
+      menuitem = document.createElement("menuitem");
+      menuitem.setAttribute("label", str);
+    }
+    menuitem.setAttribute("popupReportIndex", i);
     parent.appendChild(menuitem);
   }
 
-  return true;
+  return parent.getElementsByAttribute("popupReportIndex", "*").item(0) != null;
 }
 
 function popupBlockerMenuCommand(target)
 {
-  if (!("popup" in target))
-    return;
-  var popup = target.popup;
-  var reqWin = popup.requestingWindow;
-  if (reqWin.document == popup.requestingDocument)
-    reqWin.open(popup.popupWindowURI.spec, popup.popupWindowName, popup.popupWindowFeatures);
+  if (target.hasAttribute("popupReportIndex"))
+    target.parentNode.browser.unblockPopup(target.getAttribute("popupReportIndex"));
 }
 
 function disablePopupBlockerNotifications()
