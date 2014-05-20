@@ -216,10 +216,25 @@ function mIRCColoring(aStack, aInput) {
   return [stack, output, length];
 }
 
-function conversationErrorMessage(aAccount, aMessage, aError) {
+// Print an error message into a conversation, optionally mark the conversation
+// as not joined and/or not rejoinable.
+function conversationErrorMessage(aAccount, aMessage, aError,
+                                  aJoinFailed = false, aRejoinable = true) {
   let conv = aAccount.getConversation(aMessage.params[1]);
   conv.writeMessage(aMessage.servername, _(aError, aMessage.params[1]),
                     {error: true, system: true});
   delete conv._pendingMessage;
+
+  // Channels have a couple extra things that can be done to them.
+  if (aAccount.isMUCName(aMessage.params[1])) {
+    // If a value for joining is explictly given, mark it.
+    if (aJoinFailed)
+      conv.joining = false;
+    // If the conversation cannot be rejoined automatically, delete
+    // _chatRoomFields.
+    if (!aRejoinable)
+      delete conv._chatRoomFields;
+  }
+
   return true;
 }

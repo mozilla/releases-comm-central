@@ -186,12 +186,7 @@ var ircBase = {
           delete conversation._firstJoin;
 
           // Ensure chatRoomFields information is available for reconnection.
-          let nName = this.normalize(channelName);
-          if (hasOwnProperty(this._chatRoomFieldsList, nName)) {
-            conversation._chatRoomFields = this._chatRoomFieldsList[nName];
-            delete this._chatRoomFieldsList[nName];
-          }
-          else {
+          if (!conversation._chatRoomFields) {
             this.WARN("Opening a MUC without storing its " +
                       "prplIChatRoomFieldValues first.");
             conversation._chatRoomFields =
@@ -199,7 +194,7 @@ var ircBase = {
           }
         }
         else {
-          // Don't worry about adding ourself, RPL_NAMES takes care of that
+          // Don't worry about adding ourself, RPL_NAMREPLY takes care of that
           // case.
           conversation.getParticipant(aMessage.nickname, true);
           let msg = _("message.join", aMessage.nickname, aMessage.source || "");
@@ -1086,8 +1081,8 @@ var ircBase = {
     },
     "403": function(aMessage) { // ERR_NOSUCHCHANNEL
       // <channel name> :No such channel
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
-      return conversationErrorMessage(this, aMessage, "error.noChannel");
+      return conversationErrorMessage(this, aMessage, "error.noChannel", true,
+                                      false);
     },
     "404": function(aMessage) { // ERR_CANNOTSENDTOCHAN
       // <channel name> :Cannot send to channel
@@ -1097,9 +1092,8 @@ var ircBase = {
     },
     "405": function(aMessage) { // ERR_TOOMANYCHANNELS
       // <channel name> :You have joined too many channels
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
-      return serverErrorMessage(this, aMessage,
-                                _("error.tooManyChannels", aMessage.params[1]));
+      return conversationErrorMessage(this, aMessage, "error.tooManyChannels",
+                                      true);
     },
     "406": function(aMessage) { // ERR_WASNOSUCHNICK
       // <nickname> :There was no such nickname
@@ -1109,8 +1103,8 @@ var ircBase = {
     },
     "407": function(aMessage) { // ERR_TOOMANYTARGETS
       // <target> :<error code> recipients. <abort message>
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
-      return conversationErrorMessage(this, aMessage, "error.nonUniqueTarget");
+      return conversationErrorMessage(this, aMessage, "error.nonUniqueTarget",
+                                      false, false);
     },
     "408": function(aMessage) { // ERR_NOSUCHSERVICE
       // <service name> :No such service
@@ -1205,9 +1199,8 @@ var ircBase = {
     },
     "437": function(aMessage) { // ERR_UNAVAILRESOURCE
       // <nick/channel> :Nick/channel is temporarily unavailable
-      // TODO
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
-      return false;
+      return conversationErrorMessage(this, aMessage, "error.unavailable",
+                                      true);
     },
     "441": function(aMessage) { // ERR_USERNOTINCHANNEL
       // <nick> <channel> :They aren't on that channel
@@ -1291,9 +1284,8 @@ var ircBase = {
     },
     "471": function(aMessage) { // ERR_CHANNELISFULL
       // <channel> :Cannot join channel (+l)
-      // TODO
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
-      return false;
+      return conversationErrorMessage(this, aMessage, "error.channelFull",
+                                      true);
     },
     "472": function(aMessage) { // ERR_UNKNOWNMODE
       // <char> :is unknown mode char to me for <channel>
@@ -1302,35 +1294,22 @@ var ircBase = {
     },
     "473": function(aMessage) { // ERR_INVITEONLYCHAN
       // <channel> :Cannot join channel (+i)
-      // TODO
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
-      return false;
+      return conversationErrorMessage(this, aMessage, "error.inviteOnly",
+                                      true, false);
     },
     "474": function(aMessage) { // ERR_BANNEDFROMCHAN
       // <channel> :Cannot join channel (+b)
-      // TODO
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
-      return false;
+      return conversationErrorMessage(this, aMessage, "error.channelBanned",
+                                      true, false);
     },
     "475": function(aMessage) { // ERR_BADCHANNELKEY
       // <channel> :Cannot join channel (+k)
-      let channelName = aMessage.params[1];
-
-      // Display an error message to the user.
-      let msg = _("error.wrongKey", channelName);
-      let conversation = this.getConversation(channelName);
-      conversation.writeMessage(aMessage.servername, msg, {system: true});
-
-      // The stored information is out of date, remove it.
-      delete conversation._chatRoomFields;
-      delete this._chatRoomFieldsList[this.normalize(channelName)];
-
-      return true;
+      return conversationErrorMessage(this, aMessage, "error.wrongKey",
+                                      true, false);
     },
     "476": function(aMessage) { // ERR_BADCHANMASK
       // <channel> :Bad Channel Mask
       // TODO
-      delete this._chatRoomFieldsList[this.normalize(aMessage.params[1])];
       return false;
     },
     "477": function(aMessage) { // ERR_NOCHANMODES

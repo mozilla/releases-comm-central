@@ -795,7 +795,6 @@ function ircAccount(aProtocol, aImAccount) {
   this.trackQueue = [];
   this.pendingIsOnQueue = [];
   this.whoisInformation = new NormalizedMap(this.normalizeNick.bind(this));
-  this._chatRoomFieldsList = {};
   this._caps = [];
 
   this._roomInfoCallbacks = new Set();
@@ -1428,10 +1427,6 @@ ircAccount.prototype = {
 
   createConversation: function(aName) this.getConversation(aName),
 
-  // Temporarily stores the prplIChatRoomFieldValues passed to joinChat for
-  // each channel to enable later reconnections.
-  _chatRoomFieldsList: {},
-
   // aComponents implements prplIChatRoomFieldValues.
   joinChat: function(aComponents) {
     let channel = aComponents.getValue("channel");
@@ -1439,6 +1434,7 @@ ircAccount.prototype = {
       this.ERROR("joinChat called without a channel name.");
       return null;
     }
+
     // A channel prefix is required. If the user didn't include one,
     // we prepend # automatically to match the behavior of other
     // clients. Not doing it used to cause user confusion.
@@ -1457,13 +1453,13 @@ ircAccount.prototype = {
     if (key)
       params.push(key);
     let defaultName = key ? channel + " " + key : channel;
-    this._chatRoomFieldsList[this.normalize(channel)] =
-      this.getChatRoomDefaultFieldValues(defaultName);
     // Send the join command, but don't log the channel key.
     this.sendMessage("JOIN", params,
                      "JOIN " + channel + (key ? " <key not logged>" : ""));
     // Open conversation early for better responsiveness.
     let conv = this.getConversation(channel);
+    // Store the prplIChatRoomFieldValues to enable later reconnections.
+    conv._chatRoomFields = this.getChatRoomDefaultFieldValues(defaultName);
     conv.joining = true;
     return conv;
   },
