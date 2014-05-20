@@ -1169,12 +1169,11 @@ const XMPPAccountPrototype = {
    * and used by the account manager.
    * The aQuiet parameter is to avoid sending status change notifications
    * during the uninitialization of the account. */
-  _disconnect: function(aError, aErrorMessage, aQuiet) {
+  _disconnect: function(aError = Ci.prplIAccount.NO_ERROR, aErrorMessage = "",
+                        aQuiet = false) {
     if (!this._connection)
       return;
 
-    if (aError === undefined)
-      aError = Ci.prplIAccount.NO_ERROR;
     this.reportDisconnecting(aError, aErrorMessage);
 
     for each (let b in this._buddies) {

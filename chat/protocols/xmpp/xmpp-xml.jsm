@@ -94,16 +94,10 @@ const Stanza = {
   presence: function(aAttr, aData) Stanza.node("presence", null, aAttr, aData),
 
   /* Create a message stanza */
-  message: function(aTo, aMsg, aState, aAttr, aData) {
-    if (!aAttr)
-      aAttr = {};
-
+  message: function(aTo, aMsg, aState, aAttr = {}, aData = []) {
     aAttr.to = aTo;
     if (!("type" in aAttr))
       aAttr.type = "chat";
-
-    if (!aData)
-      aData = [];
 
     if (aMsg)
       aData.push(Stanza.node("body", null, null, aMsg));
@@ -250,10 +244,7 @@ XMLNode.prototype = {
   },
 
   /* Returns indented XML */
-  convertToString: function(aIndent) {
-    if (!aIndent)
-      aIndent = "";
-
+  convertToString: function(aIndent = "") {
     let s =
       aIndent + "<" + this.qName + this._getXmlns() + this._getAttributeText();
     let content = "";
