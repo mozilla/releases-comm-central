@@ -37,6 +37,7 @@
     lightweightthemesfooter="status-bar"
     windowtype="mail:addressbook"
     macanimationtype="document"
+    drawtitle="true"
     persist="width height screenX screenY sizemode"
     toggletoolbar="true"
     onload="OnLoadAddressBook()"

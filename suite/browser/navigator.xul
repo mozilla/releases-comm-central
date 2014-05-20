@@ -37,6 +37,7 @@
         lightweightthemesfooter="status-bar"
         windowtype="navigator:browser"
         macanimationtype="document"
+        drawtitle="true"
         persist="screenX screenY width height sizemode"> 
 
   <!-- Generic Utility -->

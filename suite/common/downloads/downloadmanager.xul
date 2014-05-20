@@ -29,6 +29,7 @@
         toggletoolbar="true"
         lightweightthemes="true"
         lightweightthemesfooter="status-bar"
+        drawtitle="true"
         windowtype="Download:Manager">
 
   <script type="application/javascript"

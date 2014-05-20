@@ -14,7 +14,7 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-window:not([drawintitlebar="true"]) > #titlebar {
+#titlebar:not(:-moz-lwtheme) {
   display: none;
 }
 
