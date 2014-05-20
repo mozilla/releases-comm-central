@@ -50,7 +50,7 @@ mozmill-one:
 # outside of itself. Therefore we replicate the functionality we need here,
 # calling into the relevant mozilla dirs when necessary for the core tests.
 ifndef UNIVERSAL_BINARY
-PKG_STAGE = $(DIST)/test-package-stage
+PKG_STAGE = $(DIST)/test-stage
 package-tests:: stage-mozilla-tests stage-mozmill stage-modules
 
 # If Lightning is enabled, also stage the lightning extension
@@ -60,7 +60,7 @@ endif
 
 else
 # This staging area has been built for us by universal/flight.mk
-PKG_STAGE = $(DIST)/universal/test-package-stage
+PKG_STAGE = $(DIST)/universal/test-stage
 endif
 
 package-tests::
