@@ -1427,7 +1427,8 @@
               let nsIWebNavigation = Components.interfaces.nsIWebNavigation;
               let flags = nsIWebNavigation.LOAD_FLAGS_NONE;
               if (aAllowThirdPartyFixup)
-                flags |= nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP;
+                flags = nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP |
+                        nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
               if (aFromExternal)
                 flags |= nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL;
               if (aIsUTF8)

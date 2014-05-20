@@ -1571,7 +1571,8 @@ function loadURI(uri, referrer, postData, allowThirdPartyFixup, isUTF8)
   try {
     var flags = nsIWebNavigation.LOAD_FLAGS_NONE;
     if (allowThirdPartyFixup) {
-      flags = nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP;
+      flags = nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP |
+              nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
     }
     if (isUTF8) {
       flags |= nsIWebNavigation.LOAD_FLAGS_URI_IS_UTF8;

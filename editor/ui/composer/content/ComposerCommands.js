@@ -2071,12 +2071,11 @@ var nsOpenRemoteCommand =
     switch (params.action) {
       case "0": // current window
         win.focus();
-        win.loadURI(params.url, null,
-                    nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP);
+        win.loadURI(params.url, null, null, true);
         break;
       case "1": // new window
         openDialog(getBrowserURL(), "_blank", "all,dialog=no", params.url, null,
-                   null, nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP);
+                   null, null, true);
         break;
       case "2": // edit
         editPage(params.url);
