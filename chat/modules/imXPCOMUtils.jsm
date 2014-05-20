@@ -89,14 +89,13 @@ function scriptError(aModule, aLevel, aMessage, aOriginalError) {
   if ("imAccount" in this)
     this.imAccount.logDebugMessage(scriptError, aLevel);
 }
-function initLogModule(aModule, aThis)
+function initLogModule(aModule, aObj = {})
 {
-  let obj = aThis || {};
-  obj.DEBUG = scriptError.bind(obj, aModule, Ci.imIDebugMessage.LEVEL_DEBUG);
-  obj.LOG   = scriptError.bind(obj, aModule, Ci.imIDebugMessage.LEVEL_LOG);
-  obj.WARN  = scriptError.bind(obj, aModule, Ci.imIDebugMessage.LEVEL_WARNING);
-  obj.ERROR = scriptError.bind(obj, aModule, Ci.imIDebugMessage.LEVEL_ERROR);
-  return obj;
+  aObj.DEBUG = scriptError.bind(aObj, aModule, Ci.imIDebugMessage.LEVEL_DEBUG);
+  aObj.LOG   = scriptError.bind(aObj, aModule, Ci.imIDebugMessage.LEVEL_LOG);
+  aObj.WARN  = scriptError.bind(aObj, aModule, Ci.imIDebugMessage.LEVEL_WARNING);
+  aObj.ERROR = scriptError.bind(aObj, aModule, Ci.imIDebugMessage.LEVEL_ERROR);
+  return aObj;
 }
 XPCOMUtils.defineLazyGetter(Cu.getGlobalForObject({}), "gLogLevels", function() {
   // This object functions both as an obsever as well as a dict keeping the
@@ -170,7 +169,7 @@ function hasOwnProperty(aObject, aPropertyName)
 
 /* Common nsIClassInfo and QueryInterface implementation
  * shared by all generic objects implemented in this file. */
-function ClassInfo(aInterfaces, aDescription)
+function ClassInfo(aInterfaces, aDescription = "JS Proto Object")
 {
   if (!(this instanceof ClassInfo))
     return new ClassInfo(aInterfaces, aDescription);
@@ -185,7 +184,7 @@ function ClassInfo(aInterfaces, aDescription)
   this._interfaces =
     aInterfaces.map(function (i) typeof i == "string" ? Ci[i] : i);
 
-  this.classDescription = aDescription || "JS Proto Object";
+  this.classDescription = aDescription;
 }
 ClassInfo.prototype = {
   QueryInterface: function ClassInfo_QueryInterface(iid) {
