@@ -2255,15 +2255,19 @@
 
       <handler event="PluginCrashed" phase="capturing">
         <![CDATA[
+          // Ensure the plugin and event are of the right type.
           var plugin = event.target;
+          var detail = event.detail;
+          if (!(detail instanceof Components.interfaces.nsIPropertyBag2))
+            return;
 
-          var submittedReport = event.getData("submittedCrashReport");
-          var doPrompt        = true; // XXX followup for .getData("doPrompt");
-          var submitReports   = true; // XXX followup for .getData("submitReports");
-          var pluginName      = event.getData("pluginName");
-          var pluginFilename  = event.getData("pluginFilename");
-          var pluginDumpID    = event.getData("pluginDumpID");
-          var browserDumpID   = event.getData("browserDumpID");
+          var submittedReport = detail.getPropertyAsBool("submittedCrashReport");
+          var doPrompt        = true; // XXX followup for .getPropertyAsBool("doPrompt");
+          var submitReports   = true; // XXX followup for .getPropertyAsBool("submitReports");
+          var pluginName      = detail.getPropertyAsAString("pluginName");
+          var pluginFilename  = detail.getPropertyAsAString("pluginFilename");
+          var pluginDumpID    = detail.getPropertyAsAString("pluginDumpID");
+          var browserDumpID   = detail.getPropertyAsAString("browserDumpID");
 
           // Remap the plugin name to a more user-presentable form.
           pluginName = this.makeNicePluginName(pluginName);
