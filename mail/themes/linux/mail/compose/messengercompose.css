@@ -446,6 +446,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   margin-bottom: 0;
   padding-top: 1px;
   padding-bottom: 1px;
+  -moz-padding-start: 2px;
   -moz-padding-end: 30px;
   background: transparent;
   height: 22px;
