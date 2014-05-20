@@ -446,7 +446,7 @@ function finishAccount(account, accountData)
       // handle server-specific stuff
       var IID;
       try {
-        IID = srcServer.protocolInfo.serverIID;
+        IID = destServer.protocolInfo.serverIID;
       } catch (ex) {
         Components.utils.reportError("Could not get IID for " + srcServer.type + ": " + ex);
       }
