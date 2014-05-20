@@ -167,15 +167,10 @@ FeedWriter.prototype = {
     return "";
   },
 
-  _setContentText: function setContentText(id, text) {
-    this._contentSandbox.element = this._document.getElementById(id);
-    this._contentSandbox.textNode = this._document.createTextNode(text);
-    var codeStr = "while (element.hasChildNodes()) " +
-                  "  element.lastChild.remove();" +
-                  "element.appendChild(textNode);";
-    Components.utils.evalInSandbox(codeStr, this._contentSandbox);
-    this._contentSandbox.element = null;
-    this._contentSandbox.textNode = null;
+  _setContentText: function setContentText(element, text) {
+    if (typeof element == "string")
+      element = this._document.getElementById(element);
+    element.textContent = text.plainText();
   },
 
   /**
@@ -195,39 +190,11 @@ FeedWriter.prototype = {
       // checkLoadURIStrWithPrincipal will throw if the link URI should not be
       // loaded, either because our feedURI isn't allowed to load it or per
       // the rules specified in |flags|, so we'll never "linkify" the link...
-      this._contentSandbox.element = element;
-      this._contentSandbox.uri = uri;
-      var codeStr = "element.setAttribute('" + attribute + "', uri);";
-      Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+      element.setAttribute(attribute, uri);
     }
     catch (e) {
       // Not allowed to load this link because checkLoadURIStrWithPrincipal threw
     }
-  },
-
-  /**
-   * Use this sandbox to run any dom manipulation code on nodes which
-   * are already inserted into the content document.
-   */
-  __contentSandbox: null,
-  get _contentSandbox() {
-    if (!this.__contentSandbox)
-      this.__contentSandbox = new Components.utils.Sandbox(this._window, {sandboxName: "FeedWriter"});
-
-    return this.__contentSandbox;
-  },
-
-  /**
-   * Calls doCommand for a given XUL element within the context of the
-   * content document.
-   *
-   * @param aElement
-   *        the XUL element to call doCommand() on.
-   */
-  _safeDoCommand: function safeDoCommand(aElement) {
-    this._contentSandbox.element = aElement;
-    Components.utils.evalInSandbox("element.doCommand();", this._contentSandbox);
-    this._contentSandbox.element = null;
   },
 
   __faviconService: null,
@@ -268,22 +235,17 @@ FeedWriter.prototype = {
   },
 
   _setCheckboxCheckedState: function setCheckboxCheckedState(aCheckbox, aValue) {
-    // see checkbox.xml, xbl bindings are not applied within the sandbox!
-    this._contentSandbox.checkbox = aCheckbox;
-    var codeStr;
+    // see checkbox.xml, xbl bindings are not visible through xrays!
     var change = (aValue != (aCheckbox.getAttribute('checked') == 'true'));
     if (aValue)
-      codeStr = "checkbox.setAttribute('checked', 'true'); ";
+      aCheckbox.setAttribute("checked", "true");
     else
-      codeStr = "checkbox.removeAttribute('checked'); ";
+      aCheckbox.removeAttribute("checked");
 
     if (change) {
-      this._contentSandbox.document = this._document;
-      codeStr += "checkbox.dispatchEvent(new Event('CheckboxStateChange',"+
-                 "  { bubbles: true, cancelable: true }));";
+      aCheckbox.dispatchEvent(new this._document.defaultView.Event(
+          "CheckboxStateChange", { bubbles: true, cancelable: true }));
     }
-
-    Components.utils.evalInSandbox(codeStr, this._contentSandbox);
   },
 
    /**
@@ -349,17 +311,13 @@ FeedWriter.prototype = {
    */
   _setTitleText: function setTitleText(container) {
     if (container.title) {
-      var title = container.title.plainText();
-      this._setContentText(TITLE_ID, title);
-      this._contentSandbox.document = this._document;
-      this._contentSandbox.title = title;
-      var codeStr = "document.title = title;"
-      Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+      this._setContentText(TITLE_ID, container.title);
+      this._document.title = container.title.plainText();
     }
 
     var feed = container.QueryInterface(Components.interfaces.nsIFeed);
     if (feed && feed.subtitle)
-      this._setContentText(SUBTITLE_ID, container.subtitle.plainText());
+      this._setContentText(SUBTITLE_ID, container.subtitle);
   },
 
   /**
@@ -381,20 +339,9 @@ FeedWriter.prototype = {
 
       var titleText = this._getFormattedString("linkTitleTextFormat",
                                                [parts.getPropertyAsAString("title")]);
-      this._contentSandbox.feedTitleLink = feedTitleLink;
-      this._contentSandbox.titleText = titleText;
-      this._contentSandbox.feedTitleText = this._document.getElementById("feedTitleText");
-      this._contentSandbox.titleImageWidth = parseInt(parts.getPropertyAsAString("width")) + 15;
-
-      // Fix the margin on the main title, so that the image doesn't run over
-      // the underline
-      var codeStr = "feedTitleLink.setAttribute('title', titleText); " +
-                    "feedTitleText.style.MozMarginEnd = titleImageWidth + 'px';";
-      Components.utils.evalInSandbox(codeStr, this._contentSandbox);
-      this._contentSandbox.feedTitleLink = null;
-      this._contentSandbox.titleText = null;
-      this._contentSandbox.feedTitleText = null;
-      this._contentSandbox.titleImageWidth = null;
+      feedTitleLink.setAttribute("title", titleText);
+      var titleImageWidth = parseInt(parts.getPropertyAsAString("width")) + 15;
+      feedTitleLink.style.MozMarginEnd = titleImageWidth + "px";
 
       this._safeSetURIAttribute(feedTitleLink, "href",
                                 parts.getPropertyAsAString("link"));
@@ -415,8 +362,7 @@ FeedWriter.prototype = {
     if (feed.items.length == 0)
       return;
 
-    this._contentSandbox.feedContent =
-      this._document.getElementById("feedContent");
+    var feedContent = this._document.getElementById("feedContent");
 
     for (let i = 0; i < feed.items.length; ++i) {
       let entry = feed.items.queryElementAt(i, Components.interfaces.nsIFeedEntry);
@@ -428,7 +374,7 @@ FeedWriter.prototype = {
       // If the entry has a title, make it a link
       if (entry.title) {
         let a = this._document.createElementNS(HTML_NS, "a");
-        a.appendChild(this._document.createTextNode(entry.title.plainText()));
+        this._setContentText(a, entry.title);
 
         // Entries are not required to have links, so entry.link can be null.
         if (entry.link)
@@ -479,19 +425,12 @@ FeedWriter.prototype = {
         entryContainer.appendChild(enclosuresDiv);
       }
 
-      this._contentSandbox.entryContainer = entryContainer;
-      this._contentSandbox.clearDiv = this._document
-                                          .createElementNS(HTML_NS, "div");
-      this._contentSandbox.clearDiv.style.clear = "both";
+      feedContent.appendChild(entryContainer);
 
-      var codeStr = "feedContent.appendChild(entryContainer); " +
-                    "feedContent.appendChild(clearDiv);";
-      Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+      var clearDiv = this._document.createElementNS(HTML_NS, "div");
+      clearDiv.style.clear = "both";
+      feedContent.appendChild(clearDiv);
     }
-
-    this._contentSandbox.feedContent = null;
-    this._contentSandbox.entryContainer = null;
-    this._contentSandbox.clearDiv = null;
   },
 
   /**
@@ -667,12 +606,8 @@ FeedWriter.prototype = {
    *          The menuitem's associated file
    */
   _initMenuItemWithFile: function(aMenuItem, aFile) {
-    this._contentSandbox.menuitem = aMenuItem;
-    this._contentSandbox.label = this._getFileDisplayName(aFile);
-    this._contentSandbox.image = this._getFileIconURL(aFile);
-    var codeStr = "menuitem.setAttribute('label', label); " +
-                  "menuitem.setAttribute('image', image);";
-    Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+    aMenuItem.setAttribute("label", this._getFileDisplayName(aFile));
+    aMenuItem.setAttribute("image", this._getFileIconURL(aFile));
   },
 
   /**
@@ -702,13 +637,12 @@ FeedWriter.prototype = {
         if (this._selectedApp) {
           var file = Services.dirsvc.get("XREExeF", Components.interfaces.nsILocalFile);
           if (fp.file.leafName != file.leafName) {
-            this._initMenuItemWithFile(this._contentSandbox.selectedAppMenuItem,
+            this._initMenuItemWithFile(this._selectedAppMenuItem,
                                        this._selectedApp);
 
             // Show and select the selected application menuitem
-            var codeStr = "selectedAppMenuItem.hidden = false;" +
-                          "selectedAppMenuItem.doCommand();";
-            Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+            this._selectedAppMenuItem.hidden = false;
+            this._selectedAppMenuItem.doCommand();
             return true;
           }
         }
@@ -740,11 +674,8 @@ FeedWriter.prototype = {
         break;
     }
 
-    this._contentSandbox.subscribeUsing =
-      this._getUIElement("subscribeUsingDescription");
-    this._contentSandbox.label = this._getString(stringLabel);
-    var codeStr = "subscribeUsing.setAttribute('value', label);"
-    Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+    var subscribeUsing = this._getUIElement("subscribeUsingDescription");
+    subscribeUsing.setAttribute("value", this._getString(stringLabel));
   },
 
   _setAlwaysUseLabel: function setAlwaysUseLabel() {
@@ -764,11 +695,7 @@ FeedWriter.prototype = {
             break;
         }
 
-        this._contentSandbox.checkbox = checkbox;
-        this._contentSandbox.label = this._getFormattedString(stringLabel, [handlerName]);
-
-        var codeStr = "checkbox.setAttribute('label', label);";
-        Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+        checkbox.setAttribute("label", this._getFormattedString(stringLabel, [handlerName]));
       }
     }
   },
@@ -827,7 +754,7 @@ FeedWriter.prototype = {
             return;
           }
 
-          this._safeDoCommand(handlers[0]);
+          handlers[0].doCommand();
         }
         break;
       case "client":
@@ -841,30 +768,29 @@ FeedWriter.prototype = {
         }
 
         if (this._selectedApp) {
-          this._initMenuItemWithFile(this._contentSandbox.selectedAppMenuItem,
+          this._initMenuItemWithFile(this._selectedAppMenuItem,
                                      this._selectedApp);
-          var codeStr = "selectedAppMenuItem.hidden = false; " +
-                        "selectedAppMenuItem.doCommand(); ";
+          this._selectedAppMenuItem.hidden = false;
+          this._selectedAppMenuItem.doCommand();
 
           // Only show the default reader menuitem if the default reader
           // isn't the selected application
           if (this._defaultSystemReader) {
             var shouldHide = this._defaultSystemReader.path == this._selectedApp.path;
-            codeStr += "defaultHandlerMenuItem.hidden = " + shouldHide + ";";
+            this._defaultHandlerMenuItem.hidden = shouldHide;
           }
-          Components.utils.evalInSandbox(codeStr, this._contentSandbox);
           break;
         }
        case "bookmarks":
          var liveBookmarksMenuItem = this._getUIElement("liveBookmarksMenuItem");
          if (liveBookmarksMenuItem)
-           this._safeDoCommand(liveBookmarksMenuItem);
+           liveBookmarksMenuItem.doCommand();
          break;
       // fall through if this._selectedApp is null
       default:
         var messengerFeedsMenuItem = this._getUIElement("messengerFeedsMenuItem");
         if (messengerFeedsMenuItem)
-          this._safeDoCommand(messengerFeedsMenuItem);
+          messengerFeedsMenuItem.doCommand();
         break;
     }
   },
@@ -875,22 +801,20 @@ FeedWriter.prototype = {
       return;
 
     var feedType = this._getFeedType();
-    var codeStr;
 
     // change the background
     var header = this._document.getElementById("feedHeader");
-    this._contentSandbox.header = header;
     switch (feedType) {
       case Components.interfaces.nsIFeed.TYPE_VIDEO:
-        codeStr = "header.className = 'videoPodcastBackground'; ";
+        header.className = "videoPodcastBackground";
         break;
 
       case Components.interfaces.nsIFeed.TYPE_AUDIO:
-        codeStr = "header.className = 'audioPodcastBackground'; ";
+        header.className = "audioPodcastBackground";
         break;
 
       default:
-        codeStr = "header.className = 'feedBackground'; ";
+        header.className = "feedBackground";
     }
 
     var liveBookmarksMenuItem = this._getUIElement("liveBookmarksMenuItem");
@@ -916,12 +840,8 @@ FeedWriter.prototype = {
       // Hide the menuitem until an application is selected
       menuItem.hidden = true;
     }
-    this._contentSandbox.handlersMenuPopup = handlersMenuPopup;
-    this._contentSandbox.selectedAppMenuItem = menuItem;
-
-    codeStr += "handlersMenuPopup.appendChild(selectedAppMenuItem); ";
-
-    menuItem = null;
+    this._selectedAppMenuItem = menuItem;
+    handlersMenuPopup.appendChild(menuItem);
 
     // List the default feed reader
     try {
@@ -946,8 +866,8 @@ FeedWriter.prototype = {
     }
 
     if (menuItem) {
-      this._contentSandbox.defaultHandlerMenuItem = menuItem;
-      codeStr += "handlersMenuPopup.appendChild(defaultHandlerMenuItem); ";
+      this._defaultHandlerMenuItem = menuItem;
+      handlersMenuPopup.appendChild(menuItem);
     }
 
     // "Choose Application..." menuitem
@@ -956,16 +876,11 @@ FeedWriter.prototype = {
     menuItem.setAttribute("anonid", "chooseApplicationMenuItem");
     menuItem.className = "menuitem-iconic chooseApplicationMenuItem";
     menuItem.setAttribute("label", this._getString("chooseApplicationMenuItem"));
-
-    this._contentSandbox.chooseAppMenuItem = menuItem;
-    codeStr += "handlersMenuPopup.appendChild(chooseAppMenuItem); ";
+    handlersMenuPopup.appendChild(menuItem);
 
     // separator
-    this._contentSandbox.chooseAppSep =
-      menuItem = liveBookmarksMenuItem.nextSibling.cloneNode(false);
-    codeStr += "handlersMenuPopup.appendChild(chooseAppSep); ";
-
-    Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+    menuItem = liveBookmarksMenuItem.nextSibling.cloneNode(false);
+    handlersMenuPopup.appendChild(menuItem);
 
     // List of web handlers
     var wccr = Components.classes["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
@@ -979,13 +894,10 @@ FeedWriter.prototype = {
         menuItem.setAttribute("label", handlers[i].name);
         menuItem.setAttribute("handlerType", "web");
         menuItem.setAttribute("webhandlerurl", handlers[i].uri);
-        this._contentSandbox.menuItem = menuItem;
-        codeStr = "handlersMenuPopup.appendChild(menuItem);";
-        Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+        handlersMenuPopup.appendChild(menuItem);
 
         this._setFaviconForWebReader(handlers[i].uri, menuItem);
       }
-      this._contentSandbox.menuItem = null;
     }
 
     this._setSelectedHandler(feedType);
@@ -1028,17 +940,11 @@ FeedWriter.prototype = {
           textfeedinfo2 = "feedSubscriptionFeed2";
       }
 
-      this._contentSandbox.feedinfo1 =
-        this._document.getElementById("feedSubscriptionInfo1");
-      this._contentSandbox.feedinfo1Str = this._getString(textfeedinfo1);
-      this._contentSandbox.feedinfo2 =
-        this._document.getElementById("feedSubscriptionInfo2");
-      this._contentSandbox.feedinfo2Str = this._getString(textfeedinfo2);
-      this._contentSandbox.header = header;
-      codeStr = "feedinfo1.textContent = feedinfo1Str; " +
-                "feedinfo2.textContent = feedinfo2Str; " +
-                "header.setAttribute('firstrun', 'true');";
-      Components.utils.evalInSandbox(codeStr, this._contentSandbox);
+      this._document.getElementById("feedSubscriptionInfo1").textContent =
+          this._getString(textfeedinfo1);
+      this._document.getElementById("feedSubscriptionInfo2").textContent =
+          this._getString(textfeedinfo2);
+      header.setAttribute("firstrun", "true");
       Services.prefs.setBoolPref(PREF_SHOW_FIRST_RUN_UI, false);
     }
   },
@@ -1068,6 +974,8 @@ FeedWriter.prototype = {
   _feedURI: null,
   _feedPrincipal: null,
   _handlersMenuList: null,
+  _selectedAppMenuItem: null,
+  _defaultHandlerMenuItem: null,
 
   // nsIDOMGlobalObjectConstructor
   constructor: function constructor(aWindow) {
@@ -1149,7 +1057,8 @@ FeedWriter.prototype = {
     this.__faviconService = null;
     this.__bundle = null;
     this._feedURI = null;
-    this.__contentSandbox = null;
+    this._selectedAppMenuItem = null;
+    this._defaultHandlerMenuItem = null;
   },
 
   _removeFeedFromCache: function removeFeedFromCache() {
@@ -1289,7 +1198,6 @@ FeedWriter.prototype = {
       return;
     }
     let faviconURI = makeURI(readerURI.resolve("/favicon.ico"));
-    let self = this;
     var isPB = this._window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShell)
@@ -1302,12 +1210,7 @@ FeedWriter.prototype = {
         if (aDataLen > 0) {
           let dataURL = "data:" + aMimeType + ";base64," +
                         btoa(String.fromCharCode.apply(null, aData));
-          self._contentSandbox.menuItem = aMenuItem;
-          self._contentSandbox.dataURL = dataURL;
-          var codeStr = "menuItem.setAttribute('image', dataURL);";
-          Components.utils.evalInSandbox(codeStr, self._contentSandbox);
-          self._contentSandbox.menuItem = null;
-          self._contentSandbox.dataURL = null;
+          aMenuItem.setAttribute("image", dataURL);
         }
       });
   },
