@@ -1,56 +1,11 @@
+%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-@import url("chrome://messenger/skin/shared/tabmail.css");
-
-/**
- * Tabmail Tabs
- */
-
-#tabpanelcontainer:-moz-lwtheme {
-  color: inherit;
-}
-
-.tabmail-arrowscrollbox {
-  margin-bottom: -1px;
-}
-
-/**
- * Tab
- */
-
-@media (min-resolution: 1.25dppx) {
-  /* image preloading hack from shared/tabmail.css */
-  #tabs-toolbar::before {
-    background-image: url(tabs/background-end@2x.png),
-                      url(tabs/background-middle@2x.png),
-                      url(tabs/background-start@2x.png);
-  }
-
-  .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]),
-  .tabs-newtab-button:hover {
-    background-image: url(tabs/background-start@2x.png),
-                      url(tabs/background-middle@2x.png),
-                      url(tabs/background-end@2x.png);
-  }
-
-  .tab-background-middle[selected=true] {
-    background-image: url(tabs/active-middle@2x.png),
-                      var(--fgTabTexture),
-                      none;
-  }
-
-  .tab-background-start[selected=true]:-moz-locale-dir(ltr)::after,
-  .tab-background-end[selected=true]:-moz-locale-dir(rtl)::after {
-    background-image: url(tabs/stroke-start@2x.png);
-  }
-
-  .tab-background-end[selected=true]:-moz-locale-dir(ltr)::after,
-  .tab-background-start[selected=true]:-moz-locale-dir(rtl)::after {
-    background-image: url(tabs/stroke-end@2x.png);
-  }
-}
+%endif
+%define WINDOWS_AERO
+%include tabmail.css
+%undef WINDOWS_AERO
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
@@ -60,86 +15,8 @@
 }
 
 #messengerWindow[tabsintitlebar]
-.tabmail-tab:not([selected]):not(:-moz-lwtheme) {
-  color: CaptionText;
-}
-
-#messengerWindow[tabsintitlebar]
 .tabmail-tab:not([selected]):not(:-moz-lwtheme):-moz-window-inactive {
   color: InactiveCaptionText;
-}
-
-.tabmail-tab[busy],
-.tabmail-tab[thinking] {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
-  -moz-image-region: auto !important;
-}
-
-.tabmail-tab[type="glodaSearch"] {
-  list-style-image: url("chrome://global/skin/icons/Search-glass.png");
-}
-
-.tabmail-tab {
-  list-style-image: url("chrome://global/skin/icons/folder-item.png");
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
-}
-
-tabpanels {
-  -moz-appearance: none;
-  background-color: transparent;
-}
-
-/* tabmail-tab focus ring */
-.tabmail-tab > .tab-stack > .tab-content > .tab-text {
-  border: 1px dotted transparent;
-}
-
-.tabmail-tab:focus > .tab-stack > .tab-content > .tab-text {
-  border: 1px dotted -moz-DialogText;
-}
-
-/* Tab DnD indicator */
-.tab-drop-indicator {
-  list-style-image: url(tabs/dragIndicator.png);
-  margin-bottom: -11px;
-}
-
-/**
- * close buttons
- */
-.tab-close-button,
-.tabs-closebutton {
-  -moz-appearance: none;
-  -moz-image-region: rect(0, 16px, 16px, 0);
-  border: none;
-  cursor: default;
-  list-style-image: url(icons/closeTab.png);
-}
-
-.tabs-closebutton {
-  padding: 0 2px !important;
-}
-
-.tab-close-button {
-  -moz-padding-start: 0 !important;
-  -moz-padding-end: 0 !important;
-  position: relative;
-  z-index: 4;
-}
-
-.tabs-closebutton:not(:hover):not(:active):-moz-lwtheme-brighttext,
-.tab-close-button:not(:hover):not(:active):-moz-lwtheme-brighttext {
-  -moz-image-region: rect(0, 64px, 16px, 48px);
-}
-
-.tab-close-button:hover,
-.tabs-closebutton:hover {
-  -moz-image-region: rect(0, 32px, 16px, 16px);
-}
-
-.tab-close-button:hover:active,
-.tabs-closebutton:hover:active {
-  -moz-image-region: rect(0, 48px, 16px, 32px);
 }
 
 .tabmail-tab[selected] > .tab-stack > .tab-content > .tab-close-button {
@@ -148,17 +25,9 @@ tabpanels {
   -moz-user-focus: normal;
 }
 
-.tab-close-button:focus {
-  outline: none !important;
-}
-
 /**
  * Tab Scrollbox Arrow Buttons
  */
-
-.tabs-left {
-  display: none;
-}
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
@@ -167,27 +36,6 @@ tabpanels {
   list-style-image: url(tabs/arrow-left.png);
   -moz-image-region: rect(0, 15px, 17px, 0);
   border-radius: 0;
-}
-
-.tabmail-arrowscrollbox >
-  .scrollbutton-up:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
-.tabmail-arrowscrollbox > stack >
-  .scrollbutton-down:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
-.tabmail-arrowscrollbox > .scrollbutton-up:-moz-lwtheme-brighttext,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-lwtheme-brighttext {
-  list-style-image: url(tabs/arrow-left-inverted.png);
-}
-
-.tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
-.tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
-  transform: scaleX(-1);
-  -moz-margin-start: 1px;
-  -moz-margin-end: 0;
-}
-
-.tabmail-arrowscrollbox > .scrollbutton-up[disabled="true"],
-.tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled="true"] {
-  opacity: .4;
 }
 
 /**
@@ -204,14 +52,6 @@ tabpanels {
 .tabs-alltabs-button:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
 .tabs-alltabs-button:-moz-lwtheme-brighttext {
   list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
-}
-
-.tabs-alltabs-button > .toolbarbutton-text {
-  display: none;
-}
-
-.tabs-alltabs-button > .toolbarbutton-icon {
-  margin: 3px 0;
 }
 
 /* Apply only on Win8 */
@@ -252,27 +92,6 @@ tabpanels {
   .tabs-alltabs-button > .toolbarbutton-icon {
     margin: 4px 0 0;
   }
-}
-
-.tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
-  display: none;
-}
-
-/**
- * All Tabs Menupopup
- */
-
-.alltabs-item {
-  list-style-image: url("chrome://global/skin/icons/folder-item.png");
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
-}
-
-.alltabs-item[selected] {
-  font-weight: bold;
-}
-
-.alltabs-item[busy] {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
 }
 
 /**

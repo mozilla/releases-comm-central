@@ -67,6 +67,7 @@
   list-style-image: url("chrome://global/skin/icons/Search-glass.png");
 }
 
+%ifndef WINDOWS_AERO
 .tabmail-tab[selected] > .tab-stack > .tab-content > .tab-text {
   opacity: 1.0 !important;
 }
@@ -90,6 +91,7 @@
   background-color: transparent;
   background-image: none;
 }
+%endif
 
 .tabmail-tab {
   list-style-image: url("chrome://global/skin/icons/folder-item.png");
@@ -120,6 +122,7 @@ tabpanels {
  * close buttons
  */
 
+%ifndef WINDOWS_AERO
 .tabs-closebutton-box {
   margin-top: 2px;
   margin-bottom: 4px;
@@ -129,6 +132,7 @@ tabpanels {
   -moz-margin-end: 0px !important;
   margin-top: 1px;
 }
+%endif
 
 .tab-close-button,
 .tabs-closebutton {
@@ -144,6 +148,7 @@ tabpanels {
   -moz-image-region: rect(0, 64px, 16px, 48px);
 }
 
+%ifndef WINDOWS_AERO
 @media (-moz-windows-theme: luna-blue),
        (-moz-windows-theme: royale),
        (-moz-windows-theme: zune) {
@@ -153,15 +158,21 @@ tabpanels {
     -moz-image-region: rect(0, 64px, 16px, 48px);
   }
 }
+%endif
 
-.tabs-closebutton {
+.tabs-closebutton-box > .tabs-closebutton {
   padding: 0 2px;
 }
 
 .tab-close-button {
+%ifndef WINDOWS_AERO
   -moz-margin-start: 6px;
   -moz-padding-start: 0 !important;
   -moz-padding-end: 0 !important;
+%else
+  -moz-padding-start: 0 !important;
+  -moz-padding-end: 0 !important;
+%endif
   position: relative;
   z-index: 4;
   pointer-events: auto;
@@ -190,6 +201,7 @@ tabpanels {
   display: none;
 }
 
+%ifndef WINDOWS_AERO
 .tabmail-arrowscrollbox > .scrollbutton-up {
   margin-top: 1px;
   margin-bottom: 1px;
@@ -229,7 +241,14 @@ tabpanels {
   -moz-margin-start: 1px;
   -moz-margin-end: 0px;
 }
+%endif
 
+%ifdef WINDOWS_AERO
+.tabmail-arrowscrollbox >
+  .scrollbutton-up:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
+.tabmail-arrowscrollbox > stack >
+  .scrollbutton-down:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
+%endif
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-lwtheme-brighttext,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-lwtheme-brighttext {
   list-style-image: url(tabs/arrow-left-inverted.png);
@@ -243,12 +262,17 @@ tabpanels {
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
 .tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
+%ifdef WINDOWS_AERO
+  -moz-margin-start: 1px;
+  -moz-margin-end: 0;
+%endif
 }
 
 /**
  * All Tabs Button
  */
 
+%ifndef WINDOWS_AERO
 .tabs-alltabs-button {
   margin-top: 1px;
   margin-bottom: 1px;
@@ -258,16 +282,22 @@ tabpanels {
   -moz-padding-end: 4px !important;
   padding: 0px;
 }
+%endif
 
 .tabs-alltabs-button > .toolbarbutton-text {
   display: none;
 }
 
 .tabs-alltabs-button > .toolbarbutton-icon {
+%ifndef WINDOWS_AERO
   -moz-margin-end: 0;
+%else
+  margin: 3px 0;
+%endif
 }
 
 .tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
+%ifndef WINDOWS_AERO
   -moz-margin-end: 3px !important;
   list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow.png);
   -moz-image-region: rect(0, 13px, 11px, 0);
@@ -284,6 +314,9 @@ tabpanels {
     .toolbarbutton-menu-dropmarker:not(:-moz-lwtheme) {
     list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
   }
+%else
+  display: none;
+%endif
 }
 
 /**
