@@ -120,8 +120,10 @@ let pop3DownloadModule =
       // for this folder also didn't download any messages, remove the
       // prev event from the activity manager.
       let prevItem = this._prevActivityForFolder[aFolder.URI];
-      if (prevItem != undefined && !prevItem.numMsgsDownloaded)
-        this.activityMgr.removeActivity(prevItem.eventID);
+      if (prevItem != undefined && !prevItem.numMsgsDownloaded) {
+        if (this.activityMgr.containsActivity(prevItem.eventID))
+          this.activityMgr.removeActivity(prevItem.eventID);
+      }
     }
   },
   init: function() {

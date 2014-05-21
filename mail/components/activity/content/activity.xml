@@ -198,6 +198,13 @@
         ]]>
         </getter>
       </property>
+      <property name="isGroup">
+        <getter>
+        <![CDATA[
+          return false;
+        ]]>
+        </getter>
+      </property>
       <property name="activity">
         <getter>
           <![CDATA[
