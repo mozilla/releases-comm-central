@@ -9,7 +9,7 @@ const autoJoinPref = "autoJoin";
 var joinChat = {
   onload: function jc_onload() {
     var accountList = document.getElementById("accountlist");
-    for (let acc in this.getAccounts()) {
+    for (let acc in getIter(Services.accounts.getAccounts())) {
       if (!acc.connected || !acc.canJoinChat)
         continue;
       var proto = acc.protocol;
@@ -145,7 +145,5 @@ var joinChat = {
     }
 
     return true;
-  },
-
-  getAccounts: function jc_getAccounts() getIter(Services.accounts.getAccounts())
+  }
 };

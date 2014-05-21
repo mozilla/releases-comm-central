@@ -5,6 +5,7 @@
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/imServices.jsm");
 
+const Cc = Components.classes;
 const Ci = Components.interfaces;
 const autoJoinPref = "autoJoin";
 
@@ -91,7 +92,7 @@ var joinChat = {
   join: function jc_join() {
     let values = joinChat._values;
     for each (let field in joinChat._fields) {
-      let val = field.textbox.value;
+      let val = field.textbox.value.trim();
       if (!val && field.field.required) {
         field.textbox.focus();
         //FIXME: why isn't the return false enough?
@@ -134,7 +135,7 @@ var joinChat = {
       let autojoin = [];
       if (prefBranch.prefHasUserValue(autoJoinPref)) {
         let prefValue =
-          prefBranch.getComplexPref(autoJoinPref, Ci.nsISupportsString).data;
+          prefBranch.getComplexValue(autoJoinPref, Ci.nsISupportsString).data;
         if (prefValue)
           autojoin = prefValue.split(",");
       }
@@ -144,7 +145,7 @@ var joinChat = {
         let str = Cc["@mozilla.org/supports-string;1"]
                     .createInstance(Ci.nsISupportsString);
         str.data = autojoin.join(",");
-        prefBranch.setComplexPref(autoJoinPref, Ci.nsISupportsString, str);
+        prefBranch.setComplexValue(autoJoinPref, Ci.nsISupportsString, str);
       }
     }
 
