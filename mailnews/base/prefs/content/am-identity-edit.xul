@@ -86,7 +86,7 @@
           </rows>
         </grid>
 
-        <hbox align="center" class="indent">
+        <hbox class="indent" flex="1">
           <textbox id="identity.htmlSigText" flex="1" multiline="true" wrap="off" rows="4" class="signatureBox"/>
         </hbox>
 
@@ -128,12 +128,14 @@
             </menupopup>
           </menulist>
         </hbox>
+
+        <spacer flex="1"/>
       </vbox>
 
-      <!-- Copies & Folders Tab --> 
+      <!-- Copies & Folders Tab -->
       <vbox flex="1" name="copiesAndFolders" id="copiesAndFolders"/>
 
-      <!-- Composition & Addressing Tab --> 
+      <!-- Composition & Addressing Tab -->
       <vbox flex="1" name="composeAddressing" id="compositionAndAddressing"/>
 
     </tabpanels> 
