@@ -5,11 +5,12 @@
 @import url("chrome://chat/skin/status.css");
 
 .displayNameMessageBox {
+  margin-left: 4px;
   margin-top: 2px;
 }
 
 .statusTypeIcon {
-  margin: 32px 4px 0 0 !important;
+  margin: 32px 0 0;
   max-width: 16px;
   max-height: 16px;
   min-width: 16px;
@@ -75,7 +76,6 @@
 
 .userIcon,
 .userIconHolder {
-  margin-right: 4px;
   max-width: 48px;
   max-height: 48px;
   min-width: 48px;

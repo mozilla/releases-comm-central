@@ -1331,8 +1331,11 @@
     </resources>
     <content>
       <xul:stack anonid="statusImageStack" class="statusImageStack">
-        <xul:image anonid="userIcon" class="userIcon" mousethrough="always"
-                   xbl:inherits="src=userIcon"/>
+        <!-- The box around the user icon is a workaround for bug 955673. -->
+        <xul:box class="userIconHolder" xbl:inherits="userIcon">
+          <xul:image anonid="userIcon" class="userIcon" mousethrough="always"
+                     xbl:inherits="src=userIcon"/>
+        </xul:box>
         <xul:image anonid="statusTypeIcon" class="statusTypeIcon"
                    xbl:inherits="status,typing,typed,tooltiptext=statusTypeTooltiptext"/>
       </xul:stack>

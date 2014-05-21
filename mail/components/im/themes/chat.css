@@ -124,7 +124,7 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 
-/* From instantbird/themes/conversation.css */
+/* From im/themes/conversation.css */
 .browser {
   margin: 0 0;
 }
@@ -162,16 +162,22 @@ imcontact[aliasing] .contactDisplayName {
 %endif
 }
 
-.userIcon {
+.userIconHolder {
   border: 2px solid rgba(0,0,0,0.15);
   border-radius: 5px;
+  overflow: hidden;
+}
+
+.userIcon,
+.userIconHolder {
   max-width: 48px;
   max-height: 48px;
   width: 48px;
   height: 48px;
 }
 
-.userIcon:not([src]) {
+.userIcon:not([src]),
+.userIconHolder:not([userIcon]) {
   display: none;
 }
 
@@ -235,6 +241,7 @@ imcontact[aliasing] .contactDisplayName {
   list-style-image: url('chrome://chat/skin/unknown.png');
 }
 
+/* corresponds to im/themes/conversation.css @media all and (min-height: 251px) */
 .statusImageStack,
 .displayNameAndstatusMessageStack {
   margin: 2px 2px;
@@ -271,7 +278,7 @@ imcontact[aliasing] .contactDisplayName {
   margin: 32px 0 0;
 }
 
-.userIcon[src] + .statusTypeIcon {
+.userIconHolder[userIcon] + .statusTypeIcon {
   margin-left: 32px;
 }
 
