@@ -279,8 +279,7 @@ tabmail > tabbox > tabpanels {
 .tabs-alltabs-box-animate {
   margin: 1px 0px 0px;
   width: 25px;
-  background-image: url("chrome://messenger/skin/tabs/alltabs-box-overflow-bkgnd-animate.png");
-  background-repeat: no-repeat;
+  background-color: #669CFF;
   opacity: 0.0;
 }
 
