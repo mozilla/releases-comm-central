@@ -34,6 +34,7 @@
         <rdf:li> <rdf:Description nc:name="Component Bar" nc:link="glossary.xhtml#component_bar"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="cookie" nc:link="glossary.xhtml#cookie"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Cookie Manager" nc:link="glossary.xhtml#cookie_manager"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="CRAM-MD5" nc:link="glossary.xhtml#cram_md5"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="CRL" nc:link="glossary.xhtml#crl"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="cryptographic algorithm" nc:link="glossary.xhtml#cryptographic_algorithm"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="cryptography" nc:link="glossary.xhtml#cryptography"/> </rdf:li>
@@ -44,6 +45,7 @@
         <rdf:li> <rdf:Description nc:name="Do Not Track" nc:link="glossary.xhtml#do_not_track"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="dual key pairs" nc:link="glossary.xhtml#dual_key_pairs"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="eavesdropping" nc:link="glossary.xhtml#eavesdropping"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="encrypted password" nc:link="glossary.xhtml#encrypted_password"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="encryption" nc:link="glossary.xhtml#encryption"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="encryption certificate" nc:link="glossary.xhtml#encryption_certificate"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="encryption key" nc:link="glossary.xhtml#encryption_key"/> </rdf:li>
@@ -55,6 +57,7 @@
         <rdf:li> <rdf:Description nc:name="foreign cookie" nc:link="glossary.xhtml#foreign_cookie"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="frame" nc:link="glossary.xhtml#frame"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="FTP" nc:link="glossary.xhtml#ftp"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="GSSAPI" nc:link="glossary.xhtml#gssapi"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="helper application" nc:link="glossary.xhtml#helper_application"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="home page" nc:link="glossary.xhtml#home_page"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="HTML" nc:link="glossary.xhtml#html"/> </rdf:li>
@@ -68,6 +71,7 @@
         <rdf:li> <rdf:Description nc:name="ISP" nc:link="glossary.xhtml#isp"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Java" nc:link="glossary.xhtml#java"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="JavaScript" nc:link="glossary.xhtml#javascript"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="Kerberos" nc:link="glossary.xhtml#kerberos"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="key" nc:link="glossary.xhtml#key"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="LDAP" nc:link="glossary.xhtml#ldap"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="language pack" nc:link="glossary.xhtml#language_pack"/> </rdf:li>
@@ -79,6 +83,7 @@
         <rdf:li> <rdf:Description nc:name="Navigation Toolbar" nc:link="glossary.xhtml#navigation_toolbar"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="nonrepudiation" nc:link="glossary.xhtml#nonrepudiation"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="notification bar" nc:link="glossary.xhtml#notification_bar"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="NTLM" nc:link="glossary.xhtml#ntlm"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="object signing" nc:link="glossary.xhtml#object_signing"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="object-signing certificate" nc:link="glossary.xhtml#object-signing_certificate"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="OCSP" nc:link="glossary.xhtml#ocsp"/> </rdf:li>

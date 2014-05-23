@@ -40,6 +40,7 @@
   <a href="#certificate-based_authentication">certificate-based
   authentication</a>, <a href="#client_authentication">client
   authentication</a>, <a href="#server_authentication">server
+  authentication</a>, <a href="#secure_authentication">secure
   authentication</a>.</dd>
 
 <dt id="bookmark">bookmark</dt><dd>A stored <a href="#web_page">web page</a>
@@ -101,9 +102,9 @@
   certificate that has previously been backed up.</dd>
 
 <dt id="certificate-based_authentication">certificate-based
-  authentication</dt><dd>Verification of identity based on certificates and
-  public-key cryptography. See also
-  <a href="#password-based_authentication">password-based
+  authentication</dt><dd>Verification of identity based on 
+  <a href="#certificate">certificates</a> and public-key cryptography.
+  See also <a href="#password-based_authentication">password-based
   authentication</a>.</dd>
 
 <dt id="certificate_chain">certificate chain</dt><dd>A hierarchical series of
@@ -187,6 +188,11 @@
 <dt id="cookie_manager">Cookie Manager</dt><dd>The part of the browser
   that you can use to control <a href="#cookie">cookies</a>.</dd>
 
+<dt id="cram_md5">CRAM-MD5</dt><dd>A
+  <a href="#cryptographic_algorithm">cryptographic algorithm</a> used for
+  <a href="#encrypted_password">password encryption</a> to achieve
+  <a href="#secure_authentication">secure authentication</a>.</dd>
+
 <dt id="crl">CRL (certificate revocation list)</dt><dd>A list of revoked
   certificates that is generated and signed by a
   <a href="#certificate_authority">certificate authority (CA)</a>. You can
@@ -248,6 +254,15 @@
   information sent over a network by an entity for which the information is not
   intended.</dd>
 
+<dt id="encrypted_password">encrypted password</dt><dd>Used for
+  <a href="#password-based_authentication">password-based authentication</a>
+  to achieve <a href="#secure_authentication">secure authentication</a>.
+  The user&apos;s password is encrypted before it is sent to the server
+  (e.g., by methods like <a href="#cram_md5">CRAM-MD5</a>) to prevent that
+  anyone eavesdropping on the connection from seeing it in clear text.  This
+  mechanism is frequently used when no <a href="#secure_connection">secure
+  connection</a> method is available.</dd>
+
 <dt id="encryption">encryption</dt><dd>The process of scrambling information in
   a way that disguises its meaning. For example, encrypted connections between
   computers make it very difficult for third-parties to unscramble, or
@@ -306,6 +321,9 @@
 <dt id="ftp">FTP (File Transfer Protocol)</dt><dd>A
   standard that allows users to transfer files from one computer to another
   over a network. You can use your browser to fetch files using FTP.</dd>
+
+<dt id="gssapi">GSSAPI (Generic Security Services Application Program
+  Interface)</dt><dd>See <a href="#kerberos">Kerberos</a>.</dd>
 
 <dt id="helper_application">helper application</dt><dd>Any application that is
   used to open or view a file downloaded by the browser. A
@@ -397,6 +415,14 @@
   with the corresponding private key. See also
   <a href="#public-key_cryptography">public-key cryptography</a>.</dd>
 
+<dt id="kerberos">Kerberos</dt><dd>A mechanism to use single-signon,
+  <a href="#smart_card">smart cards</a>, or other custom methods to
+  <a href="#authentication">authenticate</a> access without using
+  <a href="#password-based_authentication">passwords</a> for each individual
+  service.  Used mostly in large enterprise/institutional networks where
+  authentication is provided by centralized services like
+  <a href="#ldap">LDAP</a>.</dd>
+
 <dt id="language_pack">language pack</dt><dd>A type of
   <a href="#add-on">add-on</a> that adds a new language to the user interface
   of &brandShortName;.</dd>
@@ -455,6 +481,11 @@
   top of the content area to inform you about something that needs your
   attention, e.g. when the Password Manager can save a password for you, a
   popup has been blocked or an additional plugin is required.</dd>
+
+<dt id="ntlm">NTLM (NT LAN Manager)</dt><dd>A protocol for
+  <a href="#authentication">authentication</a> in local networks that is
+  proprietary to Microsoft Windows.  Used mostly in enterprise/institutional
+  networks.</dd>
 
 <dt id="object_signing">object signing</dt><dd>A technology that allows
   software developers to sign Java code, JavaScript scripts, or any kind of
@@ -601,15 +632,21 @@
   search box, and the search engine displays links to relevant web pages.</dd>
 
 <dt id="secure_authentication">secure authentication</dt><dd>A type of
-  <a href="#authentication">authentication</a> which uses a
-  <a href="#secure_connection">secure connection</a> so the communication
-  between client and server is encrypted.</dd>
+  <a href="#authentication">authentication</a> which can be achieved by
+  <a href="#encrypted_password">encryption of the password</a> or by mechanisms
+  like <a href="#kerberos">Kerberos</a> and <a href="#ntlm">NTLM</a>.  Not to
+  be confused with <a href="#secure_connection">secure connection</a>.</dd>
 
-<dt id="secure_connection">secure connection</dt><dd>A connection between a
-  client and a server which uses some type of encryption (usually,
-  <a href="#ssl">SSL</a>) to ensure it can&apos;t be intercepted by
-  third-parties. Most of the time, the server is the one providing the
-  certificate to identify itself.</dd>
+<dt id="secure_connection">secure connection</dt><dd>A connection using
+  <a href="#ssl">SSL</a> or <a href="#tls">TLS</a>.  All communication between
+  your computer and the server is <a href="#encryption">encrypted</a> so that
+  no third party eavesdropping on your connection can read it.  Note that the
+  data is only encrypted during transmission between your client application
+  and the server, after that it is no longer encrypted.  To prove its
+  authenticity to the client, the server needs to identify itself using a
+  <a href="#certificate">certificate</a>.  A bad certificate can indicate
+  an attack on the server or the connection, thus it is important to heed
+  certificate warnings.</dd>
 
 <dt id="security_certificate">security certificate</dt><dd>See
   <a href="#certificate">certificate</a>.</dd>
@@ -838,7 +875,7 @@
   language used to convert an XML document into another XML document or into
   some other format.</dd>
 
-<dt id="xul">XUL (XML User Interface Language)</dt><dd>A XML markup language
+<dt id="xul">XUL (XML User Interface Language)</dt><dd>An XML markup language
   for creating user interfaces in applications.</dd>
 
 </dl>

@@ -210,8 +210,9 @@
     connection</a> to your incoming IMAP server. You can choose one of these:
     <ul>
       <li><strong>None</strong>: &brandShortName; will use a plain connection,
-        without encryption at all. You should choose this <strong>only</strong>
-        if your incoming server doesn&apos;t support any type of security.</li>
+        without encryption at all. You should choose this <em>only</em> if your
+        incoming server allows password encryption or doesn&apos;t support any
+        type of security.</li>
       <li><strong>STARTTLS</strong>: Require an encrypted connection, use the
         <a href="glossary.xhtml#starttls">STARTTLS</a> method. This mechanism
         will usually run on the standard IMAP port 143.</li>
@@ -220,10 +221,41 @@
       </li>
     </ul>
   </li>
-  <li><strong>Use secure authentication</strong>: Choose this setting if you
-    want to use secure mechanisms for logging in like CRAM-MD5. If you are
-    unsure if your service supports this, contact your service provider or
-    system administrator.</li>
+  <li><strong>Authentication method</strong>: Choose one of the available
+    options to use <a href="glossary.xhtml#secure_authentication">secure
+    authentication</a> with your incoming IMAP server. You can choose one of
+    these:
+    <ul>
+      <li><strong>Normal password</strong>: &brandShortName; will send your
+        password as clear text, without encryption at all. This option is
+        safe when SSL/TLS or STARTTLS is used.</li>
+      <li><strong>Password, transmitted insecurely</strong>: Same as
+        <q>Normal password</q> but only available when a connection security
+        of <q>None</q> is selected and hence is unsafe. Do <em>not</em> choose
+        this unless your incoming server doesn&apos;t support any type of
+        security at all.</li>
+      <li><strong>Encrypted password</strong>: Require the encryption of the
+        user&apos;s credentials as supported by the server, such as
+        <a href="glossary.xhtml#cram_md5">CRAM-MD5</a>. This option is safe
+        to use even if the connection security setting is <q>None</q>, but
+        only the password would be secured in this way, not any content.</li>
+      <li><strong>Kerberos / GSSAPI</strong>: Choose this option if your
+        computer is set up for secure authentication using
+        <a href="glossary.xhtml#kerberos">Kerberos</a>. You may need to
+        acquire a Kerberos ticket by using a separate program, or it may be
+        assigned to you when logging into your computer.</li>
+      <li><strong>NTLM</strong>: Choose this option if your computer is set up
+        for secure authentication using an <a href="glossary.xhtml#ntlm">NT
+        LAN Manager</a>. In general, Kerberos should be preferred over NTLM as
+        it provides for a higher level of security.</li>
+      <li><strong>TLS Certificate</strong>: Choose this option to use
+        <a href="glossary.xhtml#certificate-based_authentication">certificate-based
+        authentication</a> on a connection with SSL/TLS or STARTTLS enabled,
+        without the need to provide any password for authentication.</li>
+    </ul>
+    If you are unsure which options are supported by your server, contact your
+    service provider or system administrator.
+  </li>
   <li><strong>Check for new messages at startup</strong>: Choose this setting
     if you want Mail &amp; Newsgroups to automatically check this account for
     new messages whenever you start Mail &amp; Newsgroups.</li>
@@ -315,8 +347,9 @@
     connection</a> to your incoming POP server. You can choose one of these:
     <ul>
       <li><strong>None</strong>: &brandShortName; will use a plain connection,
-        without encryption at all. You should choose this <strong>only</strong>
-        if your incoming server doesn&apos;t support any type of security.</li>
+        without encryption at all. You should choose this <em>only</em> if your
+        incoming server allows password encryption or doesn&apos;t support any
+        type of security.</li>
       <li><strong>STARTTLS</strong>: Require an encrypted connection, use the
         <a href="glossary.xhtml#starttls">STARTTLS</a> method. This mechanism
         will usually run on the standard POP port 110.</li>
@@ -325,10 +358,41 @@
       </li>
     </ul>
   </li>
-  <li><strong>Use secure authentication</strong>: Choose this setting if you
-    want to use secure mechanisms for logging in like CRAM-MD5 and APOP. If you
-    are unsure if your server supports this, contact your service provider or
-    system administrator.</li>
+  <li><strong>Authentication method</strong>: Choose one of the available
+    options to use <a href="glossary.xhtml#secure_authentication">secure
+    authentication</a> with your incoming POP server. You can choose one of
+    these:
+    <ul>
+      <li><strong>Normal password</strong>: &brandShortName; will send your
+        password as clear text, without encryption at all. This option is
+        safe when SSL/TLS or STARTTLS is used.</li>
+      <li><strong>Password, transmitted insecurely</strong>: Same as
+        <q>Normal password</q> but only available when a connection security
+        of <q>None</q> is selected and hence is unsafe. Do <em>not</em> choose
+        this unless your incoming server doesn&apos;t support any type of
+        security at all.</li>
+      <li><strong>Encrypted password</strong>: Require the encryption of the
+        user&apos;s credentials as supported by the server, such as
+        <a href="glossary.xhtml#cram_md5">CRAM-MD5</a> or APOP. This option is
+        safe to use even if the connection security setting is <q>None</q>, but
+        only the password would be secured in this way, not any content.</li>
+      <li><strong>Kerberos / GSSAPI</strong>: Choose this option if your
+        computer is set up for secure authentication using
+        <a href="glossary.xhtml#kerberos">Kerberos</a>. You may need to
+        acquire a Kerberos ticket by using a separate program, or it may be
+        assigned to you when logging into your computer.</li>
+      <li><strong>NTLM</strong>: Choose this option if your computer is set up
+        for secure authentication using an <a href="glossary.xhtml#ntlm">NT
+        LAN Manager</a>. In general, Kerberos should be preferred over NTLM as
+        it provides for a higher level of security.</li>
+      <li><strong>TLS Certificate</strong>: Choose this option to use
+        <a href="glossary.xhtml#certificate-based_authentication">certificate-based
+        authentication</a> on a connection with SSL/TLS or STARTTLS enabled,
+        without the need to provide any password for authentication.</li>
+    </ul>
+    If you are unsure which options are supported by your server, contact your
+    service provider or system administrator.
+  </li>
   <li><strong>Check for new messages at startup</strong>: Choose this setting
     if you want Mail &amp; Newsgroups to automatically check this account for
     new messages whenever you start Mail &amp; Newsgroups. For POP accounts,
@@ -393,9 +457,9 @@
   <li><strong>Port</strong>: Unless otherwise instructed to do so by your
     service provider or system administrator, leave this setting
     unchanged.</li>
-  <li><strong>Connection security</strong>: Choose &quot;SSL/TLS&quot; if your
+  <li><strong>Connection security</strong>: Choose <q>SSL/TLS</q> if your
     news server is configured to send and receive encrypted messages, or
-    &quot;None&quot; if it doesn&apos;t support it. If you are unsure, contact
+    <q>None</q> if it doesn&apos;t support it. If you are unsure, contact
     your service provider or system administrator.</li>
   <li><strong>Check for new messages at startup</strong>: Choose this setting
     to automatically check for new messages when you first open the Mail &amp;
@@ -1087,33 +1151,64 @@
     connected. By default it holds the standard port for the specified
     encryption. Change it if the mail server is listening for connections
     on a non-standard port.</li>
-  <li><strong>Use name and password</strong>: If your SMTP server requires
-    authentication to send mail, select this option and enter your user name.
-    The first time you send mail, you will be prompted for your password. At
-    that time you can instruct &brandShortName; to save your password for
-    future sessions.</li>
-  <li><strong>Use secure authentication</strong>: Choose this setting if you
-    want to use secure mechanisms for logging in like CRAM-MD5. If you are
-    unsure if your service supports this, contact your service provider or
-    system administrator.</li>
-  <li><strong>Use secure connection</strong>: There are two methods for
-    establishing a <a href="glossary.xhtml#secure_connection">secure
-    connection</a> to your outgoing server. Pick the one your server supports
-    (if you make a choice for which your server is not configured, you will
-    get an error message when sending mail).
+  <li><strong>Connection security</strong>: Choose one of the available options
+    to establish a <a href="glossary.xhtml#secure_connection">secure
+    connection</a> to your outgoing SMTP server. You can choose one of these:
     <ul>
-      <li><strong>STARTTLS, if available</strong>: &brandShortName; will try to
-        negotiate encryption using the
-        <a href="glossary.xhtml#starttls">STARTTLS</a> method. If the server
-        doesn&apos;t support it, an unencrypted connection is used.</li>
+      <li><strong>None</strong>: &brandShortName; will use a plain connection,
+        without encryption at all. You should choose this <em>only</em> if your
+        outgoing server allows password encryption, doesn&apos;t support any
+        type of security at all, or if no authentication is required to send
+        messages.</li>
       <li><strong>STARTTLS</strong>: Require an encrypted connection, use the
         <a href="glossary.xhtml#starttls">STARTTLS</a> method. This mechanism
-        will usually run on the standard SMTP port 25.</li>
+        will usually run on the standard SMTP-submission port 587 or the
+        generic port 25.</li>
       <li><strong>SSL/TLS</strong>: Require an encrypted connection, use the
         SMTP-over-SSL (also known as SMTPS) method. The default port for this
         is 465.</li>
     </ul>
+    If you make a choice for which your server is not configured, you will
+    get an error message when sending mail.
   </li>
+  <li><strong>Authentication method</strong>: Choose one of the available
+    options to use <a href="glossary.xhtml#secure_authentication">secure
+    authentication</a> with your incoming SMTP server. You can choose one of
+    these:
+    <ul>
+      <li><strong>No authentication</strong>: Neither a user name nor a
+        password will be sent to the server. This option may be chosen if
+        the SMTP server is in a local network or if other means are provided
+        to authenticate the user, such as <q>POP before SMTP</q>.</li>
+      <li><strong>Normal password</strong>: &brandShortName; will send your
+        password as clear text, without encryption at all. This option is
+        safe when SSL/TLS or STARTTLS is used.</li>
+      <li><strong>Password, transmitted insecurely</strong>: Same as
+        <q>Normal password</q> but only available when a connection security
+        of <q>None</q> is selected and hence is unsafe. Do <em>not</em> choose
+        this unless your outgoing server doesn&apos;t support any type of
+        security at all.</li>
+      <li><strong>Encrypted password</strong>: Require the encryption of the
+        user&apos;s credentials as supported by the server, such as
+        <a href="glossary.xhtml#cram_md5">CRAM-MD5</a>. This option is safe
+        to use even if the connection security setting is <q>None</q>, but
+        only the password would be secured in this way, not any content.</li>
+      <li><strong>Kerberos / GSSAPI</strong>: Choose this option if your
+        computer is set up for secure authentication using
+        <a href="glossary.xhtml#kerberos">Kerberos</a>. You may need to
+        acquire a Kerberos ticket by using a separate program, or it may be
+        assigned to you when logging into your computer.</li>
+      <li><strong>NTLM</strong>: Choose this option if your computer is set up
+        for secure authentication using an <a href="glossary.xhtml#ntlm">NT
+        LAN Manager</a>. In general, Kerberos should be preferred over NTLM as
+        it provides for a higher level of security.</li>
+    </ul>
+    If you are unsure which options are supported by your server, contact your
+    service provider or system administrator.
+  </li>
+  <li><strong>User Name</strong>: The user name that you specified when you
+    created this account. Not available if <q>No authentication</q> is
+    selected.</li>
 </ul>
 
 <p>[<a href="#mail_and_newsgroups_account_settings">Return to beginning of
