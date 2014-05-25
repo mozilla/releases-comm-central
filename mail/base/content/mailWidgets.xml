@@ -913,7 +913,7 @@
             // don't interact properly (bug 492645), without which we
             // would be inadvertently occluding too much of the message header
             // text and forcing the user to scroll unnecessarily (bug 525225).
-            // 
+            //
             // Fake the "All Headers" mode, so that we get a scroll bar
             // Will be reset when a new message loads
             document.getElementById("expandedHeaderView").setAttribute("show_header_mode","all");
@@ -1026,7 +1026,7 @@
   </binding>
 
   <!-- The value of the Newsgroups: headers, as displayed in the message,
-       header, composed of <mail-newsgroup> nodes.  -->      
+       header, composed of <mail-newsgroup> nodes.  -->
   <binding id="mail-newsgroups-headerfield">
     <content>
       <xul:hbox class="headerValueBox" flex="1">
@@ -1441,7 +1441,7 @@
       <property name="label" onget="return document.getAnonymousNodes(this)[0].selectedItem.getAttribute('label');">
       </property>
       <property name="validMenuitem" readonly="true">
-      <!-- Prepare menulist selection, adding a missing hidden menuitem if needed, and 
+      <!-- Prepare menulist selection, adding a missing hidden menuitem if needed, and
         updating the disabled state of the menulist label. -->
         <getter>
           <![CDATA[
@@ -1826,9 +1826,9 @@
             }
 
               // if it's not sender, to, cc, alladdresses, or toorcc, we don't care
-              if (this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.Sender && 
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.To && 
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.ToOrCC && 
+              if (this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.Sender &&
+                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.To &&
+                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.ToOrCC &&
                 this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.AllAddresses &&
                 this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.CC ) {
               this.internalOperator = val;
@@ -2178,7 +2178,7 @@
 
         // initialize the has attachment status picker
         this.initialize(document.getAnonymousNodes(this)[7], bundle);
-        
+
         // initialize the junk score origin picker
         this.initialize(document.getAnonymousNodes(this)[8], bundle);
 

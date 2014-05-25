@@ -70,7 +70,7 @@
           <![CDATA[
             let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
                                             .getService(Components.interfaces.nsIActivityManager);
-           
+
             let processes = activityManager
                                   .getProcessesByContext(this.contextType,
                                                          this.contextObj, {});
@@ -245,10 +245,10 @@
             let now = new Date();
             let today = new Date(now.getFullYear(), now.getMonth(),
                                  now.getDate());
-              
+
             // Get the end time to display
             let end = new Date(parseInt(time));
-              
+
             // Figure out if the end time is from today, yesterday,
             // this week, etc.
             let dateTime;
@@ -282,7 +282,7 @@
           <![CDATA[
             let dts = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                                 .getService(Components.interfaces.nsIScriptableDateFormat);
-                                
+
             // Get the end time to display
             let end = new Date(parseInt(time));
 
@@ -302,7 +302,7 @@
       </method>
     </implementation>
   </binding>
-  
+
   <binding id="activity-process"
            extends="chrome://messenger/content/activity.xml#activity-base">
     <implementation>
@@ -312,7 +312,7 @@
         // interface of the component from the the binding.
         // We deliberately propogate the exceptions to the caller.
         this._activity.QueryInterface(Components.interfaces.nsIActivityProcess);
-        
+
         try {
           this.displayText = this._activity.displayText;
           // make sure that binding reflects the latest state of the process
@@ -364,8 +364,8 @@
       <property name="isRemovable">
         <getter>
           <![CDATA[
-            return this._activity.state == Components.interfaces.nsIActivityProcess.STATE_COMPLETED || 
-                   this._activity.state == Components.interfaces.nsIActivityProcess.STATE_CANCELED 
+            return this._activity.state == Components.interfaces.nsIActivityProcess.STATE_COMPLETED ||
+                   this._activity.state == Components.interfaces.nsIActivityProcess.STATE_CANCELED
           ]]>
         </getter>
       </property>
@@ -613,7 +613,7 @@
         // We need to make this casting here in order to access
         // to nsIActivityEvent interface of the component from the the binding.
         // We deliberately propogate the exceptions to the caller.
-        this._activity.QueryInterface(Components.interfaces.nsIActivityEvent);  
+        this._activity.QueryInterface(Components.interfaces.nsIActivityEvent);
 
         try {
           this.displayText = this._activity.displayText;
@@ -713,18 +713,18 @@
       </xul:hbox>
     </content>
   </binding>
-  
+
   <binding id="activity-warning"
            extends="chrome://messenger/content/activity.xml#activity-base">
     <implementation>
       <constructor>
        <![CDATA[
-         
+
         // We need to make this casting here in order to access to
         // nsIActivityWarning interface of the component from the the binding.
         // We deliberately propogate the exceptions to the caller.
         this._activity.QueryInterface(Components.interfaces.nsIActivityWarning);
-         
+
         try {
           this.displayText = this._activity.displayText;
           this.dateTime = this._activity.time;

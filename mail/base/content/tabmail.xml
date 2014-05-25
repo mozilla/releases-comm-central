@@ -2266,12 +2266,12 @@
         if (!draggedTab)
           return;
 
-        event.stopPropagation();        
+        event.stopPropagation();
         this._tabDropIndicator.collapsed = true;
 
         // Is the tab one of our children?
         if (this.tabmail.tabContainer.getIndexOfItem(draggedTab) == -1) {
-        
+
           // It's a tab from an other window, so we have to trigger session
           // restore to get our tab
 
@@ -2285,7 +2285,7 @@
 
           draggedJson = JSON.parse(draggedJson);
 
-          // Some tab exist only once, so we have to gamble a bit. We close 
+          // Some tab exist only once, so we have to gamble a bit. We close
           // the tab and try to reopen it. If something fails the tab is gone.
 
           tabmail2.closeTab(draggedTab,true);
@@ -2357,7 +2357,7 @@
         this._tabDropIndicator.collapsed = true;
         event.stopPropagation();
 
-      ]]></handler>      
+      ]]></handler>
     </handlers>
   </binding>
 
