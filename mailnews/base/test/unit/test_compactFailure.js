@@ -12,6 +12,10 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
 let gTargetFolder;
 let gUuid;
 
+// Allow certain xpcom errors.
+logHelperAllowedErrors.push(Cr.NS_ERROR_FILE_IS_LOCKED);
+logHelperAllowedErrors.push(Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST);
+
 function LockedFileOutputStream() {
 }
 
@@ -160,4 +164,3 @@ function run_test() {
 
   async_run_tests(tests);
 }
-
