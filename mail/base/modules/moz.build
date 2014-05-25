@@ -6,6 +6,7 @@
 EXTRA_JS_MODULES += [
     'attachmentChecker.js',
     'dbViewWrapper.js',
+    'displayNameUtils.js',
     'distribution.js',
     'glodaWebSearch.js',
     'MailConsts.js',

@@ -6,12 +6,9 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/gloda/gloda.js");
 Components.utils.import("resource:///modules/gloda/connotent.js");
 Components.utils.import("resource:///modules/gloda/mimemsg.js");
+Components.utils.import("resource:///modules/displayNameUtils.js");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/templateUtils.js");
-
-// This is executed in the context of the message summary page, not main chrome,
-// but we need to access a few things from the main window.
-var global = window.top;
 
 var gMessenger = Components.classes["@mozilla.org/messenger;1"]
                            .createInstance(Components.interfaces.nsIMessenger);
@@ -25,34 +22,6 @@ XPCOMUtils.defineLazyGetter(this, "formatString", function() {
     return formatter.get.apply(formatter, arguments);
   };
 });
-
-/**
- * Format the display name for the multi-message/thread summaries. First, try
- * using FormatDisplayName, then fall back to the header's display name or the
- * address.
- *
- * @param aHeaderParser An instance of |nsIMsgHeaderParser|.
- * @param aHeaderValue  The raw header value.
- * @param aContext      The context of the header field (e.g. "to", "from").
- * @return The formatted display name.
- */
-function _mm_FormatDisplayName(aHeaderParser, aHeaderValue, aContext) {
-  let addresses = {};
-  let fullNames = {};
-  let names = {};
-  let numAddresses = aHeaderParser.parseHeadersWithArray(aHeaderValue,
-    addresses, names, fullNames);
-
-  if (numAddresses > 0) {
-    return global.FormatDisplayName(
-      addresses.value[0], names.value[0], aContext
-    ) || names.value[0] || addresses.value[0];
-  }
-  else {
-    // Something strange happened, just return the raw header value.
-    return aHeaderValue;
-  }
-}
 
 /**
  * The MultiMessageSummary class is responsible for populating the message pane
@@ -124,7 +93,8 @@ MultiMessageSummary.prototype = {
 
     // Enable/disable the archive button as appropriate.
     let archiveBtn = document.getElementById("hdrArchiveButton");
-    archiveBtn.collapsed = !global.gFolderDisplay.canArchiveSelectedMessages;
+    archiveBtn.collapsed = !window.top.gFolderDisplay
+                                  .canArchiveSelectedMessages;
 
     let summarizer = this._summarizers[aType];
     if (!summarizer)
@@ -205,8 +175,8 @@ MultiMessageSummary.prototype = {
 
     let authorNode = document.createElement("span");
     authorNode.classList.add("author");
-    authorNode.textContent = _mm_FormatDisplayName(
-      MailServices.headerParser, message.mime2DecodedAuthor, "from"
+    authorNode.textContent = FormatDisplayNameList(
+      message.mime2DecodedAuthor, "from"
     );
 
     if (aOptions && aOptions.showSubject) {
@@ -218,7 +188,7 @@ MultiMessageSummary.prototype = {
       subjectNode.textContent = message.mime2DecodedSubject ||
                                 formatString("noSubject");
       subjectNode.addEventListener("click", function() {
-        global.gFolderDisplay.selectMessages(thread);
+        window.top.gFolderDisplay.selectMessages(thread);
       }, false);
       itemHeaderNode.appendChild(subjectNode);
 
@@ -246,8 +216,8 @@ MultiMessageSummary.prototype = {
 
       authorNode.classList.add("primary_header", "link");
       authorNode.addEventListener("click", function() {
-        global.gFolderDisplay.selectMessage(message);
-        global.document.getElementById("messagepane").focus();
+        window.top.gFolderDisplay.selectMessage(message);
+        window.top.document.getElementById("messagepane").focus();
       }, false);
       itemHeaderNode.appendChild(authorNode);
     }
@@ -569,9 +539,9 @@ MultipleSelectionSummarizer.prototype = {
     let threads = {};
     let numThreads = 0;
     for (let [,msgHdr] in Iterator(aMessages)) {
-      let viewThreadId = global.gFolderDisplay.view.dbView
-                               .getThreadContainingMsgHdr(msgHdr)
-                               .threadKey;
+      let viewThreadId = window.top.gFolderDisplay.view.dbView
+                                   .getThreadContainingMsgHdr(msgHdr)
+                                   .threadKey;
       if (!(viewThreadId in threads)) {
         threads[viewThreadId] = [msgHdr];
         numThreads++;

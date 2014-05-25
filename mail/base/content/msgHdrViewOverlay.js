@@ -9,6 +9,7 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource:///modules/displayNameUtils.js");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/gloda/utils.js");
 let {Status: statusUtils} =
@@ -1249,59 +1250,9 @@ function updateEmailAddressNode(emailAddressNode, address)
   UpdateEmailNodeDetails(address.emailAddress, emailAddressNode);
 }
 
-/**
- * Take an email address and compose a sensible display name based on the
- * header display name and/or the display name from the address book. If no
- * appropriate name can be made (e.g. there is no card for this address),
- * returns |null|.
- *
- * @param aEmailAddress       the email address to format
- * @param aHeaderDisplayName  the display name from the header, if any
- * @param aContext            the field being formatted (e.g. "to", "from")
- * @param aCard               the address book card, if any
- * @return  The formatted display name, or null
- */
-function FormatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
-{
-  var displayName = null;
-  var identity = getBestIdentity(accountManager.allIdentities, aEmailAddress);
-  var card = aCard || getCardForEmail(aEmailAddress).card;
-
-  // If this address is one of the user's identities...
-  if (aEmailAddress == identity.email) {
-    var bundle = document.getElementById("bundle_messenger");
-    // ...pick a localized version of the word "Me" appropriate to this
-    // specific header; fall back to the version used by the "to" header
-    // if nothing else is available.
-    try {
-      displayName = bundle.getString("header" + aContext + "FieldMe");
-    } catch (ex) {
-      displayName = bundle.getString("headertoFieldMe");
-    }
-
-    // Make sure we have an unambiguous name if there are multiple identities
-    if (accountManager.allIdentities.length > 1)
-      displayName += " <"+identity.email+">";
-  }
-
-  // If we don't have a card, refuse to generate a display name. Places calling
-  // this are then responsible for falling back to something else (e.g. the
-  // value from the message header).
-  if (card) {
-    if (!displayName && aHeaderDisplayName)
-      displayName = aHeaderDisplayName;
-
-    // getProperty may return a "1" or "0" string, we want a boolean
-    if (!displayName || card.getProperty("PreferDisplayName", true) != false)
-      displayName = card.displayName || null;
-  }
-
-  return displayName;
-}
-
 function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
   // If we haven't been given specific details, search for a card.
-  var cardDetails = aCardDetails || getCardForEmail(aEmailAddress);
+  var cardDetails = aCardDetails || GetCardForEmail(aEmailAddress);
   aDocumentNode.cardDetails = cardDetails;
 
   if (!cardDetails.card) {
