@@ -2118,7 +2118,8 @@ function assert_messages_summarized(aController, aSelectedMessages) {
   if (aSelectedMessages.synMessages)
     aSelectedMessages = [msgHdr for each (msgHdr in aSelectedMessages.msgHdrs)];
 
-  let summary = aController.window.gSummary;
+  let summaryFrame = aController.window.gSummaryFrameManager.iframe;
+  let summary = summaryFrame.contentWindow.gSummary;
   if (aSelectedMessages.length != summary._msgHdrs.length) {
     let elaboration = "Summary contains " + summary._msgHdrs.length +
                       " messages, expected " + aSelectedMessages.length + ".";

@@ -32,25 +32,10 @@
     <link rel="stylesheet" media="screen, print" type="text/css"
           href="chrome://messenger/skin/tagColors.css"/>
     <title>&window.title;</title>
-    <script type="application/javascript;version=1.8"><![CDATA[
-      Components.utils.import("resource:///modules/errUtils.js");
-      function adjustHeadingSize() {
-        let content = document.getElementById('content');
-        let heading = document.getElementById('heading');
-        let buttonbox = document.getElementById('header-view-toolbox');
-        content.style.top = Math.max(
-          buttonbox.getBoundingClientRect().height,
-          heading.getBoundingClientRect().height) + 'px';
-      }
-      function hookResize() {
-        // we need to hook into the resize event on the header to make the
-        // #content node shift down as it reflows.
-        window.addEventListener('resize', adjustHeadingSize, false);
-      }
-    ]]>
-    </script>
+    <script type="application/javascript;version=1.8"
+            src="chrome://messenger/content/multimessageview.js"/>
   </head>
-<body onload="hookResize()">
+<body>
   <div id="headingwrappertable">
     <div id="headingwrapper">
       <xul:toolbox id="header-view-toolbox" class="inline-toolbox"

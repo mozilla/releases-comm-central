@@ -1179,11 +1179,11 @@ var PerWindowTypeAugmentations = {
       aController.window.MessageDisplayWidget.prototype
                  .SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
     },
-    
+
     /**
      * Used to wrap methods on a class prototype in order to generate
      *  mark_action data about the call.
-     */         
+     */
     debugTrace: [
       // wrap 3pane unload function to notice when it explodes
       {
@@ -1246,21 +1246,21 @@ var PerWindowTypeAugmentations = {
       },
       // Message summarization annotations
       {
-        method: "summarize",
-        onConstructor: "MultiMessageSummary",
-        reportAs: "MD_MultiMessageSummary_summarize",
+        method: "summarizeThread",
+        onGlobal: true,
+        reportAs: "summarizeThread",
         showArgs: false,
       },
       {
-        method: "onQueryCompleted",
-        onConstructor: "MultiMessageSummary",
-        reportAs: "MD_*Summary_onQueryCompleted",
+        method: "summarizeMultipleSelection",
+        onGlobal: true,
+        reportAs: "summarizeMultipleSelection",
         showArgs: false,
       },
       {
-        method: "summarize",
-        onConstructor: "ThreadSummary",
-        reportAs: "MD_ThreadSummary_summarize",
+        method: "summarizeFolder",
+        onGlobal: true,
+        reportAs: "summarizeFolder",
         showArgs: false,
       },
     ],

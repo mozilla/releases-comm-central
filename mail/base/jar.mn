@@ -90,6 +90,7 @@ messenger.jar:
     content/messenger/multimessageview_print.css    (content/multimessageview_print.css)
     content/messenger/sharedsummary.css             (content/sharedsummary.css)
     content/messenger/multimessageview.xhtml        (content/multimessageview.xhtml)
+    content/messenger/multimessageview.js           (content/multimessageview.js)
     content/messenger/glodaFacetTab.js              (content/glodaFacetTab.js)
     content/messenger/glodaFacetViewWrapper.xul     (content/glodaFacetViewWrapper.xul)
     content/messenger/glodaFacetView.xhtml          (content/glodaFacetView.xhtml)
