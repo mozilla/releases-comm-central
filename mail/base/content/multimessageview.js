@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
-Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/gloda/gloda.js");
 Components.utils.import("resource:///modules/gloda/connotent.js");
 Components.utils.import("resource:///modules/gloda/mimemsg.js");
@@ -14,37 +13,18 @@ Components.utils.import("resource:///modules/templateUtils.js");
 // but we need to access a few things from the main window.
 var global = window.top;
 
-let gSelectionSummaryStrings = {
-  NConversations: "NConversations",
-  numMsgs: "numMsgs",
-  countUnread: "countUnread",
-  ignoredCount: "ignoredCount",
-  messagesSize: "messagesSize",
-  noticeText: "noticeText",
-  noSubject: "noSubject",
-};
-let gSelectionSummaryStringsInitialized = false;
+var gMessenger = Components.classes["@mozilla.org/messenger;1"]
+                           .createInstance(Components.interfaces.nsIMessenger);
 
-/**
- * loadSelectionSummaryStrings does the routine localization of non-pluralized
- * strings, populating the gSelectionSummaryStrings array based on the current
- * locale.
- */
-function loadSelectionSummaryStrings() {
-  if (gSelectionSummaryStringsInitialized)
-    return;
-
-  gSelectionSummaryStringsInitialized = true;
-
-  // convert strings to those in the string bundle
-  let getStr = function(string) {
-    return window.top.document.getElementById("bundle_multimessages")
-                 .getString(string);
+// Set up our string formatter for localizing strings.
+XPCOMUtils.defineLazyGetter(this, "formatString", function() {
+  let formatter = new PluralStringFormatter(
+    "chrome://messenger/locale/multimessageview.properties"
+  );
+  return function() {
+    return formatter.get.apply(formatter, arguments);
   };
-  for (let [name, value] in Iterator(gSelectionSummaryStrings))
-    gSelectionSummaryStrings[name] = typeof value == "string" ?
-      getStr(value) : value.map(gSelectionSummaryStrings);
-}
+});
 
 /**
  * Format the display name for the multi-message/thread summaries. First, try
@@ -113,9 +93,6 @@ MultiMessageSummary.prototype = {
    * Clear all the content from the summary.
    */
   clear: function() {
-    // Ensure the summary selection strings are loaded.
-    loadSelectionSummaryStrings();
-
     this._listener = null;
     this._glodaQuery = null;
     this._msgNodes = {};
@@ -239,7 +216,7 @@ MultiMessageSummary.prototype = {
       let subjectNode = document.createElement("span");
       subjectNode.classList.add("subject", "primary_header", "link");
       subjectNode.textContent = message.mime2DecodedSubject ||
-                                gSelectionSummaryStrings["noSubject"];
+                                formatString("noSubject");
       subjectNode.addEventListener("click", function() {
         global.gFolderDisplay.selectMessages(thread);
       }, false);
@@ -247,14 +224,13 @@ MultiMessageSummary.prototype = {
 
       if (thread && thread.length > 1) {
         let numUnreadStr = "";
-        if (numUnread) {
-          numUnreadStr = PluralForm.get(
-            numUnread, gSelectionSummaryStrings["countUnread"]
-          ).replace("#1", numUnread);
-        }
-        let countStr = "(" + PluralForm.get(
-          thread.length, gSelectionSummaryStrings["numMsgs"]
-        ).replace("#1", thread.length) + numUnreadStr + ")";
+        if (numUnread)
+          numUnreadStr = formatString(
+            "numUnread", [numUnread.toLocaleString()], numUnread
+          );
+        let countStr = "(" + formatString(
+          "numMessages", [thread.length.toLocaleString()], thread.length
+        ) + numUnreadStr + ")";
 
         let countNode = document.createElement("span");
         countNode.classList.add("count");
@@ -367,17 +343,14 @@ MultiMessageSummary.prototype = {
    * @param aMessages The messages to calculate the size of.
    */
   _computeSize: function(aMessages) {
-    let numThreads = 0;
     let numBytes = 0;
 
     for (let [,msgHdr] in Iterator(aMessages))
       numBytes += msgHdr.messageSize; // XXX do something about news?
-    let [size, unit] = DownloadUtils.convertByteUnits(numBytes);
-    let sizeText = replaceInsert(
-      gSelectionSummaryStrings.messagesSize, 1, size
+    let sizeNode = document.getElementById("size");
+    sizeNode.textContent = formatString(
+      "messagesTotalSize", [gMessenger.formatFileSize(numBytes)]
     );
-    sizeText = replaceInsert(sizeText, 2, unit);
-    document.getElementById("size").textContent = sizeText;
   },
 
   /**
@@ -529,24 +502,24 @@ ThreadSummarizer.prototype = {
     }
 
     // Set the heading based on the subject and number of messages.
-    let countInfo = PluralForm.get(
-      aMessages.length, gSelectionSummaryStrings["numMsgs"]
-    ).replace("#1", aMessages.length);
+    let countInfo = formatString(
+      "numMessages", [aMessages.length.toLocaleString()], aMessages.length
+    );
     if (ignoredCount != 0) {
-      countInfo += " - " + PluralForm.get(
-        ignoredCount, gSelectionSummaryStrings["ignoredCount"]
-      ).replace("#1", ignoredCount);
+      countInfo += formatString(
+        "numIgnored", [ignoredCount.toLocaleString()], ignoredCount
+      );
     }
 
     let subject = aMessages[0].mime2DecodedSubject ||
-                  gSelectionSummaryStrings["noSubject"];
+                  formatString("noSubject");
     this.context.setHeading(subject, countInfo);
 
     if (maxCountExceeded) {
-      let noticeText = gSelectionSummaryStrings.noticeText;
-      noticeText = replaceInsert(noticeText, 1, aMessages.length);
-      noticeText = replaceInsert(noticeText, 2, this.kMaxMessages);
-      this.context.showNotice(noticeText);
+      this.context.showNotice(formatString("maxCountExceeded", [
+        aMessages.length.toLocaleString(),
+        this.kMaxMessages.toLocaleString(),
+      ]));
     }
   },
 };
@@ -608,9 +581,9 @@ MultipleSelectionSummarizer.prototype = {
     }
 
     // Set the heading based on the number of messages & threads.
-    this.context.setHeading(PluralForm.get(
-      numThreads, gSelectionSummaryStrings["NConversations"]
-    ).replace("#1", numThreads));
+    this.context.setHeading(formatString(
+      "numConversations", [numThreads.toLocaleString()], numThreads
+    ));
 
     // Summarize the selected messages by thread.
     let maxCountExceeded = false;
@@ -633,10 +606,10 @@ MultipleSelectionSummarizer.prototype = {
     }
 
     if (maxCountExceeded) {
-      let noticeText = gSelectionSummaryStrings.noticeText;
-      noticeText = replaceInsert(noticeText, 1, aMessages.length);
-      noticeText = replaceInsert(noticeText, 2, this.kMaxMessages);
-      this.context.showNotice(noticeText);
+      this.context.showNotice(formatString("maxCountExceeded", [
+        aMessages.length.toLocaleString(),
+        this.kMaxMessages.toLocaleString(),
+      ]));
     }
   },
 };

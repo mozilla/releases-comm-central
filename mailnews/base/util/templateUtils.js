@@ -2,17 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let EXPORTED_SYMBOLS = ["makeFriendlyDateAgo", "replaceInsert"];
+let EXPORTED_SYMBOLS = ["PluralStringFormatter", "makeFriendlyDateAgo"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
 const Cu = Components.utils;
 
+Cu.import("resource://gre/modules/PluralForm.jsm");
 Cu.import("resource:///modules/StringBundle.js");
 
-const gTemplateUtilsStrings =
-  new StringBundle("chrome://messenger/locale/templateUtils.properties");
+function PluralStringFormatter(aBundleURI) {
+  this._bundle = new StringBundle(aBundleURI);
+}
+
+PluralStringFormatter.prototype = {
+  get: function(aStringName, aReplacements, aPluralCount) {
+    let str = this._bundle.get(aStringName);
+    if (aPluralCount !== undefined)
+      str = PluralForm.get(aPluralCount, str);
+    if (aReplacements !== undefined) {
+      for (let i = 0; i < aReplacements.length; i++)
+        str = str.replace("#" + (i+1), aReplacements[i]);
+    }
+    return str;
+  },
+};
+
+
+const gTemplateUtilsStrings = new PluralStringFormatter(
+  "chrome://messenger/locale/templateUtils.properties"
+);
 
 /**
  * Helper function to generate a localized "friendly" representation of
@@ -28,8 +48,8 @@ const gTemplateUtilsStrings =
  */
 function makeFriendlyDateAgo(time)
 {
-  let dts = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                      .getService(Components.interfaces.nsIScriptableDateFormat);
+  let dts = Cc["@mozilla.org/intl/scriptabledateformat;1"]
+              .getService(Ci.nsIScriptableDateFormat);
 
   // Figure out when today begins
   let now = new Date();
@@ -50,7 +70,7 @@ function makeFriendlyDateAgo(time)
                                   end.getHours(), end.getMinutes(),0);
   } else if (today - end < kDayInMsecs) {
     // activity finished after yesterday started, show yesterday
-    dateTime = gTemplateUtilsStrings.get('yesterday');
+    dateTime = gTemplateUtilsStrings.get("yesterday");
   } else if (today - end < k6DaysInMsecs) {
     // activity finished after last week started, show day of week
     dateTime = end.toLocaleFormat("%A");
@@ -59,9 +79,7 @@ function makeFriendlyDateAgo(time)
     let month = end.toLocaleFormat("%B");
     // Remove leading 0 by converting the date string to a number
     let date = Number(end.toLocaleFormat("%d"));
-    let dayMonth = gTemplateUtilsStrings.get("monthDate");
-    dateTime = replaceInsert(dayMonth, 1, month);
-    dateTime = replaceInsert(dateTime, 2, date);
+    dateTime = gTemplateUtilsStrings.get("monthDate", [month, date]);
   } else {
     // not this year, so show full date format
     dateTime = dts.FormatDate("", dts.dateFormatShort,
@@ -69,20 +87,4 @@ function makeFriendlyDateAgo(time)
                               end.getDate());
   }
   return dateTime;
-}
-
-/**
- * Helper function to replace a placeholder string with a real string
- *
- * @param aText
- *        Source text containing placeholder (e.g., #1)
- * @param aIndex
- *        Index number of placeholder to replace
- * @param aValue
- *        New string to put in place of placeholder
- * @return The string with placeholder replaced with the new string
- */
-function replaceInsert(aText, aIndex, aValue)
-{
-  return aText.replace("#" + aIndex, aValue);
 }
