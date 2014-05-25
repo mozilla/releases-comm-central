@@ -30,5 +30,5 @@ public:
 
 private:
 };
- 
+
 #endif

@@ -32,20 +32,20 @@ class nsIProfileStartup;
 
 // Proxy utilities shared by the Opera and IE migrators
 void ParseOverrideServers(const char* aServers, nsIPrefBranch* aBranch);
-void SetProxyPref(const nsACString& aHostPort, const char* aPref, 
+void SetProxyPref(const nsACString& aHostPort, const char* aPref,
                   const char* aPortPref, nsIPrefBranch* aPrefs);
 
-struct MigrationData { 
-  char16_t* fileName; 
+struct MigrationData {
+  char16_t* fileName;
   uint32_t sourceFlag;
   bool replaceOnly;
 };
 
 class nsIFile;
-void GetMigrateDataFromArray(MigrationData* aDataArray, 
+void GetMigrateDataFromArray(MigrationData* aDataArray,
                              int32_t aDataArrayLength,
                              bool aReplace,
-                             nsIFile* aSourceProfile, 
+                             nsIFile* aSourceProfile,
                              uint16_t* aResult);
 
 

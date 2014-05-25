@@ -33,7 +33,7 @@ struct fileTransactionEntry {
 
 class nsNetscapeProfileMigratorBase : public nsIMailProfileMigrator,
                                       public nsITimerCallback
-                                      
+
 {
 public:
   NS_DECL_ISUPPORTS
@@ -109,5 +109,5 @@ protected:
   nsCOMPtr<nsIObserverService> mObserverService;
   nsCOMPtr<nsITimer> mFileIOTimer;
 };
- 
+
 #endif

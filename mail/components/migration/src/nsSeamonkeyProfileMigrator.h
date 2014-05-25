@@ -37,7 +37,7 @@ protected:
                                 const nsAString& aTargetPrefFileName);
 
   nsresult DummyCopyRoutine(bool aReplace);
-  nsresult CopyJunkTraining(bool aReplace);  
+  nsresult CopyJunkTraining(bool aReplace);
   nsresult CopyPasswords(bool aReplace);
   nsresult CopyMailFolders(PBStructArray &aMailServers,
                            nsIPrefService* aPrefBranch);
@@ -55,5 +55,5 @@ private:
   nsCOMPtr<nsIMutableArray> mProfileNames;
   nsCOMPtr<nsIMutableArray> mProfileLocations;
 };
- 
+
 #endif

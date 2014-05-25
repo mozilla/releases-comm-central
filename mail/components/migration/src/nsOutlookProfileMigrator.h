@@ -23,5 +23,5 @@ public:
   virtual ~nsOutlookProfileMigrator();
   virtual nsresult ContinueImport();
 };
- 
+
 #endif
