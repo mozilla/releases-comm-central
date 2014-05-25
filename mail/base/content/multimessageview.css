@@ -7,12 +7,7 @@
 
 @import url("chrome://messenger/content/sharedsummary.css");
 
-
-#headingwrapper {
-  background-color: #729fcf;
-  position: relative;
-}
-
+/* The heading area */
 
 #headingwrappertable {
   position: fixed;
@@ -21,17 +16,9 @@
   right: 0;
 }
 
-.heading {
-  font-weight: bold;
-  font-size: medium;
-  margin: 0.5em;
-  border: 1px solid transparent;
-  padding-right: 1em;
-}
-
-.header {
-  margin-left: 19px;
-  padding: 0.3ex 0px;
+#headingwrapper {
+  background-color: #729fcf;
+  position: relative;
 }
 
 #heading {
@@ -42,6 +29,59 @@
   padding-left: 0.5em;
   padding-right: 0.5em;
   margin: 0;
+}
+
+.heading {
+  font-weight: bold;
+  font-size: medium;
+  margin: 0.5em;
+  border: 1px solid transparent;
+  padding-right: 1em;
+}
+
+.heading.info {
+  font-size: medium;
+  font-weight: normal;
+}
+
+/* The main content area */
+
+#content {
+  position: absolute;
+  top: 4em;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  padding: 1ex 1em;
+  margin: 0px;
+  font-size: small;
+}
+
+#messagelist {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#footer {
+  padding-left: 1em;
+}
+
+.info {
+  font-size: small;
+}
+
+/* The message/thread summary rows */
+
+#messagelist > li {
+  position: relative;
+  margin-bottom: 1ex;
+  border-width: 2px;
+}
+
+.thread {
+  border-radius: 4px;
+  border: 2px solid lightgrey;
 }
 
 .star {
@@ -56,120 +96,34 @@
   background-repeat: no-repeat;
 }
 
-#content {
-  position: absolute;
-  top: 4em;
-  right: 0;
-  left: 0;
-  z-index: -1;
-  padding: 1ex 1em;
-  margin: 0px;
-  font-size: small;
+.item_summary {
+  margin-left: 19px;
+  padding: 0.3ex 0px;
 }
 
-.row {
-  position: relative;
-}
-
-.message {
-  margin-bottom: 1ex;
-  border-left: 3px solid transparent;
-}
-
-.thread {
-  border-radius: 4px;
-  border: 2px solid lightgrey;
-}
-
-.subject {
-  display: inline;
-}
-
-.sender {
-  display: inline;
-}
-
-.author {
-  float: right;
-}
-
-.count {
-  display: inline;
-  white-space: nowrap;
-  color: InactiveCaptionText;
-}
-
-.date {
-  float: right;
-  padding: 0px 1em;
-}
-
-.wrappedsender, .wrappedsubject {
+.item_header {
   padding-right: 18px;
   padding-top: 6px;
   padding-bottom: 6px;
 }
 
-.message.unread .subject,
-.message.unread .sender  {
+.unread .primary_header  {
   font-weight: bold;
 }
 
-.snippet {
-  color: GrayText;
-  padding-right: 1.5em;
-  padding-bottom: 1ex;
-}
-
-.senders {
-  color: GrayText;
-}
-
-.info {
-  font-size: small;
-}
-
-.heading.info {
-  font-size: medium;
-  font-weight: normal;
-}
-
-#column {
+.right {
   float: right;
-  right: 1em;
-  top: 1em;
 }
 
-#header {
-  border: 1px solid transparent;
-}
-
-.section_heading {
-  font-weight: bold;
-  padding-bottom: .5em;
-  color: #555;
-}
-
-.stats {
-  padding: 1em;
-  padding-top: 3em;
-  text-align: center;
-  font-size: small;
-}
-
-.messagecount {
-  display: inline-block;
+.count {
   white-space: nowrap;
-  overflow: hidden;
+  color: InactiveCaptionText;
+  -moz-margin-start: 1ch;
 }
 
 .tags {
-  display: inline;
   padding-top: 4px;
-}
-
-.snippet {
-  color: #555;
+  -moz-margin-start: 1ch;
 }
 
 .tag {
@@ -185,7 +139,8 @@
   color: #111111;
 }
 
-.notice {
-  padding-left: 1em;
+.snippet {
+  color: #555;
+  padding-right: 1.5em;
+  padding-bottom: 1ex;
 }
-

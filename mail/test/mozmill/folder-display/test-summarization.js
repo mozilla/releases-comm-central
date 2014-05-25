@@ -177,17 +177,17 @@ function test_summarization_thread_detection() {
   toggle_thread_row(0);
   assert_messages_summarized(mc, messages);
   // count the number of messages represented
-  assert_summary_contains_N_divs('wrappedsender', 10);
+  assert_summary_contains_N_elts('#messagelist > li', 10);
   select_shift_click_row(1);
   // this should have shifted to the multi-message view
-  assert_summary_contains_N_divs('wrappedsender', 0);
-  assert_summary_contains_N_divs('wrappedsubject', 2);
+  assert_summary_contains_N_elts('.item_header > .date', 0);
+  assert_summary_contains_N_elts('.item_header > .subject', 2);
   select_none();
   assert_nothing_selected();
   select_click_row(1); // select a single message
   select_shift_click_row(2); // add a thread
-  assert_summary_contains_N_divs('wrappedsender', 0);
-  assert_summary_contains_N_divs('wrappedsubject', 2);
+  assert_summary_contains_N_elts('.item_header > .date', 0);
+  assert_summary_contains_N_elts('.item_header > .subject', 2);
 }
 
 /**
@@ -291,10 +291,9 @@ function test_summary_when_multiple_identities() {
   // Assertions
   select_click_row(0);
   assert_messages_summarized(mc, mc.folderDisplay.selectedMessages);
-  // Thread summary uses class wrappedsender, while multimessage summary uses
-  // class author.
-  assert_summary_contains_N_divs('author', 0);
-  assert_summary_contains_N_divs('wrappedsender', 2);
+  // Thread summary shows a date, while multimessage summary shows a subject.
+  assert_summary_contains_N_elts('.item_header > .subject', 0);
+  assert_summary_contains_N_elts('.item_header > .date', 2);
 
   // Second half of the test, makes sure MultiMessageSummary groups messages
   // according to their view thread id
@@ -303,7 +302,7 @@ function test_summary_when_multiple_identities() {
   be_in_folder(folderVirtual);
   select_shift_click_row(1);
 
-  assert_summary_contains_N_divs('author', 2);
+  assert_summary_contains_N_elts('.item_header > .subject', 2);
 }
 
 function extract_first_address(thread)
@@ -320,7 +319,7 @@ function extract_first_address(thread)
 
 function check_address_name(name) {
   let htmlframe = mc.e('multimessage');
-  let match = htmlframe.contentDocument.querySelector('.sender');
+  let match = htmlframe.contentDocument.querySelector('.author');
   if (match.textContent != name)
     throw new Error("Expected to find sender named '" + name + "', found '" +
                     match.textContent + "'");

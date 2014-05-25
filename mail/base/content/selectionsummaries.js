@@ -10,7 +10,10 @@
  *                         showing messages.
  */
 function summarizeSelection(aMessageDisplay) {
-  // Figure out if we're looking at one thread or more than one thread.
+  // Figure out if we're looking at one thread or more than one thread. We want
+  // the view's version of threading, not the database's version, in order to
+  // thread together cross-folder messages. XXX: This falls apart for group by
+  // sort; what we really want is a way to specify only the cross-folder view.
   let folderDisplay = aMessageDisplay.folderDisplay;
   let selectedIndices = folderDisplay.selectedIndices;
   let dbView = folderDisplay.view.dbView;

@@ -2724,18 +2724,21 @@ function reset_close_message_on_delete() {
 
 /**
  * assert that the multimessage/thread summary view contains
- * the specified number of elements of the specified class.
+ * the specified number of elements of the specified selector.
  *
- * @param aClassName: the class to use to select
+ * @param aSelector: the CSS selector to use to select
  * @param aNumElts: the number of expected elements that have that class
  */
 
-function assert_summary_contains_N_divs(aClassName, aNumElts) {
+function assert_summary_contains_N_elts(aSelector, aNumElts) {
   let htmlframe = mc.e('multimessage');
-  let matches = htmlframe.contentDocument.getElementsByClassName(aClassName);
-  if (matches.length != aNumElts)
-    throw new Error("Expected to find " + aNumElts + " elements with class " +
-                    aClassName + ", found: " + matches.length);
+  let matches = htmlframe.contentDocument.querySelectorAll(aSelector);
+  if (matches.length != aNumElts) {
+    throw new Error(
+      "Expected to find " + aNumElts + " elements with selector '" +
+      aSelector + "', found: " + matches.length
+    );
+  }
 }
 
 
