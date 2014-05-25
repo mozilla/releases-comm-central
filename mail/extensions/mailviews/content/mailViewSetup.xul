@@ -31,7 +31,7 @@
   <script type="application/javascript" src="chrome://messenger/content/mailViewSetup.js"/>
 
   <dummy class="usesMailWidgets"/>
-    
+
   <vbox flex="1">
     <separator class="thin"/>
     <vbox>

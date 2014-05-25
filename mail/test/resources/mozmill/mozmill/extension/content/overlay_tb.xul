@@ -6,7 +6,7 @@
   <script src="overlay.js"/>
 
   <menupopup id="taskPopup">
-    <menuitem id="mozmill-mozmill" label="&mozmill;" 
+    <menuitem id="mozmill-mozmill" label="&mozmill;"
               oncommand="MozMill.onMenuItemCommand(event);"/>
   </menupopup>
 </overlay>

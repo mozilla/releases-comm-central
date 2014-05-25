@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -159,7 +159,7 @@
 
     <command id="cmd_increaseFont"                    oncommand="goDoCommand('cmd_increaseFont')"/>
     <command id="cmd_decreaseFont"                    oncommand="goDoCommand('cmd_decreaseFont')"/>
-    
+
     <command id="cmd_removeStyles"                    oncommand="goDoCommand('cmd_removeStyles')"/>
     <command id="cmd_removeLinks"                     oncommand="goDoCommand('cmd_removeLinks')"/>
     <command id="cmd_removeNamedAnchors"              oncommand="goDoCommand('cmd_removeNamedAnchors')"/>
@@ -265,7 +265,7 @@
   <!-- Format Menu -->
   <menupopup id="formatMenuPopup" onpopupshowing="EditorInitFormatMenu()">
     <!-- Font face submenu -->
-    <menu id="fontFaceMenu" label="&fontfaceMenu.label;" accesskey="&fontfaceMenu.accesskey;" 
+    <menu id="fontFaceMenu" label="&fontfaceMenu.label;" accesskey="&fontfaceMenu.accesskey;"
           position="1">
       <menupopup id="fontFaceMenuPopup"
                  oncommand="if (event.target.localName == 'menuitem')
@@ -385,7 +385,7 @@
     </menu>
 
     <!-- Font style submenu -->
-    <menu id="fontStyleMenu" label="&fontStyleMenu.label;" 
+    <menu id="fontStyleMenu" label="&fontStyleMenu.label;"
           accesskey="&fontStyleMenu.accesskey;"
           position="3">
     <menupopup id="fontStyleMenuPopup" onpopupshowing="initFontStyleMenu(this)">
@@ -479,7 +479,7 @@
 
     <!-- Note: "cmd_fontColor" only monitors color state, it doesn't execute the command
          (We should use "cmd_fontColorState" and "cmd_backgroundColorState" ?) -->
-    <menuitem id="fontColor" label="&formatFontColor.label;" 
+    <menuitem id="fontColor" label="&formatFontColor.label;"
           accesskey="&formatFontColor.accesskey;"
           observes="cmd_fontColor"
           oncommand="EditorSelectColor('Text', null);"
@@ -1023,7 +1023,7 @@
                  group="align"
                  autoCheck="false"
                  oncommand="doStatefulCommand('cmd_align', 'left')">
-    <observes element="cmd_align" attribute="state" 
+    <observes element="cmd_align" attribute="state"
               onbroadcast="onStateButtonUpdate(this.parentNode, 'cmd_align', 'left')" />
   </toolbarbutton>
   <toolbarbutton id="align-center-button"
@@ -1033,7 +1033,7 @@
                  group="align"
                  autoCheck="false"
                  oncommand="doStatefulCommand('cmd_align', 'center')">
-    <observes element="cmd_align" attribute="state" 
+    <observes element="cmd_align" attribute="state"
               onbroadcast="onStateButtonUpdate(this.parentNode, 'cmd_align', 'center')"/>
   </toolbarbutton>
   <toolbarbutton id="align-right-button"

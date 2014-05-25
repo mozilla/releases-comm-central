@@ -6,7 +6,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/sanitizeDialog.css"?>
- 
+
 <?xml-stylesheet href="chrome://messenger/content/sanitizeDialog.css"?>
 
 <!DOCTYPE prefwindow [
@@ -38,7 +38,7 @@
       <preference id="privacy.cpd.cookies" name="privacy.cpd.cookies" type="bool"/>
       <preference id="privacy.cpd.cache"   name="privacy.cpd.cache"   type="bool"/>
     </preferences>
-    
+
     <preferences id="nonItemPreferences">
       <preference id="privacy.sanitize.timeSpan"
                   name="privacy.sanitize.timeSpan"

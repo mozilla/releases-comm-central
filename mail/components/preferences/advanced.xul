@@ -42,8 +42,8 @@
                   name="general.smoothScroll"
                   type="bool"/>
 
-      <preference id="mailnews.database.global.indexer.enabled" 
-                  name="mailnews.database.global.indexer.enabled" 
+      <preference id="mailnews.database.global.indexer.enabled"
+                  name="mailnews.database.global.indexer.enabled"
                   type="bool"/>
 
       <preference id="toolkit.telemetry.enabled"
@@ -93,7 +93,7 @@
       <preference id="mailnews.mark_message_read.delay.interval"
                   name="mailnews.mark_message_read.delay.interval" type="int"/>
       <preference id="mail.openMessageBehavior" name="mail.openMessageBehavior" type="int"/>
-      <preference id="mail.close_message_window.on_delete" 
+      <preference id="mail.close_message_window.on_delete"
                   name="mail.close_message_window.on_delete" type="bool"/>
       <!-- Network tab -->
       <preference id="mail.prompt_purge_threshhold"
@@ -391,8 +391,8 @@ type="int"/>
 	                  accesskey="&updateHistory.accesskey;"
 	                  preference="app.update.disable_button.showUpdateHistory"
 	                  oncommand="gAdvancedPane.showUpdates();"/>
-	        </hbox>            
-          </groupbox>          
+	        </hbox>
+          </groupbox>
 
 #ifdef MOZ_MAINTENANCE_SERVICE
 		  <separator/>

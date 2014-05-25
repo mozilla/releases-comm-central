@@ -69,7 +69,7 @@
   </keyset>
 
   <dummy class="usesMailWidgets"/>
-    
+
     <vbox id="searchTerms" flex="3" persist="height">
       <vbox>
          <hbox align="center">
@@ -131,11 +131,11 @@
                      class="treecol-image junkStatusHeader"
                      label="&junkStatusColumn.label;" tooltiptext="&junkStatusColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
-            <treecol id="senderCol" persist="hidden swappedhidden ordinal width" flex="4" 
+            <treecol id="senderCol" persist="hidden swappedhidden ordinal width" flex="4"
                      hidden="false" swappedhidden="true"
                      label="&fromColumn.label;" tooltiptext="&fromColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
-            <treecol id="recipientCol" persist="hidden swappedhidden ordinal width" flex="4" 
+            <treecol id="recipientCol" persist="hidden swappedhidden ordinal width" flex="4"
                      hidden="true" swappedhidden="false"
                      label="&recipientColumn.label;" tooltiptext="&recipientColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
@@ -177,7 +177,7 @@
           <treechildren ondraggesture="ThreadPaneOnDragStart(event);"/>
         </tree>
       </vbox>
-      <hbox align="start"> 
+      <hbox align="start">
         <button label="&openButton.label;" id="openButton" command="cmd_open" accesskey="&openButton.accesskey;"/>
         <button id="fileMessageButton" type="menu" label="&moveButton.label;"
                 accesskey="&moveButton.accesskey;"
@@ -190,14 +190,14 @@
       <button label="&openInFolder.label;" id="openInFolderButton" command="open_in_folder_button" accesskey="&openInFolder.accesskey;" />
       <button label="&saveAsVFButton.label;" id="saveAsVFButton" command="saveas_vf_button" accesskey="&saveAsVFButton.accesskey;" />
       <spacer flex="1" />
-    </hbox>      
+    </hbox>
   </vbox>
 
-  <statusbar class="chromeclass-status" id="status-bar"> 
-    <statusbarpanel id="statusText" crop="right" flex="1"/>   
+  <statusbar class="chromeclass-status" id="status-bar">
+    <statusbarpanel id="statusText" crop="right" flex="1"/>
     <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-progresspanel">
       <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
     </statusbarpanel>
-  </statusbar> 
+  </statusbar>
 
 </window>

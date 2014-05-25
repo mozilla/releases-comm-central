@@ -16,7 +16,7 @@
 <overlay id="utilityOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-  
+
   <!-- File Menu -->
   <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;"/>
   <menu id="menu_New" label="&newMenu.label;" accesskey="&newMenu.accesskey;"/>
@@ -55,7 +55,7 @@
 
   <menu id="menu_Toolbars" label="&viewToolbarsMenu.label;" accesskey="&viewToolbarsMenu.accesskey;"/>
 
-  <menuitem id="menu_showTaskbar" label="&showTaskbarCmd.label;" accesskey="&showTaskbarCmd.accesskey;" 
+  <menuitem id="menu_showTaskbar" label="&showTaskbarCmd.label;" accesskey="&showTaskbarCmd.accesskey;"
             oncommand="goToggleToolbar('status-bar', 'menu_showTaskbar')"  checked="true"/>
 
   <!-- These key nodes are here only for show. The real bindings come from
@@ -103,7 +103,7 @@
   <command id="cmd_delete" oncommand="goDoCommand('cmd_delete')" valueDefault="&deleteCmd.label;"
            valueDefaultAccessKey="&deleteCmd.accesskey;" disabled="true"/>
   <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
-        
+
   <!-- Not needed yet, window will need this: -->
   <!-- broadcaster id="cmd_preferences"/ -->
 
@@ -112,7 +112,7 @@
 #ifdef XP_UNIX
 
             label="&preferencesCmdUnix.label;"
-            accesskey="&preferencesCmdUnix.accesskey;"/>  
+            accesskey="&preferencesCmdUnix.accesskey;"/>
 #else
             label="&preferencesCmd2.label;"
             accesskey="&preferencesCmd2.accesskey;"/>

@@ -27,9 +27,9 @@
       <preference id="mail.mdn.report.enabled"     name="mail.mdn.report.enabled" type="bool"/>
       <preference id="mail.mdn.report.not_in_to_cc" name="mail.mdn.report.not_in_to_cc" type="int"/>
       <preference id="mail.mdn.report.outside_domain" name="mail.mdn.report.outside_domain" type="int"/>
-      <preference id="mail.mdn.report.other" name="mail.mdn.report.other" type="int"/>          
+      <preference id="mail.mdn.report.other" name="mail.mdn.report.other" type="int"/>
     </preferences>
-  
+
     <vbox id="returnReceiptSettings" align="start">
       <checkbox id="alwaysRequest" label="&requestReceipt.label;"
                 preference="mail.receipt.request_return_receipt_on"
@@ -43,7 +43,7 @@
     <label control="receiptFolder">&receiptArrive.label;</label>
     <radiogroup id="receiptFolder" class="indent" preference="mail.incorporate.return_receipt">
       <radio value="0" label="&leaveIt.label;" accesskey="&leaveIt.accesskey;"/>
-      <radio value="1" label="&moveToSent.label;" accesskey="&moveToSent.accesskey;"/> 
+      <radio value="1" label="&moveToSent.label;" accesskey="&moveToSent.accesskey;"/>
     </radiogroup>
 
     <separator class="thin"/>
@@ -53,7 +53,7 @@
     <label control="receiptSend">&requestMDN.label;</label>
     <radiogroup id="receiptSend" class="indent" preference="mail.mdn.report.enabled" oncommand="EnableDisableAllowedReceipts();">
       <radio value="false" label="&never.label;" accesskey="&never.accesskey;"/>
-      <radio value="true" label="&returnSome.label;" accesskey="&returnSome.accesskey;"/> 
+      <radio value="true" label="&returnSome.label;" accesskey="&returnSome.accesskey;"/>
 
       <grid class="indent">
         <columns>

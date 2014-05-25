@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -32,7 +32,7 @@
 <script type="application/javascript" src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
 <script type="application/javascript" src="chrome://messenger/content/searchBar.js"/>
 <script type="application/javascript" src="chrome://messenger/content/hiddenWindow.js"/>
-    
+
 
 <stringbundleset id="stringbundleset">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>

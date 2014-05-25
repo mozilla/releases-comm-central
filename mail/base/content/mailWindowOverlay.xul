@@ -222,7 +222,7 @@
   <command id="cmd_previousUnreadMsg" oncommand="goDoCommand('cmd_previousUnreadMsg')" disabled="true"/>
   <command id="cmd_previousFlaggedMsg" oncommand="goDoCommand('cmd_previousFlaggedMsg')" disabled="true"/>
   <command id="cmd_goStartPage" oncommand="goDoCommand('cmd_goStartPage');"/>
-  <command id="cmd_undoCloseTab" oncommand="goDoCommand('cmd_undoCloseTab');"/> 
+  <command id="cmd_undoCloseTab" oncommand="goDoCommand('cmd_undoCloseTab');"/>
   <command id="cmd_goForward" oncommand="goDoCommand('cmd_goForward')" disabled="true"/>
   <command id="cmd_goBack" oncommand="goDoCommand('cmd_goBack')" disabled="true"/>
   <command id="cmd_chat" oncommand="goDoCommand('cmd_chat')" disabled="true"/>
@@ -408,7 +408,7 @@
   <key id="key_goBack" key="&goBackCmd.commandKey;"                  oncommand="goDoCommand('cmd_goBack')"/>
   <key id="key_goChat" key="&goChatCmd.key;"                         oncommand="goDoCommand('cmd_chat')" modifiers="accel,shift"/>
   <key id="key_goStartPage" keycode="VK_HOME"                        oncommand="goDoCommand('cmd_goStartPage')" modifiers="alt"/>
-  <key id="key_undoCloseTab" key="&undoCloseTabCmd.commandkey;"      oncommand="goDoCommand('cmd_undoCloseTab')" modifiers="accel, shift"/> 
+  <key id="key_undoCloseTab" key="&undoCloseTabCmd.commandkey;"      oncommand="goDoCommand('cmd_undoCloseTab')" modifiers="accel, shift"/>
   <key id="key_reply" key="&replyMsgCmd.key;"                        oncommand="goDoCommand('cmd_reply')" modifiers="accel"/>
   <key id="key_replyall" key="&replyToAllMsgCmd.key;"                oncommand="goDoCommand('cmd_replyall')" modifiers="accel, shift"/>
   <key id="key_replylist" key="&replyToListMsgCmd.key;"              oncommand="goDoCommand('cmd_replylist')" modifiers="accel, shift"/>
@@ -2219,9 +2219,9 @@
                  accesskey="&renameFolder.accesskey;"
                  key="key_renameFolder"
                  command="cmd_renameFolder"/>
-          <menuitem id="menu_compactFolder" 
-                    label="&compactFolders.label;" 
-                    accesskey="&compactFolders.accesskey;" 
+          <menuitem id="menu_compactFolder"
+                    label="&compactFolders.label;"
+                    accesskey="&compactFolders.accesskey;"
                     command="cmd_compactFolder"/>
           <menuitem id="menu_emptyTrash" label="&emptyTrashCmd.label;"
                  accesskey="&emptyTrashCmd.accesskey;"
@@ -2476,10 +2476,10 @@
                         accesskey="&bodyAllParts.accesskey;" oncommand="MsgBodyAllParts()"/>
             </menupopup>
           </menu>
-          <menu id="viewFeedSummary" 
-                label="&bodyMenuFeed.label;" 
+          <menu id="viewFeedSummary"
+                label="&bodyMenuFeed.label;"
                 accesskey="&bodyMenuFeed.accesskey;">
-            <menupopup id="viewFeedSummaryPopupMenu" 
+            <menupopup id="viewFeedSummaryPopupMenu"
                        onpopupshowing="InitViewBodyMenu()">
               <menuitem id="bodyFeedGlobalWebPage"
                         type="radio"
@@ -2500,22 +2500,22 @@
                         accesskey="&viewFeedSummaryFeedPropsPref.accesskey;"
                         oncommand="FeedMessageHandler.onSelectPref = 2"/>
               <menuseparator id="viewFeedSummarySeparator"/>
-              <menuitem id="bodyFeedSummaryAllowHTML" 
-                        type="radio" 
+              <menuitem id="bodyFeedSummaryAllowHTML"
+                        type="radio"
                         name="viewFeedBodyHTMLGroup"
-                        label="&bodyAllowHTML.label;" 
+                        label="&bodyAllowHTML.label;"
                         accesskey="&bodyAllowHTML.accesskey;"
                         oncommand="MsgFeedBodyRenderPrefs(false, 0, 0)"/>
-              <menuitem id="bodyFeedSummarySanitized" 
-                        type="radio" 
+              <menuitem id="bodyFeedSummarySanitized"
+                        type="radio"
                         name="viewFeedBodyHTMLGroup"
-                        label="&bodySanitized.label;" 
+                        label="&bodySanitized.label;"
                         accesskey="&bodySanitized.accesskey;"
                         oncommand="MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
-              <menuitem id="bodyFeedSummaryAsPlaintext" 
-                        type="radio" 
+              <menuitem id="bodyFeedSummaryAsPlaintext"
+                        type="radio"
                         name="viewFeedBodyHTMLGroup"
-                        label="&bodyAsPlaintext.label;" 
+                        label="&bodyAsPlaintext.label;"
                         accesskey="&bodyAsPlaintext.accesskey;"
                         oncommand="MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
             </menupopup>
@@ -2564,9 +2564,9 @@
                         key="key_nextUnreadMsg"/>
               <menuitem id="menu_nextFlaggedMsg" label="&nextStarredMsgCmd.label;" accesskey="&nextStarredMsgCmd.accesskey;" command="cmd_nextFlaggedMsg"/>
               <menuseparator id="goNextAfterFlaggedSeparator"/>
-              <menuitem id="menu_nextUnreadThread" 
-                        label="&nextUnreadThread.label;" 
-                        accesskey="&nextUnreadThread.accesskey;" 
+              <menuitem id="menu_nextUnreadThread"
+                        label="&nextUnreadThread.label;"
+                        accesskey="&nextUnreadThread.accesskey;"
                         command="cmd_nextUnreadThread"
                         key="key_nextUnreadThread"/>
             </menupopup>
@@ -2604,7 +2604,7 @@
                        recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
           </menu>
           <menuseparator id="goFolderSeparator"/>
-          
+
           <menu id="goRecentlyClosedTabs"
                 label="&goRecentlyClosedTabs.label;"
                 accesskey="&goRecentlyClosedTabs.accesskey;"
@@ -2613,7 +2613,7 @@
                        onpopupshowing="return InitRecentlyClosedTabsPopup(this)" />
           </menu>
           <menuseparator id="goRecentlyClosedTabsSeparator"/>
-               
+
           <menuitem id="goStartPage"
                     label="&startPageCmd.label;"
                     accesskey="&startPageCmd.accesskey;"
@@ -2677,25 +2677,25 @@
                       command="cmd_openConversation"
                       accesskey="&openConversationCmd.accesskey;"
                       key="key_openConversation"/>
-            <menu id="openFeedMessage" 
+            <menu id="openFeedMessage"
                   label="&openFeedMessage1.label;"
                   accesskey="&openFeedMessage1.accesskey;">
               <menupopup id="menu_openFeedMessage">
                 <menuitem id="menu_openFeedWebPage"
                           type="radio"
-                          name="openFeedGroup" 
+                          name="openFeedGroup"
                           label="&openFeedWebPage.label;"
                           accesskey="&openFeedWebPage.accesskey;"
                           oncommand="FeedMessageHandler.onOpenPref = 0"/>
                 <menuitem id="menu_openFeedSummary"
                           type="radio"
-                          name="openFeedGroup" 
+                          name="openFeedGroup"
                           label="&openFeedSummary.label;"
                           accesskey="&openFeedSummary.accesskey;"
                           oncommand="FeedMessageHandler.onOpenPref = 1"/>
-                <menuitem id="menu_openFeedWebPageInMessagePane" 
+                <menuitem id="menu_openFeedWebPageInMessagePane"
                           type="radio"
-                          name="openFeedGroup" 
+                          name="openFeedGroup"
                           label="&openFeedWebPageInMP.label;"
                           accesskey="&openFeedWebPageInMP.accesskey;"
                           oncommand="FeedMessageHandler.onOpenPref = 2"/>

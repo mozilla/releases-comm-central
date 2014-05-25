@@ -119,7 +119,7 @@
               </radiogroup>
             </row>
 
-            <row align="center"> 
+            <row align="center">
               <hbox align="center" pack="end">
                 <label value="&noproxy.label;" accesskey="&noproxy.accesskey;" control="networkProxyNone"/>
               </hbox>
@@ -138,7 +138,7 @@
                    preference="network.proxy.autoconfig_url"
                    oninput="gConnectionsDialog.updateReloadButton();"/>
           <button id="autoReload" label="&reload.label;" accesskey="&reload.accesskey;"
-                  oncommand="gConnectionsDialog.reloadPAC();" 
+                  oncommand="gConnectionsDialog.reloadPAC();"
                   preference="pref.advanced.proxies.disable_button.reload"/>
         </hbox>
       </radiogroup>

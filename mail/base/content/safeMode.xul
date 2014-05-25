@@ -49,6 +49,6 @@
     <checkbox id="disableAddons" label="&disableAddons.label;" accesskey="&disableAddons.accesskey;"/>
     <checkbox id="resetToolbars" label="&resetToolbars.label;" accesskey="&resetToolbars.accesskey;"/>
   </vbox>
-     
+
   <separator class="thin"/>
 </dialog>

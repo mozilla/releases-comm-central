@@ -804,7 +804,7 @@
                    command="cmd_print"
                    tooltiptext="&printButton.tooltip;"
                    type="menu-button">
-      <menupopup id="button-printPopup" 
+      <menupopup id="button-printPopup"
                  onpopupshowing="goUpdateCommand('cmd_printpreview');">
         <menuitem id="button-printMenu"
                   label="&printCmd.label;"

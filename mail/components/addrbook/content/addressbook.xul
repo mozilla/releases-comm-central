@@ -1,10 +1,10 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<?xml-stylesheet href="chrome://messenger/skin/addressbook/addressbook.css" type="text/css"?> 
+<?xml-stylesheet href="chrome://messenger/skin/addressbook/addressbook.css" type="text/css"?>
 
 #ifdef XP_MACOSX
 <?xul-overlay href="chrome://messenger/content/macMenuOverlay.xul"?>
@@ -318,12 +318,12 @@
                           oncommand="AbClose()"/>
             </menupopup>
         </menu>
-        
+
         <menu id="menu_Edit" label="&editMenu.label;"
               accesskey="&editMenu.accesskey;">
           <menupopup id="menu_EditPopup">
-            <menuitem id="menu_undo" 
-                      label="&undoCmd.label;" 
+            <menuitem id="menu_undo"
+                      label="&undoCmd.label;"
                       key="key_undo"
                       accesskey="&undoCmd.accesskey;"
                       command="cmd_undo"/>
@@ -377,7 +377,7 @@
                       label="&propertiesCmd2.label;"
                       accesskey="&propertiesCmd2.accesskey;"
                       key="key_properties"
-                      command="cmd_properties"/>            
+                      command="cmd_properties"/>
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
         <menuseparator id="prefSep"/>
@@ -444,7 +444,7 @@
                 </menu>
                 <menu id="sortMenu" label="&sortMenu.label;" accesskey="&sortMenu.accesskey;">
                     <menupopup id="sortMenuPopup" onpopupshowing="InitViewSortByMenu()">
-                        <menuitem label="&GeneratedName.label;" 
+                        <menuitem label="&GeneratedName.label;"
                                   id="cmd_SortByGeneratedName"
                                   accesskey="&GeneratedName.accesskey;"
                                   oncommand="SortResultPane('GeneratedName');" name="sortas" type="radio" checked="true"/>
@@ -461,8 +461,8 @@
                                   accesskey="&Company.accesskey;"
                                   oncommand="SortResultPane('Company');" name="sortas" type="radio" checked="true"/>
                         <!-- LOCALIZATION NOTE:
-                        Fields for phonetic are disabled as default and can be enabled by 
-                        editing "mail.addr_book.show_phonetic_fields"    
+                        Fields for phonetic are disabled as default and can be enabled by
+                        editing "mail.addr_book.show_phonetic_fields"
                         -->
                         <menuitem label="&_PhoneticName.label;"
                                   id="cmd_SortBy_PhoneticName"
@@ -511,11 +511,11 @@
                     </menupopup>
                 </menu>
             </menupopup>
-        </menu>   
-    
+        </menu>
+
         <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
           <menupopup id="taskPopup">
-        
+
 
         <!-- Moving the messengerCmd menu item item to the Window menu on the Mac -->
 #ifndef XP_MACOSX
@@ -554,7 +554,7 @@
     </menubar>
    </toolbaritem>
   </toolbar>
-  
+
   <toolbarpalette id="AddressBookToolbarPalette">
       <toolbarbutton class="toolbarbutton-1" id="button-newcard"
                      label="&newContactButton.label;" oncommand="AbNewCard();"
@@ -578,7 +578,7 @@
                  type="search"
                  placeholder="&SearchNameOrEmail.label;"
                  oncommand="onEnterInSearchBar();"/>
-      </toolbaritem>     
+      </toolbaritem>
   </toolbarpalette>
   <!-- toolbar -->
   <toolbar id="ab-bar2" class="toolbar-primary chromeclass-toolbar"
@@ -621,8 +621,8 @@
       </tree>
     </vbox>
 
-    <splitter id="dirTree-splitter" collapse="before" persist="state"/> 
-    
+    <splitter id="dirTree-splitter" collapse="before" persist="state"/>
+
     <vbox flex="1" minwidth="100">
 
       <!-- results pane -->
@@ -638,7 +638,7 @@
         <treecols id="abResultsTreeCols">
           <!-- these column ids must match up to the mork column names, except for GeneratedName and ChatName, see nsIAddrDatabase.idl -->
           <treecol id="GeneratedName"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&GeneratedName.label;" primary="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="PrimaryEmail"
@@ -658,41 +658,41 @@
                    label="&NickName.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="SecondEmail"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&SecondEmail.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="Department"
-                   persist="hidden ordinal width sortDirection" flex="1"  
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&Department.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="JobTitle"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&JobTitle.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="CellularNumber"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&CellularNumber.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="PagerNumber"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&PagerNumber.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="FaxNumber"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&FaxNumber.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="HomePhone"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&HomePhone.label;" hidden="true"/>
           <splitter class="tree-splitter"/>
           <treecol id="WorkPhone"
                    persist="hidden ordinal width sortDirection" flex="1"
                    label="&WorkPhone.label;"/>
-    
+
           <!-- LOCALIZATION NOTE: _PhoneticName may be enabled for Japanese builds. -->
           <!--
           <treecol id="_PhoneticName"
-                   persist="hidden ordinal width sortDirection" flex="1" 
+                   persist="hidden ordinal width sortDirection" flex="1"
                    label="&_PhoneticName.label;" hiddenbydefault="true"/>
           <splitter class="tree-splitter"/>
           -->
@@ -700,11 +700,11 @@
 
         <treechildren ondraggesture="nsDragAndDrop.startDrag(event, abResultsPaneObserver);"/>
       </tree>
-      
+
       <splitter id="results-splitter" collapse="after" persist="state"/>
-      
+
       <!-- card view -->
-      <hbox id="CardViewOuterBox" flex="1" minheight="100" height="200" persist="height"> 
+      <hbox id="CardViewOuterBox" flex="1" minheight="100" height="200" persist="height">
         <vbox id="CardViewBox" flex="1">
           <vbox id="CardViewInnerBox" collapsed="true" flex="1">
             <description id="CardTitle"/>
@@ -714,7 +714,7 @@
               </vbox>
               <vbox flex="1">
                 <vbox id="cvbContact" class="cardViewGroup">
-                  <description class="CardViewHeading" id="cvhContact">&contact.heading;</description>          
+                  <description class="CardViewHeading" id="cvhContact">&contact.heading;</description>
                   <description class="CardViewLink" id="cvListNameBox">
                     <html:p><html:a href="" id="cvListName"/></html:p>
                   </description>
@@ -728,7 +728,7 @@
                   </description>
                 </vbox>
                 <vbox id="cvbHome" class="cardViewGroup">
-                  <description class="CardViewHeading" id="cvhHome">&home.heading;</description>          
+                  <description class="CardViewHeading" id="cvhHome">&home.heading;</description>
                   <hbox>
                     <vbox flex="1">
                       <description class="CardViewText" id="cvHomeAddress"/>
@@ -753,7 +753,7 @@
                   <description class="CardViewText" id="cvCustom4"/>
                   <description class="CardViewText" id="cvNotes" style="white-space: pre-wrap;"/>
                   <hbox>
-                    <image id="cvBuddyIcon"/> 
+                    <image id="cvBuddyIcon"/>
                   </hbox>
                 </vbox>
                 <vbox id="cvbChat" class="cardViewGroup">
@@ -777,7 +777,7 @@
                   <description class="CardViewHeading" id="cvhAddresses">&addresses.heading;</description>
                 </vbox>
               </vbox>
-      
+
               <spacer width="20"/>
 
               <vbox flex="1">
@@ -821,8 +821,8 @@
             style="&dialog.dimensions;"
             hidden="true"/>
   </panel>
-  
+
   <statusbar id="status-bar" class="chromeclass-status">
-    <statusbarpanel id="statusText" flex="1" value="&statusText.label;"/>            
-  </statusbar>  
+    <statusbarpanel id="statusText" flex="1" value="&statusText.label;"/>
+  </statusbar>
 </window>

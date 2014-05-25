@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -77,7 +77,7 @@
                    onclick="awNotAnEmptyArea(event);">
             <image onclick="this.parentNode.select();" class="person-icon"/>
           </textbox>
-        </listcell>            
+        </listcell>
       </listitem>
     </listbox>
   </vbox>

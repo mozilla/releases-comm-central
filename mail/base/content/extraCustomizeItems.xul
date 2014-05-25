@@ -29,7 +29,7 @@
                  align="center"
                  flex="1"
                  class="chromeclass-toolbar-additional">
-        <textbox id="searchInput" 
+        <textbox id="searchInput"
                  flex="1"
                  type="glodacomplete"
                  searchbutton="true"

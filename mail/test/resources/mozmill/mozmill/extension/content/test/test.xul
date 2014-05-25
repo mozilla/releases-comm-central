@@ -3,8 +3,8 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="test.css" type="text/css"?>
 
-<window id="testingonly" 
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+<window id="testingonly"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="Testing And Debugging Window">
 
   <script src="test.js"/>
