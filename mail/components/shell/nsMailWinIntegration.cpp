@@ -126,7 +126,7 @@ nsresult
 GetHelperPath(nsAutoString& aPath)
 {
   nsresult rv;
-  nsCOMPtr<nsIProperties> directoryService = 
+  nsCOMPtr<nsIProperties> directoryService =
     do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 

@@ -40,11 +40,11 @@ nsMailMacIntegration::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool *
     *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("news"));
   if (aApps & nsIShellService::RSS)
     *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("feed"));
-  
+
   // if this is the first mail window, maintain internal state that we've
-  // checked this session (so that subsequent window opens don't show the 
+  // checked this session (so that subsequent window opens don't show the
   // default client dialog.
-  
+
   if (aStartupCheck)
     mCheckedThisSession = true;
   return NS_OK;
@@ -55,19 +55,19 @@ nsMailMacIntegration::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 {
   nsresult rv = NS_OK;
   if (aApps & nsIShellService::MAIL)
-    rv = setAsDefaultHandlerForProtocol(CFSTR("mailto"));    
+    rv = setAsDefaultHandlerForProtocol(CFSTR("mailto"));
   if (NS_SUCCEEDED(rv) && aApps & nsIShellService::NEWS)
     rv = setAsDefaultHandlerForProtocol(CFSTR("news"));
   if (NS_SUCCEEDED(rv) && aApps & nsIShellService::RSS)
     rv = setAsDefaultHandlerForProtocol(CFSTR("feed"));
 
-  return rv;	
+  return rv;
 }
 
 NS_IMETHODIMP
 nsMailMacIntegration::GetShouldCheckDefaultClient(bool* aResult)
 {
-  if (mCheckedThisSession) 
+  if (mCheckedThisSession)
   {
     *aResult = false;
     return NS_OK;
@@ -88,7 +88,7 @@ bool
 nsMailMacIntegration::isDefaultHandlerForProtocol(CFStringRef aScheme)
 {
   bool isDefault = false;
-  // Since neither Launch Services nor Internet Config actually differ between 
+  // Since neither Launch Services nor Internet Config actually differ between
   // bundles which have the same bundle identifier (That is, if we set our
   // URL of our bundle as the default handler for the given protocol,
   // Launch Service might return the URL of another thunderbird bundle as the
@@ -112,7 +112,7 @@ nsMailMacIntegration::isDefaultHandlerForProtocol(CFStringRef aScheme)
 
   if (err == noErr) {
     // Get a reference to the bundle (based on its URL)
-    CFBundleRef defaultHandlerBundle = ::CFBundleCreate(NULL, 
+    CFBundleRef defaultHandlerBundle = ::CFBundleCreate(NULL,
                                                         defaultHandlerURL);
     if (defaultHandlerBundle) {
       CFStringRef defaultHandlerID =

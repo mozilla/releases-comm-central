@@ -170,7 +170,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::SetFANCIBit(nsIFile* aFile, bool aBit, bool
     nsCOMPtr<nsISimpleEnumerator> children;
     rv = aFile->GetDirectoryEntries(getter_AddRefs(children));
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     bool hasMore;
     while (NS_SUCCEEDED(rv) && NS_SUCCEEDED(children->HasMoreElements(&hasMore)) && hasMore)
     {
