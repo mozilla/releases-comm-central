@@ -97,7 +97,7 @@ function initializeSearchWindowWidgets()
   hideMatchAllItem();
 }
 
-function onSearchStop() 
+function onSearchStop()
 {
 }
 
@@ -110,7 +110,7 @@ function onAbSearchReset(event)
   gStatusText.setAttribute("label", "");
 }
 
-function SelectDirectory(aURI) 
+function SelectDirectory(aURI)
 {
   var selectedAB = aURI;
 
@@ -133,13 +133,13 @@ function GetScopeForDirectoryURI(aURI)
   if (directory.isRemote) {
     if (booleanAnd)
       return nsMsgSearchScope.LDAPAnd;
-    else 
+    else
       return nsMsgSearchScope.LDAP;
   }
   else {
     if (booleanAnd)
       return nsMsgSearchScope.LocalABAnd;
-    else 
+    else
       return nsMsgSearchScope.LocalAB;
   }
 }
@@ -149,8 +149,8 @@ function onEnterInSearchTerm()
   // on enter
   // if not searching, start the search
   // if searching, stop and then start again
-  if (gSearchStopButton.getAttribute("label") == gSearchBundle.getString("labelForSearchButton")) { 
-     onSearch(); 
+  if (gSearchStopButton.getAttribute("label") == gSearchBundle.getString("labelForSearchButton")) {
+     onSearch();
   }
   else {
      onSearchStop();
@@ -166,7 +166,7 @@ function onSearch()
     gSearchSession.clearScopes();
 
     var currentAbURI = document.getElementById('abPopup').getAttribute('value');
- 
+
     gSearchSession.addDirectoryScopeTerm(GetScopeForDirectoryURI(currentAbURI));
     saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
 
@@ -179,7 +179,7 @@ function onSearch()
 
       // get the "and" / "or" value from the first term
       if (i == 0) {
-       if (searchTerm.booleanAnd) 
+       if (searchTerm.booleanAnd)
          searchUri += "and";
        else
          searchUri += "or";
@@ -201,7 +201,7 @@ function onSearch()
          attrs = ["PrimaryEmail"];
          break;
        case nsMsgSearchAttrib.PhoneNumber:
-         attrs = ["HomePhone","WorkPhone","FaxNumber","PagerNumber","CellularNumber"]; 
+         attrs = ["HomePhone","WorkPhone","FaxNumber","PagerNumber","CellularNumber"];
          break;
        case nsMsgSearchAttrib.Organization:
          attrs = ["Company"];

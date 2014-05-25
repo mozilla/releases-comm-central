@@ -11,7 +11,7 @@ var mozmill = {}; Components.utils.import('resource://mozmill/modules/mozmill.js
 //   controller.click(new elementslib.Name(controller.window.content.document, 'btnG'));
 //   controller.sleep(2000);
 //   var links = controller.window.content.document.getElementsByTagName('a');
-//  
+//
 //   for (var i = 0; i<links.length; i++){
 //     controller.click(new elementslib.Elem( links[i] ));
 //     controller.sleep(5000);

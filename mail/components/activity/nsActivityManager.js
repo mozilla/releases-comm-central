@@ -31,17 +31,17 @@ nsActivityManager.prototype = {
   _db: null,
   _idCounter: 1,
   _activities: {},
-  
+
   get processCount() {
     let count = 0;
     for each(let [, value] in Iterator(this._activities)) {
       if (value instanceof Ci.nsIActivityProcess)
         count++;
     }
-    
+
     return count;
   },
-  
+
   getProcessesByContext: function(aContextType, aContextObj, aCount) {
     let list = [];
     for each (let [, activity] in Iterator(this._activities)) {
@@ -51,26 +51,26 @@ nsActivityManager.prototype = {
         list.push(activity);
       }
     }
-    
+
     aCount.value = list.length;
     return list;
   },
-  
+
   get db() {
     return null;
   },
-  
+
   get nextId() {
     return this._idCounter++;
   },
-    
+
   addActivity: function (aActivity) {
     try {
       this.log.info("adding Activity");
       // get the next valid id for this activity
       let id = this.nextId;
       aActivity.id = id;
-      
+
       // add activity into the activities table
       this._activities[id] = aActivity;
       // notify all the listeners
@@ -90,21 +90,21 @@ nsActivityManager.prototype = {
       throw(e);
     }
   },
-  
+
   removeActivity: function (aID) {
     let activity = this._activities[aID];
- 
+
     if (!activity)
       throw Cr.NS_ERROR_NOT_AVAILABLE;
-    
+
     // make sure that the activity is not in-progress state
     if (activity instanceof Ci.nsIActivityProcess &&
         activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS)
       throw Cr.NS_ERROR_FAILURE;
-    
+
     // remove the activity
     delete this._activities[aID];
-    
+
     // notify all the listeners
     for each (let [, value] in Iterator(this._listeners)) {
       try {
@@ -150,7 +150,7 @@ nsActivityManager.prototype = {
     let list = [];
     for each (let [, value] in Iterator(this._activities))
       list.push(value);
-    
+
     aCount.value = list.length;
     return list;
   },
@@ -167,7 +167,7 @@ nsActivityManager.prototype = {
         this._listeners.splice(i, 1);
     }
   },
-  
+
   //////////////////////////////////////////////////////////////////////////////
   //// nsISupports
 

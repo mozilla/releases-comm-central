@@ -78,7 +78,7 @@ MailGlue.prototype = {
 
     // check if we're in safe mode
     if (Services.appinfo.inSafeMode) {
-      Services.ww.openWindow(null, "chrome://messenger/content/safeMode.xul", 
+      Services.ww.openWindow(null, "chrome://messenger/content/safeMode.xul",
                              "_blank", "chrome,centerscreen,modal,resizable=no", null);
     }
   },

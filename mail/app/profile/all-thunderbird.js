@@ -95,10 +95,10 @@ pref("app.update.certs.2.commonName", "aus3.mozilla.org");
 #endif
 
 // Whether or not app updates are enabled
-pref("app.update.enabled", true);               
+pref("app.update.enabled", true);
 
 // This preference turns on app.update.mode and allows automatic download and
-// install to take place. We use a separate boolean toggle for this to make     
+// install to take place. We use a separate boolean toggle for this to make
 // the UI easier to construct.
 pref("app.update.auto", true);
 
@@ -131,7 +131,7 @@ pref("app.update.url", "https://aus3.mozilla.org/update/3/%PRODUCT%/%VERSION%/%B
 // attempts fail.
 pref("app.update.url.manual", "http://www.getthunderbird.com");
 // A default value for the "More information about this update" link
-// supplied in the "An update is available" page of the update wizard. 
+// supplied in the "An update is available" page of the update wizard.
 pref("app.update.url.details", "http://www.mozilla.org/%LOCALE%/%APP%/releases/");
 // User-settable override to app.update.url for testing purposes.
 //pref("app.update.url.override", "");
@@ -142,7 +142,7 @@ pref("app.update.url.details", "http://www.mozilla.org/%LOCALE%/%APP%/releases/"
 pref("app.update.idletime", 60);
 
 // Whether or not we show a dialog box informing the user that the update was
-// successfully applied. This is off in Firefox by default since we show a 
+// successfully applied. This is off in Firefox by default since we show a
 // upgrade start page instead! Other apps may wish to show this UI, and supply
 // a whatsNewURL field in their brand.properties that contains a link to a page
 // which tells users what's new in this new update.
@@ -192,8 +192,8 @@ pref("extensions.blocklist.url", "https://addons.mozilla.org/blocklist/3/%APP_ID
 pref("extensions.blocklist.detailsURL", "https://addons.mozilla.org/%LOCALE%/%APP%/blocked/");
 pref("extensions.blocklist.itemURL", "https://addons.mozilla.org/%LOCALE%/%APP%/blocked/%blockID%");
 
-// Enables some extra Extension System Logging (can reduce performance) 
-pref("extensions.logging.enabled", false); 
+// Enables some extra Extension System Logging (can reduce performance)
+pref("extensions.logging.enabled", false);
 
 // Symmetric (can be overridden by individual extensions) update preferences.
 // e.g.
@@ -205,10 +205,10 @@ pref("extensions.logging.enabled", false);
 pref("extensions.update.enabled", true);
 pref("extensions.update.url", "https://versioncheck.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%");
 
-pref("extensions.update.interval", 86400);  // Check for updates to Extensions and 
+pref("extensions.update.interval", 86400);  // Check for updates to Extensions and
                                             // Themes every day
 
-pref("extensions.dss.enabled", false);          // Dynamic Skin Switching                                               
+pref("extensions.dss.enabled", false);          // Dynamic Skin Switching
 pref("extensions.dss.switchPending", false);    // Non-dynamic switch pending after next
 
 pref("extensions.{972ce4c6-7e08-4474-a285-3208198ce6fd}.name", "chrome://messenger/locale/messenger.properties");
@@ -314,7 +314,7 @@ pref("mail.default_html_action", 3);
 
 /////////////////////////////////////////////////////////////////
 // End core mailnews.js pref overrides
-///////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////
 // Overrides for generic app behavior from the core all.js
@@ -336,9 +336,9 @@ pref("offline.download.download_messages",  0);
 #ifdef UNIX_BUT_NOT_MAC
 pref("offline.autoDetect", false);
 #else
-// Windows and Mac can automatically move the user offline or online based on 
+// Windows and Mac can automatically move the user offline or online based on
 // the network connection.
-pref("offline.autoDetect", true); 
+pref("offline.autoDetect", true);
 #endif
 
 // Expose only select protocol handlers. All others should go
@@ -384,10 +384,10 @@ pref("toolkit.telemetry.infoURL", "http://www.mozilla.org/thunderbird/legal/priv
 pref("mousewheel.withcontrolkey.action", 3);
 /////////////////////////////////////////////////////////////////
 // End core all.js pref overrides
-///////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////
-// Generic browser related prefs. 
+// Generic browser related prefs.
 /////////////////////////////////////////////////////////////////
 pref("browser.send_pings", false);
 pref("browser.chrome.toolbar_tips",         true);
@@ -413,7 +413,7 @@ pref("spellchecker.dictionary", "");
 pref("spellchecker.dictionaries.download.url", "https://addons.mozilla.org/%LOCALE%/%APP%/dictionaries/");
 
 // profile.force.migration can be used to bypass the migration wizard, forcing migration from a particular
-// mail application without any user intervention. Possible values are: 
+// mail application without any user intervention. Possible values are:
 // seamonkey (mozilla suite), eudora, oexpress, outlook.
 pref("profile.force.migration", "");
 
@@ -425,7 +425,7 @@ pref("alerts.totalOpenTime", 10000);
 pref("mail.phishing.detection.enabled", true);
 // If phishing detection is enabled, allow fine grained control
 // of the local, static tests
-pref("mail.phishing.detection.ipaddresses", true); 
+pref("mail.phishing.detection.ipaddresses", true);
 pref("mail.phishing.detection.mismatched_hosts", true);
 
 pref("browser.safebrowsing.enabled", false);

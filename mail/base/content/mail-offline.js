@@ -105,7 +105,7 @@ var MailOfflineMgr = {
   },
 
   /**
-   * Prompts the user to confirm sending of unsent messages. This is different from 
+   * Prompts the user to confirm sending of unsent messages. This is different from
    * goOnlineToSendMessages which involves going online to send unsent messages.
    *
    * @return true if the user wants to send unsent messages
@@ -178,9 +178,9 @@ var MailOfflineMgr = {
     return downloadMessages;
   },
 
-  /** 
+  /**
    *  Get New Mail When Offline
-   *  Prompts the user about going online in order to download new messages. 
+   *  Prompts the user about going online in order to download new messages.
    *  Based on the response, will move us back to online mode.
    *
    * @return true if the user confirms going online.
@@ -197,7 +197,7 @@ var MailOfflineMgr = {
     return goOnline;
   },
 
-  /** 
+  /**
    * Private helper method to update the state of the Offline menu item
    * and the offline status bar indicator
    */
@@ -220,7 +220,7 @@ var MailOfflineMgr = {
 
   /**
    * private helper method called whenever we detect a change to the offline state
-   */ 
+   */
   mailOfflineStateChanged: function (aGoingOffline)
   {
     this.updateOfflineUI(aGoingOffline);

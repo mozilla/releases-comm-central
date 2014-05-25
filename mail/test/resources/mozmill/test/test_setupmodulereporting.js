@@ -1,6 +1,6 @@
-var elementslib = {}; 
+var elementslib = {};
 Components.utils.import('resource://mozmill/modules/elementslib.js', elementslib);
-var mozmill = {}; 
+var mozmill = {};
 Components.utils.import('resource://mozmill/modules/mozmill.js', mozmill);
 
 var setupModule = function(){
@@ -17,7 +17,7 @@ var testSetupModuleReporting = function() {
   // We should have mozilla.org page open
   var q = new elementslib.ID(controller.tabs.activeTab, "q");
   controller.type(q, "firefox");
-  
+
   var btn = new elementslib.ID(controller.tabs.activeTab, "quick-search-btn");
   controller.click(btn);
 

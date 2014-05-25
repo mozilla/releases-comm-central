@@ -100,7 +100,7 @@ nsHightail.prototype = {
    */
   _initFolder: function(aCallback) {
     this.log.info('_initFolder');
-    
+
     let saveFolderId = function(aFolderId) {
       this.log.info('saveFolderId');
       this._folderId = aFolderId;
@@ -202,7 +202,7 @@ nsHightail.prototype = {
     }.bind(this);
 
     this.log.info("Checking to see if we're logged in");
-    
+
     if (!this._loggedIn) {
       let onLoginSuccess = function() {
         this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);
@@ -232,7 +232,7 @@ nsHightail.prototype = {
     if (aFile.fileSize > this._maxFileSize)
       return this._fileExceedsLimit(aCallback, 'Limit', 0);
     if (aFile.fileSize > this._availableStorage)
-      return this._fileExceedsLimit(aCallback, 'Quota', 
+      return this._fileExceedsLimit(aCallback, 'Quota',
                                     aFile.fileSize + this._fileSpaceUsed);
 
     delete this._userInfo; // force us to update userInfo on every upload.
@@ -276,7 +276,7 @@ nsHightail.prototype = {
    */
   cancelFileUpload: function(aFile) {
     this.log.info("in cancel upload");
-    if (this._uploadingFile != null && this._uploader != null && 
+    if (this._uploadingFile != null && this._uploader != null &&
         this._uploadingFile.equals(aFile)) {
       this._uploader.cancel();
     }
@@ -491,9 +491,9 @@ nsHightail.prototype = {
    */
   _findFolder: function(aFolderName, aParentFolderId, aNotFoundCallback,
                         aFoundCallback) {
-    
+
     this.log.info("Find folder: " + aFolderName);
-    
+
     let checkChildFolders = function(folders) {
       this.log.info("Looking for a child folder");
       let folderId = 0;
@@ -541,7 +541,7 @@ nsHightail.prototype = {
       if (req.status >= 200 && req.status < 400) {
         this.log.info("request status = " + req + " response = " +
                       req.responseText);
-		
+
         if (aFoundCallback && docResponse.folders)
           aFoundCallback(docResponse.folders);
       }
@@ -589,7 +589,7 @@ nsHightail.prototype = {
       if (req.status >= 200 && req.status < 400) {
         this.log.info("request status = " + req + " response = " +
                       req.responseText);
-		
+
         if (aSuccessCallback)
           aSuccessCallback(docResponse.id)
       }
@@ -689,7 +689,7 @@ nsHightail.prototype = {
     req.open("DELETE", gServerUrl + args + kUrlTail, true);
     this.log.info("Sending request to: " + gServerUrl + args);
 
-    req.onerror = function() {    
+    req.onerror = function() {
       let response = JSON.parse(req.responseText);
       this._lastErrorStatus = response.errorStatus.status;
       this._lastErrorText = response.errorStatus.message;
@@ -789,7 +789,7 @@ nsHightail.prototype = {
 
     return "";
   },
- 
+
   /**
    * Clears any saved Hightail passwords for this instance's account.
    */
@@ -996,8 +996,8 @@ nsHightailFileUploader.prototype = {
       "\r\nContent-Disposition: form-data; name=\"bid\"\r\n\r\n" +
        this._urlInfo.fileId;
 
-    let fileName = /^[\040-\176]+$/.test(this.file.leafName) 
-        ? this.file.leafName 
+    let fileName = /^[\040-\176]+$/.test(this.file.leafName)
+        ? this.file.leafName
         : encodeURIComponent(this.file.leafName);
 
     fileContents += "\r\n--" + boundary +
@@ -1107,7 +1107,7 @@ nsHightailFileUploader.prototype = {
       }.bind(this);
 
       let failed = function() {
-        this.callback(this.requestObserver, this.file.leafName.length > 120 
+        this.callback(this.requestObserver, this.file.leafName.length > 120
                       ? Ci.nsIMsgCloudFileProvider.uploadExceedsFileNameLimit
                       : Ci.nsIMsgCloudFileProvider.uploadErr);
       }.bind(this);

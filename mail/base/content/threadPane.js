@@ -41,7 +41,7 @@ function ThreadPaneOnClick(event)
       // don't open the message in a new window
       if (event.detail == 2 && !col.value.cycler && (childElt.value != "twisty")) {
         ThreadPaneDoubleClick();
-        // double clicking should not toggle the open / close state of the 
+        // double clicking should not toggle the open / close state of the
         // thread.  this will happen if we don't prevent the event from
         // bubbling to the default handler in tree.xml
         event.stopPropagation();
@@ -89,7 +89,7 @@ function HandleColumnClick(columnID)
 
       // it exists - set it to be the current custom column
       gDBView.curCustomColumn = columnID;
-        
+
       sortType = "byCustom";
     } catch(err) {
         dump("unsupported sort column: " + columnID + " - no custom handler installed. (Error was: " + err + ")\n");

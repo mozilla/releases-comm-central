@@ -17,7 +17,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Abtracts the checking of user/browser actions for signs of
- * phishing. 
+ * phishing.
  *
  * @constructor
  */
@@ -156,7 +156,7 @@ PROT_ListWarden.prototype.isEvilURL = function(msgURI, aFailsStaticTests, url, c
  * @param url String The url to check
  * @param whiteTables Array of strings with each white table name
  * @param blackTables Array of strings with each black table name
- * @param callback Function to call with result 
+ * @param callback Function to call with result
  *       PROT_ListWarden.IN_BLACKLIST, PROT_ListWarden.IN_WHITELIST,
  *       or PROT_ListWarden.NOT_FOUND
  */

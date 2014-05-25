@@ -888,7 +888,7 @@ function goOpenNewMessage(aEvent)
 {
   // If aEvent is passed, check if Shift key was pressed for composition in
   // non-default format (HTML vs. plaintext).
-  let msgCompFormat = (aEvent && aEvent.shiftKey) ? 
+  let msgCompFormat = (aEvent && aEvent.shiftKey) ?
     Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
     Components.interfaces.nsIMsgCompFormat.Default;
 

@@ -178,7 +178,7 @@ let SearchIntegration =
       this._initSupport(false);
       return;
     }
- 
+
     let enabled = this.prefEnabled;
 
     if (enabled)
@@ -230,7 +230,7 @@ let SearchIntegration =
       this._winSearchHelper.runSetup(false);
     }
     catch (e) { return false; }
-    
+
     return true;
   },
 

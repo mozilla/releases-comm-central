@@ -5,7 +5,7 @@ function isAccel(e){
   var plat = navigator.platform;
   var isMac = (plat.indexOf('Mac') != -1);
   var modifiers = e.altKey;
-  
+
   if ((isMac) && (!modifiers) && (e.metaKey) && (!e.ctrlKey) && (!e.shiftKey))
     return true;
   else if ((!isMac) && (!modifiers) && (e.ctrlKey) && (e.shiftKey) && (!e.metaKey))

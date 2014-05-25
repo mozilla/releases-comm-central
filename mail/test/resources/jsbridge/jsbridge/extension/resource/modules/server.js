@@ -1,23 +1,23 @@
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1/GPL 2.0/LGPL 2.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is Mozilla Corporation Code.
-// 
+//
 // The Initial Developer of the Original Code is
 // based on the MozRepl project.
 // Portions created by the Initial Developer are Copyright (C) 2008
 // the Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //  Mikeal Rogers <mikeal.rogers@gmail.com>
 //  Massimiliano Mirra <bard@hyperstruct.net>
@@ -33,7 +33,7 @@
 // and other provisions required by the GPL or the LGPL. If you do not delete
 // the provisions above, a recipient may use your version of this file under
 // the terms of any one of the MPL, the GPL or the LGPL.
-// 
+//
 // ***** END LICENSE BLOCK *****
 
 var EXPORTED_SYMBOLS = ["Server", "server", "AsyncRead", "Session", "sessions", "globalRegistry", "startServer"];
@@ -49,10 +49,10 @@ const loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
 var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
     .getService(Components.interfaces.nsIAppShellService)
     .hiddenDOMWindow;
-    
+
 var json2 = Components.utils.import("resource://jsbridge/modules/json2.js");
 
-var jsonEncode = json2.JSON.stringify;    
+var jsonEncode = json2.JSON.stringify;
 
 var uuidgen = Components.classes["@mozilla.org/uuid-generator;1"]
     .getService(Components.interfaces.nsIUUIDGenerator);
@@ -81,7 +81,7 @@ AsyncRead.prototype.onDataAvailable = function (request, context, inputStream, o
     log("jsbridge: onDataAvailable, reading bytesAvail = " + bytesAvail + "\n");
     var bytesRead = this.session.instream.readString(bytesAvail, parts);
     count = count - bytesRead;
-    log("jsbridge: onDataAvailable, read bytes: " + bytesRead + " count is now: " + count + "\n"); 
+    log("jsbridge: onDataAvailable, read bytes: " + bytesRead + " count is now: " + count + "\n");
     str.value += parts.value;
   } while (count > 0);
   log("jsbridge: onDataAvailable, going into receive with: \n\n" + str.value + "\n\n");
@@ -117,7 +117,7 @@ Bridge.prototype.register = function (uuid, _type) {
   if (passed != undefined) {
     this.session.encodeOut({"result":true, 'eventType':'register', 'uuid':uuid});
   }
-  
+
 }
 Bridge.prototype._describe = function (obj) {
   var response = {};
@@ -190,7 +190,7 @@ Bridge.prototype.execFunction = function (uuid, func, args) {
     }
     this.session.encodeOut({'result':false, 'exception':exception, 'uuid':uuid});
     var result = true;
-  }  
+  }
   if (data != undefined) {
     this.set(uuid, data);
   } else if ( result == true) {
@@ -209,7 +209,7 @@ function Session (transport) {
   this.sandbox.bridge = new Bridge(this);
   this.sandbox.openPreferences = hwindow.openPreferences;
   try {
-      this.outputstream = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 0, 0);	
+      this.outputstream = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 0, 0);
       this.outstream = Cc['@mozilla.org/intl/converter-output-stream;1']
                     .createInstance(Ci.nsIConverterOutputStream);
       this.outstream.init(this.outputstream, 'UTF-8', BUFFER_SIZE,
@@ -223,7 +223,7 @@ function Session (transport) {
       log('jsbridge: Error: ' + e);
   }
   log('jsbridge: Accepted connection.');
-  
+
   this.pump = Cc['@mozilla.org/network/input-stream-pump;1']
       .createInstance(Ci.nsIInputStreamPump);
   this.pump.init(this.stream, -1, -1, 0, 0, false);
@@ -233,7 +233,7 @@ Session.prototype.onOutput = function(string) {
   log('jsbridge: write: '+string)
   if (typeof(string) != "string") {
     throw "This is not a string"
-  } 
+  }
   try {
     var stroffset = 0;
     do {
@@ -277,7 +277,7 @@ Session.prototype.encodeOut = function (obj) {
     }
     this.onOutput(jsonEncode({'result':false, 'exception':exception}));
   }
-  
+
 }
 Session.prototype.receive = function(data) {
   Components.utils.evalInSandbox(data, this.sandbox);
@@ -314,7 +314,7 @@ Server.prototype.start = function () {
     this.serv.asyncListen(this);
   } catch(e) {
     log('jsbridge: Exception: ' + e);
-  }    
+  }
 }
 Server.prototype.stop = function () {
     log('jsbridge: Closing...');
@@ -333,7 +333,7 @@ Server.prototype.onSocketAccepted = function (serv, transport) {
 function log(msg) {
   if (DEBUG_ON) {
     dump(msg + '\n');
-  } 
+  }
 }
 
 function startServer(port) {

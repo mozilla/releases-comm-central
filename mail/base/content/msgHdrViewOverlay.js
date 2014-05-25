@@ -1070,7 +1070,7 @@ function UpdateExpandedMessageHeaders() {
   // that attachment-splitter causes if it's moved high enough to affect
   // the header box:
   document.getElementById("msgHeaderView").removeAttribute("height");
-  // This height attribute may be set by toggleWrap() if the user clicked 
+  // This height attribute may be set by toggleWrap() if the user clicked
   // the "more" button" in the header.
   // Remove it so that the height is determined automatically.
   document.getElementById("expandedHeaderView").removeAttribute("height");

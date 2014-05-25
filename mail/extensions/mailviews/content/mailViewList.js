@@ -5,14 +5,14 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-var gMailListView; 
-var gListBox; 
+var gMailListView;
+var gListBox;
 var gEditButton;
 var gDeleteButton;
 
 function mailViewListOnLoad()
 {
-  gMailListView = Components.classes["@mozilla.org/messenger/mailviewlist;1"].getService(Components.interfaces.nsIMsgMailViewList);; 
+  gMailListView = Components.classes["@mozilla.org/messenger/mailviewlist;1"].getService(Components.interfaces.nsIMsgMailViewList);;
   gListBox = document.getElementById('mailViewList');
 
   // Construct list view based on current mail view list data
@@ -30,7 +30,7 @@ function refreshListView(aSelectedMailView)
     gListBox.getItemAtIndex(index - 1).remove();
 
   var numItems = gMailListView.mailViewCount;
-  var mailView; 
+  var mailView;
   for (index = 0; index < numItems; index++)
   {
     mailView = gMailListView.getMailViewAt(index);
@@ -46,7 +46,7 @@ function onNewMailView()
 }
 
 function onDeleteMailView()
-{  
+{
   var bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
 
   if (!Services.prompt.confirm(window, bundle.GetStringFromName("confirmViewDeleteTitle"), bundle.GetStringFromName("confirmViewDeleteMessage")))

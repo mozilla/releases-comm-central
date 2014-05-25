@@ -147,7 +147,7 @@ $.fn.extend({
 			})
 			: this._focus.apply(this, arguments);
 	},
-	
+
 	remove: function() {
 		// Safari has a native remove event which actually removes DOM elements,
 		// so we have to use triggerHandler instead of trigger (#3037).
@@ -246,7 +246,7 @@ $.widget = function(name, prototype) {
 	$.expr[':'][fullName] = function(elem) {
 		return !!$.data(elem, name);
 	};
-	
+
 	// create plugin method
 	$.fn[name] = function(options) {
 		var isMethodCall = (typeof options == 'string'),
@@ -327,7 +327,7 @@ $.widget.prototype = {
 
 		return this;
 	},
-	
+
 	// override when the widget element is a wrapper or similar
 	widget: function() {
 		return this.element;

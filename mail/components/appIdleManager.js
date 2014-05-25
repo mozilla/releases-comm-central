@@ -14,7 +14,7 @@ const Ci = Components.interfaces;
 // into app idle notifications. If we get a blur notification that is not
 // followed by a focus notification in less than some small number of seconds,
 // then we send a begin app idle notification.
-// If we get a focus event, and we're app idle, then we send an end app idle 
+// If we get a focus event, and we're app idle, then we send an end app idle
 // notification.
 // The notification topic is "mail:appIdle", the values are "idle", and "back"
 
@@ -32,16 +32,16 @@ var appIdleManager =
   {
     appIdleManager._appIdle = true;
     Services.obs.notifyObservers(null, "mail:appIdle", "idle");
-    
+
   },
-  
+
   onBlur: function()
   {
     appIdleManager._timer.initWithCallback(appIdleManager._timerCallback,
                                  appIdleManager._timerInterval,
                                  Ci.nsITimer.TYPE_ONE_SHOT);
    },
-  
+
   onFocus: function()
   {
     appIdleManager._timer.cancel();

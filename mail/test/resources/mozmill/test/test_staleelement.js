@@ -11,10 +11,10 @@ var testReload = function() {
 
   var elem = new elementslib.Selector(controller.tabs.activeTab, "#test-div");
   controller.assertNode(elem);
-  
+
   controller.open(testPage);
   controller.waitForPageLoad();
-  
+
   controller.assertNode(elem);
 }
 

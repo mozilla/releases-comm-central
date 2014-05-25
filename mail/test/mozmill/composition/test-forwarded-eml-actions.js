@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests that actions such as replying and forwarding works correctly from 
+ * Tests that actions such as replying and forwarding works correctly from
  * an .eml message that's attached to another mail.
  */
 
@@ -32,7 +32,7 @@ var setupModule = function(module) {
 
   folder = create_folder("FwdedEmlTest");
 
-  let source = 
+  let source =
     "From - Mon Apr  16 22:55:33 2012\n" +
     "Date: Mon, 16 Apr 2012 22:55:33 +0300\n" +
     "From: Mr Example <example@invalid>\n" +

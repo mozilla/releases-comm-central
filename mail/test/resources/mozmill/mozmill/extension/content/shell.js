@@ -9,7 +9,7 @@ var that = this;
 var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
                 .getService(Components.interfaces.nsIAppShellService)
                 .hiddenDOMWindow;
-                
+
 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
            .getService(Components.interfaces.nsIWindowMediator);
 
@@ -18,12 +18,12 @@ var dir = function(obj){
     shell.send(prop);
   }
 }
-           
+
 var shell = new function(){
   this.hist = [];
   this.histPos = 0;
   this.histLength = 20;
-  
+
   //generate a new output entry node
   this.entry = function(val){
     var nd = document.createElement('div');
@@ -36,22 +36,22 @@ var shell = new function(){
     nd.style.width = "99%";
 
     return nd;
-  }  
+  }
   //generate a new output entry node
   this.cmdEntry = function(val){
     nd = shell.entry(val);
     nd.style.fontWeight = "bold";
     return nd;
   };
-  
+
   this.sin = function(){
     return document.getElementById('shellInput');
   };
-  
+
   this.sout = function(){
     return document.getElementById('shellOutput');
   };
-  
+
   this.sendCmd = function(s){
     shell.sout().insertBefore(shell.cmdEntry('<font color="blue">mmsh%</font> <font color="tan">'+s+'</font>'), shell.sout().childNodes[0]);
   };
@@ -60,10 +60,10 @@ var shell = new function(){
   this.send = function(s){
     if (s == undefined){
       return;
-    }  
+    }
     shell.sout().insertBefore(shell.entry(s), shell.sout().childNodes[0]);
   };
-  
+
   this.getWindows = function(){
      var enumerator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                       .getService(Components.interfaces.nsIWindowMediator)
@@ -79,25 +79,25 @@ var shell = new function(){
         c++;
       }
   }
-  
+
   this.handle = function(cmd){
     //if the command has spaces -- args
     var cmdArr = cmd.split(' ');
 
     switch(cmdArr[0]){
-    //clear window 
+    //clear window
     case 'clear':
       shell.sout().innerHTML = "";
       break;
-    
+
     case 'windows':
       shell.getWindows();
       for (win in shell.windows){
-        shell.send( win+'. '+shell.windows[win].document.documentElement.getAttribute('windowtype') + ': ' + shell.windows[win].title); 
+        shell.send( win+'. '+shell.windows[win].document.documentElement.getAttribute('windowtype') + ': ' + shell.windows[win].title);
       }
       shell.sendCmd(cmd);
       break;
-      
+
     case 'dir':
       //if has an arg
       if (cmdArr[1]){
@@ -116,7 +116,7 @@ var shell = new function(){
         }
       }
       shell.sendCmd(cmd);
-      break;    
+      break;
     case 'help':
       var opts = [];
       opts.push('dir -- default shows you the current scope, \'dir obj\' or \'dir(obj)\' will show you the properties of the object.');
@@ -127,14 +127,14 @@ var shell = new function(){
       opts.push('hwindow -- ...');
       opts.push('controller -- ...');
       opts.push('events -- ...');
-      opts.push('utils -- ...');      
+      opts.push('utils -- ...');
       opts.push('clear -- reset the output.');
 
       while(opts.length != 0){
         this.send(opts.pop());
       }
       this.sendCmd(cmd);
-      break;  
+      break;
     //defaut is to eval
     default:
        try {
@@ -151,21 +151,21 @@ var shell = new function(){
        }
        shell.sendCmd(cmd);
     }
-    
+
     shell.sin().value = "";
     shell.sin().focus();
   };
-  
+
   this.omc = function(event){
     if (event.target.value == "Type commands here..."){
       event.target.value = "";
     }
   };
-  
+
   this.init = function(){
     document.getElementById('shellInput').addEventListener("keypress", shell.okp, false);
     document.getElementById('shellInput').addEventListener("mousedown", shell.omc, false);
-    
+
     document.getElementById('shellInput').addEventListener("keydown", function(event){
       if (event.target.value == "Type commands here..."){
         event.target.value = "";
@@ -186,15 +186,15 @@ var shell = new function(){
           if (shell.histPos == 0){
             shell.histPos = shell.hist.length -1;
           } else {
-           shell.histPos--; 
+           shell.histPos--;
           }
           shell.sin().value = shell.hist[shell.histPos];
         }
       }
     }, false);
-    
+
   };
-  
+
   this.enter = function(event){
     var inp = document.getElementById('shellInput');
     //inp.value = strings.trim(inp.value);
@@ -214,7 +214,7 @@ var shell = new function(){
     //pass input commands to the handler
     shell.handle(inp.value);
   };
-  
+
   this.okp = function(event){
     if ((event.keyCode == 13) && (event.shiftKey == false)){
        event.preventDefault();

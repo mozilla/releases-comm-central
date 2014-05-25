@@ -19,7 +19,7 @@ var showHelpDialog = function(){
 }
 
 var showRecordDialog = function(){
-  $("#tabs").tabs().tabs("select", 0); 
+  $("#tabs").tabs().tabs("select", 0);
   $("#recordDialog").dialog("open");
   MozMillrec.on();
   $("#recordDialog").dialog().parents(".ui-dialog:first").find(".ui-dialog-buttonpane button")[1].innerHTML = "Stop";
@@ -42,22 +42,22 @@ var align = function(){
       if (wintype == "navigator:browser"){
         var width = window.screen.availWidth/2.5;
         var height = window.screen.availHeight;
-        win.resizeTo((window.screen.availWidth - width), window.screen.availHeight);        
+        win.resizeTo((window.screen.availWidth - width), window.screen.availHeight);
       }
     }
     else {
       var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
       var latestbrowser = wm.getMostRecentWindow('navigator:browser');
-      
+
       //if there is no most recent browser window, use whatever window
       if (!latestbrowser){
         var latestbrowser = wm.getMostRecentWindow('');
       }
-      
+
       win.screenX = latestbrowser.innerWidth;
       win.screenY = 0;
     }
-  }  
+  }
     return true;
 };

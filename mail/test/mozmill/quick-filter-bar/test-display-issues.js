@@ -4,7 +4,7 @@
 
 /*
  * Test things of a visual nature.
- * 
+ *
  * Note: this test requires a screen resolution of 1280 x 1024 which is standard on
  * the unit test machines (see also testing/machine-configuration.json).
  */

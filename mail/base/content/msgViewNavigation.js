@@ -85,7 +85,7 @@ function FindNextFolder()
     folder = FindNextChildFolder(parent, folder);
     if (folder)
       return folder;
- 
+
     // none at this level after the current folder.  go up.
     folder = parent;
   }
@@ -99,13 +99,13 @@ function FindNextFolder()
     if (rootFolders[i].URI == gDBView.msgFolder.server.serverURI)
       break;
   }
-  
+
   for (var j = i + 1; j < rootFolders.length; j++) {
     folder = FindNextChildFolder(rootFolders[j], null);
     if (folder)
       return folder;
   }
-  
+
   // if nothing from the current account down to the bottom
   // (of the folder pane), start again at the top.
   for (j = 0; j <= i; j++) {
@@ -149,7 +149,7 @@ function CrossFolderNavigation(type)
       return;
 
     var folder = FindNextFolder();
-    if (folder && (gDBView.msgFolder.URI != folder.URI)) 
+    if (folder && (gDBView.msgFolder.URI != folder.URI))
     {
       if (nextMode == 1)
       {

@@ -261,7 +261,7 @@ let moveCopyModule =
   },
 
   folderRenamed: function(aOrigFolder, aNewFolder) {
-    this.log.info("in folderRenamed, aOrigFolder = "+ aOrigFolder.prettiestName+", aNewFolder = "+ 
+    this.log.info("in folderRenamed, aOrigFolder = "+ aOrigFolder.prettiestName+", aNewFolder = "+
              aNewFolder.prettiestName);
 
     let displayText;

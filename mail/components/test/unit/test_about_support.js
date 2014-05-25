@@ -173,7 +173,7 @@ function test_get_account_details() {
     verify_account_details(details);
   }
   // Check that we got all the accounts we wanted to see
-  do_check_eq(accountsToSee.length, 0);  
+  do_check_eq(accountsToSee.length, 0);
 }
 
 var tests = [

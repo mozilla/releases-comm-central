@@ -68,7 +68,7 @@ function close_notification(aController, aBoxId, aValue) {
  * to stop displaying in the window.
  *
  * @param aController the controller for the window with the notification
- * @param aBoxId the id of the notificaiton box 
+ * @param aBoxId the id of the notificaiton box
  * @param aValue the value of the notification to wait to stop
  */
 function wait_for_notification_to_stop(aController, aBoxId, aValue) {

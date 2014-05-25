@@ -1,27 +1,27 @@
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1/GPL 2.0/LGPL 2.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is Mozilla Corporation Code.
-// 
+//
 // The Initial Developer of the Original Code is
 // Adam Christian.
 // Portions created by the Initial Developer are Copyright (C) 2008
 // the Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //  Adam Christian <adam.christian@gmail.com>
 //  Mikeal Rogers <mikeal.rogers@gmail.com>
-// 
+//
 // Alternatively, the contents of this file may be used under the terms of
 // either the GNU General Public License Version 2 or later (the "GPL"), or
 // the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -33,7 +33,7 @@
 // and other provisions required by the GPL or the LGPL. If you do not delete
 // the provisions above, a recipient may use your version of this file under
 // the terms of any one of the MPL, the GPL or the LGPL.
-// 
+//
 // ***** END LICENSE BLOCK *****
 
 var arrays = {}; Components.utils.import('resource://mozmill/stdlib/arrays.js', arrays);
@@ -49,7 +49,7 @@ var createCell = function (t, obj, message) {
   //    alert(json2.JSON.stringify(message.exception.message));
   //  } catch(err){}
   //  //alert(msgObj.exception.message);
-  //  
+  //
   var r = document.getElementById("resOut");
   var msg = document.createElement('div');
   msg.setAttribute("class", t);
@@ -66,7 +66,7 @@ var createCell = function (t, obj, message) {
   }
   msg.style.height = "15px";
   msg.style.overflow = "hidden";
-  
+
   //if message isn't an object
   if (typeof(message) == "string"){
     msg.innerHTML = "<strong>"+t+"</strong>"+' :: '+message;
@@ -77,13 +77,13 @@ var createCell = function (t, obj, message) {
       if (display == undefined) {
         var display = message.exception;
       }
-    } catch(err){ 
+    } catch(err){
       var display = message['function'];
     }
     //add each piece in its own hbox
     msg.innerHTML = '<span style="float:right;top:0px;cursor: pointer;" class="ui-icon ui-icon-triangle-1-s"/>';
     msg.innerHTML += "<strong>"+t+"</strong>"+' :: '+display;
-    
+
     var createTree = function(obj){
       var mainDiv = document.createElement('div');
       for (prop in obj){
@@ -99,7 +99,7 @@ var createCell = function (t, obj, message) {
             newDiv.innerHTML = '<span style="float:right;top:0px;cursor: pointer;" class="ui-icon ui-icon-triangle-1-s"/>';
           }
         } catch(e){}
-        
+
         newDiv.innerHTML += "<strong>"+prop+"</strong>: "+obj[prop];
         mainDiv.appendChild(newDiv);
       }
@@ -117,12 +117,12 @@ var createCell = function (t, obj, message) {
       newDiv.style.position = "relative";
       newDiv.style.left = "10px";
       newDiv.style.overflow = "hidden";
-      
+
       msg.appendChild(newDiv);
     }
-   
+
   }
-  
+
   //Add the event listener for clicking on the box to see more info
   msg.addEventListener('click', function(e){
     // if (e.which == 3){
@@ -142,7 +142,7 @@ var createCell = function (t, obj, message) {
         e.target.parentNode.style.height = "";
         e.target.className = "ui-icon ui-icon-triangle-1-n";
       }
-      else { 
+      else {
         e.target.parentNode.style.height = "15px";
         e.target.parentNode.style.overflow = "hidden";
         e.target.className = "ui-icon ui-icon-triangle-1-s";
@@ -150,7 +150,7 @@ var createCell = function (t, obj, message) {
     }
 
   }, true);
-  
+
   if (r.childNodes.length == 0){
    r.appendChild(msg);
   }
@@ -166,7 +166,7 @@ var frame = {}; Components.utils.import('resource://mozmill/modules/frame.js', f
 // Set UI Listeners in frame
 
 function stateListener (state) {
-  if (state != 'test') {  
+  if (state != 'test') {
   //  utils.getWindowByTitle('MozMill IDE').document.getElementById('runningStatus').innerHTML = state;
   }
 }

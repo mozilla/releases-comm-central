@@ -84,7 +84,7 @@ function test_mail_account_setup() {
     awc.e("realname").focus();
     if (!awc.e("realname").value) {
        // Realname is likely already filled, if not, fill it now.
-      input_value(awc, user.name); 
+      input_value(awc, user.name);
     }
     awc.keypress(null, "VK_TAB", {});
     input_value(awc, user.email);
@@ -171,7 +171,7 @@ function test_bad_password_uses_old_settings() {
       awc.e("realname").focus();
       if (!awc.e("realname").value) {
          // Realname is likely already filled, if not, fill it now.
-        input_value(awc, user.name); 
+        input_value(awc, user.name);
       }
       awc.keypress(null, "VK_TAB", {});
       input_value(awc, user.email);

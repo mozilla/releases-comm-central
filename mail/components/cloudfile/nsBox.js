@@ -187,7 +187,7 @@ nsBox.prototype = {
     }.bind(this);
 
     this.log.info("Checking to see if we're logged in");
-    
+
     if (!this._loggedIn) {
       let onLoginSuccess = function() {
         this._getUserInfo(onGetUserInfoSuccess, onAuthFailure);

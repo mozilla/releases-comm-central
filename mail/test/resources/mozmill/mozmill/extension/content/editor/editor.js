@@ -123,7 +123,7 @@ function editorTab(content, filename) {
 
   bespin.useBespin(bespinElement, {
     settings: {"tabstop": 4},
-    syntax: "js", 
+    syntax: "js",
     stealFocus: true})
   .then(function(env) {
     editorObject.editorEnv = env;

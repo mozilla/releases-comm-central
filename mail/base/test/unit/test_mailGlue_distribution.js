@@ -48,7 +48,7 @@ function run_test()
                   .getService(Ci.nsIINIParserFactory)
                   .createINIParser(testDistributionFile);
 
-  // Now check that prefs were set - test the Global prefs against the 
+  // Now check that prefs were set - test the Global prefs against the
   // Global section in the ini file
   let iniValue = testIni.getString("Global", "id");
   let pref = Services.prefs.getCharPref("distribution.id");
@@ -61,7 +61,7 @@ function run_test()
   let aboutLocale;
   try {
     aboutLocale = testIni.getString("Global", "about.en-US");
-  } 
+  }
   catch (e) {
     Components.utils.reportError(e);
   }
@@ -71,7 +71,7 @@ function run_test()
 
   pref = Services.prefs.getCharPref("distribution.about");
   do_check_eq(aboutLocale, pref);
-  
+
   // Test Preferences section
   let s = "Preferences";
   let keys = testIni.getKeys(s);
@@ -92,7 +92,7 @@ function run_test()
         do_throw("The preference " + key + " is of unknown type: " + typeof value);
     }
   }
-  
+
   // Test the LocalizablePreferences-[locale] section
   // Add any prefs found in it to the overrides array
   let overrides = [];
@@ -107,9 +107,9 @@ function run_test()
   }
 
   // Test the LocalizablePreferences section
-  // Any prefs here that aren't found in overrides are not overriden 
+  // Any prefs here that aren't found in overrides are not overriden
   //   by LocalizablePrefs-[locale] and should be tested
-  s = "LocalizablePreferences"; 
+  s = "LocalizablePreferences";
   keys = testIni.getKeys(s);
   while (keys.hasMore()) {
     let key = keys.getNext();

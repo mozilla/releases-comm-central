@@ -10,7 +10,7 @@ var testFoo = function(){
   var link = new elementslib.Link(controller.tabs.activeTab, "Advanced search");
 
   controller.dragToElement(link, urlbar, 100, 20);
-    
+
   // should visit advanced search page
   controller.waitForPageLoad();
   var advancedSearch = new elementslib.Name(controller.tabs.activeTab, "as_q");

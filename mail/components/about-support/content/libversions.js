@@ -11,14 +11,14 @@ function populateLibVersionsSection() {
       createElement("td", value2),
     ]));
   }
-    
+
   var v = null;
   try { // just to be safe
     v = Cc["@mozilla.org/security/nssversion;1"].getService(Ci.nsINSSVersion);
   } catch(e) {}
   if (!v)
     return;
-    
+
   let bundle = Services.strings.createBundle("chrome://global/locale/aboutSupport.properties");
   let libversions_tbody = document.getElementById("libversions-tbody");
 

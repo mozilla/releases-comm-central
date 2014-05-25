@@ -261,7 +261,7 @@ var WindowWatcher = {
     //  time in the sun.
     controller.sleep(0);
     this._firstWindowOpened = true;
-    // wrap the creation because 
+    // wrap the creation because
     mark_action("winhelp", "new MozMillController()", [aWindowType]);
     let c = new controller.MozMillController(domWindow);
     mark_action("winhelp", "/new MozMillController()", [aWindowType]);
@@ -723,7 +723,7 @@ function wait_for_frame_load(aFrame, aURLOrPredicate) {
  * Generic function to wait for some sort of document to load. We expect
  * aDetails to have three fields:
  * - webProgress: an nsIWebProgress associated with the contentWindow.
- * - currentURI: the currently loaded page (nsIURI). 
+ * - currentURI: the currently loaded page (nsIURI).
  * - contentWindow: the content window.
  */
 function _wait_for_generic_load(aDetails, aURLOrPredicate) {

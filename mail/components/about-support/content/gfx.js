@@ -21,7 +21,7 @@ function populateGraphicsSection() {
       ]));
     }
   }
-  
+
   function pushLiteralInfoRow(table, name, value)
   {
     table.push(createParentElement("tr", [
@@ -120,7 +120,7 @@ function populateGraphicsSection() {
       try {
         dwEnabled = gfxInfo.DWriteEnabled + " (" + gfxInfo.DWriteVersion + ")";
       } catch(e) {}
-      pushInfoRow(trGraphics, "directWriteEnabled", dwEnabled);  
+      pushInfoRow(trGraphics, "directWriteEnabled", dwEnabled);
 
       var cleartypeParams = "";
       try {
@@ -128,7 +128,7 @@ function populateGraphicsSection() {
       } catch(e) {
         cleartypeParams = bundle.GetStringFromName("clearTypeParametersNotFound");
       }
-      pushInfoRow(trGraphics, "clearTypeParameters", cleartypeParams);  
+      pushInfoRow(trGraphics, "clearTypeParameters", cleartypeParams);
     }
 
 #endif
@@ -155,7 +155,7 @@ function populateGraphicsSection() {
     pushFeatureInfoRow(trGraphics, "webglRenderer", webglfeature, webglenabled, webglrenderer);
 
     appendChildren(graphics_tbody, trGraphics);
-    
+
     // display registered graphics properties
     let graphics_info_properties = document.getElementById("graphics-info-properties");
     var info = gfxInfo.getInfo();
@@ -164,7 +164,7 @@ function populateGraphicsSection() {
       pushLiteralInfoRow(trGraphicsProperties, property, info[property]);
     }
     appendChildren(graphics_info_properties, trGraphicsProperties);
-   
+
     // display any failures that have occurred
     let graphics_failures_tbody = document.getElementById("graphics-failures-tbody");
     let trGraphicsFailures = gfxInfo.getFailures().map(function (value)

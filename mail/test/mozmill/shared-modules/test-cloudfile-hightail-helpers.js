@@ -43,7 +43,7 @@ const kDefaultUser = {
   policy: null,
   version: "v3",
   password: null,
-  role:null, 
+  role:null,
   email: "john@example.com",
   firstname: "John",
   lastname: "User",
@@ -304,13 +304,13 @@ MockHightailPrepareSimple.prototype = {
     this._server = aServer;
     this._server.registerPathHandler(kFolderInitUploadPath,
                                      this._prepare.bind(this));
-    
+
     this._foldersId = {
       root: 0,
       Apps: this._hightail.registry.createItemId(),
       "Mozilla Thunderbird" : this._hightail.registry.createItemId()
     };
-    
+
     // Set up folders info
     for (let i in this._foldersId) {
       this._server.registerPathHandler(kFolderPath + this._foldersId[i],
@@ -330,7 +330,7 @@ MockHightailPrepareSimple.prototype = {
   _getFolderInfo: function(aRequest, aResponse) {
     let folderId = aRequest.path.substring(kFolderPath.length);
     let nextFolder = folderId == (this._foldersId.root + "")
-                        ? "Apps" 
+                        ? "Apps"
                         : "Mozilla Thunderbird";
     let response = {
       folders: {
@@ -465,12 +465,12 @@ MockHightailCommitterSimple.prototype = {
   init: function(aServer) {
     this._server = aServer;
     // Since fileId is in query, we need to register path only once.
-    this._server.registerPathHandler(kFolderCommitUploadPath, 
+    this._server.registerPathHandler(kFolderCommitUploadPath,
                                      this.commit.bind(this));
   },
 
   shutdown: function() {
-    this._server.registerPathHandler(kFolderCommitUploadPath, 
+    this._server.registerPathHandler(kFolderCommitUploadPath,
                                      null);
     this._server = null;
     this._itemIdMap = {};
@@ -495,22 +495,22 @@ MockHightailCommitterSimple.prototype = {
 
     let filename = this._hightail.registry.lookupFilename(fileId);
     let url;
-    
+
     if (filename in this._filenameURLMap)
       url = this._filenameURLMap[filename];
     else
       url = kDownloadURLPrefix + "/" + filename;
-    
+
     let injectedData = {
       clickableDownloadUrl: url,
     }
     let data = overrideDefault(kDefaultCommitReturn, injectedData);
-    
+
     // Return the default share URL
     aResponse.setStatusLine(null, 200, "OK");
     aResponse.setHeader("Content-Type", "application/json");
     aResponse.write(JSON.stringify(data));
-    
+
     Services.obs.notifyObservers(null, "cloudfile:getFileURL", filename);
   },
 };
@@ -669,7 +669,7 @@ function overrideDefault(aDefault, aData) {
 
 
 /**
- * Large swaths of this were liberally stolen from 
+ * Large swaths of this were liberally stolen from
  * mozilla/toolkit/crashreporter/test/browser/crashreport.sjs
  *
  */
@@ -678,7 +678,7 @@ function generateUUID() {
                   .getService(Ci.nsIUUIDGenerator);
   let uuid = uuidGen.generateUUID().toString();
   return uuid.substring(1, uuid.length - 2);
-  
+
 }
 
 function parseHeaders(data, start)

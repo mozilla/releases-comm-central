@@ -31,7 +31,7 @@ $.widget("ui.menu", {
 			self.activate($(this).parent());
 		});
 	},
-	
+
 	activate: function(item) {
 		this.deactivate();
 		this.active = item.children("a").addClass("ui-state-hover").attr("id", "ui-active-menuitem").end();
@@ -47,30 +47,30 @@ $.widget("ui.menu", {
 			}
 		}
 	},
-	
+
 	deactivate: function() {
 		if (!this.active)
 			return;
 		this.active.children("a").removeClass("ui-state-hover").removeAttr("id", "ui-active-menuitem");
 		this.active = null;
 	},
-	
+
 	next: function() {
 		this.move("next", "li:first");
 	},
-	
+
 	previous: function() {
 		this.move("prev", "li:last");
 	},
-	
+
 	first: function() {
 		return this.active && !this.active.prev().length;
 	},
-	
+
 	last: function() {
 		return this.active && !this.active.next().length;
 	},
-	
+
 	move: function(direction, edge) {
 		if (!this.active) {
 			this.activate(this.element.children(edge));
@@ -83,7 +83,7 @@ $.widget("ui.menu", {
 			this.activate(this.element.children(edge));
 		}
 	},
-	
+
 	// TODO merge with previousPage
 	nextPage: function() {
 		if (this.hasScroll()) {
@@ -121,7 +121,7 @@ $.widget("ui.menu", {
 			this.activate(this.element.children(!this.active || this.last() ? ":first" : ":last"));
 		}
 	},
-	
+
 	// TODO merge with nextPage
 	previousPage: function() {
 		if (this.hasScroll()) {
@@ -159,15 +159,15 @@ $.widget("ui.menu", {
 			this.activate(this.element.children(!this.active || this.first() ? ":last" : ":first"));
 		}
 	},
-	
+
 	hasScroll: function() {
 		return this.element.height() < this.element.attr("scrollHeight");
 	},
-	
+
 	select: function() {
 		this._trigger("selected", null, { item: this.active });
 	}
-	
+
 });
 
 })(jQuery);

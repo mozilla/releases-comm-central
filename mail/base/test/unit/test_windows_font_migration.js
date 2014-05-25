@@ -94,7 +94,7 @@ var gCTVerifier = makeVerifier({
  * Windows versions to pretend we're running this on. Each value of this
  * dictionary is a pair: [Windows version, verifier for this version].
  */
-const kWindowsVersions = {  
+const kWindowsVersions = {
   // Windows XP
   "xp": [5.1, gNonCTVerifier],
   // Windows Vista

@@ -598,7 +598,7 @@ function InitViewBodyMenu()
                   "bodyFeedSummarySanitized",
                   "bodyFeedSummaryAsPlaintext"];
   let menuIDs = isFeed ? rssIDs : defaultIDs;
-  
+
   if (disallow_classes > 0)
     gDisallow_classes_no_html = disallow_classes;
   // else gDisallow_classes_no_html keeps its inital value (see top)
@@ -609,7 +609,7 @@ function InitViewBodyMenu()
   let AllBodyParts_menuitem = menuIDs[3] ? document.getElementById(menuIDs[3])
         : null;
 
-  document.getElementById("bodyAllParts").hidden = 
+  document.getElementById("bodyAllParts").hidden =
     ! Services.prefs.getBoolPref("mailnews.display.show_all_body_parts_menu");
 
   if (!prefer_plaintext && !html_as && !disallow_classes &&
@@ -945,28 +945,28 @@ function InitRecentlyClosedTabsPopup(menuPopup)
   if( !tabs.length )
     return false;
 
-  // Clear the list before rebulding it.     
+  // Clear the list before rebulding it.
   while (menuPopup.hasChildNodes())
     menuPopup.lastChild.remove();
-    
+
   // Rebuild the recently closed tab list
   for (let i = 0; i < tabs.length; i++ ) {
-    
+
     let menuItem = document.createElement("menuitem");
-    menuItem.setAttribute("label",tabs[i].title);    
+    menuItem.setAttribute("label",tabs[i].title);
     menuItem.setAttribute('oncommand',
         'document.getElementById("tabmail").undoCloseTab('+i+');');
-     
+
     if (i==0)
       menuItem.setAttribute('key',"key_undoCloseTab");
-     
+
     menuPopup.appendChild(menuItem);
   }
-  
-  // "Restore All Tabs" with only one entry does not make sense 
+
+  // "Restore All Tabs" with only one entry does not make sense
   if (tabs.length > 1) {
     menuPopup.appendChild(document.createElement("menuseparator"));
-  
+
     let menuItem = document.createElement("menuitem");
     menuItem.setAttribute("label", document.getElementById("bundle_messenger")
                                            .getString("restoreAllTabs"));
@@ -980,9 +980,9 @@ function InitRecentlyClosedTabsPopup(menuPopup)
 function goRestoreAllTabs()
 {
   let tabmail = document.getElementById("tabmail");
-  
+
   let len = tabmail.recentlyClosedTabs.length;
-  
+
   while(len--)
     document.getElementById("tabmail").undoCloseTab();
 }

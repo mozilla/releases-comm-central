@@ -13,7 +13,7 @@ let MODULE_REQUIRES = ['folder-display-helpers',
                        'compose-helpers',
                        'cloudfile-helpers',
                        'attachment-helpers',
-                       'prompt-helpers', 
+                       'prompt-helpers',
                        'notificationbox-helpers'];
 
 let controller = {};

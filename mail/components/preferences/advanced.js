@@ -162,18 +162,18 @@ var gAdvancedPane = {
   {
     var button = document.getElementById(aButtonID);
     var preference = document.getElementById(aPreferenceID);
-    // This is actually before the value changes, so the value is not as you expect. 
+    // This is actually before the value changes, so the value is not as you expect.
     button.disabled = preference.value == true;
     return undefined;
-  },  
-  
+  },
+
 #ifdef MOZ_UPDATER
 /**
  * Selects the item of the radiogroup, and sets the warnIncompatible checkbox
  * based on the pref values and locked states.
  *
  * UI state matrix for update preference conditions
- * 
+ *
  * UI Components:                              Preferences
  * Radiogroup                                  i   = app.update.enabled
  * Warn before disabling extensions checkbox   ii  = app.update.auto
@@ -200,7 +200,7 @@ updateReadPrefs: function ()
   var enabledPref = document.getElementById("app.update.enabled");
   var autoPref = document.getElementById("app.update.auto");
   var radiogroup = document.getElementById("updateRadioGroup");
-  
+
   if (!enabledPref.value)   // Don't care for autoPref.value in this case.
     radiogroup.value="manual"     // 3. Never check for updates.
   else if (autoPref.value)  // enabledPref.value && autoPref.value
@@ -216,14 +216,14 @@ updateReadPrefs: function ()
   // or the binary platform or OS version is not known.
   // A locked pref is sufficient to disable the radiogroup.
   radiogroup.disabled = !canCheck || enabledPref.locked || autoPref.locked;
-  
+
   var modePref = document.getElementById("app.update.mode");
   var warnIncompatible = document.getElementById("warnIncompatible");
 
   // the warnIncompatible checkbox value is set by readAddonWarn
   warnIncompatible.disabled = radiogroup.disabled || modePref.locked ||
                               !enabledPref.value || !autoPref.value;
-  
+
 #ifdef MOZ_MAINTENANCE_SERVICE
   // Check to see if the maintenance service is installed.
   // If it is don't show the preference at all.
@@ -275,7 +275,7 @@ updateWritePrefs: function ()
 },
 
   /**
-   * app.update.mode is a three state integer preference, and we have to 
+   * app.update.mode is a three state integer preference, and we have to
    * express all three values in a single checkbox:
    * "Warn me if this will disable extensions or themes"
    * Preference Value         Checkbox State    Meaning
@@ -355,9 +355,9 @@ updateWritePrefs: function ()
   {
     document.documentElement.openSubDialog("chrome://messenger/content/preferences/receipts.xul",
                                            "", null);
-  },  
+  },
 
-  /** 
+  /**
    * Display the the connection settings dialog.
    */
   showConnections: function ()
@@ -374,7 +374,7 @@ updateWritePrefs: function ()
   {
     document.documentElement
             .openSubDialog("chrome://messenger/content/preferences/offline.xul",
-                           "", null);  
+                           "", null);
   },
 
   /**

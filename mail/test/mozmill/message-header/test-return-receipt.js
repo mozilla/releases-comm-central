@@ -156,7 +156,7 @@ function test_mdn_when_from_and_disposition_to_differs_nonrfc() {
  * addresses.
  */
 function test_mdn_when_disposition_to_multi() {
-  gotoMsg(3); 
+  gotoMsg(3);
   // Should display a notification with warning listing all the addresses.
   assert_mdn_shown(true);
   assert_mdn_text_contains("ex1@example.com", true);

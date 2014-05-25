@@ -23,12 +23,12 @@ function swapTabs(tab){
   $('outputTab').style.display = 'none';
   $('eventsTab').style.display = 'none';
   $('shellTab').style.display = 'none';
-  
+
   $('editorHead').style.background = '#aaa';
   $('outputHead').style.background = '#aaa';
   $('eventsHead').style.background = '#aaa';
   $('shellHead').style.background = '#aaa';
-  
+
   $(tab+'Tab').style.display = 'block';
   $(tab+'Head').style.background = 'white';
 }
@@ -42,7 +42,7 @@ function accessOutput(){
   var txt = '';
   for (var c = 0; c < n.childNodes.length; c++){
     if (n.childNodes[c].textContent){
-      txt += n.childNodes[c].textContent + '\n';  
+      txt += n.childNodes[c].textContent + '\n';
     }
     else{
       txt += n.childNodes[c].value + '\n';
@@ -53,7 +53,7 @@ function accessOutput(){
 }
 
 var copyToClipboard = function(str){
-  const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"] .getService(Components.interfaces.nsIClipboardHelper); 
+  const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"] .getService(Components.interfaces.nsIClipboardHelper);
   gClipboardHelper.copyString(str);
 }
 
@@ -78,22 +78,22 @@ var align = function(){
       if (wintype == "navigator:browser"){
         var width = window.screen.availWidth/2.5;
         var height = window.screen.availHeight;
-        win.resizeTo((window.screen.availWidth - width), window.screen.availHeight);        
+        win.resizeTo((window.screen.availWidth - width), window.screen.availHeight);
       }
     }
     else {
       var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
       var latestbrowser = wm.getMostRecentWindow('navigator:browser');
-      
+
       //if there is no most recent browser window, use whatever window
       if (!latestbrowser){
         var latestbrowser = wm.getMostRecentWindow('');
       }
-      
+
       win.screenX = latestbrowser.innerWidth;
       win.screenY = 0;
     }
-  }  
+  }
     return true;
 };

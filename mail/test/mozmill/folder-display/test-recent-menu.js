@@ -95,7 +95,7 @@ function test_delete_message() {
   let recentChildren = recentMenu.menupopup.children;
   assert_equals(recentChildren.length, gInitRecentMenuCount + 1,
                 "delete shouldn't add anything to recent menu");
-  assert_equals(recentChildren[0].label, "aaafolder2", 
+  assert_equals(recentChildren[0].label, "aaafolder2",
                 "recent menu should still be aaafolder2 after delete");
   mc.close_popup_sequence(popups);
 }

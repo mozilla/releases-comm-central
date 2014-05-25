@@ -173,7 +173,7 @@ appUpdater.prototype =
   // true when there is an update already staged / ready to be applied.
   get isPending() {
     if (this.update) {
-      return this.update.state == "pending" || 
+      return this.update.state == "pending" ||
              this.update.state == "pending-service";
     }
     return this.um.activeUpdate &&
@@ -183,7 +183,7 @@ appUpdater.prototype =
 
   get isApplied() {
     if (this.update) {
-      return this.update.state == "applied" || 
+      return this.update.state == "applied" ||
              this.update.state == "applied-service";
     }
     return this.um.activeUpdate &&
@@ -346,7 +346,7 @@ appUpdater.prototype =
           unsupportedLink.href = gAppUpdater.update.detailsURL;
         else
           unsupportedLink.setAttribute("hidden", true);
-        
+
         gAppUpdater.selectPanel("unsupportedSystem");
         return;
       }
@@ -510,7 +510,7 @@ appUpdater.prototype =
     this.aus.pauseDownload();
     let state = this.aus.downloadUpdate(this.update, false);
     if (state == "failed") {
-      this.selectPanel("downloadFailed");      
+      this.selectPanel("downloadFailed");
       return;
     }
 

@@ -73,7 +73,7 @@ let WinTaskbarJumpList = {
 
     // Win shell shortcut maintenance. If we've gone through an update,
     // this will update any pinned taskbar shortcuts. Not specific to
-    // jump lists, but this was a convienent place to call it. 
+    // jump lists, but this was a convienent place to call it.
     try {
       // dev builds may not have helper.exe, ignore failures.
       this._shortcutMaintenance();

@@ -112,7 +112,7 @@ function overlayOnLoad()
 
 function overlayRepositionDialog()
 {
-  // Position the dialog so it is fully visible on the screen  
+  // Position the dialog so it is fully visible on the screen
   // (if possible)
 
   // Seems to be necessary to get the correct dialog height/width
@@ -507,7 +507,7 @@ function openSavedFilesWnd()
 function SetBusyCursor(window, enable)
 {
     // setCursor() is only available for chrome windows.
-    // However one of our frames is the start page which 
+    // However one of our frames is the start page which
     // is a non-chrome window, so check if this window has a
     // setCursor method
     if ("setCursor" in window) {

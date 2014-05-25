@@ -11,7 +11,7 @@
 
 const kPhishWardenEnabledPref = "browser.safebrowsing.enabled";
 
-// We have hardcoded URLs that let people navigate to in order to 
+// We have hardcoded URLs that let people navigate to in order to
 // check out the warning.
 const kTestUrls = {
   "http://www.google.com/tools/firefox/safebrowsing/phish-o-rama.html": true,
@@ -21,7 +21,7 @@ const kTestUrls = {
 
 /**
  * Abtracts the checking of user/browser actions for signs of
- * phishing. 
+ * phishing.
  *
  * @param progressListener nsIDocNavStartProgressListener
  * @constructor
@@ -34,15 +34,15 @@ function PROT_PhishingWarden(progressListener) {
 
   // Use this to query preferences
   this.prefs_ = new G_Preferences();
-  
+
   // Global preference to enable the phishing warden
   this.phishWardenEnabled_ = this.prefs_.getPref(kPhishWardenEnabledPref, null);
 
   // Get notifications when the phishing warden enabled pref changes
-  var phishWardenPrefObserver = 
+  var phishWardenPrefObserver =
     BindToObject(this.onPhishWardenEnabledPrefChanged, this);
   this.prefs_.addObserver(kPhishWardenEnabledPref, phishWardenPrefObserver);
-  
+
   // Get notifications when the data provider pref changes
   var dataProviderPrefObserver =
     BindToObject(this.onDataProviderPrefChanged, this);
@@ -57,7 +57,7 @@ PROT_PhishingWarden.inherits(PROT_ListWarden);
  * We implement nsIWebProgressListener
  */
 PROT_PhishingWarden.prototype.QueryInterface = function(iid) {
-  if (iid.equals(Ci.nsISupports) || 
+  if (iid.equals(Ci.nsISupports) ||
       iid.equals(Ci.nsISupportsWeakReference))
     return this;
   throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -72,15 +72,15 @@ PROT_PhishingWarden.prototype.shutdown = function() {
 
 /**
  * When a preference (either advanced features or the phishwarden
- * enabled) changes, we might have to start or stop asking for updates. 
- * 
+ * enabled) changes, we might have to start or stop asking for updates.
+ *
  * This is a little tricky; we start or stop management only when we
  * have complete information we can use to determine whether we
  * should.  It could be the case that one pref or the other isn't set
  * yet (e.g., they haven't opted in/out of advanced features). So do
  * nothing unless we have both pref values -- we get notifications for
  * both, so eventually we will start correctly.
- */ 
+ */
 PROT_PhishingWarden.prototype.maybeToggleUpdateChecking = function() {
   if (this.testing_)
     return;
@@ -107,7 +107,7 @@ PROT_PhishingWarden.prototype.maybeToggleUpdateChecking = function() {
 }
 
 /**
- * Deal with a user changing the pref that says whether we should 
+ * Deal with a user changing the pref that says whether we should
  * enable the phishing warden (i.e., that SafeBrowsing is active)
  *
  * @param prefName Name of the pref holding the value indicating whether
@@ -129,7 +129,7 @@ PROT_PhishingWarden.prototype.onDataProviderPrefChanged = function(prefName) {
  * Indicates if this URL is one of the possible blacklist test URLs.
  * These test URLs should always be considered as phishy.
  *
- * @param url URL to check 
+ * @param url URL to check
  * @return A boolean indicating whether this is one of our blacklist
  *         test URLs
  */

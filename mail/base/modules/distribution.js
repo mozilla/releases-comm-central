@@ -56,7 +56,7 @@ var TBDistCustomizer = {
       while (keys.hasMore()) {
         let key = keys.getNext();
         try {
-          // Get the string value of the key 
+          // Get the string value of the key
           let value = eval(this._ini.getString("Preferences", key));
           // After determining what type it is, set the pref
           switch (typeof value) {
@@ -69,7 +69,7 @@ var TBDistCustomizer = {
           case "string":
             defaults.setCharPref(key, value);
             break;
-          case "undefined": 
+          case "undefined":
             // In case of custom pref created by partner
             defaults.setCharPref(key, value);
             break;
@@ -80,7 +80,7 @@ var TBDistCustomizer = {
       }
     }
 
-    // Set the prefs in the other sections 
+    // Set the prefs in the other sections
 
     // We eval() the localizable prefs as well (even though they'll
     // always get set as a string) to keep the INI format consistent:
@@ -88,7 +88,7 @@ var TBDistCustomizer = {
 
     let localizedStr = Cc["@mozilla.org/pref-localizedstring;1"]
                          .createInstance(Ci.nsIPrefLocalizedString);
-    
+
     if (sections["LocalizablePreferences"]) {
       let keys = this._ini.getKeys("LocalizablePreferences");
       while (keys.hasMore()) {
@@ -140,7 +140,7 @@ XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale",
     let locale;
     try {
       locale = Services.prefs.getCharPref("general.useragent.locale");
-    } 
+    }
     catch (e) {
       locale = "en-US";
     }

@@ -44,7 +44,7 @@ function setupModule(module) {
   subfolderA = inboxFolder.getChildNamed("smartFolderA");
   inboxFolder.createSubfolder("smartFolderB", null);
   subfolderB = inboxFolder.getChildNamed("smartFolderB");
-  
+
   // This is how folders are marked to match a custom smart folder
   subfolderA.setStringProperty("smartFolderName", smartParentNameA);
   subfolderB.setStringProperty("smartFolderName", smartParentNameB);
@@ -61,7 +61,7 @@ function setupModule(module) {
 function test_switch_to_smart_folder_mode() {
   mc.folderTreeView.mode = "smart";
   assert_folder_mode("smart");
-  
+
   smartFolderA = get_smart_folder_named(smartParentNameA);
   mc.folderTreeView.selectFolder(smartFolderA);
 }

@@ -14,11 +14,11 @@ function mailViewOnLoad()
   initializeMailViewOverrides();
   dialog = {};
 
-  if ("arguments" in window && window.arguments[0]) 
+  if ("arguments" in window && window.arguments[0])
   {
     var args = window.arguments[0];
-    if ("mailView" in args) 
-      gMailView = window.arguments[0].mailView; 
+    if ("mailView" in args)
+      gMailView = window.arguments[0].mailView;
     if ("onOkCallback" in args)
       dialog.okCallback =  window.arguments[0].onOkCallback;
   }
@@ -27,7 +27,7 @@ function mailViewOnLoad()
   dialog.nameField = document.getElementById("name");
   dialog.nameField.focus();
 
-  setSearchScope(nsMsgSearchScope.offlineMail);  
+  setSearchScope(nsMsgSearchScope.offlineMail);
 
   if (gMailView)
   {
@@ -36,7 +36,7 @@ function mailViewOnLoad()
   }
   else
     onMore(null);
- 
+
   doEnabling();
 }
 
@@ -48,7 +48,7 @@ function mailViewOnUnLoad()
 function onOK()
 {
   var mailViewList = Components.classes["@mozilla.org/messenger/mailviewlist;1"].getService(Components.interfaces.nsIMsgMailViewList);
-  
+
   // reflect the search widgets back into the search session
   var newMailView = null;
   if (gMailView)
@@ -58,9 +58,9 @@ function onOK()
     if (gMailView.prettyName != dialog.nameField.value)
       gMailView.mailViewName = dialog.nameField.value;
   }
-  else  
+  else
   {
-    // otherwise, create a new mail view 
+    // otherwise, create a new mail view
     newMailView = mailViewList.createMailView();
 
     saveSearchTerms(newMailView.searchTerms, newMailView);
@@ -68,9 +68,9 @@ function onOK()
     // now add the mail view to our mail view list
     mailViewList.addMailView(newMailView);
   }
-    
+
   mailViewList.save();
- 
+
   if (dialog.okCallback)
     dialog.okCallback(gMailView ? gMailView : newMailView);
 
@@ -86,7 +86,7 @@ function initializeMailViewOverrides()
   //andButton.setAttribute('label', 'All of the following');
   // matchAll doesn't make sense for views, since views are a single folder
   hideMatchAllItem();
-  
+
 }
 
 function UpdateAfterCustomHeaderChange()
@@ -96,11 +96,11 @@ function UpdateAfterCustomHeaderChange()
 
 function doEnabling()
 {
-  if (dialog.nameField.value) 
+  if (dialog.nameField.value)
   {
     if (dialog.OKButton.disabled)
       dialog.OKButton.disabled = false;
-  } else 
+  } else
   {
     if (!dialog.OKButton.disabled)
       dialog.OKButton.disabled = true;

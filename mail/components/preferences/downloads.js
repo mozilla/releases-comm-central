@@ -49,7 +49,7 @@ var gDownloadDirSection = {
   _indexToFile: function (aIndex)
   {
     switch (aIndex) {
-    case 0: 
+    case 0:
       return this._getDownloadsFolder("Desktop");
     case 1:
       return this._getDownloadsFolder("Downloads");
@@ -97,7 +97,7 @@ var gDownloadDirSection = {
     var customIndex = customDirPref.value ? this._fileToIndex(customDirPref.value) : 0;
     if (folderListPref.value == 0 || customIndex == 0)
       downloadFolder.label = bundlePreferences.getString("desktopFolderName");
-    else if (folderListPref.value == 1 || customIndex == 1) 
+    else if (folderListPref.value == 1 || customIndex == 1)
       downloadFolder.label = bundlePreferences.getString("myDownloadsFolderName");
     else
       downloadFolder.label = customDirPref.value ? customDirPref.value.path : "";

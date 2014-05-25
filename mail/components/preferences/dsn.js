@@ -18,23 +18,23 @@ var requestOnDelayPref;
 var requestNever;
 var requestNeverPref;
 
-function onInit() 
+function onInit()
 {
   requestAlways = document.getElementById("always_request_on");
   requestAlwaysPref = document.getElementById("mail.dsn.always_request_on");
-  
+
   requestOnSuccess = document.getElementById("request_on_success_on");
   requestOnSuccessPref = document.getElementById("mail.dsn.request_on_success_on");
-  
+
   requestOnFailure = document.getElementById("request_on_failure_on");
   requestOnFailurePref = document.getElementById("mail.dsn.request_on_failure_on");
-  
+
   requestOnDelay = document.getElementById("request_on_delay_on");
   requestOnDelayPref = document.getElementById("mail.dsn.request_on_delay_on");
-  
+
   requestNever = document.getElementById("request_never_on");
   requestNeverPref = document.getElementById("mail.dsn.request_never_on");
-  
+
   EnableDisableAllowedDSNRequests(new Object());
 
   return true;
@@ -50,7 +50,7 @@ function EnableDisableAllowedDSNRequests(target)
   // Case when the checkbox requestAlways must be enabled
   if (s || f || d || n) {
     requestAlways.disabled = false;
-  
+
   // Case when the checkbox requestAlways must be disabled
   } else if (!d && !n && !s && !f) {
     requestAlwaysPref.value = false;

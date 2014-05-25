@@ -1,28 +1,28 @@
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1/GPL 2.0/LGPL 2.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is Mozilla Corporation Code.
-// 
+//
 // The Initial Developer of the Original Code is
 // Adam Christian.
 // Portions created by the Initial Developer are Copyright (C) 2008
 // the Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //  Adam Christian <adam.christian@gmail.com>
 //  Mikeal Rogers <mikeal.rogers@gmail.com>
 //  Henrik Skupin <hskupin@mozilla.com>
-// 
+//
 // Alternatively, the contents of this file may be used under the terms of
 // either the GNU General Public License Version 2 or later (the "GPL"), or
 // the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -34,10 +34,10 @@
 // and other provisions required by the GPL or the LGPL. If you do not delete
 // the provisions above, a recipient may use your version of this file under
 // the terms of any one of the MPL, the GPL or the LGPL.
-// 
+//
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["openFile", "saveFile", "saveAsFile", "genBoiler", 
+var EXPORTED_SYMBOLS = ["openFile", "saveFile", "saveAsFile", "genBoiler",
                         "getFile", "Copy", "getChromeWindow", "getWindows", "runEditor",
                         "runFile", "getWindowByTitle", "getWindowByType", "getWindowId",
                         "tempfile", "getMethodInWindows", "getPreference", "setPreference",
@@ -145,7 +145,7 @@ var checkChrome = function() {
        loc = window.top.document.location.href;
    } catch (e) {}
 
-   if (/^chrome:\/\//.test(loc)) { return true; } 
+   if (/^chrome:\/\//.test(loc)) { return true; }
    else { return false; }
 }
 
@@ -181,7 +181,7 @@ var checkChrome = function() {
    paramObj.files = array;
    mozmill.MozMillController.commands.jsTests(paramObj);
  }*/
- 
+
  var runFile = function(w){
    //define the interface
    var nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -205,28 +205,28 @@ var checkChrome = function() {
      // jstest.runFromFile(thefile.path);
    }
  };
- 
+
  var saveFile = function(w, content, filename){
    //define the file interface
    var file = Components.classes["@mozilla.org/file/local;1"]
                         .createInstance(Components.interfaces.nsILocalFile);
    //point it at the file we want to get at
    file.initWithPath(filename);
-   
+
    // file is nsIFile, data is a string
    var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
                             .createInstance(Components.interfaces.nsIFileOutputStream);
 
    // use 0x02 | 0x10 to open file for appending.
-   foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0); 
+   foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0);
    // write, create, truncate
    // In a c file operation, we have no need to set file mode with or operation,
    // directly using "r" or "w" usually.
-   
+
    foStream.write(content, content.length);
    foStream.close();
  };
- 
+
   var saveAsFile = function(w, content){
      //define the interface
      var nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -239,7 +239,7 @@ var checkChrome = function() {
      //if we got a file
      if ((res == nsIFilePicker.returnOK) || (res == nsIFilePicker.returnReplace)){
        var thefile = fp.file;
-              
+
        //forcing the user to save as a .js file
        if (thefile.path.indexOf(".js") == -1){
          //define the file interface
@@ -249,13 +249,13 @@ var checkChrome = function() {
          file.initWithPath(thefile.path+".js");
          var thefile = file;
        }
-       
+
        // file is nsIFile, data is a string
        var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
                                .createInstance(Components.interfaces.nsIFileOutputStream);
 
        // use 0x02 | 0x10 to open file for appending.
-       foStream.init(thefile, 0x02 | 0x08 | 0x20, 0666, 0); 
+       foStream.init(thefile, 0x02 | 0x08 | 0x20, 0666, 0);
        // write, create, truncate
        // In a c file operation, we have no need to set file mode with or operation,
        // directly using "r" or "w" usually.
@@ -264,7 +264,7 @@ var checkChrome = function() {
        return thefile.path;
      }
   };
-  
+
  var openFile = function(w){
     //define the interface
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -280,7 +280,7 @@ var checkChrome = function() {
       //create the paramObj with a files array attrib
       var data = getFile(thefile.path);
       //w.document.getElementById('editorInput').value = data;
-      
+
       //Move focus to output tab
       //$('mmtabs').setAttribute("selectedIndex", 2);
       //send it into the JS test framework to run the file
@@ -289,7 +289,7 @@ var checkChrome = function() {
       return {path:thefile.path, data:data};
     }
   };
-  
+
  var getFile = function(path){
    //define the file interface
    var file = Components.classes["@mozilla.org/file/local;1"]
@@ -303,7 +303,7 @@ var checkChrome = function() {
    var sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
                            .createInstance(Components.interfaces.nsIScriptableInputStream);
    fstream.init(file, -1, 0, 0);
-   sstream.init(fstream); 
+   sstream.init(fstream);
 
    //pull the contents of the file out
    var str = sstream.read(4096);
@@ -318,7 +318,7 @@ var checkChrome = function() {
    //data = data.replace(/\r|\n|\r\n/g, "");
    return data;
  };
- 
+
 /**
  * Called to get the state of an individual preference.
  *
@@ -415,14 +415,14 @@ function assert(callback, message, thisObject) {
 
   return true;
 }
-	   
+
 /**
  * Unwraps a node which is wrapped into a XPCNativeWrapper or XrayWrapper
  *
  * @param {DOMnode} Wrapped DOM node
  * @returns {DOMNode} Unwrapped DOM node
  */
-	   
+
 function unwrapNode(aNode) {
   var node = aNode;
   if (node) {
@@ -436,7 +436,7 @@ function unwrapNode(aNode) {
   }
   return node;
 }
-	   
+
 
 /**
  * TimeoutError
@@ -500,7 +500,7 @@ function waitForEval(expression, timeout, interval, subject) {
 }
 
 
- // 
+ //
  // //Function to start the running of jsTests
  // var jsTests = function (paramObj) {
  //     //Setup needed variables
@@ -512,16 +512,16 @@ function waitForEval(expression, timeout, interval, subject) {
  //     }
  //     var _j = mozmill.jsTest;
  //     //mozmill.MozMillController.stopLoop();
- // 
+ //
  //     //Timing the suite
  //     var jsSuiteSummary = new TimeObj();
  //     jsSuiteSummary.setName('jsSummary');
  //     jsSuiteSummary.startTime();
  //     _j.jsSuiteSummary = jsSuiteSummary;
- // 
+ //
  //     _j.run(paramObj);
  // };
- // 
+ //
  // //Commands function to hande the test results of the js tests
  // var jsTestResults = function () {
  //   var _j = mozmill.jsTest;
@@ -541,10 +541,10 @@ function waitForEval(expression, timeout, interval, subject) {
  //       s += msg + '<br/>';
  //     }
  //   };
- // 
+ //
  //   jsSuiteSummary.endTime();
  //   var result = !(_j.testFailureCount > 0);
- // 
+ //
  //   if (result){
  //      mozmill.results.writeResult(s, 'lightgreen');
  //    }
@@ -558,4 +558,4 @@ function waitForEval(expression, timeout, interval, subject) {
  //   //mozmill.jsTest.sendJSReport(method, result, null, jsSuiteSummary);
  //   // Fire the polling loop back up
  //   //mozmill.MozMillController.continueLoop();
- // }; 
+ // };

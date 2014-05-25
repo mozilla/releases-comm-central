@@ -27,7 +27,7 @@ function setupModule(module) {
 
   folder = create_folder("viewsource");
 
-  // Bug 805374 removed the charsetMenu from view source. 
+  // Bug 805374 removed the charsetMenu from view source.
   // Enable this test again when bug 940907 is fixed.
   test_view_source_reload.__force_skip__ = true;
 
@@ -97,7 +97,7 @@ function test_view_source_reload() {
 
   source = vsc.e("content").contentDocument.querySelector("pre").textContent;
   if (!source.contains(contentUTF8))
-    throw new Error("View source didn't contain the utf-8 text;\n" + 
+    throw new Error("View source didn't contain the utf-8 text;\n" +
                     contentUTF8 + "\n" + source);
 
   close_window(vsc);

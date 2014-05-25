@@ -51,7 +51,7 @@ function initializeForEditing(aTagKey)
 }
 
 /**
- * on OK handler for editing a new tag. 
+ * on OK handler for editing a new tag.
  */
 function onOKEditTag()
 {
@@ -76,7 +76,7 @@ function onOKEditTag()
 }
 
 /**
- * on OK handler for creating a new tag. Alerts the user if a tag with 
+ * on OK handler for creating a new tag. Alerts the user if a tag with
  * the name already exists.
  */
 function onOKNewTag()

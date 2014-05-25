@@ -454,7 +454,7 @@ function AddSubFoldersToURI(folder)
  *  folder body may be searched, we ignore whether autosync is enabled,
  *  figuring that after the user manually syncs, they would still expect that
  *  body searches would work.
- *  
+ *
  * The available search capabilities also depend on whether the user is
  *  currently online or offline. Although that is also checked by the server,
  *  we do it ourselves because we have a more complex response to offline
@@ -488,7 +488,7 @@ function GetScopeForFolder(folder)
     case "news":
       // News has four offline scopes, depending on whether junk and body
       // are available.
-      let hasJunk = 
+      let hasJunk =
         folder.getInheritedStringProperty("dobayes.mailnews@mozilla.org#junk")
                == "true";
       if (hasJunk && hasBody)

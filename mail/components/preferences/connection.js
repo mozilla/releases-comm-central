@@ -105,7 +105,7 @@ var gConnectionsDialog = {
       var proxyServerURLPref = document.getElementById("network.proxy." + proxyPrefs[i]);
       var proxyPortPref = document.getElementById("network.proxy." + proxyPrefs[i] + "_port");
 
-      // Restore previous per-proxy custom settings, if present. 
+      // Restore previous per-proxy custom settings, if present.
       if (!shareProxiesPref.value) {
         var backupServerURLPref = document.getElementById("network.proxy.backup." + proxyPrefs[i]);
         var backupPortPref = document.getElementById("network.proxy.backup." + proxyPrefs[i] + "_port");
@@ -134,7 +134,7 @@ var gConnectionsDialog = {
   {
     var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
     if (shareProxiesPref.value) {
-      var pref = document.getElementById("network.proxy.http" + (aIsPort ? "_port" : ""));    
+      var pref = document.getElementById("network.proxy.http" + (aIsPort ? "_port" : ""));
       return pref.value;
     }
 

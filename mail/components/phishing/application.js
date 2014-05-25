@@ -11,7 +11,7 @@ var gDataProvider = null;
 
 /**
  * An instance of our application. There should be exactly one of these.
- * 
+ *
  * Note: This object should instantiated only at profile-after-change
  * or later because the listmanager and the cryptokeymanager need to
  * read and write data files. Additionally, NSS isn't loaded until
@@ -21,7 +21,7 @@ var gDataProvider = null;
  */
 function PROT_Application() {
   this.debugZone= "application";
-  
+
   this.PROT_PhishingWarden = PROT_PhishingWarden;
 
   // Load data provider pref values

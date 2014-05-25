@@ -1,7 +1,7 @@
 
-var elementslib = {}; 
+var elementslib = {};
 Components.utils.import('resource://mozmill/modules/elementslib.js', elementslib);
-var mozmill = {}; 
+var mozmill = {};
 Components.utils.import('resource://mozmill/modules/mozmill.js', mozmill);
 
 var test_assert = function(){
@@ -15,7 +15,7 @@ var test_assert = function(){
  controller.type(new elementslib.Name(controller.window.content.document, 'q'), 'Mozilla Summit');
  controller.click(new elementslib.Name(controller.window.content.document, 'btnG'));
  controller.sleep(2000);
- 
+
  // chrome
  controller.assertNode(new elementslib.ID(controller.window.document, 'searchbar'));
  controller.type(new elementslib.ID(controller.window.document, 'searchbar'), 'Mozilla Summit');

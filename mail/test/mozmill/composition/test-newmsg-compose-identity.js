@@ -74,7 +74,7 @@ function test_compose_from_composer() {
   let identityList = mainCompWin.e("msgIdentity");
   identityList.selectedIndex++;
   checkCompIdentity(mainCompWin, identity2Email);
-  
+
   // Compose a second new message from the compose window.
   plan_for_new_window("msgcompose");
   mainCompWin.keypress(null, "n", {shiftKey: false, accelKey: true});

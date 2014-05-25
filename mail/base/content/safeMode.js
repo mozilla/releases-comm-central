@@ -62,7 +62,7 @@ function onLoad() {
 }
 
 function updateOKButtonState() {
-  document.documentElement.getButton("accept").disabled = 
+  document.documentElement.getButton("accept").disabled =
     !document.getElementById("resetToolbars").checked &&
     !document.getElementById("disableAddons").checked;
 }

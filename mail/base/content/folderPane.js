@@ -249,7 +249,7 @@ let gFolderTreeView = {
     if (this._mode == aCommonName)
       this.mode = kDefaultMode;
   },
-  
+
   /**
    * Retrieves a specific mode object
    * @param aCommonName  the common-name with which the mode was previously

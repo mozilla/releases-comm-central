@@ -166,7 +166,7 @@ function refresh(aArguments)
 }
 
 /**
- * Called when a user selects a folder in the list, so we can update the 
+ * Called when a user selects a folder in the list, so we can update the
  * filters that are displayed
  * note the function name 'onFilterFolderClick' is misleading, it would be
  * better named 'onServerSelect' => file follow up bug later.
@@ -403,7 +403,7 @@ function onBottom(evt) {
 }
 
 /**
- * Moves a singular selected filter up or down either 1 increment or to the 
+ * Moves a singular selected filter up or down either 1 increment or to the
  * top/bottom. This acts on the visible filter list only which means that:
  *
  * - when moving up or down "1" the filter may skip one or more other

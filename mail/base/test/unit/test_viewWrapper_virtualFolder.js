@@ -379,7 +379,7 @@ function test_virtual_folder_mail_new_handling() {
 
   if (!folder.hasNewMessages)
     do_throw("folder should have new messages!");
-  
+
   viewWrapper.close();
   folder.msgDatabase = null;
   folder.clearNewMessages();

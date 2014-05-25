@@ -1,28 +1,28 @@
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1/GPL 2.0/LGPL 2.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is Mozilla Corporation Code.
-// 
+//
 // The Initial Developer of the Original Code is
 // Adam Christian.
 // Portions created by the Initial Developer are Copyright (C) 2008
 // the Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //  Adam Christian <adam.christian@gmail.com>
 //  Mikeal Rogers <mikeal.rogers@gmail.com>
 //  Henrik Skupin <hskupin@mozilla.com>
-// 
+//
 // Alternatively, the contents of this file may be used under the terms of
 // either the GNU General Public License Version 2 or later (the "GPL"), or
 // the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -34,12 +34,12 @@
 // and other provisions required by the GPL or the LGPL. If you do not delete
 // the provisions above, a recipient may use your version of this file under
 // the terms of any one of the MPL, the GPL or the LGPL.
-// 
+//
 // ***** END LICENSE BLOCK *****
 
 var EXPORTED_SYMBOLS = ["createEventObject", "triggerEvent", "getKeyCodeFromKeySequence",
                         "triggerKeyEvent", "triggerMouseEvent", "fakeOpenPopup"];
-                        
+
 var EventUtils = {}; Components.utils.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
 
 var utils = {}; Components.utils.import('resource://mozmill/modules/utils.js', utils);
@@ -70,7 +70,7 @@ function fakeOpenPopup(aWindow, aPopup) {
   popupEvent.initMouseEvent("popupshowing", true, true, aWindow, 0,
                             0, 0, 0, 0, false, false, false, false,
                             0, null);
-  aPopup.dispatchEvent(popupEvent);  
+  aPopup.dispatchEvent(popupEvent);
 }
 
     /* Fire an event in a browser-compatible manner */
@@ -89,7 +89,7 @@ var triggerEvent = function(element, eventType, canBubble, controlKeyDown, altKe
 };
 
 var getKeyCodeFromKeySequence = function(keySequence) {
-  
+
   var match = /^\\(\d{1,3})$/.exec(keySequence);
   if (match != null) {
       return match[1];
@@ -152,7 +152,7 @@ var triggerKeyEvent = function(element, eventType, aKey, modifiers, expectedEven
 
     /* Fire a mouse event in a browser-compatible manner */
 var triggerMouseEvent = function(element, eventType, canBubble, clientX, clientY, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown) {
-  
+
   clientX = clientX ? clientX: 0;
   clientY = clientY ? clientY: 0;
 

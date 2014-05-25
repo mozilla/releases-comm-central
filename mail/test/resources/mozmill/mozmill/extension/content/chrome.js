@@ -24,7 +24,7 @@ function fillTooltip(tipElement) {
 
     var tipNode = document.getElementById("mozmill-tooltip");
     tipNode.style.direction = direction;
-  
+
     for each (var t in [titleText, XLinkTitleText]) {
       if (t && /\S/.test(t)) {
         // Per HTML 4.01 6.2 (CDATA section), literal CRs and tabs should be

@@ -11,6 +11,6 @@ var test = function () {
 
   controller.dragToElement(bar, box);
 
-  // successful drop makes bar disappear 
+  // successful drop makes bar disappear
   controller.assertNodeNotExist(bar);
 }

@@ -26,11 +26,11 @@ var testWaitForPageLoad = function() {
   for each (var location in LOCATIONS) {
     controller.open(location.url);
     controller.waitForPageLoad();
-  
+
     // Check that the expected element exists
     if (location.type) {
       var elem = null;
-  
+
       switch (location.type) {
         case "link":
           elem = new elementslib.Link(controller.tabs.activeTab, location.value);
@@ -43,18 +43,18 @@ var testWaitForPageLoad = function() {
           break;
         default:
       }
-  
+
       controller.assertNode(elem);
     }
   }
-  
+
   /**
    * PART II - Test different parameter sets
-   */ 
+   */
   var location = LOCATIONS[0];
   for (var i = 0; i < 7; i++) {
     controller.open(location.url);
-  
+
     switch (i) {
       case 0:
         controller.waitForPageLoad(controller.tabs.activeTab);
@@ -79,20 +79,20 @@ var testWaitForPageLoad = function() {
         break;
     }
   }
-  
+
   /**
    * PART III - Check that we correctly handle timeouts for waitForPageLoad
    */
   try {
     controller.open(LOCATIONS[0].url);
     controller.waitForPageLoad(0);
-  
+
     throw new Error("controller.waitForPageLoad() not timed out for timeout=0.");
   } catch (ex) {}
 
   /**
    * PART IV - Make sure we don't fail when clicking links on a page
-   */ 
+   */
   controller.open("http://www.mozilla.org");
   controller.waitForPageLoad();
 

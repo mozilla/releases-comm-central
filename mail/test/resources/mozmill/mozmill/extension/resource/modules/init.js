@@ -1,28 +1,28 @@
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
+ *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
- * 
+ *
  * The Original Code is Mozilla Corporation Code.
- * 
+ *
  * The Initial Developer of the Original Code is
  * Adam Christian.
  * Portions created by the Initial Developer are Copyright (C) 2008
  * the Initial Developer. All Rights Reserved.
- * 
+ *
  * Contributor(s):
  *  Adam Christian <adam.christian@gmail.com>
  *  Mikeal Rogers <mikeal.rogers@gmail.com>
  *  Henrik Skupin <hskupin@mozilla.com>
- * 
+ *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -34,11 +34,11 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
 
 var EXPORTED_SYMBOLS = ["mozmill"];
-  
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
@@ -70,7 +70,7 @@ var windowCloseObserver = {
 function attachEventListeners(aWindow) {
   aWindow.addEventListener("load", function (event) {
     controller.windowMap.update(utils.getWindowId(aWindow), "loaded", true);
- 
+
     if ("gBrowser" in aWindow) {
       // Page is ready
       aWindow.gBrowser.addEventListener("load", function (event) {
@@ -83,7 +83,7 @@ function attachEventListeners(aWindow) {
           // dump("*** load event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
         }
       }, true);
- 
+
       // Note: Error pages will never fire a "load" event. For those we
       // have to wait for the "DOMContentLoaded" event. That's the final state.
       // Error pages will always have a baseURI starting with
@@ -104,7 +104,7 @@ function attachEventListeners(aWindow) {
           }
         }
       }, true);
-  
+
       // Page is about to get unloaded
       aWindow.gBrowser.addEventListener("beforeunload", function (event) {
         var doc = event.originalTarget;
@@ -119,7 +119,7 @@ function attachEventListeners(aWindow) {
     }
   }, false);
 }
-  
+
 /**
  * Initialize Mozmill
  */

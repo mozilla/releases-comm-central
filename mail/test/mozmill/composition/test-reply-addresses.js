@@ -842,7 +842,7 @@ function testReplyToOtherIdentity() {
     open_compose_with_reply_to_all,
     // To: from + to (except me2)
     // Cc: original Cc
-    // 
+    //
     {
       "addr_to": ["secretary@example.com", "barney@example.com"],
       "addr_cc": ["Lisa <lisa@example.com>"]

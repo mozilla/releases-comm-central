@@ -117,7 +117,7 @@ function test_between_tab_and_single_message() {
 
   switch_tab();
   assert_equals(mc.e("messagepane"), get_focused_pane());
-  
+
   switch_tab(tab);
   assert_equals(mc.e("messagepane"), get_focused_pane());
 
@@ -126,7 +126,7 @@ function test_between_tab_and_single_message() {
 
   // Now, focus the folder tree and make sure focus updates properly.
   mc.e("folderTree").focus();
-  
+
   switch_tab(tab);
   assert_equals(mc.e("messagepane"), get_focused_pane());
 
@@ -152,7 +152,7 @@ function test_between_tab_and_multi_message() {
 
   switch_tab();
   assert_equals(mc.e("multimessage"), get_focused_pane());
-  
+
   switch_tab(tab);
   assert_equals(mc.e("messagepane"), get_focused_pane());
 
@@ -161,7 +161,7 @@ function test_between_tab_and_multi_message() {
 
   // Now, focus the folder tree and make sure focus updates properly.
   mc.e("folderTree").focus();
-  
+
   switch_tab(tab);
   assert_equals(mc.e("messagepane"), get_focused_pane());
 

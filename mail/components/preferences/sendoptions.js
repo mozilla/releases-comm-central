@@ -12,14 +12,14 @@ var gSendOptionsDialog = {
 
   init: function ()
   {
-    this.mPrefsBundle = document.getElementById('bundlePreferences'); 
+    this.mPrefsBundle = document.getElementById('bundlePreferences');
     this.mHTMLListBox = document.getElementById('html_domains');
     this.mPlainTextListBox = document.getElementById('plaintext_domains');
 
     var htmlDomainPrefString = document.getElementById('mailnews.html_domains').value;
-    this.loadDomains(document.getElementById('mailnews.html_domains').value, 
+    this.loadDomains(document.getElementById('mailnews.html_domains').value,
                      this.mHTMLListBox);
-    this.loadDomains(document.getElementById('mailnews.plaintext_domains').value, 
+    this.loadDomains(document.getElementById('mailnews.plaintext_domains').value,
                      this.mPlainTextListBox);
   },
 
@@ -29,10 +29,10 @@ var gSendOptionsDialog = {
     var num_domains = 0;
     var pref_string = "";
 
-    for (var item = listbox.firstChild; item != null; item = item.nextSibling) 
+    for (var item = listbox.firstChild; item != null; item = item.nextSibling)
     {
       var domainid = item.getAttribute('label');
-      if (domainid.length > 1) 
+      if (domainid.length > 1)
       {
         num_domains++;
 
@@ -43,7 +43,7 @@ var gSendOptionsDialog = {
           pref_string = domainid;
       }
     }
-    
+
     return pref_string;
   },
 
@@ -51,7 +51,7 @@ var gSendOptionsDialog = {
   {
     var arrayOfPrefs = aPrefString.split(',');
     if (arrayOfPrefs)
-      for (var i = 0; i < arrayOfPrefs.length; i++) 
+      for (var i = 0; i < arrayOfPrefs.length; i++)
       {
         var str = arrayOfPrefs[i].replace(/ /g,"");
         if (str)
@@ -65,7 +65,7 @@ var gSendOptionsDialog = {
 
     var currentIndex = listbox.currentIndex;
 
-    while (listbox.selectedItems.length > 0) 
+    while (listbox.selectedItems.length > 0)
       listbox.selectedItems[0].remove();
 
     document.getElementById('SendOptionsDialogPane').userChangedValue(listbox);

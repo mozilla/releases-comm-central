@@ -35,7 +35,7 @@ function PROT_DataProvider() {
   this.prefs_ = new G_Preferences();
 
   this.loadDataProviderPrefs_();
-  
+
   // Watch for changes in the data provider and update accordingly.
   this.prefs_.addObserver(kDataProviderIdPref,
                           BindToObject(this.loadDataProviderPrefs_, this));
@@ -60,7 +60,7 @@ PROT_DataProvider.prototype.loadDataProviderPrefs_ = function() {
   // default to 0
   if (null == id)
     id = 0;
-  
+
   var basePref = kProviderBasePref + id + '.';
 
   this.name_ = this.prefs_.getPref(basePref + "name", "");

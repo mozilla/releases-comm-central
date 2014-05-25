@@ -73,7 +73,7 @@ function populateCrashesSection() {
 /**
  * Returns a plaintext representation of extension data.
  */
- 
+
 function getCrashesText(aIndent) {
   let crashesData = "";
   let recentCrashesSubmitted = document.querySelectorAll("#crashes-tbody > tr");

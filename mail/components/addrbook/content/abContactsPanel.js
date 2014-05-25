@@ -37,14 +37,14 @@ function addSelectedAddresses(recipientType)
 {
   var cards = GetSelectedAbCards();
   var count = cards.length;
- 
 
-  for (var i = 0; i < count; i++) 
+
+  for (var i = 0; i < count; i++)
   {
-    // turn each card into a properly formatted address 
+    // turn each card into a properly formatted address
     var address = GenerateAddressFromCard(cards[i]);
     if (address != "")
-      parent.AddRecipient(recipientType, address);     
+      parent.AddRecipient(recipientType, address);
   }
 }
 
@@ -53,7 +53,7 @@ function AddressBookMenuListChange()
   var searchInput = document.getElementById("peopleSearchInput");
   if (searchInput.value && !searchInput.showingSearchCriteria)
     onEnterInSearchBar();
-  else 
+  else
     ChangeDirectoryByURI(document.getElementById('addressbookList').value);
 }
 
@@ -68,7 +68,7 @@ function AbPanelOnComposerReOpen()
   SetAbView(GetSelectedDirectory());
 }
 
-function AbPanelLoad() 
+function AbPanelLoad()
 {
   InitCommonJS();
 
@@ -98,33 +98,33 @@ function AbPanelUnload()
   CloseAbView();
 }
 
-function AbPanelNewCard() 
+function AbPanelNewCard()
 {
   goNewCardDialog(abList.value);
 }
 
-function AbPanelNewList() 
+function AbPanelNewList()
 {
   goNewListDialog(abList.value);
 }
 
-function ResultsPaneSelectionChanged() 
+function ResultsPaneSelectionChanged()
 {
   // do nothing for ab panel
 }
 
-function OnClickedCard() 
+function OnClickedCard()
 {
   // do nothing for ab panel
 }
 
-function AbResultsPaneDoubleClick(card) 
+function AbResultsPaneDoubleClick(card)
 {
   // double click for ab panel means "send mail to this person / list"
   AbNewMessage();
 }
 
-function UpdateCardView() 
+function UpdateCardView()
 {
   // do nothing for ab panel
 }

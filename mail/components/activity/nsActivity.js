@@ -308,11 +308,11 @@ nsActivityWarning.prototype = {
 
   //////////////////////////////////////////////////////////////////////////////
   //// nsIActivityWarning
-  
+
   recoveryTipText: "",
   _time: 0,
   _recoveryHandler: null,
-  
+
   init: function(aWarningText, aInitiator, aRecoveryTipText) {
     this.displayText = aWarningText;
     this.initiator = aInitiator;

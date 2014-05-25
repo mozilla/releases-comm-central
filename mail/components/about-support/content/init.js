@@ -70,7 +70,7 @@ window.onload = function () {
   populateGraphicsSection();
   populateJavaScriptSection();
   populateAccessibilitySection();
-  populateLibVersionsSection();  
+  populateLibVersionsSection();
 }
 
 function onShowPrivateDataChange(aCheckbox) {

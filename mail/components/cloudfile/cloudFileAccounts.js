@@ -57,7 +57,7 @@ var cloudFileAccounts = {
     // Pick a unique account key (TODO: this is a dumb way to do it, probably)
     let existingKeys = this._accountKeys;
     for (let n = 1; ; n++) {
-  
+
       if (existingKeys.indexOf("account" + n) == -1)
         return "account" + n;
     }

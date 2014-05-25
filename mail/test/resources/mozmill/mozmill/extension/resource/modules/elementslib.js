@@ -1,27 +1,27 @@
 // ***** BEGIN LICENSE BLOCK *****// ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1/GPL 2.0/LGPL 2.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is Mozilla Corporation Code.
-// 
+//
 // The Initial Developer of the Original Code is
 // Adam Christian.
 // Portions created by the Initial Developer are Copyright (C) 2008
 // the Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //  Adam Christian <adam.christian@gmail.com>
 //  Mikeal Rogers <mikeal.rogers@gmail.com>
-// 
+//
 // Alternatively, the contents of this file may be used under the terms of
 // either the GNU General Public License Version 2 or later (the "GPL"), or
 // the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -33,7 +33,7 @@
 // and other provisions required by the GPL or the LGPL. If you do not delete
 // the provisions above, a recipient may use your version of this file under
 // the terms of any one of the MPL, the GPL or the LGPL.
-// 
+//
 // ***** END LICENSE BLOCK *****
 
 var EXPORTED_SYMBOLS = ["Elem", "ID", "Link", "XPath", "Selector", "Name", "Anon", "AnonXPath",
@@ -63,7 +63,7 @@ var countQuotes = function(str){
   return count;
 }
 var smartSplit = function (str) {
-  // Note: I would love it if someone good with regular expressions 
+  // Note: I would love it if someone good with regular expressions
   // could just replace this function with a good regex
 
   // Ensure we have an even number of quotes
@@ -78,7 +78,7 @@ var smartSplit = function (str) {
     str = str.replace(s, '%$^'+repls.length);
     repls.push(s)
   }
-  
+
   var split = str.split('/');
   var rindex = 0;
   for (var i in split) {
@@ -114,7 +114,7 @@ ElemBase.prototype.nodeSearch = function(doc, func, string) {
        element = func.call(win, string);
      }
      catch(err) { }
-     
+
       if (!element || (element.length == 0)) {
         var frames = win.frames;
         for (var i=0; i < frames.length; i++) {
@@ -123,9 +123,9 @@ ElemBase.prototype.nodeSearch = function(doc, func, string) {
      }
      else { e = element; }
     };
-    
+
     search(win, func, string);
-    
+
     return e;
 }
 
@@ -205,17 +205,17 @@ Link.prototype.getNodeForDocument = function (linkName) {
             var child = el.childNodes.item(i);
             text += getText(child);
         }
-        if (el.tagName == "P" || el.tagName == "BR" || 
+        if (el.tagName == "P" || el.tagName == "BR" ||
           el.tagName == "HR" || el.tagName == "DIV") {
           text += "n";
         }
     }
     return text;
   }
-  
+
   //sometimes the windows won't have this function
   try { var links = this.document.getElementsByTagName('a'); }
-  catch(err){ // ADD LOG LINE mresults.write('Error: '+ err, 'lightred'); 
+  catch(err){ // ADD LOG LINE mresults.write('Error: '+ err, 'lightred');
   }
   for (var i = 0; i < links.length; i++) {
     var el = links[i];
@@ -366,14 +366,14 @@ var _byAttrib = function (parent, attributes) {
 }
 var _byAnonAttrib = function (_document, parent, attributes) {
   var results = [];
-  
+
   if (objects.getLength(attributes) == 1) {
     for (var i in attributes) {var k = i; var v = attributes[i]; }
     var result = _document.getAnonymousElementByAttribute(parent, k, v)
     if (result) {
       return result;
-      
-    } 
+
+    }
   }
   var nodes = [n for each (n in _document.getAnonymousNodes(parent)) if (n.getAttribute)];
   function resultsForNodes (nodes) {
@@ -391,8 +391,8 @@ var _byAnonAttrib = function (_document, parent, attributes) {
         results.push(n);
       }
     }
-  }  
-  resultsForNodes(nodes)  
+  }
+  resultsForNodes(nodes)
   if (results.length == 0) {
     resultsForNodes([n for each (n in parent.childNodes) if (n != undefined && n.getAttribute)])
   }
@@ -412,7 +412,7 @@ var _anonByIndex = function (_document, parent, i) {
 }
 
 Lookup.prototype.getInfo = function () {
-  return "Lookup: "+ this.expression; 
+  return "Lookup: "+ this.expression;
 }
 Lookup.prototype.exists = function () {
   try {
@@ -434,7 +434,7 @@ Lookup.prototype.getNode = function () {
   var reduceLookup = function (parent, exp) {
     // Handle case where only index is provided
     var cases = nCases;
-    
+
     // Handle ending index before any of the expression gets mangled
     if (withs.endsWith(exp, ']')) {
       var expIndex = json2.JSON.parse(strings.vslice(exp, '[', ']'));
@@ -456,7 +456,7 @@ Lookup.prototype.getNode = function () {
       }
       return r;
     }
-    
+
     for (var c in cases) {
       if (withs.startsWith(exp, c)) {
         try {
@@ -467,7 +467,7 @@ Lookup.prototype.getNode = function () {
         var result = cases[c](_document, parent, obj);
       }
     }
-    
+
     if (!result) {
       if ( withs.startsWith(exp, '{') ) {
         try {
@@ -475,7 +475,7 @@ Lookup.prototype.getNode = function () {
         } catch(err) {
           throw new Error(err+'. String to be parsed was || '+exp+' ||');
         }
-        
+
         if (cases == aCases) {
           var result = _anonByAttrib(_document, parent, obj)
         } else {
@@ -486,7 +486,7 @@ Lookup.prototype.getNode = function () {
         throw new Error('Expression "'+exp+'" returned null. Anonymous == '+(cases == aCases));
       }
     }
-    
+
     // Final return
     if (expIndex) {
       // TODO: Check length and raise error
