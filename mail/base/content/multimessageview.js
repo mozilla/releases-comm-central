@@ -47,25 +47,6 @@ function loadSelectionSummaryStrings() {
 }
 
 /**
- * Adjust the position of the top of the main content so that it fits below the
- * heading.
- */
-function adjustHeadingSize() {
-  let content = document.getElementById("content");
-  let heading = document.getElementById("heading");
-  let buttonbox = document.getElementById("header-view-toolbox");
-
-  content.style.top = Math.max(
-    buttonbox.getBoundingClientRect().height,
-    heading.getBoundingClientRect().height
-  ) + "px";
-}
-
-// We also need to hook into the resize event on the header to make the
-// #content node shift down as it reflows.
-window.addEventListener("resize", adjustHeadingSize);
-
-/**
  * Format the display name for the multi-message/thread summaries. First, try
  * using FormatDisplayName, then fall back to the header's display name or the
  * address.
@@ -95,155 +76,130 @@ function _mm_FormatDisplayName(aHeaderParser, aHeaderValue, aContext) {
 
 /**
  * The MultiMessageSummary class is responsible for populating the message pane
- * with a reasonable summary of a set of messages that span more than one
- * thread.
- *
- * It uses the same multimessage iframe as ThreadSummary, so both it and
- * ThreadSummary should be careful to clean up the other's work before
- * inserting their DOM nodes into the frame.
- *
- * There's a two phase process: build the framework based on what's available
- * from the msgHdr itself, and then spawn an aysnc Gloda query which will
- * fetch the snippets, tags, etc.
- *
- * @param aMessages   Array of message headers.
- * @param [aListener] An optional listener that implements onLoadStarted and
- *                    onLoadCompleted.
+ * with a reasonable summary of a set of messages.
  */
-function MultiMessageSummary(aMessages, aListener) {
-  this._msgHdrs = aMessages;
-  this._listener = aListener;
-  this._glodaQueries = [];
-  this._msgNodes = {};
+function MultiMessageSummary() {
+  this._summarizers = {};
 
-  // Ensure the summary selection strings are loaded.
-  loadSelectionSummaryStrings();
+  // Hook into the resize event on the header to make the #content node shift
+  // down as it reflows.
+  window.addEventListener("resize", this._adjustHeadingSize.bind(this));
 }
 
 MultiMessageSummary.prototype = {
   /**
-   * The maximum number of messages to summarize.
-   */
-  kMaxMessages: 100,
-
-  /**
-   * The length of message snippets to fetch from Gloda.
-   */
-  kSnippetLength: 300,
-
-  /**
-   * Given a msgHdr, return a list of tag objects. This function just does the
-   * messy work of understanding how tags are stored in nsIMsgDBHdrs.  It would
-   * be a good candidate for a utility library.
+   * Register a summarizer for a particular type of message summary.
    *
-   * @param aMsgHdr The msgHdr whose tags we want.
-   * @return An array of nsIMsgTag objects.
+   * @param aSummarizer The summarizer object.
    */
-  getTagsForMsg: function(aMsgHdr) {
-    let keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
-    let allTags = MailServices.tags.getAllTags({});
-
-    return allTags.filter(function(tag) {
-      return keywords.has(tag.key);
-    });
+  registerSummarizer: function(aSummarizer) {
+    this._summarizers[aSummarizer.name] = aSummarizer;
+    aSummarizer.onregistered(this);
   },
 
   /**
-   * Fill in the summary pane describing the selected messages
+   * Store a mapping from a message header to the summary node in the DOM. We
+   * use this to update things when Gloda tells us to.
+   *
+   * @param aMsgHdr The nsIMsgDBHdr.
+   * @param aNode   The related DOM node.
    */
-  summarize: function() {
-    if (this._listener)
-      this._listener.onLoadStarted();
+  mapMsgToNode: function(aMsgHdr, aNode) {
+    let key = aMsgHdr.messageKey + aMsgHdr.folder.URI;
+    this._msgNodes[key] = aNode;
+  },
+
+  /**
+   * Clear all the content from the summary.
+   */
+  clear: function() {
+    // Ensure the summary selection strings are loaded.
+    loadSelectionSummaryStrings();
+
+    this._listener = null;
+    this._glodaQuery = null;
+    this._msgNodes = {};
 
     // Clear the messages list.
-    let messagesElt = document.getElementById("messagelist");
-    while (messagesElt.hasChildNodes())
-      messagesElt.lastChild.remove();
+    let messageList = document.getElementById("message_list");
+    while (messageList.hasChildNodes())
+      messageList.lastChild.remove();
+
+    // Clear the notice.
+    let notice = document.getElementById("notice");
+    notice.classList.add("hidden");
+  },
+
+  /**
+   * Fill in the summary pane describing the selected messages.
+   *
+   * @param aType       The type of summary to perform (e.g. 'multimessage').
+   * @param aMessages   The messages to summarize.
+   * @param [aListener] A listener to be notified when the summary starts and
+   *                    finishes.
+   */
+  summarize: function(aType, aMessages, aListener) {
+    this.clear();
+
+    this._listener = aListener;
+    if (this._listener)
+      this._listener.onLoadStarted();
 
     // Enable/disable the archive button as appropriate.
     let archiveBtn = document.getElementById("hdrArchiveButton");
     archiveBtn.collapsed = !global.gFolderDisplay.canArchiveSelectedMessages;
 
-    // First, we group the messages in threads and count the threads. We want
-    // the view's version of threading, not the database's version, in order to
-    // thread together cross-folder messages. XXX: This falls apart for group
-    // by sort; what we really want is a way to specify only the cross-folder
-    // view.
-    let threads = {};
-    let numThreads = 0;
-    for (let [,msgHdr] in Iterator(this._msgHdrs)) {
-      let viewThreadId = global.gFolderDisplay.view.dbView
-                               .getThreadContainingMsgHdr(msgHdr)
-                               .threadKey;
-      if (!(viewThreadId in threads)) {
-        threads[viewThreadId] = [msgHdr];
-        numThreads++;
-      } else {
-        threads[viewThreadId].push(msgHdr);
-      }
-    }
-
-    // Set the heading based on the number of messages & threads.
-    let heading = document.getElementById("heading");
-    heading.classList.add("heading", "info");
-
-    let messagesTitle = PluralForm.get(
-      numThreads, gSelectionSummaryStrings["NConversations"]
-    ).replace("#1", numThreads);
-
-    heading.textContent = messagesTitle;
-
-    let count = 0;
-    let maxCountExceeded = false;
-
-    for (let [thread, msgs] in Iterator(threads)) {
-      count += msgs.length;
-      if (count > this.kMaxMessages) {
-        maxCountExceeded = true;
-        break;
-      }
-
-      let msgNode = this._makeSummaryItem(msgs, { showSubject: true });
-      messagesElt.appendChild(msgNode);
-
-      for (let msgHdr of msgs) {
-        let key = msgHdr.messageKey + msgHdr.folder.URI;
-        this._msgNodes[key] = msgNode;
-      }
-    }
+    let summarizer = this._summarizers[aType];
+    if (!summarizer)
+      throw new Error('Unknown summarizer "' + aType + '"');
+    summarizer.summarize(aMessages);
 
     // Stash somewhere so it doesn't get GC'ed.
-    this._glodaQueries.push(Gloda.getMessageCollectionForHeaders(
-      this._msgHdrs, this
-    ));
-    this.notifyMaxCountExceeded(this._msgHdrs.length, this.kMaxMessages);
+    this._glodaQuery = Gloda.getMessageCollectionForHeaders(
+      aMessages, this
+    );
+    this._computeSize(aMessages);
+  },
 
-    this.computeSize();
-    adjustHeadingSize();
+  /**
+   * Set the heading for the summary.
+   *
+   * @param title    The title for the heading.
+   * @param subtitle A smaller subtitle for the heading.
+   */
+  setHeading: function(title, subtitle) {
+    let titleNode = document.getElementById("summary_title");
+    let subtitleNode = document.getElementById("summary_subtitle");
+    titleNode.textContent = title || "";
+    subtitleNode.textContent = subtitle || "";
+
+    this._adjustHeadingSize();
   },
 
   /**
    * Create a summary item for a message or thread.
    *
-   * @param aMessageOrThread An nsIMsgDBHdr or an array thereof
-   * @param [aOptions]       An optional object to customize the output:
-   *                         currently accepts |showSubject| to show the subject
-   *                         of the message.
+   * @param aMsgOrThread An nsIMsgDBHdr or an array thereof
+   * @param [aOptions]   An optional object to customize the output:
+   *                      showSubject: true if the subject of the message
+   *                        should be shown; defaults to false
+   *                      snippetLength: the length in bytes of the message
+   *                        snippet; defaults to undefined (let Gloda decide)
    * @return A DOM node for the summary item.
    */
-  _makeSummaryItem: function(aMessageOrThread, aOptions) {
+  makeSummaryItem: function(aMsgOrThread, aOptions) {
     let message, thread, numUnread, isStarred, tags;
-    if (aMessageOrThread instanceof Components.interfaces.nsIMsgDBHdr) {
+    if (aMsgOrThread instanceof Components.interfaces.nsIMsgDBHdr) {
       thread = null;
-      message = aMessageOrThread;
+      message = aMsgOrThread;
 
       numUnread = message.isRead ? 0 : 1;
       isStarred = message.isFlagged;
 
-      tags = this.getTagsForMsg(message);
+      tags = this._getTagsForMsg(message);
     }
     else {
-      thread = aMessageOrThread;
+      thread = aMsgOrThread;
       message = thread[0];
 
       numUnread = thread.reduce(function(x, hdr) {
@@ -253,7 +209,7 @@ MultiMessageSummary.prototype = {
 
       tags = new Set();
       for (let message of thread) {
-        for (let tag of this.getTagsForMsg(message))
+        for (let tag of this._getTagsForMsg(message))
           tags.add(tag);
       }
     }
@@ -327,7 +283,7 @@ MultiMessageSummary.prototype = {
 
     let snippetNode = row.querySelector(".snippet");
     try {
-      const kSnippetLength = this.kSnippetLength;
+      const kSnippetLength = (aOptions && aOptions.snippetLength);
       MsgHdrToMimeMessage(message, null, function(aMsgHdr, aMimeMsg) {
         if (aMimeMsg == null) /* shouldn't happen, but sometimes does? */ {
           return;
@@ -346,6 +302,35 @@ MultiMessageSummary.prototype = {
     }
 
     return row;
+  },
+
+  /**
+   * Show an informative notice about the summarized messages (e.g. if we only
+   * summarized some of them).
+   *
+   * @param aNoticeText The text to show in the notice.
+   */
+  showNotice: function(aNoticeText) {
+    let notice = document.getElementById("notice");
+    notice.textContent = aNoticeText;
+    notice.classList.remove("hidden");
+  },
+
+  /**
+   * Given a msgHdr, return a list of tag objects. This function just does the
+   * messy work of understanding how tags are stored in nsIMsgDBHdrs.  It would
+   * be a good candidate for a utility library.
+   *
+   * @param aMsgHdr The msgHdr whose tags we want.
+   * @return An array of nsIMsgTag objects.
+   */
+  _getTagsForMsg: function(aMsgHdr) {
+    let keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
+    let allTags = MailServices.tags.getAllTags({});
+
+    return allTags.filter(function(tag) {
+      return keywords.has(tag.key);
+    });
   },
 
   /**
@@ -378,12 +363,14 @@ MultiMessageSummary.prototype = {
   /**
    * Compute the size of the messages in the selection and display it in the
    * element of id "size".
+   *
+   * @param aMessages The messages to calculate the size of.
    */
-  computeSize: function() {
+  _computeSize: function(aMessages) {
     let numThreads = 0;
     let numBytes = 0;
 
-    for (let [,msgHdr] in Iterator(this._msgHdrs))
+    for (let [,msgHdr] in Iterator(aMessages))
       numBytes += msgHdr.messageSize; // XXX do something about news?
     let [size, unit] = DownloadUtils.convertByteUnits(numBytes);
     let sizeText = replaceInsert(
@@ -394,30 +381,26 @@ MultiMessageSummary.prototype = {
   },
 
   /**
-   * Indicate if we're not summarizing _all_ of the specified messages because
-   * that'd just be too much.
+   * Adjust the position of the top of the main content so that it fits below
+   * the heading.
    */
-  notifyMaxCountExceeded: function(aNumMessages, aMaxCount) {
-    let notice = document.getElementById("notice");
-    if (aNumMessages > aMaxCount) {
-      let noticeText = gSelectionSummaryStrings.noticeText;
-      noticeText = replaceInsert(noticeText, 1, aNumMessages);
-      noticeText = replaceInsert(noticeText, 2, aMaxCount);
-      notice.textContent = noticeText;
-      notice.classList.remove("hidden");
-    } else {
-      notice.classList.add("hidden");
-    }
+  _adjustHeadingSize: function() {
+    let content = document.getElementById("content");
+    let heading = document.getElementById("heading");
+    let buttonbox = document.getElementById("header-view-toolbox");
+
+    content.style.top = Math.max(
+      buttonbox.getBoundingClientRect().height,
+      heading.getBoundingClientRect().height
+    ) + "px";
   },
 
-  // these are listeners for the gloda collections.
-  onItemsAdded: function(aItems) {
-  },
+  // These are listeners for the gloda collections.
+  onItemsAdded: function(aItems) {},
   onItemsModified: function(aItems) {
-    this.processItems(aItems);
+    this._processItems(aItems);
   },
-  onItemsRemoved: function(aItems) {
-  },
+  onItemsRemoved: function(aItems) {},
 
   /**
    * Given a set of items from a gloda collection, process them and update
@@ -425,7 +408,7 @@ MultiMessageSummary.prototype = {
    *
    * @param aItems Contents of a gloda collection.
    */
-  processItems: function(aItems) {
+  _processItems: function(aItems) {
     let knownMessageNodes = new Map();
 
     for (let [,glodaMsg] in Iterator(aItems)) {
@@ -441,7 +424,7 @@ MultiMessageSummary.prototype = {
         knownMessageNodes.set(headerNode, {
           read: true,
           starred: false,
-          tags: new Set()
+          tags: new Set(),
         });
       }
 
@@ -452,7 +435,7 @@ MultiMessageSummary.prototype = {
       // Count as starred if *any* of the messages are starred.
       flags.starred |= glodaMsg.starred;
       // Count as tagged with a tag if *any* of the messages have that tag.
-      for (let tag of this.getTagsForMsg(glodaMsg.folderMessage))
+      for (let tag of this._getTagsForMsg(glodaMsg.folderMessage))
         flags.tags.add(tag);
     }
 
@@ -475,64 +458,56 @@ MultiMessageSummary.prototype = {
     if (this._listener)
       this._listener.onLoadCompleted();
     return;
-  }
+  },
 };
 
-
 /**
- * The ThreadSummary class is responsible for populating the message pane
- * with a reasonable summary of a set of messages that are are in a single
- * thread.
- *
- * It uses the same multimessage iframe as MultiMessageSummary, so both it
- * and MultiMessageSummary should be careful to clean up the other's work
- * before inserting their DOM nodes into the frame.
- *
- * There's a two phase process: build the framework based on what's available
- * from the msgHdr itself, and then spawn an aysnc Gloda query which will
- * fetch the snippets, tags, etc.
- *
- * @param aMessages   Array of message headers.
- * @param [aListener] An optional listener that implements onLoadStarted and
- *                    onLoadCompleted.
+ * A summarizer to use for a single thread.
  */
-function ThreadSummary(aMessages, aListener) {
-  this._msgHdrs = aMessages;
-  this._listener = aListener;
-  this._glodaQueries = [];
-  this._msgNodes = {};
+function ThreadSummarizer() {}
 
-  // Ensure the summary selection strings are loaded.
-  loadSelectionSummaryStrings();
-}
-
-ThreadSummary.prototype = {
-  __proto__: MultiMessageSummary.prototype,
+ThreadSummarizer.prototype = {
+  /**
+   * The maximum number of messages to summarize.
+   */
+  kMaxMessages: 100,
 
   /**
-   * Fill in the summary pane describing the selected messages
+   * The length of message snippets to fetch from Gloda.
    */
-  summarize: function() {
-    if (this._listener)
-      this._listener.onLoadStarted();
+  kSnippetLength: 300,
 
-    // Clear the messages list.
-    let messagesElt = document.getElementById("messagelist");
-    while (messagesElt.hasChildNodes())
-      messagesElt.lastChild.remove();
+  /**
+   * Returns a canonical name for this summarizer.
+   */
+  get name() {
+    return "thread";
+  },
 
-    // Enable/disable the archive button as appropriate.
-    let archiveBtn = document.getElementById("hdrArchiveButton");
-    archiveBtn.collapsed = !global.gFolderDisplay.canArchiveSelectedMessages;
+  /**
+   * A function to be called once the summarizer has been registered with the
+   * main summary object.
+   *
+   * @param aContext The MultiMessageSummary object holding this summarizer.
+   */
+  onregistered: function(aContext) {
+    this.context = aContext;
+  },
 
-    let firstMsgHdr = this._msgHdrs[0];
-    let numMsgs = this._msgHdrs.length;
+  /**
+   * Summarize a list of messages.
+   *
+   * @param aMessages The messages to summarize.
+   */
+  summarize: function(aMessages) {
+    let messageList = document.getElementById("message_list");
 
+    // Summarize the selected messages.
     let count = 0;
     let ignoredCount = 0;
     let maxCountExceeded = false;
-    for (let i = 0; i < numMsgs; ++i) {
-      let msgHdr = this._msgHdrs[i];
+    for (let i = 0; i < aMessages.length; i++) {
+      let msgHdr = aMessages[i];
 
       if (msgHdr.isKilled) { // ignored subthread...
         ignoredCount++;
@@ -545,51 +520,128 @@ ThreadSummary.prototype = {
         break;
       }
 
-      let msgNode = this._makeSummaryItem(msgHdr);
-      messagesElt.appendChild(msgNode);
+      let msgNode = this.context.makeSummaryItem(msgHdr, {
+        snippetLength: this.kSnippetLength,
+      });
+      messageList.appendChild(msgNode);
 
-      let key = msgHdr.messageKey + msgHdr.folder.URI;
-      this._msgNodes[key] = msgNode;
+      this.context.mapMsgToNode(msgHdr, msgNode);
     }
 
+    // Set the heading based on the subject and number of messages.
     let countInfo = PluralForm.get(
-      numMsgs, gSelectionSummaryStrings["numMsgs"]
-    ).replace("#1", numMsgs);
+      aMessages.length, gSelectionSummaryStrings["numMsgs"]
+    ).replace("#1", aMessages.length);
     if (ignoredCount != 0) {
       countInfo += " - " + PluralForm.get(
         ignoredCount, gSelectionSummaryStrings["ignoredCount"]
       ).replace("#1", ignoredCount);
     }
 
-    let subject = (firstMsgHdr.mime2DecodedSubject ||
-                   gSelectionSummaryStrings["noSubject"]) +
-                  " (" + countInfo + ")";
-    let heading = document.getElementById("heading");
-    heading.setAttribute("class", "heading");
-    heading.textContent = subject;
+    let subject = aMessages[0].mime2DecodedSubject ||
+                  gSelectionSummaryStrings["noSubject"];
+    this.context.setHeading(subject, countInfo);
 
-    // Stash somewhere so it doesn't get GC'ed.
-    this._glodaQueries.push(Gloda.getMessageCollectionForHeaders(
-      this._msgHdrs, this
-    ));
-    this.notifyMaxCountExceeded(numMsgs, this.kMaxMessages);
-
-    this.computeSize();
-    adjustHeadingSize();
-  }
+    if (maxCountExceeded) {
+      let noticeText = gSelectionSummaryStrings.noticeText;
+      noticeText = replaceInsert(noticeText, 1, aMessages.length);
+      noticeText = replaceInsert(noticeText, 2, this.kMaxMessages);
+      this.context.showNotice(noticeText);
+    }
+  },
 };
 
-// We use a global to prevent GC of gloda collection (and we reuse it to prevent
-// leaks).  Without a global, the GC is aggressive enough that the gloda query
-// is gone before it returns.
-var gSummary;
+/**
+ * A summarizer to use when multiple threads are selected.
+ */
+function MultipleSelectionSummarizer() {}
 
-function summarizeThread(aSelectedMessages, aListener) {
-  gSummary = new ThreadSummary(aSelectedMessages, aListener);
-  gSummary.summarize();
-}
+MultipleSelectionSummarizer.prototype = {
+  /**
+   * The maximum number of messages to summarize.
+   */
+  kMaxMessages: 100,
 
-function summarizeMultipleSelection(aSelectedMessages, aListener) {
-  gSummary = new MultiMessageSummary(aSelectedMessages, aListener);
-  gSummary.summarize();
-}
+  /**
+   * The length of message snippets to fetch from Gloda.
+   */
+  kSnippetLength: 300,
+
+  /**
+   * Returns a canonical name for this summarizer.
+   */
+  get name() {
+    return "multipleselection";
+  },
+
+  /**
+   * A function to be called once the summarizer has been registered with the
+   * main summary object.
+   *
+   * @param aContext The MultiMessageSummary object holding this summarizer.
+   */
+  onregistered: function(aContext) {
+    this.context = aContext;
+  },
+
+  /**
+   * Summarize a list of messages.
+   *
+   * @param aMessages The messages to summarize.
+   */
+  summarize: function(aMessages) {
+    let messageList = document.getElementById("message_list");
+
+    // First, we group the messages in threads and count the threads.
+    let threads = {};
+    let numThreads = 0;
+    for (let [,msgHdr] in Iterator(aMessages)) {
+      let viewThreadId = global.gFolderDisplay.view.dbView
+                               .getThreadContainingMsgHdr(msgHdr)
+                               .threadKey;
+      if (!(viewThreadId in threads)) {
+        threads[viewThreadId] = [msgHdr];
+        numThreads++;
+      } else {
+        threads[viewThreadId].push(msgHdr);
+      }
+    }
+
+    // Set the heading based on the number of messages & threads.
+    this.context.setHeading(PluralForm.get(
+      numThreads, gSelectionSummaryStrings["NConversations"]
+    ).replace("#1", numThreads));
+
+    // Summarize the selected messages by thread.
+    let maxCountExceeded = false;
+    let count = 0;
+    for (let [,msgs] in Iterator(threads)) {
+      count += msgs.length;
+      if (count > this.kMaxMessages) {
+        maxCountExceeded = true;
+        break;
+      }
+
+      let msgNode = this.context.makeSummaryItem(msgs, {
+        showSubject: true,
+        snippetLength: this.kSnippetLength,
+      });
+      messageList.appendChild(msgNode);
+
+      for (let msgHdr of msgs)
+        this.context.mapMsgToNode(msgHdr, msgNode);
+    }
+
+    if (maxCountExceeded) {
+      let noticeText = gSelectionSummaryStrings.noticeText;
+      noticeText = replaceInsert(noticeText, 1, aMessages.length);
+      noticeText = replaceInsert(noticeText, 2, this.kMaxMessages);
+      this.context.showNotice(noticeText);
+    }
+  },
+};
+
+var gMessageSummary = new MultiMessageSummary();
+
+gMessageSummary.registerSummarizer(new ThreadSummarizer());
+gMessageSummary.registerSummarizer(new MultipleSelectionSummarizer());

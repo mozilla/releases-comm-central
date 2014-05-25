@@ -54,7 +54,9 @@ function summarizeThread(aSelectedMessages, aMessageDisplay) {
   gSummaryFrameManager.loadAndCallback(kSummaryURL, function() {
     let childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
-      childWindow.summarizeThread(aSelectedMessages, aMessageDisplay);
+      childWindow.gMessageSummary.summarize(
+        "thread", aSelectedMessages, aMessageDisplay
+      );
     } catch (e) {
       Components.utils.reportError(e);
       throw e;
@@ -77,8 +79,8 @@ function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
   gSummaryFrameManager.loadAndCallback(kSummaryURL, function() {
     let childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
-      childWindow.summarizeMultipleSelection(
-        aSelectedMessages, aMessageDisplay
+      childWindow.gMessageSummary.summarize(
+        "multipleselection", aSelectedMessages, aMessageDisplay
       );
     } catch (e) {
       Components.utils.reportError(e);

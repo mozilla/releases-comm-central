@@ -35,9 +35,8 @@
     <script type="application/javascript;version=1.8"
             src="chrome://messenger/content/multimessageview.js"/>
   </head>
-<body>
-  <div id="headingwrappertable">
-    <div id="headingwrapper">
+  <body>
+    <div id="heading_wrapper">
       <xul:toolbox id="header-view-toolbox" class="inline-toolbox"
                    labelalign="end"
                    xmlns:html="http://www.w3.org/1999/xhtml"
@@ -54,14 +53,17 @@
                          onclick="if (event.button == 0) window.top.DefaultController.doCommand('cmd_delete');"/>
         </toolbar>
       </xul:toolbox>
-      <div class="heading" id="heading">&selectedmessages.label;</div>
+
+      <h1 id="heading">
+        <span id="summary_title">&selectedmessages.label;</span>&#x200B;<span
+              id="summary_subtitle"/>
+      </h1>
     </div>
-  </div>
-  <div id="content">
-    <ul id="messagelist"/>
-    <div id="footer">
-      <span class="info" id="size"/> <span class="info" id="notice"/>
+    <div id="content">
+      <ul id="message_list"/>
+      <div id="footer">
+        <span class="info" id="size"/> <span class="info" id="notice"/>
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

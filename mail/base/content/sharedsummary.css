@@ -12,21 +12,26 @@ body {
   background-color: white;
 }
 
+#heading_wrapper {
+  position: fixed;
+  top: 0;
+  width: -moz-available;
+  background-color: #729fcf;
+  color: #fff;
+}
+
+#heading {
+  padding: 1ex 0ex 1ex 1ex;
+  margin: 0;
+  font-size: large;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
 .hidden {
   visibility: hidden;
   display: none !important; /* need to override the display property that sets inline-block */
 }
-
-
-#mozupdate {
-  clear: both;
-  border-radius: 0.4ex;
-  border: 1px solid #FFD8B9;
-  left: 1em;
-  right: 1em;
-  padding: 0.5em;
-}
-
 
 a {
   color: darkblue;

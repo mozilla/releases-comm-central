@@ -177,7 +177,7 @@ function test_summarization_thread_detection() {
   toggle_thread_row(0);
   assert_messages_summarized(mc, messages);
   // count the number of messages represented
-  assert_summary_contains_N_elts('#messagelist > li', 10);
+  assert_summary_contains_N_elts('#message_list > li', 10);
   select_shift_click_row(1);
   // this should have shifted to the multi-message view
   assert_summary_contains_N_elts('.item_header > .date', 0);

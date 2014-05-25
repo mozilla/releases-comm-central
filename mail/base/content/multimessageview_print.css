@@ -6,11 +6,6 @@
   display: none;
 }
 
-.heading {
-  font-size: large;
-  margin-bottom: .3em;
-}
-
-#headingwrappertable {
+#heading_wrapper {
   position: static;
 }
