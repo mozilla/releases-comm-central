@@ -37,7 +37,7 @@ listcell[enabled="true"] {
   -moz-appearance: none;
   font: icon;
   text-shadow: 0 1px #F2F2F2;
-  border: 1px solid #A8A8A8; 
+  border: 1px solid #A8A8A8;
   background: linear-gradient(to top, #ECECEC, #ECECEC 50%, #F9F9F9 0%, #F9F9F9);
   min-width: 22px;
   height: 20px;

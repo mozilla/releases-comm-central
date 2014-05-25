@@ -11,7 +11,7 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 /* ::::: button-like menus ::::: */
- 
+
 menu.push {
   border: 1px outset ThreeDFace;
   padding: 2px;

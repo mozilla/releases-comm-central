@@ -119,7 +119,7 @@ button:focus {
 button:active:hover:focus {
   box-shadow: @focusRingShadow@, @roundButtonPressedShadow@;
 }
- 
+
 button:hover:active:not([disabled="true"]) {
   background: @toolbarbuttonPressedBackgroundColor@;
   text-shadow: @loweredShadow@;

@@ -33,14 +33,14 @@ menubar {
   border-top: 1px solid ThreeDHighlight;
   border-right: 1px solid ThreeDShadow;
   border-bottom: 1px solid ThreeDShadow;
-}  
+}
 
 /* ::::: toolbarseparator ::::: */
 
 toolbarseparator {
   -moz-appearance       : separator;
   margin                : 2px 0.2em;
-  border-right          : 1px solid ThreeDHighlight; 
+  border-right          : 1px solid ThreeDHighlight;
   border-left           : 1px solid ThreeDShadow;
   width                 : 2px;
 }

@@ -42,12 +42,12 @@
   -moz-image-region: rect(96px 16px 112px 0px);
 }
 
-.folderMenuItem[SpecialFolder="Drafts"] { 
+.folderMenuItem[SpecialFolder="Drafts"] {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(48px 16px 64px 0px);
 }
 
-.folderMenuItem[SpecialFolder="Templates"] { 
+.folderMenuItem[SpecialFolder="Templates"] {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(160px 16px 176px 0px);
 }

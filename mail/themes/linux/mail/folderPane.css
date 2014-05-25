@@ -223,7 +223,7 @@ treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
 }
 
 .folderSummary-subject {
-  font-weight: bold; 
+  font-weight: bold;
 }
 
 .folderSummary-previewText {

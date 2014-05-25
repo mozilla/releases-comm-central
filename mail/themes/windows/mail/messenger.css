@@ -50,7 +50,7 @@
 
 #menubar-items > menubar {
   -moz-box-flex: 1; /* make menu items expand to fill toolbar height */
-} 
+}
 
 /* ::::: toolbarbutton ::::: */
 

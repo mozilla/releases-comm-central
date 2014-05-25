@@ -42,7 +42,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 
 #button-newcard[disabled="true"] {
   -moz-image-region: rect(66px 22px 88px 0px); /* contact-add-disabled.png */
-} 
+}
 
 #button-newlist {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
@@ -51,7 +51,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 
 #button-newlist[disabled="true"] {
   -moz-image-region: rect(110px 22px 132px 0px); /* contact-list-add-disabled.png */
-} 
+}
 
 #button-editcard {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
@@ -75,10 +75,10 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
   -moz-image-region: rect(0px 22px 22px 0px); /* chat-new.png */
 }
- 
+
 #button-newim[disabled] {
   -moz-image-region: rect(22px 22px 44px 0px); /* chat-new-disabled.png */
-} 
+}
 
 #button-abdelete {
   list-style-image: url("moz-icon://stock/gtk-delete?size=toolbar")
@@ -259,7 +259,7 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
   min-width: 120px;
   margin: 0px;
 }
- 
+
 .cardViewGroup {
   margin-top: 8px;
   padding-bottom: 5px;

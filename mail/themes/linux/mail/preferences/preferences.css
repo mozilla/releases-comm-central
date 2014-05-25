@@ -55,7 +55,7 @@ radio[pane=paneAdvanced] {
   margin: 0px 3px 6px !important;
 }
 
-/* override the color style for tag items when they 
+/* override the color style for tag items when they
    have selection */
 #tagList listitem[selected="true"] {
   color: -moz-DialogText !important;

@@ -25,7 +25,7 @@ treechildren::-moz-tree-image(folderNameCol, imapShared-true) {
   -moz-image-region: rect(0 192px 16px 176px);
 }
 
-*/ 
+*/
 
 treechildren::-moz-tree-image(folderNameCol, newMessages-true) {
   -moz-image-region: rect(16px 16px 32px 0);
@@ -244,9 +244,9 @@ treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
 }
 
 .folderSummary-subject {
-  font-weight: bold; 
+  font-weight: bold;
 }
 
 .folderSummary-previewText {
-  color: grey; 
+  color: grey;
 }

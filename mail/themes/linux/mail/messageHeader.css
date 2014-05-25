@@ -17,7 +17,7 @@
 }
 
 /* :::::  message in a tab ::::: */
-#displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper 
+#displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
 .main-header-area {
   background-image: linear-gradient(rgba(255, 255, 255, 0.3),
                                     rgba(255, 255, 255, 0) 19px);
@@ -268,7 +268,7 @@ toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbut
 
 .msgHeaderView-flat-button[type="menu-button"] > .button-menubutton-button:hover {
   border-right: 2px solid ButtonShadow;
-} 
+}
 
 .msgHeaderView-flat-button[secondary="true"] {
   background: none;

@@ -441,7 +441,7 @@ toolbarpaletteitem .msgHeaderView-button {
 
 .msgHeaderView-button[type="menu-button"] > .button-menubutton-button:hover {
   border-right-color: ButtonShadow;
-} 
+}
 
 .msgHeaderView-flat-button[secondary="true"] {
   background-color: transparent;

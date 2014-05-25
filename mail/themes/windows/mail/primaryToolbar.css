@@ -336,7 +336,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
 
 .delete-button:hover {
   -moz-image-region: rect(24px 192px 48px 168px);
-} 
+}
 
 .delete-button[disabled] {
   -moz-image-region: rect(48px 192px 72px 168px) !important;
@@ -388,7 +388,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
 
 #button-stop:hover {
   -moz-image-region: rect(24px 264px 48px 240px);
-} 
+}
 
 #button-stop[disabled="true"] {
   -moz-image-region: rect(48px 264px 72px 240px) !important;
@@ -706,7 +706,7 @@ toolbar[iconsize="small"] #button-stop {
 
 toolbar[iconsize="small"] #button-stop:hover {
   -moz-image-region: rect(16px 176px 32px 160px);
-} 
+}
 
 toolbar[iconsize="small"] #button-stop[disabled="true"] {
   -moz-image-region: rect(32px 176px 48px 160px) !important;
@@ -773,7 +773,7 @@ toolbar[iconsize="small"] #button-tag {
 
 toolbar[iconsize="small"] #button-tag:hover {
   -moz-image-region: rect(16px 256px 32px 240px);
-} 
+}
 
 toolbar[iconsize="small"] #button-tag[disabled] {
   -moz-image-region: rect(32px 256px 48px 240px) !important;
@@ -799,7 +799,7 @@ toolbar[iconsize="small"] #button-goforward {
 
 toolbar[iconsize="small"] #button-goforward:hover {
   -moz-image-region: rect(16px 288px 32px 272px);
-} 
+}
 
 toolbar[iconsize="small"] #button-goforward[disabled] {
   -moz-image-region: rect(32px 288px 48px 272px) !important;
@@ -929,7 +929,7 @@ toolbar[iconsize="small"] .button-appmenu[disabled] {
 
 .msgNotificationBar {
   background-color: InfoBackground;
-  color: InfoText;  
+  color: InfoText;
   border-bottom: 1px solid ThreeDDarkShadow;
   padding: 3px;
 }

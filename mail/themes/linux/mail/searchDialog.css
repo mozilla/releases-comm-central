@@ -67,7 +67,7 @@ treechildren::-moz-tree-cell-text(unread) {
 }
 
 /* on a collapsed thread, if the top level message is read, but the thread has
- * unread children, underline the text.  4.x mac did this, very slick 
+ * unread children, underline the text.  4.x mac did this, very slick
  */
 treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   text-decoration: underline;
@@ -142,7 +142,7 @@ treechildren::-moz-tree-image(flaggedCol, flagged) {
 
 .junkStatusHeader {
   list-style-image: url("chrome://messenger/skin/icons/junk-col.svg");
-  -moz-padding-end: 3px; 
+  -moz-padding-end: 3px;
 }
 
 /* "unknown" now looks like "not junk".  see bug #182386 */
@@ -216,7 +216,7 @@ treechildren::-moz-tree-cell-text(subjectCol) {
    The color definitions can be in the following formats:
      color: red;
      color: #FF0000;
-     color: rgb(128, 0, 0); 
+     color: rgb(128, 0, 0);
 */
 treechildren::-moz-tree-cell-text(lc-FFFFFF) {
   color: #FFFFFF

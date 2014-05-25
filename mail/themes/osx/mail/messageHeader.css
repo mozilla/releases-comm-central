@@ -301,7 +301,7 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
 
 .msgHeaderView-flat-button[type="menu-button"] > .button-menubutton-button:hover {
   border-right: 2px solid #B0B3B6;
-} 
+}
 
 .msgHeaderView-flat-button[secondary="true"] {
   background: none;
@@ -362,7 +362,7 @@ toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar@2x.png");
     -moz-image-region: rect(0px 144px 36px 108px);
   }
-  
+
   .hdrReplyListButton,
   .hdrFollowupButton {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar@2x.png");

@@ -11,7 +11,7 @@
    The color definitions can be in the following formats:
      color: red;
      color: #FF0000;
-     color: rgb(128, 0, 0); 
+     color: rgb(128, 0, 0);
 */
 
 treechildren::-moz-tree-cell-text(lc-FFFFFF), .lc-FFFFFF:not([_moz-menuactive]) {

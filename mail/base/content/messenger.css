@@ -160,18 +160,18 @@ searchterm {
 }
 
 .ruleaction {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleaction"); 
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleaction");
 }
 
 .ruleactiontype {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontype-menulist"); 
+  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontype-menulist");
 }
 
 .ruleactiontarget[type] {
   -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-base");
 }
 
-.ruleactiontarget[type="movemessage"], .ruleactiontarget[type="copymessage"] { 
+.ruleactiontarget[type="movemessage"], .ruleactiontarget[type="copymessage"] {
   -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-folder");
 }
 

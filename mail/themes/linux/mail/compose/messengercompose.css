@@ -410,7 +410,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 
   /*
    * In order to remove the shadow border on left/right edges elegantly,
-   * use left/right margins of -3px. We make up for this by adding 3px 
+   * use left/right margins of -3px. We make up for this by adding 3px
    * of padding instead.
    */
 
