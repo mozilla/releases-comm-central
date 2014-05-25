@@ -1,69 +1,11 @@
+%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-/* ===== primaryToolbar.css =============================================
-   == Images for the Mail primary toolbar.
-   == This file is mainly about the general look-and-feel of
-   == native-OS-style toolbars at the top of various windows, as well as
-   == the specifically about the ones that appear on the 3-pane window and
-   == the standalone message window.  The other native-OS-style toolbars
-   == (addressbook and compose) are already styled elsewhere.
-   ====================================================================== */
-
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
-/* :::: Toolbar :::: */
-
-/* We want a 4px gap between the tabs-toolbar and the mail-toolbar-menubar2
-   when the toolbar-menu is displayed, and a 16px gap when it is not. 1px is
-   taken care of by the (light) outer shadow of the tab, the remaining 3/15
-   are these margins. */
-#mail-toolbar-menubar2:not([autohide="true"]) ~ #tabs-toolbar,
-#mail-toolbar-menubar2[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
-  margin-top: 3px;
-}
-
-#messengerWindow[tabsintitlebar][sizemode="normal"]
-#mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
-  margin-top: 15px;
-}
-
-@media not all and (-moz-windows-compositor) {
-  #mail-toolbar-menubar2:not([autohide="true"]) {
-    -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
-  }
-}
-
-#messengerWindow[tabsintitlebar] #mail-menubar > menu:not(:-moz-lwtheme) {
-  color: CaptionText;
-}
-
-#messengerWindow[tabsintitlebar] #mail-menubar >
-menu:not(:-moz-lwtheme):-moz-window-inactive {
-  color: InactiveCaptionText;
-}
-
-.mail-toolbox:not(:-moz-lwtheme),
-.contentTabToolbox:not(:-moz-lwtheme) {
-  -moz-appearance: none;
-  border-top: none;
-  background-color: -moz-Dialog;
-}
-
-#navigation-toolbox {
-  -moz-appearance: none;
-  border-top: none;
-  background-color: transparent;
-}
-
-.mail-toolbox,
-.contentTabToolbox {
-  background-image: linear-gradient(rgba(253, 253, 253, 0.45),
-                                    rgba(255, 255, 255, 0));
-  box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
-  border-bottom: 1px solid ThreeDShadow;
-}
+%endif
+%define WINDOWS_AERO
+%include primaryToolbar.css
+%undef WINDOWS_AERO
 
 .mail-toolbox > toolbar {
   -moz-margin-start: 0;
@@ -78,121 +20,6 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
   -moz-appearance: none;
   border-style: none;
   background-color: transparent;
-}
-
-#mail-bar3 {
-  padding: 1px 0;
-}
-
-#tabs-toolbar {
-  background-image: linear-gradient(to top, hsla(209, 67%, 12%, 0.35) 1px,
-                                    transparent 1px);
-}
-
-/**
- * In the classic themes, the titlebar has a horizontal gradient, which is
- * problematic for reading the text of background tabs when they're in the
- * titlebar. We side-step this issue by layering our own background underneath
- * the tabs. Unfortunately, this requires a bunch of positioning in order to
- * get text and icons to not appear fuzzy.
- */
-@media (-moz-windows-classic) {
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-tabs:not(:-moz-lwtheme) {
-    position: relative;
-    z-index: 2;
-  }
-
-  #messengerWindow[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme) {
-    position: relative;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme)::after {
-    /* Because we use placeholders for window controls etc. in the tabstrip,
-     * and position those with ordinal attributes, and because our layout code
-     * expects :before/:after nodes to come first/last in the frame list,
-     * we have to reorder this element to come last, hence the
-     * ordinal group value (see bug 853415). */
-    -moz-box-ordinal-group: 1001;
-    box-shadow: 0 0 50px 8px ActiveCaption;
-    content: "";
-    display: -moz-box;
-    height: 0;
-    margin: 0 50px;
-    position: absolute;
-    pointer-events: none;
-    top: 100%;
-    width: -moz-available;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive::after {
-    box-shadow: 0 0 50px 8px InactiveCaption;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabmail-container:not(:-moz-lwtheme) {
-    position: relative;
-    z-index: 2;
-  }
-
-  /* Need to constrain the box shadow fade to avoid overlapping layers,
-   * see bug 886281. */
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #navigator-toolbox:not(:-moz-lwtheme) {
-    overflow: -moz-hidden-unscrollable;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabs-toolbar .toolbarbutton-1:not(:-moz-lwtheme) {
-    position: relative;
-    z-index: 1;
-  }
-
-  /**
-   * With the tabbrowser-tabs element z-index'd above the nav-bar, we now get the
-   * scrollbox button borders leaking over the nav-bar highlight. This transparent bottom
-   * border forces the scrollbox button borders to terminate a pixel early, working
-   * around the issue.
-   */
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-arrowscrollbox > .scrollbutton-up:not(:-moz-lwtheme),
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-arrowscrollbox > .scrollbutton-down-stack >
-  .scrollbutton-down:not(:-moz-lwtheme) {
-    border-bottom: 1px solid transparent;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .mail-toolbox:not(:-moz-lwtheme),
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .contentTabToolbox:not(:-moz-lwtheme) {
-    box-shadow: none;
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme {
-    /* Render a window top border: */
-    background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
-                                      ThreeDLightShadow 1px, ThreeDHighlight 1px,
-                                      ThreeDHighlight 2px, ActiveBorder 2px,
-                                      ActiveBorder 4px, transparent 4px);
-  }
-
-  /* End classic titlebar gradient */
-
-  #messengerWindow[tabsintitlebar]:not([inFullscreen])
-  :-moz-any(#tabs-toolbar, #mail-toolbar-menubar2)
-  toolbarbutton:not(:-moz-lwtheme) {
-    color: inherit;
-  }
-}
-
-@media (-moz-windows-default-theme) {
-  #messengerWindow[tabsintitlebar][sizemode="normal"] #mail-toolbar-menubar2 {
-    margin-top: 1px;
-  }
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
@@ -218,13 +45,7 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
 }
 
 .toolbarbutton-1 {
-  -moz-box-orient: vertical;
   min-height: 24px;
-}
-
-toolbox[labelalign="end"] .toolbarbutton-1,
-toolbox[labelalign="end"] .toolbarbutton-menubutton-button {
-  -moz-box-orient: horizontal;
 }
 
 @media not all and (-moz-windows-default-theme) {
@@ -455,20 +276,7 @@ toolbox[labelalign="end"] .toolbarbutton-menubutton-button {
 }
 
 toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
-  -moz-padding-start: 2px;
   -moz-padding-end: 2px;
-}
-
-toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
-  text-align: start;
-}
-
-.toolbarbutton-1[type="menu"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-vertical");
-}
-
-toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu");
 }
 
 /* ::::: toolbar buttons on tabbar toolbar ::::: */
@@ -518,31 +326,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
 #tabbar-toolbar
   .toolbarbutton-menubutton-button:not([disabled]):hover:-moz-locale-dir(rtl) {
   background-position: 1px -1px, 100% -1px;
-}
-
-@media not all and (-moz-windows-compositor) {
-  #mail-toolbar-menubar2 {
-    background-color: transparent !important;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([inFullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme) {
-    color: CaptionText;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([inFullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive {
-    color: InactiveCaptionText;
-  }
-
-  #messengerWindow[tabsintitlebar] #titlebar:-moz-lwtheme {
-    visibility: hidden;
-  }
-
-  #messengerWindow[tabsintitlebar] #titlebar-content:-moz-lwtheme {
-    -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
-    visibility: visible;
-  }
 }
 
 @media (-moz-windows-default-theme) and (-moz-windows-compositor) {
@@ -838,15 +621,6 @@ toolbar[iconsize="large"]:not([mode="text"]) .badgeButton-badge {
   min-width: 35px !important;
 }
 
-.button-appmenu .toolbarbutton-text,
-.button-appmenu .toolbarbutton-menu-dropmarker {
-  display: none;
-}
-
-toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
-  display: -moz-box;
-}
-
 #palette-box .toolbarbutton-1,
 #palette-box .toolbarbutton-menubutton-button,
 #palette-box .toolbarbutton-menubutton-dropmarker {
@@ -860,70 +634,15 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   -moz-image-region: rect(1px, 377px, 17px, 361px);
 }
 
-/* Force the folder location and mail view items to fit in the available width
-   in the Customize Toolbar dialog. */
-#palette-box #locationFolders,
-#palette-box #folder-location-container,
-#palette-box #viewPicker {
-  -moz-box-flex: 1;
-}
-
 /* remove the small icons checkbox in Customize window */
 #smallicons {
   display: none;
 }
 
-/* ::::: message notification bar style rules ::::: */
-
-.msgNotificationBar {
-  background-color: InfoBackground;
-  color: InfoText;  
-  border-bottom: 1px solid ThreeDDarkShadow;
-  padding: 3px;
-}
-
-.msgNotificationBarText {
-  font-weight: bold;
-}
-
-.msgNotificaton-smallText {
-  -moz-padding-start: 10px;
-  font-size: 90%;
-}
-
 /* AppMenu styling */
 
 .splitmenu-menuitem {
-  -moz-margin-end: 1px;
   -moz-padding-end: 0.5em;
-}
-
-.splitmenu-menu {
-  -moz-box-pack: end;
-}
-
-.appmenu-edit-button {
-  -moz-appearance: none;
-  border: 1px solid transparent;
-  padding: 2px;
-  background: transparent;
-  border-radius: 3px;
-}
-
-.appmenu-edit-button[disabled="true"] {
-  opacity: .3;
-}
-
-#appmenuPrimaryPane {
-  -moz-border-end: 1px solid ThreeDShadow;
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-  #appmenuSecondaryPane {
-    --appMenu-bg-color: #f1f5fb;
-    --appMenu-bg-box-shadow: rgb(204, 214, 234);
-  }
 }
 
 @media (-moz-os-version: windows-win8) {
@@ -934,29 +653,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 @media (-moz-windows-default-theme) {
-  #appmenu-popup {
-    -moz-appearance: none;
-    background: white;
-    border: 1px solid ThreeDShadow;
-  }
-  #appmenuPrimaryPane {
-    background-color: rgba(255, 255, 255, .5);
-    padding: 2px;
-    -moz-border-end: none;
-  }
-  #appmenuSecondaryPane {
-    background-color: var(--appMenu-bg-color);
-    box-shadow: 1px 0 2px var(--appMenu-bg-box-shadow) inset;
-    -moz-padding-start: 3px;
-    -moz-padding-end: 2px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    font-family: "Segoe UI Semibold", "Segoe UI", sans-serif;
-  }
-  #appmenuSecondaryPane:-moz-locale-dir(rtl) {
-    box-shadow: -1px 0 2px var(--appMenu-bg-box-shadow) inset;
-  }
-
   #appmenuPrimaryPane menupopup {
     -moz-appearance: none;
     background-image: linear-gradient(to right, white 26px, ThreeDLightShadow 26px,
@@ -1070,16 +766,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
     }
   }
 
-  .appmenu-menuseparator {
-    -moz-appearance: none;
-    margin-top: 3px;
-    margin-bottom: 3px;
-    -moz-margin-start: 30px;
-    padding: 0;
-    border-top: 1px solid #d6e5f5;
-    border-bottom: none;
-  }
-
   @media (min-resolution: 1.25dppx) {
     .appmenu-menuseparator {
       -moz-margin-start: 25px;
@@ -1095,65 +781,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
       -moz-margin-start: 22px;
     }
   }
-
-  .appmenu-edit-button:not([disabled]):hover {
-    border: 1px solid #b8d6fb;
-    box-shadow: inset 0 0 1px white;
-    background: linear-gradient(#fafbfd, #ebf3fd);
-    transition: .2s ease-in;
-  }
-}
-
-.appmenuPane-spacer {
-  min-height: 1em;
-}
-
-#appmenu-editmenu {
-  -moz-box-pack: end;
-}
-
-#appmenu_print,
-#appmenu_print_popup,
-.appmenu-edit-button,
-#appmenu-editmenu-cut,
-#appmenu-editmenu-copy,
-#appmenu-editmenu-paste,
-#appmenu-quit {
-  list-style-image: url("icons/appmenu-icons.png");
-}
-
-#appmenu-cut,
-#appmenu-editmenu-cut {
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
-#appmenu-copy,
-#appmenu-editmenu-copy {
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-#appmenu-paste,
-#appmenu-editmenu-paste {
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
-#appmenu_print,
-#appmenu_print_popup {
-  -moz-image-region: rect(0 64px 16px 48px);
-}
-
-#appmenu-quit {
-  -moz-image-region: rect(0 80px 16px 64px);
-}
-
-#appmenu-edit-label {
-  -moz-appearance: none;
-  background: transparent;
-  font-style: italic;
-}
-
-#appmenu_addons {
-  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.png");
 }
 
 @media (min-resolution: 1.25dppx) {
