@@ -2830,6 +2830,7 @@ function SendMessage()
   GenericSendMessage(sendInBackground ?
                      nsIMsgCompDeliverMode.Background :
                      nsIMsgCompDeliverMode.Now);
+  ExitFullscreenMode();
 }
 
 function SendMessageWithCheck()
@@ -2861,11 +2862,22 @@ function SendMessageWithCheck()
                      (sendInBackground ?
                       nsIMsgCompDeliverMode.Background :
                       nsIMsgCompDeliverMode.Now));
+
+  ExitFullscreenMode();
 }
 
 function SendMessageLater()
 {
   GenericSendMessage(nsIMsgCompDeliverMode.Later);
+  ExitFullscreenMode();
+}
+
+function ExitFullscreenMode()
+{
+  // On OS X we need to deliberately exit full screen mode after sending.
+  if (Application.platformIsMac) {
+    window.fullScreen = false;
+  }
 }
 
 function Save()
