@@ -625,37 +625,35 @@ NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir)
   int32_t count = mCards.Count();
 
   nsAutoString sortColumn;
-  if (!colID) 
-    sortColumn = NS_LITERAL_STRING(GENERATED_NAME_COLUMN_ID).get();  // default sort
+  if (!colID)
+    sortColumn = NS_LITERAL_STRING(GENERATED_NAME_COLUMN_ID);  // default sort
   else
     sortColumn = colID;
 
-  int32_t i;
-  // This function does not optimize for the case when sortColumn and sortDirection
-  // are identical since the last call, the caller is responsible optimizing
-  // for that case
-
-  // If we are sorting by how we are already sorted,
-  // and just the sort direction changes, just reverse
-  //
   // Note, we'll call SortBy() with the existing sort column and the
   // existing sort direction, and that needs to do a complete resort.
   // For example, we do that when the PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST changes
-  if (!NS_strcmp(mSortColumn.get(),sortColumn.get()) && NS_strcmp(mSortDirection.get(), sortDir)) {
-    int32_t halfPoint = count / 2;
-    for (i=0; i < halfPoint; i++) {
-      // Swap the elements.
-      void *ptr1 = mCards.ElementAt(i);
-      void *ptr2 = mCards.ElementAt(count - i - 1);
-      mCards.ReplaceElementAt(ptr2, i);
-      mCards.ReplaceElementAt(ptr1, count - i - 1);
+  if (mSortColumn.Equals(sortColumn)) {
+    if (mSortDirection.Equals(sortDir)) {
+      // If sortColumn and sortDirection are identical since the last call, do nothing.
+      return NS_OK;
+    } else {
+      // If we are sorting by how we are already sorted,
+      // and just the sort direction changes, just reverse.
+      int32_t halfPoint = count / 2;
+      for (int32_t i = 0; i < halfPoint; i++) {
+        // Swap the elements.
+        void *ptr1 = mCards.ElementAt(i);
+        void *ptr2 = mCards.ElementAt(count - i - 1);
+        mCards.ReplaceElementAt(ptr2, i);
+        mCards.ReplaceElementAt(ptr1, count - i - 1);
+      }
+      mSortDirection = sortDir;
     }
-
-    mSortDirection = sortDir;
   }
   else {
     // Generate collation keys
-    for (i=0; i < count; i++) {
+    for (int32_t i = 0; i < count; i++) {
       AbCard *abcard = (AbCard *)(mCards.ElementAt(i));
 
       rv = GenerateCollationKeysForCard(sortColumn.get(), abcard);
