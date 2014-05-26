@@ -12,8 +12,9 @@ const nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
 function nsAbAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for
   // all instances
-  this._searchResults = new Array();
+  this._searchResults = []; // final results
   this.searchString = aSearchString;
+  this._collectedValues = new Map();  // temporary unsorted results
 }
 
 nsAbAutoCompleteResult.prototype = {
@@ -175,7 +176,6 @@ nsAbAutoCompleteSearch.prototype = {
    *                     otherwise.
    */
   _checkEntry: function _checkEntry(aCard, aEmailToUse, aSearchWords) {
-    var i;
     // Joining values of many fields in a single string so that a single
     // search query can be fired on all of them at once. Separating them
     // using spaces so that field1=> "abc" and field2=> "def" on joining
@@ -207,25 +207,23 @@ nsAbAutoCompleteSearch.prototype = {
    */
   _checkDuplicate: function _checkDuplicate(directory, card, emailAddress,
                                             currentResults) {
-    var lcEmailAddress = emailAddress.toLocaleLowerCase();
+    let lcEmailAddress = emailAddress.toLocaleLowerCase();
+    let existingResult = currentResults._collectedValues.get(lcEmailAddress);
+    let popIndex = this._getPopularityIndex(directory, card);
 
-    var popIndex = this._getPopularityIndex(directory, card);
-    for (var i = 0; i < currentResults._searchResults.length; ++i) {
-      if (currentResults._searchResults[i].value.toLocaleLowerCase() ==
-          lcEmailAddress)
-      {
-        // It's a duplicate, is the new one is more popular?
-        if (popIndex > currentResults._searchResults[i].popularity) {
-          // Yes it is, so delete this element, return false and allow
-          // _addToResult to sort the new element into the correct place.
-          currentResults._searchResults.splice(i, 1);
-          return false;
-        }
-        // Not more popular, but still a duplicate. Return true and _addToResult
-        // will just forget about it.
-        return true;
+    if (existingResult) {
+      // It's a duplicate, is the new one more popular?
+      if (popIndex > existingResult.popularity) {
+        // Yes it is, so delete this element, return false and allow
+        // _addToResult to sort the new element into the correct place.
+        currentResults._collectedValues.delete(lcEmailAddress);
+        return false;
       }
+      // Not more popular, but still a duplicate. Return true and _addToResult
+      // will just forget about it.
+      return true;
     }
+
     return false;
   },
 
@@ -256,30 +254,13 @@ nsAbAutoCompleteSearch.prototype = {
     if (this._checkDuplicate(directory, card, emailAddress, result))
       return;
 
-    // Find out where to insert the card.
-    var insertPosition = 0;
-    var cardPopularityIndex = this._getPopularityIndex(directory, card);
-
-    while (insertPosition < result._searchResults.length &&
-           cardPopularityIndex <
-           result._searchResults[insertPosition].popularity)
-      ++insertPosition;
-
-    // Next sort on full address
-    while (insertPosition < result._searchResults.length &&
-           cardPopularityIndex ==
-           result._searchResults[insertPosition].popularity &&
-           ((card == result._searchResults[insertPosition].card &&
-             !isPrimaryEmail) ||
-            emailAddress > result._searchResults[insertPosition].value))
-      ++insertPosition;
-
-    result._searchResults.splice(insertPosition, 0, {
+    result._collectedValues.set(emailAddress.toLocaleLowerCase(), {
       value: emailAddress,
       comment: commentColumn,
       card: card,
+      isPrimaryEmail: isPrimaryEmail,
       emailToUse: emailToUse,
-      popularity: cardPopularityIndex
+      popularity: this._getPopularityIndex(directory, card)
     });
   },
 
@@ -330,7 +311,7 @@ nsAbAutoCompleteSearch.prototype = {
         aPreviousResult.searchResult == ACR.RESULT_SUCCESS) {
       // We have successful previous matches, therefore iterate through the
       // list and reduce as appropriate
-      for (var i = 0; i < aPreviousResult.matchCount; ++i) {
+      for (let i = 0; i < aPreviousResult.matchCount; ++i) {
         if (this._checkEntry(aPreviousResult.getCardAt(i),
                              aPreviousResult.getEmailToUse(i), searchWords))
           // If it matches, just add it straight onto the array, these will
@@ -363,19 +344,30 @@ nsAbAutoCompleteSearch.prototype = {
       }
       searchQuery = "?(and" + searchQuery + ")";
       // Now do the searching
-      var allABs = this._abManager.directories;
+      let allABs = this._abManager.directories;
 
       // We're not going to bother searching sub-directories, currently the
       // architecture forces all cards that are in mailing lists to be in ABs as
       // well, therefore by searching sub-directories (aka mailing lists) we're
       // just going to find duplicates.
       while (allABs.hasMoreElements()) {
-        var dir = allABs.getNext();
+        let dir = allABs.getNext();
         if (dir instanceof Components.interfaces.nsIAbDirectory &&
             dir.useForAutocomplete(params.idKey)) {
           this._searchCards(searchQuery, dir, result);
         }
       }
+
+      result._searchResults = [...result._collectedValues.values()];
+      // Order by descending popularity, then primary email before secondary
+      // for the same card, then for differing cards sort by email.
+      function order_by_popularity_and_email(a, b) {
+        return (b.popularity - a.popularity) ||
+               ((a.card == b.card && a.isPrimaryEmail) ? -1 : 0) ||
+               ((a.value < b.value) ? -1 : (a.value == b.value) ? 0 : 1);
+        // TODO: this should actually use a.value.localeCompare(b.value) .
+      }
+      result._searchResults.sort(order_by_popularity_and_email);
     }
 
     if (result.matchCount) {
