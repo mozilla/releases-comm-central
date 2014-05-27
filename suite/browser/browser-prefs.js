@@ -339,6 +339,9 @@ pref("network.protocol-handler.warn-external.news", true);
 pref("network.protocol-handler.warn-external.snews", true);
 pref("network.protocol-handler.warn-external.nntp", true);
 
+// bug 1005566 - Disable seer until properly supported
+pref("network.seer.enabled", false);
+
 pref("mail.biff.show_new_alert",     true);
 
 pref("mailnews.ui.deleteMarksRead", true);
