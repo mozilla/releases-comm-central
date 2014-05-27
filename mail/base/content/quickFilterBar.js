@@ -499,16 +499,19 @@ let QuickFilterBarMuxer = {
       return true;
     }
     else if (aCommand == "cmd_showQuickFilterBar") {
-      let textWidget = document.getElementById(
-                         QuickFilterManager.textBoxDomId);
-
+      let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
       if (this.activeFilterer.visible == false)
         QuickFilterBarMuxer._showFilterBar(true);
       textWidget.select();
       return true;
     }
     else if (aCommand == "cmd_toggleQuickFilterBar") {
-      this._showFilterBar(!this.activeFilterer.visible);
+      let show = !this.activeFilterer.visible;
+      this._showFilterBar(show);
+      if (show) {
+        let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
+        textWidget.select();
+      }     
       return true;
     }
     return null;
