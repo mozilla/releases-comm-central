@@ -932,8 +932,6 @@ var ircBase = {
       // This assumes that this is the last message received when joining a
       // channel, so a few "clean up" tasks are done here.
       let conversation = this.getConversation(aMessage.params[1]);
-      // Update whether the topic is editable.
-      conversation.checkTopicSettable();
 
       // If we haven't received the MODE yet, request it.
       if (!conversation._receivedInitialMode)

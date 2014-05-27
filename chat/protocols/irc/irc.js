@@ -392,6 +392,9 @@ ircChannel.prototype = {
   },
 
   setMode: function(aNewMode, aModeParams, aSetter) {
+    // Save this for a comparison after the new modes have been set.
+    let previousTopicSettable = this.topicSettable;
+
     const hostMaskExp = /^.+!.+@.+$/;
     function getNextParam() {
       // If there's no next parameter, throw a warning.
@@ -507,7 +510,11 @@ ircChannel.prototype = {
     msg = _("message.channelmode", aNewMode[0] + channelModes.join(""),
             aSetter);
     this.writeMessage(aSetter, msg, {system: true});
-    this.checkTopicSettable();
+
+    // If the topic can now be set (and it couldn't previously) or vice versa,
+    // notify the UI.
+    if (this.topicSettable != previousTopicSettable)
+      this.notifyObservers(this, "chat-update-topic");
 
     this._receivedInitialMode = true;
   },
@@ -527,19 +534,13 @@ ircChannel.prototype = {
 
   get topic() this._topic, // can't add a setter without redefining the getter
   set topic(aTopic) {
+    // Note that the UI isn't updated here because the server will echo back the
+    // TOPIC to us and we'll set it on receive.
     this._account.sendMessage("TOPIC", [this.name, aTopic]);
   },
-  _previousTopicSettable: null,
-  checkTopicSettable: function() {
-    if (this.topicSettable == this._previousTopicSettable &&
-        this._previousTopicSettable != null)
-      return;
-
-    this.notifyObservers(this, "chat-update-topic");
-  },
   get topicSettable() {
-    // If we're not in the room yet, we don't exist.
-    if (!this._participants.has(this.nick))
+    // We must be in the room to set the topic.
+    if (!this.left)
       return false;
 
     // If the channel mode is +t, hops and ops can set the topic; otherwise
@@ -577,11 +578,6 @@ ircParticipant.prototype = {
                 this.name, aSetter);
     this._conv.writeMessage(aSetter, msg, {system: true});
     this._conv.notifyObservers(this, "chat-buddy-update");
-
-    // In case the new mode now lets us edit the topic.
-    if (this._account.normalize(this.name) ==
-        this._account.normalize(this._account._nickname))
-      this._conv.checkTopicSettable();
   },
 
   get voiced() this._modes.has("v"),
