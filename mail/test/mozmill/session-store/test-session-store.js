@@ -7,14 +7,10 @@
  * folder-display/test-message-pane-visibility.js.
  */
 
-var MODULE_NAME = "test-session-store";
+const MODULE_NAME = "test-session-store";
 
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
-
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-var Cu = Components.utils;
+const RELATIVE_ROOT = "../shared-modules";
+const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var controller = {};
 Cu.import("resource://mozmill/modules/controller.js", controller);
@@ -25,13 +21,10 @@ Cu.import("resource:///modules/IOUtils.js");
 Cu.import("resource:///modules/sessionStoreManager.js");
 Cu.import("resource://gre/modules/Services.jsm");
 
-// the windowHelper module
-var windowHelper;
-
 var folderA, folderB;
 
 // With async file writes, use a delay larger than the session autosave timer.
-const asyncFileWriteDelayMS = 500;
+const asyncFileWriteDelayMS = 1000;
 
 /* ........ Helper Functions ................*/
 
@@ -60,30 +53,29 @@ function waitForFileRefresh() {
 }
 
 function open3PaneWindow() {
-  windowHelper.plan_for_new_window("mail:3pane");
+  plan_for_new_window("mail:3pane");
   Services.ww.openWindow(null,
                          "chrome://messenger/content/messenger.xul", "",
                          "all,chrome,dialog=no,status,toolbar",
                          null);
-  return windowHelper.wait_for_new_window("mail:3pane");
+  return wait_for_new_window("mail:3pane");
 }
 
 function openAddressBook() {
-  windowHelper.plan_for_new_window("mail:addressbook");
+  plan_for_new_window("mail:addressbook");
   Services.ww.openWindow(null,
                          "chrome://messenger/content/addressbook/addressbook.xul", "",
                          "all,chrome,dialog=no,status,toolbar",
                          null);
-  return windowHelper.wait_for_new_window("mail:addressbook");
+  return wait_for_new_window("mail:addressbook");
 }
 
 /* :::::::: The Tests ::::::::::::::: */
 
 function setupModule(module) {
-  let folderDisplayHelper = collector.getModule('folder-display-helpers');
-  folderDisplayHelper.installInto(module);
-  windowHelper = collector.getModule('window-helpers');
-  windowHelper.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   folderA = create_folder("SessionStoreA");
   make_new_sets_in_folder(folderA, [{count: 3}]);
@@ -93,7 +85,7 @@ function setupModule(module) {
 
   // clobber the default interval used by the session autosave timer so the
   // unit tests end up being as close to instantaneous as possible
-  sessionStoreManager._sessionAutoSaveTimerIntervalMS = 10;
+  sessionStoreManager._sessionAutoSaveTimerIntervalMS = 100;
 
   sessionStoreManager.stopPeriodicSave();
 }
@@ -107,6 +99,8 @@ function teardownModule(module) {
   // value
   sessionStoreManager._sessionAutoSaveTimerIntervalMS =
                               sessionStoreManager.SESSION_AUTO_SAVE_DEFAULT_MS;
+  folderA.Delete();
+  folderB.Delete();
 }
 
 function test_periodic_session_persistence_simple() {
@@ -139,7 +133,8 @@ function test_periodic_nondirty_session_persistence() {
 
   // since we didn't change the state of the session, the session file
   // should not be re-created
-  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS);
+  controller.sleep(sessionStoreManager._sessionAutoSaveTimerIntervalMS +
+                   asyncFileWriteDelayMS);
   jumlib.assert(!sessionFile.exists(), "file should not exist");
 }
 
