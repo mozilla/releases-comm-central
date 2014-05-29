@@ -484,7 +484,7 @@
 @BINPATH@/components/SiteSpecificUserAgent.manifest
 @BINPATH@/components/smileApplication.js
 @BINPATH@/components/smileApplication.manifest
-@BINPATH@/components/storage-mozStorage.js
+@BINPATH@/components/storage-json.js
 @BINPATH@/components/SuiteProfileMigrator.js
 @BINPATH@/components/SuiteProfileMigrator.manifest
 #ifdef MOZ_SERVICES_SYNC
