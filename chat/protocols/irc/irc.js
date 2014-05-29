@@ -540,7 +540,7 @@ ircChannel.prototype = {
   },
   get topicSettable() {
     // We must be in the room to set the topic.
-    if (!this.left)
+    if (this.left)
       return false;
 
     // If the channel mode is +t, hops and ops can set the topic; otherwise
