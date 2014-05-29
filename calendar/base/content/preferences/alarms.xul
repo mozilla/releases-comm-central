@@ -59,14 +59,6 @@
             <preference id="calendar.alarms.defaultsnoozelength"
                         name="calendar.alarms.defaultsnoozelength"
                         type="int"/>
-<!--
-            <preference id="calendar.alarms.emailaddress"
-                        name="calendar.alarms.emailaddress"
-                        type="string"/>
-            <preference id="calendar.alarms.text"
-                        name="calendar.alarms.text"
-                        type="string"/>
--->
         </preferences>
 
         <groupbox>
@@ -229,20 +221,6 @@
                 </rows>
             </grid>
 
-<!--
-            <hbox collapsed="true">
-                <caption label="&pref.defaultemail.label;"/>
-                <textbox id="alarmemailaddress"
-                         preference="calendar.alarms.emailaddress"
-                         flex="1"/>
-            </hbox>
-            <hbox collapsed="true">
-                <caption label="&pref.defaulttext.label;"/>
-                <textbox id="alarmtext"
-                         preference="calendar.alarm.text"
-                         flex="1"/>
-            </hbox>
--->
         </groupbox>
 
     </vbox>
