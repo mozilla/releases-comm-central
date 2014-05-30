@@ -539,13 +539,15 @@ ircChannel.prototype = {
     this._account.sendMessage("TOPIC", [this.name, aTopic]);
   },
   get topicSettable() {
+    // Don't use getParticipant since we don't want to lazily create it!
+    let participant = this._participants.get(this.nick);
+
     // We must be in the room to set the topic.
-    if (this.left)
+    if (!participant)
       return false;
 
     // If the channel mode is +t, hops and ops can set the topic; otherwise
     // everyone can.
-    let participant = this.getParticipant(this.nick);
     return !this._modes.has("t") || participant.op || participant.halfOp;
   }
 };
