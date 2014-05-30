@@ -112,10 +112,10 @@
         <body>
         <![CDATA[
           if ("buddies" in this) {
-            for each (let chatBuddy in this.buddies) {
+            this.buddies.forEach(chatBuddy => {
               if (chatBuddy.activeTimer)
                 clearTimeout(chatBuddy.activeTimer);
-            }
+            });
           }
           this._forgetConv();
 
@@ -218,8 +218,8 @@
 
           if (!aMsg.system && conv.isChat) {
             let name = aMsg.who;
-            aMsg.color = this._hasBuddy(name) ?
-                         this._activateBuddy(this.buddies[name], aMsg.time) :
+            aMsg.color = this.buddies.has(name) ?
+                         this._activateBuddy(this.buddies.get(name), aMsg.time) :
                          this._getColorStyle(this._computeColor(name));
           }
 
@@ -564,7 +564,7 @@
               const suffix = ": ";
               if (pos > suffix.length &&
                   text.substring(pos - suffix.length, pos) == suffix) {
-                let completions = Object.keys(this.buddies);
+                let completions = [b for (b of this.buddies.keys())];
                 // Check if the preceding words are a sequence of nick completions.
                 let preceding = text.substring(0, pos - suffix.length).split(", ");
                 if (preceding.every(function(n) completions.indexOf(n) != -1)) {
@@ -653,7 +653,7 @@
 
               firstWordSuffix = ": ";
 
-              completions = Object.keys(this.buddies);
+              completions = [b for (b of this.buddies.keys())];
 
               // Add recently parted nicks.
               const kIncludeNickTimespan = 300000;
@@ -738,8 +738,8 @@
             if (this._conv.isChat && !completingCommand) {
               // If there are active nicks, prefer those.
               let activeCompletions = this._completions.filter(function(c)
-                this._hasBuddy(c) &&
-                !this.buddies[c].hasAttribute("inactive"), this);
+                this.buddies.has(c) &&
+                !this.buddies.get(c).hasAttribute("inactive"), this);
               if (activeCompletions.length == 1)
                 preferredNick = true;
               if (activeCompletions.length) {
@@ -753,7 +753,7 @@
 
               // If one of the completions is the sender of the last ping,
               // take it, if it was less than an hour ago.
-              if (this._lastPing && this._hasBuddy(this._lastPing) &&
+              if (this._lastPing && this.buddies.has(this._lastPing) &&
                   this._completions.indexOf(this._lastPing) != -1 &&
                   (Date.now() / 1000 - this._lastPingTime) < 3600) {
                 preferredNick = true;
@@ -1068,7 +1068,7 @@
               let secondNick = false;
               let pos = text.indexOf(":");
               if (pos != -1) {
-                let completions = Object.keys(this.buddies);
+                let completions = [b for (b of this.buddies.keys())];
                 // Check if the preceding words are a sequence of nicks.
                 let preceding = text.substring(0, pos).split(", ");
                 if (preceding.every(function(n) completions.indexOf(n) != -1))
@@ -1199,17 +1199,6 @@
         </body>
       </method>
 
-      <!-- Test if aBuddyName is known in this.buddies without
-           risking a conflict with an hypothetical hasOwnProperty nick. -->
-      <method name="_hasBuddy">
-        <parameter name="aBuddyName"/>
-        <body>
-        <![CDATA[
-          return Object.prototype.hasOwnProperty.call(this.buddies, aBuddyName);
-        ]]>
-        </body>
-      </method>
-
       <!-- Set nick to active if the last message is not older than
            nickActiveTimespan. -->
       <method name="_activateBuddy">
@@ -1255,7 +1244,7 @@
           var name = aBuddy.name;
           if (!name)
             throw "The empty string isn't a valid nick.";
-          if (this._hasBuddy(name))
+          if (this.buddies.has(name))
             throw "Adding chat buddy " + name + " twice?!";
 
           this.trackNick(name);
@@ -1278,7 +1267,7 @@
             delete this.partedBuddies[name];
           }
 
-          this.buddies[name] = item;
+          this.buddies.set(name, item);
           if (aShouldAppendDirectly) {
             this.nicklistElt.appendChild(item);
             this._nicks.push(name.toLowerCase());
@@ -1293,7 +1282,7 @@
       <!-- Array of lowercase nicks kept in the order in which they are
            displayed in the participant list.
            This array is for performance optimization only. To obtain the
-           capitalized list of nicks use Object.keys(this.buddies) -->
+           capitalized list of nicks use [b for (b of this.buddies.keys())]. -->
       <field name="_nicks">[]</field>
 
       <method name="addNick">
@@ -1340,25 +1329,25 @@
 
           if (!aOldName) {
             // If aOldName is null, we are changing the flags of the buddy
-            var item = this.buddies[name];
+            let item = this.buddies.get(name);
             item.chatBuddy = aBuddy;
             this.setBuddyAttributes(item);
             return;
           }
 
           // Is aOldName is not null, then we are renaming the buddy
-          if (!this._hasBuddy(aOldName))
+          if (!this.buddies.has(aOldName))
             throw "Updating a chat buddy that does not exist: " + aOldName;
 
-          if (this._hasBuddy(name))
+          if (this.buddies.has(name))
             throw "Updating a chat buddy to an already existing one: " + name;
 
           this.trackNick(name);
 
-          var item = this.buddies[aOldName];
+          let item = this.buddies.get(aOldName);
           item.chatBuddy = aBuddy;
-          delete this.buddies[aOldName];
-          this.buddies[name] = item;
+          this.buddies.delete(aOldName);
+          this.buddies.set(name, item);
           item.setAttribute("label", name);
 
           // Move this item to the right position if its name changed
@@ -1373,9 +1362,9 @@
         <parameter name="aName"/>
         <body>
         <![CDATA[
-          if (!this._hasBuddy(aName))
+          if (!this.buddies.has(aName))
             throw "Cannot remove a buddy that was not in the room: " + aName;
-          var item = this.buddies[aName];
+          let item = this.buddies.get(aName);
           this.partedBuddies[aName] = {partTime: Date.now()};
           if (item.activeTimer) {
             clearTimeout(item.activeTimer);
@@ -1383,7 +1372,7 @@
           }
           this._nicks.splice(this._nicks.indexOf(aName.toLowerCase()), 1);
           item.remove();
-          delete this.buddies[aName];
+          this.buddies.delete(aName);
         ]]>
         </body>
       </method>
@@ -1408,9 +1397,8 @@
             if (!("_showNickRegExp" in this)) {
               if (!("_showNickList" in this)) {
                 this._showNickList = {};
-                Object.keys(this.buddies).forEach(function(n) {
+                for (let n of this.buddies.keys())
                   this._showNickList[n.replace(this._nickEscape, "\\$&")] = true;
-                }, this);
               }
 
               // The reverse sort ensures that if we have "foo" and "foobar",
@@ -1447,8 +1435,8 @@
               let nick = nickNode.data;
               let elt = aNode.ownerDocument.createElement("span");
               elt.setAttribute("class", "ib-nick");
-              if (this._hasBuddy(nick)) {
-                let buddy = this.buddies[nick];
+              if (this.buddies.has(nick)) {
+                let buddy = this.buddies.get(nick);
                 if (!buddy.colorStyle)
                   this._setBuddyColor(buddy);
                 elt.setAttribute("style", buddy.colorStyle);
@@ -1749,7 +1737,7 @@
             this.getElt("participantCount").setAttribute("id", id);
 
             // Populate the nicklist
-            this.buddies = {};
+            this.buddies = new Map();
             this.partedBuddies = {};
             this._nicks = [];
             this.nicklistElt = this.getElt("nicklist");

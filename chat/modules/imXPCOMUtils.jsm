@@ -7,7 +7,6 @@ const EXPORTED_SYMBOLS = [
   "setTimeout",
   "clearTimeout",
   "executeSoon",
-  "hasOwnProperty",
   "nsSimpleEnumerator",
   "EmptyEnumerator",
   "ClassInfo",
@@ -161,11 +160,6 @@ function executeSoon(aFunction)
 {
   Services.tm.mainThread.dispatch(aFunction, Ci.nsIEventTarget.DISPATCH_NORMAL);
 }
-
-// Similar to Object.hasOwnProperty, but doesn't fail if the object
-// has a hasOwnProperty property set.
-function hasOwnProperty(aObject, aPropertyName)
-  Object.prototype.hasOwnProperty.call(aObject, aPropertyName)
 
 /* Common nsIClassInfo and QueryInterface implementation
  * shared by all generic objects implemented in this file. */
