@@ -1101,19 +1101,22 @@ const XMPPAccountPrototype = {
 
   /* When the roster is received */
   onRoster: function(aStanza) {
+    // For the first element that is a roster stanza.
     for each (let qe in aStanza.getChildren("query")) {
       if (qe.uri != Stanza.NS.roster)
         continue;
 
-      let savedRoster = Object.keys(this._buddies);
-      let newRoster = {};
+      // Find all the roster items in the new message.
+      let newRoster = new Set();
       for each (let item in qe.getChildren("item")) {
         let jid = this._onRosterItem(item);
         if (jid)
-          newRoster[jid] = true;
+          newRoster.add(jid);
       }
+      // If an item was in the old roster, but not in the new, forget it.
+      let savedRoster = Object.keys(this._buddies);
       for each (let jid in savedRoster) {
-        if (!hasOwnProperty(newRoster, jid))
+        if (!newRoster.has(jid))
           this._forgetRosterItem(jid);
       }
       break;
