@@ -250,13 +250,19 @@ function ComposeMessage(type, format, folder, messageArray)
       {
         var messageUri = messageArray[i];
         hdr = messenger.msgHdrFromURI(messageUri);
-        identity = getIdentityForHeader(hdr, type);
         if (FeedMessageHandler.isFeedMessage(hdr))
+        {
+          // Do not use the header derived identity for feeds, pass on only a
+          // possible server identity from above.
           openComposeWindowForRSSArticle(null, hdr, messageUri, type,
                                          format, identity, msgWindow);
+        }
         else
+        {
+          let hdrIdentity = getIdentityForHeader(hdr, type);
           MailServices.compose.OpenComposeWindow(null, hdr, messageUri, type,
-                                                 format, identity, msgWindow);
+                                                 format, hdrIdentity, msgWindow);
+        }
       }
   }
 }

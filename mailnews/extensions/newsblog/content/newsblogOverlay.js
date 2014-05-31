@@ -41,7 +41,14 @@ function openSubscriptionsDialog(aFolder)
 function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
                                         aType, aFormat, aIdentity, aMsgWindow)
 {
-  if (gShowFeedSummary)
+  // Ensure right content is handled for web pages in window/tab.
+  let tabmail = document.getElementById("tabmail");
+  let is3pane = tabmail && tabmail.selectedTab && tabmail.selectedTab.mode ?
+                  tabmail.selectedTab.mode.type == "folder" : false;
+  let showingwebpage = ("FeedMessageHandler" in window) && !is3pane &&
+                       FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenWebPage;
+
+  if (gShowFeedSummary && !showingwebpage)
   {
     // The user is viewing the summary.
     MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
