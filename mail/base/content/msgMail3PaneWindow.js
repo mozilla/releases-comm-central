@@ -184,10 +184,18 @@ function SelectServer(server)
 var gThreePaneIncomingServerListener = {
     onServerLoaded: function(server) {},
     onServerUnloaded: function(server) {
+      let defaultServer;
+      try {
+        defaultServer = accountManager.defaultAccount.incomingServer;
+      } catch (e) {
+       // If there is no default server we have nothing to do.
+       return;
+      }
+
       var selectedFolders = GetSelectedMsgFolders();
       for (var i = 0; i < selectedFolders.length; i++) {
         if (ServerContainsFolder(server, selectedFolders[i])) {
-          SelectServer(accountManager.defaultAccount.incomingServer);
+          SelectServer(defaultServer);
           // we've made a new selection, we're done
           return;
         }
@@ -197,7 +205,7 @@ var gThreePaneIncomingServerListener = {
       // this could happen if nothing was selected when the server was removed
       selectedFolders = GetSelectedMsgFolders();
       if (selectedFolders.length == 0) {
-        SelectServer(accountManager.defaultAccount.incomingServer);
+        SelectServer(defaultServer);
       }
     },
     onServerChanged: function(server) {

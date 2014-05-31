@@ -185,15 +185,19 @@ let moveCopyModule =
   },
 
   folderDeleted : function(aFolder) {
-    let server = aFolder.server;
-    // If the account has been removed, we're going to ignore this notification.
+    let server;
     try {
+      // When a new account is created we get this notification with an empty named
+      // folder that can't return its server. Ignore it.
+      // TODO: find out what it is.
+      server = aFolder.server;
+      // If the account has been removed, we're going to ignore this notification.
       MailServices.accounts.FindServer(server.username, server.hostName, server.type);
     }
     catch(ex) {return;}
 
     let displayText;
-    let statusText = aFolder.server.prettyName;
+    let statusText = server.prettyName;
 
     // Display a different message depending on whether we emptied the trash
     // or actually deleted a folder
@@ -204,7 +208,7 @@ let moveCopyModule =
 
     // create an activity event
     let event = new nsActEvent(displayText,
-                               aFolder.server,
+                               server,
                                statusText,
                                Date.now(),  // start time
                                Date.now()); // completion time

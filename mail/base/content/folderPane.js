@@ -1292,6 +1292,11 @@ let gFolderTreeView = {
     if (this._notPersistedModes.indexOf(mode) != -1)
       return;
 
+    // If the whole mode is not in the map yet,
+    // we can silently ignore the folder removal.
+    if (!this._persistOpenMap[mode])
+      return;
+
     let persistMapIndex = this._persistOpenMap[mode].indexOf(aItemId);
     if (persistMapIndex != -1)
       this._persistOpenMap[mode].splice(persistMapIndex, 1);
