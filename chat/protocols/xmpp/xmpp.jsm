@@ -15,6 +15,7 @@ Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imStatusUtils.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
+Cu.import("resource:///modules/NormalizedMap.jsm");
 Cu.import("resource:///modules/socket.jsm");
 Cu.import("resource:///modules/xmpp-xml.jsm");
 Cu.import("resource:///modules/xmpp-session.jsm");
@@ -83,6 +84,8 @@ MUCParticipant.prototype = {
 // MUC (Multi-User Chat)
 const XMPPMUCConversationPrototype = {
   __proto__: GenericConvChatPrototype,
+  // By default users are not in a MUC.
+   _left: true,
 
   _init: function(aAccount, aJID, aNick) {
     GenericConvChatPrototype._init.call(this, aAccount, aJID, aNick);
@@ -612,9 +615,9 @@ const XMPPAccountPrototype = {
     GenericAccountPrototype._init.call(this, aProtoInstance, aImAccount);
 
     /* Ongoing conversations */
-    this._conv = {};
-    this._buddies = {};
-    this._mucs = {};
+    this._conv = new NormalizedMap(this.normalize.bind(this));
+    this._buddies = new NormalizedMap(this.normalize.bind(this));
+    this._mucs = new NormalizedMap(this.normalize.bind(this));
   },
 
   get canJoinChat() true,
@@ -647,13 +650,11 @@ const XMPPAccountPrototype = {
     let jid =
       aComponents.getValue("room") + "@" + aComponents.getValue("server");
     let nick = aComponents.getValue("nick");
-    if (jid in this._mucs) {
-      if (!this._mucs[jid].left)
-        return; // We are already in this conversation.
-      this._mucs[jid].left = false; // We are rejoining.
+    if (this._mucs.has(jid)) {
+      let muc = this._mucs.get(jid);
+      if (!muc.left)
+        return muc; // We are already in this conversation.
     }
-    else
-      this._mucs[jid] = aComponents;
 
     let x;
     let password = aComponents.getValue("password");
@@ -662,6 +663,13 @@ const XMPPAccountPrototype = {
                       Stanza.node("password", null, null, password));
     }
     this._connection.sendStanza(Stanza.presence({to: jid + "/" + nick}, x));
+
+    let muc = new this._MUCConversationConstructor(this, jid, nick);
+    this._mucs.set(jid, muc);
+    // Store the prplIChatRoomFieldValues to enable later reconnections.
+    muc._chatRoomFields = aComponents;
+    muc.joining = true;
+    return muc;
   },
 
   _idleSince: 0,
@@ -721,12 +729,9 @@ const XMPPAccountPrototype = {
   },
 
   remove: function() {
-    for each (let conv in this._conv)
-      conv.close();
-    for each (let muc in this._mucs)
-      muc.close();
-    for (let jid in this._buddies)
-      this._forgetRosterItem(jid);
+    this._conv.forEach(conv => conv.close());
+    this._mucs.forEach(muc => muc.close());
+    this._buddies.forEach(jid => this._forgetRosterItem(jid));
   },
 
   unInit: function() {
@@ -751,8 +756,8 @@ const XMPPAccountPrototype = {
     if (!jid || !jid.contains("@"))
       throw "Invalid username";
 
-    if (this._buddies.hasOwnProperty(jid)) {
-      let subscription = this._buddies[jid].subscription;
+    if (this._buddies.has(jid)) {
+      let subscription = this._buddies.get(jid).subscription;
       if (subscription && (subscription == "both" || subscription == "to")) {
         this.DEBUG("not re-adding an existing buddy");
         return;
@@ -774,7 +779,7 @@ const XMPPAccountPrototype = {
    * to the server. */
   loadBuddy: function(aBuddy, aTag) {
     let buddy = new this._accountBuddyConstructor(this, aBuddy, aTag);
-    this._buddies[buddy.normalizedName] = buddy;
+    this._buddies.set(buddy.normalizedName, buddy);
     return buddy;
   },
 
@@ -845,22 +850,23 @@ const XMPPAccountPrototype = {
       // receive a roster push containing more or less the same information
       return;
     }
-    else if (jid in this._buddies)
-      this._buddies[jid].onPresenceStanza(aStanza);
-    else if (jid in this._mucs) {
-      if (this._mucs[jid] instanceof Ci.prplIChatRoomFieldValues) {
-        // We have attempted to join, but not created the conversation yet.
-        if (aStanza.attributes["type"] == "error") {
-          delete this._mucs[jid];
-          this.ERROR("Failed to join MUC: " + aStanza.convertToString());
-          return;
-        }
-        let chatRoomFields = this._mucs[jid];
-        let nick = chatRoomFields.getValue("nick");
-        this._mucs[jid] = new this._MUCConversationConstructor(this, jid, nick);
-        this._mucs[jid].chatRoomFields = chatRoomFields;
+    else if (this._buddies.has(jid))
+      this._buddies.get(jid).onPresenceStanza(aStanza);
+    else if (this._mucs.has(jid)) {
+      let muc = this._mucs.get(jid);
+      muc.joining = false;
+
+      // The join failed.
+      if (muc.left && aStanza.attributes["type"] == "error") {
+        muc.writeMessage(muc.name, _("conversation.error.joinFailed", muc.name),
+                         {system: true, error: true});
+        this.ERROR("Failed to join MUC: " + aStanza.convertToString());
+        return;
       }
-      this._mucs[jid].onPresenceStanza(aStanza);
+
+      // The join was successful.
+      muc.left = false;
+      muc.onPresenceStanza(aStanza);
     }
     else if (jid != this.normalize(this._connection._jid.jid))
       this.WARN("received presence stanza for unknown buddy " + from);
@@ -898,12 +904,12 @@ const XMPPAccountPrototype = {
       if (date && isNaN(date))
         date = undefined;
       if (type == "groupchat" ||
-          (type == "error" && this._mucs.hasOwnProperty(norm))) {
-        if (!this._mucs.hasOwnProperty(norm)) {
+          (type == "error" && this._mucs.has(norm))) {
+        if (!this._mucs.has(norm)) {
           this.WARN("Received a groupchat message for unknown MUC " + norm);
           return;
         }
-        let muc = this._mucs[norm];
+        let muc = this._mucs.get(norm);
 
         // Check for a subject element in the stanza and update the topic if
         // it exists.
@@ -919,11 +925,11 @@ const XMPPAccountPrototype = {
 
       if (!this.createConversation(norm))
         return;
-      this._conv[norm].incomingMessage(body, aStanza, date);
+      this._conv.get(norm).incomingMessage(body, aStanza, date);
     }
 
     // Don't create a conversation to only display the typing notifications.
-    if (!this._conv.hasOwnProperty(norm))
+    if (!this._conv.has(norm))
       return;
 
     // Ignore errors while delivering typing notifications.
@@ -942,7 +948,7 @@ const XMPPAccountPrototype = {
       else if (state == "paused")
         typingState = Ci.prplIConvIM.TYPED;
     }
-    let conv = this._conv[norm];
+    let conv = this._conv.get(norm);
     conv.updateTyping(typingState);
     conv.supportChatStateNotifications = !!state;
   },
@@ -959,9 +965,9 @@ const XMPPAccountPrototype = {
   _vCardReceived: false,
   onVCard: function(aStanza) {
     let jid = this.normalize(aStanza.attributes["from"]);
-    if (!jid || !this._buddies.hasOwnProperty(jid))
+    if (!jid || !this._buddies.has(jid))
       return;
-    let buddy = this._buddies[jid];
+    let buddy = this._buddies.get(jid);
 
     let vCard = aStanza.getElement(["vCard"]);
     if (!vCard)
@@ -1028,8 +1034,8 @@ const XMPPAccountPrototype = {
     }
 
     let buddy;
-    if (this._buddies.hasOwnProperty(jid)) {
-      buddy = this._buddies[jid];
+    if (this._buddies.has(jid)) {
+      buddy = this._buddies.get(jid);
       let groups = aItem.getChildren("group");
       if (groups.length) {
         // If the server specified at least one group, ensure the group we use
@@ -1068,7 +1074,7 @@ const XMPPAccountPrototype = {
 
     let alias = "name" in aItem.attributes ? aItem.attributes["name"] : "";
     if (alias) {
-      if (aNotifyOfUpdates && this._buddies.hasOwnProperty(jid))
+      if (aNotifyOfUpdates && this._buddies.has(jid))
         buddy.rosterAlias = alias;
       else
         buddy._rosterAlias = alias;
@@ -1078,8 +1084,8 @@ const XMPPAccountPrototype = {
 
     if (subscription)
       buddy.subscription = subscription;
-    if (!this._buddies.hasOwnProperty(jid)) {
-      this._buddies[jid] = buddy;
+    if (!this._buddies.has(jid)) {
+      this._buddies.set(jid, buddy);
       Services.contacts.accountBuddyAdded(buddy);
     }
     else if (aNotifyOfUpdates)
@@ -1092,8 +1098,8 @@ const XMPPAccountPrototype = {
     return jid;
   },
   _forgetRosterItem: function(aJID) {
-    Services.contacts.accountBuddyRemoved(this._buddies[aJID]);
-    delete this._buddies[aJID];
+    Services.contacts.accountBuddyRemoved(this._buddies.get(aJID));
+    this._buddies.delete(aJID);
   },
   _requestVCard: function(aJID) {
     let s = Stanza.iq("get", null, aJID,
@@ -1116,8 +1122,7 @@ const XMPPAccountPrototype = {
           newRoster.add(jid);
       }
       // If an item was in the old roster, but not in the new, forget it.
-      let savedRoster = Object.keys(this._buddies);
-      for each (let jid in savedRoster) {
+      for (let jid of this._buddies.keys()) {
         if (!newRoster.has(jid))
           this._forgetRosterItem(jid);
       }
@@ -1125,10 +1130,10 @@ const XMPPAccountPrototype = {
     }
 
     this._sendPresence();
-    for each (let b in this._buddies) {
+    this._buddies.forEach(b => {
       if (b.subscription == "both" || b.subscription == "to")
         b.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
-    }
+    });
     this.reportConnected();
     this._sendVCard();
   },
@@ -1146,25 +1151,26 @@ const XMPPAccountPrototype = {
 
   /* Create a new conversation */
   createConversation: function(aNormalizedName) {
-    if (!this._buddies.hasOwnProperty(aNormalizedName)) {
+    if (!this._buddies.has(aNormalizedName)) {
       this.ERROR("Trying to create a conversation; buddy not present: " + aNormalizedName);
       return null;
     }
 
-    if (!this._conv.hasOwnProperty(aNormalizedName)) {
-      this._conv[aNormalizedName] =
-        new this._conversationConstructor(this, this._buddies[aNormalizedName]);
+    if (!this._conv.has(aNormalizedName)) {
+      this._conv.set(aNormalizedName,
+        new this._conversationConstructor(this,
+                                          this._buddies.get(aNormalizedName)));
     }
 
-    return this._conv[aNormalizedName];
+    return this._conv.get(aNormalizedName);
   },
 
   /* Remove an existing conversation */
   removeConversation: function(aNormalizedName) {
-    if (aNormalizedName in this._conv)
-      delete this._conv[aNormalizedName];
-    else if (aNormalizedName in this._mucs)
-      delete this._mucs[aNormalizedName];
+    if (this._conv.has(aNormalizedName))
+      this._conv.delete(aNormalizedName);
+    else if (this._mucs.has(aNormalizedName))
+      this._mucs.delete(aNormalizedName);
   },
 
   /* Private methods */
@@ -1181,14 +1187,16 @@ const XMPPAccountPrototype = {
 
     this.reportDisconnecting(aError, aErrorMessage);
 
-    for each (let b in this._buddies) {
+    this._buddies.forEach(b => {
       if (!aQuiet)
         b.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "");
       b.onAccountDisconnected();
-    }
+    });
 
-    for each (let muc in this._mucs)
+    this._mucs.forEach(muc => {
+      muc.joining = false; // In case we never finished joining.
       muc.left = true;
+    });
 
     this._connection.disconnect();
     delete this._connection;
