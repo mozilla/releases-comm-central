@@ -662,17 +662,17 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     return NS_OK;
   }
 
-  // the policy we're trying to enforce is around the settings for 
-  // message URLs, so if this isn't one of those, bail out
   nsresult rv;
+  bool isAllowedContent = !ShouldBlockUnexposedProtocol(aContentLocation);
   nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(aContentLocation, &rv);
-  if (NS_FAILED(rv)) {
+  if (NS_FAILED(rv) && !isAllowedContent) {
+    // If it's not a mailnews url or allowed content url (http[s]|file) then
+    // bail; otherwise set whether js and plugins are allowed.
     return NS_OK;
   }
 
   // since NS_CP_GetDocShellFromContext returns the containing docshell rather
   // than the contained one we need, we can't use that here, so...
-  
   nsCOMPtr<nsIFrameLoaderOwner> flOwner = do_QueryInterface(aRequestingContext,
                                                             &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -699,13 +699,20 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     return NS_OK;
   }
 
-  // For messages, we must always disable javascript...
-  rv = docShell->SetAllowJavascript(false);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // ...and we allow plugins according to the mail specific preference.
-  rv = docShell->SetAllowPlugins(mAllowPlugins);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (!isAllowedContent) {
+    // Disable JavaScript on message URLs.
+    rv = docShell->SetAllowJavascript(false);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = docShell->SetAllowPlugins(mAllowPlugins);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  else {
+    // JavaScript and plugins are allowed on non-message URLs.
+    rv = docShell->SetAllowJavascript(true);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = docShell->SetAllowPlugins(true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   return NS_OK;
 }
