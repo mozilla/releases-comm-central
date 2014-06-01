@@ -192,7 +192,12 @@
               <grippy/>
             </splitter>
 
-            <box id="messagesBox" orient="vertical" flex="1">
+            <box id="messagesBox"
+                 orient="vertical"
+                 flex="1"
+                 minwidth="100"
+                 width="100"
+                 persist="width">
               <deck id="displayDeck"
                     flex="1"
                     selectedIndex="0"
@@ -213,9 +218,6 @@
                         treelines="true"
                         keepcurrentinview="true"
                         flex="1"
-                        minwidth="100"
-                        width="100"
-                        persist="width"
                         context="mailContext"
                         class="window-focusborder"
                         focusring="false"/>
