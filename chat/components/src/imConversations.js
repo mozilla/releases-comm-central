@@ -250,10 +250,12 @@ UIConversation.prototype = {
       delete this._disconnected;
       if (!this.isChat)
         this._justReconnected = true;
-      else if (!this._wasLeft)
+      // Exclude convs with contacts, these receive presence info updates
+      // (and therefore a reconnected message).
+      if ((this.isChat && !this._wasLeft) ||
+          (!this.isChat && !this.contact))
         this.systemMessage(bundle.GetStringFromName("accountReconnected"));
-      else
-        delete this._wasLeft;
+      delete this._wasLeft;
     }
     this.notifyObservers(this, "update-buddy-status");
   },
