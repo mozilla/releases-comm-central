@@ -5,6 +5,7 @@
 
 //NOTE: gAddressBookBundle must be defined and set or this Overlay won't work
 
+Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var gProfileDirURL;
@@ -553,13 +554,19 @@ function HandleLink(node, label, value, box, link)
   return visible;
 }
 
-function MapIt(id)
+function OpenURLWithHistory(url)
 {
-  var button = document.getElementById(id);
   try {
+    PlacesUtils.asyncHistory.updatePlaces({
+      uri: Services.io.newURI(url, null, null),
+      visits:  [{
+        visitDate: Date.now() * 1000,
+        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+      }]
+    });
     var messenger = Components.classes["@mozilla.org/messenger;1"].createInstance();
     messenger = messenger.QueryInterface(Components.interfaces.nsIMessenger);
-    messenger.launchExternalURL(button.getAttribute('url'));
+    messenger.launchExternalURL(url);
   } catch (ex) {}
 }
 
@@ -578,14 +585,14 @@ function CreateMapItURL(address1, address2, city, state, zip, country)
   return urlFormat;
 }
 
-// XXX merge with the code in Map It
+function MapIt(id)
+{
+  OpenURLWithHistory(document.getElementById(id).getAttribute('url'));
+}
+
 function openLink(id)
 {
-  try {
-    var messenger = Components.classes["@mozilla.org/messenger;1"].createInstance();
-    messenger = messenger.QueryInterface(Components.interfaces.nsIMessenger);
-    messenger.launchExternalURL(document.getElementById(id).getAttribute("href"));
-  } catch (ex) {}
+  OpenURLWithHistory(document.getElementById(id).getAttribute("href"));
 
   // return false, so we don't load the href in the addressbook window
   return false;

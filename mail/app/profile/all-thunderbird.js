@@ -698,10 +698,10 @@ pref("browser.tabs.loadDivertedInBackground", false);
 pref("browser.chrome.site_icons", true);
 pref("browser.chrome.favicons", true);
 
-// Disable places by default as we don't want to store global history
+// Enable places by default as we want to store global history for visited links
 // Below we define reasonable defaults as copied from Firefox so that we have
-// something sensible should an extension wish to enable this.
-pref("places.history.enabled", false);
+// something sensible.
+pref("places.history.enabled", true);
 
 // With places disabled by default, the default growth increment is set to zero
 // as it would otherwise default to 10MB as the minimum space occupied by the

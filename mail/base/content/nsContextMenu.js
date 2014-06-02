@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
+Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/MailUtils.js");
 
@@ -919,13 +920,26 @@ nsContextMenu.prototype = {
   openInBrowser: function CM_openInBrowser() {
     let uri = Services.io.newURI(this.target.ownerDocument.defaultView.
                                  top.location.href, null, null);
-
+    PlacesUtils.asyncHistory.updatePlaces({
+      uri: uri,
+      visits:  [{
+        visitDate: Date.now() * 1000,
+        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+      }]
+    });
     Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
               .getService(Components.interfaces.nsIExternalProtocolService)
               .loadURI(uri);
   },
 
   openLinkInBrowser: function CM_openLinkInBrowser() {
+    PlacesUtils.asyncHistory.updatePlaces({
+      uri: this.linkURI,
+      visits:  [{
+        visitDate: Date.now() * 1000,
+        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+      }]
+    });
     Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Components.interfaces.nsIExternalProtocolService)
       .loadURI(this.linkURI);

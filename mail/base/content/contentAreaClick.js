@@ -11,6 +11,7 @@
    * @return href for the url being clicked
    */
 
+  Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
   Components.utils.import("resource://gre/modules/Services.jsm");
 
   function hRefForClickEvent(aEvent, aDontCheckInputElement)
@@ -137,6 +138,14 @@ function openLinkExternally(url)
   let uri = url;
   if (!(uri instanceof Components.interfaces.nsIURI))
     uri = Services.io.newURI(url, null, null);
+
+  PlacesUtils.asyncHistory.updatePlaces({
+    uri: uri,
+    visits:  [{
+      visitDate: Date.now() * 1000,
+      transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+    }]
+  });
 
   Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
             .getService(Components.interfaces.nsIExternalProtocolService)

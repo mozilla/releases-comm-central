@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var gShowBiDi = false;
@@ -171,8 +172,16 @@ function togglePaneSplitter(splitterId)
 // We currently only react to left click in Thunderbird.
 function openUILink(url, event)
 {
-  if (!event.button)
+  if (!event.button) {
+    PlacesUtils.asyncHistory.updatePlaces({
+      uri: makeURI(url),
+      visits:  [{
+        visitDate: Date.now() * 1000,
+        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+      }]
+    });
     messenger.launchExternalURL(url);
+  }
 }
 
 function openWhatsNew()
