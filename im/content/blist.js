@@ -77,9 +77,13 @@ function buddyListContextMenu(aXulMenu) {
       this.target.tag.id == -1;
   }
   else {
-    let enumerator = this._getLogs();
-    document.getElementById("context-showlogs").disabled =
-      !enumerator || !enumerator.hasMoreElements();
+    let showLogsItem = document.getElementById("context-showlogs");
+    // Start disabled, then enable if we have logs.
+    showLogsItem.setAttribute("disabled", true);
+    this._getLogs().then(aLogs => {
+      if (aLogs && aLogs.hasMoreElements())
+        showLogsItem.removeAttribute("disabled");
+    });
   }
 
   document.getElementById("context-show-offline-buddies-separator").hidden =
@@ -171,12 +175,13 @@ buddyListContextMenu.prototype = {
     return null;
   },
   showLogs: function blcm_showLogs() {
-    let enumerator = this._getLogs();
-    if (!enumerator)
-      return;
-    window.openDialog("chrome://instantbird/content/viewlog.xul",
-                      "Logs", "chrome,resizable", {logs: enumerator},
-                      this.target.displayName);
+    this._getLogs().then(aLogs => {
+      if (!aLogs || !aLogs.hasMoreElements())
+        return;
+      window.openDialog("chrome://instantbird/content/viewlog.xul",
+                        "Logs", "chrome,resizable", {logs: aLogs},
+                        this.target.displayName);
+    });
   },
   hideTag: function blcm_hideTag() {
     if (!this.onGroup || this.target.tag.id == -1)

@@ -124,6 +124,16 @@ nsContextMenu.prototype = {
     for (let action of nickActions)
       this.showItem(action.id, action.visible);
 
+    if (this.onNick) {
+      let elt = document.getElementById("context-nick-showlogs");
+      // Start disabled, then enable if we have logs.
+      elt.setAttribute("disabled", true);
+      this.getLogsForNick(this.nick).then(aLogs => {
+        if (aLogs && aLogs.hasMoreElements())
+          elt.removeAttribute("disabled");
+      });
+    }
+
     // Display action menu items.
     let before = document.getElementById("context-sep-messageactions");
     for each (let action in actions) {
@@ -162,7 +172,7 @@ nsContextMenu.prototype = {
     let isTwitter = this.conv.account.protocol.id == "prpl-twitter";
 
     addAction("OpenConv", this.onNick && !isTwitter);
-    addAction("ShowLogs", this.onNick && this.getLogsForNick(nick).hasMoreElements());
+    addAction("ShowLogs", this.onNick);
 
     let isAddContact = this.onNick && !isTwitter;
     if (isAddContact) {
@@ -195,11 +205,12 @@ nsContextMenu.prototype = {
     this.conv.account.addBuddy(aTag, this.nick),
   nickShowLogs: function() {
     let nick = this.nick;
-    let enumerator = this.getLogsForNick(nick);
-    if (!enumerator.hasMoreElements())
-      return;
-    window.openDialog("chrome://instantbird/content/viewlog.xul",
-                      "Logs", "chrome,resizable", {logs: enumerator}, nick);
+    this.getLogsForNick(nick).then(aLogs => {
+      if (!aLogs || !aLogs.hasMoreElements())
+        return;
+      window.openDialog("chrome://instantbird/content/viewlog.xul",
+                        "Logs", "chrome,resizable", {logs: aLogs}, nick);
+    });
   },
 
   // Set various context menu attributes based on the state of the world.

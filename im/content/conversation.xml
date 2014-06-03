@@ -1577,8 +1577,9 @@
             }
 
             let showLogsItem = createMenuItem("contextShowLogs", function() conv.showLogs());
-            if (!this.hasLogs())
-              showLogsItem.setAttribute("disabled", "true");
+            // Start disabled, then enable if we have logs.
+            showLogsItem.setAttribute("disabled", true);
+            this.hasLogs().then(aHasLogs => showLogsItem.setAttribute("disabled", !aHasLogs));
             items.push(showLogsItem);
 
             let hideConvItem = createMenuItem("contextHideConv", function() {
@@ -1601,7 +1602,8 @@
       <method name="hasLogs">
         <body>
         <![CDATA[
-          return Services.logs.getLogsForConversation(this.conv).hasMoreElements();
+          return Services.logs.getLogsForConversation(this.conv)
+                              .then(aLogs => aLogs.hasMoreElements());
         ]]>
         </body>
       </method>
@@ -1609,12 +1611,13 @@
       <method name="showLogs">
         <body>
         <![CDATA[
-          let logs = Services.logs.getLogsForConversation(this.conv, true);
-          if (!logs.hasMoreElements())
-            return;
-          window.openDialog("chrome://instantbird/content/viewlog.xul",
-                            "Logs", "chrome,resizable", {logs: logs},
-                            this.conv.title);
+          Services.logs.getLogsForConversation(this.conv, true).then(aLogs => {
+            if (!aLogs || !aLogs.hasMoreElements())
+              return;
+            window.openDialog("chrome://instantbird/content/viewlog.xul",
+                              "Logs", "chrome,resizable", {logs: aLogs},
+                              this.conv.title);
+          });
         ]]>
         </body>
       </method>

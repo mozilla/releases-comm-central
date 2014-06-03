@@ -74,27 +74,28 @@ var logWindow = {
     let deck = document.getElementById("browserDeck");
     let findbar = document.getElementById("findbar");
     if (log.format == "json") {
-      let conv = log.getConversation();
-      if (!conv) {
-        // Empty or completely broken json log file.
-        deck.selectedIndex = 2;
-        // Ensure the findbar looks at an empty file.
-        let browser = document.getElementById("text-browser");
+      log.getConversation().then((aConv) => {
+        if (!aConv) {
+          // Empty or completely broken json log file.
+          deck.selectedIndex = 2;
+          // Ensure the findbar looks at an empty file.
+          let browser = document.getElementById("text-browser");
+          findbar.browser = browser;
+          browser.loadURI("about:blank");
+          return;
+        }
+        deck.selectedIndex = 1;
+        let browser = document.getElementById("conv-browser");
         findbar.browser = browser;
-        browser.loadURI("about:blank");
-        return;
-      }
-      deck.selectedIndex = 1;
-      let browser = document.getElementById("conv-browser");
-      findbar.browser = browser;
-      FullZoom.applyPrefValue();
-      if (this.pendingLoad) {
-        browser._conv = conv;
-        return;
-      }
-      browser.init(conv);
-      this.pendingLoad = true;
-      Services.obs.addObserver(this, "conversation-loaded", false);
+        FullZoom.applyPrefValue();
+        if (this.pendingLoad) {
+          browser._conv = aConv;
+          return;
+        }
+        browser.init(aConv);
+        this.pendingLoad = true;
+        Services.obs.addObserver(this, "conversation-loaded", false);
+      });
     }
     else {
       // Legacy text log.
