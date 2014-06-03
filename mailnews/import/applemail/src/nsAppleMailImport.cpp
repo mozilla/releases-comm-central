@@ -37,13 +37,6 @@ PRLogModuleInfo *APPLEMAILLOGMODULE = nullptr;
 // stringbundle URI
 #define APPLEMAIL_MSGS_URL "chrome://messenger/locale/appleMailImportMsgs.properties"
 
-// stringbundle IDs
-#define APPLEMAILIMPORT_NAME                                   2000
-#define APPLEMAILIMPORT_DESCRIPTION                            2001
-#define APPLEMAILIMPORT_MAILBOX_SUCCESS                        2002
-#define APPLEMAILIMPORT_MAILBOX_BADPARAM                       2003
-#define APPLEMAILIMPORT_MAILBOX_CONVERTERROR                   2004
-
 // magic constants
 #define kAccountMailboxID 1234
 
@@ -74,13 +67,13 @@ NS_IMPL_ISUPPORTS(nsAppleMailImportModule, nsIImportModule)
 NS_IMETHODIMP nsAppleMailImportModule::GetName(char16_t **aName)
 {
   return mBundle ?
-    mBundle->GetStringFromID(APPLEMAILIMPORT_NAME, aName) : NS_ERROR_FAILURE;
+    mBundle->GetStringFromName(MOZ_UTF16("ApplemailImportName"), aName) : NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP nsAppleMailImportModule::GetDescription(char16_t **aName)
 {
   return mBundle ?
-    mBundle->GetStringFromID(APPLEMAILIMPORT_DESCRIPTION, aName) : NS_ERROR_FAILURE;
+    mBundle->GetStringFromName(MOZ_UTF16("ApplemailImportDescription"), aName) : NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP nsAppleMailImportModule::GetSupports(char **aSupports)
@@ -113,7 +106,7 @@ NS_IMETHODIMP nsAppleMailImportModule::GetImportInterface(const char *aImportTyp
         rv = impSvc->CreateNewGenericMail(getter_AddRefs(generic));
         if (NS_SUCCEEDED(rv)) {
           nsAutoString name;
-          rv = mBundle->GetStringFromID(APPLEMAILIMPORT_NAME, getter_Copies(name));
+          rv = mBundle->GetStringFromName(MOZ_UTF16("ApplemailImportName"), getter_Copies(name));
           NS_ENSURE_SUCCESS(rv, rv);
 
           nsCOMPtr<nsISupportsString> nameString(do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
@@ -486,7 +479,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
   nsCOMPtr<nsIFile> mboxFolder;
   nsresult rv = aMailbox->GetFile(getter_AddRefs(mboxFolder));
   if (NS_FAILED(rv) || !mboxFolder) {
-    ReportStatus(APPLEMAILIMPORT_MAILBOX_CONVERTERROR, mailboxName, errorLog);
+    ReportStatus(MOZ_UTF16("ApplemailImportMailboxConverterror"), mailboxName, errorLog);
     SetLogs(successLog, errorLog, aSuccessLog, aErrorLog);
     return NS_ERROR_FAILURE;
   }
@@ -512,7 +505,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
       mProgress = finalSize;
 
       // report that we successfully imported this mailbox
-      ReportStatus(APPLEMAILIMPORT_MAILBOX_SUCCESS, mailboxName, successLog);
+      ReportStatus(MOZ_UTF16("ApplemailImportMailboxSuccess"), mailboxName, successLog);
       SetLogs(successLog, errorLog, aSuccessLog, aErrorLog);
       return NS_OK;
     }
@@ -521,7 +514,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
     nsCOMPtr<nsISimpleEnumerator> directoryEnumerator;
     rv = messagesFolder->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
     if (NS_FAILED(rv)) {
-      ReportStatus(APPLEMAILIMPORT_MAILBOX_CONVERTERROR, mailboxName, errorLog);
+      ReportStatus(MOZ_UTF16("ApplemailImportMailboxConvertError"), mailboxName, errorLog);
       SetLogs(successLog, errorLog, aSuccessLog, aErrorLog);
       return NS_ERROR_FAILURE;
     }
@@ -530,7 +523,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
     nsCOMPtr<nsIMsgPluggableStore> msgStore;
     rv = aDstFolder->GetMsgStore(getter_AddRefs(msgStore));
     if (!msgStore || NS_FAILED(rv)) {
-      ReportStatus(APPLEMAILIMPORT_MAILBOX_CONVERTERROR, mailboxName, errorLog);
+      ReportStatus(MOZ_UTF16("ApplemailImportMailboxConverterror"), mailboxName, errorLog);
       SetLogs(successLog, errorLog, aSuccessLog, aErrorLog);
       return NS_ERROR_FAILURE;
     }
@@ -592,18 +585,19 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor *aMailbox,
   mProgress = finalSize;
 
   // report that we successfully imported this mailbox
-  ReportStatus(APPLEMAILIMPORT_MAILBOX_SUCCESS, mailboxName, successLog);
+  ReportStatus(MOZ_UTF16("ApplemailImportMailboxSuccess"), mailboxName, successLog);
   SetLogs(successLog, errorLog, aSuccessLog, aErrorLog);
 
   return NS_OK;
 }
 
-void nsAppleMailImportMail::ReportStatus(int32_t aErrorNum, nsString &aName, nsAString &aStream)
+void nsAppleMailImportMail::ReportStatus(const char16_t* aErrorName, nsString &aName,
+                                         nsAString &aStream)
 {
   // get (and format, if needed) the error string from the bundle
   nsAutoString outString;
   const char16_t *fmt = { aName.get() };
-  nsresult rv = mBundle->FormatStringFromID(aErrorNum, &fmt, 1, getter_Copies(outString));
+  nsresult rv = mBundle->FormatStringFromName(aErrorName, &fmt, 1, getter_Copies(outString));
   // write it out the stream
   if (NS_SUCCEEDED(rv)) {
     aStream.Append(outString);
