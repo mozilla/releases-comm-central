@@ -5,9 +5,11 @@
 var imServices = {};
 Components.utils.import("resource:///modules/chatNotifications.jsm");
 Components.utils.import("resource:///modules/imServices.jsm", imServices);
-imServices = imServices.Services;
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-Components.utils.import("resource://gre/modules/FileUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+
+imServices = imServices.Services;
 
 var gBuddyListContextMenu = null;
 
@@ -450,7 +452,9 @@ var chatHandler = {
     let list = document.getElementById("contactlistbox");
     if (list.selectedItem.getAttribute("id") != "searchResultConv")
       document.getElementById("goToConversation").hidden = false;
-    this._showLog(log.getConversation(), log.path);
+    log.getConversation().then(aLogConv => {
+      this._showLog(aLogConv, log.path);
+    });
   },
 
   _contactObserver: {
@@ -547,15 +551,9 @@ var chatHandler = {
     this._hideContextPane(false);
 
     if (item.getAttribute("id") == "searchResultConv") {
-      let path = "logs/" + item.log.path;
-      let file = FileUtils.getFile("ProfD", path.split("/"));
-      let log = imServices.logs.getLogFromFile(file, true);
       document.getElementById("goToConversation").hidden = true;
       document.getElementById("contextPane").removeAttribute("chat");
-      let conv = log.getConversation();
-      this._showLog(conv, file.path, item.searchTerm || undefined);
       let cti = document.getElementById("conv-top-info");
-      cti.setAttribute("displayName", conv.title);
       cti.removeAttribute("userIcon");
       cti.removeAttribute("statusMessageWithDash");
       cti.removeAttribute("statusMessage");
@@ -564,8 +562,19 @@ var chatHandler = {
       cti.removeAttribute("statusTooltiptext");
       cti.removeAttribute("topicEditable");
       cti.removeAttribute("noTopic");
-      this._showLogList(imServices.logs.getSimilarLogs(log, true), log);
       this.observedContact = null;
+
+      let path = "logs/" + item.log.path;
+      path = OS.Path.join(OS.Constants.Path.profileDir, path.split("/"));
+      imServices.logs.getLogFromFile(path, true).then(aLog => {
+        aLog.getConversation().then(aConv => {
+          this._showLog(aConv, path, item.searchTerm || undefined);
+          cti.setAttribute("displayName", aConv.title);
+          imServices.logs.getSimilarLogs(aLog, true).then(aSimilarLogs => {
+            this._showLogList(aSimilarLogs, aLog);
+          });
+        });
+      });
     }
     else if (item.localName == "imconv") {
       let convDeck = document.getElementById("conversationsDeck");
@@ -587,7 +596,10 @@ var chatHandler = {
       item.convView.updateConvStatus();
       item.update();
 
-      this._showLogList(imServices.logs.getLogsForConversation(item.conv, true));
+      imServices.logs.getLogsForConversation(item.conv, true).then(aLogs => {
+        this._showLogList(aLogs);
+      });
+
       let contextPane = document.getElementById("contextPane");
       if (item.conv.isChat) {
         contextPane.setAttribute("chat", "true");
@@ -615,12 +627,14 @@ var chatHandler = {
 
       document.getElementById("contextPane").removeAttribute("chat");
 
-      if (!this._showLogList(imServices.logs.getLogsForContact(contact), true)) {
-        document.getElementById("conversationsDeck").selectedPanel =
-          document.getElementById("logDisplay");
-        document.getElementById("logDisplayDeck").selectedPanel =
-          document.getElementById("noPreviousConvScreen");
-      }
+      imServices.logs.getLogsForContact(contact).then(aLogs => {
+        if (!this._showLogList(aLogs, true)) {
+          document.getElementById("conversationsDeck").selectedPanel =
+            document.getElementById("logDisplay");
+          document.getElementById("logDisplayDeck").selectedPanel =
+            document.getElementById("noPreviousConvScreen");
+        }
+      });
     }
     this.updateTitle();
   },
@@ -1133,7 +1147,8 @@ chatLogTreeView.prototype = {
 
     // Build a chatLogTreeLogItem for each log, and put it in the right group.
     let groups = {};
-    for each (let log in fixIterator(this._logs)) {
+    while (this._logs.hasMoreElements()) {
+      let log = this._logs.getNext();
       let logDate = new Date(log.time * 1000);
       // Calculate elapsed time between the log and 00:00:00 today.
       let timeFromToday = todayDate - logDate;

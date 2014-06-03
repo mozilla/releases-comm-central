@@ -16,6 +16,9 @@ Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 
+XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "Task", "resource://gre/modules/Task.jsm");
+
 const kCacheFileName = "indexedFiles.json";
 
 const FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
@@ -272,6 +275,13 @@ var GlodaIMIndexer = {
   },
 
   _knownConversations: {},
+  // Promise queue for indexing jobs. The next indexing job is queued using this
+  // promise's then() to ensure we only load logs for one conv at a time.
+  _indexingJobPromise: null,
+  // Maps a conv id to the function that resolves the promise representing the
+  // ongoing indexing job on it. This is called from indexIMConversation when it
+  // finishes and will trigger the next queued indexing job.
+  _indexingJobCallbacks: new Map(),
 
   _scheduleIndexingJob: function(aConversation) {
     let convId = aConversation.id;
@@ -280,6 +290,7 @@ var GlodaIMIndexer = {
     // not repeat.
     if (!(convId in this._knownConversations)) {
       this._knownConversations[convId] = {
+        id: convId,
         scheduledIndex: null,
         logFile: null,
         convObj: {}
@@ -302,32 +313,59 @@ var GlodaIMIndexer = {
     // we give the conversation an entry in _knownConversations, which would
     // normally have been done in _scheduleIndexingJob.
     if (!(convId in this._knownConversations))
-      this._knownConversations[convId] = {};
+      this._knownConversations[convId] = {id: convId};
 
-    if (!this._knownConversations[convId].logFile) {
-      let logFile = Services.logs.getLogFileForOngoingConversation(aConversation);
-      let folder = logFile.parent;
-      let convName = folder.leafName;
-      folder = folder.parent;
-      let accountName = folder.leafName;
-      folder = folder.parent;
-      let protoName = folder.leafName;
-      if (!Object.prototype.hasOwnProperty.call(this._knownFiles, protoName))
-        this._knownFiles[protoName] = {};
-      let protoObj = this._knownFiles[protoName];
-      if (!Object.prototype.hasOwnProperty.call(protoObj, accountName))
-        protoObj[accountName] = {};
-      let accountObj = protoObj[accountName];
-      if (!Object.prototype.hasOwnProperty.call(accountObj, convName))
-        accountObj[convName] = {};
+    Task.spawn(function* () {
+      if (!this._knownConversations[convId].logFile) {
+        let logFile =
+          yield Services.logs.getLogPathForConversation(aConversation);
+        if (!logFile) {
+          // Log file doesn't exist yet, nothing to do!
+          return;
+        }
+        let folder = OS.Path.dirname(logFile);
+        let convName = OS.Path.basename(folder);
+        folder = OS.Path.dirname(folder);
+        let accountName = OS.Path.basename(folder);
+        folder = OS.Path.dirname(folder);
+        let protoName = OS.Path.basename(folder);
+        if (!Object.prototype.hasOwnProperty.call(this._knownFiles, protoName))
+          this._knownFiles[protoName] = {};
+        let protoObj = this._knownFiles[protoName];
+        if (!Object.prototype.hasOwnProperty.call(protoObj, accountName))
+          protoObj[accountName] = {};
+        let accountObj = protoObj[accountName];
+        if (!Object.prototype.hasOwnProperty.call(accountObj, convName))
+          accountObj[convName] = {};
 
-      this._knownConversations[convId].logFile = logFile;
-      this._knownConversations[convId].convObj = accountObj[convName];
-    }
+        this._knownConversations[convId].logFile = logFile;
+        this._knownConversations[convId].convObj = accountObj[convName];
+      }
 
-    let job = new IndexingJob("indexIMConversation", null);
-    job.conversation = this._knownConversations[convId];
-    GlodaIndexer.indexJob(job);
+      let conv = this._knownConversations[convId];
+      let cache = conv.convObj;
+      let fileName = OS.Path.basename(conv.logFile);
+      let fileInfo = yield OS.File.stat(conv.logFile);
+      let lastModifiedTime = fileInfo.lastModificationDate.valueOf();
+      if (Object.prototype.hasOwnProperty.call(cache, fileName) &&
+          cache[fileName] == lastModifiedTime)
+        return;
+      if (this._indexingJobPromise)
+        yield this._indexingJobPromise;
+      this._indexingJobPromise = new Promise(aResolve => {
+        this._indexingJobCallbacks.set(convId, aResolve);
+      });
+      let log = yield Services.logs.getLogFromFile(conv.logFile);
+      let logConv = yield log.getConversation();
+      let job = new IndexingJob("indexIMConversation", null);
+      job.conversation = conv;
+      job.log = log;
+      job.path = conv.logFile;
+      job.logConv = logConv;
+      GlodaIndexer.indexJob(job);
+      cache[fileName] = lastModifiedTime;
+    }.bind(this)).catch(Components.utils.reportError);
+
     // Now clear the job, so we can index in the future.
     this._knownConversations[convId].scheduledIndex = null;
   },
@@ -399,43 +437,30 @@ var GlodaIMIndexer = {
    * conversation in the database, so the caller dealing with ongoing
    * conversation has to provide the aGlodaConv parameter, while the caller
    * dealing with old conversations doesn't care. */
-  indexIMConversation: function(aCallbackHandle, aFile, aCache, aGlodaConv) {
-    let fileName = aFile.leafName;
-    // We need to make sure we're using the most up-to-date lastModifiedTime,
-    // so we use nsIFile.clone to make sure we don't use any cached data.
-    let lastModifiedTime = aFile.clone().lastModifiedTime;
-    let isNew = true;
-    if (Object.prototype.hasOwnProperty.call(aCache, fileName)) {
-      if (aCache[fileName] == lastModifiedTime)
-        return Gloda.kWorkSync;
-      else
-        isNew = false;
-    }
+  indexIMConversation: function(aCallbackHandle, aLog, aLogConv, aCache, aGlodaConv) {
+    let fileName =  OS.Path.basename(aLog.path);
+    let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName);
 
-    let log = Services.logs.getLogFromFile(aFile);
-    let conv = log.getConversation();
     // Ignore corrupted log files.
-    if (!conv)
+    if (!aLogConv)
       return Gloda.kWorkDone;
 
-    let content = conv.getMessages()
-                      .map(function(m) (m.alias || m.who) + ": " + MailFolder.convertMsgSnippetToPlainText(m.message))
-                      .join("\n\n");
-    let folder = aFile.parent;
-    let path = [folder.parent.parent.leafName, folder.parent.leafName, folder.leafName, fileName].join("/");
+    let content = aLogConv.getMessages()
+                          .map(function(m) (m.alias || m.who) + ": " + MailFolder.convertMsgSnippetToPlainText(m.message))
+                          .join("\n\n");
     let glodaConv;
     if (aGlodaConv && aGlodaConv.value) {
       glodaConv = aGlodaConv.value;
       glodaConv._content = content;
     }
     else {
-      glodaConv = new GlodaIMConversation(conv.title, log.time, path, content);
+      glodaConv = new GlodaIMConversation(aLogConv.title, aLog.time, aLog.path, content);
       if (aGlodaConv)
         aGlodaConv.value = glodaConv;
     }
+
     let rv = aCallbackHandle.pushAndGo(
       Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle));
-    aCache[fileName] = lastModifiedTime;
     this._scheduleCacheSave();
     return rv;
   },
@@ -445,8 +470,12 @@ var GlodaIMIndexer = {
     if (aJob.conversation.glodaConv)
       glodaConv.value = aJob.conversation.glodaConv;
     // indexIMConversation may initiate an async grokNounItem sub-job.
-    yield this.indexIMConversation(aCallbackHandle, aJob.conversation.logFile,
+    yield this.indexIMConversation(aCallbackHandle, aJob.log, aJob.logConv,
                                    aJob.conversation.convObj, glodaConv);
+    // Resolve the promise for this job.
+    this._indexingJobCallbacks.get(aJob.conversation.id)();
+    this._indexingJobCallbacks.delete(aJob.conversation.id);
+    this._indexingJobPromise = null;
     aJob.conversation.indexPending = false;
     aJob.conversation.glodaConv = glodaConv.value;
 
