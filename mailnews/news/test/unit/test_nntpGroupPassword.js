@@ -9,7 +9,9 @@ var daemon = setupNNTPDaemon();
 // Define these up here for checking with the transaction
 var test = null;
 
-function run_test() {
+add_task(function *() {
+  yield Services.logins.initializationPromise;
+
   daemon.groupCredentials = {
     "test.subscribe.empty": ["group1", "pass1"],
     "test.filter": ["group2", "pass2"]
@@ -71,4 +73,8 @@ function run_test() {
   var thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents())
     thread.processNextEvent(true);
+});
+
+function run_test() {
+  run_next_test();
 }
