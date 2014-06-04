@@ -22,11 +22,6 @@
 #define NS_MIME_CONVERTER_CONTRACTID \
   "@mozilla.org/messenger/mimeconverter;1"
 
-// {866A1E11-D0B9-11d2-B373-525400E2D63A}
-#define NS_MIME_CONVERTER_CID   \
-        { 0x866a1e11, 0xd0b9, 0x11d2,         \
-        { 0xb3, 0x73, 0x52, 0x54, 0x0, 0xe2, 0xd6, 0x3a } }
-
 // {403B0540-B7C3-11d2-B35E-525400E2D63A}
 #define NS_MIME_OBJECT_CLASS_ACCESS_CID   \
         { 0x403b0540, 0xb7c3, 0x11d2,         \

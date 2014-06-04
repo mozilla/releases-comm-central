@@ -56,7 +56,6 @@
 #include "mimebuf.h"
 #include "nsIServiceManager.h"
 #include "mimemoz2.h"
-#include "comi18n.h"
 #include "nsIMimeContentTypeHandler.h"
 #include "nsIComponentManager.h"
 #include "nsCategoryManagerUtils.h"

@@ -2,9 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource:///modules/Deprecated.jsm");
 Components.utils.import("resource:///modules/jsmime.jsm");
 Components.utils.import("resource:///modules/mimeParser.jsm");
 Components.utils.import("resource:///modules/XPCOMUtils.jsm");
+
+function HeaderHandler() {
+  this.value = "";
+  this.deliverData = function (str) { this.value += str; };
+  this.deliverEOF = function () {};
+}
 
 function MimeHeaders() {
 }
@@ -53,9 +60,7 @@ var EmailGroup = {
 function MimeAddressParser() {
 }
 MimeAddressParser.prototype = {
-  classDescription: "Mime message header parser implementation",
   classID: Components.ID("96bd8769-2d0e-4440-963d-22b97fb3ba77"),
-  contractID: "@mozilla.org/messenger/headerparser;1",
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIMsgHeaderParser]),
 
   parseEncodedHeader: function (aHeader, aCharset, aPreserveGroups, count) {
@@ -111,11 +116,7 @@ MimeAddressParser.prototype = {
       hardMargin: 900,
       useASCII: false // We don't want RFC 2047 encoding here.
     };
-    let handler = {
-      value: "",
-      deliverData: function (str) { this.value += str; },
-      deliverEOF: function () {}
-    };
+    let handler = new HeaderHandler();
     let emitter = new jsmime.headeremitter.makeStreamingEmitter(handler,
       options);
     emitter.addAddresses(addresses);
@@ -260,6 +261,78 @@ MimeAddressParser.prototype = {
   },
 };
 
+function MimeConverter() {
+}
+MimeConverter.prototype = {
+  classID: Components.ID("93f8c049-80ed-4dda-9000-94ad8daba44c"),
+  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIMimeConverter]),
 
-var components = [MimeHeaders, MimeAddressParser];
+  encodeMimePartIIStr_UTF8: function (aHeader, aStructured, aCharset,
+      aFieldNameLen, aLineLength) {
+    // The JSMime encoder only works in UTF-8, so if someone requests to not do
+    // it, they need to change their code.
+    if (aCharset.toLowerCase() != "utf-8") {
+      Deprecated.warning("Encoding to non-UTF-8 values is obsolete",
+        "http://bugzilla.mozilla.org/show_bug.cgi?id=790855");
+    }
+
+    // Compute the encoding options. The way our API is structured in this
+    // method is really horrendous and does not align with the way that JSMime
+    // handles it. Instead, we'll need to create a fake header to take into
+    // account the aFieldNameLen parameter.
+    let fakeHeader = '*'.repeat(aFieldNameLen);
+    let options = {
+      softMargin: aLineLength,
+      useASCII: true,
+    };
+    let handler = new HeaderHandler();
+    let emitter = new jsmime.headeremitter.makeStreamingEmitter(handler,
+      options);
+
+    // Add the text to the be encoded.
+    emitter.addHeaderName(fakeHeader);
+    if (aStructured) {
+      // Structured really means "this is an addressing header"
+      let addresses = MimeParser.parseHeaderField(aHeader,
+        MimeParser.HEADER_ADDRESS);
+      // This happens in one of our tests if there is a "bare" email but no
+      // @ sign. Without it, the result disappears since our emission code
+      // assumes that an empty email is not worth emitting.
+      if (addresses.length === 1 && addresses[0].email === "" &&
+          addresses[0].name !== "") {
+        addresses[0].email = addresses[0].name;
+        addresses[0].name = "";
+      }
+      emitter.addAddresses(addresses);
+    } else {
+      emitter.addUnstructured(aHeader);
+    }
+
+    // Compute the output. We need to strip off the fake prefix added earlier
+    // and the extra CRLF at the end.
+    emitter.finish(true);
+    let value = handler.value;
+    value = value.substring(value.indexOf(': ') + 2);
+    return value.substring(0, value.length - 2);
+  },
+
+  decodeMimeHeader: function (aHeader, aDefaultCharset, aOverride, aUnfold) {
+    let value = MimeParser.parseHeaderField(aHeader,
+      MimeParser.HEADER_UNSTRUCTURED | MimeParser.HEADER_OPTION_ALL_I18N,
+      aDefaultCharset);
+    if (aUnfold) {
+      value = value.replace(/[\r\n]\t/g, ' ')
+                   .replace(/[\r\n]/g, '');
+    }
+    return value;
+  },
+
+  // This is identical to the above, except for factors that are handled by the
+  // xpconnect conversion process
+  decodeMimeHeaderToUTF8: function () {
+    return this.decodeMimeHeader.apply(this, arguments);
+  },
+};
+
+var components = [MimeHeaders, MimeAddressParser, MimeConverter];
 var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

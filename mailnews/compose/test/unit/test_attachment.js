@@ -19,17 +19,23 @@ const input0 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]
 const input1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"+
     "`abcdefghijklmnopqrstuvwxyz{|}~.txt"
 
-const expectedCD0 = "Content-Disposition: attachment;\r\n"+
-    " filename*0*=ISO-8859-1''%20%21%22%23%24%25%26%27%28%29%2A%2B%2C%2D%2E%2F;\r\n"+
-    " filename*1*=%30%31%32%33%34%35%36%37%38%39%3A%3B%3C%3D%3E%3F%40%41%42%43;\r\n"+
-    " filename*2*=%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57;\r\n"+
-    " filename*3*=%58%59%5A%5B%5C%5D%5E%5F%60%61%62%63%64%65%66%67%68%69%6A%6B;\r\n"+
-    " filename*4*=%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A%7B%7C%7D%7E%A0;\r\n"+
-    " filename*5*=%A1%A2%A3%A4%A5%A6%A7%A8%A9%AA%AB%AC%AD%AE%AF%B0%B1%B2%B3%B4;\r\n"+
-    " filename*6*=%B5%B6%B7%B8%B9%BA%BB%BC%BD%BE%BF%C0%C1%C2%C3%C4%C5%C6%C7%C8;\r\n"+
-    " filename*7*=%C9%CA%CB%CC%CD%CE%CF%D0%D1%D2%D3%D4%D5%D6%D7%D8%D9%DA%DB%DC;\r\n"+
-    " filename*8*=%DD%DE%DF%E0%E1%E2%E3%E4%E5%E6%E7%E8%E9%EA%EB%EC%ED%EE%EF%F0;\r\n"+
-    " filename*9*=%F1%F2%F3%F4%F5%F6%F7%F8%F9%FA%FB%FC%FD%FE%FF%2E%74%78%74\r\n";
+const expectedCD0 = ["Content-Disposition: attachment;",
+  " filename*0*=UTF-8''%20%21%22%23%24%25%26%27%28%29%2A%2B%2C%2D%2E%2F%30%31;",
+  " filename*1*=%32%33%34%35%36%37%38%39%3A%3B%3C%3D%3E%3F%40%41%42%43%44%45;",
+  " filename*2*=%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59;",
+  " filename*3*=%5A%5B%5C%5D%5E%5F%60%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D;",
+  " filename*4*=%6E%6F%70%71%72%73%74%75%76%77%78%79%7A%7B%7C%7D%7E%C2%A0%C2;",
+  " filename*5*=%A1%C2%A2%C2%A3%C2%A4%C2%A5%C2%A6%C2%A7%C2%A8%C2%A9%C2%AA%C2;",
+  " filename*6*=%AB%C2%AC%C2%AD%C2%AE%C2%AF%C2%B0%C2%B1%C2%B2%C2%B3%C2%B4%C2;",
+  " filename*7*=%B5%C2%B6%C2%B7%C2%B8%C2%B9%C2%BA%C2%BB%C2%BC%C2%BD%C2%BE%C2;",
+  " filename*8*=%BF%C3%80%C3%81%C3%82%C3%83%C3%84%C3%85%C3%86%C3%87%C3%88%C3;",
+  " filename*9*=%89%C3%8A%C3%8B%C3%8C%C3%8D%C3%8E%C3%8F%C3%90%C3%91%C3%92%C3;",
+  " filename*10*=%93%C3%94%C3%95%C3%96%C3%97%C3%98%C3%99%C3%9A%C3%9B%C3%9C;",
+  " filename*11*=%C3%9D%C3%9E%C3%9F%C3%A0%C3%A1%C3%A2%C3%A3%C3%A4%C3%A5%C3;",
+  " filename*12*=%A6%C3%A7%C3%A8%C3%A9%C3%AA%C3%AB%C3%AC%C3%AD%C3%AE%C3%AF;",
+  " filename*13*=%C3%B0%C3%B1%C3%B2%C3%B3%C3%B4%C3%B5%C3%B6%C3%B7%C3%B8%C3;",
+  " filename*14*=%B9%C3%BA%C3%BB%C3%BC%C3%BD%C3%BE%C3%BF%2E%74%78%74",
+  ""].join("\r\n");
 
 const expectedCD1 = "Content-Disposition: attachment;\r\n"+
     ' filename*0=" !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";\r\n'+
@@ -43,34 +49,32 @@ const ParamFoldingPref = {
 
 const expectedCTList0 = {
   RFC2047: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
-           ' name=" =?ISO-8859-1?Q?!=22=23=24=25=26=27=28=29*+=2C-=2E/0123456789=3A=3B=3C=3D?='+
-           '=?ISO-8859-1?Q?=3E=3F=40ABCDEFGHIJKLMNOPQRSTUVWXYZ=5B=5C=5D=5E=5F=60abcd?='+
-           '=?ISO-8859-1?Q?efghijklmnopqrstuvwxyz=7B=7C=7D=7E=A0=A1=A2=A3=A4=A5=A6=A7?='+
-           '=?ISO-8859-1?Q?=A8=A9=AA=AB=AC=AD=AE=AF=B0=B1=B2=B3=B4=B5=B6=B7=B8=B9=BA?='+
-           '=?ISO-8859-1?Q?=BB=BC=BD=BE=BF=C0=C1=C2=C3=C4=C5=C6=C7=C8=C9=CA=CB=CC=CD?='+
-           '=?ISO-8859-1?Q?=CE=CF=D0=D1=D2=D3=D4=D5=D6=D7=D8=D9=DA=DB=DC=DD=DE=DF=E0?='+
-           '=?ISO-8859-1?Q?=E1=E2=E3=E4=E5=E6=E7=E8=E9=EA=EB=EC=ED=EE=EF=F0=F1=F2=F3?='+
-           '=?ISO-8859-1?Q?=F4=F5=F6=F7=F8=F9=FA=FB=FC=FD=FE=FF=2Etxt?="\r\n',
+           ' name="=?UTF-8?Q?_!=22#$%&\'=28=29*+,-./0123456789:;<=3d>=3f@ABCDEFGHIJKLMNO?='+
+           '=?UTF-8?Q?PQRSTUVWXYZ[\\\\]^=5f`abcdefghijklmnopqrstuvwxyz{|}~=c2=a0?='+
+           '=?UTF-8?B?wqHCosKjwqTCpcKmwqfCqMKpwqrCq8Kswq3CrsKvwrDCscKywrPCtMK1?='+
+           '=?UTF-8?B?wrbCt8K4wrnCusK7wrzCvcK+wr/DgMOBw4LDg8OEw4XDhsOHw4jDicOK?='+
+           '=?UTF-8?B?w4vDjMONw47Dj8OQw5HDksOTw5TDlcOWw5fDmMOZw5rDm8Ocw53DnsOf?='+
+           '=?UTF-8?B?w6DDocOiw6PDpMOlw6bDp8Oow6nDqsOrw6zDrcOuw6/DsMOxw7LDs8O0?='+
+           '=?UTF-8?B?w7XDtsO3w7jDucO6w7vDvMO9w77Dvy50eHQ=?="\r\n',
 
   RFC2047WithCRLF: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
-                   ' name=" =?ISO-8859-1?Q?!=22=23=24=25=26=27=28=29*+=2C-=2E/0123456789=3A=3B=3C=3D?=\r\n'+
-                   ' =?ISO-8859-1?Q?=3E=3F=40ABCDEFGHIJKLMNOPQRSTUVWXYZ=5B=5C=5D=5E=5F=60abcd?=\r\n'+
-                   ' =?ISO-8859-1?Q?efghijklmnopqrstuvwxyz=7B=7C=7D=7E=A0=A1=A2=A3=A4=A5=A6=A7?=\r\n'+
-                   ' =?ISO-8859-1?Q?=A8=A9=AA=AB=AC=AD=AE=AF=B0=B1=B2=B3=B4=B5=B6=B7=B8=B9=BA?=\r\n'+
-                   ' =?ISO-8859-1?Q?=BB=BC=BD=BE=BF=C0=C1=C2=C3=C4=C5=C6=C7=C8=C9=CA=CB=CC=CD?=\r\n'+
-                   ' =?ISO-8859-1?Q?=CE=CF=D0=D1=D2=D3=D4=D5=D6=D7=D8=D9=DA=DB=DC=DD=DE=DF=E0?=\r\n'+
-                   ' =?ISO-8859-1?Q?=E1=E2=E3=E4=E5=E6=E7=E8=E9=EA=EB=EC=ED=EE=EF=F0=F1=F2=F3?=\r\n'+
-                   ' =?ISO-8859-1?Q?=F4=F5=F6=F7=F8=F9=FA=FB=FC=FD=FE=FF=2Etxt?="\r\n',
+                   ' name="=?UTF-8?Q?_!=22#$%&\'=28=29*+,-./0123456789:;<=3d>=3f@ABCDEFGHIJKLMNO?=\r\n'+
+                   ' =?UTF-8?Q?PQRSTUVWXYZ[\\\\]^=5f`abcdefghijklmnopqrstuvwxyz{|}~=c2=a0?=\r\n'+
+                   ' =?UTF-8?B?wqHCosKjwqTCpcKmwqfCqMKpwqrCq8Kswq3CrsKvwrDCscKywrPCtMK1?=\r\n'+
+                   ' =?UTF-8?B?wrbCt8K4wrnCusK7wrzCvcK+wr/DgMOBw4LDg8OEw4XDhsOHw4jDicOK?=\r\n'+
+                   ' =?UTF-8?B?w4vDjMONw47Dj8OQw5HDksOTw5TDlcOWw5fDmMOZw5rDm8Ocw53DnsOf?=\r\n'+
+                   ' =?UTF-8?B?w6DDocOiw6PDpMOlw6bDp8Oow6nDqsOrw6zDrcOuw6/DsMOxw7LDs8O0?=\r\n'+
+                   ' =?UTF-8?B?w7XDtsO3w7jDucO6w7vDvMO9w77Dvy50eHQ=?="\r\n',
 
   RFC2231: 'Content-Type: text/plain; charset=US-ASCII\r\n'
 }
 
 const expectedCTList1 = {
   RFC2047: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
-           ' name=" !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
+           ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
   RFC2047WithCRLF: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
-                   ' name=" !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
+                   ' name="\r\n !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
   RFC2231: 'Content-Type: text/plain; charset=US-ASCII\r\n'
 }
@@ -131,16 +135,6 @@ var tests = [
 ]
 
 function run_test() {
-  // This test assumes mailnews.send_default_charset ISO-8859-1...
-  let str = Components.classes["@mozilla.org/pref-localizedstring;1"]
-                      .createInstance(Components.interfaces.nsIPrefLocalizedString);
-  str.data = "ISO-8859-1";
-  Services.prefs.setComplexValue("mailnews.send_default_charset",
-                                 Components.interfaces.nsIPrefLocalizedString, str);
-  do_register_cleanup(function() {
-    Services.prefs.clearUserPref("mailnews.send_default_charset");
-  });
-
   localAccountUtils.loadLocalMailAccount();
   async_run_tests(tests);
 }

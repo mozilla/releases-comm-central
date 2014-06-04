@@ -11,33 +11,32 @@
 [scriptable, uuid(0d3f5531-2dbe-40d3-9280-f6ac45a6f5e0)]
 interface nsIMimeConverter : nsISupports {
   /**
-   * Suggested byte length limit for use when calling
-   * encodeMimePartIIStr(_UTF8).
+   * Suggested byte length limit for use when calling encodeMimePartIIStr_UTF8.
    */
   const long MIME_ENCODED_WORD_SIZE = 72;
   const long MAX_CHARSET_NAME_LENGTH = 64;
 
   /**
-   * Encode a UTF-8 CString into RFC 2047 form ("=?" charset "?" encoding "?"
-   * encoded-text "?=", where encoding is either "B" for BASE64 (RFC 2045) or
-   * "Q" for quoted-printable-ish (RFC 2045)).
+   * Encode a UTF-8 string into a form containing only ASCII characters using
+   * RFC 2047 encoded words where necessary.
    *
-   * @param header UTF-8 header to encode.
-   * @param structured Is the header's field-body a "structured" field?
-   *     (Encoded words are only allowed in comment/phrase portions of
-   *     structured field bodies.)
-   * @param mailCharset Charset name to convert (as an ASCII C string).
-   * @param fieldnamelen Header field name lengt (ex: "From: " = 6)
-   * @param encodedWordSize Byte length limit of the output, usually 72. (Use
-   *     MIME_ENCODED_WORD_SIZE.)
+   * Note that, although allowed for the present time, encoding to charsets
+   * other than UTF-8 is considered deprecated.
    *
-   * @return The encoded buffer (as a C string).
+   * @param aHeader           UTF-8 header to encode.
+   * @param aAddressingHeader Is the header a list of email addresses?
+   * @param aMailCharset      Charset to use when encoding (see above for note).
+   * @param aFieldNameLen     Header field name length (ex: "From: " = 6)
+   * @param aMaxLineLen       Maximum length of an individual line. Use
+   *                          MIME_ENCODED_WORD_SIZE for best results.
+   *
+   * @return                  The encoded header.
    */
-  AUTF8String encodeMimePartIIStr_UTF8(in AUTF8String header,
-                                       in boolean     structured,
-                                       in string      mailCharset,
-                                       in long        fieldnamelen,
-                                       in long        encodedWordSize);
+  AUTF8String encodeMimePartIIStr_UTF8(in AUTF8String aHeader,
+                                       in boolean     aAddressingHeader,
+                                       in string      aMailCharset,
+                                       in long        aFieldNameLen,
+                                       in long        aMaxLineLen);
 
   /**
    * Decode a MIME header to UTF-8 if conversion is required.  Marked as

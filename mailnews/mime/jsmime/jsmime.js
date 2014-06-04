@@ -2811,6 +2811,9 @@ HeaderEmitter.prototype.addAddresses = function (addresses) {
  * @param {String} text The text to add to the output.
  */
 HeaderEmitter.prototype.addUnstructured = function (text) {
+  if (text.length == 0)
+    return;
+
   // Unstructured text is basically a phrase that can't be quoted. So, if we
   // have nothing in qchars, nothing should be quoted.
   this.addPhrase(text, "", false);

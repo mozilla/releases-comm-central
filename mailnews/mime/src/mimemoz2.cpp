@@ -24,7 +24,6 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIServiceManager.h"
-#include "comi18n.h"
 #include "nsIStringBundle.h"
 #include "nsStringGlue.h"
 #include "nsMimeStringResources.h"

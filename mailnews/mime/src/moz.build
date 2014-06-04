@@ -4,7 +4,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'comi18n.h',
     'mimecont.h',
     'mimecryp.h',
     'mimecth.h',
@@ -63,7 +62,6 @@ SOURCES += [
     'mimetpla.cpp',
     'mimetric.cpp',
     'mimeunty.cpp',
-    'nsMimeConverter.cpp',
     'nsMimeObjectClassAccess.cpp',
     'nsSimpleMimeConverterStub.cpp',
     'nsStreamConverter.cpp',

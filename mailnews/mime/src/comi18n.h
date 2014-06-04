@@ -9,7 +9,6 @@
 
 class nsIUnicodeDecoder;
 class nsIUnicodeEncoder;
-class nsIStringCharsetDetector;
 
 
 #ifdef __cplusplus
@@ -30,32 +29,6 @@ extern "C" {
 void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                            bool override_charset, bool eatContinuations,
                            nsACString &result);
-
-/**
- * Encode an input string into RFC 2047 form.
- * This is a replacement for INTL_EncodeMimePartIIStr.
- * Unlike INTL_EncodeMimePartIIStr, this does not apply any charset conversion.
- * Use MIME_ConvertCharset in advance if the encoding string needs a conversion.
- *
- *
- * @param header          [IN] A header to encode (utf-8 Cstring).
- * @param structured      [IN] A boolean to swtich between structured field body and non-structured field body.
- * @param mailCharset     [IN] Charset name (in C string) to convert.
- * @param fieldNameLen    [IN] Header field name length (e.g. "From: " -> 6)
- * @param encodedWordSize [IN] Byte length limit of the output, ususally 72 (use kMIME_ENCODED_WORD_SIZE).
- * @return            Encoded buffer (in C string) or NULL in case of error.
- */
-char *MIME_EncodeMimePartIIStr(const char *header, bool structured, const char* mailCharset, const int32_t fieldNameLen, const int32_t encodedWordSize);
-
-/**
- * Get a next character position in an UTF-8 string.
- * Example: s = NextChar_UTF8(s);  // get a pointer for the next character
- *
- *
- * @param str          [IN] An input C string (UTF-8).
- * @return             A pointer to the next character.
- */
-char * NextChar_UTF8(char *str);
 
 nsresult MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset);
 nsresult MIME_get_unicode_decoder(const char* aInputCharset, nsIUnicodeDecoder **aDecoder);
