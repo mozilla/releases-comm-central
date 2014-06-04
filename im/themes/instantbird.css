@@ -99,6 +99,7 @@ tab[attention],
 .tabbrowser-tab[chat][status="joining"],
 .alltabs-item[chat][status="joining"] > .menu-iconic-left > .menu-iconic-icon {
   list-style-image: url("chrome://chat/skin/loading.png") !important;
+  -moz-image-region: auto;
 }
 .tabbrowser-tab[chat][status="left"],
 .alltabs-item[chat][status="left"] > .menu-iconic-left > .menu-iconic-icon {
