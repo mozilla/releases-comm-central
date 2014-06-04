@@ -238,7 +238,6 @@
 #include "nsStreamConverter.h"
 #include "nsMimeObjectClassAccess.h"
 #include "nsMimeConverter.h"
-#include "nsMsgHeaderParser.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // mime emitter includes
@@ -672,11 +671,9 @@ NS_DEFINE_NAMED_CID(NS_MSGDB_SERVICE_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMimeObjectClassAccess)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMimeConverter)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsStreamConverter)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgHeaderParser)
 
 NS_DEFINE_NAMED_CID(NS_MIME_OBJECT_CLASS_ACCESS_CID);
 NS_DEFINE_NAMED_CID(NS_MIME_CONVERTER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGHEADERPARSER_CID);
 NS_DEFINE_NAMED_CID(NS_MAILNEWS_MIME_STREAM_CONVERTER_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1004,7 +1001,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   // Mime Entries
   { &kNS_MIME_OBJECT_CLASS_ACCESS_CID, false, NULL, nsMimeObjectClassAccessConstructor },
   { &kNS_MIME_CONVERTER_CID, false, NULL, nsMimeConverterConstructor },
-  { &kNS_MSGHEADERPARSER_CID, false, NULL, nsMsgHeaderParserConstructor },
   { &kNS_MAILNEWS_MIME_STREAM_CONVERTER_CID, false, NULL, nsStreamConverterConstructor },
   { &kNS_HTML_MIME_EMITTER_CID, false, NULL, nsMimeHtmlDisplayEmitterConstructor},
   { &kNS_XML_MIME_EMITTER_CID, false, NULL, nsMimeXmlEmitterConstructor},
@@ -1229,7 +1225,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   // Mime Entries
   { NS_MIME_OBJECT_CONTRACTID, &kNS_MIME_OBJECT_CLASS_ACCESS_CID },
   { NS_MIME_CONVERTER_CONTRACTID, &kNS_MIME_CONVERTER_CID },
-  { NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID, &kNS_MSGHEADERPARSER_CID },
   { NS_MAILNEWS_MIME_STREAM_CONVERTER_CONTRACTID, &kNS_MAILNEWS_MIME_STREAM_CONVERTER_CID },
   { NS_MAILNEWS_MIME_STREAM_CONVERTER_CONTRACTID1, &kNS_MAILNEWS_MIME_STREAM_CONVERTER_CID },
   { NS_MAILNEWS_MIME_STREAM_CONVERTER_CONTRACTID2, &kNS_MAILNEWS_MIME_STREAM_CONVERTER_CID },

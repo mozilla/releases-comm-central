@@ -25,7 +25,7 @@ function run_test() {
       expectedResult: "foo bar <test@foo.invalid>" },
     { addrs: "foo bar <test@foo.invalid>",
       otherAddrs: "foo bar <test@foo.invalid>",
-      expectedResult: null },
+      expectedResult: "" },
     { addrs: "foo bar <test@foo.invalid>, abc@foo.invalid",
       otherAddrs: "foo bar <test@foo.invalid>",
       expectedResult: "abc@foo.invalid" },
@@ -44,7 +44,17 @@ function run_test() {
       expectedResult: "\u00F6foo <ghj@foo.invalid>" },
     { addrs: "foo\u00D0 bar <foo@bar.invalid>, \u00F6foo <ghj@foo.invalid>, foo\u00D0 bar <foo@bar.invalid>",
       otherAddrs: "\u00F6foo <ghj@foo.invalid>",
-      expectedResult: "foo\u00D0 bar <foo@bar.invalid>" }
+      expectedResult: "foo\u00D0 bar <foo@bar.invalid>" },
+    // Test email groups
+    { addrs: "A group: foo bar <foo@bar.invalid>, foo <ghj@foo.invalid>;",
+      otherAddrs: "foo <ghj@foo.invalid>",
+      expectedResult: "A group: foo bar <foo@bar.invalid>;" },
+    { addrs: "A group: foo bar <foo@bar.invalid>, foo <ghj@foo.invalid>;",
+      otherAddrs: "foo bar <ghj@foo.invalid>",
+      expectedResult: "A group: foo bar <foo@bar.invalid>;" },
+    { addrs: "A group: foo bar <foo@bar.invalid>;, foo <ghj@foo.invalid>",
+      otherAddrs: "foo <foo@bar.invalid>",
+      expectedResult: "A group: ; , foo <ghj@foo.invalid>" },
   ];
 
   // Test - empty strings

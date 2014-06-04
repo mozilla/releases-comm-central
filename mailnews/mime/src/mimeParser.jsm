@@ -179,12 +179,41 @@ var MimeParser = {
   // Parameters for parseHeaderField
 
   /**
+   * Parse the header as if it were unstructured.
+   *
+   * This results in the same string if no other options are specified. If other
+   * options are specified, this causes the string to be modified appropriately.
+   */
+  HEADER_UNSTRUCTURED:       0x00,
+  /**
    * Parse the header as if it were in the form text; attr=val; attr=val.
    *
    * Such headers include Content-Type, Content-Disposition, and most other
    * headers used by MIME as opposed to messages.
    */
   HEADER_PARAMETER:          0x02,
+  /**
+   * Parse the header as if it were a sequence of mailboxes.
+   */
+  HEADER_ADDRESS:            0x03,
+
+  /**
+   * This decodes parameter values according to RFC 2231.
+   *
+   * This flag means nothing if HEADER_PARAMETER is not specified.
+   */
+  HEADER_OPTION_DECODE_2231: 0x10,
+  /**
+   * This decodes the inline encoded-words that are in RFC 2047.
+   */
+  HEADER_OPTION_DECODE_2047: 0x20,
+  /**
+   * This converts the header from a raw string to proper Unicode.
+   */
+  HEADER_OPTION_ALLOW_RAW:   0x40,
+
+  /// Convenience for all three of the above.
+  HEADER_OPTION_ALL_I18N:    0x70,
 
   /**
    * Parse a header field according to the specification given by flags.
@@ -192,23 +221,36 @@ var MimeParser = {
    * Permissible flags begin with one of the HEADER_* flags, which may be or'd
    * with any of the HEADER_OPTION_* flags to modify the result appropriately.
    *
-   * If a charset-aware option (HEADER_OPTION_DECODE_2231 or
-   * HEADER_OPTION_DECODE_2047) is used, the charset parameter, if present, is
-   * the default charset to assume if no charset is found. If this parameter is
-   * not present, UTF-8 will be assumed to be the default. Furthermore, if any
-   * of these options are used, resulting strings will be normalized to full
-   * Unicode.
+   * If the option HEADER_OPTION_ALLOW_RAW is passed, the charset parameter, if
+   * present, is the charset to fallback to if the header is not decodable as
+   * UTF-8 text. If HEADER_OPTION_ALLOW_RAW is passed but the charset parameter
+   * is not provided, then no fallback decoding will be done. If
+   * HEADER_OPTION_ALLOW_RAW is not passed, then no attempt will be made to
+   * convert charsets.
    *
    * @param text    The value of a MIME or message header to parse.
    * @param flags   A set of flags that controls interpretation of the header.
    * @param charset A default charset to assume if no information may be found.
    */
   parseHeaderField: function MimeParser_parseHeaderField(text, flags, charset) {
+    // If we have a raw string, convert it to Unicode first
+    if (flags & MimeParser.HEADER_OPTION_ALLOW_RAW)
+      text = jsmime.headerparser.convert8BitHeader(text, charset);
+
     // The low 4 bits indicate the type of the header we are parsing. All of the
     // higher-order bits are flags.
     switch (flags & 0x0f) {
+    case MimeParser.HEADER_UNSTRUCTURED:
+      if (flags & MimeParser.HEADER_OPTION_DECODE_2047)
+        text = jsmime.headerparser.decodeRFC2047Words(text);
+      return text;
     case MimeParser.HEADER_PARAMETER:
-      return jsmime.headerparser.parseParameterHeader(text, false, false);
+      return jsmime.headerparser.parseParameterHeader(text,
+        (flags & MimeParser.HEADER_OPTION_DECODE_2047) != 0,
+        (flags & MimeParser.HEADER_OPTION_DECODE_2231) != 0);
+    case MimeParser.HEADER_ADDRESS:
+      return jsmime.headerparser.parseAddressingHeader(text,
+        (flags & MimeParser.HEADER_OPTION_DECODE_2047) != 0);
     default:
       throw "Illegal type of header field";
     }

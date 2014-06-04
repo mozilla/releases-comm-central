@@ -35,9 +35,4 @@
 #define NS_MIME_OBJECT_CONTRACTID \
   "@mozilla.org/messenger/mimeobject;1"
 
-// {932C53A5-F398-11d2-82B7-444553540002}
-#define NS_MSGHEADERPARSER_CID \
-        { 0x932c53a5, 0xf398, 0x11d2, \
-        { 0x82, 0xb7, 0x44, 0x45, 0x53, 0x54, 0x0, 0x2 } }
-
 #endif // nsMessageMimeCID_h__

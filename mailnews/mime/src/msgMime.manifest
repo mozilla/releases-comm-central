@@ -1,2 +1,4 @@
 component {d1258011-f391-44fd-992e-c6f4b461a42f} mimeJSComponents.js
+component {96bd8769-2d0e-4440-963d-22b97fb3ba77} mimeJSComponents.js
 contract @mozilla.org/messenger/mimeheaders;1 {d1258011-f391-44fd-992e-c6f4b461a42f}
+contract @mozilla.org/messenger/headerparser;1 {96bd8769-2d0e-4440-963d-22b97fb3ba77}
