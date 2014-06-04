@@ -1282,7 +1282,7 @@
       <!-- Array of lowercase nicks kept in the order in which they are
            displayed in the participant list.
            This array is for performance optimization only. To obtain the
-           capitalized list of nicks use [b for (b of this.buddies.keys())]. -->
+           capitalized list of nicks use the keys of this.buddies. -->
       <field name="_nicks">[]</field>
 
       <method name="addNick">

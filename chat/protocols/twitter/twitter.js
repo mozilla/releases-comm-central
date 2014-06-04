@@ -1040,7 +1040,8 @@ Account.prototype = {
 
     let tooltipInfo = [];
     for (let field in kFields) {
-      if (userInfo.hasOwnProperty(field) && userInfo[field]) {
+      if (Object.prototype.hasOwnProperty.call(userInfo, field) &&
+          userInfo[field]) {
         let value = userInfo[field];
         if (kFields[field])
           value = kFields[field](value);
