@@ -208,14 +208,15 @@ char * nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const c
       return PL_strdup(header);
   }
 
-  char *encodedString = nullptr;
+  nsAutoCString encodedString;
   nsresult res;
   nsCOMPtr<nsIMimeConverter> converter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &res);
   if (NS_SUCCEEDED(res) && nullptr != converter)
-    res = converter->EncodeMimePartIIStr_UTF8(nsDependentCString(header), structured, charset,
-      fieldnamelen, nsIMimeConverter::MIME_ENCODED_WORD_SIZE, &encodedString);
+    res = converter->EncodeMimePartIIStr_UTF8(nsDependentCString(header),
+      structured, charset, fieldnamelen,
+      nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
 
-  return NS_SUCCEEDED(res) ? encodedString : nullptr;
+  return NS_SUCCEEDED(res) ? PL_strdup(encodedString.get()) : nullptr;
 }
 
 // Return True if a charset is stateful (e.g. JIS).

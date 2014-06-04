@@ -720,11 +720,15 @@ bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubje
           char charset[nsIMimeConverter::MAX_CHARSET_NAME_LENGTH] = "";
           if (nsIMimeConverter::MAX_CHARSET_NAME_LENGTH >= (p2 - p1))
             strncpy(charset, p1, p2 - p1);
-          rv = mimeConverter->EncodeMimePartIIStr_UTF8(nsDependentCString(s), false, charset,
-            sizeof("Subject:"), nsIMimeConverter::MIME_ENCODED_WORD_SIZE,
-            modifiedSubject);
+          nsAutoCString encodedString;
+          rv = mimeConverter->EncodeMimePartIIStr_UTF8(nsDependentCString(s),
+            false, charset, sizeof("Subject:"),
+            nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
           if (NS_SUCCEEDED(rv))
+          {
+            *modifiedSubject = PL_strdup(encodedString.get());
             return result;
+          }
         }
       }
     }

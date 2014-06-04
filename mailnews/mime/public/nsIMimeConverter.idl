@@ -8,7 +8,7 @@
 /**
  * Encode/decode mail headers (via libmime).
  */
-[scriptable, uuid(1f685c2d-5ac6-40a9-8415-655b408a7d42)]
+[scriptable, uuid(0d3f5531-2dbe-40d3-9280-f6ac45a6f5e0)]
 interface nsIMimeConverter : nsISupports {
   /**
    * Suggested byte length limit for use when calling
@@ -33,11 +33,11 @@ interface nsIMimeConverter : nsISupports {
    *
    * @return The encoded buffer (as a C string).
    */
-  string encodeMimePartIIStr_UTF8(in AUTF8String header,
-                                  in boolean     structured,
-                                  in string      mailCharset,
-                                  in long        fieldnamelen,
-                                  in long        encodedWordSize);
+  AUTF8String encodeMimePartIIStr_UTF8(in AUTF8String header,
+                                       in boolean     structured,
+                                       in string      mailCharset,
+                                       in long        fieldnamelen,
+                                       in long        encodedWordSize);
 
   /**
    * Decode a MIME header to UTF-8 if conversion is required.  Marked as

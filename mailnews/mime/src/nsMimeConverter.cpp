@@ -67,15 +67,10 @@ nsMimeConverter::EncodeMimePartIIStr_UTF8(const nsACString &header,
                                           const char       *mailCharset,
                                           int32_t          fieldnamelen,
                                           int32_t          encodedWordSize,
-                                          char             **encodedString)
+                                          nsACString       &encodedString)
 {
-  NS_ENSURE_ARG_POINTER(encodedString);
-
-  char *retString = MIME_EncodeMimePartIIStr(PromiseFlatCString(header).get(),
-                                             structured, mailCharset,
-                                             fieldnamelen, encodedWordSize);
-  NS_ENSURE_TRUE(retString, NS_ERROR_FAILURE);
-
-  *encodedString = retString;
-  return NS_OK;
+  encodedString.Adopt(MIME_EncodeMimePartIIStr(PromiseFlatCString(header).get(),
+                                               structured, mailCharset,
+                                               fieldnamelen, encodedWordSize));
+  return encodedString.IsVoid() ? NS_ERROR_FAILURE : NS_OK;
 }
