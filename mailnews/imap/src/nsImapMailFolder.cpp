@@ -8417,6 +8417,8 @@ NS_IMETHODIMP nsImapMailFolder::GetFolderURL(nsACString& aFolderURL)
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
   rootFolder->GetURI(aFolderURL);
+  if (rootFolder == this)
+    return NS_OK;
 
   NS_ASSERTION(mURI.Length() > aFolderURL.Length(), "Should match with a folder name!");
   nsCString escapedName;
