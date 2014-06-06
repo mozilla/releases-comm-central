@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Task.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/gloda/log4moz.js");
 
@@ -18,7 +19,8 @@ runnablePrompter.prototype = {
   _asyncPrompter: null,
   _hashKey: null,
 
-  run: function() {
+  run: Task.async(function *() {
+    yield Services.logins.initializationPromise;
     this._asyncPrompter._log.debug("Running prompt for " + this._hashKey);
     let prompter = this._asyncPrompter._pendingPrompts[this._hashKey];
     let ok = false;
@@ -47,7 +49,7 @@ runnablePrompter.prototype = {
 
     this._asyncPrompter._log.debug("Finished running prompter for " + this._hashKey);
     this._asyncPrompter._doAsyncAuthPrompt();
-  }
+  })
 };
 
 function msgAsyncPrompter() {
