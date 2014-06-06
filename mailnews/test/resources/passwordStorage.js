@@ -12,6 +12,6 @@ function setupForPassword(storageName) {
   keyDB.copyTo(do_get_profile(), "key3.db");
 
   let signons = do_get_file(gDEPTH + "mailnews/data/" + storageName);
-  signons.copyTo(do_get_profile(), "signons.sqlite");
+  signons.copyTo(do_get_profile(), "logins.json");
   return Services.logins.initializationPromise;
 }
