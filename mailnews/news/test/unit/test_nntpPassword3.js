@@ -24,10 +24,6 @@ add_task(function *() {
   var incomingServer = MailServices.accounts.createIncomingServer(null, kHostname,
                                                                   kProtocol);
 
-  // Force move to new credentials
-  incomingServer.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder)
-                           .migrateLegacyCredentials();
-
   var i;
   var count = {};
 

@@ -80,56 +80,6 @@ static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-class AsyncAuthMigrator : public nsIMsgAsyncPromptListener {
-public:
-  AsyncAuthMigrator(nsIMsgNewsFolder *folder) : m_folder(folder) {}
-
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIMSGASYNCPROMPTLISTENER
-
-  void EnqueuePrompt();
-
-private:
-  nsCOMPtr<nsIMsgNewsFolder> m_folder;
-};
-
-NS_IMPL_ISUPPORTS(AsyncAuthMigrator, nsIMsgAsyncPromptListener)
-
-NS_IMETHODIMP AsyncAuthMigrator::OnPromptStart(bool *retval)
-{
-  *retval = true;
-  return m_folder->MigrateLegacyCredentials();
-}
-
-NS_IMETHODIMP AsyncAuthMigrator::OnPromptAuthAvailable()
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP AsyncAuthMigrator::OnPromptCanceled()
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-void AsyncAuthMigrator::EnqueuePrompt()
-{
-  nsCOMPtr<nsIMsgAsyncPrompter> prompter =
-    do_GetService(NS_MSGASYNCPROMPTER_CONTRACTID);
-
-  // Make up a fake unique key to prevent coalescing of prompts
-  // The address of this object should be sufficient
-  nsAutoCString queueKey;
-  queueKey.AppendInt((int32_t)(uint64_t)this);
-  prompter->QueueAsyncAuthPrompt(queueKey, false, this);
-}
-
-}
-
- 
-
-////////////////////////////////////////////////////////////////////////////////
-
 nsMsgNewsFolder::nsMsgNewsFolder(void) :
      mExpungedBytes(0), mGettingNews(false),
      mInitialized(false),
@@ -234,10 +184,6 @@ nsMsgNewsFolder::AddNewsgroup(const nsACString &name, const nsACString& setStr,
 
   // cache this for when we open the db
   rv = newsFolder->SetReadSetFromStr(setStr);
-
-  // I don't have a good time to do this, but this is as good as any...
-  nsRefPtr<AsyncAuthMigrator> delayedPrompt(new AsyncAuthMigrator(newsFolder));
-  delayedPrompt->EnqueuePrompt();
 
   rv = folder->SetParent(this);
   NS_ENSURE_SUCCESS(rv,rv);
@@ -1216,80 +1162,6 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
   }
   result = NS_ConvertASCIItoUTF16(rawResult);
   return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgNewsFolder::MigrateLegacyCredentials()
-{
-  // The original ways that authentication credentials were stored was rather
-  // complicated and messy. We used separate URLs as the "HTTP realm" field to
-  // permit prompting for username and password as separate dialogs. In this
-  // method, we check for this, and store them in the new unified credentials
-  // dialog.
-
-  // Create the URLs that the login manager needs
-  nsString signonUrl;
-  nsresult rv = CreateNewsgroupUrlForSignon(nullptr, signonUrl);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString usernameUrl;
-  rv = CreateNewsgroupUrlForSignon("username", usernameUrl);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString passwordUrl;
-  rv = CreateNewsgroupUrlForSignon("password", passwordUrl);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsILoginManager> loginMgr =
-    do_GetService(NS_LOGINMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Grab out the saved username
-  uint32_t count = 0;
-  nsILoginInfo **logins = nullptr;
-  rv = loginMgr->FindLogins(&count, signonUrl, EmptyString(), usernameUrl,
-    &logins);
-  NS_ENSURE_SUCCESS(rv, rv);
-  NS_ASSERTION(count <= 1, "Too many usernames?");
-
-  nsString username;
-  if (count > 0)
-  {
-    rv = logins[0]->GetPassword(username);
-    // Remove the saved login
-    loginMgr->RemoveLogin(logins[0]);
-  }
-
-  NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Do the same things for the password
-  rv = loginMgr->FindLogins(&count, signonUrl, EmptyString(), passwordUrl,
-                            &logins);
-  NS_ENSURE_SUCCESS(rv, rv);
-  NS_ASSERTION(count <= 1, "Too many passwords?");
-
-  nsString password;
-  if (count > 0)
-  {
-    rv = logins[0]->GetPassword(password);
-    loginMgr->RemoveLogin(logins[0]);
-  }
-  NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // If there is nothing to migrate, then do nothing
-  if (username.IsEmpty() && password.IsEmpty())
-    return NS_OK;
-
-  // Make and add the new logon
-  nsCOMPtr<nsILoginInfo> newLogin = do_CreateInstance(NS_LOGININFO_CONTRACTID);
-  // We need to pass in JS equivalent to "null"; empty ("") isn't good enough
-  nsString voidString;
-  voidString.SetIsVoid(true);
-  newLogin->Init(signonUrl, voidString, signonUrl, username, password,
-    EmptyString(), EmptyString());
-  return loginMgr->AddLogin(newLogin);
 }
 
 NS_IMETHODIMP

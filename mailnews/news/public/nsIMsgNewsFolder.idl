@@ -15,7 +15,7 @@ interface nsINntpIncomingServer;
 
 [ref] native nsMsgKeyArrayRef(nsTArray<nsMsgKey>);
 
-[scriptable, uuid(3bf5c65d-71bd-4560-a337-435797d249a6)]
+[scriptable, uuid(9a12c3a5-9de5-4c57-ace3-d51802b525a9)]
 interface nsIMsgNewsFolder : nsISupports {
   readonly attribute AString unicodeName;
   /**|rawName| is an 8-bit string to represent the name of a newsgroup used by 
@@ -79,20 +79,6 @@ interface nsIMsgNewsFolder : nsISupports {
    */
   bool getAuthenticationCredentials(in nsIMsgWindow aMsgWindow,
     in bool mayPrompt, in bool mustPrompt);
-
-  /**
-   * Force migration of credentials from older versions of this codebase.
-   *
-   * This method is normally called during the creation of newsgroup folders,
-   * and it should not be necessary to call this method. This method also
-   * forcibly deletes the old credentials, so that passwords would not be
-   * leaked.
-   *
-   * It is expected that this method will be removed once it is decided that
-   * supporting migration from old versions of Thunderbird and SeaMonkey should
-   * not be supported.
-   */
-  void migrateLegacyCredentials();
 
   /// The username that should be used for this group
   attribute ACString groupUsername;
