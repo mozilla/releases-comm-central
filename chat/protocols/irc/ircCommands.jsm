@@ -43,6 +43,8 @@ function kickCommand(aMsg, aConv) {
 // aMsg is <user> <message>
 // aReturnedConv is optional and returns the resulting conversation.
 function messageCommand(aMsg, aConv, aReturnedConv) {
+  // Trim leading whitespace.
+  aMsg = aMsg.trimLeft();
   let sep = aMsg.indexOf(" ");
   // If no space in the message or the first space is at the end of the message.
   if (sep == -1 || (sep + 1) == aMsg.length) {
