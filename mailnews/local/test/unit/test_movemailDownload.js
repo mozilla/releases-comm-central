@@ -4,6 +4,8 @@
  */
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Task.jsm");
+Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?",
@@ -39,12 +41,10 @@ function run_test()
   incoming.getNewMail(null, null, null);
   gMoveMailInbox = incoming.rootFolder.getChildNamed("INBOX");
   // add 3 messages
-  do_test_pending();
-  continueTest();
+  run_next_test();
 }
 
-function continueTest()
-{
+add_task(function continueTest() {
   // get message headers for the inbox folder
   let enumerator = gMoveMailInbox.msgDatabase.EnumerateMessages();
   var msgCount = 0;
@@ -56,41 +56,22 @@ function continueTest()
     do_check_eq(hdr.subject, testSubjects[msgCount++]);
   }
   do_check_eq(msgCount, 3);
-  streamNextMessage();
-}
+});
 
-function streamNextMessage()
-{
+add_task(function *streamMessages() {
+  for (let msgHdr of gMsgHdrs)
+    yield streamNextMessage(msgHdr);
+});
+
+let streamNextMessage = Task.async(function* (aMsgHdr) {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-  let msghdr = gMsgHdrs[gHdrIndex];
-  let msgURI = msghdr.folder.getUriForMsg(msghdr);
-  dump("streaming msg " + msgURI + " store token = " + msghdr.getStringProperty("storeToken"));
+  let msgURI = aMsgHdr.folder.getUriForMsg(aMsgHdr);
+  dump("streaming msg " + msgURI + " store token = " +
+       aMsgHdr.getStringProperty("storeToken"));
   let msgServ = messenger.messageServiceFromURI(msgURI);
-  msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", true);
-}
-
-gStreamListener = {
-  QueryInterface : XPCOMUtils.generateQI([Ci.nsIStreamListener]),
-  _stream : null,
-  _data : null,
-  onStartRequest : function (aRequest, aContext) {
-    this._stream = null;
-    this._data = "";
-  },
-  onStopRequest : function (aRequest, aContext, aStatusCode) {
-    // check that the streamed message starts with "From "
-    do_check_true(this._data.startsWith("From "));
-    if (++gHdrIndex == gFiles.length)
-      do_test_finished();
-    else
-      streamNextMessage();
-  },
-  onDataAvailable : function (aRequest, aContext, aInputStream, aOff, aCount) {
-    if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
-      this._stream.init(aInputStream);
-    }
-    this._data += this._stream.read(aCount);
-  },
-};
+  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);
+  let data = yield streamListener.promise;
+  do_check_true(data.startsWith("From "));
+});
 
