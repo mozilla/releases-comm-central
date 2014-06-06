@@ -848,6 +848,7 @@ pref("mail.cloud_files.learn_more_url", "https://support.mozillamessaging.com/kb
 pref("mail.ignore_thread.learn_more_url", "https://support.mozillamessaging.com/kb/ignore-threads");
 
 // Sanitize dialog window
+pref("privacy.cpd.history", true);
 pref("privacy.cpd.cookies", true);
 pref("privacy.cpd.cache", true);
 

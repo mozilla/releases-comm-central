@@ -6,7 +6,7 @@
 <!ENTITY captionMailContent.label "Mail Content">
 
 <!ENTITY acceptRemoteContent.label "Allow remote content in messages">
-<!ENTITY acceptRemoteContent.accesskey "A">
+<!ENTITY acceptRemoteContent.accesskey "m">
 <!ENTITY remoteContentExceptions.label "Exceptions…">
 <!ENTITY remoteContentExceptions.accesskey "x">
 <!ENTITY acceptRemoteContentInfo.label "Learn more about the privacy issues of remote content">
@@ -14,6 +14,8 @@
 <!-- Web Content -->
 <!ENTITY captionWebContent.label "Web Content">
 
+<!ENTITY keepHistory.label "Remember websites and links I've visited">
+<!ENTITY keepHistory.accesskey "R">
 <!ENTITY acceptCookies.label "Accept cookies from sites">
 <!ENTITY acceptCookies.accesskey "A">
 <!ENTITY acceptThirdParty.pre.label "Accept third-party cookies:">

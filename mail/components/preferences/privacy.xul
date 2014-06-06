@@ -34,6 +34,11 @@
                   type="bool" inverted="true"
                   onchange="gPrivacyPane.reloadMessageInOpener();"/>
 
+      <!-- History -->
+      <preference id="places.history.enabled"
+                  name="places.history.enabled"
+                  type="bool"/>
+
       <!-- Cookies -->
       <preference id="network.cookie.cookieBehavior"
                   name="network.cookie.cookieBehavior"
@@ -75,6 +80,10 @@
     <!-- Web Content -->
     <groupbox id="webContentGroup">
       <caption label="&captionWebContent.label;"/>
+      <checkbox id="keepHistory"
+                preference="places.history.enabled"
+                label="&keepHistory.label;"
+                accesskey="&keepHistory.accesskey;"/>
       <hbox id="cookiesBox">
         <checkbox id="acceptCookies" flex="1"
                   preference="network.cookie.cookieBehavior"

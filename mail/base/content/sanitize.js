@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 var Application = Components.classes["@mozilla.org/steel/application;1"]
                             .getService(Components.interfaces.steelIApplication);
@@ -151,6 +152,35 @@ Sanitizer.prototype = {
 
       get canClear()
       {
+        return true;
+      }
+    },
+
+    history: {
+      clear: function ()
+      {
+        if (this.range)
+          PlacesUtils.history.removeVisitsByTimeframe(this.range[0], this.range[1]);
+        else
+          PlacesUtils.history.removeAllPages();
+
+        try {
+          var os = Components.classes["@mozilla.org/observer-service;1"]
+                             .getService(Components.interfaces.nsIObserverService);
+          os.notifyObservers(null, "browser:purge-session-history", "");
+        } catch (e) { }
+
+        try {
+          var predictor = Components.classes["@mozilla.org/network/predictor;1"]
+                                    .getService(Components.interfaces.nsINetworkPredictor);
+          predictor.reset();
+        } catch (e) { }
+      },
+
+      get canClear()
+      {
+        // bug 347231: Always allow clearing history due to dependencies on
+        // the browser:purge-session-history notification. (like error console)
         return true;
       }
     },

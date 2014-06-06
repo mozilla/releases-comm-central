@@ -35,6 +35,7 @@
             src="chrome://messenger/content/sanitizeDialog.js"/>
 
     <preferences id="sanitizePreferences">
+      <preference id="privacy.cpd.history" name="privacy.cpd.history" type="bool"/>
       <preference id="privacy.cpd.cookies" name="privacy.cpd.cookies" type="bool"/>
       <preference id="privacy.cpd.cache"   name="privacy.cpd.cache"   type="bool"/>
     </preferences>
@@ -94,7 +95,12 @@
              accesskey="&detailsProgressiveDisclosure.accesskey;"
              control="detailsExpander"/>
     </hbox>
-    <listbox id="itemList" rows="2" collapsed="true" persist="collapsed">
+    <listbox id="itemList" rows="3" collapsed="true" persist="collapsed">
+      <listitem label="&itemHistory.label;"
+                type="checkbox"
+                accesskey="&itemHistory.accesskey;"
+                preference="privacy.cpd.history"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
       <listitem label="&itemCookies.label;"
                 type="checkbox"
                 accesskey="&itemCookies.accesskey;"
