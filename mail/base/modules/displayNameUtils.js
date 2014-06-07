@@ -79,7 +79,7 @@ function FormatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
     try {
       displayName = gMessengerBundle.getString("header" + aContext + "FieldMe");
     } catch (e) {
-      displayName = gMessenberBundle.getString("headertoFieldMe");
+      displayName = gMessengerBundle.getString("headertoFieldMe");
     }
 
     // Make sure we have an unambiguous name if there are multiple identities
