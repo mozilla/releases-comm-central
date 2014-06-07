@@ -1568,8 +1568,8 @@
                 allowCallback(true, expireType);
               }
             }, {
-              label: this._stringBundle.GetStringFromName(type + ".dontShowForSession"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".dontShowForSession.accesskey"),
+              label: this._stringBundle.GetStringFromName(type + ".dontShowThisSession"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".dontShowThisSession.accesskey"),
               popup: null,
               callback: function (aNotificationBox, aButton) {
                 var expireType = aNotificationBox.checkbox.checked ?
@@ -2790,20 +2790,20 @@
             };
 
             var secondaryActions = [{
-              label: this._stringBundle.GetStringFromName(type + ".dontShowForSession"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".dontShowForSession.accesskey"),
+              label: this._stringBundle.GetStringFromName(type + ".dontShowThisSession"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".dontShowThisSession.accesskey"),
               callback: function (aNotification) {
                 cancelCallback(true, nsIPermissionManager.EXPIRE_SESSION);
               }
             }, {
-              label: this._stringBundle.GetStringFromName(type + ".alwaysShow"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".alwaysShow.accesskey"),
+              label: this._stringBundle.GetStringFromName(type + ".alwaysShowForSite"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".alwaysShowForSite.accesskey"),
               callback: function (aNotification) {
                 allowCallback(true, nsIPermissionManager.EXPIRE_NEVER);
               }
             }, {
-              label: this._stringBundle.GetStringFromName(type + ".neverShow"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".neverShow.accesskey"),
+              label: this._stringBundle.GetStringFromName(type + ".neverShowForSite"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".neverShowForSite.accesskey"),
               callback: function (aNotification) {
                 cancelCallback(true, nsIPermissionManager.EXPIRE_NEVER);
               }
