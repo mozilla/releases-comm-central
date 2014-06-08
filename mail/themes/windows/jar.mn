@@ -503,7 +503,7 @@ classic.jar:
   skin/classic/aero/messenger/tabs/background-start@2x.png         (mail/tabs/background-start@2x.png)
   skin/classic/aero/messenger/tabs/selected-end.svg                (mail/tabs/selected-end-aero.svg)
   skin/classic/aero/messenger/tabs/selected-start.svg              (mail/tabs/selected-start-aero.svg)
-  skin/classic/aero/messenger/tabs/separator.png                   (mail/tabs/separator.png)
+  skin/classic/aero/messenger/tabs/separator.png                   (mail/tabs/separator-aero.png)
   skin/classic/aero/messenger/tabs/stroke-end.png                  (mail/tabs/stroke-end.png)
   skin/classic/aero/messenger/tabs/stroke-end@2x.png               (mail/tabs/stroke-end@2x.png)
   skin/classic/aero/messenger/tabs/stroke-start.png                (mail/tabs/stroke-start.png)
