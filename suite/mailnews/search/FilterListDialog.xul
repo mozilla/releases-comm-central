@@ -12,7 +12,6 @@
 
 <dialog id="filterListDialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:nc="http://home.netscape.com/NC-rdf#"
         windowtype="mailnews:filterlist"
         title="&filterListDialog.title;"
         style="width: 45em; height: 31em;"
@@ -48,56 +47,15 @@
                     class="folderMenuItem"
                     IsServer="true"
                     IsSecure="false"
-                    ServerType="none"
-                    datasources="rdf:msgaccountmanager rdf:mailnewsfolders"
-                    sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-                    sortDirection="ascending"
-                    ref="msgaccounts:/"
-                    oncommand="onFilterServerClick(event.target);">
-            <template>
-              <rule iscontainer="true" isempty="false" nc:ServerType="nntp">
-                <menupopup>
-                  <menu uri="..."
-                        class="folderMenuItem menu-iconic"
-                        IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                        IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                        ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"
-                        label="rdf:http://home.netscape.com/NC-rdf#Name"
-                        itemUri="rdf:*">
-                    <menupopup class="menulist-menupopup">
-                      <menuitem label="&choosethisnewsserver.label;"
-                                itemUri="rdf:*"/>
-                      <menuseparator/>
-                    </menupopup>
-                  </menu>
-                </menupopup>
-              </rule>
-              <rule nc:ServerType="nntp">
-                <menupopup>
-                  <menuitem uri="..."
-                            value="..."
-                            class="folderMenuItem menuitem-iconic"
-                            IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                            IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                            ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"
-                            label="rdf:http://home.netscape.com/NC-rdf#Name"
-                            itemUri="rdf:*"/>
-                </menupopup>
-              </rule>
-              <rule nc:SupportsFilters="true">
-                <menupopup>
-                  <menuitem uri="..."
-                            value="..."
-                            class="folderMenuItem menuitem-iconic"
-                            IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                            IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                            ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"
-                            label="rdf:http://home.netscape.com/NC-rdf#Name"
-                            itemUri="rdf:*"/>
-                </menupopup>
-              </rule>
-            </template>
-            <menupopup/>
+                    ServerType="none">
+            <menupopup id="serverMenuPopup"
+                       class="menulist-menupopup"
+                       type="folder"
+                       mode="filters"
+                       expandFolders="nntp"
+                       showFileHereLabel="true"
+                       showAccountsFileHere="true"
+                       oncommand="onFilterServerClick(event.target._folder.URI)"/>
           </menulist>
           <spacer flex="1"/>
         </hbox>
