@@ -18,6 +18,7 @@
 % locale navigator @AB_CD@ %locale/@AB_CD@/navigator/
 % locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/
 % locale navigator-region @AB_CD@ %locale/@AB_CD@/navigator-region/
+% override chrome://global/locale/notification.dtd chrome://communicator/locale/notification.dtd
   locale/@AB_CD@/branding/brand.dtd                                         (%chrome/branding/brand.dtd)
   locale/@AB_CD@/branding/brand.properties                                  (%chrome/branding/brand.properties)
   locale/@AB_CD@/branding/aboutRights.dtd                                   (%chrome/branding/aboutRights.dtd)
@@ -31,6 +32,7 @@
   locale/@AB_CD@/communicator/feeds/subscribe.dtd                           (%chrome/common/feeds/subscribe.dtd)
   locale/@AB_CD@/communicator/feeds/subscribe.properties                    (%chrome/common/feeds/subscribe.properties)
   locale/@AB_CD@/communicator/gopherAddon.dtd                               (%chrome/common/gopherAddon.dtd)
+  locale/@AB_CD@/communicator/notification.dtd                              (%chrome/common/notification.dtd)
   locale/@AB_CD@/communicator/notification.properties                       (%chrome/common/notification.properties)
   locale/@AB_CD@/communicator/openLocation.dtd                              (%chrome/common/openLocation.dtd)
   locale/@AB_CD@/communicator/openLocation.properties                       (%chrome/common/openLocation.properties)

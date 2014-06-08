@@ -1504,8 +1504,8 @@
                 allowCallback(aNotificationBox.checkbox.checked);
               }
             }, {
-              label: this._stringBundle.GetStringFromName(type + ".dontShareLocation"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".dontShareLocation.accesskey"),
+              label: this._stringBundle.GetStringFromName(type + ".dontShareThisRequest"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".dontShareThisRequest.accesskey"),
               popup: null,
               callback: function (aNotificationBox, aButton) {
                 cancelCallback(aNotificationBox.checkbox.checked);
@@ -2725,22 +2725,22 @@
             };
 
             var secondaryActions = [{
-              label: this._stringBundle.GetStringFromName(type + ".dontShareLocation"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".dontShareLocation.accesskey"),
+              label: this._stringBundle.GetStringFromName(type + ".dontShareThisRequest"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".dontShareThisRequest.accesskey"),
               callback: function (aNotification) {
                 cancelCallback(false);
               }
             }, {
-              label: this._stringBundle.GetStringFromName(type + ".neverShareLocation"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".neverShareLocation.accesskey"),
-              callback: function (aNotification) {
-                cancelCallback(true);
-              }
-            }, {
-              label: this._stringBundle.GetStringFromName(type + ".alwaysShareLocation"),
-              accessKey: this._stringBundle.GetStringFromName(type + ".alwaysShareLocation.accesskey"),
+              label: this._stringBundle.GetStringFromName(type + ".alwaysShareForSite"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".alwaysShareForSite.accesskey"),
               callback: function (aNotification) {
                 allowCallback(true);
+              }
+            }, {
+              label: this._stringBundle.GetStringFromName(type + ".neverShareForSite"),
+              accessKey: this._stringBundle.GetStringFromName(type + ".neverShareForSite.accesskey"),
+              callback: function (aNotification) {
+                cancelCallback(true);
               }
             }];
 
@@ -3328,7 +3328,7 @@
       </xul:vbox>
       <xul:vbox pack="start">
         <xul:toolbarbutton anonid="closebutton"
-                           class="messageCloseButton popup-notification-closebutton tabbable"
+                           class="messageCloseButton close-icon popup-notification-closebutton tabbable"
                            xbl:inherits="oncommand=closebuttoncommand"
                            tooltiptext="&closeNotification.tooltip;"/>
       </xul:vbox>
@@ -3371,7 +3371,7 @@
       </xul:vbox>
       <xul:vbox pack="start">
         <xul:toolbarbutton anonid="closebutton"
-                           class="messageCloseButton popup-notification-closebutton tabbable"
+                           class="messageCloseButton close-icon popup-notification-closebutton tabbable"
                            xbl:inherits="oncommand=closebuttoncommand"
                            tooltiptext="&closeNotification.tooltip;"/>
       </xul:vbox>
