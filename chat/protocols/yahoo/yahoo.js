@@ -137,7 +137,7 @@ YahooConference.prototype = {
                       {system: true});
   },
 
-  getParticipantNames: function() [p.name for (p in this._participants)]
+  getParticipantNames: function() [p.name for (p of this._participants.values())]
 };
 YahooConference.prototype.__proto__ = GenericConvChatPrototype;
 
@@ -283,6 +283,9 @@ YahooAccount.prototype = {
 
     for each (let participant in aParticipants)
       conf.addParticipant(participant);
+
+    // Add ourselves to the conference room as well.
+    conf.addParticipant(this.imAccount.name);
 
     this._session.acceptConferenceInvite(aOwner, aRoom,
                                          conf.getParticipantNames());

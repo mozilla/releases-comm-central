@@ -281,7 +281,6 @@ YahooSession.prototype = {
   acceptConferenceInvite: function(aOwner, aRoom, aParticipants) {
     let packet = new YahooPacket(kPacketType.ConfLogon, 0, this.sessionId);
     packet.addValue(1, this._account.cleanUsername);
-    packet.addValue(3, this._account.cleanUsername);
     packet.addValue(57, aRoom);
     packet.addValues(3, aParticipants);
     this.sendPacket(packet);
@@ -891,7 +890,7 @@ const YahooPacketHandler = {
   0x18: function(aPacket) {
     let owner = aPacket.getValue(50);
     let roomName = aPacket.getValue(57);
-    let participants = aPacket.getValues(52);
+    let participants = aPacket.getValues(53);
     // The owner is also a participant.
     participants.push(owner);
     let message = aPacket.getValue(58);
