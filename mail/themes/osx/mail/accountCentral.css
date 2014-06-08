@@ -92,10 +92,13 @@ spacer {
   color: -moz-activehyperlinktext;
 }
 
+#CreateAccounts {
+  height: 30px;
+}
+
 #CreateAccountsList {
   display: block;
   -moz-padding-start: 50px;
-  height: 50px;
 }
 
 #ReadMessages label {

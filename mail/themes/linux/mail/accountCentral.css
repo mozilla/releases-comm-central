@@ -89,7 +89,7 @@ spacer.big {
 #CreateAccountsList {
   display: block;
   -moz-padding-start: 45px;
-  height: 50px;
+  margin-bottom: .7em;
 }
 
 #ReadMessages label {
@@ -157,7 +157,8 @@ spacer.big {
 }
 
 #CreateAccountChat {
-  background: url("chrome://chat/skin/chat-16.png") no-repeat;
+  background-image: url("chrome://chat/skin/chat-16.png");
+  background-repeat: no-repeat;
 }
 
 #CreateAccountNewsgroups {
