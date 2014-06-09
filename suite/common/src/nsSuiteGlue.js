@@ -1166,12 +1166,17 @@ ContentPermissionPrompt.prototype = {
 
   prompt: function(aRequest)
   {
+    // Only allow exactly one permission type here.
+    if (aRequest.types.length != 1)
+      return;
+
     const kFeatureKeys = { "geolocation" : "geo",
                            "desktop-notification" : "desktop-notification",
                          };
 
     // Make sure that we support the request.
-    if (!(aRequest.type in kFeatureKeys))
+    var type = aRequest.types.queryElementAt(0, Components.interfaces.nsIContentPermissionType).type;
+    if (!(type in kFeatureKeys))
       return;
 
     var path, host;
@@ -1186,7 +1191,7 @@ ContentPermissionPrompt.prototype = {
     else
       return;
 
-    var perm = kFeatureKeys[aRequest.type];
+    var perm = kFeatureKeys[type];
     switch (Services.perms.testExactPermissionFromPrincipal(requestingPrincipal, perm)) {
       case Services.perms.ALLOW_ACTION:
         aRequest.allow();
@@ -1219,7 +1224,7 @@ ContentPermissionPrompt.prototype = {
                      .chromeEventHandler.parentNode;
 
     // Show the prompt.
-    switch (aRequest.type) {
+    switch (type) {
       case "geolocation":
         nb.showGeolocationPrompt(path, host, allowCallback, cancelCallback);
         break;
