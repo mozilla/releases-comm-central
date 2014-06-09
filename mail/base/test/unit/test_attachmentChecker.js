@@ -10,6 +10,8 @@
  * - GetAttachmentKeywords function.
  */
 
+// make xpcshell-tests TEST_PATH=mail/base/test/unit/test_attachmentChecker.js
+
 // Globals
 
 Components.utils.import("resource:///modules/attachmentChecker.js");
@@ -65,6 +67,9 @@ var tests = [
   ["Should match Japanese", "a test.添付 a", ".添付", "test.添付"],
   ["Should match Greek", "a test.Θεωρία a", ".Θεωρία", "test.Θεωρία"],
   ["Should match once", "a test.pdf.doc a", ".pdf,.doc", "test.pdf.doc"],
+  ["Should not match kw in url", "see https://example.org/attachment.cgi?id=1 test", "attachment", ""],
+  ["Should not match kw in url ending with kw", "https://example.org/attachment", "attachment", ""],
+  ["Should match CV and attachment", "got my CV as attachment", "CV,attachment", "CV,attachment"],
 ];
 
 function run_test()
