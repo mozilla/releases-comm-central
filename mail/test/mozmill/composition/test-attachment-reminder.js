@@ -20,7 +20,6 @@ Cu.import("resource:///modules/mailServices.js");
 
 const kBoxId = "attachmentNotificationBox";
 const kNotificationId = "attachmentReminder";
-const notificationSlackTime = 2000;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -44,6 +43,26 @@ function setupComposeWin(aCwc, toAddr, subj, body) {
  */
 function assert_automatic_reminder_state(aCwc, aShown) {
   return assert_notification_displayed(aCwc, kBoxId, kNotificationId, aShown);
+}
+
+/**
+ * Waits for the attachment reminder bar to change into the wished state.
+ *
+ * @param aCwc    A compose window controller.
+ * @param aShown  True for waiting for the bar to be shown, false otherwise.
+ */
+function wait_for_reminder_state(aCwc, aShown) {
+  if (aShown) {
+    // This waits up to 30 seconds for the notification to appear.
+    wait_for_notification_to_show(aCwc, kBoxId, kNotificationId);
+  } else if (check_notification_displayed(aCwc, kBoxId, kNotificationId)) {
+    // This waits up to 30 seconds for the notification to disappear.
+    wait_for_notification_to_stop(aCwc, kBoxId, kNotificationId);
+  } else {
+    // This waits 5 seconds during which the notification must not appear.
+    aCwc.sleep(5000);
+    assert_automatic_reminder_state(aCwc, false);
+  }
 }
 
 /**
@@ -78,13 +97,12 @@ function test_attachment_reminder_appears_properly() {
                   "Hello! ");
 
   // Give the notification time to appear. It shouldn't.
-  cwc.sleep(notificationSlackTime);
-  assert_automatic_reminder_state(cwc, false);
+  wait_for_reminder_state(cwc, false);
 
   cwc.type(cwc.eid("content-frame"), "Seen this cool attachment?");
 
   // Give the notification time to appear. It should now.
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, true);
 
   // The manual reminder should be disabled yet.
   assert_manual_reminder_state(cwc, false);
@@ -120,7 +138,7 @@ function test_attachment_reminder_dismissal() {
                   "Hi there, remember the attachment!");
 
   // Give the notification time to appear.
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, true);
 
   // We didn't click the "Remind Me Later" - the alert should pop up
   // on send anyway.
@@ -156,7 +174,7 @@ function test_attachment_reminder_aggressive_pref() {
   setupComposeWin(cwc, "test@example.org", "aggressive?",
                   "Check this attachment!");
 
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, true);
   click_send_and_handle_send_error(cwc);
 
   close_compose_window(cwc);
@@ -180,7 +198,7 @@ function test_no_send_now_sends() {
                   "will the 'No, Send Now' button work?",
                   "Hello, i got your attachment!");
 
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, true);
 
   // Click the send button again, this time choose "No, Send Now".
   plan_for_modal_dialog("commonDialog", click_no_send_now);
@@ -266,7 +284,7 @@ function test_manual_attachment_reminder() {
 
   // Enable the manual reminder and disable it again to see if it toggles right.
   click_manual_reminder(cwc, true);
-  cwc.sleep(notificationSlackTime);
+  cwc.sleep(2000);
   click_manual_reminder(cwc, false);
 
   // Now try to send again, there should be no more alert.
@@ -295,31 +313,28 @@ function test_manual_automatic_attachment_reminder_interaction() {
                   "Expect an attachment here...");
 
   // The automatic attachment notification should pop up.
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, true);
 
   // Now enable the manual reminder.
   click_manual_reminder(cwc, true);
   // The attachment notification should disappear.
-  wait_for_notification_to_stop(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, false);
 
   // Add some more text with another keyword so the automatic notification
   // could potentially show up.
   setupComposeWin(cwc, "", "", " and find it attached!");
   // Give the notification time to appear. It shouldn't.
-  cwc.sleep(notificationSlackTime);
-  assert_automatic_reminder_state(cwc, false);
+  wait_for_reminder_state(cwc, false);
 
   // Now disable the manual reminder.
   click_manual_reminder(cwc, false);
   // Give the notification time to appear. It shouldn't.
-  cwc.sleep(notificationSlackTime);
-  assert_automatic_reminder_state(cwc, false);
+  wait_for_reminder_state(cwc, false);
 
   // Add some more text without any new keyword.
   setupComposeWin(cwc, "", "", " Did I write anything?");
   // Give the notification time to appear. It should now.
-  cwc.sleep(notificationSlackTime);
-  assert_automatic_reminder_state(cwc, true);
+  wait_for_reminder_state(cwc, true);
 
   close_compose_window(cwc);
 }
@@ -383,14 +398,13 @@ function test_attachment_reminder_in_subject() {
                   "There is no keyword in this body...");
 
   // The automatic attachment notification should pop up.
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, true);
 
   // Now clear the subject
   delete_all_existing(cwc, cwc.eid("msgSubject"));
 
   // Give the notification time to disappear.
-  cwc.sleep(notificationSlackTime);
-  assert_automatic_reminder_state(cwc, false);
+  wait_for_reminder_state(cwc, false);
 
   close_compose_window(cwc);
 }
@@ -413,14 +427,13 @@ function test_attachment_reminder_in_subject_and_body() {
                   "There should be an attached file in this body...");
 
   // The automatic attachment notification should pop up.
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_reminder_state(cwc, true);
 
   // Now clear only the subject
   delete_all_existing(cwc, cwc.eid("msgSubject"));
 
   // Give the notification some time. It should not disappear.
-  cwc.sleep(notificationSlackTime);
-  assert_automatic_reminder_state(cwc, true);
+  wait_for_reminder_state(cwc, true);
 
   close_compose_window(cwc);
 }
