@@ -375,8 +375,12 @@ var FeedUtils = {
     if (!iconUri || !this.isValidScheme(iconUri))
       return "";
 
-    FeedUtils.mFaviconService.setAndFetchFaviconForPage(
-      uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
+    try {
+      // Valid urls with an icon image gecko cannot render will cause a throw.
+      FeedUtils.mFaviconService.setAndFetchFaviconForPage(
+        uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
+    }
+    catch (ex) {}
 
     if (aWindow) {
       // Unfortunately, setAndFetchFaviconForPage() does not invoke its
@@ -415,8 +419,10 @@ var FeedUtils = {
       responseDomain = request.channel.URI.prePath;
       let dom = request.response;
       if (request.status != 200 || !(dom instanceof Ci.nsIDOMHTMLDocument) ||
-          !dom.head)
+          !dom.head) {
         onDownloadError();
+        return;
+      }
 
       let iconUri;
       let linkNode = dom.head.querySelector('link[rel="shortcut icon"],' +
@@ -424,18 +430,22 @@ var FeedUtils = {
       let href = linkNode ? linkNode.href : null;
       try {
         iconUri = Services.io.newURI(href, null, null);
+
+        if (!iconUri || !FeedUtils.isValidScheme(iconUri) ||
+            !FeedUtils.isValidScheme(uri) ||
+            FeedUtils.mFaviconService.isFailedFavicon(iconUri)) {
+          onDownloadError();
+          return;
+        }
+
+        FeedUtils.mFaviconService.setAndFetchFaviconForPage(
+          uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
+        if (aCallback)
+          aCallback(iconUri.spec, responseDomain, aArg);
       }
-      catch (ex) {}
-
-      if (!iconUri || !FeedUtils.isValidScheme(iconUri) ||
-          !FeedUtils.isValidScheme(uri) ||
-          FeedUtils.mFaviconService.isFailedFavicon(iconUri))
+      catch (ex) {
         onDownloadError();
-
-      FeedUtils.mFaviconService.setAndFetchFaviconForPage(
-        uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
-      if (aCallback)
-        aCallback(iconUri.spec, responseDomain, aArg);
+      }
     }
 
     let onDownloadError = function() {
