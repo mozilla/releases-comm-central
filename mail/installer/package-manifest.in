@@ -62,7 +62,6 @@
 #endif
 #ifdef XP_WIN32
 @BINPATH@/@DLL_PREFIX@gkmedias@DLL_SUFFIX@
-#ifndef MOZ_DEBUG
 #if MOZ_MSVC_REDIST == 1400
 @BINPATH@/Microsoft.VC80.CRT.manifest
 @BINPATH@/msvcm80.dll
@@ -79,7 +78,6 @@
 #elif MOZ_MSVC_REDIST == 1700
 @BINPATH@/msvcp110.dll
 @BINPATH@/msvcr110.dll
-#endif
 #endif
 #endif
 @BINPATH@/@DLL_PREFIX@mozalloc@DLL_SUFFIX@
