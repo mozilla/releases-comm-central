@@ -233,6 +233,13 @@ SuiteGlue.prototype = {
         else
           ss.currentEngine = ss.defaultEngine;
         break;
+      case "timer-callback":
+        // Load the Login Manager data from disk off the main thread, some time
+        // after startup.  If the data is required before the timeout, for example
+        // because a restored page contains a password field, it will be loaded on
+        // the main thread, and this initialization request will be ignored.
+        Services.logins;
+        break;
     }
   },
 
@@ -330,6 +337,10 @@ SuiteGlue.prototype = {
     }
 
     this._setUpUserAgentOverrides();
+
+    var timer = Components.classes["@mozilla.org/timer;1"]
+                          .createInstance(Components.interfaces.nsITimer);
+    timer.init(this, 3000, timer.TYPE_ONE_SHOT);
   },
 
   _setUpUserAgentOverrides: function ()
