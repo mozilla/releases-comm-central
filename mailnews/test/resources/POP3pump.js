@@ -4,9 +4,11 @@
  * folder. It uses a single global defined as:
  *
  *  gPOP3Pump:        the main access to the routine
- *  gPOP3Pump.run()   function to run to load the messages
+ *  gPOP3Pump.run()   function to run to load the messages. Returns promise that
+ *                    resolves when done.
  *  gPOP3Pump.files:  (in) an array of message files to load
  *  gPOP3Pump.onDone: function to execute after completion
+                      (optional and deprecated)
  *  gPOP3Pump.fakeServer:  (out) the POP3 incoming server
  *
  * adapted from test_pop3GetNewMail.js
@@ -18,15 +20,11 @@
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
-// We can be executed from multiple depths
-// Provide understandable error message
-if (typeof gDEPTH == "undefined")
-  do_throw("gDEPTH must be defined when using IMAPpump.js");
-
 // Import the pop3 server scripts
 Components.utils.import("resource://testing-common/mailnews/maild.js");
 Components.utils.import("resource://testing-common/mailnews/auth.js");
 Components.utils.import("resource://testing-common/mailnews/pop3d.js");
+Components.utils.import("resource://gre/modules/Promise.jsm");
 
 function POP3Pump()
 {
@@ -45,28 +43,29 @@ function POP3Pump()
   this._firstFile = true;
   this._tests = [];
   this._finalCleanup = false;
-  this._expectedResult = 0;
+  this._expectedResult = Components.results.NS_OK;
+  this._actualResult = Components.results.NS_ERROR_UNEXPECTED;
 }
 
-POP3Pump.prototype._urlListener =
+// nsIUrlListener implementation
+POP3Pump.prototype.OnStartRunningUrl = function OnStartRunningUrl(url) {};
+
+POP3Pump.prototype.OnStopRunningUrl = function OnStopRunningUrl(aUrl, aResult)
 {
-  OnStartRunningUrl: function OnStartRunningUrl(url) {},
-  OnStopRunningUrl: function OnStopRunningUrl(aUrl, aResult)
+  this._actualResult = aResult;
+  if (aResult != Components.results.NS_OK)
   {
-    if (aResult != 0)
-    {
-      // If we have an error, clean up nicely.
-      gPOP3Pump._server.stop();
+    // If we have an error, clean up nicely.
+    this._server.stop();
 
-      var thread = Services.tm.currentThread;
-      while (thread.hasPendingEvents())
-        thread.processNextEvent(true);
-    }
-    do_check_eq(aResult, gPOP3Pump._expectedResult);
-
-    // Let OnStopRunningUrl return cleanly before doing anything else.
-    do_timeout(0, _checkPumpBusy);
+    var thread = Services.tm.currentThread;
+    while (thread.hasPendingEvents())
+      thread.processNextEvent(true);
   }
+  do_check_eq(aResult, this._expectedResult);
+
+  // Let OnStopRunningUrl return cleanly before doing anything else.
+  do_timeout(0, _checkPumpBusy);
 };
 
 // Setup the daemon and server
@@ -117,7 +116,12 @@ POP3Pump.prototype._checkBusy = function _checkBusy()
     {
       // exit this module
       do_test_finished();
-      do_timeout(0, this.onDone);
+      if (this.onDone)
+        this._promise.then(this.onDone, this.onDone);
+      if (this._actualResult == Components.results.NS_OK)
+        this._resolve();
+      else
+        this._reject(this._actualResult);
     }
     return;
   }
@@ -163,7 +167,7 @@ POP3Pump.prototype._testNext = function _testNext()
     this._daemon.setMessages(thisFiles);
 
     // Now get the mail
-    this._pop3Service.GetNewMail(null, this._urlListener, localAccountUtils.inboxFolder,
+    this._pop3Service.GetNewMail(null, this, localAccountUtils.inboxFolder,
                                  this._incomingServer);
 
     this._server.performTest();
@@ -172,11 +176,6 @@ POP3Pump.prototype._testNext = function _testNext()
     this._server.stop();
 
     do_throw(e);
-  } finally
-  {
-    var thread = Services.tm.currentThread;
-    while (thread.hasPendingEvents())
-      thread.processNextEvent(true);
   }
 };
 
@@ -210,6 +209,13 @@ POP3Pump.prototype.run = function run(aExpectedResult)
 
   this._pop3Service = MailServices.pop3;
   this._testNext();
+
+  // This probably does not work with multiple tests, but nobody is using that.
+  this._promise = new Promise( (resolve, reject) => {
+    this._resolve = resolve;
+    this._reject = reject;
+  });
+  return this._promise;
 };
 
 var gPOP3Pump = new POP3Pump();
