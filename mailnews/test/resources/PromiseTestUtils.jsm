@@ -29,7 +29,10 @@ var PromiseTestUtils = {};
 
 PromiseTestUtils.PromiseUrlListener = function(aWrapped) {
   this.wrapped = aWrapped ? aWrapped.QueryInterface(Ci.nsIUrlListener) : null;
-  this._deferred = Promise.defer();
+  this._promise = new Promise((resolve, reject) => {
+    this._resolve = resolve;
+    this._reject = reject;
+  });
 };
 
 PromiseTestUtils.PromiseUrlListener.prototype = {
@@ -43,11 +46,11 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
     if (this.wrapped)
       this.wrapped.OnStopRunningUrl(aUrl, aExitCode);
     if (aExitCode == Cr.NS_OK)
-      this._deferred.resolve();
+      this._resolve();
     else
-      this._deferred.reject(aExitCode);
+      this._reject(aExitCode);
   },
-  get promise() { return this._deferred.promise; },
+  get promise() { return this._promise; },
 };
 
 /**
