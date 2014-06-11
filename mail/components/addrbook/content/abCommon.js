@@ -33,7 +33,7 @@ var DirPaneController =
       case "cmd_selectAll":
       case "cmd_delete":
       case "button_delete":
-      case "button_edit":
+      case "cmd_properties":
       case "cmd_printcard":
       case "cmd_printcardpreview":
       case "cmd_newlist":
@@ -94,7 +94,7 @@ var DirPaneController =
       case "cmd_printcard":
       case "cmd_printcardpreview":
         return (GetSelectedCardIndex() != -1);
-      case "button_edit":
+      case "cmd_properties":
         return (GetSelectedDirectory() != null);
       case "cmd_newlist":
         selectedDir = GetSelectedDirectory();
@@ -123,7 +123,7 @@ var DirPaneController =
         if (gDirTree)
           AbDeleteSelectedDirectory();
         break;
-      case "button_edit":
+      case "cmd_properties":
         AbEditSelectedDirectory();
         break;
       case "cmd_newlist":

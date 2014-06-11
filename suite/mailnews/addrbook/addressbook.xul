@@ -81,7 +81,7 @@
     <command id="cmd_printAddressBook" oncommand="AbPrintAddressBook()"/>
     <command id="cmd_printPreviewAddressBook" oncommand="AbPrintPreviewAddressBook()"/>
     <command id="cmd_close" oncommand="AbClose()"/>
-    <command id="cmd_properties" oncommand="goDoCommand('button_edit');"/>
+    <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');"/>
     <command id="cmd_undo"/>
     <command id="cmd_redo"/>
     <command id="cmd_copy"/>
@@ -455,7 +455,7 @@
                    label="&editItemButton.label;"
                    tooltiptext="&editItemButton.tooltip;"
                    removable="true"
-                   oncommand="goDoCommand('button_edit');"/>
+                   command="cmd_properties"/>
     <toolbarbutton id="button-newmessage"
                    class="toolbarbutton-1"
                    label="&newmsgButton.label;"

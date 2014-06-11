@@ -32,7 +32,13 @@
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abResultsPane.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abContactsPanel.js"/>
 
-  <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');"/>
+  <commandset id="CommandUpdate_AddressBook"
+              commandupdater="true"
+              events="focus,addrbook-select"
+              oncommandupdate="CommandUpdate_AddressBook()">
+    <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');"/>
+    <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');"/>
+  </commandset>
 
   <!-- These keys do not really run any command, but they are used to show
        the hotkeys at the corresponding menuitems -->
@@ -45,7 +51,7 @@
               command="cmd_delete"/>
     <menuitem label="&addrBookCardProperties.label;"
               accesskey="&addrBookCardProperties.accesskey;"
-              oncommand="AbEditSelectedCard();"/>
+              command="cmd_properties"/>
     <menuseparator/>
     <menuitem label="&addtoToFieldMenu.label;"
               accesskey="&addtoToFieldMenu.accesskey;"
@@ -82,7 +88,8 @@
     <separator class="thin"/>
 
     <tree id="abResultsTree" flex="1" context="cardProperties" class="plain" sortCol="GeneratedName" persist="sortCol"
-          onclick="contactsListOnClick(event);">
+          onclick="contactsListOnClick(event);"
+          onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');">
       <treecols>
         <!-- these column ids must match up to the mork column names, see nsIAddrDatabase.idl -->
         <treecol id="GeneratedName"

@@ -11,6 +11,8 @@ function GetAbViewListener()
 
 function contactsListOnClick(event)
 {
+  CommandUpdate_AddressBook();
+
   // we only care about button 0 (left click) events
   if (event.button != 0)
     return;
@@ -55,6 +57,8 @@ function AddressBookMenuListChange()
     onEnterInSearchBar();
   else
     ChangeDirectoryByURI(document.getElementById('addressbookList').value);
+
+  CommandUpdate_AddressBook();
 }
 
 function AbPanelOnComposerClose()
@@ -127,6 +131,12 @@ function AbResultsPaneDoubleClick(card)
 function UpdateCardView()
 {
   // do nothing for ab panel
+}
+
+function CommandUpdate_AddressBook()
+{
+  goUpdateCommand('cmd_delete');
+  goUpdateCommand('cmd_properties');
 }
 
 function onEnterInSearchBar()

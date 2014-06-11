@@ -80,7 +80,7 @@
     <command id="cmd_newlist" oncommand="goDoCommand('cmd_newlist');"/>
     <command id="cmd_printcardpreview" oncommand="AbPrintPreviewCard();"/>
     <command id="cmd_printcard" oncommand="AbPrintCard();"/>
-    <command id="cmd_properties" oncommand="goDoCommand('button_edit');"/>
+    <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');" disabled="true"/>
     <command id="cmd_undo" oncommand="goDoCommand('cmd_undo')" disabled="true"/>
     <command id="cmd_redo" oncommand="goDoCommand('cmd_redo')" disabled="true"/>
     <command id="cmd_cut" oncommand="goDoCommand('cmd_cut')" disabled="true"/>
@@ -177,7 +177,7 @@
   <menuitem id="dirTreeContext-properties"
             label="&editButton2.label;"
             accesskey="&editButton2.accesskey;"
-            oncommand="goDoCommand('button_edit');"/>
+            command="cmd_properties"/>
   <menuseparator/>
   <menuitem id="dirTreeContext-newcard" label="&newContactButton.label;"
             accesskey="&newContactButton.accesskey;" oncommand="AbNewCard();"/>
@@ -197,7 +197,7 @@
   <menuitem id="abResultsTreeContext-properties"
             label="&editButton2.label;"
             accesskey="&editButton2.accesskey;"
-            oncommand="goDoCommand('button_edit');"/>
+            command="cmd_properties"/>
   <menuseparator/>
   <menuitem id="abResultsTreeContext-newmessage"
             label="&newmsgButton.label;"
@@ -564,7 +564,7 @@
       <toolbarbutton class="toolbarbutton-1" id="button-editcard"
                      label="&editButton2.label;"
                      tooltiptext="&editButton2.tooltip;"
-                     oncommand="goDoCommand('button_edit');"/>
+                     command="cmd_properties"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newmessage" label="&newmsgButton.label;" tooltiptext="&newmsgButton.tooltip;" oncommand="AbNewMessage();"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newim" label="&newIM.label;" tooltiptext="&newIM.tooltip;" command="cmd_chatWithCard"/>
       <toolbarbutton class="toolbarbutton-1" id="button-abdelete"

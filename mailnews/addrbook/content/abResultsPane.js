@@ -330,7 +330,7 @@ var ResultsPaneController =
       case "cmd_selectAll":
       case "cmd_delete":
       case "button_delete":
-      case "button_edit":
+      case "cmd_properties":
       case "cmd_newlist":
         return true;
       default:
@@ -377,8 +377,10 @@ var ResultsPaneController =
           }
         }
         return (enabled && (numSelected > 0));
-      case "button_edit":
-        return (GetSelectedCardIndex() != -1);
+      case "cmd_properties":
+        // While "Edit Contact" dialogue is still modal (bug 115904, bug 135126),
+        // only enable "Properties" button for single selection; then fix bug 119999.
+        return (GetNumSelectedCards() == 1);
       case "cmd_newlist":
         var selectedDir = GetSelectedDirectory();
         if (selectedDir) {
@@ -404,7 +406,7 @@ var ResultsPaneController =
       case "button_delete":
         AbDelete();
         break;
-      case "button_edit":
+      case "cmd_properties":
         AbEditSelectedCard();
         break;
       case "cmd_newlist":
