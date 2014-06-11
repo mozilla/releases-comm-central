@@ -20,7 +20,6 @@ const bugmail10_preview = 'Do not reply to this email. You can add comments to t
 var gMoveFolder;
 var gFilter; // the test filter
 var gFilterList;
-var gCurTestNum = 1;
 const gTestArray =
 [
   function createFilters() {
@@ -42,48 +41,43 @@ const gTestArray =
     gFilter.enabled = true;
     gFilter.filterType = Ci.nsMsgFilterType.InboxRule;
     gFilterList.insertFilterAt(0, gFilter);
-    ++gCurTestNum;
-    doTest();
   },
   // just get a message into the local folder
-  function getLocalMessages1() {
+  function *getLocalMessages1() {
     gPOP3Pump.files = gFiles;
-    gPOP3Pump.onDone = doTest;
-    ++gCurTestNum;
-    gPOP3Pump.run();
+    yield gPOP3Pump.run();
   },
   function verifyFolders2() {
     do_check_eq(folderCount(gMoveFolder), 1);
     // the local inbox folder should gave one message.
     do_check_eq(folderCount(localAccountUtils.inboxFolder), 1);
-    ++gCurTestNum;
-    doTest();
-
   },
   function verifyMessages() {
     let hdrs = [];
     let keys = [];
-    let asyncResults = new Object;
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
-    gMoveFolder.fetchMsgPreviewText(keys, keys.length, false, null, asyncResults);
+    do_check_false(gMoveFolder.fetchMsgPreviewText(keys, keys.length,
+                                                   false, null));
     do_check_eq(hdrs[0].getStringProperty('preview'), bugmail10_preview);
     // check inbox message
     hdrs = [];
     keys = [];
-    let asyncResults = new Object;
     enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
-    localAccountUtils.inboxFolder.fetchMsgPreviewText(keys, keys.length, false,
-                                                      null, asyncResults);
+    do_check_false(localAccountUtils.inboxFolder
+                                    .fetchMsgPreviewText(keys, keys.length,
+                                                         false, null));
     do_check_eq(hdrs[0].getStringProperty('preview'), basic1_preview);
-    ++gCurTestNum;
-    doTest();
   },
+  function end_test() {
+    dump("Exiting mail tests\n");
+    gPOP3Pump = null;
+  }
 ];
 
 function folderCount(folder)
@@ -106,68 +100,7 @@ function run_test()
     localAccountUtils.loadLocalMailAccount();
 
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
-
-  MailServices.mailSession.AddFolderListener(FolderListener,
-                                             Ci.nsIFolderListener.event |
-                                               Ci.nsIFolderListener.added |
-                                               Ci.nsIFolderListener.removed);
-
-  // "Master" do_test_pending(), paired with a do_test_finished() at the end of
-  // all the operations.
-  do_test_pending();
-
-  //start first test
-  doTest();
-}
-
-function doTest()
-{
-  var test = gCurTestNum;
-  if (test <= gTestArray.length)
-  {
-    var testFn = gTestArray[test-1];
-    dump("Doing test " + test + " " + testFn.name + "\n");
-
-    try {
-      testFn();
-    } catch(ex) {
-      do_throw ('TEST FAILED ' + ex);
-    }
-  }
-  else
-    do_timeout(1000, endTest);
-}
-
-// nsIFolderListener implementation
-var FolderListener = {
-  OnItemAdded: function OnItemAdded(aParentItem, aItem) {
-    this._showEvent(aParentItem, "OnItemAdded");
-  },
-  OnItemRemoved: function OnItemRemoved(aParentItem, aItem) {
-    this._showEvent(aParentItem, "OnItemRemoved");
-    // continue test, as all tests remove a message during the move
-    do_timeout(0, doTest);
-  },
-  OnItemEvent: function OnItemEvent(aEventFolder, aEvent) {
-    this._showEvent(aEventFolder, aEvent.toString())
-  },
-  _showEvent: function showEvent(aFolder, aEventString) {
-        dump("received folder event " + aEventString +
-         " folder " + aFolder.name +
-         "\n");
-  }
-};
-
-function endTest()
-{
-  // Cleanup, null out everything, close all cached connections and stop the
-  // server
-  dump("Exiting mail tests\n");
-  let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
-    thread.processNextEvent(true);
-  gPOP3Pump = null;
-
-  do_test_finished(); // for the one in run_test()
+  gTestArray.forEach(add_task);
+  run_next_test();
 }
 
