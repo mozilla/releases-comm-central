@@ -20,6 +20,19 @@ CLIENT_PY = getpath(["..", "..", "client.py"])
 CLIENT_PY_ARGS = getpath(["..", "client.py-args"])
 
 def main(args):
+    if 'TINDERBOX_OUTPUT' in os.environ:
+        # When building on mozilla build slaves, execute mozmake instead. Until bug
+        # 978211, this is the easiest, albeit hackish, way to do this.
+        mozmake = os.path.join(os.path.dirname(__file__), '..', '..',
+            'mozmake.exe')
+        if os.path.exists(mozmake):
+            cmd = [mozmake]
+            cmd.extend(sys.argv[1:])
+            shell = os.environ.get('SHELL')
+            if shell and not shell.lower().endswith('.exe'):
+                cmd += ['SHELL=%s.exe' % shell]
+            sys.exit(subprocess.call(cmd))
+
     if not os.path.exists(PYMAKE):
         clientpyargs = open(CLIENT_PY_ARGS, "r").read().strip()
         clientpyargs = shlex.split(clientpyargs)

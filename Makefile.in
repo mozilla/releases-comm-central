@@ -81,7 +81,7 @@ ifeq ($(OS_ARCH),WINNT)
 endif
 
 buildsymbols :: $(SUBMAKEFILES)
-	$(MAKE) -C mozilla MAKE_SYM_STORE_PATH=$(MAKE_SYM_STORE_PATH) SYM_STORE_SOURCE_DIRS="$(topsrcdir)/mozilla/extensions/inspector $(topsrcdir)/ldap/sdks $(topsrcdir)/mozilla $(topsrcdir)" $@
+	$(MAKE) -C mozilla MAKE_SYM_STORE_PATH=$(MAKE_SYM_STORE_PATH) SYM_STORE_SOURCE_DIRS='$(topsrcdir)/mozilla/extensions/inspector $(topsrcdir)/ldap/sdks $(topsrcdir)/mozilla $(topsrcdir)' $@
 
 # If we don't specify this, then we will end up trying to build as if we were a
 # regular directory in the build tree.
