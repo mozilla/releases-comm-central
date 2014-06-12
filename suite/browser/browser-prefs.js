@@ -323,6 +323,8 @@ pref("offline.startup_state",            0);
 pref("offline.send.unsent_messages",            0);
 pref("offline.download.download_messages",  0);
 
+// allow offline web apps to store data but ask for permission by default
+pref("offline-apps.allow_by_default", false);
 pref("browser.offline-apps.notify", true);
 
 pref("browser.formfill.expire_days",        180);
