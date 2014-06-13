@@ -251,7 +251,7 @@ Feed.prototype =
     if (url)
       url = url.QueryInterface(Ci.nsIRDFLiteral).Value;
     else
-      url = this.resource.Value;
+      url = this.resource.ValueUTF8;
 
     return url;
   },

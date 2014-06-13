@@ -1398,7 +1398,7 @@ var FeedSubscriptions = {
     let currentFolderServer = itemToEdit.parentFolder.server;
     let ds = FeedUtils.getSubscriptionsDS(currentFolderServer);
     let currentFolder = ds.GetTarget(resource, FeedUtils.FZ_DESTFOLDER, true);
-    let currentFolderURI = currentFolder.QueryInterface(Ci.nsIRDFResource).Value;
+    let currentFolderURI = currentFolder.QueryInterface(Ci.nsIRDFResource).ValueUTF8;
     let feed = new Feed(resource, currentFolderServer);
     feed.folder = itemToEdit.parentFolder;
 

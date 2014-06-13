@@ -3592,6 +3592,10 @@ let FeedMessageHandler = {
           aMimeMsg.headers["content-base"][0]) {
         let url = aMimeMsg.headers["content-base"], uri;
         try {
+          let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                            .createInstance(Ci.nsIScriptableUnicodeConverter);
+          converter.charset = "UTF-8";
+          url = converter.ConvertToUnicode(url);
           uri = Services.io.newURI(url, null, null);
           url = uri.spec;
         }

@@ -340,7 +340,7 @@ FeedParser.prototype =
 
       // Prefer the value of the link tag to the item URI since the URI could be
       // a relative URN.
-      let uri = itemResource.Value;
+      let uri = itemResource.ValueUTF8;
       let link = this.getRDFTargetValue(ds, itemResource, FeedUtils.RSS_LINK);
       item.url = link || uri;
       item.description = this.getRDFTargetValue(ds, itemResource,
