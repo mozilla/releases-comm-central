@@ -17,6 +17,7 @@ var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Promise.jsm");
+Cu.import("resource:///modules/mailServices.js");
 
 /**
  * Url listener that can wrap another listener and trigger a callback.
@@ -103,3 +104,26 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
   get promise() { return this._promise; }
 };
 
+/**
+ * Folder listener to resolve a promise when a folder with a certain
+ * name is added.
+ *
+ * @param name     folder name to listen for
+ * @return         promise{folder} that resolves with the new folder when the
+ *                 folder add completes
+ */
+
+PromiseTestUtils.promiseFolderAdded = function promiseFolderAdded(folderName) {
+  return new Promise((resolve, reject) => {
+    listener = {
+       folderAdded: aFolder => {
+         if (aFolder.name == folderName) {
+           MailServices.mfn.removeListener(listener);
+           resolve(aFolder);
+         }
+       }
+    };
+    MailServices.mfn.addListener(listener,
+      Ci.nsIMsgFolderNotificationService.folderAdded);
+  });
+}

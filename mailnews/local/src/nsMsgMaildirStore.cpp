@@ -138,18 +138,22 @@ NS_IMETHODIMP nsMsgMaildirStore::DiscoverSubFolders(nsIMsgFolder *aParentFolder,
 }
 
 /**
- *Create a Maildir-style folder with "tmp", " and "cur" subfolders
- * but no "new" subfolder, because it's not sensical in the mail client context.
- ("new" directory is for messages on the server that haven't been seen by a
-*  mail client).
- * aFolderName is already "safe" - it has been through NS_MsgHashIfNecessary
+ * Create if missing a Maildir-style folder with "tmp" and "cur" subfolders
+ * but no "new" subfolder, because it doesn't make sense in the mail client
+ * context. ("new" directory is for messages on the server that haven't been
+*  seen by a mail client).
+ * aFolderName is already "safe" - it has been through NS_MsgHashIfNecessary.
  */
 nsresult nsMsgMaildirStore::CreateMaildir(nsIFile *path)
 {
   nsresult rv = path->Create(nsIFile::DIRECTORY_TYPE, 0700);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv) && rv != NS_ERROR_FILE_ALREADY_EXISTS)
+  {
+    NS_WARNING("Could not create root directory for message folder");
+    return rv;
+  }
 
-  // Create tmp, new, cur leaves
+  // Create tmp, cur leaves
   nsCOMPtr<nsIFile> leaf(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -157,11 +161,19 @@ nsresult nsMsgMaildirStore::CreateMaildir(nsIFile *path)
 
   leaf->AppendNative(NS_LITERAL_CSTRING("tmp"));
   rv = leaf->Create(nsIFile::DIRECTORY_TYPE, 0700);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv) && rv != NS_ERROR_FILE_ALREADY_EXISTS)
+  {
+    NS_WARNING("Could not create tmp directory for message folder");
+    return rv;
+  }
 
   leaf->SetNativeLeafName(NS_LITERAL_CSTRING("cur"));
   rv = leaf->Create(nsIFile::DIRECTORY_TYPE, 0700);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv) && rv != NS_ERROR_FILE_ALREADY_EXISTS)
+  {
+    NS_WARNING("Could not create cur directory for message folder");
+    return rv;
+  }
 
   return NS_OK;
 }
@@ -809,7 +821,6 @@ nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
   }
 
   path->Append(NS_LITERAL_STRING("cur"));
-  path->AppendNative(aMsgToken);
 
   // let's check if the folder exists
   bool exists;
@@ -821,6 +832,7 @@ nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
+  path->AppendNative(aMsgToken);
   return NS_NewLocalFileInputStream(aResult, path);
 }
 

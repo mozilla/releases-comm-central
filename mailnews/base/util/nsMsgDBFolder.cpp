@@ -3903,6 +3903,23 @@ nsresult nsMsgDBFolder::CreateDirectoryForFolder(nsIFile **resultFile)
 
   bool pathIsDirectory = false;
   path->IsDirectory(&pathIsDirectory);
+
+  bool isServer;
+  GetIsServer(&isServer);
+
+  // Make sure this is REALLY the parent for subdirectories
+  if (pathIsDirectory && !isServer)
+  {
+    nsAutoString leafName;
+    path->GetLeafName(leafName);
+    nsAutoString ext;
+    int32_t idx = leafName.RFindChar('.');
+    if (idx != -1)
+      ext = Substring(leafName, idx);
+    if (!ext.EqualsLiteral(FOLDER_SUFFIX))
+      pathIsDirectory = false;
+  }
+
   if(!pathIsDirectory)
   {
     //If the current path isn't a directory, add directory separator
