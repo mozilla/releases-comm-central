@@ -127,8 +127,11 @@ function onLoad()
  */
 function processWindowArguments(aArguments) {
   // If a specific folder was requested, try to select it.
-  if (("folder" in aArguments) && (aArguments.folder != gCurrentFolder)) {
-    gSelectedFolder = aArguments.folder;
+  if (!gSelectedFolder ||
+      (("folder" in aArguments) && (aArguments.folder != gCurrentFolder)))
+  {
+    if ("folder" in aArguments)
+      gSelectedFolder = aArguments.folder;
 
     // Get the folder where filters should be defined, if that server
     // can accept filters.
