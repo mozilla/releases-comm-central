@@ -34,7 +34,6 @@
   margin: 0;
   -moz-margin-end: 1px;
   list-style-image: url(tabs/arrow-left.png);
-  -moz-image-region: rect(0, 15px, 17px, 0);
   border-radius: 0;
 }
 

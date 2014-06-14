@@ -1558,22 +1558,34 @@
 
   <binding id="tabmail-arrowscrollbox" extends="chrome://global/content/bindings/scrollbox.xml#arrowscrollbox-clicktoscroll">
     <content>
-      <xul:toolbarbutton class="scrollbutton-up" collapsed="true"
-                         xbl:inherits="orient"
+      <xul:toolbarbutton class="scrollbutton-up"
+                         xbl:inherits="orient,collapsed=notoverflowing,disabled=scrolledtostart"
                          anonid="scrollbutton-up"
                          onmousedown="_startScroll(-1);"
                          onmouseup="_stopScroll();"
                          onmouseout="_stopScroll();"/>
-      <xul:scrollbox xbl:inherits="orient,align,pack,dir" flex="1" anonid="scrollbox">
+      <xul:spacer class="arrowscrollbox-overflow-start-indicator"
+                  xbl:inherits="collapsed=scrolledtostart"/>
+      <xul:scrollbox xbl:inherits="orient,align,pack,dir"
+                     flex="1"
+                     anonid="scrollbox">
         <children/>
       </xul:scrollbox>
-      <xul:stack align="center" pack="end" class="scrollbutton-down-stack">
-        <xul:hbox flex="1" class="scrollbutton-down-box"
-                           collapsed="true" anonid="down-box"/>
-        <xul:hbox flex="1" class="scrollbutton-down-box-animate"
-                           collapsed="true" anonid="down-box-animate"/>
-        <xul:toolbarbutton class="scrollbutton-down" collapsed="true"
-                           xbl:inherits="orient"
+      <xul:spacer class="arrowscrollbox-overflow-end-indicator"
+                  xbl:inherits="collapsed=scrolledtoend"/>
+      <xul:stack align="center"
+                 pack="end"
+                 class="scrollbutton-down-stack">
+        <xul:hbox flex="1"
+                  class="scrollbutton-down-box"
+                  collapsed="true"
+                  anonid="down-box"/>
+        <xul:hbox flex="1"
+                  class="scrollbutton-down-box-animate"
+                  collapsed="true"
+                  anonid="down-box-animate"/>
+        <xul:toolbarbutton class="scrollbutton-down"
+                           xbl:inherits="orient,collapsed=notoverflowing,disabled=scrolledtoend"
                            anonid="scrollbutton-down"
                            onmousedown="_startScroll(1);"
                            onmouseup="_stopScroll();"
@@ -1599,8 +1611,7 @@
           return;
         }
 
-        this._scrollButtonDownBox.collapsed = true;
-        this._scrollButtonDownBoxAnimate.collapsed = true;
+        this.setAttribute("notoverflowing", "true");
       ]]></handler>
 
       <handler event="overflow"><![CDATA[
@@ -1613,8 +1624,7 @@
           return;
         }
 
-        this._scrollButtonDownBox.collapsed = false;
-        this._scrollButtonDownBoxAnimate.collapsed = false;
+        this.removeAttribute("notoverflowing");
       ]]></handler>
 
       <handler event="UpdatedScrollButtonsDisabledState"><![CDATA[

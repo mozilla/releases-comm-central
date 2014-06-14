@@ -193,6 +193,7 @@ classic.jar:
   skin/classic/messenger/tabs/stroke-end.png                  (mail/tabs/stroke-end.png)
   skin/classic/messenger/tabs/stroke-start.png                (mail/tabs/stroke-start.png)
   skin/classic/messenger/tabs/dragIndicator.png               (mail/tabs/dragIndicator.png)
+  skin/classic/messenger/tabs/overflow-indicator.png          (mail/tabs/overflow-indicator.png)
   skin/classic/messenger/icons/button-archive.svg             (mail/icons/button-archive.svg)
   skin/classic/messenger/icons/button-delete.svg              (mail/icons/button-delete.svg)
   skin/classic/messenger/icons/button-forward.svg             (mail/icons/button-forward.svg)
