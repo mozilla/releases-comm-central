@@ -8,11 +8,12 @@ interface nsIMsgFolder;
 interface nsIUrlListener;
 interface nsIMsgWindow;
 
-[scriptable, uuid(a74a60ce-7a4d-11e3-b4ca-00269e4fddc1)]
+[scriptable, uuid(86e5bd0e-c324-11e3-923a-00269e4fddc1)]
 interface nsINewsBlogFeedDownloader : nsISupports
 {
   void downloadFeed(in nsIMsgFolder aFolder,
                     in nsIUrlListener aUrlListener,
+                    in bool aIsBiff,
                     in nsIMsgWindow aMsgWindow);
 
   /**
