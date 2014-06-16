@@ -382,8 +382,7 @@ nsContextMenu.prototype = {
     this.showItem("context-media-hidecontrols", onMedia && this.target.controls);
     this.showItem("context-video-fullscreen", this.onVideo);
 
-    var statsShowing = this.onVideo &&
-                       this.target.wrappedJSObject.mozMediaStatisticsShowing;
+    var statsShowing = this.onVideo && this.target.mozMediaStatisticsShowing;
     this.showItem("context-video-showstats",
                   this.onVideo && this.target.controls && !statsShowing);
     this.showItem("context-video-hidestats",
