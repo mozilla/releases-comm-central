@@ -1556,8 +1556,29 @@
               item.addEventListener("command", aCommandHandler);
               return item;
             }
+
+            if (!this._conv.isChat && !this._conv.buddy) {
+              let menu = document.createElementNS(XUL_NS, "menu");
+              if (!this._conv.account.connected)
+                menu.setAttribute("disabled", "true");
+              let id = "contextAddContact";
+              menu.setAttribute("id", id)
+              menu.setAttribute("label", bundle.GetStringFromName(id + ".label"));
+              menu.setAttribute("accesskey",
+                                bundle.GetStringFromName(id + ".accesskey"));
+              let conv = this._conv;
+              let addContact = aTag => conv.account.addBuddy(aTag, conv.name);
+              menu.actionOnShowing = function() {
+                Components.utils.import("resource:///modules/ibTagMenu.jsm");
+                menu.tagMenu =
+                  new TagMenu(menu, window, id, addContact, addContact);
+              };
+              items.push(menu);
+            }
+
             let showLogsItem = createMenuItem("contextShowLogs", function() conv.showLogs());
-            showLogsItem.disabled = !this.hasLogs();
+            if (!this.hasLogs())
+              showLogsItem.setAttribute("disabled", "true");
             items.push(showLogsItem);
 
             let hideConvItem = createMenuItem("contextHideConv", function() {

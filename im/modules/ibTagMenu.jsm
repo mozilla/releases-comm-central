@@ -12,26 +12,57 @@ XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://instantbird/locale/instantbird.properties")
 );
 
+// aOnTag and aOnAddTag will be called with aParent as the this value.
 // If a contact binding is given in aTarget, the menu checkmarks the existing
 // tags on this contact.
-function TagMenu(aParent, aWindow, aTarget = null) {
+function TagMenu(aParent, aWindow, aMenuId, aOnTag, aOnAddTag, aTarget = null) {
   this.parent = aParent;
-  this.window = aWindow;
-  if (aWindow)
-    this.document = aWindow.document;
+  this.document = aWindow.document;
   this.target = aTarget;
+  this.onAddTag = aOnAddTag;
+  this.onTag = aOnTag;
+
+  // Set up the tag menu at the menu element specified by aMenuId.
+  let document = this.document;
+  let menu = document.getElementById(aMenuId);
+  let popup = menu.firstChild;
+  if (popup)
+    popup.remove();
+  popup = document.createElement("menupopup");
+  this.popup = popup;
+  popup.addEventListener("command", this);
+  popup.addEventListener("popupshowing", this);
+  popup.addEventListener("popuphiding", this);
+  popup.appendChild(document.createElement("menuseparator"));
+  let addTagItem = document.createElement("menuitem");
+  addTagItem.setAttribute("label" , _("addNewTagCmd.label"));
+  addTagItem.setAttribute("accesskey", _("addNewTagCmd.accesskey"));
+  addTagItem.addEventListener("command", this);
+  addTagItem.isAddTagItem = true;
+  popup.appendChild(addTagItem);
+  menu.appendChild(popup);
 }
 TagMenu.prototype = {
-  document: null,
-  window: null,
-  target: null,
-  tagsPopupShowing: function() {
-    if (!this.parent.onContact && !this.parent.onBuddy && !this.parent.onNick)
-      return;
-
-    let popup = this.document.getElementById("context-tags-popup");
+  handleEvent: function(aEvent) {
+    // Don't let events bubble as the tag menu may be a submenu of a context
+    // menu with its own popupshowing handler, and as the command event
+    // on the addTagItem would otherwise bubble to the popup and be handled
+    // again.
+    aEvent.stopPropagation();
+    switch (aEvent.type) {
+      case "command":
+        if (aEvent.target.isAddTagItem)
+          return this.addNewTag(aEvent);
+        return this.tag(aEvent);
+      case "popupshowing":
+        return this.tagsPopupShowing(aEvent);
+      case "popuphiding":
+        return true;
+    }
+  },
+  tagsPopupShowing: function(aEvent) {
     let item;
-    while ((item = popup.firstChild) && item.localName != "menuseparator")
+    while ((item = this.popup.firstChild) && item.localName != "menuseparator")
       item.remove();
 
     if (this.target) {
@@ -53,31 +84,34 @@ TagMenu.prototype = {
             item.setAttribute("disabled", "true"); // can't remove the last tag.
         }
       }
-      popup.insertBefore(item, popup.firstChild);
+      this.popup.insertBefore(item, this.popup.firstChild);
     }
+    return true;
   },
-  tag: function(aEvent, aCallback) {
+  tag: function(aEvent) {
     let id = aEvent.originalTarget.groupId;
     if (!id)
       return false;
 
     try {
-      return aCallback(Services.tags.getTagById(id));
+      return this.onTag.call(this.parent, Services.tags.getTagById(id));
     } catch(e) {
       Cu.reportError(e);
       return false;
     }
   },
-  addNewTag: function(aCallback) {
+  addNewTag: function(aEvent) {
     let name = {};
-    if (!Services.prompt.prompt(this.window, _("newTagPromptTitle"),
+    if (!Services.prompt.prompt(this.document.defaultView,
+                                _("newTagPromptTitle"),
                                 _("newTagPromptMessage"), name, null,
                                 {value: false}) || !name.value)
       return false; // the user canceled
 
     try {
       // If the tag already exists, createTag will return it.
-      return aCallback(Services.tags.createTag(name.value));
+      return this.onAddTag.call(this.parent,
+                                Services.tags.createTag(name.value));
     } catch(e) {
       Cu.reportError(e);
       return false;

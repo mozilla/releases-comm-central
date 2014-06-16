@@ -130,17 +130,7 @@
                 oncommand="gContextMenu.nickOpenConv();"/>
       <menuitem id="context-nick-showlogs"
                 oncommand="gContextMenu.nickShowLogs();"/>
-      <menu id="context-nick-addcontact">
-        <menupopup id="context-tags-popup"
-                   oncommand="gContextMenu.tagMenu.tag(event, gContextMenu.nickAddContact.bind(gContextMenu));"
-                   onpopupshowing="gContextMenu.tagMenu.tagsPopupShowing();">
-          <menuseparator id="context-create-tag-separator"/>
-          <menuitem id="context-create-tag"
-                    label="&addNewTagCmd.label;"
-                    accesskey="&addNewTagCmd.accesskey;"
-                    oncommand="gContextMenu.tagMenu.addNewTag(gContextMenu.nickAddContact.bind(gContextMenu));"/>
-        </menupopup>
-      </menu>
+      <menu id="context-nick-addcontact"/>
       <menuseparator id="context-sep-nick"/>
 
       <menuitem id="context-openlink"

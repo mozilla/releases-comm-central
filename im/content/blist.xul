@@ -93,17 +93,7 @@
                 oncommand="gBuddyListContextMenu.delete();"/>
       <menu id="context-tags"
             label="&tagsCmd.label;"
-            accesskey="&tagsCmd.accesskey;">
-        <menupopup id="context-tags-popup"
-                   oncommand="gBuddyListContextMenu.tagMenu.tag(event, gBuddyListContextMenu.toggleTag.bind(gBuddyListContextMenu));"
-                   onpopupshowing="gBuddyListContextMenu.tagMenu.tagsPopupShowing();">
-          <menuseparator id="context-create-tag-separator"/>
-          <menuitem id="context-create-tag"
-                    label="&addNewTagCmd.label;"
-                    accesskey="&addNewTagCmd.accesskey;"
-                    oncommand="gBuddyListContextMenu.tagMenu.addNewTag(gBuddyListContextMenu.addTag.bind(gBuddyListContextMenu));"/>
-        </menupopup>
-      </menu>
+            accesskey="&tagsCmd.accesskey;"/>
       <menuitem id="context-hide-tag"
                 label="&hideTagCmd.label;"
                 accesskey="&hideTagCmd.accesskey;"

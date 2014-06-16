@@ -178,9 +178,11 @@ nsContextMenu.prototype = {
           !Services.contacts.getAccountBuddyByNameAndAccount(normalizedNick, account))
         isAddContact = true;
     }
-    if (isAddContact)
-      this.tagMenu = new TagMenu(this, window);
     addAction("AddContact", isAddContact);
+    if (isAddContact) {
+      this.tagMenu = new TagMenu(this, window, "context-nick-addcontact",
+                                 this.nickAddContact, this.nickAddContact);
+    }
 
     return actions;
   },

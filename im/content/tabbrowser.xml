@@ -184,8 +184,13 @@
             if ("getPanelSpecificMenuItems" in this.mContextTab.linkedTabPanel) {
               // Add in tab-specific menu items from the tab panel
               let panelMenuItems = this.mContextTab.linkedTabPanel.getPanelSpecificMenuItems();
-              for (let item of panelMenuItems)
+              for (let item of panelMenuItems) {
                 aPopupMenu.insertBefore(item, tabSpecificEndSeparator);
+                if (item.actionOnShowing) {
+                  item.actionOnShowing();
+                  delete item.actionOnShowing;
+                }
+              }
             }
             return true;
           ]]>

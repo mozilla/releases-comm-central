@@ -110,8 +110,6 @@
 <!ENTITY deleteCmd.accesskey           "v">
 <!ENTITY tagsCmd.label                 "Tags…">
 <!ENTITY tagsCmd.accesskey             "T">
-<!ENTITY addNewTagCmd.label            "Add New Tag…">
-<!ENTITY addNewTagCmd.accesskey        "N">
 <!ENTITY showLogsCmd.label             "Show Logs">
 <!ENTITY showLogsCmd.accesskey         "L">
 <!ENTITY hideTagCmd.label              "Hide Tag">

@@ -48,6 +48,12 @@ function buddyListContextMenu(aXulMenu) {
   ].forEach(function (aId) {
     document.getElementById(aId).hidden = hide;
   });
+  if (!hide) {
+    Components.utils.import("resource:///modules/ibTagMenu.jsm");
+    this.tagMenu = new TagMenu(this, window, "context-tags",
+                               this.toggleTag, this.addTag,
+                               this.onBuddy ? this.target.contact : this.target);
+  }
 
   document.getElementById("context-hide-tag").hidden = !this.onGroup;
 
@@ -89,10 +95,6 @@ function buddyListContextMenu(aXulMenu) {
 
   document.getElementById("context-openconversation").disabled =
     !hide && !this.target.canOpenConversation();
-
-  Components.utils.import("resource:///modules/ibTagMenu.jsm");
-  this.tagMenu = new TagMenu(this, window,
-                             this.onBuddy ? this.target.contact : this.target);
 }
 
 // Prototype for buddyListContextMenu "class."
