@@ -14,37 +14,53 @@
             script="chrome://communicator/content/pref/pref-offlineapps.js">
 
     <preferences>
+      <preference id="offline-apps.allow_by_default"
+                  name="offline-apps.allow_by_default"
+                  type="bool"
+                  onchange="UpdateNotifyBox(this.value);"/>
       <preference id="browser.offline-apps.notify"
                   name="browser.offline-apps.notify"
-                  type="bool"
-                  onchange="ReadOfflineNotify(!this.value);"/>
+                  type="bool"/>
     </preferences>
 
     <groupbox id="offlineGroup" flex="1">
       <caption label="&pref.offlineCache.caption;"/>
 
       <hbox align="center">
-        <label id="appCacheSizeInfo" flex="1"/>
+        <label id="offlineAppSizeInfo" flex="1"/>
         <button id="clearOfflineAppCache"
                 icon="clear"
                 label="&clearOfflineAppCache.label;"
                 accesskey="&clearOfflineAppCache.accesskey;"
                 oncommand="ClearOfflineAppCache();"/>
       </hbox>
-      <hbox align="center">
-        <checkbox id="offlineNotify"
-                  flex="1"
-                  label="&offlineNotify.label;"
-                  accesskey="&offlineNotify.accesskey;"
-                  preference="browser.offline-apps.notify"/>
-        <button id="offlineNotifyPermissions"
-                label="&offlineNotifyPermissions.label;"
-                accesskey="&offlineNotifyPermissions.accesskey;"
-                oncommand="toDataManager('|permissions');"/>
-      </hbox>
+      <radiogroup id="offlineDefault"
+                  preference="offline-apps.allow_by_default">
+        <radio id="offlineAlwaysAllow"
+               value="true"
+               label="&offlineAlwaysAllow.label;"
+               accesskey="&offlineAlwaysAllow.accesskey;"/>
+        <hbox align="center">
+          <radio id="offlineExplicit"
+                 flex="1"
+                 value="false"
+                 label="&offlineExplicit.label;"
+                 accesskey="&offlineExplicit.accesskey;"/>
+          <button id="offlineNotifyPermissions"
+                  label="&offlineNotifyPermissions.label;"
+                  accesskey="&offlineNotifyPermissions.accesskey;"
+                  oncommand="toDataManager('|permissions');"/>
+        </hbox>
+      </radiogroup>
+      <checkbox id="offlineNotifyAsk"
+                class="indent"
+                label="&offlineNotifyAsk.label;"
+                accesskey="&offlineNotifyAsk.accesskey;"
+                preference="browser.offline-apps.notify"/>
+      <separator class="thin"/>
       <hbox flex="1">
         <vbox flex="1">
-          <label id="offlineAppsListLabel">&offlineAppsList.label;</label>
+          <label id="offlineAppsListLabel">&offlineAppsUsage.label;</label>
           <listbox id="offlineAppsList"
                    flex="1"
                    aria-labelledby="offlineAppsListLabel"

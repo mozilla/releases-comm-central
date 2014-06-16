@@ -7,6 +7,9 @@ Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 function Startup()
 {
   OfflineAppsObserver.init();
+
+  let always = document.getElementById("offline-apps.allow_by_default").value;
+  UpdateNotifyBox(always);
 }
 
 var OfflineAppsObserver = {
@@ -40,10 +43,10 @@ function UpdateActualCacheSize()
   var visitor = {
     onCacheStorageInfo: function(aEntryCount, aTotalSize)
     {
-      let actualSizeLabel = document.getElementById("appCacheSizeInfo");
+      let actualSizeLabel = document.getElementById("offlineAppSizeInfo");
       let sizeStrings = DownloadUtils.convertByteUnits(aTotalSize);
       let bundle = document.getElementById("bundle_prefutilities");
-      let sizeStr = bundle.getFormattedString("appCacheSizeInfo",
+      let sizeStr = bundle.getFormattedString("offlineAppSizeInfo",
                                               sizeStrings);
       actualSizeLabel.textContent = sizeStr;
     },
@@ -81,9 +84,12 @@ function ClearOfflineAppCache()
   } catch(ex) {}
 }
 
-function ReadOfflineNotify(aChecked)
+function UpdateNotifyBox(aValue)
 {
-  document.getElementById("offlineNotifyPermissions").disabled = aChecked;
+  EnableElementById("offlineNotifyAsk", !aValue);
+
+  // remove this once bug 934457 and bug 1024832 are fixed
+  document.getElementById("offlineNotifyPermissions").disabled = aValue;
 }
 
 function _getOfflineAppUsage(aHost)

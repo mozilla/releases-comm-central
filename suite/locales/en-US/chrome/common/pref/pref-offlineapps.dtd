@@ -10,11 +10,15 @@
 <!ENTITY clearOfflineAppCache.label         "Clear">
 <!ENTITY clearOfflineAppCache.accesskey     "C">
 
-<!ENTITY offlineNotify.label                "Notify me when a website wants to store data for offline use.">
-<!ENTITY offlineNotify.accesskey            "N">
+<!ENTITY offlineAlwaysAllow.label           "Allow all websites to store data for offline use">
+<!ENTITY offlineAlwaysAllow.accesskey       "A">
+<!ENTITY offlineExplicit.label              "Only allow websites with explicit permissions">
+<!ENTITY offlineExplicit.accesskey          "O">
+<!ENTITY offlineNotifyAsk.label             "Notify me when websites want to store data for offline use">
+<!ENTITY offlineNotifyAsk.accesskey         "N">
 <!ENTITY offlineNotifyPermissions.label     "Manage Permissions">
 <!ENTITY offlineNotifyPermissions.accesskey "P">
 
-<!ENTITY offlineAppsList.label              "The following websites are allowed to store data for offline use:">
-<!ENTITY offlineAppsListRemove.label        "Clear data…">
-<!ENTITY offlineAppsListRemove.accesskey    "d">
+<!ENTITY offlineAppsUsage.label             "The following websites are using offline storage:">
+<!ENTITY offlineAppsListRemove.label        "Clear Data…">
+<!ENTITY offlineAppsListRemove.accesskey    "D">

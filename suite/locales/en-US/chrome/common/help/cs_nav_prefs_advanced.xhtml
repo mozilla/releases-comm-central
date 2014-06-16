@@ -325,17 +325,24 @@
   following functions:</p>
 
 <ul>
-  <li><strong>Your application cache is currently using [__] of disk
-    space</strong>: This entry is informational and provides you with an
-    estimate of the offline data currently used by all web applications
-    combined.</li>
+  <li><strong>Your offline storage currently uses [__] of disk space</strong>:
+    This entry is informational and provides you with an estimate of the
+    offline data currently used by all web applications combined.</li>
   <li><strong>Clear</strong>: Immediately clears data that has been saved
     by all websites for use when you are offline.</li>
-  <li><strong>Notify me when a website wants to store data for offline
+  <li><strong>Allow all websites to store data for offline use</strong>: Select
+    this option if you want to permit websites by default to store web content
+    and user data locally on the disk of your computer.</li>
+  <li><strong>Only allow websites with explicit permissions</strong>: Select
+    this option if you want to control whether or not a website can store web
+    content for offline use locally. Unless explicit permission has been
+    granted, the website&apos;s request to access the offline storage is
+    blocked or a notification shown to give you the option to allow it.</li>
+  <li><strong>Notify me when websites want to store data for offline
     use</strong>: Check this box if you want to be notified when a website
-    wants to utilize the offline feature but does not currently have the
-    permissions to do so. An information bar will appear for this site with
-    the following options:
+    requests to store content or data in the offline storage but does not
+    currently have any permissions set whether or not it is allowed to do so.
+    An information bar will appear for this site offering the following options:
     <ul>
       <li><strong>Allow</strong>: Permanently allow this site the use of the
         offline storage for this and future accesses.</li>
@@ -344,8 +351,6 @@
       <li><strong>Not Now</strong>: Deny this site the use of the offline
         storage for this request but ask again for future accesses.</li>
     </ul>
-    <p><strong>Note</strong>: If the notification box is <em>not</em> checked,
-      &brandShortName; will proceed as if <q>Not Now</q> was selected.</p>
   </li>
   <!-- NOTE: link "Data Manager" below once bug 599097 has been fixed -->
   <li><strong>Manage Permissions</strong>: Opens the Data Manager in a new
@@ -362,10 +367,10 @@
         the use of the offline storage for all accesses.</li>
     </ul>
   </li>
-  <li><strong>The following websites are allowed to store data for offline
-    use</strong>: Lists the domains of all websites which have stored offline
-    data, along with the amount of data currently used by this domain.</li>
-  <li><strong>Clear data</strong>: Select a website domain and click this
+  <li><strong>The following websites are using offline storage</strong>:
+    Lists the domains of all websites which have stored offline data, along
+    with the amount of data currently used by this domain.</li>
+  <li><strong>Clear Data</strong>: Select a website domain and click this
     button to delete all offline data for the specified domain. Click <q>Remove
     offline data</q> after being prompted for confirmation to do so.</li>
 </ul>
