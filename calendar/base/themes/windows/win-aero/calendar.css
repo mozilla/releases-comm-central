@@ -197,7 +197,7 @@
   border-left: 4px solid highlight;
 }
 
-#today-splitter:-moz-lwtheme {
+#today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
   background-image: none;
 }
 
