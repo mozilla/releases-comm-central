@@ -73,6 +73,9 @@ var FeedUtils = {
   ATOM_IETF_NS: "http://www.w3.org/2005/Atom",
   ATOM_THREAD_NS: "http://purl.org/syndication/thread/1.0",
 
+  // Timeout for nonresponse to request, 30 seconds.
+  REQUEST_TIMEOUT: 30 * 1000,
+
   // The approximate amount of time, specified in milliseconds, to leave an
   // item in the RDF cache after the item has dissappeared from feeds.
   // The delay is currently one day.
@@ -262,9 +265,13 @@ var FeedUtils = {
             }
             catch (ex) {
               if (ex instanceof StopIteration)
+              {
                 // Finished with all feeds in base folder and its subfolders.
                 FeedUtils.log.debug("downloadFeed: Finished with folder - " +
                                     aFolder.name);
+                delete folder;
+                delete allFolders;
+              }
               else
               {
                 FeedUtils.log.error("downloadFeed: error - " + ex);
@@ -284,9 +291,13 @@ var FeedUtils = {
     }
     catch (ex) {
       if (ex instanceof StopIteration)
+      {
         // Nothing to do.
         FeedUtils.log.debug("downloadFeed: Nothing to do in folder - " +
                             aFolder.name);
+        delete folder;
+        delete allFolders;
+      }
       else
       {
         FeedUtils.log.error("downloadFeed: error - " + ex);
@@ -440,6 +451,8 @@ var FeedUtils = {
 
     // Update folderpane.
     this.setFolderPaneProperty(aParentFolder, "_favicon", null);
+
+    delete feed;
   },
 
 /**
@@ -1373,8 +1386,10 @@ var FeedUtils = {
 
       if (!--this.mNumPendingFeedDownloads)
       {
+        FeedUtils.getSubscriptionsDS(feed.server).Flush();
         this.mFeeds = {};
         this.mSubscribeMode = false;
+        FeedUtils.log.debug("downloaded: all pending downloads finished");
 
         // Should we do this on a timer so the text sticks around for a little
         // while?  It doesnt look like we do it on a timer for newsgroups so
@@ -1383,6 +1398,8 @@ var FeedUtils = {
         if (aErrorCode == FeedUtils.kNewsBlogSuccess && this.mStatusFeedback)
           this.mStatusFeedback.showStatusString("");
       }
+
+      delete feed;
     },
 
     // This gets called after the RSS parser finishes storing a feed item to
