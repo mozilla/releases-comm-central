@@ -105,7 +105,7 @@ var addonsRegister = {
       if (!notificationBox.getNotificationWithValue(notificationName)) {
         notificationBox.appendNotification(messageString, notificationName,
                                            iconURL,
-                                           notificationBox.PRIORITY_MEDIUM_HIGH,
+                                           notificationBox.PRIORITY_WARNING_MEDIUM,
                                            buttons);
       }
       break;
