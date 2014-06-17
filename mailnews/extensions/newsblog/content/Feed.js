@@ -161,8 +161,10 @@ Feed.prototype =
     // Only order what you're going to eat...
     this.request.responseType = "document";
     this.request.overrideMimeType("text/xml");
+    this.request.timeout = FeedUtils.REQUEST_TIMEOUT;
     this.request.onload = this.onDownloaded;
     this.request.onerror = this.onDownloadError;
+    this.request.ontimeout = this.onDownloadError;
     FeedCache.putFeed(this);
     this.request.send(null);
   },
@@ -303,9 +305,6 @@ Feed.prototype =
                 old_lastmodified, aLastModified);
     else
       ds.Assert(this.resource, FeedUtils.DC_LASTMODIFIED, aLastModified, true);
-
-    // Do we need to flush every time this property changes?
-    ds.Flush();
   },
 
   get quickMode ()
@@ -396,9 +395,9 @@ Feed.prototype =
   {
     // Create a feed parser which will parse the feed.
     let parser = new FeedParser();
-    this.itemsToStore = parser.parseFeed(this,
-                                         this.request.responseXML,
-                                         this.request.channel.URI);
+    this.itemsToStore = parser.parseFeed(this, this.request.responseXML);
+    delete parser;
+
     if (this.mInvalidFeed)
     {
       this.request = null;
@@ -552,7 +551,7 @@ Feed.prototype =
         item.feed.folder.callFilterPlugins(null);
       }
 
-      this.cleanupParsingState(item.feed, FeedUtils.kNewsBlogSuccess);
+      this.cleanupParsingState(this, FeedUtils.kNewsBlogSuccess);
     }
   },
 
@@ -570,9 +569,6 @@ Feed.prototype =
     ds.Flush();
     FeedUtils.log.debug("Feed.cleanupParsingState: items stored - " + this.itemsStored);
 
-    if (aFeed.downloadCallback)
-      aFeed.downloadCallback.downloaded(aFeed, aCode);
-
     // Force the xml http request to go away.  This helps reduce some nasty
     // assertions on shut down.
     this.request = null;
@@ -580,6 +576,9 @@ Feed.prototype =
     this.itemsToStoreIndex = 0;
     this.itemsStored = 0;
     this.storeItemsTimer = null;
+
+    if (aFeed.downloadCallback)
+      aFeed.downloadCallback.downloaded(aFeed, aCode);
   },
 
   // nsITimerCallback
