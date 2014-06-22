@@ -6,6 +6,8 @@
  * Tests that the attachment reminder works properly.
  */
 
+// make SOLO_TEST=composition/test-attachment-reminder.js mozmill-one
+
 const MODULE_NAME = "test-attachment-reminder";
 
 const RELATIVE_ROOT = "../shared-modules";
@@ -203,7 +205,8 @@ function test_attachment_reminder_with_attachment() {
 
   // Add some more text with keyword so the automatic notification
   // could potentially show up.
-  setupComposeWin(cwc, "", "", " Yes, there is a file attached!");
+  setupComposeWin(cwc, "", "", " Yes, there is a file test.doc attached! " + 
+                  "Do check it, test.doc is a nice attachment.");
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
@@ -212,7 +215,7 @@ function test_attachment_reminder_with_attachment() {
   // After removing the attachment, notification should come back
   // with all the keywords, even those input while having an attachment.
   wait_for_reminder_state(cwc, true);
-  assert_equals(get_reminder_keywords(cwc), "attachment, attached");
+  assert_equals(get_reminder_keywords(cwc), "test.doc, attachment, attached");
 
   close_compose_window(cwc);
 }
