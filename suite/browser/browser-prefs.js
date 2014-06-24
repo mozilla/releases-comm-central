@@ -342,7 +342,8 @@ pref("network.protocol-handler.warn-external.snews", true);
 pref("network.protocol-handler.warn-external.nntp", true);
 
 // bug 1005566 - Disable seer until properly supported
-pref("network.seer.enabled", false);
+// bug 1021370 - Rename Seer to Predictor
+pref("network.predictor.enabled", false);
 
 pref("mail.biff.show_new_alert",     true);
 
