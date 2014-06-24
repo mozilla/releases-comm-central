@@ -29,6 +29,7 @@ interface prplIMessage: nsISupports {
   readonly attribute AUTF8String originalMessage;
            attribute AUTF8String message;
   readonly attribute AUTF8String iconURL;
+  // Value in seconds.
   readonly attribute PRTime time;
   readonly attribute prplIConversation conversation;
 

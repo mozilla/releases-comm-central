@@ -17,6 +17,7 @@ interface prplIMessage;
 interface imILogConversation: nsISupports {
   readonly attribute AUTF8String title;
   readonly attribute AUTF8String name;
+  // Value in microseconds.
   readonly attribute PRTime startDate;
 
   // Simplified account implementation:
@@ -39,35 +40,43 @@ interface imILogConversation: nsISupports {
   nsISimpleEnumerator getMessagesEnumerator([optional] out unsigned long messageCount);
 };
 
-[scriptable, uuid(164ff6c3-ca64-4880-b8f3-67eb1817955f)]
+[scriptable, uuid(27712ece-ad2c-4504-87d5-9e2c16d40fef)]
 interface imILog: nsISupports {
   readonly attribute AUTF8String path;
+  // Value in seconds.
   readonly attribute PRTime time;
   readonly attribute AUTF8String format;
-  // Will return null if the log format isn't json.
-  imILogConversation getConversation();
+  // Returns a promise that resolves to an imILogConversation instance, or null
+  // if the log format isn't JSON.
+  jsval getConversation();
 };
 
-[scriptable, uuid(327ba58c-ee9c-4d1c-9216-fd505c45a3e0)]
+[scriptable, uuid(b9d5701a-df53-4e0e-99b7-706e0118e075)]
 interface imILogger: nsISupports {
-  imILog getLogFromFile(in nsIFile aFile, [optional] in boolean aGroupByDay);
-  nsIFile getLogFileForOngoingConversation(in prplIConversation aConversation);
+  // Returns a promise that resolves to an imILog instance.
+  jsval getLogFromFile(in AUTF8String aFilePath, [optional] in boolean aGroupByDay);
+  // Returns a promise that resolves to the log file path if a log writer
+  // exists for the conversation, or null otherwise. The promise resolves
+  // after any pending I/O operations on the file complete.
+  jsval getLogPathForConversation(in prplIConversation aConversation);
+
+  // Below methods return promises that resolve to nsISimpleEnumerator instances.
 
   // Get logs for a username that may not be in the contact list.
-  nsISimpleEnumerator getLogsForAccountAndName(in imIAccount aAccount,
-                                               in string aNormalizedName,
-                                               [optional] in boolean aGroupByDay);
+  jsval getLogsForAccountAndName(in imIAccount aAccount,
+                                 in AUTF8String aNormalizedName,
+                                 [optional] in boolean aGroupByDay);
 
-  nsISimpleEnumerator getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy,
-                                             [optional] in boolean aGroupByDay);
-  nsISimpleEnumerator getLogsForBuddy(in imIBuddy aBuddy,
-                                      [optional] in boolean aGroupByDay);
-  nsISimpleEnumerator getLogsForContact(in imIContact aContact,
-                                        [optional] in boolean aGroupByDay);
+  jsval getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy,
+                               [optional] in boolean aGroupByDay);
+  jsval getLogsForBuddy(in imIBuddy aBuddy,
+                        [optional] in boolean aGroupByDay);
+  jsval getLogsForContact(in imIContact aContact,
+                          [optional] in boolean aGroupByDay);
 
-  nsISimpleEnumerator getLogsForConversation(in prplIConversation aConversation,
-                                             [optional] in boolean aGroupByDay);
-  nsISimpleEnumerator getSystemLogsForAccount(in imIAccount aAccount);
-  nsISimpleEnumerator getSimilarLogs(in imILog aLog,
-                                     [optional] in boolean aGroupByDay);
+  jsval getLogsForConversation(in prplIConversation aConversation,
+                               [optional] in boolean aGroupByDay);
+  jsval getSystemLogsForAccount(in imIAccount aAccount);
+  jsval getSimilarLogs(in imILog aLog,
+                       [optional] in boolean aGroupByDay);
 };

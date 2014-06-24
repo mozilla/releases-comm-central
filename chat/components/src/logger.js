@@ -9,34 +9,93 @@ Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "logDir", function() {
-  let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-  file.append("logs");
-  return file;
-});
+Cu.import("resource://gre/modules/AsyncShutdown.jsm");
+Cu.import("resource://gre/modules/Task.jsm")
+XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "bundle", function()
-  Services.strings.createBundle("chrome://chat/locale/logger.properties")
+XPCOMUtils.defineLazyGetter(this, "_", function()
+  l10nHelper("chrome://chat/locale/logger.properties")
 );
-
-const FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
-                           "nsIFileInputStream",
-                           "init");
-const ConverterInputStream = CC("@mozilla.org/intl/converter-input-stream;1",
-                                "nsIConverterInputStream",
-                                "init");
-const LocalFile = CC("@mozilla.org/file/local;1",
-                     "nsILocalFile",
-                     "initWithPath");
 
 const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
+/*
+ * Maps file paths to promises returned by ongoing OS.File operations on them.
+ * This is so that a file can be read after a pending write operation completes
+ * and vice versa (opening a file multiple times concurrently may fail on Windows).
+ */
+let gFilePromises = new Map();
+
+// Uses above map to queue operations on a file.
+function queueFileOperation(aPath, aOperation) {
+  // Ensure the operation is queued regardless of whether the last one succeeded.
+  // This is safe since the promise is returned and consumers are expected to
+  // handle any errors. If there's no promise existing for the given path already,
+  // queue the operation on a dummy pre-resolved promise.
+  let promise =
+    (gFilePromises.get(aPath) || Promise.resolve()).then(aOperation, aOperation);
+  gFilePromises.set(aPath, promise);
+
+  let cleanup = () => {
+    // If no further operations have been queued, remove the reference from the map.
+    if (gFilePromises.get(aPath) === promise)
+      gFilePromises.delete(aPath);
+  };
+  // Ensure we clear unused promises whether they resolved or rejected.
+  promise.then(cleanup, cleanup);
+
+  return promise;
+}
+
+/*
+ * Convenience method to append to a file using the above queue system. If any of
+ * the I/O operations reject, the returned promise will reject with the same reason.
+ * We open the file, append, and close it immediately. The alternative is to keep
+ * it open and append as required, but we want to make sure we don't open a file
+ * for reading while it's already open for writing, so we close it every time
+ * (opening a file multiple times concurrently may fail on Windows).
+ * Note: This function creates parent directories if required.
+ */
+function appendToFile(aPath, aEncodedString, aCreate) {
+  return queueFileOperation(aPath, Task.async(function* () {
+    yield OS.File.makeDir(OS.Path.dirname(aPath),
+                          {ignoreExisting: true, from: OS.Constants.Path.profileDir});
+    let file = yield OS.File.open(aPath, {write: true, create: aCreate});
+    try {
+      yield file.write(aEncodedString);
+    }
+    finally {
+      /*
+       * If both the write() above and the close() below throw, and we don't
+       * handle the close error here, the promise will be rejected with the close
+       * error and the write error will be dropped. To avoid this, we log any
+       * close error here so that any write error will be propagated.
+       */
+      yield file.close().catch(Cu.reportError);
+    }
+  }));
+}
+
+AsyncShutdown.profileBeforeChange.addBlocker(
+  "Chat logger: writing all pending messages",
+  Task.async(function* () {
+    for (let promise of gFilePromises.values()) {
+      try {
+        yield promise;
+      }
+      catch (aError) {
+        // Ignore the error, whatever queued the operation will take care of it.
+      }
+    }
+  })
+);
+
+
 // This function checks names against OS naming conventions and alters them
 // accordingly so that they can be used as file/folder names.
-function encodeName(aName)
-{
+function encodeName(aName) {
   // Reserved device names by Windows (prefixing "%").
-  var reservedNames = /^(CON|PRN|AUX|NUL|COM\d|LPT\d)$/i;
+  let reservedNames = /^(CON|PRN|AUX|NUL|COM\d|LPT\d)$/i;
   if (reservedNames.test(aName))
     return "%" + aName;
 
@@ -50,23 +109,22 @@ function encodeName(aName)
   return aName.replace(/[<>:"\/\\|?*&%]/g, encodeReservedChars);
 }
 
-function getLogFolderForAccount(aAccount, aCreate)
-{
-  let file = logDir.clone();
-  function createIfNotExists(aFile) {
-    if (aCreate && !aFile.exists())
-      aFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
-  }
-  createIfNotExists(file);
-  file.append(aAccount.protocol.normalizedName);
-  createIfNotExists(file);
-  file.append(encodeName(aAccount.normalizedName));
-  createIfNotExists(file);
-  return file;
+function getLogFolderPathForAccount(aAccount) {
+  return OS.Path.join(OS.Constants.Path.profileDir,
+                      "logs", aAccount.protocol.normalizedName,
+                      encodeName(aAccount.normalizedName));
 }
 
-function getNewLogFileName(aFormat, aDate)
-{
+function getLogFilePathForConversation(aConv, aFormat) {
+  let path = getLogFolderPathForAccount(aConv.account);
+  let name = aConv.normalizedName;
+  if (convIsRealMUC(aConv))
+    name += ".chat";
+  return OS.Path.join(path, encodeName(name),
+                      getNewLogFileName(aFormat, aConv.startDate));
+}
+
+function getNewLogFileName(aFormat, aDate) {
   let date = aDate ? new Date(aDate / 1000) : new Date();
   let dateTime = date.toLocaleFormat("%Y-%m-%d.%H%M%S");
   let offset = date.getTimezoneOffset();
@@ -85,42 +143,29 @@ function getNewLogFileName(aFormat, aDate)
   return dateTime + twoDigits(offset) + twoDigits(minutes) + "." + aFormat;
 }
 
-/* Conversation logs stuff */
-function ConversationLog(aConversation)
-{
+
+// One of these is maintained for every conversation being logged. It initializes
+// a log file and appends to it as required.
+function LogWriter(aConversation) {
   this._conv = aConversation;
+  if (Services.prefs.getCharPref("purple.logging.format") == "json")
+    this.format = "json";
+  this.path = getLogFilePathForConversation(aConversation, this.format);
+  this._initialized =
+    appendToFile(this.path, this.encoder.encode(this._getHeader()), true);
+  // Catch the error separately so that _initialized will stay rejected if
+  // writing the header failed.
+  this._initialized.catch(aError =>
+                          Cu.reportError("Failed to initialize log file:\n" + aError));
 }
-ConversationLog.prototype = {
-  _log: null,
-  file: null,
+LogWriter.prototype = {
+  path: null,
+  // Constructor sets this to a promise that will resolve when the log header
+  // has been written.
+  _initialized: null,
   format: "txt",
-  _init: function cl_init() {
-    let file = getLogFolderForAccount(this._conv.account, true);
-    let name = this._conv.normalizedName;
-    if (convIsRealMUC(this._conv))
-      name += ".chat";
-    file.append(encodeName(name));
-    if (!file.exists())
-      file.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
-    if (Services.prefs.getCharPref("purple.logging.format") == "json")
-      this.format = "json";
-    file.append(getNewLogFileName(this.format, this._conv.startDate));
-    this.file = file;
-    let os = Cc["@mozilla.org/network/file-output-stream;1"].
-             createInstance(Ci.nsIFileOutputStream);
-    const PR_WRITE_ONLY   = 0x02;
-    const PR_CREATE_FILE  = 0x08;
-    const PR_APPEND       = 0x10;
-    os.init(file, PR_WRITE_ONLY | PR_CREATE_FILE | PR_APPEND, 0666, 0);
-    // just to be really sure everything is in UTF8
-    let converter = Cc["@mozilla.org/intl/converter-output-stream;1"].
-                    createInstance(Ci.nsIConverterOutputStream);
-    converter.init(os, "UTF-8", 0, 0);
-    this._log = converter;
-    this._log.writeString(this._getHeader());
-  },
-  _getHeader: function cl_getHeader()
-  {
+  encoder: new TextEncoder(),
+  _getHeader: function cl_getHeader() {
     let account = this._conv.account;
     if (this.format == "json") {
       return JSON.stringify({date: new Date(this._conv.startDate / 1000),
@@ -160,9 +205,7 @@ ConversationLog.prototype = {
     return encoder.encodeToString();
   },
   logMessage: function cl_logMessage(aMessage) {
-    if (!this._log)
-      this._init();
-
+    let lineToWrite;
     if (this.format == "json") {
       let msg = {
         date: new Date(aMessage.time * 1000),
@@ -176,287 +219,117 @@ ConversationLog.prototype = {
       let alias = aMessage.alias;
       if (alias && alias != msg.who)
         msg.alias = alias;
-      this._log.writeString(JSON.stringify(msg) + "\n");
-      return;
+      lineToWrite = JSON.stringify(msg) + "\n";
     }
-
-    let date = new Date(aMessage.time * 1000);
-    let line = "(" + date.toLocaleTimeString() + ") ";
-    let msg = this._serialize(aMessage.originalMessage);
-    if (aMessage.system)
-      line += msg;
     else {
-      let sender = aMessage.alias || aMessage.who;
-      if (aMessage.autoResponse)
-        line += sender + " <AUTO-REPLY>: " + msg;
+      // Text log.
+      let date = new Date(aMessage.time * 1000);
+      let line = "(" + date.toLocaleTimeString() + ") ";
+      let msg = this._serialize(aMessage.originalMessage);
+      if (aMessage.system)
+        line += msg;
       else {
-        if (msg.startsWith("/me "))
-          line += "***" + sender + " " + msg.substr(4);
-        else
-          line += sender + ": " + msg;
+        let sender = aMessage.alias || aMessage.who;
+        if (aMessage.autoResponse)
+          line += sender + " <AUTO-REPLY>: " + msg;
+        else {
+          if (msg.startsWith("/me "))
+            line += "***" + sender + " " + msg.substr(4);
+          else
+            line += sender + ": " + msg;
+        }
       }
+      lineToWrite = line + kLineBreak;
     }
-    this._log.writeString(line + kLineBreak);
-  },
-
-  close: function cl_close() {
-    if (this._log) {
-      this._log.close();
-      this._log = null;
-      this.file = null;
-    }
+    lineToWrite = this.encoder.encode(lineToWrite);
+    this._initialized.then(() => {
+      appendToFile(this.path, lineToWrite)
+        .catch(aError => Cu.reportError("Failed to log message:\n" + aError));
+    });
   }
 };
 
-const dummyConversationLog = {
-  file: null,
-  logMessage: function() {},
-  close: function() {}
+const dummyLogWriter = {
+  path: null,
+  logMessage: function() {}
 };
 
-var gConversationLogs = { };
-function getLogForConversation(aConversation)
-{
+
+let gLogWritersById = new Map();
+function getLogWriter(aConversation) {
   let id = aConversation.id;
-  if (!(id in gConversationLogs)) {
+  if (!gLogWritersById.has(id)) {
     let prefName =
       "purple.logging.log_" + (aConversation.isChat ? "chats" : "ims");
     if (Services.prefs.getBoolPref(prefName))
-      gConversationLogs[id] = new ConversationLog(aConversation);
+      gLogWritersById.set(id, new LogWriter(aConversation));
     else
-      gConversationLogs[id] = dummyConversationLog;
+      gLogWritersById.set(id, dummyLogWriter);
   }
-  return gConversationLogs[id];
+  return gLogWritersById.get(id);
 }
 
-function closeLogForConversation(aConversation)
-{
-  let id = aConversation.id;
-  if (!(id in gConversationLogs))
-    return;
-  gConversationLogs[id].close();
-  delete gConversationLogs[id];
+function closeLogWriter(aConversation) {
+  gLogWritersById.delete(aConversation.id);
 }
 
-/* System logs stuff */
-function SystemLog(aAccount)
-{
-  this._init(aAccount);
-  this._log.writeString("System log for account " + aAccount.name +
-                        " (" + aAccount.protocol.normalizedName +
-                        ") connected at " +
-                        (new Date()).toLocaleFormat("%c") + kLineBreak);
+// LogWriter for system logs.
+function SystemLogWriter(aAccount) {
+  this._account = aAccount;
+  this.path = OS.Path.join(getLogFolderPathForAccount(aAccount), ".system",
+                           getNewLogFileName());
+  let header = "System log for account " + aAccount.name +
+               " (" + aAccount.protocol.normalizedName +
+               ") connected at " +
+               (new Date()).toLocaleFormat("%c") + kLineBreak;
+  this._initialized = appendToFile(this.path, this.encoder.encode(header), true);
+  // Catch the error separately so that _initialized will stay rejected if
+  // writing the header failed.
+  this._initialized.catch(aError =>
+                          Cu.reportError("Error initializing system log:\n" + aError));
 }
-SystemLog.prototype = {
-  _log: null,
-  _init: function sl_init(aAccount) {
-    let file = getLogFolderForAccount(aAccount, true);
-    file.append(".system");
-    if (!file.exists())
-      file.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
-    file.append(getNewLogFileName());
-    let os = Cc["@mozilla.org/network/file-output-stream;1"].
-             createInstance(Ci.nsIFileOutputStream);
-    const PR_WRITE_ONLY   = 0x02;
-    const PR_CREATE_FILE  = 0x08;
-    const PR_APPEND       = 0x10;
-    os.init(file, PR_WRITE_ONLY | PR_CREATE_FILE | PR_APPEND, 0666, 0);
-    // just to be really sure everything is in UTF8
-    let converter = Cc["@mozilla.org/intl/converter-output-stream;1"].
-                    createInstance(Ci.nsIConverterOutputStream);
-    converter.init(os, "UTF-8", 0, 0);
-    this._log = converter;
-  },
+SystemLogWriter.prototype = {
+  encoder: new TextEncoder(),
+  // Constructor sets this to a promise that will resolve when the log header
+  // has been written.
+  _initialized: null,
+  path: null,
   logEvent: function sl_logEvent(aString) {
-    if (!this._log)
-      this._init();
-
     let date = (new Date()).toLocaleFormat("%x %X");
-    this._log.writeString("---- " + aString + " @ " + date + " ----" + kLineBreak);
-  },
-
-  close: function sl_close() {
-    if (this._log) {
-      this._log.close();
-      this._log = null;
-    }
+    let lineToWrite =
+      this.encoder.encode("---- " + aString + " @ " + date + " ----" + kLineBreak);
+    this._initialized.then(() => {
+      appendToFile(this.path, lineToWrite)
+        .catch(aError => Cu.reportError("Failed to log event:\n" + aError));
+    });
   }
 };
 
-const dummySystemLog = {
-  logEvent: function(aString) {},
-  close: function() {}
+const dummySystemLogWriter = {
+  path: null,
+  logEvent: function() {}
 };
 
-var gSystemLogs = { };
-function getLogForAccount(aAccount, aCreate)
-{
+
+let gSystemLogWritersById = new Map();
+function getSystemLogWriter(aAccount, aCreate) {
   let id = aAccount.id;
   if (aCreate) {
-    if (id in gSystemLogs)
-      gSystemLogs[id].close();
     if (!Services.prefs.getBoolPref("purple.logging.log_system"))
-      return dummySystemLog;
-    return (gSystemLogs[id] = new SystemLog(aAccount));
+      return dummySystemLogWriter;
+    let writer = new SystemLogWriter(aAccount);
+    gSystemLogWritersById.set(id, writer);
+    return writer;
   }
 
-  return (id in gSystemLogs) && gSystemLogs[id] || dummySystemLog;
+  return gSystemLogWritersById.has(id) && gSystemLogWritersById.get(id) ||
+    dummySystemLogWriter;
 }
 
-function closeLogForAccount(aAccount)
-{
-  let id = aAccount.id;
-  if (!(id in gSystemLogs))
-    return;
-  gSystemLogs[id].close();
-  delete gSystemLogs[id];
+function closeSystemLogWriter(aAccount) {
+  gSystemLogWritersById.delete(aAccount.id);
 }
 
-function LogMessage(aData, aConversation)
-{
-  this._init(aData.who, aData.text);
-  this._conversation = aConversation;
-  this.time = Math.round(new Date(aData.date) / 1000);
-  if ("alias" in aData)
-    this._alias = aData.alias;
-  for each (let flag in aData.flags)
-    this[flag] = true;
-}
-LogMessage.prototype = GenericMessagePrototype;
-
-function LogConversation(aLineInputStreams)
-{
-  // If aLineInputStreams isn't an Array, we'll assume that it's a lone
-  // InputStream, and wrap it in an Array.
-  if (!Array.isArray(aLineInputStreams))
-    aLineInputStreams = [aLineInputStreams];
-
-  this._messages = [];
-
-  // We'll read the name, title, account, and protocol data from the first
-  // stream, and skip the others.
-  let firstFile = true;
-
-  for each (let inputStream in aLineInputStreams) {
-    let stream = inputStream.stream;
-    let line = {value: ""};
-    let more = stream.readLine(line);
-    let sessionMsg = {
-      who: "sessionstart",
-      date: getDateFromFilename(inputStream.filename)[0],
-      text: "",
-      flags: ["noLog", "notification"]
-    }
-    if (!line.value) {
-      // Bad log file.
-      sessionMsg.text = bundle.formatStringFromName("badLogfile",
-                                                    [inputStream.filename], 1);
-      sessionMsg.flags.push("error", "system");
-      this._messages.push(sessionMsg);
-      continue;
-    }
-    this._messages.push(sessionMsg);
-
-    if (firstFile) {
-      let data = JSON.parse(line.value);
-      this.startDate = new Date(data.date) * 1000;
-      this.name = data.name;
-      this.title = data.title;
-      this._accountName = data.account;
-      this._protocolName = data.protocol;
-      this._isChat = data.isChat;
-      this.normalizedName = data.normalizedName;
-      firstFile = false;
-    }
-
-    while (more) {
-      more = stream.readLine(line);
-      if (!line.value)
-        break;
-      try {
-        this._messages.push(JSON.parse(line.value));
-      } catch (e) {
-        // if a message line contains junk, just ignore the error and
-        // continue reading the conversation.
-      }
-    }
-  }
-
-  if (firstFile)
-    throw "All selected log files are invalid";
-}
-LogConversation.prototype = {
-  __proto__: ClassInfo("imILogConversation", "Log conversation object"),
-  get isChat() this._isChat,
-  get buddy() null,
-  get account() ({
-    alias: "",
-    name: this._accountName,
-    normalizedName: this._accountName,
-    protocol: {name: this._protocolName},
-    statusInfo: Services.core.globalUserStatus
-  }),
-  getMessages: function(aMessageCount) {
-    if (aMessageCount)
-      aMessageCount.value = this._messages.length;
-    return this._messages.map(function(m) new LogMessage(m, this), this);
-  },
-  getMessagesEnumerator: function(aMessageCount) {
-    if (aMessageCount)
-      aMessageCount.value = this._messages.length;
-    let enumerator = {
-      _index: 0,
-      _conv: this,
-      _messages: this._messages,
-      hasMoreElements: function() this._index < this._messages.length,
-      getNext: function() new LogMessage(this._messages[this._index++], this._conv),
-      QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
-    };
-    return enumerator;
-  }
-};
-
-/* Generic log enumeration stuff */
-function Log(aFile)
-{
-  this.file = aFile;
-  this.path = aFile.path;
-
-  let [date, format] = getDateFromFilename(aFile.leafName);
-  if (!date || !format) {
-    this.format = "invalid";
-    this.time = 0;
-    return;
-  }
-  this.time = date.valueOf() / 1000;
-  this.format = format;
-}
-Log.prototype = {
-  __proto__: ClassInfo("imILog", "Log object"),
-  getConversation: function() {
-    if (this.format != "json")
-      return null;
-
-    const PR_RDONLY = 0x01;
-    let fis = new FileInputStream(this.file, PR_RDONLY, 0444,
-                                  Ci.nsIFileInputStream.CLOSE_ON_EOF);
-    let lis = new ConverterInputStream(fis, "UTF-8", 1024, 0x0);
-    lis.QueryInterface(Ci.nsIUnicharLineInputStream);
-    try {
-      return new LogConversation({
-        stream: lis,
-        filename: this.file.leafName
-      });
-    } catch (e) {
-      // If the file contains some junk (invalid JSON), the
-      // LogConversation code will still read the messages it can parse.
-      // If the first line of meta data is corrupt, there's really no
-      // useful data we can extract from the file so the
-      // LogConversation constructor will throw.
-      return null;
-    }
-  }
-};
 
 /**
  * Takes a properly formatted log file name and extracts the date information
@@ -490,61 +363,230 @@ function convIsRealMUC(aConversation) {
           aConversation.account.protocol.id != "prpl-twitter");
 }
 
-function LogEnumerator(aEntries)
-{
-  this._entries = aEntries;
+
+function LogMessage(aData, aConversation) {
+  this._init(aData.who, aData.text);
+  this._conversation = aConversation;
+  this.time = Math.round(new Date(aData.date) / 1000);
+  if ("alias" in aData)
+    this._alias = aData.alias;
+  for (let flag of aData.flags)
+    this[flag] = true;
 }
-LogEnumerator.prototype = {
-  _entries: [],
-  hasMoreElements: function() {
-    while (this._entries.length > 0 && !this._entries[0].hasMoreElements())
-      this._entries.shift();
-    return this._entries.length > 0;
+LogMessage.prototype = GenericMessagePrototype;
+
+
+function LogConversation(aMessages, aProperties) {
+  this._messages = aMessages;
+  for (let property in aProperties)
+    this[property] = aProperties[property];
+}
+LogConversation.prototype = {
+  __proto__: ClassInfo("imILogConversation", "Log conversation object"),
+  get isChat() this._isChat,
+  get buddy() null,
+  get account() ({
+    alias: "",
+    name: this._accountName,
+    normalizedName: this._accountName,
+    protocol: {name: this._protocolName},
+    statusInfo: Services.core.globalUserStatus
+  }),
+  getMessages: function(aMessageCount) {
+    if (aMessageCount)
+      aMessageCount.value = this._messages.length;
+    return this._messages.map(function(m) new LogMessage(m, this), this);
   },
-  getNext: function()
-    new Log(this._entries[0].getNext().QueryInterface(Ci.nsIFile)),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+  getMessagesEnumerator: function(aMessageCount) {
+    if (aMessageCount)
+      aMessageCount.value = this._messages.length;
+    let enumerator = {
+      _index: 0,
+      _conv: this,
+      _messages: this._messages,
+      hasMoreElements: function() this._index < this._messages.length,
+      getNext: function() new LogMessage(this._messages[this._index++], this._conv),
+      QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
+    };
+    return enumerator;
+  }
 };
 
+
+/**
+ * A Log object represents one or more log files. The constructor expects one
+ * argument, which is either a single path to a (json or txt) log file or an
+ * array of objects each having two properties:
+ *   path: The full path of the (json only) log file it represents.
+ *   time: The Date object extracted from the filename of the logfile.
+ *
+ * The returned Log object's time property will be:
+ *   For a single file - exact time extracted from the name of the log file.
+ *   For a set of files - the time extracted, reduced to the day.
+ */
+function Log(aEntries) {
+  if (typeof aEntries == "string") {
+    // Assume that aEntries is a single path.
+    let path = aEntries;
+    this.path = path;
+    let [date, format] = getDateFromFilename(OS.Path.basename(path));
+    if (!date || !format) {
+      this.format = "invalid";
+      this.time = 0;
+      return;
+    }
+    this.time = date.valueOf() / 1000;
+    this.format = format;
+    // Wrap the path in an array
+    this._entryPaths = [path];
+    return;
+  }
+
+  if (!aEntries.length) {
+    throw new Error("Log was passed an invalid argument, " +
+                    "expected a non-empty array or a string.");
+  }
+
+  // Assume aEntries is an array of objects.
+  // Sort our list of entries for this day in increasing order.
+  aEntries.sort(function(aLeft, aRight) aLeft.time - aRight.time);
+
+  this._entryPaths = [entry.path for (entry of aEntries)];
+  // Calculate the timestamp for the first entry down to the day.
+  let timestamp = new Date(aEntries[0].time);
+  timestamp.setHours(0);
+  timestamp.setMinutes(0);
+  timestamp.setSeconds(0);
+  this.time = timestamp.valueOf() / 1000;
+  // Path is used to uniquely identify a Log, and sometimes used to
+  // quickly determine which directory a log file is from.  We'll use
+  // the first file's path.
+  this.path = aEntries[0].path;
+}
+Log.prototype = {
+  __proto__: ClassInfo("imILog", "Log object"),
+  _entryPaths: null,
+  format: "json",
+  getConversation: Task.async(function* () {
+    /*
+     * Read the set of log files asynchronously and return a promise that
+     * resolves to a LogConversation instance. Even if a file contains some
+     * junk (invalid JSON), messages that are valid will be read. If the first
+     * line of metadata is corrupt however, the data isn't useful and the
+     * promise will resolve to null.
+     */
+    if (this.format != "json")
+      return null;
+    let messages = [];
+    let properties = {};
+    let firstFile = true;
+    let decoder = new TextDecoder();
+    for (let path of this._entryPaths) {
+      let lines;
+      try {
+        let contents = yield queueFileOperation(path, () => OS.File.read(path));
+        lines = decoder.decode(contents).split("\n");
+      } catch (aError) {
+        Cu.reportError("Error reading log file \"" + path + "\":\n" + aError);
+        continue;
+      }
+      let nextLine = lines.shift();
+      let filename = OS.Path.basename(path);
+      let sessionMsg = {
+        who: "sessionstart",
+        date: getDateFromFilename(filename)[0],
+        text: "",
+        flags: ["noLog", "notification"]
+      };
+
+      let data;
+      try {
+        // This will fail if either nextLine is undefined, or not valid JSON.
+        data = JSON.parse(nextLine);
+      } catch (aError) {
+        sessionMsg.text = _("badLogFile", filename);
+        sessionMsg.flags.push("error", "system");
+        messages.push(sessionMsg);
+        continue;
+      }
+      messages.push(sessionMsg);
+
+      if (firstFile) {
+        properties.startDate = new Date(data.date) * 1000;
+        properties.name = data.name;
+        properties.title = data.title;
+        properties._accountName = data.account;
+        properties._protocolName = data.protocol;
+        properties._isChat = data.isChat;
+        properties.normalizedName = data.normalizedName;
+        firstFile = false;
+      }
+
+      while (lines.length) {
+        nextLine = lines.shift();
+        if (!nextLine)
+          break;
+        try {
+          messages.push(JSON.parse(nextLine));
+        } catch (e) {
+          // If a message line contains junk, just ignore the error and
+          // continue reading the conversation.
+        }
+      }
+    }
+
+    if (firstFile) // All selected log files are invalid.
+      return null;
+
+    return new LogConversation(messages, properties);
+  })
+};
+
+
+/**
+ * Log enumerators provide lists of log files ("entries"). aEntries is an array
+ * of the OS.File.DirectoryIterator.Entry instances which represent the log
+ * files to be parsed.
+ *
+ * DailyLogEnumerator organizes entries by date, and enumerates them in order.
+ * LogEnumerator enumerates logs in the same order as the input array.
+ */
 function DailyLogEnumerator(aEntries) {
   this._entries = {};
 
-  for each (let entry in aEntries) {
-    while (entry.hasMoreElements()) {
-      let file = entry.getNext();
-      if (!(file instanceof Ci.nsIFile))
-        continue;
+  for (let entry of aEntries) {
+    let path = entry.path;
 
-      let [logDate, logFormat] = getDateFromFilename(file.leafName);
-      if (!logDate) {
-        // We'll skip this one, since it's got a busted filename.
-        continue;
-      }
+    let [logDate, logFormat] = getDateFromFilename(OS.Path.basename(path));
+    if (!logDate) {
+      // We'll skip this one, since it's got a busted filename.
+      continue;
+    }
 
-      let dateForID = new Date(logDate);
-      let dayID;
-      if (logFormat == "json") {
-        // We want to cluster all of the logs that occur on the same day
-        // into the same Arrays. We clone the date for the log, reset it to
-        // the 0th hour/minute/second, and use that to construct an ID for the
-        // Array we'll put the log in.
-        dateForID.setHours(0);
-        dateForID.setMinutes(0);
-        dateForID.setSeconds(0);
-        dayID = dateForID.toISOString();
-      }
-      else {
-        // Add legacy text logs as individual entries.
-        dayID = dateForID.toISOString() + "txt";
-      }
+    let dateForID = new Date(logDate);
+    let dayID;
+    if (logFormat == "json") {
+      // We want to cluster all of the logs that occur on the same day
+      // into the same Arrays. We clone the date for the log, reset it to
+      // the 0th hour/minute/second, and use that to construct an ID for the
+      // Array we'll put the log in.
+      dateForID.setHours(0);
+      dateForID.setMinutes(0);
+      dateForID.setSeconds(0);
+      dayID = dateForID.toISOString();
 
       if (!(dayID in this._entries))
         this._entries[dayID] = [];
 
       this._entries[dayID].push({
-        file: file,
+        path: path,
         time: logDate
       });
+    }
+    else {
+      // Add legacy text logs as individual paths.
+      dayID = dateForID.toISOString() + "txt";
+      this._entries[dayID] = path;
     }
   }
 
@@ -558,153 +600,131 @@ DailyLogEnumerator.prototype = {
   hasMoreElements: function() this._index < this._days.length,
   getNext: function() {
     let dayID = this._days[this._index++];
-    if (dayID.endsWith("txt"))
-      return new Log(this._entries[dayID][0].file);
-    else
-      return new LogCluster(this._entries[dayID]);
+    return new Log(this._entries[dayID]);
   },
   QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
 };
 
-/**
- * A LogCluster is a Log representing several log files all at once. The
- * constructor expects aEntries, which is an array of objects that each
- * have two properties: file and time. The file is the nsIFile for the
- * log file, and the time is the Date object extracted from the filename for
- * the log file.
- */
-function LogCluster(aEntries) {
-  if (!aEntries.length)
-    throw new Error("LogCluster was passed an empty Array");
-
-  // Sort our list of entries for this day in increasing order.
-  aEntries.sort(function(aLeft, aRight) aLeft.time - aRight.time);
-
+function LogEnumerator(aEntries) {
   this._entries = aEntries;
-  // Calculate the timestamp for the first entry down to the day.
-  let timestamp = new Date(aEntries[0].time);
-  timestamp.setHours(0);
-  timestamp.setMinutes(0);
-  timestamp.setSeconds(0);
-  this.time = timestamp.valueOf() / 1000;
-  // Path is used to uniquely identify a Log, and sometimes used to
-  // quickly determine which directory a log file is from.  We'll use
-  // the first file's path.
-  this.path = aEntries[0].file.path;
+  this._entries.sort((a, b) => a.name > b.name);
 }
-LogCluster.prototype = {
-  __proto__: ClassInfo("imILog", "LogCluster object"),
-  format: "json",
-
-  getConversation: function() {
-    const PR_RDONLY = 0x01;
-    let streams = [];
-    for each (let entry in this._entries) {
-      let fis = new FileInputStream(entry.file, PR_RDONLY, 0444,
-                                    Ci.nsIFileInputStream.CLOSE_ON_EOF);
-      // Pass in 0x0 so that we throw exceptions on unknown bytes.
-      let lis = new ConverterInputStream(fis, "UTF-8", 1024, 0x0);
-      lis.QueryInterface(Ci.nsIUnicharLineInputStream);
-      streams.push({
-        stream: lis,
-        filename: entry.file.leafName
-      });
-    }
-
-    try {
-      return new LogConversation(streams);
-    } catch (e) {
-      // If the file contains some junk (invalid JSON), the
-      // LogConversation code will still read the messages it can parse.
-      // If the first line of meta data is corrupt, there's really no
-      // useful data we can extract from the file so the
-      // LogConversation constructor will throw.
-      return null;
-    }
-  }
+LogEnumerator.prototype = {
+  _entries: [],
+  hasMoreElements: function() {
+    return this._entries.length > 0;
+  },
+  getNext: function() {
+    // Create and return a log from the first entry.
+    return new Log(this._entries.shift().path);
+  },
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
 };
+
 
 function Logger() { }
 Logger.prototype = {
-  _getLogArray: function logger__getLogArray(aAccount, aNormalizedName) {
-    let entries = [];
-    let file = getLogFolderForAccount(aAccount);
-    file.append(encodeName(aNormalizedName));
-    if (file.exists())
-      entries.push(file.directoryEntries);
-    return entries;
-  },
-  getLogFromFile: function logger_getLogFromFile(aFile, aGroupByDay) {
-    if (aGroupByDay)
-      return this._getDailyLogFromFile(aFile);
-
-    return new Log(aFile);
-  },
-  _getDailyLogFromFile: function logger_getDailyLogsForFile(aFile) {
-    let [targetDate] = getDateFromFilename(aFile.leafName);
+  // Returned Promise resolves to an array of entries for the
+  // log folder if it exists, otherwise null.
+  _getLogArray: Task.async(function* (aAccount, aNormalizedName) {
+    let iterator;
+    try {
+      let path = OS.Path.join(getLogFolderPathForAccount(aAccount),
+                              encodeName(aNormalizedName));
+      if (yield queueFileOperation(path, () => OS.File.exists(path))) {
+        iterator = new OS.File.DirectoryIterator(path);
+        let entries = yield iterator.nextBatch();
+        iterator.close();
+        return entries;
+      }
+    } catch (aError) {
+      if (iterator)
+        iterator.close();
+      Cu.reportError("Error getting directory entries for \"" +
+                     path + "\":\n" + aError);
+    }
+    return [];
+  }),
+  getLogFromFile: function logger_getLogFromFile(aFilePath, aGroupByDay) {
+    if (!aGroupByDay)
+      return Promise.resolve(new Log(aFilePath));
+    let [targetDate] = getDateFromFilename(OS.Path.basename(aFilePath));
     if (!targetDate)
       return null;
 
     let targetDay = Math.floor(targetDate / (86400 * 1000));
 
-    // Get the path for the log file - we'll assume that the files relevant
-    // to our interests are in the same folder.
-    let path = aFile.path;
-    let folder = aFile.parent.directoryEntries;
+    // We'll assume that the files relevant to our interests are
+    // in the same folder as the one provided.
+    let iterator = new OS.File.DirectoryIterator(OS.Path.dirname(aFilePath));
     let relevantEntries = [];
-    // Pick out the files that start within our date range.
-    while (folder.hasMoreElements()) {
-      let file = folder.getNext();
-      if (!(file instanceof Ci.nsIFile))
-        continue;
-
-      let [logTime] = getDateFromFilename(file.leafName);
+    return iterator.forEach(function(aEntry) {
+      if (aEntry.isDir)
+        return;
+      let path = aEntry.path;
+      let [logTime] = getDateFromFilename(OS.Path.basename(path));
 
       let day = Math.floor(logTime / (86400 * 1000));
       if (targetDay == day) {
         relevantEntries.push({
-          file: file,
+          path: path,
           time: logTime
         });
       }
-    }
-
-    return new LogCluster(relevantEntries);
+    }).then(() => {
+      iterator.close();
+      return new Log(relevantEntries);
+    }, aError => {
+      iterator.close();
+      throw aError;
+    });
   },
+  // Creates and returns the appropriate LogEnumerator for the given log array
+  // depending on aGroupByDay, or an EmptyEnumerator if the input array is empty.
   _getEnumerator: function logger__getEnumerator(aLogArray, aGroupByDay) {
     let enumerator = aGroupByDay ? DailyLogEnumerator : LogEnumerator;
     return aLogArray.length ? new enumerator(aLogArray) : EmptyEnumerator;
   },
-  getLogFileForOngoingConversation: function logger_getLogFileForOngoingConversation(aConversation)
-    getLogForConversation(aConversation).file,
+  getLogPathForConversation: function logger_getLogPathForConversation(aConversation) {
+    let writer = gLogWritersById.get(aConversation.id);
+    // Resolve to null if we haven't created a LogWriter yet for this conv, or
+    // if logging is disabled (path will be null).
+    if (!writer || !writer.path)
+      return Promise.resolve(null);
+    let path = writer.path;
+    // Wait for any pending file operations to finish, then resolve to the path
+    // regardless of whether these operations succeeded.
+    return (gFilePromises.get(path) || Promise.resolve()).then(
+      () => path, () => path);
+  },
   getLogsForAccountAndName: function logger_getLogsForAccountAndName(aAccount,
                                        aNormalizedName, aGroupByDay) {
-    let entries = this._getLogArray(aAccount, aNormalizedName);
-    return this._getEnumerator(entries, aGroupByDay);
+    return this._getLogArray(aAccount, aNormalizedName)
+               .then(aEntries => this._getEnumerator(aEntries, aGroupByDay));
   },
   getLogsForAccountBuddy: function logger_getLogsForAccountBuddy(aAccountBuddy,
                                                                  aGroupByDay) {
     return this.getLogsForAccountAndName(aAccountBuddy.account,
                                          aAccountBuddy.normalizedName, aGroupByDay);
   },
-  getLogsForBuddy: function logger_getLogsForBuddy(aBuddy, aGroupByDay) {
+  getLogsForBuddy: Task.async(function* (aBuddy, aGroupByDay) {
     let entries = [];
     for (let accountBuddy of aBuddy.getAccountBuddies()) {
-      entries = entries.concat(this._getLogArray(accountBuddy.account,
-                                                 accountBuddy.normalizedName));
+      entries = entries.concat(yield this._getLogArray(accountBuddy.account,
+                                                       accountBuddy.normalizedName));
     }
     return this._getEnumerator(entries, aGroupByDay);
-  },
-  getLogsForContact: function logger_getLogsForContact(aContact, aGroupByDay) {
+  }),
+  getLogsForContact: Task.async(function* (aContact, aGroupByDay) {
     let entries = [];
     for (let buddy of aContact.getBuddies()) {
       for (let accountBuddy of buddy.getAccountBuddies()) {
-        entries = entries.concat(this._getLogArray(accountBuddy.account,
-                                                   accountBuddy.normalizedName));
+        entries = entries.concat(yield this._getLogArray(accountBuddy.account,
+                                                         accountBuddy.normalizedName));
       }
     }
     return this._getEnumerator(entries, aGroupByDay);
-  },
+  }),
   getLogsForConversation: function logger_getLogsForConversation(aConversation,
                                                                  aGroupByDay) {
     let name = aConversation.normalizedName;
@@ -714,10 +734,18 @@ Logger.prototype = {
   },
   getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount)
     this.getLogsForAccountAndName(aAccount, ".system"),
-  getSimilarLogs: function(aLog, aGroupByDay) {
-    return this._getEnumerator([new LocalFile(aLog.path).parent.directoryEntries],
-                               aGroupByDay);
-  },
+  getSimilarLogs: Task.async(function* (aLog, aGroupByDay) {
+    let iterator = new OS.File.DirectoryIterator(OS.Path.dirname(aLog.path));
+    let entries;
+    try {
+      entries = yield iterator.nextBatch();
+    } catch (aError) {
+      Cu.reportError("Error getting similar logs for \"" +
+                     aLog.path + "\":\n" + aError);
+    }
+    // If there was an error, this will return an EmptyEnumerator.
+    return this._getEnumerator(entries, aGroupByDay);
+  }),
 
   observe: function logger_observe(aSubject, aTopic, aData) {
     switch (aTopic) {
@@ -734,22 +762,22 @@ Logger.prototype = {
       break;
     case "new-text":
       if (!aSubject.noLog) {
-        let log = getLogForConversation(aSubject.conversation);
+        let log = getLogWriter(aSubject.conversation);
         log.logMessage(aSubject);
       }
       break;
     case "conversation-closed":
     case "conversation-left-chat":
-      closeLogForConversation(aSubject);
+      closeLogWriter(aSubject);
       break;
     case "account-connected":
-      getLogForAccount(aSubject, true).logEvent("+++ " + aSubject.name +
+      getSystemLogWriter(aSubject, true).logEvent("+++ " + aSubject.name +
                                                 " signed on");
       break;
     case "account-disconnected":
-      getLogForAccount(aSubject).logEvent("+++ " + aSubject.name +
+      getSystemLogWriter(aSubject).logEvent("+++ " + aSubject.name +
                                           " signed off");
-      closeLogForAccount(aSubject);
+      closeSystemLogWriter(aSubject);
       break;
     case "account-buddy-status-changed":
       let status;
@@ -769,7 +797,7 @@ Logger.prototype = {
         status += " (\"" + statusText + "\")";
 
       let nameText = aSubject.displayName + " (" + aSubject.userName + ")";
-      getLogForAccount(aSubject.account).logEvent(nameText + " is now " + status);
+      getSystemLogWriter(aSubject.account).logEvent(nameText + " is now " + status);
       break;
     default:
       throw "Unexpected notification " + aTopic;
