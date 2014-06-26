@@ -51,6 +51,14 @@ interface imILog: nsISupports {
   jsval getConversation();
 };
 
+[scriptable, function, uuid(2ab5f8ac-4b89-4954-9a4a-7c167f1e3b0d)]
+interface imIProcessLogsCallback: nsISupports {
+  // The callback can return a promise. If it does, then it will not be called
+  // on the next log until this promise resolves. If it throws (or rejects),
+  // iteration will stop.
+  jsval processLog(in AUTF8String aLogPath);
+};
+
 [scriptable, uuid(b9d5701a-df53-4e0e-99b7-706e0118e075)]
 interface imILogger: nsISupports {
   // Returns a promise that resolves to an imILog instance.
@@ -79,4 +87,11 @@ interface imILogger: nsISupports {
   jsval getSystemLogsForAccount(in imIAccount aAccount);
   jsval getSimilarLogs(in imILog aLog,
                        [optional] in boolean aGroupByDay);
+
+  // Asynchronously iterates through log folders for all prpls and accounts and
+  // invokes the callback on every log file. Returns a promise that resolves when
+  // iteration is complete. If the callback returns a promise, iteration pauses
+  // until the promise resolves. If the callback throws (or rejects), iteration
+  // will stop and the returned promise will reject with the same error.
+  jsval forEach(in imIProcessLogsCallback aCallback);
 };

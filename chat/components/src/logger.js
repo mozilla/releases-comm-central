@@ -747,6 +747,50 @@ Logger.prototype = {
     return this._getEnumerator(entries, aGroupByDay);
   }),
 
+  forEach: Task.async(function* (aCallback) {
+    let getAllSubdirs = Task.async(function* (aPaths, aErrorMsg) {
+      let entries = [];
+      for (let path of aPaths) {
+        let iterator = new OS.File.DirectoryIterator(path);
+        try {
+          entries = entries.concat(yield iterator.nextBatch());
+        } catch (aError) {
+          if (aErrorMsg)
+            Cu.reportError(aErrorMsg + "\n" + aError);
+        } finally {
+          iterator.close();
+        }
+      }
+      entries = entries.filter(aEntry => aEntry.isDir)
+                       .map(aEntry => aEntry.path);
+      return entries;
+    });
+
+    let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
+    let prpls = yield getAllSubdirs([logsPath]);
+    let accounts =
+      yield getAllSubdirs(prpls, "Error while sweeping prpl folder:");
+    let logFolders =
+      yield getAllSubdirs(accounts, "Error while sweeping account folder:");
+    for (let folder of logFolders) {
+      let iterator = new OS.File.DirectoryIterator(folder);
+      try {
+        yield iterator.forEach(aEntry => {
+          if (aEntry.isDir || !aEntry.name.endsWith(".json"))
+            return null;
+          return aCallback.processLog(aEntry.path);
+        });
+      } catch (aError) {
+        // If the callback threw, reject the promise and let the caller handle it.
+        if (!(aError instanceof OS.File.Error))
+          throw aError;
+        Cu.reportError("Error sweeping log folder:\n" + aError);
+      } finally {
+        iterator.close();
+      }
+    }
+  }),
+
   observe: function logger_observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":

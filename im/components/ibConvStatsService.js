@@ -42,8 +42,6 @@ var gStatsByContactId;
 var gLogParser = {
   _statsService: null,
   _accountMap: null,
-  _accounts: [],
-  _logFolders: [],
   inProgress: false,
   error: false,
 
@@ -65,150 +63,66 @@ var gLogParser = {
       this._accountMap.set(account.normalizedName, account);
     }
 
-    let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
-    let iterator = new OS.File.DirectoryIterator(logsPath);
-    iterator.nextBatch().then(
-      aEntries => {
-        iterator.close();
-        // Filter out any stray files (e.g. system files).
-        aEntries = aEntries.filter(function(e) e.isDir);
-        this._sweepPrpls(aEntries);
-      },
-      aError => {
-        iterator.close();
-        if (aError instanceof OS.File.Error && !aError.becauseNoSuchFile) {
-          Cu.reportError("Error while sweeping logs folder: " + logsPath + "\n" + aError);
+    let decoder = new TextDecoder();
+
+    Services.logs.forEach(aLog => {
+      return OS.File.read(aLog).then(
+        aArray => {
+          // Try to parse the log file. If anything goes wrong here, the log file
+          // has likely been tampered with so we ignore it.
+          try {
+            let lines = decoder.decode(aArray).split("\n");
+            // The first line is the header which identifies the conversation.
+            let header = JSON.parse(lines.shift());
+            let accountName = header.account;
+            let name = header.normalizedName;
+            if (!name) {
+              // normalizedName was added for IB 1.5, so we normalize
+              // manually if it is not found for backwards compatibility.
+              name = header.name;
+              let account = this._accountMap.get(accountName);
+              if (account)
+                name = account.normalize(name);
+            }
+            let id = getConversationId(header.protocol, accountName,
+                                       name, header.isChat);
+            if (!(id in gStatsByConvId))
+              gStatsByConvId[id] = new ConversationStats(id);
+            let stats = gStatsByConvId[id];
+            lines.pop(); // Ignore the final line break.
+            for (let line of lines) {
+              line = JSON.parse(line);
+              if (line.flags[0] == "system") // Ignore system messages.
+                continue;
+              line.flags[0] == "incoming" ?
+                ++stats.incomingCount : ++stats.outgoingCount;
+            }
+            let date = Date.parse(header.date);
+            if (date > stats.lastDate)
+              stats.lastDate = date;
+            delete stats._computedScore;
+          }
+          catch(e) {
+            this.WARN("Error parsing log file: " + aLog + "\n" + e);
+          }
+        },
+        aError => {
+          Cu.reportError("Error reading log file: " + aLog + "\n" + aError);
           this.error = true;
         }
-        this._sweepingComplete();
-      });
+      );
+    }).catch(aError => {
+      this.error = true;
+    }).then(() => {
+      delete this.inProgress;
+      delete this._accountMap;
+      let statsService = this._statsService;
+      statsService._cacheAllStats(); // Flush stats to JSON cache.
+      statsService._convs.sort(statsService._sortComparator);
+      statsService._notifyObservers("log-sweeping", "done");
+      gStatsByContactId = {}; // Initialize stats cache for contacts.
+    });
   },
-
-  _sweepingComplete: function() {
-    delete this.inProgress;
-    delete this._accountMap;
-    let statsService = this._statsService;
-    statsService._cacheAllStats(); // Flush stats to JSON cache.
-    statsService._convs.sort(statsService._sortComparator);
-    statsService._notifyObservers("log-sweeping", "done");
-    gStatsByContactId = {}; // Initialize stats cache for contacts.
-  },
-
-  // Sweep each prpl folder for account folders, and add them to this._accounts.
-  _sweepPrpls: function(aPrpls) {
-    if (!aPrpls.length)
-      this._sweepAccounts();
-    let path = aPrpls.shift().path;
-    let iterator = new OS.File.DirectoryIterator(path);
-    iterator.nextBatch().then(
-      aEntries => {
-        iterator.close();
-        // Filter out any stray files (e.g. system files).
-        aEntries = aEntries.filter(function(e) e.isDir);
-        this._accounts = this._accounts.concat(aEntries);
-        this._sweepPrpls(aPrpls);
-      },
-      aError => {
-        iterator.close();
-        Cu.reportError("Error while sweeping prpl folder: " + path + "\n" + aError);
-        this.error = true;
-        this._sweepPrpls(aPrpls);
-      });
-  },
-
-  // Sweep each account folder for conversation log folders, add them to this._logFolders.
-  _sweepAccounts: function() {
-    if (!this._accounts.length)
-      this._sweepLogFolders();
-    let path = this._accounts.shift().path;
-    let iterator = new OS.File.DirectoryIterator(path);
-    iterator.nextBatch().then(
-      aEntries => {
-        iterator.close();
-        // Filter out any stray files (e.g. system files).
-        aEntries = aEntries.filter(function(e) e.isDir);
-        this._logFolders = this._logFolders.concat(aEntries);
-        this._sweepAccounts();
-      },
-      aError => {
-        iterator.close();
-        Cu.reportError("Error while sweeping account folder: " + path + "\n" + aError);
-        this.error = true;
-        this._sweepAccounts();
-      });
-  },
-
-  // Sweep the log folders.
-  _sweepLogFolders: function() {
-    if (!this._logFolders.length)
-      this._sweepingComplete();
-    let path = this._logFolders.shift().path;
-    let iterator = new OS.File.DirectoryIterator(path);
-    let decoder = new TextDecoder();
-    iterator.forEach(aEntry => {
-      if (aEntry.name.endsWith(".json"))
-        return this._sweepJSONLog(aEntry.path, decoder);
-      return undefined;
-    }).then(
-      () => {
-        iterator.close();
-        this._sweepLogFolders();
-      },
-      aError => {
-        iterator.close();
-        Cu.reportError("Error while sweeping log folder: " + path + "\n" + aError);
-        this.error = true;
-        this._sweepLogFolders();
-      });
-  },
-
-  // Goes through a JSON log file and parses it for stats.
-  _sweepJSONLog: function(aLog, aDecoder) {
-    return OS.File.read(aLog).then(
-      aArray => {
-        // Try to parse the log file. If anything goes wrong here, the log file
-        // has likely been tampered with so we ignore it and move on.
-        try {
-          let lines = aDecoder.decode(aArray).split("\n");
-          // The first line is the header which identifies the conversation.
-          let header = JSON.parse(lines.shift());
-          let accountName = header.account;
-          let name = header.normalizedName;
-          if (!name) {
-            // normalizedName was added for IB 1.5, so we normalize
-            // manually if it is not found for backwards compatibility.
-            name = header.name;
-            let account = this._accountMap.get(accountName);
-            if (account)
-              name = account.normalize(name);
-          }
-          let id = getConversationId(header.protocol, accountName,
-                                     name, header.isChat);
-          if (!(id in gStatsByConvId))
-            gStatsByConvId[id] = new ConversationStats(id);
-          let stats = gStatsByConvId[id];
-          lines.pop(); // Ignore the final line break.
-          for (let line of lines) {
-            line = JSON.parse(line);
-            if (line.flags[0] == "system") // Ignore system messages.
-              continue;
-            line.flags[0] == "incoming" ?
-              ++stats.incomingCount : ++stats.outgoingCount;
-          }
-          let date = Date.parse(header.date);
-          if (date > stats.lastDate)
-            stats.lastDate = date;
-          delete stats._computedScore;
-        }
-        catch(e) {
-          this.WARN("Error parsing log file: " + aLog + "\n" + e);
-        }
-      },
-      aError => {
-        Cu.reportError("Error reading log file: " + aLog + "\n" + aError);
-        this.error = true;
-      });
-  }
 };
 
 function ConvStatsService() {

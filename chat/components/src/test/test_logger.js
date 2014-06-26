@@ -403,6 +403,19 @@ let test_logging = function* () {
     // 3 session messages - for daily logs, bad files are included.
     testMsgs(conv.getMessages(), messagesByDay.get(date), 3);
   }
+
+  // Remove the created log files, testing forEach in the process.
+  yield logger.forEach({
+    processLog: Task.async(function* (aLog) {
+      let info = yield OS.File.stat(aLog);
+      ok(!info.isDir);
+      ok(aLog.endsWith(".json"));
+      yield OS.File.remove(aLog);
+    })
+  });
+  let logFolder = OS.Path.dirname(gLogger.getLogFilePathForConversation(dummyConv));
+  // The folder should now be empty - this will throw if it isn't.
+  yield OS.File.removeEmptyDir(logFolder, {ignoreAbsent: false});
 }
 
 function run_test() {
