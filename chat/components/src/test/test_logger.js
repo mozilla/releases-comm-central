@@ -226,7 +226,7 @@ let test_getLogFilePathForConversation = function* () {
   expectedPath = OS.Path.join(
     expectedPath, gLogger.encodeName(dummyConv.normalizedName));
   expectedPath = OS.Path.join(
-    expectedPath, gLogger.getNewLogFileName("format", dummyConv.startDate));
+    expectedPath, gLogger.getNewLogFileName("format", dummyConv.startDate / 1000));
   equal(path, expectedPath);
 }
 
@@ -237,7 +237,7 @@ let test_getLogFilePathForMUC = function* () {
   expectedPath = OS.Path.join(
     expectedPath, gLogger.encodeName(dummyMUC.normalizedName + ".chat"));
   expectedPath = OS.Path.join(
-    expectedPath, gLogger.getNewLogFileName("format", dummyMUC.startDate));
+    expectedPath, gLogger.getNewLogFileName("format", dummyMUC.startDate / 1000));
   equal(path, expectedPath);
 }
 
@@ -249,7 +249,8 @@ let test_getLogFilePathForTwitterConv = function* () {
   expectedPath = OS.Path.join(
     expectedPath, gLogger.encodeName(dummyTwitterConv.normalizedName));
   expectedPath = OS.Path.join(
-    expectedPath, gLogger.getNewLogFileName("format", dummyTwitterConv.startDate));
+    expectedPath, gLogger.getNewLogFileName("format",
+                                            dummyTwitterConv.startDate / 1000));
   equal(path, expectedPath);
 }
 
@@ -268,18 +269,19 @@ let test_appendToFile = function* () {
   yield OS.File.remove(path);
 }
 
-// Tests the getLogPathForConversation API defined in the imILogger interface.
-let test_getLogPathForConversation = function* () {
+// Tests the getLogPathsForConversation API defined in the imILogger interface.
+let test_getLogPathsForConversation = function* () {
   let logger = new gLogger.Logger();
-  let path = yield logger.getLogPathForConversation(dummyConv);
+  let paths = yield logger.getLogPathsForConversation(dummyConv);
   // The path should be null since a LogWriter hasn't been created yet.
-  equal(path, null);
+  equal(paths, null);
   let logWriter = gLogger.getLogWriter(dummyConv);
-  path = yield logger.getLogPathForConversation(dummyConv);
-  equal(path, logWriter.path);
-  ok(yield OS.File.exists(path));
+  paths = yield logger.getLogPathsForConversation(dummyConv);
+  equal(paths.length, 1);
+  equal(paths[0], logWriter.currentPath);
+  ok(yield OS.File.exists(paths[0]));
   // Ensure this doesn't interfere with future tests.
-  yield OS.File.remove(path);
+  yield OS.File.remove(paths[0]);
   gLogger.closeLogWriter(dummyConv);
 }
 
@@ -330,7 +332,7 @@ let test_logging = function* () {
     // will return an EmptyEnumerator. Logging the messages is queued on the
     // _initialized promise, so we need to yield on that first.
     yield logWriter._initialized;
-    yield gLogger.gFilePromises.get(logWriter.path);
+    yield gLogger.gFilePromises.get(logWriter.currentPath);
     // Ensure two different files for the different dates.
     gLogger.closeLogWriter(aConv);
   });
@@ -339,12 +341,13 @@ let test_logging = function* () {
 
   // Write a zero-length file and a file with incorrect JSON for each day
   // to ensure they are handled correctly.
-  let logDir = OS.Path.dirname(yield gLogger.getLogFilePathForConversation(dummyConv, "json"));
+  let logDir = OS.Path.dirname(
+    gLogger.getLogFilePathForConversation(dummyConv, "json"));
   let createBadFiles = Task.async(function* (aConv) {
     let blankFile = OS.Path.join(logDir,
-      gLogger.getNewLogFileName("json", aConv.startDate + oneSec));
+      gLogger.getNewLogFileName("json", (aConv.startDate + oneSec) / 1000));
     let invalidJSONFile = OS.Path.join(logDir,
-      gLogger.getNewLogFileName("json", aConv.startDate + (2 * oneSec)));
+      gLogger.getNewLogFileName("json", (aConv.startDate + (2 * oneSec)) / 1000));
     let file = yield OS.File.open(blankFile, {truncate: true});
     yield file.close();
     yield OS.File.writeAtomic(invalidJSONFile,
@@ -420,6 +423,97 @@ let test_logging = function* () {
   yield OS.File.removeEmptyDir(logFolder, {ignoreAbsent: false});
 }
 
+let test_logFileSplitting = function* () {
+  // Start clean, remove the log directory.
+  let logFolderPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
+  yield OS.File.removeDir(logFolderPath, {ignoreAbsent: true});
+  let logWriter = gLogger.getLogWriter(dummyConv);
+  let startTime = logWriter._startTime / 1000; // Message times are in seconds.
+  let oldPath = logWriter.currentPath;
+  let message = {
+    time: startTime,
+    who: "John Doe",
+    originalMessage: "Hello, world!",
+    outgoing: true
+  };
+
+  let logMessage = Task.async(function* (aMessage) {
+    logWriter.logMessage(aMessage);
+    yield logWriter._initialized;
+    yield gLogger.gFilePromises.get(logWriter.currentPath);
+  });
+
+  yield logMessage(message);
+  message.time += (logWriter.kInactivityLimit / 1000) + 1;
+  // This should go in a new log file.
+  yield logMessage(message);
+  notEqual(logWriter.currentPath, oldPath);
+  // The log writer's new start time should be the time of the message.
+  equal(message.time * 1000, logWriter._startTime);
+
+  let getCurrentHeader = Task.async(function* () {
+    return JSON.parse(new TextDecoder()
+                      .decode(yield OS.File.read(logWriter.currentPath))
+                      .split("\n")[0]);
+  });
+
+  // The header of the new log file should not have the continuedSession flag set.
+  ok(!(yield getCurrentHeader()).continuedSession);
+
+  // Set the start time sufficiently before midnight, and the last message time
+  // to just before midnight. A new log file should be created at midnight.
+  logWriter._startTime = new Date(logWriter._startTime)
+    .setHours(24, 0, 0, -(logWriter.kDayOverlapLimit + 1));
+  let nearlyMidnight = new Date(logWriter._startTime).setHours(24, 0, 0, -1);
+  oldPath = logWriter.currentPath;
+  logWriter._lastMessageTime = nearlyMidnight;
+  message.time = new Date(nearlyMidnight).setHours(24, 0, 0, 1) / 1000;
+  yield logMessage(message);
+  // The message should have gone in a new file.
+  notEqual(oldPath, logWriter.currentPath);
+  // The header should have the continuedSession flag set this time.
+  ok((yield getCurrentHeader()).continuedSession);
+
+  // Ensure a new file is created every kMessageCountLimit messages.
+  oldPath = logWriter.currentPath;
+  let messageCountLimit = logWriter.kMessageCountLimit;
+  for (let i = 0; i < messageCountLimit; ++i)
+    logMessage(message);
+  yield logMessage(message);
+  notEqual(oldPath, logWriter.currentPath);
+  // The header should have the continuedSession flag set this time too.
+  ok((yield getCurrentHeader()).continuedSession);
+  // Again, to make sure it still works correctly after splitting it once already.
+  oldPath = logWriter.currentPath;
+  // We already logged one message to ensure it went into a new file, so i = 1.
+  for (let i = 1; i < messageCountLimit; ++i)
+    logMessage(message);
+  yield logMessage(message);
+  notEqual(oldPath, logWriter.currentPath);
+  ok((yield getCurrentHeader()).continuedSession);
+
+  // The new start time is the time of the message. If we log sufficiently more
+  // messages with the same time property, ensure that the start time of the next
+  // log file is greater than the previous one, and that a new path is being used.
+  let oldStartTime = logWriter._startTime;
+  oldPath = logWriter.currentPath;
+  logWriter._messageCount = messageCountLimit;
+  yield logMessage(message);
+  notEqual(oldPath, logWriter.currentPath);
+  ok(logWriter._startTime > oldStartTime);
+
+  // Do it again with the same message.
+  oldStartTime = logWriter._startTime;
+  oldPath = logWriter.currentPath;
+  logWriter._messageCount = messageCountLimit;
+  yield logMessage(message);
+  notEqual(oldPath, logWriter.currentPath);
+  ok(logWriter._startTime > oldStartTime);
+
+  // Clean up.
+  yield OS.File.removeDir(logFolderPath);
+}
+
 function run_test() {
   // Test encodeName().
   for (let i = 0; i < encodeName_input.length; ++i)
@@ -442,9 +536,11 @@ function run_test() {
 
   add_task(test_appendToFile);
 
-  add_task(test_getLogPathForConversation);
+  add_task(test_getLogPathsForConversation);
 
   add_task(test_logging);
+
+  add_task(test_logFileSplitting);
 
   run_next_test();
 }

@@ -59,14 +59,14 @@ interface imIProcessLogsCallback: nsISupports {
   jsval processLog(in AUTF8String aLogPath);
 };
 
-[scriptable, uuid(f8ac75ed-e9b5-432e-989b-f01fed2e5a3f)]
+[scriptable, uuid(7e2476dc-8199-4454-9661-b78ee73fa49e)]
 interface imILogger: nsISupports {
   // Returns a promise that resolves to an imILog instance.
   jsval getLogFromFile(in AUTF8String aFilePath, [optional] in boolean aGroupByDay);
-  // Returns a promise that resolves to the log file path if a log writer
+  // Returns a promise that resolves to the log file paths if a log writer
   // exists for the conversation, or null otherwise. The promise resolves
-  // after any pending I/O operations on the file complete.
-  jsval getLogPathForConversation(in prplIConversation aConversation);
+  // after any pending I/O operations on the files complete.
+  jsval getLogPathsForConversation(in prplIConversation aConversation);
 
   // Below methods return promises that resolve to nsISimpleEnumerator instances.
 
