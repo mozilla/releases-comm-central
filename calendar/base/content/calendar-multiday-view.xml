@@ -2500,7 +2500,8 @@
           <xul:box anonid="headerdaybox" class="multiday-view-header-day-box" flex="1" equalsize="always" />
           <xul:box anonid="headerscrollbarspacer" class="multiday-headerscrollbarspacer"/>
         </xul:box>
-        <xul:scrollbox anonid="scrollbox" flex="1">
+        <xul:scrollbox anonid="scrollbox" flex="1"
+                       onoverflow="adjustScrollBarSpacers();" onunderflow="adjustScrollBarSpacers();">
           <!-- the orient of the calendar-time-bar needs to be the opposite of the parent -->
           <xul:calendar-time-bar xbl:inherits="orient" anonid="timebar"/>
           <xul:box anonid="daybox" class="multiday-view-day-box" flex="1"
