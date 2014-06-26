@@ -1016,7 +1016,7 @@ function setCurrentEvent() {
                     var msuntillend = complistItem.occurrence.endDate
                                         .getInTimezone(agendaListbox.kDefaultTimezone)
                                         .subtractDate(anow).inSeconds;
-                    if (msuntillend >= 0) {
+                    if (msuntillend > 0) {
                         complistItem.setAttribute("current", "true");
                         if ((msuntillend < msScheduleTime)  || (msScheduleTime == -1)){
                             msScheduleTime = msuntillend;
