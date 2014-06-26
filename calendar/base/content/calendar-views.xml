@@ -27,7 +27,10 @@
             <method name="goToDay">
                 <parameter name="aDate"/>
                 <body><![CDATA[
-                    aDate = aDate || currentView().selectedDay;
+                    if (!aDate) {
+                        this.refresh();
+                        return;
+                    }
                     aDate = aDate.getInTimezone(this.timezone);
                     this.setDateRange(aDate, aDate);
                     this.selectedDay = aDate;
@@ -87,7 +90,10 @@
                 <body><![CDATA[
                     this.displayDaysOff = !this.mWorkdaysOnly;
 
-                    aDate = aDate || currentView().selectedDay;
+                    if (!aDate) {
+                        this.refresh();
+                        return;
+                    }
                     aDate = aDate.getInTimezone(this.timezone);
                     var d1 = getWeekInfoService().getStartOfWeek(aDate);
                     var d2 = d1.clone();

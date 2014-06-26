@@ -194,11 +194,18 @@ function refreshUIBits() {
     try {
         getMinimonth().refreshDisplay();
 
-        // refresh the current view, if it has ever been shown
-        var cView = currentView();
-        if (cView.initialized) {
-            cView.goToDay(cView.selectedDay);
-        }
+        // Refresh the current view and just allow the refresh for the others
+        // views when will be displayed.
+        let currView = currentView();
+        currView.goToDay();
+        ["day-view",
+         "week-view",
+         "multiweek-view",
+         "month-view"].forEach(function(view) {
+            if (view != currView.id) {
+                document.getElementById(view).mToggleStatus = -1;
+            }
+        });
 
         if (!TodayPane.showsToday()) {
             TodayPane.setDay(now());
