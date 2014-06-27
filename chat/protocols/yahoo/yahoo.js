@@ -527,7 +527,7 @@ function YahooProtocol() {
 YahooProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   // Protocol specific connection parameters.
-  pagerRequestUrl: "http://vcs1.msg.yahoo.com/capacity",
+  pagerRequestUrl: "http://scsa.msg.yahoo.com/capacity",
   loginTokenGetUrl: "https://login.yahoo.com/config/pwtoken_get",
   loginTokenLoginUrl: "https://login.yahoo.com/config/pwtoken_login",
   buildId: "4194239",
