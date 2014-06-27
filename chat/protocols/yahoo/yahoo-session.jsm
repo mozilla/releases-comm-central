@@ -314,6 +314,14 @@ YahooSession.prototype = {
   },
 
   setProfileIcon: function(aFileName) {
+    // If we have an empty filename, remove the icon from the server.
+    if (!aFileName) {
+      let packet = new YahooPacket(kPacketType.AvatarUpdate, 0, this.sessionId);
+      packet.addValue(3, this._account.cleanUsername);
+      packet.addValue(213, 0);
+      this.sendPacket(packet);
+      return;
+    }
     // Try to get a handle to the icon file.
     let file = FileUtils.getFile("ProfD", [aFileName]);
     let type = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService)
