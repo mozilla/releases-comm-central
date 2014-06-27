@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 chat.jar:
-% skin prpl-yahoojp classic/1.0 %skin/classic/prpl/yahoo/
 % skin prpl-yahoo classic/1.0 %skin/classic/prpl/yahoo/
 	skin/classic/prpl/yahoo/icon32.png	(icons/prpl-yahoo-32.png)
 	skin/classic/prpl/yahoo/icon48.png	(icons/prpl-yahoo-48.png)

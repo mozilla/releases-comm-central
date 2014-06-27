@@ -588,30 +588,4 @@ YahooProtocol.prototype = {
   classID: Components.ID("{50ea817e-5d79-4657-91ae-aa0a52bdb98c}")
 };
 
-function YahooJapanProtocol() {
-  this.registerCommands();
-}
-YahooJapanProtocol.prototype = {
-  __proto__: YahooProtocol.prototype,
-  // Protocol specific connection parameters.
-  pagerRequestUrl: "http://cs1.yahoo.co.jp/capacity",
-  loginTokenGetUrl: "https://login.yahoo.co.jp/config/pwtoken_get",
-  loginTokenLoginUrl: "https://login.yahoo.co.jp/config/pwtoken_login",
-  buildId: "4186047",
-
-  get id() "prpl-yahoojp",
-  get name() "Yahoo JAPAN",
-  get iconBaseURI() "chrome://prpl-yahoojp/skin/",
-  options: {
-    port: {get label() _("options.pagerPort"), default: 5050},
-    xfer_host: {get label() _("options.transferHost"), default: "filetransfer.msg.yahoo.com"},
-    xfer_port: {get label() _("options.transferPort"), default: 80},
-    //room_list_locale: {get label() _("options.chatLocale"), default: "jp"},
-    local_charset: {get label() _("options.chatEncoding"), default: "UTF-8"},
-    ignore_invites: {get label() _("options.ignoreInvites"), default: false}
-    //proxy_ssl: {get label() _("options.proxySSL"), default: false}
-  },
-  classID: Components.ID("{5f6dc733-ec0d-4de8-8adc-e4967064ed38}")
-};
-
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([YahooProtocol, YahooJapanProtocol]);
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([YahooProtocol]);
