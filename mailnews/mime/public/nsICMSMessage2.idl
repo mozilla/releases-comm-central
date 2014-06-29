@@ -15,7 +15,7 @@ interface nsISMimeVerificationListener;
  * interfaces, both should be made scriptable.
  */
 
-[uuid(a99a3203-39e3-45e1-909c-175b0e471c2b)]
+[uuid(b21a3636-2287-4b9f-9a22-25f245981ef0)]
 interface nsICMSMessage2 : nsISupports
 {
   /**
@@ -48,7 +48,7 @@ interface nsICMSMessage2 : nsISupports
                                      in unsigned long aDigestDataLen);
 };
 
-[uuid(56310af6-dffc-48b4-abca-85eae4059064)]
+[uuid(5226d698-0773-4f25-b94c-7944b3fc01d3)]
 interface nsISMimeVerificationListener : nsISupports {
 
   /**

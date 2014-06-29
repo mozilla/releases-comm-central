@@ -9,7 +9,6 @@
 #include "msgCore.h"
 #include "nsIMsgCompFields.h"
 #include "nsIMsgIdentity.h"
-#include "nsISMimeCert.h"
 #include "nsIX509CertDB.h"
 #include "nsMimeTypes.h"
 #include "nsMsgMimeCID.h"
@@ -18,13 +17,17 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
 #include "nsAlgorithm.h"
+#include "mozilla/RefPtr.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMimeConverter.h"
+#include "nsIX509Cert2.h"
+#include "ScopedNSSTypes.h"
 #include <algorithm>
 
 using namespace mozilla::mailnews;
+using namespace mozilla;
 
 #define MK_MIME_ERROR_WRITING_FILE -1
 
@@ -800,10 +803,19 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   if (aEncrypt && mSelfEncryptionCert) {
     // Make sure self's configured cert is prepared for being used
     // as an email recipient cert.
-    
-    nsCOMPtr<nsISMimeCert> sc = do_QueryInterface(mSelfEncryptionCert);
-    if (sc) {
-      sc->SaveSMimeProfile();
+    nsCOMPtr<nsIX509Cert2> cert2 = do_QueryInterface(mSelfEncryptionCert);
+    if (!cert2) {
+      return NS_ERROR_FAILURE;
+    }
+
+    mozilla::ScopedCERTCertificate nsscert;
+    nsscert = cert2->GetCert();
+    if (!nsscert) {
+      return NS_ERROR_FAILURE;
+    }
+    // XXX: This does not respect the nsNSSShutDownObject protocol.
+    if (CERT_SaveSMimeProfile(nsscert, nullptr, nullptr) != SECSuccess) {
+      return NS_ERROR_FAILURE;
     }
   }
 

@@ -18,7 +18,7 @@ interface nsIArray;
  * nsICMSMessage
  *  Interface to a CMS Message
  */
-[uuid(a4557478-ae16-11d5-ba4b-00108303b117)]
+[uuid(cfd6af3d-8ac6-401a-afc8-3f94275c1c11)]
 interface nsICMSMessage : nsISupports
 {
   void contentIsSigned(out boolean aSigned);

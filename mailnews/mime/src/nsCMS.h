@@ -13,7 +13,6 @@
 #include "nsICMSMessage.h"
 #include "nsICMSMessage2.h"
 #include "nsIX509Cert3.h"
-#include "nsVerificationJob.h"
 #include "nsICMSEncoder.h"
 #include "nsICMSDecoder.h"
 #include "sechash.h"
@@ -35,7 +34,8 @@ public:
   nsCMSMessage();
   nsCMSMessage(NSSCMSMessage* aCMSMsg);
   virtual ~nsCMSMessage();
-  
+  nsresult Init();
+
   void referenceContext(nsIInterfaceRequestor* aContext) {m_ctx = aContext;}
   NSSCMSMessage* getCMS() {return m_cmsMsg;}
 private:
@@ -50,7 +50,6 @@ private:
   virtual void virtualDestroyNSSReference();
   void destructorSafeDestroyNSSReference();
 
-friend class nsSMimeVerificationJob;
 };
 
 // ===============================================
@@ -69,6 +68,7 @@ public:
 
   nsCMSDecoder();
   virtual ~nsCMSDecoder();
+  nsresult Init();
 
 private:
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
@@ -92,6 +92,7 @@ public:
 
   nsCMSEncoder();
   virtual ~nsCMSEncoder();
+  nsresult Init();
 
 private:
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;

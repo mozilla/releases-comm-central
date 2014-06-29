@@ -9,7 +9,7 @@
  * nsICMSMessageErrors
  *  Scriptable error constants for nsICMSMessage
  */
-[scriptable,uuid(f2aec680-60a0-49f0-afe5-6cf1d3f15e0d)]
+[scriptable,uuid(267f1a5b-88f7-413b-bc49-487e745282f1)]
 interface nsICMSMessageErrors : nsISupports
 {
   const long SUCCESS = 0;

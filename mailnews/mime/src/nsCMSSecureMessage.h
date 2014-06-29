@@ -26,6 +26,7 @@ public:
 
   nsCMSSecureMessage();
   virtual ~nsCMSSecureMessage();
+  nsresult Init();
 
 private:
   NS_METHOD encode(const unsigned char *data, int32_t dataLen, char **_retval);

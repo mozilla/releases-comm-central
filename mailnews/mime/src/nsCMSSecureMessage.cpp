@@ -8,12 +8,14 @@
 #include "nsISupports.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsCRT.h"
+#include "nsIX509CertDB.h"
 
 #include "nsICMSSecureMessage.h"
 
 #include "nsCMSSecureMessage.h"
-#include "nsNSSCertificate.h"
+#include "nsIX509Cert.h"
 #include "nsNSSHelper.h"
+#include "nsNSSCertificate.h"
 #include "nsNSSShutDown.h"
 
 #include <string.h>
@@ -49,6 +51,13 @@ nsCMSSecureMessage::nsCMSSecureMessage()
 // nsCMSMessage destructor
 nsCMSSecureMessage::~nsCMSSecureMessage()
 {
+}
+
+nsresult nsCMSSecureMessage::Init()
+{
+  nsresult rv;
+  nsCOMPtr<nsISupports> nssInitialized = do_GetService("@mozilla.org/psm;1", &rv);
+  return rv;
 }
 
 /* string getCertByPrefID (in string certID); */
@@ -112,7 +121,13 @@ DecodeCert(const char *value, nsIX509Cert ** _retval)
     return rv;
   }
 
-  nsCOMPtr<nsIX509Cert> cert =  nsNSSCertificate::ConstructFromDER((char *)data, length);
+  nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
+  if (!certdb) {
+    return NS_ERROR_FAILURE;
+  }
+
+  nsCOMPtr<nsIX509Cert> cert;
+  certdb->ConstructX509(reinterpret_cast<char *>(data), length, getter_AddRefs(cert));
 
   if (cert) {
     *_retval = cert;

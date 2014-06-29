@@ -62,9 +62,17 @@ SOURCES += [
     'mimetpla.cpp',
     'mimetric.cpp',
     'mimeunty.cpp',
+    'nsCMS.cpp',
+    'nsCMSSecureMessage.cpp',
     'nsMimeObjectClassAccess.cpp',
     'nsSimpleMimeConverterStub.cpp',
     'nsStreamConverter.cpp',
+]
+
+LOCAL_INCLUDES += [
+     '/mozilla/security/certverifier',
+     '/mozilla/security/manager/ssl/src',
+     '/mozilla/security/pkix/include',
 ]
 
 EXTRA_COMPONENTS += [

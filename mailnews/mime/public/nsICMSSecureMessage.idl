@@ -11,7 +11,7 @@ interface nsIX509Cert;
  * nsICMSManager (service)
  *  Interface to access users certificate store
  */
-[scriptable, uuid(14b4394a-1dd2-11b2-b4fd-ba4a194fe97e)]
+[scriptable, uuid(17103436-0111-4819-a751-0fc4aa6e3d79)]
 interface nsICMSSecureMessage : nsISupports
 {
   /**

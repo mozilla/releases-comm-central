@@ -19,7 +19,7 @@ interface nsICMSMessage;
  * nsICMSDecoder
  *  Interface to decode an CMS message
  */
-[uuid(65244a06-a342-11d5-ba47-00108303b117)]
+[uuid(c7c7033b-f341-4065-aadd-7eef55ce0dda)]
 interface nsICMSDecoder : nsISupports
 {
   void start(in NSSCMSContentCallback cb, in voidPtr arg);

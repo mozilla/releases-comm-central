@@ -276,6 +276,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // smime includes
 ///////////////////////////////////////////////////////////////////////////////
+#include "nsCMS.h"
+#include "nsCMSSecureMessage.h"
 #include "nsMsgSMIMECID.h"
 #include "nsMsgComposeSecure.h"
 #include "nsSMimeJSHelper.h"
@@ -734,11 +736,19 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeSecure)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgSMIMEComposeFields)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsSMimeJSHelper)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsEncryptedSMIMEURIsService)
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSDecoder, Init)
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSEncoder, Init)
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSMessage, Init)
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSSecureMessage, Init)
 
 NS_DEFINE_NAMED_CID(NS_MSGCOMPOSESECURE_CID);
 NS_DEFINE_NAMED_CID(NS_MSGSMIMECOMPFIELDS_CID);
 NS_DEFINE_NAMED_CID(NS_SMIMEJSJELPER_CID);
 NS_DEFINE_NAMED_CID(NS_SMIMEENCRYPTURISERVICE_CID);
+NS_DEFINE_NAMED_CID(NS_CMSDECODER_CID);
+NS_DEFINE_NAMED_CID(NS_CMSENCODER_CID);
+NS_DEFINE_NAMED_CID(NS_CMSMESSAGE_CID);
+NS_DEFINE_NAMED_CID(NS_CMSSECUREMESSAGE_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
 // vcard factories
@@ -1022,6 +1032,10 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_MSGSMIMECOMPFIELDS_CID, false, NULL, nsMsgSMIMEComposeFieldsConstructor },
   { &kNS_SMIMEJSJELPER_CID, false, NULL, nsSMimeJSHelperConstructor },
   { &kNS_SMIMEENCRYPTURISERVICE_CID, false, NULL, nsEncryptedSMIMEURIsServiceConstructor },
+  { &kNS_CMSDECODER_CID, false, NULL, nsCMSDecoderConstructor },
+  { &kNS_CMSENCODER_CID, false, NULL, nsCMSEncoderConstructor },
+  { &kNS_CMSMESSAGE_CID, false, NULL, nsCMSMessageConstructor },
+  { &kNS_CMSSECUREMESSAGE_CID, false, NULL, nsCMSSecureMessageConstructor },
   // Vcard Entries
   { &kNS_VCARD_CONTENT_TYPE_HANDLER_CID, false, NULL, nsVCardMimeContentTypeHandlerConstructor},
   // PGP/MIME Entries
@@ -1256,6 +1270,10 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_MSGSMIMECOMPFIELDS_CONTRACTID, &kNS_MSGSMIMECOMPFIELDS_CID },
   { NS_SMIMEJSHELPER_CONTRACTID, &kNS_SMIMEJSJELPER_CID },
   { NS_SMIMEENCRYPTURISERVICE_CONTRACTID, &kNS_SMIMEENCRYPTURISERVICE_CID },
+  { NS_CMSSECUREMESSAGE_CONTRACTID, &kNS_CMSSECUREMESSAGE_CID },
+  { NS_CMSDECODER_CONTRACTID, &kNS_CMSDECODER_CID },
+  { NS_CMSENCODER_CONTRACTID, &kNS_CMSENCODER_CID },
+  { NS_CMSMESSAGE_CONTRACTID, &kNS_CMSMESSAGE_CID },
   // Vcard Entries
   { "@mozilla.org/mimecth;1?type=text/x-vcard", &kNS_VCARD_CONTENT_TYPE_HANDLER_CID },
   // PGP/MIME Entries

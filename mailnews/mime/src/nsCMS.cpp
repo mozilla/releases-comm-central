@@ -5,17 +5,24 @@
 
 #include "nsCMS.h"
 
+#include "nsIX509CertDB.h"
 #include "CertVerifier.h"
+#include "CryptoTask.h"
+#include "mozilla/RefPtr.h"
 #include "pkix/pkixtypes.h"
 #include "nsISupports.h"
 #include "nsNSSHelper.h"
 #include "nsNSSCertificate.h"
+#include "ScopedNSSTypes.h"
 #include "smime.h"
 #include "cms.h"
+#include "nsNSSComponent.h"
 #include "nsICMSMessageErrors.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsCertVerificationThread.h"
+#include "nsServiceManagerUtils.h"
+#include "mozilla/RefPtr.h"
 
 #include "prlog.h"
 
@@ -47,6 +54,13 @@ nsCMSMessage::~nsCMSMessage()
   }
   destructorSafeDestroyNSSReference();
   shutdown(calledFromObject);
+}
+
+nsresult nsCMSMessage::Init()
+{
+  nsresult rv;
+  nsCOMPtr<nsISupports> nssInitialized = do_GetService("@mozilla.org/psm;1", &rv);
+  return rv;
 }
 
 void nsCMSMessage::virtualDestroyNSSReference()
@@ -168,13 +182,14 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert **scert)
   if (!si)
     return NS_ERROR_FAILURE;
 
+  nsCOMPtr<nsIX509Cert> cert;
   if (si->cert) {
     PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("nsCMSMessage::GetSignerCert got signer cert\n"));
 
-    *scert = nsNSSCertificate::Create(si->cert);
-    if (*scert) {
-      (*scert)->AddRef();
-    }
+    nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
+    certdb->ConstructX509(reinterpret_cast<const char *>(si->cert->derCert.data),
+                          si->cert->derCert.len,
+                          getter_AddRefs(cert));
   }
   else {
     PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("nsCMSMessage::GetSignerCert no signer cert, do we have a cert list? %s\n",
@@ -182,7 +197,9 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert **scert)
 
     *scert = nullptr;
   }
-  
+
+  cert.forget(scert);
+
   return NS_OK;
 }
 
@@ -277,6 +294,11 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData, uint32_
   }
 
   // We verify the first signer info,  only //
+  // XXX: NSS_CMSSignedData_VerifySignerInfo calls CERT_VerifyCert, which
+  // requires NSS's certificate verification configuration to be done in
+  // order to work well (e.g. honoring OCSP preferences and proxy settings
+  // for OCSP requests), but Gecko stopped doing that configuration. Something
+  // similar to what was done for Gecko bug 1028643 needs to be done here too.
   if (NSS_CMSSignedData_VerifySignerInfo(sigd, 0, CERT_GetDefaultCertDB(), certUsageEmailSigner) != SECSuccess) {
     PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("nsCMSMessage::CommonVerifySignature - unable to verify signature\n"));
 
@@ -346,30 +368,54 @@ NS_IMETHODIMP nsCMSMessage::AsyncVerifyDetachedSignature(
   return CommonAsyncVerifySignature(aListener, aDigestData, aDigestDataLen);
 }
 
+class SMimeVerificationTask MOZ_FINAL : public CryptoTask
+{
+public:
+  SMimeVerificationTask(nsICMSMessage *aMessage,
+                        nsISMimeVerificationListener *aListener,
+                        unsigned char *aDigestData, uint32_t aDigestDataLen)
+  {
+    MOZ_ASSERT(NS_IsMainThread());
+    mMessage = aMessage;
+    mListener = aListener;
+    mDigestData.Assign(reinterpret_cast<char *>(aDigestData), aDigestDataLen);
+  }
+
+private:
+  virtual void ReleaseNSSResources() MOZ_OVERRIDE {}
+  virtual nsresult CalculateResult() MOZ_OVERRIDE
+  {
+    MOZ_ASSERT(!NS_IsMainThread());
+
+    nsresult rv;
+    if (!mDigestData.IsEmpty()) {
+      rv = mMessage->VerifyDetachedSignature(
+        reinterpret_cast<uint8_t*>(const_cast<char *>(mDigestData.get())),
+        mDigestData.Length());
+    } else {
+      rv = mMessage->VerifySignature();
+    }
+
+    return rv;
+  }
+  virtual void CallCallback(nsresult rv) MOZ_OVERRIDE
+  {
+    MOZ_ASSERT(NS_IsMainThread());
+
+    nsCOMPtr<nsICMSMessage2> m2 = do_QueryInterface(mMessage);
+    mListener->Notify(m2, rv);
+  }
+
+  nsCOMPtr<nsICMSMessage> mMessage;
+  nsCOMPtr<nsISMimeVerificationListener> mListener;
+  nsCString mDigestData;
+};
+
 nsresult nsCMSMessage::CommonAsyncVerifySignature(nsISMimeVerificationListener *aListener,
                                                   unsigned char* aDigestData, uint32_t aDigestDataLen)
 {
-  nsSMimeVerificationJob *job = new nsSMimeVerificationJob;
-  
-  if (aDigestData)
-  {
-    job->digest_data = new unsigned char[aDigestDataLen];
-    memcpy(job->digest_data, aDigestData, aDigestDataLen);
-  }
-  else
-  {
-    job->digest_data = nullptr;
-  }
-  
-  job->digest_len = aDigestDataLen;
-  job->mMessage = this;
-  job->mListener = aListener;
-
-  nsresult rv = nsCertVerificationThread::addJob(job);
-  if (NS_FAILED(rv))
-    delete job;
-
-  return rv;
+  RefPtr<CryptoTask> task = new SMimeVerificationTask(this, aListener, aDigestData, aDigestDataLen);
+  return task->Dispatch("SMimeVerify");
 }
 
 class nsZeroTerminatedCertArray : public nsNSSShutDownObject
@@ -516,7 +562,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray * aRecipientCerts)
     if (!nssRecipientCert)
       return NS_ERROR_FAILURE;
 
-    mozilla::pkix::ScopedCERTCertificate c(nssRecipientCert->GetCert());
+    mozilla::ScopedCERTCertificate c(nssRecipientCert->GetCert());
     recipientCerts.set(i, c.get());
   }
   
@@ -554,7 +600,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray * aRecipientCerts)
 
   // Create and attach recipient information //
   for (i=0; i < recipientCertCount; i++) {
-    mozilla::pkix::ScopedCERTCertificate rc(recipientCerts.get(i));
+    mozilla::ScopedCERTCertificate rc(recipientCerts.get(i));
     if ((recipientInfo = NSS_CMSRecipientInfo_Create(m_cmsMsg, rc.get())) == nullptr) {
       PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("nsCMSMessage::CreateEncrypted - can't create recipient info\n"));
       goto loser;
@@ -585,8 +631,8 @@ NS_IMETHODIMP nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert*
   NSSCMSContentInfo *cinfo;
   NSSCMSSignedData *sigd;
   NSSCMSSignerInfo *signerinfo;
-  mozilla::pkix::ScopedCERTCertificate scert;
-  mozilla::pkix::ScopedCERTCertificate ecert;
+  mozilla::ScopedCERTCertificate scert;
+  mozilla::ScopedCERTCertificate ecert;
   nsCOMPtr<nsIX509Cert2> aSigningCert2 = do_QueryInterface(aSigningCert);
   nsresult rv = NS_ERROR_FAILURE;
 
@@ -736,6 +782,13 @@ nsCMSDecoder::~nsCMSDecoder()
   shutdown(calledFromObject);
 }
 
+nsresult nsCMSDecoder::Init()
+{
+  nsresult rv;
+  nsCOMPtr<nsISupports> nssInitialized = do_GetService("@mozilla.org/psm;1", &rv);
+  return rv;
+}
+
 void nsCMSDecoder::virtualDestroyNSSReference()
 {
   destructorSafeDestroyNSSReference();
@@ -817,6 +870,13 @@ nsCMSEncoder::~nsCMSEncoder()
   }
   destructorSafeDestroyNSSReference();
   shutdown(calledFromObject);
+}
+
+nsresult nsCMSEncoder::Init()
+{
+  nsresult rv;
+  nsCOMPtr<nsISupports> nssInitialized = do_GetService("@mozilla.org/psm;1", &rv);
+  return rv;
 }
 
 void nsCMSEncoder::virtualDestroyNSSReference()
