@@ -14,13 +14,14 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/cloudFileAccounts.js");
+Cu.import("resource:///modules/OAuth2.jsm");
 Cu.import("resource://gre/modules/Http.jsm");
 
-var gServerUrl = "https://www.box.com/api/1.0/rest";
-var gUploadUrl = "https://upload.box.net/api/1.0/upload/";
-var gSharingUrl = "https://www.box.com/shared/";
+var gServerUrl = "https://api.box.com/2.0/";
+var gUploadUrl = "https://upload.box.com/api/2.0/";
 
-const kApiKey = "exs8m0agj1fa5728lxvn288ymz01dnzn";
+const kAuthBaseUrl = "https://www.box.com/api/";
+const kAuthUrl = "oauth2/authorize";
 
 XPCOMUtils.defineLazyServiceGetter(this, "gProtocolService",
                                    "@mozilla.org/uriloader/external-protocol-service;1",
@@ -28,6 +29,30 @@ XPCOMUtils.defineLazyServiceGetter(this, "gProtocolService",
 
 function nsBox() {
   this.log = Log4Moz.getConfiguredLogger("BoxService");
+  this._oauth = new OAuth2(kAuthBaseUrl, null, kClientId, kClientSecret, kAuthUrl);
+
+  let account = this;
+  Object.defineProperty(this._oauth, "refreshToken", {
+    get: function getRefreshToken() {
+      if (!this.mRefreshToken) {
+        let authToken = cloudFileAccounts.getSecretValue(account.accountKey,
+                                                         cloudFileAccounts.kTokenRealm);
+        this.mRefreshToken = authToken || "";
+      }
+      return this.mRefreshToken;
+    },
+    set: function setRefreshToken(aVal) {
+      if (!aVal)
+        aVal = "";
+
+      cloudFileAccounts.setSecretValue(account.accountKey,
+                                       cloudFileAccounts.kTokenRealm,
+                                       aVal);
+
+      return (this.mRefreshToken = aVal);
+    },
+    enumerable: true
+  });
 }
 
 nsBox.prototype = {
@@ -50,7 +75,8 @@ nsBox.prototype = {
   _accountKey: false,
   _prefBranch: null,
   _folderId: "",
-  _loggedIn: false,
+  // If an access token exists, the user is logged in.
+  get _loggedIn() !!this._oauth.accessToken,
   _userInfo: null,
   _file : null,
   _maxFileSize : -1,
@@ -63,6 +89,7 @@ nsBox.prototype = {
   _urlsForFiles : {},
   _uploadInfo : {},
   _uploads: [],
+  _oauth: null,
 
   /**
    * Used by our testing framework to override the URLs that this component
@@ -83,7 +110,6 @@ nsBox.prototype = {
     this._accountKey = aAccountKey;
     this._prefBranch = Services.prefs.getBranch("mail.cloud_files.accounts." +
                                                 aAccountKey + ".");
-    this._loggedIn = this._cachedAuthToken != "";
   },
 
   /**
@@ -262,9 +288,7 @@ nsBox.prototype = {
    *                        fails.
    */
   _getUserInfo: function nsBox__getUserInfo(successCallback, failureCallback) {
-    let args = "?action=get_account_info&api_key=" + kApiKey
-                + "&auth_token=" + this._cachedAuthToken;
-    let requestUrl = gServerUrl + args;
+    let requestUrl = gServerUrl + "users/me";
     this.log.info("get_account_info requestUrl = " + requestUrl);
 
     if (!successCallback)
@@ -284,31 +308,23 @@ nsBox.prototype = {
       this.log.info("get_account_info request response = " + aResponseText);
 
       try {
-        let doc = aRequest.responseXML;
-        let docResponse = doc.documentElement;
-        if (docResponse && docResponse.nodeName == "response") {
-         let docStatus = doc.querySelector("status").firstChild.nodeValue;
-         this.log.info("get_account_info status = " + docStatus);
-         if (docStatus != "get_account_info_ok") {
-           this.failureCallback();
-           return;
-         }
-         this._userInfo = aResponseText;
+        this._userInfo = JSON.parse(aResponseText);
 
-         this._totalStorage = doc.querySelector("space_amount").firstChild.nodeValue;
-         this._fileSpaceUsed = doc.querySelector("space_used").firstChild.nodeValue;
-         this._maxFileSize = doc.querySelector("max_upload_size").firstChild.nodeValue;
-         this.log.info("storage total = " + this._totalStorage);
-         this.log.info("storage used = " + this._fileSpaceUsed);
-         this.log.info("max file size = " + this._maxFileSize);
-         successCallback();
+        if (!this._userInfo || !this._userInfo.id) {
+          this.failureCallback();
+          return;
         }
-        else {
-         failureCallback();
-        }
+
+        this._totalStorage = this._userInfo.space_amount;
+        this._fileSpaceUsed = this._userInfo.space_used;
+        this._maxFileSize = this._userInfo.max_upload_size;
+        this.log.info("storage total = " + this._totalStorage);
+        this.log.info("storage used = " + this._fileSpaceUsed);
+        this.log.info("max file size = " + this._maxFileSize);
+        successCallback();
       }
       catch(e) {
-        // most likely bad XML
+        // most likely bad JSON
         this.log.error("Failed to parse account info response: " + e);
         this.log.error("Account info response: " + aResponseText);
         failureCallback();
@@ -326,7 +342,8 @@ nsBox.prototype = {
     httpRequest(requestUrl, {
                   onLoad: accountInfoSuccess,
                   onError: accountInfoFailure,
-                  method: "GET"
+                  method: "GET",
+                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]]
                 });
   },
 
@@ -407,37 +424,32 @@ nsBox.prototype = {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
-    let args = "?action=create_folder&api_key=" + kApiKey
-               + "&auth_token=" + this._cachedAuthToken
-               + "&parent_id=0&name=" + aName
-               + "&share=1";
-    let requestUrl = gServerUrl + args;
+    let body = {
+      parent: {
+        id: "0"
+      },
+      name: aName
+    };
+    let requestUrl = gServerUrl + "folders";
     this.log.info("create_folder requestUrl = " + requestUrl);
 
     let createSuccess = function(aResponseText, aRequest) {
       this.log.info("create_folder request response = " + aResponseText);
 
       try {
-        let doc = aRequest.responseXML;
-        let docResponse = doc.documentElement;
-        if (docResponse && docResponse.nodeName == "response") {
-          let docStatus = doc.querySelector("status").firstChild.nodeValue;
-          if (docStatus != "create_ok" && docStatus != "s_folder_exists") {
-            this._lastErrorText = "Create folder failure";
-            this._lastErrorStatus = docStatus;
-            return;
-          }
-          let folderId = doc.querySelector("folder_id").firstChild.nodeValue;
-          this.log.info("folder id = " + folderId);
-          aSuccessCallback(folderId);
-        }
-        else {
+        let result = JSON.parse(aResponseText);
+
+        if (!result || !result.id) {
           this._lastErrorText = "Create folder failure";
-          this._lastErrorStatus = "";
+          this._lastErrorStatus = docStatus;
+          return;
         }
+        let folderId = result.id;
+        this.log.info("folder id = " + folderId);
+        aSuccessCallback(folderId);
       }
       catch(e) {
-        // most likely bad XML
+        // most likely bad JSON
         this.log.error("Failed to create a new folder");
       }
     }.bind(this);
@@ -449,7 +461,9 @@ nsBox.prototype = {
     httpRequest(requestUrl, {
                   onLoad: createSuccess,
                   onError: createFailure,
-                  method: "GET"
+                  method: "POST",
+                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]],
+                  postData: JSON.stringify(body)
                 });
   },
 
@@ -521,39 +535,15 @@ nsBox.prototype = {
       throw Cr.NS_ERROR_FAILURE;
     }
 
-    let args = "?action=delete&api_key=" + kApiKey
-                + "&auth_token=" + this._cachedAuthToken
-                + "&target=file&target_id=" + uploadInfo.fileId;
-    let requestUrl = gServerUrl + args;
+    let requestUrl = gServerUrl + "files/" + uploadInfo.fileId;
     this.log.info("delete requestUrl = " + requestUrl);
 
     let deleteSuccess = function(aResponseText, aRequest) {
-      this.log.info("delete request response = " + aResponseText);
+      // An empty 204 is sent on successful delete.
+      this.log.info("delete request response = " + aRequest.status);
 
-      try {
-        let doc = aRequest.responseXML;
-        let docResponse = doc.documentElement;
-        if (docResponse && docResponse.nodeName == "response") {
-          let docStatus = doc.querySelector("status").firstChild.nodeValue;
-          this.log.info("delete status = " + docStatus);
-          if (docStatus != "s_delete_node") {
-            aCallback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
-            return;
-          }
-          this.log.info("Delete was successful!");
-          // Success!
-          aCallback.onStopRequest(null, null, Cr.NS_OK);
-        }
-        else {
-          aCallback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
-        }
-      }
-      catch(e) {
-        // most likely bad XML
-        this.log.error("Failed to parse delete response: " + e);
-        this.log.error("Delete response: " + aResponseText);
+      if (aRequest.status != 204)
         aCallback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
-      }
     }.bind(this);
     let deleteFailure = function(aException, aResponseText, aRequest) {
       this.log.error("Failed to delete file:" + aResponseText);
@@ -564,30 +554,9 @@ nsBox.prototype = {
     httpRequest(requestUrl, {
                   onLoad: deleteSuccess,
                   onError: deleteFailure,
-                  method: "GET"
+                  method: "DELETE",
+                  headers: [["Authorization", "Bearer " + this._oauth.accessToken]]
                 });
-  },
-
-  _getUrlParameter: function nsBox_getAuthParameter(aUrl, aName)
-  {
-    var params = aUrl.substr(aUrl.indexOf("?") + 1);
-    var pVal = "";
-    params = params.split("&");
-    for (var i=0; i<params.length; i++) {
-      temp = params[i].split("=");
-      if ( [temp[0]] == aName ) { pVal = temp[1]; }
-    }
-    return pVal;
-  },
-
-  _finishLogonRequest: function nsBox_finishLogonRequest() {
-    if (!("_browserRequest" in this))
-      return;
-
-    this._browserRequest._active = false;
-    if ("_listener" in this._browserRequest)
-      this._browserRequest._listener._cleanUp();
-    delete this._browserRequest;
   },
 
   /**
@@ -599,101 +568,14 @@ nsBox.prototype = {
    *                 if no auth token is currently stored.
    */
   logon: function nsBox_logon(successCallback, failureCallback, aWithUI) {
-    let authToken = this._cachedAuthToken;
-    if (!aWithUI && !authToken.length) {
-      failureCallback();
-      return;
+    // The token has expired, reauthenticate.
+    if (this._oauth.tokenExpires < (new Date()).getTime()) {
+      this._oauth.connect(successCallback, failureCallback, aWithUI);
     }
-
-    this._browserRequest = {
-      promptText : "Box",
-      account: this,
-      _active: true,
-      iconURI : this.iconClass,
-      successCallback : successCallback,
-      failureCallback : failureCallback,
-      cancelled: function() {
-        if (!this._active)
-          return;
-        this.account.log.info("auth cancelled");
-        this.account._finishLogonRequest();
-        this.failureCallback();
-      },
-      loaded: function(aWindow, aWebProgress) {
-        if (!this._active)
-          return;
-
-        this._listener = {
-          QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
-                                                 Ci.nsISupportsWeakReference]),
-          _cleanUp: function() {
-            this.webProgress.removeProgressListener(this);
-            this.window.close();
-            delete this.window;
-          },
-          _checkForRedirect: function(aURL) {
-            if (!aURL.startsWith(this._parent.completionURI))
-              return;
-
-            let ticket = this._parent._getUrlParameter(aURL, "ticket");
-            this._parent._cachedAuthToken = this._parent._getUrlParameter(aURL, "auth_token");
-            this._parent.log.info("Box auth redirect : "
-                                  + aURL
-                                  + "| ticket = "
-                                  + ticket
-                                  + " | Auth token = "
-                                  + this._parent._cachedAuthToken);
-
-            this._parent._loggedIn = true;
-            this._loggedIn = true;
-            this.successCallback();
-            this._parent._finishLogonRequest();
-          },
-          onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
-            const wpl = Ci.nsIWebProgressListener;
-            if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK))
-              this._checkForRedirect(aRequest.name);
-          },
-          onLocationChange: function(aWebProgress, aRequest, aLocation) {
-            this._checkForRedirect(aLocation.spec);
-          },
-          onProgressChange: function() {},
-          onStatusChange: function() {},
-          onSecurityChange: function() {},
-
-          window: aWindow,
-          webProgress: aWebProgress,
-          _parent: this.account,
-          successCallback : this.successCallback
-        };
-        aWebProgress.addProgressListener(this._listener,
-                                         Ci.nsIWebProgress.NOTIFY_ALL);
-      },
-    };
-    this.wrappedJSObject = this._browserRequest;
-
-    Services.ww.openWindow(null,
-                           "chrome://messenger/content/cloudfile/Box/auth.xul",
-                           null, "chrome,centerscreen,width=1100px,height=600px", this);
-  },
-
-  get _cachedAuthToken() {
-    let authToken = cloudFileAccounts.getSecretValue(this.accountKey,
-                                                     cloudFileAccounts.kTokenRealm);
-
-    if (!authToken)
-      return "";
-
-    return authToken;
-  },
-
-  set _cachedAuthToken(aVal) {
-    if (!aVal)
-      aVal = "";
-
-    cloudFileAccounts.setSecretValue(this.accountKey,
-                                     cloudFileAccounts.kTokenRealm,
-                                     aVal);
+    // The token is still valid, success!
+    else {
+      successCallback();
+    }
   },
 
   get _cachedFolderId() {
@@ -735,8 +617,7 @@ nsBoxFileUploader.prototype = {
    */
   uploadFile: function nsBox_uploadFile() {
     this.requestObserver.onStartRequest(null, null);
-    let args = this.box._cachedAuthToken + "/" + this.box._folderId + "?new_copy=1&share=1";
-    let requestUrl = gUploadUrl + args;
+    let requestUrl = gUploadUrl + "files/content";
     this.box._uploadInfo[this.file.path] = {};
     this.box._uploadInfo[this.file.path].uploadUrl = requestUrl;
 
@@ -748,28 +629,53 @@ nsBoxFileUploader.prototype = {
     this.request = req;
     req.open("POST", requestUrl, true);
     req.onload = function() {
-      this.cleanupTempFile();
       if (req.status >= 200 && req.status < 400) {
         try {
           this.log.info("upload response = " + req.responseText);
-          let doc = req.responseXML;
-          let uploadResponse = doc.documentElement;
-          if (uploadResponse && uploadResponse.nodeName == "response") {
-            let uploadStatus = doc.querySelector("status").firstChild.nodeValue;
-            this.log.info("upload status = " + uploadStatus);
-            if (uploadStatus != "upload_ok") {
-              this.callback(this.requestObserver,
-                      Ci.nsIMsgCloudFileProvider.uploadErr);
-              this.box._cachedFolderId = ""; // flush the folder id for a new attempt
-              return;
-            }
+          let result = JSON.parse(req.responseText);
 
-            let file = doc.querySelector("file");
-            let pn = file.getAttribute("public_name");
-            this.log.info("public_name = " + pn);
-            this.box._uploadInfo[this.file.path].fileId = file.getAttribute("id");
-            this.box._urlsForFiles[this.file.path] = gSharingUrl + pn;
-            this.callback(this.requestObserver, Cr.NS_OK);
+          if (result.total_count && result.total_count > 0) {
+            // Request a shared link for this file.
+            let shareSuccess = function(aResponseText, aRequest) {
+              this.log.info("share response = " + aResponseText);
+
+              let result = JSON.parse(aResponseText);
+              // If shared_link doesn't exist or is empty, an error occurred.
+              if (!result.shared_link || !result.shared_link.url) {
+                this.callback(this.requestObserver,
+                  Ci.nsIMsgCloudFileProvider.uploadErr);
+              }
+
+              // Can't use download_url because free accounts do not have access
+              // to provide direct download URLs.
+              let url = result.shared_link.url;
+              this.log.info("public_name = " + url);
+              this.box._urlsForFiles[this.file.path] = url;
+
+              this.callback(this.requestObserver, Cr.NS_OK);
+            }.bind(this);
+            let shareFailure = function(aResponseText, aReqest) {
+              this.callback(this.requestObserver,
+                Ci.nsIMsgCloudFileProvider.uploadErr);
+            }.bind(this);
+
+            // Currently only one file is uploaded at a time.
+            let fileId = result.entries[0].id;
+            this.box._uploadInfo[this.file.path].fileId = fileId;
+
+            let requestUrl = gServerUrl + "files/" + fileId;
+            let body = {
+              shared_link: {
+                access: "open"
+              }
+            };
+            httpRequest(requestUrl, {
+              onLoad: shareSuccess,
+              onError: shareFailure,
+              method: "PUT",
+              headers: [["Authorization", "Bearer " + this.box._oauth.accessToken]],
+              postData: JSON.stringify(body)
+            });
           }
           else {
             this.callback(this.requestObserver,
@@ -788,76 +694,21 @@ nsBoxFileUploader.prototype = {
     }.bind(this);
 
     req.onerror = function () {
-      this.cleanupTempFile();
       if (this.callback)
         this.callback(this.requestObserver,
                       Ci.nsIMsgCloudFileProvider.uploadErr);
     }.bind(this);
 
-    req.setRequestHeader("Date", curDate);
-    let boundary = "------" + curDate;
-    let contentType = "multipart/form-data; boundary="+ boundary;
-    req.setRequestHeader("Content-Type", contentType);
+    req.setRequestHeader("Authorization", "Bearer " + this.box._oauth.accessToken);
 
-    let fileName = encodeURIComponent(this.file.leafName);
+    // Encode the form.
+    let file = new File(this.file);
+    let form = Cc["@mozilla.org/files/formdata;1"]
+                 .createInstance(Ci.nsIDOMFormData);
+    form.append("filename", file, this.file.leafName);
+    form.append("parent_id", this.box._cachedFolderId);
 
-    let fileContents = "\r\n--" + boundary +
-      "\r\nContent-Disposition: form-data; name=\"fname\"; filename=\"" +
-      fileName + "\"\r\nContent-Type: application/octet-stream" +
-      "\r\n\r\n";
-
-    // Since js doesn't like binary data in strings, we're going to create
-    // a temp file consisting of the message preamble, the file contents, and
-    // the post script, and pass a stream based on that file to
-    // nsIXMLHttpRequest.send().
-
-    try {
-      this._tempFile = this.getTempFile(this.file.leafName);
-      let ostream = Cc["@mozilla.org/network/file-output-stream;1"]
-                     .createInstance(Ci.nsIFileOutputStream);
-      ostream.init(this._tempFile, -1, -1, 0);
-      ostream.write(fileContents, fileContents.length);
-
-      this._fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                       .createInstance(Ci.nsIFileInputStream);
-      let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                       .createInstance(Ci.nsIScriptableInputStream);
-      this._fstream.init(this.file, -1, 0, 0);
-      sstream.init(this._fstream);
-
-      // This blocks the UI which is less than ideal. But it's a local
-      // file operations so probably not the end of the world.
-      while (sstream.available() > 0) {
-        let bytes = sstream.readBytes(sstream.available());
-        ostream.write(bytes, bytes.length);
-      }
-
-      fileContents = "\r\n--" + boundary + "--\r\n";
-      ostream.write(fileContents, fileContents.length);
-
-      ostream.close();
-      this._fstream.close();
-      sstream.close();
-
-      // defeat fstat caching
-      this._tempFile = this._tempFile.clone();
-      this._fstream.init(this._tempFile, -1, 0, 0);
-      this._fstream.close();
-      // I don't trust re-using the old fstream.
-      this._fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                     .createInstance(Ci.nsIFileInputStream);
-      this._fstream.init(this._tempFile, -1, 0, 0);
-      this._bufStream = Cc["@mozilla.org/network/buffered-input-stream;1"]
-                        .createInstance(Ci.nsIBufferedInputStream);
-      this._bufStream.init(this._fstream, 4096);
-      // nsIXMLHttpRequest's nsIVariant handling requires that we QI
-      // to nsIInputStream.
-      req.send(this._bufStream.QueryInterface(Ci.nsIInputStream));
-    } catch (ex) {
-      this.cleanupTempFile();
-      this.log.error(ex);
-      throw ex;
-    }
+    req.send(form);
   },
 
   /**
@@ -876,31 +727,23 @@ nsBoxFileUploader.prototype = {
       }
       this.request = null;
     }
-  },
-
-  /**
-   * Creates and returns a temporary file on the local file system.
-   */
-  getTempFile: function nsBox_getTempFile(leafName) {
-    let tempfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    tempfile.append(leafName)
-    tempfile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
-    // do whatever you need to the created file
-    return tempfile.clone()
-  },
-
-  /**
-   * Cleans up any temporary files that this nsBoxFileUploader may have
-   * created.
-   */
-  cleanupTempFile: function nsBox_cleanupTempFile() {
-    if (this._bufStream)
-      this._bufStream.close();
-    if (this._fstream)
-      this._fstream.close();
-    if (this._tempFile)
-      this._tempFile.remove(false);
-  },
+  }
 };
+
+// Before you spend time trying to find out what this means, please note that
+// doing so and using the information WILL cause Box to revoke Thunderbird's
+// privileges,  which means not one Thunderbird user will be able to connect to
+// Box. This will cause unhappy users all around which means that the
+// Thunderbird developers will have to spend more time with user support, which
+// means less time for features, releases and bugfixes. For a paid developer
+// this would actually mean financial harm.
+//
+// Do you really want all of this to be your fault? Instead of using the
+// information contained here please get your own copy, its really easy.
+this["\x65\x76\x61\x6C"]([String["\x66\x72\x6F\x6D\x43\x68\x61\x72\x43\x6F"+
+"\x64\x65"](("dpotu!lDmjfouJe!>!#fyt9n1bhk2gb6839mywo399zn{12eo{o#<dpotu!lDm" +
+"jfouTfdsfu!>!#vE33oEp8{Eo{rRw9E7iVJ4ODLw9FzLqM#<")["\x63\x68\x61\x72\x43\x6F" +
+"\x64\x65\x41\x74"](i)-1)for(i in (function(){let x=110;while(x--)yield x})())]
+.reverse().join(""))
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsBox]);

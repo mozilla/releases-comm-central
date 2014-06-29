@@ -17,6 +17,5 @@ EXTRA_JS_MODULES += [
     'calUtils.jsm',
     'calXMLUtils.jsm',
     'ical.js',
-    'OAuth2.jsm',
 ]
 

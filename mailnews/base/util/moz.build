@@ -59,6 +59,7 @@ EXTRA_JS_MODULES += [
     'mailnewsMigrator.js',
     'mailServices.js',
     'msgDBCacheManager.js',
+    'OAuth2.jsm',
     'StringBundle.js',
     'templateUtils.js',
     'traceHelper.js',

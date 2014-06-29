@@ -23,9 +23,9 @@ function parseURLData(aData) {
   return result;
 }
 
-function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret) {
+function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret, aAuthURI="oauth2/auth") {
     this.baseURI = aBaseURI;
-    this.authURI = aBaseURI + "oauth2/auth";
+    this.authURI = aBaseURI + aAuthURI;
     this.tokenURI = aBaseURI + "oauth2/token";
     this.consumerKey = aAppKey;
     this.consumerSecret = aAppSecret;
@@ -78,8 +78,13 @@ OAuth2.prototype = {
             ["response_type", this.responseType],
             ["client_id", this.consumerKey],
             ["redirect_uri", this.completionURI],
-            ["scope", this.scope]
-        ].map(function(p) p[0] + "=" + encodeURIComponent(p[1])).join("&");
+        ];
+        // The scope can be optional.
+        if (this.scope) {
+            params.push(["scope", this.scope]);
+        }
+        params = params.map(function(p) p[0] + "=" + encodeURIComponent(p[1]))
+                       .join("&");
 
         this._browserRequest = {
             promptText: "auth prompt",

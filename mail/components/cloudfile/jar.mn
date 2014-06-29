@@ -10,8 +10,6 @@ messenger.jar:
     content/messenger/cloudfile/Box/settings.xhtml (content/Box/settings.xhtml)
     content/messenger/cloudfile/Box/management.xhtml (content/Box/management.xhtml)
     content/messenger/cloudfile/Box/management.js (content/Box/management.js)
-    content/messenger/cloudfile/Box/auth.xul (content/Box/auth.xul)
-    content/messenger/cloudfile/Box/auth.js (content/Box/auth.js)
     content/messenger/cloudfile/Hightail/management.xhtml (content/Hightail/management.xhtml)
     content/messenger/cloudfile/Hightail/management.js (content/Hightail/management.js)
     content/messenger/cloudfile/Hightail/settings.js (content/Hightail/settings.js)

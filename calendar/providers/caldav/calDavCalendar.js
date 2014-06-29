@@ -7,12 +7,13 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Timer.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
+Components.utils.import("resource:///modules/OAuth2.jsm");
+
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAuthUtils.jsm");
-Components.utils.import("resource://calendar/modules/OAuth2.jsm");
 
 //
 // calDavCalendar.js
