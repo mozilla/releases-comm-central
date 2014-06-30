@@ -72,7 +72,7 @@ void mork_fileflush(FILE * file);
 
 /* ===== pooling ===== */
 
-#if defined(HAVE_64BIT_OS)
+#if defined(HAVE_64BIT_BUILD)
 #define MORK_CONFIG_ALIGN_8 1 /* must have 8 byte alignment */
 #else
 #define MORK_CONFIG_PTR_SIZE_4 1 /* sizeof(void*) == 4 */

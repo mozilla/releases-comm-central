@@ -75,9 +75,9 @@ SetOverwrite on
 !define MaintUninstallKey \
  "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaMaintenanceService"
 
-; The HAVE_64BIT_OS define also means that we have an x64 build,
+; The HAVE_64BIT_BUILD define also means that we have an x64 build,
 ; not just an x64 OS.
-!ifdef HAVE_64BIT_OS
+!ifdef HAVE_64BIT_BUILD
   ; See below, we actually abort the install for x64 builds currently.
   InstallDir "$PROGRAMFILES64\${MaintFullName}\"
 !else
@@ -120,7 +120,7 @@ Function .onInit
   System::Call 'kernel32::SetDllDirectoryW(w "")'
 
   SetSilent silent
-!ifdef HAVE_64BIT_OS
+!ifdef HAVE_64BIT_BUILD
   ; We plan to eventually enable 64bit native builds to use the maintenance
   ; service, but for the initial release, to reduce testing and development,
   ; 64-bit builds will not install the maintenanceservice.
