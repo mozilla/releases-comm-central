@@ -12,13 +12,14 @@
 #include "nsStringAPI.h"
 #include "nsCOMPtr.h"
 #include "nsIProperties.h"
+#include "mozilla/Attributes.h"
 
 #define NS_SUITEDIRECTORYPROVIDER_CONTRACTID "@mozilla.org/suite/directory-provider;1"
 // {9aa21826-9d1d-433d-8c10-f313b26fa9dd}
 #define NS_SUITEDIRECTORYPROVIDER_CID \
   { 0x9aa21826, 0x9d1d, 0x433d, { 0x8c, 0x10, 0xf3, 0x13, 0xb2, 0x6f, 0xa9, 0xdd } }
 
-class nsSuiteDirectoryProvider : public nsIDirectoryServiceProvider2
+class nsSuiteDirectoryProvider MOZ_FINAL : public nsIDirectoryServiceProvider2
 {
 public:
   NS_DECL_ISUPPORTS
@@ -26,6 +27,8 @@ public:
   NS_DECL_NSIDIRECTORYSERVICEPROVIDER2
 
 private:
+  ~nsSuiteDirectoryProvider() {}
+
   void EnsureProfileFile(const nsACString& aLeafName,
 			 nsIFile* aParentDir, nsIFile* aTarget);
 
@@ -35,7 +38,7 @@ private:
   void AppendFileKey(const char *key, nsIProperties* aDirSvc,
                      nsCOMArray<nsIFile> &array);
 
-  class AppendingEnumerator : public nsISimpleEnumerator
+  class AppendingEnumerator MOZ_FINAL : public nsISimpleEnumerator
   {
   public:
     NS_DECL_ISUPPORTS
@@ -45,6 +48,7 @@ private:
                         const char* const aLeafName);
 
   private:
+    ~AppendingEnumerator() {}
     void GetNext();
 
     nsCOMPtr<nsISimpleEnumerator> mBase;

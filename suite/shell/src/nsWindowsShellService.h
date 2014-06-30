@@ -7,6 +7,7 @@
 #include "nsShellService.h"
 #include "nsStringGlue.h"
 #include "nsIWindowsShellService.h"
+#include "mozilla/Attributes.h"
 
 #include <windows.h>
 
@@ -21,18 +22,18 @@ typedef struct {
   int32_t flags;
 } SETTING;
 
-class nsWindowsShellService : public nsIWindowsShellService
+class nsWindowsShellService MOZ_FINAL : public nsIWindowsShellService
 {
 public:
   nsWindowsShellService() : mCheckedThisSessionClient(false) {};
-  ~nsWindowsShellService() {};
-  NS_HIDDEN_(nsresult) Init();
+  nsresult Init();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
   NS_DECL_NSIWINDOWSSHELLSERVICE
 
 protected:
+  ~nsWindowsShellService() {}
   bool IsDefaultClientVista(uint16_t aApps, bool* aIsDefaultClient);
   bool TestForDefault(SETTING aSettings[], int32_t aSize);
 

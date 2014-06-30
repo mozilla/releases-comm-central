@@ -13,6 +13,7 @@
 #include "nsNetscapeProfileMigratorBase.h"
 #include "nsStringAPI.h"
 #include "nsITimer.h"
+#include "mozilla/Attributes.h"
 
 class nsIFile;
 class nsIPrefBranch;
@@ -21,13 +22,12 @@ class nsIPrefService;
 #define NS_THUNDERBIRDPROFILEMIGRATOR_CID \
 { 0x6ba91adb, 0xa4ed, 0x405f, { 0xbd, 0x6c, 0xe9, 0x04, 0xa9, 0x9d, 0x9a, 0xd8 } }
 
-class nsThunderbirdProfileMigrator : public nsNetscapeProfileMigratorBase
+class nsThunderbirdProfileMigrator MOZ_FINAL : public nsNetscapeProfileMigratorBase
 {
 public:
   NS_DECL_ISUPPORTS
 
   nsThunderbirdProfileMigrator();
-  virtual ~nsThunderbirdProfileMigrator();
 
   // nsISuiteProfileMigrator methods
   NS_IMETHOD Migrate(uint16_t aItems, nsIProfileStartup *aStartup,
@@ -37,6 +37,7 @@ public:
   NS_IMETHOD GetSupportedItems(uint16_t *aSupportedItems);
 
 protected:
+  virtual ~nsThunderbirdProfileMigrator();
   nsresult FillProfileDataFromRegistry();
   nsresult CopyPreferences(bool aReplace);
   nsresult TransformPreferences(const char* aSourcePrefFileName,

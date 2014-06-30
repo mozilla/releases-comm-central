@@ -50,7 +50,6 @@ public:
   NS_DECL_NSITIMERCALLBACK
 
   nsNetscapeProfileMigratorBase();
-  virtual ~nsNetscapeProfileMigratorBase() { }
 
   struct PrefTransform;
   typedef nsresult(*prefConverter)(PrefTransform*, nsIPrefBranch*);
@@ -97,6 +96,7 @@ public:
   static nsresult SetCookie(PrefTransform* aTransform, nsIPrefBranch* aBranch);
 
 protected:
+  virtual ~nsNetscapeProfileMigratorBase() {}
   // This function is designed to be overriden by derived classes so that
   // the required profile data for the specific application can be obtained.
   virtual nsresult FillProfileDataFromRegistry() = 0;

@@ -8,13 +8,14 @@
 
 #include "nsShellService.h"
 #include "nsStringGlue.h"
+#include "mozilla/Attributes.h"
 
 #define NS_SUITEGNOMEINTEGRATION_CID \
 {0xc16cfa25, 0xa74a, 0x420b, {0xa5, 0x45, 0x4b, 0xc0, 0x6b, 0x08, 0xa8, 0x65}}
 
 struct ProtocolAssociation;
 
-class nsGNOMEShellService : public nsIShellService
+class nsGNOMEShellService MOZ_FINAL : public nsIShellService
 {
 public:
   nsGNOMEShellService() : mCheckedThisSessionClient(false) { }
@@ -22,7 +23,7 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
 
-  nsresult Init() NS_HIDDEN;
+  nsresult Init();
 
 private:
   ~nsGNOMEShellService() {}
