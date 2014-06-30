@@ -75,14 +75,8 @@ FORCE_UPDATE := components/components.list|Contents/MacOS/components/components.
 # SYMBOL_SERVER_PORT=22
 # SYMBOL_SERVER_USER=buildbot
 
-# This is a separate rule outside of 'distribution' so that it can be
-# called with pymake, which is required on Windows to have correct
-# paths in the SYM_STORE_SOURCE_DIRS variable.
-imsymbols:
-	$(MAKE) -C mozilla MAKE_SYM_STORE_PATH=$(MAKE_SYM_STORE_PATH) SYM_STORE_SOURCE_DIRS="$(topsrcdir)/mozilla/extensions/purple $(topsrcdir)/mozilla $(topsrcdir)" buildsymbols
-
 distribution:
-	$(PYTHON) $(topsrcdir)/mozilla/build/pymake/make.py imsymbols
+	@$(MAKE) -C mozilla MAKE_SYM_STORE_PATH=$(MAKE_SYM_STORE_PATH) SYM_STORE_SOURCE_DIRS="$(topsrcdir)/mozilla/extensions/purple $(topsrcdir)/mozilla $(topsrcdir)" buildsymbols
 	@$(MAKE) -C im/installer libs installer
 ifdef ENABLE_TESTS
 	$(MAKE) xpcshell-tests
