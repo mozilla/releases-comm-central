@@ -10,11 +10,6 @@ var gLanguageTitles = {};
 
 function Startup()
 {
-  Services.obs.notifyObservers(null, "charsetmenu-selected", "other");
-
-  var defaultCharsetList = document.getElementById("defaultCharsetList");
-  defaultCharsetList.setAttribute("ref", "NC:DecodersRoot");
-
   gActiveLanguages = document.getElementById("activeLanguages");
   // gLanguages stores the ordered list of languages, due to the nature
   // of childNodes it is live and updates automatically.

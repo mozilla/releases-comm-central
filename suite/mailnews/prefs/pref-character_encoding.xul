@@ -6,7 +6,10 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/prefPanels.css" type="text/css"?>
 
-<!DOCTYPE overlay SYSTEM "chrome://messenger/locale/pref-character_encoding.dtd">
+<!DOCTYPE overlay [
+  <!ENTITY % prefCharacterEncodingDTD SYSTEM "chrome://messenger/locale/pref-character_encoding.dtd"> %prefCharacterEncodingDTD;
+  <!ENTITY % prefUtilitiesDTD SYSTEM "chrome://communicator/locale/pref/prefutilities.dtd"> %prefUtilitiesDTD;
+]>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <prefpane id="character_encoding_pane"
@@ -15,18 +18,22 @@
     <preferences id="character_encoding_preferences">
       <preference id="mailnews.view_default_charset"
                   name="mailnews.view_default_charset"
-                  type="wstring"/>
+                  type="wstring"
+                  onchange="PrefChanged(this);"/>
       <preference id="mail.strictly_mime"
                   name="mail.strictly_mime"
                   type="bool"/>
       <preference id="mailnews.send_default_charset"
                   name="mailnews.send_default_charset"
-                  type="wstring"/>
+                  type="wstring"
+                  onchange="PrefChanged(this);"/>
       <preference id="mailnews.reply_in_default_charset"
                   name="mailnews.reply_in_default_charset"
                   type="bool"/>
     </preferences>
 
+    <stringbundle id="charsetBundle"
+                  src="chrome://communicator/content/labelsencodings.properties"/>
     <groupbox align="start">
       <caption label="&messageDisplay.caption;"/>
       <hbox align="center">
@@ -34,16 +41,25 @@
                value="&viewFallbackCharset.label;"
                accesskey="&viewFallbackCharset.accesskey;"/>
         <menulist id="viewDefaultCharsetList"
-                  ref=""
-                  datasources="rdf:charset-menu"
-                  preference="mailnews.view_default_charset">
-          <template>
-            <menupopup>
-              <menuitem label="rdf:http://home.netscape.com/NC-rdf#Name"
-                        value="..."
-                        uri="..."/>
-            </menupopup>
-          </template>
+                  oncommand="UpdatePref(this);">
+          <menupopup>
+            <menuitem label="&FallbackCharset.auto;"        value=""/>
+            <menuitem label="&FallbackCharset.arabic;"      value="windows-1256"/>
+            <menuitem label="&FallbackCharset.baltic;"      value="windows-1257"/>
+            <menuitem label="&FallbackCharset.ceiso;"       value="ISO-8859-2"/>
+            <menuitem label="&FallbackCharset.cewindows;"   value="windows-1250"/>
+            <menuitem label="&FallbackCharset.simplified;"  value="gbk"/>
+            <menuitem label="&FallbackCharset.traditional;" value="Big5"/>
+            <menuitem label="&FallbackCharset.cyrillic;"    value="windows-1251"/>
+            <menuitem label="&FallbackCharset.greek;"       value="ISO-8859-7"/>
+            <menuitem label="&FallbackCharset.hebrew;"      value="windows-1255"/>
+            <menuitem label="&FallbackCharset.japanese;"    value="Shift_JIS"/>
+            <menuitem label="&FallbackCharset.korean;"      value="EUC-KR"/>
+            <menuitem label="&FallbackCharset.thai;"        value="windows-874"/>
+            <menuitem label="&FallbackCharset.turkish;"     value="windows-1254"/>
+            <menuitem label="&FallbackCharset.vietnamese;"  value="windows-1258"/>
+            <menuitem label="&FallbackCharset.other;"       value="windows-1252"/>
+          </menupopup>
         </menulist>
       </hbox>
       <description>&viewFallbackCharset.desc;</description>
@@ -63,16 +79,25 @@
                accesskey="&sendDefaultCharset.accesskey;"
                control="sendDefaultCharsetList"/>
         <menulist id="sendDefaultCharsetList"
-                  ref=""
-                  datasources="rdf:charset-menu"
-                  preference="mailnews.send_default_charset">
-          <template>
-            <menupopup>
-              <menuitem label="rdf:http://home.netscape.com/NC-rdf#Name"
-                        value="..."
-                        uri="..."/>
-            </menupopup>
-          </template>
+                  oncommand="UpdatePref(this);">
+          <menupopup>
+            <menuitem label="&FallbackCharset.auto;"        value=""/>
+            <menuitem label="&FallbackCharset.arabic;"      value="windows-1256"/>
+            <menuitem label="&FallbackCharset.baltic;"      value="windows-1257"/>
+            <menuitem label="&FallbackCharset.ceiso;"       value="ISO-8859-2"/>
+            <menuitem label="&FallbackCharset.cewindows;"   value="windows-1250"/>
+            <menuitem label="&FallbackCharset.simplified;"  value="gbk"/>
+            <menuitem label="&FallbackCharset.traditional;" value="Big5"/>
+            <menuitem label="&FallbackCharset.cyrillic;"    value="windows-1251"/>
+            <menuitem label="&FallbackCharset.greek;"       value="ISO-8859-7"/>
+            <menuitem label="&FallbackCharset.hebrew;"      value="windows-1255"/>
+            <menuitem label="&FallbackCharset.japanese;"    value="Shift_JIS"/>
+            <menuitem label="&FallbackCharset.korean;"      value="EUC-KR"/>
+            <menuitem label="&FallbackCharset.thai;"        value="windows-874"/>
+            <menuitem label="&FallbackCharset.turkish;"     value="windows-1254"/>
+            <menuitem label="&FallbackCharset.vietnamese;"  value="windows-1258"/>
+            <menuitem label="&FallbackCharset.other;"       value="windows-1252"/>
+          </menupopup>
         </menulist>  
       </hbox>
       <checkbox id="replyInDefaultCharset"

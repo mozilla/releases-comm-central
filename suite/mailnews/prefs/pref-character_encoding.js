@@ -5,22 +5,37 @@
 // The contents of this file will be loaded into the scope of the object
 // <prefpane id="character_encoding_pane">!
 
+var updatingPref = false;
+
 function Startup ()
 {
-  Services.obs.notifyObservers(null, "charsetmenu-selected", "other");
-  Services.obs.notifyObservers(null, "charsetmenu-selected", "mailedit");
+  PrefChanged(document.getElementById('mailnews.view_default_charset'));
+  PrefChanged(document.getElementById('mailnews.send_default_charset'));
+}
 
-  var viewCharsetList = document.getElementById("viewDefaultCharsetList");
-  // Need to set ref attribute once overlay has loaded.
-  viewCharsetList.setAttribute("ref", "NC:DecodersRoot");
-  // Since the menulist starts off empty it has no selected item
-  // so try and set it to the preference value.
-  viewCharsetList.value = document.getElementById("mailnews.view_default_charset").value;
+function PrefChanged(aPref)
+{
+  if (updatingPref)
+    return;
 
-  var sendCharsetList = document.getElementById("sendDefaultCharsetList");
-  // Need to set ref attribute once overlay has loaded.
-  sendCharsetList.setAttribute("ref", "NC:MaileditCharsetMenuRoot");
-  // Since the menulist starts off empty it has no selected item
-  // so try and set it to the preference value.
-  sendCharsetList.value = document.getElementById("mailnews.send_default_charset").value;
+  var id = aPref.id.substr(9, 4) + "DefaultCharsetList";
+  var menulist = document.getElementById(id);
+  if (!aPref.hasUserValue)
+    menulist.selectedIndex = 0;
+  else {
+    var bundle = document.getElementById("charsetBundle");
+    menulist.value = bundle.getString(aPref.value.toLowerCase());
+  }
+}
+
+function UpdatePref(aMenulist)
+{
+  updatingPref = true;
+  var id = "mailnews." + aMenulist.id.substr(0, 4) + "_default_charset";
+  var pref = document.getElementById(id);
+  if (aMenulist.selectedIndex)
+    pref.value = aMenulist.value;
+  else
+    pref.value = undefined; // reset to default
+  updatingPref = false;
 }

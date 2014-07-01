@@ -153,6 +153,7 @@
   locale/@AB_CD@/communicator/permissions/permissionsManager.dtd            (%chrome/common/permissions/permissionsManager.dtd)
   locale/@AB_CD@/communicator/permissions/permissionsManager.properties     (%chrome/common/permissions/permissionsManager.properties)
   locale/@AB_CD@/communicator/places/places.properties                      (%chrome/common/places/places.properties)
+  locale/@AB_CD@/communicator/pref/prefutilities.dtd                        (%chrome/common/pref/prefutilities.dtd)
   locale/@AB_CD@/communicator/pref/prefutilities.properties                 (%chrome/common/pref/prefutilities.properties)
   locale/@AB_CD@/communicator/pref/preferences.dtd                          (%chrome/common/pref/preferences.dtd)
   locale/@AB_CD@/communicator/pref/pref-advanced.dtd                        (%chrome/common/pref/pref-advanced.dtd)
