@@ -2,38 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://global/content/aboutMemory.css");
+@import url("chrome://global/skin/button.css");
+
 html {
-  background: #FFF;
+  background-color: #FFF;
 }
 
-body {
-  margin: 0;
-  padding: 0 1em;
-  font: message-box;
-}
-
-label {
-  -moz-user-select: text;
+div.section, div.opsRow {
+  background-color: #C7D0D9;
 }
 
 h2 {
-  margin-top: 0;
+  background-color: #90A1B3;
 }
 
-.memBox {
-  max-width: 30em;
-  background: #C7D0D9;
-  color: #22262F;
-  margin-top: 25px;
-  padding: 5px;
-  border: 1px solid #494F5D;
-  border-radius: 10px;
+a:link, a:visited, a:active {
+ color: #313063;
 }
 
-.memValue {
-  text-align: right;
-}
-
-.memOverview > table {
-  font-size: 110%;
+input[type="checkbox"] {
+  -moz-appearance: none;
 }
