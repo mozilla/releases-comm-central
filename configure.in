@@ -9,7 +9,7 @@ dnl ========================================================
 
 AC_PREREQ(2.13)
 AC_INIT(config/config.mk)
-MOZILLA_SRCDIR=$topsrcdir/mozilla
+MOZILLA_SRCDIR=$srcdir/mozilla
 AC_CONFIG_AUX_DIR(${MOZILLA_SRCDIR}/build/autoconf)
 AC_CANONICAL_SYSTEM
 
@@ -18,7 +18,7 @@ dnl (MOZILLA_SRCDIR would fit here, but is needed to find autoconf tools)
 COMM_BUILD=1
 
 dnl export this, so the var is set for mozilla/configure
-MOZCONFIG=`$_AUTOCONF_TOOLS_DIR/mozconfig-find $topsrcdir`
+MOZCONFIG=`$srcdir/build/autoconf/mozconfig-find $srcdir`
 export MOZCONFIG
 
 dnl Do not allow a separate objdir build if a srcdir build exists.
@@ -274,4 +274,4 @@ AC_OUTPUT_SUBDIRS(mozilla)
 MOZ_BUILD_APP="$MOZ_BUILD_APP_CACHED"
 
 # Build the comm-central files with config.status
-test "$no_create" = yes || ${PYTHON} $CONFIG_STATUS || exit 1
+test "$no_create" = yes || WRITE_MOZINFO=1 ${PYTHON} $CONFIG_STATUS || exit 1
