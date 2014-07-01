@@ -727,6 +727,7 @@ var ApplicationFactory = {
   }
 };
 
+#include ../../../mozilla/toolkit/components/exthelper/extApplication.js
 
 //=================================================
 // Application constructor
@@ -737,6 +738,9 @@ function Application() {
 //=================================================
 // Application implementation
 Application.prototype = {
+  // set the proto, defined in extApplication.js
+  __proto__: extApplication.prototype,
+
   // for XPCOMUtils
   classID: APPLICATION_CID,
 
@@ -794,8 +798,4 @@ Application.prototype = {
   platformIsMac: "nsILocalFileMac" in Components.interfaces
 };
 
-#include ../../../mozilla/toolkit/components/exthelper/extApplication.js
-
-// set the proto, defined in extApplication.js
-Application.prototype.__proto__ = extApplication.prototype;
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([Application]);
