@@ -120,10 +120,10 @@ var joinChat = {
       Conversations.focusConversation(conv);
 
     if (document.getElementById("autojoin").checked) {
-      if (protoId == "prpl-gtalk")
-        name += "/" + values.getValue("nick");
-      else if (protoId != "prpl-irc")
-        name += "/" + values.getValue("handle");
+      // "nick" for JS-XMPP, "handle" for libpurple prpls.
+      let nick = values.getValue("nick") || values.getValue("handle");
+      if (nick)
+        name += "/" + nick;
 
       let prefBranch =
         Services.prefs.getBranch("messenger.account." + account.id + ".");
