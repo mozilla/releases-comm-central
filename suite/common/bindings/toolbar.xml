@@ -197,7 +197,7 @@
         <body>
           <![CDATA[
             if (topic == "nsPref:changed" && name == this.domain) {
-              const styles = ["icons", "text", null];
+              const styles = ["icons", "text", "full"];
               const style = styles[this.prefs.getIntPref(name)];
               this.parentNode.setAttribute("mode", style); // toolbox
               if (!this.hasAttribute("customizable") ||
