@@ -58,6 +58,10 @@
       <!-- Array version of this.listbox.childNodes. -->
       <field name="listItems">[]</field>
 
+      <!-- If a new conversation tab is opened and then closed without
+           switching away, we restore focus to the previous tab. -->
+      <field name="previousTab">null</field>
+
       <property name="tab">
         <getter>
         <![CDATA[
@@ -70,6 +74,9 @@
           this._tab.setAttribute("label",
             Services.strings.createBundle("chrome://instantbird/locale/newtab.properties")
                     .GetStringFromName("newtab.label"));
+          // When our tab is set, the tab browser has not yet updated its
+          // current tab to ours, so we can use it to store the previous tab.
+          this.previousTab = window.getTabBrowser().mCurrentTab;
         ]]>
         </setter>
       </property>
@@ -100,6 +107,14 @@
         <body>
         <![CDATA[
           this.refresh();
+        ]]>
+        </body>
+      </method>
+
+      <method name="switchingAwayFromPanel">
+        <body>
+        <![CDATA[
+          this.previousTab = null;
         ]]>
         </body>
       </method>
@@ -157,6 +172,10 @@
       <method name="destroy">
         <body>
         <![CDATA[
+          if (this._destroyed)
+            return;
+          if (this.previousTab && !window.getTabBrowser()._windowIsClosing)
+            window.getTabBrowser().selectedTab = this.previousTab;
           this.statsService.removeObserver(this);
           this._destroyed = true;
         ]]>
@@ -313,6 +332,8 @@
           let conv = aNewtabItem.target.createConversation();
           if (conv)
             Conversations.focusConversation(conv);
+          // Ensure we don't focus the previous tab after removing ours.
+          this.previousTab = null;
         ]]>
         </body>
       </method>
