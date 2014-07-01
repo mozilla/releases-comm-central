@@ -22,6 +22,10 @@
   height: 2.3em;
 }
 
+#autotagPrefix {
+  width: 300px;
+}
+
 treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
   list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
   -moz-image-region: rect(0 16px 16px 0);
