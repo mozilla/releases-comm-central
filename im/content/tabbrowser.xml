@@ -898,8 +898,8 @@
        <getter>
         <![CDATA[
           if (!this._conversations) {
-            this._conversations = Array.map(this.mTabs, function(aTab) aTab.linkedConversation)
-                                       .filter(function(aConv) aConv);
+            this._conversations = Array.filter(this.mTabs, aTab => aTab.linkedConversation)
+                                       .map(aTab => aTab.linkedConversation);
           }
           return this._conversations;
         ]]>
