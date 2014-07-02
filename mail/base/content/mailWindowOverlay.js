@@ -727,10 +727,9 @@ function SetGetMsgButtonTooltip()
   var msgButton = document.getElementById("button-getmsg");
   var tooltip = document.getElementById("bundle_messenger").getString("getMsgButtonTooltip");
   var listSeparator = document.getElementById("bundle_messenger").getString("getMsgButtonTooltip.listSeparator");
-  var usernames = new Set([v.server.username for each (v in folders)]);
-  var usernamesArray = [username for (username of usernames)];
-  var tooltipUsernames = usernamesArray.join(listSeparator);
-  msgButton.tooltipText = tooltip.replace('%S', tooltipUsernames);
+  var names = new Set([v.server.prettyName for each (v in folders)]);
+  var tooltipNames = Array.from(names).join(listSeparator);
+  msgButton.tooltipText = tooltip.replace('%S', tooltipNames);
 }
 
 function RemoveAllMessageTags()
