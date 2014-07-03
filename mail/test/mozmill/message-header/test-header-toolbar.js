@@ -149,6 +149,7 @@ function test_customize_header_toolbar_reorder_buttons()
 {
   // To avoid undrawn buttons on the toolbar, change pane layout to wide view.
   setWideView();
+  Services.prefs.setBoolPref("toolkit.customization.unsafe_drag_events", true);
 
   let curMessage = select_message_in_folder(0);
 
@@ -193,6 +194,7 @@ function test_customize_header_toolbar_reorder_buttons()
 
   // Leave the toolbar in the default state.
   gCDHelper.restoreDefaultButtons(mc);
+  Services.prefs.clearUserPref("toolkit.customization.unsafe_drag_events");
 }
 
 /**

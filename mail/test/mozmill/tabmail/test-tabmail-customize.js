@@ -54,6 +54,7 @@ function test_open_context_menu() {
  * the tab bar.
  */
 function test_redirects_toolbarbutton_drops() {
+  Services.prefs.setBoolPref("toolkit.customization.unsafe_drag_events", true);
   // Restore the default buttons to get defined starting conditions.
   gCDHelper.restoreDefaultButtons(mc);
 
@@ -98,4 +99,5 @@ function test_redirects_toolbarbutton_drops() {
   });
 
   gCDHelper.close(ctw);
+  Services.prefs.clearUserPref("toolkit.customization.unsafe_drag_events");
 }
