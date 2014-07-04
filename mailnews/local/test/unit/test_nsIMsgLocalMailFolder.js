@@ -61,6 +61,7 @@ function subtest_folder_deletion(root) {
   //                         +--subfolder
 
   // Create another "folder(3)" in root.
+  do_check_false(root.containsChildNamed("folder(3)"));
   folder = root.createLocalSubfolder("folder(3)");
   do_check_true(root.containsChildNamed("folder(3)"));
   // Now try to move "folder(3)" from Trash back to root.
@@ -100,7 +101,6 @@ function subtest_folder_operations(root) {
   // Now we have <root>
   //               +--folder1
   //                    +--folder2
-  //               +--folder3
 
   // Test - getChildNamed
 
@@ -234,19 +234,79 @@ function subtest_folder_operations(root) {
   do_check_false(path2.exists());
 }
 
-function run_test() {
-  // Create a local mail account (we need this first)
-  MailServices.accounts.createLocalMailAccount();
+function test_store_rename(root) {
+  let folder1 = root.createLocalSubfolder("newfolder1")
+                    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  do_check_true(root.hasSubFolders);
+  do_check_false(folder1.hasSubFolders);
+  let folder2 = folder1.createLocalSubfolder("newfolder1-sub");
+  let folder3 = root.createLocalSubfolder("newfolder3")
+                    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  let folder3Subfolder = folder3.createLocalSubfolder("newfolder3-sub");
 
-  // Get the account
-  let account = MailServices.accounts.accounts.queryElementAt(0, Components.interfaces.nsIMsgAccount);
+  do_check_true(folder1.hasSubFolders);
+  do_check_false(folder2.hasSubFolders);
+  do_check_true(folder3.hasSubFolders);
 
-  // Get the root folder
-  let root = account.incomingServer.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder1.rename("folder1", null);
+  do_check_true(root.containsChildNamed("folder1"));
+  folder1 = root.getChildNamed("folder1");
 
-  // Give it a poke so that the directories all exist
-  root.subFolders;
+  folder1.rename("newfolder1", null);
+  do_check_true(root.containsChildNamed("newfolder1"));
+  folder1 = root.getChildNamed("newfolder1");
+  folder2 = folder1.getChildNamed("newfolder1-sub");
 
+  do_check_true(folder1.containsChildNamed(folder2.name));
+  do_check_true(folder2.filePath.exists());
+
+  let folder3 = root.getChildNamed("newfolder3");
+  root.propagateDelete(folder3, true, null);
+  do_check_false(root.containsChildNamed("newfolder3"));
+  folder3 = root.createLocalSubfolder("newfolder3");
+  folder3SubFolder = folder3.createLocalSubfolder("newfolder3-sub");
+  folder3.rename("folder3", null);
+
+  do_check_true(root.containsChildNamed("folder3"));
+  do_check_false(root.containsChildNamed("newfolder3"));
+}
+
+var gPluggableStores = [
+  "@mozilla.org/msgstore/berkeleystore;1",
+  "@mozilla.org/msgstore/maildirstore;1"
+];
+
+function run_all_tests(aHostName) {
+  let server = MailServices.accounts.createIncomingServer("nobody", aHostName,
+                                                          "none");
+  let account = MailServices.accounts.createAccount();
+  account.incomingServer = server;
+
+  let root = server.rootMsgFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   subtest_folder_operations(root);
   subtest_folder_deletion(root);
+  test_store_rename(root);
+}
+
+function run_test() {
+  let hostName = "Local Folders";
+  for (let index = 0; index < gPluggableStores.length;) {
+    Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
+                               gPluggableStores[index]);
+    run_all_tests(hostName);
+    hostName += "-" + ++index;
+  }
+
+  // At this point,
+  // we should have <root>
+  //                  +--newfolder1
+  //                     +--newfolder1-subfolder
+  //                  +--newfolder3-anotherName
+  //                     +--newfolder3-sub
+  //                  +--folder(3)
+  //                  +--Trash
+  //                     +--folder
+  //                     +--folder(2)
+  //                     +--folder(3)
+  //                        +--subfolder
 }

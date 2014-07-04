@@ -408,8 +408,9 @@ NS_IMETHODIMP nsMsgMaildirStore::RenameFolder(nsIMsgFolder *aFolder,
   }
 
   // rename summary
-  safeName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
-  oldSummaryFile->MoveTo(nullptr, safeName);
+  nsAutoString summaryName(safeName);
+  summaryName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
+  oldSummaryFile->MoveTo(nullptr, summaryName);
 
   nsCOMPtr<nsIMsgFolder> parentFolder;
   rv = aFolder->GetParent(getter_AddRefs(parentFolder));

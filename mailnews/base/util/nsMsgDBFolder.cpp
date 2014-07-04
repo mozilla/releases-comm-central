@@ -4088,6 +4088,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString& aNewName, nsIMsgWindow *msg
     rv = parentFolder->AddSubfolder(aNewName, getter_AddRefs(newFolder));
     if (newFolder)
     {
+      newFolder->SetPrettyName(EmptyString());
       newFolder->SetPrettyName(aNewName);
       newFolder->SetFlags(mFlags);
       bool changed = false;
