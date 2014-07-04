@@ -225,28 +225,13 @@ var FeedUtils = {
                             (i+1) + "/" + numFolders + " " +
                             folder.name + ":" + folder.URI);
 
-        // Ensure msgDatabase for the folder is open for new message processing.
-        let msgDb;
-        try {
-          msgDb = folder.msgDatabase;
-        }
-        catch (ex) {}
-        if (!msgDb) {
-          // Force a reparse.  After the async reparse the folder will be ready
-          // for the next cycle; don't bother with a listener.  Continue with
-          // the next folder, as attempting to add a message to a folder with
-          // an unavailable msgDatabase will throw later.
-          FeedUtils.log.debug("downloadFeed: rebuild msgDatabase for " +
-                              folder.name + " - " + folder.filePath.path);
-          try
-          {
-            // Ignore error returns.
-            folder.QueryInterface(Ci.nsIMsgLocalMailFolder).
-                   getDatabaseWithReparse(null, null);
-          }
-          catch (ex) {}
+        // Ensure folder's msgDatabase is openable for new message processing.
+        // If not, reparse. After the async reparse the folder will be ready
+        // for the next cycle; don't bother with a listener. Continue with
+        // the next folder, as attempting to add a message to a folder with
+        // an unavailable msgDatabase will throw later.
+        if (!FeedUtils.isMsgDatabaseOpenable(folder, true))
           continue;
-        }
 
         let feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
         // Continue if there are no feedUrls for the folder in the feeds
@@ -495,6 +480,40 @@ var FeedUtils = {
     }
 
     return feedUrlArray.length ? feedUrlArray : null;
+  },
+
+/**
+ * Check if the folder's msgDatabase is openable, reparse if desired.
+ *
+ * @param  nsIMsgFolder aFolder - the folder
+ * @param  boolean aReparse     - reparse if true
+ * @return boolean              - true if msgDb is available, else false
+ */
+  isMsgDatabaseOpenable: function(aFolder, aReparse) {
+    let msgDb;
+    try {
+      msgDb = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
+                .getService(Ci.nsIMsgDBService).openFolderDB(aFolder, true);
+    }
+    catch (ex) {}
+
+    if (msgDb)
+      return true;
+
+    if (!aReparse)
+      return false;
+
+    // Force a reparse.
+    FeedUtils.log.debug("checkMsgDb: rebuild msgDatabase for " +
+                        aFolder.name + " - " + aFolder.filePath.path);
+    try {
+      // Ignore error returns.
+      aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder)
+             .getDatabaseWithReparse(null, null);
+    }
+    catch (ex) {}
+
+    return false;
   },
 
 /**
@@ -1139,16 +1158,25 @@ var FeedUtils = {
 
     return validUri ? uri : null;
   },
-
+ 
 /**
- * Returns if a uri is valid to subscribe.
+ * Returns if a uri/url is valid to subscribe.
  * 
- * @param  nsIURI aUri  - the Uri.
- * @return boolean      - true if a valid scheme, false if not.
+ * @param  nsIURI aUri or string aUrl  - the Uri/Url.
+ * @return boolean                     - true if a valid scheme, false if not.
  */
+  _validSchemes: ["http", "https"],
   isValidScheme: function(aUri) {
-    return (aUri instanceof Ci.nsIURI) &&
-           (aUri.schemeIs("http") || aUri.schemeIs("https"));
+    if (!(aUri instanceof Ci.nsIURI)) {
+      try {
+        aUri = Services.io.newURI(aUri, null, null);
+      }
+      catch (ex) {
+        return false;
+      }
+    }
+
+    return (this._validSchemes.indexOf(aUri.scheme) != -1);
   },
 
 /**
