@@ -6,6 +6,7 @@ const EXPORTED_SYMBOLS = ['localAccountUtils'];
 
 // MailServices
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -21,6 +22,10 @@ var localAccountUtils = {
   msgAccount: undefined,
 
   _localAccountInitialized: false,
+  _mailboxStoreContractID: undefined,
+
+  pluggableStores: ["@mozilla.org/msgstore/berkeleystore;1",
+                    "@mozilla.org/msgstore/maildirstore;1"],
 
   clearAll: function() {
     this._localAccountInitialized = false;
@@ -32,11 +37,17 @@ var localAccountUtils = {
     this.rootFolder = undefined;
   },
 
-  loadLocalMailAccount: function() {
-    // This function is idempotent
-    if (this._localAccountInitialized)
+  loadLocalMailAccount: function(storeID) {
+    if ((storeID && storeID == this._mailboxStoreContractID) ||
+        (!storeID && this._localAccountInitialized))
       return;
 
+    this.clearAll();
+    if (storeID)
+      Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
+                                 storeID);
+
+    this._mailboxStoreContractID = storeID;
     MailServices.accounts.createLocalMailAccount();
 
     this.incomingServer = MailServices.accounts.localFoldersServer;
