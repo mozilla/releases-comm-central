@@ -14,6 +14,11 @@ const gFiles = ["../../../data/bugmail10", "../../../data/basic1"];
 
 Services.prefs.setBoolPref("mail.server.default.leave_on_server", true);
 
+// Currently we have two mailbox storage formats.
+var gPluggableStores = [
+  "@mozilla.org/msgstore/berkeleystore;1",
+  "@mozilla.org/msgstore/maildirstore;1"
+];
 const basic1_preview = 'Hello, world!';
 const bugmail10_preview = 'Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----';
 
@@ -49,10 +54,11 @@ const gTestArray =
   },
   function verifyFolders2() {
     do_check_eq(folderCount(gMoveFolder), 1);
-    // the local inbox folder should gave one message.
+    // the local inbox folder should have one message.
     do_check_eq(folderCount(localAccountUtils.inboxFolder), 1);
   },
   function verifyMessages() {
+    // check MoveFolder message
     let hdrs = [];
     let keys = [];
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
@@ -73,10 +79,6 @@ const gTestArray =
                                     .fetchMsgPreviewText(keys, keys.length,
                                                          false, null));
     do_check_eq(hdrs[0].getStringProperty('preview'), basic1_preview);
-  },
-  function end_test() {
-    dump("Exiting mail tests\n");
-    gPOP3Pump = null;
   }
 ];
 
@@ -92,15 +94,39 @@ function folderCount(folder)
   return count;
 }
 
+function setup_store(storeID)
+{
+  return function _setup_store() {
+    // Initialize pop3Pump with correct mailbox format.
+    gPOP3Pump.resetPluggableStore(storeID);
+
+    // Set the default mailbox store.
+    Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
+                               storeID);
+
+    // Make sure we're not quarantining messages
+    Services.prefs.setBoolPref("mailnews.downloadToTempFile", false);
+    if (!localAccountUtils.inboxFolder)
+      localAccountUtils.loadLocalMailAccount();
+
+    gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
+  }
+}
+
 function run_test()
 {
-  // Make sure we're not quarantining messages
-  Services.prefs.setBoolPref("mailnews.downloadToTempFile", false);
-  if (!localAccountUtils.inboxFolder)
-    localAccountUtils.loadLocalMailAccount();
+  for (let store of gPluggableStores) {
+    add_task(setup_store(store));
+    gTestArray.forEach(add_task);
+  }
 
-  gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
-  gTestArray.forEach(add_task);
+  add_task(exitTest);
   run_next_test();
 }
 
+function exitTest()
+{
+  // Cleanup and exit the test.
+  do_print("Exiting mail tests\n");
+  gPOP3Pump = null;
+}
