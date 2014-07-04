@@ -205,10 +205,10 @@ var commands = [
         if (!conv.isChat || !conv.left)
           return false;
         // Rejoin the current channel. If the channel was explicitly parted
-        // by the user, _chatRoomFields will have been deleted.
+        // by the user, chatRoomFields will have been deleted.
         // Otherwise, make use of it (e.g. if the user was kicked).
-        if (conv._chatRoomFields) {
-          account.joinChat(conv._chatRoomFields);
+        if (conv.chatRoomFields) {
+          account.joinChat(conv.chatRoomFields);
           return true;
         }
         params = [conv.name];

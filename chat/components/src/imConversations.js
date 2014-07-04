@@ -248,14 +248,24 @@ UIConversation.prototype = {
   connected: function() {
     if (this._disconnected) {
       delete this._disconnected;
-      if (!this.isChat)
+      let msg = bundle.GetStringFromName("accountReconnected");
+      if (this.isChat) {
+        if (!this._wasLeft) {
+          this.systemMessage(msg);
+          // Reconnect chat if possible.
+          let chatRoomFields = this.target.chatRoomFields;
+          if (chatRoomFields)
+            this.account.joinChat(chatRoomFields);
+        }
+        delete this._wasLeft;
+      }
+      else {
         this._justReconnected = true;
-      // Exclude convs with contacts, these receive presence info updates
-      // (and therefore a reconnected message).
-      if ((this.isChat && !this._wasLeft) ||
-          (!this.isChat && !this.contact))
-        this.systemMessage(bundle.GetStringFromName("accountReconnected"));
-      delete this._wasLeft;
+        // Exclude convs with contacts, these receive presence info updates
+        // (and therefore a reconnected message).
+        if (!this.contact)
+          this.systemMessage(msg);
+      }
     }
     this.notifyObservers(this, "update-buddy-status");
   },

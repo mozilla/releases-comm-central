@@ -653,7 +653,7 @@ const XMPPAccountPrototype = {
       this._mucs[jid].left = false; // We are rejoining.
     }
     else
-      this._mucs[jid] = nick;
+      this._mucs[jid] = aComponents;
 
     let x;
     let password = aComponents.getValue("password");
@@ -848,15 +848,17 @@ const XMPPAccountPrototype = {
     else if (jid in this._buddies)
       this._buddies[jid].onPresenceStanza(aStanza);
     else if (jid in this._mucs) {
-      if (typeof(this._mucs[jid]) == "string") {
+      if (this._mucs[jid] instanceof Ci.prplIChatRoomFieldValues) {
         // We have attempted to join, but not created the conversation yet.
         if (aStanza.attributes["type"] == "error") {
           delete this._mucs[jid];
           this.ERROR("Failed to join MUC: " + aStanza.convertToString());
           return;
         }
-        let nick = this._mucs[jid];
+        let chatRoomFields = this._mucs[jid];
+        let nick = chatRoomFields.getValue("nick");
         this._mucs[jid] = new this._MUCConversationConstructor(this, jid, nick);
+        this._mucs[jid].chatRoomFields = chatRoomFields;
       }
       this._mucs[jid].onPresenceStanza(aStanza);
     }

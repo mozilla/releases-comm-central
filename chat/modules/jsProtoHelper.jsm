@@ -531,6 +531,11 @@ const GenericConvChatPrototype = {
 
   get isChat() true,
 
+  // Stores the prplIChatRoomFieldValues required to join this channel
+  // to enable later reconnections. If null, the MUC will not be reconnected
+  // automatically after disconnections.
+  chatRoomFields: null,
+
   _topic: "",
   _topicSetter: null,
   get topic() this._topic,

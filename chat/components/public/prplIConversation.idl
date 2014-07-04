@@ -11,6 +11,7 @@ interface imIAccountBuddy;
 interface imIAccount;
 interface nsIURI;
 interface nsIDOMDocument;
+interface prplIChatRoomFieldValues;
 
 /*
  * This is the XPCOM purple conversation component, a proxy for PurpleConversation.
@@ -86,7 +87,7 @@ interface prplIConvIM: prplIConversation {
   readonly attribute short typingState;
 };
 
-[scriptable, uuid(91ad2ce5-f886-4653-ac75-ac22bed4ec7a)]
+[scriptable, uuid(47b42861-364a-477d-88a1-4616a7060df2)]
 interface prplIConvChat: prplIConversation {
 
   /* Get an nsISimpleEnumerator of prplIConvChatBuddy objects:
@@ -118,6 +119,12 @@ interface prplIConvChat: prplIConversation {
 
   /* This is true if we are in the process of joining the channel */
   readonly attribute boolean joining;
+
+  /* This stores the data required to join the chat with joinChat().
+     If null, the chat will not be rejoined automatically when the
+     account reconnects after a disconnect.
+     Should be set to null by the prpl if the user parts the chat. */
+  readonly attribute prplIChatRoomFieldValues chatRoomFields;
 
   /* Observers will receive chat-buddy-add, chat-buddy-update,
      chat-buddy-remove and chat-update-topic notifications.

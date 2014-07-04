@@ -231,9 +231,9 @@ function conversationErrorMessage(aAccount, aMessage, aError,
     if (aJoinFailed)
       conv.joining = false;
     // If the conversation cannot be rejoined automatically, delete
-    // _chatRoomFields.
+    // chatRoomFields.
     if (!aRejoinable)
-      delete conv._chatRoomFields;
+      delete conv.chatRoomFields;
   }
 
   return true;

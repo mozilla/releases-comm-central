@@ -288,11 +288,6 @@ ircChannel.prototype = {
                                                aProperties);
   },
 
-  // Stores the prplIChatRoomFieldValues required to join this channel
-  // to enable later reconnections. If absent, the MUC will not be reconnected
-  // automatically after disconnections.
-  _chatRoomFields: null,
-
   // Section 3.2.2 of RFC 2812.
   part: function(aMessage) {
     let params = [this.name];
@@ -306,7 +301,7 @@ ircChannel.prototype = {
     this._account.sendMessage("PART", params);
 
     // Remove reconnection information.
-    delete this._chatRoomFields;
+    delete this.chatRoomFields;
   },
 
   close: function() {
@@ -446,8 +441,8 @@ ircChannel.prototype = {
           let key = getNextParam();
           // A new channel key was set, display a message if this key is not
           // already known.
-          if (this._chatRoomFields &&
-              this._chatRoomFields.getValue("password") == key) {
+          if (this.chatRoomFields &&
+              this.chatRoomFields.getValue("password") == key) {
             continue;
           }
           msg = _("message.channelKeyAdded", aSetter, key);
@@ -458,7 +453,7 @@ ircChannel.prototype = {
 
         this.writeMessage(aSetter, msg, {system: true});
         // Store the new fields for reconnect.
-        this._chatRoomFields =
+        this.chatRoomFields =
           this._account.getChatRoomDefaultFieldValues(newFields);
       }
       else if (aNewMode[i] == "b") {
@@ -1450,15 +1445,19 @@ ircAccount.prototype = {
     let key = aComponents.getValue("password");
     if (key)
       params.push(key);
-    let defaultName = key ? channel + " " + key : channel;
+
     // Send the join command, but don't log the channel key.
     this.sendMessage("JOIN", params,
                      "JOIN " + channel + (key ? " <key not logged>" : ""));
+
     // Open conversation early for better responsiveness.
     let conv = this.getConversation(channel);
-    // Store the prplIChatRoomFieldValues to enable later reconnections.
-    conv._chatRoomFields = this.getChatRoomDefaultFieldValues(defaultName);
     conv.joining = true;
+
+    // Store the prplIChatRoomFieldValues to enable later reconnections.
+    let defaultName = key ? channel + " " + key : channel;
+    conv.chatRoomFields = this.getChatRoomDefaultFieldValues(defaultName);
+
     return conv;
   },
 
