@@ -10,6 +10,9 @@
  *  gPOP3Pump.onDone: function to execute after completion
                       (optional and deprecated)
  *  gPOP3Pump.fakeServer:  (out) the POP3 incoming server
+ *  gPOP3Pump.resetPluggableStore(): function to change the pluggable store for the
+ *                                   server to the input parameter's store.
+ *                                   (in) pluggable store contract ID
  *
  * adapted from test_pop3GetNewMail.js
  *
@@ -45,6 +48,8 @@ function POP3Pump()
   this._finalCleanup = false;
   this._expectedResult = Components.results.NS_OK;
   this._actualResult = Components.results.NS_ERROR_UNEXPECTED;
+  this._mailboxStoreContractID =
+    Services.prefs.getCharPref("mail.serverDefaultStoreContractID");
 }
 
 // nsIUrlListener implementation
@@ -93,6 +98,29 @@ POP3Pump.prototype._createPop3ServerAndLocalFolders =
 							       "fred", "wilma");
 
   return this.fakeServer;
+};
+
+POP3Pump.prototype.resetPluggableStore = function(aStoreContractID)
+{
+  if (aStoreContractID == this._mailboxStoreContractID)
+    return;
+
+  Services.prefs.setCharPref("mail.serverDefaultStoreContractID", aStoreContractID);
+
+  // Cleanup existing files, server and account instances, if any.
+  if (this._server)
+    this._server.stop();
+
+  if (this.fakeServer && this.fakeServer.valid) {
+    this.fakeServer.closeCachedConnections();
+    MailServices.accounts.removeIncomingServer(this.fakeServer, false);
+  }
+
+  this.fakeServer = null;
+  localAccountUtils.clearAll();
+
+  this._incomingServer = this._createPop3ServerAndLocalFolders();
+  this._mailboxStoreContractID = aStoreContractID;
 };
 
 POP3Pump.prototype._checkBusy = function _checkBusy()

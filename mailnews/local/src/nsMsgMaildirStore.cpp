@@ -33,6 +33,7 @@
 #include "nsITimer.h"
 #include "nsIMailboxUrl.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsIMsgFilterPlugin.h"
 #include "nsLocalUndoTxn.h"
 #include "nsIMessenger.h"
 
@@ -703,27 +704,13 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream *aOutputStream,
     return NS_ERROR_FAILURE;
   }
 
-  // path to the downloaded message
-  nsCOMPtr<nsIFile> fromPath;
-  folderPath->Clone(getter_AddRefs(fromPath));
-  fromPath->Append(NS_LITERAL_STRING("tmp"));
-  fromPath->AppendNative(fileName);
-
-  // let's check if the tmp file exists
-  bool exists;
-  fromPath->Exists(&exists);
-  if (!exists)
-  {
-    NS_ERROR("FinishNewMessage - oops! file does not exist!");
-    return NS_ERROR_FAILURE;
-  }
-
-  // move to the "cur" subfolder
+  // path to the new destination
   nsCOMPtr<nsIFile> toPath;
   folderPath->Clone(getter_AddRefs(toPath));
   toPath->Append(NS_LITERAL_STRING("cur"));
 
   // let's check if the folder exists
+  bool exists;
   toPath->Exists(&exists);
   if (!exists)
   {
@@ -731,28 +718,48 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream *aOutputStream,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
+  // path to the downloaded message
+  nsCOMPtr<nsIFile> fromPath;
+  folderPath->Clone(getter_AddRefs(fromPath));
+  fromPath->Append(NS_LITERAL_STRING("tmp"));
+  fromPath->AppendNative(fileName);
+
+  // let's check if the tmp file exists
+  fromPath->Exists(&exists);
+  if (!exists)
+  {
+    // Perhaps the message has already moved. See bug 1028372 to fix this.
+    toPath->AppendNative(fileName);
+    toPath->Exists(&exists);
+    if (exists) // then there is nothing to do
+      return NS_OK;
+
+    NS_ERROR("FinishNewMessage - oops! file does not exist!");
+    return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
+  }
+
   return fromPath->MoveToNative(toPath, fileName);
 }
 
 NS_IMETHODIMP
-nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aNewHdr,
+nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
                                               nsIMsgFolder *aDestFolder,
                                               bool *aResult)
 {
-  NS_ENSURE_ARG_POINTER(aNewHdr);
+  NS_ENSURE_ARG_POINTER(aHdr);
   NS_ENSURE_ARG_POINTER(aDestFolder);
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsCOMPtr<nsIFile> folderPath;
   nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = aNewHdr->GetFolder(getter_AddRefs(folder));
+  nsresult rv = aHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = folder->GetFilePath(getter_AddRefs(folderPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // file path is stored in message header property
   nsAutoCString fileName;
-  aNewHdr->GetStringProperty("storeToken", getter_Copies(fileName));
+  aHdr->GetStringProperty("storeToken", getter_Copies(fileName));
   if (fileName.IsEmpty())
   {
     NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!\n");
@@ -788,8 +795,69 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aNewHdr,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
+  nsCOMPtr<nsIMsgDatabase> destMailDB;
+  rv = aDestFolder->GetMsgDatabase(getter_AddRefs(destMailDB));
+  NS_WARN_IF_FALSE(destMailDB && NS_SUCCEEDED(rv),
+                   "failed to open mail db moving message");
+
+  nsCOMPtr<nsIMsgDBHdr> newHdr;
+  if (destMailDB)
+    rv = destMailDB->CopyHdrFromExistingHdr(nsMsgKey_None, aHdr, true,
+                                            getter_AddRefs(newHdr));
+  if (NS_SUCCEEDED(rv) && !newHdr)
+    rv = NS_ERROR_UNEXPECTED;
+
+  if (NS_FAILED(rv))
+    aDestFolder->ThrowAlertMsg("filterFolderHdrAddFailed", nullptr);
+
   rv = fromPath->MoveToNative(toPath, fileName);
   *aResult = NS_SUCCEEDED(rv);
+  if (NS_FAILED(rv))
+    aDestFolder->ThrowAlertMsg("filterFolderWriteFailed", nullptr);
+
+  if (NS_FAILED(rv)) {
+    if (destMailDB)
+      destMailDB->Close(true);
+
+    return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
+  }
+
+  bool movedMsgIsNew = false;
+  // if we have made it this far then the message has successfully been
+  // written to the new folder now add the header to the destMailDB.
+
+  uint32_t newFlags;
+  newHdr->GetFlags(&newFlags);
+  nsMsgKey msgKey;
+  newHdr->GetMessageKey(&msgKey);
+  if (!(newFlags & nsMsgMessageFlags::Read))
+  {
+    nsCString junkScoreStr;
+    (void) newHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+    if (atoi(junkScoreStr.get()) != nsIJunkMailPlugin::IS_SPAM_SCORE) {
+      newHdr->OrFlags(nsMsgMessageFlags::New, &newFlags);
+      destMailDB->AddToNewList(msgKey);
+      movedMsgIsNew = true;
+    }
+  }
+
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+    do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+  if (notifier)
+    notifier->NotifyMsgAdded(newHdr);
+
+  if (movedMsgIsNew)
+    aDestFolder->SetHasNewMessages(true);
+
+  nsCOMPtr<nsIMsgDatabase> sourceDB;
+  rv = folder->GetMsgDatabase(getter_AddRefs(sourceDB));
+
+  if (NS_SUCCEEDED(rv) && sourceDB)
+    sourceDB->RemoveHeaderMdbRow(aHdr);
+
+  destMailDB->SetSummaryValid(true);
+  aDestFolder->UpdateSummaryTotals(true);
+  destMailDB->Commit(nsMsgDBCommitType::kLargeCommit);
   return rv;
 }
 

@@ -22,6 +22,16 @@ var localAccountUtils = {
 
   _localAccountInitialized: false,
 
+  clearAll: function() {
+    this._localAccountInitialized = false;
+    if (this.msgAccount)
+      MailServices.accounts.removeAccount(this.msgAccount);
+    this.incomingServer = undefined;
+    this.msgAccount = undefined;
+    this.inboxFolder = undefined;
+    this.rootFolder = undefined;
+  },
+
   loadLocalMailAccount: function() {
     // This function is idempotent
     if (this._localAccountInitialized)
