@@ -280,7 +280,7 @@ MimeConverter.prototype = {
     // method is really horrendous and does not align with the way that JSMime
     // handles it. Instead, we'll need to create a fake header to take into
     // account the aFieldNameLen parameter.
-    let fakeHeader = '*'.repeat(aFieldNameLen);
+    let fakeHeader = '-'.repeat(aFieldNameLen);
     let options = {
       softMargin: aLineLength,
       useASCII: true,
@@ -312,7 +312,7 @@ MimeConverter.prototype = {
     // and the extra CRLF at the end.
     emitter.finish(true);
     let value = handler.value;
-    value = value.substring(value.indexOf(': ') + 2);
+    value = value.replace(new RegExp(fakeHeader + ":\\s*"), "");
     return value.substring(0, value.length - 2);
   },
 

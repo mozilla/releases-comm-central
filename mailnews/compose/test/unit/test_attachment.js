@@ -74,7 +74,7 @@ const expectedCTList1 = {
            ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
   RFC2047WithCRLF: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
-                   ' name="\r\n !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
+                   ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
   RFC2231: 'Content-Type: text/plain; charset=US-ASCII\r\n'
 }
