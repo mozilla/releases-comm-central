@@ -61,14 +61,14 @@ const GenericAccountPrototype = {
       return Ci.prplIAccount.ERROR_CERT_NOT_PROVIDED;
 
     if (sslStatus.isUntrusted) {
-      if (sslStatus.serverCert instanceof Ci.nsIX509Cert3 &&
+      if (sslStatus.serverCert &&
           sslStatus.serverCert.isSelfSigned)
         return Ci.prplIAccount.ERROR_CERT_SELF_SIGNED;
       return Ci.prplIAccount.ERROR_CERT_UNTRUSTED;
     }
 
     if (sslStatus.isNotValidAtThisTime) {
-      if (sslStatus.serverCert instanceof Ci.nsIX509Cert3 &&
+      if (sslStatus.serverCert &&
           sslStatus.serverCert.validity.notBefore < Date.now() * 1000)
         return Ci.prplIAccount.ERROR_CERT_NOT_ACTIVATED;
       return Ci.prplIAccount.ERROR_CERT_EXPIRED;

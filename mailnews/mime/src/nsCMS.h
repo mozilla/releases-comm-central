@@ -12,7 +12,7 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsICMSMessage.h"
 #include "nsICMSMessage2.h"
-#include "nsIX509Cert3.h"
+#include "nsIX509Cert.h"
 #include "nsICMSEncoder.h"
 #include "nsICMSDecoder.h"
 #include "sechash.h"

@@ -22,7 +22,6 @@
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMimeConverter.h"
-#include "nsIX509Cert2.h"
 #include "ScopedNSSTypes.h"
 #include <algorithm>
 
@@ -803,13 +802,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   if (aEncrypt && mSelfEncryptionCert) {
     // Make sure self's configured cert is prepared for being used
     // as an email recipient cert.
-    nsCOMPtr<nsIX509Cert2> cert2 = do_QueryInterface(mSelfEncryptionCert);
-    if (!cert2) {
-      return NS_ERROR_FAILURE;
-    }
-
-    mozilla::ScopedCERTCertificate nsscert;
-    nsscert = cert2->GetCert();
+    mozilla::ScopedCERTCertificate nsscert(mSelfEncryptionCert->GetCert());
     if (!nsscert) {
       return NS_ERROR_FAILURE;
     }

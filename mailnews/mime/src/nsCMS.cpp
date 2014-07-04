@@ -542,7 +542,6 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray * aRecipientCerts)
   SECOidTag bulkAlgTag;
   int keySize;
   uint32_t i;
-  nsCOMPtr<nsIX509Cert2> nssRecipientCert;
   nsresult rv = NS_ERROR_FAILURE;
 
   // Check the recipient certificates //
@@ -557,12 +556,10 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray * aRecipientCerts)
   for (i=0; i<recipientCertCount; i++) {
     nsCOMPtr<nsIX509Cert> x509cert = do_QueryElementAt(aRecipientCerts, i);
 
-    nssRecipientCert = do_QueryInterface(x509cert);
-
-    if (!nssRecipientCert)
+    if (!x509cert)
       return NS_ERROR_FAILURE;
 
-    mozilla::ScopedCERTCertificate c(nssRecipientCert->GetCert());
+    mozilla::ScopedCERTCertificate c(x509cert->GetCert());
     recipientCerts.set(i, c.get());
   }
   
@@ -623,6 +620,7 @@ loser:
 
 NS_IMETHODIMP nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert, unsigned char* aDigestData, uint32_t aDigestDataLen)
 {
+  NS_ENSURE_ARG(aSigningCert);
   nsNSSShutDownPreventionLock locker;
   if (isAlreadyShutDown())
     return NS_ERROR_NOT_AVAILABLE;
@@ -631,24 +629,16 @@ NS_IMETHODIMP nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert*
   NSSCMSContentInfo *cinfo;
   NSSCMSSignedData *sigd;
   NSSCMSSignerInfo *signerinfo;
-  mozilla::ScopedCERTCertificate scert;
+  mozilla::ScopedCERTCertificate scert(aSigningCert->GetCert());
   mozilla::ScopedCERTCertificate ecert;
-  nsCOMPtr<nsIX509Cert2> aSigningCert2 = do_QueryInterface(aSigningCert);
   nsresult rv = NS_ERROR_FAILURE;
 
-  /* Get the certs */
-  if (aSigningCert2) {
-    scert = aSigningCert2->GetCert();
-  }
   if (!scert) {
     return NS_ERROR_FAILURE;
   }
 
   if (aEncryptCert) {
-    nsCOMPtr<nsIX509Cert2> aEncryptCert2 = do_QueryInterface(aEncryptCert);
-    if (aEncryptCert2) {
-      ecert = aEncryptCert2->GetCert();
-    }
+    ecert = aEncryptCert->GetCert();
   }
 
   /*
