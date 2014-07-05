@@ -149,7 +149,8 @@ toolbox[labelalign="end"] toolbarpaletteitem
 }
 
 toolbox[labelalign="end"] .toolbarbutton-1 .toolbarbutton-text {
-  -moz-margin-start: 2px;
+  /* !important for overriding toolbarbutton.css */
+  -moz-margin-start: 2px !important;
 }
 
 toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
