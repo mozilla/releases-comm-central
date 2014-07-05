@@ -649,6 +649,10 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       m_identity->GetReplyOnTop(&reply_on_top);
       if (reply_on_top == 1)
       {
+        // HTML editor eats one line break
+        if (aHTMLEditor)
+          textEditor->InsertLineBreak();
+
         // add one newline if a signature comes before the quote, two otherwise
         bool includeSignature = true;
         bool sig_bottom = true;
