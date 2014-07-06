@@ -191,9 +191,8 @@ function getModePref()
 
 function setBaseRuleset(aBase, aResult)
 {
-  aResult.tags.__proto__ = aBase.tags;
-  aResult.attrs.__proto__ = aBase.attrs;
-  aResult.styles.__proto__ = aBase.styles;
+  for (let property in aBase)
+    aResult[property] = Object.create(aBase[property], aResult[property]);
 }
 
 function newRuleset(aBase)
