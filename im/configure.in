@@ -7,11 +7,11 @@ dnl file, You can obtain one at http://mozilla.org/MPL/2.0/.
 dnl Things we need to carry from confvars.sh
 AC_SUBST(INSTANTBIRD_VERSION)
 
-if test -d $topsrcdir/extensions/purple ; then
+if test -d $srcdir/extensions/purple ; then
   tmpscript=`$PYTHON -c 'import os, tempfile; print tempfile.mktemp(prefix="subscript.").replace(os.sep, "/")'` || exit 1
-  m4 "${topsrcdir}/build/autoconf/subconfigure.m4" \
-   "${topsrcdir}/build/autoconf/altoptions.m4" \
-   "${topsrcdir}/extensions/purple/configure.in" > $tmpscript
+  m4 "${srcdir}/build/autoconf/subconfigure.m4" \
+   "${srcdir}/build/autoconf/altoptions.m4" \
+   "${srcdir}/extensions/purple/configure.in" > $tmpscript
   . $tmpscript
   rm -f $tmpscript
 
