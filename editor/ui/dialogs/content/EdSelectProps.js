@@ -4,12 +4,6 @@
 
 // Global variables
 
-var atomService = Components.classes["@mozilla.org/atom-service;1"]
-                            .getService(Components.interfaces.nsIAtomService);
-var checkedAtoms = {
-  "false":  atomService.getAtom("checked-false"),
-  "true":   atomService.getAtom("checked-true")};
-
 var hasValue;
 var oldValue;
 var insertNew;
@@ -327,7 +321,7 @@ optgroupObject.prototype.appendOption = function appendOption(child, parent)
 {
   var index = gDialog.nextChild(parent);
   // XXX need to repaint the lines, tree won't do this
-  var primaryCol = treeBoxObject.getPrimaryColumn();
+  var primaryCol = treeBoxObject.columns.getPrimaryColumn();
   treeBoxObject.invalidateCell(index - 1, primaryCol);
   // insert the wrapped object as the last child
   itemArray.splice(index, 0, new optionObject(child, 2));
@@ -503,14 +497,15 @@ function Startup()
     get rowCount() { return itemArray.length; },
     get selection() { return treeSelection; },
     set selection(selection) { return treeSelection = selection; },
-    getRowProperties: function getRowProperties(index, column, prop) { },
+    getRowProperties: function getRowProperties(index) { return ""; },
     // could have used a wrapper for this
-    getCellProperties: function getCellProperties(index, column, prop)
+    getCellProperties: function getCellProperties(index, column)
     {
       if (column.id == "SelectSelCol" && !itemArray[index].container)
-        prop.AppendElement(checkedAtoms[itemArray[index].element.hasAttribute("selected")]);
+        return "checked-" + itemArray[index].element.hasAttribute("selected");
+      return "";
     },
-    getColumnProperties: function getColumnProperties(column, prop) { },
+    getColumnProperties: function getColumnProperties(column) { return ""; },
     // get info from wrapper
     isContainer: function isContainer(index) { return itemArray[index].container; },
     isContainerOpen: function isContainerOpen(index) { return true; },
@@ -685,7 +680,7 @@ function onNameInput()
     gDialog.accept.disabled = disabled;
   gDialog.element.setAttribute("name", gDialog.selectName.value);
   // repaint the tree
-  var primaryCol = treeBoxObject.getPrimaryColumn();
+  var primaryCol = treeBoxObject.columns.getPrimaryColumn();
   treeBoxObject.invalidateCell(treeSelection.currentIndex, primaryCol);
 }
 
@@ -693,7 +688,7 @@ function onLabelInput()
 {
   currentItem.element.setAttribute("label", gDialog.optgroupLabel.value);
   // repaint the tree
-  var primaryCol = treeBoxObject.getPrimaryColumn();
+  var primaryCol = treeBoxObject.columns.getPrimaryColumn();
   treeBoxObject.invalidateCell(treeSelection.currentIndex, primaryCol);
 }
 
@@ -702,7 +697,7 @@ function onTextInput()
   currentItem.element.text = gDialog.optionText.value;
   // repaint the tree
   if (hasValue) {
-    var primaryCol = treeBoxObject.getPrimaryColumn();
+    var primaryCol = treeBoxObject.columns.getPrimaryColumn();
     treeBoxObject.invalidateCell(treeSelection.currentIndex, primaryCol);
   }
   else
