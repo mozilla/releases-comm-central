@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 mk_add_options MOZ_BUILD_PROJECTS="i386 x86_64"
-. $srcdir/build/macosx/universal/mozconfig.common
+. $topsrcdir/build/macosx/universal/mozconfig.common
 export MOZ_PKG_PLATFORM=mac
 
 export PYTHON=/usr/local/bin/python
