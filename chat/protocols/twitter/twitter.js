@@ -335,6 +335,8 @@ Conversation.prototype = {
       name == this._account.name ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
     flags._iconURL = aTweet.user.profile_image_url;
+    if (aTweet.delayed)
+      flags.delayed = true;
     if (text.includes("@" + this.nick))
       flags.containsNick = true;
 
@@ -667,6 +669,7 @@ Account.prototype = {
       this._timeline.notifyObservers(this._timeline, "update-buddy-status");
 
     this._timelineBuffer.sort(this.sortByDate);
+    this._timelineBuffer.forEach(aTweet => aTweet.delayed = true);
     this.displayMessages(this._timelineBuffer);
 
     // Fetch userInfo for the user if we don't already have it.
