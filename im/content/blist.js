@@ -70,20 +70,21 @@ function buddyListContextMenu(aXulMenu) {
   document.getElementById("context-show-conversation").hidden = !this.onConv && !uiConv;
   document.getElementById("context-close-conversation-separator").hidden = !this.onConv;
   document.getElementById("context-close-conversation").hidden = !this.onConv;
-  document.getElementById("context-showlogs").hidden = hide && !this.onConv;
-
-  if (this.onGroup) {
-    document.getElementById("context-hide-tag").disabled =
-      this.target.tag.id == -1;
-  }
-  else {
-    let showLogsItem = document.getElementById("context-showlogs");
+  let showLogsItem = document.getElementById("context-showlogs");
+  let hideShowLogsItem = hide && !this.onConv;
+  showLogsItem.hidden = hideShowLogsItem;
+  if (!hideShowLogsItem)  {
     // Start disabled, then enable if we have logs.
     showLogsItem.setAttribute("disabled", true);
     this._getLogs().then(aLogs => {
       if (aLogs && aLogs.hasMoreElements())
         showLogsItem.removeAttribute("disabled");
     });
+  }
+
+  if (this.onGroup) {
+    document.getElementById("context-hide-tag").disabled =
+      this.target.tag.id == -1;
   }
 
   document.getElementById("context-show-offline-buddies-separator").hidden =
