@@ -245,10 +245,10 @@ var fake = {
       Services.contacts.accountBuddyAdded(buddy);
 
     this.convs = [
-      new Conversation("Florian", this.accounts[2], undefined, this.buddies[6]),
-      new Conversation("#instantbird", this.accounts[4], "Tom"),
-      new Conversation("William", this.accounts[2], undefined, this.buddies[13]),
-      new Conversation("Emma", this.accounts[2], undefined, this.buddies[7])
+      new Conversation("Florian", this.accounts[2], this.buddies[6]),
+      new Chat("#instantbird", this.accounts[4], "Tom"),
+      new Conversation("William", this.accounts[2], this.buddies[13]),
+      new Conversation("Emma", this.accounts[2], this.buddies[7])
     ];
 
     let makeDate = function(aDateString) {
@@ -372,13 +372,20 @@ AccountBuddy.prototype = {
   _statusType: Ci.imIStatusInfo.STATUS_AVAILABLE
 };
 
-function Conversation(aName, aAccount, aChatNick, aBuddy)
+function Conversation(aName, aAccount, aBuddy)
 {
-  this.__proto__ = aChatNick ? GenericConvChatPrototype : GenericConvIMPrototype;
   this.buddy = aBuddy;
-  this._init(aAccount, aName, aChatNick);
-  dump("conversation " + aName + " created\n");
+  this._init(aAccount, aName);
+  dump("private conversation " + aName + " created\n");
 }
+Conversation.prototype = GenericConvIMPrototype;
+
+function Chat(aName, aAccount, aChatNick)
+{
+  this._init(aAccount, aName, aChatNick);
+  dump("chat conversation " + aName + " created\n");
+}
+Chat.prototype = GenericConvChatPrototype;
 
 function ChatBuddy(aName, aObject)
 {
