@@ -9,7 +9,6 @@ Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-Cu.import("resource://gre/modules/AsyncShutdown.jsm");
 Cu.import("resource://gre/modules/Task.jsm")
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
@@ -76,7 +75,7 @@ function appendToFile(aPath, aEncodedString, aCreate) {
   }));
 }
 
-AsyncShutdown.profileBeforeChange.addBlocker(
+OS.File.profileBeforeChange.addBlocker(
   "Chat logger: writing all pending messages",
   Task.async(function* () {
     for (let promise of gFilePromises.values()) {
