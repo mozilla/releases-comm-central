@@ -44,9 +44,10 @@
                          completedefaultindex="true"
                          forcecomplete="true"
                          minresultsforpopup="1"
-                         onblur="if (this.localName == 'textbox') document.getBindingParent(this).onBlurInput(event);"
+                         onblur="if (this.localName == 'textbox') document.getBindingParent(this).returnHit(this, true)"
                          ignoreblurwhilesearching="true"
-                         oninput="this.setAttribute('dirty', 'true');">
+                         oninput="this.setAttribute('dirty', 'true');"
+                         ontextentered="document.getBindingParent(this).returnHit(this);">
             </xul:textbox>
           </xul:listcell>
         </xul:listitem>
@@ -66,6 +67,7 @@
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
         Components.utils.import("resource://gre/modules/Services.jsm");
+        Components.utils.import("resource:///modules/mailServices.js");
 
         this.mMaxAttendees = 0;
 
@@ -243,9 +245,9 @@
           var inputValue = aAttendee.commonName;
           var regexp = new RegExp("^mailto:(.*)", "i");
           if (inputValue) {
-              // Make the commonName appear in quotes if it
-              // contains a comma or semicolon.
-              if (inputValue.search(/[,;]/) != -1) {
+              // Make the commonName appear in quotes if it contains a
+              // character that could confuse the header parser
+              if (inputValue.search(/[,;<>@]/) != -1) {
                   inputValue = '"' + inputValue + '"';
               }
               var email = aAttendee.id;
@@ -390,19 +392,37 @@
         ]]></body>
       </method>
 
-
       <property name="attendees">
         <getter><![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
           let attendees = [];
           let inputField;
 
+
+          function copyNameAttributes(email, name, attendee) {
+              // If the new address has no 'mailto'-prefix but seems
+              // to look like an email-address, we prepend the prefix.
+              // This also allows for non-email-addresses.
+              if (email.toLowerCase().indexOf("mailto:") != 0) {
+                  if (email.indexOf("@") >= 0) {
+                      email = "MAILTO:" + email;
+                  }
+              }
+              attendee.id = email;
+
+              if (name && name.length > 0) {
+                  attendee.commonName = name
+              }
+              return attendee;
+          }
+
           for (let i = 1; inputField = this.getInputElement(i); i++) {
-              let fieldValue = inputField.value;
-              if (fieldValue != "") {
+              if (inputField && inputField.value != "") {
                   // the inputfield already has a reference to the attendee
                   // object, we just need to fill in the name.
                   let attendee = inputField.attendee.clone();
+                  if (attendee.isOrganizer) {
+                      continue;
+                  }
 
                   attendee.role = this.getRoleElement(i).getAttribute("role");
                   //attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
@@ -414,29 +434,17 @@
                   let names = {};
                   let fullNames = {};
 
-                  MailServices.headerParser.parseHeadersWithArray(fieldValue,
+                  MailServices.headerParser.parseHeadersWithArray(inputField.value,
                                                                   emailAddresses,
                                                                   names,
                                                                   fullNames);
 
-                  if (emailAddresses.value.length > 0) {
-                      // If the new address has no 'mailto'-prefix but seems
-                      // to look like an email-address, we prepend the prefix.
-                      // This also allows for non-email-addresses.
-                      let email = emailAddresses.value[0];
-                      if (email.toLowerCase().indexOf("mailto:") != 0) {
-                          if (email.indexOf("@") >= 0) {
-                              email = "MAILTO:" + email;
-                          }
-                      }
-                      attendee.id = email;
-                  }
-                  if (names.value.length > 0) {
-                      attendee.commonName = names.value[0];
-                  }
-
-                  // append the attendee object to the list of attendees.
-                  if (!attendee.isOrganizer || i > 1) {
+                  // We need to expand the attendees, this happens in case the
+                  // user entered comma-separated attendees in one field and
+                  // then clicked OK without switching to the next line.
+                  for (var j = 0; j < emailAddresses.value.length; j++) {
+                      if (j > 0) attendee = attendee.clone();
+                      copyNameAttributes(emailAddresses.value[j], names.value[j], attendee);
                       attendees.push(attendee);
                   }
               }
@@ -448,12 +456,9 @@
 
       <property name="organizer">
         <getter><![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
-
           let inputField;
           for (let i = 1; inputField = this.getInputElement(i); i++) {
-              let fieldValue = inputField.value;
-              if (fieldValue != "") {
+              if (inputField && inputField.value != "") {
                   // The inputfield already has a reference to the attendee
                   // object, we just need to fill in the name.
                   let attendee = inputField.attendee.clone();
@@ -468,7 +473,7 @@
                   let names = {};
                   let fullNames = {};
 
-                  MailServices.headerParser.parseHeadersWithArray(fieldValue,
+                  MailServices.headerParser.parseHeadersWithArray(inputField.value,
                                                                   emailAddresses,
                                                                   names,
                                                                   fullNames);
@@ -499,36 +504,9 @@
         ]]></getter>
       </property>
 
-      <method name="onBlurInput">
-        <parameter name="event"/>
-        <body><![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
-
-          let emailAddresses = {};
-          let names = {};
-          let fullNames = {};
-          MailServices.headerParser.parseHeadersWithArray(event.target.value,
-                                                          emailAddresses,
-                                                          names,
-                                                          fullNames);
-          if (emailAddresses.value.length > 1) {
-              let firstFullName = fullNames.value.shift();
-              event.target.value = firstFullName;
-              let insertAfterItem = this.getListItem(this.getRowByInputElement(event.target));
-              for each (let full in fullNames.value) {
-                  insertAfterItem = this.appendNewRow(false, insertAfterItem);
-                  let textinput = this.getInputFromListitem(insertAfterItem);
-                  textinput.value = full;
-              }
-          }
-        ]]></body>
-      </method>
-
       <method name="_resolveListByName">
         <parameter name="value"/>
         <body><![CDATA[
-            Components.utils.import("resource:///modules/mailServices.js");
-
             let emailAddresses = {};
             let names = {};
             let fullNames = {};
@@ -546,8 +524,6 @@
     <method name="_findListInAddrBooks">
         <parameter name="entryname"/>
         <body><![CDATA[
-            Components.utils.import("resource:///modules/mailServices.js");
-
             let allAddressBooks = MailServices.ab.directories;
 
             while (allAddressBooks.hasMoreElements()) {
@@ -714,47 +690,45 @@
 
       <method name="onModify">
         <body><![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
-
           let list = [];
           for (let i = 1; i <= this.mMaxAttendees; i++) {
               // retrieve the string from the appropriate row
               let input = this.getInputElement(i);
-              let fieldValue = input.value;
+              if (input && input.value) {
+                  // parse the string to break this down to individual names and addresses
+                  let email = "";
+                  let emailAddresses = {};
+                  let names = {};
+                  let fullNames = {};
 
-              // parse the string to break this down to individual names and addresses
-              let email = "";
-              let emailAddresses = {};
-              let names = {};
-              let fullNames = {};
+                  MailServices.headerParser.parseHeadersWithArray(input.value,
+                                                                  emailAddresses,
+                                                                  names,
+                                                                  fullNames);
 
-              MailServices.headerParser.parseHeadersWithArray(fieldValue,
-                                                              emailAddresses,
-                                                              names,
-                                                              fullNames);
-
-              if (emailAddresses.value.length > 0) {
-                  // if the new address has no 'mailto'-prefix but seems
-                  // to look like an email-address, we prepend the prefix.
-                  // this also allows for non-email-addresses.
-                  email = emailAddresses.value[0];
-                  if (email.toLowerCase().indexOf("mailto:") != 0) {
-                      if (email.indexOf("@") >= 0) {
-                          email = "MAILTO:" + email;
+                  if (emailAddresses.value.length > 0) {
+                      // if the new address has no 'mailto'-prefix but seems
+                      // to look like an email-address, we prepend the prefix.
+                      // this also allows for non-email-addresses.
+                      email = emailAddresses.value[0];
+                      if (email.toLowerCase().indexOf("mailto:") != 0) {
+                          if (email.indexOf("@") >= 0) {
+                              email = "MAILTO:" + email;
+                          }
                       }
                   }
-              }
 
-              let isdirty = false;
-              if (input.hasAttribute("dirty")) {
-                  isdirty = input.getAttribute("dirty");
+                  let isdirty = false;
+                  if (input.hasAttribute("dirty")) {
+                      isdirty = input.getAttribute("dirty");
+                  }
+                  input.removeAttribute("dirty");
+                  let entry = {
+                      dirty: isdirty,
+                      calid: email
+                  };
+                  list.push(entry);
               }
-              input.removeAttribute("dirty");
-              let entry = {
-                  dirty: isdirty,
-                  calid: email
-              };
-              list.push(entry);
           }
 
           let event = document.createEvent('Events');
@@ -1061,6 +1035,54 @@
         ]]></setter>
       </property>
 
+      <method name="returnHit">
+        <parameter name="element"/>
+        <parameter name="noAdvance"/>
+        <body><![CDATA[
+          function parseHeaderValue(email, name, fullname) {
+              if (name && name.match(/[<>@,]/)) {
+                  return '"' + name + '" <' + email + '>';
+              } else if (email.length) {
+                  return fullname;
+              } else {
+                  return name;
+              }
+          }
+
+          let arrowLength = 1;
+          if (element.value.contains(",")) {
+              let strippedAddresses = element.value.replace(/.* >> /, "");
+              let emailAddresses = {};
+              let names = {};
+              let fullNames = {};
+
+              MailServices.headerParser.parseHeadersWithArray(strippedAddresses,
+                                                              emailAddresses,
+                                                              names,
+                                                              fullNames);
+
+              emailAddresses = emailAddresses.value || [];
+              names = names.value || [];
+              fullNames = fullNames.value || [];
+
+              if (emailAddresses.length > 1) {
+                  element.value = parseHeaderValue(emailAddresses[0], names[0], fullNames[0]);
+                  let insertAfterItem = this.getListItem(this.getRowByInputElement(element));
+                  for (let i = 1; i < fullNames.length; i++) {
+                      insertAfterItem = this.appendNewRow(false, insertAfterItem);
+                      let textinput = this.getInputFromListitem(insertAfterItem);
+                      textinput.value = parseHeaderValue(emailAddresses[i], names[i], fullNames[i]);
+                  }
+              }
+              arrowLength = emailAddresses.length;
+          }
+
+          if (!noAdvance) {
+              this.arrowHit(element, arrowLength);
+          }
+        ]]></body>
+      </method>
+
       <method name="arrowHit">
         <parameter name="aElement"/>
         <parameter name="aDirection"/>
@@ -1088,7 +1110,7 @@
         <parameter name="aElement"/>
         <body><![CDATA[
           // don't delete the row if it's the last one remaining
-          if (this.mMaxAttendees <= 1) {
+          if (this.mMaxAttendees <= 2) {
               return;
           }
 
@@ -1210,11 +1232,6 @@
                     }
                     event.stopPropagation();
                     break;
-                case KeyEvent.DOM_VK_RETURN:
-                    this.arrowHit(event.originalTarget, 1);
-                    event.stopPropagation();
-                    event.preventDefault();
-                    break;
             }
         }
       ]]></handler>
@@ -1240,12 +1257,6 @@
                     break;
                 case KeyEvent.DOM_VK_TAB:
                     this.arrowHit(event.originalTarget, event.shiftKey ? -1 : +1);
-                    event.stopPropagation();
-                    event.preventDefault();
-                    break;
-                case KeyEvent.DOM_VK_RETURN:
-                    event.stopPropagation();
-                    event.preventDefault();
                     break;
             }
         }
