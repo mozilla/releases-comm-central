@@ -405,13 +405,13 @@ TabWindow.prototype = {
 
   // Invoked when the given tab is closed
   removeTab: function (tab) {
+    AeroPeek.removeController(tab._controller);
+    tab._controller.destroy();
+    delete tab._controller;
     tab._preview.active = false;
     tab._preview.visible = false;
     tab._preview.move(null);
     delete tab._preview;
-    AeroPeek.removeController(tab._controller);
-    tab._controller.destroy();
-    delete tab._controller;
   },
 
   get enabled () {
