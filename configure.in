@@ -55,11 +55,10 @@ then
   fi
 fi
 
-MOZ_BUILD_ROOT=`pwd`/mozilla
+MOZ_BUILD_ROOT=`pwd`
 MOZILLA_CENTRAL_PATH=$_topsrcdir/mozilla
 MOZ_PYTHON
 
-MOZ_BUILD_ROOT=`pwd`
 
 MOZ_ARG_WITH_STRING(l10n-base,
 [  --with-l10n-base=DIR     path to l10n repositories],
