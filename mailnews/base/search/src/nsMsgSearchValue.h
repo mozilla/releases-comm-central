@@ -13,12 +13,12 @@ class nsMsgSearchValueImpl : public nsIMsgSearchValue {
   public:
     nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue);
 
-    virtual ~nsMsgSearchValueImpl();
-                                  
     NS_DECL_ISUPPORTS
     NS_DECL_NSIMSGSEARCHVALUE
         
   private:
+    virtual ~nsMsgSearchValueImpl();
+                                  
     nsMsgSearchValue mValue;
         
 };

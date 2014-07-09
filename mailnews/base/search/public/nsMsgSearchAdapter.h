@@ -30,7 +30,6 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter
 {
 public:
   nsMsgSearchAdapter (nsIMsgSearchScopeTerm*, nsISupportsArray *);
-  virtual ~nsMsgSearchAdapter ();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHADAPTER
@@ -84,6 +83,7 @@ public:
   static const char *m_kImapFlagged;
   static const char *m_kImapNotFlagged;
 protected:
+  virtual ~nsMsgSearchAdapter();
   typedef enum _msg_TransformType
   {
     kOverwrite,    /* "John Doe" -> "John*Doe",   simple contains   */
@@ -108,7 +108,7 @@ protected:
 //      servers
 //-----------------------------------------------------------------------------
 
-class nsMsgSearchValidityTable : public nsIMsgSearchValidityTable
+class nsMsgSearchValidityTable MOZ_FINAL : public nsIMsgSearchValidityTable
 {
 public:
   nsMsgSearchValidityTable ();
@@ -125,6 +125,7 @@ protected:
   } vtBits;
   vtBits m_table [nsMsgSearchAttrib::kNumMsgSearchAttributes][nsMsgSearchOp::kNumMsgSearchOperators];
 private:
+  ~nsMsgSearchValidityTable() {}
   nsMsgSearchAttribValue m_defaultAttrib;
 };
 

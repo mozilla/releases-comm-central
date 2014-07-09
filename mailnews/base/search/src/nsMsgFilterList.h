@@ -37,7 +37,6 @@ public:
   NS_DECL_NSIMSGFILTERLIST
 
   nsMsgFilterList();
-  virtual ~nsMsgFilterList();
 
   nsresult Close();
   nsresult LoadTextFilters(nsIInputStream *aStream);
@@ -45,6 +44,8 @@ public:
   bool m_temporaryList;
 
 protected:
+  virtual ~nsMsgFilterList();
+
   nsresult ComputeArbitraryHeaders();
   nsresult SaveTextFilters(nsIOutputStream *aStream);
   // file streaming methods

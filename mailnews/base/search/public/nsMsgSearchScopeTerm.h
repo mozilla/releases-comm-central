@@ -21,7 +21,6 @@ class nsMsgSearchScopeTerm : public nsIMsgSearchScopeTerm
 public:
   nsMsgSearchScopeTerm (nsIMsgSearchSession *, nsMsgSearchScopeValue, nsIMsgFolder *);
   nsMsgSearchScopeTerm ();
-  virtual ~nsMsgSearchScopeTerm ();
   
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHSCOPETERM
@@ -38,7 +37,9 @@ public:
   nsCOMPtr <nsIInputStream> m_inputStream; // for message bodies
   nsWeakPtr m_searchSession;
   bool m_searchServer;
-  
+
+private:
+  virtual ~nsMsgSearchScopeTerm();
 };
 
 #endif

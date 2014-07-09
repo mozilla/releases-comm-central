@@ -253,7 +253,6 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener, public nsIMsgSearchNotify
 {
 public:
   nsMsgFilterAfterTheFact(nsIMsgWindow *aMsgWindow, nsIMsgFilterList *aFilterList, nsIArray *aFolderList);
-  virtual ~nsMsgFilterAfterTheFact();
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGSEARCHNOTIFY
@@ -261,6 +260,7 @@ public:
 
   nsresult  AdvanceToNextFolder();  // kicks off the process
 protected:
+  virtual ~nsMsgFilterAfterTheFact();
   virtual   nsresult  RunNextFilter();
   nsresult  ApplyFilter(bool *aApplyMore = nullptr);
   nsresult  OnEndExecution(nsresult executionStatus); // do what we have to do to cleanup.

@@ -21,7 +21,6 @@ class nsMsgFilterService : public nsIMsgFilterService
 
 public:
   nsMsgFilterService();
-  virtual ~nsMsgFilterService();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGFILTERSERVICE
@@ -36,6 +35,8 @@ public:
   nsresult GetFilterStringBundle(nsIStringBundle **aBundle);
 
 protected:
+  virtual ~nsMsgFilterService();
+
   nsCOMArray<nsIMsgFilterCustomAction> mCustomActions; // defined custom action list
   nsCOMArray<nsIMsgSearchCustomTerm> mCustomTerms; // defined custom term list
 

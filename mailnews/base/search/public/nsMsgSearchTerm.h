@@ -25,8 +25,6 @@ public:
   nsMsgSearchTerm();
   nsMsgSearchTerm (nsMsgSearchAttribValue, nsMsgSearchOpValue, nsIMsgSearchValue *, nsMsgSearchBooleanOperator, const char * arbitraryHeader);
 
-  virtual ~nsMsgSearchTerm ();
-
     NS_DECL_ISUPPORTS
     NS_DECL_NSIMSGSEARCHTERM
 
@@ -59,6 +57,8 @@ public:
   nsCString m_customId; // id of custom search term
 
 protected:
+  virtual ~nsMsgSearchTerm();
+
   nsresult MatchString(const nsACString &stringToMatch, const char *charset,
                        bool *pResult);
   nsresult OutputValue(nsCString &outputStr);

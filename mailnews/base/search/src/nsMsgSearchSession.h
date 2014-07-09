@@ -29,9 +29,10 @@ public:
   NS_DECL_NSIURLLISTENER
 
   nsMsgSearchSession();
-  virtual ~nsMsgSearchSession();
 
 protected:
+  virtual ~nsMsgSearchSession();
+
   nsWeakPtr m_msgWindowWeak;
   nsresult Initialize();
   nsresult StartTimer();
@@ -47,7 +48,7 @@ protected:
   void EnableFolderNotifications(bool aEnable);
   void ReleaseFolderDBRef();
 
-  nsTArray<nsMsgSearchScopeTerm*> m_scopeList;
+  nsTArray<nsRefPtr<nsMsgSearchScopeTerm>> m_scopeList;
   nsCOMPtr <nsISupportsArray> m_termList;
 
   nsTArray<nsCOMPtr<nsIMsgSearchNotify> > m_listenerList;
