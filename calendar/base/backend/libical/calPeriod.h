@@ -16,7 +16,7 @@ extern "C" {
     #include "ical.h"
 }
 
-class calPeriod : public calIPeriod
+class calPeriod MOZ_FINAL : public calIPeriod
 {
 public:
     calPeriod ();
@@ -30,6 +30,7 @@ public:
     NS_DECL_CALIPERIOD
 
 protected:
+    ~calPeriod() {}
     calPeriod const& operator=(calPeriod const&);
 
     bool mImmutable;

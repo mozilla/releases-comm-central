@@ -20,6 +20,7 @@ public:
     NS_DECL_CALITIMEZONE
 
 protected:
+    virtual ~calTimezone() {}
     nsCString const                   mTzid;
     nsCOMPtr<calIIcalComponent> const mIcalComponent;
 };

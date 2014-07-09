@@ -21,6 +21,7 @@ class calICSService : public calIICSService,
                       public cal::XpcomBase
 {
 protected:
+    virtual ~calICSService() {}
     class ParserWorker : public nsRunnable {
     public:
       ParserWorker(nsIThread *mainThread,

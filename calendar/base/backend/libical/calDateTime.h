@@ -22,6 +22,7 @@ public:
     NS_DECL_CALIDATETIME
 
 protected:
+    virtual ~calDateTime() {}
     bool mImmutable;
     bool mIsValid;
     bool mIsDate;

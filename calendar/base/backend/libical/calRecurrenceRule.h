@@ -21,6 +21,8 @@ public:
     NS_DECL_CALIRECURRENCEITEM
     NS_DECL_CALIRECURRENCERULE
 protected:
+    virtual ~calRecurrenceRule() {}
+
     icalrecurrencetype mIcalRecur;
 
     bool mImmutable;

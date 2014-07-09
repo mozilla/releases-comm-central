@@ -12,7 +12,7 @@ extern "C" {
     #include "ical.h"
 }
 
-class calDuration : public calIDuration
+class calDuration MOZ_FINAL : public calIDuration
 {
 public:
     calDuration ();
@@ -26,6 +26,7 @@ public:
     NS_DECL_CALIDURATION
 
 protected:
+    ~calDuration() {}
     bool mImmutable;
 
     struct icaldurationtype mDuration;
