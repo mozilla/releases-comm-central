@@ -17,7 +17,6 @@ class nsCopyMessageStreamListener : public nsIStreamListener, public nsICopyMess
 
 public:
 	nsCopyMessageStreamListener();
-	virtual ~nsCopyMessageStreamListener();
 
 	NS_DECL_THREADSAFE_ISUPPORTS
     NS_DECL_NSICOPYMESSAGESTREAMLISTENER
@@ -25,6 +24,8 @@ public:
     NS_DECL_NSISTREAMLISTENER
 
 protected:
+	virtual ~nsCopyMessageStreamListener();
+
 	nsCOMPtr<nsICopyMessageListener> mDestination;
 	nsCOMPtr<nsISupports> mListenerData;
 	nsCOMPtr<nsIMsgFolder> mSrcFolder;

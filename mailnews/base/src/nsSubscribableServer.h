@@ -39,7 +39,6 @@ class nsSubscribableServer : public nsISubscribableServer
 {
  public:
   nsSubscribableServer();
-  virtual ~nsSubscribableServer();
 
   nsresult Init();
 
@@ -47,6 +46,8 @@ class nsSubscribableServer : public nsISubscribableServer
   NS_DECL_NSISUBSCRIBABLESERVER
   
 private:
+  virtual ~nsSubscribableServer();
+
   nsresult ConvertNameToUnichar(const char *inStr, char16_t **outStr);
   nsCOMPtr <nsISubscribeListener> mSubscribeListener;
   nsCOMPtr <nsIMsgIncomingServer> mIncomingServer;

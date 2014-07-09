@@ -54,7 +54,6 @@ public:
     NS_DECL_THREADSAFE_ISUPPORTS
 
     nsImapMailCopyState();
-    virtual ~nsImapMailCopyState();
 
     nsCOMPtr<nsISupports> m_srcSupport; // source file spec or folder
     nsCOMPtr<nsIArray> m_messages; // array of source messages
@@ -86,6 +85,9 @@ public:
     // If the server supports UIDPLUS, this is the UID for the append,
     // if we're doing an append.
     nsMsgKey m_appendUID;
+
+private:
+    virtual ~nsImapMailCopyState();
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsImapMailCopyState, NS_IMAPMAILCOPYSTATE_IID)
@@ -197,7 +199,6 @@ class nsImapMailFolder :  public nsMsgDBFolder,
  static const uint32_t PLAYBACK_TIMER_INTERVAL_IN_MS = 500; 
 public:
   nsImapMailFolder();
-  virtual ~nsImapMailFolder();
 
   NS_DECL_ISUPPORTS_INHERITED
 
@@ -343,6 +344,7 @@ public:
   nsresult FindOpenRange(nsMsgKey &fakeBase, uint32_t srcCount);
 
 protected:
+  virtual ~nsImapMailFolder();
   // Helper methods
 
   virtual nsresult CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder) MOZ_OVERRIDE;

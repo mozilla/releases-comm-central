@@ -1077,6 +1077,9 @@ public:
     }
     memoryPath.Append(')');
   }
+
+private:
+  ~MsgDBReporter() {}
 };
 
 NS_IMPL_ISUPPORTS(MsgDBReporter, nsIMemoryReporter)
@@ -3205,9 +3208,9 @@ public:
     typedef nsresult (*nsMsgDBThreadEnumeratorFilter)(nsIMsgThread* thread);
 
     nsMsgDBThreadEnumerator(nsMsgDatabase* db, nsMsgDBThreadEnumeratorFilter filter);
-    virtual ~nsMsgDBThreadEnumerator();
 
 protected:
+    virtual ~nsMsgDBThreadEnumerator();
     nsresult          GetTableCursor(void);
     nsresult          PrefetchNext();
     nsMsgDatabase*              mDB;

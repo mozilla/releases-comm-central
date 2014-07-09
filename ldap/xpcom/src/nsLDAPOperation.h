@@ -31,7 +31,6 @@ class nsLDAPOperation : public nsILDAPOperation
     // constructor & destructor
     //
     nsLDAPOperation();
-    virtual ~nsLDAPOperation();
 
     /**
      * used to break cycles
@@ -39,6 +38,8 @@ class nsLDAPOperation : public nsILDAPOperation
     void Clear();
 
   private:
+    virtual ~nsLDAPOperation();
+
     /**
      * wrapper for ldap_add_ext()
      *

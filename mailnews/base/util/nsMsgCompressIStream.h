@@ -9,11 +9,10 @@
 #include "nsAutoPtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressIStream : public nsIAsyncInputStream
+class NS_MSG_BASE nsMsgCompressIStream MOZ_FINAL : public nsIAsyncInputStream
 {
 public:
   nsMsgCompressIStream();
-  ~nsMsgCompressIStream();
 
   NS_DECL_THREADSAFE_ISUPPORTS
     
@@ -23,6 +22,7 @@ public:
   nsresult InitInputStream(nsIInputStream *rawStream);
 
 protected:
+  ~nsMsgCompressIStream();
   nsresult DoInflation();
   nsCOMPtr<nsIInputStream> m_iStream;
   nsAutoArrayPtr<char> m_zbuf;

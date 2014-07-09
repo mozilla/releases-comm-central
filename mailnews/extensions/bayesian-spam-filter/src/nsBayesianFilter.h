@@ -355,7 +355,6 @@ public:
     NS_DECL_NSIOBSERVER
 
     nsBayesianFilter();
-    virtual ~nsBayesianFilter();
 
     nsresult Init();
 
@@ -380,6 +379,7 @@ public:
 
 
 protected:
+    virtual ~nsBayesianFilter();
 
     static void TimerCallback(nsITimer* aTimer, void* aClosure);
 

@@ -38,6 +38,7 @@ public:
   NS_DECL_NSIURLLISTENER
 
 private:
+  virtual ~nsMessengerUnixIntegration() {}
   nsresult ShowAlertMessage(const nsAString& aAlertTitle, const nsAString& aAlertText, const nsACString& aFolderURI);
   nsresult GetFirstFolderWithNewMail(nsACString& aFolderURI);
   nsresult GetStringBundle(nsIStringBundle **aBundle);

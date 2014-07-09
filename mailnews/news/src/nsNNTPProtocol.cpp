@@ -542,10 +542,10 @@ public:
   NS_DECL_NSISTREAMLISTENER
 
   nsNntpCacheStreamListener ();
-  virtual ~nsNntpCacheStreamListener();
 
   nsresult Init(nsIStreamListener * aStreamListener, nsIChannel* channel, nsIMsgMailNewsUrl *aRunningUrl);
 protected:
+  virtual ~nsNntpCacheStreamListener();
     nsCOMPtr<nsIChannel> mChannelToUse;
   nsCOMPtr<nsIStreamListener> mListener;
   nsCOMPtr<nsIMsgMailNewsUrl> mRunningUrl;

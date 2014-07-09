@@ -30,7 +30,6 @@ public:
   NS_DECL_NSIURLLISTENER
 
   nsImapMoveCoalescer(nsIMsgFolder *sourceFolder, nsIMsgWindow *msgWindow);
-  virtual ~nsImapMoveCoalescer();
 
   nsresult AddMove(nsIMsgFolder *folder, nsMsgKey key);
   nsresult PlaybackMoves(bool doNewMailNotification = false);
@@ -40,6 +39,7 @@ public:
   nsIMsgWindow *GetMsgWindow() {return m_msgWindow;}
   bool HasPendingMoves() {return m_hasPendingMoves;}
 protected:
+  virtual ~nsImapMoveCoalescer();
   // m_sourceKeyArrays and m_destFolders are parallel arrays.
   nsTArray<nsTArray<nsMsgKey> > m_sourceKeyArrays;
   nsCOMArray<nsIMsgFolder> m_destFolders;
@@ -51,11 +51,10 @@ protected:
   int32_t m_outstandingMoves;
 };
 
-class nsMoveCoalescerCopyListener : public nsIMsgCopyServiceListener
+class nsMoveCoalescerCopyListener MOZ_FINAL : public nsIMsgCopyServiceListener
 {
 public:
     nsMoveCoalescerCopyListener(nsImapMoveCoalescer * coalescer, nsIMsgFolder *destFolder);
-    ~nsMoveCoalescerCopyListener();
     NS_DECL_ISUPPORTS
     NS_DECL_NSIMSGCOPYSERVICELISTENER
 
@@ -64,6 +63,9 @@ public:
       nsImapMoveCoalescer *m_coalescer;
     // when we get OnStopCopy, update the folder. When we've finished all the copies,
     // send the biff notification.
+
+private:
+    ~nsMoveCoalescerCopyListener();
 };
 
 

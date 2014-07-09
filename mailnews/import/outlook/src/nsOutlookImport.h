@@ -25,7 +25,6 @@ class nsOutlookImport : public nsIImportModule
 public:
 
   nsOutlookImport();
-  virtual ~nsOutlookImport();
 
   NS_DECL_ISUPPORTS
 
@@ -36,6 +35,7 @@ public:
   NS_DECL_NSIIMPORTMODULE
 
 protected:
+  virtual ~nsOutlookImport();
 };
 
 

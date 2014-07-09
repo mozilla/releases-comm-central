@@ -247,7 +247,6 @@ public:
   // nsAddrDatabase methods:
 
   nsAddrDatabase();
-  virtual ~nsAddrDatabase();
 
   void GetMDBFactory(nsIMdbFactory ** aMdbFactory);
   nsIMdbEnv    *GetEnv() {return m_mdbEnv;}
@@ -278,6 +277,7 @@ public:
     NS_IMETHOD FindRowByCard(nsIAbCard * card,nsIMdbRow **aRow) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsAddrDatabase();
 
   static void RemoveFromCache(nsAddrDatabase* pAddrDB);
   bool MatchDbName(nsIFile *dbName); // returns TRUE if they match

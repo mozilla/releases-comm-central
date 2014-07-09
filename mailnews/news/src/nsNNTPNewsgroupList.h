@@ -54,12 +54,13 @@ class nsNNTPNewsgroupList : public nsINNTPNewsgroupList, public nsIMsgFilterHitN
 {
 public:
   nsNNTPNewsgroupList();
-  virtual  ~nsNNTPNewsgroupList();
   NS_DECL_ISUPPORTS
   NS_DECL_NSINNTPNEWSGROUPLIST
   NS_DECL_NSIMSGFILTERHITNOTIFY
 
 private:
+  virtual  ~nsNNTPNewsgroupList();
+
   NS_METHOD CleanUp();
      
   bool    m_finishingXover;

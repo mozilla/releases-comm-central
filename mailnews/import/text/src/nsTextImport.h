@@ -22,7 +22,6 @@ class nsTextImport : public nsIImportModule
 {
 public:
   nsTextImport();
-  virtual ~nsTextImport();
 
   NS_DECL_ISUPPORTS
 
@@ -33,6 +32,7 @@ public:
   NS_DECL_NSIIMPORTMODULE
 
 protected:
+  virtual ~nsTextImport();
   nsCOMPtr<nsIStringBundle>   m_stringBundle;
 };
 

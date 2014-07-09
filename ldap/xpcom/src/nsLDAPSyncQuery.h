@@ -28,9 +28,9 @@ class nsLDAPSyncQuery : public nsILDAPSyncQuery,
     NS_DECL_NSILDAPSYNCQUERY
 
     nsLDAPSyncQuery();
-    virtual ~nsLDAPSyncQuery();
 
   protected:
+    virtual ~nsLDAPSyncQuery();
 
     nsCOMPtr<nsILDAPConnection> mConnection; // connection used for search
     nsCOMPtr<nsILDAPOperation> mOperation;   // current ldap op

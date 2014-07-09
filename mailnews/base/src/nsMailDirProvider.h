@@ -11,7 +11,7 @@
 #include "nsStringGlue.h"
 #include "nsCOMPtr.h"
 
-class nsMailDirProvider : public nsIDirectoryServiceProvider2
+class nsMailDirProvider MOZ_FINAL : public nsIDirectoryServiceProvider2
 {
 public:
   NS_DECL_ISUPPORTS
@@ -19,9 +19,11 @@ public:
   NS_DECL_NSIDIRECTORYSERVICEPROVIDER2
 
 private:
+  ~nsMailDirProvider() {}
+
   nsresult EnsureDirectory(nsIFile *aDirectory);
 
-  class AppendingEnumerator : public nsISimpleEnumerator
+  class AppendingEnumerator MOZ_FINAL : public nsISimpleEnumerator
   {
   public:
     NS_DECL_ISUPPORTS
@@ -30,6 +32,7 @@ private:
     AppendingEnumerator(nsISimpleEnumerator* aBase);
 
   private:
+    ~AppendingEnumerator() {}
     nsCOMPtr<nsISimpleEnumerator> mBase;
     nsCOMPtr<nsIFile>             mNext;
     nsCOMPtr<nsIFile>             mNextWithLocale;

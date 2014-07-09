@@ -15,6 +15,8 @@ public:
   NS_DECL_NSIABDIRFACTORY
 
   nsAbMDBDirFactory();
+
+private:
   virtual ~nsAbMDBDirFactory();
 };
 

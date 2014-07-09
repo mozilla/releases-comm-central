@@ -61,9 +61,9 @@ public:
 	NS_DECL_NSIIMPORTMIMEENCODE
 
 	nsIImportMimeEncodeImpl();
-	virtual ~nsIImportMimeEncodeImpl();
 
 private:
+	virtual ~nsIImportMimeEncodeImpl();
 	ImportOutFile *			m_pOut;
 	nsImportMimeEncode *	m_pEncode;
 };

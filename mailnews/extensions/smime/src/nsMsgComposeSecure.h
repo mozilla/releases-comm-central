@@ -33,9 +33,9 @@ public:
   NS_DECL_NSIMSGSMIMECOMPFIELDS
 
   nsMsgSMIMEComposeFields();
-  virtual ~nsMsgSMIMEComposeFields();
 
 private:
+  virtual ~nsMsgSMIMEComposeFields();
   bool mSignMessage;
   bool mAlwaysEncryptMessage;
 };
@@ -55,10 +55,10 @@ public:
   NS_DECL_NSIMSGCOMPOSESECURE
 
   nsMsgComposeSecure();
-  virtual ~nsMsgComposeSecure();
   /* additional members */
   void GetOutputStream(nsIOutputStream **stream) { NS_IF_ADDREF(*stream = mStream);}
 private:
+  virtual ~nsMsgComposeSecure();
   typedef mozilla::mailnews::MimeEncoder MimeEncoder;
   nsresult MimeInitMultipartSigned(bool aOuter, nsIMsgSendReport *sendReport);
   nsresult MimeInitEncryption(bool aSign, nsIMsgSendReport *sendReport);

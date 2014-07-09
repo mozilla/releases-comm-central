@@ -24,7 +24,6 @@ class nsMsgProgress : public nsIMsgProgress,
 {
 public: 
   nsMsgProgress();
-  virtual ~nsMsgProgress();
   
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGPROGRESS
@@ -33,6 +32,7 @@ public:
   NS_DECL_NSIPROGRESSEVENTSINK
 
 private:
+  virtual ~nsMsgProgress();
   nsresult ReleaseListeners(void);
   
   bool                               m_closeProgress;

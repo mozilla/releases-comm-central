@@ -27,11 +27,12 @@ public:
   // constructor & destructor
   //
   nsLDAPModification();
-  virtual ~nsLDAPModification();
 
   nsresult Init();
 
 private:
+  virtual ~nsLDAPModification();
+
   int32_t mOperation;
   nsCString mType;
   nsCOMPtr<nsIMutableArray> mValues;

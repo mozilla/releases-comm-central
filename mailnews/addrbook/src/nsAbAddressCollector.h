@@ -20,7 +20,6 @@ class nsAbAddressCollector : public nsIAbAddressCollector,
 {
 public:
   nsAbAddressCollector();
-  virtual ~nsAbAddressCollector();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABADDRESSCOLLECTOR
@@ -29,6 +28,7 @@ public:
   nsresult Init();
 
 private:
+  virtual ~nsAbAddressCollector();
   already_AddRefed<nsIAbCard> GetCardForAddress(const nsACString &aEmailAddress,
                                                 nsIAbDirectory **aDirectory);
   void AutoCollectScreenName(nsIAbCard *aCard, const nsACString &aEmail);

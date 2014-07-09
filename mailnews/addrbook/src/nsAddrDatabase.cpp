@@ -2511,9 +2511,9 @@ public:
     // nsAddrDBEnumerator methods:
 
     nsAddrDBEnumerator(nsAddrDatabase* aDb);
-    virtual ~nsAddrDBEnumerator();
     void Clear();
 protected:
+    virtual ~nsAddrDBEnumerator();
     nsRefPtr<nsAddrDatabase> mDb;
     nsIMdbTable *mDbTable;
     nsCOMPtr<nsIMdbTableRowCursor> mRowCursor;
@@ -2666,7 +2666,7 @@ NS_IMETHODIMP nsAddrDBEnumerator::OnAnnouncerGoingAway()
   return NS_OK;
 }
 
-class nsListAddressEnumerator : public nsISimpleEnumerator
+class nsListAddressEnumerator MOZ_FINAL : public nsISimpleEnumerator
 {
 public:
     NS_DECL_ISUPPORTS
@@ -2679,6 +2679,7 @@ public:
     nsListAddressEnumerator(nsAddrDatabase* aDb, mdb_id aRowID);
 
 protected:
+    ~nsListAddressEnumerator() {}
     nsRefPtr<nsAddrDatabase> mDb;
     nsIMdbTable *mDbTable;
     nsCOMPtr<nsIMdbRow> mListRow;

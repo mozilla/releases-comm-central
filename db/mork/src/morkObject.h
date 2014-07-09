@@ -60,7 +60,6 @@ public: // state is public because the entire Mork system is private
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseObject() only if open
-  virtual ~morkObject(); // assert that CloseObject() executed earlier
 #ifdef MORK_DEBUG_HEAP_STATS
   void operator delete(void* ioAddress, size_t size)
   { 
@@ -103,6 +102,7 @@ public: // morkNode virtual methods
 protected: // special case construction of first env without preceding env
   morkObject(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
     mork_color inBeadColor);
+  virtual ~morkObject(); // assert that CloseObject() executed earlier
   
 public: // morkEnv construction & destruction
   morkObject(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap, 

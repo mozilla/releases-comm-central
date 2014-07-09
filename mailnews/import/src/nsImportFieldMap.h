@@ -24,11 +24,11 @@ public:
   NS_DECL_NSIIMPORTFIELDMAP
 
   nsImportFieldMap(nsIStringBundle *aBundle);
-  virtual ~nsImportFieldMap();
 
    static NS_METHOD Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
 private:
+  virtual ~nsImportFieldMap();
   nsresult  Allocate(int32_t newSize);
 
 private:

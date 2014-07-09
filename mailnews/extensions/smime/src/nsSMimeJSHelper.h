@@ -16,9 +16,9 @@ public:
   NS_DECL_NSISMIMEJSHELPER
 
   nsSMimeJSHelper();
-  virtual ~nsSMimeJSHelper();
 
 private:
+  virtual ~nsSMimeJSHelper();
   nsresult getMailboxList(nsIMsgCompFields *compFields,
     nsTArray<nsCString> &mailboxes);
 };

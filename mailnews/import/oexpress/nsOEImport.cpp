@@ -55,7 +55,6 @@ class ImportOEMailImpl : public nsIImportMail
 {
 public:
   ImportOEMailImpl();
-  virtual ~ImportOEMailImpl();
 
   static nsresult Create(nsIImportMail** aImport);
 
@@ -87,6 +86,7 @@ public:
   static void SetLogs(nsString& success, nsString& error, char16_t **pError, char16_t **pSuccess);
 
 private:
+  virtual ~ImportOEMailImpl();
   uint32_t m_bytesDone;
 };
 
@@ -95,7 +95,6 @@ class ImportOEAddressImpl : public nsIImportAddressBooks
 {
 public:
     ImportOEAddressImpl();
-    virtual ~ImportOEAddressImpl();
 
   static nsresult Create(nsIImportAddressBooks** aImport);
 
@@ -133,6 +132,7 @@ public:
   NS_IMETHOD SetSampleLocation(nsIFile *) { return NS_OK; }
 
 private:
+  virtual ~ImportOEAddressImpl();
   static void ReportSuccess(nsString& name, nsString *pStream);
 
 private:

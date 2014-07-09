@@ -16,12 +16,13 @@ class nsNoneService : public nsIMsgProtocolInfo, public nsINoneService
 public:
 
   nsNoneService();
-  virtual ~nsNoneService();
 
   NS_DECL_ISUPPORTS
     NS_DECL_NSIMSGPROTOCOLINFO
   NS_DECL_NSINONESERVICE
 
+private:
+  virtual ~nsNoneService();
 };
 
 #endif /* nsNoneService_h___ */

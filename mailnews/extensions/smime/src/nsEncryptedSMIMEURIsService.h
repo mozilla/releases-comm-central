@@ -16,9 +16,9 @@ public:
   NS_DECL_NSIENCRYPTEDSMIMEURISSERVICE
 
   nsEncryptedSMIMEURIsService();
-  virtual ~nsEncryptedSMIMEURIsService();
 
 protected:
+  virtual ~nsEncryptedSMIMEURIsService();
   nsTArray<nsCString> mEncryptedURIs;
 };
 

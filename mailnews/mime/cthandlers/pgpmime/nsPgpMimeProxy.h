@@ -38,13 +38,13 @@ public:
   NS_DECL_NSIINPUTSTREAM
 
   nsPgpMimeProxy();
-  virtual ~nsPgpMimeProxy();
 
   // Define a Create method to be used with a factory:
   static NS_METHOD
   Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
 protected:
+  virtual ~nsPgpMimeProxy();
   bool                          mInitialized;
   nsCOMPtr<nsIStreamListener>   mDecryptor;
 

@@ -33,9 +33,10 @@ class nsLDAPMessage : public nsILDAPMessage
     // constructor & destructor
     //
     nsLDAPMessage();
-    virtual ~nsLDAPMessage();
 
   protected:
+    virtual ~nsLDAPMessage();
+
     nsresult IterateAttrErrHandler(int32_t aLderrno, uint32_t *aAttrCount,
                             char** *aAttributes, BerElement *position);
     nsresult IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,

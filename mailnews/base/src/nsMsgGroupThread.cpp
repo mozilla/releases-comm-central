@@ -332,9 +332,9 @@ public:
   nsMsgGroupThreadEnumerator(nsMsgGroupThread *thread, nsMsgKey startKey,
   nsMsgGroupThreadEnumeratorFilter filter, void* closure);
   int32_t MsgKeyFirstChildIndex(nsMsgKey inMsgKey);
-  virtual ~nsMsgGroupThreadEnumerator();
   
 protected:
+  virtual ~nsMsgGroupThreadEnumerator();
   
   nsresult                Prefetch();
   

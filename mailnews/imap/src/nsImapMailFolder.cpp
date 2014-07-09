@@ -6335,14 +6335,15 @@ public:
   AdoptUTF8StringEnumerator(nsTArray<nsCString>* array) :
     mStrings(array), mIndex(0)
   {}
+
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIUTF8STRINGENUMERATOR
+private:
   ~AdoptUTF8StringEnumerator()
   {
     delete mStrings;
   }
 
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIUTF8STRINGENUMERATOR
-private:
   nsTArray<nsCString>* mStrings;
   uint32_t             mIndex;
 };
@@ -7680,7 +7681,6 @@ class nsImapFolderCopyState MOZ_FINAL : public nsIUrlListener, public nsIMsgCopy
 public:
   nsImapFolderCopyState(nsIMsgFolder *destParent, nsIMsgFolder *srcFolder,
                     bool isMoveFolder, nsIMsgWindow *msgWindow, nsIMsgCopyServiceListener *listener);
-  ~nsImapFolderCopyState();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
@@ -7689,6 +7689,7 @@ public:
   nsresult StartNextCopy();
   nsresult AdvanceToNextFolder(nsresult aStatus);
 protected:
+  ~nsImapFolderCopyState();
   nsRefPtr<nsImapMailFolder> m_newDestFolder;
   nsCOMPtr<nsISupports> m_origSrcFolder;
   nsCOMPtr<nsIMsgFolder> m_curDestParent;

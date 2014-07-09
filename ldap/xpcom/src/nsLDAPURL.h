@@ -37,9 +37,9 @@ public:
   NS_DECL_NSILDAPURL
 
   nsLDAPURL();
-  virtual ~nsLDAPURL();
 
 protected:
+  virtual ~nsLDAPURL();
 
   void GetPathInternal(nsCString &aPath);
   nsresult SetPathInternal(const nsCString &aPath);

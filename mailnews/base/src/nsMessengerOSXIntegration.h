@@ -29,7 +29,6 @@ class nsMessengerOSXIntegration : public nsIMessengerOSIntegration,
 {
 public:
   nsMessengerOSXIntegration();
-  virtual ~nsMessengerOSXIntegration();
   virtual nsresult Init();
 
   NS_DECL_ISUPPORTS
@@ -39,6 +38,8 @@ public:
   NS_DECL_MOZINEWMAILLISTENER
 
 private:
+  virtual ~nsMessengerOSXIntegration();
+
   nsCOMPtr<nsIAtom> mBiffStateAtom;
   nsCOMPtr<nsIAtom> mNewMailReceivedAtom;
   nsresult ShowAlertMessage(const nsAString& aAlertTitle, const nsAString& aAlertText, const nsACString& aFolderURI);

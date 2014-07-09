@@ -216,7 +216,6 @@ public:
   nsIMAPBodyShell(nsImapProtocol *protocolConnection,
                   nsIMAPBodypartMessage *message, uint32_t UID,
                   const char *folderName);
-  virtual ~nsIMAPBodyShell();
   // To be used after a shell is uncached
   void SetConnection(nsImapProtocol *con) { m_protocolConnection = con; }
   virtual bool GetIsValid() { return m_isValid; }
@@ -268,6 +267,7 @@ public:
   IMAP_ContentModifiedType	GetContentModified() { return m_contentModified; }
   void SetContentModified(IMAP_ContentModifiedType modType) { m_contentModified = modType; }
 protected:
+  virtual ~nsIMAPBodyShell();
 
   nsIMAPBodypartMessage *m_message;
 

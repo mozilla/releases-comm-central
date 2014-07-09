@@ -18,9 +18,9 @@ public:
     NS_DECL_NSIADDBOOKURL
 
     nsAddbookUrl();
-    virtual ~nsAddbookUrl();
 
 protected:
+  virtual ~nsAddbookUrl();
   nsresult                      ParseUrl();         
   int32_t                       mOperationType;     // the internal ID for the operation
 

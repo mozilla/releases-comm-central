@@ -31,9 +31,10 @@ public:
   NS_DECL_NSIURLLISTENER
 
   nsMsgMdnGenerator();
-  virtual ~nsMsgMdnGenerator();
 
 private:
+  virtual ~nsMsgMdnGenerator();
+
   // Sanity Check methods
   bool ProcessSendMode(); // must called prior ValidateReturnPath
   bool ValidateReturnPath();

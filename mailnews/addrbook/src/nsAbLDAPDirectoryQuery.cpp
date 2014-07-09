@@ -44,12 +44,12 @@ public:
                                const nsACString &mechanism,
                                const int32_t resultLimit = -1,
                                const int32_t timeOut = 0);
-  virtual ~nsAbQueryLDAPMessageListener ();
 
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage);
 
 protected:
+  virtual ~nsAbQueryLDAPMessageListener ();
   nsresult OnLDAPMessageSearchEntry(nsILDAPMessage *aMessage);
   nsresult OnLDAPMessageSearchResult(nsILDAPMessage *aMessage);
 

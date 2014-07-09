@@ -24,7 +24,6 @@ class nsMailboxService : public nsIMailboxService, public nsIMsgMessageService, 
 public:
 
   nsMailboxService();
-  virtual ~nsMailboxService();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMAILBOXSERVICE
@@ -33,6 +32,7 @@ public:
   NS_DECL_NSIPROTOCOLHANDLER
 
 protected:
+  virtual ~nsMailboxService();
   bool          mPrintingOperation;
 
   // helper functions used by the service

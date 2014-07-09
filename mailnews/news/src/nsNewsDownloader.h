@@ -21,7 +21,6 @@ class nsNewsDownloader : public nsIUrlListener, public nsIMsgSearchNotify
 {
 public:
   nsNewsDownloader(nsIMsgWindow *window, nsIMsgDatabase *db, nsIUrlListener *listener);
-  virtual ~nsNewsDownloader();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
@@ -32,6 +31,8 @@ public:
   bool ShouldAbort() const { return m_abort; }
 
 protected:
+  virtual ~nsNewsDownloader();
+
   virtual int32_t Write(const char * /*block*/, int32_t length) {return length;}
   virtual void Abort();
   virtual void Complete();
@@ -96,7 +97,6 @@ class nsMsgDownloadAllNewsgroups : public nsIUrlListener
 {
 public:
   nsMsgDownloadAllNewsgroups(nsIMsgWindow *window, nsIUrlListener *listener);
-  virtual ~nsMsgDownloadAllNewsgroups();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
@@ -104,6 +104,8 @@ public:
   nsresult ProcessNextGroup();
 
 protected:
+  virtual ~nsMsgDownloadAllNewsgroups();
+
   bool     AdvanceToNextServer();
   bool     AdvanceToNextGroup();
   nsresult DownloadMsgsForCurrentGroup();

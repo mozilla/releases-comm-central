@@ -8601,10 +8601,10 @@ public:
   NS_DECL_NSISTREAMLISTENER
 
   nsImapCacheStreamListener ();
-  virtual ~nsImapCacheStreamListener();
 
   nsresult Init(nsIStreamListener * aStreamListener, nsIImapMockChannel * aMockChannelToUse);
 protected:
+  virtual ~nsImapCacheStreamListener();
   nsCOMPtr<nsIImapMockChannel> mChannelToUse;
   nsCOMPtr<nsIStreamListener> mListener;
 };

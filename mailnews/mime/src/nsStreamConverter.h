@@ -18,7 +18,6 @@
 class nsStreamConverter : public nsIStreamConverter, public nsIMimeStreamConverter {
 public:
   nsStreamConverter();
-  virtual ~nsStreamConverter();
 
   NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -42,6 +41,7 @@ public:
   NS_IMETHOD FirePendingStartRequest(void);
 
 private:
+  virtual ~nsStreamConverter();
   nsresult Close();
 
   // the input and output streams form a pipe...they need to be passed around together..

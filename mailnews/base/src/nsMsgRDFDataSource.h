@@ -26,7 +26,6 @@ class nsMsgRDFDataSource : public nsIRDFDataSource,
 {
  public:
   nsMsgRDFDataSource();
-  virtual ~nsMsgRDFDataSource();
   virtual nsresult Init();
 
   NS_DECL_CYCLE_COLLECTING_ISUPPORTS
@@ -41,6 +40,7 @@ class nsMsgRDFDataSource : public nsIRDFDataSource,
   virtual void Cleanup();
 
  protected:
+  virtual ~nsMsgRDFDataSource();
   nsIRDFService *getRDFService();
   static bool assertEnumFunc(nsIRDFObserver *aObserver, void *aData);
   static bool unassertEnumFunc(nsIRDFObserver *aObserver, void *aData);

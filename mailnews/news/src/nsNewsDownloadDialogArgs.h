@@ -13,12 +13,13 @@ class nsNewsDownloadDialogArgs : public nsINewsDownloadDialogArgs
 {
 public:
   nsNewsDownloadDialogArgs();
-  virtual ~nsNewsDownloadDialogArgs();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSINEWSDOWNLOADDIALOGARGS
 
 private:
+  virtual ~nsNewsDownloadDialogArgs();
+
   nsString mGroupName;
   int32_t mArticleCount;
   nsCString mServerKey;

@@ -33,9 +33,9 @@ public:
   NS_DECL_NSIDIRECTORYSERVICEPROVIDER2
 
   DirectoryProvider() {}
-  virtual ~DirectoryProvider() {}
 
 private:
+  virtual ~DirectoryProvider() {}
   class AppendingEnumerator : public nsISimpleEnumerator
   {
   public:
@@ -44,9 +44,9 @@ private:
 
     AppendingEnumerator(nsISimpleEnumerator* aBase,
                         char const *const *aAppendList);
-    virtual ~AppendingEnumerator() {}
 
   private:
+    virtual ~AppendingEnumerator() {}
     nsCOMPtr<nsISimpleEnumerator> mBase;
     char const *const *const      mAppendList;
     nsCOMPtr<nsIFile>             mNext;

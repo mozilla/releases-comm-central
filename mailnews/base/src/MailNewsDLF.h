@@ -22,10 +22,12 @@ class MailNewsDLF : public nsIDocumentLoaderFactory
 {
 public:
   MailNewsDLF();
-  virtual ~MailNewsDLF();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDOCUMENTLOADERFACTORY
+
+private:
+  virtual ~MailNewsDLF();
 };
 }
 }

@@ -56,7 +56,6 @@ class nsImportGenericMail : public nsIImportGeneric
 public:
 
   nsImportGenericMail();
-  virtual ~nsImportGenericMail();
 
   NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -78,6 +77,7 @@ public:
   NS_IMETHOD CancelImport(void);
 
 private:
+  virtual ~nsImportGenericMail();
   bool    CreateFolder(nsIMsgFolder **ppFolder);
   void  GetDefaultMailboxes(void);
   void  GetDefaultLocation(void);

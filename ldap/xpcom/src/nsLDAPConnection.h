@@ -52,9 +52,9 @@ class nsLDAPConnection : public nsILDAPConnection,
     // constructor & destructor
     //
     nsLDAPConnection();
-    virtual ~nsLDAPConnection();
 
   protected:
+    virtual ~nsLDAPConnection();
     // invoke the callback associated with a given message, and possibly
     // delete it from the connection queue
     //
@@ -115,13 +115,15 @@ public:
   nsLDAPConnectionRunnable(int32_t aOperationID,
                            nsILDAPOperation *aOperation,
                            nsLDAPConnection *aConnection);
-  virtual ~nsLDAPConnectionRunnable();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIRUNNABLE
 
   int32_t mOperationID;
   nsRefPtr<nsLDAPConnection> mConnection;
+
+private:
+  virtual ~nsLDAPConnectionRunnable();
 };
 
 #endif // _nsLDAPConnection_h_

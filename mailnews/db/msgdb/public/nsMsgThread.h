@@ -20,7 +20,6 @@ class nsMsgThread : public nsIMsgThread {
 public:
   nsMsgThread();
   nsMsgThread(nsMsgDatabase *db, nsIMdbTable *table);
-  virtual ~nsMsgThread();
 
   friend class nsMsgThreadEnumerator;
   friend class nsMsgDatabase;
@@ -31,6 +30,7 @@ public:
   nsRefPtr<nsMsgDatabase> m_mdbDB;
 
 protected:
+  virtual ~nsMsgThread();
 
   void                  Init();
   void                  Clear();

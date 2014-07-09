@@ -15,6 +15,8 @@ public:
   NS_DECL_NSIABDIRFACTORYSERVICE
 
   nsAbDirFactoryService();
+
+private:
   virtual ~nsAbDirFactoryService();
 };
 

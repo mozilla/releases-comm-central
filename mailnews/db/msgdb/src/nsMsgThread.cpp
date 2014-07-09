@@ -607,9 +607,9 @@ public:
   nsMsgThreadEnumerator(nsMsgThread *thread, nsMsgKey startKey,
   nsMsgThreadEnumeratorFilter filter, void* closure);
   int32_t MsgKeyFirstChildIndex(nsMsgKey inMsgKey);
-  virtual ~nsMsgThreadEnumerator();
 
 protected:
+  virtual ~nsMsgThreadEnumerator();
 
   nsresult                Prefetch();
 

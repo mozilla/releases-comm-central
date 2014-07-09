@@ -40,12 +40,12 @@ class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
 {
  public:
   nsMsgIncomingServer();
-  virtual ~nsMsgIncomingServer();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGINCOMINGSERVER
 
 protected:
+  virtual ~nsMsgIncomingServer();
   nsCString m_serverKey;
 
   // Sets m_password, if password found. Can return NS_ERROR_ABORT if the 

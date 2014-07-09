@@ -14,7 +14,6 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement
 {
 public:
   nsMsgFolderCacheElement();
-  virtual ~nsMsgFolderCacheElement();
   friend class nsMsgFolderCache;
 
   NS_DECL_ISUPPORTS
@@ -23,6 +22,8 @@ public:
   void SetMDBRow(nsIMdbRow *row);
   void SetOwningCache(nsMsgFolderCache *owningCache);
 protected:
+  virtual ~nsMsgFolderCacheElement();
+
   nsIMdbRow *m_mdbRow;
 
   nsMsgFolderCache *m_owningCache; // this will be ref-counted. Is this going to be a problem?

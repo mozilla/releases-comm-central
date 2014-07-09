@@ -8,11 +8,10 @@
 #include "nsCOMPtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressOStream : public nsIOutputStream
+class NS_MSG_BASE nsMsgCompressOStream MOZ_FINAL : public nsIOutputStream
 {
 public:
   nsMsgCompressOStream();
-  ~nsMsgCompressOStream();
 
   NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -21,6 +20,7 @@ public:
   nsresult InitOutputStream(nsIOutputStream *rawStream);
 
 protected:
+  ~nsMsgCompressOStream();
   nsCOMPtr<nsIOutputStream> m_oStream;
   nsAutoArrayPtr<char> m_zbuf;
   z_stream m_zstream;

@@ -35,9 +35,9 @@ public:
   NS_DECL_NSIABITEM
 
   nsAbCardProperty();
-  virtual ~nsAbCardProperty(void);
 
 protected:
+  virtual ~nsAbCardProperty();
 	bool     m_IsMailList;
 	nsCString m_MailListURI;
 

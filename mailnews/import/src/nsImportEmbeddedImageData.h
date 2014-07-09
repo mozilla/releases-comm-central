@@ -11,19 +11,21 @@
 #include "nsCOMPtr.h"
 #include "nsIURI.h"
 
-class nsImportEmbeddedImageData : public nsIMsgEmbeddedImageData
+class nsImportEmbeddedImageData MOZ_FINAL : public nsIMsgEmbeddedImageData
 {
 public:
   nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID);
   nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID, const nsACString &aName);
   nsImportEmbeddedImageData();
-  ~nsImportEmbeddedImageData();
   NS_DECL_NSIMSGEMBEDDEDIMAGEDATA
   NS_DECL_ISUPPORTS
 
   nsCOMPtr<nsIURI> m_uri;
   nsCString m_cid;
   nsCString m_name;
+
+private:
+  ~nsImportEmbeddedImageData();
 };
 
 

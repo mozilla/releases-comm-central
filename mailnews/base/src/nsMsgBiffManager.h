@@ -29,7 +29,6 @@ class nsMsgBiffManager
 {
 public:
   nsMsgBiffManager(); 
-  virtual ~nsMsgBiffManager();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGBIFFMANAGER
@@ -39,6 +38,8 @@ public:
   nsresult PerformBiff();
 
 protected:
+  virtual ~nsMsgBiffManager();
+
   int32_t FindServer(nsIMsgIncomingServer *server);
   nsresult SetNextBiffTime(nsBiffEntry &biffEntry, PRTime currentTime);
   nsresult SetupNextBiff();

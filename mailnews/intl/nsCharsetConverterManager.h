@@ -22,11 +22,11 @@ class nsCharsetConverterManager : public nsICharsetConverterManager
 
 public:
   nsCharsetConverterManager();
-  virtual ~nsCharsetConverterManager();
 
   static void Shutdown();
 
 private:
+  virtual ~nsCharsetConverterManager();
 
   static bool IsInternal(const nsACString& aCharset);
 };

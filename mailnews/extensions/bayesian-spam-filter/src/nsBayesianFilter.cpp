@@ -960,8 +960,8 @@ public:
     NS_DECL_NSIMSGHEADERSINK
 
     TokenStreamListener(TokenAnalyzer* analyzer);
-    virtual ~TokenStreamListener();
 protected:
+    virtual ~TokenStreamListener();
     TokenAnalyzer* mAnalyzer;
     char* mBuffer;
     uint32_t mBufferSize;

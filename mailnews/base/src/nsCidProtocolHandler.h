@@ -13,10 +13,12 @@ class nsCidProtocolHandler : public nsIProtocolHandler
 {
 public:
   nsCidProtocolHandler();
-  virtual ~nsCidProtocolHandler();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPROTOCOLHANDLER
+
+private:
+  virtual ~nsCidProtocolHandler();
 };
 
 #endif /* nsCidProtocolHandler_h__ */

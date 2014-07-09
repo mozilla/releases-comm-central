@@ -21,7 +21,6 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState
 public:
     NS_DECL_THREADSAFE_ISUPPORTS
     nsImapFlagAndUidState(int numberOfMessages);
-    virtual ~nsImapFlagAndUidState();
 
     NS_DECL_NSIIMAPFLAGANDUIDSTATE
 
@@ -36,6 +35,7 @@ public:
     uint16_t     GetSupportedUserFlags() { return fSupportedUserFlags; }
 
 private:
+  virtual ~nsImapFlagAndUidState();
 
   static PLDHashOperator FreeCustomFlags(const uint32_t &aKey, char *aData, void *closure);
     nsTArray<nsMsgKey>      fUids;

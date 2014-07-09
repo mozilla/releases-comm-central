@@ -17,8 +17,8 @@ public:
   NS_DECL_NSIABLDIFSERVICE
 
   nsAbLDIFService();
-  virtual ~nsAbLDIFService();
 private:
+  virtual ~nsAbLDIFService();
   nsresult        str_parse_line(char *line, char **type, char **value, int *vlen) const;
   char *          str_getline(char **next) const;
   nsresult        GetLdifStringRecord(char* buf, int32_t len, int32_t& stopPos);

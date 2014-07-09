@@ -26,7 +26,6 @@ class nsEudoraImport : public nsIImportModule
 public:
 
   nsEudoraImport();
-  virtual ~nsEudoraImport();
 
   NS_DECL_ISUPPORTS
 
@@ -38,6 +37,7 @@ public:
 
 
 protected:
+  virtual ~nsEudoraImport();
 };
 
 

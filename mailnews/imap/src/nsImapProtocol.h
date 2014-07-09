@@ -77,7 +77,6 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPHEADERINFO
   nsMsgImapLineDownloadCache();
-  virtual ~nsMsgImapLineDownloadCache();
     uint32_t  CurrentUID();
     uint32_t  SpaceAvailable();
     bool CacheEmpty();
@@ -85,6 +84,7 @@ public:
     msg_line_info *GetCurrentLineInfo();
 
 private:
+  virtual ~nsMsgImapLineDownloadCache();
 
     msg_line_info *fLineInfo;
     int32_t m_msgSize;
@@ -98,7 +98,6 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPHEADERXFERINFO
   nsMsgImapHdrXferInfo();
-  virtual ~nsMsgImapHdrXferInfo();
   void    ResetAll(); // reset HeaderInfos for re-use
   void    ReleaseAll(); // release HeaderInfos (frees up memory)
   // this will return null if we're full, in which case the client code
@@ -107,6 +106,7 @@ public:
   // call when we've finished adding lines to current hdr
   void    FinishCurrentHdr();
 private:
+  virtual ~nsMsgImapHdrXferInfo();
   nsCOMArray<nsIImapHeaderInfo> m_hdrInfos;
   int32_t   m_nextFreeHdrInfo;
 };
@@ -697,10 +697,10 @@ public:
   NS_DECL_NSITRANSPORTEVENTSINK
 
   nsImapMockChannel();
-  virtual ~nsImapMockChannel();
   static nsresult Create (const nsIID& iid, void **result);
 
 protected:
+  virtual ~nsImapMockChannel();
   nsCOMPtr <nsIURI> m_url;
 
   nsCOMPtr<nsIURI> m_originalUrl;

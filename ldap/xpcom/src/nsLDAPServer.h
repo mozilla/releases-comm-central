@@ -23,9 +23,10 @@ class nsLDAPServer : public nsILDAPServer
     // Constructor & destructor
     //
     nsLDAPServer();
-    virtual ~nsLDAPServer();
 
   protected:
+    virtual ~nsLDAPServer();
+
     nsString mKey;          // Unique identifier for this server object
     nsCString mUsername;    // Username / UID
     nsCString mPassword;    // Password to bind with

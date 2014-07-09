@@ -17,9 +17,9 @@ public:
     NS_DECL_NSIABDIRECTORYQUERYPROXY
 
     nsAbDirectoryQueryProxy();
-    virtual ~nsAbDirectoryQueryProxy();
 
 protected:
+    virtual ~nsAbDirectoryQueryProxy();
     bool mInitiated;
     nsCOMPtr<nsIAbDirectoryQuery> mDirectoryQuery;
 };

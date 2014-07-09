@@ -12,7 +12,6 @@
 class nsOutlookSettings : public nsIImportSettings {
 public:
     nsOutlookSettings();
-    virtual ~nsOutlookSettings();
 
   static nsresult Create(nsIImportSettings** aImport);
 
@@ -23,6 +22,7 @@ public:
   NS_DECL_NSIIMPORTSETTINGS
 
 private:
+  virtual ~nsOutlookSettings();
 
 };
 

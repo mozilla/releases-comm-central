@@ -22,12 +22,13 @@ public:
 
   nsMsgGroupThread();
   nsMsgGroupThread(nsIMsgDatabase *db);
-  virtual ~nsMsgGroupThread();
 
   NS_DECL_NSIMSGTHREAD
   NS_DECL_ISUPPORTS
 
 protected:
+  virtual ~nsMsgGroupThread();
+
   void      Init();
   nsMsgViewIndex AddChildFromGroupView(nsIMsgDBHdr *child, nsMsgDBView *view);
   nsresult  RemoveChild(nsMsgKey msgKey);
@@ -62,13 +63,14 @@ class nsMsgXFGroupThread : public nsMsgGroupThread
 {
 public:
   nsMsgXFGroupThread();
-  virtual ~nsMsgXFGroupThread();
 
   NS_IMETHOD GetNumChildren(uint32_t *aNumChildren) MOZ_OVERRIDE;
   NS_IMETHOD GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult) MOZ_OVERRIDE;
   NS_IMETHOD GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **aResult) MOZ_OVERRIDE;
   NS_IMETHOD RemoveChildAt(uint32_t aIndex) MOZ_OVERRIDE;
 protected:
+  virtual ~nsMsgXFGroupThread();
+
   virtual void InsertMsgHdrAt(nsMsgViewIndex index,
                               nsIMsgDBHdr *hdr) MOZ_OVERRIDE;
   virtual void SetMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr *hdr) MOZ_OVERRIDE;

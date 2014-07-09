@@ -24,13 +24,13 @@ class nsImportService : public nsIImportService
 public:
 
   nsImportService();
-  virtual ~nsImportService();
 
   NS_DECL_THREADSAFE_ISUPPORTS
 
     NS_DECL_NSIIMPORTSERVICE
 
 private:
+  virtual ~nsImportService();
     nsresult LoadModuleInfo(const char*pClsId, const char *pSupports);
   nsresult DoDiscover(void);
 

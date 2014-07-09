@@ -17,7 +17,6 @@ class nsIMsgFolder;
 class nsEudoraFilters : public nsIImportFilters {
 public:
   nsEudoraFilters();
-  virtual ~nsEudoraFilters();
 
   static nsresult Create(nsIImportFilters** aImport);
 
@@ -28,6 +27,7 @@ public:
   NS_DECL_NSIIMPORTFILTERS
 
 private:
+  virtual ~nsEudoraFilters();
   nsCOMPtr<nsIFile> m_pLocation;
   nsCOMPtr<nsIMutableArray> m_pServerArray;
   nsCOMPtr<nsIMutableArray> m_pFilterArray;

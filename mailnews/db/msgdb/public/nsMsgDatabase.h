@@ -40,14 +40,13 @@ const int32_t kMsgDBVersion = 1;
 // array.
 const uint32_t kInitialMsgDBCacheSize = 20;
 
-class nsMsgDBService : public nsIMsgDBService
+class nsMsgDBService MOZ_FINAL : public nsIMsgDBService
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGDBSERVICE
 
   nsMsgDBService();
-  ~nsMsgDBService();
 
   void AddToCache(nsMsgDatabase* pMessageDB);
   void DumpCache();
@@ -62,6 +61,7 @@ public:
   }
 
 protected:
+  ~nsMsgDBService();
   void HookupPendingListeners(nsIMsgDatabase *db, nsIMsgFolder *folder);
   void FinishDBOpen(nsIMsgFolder *aFolder, nsMsgDatabase *aMsgDB);
   nsMsgDatabase* FindInCache(nsIFile *dbName);
@@ -84,8 +84,6 @@ public:
     nsMsgDBEnumerator(nsMsgDatabase* db, nsIMdbTable *table,
                       nsMsgDBEnumeratorFilter filter, void* closure,
                       bool iterateForwards = true);
-    virtual ~nsMsgDBEnumerator();
-
     void Clear();
 
     nsresult                        GetRowCursor();
@@ -103,6 +101,9 @@ public:
     // This is used when the caller wants to limit how many headers the
     // enumerator looks at in any given time slice.
     mdb_pos                         mStopPos;
+
+protected:
+    virtual ~nsMsgDBEnumerator();
 };
 
 class nsMsgFilteredDBEnumerator : public nsMsgDBEnumerator
@@ -172,7 +173,6 @@ public:
   //////////////////////////////////////////////////////////////////////////////
   // nsMsgDatabase methods:
   nsMsgDatabase();
-  virtual ~nsMsgDatabase();
 
   void GetMDBFactory(nsIMdbFactory ** aMdbFactory);
   nsIMdbEnv             *GetEnv() {return m_mdbEnv;}
@@ -236,6 +236,8 @@ public:
   friend class nsMsgDBEnumerator;
   friend class nsMsgDBThreadEnumerator;
 protected:
+  virtual ~nsMsgDatabase();
+
   // prefs stuff - in future, we might want to cache the prefs interface
   nsresult        GetBoolPref(const char *prefName, bool *result);
   nsresult        GetIntPref(const char *prefName, int32_t *result);
@@ -432,11 +434,11 @@ class nsMsgRetentionSettings : public nsIMsgRetentionSettings
 {
 public:
   nsMsgRetentionSettings();
-  virtual ~nsMsgRetentionSettings();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGRETENTIONSETTINGS
 protected:
+  virtual ~nsMsgRetentionSettings();
   nsMsgRetainByPreference m_retainByPreference;
   uint32_t                m_daysToKeepHdrs;
   uint32_t                m_numHeadersToKeep;
@@ -451,11 +453,11 @@ class nsMsgDownloadSettings : public nsIMsgDownloadSettings
 {
 public:
   nsMsgDownloadSettings();
-  virtual ~nsMsgDownloadSettings();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGDOWNLOADSETTINGS
 protected:
+  virtual ~nsMsgDownloadSettings();
   bool m_useServerDefaults;
   bool m_downloadUnreadOnly;
   bool m_downloadByDate;

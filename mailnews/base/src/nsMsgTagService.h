@@ -12,7 +12,7 @@
 #include "nsStringGlue.h"
 #include "nsTArray.h"
 
-class nsMsgTag : public nsIMsgTag
+class nsMsgTag MOZ_FINAL : public nsIMsgTag
 {
 public:
   NS_DECL_ISUPPORTS
@@ -22,15 +22,16 @@ public:
            const nsAString  &aTag,
            const nsACString &aColor,
            const nsACString &aOrdinal);
-  ~nsMsgTag();
 
 protected:
+  ~nsMsgTag();
+
   nsString  mTag;
   nsCString mKey, mColor, mOrdinal;
 };
 
 
-class nsMsgTagService : public nsIMsgTagService
+class nsMsgTagService MOZ_FINAL : public nsIMsgTagService
 {
 public:
   NS_DECL_ISUPPORTS

@@ -87,11 +87,11 @@ class nsLDAPService : public nsILDAPService, public nsILDAPMessageListener
     // constructor and destructor
     //
     nsLDAPService();
-    virtual ~nsLDAPService();
     
     nsresult Init();
 
   protected:
+    virtual ~nsLDAPService();
     nsresult EstablishConnection(nsLDAPServiceEntry *,
                                  nsILDAPMessageListener *);
 

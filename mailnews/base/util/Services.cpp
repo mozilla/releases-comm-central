@@ -40,6 +40,8 @@ public:
 
   static void EnsureInitialized();
 private:
+  ~ShutdownObserver() {}
+
   void ShutdownServices();
   static ShutdownObserver *sShutdownObserver;
   static bool sShuttingDown;

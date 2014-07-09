@@ -33,12 +33,12 @@ public:
 
   nsCMSMessage();
   nsCMSMessage(NSSCMSMessage* aCMSMsg);
-  virtual ~nsCMSMessage();
   nsresult Init();
 
   void referenceContext(nsIInterfaceRequestor* aContext) {m_ctx = aContext;}
   NSSCMSMessage* getCMS() {return m_cmsMsg;}
 private:
+  virtual ~nsCMSMessage();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSMessage * m_cmsMsg;
   NSSCMSSignerInfo* GetTopLevelSignerInfo();
@@ -67,10 +67,10 @@ public:
   NS_DECL_NSICMSDECODER
 
   nsCMSDecoder();
-  virtual ~nsCMSDecoder();
   nsresult Init();
 
 private:
+  virtual ~nsCMSDecoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSDecoderContext *m_dcx;
   virtual void virtualDestroyNSSReference();
@@ -91,10 +91,10 @@ public:
   NS_DECL_NSICMSENCODER
 
   nsCMSEncoder();
-  virtual ~nsCMSEncoder();
   nsresult Init();
 
 private:
+  virtual ~nsCMSEncoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSEncoderContext *m_ecx;
   virtual void virtualDestroyNSSReference();

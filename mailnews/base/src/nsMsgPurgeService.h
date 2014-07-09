@@ -23,7 +23,6 @@ class nsMsgPurgeService
 {
 public:
 	nsMsgPurgeService(); 
-	virtual ~nsMsgPurgeService();
 
 	NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGPURGESERVICE
@@ -32,6 +31,7 @@ public:
 	nsresult PerformPurge();
 
 protected:
+	virtual ~nsMsgPurgeService();
   int32_t FindServer(nsIMsgIncomingServer *server);
   nsresult SetupNextPurge();
   nsresult PurgeSurver(nsIMsgIncomingServer *server);

@@ -54,7 +54,6 @@ public:
   NS_DECL_NSIDBCHANGELISTENER
 
   nsParseMailMessageState();
-  virtual               ~nsParseMailMessageState();
 
   void                  Init(uint32_t fileposition);
   virtual nsresult      ParseFolderLine(const char *line, uint32_t lineLength);
@@ -124,6 +123,7 @@ public:
   struct message_header *m_customDBHeaderValues;
   nsCString m_receivedValue; // accumulated received header
 protected:
+  virtual ~nsParseMailMessageState();
 };
 
 // This class is part of the mailbox parsing state machine

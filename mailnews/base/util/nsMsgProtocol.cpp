@@ -1033,7 +1033,6 @@ public:
     NS_DECL_THREADSAFE_ISUPPORTS
 
     nsMsgProtocolStreamProvider() { }
-    virtual ~nsMsgProtocolStreamProvider() {}
 
     void Init(nsMsgAsyncWriteProtocol *aProtInstance, nsIInputStream *aInputStream)
     {
@@ -1102,6 +1101,8 @@ public:
 
 
 protected:
+  virtual ~nsMsgProtocolStreamProvider() {}
+
   nsCOMPtr<nsIWeakReference> mMsgProtocol;
   nsCOMPtr<nsIInputStream>  mInStream;
 };
@@ -1118,11 +1119,11 @@ public:
 
   nsMsgFilePostHelper() { mSuspendedPostFileRead = false;}
   nsresult Init(nsIOutputStream * aOutStream, nsMsgAsyncWriteProtocol * aProtInstance, nsIFile *aFileToPost);
-  virtual ~nsMsgFilePostHelper() {}
   nsCOMPtr<nsIRequest> mPostFileRequest;
   bool mSuspendedPostFileRead;
   void CloseSocket() { mProtInstance = nullptr; }
 protected:
+  virtual ~nsMsgFilePostHelper() {}
   nsCOMPtr<nsIOutputStream> mOutStream;
   nsCOMPtr<nsIWeakReference> mProtInstance;
 };

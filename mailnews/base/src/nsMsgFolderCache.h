@@ -19,12 +19,13 @@ public:
   friend class nsMsgFolderCacheElement;
 
   nsMsgFolderCache();
-  virtual ~nsMsgFolderCache();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGFOLDERCACHE
 
 protected:
+  virtual ~nsMsgFolderCache();
+
   void GetMDBFactory(nsIMdbFactory ** aMdbFactory);
   nsresult AddCacheElement(const nsACString& key, nsIMdbRow *row, nsIMsgFolderCacheElement **result);
   nsresult RowCellColumnToCharPtr(nsIMdbRow *hdrRow, mdb_token columnToken, nsACString& resultPtr);

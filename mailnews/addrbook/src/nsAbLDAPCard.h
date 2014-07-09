@@ -20,9 +20,9 @@ public:
   NS_DECL_NSIABLDAPCARD
 
   nsAbLDAPCard();
-  virtual ~nsAbLDAPCard();
 
 protected:
+  virtual ~nsAbLDAPCard();
   nsTArray<nsCString> m_attributes;
   nsTArray<nsCString> m_objectClass;
 };

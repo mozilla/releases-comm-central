@@ -216,9 +216,9 @@ public:
                               const char *aSenderAddr, const char *aSenderName,
                               nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel);
 
+protected:
   virtual ~nsSMimeVerificationListener() {}
   
-protected:
   /**
    * It is safe to declare this implementation as thread safe,
    * despite not using a lock to protect the members.

@@ -14,7 +14,6 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation
 public:
   /** Instance Methods **/
   nsMsgOfflineImapOperation(nsMsgDatabase *db, nsIMdbRow *row);
-  virtual   ~nsMsgOfflineImapOperation();
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGOFFLINEIMAPOPERATION
 
@@ -24,6 +23,7 @@ public:
   nsresult    SetCopiesToDB();
   void        Log(PRLogModuleInfo *logFile);
 protected:
+  virtual ~nsMsgOfflineImapOperation();
   nsresult AddKeyword(const char *aKeyword, nsCString &addList, const char *addProp,
                       nsCString &removeList, const char *removeProp);
 

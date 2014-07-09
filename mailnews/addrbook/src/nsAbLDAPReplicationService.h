@@ -18,11 +18,11 @@ public:
   NS_DECL_NSIABLDAPREPLICATIONSERVICE
 
   nsAbLDAPReplicationService();
-  virtual ~nsAbLDAPReplicationService();
 
   int32_t DecideProtocol();
 
 protected:
+  virtual ~nsAbLDAPReplicationService();
   nsCOMPtr<nsIAbLDAPReplicationQuery> mQuery; 
   bool           mReplicating;
   nsCOMPtr<nsIAbLDAPDirectory> mDirectory;

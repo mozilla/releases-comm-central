@@ -16,7 +16,7 @@
 #include "nsDirPrefs.h"
 #include "nsStringGlue.h"
 
-class nsAbLDAPReplicationQuery : public nsIAbLDAPReplicationQuery
+class nsAbLDAPReplicationQuery MOZ_FINAL : public nsIAbLDAPReplicationQuery
 {
 public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -28,6 +28,7 @@ public:
   nsresult ConnectToLDAPServer();
 
 protected :
+  ~nsAbLDAPReplicationQuery() {}
   // pointer to interfaces used by this object
   nsCOMPtr<nsILDAPConnection> mConnection;
   nsCOMPtr<nsILDAPOperation> mOperation;

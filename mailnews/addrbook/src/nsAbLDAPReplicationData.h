@@ -26,12 +26,12 @@ public:
   NS_DECL_NSIABLDAPPROCESSREPLICATIONDATA
 
   nsAbLDAPProcessReplicationData();
-  virtual ~nsAbLDAPProcessReplicationData();
 
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsAbLDAPProcessReplicationData();
   virtual nsresult DoTask() MOZ_OVERRIDE;
   virtual void InitFailed(bool aCancelled = false) MOZ_OVERRIDE;
 

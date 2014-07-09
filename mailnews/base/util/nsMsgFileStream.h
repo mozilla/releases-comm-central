@@ -9,11 +9,12 @@
 #include "nsISeekableStream.h"
 #include "prio.h"
 
-class nsMsgFileStream : public nsIInputStream, public nsIOutputStream, public nsISeekableStream
+class nsMsgFileStream MOZ_FINAL : public nsIInputStream,
+                                  public nsIOutputStream,
+                                  public nsISeekableStream
 {
 public:
   nsMsgFileStream();
-  ~nsMsgFileStream();
 
   NS_DECL_ISUPPORTS
 
@@ -25,6 +26,8 @@ public:
 
   nsresult InitWithFile(nsIFile *localFile);
 protected:
+  ~nsMsgFileStream();
+
   PRFileDesc *mFileDesc;
   bool mSeekedToEnd;
 };

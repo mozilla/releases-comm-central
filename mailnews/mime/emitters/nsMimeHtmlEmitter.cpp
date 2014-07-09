@@ -37,7 +37,7 @@
  * A helper class to implement nsIUTF8StringEnumerator
  */
 
-class nsMimeStringEnumerator : public nsIUTF8StringEnumerator {
+class nsMimeStringEnumerator MOZ_FINAL : public nsIUTF8StringEnumerator {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIUTF8STRINGENUMERATOR
@@ -48,6 +48,7 @@ public:
   nsCString* Append(T value) { return mValues.AppendElement(value); }
 
 protected:
+  ~nsMimeStringEnumerator() {}
   nsTArray<nsCString> mValues;
   uint32_t mCurrentIndex; // consumers expect first-in first-out enumeration
 };

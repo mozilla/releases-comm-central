@@ -24,8 +24,9 @@ public:
   NS_DECL_NSISTOPWATCH
 
   nsStopwatch();
-  virtual ~nsStopwatch();
 private:
+  virtual ~nsStopwatch();
+
   /// Wall-clock start time in seconds since unix epoch.
   double fStartRealTimeSecs;
   /// Wall-clock stop time in seconds since unix epoch.

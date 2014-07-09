@@ -24,12 +24,12 @@ public:
   NS_DECL_NSIABDIRECTORYQUERYRESULTLISTENER
 
   nsAbLDAPDirectoryQuery();
-  virtual ~nsAbLDAPDirectoryQuery();
 
 protected:
   nsCOMPtr<nsILDAPMessageListener> mListener;
 
 private:
+  virtual ~nsAbLDAPDirectoryQuery();
   nsCOMPtr<nsILDAPConnection> mConnection;
   nsCOMPtr<nsILDAPURL> mDirectoryUrl;
   nsCString mDirectoryId;

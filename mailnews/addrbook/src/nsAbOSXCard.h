@@ -41,6 +41,7 @@ public:
 private:
   nsCString mURI;
 
+  virtual ~nsAbOSXCard() {}
 };
 
 #endif // nsAbOSXCard_h___

@@ -19,7 +19,6 @@
 class nsMimeObjectClassAccess : public nsIMimeObjectClassAccess {
 public:
   nsMimeObjectClassAccess();
-  virtual ~nsMimeObjectClassAccess();
 
   /* this macro defines QueryInterface, AddRef and Release for this class */
   NS_DECL_ISUPPORTS
@@ -45,6 +44,9 @@ public:
 
   NS_IMETHOD    MimeCreate(char *content_type, void * hdrs,
                            void * opts, void**ptr) MOZ_OVERRIDE;
+
+private:
+  virtual ~nsMimeObjectClassAccess();
 };
 
 #endif /* nsMimeObjectClassAccess_h_ */

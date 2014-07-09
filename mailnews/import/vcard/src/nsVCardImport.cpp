@@ -36,7 +36,6 @@ class ImportVCardAddressImpl : public nsIImportAddressBooks
 {
 public:
   ImportVCardAddressImpl(nsIStringBundle* aStringBundle); 
-  virtual ~ImportVCardAddressImpl();
 
   static nsresult Create(
       nsIImportAddressBooks** aImport, nsIStringBundle* aStringBundle);
@@ -81,6 +80,7 @@ public:
   { return NS_ERROR_FAILURE; } 
 
 private:
+  virtual ~ImportVCardAddressImpl();
   static void ReportSuccess(
       nsString& name, nsString *pStream, nsIStringBundle* pBundle);
   static void SetLogs(

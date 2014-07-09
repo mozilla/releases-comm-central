@@ -34,7 +34,6 @@ class NS_MSG_BASE nsMsgTxn : public nsITransaction,
 {
 public:
     nsMsgTxn();
-    virtual ~nsMsgTxn();
 
     nsresult Init();
 
@@ -59,6 +58,8 @@ public:
     NS_DECL_NSIWRITABLEPROPERTYBAG2
 
 protected:
+    virtual ~nsMsgTxn();
+
     // a hash table of string -> nsIVariant
     nsInterfaceHashtable<nsStringHashKey, nsIVariant> mPropertyHash;
     nsCOMPtr<nsIMsgWindow> m_msgWindow;

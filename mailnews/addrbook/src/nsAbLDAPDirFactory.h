@@ -15,6 +15,8 @@ public:
   NS_DECL_NSIABDIRFACTORY
 
   nsAbLDAPDirFactory();
+
+private:
   virtual ~nsAbLDAPDirFactory();
 };
 

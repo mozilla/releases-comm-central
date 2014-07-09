@@ -76,9 +76,9 @@ public:
   NS_DECL_NSIFOLDERLISTENER
 
   nsLocalUndoFolderListener(nsLocalMoveCopyMsgTxn *aTxn, nsIMsgFolder *aFolder);
-  virtual ~nsLocalUndoFolderListener();
 
 private:
+  virtual ~nsLocalUndoFolderListener();
   nsLocalMoveCopyMsgTxn *mTxn;
   nsIMsgFolder *mFolder;
 };

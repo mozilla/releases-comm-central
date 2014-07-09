@@ -319,9 +319,9 @@ public:
   NS_DECL_NSISIMPLEENUMERATOR
 
   nsMsgOfflineOpEnumerator(nsMailDatabase* db);
-  virtual ~nsMsgOfflineOpEnumerator();
 
 protected:
+  virtual ~nsMsgOfflineOpEnumerator();
   nsresult					GetRowCursor();
   nsresult					PrefetchNext();
   nsMailDatabase*              mDB;

@@ -19,7 +19,6 @@ public:
   NS_DECL_ISUPPORTS
 
   nsSeamonkeyProfileMigrator();
-  virtual ~nsSeamonkeyProfileMigrator();
 
   // nsIMailProfileMigrator methods
   NS_IMETHOD Migrate(uint16_t aItems, nsIProfileStartup* aStartup,
@@ -29,6 +28,7 @@ public:
   NS_IMETHOD GetSourceProfiles(nsIArray** aResult);
 
 protected:
+  virtual ~nsSeamonkeyProfileMigrator();
   nsresult FillProfileDataFromSeamonkeyRegistry();
   nsresult GetSourceProfile(const char16_t* aProfile);
 

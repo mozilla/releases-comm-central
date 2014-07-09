@@ -17,12 +17,13 @@ class nsNNTPArticleList : public nsINNTPArticleList
 {
 public:
   nsNNTPArticleList();
-  virtual ~nsNNTPArticleList();
 
     NS_DECL_ISUPPORTS
     NS_DECL_NSINNTPARTICLELIST
 
 protected:
+  virtual ~nsNNTPArticleList();
+
     nsTArray<nsMsgKey> m_idsInDB;
 
 #ifdef DEBUG

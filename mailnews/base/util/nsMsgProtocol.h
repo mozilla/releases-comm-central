@@ -51,7 +51,6 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener
 {
 public:
   nsMsgProtocol(nsIURI * aURL);
-  virtual ~nsMsgProtocol();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   // nsIChannel support
@@ -76,6 +75,8 @@ public:
   virtual void   ClearFlag (uint32_t flag) { m_flags &= ~flag; }
 
 protected:
+  virtual ~nsMsgProtocol();
+
   // methods for opening and closing a socket with core netlib....
   // mscott -okay this is lame. I should break this up into a file protocol and a socket based
   // protocool class instead of cheating and putting both methods here...
@@ -185,7 +186,6 @@ public:
   NS_IMETHOD Cancel(nsresult status) MOZ_OVERRIDE;
 
   nsMsgAsyncWriteProtocol(nsIURI * aURL);
-  virtual ~nsMsgAsyncWriteProtocol(); 
   
   // temporary over ride...
   virtual nsresult PostMessage(nsIURI* url, nsIFile *postFile) MOZ_OVERRIDE;
@@ -223,6 +223,8 @@ public:
   void UpdateProgress(uint32_t aNewBytes);
   nsMsgFilePostHelper * mFilePostHelper; // needs to be a weak reference
 protected:
+  virtual ~nsMsgAsyncWriteProtocol();
+
   // the streams for the pipe used to queue up data for the async write calls to the server.
   // we actually re-use the same mOutStream variable in our parent class for the output
   // stream to the socket channel. So no need for a new variable here.

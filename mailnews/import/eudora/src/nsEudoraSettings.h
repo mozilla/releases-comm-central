@@ -14,7 +14,6 @@
 class nsEudoraSettings : public nsIImportSettings {
 public:
     nsEudoraSettings();
-    virtual ~nsEudoraSettings();
 
   static nsresult Create(nsIImportSettings** aImport);
 
@@ -25,6 +24,7 @@ public:
   NS_DECL_NSIIMPORTSETTINGS
 
 private:
+  virtual ~nsEudoraSettings();
   nsCOMPtr<nsIFile> m_pLocation;
 };
 

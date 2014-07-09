@@ -46,7 +46,6 @@ class nsNNTPNewsgroupPost : public nsINNTPNewsgroupPost {
     
 public:
     nsNNTPNewsgroupPost();
-    virtual ~nsNNTPNewsgroupPost();
     
     NS_DECL_ISUPPORTS
     
@@ -82,6 +81,8 @@ public:
     NS_IMETHOD AddNewsgroup(const char *newsgroupName);
     
 private:
+    virtual ~nsNNTPNewsgroupPost();
+
     nsCOMPtr <nsIFile> m_postMessageFile;
     char *m_header[HEADER_LAST+1];
     char *m_body;

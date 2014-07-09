@@ -20,10 +20,12 @@ class nsMessengerBootstrap :
 {
 public:
   nsMessengerBootstrap();
-  virtual ~nsMessengerBootstrap();
 
   NS_DECL_THREADSAFE_ISUPPORTS  
   NS_DECL_NSIMESSENGERWINDOWSERVICE
+
+private:
+  virtual ~nsMessengerBootstrap();
 };
 
 #endif

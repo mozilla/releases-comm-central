@@ -53,7 +53,7 @@
 static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
 PRLogModuleInfo* TEXTIMPORTLOGMODULE;
 
-class ImportAddressImpl : public nsIImportAddressBooks
+class ImportAddressImpl MOZ_FINAL : public nsIImportAddressBooks
 {
 public:
   ImportAddressImpl(nsIStringBundle* aStringBundle);
@@ -105,6 +105,7 @@ private:
   static void SanitizeSampleData(nsString& val);
 
 private:
+  ~ImportAddressImpl() {}
   nsTextAddress m_text;
   bool m_haveDelim;
   nsCOMPtr<nsIFile> m_fileLoc;

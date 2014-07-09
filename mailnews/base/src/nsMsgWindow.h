@@ -27,12 +27,12 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
   nsMsgWindow();
-  virtual ~nsMsgWindow();
   nsresult Init();
   NS_DECL_NSIMSGWINDOW
   NS_DECL_NSIURICONTENTLISTENER
 
 protected:
+  virtual ~nsMsgWindow();
   nsCOMPtr<nsIMsgHeaderSink> mMsgHeaderSink;
   nsCOMPtr<nsIMsgStatusFeedback> mStatusFeedback;
   nsCOMPtr<nsITransactionManager> mTransactionManager;

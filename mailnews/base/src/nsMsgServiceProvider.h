@@ -16,7 +16,6 @@ class nsMsgServiceProviderService : public nsIRDFDataSource
 
  public:
   nsMsgServiceProviderService();
-  virtual ~nsMsgServiceProviderService();
 
   nsresult Init();
   
@@ -24,6 +23,8 @@ class nsMsgServiceProviderService : public nsIRDFDataSource
   NS_FORWARD_NSIRDFDATASOURCE(mInnerDataSource->)
   
  private:
+  virtual ~nsMsgServiceProviderService();
+
   nsCOMPtr<nsIRDFCompositeDataSource> mInnerDataSource;
   nsresult LoadDataSource(const char *aURL);
 

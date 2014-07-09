@@ -992,10 +992,10 @@ public:
   NS_DECL_NSIUTF8STRINGENUMERATOR
 
   nsMsgPropertyEnumerator(nsMsgHdr* aHdr);
-  virtual ~nsMsgPropertyEnumerator();
   void PrefetchNext();
 
 protected:
+  virtual ~nsMsgPropertyEnumerator();
   nsCOMPtr<nsIMdbRowCellCursor> mRowCellCursor;
   nsCOMPtr<nsIMdbEnv> m_mdbEnv;
   nsCOMPtr<nsIMdbStore> m_mdbStore;

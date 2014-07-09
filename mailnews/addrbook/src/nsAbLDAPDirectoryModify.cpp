@@ -34,12 +34,12 @@ public:
                                 nsIMutableArray* clientSearchControls,
                                 const nsACString &login,
                                 const int32_t timeOut = 0);
-  virtual ~nsAbModifyLDAPMessageListener();
-
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage);
 
 protected:
+  virtual ~nsAbModifyLDAPMessageListener();
+
   nsresult Cancel();
   virtual void InitFailed(bool aCancelled = false);
   virtual nsresult DoTask();

@@ -24,8 +24,6 @@ public: // set to one folder to playback one folder only
                     nsIMsgFolder *singleFolderOnly = nullptr,
                     bool isPseudoOffline = false);
 
-  virtual ~nsImapOfflineSync();
-
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGCOPYSERVICELISTENER
@@ -41,6 +39,8 @@ public: // set to one folder to playback one folder only
   bool      CreateOfflineFolder(nsIMsgFolder *folder);
   void      SetWindow(nsIMsgWindow *window);
 protected:
+  virtual ~nsImapOfflineSync();
+
   bool      CreateOfflineFolders();
   bool      DestFolderOnSameServer(nsIMsgFolder *destFolder);
   bool      AdvanceToNextServer();

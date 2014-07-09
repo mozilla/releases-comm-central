@@ -26,7 +26,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // nsMsgHdr methods:
     nsMsgHdr(nsMsgDatabase *db, nsIMdbRow *dbRow);
-    virtual ~nsMsgHdr();
 
     virtual nsresult    GetRawFlags(uint32_t *result);
     void                Init();
@@ -52,6 +51,7 @@ public:
     }
 
 protected:
+  virtual ~nsMsgHdr();
     nsresult SetStringColumn(const char *str, mdb_token token);
     nsresult SetUInt32Column(uint32_t value, mdb_token token);
     nsresult GetUInt32Column(mdb_token token, uint32_t *pvalue, uint32_t defaultValue = 0);

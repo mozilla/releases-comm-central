@@ -29,11 +29,11 @@ public:
   NS_DECL_NSITIMERCALLBACK
 
   nsEudoraProfileMigrator();
-  virtual ~nsEudoraProfileMigrator();
 
   virtual nsresult ContinueImport();
 
 private:
+  virtual ~nsEudoraProfileMigrator();
 };
 
 #endif

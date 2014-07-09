@@ -21,13 +21,14 @@ class nsSpamSettings : public nsISpamSettings, public nsIUrlListener
 {
 public:
   nsSpamSettings();
-  virtual ~nsSpamSettings();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISPAMSETTINGS
   NS_DECL_NSIURLLISTENER
 
 private:
+  virtual ~nsSpamSettings();
+
   nsCOMPtr <nsIOutputStream> mLogStream;
   nsCOMPtr<nsIFile> mLogFile;
 

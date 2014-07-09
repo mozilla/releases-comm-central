@@ -29,7 +29,6 @@ class nsMimeContentTypeHandler : public nsIMimeContentTypeHandler {
 public: 
     nsMimeContentTypeHandler (const char *aMimeType, 
                               MCTHCreateCTHClass callback);
-    virtual       ~nsMimeContentTypeHandler (void);
 
     /* this macro defines QueryInterface, AddRef and Release for this class */
     NS_DECL_ISUPPORTS 
@@ -40,6 +39,7 @@ public:
                                                 contentTypeHandlerInitStruct *initStruct, 
                                                 MimeObjectClass **objClass) MOZ_OVERRIDE;
  private:
+    virtual ~nsMimeContentTypeHandler();
     char *mimeType;
     MCTHCreateCTHClass realCreateContentTypeHandlerClass;
 }; 

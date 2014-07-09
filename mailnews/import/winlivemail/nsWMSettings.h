@@ -11,12 +11,12 @@
 class nsWMSettings : public nsIImportSettings {
 public:
   nsWMSettings();
-  virtual ~nsWMSettings();
   static nsresult Create(nsIImportSettings** aImport);
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTSETTINGS
 
 private:
+  virtual ~nsWMSettings();
 };
 
 #endif /* nsWMSettings_h___ */

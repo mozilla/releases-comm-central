@@ -64,7 +64,6 @@ class ImportEudoraMailImpl : public nsIImportMail
 {
 public:
   ImportEudoraMailImpl();
-  virtual ~ImportEudoraMailImpl();
 
   static nsresult Create(nsIImportMail** aImport);
 
@@ -96,6 +95,7 @@ public:
 
 
 private:
+  virtual ~ImportEudoraMailImpl();
   static void  ReportSuccess(nsString& name, int32_t count, nsString *pStream);
 
 private:
@@ -113,7 +113,6 @@ class ImportEudoraAddressImpl : public nsIImportAddressBooks
 {
 public:
   ImportEudoraAddressImpl();
-  virtual ~ImportEudoraAddressImpl();
 
   static nsresult Create(nsIImportAddressBooks** aImport);
 
@@ -151,6 +150,7 @@ public:
   NS_IMETHOD SetSampleLocation(nsIFile *) { return NS_OK; }
 
 private:
+  virtual ~ImportEudoraAddressImpl();
   static void  ReportSuccess(nsString& name, nsString *pStream);
 
 private:

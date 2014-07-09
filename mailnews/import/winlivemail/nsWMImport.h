@@ -22,7 +22,6 @@ class nsWMImport : public nsIImportModule
 public:
 
   nsWMImport();
-  virtual ~nsWMImport();
 
   NS_DECL_ISUPPORTS
 
@@ -33,6 +32,7 @@ public:
   NS_DECL_NSIIMPORTMODULE
 
 protected:
+  virtual ~nsWMImport();
 };
 
 #endif /* nsWMImport_h___ */

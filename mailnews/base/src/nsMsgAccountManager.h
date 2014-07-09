@@ -31,11 +31,10 @@
 
 class nsIRDFService;
 
-class VirtualFolderChangeListener : public nsIDBChangeListener
+class VirtualFolderChangeListener MOZ_FINAL : public nsIDBChangeListener
 {
 public:
   VirtualFolderChangeListener();
-  ~VirtualFolderChangeListener() {}
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDBCHANGELISTENER
@@ -58,6 +57,9 @@ public:
   nsCOMPtr <nsIMsgSearchSession> m_searchSession;
   bool m_searchOnMsgStatus;
   bool m_batchingEvents;
+
+private:
+  ~VirtualFolderChangeListener() {}
 };
 
 
@@ -70,7 +72,6 @@ class nsMsgAccountManager: public nsIMsgAccountManager,
 public:
 
   nsMsgAccountManager();
-  virtual ~nsMsgAccountManager();
   
   NS_DECL_THREADSAFE_ISUPPORTS
  
@@ -86,6 +87,7 @@ public:
   void LogoutOfServer(nsIMsgIncomingServer *aServer);
 
 private:
+  virtual ~nsMsgAccountManager();
 
   bool m_accountsLoaded;
   nsCOMPtr <nsIMsgFolderCache> m_msgFolderCache;

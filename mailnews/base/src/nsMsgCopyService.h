@@ -71,13 +71,13 @@ class nsMsgCopyService : public nsIMsgCopyService
 {
 public:
   nsMsgCopyService();
-  virtual ~nsMsgCopyService();
 
   NS_DECL_THREADSAFE_ISUPPORTS 
 
   NS_DECL_NSIMSGCOPYSERVICE
 
 private:
+  virtual ~nsMsgCopyService();
 
   nsresult ClearRequest(nsCopyRequest* aRequest, nsresult rv);
   nsresult DoCopy(nsCopyRequest* aRequest);

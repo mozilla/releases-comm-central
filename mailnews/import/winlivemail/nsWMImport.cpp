@@ -47,7 +47,6 @@ class ImportWMMailImpl : public nsIImportMail
 {
 public:
   ImportWMMailImpl();
-  virtual ~ImportWMMailImpl();
 
   static nsresult Create(nsIImportMail** aImport);
 
@@ -79,6 +78,7 @@ public:
   static void SetLogs(nsString& success, nsString& error, char16_t **pError, char16_t **pSuccess);
 
 private:
+  virtual ~ImportWMMailImpl();
   uint32_t m_bytesDone;
 };
 

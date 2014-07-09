@@ -53,7 +53,6 @@ public:
   NS_DECL_NSIOBSERVER  
 
   nsIMAPHostSessionList();
-  virtual ~nsIMAPHostSessionList();
   nsresult Init();
   // Host List
   NS_IMETHOD AddHostToList(const char *serverKey, 
@@ -127,6 +126,7 @@ public:
   PRMonitor *gCachedHostInfoMonitor;
   nsIMAPHostInfo *fHostInfoList;
 protected:
+  virtual ~nsIMAPHostSessionList();
   nsresult SetNamespacesPrefForHost(nsIImapIncomingServer *aHost,
                                     EIMAPNamespaceType type,
                                     const char *pref);

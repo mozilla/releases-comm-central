@@ -48,7 +48,6 @@ class ImportOutlookMailImpl : public nsIImportMail
 {
 public:
   ImportOutlookMailImpl();
-  virtual ~ImportOutlookMailImpl();
 
   static nsresult Create(nsIImportMail** aImport);
 
@@ -80,6 +79,7 @@ public:
   static void  SetLogs(nsString& success, nsString& error, char16_t **pError, char16_t **pSuccess);
 
 private:
+  virtual ~ImportOutlookMailImpl();
   nsOutlookMail  m_mail;
   uint32_t    m_bytesDone;
 };
@@ -89,7 +89,6 @@ class ImportOutlookAddressImpl : public nsIImportAddressBooks
 {
 public:
   ImportOutlookAddressImpl();
-  virtual ~ImportOutlookAddressImpl();
 
   static nsresult Create(nsIImportAddressBooks** aImport);
 
@@ -128,6 +127,7 @@ public:
   NS_IMETHOD SetSampleLocation(nsIFile *) { return NS_OK; }
 
 private:
+  virtual ~ImportOutlookAddressImpl();
   void  ReportSuccess(nsString& name, nsString *pStream);
 
 private:

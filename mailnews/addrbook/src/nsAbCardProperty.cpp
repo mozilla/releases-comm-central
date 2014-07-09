@@ -200,7 +200,7 @@ NS_IMETHODIMP nsAbCardProperty::SetMailListURI(const char *aMailListURI)
 // Property bag portion of nsAbCardProperty
 ///////////////////////////////////////////////////////////////////////////////
 
-class nsAbSimpleProperty : public nsIProperty {
+class nsAbSimpleProperty MOZ_FINAL : public nsIProperty {
 public:
     nsAbSimpleProperty(const nsACString& aName, nsIVariant* aValue)
         : mName(aName), mValue(aValue)
@@ -210,6 +210,7 @@ public:
     NS_DECL_ISUPPORTS
     NS_DECL_NSIPROPERTY
 protected:
+    ~nsAbSimpleProperty() {}
     nsCString mName;
     nsCOMPtr<nsIVariant> mValue;
 };

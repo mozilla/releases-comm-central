@@ -33,8 +33,9 @@ public:
   NS_DECL_NSIMSGFOLDERCOMPACTOR
 
   nsFolderCompactState(void);
-  virtual ~nsFolderCompactState(void);
 protected:
+  virtual ~nsFolderCompactState(void);
+
   virtual nsresult InitDB(nsIMsgDatabase *db);
   virtual nsresult StartCompacting();
   virtual nsresult FinishCompact();

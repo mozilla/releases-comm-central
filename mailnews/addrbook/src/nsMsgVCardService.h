@@ -16,6 +16,8 @@ public:
   NS_DECL_NSIMSGVCARDSERVICE
 
   nsMsgVCardService();
+
+private:
   virtual ~nsMsgVCardService();
 };
 

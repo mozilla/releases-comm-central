@@ -46,11 +46,11 @@ public:
 
 
   nsImportMailboxDescriptor();
-  virtual ~nsImportMailboxDescriptor() {}
 
    static NS_METHOD Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
 private:
+  virtual ~nsImportMailboxDescriptor() {}
   uint32_t    m_id;      // used by creator of the structure
   uint32_t    m_depth;    // depth in the hierarchy
   nsString    m_displayName;// name of this mailbox

@@ -13,12 +13,13 @@ class nsRssService : public nsIMsgProtocolInfo, public nsIRssService
 public:
 
   nsRssService();
-  virtual ~nsRssService();
   
   NS_DECL_ISUPPORTS
   NS_DECL_NSIRSSSERVICE
   NS_DECL_NSIMSGPROTOCOLINFO
 
+private:
+  virtual ~nsRssService();
 };
 
 #endif /* nsRssService_h___ */

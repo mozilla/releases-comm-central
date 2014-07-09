@@ -18,7 +18,7 @@
 // synchronously. The main thread must not block on this thread, or a
 // deadlock condition can occur.
 
-class StreamListenerProxy : public nsIStreamListener
+class StreamListenerProxy MOZ_FINAL : public nsIStreamListener
 {
 public:
   StreamListenerProxy(nsIStreamListener* receiver)
@@ -30,10 +30,11 @@ public:
   NS_DECL_NSISTREAMLISTENER
 
 private:
+  ~StreamListenerProxy() {}
   nsCOMPtr<nsIStreamListener> mReceiver;
 };
 
-class ImapMailFolderSinkProxy : public nsIImapMailFolderSink
+class ImapMailFolderSinkProxy MOZ_FINAL : public nsIImapMailFolderSink
 {
 public:
   ImapMailFolderSinkProxy(nsIImapMailFolderSink* receiver)
@@ -46,10 +47,11 @@ public:
   NS_DECL_NSIIMAPMAILFOLDERSINK
 
 private:
+  ~ImapMailFolderSinkProxy() {}
   nsCOMPtr<nsIImapMailFolderSink> mReceiver;
 };
 
-class ImapServerSinkProxy : public nsIImapServerSink
+class ImapServerSinkProxy MOZ_FINAL : public nsIImapServerSink
 {
 public:
   ImapServerSinkProxy(nsIImapServerSink* receiver)
@@ -60,11 +62,12 @@ public:
   NS_DECL_NSIIMAPSERVERSINK
 
 private:
+  ~ImapServerSinkProxy() {}
   nsCOMPtr<nsIImapServerSink> mReceiver;
 };
 
 
-class ImapMessageSinkProxy: public nsIImapMessageSink
+class ImapMessageSinkProxy MOZ_FINAL : public nsIImapMessageSink
 {
 public:
   ImapMessageSinkProxy(nsIImapMessageSink* receiver)
@@ -75,10 +78,11 @@ public:
   NS_DECL_NSIIMAPMESSAGESINK
 
 private:
+  ~ImapMessageSinkProxy() {}
   nsCOMPtr<nsIImapMessageSink> mReceiver;
 };
 
-class ImapProtocolSinkProxy : public nsIImapProtocolSink
+class ImapProtocolSinkProxy MOZ_FINAL : public nsIImapProtocolSink
 {
 public:
   ImapProtocolSinkProxy(nsIImapProtocolSink* receiver)
@@ -89,6 +93,7 @@ public:
   NS_DECL_NSIIMAPPROTOCOLSINK
 
 private:
+  ~ImapProtocolSinkProxy() {}
   nsCOMPtr<nsIImapProtocolSink> mReceiver;
 };
 #endif // nsSyncRunnableHelpers_h

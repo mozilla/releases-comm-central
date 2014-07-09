@@ -140,7 +140,6 @@ class nsSaveMsgListener : public nsIUrlListener,
 {
 public:
   nsSaveMsgListener(nsIFile *file, nsMessenger *aMessenger, nsIUrlListener *aListener);
-  virtual ~nsSaveMsgListener();
 
   NS_DECL_ISUPPORTS
 
@@ -180,6 +179,9 @@ public:
   bool    mUrlHasStopped;
   bool    mRequestHasStopped;
   nsresult InitializeDownload(nsIRequest * aRequest, uint32_t aBytesDownloaded);
+
+private:
+  virtual ~nsSaveMsgListener();
 };
 
 class nsSaveAllAttachmentsState
@@ -2476,7 +2478,6 @@ public:
 
 public:
   nsDelAttachListener();
-  virtual ~nsDelAttachListener();
   nsresult StartProcessing(nsMessenger * aMessenger, nsIMsgWindow * aMsgWindow,
     nsAttachmentState * aAttach, bool aSaveFirst);
   nsresult DeleteOriginalMessage();
@@ -2507,6 +2508,9 @@ public:
   bool mWrittenExtra;
   bool mDetaching;
   nsTArray<nsCString> mDetachedFileUris;
+
+private:
+  virtual ~nsDelAttachListener();
 };
 
 //

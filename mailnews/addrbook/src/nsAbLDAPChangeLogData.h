@@ -22,11 +22,11 @@ class nsAbLDAPProcessChangeLogData : public nsAbLDAPProcessReplicationData
 public :
    
   nsAbLDAPProcessChangeLogData();
-  ~nsAbLDAPProcessChangeLogData();
 
   NS_IMETHOD Init(nsIAbLDAPReplicationQuery * query, nsIWebProgressListener *progressListener);
 
 protected :
+  ~nsAbLDAPProcessChangeLogData();
 
   nsCOMPtr <nsIAbLDAPChangeLogQuery> mChangeLogQuery;
 

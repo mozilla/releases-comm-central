@@ -120,8 +120,6 @@ public:
     m_location = nullptr;
   }
 
-  virtual ~OutlookSendListener() { NS_IF_RELEASE(m_location); }
-
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -152,6 +150,8 @@ public:
   void Reset() { m_done = false; NS_IF_RELEASE(m_location);}
 
 public:
+  virtual ~OutlookSendListener() { NS_IF_RELEASE(m_location); }
+
   bool m_done;
   nsIFile * m_location;
 };

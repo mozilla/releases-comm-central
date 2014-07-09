@@ -98,8 +98,6 @@ public:
     m_done = false;
   }
 
-  virtual ~EudoraSendListener() {}
-
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -133,6 +131,9 @@ public:
 public:
   bool m_done;
   nsCOMPtr <nsIFile> m_location;
+
+private:
+  virtual ~EudoraSendListener() {}
 };
 
 

@@ -20,6 +20,8 @@ public:
     NS_DECL_NSIABBOOLEANEXPRESSION
 
     nsAbDirectoryQuerySimpleBooleanExpression();
+
+private:
     virtual ~nsAbDirectoryQuerySimpleBooleanExpression();
 
 public:
@@ -35,6 +37,8 @@ public:
     NS_DECL_NSIABDIRECTORYQUERYARGUMENTS
 
     nsAbDirectoryQueryArguments();
+
+private:
     virtual ~nsAbDirectoryQueryArguments();
 
 protected:
@@ -56,9 +60,9 @@ public:
           const char16_t* aValue);
     nsAbDirectoryQueryPropertyValue(const char* aName,
           nsISupports* aValueISupports);
-    virtual ~nsAbDirectoryQueryPropertyValue();
 
 protected:
+    virtual ~nsAbDirectoryQueryPropertyValue();
     nsCString mName;
     nsString mValue;
     nsCOMPtr<nsISupports> mValueISupports;
@@ -72,9 +76,9 @@ public:
     NS_DECL_NSIABDIRECTORYQUERY
 
     nsAbDirectoryQuery();
-    virtual ~nsAbDirectoryQuery();
 
 protected:
+    virtual ~nsAbDirectoryQuery();
     nsresult query(nsIAbDirectory* directory,
                    nsIAbBooleanExpression* expression,
                    nsIAbDirSearchListener* listener,

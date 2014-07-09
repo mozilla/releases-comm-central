@@ -752,9 +752,9 @@ public:
   NS_DECL_NSISTREAMLISTENER
 
   nsMsgSaveAsListener(nsIFile *aFile, bool addDummyEnvelope);
-  virtual ~nsMsgSaveAsListener();
   nsresult SetupMsgWriteStream(nsIFile *aFile, bool addDummyEnvelope);
 protected:
+  virtual ~nsMsgSaveAsListener();
   nsCOMPtr<nsIOutputStream> m_outputStream;
   nsCOMPtr<nsIFile> m_outputFile;
   bool m_addDummyEnvelope;

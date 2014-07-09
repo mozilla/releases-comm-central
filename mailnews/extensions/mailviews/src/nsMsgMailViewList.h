@@ -24,9 +24,9 @@ public:
   NS_DECL_NSIMSGMAILVIEW
 
   nsMsgMailView();
-  virtual ~nsMsgMailView();
 
 protected:
+  virtual ~nsMsgMailView();
   nsString mName;
   nsCOMPtr<nsIStringBundle> mBundle;
   nsCOMPtr<nsISupportsArray> mViewSearchTerms;
@@ -40,9 +40,9 @@ public:
   NS_DECL_NSIMSGMAILVIEWLIST
 
   nsMsgMailViewList();
-  virtual ~nsMsgMailViewList();
 
 protected:
+  virtual ~nsMsgMailViewList();
   nsresult LoadMailViews(); // reads in user defined mail views from our default file
   nsresult ConvertFilterListToMailViews();
   nsresult ConvertMailViewListToFilterList();

@@ -16,12 +16,14 @@ class nsMsgKeyArray : public nsIMsgKeyArray
 {
 public:
   nsMsgKeyArray();
-  virtual ~nsMsgKeyArray();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGKEYARRAY
 
   nsTArray<nsMsgKey> m_keys;
+
+private:
+  virtual ~nsMsgKeyArray();
 };
 
 #endif

@@ -9,7 +9,7 @@
 #include "nsIMdbFactoryFactory.h"
 #include "mdb.h"
 
-class nsMorkFactoryService : public nsIMdbFactoryService
+class nsMorkFactoryService MOZ_FINAL : public nsIMdbFactoryService
 {
 public:
   nsMorkFactoryService() {};
@@ -19,6 +19,7 @@ public:
   NS_IMETHOD GetMdbFactory(nsIMdbFactory **aFactory);
 
 protected:
+  ~nsMorkFactoryService() {}
   nsCOMPtr<nsIMdbFactory> mMdbFactory;
 };
 

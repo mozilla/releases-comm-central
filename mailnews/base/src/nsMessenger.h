@@ -24,7 +24,6 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference, public 
 
 public:
   nsMessenger();
-  virtual ~nsMessenger();
 
   NS_DECL_ISUPPORTS  
   NS_DECL_NSIMESSENGER
@@ -56,6 +55,8 @@ public:
                              bool detaching);
 
 protected:
+  virtual ~nsMessenger();
+
   void GetString(const nsString& aStringName, nsString& stringValue);
   nsresult InitStringBundle();
   nsresult PromptIfDeleteAttachments(bool saveFirst, uint32_t count, const char **displayNameArray);

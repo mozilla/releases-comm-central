@@ -123,6 +123,7 @@ public:
   {
   }
 
+private:
   virtual ~MimePgpeData()
   {
   }

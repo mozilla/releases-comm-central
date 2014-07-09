@@ -31,7 +31,6 @@ class nsAbDirProperty: public nsIAbDirectory,
 {
 public: 
 	nsAbDirProperty(void);
-	virtual ~nsAbDirProperty(void);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABITEM
@@ -39,6 +38,8 @@ public:
   NS_DECL_NSIABDIRECTORY
 
 protected:
+	virtual ~nsAbDirProperty(void);
+
   /**
    * Initialise the directory prefs for this branch
    */

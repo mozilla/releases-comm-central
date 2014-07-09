@@ -14,12 +14,12 @@ class nsMsgAccount : public nsIMsgAccount
 
 public:
   nsMsgAccount();
-  virtual ~nsMsgAccount();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGACCOUNT
 
 private:
+  virtual ~nsMsgAccount();
   nsCString m_accountKey;
   nsCOMPtr<nsIPrefBranch> m_prefs;
   nsCOMPtr<nsIMsgIncomingServer> m_incomingServer;

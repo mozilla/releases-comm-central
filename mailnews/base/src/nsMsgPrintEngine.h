@@ -35,7 +35,6 @@ class nsMsgPrintEngine : public nsIMsgPrintEngine,
 
 public:
   nsMsgPrintEngine();
-  virtual ~nsMsgPrintEngine();
 
   // nsISupports
   NS_DECL_ISUPPORTS
@@ -53,6 +52,7 @@ public:
   NS_IMETHOD  StartNextPrintOperation();
 
 protected:
+  virtual ~nsMsgPrintEngine();
 
   bool        FirePrintEvent();
   nsresult    FireStartNextEvent();

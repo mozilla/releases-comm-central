@@ -73,12 +73,15 @@ nsVoidArray *dir_ServerList = nullptr;
 /*****************************************************************************
  * Functions for creating the new back end managed DIR_Server list.
  */
-class DirPrefObserver : public nsSupportsWeakReference,
-                        public nsIObserver
+class DirPrefObserver MOZ_FINAL : public nsSupportsWeakReference,
+                                  public nsIObserver
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIOBSERVER
+
+private:
+  ~DirPrefObserver() {}
 };
 
 NS_IMPL_ISUPPORTS(DirPrefObserver, nsISupportsWeakReference, nsIObserver)

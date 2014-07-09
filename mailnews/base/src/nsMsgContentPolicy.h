@@ -39,7 +39,6 @@ class nsMsgContentPolicy : public nsIContentPolicy,
 {
 public:
   nsMsgContentPolicy();
-  virtual ~nsMsgContentPolicy();
 
   nsresult Init();
     
@@ -49,6 +48,8 @@ public:
   NS_DECL_NSIWEBPROGRESSLISTENER
   
 protected:
+  virtual ~nsMsgContentPolicy();
+
   bool     mBlockRemoteImages;
   bool     mAllowPlugins;
   nsCString mTrustedMailDomains;

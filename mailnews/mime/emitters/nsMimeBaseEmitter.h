@@ -54,7 +54,6 @@ class nsMimeBaseEmitter : public nsIMimeEmitter,
 {
 public:
   nsMimeBaseEmitter ();
-  virtual             ~nsMimeBaseEmitter (void);
 
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -80,6 +79,7 @@ public:
   virtual nsresult            WriteHeaderFieldHTMLPostfix();
 
 protected:
+  virtual ~nsMimeBaseEmitter();
   // Internal methods...
   void                CleanupHeaderArray(nsVoidArray *aArray);
 

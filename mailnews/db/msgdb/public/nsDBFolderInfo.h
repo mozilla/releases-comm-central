@@ -32,7 +32,6 @@ public:
   friend class nsMsgDatabase;
   
   nsDBFolderInfo(nsMsgDatabase *mdb);
-  virtual ~nsDBFolderInfo();
   
   NS_DECL_ISUPPORTS
     // interface methods.
@@ -70,6 +69,7 @@ public:
     return aMallocSizeOf(this) + SizeOfExcludingThis(aMallocSizeOf);
   }
 protected:
+  virtual ~nsDBFolderInfo();
 
   // initialize from appropriate table and row in existing db.
   nsresult InitMDBInfo();

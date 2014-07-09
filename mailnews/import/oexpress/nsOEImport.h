@@ -23,7 +23,6 @@ class nsOEImport : public nsIImportModule
 public:
 
   nsOEImport();
-  virtual ~nsOEImport();
 
   NS_DECL_ISUPPORTS
 
@@ -35,6 +34,7 @@ public:
   NS_DECL_NSIIMPORTMODULE
 
 protected:
+  virtual ~nsOEImport();
 };
 
 

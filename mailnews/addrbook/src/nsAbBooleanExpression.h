@@ -18,9 +18,9 @@ public:
     NS_DECL_NSIABBOOLEANCONDITIONSTRING
 
     nsAbBooleanConditionString();
-    virtual ~nsAbBooleanConditionString();
 
 protected:
+    virtual ~nsAbBooleanConditionString();
     nsAbBooleanConditionType mCondition;
     nsCString mName;
     nsString mValue;
@@ -33,9 +33,9 @@ public:
     NS_DECL_NSIABBOOLEANEXPRESSION
 
     nsAbBooleanExpression();
-    virtual ~nsAbBooleanExpression();
 
 protected:
+    virtual ~nsAbBooleanExpression();
     nsAbBooleanOperationType mOperation;
     nsCOMPtr<nsIArray> mExpressions;
 };

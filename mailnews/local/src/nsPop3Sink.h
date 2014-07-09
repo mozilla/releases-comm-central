@@ -34,7 +34,6 @@ class nsPop3Sink : public nsIPop3Sink
 {
 public:
     nsPop3Sink();
-    virtual ~nsPop3Sink();
 
     NS_DECL_THREADSAFE_ISUPPORTS
     NS_DECL_NSIPOP3SINK
@@ -45,6 +44,7 @@ public:
     static char*  GetDummyEnvelope(void);
 
 protected:
+    virtual ~nsPop3Sink();
     nsresult WriteLineToMailbox(const nsACString& buffer);
     nsresult ReleaseFolderLock();
     nsresult HandleTempDownloadFailed(nsIMsgWindow *msgWindow);

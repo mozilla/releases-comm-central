@@ -25,7 +25,6 @@ class nsPop3Service : public nsIPop3Service,
 public:
 
   nsPop3Service();
-  virtual ~nsPop3Service();
   
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPOP3SERVICE
@@ -33,6 +32,7 @@ public:
   NS_DECL_NSIMSGPROTOCOLINFO
 
 protected:
+  virtual ~nsPop3Service();
   nsresult GetMail(bool downloadNewMail,
                    nsIMsgWindow* aMsgWindow, 
                    nsIUrlListener * aUrlListener,

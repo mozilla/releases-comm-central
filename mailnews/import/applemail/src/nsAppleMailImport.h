@@ -38,12 +38,12 @@ class nsAppleMailImportModule : public nsIImportModule
   public:
 
   nsAppleMailImportModule();
-  virtual ~nsAppleMailImportModule();
     
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMPORTMODULE
 
   private:
+  virtual ~nsAppleMailImportModule();
     
   nsCOMPtr<nsIStringBundle> mBundle;
 };
@@ -53,7 +53,6 @@ class nsAppleMailImportMail : public nsIImportMail
   public:
 
   nsAppleMailImportMail();
-  virtual ~nsAppleMailImportMail();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMPORTMAIL
@@ -61,6 +60,7 @@ class nsAppleMailImportMail : public nsIImportMail
   nsresult Initialize();
 
   private:
+  virtual ~nsAppleMailImportMail();
 
   void FindAccountMailDirs(nsIFile *aRoot, nsIMutableArray *aMailboxDescs, nsIImportService *aImportService);
   nsresult FindMboxDirs(nsIFile *aFolder, nsIMutableArray *aMailboxDescs, nsIImportService *aImportService);

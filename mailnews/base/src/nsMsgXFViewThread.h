@@ -21,7 +21,6 @@ class nsMsgXFViewThread : public nsIMsgThread
 public:
 
   nsMsgXFViewThread(nsMsgSearchDBView *view, nsMsgKey threadId);
-  virtual ~nsMsgXFViewThread();
 
   NS_DECL_NSIMSGTHREAD
   NS_DECL_ISUPPORTS
@@ -39,6 +38,8 @@ public:
   uint32_t  MsgCount() {return m_numChildren;};
 
 protected:
+  virtual ~nsMsgXFViewThread();
+
   nsMsgSearchDBView *m_view;
   uint32_t        m_numUnreadChildren;
   uint32_t        m_numChildren;

@@ -25,10 +25,10 @@ public:
   NS_DECL_NSICMSSECUREMESSAGE
 
   nsCMSSecureMessage();
-  virtual ~nsCMSSecureMessage();
   nsresult Init();
 
 private:
+  virtual ~nsCMSSecureMessage();
   NS_METHOD encode(const unsigned char *data, int32_t dataLen, char **_retval);
   NS_METHOD decode(const char *data, unsigned char **result, int32_t * _retval);
 };

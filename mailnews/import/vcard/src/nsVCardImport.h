@@ -21,7 +21,6 @@ class nsVCardImport : public nsIImportModule
 public:
 
   nsVCardImport();
-  virtual ~nsVCardImport();
 
   NS_DECL_ISUPPORTS
 
@@ -32,6 +31,7 @@ public:
   NS_DECL_NSIIMPORTMODULE
 
 protected:
+  virtual ~nsVCardImport();
   nsCOMPtr<nsIStringBundle> m_stringBundle;
 };
 

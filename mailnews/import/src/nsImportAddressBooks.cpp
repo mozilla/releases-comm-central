@@ -40,7 +40,6 @@ class nsImportGenericAddressBooks : public nsIImportGeneric
 public:
 
   nsImportGenericAddressBooks();
-  virtual ~nsImportGenericAddressBooks();
 
   NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -62,6 +61,7 @@ public:
   NS_IMETHOD CancelImport(void);
 
 private:
+  virtual ~nsImportGenericAddressBooks();
   void  GetDefaultLocation(void);
   void  GetDefaultBooks(void);
   void  GetDefaultFieldMap(void);

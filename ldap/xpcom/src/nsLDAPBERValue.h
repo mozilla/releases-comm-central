@@ -23,9 +23,9 @@ public:
     NS_DECL_NSILDAPBERVALUE
 
     nsLDAPBERValue();
-    virtual ~nsLDAPBERValue();
     
 protected:
+    virtual ~nsLDAPBERValue();
 
     /** 
      * nsLDAPControl needs to be able to grovel through this without an

@@ -24,7 +24,6 @@ class nsAbManager : public nsIAbManager,
   
 public:
 	nsAbManager();
-	virtual ~nsAbManager();
 
 	NS_DECL_THREADSAFE_ISUPPORTS
  	NS_DECL_NSIABMANAGER
@@ -34,6 +33,7 @@ public:
   nsresult Init();
 
 private:
+	virtual ~nsAbManager();
   nsresult GetRootDirectory(nsIAbDirectory **aResult);
   nsresult ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const char *aDelim, uint32_t aDelimLen, nsIFile *aLocalFile);
   nsresult ExportDirectoryToLDIF(nsIAbDirectory *aDirectory, nsIFile *aLocalFile);

@@ -29,19 +29,19 @@
 
 static NS_DEFINE_CID(kCPop3ServiceCID, NS_POP3SERVICE_CID);
 
-class nsPop3GetMailChainer : public nsIUrlListener
+class nsPop3GetMailChainer MOZ_FINAL : public nsIUrlListener
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
 
   nsPop3GetMailChainer();
-  ~nsPop3GetMailChainer();
   nsresult GetNewMailForServers(nsIPop3IncomingServer** servers, uint32_t count,
                                 nsIMsgWindow *msgWindow,
                                 nsIMsgFolder *folderToDownloadTo, nsIUrlListener *listener);
   nsresult RunNextGetNewMail();
 protected:
+  ~nsPop3GetMailChainer();
   nsCOMPtr <nsIMsgFolder> m_folderToDownloadTo;
   nsCOMPtr <nsIMsgWindow> m_downloadingMsgWindow;
   nsCOMArray<nsIPop3IncomingServer> m_serversToGetNewMailFor;

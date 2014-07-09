@@ -58,6 +58,7 @@ public:
   NS_DECL_NSIOBSERVER
 
   nsFolderCharsetObserver() { }
+private:
   virtual ~nsFolderCharsetObserver() {}
 };
 
