@@ -876,7 +876,8 @@ nsMsgComposeService::CacheWindow(nsIDOMWindow *aWindow, bool aComposeHTML, nsIMs
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-class nsMsgTemplateReplyHelper :  public nsIStreamListener, public nsIUrlListener
+class nsMsgTemplateReplyHelper MOZ_FINAL: public nsIStreamListener,
+                                          public nsIUrlListener
 {
 public:
   NS_DECL_ISUPPORTS
@@ -885,7 +886,6 @@ public:
   NS_DECL_NSIREQUESTOBSERVER
 
   nsMsgTemplateReplyHelper();
-  ~nsMsgTemplateReplyHelper();
 
   nsCOMPtr <nsIMsgDBHdr> mHdrToReplyTo;
   nsCOMPtr <nsIMsgDBHdr> mTemplateHdr;
@@ -894,6 +894,9 @@ public:
   nsCString mTemplateBody;
   bool mInMsgBody;
   char mLastBlockChars[3];
+
+private:
+  ~nsMsgTemplateReplyHelper();
 };
 
 NS_IMPL_ISUPPORTS(nsMsgTemplateReplyHelper,

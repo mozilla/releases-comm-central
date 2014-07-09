@@ -172,7 +172,6 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
   nsMsgComposeAndSend();
-  virtual     ~nsMsgComposeAndSend();
 
 
   // Delivery and completion callback routines...
@@ -368,6 +367,7 @@ protected:
   nsCOMPtr<nsIStringBundle> mComposeBundle;
   nsresult GetNotificationCallbacks(nsIInterfaceRequestor** aCallbacks);
 private:
+  virtual ~nsMsgComposeAndSend();
   // will set m_attachment1_body & m_attachment1_body_length;
   nsresult EnsureLineBreaks(const nsCString &aBody);
 

@@ -29,6 +29,8 @@ public:
   NS_DECL_NSIMSGCOMPUTILS
 
   nsMsgCompUtils();
+
+private:
   virtual ~nsMsgCompUtils();
 };
 

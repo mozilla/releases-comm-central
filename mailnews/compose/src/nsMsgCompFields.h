@@ -30,7 +30,6 @@ struct nsMsgRecipient
 class nsMsgCompFields : public nsIMsgCompFields {
 public:
   nsMsgCompFields();
-  virtual ~nsMsgCompFields();
 
   /* this macro defines QueryInterface, AddRef and Release for this class */
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -140,6 +139,7 @@ public:
                              nsTArray<nsMsgRecipient> &aResult);
 
 protected:
+  virtual ~nsMsgCompFields();
   char*       m_headers[MSG_MAX_HEADERS];
   nsCString   m_body;
   nsCOMArray<nsIMsgAttachment> m_attachments;

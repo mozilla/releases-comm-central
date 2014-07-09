@@ -16,9 +16,9 @@ public:
   NS_DECL_NSIMSGATTACHMENT
 
   nsMsgAttachment();
-  virtual ~nsMsgAttachment();
 
 private:
+  virtual ~nsMsgAttachment();
   nsresult DeleteAttachment();
 
   nsString    mName;

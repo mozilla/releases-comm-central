@@ -25,7 +25,6 @@ class nsSmtpService : public nsISmtpService, public nsIProtocolHandler
 public:
 
 	nsSmtpService();
-	virtual ~nsSmtpService();
 	
 	NS_DECL_ISUPPORTS
 
@@ -44,6 +43,7 @@ protected:
 
     
 private:
+	virtual ~nsSmtpService();
     static bool findServerByKey(nsISmtpServer *aServer, void *aData);
     static bool findServerByHostname(nsISmtpServer *aServer, void *aData);
     

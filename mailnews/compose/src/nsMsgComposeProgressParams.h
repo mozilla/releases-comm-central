@@ -12,9 +12,9 @@ public:
   NS_DECL_NSIMSGCOMPOSEPROGRESSPARAMS
 
 	nsMsgComposeProgressParams();
-	virtual ~nsMsgComposeProgressParams();
 
 private:
+	virtual ~nsMsgComposeProgressParams();
   nsString                          m_subject;
   MSG_DeliverMode                   m_deliveryMode;
 };

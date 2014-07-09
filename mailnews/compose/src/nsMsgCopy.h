@@ -31,7 +31,6 @@ class CopyListener : public nsIMsgCopyServiceListener
 {
 public:
   CopyListener(void);
-  virtual ~CopyListener(void);
 
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -51,6 +50,7 @@ public:
   bool                            mCopyInProgress;
 
 private:
+  virtual ~CopyListener();
   nsCOMPtr<nsIMsgSend>       mComposeAndSend;
 };
 
@@ -62,7 +62,6 @@ class nsMsgCopy : public nsIUrlListener
 {
 public:
   nsMsgCopy();
-  virtual ~nsMsgCopy();
 
   // nsISupports interface
   NS_DECL_ISUPPORTS
@@ -102,6 +101,9 @@ public:
   bool                            mIsDraft;
   nsCOMPtr<nsIMsgSend>            mMsgSendObj;
   char                            *mSavePref;
+
+private:
+  virtual ~nsMsgCopy();
 };
 
 // Useful function for the back end...

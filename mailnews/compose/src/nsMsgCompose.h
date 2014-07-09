@@ -35,7 +35,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference
  public: 
 
 	nsMsgCompose();
-	virtual ~nsMsgCompose();
 
 	/* this macro defines QueryInterface, AddRef and Release for this class */
 	NS_DECL_THREADSAFE_ISUPPORTS
@@ -47,6 +46,7 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference
   NS_DECL_NSIMSGSENDLISTENER
 
 private:
+	virtual ~nsMsgCompose();
 
  // Deal with quoting issues...
 	nsresult                      QuoteOriginalMessage(); // New template
@@ -153,7 +153,6 @@ public:
                                 bool charetOverride, 
                                 bool quoteOriginal,
                                 const nsACString& htmlToQuote);
-    virtual ~QuotingOutputStreamListener(void);
 
     NS_DECL_ISUPPORTS
     NS_DECL_NSIREQUESTOBSERVER
@@ -166,6 +165,7 @@ public:
     NS_IMETHOD AppendToMsgBody(const nsCString &inStr);
 
 private:
+    virtual ~QuotingOutputStreamListener();
     nsWeakPtr                 mWeakComposeObj;
     nsString       				    mMsgBody;
     nsString       				    mCitePrefix;
@@ -192,7 +192,6 @@ class nsMsgComposeSendListener : public nsIMsgComposeSendListener, public nsIMsg
 {
 public:
   nsMsgComposeSendListener(void);
-  virtual ~nsMsgComposeSendListener(void);
 
   // nsISupports interface
   NS_DECL_ISUPPORTS
@@ -213,6 +212,7 @@ public:
   nsresult    GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **msgFolder);
 
 private:
+  virtual ~nsMsgComposeSendListener();
   nsWeakPtr               mWeakComposeObj;
 	MSG_DeliverMode         mDeliverMode;
 };

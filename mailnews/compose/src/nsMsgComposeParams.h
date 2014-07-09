@@ -11,11 +11,12 @@ class nsMsgComposeParams : public nsIMsgComposeParams
 {
 public: 
   nsMsgComposeParams();
-  virtual ~nsMsgComposeParams();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSEPARAMS
   
+private:
+  virtual ~nsMsgComposeParams();
   MSG_ComposeType               mType;
   MSG_ComposeFormat             mFormat;
   nsCString                     mOriginalMsgUri;

@@ -19,7 +19,6 @@ class nsMsgQuoteListener: public nsIMsgQuoteListener
 {
 public:
 	nsMsgQuoteListener();
-	virtual     ~nsMsgQuoteListener();
 
 	NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -28,17 +27,19 @@ public:
   NS_DECL_NSIMSGQUOTELISTENER
 
 private:
+	virtual ~nsMsgQuoteListener();
   nsWeakPtr mMsgQuote;
 };
 
 class nsMsgQuote: public nsIMsgQuote, public nsSupportsWeakReference {
 public: 
   nsMsgQuote();
-  virtual ~nsMsgQuote();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGQUOTE
 
+private:
+  virtual ~nsMsgQuote();
   // 
   // Implementation data...
   //

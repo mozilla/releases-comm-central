@@ -200,12 +200,12 @@ class MsgDeliveryListener : public nsIUrlListener
 {
 public:
   MsgDeliveryListener(nsIMsgSend *aMsgSend, bool inIsNewsDelivery);
-  virtual ~MsgDeliveryListener();
   
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
     
 private:
+  virtual ~MsgDeliveryListener();
   nsCOMPtr<nsIMsgSend> mMsgSend;
   bool                 mIsNewsDelivery;
 };
@@ -1477,7 +1477,7 @@ nsMsgComposeAndSend::GetMultipartRelatedCount(bool forceToBeCalculated /*=false*
       // preallocate space for part numbers
       m_partNumbers.SetLength(count);
       // Let parse the list to count the number of valid objects. BTW, we can remove the others from the list
-      nsMsgAttachmentData attachment;
+      nsRefPtr<nsMsgAttachmentData> attachment(new nsMsgAttachmentData);
 
       int32_t i;
       nsCOMPtr<nsIDOMNode> node;
@@ -1493,7 +1493,7 @@ nsMsgComposeAndSend::GetMultipartRelatedCount(bool forceToBeCalculated /*=false*
         bool acceptObject = false;
         if (node)
         {
-          rv = GetEmbeddedObjectInfo(node, &attachment, &acceptObject);
+          rv = GetEmbeddedObjectInfo(node, attachment, &acceptObject);
         }
         else // outlook/eudora import case
         {
@@ -1788,7 +1788,7 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
    if (!mEmbeddedObjectList)
     return NS_ERROR_MIME_MPART_ATTACHMENT_ERROR;
 
-  nsMsgAttachmentData   attachment;
+  nsRefPtr<nsMsgAttachmentData> attachment(new nsMsgAttachmentData);
   int32_t               locCount = -1;
 
   if (multipartCount > 0)
@@ -1811,7 +1811,7 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     if (node)
     {
       bool acceptObject = false;
-      rv = GetEmbeddedObjectInfo(node, &attachment, &acceptObject);
+      rv = GetEmbeddedObjectInfo(node, attachment, &acceptObject);
       NS_ENSURE_SUCCESS(rv, NS_ERROR_MIME_MPART_ATTACHMENT_ERROR);
       if (!acceptObject)
         continue;
@@ -1824,11 +1824,11 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       nsCOMPtr<nsIMsgEmbeddedImageData> imageData = do_QueryElementAt(mEmbeddedObjectList, locCount, &rv);
       if (!imageData)
         return NS_ERROR_MIME_MPART_ATTACHMENT_ERROR;
-      imageData->GetUri(getter_AddRefs(attachment.m_url));
-      if (!attachment.m_url)
+      imageData->GetUri(getter_AddRefs(attachment->m_url));
+      if (!attachment->m_url)
         return NS_ERROR_MIME_MPART_ATTACHMENT_ERROR;
       imageData->GetCid(m_attachments[i]->m_contentId);
-      imageData->GetName(attachment.m_realName);
+      imageData->GetName(attachment->m_realName);
     }
 
 
@@ -1848,9 +1848,9 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     for (k = mPreloadedAttachmentCount; k < i; k++)
     {
       bool isEqual = false;
-      NS_ASSERTION(attachment.m_url, "null attachment url!");
-      if (attachment.m_url)
-        (void)attachment.m_url->Equals(m_attachments[k]->mURL, &isEqual);
+      NS_ASSERTION(attachment->m_url, "null attachment url!");
+      if (attachment->m_url)
+        (void)attachment->m_url->Equals(m_attachments[k]->mURL, &isEqual);
       if (isEqual)
       {
         duplicateOf = k;
@@ -1863,15 +1863,15 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       //
       // Now we have to get all of the interesting information from
       // the nsIDOMNode we have in hand...
-      m_attachments[i]->mURL = attachment.m_url;
+      m_attachments[i]->mURL = attachment->m_url;
 
-      m_attachments[i]->m_overrideType = attachment.m_realType;
-      m_attachments[i]->m_overrideEncoding = attachment.m_realEncoding;
-      m_attachments[i]->m_desiredType = attachment.m_desiredType;
-      m_attachments[i]->m_description = attachment.m_description;
-      m_attachments[i]->m_realName = attachment.m_realName;
-      m_attachments[i]->m_xMacType = attachment.m_xMacType;
-      m_attachments[i]->m_xMacCreator = attachment.m_xMacCreator;
+      m_attachments[i]->m_overrideType = attachment->m_realType;
+      m_attachments[i]->m_overrideEncoding = attachment->m_realEncoding;
+      m_attachments[i]->m_desiredType = attachment->m_desiredType;
+      m_attachments[i]->m_description = attachment->m_description;
+      m_attachments[i]->m_realName = attachment->m_realName;
+      m_attachments[i]->m_xMacType = attachment->m_xMacType;
+      m_attachments[i]->m_xMacCreator = attachment->m_xMacCreator;
 
       m_attachments[i]->m_charset = mCompFields->GetCharacterSet();
       m_attachments[i]->m_encoding = ENCODING_7BIT;

@@ -28,13 +28,13 @@ class SendOperationListener : public nsIMsgSendListener,
 {
 public:
   SendOperationListener(nsMsgSendLater *aSendLater);
-  virtual ~SendOperationListener();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSENDLISTENER
   NS_DECL_NSIMSGCOPYSERVICELISTENER
 
 private:
+  virtual ~SendOperationListener();
   nsMsgSendLater *mSendLater;
 };
 
@@ -47,7 +47,6 @@ class nsMsgSendLater: public nsIMsgSendLater,
 {
 public:
   nsMsgSendLater();
-  virtual     ~nsMsgSendLater();
   nsresult Init();
 
   NS_DECL_ISUPPORTS
@@ -99,6 +98,7 @@ public:
  
   // Private Information
 private:
+  virtual ~nsMsgSendLater();
   nsresult GetIdentityFromKey(const char *aKey, nsIMsgIdentity **aIdentity);
   nsresult ReparseDBIfNeeded(nsIUrlListener *aListener);
   nsresult InternalSendMessages(bool aUserInitiated,

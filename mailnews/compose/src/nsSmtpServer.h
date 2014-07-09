@@ -17,12 +17,12 @@ class nsSmtpServer : public nsISmtpServer,
 {
 public:
     nsSmtpServer();
-    virtual ~nsSmtpServer();
     
     NS_DECL_ISUPPORTS
     NS_DECL_NSISMTPSERVER
 
 private:
+    virtual ~nsSmtpServer();
     nsCString mKey;
     nsCOMPtr<nsIPrefBranch> mPrefBranch;
     nsCOMPtr<nsIPrefBranch> mDefPrefBranch;

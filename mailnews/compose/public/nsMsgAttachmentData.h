@@ -96,4 +96,16 @@ public:
   uint32_t    m_nullCount;
   uint32_t    m_maxLineLength;
 };
+
+namespace mozilla {
+template <> struct HasDangerousPublicDestructor<nsMsgAttachmentData>
+{
+  static const bool value = true;
+};
+template <> struct HasDangerousPublicDestructor<nsMsgAttachedFile>
+{
+  static const bool value = true;
+};
+} // namespace mozilla
+
 #endif

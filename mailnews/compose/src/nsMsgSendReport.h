@@ -17,9 +17,9 @@ public:
   NS_DECL_NSIMSGPROCESSREPORT
 
   nsMsgProcessReport();
-  virtual ~nsMsgProcessReport();
 
 private:
+  virtual ~nsMsgProcessReport();
   bool      mProceeded;
   nsresult  mError;
   nsString  mMessage;
@@ -33,9 +33,9 @@ public:
   NS_DECL_NSIMSGSENDREPORT
 
   nsMsgSendReport();
-  virtual ~nsMsgSendReport();
 
 private:
+  virtual ~nsMsgSendReport();
   #define SEND_LAST_PROCESS  process_FCC
   nsCOMPtr<nsIMsgProcessReport> mProcessReport[SEND_LAST_PROCESS + 1];
   int32_t mDeliveryMode;

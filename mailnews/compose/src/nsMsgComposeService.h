@@ -48,7 +48,6 @@ class nsMsgComposeService :
 {
 public: 
 	nsMsgComposeService();
-	virtual ~nsMsgComposeService();
 
 	NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSESERVICE
@@ -61,6 +60,7 @@ public:
   nsresult AddGlobalHtmlDomains();
 
 private:
+	virtual ~nsMsgComposeService();
   bool mLogComposePerformance;
 
   int32_t mMaxRecycledWindows;

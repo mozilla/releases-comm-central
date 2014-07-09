@@ -31,7 +31,6 @@ class nsURLFetcher : public nsIURLFetcher,
 { 
 public: 
   nsURLFetcher();
-  virtual ~nsURLFetcher();
 
   /* this macro defines QueryInterface, AddRef and Release for this class */
   NS_DECL_ISUPPORTS
@@ -58,6 +57,7 @@ protected:
   nsresult InsertConverter(const char * aContentType);
 
 private:
+  virtual ~nsURLFetcher();
   nsCOMPtr<nsIOutputStream>       mOutStream;               // the output file stream
   nsCOMPtr<nsIFile>          mLocalFile;               // the output file itself
   nsCOMPtr<nsIStreamListener>     mConverter;               // the stream converter, if needed
@@ -86,7 +86,6 @@ class nsURLFetcherStreamConsumer : public nsIStreamListener
 {
 public:
   nsURLFetcherStreamConsumer(nsURLFetcher* urlFetcher);
-  virtual ~nsURLFetcherStreamConsumer();
 
   /* additional members */
   NS_DECL_ISUPPORTS
@@ -94,6 +93,7 @@ public:
   NS_DECL_NSIREQUESTOBSERVER
 
 private:
+  virtual ~nsURLFetcherStreamConsumer();
   nsURLFetcher* mURLFetcher;
 }; 
 

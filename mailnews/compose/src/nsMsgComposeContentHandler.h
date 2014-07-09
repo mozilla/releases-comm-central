@@ -10,11 +10,11 @@ class nsMsgComposeContentHandler : public nsIContentHandler
 {
 public: 
 	nsMsgComposeContentHandler();
-	virtual ~nsMsgComposeContentHandler();
 
 	NS_DECL_ISUPPORTS
   NS_DECL_NSICONTENTHANDLER
 private:
+	virtual ~nsMsgComposeContentHandler();
   nsresult GetBestIdentity(nsIInterfaceRequestor* aWindowContext,
                            nsIMsgIdentity **identity);
 };
