@@ -32,7 +32,6 @@ public:
     NS_DECL_ISUPPORTS_INHERITED
 
     nsImapIncomingServer();
-    virtual ~nsImapIncomingServer();
 
     // overriding nsMsgIncomingServer methods
   NS_IMETHOD SetKey(const nsACString& aKey) MOZ_OVERRIDE;  // override nsMsgIncomingServer's implementation...
@@ -77,6 +76,7 @@ public:
                          nsIURI **aURL) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsImapIncomingServer();
   nsresult GetFolder(const nsACString& name, nsIMsgFolder** pFolder);
   virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
                                            nsIMsgFolder **rootFolder) MOZ_OVERRIDE;

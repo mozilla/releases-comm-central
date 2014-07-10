@@ -137,7 +137,6 @@ public:
   // need to call Initialize after we do a new of nsNNTPProtocol
   nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
                  nsIMsgWindow *aMsgWindow);
-  virtual ~nsNNTPProtocol();
 
   // stop binding is a "notification" informing us that the stream associated with aURL is going away.
   NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsresult aStatus);
@@ -153,6 +152,7 @@ public:
   nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer);
 
 private:
+  virtual ~nsNNTPProtocol();
   /**
    * Triggers the protocol state machine.
    * Most of the time, this machine will read as much input as it can before

@@ -17,7 +17,6 @@ class nsMsgSearchDBView : public nsMsgGroupView, public nsIMsgCopyServiceListene
 {
 public:
   nsMsgSearchDBView();
-  virtual ~nsMsgSearchDBView();
 
   // these are tied together pretty intimately
   friend class nsMsgXFViewThread;
@@ -71,6 +70,7 @@ public:
   NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsMsgSearchDBView();
   virtual void InternalClose() MOZ_OVERRIDE;
   virtual nsresult HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey) MOZ_OVERRIDE;
   virtual nsresult ListIdsInThread(nsIMsgThread *threadHdr, 

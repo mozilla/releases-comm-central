@@ -25,7 +25,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder
 {
 public:
   nsMsgNewsFolder(void);
-  virtual ~nsMsgNewsFolder(void);
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGNEWSFOLDER
@@ -93,6 +92,7 @@ public:
   NS_IMETHOD ApplyRetentionSettings() MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsMsgNewsFolder();
   // helper routine to parse the URI and update member variables
   nsresult AbbreviatePrettyName(nsAString& prettyName, int32_t fullwords);
   nsresult ParseFolder(nsIFile *path);

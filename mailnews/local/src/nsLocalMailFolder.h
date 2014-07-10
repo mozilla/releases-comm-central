@@ -96,7 +96,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 {
 public:
   nsMsgLocalMailFolder(void);
-  virtual ~nsMsgLocalMailFolder(void);
   NS_DECL_NSICOPYMESSAGELISTENER
   NS_DECL_NSIMSGLOCALMAILFOLDER
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER
@@ -174,6 +173,7 @@ public:
   NS_IMETHOD RemoveKeywordsFromMessages(nsIArray *aMessages, const nsACString& aKeywords) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsMsgLocalMailFolder();
   nsresult CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder) MOZ_OVERRIDE;
   nsresult CopyFolderAcrossServer(nsIMsgFolder *srcFolder, nsIMsgWindow *msgWindow,nsIMsgCopyServiceListener* listener);
 

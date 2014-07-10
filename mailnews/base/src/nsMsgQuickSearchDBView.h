@@ -18,7 +18,6 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView, public nsIMsgSearchNo
 {
 public:
   nsMsgQuickSearchDBView();
-  virtual ~nsMsgQuickSearchDBView();
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGSEARCHNOTIFY
@@ -54,6 +53,7 @@ public:
   NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs);
 
 protected:
+  virtual ~nsMsgQuickSearchDBView();
   nsWeakPtr m_searchSession;
   nsTArray<nsMsgKey> m_origKeys;
   bool      m_usingCachedHits;

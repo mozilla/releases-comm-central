@@ -25,7 +25,6 @@ public:
   NS_DECL_NSIFOLDERLISTENER
 
   nsMsgFolderDataSource(void);
-  virtual ~nsMsgFolderDataSource (void);
   virtual nsresult Init() MOZ_OVERRIDE;
   virtual void Cleanup() MOZ_OVERRIDE;
 
@@ -91,6 +90,7 @@ public:
                        nsIRDFResource*   aCommand,
                        nsISupportsArray/*<nsIRDFResource>*/* aArguments) MOZ_OVERRIDE;
 protected:
+  virtual ~nsMsgFolderDataSource();
 
   nsresult GetSenderName(nsAutoString& sender, nsAutoString *senderUserName);
 

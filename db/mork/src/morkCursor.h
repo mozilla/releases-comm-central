@@ -85,11 +85,13 @@ public: // state is public because the entire Mork system is private
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseCursor() only if open
-  virtual ~morkCursor(); // assert that CloseCursor() executed earlier
   
 public: // morkCursor construction & destruction
   morkCursor(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
   void CloseCursor(morkEnv* ev); // called by CloseMorkNode();
+
+protected:
+  virtual ~morkCursor(); // assert that CloseCursor() executed earlier
 
 private: // copying is not allowed
   morkCursor(const morkCursor& other);
@@ -111,7 +113,6 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
     morkEnv* ev, morkCursor** ioSlot)
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
 };
-
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 

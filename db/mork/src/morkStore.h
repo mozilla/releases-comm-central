@@ -611,7 +611,6 @@ public: // lazy creation of members and nested row or atom spaces
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseStore() only if open
-  virtual ~morkStore(); // assert that CloseStore() executed earlier
   
 public: // morkStore construction & destruction
   morkStore(morkEnv* ev, const morkUsage& inUsage,
@@ -624,6 +623,7 @@ public: // morkStore construction & destruction
 private: // copying is not allowed
   morkStore(const morkStore& other);
   morkStore& operator=(const morkStore& other);
+  virtual ~morkStore(); // assert that CloseStore() executed earlier
 
 public: // dynamic type identification
   morkEnv* CanUseStore(nsIMdbEnv* mev, mork_bool inMutable,

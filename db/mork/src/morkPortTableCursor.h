@@ -88,7 +88,6 @@ public: // state is public because the entire Mork system is private
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // ClosePortTableCursor()
-  virtual ~morkPortTableCursor(); // assert that close executed earlier
   
 public: // morkPortTableCursor construction & destruction
   morkPortTableCursor(morkEnv* ev, const morkUsage& inUsage,
@@ -106,6 +105,7 @@ public: // dynamic type identification
 // } ===== end morkNode methods =====
 
 protected: // utilities
+  virtual ~morkPortTableCursor(); // assert that close executed earlier
 
   void init_space_tables_map(morkEnv* ev);
 

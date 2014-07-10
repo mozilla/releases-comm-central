@@ -16,9 +16,11 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   nsAbMDBCard(void);
-  virtual ~nsAbMDBCard(void);
 
   NS_IMETHOD Equals(nsIAbCard *card, bool *result) MOZ_OVERRIDE;
+
+private:
+  virtual ~nsAbMDBCard();
 };
 
 #endif

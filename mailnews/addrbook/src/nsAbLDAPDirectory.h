@@ -28,7 +28,6 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   nsAbLDAPDirectory();
-  virtual ~nsAbLDAPDirectory();
 
   NS_IMETHOD Init(const char *aUri) MOZ_OVERRIDE;
 
@@ -54,6 +53,7 @@ public:
   NS_DECL_NSIABDIRSEARCHLISTENER
 
 protected:
+  virtual ~nsAbLDAPDirectory();
   nsresult Initiate();
 
   nsresult SplitStringList(const nsACString& aString,

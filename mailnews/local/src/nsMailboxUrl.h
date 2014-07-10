@@ -45,12 +45,12 @@ public:
 
   // nsMailboxUrl
   nsMailboxUrl();
-  virtual ~nsMailboxUrl();
   NS_DECL_NSIMSGMESSAGEURL
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGI18NURL
 
 protected:
+  virtual ~nsMailboxUrl();
   // protocol specific code to parse a url...
   virtual nsresult ParseUrl();
   nsresult GetMsgHdrForKey(nsMsgKey  msgKey, nsIMsgDBHdr ** aMsgHdr);

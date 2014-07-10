@@ -19,7 +19,6 @@ public:
 	NS_DECL_ISUPPORTS_INHERITED
 
 	nsAbBSDirectory();
-	virtual ~nsAbBSDirectory();
 
 	// nsIAbDirectory methods
   NS_IMETHOD Init(const char *aURI) MOZ_OVERRIDE;
@@ -37,6 +36,7 @@ public:
   NS_IMETHOD GetURI(nsACString &aURI) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsAbBSDirectory();
   nsresult EnsureInitialized();
 	nsresult CreateDirectoriesFromFactory(const nsACString &aURI,
                                         DIR_Server* aServer, bool aNotify);

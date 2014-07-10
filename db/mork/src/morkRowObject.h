@@ -30,7 +30,6 @@ public: // state is public because the entire Mork system is private
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseRowObject() only if open
-  virtual ~morkRowObject(); // assert that CloseRowObject() executed earlier
   
 public: // morkRowObject construction & destruction
   morkRowObject(morkEnv* ev, const morkUsage& inUsage,
@@ -169,6 +168,7 @@ public: // morkRowObject construction & destruction
 private: // copying is not allowed
   morkRowObject(const morkRowObject& other);
   morkRowObject& operator=(const morkRowObject& other);
+  virtual ~morkRowObject(); // assert that CloseRowObject() executed earlier
 
 public: // dynamic type identification
   mork_bool IsRowObject() const

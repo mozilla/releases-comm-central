@@ -49,6 +49,8 @@ public: // state is public because the entire Mork system is private
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseTableRowCursor()
+
+protected:
   virtual ~morkTableRowCursor(); // assert that close executed earlier
   
 public: // morkTableRowCursor construction & destruction

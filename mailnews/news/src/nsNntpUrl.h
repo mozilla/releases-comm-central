@@ -30,11 +30,11 @@ public:
 
   // nsNntpUrl
   nsNntpUrl();
-  virtual ~nsNntpUrl();
 
   NS_DECL_ISUPPORTS_INHERITED
 
 private:
+  virtual ~nsNntpUrl();
   nsresult DetermineNewsAction();
   nsresult ParseNewsURL();
   nsresult ParseNntpURL();

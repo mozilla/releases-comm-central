@@ -25,7 +25,6 @@ class nsMsgSearchOfflineMail : public nsMsgSearchAdapter, public nsIUrlListener
 {
 public:
   nsMsgSearchOfflineMail (nsIMsgSearchScopeTerm*, nsISupportsArray *);
-  virtual ~nsMsgSearchOfflineMail ();
 
   NS_DECL_ISUPPORTS_INHERITED
 
@@ -66,6 +65,7 @@ public:
                                bool Filtering,
                  bool *pResult);
 protected:
+  virtual ~nsMsgSearchOfflineMail();
   static nsresult MatchTerms(nsIMsgDBHdr *msgToMatch,
                                 nsISupportsArray *termList,
                                 const char *defaultCharset,

@@ -19,7 +19,6 @@ class nsNewsDatabase : public nsMsgDatabase , public nsINewsDatabase
 {
 public:
   nsNewsDatabase();
-  virtual ~nsNewsDatabase();
 
   NS_DECL_ISUPPORTS_INHERITED 
   NS_DECL_NSINEWSDATABASE
@@ -50,6 +49,7 @@ public:
   NS_IMETHOD GetDefaultSortOrder(nsMsgViewSortOrderValue *aDefaultSortOrder) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsNewsDatabase();
   // this is owned by the nsNewsFolder, which lives longer than the db.
   nsMsgKeySet           *m_readSet;
 };

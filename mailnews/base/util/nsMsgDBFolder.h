@@ -53,7 +53,6 @@ class NS_MSG_BASE nsMsgDBFolder: public nsRDFResource,
 {
 public: 
   nsMsgDBFolder(void);
-  virtual ~nsMsgDBFolder(void);
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGFOLDER
   NS_DECL_NSIDBCHANGELISTENER
@@ -84,6 +83,7 @@ public:
   nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr *msgHdr, nsIInputStream *stream);
   nsresult HandleAutoCompactEvent(nsIMsgWindow *aMsgWindow);
 protected:
+  virtual ~nsMsgDBFolder();
   
   // this is a little helper function that is not part of the public interface. 
   // we use it to get the IID of the incoming server for the derived folder.

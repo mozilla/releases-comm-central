@@ -35,7 +35,6 @@ class nsAbMDBDirectory:
 {
 public: 
   nsAbMDBDirectory(void);
-  virtual ~nsAbMDBDirectory(void);
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIADDRDBLISTENER
@@ -83,6 +82,7 @@ public:
   NS_DECL_NSIABDIRSEARCHLISTENER
 
 protected:
+  virtual ~nsAbMDBDirectory();
   nsresult NotifyPropertyChanged(nsIAbDirectory *list, const char *property, const char16_t* oldValue, const char16_t* newValue);
   nsresult NotifyItemAdded(nsISupports *item);
   nsresult NotifyItemDeleted(nsISupports *item);

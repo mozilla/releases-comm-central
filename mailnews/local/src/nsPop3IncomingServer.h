@@ -27,7 +27,6 @@ public:
   NS_DECL_NSILOCALMAILINCOMINGSERVER
 
   nsPop3IncomingServer();
-  virtual ~nsPop3IncomingServer();
 
   NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
   NS_IMETHOD GetDownloadMessagesAtStartup(bool *getMessages) MOZ_OVERRIDE;
@@ -44,6 +43,7 @@ public:
                             nsIUrlListener *aUrlListener) MOZ_OVERRIDE;
 
 protected:
+  virtual ~nsPop3IncomingServer();
   nsresult GetInbox(nsIMsgWindow *msgWindow, nsIMsgFolder **inbox);
 
 private:

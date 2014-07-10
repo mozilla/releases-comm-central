@@ -47,7 +47,6 @@ public:
     NS_DECL_NSITREEVIEW
 
     nsNntpIncomingServer();
-    virtual ~nsNntpIncomingServer();
 
     NS_IMETHOD GetLocalStoreType(nsACString& type);
     NS_IMETHOD CloseCachedConnections();
@@ -75,6 +74,7 @@ public:
     NS_IMETHOD GetSortOrder(int32_t* aSortOrder);
 
 protected:
+    virtual ~nsNntpIncomingServer();
    virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
                                             nsIMsgFolder **rootFolder);
     nsresult GetNntpConnection(nsIURI *url, nsIMsgWindow *window,

@@ -51,7 +51,6 @@ public: // state is public because the entire Mork system is private
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseCellObject() only if open
-  virtual ~morkCellObject(); // assert that CloseCellObject() executed earlier
   
 public: // morkCellObject construction & destruction
   morkCellObject(morkEnv* ev, const morkUsage& inUsage,
@@ -133,6 +132,7 @@ public: // morkCellObject construction & destruction
 
 // } ===== end nsIMdbCell methods =====
 private: // copying is not allowed
+  virtual ~morkCellObject(); // assert that CloseCellObject() executed earlier
   morkCellObject(const morkCellObject& other);
   morkCellObject& operator=(const morkCellObject& other);
 

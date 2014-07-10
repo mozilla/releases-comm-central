@@ -25,13 +25,15 @@ public:
   NS_DECL_NSILOCALMAILINCOMINGSERVER
 
   nsNoIncomingServer();
-  virtual ~nsNoIncomingServer();
 
   NS_IMETHOD GetLocalStoreType(nsACString& type) MOZ_OVERRIDE;
   NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) MOZ_OVERRIDE;
   NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) MOZ_OVERRIDE;
   NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) MOZ_OVERRIDE;
   NS_IMETHOD GetSortOrder(int32_t* aSortOrder) MOZ_OVERRIDE;
+
+private:
+  virtual ~nsNoIncomingServer();
 };
 
 

@@ -24,7 +24,6 @@ class nsLocalMoveCopyMsgTxn : public nsIFolderListener, public nsMsgTxn
 {
 public:
     nsLocalMoveCopyMsgTxn();
-    virtual ~nsLocalMoveCopyMsgTxn();
     NS_DECL_ISUPPORTS_INHERITED
     NS_DECL_NSIFOLDERLISTENER
 
@@ -54,6 +53,7 @@ public:
     void SetCanUndelete(bool canUndelete) {m_canUndelete = canUndelete;}
 
 private:
+    virtual ~nsLocalMoveCopyMsgTxn();
     nsWeakPtr m_srcFolder;
     nsTArray<nsMsgKey> m_srcKeyArray; // used when src is local or imap
     nsTArray<uint32_t> m_srcStatusOffsetArray; // used when src is local

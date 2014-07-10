@@ -51,13 +51,12 @@ public:
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIAbOSXDirectory, NS_IABOSXDIRECTORY_IID)
 
-class nsAbOSXDirectory : public nsAbDirProperty,
+class nsAbOSXDirectory MOZ_FINAL : public nsAbDirProperty,
 public nsIAbDirSearchListener,
 public nsIAbOSXDirectory
 {
 public:
   nsAbOSXDirectory();
-  ~nsAbOSXDirectory();
   
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIABDIRSEARCHLISTENER
@@ -105,6 +104,7 @@ public:
   nsresult GetRootOSXDirectory(nsIAbOSXDirectory **aResult);
 
 private:
+  ~nsAbOSXDirectory();
   nsresult FallbackSearch(nsIAbBooleanExpression *aExpression,
                           nsISimpleEnumerator **aCards);
 

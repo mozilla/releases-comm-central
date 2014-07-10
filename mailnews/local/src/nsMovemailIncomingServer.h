@@ -24,7 +24,6 @@ public:
     NS_DECL_NSILOCALMAILINCOMINGSERVER
 
     nsMovemailIncomingServer();
-    virtual ~nsMovemailIncomingServer();
 
     NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
     NS_IMETHOD GetDownloadMessagesAtStartup(bool *getMessages) MOZ_OVERRIDE;
@@ -32,6 +31,9 @@ public:
     NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) MOZ_OVERRIDE;
     NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) MOZ_OVERRIDE;
     NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) MOZ_OVERRIDE;
+
+private:
+    virtual ~nsMovemailIncomingServer();
 };
 
 

@@ -137,7 +137,6 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIINPUTSTREAMCALLBACK
   nsImapProtocol();
-  virtual ~nsImapProtocol();
 
   virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream,
                                         uint64_t sourceOffset, uint32_t length) MOZ_OVERRIDE;
@@ -312,6 +311,7 @@ public:
 
   const nsString &GetEmptyMimePartString() { return m_emptyMimePartString; }
 private:
+  virtual ~nsImapProtocol();
   // the following flag is used to determine when a url is currently being run. It is cleared when we
   // finish processng a url and it is set whenever we call Load on a url
   bool m_urlInProgress;

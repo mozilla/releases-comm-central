@@ -81,7 +81,6 @@ public:
 
     // Creating a protocol instance requires the URL which needs to be run.
     nsSmtpProtocol(nsIURI * aURL);
-    virtual ~nsSmtpProtocol();
 
     virtual nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer = nullptr) MOZ_OVERRIDE;
     virtual nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) MOZ_OVERRIDE;
@@ -94,6 +93,7 @@ public:
     NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status) MOZ_OVERRIDE;
 
 private:
+    virtual ~nsSmtpProtocol();
     // if we are asked to load a url while we are blocked waiting for redirection information,
     // then we'll store the url consumer in mPendingConsumer until we can actually load
     // the url.

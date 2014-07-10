@@ -201,6 +201,12 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
 };
 
+namespace mozilla {
+template <> struct HasDangerousPublicDestructor<morkEnv> {
+  static const bool value = true;
+};
+} // namespace mozilla
+
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKENV_ */

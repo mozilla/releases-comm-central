@@ -46,7 +46,6 @@ public:
 
   // nsImapUrl
   nsImapUrl();
-  virtual ~nsImapUrl();
 
   static nsresult ConvertToCanonicalFormat(const char *folderName, char onlineDelimiter, char **resultingCanonicalPath);
   static nsresult EscapeSlashes(const char *sourcePath, char **resultPath);
@@ -54,6 +53,7 @@ public:
   static char *  ReplaceCharsInCopiedString(const char *stringToCopy, char oldChar, char newChar);
 
 protected:
+  virtual ~nsImapUrl();
   virtual nsresult ParseUrl();
 
   char *m_listOfMessageIds;

@@ -28,7 +28,6 @@ public:
   nsImapMoveCopyMsgTxn(nsIMsgFolder* srcFolder, nsTArray<nsMsgKey>* srcKeyArray,
                        const char* srcMsgIdString, nsIMsgFolder* dstFolder,
                        bool isMove);
-  virtual ~nsImapMoveCopyMsgTxn();
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIURLLISTENER
@@ -48,6 +47,7 @@ public:
                 bool idsAreUids, bool isMove);
 
 protected:
+  virtual ~nsImapMoveCopyMsgTxn();
 
   nsWeakPtr m_srcFolder;
   nsCOMArray<nsIMsgDBHdr> m_srcHdrs;
@@ -77,13 +77,13 @@ public:
                    bool isMove,
                    nsOfflineImapOperationType opType,
                    nsCOMArray<nsIMsgDBHdr> &srcHdrs);
-  virtual ~nsImapOfflineTxn();
 
   NS_IMETHOD UndoTransaction(void) MOZ_OVERRIDE;
   NS_IMETHOD RedoTransaction(void) MOZ_OVERRIDE;
   void SetAddFlags(bool addFlags) {m_addFlags = addFlags;}
   void SetFlags(uint32_t flags) {m_flags = flags;}
 protected:
+  virtual ~nsImapOfflineTxn();
   nsOfflineImapOperationType m_opType;
   // these two are used to undo flag changes, which we don't currently do.
   bool m_addFlags;

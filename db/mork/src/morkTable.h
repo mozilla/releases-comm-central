@@ -464,7 +464,6 @@ public: // morkNode memory management operators
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseTable() if open
-  virtual ~morkTable(); // assert that close executed earlier
   
 public: // morkTable construction & destruction
   morkTable(morkEnv* ev, const morkUsage& inUsage,
@@ -478,6 +477,7 @@ public: // morkTable construction & destruction
 private: // copying is not allowed
   morkTable(const morkTable& other);
   morkTable& operator=(const morkTable& other);
+  virtual ~morkTable(); // assert that close executed earlier
 
 public: // dynamic type identification
   mork_bool IsTable() const

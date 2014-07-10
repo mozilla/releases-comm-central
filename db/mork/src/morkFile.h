@@ -81,6 +81,7 @@ class morkFile /*d*/ : public morkObject, public nsIMdbFile { /* ````` simple fi
 
 // ````` ````` ````` `````   ````` ````` ````` `````  
 protected: // protected morkFile members (similar to public domain IronDoc)
+  virtual ~morkFile(); // assert that CloseFile() executed earlier
 
   mork_u1     mFile_Frozen;   // 'F' => file allows only read access
   mork_u1     mFile_DoTrace;  // 'T' trace if ev->DoTrace()
@@ -97,7 +98,6 @@ protected: // protected morkFile members (similar to public domain IronDoc)
 public: // morkNode virtual methods
   NS_DECL_ISUPPORTS_INHERITED
   virtual void CloseMorkNode(morkEnv* ev); // CloseFile() only if open
-  virtual ~morkFile(); // assert that CloseFile() executed earlier
   
 public: // morkFile construction & destruction
   morkFile(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,

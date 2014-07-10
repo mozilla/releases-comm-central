@@ -34,7 +34,6 @@ class nsMsgAccountManagerDataSource : public nsMsgRDFDataSource,
 public:
     
   nsMsgAccountManagerDataSource();
-  virtual ~nsMsgAccountManagerDataSource();
   virtual nsresult Init() MOZ_OVERRIDE;
 
   virtual void Cleanup() MOZ_OVERRIDE;
@@ -63,6 +62,7 @@ public:
                        bool *result) MOZ_OVERRIDE;
     
 protected:
+  virtual ~nsMsgAccountManagerDataSource();
 
   nsresult HasAssertionServer(nsIMsgIncomingServer *aServer,
                               nsIRDFResource *aProperty,

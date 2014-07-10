@@ -93,7 +93,6 @@ public: // state is public because the entire Mork system is private
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // CloseThumb() only if open
-  virtual ~morkThumb(); // assert that CloseThumb() executed earlier
   
 public: // morkThumb construction & destruction
   morkThumb(morkEnv* ev, const morkUsage& inUsage,
@@ -103,6 +102,7 @@ public: // morkThumb construction & destruction
 private: // copying is not allowed
   morkThumb(const morkThumb& other);
   morkThumb& operator=(const morkThumb& other);
+  virtual ~morkThumb(); // assert that CloseThumb() executed earlier
 
 public: // dynamic type identification
   mork_bool IsThumb() const

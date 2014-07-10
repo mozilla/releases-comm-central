@@ -255,7 +255,6 @@ class nsPop3Protocol : public nsMsgProtocol,
 {
 public:
   nsPop3Protocol(nsIURI* aURL);
-  virtual ~nsPop3Protocol();
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIPOP3PROTOCOL
@@ -281,6 +280,7 @@ public:
                                       nsIFile *mailDirectory,
                                       nsVoidArray  &UIDLArray);
 private:
+  virtual ~nsPop3Protocol();
   nsCString m_ApopTimestamp;
   nsCOMPtr<nsIStringBundle> mLocalBundle;
 

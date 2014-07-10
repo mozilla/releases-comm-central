@@ -33,8 +33,8 @@ public:
     NS_IMETHOD GetSortOrder(int32_t* aSortOrder) MOZ_OVERRIDE;
 
     nsRssIncomingServer();
-    virtual ~nsRssIncomingServer();
 protected:
+    virtual ~nsRssIncomingServer();
     nsresult FolderChanged(nsIMsgFolder *aFolder, nsIMsgFolder *aOrigFolder, const char *aAction);
     nsresult FillInDataSourcePath(const nsAString& aDataSourceName, nsIFile ** aLocation);
     static nsrefcnt gInstanceCount;
