@@ -714,11 +714,11 @@
     <menu id="mailContext-tags" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;">
       <menupopup id="mailContext-tagpopup"
                  onpopupshowing="InitMessageTags(this);">
-        <menuitem id="addNewTag"
+        <menuitem id="mailContext-addNewTag"
                   label="&addNewTag.label;"
                   accesskey="&addNewTag.accesskey;"
                   command="cmd_addTag"/>
-        <menuitem id="manageTags"
+        <menuitem id="mailContext-manageTags"
                   label="&manageTags.label;"
                   accesskey="&manageTags.accesskey;"
                   command="cmd_manageTags"/>
@@ -1015,7 +1015,7 @@
                    label="&appmenuNewMsgCmd.label;"
                    command="cmd_newMessage">
             <menupopup id="appmenu_newMenupopup">
-              <menuitem id="newNewMsgCmd"
+              <menuitem id="appmenu_newNewMsgCmd"
                         label="&newNewMsgCmd.label;"
                         key="key_newMessage2"
                         command="cmd_newMessage"/>
@@ -1259,10 +1259,10 @@
             <menuitem id="appmenu_filtersCmd"
                       label="&filtersCmd2.label;"
                       command="cmd_displayMsgFilters"/>
-            <menuitem id="applyFilters"
+            <menuitem id="appmenu_applyFilters"
                       label="&filtersApply.label;"
                       command="cmd_applyFilters"/>
-            <menuitem id="applyFiltersToSelection"
+            <menuitem id="appmenu_applyFiltersToSelection"
                       label="&filtersApplyToMessage.label;"
                       command="cmd_applyFiltersToSelection"/>
           </menupopup>
@@ -2131,7 +2131,7 @@
           <menupopup id="menu_FilePopup" onpopupshowing="file_init();">
           <menu id="menu_New">
             <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();">
-              <menuitem id="newNewMsgCmd" label="&newNewMsgCmd.label;"
+              <menuitem id="menu_newNewMsgCmd" label="&newNewMsgCmd.label;"
                         accesskey="&newNewMsgCmd.accesskey;"
                         key="key_newMessage2"
                         command="cmd_newMessage"/>
@@ -2712,11 +2712,11 @@
             <menu id="tagMenu" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;" command="cmd_tag">
               <menupopup id="tagMenu-tagpopup"
                          onpopupshowing="InitMessageTags(this);">
-                <menuitem id="addNewTag"
+                <menuitem id="tagMenu-addNewTag"
                           label="&addNewTag.label;"
                           accesskey="&addNewTag.accesskey;"
                           command="cmd_addTag"/>
-                <menuitem id="manageTags"
+                <menuitem id="tagMenu-manageTags"
                           label="&manageTags.label;"
                           accesskey="&manageTags.accesskey;"
                           command="cmd_manageTags"/>
@@ -3190,11 +3190,11 @@
                    command="cmd_tag">
       <menupopup id="button-tagpopup"
                  onpopupshowing="InitMessageTags(this);">
-        <menuitem id="addNewTag"
+        <menuitem id="button-addNewTag"
                   label="&addNewTag.label;"
                   accesskey="&addNewTag.accesskey;"
                   command="cmd_addTag"/>
-        <menuitem id="manageTags"
+        <menuitem id="button-manageTags"
                   label="&manageTags.label;"
                   accesskey="&manageTags.accesskey;"
                   command="cmd_manageTags"/>

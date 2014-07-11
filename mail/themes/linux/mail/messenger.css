@@ -131,9 +131,8 @@ menuitem:not([type]) {
   list-style-image: url("moz-icon://stock/gtk-new?size=menu");
 }
 
-/* Message -> New, File -> New -> Message */
-#newMsgCmd,
-#newNewMsgCmd {
+menuitem[command="cmd_newMessage"],
+splitmenu[command="cmd_newMessage"] {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
   -moz-image-region: rect(0px 32px 16px 16px);
 }
