@@ -928,6 +928,11 @@ var ircBase = {
       // channel, so a few "clean up" tasks are done here.
       let conversation = this.getConversation(aMessage.params[1]);
 
+      // Update the topic as we may have added the participant for
+      // the user after the mode message was handled, and so
+      // topicSettable may have changed.
+      conversation.notifyObservers(this, "chat-update-topic");
+
       // If we haven't received the MODE yet, request it.
       if (!conversation._receivedInitialMode)
         this.sendMessage("MODE", aMessage.params[1]);
