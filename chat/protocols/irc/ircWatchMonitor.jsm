@@ -42,9 +42,16 @@ function setStatus(aAccount, aNick, aStatus) {
 }
 
 function trackBuddyWatch(aNicks) {
-  let nicks = (Array.isArray(aNicks) ? aNicks : [aNicks])
-                    .map(function(aNick) "+" + aNick);
+  // aNicks is an array when WATCH is initialized, and a single nick
+  // in all later calls.
+  if (!Array.isArray(aNicks)) {
+    // We update the trackQueue if an individual nick is being added,
+    // so the nick will also be monitored after a reconnect.
+    Object.getPrototypeOf(this).trackBuddy.call(this, aNicks);
+    aNicks = [aNicks];
+  }
 
+  let nicks = aNicks.map(aNick => "+" + aNick);
   if (!nicks.length)
     return;
 
@@ -80,6 +87,7 @@ function trackBuddyWatch(aNicks) {
 function untrackBuddyWatch(aNick) {
   --this.watchLength;
   this.sendMessage("WATCH", "-" + aNick);
+  Object.getPrototypeOf(this).untrackBuddy.call(this, aNick);
 }
 
 var isupportWATCH = {
@@ -282,8 +290,16 @@ var isupportMONITOR = {
 };
 
 function trackBuddyMonitor(aNicks) {
-  let nicks = Array.isArray(aNicks) ? aNicks : [aNicks];
+  // aNicks is an array when MONITOR is initialized, and a single nick
+  // in all later calls.
+  if (!Array.isArray(aNicks)) {
+    // We update the trackQueue if an individual nick is being added,
+    // so the nick will also be monitored after a reconnect.
+    Object.getPrototypeOf(this).trackBuddy.call(this, aNicks);
+    aNicks = [aNicks];
+  }
 
+  let nicks = aNicks;
   if (!nicks.length)
     return;
 
@@ -314,6 +330,7 @@ function trackBuddyMonitor(aNicks) {
 function untrackBuddyMonitor(aNick) {
   --this.monitorLength;
   this.sendMessage("MONITOR", ["-", aNick]);
+  Object.getPrototypeOf(this).untrackBuddy.call(this, aNick);
 }
 
 var ircMONITOR = {
