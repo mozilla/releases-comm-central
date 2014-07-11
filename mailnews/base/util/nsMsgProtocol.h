@@ -161,6 +161,7 @@ protected:
   nsCOMPtr<nsISupports>       mOwner;
   nsCString                   m_ContentType;
   int64_t                     mContentLength;
+  nsCOMPtr<nsILoadInfo>       m_loadInfo;
 
   nsCString m_lastPasswordSent; // used to prefill the password prompt
 

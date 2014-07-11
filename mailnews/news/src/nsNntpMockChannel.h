@@ -52,6 +52,7 @@ protected:
   // Temporary variables for accessors before we get to the actual instance.
   nsresult m_cancelStatus;
   nsCOMPtr<nsILoadGroup> m_loadGroup;
+  nsCOMPtr<nsILoadInfo> m_loadInfo;
   nsLoadFlags m_loadFlags;
 
   nsCOMPtr<nsIURI> m_originalUrl;

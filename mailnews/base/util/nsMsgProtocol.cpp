@@ -13,6 +13,7 @@
 #include "nsISocketTransportService.h"
 #include "nsISocketTransport.h"
 #include "nsILoadGroup.h"
+#include "nsILoadInfo.h"
 #include "nsIIOService.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
@@ -716,6 +717,19 @@ NS_IMETHODIMP nsMsgProtocol::GetLoadGroup(nsILoadGroup * *aLoadGroup)
 {
   *aLoadGroup = m_loadGroup;
   NS_IF_ADDREF(*aLoadGroup);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgProtocol::GetLoadInfo(nsILoadInfo **aLoadInfo)
+{
+  *aLoadInfo = m_loadInfo;
+  NS_IF_ADDREF(*aLoadInfo);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgProtocol::SetLoadInfo(nsILoadInfo *aLoadInfo)
+{
+  m_loadInfo = aLoadInfo;
   return NS_OK;
 }
 

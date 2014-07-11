@@ -705,6 +705,7 @@ protected:
 
   nsCOMPtr<nsIURI> m_originalUrl;
   nsCOMPtr<nsILoadGroup> m_loadGroup;
+  nsCOMPtr<nsILoadInfo> m_loadInfo;
   nsCOMPtr<nsIStreamListener> m_channelListener;
   nsISupports * m_channelContext; 
   nsresult m_cancelStatus;

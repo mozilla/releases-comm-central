@@ -51,6 +51,7 @@
 #include "nsIPrompt.h"
 #include "nsIDocShell.h"
 #include "nsIDocShellLoadInfo.h"
+#include "nsILoadInfo.h"
 #include "nsIMessengerWindowService.h"
 #include "nsIWindowMediator.h"
 #include "nsIWindowWatcher.h"
@@ -8814,6 +8815,19 @@ NS_IMETHODIMP nsImapMockChannel::GetLoadGroup(nsILoadGroup * *aLoadGroup)
 {
   *aLoadGroup = m_loadGroup;
   NS_IF_ADDREF(*aLoadGroup);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsImapMockChannel::GetLoadInfo(nsILoadInfo * *aLoadInfo)
+{
+  *aLoadInfo = m_loadInfo;
+  NS_IF_ADDREF(*aLoadInfo);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsImapMockChannel::SetLoadInfo(nsILoadInfo * aLoadInfo)
+{
+  m_loadInfo = aLoadInfo;
   return NS_OK;
 }
 

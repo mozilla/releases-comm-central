@@ -6,6 +6,7 @@
 #include "nsNntpMockChannel.h"
 
 #include "msgCore.h"
+#include "nsILoadInfo.h"
 #include "nsNNTPProtocol.h"
 #include "nsNetUtil.h"
 
@@ -112,6 +113,20 @@ NS_IMETHODIMP nsNntpMockChannel::SetLoadFlags(nsLoadFlags aLoadFlags)
 {
   FORWARD_CALL(SetLoadFlags, aLoadFlags)
   m_loadFlags = aLoadFlags;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsNntpMockChannel::GetLoadInfo(nsILoadInfo **aLoadInfo)
+{
+  FORWARD_CALL(GetLoadInfo, aLoadInfo)
+  NS_IF_ADDREF(*aLoadInfo = m_loadInfo);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsNntpMockChannel::SetLoadInfo(nsILoadInfo *aLoadInfo)
+{
+  FORWARD_CALL(SetLoadInfo, aLoadInfo)
+  m_loadInfo = aLoadInfo;
   return NS_OK;
 }
 
