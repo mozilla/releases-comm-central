@@ -830,7 +830,13 @@ pref("browser.search.update.interval", 21600);
 pref("devtools.debugger.log", false);
 
 pref("mail.chat.enabled", true);
+// Whether to show chat notifications or not.
 pref("mail.chat.show_desktop_notifications", true);
+// Decide how much information is to be shown in the notification.
+// 0 == Show all info (sender, chat message message preview),
+// 1 == Show sender's info only (not message preview),
+// 2 == No info (fill dummy values).
+pref("mail.chat.notification_info", 0);
 pref("mail.chat.play_sound", true);
 // 0 == default system sound, 1 == user specified wav
 pref("mail.chat.play_sound.type", 0);

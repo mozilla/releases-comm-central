@@ -31,6 +31,7 @@
       <preference id="purple.logging.log_system"           name="purple.logging.log_system"           type="bool"/>
       <preference id="pref.privacy.disable_button.view_passwords" name="pref.privacy.disable_button.view_passwords" type="bool"/>
       <preference id="mail.chat.show_desktop_notifications" name="mail.chat.show_desktop_notifications" type="bool"/>
+      <preference id="mail.chat.notification_info" name="mail.chat.notification_info" type="int"/>
       <preference id="mail.chat.play_sound" name="mail.chat.play_sound" type="bool"/>
       <preference id="mail.chat.play_sound.type" name="mail.chat.play_sound.type" type="int"/>
       <preference id="mail.chat.play_sound.url" name="mail.chat.play_sound.url" type="string"/>
@@ -79,9 +80,18 @@
               preference="purple.conversations.im.send_typing"/>
     <groupbox>
       <caption label="&chatNotifications.label;"/>
-      <checkbox id="desktopChatNotifications" label="&desktopChatNotifications.label;"
-              accesskey="&desktopChatNotifications.accesskey;"
-              preference="mail.chat.show_desktop_notifications"/>
+      <hbox>
+        <checkbox id="desktopChatNotifications" label="&desktopChatNotifications.label;"
+                  accesskey="&desktopChatNotifications.accesskey;"
+                  preference="mail.chat.show_desktop_notifications"/>
+        <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
+          <menupopup>
+            <menuitem label="&completeNotification.label;" value="0"/>
+            <menuitem label="&buddyInfoOnly.label;" value="1"/>
+            <menuitem label="&dummyNotification.label;" value="2"/>
+          </menupopup>
+        </menulist>
+      </hbox>
       <hbox align="center">
         <checkbox id="chatNotification" accesskey="&chatSound.accesskey;"
                   preference="mail.chat.play_sound" label="&chatSound.label;"
