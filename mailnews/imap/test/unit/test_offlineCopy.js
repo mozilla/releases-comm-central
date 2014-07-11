@@ -12,9 +12,9 @@
  */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
 
 const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
 
@@ -46,61 +46,61 @@ function addMessagesToServer(messages, mailbox, localFolder)
     mailbox.addMessage(new imapMessage(message.spec, mailbox.uidnext++, []));
   });
 }
-
-function setup() {
-  // Turn off autosync_offline_stores because
-  // fetching messages is invoked after copying the messages.
-  // (i.e. The fetching process will be invoked after OnStopCopy)
-  // It will cause crash with an assertion
-  // (ASSERTION: tried to add duplicate listener: 'index == -1') on teardown.
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
-
-  setupIMAPPump();
-
-  MailServices.mfn.addListener(mfnListener, MailServices.mfn.folderAdded);
-  IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
-  yield false;
-
-  gFolder1 = IMAPPump.incomingServer.rootFolder.getChildNamed("folder 1");
-  do_check_true(gFolder1 instanceof Ci.nsIMsgFolder);
-
-  // these hacks are required because we've created the inbox before
-  // running initial folder discovery, and adding the folder bails
-  // out before we set it as verified online, so we bail out, and
-  // then remove the INBOX folder since it's not verified.
-  IMAPPump.inbox.hierarchyDelimiter = '/';
-  IMAPPump.inbox.verifiedAsOnlineFolder = true;
-
-  // Add messages to the INBOX
-  // this is synchronous, afaik
-  addMessagesToServer([{file: gMsgFile1, messageId: gMsgId1},
-                       {file: gMsgFile2, messageId: gMsgId2},
-                      ],
-                      IMAPPump.daemon.getMailbox("INBOX"), IMAPPump.inbox);
-}
-
 var tests = [
-  setup,
-  function updateFolder() {
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function downloadAllForOffline() {
-     IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
-     yield false;
-  },
-  function copyMessagesToInbox() {
+  function *setup() {
+    // Turn off autosync_offline_stores because
+    // fetching messages is invoked after copying the messages.
+    // (i.e. The fetching process will be invoked after OnStopCopy)
+    // It will cause crash with an assertion
+    // (ASSERTION: tried to add duplicate listener: 'index == -1') on teardown.
+    Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
 
+    setupIMAPPump();
+
+    let promiseFolderAdded = PromiseTestUtils.promiseFolderAdded("folder 1");
+    IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
+    yield promiseFolderAdded;
+
+    gFolder1 = IMAPPump.incomingServer.rootFolder.getChildNamed("folder 1");
+    do_check_true(gFolder1 instanceof Ci.nsIMsgFolder);
+
+    // these hacks are required because we've created the inbox before
+    // running initial folder discovery, and adding the folder bails
+    // out before we set it as verified online, so we bail out, and
+    // then remove the INBOX folder since it's not verified.
+    IMAPPump.inbox.hierarchyDelimiter = '/';
+    IMAPPump.inbox.verifiedAsOnlineFolder = true;
+
+    // Add messages to the INBOX
+    // this is synchronous, afaik
+    addMessagesToServer([{file: gMsgFile1, messageId: gMsgId1},
+                         {file: gMsgFile2, messageId: gMsgId2},
+                        ],
+                        IMAPPump.daemon.getMailbox("INBOX"), IMAPPump.inbox);
+  },
+  function *updateFolder() {
+    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+    yield promiseUrlListener.promise;
+  },
+  function *downloadAllForOffline() {
+     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+     IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+     yield promiseUrlListener.promise;
+  },
+  function *copyMessagesToInbox() {
+    let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyFileMessage(gMsgFile3, IMAPPump.inbox, null, false, 0,
-                                      "", asyncCopyListener, null);
-    yield false;
+                                      "", promiseCopyListener, null);
+    yield promiseCopyListener.promise;
 
     MailServices.copy.CopyFileMessage(gMsgFile4, IMAPPump.inbox, null, false, 0,
-                                      "", asyncCopyListener, null);
-    yield false;
+                                      "", promiseCopyListener, null);
+    yield promiseCopyListener.promise;
 
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
+    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+    yield promiseUrlListener.promise;
 
     let db = IMAPPump.inbox.msgDatabase;
 
@@ -163,7 +163,7 @@ var tests = [
       do_check_eq(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
     }
   },
-  function test_headers() {
+  function *test_headers() {
     let msgIds = [gMsgId1, gMsg3Id, gMsg4Id];
     for (let msgId of msgIds)
     {
@@ -171,65 +171,19 @@ var tests = [
       let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
       let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
       let msgServ = messenger.messageServiceFromURI(msgURI);
-      let streamListener = new StreamListener();
-      msgServ.streamHeaders(msgURI, streamListener, asyncUrlListener,true);
-      yield false;
-      dump('\nheaders for messageId ' + msgId + '\n' + streamListener._data + '\n\n');
-      do_check_true(streamListener._data.contains(msgId));
+      let promiseStreamListener = new PromiseTestUtils.PromiseStreamListener();
+      msgServ.streamHeaders(msgURI, promiseStreamListener, null, true);
+      let data = yield promiseStreamListener.promise;
+      dump('\nheaders for messageId ' + msgId + '\n' + data + '\n\n');
+      do_check_true(data.contains(msgId));
     }
   },
-  teardown
-]
-
-asyncUrlListener.callback = function(aUrl, aExitCode) {
-  do_check_eq(aExitCode, 0);
-};
-
-function teardown() {
-  MailServices.mfn.removeListener(mfnListener);
-  teardownIMAPPump();
-}
+  teardownIMAPPump
+];
 
 function run_test() {
-  async_run_tests(tests);
+  for (let test of tests)
+    add_task(test);
+
+  run_next_test();
 }
-
-var mfnListener =
-{
-  folderAdded: function folderAdded(aFolder)
-  {
-    // we are only using async yield on the target folder add
-    if (aFolder.name == "folder 1")
-      async_driver();
-  },
-};
-
-// We use this as a display consumer
-function StreamListener() {}
-
-StreamListener.prototype = 
-{
-  _data: "",
-  _stream : null,
-
-  QueryInterface:
-    XPCOMUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
-
-  // nsIRequestObserver
-  onStartRequest: function(aRequest, aContext) {
-    this._data = "";
-  },
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
-    do_check_eq(aStatusCode, 0);
-    async_driver();
-  },
-
-  // nsIStreamListener
-  onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
-    if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
-      this._stream.init(aInputStream);
-    }
-    this._data += this._stream.read(aCount);
-  }
-};

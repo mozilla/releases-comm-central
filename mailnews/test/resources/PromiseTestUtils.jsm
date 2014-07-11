@@ -54,6 +54,51 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
   get promise() { return this._promise; },
 };
 
+
+/**
+ * Copy listener that can wrap another listener and trigger a callback.
+ *
+ * @param [aWrapped] The nsIMsgCopyServiceListener to pass all notifications through to.
+ *     This gets called prior to the callback (or async resumption).
+ */
+PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
+  this.wrapped = aWrapped ? aWrapped.QueryInterface(Ci.nsIMsgCopyServiceListener) : null;
+  this._promise = new Promise((resolve, reject) => {
+    this._resolve = resolve;
+    this._reject = reject;
+  });
+};
+
+PromiseTestUtils.PromiseCopyListener.prototype = {
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
+  OnStartCopy: function() {
+    if (this.wrapped)
+      this.wrapped.OnStartCopy();
+  },
+  OnProgress: function(aProgress, aProgressMax) {
+    if (this.wrapped)
+      this.wrapped.OnProgress(aProgress, aProgressMax);
+  },
+  SetMessageKey: function(aKey) {
+    if (this.wrapped)
+      this.wrapped.SetMessageKey(aKey);
+  },
+  SetMessageId: function(aMessageId) {
+    if (this.wrapped)
+      this.wrapped.SetMessageId(aMessageId);
+  },
+  OnStopCopy: function(aStatus) {
+    if (this.wrapped)
+      this.wrapped.OnStopCopy(aStatus);
+
+    if (aStatus == Cr.NS_OK)
+      this._resolve(aStatus);
+    else
+      this._reject(aStatus);
+  },
+  get promise() { return this._promise; }
+};
+
 /**
  * Stream listener that can wrap another listener and trigger a callback.
  *
