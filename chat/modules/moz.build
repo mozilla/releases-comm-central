@@ -23,3 +23,6 @@ EXTRA_PP_JS_MODULES += [
     'imTextboxUtils.jsm',
 ]
 
+TESTING_JS_MODULES += [
+    'test/appInfoUtils.jsm',
+]
