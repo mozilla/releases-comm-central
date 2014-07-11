@@ -29,7 +29,7 @@ interface nsIAbViewListener : nsISupports
  * book, then call setView again. There is no need to delete and recreate the
  * nsAbView object. If you wish to clear the view, then just call clearView.
  */
-[scriptable, uuid(c7c454bd-1901-4a4b-aac7-a3f9918b3616)]
+[scriptable, uuid(45e2fa9f-0b59-4090-a2fa-fb7042cf64a2)]
 interface nsIAbView : nsISupports
 {
   /**
@@ -60,15 +60,15 @@ interface nsIAbView : nsISupports
   /**
    * Sorts the tree by the specified parameters.
    *
-   * sortBy does not optimize for the case when sortColumn and sortDirection
-   * is identical since the last call, the caller is responsible optimizing
-   * for that case.
-   *
    * @param aSortColumn     The column to sort by. See the xul element with
    *                        id abResultsTreeCols for possible values.
    * @param aSortDirection  The sort direction to use ("ascending"/"descending")
+   * @param aResort         The function DOES optimize for the case when sortColumn
+   *                        and sortDirection is identical since the last call.
+   *                        If an unconditional resort is needed, set this to true.
    */
-  void sortBy(in wstring aSortColumn, in wstring aSortDirection);
+  void sortBy(in wstring aSortColumn, in wstring aSortDirection,
+              [optional] in boolean aResort);
 
   /// Returns the current sort column
   readonly attribute AString sortColumn;

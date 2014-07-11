@@ -185,6 +185,10 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
     NS_ASSERTION(NS_SUCCEEDED(rv), "remove card failed\n");
   }
 
+  // We replace all cards so any sorting is no longer valid.
+  mSortColumn.AssignLiteral("");
+  mSortDirection.AssignLiteral("");
+
   mDirectory = aAddressBook;
 
   rv = EnumerateCards();
@@ -212,7 +216,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   else
     actualSortColumn = aSortColumn;
 
-  rv = SortBy(actualSortColumn.get(), PromiseFlatString(aSortDirection).get());
+  rv = SortBy(actualSortColumn.get(), PromiseFlatString(aSortDirection).get(), false);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mAbViewListener = aAbViewListener;
@@ -448,7 +452,7 @@ nsresult nsAbView::RefreshTree()
   if (mSortColumn.EqualsLiteral(GENERATED_NAME_COLUMN_ID) ||
       mSortColumn.EqualsLiteral(kPriEmailProperty) ||
       mSortColumn.EqualsLiteral(kPhoneticNameColumn)) {
-    rv = SortBy(mSortColumn.get(), mSortDirection.get());
+    rv = SortBy(mSortColumn.get(), mSortDirection.get(), true);
   }
   else {
     rv = InvalidateTree(ALL_ROWS);
@@ -618,7 +622,7 @@ static void SetSortClosure(const char16_t *sortColumn, const char16_t *sortDirec
   return;
 }
 
-NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir)
+NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir, bool aResort = false)
 {
   nsresult rv;
 
@@ -626,14 +630,17 @@ NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir)
 
   nsAutoString sortColumn;
   if (!colID)
-    sortColumn = NS_LITERAL_STRING(GENERATED_NAME_COLUMN_ID);  // default sort
+    sortColumn = NS_LITERAL_STRING(GENERATED_NAME_COLUMN_ID);  // default sort column
   else
     sortColumn = colID;
 
-  // Note, we'll call SortBy() with the existing sort column and the
-  // existing sort direction, and that needs to do a complete resort.
-  // For example, we do that when the PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST changes
-  if (mSortColumn.Equals(sortColumn)) {
+  nsAutoString sortDirection;
+  if (!sortDir)
+    sortDirection = NS_LITERAL_STRING("ascending");  // default direction
+  else
+    sortDirection = sortDir;
+
+  if (mSortColumn.Equals(sortColumn) && !aResort) {
     if (mSortDirection.Equals(sortDir)) {
       // If sortColumn and sortDirection are identical since the last call, do nothing.
       return NS_OK;
@@ -660,15 +667,10 @@ NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir)
       NS_ENSURE_SUCCESS(rv,rv);
     }
 
-    nsAutoString sortDirection;
-    if (!sortDir)
-      sortDirection = NS_LITERAL_STRING("ascending");  // default direction
-    else
-      sortDirection = sortDir;
-
+    // We need to do full sort.
     SortClosure closure;
     SetSortClosure(sortColumn.get(), sortDirection.get(), this, &closure);
-    
+
     nsCOMPtr<nsIMutableArray> selectedCards = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
