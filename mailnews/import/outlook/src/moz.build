@@ -18,3 +18,7 @@ SOURCES += [
 
 FINAL_LIBRARY = 'import'
 
+LOCAL_INCLUDES += [
+    '../../src'
+]
+

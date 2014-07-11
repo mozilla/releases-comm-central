@@ -53,8 +53,6 @@ ifneq (,$(filter BeOS Darwin OpenVMS NetBSD FreeBSD,$(OS_ARCH)))
 DEFINES	+= -D__USE_BSD=1
 endif
 
-LOCAL_INCLUDES = -I$(srcdir)/../.. -I$(srcdir) -I.
-
 INSTALL_TARGETS += ical
 ical_FILES := ical.h
 ical_DEST = $(DIST)/include

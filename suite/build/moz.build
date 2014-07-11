@@ -12,3 +12,10 @@ IS_COMPONENT = True
 
 LIBRARY_NAME = 'suite'
 
+LOCAL_INCLUDES += [
+    '/suite/feeds/src',
+    '/suite/profile',
+    '/suite/profile/migration/src',
+    '/suite/shell/src',
+]
+

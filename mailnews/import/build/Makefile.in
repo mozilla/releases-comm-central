@@ -16,30 +16,6 @@ SHARED_LIBRARY_LIBS = ../../base/util/$(LIB_PREFIX)msgbsutl_s.$(LIB_SUFFIX)
 endif
 
 
-LOCAL_INCLUDES += -I$(srcdir)/../src \
-	-I$(srcdir)/../text/src \
-  -I$(srcdir)/../vcard/src \
-	$(NULL)
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-LOCAL_INCLUDES += -I$(srcdir)/../eudora/src \
-									-I$(srcdir)/../applemail/src \
-									$(NULL)
-endif
-
-ifeq ($(OS_ARCH),WINNT)
-LOCAL_INCLUDES += -I$(srcdir)/../eudora/src
-ifndef GNU_CC
-LOCAL_INCLUDES += -I$(srcdir)/../oexpress \
-	-I$(srcdir)/../outlook/src \
-	-I$(srcdir)/../winlivemail  \
-	$(NULL)
-endif
-ifdef MOZ_MAPI_SUPPORT
-LOCAL_INCLUDES	+= -I$(srcdir)/../outlook/src
-endif
-endif
-
 EXTRA_DSO_LDOPTS += \
 	$(LIBS_DIR) \
 	$(MOZ_JS_LIBS) \

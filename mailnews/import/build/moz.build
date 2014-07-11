@@ -16,3 +16,30 @@ else:
 
 LIBRARY_NAME = 'import'
 
+LOCAL_INCLUDES += [
+    '../src',
+    '../text/src',
+    '../vcard/src',
+]
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+    LOCAL_INCLUDES += [
+        '../applemail/src',
+        '../eudora/src',
+    ]
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    LOCAL_INCLUDES += [
+        '../eudora/src',
+    ]
+    if not CONFIG['GNU_CC']:
+        LOCAL_INCLUDES += [
+            '../oexpress',
+            '../outlook/src',
+            '../winlivemail',
+        ]
+    if CONFIG['MOZ_MAPI_SUPPORT']:
+        LOCAL_INCLUDES += [
+            '../outlook/src',
+        ]
+

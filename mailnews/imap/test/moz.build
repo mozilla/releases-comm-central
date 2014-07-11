@@ -5,3 +5,9 @@
 
 XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
 
+LOCAL_INCLUDES += [
+   '../src',
+   '/mailnews/base/util',
+   '/mozilla/xpcom/tests',
+]
+

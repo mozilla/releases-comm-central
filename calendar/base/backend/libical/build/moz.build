@@ -13,3 +13,7 @@ IS_COMPONENT = True
 
 LIBRARY_NAME = 'calbasecomps'
 
+LOCAL_INCLUDES += [
+    '..'
+]
+

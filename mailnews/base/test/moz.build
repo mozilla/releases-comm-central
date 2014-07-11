@@ -9,3 +9,7 @@ CPP_UNIT_TESTS += [
     'TestMailCookie.cpp',
 ]
 
+LOCAL_INCLUDES += [
+    '/mozilla/netwerk/test',
+    '/mozilla/xpcom/tests',
+]

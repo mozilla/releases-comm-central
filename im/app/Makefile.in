@@ -50,12 +50,6 @@ else
 
 DIST_FILES = application.ini
 
-LOCAL_INCLUDES += \
-  -I$(MOZILLA_SRCDIR)/toolkit/xre \
-  -I$(MOZILLA_SRCDIR)/xpcom/base \
-  -I$(MOZILLA_SRCDIR)/xpcom/build \
-  $(NULL)
-
 DEFINES += -DXPCOM_GLUE
 STL_FLAGS=
 

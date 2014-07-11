@@ -9,3 +9,6 @@ SOURCES += [
 
 FINAL_LIBRARY = 'mail'
 
+LOCAL_INCLUDES += [
+    '../glue',
+]

@@ -17,5 +17,24 @@ EXPORT_LIBRARY = True
 
 LIBRARY_NAME = 'mail'
 
+LOCAL_INCLUDES += [
+    '/mailnews/addrbook/src',
+    '/mailnews/base/search/src',
+    '/mailnews/base/src',
+    '/mailnews/base/util',
+    '/mailnews/compose/src',
+    '/mailnews/extensions/bayesian-spam-filter/src',
+    '/mailnews/extensions/fts3/src',
+    '/mailnews/extensions/mailviews/src',
+    '/mailnews/extensions/mdn/src',
+    '/mailnews/extensions/smime/src',
+    '/mailnews/imap/src',
+    '/mailnews/intl',
+    '/mailnews/local/src',
+    '/mailnews/mime/emitters',
+    '/mailnews/mime/src',
+    '/mailnews/news/src',
+]
+
 if CONFIG['MOZ_LDAP_XPCOM']:
     DEFINES['MOZ_LDAP_XPCOM'] = True

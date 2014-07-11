@@ -28,8 +28,6 @@ SRCDIR_CSRCS	= $(addprefix $(srcdir)/,$(CSRCS))
 
 GARBAGE	+= $(MIDL_GENERATED_FILES) done_gen $(CSRCS) $(SRCDIR_CSRCS)
 
-LOCAL_INCLUDES	= -I.
-
 EMBED_MANIFEST_AT = 2
 
 CSRCS += \

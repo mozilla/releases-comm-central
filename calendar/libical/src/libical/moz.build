@@ -30,3 +30,6 @@ SOURCES += [
 
 FINAL_LIBRARY = 'calbasecomps'
 
+LOCAL_INCLUDES += [
+    '../..'
+]

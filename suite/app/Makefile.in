@@ -23,13 +23,6 @@ include $(topsrcdir)/config/rules.mk
 else
 # Build a binary bootstrapping with XRE_main
 
-LOCAL_INCLUDES += \
-  -I$(MOZILLA_SRCDIR)/toolkit/xre \
-  -I$(MOZILLA_SRCDIR)/xpcom/base \
-  -I$(MOZILLA_SRCDIR)/xpcom/build \
-  -I$(DEPTH)/mozilla/build \
-  $(NULL)
-
 DEFINES += -DXPCOM_GLUE
 STL_FLAGS=
 

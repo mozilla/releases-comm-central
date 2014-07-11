@@ -14,5 +14,3 @@ MODULE_NAME    = nsPgpMimeModule
 endif
 
 include $(topsrcdir)/config/rules.mk
-
-LOCAL_INCLUDES = -I$(srcdir)/../glue
