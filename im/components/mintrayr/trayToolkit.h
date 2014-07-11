@@ -59,6 +59,7 @@ class TrayIconImpl MOZ_FINAL : public trayITrayIcon, nsIDOMEventListener {
   friend class platform::Icon;
 
 private:
+  ~TrayIconImpl() {}
   bool mIsMinimized;
   nsCOMPtr<nsIDOMWindow> mWindow;
 

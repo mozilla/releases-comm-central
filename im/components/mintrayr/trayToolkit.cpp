@@ -316,16 +316,12 @@ NS_IMETHODIMP TrayServiceImpl::CreateIcon(nsIDOMWindow *aWindow, bool aCloseOnRe
     return NS_OK;
   }
 
-  TrayIconImpl *icon = new TrayIconImpl(this);
+  nsRefPtr<TrayIconImpl> icon = new TrayIconImpl(this);
   rv = icon->Init(aWindow, aCloseOnRestore);
-  if (NS_FAILED(rv)) {
-    delete icon;
-  }
-  else {
+  if (NS_SUCCEEDED(rv)) {
     mIcons.AppendObject(icon);
     if (aResult) {
-      *aResult = icon;
-      NS_ADDREF(*aResult);
+      icon.forget(aResult);
     }
   }
   return rv;
