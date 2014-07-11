@@ -781,5 +781,10 @@ function getFilterScope(aServerFilterScope, aFilterType, aFilterList)
  */
 function setLastActionFocus() {
   let lastAction = gFilterActionList.getAttribute("focusedAction");
+  if (!lastAction || lastAction < 0)
+    lastAction = 0;
+  if (lastAction >= gFilterActionList.itemCount)
+    lastAction = gFilterActionList.itemCount - 1;
+
   gFilterActionList.getItemAtIndex(lastAction).mRuleActionType.menulist.focus();
 }
