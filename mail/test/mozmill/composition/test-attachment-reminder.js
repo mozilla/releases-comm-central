@@ -155,9 +155,6 @@ function test_attachment_reminder_dismissal() {
 
   close_compose_window(cwc);
 }
-// Disabling this test on Windows due to random timeouts on our Mozmill
-// testers.
-test_attachment_reminder_dismissal.EXCLUDED_PLATFORMS = ['winnt'];
 
 /**
  * Test that the mail.compose.attachment_reminder_aggressive pref works.
@@ -183,9 +180,6 @@ function test_attachment_reminder_aggressive_pref() {
   if (Services.prefs.prefHasUserValue(kPref))
     Services.prefs.clearUserPref(kPref);
 }
-// Disabling this test on Windows due to random timeouts on our Mozmill
-// testers.
-test_attachment_reminder_aggressive_pref.EXCLUDED_PLATFORMS = ['winnt'];
 
 /**
  * Test that clicking "No, Send Now" in the attachment reminder alert
@@ -211,9 +205,6 @@ function test_no_send_now_sends() {
   // We're now back in the compose window, let's close it then.
   close_compose_window(cwc);
 }
-// Disabling this test on Windows due to random timeouts on our Mozmill
-// testers.
-test_no_send_now_sends.EXCLUDED_PLATFORMS = ['winnt'];
 
 /**
  * Click the manual reminder in the menu.
