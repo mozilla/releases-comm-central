@@ -1545,6 +1545,10 @@
               if (args.selectedVal) {
                 let menuitem = menulist.querySelector('[label="' + args.selectedVal + '"]');
                 this.value = menuitem.value;
+              } else {
+                // Nothing was picked in the custom headers editor so just pick something
+                // instead of the current "Customize" menuitem.
+                this.value = menulist.getItemAtIndex(0).value;
               }
             }
             else
