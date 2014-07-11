@@ -1114,10 +1114,12 @@ var MessageWindowController =
       case "button_delete":
       case "cmd_delete":
         gFolderDisplay.doCommand(nsMsgViewCommandType.deleteMsg);
+        UpdateDeleteToolbarButton();
         break;
       case "button_shiftDelete":
       case "cmd_shiftDelete":
         gFolderDisplay.doCommand(nsMsgViewCommandType.deleteNoTrash);
+        UpdateDeleteToolbarButton();
         break;
       case "button_junk":
         MsgJunk();

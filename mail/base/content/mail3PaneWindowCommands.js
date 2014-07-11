@@ -638,6 +638,7 @@ var DefaultController =
         if (!gRightMouseButtonSavedSelection)
           gFolderDisplay.hintAboutToDeleteMessages();
         gFolderDisplay.doCommand(nsMsgViewCommandType.deleteMsg);
+        UpdateDeleteToolbarButton();
         break;
       case "cmd_cancel":
         let message = gFolderDisplay.selectedMessage;
@@ -649,6 +650,7 @@ var DefaultController =
         MarkSelectedMessagesRead(true);
         gFolderDisplay.hintAboutToDeleteMessages();
         gFolderDisplay.doCommand(nsMsgViewCommandType.deleteNoTrash);
+        UpdateDeleteToolbarButton();
         break;
       case "cmd_deleteFolder":
         gFolderTreeController.deleteFolder();
