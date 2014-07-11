@@ -478,6 +478,9 @@ pref("mail.spam.display.sanitize", true); // display simple html for html junk m
 // the number of allowed bayes tokens before the database is shrunk
 pref("mailnews.bayesian_spam_filter.junk_maxtokens", 100000);
 
+// pref to warn the users of exceeding the size of the message being composed. (Default 20MB).
+pref("mailnews.message_warning_size", 20971520);
+
 // set default traits for junk and good. Index should match the values in nsIJunkMailPlugin
 pref("mailnews.traits.id.1", "mailnews@mozilla.org#good");
 pref("mailnews.traits.name.1", "Good");

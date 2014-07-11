@@ -3391,27 +3391,22 @@ nsMsgComposeAndSend::DeliverMessage()
   {
     bool abortTheSend = false;
     nsString msg;
-    mComposeBundle->GetStringFromName(MOZ_UTF16("sendLargeMessageWarning"), getter_Copies(msg));
+    nsAutoString formattedFileSize;
+    FormatFileSize(fileSize, true, formattedFileSize);
+    const char16_t* params[] = { formattedFileSize.get() };
+    mComposeBundle->FormatStringFromName(MOZ_UTF16("largeMessageSendWarning"),
+                                         params, 1, getter_Copies(msg));
 
     if (!msg.IsEmpty())
     {
-      char16_t *printfString = nsTextFormatter::smprintf(msg.get(), fileSize);
-
-      if (printfString)
+      nsCOMPtr<nsIPrompt> prompt;
+      GetDefaultPrompt(getter_AddRefs(prompt));
+      nsMsgAskBooleanQuestionByString(prompt, msg.get(), &abortTheSend);
+      if (!abortTheSend)
       {
-        nsCOMPtr<nsIPrompt> prompt;
-        GetDefaultPrompt(getter_AddRefs(prompt));
-
-        nsMsgAskBooleanQuestionByString(prompt, printfString, &abortTheSend);
-        if (!abortTheSend)
-        {
-          nsresult ignoreMe;
-          Fail(NS_ERROR_BUT_DONT_SHOW_ALERT, printfString, &ignoreMe);
-          PR_Free(printfString);
-          return NS_ERROR_FAILURE;
-        }
-        else
-          PR_Free(printfString);
+        nsresult ignoreMe;
+        Fail(NS_ERROR_BUT_DONT_SHOW_ALERT, msg.get(), &ignoreMe);
+        return NS_ERROR_FAILURE;
       }
     }
   }
