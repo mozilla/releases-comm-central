@@ -131,8 +131,8 @@ endif
 endif
 
 ifdef LIBRARY
-ifdef FORCE_SHARED_LIB
 ifdef MKSHLIB
+ifdef FORCE_SHARED_LIB
 
 ifdef LIB_IS_C_ONLY
 MKSHLIB			= $(MKCSHLIB)
@@ -150,8 +150,15 @@ endif
 
 EMBED_MANIFEST_AT=2
 
-endif # MKSHLIB
 endif # FORCE_SHARED_LIB
+
+ifdef SONAME
+DSO_SONAME = $(DLL_PREFIX)$(SONAME)$(DLL_SUFFIX)
+else
+DSO_SONAME = $(notdir $@)
+endif
+
+endif # MKSHLIB
 endif # LIBRARY
 
 ifdef FORCE_STATIC_LIB
