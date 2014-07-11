@@ -2427,7 +2427,8 @@ let gFolderTreeController = {
   },
 
   /**
-   * Prompts the user to confirm and empties the trash for the selected folder
+   * Prompts the user to confirm and empties the trash for the selected folder.
+   * The folder and its children are only emptied if it has the proper Trash flag.
    *
    * @param aFolder (optional)  the trash folder to empty
    * @note Calling this function on a non-trash folder will result in strange
@@ -2436,7 +2437,12 @@ let gFolderTreeController = {
   emptyTrash: function ftc_emptyTrash(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
 
-    if (this._checkConfirmationPrompt("emptyTrash")) {
+    if (!folder)
+      return;
+
+    if (!this._checkConfirmationPrompt("emptyTrash", folder))
+      return;
+
       // Check if this is a top-level smart folder. If so, we're going
       // to empty all the trash folders.
       if (folder.server.hostName == "smart mailboxes" &&
@@ -2444,17 +2450,17 @@ let gFolderTreeController = {
         let subFolders = gFolderTreeView
                            ._allFoldersWithFlag(gFolderTreeView._sortedAccounts(),
                             nsMsgFolderFlags.Trash, false);
-        for each (let trash in subFolders)
+        for (let trash of subFolders)
           trash.emptyTrash(msgWindow, null);
       }
       else {
         folder.emptyTrash(msgWindow, null);
       }
-    }
   },
 
   /**
-   * Deletes everything (folders and messages) in this folder
+   * Deletes everything (folders and messages) in the selected folder.
+   * The folder is only emptied if it has the proper Junk flag.
    *
    * @param aFolder (optional)  the folder to empty
    */
@@ -2462,7 +2468,10 @@ let gFolderTreeController = {
     const Ci = Components.interfaces;
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
 
-    if (!this._checkConfirmationPrompt("emptyJunk"))
+    if (!folder || !folder.getFlag(nsMsgFolderFlags.Junk))
+      return;
+
+    if (!this._checkConfirmationPrompt("emptyJunk", folder))
       return;
 
     // Delete any subfolders this folder might have
@@ -2566,9 +2575,14 @@ let gFolderTreeController = {
    * Prompts for confirmation, if the user hasn't already chosen the "don't ask
    * again" option.
    *
-   * @param aCommand - the command to prompt for
+   * @param aCommand  the command to prompt for
+   * @param aFolder   The folder for which the confirmation is requested.
    */
-  _checkConfirmationPrompt: function ftc_confirm(aCommand) {
+  _checkConfirmationPrompt: function ftc_confirm(aCommand, aFolder) {
+    // If no folder was specified, reject the operation.
+    if (!aFolder)
+      return false;
+
     let showPrompt = true;
     try {
       showPrompt = !Services.prefs.getBoolPref("mailnews." + aCommand + ".dontAskAgain");
@@ -2577,9 +2591,11 @@ let gFolderTreeController = {
     if (showPrompt) {
       let checkbox = {value:false};
       let bundle = document.getElementById("bundle_messenger");
+      let title = bundle.getFormattedString(aCommand + "FolderTitle", [aFolder.prettyName]);
+      let msg = bundle.getString(aCommand + "FolderMessage");
       let ok = Services.prompt.confirmEx(window,
-                                         bundle.getString(aCommand + "Title"),
-                                         bundle.getString(aCommand + "Message"),
+                                         title,
+                                         msg,
                                          Services.prompt.STD_YES_NO_BUTTONS,
                                          null, null, null,
                                          bundle.getString(aCommand + "DontAsk"),
