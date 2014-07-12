@@ -130,6 +130,9 @@ type="int"/>
       <preference id="security.disable_button.openDeviceManager"
                   name="security.disable_button.openDeviceManager"
                   type="bool"/>
+      <preference id="security.OCSP.enabled"
+                  name="security.OCSP.enabled"
+                  type="int"/>
     </preferences>
 
 #ifdef HAVE_SHELL_SERVICE
@@ -426,14 +429,23 @@ type="int"/>
           <separator/>
 
           <hbox>
+            <checkbox id="enableOCSP"
+                      label="&enableOCSP.label;"
+                      accesskey="&enableOCSP.accesskey;"
+                      onsyncfrompreference="return gAdvancedPane.readEnableOCSP();"
+                      onsynctopreference="return gAdvancedPane.writeEnableOCSP();"
+                      preference="security.OCSP.enabled"/>
+            <spacer flex="1"/>
+          </hbox>
+
+            <separator/>
+
+          <hbox>
             <button id="viewCertificatesButton"
                     label="&viewCertificates.label;"
                     accesskey="&viewCertificates.accesskey;"
                     oncommand="gAdvancedPane.showCertificates();"
                     preference="security.disable_button.openCertManager"/>
-            <button id="verificationButton"
-                    label="&validation.label;" accesskey="&validation.accesskey;"
-                    oncommand="gAdvancedPane.showOCSP();"/>
             <button id="viewSecurityDevicesButton"
                     label="&viewSecurityDevices.label;"
                     accesskey="&viewSecurityDevices.accesskey;"

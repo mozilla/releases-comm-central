@@ -108,13 +108,13 @@
 <!-- Certificates -->
 <!ENTITY certSelection.description       "When a server requests my personal certificate:">
 <!ENTITY certs.auto                      "Select one automatically">
-<!ENTITY certs.auto.accesskey            "m">
+<!ENTITY certs.auto.accesskey            "S">
 <!ENTITY certs.ask                       "Ask me every time">
 <!ENTITY certs.ask.accesskey             "A">
+<!ENTITY enableOCSP.label                "Query OCSP responder servers to confirm the current validity of certificates">
+<!ENTITY enableOCSP.accesskey            "Q">
 
 <!ENTITY viewCertificates.label         "View Certificates">
 <!ENTITY viewCertificates.accesskey     "C">
-<!ENTITY validation.label               "Validation">
-<!ENTITY validation.accesskey           "V">
 <!ENTITY viewSecurityDevices.label      "Security Devices">
-<!ENTITY viewSecurityDevices.accesskey  "S">
+<!ENTITY viewSecurityDevices.accesskey  "D">

@@ -388,12 +388,26 @@ updateWritePrefs: function ()
   },
 
   /**
-   * Display a dialog in which OCSP preferences can be configured.
+   * security.OCSP.enabled is an integer value for legacy reasons.
+   * A value of 1 means OCSP is enabled. Any other value means it is disabled.
    */
-  showOCSP: function ()
+  readEnableOCSP: function ()
   {
-    document.documentElement.openSubDialog("chrome://mozapps/content/preferences/ocsp.xul",
-                                           "", null);
+    var preference = document.getElementById("security.OCSP.enabled");
+    // This is the case if the preference is the default value.
+    if (preference.value === undefined) {
+      return true;
+    }
+    return preference.value == 1;
+  },
+
+  /**
+   * See documentation for readEnableOCSP.
+   */
+  writeEnableOCSP: function ()
+  {
+    var checkbox = document.getElementById("enableOCSP");
+    return checkbox.checked ? 1 : 0;
   },
 
   /**
