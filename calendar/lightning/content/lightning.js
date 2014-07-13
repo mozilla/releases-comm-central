@@ -27,8 +27,9 @@ pref("calendar.task.defaultdue", "none");
 pref("calendar.task.defaultdueoffset", 60);
 pref("calendar.task.defaultdueoffsetunits", "minutes");
 
-// default transparency of allday items; could be switched to e.g. "OPAQUE":
-pref("calendar.allday.defaultTransparency", "TRANSPARENT");
+// default transparency (free-busy status) of standard and all-day events
+pref("calendar.events.defaultTransparency.allday.transparent", true);
+pref("calendar.events.defaultTransparency.standard.transparent", false);
 
 // number of days in "Soon" section
 pref("calendar.agendaListbox.soondays", 5);

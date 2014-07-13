@@ -290,6 +290,25 @@ let cal = {
         return invitedAttendee;
     },
 
+    /**
+     * Returns the default transparency to apply for an event depending on whether its an all-day event
+     *
+     * @param aIsAllDay      If true, the default transparency for all-day events is returned
+     */
+    getEventDefaultTransparency: function (aIsAllDay) {
+        let transp = null;
+        if (aIsAllDay) {
+            transp = Preferences.get("calendar.events.defaultTransparency.allday.transparent", false)
+                     ? "TRANSPARENT"
+                     : "OPAQUE";
+        } else {
+            transp = Preferences.get("calendar.events.defaultTransparency.standard.transparent", false)
+                     ? "TRANSPARENT"
+                     : "OPAQUE";
+        }
+        return transp;
+    },
+
     // The below functions will move to some different place once the
     // unifinder tress are consolidated.
 

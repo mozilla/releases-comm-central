@@ -467,9 +467,11 @@ function loadDialog(item) {
     updateReminder(true);
 
     gShowTimeAs = item.getProperty("TRANSP");
-    // set default value for a new event
-    if (!gShowTimeAs & window.mode == "new" && cal.isEvent(item)) {
-        setShowTimeAs(gStartTime.isDate);
+    // display transparency controls only for events
+    if (!cal.isEvent(item)) {
+        setBooleanAttribute("options-freebusy-menu", "hidden", true);
+        setBooleanAttribute("button-freebusy", "hidden", true);
+        setBooleanAttribute("status-freebusy", "hidden", true);
     }
     updateShowTimeAs();
 }
@@ -1386,7 +1388,7 @@ function openNewCardDialog() {
  * @param allDay    If true, the event is all-day
  */
 function setShowTimeAs(allDay) {
-    gShowTimeAs = (allDay ? Preferences.get("calendar.allday.defaultTransparency", "TRANSPARENT") : "OPAQUE");
+    gShowTimeAs = cal.getEventDefaultTransparency(allDay);
     updateShowTimeAs();
 }
 
@@ -1786,19 +1788,21 @@ function editShowTimeAs(target) {
  * Update the dialog controls related to transparency.
  */
 function updateShowTimeAs() {
-    var showAsBusy = document.getElementById("cmd_showtimeas_busy");
-    var showAsFree = document.getElementById("cmd_showtimeas_free");
+    if (cal.isEvent(window.calendarItem)) {
+        var showAsBusy = document.getElementById("cmd_showtimeas_busy");
+        var showAsFree = document.getElementById("cmd_showtimeas_free");
 
-    showAsBusy.setAttribute("checked",
-                            gShowTimeAs == "OPAQUE" ? "true" : "false");
-    showAsFree.setAttribute("checked",
-                            gShowTimeAs == "TRANSPARENT" ? "true" : "false");
+        showAsBusy.setAttribute("checked",
+                                gShowTimeAs == "OPAQUE" ? "true" : "false");
+        showAsFree.setAttribute("checked",
+                                gShowTimeAs == "TRANSPARENT" ? "true" : "false");
 
-    setBooleanAttribute("status-freebusy",
-                        "collapsed",
-                        gShowTimeAs != "OPAQUE" && gShowTimeAs != "TRANSPARENT");
-    setBooleanAttribute("status-freebusy-free-label", "hidden", gShowTimeAs == "OPAQUE")
-    setBooleanAttribute("status-freebusy-busy-label", "hidden", gShowTimeAs == "TRANSPARENT")
+        setBooleanAttribute("status-freebusy",
+                            "collapsed",
+                            gShowTimeAs != "OPAQUE" && gShowTimeAs != "TRANSPARENT");
+        setBooleanAttribute("status-freebusy-free-label", "hidden", gShowTimeAs == "OPAQUE");
+        setBooleanAttribute("status-freebusy-busy-label", "hidden", gShowTimeAs == "TRANSPARENT");
+    }
 }
 
 /**
