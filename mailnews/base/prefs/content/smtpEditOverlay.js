@@ -34,30 +34,35 @@ function initSmtpSettings(server) {
     if (server) {
         gSmtpHostname.value = server.hostname;
         gSmtpDescription.value = server.description;
-        gSmtpPort.value = server.port ? server.port : "";
+        gSmtpPort.value = server.port;
         gSmtpUsername.value = server.username;
         gSmtpAuthMethod.value = server.authMethod;
         gSmtpSocketType.value = (server.socketType < 4) ? server.socketType : 1;
     } else {
-        // When does that happen? TODO Get default prefs, if realistic, otherwise remove
-        gSmtpAuthMethod.value = 3; // cleartext
-        gSmtpSocketType.value = 0;
+        // New server, load default values.
+        gSmtpAuthMethod.value = Services.prefs.getIntPref("mail.smtpserver.default.authMethod");
+        gSmtpSocketType.value = Services.prefs.getIntPref("mail.smtpserver.default.try_ssl");
     }
+
+    // Although sslChanged will set a label for cleartext password,
+    // we need to use the long label so that we can size the dialog.
+    setLabelFromStringBundle("authMethod-no", "authNo");
+    setLabelFromStringBundle("authMethod-password-encrypted",
+        "authPasswordEncrypted");
+    setLabelFromStringBundle("authMethod-password-cleartext",
+        "authPasswordCleartextInsecurely");
+    setLabelFromStringBundle("authMethod-kerberos", "authKerberos");
+    setLabelFromStringBundle("authMethod-ntlm", "authNTLM");
+    setLabelFromStringBundle("authMethod-anysecure", "authAnySecure");
+    setLabelFromStringBundle("authMethod-any", "authAny");
+
+    sizeToContent();
 
     sslChanged(false);
     authMethodChanged(false);
 
     if (MailServices.smtp.defaultServer)
       onLockPreference();
-
-    setLabelFromStringBundle("authMethod-no", "authNo");
-    setLabelFromStringBundle("authMethod-kerberos", "authKerberos");
-    setLabelFromStringBundle("authMethod-ntlm", "authNTLM");
-    setLabelFromStringBundle("authMethod-anysecure", "authAnySecure");
-    setLabelFromStringBundle("authMethod-any", "authAny");
-    setLabelFromStringBundle("authMethod-password-encrypted",
-        "authPasswordEncrypted");
-    //authMethod-password-cleartext already set in sslChanged()
 
     // Hide deprecated/hidden auth options, unless selected
     hideUnlessSelected(document.getElementById("authMethod-anysecure"));
@@ -163,7 +168,7 @@ function sslChanged(userAction)
   // or the user is causing the default port to change,
   //   and the port is set to the default for the other protocol,
   // then set the port to the default for the new protocol.
-  if ((gPort.value == "") ||
+  if ((gPort.value == 0) ||
       (userAction && (gDefaultPort.value != prevDefaultPort) &&
        (gPort.value == otherDefaultPort)))
     gPort.value = gDefaultPort.value;

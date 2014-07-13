@@ -47,7 +47,7 @@
             <hbox align="center">
               <textbox id="smtp.port"
                        type="number"
-                       min="1"
+                       min="0"
                        max="65535"
                        size="5"
                        preftype="int"
