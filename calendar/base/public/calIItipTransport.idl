@@ -12,7 +12,7 @@ interface calIDateTime;
  * calIItipTransport is a generic transport interface that is implemented
  * by transports (eg: email, XMPP, etc.) wishing to send calIItipItems
  */
-[scriptable, uuid(be4aceee-63dc-11de-a8d5-95f255d89593)]
+[scriptable, uuid(caedabb9-d886-4814-ada5-a5636d2fb939)]
 interface calIItipTransport : nsISupports
 {
     /**
@@ -42,7 +42,7 @@ interface calIItipTransport : nsISupports
      * @param recipientArray    array of recipients
      * @param calIItipItem      set of calIItems encapsulated as calIItipItems
      */
-    void sendItems(in uint32_t count,
-                   [array, size_is(count)] in calIAttendee recipientArray,
-                   in calIItipItem item);
+    boolean sendItems(in uint32_t count,
+                      [array, size_is(count)] in calIAttendee recipientArray,
+                      in calIItipItem item);
 };
