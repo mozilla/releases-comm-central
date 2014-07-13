@@ -342,7 +342,7 @@ Extractor.prototype = {
         this.extractDuration("duration.hours", 60);
         this.extractDuration("duration.days", 60 * 24);
 
-        if (sel !== undefined) {
+        if (sel !== undefined && sel !== null) {
             this.markSelected(sel, title);
         }
         this.markContained();

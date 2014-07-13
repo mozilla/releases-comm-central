@@ -110,6 +110,14 @@ let calendarExtract = {
         cal.setDefaultStartEndHour(item);
         cal.alarms.setDefaultValues(item);
         let sel = GetMessagePaneFrame().getSelection();
+        // Thunderbird Conversations might be installed
+        if (sel === null) {
+            try {
+                sel = document.getElementById("multimessage")
+                              .contentDocument.querySelector(".iframe-container iframe")
+                              .contentDocument.getSelection();
+            } catch (ex) {}
+        }
         let collected = extractor.extract(title, content, date, sel);
 
         // if we only have email date then use default start and end
