@@ -1093,8 +1093,8 @@
               notification.documents.push(aDocument);
             else {
               var buttons = [{
-                label: this._stringBundle.GetStringFromName("offlineApps.allow"),
-                accessKey: this._stringBundle.GetStringFromName("offlineApps.allow.accesskey"),
+                label: this._stringBundle.GetStringFromName("offlineApps.always"),
+                accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
                 callback: function() {
                   pm.add(documentURI, "offline-app", nsIPermissionManager.ALLOW_ACTION);
                   var ioService = Components.classes["@mozilla.org/network/io-service;1"]
@@ -1116,8 +1116,8 @@
                   });
                 }
               }, {
-                label: this._stringBundle.GetStringFromName("offlineApps.deny"),
-                accessKey: this._stringBundle.GetStringFromName("offlineApps.deny.accesskey"),
+                label: this._stringBundle.GetStringFromName("offlineApps.never"),
+                accessKey: this._stringBundle.GetStringFromName("offlineApps.never.accesskey"),
                 callback: function() {
                   pm.add(documentURI, "offline-app", nsIPermissionManager.DENY_ACTION);
                 }
@@ -1127,10 +1127,13 @@
                 callback: function() { /* no-op */ }
               }];
 
-              var messageString = this._stringBundle.formatStringFromName("offlineApps.permissions", [host], 1);
+              var messageString = this._stringBundle.formatStringFromName(this.usePrivateBrowsing ?
+                "offlineApps.private" : "offlineApps.permissions", [host], 1);
               var priority = this.PRIORITY_INFO_LOW;
               notification = this.appendNotification(messageString, notificationName,
-                                                     null, priority, buttons);
+                                                     null, priority,
+                                                     this.usePrivateBrowsing ?
+                                                       null : buttons);
               notification.documents = [aDocument];
             }
           ]]>
@@ -1610,17 +1613,29 @@
         <body>
           <![CDATA[
             var host = aWindow.document.documentURIObject.asciiHost;
-            var message = this._stringBundle.formatStringFromName("offlineApps." + aTopic, [host, aData], 2);
+            var property = this.usePrivateBrowsing ? "offlineApps.private" :
+                                                     "offlineApps." + aTopic;
+            var message = this._stringBundle.formatStringFromName(property,
+                                                                  [host, aData], 2);
             var observer = aRequestor.getInterface(Components.interfaces.nsIObserver);
             var nsIPermissionManager = Components.interfaces.nsIPermissionManager;
             var buttons = [{
-              label: this._stringBundle.GetStringFromName("offlineApps.allow"),
-              accessKey: this._stringBundle.GetStringFromName("offlineApps.allow.accesskey"),
+              label: this._stringBundle.GetStringFromName("offlineApps.always"),
+              accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
               popup: null,
               callback: function allowIndexedDB() {
                 clearTimeout(box.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
                                  nsIPermissionManager.ALLOW_ACTION);
+              }
+            }, {
+              label: this._stringBundle.GetStringFromName("offlineApps.never"),
+              accessKey: this._stringBundle.GetStringFromName("offlineApps.never.accesskey"),
+              popup: null,
+              callback: function denyIndexedDB() {
+                clearTimeout(box.timeout);
+                observer.observe(null, "indexedDB-" + aTopic + "-response",
+                                 nsIPermissionManager.DENY_ACTION);
               }
             }, {
               label: this._stringBundle.GetStringFromName("offlineApps.later"),
@@ -1631,18 +1646,12 @@
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
                                  nsIPermissionManager.UNKNOWN_ACTION);
               }
-            }, {
-              label: this._stringBundle.GetStringFromName("offlineApps.deny"),
-              accessKey: this._stringBundle.GetStringFromName("offlineApps.deny.accesskey"),
-              popup: null,
-              callback: function denyIndexedDB() {
-                clearTimeout(box.timeout);
-                observer.observe(null, "indexedDB-" + aTopic + "-response",
-                                 nsIPermissionManager.DENY_ACTION);
-              }
             }];
-            var box = this.appendNotification(message, "indexedDB-" + aTopic + "-prompt", null,
-                                              this.PRIOITY_INFO_HIGH, buttons);
+            var box = this.appendNotification(message,
+                                              "indexedDB-" + aTopic + "-prompt",
+                                              null, this.PRIORITY_INFO_LOW,
+                                              this.usePrivateBrowsing ?
+                                                null : buttons);
             box.timeout = setTimeout(function() {
               observer.observe(null, "indexedDB-" + aTopic + "-response",
                                nsIPermissionManager.UNKNOWN_ACTION);
@@ -2834,12 +2843,15 @@
         <body>
           <![CDATA[
             var host = aWindow.document.documentURIObject.asciiHost;
-            var message = this._stringBundle.formatStringFromName("offlineApps." + aTopic, [host, aData], 2);
+            var property = this.usePrivateBrowsing ? "offlineApps.private" :
+                                                     "offlineApps." + aTopic;
+            var message = this._stringBundle.formatStringFromName(property,
+                                                                  [host, aData], 2);
             var observer = aRequestor.getInterface(Components.interfaces.nsIObserver);
             var nsIPermissionManager = Components.interfaces.nsIPermissionManager;
             var mainAction = {
-              label: this._stringBundle.GetStringFromName("offlineApps.allow"),
-              accessKey: this._stringBundle.GetStringFromName("offlineApps.allow.accesskey"),
+              label: this._stringBundle.GetStringFromName("offlineApps.always"),
+              accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
               callback: function allowIndexedDB() {
                 clearTimeout(notification.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
@@ -2847,8 +2859,8 @@
               }
             };
             var secondaryActions = [{
-              label: this._stringBundle.GetStringFromName("offlineApps.deny"),
-              accessKey: this._stringBundle.GetStringFromName("offlineApps.deny.accesskey"),
+              label: this._stringBundle.GetStringFromName("offlineApps.never"),
+              accessKey: this._stringBundle.GetStringFromName("offlineApps.never.accesskey"),
               callback: function denyIndexedDB() {
                 clearTimeout(notification.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
@@ -2879,7 +2891,8 @@
                 PopupNotifications.show(this.activeBrowser,
                                         "indexedDB-" + aTopic + "-prompt",
                                         message, "indexedDB-notification-icon",
-                                        mainAction, secondaryActions, options);
+                                        this.usePrivateBrowsing ? null : mainAction,
+                                        secondaryActions, options);
             var timeout = setTimeout(notificationTimedOut, 300000); // 5 minutes
           ]]>
         </body>
