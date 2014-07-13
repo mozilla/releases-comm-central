@@ -328,9 +328,28 @@ calDavCalendar.prototype = {
     },
 
     sendHttpRequest: function(aUri, aUploadData, aContentType, aExisting, aSetupChannelFunc, aFailureFunc, aUseStreamLoader=true) {
-        let usesGoogleOAuth = (aUri && aUri.host == "apidata.googleusercontent.com" &&
-                               this.oauth && this.oauth.accessToken);
-        let self = this;
+        function oauthCheck(nextMethod, loaderOrRequest /* either the nsIStreamLoader or nsIRequestObserver parameters */) {
+            let request = (loaderOrRequest.request || loaderOrRequest).QueryInterface(Components.interfaces.nsIHttpChannel);
+            let error = false;
+            try {
+                let wwwauth = request.getResponseHeader("WWW-Authenticate");
+                if (wwwauth.startsWith("Bearer") && wwwauth.contains("error=")) {
+                    // An OAuth error occurred, we need to reauthenticate.
+                    error = true;
+                }
+            } catch (e) {
+                // This happens in case the response header is missing, thats fine.
+            }
+
+            if (self.oauth && error) {
+                self.oauth.accessToken = null;
+                self.sendHttpRequest.apply(self, origArgs);
+            } else {
+                let nextArguments = Array.slice(arguments, 1);
+                nextMethod.apply(null, nextArguments);
+            }
+        }
+
         function authSuccess() {
             let channel = cal.prepHttpChannel(aUri, aUploadData, aContentType, self, aExisting);
             if (usesGoogleOAuth) {
@@ -340,14 +359,26 @@ calDavCalendar.prototype = {
             let listener = aSetupChannelFunc(channel);
             if (aUseStreamLoader) {
                 let loader = cal.createStreamLoader();
+                listener.onStreamComplete = oauthCheck.bind(null, listener.onStreamComplete.bind(listener));
                 loader.init(listener);
                 listener = loader;
+            } else {
+                listener.onStartRequest = oauthCheck.bind(null, listener.onStartRequest.bind(listener));
             }
             channel.asyncOpen(listener, channel);
         }
 
-        if (usesGoogleOAuth && this.oauth.tokenExpires < (new Date()).getTime()) {
+        const OAUTH_GRACE_TIME = 30 * 1000;
+
+        let usesGoogleOAuth = (aUri && aUri.host == "apidata.googleusercontent.com" && this.oauth);
+        let origArgs = arguments;
+        let self = this;
+
+        if (usesGoogleOAuth && (
+              !this.oauth.accessToken ||
+              this.oauth.tokenExpires - OAUTH_GRACE_TIME < (new Date()).getTime())) {
             // The token has expired, we need to reauthenticate first
+            cal.LOG("CalDAV: OAuth token expired or empty, refreshing");
             this.oauth.connect(authSuccess, aFailureFunc, true, true);
         } else {
             // Either not Google OAuth, or the token is still valid.
