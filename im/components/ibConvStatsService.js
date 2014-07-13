@@ -152,16 +152,16 @@ ConvStatsService.prototype = {
       OS.Path.join(OS.Constants.Path.profileDir, "statsservicecache.json");
     OS.File.read(this._statsCacheFilePath).then(function(aArray) {
       try {
-        let {version: version, stats: stats} =
+        let {version: version, stats: allStats} =
           JSON.parse((new TextDecoder()).decode(aArray));
         if (version !== gStatsCacheVersion) {
           gLogParser.sweep(this);
           return;
         }
-        gStatsByConvId = stats;
-        for each (let stats in gStatsByConvId) {
-          stats = new ConversationStats(stats.id, stats.lastDate,
-                                        stats.incomingCount, stats.outgoingCount);
+        for each (let stats in allStats) {
+          gStatsByConvId[stats.id] =
+            new ConversationStats(stats.id, stats.lastDate,
+                                  stats.incomingCount, stats.outgoingCount);
         }
         gStatsByContactId = {};
       }
