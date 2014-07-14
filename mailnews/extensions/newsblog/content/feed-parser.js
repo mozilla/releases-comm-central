@@ -14,7 +14,7 @@ FeedParser.prototype =
   // parseFeed() returns an array of parsed items ready for processing.  It is
   // currently a synchronous operation.  If there is an error parsing the feed,
   // parseFeed returns an empty feed in addition to calling aFeed.onParseError.
-  parseFeed: function (aFeed, aDOM)
+  parseFeed: function (aFeed, aDOM, aBaseURI)
   {
     if (!(aDOM instanceof Ci.nsIDOMXMLDocument))
     {
@@ -45,7 +45,7 @@ FeedParser.prototype =
       // the XMLHttpRequest.responseBody property that IE has, which provides
       // access to the unencoded response.
       let xmlString = this.mSerializer.serializeToString(doc);
-      return this.parseAsRSS1(aFeed, xmlString, aFeed.request.channel.URI);
+      return this.parseAsRSS1(aFeed, xmlString, aBaseURI);
     }
     else if (doc.namespaceURI == FeedUtils.ATOM_03_NS)
     {
