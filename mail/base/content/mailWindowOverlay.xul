@@ -508,8 +508,24 @@
        oncommand="goDoCommand('cmd_tag9');"/>
 
   <!-- Tools Keys -->
-  <key id="key_searchMail" key="&searchMailCmd.key;" oncommand="goDoCommand('cmd_search')" modifiers="accel, shift"/>
-  <key id="key_errorConsole" key="&errorConsoleCmd.commandkey;" oncommand="toJavaScriptConsole();" modifiers="accel,shift"/>
+  <key id="key_searchMail"
+       key="&searchMailCmd.key;"
+       oncommand="goDoCommand('cmd_search')"
+       modifiers="accel,shift"/>
+  <key id="key_errorConsole"
+       key="&errorConsoleCmd.commandkey;"
+       oncommand="toJavaScriptConsole();"
+       modifiers="accel,shift"/>
+  <key id="key_sanitizeHistory"
+       keycode="VK_DELETE"
+       oncommand="toSanitize();"
+       modifiers="accel,shift"/>
+#ifdef XP_MACOSX
+  <key id="key_sanitizeHistory_mac"
+       keycode="VK_BACK"
+       oncommand="toSanitize();"
+       modifiers="accel,shift"/>
+#endif
   <key id="key_addressbook"
        key="&addressBookCmd.key;"
        modifiers="accel, shift"
@@ -2060,6 +2076,7 @@
                       oncommand="toJavaScriptConsole();"/>
             <menuitem id="appmenu_sanitizeHistory"
                       label="&clearRecentHistory.label;"
+                      key="key_sanitizeHistory"
                       oncommand="toSanitize();"/>
           </menupopup>
         </menu>
@@ -2881,10 +2898,15 @@
         <menuitem id="menu_import" label="&importCmd.label;"
                   accesskey="&importCmd.accesskey;"
                   oncommand="toImport();"/>
-        <menuitem id="javascriptConsole" label="&errorConsoleCmd.label;" accesskey="&errorConsoleCmd.accesskey;" key="key_errorConsole" oncommand="toJavaScriptConsole();"/>
+        <menuitem id="javascriptConsole"
+                  label="&errorConsoleCmd.label;"
+                  accesskey="&errorConsoleCmd.accesskey;"
+                  key="key_errorConsole"
+                  oncommand="toJavaScriptConsole();"/>
         <menuitem id="sanitizeHistory"
                   label="&clearRecentHistory.label;"
                   accesskey="&clearRecentHistory.accesskey;"
+                  key="key_sanitizeHistory"
                   oncommand="toSanitize();"/>
 #ifndef XP_UNIX
         <menuseparator id="prefSep"/>
