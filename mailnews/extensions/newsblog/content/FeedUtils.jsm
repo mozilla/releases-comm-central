@@ -783,7 +783,7 @@ var FeedUtils = {
       while (enumerator.hasMoreElements())
       {
         let containerArc = enumerator.getNext();
-        let uri = containerArc.QueryInterface(Ci.nsIRDFResource).Value;
+        let uri = containerArc.QueryInterface(Ci.nsIRDFResource).ValueUTF8;
         feedUrlArray.push(uri);
       }
     }
