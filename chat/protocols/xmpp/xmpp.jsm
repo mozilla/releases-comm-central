@@ -574,8 +574,8 @@ const XMPPAccountBuddyPrototype = {
     // the next message to all resources.
     // FIXME: the test here isn't exactly right...
     if (this._preferredResource != preferred &&
-        this._account._conv.hasOwnProperty(this.normalizedName))
-      delete this._account._conv[this.normalizedName]._targetResource;
+        this._account._conv.has(this.normalizedName))
+      delete this._account._conv.get(this.normalizedName)._targetResource;
 
     this._preferredResource = preferred;
     if (preferred === undefined) {
