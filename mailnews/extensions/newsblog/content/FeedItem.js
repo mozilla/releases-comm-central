@@ -103,6 +103,8 @@ FeedItem.prototype =
 
   store: function()
   {
+    this.mUnicodeConverter.charset = this.characterSet;
+
     // this.title and this.content contain HTML.
     // this.mUrl and this.contentBase contain plain text.
 
@@ -159,6 +161,16 @@ FeedItem.prototype =
     let itemResource = FeedUtils.rdf.GetResource(itemURI);
 
     let downloaded = ds.GetTarget(itemResource, FeedUtils.FZ_STORED, true);
+
+    // Backward compatibility: for current items with with no guid or not stored
+    // with id. All items are stored with a uri encoded id, post bug 264482.
+    // TODO: Remove this after a cycle as it does not help perf.
+    if (!downloaded)
+    {
+      let id = this.url || this.feed.url + "#" + (this.date || this.title);
+      itemResource = FeedUtils.rdf.GetResource(this.createURN(id));
+      downloaded = ds.GetTarget(itemResource, FeedUtils.FZ_STORED, true);
+    }
 
     if (!downloaded ||
         downloaded.QueryInterface(Ci.nsIRDFLiteral).Value == "false")
@@ -245,6 +257,8 @@ FeedItem.prototype =
   {
     FeedUtils.log.trace("FeedItem.writeToFolder: " + this.identity +
                         " writing to message folder " + this.feed.name);
+    this.mUnicodeConverter.charset = this.characterSet;
+
     // Convert the title to UTF-16 before performing our HTML entity
     // replacement reg expressions.
     let title = this.title;
@@ -361,7 +375,6 @@ FeedItem.prototype =
     msgFolder.gettingNewMessages = true;
     // Source is a unicode string, we want to save a char * string in
     // the original charset. So convert back.
-    this.mUnicodeConverter.charset = this.characterSet;
     let msgDBHdr = folder.addMessage(this.mUnicodeConverter.ConvertFromUnicode(source));
     msgDBHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
     msgFolder.gettingNewMessages = false;

@@ -13,8 +13,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var {classes: Cc, interfaces: Ci} = Components;
 
 var FeedSubscriptions = {
-  get mMainWin() { return Services.wm.getMostRecentWindow("mail:3pane"); },
-
   get mTree() { return document.getElementById("rssSubscriptionsList"); },
 
   mFeedContainers: [],
@@ -50,11 +48,12 @@ var FeedSubscriptions = {
 
     FeedUtils.CANCEL_REQUESTED = false;
 
-    if (this.mMainWin)
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    if (win)
     {
-      this.mMainWin.FeedFolderNotificationService = MailServices.mfn;
-      this.mMainWin.FeedFolderNotificationService
-                   .addListener(this.FolderListener, this.FOLDER_ACTIONS);
+      win.FeedFolderNotificationService = MailServices.mfn;
+      win.FeedFolderNotificationService.addListener(this.FolderListener,
+                                                    this.FOLDER_ACTIONS);
     }
   },
 
@@ -79,12 +78,13 @@ var FeedSubscriptions = {
     if (dismissDialog)
     {
       FeedUtils.CANCEL_REQUESTED = this.mActionMode == this.kSubscribeMode;
-      if (this.mMainWin)
-      {
-        this.mMainWin.FeedFolderNotificationService
-                     .removeListener(this.FolderListener, this.FOLDER_ACTIONS);
-        delete this.mMainWin.FeedFolderNotificationService;
-      }
+      let win = Services.wm.getMostRecentWindow("mail:3pane");
+      if (win)
+        {
+          win.FeedFolderNotificationService.removeListener(this.FolderListener,
+                                                           this.FOLDER_ACTIONS);
+          delete win.FeedFolderNotificationService;
+        }
     }
 
     return dismissDialog;
@@ -1810,16 +1810,17 @@ var FeedSubscriptions = {
     let validationSite = "http://validator.w3.org";
     let validationQuery = "http://validator.w3.org/feed/check.cgi?url=";
 
-    if (this.mMainWin)
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    if (win && win instanceof Ci.nsIDOMWindow)
     {
-      let tabmail = this.mMainWin.document.getElementById("tabmail");
+      let tabmail = win.document.getElementById("tabmail");
       if (tabmail)
       {
         let feedLocation = document.getElementById("locationValue").value;
         let url = validationQuery + encodeURIComponent(feedLocation);
 
-        this.mMainWin.focus();
-        this.mMainWin.openContentTab(url, "tab", "^" + validationSite);
+        win.focus();
+        win.openContentTab(url, "tab", "^" + validationSite);
         FeedUtils.log.debug("checkValidation: query url - " + url);
       }
     }

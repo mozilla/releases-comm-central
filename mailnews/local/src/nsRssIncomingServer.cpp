@@ -97,7 +97,8 @@ NS_IMETHODIMP nsRssIncomingServer::SetFlagsOnDefaultMailboxes()
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(rootFolder, &rv);
+  nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
+      do_QueryInterface(rootFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   localFolder->SetFlagsOnDefaultMailboxes(nsMsgFolderFlags::Trash);
@@ -110,12 +111,7 @@ NS_IMETHODIMP nsRssIncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow)
   nsCOMPtr<nsIMsgFolder> rootRSSFolder;
   GetRootMsgFolder(getter_AddRefs(rootRSSFolder));
   nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(rootRSSFolder);
-  nsresult rv;
-  bool isBiff = true;
-  nsCOMPtr<nsINewsBlogFeedDownloader> rssDownloader =
-    do_GetService("@mozilla.org/newsblog-feed-downloader;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rssDownloader->DownloadFeed(rootRSSFolder, urlListener, isBiff, aMsgWindow);
+  GetNewMail(aMsgWindow, urlListener, rootRSSFolder, nullptr);
   return NS_OK;
 }
 
@@ -127,11 +123,10 @@ NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
   // Pass the selected folder on to the downloader.
   NS_ENSURE_ARG_POINTER(aFolder);
   nsresult rv;
-  bool isBiff = false;
   nsCOMPtr<nsINewsBlogFeedDownloader> rssDownloader =
     do_GetService("@mozilla.org/newsblog-feed-downloader;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rssDownloader->DownloadFeed(aFolder, aUrlListener, isBiff, aMsgWindow);
+  rssDownloader->DownloadFeed(aFolder, aUrlListener, aMsgWindow);
   return NS_OK;
 }
 
