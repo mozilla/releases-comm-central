@@ -34,38 +34,6 @@ function calAlarmService() {
     this.mTimerMap = {};
     this.mObservers = new calListenerBag(Components.interfaces.calIAlarmServiceObserver);
 
-    this.mSleepMonitor = {
-        service: this,
-        interval: kSleepMonitorInterval,
-        timer: null,
-        expected: null,
-
-        checkExpected: function sm_checkExpected() {
-            let now = Date.now();
-            if (now - this.expected > kSleepMonitorTolerance) {
-                cal.LOG("[calAlarmService] Sleep cycle detected, reloading alarms");
-                this.service.shutdown();
-                this.service.startup();
-            } else {
-                this.expected = now + this.interval;
-            }
-        },
-
-        start: function sm_start() {
-            this.stop();
-            this.expected = Date.now() + this.interval;
-            this.timer = newTimerWithCallback(this.checkExpected.bind(this),
-                                              this.interval, true);
-        },
-
-        stop: function sm_stop() {
-            if (this.timer) {
-                this.timer.cancel();
-                this.timer = null;
-            }
-        }
-    };
-
     this.calendarObserver = {
         alarmService: this,
 
@@ -294,12 +262,6 @@ calAlarmService.prototype = {
 
         this.mUpdateTimer = newTimerWithCallback(timerCallback, kHoursBetweenUpdates * 3600000, true);
 
-        // The sleep monitor needs to be started on platforms that don't support wake_notification
-        if (Services.appinfo.OS != "WINNT" && Services.appinfo.OS != "Darwin") {
-            cal.LOG("[calAlarmService] Starting sleep monitor.");
-            this.mSleepMonitor.start();
-        }
-
         this.mStarted = true;
     },
 
@@ -331,8 +293,6 @@ calAlarmService.prototype = {
         Services.obs.removeObserver(this, "profile-after-change");
         Services.obs.removeObserver(this, "xpcom-shutdown");
         Services.obs.removeObserver(this, "wake_notification");
-
-        this.mSleepMonitor.stop();
 
         this.mStarted = false;
     },

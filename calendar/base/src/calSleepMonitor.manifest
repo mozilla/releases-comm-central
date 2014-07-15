@@ -1,0 +1,3 @@
+component {9b987a8d-c2ef-4cb9-9602-1261b4b2f6fa} calSleepMonitor.js
+contract @mozilla.org/calendar/sleep-monitor;1 {9b987a8d-c2ef-4cb9-9602-1261b4b2f6fa}
+category profile-after-change calSleepMonitor @mozilla.org/calendar/sleep-monitor;1
