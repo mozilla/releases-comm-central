@@ -243,23 +243,6 @@ Section "-InstallStartCleanup"
       ${EndIf}
     ${EndIf}
 
-    ; If Venkman is installed and this install includes Venkman remove it
-    ; from the installation directory. This will remove it if the user
-    ; deselected Venkman on the components page.
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-      ${DeleteFile} "$INSTDIR\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-      ${DeleteFile} "$INSTDIR\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-      ${If} ${FileExists} "$INSTDIR\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}"
-        RmDir /r "$INSTDIR\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}"
-      ${EndIf}
-    ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi"
-      ${DeleteFile} "$INSTDIR\distribution\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi"
-      ${DeleteFile} "$INSTDIR\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi"
-      ${If} ${FileExists} "$INSTDIR\extensions\langpack-${AB_CD}@venkman.mozilla.org"
-        RmDir /r "$INSTDIR\extensions\langpack-${AB_CD}@venkman.mozilla.org"
-      ${EndIf}
-    ${EndIf}
   ${EndIf}
 
   ; setup the application model id registration value
@@ -557,29 +540,6 @@ Section /o "Debug and QA Tools" DEBUG_IDX
   ${EndIf}
 SectionEnd
 
-Section /o "JavaScript Debugger" VENKMAN_IDX 
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-    SetDetailsPrint both 
-    DetailPrint $(STATUS_INSTALL_OPTIONAL)
-    SetDetailsPrint none
-
-    ${RemoveDir} "$INSTDIR\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}"
-    ${RemoveDir} "$INSTDIR\extensions\langpack-${AB_CD}@venkman.mozilla.org"
-    ${DeleteFile} "$INSTDIR\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-    ${DeleteFile} "$INSTDIR\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi"
-    ${DeleteFile} "$INSTDIR\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-    ${DeleteFile} "$INSTDIR\distribution\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi"
-    ClearErrors
-    ${LogHeader} "Installing JavaScript Debugger"
-    CopyFiles /SILENT "$EXEDIR\optional\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi" \
-                      "$INSTDIR\distribution\extensions\"
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi"
-      CopyFiles /SILENT "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi" \
-                        "$INSTDIR\distribution\extensions\"
-    ${EndIf}
-  ${EndIf}
-SectionEnd
-
 ; Cleanup operations to perform at the end of the installation.
 Section "-InstallEndCleanup"
   SetDetailsPrint both
@@ -774,15 +734,6 @@ Function leaveComponents
     SectionSetFlags ${DEBUG_IDX} 0 ; Disable install for debugQA
   ${EndIf}
 
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-    ${MUI_INSTALLOPTIONS_READ} $R0 "components.ini" "Field $R1" "State"
-    ; State will be 1 for checked and 0 for unchecked so we can use that to set
-    ; the section flags for installation.
-    SectionSetFlags ${VENKMAN_IDX} $R0
-    IntOp $R1 $R1 + 1
-  ${Else}
-    SectionSetFlags ${VENKMAN_IDX} 0 ; Disable install for venkman
-  ${EndIf}
 FunctionEnd
 
 Function preDirectory
@@ -904,16 +855,15 @@ Function preSummary
   !insertmacro MUI_INSTALLOPTIONS_INITDIALOG "summary.ini"
   GetDlgItem $0 $HWNDPARENT 1
   System::Call "user32::SetFocus(i r0, i 0x0007, i,i)i"
-  ${MUI_INSTALLOPTIONS_READ} $1 "summary.ini" "Field 2" "HWND"                  
-  SendMessage $1 ${WM_SETTEXT} 0 "STR:$INSTDIR"      
+  ${MUI_INSTALLOPTIONS_READ} $1 "summary.ini" "Field 2" "HWND"
+  SendMessage $1 ${WM_SETTEXT} 0 "STR:$INSTDIR"
   !insertmacro MUI_INSTALLOPTIONS_SHOW
 FunctionEnd
 
 Function leaveSummary
   ${If} $InstallType != ${INSTALLTYPE_CUSTOM}
-    ; Set DOM Inspector, Venkman, ChatZilla to be installed
+    ; Set DOM Inspector, ChatZilla to be installed
     SectionSetFlags ${DOMI_IDX} 1
-    SectionSetFlags ${VENKMAN_IDX} 1
     SectionSetFlags ${CZ_IDX} 1
   ${EndIf}
   ; Try to delete the app executable and if we can't delete it try to find the
@@ -1043,4 +993,3 @@ FunctionEnd
 Function .onGUIEnd
   ${OnEndCommon}
 FunctionEnd
-

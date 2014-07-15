@@ -290,12 +290,6 @@
             window.CheckGenerics,
             []
           ],
-        // Venkman
-        "chrome://venkman/content/venkman.xul":
-          [
-            window.CheckGenerics,
-            []
-          ],
       };
 
       // run test

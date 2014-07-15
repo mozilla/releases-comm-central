@@ -40,7 +40,6 @@ DESKTOP_ICONS = \
 	messengerWindow \
 	msgcomposeWindow \
 	places \
-	venkman-window \
 	$(NULL) 
 
 ifeq (windows,$(MOZ_WIDGET_TOOLKIT))

@@ -131,7 +131,7 @@ ifdef MOZ_OMNIJAR
 # NOTE: This is a hack to run this at the end of compilation, would be nicer
 # if this was done right away for built-in extensions in omnijar mode.
 # Listed extension GUIDs:
-# 972ce4c6-... Classic Theme, 59c81df5-... ChatZilla, f13b157f-... Venkman
+# 972ce4c6-... Classic Theme, 59c81df5-... ChatZilla
 APP_EXTENSIONS = \
   {972ce4c6-7e08-4474-a285-3208198ce6fd} \
   modern@themes.mozilla.org \
@@ -140,14 +140,12 @@ APP_EXTENSIONS = \
 PROFILE_EXTENSIONS = \
   debugQA@mozilla.org \
   {59c81df5-4b7a-477b-912d-4e0fdf64e5f2} \
-  {f13b157f-b174-47e7-a34d-4815ddfdfeb8} \
   inspector@mozilla.org \
   $(NULL)
 
 ifneq (en-US, $(AB_CD))
 PROFILE_EXTENSIONS += \
   langpack-$(AB_CD)@chatzilla.mozilla.org \
-  langpack-$(AB_CD)@venkman.mozilla.org \
   $(NULL)
 endif
 

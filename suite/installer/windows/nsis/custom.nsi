@@ -90,29 +90,6 @@
     SectionSetText ${DEBUG_IDX} ""
   ${EndIf}
 
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Type   "checkbox"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Text   "$(VENKMAN_TITLE)"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Left   "15"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Right  "-1"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Top    "$R2"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Bottom "$R3"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" State  "1"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Flags  "GROUP"
-    ${GetSize} "$EXEDIR\optional\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi" "/S=0K" $0 $8 $9
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi"
-      ${GetSize} "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@venkman.mozilla.org.xpi" "/S=0K" $1 $8 $9
-      IntOp $0 $0 + $1
-    ${EndIf}
-    SectionSetSize ${VENKMAN_IDX} $0
-    IntOp $R1 $R1 + 1
-    IntOp $R2 $R2 + $R4
-    IntOp $R3 $R3 + $R4
-  ${Else}
-    ; Hide Venkman in the components page if it isn't available.
-    SectionSetText ${VENKMAN_IDX} ""
-  ${EndIf}
-
   ; Set new values for the top and bottom of labels
   ; Top of label box
   StrCpy $R2 27
@@ -151,17 +128,6 @@
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Top    "$R2"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Bottom "$R3"
     IntOp $R1 $R1 + 1
-    IntOp $R2 $R2 + $R4
-    IntOp $R3 $R3 + $R4
-  ${EndIf}
-
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Type   "label"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Text   "$(VENKMAN_TEXT)"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Left   "30"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Right  "-1"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Top    "$R2"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Bottom "$R3"
     IntOp $R2 $R2 + $R4
     IntOp $R3 $R3 + $R4
   ${EndIf}

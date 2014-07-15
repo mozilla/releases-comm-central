@@ -137,7 +137,6 @@ install:: $(addsuffix .xml,$(SEARCH_PLUGINS))
 # Extend l10n.mk clobber-% target for our localised extensions
 clobber-%:
 	$(RM) -rf $(DIST)/xpi-stage/chatzilla-$* $(DIST)/xpi-stage/chatzilla-*.$*.xpi
-	$(RM) -rf $(DIST)/xpi-stage/venkman-$* $(DIST)/xpi-stage/venkman-*.$*.xpi
 
 libs-%:
 	$(NSINSTALL) -D $(DIST)/install
@@ -146,9 +145,6 @@ libs-%:
 	@$(MAKE) -C ../../editor/ui/locales AB_CD=$* XPI_NAME=locale-$*
 	@if test -d ../../mozilla/extensions/irc; then \
 	  $(MAKE) -C ../../mozilla/extensions/irc/locales libs-$*; \
-	fi
-	@if test -d ../../mozilla/extensions/venkman; then \
-	  $(MAKE) -C ../../mozilla/extensions/venkman/locales libs-$*; \
 	fi
 	@$(MAKE) -C ../../mozilla/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../mozilla/intl/locales AB_CD=$* XPI_NAME=locale-$*
@@ -199,9 +195,6 @@ repackage-zip: repackage-extensions
 repackage-extensions: $(STAGEDIST)
 	if test -d ../../mozilla/extensions/irc; then \
 	  $(MAKE) -C ../../mozilla/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST); \
-	fi
-	if test -d ../../mozilla/extensions/venkman; then \
-	  $(MAKE) -C ../../mozilla/extensions/venkman/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST); \
 	fi
 ifdef MOZ_OMNIJAR
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST);

@@ -587,14 +587,6 @@
 @BINPATH@/chrome/icons/default/xml-file.ico
 @BINPATH@/chrome/icons/default/xul-file.ico
 #endif
-; Although venkman-window is an extension, its icon is still suite-specific
-#ifdef MOZ_GTK2
-@BINPATH@/chrome/icons/default/venkman-window.png
-@BINPATH@/chrome/icons/default/venkman-window16.png
-@BINPATH@/chrome/icons/default/venkman-window48.png
-#elifdef XP_WIN32
-@BINPATH@/chrome/icons/default/venkman-window.ico
-#endif
 
 ; [Default Preferences]
 ; All the browser/general pref files must be part of base to prevent migration bugs
@@ -867,27 +859,6 @@ bin/libfreebl_32int64_3.so
 @BINPATH@/extensions/langpack-@AB_CD@@chatzilla.mozilla.org/chrome.manifest
 @BINPATH@/extensions/langpack-@AB_CD@@chatzilla.mozilla.org/install.js
 @BINPATH@/extensions/langpack-@AB_CD@@chatzilla.mozilla.org/install.rdf
-#endif
-#endif
-
-[venkman]
-#ifdef MOZ_OMNIJAR
-@BINPATH@/distribution/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi
-#else
-@BINPATH@/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome/venkman@JAREXT@
-@BINPATH@/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome.manifest
-@BINPATH@/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/components/components.list
-@BINPATH@/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/components/venkman-service.js
-@BINPATH@/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/install.rdf
-#endif
-#ifdef LOCALE_BUILD
-#ifdef MOZ_OMNIJAR
-@BINPATH@/distribution/extensions/langpack-@AB_CD@@venkman.mozilla.org.xpi
-#else
-@BINPATH@/extensions/langpack-@AB_CD@@venkman.mozilla.org/chrome/venkman@JAREXT@
-@BINPATH@/extensions/langpack-@AB_CD@@venkman.mozilla.org/chrome.manifest
-@BINPATH@/extensions/langpack-@AB_CD@@venkman.mozilla.org/install.js
-@BINPATH@/extensions/langpack-@AB_CD@@venkman.mozilla.org/install.rdf
 #endif
 #endif
 

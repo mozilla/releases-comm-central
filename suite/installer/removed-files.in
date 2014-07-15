@@ -90,6 +90,19 @@ chrome/icons/default/msgcomposeWindow16.xpm
 chrome/icons/default/venkman-window.xpm
 chrome/icons/default/venkman-window16.xpm
 chrome/installed-chrome.txt
+#ifdef MOZ_OMNIJAR
+distribution/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi
+#ifdef LOCALE_BUILD
+distribution/extensions/langpack-@AB_CD@@venkman.mozilla.org.xpi
+#endif
+#endif
+#ifdef MOZ_GTK2
+chrome/icons/default/venkman-window.png
+chrome/icons/default/venkman-window16.png
+chrome/icons/default/venkman-window48.png
+#elifdef XP_WIN32
+chrome/icons/default/venkman-window.ico
+#endif
 #ifndef ENABLE_TESTS
 chrome/layoutdebug.jar
 #else
@@ -111,6 +124,7 @@ components/components.list
 components/compreg.dat
 components/crashreporter.xpt
 components/downloadmanager.xpt
+components/jsdservice.xpt
 components/@DLL_PREFIX@intlapp@DLL_SUFFIX@
 components/@DLL_PREFIX@jar50@DLL_SUFFIX@
 components/mozbrwsr.xpt
