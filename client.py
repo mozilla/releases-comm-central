@@ -10,7 +10,7 @@
 # Repo Defaults
 # 'REV' controls the default rev for All the various repo's
 # Define x_REV to override. Where x can be one of:
-#  "COMM", "MOZILLA", "CHATZILLA", "INSPECTOR", "VENKMAN", "LDAPSDKS"
+#  "COMM", "MOZILLA", "CHATZILLA", "INSPECTOR", "LDAPSDKS"
 DEFAULTS = {
   # Global Default Revision
   'REV': "default",
@@ -630,12 +630,11 @@ if action in ('checkout', 'co'):
         do_hg_pull('mozilla', options.mozilla_repo, options.hg, options.mozilla_rev, options.hgtool, options.hgtool1)
 
     # Check whether destination directory exists for these extensions.
-    if (not options.skip_chatzilla or not options.skip_inspector or \
-                not options.skip_venkman) and \
+    if (not options.skip_chatzilla or not options.skip_inspector) and \
             not os.path.exists(os.path.join(topsrcdir, 'mozilla', 'extensions')):
         # Don't create the directory: Mozilla repository should provide it...
         sys.exit("Error: mozilla/extensions directory does not exist;" + \
-                 " ChatZilla, DOM Inspector and/or Venkman cannot be checked out!")
+                 " ChatZilla, and/or DOM Inspector cannot be checked out!")
 
     if not options.skip_chatzilla:
         fixup_chatzilla_repo_options(options)
