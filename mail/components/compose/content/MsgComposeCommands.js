@@ -1825,201 +1825,113 @@ function handleEsc()
   }
 }
 
-/**
- * This state machine manages all showing and hiding of the attachment
- * notification bar. It is only called if any change happened so that
- * recalculating of the notification is needed:
- * - keywords changed
- * - manual reminder was toggled
- * - attachments changed
- *
- * It does not track whether the notification is still up when it should be.
- * That allows the user to close it any time without this function showing
- * it again.
- * We ensure notification is only shown on right events, e.g. only when we have
- * keywords and attachments were removed (but not when we have keywords and
- * manual reminder was just turned off). We always show the notification
- * again if keywords change (if no attachments and no manual reminder).
- *
- * @param aForce  If set to true, notification will be shown immediately if
- *                there are any keywords. If set to true, it is shown only when
- *                they have changed.
- */
-function manageAttachmentNotification(aForce)
-{
-  let keywords;
-  let keywordsCount = 0;
-
-  // First see if the notification is to be hidden due to reasons other than
-  // not having keywords.
-  let removeNotification = attachmentNotificationSupressed();
-
-  // If that is not true, we need to look at the state of keywords.
-  if (!removeNotification) {
-    if (attachmentWorker.lastMessage) {
-      // We know the state of keywords, so process them.
-      if (attachmentWorker.lastMessage.length) {
-        keywords = attachmentWorker.lastMessage.join(", ");
-        keywordsCount = attachmentWorker.lastMessage.length;
-      }
-      removeNotification = keywordsCount == 0;
-    } else {
-      // We don't know keywords, so get them first.
-      // If aForce was true, and some keywords are found, we get to run again from
-      // attachmentWorker.onmessage().
-      redetectKeywords(aForce);
-      return;
-    }
-  }
-
-  let nBox = document.getElementById("attachmentNotificationBox");
-  let notification = nBox.getNotificationWithValue("attachmentReminder");
-  if (removeNotification) {
-    if (notification)
-      nBox.removeNotification(notification);
-
-    return;
-  }
-
-  // We have some keywords, however only pop up the notification if requested
-  // to do so.
-  if (!aForce)
-    return;
-
-  let textValue = getComposeBundle().getString("attachmentReminderKeywordsMsgs");
-  textValue = PluralForm.get(keywordsCount, textValue)
-                        .replace("#1", keywordsCount);
-  // If the notification already exists, we simply add the new attachment
-  // specific keywords to the existing notification instead of creating it
-  // from scratch.
-  if (notification) {
-    let description = notification.querySelector("#attachmentReminderText");
-    description.setAttribute("value", textValue);
-    description = notification.querySelector("#attachmentKeywords");
-    description.setAttribute("value", keywords);
-    return;
-  }
-
-  // Construct the notification as we don't have one.
-  let msg = document.createElement("hbox");
-  msg.setAttribute("flex", "100");
-  msg.onclick = function(event) {
-    openOptionsDialog("paneCompose", "generalTab",
-                      {subdialog: "attachment_reminder_button"});
-  };
-
-  let msgText = document.createElement("label");
-  msg.appendChild(msgText);
-  msgText.id = "attachmentReminderText";
-  msgText.setAttribute("crop", "end");
-  msgText.setAttribute("flex", "1");
-  msgText.setAttribute("value", textValue);
-  let msgKeywords = document.createElement("label");
-  msg.appendChild(msgKeywords);
-  msgKeywords.id = "attachmentKeywords";
-  msgKeywords.setAttribute("crop", "end");
-  msgKeywords.setAttribute("flex", "1000");
-  msgKeywords.setAttribute("value", keywords);
-  let addButton = {
-    accessKey : getComposeBundle().getString("addAttachmentButton.accesskey"),
-    label: getComposeBundle().getString("addAttachmentButton"),
-    callback: function (aNotificationBar, aButton) {
-        goDoCommand("cmd_attachFile");
-    }
-  };
-
-  let remindButton = {
-    accessKey : getComposeBundle().getString("remindLaterButton.accesskey"),
-    label: getComposeBundle().getString("remindLaterButton"),
-    callback: function (aNotificationBar, aButton) {
-      toggleAttachmentReminder(true);
-    }
-  };
-
-  notification = nBox.appendNotification("", "attachmentReminder",
-                               /* fake out the image so we can do it in CSS */
-                               "null",
-                               nBox.PRIORITY_WARNING_MEDIUM,
-                               [addButton, remindButton]);
-  let buttons = notification.childNodes[0];
-  notification.insertBefore(msg, buttons);
-}
-
-/**
- * Returns whether the attachment notification should be supressed regardless of
- * the state of keywords.
- */
-function attachmentNotificationSupressed() {
-  return (gManualAttachmentReminder ||
-          document.getElementById("attachmentBucket").itemCount);
-}
-
 var attachmentWorker = new Worker("resource:///modules/attachmentChecker.js");
 
-// The array of currently found keywords. Or null if keyword detection wasn't
-// run yet so we don't know.
 attachmentWorker.lastMessage = null;
 
 attachmentWorker.onerror = function(error)
 {
-  Components.utils.reportError("Attachment Notification Worker error!!! " + error.message);
+  dump("Attachment Notification Worker error!!! " + error.message + "\n");
   throw error;
 };
 
-/**
- * Called when attachmentWorker finishes checking of the message for keywords.
- *
- * @param event    If defined, event.data contains an array of found keywords.
- * @param aManage  If set to true and we determine keywords have changed,
- *                 manage the notification.
- *                 If set to false, just store the new keyword list but do not
- *                 touch the notification. That effectively eats the
- *                 "keywords changed" event which usually shows the notification
- *                 if it was hidden. See manageAttachmentNotification().
- */
-attachmentWorker.onmessage = function(event, aManage = true)
-{
-  // Exit if keywords haven't changed.
-  if (!event || (attachmentWorker.lastMessage &&
-                (event.data.toString() == attachmentWorker.lastMessage.toString())))
-    return;
 
-  let data = event ? event.data : [];
-  attachmentWorker.lastMessage = data.slice(0);
-  if (aManage)
-    manageAttachmentNotification(true);
+attachmentWorker.onmessage = function(event)
+{
+  let keywordsFound = event.data;
+  let msg = null;
+  let nBox = document.getElementById("attachmentNotificationBox");
+  let notification = nBox.getNotificationWithValue("attachmentReminder");
+  let removeNotification = false;
+
+  if (keywordsFound.length > 0) {
+    msg = document.createElement("hbox");
+    msg.setAttribute("flex", "100");
+
+    msg.onclick = function(event)
+    {
+      openOptionsDialog("paneCompose", "generalTab",
+                        {subdialog: "attachment_reminder_button"});
+    };
+
+    let msgText = document.createElement("label");
+    msg.appendChild(msgText);
+    msgText.id = "attachmentReminderText";
+    msgText.setAttribute("crop", "end");
+    msgText.setAttribute("flex", "1");
+    let textValue = getComposeBundle().getString("attachmentReminderKeywordsMsgs");
+    textValue = PluralForm.get(keywordsFound.length, textValue)
+                          .replace("#1", keywordsFound.length);
+    msgText.setAttribute("value", textValue);
+
+    let keywords = keywordsFound.join(", ");
+    let msgKeywords = document.createElement("label");
+    msg.appendChild(msgKeywords);
+    msgKeywords.id = "attachmentKeywords";
+    msgKeywords.setAttribute("crop", "end");
+    msgKeywords.setAttribute("flex", "1000");
+    msgKeywords.setAttribute("value", keywords);
+
+    if (notification) {
+      let description = notification.querySelector("#attachmentReminderText");
+      description.setAttribute("value", msgText.getAttribute("value"));
+      description = notification.querySelector("#attachmentKeywords")
+      description.setAttribute("value", keywords);
+      msg = null;
+    }
+    if (keywords == this.lastMessage) {
+      // The user closed the notification, and we have nothing new to say.
+      msg = null;
+    }
+    this.lastMessage = keywords;
+  }
+  else {
+    removeNotification = true;
+    this.lastMessage = null;
+  }
+  if (notification && removeNotification)
+    nBox.removeNotification(notification);
+  if (msg) {
+    var addButton = {
+      accessKey : getComposeBundle().getString("addAttachmentButton.accesskey"),
+      label: getComposeBundle().getString("addAttachmentButton"),
+      callback: function (aNotificationBar, aButton)
+      {
+        goDoCommand("cmd_attachFile");
+      }
+    };
+
+    var remindButton = {
+      accessKey : getComposeBundle().getString("remindLaterButton.accesskey"),
+      label: getComposeBundle().getString("remindLaterButton"),
+      callback: function (aNotificationBar, aButton)
+      {
+        toggleAttachmentReminder(true);
+      }
+    };
+
+    notification = nBox.appendNotification("", "attachmentReminder",
+                                 /* fake out the image so we can do it in CSS */
+                                 "null",
+                                 nBox.PRIORITY_WARNING_MEDIUM,
+                                 [addButton, remindButton]);
+    let buttons = notification.childNodes[0];
+    notification.insertBefore(msg, buttons);
+  }
+  CheckForAttachmentNotification.shouldFire = true;
 };
 
 /**
- * Checks for new keywords synchronously and run the usual handler.
+ * Determine whether we should show the attachment notification or not.
  *
- * @param aManage  Determines whether to manage the notification according to keywords found.
+ * @param async Whether we should run the regex checker asynchronously or not.
+ * @return true if we should show the attachment notification
  */
-function redetectKeywords(aManage) {
-  attachmentWorker.onmessage({ data: CheckForAttachmentKeywords(false) }, aManage);
-}
-
-/**
- * Check if there are any keywords in the message.
- *
- * @param async  Whether we should run the regex checker asynchronously or not.
- *
- * @return  If async is true, attachmentWorker.message is called with the array
- *          of found keywords and this function returns null.
- *          If it is false, the array is returned from this function immediately.
- */
-function CheckForAttachmentKeywords(async)
+function ShouldShowAttachmentNotification(async)
 {
+  let bucket = document.getElementById("attachmentBucket");
   let warn = getPref("mail.compose.attachment_reminder");
-  if (warn) {
-    if (attachmentNotificationSupressed()) {
-      // If we know we don't need to show the notification,
-      // we can skip the expensive checking of keywords in the message.
-      // but mark it in the .lastMessage that the keywords are unknown.
-      attachmentWorker.lastMessage = null;
-      return false;
-    }
-
+  if (warn && !bucket.itemCount) {
     let keywordsInCsv = Services.prefs.getComplexValue(
       "mail.compose.attachment_reminder_keywords",
       Components.interfaces.nsIPrefLocalizedString).data;
@@ -2084,20 +1996,38 @@ function CheckForAttachmentKeywords(async)
       mailData = subject + " " + mailData;
 
     if (!async)
-      return GetAttachmentKeywords(mailData, keywordsInCsv);
-
+      return GetAttachmentKeywords(mailData, keywordsInCsv).length != 0;
     attachmentWorker.postMessage([mailData, keywordsInCsv]);
-    return null;
+    return true;
   }
   return false;
 }
 
 /**
- * Called when number of attachments changes.
+ * Check for attachment keywords, and display a notification if it's
+ * appropriate.
  */
-function AttachmentsChanged() {
-  manageAttachmentNotification(true);
-}
+function CheckForAttachmentNotification(event)
+{
+  if (!CheckForAttachmentNotification.shouldFire || gManualAttachmentReminder)
+    return;
+  if (!event)
+    attachmentWorker.lastMessage = null;
+  CheckForAttachmentNotification.shouldFire = false;
+  let nBox = document.getElementById("attachmentNotificationBox");
+  let notification = nBox.getNotificationWithValue("attachmentReminder");
+  let removeNotification = false;
+
+  if (!ShouldShowAttachmentNotification(true)) {
+    removeNotification = true;
+    CheckForAttachmentNotification.shouldFire = true;
+  }
+
+  if (notification && removeNotification)
+    nBox.removeNotification(notification);
+};
+
+CheckForAttachmentNotification.shouldFire = true;
 
 function ComposeStartup(recycled, aParams)
 {
@@ -2654,8 +2584,7 @@ function GenericSendMessage(msgType)
                             null, null, {value:0});
       // Deactivate manual attachment reminder after showing the alert to avoid alert loop.
       // We also deactivate reminder when user ignores alert with [x] or [ESC].
-      if (gManualAttachmentReminder)
-        toggleAttachmentReminder(false);
+      toggleAttachmentReminder(false);
 
       if (hadForgotten)
         return;
@@ -3304,7 +3233,10 @@ function toggleAttachmentReminder(aState = !gManualAttachmentReminder)
   document.getElementById("cmd_remindLater")
           .setAttribute("checked", aState);
   gMsgCompose.compFields.attachmentReminder = aState;
-  manageAttachmentNotification(false);
+  let nBox = document.getElementById("attachmentNotificationBox");
+  let notification = nBox.getNotificationWithValue("attachmentReminder");
+  if (aState && notification)
+    nBox.removeNotification(notification);
 }
 
 function ClearIdentityListPopup(popup)
@@ -3694,7 +3626,7 @@ function AddAttachments(aAttachments, aCallback)
     if (aCallback)
       aCallback(item);
 
-    AttachmentsChanged();
+    CheckForAttachmentNotification(null);
   }
 
   if (addedAttachments.length) {
@@ -3789,7 +3721,7 @@ function RemoveAllAttachments()
 
   dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
   UpdateAttachmentBucket(false);
-  AttachmentsChanged();
+  CheckForAttachmentNotification(null);
 }
 
 /**
@@ -3846,7 +3778,7 @@ function RemoveSelectedAttachment()
     gContentChanged = true;
     dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
   }
-  AttachmentsChanged();
+  CheckForAttachmentNotification(null);
 }
 
 function RenameSelectedAttachment()
@@ -4655,11 +4587,8 @@ const gAttachmentNotifier =
     {
       // Only run the checker if the compose window is initialized
       // and not shutting down.
-      if (gMsgCompose) {
-        // This runs the attachmentWorker asynchronously so if keywords are found
-        // manageAttachmentNotification is run from attachmentWorker.onmessage.
-        CheckForAttachmentKeywords(true);
-      }
+      if (gMsgCompose)
+        CheckForAttachmentNotification(true);
     }
   },
 
