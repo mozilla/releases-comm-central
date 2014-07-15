@@ -378,20 +378,6 @@ EXTRA_DSO_LDOPTS += $(MOZ_COMPONENTS_VERSION_SCRIPT_LDFLAGS)
 endif # IS_COMPONENT
 
 #
-# Enforce the requirement that MODULE_NAME must be set
-# for components in static builds
-#
-ifdef IS_COMPONENT
-ifdef EXPORT_LIBRARY
-ifndef FORCE_SHARED_LIB
-ifndef MODULE_NAME
-$(error MODULE_NAME is required for components which may be used in static builds)
-endif
-endif
-endif
-endif
-
-#
 # MacOS X specific stuff
 #
 
@@ -570,18 +556,6 @@ everything::
 # Add dummy depend target for tinderboxes
 depend::
 
-#
-# Rule to create list of libraries for final link
-#
-export::
-ifdef LIBRARY_NAME
-ifdef EXPORT_LIBRARY
-ifndef IS_COMPONENT
-	$(call py_action,buildlist,$(FINAL_LINK_LIBS) $(STATIC_LIBRARY_NAME))
-endif # !IS_COMPONENT
-endif # EXPORT_LIBRARY
-endif # LIBRARY_NAME
-
 ifneq (,$(filter-out %.$(LIB_SUFFIX),$(SHARED_LIBRARY_LIBS)))
 $(error SHARED_LIBRARY_LIBS must contain .$(LIB_SUFFIX) files only)
 endif
@@ -594,25 +568,9 @@ GLOBAL_DEPS += Makefile $(DEPTH)/config/autoconf.mk $(topsrcdir)/config/config.m
 ##############################################
 compile:: $(MAKE_DIRS) $(OBJS) $(HOST_OBJS)
 
-ifdef EXPORT_LIBRARY
-ifeq ($(EXPORT_LIBRARY),1)
-ifdef IS_COMPONENT
-EXPORT_LIBRARY = $(MOZDEPTH)/staticlib/components
-else
-EXPORT_LIBRARY = $(MOZDEPTH)/staticlib
-endif
-else
-# If EXPORT_LIBRARY has a value, we'll be installing there. We also need to cleanup there
-GARBAGE += $(foreach lib,$(LIBRARY),$(EXPORT_LIBRARY)/$(lib))
-endif
-endif # EXPORT_LIBRARY
-
 libs:: $(MAKE_DIRS) $(HOST_LIBRARY) $(LIBRARY) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(HOST_PROGRAM) $(PROGRAM) $(HOST_SIMPLE_PROGRAMS) $(SIMPLE_PROGRAMS)
 ifndef NO_DIST_INSTALL
 ifdef LIBRARY
-ifdef EXPORT_LIBRARY # Stage libs that will be linked into a static build
-	$(call install_cmd,$(IFLAGS1) $(LIBRARY) $(EXPORT_LIBRARY))
-endif # EXPORT_LIBRARY
 ifdef DIST_INSTALL
 ifdef IS_COMPONENT
 	$(error Shipping static component libs makes no sense.)
@@ -828,7 +786,7 @@ $(filter %.$(LIB_SUFFIX),$(LIBRARY)): $(OBJS) $(LOBJS) $(EXTRA_DEPS) $(GLOBAL_DE
 
 $(filter-out %.$(LIB_SUFFIX),$(LIBRARY)): $(filter %.$(LIB_SUFFIX),$(LIBRARY)) $(OBJS) $(LOBJS) $(EXTRA_DEPS) $(GLOBAL_DEPS)
 # When we only build a library descriptor, blow out any existing library
-	$(if $(filter %.$(LIB_SUFFIX),$(LIBRARY)),,$(RM) $(REAL_LIBRARY) $(EXPORT_LIBRARY:%=%/$(REAL_LIBRARY)))
+	$(if $(filter %.$(LIB_SUFFIX),$(LIBRARY)),,$(RM) $(REAL_LIBRARY))
 	$(EXPAND_LIBS_GEN) -o $@ $(OBJS) $(LOBJS) $(SHARED_LIBRARY_LIBS)
 
 ifeq ($(OS_ARCH),WINNT)
