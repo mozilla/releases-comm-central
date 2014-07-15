@@ -968,12 +968,10 @@ function parseAndAddAddresses(addressText, recipientType)
   // strip any leading >> characters inserted by the autocomplete widget
   var strippedAddresses = addressText.replace(/.* >> /, "");
 
-  var addresses = {};
-  var names = {};
-  var fullNames = {};
-  let numAddresses = MailServices.headerParser.parseHeadersWithArray(strippedAddresses, addresses, names, fullNames);
+  let addresses = MailServices.headerParser
+                              .makeFromDisplayAddress(strippedAddresses);
 
-  if (numAddresses > 0)
+  if (addresses.length > 0)
   {
     // we need to set up our own autocomplete session and search for results
 
@@ -981,7 +979,8 @@ function parseAndAddAddresses(addressText, recipientType)
     if (!gAutomatedAutoCompleteListener)
       gAutomatedAutoCompleteListener = new AutomatedAutoCompleteHandler();
 
-    gAutomatedAutoCompleteListener.init(fullNames.value, numAddresses, recipientType);
+    gAutomatedAutoCompleteListener.init(addresses.map(addr => addr.toString()),
+      addresses.length, recipientType);
   }
 }
 
