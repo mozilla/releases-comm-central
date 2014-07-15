@@ -922,11 +922,6 @@
        <rdf:Description ID="JavaScript"
          nc:name="JavaScript"/>
      </rdf:li>
-     <rdf:li>
-       <rdf:Description ID="Venkman"
-         nc:name="JavaScript Debugger"
-         nc:link="developer_tools.xhtml#venkman"/>
-     </rdf:li></rdf:Seq>
    </nc:subheadings>
 </rdf:Description>
 

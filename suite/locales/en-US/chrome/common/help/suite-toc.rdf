@@ -1145,7 +1145,6 @@
       <rdf:Seq>
         <rdf:li><rdf:Description ID="tools-js_console" nc:name="Error Console" nc:link="developer_tools.xhtml#js_console"/> </rdf:li>
         <rdf:li><rdf:Description ID="tools-inspector" nc:name="DOM Inspector" nc:link="developer_tools.xhtml#inspector"/> </rdf:li>
-        <rdf:li><rdf:Description ID="tools-venkman" nc:name="JavaScript Debugger" nc:link="developer_tools.xhtml#venkman"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
 </rdf:Description>
