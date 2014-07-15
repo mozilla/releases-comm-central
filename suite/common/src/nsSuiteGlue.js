@@ -968,7 +968,7 @@ SuiteGlue.prototype = {
   dbgStop: function()
   {
     if (DebuggerServer.initialized)
-      DebuggerServer.closeListener();
+      DebuggerServer.closeAllListeners();
   },
 
   dbgRestart: function()
