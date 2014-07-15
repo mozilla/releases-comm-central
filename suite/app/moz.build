@@ -11,4 +11,4 @@ if not CONFIG['LIBXUL_SDK']:
         '/mozilla/xpcom/base',
         '/mozilla/xpcom/build',
     ]
-    GENERATED_INCLUDES += ['/mozilla/build']
+    GENERATED_INCLUDES += ['/build']
