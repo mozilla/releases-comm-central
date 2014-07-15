@@ -127,14 +127,6 @@ var menus = {
     goUpdateCommand("cmd_newtab");
   },
 
-  updateUserIconContextMenuitems: function menu_updateUserIconContextMenuitems() {
-    let menuItem = document.getElementById("removeIconMenuItem");
-    if (Services.core.globalUserStatus.getUserIcon())
-      menuItem.removeAttribute("disabled");
-    else
-      menuItem.setAttribute("disabled", "true");
-  },
-
   openDialog: function menu_openDialog(aWindowType, aURL) {
     let features = "chrome,modal,titlebar,centerscreen";
 #ifdef XP_MACOSX

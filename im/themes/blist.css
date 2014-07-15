@@ -460,3 +460,174 @@ group[closed] .twisty {
   border: dotted 1px -moz-dialogtext;
 %endif
 }
+
+#changeUserIconPanel > .panel-arrowcontainer > .panel-arrowcontent {
+  padding: 0;
+}
+
+#userIconPanelStack {
+  padding: 20px;
+}
+
+#userIconPanelImage {
+  height: 160px;
+  width: 160px;
+}
+
+#userIconPanelImage[src=""] {
+  background-image: url("chrome://instantbird/skin/userIcon.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+#userIconPanelImageRemove {
+  -moz-appearance: none;
+  margin: 9px 9px 135px 135px;
+  padding: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 25%, transparent 100%);
+  border: none;
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-image-region: rect(0, 16px, 16px, 0);
+}
+
+#userIconPanelImageRemove > .toolbarbutton-icon {
+  max-width: 16px;
+}
+
+#userIconPanelImageRemove:hover:not([disabled="true"]) {
+  -moz-image-region: rect(0, 32px, 16px, 16px);
+}
+
+#userIconPanelImageRemove:active:not([disabled="true"]) {
+  -moz-image-region: rect(0, 48px, 16px, 32px);
+}
+
+.userIconPanelButton {
+  -moz-appearance: none;
+  -moz-user-focus: normal;
+  font-size: 14px;
+  border-top: 1px solid hsla(210, 4%, 10%, 0.14);
+  background-color: hsla(210, 4%, 10%, 0.07);
+  padding: 4px;
+  margin: 0 !important;
+}
+
+.userIconPanelButton:hover:not([disabled="true"]) {
+  background-color: hsla(210, 4%, 10%, 0.18);
+}
+
+.userIconPanelButton:active:not([disabled="true"]) {
+  background-color: hsla(210, 4%, 10%, 0.25);
+}
+
+#selectFileButton, #takePictureButton {
+  height: 16px;
+}
+
+#selectFileButton {
+  list-style-image: url("chrome://instantbird/skin/select-file.png");
+  -moz-image-region: rect(0, 16px, 16px, 0);
+}
+
+#selectFileButton:hover:not([disabled="true"])  {
+  -moz-image-region: rect(16px, 16px, 32px, 0);
+}
+
+.UIPanelOneButton > .toolbarbutton-text {
+  text-align: left;
+}
+
+.UIPanelOneButton > .toolbarbutton-icon {
+  margin-left: 15px;
+  margin-right: 10px;
+  width: 16px;
+  height: 16px;
+}
+
+#takePictureButton {
+  list-style-image: url("chrome://instantbird/skin/webcam.png");
+  -moz-image-region: rect(0, 16px, 16px, 0);
+}
+
+#takePictureButton:hover:not([disabled="true"]) {
+  -moz-image-region: rect(16px, 16px, 32px, 0);
+}
+
+@media (min-resolution: 2dppx) {
+  #selectFileButton {
+    list-style-image: url("chrome://instantbird/skin/select-file@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  #selectFileButton:hover:not([disabled="true"]) {
+    -moz-image-region: rect(32px, 32px, 64px, 0);
+  }
+
+  #takePictureButton {
+    list-style-image: url("chrome://instantbird/skin/webcam@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  #takePictureButton:hover:not([disabled="true"]) {
+    -moz-image-region: rect(32px, 32px, 64px, 0);
+  }
+
+  #userIconPanelImageRemove {
+    list-style-image: url("chrome://global/skin/icons/close@2x.png");
+    -moz-image-region: rect(0, 32px, 32px, 0);
+  }
+
+  #userIconPanelImageRemove:hover:not([disabled="true"]) {
+    -moz-image-region: rect(0, 64px, 32px, 32px);
+  }
+
+  #userIconPanelImageRemove:focus:not([disabled="true"]) {
+    -moz-image-region: rect(0, 96px, 32px, 64px);
+  }
+}
+
+.takePictureButtons {
+  margin: 0;
+  padding: 0;
+%ifdef XP_WIN
+  min-height: 60px;
+%else
+  min-height: 52px;
+%endif
+}
+
+.takePictureButtons > button {
+  border: none;
+}
+
+#captureBackButton, #retakeButton {
+  border-right: 1px solid hsla(210, 4%, 10%, 0.14);
+}
+
+#webcamVideo {
+  height: 156px;
+  min-width: 213px;
+  max-width: 213px;
+  margin-left: -30px;
+}
+
+#webcamPhoto {
+  height: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  margin: 20px;
+  padding: 0;
+}
+
+#userIconPanelImage, #webcamPhoto, #webcamOverflow {
+  border: 3px solid rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+#webcamOverflow {
+  height: 160px;
+  max-width: 160px;
+  margin: 20px;
+  padding: 0;
+  overflow: hidden;
+}

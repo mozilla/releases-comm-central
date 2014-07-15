@@ -127,10 +127,19 @@
 <!ENTITY hideGroupTooltip              "Hide">
 
 <!-- Context Menu to add/remove user icon -->
-<!ENTITY chooseIconCmd.label           "Choose Image…">
-<!ENTITY chooseIconCmd.accesskey       "C">
+<!ENTITY selectFileCmd.label           "Select file…">
+<!ENTITY selectFileCmd.accesskey       "S">
+<!ENTITY takePictureCmd.label          "Take picture…">
+<!ENTITY takePictureCmd.accesskey      "T">
 <!ENTITY removeIconCmd.label           "Remove">
-<!ENTITY removeIconCmd.accesskey       "R">
+<!ENTITY captureCmd.label              "Capture">
+<!ENTITY captureCmd.accesskey          "C">
+<!ENTITY captureBackCmd.label          "Back">
+<!ENTITY captureBackCmd.accesskey      "B">
+<!ENTITY retakeCmd.label               "Retake">
+<!ENTITY retakeCmd.accesskey           "R">
+<!ENTITY setIconCmd.label              "Set Icon">
+<!ENTITY setIconCmd.accesskey          "I">
 
 <!-- Copied from mozilla/browser/locales/en-US/chrome/browser/baseMenuOverlay.dtd -->
 <!--  Mac OS X Window Menu -->

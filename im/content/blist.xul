@@ -26,6 +26,7 @@
   onclose= "event.preventDefault(); goQuitApplication();"
 #endif
   onblur = "buddyList.onblur();"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://instantbird/content/utilities.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/blist.js"/>
@@ -47,16 +48,6 @@
   <popupset id="mainPopupSet">
     <tooltip id="imTooltip" type="im"
              onpopupshowing="return !('_droptarget' in window);"/>
-
-    <menupopup id="userIconContextMenu"
-               onpopupshowing="menus.updateUserIconContextMenuitems();">
-      <menuitem id="chooseIconMenuItem" label="&chooseIconCmd.label;"
-                accesskey="&chooseIconCmd.accesskey;"
-                oncommand="buddyList.chooseUserIcon();" default="true"/>
-      <menuitem id="removeIconMenuItem" label="&removeIconCmd.label;"
-                accesskey="&removeIconCmd.accesskey;"
-                oncommand="buddyList.removeUserIcon();"/>
-    </menupopup>
 
     <menupopup id="buddyListContextMenu"
                onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
@@ -123,11 +114,69 @@
       <stack id="statusImageStack">
         <!-- The box around the user icon is a workaround for bug 955673. -->
         <box id="userIconHolder">
-          <image id="userIcon" role="button" context="userIconContextMenu"
-                 aria-label="&userIcon.label;" tooltiptext="&userIcon.label;"
-                 onclick="if (event.button == 0) buddyList.chooseUserIcon();"
-                 onkeypress="buddyList.userIconKeyPress(event);"/>
+          <image id="userIcon" role="button" popup="changeUserIconPanel"
+                 aria-label="&userIcon.label;" tooltiptext="&userIcon.label;"/>
         </box>
+        <panel id="changeUserIconPanel"
+               type="arrow" align="center"
+               onpopupshowing="buddyList.updateUserIconPanelItems();"
+               onpopuphiding="buddyList.stopWebcamStream();">
+          <deck id="userIconPanel">
+            <vbox class="userIconPanelMenu">
+              <stack id="userIconPanelStack" flex="1">
+                <image id="userIconPanelImage"/>
+                <toolbarbutton id="userIconPanelImageRemove"
+                               tooltiptext="&removeIconCmd.label;"
+                               oncommand="buddyList.removeUserIcon();"/>
+              </stack>
+              <toolbarbutton id="selectFileButton"
+                             class="userIconPanelButton UIPanelOneButton"
+                             label="&selectFileCmd.label;"
+                             accesskey="&selectFileCmd.accesskey;"
+                             flex="1"
+                             oncommand="buddyList.chooseUserIcon();"/>
+              <toolbarbutton id="takePictureButton"
+                             class="userIconPanelButton UIPanelOneButton"
+                             label="&takePictureCmd.label;"
+                             accesskey="&takePictureCmd.accesskey;"
+                             disabled="true" flex="1"
+                             oncommand="buddyList.takePictureButton();"/>
+            </vbox>
+            <vbox class="userIconPanelMenu">
+              <box id="webcamOverflow">
+                <html:video id="webcamVideo"/>
+              </box>
+              <html:canvas id="userIconCanvas" width="160" height="160"/>
+              <hbox class="takePictureButtons">
+                <button id="captureBackButton" class="userIconPanelButton"
+                        label="&captureBackCmd.label;"
+                        accesskey="&captureBackCmd.accesskey;"
+                        flex="1"
+                        oncommand="buddyList.captureBackButton();"/>
+                <button id="captureButton" class="userIconPanelButton"
+                        label="&captureCmd.label;"
+                        accesskey="&captureCmd.accesskey;"
+                        disabled="true" flex="1"
+                        oncommand="buddyList.takePicture();"/>
+              </hbox>
+            </vbox>
+            <vbox class="userIconPanelMenu">
+              <image id="webcamPhoto"/>
+              <hbox class="takePictureButtons">
+                <button id="retakeButton" class="userIconPanelButton"
+                        label="&retakeCmd.label;"
+                        accesskey="&retakeCmd.accesskey;"
+                        flex="1"
+                        oncommand="buddyList.retake();"/>
+                <button id="setIconButton" class="userIconPanelButton"
+                        label="&setIconCmd.label;"
+                        accesskey="&setIconCmd.accesskey;"
+                        flex="1"
+                        oncommand="buddyList.setWebcamImage();"/>
+              </hbox>
+            </vbox>
+          </deck>
+        </panel>
         <button type="menu" id="statusTypeIcon" status="available">
           <menupopup id="setStatusTypeMenupopup"
                      onpopupshown="buddyList.onStatusTypePopupShown();"

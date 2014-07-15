@@ -156,3 +156,11 @@ conv {
 .notification-inner > hbox > .messageImage {
   max-width: 0;
 }
+
+#userIconCanvas {
+  display: none;
+}
+
+#userIconPanelImage[src=""] + #userIconPanelImageRemove {
+  display: none;
+}

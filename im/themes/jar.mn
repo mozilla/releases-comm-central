@@ -32,13 +32,18 @@ instantbird.jar:
 	skin/classic/instantbird/expand.png
 	skin/classic/instantbird/collapse.png
 	skin/classic/instantbird/userIcon.png
+	skin/classic/instantbird/userIcon.svg
 	skin/classic/instantbird/multiUserIcon.png
+	skin/classic/instantbird/webcam.png		(webRTC-shareDevice-16.png)
+	skin/classic/instantbird/select-file.png	(select-file.png)
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
-	skin/classic/instantbird/tag.png        (tag-mac.png)
-	skin/classic/instantbird/tag@2x.png     (tag-mac@2x.png)
-	skin/classic/instantbird/actionicon-tab.png       (actionicon-tab-mac.png)
-	skin/classic/instantbird/actionicon-tab@2x.png    (actionicon-tab-mac@2x.png)
+	skin/classic/instantbird/tag.png                (tag-mac.png)
+	skin/classic/instantbird/tag@2x.png             (tag-mac@2x.png)
+	skin/classic/instantbird/actionicon-tab.png     (actionicon-tab-mac.png)
+	skin/classic/instantbird/actionicon-tab@2x.png  (actionicon-tab-mac@2x.png)
+	skin/classic/instantbird/webcam@2x.png          (webRTC-shareDevice-16@2x.png)
+	skin/classic/instantbird/select-file@2x.png     (select-file@2x.png)
 #else
 	skin/classic/instantbird/tag.png    (tag-linux.png)
 	skin/classic/instantbird/actionicon-tab.png    (actionicon-tab-linux.png)
@@ -130,7 +135,10 @@ instantbird.jar:
 	skin/classic/aero/instantbird/expand.png
 	skin/classic/aero/instantbird/collapse.png
 	skin/classic/aero/instantbird/userIcon.png
+	skin/classic/aero/instantbird/userIcon.svg
 	skin/classic/aero/instantbird/multiUserIcon.png
+	skin/classic/aero/instantbird/webcam.png	(webRTC-shareDevice-16.png)
+	skin/classic/aero/instantbird/select-file.png	(select-file.png)
 	skin/classic/aero/instantbird/newConversation.png
 	skin/classic/aero/instantbird/tag.png		(tag-aero.png)
 	skin/classic/aero/instantbird/actionicon-tab.png        (actionicon-tab-win.png)

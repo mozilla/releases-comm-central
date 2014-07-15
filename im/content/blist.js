@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource:///modules/imStatusUtils.jsm");
+const Cu = Components.utils;
+
+Cu.import("resource:///modules/imStatusUtils.jsm");
+Cu.import("resource:///modules/XPCOMUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 const events = ["buddy-authorization-request",
                 "buddy-authorization-request-canceled",
@@ -612,8 +616,109 @@ var buddyList = {
       Services.core.globalUserStatus.setUserIcon(fp.file);
   },
 
+  webcamSuccessCallback: function bl_webcamSuccessCallback(aStream) {
+    if (document.getElementById("changeUserIconPanel").state != "open" ||
+        document.getElementById("userIconPanel").selectedIndex != 1) {
+      this.stopWebcamStream();
+      return;
+    }
+
+    let video = document.getElementById("webcamVideo");
+    video.mozSrcObject = aStream;
+    video.play();
+    video.onplaying = function() { document.getElementById("captureButton")
+                                           .removeAttribute("disabled"); }
+  },
+
+  takePictureButton: function bl_takePictureButton() {
+    document.getElementById("userIconPanel").selectedIndex = 1;
+    navigator.mozGetUserMedia({audio: false, video: true},
+                              this.webcamSuccessCallback.bind(this),
+                              Cu.reportError);
+  },
+
+  takePicture: function bl_takePicture() {
+    document.getElementById("userIconPanel").selectedIndex = 2;
+    let canvas = document.getElementById("userIconCanvas");
+    let ctx    = canvas.getContext("2d");
+    ctx.save();
+    let video = document.getElementById("webcamVideo");
+    ctx.drawImage(video, 80, 0, 480, 480, 0, 0, canvas.height, canvas.height);
+    document.getElementById("webcamPhoto")
+            .setAttribute("src", canvas.toDataURL("image/png"));
+    ctx.restore();
+  },
+
+  captureBackButton: function bl_captureBackButton() {
+    document.getElementById("userIconPanel").selectedIndex = 0;
+    document.getElementById("webcamPhoto").removeAttribute("src");
+    this.stopWebcamStream();
+  },
+
+  retake: function bl_retake() {
+    document.getElementById("userIconPanel").selectedIndex = 1;
+  },
+
   removeUserIcon: function bl_removeUserIcon() {
     Services.core.globalUserStatus.setUserIcon(null);
+    document.getElementById("changeUserIconPanel").hidePopup();
+  },
+
+  setWebcamImage: function bl_setWebcamImage() {
+    let canvas = document.getElementById("userIconCanvas");
+    canvas.toBlob(function(blob) {
+      let read = new FileReader();
+      read.addEventListener("loadend", function() {
+        // FIXME: This is a workaround for Bug 1011878.
+        // Writing the new icon to a temporary file and then creating an
+        // nsIFile to pass it to Service.core is a temporary fix.
+        // An ArrayBufferView is needed as input to OS.File.WriteAtomic. Any
+        // other would have worked too.
+        let view      = new Int8Array(read.result);
+        let newName   = OS.Path.join(OS.Constants.Path.tmpDir, "tmpUserIcon.png");
+        let writeFile = OS.File.writeAtomic(newName, view);
+        document.getElementById("changeUserIconPanel").hidePopup();
+        writeFile.then(function() {
+          let userIconFile = Cc["@mozilla.org/file/local;1"]
+                             .createInstance(Ci.nsILocalFile);
+          userIconFile.initWithPath(newName);
+          Services.core.globalUserStatus.setUserIcon(userIconFile);
+          userIconFile.remove(newName);
+        });
+      });
+      read.readAsArrayBuffer(blob);
+    }, "image/png", 1.0);
+  },
+
+  updateUserIconPanelItems: function bl_updateUserIconPanelItems() {
+    document.getElementById("userIconPanel").selectedIndex = 0;
+    let icon = Services.core.globalUserStatus.getUserIcon();
+    document.getElementById("userIconPanelImage").src = icon ? icon.spec : "";
+
+    // FIXME: This is a workaround for the Bug 1011878.
+    // mozGetUserMediaDevices is currently only working after having called
+    // mozGetUserMedia at least once.
+    // Calling mozGetuserMedia with any parameters works.
+    navigator.mozGetUserMedia({audio: false, video: false},
+                              function() {}, function() {});
+
+    let webcamButton = document.getElementById("takePictureButton");
+    webcamButton.disabled = true;
+    navigator.mozGetUserMediaDevices({video: true},
+                                     devices => { webcamButton.disabled = !devices.length; },
+                                     Cu.reportError);
+  },
+
+  stopWebcamStream: function bl_stopWebcamStream() {
+    let webcamVideo = document.getElementById("webcamVideo");
+    let webcamStream = webcamVideo.mozSrcObject;
+    if (webcamStream) {
+      webcamStream.stop();
+      webcamVideo.mozSrcObject = null;
+    }
+
+    document.getElementById("captureButton").disabled = true;
+    document.getElementById("webcamPhoto").removeAttribute("src");
   },
 
   displayNameClick: function bl_displayNameClick() {
