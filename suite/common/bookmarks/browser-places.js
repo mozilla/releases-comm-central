@@ -186,7 +186,7 @@ var StarUI = {
 
     gEditItemOverlay.initPanel(this._itemId,
                                { hiddenRows: ["description", "location",
-                                              "loadInSidebar", "keyword"] });
+                                              "keyword"] });
   },
 
   panelShown:
@@ -329,7 +329,7 @@ var PlacesCommandHook = {
 
     var insertPoint = new InsertionPoint(parent,
                                          PlacesUtils.bookmarks.DEFAULT_INDEX);
-    var hiddenRows = ["loadInSidebar"];
+    var hiddenRows = [];
     PlacesUIUtils.showAddBookmarkUI(uri, title, description, insertPoint, true,
                                     null, null, null, null, hiddenRows);
   },

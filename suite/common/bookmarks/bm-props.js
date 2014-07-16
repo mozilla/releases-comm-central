@@ -49,7 +49,6 @@
  *     - "description"
  *     - "keyword"
  *     - "tags"
- *     - "loadInSidebar"
  *     - "feedLocation"
  *     - "siteLocation"
  *     - "folderPicker" - hides both the tree and the menu.
@@ -81,7 +80,6 @@ var BookmarkPropertiesPanel = {
   _itemType: null,
   _itemId: -1,
   _uri: null,
-  _loadInSidebar: false,
   _title: "",
   _description: "",
   _URIs: [],
@@ -109,7 +107,7 @@ var BookmarkPropertiesPanel = {
       if (this._itemType == LIVEMARK_CONTAINER)
         return this._strings.getString("dialogAcceptLabelAddLivemark");
 
-      if (this._dummyItem || this._loadInSidebar)
+      if (this._dummyItem)
         return this._strings.getString("dialogAcceptLabelAddItem");
 
       return this._strings.getString("dialogAcceptLabelSaveItem");
@@ -181,9 +179,6 @@ var BookmarkPropertiesPanel = {
             this._dummyItem = true;
           }
 
-          if ("loadBookmarkInSidebar" in dialogInfo)
-            this._loadInSidebar = dialogInfo.loadBookmarkInSidebar;
-
           if ("keyword" in dialogInfo) {
             this._keyword = dialogInfo.keyword;
             this._isAddKeywordDialog = true;
@@ -245,10 +240,6 @@ var BookmarkPropertiesPanel = {
           // keyword
           this._keyword = PlacesUtils.bookmarks
                                      .getKeywordForBookmark(this._itemId);
-          // Load In Sidebar
-          this._loadInSidebar = PlacesUtils.annotations
-                                           .itemHasAnnotation(this._itemId,
-                                                              PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO);
           break;
 
         case "folder":
@@ -551,16 +542,6 @@ var BookmarkPropertiesPanel = {
                       expires: nsIAnnotationService.EXPIRE_NEVER };
       let editItemTxn = new PlacesSetItemAnnotationTransaction(-1, annoObj);
       childTransactions.push(editItemTxn);
-    }
-
-    if (this._loadInSidebar) {
-      let annoObj = { name   : PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO,
-                      type   : nsIAnnotationService.TYPE_INT32,
-                      flags  : 0,
-                      value  : this._loadInSidebar,
-                      expires: nsIAnnotationService.EXPIRE_NEVER };
-      let setLoadTxn = new PlacesSetItemAnnotationTransaction(-1, annoObj);
-      childTransactions.push(setLoadTxn);
     }
 
     if (this._postData) {

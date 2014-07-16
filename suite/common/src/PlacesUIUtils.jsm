@@ -298,9 +298,6 @@ var PlacesUIUtils = {
    *        point as the initially selected item in the folder picker.
    * @param [optional] aShowPicker
    *        see above
-   * @param [optional] aLoadInSidebar
-   *        If true, the dialog will default to load the new item in the
-   *        sidebar (as a web panel).
    * @param [optional] aKeyword
    *        The default keyword for the new bookmark. The keyword field
    *        will be shown in the dialog if this is used.
@@ -314,7 +311,7 @@ var PlacesUIUtils = {
    * @return true if any transaction has been performed.
    *
    * Notes:
-   *  - the location, description and "loadInSidebar" fields are
+   *  - the location and description fields are
    *    visible only if there is no initial URI (aURI is null).
    *  - When aDefaultInsertionPoint is not set, the dialog defaults to the
    *    bookmarks root folder.
@@ -351,9 +348,6 @@ var PlacesUIUtils = {
       if (!aShowPicker)
         info.hiddenRows.push("folderPicker");
     }
-
-    if (aLoadInSidebar)
-      info.loadBookmarkInSidebar = true;
 
     if (typeof(aKeyword) == "string") {
       info.keyword = aKeyword;
@@ -403,10 +397,7 @@ var PlacesUIUtils = {
         info.hiddenRows.push("folderPicker");
     }
 
-    if (aLoadInSidebar)
-      info.loadBookmarkInSidebar = true;
-    else
-      info.hiddenRows = info.hiddenRows.concat(["location", "loadInSidebar"]);
+    info.hiddenRows = info.hiddenRows.concat(["location"]);
 
     if (typeof(aKeyword) == "string") {
       info.keyword = aKeyword;
@@ -863,18 +854,6 @@ var PlacesUIUtils = {
       else
         this.markPageAsTyped(aNode.uri);
 
-      // Check whether the node is a bookmark which should be opened as
-      // a web panel
-      if (aWhere == "current" && isBookmark) {
-        if (PlacesUtils.annotations
-                       .itemHasAnnotation(aNode.itemId, this.LOAD_IN_SIDEBAR_ANNO)) {
-          var browserWin = this._getTopBrowserWin();
-          if (browserWin) {
-            browserWin.openWebPanel(aNode.title, aNode.uri);
-            return;
-          }
-        }
-      }
       this._getCurrentActiveWin().openUILinkIn(aNode.uri, aWhere);
     }
   },
@@ -1299,25 +1278,6 @@ XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ptm", function() {
 
     untagURI: function(aURI, aTags)
       new PlacesUntagURITransaction(aURI, aTags),
-
-    /**
-     * Transaction for setting/unsetting Load-in-sidebar annotation.
-     *
-     * @param aBookmarkId
-     *        id of the bookmark where to set Load-in-sidebar annotation.
-     * @param aLoadInSidebar
-     *        boolean value.
-     * @returns nsITransaction object.
-     */
-    setLoadInSidebar: function(aItemId, aLoadInSidebar)
-    {
-      let annoObj = { name: PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO,
-                      type: Components.interfaces.nsIAnnotationService.TYPE_INT32,
-                      flags: 0,
-                      value: aLoadInSidebar,
-                      expires: Components.interfaces.nsIAnnotationService.EXPIRE_NEVER };
-      return new PlacesSetItemAnnotationTransaction(aItemId, annoObj);
-    },
 
    /**
     * Transaction for editing the description of a bookmark or a folder.

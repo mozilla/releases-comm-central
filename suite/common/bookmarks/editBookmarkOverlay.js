@@ -77,8 +77,6 @@ var gEditItemOverlay = {
       this._hiddenRows.indexOf("keyword") != -1 || isQuery;
     this._element("locationRow").collapsed = !(this._uri && !isQuery) ||
       this._hiddenRows.indexOf("location") != -1;
-    this._element("loadInSidebarCheckbox").collapsed = !isBookmark || isQuery ||
-      this._readOnly || this._hiddenRows.indexOf("loadInSidebar") != -1;
     this._element("feedLocationRow").collapsed = !this._isLivemark ||
       this._hiddenRows.indexOf("feedLocation") != -1;
     this._element("siteLocationRow").collapsed = !this._isLivemark ||
@@ -97,7 +95,7 @@ var gEditItemOverlay = {
    *        initialization. The following properties may bet set:
    *        * hiddenRows (Strings array): list of rows to be hidden regardless
    *          of the item edited. Possible values: "title", "location",
-   *          "description", "keyword", "loadInSidebar", "feedLocation",
+   *          "description", "keyword", "feedLocation",
    *          "siteLocation", folderPicker"
    *        * forceReadOnly - set this flag to initialize the panel to its
    *          read-only (view) mode even if the given item is editable.
@@ -143,10 +141,6 @@ var gEditItemOverlay = {
         this._initTextField("keywordField",
                             PlacesUtils.bookmarks
                                        .getKeywordForBookmark(this._itemId));
-        // Load In Sidebar checkbox
-        this._element("loadInSidebarCheckbox").checked =
-          PlacesUtils.annotations.itemHasAnnotation(this._itemId,
-                                                    PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO);
       }
       else {
         this._uri = null;
@@ -576,20 +570,6 @@ var gEditItemOverlay = {
     }
   },
 
-  onLoadInSidebarCheckboxCommand:
-  function EIO_onLoadInSidebarCheckboxCommand() {
-    const nsIAnnotationService = Components.interfaces.nsIAnnotationService;
-    var loadInSidebarChecked = this._element("loadInSidebarCheckbox").checked;
-    var annoObj = { name   : PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO,
-                    type   : nsIAnnotationService.TYPE_INT32,
-                    flags  : 0,
-                    value  : loadInSidebarChecked,
-                    expires: nsIAnnotationService.EXPIRE_NEVER };
-    var txn = new PlacesSetItemAnnotationTransaction(this._itemId,
-                                                     annoObj);
-    PlacesUtils.transactionManager.doTransaction(txn);
-  },
-
   toggleFolderTreeVisibility: function EIO_toggleFolderTreeVisibility() {
     var expander = this._element("foldersExpander");
     var folderTreeRow = this._element("folderTreeRow");
@@ -961,11 +941,6 @@ var gEditItemOverlay = {
     case PlacesUIUtils.DESCRIPTION_ANNO:
       this._initTextField("descriptionField",
                           PlacesUIUtils.getItemDescription(this._itemId));
-      break;
-    case PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO:
-      this._element("loadInSidebarCheckbox").checked =
-        PlacesUtils.annotations.itemHasAnnotation(this._itemId,
-                                                  PlacesUIUtils.LOAD_IN_SIDEBAR_ANNO);
       break;
     case PlacesUtils.LMANNO_FEEDURI:
       var feedURISpec = PlacesUtils.annotations.getItemAnnotation(this._itemId,

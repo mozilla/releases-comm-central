@@ -12,7 +12,6 @@ var PlacesOrganizer = {
   // observing additionalInfoBroadcaster.
   _additionalInfoFields: [
     "editBMPanel_descriptionRow",
-    "editBMPanel_loadInSidebarCheckbox",
     "editBMPanel_keywordRow",
   ],
 
@@ -629,7 +628,6 @@ var PlacesOrganizer = {
       detailsDeck.selectedIndex = 1;
       gEditItemOverlay.initPanel(itemIds,
                                  { hiddenRows: ["folderPicker",
-                                                "loadInSidebar",
                                                 "location",
                                                 "keyword",
                                                 "description",
