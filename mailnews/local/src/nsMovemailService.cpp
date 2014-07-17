@@ -509,9 +509,6 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
                                            &reusable, getter_AddRefs(outputStream));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(outputStream, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
       rv = newMailParser->Init(serverFolder, inbox,
                                nullptr, newHdr, outputStream);
       NS_ENSURE_SUCCESS(rv, rv);
