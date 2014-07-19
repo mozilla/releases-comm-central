@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1405034316000">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1405723700000">
   <emItems>
       <emItem  blockID="i454" id="sqlmoz@facebook.com">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
@@ -239,6 +239,10 @@
                   <pref>browser.search.defaultenginename</pref>
               </prefs>
     </emItem>
+      <emItem  blockID="i7" id="{2224e955-00e9-4613-a844-ce69fccaae91}">
+                                                          <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i174" id="info@thebflix.com">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
@@ -257,10 +261,11 @@
                                                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i172" id="info@bflix.info">
-                        <versionRange  minVersion="0" maxVersion="*" severity="3">
+      <emItem  blockID="i670" id="/^({ad9a41d2-9a49-4fa6-a79e-71a0785364c8})|(ffxtlbr@mysearchdial\.com)$/">
+                        <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
                                                     <prefs>
+                  <pref>browser.search.defaultenginename</pref>
               </prefs>
     </emItem>
       <emItem  blockID="i93" id="{68b8676b-99a5-46d1-b390-22411d8bcd61}">
@@ -741,6 +746,12 @@
                                                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i668" id="/^(matchersite(pro(src)?)?\@matchersite(pro(src)?)?\.com)|((pro)?sitematcher(_src|pro|site|sitesrc)?\@(pro)?sitematcher(_src|pro|site|sitesrc)?\.com)$/">
+                        <versionRange  minVersion="0" maxVersion="*" severity="1">
+                    </versionRange>
+                                                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i440" id="{2d069a16-fca1-4e81-81ea-5d5086dcbd0c}">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
@@ -861,8 +872,10 @@
                                                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i7" id="{2224e955-00e9-4613-a844-ce69fccaae91}">
-                                                          <prefs>
+      <emItem  blockID="i172" id="info@bflix.info">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
+                    </versionRange>
+                                                    <prefs>
               </prefs>
     </emItem>
       <emItem  blockID="i525" id="/^({65f9f6b7-2dae-46fc-bfaf-f88e4af1beca}|{9ed31f84-c8b3-4926-b950-dff74047ff79}|{0134af61-7a0c-4649-aeca-90d776060cb3}|{02edb56b-9b33-435b-b7df-b2843273a694}|{da51d4f6-3e7e-4ef8-b400-9198e0874606}|{b24577db-155e-4077-bb37-3fdd3c302bb5})$/">
@@ -1770,7 +1783,8 @@
                               <versionRange  minVersion="0" maxVersion="2.13.*" />
                           </targetApplication>
                   </versionRange>
-                        </pluginItem>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
       <pluginItem  blockID="p102">
                   <match name="filename" exp="npmozax\.dll" />                      <versionRange  minVersion="0" maxVersion="*"></versionRange>
                         </pluginItem>
@@ -1840,14 +1854,16 @@
                               <versionRange  minVersion="2.16a1" maxVersion="*" />
                           </targetApplication>
                   </versionRange>
-                        </pluginItem>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
       <pluginItem  blockID="p178">
                   <match name="filename" exp="(NPSWF[0-9_]*\.dll)|(Flash\ Player\.plugin)" />                                    <versionRange  minVersion="11.0" maxVersion="11.7.700.169" severity="0" vulnerabilitystatus="1">
                                 <targetApplication  id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}">
                               <versionRange  minVersion="2.16a1" maxVersion="*" />
                           </targetApplication>
                   </versionRange>
-                        </pluginItem>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
       <pluginItem  blockID="p180">
                   <match name="filename" exp="JavaAppletPlugin\.plugin" />                                    <versionRange  minVersion="Java 7 Update 0" maxVersion="Java 7 Update 11" severity="0" vulnerabilitystatus="1">
                                 <targetApplication  id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}">
@@ -1929,14 +1945,16 @@
                               <versionRange  minVersion="2.14a1" maxVersion="*" />
                           </targetApplication>
                   </versionRange>
-                        </pluginItem>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
       <pluginItem  blockID="p290">
                   <match name="filename" exp="(NPSWF32\.dll)|(Flash\ Player\.plugin)" />                                    <versionRange  minVersion="10.3.183.19" maxVersion="10.3.183.66" severity="0" vulnerabilitystatus="1">
                                 <targetApplication  id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}">
                               <versionRange  minVersion="2.16a1" maxVersion="*" />
                           </targetApplication>
                   </versionRange>
-                        </pluginItem>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
       <pluginItem  blockID="p292">
                   <match name="filename" exp="JavaAppletPlugin\.plugin" />                                    <versionRange  minVersion="Java 7 Update 12" maxVersion="Java 7 Update 15" severity="0" vulnerabilitystatus="1">
                                 <targetApplication  id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}">
@@ -1992,14 +2010,16 @@
                               <versionRange  minVersion="2.16a1" maxVersion="*" />
                           </targetApplication>
                   </versionRange>
-                        </pluginItem>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
       <pluginItem  blockID="p332">
             <match name="description" exp="^Shockwave Flash 11.(0|1) r[0-9]{1,3}$" />      <match name="filename" exp="libflashplayer\.so" />                                    <versionRange  severity="0" vulnerabilitystatus="1">
                                 <targetApplication  id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}">
                               <versionRange  minVersion="2.16a1" maxVersion="*" />
                           </targetApplication>
                   </versionRange>
-                        </pluginItem>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
       <pluginItem  blockID="p366">
                   <match name="filename" exp="Scorch\.plugin" />                      <versionRange  minVersion="6.2.0" maxVersion="6.2.0" severity="1"></versionRange>
                         </pluginItem>
