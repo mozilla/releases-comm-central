@@ -384,7 +384,8 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton
 @media (-moz-windows-glass) {
   #mail-toolbox:not(:-moz-lwtheme),
   .contentTabToolbox:not(:-moz-lwtheme) {
-    border-bottom-color: #AABCCF;
+    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset,
+                0 -1px 0 #AABCCF inset;
   }
 
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {

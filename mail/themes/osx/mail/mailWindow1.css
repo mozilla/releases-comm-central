@@ -15,11 +15,11 @@
 @import url("chrome://messenger/skin/tagColors.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-/* give the toolbox a min-height of 41px for Australis theme */
+/* give the toolbox a min-height of 42px for Australis theme */
 .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
 .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
-  margin-top: 5px;
-  margin-bottom: 4px;
+  margin-top: 6px;
+  margin-bottom: 5px;
 }
 
 /* ::::::::: Global override :::::::::: */
