@@ -733,10 +733,6 @@ xpicleanup@BIN_SUFFIX@
   components/interfaces.manifest
   components/mail.xpt
   defaults/profile/bookmarks.html
-  defaults/profile/mimeTypes.rdf
-  defaults/profile/chrome/
-  defaults/profile/chrome/userChrome-example.css
-  defaults/profile/chrome/userContent-example.css
   defaults/pref/browser-prefs.js
   defaults/pref/composer.js
   defaults/pref/mailnews.js

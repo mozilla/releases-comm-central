@@ -137,6 +137,9 @@ NON_OMNIJAR_FILES = \
 	defaults/messenger/mailViews.dat \
 	defaults/profile/localstore.rdf \
 	defaults/profile/panels.rdf \
+	defaults/profile/mimeTypes.rdf \
+	defaults/profile/chrome/userChrome-example.css \
+	defaults/profile/chrome/userContent-example.css \
 	$(NULL)
 
 ifndef LIBXUL_SDK
