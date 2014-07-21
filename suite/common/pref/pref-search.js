@@ -35,7 +35,7 @@ var SearchObserver = {
 function MakeList() {
   var menulist = document.getElementById("engineList");
   while (menulist.hasChildNodes())
-    menulist.removeChild(menulist.lastChild);
+    menulist.lastChild.remove();
 
   var engines = Services.search.getVisibleEngines();
   for (let i = 0; i < engines.length; i++) {
