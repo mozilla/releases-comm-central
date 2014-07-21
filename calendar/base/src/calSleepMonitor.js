@@ -19,7 +19,7 @@ calSleepMonitor.prototype = {
         classID: calSleepMonitorClassID,
         contractID: "@mozilla.org/calendar/sleep-monitor;1",
         classDescription: "Calendar Sleep Monitor",
-        interaces: calSleepMonitorInterfaces,
+        interfaces: calSleepMonitorInterfaces,
         flags: Components.interfaces.nsIClassInfo.SINGLETON
     }),
 
