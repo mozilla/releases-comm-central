@@ -347,6 +347,8 @@ nsBrowserStatusHandler.prototype =
     UpdateBackForwardButtons();
 
     UpdateStatusBarPopupIcon();
+
+    BrowserSearch.updateSearchButton();
   },
 
   onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage)

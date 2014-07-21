@@ -1080,11 +1080,18 @@ const BrowserSearch = {
     }
 
     // Append the URI and an appropriate title to the browser data.
-    // Use documentURIObject in the check for shouldLoadFavIcon so that we
-    // do the right thing with about:-style error pages.  Bug 453442
+    // Use documentURIObject in the check so that we do the right
+    // thing with about:-style error pages.  Bug 453442
     var iconURL = null;
-    if (getBrowser().shouldLoadFavIcon(targetDoc.documentURIObject))
-      iconURL = getBrowser().buildFavIconString(targetDoc.documentURIObject);
+    var aURI = targetDoc.documentURIObject;
+    try {
+      aURI = Services.uriFixup.createExposableURI(aURI);
+    } catch (e) {
+    }
+
+    if (aURI && ("schemeIs" in aURI) &&
+        (aURI.schemeIs("http") || aURI.schemeIs("https")))
+      iconURL = getBrowser().buildFavIconString(aURI);
 
     var hidden = false;
     // If this engine (identified by title) is already in the list, add it
@@ -1102,8 +1109,28 @@ const BrowserSearch = {
 
     if (hidden)
       browser.hiddenEngines = engines;
-    else
+    else {
       browser.engines = engines;
+      if (browser == getBrowser().selectedBrowser)
+        this.updateSearchButton();
+    }
+  },
+
+  /**
+   * Update the browser UI to show whether or not additional engines are
+   * available when a page is loaded or the user switches tabs to a page that
+   * has search engines.
+   */
+  updateSearchButton: function() {
+    var searchBar = this.searchBar;
+
+    // The search bar binding might not be applied even though the element is
+    // in the document (e.g. when the navigation toolbar is hidden), so check
+    // for .searchButton specifically.
+    if (!searchBar || !searchBar.searchButton)
+      return;
+
+    searchBar.updateSearchButton();
   },
 
   /**

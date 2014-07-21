@@ -256,6 +256,7 @@
               }
             }
           }
+          this.updateSearchButton();
         ]]></body>
       </method>
 
@@ -281,6 +282,17 @@
               }
             }
           }
+          this.updateSearchButton();
+        ]]></body>
+      </method>
+
+      <method name="updateSearchButton">
+        <body><![CDATA[
+          var engines = getBrowser().mCurrentBrowser.engines;
+          if (engines && engines.length)
+            this.searchButton.setAttribute("addengines", "true");
+          else
+            this.searchButton.removeAttribute("addengines");
         ]]></body>
       </method>
 
@@ -339,12 +351,11 @@
 
             // Insert the "add this engine" items.
             for (var i = 0; i < addengines.length; i++) {
-              var menuitem = document.createElement("menuitem");
               var engineInfo = addengines[i];
               var labelStr =
                   this._stringBundle.getFormattedString("cmd_addFoundEngine",
                                                         [engineInfo.title]);
-              menuitem = document.createElementNS(kXULNS, "menuitem");
+              var menuitem = document.createElementNS(kXULNS, "menuitem");
               menuitem.setAttribute("class", "menuitem-iconic addengine-item");
               menuitem.setAttribute("label", labelStr);
               menuitem.setAttribute("tooltiptext", engineInfo.uri);
