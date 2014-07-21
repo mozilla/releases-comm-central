@@ -515,6 +515,10 @@
 @BINPATH@/components/nsFormAutoComplete.js
 @BINPATH@/components/nsFormHistory.js
 @BINPATH@/components/FormHistoryStartup.js
+@BINPATH@/components/UnifiedComplete.manifest
+@BINPATH@/components/UnifiedComplete.js
+@BINPATH@/components/formautofill.manifest
+@BINPATH@/components/FormAutofillContentService.js
 @BINPATH@/components/nsIDService.js
 @BINPATH@/components/nsInputListAutoComplete.js
 @BINPATH@/components/nsLivemarkService.js
