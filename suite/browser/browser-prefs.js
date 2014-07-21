@@ -35,6 +35,7 @@ pref("general.startup.addressbook",         false);
 
 pref("general.open_location.last_url",      "");
 pref("general.open_location.last_window_choice", 0);
+pref("browser.urlbar.historyEnabled",       true);
 
 pref("general.smoothScroll", false);
 pref("general.autoScroll", true);

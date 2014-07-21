@@ -6,8 +6,11 @@ function Startup()
 { 
   var urlbarHistButton = document.getElementById("ClearUrlBarHistoryButton");
   var lastUrlPref = document.getElementById("general.open_location.last_url");
+  var locBarPref = document.getElementById("browser.urlbar.historyEnabled");
+
+  var isBtnDisabled = lastUrlPref.locked || !locBarPref.value;
+
   try {
-    var isBtnDisabled = lastUrlPref.locked;
     if (!isBtnDisabled && !lastUrlPref.hasUserValue) {
       var file = GetUrlbarHistoryFile();
       if (!file.exists())
@@ -22,7 +25,6 @@ function Startup()
   }
   catch(ex) {
   }
-    
   var globalHistButton = document.getElementById("browserClearHistory");
   var globalHistory = Components.classes["@mozilla.org/browser/nav-history-service;1"]
                                 .getService(Components.interfaces.nsINavHistoryService);
@@ -36,10 +38,18 @@ function prefClearGlobalHistory()
   PlacesUtils.history.removeAllPages();
 }
 
-function prefClearUrlbarHistory()
+function prefClearUrlbarHistory(aButton)
 {
   document.getElementById("general.open_location.last_url").valueFromPreferences = "";
   var file = GetUrlbarHistoryFile();
   if (file.exists())
     file.remove(false);
+  aButton.disabled = true;
+}
+
+function prefUrlBarHistoryToggle(aChecked)
+{
+  var file = GetUrlbarHistoryFile();
+  if (file.exists())
+    document.getElementById("ClearUrlBarHistoryButton").disabled = !aChecked;
 }

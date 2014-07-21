@@ -12,6 +12,8 @@
 <!ENTITY  clearHistory.accesskey            "s">
 
 <!ENTITY  locationBarHistory.caption        "Location Bar History">
+<!ENTITY  urlBarHistoryEnabled.caption      "Enable Location Bar history">
+<!ENTITY  urlBarHistoryEnabled.accesskey    "E">
 <!ENTITY  clearLocationBar.label            "Clear the list of websites stored in the location bar menu.">
 <!ENTITY  clearLocationBarButton.label      "Clear Location Bar">
 <!ENTITY  clearLocationBarButton.accesskey  "L">

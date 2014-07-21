@@ -199,6 +199,9 @@
     if (gPrivate)
       return;
 
+    if (!Services.prefs.getBoolPref("browser.urlbar.historyEnabled"))
+      return;
+
     // Remove leading and trailing spaces first
     aUrlToAdd = aUrlToAdd.trim();
 

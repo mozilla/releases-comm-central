@@ -20,6 +20,9 @@
       <preference id="pref.browser.history.disable_button.clear_urlbar"
                   name="pref.browser.history.disable_button.clear_urlbar"
                   type="bool"/>
+      <preference id="browser.urlbar.historyEnabled"
+                  name="browser.urlbar.historyEnabled"
+                  type="bool"/>
       <preference id="general.open_location.last_url"
                   name="general.open_location.last_url"
                   type="string"/>
@@ -39,7 +42,7 @@
               pack="end">
           <button label="&clearHistory.label;"
                   accesskey="&clearHistory.accesskey;"
-                  oncommand="prefClearGlobalHistory(); this.disabled = true;"
+                  oncommand="prefClearGlobalHistory();"
                   id="browserClearHistory"
                   preference="pref.browser.history.disable_button.clear_hist"/>
         </hbox>
@@ -54,15 +57,22 @@
     <groupbox>
       <caption label="&locationBarHistory.caption;"/>
       <hbox align="center">
-        <description flex="1">&clearLocationBar.label;</description>
-        <hbox align="center"
-              pack="end">
-          <button id="ClearUrlBarHistoryButton"
-                  label="&clearLocationBarButton.label;"
-                  accesskey="&clearLocationBarButton.accesskey;"
-                  oncommand="prefClearUrlbarHistory(); this.disabled = true;"
-                  preference="pref.browser.history.disable_button.clear_urlbar"/>
-        </hbox>
+        <vbox pack="end">
+        <checkbox id="urlbarHistoryEnabled"
+                  label="&urlBarHistoryEnabled.caption;"
+                  accesskey="&urlBarHistoryEnabled.accesskey;"
+                  preference="browser.urlbar.historyEnabled"
+                  oncommand="prefUrlBarHistoryToggle(this.checked);"/>
+          <hbox align="center"
+                pack="end">
+            <description flex="1">&clearLocationBar.label;</description>
+            <button id="ClearUrlBarHistoryButton"
+                    label="&clearLocationBarButton.label;"
+                    accesskey="&clearLocationBarButton.accesskey;"
+                    oncommand="prefClearUrlbarHistory(this); this.disabled = true;"
+                    preference="pref.browser.history.disable_button.clear_urlbar"/>
+          </hbox>
+        </vbox>
       </hbox>
     </groupbox>
 
