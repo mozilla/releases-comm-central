@@ -171,36 +171,45 @@
         <menupopup id="viewPickerPopup"
                    onpopupshowing="RefreshViewPopup(this);">
           <menuitem id="viewPickerAll"
+                    class="menuitem-iconic"
                     label="&viewAll.label;"
                     type="radio"
                     name="viewmessages"
                     value="0"/>
           <menuitem id="viewPickerUnread"
+                    class="menuitem-iconic"
                     label="&viewUnread.label;"
                     type="radio"
                     name="viewmessages"
                     value="1"/>
           <menuitem id="viewPickerNotDeleted"
+                    class="menuitem-iconic"
                     label="&viewNotDeleted.label;"
                     type="radio"
                     name="viewmessages"
                     value="3"/>
           <menuseparator id="afterViewPickerUnreadSeparator"/>
-          <menu id="viewPickerTags" label="&viewTags.label;">
+          <menu id="viewPickerTags"
+                class="menu-iconic"
+                label="&viewTags.label;">
             <menupopup id="viewPickerTagsPopup"
                        class="menulist-menupopup"
                        onpopupshowing="RefreshTagsPopup(this);"/>
           </menu>
-          <menu id="viewPickerCustomViews" label="&viewCustomViews.label;">
+          <menu id="viewPickerCustomViews"
+                class="menu-iconic"
+                label="&viewCustomViews.label;">
             <menupopup id="viewPickerCustomViewsPopup"
                        class="menulist-menupopup"
                        onpopupshowing="RefreshCustomViewsPopup(this);"/>
           </menu>
           <menuseparator id="afterViewPickerCustomViewsSeparator"/>
           <menuitem id="viewPickerVirtualFolder"
+                    class="menuitem-iconic"
                     label="&viewVirtualFolder.label;"
                     value="7"/>
           <menuitem id="viewPickerCustomize"
+                    class="menuitem-iconic"
                     label="&viewCustomizeView.label;"
                     value="8"/>
         </menupopup>
