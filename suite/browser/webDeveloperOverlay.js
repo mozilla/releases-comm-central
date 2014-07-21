@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var gWebDeveloper = {
-  validateThisPage: function validateThisPage() {
+  validateThisPage: function() {
     var service = GetLocalizedStringPref("browser.validate.html.service");
     var uri = getBrowser().currentURI;
     var checkURL = service + encodeURIComponent(uri.spec);
@@ -13,20 +13,37 @@ var gWebDeveloper = {
                  { referrerURI: uri, relatedToCurrent: true });
   },
 
-  initMenuItem: function initMenuItem() {
+  enableDebugger: function(aItem) {
+    var shouldEnable = aItem.getAttribute("checked") == "true";
+    Services.prefs.setBoolPref("devtools.debugger.remote-enabled", shouldEnable);
+  },
+
+  handleEvent: function(aEvent) {
+    switch (aEvent.type) {
+      case "load":
+        window.removeEventListener("load", gWebDeveloper, false);
+        var popup = document.getElementById("toolsPopup");
+        popup.addEventListener("popupshowing", gWebDeveloper, false);
+        break;
+      case "popupshowing":
+        this.initMenuItems();
+        break;
+    }
+  },
+
+  initMenuItems: function() {
     var menuitem = document.getElementById("validatePage");
     var uri = getBrowser().currentURI;
     if (uri && (uri.schemeIs("http") || uri.schemeIs("https")))
       menuitem.removeAttribute("disabled");
     else
       menuitem.setAttribute("disabled", true);
-  },
 
-  initOverlay: function initOverlay(aEvent) {
-    window.removeEventListener("load", gWebDeveloper.initOverlay, false);
-    var popup = document.getElementById("toolsPopup");
-    popup.addEventListener("popupshowing", gWebDeveloper.initMenuItem, false);
-  }
+    var enabled = Services.prefs
+                          .getBoolPref("devtools.debugger.remote-enabled");
+    document.getElementById("devtoolsDebugger")
+            .setAttribute("checked", enabled);
+  },
 }
 
-window.addEventListener("load", gWebDeveloper.initOverlay, false);
+window.addEventListener("load", gWebDeveloper, false);

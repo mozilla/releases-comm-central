@@ -45,6 +45,7 @@ const BOOKMARKS_BACKUP_MAX_BACKUPS = 10;
 // Devtools Preferences
 const DEBUGGER_REMOTE_ENABLED = "devtools.debugger.remote-enabled";
 const DEBUGGER_REMOTE_PORT = "devtools.debugger.remote-port";
+const DEBUGGER_FORCE_LOCAL = "devtools.debugger.force-local";
 
 // Constructor
 
@@ -125,6 +126,7 @@ SuiteGlue.prototype = {
               this.dbgStop();
             break;
           case DEBUGGER_REMOTE_PORT:
+          case DEBUGGER_FORCE_LOCAL:
             /**
              * If the server is not on, port changes have nothing to affect.
              * The new value will be picked up if the server is started.
@@ -962,7 +964,9 @@ SuiteGlue.prototype = {
       DebuggerServer.init();
       DebuggerServer.addBrowserActors();
     }
-    DebuggerServer.openListener(port);
+    try {
+      DebuggerServer.openListener(port);
+    } catch(e) {}
   },
 
   dbgStop: function()

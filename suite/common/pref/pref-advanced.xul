@@ -21,6 +21,19 @@
       <preference id="shell.checkDefaultClient"
                   name="shell.checkDefaultClient"
                   type="bool"/>
+      <preference id="devtools.debugger.remote-enabled"
+                  name="devtools.debugger.remote-enabled"
+                  type="bool"/>
+      <preference id="devtools.debugger.force-local"
+                  name="devtools.debugger.force-local"
+                  inverted="true"
+                  type="bool"/>
+      <preference id="devtools.debugger.prompt-connection"
+                  name="devtools.debugger.prompt-connection"
+                  type="bool"/>
+      <preference id="devtools.debugger.remote-port"
+                  name="devtools.debugger.remote-port"
+                  type="int"/>
     </preferences>
 
     <groupbox id="systemPrefs">
@@ -46,6 +59,36 @@
                 label="&submitCrashes.label;"
                 accesskey="&submitCrashes.accesskey;"
                 oncommand="updateSubmitCrashes(this.checked);"/>
+    </groupbox>
+
+    <groupbox id="devTools">
+      <caption id="devToolsCaption" label="&devTools.caption;"/>
+      <checkbox id="allowDebugger"
+                label="&allowDebugger.label;"
+                accesskey="&allowDebugger.accesskey;"
+                preference="devtools.debugger.remote-enabled"/>
+      <checkbox id="allowRemoteConnections"
+                label="&allowRemoteConnections.label;"
+                accesskey="&allowRemoteConnections.accesskey;"
+                preference="devtools.debugger.force-local"/>
+      <checkbox id="connectionPrompt"
+                label="&connectionPrompt.label;"
+                accesskey="&connectionPrompt.accesskey;"
+                preference="devtools.debugger.prompt-connection"/>
+
+      <hbox align="center">
+        <label id="remoteDebuggerPortBefore"
+               value="&remoteDebuggerPort.label;"
+               accesskey="&remoteDebuggerPort.accesskey;"
+               control="remoteDebuggerPort"/>
+        <textbox id="remoteDebuggerPort"
+                 type="number"
+                 min="0"
+                 max="65535"
+                 size="5"
+                 preference="devtools.debugger.remote-port"
+                 aria-labelledby="remoteDebuggerPortBefore remoteDebuggerPort"/>
+      </hbox>
     </groupbox>
   </prefpane>
 </overlay>

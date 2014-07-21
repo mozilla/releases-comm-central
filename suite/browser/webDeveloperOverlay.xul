@@ -16,6 +16,11 @@
               label="&validatePage.label;"
               accesskey="&validatePage.accesskey;"
               oncommand="gWebDeveloper.validateThisPage(); event.stopPropagation();"/>
+    <menuitem id="devtoolsDebugger"
+              type="checkbox"
+              label="&allowRemoteDebugging.label;"
+              accesskey="&allowRemoteDebugging.accesskey;"
+              oncommand="gWebDeveloper.enableDebugger(this);"/>
   </menupopup>
 
 </overlay>
