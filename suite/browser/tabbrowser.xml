@@ -1086,7 +1086,7 @@
         </body>
       </method>
 
-      <method name="onLinkAdded">
+      <method name="onLinkEvent">
         <parameter name="aEvent"/>
         <body>
           <![CDATA[
@@ -1110,6 +1110,9 @@
                this.setIcon(this.tabs[index], iconUri);
              return;
             }
+
+            if (aEvent.type == "DOMLinkChanged")
+              return;
 
             var isFeed = /(?:^|\s)feed(?:\s|$)/i.test(rel) ||
                          (/(?:^|\s)alternate(?:\s|$)/i.test(rel) &&
@@ -2800,7 +2803,8 @@
     <handlers>
       <handler event="select" action="if (event.originalTarget == this.mPanelContainer) this.updateCurrentBrowser();"/>
 
-      <handler event="DOMLinkAdded" phase="capturing" action="this.onLinkAdded(event);"/>
+      <handler event="DOMLinkAdded" phase="capturing" action="this.onLinkEvent(event);"/>
+      <handler event="DOMLinkChanged" phase="capturing" action="this.onLinkEvent(event);"/>
 
       <handler event="DOMWindowClose" phase="capturing">
         <![CDATA[
