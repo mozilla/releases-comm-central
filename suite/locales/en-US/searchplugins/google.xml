@@ -7,7 +7,12 @@
 <Description>Google Search</Description>
 <InputEncoding>UTF-8</InputEncoding>
 <Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABUUlEQVR42pWTzUsCYRCH9y9zu3SooCCkjhIRRLeIykXokiWCJ7PvDpZRlz6si1lIQZ3SQxQdOhREpgSm0JeQvfu0+i6I7LKLh4F5h5nnnRl+o6jTdHn8omAYbVqhXqvYFXcEBKFDwcoZZB8B4LkEB9cwGGmFKHb01A1EU9JXzfdvDYZi1lwLwBcVAIwsNWPesIwls7gDtB2Z7N9ujVe+IX2LO2AgItB1OL9vJqsmILDrOoK02IkBAdYy4FsQJC5h+VQCHQDWTqYSgo8fuHuRxS4Ae3stQ7UGE5ttAHqCUgfxC7m4ryrowOyeO6CxqHwZxtYFqtYc5+kNan/gDTsAeueEIRj7n/rmRQMwueUAGF0VAAT3rQBTC0Y3DoDOGbm00icML4oWHYSTgo0MFqjlmPpDgqMcFCuQf4erBzjOwXjcriu9qHg0uutO2+es6fl67T9ptebvFRjBVgAAAABJRU5ErkJggg==</Image>
-<Url type="application/x-suggestions+json" method="GET" template="https://suggestqueries.google.com/complete/search?output=firefox&amp;client=firefox&amp;hl={moz:locale}&amp;q={searchTerms}"/>
+<Url type="application/x-suggestions+json"
+     method="GET"
+     template="https://www.google.com/complete/search">
+  <Param name="client" value="firefox"/>
+  <Param name="q" value="{searchTerms}"/>
+</Url>
 <Url type="text/html" method="GET" template="https://www.google.com/search">
   <Param name="q" value="{searchTerms}"/>
   <Param name="ie" value="utf-8"/>
@@ -17,5 +22,8 @@
   <Param name="rls" value="{moz:distributionID}:{moz:locale}:{moz:official}"/>
   <MozParam name="client" condition="defaultEngine" trueValue="seamonkey-a" falseValue="seamonkey"/>
 </Url>
-<SearchForm>https://www.google.com/</SearchForm>
+<Url type="text/html"
+     method="GET"
+     template="https://www.google.com/"
+     rel="searchform"/>
 </SearchPlugin>
