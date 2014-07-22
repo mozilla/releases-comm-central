@@ -5,24 +5,24 @@
 
 #include "nsCMS.h"
 
-#include "nsIX509CertDB.h"
 #include "CertVerifier.h"
-#include "CryptoTask.h"
-#include "mozilla/RefPtr.h"
-#include "pkix/pkixtypes.h"
-#include "nsISupports.h"
-#include "nsNSSHelper.h"
-#include "nsNSSCertificate.h"
-#include "ScopedNSSTypes.h"
-#include "smime.h"
 #include "cms.h"
-#include "nsNSSComponent.h"
-#include "nsICMSMessageErrors.h"
-#include "nsIArray.h"
+#include "CryptoTask.h"
 #include "nsArrayUtils.h"
 #include "nsCertVerificationThread.h"
+#include "nsIArray.h"
+#include "nsICMSMessageErrors.h"
+#include "nsICryptoHash.h"
+#include "nsISupports.h"
+#include "nsIX509CertDB.h"
+#include "nsNSSCertificate.h"
+#include "nsNSSComponent.h"
+#include "nsNSSHelper.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/RefPtr.h"
+#include "pkix/pkixtypes.h"
+#include "ScopedNSSTypes.h"
+#include "smime.h"
 
 #include "prlog.h"
 
@@ -619,7 +619,10 @@ loser:
   return rv;
 }
 
-NS_IMETHODIMP nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert, unsigned char* aDigestData, uint32_t aDigestDataLen)
+NS_IMETHODIMP
+nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
+                           unsigned char* aDigestData, uint32_t aDigestDataLen,
+                           int16_t aDigestType)
 {
   NS_ENSURE_ARG(aSigningCert);
   nsNSSShutDownPreventionLock locker;
@@ -640,6 +643,24 @@ NS_IMETHODIMP nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert*
 
   if (aEncryptCert) {
     ecert = aEncryptCert->GetCert();
+  }
+
+  SECOidTag digestType;
+  switch (aDigestType) {
+    case nsICryptoHash::SHA1:
+      digestType = SEC_OID_SHA1;
+      break;
+    case nsICryptoHash::SHA256:
+      digestType = SEC_OID_SHA256;
+      break;
+    case nsICryptoHash::SHA384:
+      digestType = SEC_OID_SHA384;
+      break;
+    case nsICryptoHash::SHA512:
+      digestType = SEC_OID_SHA512;
+      break;
+    default:
+      return NS_ERROR_INVALID_ARG;
   }
 
   /*
@@ -678,8 +699,8 @@ NS_IMETHODIMP nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert*
   /* 
    * create & attach signer information
    */
-  if ((signerinfo = NSS_CMSSignerInfo_Create(m_cmsMsg, scert.get(), SEC_OID_SHA1)) 
-          == nullptr) {
+  signerinfo = NSS_CMSSignerInfo_Create(m_cmsMsg, scert.get(), digestType);
+  if (!signerinfo) {
     PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("nsCMSMessage::CreateSigned - can't create signer info\n"));
     goto loser;
   }
@@ -741,7 +762,7 @@ NS_IMETHODIMP nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert*
     digest.data = aDigestData;
     digest.len = aDigestDataLen;
 
-    if (NSS_CMSSignedData_SetDigestValue(sigd, SEC_OID_SHA1, &digest)) {
+    if (NSS_CMSSignedData_SetDigestValue(sigd, digestType, &digest) != SECSuccess) {
       PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("nsCMSMessage::CreateSigned - can't set digest value\n"));
       goto loser;
     }
