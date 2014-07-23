@@ -181,7 +181,7 @@ let RemoteDebuggerServer = {
 
     Services.prefs.setBoolPref('devtools.debugger.remote-enabled', false);
     try {
-      DebuggerServer.closeListener(aForce);
+      DebuggerServer.closeAllListeners(aForce);
     } catch (e) {
       Components.utils.reportError("Unable to stop debugger server: " + e);
       return false;
