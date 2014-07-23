@@ -5,6 +5,7 @@
 
 EXTRA_JS_MODULES += [
     'calAlarmUtils.jsm',
+    'calAsyncUtils.jsm',
     'calAuthUtils.jsm',
     'calExtract.jsm',
     'calHashedArray.jsm',
