@@ -67,6 +67,7 @@ PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
     this._resolve = resolve;
     this._reject = reject;
   });
+  this._result = { messageKeys: [], messageIds: [] };
 };
 
 PromiseTestUtils.PromiseCopyListener.prototype = {
@@ -82,17 +83,21 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
   SetMessageKey: function(aKey) {
     if (this.wrapped)
       this.wrapped.SetMessageKey(aKey);
+
+    this._result.messageKeys.push(aKey);
   },
   SetMessageId: function(aMessageId) {
     if (this.wrapped)
       this.wrapped.SetMessageId(aMessageId);
+
+    this._result.messageIds.push(aMessageId);
   },
   OnStopCopy: function(aStatus) {
     if (this.wrapped)
       this.wrapped.OnStopCopy(aStatus);
 
     if (aStatus == Cr.NS_OK)
-      this._resolve(aStatus);
+      this._resolve(this._result);
     else
       this._reject(aStatus);
   },
@@ -148,6 +153,70 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
 
   get promise() { return this._promise; }
 };
+
+/**
+ * Folder listener to resolve a promise when a certain folder event occurs.
+ *
+ * @param folder   nsIMsgFolder to listen to
+ * @param event    string event name to listen for. Example event is
+ *                 "DeleteOrMoveMsgCompleted".
+ * @return         promise that resolves when the event occurs
+ */
+
+const nsIMFNService = Ci.nsIMsgFolderNotificationService;
+PromiseTestUtils.promiseFolderEvent = function promiseFolderEvent(folder, event) {
+  return new Promise( (resolve, reject) => {
+    let eventAtom = Cc["@mozilla.org/atom-service;1"]
+                      .getService(Ci.nsIAtomService)
+                      .getAtom(event);
+    let folderListener = {
+      QueryInterface: XPCOMUtils.generateQI([Ci.nsIFolderListener]),
+      OnItemEvent: function onItemEvent(aEventFolder, aEvent) {
+        if (folder === aEventFolder &&
+            event == aEvent) {
+          MailServices.mailSession.RemoveFolderListener(folderListener);
+          resolve();
+        }
+      },
+    };
+    MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
+  });
+};
+
+/**
+ * Folder listener to resolve a promise when a certain folder event occurs.
+ *
+ * @param folder            nsIMsgFolder to listen to
+ * @param listenerMethod    string listener method to listen for. Example listener
+                            method is "msgsClassified".
+ * @return                  promise that resolves when the event occurs
+ */
+PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
+  return new Promise( (resolve, reject) => {
+    let mfnListener = {};
+    mfnListener[listenerMethod] = function() {
+      let args = Array.prototype.slice.call(arguments);
+      let flag = true;
+      for (arg of args) {
+        if (folder && arg instanceof Ci.nsIMsgFolder) {
+          if (arg == folder) {
+            flag = true;
+            break;
+          } else {
+            return;
+          }
+        }
+      }
+
+      if (flag) {
+        MailServices.mfn.removeListener(mfnListener);
+        resolve(args);
+      }
+    }
+    MailServices.mfn.addListener(
+      mfnListener, Ci.nsIMsgFolderNotificationService[listenerMethod]);
+  });
+}
 
 /**
  * Folder listener to resolve a promise when a folder with a certain

@@ -10,13 +10,14 @@
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
-
+Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 load("../../../resources/POP3pump.js");
+
 const gFiles = ["../../../data/bugmail1", "../../../data/bugmail10"];
+
 var gMoveFolder, gMoveFolder2;
 var gFilter; // the test filter
 var gFilterList;
-var gCurTestNum = 1;
 const gTestArray =
 [
   function createFilters() {
@@ -32,18 +33,13 @@ const gTestArray =
     gFilter.enabled = true;
     gFilter.filterType = Ci.nsMsgFilterType.InboxRule;
     gFilterList.insertFilterAt(0, gFilter);
-    ++gCurTestNum;
-    doTest();
   },
   // just get a message into the local folder
-  function getLocalMessages1() {
+  function *getLocalMessages1() {
     gPOP3Pump.files = gFiles;
-    gPOP3Pump.onDone = doTest;
-    ++gCurTestNum;
-    gPOP3Pump.run();
-  },
-  function waitForCopyToFinish() {
-    do_timeout(1000, function() {++gCurTestNum; doTest();});
+    let promise1 = PromiseTestUtils.promiseFolderNotification(gMoveFolder, "msgsClassified");
+    let promise2 = gPOP3Pump.run();
+    yield Promise.all([promise1, promise2]);
   },
   function verifyFolders1() {
     do_check_eq(folderCount(gMoveFolder), 2);
@@ -59,9 +55,6 @@ const gTestArray =
     do_check_true(messageContent.contains("Some User <bugmail@example.org> changed"));
     messageContent = getContentFromMessage(secondMsgHdr);
     do_check_true(messageContent.contains("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
-
-    ++gCurTestNum;
-    doTest();
   },
   function copyMovedMessages() {
     let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -70,9 +63,12 @@ const gTestArray =
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     messages.appendElement(firstMsgHdr, false);
     messages.appendElement(secondMsgHdr, false);
+    let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyMessages(gMoveFolder, messages, gMoveFolder2, false,
-                             copyListener, null, false);
-
+                                   promiseCopyListener, null, false);
+    let promiseMoveMsg =
+      PromiseTestUtils.promiseFolderEvent(gMoveFolder, "DeleteOrMoveMsgCompleted");
+    yield Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
   },
   function verifyFolders2() {
     do_check_eq(folderCount(gMoveFolder2), 2);
@@ -85,10 +81,11 @@ const gTestArray =
     do_check_true(messageContent.contains("Some User <bugmail@example.org> changed"));
     messageContent = getContentFromMessage(secondMsgHdr);
     do_check_true(messageContent.contains("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
-
-    ++gCurTestNum;
-    doTest();
   },
+  function endTest() {
+    dump("Exiting mail tests\n");
+    gPOP3Pump = null;
+  }
 ];
 
 function folderCount(folder)
@@ -109,7 +106,6 @@ function run_test()
   //if ("@mozilla.org/gnome-gconf-service;1" in Cc)
   //  return;
   /**/
-
   // quarantine messages
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
   if (!localAccountUtils.inboxFolder)
@@ -118,78 +114,8 @@ function run_test()
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
   gMoveFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder2");
 
-  MailServices.mailSession.AddFolderListener(FolderListener, Ci.nsIFolderListener.event |
-                                                             Ci.nsIFolderListener.added |
-                                                             Ci.nsIFolderListener.removed);
-
-  // "Master" do_test_pending(), paired with a do_test_finished() at the end of
-  // all the operations.
-  do_test_pending();
-
-  //start first test
-  doTest();
-}
-
-function doTest()
-{
-  var test = gCurTestNum;
-  if (test <= gTestArray.length)
-  {
-    var testFn = gTestArray[test-1];
-    dump("Doing test " + test + " " + testFn.name + "\n");
-
-    try {
-      testFn();
-    } catch(ex) {
-      do_throw ('TEST FAILED ' + ex);
-    }
-  }
-  else
-    do_timeout(1000, endTest);
-}
-
-var copyListener = {
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
-    do_timeout(0, function(){doTest(++gCurTestNum);});
-  }
-};
-
-// nsIFolderListener implementation
-var FolderListener = {
-  OnItemAdded: function OnItemAdded(aParentItem, aItem) {
-    this._showEvent(aParentItem, "OnItemAdded");
-  },
-  OnItemRemoved: function OnItemRemoved(aParentItem, aItem) {
-    this._showEvent(aParentItem, "OnItemRemoved");
-    // continue test, as all tests remove a message during the move
-    do_timeout(0, doTest);
-  },
-  OnItemEvent: function OnItemEvent(aEventFolder, aEvent) {
-    this._showEvent(aEventFolder, aEvent.toString())
-  },
-  _showEvent: function showEvent(aFolder, aEventString) {
-        dump("received folder event " + aEventString +
-         " folder " + aFolder.name +
-         "\n");
-  }
-};
-
-function endTest()
-{
-  // Cleanup, null out everything, close all cached connections and stop the
-  // server
-  dump("Exiting mail tests\n");
-  let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
-    thread.processNextEvent(true);
-  gPOP3Pump = null;
-
-  do_test_finished(); // for the one in run_test()
+  gTestArray.forEach(add_task);
+  run_next_test();
 }
 
 /*
