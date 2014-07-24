@@ -15,7 +15,6 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
     SOURCES += ['trayPlatformGtk2.cpp']
 
 IS_COMPONENT = True
-FORCE_SHARED_LIB = True
 
 LIBRARY_NAME = 'trayToolkit'
 
@@ -30,3 +29,9 @@ EXPORTS += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
+
+USE_LIBS += [
+    'mozalloc',
+    'xpcomglue_s',
+    'xul',
+]
