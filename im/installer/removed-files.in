@@ -201,7 +201,6 @@ defaults/profile/US/mimeTypes.rdf
 #endif /* XP_WIN */
 #ifdef UNIX_BUT_NOT_MAC
 chrome/icons/default/default.xpm
-components/libdbusservice.so
 #endif
 # old libpurple. Those files are now statically linked...
 components/@DLL_PREFIX@purpleloader@DLL_SUFFIX@
