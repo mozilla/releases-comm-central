@@ -1740,7 +1740,7 @@ function binarySearch(itemArray, newItem, comptor) {
     function binarySearchInternal(low, high) {
         // Are we done yet?
         if (low == high) {
-            return low + (comptor(newItem, itemArray[low]) < 0 ? 0 : 1);
+            return low + (comptor(newItem, itemArray[low]) <= 0 ? 0 : 1);
         }
 
         var mid = Math.floor(low + ((high - low) / 2));
