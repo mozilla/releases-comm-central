@@ -734,7 +734,7 @@ const XMPPAccountPrototype = {
   remove: function() {
     this._conv.forEach(conv => conv.close());
     this._mucs.forEach(muc => muc.close());
-    this._buddies.forEach(jid => this._forgetRosterItem(jid));
+    this._buddies.forEach((buddy, jid) => this._forgetRosterItem(jid));
   },
 
   unInit: function() {
