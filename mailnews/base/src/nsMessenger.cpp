@@ -37,7 +37,6 @@
 
 // gecko
 #include "nsLayoutCID.h"
-#include "nsIMarkupDocumentViewer.h"
 #include "nsIContentViewer.h"
 
 // embedding
@@ -295,12 +294,8 @@ NS_IMETHODIMP nsMessenger::SetDisplayCharset(const nsACString& aCharset)
     mDocShell->GetContentViewer(getter_AddRefs(cv));
     if (cv)
     {
-      nsCOMPtr<nsIMarkupDocumentViewer> muDV = do_QueryInterface(cv);
-      if (muDV)
-      {
-        muDV->SetHintCharacterSet(aCharset);
-        muDV->SetHintCharacterSetSource(kCharsetFromChannel);
-      }
+      cv->SetHintCharacterSet(aCharset);
+      cv->SetHintCharacterSetSource(kCharsetFromChannel);
 
       mCurrentDisplayCharset = aCharset;
     }

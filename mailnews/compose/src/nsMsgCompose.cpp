@@ -60,7 +60,6 @@
 #include "nsUnicharUtils.h"
 #include "nsNetUtil.h"
 #include "nsIContentViewer.h"
-#include "nsIMarkupDocumentViewer.h"
 #include "nsIMsgMdnGenerator.h"
 #include "plbase64.h"
 #include "nsUConvCID.h"
@@ -1542,10 +1541,7 @@ NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, nsIDOMWindow* aConten
   NS_ENSURE_SUCCESS(docShell->GetContentViewer(getter_AddRefs(childCV)), NS_ERROR_FAILURE);
   if (childCV)
   {
-    nsCOMPtr<nsIMarkupDocumentViewer> markupCV = do_QueryInterface(childCV);
-    if (markupCV) {
-      NS_ENSURE_SUCCESS(markupCV->SetForceCharacterSet(msgCharSet), NS_ERROR_FAILURE);
-    }
+    NS_ENSURE_SUCCESS(childCV->SetForceCharacterSet(msgCharSet), NS_ERROR_FAILURE);
   }
 
   // This is what used to be done in mDocumentListener,

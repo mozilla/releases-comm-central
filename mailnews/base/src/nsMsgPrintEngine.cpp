@@ -21,7 +21,6 @@
 #include "nsMsgUtils.h"
 #include "nsIWebProgress.h"
 #include "nsIInterfaceRequestorUtils.h"
-#include "nsIMarkupDocumentViewer.h"
 #include "nsMsgPrintEngine.h"
 #include "nsIDocumentLoader.h"
 #include "nsIPrefService.h"
@@ -512,11 +511,7 @@ nsMsgPrintEngine::InitializeDisplayCharset()
     mDocShell->GetContentViewer(getter_AddRefs(cv));
     if (cv) 
     {
-      nsCOMPtr<nsIMarkupDocumentViewer> muDV = do_QueryInterface(cv);
-      if (muDV) 
-      {
-        muDV->SetForceCharacterSet(NS_LITERAL_CSTRING("UTF-8"));
-      }
+      cv->SetForceCharacterSet(NS_LITERAL_CSTRING("UTF-8"));
     }
   }
 }

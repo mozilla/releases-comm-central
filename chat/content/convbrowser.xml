@@ -144,7 +144,7 @@
                 readonly="true"/>
 
       <property name="markupDocumentViewer"
-                onget="return this.docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);"
+                onget="return this.docShell.contentViewer;"
                 readonly="true"/>
 
       <method name="enableMagicCopy">
