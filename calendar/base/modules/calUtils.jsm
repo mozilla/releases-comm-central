@@ -245,13 +245,24 @@ let cal = {
     },
 
     /**
-     * Returns a basically checked recipient string - malformed parts will be removed
+     * Returns a basically checked recipient list - malformed elements will be removed
+     *
+     * @param   string aRecipients  a comma-seperated list of e-mail addresses
+     * @return  string              a comma-seperated list of e-mail addresses
      */
-    validateRecipients: function cal_validRecipients(aRecipients) {
-        let fields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
-                     .createInstance(Components.interfaces.nsIMsgCompFields);
+    validateRecipientList: function (aRecipients) {
+        let compFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
+                                   .createInstance(Components.interfaces.nsIMsgCompFields);
+        // Resolve the list considering also configured display names
         let result = compFields.splitRecipients(aRecipients, false, {});
-        return (!result.length) ? result.join(",") : "";
+        // Malformed e-mail addresses with display name in list will result in "Display name <>".
+        // So, we need an additional check on the e-mail address itself and sort out malformed
+        // entries from the previous list (both objects have always the same length)
+        if (result.length > 0) {
+            let resultAddress = compFields.splitRecipients(aRecipients, true, {});
+            result = result.filter((v, idx) => !!resultAddress[idx]);
+        }
+        return result.join(",");
     },
 
     /**

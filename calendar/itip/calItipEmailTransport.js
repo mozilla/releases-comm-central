@@ -236,11 +236,18 @@ calItipEmailTransport.prototype = {
                     composeFields.to = toList;
                     composeFields.from = identity.email;
                     composeFields.replyTo = identity.replyTo;
+                    let validRecipients;
                     if (identity.doCc) {
-                        composeFields.cc = cal.validateRecipients(identity.doCcList);
+                        validRecipients = cal.validateRecipientList(identity.doCcList);
+                        if (validRecipients != "") {
+                            composeFields.cc = validRecipients;
+                        }
                     }
                     if (identity.doBcc) {
-                        composeFields.bcc = cal.validateRecipients(identity.doBccList);
+                        validRecipients = cal.validateRecipientList(identity.doBccList);
+                        if (validRecipients != "") {
+                            composeFields.bcc = validRecipients;
+                        }
                     }
 
                     // xxx todo: add send/progress UI, maybe recycle
@@ -314,12 +321,19 @@ calItipEmailTransport.prototype = {
                             "To: " + aToList + "\r\n" +
                             "Date: " + (new Date()).toUTCString() + "\r\n" +
                             "Subject: " + encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
-                            if (aIdentity.doCc) {
-                                mailText += ("Cc: " + cal.validRecipients(aIdentity.doCcList) + "\r\n");
-                            }
-                            if (aIdentity.doBcc) {
-                                mailText += ("Bcc: " + cal.validRecipients(aIdentity.doBccList) + "\r\n");
-                            }
+            let validRecipients;
+            if (aIdentity.doCc) {
+                validRecipients = cal.validateRecipientList(aIdentity.doCcList);
+                if (validRecipients != "") {
+                    mailText += ("Cc: " + validRecipients + "\r\n");
+                }
+            }
+            if (aIdentity.doBcc) {
+                validRecipients = cal.validateRecipientList(aIdentity.doBccList);
+                if (validRecipients != "") {
+                    mailText += ("Bcc: " + validRecipients + "\r\n");
+                }
+            }
             switch (compatMode) {
                 case 1:
                     mailText += ("Content-class: urn:content-classes:calendarmessage\r\n" +
