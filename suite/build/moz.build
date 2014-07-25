@@ -7,7 +7,6 @@ SOURCES += [
     'nsSuiteModule.cpp',
 ]
 
-FORCE_SHARED_LIB = True
 IS_COMPONENT = True
 
 LIBRARY_NAME = 'suite'
@@ -19,3 +18,23 @@ LOCAL_INCLUDES += [
     '/suite/shell/src',
 ]
 
+USE_LIBS += [
+    'mozalloc',
+    'unicharutil_external_s',
+    'xul',
+]
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    USE_LIBS += [
+        'xpcomglue_staticruntime_s',
+    ]
+else:
+    USE_LIBS += [
+        'xpcomglue_s',
+    ]
+
+# js needs to come after xul for now, because it is an archive and its content
+# is discarded when it comes first.
+USE_LIBS += [
+    'js',
+]

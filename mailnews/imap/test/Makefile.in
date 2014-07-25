@@ -13,12 +13,5 @@ include $(DEPTH)/config/autoconf.mk
 
 include $(topsrcdir)/config/rules.mk
 
-LIBS += $(XPCOM_GLUE_LDOPTS)
-
-LIBS += 	\
-		../src/$(LIB_PREFIX)msgimap_s.$(LIB_SUFFIX) \
-		../../base/util/$(LIB_PREFIX)msgbsutl_s.$(LIB_SUFFIX) \
-		$(XPCOM_LIBS) \
-		$(NSPR_LIBS) \
-		$(MOZ_ZLIB_LIBS) \
-		$(NULL)
+EXTRA_LIBS += $(NSPR_LIBS)
+OS_LIBS += $(MOZ_ZLIB_LIBS)

@@ -86,15 +86,14 @@ ifdef CPP_UNIT_TESTS
 # Compile the tests to $(DIST)/bin.  Make lots of niceties available by default
 # through TestHarness.h, by modifying the list of includes and the libs against
 # which stuff links.
-CPPSRCS += $(CPP_UNIT_TESTS)
-SIMPLE_PROGRAMS += $(CPP_UNIT_TESTS:.cpp=$(BIN_SUFFIX))
+SIMPLE_PROGRAMS += $(CPP_UNIT_TESTS)
 INCLUDES += -I$(DIST)/include/testing
-LIBS += $(XPCOM_GLUE_LDOPTS) $(NSPR_LIBS)
+LIBS += $(NSPR_LIBS)
 
 # ...and run them the usual way
 check::
 	@$(EXIT_ON_ERROR) \
-	  for f in $(subst .cpp,$(BIN_SUFFIX),$(CPP_UNIT_TESTS)); do \
+	  for f in $(CPP_UNIT_TESTS); do \
 	    XPCOM_DEBUG_BREAK=stack-and-abort $(RUN_TEST_PROGRAM) $(DIST)/bin/$$f; \
 	  done
 
@@ -113,15 +112,24 @@ endif # ENABLE_TESTS
 #
 
 ifndef LIBRARY
-ifdef STATIC_LIBRARY_NAME
-REAL_LIBRARY		:= $(LIB_PREFIX)$(STATIC_LIBRARY_NAME).$(LIB_SUFFIX)
+ifdef REAL_LIBRARY
+# Don't build actual static library if a shared library is also built
+ifdef FORCE_SHARED_LIB
+# ... except when we really want one
+ifdef NO_EXPAND_LIBS
+LIBRARY			:= $(REAL_LIBRARY) $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
+else
+LIBRARY			:= $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
+endif
+else
 # Only build actual library if it is installed in DIST/lib or SDK
 ifeq (,$(SDK_LIBRARY)$(DIST_INSTALL)$(NO_EXPAND_LIBS))
 LIBRARY			:= $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
 else
 LIBRARY			:= $(REAL_LIBRARY) $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
 endif
-endif # STATIC_LIBRARY_NAME
+endif
+endif # REAL_LIBRARY
 endif # LIBRARY
 
 ifndef HOST_LIBRARY
@@ -131,49 +139,18 @@ endif
 endif
 
 ifdef LIBRARY
-ifdef MKSHLIB
 ifdef FORCE_SHARED_LIB
+ifdef MKSHLIB
 
 ifdef LIB_IS_C_ONLY
 MKSHLIB			= $(MKCSHLIB)
 endif
 
-ifneq (,$(filter WINNT,$(OS_ARCH)))
-IMPORT_LIBRARY		:= $(LIB_PREFIX)$(SHARED_LIBRARY_NAME).$(IMPORT_LIB_SUFFIX)
-endif
-
-ifdef MAKE_FRAMEWORK
-SHARED_LIBRARY		:= $(SHARED_LIBRARY_NAME)
-else
-SHARED_LIBRARY		:= $(DLL_PREFIX)$(SHARED_LIBRARY_NAME)$(DLL_SUFFIX)
-endif
-
 EMBED_MANIFEST_AT=2
 
-endif # FORCE_SHARED_LIB
-
-ifdef SONAME
-DSO_SONAME = $(DLL_PREFIX)$(SONAME)$(DLL_SUFFIX)
-else
-DSO_SONAME = $(notdir $@)
-endif
-
 endif # MKSHLIB
+endif # FORCE_SHARED_LIB
 endif # LIBRARY
-
-ifdef FORCE_STATIC_LIB
-ifndef FORCE_SHARED_LIB
-SHARED_LIBRARY		:= $(NULL)
-DEF_FILE		:= $(NULL)
-IMPORT_LIBRARY		:= $(NULL)
-endif
-endif
-
-ifdef FORCE_SHARED_LIB
-ifndef FORCE_STATIC_LIB
-LIBRARY := $(NULL)
-endif
-endif
 
 ifeq ($(OS_ARCH),WINNT)
 ifndef GNU_CC
@@ -264,7 +241,7 @@ ALL_TRASH = \
 	$(GARBAGE) $(TARGETS) $(OBJS) $(PROGOBJS) LOGS TAGS a.out \
 	$(filter-out $(ASFILES),$(OBJS:.$(OBJ_SUFFIX)=.s)) $(OBJS:.$(OBJ_SUFFIX)=.ii) \
 	$(OBJS:.$(OBJ_SUFFIX)=.i) \
-	$(HOST_PROGOBJS) $(HOST_OBJS) $(IMPORT_LIBRARY) $(DEF_FILE)\
+	$(HOST_PROGOBJS) $(HOST_OBJS) $(IMPORT_LIBRARY) \
 	$(EXE_DEF_FILE) so_locations _gen _stubs $(wildcard *.res) $(wildcard *.RES) \
 	$(wildcard *.pdb) $(CODFILE) $(MAPFILE) $(IMPORT_LIBRARY) \
 	$(SHARED_LIBRARY:$(DLL_SUFFIX)=.exp) $(wildcard *.ilk) \
@@ -643,7 +620,7 @@ ifdef PROGRAM
 endif
 ifdef SHARED_LIBRARY
 	$(PYTHON) $(MOZILLA_SRCDIR)/build/win32/pgomerge.py \
-	  $(SHARED_LIBRARY_NAME) $(DIST)/bin
+	  $(patsubst $(DLL_PREFIX)%$(DLL_SUFFIX),%,$(SHARED_LIBRARY)) $(DIST)/bin
 endif
 endif # SHARED_LIBRARY || PROGRAM
 endif # WINNT_
@@ -701,7 +678,7 @@ ifdef MOZ_PROFILE_GENERATE
 	touch -t `date +%Y%m%d%H%M.%S -d "now+5seconds"` pgo.relink
 endif
 else # !WINNT || GNU_CC
-	$(EXPAND_CCC) -o $@ $(CXXFLAGS) $(PROGOBJS) $(RESFILE) $(WIN32_EXE_LDFLAGS) $(LDFLAGS) $(WRAP_LDFLAGS) $(MOZ_GLUE_PROGRAM_LDFLAGS) $(LIBS_DIR) $(LIBS) $(OS_LIBS) $(EXTRA_LIBS) $(BIN_FLAGS) $(EXE_DEF_FILE)
+	$(EXPAND_CCC) -o $@ $(CXXFLAGS) $(PROGOBJS) $(RESFILE) $(WIN32_EXE_LDFLAGS) $(LDFLAGS) $(WRAP_LDFLAGS) $(LIBS) $(MOZ_GLUE_PROGRAM_LDFLAGS) $(EXTRA_LIBS) $(OS_LIBS) $(BIN_FLAGS) $(EXE_DEF_FILE) $(STLPORT_LIBS)
 endif # WINNT && !GNU_CC
 
 ifdef ENABLE_STRIP
@@ -754,7 +731,7 @@ ifdef MSMANIFEST_TOOL
 	fi
 endif	# MSVC with manifest tool
 else
-	$(EXPAND_CCC) $(CXXFLAGS) -o $@ $< $(WIN32_EXE_LDFLAGS) $(LDFLAGS) $(MOZ_GLUE_PROGRAM_LDFLAGS) $(WRAP_LDFLAGS) $(LIBS_DIR) $(LIBS) $(OS_LIBS) $(EXTRA_LIBS) $(BIN_FLAGS)
+	$(EXPAND_CCC) $(CXXFLAGS) -o $@ $< $(WIN32_EXE_LDFLAGS) $(LDFLAGS) $(WRAP_LDFLAGS) $(LIBS) $(MOZ_GLUE_PROGRAM_LDFLAGS) $(EXTRA_LIBS) $(OS_LIBS) $(BIN_FLAGS) $(STLPORT_LIBS)
 endif # WINNT && !GNU_CC
 
 ifdef ENABLE_STRIP
@@ -779,15 +756,15 @@ ifdef DTRACE_PROBE_OBJ
 EXTRA_DEPS += $(DTRACE_PROBE_OBJ)
 endif
 
-$(filter %.$(LIB_SUFFIX),$(LIBRARY)): $(OBJS) $(LOBJS) $(EXTRA_DEPS) $(GLOBAL_DEPS)
+$(filter %.$(LIB_SUFFIX),$(LIBRARY)): $(OBJS) $(EXTRA_DEPS) $(GLOBAL_DEPS)
 	$(RM) $(LIBRARY)
-	$(EXPAND_AR) $(AR_FLAGS) $(OBJS) $(LOBJS) $(SHARED_LIBRARY_LIBS)
+	$(EXPAND_AR) $(AR_FLAGS) $(OBJS) $(SHARED_LIBRARY_LIBS) $(filter %.$(LIB_SUFFIX),$(EXTRA_LIBS))
 	$(RANLIB) $@
 
-$(filter-out %.$(LIB_SUFFIX),$(LIBRARY)): $(filter %.$(LIB_SUFFIX),$(LIBRARY)) $(OBJS) $(LOBJS) $(EXTRA_DEPS) $(GLOBAL_DEPS)
+$(filter-out %.$(LIB_SUFFIX),$(LIBRARY)): $(filter %.$(LIB_SUFFIX),$(LIBRARY)) $(OBJS) $(EXTRA_DEPS) $(GLOBAL_DEPS)
 # When we only build a library descriptor, blow out any existing library
 	$(if $(filter %.$(LIB_SUFFIX),$(LIBRARY)),,$(RM) $(REAL_LIBRARY))
-	$(EXPAND_LIBS_GEN) -o $@ $(OBJS) $(LOBJS) $(SHARED_LIBRARY_LIBS)
+	$(EXPAND_LIBS_GEN) -o $@ $(OBJS) $(SHARED_LIBRARY_LIBS) $(filter %.$(LIB_SUFFIX),$(EXTRA_LIBS))
 
 ifeq ($(OS_ARCH),WINNT)
 $(IMPORT_LIBRARY): $(SHARED_LIBRARY)
@@ -814,17 +791,18 @@ endif
 # symlinks back to the originals. The symlinks are a no-op for stabs debugging,
 # so no need to conditionalize on OS version or debugging format.
 
-$(SHARED_LIBRARY): $(OBJS) $(LOBJS) $(DEF_FILE) $(RESFILE) $(LIBRARY) $(EXTRA_DEPS) $(DSO_LDOPTS_DEPS) $(GLOBAL_DEPS)
+$(SHARED_LIBRARY): $(OBJS) $(RESFILE) $(LIBRARY) $(EXTRA_DEPS) $(DSO_LDOPTS_DEPS) $(GLOBAL_DEPS)
 ifndef INCREMENTAL_LINKER
-	rm -f $@
+	$(RM) $@
 endif
 ifdef DTRACE_LIB_DEPENDENT
 ifndef XP_MACOSX
 	dtrace -G -C -s $(MOZILLA_DTRACE_SRC) -o  $(DTRACE_PROBE_OBJ) $(shell $(EXPAND_LIBS) $(MOZILLA_PROBE_LIBS))
 endif
-	$(EXPAND_MKSHLIB) $(SHLIB_LDSTARTFILE) $(OBJS) $(LOBJS) $(SUB_SHLOBJS) $(DTRACE_PROBE_OBJ) $(MOZILLA_PROBE_LIBS) $(RESFILE) $(LDFLAGS) $(MOZ_GLUE_LDFLAGS) $(WRAP_LDFLAGS) $(SHARED_LIBRARY_LIBS) $(EXTRA_DSO_LDOPTS) $(OS_LIBS) $(EXTRA_LIBS) $(DEF_FILE) $(SHLIB_LDENDFILE)
+	$(EXPAND_MKSHLIB) $(SHLIB_LDSTARTFILE) $(OBJS) $(SUB_SHLOBJS) $(DTRACE_PROBE_OBJ) $(MOZILLA_PROBE_LIBS) $(RESFILE) $(LDFLAGS) $(WRAP_LDFLAGS) $(SHARED_LIBRARY_LIBS) $(EXTRA_DSO_LDOPTS) $(MOZ_GLUE_LDFLAGS) $(EXTRA_LIBS) $(OS_LIBS) $(SHLIB_LDENDFILE) $(if $(LIB_IS_C_ONLY),,$(STLPORT_LIBS))
+	@$(RM) $(DTRACE_PROBE_OBJ)
 else # ! DTRACE_LIB_DEPENDENT
-	$(EXPAND_MKSHLIB) $(SHLIB_LDSTARTFILE) $(OBJS) $(DTRACE_PROBE_OBJ) $(LOBJS) $(SUB_SHLOBJS) $(RESFILE) $(LDFLAGS) $(MOZ_GLUE_LDFLAGS) $(WRAP_LDFLAGS) $(SHARED_LIBRARY_LIBS) $(EXTRA_DSO_LDOPTS) $(OS_LIBS) $(EXTRA_LIBS) $(DEF_FILE) $(SHLIB_LDENDFILE)
+	$(EXPAND_MKSHLIB) $(SHLIB_LDSTARTFILE) $(OBJS) $(SUB_SHLOBJS) $(RESFILE) $(LDFLAGS) $(WRAP_LDFLAGS) $(SHARED_LIBRARY_LIBS) $(EXTRA_DSO_LDOPTS) $(MOZ_GLUE_LDFLAGS) $(EXTRA_LIBS) $(OS_LIBS) $(SHLIB_LDENDFILE) $(if $(LIB_IS_C_ONLY),,$(STLPORT_LIBS))
 endif # DTRACE_LIB_DEPENDENT
 
 ifeq (_WINNT,$(GNU_CC)_$(OS_ARCH))

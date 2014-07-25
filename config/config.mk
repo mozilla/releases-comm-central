@@ -40,6 +40,7 @@ _MOZBUILD_EXTERNAL_VARIABLES := \
   CPP_UNIT_TESTS \
   DIRS \
   DIST_SUBDIR \
+  EXTRA_DSO_LDOPTS \
   EXTRA_PP_COMPONENTS \
   EXTRA_PP_JS_MODULES \
   FINAL_LIBRARY \
@@ -53,13 +54,19 @@ _MOZBUILD_EXTERNAL_VARIABLES := \
   JAR_MANIFEST \
   JS_MODULES_PATH \
   LIBRARY_NAME \
+  LIBS \
   LIBXUL_LIBRARY \
+  MAKE_FRAMEWORK \
   MODULE \
   MSVC_ENABLE_PGO \
   NO_DIST_INSTALL \
   PARALLEL_DIRS \
   SDK_HEADERS \
+  SDK_LIBRARY \
+  SHARED_LIBRARY_LIBS \
+  SHARED_LIBRARY_NAME \
   SIMPLE_PROGRAMS \
+  STATIC_LIBRARY_NAME \
   TEST_DIRS \
   TIERS \
   TOOL_DIRS \
@@ -234,8 +241,6 @@ else
   endif
 endif
 
-MOZALLOC_LIB = $(call EXPAND_MOZLIBNAME,mozalloc)
-
 OS_CFLAGS += $(_DEBUG_CFLAGS)
 OS_CXXFLAGS += $(_DEBUG_CFLAGS)
 OS_LDFLAGS += $(_DEBUG_LDFLAGS)
@@ -302,31 +307,7 @@ endif
 ifdef MODULE_NAME
 $(error MODULE_NAME is $(MODULE_NAME) but MODULE_NAME and LIBXUL_LIBRARY are not compatible)
 endif
-FORCE_STATIC_LIB=1
 SHORT_LIBNAME=
-endif
-
-# If we are building this component into an extension/xulapp, it cannot be
-# statically linked. In the future we may want to add a xulapp meta-component
-# build option.
-
-ifdef XPI_NAME
-ifdef IS_COMPONENT
-FORCE_STATIC_LIB=
-FORCE_SHARED_LIB=1
-endif
-endif
-
-ifndef SHARED_LIBRARY_NAME
-ifdef LIBRARY_NAME
-SHARED_LIBRARY_NAME=$(LIBRARY_NAME)
-endif
-endif
-
-ifndef STATIC_LIBRARY_NAME
-ifdef LIBRARY_NAME
-STATIC_LIBRARY_NAME=$(LIBRARY_NAME)
-endif
 endif
 
 # Enable profile-based feedback
@@ -513,17 +494,6 @@ endif
 #
 # Override defaults
 
-# We need to know where to find the libraries we
-# put on the link line for binaries, and should
-# we link statically or dynamic?  Assuming dynamic for now.
-
-ifneq (WINNT_,$(OS_ARCH)_$(GNU_CC))
-LIBS_DIR	= -L$(DIST)/bin -L$(DIST)/lib
-ifdef LIBXUL_SDK
-LIBS_DIR	+= -L$(LIBXUL_SDK)/bin -L$(LIBXUL_SDK)/lib
-endif
-endif
-
 # Default location of include files
 IDL_PARSER_DIR = $(topsrcdir)/xpcom/idl-parser
 IDL_PARSER_CACHE_DIR = $(DEPTH)/xpcom/idl-parser
@@ -532,8 +502,6 @@ SDK_LIB_DIR = $(DIST)/sdk/lib
 SDK_BIN_DIR = $(DIST)/sdk/bin
 
 DEPENDENCIES	= .md
-
-MOZ_COMPONENT_LIBS=$(XPCOM_LIBS) $(MOZ_COMPONENT_NSPR_LIBS)
 
 ifeq (xpconnect, $(findstring xpconnect, $(BUILD_MODULES)))
 DEFINES +=  -DXPCONNECT_STANDALONE
@@ -774,7 +742,7 @@ export CL_INCLUDES_PREFIX
 
 ifneq (,$(MOZ_LIBSTDCXX_TARGET_VERSION)$(MOZ_LIBSTDCXX_HOST_VERSION))
 ifdef MOZ_LIBSTDCXX_TARGET_VERSION
-EXTRA_LIBS += $(call EXPAND_LIBNAME_PATH,stdc++compat,$(DEPTH)/mozilla/build/unix/stdc++compat)
+OS_LIBS += $(call EXPAND_LIBNAME_PATH,stdc++compat,$(DEPTH)/mozilla/build/unix/stdc++compat)
 endif
 ifdef MOZ_LIBSTDCXX_HOST_VERSION
 HOST_EXTRA_LIBS += $(call EXPAND_LIBNAME_PATH,host_stdc++compat,$(DEPTH)/mozilla/build/unix/stdc++compat)

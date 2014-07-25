@@ -12,9 +12,16 @@ SOURCES += [
     'nsMorkFactory.cpp',
 ]
 
+USE_LIBS += [
+    'mozalloc',
+]
+
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     IS_COMPONENT = True
-    FORCE_SHARED_LIB = True
+    USE_LIBS += [
+        'xpcomglue_s',
+        'xul',
+    ]
 else:
     FINAL_LIBRARY = 'xul'
 

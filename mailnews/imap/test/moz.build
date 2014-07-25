@@ -11,3 +11,10 @@ LOCAL_INCLUDES += [
    '/mozilla/xpcom/tests',
 ]
 
+USE_LIBS += [
+    'mozalloc',
+    'msgbsutl_s',
+    'msgimap_s',
+    'xpcomglue_s',
+    'xul',
+]

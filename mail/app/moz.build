@@ -13,3 +13,7 @@ if not CONFIG['LIBXUL_SDK']:
         '/mozilla/xpcom/base',
         '/mozilla/xpcom/build',
     ]
+
+USE_LIBS += [
+    'xpcomglue',
+]

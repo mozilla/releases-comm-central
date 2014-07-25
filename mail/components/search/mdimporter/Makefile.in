@@ -21,7 +21,7 @@ INSTALL_TARGETS += PLIST
 CFLAGS += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
 # We don't need mozglue
 WRAP_LDFLAGS :=
-LIBS += \
+OS_LDFLAGS += \
   -framework CoreFoundation \
   -framework CoreServices \
   $(NULL)

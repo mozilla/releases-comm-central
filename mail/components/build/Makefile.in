@@ -11,12 +11,8 @@ include $(DEPTH)/config/autoconf.mk
 
 ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
 MODULE_NAME	= nsMailCompsModule
-EXTRA_DSO_LDOPTS += \
-	$(XPCOM_GLUE_LDOPTS) \
-	$(NSPR_LIBS) \
-	$(GLIB_LIBS) \
-	$(call EXPAND_LIBNAME_PATH,unicharutil_external_s,$(LIBXUL_DIST)/lib) \
-	$(NULL)
+EXTRA_LIBS += $(NSPR_LIBS)
+OS_LIBS += $(GLIB_LIBS)
 endif
 
 ifeq ($(OS_ARCH),WINNT)

@@ -7,7 +7,6 @@ SOURCES += [
     'calBaseModule.cpp',
 ]
 
-FORCE_SHARED_LIB = True
 IS_COMPONENT = True
 
 LIBRARY_NAME = 'calbasecomps'
@@ -15,3 +14,21 @@ LOCAL_INCLUDES += [
     '..'
 ]
 
+USE_LIBS += [
+        'mozalloc',
+        'xul',
+    ]
+
+if CONFIG['JS_SHARED_LIBRARY']:
+    USE_LIBS += [
+        'js',
+    ]
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    USE_LIBS += [
+        'xpcomglue_staticruntime_s',
+    ]
+else:
+    USE_LIBS += [
+        'xpcomglue_s',
+    ]

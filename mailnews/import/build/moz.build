@@ -7,11 +7,26 @@ SOURCES += [
     'nsImportModule.cpp',
 ]
 
+USE_LIBS += [
+    'mozalloc',
+]
+
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     IS_COMPONENT = True
-    FORCE_SHARED_LIB = True
+    USE_LIBS += [
+        'rdfutil_external_s',
+        'unicharutil_external_s',
+        'xpcomglue_s',
+        'xul',
+    ]
 else:
     FINAL_LIBRARY = 'xul'
+
+# js needs to come after xul for now, because it is an archive and its content
+# is discarded when it comes first.
+USE_LIBS += [
+    'js',
+]
 
 LIBRARY_NAME = 'import'
 

@@ -26,9 +26,21 @@ EXTRA_COMPONENTS += [
     'nsLDAPProtocolHandler.js',
 ]
 
+USE_LIBS += [
+    'mozalloc',
+]
+
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     IS_COMPONENT = True
-    FORCE_SHARED_LIB = True
+    USE_LIBS += [
+        'xpcomglue_s',
+        'xul',
+    ]
+# js needs to come after xul for now, because it is an archive and its content
+# is discarded when it comes first.
+    USE_LIBS += [
+        'js',
+    ]
 else:
     FINAL_LIBRARY = 'xul'
 
