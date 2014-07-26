@@ -5,7 +5,7 @@
 
 include $(topsrcdir)/config/rules.mk
 
-PROPS2ARRAYS := $(MOZILLA_DIR)/intl/locale/src/props2arrays.py
+PROPS2ARRAYS := $(MOZILLA_DIR)/intl/locale/props2arrays.py
 charsetalias.properties.h: $(PROPS2ARRAYS) charsetalias.properties
 	$(PYTHON) $^ $@
 
