@@ -451,6 +451,13 @@ o.add_option("--chatzilla-rev", dest = "chatzilla_rev",
              default = None,
              help = "Revision of ChatZilla repository to update to. Default: \"" + get_DEFAULT_tag('CHATZILLA_REV') + "\"")
 
+o.add_option("--skip-venkman", dest="skip_venkman",
+             action="store_true", default=False,
+             help="Obsolete option, supported for backwards compat.")
+o.add_option("--venkman-rev", dest="venkman_rev",
+             default=None,
+             help="Obsolete option, supported for backwards compat.")
+
 o.add_option("--hg", dest="hg", default=os.environ.get('HG', 'hg'),
              help="The location of the hg binary")
 o.add_option("-v", "--verbose", dest="verbose",
