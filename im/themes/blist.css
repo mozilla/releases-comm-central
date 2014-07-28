@@ -505,6 +505,7 @@ group[closed] .twisty {
 .userIconPanelButton {
   -moz-appearance: none;
   -moz-user-focus: normal;
+  border: none;
   font-size: 14px;
   border-top: 1px solid hsla(210, 4%, 10%, 0.14);
   background-color: hsla(210, 4%, 10%, 0.07);
@@ -594,10 +595,6 @@ group[closed] .twisty {
 %else
   min-height: 52px;
 %endif
-}
-
-.takePictureButtons > button {
-  border: none;
 }
 
 #captureBackButton, #retakeButton {
