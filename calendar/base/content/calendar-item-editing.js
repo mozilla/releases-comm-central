@@ -268,7 +268,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
             event.title = summary;
         }
     }
-    openEventDialog(event, calendar, "new", onNewEvent, null);
+    openEventDialog(event, event.calendar, "new", onNewEvent, null);
 }
 
 /**

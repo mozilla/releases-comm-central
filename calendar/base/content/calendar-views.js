@@ -27,18 +27,13 @@ var calendarViewController = {
      * @see calICalendarViewController
      */
     createNewEvent: function (aCalendar, aStartTime, aEndTime, aForceAllday) {
-        aCalendar = aCalendar || getSelectedCalendar();
-
 
         // if we're given both times, skip the dialog
         if (aStartTime && aEndTime && !aStartTime.isDate && !aEndTime.isDate) {
             let item = cal.createEvent();
-            item.startDate = aStartTime;
-            item.endDate = aEndTime;
+            setDefaultItemValues(item, aCalendar, aStartTime, aEndTime);
             item.title = calGetString("calendar", "newEvent");
-            item.calendar = aCalendar;
-            cal.alarms.setDefaultValues(item);
-            doTransaction('add', item, aCalendar, null, null);
+            doTransaction('add', item, item.calendar, null, null);
         } else {
             createEventWithDialog(aCalendar, aStartTime, null, null, null, aForceAllday);
         }
