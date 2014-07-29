@@ -607,7 +607,9 @@
                       maxDayWidth = Math.max(maxDayWidth, curPixelLength);
                   }
               }
-              this.mLongWeekdayTotalPixels = (maxDayWidth * this.labeldaybox.childNodes.length) + 10;
+              if (maxDayWidth > 0) {
+                  this.mLongWeekdayTotalPixels = (maxDayWidth * this.labeldaybox.childNodes.length) + 10;
+              }
           }
           return this.mLongWeekdayTotalPixels;
         ]]></body>
