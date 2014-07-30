@@ -52,6 +52,16 @@ DEFINES += \
 
 include $(topsrcdir)/config/config.mk
 
+ifdef LOCALE_MERGEDIR
+PPL_LOCALE_ARGS = \
+  --l10n-dir=$(LOCALE_MERGEDIR)/mail/installer \
+  --l10n-dir=$(call EXPAND_LOCALE_SRCDIR,mail/locales)/installer \
+  --l10n-dir=$(topsrcdir)/mail/locales/en-US/installer \
+  $(NULL)
+else
+PPL_LOCALE_ARGS=$(call EXPAND_LOCALE_SRCDIR,mail/locales)/installer
+endif
+
 OVERRIDE_DEFAULT_GOAL := installer
 installer::
 	$(MAKE) -C .. installer-stage
@@ -67,7 +77,7 @@ uninstaller::
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
 	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(MOZILLA_SRCDIR) \
-	  $(call EXPAND_LOCALE_SRCDIR,mail/locales)/installer $(AB_CD) $(CONFIG_DIR)
+	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 
 # For building the maintenanceservice installer
 ifdef MOZ_MAINTENANCE_SERVICE
@@ -77,7 +87,7 @@ maintenanceservice_installer::
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
 	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(MOZILLA_SRCDIR) \
-	  $(call EXPAND_LOCALE_SRCDIR,mail/locales)/installer $(AB_CD) $(CONFIG_DIR)
+	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 endif
 
 $(CONFIG_DIR)/setup.exe::
@@ -88,7 +98,7 @@ $(CONFIG_DIR)/setup.exe::
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
 	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(MOZILLA_SRCDIR) \
-	  $(call EXPAND_LOCALE_SRCDIR,mail/locales)/installer $(AB_CD) $(CONFIG_DIR)
+	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 
 include $(topsrcdir)/config/rules.mk
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/makensis.mk

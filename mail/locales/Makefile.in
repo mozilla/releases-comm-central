@@ -90,7 +90,7 @@ libs-%:
 # Note the funny extra "../" in SFX_HEADER is because the repackage-zip command
 # is actually run effectively from within the mozilla/ part of the objdir, so
 # topsrcdir points to the wrong place and we have to go one directory higher.
-repackage-win32-installer: WIN32_INSTALLER_OUT="$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe"
+repackage-win32-installer: WIN32_INSTALLER_OUT=$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
 repackage-win32-installer: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) $(SUBMAKEFILES) libs-$(AB_CD)
 	@echo "Repackaging $(WIN32_INSTALLER_IN) into $(WIN32_INSTALLER_OUT)."
 	$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY) export
@@ -98,24 +98,18 @@ repackage-win32-installer: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) $(SUBMA
 	$(MAKE) repackage-zip \
 	  AB_CD=$(AB_CD) \
 	  MOZ_PKG_FORMAT=SFX7Z \
-	  ZIP_IN=$(WIN32_INSTALLER_IN) \
-	  ZIP_OUT=$(WIN32_INSTALLER_OUT) \
+	  ZIP_IN="$(WIN32_INSTALLER_IN)" \
+	  ZIP_OUT="$(WIN32_INSTALLER_OUT)" \
 	  SFX_HEADER="$(PWD)/../installer/windows/l10ngen/7zSD.sfx \
 	              $(_ABS_SRCDIR)/mail/installer/windows/app.tag"
 
 ifeq (WINNT,$(OS_ARCH))
 repackage-win32-installer-%: $(STAGEDIST)
-	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN=$(WIN32_INSTALLER_IN)
+	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN="$(WIN32_INSTALLER_IN)"
 
 repackage-zip-%: repackage-win32-installer-%
 else
 repackage-win32-installer-%: ;
-endif
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/MacOS
-else
-STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_DIR)
 endif
 
 clobber-zip:
@@ -196,6 +190,14 @@ ifdef LOCALE_MERGEDIR
 	MACOSX_DEPLOYMENT_TARGET= compare-locales -m $(LOCALE_MERGEDIR) $(srcdir)/l10n.ini $(L10NBASEDIR) $*
 endif
 	@echo
+
+# test target, depends on make package
+# try to repack x-test, with just toolkit/defines.inc being there
+l10n-check::
+	$(RM) -rf x-test
+	$(NSINSTALL) -D x-test/toolkit
+	echo "#define MOZ_LANG_TITLE Just testing" > x-test/toolkit/defines.inc
+	$(MAKE) installers-x-test L10NBASEDIR="$(PWD)" LOCALE_MERGEDIR="$(PWD)/mergedir"
 
 ifdef MOZ_CALENDAR
 LIGHTNING_PATH=$(DEPTH)/calendar/lightning
