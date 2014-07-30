@@ -34,12 +34,12 @@ GDATA_VERSION := $(shell $(PYTHON) $(topsrcdir)/calendar/providers/gdata/makever
 # For Thunderbird, 10.0 becomes 10.*, 10.0.1 becomes 10.*
 THUNDERBIRD_MAXVERSION := $(THUNDERBIRD_VERSION)
 ifneq (a,$(findstring a,$(THUNDERBIRD_VERSION)))
-THUNDERBIRD_MAXVERSION := $(shell echo $(THUNDERBIRD_VERSION) | sed "s|\(^[0-9]*\)\.\([0-9]*\).*|\1|" ).*
+THUNDERBIRD_MAXVERSION := $(shell echo $(THUNDERBIRD_VERSION) | sed 's|\(^[0-9]*\)\.\([0-9]*\).*|\1|' ).*
 endif
 
 SEAMONKEY_MAXVERSION := $(SEAMONKEY_VERSION)
 ifneq (a,$(findstring a,$(SEAMONKEY_VERSION)))
-SEAMONKEY_MAXVERSION := $(shell echo $(SEAMONKEY_VERSION) | sed "s|\(^[0-9]*.[0-9]*\).*|\1|" ).*
+SEAMONKEY_MAXVERSION := $(shell echo $(SEAMONKEY_VERSION) | sed 's|\(^[0-9]*.[0-9]*\).*|\1|' ).*
 endif
 
 ifneq (,$(findstring a,$(LIGHTNING_VERSION)))
@@ -58,25 +58,25 @@ DEFINES += -DGRE_MILESTONE=$(GRE_MILESTONE)
 endif
 
 # comm-central source repo and stamp
-SOURCE_STAMP ?= $(firstword $(shell hg -R $(topsrcdir) parent --template="{node|short}\n" 2>/dev/null))
+SOURCE_STAMP ?= $(firstword $(shell hg -R $(topsrcdir) parent --template='{node|short}\n' 2>/dev/null))
 ifdef SOURCE_STAMP
-DEFINES += -DSOURCE_STAMP="$(SOURCE_STAMP)"
+DEFINES += -DSOURCE_STAMP='$(SOURCE_STAMP)'
 endif
 
-SOURCE_REPO := $(shell hg -R $(topsrcdir) showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/http:/")
+SOURCE_REPO := $(shell hg -R $(topsrcdir) showconfig paths.default 2>/dev/null | sed -e 's/^ssh:/http:/')
 ifdef SOURCE_REPO
-DEFINES += -DSOURCE_REPO="$(SOURCE_REPO)"
+DEFINES += -DSOURCE_REPO='$(SOURCE_REPO)'
 endif
 
 # Mozilla source repo and stamps
-MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(MOZILLA_SRCDIR) parent --template="{node|short}\n" 2>/dev/null))
+MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(MOZILLA_SRCDIR) parent --template='{node|short}\n' 2>/dev/null))
 ifdef MOZ_SOURCE_STAMP
-DEFINES += -DMOZ_SOURCE_STAMP="$(MOZ_SOURCE_STAMP)"
+DEFINES += -DMOZ_SOURCE_STAMP='$(MOZ_SOURCE_STAMP)'
 endif
 
-MOZ_SOURCE_REPO := $(shell hg -R $(MOZILLA_SRCDIR) showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/http:/")
+MOZ_SOURCE_REPO := $(shell hg -R $(MOZILLA_SRCDIR) showconfig paths.default 2>/dev/null | sed -e 's/^ssh:/http:/')
 ifdef MOZ_SOURCE_REPO
-DEFINES += -DMOZ_SOURCE_REPO="$(MOZ_SOURCE_REPO)"
+DEFINES += -DMOZ_SOURCE_REPO='$(MOZ_SOURCE_REPO)'
 endif
 
 # include config.mk here so myconfig or app-config can set DISABLE_LIGHTNING_INSTALL
@@ -136,12 +136,12 @@ libs::
 endif
 
 ident:
-	@printf "comm_revision "
+	@printf 'comm_revision '
 	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
 	    $(FINAL_TARGET)/application.ini App SourceStamp
-	@printf "moz_revision "
+	@printf 'moz_revision '
 	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
 	    $(FINAL_TARGET)/application.ini Build SourceStamp
-	@printf "buildid "
+	@printf 'buildid '
 	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
 	    $(FINAL_TARGET)/application.ini App BuildID

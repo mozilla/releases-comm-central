@@ -278,7 +278,7 @@ else
 # this point when building multiple projects.  Only MOZ_OBJDIR is available.
 	set -e; \
 	for mkfile in $(MOZ_PREFLIGHT_ALL); do \
-	  $(MAKE) -f $(TOPSRCDIR)/$$mkfile preflight_all TOPSRCDIR=$(TOPSRCDIR) MOZ_OBJDIR=$(MOZ_OBJDIR) MOZ_BUILD_PROJECTS="$(MOZ_BUILD_PROJECTS)"; \
+	  $(MAKE) -f $(TOPSRCDIR)/$$mkfile preflight_all TOPSRCDIR=$(TOPSRCDIR) MOZ_OBJDIR=$(MOZ_OBJDIR) MOZ_BUILD_PROJECTS='$(MOZ_BUILD_PROJECTS)'; \
 	done
 endif
 endif
@@ -325,11 +325,11 @@ CONFIG_STATUS_DEPS := \
 	$(NULL)
 
 CONFIGURE_ENV_ARGS += \
-  MAKE="$(MAKE)" \
+  MAKE='$(MAKE)' \
   $(NULL)
 
 # configure uses the program name to determine @srcdir@. Calling it without
-#   $(TOPSRCDIR) will set @srcdir@ to "."; otherwise, it is set to the full
+#   $(TOPSRCDIR) will set @srcdir@ to '.'; otherwise, it is set to the full
 #   path of $(TOPSRCDIR).
 ifeq ($(TOPSRCDIR),$(OBJDIR))
   CONFIGURE = ./configure
@@ -349,8 +349,8 @@ configure:: $(configure-preqs)
 	@echo cd $(OBJDIR);
 	@echo $(CONFIGURE) $(CONFIGURE_ARGS)
 	@cd $(OBJDIR) && $(BUILD_PROJECT_ARG) $(CONFIGURE_ENV_ARGS) $(CONFIGURE) $(CONFIGURE_ARGS) \
-	  || ( echo "*** Fix above errors and then restart with\
-               \"$(MAKE) -f client.mk build\"" && exit 1 )
+	  || ( echo '*** Fix above errors and then restart with\
+               "$(MAKE) -f client.mk build"' && exit 1 )
 	@touch $(OBJDIR)/Makefile
 
 ifneq (,$(MAKEFILE))
@@ -430,7 +430,7 @@ else
 # this point when building multiple projects.  Only MOZ_OBJDIR is available.
 	set -e; \
 	for mkfile in $(MOZ_POSTFLIGHT_ALL); do \
-	  $(MAKE) -f $(TOPSRCDIR)/$$mkfile postflight_all TOPSRCDIR=$(TOPSRCDIR) MOZ_OBJDIR=$(MOZ_OBJDIR) MOZ_BUILD_PROJECTS="$(MOZ_BUILD_PROJECTS)"; \
+	  $(MAKE) -f $(TOPSRCDIR)/$$mkfile postflight_all TOPSRCDIR=$(TOPSRCDIR) MOZ_OBJDIR=$(MOZ_OBJDIR) MOZ_BUILD_PROJECTS='$(MOZ_BUILD_PROJECTS)'; \
 	done
 endif
 endif
@@ -440,7 +440,7 @@ cleansrcdir:
 	if [ -f Makefile ]; then \
 	  $(MAKE) distclean ; \
 	else \
-	  echo "Removing object files from srcdir..."; \
+	  echo 'Removing object files from srcdir...'; \
 	  rm -fr `find . -type d \( -name .deps -print -o -name CVS \
 	          -o -exec test ! -d {}/CVS \; \) -prune \
 	          -o \( -name '*.[ao]' -o -name '*.so' \) -type f -print`; \

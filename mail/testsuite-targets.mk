@@ -64,12 +64,12 @@ PKG_STAGE = $(DIST)/universal/test-stage
 endif
 
 package-tests::
-	@rm -f "$(DIST)/$(PKG_PATH)$(TEST_PACKAGE)"
+	@rm -f '$(DIST)/$(PKG_PATH)$(TEST_PACKAGE)'
 ifndef UNIVERSAL_BINARY
 	$(NSINSTALL) -D $(DIST)/$(PKG_PATH)
 endif
 	cd $(PKG_STAGE) && \
-	  zip -r9D "$(abspath $(DIST))/$(PKG_PATH)$(TEST_PACKAGE)" \
+	  zip -r9D '$(abspath $(DIST))/$(PKG_PATH)$(TEST_PACKAGE)' \
 	  * -x \*/.mkdir.done
 
 make-stage-dir:
