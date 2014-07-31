@@ -41,6 +41,7 @@ _MOZBUILD_EXTERNAL_VARIABLES := \
   DIRS \
   DIST_SUBDIR \
   EXTRA_DSO_LDOPTS \
+  EXTRA_JS_MODULES \
   EXTRA_PP_COMPONENTS \
   EXTRA_PP_JS_MODULES \
   FINAL_LIBRARY \
@@ -68,6 +69,8 @@ _MOZBUILD_EXTERNAL_VARIABLES := \
   SIMPLE_PROGRAMS \
   STATIC_LIBRARY_NAME \
   TEST_DIRS \
+  TESTING_JS_MODULES \
+  TESTING_JS_MODULE_DIR \
   TIERS \
   TOOL_DIRS \
   XPCSHELL_TESTS \
@@ -310,29 +313,40 @@ endif
 SHORT_LIBNAME=
 endif
 
-# Enable profile-based feedback
-ifndef NO_PROFILE_GUIDED_OPTIMIZE
-ifdef MOZ_PROFILE_GENERATE
 # No sense in profiling tools
-ifndef INTERNAL_TOOLS
-OS_CFLAGS += $(PROFILE_GEN_CFLAGS)
-OS_CXXFLAGS += $(PROFILE_GEN_CFLAGS)
+ifdef INTERNAL_TOOLS
+NO_PROFILE_GUIDED_OPTIMIZE = 1
+endif
+
+# Don't build SIMPLE_PROGRAMS with PGO, since they don't need it anyway,
+# and we don't have the same build logic to re-link them in the second pass.
+ifdef SIMPLE_PROGRAMS
+NO_PROFILE_GUIDED_OPTIMIZE = 1
+endif
+
+# No sense in profiling unit tests
+ifdef CPP_UNIT_TESTS
+NO_PROFILE_GUIDED_OPTIMIZE = 1
+endif
+
+# Enable profile-based feedback
+ifneq (1,$(NO_PROFILE_GUIDED_OPTIMIZE))
+ifdef MOZ_PROFILE_GENERATE
+OS_CFLAGS += $(if $(filter $(notdir $<),$(notdir $(NO_PROFILE_GUIDED_OPTIMIZE))),,$(PROFILE_GEN_CFLAGS))
+OS_CXXFLAGS += $(if $(filter $(notdir $<),$(notdir $(NO_PROFILE_GUIDED_OPTIMIZE))),,$(PROFILE_GEN_CFLAGS))
 OS_LDFLAGS += $(PROFILE_GEN_LDFLAGS)
 ifeq (WINNT,$(OS_ARCH))
 AR_FLAGS += -LTCG
 endif
-endif # INTERNAL_TOOLS
 endif # MOZ_PROFILE_GENERATE
 
 ifdef MOZ_PROFILE_USE
-ifndef INTERNAL_TOOLS
-OS_CFLAGS += $(PROFILE_USE_CFLAGS)
-OS_CXXFLAGS += $(PROFILE_USE_CFLAGS)
+OS_CFLAGS += $(if $(filter $(notdir $<),$(notdir $(NO_PROFILE_GUIDED_OPTIMIZE))),,$(PROFILE_USE_CFLAGS))
+OS_CXXFLAGS += $(if $(filter $(notdir $<),$(notdir $(NO_PROFILE_GUIDED_OPTIMIZE))),,$(PROFILE_USE_CFLAGS))
 OS_LDFLAGS += $(PROFILE_USE_LDFLAGS)
 ifeq (WINNT,$(OS_ARCH))
 AR_FLAGS += -LTCG
 endif
-endif # INTERNAL_TOOLS
 endif # MOZ_PROFILE_USE
 endif # NO_PROFILE_GUIDED_OPTIMIZE
 
@@ -706,14 +720,17 @@ CREATE_PRECOMPLETE_CMD = $(PYTHON) $(abspath $(MOZILLA_SRCDIR)/config/createprec
 # MDDEPDIR is the subdirectory where dependency files are stored
 MDDEPDIR := .deps
 
-EXPAND_LIBS = $(PYTHON) $(MOZILLA_SRCDIR)/config/expandlibs.py
-EXPAND_LIBS_EXEC = $(PYTHON) $(MOZILLA_SRCDIR)/config/expandlibs_exec.py $(if $@,--depend $(MDDEPDIR)/$(basename $(@F)).pp --target $@)
-EXPAND_LIBS_GEN = $(PYTHON) $(MOZILLA_SRCDIR)/config/expandlibs_gen.py $(if $@,--depend $(MDDEPDIR)/$(basename $(@F)).pp)
+EXPAND_LIBS_EXEC = $(PYTHON) $(MOZILLA_SRCDIR)/config/expandlibs_exec.py
+EXPAND_LIBS_GEN = $(PYTHON) $(MOZILLA_SRCDIR)/config/expandlibs_gen.py
 EXPAND_AR = $(EXPAND_LIBS_EXEC) --extract -- $(AR)
 EXPAND_CC = $(EXPAND_LIBS_EXEC) --uselist -- $(CC)
 EXPAND_CCC = $(EXPAND_LIBS_EXEC) --uselist -- $(CCC)
 EXPAND_LD = $(EXPAND_LIBS_EXEC) --uselist -- $(LD)
-EXPAND_MKSHLIB = $(EXPAND_LIBS_EXEC) --uselist -- $(MKSHLIB)
+EXPAND_MKSHLIB_ARGS = --uselist
+ifdef SYMBOL_ORDER
+EXPAND_MKSHLIB_ARGS += --symbol-order $(SYMBOL_ORDER)
+endif
+EXPAND_MKSHLIB = $(EXPAND_LIBS_EXEC) $(EXPAND_MKSHLIB_ARGS) -- $(MKSHLIB)
 
 # EXPAND_LIBNAME - $(call EXPAND_LIBNAME,foo)
 # expands to $(LIB_PREFIX)foo.$(LIB_SUFFIX) or -lfoo, depending on linker
@@ -741,12 +758,6 @@ endif
 export CL_INCLUDES_PREFIX
 
 ifneq (,$(MOZ_LIBSTDCXX_TARGET_VERSION)$(MOZ_LIBSTDCXX_HOST_VERSION))
-ifdef MOZ_LIBSTDCXX_TARGET_VERSION
-OS_LIBS += $(call EXPAND_LIBNAME_PATH,stdc++compat,$(DEPTH)/mozilla/build/unix/stdc++compat)
-endif
-ifdef MOZ_LIBSTDCXX_HOST_VERSION
-HOST_EXTRA_LIBS += $(call EXPAND_LIBNAME_PATH,host_stdc++compat,$(DEPTH)/mozilla/build/unix/stdc++compat)
-endif
 endif
 
 # autoconf.mk sets OBJ_SUFFIX to an error to avoid use before including

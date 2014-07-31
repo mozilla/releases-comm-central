@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-PARALLEL_DIRS += [
+DIRS += [
     'addrbook',
     'base',
     'compose',
@@ -24,31 +24,31 @@ PARALLEL_DIRS += [
 ]
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    PARALLEL_DIRS += [
+    DIRS += [
         'import/eudora/src',
         'import/applemail/src',
     ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    PARALLEL_DIRS += ['import/eudora/src']
+    DIRS += ['import/eudora/src']
 
     if CONFIG['MOZ_MAPI_SUPPORT']:
-        PARALLEL_DIRS += ['import/outlook/src']
+        DIRS += ['import/outlook/src']
 
     if not CONFIG['GNU_CC']:
-        PARALLEL_DIRS += [
+        DIRS += [
             'import/oexpress',
             'import/winlivemail',
         ]
 
-TEST_TOOL_DIRS += [
+TEST_DIRS += [
     'imap/test',
     'import/test',
     'local/test',
 ]
 
 if CONFIG['MOZ_MAPI_SUPPORT']:
-    PARALLEL_DIRS += [
+    DIRS += [
         'mapi/mapiDLL',
         'mapi/mapihook',
     ]

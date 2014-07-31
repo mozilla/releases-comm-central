@@ -20,7 +20,11 @@ UNIFIED_SOURCES += [
 XPIDL_MODULE = 'commuconv'
 
 LOCAL_INCLUDES += [
-    '/mozilla/intl/locale/src',
+    '/mozilla/intl/locale',
+]
+
+GENERATED_FILES += [
+    'charsetalias.properties.h',
 ]
 
 MSVC_ENABLE_PGO = True

@@ -5,16 +5,17 @@
 
 CONFIGURE_SUBST_FILES += ['installer/Makefile']
 
-# app is always last as it packages up the built files on mac.
-DIRS += ['app']
-
-if CONFIG['OS_ARCH'] == 'WINNT':
-    DIRS += ['installer/windows']
-
-PARALLEL_DIRS += [
+DIRS += [
     'content',
     'locales',
     'themes',
     'modules',
     'components'
 ]
+
+# app is always last as it packages up the built files on mac.
+DIRS += ['app']
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    DIRS += ['installer/windows']
+

@@ -26,18 +26,18 @@ endif
 
 include $(topsrcdir)/config/config.mk
 
-default alldep all:: $(topsrcdir)/configure config.status
+libs binaries export tools:: $(topsrcdir)/configure config.status
 
 $(topsrcdir)/configure: $(topsrcdir)/configure.in
 	@echo 'STOP!  configure.in has changed, and your configure is out of date.'
 	@echo 'Please rerun autoconf and configure.'
-	@echo 'To ignore this message, touch 'configure' in the source directory.'
+	@echo 'To ignore this message, touch "configure" in the source directory.'
 	@exit 1
 
 config.status: $(topsrcdir)/configure
 	@echo 'STOP!  configure has changed and needs to be run in this build directory.'
 	@echo 'Please rerun configure.'
-	@echo 'To ignore this message, touch 'config.status' in the build directory.'
+	@echo 'To ignore this message, touch "config.status" in the build directory.'
 	@exit 1
 
 default export libs clean realclean distclean alldep \
@@ -87,9 +87,15 @@ buildsymbols :: $(SUBMAKEFILES)
 # regular directory in the build tree.
 SUPPRESS_DEFAULT_RULES := 1
 
+default all::
+	$(call BUILDSTATUS,TIERS export $(if $(COMPILE_ENVIRONMENT),compile )libs tools)
+
 include $(topsrcdir)/config/rules.mk
 
-# defined in (mozilla/.../)package-name.mk
+# MOZ_SOURCE_STAMP is defined in (mozilla/.../)package-name.mk with a deferred
+# assignment. Exporting it makes make run its $(shell) command for each invoked
+# submake, so transform it to an immediate assignment.
+MOZ_SOURCE_STAMP := $(MOZ_SOURCE_STAMP)
 export MOZ_SOURCE_STAMP
 
 DIST_GARBAGE = config.cache config.log config.status* config-defs.h \

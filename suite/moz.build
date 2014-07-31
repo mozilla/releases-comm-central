@@ -7,9 +7,9 @@ CONFIGURE_SUBST_FILES += ['installer/Makefile']
 
 # This should match /suite/installer/moz.build.
 if 'pre' in CONFIG['MOZ_APP_VERSION'] or 'a' in CONFIG['MOZ_APP_VERSION']:
-    PARALLEL_DIRS += ['debugQA']
+    DIRS += ['debugQA']
 
-PARALLEL_DIRS += [
+DIRS += [
     'browser',
     'common',
     'feeds/public',
@@ -27,7 +27,7 @@ PARALLEL_DIRS += [
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    PARALLEL_DIRS += ['installer/windows']
+    DIRS += ['installer/windows']
 
 # app is always last as it packages up the built files on mac.
 DIRS += [
