@@ -10,7 +10,8 @@
 
   <binding id="aboutPanel">
     <content flex="1">
-      <xul:browser anonid="aboutBrowser" disablehistory="true" type="content" flex="1"/>
+      <xul:browser anonid="aboutBrowser" disablehistory="true" type="content"
+                   flex="1" tooltip="imTooltip"/>
     </content>
 
     <implementation>
