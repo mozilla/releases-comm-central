@@ -13,3 +13,5 @@ export::
 libs clean distclean::
 	$(MAKE) -C $(DEPTH)/ldap/sdks/c-sdk $@
 
+target::
+	$(MAKE) -C $(DEPTH)/ldap/sdks/c-sdk export
