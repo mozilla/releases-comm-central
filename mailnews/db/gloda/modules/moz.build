@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-EXTRA_JS_MODULES += [
+EXTRA_JS_MODULES.gloda += [
     'collection.js',
     'connotent.js',
     'databind.js',
@@ -30,6 +30,3 @@ EXTRA_JS_MODULES += [
     'suffixtree.js',
     'utils.js',
 ]
-
-JS_MODULES_PATH = 'modules/gloda'
-

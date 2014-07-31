@@ -18,7 +18,7 @@ EXTRA_COMPONENTS += [
     'nsActivityManagerUI.js',
 ]
 
-EXTRA_JS_MODULES += [
+EXTRA_JS_MODULES.activity += [
     'modules/activityModules.js',
     'modules/alertHook.js',
     'modules/autosync.js',
@@ -27,7 +27,5 @@ EXTRA_JS_MODULES += [
     'modules/pop3Download.js',
     'modules/sendLater.js',
 ]
-
-JS_MODULES_PATH = 'modules/activity'
 
 JAR_MANIFESTS += ['jar.mn']
