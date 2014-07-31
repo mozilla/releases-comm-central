@@ -50,6 +50,7 @@ var FeedUtils = {
 
   MRSS_NS: "http://search.yahoo.com/mrss/",
   FEEDBURNER_NS: "http://rssnamespace.org/feedburner/ext/1.0",
+  ITUNES_NS: "http://www.itunes.com/dtds/podcast-1.0.dtd",
 
   FZ_NS: "urn:forumzilla:",
   FZ_ITEM_NS: "urn:feeditem:",
@@ -184,7 +185,16 @@ var FeedUtils = {
   feedAlreadyExists: function(aUrl, aServer) {
     let ds = this.getSubscriptionsDS(aServer);
     let feeds = this.getSubscriptionsList(ds);
-    return feeds.IndexOf(this.rdf.GetResource(aUrl)) != -1;
+    let resource = this.rdf.GetResource(aUrl);
+    if (feeds.IndexOf(resource) == -1)
+      return false;
+
+    let folder = ds.GetTarget(resource, FeedUtils.FZ_DESTFOLDER, true)
+                   .QueryInterface(Ci.nsIRDFResource).ValueUTF8;
+    this.log.info("FeedUtils.feedAlreadyExists: feed url " + aUrl +
+                  " subscribed in folder url " + decodeURI(folder));
+
+    return true;
   },
 
 /**
@@ -400,7 +410,7 @@ var FeedUtils = {
     let i = 1;
     while (feeds.IndexOf(this.rdf.GetResource(id)) != -1 && ++i < 1000)
       id = aFeed.url + i;
-    if (id == 1000)
+    if (i == 1000)
       throw new Error("FeedUtils.addFeed: couldn't generate a unique ID " +
                       "for feed " + aFeed.url);
 
@@ -453,6 +463,47 @@ var FeedUtils = {
     this.setFolderPaneProperty(aParentFolder, "_favicon", null);
 
     delete feed;
+  },
+
+/**
+ * Change an existing feed's url, as identified by FZ_FEED resource in the
+ * feeds.rdf subscriptions database.
+ *
+ * @param  obj aFeed      - the feed object
+ * @param  string aNewUrl - new url
+ * @return bool           - true if successful, else false
+ */
+  changeUrlForFeed: function(aFeed, aNewUrl) {
+    if (!aFeed || !aFeed.folder || !aNewUrl)
+      return false;
+
+    if (this.feedAlreadyExists(aNewUrl, aFeed.folder.server))
+    {
+      this.log.info("FeedUtils.changeUrlForFeed: new feed url " + aNewUrl +
+                    " already subscribed in account " + aFeed.folder.server.prettyName);
+      return false;
+    }
+
+    let title = aFeed.title;
+    let link = aFeed.link;
+    let quickMode = aFeed.quickMode;
+    let options = aFeed.options;
+
+    this.deleteFeed(this.rdf.GetResource(aFeed.url),
+                    aFeed.folder.server, aFeed.folder);
+    aFeed.resource = this.rdf.GetResource(aNewUrl)
+                             .QueryInterface(Ci.nsIRDFResource);
+    aFeed.title = title;
+    aFeed.link = link;
+    aFeed.quickMode = quickMode;
+    aFeed.options = options;
+    this.addFeed(aFeed);
+
+    let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    if (win)
+      win.FeedSubscriptions.refreshSubscriptionView(aFeed.folder, aNewUrl);
+
+    return true;
   },
 
 /**
@@ -822,22 +873,31 @@ var FeedUtils = {
         }
         else
         {
-          // If adding a new feed it's a cross account action; get the title
-          // and quickMode from its original datasource, otherwise use the new
-          // folder's name and default server quickMode.
+          // If adding a new feed it's a cross account action; make sure to
+          // preserve all properties from the original datasource where
+          // available. Otherwise use the new folder's name and default server
+          // quickMode; preserve link and options.
           let feedTitle = dsSrc.GetTarget(id, this.DC_TITLE, true);
           feedTitle = feedTitle ? feedTitle.QueryInterface(Ci.nsIRDFLiteral).Value :
-                      resource.name;
+                                  resource.name;
+          let link = dsSrc.GetTarget(id, FeedUtils.RSS_LINK, true);
+          link = link ? link.QueryInterface(Ci.nsIRDFLiteral).Value : "";
           let quickMode = dsSrc.GetTarget(id, this.FZ_QUICKMODE, true);
-          quickMode = quickMode.QueryInterface(Ci.nsIRDFLiteral).Value;
+          quickMode = quickMode ? quickMode.QueryInterface(Ci.nsIRDFLiteral).Value :
+                                  null;
           quickMode = quickMode == "true" ? true :
                       quickMode == "false" ? false :
                       aFeed.folder.server.getBoolValue("quickMode");
+          let options = dsSrc.GetTarget(id, this.FZ_OPTIONS, true);
+          options = options ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value) :
+                              this.optionsTemplate;
 
           let feed = new Feed(id, aFolder.server);
           feed.folder = aFolder;
           feed.title = feedTitle;
+          feed.link = link;
           feed.quickMode = quickMode;
+          feed.options = options;
           this.addFeed(feed);
         }
       }

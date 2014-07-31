@@ -90,13 +90,13 @@ var FeedSubscriptions = {
     return dismissDialog;
   },
 
-  refreshSubscriptionView: function(aSelectFolder)
+  refreshSubscriptionView: function(aSelectFolder, aSelectFeedUrl)
   {
     let item = this.mView.currentItem;
     this.loadSubscriptions();
     this.mTree.view = this.mView;
 
-    if (aSelectFolder)
+    if (aSelectFolder && !aSelectFeedUrl)
       this.selectFolder(aSelectFolder);
     else
     {
@@ -113,8 +113,11 @@ var FeedSubscriptions = {
             // renamed/moved.
             this.selectFolder(rootFolder);
         }
-        else
-          this.selectFeed({ folder: rootFolder, url: item.url }, null);
+        else {
+          let url = item.parentFolder == aSelectFolder ? aSelectFeedUrl :
+                                                         item.url;
+          this.selectFeed({ folder: rootFolder, url: url }, null);
+        }
       }
     }
 

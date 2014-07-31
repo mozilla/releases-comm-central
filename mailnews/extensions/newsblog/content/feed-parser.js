@@ -19,8 +19,7 @@ FeedParser.prototype =
     if (!(aDOM instanceof Ci.nsIDOMXMLDocument))
     {
       // No xml doc.
-      aFeed.onParseError(aFeed);
-      return new Array();
+      return aFeed.onParseError(aFeed);
     }
 
     let doc = aDOM.documentElement;
@@ -30,11 +29,19 @@ FeedParser.prototype =
       let errStr = doc.firstChild.textContent + "\n" +
                    doc.firstElementChild.textContent;
       FeedUtils.log.info("FeedParser.parseFeed: - " + errStr);
-      aFeed.onParseError(aFeed);
-      return new Array();
+      return aFeed.onParseError(aFeed);
     }
-    else if(doc.namespaceURI == FeedUtils.RDF_SYNTAX_NS &&
-            doc.getElementsByTagNameNS(FeedUtils.RSS_NS, "channel")[0])
+    else if (aDOM.querySelector("redirect"))
+    {
+      // Check for RSS2.0 redirect document.
+      let channel = aDOM.querySelector("redirect");
+      if (this.isPermanentRedirect(aFeed, channel, null, null))
+        return;
+
+      return aFeed.onParseError(aFeed);
+    }
+    else if (doc.namespaceURI == FeedUtils.RDF_SYNTAX_NS &&
+             doc.getElementsByTagNameNS(FeedUtils.RSS_NS, "channel")[0])
     {
       aFeed.mFeedType = "RSS_1.xRDF"
       FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
@@ -95,6 +102,9 @@ FeedParser.prototype =
     // Usually the empty string, unless this is RSS .90.
     let nsURI = channel.namespaceURI || "";
     FeedUtils.log.debug("FeedParser.parseAsRSS2: channel nsURI - " + nsURI);
+
+    if (this.isPermanentRedirect(aFeed, null, channel, null))
+      return;
 
     let tags = this.childrenByTagNameNS(channel, nsURI, "title");
     aFeed.title = aFeed.title || this.getNodeValue(tags ? tags[0] : null);
@@ -308,6 +318,9 @@ FeedParser.prototype =
     if (!channel)
       return aFeed.onParseError(aFeed);
 
+    if (this.isPermanentRedirect(aFeed, null, channel, ds))
+      return;
+
     aFeed.title = aFeed.title ||
                   this.getRDFTargetValue(ds, channel, FeedUtils.RSS_TITLE) ||
                   aFeed.url;
@@ -383,6 +396,9 @@ FeedParser.prototype =
     let channel = aDOM.querySelector("feed");
     if (!channel)
       return aFeed.onParseError(aFeed);
+
+    if (this.isPermanentRedirect(aFeed, null, channel, null))
+      return;
 
     let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "title");
     aFeed.title = aFeed.title ||
@@ -514,6 +530,9 @@ FeedParser.prototype =
     let channel = this.childrenByTagNameNS(aDOM, FeedUtils.ATOM_IETF_NS, "feed")[0];
     if (!channel)
       return aFeed.onParseError(aFeed);
+
+    if (this.isPermanentRedirect(aFeed, null, channel, null))
+      return;
 
     let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "title");
     aFeed.title = aFeed.title ||
@@ -680,6 +699,53 @@ FeedParser.prototype =
     }
 
     return parsedItems;
+  },
+
+  isPermanentRedirect: function(aFeed, aRedirDocChannel, aFeedChannel, aDS)
+  {
+    // If subscribing to a new feed, do not check redirect tags.
+    if (!aFeed.downloadCallback || aFeed.downloadCallback.mSubscribeMode)
+      return false;
+
+    let tags, tagName, newUrl;
+    let oldUrl = aFeed.url;
+
+    // Check for RSS2.0 redirect document <newLocation> tag.
+    if (aRedirDocChannel)
+    {
+      tagName = "newLocation";
+      tags = this.childrenByTagNameNS(aRedirDocChannel, "", tagName);
+      newUrl = this.getNodeValue(tags ? tags[0] : null);
+    }
+
+    // Check for <itunes:new-feed-url> tag.
+    if (aFeedChannel)
+    {
+      tagName = "new-feed-url";
+      if (aDS)
+      {
+        tags = FeedUtils.rdf.GetResource(FeedUtils.ITUNES_NS + tagName);
+        newUrl = this.getRDFTargetValue(aDS, aFeedChannel, tags);
+      }
+      else
+      {
+        tags = this.childrenByTagNameNS(aFeedChannel, FeedUtils.ITUNES_NS, tagName);
+        newUrl = this.getNodeValue(tags ? tags[0] : null);
+      }
+      tagName = "itunes:" + tagName;
+    }
+
+    if (newUrl && newUrl != oldUrl && FeedUtils.isValidScheme(newUrl) &&
+        FeedUtils.changeUrlForFeed(aFeed, newUrl))
+    {
+      FeedUtils.log.info("FeedParser.isPermanentRedirect: found <" + tagName +
+                         "> tag; updated feed url from: " + oldUrl + " to: " + newUrl +
+                         " in folder: " + FeedUtils.getFolderPrettyPath(aFeed.folder));
+      aFeed.onUrlChange(aFeed, oldUrl);
+      return true;
+    }
+
+    return false;
   },
 
   serializeTextConstruct: function(textElement)

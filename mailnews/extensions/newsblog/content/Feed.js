@@ -246,6 +246,19 @@ Feed.prototype =
     FeedCache.removeFeed(aFeed.url);
   },
 
+  onUrlChange: function(aFeed, aOldUrl)
+  {
+    if (!aFeed)
+      return;
+
+    // Simulate a cancel after a url update; next cycle will check the new url.
+    aFeed.mInvalidFeed = true;
+    if (aFeed.downloadCallback)
+      aFeed.downloadCallback.downloaded(aFeed, FeedUtils.kNewsBlogCancel);
+
+    FeedCache.removeFeed(aOldUrl);
+  },
+
   get url()
   {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
