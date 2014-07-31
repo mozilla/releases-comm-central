@@ -19,5 +19,5 @@
 .message-attachment-icon {
   width: 12px;
   height: 12px;
-  background: url("chrome://messenger/skin/icons/attachment-col.png") transparent no-repeat center right;
+  background: url("chrome://messenger/skin/icons/attachment-col.svg") transparent no-repeat center right;
 }
