@@ -93,7 +93,6 @@ Stringifier.prototype = {
 
   dumpException: function(exc, message) {
     dump(exc + "\n");
-    Components.utils.reportError(exc);
     this._reset();
     if (message)
       this._append("Exception (" + message + ")\n");
