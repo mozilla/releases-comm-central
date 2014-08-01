@@ -715,8 +715,6 @@
 @BINPATH@/components/ContactManager.manifest
 @BINPATH@/components/contentAreaDropListener.js
 @BINPATH@/components/contentAreaDropListener.manifest
-@BINPATH@/components/contentSecurityPolicy.js
-@BINPATH@/components/contentSecurityPolicy.manifest
 @BINPATH@/components/directory.xpt
 @BINPATH@/components/jsconsole-clhandler.js
 @BINPATH@/components/jsconsole-clhandler.manifest
