@@ -296,7 +296,7 @@ cal.itip = {
                     break;
                 }
                 case "CANCEL": {
-                    data.buttons.push("imipCancelledButton");
+                    data.buttons.push("imipDeleteButton");
                     break;
                 }
                 case "REFRESH": {
