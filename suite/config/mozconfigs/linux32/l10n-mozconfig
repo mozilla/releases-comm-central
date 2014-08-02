@@ -10,8 +10,8 @@ ac_add_options --enable-stdcxx-compat
 ac_add_options --enable-gnomevfs
 ac_add_options --disable-gio
 
-CC=/tools/gcc-4.5/bin/gcc
-CXX=/tools/gcc-4.5/bin/g++
+CC=/tools/gcc-4.7.3-0moz1/bin/gcc
+CXX=/tools/gcc-4.7.3-0moz1/bin/g++
 
 export CFLAGS="-gdwarf-2"
 export CXXFLAGS="-gdwarf-2"
