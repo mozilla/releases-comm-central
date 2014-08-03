@@ -1039,42 +1039,35 @@
         <parameter name="element"/>
         <parameter name="noAdvance"/>
         <body><![CDATA[
-          function parseHeaderValue(email, name, fullname) {
-              if (name && name.match(/[<>@,]/)) {
-                  return '"' + name + '" <' + email + '>';
-              } else if (email.length) {
-                  return fullname;
+          function parseHeaderValue(aMsgIAddressObject) {
+              if (aMsgIAddressObject.name.match(/[<>@,]/)) {
+                  // special handling only needed for a name with a comma which are not already quoted
+                  return ((aMsgIAddressObject.name.match(/^".*"$/))
+                          ? aMsgIAddressObject.name
+                          : '"' + aMsgIAddressObject.name + '"'
+                         ) + ' <' + aMsgIAddressObject.email + '>';
               } else {
-                  return name;
+                  return aMsgIAddressObject.toString();
               }
           }
 
           let arrowLength = 1;
           if (element.value.contains(",")) {
               let strippedAddresses = element.value.replace(/.* >> /, "");
-              let emailAddresses = {};
-              let names = {};
-              let fullNames = {};
+              let addresses = MailServices.headerParser.makeFromDisplayAddress(strippedAddresses);
+              element.value = parseHeaderValue(addresses[0]);
 
-              MailServices.headerParser.parseHeadersWithArray(strippedAddresses,
-                                                              emailAddresses,
-                                                              names,
-                                                              fullNames);
-
-              emailAddresses = emailAddresses.value || [];
-              names = names.value || [];
-              fullNames = fullNames.value || [];
-
-              if (emailAddresses.length > 1) {
-                  element.value = parseHeaderValue(emailAddresses[0], names[0], fullNames[0]);
-                  let insertAfterItem = this.getListItem(this.getRowByInputElement(element));
-                  for (let i = 1; i < fullNames.length; i++) {
+              // the following code is needed to split attendees, if the user enters a comma
+              // separated list of attendees without using autocomplete functionality
+              let insertAfterItem = this.getListItem(this.getRowByInputElement(element));
+              for (let key in addresses) {
+                  if (key > 0) {
                       insertAfterItem = this.appendNewRow(false, insertAfterItem);
                       let textinput = this.getInputFromListitem(insertAfterItem);
-                      textinput.value = parseHeaderValue(emailAddresses[i], names[i], fullNames[i]);
+                      textinput.value = parseHeaderValue(addresses[key]);
                   }
               }
-              arrowLength = emailAddresses.length;
+              arrowLength = addresses.length;
           }
 
           if (!noAdvance) {
