@@ -59,6 +59,7 @@ TagMenu.prototype = {
       case "popuphiding":
         return true;
     }
+    return true;
   },
   tagsPopupShowing: function(aEvent) {
     let item;
