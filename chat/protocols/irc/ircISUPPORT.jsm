@@ -38,8 +38,10 @@ function isupportMessage(aMessage, aToken) {
   return tokens.map(function(aToken) {
     let newMessage = JSON.parse(JSON.stringify(message));
     newMessage.isupport.useDefault = aToken[0] == "-";
-    [newMessage.isupport.parameter, newMessage.isupport.value] =
+    let token =
       (newMessage.isupport.useDefault ? aToken.slice(1) : aToken).split("=");
+    newMessage.isupport.parameter = token[0];
+    newMessage.isupport.value = token[1] || null;
     return newMessage;
   });
 }
