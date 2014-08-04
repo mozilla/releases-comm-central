@@ -28,6 +28,7 @@
 
 using namespace mozilla;
 using namespace mozilla::psm;
+using namespace mozilla::pkix;
 
 #ifdef PR_LOGGING
 extern PRLogModuleInfo* gPIPNSSLog;
@@ -283,7 +284,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData, uint32_
   {
     SECStatus srv = certVerifier->VerifyCert(si->cert,
                                              certificateUsageEmailSigner,
-                                             PR_Now(), nullptr /*XXX pinarg*/,
+                                             Now(), nullptr /*XXX pinarg*/,
                                              nullptr /*hostname*/);
     if (srv != SECSuccess) {
       PR_LOG(gPIPNSSLog, PR_LOG_DEBUG,
