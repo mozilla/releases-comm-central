@@ -70,9 +70,17 @@ function setupModule(module) {
   // everything that might be in the way
   collapse_panes(mc.e("folderpane_splitter"), true);
   collapse_panes(mc.e("tabmail-container"), true);
+
+  // Disable animations on the panel, so that we don't have to deal with
+  // async openings.
+  let contactPanel = mc.eid('editContactPanel').getNode();
+  contactPanel.setAttribute("animate", false);
 }
 
 function teardownModule(module) {
+  let contactPanel = mc.eid('editContactPanel').getNode();
+  contactPanel.removeAttribute("animate");
+
   // Now restore the panes we hid in setupModule
   collapse_panes(mc.e("folderpane_splitter"), false);
   collapse_panes(mc.e("tabmail-container"), false);
