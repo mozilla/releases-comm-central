@@ -486,8 +486,6 @@ function loadStartPage()
       var startpage = GetLocalizedStringPref("mailnews.start_page.url");
       if (startpage)
       {
-        // first, clear out the charset setting.
-        messenger.setDisplayCharset("");
         GetMessagePaneFrame().location.href = startpage;
         //dump("start message pane with: " + startpage + "\n");
         ClearMessageSelection();
