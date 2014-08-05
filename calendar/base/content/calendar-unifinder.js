@@ -210,7 +210,10 @@ function prepareCalendarUnifinder() {
 
         // Set up sortDirection and sortActive, in case it persisted
         let sorted = unifinderTree.getAttribute("sort-active");
-        let sortDirection = unifinderTree.getAttribute("sort-direction") || "ascending";
+        let sortDirection = unifinderTree.getAttribute("sort-direction");
+        if (!sortDirection || sortDirection == "undefined") {
+            sortDirection = "ascending";
+        }
         let tree = document.getElementById("unifinder-search-results-tree");
         let treecols = tree.getElementsByTagName("treecol");
         for (let i = 0; i < treecols.length; i++) {
@@ -255,7 +258,7 @@ function finishCalendarUnifinder() {
     let sorted = unifinderTreeView.selectedColumn;
     if (sorted) {
         unifinderTree.setAttribute("sort-active",sorted.getAttribute("itemproperty"));
-        unifinderTree.setAttribute("sort-direction",unifinderTree.sortDirection);
+        unifinderTree.setAttribute("sort-direction",unifinderTreeView.sortDirection);
     } else {
         unifinderTree.removeAttribute("sort-active");
         unifinderTree.removeAttribute("sort-direction");
