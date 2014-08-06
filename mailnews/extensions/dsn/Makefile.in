@@ -14,7 +14,3 @@ include $(topsrcdir)/config/rules.mk
 
 libs::
 	$(INSTALL) $(srcdir)/content/dsn.js $(DIST)/bin/defaults/pref
-
-install::
-	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/content/dsn.js $(DESTDIR)$(mozappdir)/defaults/pref
-

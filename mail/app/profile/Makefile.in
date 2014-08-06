@@ -19,6 +19,3 @@ FILES := \
 
 libs:: $(FILES)
 	$(SYSINSTALL) $(IFLAGS1) $^ $(DIST)/bin/defaults/profile
-
-install:: $(FILES)
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/defaults/profile

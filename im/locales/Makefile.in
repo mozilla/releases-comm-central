@@ -78,9 +78,6 @@ SEARCH_PLUGINS = $(shell cat $(call MERGE_FILE,/searchplugins/list.txt))
 libs:: $(addsuffix .xml,$(SEARCH_PLUGINS))
 	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/searchplugins
 
-install:: $(addsuffix .xml,$(SEARCH_PLUGINS))
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/searchplugins
-
 libs-%:
 	$(NSINSTALL) -D $(DIST)/install
 	@$(MAKE) -C ../../mozilla/toolkit/locales libs-$*

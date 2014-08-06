@@ -26,7 +26,4 @@ GARBAGE += $(EXPORT_DIR)/rss.rdf
 libs:: rss.rdf
 	$(INSTALL) $^ $(EXPORT_DIR)
 
-install:: rss.rdf
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/isp
-
 include $(topsrcdir)/config/rules.mk

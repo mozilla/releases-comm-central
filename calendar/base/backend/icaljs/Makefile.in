@@ -39,8 +39,4 @@ libs:: $(BACKEND_MANIFESTS)
 	  $(PYTHON) -m mozbuild.action.preprocessor $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $$i -o $$dest; \
 	done
 
-# The install target must use SYSINSTALL, which is NSINSTALL in copy mode.
-install:: $(EXTRA_SCRIPTS)
-	$(call install_cmd,$(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/calendar-js)
-
 include $(topsrcdir)/config/rules.mk

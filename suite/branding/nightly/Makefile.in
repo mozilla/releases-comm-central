@@ -60,9 +60,6 @@ ifeq ($(ICON_DIR),gtk)
 libs:: icons/gtk/seamonkey.png
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
 
-install:: icons/gtk/seamonkey.png
-	$(INSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/chrome/icons/default
-
 GARBAGE	+= $(DIST)/bin/chrome/icons/default/seamonkey.png
 
 DESKTOP_ICONS += default
@@ -74,9 +71,6 @@ DESKTOP_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(DESKTOP_ICONS) $(DESKTOP_ICON
 
 libs:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
-
-install:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/chrome/icons/default
 
 GARBAGE	+= $(addprefix $(DIST)/bin/chrome/icons/default/,$(DESKTOP_ICON_FILES))
 endif

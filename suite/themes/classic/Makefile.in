@@ -24,7 +24,3 @@ FILES = \
 libs::
 	$(INSTALL) $(FILES) $(DIST)/bin/extensions/$(CLASSIC_EXTENSION_DIR)
 	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf -o $(DIST)/bin/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf)
-
-install::
-	$(SYSINSTALL) $(IFLAGS1) $(FILES) $(DESTDIR)$(mozappdir)/extensions/$(CLASSIC_EXTENSION_DIR)
-	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(srcdir)/install.rdf -o $(DESTDIR)$(mozappdir)/extensions/$(CLASSIC_EXTENSION_DIR)/install.rdf)

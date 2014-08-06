@@ -161,20 +161,11 @@ libs:: $(addprefix icons/$(MOZ_WIDGET_TOOLKIT)/,$(DESKTOP_ICON_FILES))
 
 libs:: $(addprefix $(DIST)/branding/,$(BRANDED_ICON_FILES))
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
-
-install:: $(addprefix icons/$(MOZ_WIDGET_TOOLKIT)/,$(DESKTOP_ICON_FILES))
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/chrome/icons/default
-
-install:: $(addprefix $(DIST)/branding,$(BRANDED_ICON_FILES))
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/chrome/icons/default
 endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 libs::
 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default* $(DIST)/bin/chrome/icons/default
-
-install::
-	$(SYSINSTALL) $(IFLAGS1) $(DIST)/branding/default* $(DESTDIR)$(mozappdir)/chrome/icons/default
 endif
 
 libs:: $(srcdir)/profile/prefs.js
