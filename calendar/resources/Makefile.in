@@ -9,6 +9,8 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
+USE_EXTENSION_MANIFEST = 1
+
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 THEME = osx
 else

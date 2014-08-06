@@ -8,7 +8,7 @@ ifeq (calendar,$(firstword $(subst /, ,$(subst $(topsrcdir)/,,$(srcdir)))))
 # Possibly XPI_NAME is already set, i.e in the timezones extension. Don't
 # override this.
 ifndef XPI_NAME
-export XPI_NAME = lightning
-export USE_EXTENSION_MANIFEST = 1
+XPI_NAME = lightning
+USE_EXTENSION_MANIFEST = 1
 endif
 endif
