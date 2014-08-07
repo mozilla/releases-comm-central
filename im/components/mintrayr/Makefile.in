@@ -25,6 +25,4 @@ OS_LIBS += $(TK_LIBS) $(XLIBS)
 endif # gtk2
 endif # windows
 
-EXTRA_LIBS += $(NSPR_LIBS)
-
 include $(topsrcdir)/config/rules.mk
