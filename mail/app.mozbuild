@@ -3,19 +3,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-app_libxul_dirs = []
-
 include('../bridge/bridge.mozbuild')
 
-if not CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    app_libxul_dirs = mailnews_dirs
-    app_libxul_dirs += ['../mail/components']
+add_tier_dir('app', '../mail/components')
 
 if not CONFIG['LIBXUL_SDK']:
     include('/toolkit/toolkit.mozbuild')
-
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    add_tier_dir('app', mailnews_dirs)
 
 if CONFIG['MOZ_EXTENSIONS']:
     add_tier_dir('app', 'extensions')
