@@ -46,8 +46,6 @@ include $(topsrcdir)/config/rules.mk
 else
 # Build a binary bootstrapping with XRE_main
 
-DIST_FILES = application.ini
-
 DEFINES += -DXPCOM_GLUE
 STL_FLAGS=
 

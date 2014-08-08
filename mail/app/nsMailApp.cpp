@@ -5,6 +5,8 @@
 
 #include "nsXPCOMGlue.h"
 #include "nsXULAppAPI.h"
+#include "mozilla/AppData.h"
+#include "application.ini.h"
 #if defined(XP_WIN)
 #include <windows.h>
 #include <stdlib.h>
@@ -36,6 +38,8 @@
 
 #include "mozilla/Telemetry.h"
 #include "mozilla/WindowsDllBlocklist.h"
+
+using namespace mozilla;
 
 static void Output(const char *fmt, ... )
 {
@@ -77,6 +81,26 @@ static void Output(const char *fmt, ... )
   va_end(ap);
 }
 
+/**
+ * Return true if |arg| matches the given argument name.
+ */
+static bool IsArg(const char* arg, const char* s)
+{
+  if (*arg == '-')
+  {
+    if (*++arg == '-')
+      ++arg;
+    return !strcasecmp(arg, s);
+  }
+
+#if defined(XP_WIN)
+  if (*arg == '/')
+    return !strcasecmp(++arg, s);
+#endif
+
+  return false;
+}
+
 XRE_GetFileFromPathType XRE_GetFileFromPath;
 XRE_CreateAppDataType XRE_CreateAppData;
 XRE_FreeAppDataType XRE_FreeAppData;
@@ -94,34 +118,65 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
 
 static int do_main(const char *exePath, int argc, char* argv[])
 {
-  nsCOMPtr<nsIFile> appini;
-
   NS_LogInit();
 
-#ifdef XP_WIN
-  // exePath comes from mozilla::BinaryPath::Get, which returns a UTF-8
-  // encoded path, so it is safe to convert it
-  nsresult rv = NS_NewLocalFile(NS_ConvertUTF8toUTF16(exePath), false,
-                                getter_AddRefs(appini));
-#else
-  nsresult rv = NS_NewNativeLocalFile(nsDependentCString(exePath), false,
-                                      getter_AddRefs(appini));
-#endif
-  if (NS_FAILED(rv)) {
-    return 255;
+  nsCOMPtr<nsIFile> appini;
+  nsresult rv;
+  uint32_t mainFlags = 0;
+
+  // Allow firefox.exe to launch XULRunner apps via -app <application.ini>
+  // Note that -app must be the *first* argument.
+  const char *appDataFile = getenv("XUL_APP_FILE");
+  if (appDataFile && *appDataFile) {
+    rv = XRE_GetFileFromPath(appDataFile, getter_AddRefs(appini));
+    if (NS_FAILED(rv)) {
+      Output("Invalid path found: '%s'", appDataFile);
+      return 255;
+    }
+  }
+  else if (argc > 1 && IsArg(argv[1], "app")) {
+    if (argc == 2) {
+      Output("Incorrect number of arguments passed to -app");
+      return 255;
+    }
+
+    rv = XRE_GetFileFromPath(argv[2], getter_AddRefs(appini));
+    if (NS_FAILED(rv)) {
+      Output("application.ini path not recognized: '%s'", argv[2]);
+      return 255;
+    }
+
+    char appEnv[MAXPATHLEN];
+    snprintf(appEnv, MAXPATHLEN, "XUL_APP_FILE=%s", argv[2]);
+    if (putenv(appEnv)) {
+      Output("Couldn't set %s.\n", appEnv);
+      return 255;
+    }
+    argv[2] = argv[0];
+    argv += 2;
+    argc -= 2;
   }
 
-  appini->AppendNative(NS_LITERAL_CSTRING("application.ini"));
-
-  nsXREAppData *appData;
-  rv = XRE_CreateAppData(appini, &appData);
-  if (NS_FAILED(rv)) {
-    Output("Couldn't read application.ini");
-    return 255;
+  int result;
+  if (appini) {
+    nsXREAppData *appData;
+    rv = XRE_CreateAppData(appini, &appData);
+    if (NS_FAILED(rv)) {
+      Output("Couldn't read application.ini");
+      return 255;
+    }
+    result = XRE_main(argc, argv, appData, 0);
+    XRE_FreeAppData(appData);
+  } else {
+    ScopedAppData appData(&sAppData);
+    nsCOMPtr<nsIFile> exeFile;
+    rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
+    if (NS_FAILED(rv)) {
+      Output("Couldn't find the application directory.\n");
+      return 255;
+    }
+    result = XRE_main(argc, argv, &appData, mainFlags);
   }
-
-  int result = XRE_main(argc, argv, appData, 0);
-  XRE_FreeAppData(appData);
   return result;
 }
 
