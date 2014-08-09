@@ -552,7 +552,6 @@ nsPgpMimeProxy::OnDataAvailable(nsIRequest* aRequest, nsISupports* aContext,
   NS_ENSURE_TRUE(mInitialized, NS_ERROR_NOT_INITIALIZED);
 
   NS_ENSURE_ARG(aInputStream);
-  NS_ENSURE_ARG_MIN(aLength, 0);
 
   char buf[kCharMax];
   uint32_t readCount, readMax;

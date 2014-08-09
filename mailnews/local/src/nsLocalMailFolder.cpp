@@ -2025,7 +2025,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy(nsIMsgDBHdr *message)
   seekableStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
 
   int32_t messageIndex = (mCopyState->m_copyingMultipleMessages) ? mCopyState->m_curCopyIndex - 1 : mCopyState->m_curCopyIndex;
-  NS_ASSERTION(!mCopyState->m_copyingMultipleMessages || mCopyState->m_curCopyIndex >= 0, "mCopyState->m_curCopyIndex invalid");
+  NS_ASSERTION(!mCopyState->m_copyingMultipleMessages || messageIndex, "messageIndex invalid");
   // by the time we get here, m_curCopyIndex is 1 relative because WriteStartOfNewMessage increments it
   mCopyState->m_messages->QueryElementAt(messageIndex, NS_GET_IID(nsIMsgDBHdr),
                                   (void **)getter_AddRefs(mCopyState->m_message));
