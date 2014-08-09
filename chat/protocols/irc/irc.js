@@ -1383,6 +1383,12 @@ ircAccount.prototype = {
   connect: function() {
     this.reportConnecting();
 
+    // Mark existing MUCs as joining if they will be rejoined.
+    this.conversations.forEach(conversation => {
+      if (conversation.isChat && conversation.chatRoomFields)
+        conversation.joining = true;
+    });
+
     // Load preferences.
     this._port = this.getInt("port");
     this._ssl = this.getBool("ssl");
