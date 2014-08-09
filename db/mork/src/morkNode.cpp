@@ -380,11 +380,11 @@ nsIMdbFile_SlotStrongFile(nsIMdbFile* self, morkEnv* ev, nsIMdbFile** ioSlot)
       *ioSlot = 0;
       NS_RELEASE(file);
     }
-    if ( self && ev->Good() && (NS_ADDREF(self)>=0) && ev->Good() )
-      *ioSlot = self;
+    if (self && ev->Good())
+      NS_ADDREF(*ioSlot = self);
   }
 }
-  
+
 void // utility method very similar to morkNode::SlotStrongNode():
 nsIMdbHeap_SlotStrongHeap(nsIMdbHeap* self, morkEnv* ev, nsIMdbHeap** ioSlot)
   // If *ioSlot is non-nil, that heap is released by CutStrongRef() and
