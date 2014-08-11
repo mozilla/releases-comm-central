@@ -550,6 +550,10 @@ splitter {
 
 /* ..... status bar adjustments ..... */
 
+#quotaMeter {
+  -moz-appearance: none;
+}
+
 #status-bar {
   border-top: none !important;
 }

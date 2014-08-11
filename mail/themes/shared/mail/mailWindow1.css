@@ -88,7 +88,6 @@ treechildren::-moz-tree-cell-text(subjectCol) {
 /* ..... status bar adjustments ..... */
 
 #quotaMeter {
-  -moz-appearance: none;
   min-width: 4em;
   max-width: 4em;
   border: 1px solid ThreeDShadow;
