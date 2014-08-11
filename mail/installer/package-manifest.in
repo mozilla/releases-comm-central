@@ -540,6 +540,7 @@
 @BINPATH@/components/PeerConnection.js
 @BINPATH@/components/PeerConnection.manifest
 #endif
+@BINPATH@/components/toolkit_formautofill.xpt
 @BINPATH@/components/toolkit_osfile.xpt
 @BINPATH@/components/toolkitplaces.manifest
 @BINPATH@/components/toolkitsearch.manifest
@@ -702,6 +703,8 @@
 ; core platform files
 @BINPATH@/components/FeedProcessor.js
 @BINPATH@/components/FeedProcessor.manifest
+@BINPATH@/components/FormAutofillContentService.js
+@BINPATH@/components/formautofill.manifest
 @BINPATH@/components/autocomplete.xpt
 @BINPATH@/components/alerts.xpt
 @BINPATH@/components/jsdebugger.xpt
