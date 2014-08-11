@@ -229,7 +229,7 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
 
 PromiseTestUtils.promiseFolderAdded = function promiseFolderAdded(folderName) {
   return new Promise((resolve, reject) => {
-    listener = {
+    var listener = {
        folderAdded: aFolder => {
          if (aFolder.name == folderName) {
            MailServices.mfn.removeListener(listener);

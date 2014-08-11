@@ -128,6 +128,7 @@ function POP3_RFC1939_handler(daemon) {
   this._daemon = daemon;
   this.closing = false;
   this.dropOnAuthFailure = false;
+  this._multiline = false;
   this.resetTest();
 }
 POP3_RFC1939_handler.prototype = {

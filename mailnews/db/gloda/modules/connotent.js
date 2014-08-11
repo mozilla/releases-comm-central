@@ -88,7 +88,7 @@ WhittlerRegistry.prototype = {
   }
 }
 
-whittlerRegistry = new WhittlerRegistry();
+this.whittlerRegistry = new WhittlerRegistry();
 
 function GlodaContent() {
   this._contentPriority = null;

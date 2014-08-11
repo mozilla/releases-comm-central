@@ -233,7 +233,8 @@ function test_message_attachments(info) {
 
   MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     try {
-      check_attachments(aMimeMsg, info.epsilon, info.checkTotalSize);
+      check_attachments(aMimeMsg, info.epsilon,
+                        "checkTotalSize" in info ? info.checkTotalSize : undefined);
     } catch (e) {
       do_throw(e);
     }
