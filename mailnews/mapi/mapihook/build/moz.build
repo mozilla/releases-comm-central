@@ -7,3 +7,4 @@ LIBRARY_NAME = 'MapiProxy'
 
 FORCE_SHARED_LIB = True
 
+DEFFILE = SRCDIR + '/MapiProxy.def'

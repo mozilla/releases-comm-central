@@ -11,3 +11,4 @@ SOURCES += [
 
 FORCE_SHARED_LIB = True
 
+DEFFILE	= SRCDIR + '/Mapi32.def'
