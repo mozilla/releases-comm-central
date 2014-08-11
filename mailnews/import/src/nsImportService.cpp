@@ -337,14 +337,16 @@ NS_IMETHODIMP nsProxySendRunnable::Run()
   nsCOMPtr<nsISupportsArray> supportsArray;
   NS_NewISupportsArray(getter_AddRefs(supportsArray));
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  m_embeddedAttachments->Enumerate(getter_AddRefs(enumerator));
+  if (m_embeddedAttachments) {
+    nsCOMPtr<nsISimpleEnumerator> enumerator;
+    m_embeddedAttachments->Enumerate(getter_AddRefs(enumerator));
 
-  bool hasMore;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    enumerator->GetNext(getter_AddRefs(item));
-    supportsArray->AppendElement(item);
+    bool hasMore;
+    while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
+      nsCOMPtr<nsISupports> item;
+      enumerator->GetNext(getter_AddRefs(item));
+      supportsArray->AppendElement(item);
+    }
   }
 
   return msgSend->CreateRFC822Message(m_identity, m_compFields,
