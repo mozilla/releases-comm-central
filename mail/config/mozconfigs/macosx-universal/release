@@ -24,9 +24,6 @@ export MOZILLA_OFFICIAL=1
 
 export MOZ_TELEMETRY_REPORTING=1
 
-# Package js shell
-export MOZ_PACKAGE_JSSHELL=1
-
 # Make sure Lightning is also unified
 mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
 
