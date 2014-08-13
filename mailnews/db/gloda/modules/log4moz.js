@@ -189,7 +189,7 @@ let Log4Moz = {
                                                        aExcludeComplexTypes) {
     let properties = [];
 
-    for (p in aObject) {
+    for (var p in aObject) {
       try {
         if (aExcludeComplexTypes &&
             (typeof aObject[p] == "object" || typeof aObject[p] == "function"))

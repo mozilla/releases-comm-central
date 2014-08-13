@@ -1756,25 +1756,25 @@ var Gloda = {
       }
     }
 
+    function gatherLocalizedStrings(aBundle, aPropRoot, aStickIn) {
+      for each (let [propName, attrName] in
+                Iterator(Gloda._ATTR_LOCALIZED_STRINGS)) {
+        try {
+          aStickIn[attrName] = aBundle.get(aPropRoot + propName);
+        }
+        catch (ex) {
+          // do nothing.  nsIStringBundle throws exceptions because it is a
+          //  standard nsresult type of API and our helper buddy does nothing
+          //  to help us.  (StringBundle.js, that is.)
+        }
+      }
+    }
+
     // -- L10n.
     // If the provider has a string bundle, populate a "strings" attribute with
     //  our standard attribute strings that can be UI exposed.
     if (("strings" in aAttrDef.provider) && (aAttrDef.facet)) {
       let bundle = aAttrDef.provider.strings;
-
-      function gatherLocalizedStrings(aPropRoot, aStickIn) {
-        for each (let [propName, attrName] in
-                  Iterator(Gloda._ATTR_LOCALIZED_STRINGS)) {
-          try {
-            aStickIn[attrName] = bundle.get(aPropRoot + propName);
-          }
-          catch (ex) {
-            // do nothing.  nsIStringBundle throws exceptions because it is a
-            //  standard nsresult type of API and our helper buddy does nothing
-            //  to help us.  (StringBundle.js, that is.)
-          }
-        }
-      }
 
       // -- attribute strings
       let attrStrings = aAttrDef.facet.strings = {};
@@ -1785,7 +1785,7 @@ var Gloda = {
       let canonicalSubject = this._nounIDToDef[aAttrDef.subjectNouns[0]];
       let propRoot = "gloda." + canonicalSubject.name + ".attr." +
                        aAttrDef.attributeName + ".";
-      gatherLocalizedStrings(propRoot, attrStrings);
+      gatherLocalizedStrings(bundle, propRoot, attrStrings);
 
       // -- alias strings for synthetic facets
       if ("extraFacets" in aAttrDef) {
@@ -1793,7 +1793,7 @@ var Gloda = {
           facetDef.strings = {};
           let aliasPropRoot = "gloda." + canonicalSubject.name + ".attr." +
                                 facetDef.alias + ".";
-          gatherLocalizedStrings(aliasPropRoot, facetDef.strings);
+          gatherLocalizedStrings(bundle, aliasPropRoot, facetDef.strings);
         }
       }
     }
