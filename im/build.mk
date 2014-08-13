@@ -83,7 +83,7 @@ ifdef ENABLE_TESTS
 	$(MAKE) xpcshell-tests
 endif
 ifdef MOZ_UPDATE_PACKAGING
-	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update PKG_INST_PATH=
+	$(MAKE) -C tools/update-packaging full-update PKG_INST_PATH=
 endif
 ifdef L10NBASEDIR
 	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C im/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=$(MOZ_UPDATE_PACKAGING) ;)
