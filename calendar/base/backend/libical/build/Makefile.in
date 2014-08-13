@@ -10,7 +10,6 @@ VPATH   = @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-MODULE_NAME = calBaseModule
 USE_STATIC_LIBS = 1
 NO_COMPONENTS_MANIFEST = 1
 

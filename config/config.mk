@@ -306,9 +306,6 @@ ifdef LIBXUL_LIBRARY
 ifdef IS_COMPONENT
 $(error IS_COMPONENT is set, but is not compatible with LIBXUL_LIBRARY)
 endif
-ifdef MODULE_NAME
-$(error MODULE_NAME is $(MODULE_NAME) but MODULE_NAME and LIBXUL_LIBRARY are not compatible)
-endif
 SHORT_LIBNAME=
 endif
 

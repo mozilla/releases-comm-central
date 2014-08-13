@@ -43,7 +43,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-MODULE_NAME      = mozIcalModule
 USE_STATIC_LIBS  = 1
 
 DEFINES += -DHAVE_CONFIG_H

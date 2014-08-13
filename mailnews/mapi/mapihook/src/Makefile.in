@@ -10,10 +10,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
-MODULE_NAME	= msgMapiModule
-endif
-
 CSRCS += ../build/msgMapi_i.c
 
 OS_LIBS		+= ole32.lib

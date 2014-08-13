@@ -10,10 +10,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
-MODULE_NAME	= nsMailModule
-endif
-
 EXTRA_LIBS += $(NSPR_LIBS)
 ifneq (WINNT,$(OS_ARCH))
 OS_LIBS += $(MOZ_ZLIB_LIBS)

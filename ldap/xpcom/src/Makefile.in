@@ -10,10 +10,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
-MODULE_NAME	= nsLDAPProtocolModule
-endif
-
 ifdef MOZ_PREF_EXTENSIONS
 DEFINES += -DMOZ_PREF_EXTENSIONS
 endif
