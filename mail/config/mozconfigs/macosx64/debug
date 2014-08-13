@@ -11,6 +11,9 @@ export MOZILLA_OFFICIAL=1
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
+# Package js shell
+export MOZ_PACKAGE_JSSHELL=1
+
 ac_add_options --with-ccache
 
 # Run client.py
