@@ -9,6 +9,7 @@ SOURCES += [
 
 USE_LIBS += [
     'mozalloc',
+    'nspr',
 ]
 
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:

@@ -16,6 +16,7 @@ USE_LIBS += [
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     IS_COMPONENT = True
     USE_LIBS += [
+        'nspr',
         'unicharutil_external_s',
         'xpcomglue_s',
         'xul',

@@ -15,6 +15,7 @@ USE_LIBS += [
     'mozalloc',
     'msgbsutl_s',
     'msgimap_s',
+    'nspr',
     'xpcomglue_s',
     'xul',
 ]

@@ -9,8 +9,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-EXTRA_LIBS += $(NSPR_LIBS)
-
 USE_STATIC_LIBS = 1
 
 include $(topsrcdir)/config/rules.mk

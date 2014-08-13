@@ -27,12 +27,14 @@ EXTRA_COMPONENTS += [
 ]
 
 USE_LIBS += [
+    'ldapsdks',
     'mozalloc',
 ]
 
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     IS_COMPONENT = True
     USE_LIBS += [
+        'nspr',
         'xpcomglue_s',
         'xul',
     ]

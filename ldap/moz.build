@@ -3,8 +3,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# There needs to be an ldap/target entry in root.mk for the ldap libraries to
-# be built ahead of toolkit/library, so by adding a LIBRARY_NAME, it forces an
-# entry to be created. It is not currently used for anything other than
-# creating that entry.
 LIBRARY_NAME = 'ldapsdks'
+
+USE_LIBS += ['nspr']
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    USE_LIBS += [
+        '/ldap/sdks/c-sdk/ldap/libraries/libldap/nsldap32v60',
+        '/ldap/sdks/c-sdk/ldap/libraries/libldif/nsldif32v60',
+        '/ldap/sdks/c-sdk/ldap/libraries/libprldap/nsldappr32v60',
+    ]
+else:
+    USE_LIBS += [
+        '/ldap/sdks/c-sdk/ldap/libraries/libldap/ldap60',
+        '/ldap/sdks/c-sdk/ldap/libraries/libldif/ldif60',
+        '/ldap/sdks/c-sdk/ldap/libraries/libprldap/prldap60',
+    ]
