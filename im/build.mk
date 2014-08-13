@@ -4,6 +4,10 @@
 
 ifndef COMM_BUILD
 
+ifndef MOZILLA_DIR
+MOZILLA_DIR = $(topsrcdir)
+endif
+# included to get $(BUILDID), which needs $(MOZILLA_DIR)
 include $(topsrcdir)/toolkit/mozapps/installer/package-name.mk
 
 BUILD_YEAR := $(shell echo $(BUILDID) | cut -c 1-4)
@@ -73,7 +77,7 @@ FORCE_UPDATE := components/components.list|Contents/MacOS/components/components.
 # SYMBOL_SERVER_USER=buildbot
 
 distribution:
-	@$(MAKE) -C mozilla MAKE_SYM_STORE_PATH=$(MAKE_SYM_STORE_PATH) SYM_STORE_SOURCE_DIRS='$(topsrcdir)/mozilla/extensions/purple $(topsrcdir)/mozilla $(topsrcdir)' buildsymbols
+	@$(MAKE) MAKE_SYM_STORE_PATH=$(MAKE_SYM_STORE_PATH) SYM_STORE_SOURCE_DIRS='$(topsrcdir)/mozilla/extensions/purple $(topsrcdir)/mozilla $(topsrcdir)' buildsymbols
 	@$(MAKE) -C im/installer libs installer
 ifdef ENABLE_TESTS
 	$(MAKE) xpcshell-tests
