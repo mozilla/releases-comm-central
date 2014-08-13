@@ -90,3 +90,5 @@ EXTRA_PP_COMPONENTS += [
 
 FINAL_LIBRARY = 'mail'
 
+if CONFIG['OS_ARCH'] == 'WINNT':
+    DEFINES['NOMINMAX'] = True
