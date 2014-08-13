@@ -11,11 +11,6 @@ include $(DEPTH)/config/autoconf.mk
 
 ifdef MOZ_INCOMPLETE_EXTERNAL_LINKAGE
 EXTRA_LIBS += $(NSPR_LIBS)
-OS_LIBS += $(GLIB_LIBS)
-endif
-
-ifeq ($(OS_ARCH),WINNT)
-OS_LIBS += $(call EXPAND_LIBNAME,ole32 shell32)
 endif
 
 include $(topsrcdir)/config/rules.mk

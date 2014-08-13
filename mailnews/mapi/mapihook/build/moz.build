@@ -7,4 +7,7 @@ LIBRARY_NAME = 'MapiProxy'
 
 FORCE_SHARED_LIB = True
 
+OS_LIBS += [
+    'rpcrt4',
+]
 DEFFILE = SRCDIR + '/MapiProxy.def'

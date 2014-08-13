@@ -20,6 +20,7 @@ if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
         'xpcomglue_s',
         'xul',
     ]
+    OS_LIBS += CONFIG['GLIB_LIBS']
 else:
     FINAL_LIBRARY = 'xul'
 
@@ -30,6 +31,12 @@ LOCAL_INCLUDES += [
     '../migration/src',
     '../shell',
 ]
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    OS_LIBS += [
+        'ole32',
+        'shell32',
+    ]
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     LOCAL_INCLUDES += ['../search']

@@ -19,3 +19,6 @@ if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
 else:
     FINAL_LIBRARY = 'xul'
 
+OS_LIBS += [
+    'ole32',
+]

@@ -9,3 +9,7 @@ SOURCES += [
     'WSEnable.cpp',
 ]
 
+OS_LIBS += [
+    'ole32',
+    'shell32',
+]

@@ -12,8 +12,6 @@ include $(DEPTH)/config/autoconf.mk
 
 CSRCS += ../build/msgMapi_i.c
 
-OS_LIBS		+= ole32.lib
-
 include $(topsrcdir)/config/rules.mk
 
 DEFINES	+= -DUNICODE -D_UNICODE

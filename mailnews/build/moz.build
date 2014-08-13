@@ -28,6 +28,17 @@ USE_LIBS += [
     'js',
 ]
 
+if CONFIG['OS_ARCH'] == 'WINNT':
+    OS_LIBS += [
+        'shell32',
+    ]
+else:
+    OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+    OS_LIBS += CONFIG['TK_LIBS']
+    OS_LIBS += ['-framework Cocoa']
+
 LIBRARY_NAME = 'mail'
 
 LOCAL_INCLUDES += [

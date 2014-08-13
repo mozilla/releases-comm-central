@@ -5,6 +5,12 @@
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     SOURCES += ['nsWindowsShellService.cpp']
+    OS_LIBS += [
+        'ole32',
+        'version',
+        'uuid',
+        'shell32',
+    ]
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     SOURCES += ['nsMacShellService.cpp']
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':

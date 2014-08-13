@@ -11,4 +11,7 @@ SOURCES += [
 
 FORCE_SHARED_LIB = True
 
+OS_LIBS += [
+    'ole32',
+]
 DEFFILE	= SRCDIR + '/Mapi32.def'

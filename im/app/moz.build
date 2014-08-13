@@ -17,3 +17,7 @@ if not CONFIG['LIBXUL_SDK']:
     USE_LIBS += [
         'xpcomglue',
     ]
+
+    if CONFIG['MOZ_LINKER']:
+        OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+
