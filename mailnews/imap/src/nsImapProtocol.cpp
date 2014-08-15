@@ -7293,6 +7293,10 @@ void nsImapProtocol::DiscoverMailboxList()
             // pattern2 = PR_smprintf("%s%%%c%%", prefix, delimiter);
           }
         }
+        // Note: It is important to make sure we are respecting the server_sub_directory
+        //       preference when calling List and Lsub (2nd arg = true), otherwise
+        //       we end up with performance issues or even crashes when connecting to
+        //       servers that expose the users entire home directory (like UW-IMAP).
         if (usingSubscription) { // && !GetSubscribingNow())  should never get here from subscribe pane
           if (GetServerStateParser().GetCapabilityFlag() & kHasListExtendedCapability)
             Lsub(pattern.get(), true); // do LIST (SUBSCRIBED)
@@ -7300,7 +7304,7 @@ void nsImapProtocol::DiscoverMailboxList()
             // store mailbox flags from LIST
             EMailboxHierarchyNameState currentState = m_hierarchyNameState;
             m_hierarchyNameState = kListingForFolderFlags;
-            List(pattern.get(), false);
+            List(pattern.get(), true);
             m_hierarchyNameState = currentState;
             // then do LSUB using stored flags
             Lsub(pattern.get(), true);
