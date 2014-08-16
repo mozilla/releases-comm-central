@@ -644,6 +644,9 @@ pref("mail.biff.on_new_window", true);
 // Defaults to false, which notifies about the number of unread messages.
 pref("mail.biff.use_new_count_in_mac_dock", false);
 
+// For feed account serverType=rss sound on biff; if true, mail.biff.play_sound.* settings are used.
+pref("mail.feed.play_sound", false);
+
 // Content disposition for attachments (except binary files and vcards).
 //   0= Content-Disposition: inline
 //   1= Content-Disposition: attachment

@@ -30,6 +30,7 @@ private:
 
   bool     mInitialized;
   int32_t  mCurrentBiffState;
+  nsCString mServerType;
   nsCOMPtr<nsISound> mSound;
   nsresult PlayBiffSound(const char *aPrefBranch);
 

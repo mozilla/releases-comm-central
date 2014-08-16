@@ -41,6 +41,7 @@ nsStatusBarBiffManager::~nsStatusBarBiffManager()
 
 #define NEW_MAIL_PREF_BRANCH             "mail.biff."
 #define CHAT_PREF_BRANCH                 "mail.chat."
+#define FEED_PREF_BRANCH                 "mail.feed."
 #define PREF_PLAY_SOUND                  "play_sound"
 #define PREF_SOUND_URL                   "play_sound.url"
 #define PREF_SOUND_TYPE                  "play_sound.type"
@@ -90,7 +91,15 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char *aPrefBranch)
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool playSound;
-  rv = pref->GetBoolPref(PREF_PLAY_SOUND, &playSound);
+  if (mServerType.EqualsLiteral("rss")) {
+    nsCOMPtr<nsIPrefBranch> prefFeed;
+    rv = prefSvc->GetBranch(FEED_PREF_BRANCH, getter_AddRefs(prefFeed));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = prefFeed->GetBoolPref(PREF_PLAY_SOUND, &playSound);
+  }
+  else {
+    rv = pref->GetBoolPref(PREF_PLAY_SOUND, &playSound);
+  }
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!playSound)
@@ -180,6 +189,12 @@ nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *pr
     // if we fail along the way, don't return.
     // we still need to update the UI.    
     if (newValue == nsIMsgFolder::nsMsgBiffState_NewMail) {
+      // Get the folder's server type.
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      nsresult rv = item->GetServer(getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv) && server)
+        server->GetType(mServerType);
+
       // if we fail to play the biff sound, keep going.
       (void)PlayBiffSound(NEW_MAIL_PREF_BRANCH);
     }
