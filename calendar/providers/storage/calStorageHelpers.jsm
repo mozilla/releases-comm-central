@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var EXPORTED_SYMBOLS = [
     "CAL_ITEM_FLAG",
@@ -11,23 +12,23 @@ var EXPORTED_SYMBOLS = [
     "textToDate",
     "calStorageTimezone",
     "getTimezone",
-    "newDateTime"
+    "newDateTime",
+    "setDateParamHelper",
+    "itemQueue"
 ];
 
-// Storage flags. These are used in the Database |flags| column to give
-// information about the item's features. For example, if the item has
-// attachments, the HAS_ATTACHMENTS flag is added to the flags column.
-var CAL_ITEM_FLAG = {
-    PRIVATE: 1,
+// Storage flags.
+const CAL_ITEM_FLAG = {
+    PRIVATE: 1, /* obsolete */
     HAS_ATTENDEES: 2,
-    HAS_PROPERTIES: 4,
+    HAS_PROPERTIES: 4, /* deprecated */
     EVENT_ALLDAY: 8,
     HAS_RECURRENCE: 16,
     HAS_EXCEPTIONS: 32,
     HAS_ATTACHMENTS: 64,
     HAS_RELATIONS: 128,
     HAS_ALARMS: 256,
-    RECURRENCE_ID_ALLDAY: 512
+    RECURRENCE_ID_ALLDAY: 512, /* deprecated */
 };
 
 // The cache of foreign timezones
@@ -184,3 +185,75 @@ function newDateTime(aNativeTime, aTimezone) {
     }
     return t;
 }
+
+function setDateParamHelper(params, entryname, cdt) {
+    if (cdt) {
+        params[entryname] = cdt.nativeTime;
+        let tz = cdt.timezone;
+        let ownTz = cal.getTimezoneService().getTimezone(tz.tzid);
+        if (ownTz) { // if we know that TZID, we use it
+            params[entryname + "_tz"] = ownTz.tzid;
+        } else if (!tz.icalComponent) { // timezone component missing
+            params[entryname + "_tz"] = "floating";
+        } else { // foreign one
+            params[entryname + "_tz"] = tz.icalComponent.serializeToICS();
+        }
+    } else {
+        params[entryname] = null;
+        params[entryname + "_tz"] = null;
+    }
+}
+
+function itemQueue(maxCount, latency) {
+    this.mMaxCount = maxCount;
+    this.mTotalCount = 0;
+    this.mLatency = latency || Preferences.get("calendar.threading.latency");
+    this.mItems = [];
+}
+
+itemQueue.prototype = {
+
+    get completed() this.mMaxCount && this.mTotalCount >= this.mMaxCount,
+    get totalItems() this.mTotalCount,
+
+    enqueue: function enqueue(aItems) {
+        if (this.completed) {
+            // Ignore any further results
+            return;
+        }
+
+        let itemCount = this.mItems.length;
+        let newItems = aItems;
+
+        if (this.mMaxCount && this.mTotalCount + itemCount > this.mMaxCount) {
+            newItems = aItems.slice(0, this.mMaxCount - this.mTotalCount);
+        }
+
+        if (itemCount == 0) {
+            this.mStartProcessing = (new Date()).getTime();
+        }
+
+        this.mTotalCount++;
+        this.mItems = this.mItems.concat(newItems);
+        this.checkProcessTime();
+        return this.completed;
+    },
+
+    checkProcessTime: function checkProcessTime() {
+        let now = (new Date()).getTime();
+
+        if (now - this.mStartProcessing > this.mLatency) {
+            this.finish();
+        }
+    },
+
+    unleash: function(items) {
+        // This function should be overridden!
+        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    },
+
+    finish: function finish() {
+        this.unleash(this.mItems);
+        this.mItems = [];
+    }
+};

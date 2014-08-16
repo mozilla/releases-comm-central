@@ -72,7 +72,7 @@ Components.utils.import("resource://calendar/modules/calStorageHelpers.jsm");
 
 // The current database version. Be sure to increment this when you create a new
 // updater.
-var DB_SCHEMA_VERSION = 22;
+var DB_SCHEMA_VERSION = 23;
 
 var EXPORTED_SYMBOLS = ["DB_SCHEMA_VERSION", "getSql", "getAllSql", "getSqlTable", "upgradeDB", "backupDB"];
 
@@ -102,7 +102,11 @@ function getSql(tblName, tblData, alternateName) {
     } else {
         sql = "CREATE TABLE " + altName  + " (\n";
         for (let [key, type] in Iterator(tblData[tblName]))  {
-            sql += "    " + key + " " + type + ",\n";
+            if (key.substr(0, 4) == "key_") {
+                sql += key.substr(4) + " " + type + ",\n";
+            } else {
+                sql += "    " + key + " " + type + ",\n";
+            }
         }
     }
 
@@ -262,7 +266,10 @@ function createDBDelegate(funcName) {
                 return db[funcName].apply(db, args);
             } catch (e) {
                 cal.ERROR("Error calling '" + funcName + "' db error: '" +
-                          lastErrorString(db) + "'.\nException: " + e);
+                          lastErrorString(db) +
+                          "' Args: " + args.join("---") + " " +
+                          " DB: " + db +
+                          "\nException: " + e);
                 cal.WARN(cal.STACK(10));
             }
         }
@@ -324,6 +331,40 @@ function createIndex(tblData, tblName, colNameArray, db) {
 }
 
 /**
+ * Removes the index described by columns from the table
+ *
+ * @param tblData       The table data object to remove the index from.
+ * @param tblName       The name of the table the index is on.
+ * @param colNameArray  The columns that make up the index (order counts).
+ * @param db            (optional) The database to create the index on.
+ */
+function deleteIndex(tblData, tblName, colNameArray, db) {
+    let idxName = "idx_" + tblName + "_" + colNameArray.join("_");
+
+    delete tblData[idxName];
+    return executeSimpleSQL(db, "DROP INDEX IF EXISTS " + idxName);
+}
+
+/**
+ * Sets a specific key on the table, ie foreign or primary key.
+ *
+ * @param tblData       The table data object to set the key on
+ * @param tblName       The table to set the key on
+ * @param keyName       The name of the key, i.e "PRIMARY KEY"
+ * @param keyData       The data of the key, i.e "(cal_id, id")"
+ * @param db            (optional) The database to create the index on.
+ */
+function addKey(tblData, tblName, keyName, keyData, db) {
+    let keyName = "key_" + keyName;
+
+    tblData[tblName][keyName] = keyData;
+
+    // alterTypes recreates the table, doing so without changing types will
+    // allow updating the key.
+    alterTypes(tblData, tblName, [], null, db);
+}
+
+/**
  * Often in an upgrader we want to log something only if there is a database. To
  * make code less cludgy, here a helper function.
  *
@@ -361,46 +402,39 @@ function reportErrorAndRollback(db, e) {
 function ensureUpdatedTimezones(db) {
     // check if timezone version has changed:
     let selectTzVersion = createStatement(db, "SELECT version FROM cal_tz_version LIMIT 1");
-    let tzServiceVersion = cal.getTimezoneService().version;
+    let tzs = cal.getTimezoneService();
     let version;
     try {
-        version = (selectTzVersion.executeStep() ? selectTzVersion.row.version : null);
+        let step = selectTzVersion.executeStep();
+        version = (step ? selectTzVersion.row.version : null);
     } finally {
         selectTzVersion.reset();
+        selectTzVersion.finalize();
     }
 
-    let versionComp = 1;
-    if (version) {
-        versionComp = Services.vc.compare(tzServiceVersion, version);
-    }
-
+    let versionComp = (version ? Services.vc.compare(tzs.version, version) : 1);
     if (versionComp != 0) {
-        cal.LOG("[calStorageCalendar] Timezones have been changed from " + version + " to " + tzServiceVersion + ", updating calendar data.");
+        cal.ERROR("[calStorageCalendar] Timezones have been changed from " +
+                  version + " to " + tzs.version + ", updating calendar " +
+                  "data. This might take a moment...");
 
-        let zonesToUpdate = [];
+    let zonesToUpdate = {};
         let getZones = createStatement(db,
-            "SELECT DISTINCT(zone) FROM ("+
-            "SELECT recurrence_id_tz AS zone FROM cal_attendees    WHERE recurrence_id_tz IS NOT NULL UNION " +
-            "SELECT recurrence_id_tz AS zone FROM cal_events       WHERE recurrence_id_tz IS NOT NULL UNION " +
-            "SELECT event_start_tz   AS zone FROM cal_events       WHERE event_start_tz   IS NOT NULL UNION " +
-            "SELECT event_end_tz     AS zone FROM cal_events       WHERE event_end_tz     IS NOT NULL UNION " +
-            "SELECT recurrence_id_tz AS zone FROM cal_properties   WHERE recurrence_id_tz IS NOT NULL UNION " +
-            "SELECT recurrence_id_tz AS zone FROM cal_todos        WHERE recurrence_id_tz IS NOT NULL UNION " +
-            "SELECT todo_entry_tz    AS zone FROM cal_todos        WHERE todo_entry_tz    IS NOT NULL UNION " +
-            "SELECT todo_due_tz      AS zone FROM cal_todos        WHERE todo_due_tz      IS NOT NULL UNION " +
-            "SELECT recurrence_id_tz AS zone FROM cal_alarms       WHERE recurrence_id_tz IS NOT NULL UNION " +
-            "SELECT recurrence_id_tz AS zone FROM cal_relations    WHERE recurrence_id_tz IS NOT NULL UNION " +
-            "SELECT recurrence_id_tz AS zone FROM cal_attachments  WHERE recurrence_id_tz IS NOT NULL" +
+        "SELECT DISTINCT(zone) FROM ("+
+            "SELECT event_start_tz AS zone FROM cal_events WHERE event_start_tz IS NOT NULL UNION " +
+            "SELECT event_end_tz   AS zone FROM cal_events WHERE event_end_tz   IS NOT NULL UNION " +
+            "SELECT todo_entry_tz  AS zone FROM cal_todos  WHERE todo_entry_tz  IS NOT NULL UNION " +
+            "SELECT todo_due_tz    AS zone FROM cal_todos  WHERE todo_due_tz    IS NOT NULL" +
             ");");
         try {
             while (getZones.executeStep()) {
                 let zone = getZones.row.zone;
                 // Send the timezones off to the timezone service to attempt conversion:
-                let tz = getTimezone(zone);
+                let tz = tzs.getTimezone(zone);
                 if (tz) {
-                    let refTz = cal.getTimezoneService().getTimezone(tz.tzid);
+                    let refTz = tzs.getTimezone(tz.tzid);
                     if (refTz && refTz.tzid != zone) {
-                        zonesToUpdate.push({ oldTzId: zone, newTzId: refTz.tzid });
+                        zonestoUpdate[zone] = refTz;
                     }
                 }
             }
@@ -409,36 +443,215 @@ function ensureUpdatedTimezones(db) {
                       "\nDB Error " + lastErrorString(db));
         } finally {
             getZones.reset();
+            getZones.finalize();
         }
 
-        beginTransaction(db);
+        createFunction(db, "updateTimezone", 2, {
+            onFunctionCall: function(storArgs) {
+                try {
+                    let [icalString, componentType] = mapStorageArgs(storArgs);
+
+                    let item;
+                    if (componentType == "VEVENT") {
+                        item = cal.createEvent(icalString);
+                    } else if (componentType == "VTODO") {
+                        item = cal.createTodo(icalString);
+                    } else {
+                        item = { icalString: icalString };
+                    }
+
+                    let start = item[cal.calGetStartDateProp(item)];
+                    let end = item[cal.calGetEndDateProp(item)];
+
+                    if (start && start.timezone && start.timezone.tzid in zonesToUpdate) {
+                        start.timezone = zonesToUpdate[start.timezone.tzid];
+                    }
+                    if (end && end.timezone && end.timezone.tzid in zonesToUpdate) {
+                        end.timezone = zonesToUpdate[end.timezone.tzid];
+                    }
+
+                    return item.icalString;
+                } catch (e) {
+                    cal.ERROR("Error updating timezone: " + e);
+                    throw e;
+                }
+            }
+        });
+
+        let updateZones = [ k for (k in zonesToUpdate) ];
+        if (updateZones.length) {
+            updateZones = '("' + updateZones.join('","') + '")';
+        } else {
+            updateZones = null;
+        }
+
         try {
-            for each (let update in zonesToUpdate) {
+            beginTransaction(db);
+
+            if (updateZones) {
+
                 executeSimpleSQL(db,
-                    "UPDATE cal_attendees    SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_events       SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_events       SET event_start_tz   = '" + update.newTzId + "' WHERE event_start_tz   = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_events       SET event_end_tz     = '" + update.newTzId + "' WHERE event_end_tz     = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_properties   SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_todos        SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_todos        SET todo_entry_tz    = '" + update.newTzId + "' WHERE todo_entry_tz    = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_todos        SET todo_due_tz      = '" + update.newTzId + "' WHERE todo_due_tz      = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_alarms       SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_relations    SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
-                    "UPDATE cal_attachments  SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "';");
+                    "UPDATE cal_item_base" +
+                    "   SET icalString = updateTimezone(icalString,componentType)" +
+                    " WHERE componentType = 'VEVENT'" +
+                    "   AND EXISTS (SELECT 1" +
+                    "                 FROM cal_events AS e" +
+                    "                WHERE (event_start_tz IN " + updateZones +
+                    "                   OR event_end_tz IN " + updateZones + ")" +
+                    "                  AND e.cal_id = cal_item_base.cal_id" +
+                    "                  AND e.id = cal_item_base.item_id)"
+                );
+                executeSimpleSQL(db,
+                    "UPDATE cal_item_base" +
+                    "   SET icalString = updateTimezone(icalString,componentType)" +
+                    " WHERE componentType = 'VTODO'" +
+                    "   AND EXISTS (SELECT 1" +
+                    "                 FROM cal_todos AS t" +
+                    "                WHERE (todo_entry_tz IN " + updateZones +
+                    "                   OR todo_due_tz IN " + updateZones +
+                    "                   OR todo_completed_tz IN " + updateZones + ")" +
+                    "                  AND t.cal_id = cal_item_base.cal_id" +
+                    "                  AND t.id = cal_item_base.item_id)"
+                );
             }
             executeSimpleSQL(db, "DELETE FROM cal_tz_version; " +
                                  "INSERT INTO cal_tz_version VALUES ('" +
-                                 cal.getTimezoneService().version + "');");
+                                 tzs.version + "');");
             commitTransaction(db);
         } catch (e) {
-            cal.ASSERT(false, "Timezone update failed! DB Error: " + lastErrorString(db));
+            cal.ERROR("Timezone update failed! DB Error: " + lastErrorString(db));
             rollbackTransaction(db);
             throw e;
         }
     }
 }
 
+
+function migrateStorageSDB() {
+    // First, we need to check if this is from 0.9, i.e we need to migrate from
+    // storage.sdb to local.sqlite.
+    const nILF = Components.interfaces.nsILocalFile;
+    const mISC = Components.interfaces.mozIStorageConnection;
+    let storageSdb = Services.dirsvc.get("ProfD", nILF);
+    storageSdb.append("storage.sdb");
+    let sdb = Services.storage.openDatabase(storageSdb);
+    if (sdb.tableExists("cal_events")) {
+        cal.LOG("[calStorageCalendar] Migrating storage.sdb -> local.sqlite");
+        upgradeDB(sdb); // upgrade schema before migating data
+
+        let attachStmt = sdb.createStatement(
+            "ATTACH DATABASE :file_path AS local_sqlite"
+        );
+        this.runStatement(attachStmt, {
+            handleInit: function(params) {
+                params.file_path = localDB.databaseFile.path;
+            }
+        }, "prepareInitDB attachStatement.execute exception", true);
+
+        attachStmt.finalize();
+
+        try {
+            sdb.beginTransactionAs(mISC.TRANSACTION_EXCLUSIVE);
+            try {
+                if (sdb.tableExists("cal_events")) { // check again (with lock)
+                    // take over data and drop from storage.sdb tables:
+                    for (let table in getSqlTable(DB_SCHEMA_VERSION)) {
+                        if (table.substr(0, 4) != "idx_") {
+                            let sql = " CREATE TABLE local_sqlite." + table + " AS" +
+                                      " SELECT * FROM " + table + ";" +
+                                      "   DROP TABLE IF EXISTS " + table;
+                            sdb.executeSimpleSQL(sql);
+                        }
+                    }
+                    sdb.commitTransaction();
+                } else { // migration done in the meantime
+                    sdb.rollbackTransaction();
+                }
+            } catch (exc) {
+                cal.ERROR("prepareInitDB storage.sdb migration exception" + exc);
+                sdb.rollbackTransaction();
+                throw exc;
+            }
+        } finally {
+            this.mDB.executeSimpleSQL("DETACH DATABASE local_sqlite");
+        }
+    }
+}
+
+/**
+ * Migrate moz-profile-calendar:// to moz-storage-calendar://. This is needed
+ * due to bug 479867 and its regression bug 561735. The first calendar created
+ * before v19 already has a moz-profile-calendar:// uri without an ?id=
+ * parameters (the id in the database is 0). We need to migrate this special
+ * calendar differently.
+ *
+ * @param db        The database to operatie on
+ * @param calendar  The calendar to set migration data on
+ */
+function migrateURLFormat(db, calendar) {
+    function migrateTables(newCalId, oldCalId) {
+        for each (let tbl in ["cal_item_base", "cal_events", "cal_todos"]) {
+            let stmt;
+            try {
+                stmt = db.createStatement("UPDATE " + tbl +
+                                          "   SET cal_id = :cal_id" +
+                                          " WHERE cal_id = :old_cal_id");
+                stmt.params.cal_id = newCalId;
+                stmt.params.old_cal_id = oldCalId;
+                stmt.executeStep();
+            } catch (e) {
+                // Pass error through to enclosing try/catch block
+                throw e;
+            } finally {
+                if (stmt) {
+                    stmt.reset();
+                    stmt.finalize();
+                }
+            }
+        }
+    }
+    db.beginTransactionAs(mISC.TRANSACTION_EXCLUSIVE);
+    try {
+        let id = 0;
+        let path = calendar.uri.path;
+        let pos = path.indexOf("?id=");
+
+        if (pos != -1) {
+            // There is an "id" parameter in the uri. This calendar
+            // has not been migrated to using the uuid as its cal_id.
+            pos = calendar.uri.path.indexOf("?id=");
+            if (pos != -1) {
+                cal.LOG("[calStorageCalendar] Migrating numeric cal_id to uuid");
+                id = parseInt(path.substr(pos + 4), 10);
+                migrateTables(calendar.id, id);
+
+                // Now remove the id from the uri to make sure we don't do this
+                // again. Remeber the id, so we can recover in case something
+                // goes wrong.
+                calendar.setProperty("uri", "moz-storage-calendar://");
+                calendar.setProperty("old_calendar_id", id);
+
+                db.commitTransaction();
+            } else {
+                db.rollbackTransaction();
+            }
+        } else {
+            // For some reason, the first storage calendar before the
+            // v19 upgrade has cal_id=0. If we still have a
+            // moz-profile-calendar here, then this is the one and we
+            // need to move all events with cal_id=0 to this id.
+            cal.LOG("[calStorageCalendar] Migrating stray cal_id=0 calendar to uuid");
+            migrateTables(db, calendar.id, 0);
+            calendar.setProperty("uri", "moz-storage-calendar://");
+            calendar.setProperty("old_calendar_id", 0);
+            db.commitTransaction();
+        }
+    } catch (exc) {
+        cal.ERROR("prepareInitDB  moz-profile-calendar migration exception" + exc);
+        db.rollbackTransaction();
+        throw exc;
+    }
+}
 /**
  * Adds a column to the given table.
  *
@@ -471,7 +684,7 @@ function deleteColumns(tblData, tblName, colNameArray, db) {
         delete tblData[tblName][colName];
     }
 
-    let columns = [ k for (k in tblData[tblName]) ];
+    let columns = [ k for (k in tblData[tblName]) if (k.substr(0, 4) != "key_") ];
     executeSimpleSQL(db, getSql(tblName, tblData, tblName + "_temp"));
     executeSimpleSQL(db, "INSERT INTO " + tblName + "_temp" +
                          "  (" + columns.join(",") + ") " +
@@ -499,7 +712,7 @@ function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
 
     tblData[newTblName] = objcopy(tblData[tblName]);
 
-    let columns = [ k for (k in tblData[newTblName]) ];
+    let columns = [ k for (k in tblData[tblName]) if (k.substr(0, 4) != "key_") ];
     executeSimpleSQL(db, getSql(newTblName, tblData));
     executeSimpleSQL(db, "INSERT INTO " + newTblName +
                          "  (" + columns.join(",") + ") " +
@@ -523,7 +736,7 @@ function alterTypes(tblData, tblName, colNameArray, newType, db) {
         tblData[tblName][colName] = newType;
     }
 
-    let columns = [ k for (k in tblData[tblName]) ];
+    let columns = [ k for (k in tblData[tblName]) if (k.substr(0, 4) != "key_") ];
     executeSimpleSQL(db, getSql(tblName, tblData, tblName + "_temp"));
     executeSimpleSQL(db, "INSERT INTO " + tblName + "_temp" +
                          "  (" + columns.join(",") + ") " +
@@ -1021,6 +1234,7 @@ upgrade.v13 = function upgrade_v13(db, version) {
                 }
                 finally {
                     stmt.reset();
+                    stmt.finalize();
                 }
             }
         }
@@ -1428,6 +1642,9 @@ upgrade.v21 = function upgrade_v21(db, version) {
                 updateStmt.execute();
             } while (db.affectedRows > 0);
 
+            insertStmt.finalize();
+            updateStmt.finalize();
+
             // Finally we can delete the x-dateset rows. Note this will leave
             // gaps in recur_index, but thats ok since its only used for
             // ordering anyway and will be overwritten on the next item write.
@@ -1631,3 +1848,386 @@ upgrade.v22 = function upgrade_v22(db, version) {
     }
     return tbl;
 };
+
+upgrade.v23 = function upgrade_v23(db, version) {
+    let tbl = upgrade.v22(version < 22 && db, version);
+    LOGdb(db, "Storage: Upgrading to v23, this may take a while...");
+    beginTransaction(db);
+    try {
+
+        addTable(tbl, "cal_item_base", {
+            cal_id: "TEXT",
+            item_id: "TEXT",
+            flags: "INTEGER",
+            offline_journal: "INTEGER",
+            componentType: "TEXT",
+            icalString: "TEXT",
+            "key_PRIMARY KEY": "(cal_id, item_id)"
+        }, db);
+
+        if (db) {
+            function createItemFunction(itemGetter, currentCols, name) {
+                return {
+                    onFunctionCall: function translateItem(storArgs) {
+                        try {
+                            let row = {};
+                            let mappedArgs = mapStorageArgs(storArgs);
+                            for (let i in currentCols) {
+                                row[currentCols[i]] = mappedArgs[i];
+                            }
+
+                            let item = itemGetter(db, row, false);
+                            return item.icalString;
+                        } catch (e) {
+                            cal.ERROR("Error converting " + name + ":" + e);
+                            throw e;
+                        }
+                    }
+                };
+            }
+
+            let eventCols = [ k for (k in tbl.cal_events) ];
+            let eventFunction = createItemFunction(getEventFromRow, eventCols, "event");
+            createFunction(db, "translateEvent", eventCols.length, eventFunction);
+            let insertEventSQL = "INSERT INTO cal_item_base" +
+                                 "      (cal_id, item_id, offline_journal, flags, componentType, icalString) " +
+                                 "SELECT cal_id, id, offline_journal, flags, 'VEVENT', " +
+                                 "       translateEvent(" + eventCols.join(",") + ")" +
+                                 "  FROM cal_events" +
+                                 " WHERE recurrence_id IS NULL";
+            executeSimpleSQL(db, insertEventSQL);
+
+            let todoCols = [ k for (k in tbl.cal_todos) ];
+            let todoFunction = createItemFunction (getTodoFromRow, todoCols, "todo");
+            createFunction(db, "translateTask", todoCols.length, todoFunction);
+            let insertTaskSQL = "INSERT INTO cal_item_base" +
+                                "      (cal_id, item_id, offline_journal, flags, componentType, icalString) " +
+                                "SELECT cal_id, id, offline_journal, flags, 'VTODO', " +
+                                "       translateTask(" + todoCols.join(",") + ")" +
+                                "  FROM cal_todos" +
+                                " WHERE recurrence_id IS NULL";
+            executeSimpleSQL(db, insertTaskSQL);
+        }
+
+        // Delete the columns we no longer use or have moved to the base table
+        deleteColumns(tbl, "cal_events", [
+            "time_created", "last_modified", "title", "priority", "privacy",
+            "ical_status", "flags", "event_stamp", "recurrence_id",
+            "recurrence_id_tz", "alarm_last_ack", "offline_journal"
+        ], db);
+        deleteColumns(tbl, "cal_todos", [
+            "time_created", "last_modified", "title", "priority", "privacy",
+            "ical_status", "flags", "todo_stamp", "recurrence_id",
+            "recurrence_id_tz", "alarm_last_ack", "todo_complete",
+            "offline_journal"
+        ], db);
+
+        // These tables are not needed anymore
+        let dropTbls = ["cal_alarms", "cal_attachments", "cal_attendees",
+                        "cal_properties", "cal_recurrence", "cal_relations"];
+        dropTbls.forEach(function(x) dropTable(tbl, x, db));
+
+        // We have a shitload of indexes we need to get rid of
+        let simpleIds = ["cal_id", "item_id"];
+        let allIds = simpleIds.concat(["recurrence_id", "recurrence_id_tz"]);
+
+        // Alarms, Attachments, Attendees, Relations
+        for each (let tblName in ["alarms", "attachments", "attendees", "relations"]) {
+            deleteIndex(tbl, "cal_" + tblName, allIds, db);
+        }
+
+        // Events and Tasks. The real index is taken care of by FOREIGN KEY
+        for each (let tblName in ["events", "todos"]) {
+            deleteIndex(tbl, "cal_" + tblName, ["flags", "cal_id", "recurrence_id"], db);
+            deleteIndex(tbl, "cal_" + tblName, ["id", "cal_id", "recurrence_id"], db);
+        }
+
+        // Metadata, properties, recurrence
+        deleteIndex(tbl, "cal_metadata", simpleIds, db);
+        deleteIndex(tbl, "cal_properties", allIds, db);
+        deleteIndex(tbl, "cal_recurrence", simpleIds, db);
+
+        // Add foreign keys to events and tasks tables
+        addKey(tbl, "cal_events", "FOREIGN KEY", "(cal_id, id) " +
+               "REFERENCES cal_item_base(cal_id, item_id) ON DELETE CASCADE", db);
+        addKey(tbl, "cal_todos", "FOREIGN KEY", "(cal_id, id) " +
+               "REFERENCES cal_item_base(cal_id, item_id) ON DELETE CASCADE", db);
+        addKey(tbl, "cal_metadata", "PRIMARY KEY", "(cal_id, item_id) ", db);
+
+        setDbVersionAndCommit(db, 23);
+    } catch (e) {
+        throw reportErrorAndRollback(db, e);
+    }
+    return tbl;
+};
+
+// SPECIAL FUNCTIONS FOR UPGRADE V23 //
+
+function setIf(row, item, itemAttr, rowAttr) {
+    rowAttr = rowAttr || itemAttr;
+    if (row[rowAttr]) {
+        item[itemAttr] = row[rowAttr];
+    }
+}
+function setIfDT(row, item, itemAttr, rowAttr, timezone) {
+    rowAttr = rowAttr || itemAttr;
+    if (row[rowAttr]) {
+        item[itemAttr] = newDateTime(row[rowAttr], timezone);
+    }
+}
+
+function setIfPropDT(row, item, itemProp, rowAttr, timezone) {
+    if (row[rowAttr]) {
+        item.setProperty(itemProp, newDateTime(row[rowAttr], timezone));
+    }
+}
+
+function getEventFromRow(db, row, isException) {
+    let item = cal.createEvent();
+    let setIfEvent = setIf.bind(null, row, item);
+    let setIfEventDT = setIfDT.bind(null, row, item);
+    let setIfEventPropDT = setIfPropDT.bind(null, row, item);
+
+    setIfEventDT("startDate", "event_start", row.event_start_tz);
+    setIfEventDT("endDate", "event_end", row.event_end_tz);
+    setIfEventPropDT("DTSTAMP", "event_stamp", "UTC");
+
+    if ((row.flags & CAL_ITEM_FLAG.EVENT_ALLDAY) != 0) {
+        item.startDate.isDate = true;
+        item.endDate.isDate = true;
+    }
+
+    // This must be done last to keep the modification time intact.
+    getItemBaseFromRow(db, row, item);
+    getAdditionalDataForItem(db, row, item);
+
+    return item;
+}
+
+function getTodoFromRow(db, row, isException) {
+    let item = cal.createTodo();
+    let setIfTodo = setIf.bind(null, row, item);
+    let setIfTodoDT = setIfDT.bind(null, row, item);
+    let setIfTodoPropDT = setIfPropDT.bind(null, row, item);
+
+    setIfTodoDT("entryDate", "todo_entry", row.todo_entry_tz);
+    setIfTodoDT("dueDate", "todo_due", row.todo_due_tz);
+    setIfTodoPropDT("DTSTAMP", "todo_stamp", "UTC");
+    setIfTodoDT("completedDate", "todo_completed", row.todo_completed_tz);
+    setIfTodo("percentComplete", "todo_complete");
+
+    // This must be done last to keep the modification time intact.
+    getItemBaseFromRow(db, row, item);
+    getAdditionalDataForItem(db, row, item);
+
+    return item;
+}
+
+function getItemBaseFromRow(db, row, item) {
+    let setIfBase = setIf.bind(null, row, item);
+    let setIfBaseDT = setIfDT.bind(null, row, item);
+    let setIfBasePropDT = setIfPropDT.bind(null, row, item);
+
+    item.id = row.id;
+    setIfBase("title");
+    setIfBase("priority");
+    setIfBase("privacy");
+    setIfBase("status", "ical_status");
+    setIfBaseDT("alarmLastAck", "alarm_last_ack", "UTC");
+    setIfBaseDT("recurrenceId", "recurrence_id", row.recurrence_id_tz);
+
+    if (row.recurrence_id && ((row.flags & CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY) != 0)) {
+        item.recurrenceId.isDate = true;
+    }
+
+    setIfBasePropDT("CREATED", "time_created", "UTC");
+    setIfBasePropDT("LAST-MODIFIED", "last_modified", "UTC");
+}
+
+function getAdditionalDataForItem(db, baseRow, item) {
+    function runStatement(occurrenceSQL, masterSQL, walker) {
+        let stmt;
+        if (item.recurrenceId) {
+            if (!occurrenceSQL) {
+                throw Components.results.NS_ERROR_UNEXPECTED;
+            }
+            stmt = createStatement(db, occurrenceSQL);
+            setDateParamHelper(stmt.params, "recurrence_id", item.recurrenceId);
+        } else {
+            if (!masterSQL) {
+                throw Components.results.NS_ERROR_UNEXPECTED;
+            }
+            stmt = createStatement(db, masterSQL);
+        }
+
+        stmt.params.cal_id = baseRow.cal_id;
+        stmt.params.item_id = item.id;
+
+        try {
+            while (stmt.executeStep()) {
+                walker(stmt.row);
+            }
+        } catch (e) {
+            cal.ERROR("Error getting additional data for item '" +
+                          item.title + "' (" + item.id + "):" + e);
+        } finally {
+            stmt.reset();
+            stmt.finalize();
+        }
+    }
+
+    function standardOccurrenceSQL(tbl) {
+        return "SELECT * FROM " + tbl +
+               " WHERE item_id = :item_id" +
+               "   AND cal_id = :cal_id" +
+               "   AND recurrence_id = :recurrence_id" +
+               "   AND recurrence_id_tz = :recurrence_id_tz";
+    }
+    function standardMasterSQL(tbl) {
+        return "SELECT * FROM " + tbl +
+               " WHERE item_id = :item_id" +
+               "   AND cal_id = :cal_id" +
+               "   AND recurrence_id IS NULL";
+    }
+
+    // This is needed to keep the modification time intact.
+    let savedLastModifiedTime = item.lastModifiedTime;
+    let flags = baseRow.flags;
+
+    if (flags & CAL_ITEM_FLAG.HAS_ATTENDEES) {
+        runStatement(
+            standardOccurrenceSQL("cal_attendees"),
+            standardMasterSQL("cal_attendees"),
+            function iterateAttendeesRow(row) {
+                let attendee = cal.createAttendee(row.icalString);
+                if (attendee && attendee.id) {
+                    if (attendee.isOrganizer) {
+                        item.organizer = attendee;
+                    } else {
+                        item.addAttendee(attendee);
+                    }
+                }
+            }
+        );
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_PROPERTIES) {
+        runStatement(
+            standardOccurrenceSQL("cal_properties"),
+            standardMasterSQL("cal_properties"),
+            function iteratePropertiesRow(row) {
+                switch (row.key) {
+                    case "DURATION":
+                        // for events DTEND/DUE is enforced by
+                        // calEvent/calTodo, so suppress DURATION:
+                        break;
+                    case "CATEGORIES": {
+                        let cats = cal.categoriesStringToArray(row.value);
+                        item.setCategories(cats.length, cats);
+                        break;
+                    }
+                    default:
+                        item.setProperty(row.key, row.value);
+                        break;
+                }
+            }
+        );
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_RECURRENCE) {
+        let recInfo = cal.createRecurrenceInfo(item);
+        item.recurrenceInfo = recInfo;
+
+        runStatement(null,
+            /* Statement for parent items */
+            "SELECT * FROM cal_recurrence" +
+            " WHERE item_id = :item_id" +
+            "   AND cal_id = :cal_id",
+            /* Function called to iterate rows */
+            function(row) {
+                let ritem;
+                let prop = cal.getIcsService().createIcalPropertyFromString(row.icalString);
+                switch (prop.propertyName) {
+                    case "RDATE":
+                    case "EXDATE":
+                        ritem = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
+                                          .createInstance(Components.interfaces.calIRecurrenceDate);
+                        break;
+                    case "RRULE":
+                    case "EXRULE":
+                        ritem = cal.createRecurrenceRule();
+                        break;
+                    default:
+                        throw "Unknown recurrence item: " + prop.propertyName;
+                        break;
+                }
+
+                ritem.icalProperty = prop;
+                recInfo.appendRecurrenceItem(ritem);
+            }
+        );
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_EXCEPTIONS) {
+        runStatement(null,
+            /* Statement for parent items */
+            "SELECT * FROM cal_events" +
+            " WHERE id = :item_id" +
+            "   AND cal_id = :cal_id" +
+            "   AND recurrence_id IS NOT NULL",
+            function(row) {
+                let exc = getEventFromRow(db, row, true /*isException*/);
+                item.recurrenceInfo.modifyException(exc, true);
+            }
+        );
+
+        runStatement(null,
+            /* Statement for parent items */
+            "SELECT * FROM cal_todos" +
+            " WHERE id = :item_id" +
+            "   AND cal_id = :cal_id" +
+            "   AND recurrence_id IS NOT NULL",
+            /* Function called to iterate rows */
+            function(row) {
+                let exc = getTodoFromRow(db, row, true /*isException*/);
+                item.recurrenceInfo.modifyException(exc, true);
+            }
+        );
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_ATTACHMENTS) {
+        runStatement(
+            standardOccurrenceSQL("cal_attachments"),
+            standardMasterSQL("cal_attachments"),
+            function iterateAttachmentsRow(row) {
+                let attach = cal.createAttachment(row.icalString);
+                item.addAttachment(attach);
+            }
+        );
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_RELATIONS) {
+        runStatement(
+            standardOccurrenceSQL("cal_relations"),
+            standardMasterSQL("cal_relations"),
+            function iterateRelationsRow(row) {
+                let relation = cal.createRelation(row.icalString);
+                item.addRelation(relation);
+            }
+        );
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_ALARMS) {
+        runStatement(
+            standardOccurrenceSQL("cal_alarms"),
+            standardMasterSQL("cal_alarms"),
+            function iterateAlarmsRow(row) {
+                let alarm = cal.createAlarm(row.icalString);
+                item.addAlarm(alarm);
+            }
+        );
+    }
+
+    // Restore the saved modification time
+    item.setProperty("LAST-MODIFIED", savedLastModifiedTime);
+}
