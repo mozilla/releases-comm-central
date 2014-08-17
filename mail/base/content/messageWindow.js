@@ -342,6 +342,8 @@ function OnLoadMessageWindow()
     document.documentElement.setAttribute("screenX", screen.availLeft);
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
+
+  ToolbarIconColor.init();
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 }
 
@@ -739,6 +741,7 @@ function OnUnloadMessageWindow()
   // FIX ME - later we will be able to use onunload from the overlay
   OnUnloadMsgHeaderPane();
   gPhishingDetector.shutdown();
+  ToolbarIconColor.uninit();
   OnMailWindowUnload();
 }
 

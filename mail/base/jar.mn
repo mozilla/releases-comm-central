@@ -111,6 +111,7 @@ messenger.jar:
     content/messenger/sanitize.js                   (content/sanitize.js)
     content/messenger/sanitizeDialog.css            (content/sanitizeDialog.css)
     content/messenger/sanitizeDialog.js             (content/sanitizeDialog.js)
+*   content/messenger/toolbarIconColor.js           (content/toolbarIconColor.js)
 # the following files are mail-specific overrides
 *+  content/messenger/license.html                  (/mozilla/toolkit/content/license.html)
 % override chrome://global/content/license.html chrome://messenger/content/license.html

@@ -17,8 +17,12 @@
   background-color: -moz-dialog;
 }
 
-#mail-toolbox {
+#mail-toolbox:not(:-moz-lwtheme) {
   -moz-appearance: toolbox;
+}
+
+#mail-toolbox:-moz-lwtheme {
+  text-shadow: none;
 }
 
 /* ::::: message header borders ::::: */

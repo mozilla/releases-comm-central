@@ -14,9 +14,18 @@
   }
 }
 
-#messengerWindow[tabsintitlebar]
-.tabmail-tab:not([selected]):not(:-moz-lwtheme):-moz-window-inactive {
-  color: InactiveCaptionText;
+@media (-moz-os-version: windows-win8) {
+  @media not all and (-moz-windows-default-theme) {
+    #tabs-toolbar:not(:-moz-lwtheme) {
+      color: CaptionText;
+    }
+
+    #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive,
+    #messengerWindow:not([tabsintitlebar])
+      .tabmail-tab:not([selected]):not(:-moz-lwtheme):-moz-window-inactive {
+      color: InactiveCaptionText;
+    }
+  }
 }
 
 .tabmail-tab[selected] > .tab-stack > .tab-content > .tab-close-button {
@@ -48,8 +57,7 @@
   -moz-image-region: rect(0, 13px, 11px, 0);
 }
 
-.tabs-alltabs-button:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
-.tabs-alltabs-button:-moz-lwtheme-brighttext {
+#tabs-toolbar[brighttext] .tabs-alltabs-button {
   list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
 }
 
@@ -62,18 +70,6 @@
     color: white;
   }
 
-  #messengerWindow[darkwindowframe="true"] .tabmail-tab:not([selected="true"])
-  .tab-close-button:not(:-moz-any(:hover,:active)):not(:-moz-lwtheme):not(:-moz-window-inactive) {
-    -moz-image-region: rect(0, 64px, 16px, 48px);
-  }
-
-  #messengerWindow[darkwindowframe="true"] .tabmail-arrowscrollbox >
-  .scrollbutton-up:not(:-moz-lwtheme):not(:-moz-window-inactive),
-  #messengerWindow[darkwindowframe="true"] .tabmail-arrowscrollbox
-  > stack > .scrollbutton-down:not(:-moz-lwtheme):not(:-moz-window-inactive) {
-    list-style-image: url(tabs/arrow-left-inverted.png);
-  }
-
   #messengerWindow[darkwindowframe="true"]
   .tabs-alltabs-button:not(:-moz-lwtheme):-moz-window-inactive {
     list-style-image: url(icons/toolbarbutton-arrow.png);
@@ -81,11 +77,6 @@
     padding-top: 1px;
     -moz-padding-start: 5px;
     -moz-padding-end: 5px;
-  }
-
-  #messengerWindow[darkwindowframe="true"]
-  .tabs-alltabs-button:not(:-moz-lwtheme):not(:-moz-window-inactive) {
-    list-style-image: url(icons/mainwindow-dropdown-arrow-inverted.png);
   }
 
   .tabs-alltabs-button > .toolbarbutton-icon {

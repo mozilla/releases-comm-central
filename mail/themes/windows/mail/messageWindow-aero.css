@@ -23,6 +23,10 @@
   background-color: -moz-dialog;
 }
 
+#mail-toolbox:-moz-lwtheme {
+  text-shadow: none;
+}
+
 /* ..... message header borders ..... */
 
 @media all and (-moz-windows-compositor) {

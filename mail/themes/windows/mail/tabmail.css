@@ -57,6 +57,11 @@
   color: CaptionText;
 }
 
+#messengerWindow[tabsintitlebar]
+.tabmail-tab:not([selected]):not(:-moz-lwtheme):-moz-window-inactive {
+  color: InactiveCaptionText;
+}
+
 .tabmail-tab[busy],
 .tabmail-tab[thinking] {
   list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
@@ -143,22 +148,10 @@ tabpanels {
   list-style-image: url(icons/closeTab.png);
 }
 
-.tabs-closebutton:not(:hover):not(:active):-moz-lwtheme-brighttext,
-.tab-close-button:not(:hover):not(:active):-moz-lwtheme-brighttext {
+#tabs-toolbar[brighttext] .tabs-closebutton:not(:hover):not(:active),
+#tabs-toolbar[brighttext] .tab-close-button:not(:hover):not([selected="true"]) {
   -moz-image-region: rect(0, 64px, 16px, 48px);
 }
-
-%ifndef WINDOWS_AERO
-@media (-moz-windows-theme: luna-blue),
-       (-moz-windows-theme: royale),
-       (-moz-windows-theme: zune) {
-  #messengerWindow[tabsintitlebar] .tabs-closebutton,
-  #messengerWindow[tabsintitlebar] .tabmail-tab:not([selected]) > .tab-stack >
-    .tab-content > .tab-close-button:not(:hover):not(:active) {
-    -moz-image-region: rect(0, 64px, 16px, 48px);
-  }
-}
-%endif
 
 .tabs-closebutton-box > .tabs-closebutton {
   padding: 0 2px;
@@ -243,14 +236,8 @@ tabpanels {
 }
 %endif
 
-%ifdef WINDOWS_AERO
-.tabmail-arrowscrollbox >
-  .scrollbutton-up:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
-.tabmail-arrowscrollbox > stack >
-  .scrollbutton-down:-moz-system-metric(windows-glass):not(:-moz-lwtheme),
-%endif
-.tabmail-arrowscrollbox > .scrollbutton-up:-moz-lwtheme-brighttext,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-lwtheme-brighttext {
+#tabs-toolbar[brighttext] .tabmail-arrowscrollbox > .scrollbutton-up,
+#tabs-toolbar[brighttext] .tabmail-arrowscrollbox > stack > .scrollbutton-down {
   list-style-image: url(tabs/arrow-left-inverted.png);
 }
 
@@ -303,17 +290,8 @@ tabpanels {
   -moz-image-region: rect(0, 13px, 11px, 0);
 }
 
-.tabs-alltabs-button > .toolbarbutton-menu-dropmarker:-moz-lwtheme-brighttext {
+#tabs-toolbar[brighttext] .tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
   list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
-}
-
-@media (-moz-windows-theme: luna-blue),
-       (-moz-windows-theme: royale),
-       (-moz-windows-theme: zune) {
-  #messengerWindow[tabsintitlebar] .tabs-alltabs-button:not(:hover) >
-    .toolbarbutton-menu-dropmarker:not(:-moz-lwtheme) {
-    list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
-  }
 %else
   display: none;
 %endif
