@@ -412,6 +412,8 @@ var accountWizard = {
 
   getValue: function aw_getValue(aId) {
     var elt = document.getElementById(aId);
+    if ("selectedItem" in elt)
+      return elt.selectedItem.value;
     if ("checked" in elt)
       return elt.checked;
     if ("value" in elt)
