@@ -19,6 +19,7 @@
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&fontsAndEncodingsDialog.title;"
             dlgbuttons="accept,cancel"
+            ondialogaccept="gFontsDialog.ondialogaccept();"
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
             style="width: &window.macWidth; !important;">
@@ -283,11 +284,7 @@
                    value="&sendDefaultCharset.label;"
                    accesskey="&sendDefaultCharset.accesskey;"/>
             <menulist id="sendDefaultCharsetList" flex="1"
-                      preference="mailnews.send_default_charset"
-                      onsyncfrompreference="return gFontsDialog.readDefaultCharset();">
-              <menupopup id="sendDefaultCharset-menupopup">
-              </menupopup>
-            </menulist>
+                      preference="mailnews.send_default_charset"/>
           </row>
 
           <row align="center" class="indent">
@@ -295,10 +292,7 @@
                    value="&viewDefaultCharsetList.label;"
                    accesskey="&viewDefaultCharsetList.accesskey;"/>
             <menulist id="viewDefaultCharsetList"
-                      preference="mailnews.view_default_charset">
-              <menupopup id="viewDefaultCharset-menupopup">
-              </menupopup>
-            </menulist>
+                      preference="mailnews.view_default_charset" />
           </row>
         </rows>
       </grid>

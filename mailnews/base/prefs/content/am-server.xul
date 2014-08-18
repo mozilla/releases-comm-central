@@ -421,16 +421,8 @@
                 hidefor="imap,pop3,movemail"
                 wsm_persist="true"
                 id="nntp.charset"
-                ref="NC:DecodersRoot"
-                datasources="rdf:charset-menu"
                 preftype="string"
-                prefstring="mail.server.%serverkey%.charset">
-        <template>
-          <menupopup>
-            <menuitem label="rdf:http://home.netscape.com/NC-rdf#Name" value="..." uri="..."/>
-          </menupopup>
-        </template>
-      </menulist>
+                prefstring="mail.server.%serverkey%.charset"/>
     </hbox>
   </vbox>
 </page>

@@ -107,8 +107,18 @@ function folderPropsOKButton()
     const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
     // set charset attributes
     var folderCharsetList = document.getElementById("folderCharsetList");
+
+    // Log to the Error Console the charset value for the folder
+    // if it is unknown to us. Value will be preserved by the menu-item.
+    if (folderCharsetList.selectedIndex == -1)
+    {
+      Components.utils.reportError("Unknown folder encoding; folder=" +
+        gMsgFolder.name + ", charset=" + gMsgFolder.charset);
+    }
+
     gMsgFolder.charset = folderCharsetList.getAttribute("value");
-    gMsgFolder.charsetOverride = document.getElementById("folderCharsetOverride").checked;
+    gMsgFolder.charsetOverride = document.getElementById("folderCharsetOverride")
+                                         .checked;
 
     if(document.getElementById("offline.selectForOfflineFolder").checked ||
       document.getElementById("offline.selectForOfflineNewsgroup").checked)
@@ -227,9 +237,10 @@ function folderPropsOnLoad()
         document.getElementById("offline.selectForOfflineNewsgroup").checked = false;
     }
 
+    createCharsetMenu();
     // select the menu item
     var folderCharsetList = document.getElementById("folderCharsetList");
-    folderCharsetList.selectedItem = folderCharsetList.querySelector('[value="' + gMsgFolder.charset + '"]');
+    folderCharsetList.value = gMsgFolder.charset;
 
     // set override checkbox
     document.getElementById("folderCharsetOverride").checked = gMsgFolder.charsetOverride;
@@ -285,6 +296,51 @@ function folderPropsOnLoad()
   }
   onCheckKeepMsg();
   onUseDefaultRetentionSettings();
+}
+
+function createCharsetMenu()
+{
+  var menuStrings = ["UTF-8", "Big5", "EUC-KR", "gbk", "ISO-2022-JP",
+                     "ISO-8859-1", "ISO-8859-2", "ISO-8859-7", "windows-874",
+                     "windows-1250", "windows-1251", "windows-1252",
+                     "windows-1255", "windows-1256", "windows-1257",
+                     "windows-1258"];
+
+  var menuList = document.getElementById("folderCharsetList");
+
+  this.populateCharsetMenu(menuList,
+                           this.sortCharsetLabels(menuStrings));
+}
+
+function populateCharsetMenu(aMenuList, aMenuStrings)
+{
+  aMenuStrings.forEach(function(item) {
+    aMenuList.appendItem(item.label, item.value);
+  });
+}
+
+function sortCharsetLabels(aMenuStrings)
+{
+  var menuLabels = [];
+  var charsetBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/charsetTitles.properties");
+
+  aMenuStrings.forEach(function(item) {
+    var strCharset = charsetBundle.GetStringFromName(
+      item.toLowerCase() + ".title");
+
+    menuLabels.push({label: strCharset, value: item});
+  });
+
+  menuLabels.sort(function(a, b) {
+    if (a.value == "UTF-8" || a.label < b.label)
+      return -1;
+    if (b == "UTF-8" || a.label > b.label)
+      return 1;
+    return 0;
+  });
+
+  return menuLabels;
 }
 
 function hideShowControls(serverType)

@@ -19,6 +19,8 @@ function onInit(aPageId, aServerId)
   setupFixedUI();
   if (document.getElementById("server.type").getAttribute("value") == "imap")
     setupImapDeleteUI(aServerId);
+  else if (document.getElementById("server.type").getAttribute("value") == "nntp")
+    createCharsetDefaultMenu();
 
   // "STARTTLS, if available" is vulnerable to MITM attacks so we shouldn't
   // allow users to choose it anymore. Hide the option unless the user already
@@ -373,4 +375,54 @@ function getTrashFolderName()
     document.getElementById("imap.trashFolderName").setAttribute("value",trashFolderName);
   }
   return trashFolderName;
+}
+
+function createCharsetDefaultMenu()
+{
+  var nntpCharsetsValues = ["UTF-8", "Big5", "EUC-KR", "gbk", "ISO-2022-JP",
+                            "ISO-8859-1", "ISO-8859-2", "ISO-8859-7",
+                            "windows-874", "windows-1250", "windows-1251",
+                            "windows-1252", "windows-1255", "windows-1256",
+                            "windows-1257", "windows-1258"];
+
+  var charsetMenuList = document.getElementById("nntp.charset");
+
+  this.populateCharsetMenu(charsetMenuList,
+                           this.sortCharsetLabels(nntpCharsetsValues));
+
+  // Select appropiate menu item.
+  var preference = substPrefTokens(
+    charsetMenuList.getAttribute("prefstring"), charsetMenuList);
+  charsetMenuList.value = Services.prefs.getCharPref(preference);
+}
+
+function sortCharsetLabels(aMenuStrings)
+{
+  var menuLabels = [];
+  var charsetBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/charsetTitles.properties");
+
+  aMenuStrings.forEach(function(item) {
+    var strCharset = charsetBundle.GetStringFromName(
+      item.toLowerCase() + ".title");
+
+    menuLabels.push({label: strCharset, value: item});
+  });
+
+  menuLabels.sort(function(a, b) {
+    if (a.value == "UTF-8" || a.label < b.label)
+      return -1;
+    if (b == "UTF-8" || a.label > b.label)
+      return 1;
+    return 0;
+  });
+
+  return menuLabels;
+}
+
+function populateCharsetMenu(aMenuList, aMenuStrings)
+{
+  aMenuStrings.forEach(function(item) {
+    aMenuList.appendItem(item.label, item.value);
+  });
 }
