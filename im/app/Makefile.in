@@ -66,12 +66,6 @@ NSDISTMODE = copy
 
 include $(topsrcdir)/config/config.mk
 
-ifdef _MSC_VER
-# Always enter a Windows program through wmain, whether or not we're
-# a console application.
-WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
-endif
-
 ifeq ($(OS_ARCH),WINNT)
 # png to ico converter. The function takes 5 arguments, in order: source png
 # file, left, top, size, output ico file.
@@ -107,23 +101,6 @@ ifeq ($(OS_ARCH),WINNT)
 
 $(RESFILE): embedded-icons
 
-#
-# Control the default heap size.
-# This is the heap returned by GetProcessHeap().
-# As we use the CRT heap, the default size is too large and wastes VM.
-#
-# The default heap size is 1MB on Win32.
-# The heap will grow if need be.
-#
-# Set it to 256k.  See bug 127069.
-#
-ifndef GNU_CC
-LDFLAGS += /HEAP:0x40000
-ifeq ($(OS_TEST),x86_64)
-# set stack to 2MB on x64 build.  See bug 582910
-LDFLAGS += -STACK:2097152
-endif
-endif
 endif
 
 ifneq ($(OS_ARCH),WINNT)
