@@ -196,8 +196,14 @@ $(OBJDIR)/.mozconfig.mk: $(FOUND_MOZCONFIG) $(call mkdir_deps,$(OBJDIR))
 # Include that makefile so that it is created. This should not actually change
 # the environment since MOZCONFIG_CONTENT, which MOZCONFIG_OUT_LINES derives
 # from, has already been eval'ed.
--include $(OBJDIR)/.mozconfig.mk
+include $(OBJDIR)/.mozconfig.mk
 endif
+
+# UPLOAD_EXTRA_FILES is appended to and exported from mozconfig, which makes
+# submakes as well as configure add even more to that, so just unexport it
+# for submakes to pick it from .mozconfig.mk and for configure to pick it
+# from mach environment.
+unexport UPLOAD_EXTRA_FILES
 
 # These targets are candidates for auto-running client.py
 
