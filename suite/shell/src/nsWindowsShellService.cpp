@@ -457,8 +457,8 @@ nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
     // Close the key we opened.
     ::RegCloseKey(theKey);
     if (REG_FAILED(res) ||
-        !dataLongPath.Equals(currValue, CaseInsensitiveCompare) &&
-        !dataShortPath.Equals(currValue, CaseInsensitiveCompare)) {
+        _wcsicmp(dataLongPath.get(), currValue) &&
+        _wcsicmp(dataShortPath.get(), currValue)) {
       // Key wasn't set, or was set to something else (something else became the default client)
       return false;
     }

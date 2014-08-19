@@ -18,6 +18,7 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
     SOURCES += ['trayPlatformGtk2.cpp']
     OS_LIBS += CONFIG['TK_LIBS']
     OS_LIBS += CONFIG['XLIBS']
+    CXXFLAGS += CONFIG['MOZ_GTK2_CFLAGS']
 
 IS_COMPONENT = True
 

@@ -13,14 +13,6 @@ include $(DEPTH)/config/autoconf.mk
 ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
 RCFILE = resources.rc
 RESFILE = resources.res
-
-else
-
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
-
-LOCAL_INCLUDES += $(MOZ_GTK2_CFLAGS)
-
-endif # gtk2
 endif # windows
 
 include $(topsrcdir)/config/rules.mk

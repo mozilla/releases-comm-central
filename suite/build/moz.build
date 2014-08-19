@@ -21,20 +21,14 @@ LOCAL_INCLUDES += [
 USE_LIBS += [
     'mozalloc',
     'unicharutil_external_s',
+    'xpcomglue_s',
     'xul',
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    USE_LIBS += [
-        'xpcomglue_staticruntime_s',
-    ]
     OS_LIBS += [
         'ole32',
         'shell32',
-    ]
-else:
-    USE_LIBS += [
-        'xpcomglue_s',
     ]
 
 # js needs to come after xul for now, because it is an archive and its content
