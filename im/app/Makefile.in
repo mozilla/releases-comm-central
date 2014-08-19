@@ -51,7 +51,6 @@ else
 DIST_FILES = application.ini
 
 DEFINES += -DXPCOM_GLUE
-STL_FLAGS=
 
 ifndef MOZ_WINCONSOLE
 ifdef MOZ_DEBUG

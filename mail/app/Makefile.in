@@ -47,7 +47,6 @@ else
 # Build a binary bootstrapping with XRE_main
 
 DEFINES += -DXPCOM_GLUE
-STL_FLAGS=
 
 ifndef MOZ_WINCONSOLE
 ifdef MOZ_DEBUG

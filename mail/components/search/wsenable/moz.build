@@ -13,3 +13,6 @@ OS_LIBS += [
     'ole32',
     'shell32',
 ]
+
+# This isn't XPCOM code, but it wants to use STL so disable STL wrappers
+DISABLE_STL_WRAPPING = True

@@ -397,28 +397,26 @@ MY_RULES	:= $(DEPTH)/config/myrules.mk
 #
 CCC		= $(CXX)
 
-OS_INCLUDES += $(NSPR_CFLAGS) $(NSS_CFLAGS) $(MOZ_JPEG_CFLAGS) $(MOZ_PNG_CFLAGS) $(MOZ_ZLIB_CFLAGS) $(MOZ_PIXMAN_CFLAGS)
+OS_INCLUDES += $(MOZ_JPEG_CFLAGS) $(MOZ_PNG_CFLAGS) $(MOZ_ZLIB_CFLAGS) $(MOZ_PIXMAN_CFLAGS)
+
+# NSPR_CFLAGS and NSS_CFLAGS must appear ahead of OS_INCLUDES to avoid Linux
+# builds wrongly picking up system NSPR/NSS header files.
 
 INCLUDES = \
-  $(LOCAL_INCLUDES) \
   -I$(srcdir) \
   -I. \
-  -I$(DIST)/include -I$(DIST)/include/nsprpub \
-  $(if $(LIBXUL_SDK),-I$(LIBXUL_SDK)/include -I$(LIBXUL_SDK)/include/nsprpub) \
+  $(LOCAL_INCLUDES) \
+  -I$(DIST)/include \
+  $(if $(LIBXUL_SDK),-I$(LIBXUL_SDK)/include) \
+  $(NSPR_CFLAGS) $(NSS_CFLAGS) \
   $(OS_INCLUDES) \
   $(NULL)
 
 include $(topsrcdir)/config/static-checking-config.mk
 
-ifdef MOZ_SHARK
-OS_CFLAGS += -F/System/Library/PrivateFrameworks
-OS_CXXFLAGS += -F/System/Library/PrivateFrameworks
-OS_LDFLAGS += -F/System/Library/PrivateFrameworks -framework CHUD
-endif # ifdef MOZ_SHARK
-
 CFLAGS		= $(OS_CPPFLAGS) $(OS_CFLAGS)
 CXXFLAGS	= $(OS_CPPFLAGS) $(OS_CXXFLAGS)
-LDFLAGS		= $(OS_LDFLAGS) $(MOZ_FIX_LINK_PATHS)
+LDFLAGS		= $(OS_LDFLAGS) $(MOZBUILD_LDFLAGS) $(MOZ_FIX_LINK_PATHS)
 
 # Allow each module to override the *default* optimization settings
 # by setting MODULE_OPTIMIZE_FLAGS if the developer has not given
@@ -429,8 +427,13 @@ ifdef MODULE_OPTIMIZE_FLAGS
 CFLAGS		+= $(MODULE_OPTIMIZE_FLAGS)
 CXXFLAGS	+= $(MODULE_OPTIMIZE_FLAGS)
 else
+ifneq (,$(if $(MOZ_PROFILE_GENERATE)$(MOZ_PROFILE_USE),$(MOZ_PGO_OPTIMIZE_FLAGS)))
+CFLAGS		+= $(MOZ_PGO_OPTIMIZE_FLAGS)
+CXXFLAGS	+= $(MOZ_PGO_OPTIMIZE_FLAGS)
+else
 CFLAGS		+= $(MOZ_OPTIMIZE_FLAGS)
 CXXFLAGS	+= $(MOZ_OPTIMIZE_FLAGS)
+endif # neq (,$(MOZ_PROFILE_GENERATE)$(MOZ_PROFILE_USE))
 endif # MODULE_OPTIMIZE_FLAGS
 else
 CFLAGS		+= $(MOZ_OPTIMIZE_FLAGS)
@@ -477,23 +480,29 @@ RTL_FLAGS=-MD          # Dynamically linked, multithreaded RTL
 ifneq (,$(MOZ_DEBUG)$(NS_TRACE_MALLOC))
 ifndef MOZ_NO_DEBUG_RTL
 RTL_FLAGS=-MDd         # Dynamically linked, multithreaded MSVC4.0 debug RTL
-endif 
+endif
 endif # MOZ_DEBUG || NS_TRACE_MALLOC
 endif # USE_STATIC_LIBS
 endif # WINNT && !GNU_CC
 
 ifeq ($(OS_ARCH),Darwin)
-# Darwin doesn't cross-compile, so just set both types of flags here.
+# Compiling ObjC requires an Apple compiler anyway, so it's ok to set
+# host CMFLAGS here.
 HOST_CMFLAGS += -fobjc-exceptions
 HOST_CMMFLAGS += -fobjc-exceptions
 OS_COMPILE_CMFLAGS += -fobjc-exceptions
 OS_COMPILE_CMMFLAGS += -fobjc-exceptions
+ifeq ($(MOZ_WIDGET_TOOLKIT),uikit)
+OS_COMPILE_CMFLAGS += -fobjc-abi-version=2 -fobjc-legacy-dispatch
+OS_COMPILE_CMMFLAGS += -fobjc-abi-version=2 -fobjc-legacy-dispatch
+endif
 endif
 
-COMPILE_CFLAGS	= $(VISIBILITY_FLAGS) $(DEFINES) $(INCLUDES) $(DSO_CFLAGS) $(DSO_PIC_CFLAGS) $(CFLAGS) $(RTL_FLAGS) $(OS_CPPFLAGS) $(OS_COMPILE_CFLAGS)
-COMPILE_CXXFLAGS = $(STL_FLAGS) $(VISIBILITY_FLAGS) $(DEFINES) $(INCLUDES) $(DSO_CFLAGS) $(DSO_PIC_CFLAGS) $(CXXFLAGS) $(RTL_FLAGS) $(OS_CPPFLAGS) $(OS_COMPILE_CXXFLAGS)
-COMPILE_CMFLAGS = $(OS_COMPILE_CMFLAGS)
-COMPILE_CMMFLAGS = $(OS_COMPILE_CMMFLAGS)
+COMPILE_CFLAGS = $(VISIBILITY_FLAGS) $(DEFINES) $(INCLUDES) $(DSO_CFLAGS) $(DSO_PIC_CFLAGS) $(RTL_FLAGS) $(OS_CPPFLAGS) $(OS_COMPILE_CFLAGS) $(CFLAGS) $(MOZBUILD_CFLAGS) $(EXTRA_COMPILE_FLAGS)
+COMPILE_CXXFLAGS = $(if $(DISABLE_STL_WRAPPING),,$(STL_FLAGS)) $(VISIBILITY_FLAGS) $(DEFINES) $(INCLUDES) $(DSO_CFLAGS) $(DSO_PIC_CFLAGS) $(RTL_FLAGS) $(OS_CPPFLAGS) $(OS_COMPILE_CXXFLAGS) $(CXXFLAGS) $(MOZBUILD_CXXFLAGS) $(EXTRA_COMPILE_FLAGS)
+COMPILE_CMFLAGS = $(OS_COMPILE_CMFLAGS) $(MOZBUILD_CMFLAGS) $(EXTRA_COMPILE_FLAGS)
+COMPILE_CMMFLAGS = $(OS_COMPILE_CMMFLAGS) $(MOZBUILD_CMMFLAGS) $(EXTRA_COMPILE_FLAGS)
+ASFLAGS += $(EXTRA_ASSEMBLER_FLAGS)
 
 ifndef CROSS_COMPILE
 HOST_CFLAGS += $(RTL_FLAGS)
@@ -761,6 +770,23 @@ endif
 OBJ_SUFFIX := $(_OBJ_SUFFIX)
 
 DEFINES += -DNO_NSPR_10_SUPPORT
+
+ifdef IS_GYP_DIR
+LOCAL_INCLUDES += \
+  -I$(topsrcdir)/ipc/chromium/src \
+  -I$(topsrcdir)/ipc/glue \
+  -I$(DEPTH)/ipc/ipdl/_ipdlheaders \
+  $(NULL)
+
+ifeq (WINNT,$(OS_TARGET))
+# These get set via VC project file settings for normal GYP builds.
+DEFINES += -DUNICODE -D_UNICODE
+endif
+
+DISABLE_STL_WRAPPING := 1
+# Skip most Mozilla-specific include locations.
+INCLUDES = -I. $(LOCAL_INCLUDES) -I$(DEPTH)/dist/include
+endif
 
 # Run a named Python build action. The first argument is the name of the build
 # action. The second argument are the arguments to pass to the action (space
