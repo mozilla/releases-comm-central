@@ -3,7 +3,7 @@ no_tooltool=1
 . "$topsrcdir/build/unix/mozconfig.linux32"
 
 ac_add_options --enable-application=suite
-ac_add_options --with-l10n-base=../../l10n-central
+ac_add_options --with-l10n-base=../../l10n
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-update-packaging
 ac_add_options --enable-stdcxx-compat
