@@ -164,6 +164,16 @@ notification[value="addon-install-complete"] > button:active:hover {
   position: relative;
   margin-top: 11px;
   margin-bottom: 3px;
+  padding-bottom: 0px;
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #messengerWindow[tabsintitlebar="true"][sizemode="fullscreen"] #titlebar-buttonbox-container,
+  #messengerWindow[tabsintitlebar="true"][sizemode="fullscreen"] #titlebar-fullscreen-button {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-bottom: 14px;
+  }
 }
 
 #messengerWindow[tabsintitlebar="true"] #titlebar-spacer {
