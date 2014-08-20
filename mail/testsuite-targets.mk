@@ -16,10 +16,10 @@ APP_NAME = $(MOZ_APP_DISPLAYNAME)
 ifdef MOZ_DEBUG
 APP_NAME := $(APP_NAME)Debug
 endif
-BINARY = ../../../$(DIST)/$(APP_NAME).app/
+BINARY = ../../$(DIST)/$(APP_NAME).app/
 else
 # Non-mac options
-BINARY = ../../../$(DIST)/bin/thunderbird$(BIN_SUFFIX)
+BINARY = ../../$(DIST)/bin/thunderbird$(BIN_SUFFIX)
 endif
 
 check-no-solo = $(foreach solo,SOLO_TEST SOLO_FILE,$(if $($(solo)),$(error $(subst SOLOVAR,$(solo),$(1)))))
