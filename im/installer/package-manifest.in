@@ -370,6 +370,8 @@
 @BINPATH@/components/ColorAnalyzer.js
 @BINPATH@/components/Identity.manifest
 @BINPATH@/components/PageThumbsProtocol.js
+@BINPATH@/components/XULStore.js
+@BINPATH@/components/XULStore.manifest
 @BINPATH@/components/PermissionSettings.js
 @BINPATH@/components/SettingsManager.js
 @BINPATH@/components/SettingsManager.manifest
@@ -410,6 +412,7 @@
 @BINPATH@/components/PeerConnection.manifest
 #endif
 @BINPATH@/components/toolkit_osfile.xpt
+@BINPATH@/components/toolkit_xulstore.xpt
 @BINPATH@/components/toolkitplaces.manifest
 @BINPATH@/components/toolkitsearch.manifest
 #ifdef UNIX_BUT_NOT_MAC
