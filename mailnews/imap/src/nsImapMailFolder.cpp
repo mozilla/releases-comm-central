@@ -5149,16 +5149,6 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl *runningUrl,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
-{
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapMailFolder::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus)
-{
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsImapMailFolder::OnStartRunningUrl(nsIURI *aUrl)
 {
