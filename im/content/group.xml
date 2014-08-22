@@ -55,14 +55,9 @@
         this.contactsById = {};
         this.setAttribute("id", "group" + this.groupId);
 
-        // restore the potential persisted value
-        var source = Components.classes["@mozilla.org/rdf/datasource;1?name=local-store"]
-                               .getService(Components.interfaces.nsIRDFDataSource);
-        var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                            .getService(Components.interfaces.nsIRDFService);
-        var elt = RDF.GetResource(document.location + "#" + this.id);
-        if (source.HasAssertion(elt, RDF.GetResource("closed"),
-                                RDF.GetLiteral("true"), true))
+        // Restore any persisted state.
+        let xulStore = Cc["@mozilla.org/xul/xulstore;1"].getService(Ci.nsIXULStore);
+        if (xulStore.getValue(document.location, this.id, "closed") == "true")
           this.setAttribute("closed", "true");
 
         contacts.sort(this.sortComparator).forEach(this.addContact, this);
