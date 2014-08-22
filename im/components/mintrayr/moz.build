@@ -14,8 +14,8 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     OS_LIBS += [
         'shell32',
     ]
-    RCFILE = resources.rc
-    RESFILE = resources.res
+    RCFILE = 'resources.rc'
+    RESFILE = 'resources.res'
 
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
     SOURCES += ['trayPlatformGtk2.cpp']
