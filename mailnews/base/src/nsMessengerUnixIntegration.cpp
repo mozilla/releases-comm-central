@@ -334,6 +334,7 @@ nsresult nsMessengerUnixIntegration::ShowAlertMessage(const nsAString& aAlertTit
                                               EmptyString(),
                                               NS_LITERAL_STRING("auto"),
                                               EmptyString(),
+                                              EmptyString(),
                                               nullptr);
     if (NS_SUCCEEDED(rv))
       return rv;

@@ -448,7 +448,8 @@ nsresult nsMessengerWinIntegration::ShowAlertMessage(const nsString& aAlertTitle
                                                 NS_ConvertASCIItoUTF16(aFolderURI), this,
                                                 EmptyString(),
                                                 NS_LITERAL_STRING("auto"),
-                                                EmptyString(), nullptr);
+                                                EmptyString(), EmptyString(),
+                                                nullptr);
       mAlertInProgress = true;
     }
   }
