@@ -705,6 +705,7 @@
 @BINPATH@/components/FeedProcessor.js
 @BINPATH@/components/FeedProcessor.manifest
 @BINPATH@/components/FormAutofillContentService.js
+@BINPATH@/components/FormAutofillStartup.js
 @BINPATH@/components/formautofill.manifest
 @BINPATH@/components/autocomplete.xpt
 @BINPATH@/components/alerts.xpt
