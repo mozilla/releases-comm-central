@@ -28,7 +28,6 @@ else:
 LIBRARY_NAME = 'mailcomps'
 
 LOCAL_INCLUDES += [
-    '../history',
     '../migration/src',
     '../shell',
 ]
