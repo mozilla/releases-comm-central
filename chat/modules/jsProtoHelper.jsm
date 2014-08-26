@@ -784,7 +784,9 @@ const GenericProtocolPrototype = {
       throw "Creating an instance of " + aId + " but this object implements " + this.id;
   },
   get id() "prpl-" + this.normalizedName,
-  get normalizedName() this.name.toLowerCase(),
+  // This is more aggressive than the account normalization of just
+  // toLowerCase() since prpl names must be only letters/numbers.
+  get normalizedName() this.name.replace(/[^a-z0-9]/gi, "").toLowerCase(),
   get iconBaseURI() "chrome://chat/skin/prpl-generic/",
 
   getAccount: function(aImAccount) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
