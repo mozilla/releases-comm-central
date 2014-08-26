@@ -580,7 +580,8 @@ GlodaMessage.prototype = {
   _clone: function gloda_message_clone() {
     return new GlodaMessage(/* datastore */ null, this._id, this._folderID,
       this._messageKey, this._conversationID, this._conversation, this._date,
-      this._headerMessageID, this._deleted, this._jsonText, this._notability,
+      this._headerMessageID, "_deleted" in this ? this._deleted : undefined,
+      "_jsonText" in this ? this._jsonText : undefined, this._notability,
       this._subject, this._indexedBodyText, this._attachmentNames);
   },
 

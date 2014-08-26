@@ -450,7 +450,8 @@ MimeMessage.prototype = {
     let nextIndent = aIndent + "  ";
 
     let s = "Message "+(this.isEncrypted ? "[encrypted] " : "") +
-      "(" + this.size + " bytes): " + this.headers.subject;
+      "(" + this.size + " bytes): " +
+      "subject" in this.headers ? this.headers.subject : "";
     if (aVerbose)
       s += this._prettyHeaderString(nextIndent);
 

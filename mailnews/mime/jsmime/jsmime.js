@@ -2501,6 +2501,9 @@ HeaderEmitter.prototype.addQuotable = function (text, qchars, mayBreakAfter) {
   // Figure out if we need to quote the string. Don't quote a string which
   // already appears to be quoted.
   let needsQuote = false;
+  if (!text.length)
+    return;
+
   if (!(text[0] == '"' && text[text.length - 1] == '"') && qchars != '') {
     for (let i = 0; i < text.length; i++) {
       if (qchars.contains(text[i])) {

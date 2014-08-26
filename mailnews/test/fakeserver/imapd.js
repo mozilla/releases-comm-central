@@ -974,7 +974,8 @@ IMAP_RFC3501_handler.prototype = {
     }
     response += "* OK [PERMANENTFLAGS (" + box.permflags.join(" ") + ")]\0";
     response += "* OK [UIDNEXT " + box.uidnext + "]\0";
-    response += "* OK [UIDVALIDITY " + box.uidvalidity + "]\0";
+    if ("uidvalidity" in box)
+      response += "* OK [UIDVALIDITY " + box.uidvalidity + "]\0";
     return response + "OK [READ-WRITE] SELECT completed";
   },
   EXAMINE : function (args) {

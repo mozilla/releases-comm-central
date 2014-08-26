@@ -453,7 +453,7 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
                                                 : "") + "\t" +
                   article.fullText.replace(/\r?\n/,'\r\n').length + "\t" +
                   article.body.split(/\r?\n/).length + "\t" +
-                  article.headers["xref"] + "\n";
+                  "xref" in article.headers ? article.headers["xref"] : "" + "\n";
     }
     response += '.\n';
     return response;
