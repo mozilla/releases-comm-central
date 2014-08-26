@@ -50,7 +50,7 @@ function scriptError(aModule, aLevel, aMessage, aOriginalError) {
   }
 
   // Only continue if we will log this message.
-  if (logLevel > aLevel && (!"imAccount" in this))
+  if (logLevel > aLevel && !("imAccount" in this))
     return;
 
   let flag = Ci.nsIScriptError.warningFlag;

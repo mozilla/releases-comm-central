@@ -790,6 +790,10 @@ var ircBase = {
       // Some servers (e.g. Unreal) include the channel's modes before the topic.
       // Omit this.
       topic = topic.replace(/^\[\+[a-zA-Z]*\] /, "");
+      // Force the allocation of a new copy of the string so as to prevent
+      // the JS engine from retaining the whole original socket string. See bug
+      // 1058584. This hack can be removed when bug 1058653 is fixed.
+      topic = topic ? topic.normalize() : "";
 
       this._channelList.push(new ircRoomInfo(name, topic, participantCount, this));
       // Give callbacks a batch of channels of length _channelsPerBatch.
