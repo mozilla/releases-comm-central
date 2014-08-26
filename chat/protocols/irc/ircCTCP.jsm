@@ -136,11 +136,37 @@ var ctcpBase = {
       return true;
     },
 
+    // This is commented out since CLIENTINFO automatically returns the
+    // supported CTCP parameters and this is not supported.
+
     // Returns the user's full name, and idle time.
-    "FINGER": function(aMessage) false,
+    //"FINGER": function(aMessage) false,
 
     // Dynamic master index of what a client knows.
-    "CLIENTINFO": function(aMessage) false,
+    "CLIENTINFO": function(aMessage) {
+      if (aMessage.command == "PRIVMSG") {
+        // Received a CLIENTINFO request, respond with the support CTCP
+        // messages.
+        let info = new Set();
+        for (let handler of ircHandlers._ctcpHandlers) {
+          for (let command in handler.commands)
+            info.add(command);
+        }
+
+        let supportedCtcp = [...info].join(" ");
+        this.LOG("Reporting support for the following CTCP messages: " +
+                 supportedCtcp);
+        this.sendCTCPMessage(aMessage.nickname, true, "CLIENTINFO",
+                             supportedCtcp);
+      }
+      else {
+        // Received a CLIENTINFO response, store the information for future
+        // use.
+        let info = aMessage.ctcp.param.split(" ");
+        this.setWhois(aMessage.nickname, {clientInfo: info})
+      }
+      return true;
+    },
 
     // Used to measure the delay of the IRC network between clients.
     "PING": function(aMessage) {
@@ -157,11 +183,14 @@ var ctcpBase = {
         return this.handlePingReply(aMessage.nickname, aMessage.ctcp.param);
     },
 
+    // These are commented out since CLIENTINFO automatically returns the
+    // supported CTCP parameters and this is not supported.
+
     // An encryption protocol between clients without any known reference.
-    "SED": function(aMessage) false,
+    //"SED": function(aMessage) false,
 
     // Where to obtain a copy of a client.
-    "SOURCE": function(aMessage) false,
+    //"SOURCE": function(aMessage) false,
 
     // Gets the local date and time from other clients.
     "TIME": function(aMessage) {
@@ -186,8 +215,11 @@ var ctcpBase = {
       return true;
     },
 
+    // This is commented out since CLIENTINFO automatically returns the
+    // supported CTCP parameters and this is not supported.
+
     // A string set by the user (never the client coder)
-    "USERINFO": function(aMessage) false,
+    //"USERINFO": function(aMessage) false,
 
     // The version and type of the client.
     "VERSION": function(aMessage) {
