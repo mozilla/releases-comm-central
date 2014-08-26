@@ -932,7 +932,7 @@ nsresult nsParseMailMessageState::ParseHeaders ()
     buf[buf_length - 1] == '\n'), "Header text should always end in a newline");
   while (buf < buf_end)
   {
-    char *colon = PL_strnchr(buf, ':', buf_length);
+    char *colon = PL_strnchr(buf, ':', buf_end - buf);
     char *end;
     char *value = 0;
     struct message_header *header = 0;
