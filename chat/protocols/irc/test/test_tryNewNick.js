@@ -26,26 +26,62 @@ function test_tryNewNick() {
     "clo1kep10": "clo1kep11",
     "clo1kep0": "clo1kep1",
     "clo1kep01": "clo1kep02",
-    "clo1kep09": "clo1kep10",
-
-    // Some to test the max length.
-    "abcdefghi": "abcdefgh1",
-    "abcdefgh0": "abcdefgh1",
-    "abcdefgh9": "abcdefg10",
-    "a99999999": "a00000000" // You'd expect 100000000, but this is not valid!
+    "clo1kep09": "clo1kep10"
   };
 
   let account = new irc.ircAccount(fakeProto,
                                    {name: "clokep@instantbird.org"});
   account.LOG = function(aStr) {};
-  account.maxNicknameLength = 9;
   account.normalize = function(aStr) aStr;
 
   for (let currentNick in testData) {
+    account._sentNickname = currentNick;
     account.sendMessage = function(aCommand, aNewNick)
       do_check_eq(aNewNick, testData[currentNick]);
 
     account.tryNewNick(currentNick);
+  }
+
+  run_next_test();
+}
+
+// This tests a bunch of cases near the max length by maintaining the state
+// through a series of test nicks.
+function test_maxLength() {
+  let testData = [
+    // First try adding a digit, as normal.
+    ["abcdefghi", "abcdefghi1"],
+    // The "received" nick back will now be the same though, so it was too long.
+    ["abcdefghi", "abcdefgh1"],
+    // And just ensure we're iterating properly.
+    ["abcdefgh1", "abcdefgh2"],
+    ["abcdefgh2", "abcdefgh3"],
+    ["abcdefgh3", "abcdefgh4"],
+    ["abcdefgh4", "abcdefgh5"],
+    ["abcdefgh5", "abcdefgh6"],
+    ["abcdefgh6", "abcdefgh7"],
+    ["abcdefgh7", "abcdefgh8"],
+    ["abcdefgh8", "abcdefgh9"],
+    ["abcdefgh9", "abcdefgh10"],
+    ["abcdefgh1", "abcdefg10"],
+    ["abcdefg10", "abcdefg11"],
+    ["abcdefg99", "abcdefg100"],
+    ["abcdefg10", "abcdef100"],
+    ["a99999999", "a100000000"],
+    ["a10000000", "a00000000"]
+  ];
+
+  let account = new irc.ircAccount(fakeProto,
+                                   {name: "clokep@instantbird.org"});
+  account.LOG = function(aStr) {};
+  account._sentNickname = "abcdefghi";
+  account.normalize = function(aStr) aStr;
+
+  for (let currentNick of testData) {
+    account.sendMessage = function(aCommand, aNewNick)
+      do_check_eq(aNewNick, currentNick[1]);
+
+    account.tryNewNick(currentNick[0]);
   }
 
   run_next_test();
@@ -70,7 +106,6 @@ function test_altNicks() {
   let account = new irc.ircAccount(fakeProto,
                                    {name: "clokep@instantbird.org"});
   account.LOG = function(aStr) {};
-  account.maxNicknameLength = 9;
   account.normalize = function(aStr) aStr;
 
   for (let currentNick in testData) {
@@ -82,6 +117,7 @@ function test_altNicks() {
         return data.join(",");
       return data;
     };
+    account._sentNickname = currentNick;
 
     account.sendMessage = function(aCommand, aNewNick)
       do_check_eq(aNewNick, testData[currentNick][1]);
@@ -94,6 +130,7 @@ function test_altNicks() {
 
 function run_test() {
   add_test(test_tryNewNick);
+  add_test(test_maxLength);
   add_test(test_altNicks);
 
   run_next_test();

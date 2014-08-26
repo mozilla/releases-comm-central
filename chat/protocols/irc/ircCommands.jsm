@@ -322,10 +322,14 @@ var commands = [
       let newNick = aMsg.trim();
       if (newNick.indexOf(/\s+/) != -1)
         return false;
+
+      let account = getAccount(aConv)
       // The user wants to change their nick, so overwrite the account
       // nickname for this session.
-      getAccount(aConv)._requestedNickname = newNick;
-      return simpleCommand(aConv, "NICK", newNick);
+      account._requestedNickname = newNick;
+      account.changeNick(newNick);
+
+      return true;
     }
   },
   {

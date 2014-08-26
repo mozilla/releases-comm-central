@@ -805,10 +805,16 @@ ircAccount.prototype = {
   shouldAuthenticate: true,
   // Whether the user has successfully authenticated with NickServ.
   isAuthenticated: false,
+  // The current in use nickname.
+  _nickname: null,
   // The nickname stored in the account name.
   _accountNickname: null,
-  // The nickname that will be used when connecting.
+  // The nickname that was last requested by the user.
   _requestedNickname: null,
+  // The nickname that was last requested. This can differ from
+  // _requestedNickname when a new nick is automatically generated (e.g. by
+  // adding digits).
+  _sentNickname: null,
   // The prefix minus the nick (!user@host) as returned by the server, this is
   // necessary for guessing message lengths.
   prefix: null,
@@ -1173,6 +1179,13 @@ ircAccount.prototype = {
   },
 
   /*
+   * Ask the server to change the user's nick.
+   */
+  changeNick: function(aNewNick) {
+    this._sentNickname = aNewNick;
+    this.sendMessage("NICK", aNewNick); // Nick message.
+  },
+  /*
    * Generate a new nick to change to if the user requested nick is already in
    * use or is otherwise invalid.
    *
@@ -1196,12 +1209,13 @@ ircAccount.prototype = {
     if (oldIndex != -1 && oldIndex < allNicks.length - 1) {
       let newNick = allNicks[oldIndex + 1];
       this.LOG(aOldNick + " is already in use, trying " + newNick);
-      this.sendMessage("NICK", newNick); // Nick message.
+      this.changeNick(newNick);
       return true;
     }
 
     // Separate the nick into the text and digits part.
-    let nickParts = /^(.+?)(\d*)$/.exec(aOldNick);
+    let kNickPattern = /^(.+?)(\d*)$/;
+    let nickParts = kNickPattern.exec(aOldNick);
     let newNick = nickParts[1];
 
     // No nick found from the user's preferences, so just generating one.
@@ -1217,12 +1231,23 @@ ircAccount.prototype = {
         newDigits = "0".repeat(numLeadingZeros) + newDigits;
     }
 
-    // If the nick will be too long, ensure all the digits fit.
-    if (newNick.length + newDigits.length > this.maxNicknameLength) {
+    // Servers truncate nicks that are too long, compare the previously sent
+    // nickname with the returned nickname and check for truncation.
+    if (aOldNick.length < this._sentNickname.length) {
+      // The nick will be too long, overwrite the end of the nick instead of
+      // appending.
+      let maxLength = aOldNick.length;
+
+      let sentNickParts = kNickPattern.exec(this._sentNickname);
+      // Resend the same digits as last time, but overwrite part of the nick
+      // this time.
+      if (nickParts[2] && sentNickParts[2])
+        newDigits = sentNickParts[2];
+
       // Handle the silly case of a single letter followed by all nines.
       if (newDigits.length == this.maxNicknameLength)
         newDigits = newDigits.slice(1);
-      newNick = newNick.slice(0, this.maxNicknameLength - newDigits.length);
+      newNick = newNick.slice(0, maxLength - newDigits.length);
     }
     // Append the digits.
     newNick += newDigits;
@@ -1238,7 +1263,7 @@ ircAccount.prototype = {
     }
 
     this.LOG(aOldNick + " is already in use, trying " + newNick);
-    this.sendMessage("NICK", newNick); // Nick message.
+    this.changeNick(newNick);
     return true;
   },
 
@@ -1618,7 +1643,7 @@ ircAccount.prototype = {
     }
 
     // Send the nick message (section 3.1.2).
-    this.sendMessage("NICK", this._requestedNickname);
+    this.changeNick(this._requestedNickname);
 
     // Send the user message (section 3.1.3).
     let username;
