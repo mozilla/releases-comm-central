@@ -117,6 +117,34 @@ function serverErrorMessage(aAccount, aMessage, aError) {
   return writeMessage(aAccount, aMessage, aError, "error")
 }
 
+function addMotd(aAccount, aMessage) {
+  // If there is no current MOTD to append to, start a new one.
+  if (!aAccount._motd)
+    aAccount._motd = [];
+
+  // Traditionally, MOTD messages start with "- ", but this is not always
+  // true, try to handle that sanely.
+  let message = aMessage.params[1];
+  if (message.startsWith("-"))
+    message = message.slice(1).trim();
+  // And traditionally, the initial message ends in " -", remove that.
+  if (message.endsWith("-"))
+    message = message.slice(0, -1).trim();
+
+  // Actually add the message (if it still exists).
+  if (message)
+    aAccount._motd.push(message);
+
+  // Oh, also some servers don't send a RPL_ENDOFMOTD (e.g. irc.ppy.sh), so if
+  // we don't receive another MOTD message after 1 second, consider it to be
+  // RPL_ENDOFMOTD.
+  clearTimeout(aAccount._motdTimer)
+  aAccount._motdTimer = setTimeout(ircBase.commands["376"].bind(aAccount),
+                                   1000, aMessage);
+
+  return true;
+}
+
 // See RFCs 2811 & 2812 (which obsoletes RFC 1459) for a description of these
 // commands.
 var ircBase = {
@@ -979,8 +1007,7 @@ var ircBase = {
     },
     "372": function(aMessage) { // RPL_MOTD
       // :- <text>
-      this._motd.push(aMessage.params[1].slice(2));
-      return true;
+      return addMotd(this, aMessage);
     },
     "373": function(aMessage) { // RPL_INFOSTART
       // Non-generic
@@ -993,14 +1020,21 @@ var ircBase = {
     },
     "375": function(aMessage) { // RPL_MOTDSTART
       // :- <server> Message of the day -
-      this._motd = [aMessage.params[1].slice(2, -2)];
-      return true;
+      return addMotd(this, aMessage);
     },
     "376": function(aMessage) { // RPL_ENDOFMOTD
       // :End of MOTD command
-      if (this._showServerTab)
+      // Show the MOTD if the user wants to see server messages or if RPL_WELCOME has not been
+      // received since some servers (e.g. irc.ppy.sh) use this as a CAPTCHA
+      // like mechanism before login can occur.
+      if (this._showServerTab || !this.connected)
         writeMessage(this, aMessage, this._motd.join("\n"), "incoming");
+      // No reason to keep the MOTD in memory.
       delete this._motd;
+      // Clear the MOTD timer.
+      clearTimeout(this._motdTimer)
+      delete this._motdTimer;
+
       return true;
     },
 

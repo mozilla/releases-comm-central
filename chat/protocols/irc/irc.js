@@ -1351,6 +1351,10 @@ ircAccount.prototype = {
     this._isOnTimer = setTimeout(this.sendIsOn.bind(this), this._isOnDelay);
   },
 
+  // The message of the day uses two fields to append messages.
+  _motd: null,
+  _motdTimer: null,
+
   connect: function() {
     this.reportConnecting();
 
@@ -1651,6 +1655,11 @@ ircAccount.prototype = {
 
     clearTimeout(this._isOnTimer);
     delete this._isOnTimer;
+
+    // MOTD will be resent.
+    delete this._motd;
+    clearTimeout(this._motdTimer)
+    delete this._motdTimer;
 
     // We must authenticate if we reconnect.
     delete this.isAuthenticated;
