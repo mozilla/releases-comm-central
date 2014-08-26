@@ -1458,8 +1458,10 @@ ircAccount.prototype = {
   // aComponents implements prplIChatRoomFieldValues.
   joinChat: function(aComponents) {
     let channel = aComponents.getValue("channel");
+    // Mildly sanitize input.
+    channel = channel.trimLeft().split(",")[0].split(" ")[0];
     if (!channel) {
-      this.ERROR("joinChat called without a channel name.");
+      this.ERROR("joinChat called without a valid channel name.");
       return null;
     }
 
