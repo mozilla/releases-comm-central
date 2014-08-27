@@ -719,17 +719,34 @@ function SetMenuItemLabel(menuItemId, customLabel)
     menuItem.setAttribute('label', customLabel);
 }
 
+/**
+ * Update the tooltip of the "Get messages" button to indicate which accounts
+ * (usernames) will be fetched if clicked.
+ */
+
 function SetGetMsgButtonTooltip()
 {
-  var selectedFolders = GetSelectedMsgFolders();
-  var defaultAccountRootFolder = GetDefaultAccountRootFolder();
-  var folders = (selectedFolders.length) ? selectedFolders : [defaultAccountRootFolder];
   var msgButton = document.getElementById("button-getmsg");
-  var tooltip = document.getElementById("bundle_messenger").getString("getMsgButtonTooltip");
-  var listSeparator = document.getElementById("bundle_messenger").getString("getMsgButtonTooltip.listSeparator");
+  // The button is not found in the document if isn't on the toolbar but available
+  // in the Customize palette. In that case we do not need to update its tooltip.
+  if (!msgButton)
+    return;
+
+  var selectedFolders = GetSelectedMsgFolders();
+  var folders;
+  if (selectedFolders.length)
+    folders = selectedFolders;
+  else
+    folders = [ GetDefaultAccountRootFolder() ];
+
+  var bundle = document.getElementById("bundle_messenger");
+  var listSeparator = bundle.getString("getMsgButtonTooltip.listSeparator");
+
+  // Push the usernames through a Set() to remove duplicates.
   var names = new Set([v.server.prettyName for each (v in folders)]);
   var tooltipNames = Array.from(names).join(listSeparator);
-  msgButton.tooltipText = tooltip.replace('%S', tooltipNames);
+  msgButton.tooltipText = bundle.getFormattedString("getMsgButtonTooltip",
+                                                    [ tooltipUsernames ]);
 }
 
 function RemoveAllMessageTags()
