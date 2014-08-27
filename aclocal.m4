@@ -26,4 +26,4 @@ MOZ_PROG_CHECKMSYS()
 # configure.in: autoconf puts the argument parsing code above anything
 # expanded from configure.in, and we need to get the configure options
 # from .mozconfig in place before that argument parsing code.
-MOZ_READ_MOZCONFIG(mozilla)
+dnl MOZ_READ_MOZCONFIG(mozilla)
