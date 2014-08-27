@@ -4606,16 +4606,26 @@ nsresult nsMsgCompose::BuildMailListArray(nsIAbDirectory* parentDir,
   return rv;
 }
 
+/**
+ * Comparator for use with nsTArray::IndexOf to find a recipient.
+ * This comparator will check if an "address" is a mail list or not.
+ */
 struct nsMsgMailListComparator
 {
+  // A mail list will have one of the formats
+  //  1) "mName <mDescription>" when the list has a description
+  //  2) "mName <mName>" when the list lacks description
+  // A recipient is of the form "mName <mEmail>" - for equality the list
+  // name must be the same. The recipient "email" must match the list name for
+  // case 1, and the list description for case 2.
   bool Equals(const nsMsgMailList &mailList,
               const nsMsgRecipient &recipient) const {
-    if (mailList.mName.Equals(recipient.mName,
-        nsCaseInsensitiveStringComparator()))
-      return true;
-    return mailList.mDescription.Equals(
-      recipient.mEmail.IsEmpty() ? recipient.mName : recipient.mEmail,
-      nsCaseInsensitiveStringComparator());
+    if (!mailList.mName.Equals(recipient.mName,
+                               nsCaseInsensitiveStringComparator()))
+      return false;
+    return mailList.mDescription.IsEmpty() ?
+      mailList.mName.Equals(recipient.mEmail, nsCaseInsensitiveStringComparator()) :
+      mailList.mDescription.Equals(recipient.mEmail, nsCaseInsensitiveStringComparator());
   }
 };
 
@@ -4631,9 +4641,7 @@ nsMsgCompose::LookupAddressBook(RecipientsArray &recipientsList)
   m_compFields->GetCc(originalRecipients[1]);
   m_compFields->GetBcc(originalRecipients[2]);
 
-  uint32_t i, j, k;
-
-  for (i = 0; i < MAX_OF_RECIPIENT_ARRAY; ++i)
+  for (uint32_t i = 0; i < MAX_OF_RECIPIENT_ARRAY; ++i)
   {
     if (originalRecipients[i].IsEmpty())
       continue;
@@ -4657,7 +4665,7 @@ nsMsgCompose::LookupAddressBook(RecipientsArray &recipientsList)
     nsString dirPath;
     uint32_t nbrAddressbook = addrbookDirArray.Count();
 
-    for (k = 0; k < nbrAddressbook && stillNeedToSearch; ++k)
+    for (uint32_t k = 0; k < nbrAddressbook && stillNeedToSearch; ++k)
     {
       // Avoid recursive mailing lists
       if (abDirectory && (addrbookDirArray[k] == abDirectory))
@@ -4684,10 +4692,10 @@ nsMsgCompose::LookupAddressBook(RecipientsArray &recipientsList)
         return rv;
 
       stillNeedToSearch = false;
-      for (i = 0; i < MAX_OF_RECIPIENT_ARRAY; i ++)
+      for (uint32_t i = 0; i < MAX_OF_RECIPIENT_ARRAY; i ++)
       {
         // Note: We check this each time to allow for length changes.
-        for (j = 0; j < recipientsList[i].Length(); ++j)
+        for (uint32_t j = 0; j < recipientsList[i].Length(); ++j)
         {
           nsMsgRecipient &recipient = recipientsList[i][j];
           if (!recipient.mDirectory)
@@ -4768,7 +4776,6 @@ nsMsgCompose::ExpandMailingLists()
           bool bIsMailList;
           rv = existingCard->GetIsMailList(&bIsMailList);
           NS_ENSURE_SUCCESS(rv, rv);
-
           NS_ASSERTION(!bIsMailList,
              "Bug 40301 means we don't support this feature.");
 
