@@ -1509,15 +1509,15 @@ nsresult nsMsgCompose::Abort()
   return NS_OK;
 }
 
-nsresult nsMsgCompose::GetEditor(nsIEditor * *aEditor)
+NS_IMETHODIMP nsMsgCompose::GetEditor(nsIEditor * *aEditor)
 {
   NS_IF_ADDREF(*aEditor = m_editor);
   return NS_OK;
 }
 
-nsresult nsMsgCompose::ClearEditor()
+NS_IMETHODIMP nsMsgCompose::SetEditor(nsIEditor *aEditor)
 {
-  m_editor = nullptr;
+  m_editor = aEditor;
   return NS_OK;
 }
 
