@@ -124,36 +124,18 @@ const uint32_t kTraitStoreCapacity = 16384;
 const uint32_t kTraitAutoCapacity = 10;
 
 TokenEnumeration::TokenEnumeration(PLDHashTable* table)
-    :   mEntrySize(table->entrySize),
-        mEntryCount(table->entryCount),
-        mEntryOffset(0),
-        mEntryAddr(table->entryStore)
+    :   mIterator(table->Iterate())
 {
-    uint32_t capacity = PL_DHASH_TABLE_CAPACITY(table);
-    mEntryLimit = mEntryAddr + capacity * mEntrySize;
 }
 
 inline bool TokenEnumeration::hasMoreTokens()
 {
-    return (mEntryOffset < mEntryCount);
+    return mIterator.HasMoreEntries();
 }
 
 inline BaseToken* TokenEnumeration::nextToken()
 {
-    BaseToken* token = nullptr;
-    uint32_t entrySize = mEntrySize;
-    char *entryAddr = mEntryAddr, *entryLimit = mEntryLimit;
-    while (entryAddr < entryLimit) {
-        PLDHashEntryHdr* entry = (PLDHashEntryHdr*) entryAddr;
-        entryAddr += entrySize;
-        if (PL_DHASH_ENTRY_IS_LIVE(entry)) {
-            token = static_cast<BaseToken*>(entry);
-            ++mEntryOffset;
-            break;
-        }
-    }
-    mEntryAddr = entryAddr;
-    return token;
+    return static_cast<BaseToken*>(mIterator.NextEntry());
 }
 
 struct VisitClosure {
@@ -186,6 +168,7 @@ TokenHash::TokenHash(uint32_t aEntrySize)
     PL_INIT_ARENA_POOL(&mWordPool, "Words Arena", 16384);
     bool ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps, nullptr,
                                 aEntrySize, mozilla::fallible_t(), 128);
+    mTokenTable.data = reinterpret_cast<void*>(ok);
     NS_ASSERTION(ok, "mTokenTable failed to initialize");
     if (!ok)
       PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("mTokenTable failed to initialize"));
@@ -193,7 +176,7 @@ TokenHash::TokenHash(uint32_t aEntrySize)
 
 TokenHash::~TokenHash()
 {
-    if (mTokenTable.entryStore)
+    if (reinterpret_cast<uintptr_t>(mTokenTable.data))
         PL_DHashTableFinish(&mTokenTable);
     PL_FinishArenaPool(&mWordPool);
 }
@@ -203,12 +186,13 @@ nsresult TokenHash::clearTokens()
     // we re-use the tokenizer when classifying multiple messages,
     // so this gets called after every message classification.
     bool ok = true;
-    if (mTokenTable.entryStore)
+    if (mTokenTable.data)
     {
         PL_DHashTableFinish(&mTokenTable);
         PL_FreeArenaPool(&mWordPool);
         ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps, nullptr,
                                mEntrySize, mozilla::fallible_t(), 128);
+        mTokenTable.data = reinterpret_cast<void*>(ok);
         NS_ASSERTION(ok, "mTokenTable failed to initialize");
         if (!ok)
           PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("mTokenTable failed to initialize in clearTokens()"));
@@ -268,15 +252,15 @@ void TokenHash::visit(bool (*f) (BaseToken*, void*), void* data)
 {
     VisitClosure closure = { f, data };
     uint32_t visitCount = PL_DHashTableEnumerate(&mTokenTable, VisitEntry, &closure);
-    NS_ASSERTION(visitCount == mTokenTable.entryCount, "visitCount != entryCount!");
-    if (visitCount != mTokenTable.entryCount) {
-      PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("visitCount != entryCount!: %d vs %d", visitCount, mTokenTable.entryCount));
+    NS_ASSERTION(visitCount == mTokenTable.EntryCount(), "visitCount != entryCount!");
+    if (visitCount != mTokenTable.EntryCount()) {
+      PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("visitCount != entryCount!: %d vs %d", visitCount, mTokenTable.EntryCount()));
     }
 }
 
 inline uint32_t TokenHash::countTokens()
 {
-  return mTokenTable.entryCount;
+  return mTokenTable.EntryCount();
 }
 
 inline TokenEnumeration TokenHash::getTokens()
