@@ -255,23 +255,21 @@ urlListener.prototype =
 
   // Suppress any certificate errors
   notifyCertProblem: function(socketInfo, status, targetSite) {
-    if (!status)
-      return true;
-
     this.mCertError = true;
     this._log.error("cert error");
-    var me = this;
+    let self = this;
     setTimeout(function () {
       try {
-        me.informUserOfCertError(socketInfo, targetSite);
+        self.informUserOfCertError(socketInfo, status, targetSite);
       } catch (e)  { logException(e); }
     }, 0);
     return true;
   },
 
-  informUserOfCertError : function(socketInfo, targetSite) {
+  informUserOfCertError : function(socketInfo, status, targetSite) {
     var params = {
       exceptionAdded : false,
+      sslStatus : status,
       prefetchCert : true,
       location : targetSite,
     };

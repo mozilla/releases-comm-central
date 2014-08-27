@@ -510,10 +510,7 @@ function BadCertHandler() {
 BadCertHandler.prototype = {
   // Suppress any certificate errors
   notifyCertProblem: function(socketInfo, status, targetSite) {
-    if (!status)
-      return true;
-
-    setTimeout(InformUserOfCertError, 0, socketInfo, targetSite);
+    setTimeout(InformUserOfCertError, 0, socketInfo, status, targetSite);
     return true;
   },
 
@@ -532,11 +529,14 @@ BadCertHandler.prototype = {
   }
 };
 
-function InformUserOfCertError(socketInfo, targetSite)
+function InformUserOfCertError(socketInfo, status, targetSite)
 {
-  var params = { exceptionAdded : false };
-  params.prefetchCert = true;
-  params.location = targetSite;
+  let params = {
+    exceptionAdded : false,
+    sslStatus : status,
+    prefetchCert: true,
+    location : targetSite
+  };
   window.openDialog('chrome://pippki/content/exceptionDialog.xul',
                   '','chrome,centerscreen,modal', params);
 }

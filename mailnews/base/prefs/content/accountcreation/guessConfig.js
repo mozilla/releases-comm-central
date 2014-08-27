@@ -421,7 +421,6 @@ HostDetector.prototype =
     for (let i = 0; i < hostnamesToTry.length; i++)
     {
       let hostname = hostnamesToTry[i];
-      // this._portsToTry() = getIncomingTryOrder()/getOutgoingTryOrder()
       let hostEntries = this._portsToTry(hostname, protocol, ssl, port);
       for (let j = 0; j < hostEntries.length; j++)
       {
@@ -489,14 +488,9 @@ HostDetector.prototype =
   {
     if (thisTry._gotCertError)
     {
-      this._log.info("clearing validity override for " + thisTry.hostname);
-      Cc["@mozilla.org/security/certoverride;1"]
-        .getService(Ci.nsICertOverrideService)
-        .clearValidityOverride(thisTry.hostname, thisTry.port);
-
       if (thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_MISMATCH)
       {
-        thisTry._gotCertError = false;
+        thisTry._gotCertError = 0;
         thisTry.status = kFailed;
         return;
       }
@@ -505,7 +499,7 @@ HostDetector.prototype =
           thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_TIME)
       {
         this._log.info("TRYING AGAIN, hopefully with exception recorded");
-        thisTry._gotCertError = false;
+        thisTry._gotCertError = 0;
         thisTry.selfSignedCert = true; // _next_ run gets this exception
         thisTry.status = kNotTried; // try again (with exception)
         this._tryAll();
@@ -533,6 +527,17 @@ HostDetector.prototype =
         " ssl " + thisTry.ssl +
         (thisTry.selfSignedCert ? " (selfSignedCert)" : ""));
     thisTry.status = kSuccess;
+
+    if (thisTry.selfSignedCert) { // eh, ERROR_UNTRUSTED or ERROR_TIME
+      // We clear the temporary override now after success. If we clear it
+      // earlier we get into an infinite loop, probably because the cert
+      // remembering is temporary and the next try gets a new connection which
+      // isn't covered by that temporariness.
+      this._log.info("clearing validity override for " + thisTry.hostname);
+      Cc["@mozilla.org/security/certoverride;1"]
+        .getService(Ci.nsICertOverrideService)
+        .clearValidityOverride(thisTry.hostname, thisTry.port);
+    }
   },
 
   _checkFinished : function()
@@ -904,7 +909,9 @@ function SSLErrorHandler(thisTry, logger)
 {
   this._try = thisTry;
   this._log = logger;
-  this._gotCertError = false;
+  // _ gotCertError will be set to an error code (one of those defined in
+  // nsICertOverrideService)
+  this._gotCertError = 0;
 }
 SSLErrorHandler.prototype =
 {
@@ -952,7 +959,7 @@ SSLErrorHandler.prototype =
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_MISMATCH;
       flags |= Ci.nsICertOverrideService.ERROR_MISMATCH;
     }
-    else if (status.isUntrusted) {
+    else if (status.isUntrusted) { // e.g. self-signed
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_UNTRUSTED;
       flags |= Ci.nsICertOverrideService.ERROR_UNTRUSTED;
     }
@@ -982,7 +989,7 @@ SSLErrorHandler.prototype =
       .rememberValidityOverride(host, port, cert, flags,
         true); // temporary override
     this._log.warn("!! Overrode bad cert temporarily " + host + " " + port +
-                   "flags = " + flags + "\n");
+                   " flags=" + flags + "\n");
     return true;
   },
 
