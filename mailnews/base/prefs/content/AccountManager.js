@@ -1450,10 +1450,8 @@ var gAccountTree = {
   },
   onServerChanged: function at_onServerChanged(aServer) {},
 
-  _rdf: Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                  .getService(Components.interfaces.nsIRDFService),
-  _rdfDataSource: null,
-  _rdfOpenAttribute: null,
+  _dataStore: Components.classes["@mozilla.org/xul/xulstore;1"]
+                        .getService(Components.interfaces.nsIXULStore),
 
   /**
    * Retrieve from localstore.rdf whether the account should be expanded (open)
@@ -1462,22 +1460,15 @@ var gAccountTree = {
    * @param aAccountKey  key of the account to check
    */
   _getAccountOpenState: function at_getAccountOpenState(aAccountKey) {
-    // The code for this was ported from
-    // mozilla/browser/components/nsBrowserGlue.js.
-    if (!this._rdfDataSource) {
-      this._rdfDataSource = this._rdf.GetDataSource("rdf:local-store");
-      this._rdfOpenAttribute = this._rdf.GetResource("open");
-    }
-
-    // Retrieve the persisted value from localstore.rdf.
-    // It is stored under the URI of the current document and ID of the XUL element.
-    let resource = this._rdf.GetResource(document.documentURI + "#" + aAccountKey);
-    let target = this._rdfDataSource.GetTarget(resource, this._rdfOpenAttribute, true);
-    if (target instanceof Components.interfaces.nsIRDFLiteral)
-      return target.Value;
-
+    if (!this._dataStore.hasValue(document.documentURI, aAccountKey, "open")) {
     // If there was no value stored, use opened state.
-    return "true";
+      return "true";
+    } else {
+      // Retrieve the persisted value from XULStore.json.
+      // It is stored under the URI of the current document and ID of the XUL element.
+      return this._dataStore
+                 .getValue(document.documentURI, aAccountKey, "open");
+    }
   },
 
   _build: function at_build() {
