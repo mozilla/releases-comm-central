@@ -524,7 +524,7 @@
           // JS labelElement property at all, so we skip this.  We get away
           // with it because there's no screen reader support on the Mac.
           if ("labelElement" in this) {
-            let ariaLabel = this.labelElement.value.slice(0,-1) + ": " + val;
+            let ariaLabel = this.labelElement.value + ": " + val;
             valueNode.setAttribute("aria-label", ariaLabel);
           }
 
@@ -613,7 +613,7 @@
             // property at all, so we skip in that case.  We get away with it
             // because there's no screen reader support on the Mac.
             if ("labelElement" in this) {
-                let ariaLabel = this.labelElement.value.slice(0, -1) + ": " +
+                let ariaLabel = this.labelElement.value + ": " +
                                 aAddress.fullAddress || aAddress.displayName;
                 aEmailNode.setAttribute("aria-label", ariaLabel);
             }
@@ -1077,7 +1077,7 @@
             // skip in that case.  We get away with it because there's no
             // screen reader support on the Mac.
             if ("labelElement" in this) {
-                let ariaLabel = this.labelElement.value.slice(0, -1) + ": " +
+                let ariaLabel = this.labelElement.value + ": " +
                                 this.mNewsgroups[i];
                 let contentElement =
                   document.getAnonymousElementByAttribute(itemInDocument,
@@ -1316,7 +1316,7 @@
               // skip in that case.  We get away with it because there's no
               // screen reader support on the Mac.
               if ("labelElement" in this) {
-                let ariaLabel = this.labelElement.value.slice(0, -1) + ": "
+                let ariaLabel = this.labelElement.value + ": "
                                 + tagName;
                 label.setAttribute("aria-label", ariaLabel);
               }

@@ -910,14 +910,14 @@ if ("nsIAccessibleRole" in Ci) {
   {
     headerName: "Subject",
     headerValueElement: "mc.a('expandedsubjectBox', {class: 'headerValue'})",
-    expectedName: "mc.e('expandedsubjectLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedsubjectLabel').value + ': ' + " +
                   "headerValueElement.textContent",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
   {
     headerName: "Content-Base",
     headerValueElement: "mc.a('expandedcontent-baseBox', {class: 'headerValue text-link headerValueUrl'})",
-    expectedName: "mc.e('expandedcontent-baseLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedcontent-baseLabel').value + ': ' + " +
                   "headerValueElement.textContent",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
@@ -926,7 +926,7 @@ if ("nsIAccessibleRole" in Ci) {
     headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
                         "mc.a('expandedfromBox', {tagName: 'mail-emailaddress'})," +
                         "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedfromLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedfromLabel').value + ': ' + " +
                   "headerValueElement.parentNode.getAttribute('fullAddress')",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
@@ -935,7 +935,7 @@ if ("nsIAccessibleRole" in Ci) {
     headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
                         "mc.a('expandedtoBox', {tagName: 'mail-emailaddress'})," +
                         "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedtoLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedtoLabel').value + ': ' + " +
                   "headerValueElement.parentNode.getAttribute('fullAddress')",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
@@ -944,7 +944,7 @@ if ("nsIAccessibleRole" in Ci) {
     headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
                         "mc.a('expandedccBox', {tagName: 'mail-emailaddress'})," +
                         "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedccLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedccLabel').value + ': ' + " +
                   "headerValueElement.parentNode.getAttribute('fullAddress')",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
@@ -953,7 +953,7 @@ if ("nsIAccessibleRole" in Ci) {
     headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
                         "mc.a('expandedbccBox', {tagName: 'mail-emailaddress'})," +
                         "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedbccLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedbccLabel').value + ': ' + " +
                   "headerValueElement.parentNode.getAttribute('fullAddress')",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
@@ -962,7 +962,7 @@ if ("nsIAccessibleRole" in Ci) {
     headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
                         "mc.a('expandedreply-toBox', {tagName: 'mail-emailaddress'})," +
                         "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedreply-toLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedreply-toLabel').value + ': ' + " +
                   "headerValueElement.parentNode.getAttribute('fullAddress')",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
@@ -971,14 +971,14 @@ if ("nsIAccessibleRole" in Ci) {
     headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
                         "mc.a('expandednewsgroupsBox', {tagName: 'mail-newsgroup'})," +
                         "'class', 'newsgrouplabel')",
-    expectedName: "mc.e('expandednewsgroupsLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandednewsgroupsLabel').value + ': ' + " +
                   "headerValueElement.parentNode.parentNode.getAttribute('newsgroup')",
     expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
   },
   {
     headerName: "Tags",
     headerValueElement: "mc.a('expandedtagsBox', {class: 'tagvalue blc-FF0000'})",
-    expectedName: "mc.e('expandedtagsLabel').value.slice(0,-1) + ': ' + " +
+    expectedName: "mc.e('expandedtagsLabel').value + ': ' + " +
                   "headerValueElement.getAttribute('value')",
     expectedRole: Ci.nsIAccessibleRole.ROLE_LABEL
   }
