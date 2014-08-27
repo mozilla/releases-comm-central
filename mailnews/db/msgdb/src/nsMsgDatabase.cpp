@@ -512,7 +512,7 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
     {
       if (key == nsMsgKey_None)
         hdr->GetMessageKey(&key);
-      if (m_cachedHeaders->entryCount > m_cacheSize)
+      if (m_cachedHeaders->EntryCount() > m_cacheSize)
         ClearHdrCache(true);
       PLDHashEntryHdr *entry = PL_DHashTableOperate(m_cachedHeaders, (void *)(uintptr_t) key, PL_DHASH_ADD);
       if (!entry)
@@ -631,10 +631,10 @@ void nsMsgDatabase::ClearCachedObjects(bool dbGoingAway)
 {
   ClearHdrCache(false);
 #ifdef DEBUG_DavidBienvenu
-  if (m_headersInUse && m_headersInUse->entryCount > 0)
+  if (m_headersInUse && m_headersInUse->EntryCount() > 0)
   {
-        NS_ASSERTION(false, "leaking headers");
-    printf("leaking %d headers in %s\n", m_headersInUse->entryCount, (const char *) m_dbName);
+    NS_ASSERTION(false, "leaking headers");
+    printf("leaking %d headers in %s\n", m_headersInUse->EntryCount(), (const char *) m_dbName);
   }
 #endif
   m_cachedThread = nullptr;
@@ -976,7 +976,7 @@ void nsMsgDBService::DumpCache()
     db = m_dbCache.ElementAt(i);
     PR_LOG(DBLog, PR_LOG_ALWAYS, ("%s - %ld hdrs in use\n",
       (const char*)db->m_dbName.get(),
-      db->m_headersInUse ? db->m_headersInUse->entryCount : 0));
+      db->m_headersInUse ? db->m_headersInUse->EntryCount() : 0));
   }
 }
 
