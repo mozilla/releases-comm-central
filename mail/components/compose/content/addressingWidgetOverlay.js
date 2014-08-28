@@ -54,6 +54,12 @@ function awInitializeNumberOfRowsShown()
   let awNumRowsShownDefault =
     Services.prefs.getIntPref("mail.compose.addresswidget.numRowsShownDefault");
 
+  // Work around bug 966655: extraHeight 2 pixels for msgHeadersToolbar ensures
+  // visibility of recipient rows per awNumRowsShownDefault and prevents scrollbar
+  // on empty Address Widget, depending on OS screen resolution dpi scaling
+  // (> 100%; thresholds differ).
+  let extraHeight = 2;
+
   // Set minimum number of rows shown for address widget, per hardwired
   // rows="1" attribute of addressingWidget, to prevent resizing the
   // subject and format toolbar over the address widget.
@@ -64,7 +70,7 @@ function awInitializeNumberOfRowsShown()
 
   // Set default number of rows shown for address widget.
   addressingWidget.setAttribute("rows", awNumRowsShownDefault);
-  msgHeadersToolbar.height = msgHeadersToolbar.boxObject.height;
+  msgHeadersToolbar.height = msgHeadersToolbar.boxObject.height + extraHeight;
 
   // Update addressingWidget internals.
   awCreateOrRemoveDummyRows();
