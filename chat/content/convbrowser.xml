@@ -469,7 +469,7 @@
             if (aFirstUnread)
               this.setUnreadRuler();
 
-            let msg = aMsg.originalMessage;
+            let msg = aMsg.displayMessage;
 
             // The slash of a leading '/me' should not be used to
             // format as italic, so we remove the '/me' text before

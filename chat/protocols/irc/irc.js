@@ -134,9 +134,9 @@ const GenericIRCConversation = {
     return this._account.maxMessageLength -
            this._account.countBytes(baseMessage);
   },
-  sendMsg: function(aMessage) {
+  prepareForSending: function(aOutgoingMessage, aCount) {
     // Split the message by line breaks and send each one individually.
-    let messages = aMessage.split(/[\r\n]+/);
+    let messages = aOutgoingMessage.message.split(/[\r\n]+/);
 
     let maxLength = this.getMaxMessageLength();
 
@@ -159,24 +159,27 @@ const GenericIRCConversation = {
                       message.substr((index + 1) || maxLength));
     }
 
-    // Send each message and display it in the conversation.
-    for (let message of messages) {
-      if (!message.length)
-        return;
+    if (aCount)
+      aCount.value = messages.length;
 
-      if (!this._account.sendMessage("PRIVMSG", [this.name, message])) {
-        this.writeMessage(this._account._currentServerName,
-                          _("error.sendMessageFailed"),
-                          {error: true, system: true});
-        break;
-      }
+    return messages;
+  },
+  sendMsg: function(aMessage) {
+    if (!aMessage.length)
+      return;
 
-      // Since the server doesn't send us a message back, just assume the
-      // message was received and immediately show it.
-      this.writeMessage(this._account._nickname, message, {outgoing: true});
-
-      this._pendingMessage = true;
+    if (!this._account.sendMessage("PRIVMSG", [this.name, aMessage])) {
+      this.writeMessage(this._account._currentServerName,
+                        _("error.sendMessageFailed"),
+                        {error: true, system: true});
+      return;
     }
+
+    // Since the server doesn't send us a message back, just assume the
+    // message was received and immediately show it.
+    this.writeMessage(this._account._nickname, aMessage, {outgoing: true});
+
+    this._pendingMessage = true;
   },
   // IRC doesn't support typing notifications, but it does have a maximum
   // message length.

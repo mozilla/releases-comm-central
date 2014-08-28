@@ -9,6 +9,7 @@
 
 interface imIAccountBuddy;
 interface imIAccount;
+interface imIOutgoingMessage;
 interface nsIURI;
 interface nsIDOMDocument;
 interface prplIChatRoomFieldValues;
@@ -44,6 +45,12 @@ interface prplIConversation: nsISupports {
 
   /* Send a message in the conversation */
   void sendMsg(in AUTF8String aMsg);
+
+  /* Preprocess messages before they are sent (eg. split long messages).
+     Can return null if no changes are to be made. */
+  void prepareForSending(in imIOutgoingMessage message,
+                         [optional] out unsigned long messageCount,
+                         [retval, array, size_is(messageCount)] out wstring messages);
 
   /* Send information about the current typing state to the server.
      aString should contain the content currently in the text field. The

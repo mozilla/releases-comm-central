@@ -10,8 +10,8 @@ interface imIAccount;
 interface imIAccountBuddy;
 interface imIBuddy;
 interface imIContact;
+interface imIMessage;
 interface prplIConversation;
-interface prplIMessage;
 
 [scriptable, uuid(5bc06f3b-33a1-412b-a4d8-4fc7ba4c962b)]
 interface imILogConversation: nsISupports {
@@ -32,7 +32,7 @@ interface imILogConversation: nsISupports {
   readonly attribute imIAccountBuddy buddy; // always null (compatibility with prplIConvIM).
 
   void getMessages([optional] out unsigned long messageCount,
-                   [retval, array, size_is(messageCount)] out prplIMessage messages);
+                   [retval, array, size_is(messageCount)] out imIMessage messages);
 
   // Callers that process the messages asynchronously should use the enumerator
   // instead of the array version of the getMessages* methods to avoid paying
