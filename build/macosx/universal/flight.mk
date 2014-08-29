@@ -9,18 +9,19 @@
 ifndef OBJDIR
 OBJDIR_ARCH_1 = $(MOZ_OBJDIR)/$(firstword $(MOZ_BUILD_PROJECTS))
 OBJDIR_ARCH_2 = $(MOZ_OBJDIR)/$(word 2,$(MOZ_BUILD_PROJECTS))
-DIST_ARCH_1 = $(OBJDIR_ARCH_1)/mozilla/dist
-DIST_ARCH_2 = $(OBJDIR_ARCH_2)/mozilla/dist
+DIST_ARCH_1 = $(OBJDIR_ARCH_1)/dist
+DIST_ARCH_2 = $(OBJDIR_ARCH_2)/dist
 DIST_UNI = $(DIST_ARCH_1)/universal
 OBJDIR = $(OBJDIR_ARCH_1)
 endif
 
 topsrcdir = $(TOPSRCDIR)
+DEPTH = $(OBJDIR)
 include $(OBJDIR)/config/autoconf.mk
 
 core_abspath = $(if $(filter /%,$(1)),$(1),$(CURDIR)/$(1))
 
-DIST = $(OBJDIR)/mozilla/dist
+DIST = $(OBJDIR)/dist
 
 postflight_all:
 	mkdir -p $(DIST_UNI)/$(MOZ_PKG_APPNAME)
@@ -28,7 +29,7 @@ postflight_all:
 	ln -s $(abspath $(DIST_UNI)) $(DIST_ARCH_2)/universal
 # Stage a package for buildsymbols to be happy. Doing so in OBJDIR_ARCH_1
 # actually does a universal staging with both OBJDIR_ARCH_1 and OBJDIR_ARCH_2.
-	$(MAKE) -C $(OBJDIR_ARCH_1)/mozilla/$(MOZ_BUILD_APP)/installer \
+	$(MAKE) -C $(OBJDIR_ARCH_1)/$(subst ../,,$(MOZ_BUILD_APP))/installer \
 	   PKG_SKIP_STRIP=1 stage-package
 ifdef ENABLE_TESTS
 # Now, repeat the process for the test package.
