@@ -2962,7 +2962,7 @@ var GlodaMsgIndexer = {
       isMsgOffline = true;
       this._MsgHdrToMimeMessageFunc(aMsgHdr, aCallbackHandle.callbackThis,
           aCallbackHandle.callback, false, {saneBodySize: true});
-      [,aMimeMsg] = yield this.kWorkAsync;
+      aMimeMsg = (yield this.kWorkAsync)[1];
     }
     else {
       if (logDebug)
