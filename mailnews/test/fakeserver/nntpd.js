@@ -29,7 +29,7 @@ nntpDaemon.prototype = {
   },
   addArticle : function (article) {
    this._messages[article.messageID] = article;
-   for each (var group in article.groups) {
+   for (let group of article.groups) {
      if (group in this._groups) {
        var key = this._groups[group].nextKey++;
        this._groups[group][key] = article;
@@ -75,7 +75,7 @@ nntpDaemon.prototype = {
 }
 
 function newsArticle(text) {
-  this.headers = {};
+  this.headers = new Map();
   this.body = "";
   this.messageID = "";
   this.fullText = text;
@@ -84,7 +84,7 @@ function newsArticle(text) {
   [headerMap, this.body] = MimeParser.extractHeadersAndBody(text);
   for (var [header, values] of headerMap._rawHeaders) {
     var value = values[0];
-    this.headers[header] = value;
+    this.headers.set(header, value);
     if (header == "message-id") {
       var start = value.indexOf('<');
       var end = value.indexOf('>', start);
@@ -95,10 +95,10 @@ function newsArticle(text) {
   }
 
   // Add in non-existent fields
-  if (!("lines" in this.headers))
+  if (!this.headers.has("lines"))
   {
     let lines = this.body.split('\n').length;
-    this.headers["lines"] = lines;
+    this.headers.set("lines", lines);
   }
 }
 
@@ -207,8 +207,8 @@ NNTP_RFC977_handler.prototype = {
        return info[1];
 
      var response = info[1]+'\n';
-     for (let header in info[0].headers)
-       response += header + ": " + info[0].headers[header] + "\n";
+     for (let [header, value] of info[0].headers)
+       response += header + ": " + value + "\n";
      response += ".";
      return response;
   },
@@ -242,9 +242,10 @@ NNTP_RFC977_handler.prototype = {
   },
   LIST : function (args) {
     var response = "215 list of newsgroup follows\n";
-    for (let group in this._daemon._groups) {
-      var stats = this._daemon.getGroupStats(this._daemon._groups[group]);
-      response += group + " " + stats[1] + " " + stats[0] + " " +
+    for (let groupname in this._daemon._groups) {
+      let group = this._daemon._groups[groupname];
+      let stats = this._daemon.getGroupStats(group);
+      response += groupname + " " + stats[1] + " " + stats[0] + " " +
                   (hasFlag(group.flags, NNTP_POSTABLE) ? "y" : "n") + "\n";
     }
     response += ".";
@@ -284,7 +285,7 @@ NNTP_RFC977_handler.prototype = {
       return "411 This newsgroup does not exist";
 
     var response = "211 Articles follow:\n";
-    for each (var key in group['keys'])
+    for (let key of group['keys'])
       response += key + "\n";
     response += ".\n";
     return response;
@@ -425,11 +426,11 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     var header = args[0].toLowerCase();
     var found = false;
     var response = "221 Headers abound\n";
-    for each (let key in this._filterRange(args[1], this.group.keys)) {
-      if (!(header in this.group[key].headers))
+    for (let key of this._filterRange(args[1], this.group.keys)) {
+      if (!this.group[key].headers.has(header))
         continue;
       found = true;
-      response += key + " " +this.group[key].headers[header] + '\n';
+      response += key + " " + this.group[key].headers.get(header) + '\n';
     }
     if (!found)
       return "420 No such article";
@@ -442,18 +443,17 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
 
     args = args.split(/ +/, 3);
     var response = "224 List of articles\n";
-    for each (let key in this._filterRange(args[0], this.group.keys)) {
+    for (let key of this._filterRange(args[0], this.group.keys)) {
       response += key + "\t";
       var article = this.group[key];
-      response += article.headers["subject"] + "\t" +
-                  article.headers["from"] + "\t" +
-                  article.headers["date"] + "\t" +
-                  article.headers["message-id"] + "\t" +
-                  (article.headers["references"] ? article.headers["references"]
-                                                : "") + "\t" +
+      response += article.headers.get("subject") + "\t" +
+                  article.headers.get("from") + "\t" +
+                  article.headers.get("date") + "\t" +
+                  article.headers.get("message-id") + "\t" +
+                  (article.headers.get("references") || "") + "\t" +
                   article.fullText.replace(/\r?\n/,'\r\n').length + "\t" +
                   article.body.split(/\r?\n/).length + "\t" +
-                  "xref" in article.headers ? article.headers["xref"] : "" + "\n";
+                  (article.headers.get("xref") || "") + "\n";
     }
     response += '.\n';
     return response;
@@ -468,10 +468,11 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     let regex = wildmat2regex(args[2]);
 
     let response = "221 Results follow\n";
-    for each (let key in this._filterRange(args[1], this.group.keys)) {
+    for (let key of this._filterRange(args[1], this.group.keys)) {
       let article = this.group[key];
-      if (header in article.headers && regex.test(article.headers[header])) {
-        response += key + ' ' + article.headers[header] + '\n';
+      if (article.headers.has(header) &&
+          regex.test(article.headers.get(header))) {
+        response += key + ' ' + article.headers.get(header) + '\n';
       }
     }
     return response + '.';

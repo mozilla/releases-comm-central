@@ -33,6 +33,7 @@ var attribResults = {
 };
 function testAttrib(handler, daemon, localserver) {
   var server = makeServer(handler, daemon);
+  server.setDebugLevel(fsDebugAll);
   server.start();
   localserver.port = server.port;
 
@@ -50,7 +51,7 @@ function testAttrib(handler, daemon, localserver) {
   try
   {
     do_check_eq(headers.length, 8);
-    for each (var header in headers) {
+    for (var header of headers) {
       var id = header.messageId;
       dump("Testing message "+id+"\n");
       do_check_eq(header[attribResults[id][0]], attribResults[id][1]);
@@ -107,7 +108,7 @@ function testAction(handler, daemon, localserver) {
   try
   {
     do_check_eq(headers.length, 7);
-    for each (var header in headers) {
+    for (var header of headers) {
       var id = header.messageId;
       dump("Testing message "+id+"\n");
       if (actionResults[id] instanceof Array)
