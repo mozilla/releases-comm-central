@@ -11,7 +11,7 @@ const MOUSE_SCROLL_ZOOM = 3;
 /**
  * Controls the "full zoom" setting and its site-specific preferences.
  */
-var FullZoom = {
+var FullZoom = FullZoom || {
   contentPrefs: Services.contentPrefs.QueryInterface(Components.interfaces.nsIContentPrefService2),
 
   // Identifies the setting in the content prefs database.
@@ -229,14 +229,6 @@ var FullZoom = {
     }
   },
 
-  // update state of zoom type menu item
-
-  updateMenu: function FullZoom_updateMenu() {
-    var menuItem = document.getElementById("toggle_zoom");
-
-    menuItem.setAttribute("checked", !ZoomManager.useFullZoom);
-  },
-
   //**************************************************************************//
   // Setting & Pref Manipulation
 
@@ -265,18 +257,8 @@ var FullZoom = {
   },
 
   setOther: function setZoomOther() {
-    var zoomOther = document.getElementById("menu_zoomOther");
-    // open dialog and ask for new value
-    var o = {value: zoomOther.getAttribute("value"),
-             zoomMin: ZoomManager.MIN * 100,
-             zoomMax: ZoomManager.MAX * 100};
-    window.openDialog("chrome://communicator/content/askViewZoom.xul",
-                      "", "chrome,modal,centerscreen", o);
-    if (o.zoomOK) {
-      zoomOther.setAttribute("value", o.value);
-      ZoomManager.zoom = o.value / 100;
+    if (openZoomDialog())
       this._applySettingToPref();
-    }
   },
 
   /**
@@ -299,7 +281,7 @@ var FullZoom = {
    * one.
    **/
   _applyPrefToSetting: function FullZoom_applyPrefToSetting(aValue, aBrowser) {
-    var browser = aBrowser || (getBrowser() && getBrowser().selectedBrowser);
+    var browser = aBrowser || getBrowser();
 
     if (!this.siteSpecific || window.gInPrintPreviewMode ||
         browser.contentDocument.mozSyntheticDocument)
@@ -442,4 +424,19 @@ function updateZoomMenu() {
     }
     item = item.previousSibling;
   }
+}
+
+function openZoomDialog() {
+  var zoomOther = document.getElementById("menu_zoomOther");
+  // open dialog and ask for new value
+  var o = {value: zoomOther.getAttribute("value"),
+           zoomMin: ZoomManager.MIN * 100,
+           zoomMax: ZoomManager.MAX * 100};
+  window.openDialog("chrome://communicator/content/askViewZoom.xul",
+                    "", "chrome,modal,centerscreen", o);
+  if (o.zoomOK) {
+    zoomOther.setAttribute("value", o.value);
+    ZoomManager.zoom = o.value / 100;
+  }
+  return o.zoomOK;
 }

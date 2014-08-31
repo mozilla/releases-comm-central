@@ -3,6 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xul-overlay href="chrome://communicator/content/viewZoomOverlay.xul"?>
+
 <!DOCTYPE overlay SYSTEM "chrome://editor/locale/editingOverlay.dtd">
 
 <overlay id="editingOverlay"
@@ -10,6 +12,10 @@
 
   <script type="application/javascript"
           src="chrome://editor/content/editingOverlay.js"/>
+
+  <stringbundleset>
+    <stringbundle id="bundle_viewZoom"/>
+  </stringbundleset>
 
   <keyset id="editorKeys">
     <key id="key_openRemoteEditor"
@@ -24,6 +30,7 @@
          key="&publishCmd.key;"
          command="cmd_publish"
          modifiers="accel,shift"/>
+    <keyset id="viewZoomKeys"/>
   </keyset>
 
   <!-- commands updated when the editor gets created -->
@@ -59,6 +66,10 @@
   <commandset id="composerEditMenuItems">
     <command id="cmd_publishSettings"
              oncommand="goDoCommand('cmd_publishSettings');"/>
+  </commandset>
+
+  <commandset id="editorCommands">
+    <commandset id="viewZoomCommands"/>
   </commandset>
 
   <!-- File menu items -->
@@ -137,6 +148,10 @@
               label="&publishSettings.label;"
               accesskey="&publishSettings.accesskey;"
               command="cmd_publishSettings"/>
+  </menupopup>
+
+  <menupopup id="menu_View_Popup">
+    <menu id="menu_zoom" insertbefore="charsetMenu"/>
   </menupopup>
 
   <!-- Toolbar buttons/items -->

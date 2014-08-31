@@ -337,3 +337,19 @@ function EditorUpdateCharsetMenu(aMenuPopup)
 
   UpdateCharsetMenu(content.document.characterSet, aMenuPopup);
 }
+
+// Zoom support.
+function getBrowser()
+{
+  return IsInHTMLSourceMode() ? gSourceContentWindow : GetCurrentEditorElement();
+}
+
+// override the site-specific zoom object in viewZoomOverlay.js
+var FullZoom = {
+  init: function() {},
+  reduce: function() { ZoomManager.reduce(); },
+  enlarge: function() { ZoomManager.enlarge(); },
+  zoom: function(aZoomValue) { ZoomManager.zoom = aZoomValue; },
+  reset: function() { ZoomManager.zoom = 1; },
+  setOther: function() { openZoomDialog(); }
+};
