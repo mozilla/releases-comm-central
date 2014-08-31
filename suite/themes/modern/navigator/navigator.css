@@ -714,6 +714,8 @@ panel[nomatch="true"] > .autocomplete-search-box {
 
 .autocomplete-search-engine-img {
   -moz-margin-end: 4px;
+  width: 16px;
+  height: 16px;
 }
 
 .autocomplete-history-dropmarker {

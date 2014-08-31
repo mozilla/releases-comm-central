@@ -33,7 +33,7 @@ menulist {
 }
 
 .menulist-icon {
-  -moz-padding-end: 2px;
+  -moz-margin-end: 2px;
 }
 
 .menulist-label-box {

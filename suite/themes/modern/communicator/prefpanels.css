@@ -67,7 +67,6 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
   margin: 0 2px;
-  -moz-padding-end: 0;
   height: 16px;
   width: 16px;
 }
@@ -106,6 +105,13 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
 .handler-type[typeClass="videoPodcastFeed"],
 .handler-type[typeClass="audioPodcastFeed"] {
   list-style-image: url("chrome://communicator/skin/icons/feedIcon16.png");
+}
+
+/* ::::: Search ::::: */
+
+#engineList > .menulist-label-box > .menulist-icon {
+  height: 16px;
+  width: 16px;
 }
 
 /* ::::: Sync ::::: */

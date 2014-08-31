@@ -75,6 +75,13 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"] {
   list-style-image: url("chrome://communicator/skin/icons/feedIcon16.png");
 }
 
+/* ::::: Search ::::: */
+
+#engineList > .menulist-label-box > .menulist-icon {
+  height: 16px;
+  width: 16px;
+}
+
 /* ::::: Sync ::::: */
 
 #syncDesc {

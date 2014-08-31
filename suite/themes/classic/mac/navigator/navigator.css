@@ -515,6 +515,8 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 
 .autocomplete-search-engine-img {
   -moz-margin-end: 4px;
+  width: 16px;
+  height: 16px;
 }
 
 .autocomplete-treebody::-moz-tree-cell-text(treecolAutoCompleteComment) {
