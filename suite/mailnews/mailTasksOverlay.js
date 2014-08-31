@@ -218,7 +218,7 @@ nsMsgBadCertHandler.prototype = {
     if (!status)
       return true;
 
-    setTimeout(InformUserOfCertError, 0, targetSite);
+    setTimeout(InformUserOfCertError, 0, status, targetSite);
     return true;
   },
 
@@ -237,9 +237,10 @@ nsMsgBadCertHandler.prototype = {
   }
 };
 
-function InformUserOfCertError(targetSite)
+function InformUserOfCertError(status, targetSite)
 {
   var params = { exceptionAdded : false,
+                 status : status,
                  prefetchCert : true,
                  location : targetSite };
   window.openDialog('chrome://pippki/content/exceptionDialog.xul',
