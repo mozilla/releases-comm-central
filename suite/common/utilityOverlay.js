@@ -1260,7 +1260,7 @@ function createShowPopupsMenu(parent, browser)
     if (!URI)
       continue;
 
-    var str = gUtilityBundle.getFormattedString("popupMenuShow", [URI]);
+    var str = gUtilityBundle.getFormattedString("popupMenuShow", [URI.spec]);
     // Check for duplicates and reuse the old menuitem.
     var menuitem = parent.getElementsByAttribute("label", str).item(0);
     if (!menuitem) {

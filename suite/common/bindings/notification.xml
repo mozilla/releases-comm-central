@@ -2105,7 +2105,7 @@
       <handler event="DOMUpdatePageReport" phase="capturing">
         <![CDATA[
           var browser = this.activeBrowser;
-          if (!browser.blockedPopups)
+          if (!browser.blockedPopups || browser.blockedPopups.reported != false)
             return;
 
           // this.popupCount can be 0, while browser.blockedPopups has not been cleared.
