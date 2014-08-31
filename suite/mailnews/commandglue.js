@@ -527,7 +527,7 @@ function ConvertSortTypeToColumnID(sortKey)
   var columnID;
 
   // Hack to turn this into an integer, if it was a string.
-  // It would be a string if it came from localStore.rdf
+  // It would be a string if it came from xulstore.json
   sortKey = sortKey - 0;
 
   switch (sortKey) {
@@ -619,7 +619,7 @@ function CreateBareDBView(originalView, msgFolder, viewType, viewFlags, sortType
 {
   var dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=";
   // hack to turn this into an integer, if it was a string
-  // it would be a string if it came from localStore.rdf
+  // it would be a string if it came from xulstore.json
   viewType = viewType - 0;
 
   switch (viewType) {

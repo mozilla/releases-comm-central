@@ -213,6 +213,7 @@ crashreporter.ini
 #endif
 #endif
 defaults/pref/reporter.js
+defaults/profile/localstore.rdf
 defaults/profile/search.rdf
 defaults/wallet/DistinguishedSchema.tbl
 defaults/wallet/FieldSchema.tbl

@@ -244,8 +244,6 @@ PlacesTreeView.prototype = {
     if (this._isPlainContainer(aContainer))
       return cc;
 
-    const openLiteral = PlacesUIUtils.RDF.GetResource("http://home.netscape.com/NC-rdf#open");
-    const trueLiteral = PlacesUIUtils.RDF.GetLiteral("true");
     var sortingMode = this._result.sortingMode;
 
     var rowsInserted = 0;
@@ -260,10 +258,9 @@ PlacesTreeView.prototype = {
 
       // recursively do containers
       if (curChild instanceof Components.interfaces.nsINavHistoryContainerResultNode) {
-        var resource = this._getResourceForNode(curChild);
-        var isopen = resource != null &&
-                     PlacesUIUtils.localStore.HasAssertion(resource, openLiteral,
-                                                           trueLiteral, true);
+        NS_ASSERT(curChild.uri, "if there is no uri, we can't persist the open state");
+        var isopen = curChild.uri &&
+                     PlacesUIUtils.xulStore.hasValue(location, curChild.uri, "open");
         if (isopen != curChild.containerOpen)
           aToOpen.push(curChild);
         else if (curChild.containerOpen && curChild.childCount > 0)
@@ -848,13 +845,6 @@ PlacesTreeView.prototype = {
     return Components.interfaces.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE;
   },
 
-  _getResourceForNode: function PTV_getResourceForNode(aNode)
-  {
-    var uri = aNode.uri;
-    NS_ASSERT(uri, "if there is no uri, we can't persist the open state");
-    return uri ? PlacesUIUtils.RDF.GetResource(uri) : null;
-  },
-
   // nsITreeView
   get rowCount() {
     return this._rows.length;
@@ -1038,16 +1028,13 @@ PlacesTreeView.prototype = {
       throw Components.results.NS_ERROR_UNEXPECTED;
 
     var node = this._rows[aRow];
+    NS_ASSERT(node.uri, "if there is no uri, we can't persist the open state");
 
-    var resource = this._getResourceForNode(node);
-    if (resource) {
-      const openLiteral = PlacesUIUtils.RDF.GetResource("http://home.netscape.com/NC-rdf#open");
-      const trueLiteral = PlacesUIUtils.RDF.GetLiteral("true");
-
+    if (node.uri) {
       if (node.containerOpen)
-        PlacesUIUtils.localStore.Unassert(resource, openLiteral, trueLiteral);
+        PlacesUIUtils.xulStore.removeValue(location, node.uri, "open");
       else
-        PlacesUIUtils.localStore.Assert(resource, openLiteral, trueLiteral, true);
+        PlacesUIUtils.xulStore.setValue(location, node.uri, "open", "true");
     }
 
     // 474287 Places enforces title sorting for groups, which we don't want.

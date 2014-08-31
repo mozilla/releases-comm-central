@@ -76,7 +76,7 @@
   </menupopup>
 
   <!-- Overlay the sidebar panels -->
-  <vbox id="sidebar-box" persist="hidden width collapsed">
+  <vbox id="sidebar-box" hidden="true" persist="hidden width collapsed">
     <splitter id="sidebar-panels-splitter" collapse="after" persist="state"
       onmouseup="PersistHeight();" hidden="true">
       <grippy/>
@@ -135,6 +135,7 @@
       <vbox id="sidebar-panels"
         datasources="rdf:null"
         ref="urn:sidebar:current-panel-list"
+        last-selected-panel="urn:sidebar:panel:bookmarks"
         persist="last-selected-panel height collapsed" flex="1"
         onclick="return contentAreaClick(event);">
         <template id="sidebar-template">
@@ -211,7 +212,7 @@
   <!-- Splitter on the right of sidebar -->
   <splitter id="sidebar-splitter" collapse="before" persist="state hidden"
     class="chromeclass-extrachrome sidebar-splitter" align="center"
-    onmouseup="SidebarFinishClick();">
+    hidden="true" onmouseup="SidebarFinishClick();">
     <grippy class="sidebar-splitter-grippy"
       onclick="SidebarCleanUpExpandCollapse();"/>
   </splitter>

@@ -263,8 +263,6 @@ PlacesTreeView.prototype = {
     if (this._isPlainContainer(aContainer))
       return cc;
 
-    const openLiteral = PlacesUIUtils.RDF.GetResource("http://home.netscape.com/NC-rdf#open");
-    const trueLiteral = PlacesUIUtils.RDF.GetLiteral("true");
     let sortingMode = this._result.sortingMode;
 
     let rowsInserted = 0;
@@ -292,11 +290,9 @@ PlacesTreeView.prototype = {
       if (!this._flatList &&
           curChild instanceof Components.interfaces.nsINavHistoryContainerResultNode &&
           !this._controller.hasCachedLivemarkInfo(curChild)) {
-        let resource = this._getResourceForNode(curChild);
-        let isopen = resource != null &&
-                     PlacesUIUtils.localStore.HasAssertion(resource,
-                                                           openLiteral,
-                                                           trueLiteral, true);
+        NS_ASSERT(curChild.uri, "if there is no uri, we can't persist the open state");
+        let isopen = curChild.uri &&
+                     PlacesUIUtils.xulStore.hasValue(location, curChild.uri, "open");
         if (isopen != curChild.containerOpen)
           aToOpen.push(curChild);
         else if (curChild.containerOpen && curChild.childCount > 0)
@@ -1098,13 +1094,6 @@ PlacesTreeView.prototype = {
     return Components.interfaces.nsINavHistoryResultTreeViewer.INDEX_INVISIBLE;
   },
 
-  _getResourceForNode: function PTV_getResourceForNode(aNode)
-  {
-    let uri = aNode.uri;
-    NS_ASSERT(uri, "if there is no uri, we can't persist the open state");
-    return uri ? PlacesUIUtils.RDF.GetResource(uri) : null;
-  },
-
   // nsITreeView
   get rowCount() {
     return this._rows.length;
@@ -1476,15 +1465,12 @@ PlacesTreeView.prototype = {
 
     // Persist container open state, except for livemarks.
     if (!this._controller.hasCachedLivemarkInfo(node)) {
-      let resource = this._getResourceForNode(node);
-      if (resource) {
-        const openLiteral = PlacesUIUtils.RDF.GetResource("http://home.netscape.com/NC-rdf#open");
-        const trueLiteral = PlacesUIUtils.RDF.GetLiteral("true");
-
+      NS_ASSERT(node.uri, "if there is no uri, we can't persist the open state");
+      if (node.uri) {
         if (node.containerOpen)
-          PlacesUIUtils.localStore.Unassert(resource, openLiteral, trueLiteral);
+          PlacesUIUtils.xulStore.removeValue(location, node.uri, "open");
         else
-          PlacesUIUtils.localStore.Assert(resource, openLiteral, trueLiteral, true);
+          PlacesUIUtils.xulStore.setValue(location, node.uri, "open", "true");
       }
     }
 

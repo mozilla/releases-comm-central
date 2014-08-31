@@ -1170,13 +1170,9 @@ var PlacesUIUtils = {
   }
 };
 
-XPCOMUtils.defineLazyServiceGetter(PlacesUIUtils, "RDF",
-                                   "@mozilla.org/rdf/rdf-service;1",
-                                   "nsIRDFService");
-
-XPCOMUtils.defineLazyGetter(PlacesUIUtils, "localStore", function() {
-  return PlacesUIUtils.RDF.GetDataSource("rdf:local-store");
-});
+XPCOMUtils.defineLazyServiceGetter(PlacesUIUtils, "xulStore",
+                                   "@mozilla.org/xul/xulstore;1",
+                                   "nsIXULStore");
 
 XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ellipsis", function() {
   return Services.prefs.getComplexValue("intl.ellipsis",

@@ -48,15 +48,10 @@ function asQuery(aNode)    {
 }
 
 var PlacesUIUtils = {
-  get RDF() {
-    delete this.RDF;
-    return this.RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                                .getService(Components.interfaces.nsIRDFService);
-  },
-
-  get localStore() {
-    delete this.localStore;
-    return this.localStore = this.RDF.GetDataSource("rdf:local-store");
+  get xulStore() {
+    delete this.xulStore;
+    return this.xulStore = Components.classes["@mozilla.org/xul/xulstore;1"]
+                                     .getService(Components.interfaces.nsIXULStore);
   },
 
   get clipboard() {

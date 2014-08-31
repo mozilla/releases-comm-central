@@ -36,7 +36,12 @@ function deleteLocalstore() {
   const nsIProperties = Components.interfaces.nsIProperties;
   var directoryService = Components.classes[nsIDirectoryServiceContractID]
                                    .getService(nsIProperties);
+  // Delete the old localstore otherwise it will get imported.
   var localstoreFile = directoryService.get("LStoreS", Components.interfaces.nsIFile);
+  if (localstoreFile.exists())
+    localstoreFile.remove(false);
+  // Delete the new xulstore file.
+  localstoreFile.leafName = "xulstore.json";
   if (localstoreFile.exists())
     localstoreFile.remove(false);
 }
