@@ -9,7 +9,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="button">
+  <binding id="button" bindToUntrustedContent="true">
     <content>
       <xul:button xbl:inherits="anonid=id,label"/>
     </content>
