@@ -6,7 +6,7 @@
 XPIDL_SOURCES += [
     'nsISessionStartup.idl',
     'nsISessionStore.idl',
-    'nsISidebarPanel.idl',
+    'nsISidebar.idl',
     'nsISuiteDownloadManagerUI.idl',
     'nsISuiteGlue.idl',
 ]

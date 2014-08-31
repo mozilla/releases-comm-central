@@ -12,11 +12,15 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(e0f4c5ee-2b35-4e99-81d2-ab956c4de0d1)]
-interface nsISidebarPanel : nsISupports
+[scriptable, uuid(97bfa970-8222-4c3f-bbe8-42141e4c7982)]
+interface nsISidebar : nsISupports
 {
     void addPanel(in DOMString aTitle, in DOMString aContentURL,
                   in DOMString aCustomizeURL);
     void addPersistentPanel(in DOMString aTitle, in DOMString aContentURL,
                             in DOMString aCustomizeURL);
+    void addSearchEngine(in DOMString engineURL, in DOMString iconURL,
+                         in DOMString suggestedTitle, in DOMString suggestedCategory);
+    void AddSearchProvider(in DOMString aDescriptionURL);
+    unsigned long IsSearchProviderInstalled(in DOMString aSearchURL);
 };
