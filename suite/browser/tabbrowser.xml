@@ -2135,20 +2135,23 @@
               if (newIndex > tabIndex)
                 newIndex--;
               this.moveTabTo(tabIndex, newIndex);
-            } else {
-              var url;
-              var linkHandler = Components.classes["@mozilla.org/content/dropped-link-handler;1"]
-                                          .getService(Components.interfaces.nsIDroppedLinkHandler);
-              try {
-                // Pass true to disallow dropping javascript: or data: urls.
-                url = linkHandler.dropLink(aEvent, {}, true);
-              } catch (ex) {}
+              return;
+            }
 
-              // Valid urls don't contain spaces ' '; if we have a space
-              // it isn't a valid url.
-              if (!url || url.indexOf(" ") != -1)
-                return;
+            var url;
+            var linkHandler = Components.classes["@mozilla.org/content/dropped-link-handler;1"]
+                                        .getService(Components.interfaces.nsIDroppedLinkHandler);
+            try {
+              // Pass true to disallow dropping javascript: or data: urls.
+              url = linkHandler.dropLink(aEvent, {}, true);
+            } catch (ex) {}
 
+            // Valid urls don't contain spaces ' '; if we have a space
+            // it isn't a valid url.
+            if (!url || url.indexOf(" ") != -1)
+              return;
+
+            promiseShortcutOrURI(url).then(([url]) => {
               var bgLoad = this.mPrefs.getBoolPref("browser.tabs.loadInBackground");
               if (aEvent.shiftKey)
                 bgLoad = !bgLoad;
@@ -2158,26 +2161,26 @@
               if (tabIndex != -1) {
                 // Load in an existing tab.
                 tab = this.tabs[tabIndex];
-                tab.linkedBrowser.loadURI(getShortcutOrURI(url));
+                tab.linkedBrowser.loadURI(url);
                 if (this.mCurrentTab != tab && !bgLoad)
                   this.selectedTab = tab;
               }
               else if (dt.mozSourceDocument &&
                        dt.mozSourceDocument.defaultView.top == content) {
                 // We're adding a new tab, and we may want parent-tab tracking.
-                tab = this.loadOneTab(getShortcutOrURI(url), {inBackground: bgLoad});
+                tab = this.loadOneTab(url, {inBackground: bgLoad});
                 if (newIndex != this.tabs.length - 1)
                   this.moveTabTo(this.tabs.length - 1, newIndex);
               }
               else {
                 // We're adding a new tab, but do not want parent-tab tracking.
-                tab = this.addTab(getShortcutOrURI(url));
+                tab = this.addTab(url);
                 if (newIndex != this.tabs.length - 1)
                   this.moveTabTo(this.tabs.length - 1, newIndex);
                 if (this.mCurrentTab != tab && !bgLoad)
                   this.selectedTab = tab;
               }
-            }
+            });
           ]]>
         </body>
       </method>

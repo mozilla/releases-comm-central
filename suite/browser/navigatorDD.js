@@ -137,10 +137,10 @@ var goButtonObserver = {
   onDrop: function (aEvent)
   {
     var url = Services.droppedLinkHandler.dropLink(aEvent, {});
-    var postData = {};
-    url = getShortcutOrURI(url, postData);
-    if (url)
-      loadURI(url, null, postData.value, true);
+    promiseShortcutOrURI(url).then(([url, postData]) => {
+      if (url)
+        loadURI(url, null, postData, false);
+    });
   }
 };
 

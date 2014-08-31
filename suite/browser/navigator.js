@@ -1326,26 +1326,26 @@ function BrowserOpenWindow()
   //opens a window where users can select a web location to open
   var params = { action: gPrivate ? "4" : "0", url: "" };
   openDialog("chrome://communicator/content/openLocation.xul", "_blank", "chrome,modal,titlebar", params);
-  var postData = { };
-  var url = getShortcutOrURI(params.url, postData);
-  switch (params.action) {
-    case "0": // current window
-      loadURI(url, null, postData.value, true);
-      break;
-    case "1": // new window
-      openDialog(getBrowserURL(), "_blank", "all,dialog=no", url, null, null,
-                 postData.value, true);
-      break;
-    case "2": // edit
-      editPage(url);
-      break;
-    case "3": // new tab
-      gBrowser.selectedTab = gBrowser.addTab(url, {allowThirdPartyFixup: true, postData: postData.value});
-      break;
-    case "4": // private
-      openNewPrivateWith(params.url);
-      break;
-  }
+  promiseShortcutOrURI(params.url).then(([url, postData]) => {
+    switch (params.action) {
+      case "0": // current window
+        loadURI(url, null, postData, true);
+        break;
+      case "1": // new window
+        openDialog(getBrowserURL(), "_blank", "all,dialog=no", url, null, null,
+                   postData, true);
+        break;
+      case "2": // edit
+        editPage(url);
+        break;
+      case "3": // new tab
+        gBrowser.selectedTab = gBrowser.addTab(url, {allowThirdPartyFixup: true, postData: postData});
+        break;
+      case "4": // private
+        openNewPrivateWith(params.url);
+        break;
+    }
+  });
 }
 
 function BrowserOpenTab()
@@ -1631,7 +1631,10 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
 
   if (url.match(/^view-source:/)) {
     gViewSourceUtils.viewSource(url.replace(/^view-source:/, ""), null, null);
-  } else {
+    return;
+  }
+
+  promiseShortcutOrURI(url).then(([url, postData]) => {
     // Check the pressed modifiers: (also see bug 97123)
     // Modifier Mac | Modifier PC | Action
     // -------------+-------------+-----------
@@ -1652,8 +1655,6 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
     }
 
     var browser = getBrowser();
-    var postData = {};
-    url = getShortcutOrURI(url, postData);
     var isUTF8 = browser.userTypedValue === null;
     // Accept both Control and Meta (=Command) as New-Window-Modifiers
     if (aTriggeringEvent &&
@@ -1666,7 +1667,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
         URLBarSetURI();
         // Open link in new tab
         var t = browser.addTab(url, {
-                  postData: postData.value,
+                  postData: postData,
                   allowThirdPartyFixup: true,
                   isUTF8: isUTF8
                 });
@@ -1677,7 +1678,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
       } else {
         // Open a new window with the URL
         var newWin = openDialog(getBrowserURL(), "_blank", "all,dialog=no", url,
-            null, null, postData.value, true, isUTF8);
+            null, null, postData, true, isUTF8);
         // Reset url in the urlbar
         URLBarSetURI();
 
@@ -1707,15 +1708,14 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
     } else {
       // No modifier was pressed, load the URL normally and
       // focus the content area
-      loadURI(url, null, postData.value, true, isUTF8);
+      loadURI(url, null, postData, true, isUTF8);
       content.focus();
     }
-  }
+  });
 }
 
-function getShortcutOrURI(aURL, aPostDataRef)
+function promiseShortcutOrURI(aURL)
 {
-  var shortcutURL = null;
   var keyword = aURL;
   var param = "";
 
@@ -1725,68 +1725,71 @@ function getShortcutOrURI(aURL, aPostDataRef)
     param = aURL.substr(offset + 1);
   }
 
-  if (!aPostDataRef)
-    aPostDataRef = {};
-
   var engine = Services.search.getEngineByAlias(keyword);
   if (engine) {
     var submission = engine.getSubmission(param);
-    aPostDataRef.value = submission.postData;
-    return submission.uri.spec;
+    return Promise.resolve([submission.uri.spec, submission.postData]);
   }
 
-  [shortcutURL, aPostDataRef.value] =
+  var [shortcutURL, postData] =
     PlacesUtils.getURLAndPostDataForKeyword(keyword);
 
   if (!shortcutURL)
-    return aURL;
+    return Promise.resolve([aURL]);
 
-  var postData = "";
-  if (aPostDataRef.value)
-    postData = unescape(aPostDataRef.value);
+  if (postData)
+    postData = unescape(postData);
 
   if (/%s/i.test(shortcutURL) || /%s/i.test(postData)) {
-    var charset = "";
+    var charset;
     const re = /^(.*)\&mozcharset=([a-zA-Z][_\-a-zA-Z0-9]+)\s*$/;
     var matches = shortcutURL.match(re);
-    if (matches)
-      [, shortcutURL, charset] = matches;
-    else {
+    if (matches) {
+      shortcutURL = matches[1];
+      charset = Promise.resolve(matches[2]);
+    } else {
       // Try to get the saved character-set.
       try {
         // makeURI throws if URI is invalid.
         // Will return an empty string if character-set is not found.
-        charset = PlacesUtils.history.getCharsetForURI(makeURI(shortcutURL));
-      } catch (e) {}
+        charset = PlacesUtils.getCharsetForURI(makeURI(shortcutURL));
+      } catch (e) {
+        charset = Promise.resolve();
+      }
     }
 
-    // encodeURIComponent produces UTF-8, and cannot be used for other charsets.
-    // escape() works in those cases, but it doesn't uri-encode +, @, and /.
-    // Therefore we need to manually replace these ASCII characters by their
-    // encodeURIComponent result, to match the behavior of nsEscape() with
-    // url_XPAlphas
-    var encodedParam = "";
-    if (charset && charset != "UTF-8")
-      encodedParam = escape(convertFromUnicode(charset, param)).
-                     replace(/[+@\/]+/g, encodeURIComponent);
-    else // Default charset is UTF-8
-      encodedParam = encodeURIComponent(param);
+    return charset.then(charset => {
+      // encodeURIComponent produces UTF-8, and cannot be used for other
+      // charsets. escape() works in those cases, but it doesn't uri-encode
+      // +, @, and /. Therefore we need to manually replace these ASCII
+      // characters by their encodeURIComponent result, to match the
+      // behaviour of nsEscape() with url_XPAlphas.
+      var encodedParam = "";
+      if (charset && charset != "UTF-8")
+        encodedParam = escape(convertFromUnicode(charset, param)).
+                       replace(/[+@\/]+/g, encodeURIComponent);
+      else // Default charset is UTF-8
+        encodedParam = encodeURIComponent(param);
 
-    shortcutURL = shortcutURL.replace(/%s/g, encodedParam).replace(/%S/g, param);
+      shortcutURL = shortcutURL.replace(/%s/g, encodedParam).replace(/%S/g, param);
 
-    if (/%s/i.test(postData)) // POST keyword
-      aPostDataRef.value = getPostDataStream(postData, param, encodedParam,
-                                             "application/x-www-form-urlencoded");
+      if (/%s/i.test(postData)) { // POST keyword
+        var postDataStream = getPostDataStream(postData, param, encodedParam,
+                                               "application/x-www-form-urlencoded");
+        return [shortcutURL, postDataStream];
+      }
+
+      return [shortcutURL];
+    });
   }
-  else if (param) {
+
+  if (param) {
     // This keyword doesn't take a parameter, but one was provided. Just return
     // the original URL.
-    aPostDataRef.value = null;
-
-    return aURL;
+    return Promise.resolve([aURL]);
   }
 
-  return shortcutURL;
+  return Promise.resolve([shortcutURL]);
 }
 
 function getPostDataStream(aStringData, aKeyword, aEncKeyword, aType)
@@ -1806,10 +1809,10 @@ function getPostDataStream(aStringData, aKeyword, aEncKeyword, aType)
 
 function handleDroppedLink(event, url, name)
 {
-  var postData = { };
-  var uri = getShortcutOrURI(url, postData);
-  if (uri)
-    loadURI(uri, null, postData.value, false);
+  promiseShortcutOrURI(url).then(([uri, postData]) => {
+    if (uri)
+      loadURI(uri, null, postData, false);
+  });
 
   // Keep the event from being handled by the dragDrop listeners
   // built-in to gecko if they happen to be above us.

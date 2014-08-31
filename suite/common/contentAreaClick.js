@@ -150,47 +150,47 @@
     if (!url)
       return;
     addToUrlbarHistory(url);
-    url = getShortcutOrURI(url);
+    promiseShortcutOrURI(url).then(([url]) => {
+      // On ctrl-middleclick, open in new window or tab.  Do not send referrer.
+      if (event.ctrlKey) {
+        // fix up our pasted URI in case it is malformed.
+        const nsIURIFixup = Components.interfaces.nsIURIFixup;
+        if (!gURIFixup)
+          gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
+                                .getService(nsIURIFixup);
 
-    // On ctrl-middleclick, open in new window or tab.  Do not send referrer.
-    if (event.ctrlKey) {
-      // fix up our pasted URI in case it is malformed.
-      const nsIURIFixup = Components.interfaces.nsIURIFixup;
-      if (!gURIFixup)
-        gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                              .getService(nsIURIFixup);
+        url = gURIFixup.createFixupURI(url, nsIURIFixup.FIXUP_FLAGS_MAKE_ALTERNATE_URI).spec;
 
-      url = gURIFixup.createFixupURI(url, nsIURIFixup.FIXUP_FLAGS_MAKE_ALTERNATE_URI).spec;
+        if (openNewTabOrWindow(event, url, null))
+          event.stopPropagation();
+        return;
+      }
 
-      if (openNewTabOrWindow(event, url, null))
-        event.stopPropagation();
-      return;
-    }
-
-    // If ctrl wasn't down, then just load the url in the targeted win/tab.
-    var browser = getBrowser();
-    var tab = event.originalTarget;
-    if (tab.localName == "tab" &&
-        tab.parentNode == browser.tabContainer) {
-      tab.linkedBrowser.userTypedValue = url;
-      if (tab == browser.mCurrentTab && url != "about:blank") {
+      // If ctrl wasn't down, then just load the url in the targeted win/tab.
+      var browser = getBrowser();
+      var tab = event.originalTarget;
+      if (tab.localName == "tab" &&
+          tab.parentNode == browser.tabContainer) {
+        tab.linkedBrowser.userTypedValue = url;
+        if (tab == browser.mCurrentTab && url != "about:blank") {
+            gURLBar.value = url;
+        }
+        tab.linkedBrowser.loadURI(url);
+        if (event.shiftKey != (Services.prefs.getBoolPref("browser.tabs.loadInBackground")))
+          browser.selectedTab = tab;
+      }
+      else if (event.target == browser) {
+        tab = browser.addTab(url);
+        if (event.shiftKey != (Services.prefs.getBoolPref("browser.tabs.loadInBackground")))
+          browser.selectedTab = tab;
+      }
+      else {
+        if (url != "about:blank") {
           gURLBar.value = url;
+        }
+        loadURI(url);
       }
-      tab.linkedBrowser.loadURI(url);
-      if (event.shiftKey != (Services.prefs.getBoolPref("browser.tabs.loadInBackground")))
-        browser.selectedTab = tab;
-    }
-    else if (event.target == browser) {
-      tab = browser.addTab(url);
-      if (event.shiftKey != (Services.prefs.getBoolPref("browser.tabs.loadInBackground")))
-        browser.selectedTab = tab;
-    }
-    else {
-      if (url != "about:blank") {
-        gURLBar.value = url;
-      }
-      loadURI(url);
-    }
+    });
     event.stopPropagation();
   }
 
@@ -214,14 +214,11 @@
       gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
                             .getService(Components.interfaces.nsIURIFixup);
 
-    try {
-      var url = getShortcutOrURI(aUrlToAdd);
+    promiseShortcutOrURI(aUrlToAdd).then(([url]) => {
       var fixedUpURI = gURIFixup.createFixupURI(url, 0);
       if (!fixedUpURI.schemeIs("data"))
         PlacesUtils.history.markPageAsTyped(fixedUpURI);
-    }
-    catch(ex) {
-    }
+    }).catch(() => {});
 
     // Open or create the urlbar history database.
     var file = GetUrlbarHistoryFile();

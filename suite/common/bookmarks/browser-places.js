@@ -285,7 +285,7 @@ var PlacesCommandHook = {
       PlacesUtils.transactionManager.doTransaction(txn);
       // Set the character-set
       if (charset)
-        PlacesUtils.history.setCharsetForURI(uri, charset);
+        PlacesUtils.setCharsetForURI(uri, charset);
       itemId = PlacesUtils.getMostRecentBookmarkForURI(uri);
     }
 
