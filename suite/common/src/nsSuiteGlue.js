@@ -8,6 +8,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 Components.utils.import("resource://gre/modules/LoginManagerContent.jsm");
+Components.utils.import("resource://gre/modules/LoginManagerParent.jsm");
 Components.utils.import("resource:///modules/Sanitizer.jsm");
 Components.utils.import("resource:///modules/mailnewsMigrator.js");
 
@@ -147,6 +148,7 @@ SuiteGlue.prototype = {
         this._promptForMasterPassword();
         this._checkForNewAddons();
         Services.search.init();
+        LoginManagerParent.init();
         break;
       case "sessionstore-windows-restored":
         this._onBrowserStartup(subject);
