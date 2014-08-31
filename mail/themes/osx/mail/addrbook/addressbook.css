@@ -388,6 +388,7 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 }
 
 #dirTree {
+  -moz-appearance: -moz-mac-vibrancy-light;
   -moz-border-end: 1px solid #bdbdbd;
   background-color: #E2E7ED
 }

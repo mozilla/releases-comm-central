@@ -42,6 +42,7 @@
   background-image: none;
   width: 3px;
   min-width: 3px;
+  -moz-border-start: solid 1px #8B8B8B;
 }
 
 #contextSplitter {
@@ -60,8 +61,7 @@
 
 /* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
 #listPaneBox {
-  border-right: 1px solid #8B8B8B;
-  -moz-margin-end: -3px !important;
+  -moz-appearance: -moz-mac-vibrancy-light;
   background-color: #DEE4EA !important;
 }
 
@@ -72,7 +72,6 @@
 #listPaneBox > * {
   background: transparent !important;
   -moz-appearance: none !important;
-  border: none;
 }
 
 /* Set a background color to avoid lightweight theme backgrounds */

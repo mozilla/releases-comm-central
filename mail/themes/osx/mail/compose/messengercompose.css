@@ -1505,13 +1505,14 @@ toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
    display: none;
 }
 
-sidebarheader {
-  background: #E2E7ED;
+#sidebarHeader {
+  background: transparent;
   text-shadow: none;
 }
 
 #sidebar-box {
-  background-color: -moz-dialog;
+  -moz-appearance: -moz-mac-vibrancy-light;
+  background-color: #E2E7ED
 }
 
 #sidebar-splitter {

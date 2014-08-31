@@ -43,7 +43,7 @@ treechildren::-moz-tree-twisty {
 }
 
 #folderTree {
-  -moz-appearance: none !important;
+  -moz-appearance: -moz-mac-vibrancy-light;
 }
 
 #folderPaneHeader, #folderTree {

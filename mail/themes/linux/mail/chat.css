@@ -7,7 +7,7 @@
 /* Adaptation of #folderpane_splitter -> #listSplitter, #threadpane-splitter -> #contextSplitter */
 #listSplitter, #contextSplitter {
   -moz-appearance: none;
-  border-left: 1px solid ThreeDShadow;
+  -moz-border-start: 1px solid ThreeDShadow;
   /* splitter grip area */
   width: 5px;
   margin-top: 0;

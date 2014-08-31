@@ -12,8 +12,8 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #abContactsPanel {
-  -moz-appearance: toolbox;
-  background-color: #E2E7ED;
+  -moz-appearance: none !important;
+  background-color: transparent;
 }
 
 #results_box {
