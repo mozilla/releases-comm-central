@@ -56,16 +56,24 @@ function initPage()
   if (node)
     node.textContent = location.host;
 
-  if (getCSSClass() == "expertBadCert") {
+  switch (getCSSClass()) {
+  case "expertBadCert":
     toggle("technicalContent");
     toggle("expertContent");
-  }
+    // fall through
+
+  default:
+    document.getElementById("badStsCertExplanation").remove();
+    if (window == window.top)
+      break;
+    // else fall though
 
   // Disallow overrides if this is a Strict-Transport-Security
   // host and the cert is bad (STS Spec section 7.3);
   // or if the cert error is in a frame (bug 633691).
-  if (getCSSClass() == "badStsCert" || window != window.top) {
+  case "badStsCert":
     document.getElementById("expertContent").remove();
+    break;
   }
 
   // Rather than textContent, we need to treat description as HTML
