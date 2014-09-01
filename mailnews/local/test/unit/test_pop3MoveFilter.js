@@ -24,8 +24,10 @@ var gPluggableStores = [
   "@mozilla.org/msgstore/maildirstore;1"
 ];
 
-const bugmail10_preview = 'Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----';
-const bugmail11_preview = 'Bugzilla has received a request to create a user account using your email address (example@example.org). To confirm that you want to create an account using that email address, visit the following link: https://bugzilla.mozilla.org/token.cgi?t=xxx';
+var previews = {
+"[Bug 436880] IMAP itemDeleted and itemMoveCopyCompleted notifications quite broken": 'Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----',
+"Bugzilla: confirm account creation": 'Bugzilla has received a request to create a user account using your email address (example@example.org). To confirm that you want to create an account using that email address, visit the following link: https://bugzilla.mozilla.org/token.cgi?t=xxx'
+};
 
 var gMoveFolder;
 var gFilter; // the test filter
@@ -85,8 +87,8 @@ const gTestArray =
     }
     do_check_false(gMoveFolder.fetchMsgPreviewText(keys, keys.length, false,
                                                    null));
-    do_check_eq(hdrs[0].getStringProperty('preview'), bugmail10_preview);
-    do_check_eq(hdrs[1].getStringProperty('preview'), bugmail11_preview);
+    do_check_eq(hdrs[0].getStringProperty('preview'), previews[hdrs[0].subject]);
+    do_check_eq(hdrs[1].getStringProperty('preview'), previews[hdrs[1].subject]);
   },
 ];
 

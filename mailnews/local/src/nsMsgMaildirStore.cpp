@@ -739,6 +739,17 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream *aOutputStream,
     return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
   }
 
+  nsCOMPtr<nsIFile> existingPath;
+  toPath->Clone(getter_AddRefs(existingPath));
+  existingPath->AppendNative(fileName);
+  existingPath->Exists(&exists);
+
+  if (exists) {
+    existingPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+    existingPath->GetNativeLeafName(fileName);
+    aNewHdr->SetStringProperty("storeToken", fileName.get());
+  }
+
   return fromPath->MoveToNative(toPath, fileName);
 }
 
@@ -810,6 +821,17 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
 
   if (NS_FAILED(rv))
     aDestFolder->ThrowAlertMsg("filterFolderHdrAddFailed", nullptr);
+
+  nsCOMPtr<nsIFile> existingPath;
+  toPath->Clone(getter_AddRefs(existingPath));
+  existingPath->AppendNative(fileName);
+  existingPath->Exists(&exists);
+
+  if (exists) {
+    existingPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+    existingPath->GetNativeLeafName(fileName);
+    newHdr->SetStringProperty("storeToken", fileName.get());
+  }
 
   rv = fromPath->MoveToNative(toPath, fileName);
   *aResult = NS_SUCCEEDED(rv);
