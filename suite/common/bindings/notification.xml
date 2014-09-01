@@ -374,31 +374,31 @@
 
               case "addon-install-blocked":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originatingWindow.top == browser.contentWindow)
+                if (installInfo.originator.top == browser.contentWindow)
                   this.addonInstallBlocked(installInfo);
                 break;
 
               case "addon-install-complete":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originatingWindow.top == browser.contentWindow)
+                if (installInfo.originator.top == browser.contentWindow)
                   this.addonInstallComplete(installInfo);
                 break;
 
               case "addon-install-disabled":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originatingWindow.top == browser.contentWindow)
+                if (installInfo.originator.top == browser.contentWindow)
                   this.addonInstallDisabled(installInfo);
                 break;
 
               case "addon-install-failed":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originatingWindow.top == browser.contentWindow)
+                if (installInfo.originator.top == browser.contentWindow)
                   this.addonInstallFailed(installInfo);
                 break;
 
               case "addon-install-started":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originatingWindow.top == browser.contentWindow)
+                if (installInfo.originator.top == browser.contentWindow)
                   this.addonInstallStarted(installInfo);
                 break;
 
@@ -1733,7 +1733,7 @@
               callback: function() {
                 var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
                                             .getService(Components.interfaces.amIWebInstallListener);
-                if (weblistener.onWebInstallRequested(installInfo.originatingWindow, sourceURI,
+                if (weblistener.onWebInstallRequested(installInfo.originator, sourceURI,
                                                       installInfo.installs, installInfo.installs.length)) {
                   installs.forEach(function(aInstall) {
                     aInstall.install();
@@ -1896,7 +1896,7 @@
                 }))
               return;
 
-            var sourceURI = installInfo.originatingWindow.document.documentURIObject;
+            var sourceURI = installInfo.originator.document.documentURIObject;
             Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var notificationName = "addon-install-started";
             var messageString = this._stringBundle.GetStringFromName("addonDownloading");
@@ -2967,7 +2967,7 @@
               callback: function() {
                 var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
                                             .getService(Components.interfaces.amIWebInstallListener);
-                if (weblistener.onWebInstallRequested(installInfo.originatingWindow, sourceURI,
+                if (weblistener.onWebInstallRequested(installInfo.originator, sourceURI,
                                                       installInfo.installs, installInfo.installs.length)) {
                   installs.forEach(function(aInstall) {
                     aInstall.install();
@@ -3136,7 +3136,7 @@
                 }))
               return;
 
-            var sourceURI = installInfo.originatingWindow.document.documentURIObject;
+            var sourceURI = installInfo.originator.document.documentURIObject;
             Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var messageString = this._stringBundle.GetStringFromName("addonDownloading");
             messageString = tmp.PluralForm.get(installInfo.installs.length, messageString);
