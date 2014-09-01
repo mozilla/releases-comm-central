@@ -15,11 +15,6 @@ load("../../../resources/POP3pump.js");
 
 const gFiles = ["../../../data/bugmail1", "../../../data/bugmail10"];
 
-var contents = {
-"[Bug 436880] IMAP itemDeleted and itemMoveCopyCompleted notifications quite broken": "https://bugzilla.mozilla.org/show_bug.cgi?id=436880",
-"[Bug 397009] A filter will let me tag, but not untag": "Some User <bugmail@example.org> changed"
-}
-
 var gMoveFolder, gMoveFolder2;
 var gFilter; // the test filter
 var gFilterList;
@@ -71,8 +66,9 @@ const gTestArray =
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyMessages(gMoveFolder, messages, gMoveFolder2, false,
                                    promiseCopyListener, null, false);
-
-    yield promiseCopyListener.promise;
+    let promiseMoveMsg =
+      PromiseTestUtils.promiseFolderEvent(gMoveFolder, "DeleteOrMoveMsgCompleted");
+    yield Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
   },
   function verifyFolders2() {
     do_check_eq(folderCount(gMoveFolder2), 2);
@@ -82,18 +78,15 @@ const gTestArray =
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     // Check that the messages have content
     messageContent = getContentFromMessage(firstMsgHdr);
-    do_check_true(messageContent.contains(
-                  contents[firstMsgHdr.getStringProperty("subject")]));
+    do_check_true(messageContent.contains("Some User <bugmail@example.org> changed"));
     messageContent = getContentFromMessage(secondMsgHdr);
-    do_check_true(messageContent.contains(
-                  contents[secondMsgHdr.getStringProperty("subject")]));
+    do_check_true(messageContent.contains("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
+  },
+  function endTest() {
+    dump("Exiting mail tests\n");
+    gPOP3Pump = null;
   }
 ];
-
-function endTest() {
-  dump("Exiting mail tests\n");
-  gPOP3Pump = null;
-}
 
 function folderCount(folder)
 {
@@ -107,19 +100,6 @@ function folderCount(folder)
   return count;
 }
 
-function setup_store(storeID)
-{
-  return function _setup_store() {
-    localAccountUtils.clearAll();
-
-    if (!localAccountUtils.inboxFolder)
-      localAccountUtils.loadLocalMailAccount(storeID);
-
-    gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
-    gMoveFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder2");
-  }
-}
-
 function run_test()
 {
   /* may not work in Linux */
@@ -128,13 +108,13 @@ function run_test()
   /**/
   // quarantine messages
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
+  if (!localAccountUtils.inboxFolder)
+    localAccountUtils.loadLocalMailAccount();
 
-  for (let store of localAccountUtils.pluggableStores) {
-    add_task(setup_store(store));
-    gTestArray.forEach(add_task);
-  }
+  gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
+  gMoveFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder2");
 
-  add_task(endTest);
+  gTestArray.forEach(add_task);
   run_next_test();
 }
 

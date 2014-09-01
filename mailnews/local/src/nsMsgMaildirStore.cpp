@@ -774,7 +774,7 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
   aHdr->GetStringProperty("storeToken", getter_Copies(fileName));
   if (fileName.IsEmpty())
   {
-    NS_ERROR("MoveNewlyDownloadedMessage - no storeToken in msg hdr!!\n");
+    NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!\n");
     return NS_ERROR_FAILURE;
   }
 
@@ -789,7 +789,7 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
   fromPath->Exists(&exists);
   if (!exists)
   {
-    NS_ERROR("MoveNewlyDownloadedMessage - oops! file does not exist!");
+    NS_ERROR("FinishNewMessage - oops! file does not exist!");
     return NS_ERROR_FAILURE;
   }
 
@@ -868,10 +868,6 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
     do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
   if (notifier)
     notifier->NotifyMsgAdded(newHdr);
-
-  // Mark the header as not yet reported classified.
-  aDestFolder->OrProcessingFlags(
-    msgKey, nsMsgProcessingFlags::NotReportedClassified);
 
   if (movedMsgIsNew)
     aDestFolder->SetHasNewMessages(true);

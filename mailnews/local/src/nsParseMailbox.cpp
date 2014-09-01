@@ -1839,8 +1839,7 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow *msgWindow)
                   nsCOMPtr<nsIMsgPluggableStore> msgStore;
                   rv = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
                   if (NS_SUCCEEDED(rv))
-                    rv = msgStore->MoveNewlyDownloadedMessage(m_newMsgHdr,
-                                                              trash, &msgMoved);
+                    rv = msgStore->MoveNewlyDownloadedMessage(m_newMsgHdr, trash, &msgMoved);
                   if (NS_SUCCEEDED(rv) && !msgMoved) {
                     MoveIncorporatedMessage(m_newMsgHdr, m_mailDB, trash,
                                             nullptr, msgWindow);
@@ -2055,13 +2054,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
             nsCOMPtr<nsIMsgPluggableStore> msgStore;
             err = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
             if (NS_SUCCEEDED(err))
-              err = msgStore->MoveNewlyDownloadedMessage(
-                msgHdr, destIFolder, &msgMoved);
-
-            if (NS_SUCCEEDED(err) && msgMoved) {
-              if (!m_filterTargetFolders.Contains(destIFolder))
-                m_filterTargetFolders.AppendObject(destIFolder);
-            } else if (NS_SUCCEEDED(err) && !msgMoved)
+              err = msgStore->MoveNewlyDownloadedMessage(msgHdr, destIFolder, &msgMoved);
+            if (NS_SUCCEEDED(err) && !msgMoved)
               err = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
                                             filter, msgWindow);
             m_msgMovedByFilter = NS_SUCCEEDED(err);
