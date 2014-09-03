@@ -18,7 +18,7 @@ interface nsIArray;
  * nsICMSMessage
  *  Interface to a CMS Message
  */
-[uuid(c6d51c22-73e9-4dad-86b9-bde584e33c63)]
+[uuid(cfd6af3d-8ac6-401a-afc8-3f94275c1c11)]
 interface nsICMSMessage : nsISupports
 {
   void contentIsSigned(out boolean aSigned);
@@ -30,10 +30,6 @@ interface nsICMSMessage : nsISupports
   void verifySignature();
   void verifyDetachedSignature(in UnsignedCharPtr aDigestData, in unsigned long aDigestDataLen);
   void CreateEncrypted(in nsIArray aRecipientCerts);
-
-  /* The parameter aDigestType must be one of the values in nsICryptoHash */
-  void CreateSigned(in nsIX509Cert scert, in nsIX509Cert ecert,
-                    in UnsignedCharPtr aDigestData,
-                    in unsigned long aDigestDataLen, in int16_t aDigestType);
+  void CreateSigned(in nsIX509Cert scert, in nsIX509Cert ecert, in UnsignedCharPtr aDigestData, in unsigned long aDigestDataLen);
 };
 

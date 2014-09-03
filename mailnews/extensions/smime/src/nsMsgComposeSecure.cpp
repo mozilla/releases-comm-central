@@ -6,10 +6,7 @@
 
 #include "nsMsgComposeSecure.h"
 
-#include "cert.h"
-#include "keyhi.h"
 #include "msgCore.h"
-#include "nsICryptoHash.h"
 #include "nsIMsgCompFields.h"
 #include "nsIMsgIdentity.h"
 #include "nsIX509CertDB.h"
@@ -42,15 +39,14 @@ using namespace mozilla;
 static const char crypto_multipart_blurb[] = "This is a cryptographically signed message in MIME format.";
 
 static void mime_crypto_write_base64 (void *closure, const char *buf,
-                                      unsigned long size);
+              unsigned long size);
 static nsresult mime_encoder_output_fn(const char *buf, int32_t size,
                                        void *closure);
 static nsresult mime_nested_encoder_output_fn(const char *buf, int32_t size,
                                               void *closure);
 static nsresult make_multipart_signed_header_string(bool outer_p,
-                                                    char **header_return,
-                                                    char **boundary_return,
-                                                    int16_t hash_type);
+                  char **header_return,
+                  char **boundary_return);
 static char *mime_make_separator(const char *prefix);
 
 
@@ -140,7 +136,6 @@ nsMsgComposeSecure::nsMsgComposeSecure()
   mMultipartSignedBoundary  = 0;
   mBuffer = 0;
   mBufferedBytes = 0;
-  mHashType = 0;
 }
 
 nsMsgComposeSecure::~nsMsgComposeSecure()
@@ -314,87 +309,6 @@ nsresult nsMsgComposeSecure::ExtractEncryptionState(nsIMsgIdentity * aIdentity, 
   return NS_OK;
 }
 
-// Select a hash algorithm to sign message
-// based on subject public key type and size.
-static nsresult
-GetSigningHashFunction(nsIX509Cert *aSigningCert, int16_t *hashType)
-{
-  // Get the signing certificate
-  CERTCertificate *scert = nullptr;
-  if (aSigningCert) {
-    scert = aSigningCert->GetCert();
-  }
-  if (!scert) {
-    return NS_ERROR_FAILURE;
-  }
-
-  mozilla::ScopedSECKEYPublicKey scertPublicKey(CERT_ExtractPublicKey(scert));
-  if (!scertPublicKey) {
-    return mozilla::MapSECStatus(SECFailure);
-  }
-  KeyType subjectPublicKeyType = SECKEY_GetPublicKeyType(scertPublicKey);
-
-  // Get the length of the signature in bits.
-  unsigned siglen = SECKEY_SignatureLen(scertPublicKey) * 8;
-  if (!siglen) {
-    return mozilla::MapSECStatus(SECFailure);
-  }
-
-  // Select a hash function for signature generation whose security strength
-  // meets or exceeds the security strength of the public key, using NIST
-  // Special Publication 800-57, Recommendation for Key Management - Part 1:
-  // General (Revision 3), where Table 2 specifies the security strength of
-  // the public key and Table 3 lists acceptable hash functions. (The security
-  // strength of the hash (for digital signatures) is half the length of the
-  // output.)
-  // [SP 800-57 is available at http://csrc.nist.gov/publications/PubsSPs.html.]
-  if (subjectPublicKeyType == rsaKey) {
-    // For RSA, siglen is the same as the length of the modulus.
-
-    // SHA-1 provides equivalent security strength for up to 1024 bits
-    // SHA-256 provides equivalent security strength for up to 3072 bits
-
-    if (siglen > 3072) {
-      *hashType = nsICryptoHash::SHA512;
-    } else if (siglen > 1024) {
-      *hashType = nsICryptoHash::SHA256;
-    } else {
-      *hashType = nsICryptoHash::SHA1;
-    }
-  } else if (subjectPublicKeyType == dsaKey) {
-    // For DSA, siglen is twice the length of the q parameter of the key.
-    // The security strength of the key is half the length (in bits) of
-    // the q parameter of the key.
-
-    // NSS only supports SHA-1, SHA-224, and SHA-256 for DSA signatures.
-    // The S/MIME code does not support SHA-224.
-
-    if (siglen >= 512) { // 512-bit signature = 256-bit q parameter
-      *hashType = nsICryptoHash::SHA256;
-    } else {
-      *hashType = nsICryptoHash::SHA1;
-    }
-  } else if (subjectPublicKeyType == ecKey) {
-    // For ECDSA, siglen is twice the length of the field size. The security
-    // strength of the key is half the length (in bits) of the field size.
-
-    if (siglen >= 1024) { // 1024-bit signature = 512-bit field size
-      *hashType = nsICryptoHash::SHA512;
-    } else if (siglen >= 768) { // 768-bit signature = 384-bit field size
-      *hashType = nsICryptoHash::SHA384;
-    } else if (siglen >= 512) { // 512-bit signature = 256-bit field size
-      *hashType = nsICryptoHash::SHA256;
-    } else {
-      *hashType = nsICryptoHash::SHA1;
-    }
-  } else {
-    // Unknown key type
-    *hashType = nsICryptoHash::SHA256;
-    NS_WARNING("GetSigningHashFunction: Subject public key type unknown.");
-  }
-  return NS_OK;
-}
-
 /* void beginCryptoEncapsulation (in nsOutputFileStream aStream, in boolean aEncrypt, in boolean aSign, in string aRecipeints, in boolean aIsDraft); */
 NS_IMETHODIMP nsMsgComposeSecure::BeginCryptoEncapsulation(nsIOutputStream * aStream,
                                                            const char * aRecipients,
@@ -430,11 +344,6 @@ NS_IMETHODIMP nsMsgComposeSecure::BeginCryptoEncapsulation(nsIOutputStream * aSt
   rv = MimeCryptoHackCerts(aRecipients, sendReport, encryptMessages, signMessage);
   if (NS_FAILED(rv)) {
     goto FAIL;
-  }
-
-  if (signMessage && mSelfSigningCert) {
-    rv = GetSigningHashFunction(mSelfSigningCert, &mHashType);
-    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   switch (mCryptoState)
@@ -505,8 +414,7 @@ nsresult nsMsgComposeSecure::MimeInitMultipartSigned(bool aOuter, nsIMsgSendRepo
   uint32_t L;
 
   rv = make_multipart_signed_header_string(aOuter, &header,
-    &mMultipartSignedBoundary, mHashType);
-
+                    &mMultipartSignedBoundary);
   NS_ENSURE_SUCCESS(rv, rv);
 
   L = strlen(header);
@@ -530,6 +438,8 @@ nsresult nsMsgComposeSecure::MimeInitMultipartSigned(bool aOuter, nsIMsgSendRepo
   /* Now initialize the crypto library, so that we can compute a hash
    on the object which we are signing.
    */
+
+  mHashType = nsICryptoHash::SHA1;
 
   PR_SetError(0,0);
   mDataHash = do_CreateInstance("@mozilla.org/security/hash;1", &rv);
@@ -729,13 +639,12 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
   /* Create the signature...
    */
 
-  NS_ASSERTION(mHashType, "Hash function for signature has not been set.");
+  PR_ASSERT(mHashType == nsICryptoHash::SHA1);
 
   PR_ASSERT (mSelfSigningCert);
   PR_SetError(0,0);
 
-  rv = cinfo->CreateSigned(mSelfSigningCert, mSelfEncryptionCert,
-    (unsigned char*)hashString.get(), hashString.Length(), mHashType);
+  rv = cinfo->CreateSigned(mSelfSigningCert, mSelfEncryptionCert, (unsigned char*)hashString.get(), hashString.Length());
   if (NS_FAILED(rv))  {
     SetError(sendReport, MOZ_UTF16("ErrorCanNotSignMail"));
     goto FAIL;
@@ -1037,43 +946,24 @@ NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock (const char *buf, int32_t
  */
 static nsresult
 make_multipart_signed_header_string(bool outer_p,
-                                    char **header_return,
-                                    char **boundary_return,
-                                    int16_t hash_type)
+									char **header_return,
+									char **boundary_return)
 {
-  const char *hashStr;
   *header_return = 0;
   *boundary_return = mime_make_separator("ms");
 
   if (!*boundary_return)
 	return NS_ERROR_OUT_OF_MEMORY;
 
-  switch (hash_type) {
-  case nsICryptoHash::SHA1:
-    hashStr = PARAM_MICALG_SHA1;
-    break;
-  case nsICryptoHash::SHA256:
-    hashStr = PARAM_MICALG_SHA256;
-    break;
-  case nsICryptoHash::SHA384:
-    hashStr = PARAM_MICALG_SHA384;
-    break;
-  case nsICryptoHash::SHA512:
-    hashStr = PARAM_MICALG_SHA512;
-    break;
-  default:
-    return NS_ERROR_INVALID_ARG;
-  }
-
   *header_return = PR_smprintf(
         "Content-Type: " MULTIPART_SIGNED "; "
         "protocol=\"" APPLICATION_PKCS7_SIGNATURE "\"; "
-				"micalg=%s; "
+				"micalg=" PARAM_MICALG_SHA1 "; "
 				"boundary=\"%s\"" CRLF
 				CRLF
 				"%s%s"
 				"--%s" CRLF,
-				hashStr,
+
 				*boundary_return,
 				(outer_p ? crypto_multipart_blurb : ""),
 				(outer_p ? CRLF CRLF : ""),
