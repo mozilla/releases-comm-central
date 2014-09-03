@@ -81,15 +81,11 @@ address-book.ico: $(mailtoolbar) $(srcdir)/png2ico.py
 embedded-icons:: write-message.ico address-book.ico
 GARBAGE += write-message.ico address-book.ico
 
-RCINCLUDE = splash.rc
 # Rebuild thunderbird.exe if the manifest changes - it's included by splash.rc.
 # (this dependency should really be just for thunderbird.exe, not other targets)
-EXTRA_DEPS += $(PROGRAM).manifest
-ifndef GNU_CC
-RCFLAGS += -DMOZ_THUNDERBIRD -I$(srcdir)
-else
-RCFLAGS += -DMOZ_THUNDERBIRD --include-dir $(srcdir)
-endif
+# Note the manifest file exists in the tree, so we use the explicit filename
+# here.
+EXTRA_DEPS += thunderbird.exe.manifest
 endif
 
 include $(topsrcdir)/config/rules.mk

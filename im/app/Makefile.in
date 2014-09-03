@@ -84,15 +84,11 @@ offline-16.ico: $(topsrcdir)/chat/themes/offline-16.png $(srcdir)/png2ico.py
 embedded-icons:: available-16.ico away-16.ico offline-16.ico
 GARBAGE += available-16.ico away-16.ico offline-16.ico
 
-RCINCLUDE = splash.rc
 # Rebuild instantbird.exe if the manifest changes - it's included by splash.rc.
 # (this dependency should really be just for instantbird.exe, not other targets)
-EXTRA_DEPS += $(PROGRAM).manifest
-ifndef GNU_CC
-RCFLAGS += -DMOZ_INSTANTBIRD -I$(srcdir)
-else
-RCFLAGS += -DMOZ_INSTANTBIRD --include-dir $(srcdir)
-endif
+# Note the manifest file exists in the tree, so we use the explicit filename
+# here.
+EXTRA_DEPS += instantbird.exe.manifest
 endif
 
 include $(topsrcdir)/config/rules.mk

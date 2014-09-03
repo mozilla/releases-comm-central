@@ -18,6 +18,10 @@ if not CONFIG['LIBXUL_SDK']:
         'xpcomglue',
     ]
 
+    if CONFIG['OS_ARCH'] == 'WINNT':
+        RCINCLUDE = 'splash.rc'
+        DEFINES['MOZ_INSTANTBIRD'] = True
+
     if CONFIG['_MSC_VER']:
         # Always enter a Windows program through wmain, whether or not we're
         # a console application.
