@@ -16,3 +16,12 @@ TEST_DIRS += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
+
+# DEFINES for preprocessing
+# Use suite/common/app-license.html as input when generating 
+# chrome://content/communicator/license.html to override 
+# chrome://global/content/license.html (about:license)
+DEFINES['APP_LICENSE_BLOCK'] = '%s/app-license.html' % SRCDIR
+
+for var in ('MOZ_APP_NAME', 'MOZ_MACBUNDLE_NAME'):
+    DEFINES[var] = CONFIG[var]
