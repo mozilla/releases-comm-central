@@ -90,16 +90,6 @@ ifndef DISABLE_LIGHTNING_INSTALL
 INSTALL_EXTENSION_ID = $(XPI_EM_ID)
 endif
 
-ifneq (,$(filter gtk2 qt,$(MOZ_WIDGET_TOOLKIT)))
-THEME=linux
-else
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-THEME=osx
-else
-THEME=windows
-endif
-endif
-
 DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
            -DTHUNDERBIRD_MAXVERSION=$(THUNDERBIRD_MAXVERSION) \
            -DAB_CD=$(AB_CD) \
@@ -108,7 +98,6 @@ DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
            -DLIGHTNING_VERSION=$(LIGHTNING_VERSION) \
            -DTARGET_PLATFORM=$(OS_TARGET)_$(TARGET_XPCOM_ABI) \
            -DXPI_EM_ID="$(XPI_EM_ID)" \
-           -DTHEME=$(THEME) \
            $(NULL)
 
 GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build BuildID)
