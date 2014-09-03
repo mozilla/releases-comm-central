@@ -4,3 +4,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 JAR_MANIFESTS += ['jar.mn']
+
+# defines used for preference window files
+for var in ('MOZ_APP_NAME', 'MOZ_MACBUNDLE_NAME'):
+    DEFINES[var] = CONFIG[var]
+
+#if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'mac', 'cocoa'):
+#    DEFINES['HAVE_SHELL_SERVICE'] = 1
+
+if CONFIG['MOZ_UPDATER']:
+    DEFINES['MOZ_UPDATER'] = 1
+
+DEFINES['APP_LICENSE_BLOCK'] = '%s/overrides/app-license.html' % SRCDIR

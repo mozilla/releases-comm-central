@@ -26,10 +26,6 @@ ifdef SOURCE_REPO
 DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
 endif
 
-ifdef MOZILLA_OFFICIAL
-DEFINES += -DMOZILLA_OFFICIAL
-endif
-
 PREF_JS_EXPORTS = \
     $(srcdir)/profile/all-instantbird.js \
     $(srcdir)/profile/channel-prefs.js \
@@ -37,7 +33,6 @@ PREF_JS_EXPORTS = \
 
 DEFINES += \
   -DAB_CD=$(AB_CD) \
-  -DAPP_VERSION="$(MOZ_APP_VERSION)" \
   -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\" \
   -DGRE_MILESTONE=$(GRE_MILESTONE) \
   -DGRE_BUILDID=$(GRE_BUILDID) \
@@ -49,8 +44,6 @@ else
 # Build a binary bootstrapping with XRE_main
 
 DIST_FILES = application.ini
-
-DEFINES += -DXPCOM_GLUE
 
 ifndef MOZ_WINCONSOLE
 ifdef MOZ_DEBUG

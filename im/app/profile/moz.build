@@ -4,3 +4,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += ['extensions']
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('gtk2', 'mac', 'cocoa'):
+    DEFINES['HAVE_SHELL_SERVICE'] = 1

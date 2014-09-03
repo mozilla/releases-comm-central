@@ -20,7 +20,3 @@ FILES := \
 libs:: $(FILES)
 	$(SYSINSTALL) $^ $(DIST)/bin/defaults/profile
 	$(SYSINSTALL) $^ $(DIST)/bin/defaults/profile/US
-
-ifneq (,$(filter gtk2 mac cocoa, $(MOZ_WIDGET_TOOLKIT)))
-DEFINES += -DHAVE_SHELL_SERVICE=1
-endif
