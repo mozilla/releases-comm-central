@@ -18,9 +18,10 @@ if not CONFIG['LIBXUL_SDK']:
         '/mozilla/xpcom/build',
     ]
 
-    USE_LIBS += [
-        'xpcomglue',
+    DELAYLOAD_DLLS += [
+        'mozglue.dll',
     ]
+    USE_STATIC_LIBS = True    
 
     if CONFIG['_MSC_VER']:
         # Always enter a Windows program through wmain, whether or not we're
@@ -37,6 +38,16 @@ if not CONFIG['LIBXUL_SDK']:
     # Set it to 256k.  See bug 127069.
     if CONFIG['OS_ARCH'] == 'WINNT' and not CONFIG['GNU_CC']:
         LDFLAGS += ['/HEAP:0x40000']
+
+    if CONFIG['OS_ARCH'] == 'WINNT':
+        USE_LIBS += [
+            'mozglue',
+            'xpcomglue_staticruntime',
+        ]
+    else:
+        USE_LIBS += [
+            'xpcomglue',
+        ]
 
     if CONFIG['MOZ_LINKER']:
         OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
