@@ -10,4 +10,10 @@ FORCE_SHARED_LIB = True
 OS_LIBS += [
     'rpcrt4',
 ]
+
+for var in ('REGISTER_PROXY_DLL', 'UNICODE', '_UNICODE'):
+    DEFINES[var] = True
+
+DEFINES['_WIN32_WINNT'] = '0x400'
+
 DEFFILE = SRCDIR + '/MapiProxy.def'

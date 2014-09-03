@@ -14,4 +14,8 @@ FORCE_SHARED_LIB = True
 OS_LIBS += [
     'ole32',
 ]
+
+DEFINES['UNICODE'] = True
+DEFINES['_UNICODE'] = True
+
 DEFFILE	= SRCDIR + '/Mapi32.def'

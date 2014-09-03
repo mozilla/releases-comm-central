@@ -22,3 +22,6 @@ else:
 OS_LIBS += [
     'ole32',
 ]
+
+DEFINES['UNICODE'] = True
+DEFINES['_UNICODE'] = True
