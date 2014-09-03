@@ -18,12 +18,6 @@ if test -z "$MOZCONFIG" -a -f $(dirname $0)/.mozconfig; then
     export MOZCONFIG=$(dirname $0)/.mozconfig
 fi
 
-# Our automation expects to find things in $MOZ_OBJDIR/mozilla. Oblige it by
-# symlinking the directories together.
-if test "$MOZ_AUTOMATION" -eq 1; then
-    ln -s $PWD mozilla
-fi
-
 # Execute the mozilla configure script in the current directory, adding the
 # parameter we need to run comm-central.
 exec ${MOZILLA_SRCDIR}/configure "$@" --with-external-source-dir="$(dirname $0)"
