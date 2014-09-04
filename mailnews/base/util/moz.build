@@ -67,6 +67,6 @@ EXTRA_JS_MODULES += [
 
 FINAL_LIBRARY = 'mail'
 
-LIBRARY_NAME = 'msgbsutl_s'
+Library('msgbsutl_s')
 
 DEFINES['_IMPL_NS_MSG_BASE'] = True

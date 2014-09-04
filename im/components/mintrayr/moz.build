@@ -23,9 +23,7 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
     OS_LIBS += CONFIG['XLIBS']
     CXXFLAGS += CONFIG['MOZ_GTK2_CFLAGS']
 
-IS_COMPONENT = True
-
-LIBRARY_NAME = 'trayToolkit'
+XPCOMBinaryComponent('trayToolkit')
 
 XPIDL_SOURCES += [
     'trayIToolkit.idl',

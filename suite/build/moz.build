@@ -7,9 +7,7 @@ SOURCES += [
     'nsSuiteModule.cpp',
 ]
 
-IS_COMPONENT = True
-
-LIBRARY_NAME = 'suite'
+XPCOMBinaryComponent('suite')
 
 LOCAL_INCLUDES += [
     '/suite/feeds/src',

@@ -14,5 +14,5 @@ SOURCES += [
 
 FINAL_LIBRARY = 'mail'
 
-LIBRARY_NAME = 'mimecthglue_s'
+Library('mimecthglue_s')
 

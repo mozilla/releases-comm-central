@@ -14,7 +14,7 @@ USE_LIBS += [
 # NOTE: if we switch away from LIBXUL_LIBRARY at any stage
 # we need to clear the EMBED_MANIFEST_AT flag. (See Bug 714495)
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    IS_COMPONENT = True
+    XPCOMBinaryComponent('mailcomps')
     USE_LIBS += [
         'nspr',
         'unicharutil_external_s',
@@ -23,9 +23,8 @@ if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     ]
     OS_LIBS += CONFIG['GLIB_LIBS']
 else:
+    Library('mailcomps')
     FINAL_LIBRARY = 'xul'
-
-LIBRARY_NAME = 'mailcomps'
 
 LOCAL_INCLUDES += [
     '../migration/src',

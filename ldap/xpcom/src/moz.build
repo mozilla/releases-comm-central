@@ -32,7 +32,7 @@ USE_LIBS += [
 ]
 
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    IS_COMPONENT = True
+    XPCOMBinaryComponent('mozldap')
     USE_LIBS += [
         'nspr',
         'xpcomglue_s',
@@ -44,7 +44,6 @@ if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
         'js',
     ]
 else:
+    Library('mozldap')
     FINAL_LIBRARY = 'xul'
-
-LIBRARY_NAME = 'mozldap'
 

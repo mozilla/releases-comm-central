@@ -13,7 +13,7 @@ SOURCES += [
 
 FINAL_LIBRARY = 'mail'
 
-LIBRARY_NAME = 'pgpmime_s'
+Library('pgpmime_s')
 
 LOCAL_INCLUDES += [
     '../glue',

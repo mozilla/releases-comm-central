@@ -5,9 +5,9 @@
 
 XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
 
-CPP_UNIT_TESTS += [
+CppUnitTests([
     'TestMailCookie',
-]
+])
 
 SOURCES += sorted('%s.cpp' % t for t in CPP_UNIT_TESTS)
 
