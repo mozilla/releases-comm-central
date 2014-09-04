@@ -1815,10 +1815,12 @@ function handleEsc()
   }
 
   // If there is a notification in the attachmentNotificationBox
-  // AND focus is in message body or on the notification, hide it.
+  // AND focus is in message body, subject field or on the notification,
+  // hide it.
   let notification = document.getElementById("attachmentNotificationBox")
                              .currentNotification;
   if (notification && (activeElement.id == "content-frame" ||
+      activeElement.parentNode.parentNode.id == "msgSubject" ||
       notification.contains(activeElement) ||
       activeElement.classList.contains("messageCloseButton"))) {
     notification.close();
