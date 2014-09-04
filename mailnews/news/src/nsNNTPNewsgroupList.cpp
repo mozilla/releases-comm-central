@@ -1228,7 +1228,7 @@ nsNNTPNewsgroupList::SetProgressBarPercent(int32_t percent)
 }
 
 void
-nsNNTPNewsgroupList::SetProgressStatus(const char16_t *message)
+nsNNTPNewsgroupList::SetProgressStatus(const char16_t *aMessage)
 {
   if (!m_runningURL)
     return;
@@ -1239,7 +1239,25 @@ nsNNTPNewsgroupList::SetProgressStatus(const char16_t *message)
     mailnewsUrl->GetStatusFeedback(getter_AddRefs(feedback));
 
     if (feedback) {
-      feedback->ShowStatusString(nsDependentString(message));
+      // prepending the account name to the status message.
+      nsresult rv;
+      nsCOMPtr <nsIMsgIncomingServer> server;
+      rv = mailnewsUrl->GetServer(getter_AddRefs(server));
+      NS_ENSURE_SUCCESS_VOID(rv);
+      nsString accountName;
+      server->GetPrettyName(accountName);
+      nsString statusMessage;
+      nsCOMPtr<nsIStringBundleService> sbs =
+        mozilla::services::GetStringBundleService();
+      nsCOMPtr<nsIStringBundle> bundle;
+      rv = sbs->CreateBundle(MSGS_URL,
+                             getter_AddRefs(bundle));
+      NS_ENSURE_SUCCESS_VOID(rv);
+      const char16_t *params[] = { accountName.get(), aMessage };
+      bundle->FormatStringFromName(MOZ_UTF16("statusMessage"),
+                                   params, 2, getter_Copies(statusMessage));
+
+      feedback->ShowStatusString(statusMessage);
     }
   }
 }
