@@ -477,3 +477,10 @@ function click_save_message(controller) {
                     controller.window.document.title);
   controller.window.document.documentElement.getButton('accept').doCommand();
 }
+
+function teardownModule(module) {
+  let drafts = MailServices.accounts.localFoldersServer.rootFolder
+                           .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
+  MailServices.accounts.localFoldersServer.rootFolder
+              .propagateDelete(drafts, true, null);
+}
