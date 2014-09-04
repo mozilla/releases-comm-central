@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
@@ -265,8 +266,8 @@ function updateDateTime() {
         startTime.timezone = floating();
         endTime.timezone = floating();
 
-        document.getElementById("event-starttime").value = startTime.jsDate;
-        document.getElementById("event-endtime").value = endTime.jsDate;
+        document.getElementById("event-starttime").value = cal.dateTimeToJsDate(startTime);
+        document.getElementById("event-endtime").value = cal.dateTimeToJsDate(endTime);
     } else {
         var kDefaultTimezone = calendarDefaultTimezone();
 
@@ -284,8 +285,8 @@ function updateDateTime() {
         startTime.timezone = floating();
         endTime.timezone = floating();
 
-        document.getElementById("event-starttime").value = startTime.jsDate;
-        document.getElementById("event-endtime").value = endTime.jsDate;
+        document.getElementById("event-starttime").value = cal.dateTimeToJsDate(startTime);
+        document.getElementById("event-endtime").value = cal.dateTimeToJsDate(endTime);
     }
 
     updateTimezone();

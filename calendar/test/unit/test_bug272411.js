@@ -4,11 +4,12 @@
 
 function run_test() {
     let jsd = new Date();
+    let cdt = cal.jsDateToDateTime(jsd);
 
-    let cdt = cal.createDateTime();
-    cdt.jsDate = jsd;
+    let cdtTime = cal.dateTimeToJsDate(cdt).getTime() / 1000;
+    let jsdTime = Math.floor(jsd.getTime() / 1000);
 
     // calIDateTime is only accurate to the second, milliseconds need to be
     // stripped.
-    do_check_eq(cdt.jsDate.getTime() / 1000, Math.floor(jsd.getTime() / 1000));
+    do_check_eq(cdtTime, jsdTime);
 }

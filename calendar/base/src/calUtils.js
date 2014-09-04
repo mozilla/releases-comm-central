@@ -377,8 +377,7 @@ function makeURL(aUriString) {
  * default timezone.
  */
 function now() {
-    var d = createDateTime();
-    d.jsDate = new Date();
+    var d = cal.jsDateToDateTime(new Date());
     return d.getInTimezone(calendarDefaultTimezone());
 }
 
@@ -1132,7 +1131,7 @@ function getProgressAtom(aTask) {
       return "completed";
 
     if (aTask.dueDate && aTask.dueDate.isValid) {
-        if (aTask.dueDate.jsDate.getTime() < now.getTime()) {
+        if (cal.dateTimeToJsDate(aTask.dueDate).getTime() < now.getTime()) {
             return "overdue";
         } else if (aTask.dueDate.year == now.getFullYear() &&
                    aTask.dueDate.month == now.getMonth() &&
@@ -1142,7 +1141,7 @@ function getProgressAtom(aTask) {
     }
 
     if (aTask.entryDate && aTask.entryDate.isValid &&
-        aTask.entryDate.jsDate.getTime() < now.getTime()) {
+        cal.dateTimeToJsDate(aTask.entryDate).getTime() < now.getTime()) {
         return "inprogress";
     }
 

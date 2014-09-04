@@ -152,15 +152,15 @@
 
       <method name="updateContent">
         <body><![CDATA[
-          var date = this.dateTime.clone().jsDate;
+          var dt = cal.dateTimeToJsDate(this.dateTime);
           var row = document.getAnonymousElementByAttribute(
                         this, "anonid", "row");
           while (row) {
               var numChilds = row.childNodes.length - 1;
               for (var i = 0; i < numChilds; i++) {
                   var minimonth = row.childNodes[i];
-                  minimonth.showMonth(date);
-                  date.setMonth(date.getMonth() + 1);
+                  minimonth.showMonth(dt);
+                  dt.setMonth(dt.getMonth() + 1);
               }
               row = row.nextSibling;
           }
@@ -192,7 +192,7 @@
                   // we now have one of the minimonth controls while 'start'
                   // and 'end' are set to the interval this minimonth shows.
                   var minimonth = row.childNodes[i];
-                  minimonth.showMonth(start.jsDate);
+                  minimonth.showMonth(cal.dateTimeToJsDate(start));
                   if (aRecurrenceInfo) {
                       
                       // retrieve an array of dates that represents all occurrences
@@ -214,7 +214,7 @@
                       }
                       var current = start.clone();
                       while (current.compare(end) < 0) {
-                        var box = minimonth.getBoxForDate(current.jsDate);
+                        var box = minimonth.getBoxForDate(cal.dateTimeToJsDate(current));
                         if (box) {
                             if (occurrence &&
                                 occurrence.day == current.day &&

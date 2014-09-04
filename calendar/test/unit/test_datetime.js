@@ -54,8 +54,7 @@ function run_test() {
 
     // Bug 392853 - Same times, different timezones, but subtractDate says times are PT0S apart
     const zeroLength = cal.createDuration();
-    const a = cal.createDateTime();
-    a.jsDate = new Date();
+    const a = cal.jsDateToDateTime(new Date());
     a.timezone = getMozTimezone("/mozilla.org/20071231_1/Europe/Berlin");
 
     let b = a.clone();
@@ -89,7 +88,7 @@ function run_test() {
     let someDate = new Date();
     let createdDate = cal.jsDateToDateTime(someDate).getInTimezone(cal.calendarDefaultTimezone());
     do_check_eq(Math.floor(someDate.getTime() / 1000),
-                Math.floor(createdDate.jsDate.getTime() / 1000));
+                Math.floor(cal.dateTimeToJsDate(createdDate).getTime() / 1000));
 
     // Comparing a date-time with a date of the same day should be 0
     do_check_eq(cal.createDateTime("20120101T120000").compare(cal.createDateTime("20120101")), 0);

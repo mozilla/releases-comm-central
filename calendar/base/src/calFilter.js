@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Object that contains a set of filter properties that may be used by a calFilter object
@@ -478,11 +479,12 @@ calFilter.prototype = {
         let props = this.mFilterProperties || new calFilterProperties();
         let result = null;
         let selectedDate = this.mSelectedDate || currentView().selectedDay || cal.now();
+        let nowDate = cal.now();
 
         if (typeof(prop) == "string") {
             let duration = cal.createDuration(prop);
             if (duration) {
-                result = cal.now();
+                result = nowDate;
                 result.addDuration(duration);
             }
         } else {
@@ -498,29 +500,32 @@ calFilter.prototype = {
                     result = selectedDate.clone();
                     result.isDate = true;
                     break;
-                case props.FILTER_DATE_SELECTED_OR_NOW:
+                case props.FILTER_DATE_SELECTED_OR_NOW: {
                     result = selectedDate.clone();
-                    if ((start && result.jsDate > cal.now().jsDate) ||
-                        (!start && result.jsDate < cal.now().jsDate)) {
-                        result = cal.now();
+                    let resultJSDate = cal.dateTimeToJsDate(result);
+                    let nowJSDate = cal.dateTimeToJsDate(nowDate);
+                    if ((start && resultJSDate > nowJSDate) ||
+                        (!start && resultJSDate < nowJSDate)) {
+                        result = nowDate;
                     }
                     result.isDate = true;
                     break;
+                }
                 case props.FILTER_DATE_NOW:
-                    result = cal.now();
+                    result = nowDate;
                     break;
                 case props.FILTER_DATE_TODAY:
-                    result = cal.now();
+                    result = nowDate;
                     result.isDate = true;
                     break;
                 case props.FILTER_DATE_CURRENT_WEEK:
-                    result = start ? cal.now().startOfWeek : cal.now().endOfWeek;
+                    result = start ? nowDate.startOfWeek : nowDate.endOfWeek;
                     break;
                 case props.FILTER_DATE_CURRENT_MONTH:
-                    result = start ? cal.now().startOfMonth : cal.now().endOfMonth;
+                    result = start ? nowDate.startOfMonth : nowDate.endOfMonth;
                     break;
                 case props.FILTER_DATE_CURRENT_YEAR:
-                    result = start ? cal.now().startOfYear : cal.now().endOfYear;
+                    result = start ? nowDate.startOfYear : nowDate.endOfYear;
                     break;
             }
 

@@ -223,13 +223,4 @@ interface calIDateTime : nsISupports
    * appropriate and sets the timezone to either UTC or floating.
    */
   attribute ACString icalString;
-
-  /**
-   * Setting jsDate via a JavaScript Date object will set
-   * the calIDateTime to the jsDate's time ***in UTC***.
-   * There's no way for us to recover TZ info from a jsDate,
-   * so we always pull it out as UTC, and force the calIDateTime's
-   * timezone to UTC.
-   */
-  [implicit_jscontext] attribute jsval jsDate;
 };

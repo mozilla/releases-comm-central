@@ -91,7 +91,7 @@ function loadReminders() {
     // Set up a default absolute date. This will be overridden if the selected
     // alarm is absolute.
     let absDate = document.getElementById("reminder-absolute-date");
-    absDate.value = getDefaultStartDate().jsDate;
+    absDate.value = cal.dateTimeToJsDate(getDefaultStartDate());
 
     if (listbox.childNodes.length) {
         // We have reminders, select the first by default. For some reason,
@@ -242,7 +242,7 @@ function onReminderSelected() {
             relationType.value = "absolute";
 
             // Date
-            absDate.value = (reminder.alarmDate || getDefaultStartDate()).jsDate;
+            absDate.value = cal.dateTimeToJsDate(reminder.alarmDate || cal.getDefaultStartDate());
         } else {
             relationType.value =  "relative";
 

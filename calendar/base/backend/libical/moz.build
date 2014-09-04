@@ -7,12 +7,6 @@ DIRS = [
     'build'
 ]
 
-XPIDL_SOURCES += [
-    'calIDateTime.idl',
-]
-
-XPIDL_MODULE = 'caldatetime_libical'
-
 SOURCES += [
     'calDateTime.cpp',
     'calDuration.cpp',
@@ -24,4 +18,3 @@ SOURCES += [
 ]
 
 FINAL_LIBRARY = 'calbasecomps'
-

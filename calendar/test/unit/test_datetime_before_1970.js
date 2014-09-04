@@ -11,8 +11,7 @@ function run_test() {
     dateTime1950.year = 1950;
     do_check_eq(dateTime1950.year, 1950);
 
-    let dateTime1955 = cal.createDateTime();
-    dateTime1955.jsDate = new Date(1955, 06, 15);
+    let dateTime1955 = cal.jsDateToDateTime(new Date(1955, 06, 15));
     do_check_eq(dateTime1955.year, 1955);
     
     let dateTime1965 = cal.createDateTime();

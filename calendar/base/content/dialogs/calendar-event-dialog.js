@@ -213,7 +213,7 @@ function onLoad() {
 
     // Set initial values for datepickers in New Tasks dialog
     if (isToDo(item)) {
-        let initialDatesValue = args.initialStartDateValue.jsDate;
+        let initialDatesValue = cal.dateTimeToJsDate(args.initialStartDateValue);
         setElementValue("completed-date-picker", initialDatesValue);
         setElementValue("todo-entrydate", initialDatesValue);
         setElementValue("todo-duedate", initialDatesValue);
@@ -386,7 +386,7 @@ function loadDialog(item) {
 
     // Task completed date
     if (item.completedDate) {
-        updateToDoStatus(item.status, item.completedDate.jsDate);
+        updateToDoStatus(item.status, cal.dateTimeToJsDate(item.completedDate));
     } else {
         updateToDoStatus(item.status);
     }
@@ -954,7 +954,7 @@ function updateUntilControls(rule) {
     if (!rule.isByCount) {
         gUntilDate = rule.untilDate;
         if (gUntilDate) {
-            untilDate = gUntilDate.getInTimezone(cal.floating()).jsDate;
+            untilDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
         }
     }
     document.getElementById("repeat-deck").selectedIndex = 0;
@@ -2344,7 +2344,7 @@ function updateCalendar() {
 
         // Task completed date
         if (item.completedDate) {
-            updateToDoStatus(item.status, item.completedDate.jsDate);
+            updateToDoStatus(item.status, cal.dateTimeToJsDate(item.completedDate));
         } else {
             updateToDoStatus(item.status);
         }
@@ -2527,8 +2527,8 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
                     if (dates) {
                         lastOccurrenceDate = dates[dates.length - 1];
                     }
-                    setElementValue("repeat-until-datepicker",
-                                    (lastOccurrenceDate || proposedUntilDate).getInTimezone(cal.floating()).jsDate);
+                    let repeatDate = cal.dateTimeToJsDate((lastOccurrenceDate || proposedUntilDate).getInTimezone(cal.floating()));
+                    setElementValue("repeat-until-datepicker", repeatDate);
                 }
             }
             if (rrules[0].length > 0) {
@@ -3156,8 +3156,8 @@ function updateDateTime() {
           startTime.timezone = floating();
           endTime.timezone = floating();
 
-          setElementValue("event-starttime", startTime.jsDate);
-          setElementValue("event-endtime", endTime.jsDate);
+          setElementValue("event-starttime", cal.dateTimeToJsDate(startTime));
+          setElementValue("event-endtime", cal.dateTimeToJsDate(endTime));
         }
 
         if (isToDo(item)) {
@@ -3169,32 +3169,32 @@ function updateDateTime() {
           if (hasEntryDate && hasDueDate) {
               setElementValue("todo-has-entrydate", hasEntryDate, "checked");
               startTime.timezone = floating();
-              setElementValue("todo-entrydate", startTime.jsDate);
+              setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
 
               setElementValue("todo-has-duedate", hasDueDate, "checked");
               endTime.timezone = floating();
-              setElementValue("todo-duedate", endTime.jsDate);
+              setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
           } else if (hasEntryDate) {
               setElementValue("todo-has-entrydate", hasEntryDate, "checked");
               startTime.timezone = floating();
-              setElementValue("todo-entrydate", startTime.jsDate);
+              setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
 
               startTime.timezone = floating();
-              setElementValue("todo-duedate", startTime.jsDate);
+              setElementValue("todo-duedate", cal.dateTimeToJsDate(startTime));
           } else if (hasDueDate) {
               endTime.timezone = floating();
-              setElementValue("todo-entrydate", endTime.jsDate);
+              setElementValue("todo-entrydate", cal.dateTimeToJsDate(endTime));
 
               setElementValue("todo-has-duedate", hasDueDate, "checked");
               endTime.timezone = floating();
-              setElementValue("todo-duedate", endTime.jsDate);
+              setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
           } else {
               startTime = window.initialStartDateValue;
               startTime.timezone = floating();
               endTime = startTime.clone();
 
-              setElementValue("todo-entrydate", startTime.jsDate);
-              setElementValue("todo-duedate", endTime.jsDate);
+              setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+              setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
           }
         }
     } else {
@@ -3210,8 +3210,8 @@ function updateDateTime() {
             // automatic conversion back into the OS timezone.
             startTime.timezone = floating();
             endTime.timezone = floating();
-            setElementValue("event-starttime", startTime.jsDate);
-            setElementValue("event-endtime", endTime.jsDate);
+            setElementValue("event-starttime", cal.dateTimeToJsDate(startTime));
+            setElementValue("event-endtime", cal.dateTimeToJsDate(endTime));
         }
 
         if (isToDo(item)) {
@@ -3224,32 +3224,32 @@ function updateDateTime() {
             if (hasEntryDate && hasDueDate) {
                 setElementValue("todo-has-entrydate", hasEntryDate, "checked");
                 startTime.timezone = floating();
-                setElementValue("todo-entrydate", startTime.jsDate);
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
 
                 setElementValue("todo-has-duedate", hasDueDate, "checked");
                 endTime.timezone = floating();
-                setElementValue("todo-duedate", endTime.jsDate);
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
             } else if (hasEntryDate) {
                 setElementValue("todo-has-entrydate", hasEntryDate, "checked");
                 startTime.timezone = floating();
-                setElementValue("todo-entrydate", startTime.jsDate);
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
 
                 startTime.timezone = floating();
-                setElementValue("todo-duedate", startTime.jsDate);
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(startTime));
             } else if (hasDueDate) {
                 endTime.timezone = floating();
-                setElementValue("todo-entrydate", endTime.jsDate);
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(endTime));
 
                 setElementValue("todo-has-duedate", hasDueDate, "checked");
                 endTime.timezone = floating();
-                setElementValue("todo-duedate", endTime.jsDate);
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
             } else {
                 startTime = window.initialStartDateValue
                 startTime.timezone = floating();
                 endTime = startTime.clone();
 
-                setElementValue("todo-entrydate", startTime.jsDate);
-                setElementValue("todo-duedate", endTime.jsDate);
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
             }
         }
     }

@@ -661,7 +661,7 @@ function toggleShowCompletedInView() {
  * @param aDate     The date to go.
  */
 function goToDate(aDate) {
-    getMinimonth().value = aDate.jsDate;
+    getMinimonth().value = cal.dateTimeToJsDate(aDate);
     currentView().goToDay(aDate);
 }
 

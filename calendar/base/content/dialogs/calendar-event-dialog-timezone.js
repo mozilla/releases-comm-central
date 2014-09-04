@@ -97,8 +97,8 @@ function updateTimezone() {
     // automatic conversion back into the OS timezone.
     let datetime = document.getElementById("timezone-time");
     let time = window.time.getInTimezone(tz);
-    time.timezone = floating();
-    datetime.value = time.jsDate;
+    time.timezone = cal.floating();
+    datetime.value = cal.dateTimeToJsDate(time);
 
     // don't highlight any timezone in the map by default
     let standardTZOffset = "none";

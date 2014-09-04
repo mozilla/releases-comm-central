@@ -353,7 +353,7 @@ var TodayPane = {
                                  this.start.year,
                                  cal.getWeekInfoService().getWeekTitle(this.start));
         if (!aDontUpdateMinimonth) {
-            document.getElementById("today-Minimonth").value = this.start.jsDate;
+            document.getElementById("today-Minimonth").value = cal.dateTimeToJsDate(this.start);
         }
         this.updatePeriod();
     },

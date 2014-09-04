@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var gIsReadOnly = false;
@@ -30,7 +31,8 @@ function onLoad() {
     onChangeCalendar(calendar);
 
     // Set starting value for 'repeat until' rule.
-    setElementValue("repeat-until-date", gStartTime.getInTimezone(floating()).jsDate);
+    let repeatDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
+    setElementValue("repeat-until-date", repeatDate);
 
     if (item.parentItem != item) {
         item = item.parentItem;
@@ -208,8 +210,9 @@ function initializeControls(rule) {
             if (gUntilDate.compare(gStartTime) < 0) {
                 gUntilDate = gStartTime.clone();
             }
+            let repeatDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
             setElementValue("recurrence-duration", "until");
-            setElementValue("repeat-until-date", gUntilDate.getInTimezone(floating()).jsDate);
+            setElementValue("repeat-until-date", repeatDate);
         }
     }
 }
@@ -596,7 +599,8 @@ function checkUntilDate() {
     let startDate = gStartTime.clone();
     startDate.isDate = true;
     if (untilDate.compare(startDate) < 0) {
-        setElementValue("repeat-until-date", (gUntilDate || gStartTime).getInTimezone(floating()).jsDate);
+        let repeatDate = cal.dateTimeToJsDate((gUntilDate || gStartTime).getInTimezone(cal.floating()));
+        setElementValue("repeat-until-date", repeatDate);
         checkUntilDate.warning = true;
         let callback = function() {
             // No warning when the dialog is being closed with the Cancel button.

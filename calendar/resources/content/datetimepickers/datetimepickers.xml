@@ -47,6 +47,7 @@
       <field name="mMonthShortNames">[]</field>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         var goButton = document.getAnonymousElementByAttribute(this, "anonid", "date-go-button");
         goButton.setAttribute("label", calGetString("calendar", "go"));
         // Load the stuff we're going to use to parse written dates
@@ -151,7 +152,7 @@
                // operation stays positive.
                var offset = (i - today.weekday + 7) % 7;
                today.day = today.day + offset;
-               return today.jsDate;
+               return cal.dateTimeToJsDate(today);
              }
              return null;
            }

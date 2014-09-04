@@ -22,8 +22,8 @@ function loadCalendarPrintDialog() {
     // set the datepickers to the currently selected dates
     let theView = getCalendarView();
     if (theView) {
-        document.getElementById("start-date-picker").value = theView.startDay.jsDate;
-        document.getElementById("end-date-picker").value = theView.endDay.jsDate;
+        document.getElementById("start-date-picker").value = cal.dateTimeToJsDate(theView.startDay);
+        document.getElementById("end-date-picker").value = cal.dateTimeToJsDate(theView.endDay);
     } else {
         document.getElementById("printCurrentViewRadio").setAttribute("disabled", true);
     }

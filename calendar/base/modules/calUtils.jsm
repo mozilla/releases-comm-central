@@ -513,9 +513,25 @@ let cal = {
                             aDate.getSeconds(),
                             aTimezone);
         } else {
-            newDate.jsDate = aDate;
+            newDate.nativeTime = aDate.getTime() * 1000;
         }
         return newDate;
+    },
+
+    /**
+     * Convert a calIDateTime to a Javascript date object. This is the
+     * replacement for the former .jsDate property.
+     *
+     * @param cdt       The calIDateTime instnace
+     * @return          The Javascript date equivalent.
+     */
+    dateTimeToJsDate: function(cdt) {
+        if (cdt.timezone == cal.floating()) {
+            return new Date(cdt.year, cdt.month, cdt.day,
+                            cdt.hour, cdt.minute, cdt.second);
+        } else {
+            return new Date(cdt.nativeTime / 1000);
+        }
     },
 
     sortEntry: function cal_sortEntry(aItem) {

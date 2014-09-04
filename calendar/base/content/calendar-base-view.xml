@@ -511,11 +511,9 @@
 
       <method name="today">
         <body><![CDATA[
-          let date = createDateTime();
-          date.jsDate = new Date();
-          date = date.getInTimezone(this.mTimezone);
-          date.isDate = true;
-          return date;
+          var d = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
+          d.isDate = true;
+          return d;
         ]]></body>
       </method>
 

@@ -116,8 +116,5 @@ calDateTime.prototype = {
            jcalString = ICAL.design.value.date.fromICAL(val);
         }
         this.innerObject = ICAL.Time.fromString(jcalString);
-    },
-
-    get jsDate() this.innerObject.toJSDate(),
-    set jsDate(val) this.innerObject.fromJSDate(val, true)
+    }
 };

@@ -495,8 +495,7 @@ function guessSystemTimezone() {
         return 0;
     }
 
-    const todayUTC = cal.createDateTime();
-    todayUTC.jsDate = new Date();
+    const todayUTC = cal.jsDateToDateTime(new Date());
     const oneYrUTC = todayUTC.clone(); oneYrUTC.year += 1;
     const periodStartCalDate = cal.createDateTime();
     const periodUntilCalDate = cal.createDateTime(); // until timezone is UTC
@@ -538,7 +537,7 @@ function guessSystemTimezone() {
                 if (todayUTC.nativeTime < periodStartCalDate.nativeTime) {
                     // already know periodStartCalDate < oneYr from now,
                     // and transitions are at most once per year, so it is next.
-                    return periodStartCalDate.jsDate;
+                    return cal.dateTimeToJsDate(periodStartCalDate);
                 } else if (rrule) {
                     // find next occurrence after today
                     periodCalRule.icalProperty = rrule;
@@ -547,7 +546,7 @@ function guessSystemTimezone() {
                                                         todayUTC);
                     // make sure rule doesn't end before next transition date.
                     if (nextTransitionDate) {
-                        return nextTransitionDate.jsDate;
+                        return cal.dateTimeToJsDate(nextTransitionDate);
                     }
                 }
             }
@@ -822,7 +821,7 @@ function guessSystemTimezone() {
                     var calDate = cal.createDateTime();
                     calDate.icalString = icsDate;
                     calDate.timezone = tz;
-                    return calDate.jsDate.toLocaleFormat("%a");
+                    return cal.dateTimeToJsDate(calDate).toLocaleFormat("%a");
                 }
                 var standardStart = getIcalString(standard, "DTSTART");
                 var standardStartWeekday = weekday(standardStart);
