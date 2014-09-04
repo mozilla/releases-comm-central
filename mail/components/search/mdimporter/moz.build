@@ -8,7 +8,7 @@ SOURCES = [
     'main.c',
 ]
 
-PROGRAM = 'thunderbird-mdimport'
+Program('thunderbird-mdimport')
 # This directory is producing a framework as a target. The output of this
 # framework will be located here.
 FINAL_TARGET = 'mozilla/dist/package/thunderbird.mdimporter/Contents/MacOS'

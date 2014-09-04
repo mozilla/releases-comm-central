@@ -17,14 +17,12 @@ USE_LIBS += [
 ]
 
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    IS_COMPONENT = True
+    XPCOMBinaryComponent('mork')
     USE_LIBS += [
         'nspr',
         'xpcomglue_s',
         'xul',
     ]
 else:
+    Library('mork')
     FINAL_LIBRARY = 'xul'
-
-LIBRARY_NAME = 'mork'
-

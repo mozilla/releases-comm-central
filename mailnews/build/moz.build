@@ -13,7 +13,7 @@ USE_LIBS += [
 ]
 
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    IS_COMPONENT = True
+    XPCOMBinaryComponent('mail')
     USE_LIBS += [
         'rdfutil_external_s',
         'unicharutil_external_s',
@@ -21,6 +21,7 @@ if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
         'xul',
     ]
 else:
+    Library('mail')
     FINAL_LIBRARY = 'xul'
 
 # js needs to come after xul for now, because it is an archive and its content
@@ -39,8 +40,6 @@ else:
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     OS_LIBS += CONFIG['TK_LIBS']
     OS_LIBS += ['-framework Cocoa']
-
-LIBRARY_NAME = 'mail'
 
 LOCAL_INCLUDES += [
     '/mailnews/addrbook/src',
