@@ -8,3 +8,19 @@ DIRS += ['modules']
 TEST_DIRS += ['test']
 
 JAR_MANIFESTS += ['jar.mn']
+
+DEFINES['PRE_RELEASE_SUFFIX'] = ''
+DEFINES['MOZ_APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
+DEFINES['APP_LICENSE_BLOCK'] = '%s/content/overrides/app-license.html' % SRCDIR
+
+if CONFIG['MOZILLA_OFFICIAL']:
+    DEFINES['OFFICIAL_BUILD'] = 1
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'cocoa'):
+    DEFINES['HAVE_SHELL_SERVICE'] = 1
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'cocoa'):
+    DEFINES['CAN_DRAW_IN_TITLEBAR'] = 1
+
+if CONFIG['MOZ_UPDATER']:
+    DEFINES['MOZ_UPDATER'] = 1

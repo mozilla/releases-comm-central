@@ -24,10 +24,6 @@ ifdef SOURCE_REPO
 DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
 endif
 
-ifdef MOZILLA_OFFICIAL
-DEFINES += -DMOZILLA_OFFICIAL
-endif
-
 PREF_JS_EXPORTS = \
     $(srcdir)/profile/all-thunderbird.js \
     $(srcdir)/profile/channel-prefs.js \
@@ -35,7 +31,6 @@ PREF_JS_EXPORTS = \
 
 DEFINES += \
   -DAB_CD=$(AB_CD) \
-  -DAPP_VERSION="$(MOZ_APP_VERSION)" \
   -DTHUNDERBIRD_ICO='"$(DIST)/branding/thunderbird.ico"' \
   -DGRE_MILESTONE=$(GRE_MILESTONE) \
   -DGRE_BUILDID=$(GRE_BUILDID) \
@@ -45,8 +40,6 @@ ifdef LIBXUL_SDK
 include $(topsrcdir)/config/rules.mk
 else
 # Build a binary bootstrapping with XRE_main
-
-DEFINES += -DXPCOM_GLUE
 
 ifndef MOZ_WINCONSOLE
 ifdef MOZ_DEBUG
