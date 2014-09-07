@@ -2873,8 +2873,10 @@
               toggleStatus |= this.mToggleStatusFlag.ShowCompleted;
           }
 
-          // Update the navigation bar.
-          cal.navigationBar.setDateRange(viewStart, viewEnd);
+          // Update the navigation bar only when changes are related to the current view.
+          if (this.isVisible()) {
+              cal.navigationBar.setDateRange(viewStart, viewEnd);
+          }
 
           // Check whether view range has been changed since last call to
           // relayout()
