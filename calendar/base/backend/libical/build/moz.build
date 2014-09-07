@@ -8,26 +8,12 @@ SOURCES += [
 ]
 
 XPCOMBinaryComponent('calbasecomps')
+
 LOCAL_INCLUDES += [
     '..'
 ]
 
-USE_LIBS += [
-        'mozalloc',
-        'nspr',
-        'xul',
-    ]
-
 if CONFIG['JS_SHARED_LIBRARY']:
     USE_LIBS += [
         'js',
-    ]
-
-if CONFIG['OS_ARCH'] == 'WINNT':
-    USE_LIBS += [
-        'xpcomglue_staticruntime_s',
-    ]
-else:
-    USE_LIBS += [
-        'xpcomglue_s',
     ]

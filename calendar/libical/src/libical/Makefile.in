@@ -43,8 +43,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-USE_STATIC_LIBS  = 1
-
 DEFINES += -DHAVE_CONFIG_H
 DEFINES += -DHAVE_SNPRINTF
 
