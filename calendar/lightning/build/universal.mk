@@ -5,8 +5,8 @@
 ifndef OBJDIR
 OBJDIR_ARCH_1 = $(MOZ_OBJDIR)/$(firstword $(MOZ_BUILD_PROJECTS))
 OBJDIR_ARCH_2 = $(MOZ_OBJDIR)/$(word 2,$(MOZ_BUILD_PROJECTS))
-DIST_ARCH_1 = $(OBJDIR_ARCH_1)/mozilla/dist
-DIST_ARCH_2 = $(OBJDIR_ARCH_2)/mozilla/dist
+DIST_ARCH_1 = $(OBJDIR_ARCH_1)/dist
+DIST_ARCH_2 = $(OBJDIR_ARCH_2)/dist
 DIST_UNI = $(DIST_ARCH_1)/universal
 OBJDIR = $(OBJDIR_ARCH_1)
 endif
@@ -29,7 +29,7 @@ postflight_all:
 	rm -rf $(DIST_UNI)/xpi-stage/lightning*
 	cp -R $(DIST_ARCH_1)/xpi-stage/lightning $(DIST_UNI)/xpi-stage
 	grep -v binary-component $(DIST_ARCH_1)/xpi-stage/lightning/components/libical.manifest > \
-	    $(DIST_UNI)/xpi-stage/lightning/components/libical.manifest
+	    $(DIST_UNI)/xpi-stage/lightning/components/libical.manifest || true
 	platform=`$(PYTHON) $(TOPSRCDIR)/calendar/lightning/build/get-platform.py \
 		$(DIST_ARCH_1)/xpi-stage/lightning`; \
 	mkdir -p $(DIST_UNI)/xpi-stage/lightning/components/$$platform; \
