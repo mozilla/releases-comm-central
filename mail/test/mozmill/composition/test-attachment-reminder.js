@@ -73,12 +73,14 @@ function wait_for_reminder_state(aCwc, aShown) {
  */
 function assert_manual_reminder_state(aCwc, aChecked) {
   // Check the reminder is really enabled.
+  wait_for_window_focused(aCwc.window);
   let attachment_menu = aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
                                                      [ ], true);
   let checkedValue = aChecked ? "true" : "false";
   assert_equals(aCwc.e("button-attachPopup_remindLaterItem").getAttribute("checked"),
                 checkedValue);
   aCwc.close_popup_sequence(attachment_menu);
+  wait_for_window_focused(aCwc.window);
 
   assert_equals(aCwc.e("cmd_remindLater").getAttribute("checked"), checkedValue);
 }
@@ -214,8 +216,10 @@ function test_no_send_now_sends() {
  *                        of the reminder menuitem after the click.
  */
 function click_manual_reminder(aCwc, aExpectedState) {
+  wait_for_window_focused(aCwc.window);
   aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
                                [ {id: "button-attachPopup_remindLaterItem"} ]);
+  wait_for_window_focused(aCwc.window);
   assert_manual_reminder_state(aCwc, aExpectedState);
 }
 
