@@ -6,6 +6,8 @@
  * Tests that the attachment reminder works properly.
  */
 
+// make SOLO_TEST=composition/test-attachment-reminder.js mozmill-one
+
 const MODULE_NAME = "test-attachment-reminder";
 
 const RELATIVE_ROOT = "../shared-modules";
@@ -86,6 +88,18 @@ function assert_manual_reminder_state(aCwc, aChecked) {
 }
 
 /**
+ * Returns the keywords string currently shown in the notification message.
+ *
+ * @param aCwc A compose window controller.
+ */
+function get_reminder_keywords(aCwc) {
+  assert_automatic_reminder_state(aCwc, true);
+  let nBox = aCwc.e(kBoxId);
+  let notification = nBox.getNotificationWithValue(kNotificationId);
+  return notification.querySelector("#attachmentKeywords").getAttribute("value");
+}
+
+/**
  * Test that the attachment reminder works, in general.
  */
 function test_attachment_reminder_appears_properly() {
@@ -137,10 +151,14 @@ function test_attachment_reminder_dismissal() {
   assert_automatic_reminder_state(cwc, false);
 
   setupComposeWin(cwc, "test@example.org", "popping up, eh?",
-                  "Hi there, remember the attachment!");
+                  "Hi there, remember the attachment! " +
+                  "Yes, there is a file test.doc attached! " +
+                  "Do check it, test.doc is a nice attachment.");
 
   // Give the notification time to appear.
   wait_for_reminder_state(cwc, true);
+
+  assert_equals(get_reminder_keywords(cwc), "test.doc, attachment, attached");
 
   // We didn't click the "Remind Me Later" - the alert should pop up
   // on send anyway.

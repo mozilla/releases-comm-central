@@ -64,8 +64,13 @@ function GetAttachmentKeywords(mailData,keywordsInCsv)
       if (matching) {
         for (var j = 0; j < matching.length; j++) {
           // Ignore the match if it was in a URL.
-          if (!(/^(https?|ftp):\/\//i.test(matching[j])))
-            keywordsFound.push(matching[j].trim());
+          if (!(/^(https?|ftp):\/\//i.test(matching[j]))) {
+            // We can have several *different* matches for one dot-keyword.
+            // E.g. foo.pdf and bar.pdf would both match for .pdf.
+            var m = matching[j].trim();
+            if (keywordsFound.indexOf(m) == -1)
+              keywordsFound.push(m);
+          }
         }
       }
     }
@@ -76,8 +81,10 @@ function GetAttachmentKeywords(mailData,keywordsInCsv)
       var matching;
       while ((matching = re.exec(mailData)) !== null) {
         // Ignore the match if it was in a URL.
-        if (!(/^(https?|ftp):\/\//i.test(matching[0].trim())))
+        if (!(/^(https?|ftp):\/\//i.test(matching[0].trim()))) {
           keywordsFound.push(keywordsArray[i]);
+          break;
+        }
       }
     }
   }

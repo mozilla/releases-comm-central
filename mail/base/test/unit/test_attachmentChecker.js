@@ -48,6 +48,8 @@ var tests = [
   ["Extension", "testing document.pdf", ".pdf", "document.pdf"],
   ["Two Extensions", "testing document.pdf and test.pdf", ".pdf",
     "document.pdf,test.pdf"],
+  ["Two+one Extensions", "testing document.pdf and test.pdf and again document.pdf", ".pdf",
+    "document.pdf,test.pdf"],
   ["Url", "testing http://document.pdf", ".pdf", ""],
   ["Both", "testing http://document.pdf test.pdf", ".pdf", "test.pdf"],
   ["Greek", "This is a Θεωρία test", "Θεωρία,is", "Θεωρία,is"],
