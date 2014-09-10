@@ -148,10 +148,6 @@ cal.BadCertHandler.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIBadCertListener2]),
 
     notifyCertProblem: function cBCL_notifyCertProblem(socketInfo, status, targetSite) {
-        if (!status) {
-            return true;
-        }
-
         // Unfortunately we can't pass js objects using the window watcher, so
         // we'll just take the first available calendar window. We also need to
         // do this on a timer so that the modal window doesn't block the
@@ -161,9 +157,12 @@ cal.BadCertHandler.prototype = {
         let timerCallback = {
             thisProvider: this.thisProvider,
             notify: function(timer) {
-                let params = { exceptionAdded: false,
-                               prefetchCert: true,
-                               location: targetSite };
+                let params = {
+                  exceptionAdded: false,
+                  sslStatus : status,
+                  prefetchCert: true,
+                  location: targetSite
+                };
                 calWindow.openDialog("chrome://pippki/content/exceptionDialog.xul",
                                      "",
                                      "chrome,centerscreen,modal",
