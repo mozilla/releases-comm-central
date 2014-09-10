@@ -3,9 +3,6 @@
  * Test suite for auto-detecting attachment file charset.
  */
 
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
@@ -25,23 +22,23 @@ function getContentCharset(aContent) {
   return found[1];
 }
 
-function testUTF8() {
-  yield async_run({ func: createMessage, args: [do_get_file("data/test-UTF-8.txt")] });
+function *testUTF8() {
+  yield createMessage(do_get_file("data/test-UTF-8.txt"));
   checkAttachmentCharset("UTF-8");
 }
 
-function testUTF16BE() {
-  yield async_run({ func: createMessage, args: [do_get_file("data/test-UTF-16BE.txt")] });
+function *testUTF16BE() {
+  yield createMessage(do_get_file("data/test-UTF-16BE.txt"));
   checkAttachmentCharset("UTF-16BE");
 }
 
-function testUTF16LE() {
-  yield async_run({ func: createMessage, args: [do_get_file("data/test-UTF-16LE.txt")] });
+function *testUTF16LE() {
+  yield createMessage(do_get_file("data/test-UTF-16LE.txt"));
   checkAttachmentCharset("UTF-16LE");
 }
 
-function testShiftJIS() {
-  yield async_run({ func: createMessage, args: [do_get_file("data/test-SHIFT_JIS.txt")] });
+function *testShiftJIS() {
+  yield createMessage(do_get_file("data/test-SHIFT_JIS.txt"));
   checkAttachmentCharset("Shift_JIS");
 }
 
@@ -57,5 +54,6 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
   Services.prefs.setIntPref("mail.strictly_mime.parm_folding", 0);
 
-  async_run_tests(tests);
+  tests.forEach(add_task);
+  run_next_test();
 }

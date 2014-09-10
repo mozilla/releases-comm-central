@@ -1,6 +1,7 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/IOUtils.js");
+Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://testing-common/mailnews/mailTestUtils.js");
 Components.utils.import("resource://testing-common/mailnews/localAccountUtils.js");
@@ -103,7 +104,7 @@ var copyListener = {
 var progressListener = {
   onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
-      async_driver();
+      this.resolve(mailTestUtils.firstMsgHdr(gDraftFolder));
   },
 
   onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress,
@@ -162,10 +163,14 @@ function createMessage(aAttachment) {
 
   let progress = Cc["@mozilla.org/messenger/progress;1"]
                    .createInstance(Ci.nsIMsgProgress);
+  let promise = new Promise((resolve, reject) => {
+    progressListener.resolve = resolve;
+    progressListener.reject = reject;
+  });
   progress.registerListener(progressListener);
   msgCompose.SendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", null,
                      progress);
-  return false;
+  return promise;
 }
 
 function getAttachmentFromContent(aContent) {

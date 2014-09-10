@@ -3,9 +3,6 @@
  * Test suite for attachment file name.
  */
 
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
 const input0 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"+
     "`abcdefghijklmnopqrstuvwxyz{|}~"+
     "\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf"+
@@ -113,18 +110,18 @@ function checkAttachment(expectedCD, expectedCT) {
   do_check_eq(contentType, expectedCT);
 }
 
-function testInput0() {
+function* testInput0() {
   for (let folding in ParamFoldingPref) {
     Services.prefs.setIntPref("mail.strictly_mime.parm_folding", ParamFoldingPref[folding]);
-    yield async_run({ func: createMessage, args: [input0] });
+    yield createMessage(input0);
     checkAttachment(expectedCD0, expectedCTList0[folding]);
   }
 }
 
-function testInput1() {
+function* testInput1() {
   for (let folding in ParamFoldingPref) {
     Services.prefs.setIntPref("mail.strictly_mime.parm_folding", ParamFoldingPref[folding]);
-    yield async_run({ func: createMessage, args: [input1] });
+    yield createMessage(input1);
     checkAttachment(expectedCD1, expectedCTList1[folding]);
   }
 }
@@ -136,5 +133,6 @@ var tests = [
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
-  async_run_tests(tests);
+  tests.forEach(add_task);
+  run_next_test();
 }
