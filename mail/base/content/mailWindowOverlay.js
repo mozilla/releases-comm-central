@@ -746,7 +746,7 @@ function SetGetMsgButtonTooltip()
   var names = new Set([v.server.prettyName for each (v in folders)]);
   var tooltipNames = Array.from(names).join(listSeparator);
   msgButton.tooltipText = bundle.getFormattedString("getMsgButtonTooltip",
-                                                    [ tooltipUsernames ]);
+                                                    [ tooltipNames ]);
 }
 
 function RemoveAllMessageTags()
