@@ -58,7 +58,7 @@ function getIspDefaultsForUri(domainURI)
 // construct an ISP's domain URI based on it's domain
 // (i.e. turns example.com -> domain:example.com)
 function getIspDefaultsForDomain(domain) {
-    domainURI = "domain:" + domain;
+    let domainURI = "domain:" + domain;
     return getIspDefaultsForUri(domainURI);
 }
 

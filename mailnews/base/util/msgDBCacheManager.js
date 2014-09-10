@@ -113,7 +113,7 @@ var msgDBCacheManager =
     let cachedDBs = gDbService.openDBs;
     let numOpenDBs = 0;
     for (let i = 0; i < cachedDBs.length; i++) {
-      db = cachedDBs.queryElementAt(i, Ci.nsIMsgDatabase);
+      let db = cachedDBs.queryElementAt(i, Ci.nsIMsgDatabase);
       if (MailServices.mailSession.IsFolderOpenInWindow(db.folder)) {
         numOpenDBs++;
         continue;
