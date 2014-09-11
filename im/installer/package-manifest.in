@@ -49,16 +49,17 @@
 [xpcom]
 @BINPATH@/dependentlibs.list
 #ifndef MOZ_NATIVE_NSPR
+#ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@nspr4@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@plc4@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@plds4@DLL_SUFFIX@
+#endif
 #endif
 #ifndef MOZ_STATIC_JS
 @BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@
 #endif
 #ifdef XP_WIN32
 @BINPATH@/@DLL_PREFIX@gkmedias@DLL_SUFFIX@
-#ifndef MOZ_DEBUG
 #if MOZ_MSVC_REDIST == 1400
 @BINPATH@/Microsoft.VC80.CRT.manifest
 @BINPATH@/msvcm80.dll
@@ -75,7 +76,6 @@
 #elif MOZ_MSVC_REDIST == 1700
 @BINPATH@/msvcp110.dll
 @BINPATH@/msvcr110.dll
-#endif
 #endif
 #endif
 @BINPATH@/@DLL_PREFIX@mozalloc@DLL_SUFFIX@
@@ -138,7 +138,9 @@
 @BINPATH@/application.ini
 @BINPATH@/platform.ini
 #ifndef MOZ_NATIVE_SQLITE
+#ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
+#endif
 #endif
 #ifdef UNIX_BUT_NOT_MAC
 @BINPATH@/run-mozilla.sh
@@ -361,6 +363,7 @@
 ; profile
 @BINPATH@/components/profile.xpt
 @BINPATH@/components/toolkitprofile.xpt
+@BINPATH@/components/toolkit_finalizationwitness.xpt
 
 ; toolkit
 @BINPATH@/components/AppsService.js
@@ -411,6 +414,8 @@
 @BINPATH@/components/PeerConnection.js
 @BINPATH@/components/PeerConnection.manifest
 #endif
+@BINPATH@/components/toolkit_filewatcher.xpt
+@BINPATH@/components/toolkit_formautofill.xpt
 @BINPATH@/components/toolkit_osfile.xpt
 @BINPATH@/components/toolkit_xulstore.xpt
 @BINPATH@/components/toolkitplaces.manifest
@@ -499,6 +504,7 @@
 @BINPATH@/components/necko_file.xpt
 @BINPATH@/components/necko_ftp.xpt
 @BINPATH@/components/necko_cache.xpt
+@BINPATH@/components/necko_cache2.xpt
 @BINPATH@/components/necko_cookie.xpt
 @BINPATH@/components/necko_socket.xpt
 @BINPATH@/components/necko_viewsource.xpt
@@ -544,10 +550,12 @@
 #ifndef NSS_DISABLE_DBM
 @BINPATH@/@DLL_PREFIX@nssdbm3@DLL_SUFFIX@
 #endif
+#ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@nssutil3@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@smime3@DLL_SUFFIX@
-@BINPATH@/@DLL_PREFIX@softokn3@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@ssl3@DLL_SUFFIX@
+#endif
+@BINPATH@/@DLL_PREFIX@softokn3@DLL_SUFFIX@
 #endif
 @BINPATH@/chrome/pippki@JAREXT@
 @BINPATH@/chrome/pippki.manifest
@@ -574,9 +582,13 @@
 ; core platform files
 @BINPATH@/components/FeedProcessor.js
 @BINPATH@/components/FeedProcessor.manifest
+@BINPATH@/components/FormAutofillContentService.js
+@BINPATH@/components/FormAutofillStartup.js
+@BINPATH@/components/formautofill.manifest
 @BINPATH@/components/autocomplete.xpt
 @BINPATH@/components/alerts.xpt
 @BINPATH@/components/jsdebugger.xpt
+@BINPATH@/components/jsdownloads.xpt
 @BINPATH@/components/jsinspector.xpt
 @BINPATH@/components/fastfind.xpt
 @BINPATH@/components/find.xpt
@@ -586,6 +598,7 @@
 @BINPATH@/components/ContactManager.manifest
 @BINPATH@/components/contentAreaDropListener.js
 @BINPATH@/components/contentAreaDropListener.manifest
+@BINPATH@/components/devtools_security.xpt
 @BINPATH@/components/directory.xpt
 @BINPATH@/components/jsconsole-clhandler.js
 @BINPATH@/components/jsconsole-clhandler.manifest
