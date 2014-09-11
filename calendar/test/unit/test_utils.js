@@ -178,7 +178,7 @@ function test_binarySearch() {
     let arr = [2, 5, 7, 9, 20, 27, 34, 39, 41, 53, 62];
     do_check_eq(binarySearch(arr, 27), 5); // Center
     do_check_eq(binarySearch(arr, 2), 0); // Left most
-    do_check_eq(binarySearch(arr, 62), 11); // Right most
+    do_check_eq(binarySearch(arr, 62), 10); // Right most
 
     do_check_eq(binarySearch([5], 5), 1) // One element found
     do_check_eq(binarySearch([1], 0), 0) // One element insert left
