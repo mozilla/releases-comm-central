@@ -247,8 +247,6 @@ function run_test() {
         testGetItem(item);
     }
 
-    testMetaData();
-
    /**
     * Adds aItem to a calendar and performs a getItems() call using the
     * following range:
@@ -321,7 +319,7 @@ function run_test() {
         var calArray = [];
         calArray.push(getStorageCal());
         calArray.push(getMemoryCal());
-        calArray.forEach((calendar) => {
+        for each (let calendar in calArray) {
             // implement listener
             var count = 0;
             var returnedItem = null;
@@ -339,7 +337,6 @@ function run_test() {
                     } else if (aOperationType == Ci.calIOperationListener.GET) {
                         do_check_eq(count, 1);
                         compareItemsSpecific(returnedItem, aItem);
-                        do_test_finished();
                     }
                 },
                 onGetResult: function(aCalendar,
@@ -355,10 +352,11 @@ function run_test() {
                 }
             };
             // add item to calendar
-            do_test_pending();
             calendar.addItem(aItem, listener);
-        });
+        }
     }
+
+    testMetaData();
 }
 
 function testMetaData() {
