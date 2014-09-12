@@ -8,8 +8,6 @@ ac_add_options --enable-debug
 
 ac_add_options --enable-tests
 
-export LDFLAGS="-static-libstdc++"
-export HOST_LDFLAGS="-static-libstdc++"
 export CFLAGS="-gdwarf-2"
 export CXXFLAGS="-gdwarf-2"
 
