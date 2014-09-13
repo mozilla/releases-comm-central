@@ -77,10 +77,12 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro GetPathFromString
 !insertmacro InitHashAppModelId
 !insertmacro IsHandlerForInstallDir
+!insertmacro IsPinnedToTaskBar
 !insertmacro IsUserAdmin
 !insertmacro LogDesktopShortcut
 !insertmacro LogQuickLaunchShortcut
 !insertmacro LogStartMenuShortcut
+!insertmacro PinnedToStartMenuLnkCount
 !insertmacro RegCleanMain
 !insertmacro RegCleanUninstall
 !insertmacro SetBrandNameVars

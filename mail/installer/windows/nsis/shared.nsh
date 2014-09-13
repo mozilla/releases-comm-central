@@ -74,6 +74,9 @@
   ; root of the Start Menu Programs directory.
   ${MigrateStartMenuShortcut}
 
+  ; Adds a pinned Task Bar shortcut (see MigrateTaskBarShortcut for details).
+  ${MigrateTaskBarShortcut}
+
   ${RemoveDeprecatedKeys}
 
   ${SetAppKeys}
@@ -187,32 +190,40 @@
   StrCpy $R1 "Software\Clients\Mail\${ClientsRegName}\InstallInfo"
   WriteRegDWORD HKLM "$R1" "IconsVisible" 1
   SetShellVarContext all  ; Set $DESKTOP to All Users
-  ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
-    CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" \
-                   "" "$INSTDIR\${FileMainEXE}" 0
-    ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR"
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
-      ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
-    ${EndIf}
-    ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
-      SetShellVarContext current  ; Set $DESKTOP to the current user's desktop
-      ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
-        CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-        ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR"
-        ${If} ${AtLeastWin7}
-        ${AndIf} "$AppUserModelID" != ""
-          ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
+  ${Unless} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
+    CreateShortCut "$SMPROGRAMS\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}"
+    ${If} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
+      ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\${BrandFullName}.lnk" \
+                                             "$INSTDIR"
+      ${If} ${AtLeastWin7}
+      ${AndIf} "$AppUserModelID" != ""
+        ApplicationID::Set "$SMPROGRAMS\${BrandFullName}.lnk" "$AppUserModelID" "true"
+      ${EndIf}
+    ${Else}
+      SetShellVarContext current  ; Set $SMPROGRAMS to the current user's Start
+                                  ; Menu Programs directory
+      ${Unless} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
+        CreateShortCut "$SMPROGRAMS\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}"
+        ${If} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
+          ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\${BrandFullName}.lnk" \
+                                                 "$INSTDIR"
+          ${If} ${AtLeastWin7}
+          ${AndIf} "$AppUserModelID" != ""
+            ApplicationID::Set "$SMPROGRAMS\${BrandFullName}.lnk" "$AppUserModelID" "true"
+          ${EndIf}
         ${EndIf}
       ${EndUnless}
-    ${EndUnless}
+    ${EndIf}
   ${EndUnless}
-  ${Unless} ${FileExists} "$QUICKLAUNCH\${BrandFullName}.lnk"
-    CreateShortCut "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-    ShellLink::SetShortCutWorkingDirectory "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR"
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
-      ApplicationID::Set "$QUICKLAUNCH\${BrandFullName}.lnk" "$AppUserModelID"
+
+  ; Windows 7 doesn't use the QuickLaunch directory
+  ${Unless} ${AtLeastWin7}
+  ${AndUnless} ${FileExists} "$QUICKLAUNCH\${BrandFullName}.lnk"
+    CreateShortCut "$QUICKLAUNCH\${BrandFullName}.lnk" \
+                   "$INSTDIR\${FileMainEXE}"
+    ${If} ${FileExists} "$QUICKLAUNCH\${BrandFullName}.lnk"
+      ShellLink::SetShortCutWorkingDirectory "$QUICKLAUNCH\${BrandFullName}.lnk" \
+                                             "$INSTDIR"
     ${EndIf}
   ${EndUnless}
 !macroend
@@ -638,6 +649,120 @@
 !macroend
 !define RemoveDeprecatedKeys "!insertmacro RemoveDeprecatedKeys"
 
+; Adds a pinned shortcut to Task Bar on update for Windows 7 and above if this
+; macro has never been called before and the application is default (see
+; PinToTaskBar for more details).
+; Since defaults handling is handled by Windows in Win8 and later, we always
+; attempt to pin a taskbar on that OS.  If Windows sets the defaults at
+; installation time, then we don't get the opportunity to run this code at
+; that time.
+!macro MigrateTaskBarShortcut
+  ${GetShortcutsLogPath} $0
+  ${If} ${FileExists} "$0"
+    ClearErrors
+    ReadINIStr $1 "$0" "TASKBAR" "Migrated"
+    ${If} ${Errors}
+      ClearErrors
+      WriteIniStr "$0" "TASKBAR" "Migrated" "true"
+      ${If} ${AtLeastWin7}
+        ; No need to check the default on Win8 and later
+        ${If} ${AtMostWin2008R2}
+          ; Check if the Thunderbird is the mailto handler for this user
+          SetShellVarContext current ; Set SHCTX to the current user
+          ${IsHandlerForInstallDir} "mailto" $R9
+          ${If} $TmpVal == "HKLM"
+            SetShellVarContext all ; Set SHCTX to all users
+          ${EndIf}
+        ${EndIf}
+        ${If} "$R9" == "true"
+        ${OrIf} ${AtLeastWin8}
+          ${PinToTaskBar}
+        ${EndIf}
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+!macroend
+!define MigrateTaskBarShortcut "!insertmacro MigrateTaskBarShortcut"
+
+; Adds a pinned Task Bar shortcut on Windows 7 if there isn't one for the main
+; application executable already. Existing pinned shortcuts for the same
+; application model ID must be removed first to prevent breaking the pinned
+; item's lists but multiple installations with the same application model ID is
+; an edgecase. If removing existing pinned shortcuts with the same application
+; model ID removes a pinned pinned Start Menu shortcut this will also add a
+; pinned Start Menu shortcut.
+!macro PinToTaskBar
+  ${If} ${AtLeastWin7}
+    StrCpy $8 "false" ; Whether a shortcut had to be created
+    ${IsPinnedToTaskBar} "$INSTDIR\${FileMainEXE}" $R9
+    ${If} "$R9" == "false"
+      ; Find an existing Start Menu shortcut or create one to use for pinning
+      ${GetShortcutsLogPath} $0
+      ${If} ${FileExists} "$0"
+        ClearErrors
+        ReadINIStr $1 "$0" "STARTMENU" "Shortcut0"
+        ${Unless} ${Errors}
+          SetShellVarContext all ; Set SHCTX to all users
+          ${Unless} ${FileExists} "$SMPROGRAMS\$1"
+            SetShellVarContext current ; Set SHCTX to the current user
+            ${Unless} ${FileExists} "$SMPROGRAMS\$1"
+              StrCpy $8 "true"
+              CreateShortCut "$SMPROGRAMS\$1" "$INSTDIR\${FileMainEXE}"
+              ${If} ${FileExists} "$SMPROGRAMS\$1"
+                ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$1" \
+                                                       "$INSTDIR"
+                ${If} "$AppUserModelID" != ""
+                  ApplicationID::Set "$SMPROGRAMS\$1" "$AppUserModelID" "true"
+                ${EndIf}
+              ${EndIf}
+            ${EndUnless}
+          ${EndUnless}
+
+          ${If} ${FileExists} "$SMPROGRAMS\$1"
+            ; Count of Start Menu pinned shortcuts before unpinning.
+            ${PinnedToStartMenuLnkCount} $R9
+
+            ; Having multiple shortcuts pointing to different installations with
+            ; the same AppUserModelID (e.g. side by side installations of the
+            ; same version) will make the TaskBar shortcut's lists into an bad
+            ; state where the lists are not shown. To prevent this first
+            ; uninstall the pinned item.
+            ApplicationID::UninstallPinnedItem "$SMPROGRAMS\$1"
+
+            ; Count of Start Menu pinned shortcuts after unpinning.
+            ${PinnedToStartMenuLnkCount} $R8
+
+            ; If there is a change in the number of Start Menu pinned shortcuts
+            ; assume that unpinning unpinned a side by side installation from
+            ; the Start Menu and pin this installation to the Start Menu.
+            ${Unless} $R8 == $R9
+              ; Pin the shortcut to the Start Menu. 5381 is the shell32.dll
+              ; resource id for the "Pin to Start Menu" string.
+              InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "5381"
+            ${EndUnless}
+
+            ; Pin the shortcut to the TaskBar. 5386 is the shell32.dll resource
+            ; id for the "Pin to Taskbar" string.
+            InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "5386"
+
+            ; Delete the shortcut if it was created
+            ${If} "$8" == "true"
+              Delete "$SMPROGRAMS\$1"
+            ${EndIf}
+          ${EndIf}
+
+          ${If} $TmpVal == "HKCU"
+            SetShellVarContext current ; Set SHCTX to the current user
+          ${Else}
+            SetShellVarContext all ; Set SHCTX to all users
+          ${EndIf}
+        ${EndUnless}
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+!macroend
+!define PinToTaskBar "!insertmacro PinToTaskBar"
+
 ; Adds a shortcut to the root of the Start Menu Programs directory if the
 ; application's Start Menu Programs directory exists with a shortcut pointing to
 ; this installation directory. This will also remove the old shortcuts and the
@@ -665,14 +790,15 @@
               Pop $4
               ${If} "$INSTDIR\${FileMainEXE}" == "$4"
                 CreateShortCut "$SMPROGRAMS\${BrandFullName}.lnk" \
-                               "$INSTDIR\${FileMainEXE}" "" \
-                               "$INSTDIR\${FileMainEXE}" 0
-                ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\${BrandFullName}.lnk" \
-                                                       "$INSTDIR"
-                ${If} ${AtLeastWin7}
-                ${AndIf} "$AppUserModelID" != ""
-                  ApplicationID::Set "$SMPROGRAMS\${BrandFullName}.lnk" \
-                                     "$AppUserModelID"
+                               "$INSTDIR\${FileMainEXE}"
+                ${If} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
+                  ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\${BrandFullName}.lnk" \
+                                                         "$INSTDIR"
+                  ${If} ${AtLeastWin7}
+                  ${AndIf} "$AppUserModelID" != ""
+                    ApplicationID::Set "$SMPROGRAMS\${BrandFullName}.lnk" \
+                                       "$AppUserModelID" "true"
+                  ${EndIf}
                 ${EndIf}
               ${EndIf}
             ${EndIf}
@@ -895,6 +1021,7 @@ Function SetAsDefaultAppUser
   ${SetClientsNews}
 
   ${RemoveDeprecatedKeys}
+  ${PinToTaskBar}
 
   ClearErrors
   ${GetParameters} $0
