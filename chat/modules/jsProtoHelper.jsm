@@ -483,8 +483,7 @@ const GenericConversationPrototype = {
     }
   },
 
-  prepareForSending: function(aOutgoingMessage, aCount) null,
-  sendMsg: function(aMsg) {
+  sendMsg: function (aMsg) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   sendTyping: function(aString) Ci.prplIConversation.NO_TYPING_LIMIT,

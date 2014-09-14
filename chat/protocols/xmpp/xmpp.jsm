@@ -245,7 +245,7 @@ const XMPPConversationPrototype = {
   },
 
   /* Called when the user enters a chat message */
-  sendMsg: function(aMsg) {
+  sendMsg: function (aMsg) {
     this._cancelTypingTimer();
     let cs = this.shouldSendTypingNotifications ? "active" : null;
     let s = Stanza.message(this.to, aMsg, cs);
@@ -256,7 +256,10 @@ const XMPPConversationPrototype = {
     if (!who)
       who = this._account.name;
     let alias = this.account.alias || this.account.statusInfo.displayName;
-    this.writeMessage(who, aMsg, {outgoing: true, _alias: alias});
+    let msg = Cc["@mozilla.org/txttohtmlconv;1"]
+                .getService(Ci.mozITXTToHTMLConv)
+                .scanTXT(aMsg, Ci.mozITXTToHTMLConv.kEntities);
+    this.writeMessage(who, msg, {outgoing: true, _alias: alias});
     delete this._typingState;
   },
 

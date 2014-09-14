@@ -209,7 +209,7 @@ LogWriter.prototype = {
       let msg = {
         date: new Date(aMessage.time * 1000),
         who: aMessage.who,
-        text: aMessage.displayMessage,
+        text: aMessage.originalMessage,
         flags: ["outgoing", "incoming", "system", "autoResponse",
                 "containsNick", "error", "delayed",
                 "noFormat", "containsImages", "notification",
@@ -224,7 +224,7 @@ LogWriter.prototype = {
       // Text log.
       let date = new Date(aMessage.time * 1000);
       let line = "(" + date.toLocaleTimeString() + ") ";
-      let msg = this._serialize(aMessage.displayMessage);
+      let msg = this._serialize(aMessage.originalMessage);
       if (aMessage.system)
         line += msg;
       else {
@@ -372,11 +372,7 @@ function LogMessage(aData, aConversation) {
   for (let flag of aData.flags)
     this[flag] = true;
 }
-LogMessage.prototype = {
-  __proto__: GenericMessagePrototype,
-  _interfaces: [Ci.imIMessage, Ci.prplIMessage],
-  get displayMessage() this.originalMessage
-};
+LogMessage.prototype = GenericMessagePrototype;
 
 
 function LogConversation(aMessages, aProperties) {
