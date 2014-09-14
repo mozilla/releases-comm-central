@@ -159,6 +159,9 @@ pref("app.releaseNotesURL", "http://live.mozillamessaging.com/%APP%/releasenotes
 // Base URL for web-based support pages.
 pref("app.support.baseURL", "http://support.live.mozillamessaging.com/%LOCALE%/%APP%/%APPBUILDID%/");
 
+// Show error messages in error console.
+pref("javascript.options.showInConsole", true);
+
 // Controls enabling of the extension system logging (can reduce performance)
 pref("extensions.logging.enabled", false);
 
