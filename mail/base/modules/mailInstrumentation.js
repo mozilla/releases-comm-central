@@ -95,11 +95,15 @@ var mailInstrumentationManager =
    * Writes the state object to disk.
    */
   _postStateObject: function minst_postStateObject() {
+    // Getting defaultAccount will throw an exception if no account is set up.
+    // This method runs for the smtp server before the account has been set up.
+    if (MailServices.accounts.accounts.length == 0)
+      return;
+
     let defaultAccount;
     try {
-      // Getting defaultAccount will throw an exception if no account is set up.
       defaultAccount = MailServices.accounts.defaultAccount;
-    } catch (e if MailServices.accounts.accounts.length > 0) {
+    } catch (e) {
       // Only report this failure if there are some accounts but fetching
       // the default one failed. That is a problem.
       logException(e);
