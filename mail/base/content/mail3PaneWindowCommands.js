@@ -1122,6 +1122,10 @@ function UnloadCommandUpdateHandlers()
 
 function IsSendUnsentMsgsEnabled(unsentMsgsFolder)
 {
+  // If no account has been configured, there are no messages for sending.
+  if (MailServices.accounts.accounts.length == 0)
+    return false;
+
   var msgSendlater =
     Components.classes["@mozilla.org/messengercompose/sendlater;1"]
               .getService(Components.interfaces.nsIMsgSendLater);
