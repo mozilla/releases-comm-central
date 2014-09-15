@@ -4,7 +4,7 @@
 
 <!-- Subscription Dialog -->
 <!ENTITY feedSubscriptions.label     "Feed Subscriptions">
-<!ENTITY subscriptionDesc.label      "Note: Removing or changing the folder for a feed will not affect previously downloaded articles.">
+<!ENTITY learnMore.label             "Learn more about Feeds">
 
 <!ENTITY feedTitle.label             "Title:">
 <!ENTITY feedTitle.accesskey         "T">
@@ -12,6 +12,8 @@
 <!ENTITY feedLocation.label          "Feed URL:">
 <!ENTITY feedLocation.accesskey      "U">
 <!ENTITY feedLocation.placeholder    "Enter a valid feed url to Add">
+<!ENTITY locationValidate.label      "Validate">
+<!ENTITY validateText.label          "Check validation and retrieve a valid url.">
 
 <!ENTITY feedFolder.label            "Store Articles in:">
 <!ENTITY feedFolder.accesskey        "S">
@@ -24,9 +26,6 @@
 <!ENTITY autotagUsePrefix.label      "Prefix tags with:">
 <!ENTITY autotagUsePrefix.accesskey  "P">
 <!ENTITY autoTagPrefix.placeholder   "Enter a tag prefix">
-
-<!ENTITY locationValidate.label      "Validate">
-<!ENTITY validateText.label          "Check validation and retrieve a valid url.">
 
 <!ENTITY button.addFeed.label        "Add">
 <!ENTITY button.addFeed.accesskey    "A">

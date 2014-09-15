@@ -46,9 +46,13 @@
                 src="chrome://branding/locale/brand.properties"/>
 
   <vbox flex="1" id="contentPane">
-    <description control="rssSubscriptionsList">&subscriptionDesc.label;</description>
-
-    <separator class="thin"/>
+    <hbox align="right">
+      <label id="learnMore"
+             class="text-link"
+             crop="end"
+             value="&learnMore.label;"
+             href="https://support.mozilla.org/kb/how-subscribe-news-feeds-and-blogs"/>
+    </hbox>
 
     <tree id="rssSubscriptionsList"
           treelines="true"
@@ -155,6 +159,7 @@
                      placeholder="&autoTagPrefix.placeholder;"
                      clickSelectsAll="true"/>
         </hbox>
+        <separator class="thin"/>
       </vbox>
     </hbox>
 
