@@ -293,25 +293,25 @@ let test_logging = function* () {
       {
         time: startTime + 1,
         who: "personA",
-        originalMessage: "Hi!",
+        displayMessage: "Hi!",
         outgoing: true
       },
       {
         time: startTime + 2,
         who: "personB",
-        originalMessage: "Hello!",
+        displayMessage: "Hello!",
         incoming: true
       },
       {
         time: startTime + 3,
         who: "personA",
-        originalMessage: "What's up?",
+        displayMessage: "What's up?",
         outgoing: true
       },
       {
         time: startTime + 4,
         who: "personB",
-        originalMessage: "Nothing much!",
+        displayMessage: "Nothing much!",
         incoming: true
       }
     ];

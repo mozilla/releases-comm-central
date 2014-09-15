@@ -17,23 +17,18 @@ const messages = {
 };
 
 irc.GenericIRCConversation.name = "target";
-irc.GenericIRCConversation.writeMessage =
-  function(aSource, aMessage, aParams) this.messages.push(aMessage);
 irc.GenericIRCConversation._account = {
   __proto__: irc.ircAccount.prototype,
   _nickname: "sender",
   prefix: "!user@host",
-  maxMessageLength: 51, // For convenience.
-  sendMessage: function(aCommand, aParams) true
+  maxMessageLength: 51 // For convenience.
 };
 
 function run_test() {
   for (let message in messages) {
-    irc.GenericIRCConversation.messages = [];
-    irc.GenericIRCConversation.sendMsg(message);
+    let msg = {message: message};
+    let generatedMsgs = irc.GenericIRCConversation.prepareForSending(msg, {});
 
-    // The split messages from sendMsg.
-    let generatedMsgs = irc.GenericIRCConversation.messages;
     // The expected messages as defined above.
     let expectedMsgs = messages[message];
     // Ensure both arrays have the same length.
