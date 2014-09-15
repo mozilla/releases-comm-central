@@ -9,7 +9,7 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-MOZMILLDIR=$(DEPTH)/mozilla/_tests/mozmill
+MOZMILLDIR=$(DEPTH)/_tests/mozmill
 ifeq ($(OS_ARCH),WINNT)
 VIRTUALENV_BIN = $(MOZMILLDIR)/../mozmill-virtualenv/Scripts
 else
@@ -23,10 +23,10 @@ APP_NAME = $(MOZ_APP_DISPLAYNAME)
 ifdef MOZ_DEBUG
 APP_NAME := $(APP_NAME)Debug
 endif
-MOZMILLPROGRAM = $(DIST)/$(APP_NAME).app/
+MOZMILLPROGRAM = $(abspath $(DIST)/$(APP_NAME).app/)
 else
 # Non-mac options
-MOZMILLPROGRAM = $(DIST)/bin/thunderbird$(BIN_SUFFIX)
+MOZMILLPROGRAM = $(abspath $(DIST)/bin/thunderbird$(BIN_SUFFIX))
 endif
 
 check-no-solo = $(foreach solo,SOLO_TEST SOLO_FILE,$(if $($(solo)),$(error $(subst SOLOVAR,$(solo),$(1)))))
