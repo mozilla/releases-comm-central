@@ -351,9 +351,6 @@ SessionStoreService.prototype = {
    * Handle notifications
    */
   observe: function sss_observe(aSubject, aTopic, aData) {
-    // for event listeners
-    var _this = this;
-
     switch (aTopic) {
     case "domwindowclosed": // catch closed windows
       this.onClose(aSubject);
@@ -424,9 +421,9 @@ SessionStoreService.prototype = {
       // also clear all data about closed windows
       this._closedWindows = [];
       // give the tabbrowsers a chance to clear their histories first
-      var win = this._getMostRecentBrowserWindow();
-      if (win)
-        win.setTimeout(function() { _this.saveState(true); }, 0);
+      if (this._getMostRecentBrowserWindow())
+        Services.tm.mainThread.dispatch(this.saveState.bind(this, true),
+          Components.interfaces.nsIThread.DISPATCH_NORMAL);
       else if (this._loadState == STATE_RUNNING)
         this.saveState(true);
       break;
@@ -567,7 +564,8 @@ SessionStoreService.prototype = {
       }
       else {
         // Nothing to restore, notify observers things are complete.
-        Services.obs.notifyObservers(aWindow, NOTIFY_WINDOWS_RESTORED, "");
+        this.windowToFocus = aWindow;
+        Services.tm.mainThread.dispatch(this, Components.interfaces.nsIThread.DISPATCH_NORMAL);
 
         // the next delayed save request should execute immediately
         this._lastSaveTime -= this._interval;
@@ -1819,10 +1817,7 @@ SessionStoreService.prototype = {
       if ((aContent.document.designMode || "") == "on") {
         if (aData.innerHTML === undefined && !aFullData) {
           // we get no "input" events from iframes - listen for keypress here
-          let _this = this;
-          aContent.addEventListener("keypress", function(aEvent) {
-            _this.saveStateDelayed(aWindow, 3000);
-          }, true);
+          aContent.addEventListener("keypress", this.saveStateDelayed.bind(this, aWindow, 3000), true);
         }
         aData.innerHTML = aContent.document.body.innerHTML;
       }
@@ -1996,7 +1991,6 @@ SessionStoreService.prototype = {
    */
   _updateCookies: function sss_updateCookies(aWindows) {
     var jscookies = {};
-    var _this = this;
     // MAX_EXPIRY should be 2^63-1, but JavaScript can't handle that precision
     var MAX_EXPIRY = Math.pow(2, 62);
 
@@ -2019,7 +2013,7 @@ SessionStoreService.prototype = {
             // window._hosts will only have hosts with the right privacy rules,
             // so there is no need to do anything special with this call to
             // _checkPrivacyLevel.
-            if (cookie.isSession && _this._checkPrivacyLevel(cookie.isSecure, isPinned)) {
+            if (cookie.isSession && this._checkPrivacyLevel(cookie.isSecure, isPinned)) {
               // use the cookie's host, path, and name as keys into a hash,
               // to make sure we serialize each cookie only once
 
@@ -2542,7 +2536,6 @@ SessionStoreService.prototype = {
    */
   restoreHistory:
     function sss_restoreHistory(aWindow, aTabs, aTabData, aIdMap, aDocIdentMap) {
-    var _this = this;
     // if the tab got removed before being completely restored, then skip it
     while (aTabs.length > 0 && (!aTabs[0].parentNode || !aTabs[0].linkedBrowser)) {
       aTabs.shift();
@@ -2607,9 +2600,8 @@ SessionStoreService.prototype = {
     tab.dispatchEvent(event);
 
     // Restore the history in the next tab
-    aWindow.setTimeout(function(){
-      _this.restoreHistory(aWindow, aTabs, aTabData, aIdMap, aDocIdentMap);
-    }, 0);
+    Services.tm.mainThread.dispatch(this.restoreHistory.bind(this, aWindow,
+      aTabs, aTabData, aIdMap, aDocIdentMap), Components.interfaces.nsIThread.DISPATCH_NORMAL);
 
     // This could cause us to ignore the max_concurrent_tabs pref a bit, but
     // it ensures each window will have its selected tab loaded.
@@ -3049,15 +3041,13 @@ SessionStoreService.prototype = {
     else
       delete this._windows[aWindow.__SSi].isPopup;
 
-    var _this = this;
-    aWindow.setTimeout(function() {
-      _this.restoreDimensions.apply(_this, [aWindow,
+    Services.tm.mainThread.dispatch(this.restoreDimensions.bind(this, aWindow,
         +aWinData.width || 0,
         +aWinData.height || 0,
         "screenX" in aWinData ? +aWinData.screenX : NaN,
         "screenY" in aWinData ? +aWinData.screenY : NaN,
-        aWinData.sizemode || "", aWinData.sidebar || ""]);
-    }, 0);
+        aWinData.sizemode || "", aWinData.sidebar || ""),
+      Components.interfaces.nsIThread.DISPATCH_NORMAL);
   },
 
   /**
@@ -3076,9 +3066,7 @@ SessionStoreService.prototype = {
    *        Sidebar command
    */
   restoreDimensions: function sss_restoreDimensions(aWindow, aWidth, aHeight, aLeft, aTop, aSizeMode, aSidebar) {
-    var win = aWindow;
-    var _this = this;
-    function win_(aName) { return _this._getWindowDimension(win, aName); }
+    var win_ = this._getWindowDimension.bind(this, aWindow);
 
     // find available space on the screen where this window is being placed
     let screen = gScreenManager.screenForRect(aLeft, aTop, aWidth, aHeight);
@@ -3667,14 +3655,16 @@ SessionStoreService.prototype = {
   _sendRestoreCompletedNotifications: function sss_sendRestoreCompletedNotifications() {
     if (this._restoreCount) {
       this._restoreCount--;
-      if (this._restoreCount == 0) {
-        // This was the last window restored at startup, notify observers.
-        Services.obs.notifyObservers(this.windowToFocus,
-          this._browserSetState ? NOTIFY_BROWSER_STATE_RESTORED : NOTIFY_WINDOWS_RESTORED,
-          "");
-        this._browserSetState = false;
-      }
+      if (this._restoreCount == 0)
+        Services.tm.mainThread.dispatch(this, Components.interfaces.nsIThread.DISPATCH_NORMAL);
     }
+  },
+
+  run: function sss_run() {
+    // This was the last window restored at startup, notify observers.
+    Services.obs.notifyObservers(this.windowToFocus,
+      this._browserSetState ? NOTIFY_BROWSER_STATE_RESTORED : NOTIFY_WINDOWS_RESTORED, "");
+    this._browserSetState = false;
   },
 
   /**
