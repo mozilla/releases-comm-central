@@ -46,12 +46,14 @@ var smimeHeaderSink =
       case nsICMSMessageErrors.VERIFY_NOT_YET_ATTEMPTED:
         gSignedUINode.setAttribute("signed", "unknown");
         gStatusBar.setAttribute("signed", "unknown");
+        this.showSenderIfSigner();
         break;
 
       case nsICMSMessageErrors.VERIFY_CERT_WITHOUT_ADDRESS:
       case nsICMSMessageErrors.VERIFY_HEADER_MISMATCH:
         gSignedUINode.setAttribute("signed", "mismatch");
         gStatusBar.setAttribute("signed", "mismatch");
+        this.showSenderIfSigner();
         break;
 
       default:
@@ -59,6 +61,34 @@ var smimeHeaderSink =
         gStatusBar.setAttribute("signed", "notok");
         break;
     }
+  },
+
+  /**
+   * Force showing Sender if we have a Sender and it's not signed by From.
+   * For a valid cert that means the Sender signed it - and the signed mismatch
+   * mark is shown. To understand why it's not a confirmed signing it's useful
+   * to have the Sender header showing.
+   */
+  showSenderIfSigner: function() {
+    if (!("sender" in currentHeaderData))
+      return; // Sender not set, or same as From (so no longer present).
+
+    if (Services.prefs.getBoolPref("mailnews.headers.showSender"))
+      return; // Sender header will be show due to pref - nothing more to do.
+
+    let fromMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
+            currentHeaderData.from.headerValue).split(",");
+    for (let i = 0; i < fromMailboxes.length; i++) {
+      if (gSignerCert.containsEmailAddress(fromMailboxes[i])) {
+        return; // It's signed by a From. Nothing more to do
+      }
+    }
+
+    let senderInfo = { name: "sender", outputFunction: OutputEmailAddresses };
+    let senderEntry = new createHeaderEntry("expanded", senderInfo);
+
+    gExpandedHeaderView[senderInfo.name] = senderEntry;
+    UpdateExpandedMessageHeaders();
   },
 
   encryptionStatus: function(aNestingLevel, aEncryptionStatus, aRecipientCert)
@@ -155,14 +185,25 @@ function onSMIMEStartHeaders()
   forgetEncryptedURI();
 }
 
-function onSMIMEEndHeaders()
-{}
+function onSMIMEEndHeaders() {
+}
 
 function onSmartCardChange()
 {
   // only reload encrypted windows
   if (gMyLastEncryptedURI && gEncryptionStatus != -1) {
     ReloadMessage();
+  }
+}
+
+function onSMIMEBeforeShowHeaderPane() {
+  // For signed messages with differing Sender as signer we force showing Sender.
+  // If we're now in a different message, hide the (old) sender row and remove
+  // it from the header view, so that Sender normally isn't shown.
+  if ("sender" in gExpandedHeaderView &&
+      !Services.prefs.getBoolPref("mailnews.headers.showSender")) {
+    gExpandedHeaderView.sender.enclosingRow.collapsed = true;
+    delete gExpandedHeaderView.sender;
   }
 }
 
@@ -183,11 +224,12 @@ function msgHdrViewSMIMEOnLoad(event)
   gSMIMEContainer = document.getElementById('smimeBox');
   gStatusBar = document.getElementById('status-bar');
 
-  // add ourself to the list of message display listeners so we get notified when we are about to display a
-  // message.
+  // Add ourself to the list of message display listeners so we get notified
+  // when we are about to display a message.
   var listener = {};
   listener.onStartHeaders = onSMIMEStartHeaders;
   listener.onEndHeaders = onSMIMEEndHeaders;
+  listener.onBeforeShowHeaderPane = onSMIMEBeforeShowHeaderPane;
   gMessageListeners.push(listener);
 
   gEncryptedURIService =

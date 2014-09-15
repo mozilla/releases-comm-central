@@ -593,6 +593,17 @@
         </body>
       </method>
 
+      <!-- resetAddressView: a public method used to reset addresses shown by
+           this widget
+      -->
+      <method name="resetAddressView">
+        <body>
+          <![CDATA[
+            this.mAddresses.length = 0;
+          ]]>
+        </body>
+      </method>
+
       <!-- updateEmailAddressNode: private method used to set properties on an address node -->
       <method name="updateEmailAddressNode">
         <parameter name="aEmailNode"/>

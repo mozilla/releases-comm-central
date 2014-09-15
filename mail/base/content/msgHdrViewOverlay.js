@@ -1220,6 +1220,8 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
                              .parseHeadersWithArray(emailAddresses, addresses,
                                                     names, fullNames);
   var index = 0;
+  if (headerEntry.useToggle)
+    headerEntry.enclosingBox.resetAddressView(); // make sure we start clean
   while (index < numAddresses) {
     // If we want to include short/long toggle views and we have a long view,
     // always add it. If we aren't including a short/long view OR if we are and
