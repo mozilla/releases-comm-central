@@ -151,8 +151,8 @@ var mailTestUtils = {
         "GetVolumePathNameW",
         ctypes.winapi_abi,
         BOOL,              // return type: 1 indicates success, 0 failure
-        ctypes.jschar.ptr, // in: lpszFileName
-        ctypes.jschar.ptr, // out: lpszVolumePathName
+        ctypes.char16_t.ptr, // in: lpszFileName
+        ctypes.char16_t.ptr, // out: lpszVolumePathName
         ctypes.uint32_t    // in: cchBufferLength
       );
 
@@ -161,7 +161,7 @@ var mailTestUtils = {
       // path -- add 1 for a trailing backslash if necessary, and 1 for the
       // terminating null character. Note that the parentheses around the type are
       // necessary for new to apply correctly.
-      let volumePath = new (ctypes.jschar.array(filePath.length + 2));
+      let volumePath = new (ctypes.char16_t.array(filePath.length + 2));
 
       if (!GetVolumePathName(filePath, volumePath, volumePath.length)) {
         throw new Error("Unable to get volume path for " + filePath + ", error " +
@@ -174,18 +174,18 @@ var mailTestUtils = {
         "GetVolumeInformationW",
         ctypes.winapi_abi,
         BOOL,                // return type: 1 indicates success, 0 failure
-        ctypes.jschar.ptr,   // in, optional: lpRootPathName
-        ctypes.jschar.ptr,   // out: lpVolumeNameBuffer
+        ctypes.char16_t.ptr,   // in, optional: lpRootPathName
+        ctypes.char16_t.ptr,   // out: lpVolumeNameBuffer
         ctypes.uint32_t,     // in: nVolumeNameSize
         ctypes.uint32_t.ptr, // out, optional: lpVolumeSerialNumber
         ctypes.uint32_t.ptr, // out, optional: lpMaximumComponentLength
         ctypes.uint32_t.ptr, // out, optional: lpFileSystemFlags
-        ctypes.jschar.ptr,   // out: lpFileSystemNameBuffer
+        ctypes.char16_t.ptr,   // out: lpFileSystemNameBuffer
         ctypes.uint32_t      // in: nFileSystemNameSize
       );
 
       // We're only interested in the name of the file system.
-      let fsName = new (ctypes.jschar.array(MAX_PATH + 1));
+      let fsName = new (ctypes.char16_t.array(MAX_PATH + 1));
 
       if (!GetVolumeInformation(volumePath, null, 0, null, null, null, fsName,
                                 fsName.length)) {
@@ -265,7 +265,7 @@ var mailTestUtils = {
           "CreateFileW",
           ctypes.winapi_abi,
           HANDLE,            // return type: handle to the file
-          ctypes.jschar.ptr, // in: lpFileName
+          ctypes.char16_t.ptr, // in: lpFileName
           ctypes.uint32_t,   // in: dwDesiredAccess
           ctypes.uint32_t,   // in: dwShareMode
           ctypes.voidptr_t,  // in, optional: lpSecurityAttributes (note that

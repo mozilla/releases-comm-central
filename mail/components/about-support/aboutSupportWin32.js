@@ -25,8 +25,8 @@ var AboutSupportPlatform = {
         "GetVolumePathNameW",
         ctypes.winapi_abi,
         BOOL,              // return type: 1 indicates success, 0 failure
-        ctypes.jschar.ptr, // in: lpszFileName
-        ctypes.jschar.ptr, // out: lpszVolumePathName
+        ctypes.char16_t.ptr, // in: lpszFileName
+        ctypes.char16_t.ptr, // out: lpszVolumePathName
         ctypes.uint32_t    // in: cchBufferLength
       );
 
@@ -42,7 +42,7 @@ var AboutSupportPlatform = {
       // path -- add 1 for a trailing backslash if necessary, and 1 for the
       // terminating null character. Note that the parentheses around the type are
       // necessary for new to apply correctly.
-      let volumePath = new (ctypes.jschar.array(filePath.length + 2));
+      let volumePath = new (ctypes.char16_t.array(filePath.length + 2));
 
       if (!GetVolumePathName(filePath, volumePath, volumePath.length)) {
         throw new Error("Unable to get volume path for " + filePath + ", error " +
@@ -54,7 +54,7 @@ var AboutSupportPlatform = {
         "GetDriveTypeW",
         ctypes.winapi_abi,
         ctypes.uint32_t,  // return type: the drive type
-        ctypes.jschar.ptr // in: lpRootPathName
+        ctypes.char16_t.ptr // in: lpRootPathName
       );
       let type = GetDriveType(volumePath);
       // http://msdn.microsoft.com/en-us/library/aa364939
