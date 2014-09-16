@@ -1007,11 +1007,10 @@ var gApplicationsPane = {
    * we'd still need to check the pref ourselves to find out if it's enabled.
    */
   _loadPluginHandlers: function() {
-    for (let i = 0; i < navigator.plugins.length; ++i) {
-      let plugin = navigator.plugins[i];
-      for (let j = 0; j < plugin.length; ++j) {
-        let type = plugin[j].type;
-
+    let pluginHost = Components.classes["@mozilla.org/plugin/host;1"]
+                               .getService(Components.interfaces.nsIPluginHost);
+    for (let pluginTag of pluginHost.getPluginTags()) {
+      for (let type of pluginTag.getMimeTypes()) {
         let handlerInfoWrapper;
         if (type in this._handledTypes)
           handlerInfoWrapper = this._handledTypes[type];
@@ -1023,7 +1022,7 @@ var gApplicationsPane = {
           this._handledTypes[type] = handlerInfoWrapper;
         }
 
-        handlerInfoWrapper.plugin = plugin;
+        handlerInfoWrapper.plugin = pluginHost.getPluginTagForType(type);
       }
     }
   },
