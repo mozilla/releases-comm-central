@@ -184,7 +184,7 @@ function test_roundtrip() {
 
     parser.parseFromStream(stream);
 
-    let items = parser.getItems({});
+    items = parser.getItems({});
     let comps = parser.getComponents({});
     let props = parser.getProperties({});
     do_check_eq(items.length, 1);

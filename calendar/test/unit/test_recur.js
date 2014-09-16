@@ -489,7 +489,7 @@ function test_startdate_change() {
         item.startDate = newDate;
     }
 
-    let item, dur, ritem;
+    let dur, ritem;
 
     // Changing an existing start date for a recurring item shouldn't either
     item = makeRecEvent("RRULE:FREQ=DAILY\r\n");
