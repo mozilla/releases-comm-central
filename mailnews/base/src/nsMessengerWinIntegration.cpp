@@ -818,6 +818,18 @@ nsresult nsMessengerWinIntegration::GetFirstFolderWithNewMail(nsACString& aFolde
           msgFolder = do_QueryInterface(supports, &rv);
           if (msgFolder)
           {
+            uint32_t flags;
+            rv = msgFolder->GetFlags(&flags);
+
+            if (NS_FAILED(rv))
+              continue;
+
+            // Unless we're dealing with an Inbox, we don't care
+            // about Drafts, Queue, SentMail, Template, or Junk folders
+            if (!(flags & nsMsgFolderFlags::Inbox) &&
+                 (flags & (nsMsgFolderFlags::SpecialUse & ~nsMsgFolderFlags::Inbox)))
+              continue;
+			  
             numNewMessages = 0;
             msgFolder->GetNumNewMessages(false, &numNewMessages);
             if (numNewMessages)

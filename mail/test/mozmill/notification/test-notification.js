@@ -520,4 +520,4 @@ function test_no_notification_for_uninteresting_folders() {
     someFolder.flags = someFolder.flags & ~uninterestingFlags[i];
   }
 }
-test_no_notification_for_uninteresting_folders.EXCLUDED_PLATFORMS = ['winnt', 'darwin'];
+test_no_notification_for_uninteresting_folders.EXCLUDED_PLATFORMS = ['darwin'];
