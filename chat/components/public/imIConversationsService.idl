@@ -83,9 +83,13 @@ interface imIOutgoingMessage: nsISupports {
 // notified of a new-text (ie. an incoming or outgoing message to be displayed),
 // it in turn notifies observers (again, typically add-ons), which have the
 // opportunity to swap or cancel the message.
-[scriptable, uuid(bd2f77d4-1fad-432d-a914-6bb5ed5c13d0)]
+[scriptable, uuid(3f88cc5c-6940-4eb5-a576-c65770f49ce9)]
 interface imIMessage: prplIMessage {
            attribute boolean cancelled;
+           // Holds the sender color for Chats.
+           // Empty string by default, it is set by the conversation binding.
+           attribute AUTF8String color;
+
            // What eventually gets shown to the user.
            attribute AUTF8String displayMessage;
 };

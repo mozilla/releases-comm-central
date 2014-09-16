@@ -30,6 +30,7 @@ function imMessage(aPrplMessage) {
 imMessage.prototype = {
   __proto__: ClassInfo(["imIMessage", "prplIMessage"], "IM Message"),
   cancelled: false,
+  color: "",
   _displayMessage: null,
 
   get displayMessage() {
@@ -48,7 +49,6 @@ imMessage.prototype = {
   get iconURL() this.prplMessage.iconURL,
   get conversation() this.prplMessage.conversation,
   set conversation(aConv) { this.prplMessage.conversation = aConv; },
-  get color() this.prplMessage.color,
   get outgoing() this.prplMessage.outgoing,
   get incoming() this.prplMessage.incoming,
   get system() this.prplMessage.system,
