@@ -1,0 +1,15 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
+<ShortName>DuckDuckGo</ShortName>
+<Description>DuckDuckGo provides a privacy-aware search engine for the web</Description>
+<InputEncoding>UTF-8</InputEncoding>
+<Image width="16" height="16">data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB4UlEQVQ4jX2QvWuTURSHf/9AtmK1g1gVxUFFBBU/NnHqJHTMpoPiIFmUDkJxdxClU8HBLgqKgxRC1ZQOkVBDSNOmYtJamzQhpubzzZv3I3kcYovxvnjh4cDlnuee85Mk+fWf9Lod/j1+q87u49uULovyFRNJkrX4jq7jUWuaAst2WUgWyc0+Z/uiKFwyUaNls5AssrZRpdfvDwkaLZu1jSo7uU0qkQm2L8hA9abNbt0yft+fwvGwHI/mm1m+n5eBAOhDy/Zo2Z7RHIpEufUyTX17i/w5GQgGzXsPf7VdQxCKRLEcj29nZTAkCEWiQwKApu3StF0c1yN7SqyfEaU7wpoTndd7KxC8Qt+vgu+Cb+Gt3sWaE35CsCnICS8m5LebwenVX8BXwbog+6duDWrnrdicFCsnhNzKjtnceEV/RfQzovteOPPCXRC1p2L9qkgdE6njA9ROJ0xB5RFkhPNJJI/+H1Vmpk2Bk4f8YPT8pFg+8hfjovxA1J6JL+NChakwQTkUpsIU7wvng/Diwk+LXkaQF72UKE+JxGGhH/cmCMqhMjNNfEzEx8TySZELD1i9of37+JhQ9toBgnJopxN8Pn2IpVGxeFAsjQYjSSo9eWgI3MoOqZvXiY2IjyMiFoAk/QbkIfpi7R6kbgAAAABJRU5ErkJggg==</Image>
+<Url type="text/html" method="GET" template="https://duckduckgo.com/">
+  <Param name="q" value="{searchTerms}"/>
+  <Param name="t" value="seamonkey"/>
+</Url>
+<SearchForm>https://duckduckgo.com/</SearchForm>
+</SearchPlugin>
