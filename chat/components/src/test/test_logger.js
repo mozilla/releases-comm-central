@@ -273,7 +273,7 @@ let test_getLogPathForConversation = function* () {
   // The path should be null since a LogWriter hasn't been created yet.
   equal(path, null);
   let logWriter = gLogger.getLogWriter(dummyConv);
-  let path = yield logger.getLogPathForConversation(dummyConv);
+  path = yield logger.getLogPathForConversation(dummyConv);
   equal(path, logWriter.path);
   ok(yield OS.File.exists(path));
   // Ensure this doesn't interfere with future tests.
