@@ -1603,7 +1603,7 @@
                                  sizeattr);
 
           // update the labels
-          let lateralColumns = col.firstLastShadowColumns(currentOffset, currentShadows);
+          lateralColumns = col.firstLastShadowColumns(currentOffset, currentShadows);
           col.updateDragLabels(lateralColumns.firstCol, lateralColumns.lastCol);
 
           col.mDragState.offset = currentOffset;
@@ -3253,16 +3253,16 @@
           var otherorient = getOtherOrientation(orient);
 
           let computedDateList = new Array();
-          let d = this.mStartDate.clone();
-          while (d.compare(this.mEndDate) <= 0) {
-              let workday = d.clone();
+          let startDate = this.mStartDate.clone();
+          while (startDate.compare(this.mEndDate) <= 0) {
+              let workday = startDate.clone();
               workday.makeImmutable();
               if (this.mDisplayDaysOff) {
                   computedDateList.push(workday);
-              } else if (this.mDaysOffArray.indexOf(d.weekday) == -1) {
+              } else if (this.mDaysOffArray.indexOf(startDate.weekday) == -1) {
                   computedDateList.push(workday);
               }
-              d.day += 1;
+              startDate.day += 1;
           }
           this.mDateList = computedDateList;
 

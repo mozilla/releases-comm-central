@@ -1136,9 +1136,9 @@ Extractor.prototype = {
         return (minute >= 0 && minute <= 59);
     },
 
-    isPastDate: function isPastDate(date, refDate) {
+    isPastDate: function isPastDate(date, referenceDate) {
         // avoid changing original refDate
-        let refDate = new Date(refDate.getTime());
+        let refDate = new Date(referenceDate.getTime());
         refDate.setHours(0);
         refDate.setMinutes(0);
         refDate.setSeconds(0);
@@ -1194,44 +1194,44 @@ Extractor.prototype = {
         let prefixSuffix = {start: res.index, end: res.index + res[0].length,
                             pattern: pattern, relation: relation};
         let ch = "\\s*";
-        let res;
+        let psres;
 
         let re = new RegExp("(" + this.getPatterns("end.prefix") + ")" + ch + "$", "ig");
-        if ((res = re.exec(prev)) != null) {
+        if ((psres = re.exec(prev)) != null) {
             prefixSuffix.relation = "end";
-            prefixSuffix.start = res.index;
-            prefixSuffix.pattern = res[0] + pattern;
+            prefixSuffix.start = psres.index;
+            prefixSuffix.pattern = psres[0] + pattern;
         }
 
         re = new RegExp("^" + ch + "(" + this.getPatterns("end.suffix") + ")", "ig");
-        if ((res = re.exec(next)) != null) {
+        if ((psres = re.exec(next)) != null) {
             prefixSuffix.relation = "end";
-            prefixSuffix.end = prefixSuffix.end + res[0].length;
-            prefixSuffix.pattern = pattern + res[0];
+            prefixSuffix.end = prefixSuffix.end + psres[0].length;
+            prefixSuffix.pattern = pattern + psres[0];
         }
 
         re = new RegExp("(" + this.getPatterns("start.prefix") + ")" + ch + "$", "ig");
-        if ((res = re.exec(prev)) != null) {
+        if ((psres = re.exec(prev)) != null) {
             prefixSuffix.relation = "start";
-            prefixSuffix.start = res.index;
-            prefixSuffix.pattern = res[0] + pattern;
+            prefixSuffix.start = psres.index;
+            prefixSuffix.pattern = psres[0] + pattern;
         }
 
         re = new RegExp("^" + ch + "(" + this.getPatterns("start.suffix") + ")", "ig");
-        if ((res = re.exec(next)) != null) {
+        if ((psres = re.exec(next)) != null) {
             prefixSuffix.relation = "start";
-            prefixSuffix.end = prefixSuffix.end + res[0].length;
-            prefixSuffix.pattern = pattern + res[0];
+            prefixSuffix.end = prefixSuffix.end + psres[0].length;
+            prefixSuffix.pattern = pattern + psres[0];
         }
 
         re = new RegExp("\\s(" + this.getPatterns("no.datetime.prefix") + ")" + ch + "$", "ig");
 
-        if ((res = re.exec(prev)) != null) {
+        if ((psres = re.exec(prev)) != null) {
             prefixSuffix.relation = "notadatetime";
         }
 
         re = new RegExp("^" + ch + "(" + this.getPatterns("no.datetime.suffix") + ")", "ig");
-        if ((res = re.exec(next)) != null) {
+        if ((psres = re.exec(next)) != null) {
             prefixSuffix.relation = "notadatetime";
         }
 

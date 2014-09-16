@@ -408,15 +408,15 @@ function test_interface() {
     do_check_true(item.icalString.indexOf("EXDATE") < 0);
 
     // modifyException / getExceptionFor
-    let occ = rinfo.getOccurrenceFor(occDate1);
-    occ.startDate = cal.createDateTime("20020401T114500");
-    rinfo.modifyException(occ, true);
+    let occ1 = rinfo.getOccurrenceFor(occDate1);
+    occ1.startDate = cal.createDateTime("20020401T114500");
+    rinfo.modifyException(occ1, true);
     do_check_true(rinfo.getExceptionFor(occDate1) != null);
 
     // modifyException immutable
-    let occ = rinfo.getOccurrenceFor(occDate2);
-    occ.makeImmutable();
-    rinfo.modifyException(occ, true);
+    let occ2 = rinfo.getOccurrenceFor(occDate2);
+    occ2.makeImmutable();
+    rinfo.modifyException(occ2, true);
     do_check_true(rinfo.getExceptionFor(occDate2) != null);
 
     // getExceptionIds

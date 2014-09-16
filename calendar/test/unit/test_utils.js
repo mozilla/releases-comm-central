@@ -60,7 +60,7 @@ function test_attendeeMatchesAddresses() {
     do_check_false(cal.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
     do_check_false(cal.attendeeMatchesAddresses(a, ["peter"]));
 
-    let a = cal.createAttendee("ATTENDEE;EMAIL=\"horst\":urn:uuid:horst");
+    a = cal.createAttendee("ATTENDEE;EMAIL=\"horst\":urn:uuid:horst");
     do_check_true(cal.attendeeMatchesAddresses(a, ["HORST", "peter"]));
     do_check_false(cal.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
     do_check_false(cal.attendeeMatchesAddresses(a, ["peter"]));

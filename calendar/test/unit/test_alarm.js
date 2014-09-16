@@ -516,7 +516,7 @@ function test_serialize() {
     alarm.toString();
 
     // Attachments and attendees
-    let comp = srv.createIcalComponent("VALARM");
+    comp = srv.createIcalComponent("VALARM");
     addActionEmail(); addTrigger(); addDescr();
     addAttendee(); addAttachment();
     alarm.icalComponent = comp;

@@ -2350,7 +2350,7 @@ function updateCalendar() {
         }
 
         // disable repeat menupopup if this is an occurrence
-        var item = window.calendarItem;
+        item = window.calendarItem;
         if (item.parentItem != item) {
             disableElement("item-repeat");
             disableElement("repeat-until-datepicker");

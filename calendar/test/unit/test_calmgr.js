@@ -216,20 +216,20 @@ function test_calprefs() {
     do_check_eq(typeof prop, "string");
     do_check_eq(prop, "abc")
 
-    let prop = memory.getProperty("boolpref");
+    prop = memory.getProperty("boolpref");
     do_check_eq(typeof prop, "boolean");
     do_check_eq(prop, true);
 
-    let prop = memory.getProperty("intpref");
+    prop = memory.getProperty("intpref");
     do_check_eq(typeof prop, "number");
     do_check_eq(prop, 123);
 
     // These two are a special case test for bug 979262
-    let prop = memory.getProperty("bigintpref");
+    prop = memory.getProperty("bigintpref");
     do_check_eq(typeof prop, "number");
     do_check_eq(prop, 1394548721296);
 
-    let prop = memory.getProperty("floatpref");
+    prop = memory.getProperty("floatpref");
     do_check_eq(typeof prop, "number");
     do_check_eq(prop, 0.5);
 
@@ -247,7 +247,7 @@ function test_calprefs() {
     memory.setProperty("intpref", null);
     memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
     memory.id = memid;
-    let prop = memory.getProperty("intpref");
+    prop = memory.getProperty("intpref");
     do_check_true(prop === null);
 
 

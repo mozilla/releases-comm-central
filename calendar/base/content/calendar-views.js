@@ -249,7 +249,7 @@ function switchToView(aViewType) {
     // Set up the view commands
     var views = viewDeck.childNodes;
     for (var i = 0; i < views.length; i++) {
-        var view = views[i];
+        let view = views[i];
         var commandId = "calendar_" + view.id + "_command";
         var command = document.getElementById(commandId);
         if (view.id == aViewType + "-view") {

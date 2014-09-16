@@ -51,8 +51,8 @@ function test_failures() {
     });
 
     // No real error here, but there is a message...
-    let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
-                           .createInstance(Components.interfaces.calIIcsParser);
+    parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
+                       .createInstance(Components.interfaces.calIIcsParser);
     let str = [
         "BEGIN:VWORLD",
         "BEGIN:VEVENT",

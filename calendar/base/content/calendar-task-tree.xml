@@ -147,7 +147,7 @@
         let widths = this.getAttribute("widths").split(' ');
         let sorted = this.getAttribute("sort-active");
         let sortDirection = this.getAttribute("sort-direction") || "ascending";
-        let tree = document.getAnonymousNodes(this)[0];
+        tree = document.getAnonymousNodes(this)[0];
         let treecols = tree.getElementsByTagNameNS(tree.namespaceURI, "treecol");
         for (let i = 0; i < treecols.length; i++) {
             let content = treecols[i].getAttribute("itemproperty");
