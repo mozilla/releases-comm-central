@@ -61,7 +61,7 @@ imMessage.prototype = {
   get containsImages() this.prplMessage.containsImages,
   get notification() this.prplMessage.notification,
   get noLinkification() this.prplMessage.noLinkification,
-  getActions: function(aCount) this.prplMessage.getActions(aCount)
+  getActions: function(aCount) this.prplMessage.getActions(aCount || {})
 };
 
 function UIConversation(aPrplConversation)
