@@ -107,7 +107,7 @@ function subtest_check_account_dot_IDs(amc)
   iframe = amc.e("contentFrame").contentDocument;
 
   // Check by element properties.
-  let loginCheck = iframe.getElementById("server.loginAtStartUp");
+  loginCheck = iframe.getElementById("server.loginAtStartUp");
   assert_true(loginCheck.checked);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.

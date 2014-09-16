@@ -740,7 +740,7 @@ var gPluginHandler = {
         buttons.push(submitButton);
 #endif
 
-      let notification = notificationBox.appendNotification(messageString, "plugin-crashed",
+      notification = notificationBox.appendNotification(messageString, "plugin-crashed",
                                                             iconURL, priority, buttons);
 
       // Add the "learn more" link.

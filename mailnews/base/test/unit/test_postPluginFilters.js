@@ -88,17 +88,17 @@ function run_test()
   filterList.insertFilterAt(0, filter);
 
   // goodIsHigh filter
-  let filter = filterList.createFilter("goodIsHigh");
-  let searchTerm = filter.createTerm();
+  filter = filterList.createFilter("goodIsHigh");
+  searchTerm = filter.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.JunkStatus;
-  let value = searchTerm.value;
+  value = searchTerm.value;
   value.attrib = Ci.nsMsgSearchAttrib.JunkStatus;
   value.junkStatus = MailServices.junk.GOOD;
   searchTerm.value = value;
   searchTerm.op = Ci.nsMsgSearchOp.Is;
   searchTerm.booleanAnd = false;
   filter.appendTerm(searchTerm);
-  let action = filter.createAction();
+  action = filter.createAction();
   action.type = Ci.nsMsgFilterAction.ChangePriority;
   action.priority = kPriorityHigh;
   filter.appendAction(action);

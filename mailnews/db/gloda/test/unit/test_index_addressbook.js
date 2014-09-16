@@ -25,7 +25,7 @@ function get_card_for_email(aEmailAddress) {
   while (books.hasMoreElements()) {
     book = books.getNext()
                   .QueryInterface(Ci.nsIAbDirectory);
-    var card = book.cardForEmailAddress(aEmailAddress);
+    card = book.cardForEmailAddress(aEmailAddress);
     if (card)
       return [book, card];
   }

@@ -83,7 +83,7 @@ function outgoingPageInit() {
       boxToShow.removeAttribute("hidden");
 
     var smtpNameInput = document.getElementById("smtpusername");
-    let smtpServer = MailServices.smtp.defaultServer;
+    smtpServer = MailServices.smtp.defaultServer;
     if (smtpServer && smtpServer.hostname && smtpServer.username) {
       // we have a default SMTP server, so modify and show the static text
       // and store the username for the default server in the textbox.

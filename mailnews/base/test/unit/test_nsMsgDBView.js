@@ -528,7 +528,7 @@ function test_selected_messages() {
     do_throw("numSelected is " + gDBView.numSelected + " but should be " +
              gTreeView.rowCount + "\n");
 
-  let selectedMessages = gDBView.getSelectedMsgHdrs();
+  selectedMessages = gDBView.getSelectedMsgHdrs();
   if (selectedMessages.length != gTestFolder.getTotalMessages(false))
     do_throw("getSelectedMsgHdrs.length is " + selectedMessages.length +
              " but should be " + gTestFolder.getTotalMessages(false) + "\n");

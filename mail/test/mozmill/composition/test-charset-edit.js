@@ -116,7 +116,7 @@ function test_wrong_reply_charset() {
   msg = select_click_row(0);
   plan_for_new_window("msgcompose");
   mc.click(mc.eid("menu_editMsgAsNew"));
-  let rwc = wait_for_compose_window();
+  rwc = wait_for_compose_window();
   rwc.keypress(null, "s", {shiftKey: false, accelKey: true});
   close_compose_window(rwc);
   msg = select_click_row(0);
@@ -157,7 +157,7 @@ function test_no_mojibake() {
   msg = select_click_row(0);
   plan_for_new_window("msgcompose");
   mc.click(mc.eid("menu_editMsgAsNew"));
-  let rwc = wait_for_compose_window();
+  rwc = wait_for_compose_window();
   rwc.keypress(null, "s", {shiftKey: false, accelKey: true});
   close_compose_window(rwc);
   msg = select_click_row(0);

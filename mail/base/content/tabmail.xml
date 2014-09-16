@@ -808,7 +808,7 @@
 
             // Converting to JSON and back again creates clean javascript
             // object with absolutely no references to our current window.
-            let tab = JSON.parse(JSON.stringify(tab));
+            tab = JSON.parse(JSON.stringify(tab));
 
             this.closeTab(aTab,true);
 

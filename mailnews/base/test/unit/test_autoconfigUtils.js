@@ -242,7 +242,7 @@ function test_getIncomingTryOrder()
                            [POP, NONE, 110]]);
 
   port = 31337;
-  let tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
+  tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[IMAP, TLS, port],
                            [IMAP, SSL, port],

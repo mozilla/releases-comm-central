@@ -566,7 +566,7 @@
           let allFolders = this.toArray(
             this.fixIterator(this.MailServices.accounts.allFolders, Ci.nsIMsgFolder));
 
-          let allFolders = allFolders.filter(function (f) f.canFileMessages);
+          allFolders = allFolders.filter(function (f) f.canFileMessages);
 
           let recentFolders = this.getMostRecentFolders(allFolders,
                                                         this._MAXRECENT,

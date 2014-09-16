@@ -72,7 +72,7 @@ const gTestArray =
     hdrs = [];
     keys = [];
     enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
     do_check_false(localAccountUtils.inboxFolder

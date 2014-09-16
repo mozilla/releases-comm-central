@@ -280,7 +280,7 @@ function test_manual_attachment_reminder() {
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
   mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
-  let cwc = wait_for_compose_window();
+  cwc = wait_for_compose_window();
 
   // Check the reminder enablement was preserved in the message.
   assert_manual_reminder_state(cwc, true);

@@ -107,9 +107,9 @@ function run_test() {
   }
   while (keepGoing);
   do_check_eq(kNumExpectedMatches, matchingHdrs.length);
-  let firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
+  firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
   do_check_eq(firstMatch.messageId, gMessages[12].messageId);
-  let secondMatch = matchingHdrs.queryElementAt(1, Ci.nsIMsgDBHdr);
+  secondMatch = matchingHdrs.queryElementAt(1, Ci.nsIMsgDBHdr);
   do_check_eq(secondMatch.messageId, gMessages[11].messageId);
   let tenthMatch = matchingHdrs.queryElementAt(9, Ci.nsIMsgDBHdr);
   do_check_eq(tenthMatch.messageId, gMessages[1].messageId);

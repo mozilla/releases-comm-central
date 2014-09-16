@@ -109,7 +109,7 @@ function test_image_insertion_dialog_persist() {
   wait_for_window_close();
 
   // Make sure next time we edit it, we still have "use alt text" selected.
-  let img = cwc.e("content-frame").contentDocument.querySelector("img");
+  img = cwc.e("content-frame").contentDocument.querySelector("img");
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
     assert_true(mwc.window.document.getElementById("altTextRadio").selected,
       "We edited the image to make it have alt text, we should keep it selected");

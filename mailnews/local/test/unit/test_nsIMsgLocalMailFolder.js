@@ -204,7 +204,7 @@ function subtest_folder_operations(root) {
   folder.rename("folder1-newname", null);
   // make sure getting the db doesn't throw an exception, and is valid
   folder = rootLocal.getChildNamed("folder1-newname");
-  let db = folder.msgDatabase;
+  db = folder.msgDatabase;
   do_check_true(db.summaryValid);
 
   folder.rename("folder1", null);
@@ -260,7 +260,7 @@ function test_store_rename(root) {
   do_check_true(folder1.containsChildNamed(folder2.name));
   do_check_true(folder2.filePath.exists());
 
-  let folder3 = root.getChildNamed("newfolder3");
+  folder3 = root.getChildNamed("newfolder3");
   root.propagateDelete(folder3, true, null);
   do_check_false(root.containsChildNamed("newfolder3"));
   folder3 = root.createLocalSubfolder("newfolder3");

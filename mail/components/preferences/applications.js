@@ -1439,7 +1439,7 @@ var gApplicationsPane = {
       menuPopup.appendChild(menuItem);
     }
 
-    let menuItem = document.createElement("menuseparator");
+    menuItem = document.createElement("menuseparator");
     menuPopup.appendChild(menuItem);
     menuItem = document.createElement("menuitem");
     menuItem.setAttribute("oncommand", "gApplicationsPane.confirmDelete(event)");

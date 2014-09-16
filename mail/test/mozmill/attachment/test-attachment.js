@@ -38,8 +38,6 @@ var setupModule = function (module) {
   wh.installInto(module);
   let composeHelper = collector.getModule('compose-helpers');
   composeHelper.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
 
   folder = create_folder("AttachmentA");
 

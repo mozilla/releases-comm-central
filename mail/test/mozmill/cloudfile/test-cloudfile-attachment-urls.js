@@ -300,7 +300,7 @@ function test_inserts_linebreak_on_empty_compose_with_signature() {
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
 
   // Now let's try with plaintext mail.
-  let cw = open_compose_new_mail();
+  cw = open_compose_new_mail();
   cw.window.attachToCloud(provider);
   [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
 

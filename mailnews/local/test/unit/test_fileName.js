@@ -80,8 +80,8 @@ function run_test() {
   // a local inbox should have a Mail flag!
   localAccountUtils.inboxFolder.setFlag(Ci.nsMsgFolderFlags.Mail);
 
-  let rootFolder = localAccountUtils.incomingServer.rootMsgFolder;
-  let bugmail = rootFolder.getChildNamed(testFolderName);
+  rootFolder = localAccountUtils.incomingServer.rootMsgFolder;
+  bugmail = rootFolder.getChildNamed(testFolderName);
   do_check_eq(bugmail.getTotalMessages(false), 1);
   bugmail = pop3Root.getChildNamed(testFolderName);
   do_check_eq(bugmail.getTotalMessages(false), 1);
