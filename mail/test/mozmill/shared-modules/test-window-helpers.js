@@ -399,8 +399,8 @@ var WindowWatcher = {
                   "Timeout waiting for window to close!",
       WINDOW_CLOSE_TIMEOUT_MS, WINDOW_CLOSE_CHECK_INTERVAL_MS, this);
     let didDisappear = (this.waitingList.get(this.waitingForClose) == null);
-    this.waitingList.delete(windowType);
     let windowType = this.waitingForClose;
+    this.waitingList.delete(windowType);
     this.waitingForClose = null;
     if (!didDisappear)
       throw new Error(windowType + " window did not disappear!");

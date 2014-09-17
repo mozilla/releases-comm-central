@@ -3282,14 +3282,14 @@
               aDayBox.setAttribute("context", calView.getAttribute("context"));
               aDayBox.setAttribute("item-context", calView.getAttribute("item-context") || calView.getAttribute("context"));
               aDayBox.startLayoutBatchChange();
-              aDayBox.date = d;
+              aDayBox.date = startDate;
               aDayBox.setAttribute("orient", orient);
               aDayBox.calendarView = calView;
               aDayBox.setDayStartEndMinutes(dayStartMin, dayEndMin);
           }
 
           function setUpDayHeaderBox(aDayBox) {
-              aDayBox.date = d;
+              aDayBox.date = startDate;
               aDayBox.calendarView = calView;
               aDayBox.setAttribute("orient", "vertical");
               // Since the calendar-header-container boxes have the same vertical
