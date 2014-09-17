@@ -380,9 +380,15 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist {
+  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
   -moz-appearance: none;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  margin: 0;
   -moz-margin-start: 5px;
   -moz-margin-end: 7px;
+  color: ButtonText;
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
   background-color: rgba(125, 125, 125, .3);
   border: rgba(125, 125, 125, .4) 1px solid;
   transition: background-color .25s ease-in;
@@ -396,8 +402,27 @@ treechildren::-moz-tree-image(subscribed-news) {
   background-color: rgba(125, 125, 125, .4);
 }
 
+.aw-menulist[disabled="true"] {
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
+}
+
 .aw-menulist > .menulist-label-box {
+  -moz-appearance: none;
   margin: -3px 1px;
+  border: 1px solid transparent;
+}
+
+.aw-menulist:focus > .menulist-label-box {
+  border: 1px dotted;
+}
+
+.aw-menulist > .menulist-label-box > .menulist-label {
+  margin: 0 3px !important;
+  text-align: end;
+}
+
+.aw-menulist > .menulist-label-box > .menulist-icon {
+  -moz-margin-start: 2px;
 }
 
 .aw-menulist > dropmarker {

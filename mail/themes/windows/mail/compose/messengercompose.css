@@ -623,21 +623,26 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 .aw-menulist {
   -moz-binding: url("chrome://global/content/bindings/menulist.xml#menulist");
+  -moz-appearance: none;
+  -moz-box-align: center;
+  -moz-box-pack: center;
   -moz-box-align: stretch;
   margin: 0 1px 2px;
   -moz-margin-start: 7px;
   list-style-image: none;
   background-color: rgba(128, 128, 128, .3);
-  border-width: 1px;
-  -moz-border-top-colors: ThreeDShadow;
-  -moz-border-right-colors: ThreeDShadow;
-  -moz-border-bottom-colors: ThreeDShadow;
-  -moz-border-left-colors: ThreeDShadow;
+  border: 1px solid ThreeDShadow;
+  color: ButtonText;
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
   transition: background-color .25s ease-in;
 }
 
 .aw-menulist:hover {
   background-color: rgba(128, 128, 128, .45);
+}
+
+.aw-menulist [disabled="true"] {
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
 }
 
 .aw-menulist:-moz-window-inactive {
@@ -652,6 +657,10 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 .aw-menulist > .menulist-label-box {
   margin: 0;
+}
+
+.aw-menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
+  border: 1px dotted;
 }
 
 /* set the dropmarker at the beginning of the aw-menulist */
@@ -671,6 +680,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 .aw-menulist > .menulist-label-box > .menulist-label {
   margin: 0 1px !important;
+  text-align: end;
 }
 
 /* ::::: format toolbar ::::: */

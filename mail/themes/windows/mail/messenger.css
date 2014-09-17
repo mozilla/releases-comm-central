@@ -31,6 +31,7 @@
 .menu-iconic > .menu-iconic-left,
 .menuitem-iconic > .menu-iconic-left {
   display: -moz-box;
+  padding-top: 0;
 }
 
 #tabbar-toolbar {

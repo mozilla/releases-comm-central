@@ -717,9 +717,12 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist {
+  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
   -moz-appearance: none;
-  -moz-margin-start: 5px;
-  -moz-padding-start: 5px;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  margin: 0;
+  -moz-margin-end: 4px;
   background-color: rgba(200, 200, 200, .4) !important;
   border: rgba(149, 165, 166, 0.3) 1px solid;
   background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat left;
@@ -734,21 +737,11 @@ treechildren::-moz-tree-image(subscribed-news) {
   background-color: rgba(150, 150, 150, .4) !important;
 }
 
-.aw-menulist:-moz-locale-dir(ltr),
-.aw-menulist > .menulist-label-box:-moz-locale-dir(rtl) {
-  direction: rtl;
-}
-
-.aw-menulist:-moz-locale-dir(rtl),
-.aw-menulist > .menulist-label-box:-moz-locale-dir(ltr) {
-  direction: ltr;
-}
-
-.aw-menulist > .menulist-label {
+.aw-menulist  > .menulist-label-box > .menulist-label {
   font: icon;
   margin: 0 1px !important;
   font-size: 10px;
-  text-align: start;
+  text-align: end;
 }
 
 /* ::::: compose toolbar sizer ::::: */
