@@ -488,8 +488,8 @@ function test_disabled_archive() {
   assert_selected_and_displayed(current);
   mc.folderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
 
-  let htmlframe = mc.e("multimessage");
-  let archiveBtn = htmlframe.contentDocument.getElementById("hdrArchiveButton");
+  htmlframe = mc.e("multimessage");
+  archiveBtn = htmlframe.contentDocument.getElementById("hdrArchiveButton");
   assert_true(archiveBtn.collapsed,
               "Multi-message archive button should be disabled when " +
               "archiving is disabled!");

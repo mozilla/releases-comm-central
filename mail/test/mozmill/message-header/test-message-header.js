@@ -485,7 +485,7 @@ function test_more_widget() {
 
   // first test a message with so many addresses that they don't fit in the
   // more widget's tooltip text
-  let msg = select_click_row(0);
+  msg = select_click_row(0);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, msg);
   subtest_more_button_tooltip(msg);

@@ -323,7 +323,7 @@ function checkAllowForHostsWithPerms(test) {
   // Click back one msg, then the original again, which should now allow loading.
   select_click_row(gMsgNo - 1);
   // Select the newly created message.
-  let msgHdr = select_click_row(gMsgNo);
+  msgHdr = select_click_row(gMsgNo);
   assert_equals(msgDbHdr, msgHdr);
   assert_selected_and_displayed(gMsgNo);
 

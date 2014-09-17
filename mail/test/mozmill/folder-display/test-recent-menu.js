@@ -74,7 +74,7 @@ function test_move_message() {
   popups = mc.click_menus_in_sequence(mc.e("mailContext"),
                                       [{id: "mailContext-moveMenu"},
                                        {label: "Recent"}], true);
-  let recentMenu = mc.eid("mailContext-moveMenu")
+  recentMenu = mc.eid("mailContext-moveMenu")
                      .node.querySelector('[label="Recent"]');
   let recentChildren = recentMenu.menupopup.children;
   assert_equals(recentChildren.length, gInitRecentMenuCount + 1,

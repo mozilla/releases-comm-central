@@ -297,7 +297,7 @@ function test_summary_when_multiple_identities() {
 
   // Second half of the test, makes sure MultiMessageSummary groups messages
   // according to their view thread id
-  let thread1 = create_thread(1);
+  thread1 = create_thread(1);
   add_sets_to_folders([folder1], [thread1]);
   be_in_folder(folderVirtual);
   select_shift_click_row(1);

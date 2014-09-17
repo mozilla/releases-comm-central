@@ -137,7 +137,7 @@ var testDailyRecurrence = function () {
       + eventPath));
   
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
-  let event = new mozmill.controller.MozMillController(mozmill.utils
+  event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
   
   event.waitForElement(new elementslib.ID(event.window.document, "item-repeat"));
@@ -197,7 +197,7 @@ var testDailyRecurrence = function () {
   }
   
   // delete event
-  let day = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 1, 5, undefined)
+  day = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 1, 5, undefined)
     + eventPath
   controller.click(new elementslib.Lookup(controller.window.document, day));
   calUtils.handleParentDeletion(controller, false);

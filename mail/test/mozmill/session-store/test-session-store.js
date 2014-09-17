@@ -238,7 +238,7 @@ function test_message_pane_height_persistence() {
   be_in_folder(folderA);
   assert_message_pane_visible();
 
-  let actualHeight = mc.e("messagepaneboxwrapper").boxObject.height;
+  actualHeight = mc.e("messagepaneboxwrapper").boxObject.height;
 
   assert_equals(newHeight, actualHeight,
     "The message pane height should be " + newHeight + ", but is actually " +
@@ -257,7 +257,7 @@ function test_message_pane_height_persistence() {
   be_in_folder(folderA);
   assert_message_pane_visible();
 
-  let actualHeight = mc.e("messagepaneboxwrapper").boxObject.height;
+  actualHeight = mc.e("messagepaneboxwrapper").boxObject.height;
   assert_equals(oldHeight, actualHeight,
     "The message pane height should be " + oldHeight + ", but is actually " +
     actualHeight);
@@ -319,13 +319,13 @@ function test_message_pane_width_persistence() {
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 
-  let actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
   assert_equals(newWidth, actualWidth, "The message pane width should be " +
     newWidth + ", but is actually " + actualWidth);
 
   // The old width is restored.
   _move_splitter(mc.e("threadpane-splitter"), -diffWidth, 0);
-  let actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
 
   // FIXME: For whatever reasons the new width is off by two pixels on Mac OSX
   // But this test case is not for testing moving around a splitter but for
@@ -347,7 +347,7 @@ function test_message_pane_width_persistence() {
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 
-  let actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
   assert_equals(oldWidth, actualWidth, "The message pane width should be " +
     oldWidth + ", but is actually " + actualWidth);
 

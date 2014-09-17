@@ -2088,7 +2088,7 @@
                 snippetWidth * 0.5625,
                 "rgb(255,255,255)");
 
-        var dt = event.dataTransfer;
+        dt = event.dataTransfer;
         dt.setDragImage(thumbnail, 0, 0);
 
         event.stopPropagation();

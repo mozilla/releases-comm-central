@@ -262,7 +262,7 @@ function test_manual_attachment_reminder() {
   wait_for_modal_dialog("commonDialog");
 
   // Open another blank compose window.
-  let cwc = open_compose_new_mail();
+  cwc = open_compose_new_mail();
   // This one should have the reminder disabled.
   assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.

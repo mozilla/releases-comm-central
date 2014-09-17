@@ -574,7 +574,7 @@
 
           // Cache the pretty names so that they do not need to be fetched
           // _MAXRECENT^2 times later.
-          let recentFolders = recentFolders.map(
+          recentFolders = recentFolders.map(
             function (f) { return { folder: f, name: f.prettyName } });
 
           // Because we're scanning across multiple accounts, we can end up with

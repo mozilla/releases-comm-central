@@ -819,7 +819,7 @@ function test_can_pref_off_account_provisioner() {
   mc.click(newMailAccountMenuitem);
 
   // Ensure that the existing email account wizard opened.
-  let wizard = wait_for_new_window("mail:autoconfig");
+  wizard = wait_for_new_window("mail:autoconfig");
 
   // Make sure that the button to open the Account Provisioner dialog is
   // NOT hidden.

@@ -218,7 +218,7 @@ var testTodayPane = function () {
   controller.sleep(WAIT_FOR_WINDOW_TIMEOUT);
 
   // verify tomorrow and soon collapsed
-  let tomorrow = (new elementslib.Lookup(controller.window.document,
+  tomorrow = (new elementslib.Lookup(controller.window.document,
     '/id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/[1]/id("agenda-panel")/'
     + '{"flex":"1"}/id("agenda-listbox")/[1]/anon({"class":"agenda-checkbox"})')).getNode();
   let soon = (new elementslib.Lookup(controller.window.document,

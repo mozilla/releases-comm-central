@@ -33,7 +33,7 @@ function test_qfb_button_moved() {
   // Now make sure that we've got the QFB filter toggle in the mail bar,
   // and that it is placed before the gloda-search and any spring, spacer,
   // or separator items.
-  let currentSet = mc.e("mail-bar3").currentSet;
+  currentSet = mc.e("mail-bar3").currentSet;
   assert_not_equals(-1, currentSet.indexOf("button-tag,qfb-show-filter-bar,spring"),
                 "We didn't find the QFB filter toggle where we should have.");
 }

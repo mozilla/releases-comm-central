@@ -89,7 +89,7 @@ function test_spellcheck_in_content_tabs() {
   // Now check we don't have any suggestionss
   EventUtils.synthesizeMouse(textarea, 5, 5,
                              {type: "contextmenu", button: 2}, w);
-  let suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
+  suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
   assert_true(suggestions.length == 0, "But I just taught you this word!");
   close_popup(mc, eidMailContext);
 }
