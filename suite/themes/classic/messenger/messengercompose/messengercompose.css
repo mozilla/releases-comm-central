@@ -262,6 +262,56 @@ treechildren::-moz-tree-image(subscribed-news) {
   list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.png");
 }
 
+/* ::::: compact menulists ::::: */
+
+.menulist-compact {
+  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
+  -moz-appearance: none;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  margin: 0;
+  border: 2px solid;
+  -moz-border-top-colors: ThreeDHighlight ThreeDLightShadow;
+  -moz-border-right-colors: ThreeDDarkShadow ThreeDShadow;
+  -moz-border-bottom-colors: ThreeDDarkShadow ThreeDShadow;
+  -moz-border-left-colors: ThreeDHighlight ThreeDLightShadow;
+  background-color: ThreeDFace;
+  color: ButtonText;
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+}
+
+.menulist-compact[open="true"] {
+  -moz-border-top-colors: ThreeDDarkShadow ThreeDShadow;
+  -moz-border-right-colors: ThreeDDarkShadow ThreeDHighlight;
+  -moz-border-bottom-colors: ThreeDDarkShadow ThreeDHighlight;
+  -moz-border-left-colors: ThreeDDarkShadow ThreeDShadow;
+}
+
+.menulist-compact[disabled="true"] {
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
+}
+
+.menulist-compact > .menulist-label-box > .menulist-label {
+  margin: 0 3px !important;
+  text-align: end;
+}
+
+.menulist-compact > .menulist-label-box > .menulist-icon {
+  -moz-margin-start: 2px;
+}
+
+.menulist-compact > .menulist-label-box,
+.menulist-compact[open="true"]:focus > .menulist-label-box {
+  -moz-appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+}
+
+.menulist-compact:-moz-focusring > .menulist-label-box {
+  border: 1px dotted;
+}
+
 /* ::::: lightweight themes ::::: */
 
 #MsgHeadersToolbar:-moz-lwtheme,

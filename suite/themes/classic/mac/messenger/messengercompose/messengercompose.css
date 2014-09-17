@@ -221,6 +221,19 @@ treechildren::-moz-tree-image(subscribed-news) {
   list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.png");
 }
 
+/* ::::: compact menulists ::::: */
+
+.menulist-compact {
+  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  margin: 0;
+}
+
+.menulist-compact  > .menulist-label-box > .menulist-label {
+  text-align: end;
+}
+
 /* ::::: lightweight themes ::::: */
 
 #MsgHeadersToolbar:-moz-lwtheme,

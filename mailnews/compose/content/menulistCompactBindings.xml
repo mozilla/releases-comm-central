@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<bindings id="menulistCompactBindings"
+   xmlns="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="menulist-compact" display="xul:menu"
+           extends="chrome://global/content/bindings/menulist.xml#menulist">
+    <content sizetopopup="false">
+      <xul:hbox class="menulist-label-box" flex="1">
+        <xul:image class="menulist-icon" xbl:inherits="src"/>
+        <xul:label class="menulist-label" xbl:inherits="value=label,crop,accesskey" crop="right" flex="1"/>
+      </xul:hbox>
+      <children includes="menupopup"/>
+    </content>
+  </binding>
+
+</bindings>
