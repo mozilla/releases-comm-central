@@ -110,8 +110,7 @@ function set_windows_version(aVersion) {
 /**
  * Encodings to worry about while clearing prefs.
  */
-const kEncodingsToClear = ["x-unicode", "x-western", "x-central-euro",
-                           "x-baltic", "x-cyrillic", "el", "tr"];
+const kEncodingsToClear = ["x-unicode", "x-western", "x-cyrillic", "el"];
 
 /**
  * Pref branches to worry about while clearing prefs.
@@ -151,11 +150,8 @@ function test_migrating_all_prefs(aVerifier) {
   MailMigrator.migrateToClearTypeFonts();
   aVerifier("x-unicode", null);
   aVerifier("x-western", null);
-  aVerifier("x-central-euro", null);
   aVerifier("x-cyrillic", null);
-  aVerifier("x-baltic", null);
   aVerifier("el", null);
-  aVerifier("tr", null);
 }
 
 /**
@@ -180,11 +176,8 @@ function test_not_migrating_serif(aVerifier) {
 
   aVerifier("x-unicode", nonDefaultFonts);
   aVerifier("x-western", null);
-  aVerifier("x-central-euro", null);
   aVerifier("x-cyrillic", null);
-  aVerifier("x-baltic", null);
   aVerifier("el", null);
-  aVerifier("tr", null);
 }
 
 /**
@@ -208,11 +201,8 @@ function test_not_migrating_sans(aVerifier) {
 
   aVerifier("x-unicode", nonDefaultFonts);
   aVerifier("x-western", null);
-  aVerifier("x-central-euro", null);
   aVerifier("x-cyrillic", null);
-  aVerifier("x-baltic", null);
   aVerifier("el", null);
-  aVerifier("tr", null);
 }
 
 /**
@@ -233,11 +223,8 @@ function test_not_migrating_monospace(aVerifier) {
 
   aVerifier("x-unicode", nonDefaultFonts);
   aVerifier("x-western", null);
-  aVerifier("x-central-euro", null);
   aVerifier("x-cyrillic", null);
-  aVerifier("x-baltic", null);
   aVerifier("el", null);
-  aVerifier("tr", null);
 }
 
 /**
@@ -246,9 +233,7 @@ function test_not_migrating_monospace(aVerifier) {
 function test_migrating_non_default_font_sizes(aVerifier) {
   Services.prefs.setIntPref("font.size.variable.x-unicode", 20);
   Services.prefs.setIntPref("font.size.fixed.x-western", 30);
-  Services.prefs.setIntPref("font.size.variable.x-central-euro", 40);
   Services.prefs.setIntPref("font.size.fixed.x-cyrillic", 50);
-  Services.prefs.setIntPref("font.size.variable.x-baltic", 60);
   Services.prefs.setIntPref("font.size.fixed.el", 70);
   Services.prefs.setIntPref("font.size.variable.tr", 80);
 
@@ -256,11 +241,8 @@ function test_migrating_non_default_font_sizes(aVerifier) {
 
   aVerifier("x-unicode", {variableSizeNonMigrated: 20});
   aVerifier("x-western", {fixedSizeNonMigrated: 30});
-  aVerifier("x-central-euro", {variableSizeNonMigrated: 40});
   aVerifier("x-cyrillic", {fixedSizeNonMigrated: 50});
-  aVerifier("x-baltic", {variableSizeNonMigrated: 60});
   aVerifier("el", {fixedSizeNonMigrated: 70});
-  aVerifier("tr", {variableSizeNonMigrated: 80});
 }
 
 /**
@@ -274,11 +256,8 @@ function test_migrate_from_version_1(aVerifier) {
   gNonCTVerifier("x-unicode", null);
   gNonCTVerifier("x-western", null);
   // These character encodings should have been migrated.
-  aVerifier("x-central-euro", null);
   aVerifier("x-cyrillic", null);
-  aVerifier("x-baltic", null);
   aVerifier("el", null);
-  aVerifier("tr", null);
 }
 
 /**
@@ -290,11 +269,8 @@ function test_migrating_at_most_once() {
   MailMigrator.migrateToClearTypeFonts();
   gCTVerifier("x-unicode", null);
   gCTVerifier("x-western", null);
-  gCTVerifier("x-central-euro", null);
   gCTVerifier("x-cyrillic", null);
-  gCTVerifier("x-baltic", null);
   gCTVerifier("el", null);
-  gCTVerifier("tr", null);
 
   // Now reset to defaults, but don't reset the pref that determines whether
   // we've migrated.
@@ -302,21 +278,15 @@ function test_migrating_at_most_once() {
   // Verify that we have all the non-ClearType fonts back.
   gNonCTVerifier("x-unicode", null);
   gNonCTVerifier("x-western", null);
-  gNonCTVerifier("x-central-euro", null);
   gNonCTVerifier("x-cyrillic", null);
-  gNonCTVerifier("x-baltic", null);
   gNonCTVerifier("el", null);
-  gNonCTVerifier("tr", null);
 
   MailMigrator.migrateToClearTypeFonts();
   // Test that the fonts haven't changed.
   gNonCTVerifier("x-unicode", null);
   gNonCTVerifier("x-western", null);
-  gNonCTVerifier("x-central-euro", null);
   gNonCTVerifier("x-cyrillic", null);
-  gNonCTVerifier("x-baltic", null);
   gNonCTVerifier("el", null);
-  gNonCTVerifier("tr", null);
 }
 
 /**
@@ -329,11 +299,8 @@ function test_migrating_at_least_once() {
   MailMigrator.migrateToClearTypeFonts();
   gNonCTVerifier("x-unicode", null);
   gNonCTVerifier("x-western", null);
-  gNonCTVerifier("x-central-euro", null);
   gNonCTVerifier("x-cyrillic", null);
-  gNonCTVerifier("x-baltic", null);
   gNonCTVerifier("el", null);
-  gNonCTVerifier("tr", null);
 
   // Now reset to defaults, but don't reset the pref that determines whether
   // we've migrated.
@@ -346,11 +313,8 @@ function test_migrating_at_least_once() {
   // Test that we get the ClearType fonts.
   gCTVerifier("x-unicode", null);
   gCTVerifier("x-western", null);
-  gCTVerifier("x-central-euro", null);
   gCTVerifier("x-cyrillic", null);
-  gCTVerifier("x-baltic", null);
   gCTVerifier("el", null);
-  gCTVerifier("tr", null);
 }
 
 /**
