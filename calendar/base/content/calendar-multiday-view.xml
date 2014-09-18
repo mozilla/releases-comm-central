@@ -3277,19 +3277,19 @@
           var calView = this;
           var dayStartMin = this.mDayStartMin;
           var dayEndMin = this.mDayEndMin;
-          function setUpDayEventsBox(aDayBox) {
+          function setUpDayEventsBox(aDayBox, date) {
               aDayBox.setAttribute("class", "calendar-event-column-" + (counter % 2 == 0 ? "even" : "odd"));
               aDayBox.setAttribute("context", calView.getAttribute("context"));
               aDayBox.setAttribute("item-context", calView.getAttribute("item-context") || calView.getAttribute("context"));
               aDayBox.startLayoutBatchChange();
-              aDayBox.date = startDate;
+              aDayBox.date = date;
               aDayBox.setAttribute("orient", orient);
               aDayBox.calendarView = calView;
               aDayBox.setDayStartEndMinutes(dayStartMin, dayEndMin);
           }
 
-          function setUpDayHeaderBox(aDayBox) {
-              aDayBox.date = startDate;
+          function setUpDayHeaderBox(aDayBox, date) {
+              aDayBox.date = date;
               aDayBox.calendarView = calView;
               aDayBox.setAttribute("orient", "vertical");
               // Since the calendar-header-container boxes have the same vertical
@@ -3320,7 +3320,7 @@
                   dayEventsBox.setAttribute("flex", "1");
                   daybox.appendChild(dayEventsBox);
               }
-              setUpDayEventsBox(dayEventsBox);
+              setUpDayEventsBox(dayEventsBox, d);
 
               var dayHeaderBox;
               if (counter < headerboxkids.length) {
@@ -3336,7 +3336,7 @@
                   dayHeaderBox.setAttribute("flex", "1");
                   headerdaybox.appendChild(dayHeaderBox);
               }
-              setUpDayHeaderBox(dayHeaderBox);
+              setUpDayHeaderBox(dayHeaderBox, d);
 
               if (0 <= this.mDaysOffArray.indexOf(d.weekday)) {
                   dayEventsBox.dayOff = true;
