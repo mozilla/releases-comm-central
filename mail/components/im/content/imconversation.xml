@@ -59,11 +59,6 @@
        browser.addEventListener("keypress", this.browserKeyPress);
        browser.addEventListener("dblclick", this.browserDblClick.bind(this));
        Services.obs.addObserver(this, "conversation-loaded", false);
-
-       // Avoid the browser property setter as the findbar constructor
-       // hasn't been executed yet. The setter will be called by the
-       // constructor in a setTimeout to setup the proper event listeners.
-       this.findbar._browser = browser;
       ]]>
      </constructor>
 
@@ -1150,6 +1145,8 @@
 
          if (this.tab)
            this.tab.setAttribute("label", this._conv.title);
+
+         this.findbar.browser = browser;
 
          if (!("Status" in window))
            Components.utils.import("resource:///modules/imStatusUtils.jsm");

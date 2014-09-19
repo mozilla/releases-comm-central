@@ -80,7 +80,7 @@ var XULBrowserWindow = {
         aIID.equals(Ci.nsIXULBrowserWindow) ||
         aIID.equals(Ci.nsISupports))
       return this;
-    throw Cr.NS_NOINTERFACE;
+    throw Components.results.NS_NOINTERFACE;
   },
 
   get statusTextField () {
