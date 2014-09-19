@@ -272,7 +272,7 @@ FeedParser.prototype =
       }
 
       // Support <category> and autotagging.
-      let tags = this.childrenByTagNameNS(itemNode, nsURI, "category");
+      tags = this.childrenByTagNameNS(itemNode, nsURI, "category");
       if (tags)
       {
         for (let tag of tags)
