@@ -7,7 +7,6 @@ ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-update-packaging
 ac_add_options --disable-debug
 ac_add_options --enable-tests
-ac_add_options --enable-stdcxx-compat
 
 export LDFLAGS="-DYUV_DISABLE_ASM=1"
 export CFLAGS="-gdwarf-2 -DYUV_DISABLE_ASM=1"
