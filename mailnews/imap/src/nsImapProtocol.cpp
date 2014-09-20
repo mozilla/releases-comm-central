@@ -2537,7 +2537,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
              || m_imapAction == nsIImapUrl::nsImapMsgPreview)
           {
             // multiple messages, fetch them all
-            SetProgressString("imapFolderReceivingMessageOf");
+            SetProgressString("imapFolderReceivingMessageOf2");
 
             m_progressIndex = 0;
             m_progressCount = CountMessagesInIdString(messageIdString.get());
@@ -2957,7 +2957,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
           nsresult rv = m_runningUrl->GetListOfMessageIds(messageIdString);
           if (NS_SUCCEEDED(rv))
           {
-            SetProgressString("imapFolderReceivingMessageOf");
+            SetProgressString("imapFolderReceivingMessageOf2");
             m_progressIndex = 0;
             m_progressCount = CountMessagesInIdString(messageIdString.get());
 
@@ -4201,13 +4201,13 @@ void nsImapProtocol::FolderMsgDump(uint32_t *msgUids, uint32_t msgCount, nsIMAPe
   // lets worry about this progress stuff later.
   switch (fields) {
   case kHeadersRFC822andUid:
-    SetProgressString("imapReceivingMessageHeaders");
+    SetProgressString("imapReceivingMessageHeaders2");
     break;
   case kFlags:
-    SetProgressString("imapReceivingMessageFlags");
+    SetProgressString("imapReceivingMessageFlags2");
     break;
   default:
-    SetProgressString("imapFolderReceivingMessageOf");
+    SetProgressString("imapFolderReceivingMessageOf2");
     break;
   }
 

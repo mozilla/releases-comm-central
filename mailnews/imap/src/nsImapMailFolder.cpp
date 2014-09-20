@@ -8168,7 +8168,7 @@ nsImapMailFolder::CopyStreamMessage(nsIMsgDBHdr* message,
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = bundle->FormatStringFromName(
-        MOZ_UTF16("imapCopyingMessageOf"),
+        MOZ_UTF16("imapCopyingMessageOf2"),
         formatStrings, 3, getter_Copies(progressText));
       nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
       if (m_copyState->m_msgWindow)
