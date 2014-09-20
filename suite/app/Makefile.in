@@ -93,7 +93,7 @@ define _PACKAGE_EXTENSIONS
 @echo "Packaging $(dir).xpi..."
 if test -d "$(ABS_DIST)/$(dir)"; then \
 cd $(ABS_DIST)/$(dir)/; \
-$(ZIP) -r9mX ../$(dir).xpi *; \
+$(ZIP) -r9mX ../$(dir).xpi * -x \*/.mkdir.done; \
 cd ..; rm -rf $(ABS_DIST)/$(dir); \
 fi
 
