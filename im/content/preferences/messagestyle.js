@@ -5,8 +5,7 @@
 let jsProtoHelper = {};
 Components.utils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
 
-function Conversation(aName)
-{
+function Conversation(aName) {
   this._name = aName;
   this._observers = [];
   let now = new Date();
@@ -18,6 +17,14 @@ Conversation.prototype = {
   account: {protocol: {name: "Fake Protocol"},
             alias: "", name: "Fake Account",
             statusInfo: Services.core.globalUserStatus}
+};
+
+function Message(aWho, aMessage, aObject) {
+  this._init(aWho, aMessage, aObject);
+}
+Message.prototype = {
+  __proto__: jsProtoHelper.GenericMessagePrototype,
+  get displayMessage() this.originalMessage
 };
 
 // Message style tooltips use this.
@@ -41,7 +48,6 @@ var previewObserver = {
       msg[aText] = bundle.getString(aText);
     });
     let conv = new Conversation(msg.nick2);
-    const Message = jsProtoHelper.Message;
     conv.messages = [
       new Message(msg.buddy1, msg.message1, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:22"), _conversation: conv}),
       new Message(msg.buddy1, msg.message2, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:25"), _conversation: conv}),
