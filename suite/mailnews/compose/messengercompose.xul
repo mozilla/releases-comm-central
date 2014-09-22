@@ -30,6 +30,8 @@
 %messengerDTD;
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
+<!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+%utilityDTD;
 <!ENTITY % platformCommunicatorDTD SYSTEM
   "chrome://communicator-platform/locale/platformCommunicatorOverlay.dtd">
 %platformCommunicatorDTD;
@@ -171,7 +173,8 @@
       <menuitem label="&renameAttachment.label;"
                 accesskey="&renameAttachment.accesskey;"
                 command="cmd_renameAttachment"/>
-      <menuitem accesskey="&selectAllAttachments.accesskey;"
+      <menuitem label="&selectAllCmd.label;"
+                accesskey="&selectAllAttachments.accesskey;"
                 command="cmd_selectAll"/>
       <menuseparator/>
       <menuitem label="&attachFile.label;"
