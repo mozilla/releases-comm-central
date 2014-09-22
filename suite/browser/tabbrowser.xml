@@ -1001,7 +1001,7 @@
             this.updateUrlBar(newBrowser.webProgress,
                               null,
                               newBrowser.currentURI,
-                              nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT,
+                              0,
                               newBrowser.securityUI,
                               newBrowser,
                               tabListener.mFeeds);
