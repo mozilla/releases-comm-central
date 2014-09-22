@@ -249,6 +249,29 @@ nsImapIncomingServer::SetUsingSubscription(bool bVal)
   return SetBoolValue("using_subscription", bVal);
 }
 
+NS_IMETHODIMP
+nsImapIncomingServer::GetMaximumConnectionsNumber(int32_t *aMaxConnections)
+{
+  NS_ENSURE_ARG_POINTER(aMaxConnections);
+
+  nsresult rv = GetIntValue("max_cached_connections", aMaxConnections);
+  // Get our maximum connection count. We need at least 1. If the value is 0,
+  // we use the default of 5. If it's negative, we treat that as 1.
+  if (NS_SUCCEEDED(rv) && *aMaxConnections > 0)
+    return NS_OK;
+
+  *aMaxConnections = (NS_FAILED(rv) || (*aMaxConnections == 0)) ? 5 : 1;
+  (void)SetMaximumConnectionsNumber(*aMaxConnections);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::SetMaximumConnectionsNumber(int32_t aMaxConnections)
+{
+  return SetIntValue("max_cached_connections", aMaxConnections);
+}
+
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, DualUseFolders,
                         "dual_use_folders")
 
@@ -260,9 +283,6 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, CleanupInboxOnExit,
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, OfflineDownload,
                         "offline_download")
-
-NS_IMPL_SERVERPREF_INT(nsImapIncomingServer, MaximumConnectionsNumber,
-                       "max_cached_connections")
 
 NS_IMPL_SERVERPREF_INT(nsImapIncomingServer, EmptyTrashThreshhold,
                        "empty_trash_threshhold")
@@ -695,18 +715,8 @@ nsImapIncomingServer::GetImapConnection(nsIImapUrl * aImapUrl,
 
   PR_CEnterMonitor(this);
 
-  int32_t maxConnections = 5; // default to be five
-  rv = GetMaximumConnectionsNumber(&maxConnections);
-  if (NS_FAILED(rv) || maxConnections == 0)
-  {
-    maxConnections = 5;
-    rv = SetMaximumConnectionsNumber(maxConnections);
-  }
-  else if (maxConnections < 1)
-  { // forced to use at least 1
-    maxConnections = 1;
-    rv = SetMaximumConnectionsNumber(maxConnections);
-  }
+  int32_t maxConnections;
+  (void)GetMaximumConnectionsNumber(&maxConnections);
 
   int32_t cnt = m_connectionCache.Count();
 

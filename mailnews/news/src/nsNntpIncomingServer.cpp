@@ -446,8 +446,28 @@ nsNntpIncomingServer::CloseCachedConnections()
   return NS_OK;
 }
 
-NS_IMPL_SERVERPREF_INT(nsNntpIncomingServer, MaximumConnectionsNumber,
-                       "max_cached_connections")
+NS_IMETHODIMP
+nsNntpIncomingServer::GetMaximumConnectionsNumber(int32_t *aMaxConnections)
+{
+  NS_ENSURE_ARG_POINTER(aMaxConnections);
+
+  nsresult rv = GetIntValue("max_cached_connections", aMaxConnections);
+  // Get our maximum connection count. We need at least 1. If the value is 0,
+  // we use the default. If it's negative, we treat that as 1.
+  if (NS_SUCCEEDED(rv) && *aMaxConnections > 0)
+    return NS_OK;
+
+  *aMaxConnections = (NS_FAILED(rv) || (*aMaxConnections == 0)) ? 2 : 1;
+  (void)SetMaximumConnectionsNumber(*aMaxConnections);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsNntpIncomingServer::SetMaximumConnectionsNumber(int32_t aMaxConnections)
+{
+  return SetIntValue("max_cached_connections", aMaxConnections);
+}
 
 bool
 nsNntpIncomingServer::ConnectionTimeOut(nsINNTPProtocol* aConnection)
@@ -492,27 +512,13 @@ nsNntpIncomingServer::CreateProtocolInstance(nsINNTPProtocol ** aNntpConnection,
   return rv;
 }
 
-/* By default, allow the user to open at most this many connections to one news host */
-#define kMaxConnectionsPerHost 2
 
 nsresult
 nsNntpIncomingServer::GetNntpConnection(nsIURI * aUri, nsIMsgWindow *aMsgWindow,
                                         nsINNTPProtocol ** aNntpConnection)
 {
-  // Get our maximum connection count. We need at least 1. If the value is 0,
-  // we use the default. If it's negative, we treat that as 1.
-  int32_t maxConnections = kMaxConnectionsPerHost;
-  nsresult rv = GetMaximumConnectionsNumber(&maxConnections);
-  if (NS_FAILED(rv) || maxConnections == 0)
-  {
-    maxConnections = kMaxConnectionsPerHost;
-    SetMaximumConnectionsNumber(maxConnections);
-  }
-  else if (maxConnections < 1)
-  {
-    maxConnections = 1;
-    SetMaximumConnectionsNumber(maxConnections);
-  }
+  int32_t maxConnections;
+  (void)GetMaximumConnectionsNumber(&maxConnections);
 
   // Find a non-busy connection
   nsCOMPtr<nsINNTPProtocol> connection;
@@ -546,7 +552,7 @@ nsNntpIncomingServer::GetNntpConnection(nsIURI * aUri, nsIMsgWindow *aMsgWindow,
   {
     // We have room for another connection. Create this connection and return
     // it to the caller.
-    rv = CreateProtocolInstance(aNntpConnection, aUri, aMsgWindow);
+    nsresult rv = CreateProtocolInstance(aNntpConnection, aUri, aMsgWindow);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   else

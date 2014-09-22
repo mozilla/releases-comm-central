@@ -91,6 +91,16 @@ function run_test() {
   server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
   localserver = setupLocalServer(server.port);
+
+  // Bug 1050840:
+  // Check if invalid value of the max_cached_connections pref
+  // is properly folded into a sane value.
+  localserver.maximumConnectionsNumber = -5;
+  do_check_eq(localserver.maximumConnectionsNumber, 1);
+
+  localserver.maximumConnectionsNumber = 0;
+  do_check_eq(localserver.maximumConnectionsNumber, 2);
+
   localserver.maximumConnectionsNumber = 2;
 
   async_run_tests(tests);
