@@ -7,6 +7,7 @@
 
 #include "msgCore.h" // for pre-compiled headers
 #include "nsCOMPtr.h"
+#include "nsNullPrincipal.h"
 #include <stdio.h>
 #include "nscore.h"
 #include "nsIFactory.h"
@@ -316,9 +317,21 @@ nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *
   nsCOMPtr<nsIURILoader> pURILoader (do_GetService(NS_URI_LOADER_CONTRACTID));
   NS_ENSURE_TRUE(pURILoader, NS_ERROR_FAILURE);
 
+  nsCOMPtr<nsIPrincipal> nullPrincipal =
+    do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<nsIChannel> channel;
-  NS_ENSURE_SUCCESS(NS_NewChannel(getter_AddRefs(channel), aURL, nullptr, nullptr, this), NS_ERROR_FAILURE);
- 
+  rv = NS_NewChannel(getter_AddRefs(channel),
+                     aURL,
+                     nullPrincipal,
+                     nsILoadInfo::SEC_NORMAL,
+                     nsIContentPolicy::TYPE_OTHER,
+                     nullptr, // aChannelPolicy
+                     nullptr, // aLoadGroup
+                     this); // aCallbacks
+  NS_ENSURE_SUCCESS(rv, rv);
+
   return pURILoader->OpenURI(channel, false, this);
 }
 

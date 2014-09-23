@@ -8,6 +8,7 @@
 #include "nsNetUtil.h"
 #include "nsCOMPtr.h"
 #include "nsAutoPtr.h"
+#include "nsNullPrincipal.h"
 #include "nsISupportsPrimitives.h"
 #include "plstr.h"
 #include "nsIDOMWindow.h"
@@ -111,9 +112,19 @@ nsAbContentHandler::HandleContent(const char *aContentType,
     rv = channel->GetURI(getter_AddRefs(uri));
     NS_ENSURE_SUCCESS(rv, rv);
 
+    nsCOMPtr<nsIPrincipal> nullPrincipal =
+      do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     // create a stream loader to handle the v-card data
     nsCOMPtr<nsIStreamLoader> streamLoader;
-    rv = NS_NewStreamLoader(getter_AddRefs(streamLoader), uri, this, aWindowContext);
+    rv = NS_NewStreamLoader(getter_AddRefs(streamLoader),
+                            uri,
+                            this,
+                            nullPrincipal,
+                            nsILoadInfo::SEC_NORMAL,
+                            nsIContentPolicy::TYPE_OTHER,
+                            aWindowContext);
     NS_ENSURE_SUCCESS(rv, rv);
 
   }

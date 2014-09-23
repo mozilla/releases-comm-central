@@ -715,10 +715,19 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
     imapServer->GetIsGMailServer(&m_isGmailServer);
     if (!m_mockChannel)
     {
+
+      nsCOMPtr<nsIPrincipal> nullPrincipal =
+        do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+
       // there are several imap operations that aren't initiated via a nsIChannel::AsyncOpen call on the mock channel.
       // such as selecting a folder. nsImapProtocol now insists on a mock channel when processing a url.
       nsCOMPtr<nsIChannel> channel;
-      rv = NS_NewChannel(getter_AddRefs(channel), aURL, nullptr, nullptr, nullptr, 0);
+      rv = NS_NewChannel(getter_AddRefs(channel),
+                         aURL,
+                         nullPrincipal,
+                         nsILoadInfo::SEC_NORMAL,
+                         nsIContentPolicy::TYPE_OTHER);
       m_mockChannel = do_QueryInterface(channel);
 
       // Certain imap operations (not initiated by the IO Service via AsyncOpen) can be interrupted by  the stop button on the toolbar.
