@@ -185,7 +185,13 @@ var isupportBase = {
         this.userPrefixToModeMap[matches[2][i]] = matches[1][i];
       return true;
     },
-    "SAFELIST": function(aMessage) false,
+    "SAFELIST": function(aMessage) {
+      if (aMessage.isupport.useDefault)
+        delete this._safeList;
+      else
+        this._safeList = true;
+      return true;
+    },
     "STATUSMSG": function(aMessage) false,
     "STD": function(aMessage) {
       // This was never updated as the RFC was never formalized.

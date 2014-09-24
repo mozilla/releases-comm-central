@@ -945,12 +945,17 @@ ircAccount.prototype = {
   // Called by consumers that want a list of available channels, which are
   // provided through the callback (prplIRoomInfoCallback instance).
   requestRoomInfo: function(aCallback, aIsUserRequest) {
-    // Ignore the automaticList pref if the user explicitly requests /list.
-    if (!aIsUserRequest &&
-        !Services.prefs.getBoolPref("chat.irc.automaticList"))
+    let automaticList = Services.prefs.getIntPref("chat.irc.automaticList");
+    // Do not perform an automatic LIST request if:
+    //  1. Automatic LIST is disabled.
+    //  2. Automatic SAFELIST is allowed, and SAFELIST is unset.
+    if (!aIsUserRequest && (!automaticList ||
+                            (automaticList == 1 && !this._safeList)))
       throw Cr.NS_ERROR_NOT_IMPLEMENTED; // Pretend we can't return roomInfo.
+
     if (this._roomInfoCallbacks.has(aCallback)) // Callback is not new.
       return;
+
     // Send a LIST request if the channel list is stale and a current request
     // has not been sent.
     if (this.isRoomInfoStale && !this._pendingList) {
