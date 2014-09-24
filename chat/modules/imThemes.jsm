@@ -381,6 +381,8 @@ const statusMessageReplacements = {
       msgClass.push("delayed");
     if (aMsg.notification)
       msgClass.push("notification");
+    if (aMsg.noFormat)
+      msgClass.push("monospaced");
 
     return msgClass.join(" ");
   }

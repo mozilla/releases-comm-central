@@ -45,3 +45,7 @@
 .ib-nick[left] {
   color: grey;
 }
+
+.monospaced {
+  font-family: monospace;
+}

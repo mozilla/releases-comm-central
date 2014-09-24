@@ -27,10 +27,27 @@ var ircNonStandard = {
   commands: {
     "NOTICE": function(aMessage) {
       // NOTICE <msgtarget> <text>
+
+      // Try to avoid the stupid case where the user's nick is AUTH. If this
+      // happens, it is ambiguous if it is an AUTH message or a NOTICE to the
+      // user. Generally AUTH messages start with ***, but this could pretty
+      // easily be faked.
+      let isAuth = aMessage.params[0] == "AUTH" &&
+                   aMessage.params[1].startsWith("***");
+
+      // Some servers , e.g. irc.umich.edu, use NOTICE before connection to give
+      // directions to users.
+      if (!this.connected && !isAuth) {
+        this.getConversation(aMessage.servername)
+            .writeMessage(aMessage.servername, aMessage.params[1],
+                          {incoming: true});
+        return true;
+      }
+
       // If we receive a ZNC error message requesting a password, the
       // serverPassword preference was not set by the user. Attempt to log into
       // ZNC using the account password.
-      if (aMessage.params[0] != "AUTH" ||
+      if (!isAuth ||
           aMessage.params[1] != "*** You need to send your password. Try /quote PASS <username>:<password>")
         return false;
 
@@ -137,6 +154,14 @@ var ircNonStandard = {
     "671": function(aMessage) { // RPL_WHOISSECURE (Unreal & Charybdis)
       // <nick> :is using a Secure connection
       return this.setWhois(aMessage.params[1], {secure: true});
+    },
+
+    "998": function(aMessage) {
+      // irc.umich.edu shows an ASCII captcha that must be typed in by the user.
+      this.getConversation(aMessage.servername)
+          .writeMessage(aMessage.servername, aMessage.params[1],
+                        {incoming: true, noFormat: true});
+      return true;
     }
   }
 };
