@@ -1028,9 +1028,9 @@ var ircBase = {
     },
     "376": function(aMessage) { // RPL_ENDOFMOTD
       // :End of MOTD command
-      // Show the MOTD if the user wants to see server messages or if RPL_WELCOME has not been
-      // received since some servers (e.g. irc.ppy.sh) use this as a CAPTCHA
-      // like mechanism before login can occur.
+      // Show the MOTD if the user wants to see server messages or if
+      // RPL_WELCOME has not been received since some servers (e.g. irc.ppy.sh)
+      // use this as a CAPTCHA like mechanism before login can occur.
       if (this._showServerTab || !this.connected)
         writeMessage(this, aMessage, this._motd.join("\n"), "incoming");
       // No reason to keep the MOTD in memory.

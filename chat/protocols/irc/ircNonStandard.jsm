@@ -136,6 +136,17 @@ var ircNonStandard = {
       return this.setWhois(aMessage.params[1], {host: host, ip: ip});
     },
 
+    "396": function(aMessage) {
+      // RPL_HOSTHIDDEN (Charybdis, Hybrid, ircu, etc.)
+      // RPL_VISIBLEHOST (Plexus)
+      // RPL_YOURDISPLAYEDHOST (Inspircd)
+      // <host> :is now your hidden host
+
+      // This is the host that will be sent to other users.
+      this.prefix = "!" + aMessage.user + "@" + aMessage.params[1];
+      return true;
+    },
+
     "464": function(aMessage) {
       // :Password required
       // If we receive a ZNC error message requesting a password, eat it since
