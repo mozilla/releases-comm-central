@@ -3579,8 +3579,16 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
                                       &reusable,
                                       getter_AddRefs(outFileStream));
       NS_ENSURE_SUCCESS(rv, rv);
+
+      // Get a msgWindow. Proceed without one, but filter actions to imap folders
+      // will silently fail if not signed in and no window for a prompt.
+      nsCOMPtr<nsIMsgWindow> msgWindow;
+      nsCOMPtr<nsIMsgMailSession> mailSession = do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      if (NS_SUCCEEDED(rv))
+        mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+
       rv = newMailParser->Init(rootFolder, this,
-                               nullptr, newHdr, outFileStream);
+                               msgWindow, newHdr, outFileStream);
 
       uint32_t bytesWritten, messageLen = strlen(aMessages[i]);
       outFileStream->Write(aMessages[i], messageLen, &bytesWritten);
@@ -3589,8 +3597,8 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
       msgStore->FinishNewMessage(outFileStream, newHdr);
       outFileStream->Close();
       outFileStream = nullptr;
-      newMailParser->EndMsgDownload();
       newMailParser->OnStopRequest(nullptr, nullptr, NS_OK);
+      newMailParser->EndMsgDownload();
       hdrArray->AppendElement(newHdr, false);
     }
     NS_ADDREF(*aHdrArray = hdrArray);
