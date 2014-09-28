@@ -780,6 +780,18 @@ function onRemoveAccount(event) {
   else
     serverIndex++;
 
+  // Remove password information.
+  let serverUri = server.type + "://" + server.hostName;
+
+  let logins = Services.logins.findLogins({}, serverUri, null, serverUri);
+
+  for (let i = 0; i < logins.length; i++) {
+    if (logins[i].username == server.username) {
+      Services.logins.removeLogin(logins[i]);
+      break;
+    }
+  }
+
   try {
     let serverId = server.serverURI;
     MailServices.accounts.removeAccount(currentAccount);
