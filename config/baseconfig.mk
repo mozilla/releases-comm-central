@@ -7,8 +7,7 @@ idldir = $(datadir)/idl/$(MOZ_APP_NAME)-$(MOZ_APP_VERSION)
 installdir = $(libdir)/$(MOZ_APP_NAME)-$(MOZ_APP_VERSION)
 sdkdir = $(libdir)/$(MOZ_APP_NAME)-devel-$(MOZ_APP_VERSION)
 MOZILLA_SRCDIR = $(topsrcdir)/mozilla
-MOZDEPTH = $(DEPTH)
-DIST = $(MOZDEPTH)/dist
+DIST = $(DEPTH)/dist
 
 # We do magic with OBJ_SUFFIX in config.mk, the following ensures we don't
 # manually use it before config.mk inclusion

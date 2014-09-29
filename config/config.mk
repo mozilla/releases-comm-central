@@ -207,9 +207,9 @@ endif
 
 OS_CONFIG	:= $(OS_ARCH)$(OS_RELEASE)
 
-FINAL_LINK_LIBS = $(MOZDEPTH)/config/final-link-libs
-FINAL_LINK_COMPS = $(MOZDEPTH)/config/final-link-comps
-FINAL_LINK_COMP_NAMES = $(MOZDEPTH)/config/final-link-comp-names
+FINAL_LINK_LIBS = $(DEPTH)/config/final-link-libs
+FINAL_LINK_COMPS = $(DEPTH)/config/final-link-comps
+FINAL_LINK_COMP_NAMES = $(DEPTH)/config/final-link-comp-names
 
 ifdef _MSC_VER
 CC_WRAPPER ?= $(call py_action,cl)
@@ -538,7 +538,7 @@ endif
 ifndef CROSS_COMPILE
 ifdef USE_ELF_DYNSTR_GC
 ifdef MOZ_COMPONENTS_VERSION_SCRIPT_LDFLAGS
-ELF_DYNSTR_GC 	= $(MOZDEPTH)/config/elf-dynstr-gc
+ELF_DYNSTR_GC 	= $(DEPTH)/config/elf-dynstr-gc
 endif
 endif
 endif

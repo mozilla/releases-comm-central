@@ -17,7 +17,7 @@ include $(topsrcdir)/config/rules.mk
 TARGET_DEPTH = ../..
 include $(MOZILLA_DIR)/build/automation-build.mk
 
-_DEST_DIR = $(MOZDEPTH)/_tests/mozmill
+_DEST_DIR = $(DEPTH)/_tests/mozmill
 
 _HARNESS_FILES = \
 	$(srcdir)/runtest.py \
@@ -65,4 +65,4 @@ PKG_STAGE = $(DIST)/test-stage
 stage-package:
 	$(NSINSTALL) -D $(PKG_STAGE)/mozmill/
 	@(cd $(topsrcdir)/mail/test/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)
-	@(cd $(MOZDEPTH)/_tests/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)
+	@(cd $(DEPTH)/_tests/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)

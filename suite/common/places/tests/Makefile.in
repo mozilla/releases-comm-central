@@ -39,7 +39,7 @@ _BROWSER_FILES = \
     $(NULL)
 
 libs:: $(addprefix chrome/, $(_CHROME_FILES))
-	$(INSTALL) $(foreach f,$^,"$f") $(MOZDEPTH)/_tests/testing/mochitest/chrome/$(relativesrcdir)
+	$(INSTALL) $(foreach f,$^,"$f") $(DEPTH)/_tests/testing/mochitest/chrome/$(relativesrcdir)
 
 libs:: $(addprefix browser/, $(_BROWSER_FILES))
-	$(INSTALL) $(foreach f,$^,"$f") $(MOZDEPTH)/_tests/testing/mochitest/browser/$(relativesrcdir)
+	$(INSTALL) $(foreach f,$^,"$f") $(DEPTH)/_tests/testing/mochitest/browser/$(relativesrcdir)

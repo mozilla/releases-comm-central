@@ -202,8 +202,8 @@ ifdef ENABLE_TESTS
 # mozilla-central does this in testing/xpcshell-tests which means that it is very
 # hard for anyone to specify anything else.
 libs::
-	$(INSTALL) $(topsrcdir)/im/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell
-	cp $(topsrcdir)/im/test/xpcshell.ini $(MOZDEPTH)/_tests/xpcshell/all-test-dirs.list
+	$(INSTALL) $(topsrcdir)/im/test/xpcshell.ini $(DEPTH)/_tests/xpcshell
+	cp $(topsrcdir)/im/test/xpcshell.ini $(DEPTH)/_tests/xpcshell/all-test-dirs.list
 endif
 
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))

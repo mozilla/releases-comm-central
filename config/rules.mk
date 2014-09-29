@@ -1139,7 +1139,7 @@ ifdef MOZBUILD_DERIVED
 # files is handled by SUBSTITUTE_FILES. This includes Makefile.in.
 ifneq ($(SUBSTITUTE_FILES),,)
 $(SUBSTITUTE_FILES): % : $(srcdir)/%.in $(DEPTH)/config/autoconf.mk
-	@$(PYTHON) $(MOZDEPTH)/config.status -n --file=$@
+	@$(PYTHON) $(DEPTH)/config.status -n --file=$@
 	@$(TOUCH) $@
 endif
 
@@ -1147,7 +1147,7 @@ endif
 # rebuild. While relatively expensive, it should only occur once per recursion.
 ifneq ($(BACKEND_INPUT_FILES),,)
 backend.mk: $(BACKEND_INPUT_FILES)
-	@$(PYTHON) $(MOZDEPTH)/config.status -n
+	@$(PYTHON) $(DEPTH)/config.status -n
 	@$(TOUCH) $@
 endif
 
@@ -1208,7 +1208,7 @@ endif
 ifdef XPT_NAME #{
 
 ifndef NO_DIST_INSTALL
-_XPT_NAME_FILES := $(MOZDEPTH)/config/makefiles/xpidl/xpt/$(XPT_NAME)
+_XPT_NAME_FILES := $(DEPTH)/config/makefiles/xpidl/xpt/$(XPT_NAME)
 _XPT_NAME_DEST := $(FINAL_TARGET)/components
 INSTALL_TARGETS += _XPT_NAME
 

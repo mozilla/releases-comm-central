@@ -23,7 +23,7 @@ TREEHYDRA_MODULES = \
 
 DEHYDRA_ARGS = \
   --topsrcdir=$(topsrcdir) \
-  --objdir=$(MOZDEPTH) \
+  --objdir=$(DEPTH) \
   --dehydra-modules=$(subst $(NULL) ,$(COMMA),$(strip $(DEHYDRA_MODULES))) \
   --treehydra-modules=$(subst $(NULL) ,$(COMMA),$(strip $(TREEHYDRA_MODULES))) \
   $(NULL)
