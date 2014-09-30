@@ -668,6 +668,13 @@ calDavCalendar.prototype = {
                     // 204 = HTTP "No Content"
                     cal.LOG("CalDAV: Item added to " + thisCalendar.name + " successfully");
 
+                    let uriComponentParts = thisCalendar.makeUri().path.replace(/\/{2,}/g, "/").split("/").length;
+                    let targetParts = request.URI.path.split("/");
+                    targetParts.splice(0, uriComponentParts - 1);
+
+                    thisCalendar.mItemInfoCache[parentItem.id] = {
+                        locationPath: targetParts.join("/")
+                    };
                     // TODO: onOpComplete adds the item to the cache, probably after getUpdatedItem!
 
                     // Some CalDAV servers will modify items on PUT (add X-props,
