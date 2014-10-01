@@ -20,6 +20,10 @@
     <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   </stringbundleset>
+  
+  <!-- Provide shortcut keys for toolkit's print preview; commands will be overridden by printUtils.js -->
+  <key id="printKb"/>
+  <key id="key_close"/>
 
   <script type="application/javascript"
           src="chrome://global/content/printUtils.js"/>

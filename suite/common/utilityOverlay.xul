@@ -225,6 +225,8 @@
        key="&printCmd.key;"
        command="cmd_print"
        modifiers="accel"/>
+  <key id="printKb"
+       key="&printCmd.key;"/>
 
   <keyset id="findKeys">
     <key id="key_find"
