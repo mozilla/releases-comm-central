@@ -32,7 +32,6 @@
   
     <!-- Edit Menu -->
     <key id="key_redo"  key="&redoCmd.key;" command="cmd_redo" modifiers="accel"/>
-    <menuitem id="menu_findReplace" key="key_findReplace"/>
 
     <!-- Select All Key -->
     <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="alt"/>

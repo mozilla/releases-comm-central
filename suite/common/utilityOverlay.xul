@@ -287,6 +287,7 @@
             command="cmd_find"/>
   <menuitem id="menu_findReplace"
             accesskey="&findReplaceCmd.accesskey;"
+            key="key_findReplace"
             command="cmd_findReplace"/>
   <menuitem id="menu_findNext"
             label="&findAgainCmd.label;"

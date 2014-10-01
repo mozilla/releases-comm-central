@@ -49,6 +49,13 @@
   <!-- Select All Key -->
   <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="accel"/>
 
+  <keyset id="findKeys">
+    <key id="key_findReplace"
+         key="&findReplaceCmd.key;"
+         modifiers="accel,alt"
+         command="cmd_findReplace"/>
+  </keyset>
+
   <!-- Delete Key -->
   <!-- not all Mac keyboards have a VK_DELETE key, so we use VK_BACK as
        the primary and provide VK_DELETE as a secondary key definition -->
