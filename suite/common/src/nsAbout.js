@@ -8,6 +8,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 const SCRIPT = Components.interfaces.nsIAboutModule.ALLOW_SCRIPT;
 const UNTRUSTED = Components.interfaces.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT;
 const HIDE = Components.interfaces.nsIAboutModule.HIDE_FROM_ABOUTABOUT;
+const INDEXEDDB = Components.interfaces.nsIAboutModule.ENABLE_INDEXED_DB;
 
 function About() { }
 About.prototype = {
@@ -35,17 +36,28 @@ About.prototype = {
   classID: Components.ID("{d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}"),
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIAboutModule]),
 
+  getModule: function(aURI) {
+    return aURI.path.replace(/-|\W.*$/g, "").toLowerCase();
+  },
+
   getURIFlags: function(aURI) {
-    return this[aURI.path.replace(/-|\W.*$/g, "").toLowerCase() + "Flags"];
+    return this[this.getModule(aURI) + "Flags"];
   },
 
   newChannel: function(aURI) {
-    var module = aURI.path.replace(/-|\W.*$/g, "").toLowerCase();
+    var module = this.getModule(aURI);
     var channel = Services.io.newChannel(this[module + "URI"], null, null);
     channel.originalURI = aURI;
     if (this[module + "Flags"] & UNTRUSTED)
       channel.owner = null;
     return channel;
+  },
+
+  getIndexedDBOriginPostfix: function(aURI) {
+    if (this.getURIFlags(aURI) & INDEXEDDB) {
+      return this[this.getModule(aURI) + "Postfix"] || null;
+    }
+    throw Components.results.NS_ERROR_ILLEGAL_VALUE;
   }
 };
 
