@@ -394,8 +394,6 @@
 @BINPATH@/components/Identity.manifest
 @BINPATH@/components/jsconsole-clhandler.js
 @BINPATH@/components/jsconsole-clhandler.manifest
-@BINPATH@/components/XULStore.js
-@BINPATH@/components/XULStore.manifest
 @BINPATH@/components/messageWakeupService.js
 @BINPATH@/components/messageWakeupService.manifest
 @BINPATH@/components/NetworkGeolocationProvider.js
@@ -504,6 +502,8 @@
 @BINPATH@/components/Webapps.js
 @BINPATH@/components/Webapps.manifest
 @BINPATH@/components/WebContentConverter.js
+@BINPATH@/components/XULStore.js
+@BINPATH@/components/XULStore.manifest
 
 ; Modules
 @BINPATH@/modules/*
