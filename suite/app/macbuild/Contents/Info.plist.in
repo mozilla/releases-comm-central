@@ -233,5 +233,7 @@
 	</array>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
+	<key>NSDisablePersistence</key>
+	<true/>
 </dict>
 </plist>
