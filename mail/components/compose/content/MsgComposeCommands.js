@@ -2394,6 +2394,8 @@ function ComposeLoad()
     return;
   }
 
+  ToolbarIconColor.init();
+
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("compose-toolbox");
   toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeComposeToolbar"); };
@@ -2418,6 +2420,7 @@ function ComposeUnload()
 
   RemoveMessageComposeOfflineQuitObserver();
   gAttachmentNotifier.shutdown();
+  ToolbarIconColor.uninit();
 
   if (gMsgCompose)
     gMsgCompose.UnregisterStateListener(stateListener);

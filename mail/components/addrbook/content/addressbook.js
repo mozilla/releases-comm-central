@@ -106,6 +106,8 @@ function OnUnloadAddressBook()
 
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
 
+  ToolbarIconColor.uninit();
+
   CloseAbView();
 }
 
@@ -145,6 +147,8 @@ function OnLoadAddressBook()
     document.documentElement.setAttribute("screenX", screen.availLeft);
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
+
+  ToolbarIconColor.init();
 
   if (!chatHandler.ChatCore.initialized)
     chatHandler.ChatCore.init();

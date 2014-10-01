@@ -545,6 +545,7 @@ classic.jar:
   skin/classic/aero/messenger/icons/loading.png                    (mail/icons/loading.png)
   skin/classic/aero/messenger/tagbg.png                            (mail/tagbg.png)
   skin/classic/aero/messenger/icons/download.png                   (mail/icons/download.png)
+  skin/classic/aero/messenger/icons/download-inverted.png          (mail/icons/download-inverted.png)
   skin/classic/aero/messenger/icons/chat-toolbar.png               (mail/icons/chat-toolbar-aero.png)
   skin/classic/aero/messenger/icons/chat-toolbar-inverted.png      (mail/icons/chat-toolbar-aero-inverted.png)
   skin/classic/aero/messenger/icons/status.png                     (mail/icons/status-aero.png)

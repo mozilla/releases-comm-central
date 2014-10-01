@@ -220,6 +220,8 @@ function onLoad() {
     }
     loadDialog(window.calendarItem);
 
+    ToolbarIconColor.init();
+
     opener.setCursor("auto");
 
     document.getElementById("item-title").focus();
@@ -237,6 +239,7 @@ function onLoad() {
 }
 
 function onEventDialogUnload() {
+  ToolbarIconColor.uninit();
   Services.obs.removeObserver(eventDialogQuitObserver,
                               "quit-application-requested");
 }

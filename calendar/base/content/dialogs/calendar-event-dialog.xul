@@ -55,8 +55,10 @@
             src="chrome://global/content/globalOverlay.js"/>
     <script type="application/javascript"
             src="chrome://global/content/printUtils.js"/>
-    <script type="application/javascript" 
+    <script type="application/javascript"
             src="chrome://calendar/content/calendar-statusbar.js"/>
+    <script type="application/javascript"
+            src="chrome://messenger/content/toolbarIconColor.js"/>
 
     <!-- Command updater -->
     <commandset id="globalEditMenuItems"

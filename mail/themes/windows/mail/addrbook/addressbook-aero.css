@@ -35,6 +35,10 @@ toolbar:not(:-moz-lwtheme) {
   counter-reset: smallicons;
 }
 
+#ab-toolbox > toolbar:not([type="menubar"]):-moz-lwtheme {
+  text-shadow: none;
+}
+
 @media (-moz-os-version: windows-vista),
         (-moz-os-version: windows-win7) {
   #ab-toolbox:not(:-moz-lwtheme) {
@@ -268,8 +272,8 @@ toolbox[labelalign="end"] .toolbarbutton-menubutton-button {
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
   }
 
-  .toolbarbutton-1 .toolbarbutton-menu-dropmarker:-moz-lwtheme-brighttext,
-  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-lwtheme-brighttext {
+  toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+  toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
   }
 }
@@ -307,7 +311,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   }
 }
 
-#ab-bar2:-moz-lwtheme-brighttext .toolbarbutton-1 {
+#ab-bar2[brighttext] .toolbarbutton-1 {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-inverted.png");
 }
 

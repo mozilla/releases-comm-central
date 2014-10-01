@@ -44,6 +44,10 @@ toolbar:not(:-moz-lwtheme) {
   counter-reset: smallicons;
 }
 
+#compose-toolbox > toolbar:not([type="menubar"]):-moz-lwtheme {
+  text-shadow: none;
+}
+
 @media (-moz-os-version: windows-vista),
         (-moz-os-version: windows-win7) {
   #compose-toolbox:not(:-moz-lwtheme) {
@@ -361,8 +365,8 @@ toolbox[labelalign="end"] .toolbarbutton-menubutton-button {
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
   }
 
-  .toolbarbutton-1 .toolbarbutton-menu-dropmarker:-moz-lwtheme-brighttext,
-  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-lwtheme-brighttext {
+  toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+  toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
   }
 
@@ -455,7 +459,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   }
 }
 
-#composeToolbar2:-moz-lwtheme-brighttext .toolbarbutton-1 {
+#composeToolbar2[brighttext] .toolbarbutton-1 {
   list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-inverted.png");
 }
 
@@ -484,7 +488,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   -moz-image-region: rect(1px 89px 17px 73px) !important;
 }
 
-#button-security:-moz-lwtheme-brighttext {
+toolbar[brighttext] #button-security {
   list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-inverted.png") !important;
   -moz-image-region: rect(1px 89px 17px 73px) !important;
 }

@@ -82,3 +82,13 @@ toolbar[iconsize="small"] #button-delete.cal-event-toolbarbutton:hover:active {
 #button-timezones {
   -moz-image-region: rect(1px 485px 17px 469px);
 }
+
+toolbar[brighttext] .cal-event-toolbarbutton,
+toolbar[brighttext] #button-delete.cal-event-toolbarbutton,
+toolbar[brighttext] #button-delete.cal-event-toolbarbutton:hover,
+toolbar[brighttext] #button-delete.cal-event-toolbarbutton:hover:active,
+toolbar[brighttext][iconsize="small"] #button-delete.cal-event-toolbarbutton,
+toolbar[brighttext][iconsize="small"] #button-delete.cal-event-toolbarbutton:hover,
+toolbar[brighttext][iconsize="small"] #button-delete.cal-event-toolbarbutton:hover:active {
+  list-style-image: url(chrome://calendar/skin/calendar-event-dialog-toolbar-inverted.png);
+}

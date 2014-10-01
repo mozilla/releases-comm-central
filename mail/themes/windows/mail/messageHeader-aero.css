@@ -135,6 +135,11 @@
   list-style-image: url("chrome://messenger/skin/icons/download.png");
 }
 
+toolbar[brighttext] #attachmentSaveAllSingle,
+toolbar[brighttext] #attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/download-inverted.png");
+}
+
 #attachmentView {
   border-top: 1px solid #A9B7C9; /* The same color as the splitters */
 }
@@ -359,6 +364,15 @@ toolbox[labelalign="end"] toolbar[mode="full"]
 .hdrTagButton {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
   -moz-image-region: rect(1px, 287px, 17px, 271px);
+}
+
+#header-view-toolbox > toolbar[brighttext] .toolbarbutton-1 {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-inverted.png");
+}
+
+toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }
 
 .inline-toolbar toolbarpaletteitem toolbarseparator,
