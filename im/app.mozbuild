@@ -5,12 +5,13 @@
 if not CONFIG['LIBXUL_SDK']:
     include('/toolkit/toolkit.mozbuild')
 
-add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
-
-add_tier_dir('app', 'chat')
+DIRS += [
+    '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
+    '/chat',
+]
 
 # Ensure extensions are built after chat/ so purplexpcom can build.
 if CONFIG['MOZ_EXTENSIONS']:
-    add_tier_dir('app', 'extensions')
+    DIRS += ['extensions']
 
-add_tier_dir('app', 'im')
+DIRS += ['/im']

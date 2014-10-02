@@ -9,14 +9,17 @@ if not CONFIG['LIBXUL_SDK']:
     include('/toolkit/toolkit.mozbuild')
 
 if CONFIG['MOZ_EXTENSIONS']:
-    add_tier_dir('app', 'extensions')
+    DIRS += ['extensions']
 
 if CONFIG['MOZ_COMPOSER']:
-    add_tier_dir('app', 'editor/ui')
+    DIRS += ['/editor/ui']
 
-add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
+DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 
 if CONFIG['MOZ_CALENDAR']:
-    add_tier_dir('app', 'calendar/lightning')
+    DIRS += ['/calendar/lightning']
 
-add_tier_dir('app', ['xpfe/components/autocomplete', 'suite'])
+DIRS += [
+    'xpfe/components/autocomplete',
+    '/suite',
+]

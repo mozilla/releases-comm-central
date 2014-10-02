@@ -5,21 +5,23 @@
 
 include('/mailnews/mailnews.mozbuild')
 
-add_tier_dir('app', 'mail/components')
+DIRS += ['/mail/components']
 
 if not CONFIG['LIBXUL_SDK']:
     include('/toolkit/toolkit.mozbuild')
 
 if CONFIG['MOZ_EXTENSIONS']:
-    add_tier_dir('app', 'extensions')
+    DIRS += ['extensions']
 
-add_tier_dir('app', CONFIG['MOZ_BRANDING_DIRECTORY'])
+DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 
 if CONFIG['MOZ_COMPOSER']:
-    add_tier_dir('app', 'editor/ui')
+    DIRS += ['/editor/ui']
 
 if CONFIG['MOZ_CALENDAR']:
-    add_tier_dir('app', 'calendar/lightning')
+    DIRS += ['/calendar/lightning']
 
-add_tier_dir('app', 'chat')
-add_tier_dir('app', 'mail')
+DIRS += [
+    '/chat',
+    '/mail',
+]
