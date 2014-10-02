@@ -150,13 +150,13 @@ function onEditVirtualFolderPropertiesCallback(aVirtualFolderURI)
 }
 
 
-function MsgFolderProperties() 
+function MsgFolderProperties()
 {
   let msgFolder = GetMsgFolderFromUri(GetSelectedFolderURI(), true);
 
   // if a server is selected, view settings for that account
   if (msgFolder.isServer) {
-    MsgAccountManager(null);
+    MsgAccountManager(null, msgFolder.server);
     return;
   }
 

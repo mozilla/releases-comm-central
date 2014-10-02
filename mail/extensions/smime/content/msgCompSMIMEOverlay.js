@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource:///modules/mailServices.js");
 
 // Account encryption policy values:
 // const kEncryptionPolicy_Never = 0;
@@ -102,15 +103,9 @@ function smimeComposeOnUnload()
   top.controllers.removeController(SecurityController);
 }
 
-// stub routine to make our call to MsgAccountManager work correctly
-function GetSelectedFolderURI()
+function GetServer()
 {
-  return;
-}
-
-function GetServer(uri)
-{
-  let servers = gAccountManager.getServersForIdentity(gCurrentIdentity);
+  let servers = MailServices.accounts.getServersForIdentity(gCurrentIdentity);
   return servers.queryElementAt(0, Components.interfaces.nsIMsgIncomingServer);
 }
 
@@ -127,7 +122,7 @@ function showNeedSetupInfo()
                               compSmimeBundle.getString("NeedSetup"),
                               Services.prompt.STD_YES_NO_BUTTONS, 0, 0, 0, null, {});
   if (buttonPressed == 0)
-    MsgAccountManager("am-smime.xul");
+    MsgAccountManager("am-smime.xul", GetServer());
 }
 
 function toggleEncryptMessage()

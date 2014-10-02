@@ -449,7 +449,11 @@ var defaultController =
       case "cmd_print"              : PrintUtils.print(); break;
 
       //Edit Menu
-      case "cmd_account"            : MsgAccountManager(null); break;
+      case "cmd_account"            :
+        let currentAccountKey = getCurrentAccountKey();
+        let account = gAccountManager.getAccount(currentAccountKey);
+        MsgAccountManager(null, account.incomingServer);
+        break;
       case "cmd_preferences"        : DoCommandPreferences(); break;
 
       //Options Menu

@@ -649,7 +649,9 @@ var defaultController = {
         return true;
       },
       doCommand: function() {
-        MsgAccountManager(null);
+        let currentAccountKey = getCurrentAccountKey();
+        let account = MailServices.accounts.getAccount(currentAccountKey);
+        MsgAccountManager(null, account.incomingServer);
       }
     },
 

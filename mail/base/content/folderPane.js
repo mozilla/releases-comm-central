@@ -2297,7 +2297,7 @@ let gFolderTreeController = {
 
     // If this is actually a server, send it off to that controller
     if (folder.isServer) {
-      MsgAccountManager(null);
+      MsgAccountManager(null, folder.server);
       return;
     }
 

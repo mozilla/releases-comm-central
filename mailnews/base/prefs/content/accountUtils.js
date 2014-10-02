@@ -222,26 +222,40 @@ function AddFeedAccount() {
                     "", "chrome,modal,titlebar,centerscreen");
 }
 
-// selectPage: the xul file name for the viewing page,
-// null for the account main page, other pages are
-// 'am-server.xul', 'am-copies.xul', 'am-offline.xul',
-// 'am-addressing.xul', 'am-smtp.xul'
-function MsgAccountManager(selectPage)
+/**
+ * Opens the account settings window on the specified account
+ * and page of settings. If the window is already open it is only focused.
+ *
+ * @param selectPage  The xul file name for the viewing page or
+ *                    null for the account main page. Other pages are
+ *                    'am-server.xul', 'am-copies.xul', 'am-offline.xul',
+ *                    'am-addressing.xul', 'am-smtp.xul'
+ * @param  aServer    The server of the account to select. Optional.
+ */
+function MsgAccountManager(selectPage, aServer)
 {
     var existingAccountManager = Services.wm.getMostRecentWindow("mailnews:accountmanager");
 
     if (existingAccountManager)
         existingAccountManager.focus();
     else {
-        try {
-            var server = GetSelectedMsgFolders()[0] || GetDefaultAccountRootFolder();
-            server = server.server;
-        } catch (ex) { /* functions might not be defined */}
+        if (!aServer) {
+          if (typeof GetSelectedMsgFolders === "function") {
+            let folders = GetSelectedMsgFolders();
+            if (folders.length > 0)
+              aServer = folders[0].server;
+          }
+          if (!aServer && (typeof GetDefaultAccountRootFolder === "function")) {
+            let folder = GetDefaultAccountRootFolder();
+            if (folder instanceof Components.interfaces.nsIMsgFolder)
+              aServer = folder.server;
+          }
+        }
 
         window.openDialog("chrome://messenger/content/AccountManager.xul",
                           "AccountManager",
                           "chrome,centerscreen,modal,titlebar,resizable",
-                          { server: server, selectPage: selectPage });
+                          { server: aServer, selectPage: selectPage });
     }
 }
 
