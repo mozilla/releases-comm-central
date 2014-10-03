@@ -12,6 +12,6 @@ DIRS += [
 
 # Ensure extensions are built after chat/ so purplexpcom can build.
 if CONFIG['MOZ_EXTENSIONS']:
-    DIRS += ['extensions']
+    DIRS += ['/extensions']
 
 DIRS += ['/im']

@@ -9,7 +9,7 @@ if not CONFIG['LIBXUL_SDK']:
     include('/toolkit/toolkit.mozbuild')
 
 if CONFIG['MOZ_EXTENSIONS']:
-    DIRS += ['extensions']
+    DIRS += ['/extensions']
 
 if CONFIG['MOZ_COMPOSER']:
     DIRS += ['/editor/ui']
@@ -20,6 +20,6 @@ if CONFIG['MOZ_CALENDAR']:
     DIRS += ['/calendar/lightning']
 
 DIRS += [
-    'xpfe/components/autocomplete',
+    '/xpfe/components/autocomplete',
     '/suite',
 ]
