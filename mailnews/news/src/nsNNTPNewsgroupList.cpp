@@ -650,6 +650,9 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter, nsIMsgW
     nsMsgRuleActionType actionType;
     if (NS_SUCCEEDED(filterAction->GetType(&actionType)))
     {
+      if (loggingEnabled)
+        (void) aFilter->LogRuleHit(filterAction, m_newMsgHdr);
+
       switch (actionType)
       {
       case nsMsgFilterAction::Delete:
@@ -737,9 +740,6 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter, nsIMsgW
         NS_ERROR("unexpected action");
         break;
       }
-
-      if (loggingEnabled)
-        (void) aFilter->LogRuleHit(filterAction, m_newMsgHdr);
     }
   }
   return NS_OK;

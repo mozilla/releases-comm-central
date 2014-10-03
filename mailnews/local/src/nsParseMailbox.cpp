@@ -1990,6 +1990,9 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
     nsMsgRuleActionType actionType;
     if (NS_SUCCEEDED(filterAction->GetType(&actionType)))
     {
+      if (loggingEnabled)
+        (void)filter->LogRuleHit(filterAction, msgHdr);
+
       nsCString actionTargetFolderUri;
       if (actionType == nsMsgFilterAction::MoveToFolder ||
           actionType == nsMsgFilterAction::CopyToFolder)
@@ -2043,9 +2046,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
             NS_ENSURE_TRUE(m_moveCoalescer, NS_ERROR_OUT_OF_MEMORY);
             nsMsgKey msgKey;
             (void) msgHdr->GetMessageKey(&msgKey);
-            m_moveCoalescer->AddMove(destIFolder , msgKey);
-            if (loggingEnabled)
-              (void)filter->LogRuleHit(filterAction, msgHdr);
+            m_moveCoalescer->AddMove(destIFolder, msgKey);
             err = NS_OK;
             msgIsNew = false;
           }
@@ -2059,11 +2060,6 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
               err = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
                                             filter, msgWindow);
             m_msgMovedByFilter = NS_SUCCEEDED(err);
-            if (m_msgMovedByFilter)
-            {
-              if (loggingEnabled)
-                (void)filter->LogRuleHit(filterAction, msgHdr);
-            }
           }
         }
         *applyMore = false;
@@ -2247,8 +2243,6 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
       default:
         break;
       }
-      if (loggingEnabled && actionType != nsMsgFilterAction::MoveToFolder && actionType != nsMsgFilterAction::Delete)
-        (void)filter->LogRuleHit(filterAction, msgHdr);
     }
   }
   if (!msgIsNew)
@@ -2424,6 +2418,10 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream *fileStream,
   return store->FinishNewMessage(destOutputStream, aHdr);
 }
 
+/*
+ * Moves message pointed to by mailHdr into folder destIFolder.
+ * After successful move mailHdr is no longer usable by the caller.
+ */
 nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
                                                       nsIMsgDatabase *sourceDB,
                                                       nsIMsgFolder *destIFolder,

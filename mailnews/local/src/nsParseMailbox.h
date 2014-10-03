@@ -234,7 +234,6 @@ protected:
                                           nsIMsgWindow *msgWindow);
   virtual void     MarkFilteredMessageRead(nsIMsgDBHdr *msgHdr);
   virtual void     MarkFilteredMessageUnread(nsIMsgDBHdr *msgHdr);
-  void             LogRuleHit(nsIMsgFilter *filter, nsIMsgDBHdr *msgHdr);
 
   nsCOMPtr <nsIMsgFilterList> m_filterList;
   nsCOMPtr <nsIMsgFilterList> m_deferredToServerFilterList;

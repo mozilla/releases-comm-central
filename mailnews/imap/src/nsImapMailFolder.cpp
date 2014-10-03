@@ -3460,6 +3460,9 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
     nsMsgRuleActionType actionType;
     if (NS_SUCCEEDED(filterAction->GetType(&actionType)))
     {
+      if (loggingEnabled)
+        (void) filter->LogRuleHit(filterAction, msgHdr);
+
       nsCString actionTargetFolderUri;
       if (actionType == nsMsgFilterAction::MoveToFolder ||
           actionType == nsMsgFilterAction::CopyToFolder)
@@ -3756,13 +3759,6 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
 
         default:
           break;
-      }
-      if (loggingEnabled)
-      {
-        // only log if successful move, or non-move action
-        if (m_msgMovedByFilter || (actionType != nsMsgFilterAction::MoveToFolder &&
-             (actionType != nsMsgFilterAction::Delete || !deleteToTrash)))
-          (void) filter->LogRuleHit(filterAction, msgHdr);
       }
     }
   }
