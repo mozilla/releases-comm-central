@@ -6,6 +6,10 @@ ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-update-packaging
 ac_add_options --enable-jemalloc
 
+# Windows 8 SDK is required for gamepad support
+# 1006630
+ac_add_options --disable-gamepad
+
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
