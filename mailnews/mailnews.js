@@ -702,6 +702,11 @@ pref("mailnews.labels.color.3", "#009900"); // default: green
 pref("mailnews.labels.color.4", "#3333FF"); // default: blue
 pref("mailnews.labels.color.5", "#993399"); // default: purple
 
+// Whether the colors from tags should be applied only to the message(s)
+// actually tagged, or also to any collapsed threads which contain tagged
+// messages.
+pref("mailnews.display_reply_tag_colors_for_collapsed_threads", true);
+
 //default null headers
 //example "X-Warn: XReply", list of hdrs separated by ": "
 pref("mailnews.customHeaders", "");

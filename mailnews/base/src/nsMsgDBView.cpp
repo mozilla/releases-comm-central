@@ -732,15 +732,21 @@ nsresult nsMsgDBView::FetchKeywords(nsIMsgDBHdr *aHdr, nsACString &keywordString
   return NS_OK;
 }
 
-// If the row is a collapsed thread, we roll-up the keywords in all the
-// messages in the thread, otherwise, return just the keywords for the row.
+// If the row is a collapsed thread, we optionally roll-up the keywords in all
+// the messages in the thread, otherwise, return just the keywords for the row.
 nsresult nsMsgDBView::FetchRowKeywords(nsMsgViewIndex aRow, nsIMsgDBHdr *aHdr,
                                        nsACString &keywordString)
 {
   nsresult rv = FetchKeywords(aHdr,keywordString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)
+  bool cascadeKeywordsUp = true;
+  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
+  prefs->GetBoolPref("mailnews.display_reply_tag_colors_for_collapsed_threads",
+                     &cascadeKeywordsUp);
+
+  if ((m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) &&
+      cascadeKeywordsUp)
   {
     if ((m_flags[aRow] & MSG_VIEW_FLAG_ISTHREAD)
         && (m_flags[aRow] & nsMsgMessageFlags::Elided))
