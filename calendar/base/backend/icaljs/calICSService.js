@@ -30,19 +30,22 @@ calIcalProperty.prototype = {
     get parent() this.innerObject.parent,
     toString: function() this.innerObject.toICAL(),
 
-    get value() {
+    get value() this.innerObject.getValues().join(","),
+    set value(val) {
+        this.innerObject.setValue(val);
+        return val;
+    },
+
+    get valueAsIcalString() {
         let type = this.innerObject.type;
         function stringifyValue(x) ICAL.stringify.value(x.toString(), type);
         return this.innerObject.getValues().map(stringifyValue).join(",");
     },
-    set value(val) {
+    set valueAsIcalString(val) {
         var icalval = ICAL.parse._parseValue(val, this.innerObject.type);
         this.innerObject.setValue(icalval);
         return val;
     },
-
-    get valueAsIcalString() this.value,
-    set valueAsIcalString(val) this.value = val,
 
     get valueAsDatetime() {
         let val = this.innerObject.getFirstValue();

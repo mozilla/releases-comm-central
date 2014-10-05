@@ -106,6 +106,11 @@ function test_icsservice() {
               { value: "http://example.com/test.ics", propertyName: "ATTACH" },
               { ENCODING: "BASE64", FMTTYPE: "text/calendar", FILENAME: "test.ics" });
 
+    checkProp(svc.createIcalPropertyFromString.bind(svc),
+              "DESCRIPTION:new\\nlines\\nare\\ngreat\\,eh?",
+              { value: "new\nlines\nare\ngreat,eh?",
+                valueAsIcalString: "new\\nlines\\nare\\ngreat\\,eh?" }, {});
+
     // Test ::createIcalProperty
     let attach2 = svc.createIcalProperty("ATTACH");
     do_check_eq(attach2.propertyName, "ATTACH");
@@ -121,6 +126,24 @@ function test_icalproperty() {
 
     comp.addProperty(prop);
     do_check_eq(prop.parent.toString(), comp.toString());
+    do_check_eq(prop.valueAsDatetime, null);
+
+    prop = svc.createIcalProperty("PROP");
+    prop.value = "A\nB";
+    do_check_eq(prop.value, "A\nB");
+    do_check_eq(prop.valueAsIcalString, "A\\nB");
+    do_check_eq(prop.valueAsDatetime, null);
+
+    prop = svc.createIcalProperty("PROP");
+    prop.valueAsIcalString = "A\\nB";
+    do_check_eq(prop.value, "A\nB");
+    do_check_eq(prop.valueAsIcalString, "A\\nB");
+    do_check_eq(prop.valueAsDatetime, null);
+
+    prop = svc.createIcalProperty("PROP");
+    prop.value = "A\\nB";
+    do_check_eq(prop.value, "A\\nB");
+    do_check_eq(prop.valueAsIcalString, "A\\\\nB");
     do_check_eq(prop.valueAsDatetime, null);
 }
 
