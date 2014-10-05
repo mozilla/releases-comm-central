@@ -252,20 +252,8 @@ var gPluginHandler = {
         break;
 
       case "PluginNotFound":
-        // For non-object plugin tags, register a click handler to install the
-        // plugin. Object tags can, and often do, deal with that themselves,
-        // so don't stomp on the page developers toes.
-        if (!(plugin instanceof HTMLObjectElement)) {
-          // We don't yet check to see if there's actually an installer available.
-          let installStatus = this.getPluginUI(plugin, "installStatus");
-          installStatus.setAttribute("status", "ready");
-          let iconStatus = this.getPluginUI(plugin, "icon");
-          iconStatus.setAttribute("status", "ready");
-
-          let installLink = this.getPluginUI(plugin, "installPluginLink");
-          self.addLinkClickCallback(installLink, "installSinglePlugin", plugin);
-        }
-        /* FALLTHRU */
+        // NOP. Plugin finder service (PFS) is dead.
+        break;
 
       case "PluginBlocklisted":
       case "PluginOutdated":
@@ -298,32 +286,12 @@ var gPluginHandler = {
     }
   },
 
-  newPluginInstalled : function ph_newPluginInstalled(event) {
+  newPluginInstalled : function(event) {
     // browser elements are anonymous so we can't just use target.
     var browser = event.originalTarget;
 
-    // clear the plugin list, now that at least one plugin has been installed
-    browser.missingPlugins = null;
-
-    var notificationBox = getNotificationBox(browser.contentWindow);
-    var notification = notificationBox.getNotificationWithValue("missing-plugins");
-    if (notification)
-      notificationBox.removeNotification(notification);
-
     // reload the browser to make the new plugin show.
     browser.reload();
-  },
-
-  // Callback for user clicking on a missing (unsupported) plugin.
-  installSinglePlugin: function ph_installSinglePlugin(plugin) {
-    var missingPluginsArray = {};
-
-    var pluginInfo = getPluginInfo(plugin);
-    missingPluginsArray[pluginInfo.mimetype] = pluginInfo;
-
-    openDialog("chrome://mozapps/content/plugins/pluginInstallerWizard.xul",
-               "PFSWindow", "chrome,centerscreen,resizable=yes",
-               {plugins: missingPluginsArray, browser: getBrowser});
   },
 
   // Callback for user clicking on a disabled plugin
@@ -362,27 +330,20 @@ var gPluginHandler = {
                                    background: false});
   },
 
-  // event listener for missing/blocklisted/outdated/carbonFailure plugins.
-  pluginUnavailable: function ph_pluginUnavailable(plugin, eventType) {
+  // Event listener for blocklisted/outdated/carbonFailure plugins.
+  pluginUnavailable: function(plugin, eventType) {
     let Cc = Components.classes;
     let Ci = Components.interfaces;
     var tabmail = document.getElementById('tabmail');
     let browser = tabmail.getBrowserForDocument(plugin.ownerDocument
                                                 .defaultView).browser;
 
-    if (!browser.missingPlugins)
-      browser.missingPlugins = {};
-
-    var pluginInfo = getPluginInfo(plugin);
-    browser.missingPlugins[pluginInfo.mimetype] = pluginInfo;
-
     var notificationBox = getNotificationBox(browser.contentWindow);
 
     // Should only display one of these warnings per page.
-    // In order of priority, they are: outdated > missing > blocklisted
+    // In order of priority, they are: outdated > blocklisted
     let outdatedNotification = notificationBox.getNotificationWithValue("outdated-plugins");
     let blockedNotification  = notificationBox.getNotificationWithValue("blocked-plugins");
-    let missingNotification  = notificationBox.getNotificationWithValue("missing-plugins");
 
     function showBlocklistInfo() {
       var url = formatURL("extensions.blocklist.detailsURL", true);
@@ -397,17 +358,6 @@ var gPluginHandler = {
       tabmail.openTab("contentTab", {contentPage: url,
                                      background: false});
       return true;
-    }
-
-    function showPluginsMissing() {
-      // get the urls of missing plugins
-      var curBrowser = tabmail.getBrowserForSelectedTab();
-      var missingPluginsArray = curBrowser.missingPlugins;
-      if (missingPluginsArray) {
-        openDialog("chrome://mozapps/content/plugins/pluginInstallerWizard.xul",
-                   "PFSWindow", "chrome,centerscreen,resizable=yes",
-                   {plugins: missingPluginsArray, browser: curBrowser});
-      }
     }
 
 #ifdef XP_MACOSX
@@ -459,17 +409,6 @@ var gPluginHandler = {
           callback: showOutdatedPluginsInfo
         }],
       },
-      PluginNotFound: {
-        barID: "missing-plugins",
-        iconURL: "chrome://mozapps/skin/plugins/notifyPluginGeneric.png",
-        message: messengerBundle.getString("missingpluginsMessage.title"),
-        buttons: [{
-          label: messengerBundle.getString("missingpluginsMessage.button.label"),
-          accessKey: messengerBundle.getString("missingpluginsMessage.button.accesskey"),
-          popup: null,
-          callback: showPluginsMissing
-        }],
-      },
 #ifdef XP_MACOSX
       "npapi-carbon-event-model-failure": {
         barID: "carbon-failure-plugins",
@@ -484,7 +423,6 @@ var gPluginHandler = {
       }
 #endif
     };
-
 
     // If there is already an outdated plugin notification then do nothing
     if (outdatedNotification)
@@ -509,33 +447,19 @@ var gPluginHandler = {
 #endif
 
     if (eventType == "PluginBlocklisted") {
-      if (Services.prefs.getBoolPref("plugins.hide_infobar_for_missing_plugin"))
-        return;
-
-      if (blockedNotification || missingNotification)
+      if (blockedNotification)
         return;
     }
     else if (eventType == "PluginOutdated") {
       if (Services.prefs.getBoolPref("plugins.hide_infobar_for_outdated_plugin"))
         return;
 
-      // Cancel any notification about blocklisting/missing plugins
+      // Cancel any notification about blocklisting plugins.
       if (blockedNotification)
         blockedNotification.close();
-      if (missingNotification)
-        missingNotification.close();
     }
     else if (eventType == "PluginNotFound") {
-      if (Services.prefs.getBoolPref("plugins.hide_infobar_for_missing_plugin"))
-        return;
-
-
-      if (missingNotification)
-        return;
-
-      // Cancel any notification about blocklisting plugins
-      if (blockedNotification)
-        blockedNotification.close();
+      return;
     }
 
     let notify = notifications[eventType];
