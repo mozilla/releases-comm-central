@@ -2380,21 +2380,24 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
     }
   }
 
-  if (aCharset.IsEmpty()) {
-    // no charset detected, default to the system charset
-    nsCOMPtr<nsIPlatformCharset> platformCharset =
-      do_GetService(NS_PLATFORMCHARSET_CONTRACTID, &rv);
-    if (NS_SUCCEEDED(rv)) {
-      rv = platformCharset->GetCharset(kPlatformCharsetSel_PlainTextInFile,
-                                       aCharset);
+  if (aCharset.IsEmpty()) { // No sniffed or charset.
+    nsAutoCString buffer;
+    nsCOMPtr<nsILineInputStream> lineInputStream =
+      do_QueryInterface(inputStream, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    bool isMore = true;
+    bool isUTF8Compat = true;
+    while (isMore && isUTF8Compat &&
+           NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore))) {
+      isUTF8Compat = MsgIsUTF8(buffer);
     }
-  }
 
-  if (aCharset.IsEmpty()) {
-    // no sniffed or default charset, try UTF-8
-    aCharset.AssignLiteral("UTF-8");
+    // If the file content is UTF-8 compatible, use that. Otherwise let's not
+    // make a bad guess.
+    if (isUTF8Compat)
+      aCharset.AssignLiteral("UTF-8");
   }
-
   return NS_OK;
 }
 

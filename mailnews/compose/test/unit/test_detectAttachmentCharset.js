@@ -16,10 +16,11 @@ function checkAttachmentCharset(expectedCharset) {
 
 function getContentCharset(aContent) {
   let found = aContent.match(/^Content-Type: text\/plain; charset=(.*?);/);
-  do_check_neq(found, null);
-  do_check_eq(found.length, 2);
-
-  return found[1];
+  if (found) {
+    do_check_eq(found.length, 2);
+    return found[1];
+  }
+  return null;
 }
 
 function *testUTF8() {
@@ -39,7 +40,7 @@ function *testUTF16LE() {
 
 function *testShiftJIS() {
   yield createMessage(do_get_file("data/test-SHIFT_JIS.txt"));
-  checkAttachmentCharset("Shift_JIS");
+  checkAttachmentCharset(null); // do not detect SHIFT_JIS in this file anymore
 }
 
 var tests = [
