@@ -1464,7 +1464,7 @@ calDavCalendar.prototype = {
     firstInRealm: function caldav_firstInRealm() {
         var calendars = getCalendarManager().getCalendars({});
         for (var i = 0; i < calendars.length ; i++) {
-            if (calendars[i].type != "caldav") {
+            if (calendars[i].type != "caldav" || calendars[i].getProperty("disabled")) {
                 continue;
             }
             // XXX We should probably expose the inner calendar via an
