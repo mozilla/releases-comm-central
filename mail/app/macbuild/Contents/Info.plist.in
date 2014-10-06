@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>%MAC_APP_NAME% %APP_VERSION%</string>
 	<key>CFBundleIconFile</key>
-	<string>thunderbird</string>
+	<string>thunderbird.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.mozilla.%LOWER_MAC_APP_NAME%</string>
 	<key>CFBundleInfoDictionaryVersion</key>

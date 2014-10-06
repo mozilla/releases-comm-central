@@ -1,0 +1,8 @@
+/*.app/***
+/*.dylib
+/certutil
+/thunderbird-bin
+/pk12util
+/ssltunnel
+/xpcshell
+/XUL
