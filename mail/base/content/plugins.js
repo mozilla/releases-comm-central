@@ -454,7 +454,7 @@ var gPluginHandler = {
       if (Services.prefs.getBoolPref("plugins.hide_infobar_for_outdated_plugin"))
         return;
 
-      // Cancel any notification about blocklisting plugins.
+      // Cancel any notification about blocklisted plugins.
       if (blockedNotification)
         blockedNotification.close();
     }
