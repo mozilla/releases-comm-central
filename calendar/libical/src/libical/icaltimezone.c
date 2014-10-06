@@ -1332,7 +1332,9 @@ icaltimezone_free_builtin_timezones(void)
 icaltimezone*
 icaltimezone_get_builtin_timezone	(const char *location)
 {
+#ifndef NO_ZONES_TAB
     icalcomponent *comp;
+#endif
     icaltimezone *zone;
     unsigned int lower;
     const char *zone_location;

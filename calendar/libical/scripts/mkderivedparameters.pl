@@ -265,7 +265,7 @@ void icalparameter_set_${lc}(icalparameter* param, ${type} v)
    icalerror_clear_errno();
    
    if (param->string != NULL)
-      free (param->string);
+      free ((void*)param->string);
    $set_code
 }
 
