@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>%MAC_APP_NAME% %APP_VERSION%, © 1998-2013 Contributors</string>
 	<key>CFBundleIconFile</key>
-	<string>instantbird</string>
+	<string>instantbird.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.instantbird</string>
 	<key>CFBundleInfoDictionaryVersion</key>

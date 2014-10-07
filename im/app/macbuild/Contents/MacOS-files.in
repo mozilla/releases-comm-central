@@ -1,0 +1,8 @@
+/*.app/***
+/*.dylib
+/certutil
+/instantbird-bin
+/pk12util
+/ssltunnel
+/xpcshell
+/XUL
