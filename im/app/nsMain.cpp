@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsXPCOMGlue.h"
 #include "nsXULAppAPI.h"
+#include "mozilla/AppData.h"
+#include "application.ini.h"
+#include "nsXPCOMGlue.h"
 #if defined(XP_WIN)
 #include <windows.h>
 #include <stdlib.h>
@@ -36,38 +38,55 @@
 
 #include "mozilla/Telemetry.h"
 
+using namespace mozilla;
+
+#ifdef XP_MACOSX
+#define kOSXResourcesFolder "Resources"
+#endif
+
 static void Output(const char *fmt, ... )
 {
   va_list ap;
   va_start(ap, fmt);
 
-#if defined(XP_WIN) && !MOZ_WINCONSOLE
-  char16_t msg[2048];
-  _vsnwprintf(msg, sizeof(msg)/sizeof(msg[0]), NS_ConvertUTF8toUTF16(fmt).get(), ap);
-  MessageBoxW(NULL, msg, L"XULRunner", MB_OK | MB_ICONERROR);
-#else
+#ifndef XP_WIN
   vfprintf(stderr, fmt, ap);
+#else
+  char msg[2048];
+  vsnprintf_s(msg, _countof(msg), _TRUNCATE, fmt, ap);
+
+  wchar_t wide_msg[2048];
+  MultiByteToWideChar(CP_UTF8,
+                      0,
+                      msg,
+                      -1,
+                      wide_msg,
+                      _countof(wide_msg));
+#if MOZ_WINCONSOLE
+  fwprintf_s(stderr, wide_msg);
+#else
+  // Linking user32 at load-time interferes with the DLL blocklist (bug 932100).
+  // This is a rare codepath, so we can load user32 at run-time instead.
+  HMODULE user32 = LoadLibraryW(L"user32.dll");
+  if (user32) {
+    typedef int (WINAPI * MessageBoxWFn)(HWND, LPCWSTR, LPCWSTR, UINT);
+    MessageBoxWFn messageBoxW = (MessageBoxWFn)GetProcAddress(user32, "MessageBoxW");
+    if (messageBoxW) {
+      messageBoxW(nullptr, wide_msg, L"Instantbird", MB_OK
+                                                   | MB_ICONERROR
+                                                   | MB_SETFOREGROUND);
+    }
+    FreeLibrary(user32);
+  }
+#endif
 #endif
 
   va_end(ap);
 }
 
-/**
- * A helper class which calls NS_LogInit/NS_LogTerm in its scope.
- */
-class ScopedLogging
-{
-public:
-  ScopedLogging() { NS_LogInit(); }
-  ~ScopedLogging() { NS_LogTerm(); }
-};
-
 XRE_GetFileFromPathType XRE_GetFileFromPath;
 XRE_CreateAppDataType XRE_CreateAppData;
 XRE_FreeAppDataType XRE_FreeAppData;
-#ifdef XRE_HAS_DLL_BLOCKLIST
-XRE_SetupDllBlocklistType XRE_SetupDllBlocklist;
-#endif
 XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
 XRE_mainType XRE_main;
 
@@ -75,63 +94,168 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
     { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
     { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
-#ifdef XRE_HAS_DLL_BLOCKLIST
-    { "XRE_SetupDllBlocklist", (NSFuncPtr*) &XRE_SetupDllBlocklist },
-#endif
     { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
     { nullptr, nullptr }
 };
 
-static int do_main(const char *exePath, int argc, char* argv[])
+static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
 {
+  NS_LogInit();
+
   nsCOMPtr<nsIFile> appini;
-#ifdef XP_WIN
-  // exePath comes from mozilla::BinaryPath::Get, which returns a UTF-8
-  // encoded path, so it is safe to convert it
-  nsresult rv = NS_NewLocalFile(NS_ConvertUTF8toUTF16(exePath), false,
-                                getter_AddRefs(appini));
-#else
-  nsresult rv = NS_NewNativeLocalFile(nsDependentCString(exePath), false,
-                                      getter_AddRefs(appini));
+  nsresult rv;
+  uint32_t mainFlags = 0;
+
+  int result;
+  {
+    ScopedAppData appData(&sAppData);
+    nsCOMPtr<nsIFile> exeFile;
+    rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
+    if (NS_FAILED(rv)) {
+      Output("Couldn't find the application directory.\n");
+      return 255;
+    }
+
+    nsCOMPtr<nsIFile> greDir;
+    exeFile->GetParent(getter_AddRefs(greDir));
+#ifdef XP_MACOSX
+    nsCOMPtr<nsIFile> parent;
+    greDir->GetParent(getter_AddRefs(parent));
+    greDir = parent.forget();
+    greDir->AppendNative(NS_LITERAL_CSTRING(kOSXResourcesFolder));
 #endif
-  if (NS_FAILED(rv)) {
-    return 255;
+    SetStrongPtr(appData.directory, static_cast<nsIFile*>(greDir.get()));
+    // xreDirectory already has a refcount from NS_NewLocalFile
+    appData.xreDirectory = xreDirectory;
+
+    result = XRE_main(argc, argv, &appData, mainFlags);
   }
-
-  appini->AppendNative(NS_LITERAL_CSTRING("application.ini"));
-
-  nsXREAppData *appData;
-  rv = XRE_CreateAppData(appini, &appData);
-  if (NS_FAILED(rv)) {
-    Output("Couldn't read application.ini");
-    return 255;
-  }
-
-  int result = XRE_main(argc, argv, appData, 0);
-  XRE_FreeAppData(appData);
   return result;
+}
+
+static bool
+FileExists(const char *path)
+{
+#ifdef XP_WIN
+  wchar_t wideDir[MAX_PATH];
+  MultiByteToWideChar(CP_UTF8, 0, path, -1, wideDir, MAX_PATH);
+  DWORD fileAttrs = GetFileAttributesW(wideDir);
+  return fileAttrs != INVALID_FILE_ATTRIBUTES;
+#else
+  return access(path, R_OK) == 0;
+#endif
+}
+
+#ifdef LIBXUL_SDK
+#  define XPCOM_PATH "xulrunner" XPCOM_FILE_PATH_SEPARATOR XPCOM_DLL
+#else
+#  define XPCOM_PATH XPCOM_DLL
+#endif
+static nsresult
+InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
+{
+  char exePath[MAXPATHLEN];
+
+  nsresult rv = mozilla::BinaryPath::Get(argv0, exePath);
+  if (NS_FAILED(rv)) {
+    Output("Couldn't find the application directory.\n");
+    return rv;
+  }
+
+  char *lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
+  if (!lastSlash || (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_PATH) - 1))
+    return NS_ERROR_FAILURE;
+
+  strcpy(lastSlash + 1, XPCOM_PATH);
+  lastSlash += sizeof(XPCOM_PATH) - sizeof(XPCOM_DLL);
+
+  if (!FileExists(exePath)) {
+#if defined(LIBXUL_SDK) && defined(XP_MACOSX)
+    // Check for <bundle>/Contents/Frameworks/XUL.framework/libxpcom.dylib
+    bool greFound = false;
+    CFBundleRef appBundle = CFBundleGetMainBundle();
+    if (!appBundle)
+      return NS_ERROR_FAILURE;
+    CFURLRef fwurl = CFBundleCopyPrivateFrameworksURL(appBundle);
+    CFURLRef absfwurl = nullptr;
+    if (fwurl) {
+      absfwurl = CFURLCopyAbsoluteURL(fwurl);
+      CFRelease(fwurl);
+    }
+    if (absfwurl) {
+      CFURLRef xulurl =
+        CFURLCreateCopyAppendingPathComponent(nullptr, absfwurl,
+                                              CFSTR("XUL.framework"),
+                                              true);
+
+      if (xulurl) {
+        CFURLRef xpcomurl =
+          CFURLCreateCopyAppendingPathComponent(nullptr, xulurl,
+                                                CFSTR("libxpcom.dylib"),
+                                                false);
+
+        if (xpcomurl) {
+          if (CFURLGetFileSystemRepresentation(xpcomurl, true,
+                                               (UInt8*) exePath,
+                                               sizeof(exePath)) &&
+              access(tbuffer, R_OK | X_OK) == 0) {
+            if (realpath(tbuffer, exePath)) {
+              greFound = true;
+            }
+          }
+          CFRelease(xpcomurl);
+        }
+        CFRelease(xulurl);
+      }
+      CFRelease(absfwurl);
+    }
+  }
+  if (!greFound) {
+#endif
+    Output("Could not find the Mozilla runtime.\n");
+    return NS_ERROR_FAILURE;
+  }
+
+  // We do this because of data in bug 771745
+  XPCOMGlueEnablePreload();
+
+  rv = XPCOMGlueStartup(exePath);
+  if (NS_FAILED(rv)) {
+    Output("Couldn't load XPCOM.\n");
+    return rv;
+  }
+
+  rv = XPCOMGlueLoadXULFunctions(kXULFuncs);
+  if (NS_FAILED(rv)) {
+    Output("Couldn't load XRE functions.\n");
+    return rv;
+  }
+
+  NS_LogInit();
+
+  // chop XPCOM_DLL off exePath
+  *lastSlash = '\0';
+#ifdef XP_MACOSX
+  lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
+  strcpy(lastSlash + 1, kOSXResourcesFolder);
+#endif
+#ifdef XP_WIN
+  rv = NS_NewLocalFile(NS_ConvertUTF8toUTF16(exePath), false,
+                       xreDirectory);
+#else
+  rv = NS_NewNativeLocalFile(nsDependentCString(exePath), false,
+                             xreDirectory);
+#endif
+
+  return rv;
 }
 
 int main(int argc, char* argv[])
 {
-  char exePath[MAXPATHLEN];
-
 #ifdef XP_MACOSX
   TriggerQuirks();
 #endif
-
-  nsresult rv = mozilla::BinaryPath::Get(argv[0], exePath);
-  if (NS_FAILED(rv)) {
-    Output("Couldn't calculate the application directory.\n");
-    return 255;
-  }
-
-  char *lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
-  if (!lastSlash || (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_DLL) - 1))
-    return 255;
-
-  strcpy(++lastSlash, XPCOM_DLL);
 
   int gotCounters;
 #if defined(XP_UNIX)
@@ -145,30 +269,26 @@ int main(int argc, char* argv[])
   // faster dll preloading.
   IO_COUNTERS ioCounters;
   gotCounters = GetProcessIoCounters(GetCurrentProcess(), &ioCounters);
-  if (gotCounters && !ioCounters.ReadOperationCount)
 #endif
-  {
-      XPCOMGlueEnablePreload();
+
+  nsIFile *xreDirectory;
+
+#ifdef HAS_DLL_BLOCKLIST
+  DllBlocklist_Initialize();
+
+#ifdef DEBUG
+  // In order to be effective against AppInit DLLs, the blocklist must be
+  // initialized before user32.dll is loaded into the process (bug 932100).
+  if (GetModuleHandleA("user32.dll")) {
+    fprintf(stderr, "DLL blocklist was unable to intercept AppInit DLLs.\n");
   }
+#endif
+#endif
 
-
-  rv = XPCOMGlueStartup(exePath);
+  nsresult rv = InitXPCOMGlue(argv[0], &xreDirectory);
   if (NS_FAILED(rv)) {
-    Output("Couldn't load XPCOM.\n");
     return 255;
   }
-  // Reset exePath so that it is the directory name and not the xpcom dll name
-  *lastSlash = 0;
-
-  rv = XPCOMGlueLoadXULFunctions(kXULFuncs);
-  if (NS_FAILED(rv)) {
-    Output("Couldn't load XRE functions.\n");
-    return 255;
-  }
-
-#ifdef XRE_HAS_DLL_BLOCKLIST
-  XRE_SetupDllBlocklist();
-#endif
 
   if (gotCounters) {
 #if defined(XP_WIN)
@@ -194,11 +314,9 @@ int main(int argc, char* argv[])
 #endif
   }
 
-  int result;
-  {
-    ScopedLogging log;
-    result = do_main(exePath, argc, argv);
-  }
+  int result = do_main(argc, argv, xreDirectory);
+
+  NS_LogTerm();
 
   return result;
 }

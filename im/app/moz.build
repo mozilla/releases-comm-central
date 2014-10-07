@@ -5,6 +5,10 @@
 
 DIRS += ['profile']
 
+GENERATED_INCLUDES += [
+    '/build',
+]
+
 if not CONFIG['LIBXUL_SDK']:
     Program(CONFIG['MOZ_APP_NAME'])
     SOURCES += ['nsMain.cpp']

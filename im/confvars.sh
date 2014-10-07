@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+MOZ_APP_BASENAME=Instantbird
 MOZ_APP_NAME=instantbird
+MOZ_APP_STATIC_INI=1
 MOZ_XUL_APP=1
 MOZ_ENABLE_LIBXUL=1
 MOZ_CHROME_FILE_FORMAT=omni
