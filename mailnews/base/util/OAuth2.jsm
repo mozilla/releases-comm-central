@@ -16,20 +16,20 @@ Cu.import("resource:///modules/gloda/log4moz.js");
 
 function parseURLData(aData) {
   let result = {};
-  aData.split("?", 2)[1].split("&").forEach(function (aParam) {
+  aData.split(/[?#]/, 2)[1].split("&").forEach(function (aParam) {
     let [key, value] = aParam.split("=");
     result[key] = value;
   });
   return result;
 }
 
-function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret, aAuthURI="oauth2/auth") {
-    this.baseURI = aBaseURI;
-    this.authURI = aBaseURI + aAuthURI;
+function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret) {
+    this.authURI = aBaseURI + "oauth2/auth";
     this.tokenURI = aBaseURI + "oauth2/token";
     this.consumerKey = aAppKey;
     this.consumerSecret = aAppSecret;
     this.scope = aScope;
+    this.extraAuthParams = [];
 
     this.log = Log4Moz.getConfiguredLogger("TBOAuth");
 }
@@ -44,8 +44,8 @@ OAuth2.prototype = {
     consumerSecret: null,
     completionURI: "http://localhost",
     requestWindowURI: "chrome://messenger/content/browserRequest.xul",
-    requestWindowHeight: 600,
-    requestWindowWidth: 980,
+    requestWindowFeatures: "chrome,private,centerscreen,width=980,height=600",
+    requestWindowTitle: "",
     scope: null,
 
     accessToken: null,
@@ -86,11 +86,14 @@ OAuth2.prototype = {
         if (this.scope) {
             params.push(["scope", this.scope]);
         }
-        params = params.map(function(p) p[0] + "=" + encodeURIComponent(p[1]))
-                       .join("&");
+
+        // Add extra parameters
+        params.push(...this.extraAuthParams);
+
+        // Now map the parameters to a string
+        params = params.map(([k,v]) => k + "=" + encodeURIComponent(v)).join("&");
 
         this._browserRequest = {
-            promptText: "auth prompt",
             account: this,
             url: this.authURI + "?" + params,
             _active: true,
@@ -145,27 +148,33 @@ OAuth2.prototype = {
                 };
                 aWebProgress.addProgressListener(this._listener,
                                                  Ci.nsIWebProgress.NOTIFY_ALL);
+                aWindow.document.title = this.account.requestWindowTitle;
             }
         };
 
         this.wrappedJSObject = this._browserRequest;
-        let features = "chrome,private,centerscreen,width=" + this.requestWindowWidth + "px,height=" + this.requestWindowHeight + "px";
-        Services.ww.openWindow(null, this.requestWindowURI, null, features, this);
+        Services.ww.openWindow(null, this.requestWindowURI, null, this.requestWindowFeatures, this);
     },
     finishAuthorizationRequest: function() {
-      if (!("_browserRequest" in this))
-        return;
+        if (!("_browserRequest" in this)) {
+            return;
+        }
 
-      this._browserRequest._active = false;
-      if ("_listener" in this._browserRequest)
-        this._browserRequest._listener._cleanUp();
-      delete this._browserRequest;
+        this._browserRequest._active = false;
+        if ("_listener" in this._browserRequest) {
+            this._browserRequest._listener._cleanUp();
+        }
+        delete this._browserRequest;
     },
 
     onAuthorizationReceived: function(aData) {
-      this.log.info("authorization received" + aData);
-      let results = parseURLData(aData);
-      this.requestAccessToken(results.code, OAuth2.CODE_AUTHORIZATION);
+        this.log.info("authorization received" + aData);
+        let results = parseURLData(aData);
+        if (this.responseType == "code") {
+            this.requestAccessToken(results.code, OAuth2.CODE_AUTHORIZATION);
+        } else if (this.responseType == "token") {
+            this.onAccessTokenReceived(JSON.stringify(results));
+        }
     },
 
     onAuthorizationFailed: function(aError, aData) {
@@ -174,7 +183,6 @@ OAuth2.prototype = {
     },
 
     requestAccessToken: function requestAccessToken(aCode, aType) {
-
         let params = [
             ["client_id", this.consumerKey],
             ["client_secret", this.consumerSecret],
@@ -197,7 +205,9 @@ OAuth2.prototype = {
     },
 
     onAccessTokenFailed: function onAccessTokenFailed(aError, aData) {
-        this.refreshToken = null;
+        if (aError != "offline") {
+            this.refreshToken = null;
+        }
         this.connecting = false;
         this.connectFailureCallback(aData);
     },
@@ -209,7 +219,11 @@ OAuth2.prototype = {
         if ("refresh_token" in result) {
             this.refreshToken = result.refresh_token;
         }
-        this.tokenExpires = (new Date()).getTime() + (result.expires_in * 1000);
+        if ("expires_in" in result) {
+            this.tokenExpires = (new Date()).getTime() + (result.expires_in * 1000);
+        } else {
+            this.tokenExpires = Number.MAX_VALUE;
+        }
         this.tokenType = result.token_type;
 
         this.connecting = false;

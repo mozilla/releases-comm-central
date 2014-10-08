@@ -1582,10 +1582,15 @@ calDavCalendar.prototype = {
         }
         if (this.mUri.host == "apidata.googleusercontent.com") {
             if (!this.oauth) {
-                this.oauth = new OAuth2(OAUTH_BASE_URI, OAUTH_SCOPE,
-                                        OAUTH_CLIENT_ID, OAUTH_HASH);
                 let sessionId = this.id;
                 let pwMgrId = "Google CalDAV v2";
+                let authTitle = cal.calGetString("commonDialogs", "EnterUserPasswordFor",
+                                                 [this.name], "global");
+
+                this.oauth = new OAuth2(OAUTH_BASE_URI, OAUTH_SCOPE,
+                                        OAUTH_CLIENT_ID, OAUTH_HASH);
+                this.oauth.requestWindowTitle = authTitle;
+                this.oauth.requestWindowFeatures = "chrome,private,centerscreen,width=430,height=600";
 
                 Object.defineProperty(this.oauth, "refreshToken", {
                     get: function getRefreshToken() {

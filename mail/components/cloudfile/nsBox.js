@@ -29,7 +29,8 @@ XPCOMUtils.defineLazyServiceGetter(this, "gProtocolService",
 
 function nsBox() {
   this.log = Log4Moz.getConfiguredLogger("BoxService");
-  this._oauth = new OAuth2(kAuthBaseUrl, null, kClientId, kClientSecret, kAuthUrl);
+  this._oauth = new OAuth2(kAuthBaseUrl, null, kClientId, kClientSecret);
+  this._oauth.authURI = kAuthBaseUrl + kAuthUrl;
 
   let account = this;
   Object.defineProperty(this._oauth, "refreshToken", {
