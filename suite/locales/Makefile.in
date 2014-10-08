@@ -130,7 +130,7 @@ libs-%:
 	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*
 	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../editor/ui/locales AB_CD=$* XPI_NAME=locale-$*
-	@$(MAKE) -C ../../mozilla/extensions/irc/locales libs-$*
+	@$(MAKE) -C $(DEPTH)/extensions/irc/locales libs-$*
 	@$(MAKE) -C $(DEPTH)/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/intl/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref
@@ -178,7 +178,7 @@ clobber-zip:
 repackage-zip: repackage-extensions
 
 repackage-extensions: $(STAGEDIST)
-	$(MAKE) -C ../../mozilla/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
+	$(MAKE) -C $(DEPTH)/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
 ifdef MOZ_OMNIJAR
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST);
 endif
