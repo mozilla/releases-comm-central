@@ -29,4 +29,7 @@ struct MimeMultipartSignedCMS {
   MimeMultipartSigned msigned;
 };
 
+#define MimeMultipartSignedCMSClassInitializer(ITYPE,CSUPER) \
+  { MimeMultipartSignedClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEMPKC_H_ */

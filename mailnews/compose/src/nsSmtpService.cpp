@@ -695,9 +695,9 @@ nsSmtpService::findServerByHostname(nsISmtpServer *aServer, void *aData)
   bool checkUsername = !entry->username.IsEmpty();
     
   if ((!checkHostname ||
-       (entry->hostname.Equals(hostname, nsCaseInsensitiveCStringComparator())) &&
+       (entry->hostname.Equals(hostname, nsCaseInsensitiveCStringComparator()))) &&
        (!checkUsername ||
-        entry->username.Equals(username, nsCaseInsensitiveCStringComparator()))))
+        entry->username.Equals(username, nsCaseInsensitiveCStringComparator())))
   {
     entry->server = aServer;
     return false;        // stop when found

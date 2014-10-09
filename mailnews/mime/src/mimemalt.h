@@ -33,4 +33,7 @@ struct MimeMultipartAlternative {
   int32_t max_parts;
 };
 
+#define MimeMultipartAlternativeClassInitializer(ITYPE,CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEMALT_H_ */

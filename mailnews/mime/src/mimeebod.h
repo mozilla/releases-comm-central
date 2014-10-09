@@ -31,4 +31,7 @@ struct MimeExternalBody {
   char *body;          /* The "phantom body" of this link. */
 };
 
+#define MimeExternalBodyClassInitializer(ITYPE,CSUPER) \
+  { MimeObjectClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEEBOD_H_ */

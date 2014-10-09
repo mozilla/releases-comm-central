@@ -62,4 +62,7 @@ protected:
   nsresult Finalize();
 };
 
+#define MimeEncryptedPgpClassInitializer(ITYPE,CSUPER) \
+  { MimeEncryptedClassInitializer(ITYPE,CSUPER) }
+
 #endif

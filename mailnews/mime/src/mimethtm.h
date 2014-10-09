@@ -25,4 +25,7 @@ struct MimeInlineTextHTML {
   char            *charset;  /* If we sniffed a charset, do some converting! */
 };
 
+#define MimeInlineTextHTMLClassInitializer(ITYPE,CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMETHTM_H_ */

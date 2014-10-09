@@ -60,4 +60,7 @@ struct MimeMultipartRelated {
 
 };
 
+#define MimeMultipartRelatedClassInitializer(ITYPE,CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEMREL_H_ */

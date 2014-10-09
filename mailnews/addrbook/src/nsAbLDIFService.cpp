@@ -329,7 +329,7 @@ nsresult nsAbLDIFService::GetLdifStringRecord(char* buf, int32_t len, int32_t& s
     }
   }
 
-  if ((stopPos == len) && (mLFCount > 1) || (mCRCount > 2 && mLFCount) ||
+  if (((stopPos == len) && (mLFCount > 1)) || (mCRCount > 2 && mLFCount) ||
       (!mLFCount && mCRCount > 1))
     return NS_OK;
 

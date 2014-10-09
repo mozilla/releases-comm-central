@@ -210,14 +210,18 @@ class nsICMSMessage;
 #define cpp_stringify_noop_helper(x)#x
 #define cpp_stringify(x) cpp_stringify_noop_helper(x)
 
+#define MimeObjectClassInitializer(ITYPE,CSUPER) \
+  cpp_stringify(ITYPE), \
+  sizeof(ITYPE), \
+  (MimeObjectClass *) CSUPER, \
+  (int (*) (MimeObjectClass *)) ITYPE##ClassInitialize, \
+  0
 
 /* Macro used for setting up class definitions.
  */
 #define MimeDefClass(ITYPE,CTYPE,CVAR,CSUPER) \
- static int CTYPE##Initialize(CTYPE *); \
- CTYPE CVAR = { cpp_stringify(ITYPE), sizeof(ITYPE), \
-        (MimeObjectClass *) CSUPER, \
-        (int (*) (MimeObjectClass *)) CTYPE##Initialize, 0, }
+ static int ITYPE##ClassInitialize(ITYPE##Class *); \
+ ITYPE##Class CVAR = { ITYPE##ClassInitializer(ITYPE,CSUPER) }
 
 
 /* Creates a new (subclass of) MimeObject of the given class, with the

@@ -53,4 +53,7 @@ struct MimeLeaf {
   int sizeSoFar;
 };
 
+#define MimeLeafClassInitializer(ITYPE,CSUPER) \
+  { MimeObjectClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMELEAF_H_ */

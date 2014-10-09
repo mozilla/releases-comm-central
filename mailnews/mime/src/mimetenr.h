@@ -26,4 +26,7 @@ struct MimeInlineTextEnriched {
   MimeInlineTextRichtext richtext;
 };
 
+#define MimeInlineTextEnrichedClassInitializer(ITYPE,CSUPER) \
+  { MimeInlineTextRichtextClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMETENR_H_ */

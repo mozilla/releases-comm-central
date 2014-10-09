@@ -64,4 +64,7 @@ struct MimeUntypedText {
   MimeHeaders *open_hdrs;      /* The faked-up headers describing it */
 };
 
+#define MimeUntypedTextClassInitializer(ITYPE,CSUPER) \
+  { MimeContainerClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEUNTY_H_ */

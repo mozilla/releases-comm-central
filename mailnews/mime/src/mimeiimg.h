@@ -29,4 +29,7 @@ struct MimeInlineImage {
   void *image_data;
 };
 
+#define MimeInlineImageClassInitializer(ITYPE,CSUPER) \
+  { MimeLeafClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEIIMG_H_ */

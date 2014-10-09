@@ -1115,7 +1115,7 @@ static int porterNext(
       } else {
         porter_stemmer(&z[iStartOffset], n, c->zToken, pnBytes);
       }
-      *pzToken = c->zToken;
+      *pzToken = (const char**)c->zToken;
       *piStartOffset = iStartOffset;
       *piEndOffset = c->iOffset;
       *piPosition = c->iToken++;

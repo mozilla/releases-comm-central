@@ -28,4 +28,7 @@ struct MimeExternalObject {
   MimeLeaf leaf;
 };
 
+#define MimeExternalObjectClassInitializer(ITYPE,CSUPER) \
+  { MimeLeafClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEEOBJ_H_ */

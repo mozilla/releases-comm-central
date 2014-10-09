@@ -33,4 +33,7 @@ struct MimeInlineTextPlain {
   bool            mIsSig;
 };
 
+#define MimeInlineTextPlainClassInitializer(ITYPE,CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMETPLA_H_ */

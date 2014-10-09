@@ -37,4 +37,7 @@ struct MimeMessage {
                         finished. */
 };
 
+#define MimeMessageClassInitializer(ITYPE,CSUPER) \
+  { MimeContainerClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEMSG_H_ */

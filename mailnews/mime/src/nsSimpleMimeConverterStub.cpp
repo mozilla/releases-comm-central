@@ -30,6 +30,9 @@ struct MimeSimpleStub {
     nsCOMPtr<nsISimpleMimeConverter> innerScriptable;
 };
 
+#define MimeSimpleStubClassInitializer(ITYPE,CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+
 MimeDefClass(MimeSimpleStub, MimeSimpleStubClass, mimeSimpleStubClass, NULL);
 
 static int

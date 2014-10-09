@@ -134,4 +134,7 @@ struct MimeEncrypted {
                      object (see mimepbuf.h) */
 };
 
+#define MimeEncryptedClassInitializer(ITYPE,CSUPER) \
+  { MimeContainerClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMECRYP_H_ */

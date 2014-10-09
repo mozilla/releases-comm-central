@@ -29,4 +29,7 @@ struct MimeInlineTextHTMLAsPlaintext {
   nsString             *complete_buffer;  // Gecko parser expects wide strings
 };
 
+#define MimeInlineTextHTMLAsPlaintextClassInitializer(ITYPE,CSUPER) \
+  { MimeInlineTextPlainClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMETHPL_H_ */

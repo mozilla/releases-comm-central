@@ -363,7 +363,7 @@ ImportEudoraMailImpl::ImportEudoraMailImpl()
     // Use one dummy entry for now as a placeholder to keep the Mac code valid,
     // until we enter actual reasonable defaults for Mac builds.
     EudoraDefaultLabels    defaultEudoraLabels[1] =
-                    { "eudoralabel1", NS_LITERAL_STRING("Label 1"), "#FF6600" };
+                    { { "eudoralabel1", NS_LITERAL_STRING("Label 1"), "#FF6600" } };
 #else
     // These aren't the actual default Windows Eudora colors. Rather they're the closest
     // equivalents that I could find that Thunderbird supports. When importing actual

@@ -30,4 +30,7 @@ struct MimeEncryptedCMS {
   MimeEncrypted encrypted;    /* superclass variables */
 };
 
+#define MimeEncryptedCMSClassInitializer(ITYPE,CSUPER) \
+  { MimeEncryptedClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEPKCS_H_ */

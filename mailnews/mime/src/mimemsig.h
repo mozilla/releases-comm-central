@@ -128,4 +128,7 @@ struct MimeMultipartSigned {
                        to get raw bits out of it. */
 };
 
+#define MimeMultipartSignedClassInitializer(ITYPE,CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEMSIG_H_ */

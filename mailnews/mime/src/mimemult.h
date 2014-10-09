@@ -95,4 +95,8 @@ struct MimeMultipart {
 };
 
 extern void MimeMultipart_notify_emitter(MimeObject *);
+
+#define MimeMultipartClassInitializer(ITYPE,CSUPER) \
+  { MimeContainerClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEMULT_H_ */

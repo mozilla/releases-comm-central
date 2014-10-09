@@ -522,16 +522,19 @@ MimeEncrypted_emit_buffered_child(MimeObject *obj)
   }
 
   if (enc->part_buffer)  /* part_buffer is 0 for 0-length encrypted data. */
-
+  {
 #ifdef MIME_DRAFTS
     if (obj->options->decompose_file_p && !obj->options->is_multipart_msg)
+    {
     status = MimePartBufferRead(enc->part_buffer,
                 /* The (MimeConverterOutputCallback) cast is to turn the `void'
                    argument into `MimeObject'. */
                  ((MimeConverterOutputCallback)
                 obj->options->decompose_file_output_fn),
                 obj->options->stream_closure);
+    }
     else
+    {
 #endif /* MIME_DRAFTS */
 
   status = MimePartBufferRead(enc->part_buffer,
@@ -539,6 +542,10 @@ MimeEncrypted_emit_buffered_child(MimeObject *obj)
                    argument into `MimeObject'. */
                  ((MimeConverterOutputCallback) body->clazz->parse_buffer),
                 body);
+#ifdef MIME_DRAFTS
+    }
+#endif /* MIME_DRAFTS */
+  }
   if (status < 0) return status;
 
   /* The child has been fully processed.  Close it off.

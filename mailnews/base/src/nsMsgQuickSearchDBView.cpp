@@ -835,7 +835,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::SetViewFlags(nsMsgViewFlagsTypeValue aView
 {
   nsresult rv = NS_OK;
   // if the grouping has changed, rebuild the view
-  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort ^
+  if ((m_viewFlags & nsMsgViewFlagsType::kGroupBySort) ^
       (aViewFlags & nsMsgViewFlagsType::kGroupBySort))
     rv = RebuildView(aViewFlags);
   nsMsgDBView::SetViewFlags(aViewFlags);

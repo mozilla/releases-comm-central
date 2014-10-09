@@ -26,4 +26,7 @@ struct MimeMultipartAppleDouble {
   MimeMultipart multipart;
 };
 
+#define MimeMultipartAppleDoubleClassInitializer(ITYPE,CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEMAPL_H_ */

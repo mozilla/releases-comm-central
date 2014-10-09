@@ -38,4 +38,7 @@ struct MimeInlineTextHTMLSanitized {
   nsString             *complete_buffer;  // Gecko parser expects wide strings
 };
 
+#define MimeInlineTextHTMLSanitizedClassInitializer(ITYPE,CSUPER) \
+  { MimeInlineTextHTMLClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMETHPL_H_ */

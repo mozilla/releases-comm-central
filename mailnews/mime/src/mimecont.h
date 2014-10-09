@@ -37,4 +37,7 @@ struct MimeContainer {
   int32_t nchildren;      /* how many */
 };
 
+#define MimeContainerClassInitializer(ITYPE,CSUPER) \
+  { MimeObjectClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMECONT_H_ */

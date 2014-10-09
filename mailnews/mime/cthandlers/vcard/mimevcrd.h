@@ -27,4 +27,7 @@ struct MimeInlineTextVCard {
   MimeInlineText text;
 };
 
+#define MimeInlineTextVCardClassInitializer(ITYPE,CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+
 #endif /* _MIMEVCRD_H_ */
