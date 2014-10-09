@@ -548,7 +548,7 @@ nsLDAPService::OnLDAPMessage(nsILDAPMessage *aMessage)
             // have to make sure to unlock before calling a listener,
             // since it's likely to call back into us again.
             //
-            while (listener = entry->PopListener()) {
+            while ((listener = entry->PopListener())) {
                 MutexAutoUnlock unlock(mLock);
                 listener->OnLDAPMessage(aMessage);
             }

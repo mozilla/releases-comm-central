@@ -640,12 +640,12 @@ NS_IMETHODIMP nsLDAPURL::GetOptions(uint32_t *_retval)
 NS_IMETHODIMP nsLDAPURL::SetOptions(uint32_t aOptions)
 {
   // Secure is the only option supported at the moment
-  if (mOptions & OPT_SECURE == aOptions & OPT_SECURE)
+  if ((mOptions & OPT_SECURE) == (aOptions & OPT_SECURE))
     return NS_OK;
 
   mOptions = aOptions;
 
-  if (aOptions & OPT_SECURE == OPT_SECURE)
+  if ((aOptions & OPT_SECURE) == OPT_SECURE)
     return SetScheme(LDAP_SSL_SCHEME);
 
   return SetScheme(LDAP_SCHEME);
