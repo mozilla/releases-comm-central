@@ -10,10 +10,6 @@ ac_add_options --enable-tests
 # bug 1005630
 ac_add_options --disable-gamepad
 
-# Windows 8 SDK is required for gamepad support
-# bug 1005630
-ac_add_options --disable-gamepad
-
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
