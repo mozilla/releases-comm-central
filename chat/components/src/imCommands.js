@@ -34,7 +34,10 @@ CommandsService.prototype = {
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
-        aConv.sendMsg(aMsg);
+        let conv = Services.conversations.getUIConversation(aConv);
+        if (!conv)
+          return false;
+        conv.sendMsg(aMsg);
         return true;
       }
     });
