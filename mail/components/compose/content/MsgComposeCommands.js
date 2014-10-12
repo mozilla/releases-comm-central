@@ -2604,7 +2604,7 @@ function GenericSendMessage(msgType)
       SetMsgBodyFrameFocus();
       window.cancelSendMessage = false;
       window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
-                        "chrome,close,titlebar,modal", true, true);
+                        "dialog,close,titlebar,modal,resizable", true, true, false);
 
       if (window.cancelSendMessage)
         return;
