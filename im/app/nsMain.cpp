@@ -117,6 +117,10 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
       return 255;
     }
 
+    // Override the crash reporting url.
+    SetAllocatedString(appData.crashReporterURL,
+                       "https://crash-reporter.instantbird.org/submit/");
+
     nsCOMPtr<nsIFile> greDir;
     exeFile->GetParent(getter_AddRefs(greDir));
 #ifdef XP_MACOSX
