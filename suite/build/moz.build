@@ -18,7 +18,6 @@ LOCAL_INCLUDES += [
 
 USE_LIBS += [
     'mozalloc',
-    'unicharutil_external_s',
     'xpcomglue_s',
     'xul',
 ]
