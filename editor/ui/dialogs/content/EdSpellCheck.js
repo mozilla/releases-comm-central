@@ -268,7 +268,7 @@ function NextWord()
 
 function SetWidgetsForMisspelledWord()
 {
-  gDialog.MisspelledWord.setAttribute("value", TruncateStringAtWordEnd(gMisspelledWord, 30, true));
+  gDialog.MisspelledWord.setAttribute("value", gMisspelledWord);
 
 
   // Initial replace word is misspelled word

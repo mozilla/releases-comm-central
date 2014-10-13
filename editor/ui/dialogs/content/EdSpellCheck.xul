@@ -36,7 +36,7 @@
     <rows>
       <row align="center">
         <label id="MisspelledWordLabel" value="&misspelledWord.label;"/>
-        <label class="bold" id="MisspelledWord"/>
+        <label class="bold" id="MisspelledWord" crop="end"/>
         <button class="spell-check" label="&recheckButton.label;" oncommand="Recheck();"
                 accesskey="&recheckButton.accessKey;"/>
       </row>
@@ -53,15 +53,15 @@
   <label id="SuggestedListLabel" value="&suggestions.label;"
          control="SuggestedList"
          accesskey="&suggestions.accessKey;"/>
-  <grid>
-    <columns><column/><column/></columns>
+  <grid flex="1">
+    <columns><column flex="1"/><column/></columns>
     <rows>
       <row flex="1">
         <!-- BUG! setting class="MinWidth20em" on tree doesn't work (width=0) -->
         <listbox  rows="6" id="SuggestedList" onselect="SelectSuggestedWord()"
                   ondblclick="if (gAllowSelectWord) Replace(event.target.getAttribute('label'));"/>
         <vbox>
-          <grid flex="1">
+          <grid>
             <columns><column class="spell-check" flex="1"/><column class="spell-check" flex="1"/></columns>
             <rows>
               <row>
@@ -79,9 +79,9 @@
               </row>
             </rows> 
           </grid>
-          <spacer flex="1"/>
+          <separator/>
           <label value="&userDictionary.label;"/>
-          <hbox flex="1" align="start">
+          <hbox align="start">
             <button class="spell-check" id="AddToDictionary" oncommand="AddToDictionary()" label="&addToUserDictionaryButton.label;"
                     accesskey="&addToUserDictionaryButton.accessKey;"/>
             <button class="spell-check" id="EditDictionary"  oncommand="EditDictionary()" label="&editUserDictionaryButton.label;"
