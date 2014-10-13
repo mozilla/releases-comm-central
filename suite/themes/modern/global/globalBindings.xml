@@ -12,6 +12,15 @@
 
   <!-- :::/ widgets \ ::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
 
+  <binding id="menulist-compact" display="xul:menu"
+           extends="chrome://global/content/bindings/menulist.xml#menulist">
+    <content sizetopopup="false">
+      <xul:dropmarker class="menulist-dropmarker" type="menu" xbl:inherits="disabled,open"/>
+      <xul:label class="menulist-label" xbl:inherits="value=label,crop,accesskey" crop="right" flex="1"/>
+      <children includes="menupopup"/>
+    </content>
+  </binding>
+
   <binding id="toolbar-menu-button" display="xul:menu"
            extends="chrome://global/content/bindings/toolbarbutton.xml#menu-button">
     <content>
