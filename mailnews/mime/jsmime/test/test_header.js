@@ -328,6 +328,7 @@ suite('headerparser', function () {
       ["Name <not an email>", [{name: "Name", email: "not an email"}]],
       ["=?UTF-8?Q?Simple?= <a@b.c>",
         [{name: "=?UTF-8?Q?Simple?=", email: "a@b.c"}]],
+      ["No email address", [{name: "No email address", email: ""}]],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
@@ -357,6 +358,102 @@ suite('headerparser', function () {
       });
     });
   });
+  suite('parseDateHeader', function () {
+    let header_tests = [
+      // Some basic tests, derived from searching for Date headers in a mailing
+      // list archive.
+      ["Thu, 06 Sep 2012 08:08:21 -0700", "2012-09-06T08:08:21-0700"],
+      ["Thu, 6 Sep 2012 14:49:05 -0400", "2012-09-06T14:49:05-0400"],
+      ["Fri, 07 Sep 2012 07:30:11 -0700 (PDT)", "2012-09-07T07:30:11-0700"],
+      ["9 Sep 2012 21:03:59 -0000", "2012-09-09T21:03:59Z"],
+      ["Sun, 09 Sep 2012 19:10:59 -0400", "2012-09-09T19:10:59-0400"],
+      ["Wed, 17 Jun 2009 10:12:25 +0530", "2009-06-17T10:12:25+0530"],
+
+      // Exercise all the months.
+      ["Mon, 28 Jan 2013 13:35:05 -0500", "2013-01-28T13:35:05-0500"],
+      ["Wed, 29 Feb 2012 23:43:26 +0000", "2012-02-29T23:43:26+0000"],
+      ["Sat, 09 Mar 2013 18:24:47 -0500", "2013-03-09T18:24:47-0500"],
+      ["Sat, 27 Apr 2013 12:51:48 -0400", "2013-04-27T12:51:48-0400"],
+      ["Tue, 28 May 2013 17:21:13 +0800", "2013-05-28T17:21:13+0800"],
+      ["Mon, 17 Jun 2013 22:15:41 +0200", "2013-06-17T22:15:41+0200"],
+      ["Wed, 18 Jul 2012 13:50:47 +0900", "2012-07-18T13:50:47+0900"],
+      ["Mon, 13 Aug 2012 13:55:16 +0200", "2012-08-13T13:55:16+0200"],
+      ["Thu, 06 Sep 2012 19:49:47 -0400", "2012-09-06T19:49:47-0400"],
+      ["Mon, 22 Oct 2012 02:27:23 -0700", "2012-10-22T02:27:23-0700"],
+      ["Thu, 22 Nov 2012 09:04:24 +0800", "2012-11-22T09:04:24+0800"],
+      ["Sun, 25 Dec 2011 12:27:13 +0000", "2011-12-25T12:27:13+0000"],
+
+      // Try out less common timezone offsets.
+      ["Sun, 25 Dec 2011 12:27:13 +1337", "2011-12-25T12:27:13+1337"],
+      ["Sun, 25 Dec 2011 12:27:13 -1337", "2011-12-25T12:27:13-1337"],
+
+      // Leap seconds! Except that since dates in JS don't believe they exist,
+      // they get shoved to the next second.
+      ["30 Jun 2012 23:59:60 +0000", "2012-07-01T00:00:00Z"],
+      ["31 Dec 2008 23:59:60 +0000", "2009-01-01T00:00:00Z"],
+      // This one doesn't exist (they are added only as needed on an irregular
+      // basis), but it's plausible...
+      ["30 Jun 2030 23:59:60 +0000", "2030-07-01T00:00:00Z"],
+      // ... and this one isn't.
+      ["10 Jun 2030 13:39:60 +0000", "2030-06-10T13:40:00Z"],
+      // How about leap seconds in other timezones?
+      ["30 Jun 2012 18:59:60 -0500", "2012-07-01T00:00:00Z"],
+
+      // RFC 5322 obsolete date productions
+      ["Sun, 26 Jan 14 17:14:22 -0600", "2014-01-26T17:14:22-0600"],
+      ["Tue, 26 Jan 49 17:14:22 -0600", "2049-01-26T17:14:22-0600"],
+      ["Thu, 26 Jan 50 17:14:22 -0600", "1950-01-26T17:14:22-0600"],
+      ["Sun, 26 Jan 2014 17:14:22 EST", "2014-01-26T17:14:22-0500"],
+      ["Sun, 26 Jan 2014 17:14:22 CST", "2014-01-26T17:14:22-0600"],
+      ["Sun, 26 Jan 2014 17:14:22 MST", "2014-01-26T17:14:22-0700"],
+      ["Sun, 26 Jan 2014 17:14:22 PST", "2014-01-26T17:14:22-0800"],
+      ["Sun, 26 Jan 2014 17:14:22 AST", "2014-01-26T17:14:22-0400"],
+      ["Sun, 26 Jan 2014 17:14:22 NST", "2014-01-26T17:14:22-0330"],
+      ["Sun, 26 Jan 2014 17:14:22 MET", "2014-01-26T17:14:22+0100"],
+      ["Sun, 26 Jan 2014 17:14:22 EET", "2014-01-26T17:14:22+0200"],
+      ["Sun, 26 Jan 2014 17:14:22 JST", "2014-01-26T17:14:22+0900"],
+      ["Sun, 26 Jan 2014 17:14:22 GMT", "2014-01-26T17:14:22+0000"],
+      ["Sun, 26 Jan 2014 17:14:22 UT", "2014-01-26T17:14:22+0000"],
+      // Daylight savings timezones, even though these aren't actually during
+      // daylight savings time for the relevant jurisdictions.
+      ["Sun, 26 Jan 2014 17:14:22 EDT", "2014-01-26T17:14:22-0400"],
+      ["Sun, 26 Jan 2014 17:14:22 CDT", "2014-01-26T17:14:22-0500"],
+      ["Sun, 26 Jan 2014 17:14:22 MDT", "2014-01-26T17:14:22-0600"],
+      ["Sun, 26 Jan 2014 17:14:22 PDT", "2014-01-26T17:14:22-0700"],
+      ["Sun, 26 Jan 2014 17:14:22 BST", "2014-01-26T17:14:22+0100"],
+      // Unknown time zone--assume UTC
+      ["Sun, 26 Jan 2014 17:14:22 QMT", "2014-01-26T17:14:22+0000"],
+
+      // The following days of the week are incorrect.
+      ["Tue, 28 Jan 2013 13:35:05 -0500", "2013-01-28T13:35:05-0500"],
+      ["Thu, 26 Jan 14 17:14:22 -0600", "2014-01-26T17:14:22-0600"],
+      ["Fri, 26 Jan 49 17:14:22 -0600", "2049-01-26T17:14:22-0600"],
+      ["Mon, 26 Jan 50 17:14:22 -0600", "1950-01-26T17:14:22-0600"],
+      // And for these 2 digit years, they are correct for the other century.
+      ["Mon, 26 Jan 14 17:14:22 -0600", "2014-01-26T17:14:22-0600"],
+      ["Wed, 26 Jan 49 17:14:22 -0600", "2049-01-26T17:14:22-0600"],
+      ["Wed, 26 Jan 50 17:14:22 -0600", "1950-01-26T17:14:22-0600"],
+
+      // Try with some illegal names for days of the week or months of the year.
+      ["Sam, 05 Apr 2014 15:04:13 -0500", "2014-04-05T15:04:13-0500"],
+      ["Lun, 01 Apr 2014 15:04:13 -0500", "2014-04-01T15:04:13-0500"],
+      ["Mar, 02 Apr 2014 15:04:13 -0500", "2014-04-02T15:04:13-0500"],
+      ["Mar, 02 April 2014 15:04:13 -0500", "2014-04-02T15:04:13-0500"],
+      ["Mar, 02 Avr 2014 15:04:13 -0500", NaN],
+      ["Tue, 02 A 2014 15:04:13 -0500", NaN],
+
+
+      // A truly invalid date
+      ["Coincident with the rapture", NaN]
+    ];
+    header_tests.forEach(function (data) {
+      arrayTest(data, function () {
+        assert.equal(headerparser.parseDateHeader(data[0]).toString(),
+          new Date(data[1]).toString());
+      });
+    });
+  });
+
   suite('decodeRFC2047Words', function () {
     let header_tests = [
       // Some basic sanity tests for the test process

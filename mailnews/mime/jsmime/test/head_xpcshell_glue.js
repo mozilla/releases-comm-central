@@ -53,7 +53,13 @@ function require(path) {
   if (requireCache.has(path))
     return requireCache.get(path);
 
-  var file = "resource:///modules/jsmime/" + path + ".js";
+  if (path.startsWith("test/")) {
+    let name = path.substring("test/".length);
+    var file = "resource://testing-common/jsmime/" + name + ".js";
+  } else {
+    var file = "resource:///modules/jsmime/" + path + ".js";
+  }
+
   var globalObject = {
     define: innerDefine.bind(this, path),
   };

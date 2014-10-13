@@ -2,7 +2,9 @@
 define(function(require) {
 
 var assert = require('assert');
-var headeremitter = require('jsmime').headeremitter;
+var jsmime = require('jsmime');
+var headeremitter = jsmime.headeremitter;
+var MockDate = require('test/mock_date');
 
 function arrayTest(data, fn) {
   fn.toString = function () {
@@ -57,6 +59,7 @@ suite('headeremitter', function () {
       [[{name: "Group", group: [{name: "", email: "a@a.c"},
                                 {name: "", email: "b@b.c"}]}],
         "Group: a@a.c, b@b.c;"],
+      [[{name: "No email address", email: ""}], "No email address"],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
@@ -180,6 +183,126 @@ suite('headeremitter', function () {
         emitter.addUnstructured(data[0]);
         emitter.finish(true);
       });
+    });
+  });
+  suite("addDate", function () {
+    let handler = {
+      reset: function (expected) {
+        this.output = '';
+        this.expected = expected;
+      },
+      deliverData: function (data) { this.output += data; },
+      deliverEOF: function () {
+        assert.equal(this.output, this.expected + '\r\n');
+      }
+    };
+    let header_tests = [
+      // Test basic day/month names
+      ["2000-01-01T00:00:00Z", "Sat, 1 Jan 2000 00:00:00 +0000"],
+      ["2000-02-01T00:00:00Z", "Tue, 1 Feb 2000 00:00:00 +0000"],
+      ["2000-03-01T00:00:00Z", "Wed, 1 Mar 2000 00:00:00 +0000"],
+      ["2000-04-01T00:00:00Z", "Sat, 1 Apr 2000 00:00:00 +0000"],
+      ["2000-05-01T00:00:00Z", "Mon, 1 May 2000 00:00:00 +0000"],
+      ["2000-06-01T00:00:00Z", "Thu, 1 Jun 2000 00:00:00 +0000"],
+      ["2000-07-01T00:00:00Z", "Sat, 1 Jul 2000 00:00:00 +0000"],
+      ["2000-08-01T00:00:00Z", "Tue, 1 Aug 2000 00:00:00 +0000"],
+      ["2000-09-01T00:00:00Z", "Fri, 1 Sep 2000 00:00:00 +0000"],
+      ["2000-10-01T00:00:00Z", "Sun, 1 Oct 2000 00:00:00 +0000"],
+      ["2000-11-01T00:00:00Z", "Wed, 1 Nov 2000 00:00:00 +0000"],
+      ["2000-12-01T00:00:00Z", "Fri, 1 Dec 2000 00:00:00 +0000"],
+
+      // Test timezone offsets
+      ["2000-06-01T12:00:00Z", "Thu, 1 Jun 2000 12:00:00 +0000"],
+      ["2000-06-01T12:00:00+0100", "Thu, 1 Jun 2000 12:00:00 +0100"],
+      ["2000-06-01T12:00:00+0130", "Thu, 1 Jun 2000 12:00:00 +0130"],
+      ["2000-06-01T12:00:00-0100", "Thu, 1 Jun 2000 12:00:00 -0100"],
+      ["2000-06-01T12:00:00-0130", "Thu, 1 Jun 2000 12:00:00 -0130"],
+      ["2000-06-01T12:00:00+1345", "Thu, 1 Jun 2000 12:00:00 +1345"],
+      ["2000-06-01T12:00:00-1200", "Thu, 1 Jun 2000 12:00:00 -1200"],
+      ["2000-06-01T12:00:00+1337", "Thu, 1 Jun 2000 12:00:00 +1337"],
+      ["2000-06-01T12:00:00+0101", "Thu, 1 Jun 2000 12:00:00 +0101"],
+      ["2000-06-01T12:00:00-1337", "Thu, 1 Jun 2000 12:00:00 -1337"],
+
+      // Try some varying hour, minute, and second amounts, to double-check
+      // padding and time dates.
+      ["2000-06-01T01:02:03Z", "Thu, 1 Jun 2000 01:02:03 +0000"],
+      ["2000-06-01T23:13:17Z", "Thu, 1 Jun 2000 23:13:17 +0000"],
+      ["2000-06-01T00:05:04Z", "Thu, 1 Jun 2000 00:05:04 +0000"],
+      ["2000-06-01T23:59:59Z", "Thu, 1 Jun 2000 23:59:59 +0000"],
+      ["2000-06-01T13:17:40Z", "Thu, 1 Jun 2000 13:17:40 +0000"],
+      ["2000-06-01T11:15:34Z", "Thu, 1 Jun 2000 11:15:34 +0000"],
+      ["2000-06-01T04:09:09Z", "Thu, 1 Jun 2000 04:09:09 +0000"],
+      ["2000-06-01T04:10:10Z", "Thu, 1 Jun 2000 04:10:10 +0000"],
+      ["2000-06-01T09:13:17Z", "Thu, 1 Jun 2000 09:13:17 +0000"],
+      ["2000-06-01T13:12:14Z", "Thu, 1 Jun 2000 13:12:14 +0000"],
+      ["2000-06-01T14:16:48Z", "Thu, 1 Jun 2000 14:16:48 +0000"],
+
+      // Try varying month, date, and year values.
+      ["2000-01-31T00:00:00Z", "Mon, 31 Jan 2000 00:00:00 +0000"],
+      ["2000-02-28T00:00:00Z", "Mon, 28 Feb 2000 00:00:00 +0000"],
+      ["2000-02-29T00:00:00Z", "Tue, 29 Feb 2000 00:00:00 +0000"],
+      ["2001-02-28T00:00:00Z", "Wed, 28 Feb 2001 00:00:00 +0000"],
+      ["2000-03-31T00:00:00Z", "Fri, 31 Mar 2000 00:00:00 +0000"],
+      ["2000-04-30T00:00:00Z", "Sun, 30 Apr 2000 00:00:00 +0000"],
+      ["2000-05-31T00:00:00Z", "Wed, 31 May 2000 00:00:00 +0000"],
+      ["2000-06-30T00:00:00Z", "Fri, 30 Jun 2000 00:00:00 +0000"],
+      ["2000-07-31T00:00:00Z", "Mon, 31 Jul 2000 00:00:00 +0000"],
+      ["2000-08-31T00:00:00Z", "Thu, 31 Aug 2000 00:00:00 +0000"],
+      ["2000-09-30T00:00:00Z", "Sat, 30 Sep 2000 00:00:00 +0000"],
+      ["2000-10-31T00:00:00Z", "Tue, 31 Oct 2000 00:00:00 +0000"],
+      ["2000-11-30T00:00:00Z", "Thu, 30 Nov 2000 00:00:00 +0000"],
+      ["2000-12-31T00:00:00Z", "Sun, 31 Dec 2000 00:00:00 +0000"],
+      ["1900-01-01T00:00:00Z", "Mon, 1 Jan 1900 00:00:00 +0000"],
+      ["9999-12-31T23:59:59Z", "Fri, 31 Dec 9999 23:59:59 +0000"],
+
+      // Tests that are not actually missing:
+      // We don't actually need to test daylight savings time issues, so long as
+      // getTimezoneOffset is correct. We've confirmed black-box that the value
+      // is being directly queried on every instance, since we have tests that
+      // make MockDate.getTimezoneOffset return different values.
+      // In addition, ES6 Date objects don't support leap seconds. Invalid dates
+      // per RFC 5322 are handled in a later run of code.
+    ];
+    header_tests.forEach(function (data) {
+      arrayTest(data, function () {
+        let emitter = headeremitter.makeStreamingEmitter(handler, { });
+        handler.reset(data[1]);
+        emitter.addDate(new MockDate(data[0]));
+        emitter.finish(true);
+      });
+    });
+
+    // An invalid date should throw an error instead of make a malformed header.
+    test('Invalid dates', function () {
+      let emitter = headeremitter.makeStreamingEmitter(handler, { });
+      assert.throws(function () { emitter.addDate(new Date(NaN)); });
+      assert.throws(function () { emitter.addDate(new Date("1850-01-01")); });
+      assert.throws(function () { emitter.addDate(new Date("10000-01-01")); });
+    });
+
+    // Test preferred breaking for the date header.
+    test('Break spot', function () {
+      let emitter = headeremitter.makeStreamingEmitter(handler, {
+        softMargin: 30
+      });
+      handler.reset("Overly-Long-Date:\r\n Sat, 1 Jan 2000 00:00:00 +0000");
+      emitter.addHeaderName("Overly-Long-Date");
+      emitter.addDate(new MockDate("2000-01-01T00:00:00Z"));
+      emitter.finish();
+    });
+
+    test('Correctness of date', function () {
+      let emitter = headeremitter.makeStreamingEmitter(handler, { });
+      handler.reset();
+      let now = new Date();
+      emitter.addDate(now);
+      emitter.finish();
+      // All engines can parse the date strings we produce
+      let reparsed = new Date(handler.output);
+
+      // Now and reparsed should be correct to second-level precision.
+      assert.equal(reparsed.getMilliseconds(), 0);
+      assert.equal(now.getTime() - now.getMilliseconds(), reparsed.getTime());
     });
   });
 

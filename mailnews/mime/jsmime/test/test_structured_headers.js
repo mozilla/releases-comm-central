@@ -127,6 +127,16 @@ suite('Structured headers', function () {
     testHeader(header, address_tests);
   });
 
+  let date_headers = ['Date', 'Expires', 'Injection-Date', 'NNTP-Posting-Date',
+    'Resent-Date'];
+  let date_tests = [
+    ["Thu, 06 Sep 2012 08:08:21 -0700", new Date("2012-09-06T08:08:21-0700")],
+    ["This is so not a date", new Date(NaN)],
+  ];
+  date_headers.forEach(function (header) {
+    testHeader(header, date_tests);
+  });
+
   let unstructured_headers = ['Comments', 'Content-Description', 'Keywords',
     'Subject'];
   let unstructured_tests = [

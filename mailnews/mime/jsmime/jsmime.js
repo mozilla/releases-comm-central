@@ -96,9 +96,14 @@ function typedArrayToString(buffer) {
   return string;
 }
 
+/** A list of month names for Date parsing. */
+const kMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+  "Sep", "Oct", "Nov", "Dec"];
+
 return {
   decode_base64: decode_base64,
   decode_qp: decode_qp,
+  kMonthNames: kMonthNames,
   stringToTypedArray: stringToTypedArray,
   typedArrayToString: typedArrayToString,
 };
@@ -205,10 +210,21 @@ function writeUnstructured(value) {
 addHeader("Comments", parseUnstructured, writeUnstructured);
 addHeader("Keywords", parseUnstructured, writeUnstructured);
 addHeader("Subject", parseUnstructured, writeUnstructured);
-
 // RFC 2045
 addHeader("Content-Description", parseUnstructured, writeUnstructured);
 
+
+// Date headers
+function parseDate(values) { return this.parseDateHeader(values[0]); }
+function writeDate(value) { this.addDate(value); }
+
+// RFC 5322
+addHeader("Date", parseDate, writeDate);
+addHeader("Resent-Date", parseDate, writeDate);
+// RFC 5536
+addHeader("Expires", parseDate, writeDate);
+addHeader("Injection-Date", parseDate, writeDate);
+addHeader("NNTP-Posting-Date", parseDate, writeDate);
 
 
 // Miscellaneous headers (those that don't fall under the above schemes):
@@ -310,11 +326,16 @@ var headerparser = {};
  * @param {Boolean} [opts.comments] If true, recognize comments.
  * @param {Boolean} [opts.rfc2047]  If true, parse and decode RFC 2047
  *                                  encoded-words.
- * @returns {(Token|String)*} A sequence of Token objects (which have a
- *                            toString method returning their value) or String
- *                            objects (representing delimiters).
+ * @returns {(Token|String)[]} An array of Token objects (which have a toString
+ *                             method returning their value) or String objects
+ *                             (representing delimiters).
  */
-function* getHeaderTokens(value, delimiters, opts) {
+function getHeaderTokens(value, delimiters, opts) {
+  // The array of parsed tokens. This method used to be a generator, but it
+  // appears that generators are poorly optimized in current engines, so it was
+  // converted to not be one.
+  let tokenList = [];
+
   /// Represents a non-delimiter token
   function Token(token) {
     // Unescape all quoted pairs. Any trailing \ is deleted.
@@ -358,12 +379,12 @@ function* getHeaderTokens(value, delimiters, opts) {
         if (opts.rfc2047 && text.startsWith("=?") && text.endsWith("?="))
           text = decodeRFC2047Words(text);
 
-        yield new Token(text);
+        tokenList.push(new Token(text));
         endQuote = undefined;
         tokenStart = undefined;
       } else if (ch == endQuote && ch == ']') {
         // Domain literals include their delimiters.
-        yield new Token(value.slice(tokenStart, i + 1));
+        tokenList.push(new Token(value.slice(tokenStart, i + 1)));
         endQuote = undefined;
         tokenStart = undefined;
       }
@@ -382,7 +403,7 @@ function* getHeaderTokens(value, delimiters, opts) {
         // If we were in the middle of a prior token (i.e., something like
         // foobar=?UTF-8?Q?blah?=), yield the previous segment as a token.
         if (tokenStart !== undefined) {
-          yield new Token(value.slice(tokenStart, i));
+          tokenList.push(new Token(value.slice(tokenStart, i)));
           tokenStart = undefined;
         }
 
@@ -392,7 +413,7 @@ function* getHeaderTokens(value, delimiters, opts) {
           "UTF-8");
         // Don't make a new Token variable, since we do not want to unescape the
         // decoded string.
-        yield { toString: function() { return string; }};
+        tokenList.push({ toString: function() { return string; }});
 
         // Skip everything we decoded. The -1 is because we don't want to
         // include the starting character.
@@ -460,12 +481,12 @@ function* getHeaderTokens(value, delimiters, opts) {
     // If our analysis concluded that we closed an open token, and there is an
     // open token, then yield that token.
     if (tokenIsEnding && tokenStart !== undefined) {
-      yield new Token(value.slice(tokenStart, i));
+      tokenList.push(new Token(value.slice(tokenStart, i)));
       tokenStart = undefined;
     }
     // If we need to output a delimiter, do so.
     if (isSpecial)
-      yield ch;
+      tokenList.push(ch);
     // If our analysis concluded that we could open a token, and no token is
     // opened yet, then start the token.
     if (tokenIsStarting && tokenStart === undefined) {
@@ -479,10 +500,12 @@ function* getHeaderTokens(value, delimiters, opts) {
     // Error case: a partially-open quoted string is assumed to have a trailing
     // " character.
     if (endQuote == '"')
-      yield new Token(value.slice(tokenStart + 1));
+      tokenList.push(new Token(value.slice(tokenStart + 1)));
     else
-      yield new Token(value.slice(tokenStart));
+      tokenList.push(new Token(value.slice(tokenStart)));
   }
+
+  return tokenList;
 }
 
 /**
@@ -1015,6 +1038,113 @@ function decode2231Value(value) {
     .decode(typedarray, {stream: false});
 }
 
+// This is a map of known timezone abbreviations, for fallback in obsolete Date
+// productions.
+const kKnownTZs = {
+  // The following timezones are explicitly listed in RFC 5322.
+  "UT":  "+0000", "GMT": "+0000",
+  "EST": "-0500", "EDT": "-0400",
+  "CST": "-0600", "CDT": "-0500",
+  "MST": "-0700", "MDT": "-0600",
+  "PST": "-0800", "PDT": "-0700",
+  // The following are time zones copied from NSPR's prtime.c
+  "AST": "-0400", // Atlantic Standard Time
+  "NST": "-0330", // Newfoundland Standard Time
+  "BST": "+0100", // British Summer Time
+  "MET": "+0100", // Middle Europe Time
+  "EET": "+0200", // Eastern Europe Time
+  "JST": "+0900"  // Japan Standard Time
+};
+
+/**
+ * Parse a header that contains a date-time definition according to RFC 5322.
+ * The result is a JS date object with the same timestamp as the header.
+ *
+ * The dates returned by this parser cannot be reliably converted back into the
+ * original header for two reasons. First, JS date objects cannot retain the
+ * timezone information they were initialized with, so reserializing a date
+ * header would necessarily produce a date in either the current timezone or in
+ * UTC. Second, JS dates measure time as seconds elapsed from the POSIX epoch
+ * excluding leap seconds. Any timestamp containing a leap second is instead
+ * converted into one that represents the next second.
+ *
+ * Dates that do not match the RFC 5322 production are instead attempted to
+ * parse using the Date.parse function. The strings that are accepted by
+ * Date.parse are not fully defined by the standard, but most implementations
+ * should accept strings that look rather close to RFC 5322 strings. Truly
+ * invalid dates produce a formulation that results in an invalid date,
+ * detectable by having its .getTime() method return NaN.
+ *
+ * @param {String} header The MIME header value to parse.
+ * @returns {Date}        The date contained within the header, as described
+ *                        above.
+ */
+function parseDateHeader(header) {
+  let tokens = [for (x of getHeaderTokens(header, ",:", {})) x.toString()];
+  // What does a Date header look like? In practice, most date headers devolve
+  // into Date: [dow ,] dom mon year hh:mm:ss tzoff [(abbrev)], with the day of
+  // week mostly present and the timezone abbreviation mostly absent.
+
+  // First, ignore the day-of-the-week if present. This would be the first two
+  // tokens.
+  if (tokens.length > 1 && tokens[1] === ',')
+    tokens = tokens.slice(2);
+
+  // If there are too few tokens, the date is obviously invalid.
+  if (tokens.length < 8)
+    return new Date(NaN);
+
+  // Save off the numeric tokens
+  let day = parseInt(tokens[0]);
+  // month is tokens[1]
+  let year = parseInt(tokens[2]);
+  let hours = parseInt(tokens[3]);
+  // tokens[4] === ':'
+  let minutes = parseInt(tokens[5]);
+  // tokens[6] === ':'
+  let seconds = parseInt(tokens[7]);
+
+  // Compute the month. Check only the first three digits for equality; this
+  // allows us to accept, e.g., "January" in lieu of "Jan."
+  let month = mimeutils.kMonthNames.indexOf(tokens[1].slice(0, 3));
+  // If the month name is not recognized, make the result illegal.
+  if (month < 0)
+    month = NaN;
+
+  // Compute the full year if it's only 2 digits. RFC 5322 states that the
+  // cutoff is 50 instead of 70.
+  if (year < 100) {
+    year += year < 50 ? 2000 : 1900;
+  }
+
+  // Compute the timezone offset. If it's not in the form ±hhmm, convert it to
+  // that form.
+  let tzoffset = tokens[8];
+  if (tzoffset in kKnownTZs)
+    tzoffset = kKnownTZs[tzoffset];
+  let decompose = /^([+-])(\d\d)(\d\d)$/.exec(tzoffset);
+  // Unknown? Make it +0000
+  if (decompose === null)
+    decompose = ['+0000', '+', '00', '00'];
+  let tzOffsetInMin = parseInt(decompose[2]) * 60 + parseInt(decompose[3]);
+  if (decompose[1] == '-')
+    tzOffsetInMin = -tzOffsetInMin;
+
+  // How do we make the date at this point? Well, the JS date's constructor
+  // builds the time in terms of the local timezone. To account for the offset
+  // properly, we need to build in UTC.
+  let finalDate = new Date(Date.UTC(year, month, day, hours, minutes, seconds)
+    - tzOffsetInMin * 60 * 1000);
+
+  // Suppose our header was mangled and we couldn't read it--some of the fields
+  // became undefined. In that case, the date would become invalid, and the
+  // indication that it is so is that the underlying number is a NaN. In that
+  // scenario, we could build attempt to use JS Date parsing as a last-ditch
+  // attempt. But it's not clear that such messages really exist in practice,
+  // and the valid formats for Date in ES6 are unspecified.
+  return finalDate;
+}
+
 ////////////////////////////////////////
 // Structured header decoding support //
 ////////////////////////////////////////
@@ -1064,7 +1194,11 @@ for (let pair of structuredHeaders.decoders) {
  * - To
  *
  * Date headers (results are the same as parseDateHeader):
- * - (TODO: Parsing support for these headers is currently unsupported)
+ * - Date
+ * - Expires
+ * - Injection-Date
+ * - NNTP-Posting-Date
+ * - Resent-Date
  *
  * References headers (results are the same as parseReferencesHeader):
  * - (TODO: Parsing support for these headers is currently unsupported)
@@ -1154,6 +1288,7 @@ headerparser.convert8BitHeader = convert8BitHeader;
 headerparser.decodeRFC2047Words = decodeRFC2047Words;
 headerparser.getHeaderTokens = getHeaderTokens;
 headerparser.parseAddressingHeader = parseAddressingHeader;
+headerparser.parseDateHeader = parseDateHeader;
 headerparser.parseParameterHeader = parseParameterHeader;
 headerparser.parseStructuredHeader = parseStructuredHeader;
 return Object.freeze(headerparser);
@@ -2235,7 +2370,7 @@ def('headeremitter', function(require) {
 var mimeutils = require('./mimeutils');
 
 // Get the default structured encoders and add them to the map
-var structuredHeaders = require('structuredHeaders');
+var structuredHeaders = require('./structuredHeaders');
 var encoders = new Map();
 var preferredSpellings = structuredHeaders.spellings;
 for (let [header, encoder] of structuredHeaders.encoders) {
@@ -2498,11 +2633,13 @@ HeaderEmitter.prototype.addText = function (text, mayBreakAfter) {
  *                                breakpoint.
  */
 HeaderEmitter.prototype.addQuotable = function (text, qchars, mayBreakAfter) {
+  // No text -> no need to be quoted (prevents strict warning errors).
+  if (text.length == 0)
+    return;
+
   // Figure out if we need to quote the string. Don't quote a string which
   // already appears to be quoted.
   let needsQuote = false;
-  if (!text.length)
-    return;
 
   if (!(text[0] == '"' && text[text.length - 1] == '"') && qchars != '') {
     for (let i = 0; i < text.length; i++) {
@@ -2745,6 +2882,13 @@ HeaderEmitter.prototype.addAddress = function (addr) {
     // This is a simple estimate that keeps names on one line if possible.
     this._reserveTokenSpace(addr.name.length + addr.email.length + 3);
     this.addPhrase(addr.name, ",()<>:;.\"", true);
+
+    // If we don't have an email address, don't write out the angle brackets for
+    // the address. It's already an abnormal situation should this appear, and
+    // this has better round-tripping properties.
+    if (!addr.email)
+      return;
+
     this.addText("<", false);
   }
 
@@ -2782,10 +2926,6 @@ HeaderEmitter.prototype.addAddress = function (addr) {
 HeaderEmitter.prototype.addAddresses = function (addresses) {
   let needsComma = false;
   for (let addr of addresses) {
-    // Ignore a dummy empty address.
-    if ("email" in addr && addr.email === "")
-      continue;
-
     // Add a comma if this is not the first element.
     if (needsComma)
       this.addText(", ", true);
@@ -2820,6 +2960,65 @@ HeaderEmitter.prototype.addUnstructured = function (text) {
   // Unstructured text is basically a phrase that can't be quoted. So, if we
   // have nothing in qchars, nothing should be quoted.
   this.addPhrase(text, "", false);
+};
+
+/** RFC 822 labels for days of the week. */
+const kDaysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/**
+ * Formatting helper to output numbers between 0-9 as 00-09 instead.
+ */
+function padTo2Digits(num) {
+  return num < 10 ? "0" + num : num.toString();
+}
+
+/**
+ * Add a date/time field to the output, using the JS date object as the time
+ * representation. The value will be output using the timezone offset of the
+ * date object, which is usually the timezone of the user (modulo timezone and
+ * DST changes).
+ *
+ * Note that if the date is an invalid date (its internal date parameter is a
+ * NaN value), this method throws an error instead of generating an invalid
+ * string.
+ *
+ * @public
+ * @param {Date} date The date to be added to the output string.
+ */
+HeaderEmitter.prototype.addDate = function (date) {
+  // Rather than make a header plastered with NaN values, throw an error on
+  // specific invalid dates.
+  if (isNaN(date.getTime()))
+    throw new Error("Cannot encode an invalid date");
+
+  // RFC 5322 says years can't be before 1900. The after 9999 is a bit that
+  // derives from the specification saying that years have 4 digits.
+  if (date.getFullYear() < 1900 || date.getFullYear() > 9999)
+    throw new Error("Date year is out of encodable range");
+
+  // Start by computing the timezone offset for a day. We lack a good format, so
+  // the the 0-padding is done by hand. Note that the tzoffset we output is in
+  // the form ±hhmm, so we need to separate the offset (in minutes) into an hour
+  // and minute pair.
+  let tzOffset = date.getTimezoneOffset();
+  let tzOffHours = Math.abs(Math.trunc(tzOffset / 60));
+  let tzOffMinutes = Math.abs(tzOffset) % 60;
+  let tzOffsetStr = (tzOffset > 0 ? "-" : "+") +
+    padTo2Digits(tzOffHours) + padTo2Digits(tzOffMinutes);
+
+  // Convert the day-time figure into a single value to avoid unwanted line
+  // breaks in the middle.
+  let dayTime = [
+    kDaysOfWeek[date.getDay()] + ",",
+    date.getDate(),
+    mimeutils.kMonthNames[date.getMonth()],
+    date.getFullYear(),
+    padTo2Digits(date.getHours()) + ":" +
+      padTo2Digits(date.getMinutes()) + ":" +
+      padTo2Digits(date.getSeconds()),
+    tzOffsetStr
+  ].join(" ");
+  this.addText(dayTime, false);
 };
 
 /**

@@ -16,4 +16,8 @@ EXTRA_JS_MODULES.jsmime += [
     'jsmime/jsmime.js',
 ]
 
+TESTING_JS_MODULES.jsmime += [
+    'jsmime/test/mock_date.js',
+]
+
 XPCSHELL_TESTS_MANIFESTS += ['jsmime/test/xpcshell.ini']

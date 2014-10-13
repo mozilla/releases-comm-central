@@ -3,6 +3,7 @@ define(function (require) {
 
 var assert = require('assert');
 var headeremitter = require('jsmime').headeremitter;
+var MockDate = require('test/mock_date');
 
 function arrayTest(data, fn) {
   fn.toString = function () {
@@ -53,6 +54,15 @@ suite('Structured header emitters', function () {
   ];
   addressing_headers.forEach(function (header) {
     testHeader(header, address_tests);
+  });
+
+  let date_headers = ['Date', 'Expires', 'Injection-Date', 'NNTP-Posting-Date',
+    'Resent-Date'];
+  let date_tests = [
+    [new MockDate("2012-09-06T08:08:21-0700"), "Thu, 6 Sep 2012 08:08:21 -0700"],
+  ];
+  date_headers.forEach(function (header) {
+    testHeader(header, date_tests);
   });
 
   let unstructured_headers = ['Comments', 'Content-Description', 'Keywords',
