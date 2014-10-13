@@ -1,0 +1,8 @@
+/*.app/***
+/*.dylib
+/certutil
+/seamonkey-bin
+/pk12util
+/ssltunnel
+/xpcshell
+/XUL
