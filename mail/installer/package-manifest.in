@@ -572,7 +572,6 @@
 @BINPATH@/components/toolkitsearch.manifest
 #ifdef UNIX_BUT_NOT_MAC
 @BINPATH@/components/toolkitremote.xpt
-@BINPATH@/mozilla-xremote-client
 #endif
 #ifdef MOZ_GTK2
 @BINPATH@/components/filepicker.xpt

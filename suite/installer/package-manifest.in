@@ -167,7 +167,6 @@
 @BINPATH@/license.txt
 @BINPATH@/blocklist.xml
 #ifdef UNIX_BUT_NOT_MAC
-@BINPATH@/mozilla-xremote-client
 @BINPATH@/run-mozilla.sh
 #endif
 
