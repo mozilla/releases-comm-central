@@ -64,3 +64,27 @@ function FallbackTextDecoder(charset, options) {
 }
 
 TextDecoder = FallbackTextDecoder;
+
+
+// The following code loads custom MIME encoders.
+const CATEGORY_NAME = "custom-mime-encoder";
+Services.obs.addObserver(function (subject, topic, data) {
+  subject = subject.QueryInterface(Components.interfaces.nsISupportsCString)
+                   .data;
+  if (data == CATEGORY_NAME) {
+    let url = catman.getCategoryEntry(CATEGORY_NAME, subject);
+    Services.scriptloader.loadSubScript(url, {}, "UTF-8");
+  }
+}, "xpcom-category-entry-added", false);
+
+let catman = Components.classes["@mozilla.org/categorymanager;1"]
+                       .getService(Components.interfaces.nsICategoryManager);
+
+let entries = catman.enumerateCategory(CATEGORY_NAME);
+while (entries.hasMoreElements()) {
+  let string = entries.getNext()
+                      .QueryInterface(Components.interfaces.nsISupportsCString)
+                      .data;
+  let url = catman.getCategoryEntry(CATEGORY_NAME, string);
+  Services.scriptloader.loadSubScript(url, {}, "UTF-8");
+}

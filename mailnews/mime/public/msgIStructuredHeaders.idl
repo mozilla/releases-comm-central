@@ -1,0 +1,196 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+%{C++
+#include "nsCOMArray.h"
+
+#define NS_ISTRUCTUREDHEADERS_CONTRACTID \
+  "@mozilla.org/messenger/structuredheaders;1"
+%}
+
+interface msgIAddressObject;
+interface nsIUTF8StringEnumerator;
+
+/**
+ * A collection of MIME headers that are stored in a rich, structured format.
+ *
+ * The structured forms defined in this method use the structured decoder and
+ * encoder functionality found in jsmime to interconvert between the raw string
+ * forms found in the actual message text and the structured forms supported by
+ * this interface. Extensions can register their own custom structured headers
+ * by listing the source URL of their code under the category
+ * "custom-mime-encoder".
+ *
+ * The alternative modes of access for specific headers are expected to only
+ * work for the headers for which that mode of access is the correct one. For
+ * example, retrieving the "To" header from getUnstructuredHeader would fail,
+ * since the To header is not an unstructured header but an addressing header.
+ * They are provided mostly as a convenience to C++ which is much less able to
+ * utilize a fully generic format.
+ *
+ * With the exception of mismatched headers, the methods do not throw an
+ * exception if the header is missing but rather return an appropriate default
+ * value as indicated in their documentation.
+ */
+[scriptable, uuid(6c105b83-fb73-4282-bd00-05eaf0f4da1d)]
+interface msgIStructuredHeaders : nsISupports {
+  /**
+   * Retrieve the value of the header stored in this set of headers. If the
+   * header is not present, then undefined is returned.
+   *
+   * @param aHeaderName     The name of the header to retrieve.
+   */
+  jsval getHeader(in string aHeaderName);
+
+  /**
+   * Return true if and only if the given header is already set.
+   *
+   * @param aHeaderName     The name of the header to retrieve.
+   */
+  bool hasHeader(in string aHeaderName);
+
+  /**
+   * Retrieve the value of the header as if it is an unstructured header. Such
+   * headers include most notably the Subject header. If the header is not
+   * present, then null is returned. This is reflected in C++ as an empty string
+   * with IsVoid() set to true (distinguishing it from a header that is present
+   * but contains an empty string).
+   *
+   * @param aHeaderName     The name of the header to retrieve.
+   */
+  AString getUnstructuredHeader(in string aHeaderName);
+
+  /**
+   * Retrieve the value of the header if it is an addressing header, such as the
+   * From or To headers. If the header is not present, then an empty array is
+   * returned.
+   *
+   * @param aHeaderName     The name of the header to retrieve.
+   * @param aPreserveGroups If false (the default), then the result is a flat
+   *                        list of addresses, with all group annotations
+   *                        removed.
+   *                        If true, then some address objects may represent
+   *                        groups in the header, preserving the original header
+   *                        structure.
+   */
+  void getAddressingHeader(in string aHeaderName,
+    [optional] in boolean aPreserveGroups, [optional] out unsigned long count,
+    [array, size_is(count), retval] out msgIAddressObject addresses);
+
+  /**
+   * Retrieve a raw version of the header value as would be represented in MIME.
+   * This form does not include the header name and colon, trailing whitespace,
+   * nor embedded CRLF pairs in the case of very long header names.
+   *
+   * @param aHeaderName     The name of the header to retrieve.
+   */
+  AUTF8String getRawHeader(in string aHeaderName);
+
+  /**
+   * Retrieve an enumerator of the names of all headers in this set of headers.
+   * The header names returned may be in different cases depending on the
+   * precise implementation of this interface, so implementations should not
+   * rely on an exact kind of case being returned.
+   */
+  readonly attribute nsIUTF8StringEnumerator headerNames;
+
+%{C++
+  /**
+   * A special variant of getAddressingHeader that is specialized better for C++
+   * users of this API.
+   */
+  nsresult GetAddressingHeader(const char *aPropertyName,
+                               nsCOMArray<msgIAddressObject> &addrs,
+                               bool aPreserveGroups = false)
+  {
+    msgIAddressObject **addrPtr;
+    uint32_t length;
+    nsresult rv = GetAddressingHeader(aPropertyName, aPreserveGroups, &length,
+      &addrPtr);
+    NS_ENSURE_SUCCESS(rv, rv);
+    addrs.Adopt(addrPtr, length);
+    return NS_OK;
+  }
+%}
+
+};
+
+/**
+ * An interface that enhances msgIStructuredHeaders by allowing the values of
+ * headers to be modified.
+ */
+[scriptable, uuid(de109a13-47e5-4b69-8784-854b66a88da6)]
+interface msgIWritableStructuredHeaders : msgIStructuredHeaders {
+  /**
+   * Store the given value for the given header, overwriting any previous value
+   * that was stored for said header.
+   *
+   * @param aHeaderName     The name of the header to store.
+   * @param aValue          The rich, structured value of the header to store.
+   */
+  void setHeader(in string aHeaderName, in jsval aValue);
+
+  /**
+   * Forget any previous value that was stored for the given header.
+   *
+   * @param aHeaderName     The name of the header to delete.
+   */
+  void deleteHeader(in string aHeaderName);
+
+  /**
+   * Copy all of the structured values from another set of structured headers to
+   * the current one, overwriting any values that may have been specified
+   * locally. Note that the copy is a shallow copy of the value.
+   *
+   * @param aOtherHeaders   A set of header values to be copied.
+   */
+  void addAllHeaders(in msgIStructuredHeaders aOtherHeaders);
+
+  /**
+   * Set the value of the header as if it were an unstructured header. Such
+   * headers include most notably the Subject header.
+   *
+   * @param aHeaderName     The name of the header to store.
+   * @param aValue          The value to store.
+   */
+  void setUnstructuredHeader(in string aHeaderName, in AString aValue);
+
+  /**
+   * Set the value of the header as if it were an addressing header, such as the
+   * From or To headers.
+   *
+   * @param aHeaderName     The name of the header to store.
+   */
+  void setAddressingHeader(in string aHeaderName,
+    [array, size_is(aCount)] in msgIAddressObject aAddresses,
+    in unsigned long aCount);
+
+  /**
+   * Store the value of the header using a raw version as would be represented
+   * in MIME. So as to handle 8-bit headers properly, the charset needs to be
+   * specified, although it may be null.
+   *
+   * @param aHeaderName     The name of the header to store.
+   * @param aValue          The raw MIME header value to store.
+   * @param aCharset        The expected charset of aValue.
+   */
+  void setRawHeader(in string aHeaderName, in ACString aValue,
+                    in string aCharset);
+
+%{C++
+  /**
+   * A special variant of setAddressingHeader that is specialized better for C++
+   * users of this API.
+   */
+  nsresult SetAddressingHeader(const char *aPropertyName,
+                               const nsCOMArray<msgIAddressObject> &addrs)
+  {
+    return SetAddressingHeader(aPropertyName,
+      const_cast<nsCOMArray<msgIAddressObject>&>(addrs).Elements(),
+      addrs.Length());
+  }
+%}
+};

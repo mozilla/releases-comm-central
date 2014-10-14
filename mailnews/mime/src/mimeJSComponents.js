@@ -13,13 +13,94 @@ function HeaderHandler() {
   this.deliverEOF = function () {};
 }
 
+function StringEnumerator(iterator) {
+  this._iterator = iterator;
+  this._next = undefined;
+}
+StringEnumerator.prototype = {
+  QueryInterface: XPCOMUtils.generateQI([
+    Components.interfaces.nsIUTF8StringEnumerator]),
+  _setNext: function () {
+    if (this._next !== undefined)
+      return;
+    this._next = this._iterator.next();
+  },
+  hasMore: function () {
+    this._setNext();
+    return !this._next.done;
+  },
+  getNext: function () {
+    this._setNext();
+    let result = this._next;
+    this._next = undefined;
+    if (result.done)
+      throw Components.results.NS_ERROR_UNEXPECTED;
+    return result.value;
+  }
+};
+
+/**
+ * This is a base handler for supporting msgIStructuredHeaders, since we have
+ * two implementations that need the readable aspects of the interface.
+ */
+function MimeStructuredHeaders() {
+}
+MimeStructuredHeaders.prototype = {
+  getHeader: function (aHeaderName) {
+    let name = aHeaderName.toLowerCase();
+    return this._headers.get(name);
+  },
+
+  hasHeader: function (aHeaderName) {
+    return this._headers.has(aHeaderName.toLowerCase());
+  },
+
+  getUnstructuredHeader: function (aHeaderName) {
+    let result = this.getHeader(aHeaderName);
+    if (result === undefined || typeof result == "string")
+      return result;
+    throw Components.results.NS_ERROR_ILLEGAL_VALUE;
+  },
+
+  getAddressingHeader: function (aHeaderName, aPreserveGroups, count) {
+    let addrs = this.getHeader(aHeaderName);
+    if (addrs === undefined) {
+      addrs = [];
+    } else if (!Array.isArray(addrs)) {
+      throw Components.results.NS_ERROR_ILLEGAL_VALUE;
+    }
+    return fixArray(addrs, aPreserveGroups, count);
+  },
+
+  getRawHeader: function (aHeaderName) {
+    let result = this.getHeader(aHeaderName);
+    if (result === undefined)
+      return result;
+
+    let value = jsmime.headeremitter.emitStructuredHeader(aHeaderName,
+      result, {});
+    // Strip off the header name and trailing whitespace before returning...
+    value = value.substring(aHeaderName.length + 2).trim();
+    // ... as well as embedded newlines.
+    value = value.replace(/\r\n/g, '');
+    return value;
+  },
+
+  get headerNames() {
+    return new StringEnumerator(this._headers.keys());
+  }
+};
+
+
 function MimeHeaders() {
 }
 MimeHeaders.prototype = {
+  __proto__: MimeStructuredHeaders.prototype,
   classDescription: "Mime headers implementation",
   classID: Components.ID("d1258011-f391-44fd-992e-c6f4b461a42f"),
   contractID: "@mozilla.org/messenger/mimeheaders;1",
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIMimeHeaders]),
+  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIMimeHeaders,
+    Components.interfaces.msgIStructuredHeaders]),
 
   initialize: function MimeHeaders_initialize(allHeaders) {
     this._headers = MimeParser.extractHeaders(allHeaders);
@@ -44,6 +125,53 @@ MimeHeaders.prototype = {
   }
 };
 
+function MimeWritableStructuredHeaders() {
+  this._headers = new Map();
+}
+MimeWritableStructuredHeaders.prototype = {
+  __proto__: MimeStructuredHeaders.prototype,
+  classID: Components.ID("c560806a-425f-4f0f-bf69-397c58c599a7"),
+  QueryInterface: XPCOMUtils.generateQI([
+    Components.interfaces.msgIStructuredHeaders,
+    Components.interfaces.msgIWritableStructuredHeaders]),
+
+  setHeader: function (aHeaderName, aValue) {
+    this._headers.set(aHeaderName.toLowerCase(), aValue);
+  },
+
+  deleteHeader: function (aHeaderName) {
+    this._headers.delete(aHeaderName.toLowerCase());
+  },
+
+  addAllHeaders: function (aHeaders) {
+    let headerList = aHeaders.headerNames;
+    while (headerList.hasMore()) {
+      let header = headerList.getNext();
+      this.setHeader(header, aHeaders.getHeader(header));
+    }
+  },
+
+  setUnstructuredHeader: function (aHeaderName, aValue) {
+    this.setHeader(aHeaderName, aValue);
+  },
+
+  setAddressingHeader: function (aHeaderName, aAddresses, aCount) {
+    this.setHeader(aHeaderName, aAddresses);
+  },
+
+  setRawHeader: function (aHeaderName, aValue, aCharset) {
+    aValue = jsmime.headerparser.convert8BitHeader(aValue, aCharset);
+    try {
+      this.setHeader(aHeaderName,
+        jsmime.headerparser.parseStructuredHeader(aHeaderName, aValue));
+    } catch (e) {
+      // This means we don't have a structured encoder. Just assume it's a raw
+      // string value then.
+      this.setHeader(aHeaderName, aValue);
+    }
+  }
+};
+
 // These are prototypes for nsIMsgHeaderParser implementation
 var Mailbox = {
   toString: function () {
@@ -57,6 +185,39 @@ var EmailGroup = {
   }
 };
 
+// A helper method for parse*Header that takes into account the desire to
+// preserve group and also tweaks the output to support the prototypes for the
+// XPIDL output.
+function fixArray(addresses, preserveGroups, count) {
+  function resetPrototype(obj, prototype) {
+    let prototyped = Object.create(prototype);
+    for (var key of Object.getOwnPropertyNames(obj))
+      prototyped[key] = obj[key];
+    return prototyped;
+  }
+  let outputArray = [];
+  for (let element of addresses) {
+    if ('group' in element) {
+      // Fix up the prototypes of the group and the list members
+      element = resetPrototype(element, EmailGroup);
+      element.group = element.group.map(e => resetPrototype(e, Mailbox));
+
+      // Add to the output array
+      if (preserveGroups)
+        outputArray.push(element);
+      else
+        outputArray = outputArray.concat(element.group);
+    } else {
+      element = resetPrototype(element, Mailbox);
+      outputArray.push(element);
+    }
+  }
+
+  if (count)
+    count.value = outputArray.length;
+  return outputArray;
+}
+
 function MimeAddressParser() {
 }
 MimeAddressParser.prototype = {
@@ -67,45 +228,12 @@ MimeAddressParser.prototype = {
     aHeader = aHeader || "";
     let value = MimeParser.parseHeaderField(aHeader,
       MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_ALL_I18N, aCharset);
-    return this._fixArray(value, aPreserveGroups, count);
+    return fixArray(value, aPreserveGroups, count);
   },
   parseDecodedHeader: function (aHeader, aPreserveGroups, count) {
     aHeader = aHeader || "";
     let value = MimeParser.parseHeaderField(aHeader, MimeParser.HEADER_ADDRESS);
-    return this._fixArray(value, aPreserveGroups, count);
-  },
-
-  // A helper method for parse*Header that takes into account the desire to
-  // preserve group and also tweaks the output to support the prototypes for the
-  // XPIDL output.
-  _fixArray: function (addresses, preserveGroups, count) {
-    function resetPrototype(obj, prototype) {
-      let prototyped = Object.create(prototype);
-      for (var key in obj)
-        prototyped[key] = obj[key];
-      return prototyped;
-    }
-    let outputArray = [];
-    for (let element of addresses) {
-      if ('group' in element) {
-        // Fix up the prototypes of the group and the list members
-        element = resetPrototype(element, EmailGroup);
-        element.group = element.group.map(e => resetPrototype(e, Mailbox));
-
-        // Add to the output array
-        if (preserveGroups)
-          outputArray.push(element);
-        else
-          outputArray = outputArray.concat(element.group);
-      } else {
-        element = resetPrototype(element, Mailbox);
-        outputArray.push(element);
-      }
-    }
-
-    if (count)
-      count.value = outputArray.length;
-    return outputArray;
+    return fixArray(value, aPreserveGroups, count);
   },
 
   makeMimeHeader: function (addresses, length) {
@@ -334,5 +462,6 @@ MimeConverter.prototype = {
   },
 };
 
-var components = [MimeHeaders, MimeAddressParser, MimeConverter];
+var components = [MimeHeaders, MimeWritableStructuredHeaders, MimeAddressParser,
+  MimeConverter];
 var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

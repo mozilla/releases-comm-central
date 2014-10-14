@@ -3,19 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsISupports.idl"
-#include "nsrootidl.idl"
+#include "msgIStructuredHeaders.idl"
 
 %{C++
 #define NS_IMIMEHEADERS_CONTRACTID \
   "@mozilla.org/messenger/mimeheaders;1"
 %}
 
-/** 
+/**
  * An interface that can extract individual headers from a body of headers.
- */ 
-[scriptable, uuid(877af00d-1ce8-446a-b4ce-b7cb1edd2791)]
-interface nsIMimeHeaders : nsISupports {
+ */
+[scriptable, uuid(8a570955-c641-4471-8cc1-1bc1bca65561)]
+interface nsIMimeHeaders : msgIStructuredHeaders {
   /// Feed in the text of headers
   void initialize(in ACString allHeaders);
 
