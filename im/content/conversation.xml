@@ -1740,13 +1740,34 @@
       <method name="initConversationUI">
         <body>
         <![CDATA[
+          let cti = this.getElt("conv-top-info");
+          // The toolbarbuttons for different services to be added below.
+
+          // Target switcher button.
+          let targetSwitcher = document.createElement("toolbarbutton");
+          targetSwitcher.setAttribute("disabled", "true");
+          targetSwitcher.classList.add("alltargets-button");
+          let account = this._conv.account;
+          targetSwitcher.setAttribute("image",
+                                      account.protocol.iconBaseURI + "icon.png");
+          let targetTooltip =
+            this.bundle.formatStringFromName("targetTooltipChat",
+                                             [this._conv.title,
+                                              account.name,
+                                              account.protocol.name], 3);
+          targetSwitcher.setAttribute("tooltiptext", targetTooltip);
+          let targetPopup = document.createElement("menupopup");
+          targetPopup.classList.add("all-targets-popup");
+          targetPopup.setAttribute("postion", "after_end");
+          targetSwitcher.appendChild(targetPopup);
+          cti.appendChild(targetSwitcher);
+
           if (this._conv.isChat) {
             this.updateTopic();
             this.setAttribute("chat", "true");
             this.tab.setAttribute("chat", "true");
             this.tab.setAttribute("prpl", this._conv.account.protocol.id);
 
-            let cti = this.getElt("conv-top-info");
             cti.setAttribute("displayName", this._conv.title);
             cti.setAttribute("status", "chat");
 
@@ -1998,16 +2019,13 @@
     </xul:stack>
     <xul:stack class="displayNameAndstatusMessageStack"
                mousethrough="always" flex="1">
-      <xul:hbox align="center" flex="1">
+      <xul:hbox align="right" flex="1" class="displayNameAndToolbar">
         <xul:description anonid="displayName" class="displayName" flex="1"
                          crop="end" xbl:inherits="value=displayName"/>
-        <xul:toolbarbutton class="prplIcon alltargets-button"
-                           anonid="targetPrplIcon" context=""
-                           xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
-          <xul:menupopup class="all-targets-popup"
-                         anonid="all-targets-popup"
-                         position="after_end"/>
-        </xul:toolbarbutton>
+        <!-- Set "context" else context attribute from parent node is used. -->
+        <xul:hbox class="convToolbar" mousethrough="always" context="">
+          <children/>
+        </xul:hbox>
       </xul:hbox>
       <xul:description anonid="statusMessage" class="statusMessage"
                        xbl:inherits="value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext,role=topicRole"
@@ -2020,8 +2038,6 @@
         <![CDATA[
           this.topic
               .addEventListener("click", this.startEditTopic.bind(this));
-          if (this.hasAttribute("allowTargetChange"))
-            this.allowTargetChange();
           // Cancel any ongoing edit if the binding changes.
           this.editing = false;
 
@@ -2150,15 +2166,14 @@
       <method name="allowTargetChange">
         <body>
         <![CDATA[
-          let targetButton =
-            document.getAnonymousElementByAttribute(this, "anonid", "targetPrplIcon");
+          let targetButton = this.querySelector(".alltargets-button");
           targetButton.setAttribute("type", "menu");
           targetButton.setAttribute("mousethrough", "never");
           this.setAttribute("allowTargetChange", "true");
-          let popup = document.getAnonymousElementByAttribute(this, "anonid",
-                                                              "all-targets-popup");
+          let popup = this.querySelector(".all-targets-popup");
           popup.addEventListener("popupshowing", this.showAllTargets.bind(this));
           popup.addEventListener("popuphiding", this.hideAllTargets.bind(this));
+          targetButton.removeAttribute("disabled");
         ]]>
         </body>
       </method>
@@ -2166,8 +2181,7 @@
       <method name="showAllTargets">
         <body>
         <![CDATA[
-          let popup = document.getAnonymousElementByAttribute(this, "anonid",
-                                                              "all-targets-popup");
+          let popup = this.querySelector(".all-targets-popup");
           let _conv = document.getBindingParent(this)._conv;
           if (!_conv.contact)
             return;
@@ -2213,8 +2227,7 @@
       <method name="hideAllTargets">
         <body>
         <![CDATA[
-          let popup = document.getAnonymousElementByAttribute(this, "anonid",
-                                                              "all-targets-popup");
+          let popup = this.querySelector(".all-targets-popup");
           while (popup.hasChildNodes())
             popup.lastChild.remove();
           popup.removeEventListener("command", this.changeTargetCommand);
@@ -2239,13 +2252,9 @@
                        class="statusMessageWithDash"
                        xbl:inherits="value=statusMessageWithDash,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic,context=topicContext,role=topicRole"
                        crop="end" flex="100000"/>
-      <xul:toolbarbutton class="prplIcon alltargets-button" mousethrough="always"
-                         anonid="targetPrplIcon" context=""
-                         xbl:inherits="image=prplIcon,tooltiptext=targetTooltiptext">
-        <xul:menupopup class="all-targets-popup"
-                       anonid="all-targets-popup"
-                       position="after_end"/>
-      </xul:toolbarbutton>
+      <xul:hbox class="convToolbar" mousethrough="always" context="">
+        <children/>
+      </xul:hbox>
     </content>
     <implementation>
       <constructor>

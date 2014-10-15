@@ -91,24 +91,55 @@
   font-style: italic;
 }
 
-.alltargets-button {
-  min-width: 16px;
-  padding: 0 0;
-  -moz-appearance: none;
-  border: none;
-}
-
 .alltargets-button > .toolbarbutton-text,
 .alltargets-button > .toolbarbutton-menu-dropmarker {
   display: none;
 }
 
-.alltargets-button[type="menu"] {
-  cursor: pointer;
+/* Remove the margin set by the menu dropmarker so that target switcher button
+ * doesn't have uneven padding. */
+.alltargets-button > .toolbarbutton-icon {
+  margin: 0;
 }
 
 .alltargets-item[selected="true"] {
   font-weight: bold;
+}
+
+/* The Australis themed button is borrowed from the Firefox toolbarbutton
+ * (browser/themes/windows/browser.css). The properties are set in class
+ * toolbarbutton-1 of the CSS file. */
+.conv-top-info > toolbarbutton {
+  -moz-appearance: none;
+  max-height: 22px;
+  border: 1px solid transparent;
+  padding: 2px 3px;
+  margin: 0 0;
+}
+
+.conv-top-info > toolbarbutton:hover:not([disabled="true"]) {
+  background: hsla(0,0%,100%,0.5) linear-gradient(hsla(0,0%,100%,0.1), hsla(0,0%,100%,0.2)) padding-box;
+  transition: background-color 250ms;
+  border: 1px solid hsla(0,0%,0%,0.5);
+  box-shadow: 0 1px 0 hsla(0,0%,100%,0.5),
+              0 1px 0 hsla(0,0%,100%,0.7) inset;
+  border-radius: 3px;
+}
+
+.conv-top-info > toolbarbutton[open="true"],
+.conv-top-info > toolbarbutton[open="true"]:hover,
+.conv-top-info > toolbarbutton:active:not([disabled="true"]) {
+  background: linear-gradient(transparent, rgba(0,0,0,0.15)) !important;
+  border: 1px solid hsla(0,0%,0%,0.5);
+  box-shadow: 0 1px 0 hsla(0,0%,100%,0.5),
+              0 1px 0 hsla(0,0%,0%,0.05) inset,
+              0 1px 1px hsla(0,0%,0%,0.2) inset;
+  border-radius: 3px;
+}
+
+.displayNameAndToolbar {
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  margin: 1px 4px 22px 0;
 }
 
 .status-overlay-icon[status="away"],
@@ -135,7 +166,11 @@
 @media all and (min-height: 251px) {
   .statusImageStack,
   .displayNameAndstatusMessageStack {
-    margin: 2px 2px;
+    margin: 2px 0 2px 2px;
+  }
+
+  .displayNameAndstatusMessageStack {
+    -moz-margin-start: 4px;
   }
 
   .statusMessage {
@@ -156,17 +191,16 @@
 
   .displayName {
     font-size: large;
-    border-bottom: 1px solid rgba(0,0,0,0.25);
-    margin: 0 0 16px !important;
+    margin: 5px 0 0 0 !important;
     padding-right: 20px;
-  }
-
-  .prplIcon {
-    margin: 0 1px 16px -16px !important;
   }
 
   .statusTypeIcon {
     margin: 32px 0 0;
+  }
+
+  .convToolbar {
+    margin: -1px 0 0;
   }
 
   .userIconHolder[userIcon] + .statusTypeIcon {
@@ -184,11 +218,6 @@
     margin: 2px 0 !important;
   }
 
-  .prplIcon {
-    margin: 1px 3px !important;
-    padding: 0 0;
-  }
-
   .statusMessage[editing] {
 %ifdef XP_WIN
     margin: -1px 2px 0px 8px !important;
@@ -199,6 +228,15 @@
 
   .statusTypeIcon {
     margin: 1px 3px;
+  }
+
+  .convToolbar {
+    margin: -1px 1px 0;
+  }
+
+  .conv-top-info > toolbarbutton {
+    max-height: 20px;
+    padding: 1px 2px;
   }
 }
 
