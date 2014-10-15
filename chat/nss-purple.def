@@ -1,0 +1,5 @@
+PK11_PubEncryptRaw
+PK11_PubDecryptRaw
+PK11_Verify
+PK11_RestoreContext
+PK11_SaveContextAlloc

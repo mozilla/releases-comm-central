@@ -24,3 +24,6 @@ MOZ_APP_ID={33cb9019-c295-46dd-be21-8c4936574bee}
 if test "$OS_TARGET" = "WINNT" -o "$OS_TARGET" = "Darwin"; then
   MOZ_FOLD_LIBS=1
 fi
+if test "$OS_TARGET" = "WINNT"; then
+  NSS_EXTRA_SYMBOLS_FILE=../../../../chat/nss-purple.def
+fi
