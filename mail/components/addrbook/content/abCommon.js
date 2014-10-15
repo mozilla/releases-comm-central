@@ -479,12 +479,24 @@ function goNewListDialog(selectedAB)
                     {selectedAB:selectedAB});
 }
 
-function goEditListDialog(abCard, listURI)
+function goEditListDialog(abCard, listUri)
 {
+  let params = {
+    inParam: {
+      abCard: abCard,
+      listUri: listUri,
+    },
+    outParam: {
+      ok: false, // true if OK in dialog is clicked
+    },
+  };
   window.openDialog("chrome://messenger/content/addressbook/abEditListDialog.xul",
                     "",
                     "chrome,modal,resizable=no,centerscreen",
-                    {abCard:abCard, listURI:listURI});
+                    params);
+  if (params.outParam.ok) {
+    ChangeDirectoryByURI(listUri); // force refresh
+  }
 }
 
 function goNewCardDialog(selectedAB)
@@ -764,3 +776,4 @@ function makePhotoFile(aDir, aExtension) {
 function encodeABTermValue(aString) {
   return encodeURIComponent(aString).replace(/\(/g, "%28").replace(/\)/g, "%29");
 }
+
