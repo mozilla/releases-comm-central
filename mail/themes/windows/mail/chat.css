@@ -75,7 +75,13 @@
 
 .conv-textbox {
   -moz-appearance: none;
-  border: none;
+  /* Right/left margins so the borders show up on all sides. */
+  margin: 0 1px 0 1px;
+}
+
+.conv-counter[value^="-"] {
+  -moz-margin-end: 2px;
+  -moz-padding-end: 4px;
 }
 
 #contextPane {

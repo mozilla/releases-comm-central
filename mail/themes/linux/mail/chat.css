@@ -30,6 +30,11 @@
   border: none;
 }
 
+.conv-textbox {
+  -moz-margin-start: 1px;
+  -moz-appearance: none;
+}
+
 #conv-top-info {
   -moz-appearance: none;
   color: -moz-DialogText;

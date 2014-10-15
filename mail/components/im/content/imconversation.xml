@@ -31,9 +31,10 @@
           </xul:notificationbox>
         </xul:hbox>
         <xul:splitter class="splitter" anonid="splitter-bottom"/>
-        <xul:vbox anonid="conv-bottom" class="conv-bottom">
+        <xul:stack anonid="conv-bottom" class="conv-bottom">
           <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"/>
-        </xul:vbox>
+          <xul:description anonid="charCounter" class="conv-counter" value="" right="0" bottom="0"/>
+        </xul:stack>
       </xul:vbox>
     </content>
     <implementation implements="nsIObserver">
@@ -534,16 +535,22 @@
             else if (/^\/me /.test(text))
               left = this._conv.sendTyping(text.slice(4));
 
+            let charCounter = this.getElt("charCounter");
+
             // When the input box is cleared or there is no character limit,
             // don't show the character limit in the statusbar.
             if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
-              this._statusTextEnd = "";
-              this._statusTextEndIsError = false;
+              charCounter.setAttribute("value", "");
+              inputBox.removeAttribute("invalidInput");
             }
             else {
               // 200 is a 'magic' constant to avoid showing big numbers.
-              this._statusTextEnd = left < 200 ? left.toString() : "";
-              this._statusTextEndIsError = left < 0;
+              charCounter.setAttribute("value", (left < 200 ? left : ""));
+
+              if (left >= 0)
+                inputBox.removeAttribute("invalidInput");
+              else if (left < 0)
+                inputBox.setAttribute("invalidInput", "true");
             }
             this.displayStatusText();
           }).bind(this), 0);

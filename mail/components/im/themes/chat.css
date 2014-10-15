@@ -302,9 +302,13 @@ imcontact[aliasing] .contactDisplayName {
 %endif
 
 .conv-textbox {
-  margin: 0 0;
   padding: 2px;
   box-sizing: content-box;
+  border: 1px solid transparent;
+}
+
+.conv-textbox[invalidInput="true"] {
+  border-color: red;
 }
 %ifndef XP_MACOSX
 
@@ -312,6 +316,43 @@ imcontact[aliasing] .contactDisplayName {
   background: inherit;
 }
 %endif
+
+.conv-counter {
+  color: #000;
+  background-color: rgba(246, 246, 246, 0.7);
+  -moz-border-start: 1px solid rgb(200, 200, 200);
+  border-top: 1px solid rgb(200, 200, 200);
+  /* Padding that gets flipped to margins in .conv-counter[value^="0"] to avoid the red border. */
+  font-size: 130%;
+  padding-top: 0;
+  padding-bottom: 1px;
+  -moz-padding-start: 5px;
+  -moz-padding-end: 6px;
+  margin: 0;
+}
+
+.conv-counter:-moz-locale-dir(ltr) {
+  border-top-left-radius: 3px;
+}
+
+.conv-counter:-moz-locale-dir(rtl) {
+  border-top-right-radius: 3px;
+}
+
+.conv-counter[value=""] {
+  display: none;
+}
+
+/* Negative counter values (user went over the character limit). */
+.conv-counter[value^="-"] {
+  color: red;
+  margin-bottom: 1px;
+  /* The 6px padding-end from .conv-counter is split into a 1px margin-end (to avoid the border) and 5px padding-end (as regular padding). */
+  -moz-margin-end: 1px;
+  padding-top: 1px;
+  padding-bottom: 0;
+  -moz-padding-end: 5px;
+}
 
 %ifdef XP_MACOSX
 grippy {
