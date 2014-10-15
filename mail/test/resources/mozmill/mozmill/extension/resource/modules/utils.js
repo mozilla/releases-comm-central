@@ -132,9 +132,9 @@ function tempfile(appention) {
   }
 	var tempfile = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("TmpD", Components.interfaces.nsIFile);
 	tempfile.append(uuidgen.generateUUID().toString().replace('-', '').replace('{', '').replace('}',''))
-	tempfile.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0777);
+	tempfile.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o777);
 	tempfile.append(appention);
-	tempfile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0666);
+	tempfile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0o666);
 	// do whatever you need to the created file
 	return tempfile.clone()
 }
@@ -218,7 +218,7 @@ var checkChrome = function() {
                             .createInstance(Components.interfaces.nsIFileOutputStream);
 
    // use 0x02 | 0x10 to open file for appending.
-   foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0);
+   foStream.init(file, 0x02 | 0x08 | 0x20, 0o666, 0);
    // write, create, truncate
    // In a c file operation, we have no need to set file mode with or operation,
    // directly using "r" or "w" usually.
@@ -255,7 +255,7 @@ var checkChrome = function() {
                                .createInstance(Components.interfaces.nsIFileOutputStream);
 
        // use 0x02 | 0x10 to open file for appending.
-       foStream.init(thefile, 0x02 | 0x08 | 0x20, 0666, 0);
+       foStream.init(thefile, 0x02 | 0x08 | 0x20, 0o666, 0);
        // write, create, truncate
        // In a c file operation, we have no need to set file mode with or operation,
        // directly using "r" or "w" usually.
