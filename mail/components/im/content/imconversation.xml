@@ -1146,7 +1146,7 @@
          if (this.tab)
            this.tab.setAttribute("label", this._conv.title);
 
-         this.findbar.browser = browser;
+         this.findbar.browser = this.browser;
 
          if (!("Status" in window))
            Components.utils.import("resource:///modules/imStatusUtils.jsm");
