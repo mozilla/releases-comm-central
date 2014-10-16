@@ -327,7 +327,6 @@ nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *
                      nullPrincipal,
                      nsILoadInfo::SEC_NORMAL,
                      nsIContentPolicy::TYPE_OTHER,
-                     nullptr, // aChannelPolicy
                      nullptr, // aLoadGroup
                      this); // aCallbacks
   NS_ENSURE_SUCCESS(rv, rv);
