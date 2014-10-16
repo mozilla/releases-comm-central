@@ -45,6 +45,7 @@ endif
 
 include $(topsrcdir)/config/config.mk
 
+OVERRIDE_DEFAULT_GOAL := installer
 installer::
 	$(MAKE) -C .. installer-stage
 	$(MAKE) $(CONFIG_DIR)/setup.exe
