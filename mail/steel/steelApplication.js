@@ -29,12 +29,16 @@ var ApplicationFactory = {
   }
 };
 
+#include ../../mozilla/toolkit/components/exthelper/extApplication.js
+
 function Application() {
   this.initToolkitHelpers();
 }
 
-
 Application.prototype = {
+  // set the proto, defined in extApplication.js
+  __proto__: extApplication.prototype,
+
   classID: APPLICATION_CID,
 
   // redefine the default factory for XPCOMUtils
@@ -61,10 +65,6 @@ Application.prototype = {
                        .getProperty("name") == "Linux")),
   platformIsWindows: "@mozilla.org/windows-registry-key;1" in Cc
 };
-
-#include ../../mozilla/toolkit/components/exthelper/extApplication.js
-
-Application.prototype.__proto__ = extApplication.prototype;
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([Application]);
 
