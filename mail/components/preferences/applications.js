@@ -730,37 +730,34 @@ var gCloudFileTab = {
     this._settings = iframe;
 
     // When the iframe loads, populate it with the provider.
-    this._settings.contentWindow
-                  .addEventListener("load", function(e) {
-
-      iframe.contentWindow.removeEventListener("load",
-                                               arguments.callee,
-                                               false);
-      try {
-        iframe.contentWindow
-              .wrappedJSObject
-              .onLoadProvider(aProvider);
-      } catch(e) {
-        Components.utils.reportError(e);
-      }
-    }, false);
+    this._settings.contentWindow.addEventListener("load",
+      function loadProvider() {
+        iframe.contentWindow.removeEventListener("load",
+                                                 loadProvider,
+                                                 false);
+        try {
+          iframe.contentWindow
+                .wrappedJSObject
+                .onLoadProvider(aProvider);
+        } catch(e) {
+          Components.utils.reportError(e);
+        }
+      }, false);
 
     // When the iframe (or any subcontent) fires the DOMContentLoaded event,
     // attach the _onClickLink handler to any anchor elements that we can find.
-    this._settings.contentWindow
-                  .addEventListener("DOMContentLoaded", function(e) {
+    this._settings.contentWindow.addEventListener("DOMContentLoaded",
+      function addClickListeners(e) {
+        iframe.contentWindow.removeEventListener("DOMContentLoaded",
+                                                 addClickListeners,
+                                                 false);
 
-      iframe.contentWindow.removeEventListener("DOMContentLoaded",
-                                               arguments.callee,
-                                               false);
+        let doc = e.originalTarget;
+        let links = doc.getElementsByTagName("a");
 
-      let doc = e.originalTarget;
-      let links = doc.getElementsByTagName("a");
-
-      for (let [, link] in Iterator(links))
-        link.addEventListener("click", gCloudFileTab._onClickLink);
-
-    }, false);
+        for (let [, link] in Iterator(links))
+          link.addEventListener("click", gCloudFileTab._onClickLink);
+      }, false);
 
     CommandUpdate_CloudFile();
   },

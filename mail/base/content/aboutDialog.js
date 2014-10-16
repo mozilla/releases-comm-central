@@ -557,7 +557,7 @@ appUpdater.prototype =
         this.selectPanel("applying");
         let update = this.um.activeUpdate;
         let self = this;
-        Services.obs.addObserver(function (aSubject, aTopic, aData) {
+        Services.obs.addObserver(function selectPanelOnUpdate(aSubject, aTopic, aData) {
           // Update the UI when the background updater is finished
           let status = update.state;
           if (status == "applied" || status == "applied-service" ||
@@ -571,7 +571,7 @@ appUpdater.prototype =
             // prompting the user to update manually.
             self.selectPanel("downloadFailed");
           }
-          Services.obs.removeObserver(arguments.callee, "update-staged");
+          Services.obs.removeObserver(selectPanelOnUpdate, "update-staged");
         }, "update-staged", false);
       } else {
         this.selectPanel("apply");

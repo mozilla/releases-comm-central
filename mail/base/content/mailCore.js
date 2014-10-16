@@ -164,8 +164,8 @@ function CustomizeMailToolbar(toolboxId, customizePopupId)
     // Open the panel, but make it invisible until the iframe has loaded so
     // that the user doesn't see a white flash.
     panel.style.visibility = "hidden";
-    toolbox.addEventListener("beforecustomization", function () {
-      toolbox.removeEventListener("beforecustomization", arguments.callee, false);
+    toolbox.addEventListener("beforecustomization", function removeProp() {
+      toolbox.removeEventListener("beforecustomization", removeProp, false);
       panel.style.removeProperty("visibility");
     }, false);
     panel.openPopup(toolbox, "after_start", 0, 0);
@@ -448,13 +448,14 @@ function openAddonsMgr(aView)
 
   openContentTab("about:addons", "tab", "addons.mozilla.org");
 
+
   if (aView) {
     // This must be a new load, else the ping/pong would have
     // found the window above.
-    Services.obs.addObserver(function (aSubject, aTopic, aData) {
-        Services.obs.removeObserver(arguments.callee, aTopic);
-        aSubject.loadView(aView);
-      }, "EM-loaded", false);
+    Services.obs.addObserver(function loadViewOnLoad(aSubject, aTopic, aData) {
+      Services.obs.removeObserver(loadViewOnLoad, aTopic);
+      aSubject.loadView(aView);
+    }, "EM-loaded", false);
   }
 }
 
