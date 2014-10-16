@@ -95,10 +95,19 @@ let gSystemIntegrationDialog = {
     // In all cases, save the user's decision for "always check at startup".
     this._shellSvc.shouldCheckDefaultClient = this._startupCheckbox.checked;
 
+    let searchIntegPossible = !this._searchCheckbox.hidden;
+    if (searchIntegPossible) {
+      this.SearchIntegration.firstRunDone = true;
+
     // If the "skip integration" button was used do not set any defaults
     // and close the dialog.
-    if (!aSetAsDefault)
+    if (!aSetAsDefault) {
+      // Disable search integration in this case.
+      if (searchIntegPossible)
+        this.SearchIntegration.prefEnabled = false;
+
       return true;
+    }
 
     // For each checked item, if we aren't already the default client,
     // make us the default.
@@ -121,11 +130,8 @@ let gSystemIntegrationDialog = {
 
     // Set the search integration pref if it is changed.
     // The integration will handle the rest.
-    if (!this._searchCheckbox.hidden)
-    {
+    if (searchIntegPossible)
       this.SearchIntegration.prefEnabled = this._searchCheckbox.checked;
-      this.SearchIntegration.firstRunDone = true;
-    }
 
     return true;
   }
