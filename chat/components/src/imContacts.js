@@ -98,14 +98,13 @@ this.__defineGetter__("DBConn", function() {
 
   if (!gDBConnection) {
     gDBConnection = getDBConnection();
-    function dbClose(aSubject, aTopic, aData) {
+    Services.obs.addObserver(function dbClose(aSubject, aTopic, aData) {
       Services.obs.removeObserver(dbClose, aTopic);
       if (gDBConnection) {
         gDBConnection.asyncClose();
         gDBConnection = null;
       }
-    }
-    Services.obs.addObserver(dbClose, "profile-before-change", false);
+    }, "profile-before-change", false);
   }
   gDBConnWithPendingTransaction = gDBConnection;
   gDBConnection.beginTransaction();
