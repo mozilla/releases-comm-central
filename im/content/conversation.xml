@@ -1758,7 +1758,7 @@
           targetSwitcher.setAttribute("tooltiptext", targetTooltip);
           let targetPopup = document.createElement("menupopup");
           targetPopup.classList.add("all-targets-popup");
-          targetPopup.setAttribute("postion", "after_end");
+          targetPopup.setAttribute("position", "after_end");
           targetSwitcher.appendChild(targetPopup);
           cti.appendChild(targetSwitcher);
 
