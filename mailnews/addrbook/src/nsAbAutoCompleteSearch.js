@@ -361,7 +361,7 @@ nsAbAutoCompleteSearch.prototype = {
       result._searchResults = [...result._collectedValues.values()];
       // Order by descending popularity, then primary email before secondary
       // for the same card, then for differing cards sort by email.
-      function order_by_popularity_and_email(a, b) {
+      let order_by_popularity_and_email = function(a, b) {
         return (b.popularity - a.popularity) ||
                ((a.card == b.card && a.isPrimaryEmail) ? -1 : 0) ||
                ((a.value < b.value) ? -1 : (a.value == b.value) ? 0 : 1);

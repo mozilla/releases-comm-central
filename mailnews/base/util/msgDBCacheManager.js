@@ -128,10 +128,7 @@ var msgDBCacheManager =
       let dbs = [];
       for (let i = 0; i < openDBs.length; i++)
         dbs.push(openDBs.queryElementAt(i, Ci.nsIMsgDatabase));
-      function sortByLastUse(a, b) {
-        return a.lastUseTime > b.lastUseTime;
-      }
-      dbs.sort(sortByLastUse);
+      dbs.sort(function(a, b) a.lastUseTime > b.lastUseTime);
       let dbsToClose = maxOpenDBs - dbs.length;
       for each (let [, db] in Iterator(dbs)) {
         if (MailServices.mailSession.IsFolderOpenInWindow(db.folder))
