@@ -32,8 +32,13 @@ var ircNonStandard = {
       // happens, it is ambiguous if it is an AUTH message or a NOTICE to the
       // user. Generally AUTH messages start with ***, but this could pretty
       // easily be faked.
-      let isAuth = aMessage.params[0] == "AUTH" &&
-                   aMessage.params[1].startsWith("***");
+      // Freenode simply sends * for the target. Moznet sends Auth (used to send
+      // AUTH); in this case, check if the user's nickname is not auth, or the
+      // the message starts with ***.
+      let target = aMessage.params[0].toLowerCase();
+      let isAuth = target == "*" ||
+        (target == "auth" && (aMessage.nickname.toLowerCase() != "auth" ||
+                              aMessage.params[1].startsWith("***")));
 
       // Some servers , e.g. irc.umich.edu, use NOTICE before connection to give
       // directions to users.
