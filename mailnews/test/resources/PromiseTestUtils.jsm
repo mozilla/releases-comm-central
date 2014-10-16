@@ -241,3 +241,18 @@ PromiseTestUtils.promiseFolderAdded = function promiseFolderAdded(folderName) {
       Ci.nsIMsgFolderNotificationService.folderAdded);
   });
 }
+
+/**
+ * Timer to resolve a promise after a delay
+ *
+ * @param aDelay    delay in milliseconds
+ * @return          promise that resolves after the delay
+ */
+
+PromiseTestUtils.promiseDelay= function promiseDelay(aDelay)
+{
+  return new Promise((resolve, reject) => {
+    let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+    timer.initWithCallback(resolve, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
+  });
+}
