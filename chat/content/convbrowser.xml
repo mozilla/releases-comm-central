@@ -81,7 +81,7 @@
       <field name="_docShell">null</field>
 
       <property name="docShell"
-                onget="return this._docShell || (this._docShell = this.boxObject.QueryInterface(Components.interfaces.nsIContainerBoxObject).docShell);"
+                onget="return this._docShell || (this._docShell = this.boxObject.docShell);"
                 readonly="true"/>
 
       <field name="_webNavigation">null</field>
