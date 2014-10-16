@@ -321,11 +321,12 @@ function _teardownRecentlyClosedMenu()
 function test_tab_recentlyClosed() {
 
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
-  mc.tabmail.closeOtherTabs(0);
+  mc.tabmail.closeOtherTabs(0, true);
   assert_number_of_tabs_open(1);
 
   // We start with a clean tab history.
-  mc.tabmail.recentlyClosedTabs = [];
+  mc.tabmail.clearRecentlyClosedTabs();
+  assert_equals(mc.tabmail.recentlyClosedTabs.length, 0);
 
   // The history is cleaned so let's open 15 tabs...
   be_in_folder(folder);

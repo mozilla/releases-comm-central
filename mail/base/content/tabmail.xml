@@ -771,6 +771,7 @@
       </method>
       <method name="closeOtherTabs">
         <parameter name="aTabNode"/>
+        <parameter name="aNoUndo"/>
         <body>
           <![CDATA[
             /**
@@ -784,7 +785,7 @@
             for (let i = this.tabInfo.length - 1; i >= 0; i--) {
               let tab = this.tabInfo[i];
               if ((tab != thisTab) && tab.canClose)
-                this.closeTab(tab);
+                this.closeTab(tab, aNoUndo);
             }
           ]]>
         </body>
@@ -1022,6 +1023,11 @@
             this.tabContainer.selectedIndex = indexToSelect;
           else
             this.tabContainer.selectedIndex = 0;
+        ]]></body>
+      </method>
+      <method name="clearRecentlyClosedTabs">
+        <body><![CDATA[
+          this.recentlyClosedTabs.length = 0;
         ]]></body>
       </method>
 
