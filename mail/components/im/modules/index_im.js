@@ -446,7 +446,16 @@ var GlodaIMIndexer = {
       return Gloda.kWorkDone;
 
     let content = aLogConv.getMessages()
-                          .map(function(m) (m.alias || m.who) + ": " + MailFolder.convertMsgSnippetToPlainText(m.message))
+                          // Some messages returned, e.g. sessionstart messages,
+                          // may have the noLog flag set. Ignore these.
+                          .filter(m => !m.noLog)
+                          .map(m => {
+                            let who = m.alias || m.who;
+                            // Some messages like topic change notifications may
+                            // not have a source.
+                            let prefix = who ? who + ": " : "";
+                            return prefix + MailFolder.convertMsgSnippetToPlainText(m.message));
+                          })
                           .join("\n\n");
     let glodaConv;
     if (aGlodaConv && aGlodaConv.value) {
