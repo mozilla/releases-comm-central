@@ -91,18 +91,20 @@
                        aria-labelledby="autoSave autoSaveInterval autoSaveEnd"/>
               <label id="autoSaveEnd" value="&autoSaveEnd.label;"/>
             </hbox>
-
-            <checkbox id="mailWarnOnSendAccelKey" label="&warnOnSendAccelKey.label;"
-                      preference="mail.warn_on_send_accel_key"
-                      accesskey="&warnOnSendAccelKey.accesskey;"/>
-
+            <hbox>
+              <checkbox id="mailWarnOnSendAccelKey"
+                        label="&warnOnSendAccelKey.label;"
+                        preference="mail.warn_on_send_accel_key"
+                        accesskey="&warnOnSendAccelKey.accesskey;"/>
+              <spacer flex="1"/>
+            </hbox>
             <hbox align="center">
               <checkbox id="attachment_reminder_label"
                         label="&attachmentReminder.label;"
                         accesskey="&attachmentReminder.accesskey;"
                         preference="mail.compose.attachment_reminder"
-                        command="cmd_toggleAttachmentCheck"
-                        flex="1"/>
+                        command="cmd_toggleAttachmentCheck"/>
+              <spacer flex="1"/>
               <button id="attachment_reminder_button"
                       label="&attachmentReminderOptions.label;"
                       accesskey="&attachmentReminderOptions.accesskey;"
@@ -209,13 +211,20 @@
          </tabpanel>
 
          <tabpanel orient="vertical">
-            <checkbox id="spellCheckBeforeSend" label="&spellCheck.label;"
-                      preference="mail.SpellCheckBeforeSend"
-                      accesskey="&spellCheck.accesskey;"/>
-
-            <checkbox id="inlineSpellCheck" label="&spellCheckInline.label;"
-                      preference="mail.spellcheck.inline"
-                      accesskey="&spellCheckInline1.accesskey;"/>
+            <hbox>
+              <checkbox id="spellCheckBeforeSend"
+                        label="&spellCheck.label;"
+                        preference="mail.SpellCheckBeforeSend"
+                        accesskey="&spellCheck.accesskey;"/>
+              <spacer flex="1"/>
+            </hbox>
+            <hbox>
+              <checkbox id="inlineSpellCheck"
+                        label="&spellCheckInline.label;"
+                        preference="mail.spellcheck.inline"
+                        accesskey="&spellCheckInline1.accesskey;"/>
+              <spacer flex="1"/>
+            </hbox>
 
             <separator class="thin"/>
 

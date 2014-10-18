@@ -168,25 +168,31 @@ type="int"/>
           <!-- Scrolling -->
           <groupbox id="scrollingGroup">
             <caption label="&scrolling.label;"/>
-
-            <checkbox id="useAutoScroll"
-                      label="&useAutoScroll.label;"
-                      accesskey="&useAutoScroll.accesskey;"
-                      preference="general.autoScroll"/>
-            <checkbox id="useSmoothScrolling"
-                      label="&useSmoothScrolling.label;"
-                      accesskey="&useSmoothScrolling.accesskey;"
-                      preference="general.smoothScroll"/>
+            <hbox>
+              <checkbox id="useAutoScroll"
+                        label="&useAutoScroll.label;"
+                        accesskey="&useAutoScroll.accesskey;"
+                        preference="general.autoScroll"/>
+              <spacer flex="1"/>
+            </hbox>
+            <hbox>
+              <checkbox id="useSmoothScrolling"
+                        label="&useSmoothScrolling.label;"
+                        accesskey="&useSmoothScrolling.accesskey;"
+                        preference="general.smoothScroll"/>
+              <spacer flex="1"/>
+            </hbox>
           </groupbox>
 
 #ifdef HAVE_SHELL_SERVICE
           <groupbox id="systemDefaultsGroup" orient="vertical">
             <caption label="&systemIntegration.label;"/>
-            <hbox id="checkDefaultBox" align="center" flex="1">
+            <hbox id="checkDefaultBox" align="center">
               <checkbox id="alwaysCheckDefault"
                         preference="mail.shell.checkDefaultClient"
                         label="&alwaysCheckDefault.label;"
-                        accesskey="&alwaysCheckDefault.accesskey;" flex="1"/>
+                        accesskey="&alwaysCheckDefault.accesskey;"/>
+              <spacer flex="1"/>
               <button id="checkDefaultButton" label="&checkDefaultsNow.label;"
                       accesskey="&checkDefaultsNow.accesskey;"
                       oncommand="gAdvancedPane.checkDefaultNow();"
@@ -250,9 +256,13 @@ type="int"/>
               <radiogroup id="markAsReadAutoPreferences" orient="vertical"
                           class="indent"
                           preference="mailnews.mark_message_read.delay">
-                <radio id="mark_read_immediately" value="false"
-                       label="&markAsReadNoDelay.label;"
-                       accesskey="&markAsReadNoDelay.accesskey;"/>
+                <hbox>
+                  <radio id="mark_read_immediately"
+                         label="&markAsReadNoDelay.label;"
+                         value="false"
+                         accesskey="&markAsReadNoDelay.accesskey;"/>
+                  <spacer flex="1"/>
+                </hbox>
                 <hbox align="center">
                   <radio id="markAsReadAfterDelay" value="true"
                          label="&markAsReadDelay.label;"
@@ -380,25 +390,31 @@ type="int"/>
                           onsyncfrompreference="return gAdvancedPane.addonWarnSyncFrom();"
                           onsynctopreference="return gAdvancedPane.addonWarnSyncTo();"/>
               </hbox>
-              <radio value="checkOnly"
-                     label="&updateCheck.label;"
-                     accesskey="&updateCheck.accesskey;"/>
-              <radio value="manual"
-                     label="&updateManual.label;"
-                     accesskey="&updateManual.accesskey;"/>
+              <hbox>
+                <radio value="checkOnly"
+                       label="&updateCheck.label;"
+                       accesskey="&updateCheck.accesskey;"/>
+                <spacer flex="1"/>
+              </hbox>
+              <hbox>
+                <radio value="manual"
+                       label="&updateManual.label;"
+                       accesskey="&updateManual.accesskey;"/>
+                <spacer flex="1"/>
+              </hbox>
             </radiogroup>
 
-	        <hbox>
-	          <button id="showUpdateHistory"
-	                  label="&updateHistory.label;"
-	                  accesskey="&updateHistory.accesskey;"
-	                  preference="app.update.disable_button.showUpdateHistory"
-	                  oncommand="gAdvancedPane.showUpdates();"/>
-	        </hbox>
+            <hbox>
+              <button id="showUpdateHistory"
+                      label="&updateHistory.label;"
+                      accesskey="&updateHistory.accesskey;"
+                      preference="app.update.disable_button.showUpdateHistory"
+                      oncommand="gAdvancedPane.showUpdates();"/>
+            </hbox>
           </groupbox>
 
 #ifdef MOZ_MAINTENANCE_SERVICE
-		  <separator/>
+          <separator/>
           <checkbox id="useService"
                     label="&useService.label;"
                     accesskey="&useService.accesskey;"

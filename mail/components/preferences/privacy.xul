@@ -63,18 +63,23 @@
     <groupbox id="mailContentGroup">
       <caption label="&captionMailContent.label;"/>
       <hbox id="remoteContentBox">
-        <checkbox id="acceptRemoteContent" flex="1"
+        <checkbox id="acceptRemoteContent"
                   preference="mailnews.message_display.disable_remote_image"
                   label="&acceptRemoteContent.label;"
                   accesskey="&acceptRemoteContent.accesskey;"/>
+        <spacer flex="1"/>
         <button id="remoteContentExceptions"
                 oncommand="gPrivacyPane.showRemoteContentExceptions();"
                 label="&remoteContentExceptions.label;"
                 accesskey="&remoteContentExceptions.accesskey;"/>
       </hbox>
-      <label id="acceptRemoteContentInfo" class="text-link"
-             href="https://support.mozilla.org/kb/remote-content-in-messages"
-             value="&acceptRemoteContentInfo.label;"/>
+      <hbox>
+        <label id="acceptRemoteContentInfo"
+               class="text-link"
+               href="https://support.mozilla.org/kb/remote-content-in-messages"
+               value="&acceptRemoteContentInfo.label;"/>
+        <spacer flex="1"/>
+      </hbox>
     </groupbox>
 
     <!-- Web Content -->
@@ -85,12 +90,13 @@
                 label="&keepHistory.label;"
                 accesskey="&keepHistory.accesskey;"/>
       <hbox id="cookiesBox">
-        <checkbox id="acceptCookies" flex="1"
+        <checkbox id="acceptCookies"
                   preference="network.cookie.cookieBehavior"
                   label="&acceptCookies.label;"
                   accesskey="&acceptCookies.accesskey;"
                   onsyncfrompreference="return gPrivacyPane.readAcceptCookies();"
                   onsynctopreference="return gPrivacyPane.writeAcceptCookies();"/>
+        <spacer flex="1"/>
         <button id="cookieExceptions"
                 oncommand="gPrivacyPane.showCookieExceptions();"
                 label="&cookieExceptions.label;"
@@ -132,24 +138,41 @@
                 oncommand="gPrivacyPane.showCookies();"
                 preference="pref.privacy.disable_button.view_cookies"/>
       </hbox>
-
-      <radiogroup id="doNotTrackSelection" orient="vertical"
+      <radiogroup id="doNotTrackSelection"
+                  orient="vertical"
                   preference="privacy.donottrackheader.value"
                   onsynctopreference="return gPrivacyPane.setTrackingPrefs()"
                   onsyncfrompreference="return gPrivacyPane.getTrackingPrefs()">
-        <radio id="dntnotrack" value="1" label="&dntTrackingNotOkay.label2;"
-                accesskey="&dntTrackingNotOkay.accesskey;" />
-        <radio id="dntdotrack" value="0" label="&dntTrackingOkay.label2;"
-                accesskey="&dntTrackingOkay.accesskey;" />
-        <radio id="dntnopref" value="-1" label="&dntTrackingNopref.label2;"
-                accesskey="&dntTrackingNopref.accesskey;" />
+        <hbox>
+          <radio id="dntnotrack"
+                 value="1"
+                 label="&dntTrackingNotOkay.label2;"
+                 accesskey="&dntTrackingNotOkay.accesskey;"/>
+          <spacer flex="1"/>
+        </hbox>
+        <hbox>
+          <radio id="dntdotrack"
+                 value="0"
+                 label="&dntTrackingOkay.label2;"
+                 accesskey="&dntTrackingOkay.accesskey;"/>
+          <spacer flex="1"/>
+        </hbox>
+        <hbox>
+          <radio id="dntnopref"
+                 value="-1"
+                 label="&dntTrackingNopref.label2;"
+                 accesskey="&dntTrackingNopref.accesskey;"/>
+          <spacer flex="1"/>
+        </hbox>
       </radiogroup>
-      <label class="text-link" id="doNotTrackInfo"
-             href="https://www.mozilla.org/dnt"
-             value="&doNotTrackInfo.label;"/>
-
+      <hbox>
+        <label id="doNotTrackInfo"
+               class="text-link"
+               href="https://www.mozilla.org/dnt"
+               value="&doNotTrackInfo.label;"/>
+        <spacer flex="1"/>
+      </hbox>
     </groupbox>
 
   </prefpane>
 </overlay>
-

@@ -148,8 +148,13 @@
                       preference="browser.download.folderList"
                       onsynctopreference="return gDownloadDirSection.writeFolderList();"/>
             </hbox>
-            <radio id="alwaysAsk" value="false"
-                   label="&alwaysAsk.label;" accesskey="&alwaysAsk.accesskey;"/>
+            <hbox>
+              <radio id="alwaysAsk"
+                     value="false"
+                     label="&alwaysAsk.label;"
+                     accesskey="&alwaysAsk.accesskey;"/>
+              <spacer flex="1"/>
+            </hbox>
             </radiogroup>
           </vbox>
         </tabpanel>

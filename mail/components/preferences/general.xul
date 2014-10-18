@@ -53,60 +53,83 @@
         </hbox>
     </groupbox>
 
-
     <groupbox>
       <caption label="&newMessagesArrive.label;"/>
-#ifdef XP_MACOSX
       <hbox align="center">
+#ifdef XP_MACOSX
         <description flex="1">&changeDockIconOptions.label;</description>
         <button id="dockOptions" label="&dockOptions.label;"
                 accesskey="&dockOptions.accesskey;"
                 oncommand="gGeneralPane.configureDockOptions();"/>
       </hbox>
-      <checkbox id="newMailNotificationAlert" label="&showAnimatedAlert.label;"
-                preference="mail.biff.show_alert"
-                accesskey="&showAnimatedAlert.accesskey;"/>
+      <hbox>
+        <checkbox id="newMailNotificationAlert"
+                  label="&showAnimatedAlert.label;"
+                  preference="mail.biff.show_alert"
+                  accesskey="&showAnimatedAlert.accesskey;"/>
 #else
-      <hbox align="center" flex="1">
         <checkbox id="newMailNotificationAlert"
                   label="&showAnimatedAlert.label;"
                   accesskey="&showAnimatedAlert.accesskey;"
                   preference="mail.biff.show_alert"
-                  oncommand="gGeneralPane.updateCustomizeAlert();"
-                  flex="1"/>
+                  oncommand="gGeneralPane.updateCustomizeAlert();"/>
+        <spacer flex="1"/>
         <button id="customizeMailAlert" label="&customizeMailAlert.label;" accesskey="&customizeMailAlert.accesskey;"
                 oncommand="gGeneralPane.customizeMailAlert();"/>
       </hbox>
-      <checkbox id="newMailNotificationTrayIcon" label="&showTrayIcon.label;"
+      <hbox>
+        <checkbox id="newMailNotificationTrayIcon" label="&showTrayIcon.label;"
 #ifndef XP_WIN
-                hidden="true"
+                  hidden="true"
 #endif
-                preference="mail.biff.show_tray_icon"
-                accesskey="&showTrayIcon.accesskey;" />
+                  preference="mail.biff.show_tray_icon"
+                  accesskey="&showTrayIcon.accesskey;"/>
 #endif
+      </hbox>
       <hbox align="center">
         <checkbox id="newMailNotification" accesskey="&playSound1.accesskey;"
                   preference="mail.biff.play_sound" label="&playSound.label;"
-                  oncommand="gGeneralPane.updatePlaySound();" flex="1"/>
+                  oncommand="gGeneralPane.updatePlaySound();"/>
+        <spacer flex="1"/>
         <button id="playSound" label="&play.label;" accesskey="&play.accesskey;" oncommand="gGeneralPane.previewSound();"/>
       </hbox>
-      <radiogroup id="soundType" class="indent" preference="mail.biff.play_sound.type" orient="vertical"
-                  oncommand="gGeneralPane.updatePlaySound();" aria-labelledby="newMailNotification">
-        <radio value="0"
+      <radiogroup id="soundType"
+                  class="indent"
+                  preference="mail.biff.play_sound.type"
+                  orient="vertical"
+                  oncommand="gGeneralPane.updatePlaySound();"
+                  aria-labelledby="newMailNotification">
+        <hbox>
+          <radio id="system"
+                 value="0"
 #ifdef XP_MACOSX
-               label="&systemsoundMac.label;" accesskey="&systemsoundMac.accesskey;"
+                 label="&systemsoundMac.label;"
+                 accesskey="&systemsoundMac.accesskey;"/>
 #else
-               label="&systemsound.label;" accesskey="&systemsound.accesskey;"
+                 label="&systemsound.label;"
+                 accesskey="&systemsound.accesskey;"/>
 #endif
-               id="system"/>
-        <radio value="1" label="&customsound.label;"
-               accesskey="&customsound.accesskey;" id="custom"/>
-        <hbox class="indent">
-          <filefield id="soundUrlLocation" flex="1" preference="mail.biff.play_sound.url"
+          <spacer flex="1"/>
+        </hbox>
+        <hbox>
+          <radio id="custom"
+                 value="1"
+                 label="&customsound.label;"
+                 accesskey="&customsound.accesskey;"/>
+          <spacer flex="1"/>
+        </hbox>
+        <hbox>
+          <filefield id="soundUrlLocation"
+                     class="indent"
+                     preference="mail.biff.play_sound.url"
                      preference-editable="true"
-                     onsyncfrompreference="return gGeneralPane.readSoundLocation();" aria-labelledby="custom"/>
-          <button id="browseForSound" label="&browse.label;"
-                  accesskey="&browse.accesskey;" oncommand="gGeneralPane.browseForSoundFile();">
+                     onsyncfrompreference="return gGeneralPane.readSoundLocation();"
+                     aria-labelledby="custom"
+                     flex="1"/>
+          <button id="browseForSound"
+                  label="&browse.label;"
+                  accesskey="&browse.accesskey;"
+                  oncommand="gGeneralPane.browseForSoundFile();">
             <observes element="soundUrlLocation" attribute="disabled"/>
           </button>
         </hbox>

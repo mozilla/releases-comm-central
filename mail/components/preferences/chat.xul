@@ -66,24 +66,36 @@
       <label value="&idleTime;" control="timeBeforeAway"/>
     </hbox>
     <vbox class="indent">
-      <checkbox id="autoAway" label="&andSetStatusToAway.label;"
-                observes="idleReportingEnabled"
-                accesskey="&andSetStatusToAway.accesskey;"
-                preference="messenger.status.awayWhenIdle"/>
+      <hbox>
+        <checkbox id="autoAway"
+                  label="&andSetStatusToAway.label;"
+                  observes="idleReportingEnabled"
+                  accesskey="&andSetStatusToAway.accesskey;"
+                  preference="messenger.status.awayWhenIdle"/>
+        <spacer flex="1"/>
+      </hbox>
       <textbox id="defaultIdleAwayMessage" class="indent"
                observes="idleReportingEnabled"
                preference="messenger.status.defaultIdleAwayMessage"/>
     </vbox>
     <separator/>
-    <checkbox id="sendTyping" label="&sendTyping.label;"
-              accesskey="&sendTyping.accesskey;"
-              preference="purple.conversations.im.send_typing"/>
+    <hbox>
+      <checkbox id="sendTyping"
+                label="&sendTyping.label;"
+                accesskey="&sendTyping.accesskey;"
+                preference="purple.conversations.im.send_typing"/>
+      <spacer flex="1"/>
+    </hbox>
     <groupbox>
       <caption label="&chatNotifications.label;"/>
       <hbox>
-        <checkbox id="desktopChatNotifications" label="&desktopChatNotifications.label;"
-                  accesskey="&desktopChatNotifications.accesskey;"
-                  preference="mail.chat.show_desktop_notifications"/>
+        <hbox>
+          <checkbox id="desktopChatNotifications"
+                    label="&desktopChatNotifications.label;"
+                    accesskey="&desktopChatNotifications.accesskey;"
+                    preference="mail.chat.show_desktop_notifications"/>
+          <spacer flex="1"/>
+        </hbox>
         <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
           <menupopup>
             <menuitem label="&completeNotification.label;" value="0"/>
@@ -93,26 +105,47 @@
         </menulist>
       </hbox>
       <hbox align="center">
-        <checkbox id="chatNotification" accesskey="&chatSound.accesskey;"
-                  preference="mail.chat.play_sound" label="&chatSound.label;"
-                  oncommand="gChatPane.updatePlaySound();" flex="1"/>
+        <checkbox id="chatNotification"
+                  label="&chatSound.label;"
+                  accesskey="&chatSound.accesskey;"
+                  preference="mail.chat.play_sound"
+                  oncommand="gChatPane.updatePlaySound();"/>
+        <spacer flex="1"/>
         <button id="playChatSound" label="&play.label;" accesskey="&play.accesskey;"
                 oncommand="gChatPane.previewSound();"/>
       </hbox>
-      <radiogroup id="chatSoundType" class="indent"
-                  preference="mail.chat.play_sound.type" orient="vertical"
+      <radiogroup id="chatSoundType"
+                  class="indent"
+                  orient="vertical"
+                  preference="mail.chat.play_sound.type"
                   oncommand="gChatPane.updatePlaySound();"
                   aria-labelledby="chatNotification">
-        <radio id="chatSoundSystemSound" value="0" label="&systemSound.label;"
-               accesskey="&systemSound.accesskey;"/>
-        <radio id="chatSoundCustom" value="1" label="&customsound.label;"
-               accesskey="&customsound.accesskey;"/>
-        <hbox class="indent">
-          <filefield id="chatSoundUrlLocation" flex="1" preference="mail.chat.play_sound.url"
+        <hbox>
+          <radio id="chatSoundSystemSound"
+                 label="&systemSound.label;"
+                 value="0"
+                 accesskey="&systemSound.accesskey;"/>
+          <spacer flex="1"/>
+        </hbox>
+        <hbox>
+          <radio id="chatSoundCustom"
+                 label="&customsound.label;"
+                 value="1"
+                 accesskey="&customsound.accesskey;"/>
+          <spacer flex="1"/>
+        </hbox>
+        <hbox>
+          <filefield id="chatSoundUrlLocation"
+                     class="indent"
+                     preference="mail.chat.play_sound.url"
                      preference-editable="true"
-                     onsyncfrompreference="return gChatPane.readSoundLocation();" aria-labelledby="chatSoundCustom"/>
-          <button id="browseForChatSound" label="&browse.label;"
-                  accesskey="&browse.accesskey;" oncommand="gChatPane.browseForSoundFile();">
+                     onsyncfrompreference="return gChatPane.readSoundLocation();"
+                     aria-labelledby="chatSoundCustom"
+                     flex="1"/>
+          <button id="browseForChatSound"
+                  label="&browse.label;"
+                  accesskey="&browse.accesskey;"
+                  oncommand="gChatPane.browseForSoundFile();">
             <observes element="chatSoundUrlLocation" attribute="disabled"/>
           </button>
         </hbox>

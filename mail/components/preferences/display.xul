@@ -118,8 +118,13 @@
           </groupbox>
 
           <groupbox>
-            <checkbox id="displayGlyph" label="&convertEmoticons.label;"
-                      preference="mail.display_glyph" accesskey="&convertEmoticons.accesskey;"/>
+            <hbox>
+              <checkbox id="displayGlyph"
+                        label="&convertEmoticons.label;"
+                        preference="mail.display_glyph"
+                        accesskey="&convertEmoticons.accesskey;"/>
+              <spacer flex="1"/>
+            </hbox>
             <caption label="&displayWidth.label;"/>
 
             <separator class="thin"/>

@@ -62,24 +62,40 @@
         <tabpanel orient="vertical">
           <description>&junkMail.intro;</description>
           <separator class="thin"/>
-
-          <checkbox id="manualMark"
-                    preference="mail.spam.manualMark"
-                    oncommand="gSecurityPane.updateManualMarkMode(this.checked);"
-                    label="&manualMark.label;" accesskey="&manualMark.accesskey;"/>
-
-          <radiogroup id="manualMarkMode" class="indent"
-                      preference="mail.spam.manualMarkMode" aria-labelledby="manualMark">
-            <radio id="manualMarkMode0" value="0" label="&manualMarkModeMove.label;"
-                   accesskey="&manualMarkModeMove.accesskey;"/>
-            <radio id="manualMarkMode1" value="1" label="&manualMarkModeDelete.label;"
-                   accesskey="&manualMarkModeDelete.accesskey;"/>
+          <hbox>
+            <checkbox id="manualMark"
+                      label="&manualMark.label;"
+                      preference="mail.spam.manualMark"
+                      oncommand="gSecurityPane.updateManualMarkMode(this.checked);"
+                      accesskey="&manualMark.accesskey;"/>
+            <spacer flex="1"/>
+          </hbox>
+          <radiogroup id="manualMarkMode"
+                      class="indent"
+                      preference="mail.spam.manualMarkMode"
+                      aria-labelledby="manualMark">
+            <hbox>
+              <radio id="manualMarkMode0"
+                     value="0"
+                     label="&manualMarkModeMove.label;"
+                     accesskey="&manualMarkModeMove.accesskey;"/>
+              <spacer flex="1"/>
+            </hbox>
+            <hbox>
+              <radio id="manualMarkMode1"
+                     value="1"
+                     label="&manualMarkModeDelete.label;"
+                     accesskey="&manualMarkModeDelete.accesskey;"/>
+              <spacer flex="1"/>
+            </hbox>
           </radiogroup>
-
-          <checkbox id="markAsReadOnSpam" label="&markAsReadOnSpam.label;"
-                    accesskey="&markAsReadOnSpam.accesskey;"
-                    preference="mail.spam.markAsReadOnSpam"/>
-
+          <hbox>
+            <checkbox id="markAsReadOnSpam"
+                      label="&markAsReadOnSpam.label;"
+                      accesskey="&markAsReadOnSpam.accesskey;"
+                      preference="mail.spam.markAsReadOnSpam"/>
+            <spacer flex="1"/>
+          </hbox>
           <hbox align="start">
             <checkbox id="enableJunkLogging" label="&enableAdaptiveJunkLogging.label;"
                       oncommand="gSecurityPane.updateJunkLogButton(this.checked);"
@@ -100,9 +116,13 @@
         <tabpanel orient="vertical">
           <description>&phishingDetector1.intro;</description>
           <separator class="thin"/>
-          <checkbox id="enablePhishingDetector"
-                    label="&enablePhishingDetector1.label;" accesskey="&enablePhishingDetector1.accesskey;"
-                    preference="mail.phishing.detection.enabled"/>
+          <hbox>
+            <checkbox id="enablePhishingDetector"
+                      label="&enablePhishingDetector1.label;"
+                      accesskey="&enablePhishingDetector1.accesskey;"
+                      preference="mail.phishing.detection.enabled"/>
+            <spacer flex="1"/>
+          </hbox>
 <!--
           <checkbox id="useDownloadedList" class="indent" label="&useDownloadedList.label;"
                     accesskey="&useDownloadedList.accesskey;"
@@ -114,9 +134,13 @@
         <tabpanel orient="vertical">
           <description>&antiVirus.intro;</description>
           <separator class="thin"/>
-          <checkbox id="enableAntiVirusQuaruntine"
-                    label="&antiVirus.label;" accesskey="&antiVirus.accesskey;"
-                    preference="mailnews.downloadToTempFile"/>
+          <hbox>
+            <checkbox id="enableAntiVirusQuaruntine"
+                      label="&antiVirus.label;"
+                      accesskey="&antiVirus.accesskey;"
+                      preference="mailnews.downloadToTempFile"/>
+            <spacer flex="1"/>
+          </hbox>
 
         </tabpanel>
 
@@ -125,7 +149,8 @@
           <description>&savedPasswords.intro;</description>
           <hbox>
             <spacer flex="1"/>
-            <button label="&savedPasswords.label;" accesskey="&savedPasswords.accesskey;"
+            <button label="&savedPasswords.label;"
+                    accesskey="&savedPasswords.accesskey;"
                     oncommand="gSecurityPane.showPasswords();"
                     preference="pref.privacy.disable_button.view_passwords"/>
           </hbox>
@@ -135,12 +160,14 @@
 
           <description>&masterPassword.intro;</description>
           <hbox>
-            <checkbox id="useMasterPassword" flex="1"
-                      label="&useMasterPassword.label;" accesskey="&useMasterPassword.accesskey;"
+            <checkbox id="useMasterPassword"
+                      label="&useMasterPassword.label;"
+                      accesskey="&useMasterPassword.accesskey;"
                       oncommand="gSecurityPane.updateMasterPasswordButton();"/>
-
+            <spacer flex="1"/>
             <button id="changeMasterPassword"
-                    label="&changeMasterPassword.label;" accesskey="&changeMasterPassword.accesskey;"
+                    label="&changeMasterPassword.label;"
+                    accesskey="&changeMasterPassword.accesskey;"
                     oncommand="gSecurityPane.changeMasterPassword();"/>
           </hbox>
           <separator flex="1"/>
