@@ -10,7 +10,7 @@
 interface nsIMsgFolder;
 interface nsIUTF8StringEnumerator;
 
-[scriptable, uuid(ec1053a9-1a3d-4572-8f47-c103f2c014fb)]
+[scriptable, uuid(3c11ddbe-c805-40c5-b9c9-d065fad5d0be)]
 interface nsIMsgDBHdr : nsISupports
 {
     /* general property routines - I think this can retrieve any
@@ -86,6 +86,13 @@ interface nsIMsgDBHdr : nsISupports
                                   [array, size_is(aCount)] out octet aKey);
 
     attribute string Charset;
+    /**
+     * Returns the effective character set for the message (@ref Charset).
+     * If there is no specific set defined for the message or the
+     * characterSetOverride option is turned on for the folder it will return
+     * the effective character set of the folder instead.
+     */
+    readonly attribute ACString effectiveCharset;
     attribute nsMsgLabelValue label;
     attribute string accountKey;
     readonly attribute nsIMsgFolder folder;

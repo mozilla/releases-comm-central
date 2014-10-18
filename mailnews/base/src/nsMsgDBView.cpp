@@ -394,12 +394,16 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr * aHdr, nsAString &aSenderString)
     }
   }
 
-  nsString author;
-  nsresult rv = aHdr->GetMime2DecodedAuthor(author);
+  nsCString author;
+  nsresult rv = aHdr->GetAuthor(getter_Copies(author));
+
+  nsCString headerCharset;
+  aHdr->GetEffectiveCharset(headerCharset);
 
   nsCString emailAddress;
   nsString name;
-  ExtractFirstAddress(DecodedHeader(author), name, emailAddress);
+  ExtractFirstAddress(EncodedHeader(author, headerCharset.get()), name,
+    emailAddress);
 
   if (showCondensedAddresses)
     GetDisplayNameInAddressBook(emailAddress, aSenderString);
@@ -454,7 +458,6 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr * aHdr, nsAString& aAccount)
 
 nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipientsString)
 {
-  nsString unparsedRecipients;
   nsCString recipients;
   int32_t currentDisplayNameVersion = 0;
   bool showCondensedAddresses = false;
@@ -480,11 +483,16 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
     }
   }
 
-  nsresult rv = aHdr->GetMime2DecodedRecipients(unparsedRecipients);
+  nsCString unparsedRecipients;
+  nsresult rv = aHdr->GetRecipients(getter_Copies(unparsedRecipients));
+
+  nsCString headerCharset;
+  aHdr->GetEffectiveCharset(headerCharset);
+
   nsTArray<nsString> names;
   nsTArray<nsCString> emails;
-  ExtractAllAddresses(DecodedHeader(unparsedRecipients), names,
-    UTF16ArrayAdapter<>(emails));
+  ExtractAllAddresses(EncodedHeader(unparsedRecipients, headerCharset.get()),
+    names, UTF16ArrayAdapter<>(emails));
 
   uint32_t numAddresses = names.Length();
 

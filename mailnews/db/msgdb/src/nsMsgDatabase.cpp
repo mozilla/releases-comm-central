@@ -3596,6 +3596,20 @@ nsIMimeConverter *nsMsgDatabase::GetMimeConverter()
   return m_mimeConverter;
 }
 
+nsresult nsMsgDatabase::GetEffectiveCharset(nsIMdbRow *row, nsACString &resultCharset)
+{
+  resultCharset.Truncate();
+  bool characterSetOverride;
+  m_dbFolderInfo->GetCharacterSetOverride(&characterSetOverride);
+  nsresult rv = RowCellColumnToCharPtr(row, m_messageCharSetColumnToken, getter_Copies(resultCharset));
+  if (NS_FAILED(rv) || resultCharset.IsEmpty() ||
+      resultCharset.Equals("us-ascii") || characterSetOverride)
+  {
+    rv = m_dbFolderInfo->GetEffectiveCharacterSet(resultCharset);
+  }
+  return rv;
+}
+
 nsresult nsMsgDatabase::RowCellColumnToMime2DecodedString(nsIMdbRow *row, mdb_token columnToken, nsAString &resultStr)
 {
   nsresult err = NS_OK;
@@ -3608,17 +3622,10 @@ nsresult nsMsgDatabase::RowCellColumnToMime2DecodedString(nsIMdbRow *row, mdb_to
     {
       nsAutoString decodedStr;
       nsCString charSet;
-      bool characterSetOverride;
-      m_dbFolderInfo->GetCharacterSetOverride(&characterSetOverride);
-      err = RowCellColumnToCharPtr(row, m_messageCharSetColumnToken, getter_Copies(charSet));
-      if (NS_FAILED(err) || charSet.IsEmpty() || charSet.Equals("us-ascii") ||
-          characterSetOverride)
-      {
-        m_dbFolderInfo->GetEffectiveCharacterSet(charSet);
-      }
+      GetEffectiveCharset(row, charSet);
 
       err = m_mimeConverter->DecodeMimeHeader(nakedString, charSet.get(),
-        characterSetOverride, true, resultStr);
+        false, true, resultStr);
     }
   }
   return err;
@@ -3682,17 +3689,10 @@ nsresult nsMsgDatabase::RowCellColumnToCollationKey(nsIMdbRow *row, mdb_token co
     {
       nsCString decodedStr;
       nsCString charSet;
-      bool characterSetOverride;
-      m_dbFolderInfo->GetCharacterSetOverride(&characterSetOverride);
-      err = RowCellColumnToCharPtr(row, m_messageCharSetColumnToken, getter_Copies(charSet));
-      if (NS_FAILED(err) || charSet.IsEmpty() || charSet.Equals("us-ascii") ||
-          characterSetOverride)
-      {
-        m_dbFolderInfo->GetEffectiveCharacterSet(charSet);
-      }
+      GetEffectiveCharset(row, charSet);
 
       err = m_mimeConverter->DecodeMimeHeaderToUTF8(
-        nsDependentCString(nakedString), charSet.get(), characterSetOverride,
+        nsDependentCString(nakedString), charSet.get(), false,
         true, decodedStr);
       if (NS_SUCCEEDED(err))
         err = CreateCollationKey(NS_ConvertUTF8toUTF16(decodedStr), len, result);

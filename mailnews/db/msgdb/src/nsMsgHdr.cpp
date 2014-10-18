@@ -626,6 +626,11 @@ NS_IMETHODIMP nsMsgHdr::SetCharset(const char *aCharset)
   return SetStringColumn(aCharset, m_mdb->m_messageCharSetColumnToken);
 }
 
+NS_IMETHODIMP nsMsgHdr::GetEffectiveCharset(nsACString &resultCharset)
+{
+  return m_mdb->GetEffectiveCharset(m_mdbRow, resultCharset);
+}
+
 NS_IMETHODIMP nsMsgHdr::SetThreadParent(nsMsgKey inKey)
 {
   m_threadParent = inKey;

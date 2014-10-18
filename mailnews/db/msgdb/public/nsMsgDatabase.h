@@ -194,6 +194,8 @@ public:
   nsresult RowCellColumnToConstCharPtr(nsIMdbRow *row, mdb_token columnToken, const char **ptr);
   nsresult RowCellColumnToAddressCollationKey(nsIMdbRow *row, mdb_token colToken, uint8_t **result, uint32_t *len);
 
+  nsresult GetEffectiveCharset(nsIMdbRow *row, nsACString &resultCharset);
+
   // these methods take the property name as a string, not a token.
   // they should be used when the properties aren't accessed a lot
   nsresult        GetProperty(nsIMdbRow *row, const char *propertyName, char **result);
