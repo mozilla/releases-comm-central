@@ -833,7 +833,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 .splitmenu-menuitem[disabled="true"],
 .splitmenu-menu[_moz-menuactive="true"][disabled="true"],
 .splitmenu-menuitem[_moz-menuactive="true"][disabled="true"] {
-  -moz-appearance: none;
   color: -moz-mac-menutextdisable;
   background-color: transparent;
 }
@@ -861,10 +860,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   opacity: .3;
 }
 
-#appmenu-popup {
-  -moz-appearance: none;
-}
-
 #appmenu-popup * {
   font-size: 12px;
 }
@@ -879,8 +874,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenuSecondaryPane {
-  background-color: #f1f5fb;
-  box-shadow: 1px 0 2px rgb(204, 214, 234) inset;
+  box-shadow: 1px 0 2px rgb(170, 170, 170) inset;
   padding-top: 2px;
   padding-bottom: 2px;
   -moz-padding-start: 3px;
@@ -910,7 +904,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #appmenuSecondaryPane > :-moz-any(menu, menuitem)[_moz-menuactive][disabled],
 #appmenuSecondaryPane > splitmenu >
   :-moz-any(.splitmenu-menu, .splitmenu-menuitem):not([_moz-menuactive]) {
-  -moz-appearance: none;
   background-color: transparent;
 }
 
@@ -990,7 +983,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu-edit-label {
-  -moz-appearance: none;
   background: transparent;
   font-style: italic;
   -moz-padding-start: 10px;
