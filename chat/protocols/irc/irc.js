@@ -829,10 +829,9 @@ ircAccount.prototype = {
   maxMessageLength: 512, // 2.3 Messages
   maxHostnameLength: 63, // 2.3.1 Message format in Augmented BNF
 
-  // The default prefixes.
-  userPrefixes: ["@", "!", "%", "+"],
   // The default prefixes to modes.
   userPrefixToModeMap: {"@": "o", "!": "n", "%": "h", "+": "v"},
+  get userPrefixes() Object.keys(this.userPrefixToModeMap),
   // Modes that have a nickname parameter and affect a participant. See 4.1
   // Member Status of RFC 2811.
   memberStatuses: ["a", "h", "o", "O", "q", "v", "!"],
