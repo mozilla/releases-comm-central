@@ -195,12 +195,16 @@ var ircWATCH = {
 
     "598": function(aMessage) { // RPL_GONEAWAY
       // <nickname> <username> <hostname> <awaysince> :<away reason>
-      return setStatus(this, aMessage.params[1], "AWAY");
+      // We use a negative index as inspircd versions < 2.0.18 don't send
+      // the user's nick as the first parameter (see bug 1078223).
+      return setStatus(this, aMessage.params[aMessage.params.length - 5], "AWAY");
     },
 
     "599": function(aMessage) { // RPL_NOTAWAY
       // <nickname> <username> <hostname> <awaysince> :is no longer away
-      return setStatus(this, aMessage.params[1], "AVAILABLE");
+      // We use a negative index as inspircd versions < 2.0.18 don't send
+      // the user's nick as the first parameter (see bug 1078223).
+      return setStatus(this, aMessage.params[aMessage.params.length - 5], "AVAILABLE");
     },
 
     "600": function(aMessage) { // RPL_LOGON
@@ -225,7 +229,7 @@ var ircWATCH = {
     },
 
     "604": function(aMessage) { // RPL_NOWON
-      // <<nickname> <username> <hostname> <lastnickchange> :is online
+      // <nickname> <username> <hostname> <lastnickchange> :is online
       return setStatus(this, aMessage.params[1], "AVAILABLE");
     },
 
