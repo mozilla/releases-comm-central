@@ -1,3 +1,5 @@
+/* -*- Mode: javascript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 ; js-indent-level: 2 -*- */
+/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -384,26 +386,28 @@ function GetSelectedAddressesFromDirTree()
   return addresses;
 }
 
-// Generate a comma separated list of addresses from a given
-// set of cards.
+// Generate a comma separated list of addresses from a given set of
+// cards.
 function GetAddressesForCards(cards)
 {
   var addresses = "";
 
-  if (!cards)
+  if (!cards) {
+    Components.utils.reportError("GetAddressesForCards: |cards| is null.");
     return addresses;
+  }
 
   var count = cards.length;
-  if (count > 0)
-    addresses += GenerateAddressFromCard(cards[0]);
 
-  for (var i = 1; i < count; i++) {
-    var generatedAddress = GenerateAddressFromCard(cards[i]);
+  // We do not handle the case where there is one or more null-ish
+  // element in the Array.  Always non-null element is pushed into
+  // cards[] array.
 
-    if (generatedAddress)
-      addresses += "," + generatedAddress;
-  }
-  return addresses;
+  let generatedAddresses = cards.map(GenerateAddressFromCard)
+    .filter(function(aAddress) {
+      return aAddress;
+    });
+  return generatedAddresses.join(',');
 }
 
 function SelectFirstAddressBook()

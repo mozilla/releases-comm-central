@@ -1,3 +1,5 @@
+/* -*- Mode: javascript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 ; js-indent-level: 2 -*- */
+/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -41,7 +43,7 @@ function addSelectedAddresses(recipientType)
   var count = cards.length;
 
 
-  for (var i = 0; i < count; i++)
+  for (let i = 0; i < count; i++)
   {
     // turn each card into a properly formatted address
     var address = GenerateAddressFromCard(cards[i]);
