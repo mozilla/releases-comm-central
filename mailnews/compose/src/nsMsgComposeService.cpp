@@ -1596,9 +1596,22 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
     }
   }
 
+  nsCOMPtr<nsIPrincipal> nullPrincipal =
+    do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+  NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed");
+  if (NS_FAILED(rv))
+    return rv;
+
   nsCOMPtr<nsIChannel> channel;
-  rv = NS_NewInputStreamChannel(getter_AddRefs(channel), url, nullptr);
-  NS_ENSURE_SUCCESS(rv, rv);
+  rv = NS_NewInputStreamChannel(getter_AddRefs(channel),
+                     url,
+                     nullptr,
+                     nullPrincipal,
+                     nsILoadInfo::SEC_NORMAL,
+                     nsIContentPolicy::TYPE_OTHER);
+  NS_ASSERTION(NS_SUCCEEDED(rv), "NS_NewChannel failed.");
+  if (NS_FAILED(rv))
+    return rv;
 
   nsCOMPtr<nsIStreamConverter> converter = do_QueryInterface(mimeConverter);
   rv = converter->AsyncConvertData(nullptr, nullptr, nullptr, channel);

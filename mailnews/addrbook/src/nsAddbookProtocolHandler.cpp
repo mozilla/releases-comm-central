@@ -95,8 +95,17 @@ nsAddbookProtocolHandler::GenerateXMLOutputChannel( nsString &aOutput,
   NS_ConvertUTF16toUTF8 utf8String(aOutput.get());
 
   rv = inStr->SetData(utf8String.get(), utf8String.Length());
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIPrincipal> nullPrincipal =
+    do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+  NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipalfailed.");
+  if (NS_FAILED(rv))
+      return rv;
 
   rv = NS_NewInputStreamChannel(&channel, aURI, inStr,
+                                nullPrincipal, nsILoadInfo::SEC_NORMAL,
+                                nsIContentPolicy::TYPE_OTHER,
                                 NS_LITERAL_CSTRING("text/xml"));
   NS_ENSURE_SUCCESS(rv, rv);
   
@@ -140,8 +149,15 @@ nsAddbookProtocolHandler::NewChannel(nsIURI *aURI, nsIChannel **_retval)
       pipe->GetOutputStream(getter_AddRefs(pipeOut));
       
       pipeOut->Close();
+
+      nsCOMPtr<nsIPrincipal> nullPrincipal =
+        do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+      NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed.");
+      if (NS_FAILED(rv))
+          return rv;
       
       return NS_NewInputStreamChannel(_retval, aURI, pipeIn,
+          nullPrincipal, nsILoadInfo::SEC_NORMAL, nsIContentPolicy::TYPE_OTHER,
           NS_LITERAL_CSTRING("application/x-addvcard"));
   }
 

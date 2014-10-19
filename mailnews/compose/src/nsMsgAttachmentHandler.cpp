@@ -552,8 +552,22 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
 
       nsCOMPtr<nsIURI> aURL;
       rv = messageService->GetUrlForUri(uri.get(), getter_AddRefs(aURL), nullptr);
+      if (NS_FAILED(rv))
+        goto done;
 
-      rv = NS_NewInputStreamChannel(getter_AddRefs(m_converter_channel), aURL, nullptr);
+
+      nsCOMPtr<nsIPrincipal> nullPrincipal =
+        do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+      NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed.");
+      if (NS_FAILED(rv))
+        goto done;
+
+      rv = NS_NewInputStreamChannel(getter_AddRefs(m_converter_channel),
+                                    aURL,
+                                    nullptr,
+                                    nullPrincipal,
+                                    nsILoadInfo::SEC_NORMAL,
+                                    nsIContentPolicy::TYPE_OTHER);
       if (NS_FAILED(rv))
         goto done;
 

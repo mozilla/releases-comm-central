@@ -334,7 +334,15 @@ NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI *aURI, nsIChannel **_retval)
 
   pipeOut->Close();
 
+  nsCOMPtr<nsIPrincipal> nullPrincipal =
+    do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+  NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed.");
+  if (NS_FAILED(rv))
+    return rv;
+
   return NS_NewInputStreamChannel(_retval, aURI, pipeIn,
+                                  nullPrincipal, nsILoadInfo::SEC_NORMAL,
+                                  nsIContentPolicy::TYPE_OTHER,
                                   NS_LITERAL_CSTRING("application/x-mailto"));
 }
 
