@@ -204,8 +204,8 @@ XMLNode.prototype = {
       return this;
 
     let nq = aQuery.slice(1);
-    for each (let child in this.children) {
-      if (child.qName != aQuery[0])
+    for (let child of this.children) {
+      if (child.type == "text" || child.qName != aQuery[0])
         continue;
       let n = child.getElement(nq);
       if (n)
@@ -233,7 +233,7 @@ XMLNode.prototype = {
 
   /* Get immediate children by the node name */
   getChildren: function(aName)
-    this.children.filter(function(c) c.qName == aName),
+    this.children.filter((c) => (c.type != "text" && c.qName == aName)),
 
   /* Test if the node is a stanza */
   isXmppStanza: function() {
