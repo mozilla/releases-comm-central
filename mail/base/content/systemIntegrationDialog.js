@@ -98,6 +98,7 @@ let gSystemIntegrationDialog = {
     let searchIntegPossible = !this._searchCheckbox.hidden;
     if (searchIntegPossible) {
       this.SearchIntegration.firstRunDone = true;
+    }
 
     // If the "skip integration" button was used do not set any defaults
     // and close the dialog.
