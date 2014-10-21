@@ -24,3 +24,5 @@ export MOZILLA_OFFICIAL=1
 
 #Use ccache
 ac_add_options --with-ccache=/usr/bin/ccache
+
+ac_add_options --disable-stdcxx-compat
