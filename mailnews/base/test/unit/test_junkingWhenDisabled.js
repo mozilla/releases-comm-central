@@ -30,19 +30,7 @@ var gFakeView = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeView]),
 };
 
-var gFakeBox = {
-  view: gFakeView,
-  invalidate: function() {},
-  invalidateRow: function() {},
-  beginUpdateBatch: function() {},
-  endUpdateBatch: function() {},
-  invalidateRange: function(startIndex, endIndex) {},
-  rowCountChanged: function (index, count) {},
-
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeBoxObject]),
-};
-
-var gFakeSelection = new JSTreeSelection(gFakeBox);
+var gFakeSelection = new JSTreeSelection(null);
 
 // Items used to add messages to the folder
 
@@ -100,8 +88,8 @@ function setup_view(aViewType, aViewFlags) {
   dump("  View Out Count: " + outCount.value + "\n");
 
   gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
-  gTreeView.setTree(gFakeBox);
   gTreeView.selection = gFakeSelection;
+  gFakeSelection.view = gTreeView;
 }
 
 var tests_for_all_views = [
@@ -191,13 +179,13 @@ function actually_run_test() {
   dump("Num Messages: " + gLocalInboxFolder.msgDatabase.dBFolderInfo.numMessages + "\n");
 
   // for each view type...
-  for (let [, view_type_and_flags] in Iterator(view_types)) {
+  for (let view_type_and_flags of view_types) {
     let [view_type, view_flags] = view_type_and_flags;
 
     // ... run each test
     setup_view(view_type, view_flags);
 
-    for (let [, testFunc] in Iterator(tests_for_all_views)) {
+    for (let testFunc of tests_for_all_views) {
       dump("=== Running generic test: " + testFunc.name + "\n");
       yield async_run({func: testFunc});
     }

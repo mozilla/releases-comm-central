@@ -2506,15 +2506,14 @@ NS_IMETHODIMP nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command)
     NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);
     break;
   case nsMsgViewCommandType::selectAll:
-    if (mTreeSelection && mTree)
+    if (mTreeSelection)
     {
-        // if in threaded mode, we need to expand all before selecting
-        if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)
-            rv = ExpandAll();
-        mTreeSelection->SelectAll();
-        NS_ASSERTION(mTree, "SelectAll cleared mTree!");
-        if (mTree)
-          mTree->Invalidate();
+      // if in threaded mode, we need to expand all before selecting
+      if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)
+          rv = ExpandAll();
+      mTreeSelection->SelectAll();
+      if (mTree)
+        mTree->Invalidate();
     }
     break;
   case nsMsgViewCommandType::selectThread:
@@ -2554,15 +2553,13 @@ NS_IMETHODIMP nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command)
     rv = ExpandAll();
     m_viewFlags |= nsMsgViewFlagsType::kExpandAll;
     SetViewFlags(m_viewFlags);
-    NS_ASSERTION(mTree, "no tree, see bug #114956");
-    if(mTree)
+    if (mTree)
       mTree->Invalidate();
     break;
   case nsMsgViewCommandType::collapseAll:
     rv = CollapseAll();
     m_viewFlags &= ~nsMsgViewFlagsType::kExpandAll;
     SetViewFlags(m_viewFlags);
-    NS_ASSERTION(mTree, "no tree, see bug #114956");
     if(mTree)
       mTree->Invalidate();
     break;

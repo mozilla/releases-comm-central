@@ -383,10 +383,10 @@ JSTreeSelection.prototype = {
    * Select all with no rows is a no-op, otherwise we select all and notify.
    */
   selectAll: function JSTreeSelection_selectAll() {
-    if (!this._treeBoxObject)
+    if (!this._view)
       return;
 
-    let view = this._treeBoxObject.view.QueryInterface(Ci.nsITreeView);
+    let view = this._view;
     let rowCount = view.rowCount;
 
     // no-ops-ville
@@ -396,7 +396,8 @@ JSTreeSelection.prototype = {
     this._count = rowCount;
     this._ranges = [[0, rowCount - 1]];
 
-    this._treeBoxObject.invalidate();
+    if (this._treeBoxObject)
+      this._treeBoxObject.invalidate();
     this._fireSelectionChanged();
   },
 

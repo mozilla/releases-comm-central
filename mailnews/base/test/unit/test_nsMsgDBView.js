@@ -19,25 +19,6 @@ load("../../../resources/messageInjection.js");
 
 Components.utils.import("resource:///modules/jsTreeSelection.js");
 
-// a fake box needed to get nsMsgDBView to operate on selected messages.
-// Warning: this is a partial implementation. If someone adds additional
-// calls to these objects in nsMsgDBView and friends, it will also
-// be necessary to add fake versions of those calls here.
-function FakeBox(treeView) {
-  this.view = treeView;
-}
-FakeBox.prototype = {
-  view: null,
-  invalidate: function() {},
-  invalidateRow: function() {},
-  beginUpdateBatch: function() {},
-  endUpdateBatch: function() {},
-  invalidateRange: function(startIndex, endIndex) {},
-  rowCountChanged: function (index, count) {},
-
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeBoxObject]),
-};
-
 // Items used to add messages to the folder
 var gMessageGenerator = new MessageGenerator();
 var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
@@ -298,9 +279,9 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
   gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
-  let fakeBox = new FakeBox(gTreeView);
-  gTreeView.setTree(fakeBox);
-  gTreeView.selection = new JSTreeSelection(fakeBox);
+  let selection = new JSTreeSelection(null);
+  selection.view = gTreeView;
+  gTreeView.selection = selection;
 }
 
 /**

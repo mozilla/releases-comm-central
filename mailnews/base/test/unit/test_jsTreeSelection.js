@@ -13,20 +13,13 @@ var fakeView = {
     [Ci.nsITreeView]),
 };
 
-var fakeBox = {
-  view: fakeView,
-  invalidate: function() {},
-  invalidateRow: function() {},
-  QueryInterface: XPCOMUtils.generateQI(
-    [Ci.nsITreeBoxObject]),
-};
-
-var sel = new JSTreeSelection(fakeBox);
+var sel = new JSTreeSelection(null);
+sel.view = fakeView;
 
 function bad_ranges(aMsg, aExpected) {
   let s = "\x1b[1;31m!!! BAD RANGES: " + aMsg + "\n";
   s += "Selection ranges: " + sel._ranges.length + ":";
-  for each (let [,[low,high]] in Iterator(sel._ranges)) {
+  for (let [low,high] of sel._ranges) {
     s += " " + low + "-" + high;
   }
 
@@ -47,7 +40,7 @@ function assert_selection_ranges() {
 
   let i = 0;
   let ourCount = 0;
-  for each (let [,[slow,shigh]] in Iterator(sel._ranges)) {
+  for (let [slow,shigh] of sel._ranges) {
     let [dlow, dhigh] = arguments[i++];
     if (dlow != slow || dhigh != shigh)
       bad_ranges("Range mis-match on index " + i, arguments);
@@ -419,7 +412,8 @@ function run_test() {
   // sel)
   // no guarantees for the shift pivot yet, so don't test that
   let oldSel = sel;
-  let newSel = new JSTreeSelection(fakeBox);
+  let newSel = new JSTreeSelection(null);
+  newSel.view = fakeView;
   // multiple selections
   oldSel.rangedSelect(1, 3, false);
   oldSel.rangedSelect(5, 5, true);
