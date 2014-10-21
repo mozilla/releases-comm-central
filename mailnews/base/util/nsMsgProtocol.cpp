@@ -308,7 +308,6 @@ nsresult nsMsgProtocol::CloseSocket()
   if (m_transport) {
     nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
     if (strans) {
-      strans->SetSecurityCallbacks(nullptr);
       strans->SetEventSink(nullptr, nullptr); // break cyclic reference!
     }
   }
