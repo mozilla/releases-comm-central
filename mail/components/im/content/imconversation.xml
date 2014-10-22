@@ -538,7 +538,7 @@
             let charCounter = this.getElt("charCounter");
 
             // When the input box is cleared or there is no character limit,
-            // don't show the character limit in the statusbar.
+            // don't show the character limit.
             if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
               charCounter.setAttribute("value", "");
               inputBox.removeAttribute("invalidInput");
