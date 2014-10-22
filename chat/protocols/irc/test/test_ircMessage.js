@@ -20,8 +20,7 @@ const testData = [
   "QUIT :Gone to have lunch",
   ":syrk!kalt@millennium.stealth.net QUIT :Gone to have lunch",
   "SQUIT tolsun.oulu.fi :Bad Link ?",
-  // This fails! But do we really care? It wasn't designed to handle server messages.
-  //":Trillian SQUIT cm22.eng.umd.edu :Server out of control",
+  ":Trillian SQUIT cm22.eng.umd.edu :Server out of control",
   "JOIN #foobar",
   "JOIN &foo fubar",
   "JOIN #foo,&bar fubar",
@@ -120,13 +119,18 @@ function run_test() {
   add_test(testRFC2812Messages);
   add_test(testBrokenUnrealMessages);
   add_test(testNewLinesInMessages);
+  add_test(testLocalhost);
 
   run_next_test();
 }
 
+/*
+ * Test round tripping parsing and then rebuilding the messages from RFC 2812.
+ */
 function testRFC2812Messages() {
   for each (let expectedStringMessage in testData) {
-    let message = irc.ircMessage(expectedStringMessage);
+    // Pass in an empty default origin in order to check this below.
+    let message = irc.ircMessage(expectedStringMessage, "");
 
     let stringMessage =
       irc.ircAccount.prototype.buildMessage(message.command, message.params);
@@ -134,7 +138,7 @@ function testRFC2812Messages() {
     // Let's do a little dance here...we don't rebuild the "source" of the
     // message (the server does that), so when comparing our output message, we
     // need to avoid comparing to that part.
-    if (message.servername || message.source) {
+    if (message.origin) {
       expectedStringMessage =
         expectedStringMessage.slice(expectedStringMessage.indexOf(" ") + 1);
     }
@@ -145,6 +149,9 @@ function testRFC2812Messages() {
   run_next_test();
 }
 
+/*
+ * Test if two objects have the same fields (recursively).
+ */
 function isEqual(aObject1, aObject2) {
   let result = true;
   for (let fieldName in aObject1) {
@@ -164,28 +171,31 @@ function isEqual(aObject1, aObject2) {
 // description of what's wrong.
 function testBrokenUnrealMessages() {
   let messages = {
+    // Two spaces after command.
     ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters": {
       rawMessage: ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters",
       command: "432",
       params: ["", "#momo", "Erroneous Nickname: Illegal characters"],
-      servername: "gravel.mozilla.org"
+      origin: "gravel.mozilla.org"
     },
+    // An extraneous space at the end.
     ":gravel.mozilla.org MODE #tckk +n ": {
       rawMessage: ":gravel.mozilla.org MODE #tckk +n ",
       command: "MODE",
       params: ["#tckk", "+n"],
-      servername: "gravel.mozilla.org"
+      origin: "gravel.mozilla.org"
     },
+    // Two extraneous spaces at the end.
     ":services.esper.net MODE #foo-bar +o foobar  ": {
       rawMessage: ":services.esper.net MODE #foo-bar +o foobar  ",
       command: "MODE",
       params: ["#foo-bar", "+o", "foobar"],
-      servername: "services.esper.net"
+      origin: "services.esper.net"
     }
   };
 
   for (let messageStr in messages)
-    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr)));
+    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr, "")));
 
   run_next_test();
 }
@@ -198,7 +208,7 @@ function testNewLinesInMessages() {
       rawMessage: ":test!Instantbir@host PRIVMSG #instantbird :First line\nSecond line",
       command: "PRIVMSG",
       params: ["#instantbird", "First line\nSecond line"],
-      nickname: "test",
+      origin: "test",
       user: "Instantbir",
       host: "host",
       source: "Instantbir@host"
@@ -207,10 +217,32 @@ function testNewLinesInMessages() {
       rawMessage: ":test!Instantbir@host PRIVMSG #instantbird :First line\r\nSecond line",
       command: "PRIVMSG",
       params: ["#instantbird", "First line\r\nSecond line"],
-      nickname: "test",
+      origin: "test",
       user: "Instantbir",
       host: "host",
       source: "Instantbir@host"
+    }
+  };
+
+  for (let messageStr in messages)
+    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr)));
+
+  run_next_test();
+}
+
+// Sometimes it is a bit hard to tell whether a prefix is a nickname or a
+// servername. Generally this happens when connecting to localhost or a local
+// hostname and is likely seen with bouncers.
+function testLocalhost() {
+  let messages = {
+    ":localhost 001 clokep :Welcome to the BitlBee gateway, clokep": {
+      rawMessage: ":localhost 001 clokep :Welcome to the BitlBee gateway, clokep",
+      command: "001",
+      params: ["clokep", "Welcome to the BitlBee gateway, clokep"],
+      origin: "localhost",
+      user: undefined,
+      host: undefined,
+      source: ""
     }
   };
 

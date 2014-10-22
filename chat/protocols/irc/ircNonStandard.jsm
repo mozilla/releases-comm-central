@@ -36,7 +36,7 @@ var ircNonStandard = {
       // AUTH); in this case, check if the user's nickname is not auth, or the
       // the message starts with ***.
       let target = aMessage.params[0].toLowerCase();
-      let nickname = aMessage.nickname ? aMessage.nickname.toLowerCase() : "";
+      let nickname = aMessage.origin ? aMessage.origin.toLowerCase() : "";
       let isAuth = target == "*" ||
         (target == "auth" && (nickname != "auth" ||
                               aMessage.params[1].startsWith("***")));
@@ -44,8 +44,8 @@ var ircNonStandard = {
       // Some servers , e.g. irc.umich.edu, use NOTICE before connection to give
       // directions to users.
       if (!this.connected && !isAuth) {
-        this.getConversation(aMessage.servername)
-            .writeMessage(aMessage.servername, aMessage.params[1],
+        this.getConversation(aMessage.origin)
+            .writeMessage(aMessage.origin, aMessage.params[1],
                           {incoming: true});
         return true;
       }
@@ -159,7 +159,7 @@ var ircNonStandard = {
       // a NOTICE AUTH will follow causing us to send the password. This numeric
       // is, unfortunately, also sent if you give a wrong password. The
       // parameter in that case is "Invalid Password".
-      return aMessage.servername == "irc.znc.in" &&
+      return aMessage.origin == "irc.znc.in" &&
              aMessage.params[1] == "Password required";
     },
 
@@ -175,8 +175,8 @@ var ircNonStandard = {
 
     "998": function(aMessage) {
       // irc.umich.edu shows an ASCII captcha that must be typed in by the user.
-      this.getConversation(aMessage.servername)
-          .writeMessage(aMessage.servername, aMessage.params[1],
+      this.getConversation(aMessage.origin)
+          .writeMessage(aMessage.origin, aMessage.params[1],
                         {incoming: true, noFormat: true});
       return true;
     }

@@ -41,7 +41,7 @@ function ServiceMessage(aAccount, aMessage) {
     "nickserv": "NickServ"
   }
 
-  let nickname = aAccount.normalize(aMessage.nickname);
+  let nickname = aAccount.normalize(aMessage.origin);
   if (nicknameToServiceName.hasOwnProperty(nickname))
     aMessage.serviceName = nicknameToServiceName[nickname];
 
@@ -64,7 +64,7 @@ var ircServices = {
     // If we automatically reply to a NOTICE message this does not abide by RFC
     // 2812. Oh well.
     "NOTICE": function(aMessage) {
-      if (!ircHandlers.hasServicesHandlers || !aMessage.hasOwnProperty("nickname"))
+      if (!ircHandlers.hasServicesHandlers || !aMessage.hasOwnProperty("origin"))
         return false;
 
       let message = ServiceMessage(this, aMessage);
@@ -146,7 +146,7 @@ var servicesBase = {
       // The message starts after the channel name, plus [, ] and a space.
       let message = aMessage.params[1].slice(channel.length + 3);
       this.getConversation(channel)
-          .writeMessage(aMessage.nickname, message, params);
+          .writeMessage(aMessage.origin, message, params);
       return true;
     },
 
@@ -161,9 +161,8 @@ var servicesBase = {
       else if (text == "*** \u0002End of Message(s) of the Day\u0002 ***") {
         if (this._showServerTab && this._infoServMotd) {
           this._infoServMotd.push(text);
-          this.getConversation(aMessage.servername || this._currentServerName)
-              .writeMessage(aMessage.servername || aMessage.nickname,
-                            this._infoServMotd.join("\n"),
+          this.getConversation(aMessage.origin)
+              .writeMessage(aMessage.origin, this._infoServMotd.join("\n"),
                             {incoming: true});
           delete this._infoServMotd;
         }

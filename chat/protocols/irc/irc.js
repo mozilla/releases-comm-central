@@ -25,20 +25,26 @@ XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils",
  *   command    A string that is the command or response code.
  *   params     An array of strings for the parameters. The last parameter is
  *              stripped of its : prefix.
- * If the message is from a user:
- *   nickname   The user's nickname.
+ *   origin     The user's nickname or the server who sent the message. Can be
+ *              a host (e.g. irc.mozilla.org) or an IPv4 address (e.g. 1.2.3.4)
+ *              or an IPv6 address (e.g. 3ffe:1900:4545:3:200:f8ff:fe21:67cf).
  *   user       The user's username, note that this can be undefined.
  *   host       The user's hostname, note that this can be undefined.
  *   source     A "nicely" formatted combination of user & host, which is
  *              <user>@<host> or <user> if host is undefined.
- * Otherwise if it's from a server:
- *   servername This is the address of the server as a host (e.g.
- *              irc.mozilla.org) or an IPv4 address (e.g. 1.2.3.4) or IPv6
- *              address (e.g. 3ffe:1900:4545:3:200:f8ff:fe21:67cf).
+ *
+ * There are cases (e.g. localhost) where it cannot be easily determined if a
+ * message is from a server or from a user, thus the usage of a generic "origin"
+ * instead of "nickname" or "servername".
+ *
+ * Inputs:
+ *  aData       The raw string to parse, it should already have the \r\n
+ *              stripped from the end.
+ *  aOrigin     The default origin to use for unprefixed messages.
  */
-function ircMessage(aData) {
+function ircMessage(aData, aOrigin) {
   let message = {rawMessage: aData};
-  let temp, prefix;
+  let temp;
 
   // Splits the raw string into four parts (the second is required), the command
   // is required. A raw string looks like:
@@ -57,8 +63,6 @@ function ircMessage(aData) {
   if (!(temp = aData.match(/^(?::([^ ]+) )?([^ ]+)((?: +[^: ][^ ]*)*)? *(?::([\s\S]*))?$/)))
     throw "Couldn't parse message: \"" + aData + "\"";
 
-  // Assume message is from the server if not specified
-  prefix = temp[1];
   message.command = temp[2];
   // Space separated parameters. Since we expect a space as the first thing
   // here, we want to ignore the first value (which is empty).
@@ -67,22 +71,24 @@ function ircMessage(aData) {
   if (temp[4] != undefined)
     message.params.push(temp[4]);
 
-  // The source string can be split into multiple parts as:
-  //   :(server|nickname[[!user]@host])
-  // If the source contains a . or a :, assume it's a server name. See RFC
-  // 2812 Section 2.3 definition of servername vs. nickname.
-  if (prefix &&
-      (temp = prefix.match(/^([^ !@\.:]+)(?:!([^ @]+))?(?:@([^ ]+))?$/))) {
-    message.nickname = temp[1];
-    message.user = temp[2] || null; // Optional
-    message.host = temp[3] || null; // Optional
-    if (message.user)
-      message.source = message.user + "@" + message.host;
-    else
-      message.source = message.host; // Note: this can be null!
-  }
-  else if (prefix)
-    message.servername = prefix;
+  // Handle the prefix part of the message per RFC 2812 Section 2.3.
+
+  // If no prefix is given, assume the current server is the origin.
+  if (!temp[1])
+    temp[1] = aOrigin;
+
+  // Split the prefix into separate nickname, username and hostname fields as:
+  //   :(servername|(nickname[[!user]@host]))
+  [message.origin, message.user, message.host] = temp[1].split(/[!@]/);
+
+  // It is occasionally useful to have a "source" which is a combination of
+  // user@host.
+  if (message.user)
+    message.source = message.user + "@" + message.host;
+  else if (message.host)
+    message.source = message.host;
+  else
+    message.source = "";
 
   return message;
 }
@@ -683,7 +689,8 @@ ircSocket.prototype = {
       function(aStr) lowDequote[aStr[1]] || aStr[1]);
 
     try {
-      let message = new ircMessage(dequotedMessage);
+      let message = new ircMessage(dequotedMessage,
+                                   this._account._currentServerName);
       this.DEBUG(JSON.stringify(message) + conversionWarning);
       if (!ircHandlers.handleMessage(this._account, message)) {
         // If the message was not handled, throw a warning containing
@@ -783,6 +790,10 @@ function ircAccount(aProtocol, aImAccount) {
   let splitter = this.name.lastIndexOf("@");
   this._accountNickname = this.name.slice(0, splitter);
   this._server = this.name.slice(splitter + 1);
+  // To avoid _currentServerName being null, initialize it to the server being
+  // connected to. This will also get overridden during the 001 response from
+  // the server.
+  this._currentServerName = this._server;
 
   this._nickname = this._accountNickname;
   this._requestedNickname = this._nickname;
@@ -818,6 +829,17 @@ ircAccount.prototype = {
   // _requestedNickname when a new nick is automatically generated (e.g. by
   // adding digits).
   _sentNickname: null,
+  get username() {
+    let username;
+    // Use a custom username in a hidden preference.
+    if (this.prefs.prefHasUserValue("username"))
+      username = this.getString("username");
+    // But fallback to brandShortName if no username is provided (or is empty).
+    if (!username)
+      username = Services.appinfo.name;
+
+    return username;
+  },
   // The prefix minus the nick (!user@host) as returned by the server, this is
   // necessary for guessing message lengths.
   prefix: null,
@@ -1275,7 +1297,7 @@ ircAccount.prototype = {
 
     // The received timestamp is invalid.
     if (isNaN(sentTime)) {
-      this.WARN(aMessage.servername +
+      this.WARN(aMessage.origin +
                 " returned an invalid timestamp from a PING: " + aPongTime);
       return false;
     }
@@ -1286,8 +1308,8 @@ ircAccount.prototype = {
     // If the delay is negative or greater than 1 minute, something is
     // feeding us a crazy value. Don't display this to the user.
     if (delay < 0 || 60 * 1000 < delay) {
-      this.WARN(aMessage.servername +
-                " returned an invalid delay from a PING: " + delay);
+      this.WARN(aMessage.origin + " returned an invalid delay from a PING: " +
+                delay);
       return false;
     }
 
@@ -1656,14 +1678,7 @@ ircAccount.prototype = {
     this.changeNick(this._requestedNickname);
 
     // Send the user message (section 3.1.3).
-    let username;
-    // Use a custom username in a hidden preference.
-    if (this.prefs.prefHasUserValue("username"))
-      username = this.getString("username");
-    // But fallback to brandShortName if no username is provided (or is empty).
-    if (!username)
-      username = Services.appinfo.name;
-    this.sendMessage("USER", [username, this._mode.toString(), "*",
+    this.sendMessage("USER", [this.username, this._mode.toString(), "*",
                               this._realname || this._requestedNickname]);
   },
 

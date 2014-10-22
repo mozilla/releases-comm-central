@@ -45,9 +45,8 @@ function privmsg(aAccount, aMessage, aIsNotification) {
   if (aIsNotification)
     params.notification = true;
   aAccount.getConversation(aAccount.isMUCName(aMessage.params[0]) ?
-                           aMessage.params[0] : aMessage.nickname)
-          .writeMessage(aMessage.nickname || aMessage.servername,
-                        aMessage.params[1], params);
+                             aMessage.params[0] : aMessage.origin)
+          .writeMessage(aMessage.origin, aMessage.params[1], params);
   return true;
 }
 
@@ -93,8 +92,8 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
 function writeMessage(aAccount, aMessage, aString, aType) {
   let type = {};
   type[aType] = true;
-  aAccount.getConversation(aMessage.servername)
-          .writeMessage(aMessage.servername, aString, type);
+  aAccount.getConversation(aMessage.origin)
+          .writeMessage(aMessage.origin, aString, type);
   return true;
 }
 
@@ -186,8 +185,8 @@ var ircBase = {
       }
       // Otherwise, just notify the user.
       this.getConversation(aMessage.params[1])
-          .writeMessage(aMessage.nickname,
-                        _("message.inviteReceived", aMessage.nickname,
+          .writeMessage(aMessage.origin,
+                        _("message.inviteReceived", aMessage.origin,
                           aMessage.params[1]), {system: true});
       return true;
     },
@@ -196,7 +195,7 @@ var ircBase = {
       // Add the buddy to each channel
       for each (let channelName in aMessage.params[0].split(",")) {
         let conversation = this.getConversation(channelName);
-        if (this.normalize(aMessage.nickname, this.userPrefixes) ==
+        if (this.normalize(aMessage.origin, this.userPrefixes) ==
             this.normalize(this._nickname)) {
           // If you join, clear the participants list to avoid errors with
           // repeated participants.
@@ -208,7 +207,7 @@ var ircBase = {
           // If conversation.chatRoomFields is present, the rejoin was due to
           // an automatic reconnection, for which we already notify the user.
           if (!conversation._firstJoin && !conversation.chatRoomFields) {
-            conversation.writeMessage(aMessage.nickname, _("message.rejoined"),
+            conversation.writeMessage(aMessage.origin, _("message.rejoined"),
                                       {system: true});
           }
           delete conversation._firstJoin;
@@ -224,14 +223,14 @@ var ircBase = {
         else {
           // Don't worry about adding ourself, RPL_NAMREPLY takes care of that
           // case.
-          conversation.getParticipant(aMessage.nickname, true);
-          let msg = _("message.join", aMessage.nickname, aMessage.source || "");
-          conversation.writeMessage(aMessage.nickname, msg, {system: true,
-                                                             noLinkification: true});
+          conversation.getParticipant(aMessage.origin, true);
+          let msg = _("message.join", aMessage.origin, aMessage.source);
+          conversation.writeMessage(aMessage.origin, msg, {system: true,
+                                                           noLinkification: true});
         }
       }
       // If the joiner is a buddy, mark as online.
-      let buddy = this.buddies.get(aMessage.nickname);
+      let buddy = this.buddies.get(aMessage.origin);
       if (buddy)
         buddy.setStatus(Ci.imIStatusInfo.STATUS_AVAILABLE, "");
       return true;
@@ -240,11 +239,11 @@ var ircBase = {
       // KICK <channel> *( "," <channel> ) <user> *( "," <user> ) [<comment>]
       let comment = aMessage.params.length == 3 ? aMessage.params[2] : null;
       // Some servers (moznet) send the kicker as the comment.
-      if (comment == aMessage.nickname)
+      if (comment == aMessage.origin)
         comment = null;
       return leftRoom(this, aMessage.params[1].split(","),
-                      aMessage.params[0].split(","), aMessage.nickname,
-                      comment, true);
+                      aMessage.params[0].split(","), aMessage.origin, comment,
+                      true);
     },
     "MODE": function(aMessage) {
       // MODE <nickname> *( ( "+" / "-") *( "i" / "w" / "o" / "O" / "r" ) )
@@ -254,33 +253,32 @@ var ircBase = {
         // was updated.
         this.getConversation(aMessage.params[0])
             .setMode(aMessage.params[1], aMessage.params.slice(2),
-                     aMessage.nickname || aMessage.servername);
+                     aMessage.origin);
 
         return true;
       }
 
       // Otherwise the user's own mode is being returned to them.
       return this.setUserMode(aMessage.params[0], aMessage.params[1],
-                              aMessage.nickname || aMessage.servername,
-                              !this._userModeReceived);
+                              aMessage.origin, !this._userModeReceived);
     },
     "NICK": function(aMessage) {
       // NICK <nickname>
-      this.changeBuddyNick(aMessage.nickname, aMessage.params[0]);
+      this.changeBuddyNick(aMessage.origin, aMessage.params[0]);
       return true;
     },
     "NOTICE": function(aMessage) {
       // NOTICE <msgtarget> <text>
       // If the message doesn't have a nickname, it's from the server, don't
       // show it unless the user wants to see it.
-      if (!aMessage.hasOwnProperty("nickname"))
+      if (!aMessage.hasOwnProperty("origin"))
         return serverMessage(this, aMessage);
       return privmsg(this, aMessage, true);
     },
     "PART": function(aMessage) {
       // PART <channel> *( "," <channel> ) [ <Part Message> ]
-      return leftRoom(this, [aMessage.nickname], aMessage.params[0].split(","),
-                      aMessage.source || "",
+      return leftRoom(this, [aMessage.origin], aMessage.params[0].split(","),
+                      aMessage.source,
                       aMessage.params.length == 2 ? aMessage.params[1] : null);
     },
     "PING": function(aMessage) {
@@ -300,7 +298,7 @@ var ircBase = {
       }
       // Otherwise, the ping was from a user command.
       else
-        return this.handlePingReply(aMessage.servername, pongTime);
+        return this.handlePingReply(aMessage.origin, pongTime);
     },
     "PRIVMSG": function(aMessage) {
       // PRIVMSG <msgtarget> <text to be sent>
@@ -315,22 +313,22 @@ var ircBase = {
       if (quitMsg.startsWith("Quit: "))
         quitMsg = quitMsg.slice(6); // "Quit: ".length
       // If a quit message was included, show it.
-      let msg = _("message.quit", aMessage.nickname,
+      let msg = _("message.quit", aMessage.origin,
                   quitMsg.length ? _("message.quit2", quitMsg) : "");
       // Loop over every conversation with the user and display that they quit.
       this.conversations.forEach(conversation => {
         if (conversation.isChat &&
-            conversation._participants.has(aMessage.nickname)) {
-          conversation.writeMessage(aMessage.servername, msg, {system: true});
-          conversation.removeParticipant(aMessage.nickname);
+            conversation._participants.has(aMessage.origin)) {
+          conversation.writeMessage(aMessage.origin, msg, {system: true});
+          conversation.removeParticipant(aMessage.origin);
         }
       });
 
       // Remove from the whois table.
-      this.removeBuddyInfo(aMessage.nickname);
+      this.removeBuddyInfo(aMessage.origin);
 
       // If the leaver is a buddy, mark as offline.
-      let buddy = this.buddies.get(aMessage.nickname);
+      let buddy = this.buddies.get(aMessage.origin);
       if (buddy)
         buddy.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
       return true;
@@ -342,17 +340,19 @@ var ircBase = {
     "TOPIC": function(aMessage) {
       // TOPIC <channel> [ <topic> ]
       // Show topic as a message.
-      let source = aMessage.nickname || aMessage.servername;
       let conversation = this.getConversation(aMessage.params[0]);
       let topic = aMessage.params[1];
       // Set the topic in the conversation and update the UI.
-      conversation.setTopic(topic ? ctcpFormatToText(topic) : "", source);
+      conversation.setTopic(topic ? ctcpFormatToText(topic) : "",
+                            aMessage.origin);
       return true;
     },
     "001": function(aMessage) { // RPL_WELCOME
       // Welcome to the Internet Relay Network <nick>!<user>@<host>
       this._socket.resetPingTimer();
-      this._currentServerName = aMessage.servername;
+      // This seems a little strange, but we don't differentiate between a
+      // nickname and the servername since it can be ambiguous.
+      this._currentServerName = aMessage.origin;
 
       // Clear user mode.
       this._modes = new Set();
@@ -490,7 +490,7 @@ var ircBase = {
     "221": function(aMessage) { // RPL_UMODEIS
       // <user mode string>
       return this.setUserMode(aMessage.params[0], aMessage.params[1],
-                              aMessage.servername, true);
+                              aMessage.origin, true);
     },
 
     /*
@@ -819,7 +819,7 @@ var ircBase = {
       // <channel> <mode> <mode params>
       this.getConversation(aMessage.params[1])
           .setMode(aMessage.params[2], aMessage.params.slice(3),
-                   aMessage.servername);
+                   aMessage.origin);
 
       return true;
     },
@@ -856,7 +856,7 @@ var ircBase = {
       // Note that servers reply with parameters in the reverse order from the
       // above (which is as specified by RFC 2812).
       this.getConversation(aMessage.params[2])
-          .writeMessage(aMessage.servername,
+          .writeMessage(aMessage.origin,
                         _("message.invited", aMessage.params[1],
                           aMessage.params[2]), {system: true});
       return true;
@@ -991,7 +991,7 @@ var ircBase = {
       }
       else
         msg = _("message.noBanMasks", aMessage.params[1]);
-      conv.writeMessage(aMessage.servername, msg, {system: true});
+      conv.writeMessage(aMessage.origin, msg, {system: true});
       return true;
     },
     "369": function(aMessage) { // RPL_ENDOFWHOWAS
@@ -1252,7 +1252,7 @@ var ircBase = {
     "443": function(aMessage) { // ERR_USERONCHANNEL
       // <user> <channel> :is already on channel
       this.getConversation(aMessage.params[2])
-          .writeMessage(aMessage.servername,
+          .writeMessage(aMessage.origin,
                         _("message.alreadyInChannel", aMessage.params[1],
                           aMessage.params[2]), {system: true});
       return true;
@@ -1284,7 +1284,15 @@ var ircBase = {
     },
     "461": function(aMessage) { // ERR_NEEDMOREPARAMS
       // <command> :Not enough parameters
-      // TODO
+
+      if (!this.connected) {
+        // The account has been set up with an illegal username.
+        this.ERROR("Erroneous username: " + this.username);
+        this.gotDisconnected(Ci.prplIAccount.ERROR_INVALID_USERNAME,
+                             _("connection.error.invalidUsername", this.user));
+        return true;
+      }
+
       return false;
     },
     "462": function(aMessage) { // ERR_ALREADYREGISTERED

@@ -221,7 +221,7 @@ function mIRCColoring(aStack, aInput) {
 function conversationErrorMessage(aAccount, aMessage, aError,
                                   aJoinFailed = false, aRejoinable = true) {
   let conv = aAccount.getConversation(aMessage.params[1]);
-  conv.writeMessage(aMessage.servername, _(aError, aMessage.params[1]),
+  conv.writeMessage(aMessage.origin, _(aError, aMessage.params[1]),
                     {error: true, system: true});
   delete conv._pendingMessage;
 
