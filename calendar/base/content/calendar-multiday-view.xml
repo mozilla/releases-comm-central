@@ -1407,7 +1407,7 @@
           }
 
           if (insideScrollZone) {
-              let sbo = scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);
+              let sbo = scrollbox.boxObject;
               let timeout = MAXTIMEOUT - insideScrollZone * (MAXTIMEOUT - MINTIMEOUT) / SCROLLZONE;
               this.mMagicScrollTimer = setTimeout(function() {
                   sbo.scrollBy(orient == "horizontal" && scrollBy,
@@ -3711,7 +3711,7 @@
         <parameter name="aMinute"/>
         <body><![CDATA[
           let scrollbox = document.getAnonymousElementByAttribute(this, "anonid", "scrollbox");
-          let scrollBoxObject = scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);
+          let scrollBoxObject = scrollbox.boxObject;
           // 'aMinute' will be the first minute showed in the view, so it must
           // belong to the range 0 <-> (24*60 - minutes_showed_in_the_view) but
           // we consider 25 hours instead of 24 to let the view scroll until
@@ -3831,7 +3831,7 @@
 
       <handler event="scroll" phase="bubbling"><![CDATA[
         let scrollbox = document.getAnonymousElementByAttribute(this, "anonid", "scrollbox");
-        let scrollBoxObject = scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);
+        let scrollBoxObject = scrollbox.boxObject;
         if (scrollBoxObject && scrollbox.scrollHeight > 0) {
             // We need to update the first visible minute, but only if the
             // scrollbox has been sized.
