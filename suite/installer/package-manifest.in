@@ -26,7 +26,7 @@
 @APPNAME@/Contents/Info.plist
 @APPNAME@/Contents/PkgInfo
 @APPNAME@/Contents/Resources/seamonkey.icns
-@APPNAME@/Contents/Resources/en.lproj/*
+@APPNAME@/Contents/Resources/@AB@.lproj/*
 #endif
 
 [@AB_CD@]

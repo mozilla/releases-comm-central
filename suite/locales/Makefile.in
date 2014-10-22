@@ -155,14 +155,6 @@ else
 repackage-win32-installer-%: ;
 endif
 
-ifneq (,$(filter cocoa,$(MOZ_WIDGET_TOOLKIT)))
-STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_APPNAME)/$(_APPNAME)/Contents/MacOS
-# leave out $(STAGEPATH) as we never have a universal/ subdir here
-PKG_DMG_SOURCE = $(MOZ_PKG_APPNAME)
-else
-STAGEDIST = $(_ABS_DIST)/l10n-stage/$(MOZ_PKG_DIR)
-endif
-
 clobber-zip:
 	$(RM) $(STAGEDIST)/chrome/$(AB_CD).jar \
 	  $(STAGEDIST)/chrome/$(AB_CD).manifest \
@@ -180,7 +172,8 @@ repackage-zip: repackage-extensions
 repackage-extensions: $(STAGEDIST)
 	$(MAKE) -C $(DEPTH)/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
 ifdef MOZ_OMNIJAR
-	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST);
+	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/extensions;
+	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/distribution/extensions;
 endif
 
 repackage-zip-%: $(call ESCAPE_WILDCARD,$(ZIP_IN)) $(STAGEDIST) libs-%
