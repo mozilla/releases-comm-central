@@ -29,6 +29,12 @@
   -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-vertical");
 }
 
+/* Override global/toolbarbutton.css */
+.toolbarbutton-1 > .toolbarbutton-text,
+.toolbarbutton-menubutton-button > .toolbarbutton-text {
+  margin: 2px 6px !important;
+}
+
 toolbar[mode="icons"] .toolbarbutton-1,
 toolbar[mode="icons"] .toolbarbutton-menubutton-button,
 toolbar[iconsize="small"] .toolbarbutton-1,
