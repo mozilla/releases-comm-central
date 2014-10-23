@@ -16,10 +16,10 @@ APP_NAME = $(MOZ_APP_DISPLAYNAME)
 ifdef MOZ_DEBUG
 APP_NAME := $(APP_NAME)Debug
 endif
-BINARY = ../../$(DIST)/$(APP_NAME).app/
+BINARY = $(DIST)/$(APP_NAME).app/
 else
 # Non-mac options
-BINARY = ../../$(DIST)/bin/thunderbird$(BIN_SUFFIX)
+BINARY = $(DIST)/bin/thunderbird$(BIN_SUFFIX)
 endif
 
 check-no-solo = $(foreach solo,SOLO_TEST SOLO_FILE,$(if $($(solo)),$(error $(subst SOLOVAR,$(solo),$(1)))))
@@ -30,7 +30,7 @@ mozmill:
 	$(call check-no-solo,SOLOVAR is specified. Perhaps you meant mozmill-one.)
 	unset PYTHONHOME && cd $(MOZMILLDIR) && MACOSX_DEPLOYMENT_TARGET= \
 	$(MOZMILLPYTHON) runtestlist.py --list=mozmilltests.list \
-	--binary=$(BINARY) \
+	--binary=$(abspath $(BINARY)) \
 	--dir=$(abspath $(topsrcdir))/../mail/test/mozmill \
 	--symbols-path=$(abspath $(DIST)/crashreporter-symbols) \
 	--plugins-path=$(abspath $(DIST)/plugins) \
@@ -41,7 +41,7 @@ mozmill-one:
 	unset PYTHONHOME && cd $(MOZMILLDIR) && MACOSX_DEPLOYMENT_TARGET= \
 	$(MOZMILLPYTHON) runtest.py \
 	--test=$(abspath $(topsrcdir))/../mail/test/mozmill/$(solo-test) \
-	--binary=$(BINARY) \
+	--binary=$(abspath $(BINARY)) \
 	--symbols-path=$(abspath $(DIST)/crashreporter-symbols) \
 	--plugins-path=$(abspath $(DIST)/plugins) \
 	$(MOZMILL_EXTRA)

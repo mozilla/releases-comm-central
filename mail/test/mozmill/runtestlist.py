@@ -74,7 +74,7 @@ for directory in f:
     else:
         testDirectory = directory.rstrip()
     args = [sys.executable, "runtest.py", "-t", testDirectory,
-            "--binary", options.binary, "--symbols-path", options.symbols]
+            "--binary", os.path.abspath(options.binary), "--symbols-path", options.symbols]
 
     if options.plugins:
         args.append("--plugins-path")
