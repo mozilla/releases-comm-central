@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://calendar/modules/calViewUtils.jsm");
 
 EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 cal.print = {
@@ -109,7 +110,7 @@ cal.print = {
         cal.print.insertCalendarRules(document, item.calendar);
 
         // Add it to the day container in the right order
-        cal.binaryInsertNode(dayContainer, itemNode, item, comparePrintItems);
+        cal.binaryInsertNode(dayContainer, itemNode, item, cal.view.compareItems);
     },
 
     /**
@@ -168,37 +169,4 @@ cal.print = {
         // Bug 359007: will result in wrong time label for events that span two or more days
         return cal.getDateFormatter().formatItemTimeInterval(aItem);
     }
-}
-
-/**
- * Item comparator for inserting items into dayboxes.
- *
- * TODO This could possibly be replaced with a global item comparator so
- * that it matches with the views and such.
- *
- * @param a     The first item
- * @param b     The second item
- * @return      The usual -1, 0, 1
- */
-function comparePrintItems(a, b) {
-    if (!a) return -1;
-    if (!b) return 1;
-
-    // Sort tasks before events
-    if (cal.isEvent(a) && cal.isToDo(b)) {
-        return 1;
-    }
-    if (cal.isToDo(a) && cal.isEvent(b)) {
-        return -1;
-    }
-    if (cal.isEvent(a)) {
-        let startCompare = a.startDate.compare(b.startDate);
-        if (startCompare != 0) {
-            return startCompare;
-        }
-        return a.endDate.compare(b.endDate);
-    }
-    let dateA = a.entryDate || a.dueDate;
-    let dateB = b.entryDate || b.dueDate;
-    return dateA.compare(dateB);
 }

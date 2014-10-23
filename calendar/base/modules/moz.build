@@ -16,6 +16,7 @@ EXTRA_JS_MODULES += [
     'calProviderUtils.jsm',
     'calRecurrenceUtils.jsm',
     'calUtils.jsm',
+    'calViewUtils.jsm',
     'calXMLUtils.jsm',
     'ical.js',
 ]
