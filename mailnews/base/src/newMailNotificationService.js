@@ -85,17 +85,17 @@ NewMailNotificationService.prototype = {
         catch (e) {
           this._log.error("NMNS_Observe: unable to deregister mail-startup-done listener: " + e);
         }
-        Services.obs.addObserver(this, "xpcom-shutdown", false);
+        Services.obs.addObserver(this, "profile-before-change", false);
         MailServices.mailSession.AddFolderListener(this, Ci.nsIFolderListener.intPropertyChanged |
                                                          Ci.nsIFolderListener.added |
                                                          Ci.nsIFolderListener.removed |
                                                          Ci.nsIFolderListener.propertyFlagChanged);
         this._initUnreadCount();
       }
-      else if (aTopic == "xpcom-shutdown") {
+      else if (aTopic == "profile-before-change") {
         try {
           MailServices.mailSession.RemoveFolderListener(this);
-          Services.obs.removeObserver(this, "xpcom-shutdown");
+          Services.obs.removeObserver(this, "profile-before-change");
         }
         catch (e) {
           this._log.error("NMNS_Observe: unable to deregister listeners at shutdown: " + e);
