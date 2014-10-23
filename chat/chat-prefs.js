@@ -75,14 +75,7 @@ pref("chat.irc.defaultQuitMessage", "");
 // If this is true, requestRooomInfo will return LIST results when it is
 // called automatically by the awesometab. Otherwise, requestRoomInfo will
 // only do so when explicitly requested by the user, e.g. via the /list command.
-
-// Control whether LIST messages are automatically sent to the server. Explicit
-// lists by the user, e.g. the /list command, will always be allowed.
-//  0: Automatic LIST messages are disabled.
-//  1: Automatic LIST messages are enabled when the SAFELIST ISUPPORT parameter
-//     has been received from the server.
-//  2: Automatic LIST messages are always allowed.
-pref("chat.irc.automaticList", 1);
+pref("chat.irc.automaticList", true);
 
 // loglevel is the minimum severity level that a libpurple message
 // must have to be reported in the Error Console.
