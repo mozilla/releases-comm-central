@@ -51,7 +51,8 @@ struct AppTypeAssociation {
 static const AppTypeAssociation sAppTypes[] = {
   {
     nsIShellService::MAIL, sMailProtocols, ArrayLength(sMailProtocols),
-    "message/rfc822", "eml"
+    "message/rfc822",
+    nullptr // don't associate .eml extension, as that breaks printing those
   },
   {
     nsIShellService::NEWS, sNewsProtocols, ArrayLength(sNewsProtocols),
