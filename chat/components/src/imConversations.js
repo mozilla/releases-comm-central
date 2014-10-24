@@ -34,7 +34,10 @@ imMessage.prototype = {
   _displayMessage: null,
 
   get displayMessage() {
-    return this._displayMessage || this.prplMessage.originalMessage;
+    // Explicitly test for null so that blank messages don't fall back to
+    // the original. Especially problematic in encryption extensions like OTR.
+    return this._displayMessage !== null ?
+      this._displayMessage : this.prplMessage.originalMessage;
   },
   set displayMessage(aMsg) { this._displayMessage = aMsg; },
 
