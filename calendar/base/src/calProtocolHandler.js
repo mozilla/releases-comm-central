@@ -39,6 +39,11 @@ calProtocolHandler.prototype = {
     },
     
     newChannel: function cph_newChannel(aUri) {
+      return this.newChannel2(aUri, null);
+    },
+
+    newChannel2: function cph_newChannel2(aUri, aLoadInfo)
+    {
         // make sure to clone the uri, because we are about to change
         // it, and we don't want to change the original uri.
         var uri = aUri.clone();
@@ -48,7 +53,7 @@ calProtocolHandler.prototype = {
         channel.originalURI = aUri;
         return channel;
     },
-    
+
     // We are not overriding any special ports
     allowPort: function cph_allowPort(aPort, aScheme) false
 };

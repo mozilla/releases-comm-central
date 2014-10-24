@@ -572,6 +572,13 @@ NS_IMETHODIMP nsMailboxService::NewURI(const nsACString &aSpec,
 
 NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI *aURI, nsIChannel **_retval)
 {
+  return NewChannel2(aURI, nullptr, _retval);
+}
+
+NS_IMETHODIMP nsMailboxService::NewChannel2(nsIURI *aURI,
+                                            nsILoadInfo *aLoadInfo,
+                                            nsIChannel **_retval)
+{
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(_retval);
   nsresult rv = NS_OK;

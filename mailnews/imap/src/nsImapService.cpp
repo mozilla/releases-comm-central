@@ -2629,6 +2629,13 @@ NS_IMETHODIMP nsImapService::NewURI(const nsACString &aSpec,
 
 NS_IMETHODIMP nsImapService::NewChannel(nsIURI *aURI, nsIChannel **aRetVal)
 {
+  return NewChannel2(aURI, nullptr, aRetVal);
+}
+
+NS_IMETHODIMP nsImapService::NewChannel2(nsIURI *aURI,
+                                         nsILoadInfo* aLoadInfo,
+                                         nsIChannel **aRetVal)
+{
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(aRetVal);
   *aRetVal = nullptr;

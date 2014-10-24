@@ -1232,6 +1232,13 @@ NS_IMETHODIMP nsNntpService::NewURI(const nsACString &aSpec,
 
 NS_IMETHODIMP nsNntpService::NewChannel(nsIURI *aURI, nsIChannel **_retval)
 {
+  return NewChannel2(aURI, nullptr, _retval);
+}
+
+NS_IMETHODIMP nsNntpService::NewChannel2(nsIURI *aURI,
+                                         nsILoadInfo *aLoadInfo,
+                                         nsIChannel **_retval)
+{
   NS_ENSURE_ARG_POINTER(aURI);
   nsresult rv = NS_OK;
   nsCOMPtr<nsINntpIncomingServer> server;

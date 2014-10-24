@@ -477,6 +477,13 @@ void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl *url)
 
 NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI *aURI, nsIChannel **_retval)
 {
+  return NewChannel2(aURI, nullptr, _retval);
+}
+
+NS_IMETHODIMP nsPop3Service::NewChannel2(nsIURI *aURI,
+                                         nsILoadInfo *aLoadInfo,
+                                         nsIChannel **_retval)
+{
   NS_ENSURE_ARG_POINTER(aURI);
   nsresult rv;
 

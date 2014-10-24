@@ -32,6 +32,11 @@ function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
       throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     },
 
+    newChannel2: function(aURI, aLoadInfo)
+    {
+      throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    },
+
     allowPort: function (port, scheme) {
       return port == aDefaultPort;
     }

@@ -59,6 +59,13 @@ NS_IMETHODIMP nsCidProtocolHandler::NewChannel(nsIURI *aURI, nsIChannel **_retva
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+NS_IMETHODIMP nsCidProtocolHandler::NewChannel2(nsIURI *aURI,
+                                                nsILoadInfo* aLoadInfo,
+                                                nsIChannel **_retval)
+{
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP nsCidProtocolHandler::AllowPort(int32_t port, const char *scheme, bool *_retval)
 {
   return NS_ERROR_NOT_IMPLEMENTED;

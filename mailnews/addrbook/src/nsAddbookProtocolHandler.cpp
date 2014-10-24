@@ -113,8 +113,16 @@ nsAddbookProtocolHandler::GenerateXMLOutputChannel( nsString &aOutput,
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsAddbookProtocolHandler::NewChannel(nsIURI *aURI, nsIChannel **_retval)
+{
+  return NewChannel2(aURI, nullptr, _retval);
+}
+
+NS_IMETHODIMP
+nsAddbookProtocolHandler::NewChannel2(nsIURI *aURI,
+                                      nsILoadInfo* aLoadInfo,
+                                      nsIChannel **_retval)
 {
   nsresult rv;
   nsCOMPtr <nsIAddbookUrl> addbookUrl = do_QueryInterface(aURI, &rv);
