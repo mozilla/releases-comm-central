@@ -1624,7 +1624,7 @@
             var box = this.tree.treeBoxObject;
             if (event.originalTarget == box.treeBody) {
               var index = box.getRowAt(event.clientX, event.clientY);
-              box.view.selection.select(index);
+              this.tree.view.selection.select(index);
               return index;
             }
             return -1;

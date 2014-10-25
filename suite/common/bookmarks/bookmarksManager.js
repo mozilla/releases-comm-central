@@ -42,7 +42,7 @@ var PlacesOrganizer = {
     this._backHistory.splice(0, this._backHistory.length);
     document.getElementById("OrganizerCommand:Back").setAttribute("disabled", true);
 
-    var view = this._content.treeBoxObject.view;
+    var view = this._content.view;
     if (view.rowCount > 0)
       view.selection.select(0);
 
@@ -639,7 +639,7 @@ var PlacesOrganizer = {
       infoBox.hidden = true;
       var selectItemDesc = document.getElementById("selectItemDescription");
       var itemsCountLabel = document.getElementById("itemsCountText");
-      var rowCount = this._content.treeBoxObject.view.rowCount;
+      var rowCount = this._content.view.rowCount;
       if (rowCount == 0) {
         selectItemDesc.hidden = true;
         itemsCountLabel.value = PlacesUIUtils.getString("detailsPane.noItems");

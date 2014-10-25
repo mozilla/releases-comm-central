@@ -37,7 +37,9 @@
       <property name="view">
         <getter><![CDATA[
           try {
-            return this.treeBoxObject.view.QueryInterface(Components.interfaces.nsINavHistoryResultTreeViewer);
+            return this.treeBoxObject.view
+                .QueryInterface(Components.interfaces.nsITreeView)
+                .QueryInterface(Components.interfaces.nsINavHistoryResultTreeViewer);
           }
           catch(e) {
             return null;

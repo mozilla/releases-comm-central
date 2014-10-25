@@ -251,7 +251,7 @@ var gMailNewsTabsType =
     let folderTree = GetFolderTree();
     let row = EnsureFolderIndex(folderTree.builderView, folderToSelect);
     let treeBoxObj = folderTree.treeBoxObject;
-    let folderTreeSelection = treeBoxObj.view.selection;
+    let folderTreeSelection = folderTree.view.selection;
 
     // make sure that row.value is valid so that it doesn't mess up
     // the call to ensureRowIsVisible()
