@@ -145,7 +145,7 @@ function loadPermissions() {
   permissionsTreeView.rowCount = additions.length;
 
   // sort and display the table
-  permissionsTree.treeBoxObject.view = permissionsTreeView;
+  permissionsTree.view = permissionsTreeView;
   permissionColumnSort(sortColumn, false);
 
   // disable "remove all" button if there are none

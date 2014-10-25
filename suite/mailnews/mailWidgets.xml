@@ -1646,7 +1646,7 @@
         <parameter name="event"/>
         <body>
           <![CDATA[
-            this.boxObject.QueryInterface(Components.interfaces.nsIMenuBoxObject).openMenu(false);
+            this.boxObject.openMenu(false);
           ]]>
         </body>
       </method>

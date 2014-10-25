@@ -496,7 +496,7 @@ function makeGeneralTab()
   else
     metaTagsCaption.label = gBundle.getFormattedString("generalMetaTags", [length]);
   var metaTree = document.getElementById("metatree");
-  metaTree.treeBoxObject.view = gMetaView;
+  metaTree.view = gMetaView;
 
   for (var i = 0; i < length; i++)
     gMetaView.addRow([metaNodes[i].name || metaNodes[i].httpEquiv, metaNodes[i].content]);
@@ -739,7 +739,7 @@ function onFormSelect()
   {
     var formPreview = document.getElementById("formpreview");
     gFieldView.clear();
-    formPreview.treeBoxObject.view = gFieldView;
+    formPreview.view = gFieldView;
 
     var clickedRow = gFormView.selection.currentIndex;
     // form-node;

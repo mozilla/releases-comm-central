@@ -727,7 +727,6 @@ FeedWriter.prototype = {
            * when clicking "Subscribe Now".
            */
           var popupbox = this._handlersMenuList.firstChild.boxObject;
-          popupbox.QueryInterface(Components.interfaces.nsIPopupBoxObject);
           if (popupbox.popupState == "hiding" && !this._chooseClientApp()) {
             // Select the (per-prefs) selected handler if no application was
             // selected

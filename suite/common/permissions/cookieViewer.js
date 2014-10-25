@@ -158,7 +158,7 @@ function loadCookies() {
   }
 
   // filter, sort and display the table
-  cookiesTree.treeBoxObject.view = cookiesTreeView;
+  cookiesTree.view = cookiesTreeView;
   filter(document.getElementById("filter").value);
 }
 
@@ -407,7 +407,7 @@ function loadPermissions() {
   permissionsTreeView.rowCount = permissions.length;
 
   // sort and display the table
-  permissionsTree.treeBoxObject.view = permissionsTreeView;
+  permissionsTree.view = permissionsTreeView;
   permissionsTreeView.selection.select(-1);
   SortTree(permissionsTree, permissionsTreeView, permissions,
            lastPermissionSortColumn, lastPermissionSortColumn,

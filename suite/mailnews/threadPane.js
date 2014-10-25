@@ -437,7 +437,7 @@ function RerootThreadPane()
   if (treeView)
   {
     var tree = GetThreadTree();
-    tree.boxObject.QueryInterface(Components.interfaces.nsITreeBoxObject).view = treeView;
+    tree.view = treeView;
   }
 }
 

@@ -181,7 +181,7 @@ var StarUI = {
 
     // Consume dismiss clicks, see bug 400924
     this.panel.popupBoxObject
-        .setConsumeRollupEvent(Components.interfaces.nsIPopupBoxObject.ROLLUP_CONSUME);
+        .setConsumeRollupEvent(PopupBoxObject.ROLLUP_CONSUME);
     this.panel.openPopup(aAnchorElement, aPosition);
 
     gEditItemOverlay.initPanel(this._itemId,
