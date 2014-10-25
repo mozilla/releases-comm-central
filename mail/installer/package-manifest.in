@@ -30,7 +30,7 @@
 @APPNAME@/Contents/PkgInfo
 @APPNAME@/Contents/Library/
 @APPNAME@/Contents/Resources/thunderbird.icns
-@APPNAME@/Contents/Resources/en.lproj/*
+@APPNAME@/Contents/Resources/@AB@.lproj/*
 #endif
 
 [@AB_CD@]
