@@ -18,10 +18,57 @@ XPCOMUtils.defineLazyGetter(this, "formatString", function() {
   let formatter = new PluralStringFormatter(
     "chrome://messenger/locale/multimessageview.properties"
   );
-  return function() {
-    return formatter.get.apply(formatter, arguments);
+  return function(...args) {
+    return formatter.get(...args);
   };
 });
+
+/**
+ * A LimitIterator is a utility class that allows limiting the maximum number
+ * of items to iterate over.
+ *
+ * @param aArray     The array to iterate over (can be anything with a .length
+ *                   property and a subscript operator.
+ * @param aMaxLength The maximum number of items to iterate over.
+ */
+function LimitIterator(aArray, aMaxLength) {
+  this._array = aArray;
+  this._maxLength = aMaxLength;
+}
+
+LimitIterator.prototype = {
+  /**
+   * Returns true if the iterator won't actually iterate over everything in the
+   * array.
+   */
+  get limited() {
+    return this._array.length > this._maxLength;
+  },
+
+  /**
+   * Returns the number of elements that will actually be iterated over.
+   */
+  get length() {
+    return Math.min(this._array.length, this._maxLength);
+  },
+
+  /**
+   * Returns the real number of elements in the array.
+   */
+  get trueLength() {
+    return this._array.length;
+  },
+};
+
+/**
+ * Iterate over the array until we hit the end or the maximum length,
+ * whichever comes first.
+ */
+LimitIterator.prototype[Symbol.iterator] = function*() {
+  let length = this.length;
+  for (let i = 0; i < length; i++)
+    yield this._array[i];
+};
 
 /**
  * The MultiMessageSummary class is responsible for populating the message pane
@@ -36,6 +83,11 @@ function MultiMessageSummary() {
 }
 
 MultiMessageSummary.prototype = {
+  /**
+   * The maximum number of messages to examine in any way.
+   */
+  kMaxMessages: 10000,
+
   /**
    * Register a summarizer for a particular type of message summary.
    *
@@ -99,13 +151,15 @@ MultiMessageSummary.prototype = {
     let summarizer = this._summarizers[aType];
     if (!summarizer)
       throw new Error('Unknown summarizer "' + aType + '"');
-    summarizer.summarize(aMessages);
+
+    let messages = new LimitIterator(aMessages, this.kMaxMessages);
+    let summarizedMessages = summarizer.summarize(messages);
 
     // Stash somewhere so it doesn't get GC'ed.
     this._glodaQuery = Gloda.getMessageCollectionForHeaders(
-      aMessages, this
+      summarizedMessages, this
     );
-    this._computeSize(aMessages);
+    this._computeSize(messages);
   },
 
   /**
@@ -310,16 +364,17 @@ MultiMessageSummary.prototype = {
    * Compute the size of the messages in the selection and display it in the
    * element of id "size".
    *
-   * @param aMessages The messages to calculate the size of.
+   * @param aMessages A LimitIterator of the messages to calculate the size of.
    */
   _computeSize: function(aMessages) {
     let numBytes = 0;
-
-    for (let [,msgHdr] in Iterator(aMessages))
+    for (let msgHdr of aMessages)
       numBytes += msgHdr.messageSize; // XXX do something about news?
-    let sizeNode = document.getElementById("size");
-    sizeNode.textContent = formatString(
-      "messagesTotalSize", [gMessenger.formatFileSize(numBytes)]
+
+    let format = aMessages.limited ? "messagesTotalSizeMoreThan" :
+                                     "messagesTotalSize";
+    document.getElementById("size").textContent = formatString(
+      format, [gMessenger.formatFileSize(numBytes)]
     );
   },
 
@@ -413,7 +468,7 @@ ThreadSummarizer.prototype = {
   /**
    * The maximum number of messages to summarize.
    */
-  kMaxMessages: 100,
+  kMaxSummarizedMessages: 100,
 
   /**
    * The length of message snippets to fetch from Gloda.
@@ -440,28 +495,28 @@ ThreadSummarizer.prototype = {
   /**
    * Summarize a list of messages.
    *
-   * @param aMessages The messages to summarize.
+   * @param aMessages A LimitIterator of the messages to summarize.
+   * @return An array of the messages actually summarized.
    */
   summarize: function(aMessages) {
     let messageList = document.getElementById("message_list");
 
+    // Remove all ignored messages from summarization.
+    let summarizedMessages = [msg for (msg of aMessages) if (!msg.isKilled)];
+    let ignoredCount = aMessages.trueLength - summarizedMessages.length;
+
     // Summarize the selected messages.
-    let count = 0;
-    let ignoredCount = 0;
+    let subject = null;
     let maxCountExceeded = false;
-    for (let i = 0; i < aMessages.length; i++) {
-      let msgHdr = aMessages[i];
-
-      if (msgHdr.isKilled) { // ignored subthread...
-        ignoredCount++;
-        continue;
-      }
-
-      count++;
-      if (count > this.kMaxMessages) {
+    for (let [i, msgHdr] in Iterator(summarizedMessages)) {
+      if (i > this.kMaxSummarizedMessages) {
+        summarizedMessages.length = i;
         maxCountExceeded = true;
         break;
       }
+
+      if (subject == null)
+        subject = msgHdr.mime2DecodedSubject;
 
       let msgNode = this.context.makeSummaryItem(msgHdr, {
         snippetLength: this.kSnippetLength,
@@ -476,21 +531,22 @@ ThreadSummarizer.prototype = {
       "numMessages", [aMessages.length.toLocaleString()], aMessages.length
     );
     if (ignoredCount != 0) {
+      let format = aMessages.limited ? "atLeastNumIgnored" : "numIgnored";
       countInfo += formatString(
-        "numIgnored", [ignoredCount.toLocaleString()], ignoredCount
+        format, [ignoredCount.toLocaleString()], ignoredCount
       );
     }
 
-    let subject = aMessages[0].mime2DecodedSubject ||
-                  formatString("noSubject");
-    this.context.setHeading(subject, countInfo);
+    this.context.setHeading(subject || formatString("noSubject"), countInfo);
 
     if (maxCountExceeded) {
       this.context.showNotice(formatString("maxCountExceeded", [
-        aMessages.length.toLocaleString(),
-        this.kMaxMessages.toLocaleString(),
+        aMessages.trueLength.toLocaleString(),
+        this.kMaxSummarizedMessages.toLocaleString(),
       ]));
     }
+
+    return summarizedMessages;
   },
 };
 
@@ -503,7 +559,12 @@ MultipleSelectionSummarizer.prototype = {
   /**
    * The maximum number of messages to summarize.
    */
-  kMaxMessages: 100,
+  kMaxSummarizedMessages: 500,
+
+  /**
+   * The maximum number of threads to summarize.
+   */
+  kMaxSummarizedThreads: 100,
 
   /**
    * The length of message snippets to fetch from Gloda.
@@ -535,32 +596,23 @@ MultipleSelectionSummarizer.prototype = {
   summarize: function(aMessages) {
     let messageList = document.getElementById("message_list");
 
-    // First, we group the messages in threads and count the threads.
-    let threads = {};
-    let numThreads = 0;
-    for (let [,msgHdr] in Iterator(aMessages)) {
-      let viewThreadId = window.top.gFolderDisplay.view.dbView
-                                   .getThreadContainingMsgHdr(msgHdr)
-                                   .threadKey;
-      if (!(viewThreadId in threads)) {
-        threads[viewThreadId] = [msgHdr];
-        numThreads++;
-      } else {
-        threads[viewThreadId].push(msgHdr);
-      }
-    }
+    let threads = this._buildThreads(aMessages);
 
     // Set the heading based on the number of messages & threads.
+    let format = aMessages.limited ? "atLeastNumConversations" :
+                                     "numConversations";
     this.context.setHeading(formatString(
-      "numConversations", [numThreads.toLocaleString()], numThreads
+      format, [threads.length.toLocaleString()], threads.length
     ));
 
     // Summarize the selected messages by thread.
     let maxCountExceeded = false;
-    let count = 0;
-    for (let [,msgs] in Iterator(threads)) {
-      count += msgs.length;
-      if (count > this.kMaxMessages) {
+    let messageCount = 0;
+    for (let [i, msgs] in Iterator(threads)) {
+      messageCount += msgs.length;
+      if (messageCount > this.kMaxSummarizedMessages ||
+          i > this.kMaxSummarizedThreads) {
+        threads.length = i;
         maxCountExceeded = true;
         break;
       }
@@ -577,10 +629,45 @@ MultipleSelectionSummarizer.prototype = {
 
     if (maxCountExceeded) {
       this.context.showNotice(formatString("maxCountExceeded", [
-        aMessages.length.toLocaleString(),
-        this.kMaxMessages.toLocaleString(),
+        aMessages.trueLength.toLocaleString(),
+        this.kMaxSummarizedMessages.toLocaleString(),
       ]));
+
+      // Return only the messages for the threads we're actually showing. We
+      // need to collapse our array-of-arrays into a flat array.
+      return threads.reduce(function(accum, curr) {
+        accum.push(...curr);
+        return accum;
+      }, []);
     }
+
+    // Return everything, since we're showing all the threads. Don't forget to
+    // turn it into an array, though!
+    return [...aMessages];
+  },
+
+  /**
+   * Group all the messages to be summarized into threads.
+   *
+   * @param aMessages The messages to group.
+   * @return An array of arrays of messages, grouped by thread.
+   */
+  _buildThreads: function(aMessages) {
+    // First, we group the messages in threads and count the threads.
+    let threads = [];
+    let threadMap = {};
+    for (let msgHdr of aMessages) {
+      let viewThreadId = window.top.gFolderDisplay.view.dbView
+                                   .getThreadContainingMsgHdr(msgHdr)
+                                   .threadKey;
+      if (!(viewThreadId in threadMap)) {
+        threadMap[viewThreadId] = threads.length;
+        threads.push([msgHdr]);
+      } else {
+        threads[threadMap[viewThreadId]].push(msgHdr);
+      }
+    }
+    return threads;
   },
 };
 

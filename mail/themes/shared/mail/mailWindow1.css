@@ -85,6 +85,10 @@ treechildren::-moz-tree-cell-text(subjectCol) {
   overflow: hidden;
 }
 
+#multimessage {
+  background-color: -moz-Field;
+}
+
 /* ..... status bar adjustments ..... */
 
 #quotaMeter {

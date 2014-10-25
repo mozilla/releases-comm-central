@@ -46,9 +46,13 @@ MessageDisplayWidget.prototype = {
    */
   _updateActiveMessagePane: function MessageDisplayWidget_updateMessagePane() {
     // If we're summarizing, might as well clear the message display so that
-    // when we return to it, we don't display prev selected message.
+    // when we return to it, we don't display prev selected message.  If we're
+    // *not* summarizing, clear the summary display so that the summary can
+    // clean itself up.
     if (!this.singleMessageDisplay)
       this.clearDisplay();
+    else
+      gSummaryFrameManager.clear();
 
     // _singleMessageDisplay can be null, so use the property (getter)
     document.getElementById("singlemessage").hidden =
