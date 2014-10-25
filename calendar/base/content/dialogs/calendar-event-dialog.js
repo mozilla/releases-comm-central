@@ -1652,7 +1652,9 @@ function editPriority(target) {
 function updatePriority() {
     // Set up capabilities
     var hasPriority = capSupported("priority");
-    setElementValue("button-priority", !hasPriority && "true", "disabled");
+    if (document.getElementById("button-priority")) {
+        setElementValue("button-priority", !hasPriority && "true", "disabled");
+    }
     setElementValue("options-priority-menu", !hasPriority && "true", "disabled");
     setElementValue("status-priority", !hasPriority && "true", "collapsed");
 
