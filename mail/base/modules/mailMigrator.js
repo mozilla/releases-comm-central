@@ -213,8 +213,7 @@ var MailMigrator = {
 
         if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default") &&
             MailServices.accounts.accounts.length == 0) {
-          if (xulStore.hasValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide"))
-            xulStore.setValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide", "true");
+          xulStore.setValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide", "true");
         }
       }
 
