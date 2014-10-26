@@ -1454,7 +1454,7 @@ var gAccountTree = {
                         .getService(Components.interfaces.nsIXULStore),
 
   /**
-   * Retrieve from localstore.rdf whether the account should be expanded (open)
+   * Retrieve from XULStore.json whether the account should be expanded (open)
    * in the account tree.
    *
    * @param aAccountKey  key of the account to check
@@ -1582,9 +1582,9 @@ var gAccountTree = {
         }
         treeitem.setAttribute("container", "true");
         treeitem.id = accountKey;
-        // Load the 'open' state of the account from localstore.rdf.
+        // Load the 'open' state of the account from XULStore.json.
         treeitem.setAttribute("open", this._getAccountOpenState(accountKey));
-        // Let the localstore.rdf automatically save the 'open' state of the
+        // Let the XULStore.json automatically save the 'open' state of the
         // account when it is changed.
         treeitem.setAttribute("persist", "open");
       }

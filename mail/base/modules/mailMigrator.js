@@ -99,7 +99,7 @@ var MailMigrator = {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
     const UI_VERSION = 5;
-    const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul#";
+    const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
 
@@ -110,9 +110,7 @@ var MailMigrator = {
     if (currentUIVersion >= UI_VERSION)
       return;
 
-    this._rdf = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
-    this._dataSource = this._rdf.GetDataSource("rdf:local-store");
-    let dirty = false;
+    let xulStore = Cc["@mozilla.org/xul/xulstore;1"].getService(Ci.nsIXULStore);
 
     try {
       // Initially, we checked if currentUIVersion < 1, and stripped the
@@ -125,104 +123,65 @@ var MailMigrator = {
       // our users the first time.
       if (currentUIVersion < 2) {
         // We want to remove old settings that collapse the folderPaneBox
-        let fpbResource = this._rdf.GetResource(MESSENGER_DOCURL
-                                                + "folderPaneBox");
-        let collapsedResource = this._rdf.GetResource("collapsed");
-        let collapsed = this._getPersist(fpbResource, collapsedResource);
-
-        if (collapsed !== null) {
+        if (xulStore.hasValue(MESSENGER_DOCURL, "folderPaneBox", "collapsed")) {
           // We want to override this, and set it to false.  We should really
           // be ignoring this persist attribute, anyhow.
-          dirty = true;
-          this._unAssert(fpbResource, collapsedResource);
+          xulStore.removeValue(MESSENGER_DOCURL, "folderPaneBox", "collapsed");
         }
 
         // We want to remove the throbber from the menubar on Linux and
         // Windows, and from the mail-toolbar on OSX.
-        let currentSetResource = this._rdf.GetResource("currentset");
-        let barResource = null;
+        let mailBarId = (Services.appinfo.OS == "Darwin") ?
+          "mail-bar3" : "mail-toolbar-menubar2";
+        let cs = xulStore.getValue(MESSENGER_DOCURL, mailBarId, "currentset");
 
-        if (Services.appinfo.OS == "Darwin")
-          barResource = this._rdf.GetResource(MESSENGER_DOCURL + "mail-bar3");
-        else
-          barResource = this._rdf.GetResource(MESSENGER_DOCURL +
-                                              "mail-toolbar-menubar2");
-
-        if (barResource !== null) {
-          let currentSet = this._getPersist(barResource, currentSetResource);
-          if (currentSet &&
-              currentSet.indexOf("throbber-box") != -1) {
-            dirty = true;
-            currentSet = currentSet.replace(/(^|,)throbber-box($|,)/, "$1$2");
-            this._setPersist(barResource, currentSetResource, currentSet);
-          }
+        if (cs && cs.indexOf("throbber-box") != -1) {
+          cs = cs.replace(/(^|,)throbber-box($|,)/, "$1$2");
+          xulStore.setValue(MESSENGER_DOCURL, mailBarId, "currentset", cs);
         }
       }
 
       // In UI version 3, we move the QFB button from the tabbar toolbar to
       // to the mail toolbar.
       if (currentUIVersion < 3) {
-        let currentSetResource = this._rdf.GetResource("currentset");
-        let tbtResource = this._rdf.GetResource(MESSENGER_DOCURL
-                                                + "tabbar-toolbar");
-        if (tbtResource !== null) {
-          let currentSet = this._getPersist(tbtResource, currentSetResource);
-          if (currentSet
-              && currentSet.indexOf("qfb-show-filter-bar") != -1) {
-            dirty = true;
-            currentSet = currentSet.replace(/(^|,)qfb-show-filter-bar($|,)/,
-                                            "$1$2");
-            this._setPersist(tbtResource, currentSetResource, currentSet);
-          }
+        let cs = xulStore.getValue(MESSENGER_DOCURL, "tabbar-toolbar", "currentset");
+        if (cs && cs.indexOf("qfb-show-filter-bar") != -1) {
+          cs = cs.replace(/(^|,)qfb-show-filter-bar($|,)/, "$1$2");
+          xulStore.setValue(MESSENGER_DOCURL, "tabbar-toolbar", "currentset", cs);
         }
 
-        let barResource = this._rdf.GetResource(MESSENGER_DOCURL + "mail-bar3");
-        if (barResource !== null) {
-          let currentSet = this._getPersist(barResource, currentSetResource);
-
-          if (currentSet
-              && currentSet.indexOf("qfb-show-filter-bar") == -1) {
-
-            dirty = true;
-            if (currentSet.indexOf("gloda-search") != -1) {
-              // Put the QFB toggle before the gloda-search and any of
-              // spring / spacer / separator.
-              currentSet = currentSet.replace(/(^|,)([spring,|spacer,|separator,]*)gloda-search($|,)/,
-                                              "$1qfb-show-filter-bar,$2gloda-search$3");
-            } else {
-              // If there's no gloda-search, just put the QFB toggle at the end
-              currentSet = currentSet + ",qfb-show-filter-bar";
-            }
-            this._setPersist(barResource, currentSetResource, currentSet);
+        let cs3 = xulStore.getValue(MESSENGER_DOCURL, "mail-bar3", "currentset");
+        if (cs3 && cs3.indexOf("qfb-show-filter-bar") == -1) {
+          if (cs3.indexOf("gloda-search") != -1) {
+            // Put the QFB toggle before the gloda-search and any of
+            // spring / spacer / separator.
+            cs3 = cs3.replace(/(^|,)([spring,|spacer,|separator,]*)gloda-search($|,)/,
+                             "$1qfb-show-filter-bar,$2gloda-search$3");
+          } else {
+            // If there's no gloda-search, just put the QFB toggle at the end
+            cs3 += ",qfb-show-filter-bar";
           }
+          xulStore.setValue(MESSENGER_DOCURL, "mail-bar3", "currentset", cs3);
         }
       }
 
       // In UI version 4, we add the chat button to the mail toolbar.
       if (currentUIVersion < 4) {
-        let currentSetResource = this._rdf.GetResource("currentset");
-        let barResource = this._rdf.GetResource(MESSENGER_DOCURL + "mail-bar3");
-        if (barResource !== null) {
-          let currentSet = this._getPersist(barResource, currentSetResource);
-
-          if (currentSet
-              && currentSet.indexOf("button-chat") == -1) {
-
-            dirty = true;
-            if (currentSet.indexOf("button-newmsg") != -1) {
-              // Put the chat button after the newmsg button.
-              currentSet = currentSet.replace(/(^|,)button-newmsg($|,)/,
-                                              "$1button-newmsg,button-chat$2");
-            } else if (currentSet.indexOf("button-address") != -1) {
-              // If there's no newmsg button, put the chat button before the address book button.
-              currentSet = currentSet.replace(/(^|,)button-address($|,)/,
-                                              "$1button-chat,button-address$2");
-            } else {
-              // Otherwise, just put the chat button at the end.
-              currentSet = currentSet + ",button-chat";
-            }
-            this._setPersist(barResource, currentSetResource, currentSet);
+        let cs = xulStore.getValue(MESSENGER_DOCURL, "mail-bar3", "currentset");
+        if (cs && cs.indexOf("button-chat") == -1) {
+          if (cs.indexOf("button-newmsg") != -1) {
+            // Put the chat button after the newmsg button.
+            cs = cs.replace(/(^|,)button-newmsg($|,)/,
+                            "$1button-newmsg,button-chat$2");
+          } else if (cs.indexOf("button-address") != -1) {
+            // If there's no newmsg button, put the chat button before the address book button.
+            cs = cs.replace(/(^|,)button-address($|,)/,
+                            "$1button-chat,button-address$2");
+          } else {
+            // Otherwise, just put the chat button at the end.
+            cs += ",button-chat";
           }
+          xulStore.setValue(MESSENGER_DOCURL, "mail-bar3", "currentset", cs);
         }
       }
 
@@ -241,33 +200,21 @@ var MailMigrator = {
          * @param aToolbarID the ID of the toolbar to add the AppMenu to.
          */
         let addButtonToEnd = function(aToolbarID, aButtonID) {
-          let barResource = this._rdf.GetResource(MESSENGER_DOCURL +
-                                                  aToolbarID);
-          if (barResource) {
-            let currentSetResource = this._rdf.GetResource("currentset");
-            let currentSet = this._getPersist(barResource, currentSetResource);
-
-            if (currentSet && currentSet.indexOf(aButtonID) == -1) {
-              // Put the AppMenu button at the end.
-              dirty = true;
-              currentSet = currentSet + "," + aButtonID;
-              this._setPersist(barResource, currentSetResource, currentSet);
-            }
+          let cs = xulStore.getValue(MESSENGER_DOCURL, aToolbarID, "currentset");
+          if (cs && cs.indexOf(aButtonID) == -1) {
+            // Put the AppMenu button at the end.
+            cs += "," + aButtonID;
+            xulStore.setValue(MESSENGER_DOCURL, aToolbarID, "currentset", cs);
           }
         }.bind(this);
 
         addButtonToEnd("mail-bar3", "button-appmenu");
         addButtonToEnd("chat-toobar", "button-chat-appmenu");
 
-        if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default")
-            && MailServices.accounts.accounts.length == 0) {
-          let menuResource = this._rdf.GetResource(MESSENGER_DOCURL +
-                                                   "mail-toolbar-menubar2");
-          if (menuResource !== null) {
-            let autohideResource = this._rdf.GetResource("autohide");
-            dirty = true;
-            this._setPersist(menuResource, autohideResource, "true");
-          }
+        if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default") &&
+            MailServices.accounts.accounts.length == 0) {
+          if (xulStore.hasValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide"))
+            xulStore.setValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide", "true");
         }
       }
 
@@ -275,14 +222,9 @@ var MailMigrator = {
       Services.prefs.setIntPref(UI_VERSION_PREF, UI_VERSION);
 
     } catch(e) {
-      Cu.reportError("Migrating from UI version " + currentUIVersion + " to "
-                     + UI_VERSION + " failed. Error message was: " + e + " -- "
-                     + "Will reattempt on next start.");
-    } finally {
-      if (dirty)
-        this._dataSource.QueryInterface(Ci.nsIRDFRemoteDataSource).Flush();
-      delete this._rdf;
-      delete this._dataSource;
+      Cu.reportError("Migrating from UI version " + currentUIVersion + " to " +
+                     UI_VERSION + " failed. Error message was: " + e + " -- " +
+                     "Will reattempt on next start.");
     }
   },
 
@@ -300,80 +242,5 @@ var MailMigrator = {
    */
   migrateAtProfileStartup: function MailMigrator_migrateAtProfileStartup() {
     this._migrateUI();
-  },
-
-  /**
-   * A helper function to get the property for a resource in the
-   * localstore.rdf file.  This function should only be called by _migrateUI.
-   *
-   * @param aSource the resource to get the property from
-   * @param aProperty the property to get the value from
-   */
-  _getPersist: function MailMigrator__getPersist(aSource, aProperty) {
-    // The code for this was ported from
-    // mozilla/browser/components/nsBrowserGlue.js.
-
-    let target = this._dataSource.GetTarget(aSource, aProperty, true);
-    if (target instanceof Ci.nsIRDFLiteral)
-      return target.Value;
-    return null;
-  },
-
-  /**
-   * A helper function to set the property for a resource in the localstore.rdf.
-   * This function also automatically adds the property to the list of properties
-   * being persisted for the aSource.
-   *
-   * @param aSource the resource that we want to set persistence on
-   * @param aProperty the property that we're going to set the value of
-   * @param aTarget the value that we're going to set the property to
-   */
-  _setPersist: function MailMigrator__setPersist(aSource, aProperty, aTarget) {
-    try {
-      let oldTarget = this._dataSource.GetTarget(aSource, aProperty, true);
-      if (oldTarget) {
-        if (aTarget)
-          this._dataSource.Change(aSource, aProperty, oldTarget, this._rdf.GetLiteral(aTarget));
-        else
-          this._dataSource.Unassert(aSource, aProperty, oldTarget);
-      }
-      else {
-        this._dataSource.Assert(aSource, aProperty, this._rdf.GetLiteral(aTarget), true);
-      }
-
-      // Add the entry to the persisted set for this document if it's not there.
-      // This code is mostly borrowed from nsXULDocument::Persist.
-      let docURL = aSource.ValueUTF8.split("#")[0];
-      let docResource = this._rdf.GetResource(docURL);
-      let persistResource = this._rdf.GetResource("http://home.netscape.com/NC-rdf#persist");
-      if (!this._dataSource.HasAssertion(docResource, persistResource, aSource, true)) {
-        this._dataSource.Assert(docResource, persistResource, aSource, true);
-      }
-    }
-    catch(e) {
-      // Something's gone horribly wrong - report it in the Error Console
-      Cu.reportError(e);
-      throw(e);
-    }
-  },
-
-  /**
-   * A helper function to unassert a property from a resource.  This function
-   * should only be called by _migrateUI.
-   *
-   * @param aSource the resource to remove the property from
-   * @param aProperty the property to be removed
-   */
-  _unAssert: function MailMigrator__unAssert(aSource, aProperty) {
-    try {
-      let oldTarget = this._dataSource.GetTarget(aSource, aProperty, true);
-      if (oldTarget)
-        this._dataSource.Unassert(aSource, aProperty, oldTarget);
-    }
-    catch(e) {
-      // If something's gone wrong here, report it in the Error Console.
-      Cu.reportError(e);
-      throw(e);
-    }
   },
 };

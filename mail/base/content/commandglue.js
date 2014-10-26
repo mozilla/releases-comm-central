@@ -189,7 +189,7 @@ function ConvertSortTypeToColumnID(sortKey)
   var columnID;
 
   // Hack to turn this into an integer, if it was a string.
-  // It would be a string if it came from localStore.rdf
+  // It would be a string if it came from XULStore.json.
   sortKey = sortKey - 0;
 
   switch (sortKey) {

@@ -7,6 +7,8 @@
  * property from the folderPaneBox, but that we still persist width.
  */
 
+// make SOLO_TEST=migration-to-rdf-ui-2/test-migrate-to-rdf-ui-2.js mozmill-one
+
 let MODULE_NAME = "test-migrate-to-rdf-ui-2";
 let RELATIVE_ROOT = "../shared-modules";
 let MODULE_REQUIRES = ["folder-display-helpers"];
@@ -27,17 +29,12 @@ function setupModule(module) {
  */
 function test_collapsed_removed() {
   // We can't actually detect this visually (at least, not deterministically)
-  // so we'll use the RDF service to see if the collapsed property has been
-  // excised from the folderPaneBox resource.
-  const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul#";
+  // so we'll use xulStore to see if the collapsed property has been
+  // excised from folderPaneBox.
+  const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
 
-  let rdf = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
-  let datasource = rdf.GetDataSource("rdf:local-store");
-  let fpbResource = rdf.GetResource(MESSENGER_DOCURL + "folderPaneBox");
-  let collapsedResource = rdf.GetResource("collapsed");
-  let target = datasource.GetTarget(fpbResource, collapsedResource, true);
-
-  if (target != null)
+  let xulStore = Cc["@mozilla.org/xul/xulstore;1"].getService(Ci.nsIXULStore);
+  if (xulStore.hasValue(MESSENGER_DOCURL, "folderPaneBox", "collapsed"))
     throw Error("The collapsed property still seems to exist for folderPaneBox.");
 }
 
@@ -45,6 +42,7 @@ function test_collapsed_removed() {
  * Test that the "width" property of the folderPaneBox resource was persisted.
  * We do this simply be checking that the width of the folderPaneBox matches
  * the width defined in localstore.rdf (which, in this case, is 500px).
+ * localstore.rdf was converted to XULStore.json in bug 559505
  */
 function test_width_persisted() {
   const EXPECTED_WIDTH = 500; // Set in localstore.rdf, found in this directory
