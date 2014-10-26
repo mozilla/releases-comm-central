@@ -82,6 +82,8 @@ messenger.jar:
     content/messenger/folderProps.xul                                          (base/content/folderProps.xul)
     content/messenger/folderProps.js                                           (base/content/folderProps.js)
     content/messenger/folderWidgets.xml                                        (base/content/folderWidgets.xml)
+    content/messenger/charsetList.xml                                          (base/content/charsetList.xml)
+    content/messenger/charsetList.css                                          (base/content/charsetList.css)
     content/messenger/retention.js                                             (base/content/retention.js)
     content/messenger/shareglue.js                                             (base/content/shareglue.js)
     content/messenger/newFolderDialog.xul                                      (base/content/newFolderDialog.xul)

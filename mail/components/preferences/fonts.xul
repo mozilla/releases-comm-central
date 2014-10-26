@@ -6,6 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/content/charsetList.css"?>
 #ifdef XP_MACOSX
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 #endif
@@ -30,7 +31,7 @@
             style="width: &window.width; !important;">
 #endif
 
-  <prefpane id="FontsDialogPane" onpaneload="gFontsDialog._init();">
+  <prefpane id="FontsDialogPane">
 
     <preferences id="fontPreferences">
       <preference id="font.language.group"  name="font.language.group"  type="wstring"/>
@@ -283,7 +284,8 @@
             <label control="sendDefaultCharsetList"
                    value="&sendDefaultCharset.label;"
                    accesskey="&sendDefaultCharset.accesskey;"/>
-            <menulist id="sendDefaultCharsetList" flex="1"
+            <menulist id="sendDefaultCharsetList" type="charset"
+                      subset="sending"
                       preference="mailnews.send_default_charset"/>
           </row>
 
@@ -291,7 +293,8 @@
             <label control="viewDefaultCharsetList"
                    value="&viewDefaultCharsetList.label;"
                    accesskey="&viewDefaultCharsetList.accesskey;"/>
-            <menulist id="viewDefaultCharsetList"
+            <menulist id="viewDefaultCharsetList" type="charset"
+                      subset="viewing"
                       preference="mailnews.view_default_charset" />
           </row>
         </rows>
