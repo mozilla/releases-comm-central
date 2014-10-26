@@ -117,12 +117,14 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     });
   },
 
-  _addToResult: function _addToResult(card) {
-    let emailAddress =
-      this._parser.makeMailboxObject(card.displayName,
-                                     card.isMailList ?
-                                     card.getProperty("Notes", "") || card.displayName :
-                                     card.primaryEmail).toString();
+  _addToResult: function(card) {
+    let mbox = this._parser.makeMailboxObject(card.displayName,
+      card.isMailList ? card.getProperty("Notes", "") || card.displayName :
+                        card.primaryEmail);
+    if (!mbox.email)
+      return;
+
+    let emailAddress = mbox.toString();
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.

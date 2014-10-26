@@ -32,7 +32,9 @@ const cards = [
   { email: "g@test.invalid", secondEmail: "f@test.invalid",
     displayName: "3testsort", popularityIndex: 3 },
   { email: "j@test.invalid", secondEmail: "h@test.invalid",
-    displayName: "3testsort", popularityIndex: 5 }
+    displayName: "3testsort", popularityIndex: 5 },
+  // Add a contact that matches, but has no email. Should not show up.
+  { displayName: "primaryX" }
 ];
 
 // These are for the initial search

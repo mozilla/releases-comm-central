@@ -241,13 +241,15 @@ nsAbAutoCompleteSearch.prototype = {
    *                       it is the case. For mailing lists set it to true.
    * @param result         The result to add the new entry to.
    */
-  _addToResult: function _addToResult(commentColumn, directory, card,
-                                      emailToUse, isPrimaryEmail, result) {
-    var emailAddress =
-      this._parser.makeMailboxObject(card.displayName,
-                                     card.isMailList ?
-                                     card.getProperty("Notes", "") || card.displayName :
-                                     emailToUse).toString();
+  _addToResult: function(commentColumn, directory, card,
+                         emailToUse, isPrimaryEmail, result) {
+    let mbox = this._parser.makeMailboxObject(card.displayName,
+      card.isMailList ? card.getProperty("Notes", "") || card.displayName :
+                        emailToUse);
+    if (!mbox.email)
+      return;
+
+    let emailAddress = mbox.toString();
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.
