@@ -21,6 +21,7 @@ function nsContextMenu(aXulMenu, aIsShift) {
   this.target         = null;
   this.menu           = null;
   this.onTextInput    = false;
+  this.onEditableArea = false;
   this.onImage        = false;
   this.onLoadedImage  = false;
   this.onCanvas       = false;
@@ -79,6 +80,16 @@ nsContextMenu.prototype = {
     }
 
     this.initItems();
+
+    // If all items in the menu are hidden, set this.shouldDisplay to false
+    // so that the callers know to not even display the empty menu.
+    let contextPopup = document.getElementById("mailContext");
+    for (let item of contextPopup.children) {
+      if (!item.hidden)
+        return;
+    }
+    // All items must have been hidden.
+    this.shouldDisplay = false;
   },
   initItems : function CM_initItems() {
     this.initPageMenuSeparator();
@@ -433,6 +444,7 @@ nsContextMenu.prototype = {
     this.onLoadedImage  = false;
     this.onMetaDataItem = false;
     this.onTextInput    = false;
+    this.onEditableArea = false;
     this.imageURL       = "";
     this.onLink         = false;
     this.onVideo        = false;
