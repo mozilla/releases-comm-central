@@ -487,13 +487,6 @@ treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
   -moz-border-end: 1px solid ThreeDHighlight;
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-  #abResultsTree {
-    background-color: #EEF3FA;
-  }
-}
-
 #GeneratedName {
   -moz-padding-start: 30px;
 }
@@ -525,13 +518,6 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
   min-width: 150px;
   color: -moz-FieldText;
   background-color: -moz-Field;
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-  #CardViewBox {
-    background-color: #EEF3FA;
-  }
 }
 
 #CardViewInnerBox {
