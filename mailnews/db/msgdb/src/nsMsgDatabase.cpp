@@ -5,9 +5,6 @@
 
 // this file implements the nsMsgDatabase interface using the MDB Interface.
 
-#ifdef MOZ_LOGGING
-#define FORCE_PR_LOG /* Allow logging in the release build */
-#endif
 #include <sys/stat.h>
 
 #include "nscore.h"

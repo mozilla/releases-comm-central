@@ -4,10 +4,6 @@
 
 #define MAPI_STARTUP_ARG       "/MAPIStartUp"
 
-#ifdef MOZ_LOGGING
-// this has to be before the pre-compiled header
-#define FORCE_PR_LOG /* Allow logging in the release build */
-#endif
 #include <mapidefs.h>
 #include <mapi.h>
 #include <tchar.h>

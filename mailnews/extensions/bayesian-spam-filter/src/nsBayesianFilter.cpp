@@ -3,17 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifdef MOZ_LOGGING
-// sorry, this has to be before the pre-compiled header
-
-// Logging levels are implemented as follows:
-//   1 (PR_LOG_ALWAYS) just show one line per message with junk score
-//   2 (PR_LOG_ERROR) add any error messages
-//   3 (PR_LOG_WARNING) add per message tokens used
-//   4 (PR_LOG_DEBUG) add additional tokenization results plus other details
-#define FORCE_PR_LOG /* Allow logging in the release build */
-#endif
-
 #include "nsBayesianFilter.h"
 #include "nsIInputStream.h"
 #include "nsIStreamListener.h"

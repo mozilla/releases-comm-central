@@ -15,10 +15,6 @@
  * 06/07/2000       Jason Eager    Added check for out of disk space
  */
 
-#ifdef MOZ_LOGGING
-#define FORCE_PR_LOG
-#endif
-
 #include "nscore.h"
 #include "msgCore.h"    // precompiled header...
 #include "nsNetUtil.h"

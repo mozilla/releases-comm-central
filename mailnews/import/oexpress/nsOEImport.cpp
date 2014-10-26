@@ -9,11 +9,6 @@
   Outlook Express (Win32) import mail and addressbook interfaces
 
 */
-#ifdef MOZ_LOGGING
-// sorry, this has to be before the pre-compiled header
-#define FORCE_PR_LOG /* Allow logging in the release build */
-#endif
-
 #include "nscore.h"
 #include "nsMsgUtils.h"
 #include "nsStringGlue.h"
