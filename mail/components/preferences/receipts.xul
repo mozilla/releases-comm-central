@@ -20,7 +20,9 @@
             dlgbuttons="accept,cancel"
             title="&dialog.title;">
 
-  <prefpane id="ReturnReceiptsDialogPane">
+  <prefpane id="ReturnReceiptsDialogPane" onpaneload="enableDisableAllowedReceipts();">
+    <script type="application/javascript" src="chrome://messenger/content/preferences/receipts.js"/>
+
     <preferences id="ReturnReceiptsPreferences">
       <preference id="mail.receipt.request_return_receipt_on" name="mail.receipt.request_return_receipt_on" type="bool"/>
       <preference id="mail.incorporate.return_receipt" name="mail.incorporate.return_receipt" type="int"/>
@@ -51,7 +53,8 @@
     <separator class="thin"/>
 
     <label control="receiptSend">&requestMDN.label;</label>
-    <radiogroup id="receiptSend" class="indent" preference="mail.mdn.report.enabled" oncommand="EnableDisableAllowedReceipts();">
+    <radiogroup id="receiptSend" class="indent" preference="mail.mdn.report.enabled"
+                oncommand="enableDisableAllowedReceipts();">
       <radio value="false" label="&never.label;" accesskey="&never.accesskey;"/>
       <radio value="true" label="&returnSome.label;" accesskey="&returnSome.accesskey;"/>
 
