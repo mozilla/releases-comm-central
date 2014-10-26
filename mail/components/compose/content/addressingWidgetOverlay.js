@@ -785,7 +785,9 @@ function awSetAutoComplete(rowNumber)
 
 function awRecipientTextCommand(enterEvent, element)
 {
-  awReturnHit(element);
+  // Only add new row when enter was hit (not for tab/autocomplete select).
+  if (enterEvent)
+    awReturnHit(element);
 }
 
 function awRecipientKeyPress(event, element)
