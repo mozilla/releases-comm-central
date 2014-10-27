@@ -5,4 +5,4 @@
   <commandset id="maincommandset"/>
   <keyset id="mainkeyset"/>
   <menubar id="blistMenubar"/>
-  <popupset id="mainpopupset"/>
+  <popupset id="mainPopupSet"/>

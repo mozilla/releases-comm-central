@@ -32,7 +32,7 @@
               insertbefore="menu_FileQuitItem"/>
   </menupopup>
 
-  <popupset id="mainpopupset">
+  <popupset id="mainPopupSet">
     <menupopup id="MinTrayR_context">
       <menuitem id="MinTrayR_available"
                 label="&available;"

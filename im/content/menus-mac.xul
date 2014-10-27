@@ -57,7 +57,7 @@
 
   <menu id="helpMenu" hidden="true"/>
 
-  <popupset id="mainpopupset">
+  <popupset id="mainPopupSet">
     <!-- nsMenuBarX hides these and uses them to build the Application menu. -->
     <menupopup id="menu_ToolsPopup">
       <menuitem id="menu_preferences"
