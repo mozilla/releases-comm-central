@@ -327,10 +327,8 @@
 @BINPATH@/components/gfx.xpt
 
 ; layout
-@BINPATH@/components/content_base.xpt
 @BINPATH@/components/content_events.xpt
 @BINPATH@/components/content_html.xpt
-@BINPATH@/components/content_htmldoc.xpt
 @BINPATH@/components/content_xslt.xpt
 @BINPATH@/components/html5.xpt
 @BINPATH@/components/htmlparser.xpt
@@ -342,7 +340,6 @@
 @BINPATH@/components/layout_xul.xpt
 @BINPATH@/components/xulapp.xpt
 @BINPATH@/components/xul.xpt
-@BINPATH@/components/xuldoc.xpt
 @BINPATH@/components/xultmpl.xpt
 
 @BINPATH@/components/inspector.xpt
