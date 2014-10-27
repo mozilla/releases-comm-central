@@ -64,6 +64,7 @@ imMessage.prototype = {
   get containsImages() this.prplMessage.containsImages,
   get notification() this.prplMessage.notification,
   get noLinkification() this.prplMessage.noLinkification,
+  get originalMessage() this.prplMessage.originalMessage,
   getActions: function(aCount) this.prplMessage.getActions(aCount || {})
 };
 
@@ -362,7 +363,7 @@ UIConversation.prototype = {
 
     // Protocols can return null if they don't need to make any changes.
     // (nb. passing null with retval array results in an empty array)
-    if (!messages.length)
+    if (!messages || !messages.length)
       messages = [om.message];
 
     for (let msg of messages) {

@@ -75,8 +75,9 @@ interface imIConversationsService: nsISupports {
 // "new-text" is notified. This is required for the OTR extensions to work.
 
 // A cancellable outgoing message. Before handing a message off to a protocol,
-// the conversation service notifies observers (typically add-ons) of an
-// outgoing message, which can be transformed or cancelled.
+// the conversation service notifies observers of `preparing-message` and
+// `sending-message` (typically add-ons) of an outgoing message, which can be
+// transformed or cancelled.
 [scriptable, uuid(4391ba5c-9566-41a9-bb9b-fd0a0a490c2c)]
 interface imIOutgoingMessage: nsISupports {
            attribute AUTF8String message;
@@ -85,9 +86,10 @@ interface imIOutgoingMessage: nsISupports {
 };
 
 // A cancellable message to be displayed. When the conversation service is
-// notified of a new-text (ie. an incoming or outgoing message to be displayed),
-// it in turn notifies observers (again, typically add-ons), which have the
-// opportunity to swap or cancel the message.
+// notified of a `new-text` (ie. an incoming or outgoing message to be
+// displayed), it in turn notifies observers of `received-message`
+// (again, typically add-ons), which have the opportunity to swap or cancel
+// the message.
 [scriptable, uuid(3f88cc5c-6940-4eb5-a576-c65770f49ce9)]
 interface imIMessage: prplIMessage {
            attribute boolean cancelled;
