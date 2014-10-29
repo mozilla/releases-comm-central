@@ -32,6 +32,8 @@ static const char16_t unicodeFormatter[] = {
     (char16_t)0,
 };
 
+// Marker for EOF or failure during read
+#define EOF_CHAR (char) 0xFF
 
 nsMsgFilterList::nsMsgFilterList() :
     m_fileVersion(0)
@@ -383,11 +385,11 @@ char nsMsgFilterList::ReadChar(nsIInputStream *aStream)
   uint32_t bytesRead;
   nsresult rv = aStream->Read(&newChar, 1, &bytesRead);
   if (NS_FAILED(rv) || !bytesRead)
-    return -1;
+    return EOF_CHAR;
   uint64_t bytesAvailable;
   rv = aStream->Available(&bytesAvailable);
   if (NS_FAILED(rv))
-    return -1;
+    return EOF_CHAR;
   else
   {
     if (m_startWritingToBuffer)
@@ -422,7 +424,7 @@ char nsMsgFilterList::LoadAttrib(nsMsgFilterFileAttribValue &attrib, nsIInputStr
   int i;
   for (i = 0; i + 1 < (int)(sizeof(attribStr)); )
   {
-    if (curChar == (char) -1 || (!(curChar & 0x80) && isspace(curChar)) || curChar == '=')
+    if (curChar == EOF_CHAR || (!(curChar & 0x80) && isspace(curChar)) || curChar == '=')
       break;
     attribStr[i++] = curChar;
     curChar = ReadChar(aStream);
@@ -481,7 +483,7 @@ nsresult nsMsgFilterList::LoadValue(nsCString &value, nsIInputStream *aStream)
     }
     else
     {
-      if (curChar == (char) -1 || curChar == '"' || curChar == '\n' || curChar == '\r')
+      if (curChar == EOF_CHAR || curChar == '"' || curChar == '\n' || curChar == '\r')
       {
         value += valueStr;
         break;
@@ -490,7 +492,7 @@ nsresult nsMsgFilterList::LoadValue(nsCString &value, nsIInputStream *aStream)
     valueStr += curChar;
     curChar = ReadChar(aStream);
   }
-  while (curChar != -1);
+  while (curChar != EOF_CHAR);
   return NS_OK;
 }
 
@@ -513,7 +515,7 @@ nsresult nsMsgFilterList::LoadTextFilters(nsIInputStream *aStream)
 
     char curChar;
     curChar = LoadAttrib(attrib, bufStream);
-    if (curChar == (char) -1)  //reached eof
+    if (curChar == EOF_CHAR)  //reached eof
       break;
     err = LoadValue(value, bufStream);
     if (NS_FAILED(err))
