@@ -29,7 +29,6 @@ nsMsgSearchSession::nsMsgSearchSession()
 {
   m_sortAttribute = nsMsgSearchAttrib::Sender;
   m_idxRunningScope = 0;
-  m_urlQueueIndex = 0;
   m_handlingError = false;
   m_expressionTree = nullptr;
   m_searchPaused = false;
@@ -349,10 +348,7 @@ NS_IMETHODIMP nsMsgSearchSession::OnStopRunningUrl(nsIURI *url, nsresult aExitCo
     EnableFolderNotifications(true);
     ReleaseFolderDBRef();
   }
-  m_idxRunningScope++;
-  if (++m_urlQueueIndex < m_urlQueue.Length())
-    GetNextUrl();
-  else if (m_idxRunningScope < m_scopeList.Length())
+  if (++m_idxRunningScope < m_scopeList.Length())
     DoNextSearch();
   else
     NotifyListenersDone(aExitCode);
@@ -384,9 +380,8 @@ nsresult nsMsgSearchSession::Initialize()
   if (m_scopeList.Length() == 0)
     return NS_MSG_ERROR_INVALID_SEARCH_SCOPE;
 
-  m_urlQueue.Clear(); // clear out old urls, if any.
+  m_runningUrl.Truncate(); // clear out old url, if any.
   m_idxRunningScope = 0;
-  m_urlQueueIndex = 0;
 
   // If this term list (loosely specified here by the first term) should be
   // scheduled in parallel, build up a list of scopes to do the round-robin scheduling
@@ -418,40 +413,24 @@ nsresult nsMsgSearchSession::DoNextSearch()
   nsMsgSearchScopeTerm *scope = m_scopeList.ElementAt(m_idxRunningScope);
   if (scope->m_attribute == nsMsgSearchScope::onlineMail ||
     (scope->m_attribute == nsMsgSearchScope::news && scope->m_searchServer))
-    return BuildUrlQueue();
-  else
-    return SearchWOUrls();
-}
-
-
-nsresult nsMsgSearchSession::BuildUrlQueue()
-{
-  uint32_t i;
-  for (i = m_idxRunningScope; i < m_scopeList.Length(); i++)
   {
-    nsMsgSearchScopeTerm *scope = m_scopeList.ElementAt(i);
-    if (scope->m_attribute != nsMsgSearchScope::onlineMail &&
-      (scope->m_attribute != nsMsgSearchScope::news && scope->m_searchServer))
-      break;
     nsCOMPtr<nsIMsgSearchAdapter> adapter = do_QueryInterface(scope->m_adapter);
     if (adapter)
     {
-      nsCString url;
-      adapter->GetEncoding(getter_Copies(url));
-      m_urlQueue.AppendElement(url);
+      m_runningUrl.Truncate();
+      adapter->GetEncoding(getter_Copies(m_runningUrl));
     }
+    NS_ENSURE_STATE(!m_runningUrl.IsEmpty());
+    return GetNextUrl();
   }
-
-  if (i > 0)
-    GetNextUrl();
-
-  return NS_OK;
+  else
+  {
+    return SearchWOUrls();
+  }
 }
-
 
 nsresult nsMsgSearchSession::GetNextUrl()
 {
-  nsCString nextUrl;
   nsCOMPtr<nsIMsgMessageService> msgService;
 
   bool stopped = false;
@@ -461,7 +440,6 @@ nsresult nsMsgSearchSession::GetNextUrl()
   if (stopped)
     return NS_OK;
 
-  nextUrl = m_urlQueue[m_urlQueueIndex];
   nsMsgSearchScopeTerm *currentTerm = GetRunningScope();
   NS_ENSURE_TRUE(currentTerm, NS_ERROR_NULL_POINTER);
   EnableFolderNotifications(false);
@@ -473,8 +451,7 @@ nsresult nsMsgSearchSession::GetNextUrl()
     nsresult rv = GetMessageServiceFromURI(folderUri, getter_AddRefs(msgService));
 
     if (NS_SUCCEEDED(rv) && msgService && currentTerm)
-      msgService->Search(this, msgWindow, currentTerm->m_folder, nextUrl.get());
-
+      msgService->Search(this, msgWindow, currentTerm->m_folder, m_runningUrl.get());
     return rv;
   }
   return NS_OK;
