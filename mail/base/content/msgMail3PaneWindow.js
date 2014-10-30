@@ -1730,7 +1730,8 @@ let TabsInTitlebar = {
     // Don't trust the initial value of the sizemode attribute; wait for the
     // resize event.
     this._readPref();
-    Services.prefs.addObserver(this._prefName, this, false);
+    Services.prefs.addObserver(this._drawInTitlePref, this, false);
+    Services.prefs.addObserver(this._autoHidePref, this, false);
 
     this.allowedBy("sizemode", false);
     window.addEventListener("resize", function (event) {
@@ -1814,12 +1815,15 @@ let TabsInTitlebar = {
 
   _initialized: false,
   _disallowed: {},
-  _prefName: "mail.tabs.drawInTitlebar",
+  _drawInTitlePref: "mail.tabs.drawInTitlebar",
+  _autoHidePref: "mail.tabs.autoHide",
   _lastSizeMode: null,
 
   _readPref: function () {
-    this.allowedBy("pref",
-                   Services.prefs.getBoolPref(this._prefName));
+    // check is only true when drawInTitlebar=true and autoHide=false
+    let check = Services.prefs.getBoolPref(this._drawInTitlePref) &&
+                !Services.prefs.getBoolPref(this._autoHidePref);
+    this.allowedBy("pref", check);
   },
 
   _update: function (aForce=false) {
@@ -1986,7 +1990,8 @@ let TabsInTitlebar = {
   uninit: function () {
 #ifdef CAN_DRAW_IN_TITLEBAR
     this._initialized = false;
-    Services.prefs.removeObserver(this._prefName, this);
+    Services.prefs.removeObserver(this._drawInTitlePref, this);
+    Services.prefs.removeObserver(this._autoHidePref, this);
     this._menuObserver.disconnect();
 #endif
   }
