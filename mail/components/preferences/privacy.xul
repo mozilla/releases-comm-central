@@ -54,9 +54,6 @@
       <preference id="privacy.donottrackheader.enabled"
                   name="privacy.donottrackheader.enabled"
                   type="bool"/>
-      <preference id="privacy.donottrackheader.value"
-                  name="privacy.donottrackheader.value"
-                  type="int"/>
     </preferences>
 
     <!-- Mail Content -->
@@ -138,33 +135,16 @@
                 oncommand="gPrivacyPane.showCookies();"
                 preference="pref.privacy.disable_button.view_cookies"/>
       </hbox>
-      <radiogroup id="doNotTrackSelection"
-                  orient="vertical"
-                  preference="privacy.donottrackheader.value"
-                  onsynctopreference="return gPrivacyPane.setTrackingPrefs()"
-                  onsyncfrompreference="return gPrivacyPane.getTrackingPrefs()">
-        <hbox>
-          <radio id="dntnotrack"
-                 value="1"
-                 label="&dntTrackingNotOkay.label2;"
-                 accesskey="&dntTrackingNotOkay.accesskey;"/>
-          <spacer flex="1"/>
-        </hbox>
-        <hbox>
-          <radio id="dntdotrack"
-                 value="0"
-                 label="&dntTrackingOkay.label2;"
-                 accesskey="&dntTrackingOkay.accesskey;"/>
-          <spacer flex="1"/>
-        </hbox>
-        <hbox>
-          <radio id="dntnopref"
-                 value="-1"
-                 label="&dntTrackingNopref.label2;"
-                 accesskey="&dntTrackingNopref.accesskey;"/>
-          <spacer flex="1"/>
-        </hbox>
-      </radiogroup>
+
+      <separator class="thin"/>
+
+      <hbox>
+        <checkbox id="privacyDoNotTrackCheckbox"
+                  label="&dntTrackingNotOkay.label2;"
+                  accesskey="&dntTrackingNotOkay.accesskey;"
+                  preference="privacy.donottrackheader.enabled"/>
+        <spacer flex="1"/>
+      </hbox>
       <hbox>
         <label id="doNotTrackInfo"
                class="text-link"

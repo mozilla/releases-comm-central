@@ -98,7 +98,7 @@ var MailMigrator = {
   _migrateUI: function MailMigrator__migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 6;
+    const UI_VERSION = 7;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -226,6 +226,20 @@ var MailMigrator = {
           cs = cs + "," + "otherActionsButton";
           xulStore.setValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset", cs);
         }
+      }
+
+      // In UI version 7, make three-state doNotTrack setting was reverted back
+      // to two-state. This reverts a (no longer supported) setting of "please
+      // track me" to the default "don't say anything".
+      if (currentUIVersion < 7) {
+        try {
+          if (Services.prefs.getBoolPref("privacy.donottrackheader.enabled") &&
+              Services.prefs.getIntPref("privacy.donottrackheader.value") != 1) {
+            Services.prefs.clearUserPref("privacy.donottrackheader.enabled");
+            Services.prefs.clearUserPref("privacy.donottrackheader.value");
+          }
+        }
+        catch (ex) {}
       }
 
       // Update the migration version.
