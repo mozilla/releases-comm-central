@@ -214,9 +214,9 @@ function do_check_throws(func, result, stack)
     func();
   } catch (exc) {
     if (exc.result == result || exc == result) {
-      ++_passedChecks;
-      dump("TEST-PASS | " + stack.filename + " | [" + stack.name + " : " +
-           stack.lineNumber + "] " + exc.result + " == " + result + "\n");
+      let msg = stack.filename + " | [" + stack.name + " : " +
+           stack.lineNumber + "] " + exc.result + " == " + result + "\n";
+      do_report_result(true, msg, stack);
       return;
     }
     do_throw("expected result " + result + ", caught " + (exc.result || exc), stack);
