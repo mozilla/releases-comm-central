@@ -36,6 +36,10 @@ pref("messenger.conversations.autoAcceptChatInvitations", 1);
 // by the UI or if they can be put on hold instead.
 pref("messenger.conversations.alwaysClose", false);
 
+// Put conversations with contacts on hold by default (i.e. match the default
+// behavior for MUCs) as long as .alwaysClose is not true.
+pref("messenger.conversations.holdByDefault", false);
+
 pref("messenger.conversations.selections.magicCopyEnabled", true);
 pref("messenger.conversations.selections.ellipsis", "chrome://chat/locale/conversations.properties");
 pref("messenger.conversations.selections.systemMessagesTemplate", "chrome://chat/locale/conversations.properties");

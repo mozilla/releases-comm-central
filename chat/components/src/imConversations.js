@@ -206,7 +206,8 @@ UIConversation.prototype = {
 
     if (!Services.prefs.getBoolPref("messenger.conversations.alwaysClose") &&
         (this.isChat && !this.left ||
-         !this.isChat && this.unreadIncomingMessageCount != 0))
+         !this.isChat && (this.unreadIncomingMessageCount != 0 ||
+                          Services.prefs.getBoolPref("messenger.conversations.holdByDefault"))))
       return false;
 
     this.close();
