@@ -624,6 +624,7 @@
 @BINPATH@/components/dom_stylesheets.xpt
 @BINPATH@/components/dom_system.xpt
 @BINPATH@/components/dom_traversal.xpt
+@BINPATH@/components/dom_tv.xpt
 @BINPATH@/components/dom_webspeechrecognition.xpt
 @BINPATH@/components/dom_webspeechsynth.xpt
 @BINPATH@/components/dom_xbl.xpt
