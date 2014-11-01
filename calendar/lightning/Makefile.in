@@ -87,7 +87,7 @@ include $(topsrcdir)/config/config.mk
 # tinderboxen to disable that.
 ifndef DISABLE_LIGHTNING_INSTALL
 # install Lightning as a global extension in dist/bin/extensions/
-INSTALL_EXTENSION_ID = $(XPI_EM_ID)
+XPI_INSTALL_EXTENSION = $(XPI_EM_ID)
 endif
 
 DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
@@ -116,13 +116,6 @@ repack-process-extrafiles: lightning-extrafiles
 lightning-extrafiles: LOCALE_BASEDIR=$(call EXPAND_LOCALE_SRCDIR,calendar/locales)
 lightning-extrafiles:
 	$(call py_action,preprocessor,$(PREF_PPFLAGS) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $(LOCALE_BASEDIR)/lightning-l10n.js  -o $(DIST)/$(UNIVERSAL_PATH)xpi-stage/$(L10N_XPI_NAME)/$(PREF_DIR)/lightning-l10n.js)
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-# If the macbundle dist dir was already created, sync lightning here to avoid
-# the need to make -C objdir/mail/app each time
-libs::
-	[ -d $(DIST)/$(MOZ_MACBUNDLE_NAME) ] && rsync -aL $(FINAL_TARGET)/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/extensions/$(XPI_EM_ID) || true
-endif
 
 ident:
 	@printf 'comm_revision '

@@ -177,3 +177,21 @@ upload-%: stage_upload
 stage_upload:
 	$(NSINSTALL) -D $(DIST)/$(MOZ_PKG_PLATFORM)
 	$(call install_cmd,$(IFLAGS1) $(XPI_STAGE_PATH)/$(XPI_PKGNAME).xpi $(DIST)/$(MOZ_PKG_PLATFORM))
+
+ifdef XPI_INSTALL_EXTENSION
+ifndef XPI_NAME
+$(error XPI_NAME must be set for XPI_INSTALL_EXTENSION)
+endif
+tools::
+	$(RM) -r '$(DIST)/bin$(DIST_SUBDIR:%=/%)/extensions/$(XPI_INSTALL_EXTENSION)'
+	$(NSINSTALL) -D '$(DIST)/bin$(DIST_SUBDIR:%=/%)/extensions/$(XPI_INSTALL_EXTENSION)'
+	$(call copy_dir,$(FINAL_TARGET),$(DIST)/bin$(DIST_SUBDIR:%=/%)/extensions/$(XPI_INSTALL_EXTENSION))
+
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+# If the macbundle dist dir was already created, sync the xpi here to avoid
+# the need to make -C objdir/mail/app each time
+tools::
+	[ -d $(DIST)/$(MOZ_MACBUNDLE_NAME) ] && rsync -aL $(FINAL_TARGET)/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/extensions/$(XPI_INSTALL_EXTENSION) || true
+endif
+
+endif
