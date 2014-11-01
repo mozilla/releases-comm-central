@@ -580,7 +580,7 @@ var _indexMessageState = {
     this._numFullIndexed = 0;
 
     // make sure xpcshell head.js knows we tested something
-    _passedChecks++;
+    do_report_result(true, "Expected messages were indexed.", Components.stack.caller);
   },
 
   /*
@@ -894,8 +894,9 @@ QueryExpectationListener.prototype = {
       do_throw("Query should have returned " + key + " (" + value + ")");
     }
 
-    // xpcshell exposure that we did something
-    _passedChecks++;
+    // notify xpcshell that we did something
+    let msg = "query satisfied with: " + aCollection.items;
+    do_report_result(true, msg, Components.stack.caller);
 
     mark_action("glodaTestHelper", "query satisfied with:", aCollection.items);
     async_driver();

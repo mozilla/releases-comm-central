@@ -12,7 +12,7 @@ Components.utils.import("resource:///modules/gloda/log4moz.js");
 Components.utils.import("resource:///modules/IOUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-var _testLogger;
+var _mailnewsTestLogger;
 var _xpcshellLogger;
 var _testLoggerContexts = [];
 var _testLoggerActiveContext;
@@ -123,11 +123,11 @@ function _init_log_helper() {
   rootLogger.level = Log4Moz.Level.All;
 
   // - dump on test
-  _testLogger = Log4Moz.repository.getLogger("test.test");
+  _mailnewsTestLogger = Log4Moz.repository.getLogger("test.test");
   let formatter = new Log4Moz.BasicFormatter();
   let dapp = new Log4Moz.DumpAppender(formatter);
   dapp.level = Log4Moz.Level.All;
-  _testLogger.addAppender(dapp);
+  _mailnewsTestLogger.addAppender(dapp);
 
   // - silent category for xpcshell stuff that already gets dump()ed
   _xpcshellLogger = Log4Moz.repository.getLogger("xpcshell");
@@ -194,7 +194,7 @@ function mark_test_start(aName, aParameter, aDepth) {
   mark_test_end(aDepth);
 
   let term = (aDepth == 0) ? "test" : "subtest";
-  _testLoggerActiveContext = _testLogger.newContext({
+  _testLoggerActiveContext = _mailnewsTestLogger.newContext({
     type: term,
     name: aName,
     parameter: aParameter
@@ -206,9 +206,9 @@ function mark_test_start(aName, aParameter, aDepth) {
   }
   _testLoggerContexts.push(_testLoggerActiveContext);
 
-  _testLogger.info(_testLoggerActiveContext,
-                   "Starting " + term + ": " + aName +
-                   (aParameter ? (", " + aParameter) : ""));
+  _mailnewsTestLogger.info(_testLoggerActiveContext,
+                           "Starting " + term + ": " + aName +
+                           (aParameter ? (", " + aParameter) : ""));
 }
 
 /**
@@ -221,8 +221,8 @@ function mark_test_end(aPopTo) {
   while (_testLoggerContexts.length > aPopTo) {
     let context = _testLoggerContexts.pop();
     context.finish();
-    _testLogger.info(context, "Finished " + context.type + ": " + context.name +
-                     (context.parameter ? (", " + context.parameter) : ""));
+    _mailnewsTestLogger.info(context, "Finished " + context.type + ": " + context.name +
+                             (context.parameter ? (", " + context.parameter) : ""));
   }
 }
 
