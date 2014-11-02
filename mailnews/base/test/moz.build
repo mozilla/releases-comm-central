@@ -5,20 +5,11 @@
 
 XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
 
-CppUnitTests([
+GeckoCppUnitTests([
     'TestMailCookie',
 ])
-
-SOURCES += sorted('%s.cpp' % t for t in CPP_UNIT_TESTS)
 
 LOCAL_INCLUDES += [
     '/mozilla/netwerk/test',
     '/mozilla/xpcom/tests',
-]
-
-USE_LIBS += [
-    'mozalloc',
-    'nspr',
-    'xpcomglue_s',
-    'xul',
 ]

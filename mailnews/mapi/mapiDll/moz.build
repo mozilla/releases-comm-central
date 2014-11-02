@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-SharedLibrary('mozMapi32')
+# Statically link against the CRT, so that we don't go hunting around for it
+# and not find it when we're loaded into explorer.exe or similar
+GeckoSharedLibrary('mozMapi32', msvcrt='static', linkage=None)
 
 SOURCES += [
     'MapiDll.cpp',
