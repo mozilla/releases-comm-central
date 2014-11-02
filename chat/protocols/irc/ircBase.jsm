@@ -269,9 +269,9 @@ var ircBase = {
     },
     "NOTICE": function(aMessage) {
       // NOTICE <msgtarget> <text>
-      // If the message doesn't have a nickname, it's from the server, don't
-      // show it unless the user wants to see it.
-      if (!aMessage.hasOwnProperty("origin"))
+      // If the message is from the server, don't show it unless the user wants
+      // to see it.
+      if (!this.connected || aMessage.origin == this._currentServerName)
         return serverMessage(this, aMessage);
       return privmsg(this, aMessage, true);
     },

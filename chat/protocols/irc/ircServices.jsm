@@ -64,7 +64,7 @@ var ircServices = {
     // If we automatically reply to a NOTICE message this does not abide by RFC
     // 2812. Oh well.
     "NOTICE": function(aMessage) {
-      if (!ircHandlers.hasServicesHandlers || !aMessage.hasOwnProperty("origin"))
+      if (!ircHandlers.hasServicesHandlers)
         return false;
 
       let message = ServiceMessage(this, aMessage);
