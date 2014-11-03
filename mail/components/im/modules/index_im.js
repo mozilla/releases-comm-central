@@ -454,7 +454,7 @@ var GlodaIMIndexer = {
                             // Some messages like topic change notifications may
                             // not have a source.
                             let prefix = who ? who + ": " : "";
-                            return prefix + MailFolder.convertMsgSnippetToPlainText(m.message));
+                            return prefix + MailFolder.convertMsgSnippetToPlainText(m.message);
                           })
                           .join("\n\n");
     let glodaConv;
