@@ -829,6 +829,9 @@ ircAccount.prototype = {
   // _requestedNickname when a new nick is automatically generated (e.g. by
   // adding digits).
   _sentNickname: null,
+  // If we don't get the desired nick on connect, we try again a bit later,
+  // to see if it wasn't just our nick not having timed out yet.
+  _nickInUseTimeout: null,
   get username() {
     let username;
     // Use a custom username in a hidden preference.
@@ -1713,6 +1716,10 @@ ircAccount.prototype = {
 
     // We must authenticate if we reconnect.
     delete this.isAuthenticated;
+
+    // Clear any pending attempt to regain our nick.
+    clearTimeout(this._nickInUseTimeout);
+    delete this._nickInUseTimeout;
 
     // Clean up each conversation: mark as left and remove participant.
     this.conversations.forEach(conversation => {

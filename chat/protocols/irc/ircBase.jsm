@@ -313,24 +313,31 @@ var ircBase = {
       if (quitMsg.startsWith("Quit: "))
         quitMsg = quitMsg.slice(6); // "Quit: ".length
       // If a quit message was included, show it.
-      let msg = _("message.quit", aMessage.origin,
+      let nick = aMessage.origin;
+      let msg = _("message.quit", nick,
                   quitMsg.length ? _("message.quit2", quitMsg) : "");
       // Loop over every conversation with the user and display that they quit.
       this.conversations.forEach(conversation => {
-        if (conversation.isChat &&
-            conversation._participants.has(aMessage.origin)) {
-          conversation.writeMessage(aMessage.origin, msg, {system: true});
-          conversation.removeParticipant(aMessage.origin);
+        if (conversation.isChat && conversation._participants.has(nick)) {
+          conversation.writeMessage(nick, msg, {system: true});
+          conversation.removeParticipant(nick);
         }
       });
 
       // Remove from the whois table.
-      this.removeBuddyInfo(aMessage.origin);
+      this.removeBuddyInfo(nick);
 
       // If the leaver is a buddy, mark as offline.
-      let buddy = this.buddies.get(aMessage.origin);
+      let buddy = this.buddies.get(nick);
       if (buddy)
         buddy.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
+
+      // If we wanted this nickname, grab it.
+      if (nick == this._requestedNickname && nick != this._nickname) {
+        this.changeNick(this._requestedNickname);
+        clearTimeout(this._nickInUseTimeout);
+        delete this._nickInUseTimeout;
+      }
       return true;
     },
     "SQUIT": function(aMessage) {
@@ -1227,6 +1234,15 @@ var ircBase = {
     },
     "433": function(aMessage) { // ERR_NICKNAMEINUSE
       // <nick> :Nickname is already in use
+      // Try to get the desired nick back in 2.5 minutes if this happens when
+      // connecting, in case it was just due to the user's nick not having
+      // timed out yet on the server.
+      if (this.connecting && aMessage.params[1] == this._requestedNickname) {
+        this._nickInUseTimeout = setTimeout(() => {
+            this.changeNick(this._requestedNickname);
+            delete this._nickInUseTimeout;
+          }, 150000);
+      }
       return this.tryNewNick(aMessage.params[1]);
     },
     "436": function(aMessage) { // ERR_NICKCOLLISION
