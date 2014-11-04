@@ -37,6 +37,11 @@
   height: 10px;
 }
 
+#otherActionsButton {
+  margin-bottom: .1em;
+  padding-top: 0px;
+}
+
 /* ::::: expanded header pane ::::: */
 
 /* toolbars are optimized to look like OS-provided widgets; override this */
@@ -243,32 +248,6 @@ toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbut
   -moz-image-region: rect(0px 256px 16px 240px);
 }
 
-#otherActionsButton > .toolbarbutton-icon {
-  display: none;
-}
-
-#otherActionsButton > hbox > .toolbarbutton-menu-dropmarker {
-  -moz-padding-end: 3px;
-  list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow.png);
-  -moz-image-region: rect(0 13px 11px 0);
-}
-
-#header-view-toolbar[brighttext] #otherActionsButton > hbox >
-  .toolbarbutton-menu-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
-}
-
-/* show a icon in customize window */
-#CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
-  .toolbarbutton-icon {
-  display: -moz-box;
-  width: 13px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow.png);
-  -moz-image-region: rect(0 13px 11px 0);
-}
-
 .inline-toolbar toolbarpaletteitem toolbarseparator,
 .inline-toolbar toolbarseparator {
   height: 27px;
@@ -301,12 +280,60 @@ toolbarpaletteitem .msgHeaderView-button {
   min-height: 27px;
 }
 
+.msgHeaderView-flat-button {
+  min-width: 1px;
+  -moz-appearance: none;
+  color: ButtonText;
+  background-color: transparent;
+  border: 3px solid transparent;
+  margin-top: 1px;
+  margin-bottom: 2px;
+  padding: 0px 3px;
+  border-radius: 4px;
+  -moz-border-top-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+  min-height: 1ex;
+}
+
+.msgHeaderView-flat-button:-moz-system-metric(windows-classic) {
+  border: 2px solid transparent;
+}
+
+.msgHeaderView-flat-button[type="menu-button"] > .button-menubutton-button {
+  -moz-appearance: none;
+  background-color: rgb(211,215,207);
+  border-radius: 0px;
+  border: 0;
+  border-right: 2px solid transparent;
+  -moz-padding-end: 0.2em;
+  margin: 0;
+  -moz-border-top-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+}
+
 .msgHeaderView-button[type="menu-button"] {
   padding-top: 1px;
 }
 
+.msgHeaderView-flat-button[type="menu-button"]:hover > .button-menubutton-button {
+  background-color: transparent;
+}
+
 .msgHeaderView-button[type="menu-button"] > .button-menubutton-button:hover {
   border-right-color: ButtonShadow;
+}
+
+.msgHeaderView-flat-button[secondary="true"] {
+  background-color: transparent;
+}
+
+.msgHeaderView-flat-button:hover {
+  -moz-appearance: button;
+  color: -moz-buttonhovertext;
 }
 
 .headerName {

@@ -98,7 +98,7 @@ var MailMigrator = {
   _migrateUI: function MailMigrator__migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 6;
+    const UI_VERSION = 5;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -214,17 +214,6 @@ var MailMigrator = {
         if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default") &&
             MailServices.accounts.accounts.length == 0) {
           xulStore.setValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide", "true");
-        }
-      }
-
-      // In UI version 6, we move the otherActionsButton button to the
-      // header-view-toolbar.
-      if (currentUIVersion < 6) {
-        let cs = xulStore.getValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset");
-        if (cs && cs.indexOf("otherActionsButton") == -1) {
-          // Put the otherActionsButton button at the end.
-          cs = cs + "," + "otherActionsButton";
-          xulStore.setValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset", cs);
         }
       }
 

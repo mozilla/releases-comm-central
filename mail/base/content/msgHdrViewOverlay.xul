@@ -354,54 +354,13 @@
                   <menuseparator id="hdrTagDropdown-sep-afterTagRemoveAll"/>
                 </menupopup>
               </toolbarbutton>
-              <toolbarbutton type="menu"
-                             id="otherActionsButton"
-                             label="&otherActionsButton2.label;"
-                             tooltiptext="&otherActionsButton.tooltip;"
-                             class="toolbarbutton-1 msgHeaderView-button">
-                <menupopup id="otherActionsPopup"
-                           onpopupshowing="onShowOtherActionsPopup();">
-                  <menuitem id="otherActionsOpenConversation"
-                            label="&otherActionsOpenConversation1.label;"
-                            accesskey="&otherActionsOpenConversation1.accesskey;"
-                            oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);"/>
-                  <menuitem id="otherActionsOpenInNewWindow"
-                            label="&otherActionsOpenInNewWindow1.label;"
-                            accesskey="&otherActionsOpenInNewWindow1.accesskey;"
-                            oncommand="MsgOpenNewWindowForMessage();"/>
-                  <menuitem id="otherActionsOpenInNewTab"
-                            label="&otherActionsOpenInNewTab1.label;"
-                            accesskey="&otherActionsOpenInNewTab1.accesskey;"
-                            oncommand="OpenMessageInNewTab(event);"/>
-                  <menuitem id="viewSourceMenuItem"
-                            label="&viewSourceMenuItem1.label;"
-                            accesskey="&viewSourceMenuItem1.accesskey;"
-                            oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);" />
-                  <menuseparator id="otherActionsSeparator"/>
-                  <menuitem id="markAsReadMenuItem"
-                            label="&markAsReadMenuItem1.label;"
-                            accesskey="&markAsReadMenuItem1.accesskey;"
-                            oncommand="MsgMarkMsgAsRead();"/>
-                  <menuitem id="markAsUnreadMenuItem"
-                            label="&markAsUnreadMenuItem1.label;"
-                            accesskey="&markAsUnreadMenuItem1.accesskey;"
-                            oncommand="MsgMarkMsgAsRead();"/>
-                  <menuitem id="saveAsMenuItem" label="&saveAsMenuItem1.label;"
-                            accesskey="&saveAsMenuItem1.accesskey;"
-                            oncommand="MsgSaveAsFile();"/>
-                  <menuitem id="otherActionsPrint"
-                            label="&otherActionsPrint1.label;"
-                            accesskey="&otherActionsPrint1.accesskey;"
-                            oncommand="PrintEnginePrint();"/>
-                </menupopup>
-              </toolbarbutton>
             </toolbarpalette>
 
             <toolbar id="header-view-toolbar" class="inline-toolbar" align="start"
                      customizable="true" mode="full"
                      context="header-toolbar-context-menu"
                      defaulticonsize="small" defaultmode="full"
-                     defaultset="hdrReplyToSenderButton,hdrSmartReplyButton,hdrForwardButton,hdrArchiveButton,hdrJunkButton,hdrTrashButton,otherActionsButton"/>
+                     defaultset="hdrReplyToSenderButton,hdrSmartReplyButton,hdrForwardButton,hdrArchiveButton,hdrJunkButton,hdrTrashButton"/>
           </toolbox>
 
           <!-- This box ensures that the expandedHeaders grid below is aligned
@@ -548,6 +507,45 @@
               <label id="dateLabel" class="dateLabel" flex="1" role="textbox"
                      aria-readonly="true"/>
             </hbox>
+            <button type="menu" id="otherActionsButton"
+                    label="&otherActionsButton1.label;"
+                    class="msgHeaderView-button msgHeaderView-flat-button">
+              <menupopup id="otherActionsPopup"
+                         onpopupshowing="onShowOtherActionsPopup();">
+                <menuitem id="otherActionsOpenConversation"
+                          label="&otherActionsOpenConversation1.label;"
+                          accesskey="&otherActionsOpenConversation1.accesskey;"
+                          oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);"/>
+                <menuitem id="otherActionsOpenInNewWindow"
+                          label="&otherActionsOpenInNewWindow1.label;"
+                          accesskey="&otherActionsOpenInNewWindow1.accesskey;"
+                          oncommand="MsgOpenNewWindowForMessage();"/>
+                <menuitem id="otherActionsOpenInNewTab"
+                          label="&otherActionsOpenInNewTab1.label;"
+                          accesskey="&otherActionsOpenInNewTab1.accesskey;"
+                          oncommand="OpenMessageInNewTab(event);"/>
+                <menuitem id="viewSourceMenuItem"
+                          label="&viewSourceMenuItem1.label;"
+                          accesskey="&viewSourceMenuItem1.accesskey;"
+                          oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);" />
+                <menuseparator id="otherActionsSeparator"/>
+                <menuitem id="markAsReadMenuItem"
+                          label="&markAsReadMenuItem1.label;"
+                          accesskey="&markAsReadMenuItem1.accesskey;"
+                          oncommand="MsgMarkMsgAsRead();"/>
+                <menuitem id="markAsUnreadMenuItem"
+                          label="&markAsUnreadMenuItem1.label;"
+                          accesskey="&markAsUnreadMenuItem1.accesskey;"
+                          oncommand="MsgMarkMsgAsRead();"/>
+                <menuitem id="saveAsMenuItem" label="&saveAsMenuItem1.label;"
+                          accesskey="&saveAsMenuItem1.accesskey;"
+                          oncommand="MsgSaveAsFile();"/>
+                <menuitem id="otherActionsPrint"
+                          label="&otherActionsPrint1.label;"
+                          accesskey="&otherActionsPrint1.accesskey;"
+                          oncommand="PrintEnginePrint();"/>
+              </menupopup>
+            </button>
           </vbox>
         </hbox>
       </vbox>
