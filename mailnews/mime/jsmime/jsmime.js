@@ -1592,16 +1592,15 @@ StructuredHeaders.prototype.has = function (headerName) {
 
 // Make a custom iterator. Presently, support for Symbol isn't yet present in
 // SpiderMonkey (or V8 for that matter), so type-pun the name for now.
-if (typeof Symbol === "undefined") {
-  var Symbol = {iterator: "@@iterator"};
-}
+const JS_HAS_SYMBOLS = typeof Symbol === "function";
+const ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
 
 /**
  * An equivalent of Map.@@iterator, applied to the structured header
  * representations. This is the function that makes
  * for (let [header, value] of headers) work properly.
  */
-StructuredHeaders.prototype[Symbol.iterator] = function*() {
+StructuredHeaders.prototype[ITERATOR_SYMBOL] = function*() {
   // Iterate over all the raw headers, and use the cached headers to retrieve
   // them.
   for (let headerName of this.keys()) {

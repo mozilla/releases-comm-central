@@ -60,11 +60,14 @@ LimitIterator.prototype = {
   },
 };
 
+const JS_HAS_SYMBOLS = typeof Symbol === "function";
+const ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
+
 /**
  * Iterate over the array until we hit the end or the maximum length,
  * whichever comes first.
  */
-LimitIterator.prototype[Symbol.iterator] = function*() {
+LimitIterator.prototype[ITERATOR_SYMBOL] = function*() {
   let length = this.length;
   for (let i = 0; i < length; i++)
     yield this._array[i];
