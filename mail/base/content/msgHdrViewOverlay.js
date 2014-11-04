@@ -253,10 +253,12 @@ function OnLoadMsgHeaderPane()
   // Only offer openInTab and openInNewWindow if this window supports tabs...
   // (i.e. is not a standalone message window), since those actions are likely
   // to be significantly less common in that case.
-  let opensAreHidden = document.getElementById("tabmail") ? false : true;
-  let openInTab = document.getElementById("otherActionsOpenInNewTab");
-  let openInNewWindow = document.getElementById("otherActionsOpenInNewWindow");
-  openInTab.hidden = openInNewWindow.hidden = opensAreHidden;
+  if (document.getElementById("otherActionsButton")) {
+    let opensAreHidden = document.getElementById("tabmail") ? false : true;
+    let openInTab = document.getElementById("otherActionsOpenInNewTab");
+    let openInNewWindow = document.getElementById("otherActionsOpenInNewWindow");
+    openInTab.hidden = openInNewWindow.hidden = opensAreHidden;
+  }
 
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.

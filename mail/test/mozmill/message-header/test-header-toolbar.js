@@ -453,7 +453,10 @@ function subtest_buttons_style(aIconVisibility, aLabelVisibility)
     // XXX For the moment only consider normal toolbar buttons.
     // XXX Handling of toolbaritem buttons has to be added later,
     // XXX especially the smart reply button!
-    if (mc.e(currentSet[i]).tagName == "toolbarbutton") {
+    let currentElement = mc.e(currentSet[i]);
+    // The otherActionsButton has no icon in "Icon beside Text" mode.
+    // To not fail, we do not handle this button.
+    if (currentElement.tagName == "toolbarbutton" && currentElement.id != "otherActionsButton") {
       let icon = mc.a(currentSet[i], {class: "toolbarbutton-icon"});
       let label = mc.a(currentSet[i], {class: "toolbarbutton-text"});
       assert_equals(mc.window.getComputedStyle(icon).getPropertyValue("display"), aIconVisibility);
