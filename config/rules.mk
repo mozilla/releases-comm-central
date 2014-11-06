@@ -488,20 +488,8 @@ HOST_OUTOPTION = -o # eol
 endif
 ################################################################################
 
-# The root makefile doesn't want to do a plain export/libs, because
-# of the tiers and because of libxul. Suppress the default rules in favor
-# of something else. Makefiles which use this var *must* provide a sensible
-# default rule before including rules.mk
-ifndef SUPPRESS_DEFAULT_RULES
 default all::
-	$(MAKE) export
-ifdef COMPILE_ENVIRONMENT
-	$(MAKE) compile
-endif
-	$(MAKE) libs
-	$(MAKE) tools
-
-endif # SUPPRESS_DEFAULT_RULES
+	$(foreach tier,$(TIERS),$(call SUBMAKE,$(tier)))
 
 ifeq ($(findstring s,$(filter-out --%, $(MAKEFLAGS))),)
 ECHO := echo
@@ -1689,3 +1677,9 @@ export:: $(GENERATED_FILES)
 
 GARBAGE += $(GENERATED_FILES)
 
+# We may have modified "frozen" variables in rules.mk (we do that), but we don't
+# want Makefile.in doing that, so collect the possibly modified variables here,
+# and check them again in recurse.mk, which is always included after Makefile.in
+# contents.
+$(foreach var,$(_MOZBUILD_EXTERNAL_VARIABLES),$(eval $(var)_FROZEN := '$($(var))'))
+$(foreach var,$(_DEPRECATED_VARIABLES),$(eval $(var)_FROZEN := '$($(var))'))
