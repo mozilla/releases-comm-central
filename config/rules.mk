@@ -1220,10 +1220,11 @@ endif
 endif
 
 ifdef EXTRA_COMPONENTS
-libs:: $(EXTRA_COMPONENTS)
+misc:: $(EXTRA_COMPONENTS)
 ifndef NO_DIST_INSTALL
 EXTRA_COMPONENTS_FILES := $(EXTRA_COMPONENTS)
 EXTRA_COMPONENTS_DEST := $(FINAL_TARGET)/components
+EXTRA_COMPONENTS_TARGET := misc
 INSTALL_TARGETS += EXTRA_COMPONENTS
 endif
 endif
@@ -1231,13 +1232,14 @@ endif
 ifdef EXTRA_PP_COMPONENTS
 ifndef NO_DIST_INSTALL
 EXTRA_PP_COMPONENTS_PATH := $(FINAL_TARGET)/components
+EXTRA_PP_COMPONENTS_TARGET := misc
 PP_TARGETS += EXTRA_PP_COMPONENTS
 endif
 endif
 
 EXTRA_MANIFESTS = $(filter %.manifest,$(EXTRA_COMPONENTS) $(EXTRA_PP_COMPONENTS))
 ifneq (,$(EXTRA_MANIFESTS))
-libs:: $(call mkdir_deps,$(FINAL_TARGET))
+misc:: $(call mkdir_deps,$(FINAL_TARGET))
 	$(call py_action,buildlist,$(FINAL_TARGET)/chrome.manifest $(patsubst %,'manifest components/%',$(notdir $(EXTRA_MANIFESTS))))
 endif
 
