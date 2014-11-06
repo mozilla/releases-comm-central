@@ -50,6 +50,18 @@ var ircNonStandard = {
         return true;
       }
 
+      if (aMessage.params[1].startsWith("*** You cannot list within the first")) {
+        // SECURELIST: "You cannot list within the first N seconds of connecting.
+        // Please try again later." This NOTICE will be followed by a 321/323
+        // pair, but no list data.
+        // We fake the last LIST time so that we will retry LIST the next time
+        // the user requires it after the interval specified.
+        const kMinute = 60000;
+        let waitTime = (aMessage.params[1].split(" ")[7] * 1000) || kMinute;
+        this._lastListTime = Date.now() + waitTime - kListRefreshInterval;
+        return true;
+      }
+
       // If we receive a ZNC error message requesting a password, the
       // serverPassword preference was not set by the user. Attempt to log into
       // ZNC using the account password.

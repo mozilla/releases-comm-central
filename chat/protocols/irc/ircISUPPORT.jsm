@@ -189,6 +189,10 @@ var isupportBase = {
     // avoid flooding the client. This is not an issue for us, so just ignore
     // it.
     "SAFELIST": function(aMessage) true,
+    // SECURELIST tells us that the server won't send LIST data directly after
+    // connection. Unfortunately, the exact time the client has to wait is
+    // configurable, so we can't do anything with this information.
+    "SECURELIST": function(aMessage) true,
     "STATUSMSG": function(aMessage) false,
     "STD": function(aMessage) {
       // This was never updated as the RFC was never formalized.
