@@ -15,25 +15,8 @@
 
 <dialog id="fileExceedsLimit"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        buttons="accept,cancel"
-        buttonlabelaccept="&fileExceedsLimit.accept;"
-        buttonlabelcancel="&fileExceedsLimit.cancel;"
-        ondialogaccept="return fileExceedsLimit.onOK();"
+        buttons="accept"
         title="&fileExceedsLimit.title;">
 
-  <script type="text/javascript;version=1.8"
-          src="chrome://messenger/content/cloudfile/Hightail/fileExceedsLimit.js"/>
-
-  <description id="title">&fileExceedsLimit.thatsBigFile;</description>
-  <description id="title2">&fileExceedsLimit.thatsBigFile2;</description>
-  <description id="proIncludes">&fileExceedsLimit.proIncludes;</description>
-  <description>
-    <image src="chrome://messenger/skin/cloudfile/Hightail/check.png"/><label>&fileExceedsLimit.pros1;</label>
-  </description>
-  <description>
-    <image src="chrome://messenger/skin/cloudfile/Hightail/check.png"/><label>&fileExceedsLimit.pros2;</label>
-  </description>
-  <description>
-    <image src="chrome://messenger/skin/cloudfile/Hightail/check.png"/><label>&fileExceedsLimit.pros3;</label>
-  </description>
+  <description>&fileExceedsLimit.thatsBigFile3;</description>
 </dialog>

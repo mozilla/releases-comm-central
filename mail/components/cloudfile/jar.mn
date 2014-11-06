@@ -15,7 +15,6 @@ messenger.jar:
     content/messenger/cloudfile/Hightail/settings.js (content/Hightail/settings.js)
     content/messenger/cloudfile/Hightail/settings.xhtml (content/Hightail/settings.xhtml)
     content/messenger/cloudfile/Hightail/fileExceedsLimit.xul (content/Hightail/fileExceedsLimit.xul)
-    content/messenger/cloudfile/Hightail/fileExceedsLimit.js (content/Hightail/fileExceedsLimit.js)
     content/messenger/cloudfile/Hightail/fileExceedsQuota.xul (content/Hightail/fileExceedsQuota.xul)
     content/messenger/cloudfile/Hightail/fileExceedsQuota.js (content/Hightail/fileExceedsQuota.js)
     content/messenger/cloudfile/Hightail/fileExceeds2GB.xul (content/Hightail/fileExceeds2GB.xul)

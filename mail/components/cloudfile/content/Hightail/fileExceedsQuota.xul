@@ -15,10 +15,7 @@
 
 <dialog id="fileExceedsQuota"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        buttons="accept,cancel"
-        buttonlabelaccept="&fileExceedsQuota.accept;"
-        buttonlabelcancel="&fileExceedsQuota.cancel;"
-        ondialogaccept="return fileExceedsQuota.onOK();"
+        buttons="accept"
         title="&fileExceedsQuota.title;">
 
   <script type="text/javascript;version=1.8"
@@ -26,6 +23,4 @@
 
   <description id="title">&fileExceedsQuota.storageLimitReached;</description>
   <description id="currentStorage">&fileExceedsQuota.description;</description>
-  <description>&fileExceedsQuota.description2;</description>
-  <description>&fileExceedsQuota.description3;</description>
 </dialog>

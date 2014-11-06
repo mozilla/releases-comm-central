@@ -14,23 +14,6 @@ html, body {
   padding-bottom: 15px;
 }
 
-#proIncludes {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
 #title {
-  font-size: 20pt;
-  color: rgb(141,198,63);
-}
-
-#title2 {
-  font-size: 20pt;
-  color: rgb(141,198,63);
-  margin-top: -10px;
-  margin-bottom: 10px;
-}
-
-description {
-  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  font-weight: bold;
 }

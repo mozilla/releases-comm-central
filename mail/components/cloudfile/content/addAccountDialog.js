@@ -51,6 +51,10 @@ let addAccountDialog = {
   _accept: null,
   _strings: Services.strings
                     .createBundle("chrome://messenger/locale/cloudfile/addAccountDialog.properties"),
+  // This blacklist is for providers who no longer want to be offered
+  // as an option for a new Filelink provider, but still wants to
+  // exist as a Filelink provider for pre-existing users.
+  _blacklist: new Set(["YouSendIt"]),
 
   onInit: function AAD_onInit() {
     this._settings = document.getElementById("accountSettings");
@@ -135,6 +139,9 @@ let addAccountDialog = {
       // If we already have an account for this type, don't add it to the list.
       // This limitation will hopefully be removed in the future.
       if (cloudFileAccounts.getAccountsForType(key).length > 0)
+        continue;
+
+      if (this._blacklist.has(key))
         continue;
 
       let menuitem = document.createElement("menuitem");

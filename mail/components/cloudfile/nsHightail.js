@@ -339,7 +339,7 @@ nsHightail.prototype = {
           this.log.info("error status = " + docResponse.errorStatus.code);
 
         if (docResponse.errorStatus && docResponse.errorStatus.code > 200) {
-          if (docResponse.errorStatus.code > 400) {
+          if (docResponse.errorStatus.code >= 400) {
             // Our token has gone stale
             this.log.info("Our token has gone stale - requesting a new one.");
 
@@ -366,6 +366,7 @@ nsHightail.prototype = {
 
         this._maxFileSize = docResponse.type == "BAS" ? 52428800 : (parseInt(account.maxFileSize));
         this.log.info("available storage = " + this._availableStorage + " max file size = " + this._maxFileSize);
+
         successCallback();
       }
       else

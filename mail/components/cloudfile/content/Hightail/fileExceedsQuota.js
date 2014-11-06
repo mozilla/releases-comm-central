@@ -19,13 +19,3 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
-let fileExceedsQuota = {
-  onOK: function AAD_onOK() {
-    let href = "https://www.hightail.com/prosignup?p_code=pro&s=4001637&cid=pm-4001637";
-    gProtocolService.loadUrl(Services.io.newURI(href, "UTF-8", null));
-  },
-}
-
-XPCOMUtils.defineLazyServiceGetter(this, "gProtocolService",
-                                   "@mozilla.org/uriloader/external-protocol-service;1",
-                                   "nsIExternalProtocolService");
