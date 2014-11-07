@@ -501,10 +501,14 @@ function onEnterInSearchBar()
 {
   ClearCardViewPane();
 
-  if (!gQueryURIFormat)
+  if (!gQueryURIFormat) {
     gQueryURIFormat = Services.prefs
       .getComplexValue("mail.addr_book.quicksearchquery.format",
                        Components.interfaces.nsIPrefLocalizedString).data;
+
+    // Remove the preceeding '?' as we have to prefix "?and" to this format.
+    gQueryURIFormat = gQueryURIFormat.slice(1);
+  }
 
   var searchURI = GetSelectedDirectory();
   if (!searchURI) return;
@@ -516,9 +520,15 @@ function onEnterInSearchBar()
   */
   var searchInput = document.getElementById("peopleSearchInput");
   if (searchInput && searchInput.value != "") {
-    // replace all instances of @V with the escaped version
-    // of what the user typed in the quick search text input
-    searchURI += gQueryURIFormat.replace(/@V/g, encodeABTermValue(searchInput.value));
+    // Split up multiple search words to create a *foo* and *bar* search against
+    // search fields, using the OR-search template from gQueryURIFormat for each word.
+    let searchWords = searchInput.value.trim().split(/\s+/);
+    let queryURI = "";
+    searchWords.forEach(searchWord =>
+      queryURI += gQueryURIFormat.replace(/@V/g, encodeABTermValue(searchWord)));
+
+    // queryURI has all the (or(...)) searches, link them up with (and(...)).
+    searchURI += "?(and" + queryURI + ")";
   }
 
   SetAbView(searchURI);
