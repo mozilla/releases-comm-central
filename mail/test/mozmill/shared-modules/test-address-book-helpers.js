@@ -400,6 +400,8 @@ function select_address_book(aAddrBook)
 {
   let aIndex = get_address_book_tree_view_index(aAddrBook);
   abController.window.gDirectoryTreeView.selection.select(aIndex);
+  // Focus the resulting list of cards.
+  abController.window.gAbResultsTree.focus();
 }
 
 /* Selects one or more contacts in an address book, assuming that
