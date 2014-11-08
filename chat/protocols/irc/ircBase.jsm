@@ -379,6 +379,10 @@ var ircBase = {
       // Check if any of our buddies are online!
       this.sendIsOn();
 
+      // If we didn't handle all the CAPs we added, something is wrong.
+      if (this._caps.size)
+        this.ERROR("Connected without removing CAPs: " + [...this._caps]);
+
       // Done!
       this.reportConnected();
       return serverMessage(this, aMessage);

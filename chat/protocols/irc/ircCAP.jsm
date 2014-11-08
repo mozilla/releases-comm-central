@@ -77,7 +77,7 @@ var ircCAP = {
       }
 
       // If no CAP handlers were added, just tell the server we're done.
-      if (!this._caps.length)
+      if (!this._caps.size)
         this.sendMessage("CAP", "END");
       return true;
     },

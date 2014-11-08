@@ -802,7 +802,7 @@ function ircAccount(aProtocol, aImAccount) {
   this.trackQueue = [];
   this.pendingIsOnQueue = [];
   this.whoisInformation = new NormalizedMap(this.normalizeNick.bind(this));
-  this._caps = [];
+  this._caps = new Set();
 
   this._roomInfoCallbacks = new Set();
 }
@@ -1434,17 +1434,31 @@ ircAccount.prototype = {
   // If a cap is to be handled, it should be registered with addCAP, where aCAP
   // is a "unique" string defining what is being handled. When the cap is done
   // being handled removeCAP should be called with the same string.
-  _caps: [],
+  _caps: new Set(),
   _capTimeout: null,
   addCAP: function(aCAP) {
-    this._caps.push(aCAP);
+    if (this.connected) {
+      this.ERROR("Trying to add CAP " + aCAP + " after connection.");
+      return;
+    }
+
+    this._caps.add(aCAP);
   },
   removeCAP: function(aDoneCAP) {
+    if (!this._caps.has(aDoneCAP)) {
+      this.ERROR("Trying to remove a CAP (" + aDoneCAP + ") which isn't added.");
+      return;
+    }
+    if (this.connected) {
+      this.ERROR("Trying to remove CAP " + aDoneCAP + " after connection.");
+      return;
+    }
+
     // Remove any reference to the given capability.
-    this._caps = this._caps.filter(function(aCAP) aCAP != aDoneCAP);
+    this._caps.delete(aDoneCAP);
 
     // If no more CAP messages are being handled, notify the server.
-    if (!this._caps.length)
+    if (!this._caps.size)
       this.sendMessage("CAP", "END");
   },
 
@@ -1705,6 +1719,8 @@ ircAccount.prototype = {
       this._reportDisconnecting(aError, aErrorMessage);
     this._socket.disconnect();
     delete this._socket;
+
+    this._caps.clear();
 
     clearTimeout(this._isOnTimer);
     delete this._isOnTimer;

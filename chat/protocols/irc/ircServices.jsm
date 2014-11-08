@@ -84,11 +84,9 @@ var ircServices = {
       if (this.normalize(newNick) != this.normalize(this._accountNickname))
         return false;
 
-      // We may still be authenticated, but we try to authenticate with the
-      // new nick anyway, since there is no good way to tell if we are still
-      // authenticated.
-      delete this.isAuthenticated;
-      ircServices.sendIdentify(this);
+      // If we're not identified already, try to identify.
+      if (!this.isAuthenticated)
+        ircServices.sendIdentify(this);
 
       // We always want the RFC 2812 handler to handle NICK, so return false.
       return false;

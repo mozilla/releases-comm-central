@@ -41,15 +41,19 @@ var ircSASL = {
     },
 
     "900": function(aMessage) {
-      // Now logged in.
-      this.isAuthenticated = true;
-      this.LOG("SASL authentication successful.");
-      this.removeCAP("sasl");
+      // <nick>!<ident>@<host> <account> :You are now logged in as <user>
+      // Now logged in ("whether by SASL or otherwise").
       return true;
     },
 
     "903": function(aMessage) {
       // Authentication was successful.
+      this.isAuthenticated = true;
+      this.LOG("SASL authentication successful.");
+      // We may receive this again while already connected if the user manually
+      // identifies with Nickserv.
+      if (!this.connected)
+        this.removeCAP("sasl");
       return true;
     },
 
