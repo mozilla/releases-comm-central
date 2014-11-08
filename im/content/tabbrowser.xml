@@ -436,6 +436,10 @@
            prevent a previously focused element from retaining focus and continuing
            to receive input.
 
+           If the panel contains a browser, it should set the browser property and
+           ensure that it has a parent element in the binding, so the status panel
+           can be attached after it.
+
            Panels can implement the following methods to customize behavior in certain situations:
            destroy:
              Called before panel is removed.
@@ -480,6 +484,8 @@
 
             var t = this.mTabContainer.addTab();
             aPanel.tab = t;
+            if (aPanel.browser)
+              t.linkedBrowser = aPanel.browser;
 
             if (aConv) {
               aConv.QueryInterface(Components.interfaces.imIConversation);
@@ -494,7 +500,6 @@
               aPanel.setAttribute("autoscrollpopup", this._autoScrollPopup.id);
               aPanel.conv = aConv;
               t.linkedConversation = aPanel;
-              t.linkedBrowser = aPanel.browser;
               // We start our browsers out as inactive, and then maintain
               // activeness in updateCurrentTab.
               aPanel.browser.docShell.isActive = false;
@@ -872,6 +877,41 @@
           ]]>
         </setter>
       </property>
+
+      <method name="getStatusPanel">
+        <body><![CDATA[
+          // These two methods are kept close to the original, but note
+          // that unlike the tabbrowser.xml in browser/, we need to add
+          // a statuspanel to all tab panels with a browser element.
+
+          if (!this.selectedBrowser) {
+            Components.utils.reportError("Browser element in a tab panel " +
+              "without a browser property");
+            return null;
+          }
+
+          let panel = this.selectedPanel;
+          if (!panel._statusPanel) {
+            panel._statusPanel =
+              document.createElementNS(this.namespaceURI, "statuspanel");
+            panel._statusPanel.setAttribute("inactive", "true");
+            panel._statusPanel.setAttribute("layer", "true");
+            this._appendStatusPanel();
+          }
+          return panel._statusPanel;
+        ]]></body>
+      </method>
+
+      <method name="_appendStatusPanel">
+        <body><![CDATA[
+          let panel = this.selectedPanel;
+          if (panel && panel._statusPanel) {
+            let browser = this.selectedBrowser;
+            let browserContainer = browser.parentNode;
+            browserContainer.insertBefore(panel._statusPanel, browser.nextSibling);
+          }
+        ]]></body>
+      </method>
 
       <property name="selectedBrowser"
                 onget="return this.mCurrentTab.linkedBrowser || null;"
@@ -1454,6 +1494,120 @@
           Services.prefs.removeObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver);
         ]]>
       </destructor>
+    </implementation>
+  </binding>
+
+  <binding id="statuspanel" display="xul:hbox">
+    <content>
+      <xul:hbox class="statuspanel-inner">
+        <xul:label class="statuspanel-label"
+                   role="status"
+                   aria-live="off"
+                   xbl:inherits="value=label,crop,mirror"
+                   flex="1"
+                   crop="end"/>
+      </xul:hbox>
+    </content>
+
+    <implementation implements="nsIDOMEventListener">
+      <constructor><![CDATA[
+        window.addEventListener("resize", this, false);
+      ]]></constructor>
+
+      <destructor><![CDATA[
+        window.removeEventListener("resize", this, false);
+        MousePosTracker.removeListener(this);
+      ]]></destructor>
+
+      <property name="label">
+        <setter><![CDATA[
+          if (!this.label) {
+            this.removeAttribute("mirror");
+            this.removeAttribute("sizelimit");
+          }
+
+          this.style.minWidth = this.getAttribute("type") == "status" &&
+                                this.getAttribute("previoustype") == "status"
+                                  ? getComputedStyle(this).width : "";
+
+          if (val) {
+            this.setAttribute("label", val);
+            this.removeAttribute("inactive");
+            this._calcMouseTargetRect();
+            MousePosTracker.addListener(this);
+          } else {
+            this.setAttribute("inactive", "true");
+            MousePosTracker.removeListener(this);
+          }
+
+          return val;
+        ]]></setter>
+        <getter>
+          return this.hasAttribute("inactive") ? "" : this.getAttribute("label");
+        </getter>
+      </property>
+
+      <method name="getMouseTargetRect">
+        <body><![CDATA[
+          return this._mouseTargetRect;
+        ]]></body>
+      </method>
+
+      <method name="onMouseEnter">
+        <body>
+          this._mirror();
+        </body>
+      </method>
+
+      <method name="onMouseLeave">
+        <body>
+          this._mirror();
+        </body>
+      </method>
+
+      <method name="handleEvent">
+        <parameter name="event"/>
+        <body><![CDATA[
+          if (!this.label)
+            return;
+
+          switch (event.type) {
+            case "resize":
+              this._calcMouseTargetRect();
+              break;
+          }
+        ]]></body>
+      </method>
+
+      <method name="_calcMouseTargetRect">
+        <body><![CDATA[
+          let container = this.parentNode;
+          let alignRight = (getComputedStyle(container).direction == "rtl");
+          let panelRect = this.getBoundingClientRect();
+          let containerRect = container.getBoundingClientRect();
+
+          this._mouseTargetRect = {
+            top:    panelRect.top,
+            bottom: panelRect.bottom,
+            left:   alignRight ? containerRect.right - panelRect.width : containerRect.left,
+            right:  alignRight ? containerRect.right : containerRect.left + panelRect.width
+          };
+        ]]></body>
+      </method>
+
+      <method name="_mirror">
+        <body>
+          if (this.hasAttribute("mirror"))
+            this.removeAttribute("mirror");
+          else
+            this.setAttribute("mirror", "true");
+
+          if (!this.hasAttribute("sizelimit")) {
+            this.setAttribute("sizelimit", "true");
+            this._calcMouseTargetRect();
+          }
+        </body>
+      </method>
     </implementation>
   </binding>
 

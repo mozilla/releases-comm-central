@@ -65,13 +65,21 @@ function getTabBrowser() document.getElementById("conversations")
 
 function getBrowser() getTabBrowser().selectedBrowser
 
+// Copied from mozilla/browser/base/content/utilityOverlay.js
+function trimURL(aURL) {
+  // This function must not modify the given URL such that calling
+  // nsIURIFixup::createFixupURI with the result will produce a different URI.
+  return aURL /* remove single trailing slash for http/https/ftp URLs */
+             .replace(/^((?:http|https|ftp):\/\/[^/]+)\/$/, "$1")
+              /* remove http:// unless the host starts with "ftp\d*\." or contains "@" */
+             .replace(/^http:\/\/((?!ftp\d*\.)[^\/@]+(?:\/|$))/, "$1");
+}
+
 // Copied from mozilla/browser/base/content/browser.js (and simplified)
 var XULBrowserWindow = {
   // Stored Status
   status: "",
   defaultStatus: "",
-  jsStatus: "",
-  jsDefaultStatus: "",
   overLink: "",
   statusText: "",
 
@@ -84,8 +92,7 @@ var XULBrowserWindow = {
   },
 
   get statusTextField () {
-    delete this.statusTextField;
-    return this.statusTextField = document.getElementById("statusbar-display");
+    return getTabBrowser().getStatusPanel();
   },
 
   setStatus: function (status) {
@@ -93,14 +100,8 @@ var XULBrowserWindow = {
     this.updateStatusField();
   },
 
-  setJSStatus: function (status) {
-    this.jsStatus = status;
-    this.updateStatusField();
-  },
-
-  setJSDefaultStatus: function (status) {
-    this.jsDefaultStatus = status;
-    this.updateStatusField();
+  setJSStatus: function () {
+    // unsupported
   },
 
   setDefaultStatus: function (status) {
@@ -108,39 +109,161 @@ var XULBrowserWindow = {
     this.updateStatusField();
   },
 
-  setOverLink: function (link, b) {
+  setOverLink: function (url, anchorElt) {
     // Encode bidirectional formatting characters.
     // (RFC 3987 sections 3.2 and 4.1 paragraph 6)
-    this.overLink = link.replace(/[\u200e\u200f\u202a\u202b\u202c\u202d\u202e]/g,
-                                 encodeURIComponent);
-    this.updateStatusField();
+    url = url.replace(/[\u200e\u200f\u202a\u202b\u202c\u202d\u202e]/g,
+                      encodeURIComponent);
+
+    // if (gURLBar && gURLBar._mayTrimURLs /* corresponds to browser.urlbar.trimURLs */)
+    // This pref is true by default for Firefox, let's follow that.
+    url = trimURL(url);
+
+    this.overLink = url;
+    LinkTargetDisplay.update();
   },
 
   // Called before links are navigated to, allows us to retarget them if needed.
   onBeforeLinkTraversal: function(originalTarget, linkURI, linkNode, isAppTab) {
+    // Simplified for IB.
     return originalTarget;
   },
 
-  setStatusEnd: function (aStatusEndText, aError) {
-    let field = document.getElementById("statusbar-display-end");
-    field.label = aStatusEndText;
-    field.hidden = !aStatusEndText;
-    if (aError)
-      field.setAttribute("error", "true");
-    else
-      field.removeAttribute("error");
-  },
-
   updateStatusField: function () {
-    var text = this.overLink || this.status || this.jsStatus || this.jsDefaultStatus || this.defaultStatus;
+    var text, type, types = ["overLink"];
+    if (this._busyUI)
+      types.push("status");
+    types.push("defaultStatus");
+    for (type of types) {
+      text = this[type];
+      if (text)
+        break;
+    }
 
     // check the current value so we don't trigger an attribute change
     // and cause needless (slow!) UI updates
     if (this.statusText != text) {
-      this.statusTextField.label = text;
+      let field = this.statusTextField;
+      field.setAttribute("previoustype", field.getAttribute("type"));
+      field.setAttribute("type", type);
+      field.label = text;
+      field.setAttribute("crop", type == "overLink" ? "center" : "end");
       this.statusText = text;
     }
   }
-}
+};
+
+// Copied from mozilla/browser/base/content/browser.js
+var LinkTargetDisplay = {
+  DELAY_SHOW: 80, // Services.prefs.getIntPref("browser.overlink-delay");
+  DELAY_HIDE: 250,
+  _timer: 0,
+
+  get _isVisible () XULBrowserWindow.statusTextField.label != "",
+
+  update: function () {
+    clearTimeout(this._timer);
+    window.removeEventListener("mousemove", this, true);
+
+    if (!XULBrowserWindow.overLink) {
+      if (XULBrowserWindow.hideOverLinkImmediately)
+        this._hide();
+      else
+        this._timer = setTimeout(this._hide.bind(this), this.DELAY_HIDE);
+      return;
+    }
+
+    if (this._isVisible) {
+      XULBrowserWindow.updateStatusField();
+    } else {
+      // Let the display appear when the mouse doesn't move within the delay
+      this._showDelayed();
+      window.addEventListener("mousemove", this, true);
+    }
+  },
+
+  handleEvent: function (event) {
+    switch (event.type) {
+      case "mousemove":
+        // Restart the delay since the mouse was moved
+        clearTimeout(this._timer);
+        this._showDelayed();
+        break;
+    }
+  },
+
+  _showDelayed: function () {
+    this._timer = setTimeout(function (self) {
+      XULBrowserWindow.updateStatusField();
+      window.removeEventListener("mousemove", self, true);
+    }, this.DELAY_SHOW, this);
+  },
+
+  _hide: function () {
+    clearTimeout(this._timer);
+
+    XULBrowserWindow.updateStatusField();
+  }
+};
+
+// Copied from mozilla/browser/base/content/browser.js
+var MousePosTracker = {
+  _listeners: new Set(),
+  _x: 0,
+  _y: 0,
+  get _windowUtils() {
+    delete this._windowUtils;
+    return this._windowUtils = window.getInterface(Ci.nsIDOMWindowUtils);
+  },
+
+  addListener: function (listener) {
+    if (this._listeners.has(listener))
+      return;
+
+    listener._hover = false;
+    this._listeners.add(listener);
+
+    this._callListener(listener);
+  },
+
+  removeListener: function (listener) {
+    this._listeners.delete(listener);
+  },
+
+  handleEvent: function (event) {
+    var fullZoom = this._windowUtils.fullZoom;
+    this._x = event.screenX / fullZoom - window.mozInnerScreenX;
+    this._y = event.screenY / fullZoom - window.mozInnerScreenY;
+
+    this._listeners.forEach(function (listener) {
+      try {
+        this._callListener(listener);
+      } catch (e) {
+        Cu.reportError(e);
+      }
+    }, this);
+  },
+
+  _callListener: function (listener) {
+    let rect = listener.getMouseTargetRect();
+    let hover = this._x >= rect.left &&
+                this._x <= rect.right &&
+                this._y >= rect.top &&
+                this._y <= rect.bottom;
+
+    if (hover == listener._hover)
+      return;
+
+    listener._hover = hover;
+
+    if (hover) {
+      if (listener.onMouseEnter)
+        listener.onMouseEnter();
+    } else {
+      if (listener.onMouseLeave)
+        listener.onMouseLeave();
+    }
+  }
+};
 
 this.addEventListener("load", convWindow.load);

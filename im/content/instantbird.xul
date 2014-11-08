@@ -196,9 +196,4 @@
     </svg:mask>
   </svg:svg>
 #endif
-
-  <statusbar id="convWindow-statusbar">
-    <statusbarpanel id="statusbar-display" label="" crop="end" flex="1"/>
-    <statusbarpanel id="statusbar-display-end" label=""/>
-  </statusbar>
 </window>
