@@ -210,10 +210,6 @@ function delayedOnLoadAddressBook()
         .useErrorPages = false;
 
   MailServices.mailSession.AddMsgWindow(msgWindow);
-
-  // Focus the searchbox as we think the user will want to do that
-  // with the highest probability.
-  document.getElementById("peopleSearchInput").focus();
 }
 
 
