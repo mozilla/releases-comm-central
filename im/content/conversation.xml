@@ -48,11 +48,12 @@
                          onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>
         </xul:hbox>
-        <xul:splitter class="splitter" anonid="splitter-bottom"/>
-        <xul:vbox anonid="conv-bottom" class="conv-bottom">
-          <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"
-                       onclick = "delete document.getBindingParent(this)._completions;"/>
-        </xul:vbox>
+        <xul:splitter class="splitter splitter-bottom" anonid="splitter-bottom"/>
+        <xul:stack anonid="conv-bottom" class="conv-bottom">
+          <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"/>
+          <xul:description anonid="charCounter" class="conv-counter" value=""
+                           right="0" bottom="0"/>
+        </xul:stack>
       </xul:vbox>
     </content>
 
@@ -854,9 +855,10 @@
           if (!this._conv)
             return;
 
-          let text = this.editor.value;
+          let inputBox = this.editor;
+          let text = inputBox.value;
 
-          // try to avoid sending typing notifications when the user is
+          // Try to avoid sending typing notifications when the user is
           // typing a command in the conversation.
           // These checks are not perfect (especially if non-existing
           // commands are sent as regular messages on the in-use prpl).
@@ -867,15 +869,20 @@
             left = this._conv.sendTyping(text.slice(4));
 
           // When the input box is cleared or there is no character limit,
-          // don't show the character limit in the statusbar.
+          // don't show the character limit.
+          let charCounter = this.getElt("charCounter");
           if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
-            this._statusTextEnd = "";
-            this._statusTextEndIsError = false;
+            charCounter.setAttribute("value", "");
+            inputBox.removeAttribute("invalidInput");
           }
           else {
             // 200 is a 'magic' constant to avoid showing big numbers.
-            this._statusTextEnd = left < 200 ? left.toString() : "";
-            this._statusTextEndIsError = left < 0;
+            charCounter.setAttribute("value", (left < 200 ? left : ""));
+
+            if (left >= 0)
+              inputBox.removeAttribute("invalidInput");
+            else if (left < 0)
+              inputBox.setAttribute("invalidInput", "true");
           }
           this.displayStatusText();
         ]]>
