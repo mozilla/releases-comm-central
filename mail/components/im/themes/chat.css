@@ -133,8 +133,12 @@ imcontact[aliasing] .contactDisplayName {
   margin: 0 0;
 }
 
+.convBox {
+  min-height: 135px;
+}
+
 .conv-top {
-  min-height: 115px;
+  min-height: 60px;
 }
 
 .conv-top-info {
@@ -301,6 +305,28 @@ imcontact[aliasing] .contactDisplayName {
 }
 %endif
 
+%ifdef XP_MACOSX
+.conv-textbox {
+  -moz-appearance: none;
+  margin: 0;
+  padding: 3px;
+  border: none;
+  box-shadow: inset 0 1px 3px 0px rgba(0, 0, 0, 0.6);
+}
+
+.conv-textbox[focused="true"] {
+  box-shadow: inset 0 0 2px 1px rgba(40, 120, 212, 0.9),
+                    0 0 2px 0px rgba(40, 120, 212, 0.6),
+              inset 0 1px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.conv-textbox[invalidInput="true"] {
+  box-shadow: inset 0 0 2px 1px rgba(255, 0, 0, 0.9),
+                    0 0 2px 0px rgba(255, 0, 0, 0.6),
+              inset 0 1px 2px 0px rgba(0, 0, 0, 0.4);
+}
+
+%else
 .conv-textbox {
   padding: 2px;
   box-sizing: content-box;
@@ -310,7 +336,6 @@ imcontact[aliasing] .contactDisplayName {
 .conv-textbox[invalidInput="true"] {
   border-color: red;
 }
-%ifndef XP_MACOSX
 
 .conv-textbox > .textbox-input-box {
   background: inherit;
@@ -346,6 +371,10 @@ imcontact[aliasing] .contactDisplayName {
 /* Negative counter values (user went over the character limit). */
 .conv-counter[value^="-"] {
   color: red;
+}
+
+%ifndef XP_MACOSX
+.conv-counter[value^="-"] {
   margin-bottom: 1px;
   /* The 6px padding-end from .conv-counter is split into a 1px margin-end (to avoid the border) and 5px padding-end (as regular padding). */
   -moz-margin-end: 1px;
@@ -354,7 +383,14 @@ imcontact[aliasing] .contactDisplayName {
   -moz-padding-end: 5px;
 }
 
-%ifdef XP_MACOSX
+%else
+.conv-counter {
+  padding-bottom: 0;
+  -moz-padding-end: 5px;
+  -moz-margin-end: 2px;
+  margin-bottom: 2px !important; /* override 4px from description */
+}
+
 grippy {
   display: none;
 }
@@ -419,19 +455,6 @@ grippy {
 }
 
 %ifdef XP_MACOSX
-.conv-textbox {
-  padding: 3px;
-  border: none;
-  -moz-appearance: none;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
-}
-
-.conv-textbox[focused="true"] {
-  box-shadow: inset 0 0 2px 1px rgba(40, 120, 212, 0.7),
-                    0 0 4px 1px rgb(40, 120, 212),
-              inset 0 1px 2px rgba(0, 0, 0, 0.7);
-}
-
 .conv-nicklist, #logTree {
   -moz-appearance: none;
   width: 250px;
