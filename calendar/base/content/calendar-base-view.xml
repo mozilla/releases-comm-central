@@ -19,8 +19,7 @@
       <field name="mRangeStartDate">null</field>;
       <field name="mRangeEndDate">null</field>;
       <field name="mWorkdaysOnly">false</field>
-      <field name="mRefreshQueue">[]</field>
-      <field name="mRefreshPending">null</field>
+      <field name="mPendingRefreshJobs">null</field>
       <field name="mCalendar">null</field>
       <field name="mController">null</field>
       <field name="mStartDate">null</field>
@@ -42,6 +41,7 @@
       <field name="mViewStart">null</field>
       <field name="mViewEnd">null</field>
       <field name="mToggleStatus">0</field>
+      <field name="mLog">null</field>
       <field name="mToggleStatusFlag"><![CDATA[
       ({ WorkdaysOnly:  1,
          TasksInView:   2,
@@ -55,39 +55,6 @@
              this.calView.handlePreference(subj, topic, pref);
              return;
          }
-      })
-      ]]></field>
-
-      <field name="mOperationListener"><![CDATA[
-      ({
-          calView: this,
-
-          onOperationComplete:
-          function onOperationComplete(aCalendar, aStatus, aOperationType,
-                                       aId, aDetail) {
-              // Fire event
-              this.calView.fireEvent('viewloaded', aOperationType);
-
-              // signal that the current operation finished.
-              this.calView.mRefreshPending = null;
-
-              // immediately start the next job on the queue.
-              this.calView.popRefreshQueue();
-          },
-
-          onGetResult:
-          function onGetResult(aCalendar, aStatus, aItemType, aDetail,
-                               aCount, aItems) {
-              if (!Components.isSuccessCode(aStatus)) {
-                  return;
-              }
-              let items = aItems.filter(function(x) !cal.isToDo(x) ||
-                                        (x.entryDate || x.dueDate));
-
-              for each (let item in items) {
-                  this.calView.doAddItem(item);
-              }
-          }
       })
       ]]></field>
 
@@ -262,6 +229,7 @@
         Components.utils.import("resource://gre/modules/Services.jsm");
         Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource:///modules/gloda/log4moz.js");
 
         const kWorkdaysCommand = "calendar_toggle_workdays_only_command";
         const kTasksInViewCommand = "calendar_toggle_tasks_in_view_command";
@@ -290,6 +258,8 @@
         Services.prefs.addObserver("calendar.", this.mPrefObserver, false);
         this.weekStartOffset = Preferences.get("calendar.week.start", 0);
         this.updateDaysOffPrefs();
+        this.mPendingRefreshJobs = new Map();
+        this.mLog = Log4Moz.getConfiguredLogger("calBaseView");
       ]]></constructor>
 
       <destructor><![CDATA[
@@ -419,68 +389,6 @@
         ]]></body>
       </method>
 
-      <method name="popRefreshQueue">
-        <body><![CDATA[
-          let pendingRefresh = cal.wrapInstance(this.mRefreshPending, Components.interfaces.calIOperation);
-          if (this.mRefreshPending) {
-              if (pendingRefresh) {
-                  this.mRefreshPending = null;
-                  pendingRefresh.cancel(null);
-              } else {
-                  if(this.mRefreshQueue.length > 0) {
-                      this.relayout();
-                  }
-                  return;
-              }
-          }
-
-          let refreshJob = this.mRefreshQueue.pop();
-          if (!refreshJob) {
-            return;
-          }
-
-          if (!this.startDate || !this.endDate) {
-            return;
-          }
-
-          if (!this.mCalendar) {
-              return;
-          }
-
-          // start our items query; for a disjoint date range
-          // we get all the items, and just filter out the ones we don't
-          // care about in addItem
-
-          let filter = this.mCalendar.ITEM_FILTER_CLASS_OCCURRENCES;
-          if (this.mShowCompleted) {
-              filter |= this.mCalendar.ITEM_FILTER_COMPLETED_ALL;
-          } else {
-              filter |= this.mCalendar.ITEM_FILTER_COMPLETED_NO;
-          }
-
-          if(this.mTasksInView) {
-              filter |= this.mCalendar.ITEM_FILTER_TYPE_ALL;
-          } else {
-              filter |= this.mCalendar.ITEM_FILTER_TYPE_EVENT;
-          }
-
-          this.mRefreshPending = true;
-          let refreshCalendar = refreshJob.calendar;
-          if (!refreshCalendar) {
-              refreshCalendar = this.mCalendar;
-              this.relayout();
-          }
-          pendingRefresh = refreshCalendar.getItems(filter,
-                                                    0,
-                                                    this.startDate,
-                                                    this.queryEndDate,
-                                                    this.mOperationListener);
-          if (pendingRefresh && pendingRefresh.isPending) { // support for calIOperation
-              this.mRefreshPending = pendingRefresh;
-          }
-        ]]></body>
-      </method>
-
       <!-- This function guarantees that the
        labels are clipped in the instance that the overflow occurrs,
        avoiding horizontal scrollbars from showing up for a short period. -->
@@ -526,9 +434,7 @@
       <method name="refresh">
         <body><![CDATA[
           if (this.isVisible()) {
-              var refreshJob = {};
-              this.mRefreshQueue.push(refreshJob);
-              this.popRefreshQueue();
+              this.addItemsFromCalendar(this.mCalendar);
           }
         ]]></body>
       </method>
@@ -539,18 +445,106 @@
            "scene" might stay the same upon switch to them. -->
       <method name="forceRefresh">
         <body><![CDATA[
-          let refreshJob = {};
-          this.mRefreshQueue.push(refreshJob);
-          this.popRefreshQueue();
+          this.addItemsFromCalendar(this.mCalendar);
         ]]></body>
       </method>
 
       <method name="addItemsFromCalendar">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-            let refreshJob = { calendar: aCalendar };
-            this.mRefreshQueue.push(refreshJob);
-            this.popRefreshQueue();
+          let refreshJob = {
+              calView: this,
+              calendar: null,
+              calId: null,
+              operation: null,
+              cancelled: false,
+
+              onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
+                  this.calView.mLog.info("Refresh complete of calendar " + this.calId);
+                  if (this.calView.mPendingRefreshJobs.has(this.calId)) {
+                      this.calView.mPendingRefreshJobs.delete(this.calId);
+                  }
+
+                  if (!this.cancelled) {
+                      // Fire event
+                      this.calView.fireEvent('viewloaded', aOperationType);
+                  }
+              },
+
+              onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+                  if (this.cancelled || !Components.isSuccessCode(aStatus)) {
+                      return;
+                  }
+
+                  for (let item of aItems) {
+                      if (!cal.isToDo(item) || item.entryDate || item.dueDate) {
+                          this.calView.doAddItem(item);
+                      }
+                  }
+              },
+
+              cancel: function() {
+                  this.calView.mLog.info("Refresh cancelled for calendar " + this.calId);
+                  this.cancelled = true;
+                  if (this.operation && this.operation.isPending) {
+                      this.operation.cancel();
+                      this.operation = null;
+                  }
+              },
+
+              execute: function(aCalendar) {
+                  if (!this.calView.startDate || !this.calView.endDate || !aCalendar) {
+                      return;
+                  }
+
+                  if (aCalendar.type == "composite") {
+                      // we're refreshing from the composite calendar, so we can cancel
+                      // all other pending refresh jobs.
+                      this.calView.mLog.info("Refreshing composite calendar, cancelling all pending refreshes");
+                      this.calId = "composite";
+                      for (let job of this.calView.mPendingRefreshJobs.values()) {
+                          job.cancel();
+                      }
+                      this.calView.mPendingRefreshJobs.clear();
+                      this.calView.relayout();
+                  } else {
+                      this.calId = aCalendar.id;
+                      if (this.calView.mPendingRefreshJobs.has(this.calId)) {
+                          this.calView.mPendingRefreshJobs.get(this.calId).cancel();
+                          this.calView.mPendingRefreshJobs.delete(this.calId);
+                      }
+                  }
+                  this.calendar = aCalendar;
+
+                  // start our items query; for a disjoint date range
+                  // we get all the items, and just filter out the ones we don't
+                  // care about in addItem
+                  let filter = this.calendar.ITEM_FILTER_CLASS_OCCURRENCES;
+                  if (this.calView.mShowCompleted) {
+                      filter |= this.calendar.ITEM_FILTER_COMPLETED_ALL;
+                  } else {
+                      filter |= this.calendar.ITEM_FILTER_COMPLETED_NO;
+                  }
+
+                  if (this.calView.mTasksInView) {
+                      filter |= this.calendar.ITEM_FILTER_TYPE_ALL;
+                  } else {
+                      filter |= this.calendar.ITEM_FILTER_TYPE_EVENT;
+                  }
+
+                  let op = this.calendar.getItems(filter,
+                                                  0,
+                                                  this.calView.startDate,
+                                                  this.calView.queryEndDate,
+                                                  this);
+                  if (op && op.isPending) {
+                      this.operation = op;
+                      this.calView.mPendingRefreshJobs.set(this.calId, this);
+                  }
+              }
+          };
+
+          refreshJob.execute(aCalendar);
         ]]></body>
       </method>
 
