@@ -48,6 +48,9 @@
                          onkeypress="onNicklistKeyPress(event);"/>
           </xul:vbox>
         </xul:hbox>
+        <hbox anonid="convStatusContainer" class="conv-status-container" hidden="true">
+          <xul:description anonid="convStatus" class="conv-status" crop="end" />
+        </hbox>
         <xul:splitter class="splitter splitter-bottom" anonid="splitter-bottom"/>
         <xul:stack anonid="conv-bottom" class="conv-bottom">
           <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"/>
@@ -192,10 +195,6 @@
         ]]>
         </body>
       </method>
-
-      <field name="_statusText">""</field>
-      <field name="_statusTextEnd">""</field>
-      <field name="_statusTextEndIsError">false</field>
 
       <method name="addMsg">
         <parameter name="aMsg"/>
@@ -884,7 +883,6 @@
             else if (left < 0)
               inputBox.setAttribute("invalidInput", "true");
           }
-          this.displayStatusText();
         ]]>
         </body>
       </method>
@@ -894,9 +892,9 @@
         <![CDATA[
           var inputBox = this.editor;
           inputBox.value = "";
-          this._statusTextEnd = "";
-          this._statusTextEndIsError = false;
+          this._statusText = "";
           this.displayStatusText();
+          this.updateTyping();
 
           let overflow = "";
           if (TextboxSize.autoResize) {
@@ -1490,6 +1488,7 @@
         <body>
         <![CDATA[
           this.displayStatusText();
+          this.updateTyping();
           if (!this.loaded)
             return;
 
@@ -1624,18 +1623,19 @@
         </body>
       </method>
 
+      <field name="_statusText">""</field>
       <method name="displayStatusText">
         <body>
         <![CDATA[
           if (!this.tab.selected)
             return;
-
-          if ("XULBrowserWindow" in window) {
-            window.XULBrowserWindow.setStatus(this._statusText);
-            if ("setStatusEnd" in window.XULBrowserWindow)
-              window.XULBrowserWindow.setStatusEnd(this._statusTextEnd,
-                                                   this._statusTextEndIsError);
-          }
+          let convStatusContainer = this.getElt("convStatusContainer");
+          let convStatus = this.getElt("convStatus");
+          convStatus.value = this._statusText;
+          if (this._statusText.length)
+            convStatusContainer.removeAttribute("hidden");
+          else
+            convStatusContainer.setAttribute("hidden", "true");
         ]]>
         </body>
       </method>
@@ -1643,28 +1643,30 @@
       <method name="updateTyping">
         <body>
         <![CDATA[
-           var typingState = this._conv.typingState;
-           if (typingState == this.typingState)
-             return;
+          let typingState = this._conv.typingState;
+          if (typingState == this.typingState)
+            return;
 
-           this.tab.removeAttribute("typing");
-           this.tab.removeAttribute("typed");
-           this._statusText = "";
+          this.tab.removeAttribute("typing");
+          this.tab.removeAttribute("typed");
 
-           var name = this._conv.title.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
-           if (typingState == Ci.prplIConvIM.TYPING) {
-             this.tab.setAttribute("typing", "true");
-             this._statusText = this.bundle.formatStringFromName("isTyping",
-                                                                 [name], 1);
-           }
-           else if (typingState == Ci.prplIConvIM.TYPED) {
-             this.tab.setAttribute("typed", "true");
-             this._statusText = this.bundle.formatStringFromName("hasStoppedTyping",
-                                                                 [name], 1);
-           }
+          let typingText = "";
+          var name = this._conv.title.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
+          if (typingState == Ci.prplIConvIM.TYPING) {
+            this.tab.setAttribute("typing", "true");
+            typingText = this.bundle.formatStringFromName("isTyping", [name], 1);
+          }
+          else if (typingState == Ci.prplIConvIM.TYPED) {
+            this.tab.setAttribute("typed", "true");
+            typingText =
+              this.bundle.formatStringFromName("hasStoppedTyping", [name], 1);
+          }
+          this.typingState = typingState;
 
-           this.typingState = typingState;
-           this.displayStatusText();
+          // Use browser URL popups for a more lightweight typing text display
+          // than displayStatusText provides.
+          if (this.tab.selected && "XULBrowserWindow" in window)
+            window.XULBrowserWindow.setOverLink(typingText, null);
         ]]>
         </body>
       </method>
@@ -1711,8 +1713,8 @@
               // doesn't reset the typing state... :(
               this.tab.removeAttribute("typing");
               this.tab.removeAttribute("typed");
-              this._statusText = "";
-              this.displayStatusText();
+              this.typingState = Ci.prplIConvIM.NOT_TYPING;
+              this.updateTyping();
             }
             else {
               displayName = buddy.displayName;

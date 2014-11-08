@@ -29,15 +29,6 @@ statusbarpanel {
 }
 %endif
 
-#statusbar-display-end > .statusbarpanel-text {
-  -moz-margin-end: 0;
-}
-
-#statusbar-display-end[error] {
-  color: red;
-  font-weight: bold;
-}
-
 %ifndef XP_MACOSX
 notification > hbox {
   border: none !important;

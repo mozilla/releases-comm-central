@@ -10,8 +10,12 @@
   margin: 0 0;
 }
 
+.convBox {
+  min-height: 135px;
+}
+
 .conv-top {
-  min-height: 115px;
+  min-height: 60px;
 }
 
 .conv-top-info {
@@ -258,6 +262,33 @@
   border-right: solid 1px GrayText;
 }
 %endif
+
+
+/* Status text bar */
+
+.conv-status-container {
+  display: block;
+  padding: 3px;
+  padding-bottom: 1px;
+  margin-bottom: -2px; /* match splitter-bottom height */
+%ifdef XP_MACOSX
+  border-top: 1px solid GrayText;
+%endif
+
+  /* Animation copied from the findbar in Firefox */
+  transition-property: margin-top, opacity, visibility;
+  transition-duration: 100ms, 100ms, 0s;
+  transition-timing-function: ease-in-out, ease-in-out, linear;
+}
+
+.conv-status-container[hidden] {
+  /* Override display:none to make the transition work. */
+  display: -moz-box;
+  visibility: collapse;
+  margin-top: -1em;
+  opacity: 0;
+  transition-delay: 0s, 0s, 100ms;
+}
 
 
 /* Input box */
