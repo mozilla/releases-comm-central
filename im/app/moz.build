@@ -10,7 +10,8 @@ GENERATED_INCLUDES += [
 ]
 
 if not CONFIG['LIBXUL_SDK']:
-    Program(CONFIG['MOZ_APP_NAME'])
+    GeckoProgram(CONFIG['MOZ_APP_NAME'], msvcrt='static')
+    USE_LIBS += ['mozglue']
     SOURCES += ['nsMain.cpp']
     LOCAL_INCLUDES += [
         '/mozilla/toolkit/xre',
@@ -18,11 +19,9 @@ if not CONFIG['LIBXUL_SDK']:
         '/mozilla/xpcom/build',
     ]
 
-    USE_LIBS += [
-        'xpcomglue',
+    DELAYLOAD_DLLS += [
+        'mozglue.dll',
     ]
-
-    DEFINES['XPCOM_GLUE'] = True
 
     if CONFIG['OS_ARCH'] == 'WINNT':
         RCINCLUDE = 'splash.rc'
