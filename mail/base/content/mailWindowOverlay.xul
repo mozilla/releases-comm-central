@@ -827,6 +827,10 @@
               command="cmd_moveToFolderAgain"
               label="&moveToFolderAgain.label;"
               accesskey="&moveToFolderAgain.accesskey;"/>
+
+    <menuitem id="mailContext-delete"
+              command="cmd_delete"/>
+
     <menuseparator id="paneContext-afterMove"/>
     <menuitem id="mailContext-ignoreThread"
               label="&contextKillThreadMenu.label;"
@@ -853,8 +857,7 @@
               accesskey="&contextPrint.accesskey;"
               observes="cmd_print"
               command="cmd_print"/>
-    <menuitem id="mailContext-delete"
-              command="cmd_delete"/>
+
     <menuitem id="downloadSelected"
               label="&downloadSelectedCmd.label;"
               accesskey="&downloadSelectedCmd.accesskey;"
