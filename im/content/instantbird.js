@@ -20,6 +20,9 @@ var convWindow = {
       }
     }
 
+    window.addEventListener("mousemove", MousePosTracker, false);
+    window.addEventListener("dragover", MousePosTracker, false);
+
     window.addEventListener("unload", convWindow.unload);
     window.addEventListener("resize", convWindow.onresize);
     window.addEventListener("activate", convWindow.onactivate, true);
