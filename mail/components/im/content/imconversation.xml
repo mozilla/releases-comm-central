@@ -574,6 +574,9 @@
       <![CDATA[
         var inputBox = this.editor;
         inputBox.value = "";
+        this.getElt("charCounter").setAttribute("value", "");
+        inputBox.removeAttribute("invalidInput");
+
         this._statusTextEnd = "";
         this._statusTextEndIsError = false;
         this.displayStatusText();

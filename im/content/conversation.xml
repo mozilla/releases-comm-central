@@ -892,6 +892,9 @@
         <![CDATA[
           var inputBox = this.editor;
           inputBox.value = "";
+          this.getElt("charCounter").setAttribute("value", "");
+          inputBox.removeAttribute("invalidInput");
+
           this._statusText = "";
           this.displayStatusText();
           this.updateTyping();
