@@ -226,8 +226,4 @@
     <spacer id="listSpacer" flex="1"
             onclick='document.getElementById("buddylistbox").focus();'/>
   </notificationbox>
-
-  <statusbar id="blistWindow-statusbar">
-    <statusbarpanel id="status" label="" crop="end" flex="1"/>
-  </statusbar>
 </window>
