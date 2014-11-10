@@ -270,9 +270,11 @@
   display: block;
   padding: 3px;
   padding-bottom: 1px;
-  margin-bottom: -2px; /* match splitter-bottom height */
 %ifdef XP_MACOSX
   border-top: 1px solid GrayText;
+  margin-bottom: -1px; /* match splitter-bottom height */
+%else
+  margin-bottom: -3px; /* match splitter-bottom height */
 %endif
 
   /* Animation copied from the findbar in Firefox */
@@ -312,8 +314,8 @@
 }
 
 .conv-textbox[invalidInput="true"] {
-  box-shadow: inset 0 0 2px 1px rgba(255, 0, 0, 0.8),
-                    0 0 2px 0px rgba(255, 0, 0, 0.5),
+  box-shadow: inset 0 0 2px 1px rgba(255, 0, 0, 0.9),
+                    0 0 2px 0px rgba(255, 0, 0, 0.6),
               inset 0 1px 2px 0px rgba(0, 0, 0, 0.4);
 }
 
@@ -392,8 +394,8 @@
 
 .conv-counter[value^="-"] {
   margin-bottom: 1px;
-  /* The 6px padding-end from .conv-counter is split into a 1px 
-     margin-end (to avoid the border) and 5px padding-end (as 
+  /* The 6px padding-end from .conv-counter is split into a 1px
+     margin-end (to avoid the border) and 5px padding-end (as
      regular padding). */
   -moz-margin-end: 1px;
   padding-top: 1px;
@@ -426,6 +428,10 @@
 
 .splitter-bottom {
   background: #ddd; /* match URL popup bottom edge from tabbrowser-*.css */
+%ifdef XP_MACOSX
+  min-height: 1px;
+  height: 1px;
+%endif
 }
 
 %ifdef XP_MACOSX
