@@ -81,17 +81,12 @@ function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
  * @param aChecked  Whether the reminder should be enabled.
  */
 function assert_manual_reminder_state(aCwc, aChecked) {
-  // Check the reminder is really enabled.
-  wait_for_window_focused(aCwc.window);
-  let attachment_menu = aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
-                                                     [ ], true);
-  let checkedValue = aChecked ? "true" : "false";
-  assert_equals(aCwc.e("button-attachPopup_remindLaterItem").getAttribute("checked"),
-                checkedValue);
-  aCwc.close_popup_sequence(attachment_menu);
-  wait_for_window_focused(aCwc.window);
+  const remindCommand = "cmd_remindLater";
+  assert_equals(aCwc.e("button-attachPopup_remindLaterItem").getAttribute("command"),
+                remindCommand);
 
-  assert_equals(aCwc.e("cmd_remindLater").getAttribute("checked"), checkedValue);
+  let checkedValue = aChecked ? "true" : "false";
+  assert_equals(aCwc.e(remindCommand).getAttribute("checked"), checkedValue);
 }
 
 /**
