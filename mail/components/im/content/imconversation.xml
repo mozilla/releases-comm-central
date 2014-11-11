@@ -31,6 +31,9 @@
           </xul:notificationbox>
         </xul:hbox>
         <xul:splitter class="splitter" anonid="splitter-bottom"/>
+        <hbox anonid="convStatusContainer" class="conv-status-container" hidden="true">
+          <xul:description anonid="convStatus" class="plain conv-status" crop="end" />
+        </hbox>
         <xul:stack anonid="conv-bottom" class="conv-bottom">
           <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"/>
           <xul:description anonid="charCounter" class="conv-counter" value="" right="0" bottom="0"/>
@@ -122,8 +125,19 @@
      </method>
 
      <field name="_statusText">""</field>
-     <field name="_statusTextEnd">""</field>
-     <field name="_statusTextEndIsError">false</field>
+     <method name="displayStatusText">
+       <body>
+       <![CDATA[
+         let convStatusContainer = this.getElt("convStatusContainer");
+         let convStatus = this.getElt("convStatus");
+         convStatus.value = this._statusText;
+         if (this._statusText.length)
+           convStatusContainer.removeAttribute("hidden");
+         else
+           convStatusContainer.setAttribute("hidden", "true");
+       ]]>
+       </body>
+     </method>
 
      <method name="addMsg">
       <parameter name="aMsg"/>
@@ -552,7 +566,6 @@
               else if (left < 0)
                 inputBox.setAttribute("invalidInput", "true");
             }
-            this.displayStatusText();
           }).bind(this), 0);
           return;
         }
@@ -577,8 +590,7 @@
         this.getElt("charCounter").setAttribute("value", "");
         inputBox.removeAttribute("invalidInput");
 
-        this._statusTextEnd = "";
-        this._statusTextEndIsError = false;
+        this._statusText = "";
         this.displayStatusText();
 
         let overflow = "";
@@ -1004,7 +1016,7 @@
        <body>
        <![CDATA[
          this.editor.focus();
-         this.displayStatusText();
+
          if (!this.loaded)
            return;
 
@@ -1013,22 +1025,6 @@
            this.tab.removeAttribute("attention");
          }
          this._conv.markAsRead();
-       ]]>
-       </body>
-     </method>
-
-     <method name="displayStatusText">
-       <body>
-       <![CDATA[
-         if (this.tab && !this.tab.selected)
-           return;
-
-         if ("XULBrowserWindow" in window) {
-           window.XULBrowserWindow.setStatus(this._statusText);
-           if ("setStatusEnd" in window.XULBrowserWindow)
-             window.XULBrowserWindow.setStatusEnd(this._statusTextEnd,
-                                                  this._statusTextEndIsError);
-         }
        ]]>
        </body>
      </method>
@@ -1092,11 +1088,8 @@
             let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
 
             let buddy = this._conv.buddy;
-            if (!buddy || !buddy.account.connected) {
-              this._statusText = "";
-              this.displayStatusText();
+            if (!buddy || !buddy.account.connected)
               cti.removeAttribute("userIcon");
-            }
             else {
               displayName = buddy.displayName;
               statusText = buddy.statusText;

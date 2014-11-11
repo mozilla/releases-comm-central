@@ -72,6 +72,10 @@
 }
 
 @media (-moz-windows-default-theme) {
+  .conv-status-container {
+    border-bottom-color: #A9B7C9;
+  }
+
   #statusTypeIcon .toolbarbutton-menu-dropmarker {
     padding: 1px 3px;
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");

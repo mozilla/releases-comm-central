@@ -59,6 +59,10 @@
   z-index: 10;
 }
 
+.conv-status-container {
+  border-bottom-color: #8B8B8B;
+}
+
 /* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
 #listPaneBox {
   -moz-appearance: -moz-mac-vibrancy-light;

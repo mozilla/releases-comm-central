@@ -305,6 +305,27 @@ imcontact[aliasing] .contactDisplayName {
 }
 %endif
 
+
+/* Animation copied from the find bar in Firefox - http://dxr.mozilla.org/mozilla-central/source/toolkit/themes/linux/global/findBar.css#7 */
+.conv-status-container {
+  display: block;
+  height: 20px;
+  padding: 3px;
+  border-bottom: 1px solid ThreeDShadow;
+  transition-property: margin-top, opacity, visibility;
+  transition-duration: 150ms, 150ms, 0s;
+  transition-timing-function: ease-in-out, ease-in-out, linear;
+}
+
+.conv-status-container[hidden] {
+  /* Override display:none to make the transition work. */
+  display: -moz-box;
+  visibility: collapse;
+  margin-top: -1em;
+  opacity: 0;
+  transition-delay: 0s, 0s, 150ms;
+}
+
 %ifdef XP_MACOSX
 .conv-textbox {
   -moz-appearance: none;
