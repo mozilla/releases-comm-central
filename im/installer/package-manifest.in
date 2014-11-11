@@ -408,6 +408,10 @@
 @BINPATH@/components/nsFormAutoComplete.js
 @BINPATH@/components/nsFormHistory.js
 @BINPATH@/components/FormHistoryStartup.js
+@BINPATH@/components/UnifiedComplete.manifest
+@BINPATH@/components/UnifiedComplete.js
+@BINPATH@/components/nsAsyncShutdown.manifest
+@BINPATH@/components/nsAsyncShutdown.js
 @BINPATH@/components/nsIDService.js
 @BINPATH@/components/nsInputListAutoComplete.js
 @BINPATH@/components/nsLivemarkService.js
@@ -429,6 +433,7 @@
 @BINPATH@/components/PeerConnection.js
 @BINPATH@/components/PeerConnection.manifest
 #endif
+@BINPATH@/components/toolkit_asyncshutdown.xpt
 @BINPATH@/components/toolkit_filewatcher.xpt
 @BINPATH@/components/toolkit_formautofill.xpt
 @BINPATH@/components/toolkit_osfile.xpt
