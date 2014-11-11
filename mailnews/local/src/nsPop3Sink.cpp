@@ -739,7 +739,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow *aMsgWindow, int32_t aSize)
   if (m_buildMessageUri && !m_baseMessageUri.IsEmpty() && m_newMailParser &&
       m_newMailParser->m_newMsgHdr)
   {
-    uint32_t msgKey;
+    nsMsgKey msgKey;
     m_newMailParser->m_newMsgHdr->GetMessageKey(&msgKey);
     m_messageUri.Truncate();
     nsBuildLocalMessageURI(m_baseMessageUri.get(), msgKey, m_messageUri);

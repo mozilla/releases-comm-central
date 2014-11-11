@@ -11,7 +11,7 @@
 
 /* parses NewsMessageURI */
 nsresult
-nsParseNewsMessageURI(const char* uri, nsCString& group, uint32_t *key)
+nsParseNewsMessageURI(const char* uri, nsCString& group, nsMsgKey *key)
 {
   NS_ENSURE_ARG_POINTER(uri);
   NS_ENSURE_ARG_POINTER(key);

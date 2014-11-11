@@ -1673,7 +1673,7 @@ nsSaveMsgListener::OnProgress(uint32_t aProgress, uint32_t aProgressMax)
 }
 
 NS_IMETHODIMP
-nsSaveMsgListener::SetMessageKey(uint32_t aKey)
+nsSaveMsgListener::SetMessageKey(nsMsgKey aKey)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -2497,7 +2497,7 @@ public:
   nsCOMPtr<nsIMsgFolder> mMessageFolder;            // original message folder
   nsCOMPtr<nsIMessenger> mMessenger;                // our messenger instance
   nsCOMPtr<nsIMsgWindow> mMsgWindow;                // our UI window
-  uint32_t mNewMessageKey;                          // new message key
+  nsMsgKey mNewMessageKey;                          // new message key
   uint32_t mOrigMsgFlags;
 
 
@@ -2562,7 +2562,7 @@ nsDelAttachListener::OnStopRequest(nsIRequest * aRequest, nsISupports * aContext
 
   mMsgFileStream->Close();
   mMsgFileStream = nullptr;
-  mNewMessageKey = PR_UINT32_MAX;
+  mNewMessageKey = nsMsgKey_None;
   nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID);
   m_state = eCopyingNewMsg;
   // clone file because nsIFile on Windows caches the wrong file size.
@@ -2644,7 +2644,7 @@ void nsDelAttachListener::SelectNewMessage()
         windowCommands->SelectMessage(displayUri);
     }
   }
-  mNewMessageKey = PR_UINT32_MAX;
+  mNewMessageKey = nsMsgKey_None;
 }
 
 NS_IMETHODIMP
@@ -2683,7 +2683,7 @@ nsDelAttachListener::OnProgress(uint32_t aProgress, uint32_t aProgressMax)
 }
 
 NS_IMETHODIMP
-nsDelAttachListener::SetMessageKey(uint32_t aKey)
+nsDelAttachListener::SetMessageKey(nsMsgKey aKey)
 {
   // called during the copy of the modified message back into the message
   // store to notify us of the message key of the newly created message.
@@ -2736,7 +2736,7 @@ nsDelAttachListener::nsDelAttachListener()
   mAttach = nullptr;
   mSaveFirst = false;
   mWrittenExtra = false;
-  mNewMessageKey = PR_UINT32_MAX;
+  mNewMessageKey = nsMsgKey_None;
   m_state = eStarting;
 }
 

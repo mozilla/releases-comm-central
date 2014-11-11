@@ -291,12 +291,12 @@ public:
   static nsMsgKeySetU* Create();
   ~nsMsgKeySetU();
   // IsMember() returns whether the given key is a member of this set.
-  bool IsMember(uint32_t key);
+  bool IsMember(nsMsgKey key);
   // Add() adds the given key to the set.  (Returns 1 if a change was
   // made, 0 if it was already there, and negative on error.)
-  int Add(uint32_t key);
-  // Remove() removes the given article from the set. 
-  int Remove(uint32_t key);
+  int Add(nsMsgKey key);
+  // Remove() removes the given article from the set.
+  int Remove(nsMsgKey key);
   // Add the keys in the set to aArray.
   nsresult ToMsgKeyArray(nsTArray<nsMsgKey> &aArray);
 

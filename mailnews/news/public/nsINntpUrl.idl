@@ -66,7 +66,7 @@ interface nsINntpUrl : nsISupports {
   readonly attribute ACString messageID;
 
   /// The message key portion of the URI or nsMsgKey_None if not present
-  readonly attribute unsigned long key;
+  readonly attribute nsMsgKey key;
 
   /// The action of this news URI could not be determined
   const nsNewsAction ActionUnknown = 0;

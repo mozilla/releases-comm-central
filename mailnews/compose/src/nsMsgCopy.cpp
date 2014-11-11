@@ -74,7 +74,7 @@ CopyListener::OnProgress(uint32_t aProgress, uint32_t aProgressMax)
 }
 
 nsresult
-CopyListener::SetMessageKey(uint32_t aMessageKey)
+CopyListener::SetMessageKey(nsMsgKey aMessageKey)
 {
   if (mComposeAndSend)
       mComposeAndSend->SetMessageKey(aMessageKey);

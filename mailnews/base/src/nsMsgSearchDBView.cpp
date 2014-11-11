@@ -1016,7 +1016,7 @@ nsMsgSearchDBView::OnProgress(uint32_t aProgress, uint32_t aProgressMax)
 
 // believe it or not, these next two are msgcopyservice listener methods!
 NS_IMETHODIMP
-nsMsgSearchDBView::SetMessageKey(uint32_t aMessageKey)
+nsMsgSearchDBView::SetMessageKey(nsMsgKey aMessageKey)
 {
   return NS_OK;
 }

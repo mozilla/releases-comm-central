@@ -5,6 +5,7 @@
 
 #include "nsrootidl.idl"
 #include "nsISupports.idl"
+#include "MailNewsTypes2.idl"
 
 [scriptable, uuid(CA620E0E-927F-4fbe-A108-9ECF31A7ECC7)]
 interface nsIMsgCopyServiceListener : nsISupports {
@@ -31,7 +32,7 @@ interface nsIMsgCopyServiceListener : nsISupports {
      * created message.
      * aKey -
      */
-    void SetMessageKey(in uint32_t aKey);
+    void SetMessageKey(in nsMsgKey aKey);
 
     /**
      * Getting the file message message ID. This method is taylored

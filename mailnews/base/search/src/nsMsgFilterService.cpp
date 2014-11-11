@@ -1025,7 +1025,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnProgress(uint32_t aProgress, uint32_t a
 }
 
 /* void SetMessageKey (in uint32_t aKey); */
-NS_IMETHODIMP nsMsgFilterAfterTheFact::SetMessageKey(uint32_t /* aKey */)
+NS_IMETHODIMP nsMsgFilterAfterTheFact::SetMessageKey(nsMsgKey /* aKey */)
 {
   return NS_OK;
 }

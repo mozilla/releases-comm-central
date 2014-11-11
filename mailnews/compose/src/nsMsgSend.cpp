@@ -252,7 +252,7 @@ NS_IMETHODIMP MsgDeliveryListener::OnStopRunningUrl(nsIURI *url, nsresult aExitC
 NS_IMPL_ISUPPORTS(nsMsgComposeAndSend, nsIMsgSend)
 
 nsMsgComposeAndSend::nsMsgComposeAndSend() :
-    m_messageKey(0xffffffff)
+    m_messageKey(nsMsgKey_None)
 {
   mGUINotificationEnabled = true;
   mAbortInProcess = false;
@@ -3912,14 +3912,14 @@ nsMsgComposeAndSend::NotifyListenerOnProgressCopy(uint32_t aProgress,
 }
 
 NS_IMETHODIMP
-nsMsgComposeAndSend::SetMessageKey(uint32_t aMessageKey)
+nsMsgComposeAndSend::SetMessageKey(nsMsgKey aMessageKey)
 {
     m_messageKey = aMessageKey;
     return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgComposeAndSend::GetMessageKey(uint32_t *aMessageKey)
+nsMsgComposeAndSend::GetMessageKey(nsMsgKey *aMessageKey)
 {
     *aMessageKey = m_messageKey;
     return NS_OK;

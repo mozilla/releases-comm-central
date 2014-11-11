@@ -7,6 +7,7 @@
 #define NS_NEWSUTILS_H
 
 #include "nsStringGlue.h"
+#include "MailNewsTypes2.h"
 
 class nsIMsgNewsFolder;
 
@@ -23,7 +24,7 @@ static const char kNewsURIKeyQuery[] = "&key=";
 #define kNewsURIKeyQueryLen 5
 
 extern nsresult
-nsParseNewsMessageURI(const char* uri, nsCString& group, uint32_t *key);
+nsParseNewsMessageURI(const char* uri, nsCString& group, nsMsgKey *key);
 
 extern nsresult
 nsCreateNewsBaseMessageURI(const char *baseURI, nsCString &baseMessageURI);

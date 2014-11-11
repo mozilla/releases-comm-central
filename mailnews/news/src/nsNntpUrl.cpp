@@ -294,7 +294,7 @@ NS_IMETHODIMP nsNntpUrl::GetMessageID(nsACString &messageID)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetKey(uint32_t *key)
+NS_IMETHODIMP nsNntpUrl::GetKey(nsMsgKey *key)
 {
   NS_ENSURE_ARG_POINTER(key);
   *key = m_key;

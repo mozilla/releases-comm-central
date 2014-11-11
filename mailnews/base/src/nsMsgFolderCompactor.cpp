@@ -87,11 +87,12 @@ void nsFolderCompactState::CleanupTempFilesAfterError()
   summaryFile->Remove(false);
 }
 
-nsresult nsFolderCompactState::BuildMessageURI(const char *baseURI, uint32_t key, nsCString& uri)
+nsresult nsFolderCompactState::BuildMessageURI(const char *baseURI, nsMsgKey key, nsCString& uri)
 {
   uri.Append(baseURI);
   uri.Append('#');
   uri.AppendInt(key);
+
   return NS_OK;
 }
 

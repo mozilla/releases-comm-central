@@ -3858,7 +3858,7 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
 }
 
 nsresult
-nsMsgComposeSendListener::SetMessageKey(uint32_t aMessageKey)
+nsMsgComposeSendListener::SetMessageKey(nsMsgKey aMessageKey)
 {
   return NS_OK;
 }

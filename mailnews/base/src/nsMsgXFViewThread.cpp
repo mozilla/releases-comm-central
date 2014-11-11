@@ -473,7 +473,7 @@ NS_IMETHODIMP nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr **aResult)
   }
   return rv;
 }
-NS_IMETHODIMP nsMsgXFViewThread::EnumerateMessages(uint32_t aParentKey,
+NS_IMETHODIMP nsMsgXFViewThread::EnumerateMessages(nsMsgKey aParentKey,
                                                    nsISimpleEnumerator **aResult)
 {
   NS_ERROR("shouldn't call this");

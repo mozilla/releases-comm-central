@@ -475,7 +475,7 @@ SendOperationListener::OnProgress(uint32_t aProgress, uint32_t aProgressMax)
 }
 
 NS_IMETHODIMP
-SendOperationListener::SetMessageKey(uint32_t aKey)
+SendOperationListener::SetMessageKey(nsMsgKey aKey)
 {
   NS_NOTREACHED("SendOperationListener::SetMessageKey()");
   return NS_ERROR_NOT_IMPLEMENTED;

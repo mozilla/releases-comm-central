@@ -16,10 +16,10 @@ nsresult
 nsLocalURI2Path(const char* rootURI, const char* uriStr, nsCString& pathResult);
 
 nsresult
-nsParseLocalMessageURI(const char* uri, nsCString& folderURI, uint32_t *key);
+nsParseLocalMessageURI(const char* uri, nsCString& folderURI, nsMsgKey *key);
 
 nsresult 
-nsBuildLocalMessageURI(const char* baseURI, uint32_t key, nsCString& uri);
+nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key, nsCString& uri);
 
 nsresult
 nsCreateLocalBaseMessageURI(const nsACString& baseURI, nsCString &baseMessageURI);

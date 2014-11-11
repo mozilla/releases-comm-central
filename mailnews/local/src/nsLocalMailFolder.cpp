@@ -74,7 +74,7 @@
 nsLocalMailCopyState::nsLocalMailCopyState() :
   m_flags(0),
   m_lastProgressTime(PR_IntervalToMilliseconds(PR_IntervalNow())),
-  m_curDstKey(0xffffffff),
+  m_curDstKey(nsMsgKey_None),
   m_curCopyIndex(0),
   m_totalMsgCount(0),
   m_dataBufferSize(0),
@@ -2398,7 +2398,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
 
     mCopyState->m_parseMsgState->Clear();
     if (mCopyState->m_listener) // CopyFileMessage() only
-      mCopyState->m_listener->SetMessageKey((uint32_t) mCopyState->m_curDstKey);
+      mCopyState->m_listener->SetMessageKey(mCopyState->m_curDstKey);
   }
 
   if (!multipleCopiesFinished && !mCopyState->m_copyingMultipleMessages)
@@ -2642,7 +2642,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key)
     mCopyState->m_parseMsgState->Clear();
 
     if (mCopyState->m_listener) // CopyFileMessage() only
-      mCopyState->m_listener->SetMessageKey((uint32_t) mCopyState->m_curDstKey);
+      mCopyState->m_listener->SetMessageKey(mCopyState->m_curDstKey);
   }
 
   if (mCopyState->m_fileStream)

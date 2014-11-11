@@ -2439,3 +2439,14 @@ ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed /* = false */, bool f
                                    wrapWidth,
                                    aConBuf);
 }
+
+NS_MSG_BASE nsMsgKey msgKeyFromInt(uint32_t aValue)
+{
+  return aValue;
+}
+
+NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue)
+{
+  NS_ASSERTION(aValue <= PR_UINT32_MAX, "Msg key value too big!");
+  return aValue;
+}

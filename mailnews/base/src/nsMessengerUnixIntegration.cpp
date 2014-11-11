@@ -241,7 +241,7 @@ nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
   else
     localOnly = true;
 
-  uint32_t messageKey;
+  nsMsgKey messageKey;
   if (NS_FAILED(aHdr->GetMessageKey(&messageKey)))
     return false;
 

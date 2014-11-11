@@ -361,7 +361,7 @@ protected:
                                      uint32_t flags);
 
   nsresult SetupHeaderParseStream(uint32_t size, const nsACString& content_type, nsIMailboxSpec *boxSpec);
-  nsresult  ParseAdoptedHeaderLine(const char *messageLine, uint32_t msgKey);
+  nsresult  ParseAdoptedHeaderLine(const char *messageLine, nsMsgKey msgKey);
   nsresult  NormalEndHeaderParseStream(nsIImapProtocol *aProtocol, nsIImapUrl *imapUrl);
 
   void EndOfflineDownload();

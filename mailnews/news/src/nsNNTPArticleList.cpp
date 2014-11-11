@@ -54,7 +54,7 @@ nsNNTPArticleList::Initialize(nsIMsgNewsFolder *newsFolder)
 }
 
 NS_IMETHODIMP
-nsNNTPArticleList::AddArticleKey(int32_t key)
+nsNNTPArticleList::AddArticleKey(nsMsgKey key)
 {
 #ifdef DEBUG
   m_idsOnServer.AppendElement(key);
@@ -62,7 +62,7 @@ nsNNTPArticleList::AddArticleKey(int32_t key)
 
   if (m_dbIndex < m_idsInDB.Length())
   {
-    int32_t idInDBToCheck = m_idsInDB[m_dbIndex];
+    nsMsgKey idInDBToCheck = m_idsInDB[m_dbIndex];
     // if there are keys in the database that aren't in the newsgroup
     // on the server, remove them. We probably shouldn't do this if
     // we have a copy of the article offline.

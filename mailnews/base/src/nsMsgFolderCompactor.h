@@ -45,7 +45,7 @@ protected:
   nsresult Init(nsIMsgFolder *aFolder, const char* aBaseMsgUri, nsIMsgDatabase *aDb,
                             nsIFile *aPath, nsIMsgWindow *aMsgWindow);
   nsresult GetMessage(nsIMsgDBHdr **message);
-  nsresult BuildMessageURI(const char *baseURI, uint32_t key, nsCString& uri);
+  nsresult BuildMessageURI(const char *baseURI, nsMsgKey key, nsCString& uri);
   nsresult ShowStatusMsg(const nsString& aMsg);
   nsresult ReleaseFolderLock();
   void     ShowCompactingStatusMsg();

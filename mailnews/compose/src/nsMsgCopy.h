@@ -39,8 +39,8 @@ public:
   
   NS_IMETHOD OnProgress(uint32_t aProgress, uint32_t aProgressMax) MOZ_OVERRIDE;
 
-  NS_IMETHOD SetMessageKey(uint32_t aMessageKey) MOZ_OVERRIDE;
-  
+  NS_IMETHOD SetMessageKey(nsMsgKey aMessageKey) MOZ_OVERRIDE;
+
   NS_IMETHOD GetMessageId(nsACString& aMessageId) MOZ_OVERRIDE;
   
   NS_IMETHOD OnStopCopy(nsresult aStatus) MOZ_OVERRIDE;

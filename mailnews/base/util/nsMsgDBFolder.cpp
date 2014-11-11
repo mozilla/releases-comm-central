@@ -557,7 +557,7 @@ NS_IMETHODIMP nsMsgDBFolder::ClearNewMessages()
   if (mDatabase)
   {
     uint32_t numNewKeys;
-    uint32_t *newMessageKeys;
+    nsMsgKey *newMessageKeys;
     rv = mDatabase->GetNewList(&numNewKeys, &newMessageKeys);
     if (NS_SUCCEEDED(rv) && newMessageKeys)
     {
@@ -968,7 +968,7 @@ nsMsgDBFolder::SetMsgDatabase(nsIMsgDatabase *aMsgDatabase)
     if (!aMsgDatabase)
     {
       uint32_t numNewKeys;
-      uint32_t *newMessageKeys;
+      nsMsgKey *newMessageKeys;
       nsresult rv = mDatabase->GetNewList(&numNewKeys, &newMessageKeys);
       if (NS_SUCCEEDED(rv) && newMessageKeys)
       {
@@ -2667,7 +2667,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
   // get the list of new messages
   //
   uint32_t numNewKeys;
-  uint32_t *newKeys;
+  nsMsgKey *newKeys;
   rv = database->GetNewList(&numNewKeys, &newKeys);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -5974,7 +5974,7 @@ nsMsgKeySetU::~nsMsgKeySetU()
 
 const uint32_t kLowerBits = 0x7fffffff;
 
-int nsMsgKeySetU::Add(uint32_t aKey)
+int nsMsgKeySetU::Add(nsMsgKey aKey)
 {
   int32_t intKey = static_cast<int32_t>(aKey);
   if (intKey >= 0)
@@ -5982,7 +5982,7 @@ int nsMsgKeySetU::Add(uint32_t aKey)
   return hiKeySet->Add(intKey & kLowerBits);
 }
 
-int nsMsgKeySetU::Remove(uint32_t aKey)
+int nsMsgKeySetU::Remove(nsMsgKey aKey)
 {
   int32_t intKey = static_cast<int32_t>(aKey);
   if (intKey >= 0)
@@ -5990,7 +5990,7 @@ int nsMsgKeySetU::Remove(uint32_t aKey)
   return hiKeySet->Remove(intKey & kLowerBits);
 }
 
-bool nsMsgKeySetU::IsMember(uint32_t aKey)
+bool nsMsgKeySetU::IsMember(nsMsgKey aKey)
 {
   int32_t intKey = static_cast<int32_t>(aKey);
   if (intKey >= 0)

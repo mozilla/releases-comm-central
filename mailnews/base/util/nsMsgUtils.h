@@ -545,4 +545,15 @@ NS_MSG_BASE uint64_t MsgUnhex(const char *aHexString, size_t aNumChars);
  */
 NS_MSG_BASE bool MsgIsHex(const char *aHexString, size_t aNumChars);
 
+/**
+ * Convert an uint32_t to a nsMsgKey.
+ * Currently they are mostly the same but we need to preserve the notion that
+ * nsMsgKey is an opaque value that can't be treated as a generic integer
+ * (except when storing it into the database). It enables type safety checks and
+ * may prevent coding errors.
+ */
+NS_MSG_BASE nsMsgKey msgKeyFromInt(uint32_t aValue);
+
+NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue);
+
 #endif

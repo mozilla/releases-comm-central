@@ -2982,7 +2982,7 @@ nsresult nsImapMailFolder::SetupHeaderParseStream(uint32_t aSize,
   return m_msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
 }
 
-nsresult nsImapMailFolder::ParseAdoptedHeaderLine(const char *aMessageLine, uint32_t aMsgKey)
+nsresult nsImapMailFolder::ParseAdoptedHeaderLine(const char *aMessageLine, nsMsgKey aMsgKey)
 {
   // we can get blocks that contain more than one line,
   // but they never contain partial lines
@@ -5026,7 +5026,7 @@ nsImapMailFolder::GetMessageSizeFromDB(const char * id, uint32_t *size)
   NS_ENSURE_SUCCESS(rv, rv);
   if (id)
   {
-    uint32_t key = strtoul(id, nullptr, 10);
+    nsMsgKey key = msgKeyFromInt(ParseUint64Str(id));
     nsCOMPtr<nsIMsgDBHdr> mailHdr;
     rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(mailHdr));
     if (NS_SUCCEEDED(rv) && mailHdr)
@@ -7848,8 +7848,8 @@ NS_IMETHODIMP nsImapFolderCopyState::OnProgress(uint32_t aProgress, uint32_t aPr
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void SetMessageKey (in uint32_t aKey); */
-NS_IMETHODIMP nsImapFolderCopyState::SetMessageKey(uint32_t aKey)
+/* void SetMessageKey (in nsMsgKey aKey); */
+NS_IMETHODIMP nsImapFolderCopyState::SetMessageKey(nsMsgKey aKey)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -8016,7 +8016,7 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file,
                                   nsIMsgCopyServiceListener* listener)
 {
     nsresult rv = NS_ERROR_NULL_POINTER;
-    nsMsgKey key = 0xffffffff;
+    nsMsgKey key = nsMsgKey_None;
     nsAutoCString messageId;
     nsCOMPtr<nsIUrlListener> urlListener;
     nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
