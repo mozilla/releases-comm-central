@@ -7,11 +7,11 @@
 # reach in and just install the headers that we need.
 
 export::
-	$(MAKE) -C $(DEPTH)/ldap/sdks/c-sdk/config export
-	$(MAKE) -C $(DEPTH)/ldap/sdks/c-sdk/ldap/include export
+	$(MAKE) -j1 -C $(DEPTH)/ldap/sdks/c-sdk/config export
+	$(MAKE) -j1 -C $(DEPTH)/ldap/sdks/c-sdk/ldap/include export
 
 libs clean distclean::
-	$(MAKE) -C $(DEPTH)/ldap/sdks/c-sdk $@
+	$(MAKE) -j1 -C $(DEPTH)/ldap/sdks/c-sdk $@
 
 target::
-	$(MAKE) -C $(DEPTH)/ldap/sdks/c-sdk export
+	$(MAKE) -j1 -C $(DEPTH)/ldap/sdks/c-sdk export
