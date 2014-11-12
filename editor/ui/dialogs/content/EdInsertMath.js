@@ -24,9 +24,12 @@ function Startup()
   gDialog.input.focus();
 
   // Load TeXZilla
+  // TeXZilla.js contains non-ASCII characters and explicitly sets
+  // window.TeXZilla, so we have to specify the charset parameter but don't
+  // need to worry about the targetObj parameter.
   Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
             .getService(Components.interfaces.mozIJSSubScriptLoader)
-            .loadSubScript("chrome://editor/content/TeXZilla.js");
+            .loadSubScript("chrome://editor/content/TeXZilla.js", {}, "UTF-8");
 
   // Verify if the selection is on a <math> and initialize the dialog.
   gDialog.oldMath = editor.getElementOrParentByTagName("math", null);
