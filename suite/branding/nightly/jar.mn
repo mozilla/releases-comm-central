@@ -5,6 +5,7 @@
 comm.jar:
 % content branding %content/branding/ contentaccessible=yes
   content/branding/about.png                              (content/about.png)
+  content/branding/icon32.png                             (content/icon32.png)
   content/branding/icon48.png                             (content/icon48.png)
   content/branding/icon64.png                             (content/icon64.png)
   content/branding/aboutRights.js                         (content/aboutRights.js)
