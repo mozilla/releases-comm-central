@@ -1824,29 +1824,28 @@ function readFromClipboard()
   var url;
 
   try {
-    // Get clipboard.
+    // Get the clipboard.
     var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
                               .getService(Components.interfaces.nsIClipboard);
 
-    // Create tranferable that will transfer the text.
+    // Create a transferable that will transfer the text.
     var trans = Components.classes["@mozilla.org/widget/transferable;1"]
                           .createInstance(Components.interfaces.nsITransferable);
 
     trans.init(null);
     trans.addDataFlavor("text/unicode");
-    // If available, use selection clipboard, otherwise global one
+    // If available, use the selection clipboard, otherwise use the global one.
     if (clipboard.supportsSelectionClipboard())
       clipboard.getData(trans, clipboard.kSelectionClipboard);
     else
       clipboard.getData(trans, clipboard.kGlobalClipboard);
 
     var data = {};
-    var dataLen = {};
-    trans.getTransferData("text/unicode", data, dataLen);
+    trans.getTransferData("text/unicode", data, {});
 
-    if (data) {
+    if (data.value) {
       data = data.value.QueryInterface(Components.interfaces.nsISupportsString);
-      url = data.data.substring(0, dataLen.value / 2);
+      url = data.data;
     }
   } catch (ex) {
   }
