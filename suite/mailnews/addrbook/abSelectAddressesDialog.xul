@@ -5,26 +5,27 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/selectAddressesDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/addressbook/abResultsPaneOverlay.xul"?>
 <?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
-<!DOCTYPE window [
+<!DOCTYPE dialog [
 <!ENTITY % abSelectAddressesDialogDTD SYSTEM "chrome://messenger/locale/addressbook/abSelectAddressesDialog.dtd" >
 %abSelectAddressesDialogDTD;
 <!ENTITY % abResultsPaneOverlayDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPaneOverlay.dtd" >
 %abResultsPaneOverlayDTD;
 ]>
 
-<window id="selectAddressesWindow"
+<dialog id="selectAddressesWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&selectAddressWindow.title;"
         class="dialog"
         style="width: 50em; height: 35em;"
         persist="width height screenX screenY"
-        onload="OnLoadSelectAddress()"
-        onunload="OnUnloadSelectAddress()">
+        buttons="accept,cancel"
+        ondialogaccept="return SelectAddressOKButton();"
+        onload="OnLoadSelectAddress();"
+        onunload="OnUnloadSelectAddress();">
 
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>
@@ -33,9 +34,6 @@
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
   <script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-
-
-  <keyset id="dialogKeys"/>
 
   <vbox flex="1">
   
@@ -54,12 +52,10 @@
     
     <hbox flex="1">    
 
-       <vbox id="resultsBox" flex="4">
-         <tree id="abResultsTree" flex="1" persist="height" />
-       </vbox>
-        
-      <!--<splitter id="vertical-splitter" collapse="before"  persist="state"/>-->
-      
+      <vbox id="resultsBox" flex="4">
+        <tree id="abResultsTree" flex="1" persist="height"/>
+      </vbox>
+
       <vbox id="addToBucketButtonBox">
         <spacer flex="1"/>
         <button id="toButton" label="&toButton.label;" accesskey="&toButton.accesskey;" oncommand="SelectAddressToButton()"/> 
@@ -71,9 +67,7 @@
         <button id="remove" label="&removeButton.label;" accesskey="&removeButton.accesskey;" class="dialog" oncommand="RemoveSelectedFromBucket()"/> 
         <spacer flex="1"/>
       </vbox>
-        
-     <!--<splitter id="bucket-splitter" collapse="before" persist="state"/>-->
-        
+
       <vbox id="bucketBox" flex="1">
         <label value="&addressMessageTo.label;" control="addressBucket"/>
         <tree id="addressBucket" flex="1" hidecolumnpicker="true"
@@ -93,8 +87,6 @@
       <button id="new" label="&newButton.label;" accesskey="&newButton.accesskey;" tooltiptext="&addressPickerNewButton.tooltip;" oncommand="AbNewCard();"/> 
       <button id="edit" label="&editButton.label;" accesskey="&editButton.accesskey;" tooltiptext="&addressPickerEditButton.tooltip;" oncommand="AbEditSelectedCard()"/> 
     </hbox>
-
-    <hbox id="okCancelButtonsRight"/>
   </vbox>
   
-</window>
+</dialog>

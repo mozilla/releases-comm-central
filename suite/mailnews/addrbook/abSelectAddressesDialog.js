@@ -52,8 +52,6 @@ function OnLoadSelectAddress()
 
   var toAddress="", ccAddress="", bccAddress="";
 
-  doSetOKCancel(SelectAddressOKButton, 0);
-
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0])
   {
