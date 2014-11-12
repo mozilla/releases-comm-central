@@ -41,7 +41,11 @@ GopherProtocol.prototype = {
     return uri;
   },
 
-  newChannel : function GP_newChannel(inputURI) {
+  newChannel: function GP_newChannel(inputURI) {
+    return this.newChannel2(inputURI, null);
+  },
+
+  newChannel2: function GP_newChannel2(inputURI, loadinfo) {
     // Create a chrome channel, and de-chrome it, to our information page.
     var chan = Components.classes["@mozilla.org/network/io-service;1"]
                          .getService(Components.interfaces.nsIIOService)

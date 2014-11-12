@@ -44,7 +44,7 @@ About.prototype = {
     return this[this.getModule(aURI) + "Flags"];
   },
 
-  newChannel: function(aURI) {
+  newChannel: function(aURI, aLoadInfo) {
     var module = this.getModule(aURI);
     var channel = Services.io.newChannel(this[module + "URI"], null, null);
     channel.originalURI = aURI;

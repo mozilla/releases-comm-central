@@ -510,6 +510,10 @@ GenericProtocolHandler.prototype = {
   },
 
   newChannel: function newChannel(aUri) {
+    return this.newChannel2(inputURI, null);
+  },
+
+  newChannel2: function newChannel(aUri, aLoadinfo) {
     var uri = aUri.QueryInterface(Components.interfaces.nsINestedURI).innerURI;
     var channel = Services.io.newChannelFromURI(uri);
     if (channel instanceof Components.interfaces.nsIHttpChannel)
