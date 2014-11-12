@@ -15,14 +15,13 @@
   <prefpane id="security_pane" label="&pref.security.title;"
             script="chrome://communicator/content/pref/pref-security.js">
     <preferences id="security_preferences">
-      <!-- Do Not Track -->
+      <!-- User Tracking -->
       <preference id="privacy.donottrackheader.enabled"
                   name="privacy.donottrackheader.enabled"
-                  onchange="SetDntValueEnabled(this.value);"
                   type="bool"/>
-      <preference id="privacy.donottrackheader.value"
-                  name="privacy.donottrackheader.value"
-                  type="int"/>
+      <preference id="privacy.trackingprotection.enabled"
+                  name="privacy.trackingprotection.enabled"
+                  type="bool"/>
 
       <!-- Location Aware Browsing -->
       <preference id="geo.enabled"
@@ -38,27 +37,19 @@
                   type="bool"/>
     </preferences>
 
-    <!-- Do Not Track -->
-    <groupbox id="doNotTrackGroup">
+    <!-- User Tracking -->
+    <groupbox id="trackingGroup">
       <caption label="&tracking.label;"/>
 
       <description>&trackingIntro.label;</description>
-      <checkbox id="dntTellSites"
-                label="&dntTellSites.label;"
-                accesskey="&dntTellSites.accesskey;"
+      <checkbox id="doNotTrack"
+                label="&doNotTrack.label;"
+                accesskey="&doNotTrack.accesskey;"
                 preference="privacy.donottrackheader.enabled"/>
-      <radiogroup id="dntSelection"
-                  class="indent"
-                  preference="privacy.donottrackheader.value">
-        <radio id="dntNoTrack"
-               value="1"
-               label="&dntTrackingNotOkay.label;"
-               accesskey="&dntTrackingNotOkay.accesskey;"/>
-        <radio id="dntDoTrack"
-               value="0"
-               label="&dntTrackingOkay.label;"
-               accesskey="&dntTrackingOkay.accesskey;"/>
-      </radiogroup>
+      <checkbox id="trackProtect"
+                label="&trackProtect.label;"
+                accesskey="&trackProtect.accesskey;"
+                preference="privacy.trackingprotection.enabled"/>
     </groupbox>
 
     <!-- REMOVE #ifndef once bug 903439 is fixed -->

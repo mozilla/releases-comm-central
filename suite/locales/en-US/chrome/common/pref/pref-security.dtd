@@ -8,12 +8,10 @@
 <!ENTITY tracking.label                   "User Tracking">
 <!ENTITY trackingIntro.label              "Websites may track how you use them, thus affecting your privacy.">
 
-<!ENTITY dntTellSites.label               "Tell websites about my tracking preference">
-<!ENTITY dntTellSites.accesskey           "T">
-<!ENTITY dntTrackingNotOkay.label         "I do not want to be tracked">
-<!ENTITY dntTrackingNotOkay.accesskey     "n">
-<!ENTITY dntTrackingOkay.label            "I consent to being tracked">
-<!ENTITY dntTrackingOkay.accesskey        "c">
+<!ENTITY doNotTrack.label                 "Tell websites that I do not want to be tracked">
+<!ENTITY doNotTrack.accesskey             "T">
+<!ENTITY trackProtect.label               "Prevent tracking activities by known sites">
+<!ENTITY trackProtect.accesskey           "n">
 
 <!ENTITY geoLocation.label                "Location Aware Browsing">
 <!ENTITY geoIntro.label                   "Websites may request more information about your current location.">

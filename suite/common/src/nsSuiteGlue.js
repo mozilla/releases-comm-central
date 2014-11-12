@@ -918,7 +918,17 @@ SuiteGlue.prototype = {
 
   _updatePrefs: function()
   {
-    // Get the preferences service
+    // Make sure that the doNotTrack value conforms to the conversion from
+    // three-state to two-state. (This reverts a setting of "please track me"
+    // to the default "don't say anything").
+    try {
+      if (Services.prefs.getIntPref("privacy.donottrackheader.value") != 1) {
+        Services.prefs.clearUserPref("privacy.donottrackheader.enabled");
+        Services.prefs.clearUserPref("privacy.donottrackheader.value");
+      }
+    } catch (ex) {}
+
+    // Migration of download-manager preferences
     if (Services.prefs.getPrefType("browser.download.dir") == Services.prefs.PREF_INVALID ||
         Services.prefs.getPrefType("browser.download.lastDir") != Services.prefs.PREF_INVALID)
       return; //Do nothing if .dir does not exist, or if it exists and lastDir does not
@@ -948,7 +958,7 @@ SuiteGlue.prototype = {
     try {
       Services.prefs.setBoolPref("browser.download.progress.closeWhenDone",
                                  !Services.prefs.getBoolPref("browser.download.progressDnldDialog.keepAlive"));
-    } catch (e) {}
+    } catch (ex) {}
   },
 
   /**
