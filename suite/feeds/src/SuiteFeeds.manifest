@@ -10,7 +10,6 @@ component {f0ff0fe4-1713-4D34-9323-3f5deb6a6a60} FeedConverter.js
 contract @mozilla.org/network/protocol;1?name=pcast {f0ff0fe4-1713-4D34-9323-3f5deb6a6a60}
 component {49bb6593-3aff-4eb3-a068-2712c28bd58e} FeedWriter.js
 contract @mozilla.org/browser/feeds/result-writer;1 {49bb6593-3aff-4eb3-a068-2712c28bd58e}
-category JavaScript-global-constructor BrowserFeedWriter @mozilla.org/browser/feeds/result-writer;1
 component {792a7e82-06a0-437c-af63-b2d12e808acc} WebContentConverter.js
 contract @mozilla.org/embeddor.implemented/web-content-handler-registrar;1 {792a7e82-06a0-437c-af63-b2d12e808acc}
 category app-startup WebContentConverter service,@mozilla.org/embeddor.implemented/web-content-handler-registrar;1
