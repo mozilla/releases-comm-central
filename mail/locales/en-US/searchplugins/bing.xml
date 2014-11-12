@@ -21,5 +21,8 @@
         <Param name="form" value="MOZESB"/>
         <MozParam name="pc" condition="pref" pref="ms-pc"/>
     </Url>
-    <SearchForm>http://www.bing.com/search</SearchForm>
+    <Url type="text/html"
+         method="GET"
+         template="http://www.bing.com/search"
+         rel="searchform"/>
 </SearchPlugin>
