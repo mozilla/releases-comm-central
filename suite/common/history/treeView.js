@@ -1015,8 +1015,10 @@ PlacesTreeView.prototype = {
       if (hasOldTree) {
         // detach from result when we are detaching from the tree.
         // This breaks the reference cycle between us and the result.
-        if (!aTree)
-          this._result.viewer = null;
+        if (!aTree) {
+          this._result.removeObserver(this);
+          this._rootNode.containerOpen = false;
+        }
       }
       if (aTree)
         this._finishInit();

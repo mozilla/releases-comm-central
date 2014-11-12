@@ -23,7 +23,7 @@
         // the viewer's reference to our treeBoxObject.
         var result = this.getResult();
         if (result)
-          result.removeObserver(this.view);
+          result.root.containerOpen = false;
         this.view = null;
       ]]></destructor>
 
@@ -100,6 +100,10 @@
                                                           options);
 
           var treeView = new PlacesTreeView();
+
+          // Observer removal is done within the view itself. When the tree
+          // goes away, treeboxobject calls view.setTree(null), which then
+          // calls removeObserver.
           result.addObserver(treeView, false);
           this.view = treeView;
           if (!this._controller) {
