@@ -42,8 +42,5 @@ MOZ_UA_BUILDID=20100101
 MOZ_APP_ID={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 MOZ_PROFILE_MIGRATOR=1
 MOZ_APP_STATIC_INI=1
-if test "$OS_TARGET" = "WINNT" -o "$OS_TARGET" = "Darwin"; then
-  MOZ_FOLD_LIBS=1
-fi
 # Enable generational GC on desktop.
 JSGC_GENERATIONAL=1
