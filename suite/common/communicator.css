@@ -7,7 +7,7 @@
 /* ::::: print preview toolbar ::::: */
 
 toolbar[printpreview="true"] {
-  -moz-binding: url("chrome://communicator/content/printPreviewBindings.xml#printpreviewtoolbar");
+  -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
 }
 
 /* ::::: notification box ::::: */
