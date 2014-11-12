@@ -63,28 +63,26 @@
 <h3>User Tracking</h3>
 
 <p>These settings allow you to communicate your tracking preferences to
-  websites. <a href="glossary.xhtml#user_tracking">User tracking</a> refers
+  websites and to actively block tracking requests from known tracking
+  sites. <a href="glossary.xhtml#user_tracking">User tracking</a> refers
   to websites (including advertisers, analytics providers, and social sites)
   collecting and analyzing comprehensive data on your web browsing patterns,
   thus affecting your privacy. For more information on this topic, see
-  <a href="privacy_help.xhtml#why_and_how_are_websites_tracking_me">Why and How
-  Are Websites Tracking Me?</a> The <a href="glossary.xhtml#do_not_track">Do
-  Not Track</a> technology allows you to tell a website whether or not you
-  agree to tracking. The following options are available in this section:</p>
+  <a href="privacy_help.xhtml#why_and_how_are_websites_tracking_me">Why and
+  How Are Websites Tracking Me?</a> The following options are available in
+  this section:</p>
 
 <ul>
-  <li><strong>Tell websites about my tracking preference</strong>: Check this
-    to instruct &brandShortName; to inform every website you explicitly visit
-    (along with any providers of third-party content embedded in its pages)
-    whether or not you want your browsing behavior being tracked:
-    <ul>
-      <li><strong>I do not want to be tracked</strong>: Select this option
-        to send a Do Not Track request to each website visited.</li>
-      <li><strong>I consent to being tracked</strong>: Select this option
-        to explicitly tell each website visited that you agree with your
-        browsing behavior being tracked.</li>
-    </ul>
-  </li>
+  <li><strong>Tell websites that I do not want to be tracked</strong>: Check
+    this to instruct &brandShortName; to inform every website you explicitly
+    visit (along with any providers of third-party content embedded in its
+    pages) that you don&apos;t want your browsing behavior being tracked.
+    If checked, a <a href="glossary.xhtml#do_not_track">Do Not Track</a>
+    request is sent to each website visited.</li>
+  <li><strong>Prevent tracking activities by known sites</strong>: Check
+    this to instruct &brandShortName; to actively block connections to 
+    websites which are known to provide tracking services. You may not see
+    any content coming from these sites in the web page visited.</li>
 </ul>
 
 <p><strong>Notes</strong>:</p>
@@ -102,6 +100,11 @@
     being presented to you while browsing. Since the website is not allowed to
     gather and utilize information about you, the content of the advertisements
     will be less specific if you have the Do Not Track option selected.</li>
+  <li>Tracking prevention actively blocks content known to be used for tracking
+    in a web page. Thus, the page may appear incomplete. Such sites are
+    identified by periodically downloading a list of known tracking sites
+    which are to be blocked if enabled. Tracking sites <em>not</em> on that
+    list will still be connected to until they are listed.</li>
 </ul>
 
 <h3 id="safe_browsing">Safe Browsing</h3>
