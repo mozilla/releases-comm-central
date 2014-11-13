@@ -143,7 +143,7 @@
 
 .displayNameAndToolbar {
   border-bottom: 1px solid rgba(0,0,0,0.25);
-  margin: 1px 4px 22px 0;
+  margin: 1px 4px 20px 0;
 }
 
 .status-overlay-icon[status="away"],
@@ -204,7 +204,7 @@
   }
 
   .convToolbar {
-    margin: -1px 0 0;
+    margin: 1px 0 0;
   }
 
   .userIconHolder[userIcon] + .statusTypeIcon {
