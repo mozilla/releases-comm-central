@@ -1,40 +1,77 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/*
- * Third Test suite for nsAbAutoCompleteSearch - test for duplicate elimination
+/**
+ * Tests for for nsAbAutoCompleteSearch scoring.
  */
 
 const ACR = Components.interfaces.nsIAutoCompleteResult;
 
 const cards = [
-  { email: "test@foo.invalid", displayName: "",
-    popularityIndex: 0, firstName: "test0", value: "test@foo.invalid" },
-  { email: "test@foo.invalid", displayName: "",
-    popularityIndex: 1, firstName: "test1", value: "test@foo.invalid" },
-  { email: "abc@foo.invalid", displayName: "",
-    popularityIndex: 1, firstName: "test2", value: "abc@foo.invalid" },
-  { email: "foo1@foo.invalid", displayName: "d",
-    popularityIndex: 0, firstName: "first1", value: "d <foo1@foo.invalid>" },
-  { email: "foo2@foo.invalid", displayName: "di",
-    popularityIndex: 1, firstName: "first1", value: "di <foo2@foo.invalid>" },
-  { email: "foo3@foo.invalid", displayName: "dis",
-    popularityIndex: 2, firstName: "first2", value: "dis <foo3@foo.invalid>" },
-  { email: "foo2@foo.invalid", displayName: "di",
-    popularityIndex: 3, firstName: "first2", value: "di <foo2@foo.invalid>" },
-  // this just tests we can search for the special chars '(' and ')', bug 749097
-  { email: "bracket@not.invalid", secondEmail: "h@not.invalid", firstName: "Mr.",
-    displayName: "Mr. (Bracket)", value: "Mr. (Bracket) <bracket@not.invalid>",
-    popularityIndex: 2 },
-  { email: "mr@(bracket).not.invalid", secondEmail: "bracket@not.invalid",  firstName: "Mr.",
-    displayName: "Mr. Bracket", value: "Mr. Bracket <mr@(bracket).not.invalid>",
-    popularityIndex: 1 }
+  { // 0
+    email: "jd.who@example.com", displayName: "John Doe (:xx)",
+    popularityIndex: 0, firstName: "John", value: "John Doe (:xx) <jd.who@example.com>"
+  },
+
+  { // 1
+    email: "janey_who@example.com", displayName: "Jane Doe",
+    popularityIndex: 0, value: "Jane Doe <janey_who@example.com>"
+  },
+
+  { // 2
+    email: "pf@example.com", displayName: "Paul \"Shitbreak\" Finch",
+    popularityIndex: 0, value: "Paul \"Shitbreak\" Finch <pf@example.com>"
+  },
+
+  { // 3
+    email: "js@example.com", displayName: "Janine (Stifflers Mom)",
+    popularityIndex: 0, value: "Janine (Stifflers Mom) <js@example.com>"
+  },
+
+  { // 4
+    email: "ex0@example.com", displayName: "Ajden",
+    popularityIndex: 0, value: "Ajden <ex0@example.com>"
+  },
+
+  { // 5
+    email: "5@example.com", displayName: "Foxx",
+    popularityIndex: 0, value: "Foxx <5@example.com>"
+  },
+
+  { // 6
+    email: "6@example.com", displayName: "thewho",
+    popularityIndex: 0, value: "thewho <6@example.com>"
+  },
+
+  { // 7
+    email: "7@example.com", displayName: "fakeshit",
+    popularityIndex: 0, value: "fakeshit <7@example.com>"
+  },
+
+  { // 8
+    email: "8@example.com", displayName: "mastiff",
+    popularityIndex: 0, value: "mastiff <8@example.com>"
+  },
+
+  { // 9
+    email: "9@example.com", displayName: "anyjohn",
+    popularityIndex: 0, value: "anyjohn <9@example.com>"
+  },
+
+  { // 10
+    email: "10@example.com", displayName: "däsh l18n",
+    popularityIndex: 0, value: "däsh l18n <10@example.com>"
+  }
 ];
 
-const duplicates = [
-  { search: "test", expected: [1, 2] },
-  { search: "first", expected: [6, 5, 3] },
-  { search: "(bracket)", expected: [7, 8] }
+const inputs = [
+  { search: "john", expected: [0, 9] },
+  { search: "doe", expected: [1, 0] },
+  { search: "jd", expected: [0, 4] },
+  { search: "who", expected: [1, 0, 6] },
+  { search: "xx", expected: [0, 5] },
+  { search: "jan", expected: [1, 3] },
+  { search: "sh", expected: [2, 10, 7] },
+  { search: "st", expected: [3,8] }
 ];
-
 
 function acObserver() {}
 
@@ -101,14 +138,8 @@ function run_test()
     for (var i = 0; i < element.expected.length; ++i) {
       do_check_eq(obs._result.getValueAt(i), cards[element.expected[i]].value);
       do_check_eq(obs._result.getLabelAt(i), cards[element.expected[i]].value);
-      do_check_eq(obs._result.getCommentAt(i), "");
-      do_check_eq(obs._result.getStyleAt(i), "local-abook");
-      do_check_eq(obs._result.getImageAt(i), "");
-      obs._result.QueryInterface(Ci.nsIAbAutoCompleteResult);
-      do_check_eq(obs._result.getCardAt(i).firstName,
-                  cards[element.expected[i]].firstName);
     }
   }
 
-  duplicates.forEach(checkInputItem);
+  inputs.forEach(checkInputItem);
 }

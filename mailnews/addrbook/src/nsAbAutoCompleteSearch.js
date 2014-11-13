@@ -125,6 +125,42 @@ nsAbAutoCompleteSearch.prototype = {
   },
 
   /**
+   * Gets the score of the (full) address, given the search input. We want
+   * results that match the beginning of a "word" in the result to score better
+   * than a result that matches only in the middle of the word.
+   *
+   * @param aAddress - full lower-cased address, including display name and address
+   * @param aSearchString - search string provided by user
+   * @return a score; a higher score is better than a lower one
+   */
+  _getScore: function(aAddress, aSearchString) {
+    const BEST = 100;
+    // We'll do this case-insensitively and ignore the domain.
+    let atIdx = aAddress.lastIndexOf("@");
+    if (atIdx != -1) // mail lists don't have an @
+      aAddress = aAddress.substr(0, atIdx);
+    aSearchString = aSearchString.toLocaleLowerCase();
+    let idx = aAddress.indexOf(aSearchString);
+    if (idx == 0)
+      return BEST;
+    if (idx == -1)
+      return 0;
+
+    // We want to treat firstname, lastname and word boundary(ish) parts of
+    // the email address the same. E.g. for "John Doe (:xx) <jd.who@example.com>"
+    // all of these should score (almost) the same: "John", "Doe", "xx",
+    // ":xx:", "jd", "who".
+    let prevCh = aAddress.charAt(idx - 1);
+    if (/[ :."'(\-_<&]/.test(prevCh)) {
+      // -1, so exact begins-with match will still be the first hit.
+      return BEST - 1;
+    }
+
+    // The match was inside a word -> we don't care about the position.
+    return 0;
+  },
+
+  /**
    * Searches cards in the given directory. If a card is matched (and isn't
    * a mailing list) then the function will add a result for each email address
    * that exists.
@@ -201,30 +237,26 @@ nsAbAutoCompleteSearch.prototype = {
    *
    * @param directory       The directory that the card is in.
    * @param card            The card that could be a duplicate.
-   * @param emailAddress    The emailAddress (name/address combination) to check
-   *                        for duplicates against.
+   * @param lcEmailAddress  The emailAddress (name/address combination) to check
+   *                        for duplicates against. Lowercased.
    * @param currentResults  The current results list.
    */
-  _checkDuplicate: function _checkDuplicate(directory, card, emailAddress,
-                                            currentResults) {
-    let lcEmailAddress = emailAddress.toLocaleLowerCase();
+  _checkDuplicate: function (directory, card, lcEmailAddress, currentResults) {
     let existingResult = currentResults._collectedValues.get(lcEmailAddress);
+    if (!existingResult)
+      return false;
+
     let popIndex = this._getPopularityIndex(directory, card);
-
-    if (existingResult) {
-      // It's a duplicate, is the new one more popular?
-      if (popIndex > existingResult.popularity) {
-        // Yes it is, so delete this element, return false and allow
-        // _addToResult to sort the new element into the correct place.
-        currentResults._collectedValues.delete(lcEmailAddress);
-        return false;
-      }
-      // Not more popular, but still a duplicate. Return true and _addToResult
-      // will just forget about it.
-      return true;
+    // It's a duplicate, is the new one more popular?
+    if (popIndex > existingResult.popularity) {
+      // Yes it is, so delete this element, return false and allow
+      // _addToResult to sort the new element into the correct place.
+      currentResults._collectedValues.delete(lcEmailAddress);
+      return false;
     }
-
-    return false;
+    // Not more popular, but still a duplicate. Return true and _addToResult
+    // will just forget about it.
+    return true;
   },
 
   /**
@@ -250,19 +282,21 @@ nsAbAutoCompleteSearch.prototype = {
       return;
 
     let emailAddress = mbox.toString();
+    let lcEmailAddress = emailAddress.toLocaleLowerCase();
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.
-    if (this._checkDuplicate(directory, card, emailAddress, result))
+    if (this._checkDuplicate(directory, card, lcEmailAddress, result))
       return;
 
-    result._collectedValues.set(emailAddress.toLocaleLowerCase(), {
+    result._collectedValues.set(lcEmailAddress, {
       value: emailAddress,
       comment: commentColumn,
       card: card,
       isPrimaryEmail: isPrimaryEmail,
       emailToUse: emailToUse,
-      popularity: this._getPopularityIndex(directory, card)
+      popularity: this._getPopularityIndex(directory, card),
+      score: this._getScore(lcEmailAddress, result.searchString)
     });
   },
 
@@ -361,15 +395,16 @@ nsAbAutoCompleteSearch.prototype = {
       }
 
       result._searchResults = [...result._collectedValues.values()];
-      // Order by descending popularity, then primary email before secondary
-      // for the same card, then for differing cards sort by email.
-      let order_by_popularity_and_email = function(a, b) {
-        return (b.popularity - a.popularity) ||
+      result._searchResults.sort(function(a, b) {
+        // Order by 1) descending score, then 2) descending popularity,
+        // then 3) primary email before secondary for the same card, then
+        // 4) by differing cards sort by email.
+        return (b.score - a.score) ||
+               (b.popularity - a.popularity) ||
                ((a.card == b.card && a.isPrimaryEmail) ? -1 : 0) ||
                ((a.value < b.value) ? -1 : (a.value == b.value) ? 0 : 1);
         // TODO: this should actually use a.value.localeCompare(b.value) .
-      }
-      result._searchResults.sort(order_by_popularity_and_email);
+      });
     }
 
     if (result.matchCount) {

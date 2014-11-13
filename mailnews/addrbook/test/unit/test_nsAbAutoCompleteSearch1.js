@@ -12,19 +12,19 @@ const ACR = Components.interfaces.nsIAutoCompleteResult;
 // on a pattern rather just doing the odd spot check.
 //
 // Note the expected arrays are in expected sort order as well.
-const results = [ { email: "d <ema@foo.invalid>", dirName: kPABData.dirName },
-                  { email: "di <emai@foo.invalid>", dirName: kPABData.dirName },
-                  { email: "dis <email@foo.invalid>", dirName: kPABData.dirName },
-                  { email: "disp <e@foo.invalid>", dirName: kPABData.dirName },
-                  { email: "displ <em@foo.invalid>", dirName: kPABData.dirName },
-                  { email: "DisplayName1 <PrimaryEmail1@test.invalid>",
+const results = [ { email: "d <ema@foo.invalid>", dirName: kPABData.dirName }, // 0
+                  { email: "di <emai@foo.invalid>", dirName: kPABData.dirName }, // 1
+                  { email: "dis <email@foo.invalid>", dirName: kPABData.dirName }, // 2
+                  { email: "disp <e@foo.invalid>", dirName: kPABData.dirName }, // 3
+                  { email: "displ <em@foo.invalid>", dirName: kPABData.dirName }, // 4
+                  { email: "DisplayName1 <PrimaryEmail1@test.invalid>", // 5
                     dirName: kCABData.dirName },
-                  { email: "t <list>", dirName: kPABData.dirName },
-                  { email: "te <lis>", dirName: kPABData.dirName },
-                  { email: "tes <li>", dirName: kPABData.dirName },
+                  { email: "t <list>", dirName: kPABData.dirName }, // 6
+                  { email: "te <lis>", dirName: kPABData.dirName }, // 7
+                  { email: "tes <li>", dirName: kPABData.dirName }, // 8
                    // this contact has a nickname of "abcdef"
-                  { email: "test <l>", dirName: kPABData.dirName } ];
-
+                  { email: "test <l>", dirName: kPABData.dirName } // 9
+                ];
 const firstNames = [ { search: "f",      expected: [5, 0, 1, 2, 3, 4, 9] },
                      { search: "fi",     expected: [5, 0, 1, 3, 4] },
                      { search: "fir",    expected: [5, 0, 1, 4] },
@@ -32,7 +32,7 @@ const firstNames = [ { search: "f",      expected: [5, 0, 1, 2, 3, 4, 9] },
                      { search: "first",  expected: [5, 1] },
                      { search: "firstn", expected: [5] } ];
 
-const lastNames = [ { search: "l",      expected: [5, 0, 1, 2, 3, 4, 6, 7, 8, 9] },
+const lastNames = [ { search: "l",      expected: [6, 7, 8, 9, 5, 0, 1, 2, 3, 4] },
                     { search: "la",     expected: [5, 0, 2, 3, 4] },
                     { search: "las",    expected: [5, 0, 3, 4] },
                     { search: "last",   expected: [5, 0, 4] },
@@ -53,20 +53,20 @@ const nickNames = [ { search: "n",      expected: [5, 0, 1, 2, 3, 4] },
                     { search: "nickn",  expected: [5, 3] },
                     { search: "nickna", expected: [5] } ];
 
-const emails = [ { search: "e",     expected: [5, 0, 1, 2, 3, 4, 7, 8, 9] },
-                 { search: "em",    expected: [5, 0, 1, 2, 4] },
-                 { search: "ema",   expected: [5, 0, 1, 2] },
-                 { search: "emai",  expected: [5, 1, 2] },
-                 { search: "email", expected: [5, 2] } ];
+const emails = [ { search: "e",     expected: [0, 1, 2, 3, 4, 5, 7, 8, 9] },
+                 { search: "em",    expected: [0, 1, 2, 4, 5] },
+                 { search: "ema",   expected: [0, 1, 2, 5] },
+                 { search: "emai",  expected: [1, 2, 5] },
+                 { search: "email", expected: [2, 5] } ];
 
 // "l" case tested above
-const lists = [ { search: "li", expected: [5, 0, 1, 2, 3, 4, 6, 7, 8] },
+const lists = [ { search: "li", expected: [6, 7, 8, 5, 0, 1, 2, 3, 4] },
                 { search: "lis", expected: [6, 7] },
                 { search: "list", expected: [6] },
-                { search: "t", expected: [5, 0, 1, 4, 6, 7, 8, 9] },
-                { search: "te", expected: [5, 7, 8, 9] },
-                { search: "tes", expected: [5, 8, 9] },
-                { search: "test", expected: [5, 9] },
+                { search: "t", expected: [6, 7, 8, 9, 5, 0, 1, 4] },
+                { search: "te", expected: [7, 8, 9, 5] },
+                { search: "tes", expected: [8, 9, 5] },
+                { search: "test", expected: [9, 5] },
                 { search: "abcdef", expected: [9] } // Bug 441586
               ];
 
@@ -172,8 +172,8 @@ function run_test() {
   do_check_eq(obs._result.matchCount, 2);
   do_check_eq(obs._result.defaultIndex, 0);
 
-  do_check_eq(obs._result.getValueAt(0), "DisplayName1 <PrimaryEmail1@test.invalid>");
-  do_check_eq(obs._result.getLabelAt(0), "DisplayName1 <PrimaryEmail1@test.invalid>");
+  do_check_eq(obs._result.getValueAt(0), "dis <email@foo.invalid>");
+  do_check_eq(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
   do_check_eq(obs._result.getCommentAt(0), "");
   do_check_eq(obs._result.getStyleAt(0), "local-abook");
   do_check_eq(obs._result.getImageAt(0), "");
@@ -198,9 +198,9 @@ function run_test() {
   do_check_eq(obs._result.matchCount, 2);
   do_check_eq(obs._result.defaultIndex, 0);
 
-  do_check_eq(obs._result.getValueAt(0), "DisplayName1 <PrimaryEmail1@test.invalid>");
-  do_check_eq(obs._result.getLabelAt(0), "DisplayName1 <PrimaryEmail1@test.invalid>");
-  do_check_eq(obs._result.getCommentAt(0), kCABData.dirName);
+  do_check_eq(obs._result.getValueAt(0), "dis <email@foo.invalid>");
+  do_check_eq(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
+  do_check_eq(obs._result.getCommentAt(0), kPABData.dirName);
   do_check_eq(obs._result.getStyleAt(0), "local-abook");
   do_check_eq(obs._result.getImageAt(0), "");
 
@@ -214,17 +214,26 @@ function run_test() {
   do_check_eq(obs._result.matchCount, 2);
   do_check_eq(obs._result.defaultIndex, 0);
 
-  do_check_eq(obs._result.getValueAt(0), "DisplayName1 <PrimaryEmail1@test.invalid>");
-  do_check_eq(obs._result.getLabelAt(0), "DisplayName1 <PrimaryEmail1@test.invalid>");
-  do_check_eq(obs._result.getCommentAt(0), kCABData.dirName);
+  do_check_eq(obs._result.getValueAt(0), "dis <email@foo.invalid>");
+  do_check_eq(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
+  do_check_eq(obs._result.getCommentAt(0), kPABData.dirName);
   do_check_eq(obs._result.getStyleAt(0), "local-abook");
   do_check_eq(obs._result.getImageAt(0), "");
 
 
   // Now check multiple matches
   function checkInputItem(element, index, array) {
-    print("Checking " + element.search);
+    print("Search #" + index + ": search=" + element.search);
     acs.startSearch(element.search, param, null, obs);
+
+    for (var i = 0; i < obs._result.matchCount; i++) {
+      print("... got " + i + ": " + obs._result.getValueAt(i));
+    }
+
+    for (var i = 0; i < element.expected.length; i++) {
+      print("... expected " + i + " (result " + element.expected[i] + "): " +
+            results[element.expected[i]].email);
+    }
 
     do_check_eq(obs._search, acs);
     do_check_eq(obs._result.searchString, element.search);

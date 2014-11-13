@@ -23,7 +23,7 @@ const firstNames = [ { search: "f",      expected: [4, 0, 1, 2, 3, 8] },
                      { search: "firs",   expected: [0, 1] },
                      { search: "first",  expected: [1] } ];
 
-const lastNames = [ { search: "l",      expected: [4, 0, 1, 2, 3, 5, 6, 7, 8] },
+const lastNames = [ { search: "l",      expected: [5, 6, 7, 8, 4, 0, 1, 2, 3] },
                     { search: "la",     expected: [4, 0, 2, 3] },
                     { search: "las",    expected: [4, 0, 3] },
                     { search: "last",   expected: [4, 0] },
@@ -63,8 +63,17 @@ function run_test() {
 
   // Now check multiple matches
   function checkInputItem(element, index, array) {
-    print("Checking " + element.search);
+    print("Search #" + index + ": search=" + element.search);
     acs.startSearch(element.search, JSON.stringify({ type: "addr_to" }), null, obs);
+
+    for (var i = 0; i < obs._result.matchCount; i++) {
+      print("... got " + i + ": " + obs._result.getValueAt(i));
+    }
+
+    for (var i = 0; i < element.expected.length; i++) {
+      print("... expected " + i + " (card " + element.expected[i] + "): " +
+            results[element.expected[i]].email);
+    }
 
     do_check_eq(obs._search, acs);
     do_check_eq(obs._result.searchString, element.search);

@@ -42,27 +42,27 @@ const searches = [ "primary", "second", "firstName", "thename", "sortbasic",
                    "testsort", "2testsort", "3testsort" ];
 
 const expectedResults = [ [ "primary@test.invalid",
-                            "second@test.invalid" ], // searching for primary/second returns
-                          [ "primary@test.invalid",  // both the emails as the new search query
-                            "second@test.invalid" ], // looks in both the fields.
+                            "second@test.invalid"], // searching for primary/second returns
+                          [ "second@test.invalid",  // both the emails as the new search query
+                            "primary@test.invalid" ], // looks in both the fields.
                           [ "test1@test.invalid",
                             "test2@test.invalid" ],
-                          [ "name@test.invalid",
-                            "thename@test.invalid" ],
+                          [ "thename@test.invalid",
+                            "name@test.invalid"],
                           [ "sortbasic <foo_b@test.invalid>",
                             "sortbasic <foo_a@test.invalid>" ],
-                          [ "3testsort <j@test.invalid>",
+                          [ "testsort <c@test.invalid>",
+                            "testsort <a@test.invalid>",
+                            "testsort <d@test.invalid>",
+                            "testsort <e@test.invalid>",
+                            "3testsort <j@test.invalid>",
                             "3testsort <h@test.invalid>",
                             "3testsort <g@test.invalid>",
                             "3testsort <f@test.invalid>",
                             "2testsort <c@test.invalid>",
                             "2testsort <a@test.invalid>",
                             "2testsort <d@test.invalid>",
-                            "2testsort <e@test.invalid>",
-                            "testsort <c@test.invalid>",
-                            "testsort <a@test.invalid>",
-                            "testsort <d@test.invalid>",
-                            "testsort <e@test.invalid>" ],
+                            "2testsort <e@test.invalid>"],
                           [ "2testsort <c@test.invalid>",
                             "2testsort <a@test.invalid>",
                             "2testsort <d@test.invalid>",
@@ -131,7 +131,7 @@ function run_test()
   print("Checking Initial Searches");
 
   function checkSearch(element, index, array) {
-    print("Checking " + element);
+    print("Search #" + index + ": search=" + element);
     acs.startSearch(element, JSON.stringify({ type: "addr_to"  }), null, obs);
 
     do_check_eq(obs._search, acs);
