@@ -182,6 +182,7 @@
 @RESPATH@/components/appstartup.xpt
 @RESPATH@/components/autocomplete.xpt
 @RESPATH@/components/autoconfig.xpt
+@BINPATH@/components/browser-element.xpt
 @RESPATH@/components/caps.xpt
 @RESPATH@/components/chrome.xpt
 @RESPATH@/components/commandhandler.xpt
