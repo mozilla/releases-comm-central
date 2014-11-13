@@ -228,7 +228,7 @@ var MailMigrator = {
         }
       }
 
-      // In UI version 7, make three-state doNotTrack setting was reverted back
+      // In UI version 7, the three-state doNotTrack setting was reverted back
       // to two-state. This reverts a (no longer supported) setting of "please
       // track me" to the default "don't say anything".
       if (currentUIVersion < 7) {
