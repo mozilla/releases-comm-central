@@ -455,6 +455,9 @@
 #ifdef MOZ_ENABLE_PROFILER_SPS
 @BINPATH@/components/profiler.xpt
 #endif
+@BINPATH@/components/ProcessSingleton.manifest
+@BINPATH@/components/MainProcessSingleton.js
+@BINPATH@/components/ContentProcessSingleton.js
 
 ; rdf
 @BINPATH@/components/rdf.xpt
