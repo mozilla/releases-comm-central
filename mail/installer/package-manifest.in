@@ -559,6 +559,8 @@
 @BINPATH@/components/TCPServerSocket.js
 @BINPATH@/components/TCPSocketParentIntermediary.js
 @BINPATH@/components/TCPSocket.manifest
+@BINPATH@/components/TelemetryStartup.js
+@BINPATH@/components/TelemetryStartup.manifest
 #ifdef MOZ_WEBRTC
 @BINPATH@/components/PeerConnection.js
 @BINPATH@/components/PeerConnection.manifest
