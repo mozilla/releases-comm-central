@@ -374,31 +374,31 @@
 
               case "addon-install-blocked":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originator.top == browser.contentWindow)
+                if (installInfo.browser == browser)
                   this.addonInstallBlocked(installInfo);
                 break;
 
               case "addon-install-complete":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originator.top == browser.contentWindow)
+                if (installInfo.browser == browser)
                   this.addonInstallComplete(installInfo);
                 break;
 
               case "addon-install-disabled":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originator.top == browser.contentWindow)
+                if (installInfo.browser == browser)
                   this.addonInstallDisabled(installInfo);
                 break;
 
               case "addon-install-failed":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originator.top == browser.contentWindow)
+                if (installInfo.browser == browser)
                   this.addonInstallFailed(installInfo);
                 break;
 
               case "addon-install-started":
                 var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
-                if (installInfo.originator.top == browser.contentWindow)
+                if (installInfo.browser == browser)
                   this.addonInstallStarted(installInfo);
                 break;
 
@@ -1719,7 +1719,6 @@
 
       <method name="addonInstallCancelled">
         <parameter name="installInfo"/>
-        <parameter name="sourceURI"/>
         <body>
           <![CDATA[
             var tmp = {};
@@ -1734,9 +1733,9 @@
               callback: function() {
                 var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
                                             .getService(Components.interfaces.amIWebInstallListener);
-                if (weblistener.onWebInstallRequested(installInfo.originator, sourceURI,
+                if (weblistener.onWebInstallRequested(installInfo.browser, installInfo.originatingURI,
                                                       installInfo.installs, installInfo.installs.length)) {
-                  installs.forEach(function(aInstall) {
+                  installInfo.installs.forEach(function(aInstall) {
                     aInstall.install();
                   });
                 }
@@ -1897,7 +1896,6 @@
                 }))
               return;
 
-            var sourceURI = installInfo.originator.document.documentURIObject;
             Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var notificationName = "addon-install-started";
             var messageString = this._stringBundle.GetStringFromName("addonDownloading");
@@ -1906,7 +1904,7 @@
               label: this._stringBundle.GetStringFromName("addonDownloadCancelButton"),
               accessKey: this._stringBundle.GetStringFromName("addonDownloadCancelButton.accesskey"),
               popup: null,
-              callback: this.addonInstallCancelled.bind(this, installInfo, sourceURI)
+              callback: this.addonInstallCancelled.bind(this, installInfo)
             }];
             var priority = this.PRIORITY_INFO_MEDIUM;
             var box = this.appendNotification(messageString, notificationName,
@@ -2954,7 +2952,6 @@
 
       <method name="addonInstallCancelled">
         <parameter name="installInfo"/>
-        <parameter name="sourceURI"/>
         <body>
           <![CDATA[
             var tmp = {};
@@ -2968,9 +2965,9 @@
               callback: function() {
                 var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
                                             .getService(Components.interfaces.amIWebInstallListener);
-                if (weblistener.onWebInstallRequested(installInfo.originator, sourceURI,
+                if (weblistener.onWebInstallRequested(installInfo.browser, installInfo.originatingURI,
                                                       installInfo.installs, installInfo.installs.length)) {
-                  installs.forEach(function(aInstall) {
+                  installInfo.installs.forEach(function(aInstall) {
                     aInstall.install();
                   });
                 }
@@ -3137,14 +3134,13 @@
                 }))
               return;
 
-            var sourceURI = installInfo.originator.document.documentURIObject;
             Components.utils.import("resource://gre/modules/PluralForm.jsm", tmp);
             var messageString = this._stringBundle.GetStringFromName("addonDownloading");
             messageString = tmp.PluralForm.get(installInfo.installs.length, messageString);
             var action = {
               label: this._stringBundle.GetStringFromName("addonDownloadCancelButton"),
               accessKey: this._stringBundle.GetStringFromName("addonDownloadCancelButton.accesskey"),
-              callback: this.addonInstallCancelled.bind(this, installInfo, sourceURI)
+              callback: this.addonInstallCancelled.bind(this, installInfo)
             };
             var options = {
               installInfo: installInfo
