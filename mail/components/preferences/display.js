@@ -240,6 +240,19 @@ var gDisplayPane = {
                  "",
                  "chrome,titlebar,modal",
                  args);
+  },
+
+  onSelect: function()
+  {
+    let btnEdit = document.getElementById("editTagButton");
+    let listBox = document.getElementById("tagList");
+
+    if (listBox.selectedCount > 0)
+      btnEdit.disabled = false;
+    else
+      btnEdit.disabled = true;
+
+    document.getElementById("removeTagButton").disabled = btnEdit.disabled;
   }
 };
 

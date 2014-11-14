@@ -158,13 +158,18 @@
         <tabpanel orient="vertical">
           <label control="tagList">&displayTagsText.label;</label>
           <hbox>
-            <listbox id="tagList" flex="1" rows="10" ondblclick="gDisplayPane.editTag();"/>
+            <listbox id="tagList" flex="1" rows="10" ondblclick="gDisplayPane.editTag();"
+                     onselect="gDisplayPane.onSelect();"/>
             <vbox>
               <button label="&addTagButton.label;" accesskey="&addTagButton.accesskey;"
                       oncommand="gDisplayPane.addTag();"/>
-              <button label="&editTagButton.label;" accesskey="&editTagButton.accesskey;"
+              <button id="editTagButton" disabled="true"
+                      label="&editTagButton.label;"
+                      accesskey="&editTagButton.accesskey;"
                       oncommand="gDisplayPane.editTag();"/>
-              <button label="&removeTagButton.label;" accesskey="&removeTagButton.accesskey;"
+              <button id="removeTagButton" disabled="true"
+                      label="&removeTagButton.label;"
+                      accesskey="&removeTagButton.accesskey;"
                       oncommand="gDisplayPane.removeTag();"/>
             </vbox>
           </hbox>
