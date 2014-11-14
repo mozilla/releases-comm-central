@@ -3,12 +3,17 @@
 # We thus use INCLUDED_AUTOCONF_MK to enable/disable some parts depending
 # whether a normal build is happening or whether the check is running.
 
-MOZILLA_SRCDIR = $(topsrcdir)/mozilla
+# When mach wants to know if we're to use mozmake, it runs:
+# make -f topsrcdir/config/baseconfig.mk
+# The first word of MAKEFILE_LIST is the main file we're running. Grabbing the
+# parent of that directory therefore gets us the topsrcdir of comm-central,
+# whence we get the mozilla directory to run the "real" baseconfig.mk logic.
 ifndef INCLUDED_AUTOCONF_MK
-default::
-else
-include $(MOZILLA_SRCDIR)/config/baseconfig.mk
+topsrcdir := $(dir $(firstword $(MAKEFILE_LIST)))..
 endif
+
+MOZILLA_SRCDIR = $(topsrcdir)/mozilla
+include $(MOZILLA_SRCDIR)/config/baseconfig.mk
 
 # WIN_TOP_SRC is converted by config.mk to mozilla-central, but this needs to be comm-central.
 ifdef WIN_TOP_SRC
