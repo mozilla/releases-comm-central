@@ -1135,7 +1135,7 @@ Buddy.prototype = {
     this.notifyObservers(this, "buddy-" + aTopic, aData);
   },
 
-  // This is called by the imIAccountBuddy implementations.
+  // This is called by the prplIAccountBuddy implementations.
   observe: function(aSubject, aTopic, aData) {
     // Forward the notification.
     this.notifyObservers(aSubject, aTopic, aData);
@@ -1306,7 +1306,7 @@ ContactsService.prototype = {
     Tags = [];
     TagsById = { };
     // Avoid shutdown leaks caused by references to native components
-    // implementing imIAccountBuddy.
+    // implementing prplIAccountBuddy.
     for each (let buddy in BuddiesById)
       buddy.destroy();
     BuddiesById = { };
@@ -1374,7 +1374,7 @@ ContactsService.prototype = {
       }
     }
 
-    // Initialize the 'buddy' field of the imIAccountBuddy instance.
+    // Initialize the 'buddy' field of the prplIAccountBuddy instance.
     aAccountBuddy.buddy = buddy;
 
     // Ensure we aren't storing a duplicate entry.
