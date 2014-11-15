@@ -7,13 +7,13 @@
 #include "nsIFile.idl"
 
 interface imIAccount;
-interface imIAccountBuddy;
+interface prplIAccountBuddy;
 interface imIBuddy;
 interface imIContact;
 interface imIMessage;
 interface prplIConversation;
 
-[scriptable, uuid(5bc06f3b-33a1-412b-a4d8-4fc7ba4c962b)]
+[scriptable, uuid(7771402c-ff55-41f5-86b4-59b93f9b0693)]
 interface imILogConversation: nsISupports {
   readonly attribute AUTF8String title;
   readonly attribute AUTF8String name;
@@ -29,7 +29,7 @@ interface imILogConversation: nsISupports {
   readonly attribute imIAccount account;
 
   readonly attribute boolean isChat; // always false (compatibility with prplIConversation).
-  readonly attribute imIAccountBuddy buddy; // always null (compatibility with prplIConvIM).
+  readonly attribute prplIAccountBuddy buddy; // always null (compatibility with prplIConvIM).
 
   void getMessages([optional] out unsigned long messageCount,
                    [retval, array, size_is(messageCount)] out imIMessage messages);
@@ -59,7 +59,7 @@ interface imIProcessLogsCallback: nsISupports {
   jsval processLog(in AUTF8String aLogPath);
 };
 
-[scriptable, uuid(b9d5701a-df53-4e0e-99b7-706e0118e075)]
+[scriptable, uuid(f8ac75ed-e9b5-432e-989b-f01fed2e5a3f)]
 interface imILogger: nsISupports {
   // Returns a promise that resolves to an imILog instance.
   jsval getLogFromFile(in AUTF8String aFilePath, [optional] in boolean aGroupByDay);
@@ -75,7 +75,7 @@ interface imILogger: nsISupports {
                                  in AUTF8String aNormalizedName,
                                  [optional] in boolean aGroupByDay);
 
-  jsval getLogsForAccountBuddy(in imIAccountBuddy aAccountBuddy,
+  jsval getLogsForAccountBuddy(in prplIAccountBuddy aAccountBuddy,
                                [optional] in boolean aGroupByDay);
   jsval getLogsForBuddy(in imIBuddy aBuddy,
                         [optional] in boolean aGroupByDay);
