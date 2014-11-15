@@ -138,6 +138,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
                     break;
                 case "offsetnexthour":
                     start = initDate.clone();
+                    start.second = 0;
                     start.minute = 0;
                     start.hour++;
                     start.addDuration(startOffset);
@@ -188,6 +189,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
                     break;
                 case "offsetnexthour":
                     due = start.clone();
+                    due.second = 0;
                     due.minute = 0;
                     due.hour++;
                     due.addDuration(dueOffset);
