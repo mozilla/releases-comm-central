@@ -519,16 +519,11 @@ function onEnterInSearchBar()
    moz-abldapdirectory://nsdirectory.netscape.com:389/ou=People,dc=netscape,dc=com?(or(Department,=,Applications))
   */
   var searchInput = document.getElementById("peopleSearchInput");
-  if (searchInput && searchInput.value != "") {
-    // Split up multiple search words to create a *foo* and *bar* search against
-    // search fields, using the OR-search template from gQueryURIFormat for each word.
-    let searchWords = searchInput.value.trim().split(/\s+/);
-    let queryURI = "";
-    searchWords.forEach(searchWord =>
-      queryURI += gQueryURIFormat.replace(/@V/g, encodeABTermValue(searchWord)));
-
-    // queryURI has all the (or(...)) searches, link them up with (and(...)).
-    searchURI += "?(and" + queryURI + ")";
+  // Use helper method to split up search query to multi-word search
+  // query against multiple fields.
+  if (searchInput) {
+    let searchWords = getSearchTokens(searchInput.value);
+    searchURI += generateQueryURI(gQueryURIFormat, searchWords);
   }
 
   SetAbView(searchURI);
