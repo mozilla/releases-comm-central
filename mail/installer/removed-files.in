@@ -295,28 +295,6 @@
 @DIR_MACOS@modules/JSON.jsm
 @DIR_MACOS@modules/quickSearchManager.js
 @DIR_MACOS@mozilla-runtime@BIN_SUFFIX@
-#ifdef XP_WIN
-  #if MOZ_MSVC_REDIST != 1400
-    Microsoft.VC80.CRT.manifest
-    msvcm80.dll
-    msvcp80.dll
-    msvcr80.dll
-  #endif
-  #if MOZ_MSVC_REDIST != 1500
-    Microsoft.VC90.CRT.manifest
-    msvcm90.dll
-    msvcp90.dll
-    msvcr90.dll
-  #endif
-  #if MOZ_MSVC_REDIST != 1600
-    msvcp100.dll
-    msvcr100.dll
-  #endif
-  #if MOZ_MSVC_REDIST != 1700
-    msvcp110.dll
-    msvcr110.dll
-  #endif
-#endif
 #ifdef XP_MACOSX
   Contents/Plug-Ins/PrintPDE.plugin/Contents/Info.plist
   Contents/Plug-Ins/PrintPDE.plugin/Contents/MacOS/PrintPDE

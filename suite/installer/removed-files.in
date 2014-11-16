@@ -350,30 +350,6 @@ jsj3250.dll
 @DIR_MACOS@@DLL_PREFIX@nssutil3@DLL_SUFFIX@
 @DIR_MACOS@@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
 #endif
-#ifdef XP_WIN
-  mozcpp19.dll
-  mozcrt19.dll
-  #if MOZ_MSVC_REDIST != 1400
-    Microsoft.VC80.CRT.manifest
-    msvcm80.dll
-    msvcp80.dll
-    msvcr80.dll
-  #endif
-  #if MOZ_MSVC_REDIST != 1500
-    Microsoft.VC90.CRT.manifest
-    msvcm90.dll
-    msvcp90.dll
-    msvcr90.dll
-  #endif
-  #if MOZ_MSVC_REDIST != 1600
-    msvcp100.dll
-    msvcr100.dll
-  #endif
-  #if MOZ_MSVC_REDIST != 1700
-    msvcp110.dll
-    msvcr110.dll
-  #endif
-#endif
 @DLL_PREFIX@mozlcms@DLL_SUFFIX@
 omni.jar
 #ifdef XP_MACOSX
