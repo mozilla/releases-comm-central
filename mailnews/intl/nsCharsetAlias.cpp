@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mozilla/ArrayUtils.h"
+#include "mozilla/dom/EncodingUtils.h"
 
 #include "nsCharsetAlias.h"
 
@@ -13,6 +14,7 @@
 #include "nsUConvPropertySearch.h"
 
 using namespace mozilla;
+using namespace mozilla::dom;
 
 // 
 static const char* kAliases[][3] = {
@@ -25,11 +27,18 @@ nsresult
 nsCharsetAlias::GetPreferredInternal(const nsACString& aAlias,
                                      nsACString& oResult)
 {
+   // First check charsetalias.properties and if there is no match, continue to
+   // call EncodingUtils::FindEncodingForLabel.
    nsAutoCString key(aAlias);
    ToLowerCase(key);
 
-   return nsUConvPropertySearch::SearchPropertyValue(kAliases,
+   nsresult rv = nsUConvPropertySearch::SearchPropertyValue(kAliases,
       ArrayLength(kAliases), key, oResult);
+   if (NS_SUCCEEDED(rv)) {
+     return NS_OK;
+   }
+   return EncodingUtils::FindEncodingForLabel(key, oResult) ?
+      NS_OK: NS_ERROR_NOT_AVAILABLE;
 }
 
 //--------------------------------------------------------------
