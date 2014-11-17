@@ -806,8 +806,8 @@ nsMsgFolderDataSource::OnItemPropertyChanged(nsIMsgFolder *resource,
 NS_IMETHODIMP
 nsMsgFolderDataSource::OnItemIntPropertyChanged(nsIMsgFolder *folder,
                                                 nsIAtom *property,
-                                                int32_t oldValue,
-                                                int32_t newValue)
+                                                int64_t oldValue,
+                                                int64_t newValue)
 {
   nsCOMPtr<nsIRDFResource> resource(do_QueryInterface(folder));
   if (kTotalMessagesAtom == property)

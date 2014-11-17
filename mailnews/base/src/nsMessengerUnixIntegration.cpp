@@ -655,7 +655,7 @@ nsMessengerUnixIntegration::OnItemEvent(nsIMsgFolder *, nsIAtom *)
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty, int32_t aOldValue, int32_t aNewValue)
+nsMessengerUnixIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty, int64_t aOldValue, int64_t aNewValue)
 {
   nsCString atomName;
   // if we got new mail show an icon in the system tray

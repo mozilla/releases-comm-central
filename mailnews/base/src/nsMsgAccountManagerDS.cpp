@@ -1169,7 +1169,7 @@ nsMsgAccountManagerDataSource::OnItemEvent(nsIMsgFolder *, nsIAtom *)
 }
 
 nsresult
-nsMsgAccountManagerDataSource::OnItemIntPropertyChanged(nsIMsgFolder *, nsIAtom *, int32_t, int32_t)
+nsMsgAccountManagerDataSource::OnItemIntPropertyChanged(nsIMsgFolder *, nsIAtom *, int64_t, int64_t)
 {
   return NS_OK;
 }

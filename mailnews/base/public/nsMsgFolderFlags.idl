@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This must be limited to unsigned long (uint32_t, no uint64_t)
+// as long as nsIMsgFolder exposes the 'flags' property which contains
+// all the flags values. The callers are used to do
+// (folder.flags & nsMsgFolderFlags.<flagname>) in Javascript
+// which cuts the value to 32bit only. See bug 813459.
 typedef unsigned long nsMsgFolderFlagType;
 
 /// Flags about a folder or a newsgroup.

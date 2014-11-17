@@ -4946,8 +4946,8 @@ nsMsgDBFolder::NotifyUnicharPropertyChanged(nsIAtom *aProperty,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::NotifyIntPropertyChanged(nsIAtom *aProperty, int32_t aOldValue,
-                                        int32_t aNewValue)
+nsMsgDBFolder::NotifyIntPropertyChanged(nsIAtom *aProperty, int64_t aOldValue,
+                                        int64_t aNewValue)
 {
   // Don't send off count notifications if they are turned off.
   if (!mNotifyCountChanges &&

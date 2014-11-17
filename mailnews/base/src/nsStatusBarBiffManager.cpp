@@ -182,7 +182,7 @@ nsStatusBarBiffManager::OnItemPropertyChanged(nsIMsgFolder *item, nsIAtom *prope
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int32_t oldValue, int32_t newValue)
+nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int64_t oldValue, int64_t newValue)
 {
   if (kBiffStateAtom == property && mCurrentBiffState != newValue) {
     // if we got new mail, attempt to play a sound.

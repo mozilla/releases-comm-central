@@ -417,8 +417,8 @@ nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
 NS_IMETHODIMP
 nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
                                                     nsIAtom *aProperty,
-                                                    int32_t aOldValue,
-                                                    int32_t aNewValue)
+                                                    int64_t aOldValue,
+                                                    int64_t aNewValue)
 {
   // if we got new mail show an alert
   if (aNewValue == nsIMsgFolder::nsMsgBiffState_NewMail)

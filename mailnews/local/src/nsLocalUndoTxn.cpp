@@ -460,7 +460,7 @@ NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemPropertyChanged(nsIMsgFolder *item, n
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int32_t oldValue, int32_t newValue)
+NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int64_t oldValue, int64_t newValue)
 {
   return NS_OK;
 }
@@ -512,7 +512,7 @@ NS_IMETHODIMP nsLocalUndoFolderListener::OnItemPropertyChanged(nsIMsgFolder *ite
     return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalUndoFolderListener::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int32_t oldValue, int32_t newValue)
+NS_IMETHODIMP nsLocalUndoFolderListener::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int64_t oldValue, int64_t newValue)
 {
     return NS_OK;
 }

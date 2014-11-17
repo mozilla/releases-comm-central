@@ -1503,7 +1503,7 @@ nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty,
 
 NS_IMETHODIMP
 nsMsgSendLater::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty,
-                                         int32_t aOldValue, int32_t aNewValue)
+                                         int64_t aOldValue, int64_t aNewValue)
 {
   return NS_OK;
 }

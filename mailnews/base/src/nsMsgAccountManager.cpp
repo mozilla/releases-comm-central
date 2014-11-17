@@ -3562,8 +3562,8 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyChanged(nsIMsgFolder *item, nsI
 NS_IMETHODIMP
 nsMsgAccountManager::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
                                               nsIAtom *aProperty,
-                                              int32_t oldValue,
-                                              int32_t newValue)
+                                              int64_t oldValue,
+                                              int64_t newValue)
 {
   if (aProperty == mFolderFlagAtom)
   {

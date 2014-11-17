@@ -118,8 +118,8 @@ nsMsgMailSession::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
 NS_IMETHODIMP
 nsMsgMailSession::OnItemIntPropertyChanged(nsIMsgFolder *aItem,
                                            nsIAtom *aProperty,
-                                           int32_t aOldValue,
-                                           int32_t aNewValue)
+                                           int64_t aOldValue,
+                                           int64_t aNewValue)
 {
   NOTIFY_FOLDER_LISTENERS(intPropertyChanged, OnItemIntPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));

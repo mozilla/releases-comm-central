@@ -11,7 +11,7 @@ interface nsIMsgDBHdr;
 
 typedef unsigned long folderListenerNotifyFlagValue;
 
-[scriptable, uuid(f60ee1a2-6d81-422c-958f-d408b1b2daa6)]
+[scriptable, uuid(f60ee1a2-6d81-422c-958f-d408b1b2daa7)]
 interface nsIFolderListener : nsISupports {
   const folderListenerNotifyFlagValue added = 0x1;
   void OnItemAdded(in nsIMsgFolder aParentItem,
@@ -28,10 +28,12 @@ interface nsIFolderListener : nsISupports {
                              in string aNewValue);
   
   const folderListenerNotifyFlagValue intPropertyChanged = 0x8;
+  // While this property handles long long (64bit wide) values,
+  // the Javascript engine will only pass values up to 2^53 to the consumers.
   void OnItemIntPropertyChanged(in nsIMsgFolder aItem,
                                 in nsIAtom aProperty,
-                                in long aOldValue,
-                                in long aNewValue);
+                                in long long aOldValue,
+                                in long long aNewValue);
   
   const folderListenerNotifyFlagValue boolPropertyChanged = 0x10;
   void OnItemBoolPropertyChanged(in nsIMsgFolder aItem,
