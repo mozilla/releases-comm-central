@@ -418,6 +418,23 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   color: #FFFFFF;
 }
 
+@media (-moz-mac-yosemite-theme) {
+  #folderTree treechildren::-moz-tree-cell-text {
+    font-family: 'Helvetica Neue';
+  }
+
+  #dirTree treechildren::-moz-tree-cell-text(selected, focus),
+  #dirTree treechildren::-moz-tree-cell-text(selected) {
+    color: black;
+  }
+
+  #dirTree treechildren::-moz-tree-row(selected),
+  #dirTree:-moz-system-metric(mac-graphite-theme) treechildren::-moz-tree-row(selected),
+  #dirTree treechildren:-moz-window-inactive::-moz-tree-row(selected) {
+    background: rgba(0, 0, 0, .1);
+  }
+}
+
 treechildren::-moz-tree-image(DirCol) {
   -moz-margin-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");

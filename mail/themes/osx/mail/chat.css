@@ -265,6 +265,24 @@ richlistitem[state="disconnected"] .accountStateIcon {
                               #9ca9c6 95%, #939fba 100%);
 }
 
+@media (-moz-mac-yosemite-theme) {
+  :-moz-any(imconv, imcontact, imgroup) treechildren::-moz-tree-cell-text {
+    font-family: 'Helvetica Neue';
+  }
+
+  :-moz-any(imconv, imcontact, imgroup) treechildren::-moz-tree-cell-text(selected, focus),
+  :-moz-any(imconv, imcontact, imgroup) treechildren::-moz-tree-cell-text(selected),
+  :-moz-any(imconv, imcontact, imgroup)[selected] {
+    color: black;
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected],
+  :-moz-any(imconv, imcontact, imgroup)[selected]:-moz-system-metric(mac-graphite-theme),
+  :-moz-any(imconv, imcontact, imgroup)[selected]:-moz-window-inactive {
+    background: rgba(0, 0, 0, .1);
+  }
+}
+
 #displayNameAndstatusMessageStack #statusMessage {
   margin: 32px 0 0;
   min-height: 16px;
