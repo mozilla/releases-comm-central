@@ -111,7 +111,7 @@ ifdef REAL_LIBRARY
 ifdef FORCE_SHARED_LIB
 # ... except when we really want one
 ifdef NO_EXPAND_LIBS
-LIBRARY			:= $(REAL_LIBRARY) $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
+LIBRARY			:= $(REAL_LIBRARY)
 else
 LIBRARY			:= $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
 endif
@@ -120,7 +120,11 @@ else
 ifeq (,$(SDK_LIBRARY)$(DIST_INSTALL)$(NO_EXPAND_LIBS))
 LIBRARY			:= $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
 else
+ifdef NO_EXPAND_LIBS
+LIBRARY                 := $(REAL_LIBRARY)
+else
 LIBRARY			:= $(REAL_LIBRARY) $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
+endif
 endif
 endif
 endif # REAL_LIBRARY
@@ -791,7 +795,8 @@ OBJS += $(DTRACE_PROBE_OBJ)
 endif
 
 $(filter %.$(LIB_SUFFIX),$(LIBRARY)): $(OBJS) $(STATIC_LIBS_DEPS) $(filter %.$(LIB_SUFFIX),$(EXTRA_LIBS)) $(EXTRA_DEPS) $(GLOBAL_DEPS)
-	$(RM) $(LIBRARY)
+# Always remove both library and library descriptor
+	$(RM) $(REAL_LIBRARY) $(REAL_LIBRARY).$(LIBS_DESC_SUFFIX)
 	$(EXPAND_AR) $(AR_FLAGS) $(OBJS) $(STATIC_LIBS) $(filter %.$(LIB_SUFFIX),$(EXTRA_LIBS))
 	$(RANLIB) $@
 
