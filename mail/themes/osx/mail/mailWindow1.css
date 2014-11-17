@@ -22,6 +22,17 @@
   margin-bottom: 5px;
 }
 
+/* Instead of box-shadow, we use actual borders on Yosemite,
+ * so we need to reduce the margin by 2px to make the height 42px.
+ */
+@media (-moz-mac-yosemite-theme) {
+  .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
+  .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
+    margin-top: 5px;
+    margin-bottom: 4px;
+  }
+}
+
 /* ::::::::: Global override :::::::::: */
 
 treechildren::-moz-tree-twisty {
