@@ -275,10 +275,6 @@ endif
 endif # MOZ_PROFILE_USE
 endif # NO_PROFILE_GUIDED_OPTIMIZE
 
-ifdef _MSC_VER
-OS_LDFLAGS += $(DELAYLOAD_LDFLAGS)
-endif # _MSC_VER
-
 # Does the makefile specifies the internal XPCOM API linkage?
 ifneq (,$(MOZILLA_INTERNAL_API)$(LIBXUL_LIBRARY))
 DEFINES += -DMOZILLA_INTERNAL_API
@@ -675,24 +671,6 @@ ifdef SYMBOL_ORDER
 EXPAND_MKSHLIB_ARGS += --symbol-order $(SYMBOL_ORDER)
 endif
 EXPAND_MKSHLIB = $(EXPAND_LIBS_EXEC) $(EXPAND_MKSHLIB_ARGS) -- $(MKSHLIB)
-
-# EXPAND_LIBNAME - $(call EXPAND_LIBNAME,foo)
-# expands to $(LIB_PREFIX)foo.$(LIB_SUFFIX) or -lfoo, depending on linker
-# arguments syntax. Should only be used for system libraries
-
-# EXPAND_LIBNAME_PATH - $(call EXPAND_LIBNAME_PATH,foo,dir)
-# expands to dir/$(LIB_PREFIX)foo.$(LIB_SUFFIX)
-
-# EXPAND_MOZLIBNAME - $(call EXPAND_MOZLIBNAME,foo)
-# expands to $(DIST)/lib/$(LIB_PREFIX)foo.$(LIB_SUFFIX)
-
-ifdef GNU_CC
-EXPAND_LIBNAME = $(addprefix -l,$(1))
-else
-EXPAND_LIBNAME = $(foreach lib,$(1),$(LIB_PREFIX)$(lib).$(LIB_SUFFIX))
-endif
-EXPAND_LIBNAME_PATH = $(foreach lib,$(1),$(2)/$(LIB_PREFIX)$(lib).$(LIB_SUFFIX))
-EXPAND_MOZLIBNAME = $(foreach lib,$(1),$(DIST)/lib/$(LIB_PREFIX)$(lib).$(LIB_SUFFIX))
 
 # Include internal ply only if needed
 ifndef MOZ_SYSTEM_PLY
