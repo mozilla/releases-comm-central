@@ -397,7 +397,6 @@
 @BINPATH@/components/SiteSpecificUserAgent.manifest
 @BINPATH@/components/Webapps.js
 @BINPATH@/components/Webapps.manifest
-@BINPATH@/components/browser-element.xpt
 @BINPATH@/components/commandlines.xpt
 @BINPATH@/components/chrome.xpt
 @BINPATH@/components/cryptoComponents.manifest
