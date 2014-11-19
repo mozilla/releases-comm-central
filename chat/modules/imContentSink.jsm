@@ -102,7 +102,7 @@ const kStandardMode = {
   styles: {
     'font-style': true,
     'font-weight': true,
-    '-moz-text-decoration-line': true
+    'text-decoration-line': true
   }
 };
 
@@ -150,9 +150,9 @@ const kPermissiveMode = {
     'font-size': true,
     'font-style': true,
     'font-weight': true,
-    '-moz-text-decoration-color': true,
-    '-moz-text-decoration-style': true,
-    '-moz-text-decoration-line': true
+    'text-decoration-color': true,
+    'text-decoration-style': true,
+    'text-decoration-line': true
   }
 };
 

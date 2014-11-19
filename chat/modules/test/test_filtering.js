@@ -148,8 +148,8 @@ function test_standardMode() {
     let string = "<span style=\"" + css + "\">foo</span>";
     do_check_eq(string, cleanupImMarkup(string));
   }
-  // text-decoration is a shorthand for several -moz-text-decoration properties.
-  do_check_eq("<span style=\"-moz-text-decoration-line: underline;\">foo</span>",
+  // text-decoration is a shorthand for several text-decoration properties.
+  do_check_eq("<span style=\"text-decoration-line: underline;\">foo</span>",
               cleanupImMarkup("<span style=\"text-decoration: underline\">foo</span>"));
 
   const badCSS = [
