@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/RemoteDebuggerServer.jsm");
+Components.utils.import("resource:///modules/RemoteDebuggerServer.jsm");
 
 /**
  * Handler to call when the checked state of the menuitem is toggled. Sets the
@@ -14,7 +14,7 @@ function toggleDebugger() {
   Services.prefs.setBoolPref("devtools.debugger.remote-enabled", shouldEnable);
 
   RemoteDebuggerServer.extraInit = function(DebuggerServer) {
-    DebuggerServer.registerModule("resource://gre/modules/XULRootActor.js");
+    DebuggerServer.registerModule("resource:///modules/XULRootActor.js");
   };
   RemoteDebuggerServer.startstop(shouldEnable);
 }

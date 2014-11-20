@@ -8,7 +8,7 @@ const RELATIVE_ROOT = "../shared-modules";
 const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 Cu.import("resource:///modules/mailServices.js");
-Cu.import("resource:///modules/Services.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
 
 const ABMDB_PREFIX = "moz-abmdbdirectory://";
 const ABLDAP_PREFIX = "moz-abldapdirectory://";

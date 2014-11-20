@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 Components.utils.import("resource:///modules/ArrayBufferUtils.jsm");
-Components.utils.import("resource:///modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/yahoo-session.jsm");
 let yahoo = {};
 Services.scriptloader.loadSubScript("resource:///modules/yahoo-session.jsm", yahoo);

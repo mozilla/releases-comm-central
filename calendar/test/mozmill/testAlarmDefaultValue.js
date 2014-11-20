@@ -8,7 +8,7 @@
  */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
-Components.utils.import("resource:///modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var MODULE_NAME = "testAlarmDefaultValue";

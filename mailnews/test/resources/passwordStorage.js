@@ -1,7 +1,7 @@
 if (typeof gDEPTH == "undefined")
   do_throw("gDEPTH must be defined when using passwordStorage.js");
 
-Components.utils.import("resource:///modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Use the given storage database as the current signon database.

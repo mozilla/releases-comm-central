@@ -17,7 +17,7 @@
 // Globals
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/JXON.js");
+Components.utils.import("resource:///modules/JXON.js");
 
 var DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1");
 

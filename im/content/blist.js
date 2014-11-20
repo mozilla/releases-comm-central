@@ -5,7 +5,7 @@
 const Cu = Components.utils;
 
 Cu.import("resource:///modules/imStatusUtils.jsm");
-Cu.import("resource:///modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 const events = ["buddy-authorization-request",
