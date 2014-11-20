@@ -228,6 +228,7 @@ var gComposeRecyclingListener = {
     //Reset editor
     EditorResetFontAndColorAttributes();
     EditorCleanup();
+    gAttachmentNotifier.redetectKeywords();
 
     //Release the nsIMsgComposeParams object
     if (window.arguments && window.arguments[0])
@@ -1846,10 +1847,10 @@ function handleEsc()
  * again if keywords change (if no attachments and no manual reminder).
  *
  * @param aForce  If set to true, notification will be shown immediately if
- *                there are any keywords. If set to true, it is shown only when
+ *                there are any keywords. If set to false, it is shown only when
  *                they have changed.
  */
-function manageAttachmentNotification(aForce)
+function manageAttachmentNotification(aForce = false)
 {
   let keywords;
   let keywordsCount = 0;
@@ -1871,7 +1872,7 @@ function manageAttachmentNotification(aForce)
       // We don't know keywords, so get them first.
       // If aForce was true, and some keywords are found, we get to run again from
       // attachmentWorker.onmessage().
-      redetectKeywords(aForce);
+      gAttachmentNotifier.redetectKeywords(aForce);
       return;
     }
   }
@@ -1993,108 +1994,6 @@ attachmentWorker.onmessage = function(event, aManage = true)
   if (aManage)
     manageAttachmentNotification(true);
 };
-
-/**
- * Checks for new keywords synchronously and run the usual handler.
- *
- * @param aManage  Determines whether to manage the notification according to keywords found.
- */
-function redetectKeywords(aManage) {
-  attachmentWorker.onmessage({ data: CheckForAttachmentKeywords(false) }, aManage);
-}
-
-/**
- * Check if there are any keywords in the message.
- *
- * @param async  Whether we should run the regex checker asynchronously or not.
- *
- * @return  If async is true, attachmentWorker.message is called with the array
- *          of found keywords and this function returns null.
- *          If it is false, the array is returned from this function immediately.
- */
-function CheckForAttachmentKeywords(async)
-{
-  let warn = getPref("mail.compose.attachment_reminder");
-  if (warn) {
-    if (attachmentNotificationSupressed()) {
-      // If we know we don't need to show the notification,
-      // we can skip the expensive checking of keywords in the message.
-      // but mark it in the .lastMessage that the keywords are unknown.
-      attachmentWorker.lastMessage = null;
-      return false;
-    }
-
-    let keywordsInCsv = Services.prefs.getComplexValue(
-      "mail.compose.attachment_reminder_keywords",
-      Components.interfaces.nsIPrefLocalizedString).data;
-    let mailBody = document.getElementById("content-frame")
-                           .contentDocument.querySelector("body");
-    let mailBodyNode = mailBody.cloneNode(true);
-
-    // Don't check quoted text from reply.
-    let blockquotes = mailBodyNode.getElementsByTagName("blockquote");
-    for (let i = blockquotes.length - 1; i >= 0; i--) {
-      blockquotes[i].remove();
-    }
-
-    // For plaintext composition the quotes we need to find and exclude are
-    // <span _moz_quote="true">.
-    let spans = mailBodyNode.querySelectorAll("span[_moz_quote]");
-    for (let i = spans.length - 1; i >= 0; i--) {
-      spans[i].remove();
-    }
-
-    // Ignore signature (html compose mode).
-    let sigs = mailBodyNode.getElementsByClassName("moz-signature");
-    for (let i = sigs.length - 1; i >= 0; i--) {
-      sigs[i].remove();
-    }
-
-    // Replace brs with line breaks so node.textContent won't pull foo<br>bar
-    // together to foobar.
-    let brs = mailBodyNode.getElementsByTagName("br");
-    for (let i = brs.length - 1; i >= 0; i--) {
-      brs[i].parentNode.replaceChild(mailBodyNode.ownerDocument.createTextNode("\n"), brs[i]);
-    }
-
-    // Ignore signature (plain text compose mode).
-    let mailData = mailBodyNode.textContent;
-    let sigIndex = mailData.indexOf("-- \n");
-    if (sigIndex > 0)
-      mailData = mailData.substring(0, sigIndex);
-
-    // Ignore replied messages (plain text and html compose mode).
-    let repText = getComposeBundle().getString("mailnews.reply_header_originalmessage");
-    let repIndex = mailData.indexOf(repText);
-    if (repIndex > 0)
-      mailData = mailData.substring(0, repIndex);
-
-    // Ignore forwarded messages (plain text and html compose mode).
-    let fwdText = getComposeBundle().getString("mailnews.forward_header_originalmessage");
-    let fwdIndex = mailData.indexOf(fwdText);
-    if (fwdIndex > 0)
-      mailData = mailData.substring(0, fwdIndex);
-
-    // Prepend the subject to see if the subject contains any attachment
-    // keywords too, after making sure that the subject has changed.
-    let subject = GetMsgSubjectElement().value;
-    if (subject && (gSubjectChanged ||
-       (gEditingDraft &&
-         (gComposeType == nsIMsgCompType.New ||
-         gComposeType == nsIMsgCompType.NewsPost ||
-         gComposeType == nsIMsgCompType.Draft ||
-         gComposeType == nsIMsgCompType.Template ||
-         gComposeType == nsIMsgCompType.MailToUrl))))
-      mailData = subject + " " + mailData;
-
-    if (!async)
-      return GetAttachmentKeywords(mailData, keywordsInCsv);
-
-    attachmentWorker.postMessage([mailData, keywordsInCsv]);
-    return null;
-  }
-  return false;
-}
 
 /**
  * Called when number of attachments changes.
@@ -4614,13 +4513,22 @@ function AutoSave()
   gAutoSaveTimeout = setTimeout(AutoSave, gAutoSaveInterval);
 }
 
+/**
+ * Periodically check for keywords in the message.
+ */
 const gAttachmentNotifier =
 {
   _obs: null,
 
+  enabled: false,
+
   init: function gAN_init(aDocument) {
     if (this._obs)
       this.shutdown();
+
+    this.enabled = getPref("mail.compose.attachment_reminder");
+    if (!this.enabled)
+      return;
 
     this._obs = new MutationObserver(function gAN_handleMutations(aMutations) {
       gAttachmentNotifier.timer.cancel();
@@ -4641,20 +4549,124 @@ const gAttachmentNotifier =
       this.subjectObserver, true);
   },
 
-  shutdown: function gAN_shutdown() {
-    if (this._obs)
-      this._obs.disconnect();
-    gAttachmentNotifier.timer.cancel();
-
-    this._obs = null;
-  },
-
   // Timer based function triggered by the inputEventListener
   // for the subject field.
   subjectObserver: function handleEvent() {
     gAttachmentNotifier.timer.cancel();
     gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
                                                Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+  },
+
+  /**
+   * Checks for new keywords synchronously and run the usual handler.
+   *
+   * @param aManage  Determines whether to manage the notification according to keywords found.
+   */
+  redetectKeywords: function(aManage) {
+    if (!this.enabled)
+      return;
+
+    attachmentWorker.onmessage({ data: this._checkForAttachmentKeywords(false) }, aManage);
+  },
+
+  /**
+   * Check if there are any keywords in the message.
+   *
+   * @param async  Whether we should run the regex checker asynchronously or not.
+   *
+   * @return  If async is true, attachmentWorker.message is called with the array
+   *          of found keywords and this function returns null.
+   *          If it is false, the array is returned from this function immediately.
+   */
+  _checkForAttachmentKeywords: function(async)
+  {
+    if (!this.enabled)
+      return (async ? null : []);
+
+    if (attachmentNotificationSupressed()) {
+      // If we know we don't need to show the notification,
+      // we can skip the expensive checking of keywords in the message.
+      // but mark it in the .lastMessage that the keywords are unknown.
+      attachmentWorker.lastMessage = null;
+      return (async ? null : []);
+    }
+
+    let keywordsInCsv = Services.prefs.getComplexValue(
+      "mail.compose.attachment_reminder_keywords",
+      Components.interfaces.nsIPrefLocalizedString).data;
+    let mailBody = document.getElementById("content-frame")
+                           .contentDocument.querySelector("body");
+    let mailBodyNode = mailBody.cloneNode(true);
+
+    // Don't check quoted text from reply.
+    let blockquotes = mailBodyNode.getElementsByTagName("blockquote");
+    for (let i = blockquotes.length - 1; i >= 0; i--) {
+      blockquotes[i].remove();
+    }
+
+    // For plaintext composition the quotes we need to find and exclude are
+    // <span _moz_quote="true">.
+    let spans = mailBodyNode.querySelectorAll("span[_moz_quote]");
+    for (let i = spans.length - 1; i >= 0; i--) {
+      spans[i].remove();
+    }
+
+    // Ignore signature (html compose mode).
+    let sigs = mailBodyNode.getElementsByClassName("moz-signature");
+    for (let i = sigs.length - 1; i >= 0; i--) {
+      sigs[i].remove();
+    }
+
+    // Replace brs with line breaks so node.textContent won't pull foo<br>bar
+    // together to foobar.
+    let brs = mailBodyNode.getElementsByTagName("br");
+    for (let i = brs.length - 1; i >= 0; i--) {
+      brs[i].parentNode.replaceChild(mailBodyNode.ownerDocument.createTextNode("\n"), brs[i]);
+    }
+
+    // Ignore signature (plain text compose mode).
+    let mailData = mailBodyNode.textContent;
+    let sigIndex = mailData.indexOf("-- \n");
+    if (sigIndex > 0)
+      mailData = mailData.substring(0, sigIndex);
+
+    // Ignore replied messages (plain text and html compose mode).
+    let repText = getComposeBundle().getString("mailnews.reply_header_originalmessage");
+    let repIndex = mailData.indexOf(repText);
+    if (repIndex > 0)
+      mailData = mailData.substring(0, repIndex);
+
+    // Ignore forwarded messages (plain text and html compose mode).
+    let fwdText = getComposeBundle().getString("mailnews.forward_header_originalmessage");
+    let fwdIndex = mailData.indexOf(fwdText);
+    if (fwdIndex > 0)
+      mailData = mailData.substring(0, fwdIndex);
+
+    // Prepend the subject to see if the subject contains any attachment
+    // keywords too, after making sure that the subject has changed.
+    let subject = GetMsgSubjectElement().value;
+    if (subject && (gSubjectChanged ||
+       (gEditingDraft &&
+         (gComposeType == nsIMsgCompType.New ||
+         gComposeType == nsIMsgCompType.NewsPost ||
+         gComposeType == nsIMsgCompType.Draft ||
+         gComposeType == nsIMsgCompType.Template ||
+         gComposeType == nsIMsgCompType.MailToUrl))))
+      mailData = subject + " " + mailData;
+
+    if (!async)
+      return GetAttachmentKeywords(mailData, keywordsInCsv);
+
+    attachmentWorker.postMessage([mailData, keywordsInCsv]);
+    return null;
+  },
+
+  shutdown: function gAN_shutdown() {
+    if (this._obs)
+      this._obs.disconnect();
+    gAttachmentNotifier.timer.cancel();
+
+    this._obs = null;
   },
 
   event: {
@@ -4665,7 +4677,7 @@ const gAttachmentNotifier =
       if (gMsgCompose) {
         // This runs the attachmentWorker asynchronously so if keywords are found
         // manageAttachmentNotification is run from attachmentWorker.onmessage.
-        CheckForAttachmentKeywords(true);
+        gAttachmentNotifier._checkForAttachmentKeywords(true);
       }
     }
   },

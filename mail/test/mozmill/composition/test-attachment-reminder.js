@@ -22,16 +22,19 @@ Cu.import("resource:///modules/mailServices.js");
 
 const kBoxId = "attachmentNotificationBox";
 const kNotificationId = "attachmentReminder";
+const kReminderPref = "mail.compose.attachment_reminder";
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
-};
+
+  assert_true(Services.prefs.getBoolPref(kReminderPref));
+}
 
 function setupComposeWin(aCwc, toAddr, subj, body) {
-  aCwc.type(null, toAddr);
-  aCwc.type(aCwc.eid("msgSubject"), subj)
+  aCwc.type(aCwc.eid("addressCol2#1"), toAddr);
+  aCwc.type(aCwc.eid("msgSubject"), subj);
   aCwc.type(aCwc.eid("content-frame"), body);
 }
 
@@ -100,6 +103,7 @@ function get_reminder_keywords(aCwc) {
   let notification = nBox.getNotificationWithValue(kNotificationId);
   return notification.querySelector("#attachmentKeywords").getAttribute("value");
 }
+
 
 /**
  * Test that the attachment reminder works, in general.
@@ -405,10 +409,10 @@ function test_manual_automatic_attachment_reminder_interaction() {
  * Assert if there is any notification in the compose window.
  *
  * @param aCwc         Compose Window Controller
- * @param aValue       True if notification should exist
+ * @param aValue       True if notification should exist.
  *                     False otherwise.
  */
-function assert_no_notification(aCwc, aValue)
+function assert_any_notification(aCwc, aValue)
 {
   let notification = aCwc.e(kBoxId).currentNotification;
   if ((notification == null) == aValue)
@@ -427,7 +431,7 @@ function test_attachment_vs_filelink_reminder() {
                   "There is no body. I hope you don't mind!");
 
   // There should be no notification yet.
-  assert_no_notification(cwc, false);
+  assert_any_notification(cwc, false);
 
   // Bring up the FileLink notification.
   let kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
@@ -503,6 +507,84 @@ function test_attachment_reminder_in_subject_and_body() {
 
   close_compose_window(cwc);
 }
+
+/**
+ * Bug 1099866
+ * Test proper behaviour of attachment reminder when keyword reminding
+ * is turned off.
+ */
+function test_disabled_attachment_reminder() {
+
+  Services.prefs.setBoolPref(kReminderPref, false);
+
+  // Open a sample message with no attachment keywords.
+  let cwc = open_compose_new_mail();
+  setupComposeWin(cwc, "test@example.invalid", "Testing disabled keyword reminder!",
+                  "Some body...");
+
+  // This one should have the manual reminder disabled.
+  assert_manual_reminder_state(cwc, false);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add some keyword so the automatic notification
+  // could potentially show up.
+  setupComposeWin(cwc, "", "", " and look for your attachment!");
+  // Give the notification time to appear. It shouldn't.
+  wait_for_reminder_state(cwc, false);
+
+  // Enable the manual reminder.
+  click_manual_reminder(cwc, true);
+  assert_automatic_reminder_state(cwc, false);
+
+  // Disable the manual reminder and the notification should still be hidden
+  // even when there are still keywords in the body.
+  click_manual_reminder(cwc, false);
+  assert_automatic_reminder_state(cwc, false);
+
+  // There should be no attachment message upon send.
+  click_send_and_handle_send_error(cwc);
+
+  close_compose_window(cwc);
+
+  Services.prefs.setBoolPref(kReminderPref, true);
+}
+
+/**
+ * Bug 1099866
+ * Check if reminder does not stay open on compose window reopen
+ * due to window recycling.
+ */
+function test_recycling_attachment_reminder() {
+  let recycledWindows = Services.prefs.getIntPref("mail.compose.max_recycled_windows");
+  assert_true(recycledWindows > 0);
+  // Open a sample message with no attachment keywords.
+  let cwc = open_compose_new_mail();
+  setupComposeWin(cwc, "test@example.invalid", "Testing recycling a reminder!",
+                  "Some body...");
+
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add some keyword so the automatic notification
+  // could potentially show up.
+  setupComposeWin(cwc, "", "", " and look for your attachment!");
+  // Give the notification time to appear. It should.
+  wait_for_reminder_state(cwc, true);
+
+  close_compose_window(cwc, true);
+
+  // Another compose window without any keywords.
+  cwc = open_compose_new_mail();
+  setupComposeWin(cwc, "test@example.invalid", "Testing reminder after recycling!",
+                  "Some body...");
+
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  close_compose_window(cwc);
+}
+
 
 /**
  * Click the send button and handle the send error dialog popping up.
