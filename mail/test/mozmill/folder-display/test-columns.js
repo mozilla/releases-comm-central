@@ -29,6 +29,8 @@ var glodaColumns;
 // these are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1, folderChild2;
 
+var gColumnStateUpdated = false;
+
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');
   fdh.installInto(module);
@@ -465,6 +467,20 @@ function FakeCollection() {
   this.items = [];
 }
 
+function plan_for_columns_state_update() {
+  gColumnStateUpdated = false;
+}
+
+function wait_for_columns_state_updated() {
+  const STATE_PREF = "mailnews.database.global.views.global";
+  let columns_state_updated = function() {
+    gColumnStateUpdated = true;
+  }
+  Services.prefs.addObserver(STATE_PREF, columns_state_updated, false);
+  mc.waitFor(() => gColumnStateUpdated, "Timeout waiting for columns state updated.");
+  Services.prefs.removeObserver(STATE_PREF, columns_state_updated);
+}
+
 function test_column_defaults_gloda_collection() {
   let fakeCollection = new FakeCollection();
   mc.tabmail.openTab("glodaList", { collection: fakeCollection });
@@ -476,8 +492,14 @@ function test_persist_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
   mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
+
+  plan_for_columns_state_update();
   hide_column("locationCol");
+  wait_for_columns_state_updated();
+
+  plan_for_columns_state_update();
   show_column("accountCol");
+  wait_for_columns_state_updated();
 
   glodaColumns = GLODA_DEFAULTS.slice(0, -1);
   glodaColumns.push("accountCol");
