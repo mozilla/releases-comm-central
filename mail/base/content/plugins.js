@@ -494,18 +494,17 @@ var gPluginHandler = {
   // Crashed-plugin event listener. Called for every instance of a
   // plugin in content.
   pluginInstanceCrashed: function (plugin, aEvent) {
-    // Ensure the plugin and event are of the right type.
-    if (!(aEvent instanceof Components.interfaces.nsIDOMCustomEvent))
+    if (!(aEvent instanceof PluginCrashedEvent))
       return;
 
-    let propBag = aEvent.detail.QueryInterface(Components.interfaces.nsIPropertyBag2);
-    let submittedReport = propBag.getPropertyAsBool("submittedCrashReport");
-    let doPrompt = true; // XXX followup for .getData("doPrompt");
-    let submitReports = true; // XXX followup for .getData("submitReports");
-    let pluginName = propBag.getPropertyAsAString("pluginName");
-    let pluginFilename = propBag.getPropertyAsAString("pluginFilename");
-    let pluginDumpID = propBag.getPropertyAsAString("pluginDumpID");
-    let browserDumpID = propBag.getPropertyAsAString("browserDumpID");
+    let submittedReport = aEvent.submittedCrashReport;
+    let doPrompt        = true; // XXX followup for aEvent.doPrompt;
+    let submitReports   = true; // XXX followup for aEvent.submitReports;
+    let pluginName      = aEvent.pluginName;
+    let pluginFilename  = aEvent.pluginFilename;
+    let pluginDumpID    = aEvent.pluginDumpID;
+    let browserDumpID   = aEvent.browserDumpID;
+
     let messengerBundle = document.getElementById("bundle_messenger");
     let tabmail = document.getElementById('tabmail');
 
