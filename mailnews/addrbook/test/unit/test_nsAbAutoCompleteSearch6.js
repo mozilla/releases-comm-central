@@ -59,6 +59,24 @@ const cards = [
   { // 10
     email: "10@example.com", displayName: "däsh l18n",
     popularityIndex: 0, value: "däsh l18n <10@example.com>"
+  },
+
+  { // 11
+    email: "11@example.com", displayName: "paul mary",
+    popularityIndex: 0, firstName: "paul", lastName: "mary meyer",
+    value: "paul mary <11@example.com>"
+  },
+
+  { // 12
+    email: "12@example.com", displayName: "paul meyer",
+    popularityIndex: 0, firstName: "paul", lastName: "mary meyer",
+    value: "paul meyer <12@example.com>"
+  },
+
+  { // 13
+    email: "13@example.com", displayName: "mr iron man (exp dev)",
+    popularityIndex: 0, firstName: "iron", lastName: "man",
+    value: "mr iron man (exp dev) <13@example.com>"
   }
 ];
 
@@ -70,7 +88,10 @@ const inputs = [
   { search: "xx", expected: [0, 5] },
   { search: "jan", expected: [1, 3] },
   { search: "sh", expected: [2, 10, 7] },
-  { search: "st", expected: [3,8] }
+  { search: "st", expected: [3,8] },
+  { search: "paul mary", expected: [11, 12] },
+  { search: "\"paul mary\"", expected: [11] },
+  { search: "\"iron man\" mr \"exp dev\"", expected: [13] }
 ];
 
 function acObserver() {}
@@ -103,6 +124,7 @@ function run_test()
     card.displayName = element.displayName;
     card.setProperty("PopularityIndex", element.popularityIndex);
     card.firstName = element.firstName;
+    card.lastName = element.lastName;
 
     ab.addCard(card);
   }

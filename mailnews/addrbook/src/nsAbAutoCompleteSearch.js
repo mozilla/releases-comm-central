@@ -334,8 +334,9 @@ nsAbAutoCompleteSearch.prototype = {
     }
 
     // Array of all the terms from the fullString search query
-    // (separated on the basis of spaces).
-    let searchWords = fullString.split(/\s+/);
+    // (separated on the basis of spaces or exact terms on the
+    // basis of quotes).
+    let searchWords = getSearchTokens(fullString);
 
     // Find out about the comment column
     try {
@@ -371,14 +372,14 @@ nsAbAutoCompleteSearch.prototype = {
       // for each word separately so that each result contains all the words
       // from the fullstring in the fields of the addressbook card
       // (see bug 558931 for explanations).
-      let searchQuery = "";
       let modelQuery = "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)" +
                        "(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)" +
                        "(and(IsMailList,=,TRUE)(Notes,c,@V)))";
-      for (let searchWord of searchWords) {
-        searchQuery += modelQuery.replace(/@V/g, encodeABTermValue(searchWord));
-      }
-      searchQuery = "?(and" + searchQuery + ")";
+      // Use helper method to split up search query to multi-word search
+      // query against multiple fields.
+      let searchWords = getSearchTokens(fullString);
+      let searchQuery = generateQueryURI(modelQuery, searchWords);
+
       // Now do the searching
       let allABs = this._abManager.directories;
 
@@ -432,6 +433,75 @@ nsAbAutoCompleteSearch.prototype = {
  */
 function encodeABTermValue(aString) {
   return encodeURIComponent(aString).replace(/\(/g, "%28").replace(/\)/g, "%29");
+}
+
+/**
+ * This is an exact replica of the method in abCommon.js and needs to
+ * be merged to remove this duplication.
+ *
+ * Parse the multiword search string to extract individual search terms
+ * (separated on the basis of spaces) or quoted exact phrases to search
+ * against multiple fields of the addressbook cards.
+ *
+ * @param aSearchString The full search string entered by the user.
+ *
+ * @return  an array of separated search terms from the full search string.
+ */
+function getSearchTokens(aSearchString)
+{
+  let searchString = aSearchString.trim();
+
+  if (searchString == "")
+    return [];
+
+  let quotedTerms = [];
+
+  // Split up multiple search words to create a *foo* and *bar* search against
+  // search fields, using the OR-search template from modelQuery for each word.
+  // If the search query has quoted terms as "foo bar", extract them as is.
+  let startIndex;
+  while ((startIndex = searchString.indexOf('"')) != -1) {
+    let endIndex = searchString.indexOf('"', startIndex + 1);
+    if (endIndex == -1)
+      endIndex = searchString.length;
+
+    quotedTerms.push(searchString.substring(startIndex + 1, endIndex));
+    let query = searchString.substring(0, startIndex);
+    if (endIndex < searchString.length)
+      query += searchString.substr(endIndex + 1);
+
+    searchString = query.trim();
+  }
+
+  let searchWords = [];
+  if (searchString.length != 0) {
+    searchWords = quotedTerms.concat(searchString.split(/\s+/));
+  } else {
+    searchWords = quotedTerms;
+  }
+
+  return searchWords;
+}
+
+/*
+ * Given a database model query and a list of search tokens,
+ * return query URI.
+ *
+ * @param aModelQuery database model query
+ * @param aSearchWords an array of search tokens.
+ *
+ * @return query URI.
+ */
+function generateQueryURI(aModelQuery, aSearchWords)
+{
+  let queryURI = "";
+  aSearchWords.forEach(searchWord =>
+    queryURI += aModelQuery.replace(/@V/g, encodeABTermValue(searchWord)));
+
+  // queryURI has all the (or(...)) searches, link them up with (and(...)).
+  queryURI = "?(and" + queryURI + ")";
+
+  return queryURI;
 }
 
 // Module
