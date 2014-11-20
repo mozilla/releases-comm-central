@@ -35,8 +35,10 @@ const kSizeLimit = 0x100000000; // 4GiB
 const kNearLimit = kSizeLimit - 0x1000000; // -16MiB
 
 var gGotAlert = false;
-var gInboxFile = null;
-var gInboxSize = 0;
+var gInboxFile = null;         // The mbox file storing the Inbox folder
+var gInboxSize = 0;            // The size of the Inbox folder
+var gInbox;                    // The nsIMsgFolder object of the Inbox folder in Local Folders
+var gExpectedNewMessages = 0;  // The number of messages pushed manually into the mbox file
 
 // This alert() is triggered when file size becomes close (enough) to or
 // exceeds 4 GiB.
@@ -47,23 +49,59 @@ function alert(aDialogTitle, aText) {
   gGotAlert = true;
 }
 
+// A stub nsIMsgFolderListener that only listens to changes on Inbox and stores
+// the seen values for interesting folder properties so we can later test them.
+var FListener = {
+  folderSize: [-1], // an array of seen values of "FolderSize"
+  totalMsgs: [-1],  // an array of seen values of "TotalMessages"
+
+  // Returns the value that is stored 'aBack' entries from the last one in the history.
+  sizeHistory: function (aBack) {
+    return this.folderSize[this.folderSize.length - 1 - aBack];
+  },
+  msgsHistory: function (aBack) {
+    return this.totalMsgs[this.totalMsgs.length - 1 - aBack];
+  },
+
+  OnItemAdded: function act_add(aRDFParentItem, aItem) {},
+  OnItemRemoved: function act_remove(aRDFParentItem, aItem) {},
+  OnItemPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
+  OnItemIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
+    if (aItem.prettyName == "Inbox") {
+      dump("Property change on folder Inbox:" + aProperty + "=" + aOld + "->" + aNew + "\n");
+      if (aProperty == "FolderSize")
+        this.folderSize.push(aNew);
+      else if (aProperty == "TotalMessages")
+        this.totalMsgs.push(aNew);
+    }
+  },
+  OnItemBoolPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
+  OnItemUnicharPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
+  OnItemPropertyFlagChanged: function(aItem, aProperty, aOld, aNew) {},
+  OnItemEvent: function(aFolder, aEvent) {},
+};
+
 /**
  * Grow local inbox folder to the wanted size using direct appending
  * to the underlying file. The folder is filled with copies of a dummy
  * message with kSparseBlockSize bytes in size.
  * The file is marked as sparse in the filesystem so that it does not
  * really take 4GiB and working with it is faster.
+ *
+ * @return  The number of messages created in the folder file.
  */
 function growInbox(aWantedSize) {
+  let msgsAdded = 0;
   // Put a single message in the Inbox.
   let messageGenerator = new MessageGenerator();
   let message = messageGenerator.makeMessage();
 
   // Refresh 'gInboxFile'.
-  gInboxFile = localAccountUtils.inboxFolder.filePath;
+  gInboxFile = gInbox.filePath;
+  let localSize = 0;
 
   let mboxString = message.toMboxString();
-  let plugStore = localAccountUtils.inboxFolder.msgStore;
+  let plugStore = gInbox.msgStore;
   // Grow local inbox to our wished size that is below the max limit.
   do {
     let nextOffset = gInboxFile.fileSize +
@@ -73,8 +111,7 @@ function growInbox(aWantedSize) {
     // Get stream to write a new message.
     let reusable = new Object;
     let newMsgHdr = new Object;
-    let outputStream = plugStore.getNewMsgOutputStream(localAccountUtils.inboxFolder,
-                                                       newMsgHdr, reusable)
+    let outputStream = plugStore.getNewMsgOutputStream(gInbox, newMsgHdr, reusable)
                                 .QueryInterface(Ci.nsISeekableStream);
     // Write message header.
     outputStream.write(mboxString, mboxString.length);
@@ -90,14 +127,18 @@ function growInbox(aWantedSize) {
     outputStream.write("\r\n", 2);
     outputStream.close();
     plugStore.finishNewMessage(outputStream, newMsgHdr);
+    msgsAdded++;
 
     // Refresh 'gInboxFile'.
-    gInboxFile = localAccountUtils.inboxFolder.filePath;
+    gInboxFile = gInbox.filePath;
+    localSize = gInboxFile.fileSize;
   }
-  while (gInboxFile.fileSize < aWantedSize);
+  while (localSize < aWantedSize);
 
-  do_print("Local inbox size = " + gInboxFile.fileSize + "bytes = " +
-           gInboxFile.fileSize / 1024 / 1024 + "MiB");
+  do_print("Local inbox size = " + localSize + "bytes = " +
+           mailTestUtils.toMiBString(localSize));
+  do_check_eq(localSize, aWantedSize);
+  return msgsAdded;
 }
 
 function run_test()
@@ -108,7 +149,8 @@ function run_test()
   // all the operations.
   do_test_pending();
 
-  gInboxFile = localAccountUtils.inboxFolder.filePath;
+  gInbox = localAccountUtils.inboxFolder;
+  gInboxFile = gInbox.filePath;
 
   let neededFreeSpace = kSizeLimit + 0x10000000; // +256MiB
   // On Windows, check whether the drive is NTFS. If it is, mark the file as
@@ -134,16 +176,17 @@ function run_test()
     return;
   }
 
-  // Grow inbox to size near the max limit.
-  growInbox(kNearLimit);
+  MailServices.mailSession.AddFolderListener(FListener, Ci.nsIFolderListener.all);
+
+  // Grow inbox to a size near the max limit.
+  gExpectedNewMessages = growInbox(kNearLimit);
 
   // Force the db closed, so that getDatabaseWithReparse will notice
   // that it's out of date.
-  localAccountUtils.inboxFolder.msgDatabase.ForceClosed();
-  localAccountUtils.inboxFolder.msgDatabase = null;
+  gInbox.msgDatabase.ForceClosed();
+  gInbox.msgDatabase = null;
   try {
-    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener_run_test,
-                                                         gDummyMsgWindow);
+    gInbox.getDatabaseWithReparse(ParseListener_run_test, gDummyMsgWindow);
   } catch (ex) {
     do_check_eq(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }
@@ -179,6 +222,7 @@ function downloadOver4GiB()
   let localInboxSize = gInboxFile.fileSize;
   do_check_true(localInboxSize > kNearLimit);
   do_check_true(localInboxSize < kSizeLimit);
+  do_check_eq(gInbox.sizeOnDisk, localInboxSize);
   // The big file is between 1 and 2 MiB. Append it 16 times to attempt to cross the 4GiB limit.
   gPOP3Pump.files = ["../../../data/mime-torture", "../../../data/mime-torture",
                      "../../../data/mime-torture", "../../../data/mime-torture",
@@ -203,16 +247,15 @@ function growOver4GiB()
   gPOP3Pump = null;
 
   // Grow inbox to size greater than the max limit (+16 MiB).
-  growInbox(kSizeLimit + 0x1000000);
+  gExpectedNewMessages = growInbox(kSizeLimit + 0x1000000);
   do_check_true(gInboxFile.fileSize > kSizeLimit);
 
   // Force the db closed, so that getDatabaseWithReparse will notice
   // that it's out of date.
-  localAccountUtils.inboxFolder.msgDatabase.ForceClosed();
-  localAccountUtils.inboxFolder.msgDatabase = null;
+  gInbox.msgDatabase.ForceClosed();
+  gInbox.msgDatabase = null;
   try {
-    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener_growOver4GiB,
-                                                         gDummyMsgWindow);
+    gInbox.getDatabaseWithReparse(ParseListener_growOver4GiB, gDummyMsgWindow);
   } catch (ex) {
     do_check_eq(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }
@@ -240,7 +283,7 @@ function copyIntoOver4GiB()
   do_check_true(gGotAlert);
 
   // Make sure inbox file did not grow (i.e., no data were appended).
-  let newLocalInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
+  let newLocalInboxSize = gInbox.filePath.fileSize;
   do_print("Local inbox size (after copyFileMessageInLocalFolder()) = " +
            newLocalInboxSize);
   do_check_eq(newLocalInboxSize, localInboxSize);
@@ -251,11 +294,10 @@ function copyIntoOver4GiB()
 
   // Force the db closed, so that getDatabaseWithReparse will notice
   // that it's out of date.
-  localAccountUtils.inboxFolder.msgDatabase.ForceClosed();
-  localAccountUtils.inboxFolder.msgDatabase = null;
+  gInbox.msgDatabase.ForceClosed();
+  gInbox.msgDatabase = null;
   try {
-    localAccountUtils.inboxFolder.getDatabaseWithReparse(ParseListener_copyIntoOver4GiB,
-                                                         gDummyMsgWindow);
+    gInbox.getDatabaseWithReparse(ParseListener_copyIntoOver4GiB, gDummyMsgWindow);
   } catch (ex) {
     do_check_eq(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }
@@ -271,7 +313,7 @@ function compactOver4GiB()
   gInboxSize = gInboxFile.fileSize;
   do_check_true(gInboxSize > kSizeLimit);
   // Delete the last small message at folder end.
-  let msgDB = localAccountUtils.inboxFolder.msgDatabase;
+  let msgDB = gInbox.msgDatabase;
   let enumerator = msgDB.EnumerateMessages();
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   while (enumerator.hasMoreElements()) {
@@ -281,7 +323,7 @@ function compactOver4GiB()
       messages.appendElement(header, false);
     }
   }
-  localAccountUtils.inboxFolder.deleteMessages(messages, null, true, false, null, false);
+  gInbox.deleteMessages(messages, null, true, false, null, false);
 
   /* Unfortunately, the compaction now would kill the sparse markings in the file
    * so it will really take 4GiB of space in the filesystem and may be slow
@@ -291,11 +333,11 @@ function compactOver4GiB()
   if (Math.random() * 100 < 1) {
     // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
     // lines to message(s).
-    localAccountUtils.inboxFolder.compact(CompactListener_compactOver4GiB, null);
+    gInbox.compact(CompactListener_compactOver4GiB, null);
     // Execution continues in compactUnder4GiB() when done.
   } else {
     // Just continue directly without compacting yet.
-    dump("compactOver4GiB test skipped deliberately due to long expected run time. It will may be run in other test run with a 1 in 100 chance.");
+    dump("compactOver4GiB test skipped deliberately due to long expected run time. It will be run in other test run with a 1 in 100 chance.");
     compactUnder4GiB();
   }
 }
@@ -306,10 +348,23 @@ function compactOver4GiB()
  */
 function compactUnder4GiB()
 {
+  // The folder is still above 4GB.
   do_check_true(gInboxFile.fileSize > kSizeLimit);
+  let folderSize = gInbox.sizeOnDisk;
+  let totalMsgs = gInbox.getTotalMessages(false);
+  // Let's close the database and re-open the folder (hopefully dumping memory caches)
+  // and re-reading the values from disk (msg database). That is to test if
+  // the values were properly serialized to the database.
+  gInbox.ForceDBClosed();
+  gInbox.msgDatabase = null;
+  gInbox.getDatabaseWOReparse();
+
+  do_check_eq(gInbox.sizeOnDisk, folderSize);
+  do_check_eq(gInbox.getTotalMessages(false), totalMsgs);
+
   // Very first header in msgDB is retained,
   // then all other headers are marked as deleted.
-  let msgDB = localAccountUtils.inboxFolder.msgDatabase;
+  let msgDB = gInbox.msgDatabase;
   let enumerator = msgDB.EnumerateMessages();
   let firstHdr = true;
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -319,11 +374,11 @@ function compactUnder4GiB()
       messages.appendElement(header, false);
     firstHdr = false;
   }
-  localAccountUtils.inboxFolder.deleteMessages(messages, null, true, false, null, false);
+  gInbox.deleteMessages(messages, null, true, false, null, false);
 
   // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
   // lines to message(s).
-  localAccountUtils.inboxFolder.compact(CompactListener_compactUnder4GiB, null);
+  gInbox.compact(CompactListener_compactUnder4GiB, null);
   // Test ends after compaction is done.
 }
 
@@ -333,8 +388,14 @@ var ParseListener_run_test =
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: reparse successful
     do_check_eq(aExitCode, 0);
-    do_check_neq(localAccountUtils.inboxFolder.msgDatabase, null);
-    do_check_true(localAccountUtils.inboxFolder.msgDatabase.summaryValid);
+    do_check_neq(gInbox.msgDatabase, null);
+    do_check_true(gInbox.msgDatabase.summaryValid);
+    // Bug 813459
+    // Check if the OnItemIntPropertyChanged folder listener hook can return
+    // values below 2^32 for properties which are not 64 bits long.
+    do_check_eq(FListener.msgsHistory(0), gExpectedNewMessages);
+    do_check_eq(FListener.msgsHistory(0), gInbox.getTotalMessages(false));
+    do_check_eq(FListener.sizeHistory(0), gInbox.sizeOnDisk);
 
     downloadUnder4GiB();
   }
@@ -346,8 +407,18 @@ var ParseListener_growOver4GiB =
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: reparse successful
     do_check_eq(aExitCode, 0);
-    do_check_neq(localAccountUtils.inboxFolder.msgDatabase, null);
-    do_check_true(localAccountUtils.inboxFolder.msgDatabase.summaryValid);
+    do_check_neq(gInbox.msgDatabase, null);
+    do_check_true(gInbox.msgDatabase.summaryValid);
+    // Bug 789679
+    // Check if the public SizeOnDisk method can return sizes above 4GB.
+    do_check_true(gInbox.sizeOnDisk > kSizeLimit);
+    // Bug 813459
+    // Check if the OnItemIntPropertyChanged folder listener hook can return
+    // values above 2^32 for properties where it is relevant.
+    do_check_eq(FListener.sizeHistory(0), gInbox.sizeOnDisk);
+    do_check_true(FListener.sizeHistory(1) < FListener.sizeHistory(0));
+    do_check_eq(FListener.msgsHistory(0),
+                FListener.msgsHistory(1) + gExpectedNewMessages);
 
     copyIntoOver4GiB();
   }
@@ -359,8 +430,8 @@ var ParseListener_copyIntoOver4GiB =
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: reparse successful
     do_check_eq(aExitCode, 0);
-    do_check_neq(localAccountUtils.inboxFolder.msgDatabase, null);
-    do_check_true(localAccountUtils.inboxFolder.msgDatabase.summaryValid);
+    do_check_neq(gInbox.msgDatabase, null);
+    do_check_true(gInbox.msgDatabase.summaryValid);
 
     compactOver4GiB();
   }
@@ -372,13 +443,14 @@ var CompactListener_compactOver4GiB =
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: message successfully copied.
     do_check_eq(aExitCode, 0);
-    do_check_true(localAccountUtils.inboxFolder.msgDatabase.summaryValid);
+    do_check_true(gInbox.msgDatabase.summaryValid);
     // Check that folder size is still above max limit ...
-    let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
-    do_print("Local inbox size (after compact()) = " + localInboxSize);
+    let localInboxSize = gInbox.filePath.fileSize;
+    do_print("Local inbox size (after compact 1) = " + localInboxSize);
     do_check_true(localInboxSize > kSizeLimit);
     // ... but it got smaller by removing 1 message.
     do_check_true(gInboxSize > localInboxSize);
+    do_check_eq(gInbox.sizeOnDisk, localInboxSize);
 
     compactUnder4GiB();
   }
@@ -390,14 +462,17 @@ var CompactListener_compactUnder4GiB =
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: message successfully copied.
     do_check_eq(aExitCode, 0);
-    do_check_true(localAccountUtils.inboxFolder.msgDatabase.summaryValid);
+    do_check_true(gInbox.msgDatabase.summaryValid);
 
     // Check that folder size isn't much bigger than our sparse block size, ...
-    let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
-    do_print("Local inbox size (after compact()) = " + localInboxSize);
+    let localInboxSize = gInbox.filePath.fileSize;
+    do_print("Local inbox size (after compact 2) = " + localInboxSize);
+    do_check_eq(gInbox.sizeOnDisk, localInboxSize);
     do_check_true(localInboxSize < kSparseBlockSize + 1000);
     // ... i.e., that we just have one message.
-    do_check_eq(localAccountUtils.inboxFolder.getTotalMessages(false), 1);
+    do_check_eq(gInbox.getTotalMessages(false), 1);
+    do_check_eq(FListener.sizeHistory(0), gInbox.sizeOnDisk);
+    do_check_eq(FListener.msgsHistory(0), 1);
 
     endTest();
   }
@@ -405,9 +480,10 @@ var CompactListener_compactUnder4GiB =
 
 function endTest()
 {
+   MailServices.mailSession.RemoveFolderListener(FListener);
   // Free up disk space - if you want to look at the file after running
   // this test, comment out this line.
-  localAccountUtils.inboxFolder.filePath.remove(false);
+  gInbox.filePath.remove(false);
 
   do_test_finished();
 }

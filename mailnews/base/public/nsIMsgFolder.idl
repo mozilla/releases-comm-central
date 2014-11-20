@@ -29,7 +29,8 @@ typedef long nsMsgBiffState;
 
 // enumerated type for determining if a message has been replied to, forwarded, etc.
 typedef long nsMsgDispositionState;
-[scriptable, uuid(2e9227f3-5aaf-47c1-8103-411768287f8c)]
+
+[scriptable, uuid(9ce446f3-398c-4462-a4c6-0ce562d5bd30)]
 interface nsIMsgFolder : nsISupports {
 
   const nsMsgBiffState nsMsgBiffState_NewMail = 0; // User has new mail waiting.
@@ -293,7 +294,7 @@ interface nsIMsgFolder : nsISupports {
    * size of this folder on disk (not including .msf file)
    * for imap, it's the sum of the size of the messages
    */
-  attribute unsigned long sizeOnDisk;
+  attribute long long sizeOnDisk;
 
   readonly attribute ACString username;
   readonly attribute ACString hostname;

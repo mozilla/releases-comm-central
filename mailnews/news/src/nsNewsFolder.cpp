@@ -12,6 +12,7 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsNewsFolder.h"
 #include "nsMsgFolderFlags.h"
+#include "MailNewsTypes.h"
 #include "prprf.h"
 #include "prsystem.h"
 #include "nsIArray.h"
@@ -72,8 +73,6 @@ static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 #define NEWSRC_FILE_BUFFER_SIZE 1024
 
 #define kNewsSortOffset 9000
-
-#define kSizeUnknown 1
 
 #define NEWS_SCHEME "news:"
 #define SNEWS_SCHEME "snews:"
@@ -758,7 +757,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RefreshSizeOnDisk()
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(uint32_t *size)
+NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t *size)
 {
   NS_ENSURE_ARG_POINTER(size);
 

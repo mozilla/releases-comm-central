@@ -131,12 +131,12 @@ public:
 
   NS_IMETHOD GetFolderURL(nsACString& url) MOZ_OVERRIDE;
 
-  NS_IMETHOD  GetManyHeadersToDownload(bool *retval) MOZ_OVERRIDE;
+  NS_IMETHOD GetManyHeadersToDownload(bool *retval) MOZ_OVERRIDE;
 
   NS_IMETHOD GetDeletable (bool *deletable) MOZ_OVERRIDE;
-  NS_IMETHOD GetSizeOnDisk(uint32_t* size) MOZ_OVERRIDE;
+  NS_IMETHOD GetSizeOnDisk(int64_t *size) MOZ_OVERRIDE;
 
-  NS_IMETHOD  GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo, nsIMsgDatabase **db) MOZ_OVERRIDE;
+  NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo, nsIMsgDatabase **db) MOZ_OVERRIDE;
 
   NS_IMETHOD DeleteMessages(nsIArray *messages, 
                       nsIMsgWindow *msgWindow, bool

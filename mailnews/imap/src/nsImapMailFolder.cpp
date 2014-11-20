@@ -1763,7 +1763,7 @@ NS_IMETHODIMP nsImapMailFolder::GetDeletable (bool *deletable)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetSizeOnDisk(uint32_t * size)
+NS_IMETHODIMP nsImapMailFolder::GetSizeOnDisk(int64_t *size)
 {
   NS_ENSURE_ARG_POINTER(size);
   *size = mFolderSize;
@@ -4814,7 +4814,7 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState *flagState)
 
   // Take this opportunity to recalculate the folder size, if we're not a 
   // partial (condstore) fetch.
-  uint64_t newFolderSize = 0;
+  int64_t newFolderSize = 0;
 
   flagState->GetNumberOfMessages(&messageIndex);
 
@@ -4847,8 +4847,8 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState *flagState)
   }
   if (!partialUIDFetch && newFolderSize != mFolderSize)
   {
-    uint32_t oldFolderSize = mFolderSize;
-    mFolderSize = (uint32_t) newFolderSize;
+    int64_t oldFolderSize = mFolderSize;
+    mFolderSize = newFolderSize;
     NotifyIntPropertyChanged(kFolderSizeAtom, oldFolderSize, mFolderSize);
   }
 

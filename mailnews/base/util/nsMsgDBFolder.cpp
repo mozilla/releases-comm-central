@@ -137,7 +137,7 @@ nsMsgDBFolder::nsMsgDBFolder(void)
   mSemaphoreHolder(nullptr),
   mNumPendingUnreadMessages(0),
   mNumPendingTotalMessages(0),
-  mFolderSize(0),
+  mFolderSize(kSizeUnknown),
   mNumNewBiffMessages(0),
   mIsCachable(true),
   mHaveParsedURI(false),
@@ -1302,7 +1302,7 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(nsIMsgFolderCacheElement *e
   element->GetInt32Property("pendingUnreadMsgs", &mNumPendingUnreadMessages);
   element->GetInt32Property("pendingMsgs", &mNumPendingTotalMessages);
   element->GetInt32Property("expungedBytes", (int32_t *) &mExpungedBytes);
-  element->GetInt32Property("folderSize", (int32_t *) &mFolderSize);
+  element->GetInt64Property("folderSize", &mFolderSize);
   element->GetStringProperty("charset", mCharset);
 
 #ifdef DEBUG_bienvenu1
@@ -1425,7 +1425,7 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCacheElem(nsIMsgFolderCacheElement *el
   element->SetInt32Property("pendingUnreadMsgs", mNumPendingUnreadMessages);
   element->SetInt32Property("pendingMsgs", mNumPendingTotalMessages);
   element->SetInt32Property("expungedBytes", mExpungedBytes);
-  element->SetInt32Property("folderSize", mFolderSize);
+  element->SetInt64Property("folderSize", mFolderSize);
   element->SetStringProperty("charset", mCharset);
 
 #ifdef DEBUG_bienvenu1
@@ -4560,14 +4560,14 @@ NS_IMETHODIMP nsMsgDBFolder::GetRelativePathName(nsACString& pathName)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetSizeOnDisk(uint32_t *size)
+NS_IMETHODIMP nsMsgDBFolder::GetSizeOnDisk(int64_t *size)
 {
   NS_ENSURE_ARG_POINTER(size);
-  *size = 0;
+  *size = kSizeUnknown;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::SetSizeOnDisk(uint32_t aSizeOnDisk)
+NS_IMETHODIMP nsMsgDBFolder::SetSizeOnDisk(int64_t aSizeOnDisk)
 {
   NotifyIntPropertyChanged(kFolderSizeAtom, mFolderSize, aSizeOnDisk);
   mFolderSize = aSizeOnDisk;

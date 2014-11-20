@@ -197,6 +197,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow *aMsgWindow,
   rv = msgStore->RebuildIndex(this, mDatabase, aMsgWindow, this);
   if (NS_SUCCEEDED(rv))
     m_parsingFolder = true;
+
   return rv;
 }
 
@@ -1102,27 +1103,30 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDeletable(bool *deletable)
 
 NS_IMETHODIMP nsMsgLocalMailFolder::RefreshSizeOnDisk()
 {
-  uint32_t oldFolderSize = mFolderSize;
-  mFolderSize = 0; // we set this to 0 to force it to get recalculated from disk
+  int64_t oldFolderSize = mFolderSize;
+  // we set this to unknown to force it to get recalculated from disk
+  mFolderSize = kSizeUnknown;
   if (NS_SUCCEEDED(GetSizeOnDisk(&mFolderSize)))
     NotifyIntPropertyChanged(kFolderSizeAtom, oldFolderSize, mFolderSize);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetSizeOnDisk(uint32_t* aSize)
+NS_IMETHODIMP nsMsgLocalMailFolder::GetSizeOnDisk(int64_t *aSize)
 {
   NS_ENSURE_ARG_POINTER(aSize);
   nsresult rv = NS_OK;
-  if (!mFolderSize)
+  if (mFolderSize == kSizeUnknown)
   {
-    nsCOMPtr <nsIFile> file;
+    nsCOMPtr<nsIFile> file;
     rv = GetFilePath(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
+    // Use a temporary variable so that we keep mFolderSize on kSizeUnknown
+    // if GetFileSize() fails.
     int64_t folderSize;
     rv = file->GetFileSize(&folderSize);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    mFolderSize = (uint32_t) folderSize;
+    mFolderSize = folderSize;
   }
   *aSize = mFolderSize;
   return rv;
@@ -3140,6 +3144,17 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI * aUrl, nsresult aExitCode)
     // Clear this before calling OnStopRunningUrl, in case the url listener
     // tries to get the database.
     m_parsingFolder = false;
+
+    // TODO: Updating the size should be pushed down into the msg store backend
+    // so that the size is recalculated as part of parsing the folder data
+    // (important for maildir), once GetSizeOnDisk is pushed into the msgStores
+    // (bug 1032360).
+    (void)RefreshSizeOnDisk();
+
+    // Update the summary totals so the front end will
+    // show the right thing.
+    UpdateSummaryTotals(true);
+
     if (mReparseListener)
     {
       nsCOMPtr<nsIUrlListener> saveReparseListener = mReparseListener;

@@ -176,14 +176,14 @@ protected:
 
   nsresult OnUnreadMessagePropertyChanged(nsIRDFResource *folderResource, int32_t oldValue, int32_t newValue);
   nsresult OnTotalMessagePropertyChanged(nsIRDFResource *folderResource, int32_t oldValue, int32_t newValue);
-  nsresult OnFolderSizePropertyChanged(nsIRDFResource *folderResource, int32_t oldValue, int32_t newValue);
+  nsresult OnFolderSizePropertyChanged(nsIRDFResource *folderResource, int64_t oldValue, int64_t newValue);
   nsresult OnFolderSortOrderPropertyChanged(nsIRDFResource *folderResource, int32_t oldValue, int32_t newValue);
   nsresult NotifyFolderTreeNameChanged(nsIMsgFolder *folder, nsIRDFResource *folderResource, int32_t aUnreadMessages);
   nsresult NotifyFolderTreeSimpleNameChanged(nsIMsgFolder *folder, nsIRDFResource *folderResource);
   nsresult NotifyFolderNameChanged(nsIMsgFolder *folder, nsIRDFResource *folderResource);
   nsresult NotifyAncestors(nsIMsgFolder *aFolder, nsIRDFResource *aPropertyResource, nsIRDFNode *aNode);
   nsresult GetNumMessagesNode(int32_t numMessages, nsIRDFNode **node);
-  nsresult GetFolderSizeNode(int32_t folderSize, nsIRDFNode **node);
+  nsresult GetFolderSizeNode(int64_t folderSize, nsIRDFNode **node);
   nsresult CreateLiterals(nsIRDFService *rdf);
 
   virtual nsresult GetFolderDisplayName(nsIMsgFolder *folder, nsString& folderName);

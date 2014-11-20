@@ -232,7 +232,7 @@ public:
 
   NS_IMETHOD GetDeletable (bool *deletable) MOZ_OVERRIDE;
 
-  NS_IMETHOD GetSizeOnDisk(uint32_t * size) MOZ_OVERRIDE;
+  NS_IMETHOD GetSizeOnDisk(int64_t *size) MOZ_OVERRIDE;
 
   NS_IMETHOD GetCanCreateSubfolders(bool *aResult) MOZ_OVERRIDE;
   NS_IMETHOD GetCanSubscribe(bool *aResult) MOZ_OVERRIDE;

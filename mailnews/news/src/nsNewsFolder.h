@@ -53,7 +53,7 @@ public:
 
   NS_IMETHOD RefreshSizeOnDisk();
 
-  NS_IMETHOD GetSizeOnDisk(uint32_t *size) MOZ_OVERRIDE;
+  NS_IMETHOD GetSizeOnDisk(int64_t *size) MOZ_OVERRIDE;
 
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
                                   nsIMsgDatabase **db) MOZ_OVERRIDE;

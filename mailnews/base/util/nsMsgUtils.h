@@ -62,7 +62,7 @@ NS_MSG_BASE nsresult NS_MsgGetUntranslatedPriorityName(
 NS_MSG_BASE nsresult NS_MsgHashIfNecessary(nsAutoString &name);
 NS_MSG_BASE nsresult NS_MsgHashIfNecessary(nsAutoCString &name);
 
-NS_MSG_BASE nsresult FormatFileSize(uint64_t size, bool useKB, nsAString &formattedSize);
+NS_MSG_BASE nsresult FormatFileSize(int64_t size, bool useKB, nsAString &formattedSize);
 
 
 /**

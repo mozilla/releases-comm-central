@@ -30,4 +30,10 @@ const nsMsgKey nsMsgKey_None = 0xffffffff;
 
 const nsMsgViewIndex nsMsgViewIndex_None = 0xFFFFFFFF;
 
+/* kSizeUnknown is a special value of folder size that indicates the size
+ * is unknown yet. Usually this causes the folder to determine the real size
+ * immediately as it is queried by a consumer.
+ */
+const int64_t kSizeUnknown = -1;
+
 #endif

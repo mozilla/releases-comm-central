@@ -6,12 +6,14 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(D7ED2508-A608-46cd-AA01-FBB019B0FA44)]
-interface nsIMsgFolderCacheElement : nsISupports 
+[scriptable, uuid(c7392b12-f68a-46b2-af5e-d47350bb17c3)]
+interface nsIMsgFolderCacheElement : nsISupports
 {
   attribute ACString key;
   ACString getStringProperty(in string propertyName);
   long getInt32Property(in string propertyName);
+  long long getInt64Property(in string propertyName);
   void setStringProperty(in string propertyName, in ACString propertyValue);
   void setInt32Property(in string propertyName, in long propertyValue);
+  void setInt64Property(in string propertyName, in long long propertyValue);
 };

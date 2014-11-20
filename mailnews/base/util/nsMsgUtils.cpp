@@ -471,7 +471,7 @@ nsresult NS_MsgHashIfNecessary(nsAutoString &name)
   return NS_OK;
 }
 
-nsresult FormatFileSize(uint64_t size, bool useKB, nsAString &formattedSize)
+nsresult FormatFileSize(int64_t size, bool useKB, nsAString &formattedSize)
 {
   NS_NAMED_LITERAL_STRING(byteAbbr, "byteAbbreviation2");
   NS_NAMED_LITERAL_STRING(kbAbbr,   "kiloByteAbbreviation2");
@@ -493,7 +493,7 @@ nsresult FormatFileSize(uint64_t size, bool useKB, nsAString &formattedSize)
                                getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  float unitSize = size;
+  float unitSize = size < 0 ? 0.0 : size;
   uint32_t unitIndex = 0;
 
   if (useKB) {

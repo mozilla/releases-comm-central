@@ -118,6 +118,8 @@ nsIAtom * nsMsgFolderDataSource::kInVFEditSearchScopeAtom = nullptr;
 
 static const uint32_t kDisplayBlankCount = 0xFFFFFFFE;
 static const uint32_t kDisplayQuestionCount = 0xFFFFFFFF;
+static const int64_t kDisplayBlankCount64 = -2;
+static const int64_t kDisplayQuestionCount64 = -1;
 
 nsMsgFolderDataSource::nsMsgFolderDataSource()
 {
@@ -1454,19 +1456,19 @@ nsMsgFolderDataSource::createFolderSizeNode(nsIMsgFolder *folder, nsIRDFNode **t
   nsresult rv = folder->GetIsServer(&isServer);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  int32_t folderSize;
-  if(isServer)
-    folderSize = kDisplayBlankCount;
+  int64_t folderSize;
+  if (isServer) {
+    folderSize = kDisplayBlankCount64;
+  }
   else
   {
     // XXX todo, we are asserting here for news
-    // for offline news, we'd know the size on disk, right?
-    rv = folder->GetSizeOnDisk((uint32_t *) &folderSize);
+    // for offline news, we'd know the size on disk, right? Yes, bug 851275.
+    rv = folder->GetSizeOnDisk(&folderSize);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  GetFolderSizeNode(folderSize, target);
 
-  return rv;
+  return GetFolderSizeNode(folderSize, target);
 }
 
 nsresult
@@ -1758,7 +1760,7 @@ nsMsgFolderDataSource::OnFolderSortOrderPropertyChanged(nsIRDFResource *folderRe
 }
 
 nsresult
-nsMsgFolderDataSource::OnFolderSizePropertyChanged(nsIRDFResource *folderResource, int32_t oldValue, int32_t newValue)
+nsMsgFolderDataSource::OnFolderSizePropertyChanged(nsIRDFResource *folderResource, int64_t oldValue, int64_t newValue)
 {
   nsCOMPtr<nsIRDFNode> newNode;
   GetFolderSizeNode(newValue, getter_AddRefs(newNode));
@@ -1789,18 +1791,17 @@ nsMsgFolderDataSource::GetNumMessagesNode(int32_t aNumMessages, nsIRDFNode **nod
 }
 
 nsresult
-nsMsgFolderDataSource::GetFolderSizeNode(int32_t aFolderSize, nsIRDFNode **aNode)
+nsMsgFolderDataSource::GetFolderSizeNode(int64_t aFolderSize, nsIRDFNode **aNode)
 {
   nsresult rv;
-  uint32_t folderSize = aFolderSize;
-  if (folderSize == kDisplayBlankCount || folderSize == 0)
+  if (aFolderSize == kDisplayBlankCount64)
     createNode(EmptyString().get(), aNode, getRDFService());
-  else if(folderSize == kDisplayQuestionCount)
+  else if (aFolderSize == kDisplayQuestionCount64)
     createNode(MOZ_UTF16("???"), aNode, getRDFService());
   else
   {
     nsAutoString sizeString;
-    rv = FormatFileSize(folderSize, true, sizeString);
+    rv = FormatFileSize(aFolderSize, true, sizeString);
     NS_ENSURE_SUCCESS(rv, rv);
 
     createNode(sizeString.get(), aNode, getRDFService());

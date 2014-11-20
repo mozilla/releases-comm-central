@@ -206,7 +206,7 @@ protected:
   // we don't want to do an expensive select until the user actually opens that folder
   int32_t mNumPendingUnreadMessages;
   int32_t mNumPendingTotalMessages;
-  uint32_t mFolderSize;
+  int64_t mFolderSize;
 
   int32_t mNumNewBiffMessages;
   bool mIsCachable;

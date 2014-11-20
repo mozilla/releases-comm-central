@@ -79,6 +79,29 @@ NS_IMETHODIMP nsMsgFolderCacheElement::GetInt32Property(const char *propertyName
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgFolderCacheElement::GetInt64Property(const char *propertyName, int64_t *aResult)
+{
+  NS_ENSURE_ARG_POINTER(propertyName);
+  NS_ENSURE_ARG_POINTER(aResult);
+  NS_ENSURE_TRUE(m_mdbRow, NS_ERROR_FAILURE);
+
+  nsCString resultStr;
+  GetStringProperty(propertyName, resultStr);
+  if (resultStr.IsEmpty())
+    return NS_ERROR_FAILURE;
+
+  // This must be an inverse function to nsCString.AppentInt(),
+  // which uses snprintf("%x") internally, so that the wrapped negative numbers
+  // are decoded properly.
+  if (PR_sscanf(resultStr.get(), "%llx", aResult) != 1)
+  {
+    NS_WARNING("Unexpected failure to decode hex string.");
+    return NS_ERROR_FAILURE;
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgFolderCacheElement::SetStringProperty(const char *propertyName, const nsACString& propertyValue)
 {
   NS_ENSURE_ARG_POINTER(propertyName);
@@ -116,6 +139,18 @@ NS_IMETHODIMP nsMsgFolderCacheElement::SetInt32Property(const char *propertyName
 
   // This also supports encoding negative numbers into hex
   // by integer wrapping them (e.g. -1 -> "ffffffff").
+  nsAutoCString propertyStr;
+  propertyStr.AppendInt(propertyValue, 16);
+  return SetStringProperty(propertyName, propertyStr);
+}
+
+NS_IMETHODIMP nsMsgFolderCacheElement::SetInt64Property(const char *propertyName, int64_t propertyValue)
+{
+  NS_ENSURE_ARG_POINTER(propertyName);
+  NS_ENSURE_TRUE(m_mdbRow, NS_ERROR_FAILURE);
+
+  // This also supports encoding negative numbers into hex
+  // by integer wrapping them (e.g. -1 -> "ffffffffffffffff").
   nsAutoCString propertyStr;
   propertyStr.AppendInt(propertyValue, 16);
   return SetStringProperty(propertyName, propertyStr);
