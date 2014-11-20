@@ -130,6 +130,8 @@ calDavCalendar.prototype = {
         return (this != this.superCalendar);
     },
 
+    mLastRedirectStatus: null,
+
     ensureTargetCalendar: function caldav_ensureTargetCalendar() {
         if (!this.isCached && !this.mOfflineStorage) {
             // If this is a cached calendar, the actual cache is taken care of
@@ -368,6 +370,8 @@ calDavCalendar.prototype = {
             } else {
                 listener.onStartRequest = oauthCheck.bind(null, listener.onStartRequest.bind(listener));
             }
+
+            self.mLastRedirectStatus = null;
             channel.asyncOpen(listener, channel);
         }
 
@@ -1700,6 +1704,40 @@ calDavCalendar.prototype = {
                 return;
             }
 
+            let isText = true;
+
+            if ((isText || request.URI.spec != request.originalURI.spec) &&
+                thisCalendar.mLastRedirectStatus == 301) {
+                // The initial PROPFIND essentially goes against the calendar
+                // collection url. If a 301 Moved Permanently redirect occurred
+                // here, we want to modify the url we use in the future.
+                let nIPS = Components.interfaces.nsIPromptService;
+
+                let promptTitle = cal.calGetString("calendar", "caldavRedirectTitle", [thisCalendar.name]);
+                let promptText = cal.calGetString("calendar", "caldavRedirectText", [thisCalendar.name]) +
+                                 "\n\n" + request.URI.spec;
+                let button1Title = cal.calGetString("calendar", "caldavRedirectDisableCalendar");
+                let flags = (nIPS.BUTTON_TITLE_YES * nIPS.BUTTON_POS_0) +
+                            (nIPS.BUTTON_TITLE_IS_STRING * nIPS.BUTTON_POS_1);
+
+                let res = Services.prompt.confirmEx(cal.getCalendarWindow(),
+                                                    promptTitle, promptText,
+                                                    flags, null, button1Title,
+                                                    null, null, {});
+
+                if (res == 0) { // YES
+                    let newUri = request.URI;
+                    cal.LOG("CalDAV: Migrating url due to redirect: " +
+                            thisCalendar.mUri.spec + " -> " + newUri.spec);
+                    thisCalendar.mUri = newUri;
+                    thisCalendar.setProperty("uri", newUri.spec);
+                } else if (res == 1) { // DISABLE CALENDAR
+                    thisCalendar.setProperty("disabled", "true");
+                    thisCalendar.completeCheckServerInfo(aChangeLogListener, Components.results.NS_ERROR_ABORT);
+                    return;
+                }
+            }
+
             let responseStatusCategory = Math.floor(request.responseStatus / 100);
 
             // 4xx codes, which is either an authentication failure or
@@ -2845,6 +2883,12 @@ calDavCalendar.prototype = {
         // Make sure we can get/set headers on both channels.
         aNewChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
         aOldChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+
+        try {
+            this.mLastRedirectStatus = aOldChannel.responseStatus;
+        } catch (e) {
+            this.mLastRedirectStatus = null;
+        }
 
         function copyHeader(aHdr) {
             try {
