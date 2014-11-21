@@ -389,7 +389,7 @@
 .conv-counter {
   padding-bottom: 1px;
   -moz-padding-end: 6px;
-  margin: 0;
+  margin: 0 !important;  /* override margins from description */
 }
 
 .conv-counter[value^="-"] {
