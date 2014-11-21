@@ -28,7 +28,8 @@ let ChatCore = {
     Services.obs.addObserver(this, "contact-removed", false);
 
     // The initialization of the im core may trigger a master password prompt,
-    // so wrap it with the async prompter service.
+    // so wrap it with the async prompter service. Note this service already
+    // waits for the asynchronous initialization of the password service.
     Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
               .getService(Components.interfaces.nsIMsgAsyncPrompter)
               .queueAsyncAuthPrompt("im", false, {
