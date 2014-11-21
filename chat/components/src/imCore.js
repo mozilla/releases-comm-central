@@ -268,8 +268,13 @@ CoreService.prototype = {
     Services.conversations.initConversations();
     Services.obs.notifyObservers(this, "prpl-init", null);
 
-    if (accounts.autoLoginStatus == Ci.imIAccountsService.AUTOLOGIN_ENABLED)
-      accounts.processAutoLogin();
+    // Wait with automatic connections until the password service
+    // is available.
+    if (accounts.autoLoginStatus == Ci.imIAccountsService.AUTOLOGIN_ENABLED) {
+      Services.logins.initializationPromise.then(() => {
+        Services.accounts.processAutoLogin();
+      });
+    }
   },
   observe: function(aObject, aTopic, aData) {
     if (aTopic == kQuitApplicationGranted)

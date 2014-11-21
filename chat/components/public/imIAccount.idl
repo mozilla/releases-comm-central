@@ -259,7 +259,10 @@ interface imIAccount: prplIAccount {
 
   attribute short firstConnectionState;
 
-  // Passwords are stored in the toolkit Password Manager.
+  /* Passwords are stored in the toolkit Password Manager.
+   * Warning: Don't attempt to access passwords during startup before
+   * Services.login.initializationPromise has resolved.
+   */
   attribute AUTF8String password;
 
   attribute AUTF8String alias;

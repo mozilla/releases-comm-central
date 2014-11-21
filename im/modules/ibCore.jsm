@@ -61,6 +61,11 @@ var Core = {
       return false;
     }
 
+    // Trigger asynchronous initialization of the password service.
+    Services.logins.initializationPromise.catch(() => {
+      this._promptError("startupFailure.passwordServiceError");
+    });
+
     this.initLibpurpleOverrides();
 
     try {
@@ -126,7 +131,9 @@ var Core = {
       }
     });
 
-    this._showAccountManagerIfNeeded(true);
+    Services.logins.initializationPromise.then(() => {
+      this._showAccountManagerIfNeeded(true));
+    });
     return true;
   },
 
