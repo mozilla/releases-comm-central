@@ -257,7 +257,7 @@ var gAccountManager = {
       .getService(Ci.nsIClipboardHelper).copyString(text);
   },
   showDebugLog: function am_showDebugLog() {
-    if (!"Core" in window)
+    if (!("Core" in window))
       Cu.import("resource:///modules/ibCore.jsm");
     Core.showDebugLog(this.accountList.selectedItem.account.id);
   },
