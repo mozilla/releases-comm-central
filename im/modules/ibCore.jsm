@@ -132,7 +132,7 @@ var Core = {
     });
 
     Services.logins.initializationPromise.then(() => {
-      this._showAccountManagerIfNeeded(true));
+      this._showAccountManagerIfNeeded(true);
     });
     return true;
   },
