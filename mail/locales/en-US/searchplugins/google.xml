@@ -13,14 +13,13 @@
   <Param name="client" value="firefox"/>
   <Param name="q" value="{searchTerms}"/>
 </Url>
-<Url type="text/html" method="GET" template="https://www.google.com/search">
+<Url type="text/html"
+     method="GET"
+     template="https://www.google.com/search"
+     rel="searchform">
   <Param name="q" value="{searchTerms}"/>
   <Param name="ie" value="utf-8"/>
   <Param name="oe" value="utf-8"/>
   <Param name="aq" value="t"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="https://www.google.com/"
-     rel="searchform"/>
 </SearchPlugin>

@@ -17,12 +17,9 @@
 <Url type="text/html"
      method="GET"
      template="https://search.yahoo.com/search"
-     resultdomain="yahoo.com">
+     resultdomain="yahoo.com"
+     rel="searchform">
   <Param name="p" value="{searchTerms}"/>
   <Param name="ei" value="UTF-8"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="https://search.yahoo.com/"
-     rel="searchform"/>
 </SearchPlugin>

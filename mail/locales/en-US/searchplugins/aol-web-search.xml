@@ -10,11 +10,8 @@
 <Url type="text/html"
      method="GET"
      template="http://search.aol.com/aol/search"
-     resultdomain="aol.com">
+     resultdomain="aol.com"
+     rel="searchform">
   <Param name="query" value="{searchTerms}"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="http://search.aol.com"
-     rel="searchform"/>
 </SearchPlugin>

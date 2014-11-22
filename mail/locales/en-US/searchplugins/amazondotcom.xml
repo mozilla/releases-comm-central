@@ -10,12 +10,9 @@
 <Url type="text/html"
      method="GET"
      template="http://www.amazon.com/exec/obidos/external-search/"
-     resultdomain="amazon.com">
+     resultdomain="amazon.com"
+     rel="searchform">
   <Param name="field-keywords" value="{searchTerms}"/>
   <Param name="mode" value="blended"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="http://www.amazon.com/"
-     rel="searchform"/>
 </SearchPlugin>

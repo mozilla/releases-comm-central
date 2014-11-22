@@ -10,11 +10,8 @@
 <Url type="text/html"
      method="GET"
      template="http://rover.ebay.com/rover/1/711-47294-18009-3/4"
-     resultdomain="ebay.com">
+     resultdomain="ebay.com"
+     rel="searchform">
   <Param name="satitle" value="{searchTerms}"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="http://search.ebay.com/"
-     rel="searchform"/>
 </SearchPlugin>

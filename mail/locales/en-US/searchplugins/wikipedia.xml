@@ -14,11 +14,8 @@
 <Url type="text/html"
      method="GET"
      template="http://en.wikipedia.org/wiki/Special:Search"
-     resultdomain="wikipedia.org">
+     resultdomain="wikipedia.org"
+     rel="searchform">
   <Param name="search" value="{searchTerms}"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="http://en.wikipedia.org/wiki/Special:Search"
-     rel="searchform"/>
 </SearchPlugin>
