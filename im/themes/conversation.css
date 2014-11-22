@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+%ifdef XP_UNIX
+%ifndef XP_MACOSX
+%define XP_LINUX
+%endif
+%endif
+
 .browser {
   margin: 0 0;
 }
@@ -297,11 +303,11 @@
 
 .conv-textbox {
   margin: 0;
+  -moz-appearance: none;
 }
 
 %ifdef XP_MACOSX
 .conv-textbox {
-  -moz-appearance: none;
   padding: 3px;
   border: none;
   box-shadow: inset 0 1px 3px 0px rgba(0, 0, 0, 0.6);
@@ -336,13 +342,6 @@
 %ifndef XP_WIN
 .conv-textbox {
   -moz-margin-start: 1px;
-  -moz-appearance: none;
-}
-%else
-.conv-textbox {
-   -moz-appearance: none;
-  /* Right/left margins so the borders show up on all sides. */
-  margin: 0 1px 0 1px;
 }
 %endif
 %endif
@@ -393,22 +392,15 @@
 }
 
 .conv-counter[value^="-"] {
-  margin-bottom: 1px;
+  margin-bottom: 1px !important;
   /* The 6px padding-end from .conv-counter is split into a 1px
      margin-end (to avoid the border) and 5px padding-end (as
      regular padding). */
-  -moz-margin-end: 1px;
+  -moz-margin-end: 1px !important;
   padding-top: 1px;
   padding-bottom: 0;
   -moz-padding-end: 5px;
 }
-
-%ifdef XP_WIN
-.conv-counter[value^="-"] {
-  -moz-margin-end: 2px;
-  -moz-padding-end: 4px;
-}
-%endif
 %endif
 
 
@@ -428,7 +420,7 @@
 
 .splitter-bottom {
   background: #ddd; /* match URL popup bottom edge from tabbrowser-*.css */
-%ifdef XP_MACOSX
+%ifndef XP_LINUX
   min-height: 1px;
   height: 1px;
 %endif
