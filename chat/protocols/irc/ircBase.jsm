@@ -204,13 +204,11 @@ var ircBase = {
           conversation.joining = false;
 
           // If the user parted from this room earlier, confirm the rejoin.
-          // If conversation.chatRoomFields is present, the rejoin was due to
-          // an automatic reconnection, for which we already notify the user.
-          if (!conversation._firstJoin && !conversation.chatRoomFields) {
+          if (conversation._rejoined) {
             conversation.writeMessage(aMessage.origin, _("message.rejoined"),
                                       {system: true});
+            delete conversation._rejoined;
           }
-          delete conversation._firstJoin;
 
           // Ensure chatRoomFields information is available for reconnection.
           if (!conversation.chatRoomFields) {

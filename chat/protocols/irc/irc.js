@@ -267,7 +267,6 @@ function ircChannel(aAccount, aName, aNick) {
   this._modes = new Set();
   this._observedNicks = [];
   this.banMasks = [];
-  this._firstJoin = true;
 }
 ircChannel.prototype = {
   __proto__: GenericConvChatPrototype,
@@ -276,8 +275,8 @@ ircChannel.prototype = {
   // For IRC you're not in a channel until the JOIN command is received, open
   // all channels (initially) as left.
   _left: true,
-  // True until successfully joined for the first time.
-  _firstJoin: false,
+  // True while we are rejoining a channel previously parted by the user.
+  _rejoined: false,
   banMasks: [],
 
   // Overwrite the writeMessage function to apply CTCP formatting before
@@ -1503,11 +1502,16 @@ ircAccount.prototype = {
     if (this.channelPrefixes.indexOf(channel[0]) == -1)
       channel = "#" + channel;
 
-    // No need to join a channel we are already in.
     if (this.conversations.has(channel)) {
       let conv = this.getConversation(channel);
-      if (!conv.left)
+      if (!conv.left) {
+        // No need to join a channel we are already in.
         return conv;
+      }
+      else if (!conv.chatRoomFields) {
+        // We are rejoining a channel that was parted by the user.
+        conv._rejoined = true;
+      }
     }
 
     let params = [channel];
