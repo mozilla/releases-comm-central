@@ -518,7 +518,7 @@
 @RESPATH@/components/SiteSpecificUserAgent.manifest
 @RESPATH@/components/Webapps.js
 @RESPATH@/components/Webapps.manifest
-@BINPATH@/components/browser-element.xpt
+@RESPATH@/components/browser-element.xpt
 @RESPATH@/components/commandlines.xpt
 @RESPATH@/components/chrome.xpt
 @RESPATH@/components/cryptoComponents.manifest
