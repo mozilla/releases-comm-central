@@ -88,12 +88,12 @@ function test_message_filter_shows_newsgroup_server()
 function test_customize_toolbar_doesnt_double_get_mail_menu()
 {
   be_in_folder(folderA);
-  wait_for_window_focused(mc.window);
 
   /**
    * Get the getAllNewMessages menu and check the number of items.
    */
   function check_getAllNewMsgMenu() {
+    wait_for_window_focused(mc.window);
     mc.click(mc.eid("menu_File"), 5, 5);
     wait_for_popup_to_open(mc.e("menu_FilePopup"));
 
