@@ -110,15 +110,6 @@ function _setMode(aAddNewMode, aNewModes) {
   }
 }
 
-// This copies all the properties of aBase to aPrototype (which is expected to
-// be the prototype of an object). This is necessary because JavaScript does not
-// support multiple inheritance and both conversation objects have a lot of
-// shared code (but inherit from objects exposing different XPCOM interfaces).
-function copySharedBaseToPrototype(aBase, aPrototype) {
-  for (let property in aBase)
-    aPrototype[property] = aBase[property];
-}
-
 // Properties / methods shared by both ircChannel and ircConversation.
 const GenericIRCConversation = {
   _observedNicks: [],
@@ -555,7 +546,7 @@ ircChannel.prototype = {
     return !this._modes.has("t") || participant.op || participant.halfOp;
   }
 };
-copySharedBaseToPrototype(GenericIRCConversation, ircChannel.prototype);
+Object.assign(ircChannel.prototype, GenericIRCConversation);
 
 function ircParticipant(aName, aConv) {
   this._name = aName;
@@ -628,7 +619,7 @@ ircConversation.prototype = {
     this.notifyObservers(null, "update-conv-title");
   }
 };
-copySharedBaseToPrototype(GenericIRCConversation, ircConversation.prototype);
+Object.assign(ircConversation.prototype, GenericIRCConversation);
 
 function ircSocket(aAccount) {
   this._account = aAccount;
