@@ -142,6 +142,7 @@ function calendarListSetupContextMenu(event) {
     let calendar;
     let calendars = getCalendarManager().getCalendars({});
     let treeNode = document.getElementById("calendar-list-tree-widget");
+    let composite = getCompositeCalendar();
 
     if (document.popupNode.localName == "tree") {
         // Using VK_APPS to open the context menu will target the tree
@@ -177,10 +178,26 @@ function calendarListSetupContextMenu(event) {
         if (calendars.length > 1) {
             enableElement("list-calendars-context-delete");
         }
+
+        enableElement("list-calendars-context-togglevisible");
+        setElementValue("list-calendars-context-togglevisible", false, "collapsed");
+        let stringName = composite.getCalendarById(calendar.id) ? "hideCalendar" : "showCalendar";
+        setElementValue("list-calendars-context-togglevisible",
+                        cal.calGetString("calendar", stringName, [calendar.name]),
+                        "label");
+        enableElement("list-calendars-context-showonly");
+        setElementValue("list-calendars-context-showonly", false, "collapsed");
+        setElementValue("list-calendars-context-showonly",
+                        cal.calGetString("calendar", "showOnlyCalendar", [calendar.name]),
+                        "label");
     } else {
         disableElement("list-calendars-context-edit");
         disableElement("list-calendars-context-publish");
         disableElement("list-calendars-context-delete");
+        disableElement("list-calendars-context-togglevisible");
+        setElementValue("list-calendars-context-togglevisible", true, "collapsed");
+        disableElement("list-calendars-context-showonly");
+        setElementValue("list-calendars-context-showonly", true, "collapsed");
     }
     return true;
 }
@@ -193,6 +210,55 @@ function calendarListSetupContextMenu(event) {
 function ensureCalendarVisible(aCalendar) {
     // We use the main window's calendar list to ensure that the calendar is visible
     document.getElementById("calendar-list-tree-widget").ensureCalendarVisible(aCalendar);
+}
+
+/**
+ * Hides the specified calendar if it is visible, or shows it if it is hidden.
+ *
+ * @param aCalendar   The calendar to show or hide
+ */
+function toggleCalendarVisible(aCalendar) {
+    let composite = getCompositeCalendar();
+    if (composite.getCalendarById(aCalendar.id)) {
+        composite.removeCalendar(aCalendar);
+    } else {
+        composite.addCalendar(aCalendar);
+    }
+}
+
+/**
+ * Shows all hidden calendars.
+ */
+function showAllCalendars() {
+    let composite = getCompositeCalendar();
+    let cals = cal.getCalendarManager().getCalendars({});
+
+    composite.startBatch();
+    for (let calendar of cals) {
+        if (!composite.getCalendarById(calendar.id)) {
+            composite.addCalendar(calendar);
+        }
+    }
+    composite.endBatch();
+}
+
+/**
+ * Shows only the specified calendar, and hides all others.
+ *
+ * @param aCalendar   The calendar to show as the only visible calendar
+ */
+function showOnlyCalendar(aCalendar) {
+    let composite = getCompositeCalendar();
+    let cals = composite.getCalendars({}) || [];
+
+    composite.startBatch();
+    for (let calendar of cals) {
+        if (calendar.id != aCalendar.id) {
+            composite.removeCalendar(calendar);
+        }
+    }
+    composite.addCalendar(aCalendar);
+    composite.endBatch();
 }
 
 var compositeObserver = {

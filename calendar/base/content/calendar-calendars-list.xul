@@ -14,6 +14,17 @@
   <popupset id="calendar-popupset">
     <menupopup id="list-calendars-context-menu"
                onpopupshowing="return calendarListSetupContextMenu(event);">
+      <menuitem id="list-calendars-context-togglevisible"
+                accesskey="&calendar.context.togglevisible.accesskey;"
+                oncommand="toggleCalendarVisible(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
+      <menuitem id="list-calendars-context-showonly"
+                accesskey="&calendar.context.showonly.accesskey;"
+                oncommand="showOnlyCalendar(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
+      <menuitem id="list-calendars-context-showall"
+                label="&calendar.context.showall.label;"
+                accesskey="&calendar.context.showall.accesskey;"
+                oncommand="showAllCalendars();"/>
+      <menuseparator id="list-calendars-context-showops-menuseparator"/>
       <menuitem id="list-calendars-context-new"
                 label="&calendar.context.newserver.label;"
                 accesskey="&calendar.context.newserver.accesskey;"
