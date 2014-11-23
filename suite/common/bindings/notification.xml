@@ -90,7 +90,6 @@
       <method name="onDocumentChange">
         <body>
           <![CDATA[
-            this.missingPlugins = null;
             this.crashNotified = false;
             this.clickToPlayPluginsActivated = false;
             this.clickToPlayTypes = Set();
@@ -508,11 +507,6 @@
         </body>
       </method>
 
-      <field name="_missingPlugins">null</field>
-      <property name="missingPlugins"
-                onget="return this._missingPlugins || (this._missingPlugins = new Map());"
-                onset="return this._missingPlugins = val;"/>
-
       <field name="CrashSubmit">null</field>
 
       <field name="crashNotified">false</field>
@@ -572,10 +566,6 @@
         <parameter name="aPref"/>
         <body>
           <![CDATA[
-            // Save information on the plugin to give to the plugin finder.
-            var pluginInfo = this.getPluginInfo(aPlugin);
-            this.missingPlugins.set(pluginInfo.mimetype, pluginInfo);
-
             // Show the in-content UI if it's not too big. The crashed plugin handler already does this.
             var overlay = this.getPluginUI(aPlugin, "main");
             aPlugin.addEventListener("overflow", this);
@@ -1003,16 +993,6 @@
                   iframe.remove();
                 break;
             }
-          ]]>
-        </body>
-      </method>
-
-      <method name="installMissingPlugins">
-        <body>
-          <![CDATA[
-            window.openDialog("chrome://mozapps/content/plugins/pluginInstallerWizard.xul",
-                              "", "chrome,centerscreen,resizable=yes",
-                              {plugins: this.missingPlugins, browser: this.activeBrowser});
           ]]>
         </body>
       </method>
@@ -2162,28 +2142,19 @@
           var notification, message, buttons, pref;
           switch (plugin.pluginFallbackType) {
             case nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
-              // For broken non-object plugin tags, register a click handler so
-              // that the user can click the plugin replacement to get the new
-              // plugin. Object tags can, and often do, deal with that
-              // themselves, so don't stomp on the page developer's toes.
-              if (!(plugin instanceof HTMLObjectElement)) {
-                // We don't yet check to see if there's actually an installer available.
-                var installStatus = this.getPluginUI(plugin, "installStatus");
-                installStatus.setAttribute("status", "ready");
-                var iconStatus = this.getPluginUI(plugin, "icon");
-                iconStatus.setAttribute("status", "ready");
-                var installLink = this.getPluginUI(plugin, "installPluginLink");
-                this.addLinkClickCallback(installLink, installMissingPlugins);
-              }
-
               notification = "missing-plugins";
               message = this._stringBundle.GetStringFromName("missingpluginsMessage.title");
-              buttons = [{
-                label: this._stringBundle.GetStringFromName("missingpluginsMessage.button.label"),
-                accessKey: this._stringBundle.GetStringFromName("missingpluginsMessage.button.accesskey"),
-                popup: null,
-                callback: this.installMissingPlugins.bind(this)
-              }];
+              if ("goPreferences" in window) {
+                buttons = [{
+                  label: this._stringBundle.GetStringFromName("popupWarningButton"),
+                  accessKey: this._stringBundle.GetStringFromName("popupWarningButton.accesskey"),
+                  popup: null,
+                  callback: function() {
+                    goPreferences("scripts_pane");
+                    return true;
+                  }
+                }];
+              }
               break;
 
             case nsIObjectLoadingContent.PLUGIN_DISABLED:
@@ -2215,11 +2186,6 @@
                 accessKey: this._stringBundle.GetStringFromName("blockedpluginsMessage.infoButton.accesskey"),
                 popup: null,
                 callback: this.openURLPref.bind(this, "extensions.blocklist.detailsURL")
-              }, {
-                label: this._stringBundle.GetStringFromName("blockedpluginsMessage.searchButton.label"),
-                accessKey: this._stringBundle.GetStringFromName("blockedpluginsMessage.searchButton.accesskey"),
-                popup: null,
-                callback: this.installMissingPlugins.bind(this)
               }];
               break;
 
@@ -2440,20 +2406,6 @@
           }];
 
           this.pluginUnavailable(plugin, notification, message, buttons, pref);
-        ]]>
-      </handler>
-
-      <handler event="NewPluginInstalled" phase="capturing">
-        <![CDATA[
-          this.missingPlugins = null;
-
-          // clean up the UI after a new plugin has been installed.
-          var notification = this.getNotificationWithValue("missing-plugins");
-          if (notification)
-            this.removeNotification(notification);
-
-          // reload the browser to make the new plugin show.
-          this.activeBrowser.reload();
         ]]>
       </handler>
 
