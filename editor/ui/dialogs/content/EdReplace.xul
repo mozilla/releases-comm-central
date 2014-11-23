@@ -14,7 +14,7 @@
    persist="screenX screenY"
    buttons="cancel"
    onload = "onLoad()"
-   ondialogaccept="return onFindNext();">
+   ondialogaccept="onFindNext(); return false">
 
   <!-- Methods common to all editor dialogs -->
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
