@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 if ("@mozilla.org/suite/shell-service;1" in Components.classes)
-  const nsIShellService = Components.interfaces.nsIShellService;
+  var nsIShellService = Components.interfaces.nsIShellService;
 
 function Startup()
 {

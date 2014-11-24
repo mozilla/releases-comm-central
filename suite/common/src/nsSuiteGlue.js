@@ -678,7 +678,7 @@ SuiteGlue.prototype = {
   {
     const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1";
     if (NS_SHELLSERVICE_CID in Components.classes) try {
-      const nsIShellService = Components.interfaces.nsIShellService;
+      var nsIShellService = Components.interfaces.nsIShellService;
 
       var shellService = Components.classes[NS_SHELLSERVICE_CID]
                                    .getService(nsIShellService);
