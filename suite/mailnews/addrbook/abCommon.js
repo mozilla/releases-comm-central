@@ -504,10 +504,19 @@ function goNewListDialog(selectedAB)
 
 function goEditListDialog(abCard, listURI)
 {
+  var params = {
+    abCard: abCard,
+    listURI: listURI,
+    refresh: false, // This is an out param, true if OK in dialog is clicked.
+  };
+
   window.openDialog("chrome://messenger/content/addressbook/abEditListDialog.xul",
                     "",
                     "chrome,modal,resizable,centerscreen",
-                    {abCard:abCard, listURI:listURI});
+                    params);
+
+  if (params.refresh)
+    ChangeDirectoryByURI(listURI); // force refresh
 }
 
 function goNewCardDialog(selectedAB)

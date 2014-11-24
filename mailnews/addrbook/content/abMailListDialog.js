@@ -236,7 +236,7 @@ function EditListOKButton()
     NotifySaveListeners(gEditList);
     gEditList.editMailListToDatabase(gListCard);
 
-    window.arguments[0].outParam.ok = true;
+    window.arguments[0].refresh = true;
     return true;  // close the window
   }
 
@@ -247,9 +247,8 @@ function OnLoadEditList()
 {
   InitCommonJS();
 
-  gListCard = window.arguments[0].inParam.abCard;
-  var listUri  = window.arguments[0].inParam.listUri;
-  window.arguments[0].outParam.ok = false;
+  gListCard = window.arguments[0].abCard;
+  var listUri  = window.arguments[0].listURI;
 
   gEditList = GetDirectoryFromURI(listUri);
 

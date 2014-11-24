@@ -483,22 +483,18 @@ function goNewListDialog(selectedAB)
                     {selectedAB:selectedAB});
 }
 
-function goEditListDialog(abCard, listUri)
+function goEditListDialog(abCard, listURI)
 {
   let params = {
-    inParam: {
-      abCard: abCard,
-      listUri: listUri,
-    },
-    outParam: {
-      ok: false, // true if OK in dialog is clicked
-    },
+    abCard: abCard,
+    listURI: listURI,
+    refresh: false, // This is an out param, true if OK in dialog is clicked.
   };
   window.openDialog("chrome://messenger/content/addressbook/abEditListDialog.xul",
                     "",
                     "chrome,modal,resizable=no,centerscreen",
                     params);
-  if (params.outParam.ok) {
+  if (params.refresh) {
     ChangeDirectoryByURI(listUri); // force refresh
   }
 }
