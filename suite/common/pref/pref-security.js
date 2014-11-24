@@ -5,5 +5,11 @@
 
 function Startup()
 {
-  // intentionally left empty for soon-ish use
+  var prefTrackProtect = document.getElementById("privacy.trackingprotection.enabled");
+  SetWarnTrackEnabled(prefTrackProtect.value);
+}
+
+function SetWarnTrackEnabled(aEnable)
+{
+  EnableElementById("warnTrackContent", aEnable, false);
 }

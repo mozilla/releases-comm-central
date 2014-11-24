@@ -126,11 +126,12 @@
         <body>
           <![CDATA[
             if (aState < 0)
-              aState = lastState;
+              aState = this.lastState;
             const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
             var pref = "security.warn_leaving_secure";
             var message = "EnterInsecureMessage";
             var priority = this.PRIORITY_WARNING_LOW;
+            var pane = "ssl_pane";
             var buttons = [];
             if (aState & nsIWebProgressListener.STATE_IS_SECURE) {
               pref = "security.warn_entering_secure";
@@ -152,7 +153,7 @@
               pref = "security.warn_mixed_active_content";
               message = "BlockedActiveContentMessage";
               priority = this.PRIORITY_INFO_LOW;
-              lastState = aState & ~nsIWebProgressListener.STATE_BLOCKED_MIXED_ACTIVE_CONTENT;
+              this.lastState = aState & ~nsIWebProgressListener.STATE_BLOCKED_MIXED_ACTIVE_CONTENT;
               const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
               buttons = [{
                 label: this._stringBundle.GetStringFromName("SecurityKeepBlocking.label"),
@@ -165,6 +166,38 @@
                               nsIWebNavigation.LOAD_FLAGS_ALLOW_MIXED_CONTENT |
                               nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE)
               }];
+            } else if (aState & nsIWebProgressListener.STATE_LOADED_TRACKING_CONTENT &&
+                this._prefs.getBoolPref("privacy.warn_tracking_content")) {
+              pref = "privacy.warn_tracking_content";
+              message = "TrackingContentMessage";
+              priority = this.PRIORITY_WARNING_LOW;
+              pane = "security_pane";
+            } else if (aState & nsIWebProgressListener.STATE_BLOCKED_TRACKING_CONTENT &&
+                this._prefs.getBoolPref("privacy.warn_tracking_content")) {
+              pref = "privacy.warn_tracking_content";
+              message = "BlockedTrackingContentMessage";
+              priority = this.PRIORITY_INFO_LOW;
+              pane = "security_pane";
+              if (!this.usePrivateBrowsing) {
+                this.lastState = aState & ~nsIWebProgressListener.STATE_BLOCKED_TRACKING_CONTENT;
+                buttons = [{
+                  label: this._stringBundle.GetStringFromName("SecurityKeepBlocking.label"),
+                  accessKey: this._stringBundle.GetStringFromName("SecurityKeepBlocking.accesskey"),
+                  callback: this.onSecurityChange.bind(this, null, null, -1)
+                }, {
+                  label: this._stringBundle.GetStringFromName("SecurityUnblock.label"),
+                  accessKey: this._stringBundle.GetStringFromName("SecurityUnblock.accesskey"),
+                  callback: () => {
+                    const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+                    Components.classes["@mozilla.org/permissionmanager;1"]
+                              .getService(nsIPermissionManager)
+                              .add(this.activeBrowser.currentURI,
+                                   "trackingprotection",
+                                   nsIPermissionManager.ALLOW_ACTION);
+                    this.reloadPage();
+                  }
+                }];
+              }
             } else if (aState & nsIWebProgressListener.STATE_LOADED_MIXED_DISPLAY_CONTENT &&
                 this._prefs.getBoolPref("security.warn_mixed_display_content")) {
               pref = "security.warn_mixed_display_content";
@@ -194,7 +227,7 @@
                 label: this._stringBundle.GetStringFromName("SecurityPreferences.label"),
                 accessKey: this._stringBundle.GetStringFromName("SecurityPreferences.accesskey"),
                 callback: function() {
-                  goPreferences("ssl_pane");
+                  goPreferences(pane);
                   return true;
                 }
               });

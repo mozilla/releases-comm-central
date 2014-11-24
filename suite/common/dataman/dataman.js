@@ -1285,7 +1285,7 @@ var gPerms = {
       let permTypes = ["allowXULXBL", "cookie", "geo", "image", "indexedDB",
                        "install", "object", "offline-app", "password",
                        "plugins", "popup", "script", "sts/use", "sts/subd",
-                       "stylesheet"];
+                       "stylesheet", "trackingprotection"];
       for (let i = 0; i < permTypes.length; i++) {
         let typeDesc = permTypes[i];
         try {
@@ -1361,6 +1361,8 @@ var gPerms = {
         if (Services.prefs.getBoolPref("dom.disable_open_during_load"))
           return Services.perms.DENY_ACTION;
         return Services.perms.ALLOW_ACTION;
+      case "trackingprotection":
+        return Services.perms.DENY_ACTION;
     }
     try {
       // Look for an nsContentBlocker permission

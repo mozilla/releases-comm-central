@@ -12,6 +12,8 @@
 <!ENTITY doNotTrack.accesskey             "T">
 <!ENTITY trackProtect.label               "Prevent tracking activities by known sites">
 <!ENTITY trackProtect.accesskey           "n">
+<!ENTITY warnTrackContent.label           "Warn me when known tracking activities were detected">
+<!ENTITY warnTrackContent.accesskey       "W">
 
 <!ENTITY geoLocation.label                "Location Aware Browsing">
 <!ENTITY geoIntro.label                   "Websites may request more information about your current location.">

@@ -21,6 +21,10 @@
                   type="bool"/>
       <preference id="privacy.trackingprotection.enabled"
                   name="privacy.trackingprotection.enabled"
+                  type="bool"
+                  onchange="SetWarnTrackEnabled(this.value);"/>
+      <preference id="privacy.warn_tracking_content"
+                  name="privacy.warn_tracking_content"
                   type="bool"/>
 
       <!-- Location Aware Browsing -->
@@ -50,6 +54,11 @@
                 label="&trackProtect.label;"
                 accesskey="&trackProtect.accesskey;"
                 preference="privacy.trackingprotection.enabled"/>
+      <checkbox id="warnTrackContent"
+                class="indent"
+                label="&warnTrackContent.label;"
+                accesskey="&warnTrackContent.accesskey;"
+                preference="privacy.warn_tracking_content"/>
     </groupbox>
 
     <!-- REMOVE #ifndef once bug 903439 is fixed -->
