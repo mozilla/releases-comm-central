@@ -56,28 +56,33 @@ function wait_for_provider_list_loaded(aController) {
 function wait_for_search_ready(aController) {
   mc.waitFor(function() {
     mc.sleep(0);
-    return aController.window.$("#name").is(":enabled");
+    return !aController.e("name").disabled;
   },
             "Timed out waiting for the search input field to be enabled");
 }
 
-/* Wait for a particular element to become fully visible.  Assumes that
- * jQuery is available in the controller's window.
+function _element_visible(aController, aId) {
+  let element = aController.e(aId);
+  return element &&
+         !element.hidden &&
+         aController.window.getComputedStyle(element).display != "none";
+}
+
+/* Wait for a particular element to become fully visible.
  */
 function wait_for_element_visible(aController, aId) {
   mc.waitFor(function() {
-    return aController.window.$("#" + aId).is(":visible");
+    return _element_visible(aController, aId);
   },
              "Timed out waiting for element with ID=" + aId
              + " to be enabled");
 }
 
-/* Wait for a particular element to become fully invisible.  Assumes that
- * jQuery is available in the controller's window.
+/* Wait for a particular element to become fully invisible.
  */
 function wait_for_element_invisible(aController, aId) {
   mc.waitFor(function() {
-    return !aController.window.$("#" + aId).is(":visible");
+    return !_element_visible(aController, aId);
   },
              "Timed out waiting for element with ID=" + aId
              + " to become invisible");
@@ -112,12 +117,12 @@ function assert_links_shown(aController, aLinks) {
   if (!Array.isArray(aLinks))
     aLinks = [aLinks];
 
-  let $ = aController.window.$;
-
   aLinks.forEach(function(aLink) {
-    let anchor = $('a[href="' + aLink + '"]');
-    fdh.assert_true(anchor.length > 0);
-    fdh.assert_true(anchor.is(":visible"));
+    let anchors = aController.window.document.querySelectorAll('a[href="' + aLink + '"]');
+    fdh.assert_true(anchors.length > 0);
+    for (let anchor of anchors) {
+      fdh.assert_false(anchor.hidden);
+    }
   });
 }
 
@@ -128,18 +133,16 @@ function assert_links_not_shown(aController, aLinks) {
   if (!Array.isArray(aLinks))
     aLinks = [aLinks];
 
-  let $ = aController.window.$;
-
   aLinks.forEach(function(aLink) {
-    let anchor = $('a[href="' + aLink + '"]');
-    fdh.assert_true(anchor.length == 0);
+    let anchors = aController.window.document.querySelectorAll('a[href="' + aLink + '"]');
+    fdh.assert_equals(anchors.length, 0);
   });
 }
 
 /* Waits for account provisioner search results to come in.
  */
 function wait_for_search_results(w) {
-  w.waitFor(function() w.window.$("#results").children().length > 0,
+  w.waitFor(function() w.e("results").childNodes.length > 0,
             "Timed out waiting for search results to arrive.");
 }
 
@@ -148,7 +151,7 @@ function wait_for_search_results(w) {
  */
 function wait_to_be_offline(w) {
   mc.waitFor(function() {
-    return w.window.$("#cannotConnectMessage").is(":visible");
+    return _element_visible(w, "cannotConnectMessage");
   }, "Timed out waiting for the account provisioner to be in "
     + "offline mode.");
 }
