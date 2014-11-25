@@ -483,3 +483,47 @@ input[type="submit"].search {
   width: 260px;
   vertical-align: top;
 }
+
+#otherLangDesc.fadeIn {
+  animation-duration: 0.4s;
+  animation-name: fadein;
+  display: block;
+  opacity: 1.0;
+}
+
+@keyframes fadein {
+  0% {
+    opacity: 0.0;
+    display: none;
+  }
+  1% {
+    opacity: 0.0;
+    display: block;
+  }
+  100% {
+    opacity: 1.0;
+    display: block;
+  }
+}
+
+#otherLangDesc.fadeOut {
+  animation-duration: 0.4s;
+  animation-name: fadeout;
+  display: none;
+  opacity: 0.0;
+}
+
+@keyframes fadeout {
+  0% {
+    opacity: 1.0;
+    display: block;
+  }
+  99% {
+    opacity: 0.0;
+    display: none;
+  }
+  100% {
+    opacity: 0.0;
+    display: none;
+  }
+}

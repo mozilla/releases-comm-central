@@ -576,9 +576,12 @@ var EmailAccountProvisioner = {
     };
 
     if (otherLangProviders.length) {
-      $("#otherLangDesc").fadeIn();
+      let otherLangDesc = document.getElementById("otherLangDesc");
+      otherLangDesc.classList.remove("fadeOut");
+      otherLangDesc.classList.add("fadeIn");
       $("#otherLangDesc").click(function() {
-        $("#otherLangDesc").fadeOut();
+        otherLangDesc.classList.remove("fadeIn");
+        otherLangDesc.classList.add("fadeOut");
         $(".otherLanguage").fadeIn().css("display", "inline-block");
       });
     }
