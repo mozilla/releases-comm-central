@@ -122,7 +122,7 @@ var Core = {
 
     Services.cmd.registerCommand({
       name: "debug",
-      get helpString() self.bundle("debugCommnad.help"),
+      get helpString() self.bundle("debugCommand.help"),
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: (aMsg, aConv) => {
