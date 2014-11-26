@@ -291,6 +291,7 @@ classic.jar:
   skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
+  skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
 #ifdef XP_WIN
 % skin communicator classic/1.0 %skin/classic/aero/communicator/ os=WINNT osversion>=6
   skin/classic/aero/communicator/communicator.css                       (mail/communicator.css)
@@ -554,7 +555,7 @@ classic.jar:
   skin/classic/aero/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)
   skin/classic/aero/messenger-newsblog/icons/rss-feed.png          (mail/newsblog/rss-feed.png)
   skin/classic/aero/messenger-newsblog/icons/server-rss.png        (mail/newsblog/server-rss-aero.png)
-  skin/classic/aero/messenger/newmailaccount/accountProvisioner.css (mail/newmailaccount/accountProvisioner-aero.css)
+  skin/classic/aero/messenger/newmailaccount/accountProvisioner.css (mail/newmailaccount/accountProvisioner.css)
   skin/classic/aero/messenger/newmailaccount/search.gif            (mail/newmailaccount/search.gif)
   skin/classic/aero/messenger/newmailaccount/spinner.gif           (mail/newmailaccount/spinner.gif)
   skin/classic/aero/messenger/newmailaccount/success-addons.png    (mail/newmailaccount/success-addons.png)
@@ -570,4 +571,5 @@ classic.jar:
   skin/classic/aero/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/aero/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/aero/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
+  skin/classic/aero/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
 #endif
