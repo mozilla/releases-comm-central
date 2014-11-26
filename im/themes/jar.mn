@@ -127,6 +127,8 @@ instantbird.jar:
 	skin/classic/aero/instantbird/voice.png
 *	skin/classic/aero/instantbird/blist.css			(blist-aero.css)
 *	skin/classic/aero/instantbird/conversation.css		(conversation-aero.css)
+	skin/classic/aero/instantbird/debugLog.css
+*	skin/classic/aero/instantbird/debugLogPanel.css
 *	skin/classic/aero/instantbird/engineManager.css
 *	skin/classic/aero/instantbird/instantbird.css		(instantbird-aero.css)
 	skin/classic/aero/instantbird/menulist.css
