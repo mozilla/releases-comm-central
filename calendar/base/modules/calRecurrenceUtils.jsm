@@ -55,6 +55,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                 return (plural ? aDayString + "Plural" : aDayString);
             }
 
+            let dateFormatter = cal.getDateFormatter();
             let ruleString;
             if (rule.type == 'DAILY') {
                 if (checkRecurrenceRule(rule, ['BYDAY'])) {
@@ -191,15 +192,13 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
 
                             // Build a string with a list of days separated with commas.
                             let day_string = "";
-                            let ordinalSymbols = getRString("monthlyDaysOfNth_ordSymbol").split(",");
                             let lastDay = false;
                             for (let i = 0; i < component.length; i++) {
                                 if (component[i] == -1) {
                                     lastDay = true;
                                     continue;
                                 }
-                                let dayOrdinalSymbol = ordinalSymbols[component[i] -1] || ordinalSymbols[0];
-                                day_string += component[i] + dayOrdinalSymbol + ", ";
+                                day_string += dateFormatter.formatDayWithOrdinal(component[i]) + ", ";
                             }
                             if (lastDay) {
                                 day_string += getRString("monthlyLastDay") + ", ";
@@ -231,7 +230,8 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                         let monthNameString = getRString("repeatDetailsMonth" + bymonth[0]);
 
                         let yearlyString = getRString("yearlyNthOn",
-                                                      [monthNameString, bymonthday[0]]);
+                                                      [monthNameString,
+                                                       dateFormatter.formatDayWithOrdinal(bymonthday[0])]);
                         ruleString = PluralForm.get(rule.interval, yearlyString)
                                                .replace("#3", rule.interval);
                     }
@@ -274,7 +274,6 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
             }
 
             let kDefaultTimezone = cal.calendarDefaultTimezone();
-            let dateFormatter = cal.getDateFormatter();
 
             let detailsString;
             if (!endDate || allDay) {

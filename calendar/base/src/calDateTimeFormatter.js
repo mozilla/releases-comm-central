@@ -102,10 +102,11 @@ calDateTimeFormatter.prototype = {
             // HACK We are probably on Linux and want a string in long format.
             // dateService.dateFormatLong on Linux may return a short string, so
             // build our own.
-            return this.shortDayName(aDate.weekday) + " " +
-                   aDate.day + " " +
-                   this.shortMonthName(aDate.month) + " " +
-                   aDate.year;
+            return cal.calGetString("calendar", "formatDateLong",
+                                    [this.shortDayName(aDate.weekday),
+                                     this.formatDayWithOrdinal(aDate.day),
+                                     this.shortMonthName(aDate.month),
+                                     aDate.year]);
         }
     },
 
@@ -113,9 +114,9 @@ calDateTimeFormatter.prototype = {
         // Doing this the hard way, because nsIScriptableDateFormat doesn't
         // have a way to not include the year.
         if (this.mMonthFirst) {
-            return this.shortMonthName(aDate.month) + " " + aDate.day;
+            return this.shortMonthName(aDate.month) + " " + this.formatDayWithOrdinal(aDate.day);
         } else {
-            return aDate.day + " " + this.shortMonthName(aDate.month);
+            return this.formatDayWithOrdinal(aDate.day) + " " + this.shortMonthName(aDate.month);
         }
     },
 
@@ -177,21 +178,21 @@ calDateTimeFormatter.prototype = {
             if (sameDay) {
                 return this.formatDateLong(aStartDate);
             } else {
-                let startDay = aStartDate.day;
+                let startDay = this.formatDayWithOrdinal(aStartDate.day);
                 let startYear = aStartDate.year;
-                let endDay = endDate.day;
+                let endDay = this.formatDayWithOrdinal(endDate.day);
                 let endYear = endDate.year;
                 if (aStartDate.year != endDate.year) {
-                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "dayIntervalBetweenYears");
-                    let endMonthName = cal.formatMonth(aEndDate.month + 1, "calendar", "dayIntervalBetweenYears");
-                    return calGetString("calendar", "dayIntervalBetweenYears", [startMonthName, startDay, startYear, endMonthName, endDay, endYear]);
+                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "daysIntervalBetweenYears");
+                    let endMonthName = cal.formatMonth(aEndDate.month + 1, "calendar", "daysIntervalBetweenYears");
+                    return cal.calGetString("calendar", "daysIntervalBetweenYears", [startMonthName, startDay, startYear, endMonthName, endDay, endYear]);
                 } else if (aStartDate.month != endDate.month) {
-                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "dayIntervalBetweenMonths");
-                    let endMonthName = cal.formatMonth(aEndDate.month + 1, "calendar", "dayIntervalBetweenMonths");
-                    return calGetString("calendar", "dayIntervalBetweenMonths", [startMonthName, startDay, endMonthName, endDay, endYear]);
+                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "daysIntervalBetweenMonths");
+                    let endMonthName = cal.formatMonth(aEndDate.month + 1, "calendar", "daysIntervalBetweenMonths");
+                    return cal.calGetString("calendar", "daysIntervalBetweenMonths", [startMonthName, startDay, endMonthName, endDay, endYear]);
                 } else {
-                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "dayIntervalInMonth");
-                    return calGetString("calendar", "dayIntervalInMonth", [startMonthName, startDay, endDay, endYear]);
+                    let startMonthName = cal.formatMonth(aStartDate.month + 1, "calendar", "daysIntervalInMonth");
+                    return cal.calGetString("calendar", "daysIntervalInMonth", [startMonthName, startDay, endDay, endYear]);
                 }
             }
         } else {
@@ -218,6 +219,12 @@ calDateTimeFormatter.prototype = {
                 return calGetString("calendar", "datetimeIntervalOnSeveralDays", [startDateString, startTime, endDateString, endTime]);
             }
         }
+    },
+
+    formatDayWithOrdinal: function formatDayWithOrdinal(aDay) {
+        let ordinalSymbols = this.mDateStringBundle.GetStringFromName("dayOrdinalSymbol").split(",");
+        let dayOrdinalSymbol = ordinalSymbols[aDay - 1] || ordinalSymbols[0];
+        return aDay + dayOrdinalSymbol;
     },
 
     _getItemDates: function _getItemDates(aItem) {

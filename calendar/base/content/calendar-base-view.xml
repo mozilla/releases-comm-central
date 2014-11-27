@@ -876,10 +876,15 @@
         ]]></getter>
         <setter><![CDATA[
           this.mDate = val;
-          this.shortName.setAttribute("value", getDateFormatter().shortDayName(val.weekday) + " " +
-                                               getDateFormatter().formatDateWithoutYear(val));
-          this.longName.setAttribute("value", getDateFormatter().dayName(val.weekday) + " " +
-                                              getDateFormatter().formatDateWithoutYear(val));
+          let dateFormatter = cal.getDateFormatter();
+          let label = cal.calGetString("calendar", "dayHeaderLabel",
+                                       [dateFormatter.shortDayName(val.weekday),
+                                        dateFormatter.formatDateWithoutYear(val)]);
+          this.shortName.setAttribute("value", label);
+          label = cal.calGetString("calendar", "dayHeaderLabel",
+                                   [dateFormatter.dayName(val.weekday),
+                                    dateFormatter.formatDateWithoutYear(val)]);
+          this.longName.setAttribute("value", label);
           return val;
         ]]></setter>
       </property>

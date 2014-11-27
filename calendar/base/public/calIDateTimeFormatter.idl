@@ -8,7 +8,7 @@
 interface calIDateTime;
 interface calIItemBase;
 
-[scriptable, uuid(17101743-f016-4fb2-90dd-0c043aa44579)]
+[scriptable, uuid(69741510-5f5d-11e4-9803-0800200c9a66)]
 interface calIDateTimeFormatter : nsISupports
 {
     /**
@@ -115,6 +115,19 @@ interface calIDateTimeFormatter : nsISupports
      */
     AUTF8String formatTimeInterval(in calIDateTime aStartTime,
                                    in calIDateTime aEndTime);
+
+    /**
+     * Get the monthday followed by its ordinal symbol in the current locale.
+     * e.g.  monthday 1 -> 1st
+     *       monthday 2 -> 2nd etc.
+     *
+     * @param aMonthdayIndex
+     *      a number from 1 to 31
+     * @returns
+     *      the monthday number in ordinal format in the current locale
+     */
+    AUTF8String formatDayWithOrdinal(in unsigned long aMonthdayIndex);
+
     /**
      * Get the month name
      *

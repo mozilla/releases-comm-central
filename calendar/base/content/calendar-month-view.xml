@@ -176,8 +176,7 @@
             return val;
           }
           if (val) {
-            let monthName = calGetString("dateFormat", "month." + (this.mDate.month + 1) + ".Mmm");
-            this.setAttribute("value", this.mDate.day + " " + monthName);
+            this.setAttribute("value", getDateFormatter().formatDateWithoutYear(this.mDate));
           } else {
             this.setAttribute("value", this.mDate.day);
           }
