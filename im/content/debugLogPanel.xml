@@ -145,10 +145,28 @@
             timeCell.className = "time";
             let msgCell = doc.createElement("td");
             msgCell.className = "msg";
-            // The trailing space and newline are necessary to ensure correct
-            // formatting when text is selected/copied.
+            // A trailing space after the timestamp a the trailing line break
+            // after the debug message are necessary to ensure correct formatting
+            // when text is selected/copied.
             timeCell.textContent = "[" + time + "] ";
-            msgCell.textContent = formattedMsg + "\n";
+            // Due to bug 116083, newlines that are forcibly displayed using
+            // `white-space: pre;` are not preserved when the text is copied.
+            // To work around this, we split the message into lines, and append a
+            // text node and a <br/> element for each line.
+            // The <br/> elements are not perfect substitutes for the newline
+            // characters, however. copyDebugLog uses document.body.textContent
+            // to get the entire contents of the debug log, and textContent does
+            // not account for <br/> elements.
+            // So, we keep the newline characters (which are hidden because white-
+            // space is collapsed by default in html), as well as the <br/> elements
+            // to ensure text is correctly displayed as well as copied.
+            let lines = formattedMsg.split("\n");
+            for (let line of lines) {
+              let textNode = doc.createTextNode(line + "\n");
+              let brNode = doc.createElement("br");
+              msgCell.appendChild(textNode);
+              msgCell.appendChild(brNode);
+            }
             tr.appendChild(timeCell);
             tr.appendChild(msgCell);
             table.appendChild(tr);

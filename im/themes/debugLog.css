@@ -39,7 +39,3 @@ td.time {
   white-space: nowrap;
   vertical-align: top;
 }
-
-td.msg {
-  white-space: pre-wrap;
-}
