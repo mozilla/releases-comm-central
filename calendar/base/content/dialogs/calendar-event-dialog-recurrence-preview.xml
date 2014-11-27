@@ -214,7 +214,7 @@
                       }
                       var current = start.clone();
                       while (current.compare(end) < 0) {
-                        var box = minimonth.getBoxForDate(cal.dateTimeToJsDate(current));
+                        let box = minimonth.getBoxForDate(current);
                         if (box) {
                             if (occurrence &&
                                 occurrence.day == current.day &&

@@ -878,16 +878,8 @@
       <method name="getBoxForDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-            let ymd;
-            if (aDate instanceof Date) {
-                ymd = [aDate.getFullYear(),
-                       aDate.getMonth(),
-                       aDate.getDate()].join("-");
-            } else {
-                // Probably a calIDateTime
-                ymd = [aDate.year, aDate.month, aDate.day].join("-");
-            }
-
+            // aDate is a calIDateTime
+            let ymd = [aDate.year, aDate.month, aDate.day].join("-");
             return (ymd in this.mDayMap ? this.mDayMap[ymd] : null);
         ]]></body>
       </method>
@@ -916,7 +908,7 @@
             }
 
             if (aDate) {
-              var box = this.getBoxForDate(aDate);
+              let box = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
               if (box) {
                   removeForBox(box);
               }
@@ -1060,7 +1052,7 @@
                 this.showMonth(aMainDate);
             } else if (!sameDate) {
                 // select day only
-                var day = this.getBoxForDate(aDate);
+                let day = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
                 if (this.mSelected) {
                     this.mSelected.removeAttribute("selected");
                 }
