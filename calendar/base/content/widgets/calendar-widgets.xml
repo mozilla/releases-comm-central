@@ -123,7 +123,7 @@
         <parameter name="compare" />
         <body><![CDATA[
             let newIndex = cal.binaryInsert(categories, category, compare, true);
-            let item = categoryListbox.childNodes[newIndex];
+            let item = categoryListbox.childNodes[Math.min(newIndex, categoryListbox.childNodes.length - 1)];
 
             if (!item || item.getAttribute("value") != category) {
                 // The item doesn't exist, insert it at the correct spot.

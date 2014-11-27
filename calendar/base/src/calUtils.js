@@ -1821,7 +1821,7 @@ function binaryInsert(itemArray, item, comptor, discardDuplicates) {
     } else if (!discardDuplicates ||
                 comptor(itemArray[Math.min(newIndex, itemArray.length - 1)], item) != 0) {
         // Only add the item if duplicates should not be discarded, or if
-        // they should and itemArray[newIndex] == item.
+        // they should and itemArray[newIndex] != item.
         itemArray.splice(newIndex, 0, item);
     }
     return newIndex;
