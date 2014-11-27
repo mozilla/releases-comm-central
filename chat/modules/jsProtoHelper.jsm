@@ -242,7 +242,7 @@ const GenericAccountPrototype = {
 
 
 const GenericAccountBuddyPrototype = {
-  __proto__: ClassInfo("prplIAccountBuddy", "generic account buddy object"),
+  __proto__: ClassInfo("imIAccountBuddy", "generic account buddy object"),
   get DEBUG() this._account.DEBUG,
   get LOG() this._account.LOG,
   get WARN() this._account.WARN,

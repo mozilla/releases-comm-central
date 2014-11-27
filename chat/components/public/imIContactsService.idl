@@ -10,11 +10,11 @@
 
 interface imIContact;
 interface imIBuddy;
-interface prplIAccountBuddy;
+interface imIAccountBuddy;
 interface imIAccount;
 interface prplIProtocol;
 
-[scriptable, uuid(45ce33d9-d335-4cce-b904-44821987e048)]
+[scriptable, uuid(be0f7dd6-26ca-445c-a265-99cf9612ece8)]
 interface imIContactsService: nsISupports {
   void initContacts();
   void unInitContacts();
@@ -26,15 +26,15 @@ interface imIContactsService: nsISupports {
   imIBuddy getBuddyById(in long aId);
   imIBuddy getBuddyByNameAndProtocol(in AUTF8String aNormalizedName,
                                      in prplIProtocol aPrpl);
-  prplIAccountBuddy getAccountBuddyByNameAndAccount(in AUTF8String aNormalizedName,
-                                                    in imIAccount aAccount);
+  imIAccountBuddy getAccountBuddyByNameAndAccount(in AUTF8String aNormalizedName,
+                                                  in imIAccount aAccount);
 
   // These 3 functions are called by the protocol plugins when
   // synchronizing the buddy list with the server stored list,
   // or after user operations have been performed.
-  void accountBuddyAdded(in prplIAccountBuddy aAccountBuddy);
-  void accountBuddyRemoved(in prplIAccountBuddy aAccountBuddy);
-  void accountBuddyMoved(in prplIAccountBuddy aAccountBuddy,
+  void accountBuddyAdded(in imIAccountBuddy aAccountBuddy);
+  void accountBuddyRemoved(in imIAccountBuddy aAccountBuddy);
+  void accountBuddyMoved(in imIAccountBuddy aAccountBuddy,
                          in imITag aOldTag, in imITag aNewTag);
 
   // These methods are called by the imIAccountsService implementation
@@ -54,20 +54,6 @@ interface imIContactsService: nsISupports {
   void forgetAccount(in unsigned long aId);
 };
 
-/*
- * An imIContact represents a person, e.g. our friend Alice. This person might
- * have multiple means of contacting them.
- *
- * Remember that an imIContact can have multiple buddies (imIBuddy instances),
- * each imIBuddy can have multiple account-buddies (prplIAccountBuddy instances)
- * referencing it. To be explicit, the difference is that an imIBuddy represents
- * a contact's account on a network, while a prplIAccountBuddy represents the
- * link between your account and your contact's account.
- *
- * Each of these implement imIStatusInfo: imIContact and imIBuddy should merge
- * the status info based on the information available in their instances of
- * imIBuddy and prplIAccountBuddy, respectively.
- */
 [scriptable, uuid(f585b0df-f6ad-40d5-9de4-c58b14af13e4)]
 interface imIContact: imIStatusInfo {
   // The id will be positive if the contact is real (stored in the
@@ -146,7 +132,7 @@ interface imIContact: imIStatusInfo {
    *
    * Observers will also receive all the (forwarded) notifications
    * from the linked buddies (imIBuddy instances) and their account
-   * buddies (prplIAccountBuddy instances).
+   * buddies (imIAccountBuddy instances).
    */
 
   // Exposed for add-on authors. All internal calls will come from the
@@ -158,18 +144,8 @@ interface imIContact: imIStatusInfo {
                        [optional] in wstring aData);
 };
 
-/*
- * An imIBuddy represents a person's account on a particular network. Note that
- * what a network is depends on the implementation of the prpl, e.g. for AIM
- * there is only a single network, but both GTalk and XMPP are the same network.
- *
- * E.g. Our contact Alice has two accounts on the Foo network: @lic4 and
- * alice88; and she has a single account on the Bar network: _alice_. This would
- * result in an imIBuddy instance for each of these: @lic4, alice88, and _alice_
- * that would all exist as part of the same imIContact.
- *
- */
-[scriptable, uuid(c56520ba-d923-4b95-8416-ca6733c4a38e)]
+
+[scriptable, uuid(fea582a0-3839-4d80-bcab-0ff82ae8f97f)]
 interface imIBuddy: imIStatusInfo {
   readonly attribute long id;
   readonly attribute prplIProtocol protocol;
@@ -181,9 +157,9 @@ interface imIBuddy: imIStatusInfo {
   // displayName = serverAlias || userName.
 
   readonly attribute imIContact contact;
-  readonly attribute prplIAccountBuddy preferredAccountBuddy;
+  readonly attribute imIAccountBuddy preferredAccountBuddy;
   void getAccountBuddies([optional] out unsigned long accountBuddyCount,
-                         [retval, array, size_is(accountBuddyCount)] out prplIAccountBuddy accountBuddies);
+                         [retval, array, size_is(accountBuddyCount)] out imIAccountBuddy accountBuddies);
 
   // remove the buddy from the buddy list. If the contact becomes empty, it will be removed too.
   void remove();
@@ -207,7 +183,7 @@ interface imIBuddy: imIStatusInfo {
    *   buddy-icon-changed
    *
    * Observers will also receive all the (forwarded) notifications
-   * from the linked account buddies (prplIAccountBuddy instances).
+   * from the linked account buddies (imIAccountBuddy instances).
    */
 
   // Exposed for add-on authors. All internal calls will come from the
@@ -218,25 +194,15 @@ interface imIBuddy: imIStatusInfo {
   void notifyObservers(in nsISupports aObj, in string aEvent,
                        [optional] in wstring aData);
 
-  // observe should only be called by the prplIAccountBuddy
+  // observe should only be called by the imIAccountBuddy
   // implementations to report changes.
   void observe(in nsISupports aObj, in string aEvent,
                [optional] in wstring aData);
 };
 
-/*
- * A prplIAccountBuddy represents the connection on a network between one of the
- * current user's accounts and a persons's account. E.g. if we're logged into
- * the Foo network as BobbyBoy91 and want to talk to Alice, there are two
- * prplIAccountBuddy instances: @lic4 as seen by BobbyBoy91 or alice88 as seen
- * by BobbyBoy91. Additionally, if we also login as 8ob, there would be @lic4 as
- * seen by 8ob and alice88 as seen by 8ob; but these (now four)
- * prplIAccountBuddy instances would link to only TWO imIBuddy instances (one
- * each for @lic4 and alice88).
+/* imIAccountBuddy implementations can send notifications to their buddy:
  *
- * prplIAccountBuddy implementations send notifications to their buddy:
- *
- * For all of them, aSubject points to the prplIAccountBuddy object.
+ * For all of them, aSubject points to the imIAccountBuddy object.
  *
  * Supported notifications:
  *  account-buddy-availability-changed
@@ -253,11 +219,11 @@ interface imIBuddy: imIStatusInfo {
  * All notifications (even unsupported ones) will be forwarded to the contact,
  * its tags and nsObserverService.
  */
-[scriptable, uuid(0c5021ac-7acd-4118-bf4f-c0dd9cb3ddef)]
-interface prplIAccountBuddy: imIStatusInfo {
+[scriptable, uuid(114d24ff-56a1-4fd6-9822-4992efb6e036)]
+interface imIAccountBuddy: imIStatusInfo {
   // The setter is for internal use only. buddy will be set by the
   // Contacts service when accountBuddyAdded is called on this
-  // instance of prplIAccountBuddy.
+  // instance of imIAccountBuddy.
            attribute imIBuddy buddy;
   readonly attribute imIAccount account;
   // Setting the tag will move the buddy to a different group on the

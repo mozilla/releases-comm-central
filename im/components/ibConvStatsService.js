@@ -472,7 +472,7 @@ ConvStatsService.prototype = {
 
       let possibleConv = null;
       if (conv.buddy) {
-        // First .buddy is a prplIAccountBuddy, second one is an imIBuddy.
+        // First .buddy is an imIAccountBuddy, second one is an imIBuddy.
         let contact = conv.buddy.buddy.contact;
         if (contact)
           possibleConv = this._contactsById.get(contact.id);

@@ -9,6 +9,7 @@
 
 interface ibIPossibleConversation;
 interface imIAccount;
+interface imIAccountBuddy;
 interface imIContact;
 
 [scriptable, uuid(1b495592-8512-4443-bcdb-49118f045e42)]

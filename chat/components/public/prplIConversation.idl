@@ -7,7 +7,7 @@
 #include "nsISimpleEnumerator.idl"
 #include "nsIObserver.idl"
 
-interface prplIAccountBuddy;
+interface imIAccountBuddy;
 interface imIAccount;
 interface imIOutgoingMessage;
 interface nsIURI;
@@ -74,11 +74,11 @@ interface prplIConversation: nsISupports {
      aSubject will contain the message (prplIMessage) */
 };
 
-[scriptable, uuid(c0b5b647-b0ec-4dc6-9e53-31a762a30a6e)]
+[scriptable, uuid(0c072a80-103a-4992-b249-8e442b5f0d46)]
 interface prplIConvIM: prplIConversation {
 
   /* The buddy at the remote end of the conversation */
-  readonly attribute prplIAccountBuddy buddy;
+  readonly attribute imIAccountBuddy buddy;
 
   /* The remote buddy is not currently typing */
   const short NOT_TYPING = 0;

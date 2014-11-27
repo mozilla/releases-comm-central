@@ -24,7 +24,7 @@ interface imITag: nsISupports {
   /* Observers will be notified of changes related to the contacts
    * that have the tag: contact-*, buddy-*, account-buddy-*
    * notifications forwarded respectively from the imIContact,
-   * imIBuddy and prplIAccountBuddy instances.
+   * imIBuddy and imIAccountBuddy instances.
    */
 
   // Exposed for add-on authors. All internal calls will come from the

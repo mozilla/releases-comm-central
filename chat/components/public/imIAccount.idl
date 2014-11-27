@@ -8,7 +8,7 @@
 
 interface imITag;
 interface imIBuddy;
-interface prplIAccountBuddy;
+interface imIAccountBuddy;
 interface imIAccount;
 interface prplIAccount;
 interface prplIProtocol;
@@ -73,7 +73,7 @@ interface prplIRoomInfoCallback: nsISupports {
 /*
  * This interface should be implemented by the protocol plugin.
  */
-[scriptable, uuid(55331ab9-54e9-4cd3-bb19-a46da76898e5)]
+[scriptable, uuid(bc540cab-a6e9-4c2c-abff-e95d0d1370a1)]
 interface prplIAccount: nsISupports {
   readonly attribute imIAccount imAccount;
 
@@ -102,7 +102,7 @@ interface prplIAccount: nsISupports {
   void addBuddy(in imITag aTag, in AUTF8String aName);
 
   // Used while loading the buddy list at startup.
-  prplIAccountBuddy loadBuddy(in imIBuddy aBuddy, in imITag aTag);
+  imIAccountBuddy loadBuddy(in imIBuddy aBuddy, in imITag aTag);
 
   /* Request more info on a buddy (typically a chat buddy).
    * The result (if any) will be provided by a user-info-received
