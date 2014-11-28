@@ -482,6 +482,7 @@ const GenericConversationPrototype = {
   },
 
   prepareForSending: function(aOutgoingMessage, aCount) null,
+  prepareForDisplaying: function(aImMessage) {},
   sendMsg: function(aMsg) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },

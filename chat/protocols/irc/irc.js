@@ -131,6 +131,10 @@ const GenericIRCConversation = {
     return this._account.maxMessageLength -
            this._account.countBytes(baseMessage);
   },
+  // Apply CTCP formatting before displaying.
+  prepareForDisplaying: function(aMsg) {
+    aMsg.displayMessage = ctcpFormatToHTML(aMsg.displayMessage);
+  },
   prepareForSending: function(aOutgoingMessage, aCount) {
     // Split the message by line breaks and send each one individually.
     let messages = aOutgoingMessage.message.split(/[\r\n]+/);
@@ -278,14 +282,6 @@ ircChannel.prototype = {
   // True while we are rejoining a channel previously parted by the user.
   _rejoined: false,
   banMasks: [],
-
-  // Overwrite the writeMessage function to apply CTCP formatting before
-  // display.
-  writeMessage: function(aWho, aText, aProperties) {
-    GenericConvChatPrototype.writeMessage.call(this, aWho,
-                                               ctcpFormatToHTML(aText),
-                                               aProperties);
-  },
 
   // Section 3.2.2 of RFC 2812.
   part: function(aMessage) {
@@ -608,14 +604,6 @@ function ircConversation(aAccount, aName) {
 ircConversation.prototype = {
   __proto__: GenericConvIMPrototype,
   get buddy() this._account.buddies.get(this.name),
-
-  // Overwrite the writeMessage function to apply CTCP formatting before
-  // display.
-  writeMessage: function(aWho, aText, aProperties) {
-    GenericConvIMPrototype.writeMessage.call(this, aWho,
-                                             ctcpFormatToHTML(aText),
-                                             aProperties);
-  },
 
   unInit: function() {
     this.unInitIRCConversation();

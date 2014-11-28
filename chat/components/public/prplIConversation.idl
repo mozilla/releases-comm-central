@@ -10,6 +10,7 @@
 interface prplIAccountBuddy;
 interface imIAccount;
 interface imIOutgoingMessage;
+interface imIMessage;
 interface nsIURI;
 interface nsIDOMDocument;
 interface prplIChatRoomFieldValues;
@@ -51,6 +52,11 @@ interface prplIConversation: nsISupports {
   void prepareForSending(in imIOutgoingMessage aMsg,
                          [optional] out unsigned long aMsgCount,
                          [retval, array, size_is(aMsgCount)] out wstring aMsgs);
+
+  /* Postprocess messages before they are displayed (eg. escaping). The
+     implementation can set aMsg.displayMessage, otherwise the originalMessage
+     is used. */
+  void prepareForDisplaying(in imIMessage aMsg);
 
   /* Send information about the current typing state to the server.
      aString should contain the content currently in the text field. The

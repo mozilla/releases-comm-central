@@ -69,6 +69,11 @@ interface imIConversationsService: nsISupports {
                                                     in boolean aIsChat);
 };
 
+// Because of limitations in libpurple (write_conv is called without context),
+// there's an implicit contract that whatever message string the conversation
+// service passes to a protocol, it'll get back as the originalMessage when
+// "new-text" is notified. This is required for the OTR extensions to work.
+
 // A cancellable outgoing message. Before handing a message off to a protocol,
 // the conversation service notifies observers (typically add-ons) of an
 // outgoing message, which can be transformed or cancelled.

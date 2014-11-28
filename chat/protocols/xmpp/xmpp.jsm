@@ -37,6 +37,11 @@ XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
+XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
+  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  return function(aTxt) cs.scanTXT(aTxt, cs.kEntities);
+});
+
 /* This is an ordered list, used to determine chat buddy flags:
  *  index < member    -> noFlags
  *  index = member    -> voiced
@@ -258,6 +263,13 @@ const XMPPConversationPrototype = {
     let alias = this.account.alias || this.account.statusInfo.displayName;
     this.writeMessage(who, aMsg, {outgoing: true, _alias: alias});
     delete this._typingState;
+  },
+
+  /* Perform entity escaping before displaying the message. We assume incoming
+     messages have already been escaped, and will otherwise be filtered. */
+  prepareForDisplaying: function(aMsg) {
+    if (aMsg.outgoing && !aMsg.system)
+      aMsg.displayMessage = TXTToHTML(aMsg.displayMessage);
   },
 
   /* Called by the account when a messsage is received from the buddy */
@@ -912,9 +924,7 @@ const XMPPAccountPrototype = {
         // Even if the message is in plain text, the prplIMessage
         // should contain a string that's correctly escaped for
         // insertion in an HTML document.
-        body = Cc["@mozilla.org/txttohtmlconv;1"]
-                 .getService(Ci.mozITXTToHTMLConv)
-                 .scanTXT(b.innerText, Ci.mozITXTToHTMLConv.kEntities);
+        body = TXTToHTML(b.innerText);
       }
     }
     if (body) {

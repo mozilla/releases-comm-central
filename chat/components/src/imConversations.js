@@ -408,6 +408,7 @@ UIConversation.prototype = {
       this.notifyObservers(aSubject, "received-message");
       if (aSubject.cancelled)
         return;
+      aSubject.conversation.prepareForDisplaying(aSubject);
 
       this._messages.push(aSubject);
       ++this._unreadMessageCount;
@@ -434,6 +435,11 @@ UIConversation.prototype = {
       }
     }
   },
+
+  // Used above when notifying of new-texts originating in the
+  // UIConversation. This happens when this.systemMessage() is called. The
+  // conversation for the message is set as the UIConversation.
+  prepareForDisplaying: function(aMsg) {},
 
   // prplIConvIM
   get buddy() this.target.buddy,
