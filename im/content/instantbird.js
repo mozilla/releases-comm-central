@@ -134,8 +134,10 @@ var XULBrowserWindow = {
 
   updateStatusField: function () {
     var text, type, types = ["overLink"];
-    if (this._busyUI)
-      types.push("status");
+    // if (this._busyUI)
+    // Instantbird uses the status for typing notifications, which should
+    // always be shown.
+    types.push("status");
     types.push("defaultStatus");
     for (type of types) {
       text = this[type];

@@ -1669,7 +1669,7 @@
           // Use browser URL popups for a more lightweight typing text display
           // than displayStatusText provides.
           if (this.tab.selected && "XULBrowserWindow" in window)
-            window.XULBrowserWindow.setOverLink(typingText, null);
+            window.XULBrowserWindow.setStatus(typingText);
         ]]>
         </body>
       </method>
