@@ -890,15 +890,21 @@
             return null;
           }
 
-          let panel = this.selectedPanel;
-          if (!panel._statusPanel) {
-            panel._statusPanel =
+          let statusPanel = this.selectedPanel._statusPanel;
+          if (!statusPanel) {
+            statusPanel =
               document.createElementNS(this.namespaceURI, "statuspanel");
-            panel._statusPanel.setAttribute("inactive", "true");
-            panel._statusPanel.setAttribute("layer", "true");
+            statusPanel.setAttribute("inactive", "true");
+            statusPanel.setAttribute("layer", "true");
+            let contentDocument = this.selectedBrowser.contentDocument;
+            contentDocument.addEventListener("visibilitychange", () => {
+              if (contentDocument.hidden)
+                statusPanel.label = "";
+            });
+            this.selectedPanel._statusPanel = statusPanel;
             this._appendStatusPanel();
           }
-          return panel._statusPanel;
+          return statusPanel;
         ]]></body>
       </method>
 

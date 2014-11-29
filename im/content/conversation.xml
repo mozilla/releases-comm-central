@@ -1491,7 +1491,8 @@
         <body>
         <![CDATA[
           this.displayStatusText();
-          this.updateTyping();
+          this.updateTyping(true);
+
           if (!this.loaded)
             return;
 
@@ -1505,6 +1506,9 @@
       <method name="switchingToPanel">
         <body>
         <![CDATA[
+          // Ensure status panel updates when its text is next set.
+          window.XULBrowserWindow.statusText = "";
+
           if (this._visibleTimer)
             return;
 
@@ -1644,10 +1648,11 @@
       </method>
 
       <method name="updateTyping">
+        <parameter name="aForceUpdate"/>
         <body>
         <![CDATA[
           let typingState = this._conv.typingState;
-          if (typingState == this.typingState)
+          if (typingState == this.typingState && !aForceUpdate)
             return;
 
           this.tab.removeAttribute("typing");
@@ -1714,8 +1719,6 @@
 
               // This is ugly, but when an account gets disconnected libpurple
               // doesn't reset the typing state... :(
-              this.tab.removeAttribute("typing");
-              this.tab.removeAttribute("typed");
               this.typingState = Ci.prplIConvIM.NOT_TYPING;
               this.updateTyping();
             }
