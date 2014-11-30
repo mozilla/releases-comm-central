@@ -3823,22 +3823,22 @@ nsImapMailFolder::ReplayOfflineMoveCopy(nsMsgKey *aMsgKeys, uint32_t aNumKeys,
       {
         nsCString srcFolderUri;
         GetURI(srcFolderUri);
-        for (uint32_t msgIndex = 0; msgIndex < aNumKeys; msgIndex++)
+        nsCOMPtr<nsIMsgOfflineImapOperation> currentOp;
+        for (uint32_t opIndex = 0; opIndex < offlineOps.Length(); opIndex++)
         {
-          nsCOMPtr<nsIMsgOfflineImapOperation> currentOp;
-          for (uint32_t opIndex = 0; opIndex < offlineOps.Length(); opIndex++)
+          dstFolderDB->GetOfflineOpForKey(offlineOps[opIndex], false,
+                                          getter_AddRefs(currentOp));
+          if (currentOp)
           {
-            dstFolderDB->GetOfflineOpForKey(offlineOps[opIndex], false,
-                                            getter_AddRefs(currentOp));
-            if (currentOp)
+            nsCString opSrcUri;
+            currentOp->GetSourceFolderURI(getter_Copies(opSrcUri));
+            if (opSrcUri.Equals(srcFolderUri))
             {
               nsMsgKey srcMessageKey;
               currentOp->GetSrcMessageKey(&srcMessageKey);
-              if (srcMessageKey == aMsgKeys[msgIndex])
+              for (uint32_t msgIndex = 0; msgIndex < aNumKeys; msgIndex++)
               {
-                nsCString opSrcUri;
-                currentOp->GetSourceFolderURI(getter_Copies(opSrcUri));
-                if (opSrcUri.Equals(srcFolderUri))
+                if (srcMessageKey == aMsgKeys[msgIndex])
                 {
                   nsCOMPtr<nsIMsgDBHdr> fakeDestHdr;
                   dstFolderDB->GetMsgHdrForKey(offlineOps[opIndex],
