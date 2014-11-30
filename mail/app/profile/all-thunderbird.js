@@ -822,6 +822,11 @@ pref("browser.search.order.1", "chrome://messenger-region/locale/region.properti
 pref("browser.search.order.2", "chrome://messenger-region/locale/region.properties");
 pref("browser.search.order.3", "chrome://messenger-region/locale/region.properties");
 
+pref("browser.search.defaultenginename.US", "data:text/plain,browser.search.defaultenginename.US=Bing");
+pref("browser.search.order.US.1", "data:text/plain,browser.search.defaultenginename.US=Bing");
+pref("browser.search.order.US.2", "data:text/plain,browser.search.defaultenginename.US=Yahoo");
+pref("browser.search.order.US.3", "data:text/plain,browser.search.defaultenginename.US=");
+
 // XXX Don't update yet, until we've verified how that affects us.
 pref("browser.search.update", false);
 
