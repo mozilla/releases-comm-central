@@ -90,7 +90,13 @@ function filterEditorOnLoad()
 
         var term = gFilter.createTerm();
 
-        term.attrib = Components.interfaces.nsMsgSearchAttrib.Sender;
+        if ("fieldName" in args) {
+          // fieldName should contain the name of the field in which to search,
+          // from nsMsgSearchTerm.cpp::SearchAttribEntryTable, e.g. "to" or "cc"
+          term.attrib = term.getAttributeFromString(args.fieldName);
+        } else {
+          term.attrib = Components.interfaces.nsMsgSearchAttrib.Sender;
+        }
         term.op = Components.interfaces.nsMsgSearchOp.Is;
         term.booleanAnd = gSearchBooleanRadiogroup.value == "and";
 

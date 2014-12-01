@@ -11,7 +11,7 @@ interface nsIMsgDBHdr;
 interface nsIMsgDatabase;
 interface nsIMsgSearchScopeTerm;
 
-[scriptable, uuid(45bc2bcd-218e-4e00-b29c-453c75371047)]
+[scriptable, uuid(705a2b5a-5efc-495c-897a-bef1161cd3c0)]
 interface nsIMsgSearchTerm : nsISupports {
     attribute nsMsgSearchAttribValue attrib;
     attribute nsMsgSearchOpValue op;
@@ -146,5 +146,11 @@ interface nsIMsgSearchTerm : nsISupports {
      * @return      true if message matches
      */
     boolean matchCustom(in nsIMsgDBHdr msg);
-};
 
+    /**
+     * Returns a nsMsgSearchAttribValue value corresponding to a field string from
+     * the nsMsgSearchTerm.cpp::SearchAttribEntryTable table.
+     * Does not handle custom attributes yet.
+     */
+    nsMsgSearchAttribValue getAttributeFromString(in string aAttribName);
+};

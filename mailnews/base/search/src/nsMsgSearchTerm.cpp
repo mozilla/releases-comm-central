@@ -97,7 +97,8 @@ static const unsigned int sNumSearchAttribEntryTable =
 // and return the matching attribute. If the string is not in the table, and it
 // begins with a quote, then we can conclude that it is an arbitrary header.
 // Otherwise if not in the table, it is the id for a custom search term.
-nsresult NS_MsgGetAttributeFromString(const char *string, int16_t *attrib, nsACString &aCustomId)
+nsresult NS_MsgGetAttributeFromString(const char *string, nsMsgSearchAttribValue *attrib,
+                                      nsACString &aCustomId)
 {
   NS_ENSURE_ARG_POINTER(string);
   NS_ENSURE_ARG_POINTER(attrib);
@@ -180,6 +181,13 @@ nsresult NS_MsgGetAttributeFromString(const char *string, int16_t *attrib, nsACS
   // an error if so.
 
   return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgSearchTerm::GetAttributeFromString(const char *aString,
+                                                      nsMsgSearchAttribValue *aAttrib)
+{
+  nsAutoCString customId;
+  return NS_MsgGetAttributeFromString(aString, aAttrib, customId);
 }
 
 nsresult NS_MsgGetStringForAttribute(int16_t attrib, const char **string)
@@ -683,12 +691,9 @@ nsMsgSearchTerm::ParseAttribute(char *inStream, nsMsgSearchAttribValue *attrib)
     if (separator)
         *separator = '\0';
 
-    int16_t attributeVal;
     nsAutoCString customId;
-    nsresult rv = NS_MsgGetAttributeFromString(inStream, &attributeVal, m_customId);
+    nsresult rv = NS_MsgGetAttributeFromString(inStream, attrib, m_customId);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    *attrib = (nsMsgSearchAttribValue) attributeVal;
 
     if (*attrib > nsMsgSearchAttrib::OtherHeader && *attrib < nsMsgSearchAttrib::kNumMsgSearchAttributes)  // if we are dealing with an arbitrary header....
     {

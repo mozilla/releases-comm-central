@@ -1634,7 +1634,8 @@ function CopyEmailNewsAddress(addressNode)
 function CreateFilter(emailAddressNode)
 {
   let emailAddress = emailAddressNode.getAttribute("emailAddress");
-  top.MsgFilters(emailAddress, GetFirstSelectedMsgFolder());
+  top.MsgFilters(emailAddress, GetFirstSelectedMsgFolder(),
+                 emailAddressNode.getAttribute("headerName"));
 }
 
 /**
