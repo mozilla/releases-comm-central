@@ -2387,11 +2387,11 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr *msgHdr, const c
 {
   // don't do notifications if message not yet added to database.
   // Ignore errors (consequences of failure are minor).
-  bool notify = true;  
-  nsMsgKey key = -1;
+  bool notify = true;
+  nsMsgKey key = nsMsgKey_None;
   msgHdr->GetMessageKey(&key);
   ContainsKey(key, &notify);
-  
+
   nsCString oldValue;
   nsresult rv = msgHdr->GetStringProperty(aProperty, getter_Copies(oldValue));
   NS_ENSURE_SUCCESS(rv,rv);
@@ -2909,17 +2909,20 @@ nsresult nsMsgDBEnumerator::PrefetchNext()
     }
     //Get key from row
     mdbOid outOid;
-    nsMsgKey key = 0;
-    if (NS_SUCCEEDED(hdrRow->GetOid(mDB->GetEnv(), &outOid)))
-      key = outOid.mOid_Id;
+    nsMsgKey key = nsMsgKey_None;
+    rv = hdrRow->GetOid(mDB->GetEnv(), &outOid);
+    if (NS_WARN_IF(NS_FAILED(rv)))
+      return rv;
+    key = outOid.mOid_Id;
 
     rv = mDB->GetHdrFromUseCache(key, getter_AddRefs(mResultHdr));
     if (NS_SUCCEEDED(rv) && mResultHdr)
       hdrRow->Release();
-    else
+    else {
       rv = mDB->CreateMsgHdr(hdrRow, key, getter_AddRefs(mResultHdr));
-    if (NS_FAILED(rv))
-      return rv;
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return rv;
+    }
 
     if (mResultHdr)
       mResultHdr->GetFlags(&flags);
@@ -4381,10 +4384,12 @@ nsIMsgThread *  nsMsgDatabase::GetThreadForSubject(nsCString &subject)
     {
       //Get key from row
       mdbOid outOid;
-      nsMsgKey key = 0;
+      nsMsgKey key = nsMsgKey_None;
       if (NS_SUCCEEDED(threadRow->GetOid(GetEnv(), &outOid)))
         key = outOid.mOid_Id;
       // find thread header for header whose message id we matched.
+      // It is fine if key was not found,
+      // GetThreadForThreadId(nsMsgKey_None) returns nullptr.
       thread = GetThreadForThreadId(key);
     }
 #ifdef DEBUG_bienvenu1
@@ -4585,14 +4590,20 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char *aMsgID, nsIMsgDBH
   {
     //Get key from row
     mdbOid outOid;
-    nsMsgKey key = 0;
-    if (NS_SUCCEEDED(hdrRow->GetOid(GetEnv(), &outOid)))
-      key = outOid.mOid_Id;
+    nsMsgKey key = nsMsgKey_None;
+    rv = hdrRow->GetOid(GetEnv(), &outOid);
+    if (NS_WARN_IF(NS_FAILED(rv)))
+      return rv;
+    key = outOid.mOid_Id;
+
     rv = GetHdrFromUseCache(key, &msgHdr);
     if (NS_SUCCEEDED(rv) && msgHdr)
       hdrRow->Release();
-    else
+    else {
       rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return rv;
+    }
   }
   *aHdr = msgHdr; // already addreffed above.
   return NS_OK; // it's not an error not to find a msg hdr.
@@ -4630,8 +4641,11 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char *aGMMsgId, nsIMsgDBH
     rv = GetHdrFromUseCache(key, &msgHdr);
     if ((NS_SUCCEEDED(rv) && msgHdr))
       hdrRow->Release();
-    else
+    else {
       rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return rv;
+    }
   }
   *aHdr = msgHdr;
   return NS_OK; // it's not an error not to find a msg hdr.
@@ -4657,14 +4671,20 @@ nsIMsgDBHdr *nsMsgDatabase::GetMsgHdrForSubject(nsCString &subject)
   {
     //Get key from row
     mdbOid outOid;
-    nsMsgKey key = 0;
-    if (NS_SUCCEEDED(hdrRow->GetOid(GetEnv(), &outOid)))
-      key = outOid.mOid_Id;
+    nsMsgKey key = nsMsgKey_None;
+    rv = hdrRow->GetOid(GetEnv(), &outOid);
+    if (NS_WARN_IF(NS_FAILED(rv)))
+      return nullptr;
+    key = outOid.mOid_Id;
+
     rv = GetHdrFromUseCache(key, &msgHdr);
     if (NS_SUCCEEDED(rv) && msgHdr)
       hdrRow->Release();
-    else
+    else {
       rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return nullptr;
+    }
   }
   return msgHdr;
 }
@@ -4755,7 +4775,7 @@ nsresult nsMsgDatabase::AddNewThread(nsMsgHdr *msgHdr)
   nsMsgKey threadKey = msgHdr->m_messageKey;
   // can't have a thread with key 1 since that's the table id of the all msg hdr table,
   // so give it kTableKeyForThreadOne (0xfffffffe).
-  if (threadKey == 1)
+  if (threadKey == kAllMsgHdrsTableKey)
     threadKey = kTableKeyForThreadOne;
 
   nsresult err = msgHdr->GetSubject(getter_Copies(subject));

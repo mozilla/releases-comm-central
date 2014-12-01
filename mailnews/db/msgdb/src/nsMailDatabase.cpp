@@ -401,12 +401,6 @@ nsresult nsMsgOfflineOpEnumerator::PrefetchNext()
     mDone = true;
     return rv;
   }
-  // Get key from row.
-  mdbOid outOid;
-  nsMsgKey key = 0;
-  // TODO: Is the key variable unused?
-  if (NS_SUCCEEDED(offlineOpRow->GetOid(mDB->GetEnv(), &outOid)))
-    key = outOid.mOid_Id;
 
   nsIMsgOfflineImapOperation *op = new nsMsgOfflineImapOperation(mDB, offlineOpRow);
   mResultOp = op;
