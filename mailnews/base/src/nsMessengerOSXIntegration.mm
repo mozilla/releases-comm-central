@@ -402,7 +402,8 @@ nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
                                            this, EmptyString(),
                                            NS_LITERAL_STRING("auto"),
                                            EmptyString(), EmptyString(),
-                                           nullptr);
+                                           nullptr,
+                                           false);
     }
 
     BounceDockIcon();
