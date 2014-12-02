@@ -494,6 +494,13 @@ ircChannel.prototype = {
     for (let [nick, mode] of userModes.entries())
       this.getParticipant(nick).setMode(addNewMode, mode, aSetter);
 
+    // If the topic can now be set (and it couldn't previously) or vice versa,
+    // notify the UI. Note that this status can change by either a channel mode
+    // or a user mode changing.
+    if (this.topicSettable != previousTopicSettable)
+      this.notifyObservers(this, "chat-update-topic");
+
+    // If no channel modes were being set, don't display a message for it.
     if (!channelModes.length)
       return;
 
@@ -504,11 +511,6 @@ ircChannel.prototype = {
     msg = _("message.channelmode", aNewMode[0] + channelModes.join(""),
             aSetter);
     this.writeMessage(aSetter, msg, {system: true});
-
-    // If the topic can now be set (and it couldn't previously) or vice versa,
-    // notify the UI.
-    if (this.topicSettable != previousTopicSettable)
-      this.notifyObservers(this, "chat-update-topic");
 
     this._receivedInitialMode = true;
   },
