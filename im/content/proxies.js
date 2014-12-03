@@ -12,6 +12,9 @@ var gProxies = {
     var pcs = Cc["@instantbird.org/libpurple/core;1"]
               .getService(Ci.purpleICoreService);
 
+    // Ensure purpleCoreService is initialized.
+    pcs.init();
+
     var proxyInfoCtr = Components.Constructor("@instantbird.org/purple/proxyinfo;1",
                                               "purpleIProxyInfo");
     var proxyInfo;
@@ -163,7 +166,7 @@ var gProxies = {
       pcs.globalProxy = item.proxy;
       return true;
     }
-      
+
     var globalCheckbox = document.getElementById("useAsGlobalSettings");
     if (!globalCheckbox.disabled && globalCheckbox.checked) {
       pcs.globalProxy = item.proxy;
