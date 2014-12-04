@@ -12,6 +12,7 @@ const kRememberLastState  = 0;
 const kAskForOnlineState  = 1;
 const kAlwaysOnline       = 2;
 const kAlwaysOffline      = 3;
+const kAutomatic          = 4;
 var   gStartingUp         = true;
 var   gOfflineStartupMode; //0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
 
@@ -50,7 +51,12 @@ var nsOfflineStartup =
     gOfflineStartupMode = Services.prefs.getIntPref(kOfflineStartupPref);
     let wasOffline = !Services.prefs.getBoolPref("network.online");
 
-    if (gOfflineStartupMode == kAlwaysOffline)
+    if (gOfflineStartupMode == kAutomatic)
+    {
+      // Offline state should be managed automatically
+      // so do nothing specific at startup.
+    }
+    else if (gOfflineStartupMode == kAlwaysOffline)
     {
       Services.io.manageOfflineStatus = false;
       Services.io.offline = true;

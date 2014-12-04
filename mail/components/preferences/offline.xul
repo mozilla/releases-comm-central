@@ -14,24 +14,50 @@
 
 <prefwindow id="OfflineSettingsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            onload="gOfflineDialog.dialogSetup();"
             dlgbuttons="accept,cancel"
             title="&offlineDialog.title;">
 
   <prefpane id="OfflineSettingsDialogPane">
+    <script type="application/javascript"
+            src="chrome://messenger/content/preferences/offline.js"/>
+
     <preferences id="OfflineSettingsPreferences">
-      <preference id="offline.startup_state"                 name="offline.startup_state"     type="int"/>
-      <preference id="offline.send.unsent_messages"          name="offline.send.unsent_messages" type="int"/>
-      <preference id="offline.download.download_messages"    name="offline.download.download_messages"    type="int"/>
+      <preference id="offline.autoDetect"
+                  name="offline.autoDetect"
+                  type="bool"
+                  onchange="gOfflineDialog.dialogSetup();"/>
+      <preference id="offline.startup_state"
+                  name="offline.startup_state"
+                  type="int"/>
+      <preference id="offline.send.unsent_messages"
+                  name="offline.send.unsent_messages"
+                  type="int"/>
+      <preference id="offline.download.download_messages"
+                  name="offline.download.download_messages"
+                  type="int"/>
     </preferences>
 
-    <label value="&textStartUp;" control="whenStartingUp"/>
-    <radiogroup id="whenStartingUp" class="indent" preference="offline.startup_state">
-      <radio value="0" label="&radioRememberPrevState.label;" accesskey="&radioRememberPrevState.accesskey;"/>
-      <radio value="1" label="&radioAskMe.label;" accesskey="&radioAskMe.accesskey;"/>
-      <radio value="2" label="&radioAlwaysOnline.label;" accesskey="&radioAlwaysOnline.accesskey;"/>
-    </radiogroup>
+    <checkbox label="&checkAutoDetect.label;"
+              accesskey="&checkAutoDetect.accesskey;"
+              preference="offline.autoDetect"/>
 
     <separator class="thin"/>
+
+    <label value="&titleStartUp;" control="whenStartingUp"/>
+    <radiogroup id="whenStartingUp" class="indent" preference="offline.startup_state">
+      <radio value="0" label="&radioRememberPrevState.label;"
+             accesskey="&radioRememberPrevState.accesskey;"/>
+      <radio value="1" label="&radioAskState.label;"
+             accesskey="&radioAskState.accesskey;"/>
+      <radio value="2" label="&radioAlwaysOnline.label;"
+             accesskey="&radioAlwaysOnline.accesskey;"/>
+      <radio value="3" label="&radioAlwaysOffline.label;"
+             accesskey="&radioAlwaysOffline.accesskey;"/>
+      <radio value="4" hidden="true"/>
+    </radiogroup>
+
+    <separator/>
 
     <label value="&textGoingOnline;" control="whengoingOnlinestate"/>
     <radiogroup id="whengoingOnlinestate" orient="horizontal" class="indent"

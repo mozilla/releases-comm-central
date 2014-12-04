@@ -4,13 +4,17 @@
 
 <!ENTITY offlineDialog.title "Offline Settings">
 
-<!ENTITY textStartUp "When starting up:">
+<!ENTITY checkAutoDetect.label "Automatically follow detected online state">
+<!ENTITY checkAutoDetect.accesskey "d">
+<!ENTITY titleStartUp "Manual state when starting up:">
 <!ENTITY radioRememberPrevState.label "Remember previous online state">
 <!ENTITY radioRememberPrevState.accesskey "R">
-<!ENTITY radioAskMe.label "Ask me for online state at startup">
-<!ENTITY radioAskMe.accesskey "u">
-<!ENTITY radioAlwaysOnline.label "Always start up online">
+<!ENTITY radioAskState.label "Ask me for online state">
+<!ENTITY radioAskState.accesskey "k">
+<!ENTITY radioAlwaysOnline.label "Online">
 <!ENTITY radioAlwaysOnline.accesskey "l">
+<!ENTITY radioAlwaysOffline.label "Offline">
+<!ENTITY radioAlwaysOffline.accesskey "f">
 
 <!ENTITY textGoingOnline "Send unsent messages when going online?">
 <!ENTITY radioAutoSend.label "Yes">

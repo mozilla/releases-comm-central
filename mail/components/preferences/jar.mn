@@ -42,6 +42,7 @@ messenger.jar:
     content/messenger/preferences/fonts.js
 *   content/messenger/preferences/fonts.xul
     content/messenger/preferences/notifications.xul
+    content/messenger/preferences/offline.js
     content/messenger/preferences/offline.xul
     content/messenger/preferences/cookies.js
 *   content/messenger/preferences/cookies.xul
