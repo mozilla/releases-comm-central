@@ -194,7 +194,7 @@ const XMPPConversationPrototype = {
   get normalizedName() this.buddy.normalizedName,
 
   get shouldSendTypingNotifications()
-    this._supportChatStateNotifications &&
+    this.supportChatStateNotifications &&
     Services.prefs.getBoolPref("purple.conversations.im.send_typing"),
 
   /* Called when the user is typing a message
