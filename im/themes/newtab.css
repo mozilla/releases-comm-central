@@ -34,7 +34,7 @@
 }
 
 .filterbox {
-  font-size: medium;
+  font-size: 13px;
   padding: 2px;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .displayName {
-  font-size: large;
+  font-size: 16px;
 }
 
 .infoIcon {
