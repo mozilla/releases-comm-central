@@ -41,6 +41,10 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   return function(aTXT) cs.scanTXT(aTXT, cs.kEntities);
 });
 
+XPCOMUtils.defineLazyServiceGetter(this, "ScriptableDateFormat",
+                                   "@mozilla.org/intl/scriptabledateformat;1",
+                                   "nsIScriptableDateFormat");
+
 var gCurrentTheme = null;
 
 function getChromeFile(aURI)
@@ -353,6 +357,14 @@ const statusMessageReplacements = {
   },
   timestamp: function(aMsg) aMsg.time,
   shortTime: function(aMsg) (new Date(aMsg.time * 1000)).toLocaleTimeString(),
+  datetime: function(aMsg) {
+    let date = new Date(aMsg.time * 1000);
+    let sdf = ScriptableDateFormat;
+    return sdf.FormatDateTime("", sdf.dateFormatShort,
+                              sdf.timeFormatNoSeconds, date.getFullYear(),
+                              date.getMonth() + 1, date.getDate(),
+                              date.getHours(), date.getMinutes(), 0);
+  },
   messageClasses: function(aMsg) {
     let msgClass = [];
 
