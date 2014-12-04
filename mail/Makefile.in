@@ -14,6 +14,8 @@ ifdef ENABLE_TESTS
 
 check-sync-dirs::
 	@$(PYTHON) $(topsrcdir)/mail/check-sync-dirs.py \
+	   $(topsrcdir)/build $(MOZILLA_SRCDIR)/build
+	@$(PYTHON) $(topsrcdir)/mail/check-sync-dirs.py \
 	   $(srcdir)/config/tooltool-manifests $(MOZILLA_SRCDIR)/browser/config/tooltool-manifests
 
 check:: check-sync-dirs
