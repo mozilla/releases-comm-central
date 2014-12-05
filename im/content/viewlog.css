@@ -5,3 +5,7 @@
 #findbar .findbar-closebutton {
   display: none;
 }
+
+tooltip[type="im"] {
+  -moz-binding: url("chrome://chat/content/imtooltip.xml#tooltip");
+}

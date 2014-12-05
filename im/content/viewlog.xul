@@ -86,7 +86,7 @@
   </stringbundleset>
 
   <popupset id="mainPopupSet">
-    <tooltip id="aHTMLTooltip" page="true"/>
+    <tooltip id="imTooltip" type="im"/>
     <menupopup id="contentAreaContextMenu">
       <menuitem id="context-copy"
                 label="&copyCmd.label;"
@@ -113,11 +113,11 @@
     <vbox flex="1">
       <deck flex="1" id="browserDeck" selectedIndex="0">
         <browser id="text-browser" type="content"
-                 context="contentAreaContextMenu" tooltip="aHTMLTooltip"
+                 context="contentAreaContextMenu" tooltip="imTooltip"
                  disablehistory="true" src="about:blank" flex="1"/>
         <vbox flex="1">
           <browser id="conv-browser" type="content-conversation" flex="1"
-                   context="contentAreaContextMenu" tooltip="aHTMLTooltip"/>
+                   context="contentAreaContextMenu" tooltip="imTooltip"/>
           <progressmeter id="browserProgress" hidden="true"/>
         </vbox>
         <vbox flex="1" id="corruptLogScreen" align="center" pack="center">

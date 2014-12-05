@@ -456,6 +456,32 @@
              return updateTooltipFromConversation(conv);
          }
 
+         // Are we over a message?
+         for (let node = elt; node; node = node.parentNode) {
+           if (!node._originalMsg)
+             continue;
+           // It's a message, so add a date/time tooltip.
+           let date = new Date(node._originalMsg.time * 1000);
+           let text;
+           if ((new Date()).toDateString() == date.toDateString()) {
+             text = date.toLocaleTimeString();
+           }
+           else {
+             let sdf =
+               Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
+                         .getService(Ci.nsIScriptableDateFormat);
+             text = sdf.FormatDateTime("", sdf.dateFormatShort,
+               sdf.timeFormatSeconds, date.getFullYear(),
+               date.getMonth() + 1, date.getDate(),
+               date.getHours(), date.getMinutes(), date.getSeconds());
+           }
+           // Setting the attribute on this node means that if the element
+           // we are pointing at carries a title set by the prpl,
+           // that title won't be overridden.
+           node.setAttribute("title", text);
+           break;
+         }
+
          // Use the default content tooltip.
          largeTooltip.hidden = true;
          return fillInPageTooltip(elt);
