@@ -73,16 +73,6 @@ statuspanel[sizelimit] {
   max-width: 50%;
 }
 
-statuspanel[type=status] {
-  min-width: 23em;
-}
-
-@media all and (max-width: 800px) {
-  statuspanel[type=status] {
-    min-width: 33%;
-  }
-}
-
 statuspanel[type=overLink] {
   transition: opacity 120ms ease-out;
   direction: ltr;
