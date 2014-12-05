@@ -14,8 +14,3 @@ endif
 
 MOZILLA_SRCDIR = $(topsrcdir)/mozilla
 include $(MOZILLA_SRCDIR)/config/baseconfig.mk
-
-# WIN_TOP_SRC is converted by config.mk to mozilla-central, but this needs to be comm-central.
-ifdef WIN_TOP_SRC
-WIN_TOP_SRC := $(patsubst %/mozilla,%,$(WIN_TOP_SRC))
-endif
