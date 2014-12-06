@@ -692,21 +692,6 @@
         this.build(true);
     ]]></constructor>
     <field name="canUpdate" readonly="true">false</field>
-    <method name="lockSize">
-      <body><![CDATA[
-        return;
-        if (this.style.paddingBottom != "0px") {
-          let $this = $(this);
-          let height = ($this.height() + 60) + "px";
-          let width = $this.width() + "px";
-          this.style.minWidth = width;
-          this.style.minHeight = height;
-          this.style.maxWidth = width;
-          this.style.maxHeight = height;
-          this.style.paddingBottom = "0px";
-        }
-      ]]></body>
-    </method>
     <method name="build">
       <parameter name="aFirstTime" />
       <body><![CDATA[
@@ -965,8 +950,7 @@
             this.excludeList.childElementCount) &&
            this.remainderList.childElementCount) ? "true" : "false");
 
-        // nuke the style attributes to lose the artifacts of the jquery
-        //  animation.
+        // nuke the style attributes.
         this.includeLabel.removeAttribute("style");
         this.excludeLabel.removeAttribute("style");
         this.remainderLabel.removeAttribute("style");
@@ -1018,10 +1002,19 @@
       <parameter name="aVariety" />
       <parameter name="aCallback" />
       <body><![CDATA[
+        function getRect(aElement) {
+          let box = aElement.getBoundingClientRect();
+          let documentElement = aElement.ownerDocument.documentElement;
+          return {
+            top: box.top + window.pageYOffset - documentElement.clientTop,
+            left: box.left + window.pageXOffset - documentElement.clientLeft,
+            width: box.width,
+            height: box.height
+          };
+        };
         // figure out our origin location prior to adding the target or it
         //  will shift us down.
-        let $barNode = $(aBarNode);
-        let origin = $barNode.offset();
+        let origin = getRect(aBarNode);
 
         // clone the node into its target location
         let targetNode = aBarNode.cloneNode(true);
@@ -1035,49 +1028,50 @@
         // create a flying clone
         let flyingNode = aBarNode.cloneNode(true);
 
-        // animate the flying clone... flying!
-        let $targetNode = $(targetNode);
-        let dest = $targetNode.offset();
+        let dest = getRect(targetNode);
 
         // if the flying box wants to go higher than the content box goes, just
         //  send it to the top of the content box instead.
-        let $contentBox = $(this.contentBox);
-        let contentOffset = $contentBox.offset();
-        if (dest.top < contentOffset.top)
-          dest.top = contentOffset.top;
+        let contentRect = getRect(this.contentBox);
+        if (dest.top < contentRect.top)
+          dest.top = contentRect.top;
         // likewise if it wants to go further south than the content box, stop
         //  that
-        if (dest.top > (contentOffset.top + $contentBox.height()))
-          dest.top = contentOffset.top + $contentBox.height() -
-                       $targetNode.height();
+        if (dest.top > (contentRect.top + contentRect.height))
+          dest.top = contentRect.top + contentRect.height - dest.height;
 
-        let $flyingNode = $(flyingNode)
-          .appendTo("body")
-          .css("position", "absolute")
-          .css("width", $barNode.width())
-          .css("height", $barNode.height())
-          .css("top", origin.top)
-          .css("left", origin.left)
-          .css("zIndex", 1000)
-          .animate({
-              top: dest.top,
-              left: dest.left
-            },
-            // have a velocity of 1 pixel every 4ms
-            Math.abs(dest.top - origin.top) * 2, function() {
-              $barNode.remove();
-              $targetNode.show();
-              $flyingNode.remove();
+        flyingNode.style.position = "absolute";
+        flyingNode.style.width = origin.width + "px";
+        flyingNode.style.height = origin.height + "px";
+        flyingNode.style.top = origin.top + "px";
+        flyingNode.style.left = origin.left + "px";
+        flyingNode.style.zIndex = 1000;
 
-              if (aCallback)
-                setTimeout(aCallback, 50);
-            });
+        flyingNode.style.transitionDuration = (Math.abs(dest.top - origin.top) * 2) + "ms";
+        flyingNode.style.transitionProperty = "top, left";
+
+        flyingNode.addEventListener("transitionend", function() {
+          aBarNode.parentNode.removeChild(aBarNode);
+          targetNode.style.display = "block";
+          flyingNode.parentNode.removeChild(flyingNode);
+
+          if (aCallback)
+            setTimeout(aCallback, 50);
+        });
+
+        document.body.appendChild(flyingNode);
+
+        // animate the flying clone... flying!
+        window.requestAnimationFrame(function() {
+          flyingNode.style.top = dest.top + "px";
+          flyingNode.style.left = dest.left + "px";
+        });
 
         // hide the target (cloned) node
-        $(targetNode).hide();
+        targetNode.style.display = "none";
 
         // hide the original node and remove its JS properties
-        $(aBarNode).css("visibility", "hidden");
+        aBarNode.style.visibility = "hidden";
         delete aBarNode.groupValue;
         delete aBarNode.groupItems;
       ]]></body>
