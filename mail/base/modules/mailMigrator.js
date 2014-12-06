@@ -98,7 +98,7 @@ var MailMigrator = {
   _migrateUI: function MailMigrator__migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 7;
+    const UI_VERSION = 8;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -240,6 +240,16 @@ var MailMigrator = {
           }
         }
         catch (ex) {}
+      }
+
+      // In UI version 8, we change from boolean browser.display.use_document_colors
+      // to the tri-state browser.display.document_color_use.
+      if (currentUIVersion < 8) {
+        const kOldColorPref = "browser.display.use_document_colors";
+        if (Services.prefs.prefHasUserValue(kOldColorPref) &&
+            !Services.prefs.getBoolPref(kOldColorPref)) {
+          Services.prefs.setIntPref("browser.display.document_color_use", 2);
+        }
       }
 
       // Update the migration version.
