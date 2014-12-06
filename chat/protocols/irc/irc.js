@@ -385,6 +385,13 @@ ircChannel.prototype = {
     this._participants.clear();
   },
 
+  /*
+   * Add/remove modes from this channel.
+   *
+   * aNewMode is the new mode string, it MUST begin with + or -.
+   * aModeParams is a list of ordered string parameters for the mode string.
+   * aSetter is the nick of the person (or service) that set the mode.
+   */
   setMode: function(aNewMode, aModeParams, aSetter) {
     // Save this for a comparison after the new modes have been set.
     let previousTopicSettable = this.topicSettable;
