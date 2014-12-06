@@ -242,7 +242,7 @@ h2 {
   margin: 5px;
   font-size: 90%;
   text-align: end;
-  display: none; /* $('.date-toggle').show() is run if there are results */
+  display: none;
   width: 46px !important;
   height: 17px !important;
   -moz-margin-end: 2px;
@@ -811,4 +811,36 @@ span.empty {
   border: none;
   font-size: large;
   color: #729fcf;
+}
+
+#facet-date.slideDown {
+  animation-duration: 0.4s;
+  animation-name: slidedown;
+  max-height: 104px;
+  overflow: hidden;
+}
+
+@keyframes slidedown {
+  0% {
+    max-height: 0px;
+  }
+  100% {
+    max-height: 104px;
+  }
+}
+
+#facet-date.slideUp {
+  animation-duration: 0.4s;
+  animation-name: slideup;
+  max-height: 0px;
+  overflow: hidden;
+}
+
+@keyframes slideup {
+  0% {
+    max-height: 104px;
+  }
+  100% {
+    max-height: 0px;
+  }
 }

@@ -503,12 +503,12 @@ var FacetContext = {
         //  explicit
         if (faceter.groupCount <= 1 && !faceter.constraint &&
             (!faceter.xblNode.explicit || faceter.type == "date"))
-          $(faceter.xblNode).hide();
+          faceter.xblNode.style.display = "none";
         // otherwise, update
         else {
           faceter.xblNode.orderedGroups = faceter.orderedGroups;
           faceter.xblNode.build(false);
-          $(faceter.xblNode).show();
+          faceter.xblNode.style.display = "block";
         }
       }
     }
@@ -533,25 +533,25 @@ var FacetContext = {
     results.setMessages(this._activeSet.slice(0, numMessageToShow));
 
     let showLoading = document.getElementById("showLoading");
-    $(showLoading).hide(); /* hide spinner, we're done thinking */
+    showLoading.display = "none"; /* hide spinner, we're done thinking */
 
     let showEmpty = document.getElementById("showEmpty");
     let dateToggle = document.getElementById("date-toggle");
     /* check for no messages at all */
     if (this._activeSet.length == 0) {
-      $(showEmpty).show();
-      $(dateToggle).hide();
+      showEmpty.style.display = "block";
+      dateToggle.style.display = "none";
     }
     else {
-      $(showEmpty).hide();
-      $(dateToggle).show();
+      showEmpty.style.display = "none";
+      dateToggle.style.display = "block";
     }
 
     let showMore = document.getElementById("showMore");
     if (this._activeSet.length > numMessageToShow)
-      $(showMore).show();
+      showMore.style.display = "block";
     else
-      $(showMore).hide();
+      showMore.style.display = "none";
   },
 
   showMore: function() {
@@ -580,17 +580,22 @@ var FacetContext = {
   },
 
   _showTimeline: function() {
-    $("#facet-date").slideDown();
-    $("#date-toggle").removeAttr("tucked");
+    let facetDate = document.getElementById("facet-date");
+    facetDate.classList.remove("slideUp");
+    facetDate.classList.add("slideDown");
+    document.getElementById("date-toggle").removeAttribute("tucked");
     Application.prefs.setValue('gloda.facetview.hidetimeline', false);
   },
 
   _hideTimeline: function(immediate) {
-    if (immediate)
-      $("#facet-date").hide();
-    else
-      $("#facet-date").slideUp();
-    $("#date-toggle").attr("tucked", "true");
+    if (immediate) {
+      document.getElementById("facet-date").style.display = "none";
+    } else {
+      let facetDate = document.getElementById("facet-date");
+      facetDate.classList.remove("slideDown");
+      facetDate.classList.add("slideUp");
+    }
+    document.getElementById("date-toggle").setAttribute("tucked", "true");
     Application.prefs.setValue('gloda.facetview.hidetimeline', true);
   },
 
@@ -862,7 +867,7 @@ function reachOutAndTouchFrame() {
                     .getInterface(Ci.nsIDOMWindow);
   let aTab = FacetContext.tab = parentWin.tab;
   parentWin.tab = null;
-  $(window).resize(function() {
+  window.addEventListener("resize", function() {
     document.getElementById("facet-date").build(true);
   });
   // we need to hook the context up as a listener in all cases since
