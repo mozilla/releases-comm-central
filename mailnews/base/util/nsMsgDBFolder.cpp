@@ -5950,6 +5950,31 @@ void nsMsgDBFolder::ClearProcessingFlags()
   }
 }
 
+nsresult nsMsgDBFolder::MessagesInKeyOrder(nsTArray<nsMsgKey> &aKeyArray,
+  nsIMsgFolder *srcFolder, nsIMutableArray* messages)
+{
+  // XXX: the output messages - should really be and nsCOMArray<nsIMsgDBHdr>
+
+  nsresult rv = NS_OK;
+  uint32_t numMessages = aKeyArray.Length();
+
+  nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  nsCOMPtr<nsIDBFolderInfo> folderInfo;
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = srcFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
+  if (NS_SUCCEEDED(rv) && db)
+  {
+    for (uint32_t i = 0; i < numMessages; i++)
+    {
+      rv = db->GetMsgHdrForKey(aKeyArray[i], getter_AddRefs(msgHdr));
+      NS_ENSURE_SUCCESS(rv,rv);
+      if (msgHdr)
+        messages->AppendElement(msgHdr, false);
+    }
+  }
+  return rv;
+}
+
 /* static */ nsMsgKeySetU* nsMsgKeySetU::Create()
 {
   nsMsgKeySetU* set = new nsMsgKeySetU;
@@ -6004,3 +6029,4 @@ nsresult nsMsgKeySetU::ToMsgKeyArray(nsTArray<nsMsgKey> &aArray)
   NS_ENSURE_SUCCESS(rv, rv);
   return hiKeySet->ToMsgKeyArray(aArray);
 }
+

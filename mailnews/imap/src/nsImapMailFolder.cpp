@@ -7586,30 +7586,49 @@ nsImapMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   }
   else 
   {
-    nsAutoCString messageIds;
-    nsTArray<nsMsgKey> srcKeyArray;
-    nsCOMPtr<nsIUrlListener> urlListener;
-    nsCOMPtr<nsISupports> copySupport;
+    // sort the message array by key
+
+    uint32_t numMsgs = 0;
+    messages->GetLength(&numMsgs);
+    nsTArray<nsMsgKey> keyArray(numMsgs);
+    for (uint32_t i = 0; i < numMsgs; i++)
+    {
+      nsCOMPtr<nsIMsgDBHdr> aMessage = do_QueryElementAt(messages, i, &rv);
+      if (NS_SUCCEEDED(rv) && aMessage)
+      {
+        nsMsgKey key;
+        aMessage->GetMessageKey(&key);
+        keyArray.AppendElement(key);
+      }
+    }
+    keyArray.Sort();
+
+    nsCOMPtr<nsIMutableArray> sortedMsgs(do_CreateInstance(NS_ARRAY_CONTRACTID));
+    rv = MessagesInKeyOrder(keyArray, srcFolder, sortedMsgs);
+    NS_ENSURE_SUCCESS(rv, rv);
     
     if (WeAreOffline())
-      return CopyMessagesOffline(srcFolder, messages, isMove, msgWindow, listener);
+      return CopyMessagesOffline(srcFolder, sortedMsgs, isMove, msgWindow, listener);
     
     nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv,rv);
     
-    SetPendingAttributes(messages, isMove);
+    SetPendingAttributes(sortedMsgs, isMove);
+
     // if the folders aren't on the same server, do a stream base copy
     if (!sameServer)
     {
-      rv = CopyMessagesWithStream(srcFolder, messages, isMove, true, msgWindow, listener, allowUndo);
+      rv = CopyMessagesWithStream(srcFolder, sortedMsgs, isMove, true, msgWindow, listener, allowUndo);
       goto done;
     }
 
-    rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
+    nsAutoCString messageIds;
+    rv = AllocateUidStringFromKeys(keyArray.Elements(), numMsgs, messageIds);
     if(NS_FAILED(rv)) goto done;
 
+    nsCOMPtr<nsIUrlListener> urlListener;
     rv = QueryInterface(NS_GET_IID(nsIUrlListener), getter_AddRefs(urlListener));
-    rv = InitCopyState(srcSupport, messages, isMove, true, false,
+    rv = InitCopyState(srcSupport, sortedMsgs, isMove, true, false,
                        0, EmptyCString(), listener, msgWindow, allowUndo);
     if (NS_FAILED(rv)) goto done;
 
@@ -7618,7 +7637,7 @@ nsImapMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     if (isMove)
       srcFolder->EnableNotifications(allMessageCountNotifications, false, true/* dbBatching*/);  //disable message count notification
 
-    copySupport = do_QueryInterface(m_copyState);
+    nsCOMPtr<nsISupports> copySupport = do_QueryInterface(m_copyState);
     rv = imapService->OnlineMessageCopy(srcFolder, messageIds,
                                         this, true, isMove,
                                         urlListener, nullptr,
@@ -7626,7 +7645,7 @@ nsImapMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     if (NS_SUCCEEDED(rv) && m_copyState->m_allowUndo)
     {
       nsRefPtr<nsImapMoveCopyMsgTxn> undoMsgTxn = new nsImapMoveCopyMsgTxn;
-      if (!undoMsgTxn || NS_FAILED(undoMsgTxn->Init(srcFolder, &srcKeyArray,
+      if (!undoMsgTxn || NS_FAILED(undoMsgTxn->Init(srcFolder, &keyArray,
                                    messageIds.get(), this,
                                    true, isMove)))
         return NS_ERROR_OUT_OF_MEMORY;

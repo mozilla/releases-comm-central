@@ -164,6 +164,13 @@ protected:
 
   nsresult NotifyHdrsNotBeingClassified();
 
+  /**
+   * Produce an array of messages ordered like the input keys.
+   */
+  nsresult MessagesInKeyOrder(nsTArray<nsMsgKey> &aKeyArray,
+                              nsIMsgFolder *srcFolder,
+                              nsIMutableArray* messages);
+
 protected:
   nsCOMPtr<nsIMsgDatabase> mDatabase;
   nsCOMPtr<nsIMsgDatabase> mBackupDatabase;

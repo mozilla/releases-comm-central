@@ -1363,27 +1363,6 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports *srcSupport, bool moveCopySucc
   return copyService->NotifyCompletion(srcSupport, this, moveCopySucceeded ? NS_OK : NS_ERROR_FAILURE);
 }
 
-nsresult
-nsMsgLocalMailFolder::SortMessagesBasedOnKey(nsTArray<nsMsgKey> &aKeyArray, nsIMsgFolder *srcFolder, nsIMutableArray* messages)
-{
-  nsresult rv = NS_OK;
-  uint32_t numMessages = aKeyArray.Length();
-
-  nsCOMPtr <nsIMsgDBHdr> msgHdr;
-  nsCOMPtr<nsIDBFolderInfo> folderInfo;
-  nsCOMPtr<nsIMsgDatabase> db;
-  rv = srcFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
-  if (NS_SUCCEEDED(rv) && db)
-    for (uint32_t i=0;i < numMessages; i++)
-    {
-      rv = db->GetMsgHdrForKey(aKeyArray[i], getter_AddRefs(msgHdr));
-      NS_ENSURE_SUCCESS(rv,rv);
-      if (msgHdr)
-        messages->AppendElement(msgHdr, false);
-    }
-  return rv;
-}
-
 bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(nsIMsgWindow *msgWindow,
                                                  nsIMsgFolder *srcFolder,
                                                  nsISupports *srcSupports,
@@ -1519,7 +1498,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray*
     keyArray.Sort();
 
     nsCOMPtr<nsIMutableArray> sortedMsgs(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    rv = SortMessagesBasedOnKey(keyArray, srcFolder, sortedMsgs);
+    rv = MessagesInKeyOrder(keyArray, srcFolder, sortedMsgs);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = InitCopyState(srcSupport, sortedMsgs, isMove, listener, msgWindow, isFolder, allowUndo);
