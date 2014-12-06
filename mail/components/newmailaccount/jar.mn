@@ -7,5 +7,4 @@ messenger.jar:
     content/messenger/newmailaccount/accountProvisioner.xhtml   (content/accountProvisioner.xhtml)
     content/messenger/newmailaccount/accountProvisioner.js      (content/accountProvisioner.js)
     content/messenger/newmailaccount/uriListener.js             (content/uriListener.js)
-    content/messenger/newmailaccount/jquery.scrollTo.js         (content/jquery.scrollTo.js)
     content/messenger/newmailaccount/jquery.tmpl.js             (content/jquery.tmpl.js)
