@@ -176,21 +176,22 @@ function subtest_get_an_account(w) {
   wait_for_search_ready(w);
 
   // Fill in some data
-  let $ = w.window.$;
   type_in_search_name(w, "Green Llama");
 
-  $("#searchSubmit").click();
+  w.click(w.eid("searchSubmit"));
   wait_for_search_results(w);
 
   // Click on the first address. This reveals the button with the price.
-  $(".address:first").click();
-  mc.waitFor(function () $("button.create:visible").length > 0);
+  let address = w.window.document.querySelector(".address:first-child");
+  w.click(new elib.Elem(address));
+  w.waitFor(function () w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
 
   // Pick the email address green@example.com
   plan_for_content_tab_load();
 
   // Clicking this button should close the modal dialog.
-  $('button.create[address="green@example.com"]').click();
+  let button = w.window.document.querySelector('button.create[address="green@example.com"]');
+  w.click(new elib.Elem(button));
 }
 
 /**
@@ -198,9 +199,6 @@ function subtest_get_an_account(w) {
  * account provisioner window is opened.
  */
 function subtest_get_an_account_part_2(w) {
-  // Re-get the new window
-  let $ = w.window.$;
-
   // An account should have been added.
   assert_equals(nAccounts(), gNumAccounts + 1);
 
@@ -209,7 +207,7 @@ function subtest_get_an_account_part_2(w) {
   wait_for_element_visible(w, "successful_account");
 
   // Make sure the search engine is checked
-  assert_true($("#search_engine_check").is(":checked"));
+  assert_true(w.e("search_engine_check").checked);
 
   // Then click "Finish"
   mc.click(w.eid("closeWindow"));
@@ -301,8 +299,10 @@ function subtest_can_display_providers_in_other_languages(w) {
 
   // Check that the "Other languages" div is hidden
   wait_for_element_visible(w, "otherLangDesc");
-  let otherLanguages = w.window.$(".otherLanguage");
-  assert_false(otherLanguages.is(":visible"));
+  let otherLanguages = w.window.document.querySelectorAll(".otherLanguage");
+  for (let element of otherLanguages) {
+    assert_element_visible(new elib.Elem(element));
+  }
   // Click on the "Other languages" div
   mc.click(w.eid("otherLangDesc"));
 
@@ -392,13 +392,12 @@ function test_persist_name_in_search_field() {
 function subtest_persist_name_in_search_field(w) {
   wait_for_provider_list_loaded(w);
   wait_for_search_ready(w);
-  let $ = w.window.$;
 
   // Type a name into the search field
   type_in_search_name(w, NAME);
 
   // Do a search
-  $("#searchSubmit").click();
+  w.click(w.eid("searchSubmit"));
   wait_for_search_results(w);
 
   plan_for_window_close(w);
@@ -414,7 +413,7 @@ function subtest_persist_name_in_search_field(w) {
  * indeed persisted.
  */
 function subtest_persist_name_in_search_field_part_2(w) {
-  mc.waitFor(function () w.window.$("#name").val() == NAME);
+  mc.waitFor(function () w.e("name").value == NAME);
 }
 
 /**
@@ -436,7 +435,6 @@ function test_html_characters_and_ampersands() {
 function subtest_html_characters_and_ampersands(w) {
   wait_for_provider_list_loaded(w);
   wait_for_search_ready(w);
-  let $ = w.window.$;
 
   // Type a name with some HTML tags and an ampersand in there
   // to see if we can trip up account provisioner.
@@ -444,11 +442,11 @@ function subtest_html_characters_and_ampersands(w) {
   type_in_search_name(w, CLEVER_STRING);
 
   // Do the search.
-  $("#searchSubmit").click();
+  w.click(w.eid("searchSubmit"));
 
   wait_for_search_results(w);
 
-  let displayedName = $("#FirstAndLastName").html();
+  let displayedName = w.e("FirstAndLastName").innerHTML;
 
   assert_not_equals(CLEVER_STRING, displayedName);
   // & should have been replaced with &amp;, and the
@@ -480,7 +478,6 @@ function test_show_tos_privacy_links_for_selected_providers() {
  */
 function subtest_show_tos_privacy_links_for_selected_providers(w) {
   wait_for_provider_list_loaded(w);
-  let $ = w.window.$;
 
   // We should be showing the TOS and Privacy links for the selected
   // providers immediately after the providers have been loaded.
@@ -495,7 +492,8 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
 
   // Now click off one of those providers - we shouldn't be displaying
   // and links for that one now.
-  w.click(new elib.Elem($('input[type="checkbox"][value="foo"]')[0]));
+  let input = w.window.document.querySelector('input[type="checkbox"][value="foo"]');
+  w.click(new elib.Elem(input));
 
   assert_links_not_shown(w, ['http://www.example.com/foo-tos',
                              'http://www.example.com/foo-privacy',]);
@@ -507,7 +505,8 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   wait_for_element_invisible(w, "otherLangDesc");
 
   // And click on one of those providers...
-  w.click(new elib.Elem($('input[type="checkbox"][value="French"]')[0]));
+  input = w.window.document.querySelector('input[type="checkbox"][value="French"]');
+  w.click(new elib.Elem(input));
   // We should be showing the French TOS / Privacy links, along
   // with those from the bar provider.
   assert_links_shown(w, ['http://www.example.com/French-tos',
@@ -521,7 +520,8 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
 
   // Click on the German provider.  It's links should now be
   // shown, along with the French and bar providers.
-  w.click(new elib.Elem($('input[type="checkbox"][value="German"]')[0]));
+  input = w.window.document.querySelector('input[type="checkbox"][value="German"]');
+  w.click(new elib.Elem(input));
   assert_links_shown(w, ['http://www.example.com/French-tos',
                          'http://www.example.com/French-privacy',
                          'http://www.example.com/bar-tos',
@@ -557,14 +557,13 @@ function test_shows_error_on_bad_suggest_from_name() {
 function subtest_shows_error_on_bad_suggest_from_name(w) {
   wait_for_provider_list_loaded(w);
   wait_for_search_ready(w);
-  let $ = w.window.$;
 
   type_in_search_name(w, "Boston Low");
 
   // Do the search.
-  $("#searchSubmit").click();
+  w.click(w.eid("searchSubmit"));
 
-  mc.waitFor(function () $("#notifications .error").is(":visible"));
+  mc.waitFor(function () !w.window.document.querySelector("#notifications > .error").hidden);
 }
 
 /**
@@ -589,14 +588,13 @@ function test_shows_error_on_empty_suggest_from_name() {
 function subtest_shows_error_on_empty_suggest_from_name(w) {
   wait_for_provider_list_loaded(w);
   wait_for_search_ready(w);
-  let $ = w.window.$;
 
   type_in_search_name(w, "Maggie Robbins");
 
   // Do the search.
-  $("#searchSubmit").click();
+  w.click(w.eid("searchSubmit"));
 
-  mc.waitFor(function () $("#notifications .error").is(":visible"));
+  mc.waitFor(function () !w.window.document.querySelector("#notifications > .error").hidden);
 }
 
 /**
@@ -676,12 +674,13 @@ function subtest_incomplete_provider_not_displayed(w) {
   wait_for_provider_list_loaded(w);
   // Make sure that the provider that didn't include the required fields
   // is not displayed.
-  let $ = w.window.$;
-  assert_equals(0, $('input[type="checkbox"][value="corrupt"]').length,
+  let input = w.window.document.querySelectorAll('input[type="checkbox"][value="corrupt"]');
+  assert_equals(0, input.length,
                 "The Corrupt provider should not have been displayed");
 
   // And check to ensure that at least one other provider is displayed
-  assert_equals(1, $('input[type="checkbox"][value="foo"]').length,
+  input = w.window.document.querySelectorAll('input[type="checkbox"][value="foo"]');
+  assert_equals(1, input.length,
                 "The foo provider should have been displayed");
 }
 
@@ -705,8 +704,7 @@ function test_search_button_disabled_cases() {
  */
 function subtest_search_button_disabled_cases(w) {
   wait_for_provider_list_loaded(w);
-  let $ = w.window.$;
-  let searchInput = new elib.Elem($("#name")[0]);
+  let searchInput = w.eid("name");
   // Case 1:  Search input empty, some providers selected.
 
   // Empty any strings in the search input.  Select all of the input with
@@ -716,8 +714,10 @@ function subtest_search_button_disabled_cases(w) {
   w.keypress(null, 'VK_BACK_SPACE', {});
 
   // Make sure at least one provider is checked
-  $('input[type="checkbox"]:checked').click();
-  $('input[type="checkbox"][value="foo"]').click();
+  let input = w.window.document.querySelector('input[type="checkbox"]:checked');
+  w.click(new elib.Elem(input));
+  input = w.window.document.querySelector('input[type="checkbox"][value="foo"]');
+  w.click(new elib.Elem(input));
 
   // The search submit button should become disabled
   wait_for_element_enabled(w, w.e("searchSubmit"), false);
@@ -733,7 +733,10 @@ function subtest_search_button_disabled_cases(w) {
 
   // Case 3:  Search input has text, no providers selected
   // Make sure no provider checkboxes are checked.
-  $('input[type="checkbox"]:checked').click();
+  inputs = w.window.document.querySelectorAll('input[type="checkbox"]:checked');
+  for (input of inputs) {
+    mc.click(new elib.Elem(input));
+  }
 
   // The search submit button should now be disabled
   wait_for_element_enabled(w, w.e("searchSubmit"), false);
@@ -741,7 +744,8 @@ function subtest_search_button_disabled_cases(w) {
   // We'll turn on a single provider now to enable the search button,
   // so we can ensure that it actually *becomes* disabled for the next
   // case.
-  $('input[type="checkbox"][value="foo"]').click();
+  input = w.window.document.querySelector('input[type="checkbox"][value="foo"]');
+  w.click(new elib.Elem(input));
   wait_for_element_enabled(w, w.e("searchSubmit"), true);
 
   // Case 4:  Search input has no text, and no providers are
@@ -750,7 +754,8 @@ function subtest_search_button_disabled_cases(w) {
   // Clear out the search input
   w.keypress(null, 'a', {accelKey: true});
   w.keypress(null, 'VK_BACK_SPACE', {});
-  $('input[type="checkbox"]:checked').click();
+  input = w.window.document.querySelector('input[type="checkbox"]:checked');
+  w.click(new elib.Elem(input));
 
   wait_for_element_enabled(w, w.e("searchSubmit"), false);
 }
@@ -894,21 +899,23 @@ function sub_get_to_order_form(aController, aAddress) {
   wait_for_search_ready(aController);
 
   // Fill in some data
-  let $ = aController.window.$;
   type_in_search_name(aController, "Joe Nobody");
 
-  $("#searchSubmit").click();
+  aController.click(aController.eid("searchSubmit"));
   wait_for_search_results(aController);
 
   // Click on the first address. This reveals the button with the price.
-  $(".address:first").click();
-  mc.waitFor(function () $("button.create:visible").length > 0);
+  let address = aController.window.document.querySelector(".address:first-child");
+  aController.click(new elib.Elem(address));
+  aController.waitFor(function () aController.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
 
   // Pick the email address green@example.com
   plan_for_content_tab_load();
 
   // Clicking this button should close the modal dialog.
-  $('button.create[address="' + aAddress + '"]').click();
+  let button = aController.window.document.querySelector('button.create[address="' + aAddress + '"]');
+  // mc.click() causes a failure here so click() is used for now.
+  button.click();
 }
 
 /**
@@ -1272,28 +1279,44 @@ function test_per_address_prices() {
 function subtest_per_address_prices(w) {
   wait_for_provider_list_loaded(w);
   wait_for_search_ready(w);
-  let $ = w.window.$;
 
   // Type a name with some HTML tags and an ampersand in there
   // to see if we can trip up account provisioner.
   type_in_search_name(w, "Joanna Finkelstein");
 
   // Do the search.
-  $("#searchSubmit").click();
+  mc.click(w.eid("searchSubmit"));
 
   wait_for_search_results(w);
 
   let prices = ["$20-$0 a year", "Free", "$20.00 a year"];
 
   // Check that the multi-provider has the default price.
-  assert_true($(".provider:contains('multi') ~ .price").text(), prices[0].slice(0, 6));
+  let providers = w.window.document.querySelectorAll('.provider');
+  let price;
+  let multi;
+  for (let provider of providers) {
+    if (provider.innerHTML == "multi") {
+      multi = provider;
+      price = provider.parentNode.querySelector('.price');
+      break;
+    }
+  }
+  assert_equals(price.innerHTML, prices[0].slice(0, 6));
 
   // Click on the multi provider. This reveals the buttons with the prices.
-  $(".provider:contains('multi')").click();
-  mc.waitFor(function () $("button.create:visible").length > 0);
+  mc.click(new elib.Elem(multi));
+  mc.waitFor(function () w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
 
   // For each button, make sure it has the correct price.
-  $("button.create:visible").text(function(index, text){
-    assert_equals(text, prices[index]);
-  });
+  let buttons = w.window.document.querySelectorAll("button.create:not([hidden=true])");
+  let index = 0;
+  for (let button of buttons) {
+    // Emulate jquery's :visible selector
+    if (button.offsetWidth == 0 && button.offsetHeight == 0) {
+      continue;
+    }
+    assert_equals(button.innerHTML, prices[index]);
+    index++;
+  }
 }
