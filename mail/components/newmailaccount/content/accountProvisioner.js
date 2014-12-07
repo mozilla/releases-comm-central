@@ -753,11 +753,6 @@ var EmailAccountProvisioner = {
       let addrIndex = 0;
       for (let address of provider.addresses) {
         addrIndex++;
-        let tmplData = {
-          address: address,
-        };
-        if (address.address)
-          tmplData.address = address.address;
 
         // Figure out the price to display on the address button, as so:
         // If there is a per-address price of > 0, use that.
@@ -765,40 +760,38 @@ var EmailAccountProvisioner = {
         // Otherwise, there's no per-address price,
         //   so if the provider's price is > 0, use that.
         //   Or if the provider's price is 0, use "Free".
+        let priceStr;
         if (address.price && address.price != "0")
-          tmplData.priceStr = stringBundle.get("price", [address.price]);
+          priceStr = stringBundle.get("price", [address.price])
         else if (address.price && address.price == "0")
-          tmplData.priceStr = stringBundle.get("free");
+          priceStr = stringBundle.get("free");
         else if (provider.price && provider.price != "0")
-          tmplData.priceStr = stringBundle.get("price", [provider.price]);
+          priceStr = stringBundle.get("price", [provider.price])
         else
-          tmplData.priceStr = stringBundle.get("free");
+          priceStr = stringBundle.get("free");
 
-        try {
-          let result = $("#result_tmpl").render(tmplData).appendTo(group);
-          // If we got here, then we were able to successfully render the
-          // address - we'll keep a count of the rendered addresses for the
-          // "More" buttons, etc.
-          renderedAddresses++;
+        let templateElement = document.querySelector("#result_tmpl");
+        let result = document.importNode(templateElement.content, true).children[0];
+        result.innerHTML =
+          result.innerHTML.replace("${address}",
+                                   address.address ? address.address : address, "g")
+                          .replace("${priceStr}", priceStr, "g");
 
-          if (addrIndex >= MAX_SMALL_ADDRESSES)
-            result.addClass("extra").hide();
+        group.append(result);
+        // Keep a count of the rendered addresses for the "More" buttons, etc.
+        renderedAddresses++;
 
-        } catch(e) {
-          // An address was returned from the server that we jQuery templates
-          // can't render properly.  We'll ignore that address.
-          gLog.error("We got back an address that we couldn't render - more detail in the Error Console.");
-          Cu.reportError(e);
+        if (j >= MAX_SMALL_ADDRESSES) {
+          result.classList.add("extra");
+          result.style.display = "none";
         }
       }
 
       if (renderedAddresses > MAX_SMALL_ADDRESSES) {
         let more = renderedAddresses - MAX_SMALL_ADDRESSES;
+        let moreStr = PluralForm.get(more, stringBundle.get("moreOptions")).replace("#1", more);
         let last = group.children(".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")");
-        let tmplData = {
-          moreStr: PluralForm.get(more, stringBundle.get("moreOptions")).replace("#1", more),
-        };
-        $("#more_results_tmpl").render(tmplData).appendTo(last);
+        last.append('<div class="more">' + moreStr + '</div>');
       }
       group.find("button.create").data("provider", provider.provider);
       group.append($("#resultsFooter").clone().removeClass("displayNone"));

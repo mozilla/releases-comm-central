@@ -45,9 +45,6 @@
           src="chrome://communicator/content/utilityOverlay.js">
   </script>
   <script type="text/javascript;version=1.8"
-          src="chrome://messenger/content/newmailaccount/jquery.tmpl.js">
-  </script>
-  <script type="text/javascript;version=1.8"
           src="chrome://messenger/content/newmailaccount/accountProvisioner.js">
   </script>
 </head>
@@ -155,11 +152,7 @@
     <button id="closeWindow" class="close">&successful.close;</button>
   </div>
 
-</body>
-
-  <!-- Templates!  Woo! -->
-
-  <script id="result_tmpl" type="text/html"><![CDATA[
+  <template id="result_tmpl">
     <div class="hbox row selection">
       <div class="boxFlex address">${address}</div>
       <div class="pricing">
@@ -169,12 +162,8 @@
           address="${address}">${priceStr}</span>
       </div>
     </div>
-  ]]></script>
+  </template>
 
-  <script id="more_results_tmpl" type="text/html"><![CDATA[
-    <div class="more">
-      ${moreStr}
-    </div>
-  ]]></script>
+</body>
 
 </html>
