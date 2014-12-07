@@ -20,7 +20,7 @@ DIRS += [
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     DIRS += ['components']
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG['MAKENSISU']:
     DIRS += ['installer/windows']
 
 TEST_DIRS += ['test/mozmill']

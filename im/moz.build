@@ -16,6 +16,6 @@ DIRS += [
 # app is always last as it packages up the built files on mac.
 DIRS += ['app']
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG['MAKENSISU']:
     DIRS += ['installer/windows']
 
