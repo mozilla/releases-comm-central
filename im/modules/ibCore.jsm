@@ -168,7 +168,7 @@ var Core = {
   showContacts: function() {
     this.showWindow("Messenger:blist",
                     "chrome://instantbird/content/blist.xul", "Contacts",
-                    "chrome,dialog=no,all");
+                    "chrome,dialog=no,all,resizable");
   },
   showPreferences: function() {
     this.showWindow("Messenger:Preferences",
