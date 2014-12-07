@@ -204,6 +204,28 @@ function test_rules() {
                ["20111212T220000Z", "20111213T220000Z", "20111215T220000Z", "20111216T220000Z"],
                false);
 
+    // Bug 958978: Yearly recurrence, the last day of a specified month.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                          "DESCRIPTION:Repeat Yearly the last day of February\n" +
+                                          "RRULE:FREQ=YEARLY;COUNT=6;BYMONTHDAY=-1;BYMONTH=2\n" +
+                                          "DTSTART:20140228T220000Z\n" +
+                                          "DTEND:20140228T230000Z\n" +
+                                          "END:VEVENT\nEND:VCALENDAR\n"),
+                ["20140228T220000Z", "20150228T220000Z", "20160229T220000Z",
+                 "20170228T220000Z", "20180228T220000Z", "20190228T220000Z"],
+                false);
+               
+    // Bug 958978: Yearly recurrence, the last day of a not specified month.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                          "DESCRIPTION:Repeat Yearly the last day of April without BYMONTH=4 in the rule\n" +
+                                          "RRULE:FREQ=YEARLY;COUNT=6;BYMONTHDAY=-1\n" +
+                                          "DTSTART:20140430T220000Z\n" +
+                                          "DTEND:20140430T230000Z\n" +
+                                          "END:VEVENT\nEND:VCALENDAR\n"),
+                ["20140430T220000Z", "20150430T220000Z", "20160430T220000Z",
+                 "20170430T220000Z", "20180430T220000Z", "20190430T220000Z"],
+                false);
+
     let item, occ1;
     item = makeEvent("DESCRIPTION:occurrence on day 1 moved between the occurrences " +
                                      "on days 2 and 3\n" +

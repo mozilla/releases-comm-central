@@ -2024,13 +2024,17 @@ static int expand_year_days(icalrecur_iterator* impl, int year)
                 int doy;
 
                 t = impl->dtstart;
-		t.day = month_day;
-		t.year = year;
-		t.is_date = 1;
+                if (month_day < 0) {
+                    int days_in_month = icaltime_days_in_month(t.month, year);
+                    month_day = days_in_month + month_day + 1;
+                }
+                t.day = month_day;
+                t.year = year;
+                t.is_date = 1;
 
-		doy = icaltime_day_of_year(t);
+                doy = icaltime_day_of_year(t);
 
-		impl->days[days_index++] = (short)doy;
+                impl->days[days_index++] = (short)doy;
 
             }
         break;
@@ -2040,20 +2044,25 @@ static int expand_year_days(icalrecur_iterator* impl, int year)
         /* FREQ=YEARLY; BYMONTHDAY=1,15; BYMONTH=10 */
 
         for(j=0;impl->by_ptrs[BY_MONTH][j]!=ICAL_RECURRENCE_ARRAY_MAX;j++){
+            int month = impl->by_ptrs[BY_MONTH][j];
+            int days_in_month = icaltime_days_in_month(month, year);
             for(k=0;impl->by_ptrs[BY_MONTH_DAY][k]!=ICAL_RECURRENCE_ARRAY_MAX;k++)
            {
-                int month = impl->by_ptrs[BY_MONTH][j];
                 int month_day = impl->by_ptrs[BY_MONTH_DAY][k];
                 int doy;
 
-		t.day = month_day;
-		t.month = month;
-		t.year = year;
-		t.is_date = 1;
+                if (month_day < 0) {
+                    month_day = days_in_month + month_day + 1;
+                }
 
-		doy = icaltime_day_of_year(t);
+                t.day = month_day;
+                t.month = month;
+                t.year = year;
+                t.is_date = 1;
 
-		impl->days[days_index++] = (short)doy;
+                doy = icaltime_day_of_year(t);
+
+                impl->days[days_index++] = (short)doy;
 
             }
         }

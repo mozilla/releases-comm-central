@@ -122,7 +122,7 @@
                        disable-on-readonly="true"
                        disable-on-occurrence="true"/>
               </hbox>
-              <hbox>
+              <hbox align="center">
                 <label id="weekly-period-on-label"
                        value="&event.recurrence.on.label;"
                        disable-on-readonly="true"
@@ -387,6 +387,9 @@
                             <menuitem id="yearly-weekday-7"
                                       label="&event.recurrence.pattern.yearly.week.7.label;"
                                       value="7"/>
+                            <menuitem id="yearly-weekday--1"
+                                      label="&event.recurrence.pattern.yearly.day.label;"
+                                      value="-1"/>
                           </menupopup>
                         </menulist>
                       </box>
