@@ -7,9 +7,7 @@
 interface calIDateTime;
 interface calIDuration;
 
-[ptr] native icalperiodtypeptr(struct icalperiodtype);
-
-[scriptable,uuid(03cde9c7-c864-4109-8bea-ebbff01cbab9)]
+[scriptable,uuid(ace2a74c-bd08-476f-be8b-6565abc50339)]
 interface calIPeriod : nsISupports
 {
   attribute jsval icalPeriod;
@@ -52,8 +50,6 @@ interface calIPeriod : nsISupports
    * Return a string representation of this instance.
    */
   AUTF8String toString();
-
-  [noscript,notxpcom] void toIcalPeriod(in icalperiodtypeptr idt);
 
   /**
    * This object as an iCalendar DURATION string

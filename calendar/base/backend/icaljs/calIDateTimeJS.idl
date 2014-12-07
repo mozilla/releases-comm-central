@@ -6,9 +6,8 @@
 
 interface calIDuration;
 interface calITimezone;
-[ptr] native icaltimetypeptr(struct icaltimetype);
 
-[scriptable, uuid(04139dff-a6f0-446d-9aec-2062df887ef2)]
+[scriptable, uuid(fe3e9a58-2938-4b2c-9085-4989d5f7244f)]
 interface calIDateTime : nsISupports
 {
   /**
@@ -215,8 +214,6 @@ interface calIDateTime : nsISupports
   // the start/end of the current object's year
   readonly attribute calIDateTime startOfYear;
   readonly attribute calIDateTime endOfYear;
-
-  [noscript,notxpcom] void toIcalTime(in icaltimetypeptr itt);
 
   /**
    * This object as either an iCalendar DATE or DATETIME string, as

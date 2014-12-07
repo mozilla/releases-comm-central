@@ -18,10 +18,6 @@ interface calIIcalProperty;
 interface nsIUTF8StringEnumerator;
 interface nsIInputStream;
 
-[ptr] native icalpropertyptr(struct icalproperty_impl);
-[ptr] native icalcomponentptr(struct icalcomponent_impl);
-[ptr] native icaltimezoneptr(struct _icaltimezone);
-
 /**
  * General notes:
  *
@@ -30,7 +26,7 @@ interface nsIInputStream;
  * general, you want to do as little manipulation of your FooContainers as
  * possible while iterating over them.
  */
-[scriptable,uuid(c4637c40-3c4c-4ecd-b802-8b5b46bdf5a4)]
+[scriptable,uuid(59132cf2-e48c-4807-ab53-779f414a7fbc)]
 interface calIIcalComponent : nsISupports
 {
     /**
@@ -153,12 +149,9 @@ interface calIIcalComponent : nsISupports
      * @return cloned component
      */
     calIIcalComponent clone();
-
-    [noscript,notxpcom] icalcomponentptr getLibicalComponent();
-    [noscript,notxpcom] icaltimezoneptr getLibicalTimezone();
 };
 
-[scriptable,uuid(17349a10-5d80-47fa-9bea-f22957357675)]
+[scriptable,uuid(5b13a69c-53d3-44a0-9203-f89f7e5e1604)]
 interface calIIcalProperty : nsISupports
 {
     /**
@@ -213,12 +206,9 @@ interface calIIcalProperty : nsISupports
 
     void removeParameter(in AUTF8String paramname);
     void clearXParameters();
-
-    [noscript,notxpcom] icalpropertyptr getLibicalProperty();
-    [noscript,notxpcom] icalcomponentptr getLibicalComponent();
 };
 
-[scriptable,uuid(41fb4cbd-9977-41c7-b179-ab567e4b9395)]
+[scriptable,uuid(eda9565f-f9bb-4846-b134-1e0653b2e767)]
 interface calIIcsComponentParsingListener : nsISupports
 {
     /**
@@ -230,7 +220,7 @@ interface calIIcsComponentParsingListener : nsISupports
     void onParsingComplete(in nsresult rc, in calIIcalComponent rootComp);
 };
 
-[scriptable,uuid(ff407e5b-9780-4644-b594-b49f6612a9bf)]
+[scriptable,uuid(31e7636b-5a64-4d15-bc60-67b67cd85176)]
 interface calIICSService : nsISupports
 {
     /**

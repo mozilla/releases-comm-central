@@ -7,7 +7,7 @@
 
 [ptr] native icaldurationtypeptr(struct icaldurationtype);
 
-[scriptable, uuid(d1d2e05d-5472-482e-b0a4-a9e43925d530)]
+[scriptable, uuid(f5e1c987-e722-4dec-bf91-93d4062b504a)]
 interface calIDuration : nsISupports
 {
   /**

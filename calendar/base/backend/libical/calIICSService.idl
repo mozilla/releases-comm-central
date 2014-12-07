@@ -1,0 +1,270 @@
+/* -*- Mode: idl; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// XXX use strings for kind values instead of enumerated constants?
+
+
+#include "nsISupports.idl"
+
+interface calIItemBase;
+interface calIDateTime;
+interface calIDuration;
+interface calITimezone;
+interface calITimezoneProvider;
+
+interface calIIcalProperty;
+interface nsIUTF8StringEnumerator;
+interface nsIInputStream;
+
+[ptr] native icalpropertyptr(struct icalproperty_impl);
+[ptr] native icalcomponentptr(struct icalcomponent_impl);
+[ptr] native icaltimezoneptr(struct _icaltimezone);
+
+/**
+ * General notes:
+ *
+ * As with libical, use of getNextFoo(footype) is only valid if there have been
+ * no intervening getNextFoo(otherfootype)s, or removeFoo()s, or addFoo()s. In
+ * general, you want to do as little manipulation of your FooContainers as
+ * possible while iterating over them.
+ */
+[scriptable,uuid(d2fc0264-191e-435e-8ef2-b2ab1fa81ca9)]
+interface calIIcalComponent : nsISupports
+{
+    /**
+     * The parent ical property
+     */
+    readonly attribute calIIcalComponent parent;
+
+    /**
+     * Access to the inner ical.js objects. Only use these if you know what you
+     * are doing.
+     */
+    attribute jsval icalComponent;
+    attribute jsval icalTimezone;
+
+    /**
+     * This is the value that an integer-valued getter will provide if
+     * there is no such property on the wrapped ical structure.
+     */
+    const int32_t INVALID_VALUE = -1;
+
+    /**
+     * @param kind ANY, XROOT, VCALENDAR, VEVENT, etc.
+     */
+    calIIcalComponent getFirstSubcomponent(in AUTF8String componentType);
+    calIIcalComponent getNextSubcomponent(in AUTF8String componentType);
+
+    readonly attribute AUTF8String componentType;
+
+    attribute AUTF8String uid;
+    attribute AUTF8String prodid;
+    attribute AUTF8String version;
+
+    /**
+     * PUBLISH, REQUEST, REPLY, etc.
+     */
+    attribute AUTF8String method;
+
+    /**
+     * TENTATIVE, CONFIRMED, CANCELLED, etc.
+     */
+    attribute AUTF8String status;
+
+    attribute AUTF8String summary;
+    attribute AUTF8String description;
+    attribute AUTF8String location;
+    attribute AUTF8String categories;
+    attribute AUTF8String URL;
+
+    attribute int32_t priority;
+
+    attribute calIDateTime startTime;
+    attribute calIDateTime endTime;
+    readonly attribute calIDuration duration;
+    attribute calIDateTime dueTime;
+    attribute calIDateTime stampTime;
+
+    attribute calIDateTime createdTime;
+    attribute calIDateTime completedTime;
+    attribute calIDateTime lastModified;
+
+    /**
+     * The recurrence ID, a.k.a. DTSTART-of-calculated-occurrence,
+     * or null if this isn't an occurrence.
+     */
+    attribute calIDateTime recurrenceId;
+
+    AUTF8String serializeToICS();
+
+    /**
+     * Return a string representation of this instance.
+     */
+    AUTF8String toString();
+
+    /**
+     * Serializes this component (and subcomponents) directly to an
+     * input stream.  Typically used for performance to avoid
+     * unnecessary conversions and XPConnect traversals.
+     *
+     * @result     an input stream which can be read to get the serialized
+     *             version of this component, encoded in UTF-8.  Implements
+     *             nsISeekableStream so that it can be used with
+     *             nsIUploadChannel.
+     */
+    nsIInputStream serializeToICSStream();
+
+    void addSubcomponent(in calIIcalComponent comp);
+// If you add then remove a property/component, the referenced
+// timezones won't get purged out. There's currently no client code.
+//     void removeSubcomponent(in calIIcalComponent comp);
+
+    /**
+     * @param kind ANY, ATTENDEE, X-WHATEVER, etc.
+     */
+    calIIcalProperty getFirstProperty(in AUTF8String kind);
+    calIIcalProperty getNextProperty(in AUTF8String kind);
+    void addProperty(in calIIcalProperty prop);
+// If you add then remove a property/component, the referenced
+// timezones won't get purged out. There's currently no client code.
+//     void removeProperty(in calIIcalProperty prop);
+
+    /**
+     * Timezones need special handling, as they must be
+     * emitted as children of VCALENDAR, but can be referenced by
+     * any sub component.
+     * Adding a second timezone (of the same TZID) will remove the
+     * first one.
+     */
+    void addTimezoneReference(in calITimezone aTimezone);
+
+    /**
+     * Returns an array of VTIMEZONE components.
+     * These are the timezones that are in use by this
+     * component and its children.
+     */
+    void getReferencedTimezones(out uint32_t aCount,
+                                [array,size_is(aCount),retval] out calITimezone aTimezones);
+
+    /**
+     * Clones the component. The cloned component is decoupled from any parent.
+     * @return cloned component
+     */
+    calIIcalComponent clone();
+
+    [noscript,notxpcom] icalcomponentptr getLibicalComponent();
+    [noscript,notxpcom] icaltimezoneptr getLibicalTimezone();
+};
+
+[scriptable,uuid(e0b9067f-0a53-4724-9c69-63599681877e)]
+interface calIIcalProperty : nsISupports
+{
+    /**
+     * The whole property as an ical string.
+     * @exception Any libical error will be thrown as an calIError::ICS_ error.
+     */
+    readonly attribute AUTF8String icalString;
+
+    /**
+     * Access to the inner ical.js objects. Only use these if you know what you
+     * are doing.
+     */
+    attribute jsval icalProperty;
+
+    /**
+     * The parent component containing this property
+     */
+    readonly attribute calIIcalComponent parent;
+
+    /**
+     * Return a string representation of this instance.
+     */
+    AUTF8String toString();
+
+    /**
+     * The value of the property as string.
+     * The exception for properties of TEXT or X- type, those will be unescaped
+     * when getting, and also expects an unescaped string when setting.
+     * Datetime, numeric and other non-text types are represented as ical string
+     */
+    attribute AUTF8String value;
+
+    /**
+     * The value of the property in (escaped) ical format.
+     */
+    attribute AUTF8String valueAsIcalString;
+
+    /**
+     * The value of the property as date/datetime value, keeping
+     * track of the used timezone referenced in the owning component.
+     */
+    attribute calIDateTime valueAsDatetime;
+
+    // XXX attribute AUTF8String stringValueWithParams; ?
+    readonly attribute AUTF8String propertyName;
+
+    AUTF8String getParameter(in AUTF8String paramname);
+    void setParameter(in AUTF8String paramname, in AUTF8String paramval);
+
+    AUTF8String getFirstParameterName();
+    AUTF8String getNextParameterName();
+
+    void removeParameter(in AUTF8String paramname);
+    void clearXParameters();
+
+    [noscript,notxpcom] icalpropertyptr getLibicalProperty();
+    [noscript,notxpcom] icalcomponentptr getLibicalComponent();
+};
+
+[scriptable,uuid(131b419f-1373-4013-b470-5359aaff4049)]
+interface calIIcsComponentParsingListener : nsISupports
+{
+    /**
+     * Called when the parsing has completed.
+     *
+     * @param rc            The result code of parsing
+     * @param rootComp      The root ical component that was parsed
+     */
+    void onParsingComplete(in nsresult rc, in calIIcalComponent rootComp);
+};
+
+[scriptable,uuid(fea79ff8-07ba-46ae-ac92-7f9d8c49c9d2)]
+interface calIICSService : nsISupports
+{
+    /**
+     * Parses an ICS string and uses the passed tzProvider instance to
+     * resolve timezones not contained withing the VCALENDAR.
+     *
+     * @param serialized     an ICS string
+     * @param tzProvider     timezone provider used to resolve TZIDs
+     *                       not contained within the VCALENDAR;
+     *                       if null is passed, parsing falls back to
+     *                       using the timezone service
+     */
+    calIIcalComponent parseICS(in AUTF8String serialized,
+                               in calITimezoneProvider tzProvider);
+
+    /**
+     * Asynchronously parse an ICS string
+     *
+     * @param serialized     an ICS string
+     * @param tzProvider     timezone provider used to resolve TZIDs
+     *                       not contained within the VCALENDAR;
+     *                       if null is passed, parsing falls back to
+     *                       using the timezone service
+     * @param listener       The listener that notifies the root component
+     */
+    void parseICSAsync(in AUTF8String serialized,
+                       in calITimezoneProvider tzProvider,
+                       in calIIcsComponentParsingListener listener);
+
+    calIIcalComponent createIcalComponent(in AUTF8String kind);
+    calIIcalProperty createIcalProperty(in AUTF8String kind);
+    calIIcalProperty createIcalPropertyFromString(in AUTF8String str);
+    /* I wish I could write this function atop libical!
+    boolean isLegalParameterValue(in AUTF8String paramKind,
+                                  in AUTF8String paramValue);
+    */
+};

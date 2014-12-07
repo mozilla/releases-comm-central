@@ -2518,7 +2518,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             if (aItemRepeatCall && repeatDeck.selectedIndex == 1) {
                 if (!rule.isByCount || !rule.isFinite) {
                     setElementValue("repeat-until-datepicker",
-                                    !rule.isByCount ? rule.untilDate.getInTimezone(cal.floating()).jsDate
+                                    !rule.isByCount ? cal.dateTimeToJsDate(rule.untilDate.getInTimezone(cal.floating()))
                                                     : "forever");
                 } else {
                     // Try to recover the last occurrence in 10(?) years.
@@ -3689,7 +3689,7 @@ function checkUntilDate() {
         // Restore the previous date. Since we are checking an until date,
         // a null value for gUntilDate means repeat "forever".
         setElementValue("repeat-until-datepicker",
-                        gUntilDate ? gUntilDate.getInTimezone(cal.floating()).jsDate
+                        gUntilDate ? cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()))
                                    : "forever");
         gWarning = true;
         let callback = function() {
