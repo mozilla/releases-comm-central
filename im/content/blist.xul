@@ -215,6 +215,7 @@
            crop="end" class="listboxHeader"/>
     <richlistbox id="convlistbox"
                  onkeypress="buddyList.keyPress(event);"
+                 onselect="buddyList.listboxSelect(event);"
                  tooltip="imTooltip"/>
     <label id="contactsHeader" value="&contactsHeader.label;"
            control="buddylistbox"
@@ -222,6 +223,7 @@
     <richlistbox id="buddylistbox"
                  onkeypress="buddyList.keyPress(event);"
                  onfocus="buddyList.buddylistboxFocus();"
+                 onselect="buddyList.listboxSelect(event);"
                  tooltip="imTooltip"/>
     <spacer id="listSpacer" flex="1"
             onclick='document.getElementById("buddylistbox").focus();'/>

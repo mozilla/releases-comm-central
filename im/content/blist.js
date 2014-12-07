@@ -969,6 +969,34 @@ var buddyList = {
       // causes problems for screen readers (BIO bug 1626, BMO bug 786508)
       selectedItem.getBoundingClientRect();
     }
+  },
+
+  // Usually, a scrollable richlistbox will ensure that a newly selected item is
+  // automatically scrolled into view. However, buddylistbox and convlistbox are
+  // both zero-flex children of a flexible notification box, and don't have
+  // scrollboxes themselves - so it's necessary to manually set the scroll of the
+  // notification box when an item is selected to ensure its visibility.
+  listboxSelect: function(event) {
+    if (!event.target.selectedItem)
+      return;
+    let notifbox = document.getElementById('buddyListMsg');
+    let itemBounds = event.target.selectedItem.getBoundingClientRect();
+    let notifboxBounds = notifbox.getBoundingClientRect();
+    // The offset of the top of the notification box from the top of the item.
+    let offsetAboveTop = notifboxBounds.top - itemBounds.top;
+    // The offset of the bottom of the item from the bottom of the notification box.
+    let offsetBelowBottom = itemBounds.top + itemBounds.height -
+                            (notifboxBounds.top + notifboxBounds.height);
+    // If the item is not fully in view, one of the offsets will be positive.
+    if (offsetAboveTop < 0 && offsetBelowBottom < 0)
+      return;
+    if (offsetAboveTop >= 0) {
+      // We need to scroll up to bring the item into view.
+      notifbox.scrollTop -= offsetAboveTop;
+      return;
+    }
+    // We need to scroll down to bring the item into view.
+    notifbox.scrollTop += offsetBelowBottom;
   }
 };
 
