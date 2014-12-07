@@ -1348,9 +1348,8 @@ let gFolderTreeView = {
     let oldCount = this._rowMap ? this._rowMap.length : null;
     this._rowMap = newRowMap;
 
-    let evt = document.createEvent("Events");
-    evt.initEvent("mapRebuild", true, false);
-    this._treeElement.dispatchEvent(evt);
+    this._treeElement.dispatchEvent(new Event("mapRebuild",
+      { bubbles: true, cancelable: false }));
 
     if (this._tree)
     {

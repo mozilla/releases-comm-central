@@ -1125,10 +1125,9 @@ FolderDisplayWidget.prototype = {
     // only do this if we're currently active.  no need to queue it because we
     //  always update the mail view whenever we are made active.
     if (this.active) {
-      let event = document.createEvent("Events");
       // you cannot cancel a view change!
-      event.initEvent("MailViewChanged", false, false);
-      window.dispatchEvent(event);
+      window.dispatchEvent(new Event("MailViewChanged",
+        { bubbles: false, cancelable: false }));
     }
   },
 

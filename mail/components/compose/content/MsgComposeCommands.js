@@ -229,9 +229,8 @@ var gComposeRecyclingListener = {
     //Release the nsIMsgComposeParams object
     if (window.arguments && window.arguments[0])
       window.arguments[0] = null;
-    var event = document.createEvent('Events');
-    event.initEvent('compose-window-close', false, true);
-    document.getElementById("msgcomposeWindow").dispatchEvent(event);
+    document.getElementById("msgcomposeWindow").dispatchEvent(
+      new Event("compose-window-close", { bubbles: false , cancelable: true }));
     if (gAutoSaveTimeout)
       clearTimeout(gAutoSaveTimeout);
     ReleaseGlobalVariables(); 	// This line must be the last in onClose();
@@ -1244,7 +1243,8 @@ uploadListener.prototype = {
 
       let event = document.createEvent("Events");
       event.initEvent("attachment-uploaded", true, true);
-      attachmentItem.dispatchEvent(event);
+      attachmentItem.dispatchEvent(new Event("attachment-uploaded",
+        { bubbles: true, cancelable: true }));
     }
     else {
       let title;
@@ -2219,9 +2219,8 @@ function ComposeStartup(recycled, aParams)
 
   AddAttachments(gMsgCompose.compFields.attachments);
 
-  var event = document.createEvent("Events");
-  event.initEvent("compose-window-init", false, true);
-  document.getElementById("msgcomposeWindow").dispatchEvent(event);
+  document.getElementById("msgcomposeWindow").dispatchEvent(
+    new Event("compose-window-init", { bubbles: false , cancelable: true }));
 
   gMsgCompose.RegisterStateListener(stateListener);
 

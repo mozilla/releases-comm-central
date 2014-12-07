@@ -262,10 +262,9 @@ function OnLoadMsgHeaderPane()
 
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.
-  var event = document.createEvent("Events");
-  event.initEvent("messagepane-loaded", false, true);
   var headerViewElement = document.getElementById("msgHeaderView");
-  headerViewElement.dispatchEvent(event);
+  headerViewElement.dispatchEvent(new Event("messagepane-loaded",
+    { bubbles: false, cancelable: true }));
 
   initInlineToolbox("header-view-toolbox", "header-view-toolbar",
                     "CustomizeHeaderToolbar", function() {
@@ -343,10 +342,9 @@ function OnUnloadMsgHeaderPane()
 
   // dispatch an event letting any listeners know that we have unloaded
   // the message pane
-  var event = document.createEvent("Events");
-  event.initEvent("messagepane-unloaded", false, true);
   var headerViewElement = document.getElementById("msgHeaderView");
-  headerViewElement.dispatchEvent(event);
+  headerViewElement.dispatchEvent(new Event("messagepane-unloaded",
+    { bubbles: false, cancelable: true }));
 }
 
 const MsgHdrViewObserver =

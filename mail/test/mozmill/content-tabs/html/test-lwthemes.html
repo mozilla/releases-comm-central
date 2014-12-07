@@ -27,10 +27,8 @@ const RESET_PREVIEW = "ResetBrowserThemePreview";
 
 function setTheme(node, theme, action) {
   node.setAttribute("data-browsertheme", JSON.stringify(themes[theme]));
-  var event = document.createEvent("Events");
   dump("dispatching " + action + "\n");
-  event.initEvent(action, true, false);
-  node.dispatchEvent(event);
+  node.dispatchEvent(new Event(action, { bubbles: true, cancelable: false }));
 }
 </script>
 
