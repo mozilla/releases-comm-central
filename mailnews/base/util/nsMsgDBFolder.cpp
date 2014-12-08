@@ -139,7 +139,6 @@ nsMsgDBFolder::nsMsgDBFolder(void)
   mNumPendingTotalMessages(0),
   mFolderSize(kSizeUnknown),
   mNumNewBiffMessages(0),
-  mIsCachable(true),
   mHaveParsedURI(false),
   mIsServerIsValid(false),
   mIsServer(false),
@@ -655,7 +654,6 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force)
     result = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
     if(NS_SUCCEEDED(result))
     {
-      mIsCachable = true;
       if (folderInfo)
       {
         if (!mInitializedFromCache)

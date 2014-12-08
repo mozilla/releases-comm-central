@@ -216,7 +216,6 @@ protected:
   int64_t mFolderSize;
 
   int32_t mNumNewBiffMessages;
-  bool mIsCachable;
 
   // these are previous set of new msgs, which we might
   // want to run junk controls on. This is in addition to "new" hdrs
