@@ -40,9 +40,87 @@ function Startup()
     gDialog.input.value = TeXZilla.getTeXSource(gDialog.oldMath);
   }
 
+  // Create the tabbox with math symbols.
+  createSymbolTabBox([
+    "∏∐∑∫∬∭⨌∮⊎⊕⊖⊗⊘⊙⋀⋁⋂⋃⌈⌉⌊⌋⎰⎱⟨⟩⟪⟫∥⫼⨀⨁⨂⨄⨅⨆ðıȷℏℑℓ℘ℜℵℶ",
+    "∀∃∄∅∉∊∋∌⊂⊃⊄⊅⊆⊇⊈⊈⊉⊊⊊⊋⊋⊏⊐⊑⊒⊓⊔⊥⋐⋑⋔⫅⫆⫋⫋⫌⫌…⋮⋯⋰⋱♭♮♯∂∇",
+    "±×÷†‡•∓∔∗∘∝∠∡∢∧∨∴∵∼∽≁≃≅≇≈≈≊≍≎≏≐≑≒≓≖≗≜≡≢≬⊚⊛⊞⊡⊢⊣⊤⊥",
+    "⊨⊩⊪⊫⊬⊭⊯⊲⊲⊳⊴⊵⊸⊻⋄⋅⋇⋈⋉⋊⋋⋌⋍⋎⋏⋒⋓⌅⌆⌣△▴▵▸▹▽▾▿◂◃◊○★♠♡♢♣⧫",
+    "≦≧≨≩≩≪≫≮≯≰≱≲≳≶≷≺≻≼≽≾≿⊀⊁⋖⋗⋘⋙⋚⋛⋞⋟⋦⋧⋨⋩⩽⩾⪅⪆⪇⪈⪉⪊⪋⪌⪕⪯⪰⪷⪸⪹⪺",
+    "←↑→↓↔↕↖↗↘↙↜↝↞↠↢↣↦↩↪↫↬↭↭↰↱↼↽↾↿⇀⇁⇂⇃⇄⇆⇇⇈⇉⇊⇋⇌⇐⇑⇒⇓⇕⇖⇗⇘⇙⟺",
+    "αβγδϵ϶εζηθϑικϰλμνξℴπϖρϱσςτυϕφχψωΓΔΘΛΞΠΣϒΦΨΩϝ℧",
+    "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ",
+    "𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵",
+    "𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ"
+  ]);
+
   updateMath();
 
   SetWindowLocation();
+}
+
+function insertSymbol(aChar)
+{
+  gDialog.input.focus();
+  gDialog.input.editor.QueryInterface(Components.interfaces.nsIPlaintextEditor).insertText(aChar);
+}
+
+function createSymbolTabBox(aSymbolPanelList)
+{
+  const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+  const columnCount = 13, tabLabelLength = 3
+
+  var tabbox = document.getElementById("tabboxInsertSymbol");
+
+  for (var symbols of aSymbolPanelList) {
+
+    // Create a <rows> element with the symbols of the i-th panel.
+    var rows = document.createElementNS(XULNS, "rows");
+    var i = 0, tabLabel = "", row;
+    for (var symbol of symbols) {
+      if (i % columnCount == 0) {
+        // Create a new row.
+        row = document.createElementNS(XULNS, "row");
+        rows.appendChild(row);
+      }
+
+      // Build the tab label from the first symbols of this tab.
+      if (i < tabLabelLength) {
+        tabLabel += symbol;
+      }
+
+      // Create a new button to insert the symbol.
+      var button = document.createElementNS(XULNS, "toolbarbutton");
+      button.setAttribute("label", symbol);
+      button.setAttribute("class", "tabbable");
+      row.appendChild(button);
+
+      i++;
+    }
+
+    // Create a <columns> element with the desired number of columns.
+    var columns = document.createElementNS(XULNS, "columns");
+    for (i = 0; i < columnCount; i++) {
+      var column = document.createElementNS(XULNS, "column");
+      column.setAttribute("flex", "1");
+      columns.appendChild(column);
+    }
+
+    // Create the <grid> element with the <rows> and <columns> children.
+    var grid = document.createElementNS(XULNS, "grid");
+    grid.appendChild(columns);
+    grid.appendChild(rows);
+
+    // Create a new <tab> element with the label determined above.
+    var tab = document.createElementNS(XULNS, "tab");
+    tab.setAttribute("label", tabLabel);
+    tabbox.tabs.appendChild(tab);
+
+    // Append the new tab panel.
+    tabbox.tabpanels.appendChild(grid);
+  }
+
+  tabbox.selectedIndex = 0;
 }
 
 function onAccept()
@@ -83,15 +161,16 @@ function updateMath()
     gDialog.output.firstChild.remove();
 
   // Try to convert the LaTeX source into MathML using TeXZilla.
-  // If parsing fails, we disable the accept button.
+  // We use the placeholder text if no input is provided.
   try {
-    if (gDialog.input.value) {
-      var newMath = TeXZilla.toMathML(gDialog.input.value, gDialog.mode.selectedIndex, gDialog.direction.selectedIndex, true);
-      gDialog.output.appendChild(document.importNode(newMath, true));
-    }
+    var input = gDialog.input.value || gDialog.input.placeholder;
+    var newMath = TeXZilla.toMathML(input, gDialog.mode.selectedIndex, gDialog.direction.selectedIndex, true);
+    gDialog.output.appendChild(document.importNode(newMath, true));
+    gDialog.output.style.opacity = gDialog.input.value ? 1 : .5;
   } catch (e) {
   }
-  gDialog.accept.disabled = !gDialog.output.firstChild;
+  // Disable the accept button if parsing fails or when the placeholder is used.
+  gDialog.accept.disabled = !gDialog.input.value || !gDialog.output.firstChild;
 }
 
 function updateMode()

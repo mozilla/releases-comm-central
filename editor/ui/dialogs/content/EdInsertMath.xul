@@ -31,10 +31,15 @@
   <broadcaster id="args" value=""/>
 
   <label id="srcMessage" value="&sourceEditField.label;"/>
-  <textbox id="input" rows="5" multiline="true" oninput="updateMath();"/>
+  <textbox id="input" rows="5" multiline="true" oninput="updateMath();"
+           placeholder="\sqrt{x_1} + \frac{π^3}{2}"/>
   <vbox flex="1" style="overflow: auto; width: 30em; height: 5em;">
     <description id="output"/>
   </vbox>
+  <tabbox id="tabboxInsertSymbol">
+    <tabs/>
+    <tabpanels oncommand="insertSymbol(event.target.label);"/>
+  </tabbox>
   <spacer class="spacer"/>
   <groupbox>
     <caption label="&options.label;"/>
@@ -53,12 +58,6 @@
       </radiogroup>
     </hbox>
   </groupbox>
-  <spacer class="spacer"/>
-  <hbox>
-    <spacer class="bigspacer"/>
-    <label value="&example.label;"/>
-    <label value="&exampleText.label;"/>
-  </hbox>
   <spacer class="spacer"/>
   <separator class="groove"/>
 </dialog>
