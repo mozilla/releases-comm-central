@@ -27,6 +27,7 @@
         </xul:toolbar>
         <xul:browser anonid="debugLogBrowser" disablehistory="true" type="content"
                      flex="1" src="chrome://instantbird/content/debugLog.html"/>
+        <xul:findbar anonid="findbar"/>
       </xul:vbox>
     </content>
 
@@ -34,6 +35,12 @@
       <property name="browser" readonly="true">
         <getter>
           return document.getAnonymousElementByAttribute(this, "anonid", "debugLogBrowser");
+        </getter>
+      </property>
+
+      <property name="findbar" readonly="true">
+        <getter>
+          return document.getAnonymousElementByAttribute(this, "anonid", "findbar");
         </getter>
       </property>
 
@@ -77,6 +84,7 @@
               this.accountList.selectedItem = item;
           }
           this._accountListInited = true;
+          this.findbar.browser = this.browser;
         ]]>
         </body>
       </method>

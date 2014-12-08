@@ -440,6 +440,9 @@
            ensure that it has a parent element in the binding, so the status panel
            can be attached after it.
 
+           If the panel has a findbar, it should set the findbar property to
+           automatically gain access to keyboard shortcuts.
+
            Panels can implement the following methods to customize behavior in certain situations:
            destroy:
              Called before panel is removed.
