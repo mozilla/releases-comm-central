@@ -34,6 +34,9 @@ var gExpectedInboxSize;
 var gExpectedFolder2Size;
 var gExpectedFolder3Size;
 
+// Transfer message keys between function calls.
+var gMsgKeys = [];
+
 // nsIMsgCopyServiceListener implementation
 var copyListener = 
 {
@@ -64,6 +67,19 @@ var urlListener =
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: message successfully copied.
     do_check_eq(aExitCode, 0);
+
+    if (gMsgKeys.length > 0) {
+      // Bug 854798: Check if the new message keys are the same as before compaction.
+      let folderMsgs = gMsgKeys.folder.messages;
+      // First message was deleted so skip it in the old array.
+      for (let i = 1; i < gMsgKeys.length; i++) {
+        do_check_true(folderMsgs.hasMoreElements());
+        let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+        do_check_eq(header.messageKey, gMsgKeys[i]);
+      }
+      do_check_false(folderMsgs.hasMoreElements());
+      gMsgKeys.length = 0;
+    }
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
@@ -165,6 +181,14 @@ const gTestArray =
     var folder3DB = gLocalFolder3.msgDatabase;
     gMsgHdrs[0].hdr = folder3DB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
 
+    // Store message keys before deletion and compaction.
+    gMsgKeys.folder = gLocalFolder3;
+    let folderMsgs = gLocalFolder3.messages;
+    while (folderMsgs.hasMoreElements()) {
+      let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+      gMsgKeys.push(header.messageKey);
+    }
+
     // Now delete the message
     deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr], false, false);
   },
@@ -179,6 +203,14 @@ const gTestArray =
     verifyMsgOffsets(gLocalFolder3);
     var folder2DB = gLocalFolder2.msgDatabase;
     gMsgHdrs[0].hdr = folder2DB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
+
+    // Store message keys before deletion and compaction.
+    gMsgKeys.folder = gLocalFolder2;
+    let folderMsgs = gLocalFolder2.messages;
+    while (folderMsgs.hasMoreElements()) {
+      let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+      gMsgKeys.push(header.messageKey);
+    }
 
     // Now delete the message
     deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);

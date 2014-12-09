@@ -654,7 +654,6 @@ nsFolderCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
                                     nsresult status)
 {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
   if (NS_FAILED(status))
   {
     m_status = status; // set the m_status to status so the destructor can remove the
@@ -670,7 +669,6 @@ nsFolderCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
     if (m_curIndex >= m_size)
     {
       msgHdr = nullptr;
-      newMsgHdr = nullptr;
       // no more to copy finish it up
       FinishCompact();
     }
@@ -997,7 +995,6 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
   nsresult rv = status;
   nsCOMPtr<nsIURI> uri;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
   nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
   bool done = false;
 
@@ -1031,16 +1028,15 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
   {
     m_window->GetStatusFeedback(getter_AddRefs(statusFeedback));
     if (statusFeedback)
-      statusFeedback->ShowProgress (100 * m_curIndex / m_size);
+      statusFeedback->ShowProgress(100 * m_curIndex / m_size);
   }
-    // advance to next message 
+  // advance to next message
   m_curIndex++;
   rv = CopyNextMessage(done);
   if (done)
   {
     m_db->Commit(nsMsgDBCommitType::kCompressCommit);
     msgHdr = nullptr;
-    newMsgHdr = nullptr;
     // no more to copy finish it up
     ReleaseFolderLock();
     FinishCompact();
@@ -1158,17 +1154,17 @@ nsFolderCompactState::EndCopy(nsISupports *url, nsresult aStatus)
    */
   if (m_curSrcHdr)
   {
-    // if mbox is close to 4GB, auto-assign the msg key.
-    nsMsgKey key = m_startOfNewMsg > 0xFFFFFF00 ? nsMsgKey_None : (nsMsgKey) m_startOfNewMsg;
+    nsMsgKey key;
+    m_curSrcHdr->GetMessageKey(&key);
     m_db->CopyHdrFromExistingHdr(key, m_curSrcHdr, true,
                                  getter_AddRefs(newMsgHdr));
   }
   m_curSrcHdr = nullptr;
   if (newMsgHdr)
   {
-    if ( m_statusOffset != 0)
+    if (m_statusOffset != 0)
       newMsgHdr->SetStatusOffset(m_statusOffset);
-      
+
     char storeToken[100];
     PR_snprintf(storeToken, sizeof(storeToken), "%lld", m_startOfNewMsg);
     newMsgHdr->SetStringProperty("storeToken", storeToken);
@@ -1185,7 +1181,7 @@ nsFolderCompactState::EndCopy(nsISupports *url, nsresult aStatus)
   }
 
 //  m_db->Commit(nsMsgDBCommitType::kLargeCommit);  // no sense commiting until the end
-    // advance to next message 
+  // advance to next message
   m_curIndex ++;
   m_startOfMsg = true;
   nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
@@ -1193,7 +1189,7 @@ nsFolderCompactState::EndCopy(nsISupports *url, nsresult aStatus)
   {
     m_window->GetStatusFeedback(getter_AddRefs(statusFeedback));
     if (statusFeedback)
-      statusFeedback->ShowProgress (100 * m_curIndex / m_size);
+      statusFeedback->ShowProgress(100 * m_curIndex / m_size);
   }
   return NS_OK;
 }
