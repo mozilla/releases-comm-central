@@ -41,8 +41,6 @@
 // when the cache is allocated.
 const uint32_t kInitialAddrDBCacheSize = 3;
 
-const int32_t kAddressBookDBVersion = 1;
-
 static const char kPabTableKind[] = "ns:addrbk:db:table:kind:pab";
 static const char kDeletedCardsTableKind[] = "ns:addrbk:db:table:kind:deleted"; // this table is used to keep the deleted cards
 
@@ -60,7 +58,6 @@ static const char kRecordKeyColumn[] = "RecordKey";
 static const char kLastRecordKeyColumn[] = "LastRecordKey";
 static const char kRowIDProperty[] = "DbRowID";
 
-static const char kMailListTotalLists[] = "ListTotalLists";    // total number of mail list in a mailing list
 static const char kLowerListNameColumn[] = "LowercaseListName";
 
 struct mdbOid gAddressBookTableOID;

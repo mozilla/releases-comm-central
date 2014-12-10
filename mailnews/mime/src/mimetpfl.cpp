@@ -17,7 +17,6 @@
 #include "nsMsgI18N.h"
 
 static const uint32_t kSpacesForATab = 4; // Must be at least 1.
-static const uint32_t kInitialBufferSize = 100;
 
 #define MIME_SUPERCLASS mimeInlineTextClass
 MimeDefClass(MimeInlineTextPlainFlowed, MimeInlineTextPlainFlowedClass,

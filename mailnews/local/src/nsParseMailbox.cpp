@@ -59,7 +59,6 @@
 #include "nsIMsgPluggableStore.h"
 #include "mozilla/Services.h"
 
-static NS_DEFINE_CID(kCMailDB, NS_MAILDB_CID);
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 /* the following macros actually implement addref, release and query interface for our component. */

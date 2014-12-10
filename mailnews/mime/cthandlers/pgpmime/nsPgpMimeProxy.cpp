@@ -25,8 +25,6 @@
 #include "nsIPgpMimeProxy.h"
 #include "nsComponentManagerUtils.h"
 
-static NS_DEFINE_CID(kMimeObjectClassAccessCID, NS_MIME_OBJECT_CLASS_ACCESS_CID);
-
 #define MIME_SUPERCLASS mimeEncryptedClass
 MimeDefClass(MimeEncryptedPgp, MimeEncryptedPgpClass,
              mimeEncryptedPgpClass, &MIME_SUPERCLASS);

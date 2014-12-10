@@ -84,7 +84,6 @@ static PRTime gtimeOfLastPurgeCheck;    //variable to know when to check for pur
 const char *kUseServerRetentionProp = "useServerRetention";
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
-static NS_DEFINE_CID(kCMailDB, NS_MAILDB_CID);
 
 nsICollation * nsMsgDBFolder::gCollationKeyGenerator = nullptr;
 
