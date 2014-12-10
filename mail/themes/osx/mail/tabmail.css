@@ -18,7 +18,7 @@
     margin-bottom: -1px;
   }
 
-  #messengerWindow[tabsintitlebar="true"] #tabs-toolbar {
+  #messengerWindow[tabsintitlebar="true"] #tabs-toolbar:not(:-moz-lwtheme) {
     -moz-appearance: -moz-mac-vibrancy-light !important;
   }
 }

@@ -16,7 +16,7 @@
 }
 
 @media (-moz-mac-yosemite-theme) {
-  #titlebar {
+  #titlebar:not(:-moz-lwtheme) {
     -moz-appearance: -moz-mac-vibrancy-light !important;
   }
 
