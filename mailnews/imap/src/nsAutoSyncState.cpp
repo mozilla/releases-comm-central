@@ -130,7 +130,7 @@ nsresult nsAutoSyncState::PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyLi
       
       bool doesFit = true;
       rv = autoSyncMgr->DoesMsgFitDownloadCriteria(hdr, &doesFit);
-      if (NS_SUCCEEDED(rv) && !mDownloadQ.Contains(aMsgKeyList[idx]) && doesFit)
+      if (NS_SUCCEEDED(rv) && !mDownloadSet.Contains(aMsgKeyList[idx]) && doesFit)
       {
         bool excluded = false;
         if (msgStrategy)
@@ -140,6 +140,7 @@ nsresult nsAutoSyncState::PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyLi
           if (NS_SUCCEEDED(rv) && !excluded)
           {
             mIsDownloadQChanged = true;
+            mDownloadSet.PutEntry(aMsgKeyList[idx]);
             mDownloadQ.AppendElement(aMsgKeyList[idx]);
           }
         }
@@ -254,6 +255,7 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(uint32_t aSuggestedGroupSi
         database->ContainsKey(mDownloadQ[idx], &containsKey);
         if (!containsKey)
         {
+          mDownloadSet.RemoveEntry(mDownloadQ[idx]);
           mDownloadQ.RemoveElementAt(idx--);
           msgCount--;
           continue;
@@ -571,6 +573,7 @@ NS_IMETHODIMP nsAutoSyncState::Rollback()
 NS_IMETHODIMP nsAutoSyncState::ResetDownloadQ()
 {
   mOffset = mLastOffset = 0;
+  mDownloadSet.Clear();
   mDownloadQ.Clear();
   mDownloadQ.Compact();
   

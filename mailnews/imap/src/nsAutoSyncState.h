@@ -10,6 +10,8 @@
 #include "nsIAutoSyncManager.h" 
 #include "nsIUrlListener.h"
 #include "nsWeakPtr.h"
+#include "nsTHashtable.h"
+#include "nsHashKeys.h"
 #include "nsTArray.h"
 #include "prlog.h"
 #include "nsIWeakReferenceUtils.h"
@@ -97,6 +99,7 @@ public:
   uint32_t mProcessPointer;
   bool mIsDownloadQChanged;
   uint32_t mRetryCounter;
+  nsTHashtable<nsUint32HashKey> mDownloadSet;
   nsTArray<nsMsgKey> mDownloadQ;
   nsTArray<nsMsgKey> mExistingHeadersQ;
 };
