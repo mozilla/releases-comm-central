@@ -61,5 +61,6 @@ stage-mozmill: make-stage-dir
 
 stage-calendar: make-stage-dir
 	$(MAKE) -C $(DEPTH)/calendar/lightning stage-package
+	$(MAKE) -C $(DEPTH)/calendar/providers/gdata stage-package
 
 .PHONY: stage-mozmill stage-calendar
