@@ -504,7 +504,7 @@
   <binding id="mail-headerfield">
     <content>
       <xul:description class="headerValue" anonid="headerValue"
-                       flex="1" readonly="true" context="copyPopup"
+                       flex="1" readonly="true" context="copyPopup" popup="copyPopup"
                        role="textbox" aria-readonly="true"/>
     </content>
 

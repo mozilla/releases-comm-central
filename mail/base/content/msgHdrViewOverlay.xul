@@ -452,7 +452,8 @@
                 <label id="expandedsubjectLabel" class="headerName"
                        value="&subjectField4.label;"
                        control="expandedsubjectBox"/>
-                <mail-headerfield id="expandedsubjectBox" flex="1"/>
+                <mail-headerfield id="expandedsubjectBox" flex="1"
+                                  headerName="subject"/>
               </row>
               <row id="expandedorganizationRow" collapsed="true">
                 <label id="expandedorganizationLabel" class="headerName"

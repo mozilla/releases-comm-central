@@ -180,6 +180,10 @@
                           .copyString(window.getSelection().isCollapsed ?
                               document.popupNode.textContent :
                               window.getSelection().toString());"/>
+     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
+               accesskey="&CreateFilterFrom.accesskey;"
+               oncommand="CreateFilter(findEmailNodeFromPopupNode(document.popupNode, 'copyPopup'))"
+               observes="cmd_createFilterFromPopup"/>
 </menupopup>
 
 <menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"

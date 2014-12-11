@@ -1625,15 +1625,18 @@ function CopyEmailNewsAddress(addressNode)
 
 /**
  * Causes the filter dialog to pop up, prefilled for the specified e-mail
- * address.
+ * address or header value.
  *
- * @param emailAddressNode  a node which has an "emailAddress" attribute
+ * @param aHeaderNode  A node which has an "emailAddress" attribute
+ *                     or a "headerName" attribute.
  */
-function CreateFilter(emailAddressNode)
+function CreateFilter(aHeaderNode)
 {
-  let emailAddress = emailAddressNode.getAttribute("emailAddress");
-  top.MsgFilters(emailAddress, GetFirstSelectedMsgFolder(),
-                 emailAddressNode.getAttribute("headerName"));
+  let nodeIsAddress = aHeaderNode.hasAttribute("emailAddress");
+  let nodeValue = nodeIsAddress ? aHeaderNode.getAttribute("emailAddress") :
+                                  document.getAnonymousNodes(aHeaderNode)[0].textContent;
+  top.MsgFilters(nodeValue, GetFirstSelectedMsgFolder(),
+                 aHeaderNode.getAttribute("headerName"));
 }
 
 /**
