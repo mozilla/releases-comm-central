@@ -95,10 +95,10 @@ var MailMigrator = {
    * Determine if the UI has been upgraded in a way that requires us to reset
    * some user configuration.  If so, performs the resets.
    */
-  _migrateUI: function MailMigrator__migrateUI() {
+  _migrateUI: function() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 8;
+    const UI_VERSION = 9;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -249,6 +249,23 @@ var MailMigrator = {
         if (Services.prefs.prefHasUserValue(kOldColorPref) &&
             !Services.prefs.getBoolPref(kOldColorPref)) {
           Services.prefs.setIntPref("browser.display.document_color_use", 2);
+        }
+      }
+
+      // Limit the charset detector pref to values (now) available from the UI.
+      if (currentUIVersion < 9) {
+        let detector = null;
+        try {
+          detector = Services.prefs.getComplexValue("intl.charset.detector",
+                                                    Ci.nsIPrefLocalizedString).data;
+        } catch (ex) { }
+        if (!(detector == "" ||
+              detector == "ja_parallel_state_machine" ||
+              detector == "ruprob" ||
+              detector == "ukprob")) {
+          // If the encoding detector pref value is not reachable from the UI,
+          // reset to default (varies by localization).
+          Services.prefs.clearUserPref("intl.charset.detector");
         }
       }
 
