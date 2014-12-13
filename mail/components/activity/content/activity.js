@@ -273,10 +273,10 @@ var activityObject =
       }
     }
 
-    let (empty = this._activitiesView.cloneNode(false)) {
-      this._activitiesView.parentNode.replaceChild(empty, this._activitiesView);
-      this._activitiesView = empty;
-    }
+    let empty = this._activitiesView.cloneNode(false);
+    this._activitiesView.parentNode.replaceChild(empty, this._activitiesView);
+    this._activitiesView = empty;
+
     this._groupCache = {};
     this.rebuild();
     this._ignoreNotifications = false;

@@ -122,10 +122,10 @@ let moveCopyModule =
 
       let displayCount = count;
 
-      let activities = this.activityMgr.getActivities({})
+      let activities = this.activityMgr.getActivities({});
       if (activities.length > 0 &&
           activities[activities.length-1].id == this.lastMessage.id &&
-          this.lastMessage.type == aMove ? "moveMail" : "copyMail" &&
+          this.lastMessage.type == (aMove ? "moveMail" : "copyMail") &&
           this.lastMessage.sourceFolder == folder.prettiestName &&
           this.lastMessage.destFolder == aDestFolder.prettiestName)
       {
