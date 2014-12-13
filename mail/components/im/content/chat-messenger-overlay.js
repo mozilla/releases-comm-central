@@ -309,12 +309,14 @@ var chatHandler = {
     let title =
       document.getElementById("chatBundle").getString("chatTabTitle");
     let [unreadTargettedCount] = this.countUnreadMessages();
-    if (unreadTargettedCount)
+    if (unreadTargettedCount) {
       title += " (" + unreadTargettedCount + ")";
-    let selectedItem = document.getElementById("contactlistbox").selectedItem;
-    if (selectedItem && selectedItem.localName == "imconv" &&
-        !selectedItem.hidden)
-      title += " - " + selectedItem.getAttribute("displayname");
+    } else {
+      let selectedItem = document.getElementById("contactlistbox").selectedItem;
+      if (selectedItem && selectedItem.localName == "imconv" &&
+          !selectedItem.hidden)
+        title += " - " + selectedItem.getAttribute("displayname");
+    }
     gChatTab.title = title;
     document.getElementById("tabmail").setTabTitle(gChatTab);
   },
