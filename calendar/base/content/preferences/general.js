@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 /**
  * Global Object to hold methods for the general pref pane
  */
@@ -29,6 +31,34 @@ var gCalendarGeneralPane = {
         updateSelectedLabel("dateformat");
         updateUnitLabelPlural("defaultlength", "defaultlengthunit", "minutes");
         this.updateDefaultTodoDates();
+
+        let tzMenuList = document.getElementById("calendar-timezone-menulist");
+        let tzMenuPopup = document.getElementById("calendar-timezone-menupopup");
+
+        let tzService = cal.getTimezoneService();
+        let enumerator = tzService.timezoneIds;
+        let tzids = {};
+        let displayNames = [];
+        // don't rely on what order the timezone-service gives you
+        while (enumerator.hasMore()) {
+            let tz = tzService.getTimezone(enumerator.getNext());
+            if (tz && !tz.isFloating && !tz.isUTC) {
+                let displayName = tz.displayName;
+                displayNames.push(displayName);
+                tzids[displayName] = tz.tzid;
+            }
+        }
+        // the display names need to be sorted
+        displayNames.sort(String.localeCompare);
+        for (let displayName of displayNames) {
+            addMenuItem(tzMenuPopup, displayName, tzids[displayName]);
+        }
+
+        let prefValue = document.getElementById("calendar-timezone-local").value;
+        if (!prefValue) {
+            prefValue = calendarDefaultTimezone().tzid;
+        }
+        tzMenuList.value = prefValue;
     },
 
     updateDefaultTodoDates: function gCGP_updateDefaultTodoDates() {
@@ -51,4 +81,3 @@ var gCalendarGeneralPane = {
         document.getElementById("defaults-itemtype-deck").selectedPanel = panel;
     }
 };
-
