@@ -279,8 +279,8 @@ var FeedUtils = {
                 // Finished with all feeds in base folder and its subfolders.
                 FeedUtils.log.debug("downloadFeed: Finished with folder - " +
                                     aFolder.name);
-                delete folder;
-                delete allFolders;
+                folder = null;
+                allFolders = null;
               }
               else
               {
@@ -305,8 +305,8 @@ var FeedUtils = {
         // Nothing to do.
         FeedUtils.log.debug("downloadFeed: Nothing to do in folder - " +
                             aFolder.name);
-        delete folder;
-        delete allFolders;
+        folder = null;
+        allFolders = null;
       }
       else
       {
@@ -462,7 +462,7 @@ var FeedUtils = {
     // Update folderpane.
     this.setFolderPaneProperty(aParentFolder, "_favicon", null);
 
-    delete feed;
+    feed = null;
   },
 
 /**
@@ -1459,7 +1459,7 @@ var FeedUtils = {
           this.mStatusFeedback.showStatusString("");
       }
 
-      delete feed;
+      feed = null;
     },
 
     // This gets called after the RSS parser finishes storing a feed item to

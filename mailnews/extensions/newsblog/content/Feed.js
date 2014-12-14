@@ -60,6 +60,7 @@ Feed.prototype =
   downloadCallback: null,
   resource: null,
   items: new Array(),
+  itemsStored: 0,
   mFolder: null,
   mInvalidFeed: false,
   mFeedType: null,
@@ -89,7 +90,7 @@ Feed.prototype =
 
     // Get a unique sanitized name. Use title or description as a base;
     // these are mandatory by spec. Length of 80 is plenty.
-    let folderName = (this.title || this.description).substr(0,80);
+    let folderName = (this.title || this.description || "").substr(0,80);
     let defaultName = FeedUtils.strings.GetStringFromName("ImportFeedsNew");
     return this.mFolderName = FeedUtils.getSanitizedFolderName(this.server.rootMsgFolder,
                                                                folderName,
@@ -409,7 +410,7 @@ Feed.prototype =
     // Create a feed parser which will parse the feed.
     let parser = new FeedParser();
     this.itemsToStore = parser.parseFeed(this, this.request.responseXML);
-    delete parser;
+    parser = null;
 
     if (this.mInvalidFeed)
     {
