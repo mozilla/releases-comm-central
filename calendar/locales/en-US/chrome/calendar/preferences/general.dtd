@@ -13,6 +13,10 @@
 <!ENTITY pref.dateformat.long "Long" >
 <!ENTITY pref.dateformat.short "Short"  >
 
+<!ENTITY pref.timezones.caption "Timezone">
+<!ENTITY pref.timezones.label "Select the closest city in your timezone:">
+<!ENTITY pref.timezones.accesskey "S">
+
 <!ENTITY pref.defaults.label "Default Values for New Items">
 <!ENTITY pref.events.label "Events">
 <!ENTITY pref.tasks.label "Tasks">

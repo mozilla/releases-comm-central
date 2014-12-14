@@ -109,6 +109,15 @@ function fixIterator(aEnum, aIface) {
     return { __iterator__: iter };
   }
 
+  // How about nsIStringEnumerator or nsIUTF8StringEnumerator?
+  if (aEnum instanceof Ci.nsIStringEnumerator || aEnum instanceof Ci.nsIUTF8StringEnumerator) {
+    let iter = function() {
+      while (aEnum.hasMore())
+        yield aEnum.getNext();
+    };
+    return { __iterator__: iter };
+  }
+
   // How about nsISimpleEnumerator? This one is nice and simple.
   if (aEnum instanceof Ci.nsISimpleEnumerator) {
     let iter = function () {
