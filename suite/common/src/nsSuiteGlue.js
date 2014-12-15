@@ -149,6 +149,7 @@ SuiteGlue.prototype = {
         this._checkForNewAddons();
         Services.search.init();
         LoginManagerParent.init();
+        Components.utils.import("resource://gre/modules/Webapps.jsm");
         break;
       case "sessionstore-windows-restored":
         this._onBrowserStartup(subject);
