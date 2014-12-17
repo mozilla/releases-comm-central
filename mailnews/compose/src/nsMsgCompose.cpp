@@ -4,8 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgCompose.h"
-#include "nsIScriptGlobalObject.h"
-#include "nsIScriptContext.h"
 #include "nsIDOMDocument.h"
 #include "nsIDOMNode.h"
 #include "nsIDOMNodeList.h"
@@ -78,6 +76,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsISelection.h"
+#include "nsJSEnvironment.h"
 
 using namespace mozilla::mailnews;
 
@@ -1468,13 +1467,7 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(bool recycleIt)
          * we call GC here, the release won't occur right away. But if we don't call it, the release
          * will happen only when we physically close the window which will happen only on quit.
          */
-        nsCOMPtr<nsIScriptGlobalObject> sgo(do_QueryInterface(m_window));
-        if (sgo)
-        {
-          nsIScriptContext *scriptContext = sgo->GetContext();
-          if (scriptContext)
-            scriptContext->GC(JS::gcreason::NSJSCONTEXT_DESTROY);
-        }
+        nsJSContext::PokeGC(JS::gcreason::NSJSCONTEXT_DESTROY);
       }
       return NS_OK;
     }
