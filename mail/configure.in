@@ -92,6 +92,11 @@ if test -n "$COMPILE_ENVIRONMENT" -a -n "$MOZ_LDAP_XPCOM"; then
         ac_configure_args="$ac_configure_args --with-nspr=$LIBXUL_DIST"
     fi
 
+    dnl Explicitly disable the DEBUG RTL
+    if test -n "$MOZ_NO_DEBUG_RTL"; then
+      ac_configure_args="$ac_configure_args --disable-debug-rtl"
+    fi
+
     dnl The cache file needs to be an absolute path to work properly.
     cache_file_base=`dirname $cache_file`
     cache_file=`cd $cache_file_base && pwd`/`basename $cache_file`
