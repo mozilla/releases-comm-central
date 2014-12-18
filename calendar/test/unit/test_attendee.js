@@ -172,20 +172,20 @@ function test_properties() {
 
     // Only X-Props should show up in the enumerator
     a.setProperty("X-NAME", "X-VALUE");
-    for each (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
+    for (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
         do_check_eq(x.name, "X-NAME");
         do_check_eq(x.value, "X-VALUE");
     }
 
     a.deleteProperty("X-NAME");
-    for each (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
+    for (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
         do_throw("Unexpected property " + x.name + " = " + x.value);
     }
 
     a.setProperty("X-NAME", "X-VALUE");
     a.setProperty("X-NAME", null);
 
-    for each (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
+    for (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
         do_throw("Unexpected property after setting null " + x.name + " = " + x.value);
     }
 }

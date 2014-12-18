@@ -54,7 +54,7 @@ function ltnInitMailIdentitiesRow() {
     } else {
         identities = MailServices.accounts.allIdentities;
     }
-    for each (let identity in fixIterator(identities, Components.interfaces.nsIMsgIdentity)) {
+    for (let identity in fixIterator(identities, Components.interfaces.nsIMsgIdentity)) {
         addMenuItem(menuPopup, identity.identityName, identity.key);
     }
     try {
