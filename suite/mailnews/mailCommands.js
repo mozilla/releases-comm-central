@@ -40,7 +40,7 @@ function getBestIdentity(identities, optionalHint)
     let hints = optionalHint.toLowerCase().split(",");
 
     for (let i = 0 ; i < hints.length; i++) {
-      for each (let identity in fixIterator(identities,
+      for (let identity in fixIterator(identities,
                   Components.interfaces.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
@@ -82,7 +82,7 @@ function GetIdentityForHeader(aMsgHdr, aType)
     // Reverse the array so that the last delivered-to header will show at front.
     deliveredTos.reverse();
     for (let i = 0; i < deliveredTos.length; i++) {
-      for each (let identity in fixIterator(accountManager.allIdentities,
+      for (let identity in fixIterator(accountManager.allIdentities,
                                   Components.interfaces.nsIMsgIdentity)) {
         if (!identity.email)
           continue;

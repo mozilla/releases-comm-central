@@ -26,7 +26,7 @@ var MailUtils =
     let accountManager = Cc["@mozilla.org/messenger/account-manager;1"]
                            .getService(Ci.nsIMsgAccountManager);
     let servers = accountManager.allServers;
-    for each (let server in fixIterator(servers, Ci.nsIMsgIncomingServer))
+    for (let server in fixIterator(servers, Ci.nsIMsgIncomingServer))
       server.rootFolder.subFolders;
   },
 

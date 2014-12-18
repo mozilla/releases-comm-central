@@ -980,7 +980,7 @@ function setupXFVirtualFolderSearch(folderUrisToSearch, searchTerms, searchOnlin
 
     var termsArray = searchTerms.QueryInterface(Components.interfaces.nsISupportsArray);
     const nsIMsgSearchTerm = Components.interfaces.nsIMsgSearchTerm;
-    for each (let term in fixIterator(termsArray, nsIMsgSearchTerm)) {
+    for (let term in fixIterator(termsArray, nsIMsgSearchTerm)) {
       gSearchSession.appendTerm(term);
     }
 }
