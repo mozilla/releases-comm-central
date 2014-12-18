@@ -266,6 +266,24 @@ const XMPPConversationPrototype = {
     this._targetResource = this._account._parseJID(from).resource;
     let flags = {};
     if (aStanza.attributes["type"] == "error") {
+      if (!aMsg) {
+        // Failed outgoing message unknown.
+        let error = aStanza.getElement(["error"]);
+        if (error) {
+          // Look for defined-condition child.
+          if (error.getElement(["remote-server-not-found"]))
+            aMsg = _("conversation.error.remoteServerNotFound");
+          else {
+            // If we don't recognize the defined condition, try to use
+            // the supplied descriptive error message if available.
+            let errortext = error.getElement(["text"]);
+            if (errortext)
+              aMsg = errortext.innerText;
+          }
+        }
+        if (!aMsg)
+          aMsg = _("conversation.error.unknownError");
+      }
       aMsg = _("conversation.error.notDelivered", aMsg);
       flags.system = true;
       flags.error = true;
@@ -490,7 +508,7 @@ const XMPPAccountBuddyPrototype = {
       this._account._parseJID(aStanza.attributes["from"]).resource || "";
 
     let type = aStanza.attributes["type"];
-    if (type == "unavailable") {
+    if (type == "unavailable" || type == "error") {
       if (!this._resources || !(resource in this._resources))
         return; // ignore for already offline resources.
       delete this._resources[resource];
@@ -928,9 +946,15 @@ const XMPPAccountPrototype = {
         return;
       }
 
-      if (!this.createConversation(norm))
+      let conv = this.createConversation(norm);
+      if (!conv)
         return;
-      this._conv.get(norm).incomingMessage(body, aStanza, date);
+      conv.incomingMessage(body, aStanza, date);
+    }
+    else if (type == "error") {
+      let conv = this.createConversation(norm);
+      if (conv)
+        conv.incomingMessage(null, aStanza);
     }
 
     // Don't create a conversation to only display the typing notifications.
