@@ -296,7 +296,7 @@ var gAccountManager = {
     let server = null;
     let imAccountId = this.accountList.selectedItem.account.numericId;
     let mgr = MailServices.accounts;
-    for each (let account in fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
+    for (let account in fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
       let incomingServer = account.incomingServer;
       if (!incomingServer || incomingServer.type != "im")
         continue;

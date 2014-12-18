@@ -308,14 +308,14 @@ let SearchSupport =
     // if the last folder indexed is empty, this needs to be true initially
     let afterLastFolderIndexed = (this._lastFolderIndexedUri.length == 0);
 
-    for each (var server in fixIterator(servers, Ci.nsIMsgIncomingServer))
+    for (var server in fixIterator(servers, Ci.nsIMsgIncomingServer))
     {
       let allFolders = server.rootFolder.descendants;
       let numFolders = allFolders.length;
       this._log.debug("in find next folder, lastFolderIndexedUri = " +
                       this._lastFolderIndexedUri);
 
-      for each (var folder in fixIterator(allFolders, Ci.nsIMsgFolder))
+      for (var folder in fixIterator(allFolders, Ci.nsIMsgFolder))
       {
         let searchPath = this._getSearchPathForFolder(folder);
         searchPath.leafName = searchPath.leafName + ".mozmsgs";

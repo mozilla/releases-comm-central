@@ -162,8 +162,8 @@ function wait_to_be_offline(w) {
  * @param aAddress the email address to try to remove.
  */
 function remove_email_account(aAddress) {
-  for each (let account in fixIterator(MailServices.accounts.accounts,
-                                       Ci.nsIMsgAccount)) {
+  for (let account in fixIterator(MailServices.accounts.accounts,
+                                  Ci.nsIMsgAccount)) {
     if (account.defaultIdentity && account.defaultIdentity.email == aAddress) {
       MailServices.accounts.removeAccount(account);
       break;

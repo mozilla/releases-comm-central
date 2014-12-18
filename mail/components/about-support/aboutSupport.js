@@ -55,7 +55,7 @@ var AboutSupport = {
     let defaultIdentity = aAccount.defaultIdentity;
     let smtpDetails = [];
 
-    for each (let identity in fixIterator(identities, Ci.nsIMsgIdentity)) {
+    for (let identity in fixIterator(identities, Ci.nsIMsgIdentity)) {
       let isDefault = identity == defaultIdentity;
       let smtpServer = {};
       MailServices.smtp.getServerByIdentity(identity, smtpServer);

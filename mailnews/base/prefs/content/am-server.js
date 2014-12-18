@@ -160,8 +160,8 @@ function onAdvanced()
                       MailServices.accounts.getAccount(serverSettings.deferredToAccount)
                                            .incomingServer.serverURI;
 
-    for each (let account in fixIterator(MailServices.accounts.accounts,
-                                         Components.interfaces.nsIMsgAccount)) {
+    for (let account in fixIterator(MailServices.accounts.accounts,
+                                    Components.interfaces.nsIMsgAccount)) {
       let accountValues = parent.getValueArrayFor(account);
       let type = parent.getAccountValue(account, accountValues, "server", "type",
                                         null, false);

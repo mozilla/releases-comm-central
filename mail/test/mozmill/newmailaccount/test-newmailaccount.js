@@ -88,7 +88,7 @@ function teardownModule(module) {
  * current profile.
  */
 function nAccounts() {
-  return [x for each (x in fixIterator(MailServices.accounts.accounts))].length;
+  return [x for (x in fixIterator(MailServices.accounts.accounts))].length;
 }
 
 /**

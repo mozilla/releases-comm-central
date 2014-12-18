@@ -205,8 +205,8 @@ function replaceWithDefaultSmtpServer(deletedSmtpServerKey)
 {
   // First we replace the smtpserverkey in every identity.
   let am = MailServices.accounts;
-  for each (let identity in fixIterator(am.allIdentities,
-                                        Components.interfaces.nsIMsgIdentity)) {
+  for (let identity in fixIterator(am.allIdentities,
+                                   Components.interfaces.nsIMsgIdentity)) {
     if (identity.smtpServerKey == deletedSmtpServerKey)
       identity.smtpServerKey = "";
   }

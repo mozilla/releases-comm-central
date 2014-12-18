@@ -1027,7 +1027,7 @@ let gFolderTreeView = {
 
   _subFoldersWithStringProperty: function ftv_subFoldersWithStringProperty(folder, folders, aFolderName, deep)
   {
-    for each (let child in fixIterator(folder.subFolders, Components.interfaces.nsIMsgFolder)) {
+    for (let child in fixIterator(folder.subFolders, Components.interfaces.nsIMsgFolder)) {
       // if the folder selection is based on a string propery, use that
       if (aFolderName == getSmartFolderName(child)) {
         folders.push(child);
@@ -1897,7 +1897,7 @@ let gFolderTreeView = {
     const Ci = Components.interfaces;
     let folders = [];
 
-    for each (let server in fixIterator(MailServices.accounts.allServers, Ci.nsIMsgIncomingServer)) {
+    for (let server in fixIterator(MailServices.accounts.allServers, Ci.nsIMsgIncomingServer)) {
       // Skip deferred accounts
       if (server instanceof Ci.nsIPop3IncomingServer &&
           server.deferredToAccount)
@@ -1918,7 +1918,7 @@ let gFolderTreeView = {
    * @param folders  the array to add the folders to.
    */
   addSubFolders : function ftv_addSubFolders (folder, folders) {
-    for each (let f in fixIterator(folder.subFolders, Components.interfaces.nsIMsgFolder)) {
+    for (let f in fixIterator(folder.subFolders, Components.interfaces.nsIMsgFolder)) {
       folders.push(f);
       this.addSubFolders(f, folders);
     }

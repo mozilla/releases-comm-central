@@ -763,8 +763,8 @@ function getServerThatCanHaveFilters()
     // If it cannot, check all accounts to find a server
     // that can have filters.
     let allServers = MailServices.accounts.allServers;
-    for each (currentServer in fixIterator(allServers,
-                                           Components.interfaces.nsIMsgIncomingServer))
+    for (let currentServer in fixIterator(allServers,
+                                          Components.interfaces.nsIMsgIncomingServer))
     {
       if (currentServer.canHaveFilters)
         return currentServer;

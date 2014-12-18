@@ -223,7 +223,7 @@ var WindowWatcher = {
     //  window type yet.
     // because this iterates from old to new, this does the right thing in that
     //  side-effects of consider will pick the most recent window.
-    for each (let xulWindow in fixIterator(
+    for (let xulWindow in fixIterator(
                                  mozmill.wm.getXULWindowEnumerator(null),
                                  Ci.nsIXULWindow)) {
       if (!this.consider(xulWindow))

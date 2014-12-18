@@ -48,8 +48,8 @@ function onLoad()
 
     if (windowArgs.searchTerms) // then add them to our search session
     {
-      for each (let searchTerm in fixIterator(windowArgs.searchTerms,
-                                              Components.interfaces.nsIMsgSearchTerm))
+      for (let searchTerm in fixIterator(windowArgs.searchTerms,
+                                         Components.interfaces.nsIMsgSearchTerm))
         gSearchTermSession.appendTerm(searchTerm);
     }
     if (windowArgs.folder)

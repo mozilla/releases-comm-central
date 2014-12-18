@@ -223,7 +223,7 @@
             Components.utils.import("resource:///modules/iteratorUtils.jsm", this);
             let identitiesRaw = MailServices.accounts
               .getIdentitiesForServer(gFilterList.folder.server);
-            let identities = [a for each (a in this.fixIterator(identitiesRaw,
+            let identities = [a for (a in this.fixIterator(identitiesRaw,
                               Components.interfaces.nsIMsgIdentity))];
 
             if (!identities.length) // typically if this is Local Folders

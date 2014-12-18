@@ -29,7 +29,7 @@ var MailUtils =
    */
   discoverFolders: function MailUtils_discoverFolders() {
     let servers = MailServices.accounts.allServers;
-    for each (let server in fixIterator(servers, Ci.nsIMsgIncomingServer)) {
+    for (let server in fixIterator(servers, Ci.nsIMsgIncomingServer)) {
       // Bug 466311 Sometimes this can throw file not found, we're unsure
       // why, but catch it and log the fact.
       try {
@@ -350,7 +350,7 @@ var MailUtils =
 
     // - worker function
     function folder_string_setter_worker() {
-      for each (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
         // set the property; this may open the database...
         folder.setStringProperty(aPropertyName, aPropertyValue);
         // force the reference to be forgotten.

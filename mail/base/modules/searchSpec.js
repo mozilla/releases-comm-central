@@ -369,8 +369,8 @@ SearchSpec.prototype = {
 
     // -- apply terms
     if (this._virtualFolderTerms) {
-      for each (let term in fixIterator(this._virtualFolderTerms,
-                                        nsIMsgSearchTerm)) {
+      for (let term in fixIterator(this._virtualFolderTerms,
+                                   nsIMsgSearchTerm)) {
         if (term.attrib == nsMsgSearchAttrib.Body)
           haveBodyTerm = true;
         session.appendTerm(term);
@@ -378,8 +378,8 @@ SearchSpec.prototype = {
     }
 
     if (this._viewTerms) {
-      for each (let term in fixIterator(this._viewTerms,
-                                        nsIMsgSearchTerm)) {
+      for (let term in fixIterator(this._viewTerms,
+                                   nsIMsgSearchTerm)) {
         if (term.attrib == nsMsgSearchAttrib.Body)
           haveBodyTerm = true;
         session.appendTerm(term);
@@ -387,8 +387,8 @@ SearchSpec.prototype = {
     }
 
     if (this._userTerms) {
-      for each (let term in fixIterator(this._userTerms,
-                                        nsIMsgSearchTerm)) {
+      for (let term in fixIterator(this._userTerms,
+                                   nsIMsgSearchTerm)) {
         if (term.attrib == nsMsgSearchAttrib.Body)
           haveBodyTerm = true;
         session.appendTerm(term);
@@ -434,8 +434,8 @@ SearchSpec.prototype = {
         let offlineValidityTable = validityManager.getTable(offlineScope);
         let offlineAvailable = true;
         let onlineAvailable = true;
-        for each (let term in fixIterator(session.searchTerms,
-                                          nsIMsgSearchTerm)) {
+        for (let term in fixIterator(session.searchTerms,
+                                     nsIMsgSearchTerm)) {
           if (!term.matchAll) {
             // for custom terms, we need to getAvailable from the custom term
             if (term.attrib == Ci.nsMsgSearchAttrib.Custom) {
@@ -475,7 +475,7 @@ SearchSpec.prototype = {
 
     let s = '';
 
-    for each (let term in fixIterator(aSearchTerms, nsIMsgSearchTerm)) {
+    for (let term in fixIterator(aSearchTerms, nsIMsgSearchTerm)) {
       s += '      ' + term.termAsString + '\n';
     }
 
