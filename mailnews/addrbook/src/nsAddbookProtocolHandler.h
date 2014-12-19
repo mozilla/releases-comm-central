@@ -30,6 +30,7 @@ private:
   nsresult    GenerateXMLOutputChannel(nsString &aOutput,
                                          nsIAddbookUrl *addbookUrl,
                                          nsIURI *aURI, 
+                                         nsILoadInfo *aLoadInfo,
                                          nsIChannel **_retval);
 
   nsresult    GeneratePrintOutput(nsIAddbookUrl *addbookUrl, 

@@ -515,6 +515,9 @@ NS_IMETHODIMP nsPop3Service::NewChannel2(nsIURI *aURI,
   rv = protocol->Initialize(aURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  rv = protocol->SetLoadInfo(aLoadInfo);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   protocol->SetUsername(realUserName.get());
 
   return CallQueryInterface(protocol, _retval);

@@ -2652,6 +2652,10 @@ NS_IMETHODIMP nsImapService::NewChannel2(nsIURI *aURI,
   nsCOMPtr<nsIImapMockChannel> channel = do_CreateInstance(kCImapMockChannel, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   channel->SetURI(aURI);
+
+  rv = channel->SetLoadInfo(aLoadInfo);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<nsIMsgWindow> msgWindow;
   mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
   if (msgWindow)

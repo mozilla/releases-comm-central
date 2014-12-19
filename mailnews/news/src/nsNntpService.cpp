@@ -1244,7 +1244,16 @@ NS_IMETHODIMP nsNntpService::NewChannel2(nsIURI *aURI,
   nsCOMPtr<nsINntpIncomingServer> server;
   rv = GetServerForUri(aURI, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  return server->GetNntpChannel(aURI, nullptr, _retval);
+
+  nsCOMPtr<nsIChannel> channel;
+  rv = server->GetNntpChannel(aURI, nullptr, getter_AddRefs(channel));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = channel->SetLoadInfo(aLoadInfo);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  channel.forget(_retval);
+  return NS_OK;
 }
 
 NS_IMETHODIMP

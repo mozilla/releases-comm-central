@@ -595,24 +595,22 @@ NS_IMETHODIMP nsMailboxService::NewChannel2(nsIURI *aURI,
 
       rv = handler->NewURI(spec, "" /* ignored */, aURI, getter_AddRefs(pop3Uri));
       NS_ENSURE_SUCCESS(rv, rv);
-      return handler->NewChannel(pop3Uri, _retval);
+      return handler->NewChannel2(pop3Uri, aLoadInfo, _retval);
     }
   }
-  nsMailboxProtocol * protocol = new nsMailboxProtocol(aURI);
-  if (protocol)
-  {
-    rv = protocol->Initialize(aURI);
-    if (NS_FAILED(rv))
-    {
-      delete protocol;
-      return rv;
-    }
-    rv = CallQueryInterface(protocol, _retval);
-  }
-  else
-    rv = NS_ERROR_NULL_POINTER;
 
-  return rv;
+  nsRefPtr<nsMailboxProtocol> protocol = new nsMailboxProtocol(aURI);
+  if (!protocol) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
+
+  rv = protocol->Initialize(aURI);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = protocol->SetLoadInfo(aLoadInfo);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return CallQueryInterface(protocol, _retval);
 }
 
 nsresult nsMailboxService::DisplayMessageForPrinting(const char* aMessageURI,
