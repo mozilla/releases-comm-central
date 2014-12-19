@@ -46,7 +46,11 @@ var gCurrentTheme = null;
 function getChromeFile(aURI)
 {
   try {
-    let channel = Services.io.newChannel(aURI, null, null);
+    let channel = Services.io.newChannel2(aURI, null, null, null,
+                                          Services.scriptSecurityManager.getSystemPrincipal(),
+                                          null,
+                                          Ci.nsILoadInfo.SEC_NORMAL,
+                                          Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
     let sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
                             .createInstance(Ci.nsIScriptableInputStream);
@@ -151,7 +155,11 @@ function plistToJSON(aElt)
 function getInfoPlistContent(aBaseURI)
 {
   try {
-    let channel = Services.io.newChannel(aBaseURI + "Info.plist", null, null);
+    let channel = Services.io.newChannel2(aBaseURI + "Info.plist", null, null, null,
+                                          Services.scriptSecurityManager.getSystemPrincipal(),
+                                          null,
+                                          Ci.nsILoadInfo.SEC_NORMAL,
+                                          Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
     let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
                            .createInstance(Ci.nsIDOMParser);

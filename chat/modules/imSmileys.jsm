@@ -78,7 +78,11 @@ function getTheme(aName)
   else
     theme.baseUri = "chrome://" + theme.name + "/skin/";
   try {
-    let channel = Services.io.newChannel(theme.baseUri + kThemeFile, null, null);
+    let channel = Services.io.newChannel2(theme.baseUri + kThemeFile, null, null, null,
+                                          Services.scriptSecurityManager.getSystemPrincipal(),
+                                          null,
+                                          Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                          Components.interfaces.nsIContentPolicy.TYPE_IMAGE);
     let stream = channel.open();
     let json = Components.classes["@mozilla.org/dom/json;1"]
                          .createInstance(Components.interfaces.nsIJSON);
