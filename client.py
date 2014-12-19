@@ -12,38 +12,39 @@
 # Define x_REV to override. Where x can be one of:
 #  "COMM", "MOZILLA", "CHATZILLA", "INSPECTOR", "LDAPSDKS"
 DEFAULTS = {
-  # Global Default Revision
-  'REV': "default",
+    # Global Default Revision
+    'REV': "default",
 
-  # LDAPSDKS
-  'LDAPSDKS_REPO': 'https://hg.mozilla.org/projects/ldap-sdks/',
-  'LDAPSDKS_REV': 'LDAPCSDK_6_0_7G_RTM',
+    # LDAPSDKS
+    'LDAPSDKS_REPO': 'https://hg.mozilla.org/projects/ldap-sdks/',
+    'LDAPSDKS_REV': 'LDAPCSDK_6_0_7G_RTM',
 
-  # URL of the default hg repository to clone for ChatZilla.
-  'CHATZILLA_REPO': 'https://hg.mozilla.org/chatzilla/',
-  # The stable revision to use for the next branch
-#  'CHATZILLA_REV':  'SEA2_32_RELBRANCH',
+    # URL of the default hg repository to clone for ChatZilla.
+    'CHATZILLA_REPO': 'https://hg.mozilla.org/chatzilla/',
+    # The stable revision to use for the next branch
+    #  'CHATZILLA_REV':  'SEA2_32_RELBRANCH',
 
-  # URL of the default hg repository to clone for DOM Inspector.
-  'INSPECTOR_REPO': 'https://hg.mozilla.org/dom-inspector/',
-  # The stable revision to use for the next branch
-#  'INSPECTOR_REV':  'DOMI_LATEST_RELEASE',
+    # URL of the default hg repository to clone for DOM Inspector.
+    'INSPECTOR_REPO': 'https://hg.mozilla.org/dom-inspector/',
+    # The stable revision to use for the next branch
+    #  'INSPECTOR_REV':  'DOMI_LATEST_RELEASE',
 
-  # URL of the default hg repository to clone for Mozilla.
-  'MOZILLA_REPO': 'https://hg.mozilla.org/mozilla-central/',
+    # URL of the default hg repository to clone for Mozilla.
+    'MOZILLA_REPO': 'https://hg.mozilla.org/mozilla-central/',
 }
 
 REPO_SHORT_NAMES = {
-'mozilla-central':  'moz',
-'dom-inspector':    'dom',
-'ldap-sdks':        'ldap',
+    'mozilla-central':  'moz',
+    'dom-inspector':    'dom',
+    'ldap-sdks':        'ldap',
 }
 
+
 def get_DEFAULT_tag(index):
-  if index in DEFAULTS:
-    return DEFAULTS[index]
-  else:
-    return DEFAULTS['REV']
+    if index in DEFAULTS:
+        return DEFAULTS[index]
+    else:
+        return DEFAULTS['REV']
 
 # The set of defaults below relate to the current switching mechanism between
 # trunk or branches and back again if it is required.
@@ -64,8 +65,8 @@ SWITCH_MOZILLA_REPO_BACKUP_LOCATION = ".mozilla-1.9.1"
 # This is the potential location for a repository from the last time we
 # switched. Can be blank for no effect.
 SWITCH_MOZILLA_REPO_OLD_REPO_LOCATION = ".mozilla-trunk"
-# This should be the same as DEFAULTS['MOZILLA_REPO'] but using %s instead of http
-# for the scheme.
+# This should be the same as DEFAULTS['MOZILLA_REPO'] but using %s instead
+# of http for the scheme.
 SWITCH_MOZILLA_REPO_REPLACE = '%s://hg.mozilla.org/mozilla-central/'
 SWITCH_MOZILLA_BASE_REV = "GECKO_1_9_1_BASE"
 
@@ -73,15 +74,14 @@ import sys
 # Test Python Version. 2.4 required for `import subprocess`
 pyver = sys.version_info
 if pyver[0] <= 1 or (pyver[0] == 2 and pyver[1] < 4):
-  sys.exit("ERROR: Python 2.4 or newer required")
+    sys.exit("ERROR: Python 2.4 or newer required")
 elif pyver[0] >= 3:
-  # Python series 3 will syntax error here, Hack needed per Bug 601649c#8
-  print "ERROR: Python series 3 is not supported, use series 2 >= 2.4"
-  sys.exit() # Do an explicit sys.exit for code clarity.
+    # Python series 3 will syntax error here, Hack needed per Bug 601649c#8
+    print "ERROR: Python series 3 is not supported, use series 2 >= 2.4"
+    sys.exit()  # Do an explicit sys.exit for code clarity.
 del pyver
 
 import os
-import datetime
 from optparse import OptionParser, OptionValueError
 import urllib2
 import re
@@ -96,6 +96,7 @@ try:
     from subprocess import check_call
 except ImportError:
     import subprocess
+
     def check_call(*popenargs, **kwargs):
         retcode = subprocess.call(*popenargs, **kwargs)
         if retcode:
@@ -108,6 +109,7 @@ try:
     from subprocess import check_output
 except ImportError:
     import subprocess
+
     def check_output(*popenargs, **kwargs):
         if 'stdout' in kwargs:
             raise ValueError('stdout argument not allowed, it will be overridden.')
@@ -121,46 +123,50 @@ except ImportError:
             raise CalledProcessError(retcode, cmd, output=output)
         return output
 
+
 def check_call_output(cmd, *args, **kwargs):
     return check_output(cmd, *args, **kwargs)
 
+
 def check_call_noisy(cmd, retryMax=0, *args, **kwargs):
-  """Wrapper around execute_check_call() to allow retries before failing.
+    """Wrapper around execute_check_call() to allow retries before failing.
 
-  |cmd|, is the command to try and execute.
-  |retryMax|, is the maximum number of retries to attempt, 0 by default.
-  """
+    |cmd|, is the command to try and execute.
+    |retryMax|, is the maximum number of retries to attempt, 0 by default.
+    """
 
-  def execute_check_call(cmd, *args, **kwargs):
-    print "Executing command:", cmd
-    check_call(cmd, *args, **kwargs)
+    def execute_check_call(cmd, *args, **kwargs):
+        print "Executing command:", cmd
+        check_call(cmd, *args, **kwargs)
 
-  # By default (= no retries), simply pass the call on.
-  if retryMax == 0:
-    execute_check_call(cmd, *args, **kwargs)
-    return
+    # By default (= no retries), simply pass the call on.
+    if retryMax == 0:
+        execute_check_call(cmd, *args, **kwargs)
+        return
 
-  # Loop (1 + retryMax) times, at most.
-  for r in range(0, 1 + retryMax):
-    # Add a retry header, not for initial call.
-    if r != 0:
-      print >> sys.stderr, "Retrying previous command: %d of %d time(s)" % (r, retryMax)
-    try:
-      # (Re-)Try the call.
-      execute_check_call(cmd, *args, **kwargs)
-      # If the call succeeded then no more retries.
-      break
-    except:
-      # Print the exception without its traceback.
-      # This traceback starts in the try block, which should be low value.
-      print >> sys.stderr, "The exception was:"
-      sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], None)
-      # Add a blank line.
-      print >> sys.stderr
-  else:
-    # Raise our own exception.
-    # This traceback starts at (= reports) the initial caller line.
-    raise Exception("Command '%s' failed %d time(s). Giving up." % (cmd, retryMax + 1))
+    # Loop (1 + retryMax) times, at most.
+    for r in range(0, 1 + retryMax):
+        # Add a retry header, not for initial call.
+        if r != 0:
+            print >> sys.stderr, "Retrying previous command: %d of %d time(s)" % (r, retryMax)
+        try:
+            # (Re-)Try the call.
+            execute_check_call(cmd, *args, **kwargs)
+            # If the call succeeded then no more retries.
+            break
+        except:
+            # Print the exception without its traceback.
+            # This traceback starts in the try block, which should be low value.
+            print >> sys.stderr, "The exception was:"
+            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], None)
+            # Add a blank line.
+            print >> sys.stderr
+        else:
+            # Raise our own exception.
+            # This traceback starts at (= reports) the initial caller line.
+            raise Exception("Command '%s' failed %d time(s). Giving up." %
+                            (cmd, retryMax + 1))
+
 
 def repo_config():
     """Create/Update TREE_STATE_FILE as needed.
@@ -196,7 +202,8 @@ def repo_config():
     if not os.path.exists(TREE_STATE_FILE) or config_version < CURRENT_TREESTATE_VERSION:
         if not config.has_section('treestate'):
             config.add_section('treestate')
-        config.set('treestate', 'src_update_version', CURRENT_TREESTATE_VERSION)
+        config.set('treestate', 'src_update_version',
+                   CURRENT_TREESTATE_VERSION)
 
         # Write this file out
         f = open(TREE_STATE_FILE, 'w')
@@ -204,6 +211,7 @@ def repo_config():
             config.write(f)
         finally:
             f.close()
+
 
 def switch_mozilla_repo():
     """If the mozilla/ repo matches SWITCH_MOZILLA_REPO_REGEXP then:
@@ -219,9 +227,10 @@ def switch_mozilla_repo():
     mozilla_path = os.path.join(topsrcdir, 'mozilla')
     # Do nothing if there is no Mozilla directory.
     if not os.path.exists(mozilla_path):
-      return
+        return
 
-    import ConfigParser, re
+    import ConfigParser
+    import re
     config = ConfigParser.ConfigParser()
     config_path = os.path.join(mozilla_path, '.hg', 'hgrc')
     config.read([config_path])
@@ -237,14 +246,14 @@ def switch_mozilla_repo():
         return
 
     config.set('paths', 'default',
-               SWITCH_MOZILLA_REPO_REPLACE % match.group(1) )
+               SWITCH_MOZILLA_REPO_REPLACE % match.group(1))
 
     if config.has_option('paths', 'default-push'):
-      match = moz_old_regex.match(config.get('paths', 'default-push'))
-      # Do not update this property if not pushing to Mozilla trunk.
-      if match:
-        config.set('paths', 'default-push',
-                   SWITCH_MOZILLA_REPO_REPLACE % match.group(1) )
+        match = moz_old_regex.match(config.get('paths', 'default-push'))
+        # Do not update this property if not pushing to Mozilla trunk.
+        if match:
+            config.set('paths', 'default-push',
+                       SWITCH_MOZILLA_REPO_REPLACE % match.group(1))
 
     hgcloneopts = []
     if options.hgcloneopts:
@@ -254,7 +263,8 @@ def switch_mozilla_repo():
     if options.hgopts:
         hgopts = options.hgopts.split()
 
-    backup_mozilla_path = os.path.join(topsrcdir, SWITCH_MOZILLA_REPO_BACKUP_LOCATION)
+    backup_mozilla_path = os.path.join(topsrcdir,
+                                       SWITCH_MOZILLA_REPO_BACKUP_LOCATION)
     print "Moving mozilla to " + SWITCH_MOZILLA_REPO_BACKUP_LOCATION + "..."
     try:
         os.rename(mozilla_path, backup_mozilla_path)
@@ -264,7 +274,8 @@ def switch_mozilla_repo():
         sys.exit("Error: Mozilla directory renaming failed!")
 
     # Does the user have a pre-existing backup repository?
-    old_backup_repository = os.path.join(topsrcdir, SWITCH_MOZILLA_REPO_OLD_REPO_LOCATION)
+    old_backup_repository = os.path.join(topsrcdir,
+                                         SWITCH_MOZILLA_REPO_OLD_REPO_LOCATION)
     if SWITCH_MOZILLA_REPO_OLD_REPO_LOCATION != "" and \
             os.path.exists(old_backup_repository):
         # Yes, so let's use that
@@ -280,16 +291,18 @@ def switch_mozilla_repo():
         return
 
     # Locally clone common repository history.
-    check_call_noisy([options.hg, 'clone', '-r', SWITCH_MOZILLA_BASE_REV] + hgcloneopts + hgopts + [backup_mozilla_path, mozilla_path],
+    check_call_noisy([options.hg, 'clone', '-r', SWITCH_MOZILLA_BASE_REV] +
+                     hgcloneopts + hgopts + [backup_mozilla_path, mozilla_path],
                      retryMax=options.retries)
 
     # Rewrite hgrc for new local mozilla repo based on pre-existing hgrc
     # but with new values
     f = open(os.path.join(topsrcdir, 'mozilla', '.hg', 'hgrc'), 'w')
     try:
-      config.write(f)
+        config.write(f)
     finally:
-      f.close()
+        f.close()
+
 
 def backup_cvs_extension(extensionName, extensionDir, extensionPath):
     """Backup (obsolete) cvs checkout of extensionName.
@@ -308,6 +321,7 @@ def backup_cvs_extension(extensionName, extensionDir, extensionPath):
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], None)
         sys.exit("Error: %s directory renaming failed!" % extensionName)
 
+
 def do_hg_pull(dir, repository, hg, rev, hgtool=None, hgtool1=None):
     """Clone if the dir doesn't exist, pull if it does.
     """
@@ -324,16 +338,20 @@ def do_hg_pull(dir, repository, hg, rev, hgtool=None, hgtool1=None):
 
     if hgtool or hgtool1:
         if not os.path.exists(hgtool):
-          hgtool = hgtool1
+            hgtool = hgtool1
 
     if hgtool:
         hgtoolcmd = hgtool.split()
-        # We need to strip the trailing slash from the repository url so that the hg tool gets a
-        # url that's consistent with the rest of the build automation.
-        check_call_noisy(['python'] + hgtoolcmd + [repository.rstrip('/'), fulldir], retryMax=options.retries)
+        # We need to strip the trailing slash from the repository url so that
+        # the hg tool gets a url that's consistent with the rest of the build
+        # automation.
+        check_call_noisy(['python'] + hgtoolcmd +
+                         [repository.rstrip('/'), fulldir],
+                         retryMax=options.retries)
     elif not os.path.exists(fulldir):
         fulldir = os.path.join(topsrcdir, dir)
-        check_call_noisy([hg, 'clone'] + hgcloneopts + hgopts + [repository, fulldir],
+        check_call_noisy([hg, 'clone'] + hgcloneopts + hgopts +
+                         [repository, fulldir],
                          retryMax=options.retries)
     else:
         cmd = [hg, 'pull', '-R', fulldir] + hgopts
@@ -342,10 +360,11 @@ def do_hg_pull(dir, repository, hg, rev, hgtool=None, hgtool1=None):
         check_call_noisy(cmd, retryMax=options.retries)
 
     # update to specific revision
-    cmd = [hg, 'update', '-r', rev, '-R', fulldir ] + hgopts
+    cmd = [hg, 'update', '-r', rev, '-R', fulldir] + hgopts
     if options.verbose:
         cmd.append('-v')
-    # Explicitly never retry 'hg update': otherwise any merge failures are ignored.
+    # Explicitly never retry 'hg update': otherwise any merge failures are
+    # ignored.
     # This command is local: a failure can't be caused by a network error.
     check_call_noisy(cmd, retryMax=0)
 
@@ -354,32 +373,37 @@ def do_hg_pull(dir, repository, hg, rev, hgtool=None, hgtool1=None):
 
     if options.tinderbox_print and dir != '.':
         got_rev = check_call_output([hg, 'parent', '-R', fulldir,
-                    '--template={node|short}'])
+                                     '--template={node|short}'])
 
-        url = check_call_output([hg, 'paths', 'default', '-R', fulldir ]).rstrip().rstrip('/')
+        url = check_call_output([hg, 'paths', 'default', '-R', fulldir]).rstrip().rstrip('/')
         repo_name = url.split('/')[-1]
         repo_short_name = REPO_SHORT_NAMES.get(repo_name, repo_name)
 
-        print "TinderboxPrint:<a href=%s/rev/%s title='Built from %s revision %s'>%s:%s</a>"  % ( url, got_rev, repo_name, got_rev, repo_short_name, got_rev)
+        print "TinderboxPrint:<a href=%s/rev/%s title='Built from %s revision %s'>%s:%s</a>" % (url, got_rev, repo_name, got_rev, repo_short_name, got_rev)
 
 
 def check_retries_option(option, opt_str, value, parser):
-  if value < 0:
-    raise OptionValueError("%s option value needs to be positive (not '%d')" % (opt_str, value))
-  setattr(parser.values, option.dest, value)
+    if value < 0:
+        raise OptionValueError("%s option value needs to be positive (not '%d')" %
+                               (opt_str, value))
+    setattr(parser.values, option.dest, value)
+
 
 def do_apply_patch(hg, patch, repo):
     check_call_noisy([hg,
-        'import',
-        '-R', repo,
-        '-m', "local patch from %s" % patch,
-        '--no-commit', '--force',
-        patch,
-        ],
-        retryMax=0)
+                      'import',
+                      '-R', repo,
+                      '-m', "local patch from %s" % patch,
+                      '--no-commit', '--force',
+                      patch,
+                      ],
+                     retryMax=0
+                     )
     return
 
 import glob
+
+
 def do_apply_patches(topsrcdir, hg):
     prefix_map = {
         'mozilla': 'mozilla',
@@ -395,7 +419,7 @@ def do_apply_patches(topsrcdir, hg):
         for file in files:
             patch = os.path.join(topsrcdir, file)
             if os.path.exists(patch):
-               do_apply_patch(hg, patch, prefix_dir)
+                do_apply_patch(hg, patch, prefix_dir)
 
 o = OptionParser(usage="%prog [options] checkout")
 o.add_option("-m", "--comm-repo", dest="comm_repo",
@@ -441,15 +465,15 @@ o.add_option("--ldap-rev", dest="ldap_rev",
              default=None,
              help="Revision of LDAP repository to update to. Default: \"" + get_DEFAULT_tag('LDAPSDKS_REV') + "\"")
 
-o.add_option("--chatzilla-repo", dest = "chatzilla_repo",
-             default = None,
-             help = "URL of ChatZilla repository to pull from (default: use hg default in mozilla/extensions/irc/.hg/hgrc; or if that file doesn't exist, use \"" + DEFAULTS['CHATZILLA_REPO'] + "\".)")
+o.add_option("--chatzilla-repo", dest="chatzilla_repo",
+             default=None,
+             help="URL of ChatZilla repository to pull from (default: use hg default in mozilla/extensions/irc/.hg/hgrc; or if that file doesn't exist, use \"" + DEFAULTS['CHATZILLA_REPO'] + "\".)")
 o.add_option("--skip-chatzilla", dest="skip_chatzilla",
              action="store_true", default=False,
              help="Skip pulling the ChatZilla repository.")
-o.add_option("--chatzilla-rev", dest = "chatzilla_rev",
-             default = None,
-             help = "Revision of ChatZilla repository to update to. Default: \"" + get_DEFAULT_tag('CHATZILLA_REV') + "\"")
+o.add_option("--chatzilla-rev", dest="chatzilla_rev",
+             default=None,
+             help="Revision of ChatZilla repository to update to. Default: \"" + get_DEFAULT_tag('CHATZILLA_REV') + "\"")
 
 o.add_option("--skip-venkman", dest="skip_venkman",
              action="store_true", default=False,
@@ -478,9 +502,9 @@ o.add_option("--retries", dest="retries", type="int", metavar="NUM",
              default=1, help="Number of times to retry a failed command before giving up. (default: 1)",
              action="callback", callback=check_retries_option)
 
-o.add_option("-r", "--rev", dest = "default_rev",
-             default = None,
-             help = "Revision of all repositories to update to, unless otherwise specified.")
+o.add_option("-r", "--rev", dest="default_rev",
+             default=None,
+             help="Revision of all repositories to update to, unless otherwise specified.")
 
 o.add_option("--apply-patches", dest="apply_patches",
              action="store_true", default=False,
@@ -489,6 +513,7 @@ o.add_option("--apply-patches", dest="apply_patches",
 o.add_option("--tinderbox-print", dest="tinderbox_print",
              action="store_true", default=False,
              help="Print repo revisions for Tinderbox")
+
 
 def fixup_comm_repo_options(options):
     """Check options.comm_repo value.
@@ -516,6 +541,7 @@ def fixup_comm_repo_options(options):
         else:
             options.comm_rev = get_DEFAULT_tag("COMM_REV")
 
+
 def fixup_mozilla_repo_options(options):
     """Handle special case: initial checkout of Mozilla.
 
@@ -526,13 +552,14 @@ def fixup_mozilla_repo_options(options):
             options.mozilla_repo = DEFAULTS['MOZILLA_REPO']
         else:
             # Fallback to using .hgrc as hgtool/share needs the repo
-            import ConfigParser, re
+            import ConfigParser
             config = ConfigParser.ConfigParser()
             config_path = os.path.join(topsrcdir, 'mozilla', '.hg', 'hgrc')
             config.read([config_path])
             if not config.has_option('paths', 'default'):
                 # Abort, not to get into a possibly inconsistent state.
-                sys.exit("Error: default path in %s is undefined!" % config_path)
+                sys.exit("Error: default path in %s is undefined!" %
+                         config_path)
 
             options.mozilla_repo = config.get('paths', 'default')
 
@@ -545,6 +572,7 @@ def fixup_mozilla_repo_options(options):
             options.mozilla_rev = envRev
         else:
             options.mozilla_rev = get_DEFAULT_tag("MOZILLA_REV")
+
 
 def fixup_chatzilla_repo_options(options):
     """Handle special case: initial hg checkout of Chatzilla.
@@ -563,6 +591,7 @@ def fixup_chatzilla_repo_options(options):
     if options.chatzilla_rev is None:
         options.chatzilla_rev = get_DEFAULT_tag("CHATZILLA_REV")
 
+
 def fixup_inspector_repo_options(options):
     """Handle special case: initial checkout of DOM Inspector.
 
@@ -572,11 +601,13 @@ def fixup_inspector_repo_options(options):
     # No cvs backup needed as DOM Inspector was part (and removed from)
     # Mozilla hg repository.
     if options.inspector_repo is None and \
-            not os.path.exists(os.path.join(topsrcdir, 'mozilla', 'extensions', 'inspector')):
+            not os.path.exists(os.path.join(topsrcdir, 'mozilla', 'extensions',
+                                            'inspector')):
         options.inspector_repo = DEFAULTS['INSPECTOR_REPO']
 
     if options.inspector_rev is None:
         options.inspector_rev = get_DEFAULT_tag("INSPECTOR_REV")
+
 
 def fixup_ldap_repo_options(options):
     """Handle special case: initial checkout of LDAP.
@@ -592,6 +623,7 @@ def fixup_ldap_repo_options(options):
     if options.ldap_rev is None:
         options.ldap_rev = get_DEFAULT_tag("LDAPSDKS_REV")
 
+
 def get_last_known_good_mozilla_rev():
     kg_url = "http://build.mozillamessaging.com/buildbot/production/known-good-revisions/mozilla-central.txt"
     try:
@@ -601,7 +633,8 @@ def get_last_known_good_mozilla_rev():
     if re.search(r'^[a-f0-9]+$', rev) and len(rev) == 12:
         return rev
     else:
-        sys.exit("Error: invalid contents fetched from %s: '%s'" % (kg_url, rev))
+        sys.exit("Error: invalid contents fetched from %s: '%s'" %
+                 (kg_url, rev))
 
 try:
     (options, (action,)) = o.parse_args()
@@ -610,14 +643,14 @@ except ValueError:
     sys.exit(2)
 
 if options.default_rev:
-  # We now wish to override all the DEFAULTS.
-  DEFAULTS['REV'] = options.default_rev
-  for index in ['CHATZILLA', 'INSPECTOR', 'COMM', 'MOZILLA',
-                'LDAPSDKS']:
-    index += "_REV"
-    # Clear the rest from file-defaults
-    if index in DEFAULTS:
-      del DEFAULTS[index]
+    # We now wish to override all the DEFAULTS.
+    DEFAULTS['REV'] = options.default_rev
+    for index in ['CHATZILLA', 'INSPECTOR', 'COMM', 'MOZILLA',
+                  'LDAPSDKS']:
+        index += "_REV"
+        # Clear the rest from file-defaults
+        if index in DEFAULTS:
+            del DEFAULTS[index]
 
 if action in ('checkout', 'co'):
     # Update Comm repository configuration.
@@ -634,26 +667,30 @@ if action in ('checkout', 'co'):
             print "Setting mozilla_rev to '%s'" % options.mozilla_rev
 
         fixup_mozilla_repo_options(options)
-        do_hg_pull('mozilla', options.mozilla_repo, options.hg, options.mozilla_rev, options.hgtool, options.hgtool1)
+        do_hg_pull('mozilla', options.mozilla_repo, options.hg,
+                   options.mozilla_rev, options.hgtool, options.hgtool1)
 
     # Check whether destination directory exists for these extensions.
     if (not options.skip_chatzilla or not options.skip_inspector) and \
-            not os.path.exists(os.path.join(topsrcdir, 'mozilla', 'extensions')):
+       not os.path.exists(os.path.join(topsrcdir, 'mozilla', 'extensions')):
         # Don't create the directory: Mozilla repository should provide it...
-        sys.exit("Error: mozilla/extensions directory does not exist;" + \
+        sys.exit("Error: mozilla/extensions directory does not exist;" +
                  " ChatZilla, and/or DOM Inspector cannot be checked out!")
 
     if not options.skip_chatzilla:
         fixup_chatzilla_repo_options(options)
-        do_hg_pull(os.path.join('mozilla', 'extensions', 'irc'), options.chatzilla_repo, options.hg, options.chatzilla_rev)
+        do_hg_pull(os.path.join('mozilla', 'extensions', 'irc'),
+                   options.chatzilla_repo, options.hg, options.chatzilla_rev)
 
     if not options.skip_inspector:
         fixup_inspector_repo_options(options)
-        do_hg_pull(os.path.join('mozilla', 'extensions', 'inspector'), options.inspector_repo, options.hg, options.inspector_rev)
+        do_hg_pull(os.path.join('mozilla', 'extensions', 'inspector'),
+                   options.inspector_repo, options.hg, options.inspector_rev)
 
     if not options.skip_ldap:
         fixup_ldap_repo_options(options)
-        do_hg_pull(os.path.join('ldap', 'sdks'), options.ldap_repo, options.hg, options.ldap_rev)
+        do_hg_pull(os.path.join('ldap', 'sdks'), options.ldap_repo, options.hg,
+                   options.ldap_rev)
 
     if options.apply_patches:
         do_apply_patches(topsrcdir, options.hg)
