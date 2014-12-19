@@ -857,8 +857,6 @@ pref("mail.chat.play_sound", true);
 pref("mail.chat.play_sound.type", 0);
 // if sound is user specified, this needs to be a file url
 pref("mail.chat.play_sound.url", "");
-// Send typing notification in private conversations
-pref("purple.conversations.im.send_typing", true);
 
 // BigFiles
 pref("mail.cloud_files.enabled", true);
