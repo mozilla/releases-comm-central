@@ -83,8 +83,6 @@ interface nsICharsetConverterManager : nsISupports
      * character encoding may be used for certain purposes, if it is 
      * multi-byte, and the language code for it. See charsetData.properties
      * for the source of this data. Some known property names:
-     *    notForBrowser  - not to be used in the browser.
-     *    notForOutgoing - not to be used for exporting files.
      *    LangGroup      - language code for charset, e.g. 'he' and 'zh-CN'.
      *    isMultibyte    - is this a multi-byte charset?
      *    isInternal     - not to be used in untrusted web content.
