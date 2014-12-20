@@ -2680,7 +2680,7 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
   // Make sure charset is sane...
   if (!cset || !*cset)
   {
-    mCompFields->SetCharacterSet("us-ascii");
+    mCompFields->SetCharacterSet("UTF-8");
   }
   else
   {

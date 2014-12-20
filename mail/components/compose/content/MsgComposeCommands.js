@@ -75,8 +75,6 @@ var gManualAttachmentReminder;
 var gComposeType;
 
 // i18n globals
-var gSendDefaultCharset;
-var gCharsetTitle;
 var gCharsetConvertManager;
 var _gComposeBundle;
 function getComposeBundle() {
@@ -123,8 +121,6 @@ function InitializeGlobalVariables()
   gCloseWindowAfterSave = false;
   gSavedSendNowKey = null;
   gSendFormat = nsIMsgCompSendFormat.AskUser;
-  gSendDefaultCharset = null;
-  gCharsetTitle = null;
   gCharsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1'].getService(Components.interfaces.nsICharsetConverterManager);
   gHideMenus = false;
   gManualAttachmentReminder = false;
@@ -2407,7 +2403,6 @@ function SetDocumentCharacterSet(aCharset)
 {
   if (gMsgCompose) {
     gMsgCompose.SetDocumentCharset(aCharset);
-    gCharsetTitle = null;
     SetComposeWindowTitle();
   }
   else
@@ -2416,50 +2411,17 @@ function SetDocumentCharacterSet(aCharset)
 
 function GetCharsetUIString()
 {
-  var charset = gMsgCompose.compFields.characterSet;
-  if (gSendDefaultCharset == null) {
-    gSendDefaultCharset = gMsgCompose.compFields.defaultCharacterSet;
-  }
-
-  charset = charset.toUpperCase();
-  if (!charset || charset == "US-ASCII")
-    charset = "ISO-8859-1";
-
-  if (charset != gSendDefaultCharset) {
-
-    if (gCharsetTitle == null) {
-      try {
-        // check if we have a converter for this charset
-        var charsetAlias = gCharsetConvertManager.getCharsetAlias(charset);
-        var encoderList = gCharsetConvertManager.getEncoderList();
-        var found = false;
-        while (encoderList.hasMore()) {
-            if (charsetAlias == encoderList.getNext()) {
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-        {
-          dump("no charset converter available for " +  charset + " default charset is used instead\n");
-          // set to default charset, no need to show it in the window title
-          gMsgCompose.compFields.characterSet = gSendDefaultCharset;
-          return "";
-        }
-
-        // get a localized string
-        gCharsetTitle = gCharsetConvertManager.getCharsetTitle(charsetAlias);
-      }
-      catch (ex) {
-        dump("failed to get a charset title of " + charset + "!\n");
-        dump("Exception: " + ex + "\n");
-        gCharsetTitle = charset; // just show the charset itself
-      }
+  // The charset here is already the canonical charset (not an alias).
+  let charset = gMsgCompose.compFields.characterSet;
+  if (charset && charset != gMsgCompose.compFields.defaultCharacterSet) {
+    try {
+      return " - " + gCharsetConvertManager.getCharsetTitle(charset);
     }
-
-    return " - " + gCharsetTitle;
+    catch(e) { // Not a canonical charset after all...
+      Components.utils.reportError("Not charset title for charset=" + charset);
+      return " - " + charset;
+    }
   }
-
   return "";
 }
 
