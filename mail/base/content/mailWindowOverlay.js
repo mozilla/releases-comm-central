@@ -2298,7 +2298,11 @@ function MsgFilters(emailAddress, folder, fieldName)
     // We have to do prefill filter so we are going to launch the
     // filterEditor dialog and prefill that with the emailAddress.
     args = { filterList: folder.getEditableFilterList(msgWindow),
-             filterName: emailAddress, fieldName: fieldName };
+             filterName: emailAddress };
+    // Set the field name to prefill in the filter, if one was specified.
+    if (fieldName)
+      args.fieldName = fieldName;
+
     window.openDialog("chrome://messenger/content/FilterEditor.xul", "",
                       "chrome, modal, resizable,centerscreen,dialog=yes", args);
 
