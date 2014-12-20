@@ -20,6 +20,10 @@ function run_test() {
      "\"Joe Q. Public\" <john.q.public@example.com>"],
     ["Giant; \"Big\" Box", "sysservices@example.net",
      "\"Giant; \\\"Big\\\" Box\" <sysservices@example.net>"],
+    ["trailing", "t1@example.com ", "trailing <t1@example.com>"],
+    ["leading", " t2@example.com", "leading <t2@example.com>"],
+    ["leading trailing", " t3@example.com  ", "leading trailing <t3@example.com>"],
+    ["", " t4@example.com  ", "t4@example.com"],
   ];
 
   // Test - empty strings

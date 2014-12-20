@@ -300,7 +300,7 @@ MimeAddressParser.prototype = {
   makeMailboxObject: function (aName, aEmail) {
     let object = Object.create(Mailbox);
     object.name = aName;
-    object.email = aEmail;
+    object.email = aEmail ? aEmail.trim() : aEmail;
     return object;
   },
 
