@@ -120,6 +120,10 @@
   <command id="cmd_close" oncommand="CloseTabOrWindow();"/>
 </commandset>
 
+<broadcasterset id="otherActionsButtonBroadcasters">
+   <broadcaster id="otherActionsOpenIn"/>
+</broadcasterset>
+
 <keyset id="mailKeys">
   <keyset id="tasksKeys"/>
 </keyset>
