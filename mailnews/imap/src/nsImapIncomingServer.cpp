@@ -1498,6 +1498,24 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
       }
     }
 
+    nsCOMPtr<nsISpamSettings> spamSettings;
+    rv = GetSpamSettings(getter_AddRefs(spamSettings));
+    if (NS_SUCCEEDED(rv) && spamSettings)
+    {
+      nsCString spamFolderUri, existingUri;
+      spamSettings->GetSpamFolderURI(getter_Copies(spamFolderUri));
+      if (CheckSpecialFolder(rdf, spamFolderUri, nsMsgFolderFlags::Junk,
+                             existingUri))
+      {
+        // This only sets the cached values in the spam settings object.
+        spamSettings->SetActionTargetFolder(existingUri.get());
+        spamSettings->SetMoveTargetMode(nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
+        // Set the preferences too so that the values persist.
+        SetCharValue("spamActionTargetFolder", existingUri);
+        SetIntValue("moveTargetMode", nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
+      }
+    }
+
     bool isGMailServer;
     GetIsGMailServer(&isGMailServer);
 
@@ -1512,37 +1530,45 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
     {
       uint32_t numFolders;
       trashFolders->GetLength(&numFolders);
-      if (numFolders > 1)
+      nsAutoString trashName;
+      if (NS_SUCCEEDED(GetTrashFolderName(trashName)))
       {
-        nsAutoString trashName;
-        if (NS_SUCCEEDED(GetTrashFolderName(trashName)))
+        for (uint32_t i = 0; i < numFolders; i++)
         {
-          for (uint32_t i = 0; i < numFolders; i++)
+          nsCOMPtr<nsIMsgFolder> trashFolder(do_QueryElementAt(trashFolders, i));
+          if (trashFolder)
           {
-            nsCOMPtr<nsIMsgFolder> trashFolder(do_QueryElementAt(trashFolders, i));
-            if (trashFolder)
+            // If we're a gmail server, we clear the trash flags from folder(s)
+            // without the kImapXListTrash flag. For normal servers, we clear
+            // the trash folder flag if the folder name doesn't match the
+            // pref trash folder name.
+            if (isGMailServer)
             {
-              // if we're a gmail server, we clear the trash flags from folder(s)
-              // without the kImapXListTrash flag. For normal servers, we clear
-              // the trash folder flag if the folder name doesn't match the
-              // pref trash folder name.
-              bool clearFlag;
-              if (isGMailServer)
+              nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(trashFolder));
+              int32_t boxFlags;
+              imapFolder->GetBoxFlags(&boxFlags);
+              if (boxFlags & kImapXListTrash)
               {
-                nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(trashFolder));
-                int32_t boxFlags;
-                imapFolder->GetBoxFlags(&boxFlags);
-                clearFlag = !(boxFlags & kImapXListTrash);
+                continue;
               }
-              else
-              {
-                nsAutoString folderName;
-                clearFlag = (NS_SUCCEEDED(trashFolder->GetName(folderName))) &&
-                 !folderName.Equals(trashName);
-              }
-              if (clearFlag)
-                trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
             }
+            else
+            {
+              nsAutoString folderName;
+              if (NS_FAILED(trashFolder->GetName(folderName)) ||
+                  folderName.Equals(trashName))
+              {
+                continue;
+              }
+              if (numFolders == 1)
+              {
+                // We got here because the preferred trash folder does not
+                // exist, but a folder got discovered to be the trash folder.
+                SetUnicharValue(PREF_TRASH_FOLDER_NAME, folderName);
+                continue;
+              }
+            }
+            trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
           }
         }
       }
@@ -1611,12 +1637,13 @@ bool nsImapIncomingServer::CheckSpecialFolder(nsIRDFService *rdf,
                                                 uint32_t folderFlag,
                                                 nsCString &existingUri)
 {
-  bool foundExistingFolder = false;
   nsCOMPtr<nsIRDFResource> res;
   nsCOMPtr<nsIMsgFolder> folder;
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
   nsresult rv = GetRootFolder(getter_AddRefs(rootMsgFolder));
   NS_ENSURE_SUCCESS(rv, false);
+  nsCOMPtr<nsIMsgFolder> existingFolder;
+  rootMsgFolder->GetFolderWithFlags(folderFlag, getter_AddRefs(existingFolder));
 
   if (!folderUri.IsEmpty() && NS_SUCCEEDED(rdf->GetResource(folderUri, getter_AddRefs(res))))
   {
@@ -1625,20 +1652,14 @@ bool nsImapIncomingServer::CheckSpecialFolder(nsIRDFService *rdf,
     {
       nsCOMPtr<nsIMsgFolder> parent;
       folder->GetParent(getter_AddRefs(parent));
-      // if the default folder doesn't really exist, check if the server
-      // told us about an existing one.
-      if (!parent)
+      if (parent)
       {
-        nsCOMPtr<nsIMsgFolder> existingFolder;
-        rootMsgFolder->GetFolderWithFlags(folderFlag, getter_AddRefs(existingFolder));
-        if (existingFolder)
-        {
-          existingFolder->GetURI(existingUri);
-          foundExistingFolder = true;
-        }
+        existingFolder = nullptr;
       }
-      if (!foundExistingFolder)
+      if (!existingFolder)
+      {
         folder->SetFlag(folderFlag);
+      }
 
       nsString folderName;
       folder->GetPrettyName(folderName);
@@ -1646,7 +1667,14 @@ bool nsImapIncomingServer::CheckSpecialFolder(nsIRDFService *rdf,
       folder->SetPrettyName(folderName);
     }
   }
-  return foundExistingFolder;
+
+  if (existingFolder)
+  {
+    existingFolder->GetURI(existingUri);
+    return true;
+  }
+
+  return false;
 }
 
 nsresult nsImapIncomingServer::DeleteNonVerifiedFolders(nsIMsgFolder *curFolder)
