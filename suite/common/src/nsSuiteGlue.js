@@ -978,7 +978,9 @@ SuiteGlue.prototype = {
       DebuggerServer.addBrowserActors();
     }
     try {
-      DebuggerServer.openListener(port);
+      let listener = DebuggerServer.createListener();
+      listener.portOrPath = port;
+      listener.open();
     } catch(e) {}
   },
 
