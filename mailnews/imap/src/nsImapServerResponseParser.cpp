@@ -829,9 +829,13 @@ void nsImapServerResponseParser::mailbox_list(bool discoveredFromLsub)
         boxSpec->mBoxFlags |= kImapXListTrash;
       else if (!PL_strncasecmp(fNextToken, "\\Sent", 5))
         boxSpec->mBoxFlags |= kImapSent;
-      else if (!PL_strncasecmp(fNextToken, "\\Spam", 5))
+      else if (!PL_strncasecmp(fNextToken, "\\Spam", 5) ||
+               !PL_strncasecmp(fNextToken, "\\Junk", 5))
         boxSpec->mBoxFlags |= kImapSpam;
-      else if (!PL_strncasecmp(fNextToken, "\\AllMail", 8))
+      else if (!PL_strncasecmp(fNextToken, "\\Archive", 8))
+        boxSpec->mBoxFlags |= kImapArchive;
+      else if (!PL_strncasecmp(fNextToken, "\\All", 4) ||
+               !PL_strncasecmp(fNextToken, "\\AllMail", 8))
         boxSpec->mBoxFlags |= kImapAllMail;
       else if (!PL_strncasecmp(fNextToken, "\\Inbox", 6))
         boxSpec->mBoxFlags |= kImapInbox;

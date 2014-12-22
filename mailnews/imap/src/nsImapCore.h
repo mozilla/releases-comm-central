@@ -42,6 +42,7 @@ typedef uint16_t imapMessageFlagsType;
 #define kRemote 0x80000 /* RFC 5258, LIST-EXTENDED */
 #define kHasChildren 0x100000 /* RFC 5258, LIST-EXTENDED */
 #define kHasNoChildren 0x200000 /* RFC 5258, LIST-EXTENDED */
+#define kImapArchive 0x400000 /* RFC 5258, LIST-EXTENDED */
 
 /* flags for individual messages */
 /* currently the ui only offers \Seen and \Flagged */

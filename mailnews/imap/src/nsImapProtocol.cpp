@@ -7599,14 +7599,19 @@ void nsImapProtocol::Lsub(const char *mailboxPattern, bool addDirectoryIfNecessa
                         mailboxPattern, escapedPattern);
 
   nsCString command (GetServerCommandTag());
-  if ((GetServerStateParser().GetCapabilityFlag() & kHasListExtendedCapability) &&
-      !GetListSubscribedIsBrokenOnServer())
+  eIMAPCapabilityFlags flag = GetServerStateParser().GetCapabilityFlag();
+  bool useListSubscribed = (flag & kHasListExtendedCapability) &&
+                           !GetListSubscribedIsBrokenOnServer();
+  if (useListSubscribed)
     command += " list (subscribed)";
   else
     command += " lsub";
   command += " \"\" \"";
   command += escapedPattern;
-  command += "\"" CRLF;
+  if (useListSubscribed && (flag & kHasSpecialUseCapability))
+    command += "\" return (special-use)" CRLF;
+  else
+    command += "\"" CRLF;
 
   PR_Free(boxnameWithOnlineDirectory);
 

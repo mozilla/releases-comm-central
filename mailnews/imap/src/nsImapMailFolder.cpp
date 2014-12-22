@@ -1222,7 +1222,7 @@ NS_IMETHODIMP nsImapMailFolder::SetBoxFlags(int32_t aBoxFlags)
       newFlags |= nsMsgFolderFlags::Trash;
   }
   // Treat the GMail all mail folder as the archive folder.
-  if (m_boxFlags & kImapAllMail)
+  if (m_boxFlags & (kImapAllMail | kImapArchive))
     newFlags |= nsMsgFolderFlags::Archive;
 
   SetFlags(newFlags);
