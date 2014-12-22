@@ -2179,8 +2179,8 @@
               message = this._stringBundle.GetStringFromName("missingpluginsMessage.title");
               if ("goPreferences" in window) {
                 buttons = [{
-                  label: this._stringBundle.GetStringFromName("popupWarningButton"),
-                  accessKey: this._stringBundle.GetStringFromName("popupWarningButton.accesskey"),
+                  label: this._stringBundle.GetStringFromName("missingpluginsMessage.button.label"),
+                  accessKey: this._stringBundle.GetStringFromName("missingpluginsMessage.button.accesskey"),
                   popup: null,
                   callback: function() {
                     goPreferences("scripts_pane");
