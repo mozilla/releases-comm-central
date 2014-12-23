@@ -878,7 +878,7 @@ SuiteGlue.prototype = {
         // potential hangs (bug 518683).  The asynchronous shutdown operations
         // will then be handled by a shutdown service (bug 435058).
         var shutdownComplete = false;
-        BookmarkHTMLUtils.exportToFile(FileUtils.getFile("BMarks", [])).then(
+        BookmarkHTMLUtils.exportToFile(Services.dirsvc.get("BMarks", Components.interfaces.nsILocalFile)).then(
           function onSuccess() {
             shutdownComplete = true;
           },
