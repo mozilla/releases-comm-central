@@ -84,6 +84,7 @@
 
   <panel id="editBookmarkPanel"
          type="arrow"
+         animate="false"
          orient="vertical"
          ignorekeys="true"
          hidden="true"

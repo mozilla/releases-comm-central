@@ -125,6 +125,7 @@
 
     <panel id="notification-popup"
            type="arrow"
+           animate="false"
            position="after_start"
            hidden="true"
            role="alert"/>
