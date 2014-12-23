@@ -2,9 +2,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-const MAX_HISTORY_MENU_ITEMS = 15;
-const MAX_URLBAR_HISTORY_MENU_ITEMS = 30;
-const MAX_URLBAR_HISTORY_ITEMS = 100;
 
 function toggleTabsFromOtherComputers()
   {
@@ -37,6 +34,7 @@ function FillHistoryMenu(aParent, aMenu)
   var count = sessionHistory.count;
   var index = sessionHistory.index;
   var end;
+  const MAX_HISTORY_MENU_ITEMS = 15;
 
   switch (aMenu)
   {
@@ -149,7 +147,7 @@ function createHistoryMenuItem(aParent, aIndex, aEntry, aAnchor, aChecked)
       }
     );
   }
-  aParent.appendChild(menuitem);
+  aParent.insertBefore(menuitem, aAnchor);
 }
 
 function deleteHistoryItems(aParent)
