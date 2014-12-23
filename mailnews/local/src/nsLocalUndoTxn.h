@@ -64,7 +64,7 @@ private:
     bool m_canUndelete;
     nsTArray<uint32_t> m_dstSizeArray;
     bool m_undoing; // if false, re-doing
-    int32_t m_numHdrsCopied;
+    uint32_t m_numHdrsCopied;
     nsTArray<nsCString> m_copiedMsgIds;
     nsLocalUndoFolderListener *mUndoFolderListener;
 };

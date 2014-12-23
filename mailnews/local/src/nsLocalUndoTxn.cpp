@@ -432,7 +432,7 @@ NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemAdded(nsIMsgFolder *parentItem, nsISu
     NS_ENSURE_SUCCESS(rv,rv);
     nsCString messageId;
     msgHdr->GetMessageId(getter_Copies(messageId));
-    if (m_copiedMsgIds.IndexOf(messageId) != kNotFound)
+    if (m_copiedMsgIds.Contains(messageId))
     {
       nsMsgKey msgKey;
       msgHdr->GetMessageKey(&msgKey);
