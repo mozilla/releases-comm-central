@@ -2259,7 +2259,7 @@ bool nsMsgFlatFolderDataSource::ResourceIsOurRoot(nsIRDFResource *resource)
 bool nsMsgFlatFolderDataSource::WantsThisFolder(nsIMsgFolder *folder)
 {
   EnsureFolders();
-  return m_folders.IndexOf(folder) != kNotFound;
+  return m_folders.Contains(folder);
 }
 
 nsresult nsMsgFlatFolderDataSource::GetFolderDisplayName(nsIMsgFolder *folder, nsString& folderName)
@@ -2314,7 +2314,7 @@ nsresult nsMsgUnreadFoldersDataSource::NotifyPropertyChanged(nsIRDFResource *res
       folder->GetNumUnread(false, &numUnread);
       if (numUnread > 0)
       {
-        if (m_folders.IndexOf(folder) == kNotFound)
+        if (!m_folders.Contains(folder))
           m_folders.AppendObject(folder);
         NotifyObservers(kNC_UnreadFolders, kNC_Child, resource, nullptr, true, false);
       }
@@ -2396,13 +2396,13 @@ void nsMsgRecentFoldersDataSource::EnsureFolders()
           }
           index++;
         }
-        if (curFolderDate > oldestFaveDate && m_folders.IndexOf(curFolder) == kNotFound)
+        if (curFolderDate > oldestFaveDate && !m_folders.Contains(curFolder))
           m_folders.ReplaceObjectAt(curFolder, indexOfOldestFolder);
 
         NS_ASSERTION(newOldestFaveDate >= m_cutOffDate, "cutoff date should be getting bigger");
         m_cutOffDate = newOldestFaveDate;
       }
-      else if (m_folders.IndexOf(curFolder) == kNotFound)
+      else if (!m_folders.Contains(curFolder))
         m_folders.AppendObject(curFolder);
     }
 #ifdef DEBUG_David_Bienvenu
@@ -2429,7 +2429,7 @@ NS_IMETHODIMP nsMsgRecentFoldersDataSource::OnItemAdded(nsIMsgFolder *parentItem
   if (m_builtFolders)
   {
     nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(item));
-    if (folder && m_folders.IndexOf(folder) == kNotFound)
+    if (folder && !m_folders.Contains(folder))
     {
       m_folders.AppendObject(folder);
       nsCOMPtr<nsIRDFResource> resource = do_QueryInterface(item);
@@ -2455,7 +2455,7 @@ nsresult nsMsgRecentFoldersDataSource::NotifyPropertyChanged(nsIRDFResource *res
       folder->GetHasNewMessages(&hasNewMessages);
       if (hasNewMessages > 0)
       {
-        if (m_folders.IndexOf(folder) == kNotFound)
+        if (!m_folders.Contains(folder))
         {
           m_folders.AppendObject(folder);
           NotifyObservers(kNC_RecentFolders, kNC_Child, resource, nullptr, true, false);

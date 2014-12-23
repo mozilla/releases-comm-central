@@ -285,7 +285,7 @@ nsMsgCopyService::DoNextCopy()
       {
         // if the target folder of this request already has an active
         // copy request, skip this request for now.
-        if (activeTargets.IndexOfObject(copyRequest->m_dstFolder) != kNotFound)
+        if (activeTargets.ContainsObject(copyRequest->m_dstFolder))
         {
           copyRequest = nullptr;
           continue;

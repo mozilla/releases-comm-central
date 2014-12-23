@@ -210,8 +210,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(nsIMsgHeaderSink * aHeaderSi
           PL_strcasecmp("list-post", headerInfo->name) && PL_strcasecmp("delivered-to", headerInfo->name) &&
           // make headerStr lower case because IndexOf is case-sensitive
          (!extraExpandedHeadersArray.Length() || (ToLowerCase(headerStr),
-            extraExpandedHeadersArray.IndexOf(headerStr) ==
-            extraExpandedHeadersArray.NoIndex)))
+            !extraExpandedHeadersArray.Contains(headerStr))))
             continue;
     }
 
